@@ -107,7 +107,7 @@ type
   public
     procedure ApplyCursorRestriction;
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; VSync:boolean; ReturnToOptions:boolean);
+    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean);
   end;
 
 var
@@ -432,7 +432,7 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; VSync:boolean; ReturnToOptions:boolean);
+procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean);
 begin
   if Toggle then begin
     SetScreenResolution(SupportedResolutions[ResolutionID,1],SupportedResolutions[ResolutionID,2],SupportedRefreshRates[ResolutionID]);
@@ -464,7 +464,7 @@ begin
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
   FreeThenNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
-  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,VSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
+  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,aVSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 

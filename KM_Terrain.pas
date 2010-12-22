@@ -14,7 +14,7 @@ type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
   private
-    AnimStep:integer;
+    fAnimStep:integer;
   public
     MapX,MapY:integer; //Terrain width and height
 
@@ -182,8 +182,8 @@ TTerrain = class
 
     procedure RefreshMinimapData();
 
-    procedure IncAnimStep();
-    property GetAnimStep: integer read AnimStep;
+    procedure IncAnimStep(); //Lite-weight UpdaState for MapEd
+    property AnimStep: integer read fAnimStep;
     procedure SaveToMapFile(aFile:string);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -202,7 +202,7 @@ uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_
 constructor TTerrain.Create;
 begin
   Inherited;
-  AnimStep:=0;
+  fAnimStep:=0;
   FallingTrees := TKMPointTagList.Create;
 end;
 
@@ -1038,7 +1038,7 @@ begin
     if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
     begin
       Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];                        //Set stump object
-      FallingTrees.AddEntry(Loc,ChopableTrees[h,5],fTerrain.AnimStep);  //along with falling tree
+      FallingTrees.AddEntry(Loc,ChopableTrees[h,5],fAnimStep);  //along with falling tree
       fSoundLib.Play(sfx_TreeDown,Loc,true);
       exit;
     end;
@@ -1176,8 +1176,8 @@ end;
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 var i,k:integer;
   HousesNearBy:boolean;
-  procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
-  begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
+  procedure AddPassability(aLoc:TKMPoint; aPass:TPassabilitySet);
+  begin Land[aLoc.Y,aLoc.X].Passability:=Land[aLoc.Y,aLoc.X].Passability + aPass; end;
 
   function IsObjectsNearby(X,Y:integer):boolean;
   var i,k:integer;
@@ -2278,7 +2278,7 @@ end;
 
 procedure TTerrain.IncAnimStep();
 begin
-  inc(AnimStep);
+  inc(fAnimStep);
 end;
 
 
@@ -2289,7 +2289,7 @@ begin
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
 
-  SaveStream.Write(AnimStep);
+  SaveStream.Write(fAnimStep);
   FallingTrees.Save(SaveStream);
 
   for i:=1 to MapY do for k:=1 to MapX do
@@ -2321,7 +2321,7 @@ begin
   LoadStream.Read(MapX);
   LoadStream.Read(MapY);
 
-  LoadStream.Read(AnimStep);
+  LoadStream.Read(fAnimStep);
   FallingTrees := TKMPointTagList.Load(LoadStream);
 
   for i:=1 to MapY do for k:=1 to MapX do
@@ -2370,10 +2370,10 @@ var i,k,h,j:integer;
     Land[Y,X].Obj     := aObj;
   end;
 begin
-  inc(AnimStep);
+  inc(fAnimStep);
 
   for i:=1 to FallingTrees.Count do
-  if AnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then begin
+  if fAnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then begin
     fTerrain.ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
     break; //Remove only 1 tree at a time, otherwise FallingTrees.Count is becoming wrong
     //it loads it from the MapElem now in case someone adds a tree with a different falling count
@@ -2382,7 +2382,7 @@ begin
   for i:=1 to MapY do
   for k:=1 to MapX do
   //All those global things can be performed once a sec, or even less frequent
-  if (i*MapX+k+AnimStep) mod TERRAIN_PACE = 0 then
+  if (i*MapX+k+fAnimStep) mod TERRAIN_PACE = 0 then
   begin
 
     if FOG_OF_WAR_ENABLE then
@@ -2434,9 +2434,9 @@ begin
   x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
   y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
-  fRender.RenderTerrain(x1,x2,y1,y2,AnimStep);
+  fRender.RenderTerrain(x1,x2,y1,y2,fAnimStep);
   fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);
-  fRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep);
+  fRender.RenderTerrainObjects(x1,x2,y1,y2,fAnimStep);
 
   if SHOW_TERRAIN_WIRES then fRender.RenderDebugWires(x1,x2,y1,y2);
   if SHOW_UNIT_MOVEMENT then fRender.RenderDebugUnitMoves(x1,x2,y1,y2);

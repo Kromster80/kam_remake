@@ -7,11 +7,11 @@ uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
 
 type TKMGamePlayInterface = class
   private
-    ShownUnit:TKMUnit;
-    ShownHouse:TKMHouse;
+    fShownUnit:TKMUnit;
+    fShownHouse:TKMHouse;
     PrevHint:TObject;
     ShownMessage:integer;
-    PlayMoreMsg:gr_Message; //Remember which message we are showing
+    PlayMoreMsg:TGameResultMsg; //Remember which message we are showing
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
@@ -219,11 +219,11 @@ type TKMGamePlayInterface = class
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow:boolean);
-    procedure ShowPlayMore(DoShow:boolean; Msg:gr_Message);
+    procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
-    property GetShownUnit: TKMUnit read ShownUnit;
-    property GetShownHouse: TKMHouse read ShownHouse;
+    property ShownUnit: TKMUnit read fShownUnit;
+    property ShownHouse: TKMHouse read fShownHouse;
     procedure ClearShownUnit;
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -328,8 +328,8 @@ begin
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
      (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then begin
-    ShownHouse:=nil;
-    ShownUnit:=nil;
+    fShownHouse:=nil;
+    fShownUnit:=nil;
     fPlayers.Selected:=nil;
   end;
 
@@ -477,11 +477,11 @@ begin
   if not KMMinimap.InMapCoords(KMP.X,KMP.Y) then exit; //Must be inside map
 
   //Send move order, if applicable
-  if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
-    if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, CanWalk, 0, false) then
+  if (fShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
+    if fTerrain.Route_CanBeMade(fShownUnit.GetPosition, KMP, CanWalk, 0, false) then
     begin
-      fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(GetShownUnit), KMP);
-      fSoundLib.PlayWarrior(GetShownUnit.UnitType, sp_Move);
+      fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP);
+      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
     end;
 end;
 
@@ -494,8 +494,8 @@ begin
 
   MyControls := TKMControlsCollection.Create;
 
-  ShownUnit:=nil;
-  ShownHouse:=nil;
+  fShownUnit:=nil;
+  fShownHouse:=nil;
   JoiningGroups := false;
 
   LastSchoolUnit:=1;
@@ -539,7 +539,7 @@ begin
 
     for i:=low(Image_Message) to high(Image_Message) do
     begin
-      Image_Message[i] := MyControls.AddImage(Panel_Main,ToolBarWidth,fRender.GetRenderAreaSize.Y-i*48,30,48,495);
+      Image_Message[i] := MyControls.AddImage(Panel_Main,ToolBarWidth,fRender.RenderAreaSize.Y-i*48,30,48,495);
       Image_Message[i].Tag := i;
       Image_Message[i].HighlightOnMouseOver := true;
       Image_Message[i].Disable;
@@ -555,7 +555,7 @@ begin
     Label_CmdQueueCount := MyControls.AddLabel(Panel_Main,224+80,110,0,0,'',fnt_Outline,kaLeft);
     Label_CmdQueueCount.Visible := SHOW_CMDQUEUE_COUNT;
 
-    Label_Hint:=MyControls.AddLabel(Panel_Main,224+32,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint:=MyControls.AddLabel(Panel_Main,224+32,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint.Anchors := [akLeft, akBottom]; 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -609,18 +609,19 @@ end;
 
 
 {Pause overlay page}
+//todo: do something local here
 procedure TKMGamePlayInterface.Create_Pause_Page;
 begin
-  Panel_Pause:=MyControls.AddPanel(Panel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
+  Panel_Pause:=MyControls.AddPanel(Panel_Main,0,0,fRender.RenderAreaSize.X,fRender.RenderAreaSize.Y);
   Panel_Pause.Stretch;
-    Bevel_Pause:=MyControls.AddBevel(Panel_Pause,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
+    Bevel_Pause:=MyControls.AddBevel(Panel_Pause,-1,-1,fRender.RenderAreaSize.X+2,fRender.RenderAreaSize.Y+2);
     Bevel_Pause.Stretch;
-    Image_Pause:=MyControls.AddImage(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
+    Image_Pause:=MyControls.AddImage(Panel_Pause,(fRender.RenderAreaSize.X div 2),(fRender.RenderAreaSize.Y div 2)-40,0,0,556);
     Image_Pause.ImageCenter;
     Image_Pause.Center;
-    Label_Pause1:=MyControls.AddLabel(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    Label_Pause1:=MyControls.AddLabel(Panel_Pause,(fRender.RenderAreaSize.X div 2),(fRender.RenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
     Label_Pause1.Center;
-    Label_Pause2:=MyControls.AddLabel(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    Label_Pause2:=MyControls.AddLabel(Panel_Pause,(fRender.RenderAreaSize.X div 2),(fRender.RenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
     Label_Pause2.Center;
     Panel_Pause.Hide
 end;
@@ -632,7 +633,7 @@ end;
 procedure TKMGamePlayInterface.Create_PlayMore_Page;
 var s:TKMPoint;
 begin
-  s := fRender.GetRenderAreaSize;
+  s := fRender.RenderAreaSize;
 
   Panel_PlayMore := MyControls.AddPanel(Panel_Main,0,0,s.X,s.Y);
   Panel_PlayMore.Stretch;
@@ -656,7 +657,7 @@ end;
 procedure TKMGamePlayInterface.Create_Replay_Page;
 var s:TKMPoint;
 begin
-  s := fRender.GetRenderAreaSize;
+  s := fRender.RenderAreaSize;
 
   Panel_Replay := MyControls.AddPanel(Panel_Main, 0, 0, 1024, 768);
   Panel_Replay.Stretch;
@@ -689,7 +690,7 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
+  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBARWIDTH, 190);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
 
     Image_MessageBG:=MyControls.AddImage(Panel_Message,0,20,600,170,409);
@@ -1294,8 +1295,8 @@ procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boole
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
 var i,RowRes,Base,Line:integer;
 begin
-  ShownUnit:=nil;
-  ShownHouse:=Sender;
+  fShownUnit:=nil;
+  fShownHouse:=Sender;
   AskDemolish:=aAskDemolish;
 
   if (not Assigned(Sender)) then begin //=nil produces wrong result when there's no object at all
@@ -1455,11 +1456,11 @@ end;
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
 var Commander:TKMUnitWarrior;
 begin
-  ShownUnit:=Sender;
-  ShownHouse:=nil;
+  fShownUnit:=Sender;
+  fShownHouse:=nil;
   if (not Assigned(Sender))or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDead)) then begin
     SwitchPage(nil);
-    ShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
+    fShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
     exit;
   end;
   SwitchPage(Panel_Unit);
@@ -1818,7 +1819,7 @@ begin
   if (Screen.Cursor = c_JoinYes) or (Screen.Cursor = c_JoinNo) then //Do not override non-joining cursors
     Screen.Cursor := c_Default; //In case this is run with keyboard shortcut, mouse move won't happen
   Panel_Army_JoinGroups.Hide;
-  if ShownUnit <> nil then
+  if fShownUnit <> nil then
     Panel_Army.Show;
 end;
 
@@ -2021,7 +2022,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg:gr_Message);
+procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
 begin
   PlayMoreMsg := Msg;
   case Msg of
@@ -2136,7 +2137,7 @@ end;
 
 procedure TKMGamePlayInterface.ClearShownUnit;
 begin
-  ShownUnit := nil;
+  fShownUnit := nil;
   SwitchPage(nil);
 end;
 
@@ -2165,10 +2166,10 @@ end;
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState;
 begin
-  if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
-  if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
+  if fShownUnit<>nil then ShowUnitInfo(fShownUnit) else
+  if fShownHouse<>nil then ShowHouseInfo(fShownHouse,AskDemolish);
 
-  if ShownUnit=nil then JoiningGroups := false;
+  if fShownUnit=nil then JoiningGroups := false;
 
   if fGame.fGameInputProcess.State = gipReplaying then begin
     Panel_Replay.Show;

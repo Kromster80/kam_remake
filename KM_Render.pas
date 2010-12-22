@@ -15,13 +15,13 @@ TRender = class
 private
   h_DC: HDC;
   h_RC: HGLRC;
-  OpenGL_Vendor, OpenGL_Renderer, OpenGL_Version:string;
+  fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version:string;
   TextG:GLuint; //Shading gradient
   //TextT:GLuint; //Tiles
   TextW:array[1..8]of GLuint; //Water
   TextS:array[1..3]of GLuint; //Swamps
   TextF:array[1..5]of GLuint; //WaterFalls
-  RenderAreaSize:TKMPoint;
+  fRenderAreaSize:TKMPoint;
 
   rPitch,rHeading,rBank:integer;
 
@@ -92,8 +92,8 @@ public
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
   procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
-  property GetRenderAreaSize:TKMPoint read RenderAreaSize;
-  property GetRendererVersion:string read OpenGL_Version;
+  property RenderAreaSize:TKMPoint read fRenderAreaSize;
+  property RendererVersion:string read fOpenGL_Version;
 end;
 
 var
@@ -110,9 +110,9 @@ begin
   SetRenderDefaults();
   glDisable(GL_LIGHTING); //We don't need it
 
-  OpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor:  '  +OpenGL_Vendor);
-  OpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer:  '+OpenGL_Renderer);
-  OpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +OpenGL_Version);
+  fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor:  '  +fOpenGL_Vendor);
+  fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer:  '+fOpenGL_Renderer);
+  fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +fOpenGL_Version);
 
   SetupVSync(aVSync);
 
@@ -164,8 +164,8 @@ begin
     gluPerspective(80, -Width/Height, 0.1, 5000.0);
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
   glLoadIdentity();                   // Reset View
-  RenderAreaSize.X:=Width;
-  RenderAreaSize.Y:=Height;
+  fRenderAreaSize.X:=Width;
+  fRenderAreaSize.Y:=Height;
 end;
 
 
@@ -182,7 +182,7 @@ begin
 
     if RENDER_3D then begin
       glLoadIdentity();
-      RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm3D);
+      RenderResize(fRenderAreaSize.X,fRenderAreaSize.Y,rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -190,7 +190,7 @@ begin
       glRotatef(rBank   ,0,0,1);
       glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
       glkScale(fViewport.Zoom);
-      RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
+      RenderResize(fRenderAreaSize.X,fRenderAreaSize.Y,rm2D);
     end;
 
     glLineWidth(fViewport.Zoom*2);
@@ -229,8 +229,8 @@ end;
 procedure TRender.DoPrintScreen(FileName:string);
  var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
-  sw:=RenderAreaSize.X;
-  sh:=RenderAreaSize.Y;
+  sw := fRenderAreaSize.X;
+  sh := fRenderAreaSize.Y;
 
   setlength(bmp,sw*sh+1);
   glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
@@ -638,9 +638,10 @@ end;
 { 4 objects packed on 1 tile for Corn and Grapes }
 procedure TRender.RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var FOW:byte;
-  procedure AddSpriteToListBy(ID:integer; AnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
+  procedure AddSpriteToListBy(aID:integer; aAnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
+  var ID:integer;
   begin
-    ID := MapElem[ID].Step[ AnimStep mod MapElem[ID].Count +1 ] +1;
+    ID := MapElem[aID].Step[aAnimStep mod MapElem[aID].Count +1 ] +1;
     ShiftY := ShiftY + (RXData[1].Size[ID].Y) / CELL_SIZE_PX;
     ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX+ShiftX, pY+ShiftY)/CELL_HEIGHT_DIV;
     AddSpriteToList(1, ID, pX+ShiftX, pY+ShiftY, pX, pY, true);
@@ -1367,12 +1368,12 @@ case GameCursor.Mode of
              else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
   cm_Tiles:  if fGame.fMapEditorInterface.GetTilesRandomized then
-               RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.GetAnimStep div 10) mod 4) //Spin it slowly so player remembers it is on randomized
+               RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 10) mod 4) //Spin it slowly so player remembers it is on randomized
              else
                RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
   cm_Objects:begin
-               RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
-               RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
+               RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
+               RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
              end;
   cm_Height: begin
                //todo: Render dots on tiles with brightness showing how much they will be elevated
@@ -1392,7 +1393,7 @@ begin
   glBlendFunc(GL_DST_COLOR,GL_ONE);
   glColor4f(Value/20,Value/20,Value/20,Value/20);
   glBegin(GL_QUADS);
-    glkRect(0,0,RenderAreaSize.X,RenderAreaSize.Y);
+    glkRect(0,0,fRenderAreaSize.X,fRenderAreaSize.Y);
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

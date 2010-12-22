@@ -255,7 +255,7 @@ begin
 
   //If Demand is a Storehouse and it has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Store)or
-                        (TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]=false));
+                        (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]));
 
   //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //How do we know how many resource are on-route already?? We don't, but it's not that important.

@@ -147,7 +147,7 @@ type
     Eater:array[1..6]of record //only 6 units are allowed in the inn
       UnitType:TUnitType;
       FoodKind:byte; //What kind of food eater eats
-      AnimStep:cardinal;
+      EatStep:cardinal;
     end;
   public
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
@@ -408,7 +408,7 @@ end;
 procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.GetShownHouse = Self) then fGame.fGamePlayInterface.ShowHouseInfo(nil);
+  if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.ShownHouse = Self) then fGame.fGamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
     if (BuildingState = hbs_Glyph)or(NoRubble) then fSoundLib.Play(sfx_click)
@@ -1057,7 +1057,7 @@ var i:integer;
 begin
   Inherited;
   for i:=low(Eater) to high(Eater) do
-    Eater[i].UnitType:=ut_None;
+    Eater[i].UnitType := ut_None;
 end;
 
 
@@ -1065,16 +1065,17 @@ constructor TKMHouseInn.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   Inherited;
-  for i:=1 to 6 do
+  for i:=low(Eater) to high(Eater) do
   with Eater[i] do
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
-    LoadStream.Read(FoodKind, SizeOf(FoodKind));
-    LoadStream.Read(AnimStep, SizeOf(AnimStep));
+    LoadStream.Read(FoodKind);
+    LoadStream.Read(EatStep);
   end;
 end;
 
 
+//EatStep := FlagAnimStep, cos increases it each frame, we don't need to increase all 6 AnimSteps manually
 function TKMHouseInn.EaterGetsInside(aUnitType:TUnitType):byte;
 var i:integer;
 begin
@@ -1082,10 +1083,10 @@ begin
   for i:=low(Eater) to high(Eater) do
   if Eater[i].UnitType=ut_None then
   begin
-    Eater[i].UnitType:=aUnitType;
-    Eater[i].FoodKind:=0;
-    Eater[i].AnimStep:=FlagAnimStep;
-    Result:=i;
+    Eater[i].UnitType := aUnitType;
+    Eater[i].FoodKind := 0;
+    Eater[i].EatStep  := FlagAnimStep;
+    Result := i;
     exit;
   end;
 end;
@@ -1094,8 +1095,9 @@ end;
 procedure TKMHouseInn.UpdateEater(aID:byte; aFoodKind:byte);
 begin
   if aID=0 then exit;
-  Eater[aID].FoodKind:=aFoodKind; //Order is Wine-Bread-Sausages-Fish
-  Eater[aID].AnimStep:=0;
+  Assert(aFoodKind in [1..4], 'Wrong food kind');
+  Eater[aID].FoodKind := aFoodKind; //Order is Wine-Bread-Sausages-Fish
+  Eater[aID].EatStep  := FlagAnimStep; //FlagAnimStep-Eater[i].EatStep = 0
 end;
 
 
@@ -1108,8 +1110,9 @@ end;
 
 function TKMHouseInn.HasFood:boolean;
 begin
-  Result:=(CheckResIn(rt_Sausages)+CheckResIn(rt_Bread)+CheckResIn(rt_Wine)+CheckResIn(rt_Fish)>0);
+  Result := (CheckResIn(rt_Sausages)+CheckResIn(rt_Bread)+CheckResIn(rt_Wine)+CheckResIn(rt_Fish)>0);
 end;
+
 
 function TKMHouseInn.HasSpace:boolean;
 var
@@ -1125,12 +1128,12 @@ procedure TKMHouseInn.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   Inherited;
-  for i:=1 to 6 do
+  for i:=low(Eater) to high(Eater) do
   with Eater[i] do
   begin
     SaveStream.Write(UnitType, SizeOf(UnitType));
-    SaveStream.Write(FoodKind, SizeOf(FoodKind));
-    SaveStream.Write(AnimStep, SizeOf(AnimStep));
+    SaveStream.Write(FoodKind);
+    SaveStream.Write(EatStep);
   end;
 end;
 
@@ -1144,13 +1147,15 @@ begin
   Inherited;
   if (fBuildState<>hbs_Done) then exit;
 
-  for i:=1 to 6 do
+  for i:=low(Eater) to high(Eater) do
   if (Eater[i].UnitType<>ut_None)and(Eater[i].FoodKind<>0) then
   begin
-    UnitType:=byte(Eater[i].UnitType);
-    AnimDir:=Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
-    fLog.AssertToLog(InRange(AnimDir,1,8),'InRange(AnimDir,1,8)');
-    AnimStep:=FlagAnimStep-Eater[i].AnimStep; //Delta is our AnimStep
+    UnitType := byte(Eater[i].UnitType);
+    AnimDir  := Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
+    AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
+
+    Assert(AnimDir in [1,8], 'AnimDir in [1,8]');
+
     fRender.RenderUnit(UnitType, byte(ua_Eat), AnimDir, AnimStep, byte(fOwner),
       fPosition.X+offX[(i-1) mod 3 +1],
       fPosition.Y+offY[(i-1) mod 3 +1], false);

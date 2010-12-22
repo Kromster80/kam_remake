@@ -19,7 +19,7 @@ type TKMMainMenuInterface = class
     SingleMap_Selected:integer; //Selected map
     SingleMapsInfo:TKMMapsInfo;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
-    OldFullScreen, OldVSync:boolean;
+    OldFullScreen:boolean;
     OldResolution:word;
   protected
     Panel_Main:TKMPanel;
@@ -177,7 +177,7 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Error(Text:string);
     procedure ShowScreen_Main();
     procedure ShowScreen_Options();
-    procedure ShowScreen_Results(Msg:gr_Message);
+    procedure ShowScreen_Results(Msg:TGameResultMsg);
     procedure Fill_Results();
 
     procedure MouseMove(X,Y:integer);
@@ -237,7 +237,7 @@ begin
 
 
   //Show version info on every page
-  Label_Version := MyControls.AddLabel(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
+  Label_Version := MyControls.AddLabel(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.RendererVersion,fnt_Antiqua,kaLeft);
 
   if SHOW_1024_768_OVERLAY then with MyControls.AddShape(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
@@ -291,7 +291,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ShowScreen_Results(Msg:gr_Message);
+procedure TKMMainMenuInterface.ShowScreen_Results(Msg:TGameResultMsg);
 begin
   case Msg of
     gr_Win:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
@@ -790,7 +790,6 @@ begin
   if Sender=Button_Options_Back then begin
     fGame.fGlobalSettings.IsFullScreen := OldFullScreen;
     fGame.fGlobalSettings.SetResolutionID := OldResolution;
-    fGame.fGlobalSettings.IsVSync := OldVSync;
     Panel_MainMenu.Show;
   end;
 
@@ -854,7 +853,6 @@ begin
   if Sender=Button_MM_Options then begin
     OldFullScreen := fGame.fGlobalSettings.IsFullScreen;
     OldResolution := fGame.fGlobalSettings.GetResolutionID;
-    OldVSync := fGame.fGlobalSettings.IsVSync;
     Options_Change(nil);
     Panel_Options.Show;
   end;
@@ -1199,7 +1197,6 @@ begin
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
     OldFullScreen := fGame.fGlobalSettings.IsFullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
     OldResolution := fGame.fGlobalSettings.GetResolutionID;
-    OldVSync := fGame.fGlobalSettings.IsVSync;
     fGame.ToggleFullScreen(fGame.fGlobalSettings.IsFullScreen, true);
     exit;
   end;
@@ -1218,7 +1215,7 @@ begin
   end;
 
   //Make button enabled only if new resolution/mode differs from old
-  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGlobalSettings.IsFullScreen) or (OldVSync <> fGame.fGlobalSettings.IsVSync) or (OldResolution <> fGame.fGlobalSettings.GetResolutionID);
+  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGlobalSettings.IsFullScreen) or (OldResolution <> fGame.fGlobalSettings.GetResolutionID);
 end;
 
 

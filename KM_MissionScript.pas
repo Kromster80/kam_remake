@@ -662,22 +662,22 @@ end;
 procedure TMissionParser.ProcessAttackPositions;
 var
   i: integer;
-  h: TKMHouse;
-  u: TKMUnit;
+  H: TKMHouse;
+  U: TKMUnit;
 begin
   for i:=0 to AttackPositionsCount-1 do
     with AttackPositions[i] do
     begin
 
-      h := fPlayers.HousesHitTest(Target.X,Target.Y); //Attack house
-      if (h <> nil) and (not h.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.GetOwner,h.GetOwner) = at_Enemy) then
-        Warrior.OrderAttackHouse(h)
+      H := fPlayers.HousesHitTest(Target.X,Target.Y); //Attack house
+      if (H <> nil) and (not H.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.GetOwner,H.GetOwner) = at_Enemy) then
+        Warrior.OrderAttackHouse(H)
       else
       begin
 
-        u := fTerrain.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
-        if (u <> nil) and (not u.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.GetOwner,u.GetOwner) = at_Enemy) then
-          Warrior.OrderAttackUnit(u)
+        U := fTerrain.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
+        if (U <> nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.GetOwner,U.GetOwner) = at_Enemy) then
+          Warrior.OrderAttackUnit(U)
         else
 
           Warrior.OrderWalk(Target); //Just move to position

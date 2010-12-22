@@ -217,7 +217,7 @@ const
   ('rus', 'Russian'));
 
 
-type gr_Message = (     //Game result
+type TGameResultMsg = (     //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)

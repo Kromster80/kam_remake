@@ -998,7 +998,7 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
 
-  if (fGame.fGamePlayInterface <> nil) and (Self = fGame.fGamePlayInterface.GetShownUnit) then
+  if (fGame.fGamePlayInterface <> nil) and (Self = fGame.fGamePlayInterface.ShownUnit) then
     fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
   //MapEd doesn't need this yet
 end;
@@ -1012,7 +1012,7 @@ end;
 procedure TKMUnit.KillUnit;
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if fGame.fGamePlayInterface.GetShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
+  if fGame.fGamePlayInterface.ShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Wait till units exchange (1 tick) and then do the killing

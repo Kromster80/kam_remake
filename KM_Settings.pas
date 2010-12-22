@@ -20,7 +20,7 @@ type
     fPace:word;
     fSpeedup:word;
     fResolutionID:word; //Relates to index in SupportedResolution
-    SlidersMin,SlidersMax:byte;
+    fSlidersMin,fSlidersMax:byte;
     fNeedsSave: boolean;
     function LoadSettingsFromFile(filename:string):boolean;
     procedure SaveSettingsToFile(filename:string);
@@ -42,11 +42,10 @@ type
     procedure SetIsAutosave(val:boolean);
     procedure SetIsFastScroll(val:boolean);
     procedure SetIsFullScreen(val:boolean);
-    procedure SetIsVSync(val:boolean);
     property IsAutosave:boolean read fAutosave write SetIsAutosave default true;
     property IsFastScroll:boolean read fFastScroll write SetIsFastScroll default false;
-    property GetSlidersMin:byte read SlidersMin;
-    property GetSlidersMax:byte read SlidersMax;
+    property GetSlidersMin:byte read fSlidersMin;
+    property GetSlidersMax:byte read fSlidersMax;
     property GetNeedsSave:boolean read fNeedsSave;
     procedure SetMouseSpeed(Value:integer);
     procedure SetSoundFXVolume(Value:integer);
@@ -58,7 +57,7 @@ type
     property GetMusicVolume:byte read fMusicVolume;
     property IsMusic:boolean read fMusicOnOff write SetMusicOnOff default true;
     property IsFullScreen:boolean read fFullScreen write SetIsFullScreen default true;
-    property IsVSync:boolean read fVSync write SetIsVSync default true;
+    property IsVSync:boolean read fVSync;
   end;
 
 
@@ -129,8 +128,8 @@ uses KM_LoadLib, KM_Sound, KM_Game;
 constructor TGlobalSettings.Create;
 begin
   Inherited;
-  SlidersMin := 0;
-  SlidersMax := 20;
+  fSlidersMin := 0;
+  fSlidersMax := 20;
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
   fNeedsSave := false;
   fLog.AppendLog('Global settings init from '+SETTINGS_FILE);
@@ -238,23 +237,16 @@ begin
 end;
 
 
-procedure TGlobalSettings.SetIsVSync(val:boolean);
-begin
-  fVSync:=val;
-  fNeedsSave:=true;
-end;
-
-
 procedure TGlobalSettings.SetMouseSpeed(Value:integer);
 begin
-  fMouseSpeed:=EnsureRange(Value,SlidersMin,SlidersMax);
+  fMouseSpeed:=EnsureRange(Value,fSlidersMin,fSlidersMax);
   fNeedsSave:=true;
 end;
 
 
 procedure TGlobalSettings.SetSoundFXVolume(Value:integer);
 begin
-  fSoundFXVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
+  fSoundFXVolume:=EnsureRange(Value,fSlidersMin,fSlidersMax);
   UpdateSFXVolume();
   fNeedsSave:=true;
 end;
@@ -262,7 +254,7 @@ end;
 
 procedure TGlobalSettings.SetMusicVolume(Value:integer);
 begin
-  fMusicVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
+  fMusicVolume:=EnsureRange(Value,fSlidersMin,fSlidersMax);
   UpdateSFXVolume();
   fNeedsSave:=true;
 end;
@@ -284,9 +276,9 @@ end;
 
 procedure TGlobalSettings.UpdateSFXVolume();
 begin
-  fSoundLib.UpdateSoundVolume(fSoundFXVolume/SlidersMax);
+  fSoundLib.UpdateSoundVolume(fSoundFXVolume/fSlidersMax);
   if fGame<>nil then
-    fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
+    fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/fSlidersMax);
   fNeedsSave := true;
 end;
 

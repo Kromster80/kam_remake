@@ -6,8 +6,8 @@ uses Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils,
 
 type TKMapEdInterface = class
   private
-    ShownUnit:TKMUnit;
-    ShownHouse:TKMHouse;
+    fShownUnit:TKMUnit;
+    fShownHouse:TKMHouse;
     PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
     BarracksItem:byte; //Selected ware in barracks
@@ -169,7 +169,6 @@ type TKMapEdInterface = class
     function GetSelectedObject(): TObject;
     function GetSelectedUnit(): TObject;
     procedure OnKeyUp(Key:Word; IsDown:boolean=false);
-    property GetShownUnit: TKMUnit read ShownUnit;
     function GetShownPage:TKMMapEdShownPage;
     procedure UpdateState;
     procedure Paint;
@@ -203,8 +202,8 @@ begin
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
      (Sender=Button_Main[5])or
      (Sender=Button_Menu_Settings)or(Sender=Button_Menu_Quit) then begin
-    ShownHouse:=nil;
-    ShownUnit:=nil;
+    fShownHouse:=nil;
+    fShownUnit:=nil;
     fPlayers.Selected:=nil;
   end;
 
@@ -368,8 +367,8 @@ begin
 
   MyControls := TKMControlsCollection.Create;
 
-  ShownUnit  := nil;
-  ShownHouse := nil;
+  fShownUnit  := nil;
+  fShownHouse := nil;
   BarracksItem   := 1; //First ware selected by default
   StorehouseItem := 1; //First ware selected by default
   TileDirection := 0;
@@ -413,7 +412,7 @@ begin
     Label_MenuTitle:=MyControls.AddLabel(Panel_Main,8,412,138,36,'',fnt_Metal,kaLeft); //Should be one-line
 
     Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint:=MyControls.AddLabel(Panel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint:=MyControls.AddLabel(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint.Anchors := [akLeft, akBottom]; 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -840,8 +839,8 @@ begin
     Button_PlayerSelect[TKMControl(Sender).Tag].Down := true;
   end;
 
-  ShownHouse := nil; //Drop selection
-  ShownUnit := nil;
+  fShownHouse := nil; //Drop selection
+  fShownUnit := nil;
 end;
 
 
@@ -1017,8 +1016,8 @@ end;
 
 procedure TKMapEdInterface.ShowHouseInfo(Sender:TKMHouse);
 begin
-  ShownUnit:=nil;
-  ShownHouse:=Sender;
+  fShownUnit:=nil;
+  fShownHouse:=Sender;
 
   if (not Assigned(Sender)) then begin //=nil produces wrong result when there's no object at all
     SwitchPage(nil);
@@ -1058,11 +1057,11 @@ end;
 procedure TKMapEdInterface.ShowUnitInfo(Sender:TKMUnit);
 var Commander:TKMUnitWarrior;
 begin
-  ShownUnit:=Sender;
-  ShownHouse:=nil;
+  fShownUnit:=Sender;
+  fShownHouse:=nil;
   if (not Assigned(Sender))or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDead)) then begin
     SwitchPage(nil);
-    ShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
+    fShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
     exit;
   end;
   SwitchPage(Panel_Unit);
@@ -1224,23 +1223,23 @@ end;
 procedure TKMapEdInterface.House_HealthChange(Sender:TObject; AButton:TMouseButton);
 var Amt:byte;
 begin
-  if ShownHouse = nil then exit;
+  if fShownHouse = nil then exit;
   Amt := 0;
   if AButton = mbLeft then Amt:=1;
   if AButton = mbRight then Amt:=50;
-  if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(Amt);
-  if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(Amt);
-  ShowHouseInfo(ShownHouse);
+  if Sender = Button_HouseHealthDec then fShownHouse.AddDamage(Amt);
+  if Sender = Button_HouseHealthInc then fShownHouse.AddRepair(Amt);
+  ShowHouseInfo(fShownHouse);
 end;
 
 
 procedure TKMapEdInterface.Unit_ArmyChange1(Sender:TObject);
 var Commander:TKMUnitWarrior;
 begin
-  if ShownUnit = nil then exit;
-  if not (ShownUnit is TKMUnitWarrior) then exit;
+  if fShownUnit = nil then exit;
+  if not (fShownUnit is TKMUnitWarrior) then exit;
 
-  Commander := TKMUnitWarrior(ShownUnit).GetCommander;
+  Commander := TKMUnitWarrior(fShownUnit).GetCommander;
   if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
   if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
   ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
@@ -1253,8 +1252,8 @@ end;
 procedure TKMapEdInterface.Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton);
 var Amt:shortint; Commander:TKMUnitWarrior;
 begin
-  if ShownUnit = nil then exit;
-  if not (ShownUnit is TKMUnitWarrior) then exit;
+  if fShownUnit = nil then exit;
+  if not (fShownUnit is TKMUnitWarrior) then exit;
 
   Amt := 0;
   if Sender = Button_ArmyDec then Amt := -1; //Decrease
@@ -1262,7 +1261,7 @@ begin
   if AButton = mbLeft then Amt  := Amt * 1;
   if AButton = mbRight then Amt := Amt * 10;
 
-  Commander := TKMUnitWarrior(ShownUnit).GetCommander;
+  Commander := TKMUnitWarrior(fShownUnit).GetCommander;
   Commander.fMapEdMembersCount := EnsureRange(Commander.fMapEdMembersCount + Amt, 0, 200); //max members
   Commander.UnitsPerRow := min(Commander.UnitsPerRow,Commander.fMapEdMembersCount+1); //Ensure units per row is <= unit count
   ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
@@ -1303,7 +1302,7 @@ begin
   if not Panel_HouseBarracks.Visible then exit;
 
   Res := TResourceType(BarracksItem+16);
-  Barracks := TKMHouseBarracks(ShownHouse);
+  Barracks := TKMHouseBarracks(fShownHouse);
 
   Amt := 0;
   if AButton = mbLeft then Amt := 1;
@@ -1325,7 +1324,7 @@ begin
   if not Panel_HouseStore.Visible then exit;
 
   Res := TResourceType(StorehouseItem);
-  Store := TKMHouseStore(ShownHouse);
+  Store := TKMHouseStore(fShownHouse);
 
   Amt := 0;
   if AButton = mbLeft then Amt := 1;

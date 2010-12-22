@@ -30,13 +30,13 @@ type
     fGameName:string;
     fMissionFile:string; //Remember what we are playing incase we might want to replay
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
-    ActiveCampaign:TCampaign; //Campaign we are playing
-    ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
+    fActiveCampaign:TCampaign; //Campaign we are playing
+    fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
     fGameState:TGameState;
   public
     AdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     GameSpeed:integer;
-    PlayOnState:gr_Message;
+    PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
     fProjectiles:TKMProjectiles;
@@ -62,8 +62,8 @@ type
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
     procedure SetGameState(aNewState:TGameState);
-    procedure GameHold(DoHold:boolean; Msg:gr_Message); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
-    procedure GameStop(const Msg:gr_Message; TextMsg:string='');
+    procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
+    procedure GameStop(const Msg:TGameResultMsg; TextMsg:string='');
 
     procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
@@ -76,8 +76,8 @@ type
     property GetTickCount:cardinal read fGameplayTickCount;
     property GetMissionFile:string read fMissionFile;
     property GetGameName:string read fGameName;
-    property GetCampaign:TCampaign read ActiveCampaign;
-    property GetCampaignMap:byte read ActiveCampaignMap;
+    property GetCampaign:TCampaign read fActiveCampaign;
+    property GetCampaignMap:byte read fActiveCampaignMap;
     property IsExiting:boolean read fIsExiting;
     function GetNewID():cardinal;
     property GameState:TGameState read fGameState;
@@ -320,18 +320,18 @@ begin
                     and(MOver = nil)
                     and(fGamePlayInterface <> nil)
                     and(not fGamePlayInterface.JoiningGroups)
-                    and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
-                    and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
+                    and(fGamePlayInterface.ShownUnit is TKMUnitWarrior)
+                    and(TKMUnit(fGamePlayInterface.ShownUnit).GetOwner = MyPlayer.PlayerID)
                     then
                   begin
                     //See if we are moving or attacking
                     HitUnit := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                     if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
                        (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
-                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
+                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.ShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
                     begin
                       //Place attack order here rather than in mouse up; why here??
-                      fGameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, HitUnit);
+                      fGameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fGamePlayInterface.ShownUnit).GetCommander, HitUnit);
                     end
                     else
                     begin
@@ -339,10 +339,10 @@ begin
                       if (HitHouse <> nil) and (not (HitHouse.IsDestroyed)) and
                          (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
                       begin
-                        fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, HitHouse);
+                        fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fGamePlayInterface.ShownUnit).GetCommander, HitHouse);
                       end
                       else
-                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
+                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.ShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
                       begin
                         SelectingTroopDirection := true; //MouseMove will take care of cursor changing
                         //Record current cursor position so we can stop it from moving while we are setting direction
@@ -420,11 +420,11 @@ begin
                     fTerrain.ComputeCursorPosition(X,Y,Shift);
                     if GameCursor.Mode=cm_None then
                       if fGamePlayInterface.JoiningGroups and
-                        (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
+                        (fGamePlayInterface.ShownUnit is TKMUnitWarrior) then
                       begin
                         HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                        if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
-                           (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.UnitType)]) then
+                        if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.ShownUnit))) and
+                           (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.ShownUnit.UnitType)]) then
                           Screen.Cursor := c_JoinYes
                         else
                           Screen.Cursor := c_JoinNo;
@@ -434,7 +434,7 @@ begin
                            (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
                           Screen.Cursor := c_Info
                         else
-                        if fGamePlayInterface.GetShownUnit is TKMUnitWarrior then
+                        if fGamePlayInterface.ShownUnit is TKMUnitWarrior then
                         begin
                           HitUnit  := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
                           HitHouse := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -610,16 +610,16 @@ begin
                 end;
 
             end; //case CursorMode.Mode of..
-            if fGamePlayInterface.JoiningGroups and (fGamePlayInterface.GetShownUnit <> nil) and
-              (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
+            if fGamePlayInterface.JoiningGroups and (fGamePlayInterface.ShownUnit <> nil) and
+              (fGamePlayInterface.ShownUnit is TKMUnitWarrior) then
             begin
               HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-              if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
-                 (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.UnitType)]) then
+              if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.ShownUnit))) and
+                 (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.ShownUnit.UnitType)]) then
               begin
-                fGameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fGamePlayInterface.GetShownUnit), HitUnit);
+                fGameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fGamePlayInterface.ShownUnit), HitUnit);
                 fGamePlayInterface.JoiningGroups := false;
-                fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
+                fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.ShownUnit); //Refresh unit display
                 Screen.Cursor:=c_Default; //Reset cursor when mouse released
               end;
             end;
@@ -630,17 +630,17 @@ begin
         if (Button = mbRight)
         and(MOver = nil)
         and(fGamePlayInterface <> nil)
-        and(fGamePlayInterface.GetShownUnit <> nil)
+        and(fGamePlayInterface.ShownUnit <> nil)
         and(OldDirSelecting) //If this is false then we are not moving, possibly attacking
         and(SelectingDirPosition.x <> 0)
-        and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
-        and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
+        and(fGamePlayInterface.ShownUnit is TKMUnitWarrior)
+        and(TKMUnit(fGamePlayInterface.ShownUnit).GetOwner = MyPlayer.PlayerID)
         and(not fGamePlayInterface.JoiningGroups)
-        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, CanWalk, 0, false))
+        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.ShownUnit).GetPosition, P, CanWalk, 0, false))
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
-          fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fGamePlayInterface.GetShownUnit), P, SelectedDirection);
+          fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fGamePlayInterface.ShownUnit), P, SelectedDirection);
         end;
 
         if (Button = mbRight) and (MOver = nil) then
@@ -793,8 +793,8 @@ begin
   if aMissionFile <> '' then begin
     fMissionFile := aMissionFile;
     fGameName := aGameName;
-    ActiveCampaign := aCamp;
-    ActiveCampaignMap := aCampMap; //MapID is incremented in CampSettings and passed on to here from outside
+    fActiveCampaign := aCamp;
+    fActiveCampaignMap := aCampMap; //MapID is incremented in CampSettings and passed on to here from outside
   end;
 
   fLog.AppendLog('Loading DAT...');
@@ -874,7 +874,7 @@ end;
 
 
 //Put the game on Hold for Victory screen
-procedure TKMGame.GameHold(DoHold:boolean; Msg:gr_Message);
+procedure TKMGame.GameHold(DoHold:boolean; Msg:TGameResultMsg);
 begin
   PlayOnState := Msg;
   case Msg of
@@ -896,7 +896,7 @@ begin
 end;
 
 
-procedure TKMGame.GameStop(const Msg:gr_Message; TextMsg:string='');
+procedure TKMGame.GameStop(const Msg:TGameResultMsg; TextMsg:string='');
 begin
   fIsExiting := true;
   try
@@ -923,7 +923,7 @@ begin
       gr_Win    :  begin
                      fLog.AppendLog('Gameplay ended - Win',true);
                      fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
-                     fCampaignSettings.RevealMap(ActiveCampaign, ActiveCampaignMap+1);
+                     fCampaignSettings.RevealMap(fActiveCampaign, fActiveCampaignMap+1);
                    end;
       gr_Defeat:   begin
                      fLog.AppendLog('Gameplay ended - Defeat',true);

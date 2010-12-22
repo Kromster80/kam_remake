@@ -750,9 +750,10 @@ constructor TKMShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer;
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  Hitable:=true;
-  LineColor:=aLineColor;
-  LineWidth:=2;
+  Hitable   := true;
+  FillColor := $00000000;
+  LineColor := aLineColor;
+  LineWidth := 2;
 end;
 
 
