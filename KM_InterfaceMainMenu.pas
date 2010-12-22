@@ -112,7 +112,7 @@ type TKMMainMenuInterface = class
       Panel_Options_Lang:TKMPanel;
         CheckBox_Options_Lang:array[1..LOCALES_COUNT] of TKMCheckBox;
       Panel_Options_Res:TKMPanel;
-        CheckBox_Options_FullScreen, CheckBox_Options_VSync:TKMCheckBox;
+        CheckBox_Options_FullScreen:TKMCheckBox;
         CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
@@ -660,10 +660,7 @@ begin
       CheckBox_Options_FullScreen:=MyControls.AddCheckBox(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,100,30,fTextLibrary.GetRemakeString(31),fnt_Metal);
       CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
-      CheckBox_Options_VSync:=MyControls.AddCheckBox(Panel_Options_Res,12,58+RESOLUTION_COUNT*20,100,30,'VSync',fnt_Metal);
-      CheckBox_Options_VSync.OnClick:=Options_Change;
-
-      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,10,88+RESOLUTION_COUNT*20,180,30,fTextLibrary.GetRemakeString(32),fnt_Metal, bsMenu);
+      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary.GetRemakeString(32),fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
       Button_Options_ResApply.Disable;
 
@@ -1210,16 +1207,11 @@ begin
   if Sender = CheckBox_Options_FullScreen then
     fGame.fGlobalSettings.IsFullScreen := not fGame.fGlobalSettings.IsFullScreen;
 
-  if Sender = CheckBox_Options_VSync then
-    fGame.fGlobalSettings.IsVSync := not fGame.fGlobalSettings.IsVSync;
-
-
   for i:=1 to RESOLUTION_COUNT do
     if Sender = CheckBox_Options_Resolution[i] then
       fGame.fGlobalSettings.SetResolutionID := i;
 
   CheckBox_Options_FullScreen.Checked := fGame.fGlobalSettings.IsFullScreen;
-  CheckBox_Options_VSync.Checked := fGame.fGlobalSettings.IsVSync;
   for i:=1 to RESOLUTION_COUNT do begin
     CheckBox_Options_Resolution[i].Checked := (i = fGame.fGlobalSettings.GetResolutionID);
     CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.fGlobalSettings.IsFullScreen;
@@ -1227,7 +1219,6 @@ begin
 
   //Make button enabled only if new resolution/mode differs from old
   Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGlobalSettings.IsFullScreen) or (OldVSync <> fGame.fGlobalSettings.IsVSync) or (OldResolution <> fGame.fGlobalSettings.GetResolutionID);
-
 end;
 
 
@@ -1235,11 +1226,11 @@ end;
 procedure TKMMainMenuInterface.MouseMove(X,Y:integer);
 begin
   if (Panel_Campaign.Visible)
- and (Y > Panel_Campaign.Height - Panel_CampScroll.Height) then
-      if X < Panel_CampScroll.Width then
+ and (Y > Panel_Campaign.Top + Panel_Campaign.Height - Panel_CampScroll.Height) then
+      if X < Panel_Campaign.Left +  Panel_CampScroll.Width then
         Panel_CampScroll.Left := Panel_Campaign.Width - Panel_CampScroll.Width
       else
-      if X > Panel_Campaign.Width - Panel_CampScroll.Width then
+      if X > Panel_Campaign.Left +  Panel_Campaign.Width - Panel_CampScroll.Width then
         Panel_CampScroll.Left := 0;
 end;
 

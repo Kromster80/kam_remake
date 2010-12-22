@@ -1356,6 +1356,14 @@ begin
       AddMultiResource(rt_All, 10);
       exit;
     end;
+    if ApplyCheat and (aRes = rt_Horse) then begin
+      fGame.GameHold(true, gr_Win);
+      exit;
+    end;
+    if ApplyCheat and (aRes = rt_Fish) then begin
+      fGame.GameHold(true, gr_Defeat);
+      exit;
+    end;
   end;
 
   NotAcceptFlag[byte(aRes)] := not NotAcceptFlag[byte(aRes)];

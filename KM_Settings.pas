@@ -68,6 +68,8 @@ type
   private
     fUnlockedMapsTSK:byte; //When player wins campaign mission this should be increased
     fUnlockedMapsTPR:byte;
+    procedure LoadINI(filename:string);
+    procedure SaveINI(filename:string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -75,8 +77,6 @@ type
     function GetMapsCount(aCamp:TCampaign):byte;
     function GetUnlockedMaps(aCamp:TCampaign):byte;
     function GetMapText(aCamp:TCampaign; MapID:byte):string;
-    function LoadINI(filename:string):boolean;
-    procedure SaveINI(filename:string);
   end;
 
 
@@ -156,10 +156,10 @@ begin
   Result := FileExists(filename);
 
   f := TIniFile.Create(filename);
-
+  
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
   fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
-  fVSync         := f.ReadBool   ('GFX','VSync',false);
+  fVSync         := f.ReadBool   ('GFX','VSync',true);
   fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
 
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
@@ -188,7 +188,7 @@ begin
 
   f.WriteInteger('GFX','Brightness',  fBrightness);
   f.WriteBool   ('GFX','FullScreen',  fFullScreen);
-  f.WriteBool   ('GFX','VSync',  fVSync);
+  f.WriteBool   ('GFX','VSync',       fVSync);
   f.WriteInteger('GFX','ResolutionID',fResolutionID);
 
   f.WriteBool   ('Game','Autosave',   fAutosave);
@@ -367,10 +367,9 @@ begin
 end;
 
 
-function TCampaignSettings.LoadINI(filename:string):boolean;
+procedure TCampaignSettings.LoadINI(filename:string);
 var f:TIniFile;
 begin
-  Result := FileExists(filename);
   f := TIniFile.Create(filename);
   fUnlockedMapsTSK := f.ReadInteger('Campaign', 'TSK', 1);
   fUnlockedMapsTPR := f.ReadInteger('Campaign', 'TPR', 1);
