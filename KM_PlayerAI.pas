@@ -36,7 +36,7 @@ type
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     Autobuild:boolean;
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
-                                            NumUnits, NumRows:integer;
+                                            NumUnits, UnitsPerRow:integer;
                                           end;
     DefencePositionsCount: integer;
     DefencePositions: array of TAIDefencePosition;
@@ -147,7 +147,7 @@ begin
   for i:=low(TGroupType) to high(TGroupType) do
   begin
     TroopFormations[i].NumUnits := 9; //These are the defaults in KaM
-    TroopFormations[i].NumRows := 3;
+    TroopFormations[i].UnitsPerRow := 3;
   end;
 end;
 
@@ -369,22 +369,18 @@ begin
           if (GetCondition < UNIT_MIN_CONDITION) then
             OrderFood;
 
-          //Check formation
+          //Check formation. If the script has defined a group with more units per row than there should be, do not change it
           if UnitGroups[byte(UnitType)] <> gt_None then
-            if TroopFormations[UnitGroups[byte(UnitType)]].NumRows > 1 then
-              UnitsPerRow := TroopFormations[UnitGroups[byte(UnitType)]].NumRows;
-          
-          //todo: only do this if the unit is not attacking/in combat
+            if UnitsPerRow < TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow then
+              UnitsPerRow := TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow;
+
+          if Foe <> nil then exit;
           //Position this group to defend if they already belong to a defence position
           //todo: Restock defence positions listed first with ones listed later (in script order = priority)
           Positioned := false;
           for k:=0 to DefencePositionsCount-1 do
             if DefencePositions[k].CurrentCommander = GetCommander then
             begin
-              //todo: Note: KaM does NOT split groups that are too full (as this can only occur if the person who made the mission designed it that way)
-              //      Perhaps we shouldn't either?
-              if GetMemberCount+1 > TroopFormations[DefencePositions[k].GroupType].NumUnits then
-                OrderSplit; //If there are too many troops, split group in half and the right number will automatically rejoin us
               OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
               break;

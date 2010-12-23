@@ -74,6 +74,8 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
 
     function CheckForEnemy(aDir:TKMDirection=dir_NA):boolean;
+    function FindEnemy(aDir:TKMDirection=dir_NA):TKMUnit;
+    procedure FightEnemy(aEnemy:TKMUnit);
 
     function CanInterruptAction:boolean;
 
@@ -737,33 +739,49 @@ end;
 
 
 function TKMUnitWarrior.CheckForEnemy(aDir:TKMDirection=dir_NA):boolean;
+var FoundEnemy: TKMUnit;
+begin
+  Result := false; //Didn't find anyone to fight
+  FoundEnemy := FindEnemy(aDir);
+  if FoundEnemy = nil then exit;
+  FightEnemy(FoundEnemy);
+  Result := true; //Found someone
+end;
+
+
+function TKMUnitWarrior.FindEnemy(aDir:TKMDirection=dir_NA):TKMUnit;
 var BestU: TKMUnit;
 begin
-  Result := false; //Did we pick a fight?
+  Result := nil; //No one to fight
   if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
-  //Archers should only look for opponents when they are idle
-  if (GetFightMaxRange >= 2) and not (GetUnitAction is TUnitActionStay) then exit;
+  //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
+  if (GetFightMaxRange >= 2) and ((not (GetUnitAction is TUnitActionStay)) and
+                                 not((GetUnitAction is TUnitActionFight) and not GetUnitAction.Locked)) then exit;
 
   if (aDir = dir_NA) and (GetFightMaxRange >= 2) then
     aDir := Direction; //Use direction for ranged attacks, if it was not already specified
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
+  Result := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
+end;
 
-  if BestU = nil then exit;
+
+procedure TKMUnitWarrior.FightEnemy(aEnemy:TKMUnit);
+begin
+  Assert(aEnemy <> nil, 'Fight no one?');
 
   //Free the task or set it up to be resumed afterwards
   if GetUnitTask <> nil then
   begin
-    if (GetUnitTask is TTaskAttackHouse) and not (BestU is TKMUnitWarrior) then
+    if (GetUnitTask is TTaskAttackHouse) and not (aEnemy is TKMUnitWarrior) then
       TTaskAttackHouse(GetUnitTask).Phase := 0 //Reset task so it will resume after the fight
     else
       FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
   end;
 
   //Attempt to resume walks/attacks after interuption
-  if (GetUnitAction is TUnitActionWalkTo) and (fState = ws_Walking) and not (BestU is TKMUnitWarrior) then
+  if (GetUnitAction is TUnitActionWalkTo) and (fState = ws_Walking) and not (aEnemy is TKMUnitWarrior) then
   begin
     if GetOrderTarget <> nil then
       fOrder := wo_AttackUnit
@@ -771,13 +789,12 @@ begin
       fOrder := wo_Walk;
   end;
 
-  SetActionFight(ua_Work, BestU);
-  if BestU is TKMUnitWarrior then
+  SetActionFight(ua_Work, aEnemy);
+  if aEnemy is TKMUnitWarrior then
   begin
-    TKMUnitWarrior(BestU).CheckForEnemy; //Let opponent know he is attacked
+    TKMUnitWarrior(aEnemy).CheckForEnemy; //Let opponent know he is attacked
     fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //so that after the fight we stay where we are
   end;
-  Result := true; //We found someone to fight
 end;
 
 

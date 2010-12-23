@@ -32,7 +32,7 @@ begin
   Inherited Create(aActionType);
   fActionName     := uan_Fight;
   Locked          := true;
-  AimingDelay        := -1;
+  AimingDelay     := -1;
   fOpponent       := aOpponent.GetUnitPointer; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
@@ -92,9 +92,29 @@ function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
   //See if Opponent has walked away (i.e. Serf) or died
-  //todo: When the opponent dies look for a new one right away so there isn't a pause when warriors switch targets.
   if (fOpponent.IsDeadOrDying) or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange) then
-    Result := ActDone
+  begin
+    //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
+    //Try to start fighting that enemy by reusing this FightAction, rather than destorying it and making a new one
+    Locked := false; //Fight can be interrupted by FindEnemy, otherwise it will always return nil!
+    fOpponent.ReleaseUnitPointer; //We are finished with the old opponent
+    fOpponent := TKMUnitWarrior(KMUnit).FindEnemy; //Find a new opponent
+    if fOpponent <> nil then
+    begin
+      //Start fighting this opponent by resetting the action
+      fOpponent.GetUnitPointer; //Add to pointer count
+      Locked := true;
+      AimingDelay := -1;
+      KMUnit.AnimStep := 0;
+      KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
+    end
+    else
+    begin
+      //No one else to fight, so we exit
+      Result := ActDone;
+      exit;
+    end;
+  end
   else
     Result := ActContinues;
 

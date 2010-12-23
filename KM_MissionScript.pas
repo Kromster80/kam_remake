@@ -553,7 +553,7 @@ begin
                        if TextParam = PARAMVALUES[cpt_TroopParam]   then
                        begin
                          iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumUnits := ParamList[2];
-                         iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumRows  := ParamList[3];
+                         iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].UnitsPerRow  := ParamList[3];
                        end;
                      end;
   ct_AINoBuild:      begin
@@ -807,7 +807,7 @@ begin
       AddCommandParam(ct_AICharacter,cpt_RecruitCount,1,fPlayers.PlayerAI[i].RecruitTrainTimeout);
       for Group:=low(TGroupType) to high(TGroupType) do
         if (Group <> gt_None) and (fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits <> 0) then //Must be valid and used
-          AddCommandParam(ct_AICharacter,cpt_TroopParam,3,byte(Group)-1,fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits,fPlayers.PlayerAI[i].TroopFormations[Group].NumRows);
+          AddCommandParam(ct_AICharacter,cpt_TroopParam,3,byte(Group)-1,fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits,fPlayers.PlayerAI[i].TroopFormations[Group].UnitsPerRow);
       AddData(''); //NL
       for k:=0 to fPlayers.PlayerAI[i].DefencePositionsCount-1 do
         with fPlayers.PlayerAI[i].DefencePositions[k] do

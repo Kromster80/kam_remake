@@ -1477,7 +1477,7 @@ begin
     //Warrior specific
     Label_UnitDescription.Hide;
     Commander := TKMUnitWarrior(Sender).GetCommander;
-    if Commander.Foe <> nil then Army_CancelJoin(nil); //Cannot be joining while in combat
+    if (Commander.Foe <> nil) and (Commander.GetFightMaxRange < 2) then Army_CancelJoin(nil); //Cannot be joining while in combat
     if JoiningGroups then
     begin
       Panel_Army_JoinGroups.Show;
@@ -1488,7 +1488,7 @@ begin
       Panel_Army.Show;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
-      SetArmyControlsActive(Commander.Foe = nil);
+      SetArmyControlsActive((Commander.Foe = nil) or (Commander.GetFightMaxRange >= 2));
       Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and(Commander.Foe = nil);
     end;
     Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
