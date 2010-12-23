@@ -48,7 +48,7 @@ type
     fMapEditorInterface: TKMapEdInterface;
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
-    procedure ToggleLocale();
+    procedure ToggleLocale(aLocale:shortstring);
     procedure ResizeGameArea(X,Y:integer);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
@@ -113,14 +113,14 @@ begin
 
   fGlobalSettings := TGlobalSettings.Create;
   fRender         := TRender.Create(RenderHandle, aVSync);
-  fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
-  fSoundLib       := TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
+  fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
+  fSoundLib       := TSoundLib.Create(fGlobalSettings.Locale); //Required for button click sounds
   fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer {$ENDIF});
   //todo: @Krom: When I start the game with music disabled there is about 100ms of music
   //which then cuts off. I assume the INI file is read after starting playback or something?
   fGlobalSettings.UpdateSFXVolume;
   fResource       := TResource.Create;
-  fResource.LoadMenuResources(fGlobalSettings.GetLocale);
+  fResource.LoadMenuResources(fGlobalSettings.Locale);
 
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
 
@@ -153,12 +153,13 @@ begin
 end;
 
 
-procedure TKMGame.ToggleLocale();
+procedure TKMGame.ToggleLocale(aLocale:shortstring);
 begin
+  fGlobalSettings.Locale := aLocale; //Wrong Locale will be ignored
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
-  fResource.LoadFonts(false, fGlobalSettings.GetLocale);
+  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
+  fResource.LoadFonts(false, fGlobalSettings.Locale);
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings);
   fMainMenuInterface.ShowScreen_Options;
 end;

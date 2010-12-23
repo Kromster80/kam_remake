@@ -2081,7 +2081,11 @@ begin
   //e.g. Exit button, or Resolution change). We need to release CtrlDown (otherwise it remains
   //pressed), but we need to keep csDown state until it's registered by Control.MouseUp
   //to call OnClick. So, we nil fCtrlDown here and Control.MouseUp will reset ControlState
-  fCtrlDown := nil;
+  //Other case, if we don't care for OnClick (CtrlDown<>CtrlUp) - just release the CtrDown as usual
+  if CtrlDown <> CtrlUp then
+    CtrlDown := nil
+  else
+    fCtrlDown := nil;
 
   if CtrlUp <> nil then CtrlUp.MouseUp(X,Y,Shift,Button);
 end;

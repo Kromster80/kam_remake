@@ -128,8 +128,8 @@ begin
       reset(ft);
       repeat
         readln(ft,st);
-        if UpperCase(st)=UpperCase('SmallDesc') then readln(ft,SmallDesc);
-        if UpperCase(st)=UpperCase('BigDesc') then readln(ft,BigDesc);
+        if SameText(st, 'SmallDesc') then readln(ft,SmallDesc);
+        if SameText(st, 'BigDesc') then readln(ft,BigDesc);
       until(eof(ft));
       closefile(ft);
     end;

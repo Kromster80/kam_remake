@@ -1188,15 +1188,14 @@ begin
 
   for i:=1 to LOCALES_COUNT do
     if Sender = CheckBox_Options_Lang[i] then begin
-      fGame.fGlobalSettings.SetLocale := Locales[i,1];
       ShowScreen_Loading('Loading new locale');
       fRender.Render; //Force to repaint loading screen
-      fGame.ToggleLocale;
+      fGame.ToggleLocale(Locales[i,1]);
       exit; //Whole interface will be recreated
     end;
 
   for i:=1 to LOCALES_COUNT do
-    CheckBox_Options_Lang[i].Checked := LowerCase(fGame.fGlobalSettings.GetLocale) = LowerCase(Locales[i,1]);
+    CheckBox_Options_Lang[i].Checked := SameText(fGame.fGlobalSettings.Locale, Locales[i,1]);
 
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
     OldFullScreen := fGame.fGlobalSettings.IsFullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
@@ -1256,13 +1255,13 @@ end;
 
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  MyControls.MouseUp(X,Y,Shift,Button);
-
   if (MyControls.CtrlOver <> nil)
   and (MyControls.CtrlOver is TKMButton)
   and MyControls.CtrlOver.Enabled
   and TKMButton(MyControls.CtrlOver).MakesSound then
     fSoundLib.Play(sfx_click);
+
+  MyControls.MouseUp(X,Y,Shift,Button);
 end;
 
 

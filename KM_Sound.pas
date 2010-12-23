@@ -307,7 +307,7 @@ function TSoundLib.GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay;
 begin
   if not IsSoundInitialized then exit;
   if (aLocale = '') and (fGame <> nil) and (fGame.fGlobalSettings <> nil) then
-    aLocale := fGame.fGlobalSettings.GetLocale;
+    aLocale := fGame.fGlobalSettings.Locale;
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
     Result := ''
   else

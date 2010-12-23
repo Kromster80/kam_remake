@@ -24,6 +24,7 @@ type
     fNeedsSave: boolean;
     function LoadSettingsFromFile(filename:string):boolean;
     procedure SaveSettingsToFile(filename:string);
+    procedure SetLocale(aLocale:shortstring);
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
@@ -32,8 +33,7 @@ type
     destructor Destroy; override;
     procedure SaveSettings;
     property GetBrightness:byte read fBrightness default 1;
-    property GetLocale:shortstring read fLocale;
-    property SetLocale:shortstring write fLocale;
+    property Locale:shortstring read fLocale write SetLocale;
     property GetResolutionID:word read fResolutionID;
     property SetResolutionID:word write fResolutionID;
     property GetPace:word read fPace;
@@ -122,7 +122,7 @@ begin
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
   fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
   fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
-  fLocale        := f.ReadString ('Game','Locale','eng');
+  Locale         := f.ReadString ('Game','Locale','eng'); //Wrong name will become ENG too
   fPace          := f.ReadInteger('Game','GamePace',100);
   fSpeedup       := f.ReadInteger('Game','Speedup',10);
 
@@ -164,6 +164,17 @@ begin
 
   FreeAndNil(f);
   fNeedsSave := false;
+end;
+
+
+//Scan list of available locales and pick existing one, or ignore 
+procedure TGlobalSettings.SetLocale(aLocale:shortstring);
+var i:integer;
+begin
+  fLocale := Locales[1,1]; //Default - ENG
+  for i:=low(Locales) to high(Locales) do
+    if Locales[i,1] = aLocale then
+      fLocale := aLocale;
 end;
 
 
