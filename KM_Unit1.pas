@@ -10,7 +10,7 @@ uses
   dglOpenGL, MMSystem,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection, 
-  KM_LoadLib, KM_Sound;
+  KM_TextLibrary, KM_Sound;
 
 type
   TForm1 = class(TForm)

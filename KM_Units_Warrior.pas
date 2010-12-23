@@ -86,11 +86,11 @@ type //Possibly melee warrior class? with Archer class separate?
 
 
 implementation
-uses KM_DeliverQueue, KM_Game, KM_LoadLib, KM_PlayersCollection, KM_Render, KM_Terrain, KM_UnitTaskAttackHouse,
+uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_Terrain, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay;
 
 
-{ TKMwarrior }
+{ TKMUnitWarrior }
 constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
@@ -750,7 +750,6 @@ end;
 
 
 function TKMUnitWarrior.FindEnemy(aDir:TKMDirection=dir_NA):TKMUnit;
-var BestU: TKMUnit;
 begin
   Result := nil; //No one to fight
   if not ENABLE_FIGHTING then exit;

@@ -245,7 +245,7 @@ type
   end;
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_LoadLib, KM_UnitActionStay, KM_Player;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player;
 
 
 { TKMHouse }
@@ -796,7 +796,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID:byte):byte;
 begin
-  Result := fPlayers.Player[byte(fOwner)].fMissionSettings.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
+  Result := fPlayers.Player[byte(fOwner)].fPlayerStats.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
 end;
 
 
@@ -1462,7 +1462,7 @@ begin
       dec(ResourceCount[TroopCost[aUnitType,i]]);
 
   dec(RecruitsInside); //All units take a recruit
-  fPlayers.Player[byte(fOwner)].fMissionSettings.TrainedSoldier(aUnitType);
+  fPlayers.Player[byte(fOwner)].fPlayerStats.TrainedSoldier(aUnitType);
 
   //Make new unit
   Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));

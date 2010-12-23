@@ -41,7 +41,7 @@ implementation
 uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Houses, KM_Units, KM_Terrain;
 
 
-{ TMissionSettings }
+{ TKMProjectiles }
 constructor TKMProjectiles.Create;
 begin
   Inherited;

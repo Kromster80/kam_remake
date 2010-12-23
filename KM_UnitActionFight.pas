@@ -91,6 +91,7 @@ end;
 function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
+  Result := ActContinues; //Continue action by default, if there is no one to fight then exit
   //See if Opponent has walked away (i.e. Serf) or died
   if (fOpponent.IsDeadOrDying) or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange) then
   begin
@@ -114,9 +115,7 @@ begin
       Result := ActDone;
       exit;
     end;
-  end
-  else
-    Result := ActContinues;
+  end;
 
   Cycle := max(UnitSprite[byte(KMUnit.UnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
   Step  := KMUnit.AnimStep mod Cycle;

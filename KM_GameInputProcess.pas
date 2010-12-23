@@ -251,7 +251,7 @@ begin
                                 end;
     gic_HouseRemoveTrain:       TKMHouseSchool(MyPlayer.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
 
-    gic_RatioChange:            MyPlayer.fMissionSettings.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
+    gic_RatioChange:            MyPlayer.fPlayerStats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
 
     gic_TempAddScout:           MyPlayer.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
     gic_TempKillUnit:           MyPlayer.GetUnitByID(Params[1]).KillUnit;
@@ -400,7 +400,7 @@ end;
 procedure TGameInputProcess.CmdRatio(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
 begin
   Assert(aCommand = gic_RatioChange);
-  MyPlayer.fMissionSettings.SetRatio(aRes, aHouse, aValue);
+  MyPlayer.fPlayerStats.SetRatio(aRes, aHouse, aValue);
   SaveCommand(aCommand, integer(aRes), integer(aHouse), aValue);
 end;
 

@@ -10,7 +10,6 @@ uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
-  ColorPicker in 'Common\ColorPicker.pas' {Form_ColorPicker},
 
   KM_CommonTypes in 'KM_CommonTypes.pas',
   KM_Controls in 'KM_Controls.pas',
@@ -24,12 +23,13 @@ uses
   KM_GameInputProcess in 'KM_GameInputProcess.pas',
   KM_MapInfo in 'KM_MapInfo.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
-  KM_LoadLib in 'KM_LoadLib.pas',
+  KM_Lobby in 'KM_Lobby.pas',
   KM_Music in 'KM_Music.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
   KM_Player in 'KM_Player.pas',
   KM_PlayerAI in 'KM_PlayerAI.pas',
   KM_PlayersCollection in 'KM_PlayersCollection.pas',
+  KM_PlayerStats in 'KM_PlayerStats.pas',
   KM_Projectiles in 'KM_Projectiles.pas',
   KM_Render in 'KM_Render.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
@@ -37,6 +37,7 @@ uses
   KM_Settings in 'KM_Settings.pas',
   KM_Sound in 'KM_Sound.pas',
   KM_Terrain in 'KM_Terrain.pas',
+  KM_TextLibrary in 'KM_TextLibrary.pas',
   KM_TGATexture in 'Common\KM_TGATexture.pas',
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
@@ -56,8 +57,7 @@ uses
   KM_UnitTaskSelfTrain in 'KM_UnitTaskSelfTrain.pas',
   KM_UnitTaskThrowRock in 'KM_UnitTaskThrowRock.pas',
   KM_Utils in 'KM_Utils.pas',
-  KM_Viewport in 'KM_Viewport.pas',
-  KM_MapInfo in 'KM_MapInfo.pas';
+  KM_Viewport in 'KM_Viewport.pas';
 
 
 {$IFDEF WDC}
@@ -70,7 +70,6 @@ begin
   Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
-  Application.CreateForm(TForm_ColorPicker, Form_ColorPicker);
   Form1.OnCreate(nil);
 
   Application.Run;

@@ -270,11 +270,11 @@ begin
 
   //NEVER deliver weapons to the storehouse when player has a barracks
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Store)or
-                       (not (fOffer[iO].Resource in [rt_Shield..rt_Horse]))or(fPlayers.Player[byte(fDemand[iD].Loc_House.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0));
+                       (not (fOffer[iO].Resource in [rt_Shield..rt_Horse]))or(fPlayers.Player[byte(fDemand[iD].Loc_House.GetOwner)].fPlayerStats.GetHouseQty(ht_Barracks)=0));
 
   //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
-  //   (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(fPlayers.Player[byte(KMSerf.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0)))) then
+  //   (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(fPlayers.Player[byte(KMSerf.GetOwner)].fPlayerStats.GetHouseQty(ht_Barracks)=0)))) then
   //Works wrong, besides we need to check ALL barracks player owns
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials

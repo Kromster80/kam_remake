@@ -246,7 +246,7 @@ type
 
 
 implementation
-uses KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
+uses KM_Render, KM_TextLibrary, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
 KM_Units_Warrior, KM_Terrain, 
 

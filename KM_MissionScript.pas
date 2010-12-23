@@ -508,15 +508,15 @@ begin
                      end;
   ct_BlockHouse:     begin
                        if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                         fPlayers.Player[CurrentPlayerIndex].fMissionSettings.AllowToBuild[ParamList[0]+1]:=false;
+                         fPlayers.Player[CurrentPlayerIndex].fPlayerStats.AllowToBuild[ParamList[0]+1]:=false;
                      end;
   ct_ReleaseHouse:   begin
                        if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                         fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[ParamList[0]+1]:=true;
+                         fPlayers.Player[CurrentPlayerIndex].fPlayerStats.BuildReqDone[ParamList[0]+1]:=true;
                      end;
  ct_ReleaseAllHouses:begin
                        for i:=1 to HOUSE_COUNT do
-                         fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[i]:=true;
+                         fPlayers.Player[CurrentPlayerIndex].fPlayerStats.BuildReqDone[i]:=true;
                      end;
   ct_SetGroup:       begin
                        if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
@@ -852,13 +852,13 @@ begin
     ReleaseAllHouses := true;
     for k:=1 to HOUSE_COUNT do
     begin
-      if not fPlayers.Player[i].fMissionSettings.AllowToBuild[k] then
+      if not fPlayers.Player[i].fPlayerStats.AllowToBuild[k] then
       begin
         AddCommand(ct_BlockHouse,1,k-1);
         ReleaseAllHouses := false;
       end
       else
-        if fPlayers.Player[i].fMissionSettings.BuildReqDone[k] then
+        if fPlayers.Player[i].fPlayerStats.BuildReqDone[k] then
           AddCommand(ct_ReleaseHouse,1,k-1)
         else
           ReleaseAllHouses := false;

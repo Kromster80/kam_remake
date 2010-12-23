@@ -235,7 +235,7 @@ type TKMGamePlayInterface = class
 
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess,
-KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game,
+KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
 KM_Sound, Forms;
 
 
@@ -252,7 +252,7 @@ const ResPic:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
 var i:integer; ResID:TResourceType; HouseID:THouseType;
 begin
 
-  if (MyPlayer=nil)or(MyPlayer.fMissionSettings=nil) then exit; //We need to be able to access these
+  if (MyPlayer=nil)or(MyPlayer.fPlayerStats=nil) then exit; //We need to be able to access these
 
   if not (Sender is TKMButton) then exit;
 
@@ -272,7 +272,7 @@ begin
     HouseID:=ResHouse[TKMButton(Sender).Tag,i];
     Image_RatioPic[i].TexID := GUIBuildIcons[byte(HouseID)];
     Label_RatioLab[i].Caption := fTextLibrary.GetTextString(GUIBuildIcons[byte(HouseID)]-300);
-    Ratio_RatioRat[i].Position := MyPlayer.fMissionSettings.GetRatio(ResID,HouseID);
+    Ratio_RatioRat[i].Position := MyPlayer.fPlayerStats.GetRatio(ResID,HouseID);
     Image_RatioPic[i].Show;
     Label_RatioLab[i].Show;
     Ratio_RatioRat[i].Show;
@@ -283,7 +283,7 @@ end;
 procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
 var ResID:TResourceType; HouseID:THouseType;
 begin
-  if (MyPlayer=nil)or(MyPlayer.fMissionSettings=nil) then exit; //We need to be able to access these
+  if (MyPlayer=nil)or(MyPlayer.fPlayerStats=nil) then exit; //We need to be able to access these
   if not (Sender is TKMRatioRow) then exit;
 
   ResID   := TResourceType(Image_RatioPic0.TexID-350);

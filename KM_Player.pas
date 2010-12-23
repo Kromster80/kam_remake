@@ -1,7 +1,7 @@
 unit KM_Player;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings, KM_CommonTypes, KM_Utils;
+uses Classes, KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings, KM_CommonTypes, KM_Utils, KM_PlayerStats;
 
 
 type
@@ -26,7 +26,7 @@ type
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
   public
-    fMissionSettings: TMissionSettings; //Required to be public so it can be accessed from LoadDAT
+    fPlayerStats: TKMPlayerStats; //Required to be public so it can be accessed from LoadDAT
     PlayerType: TPlayerType; //Is it Human or AI or Animals
     PlayerColor:cardinal;
 
@@ -116,7 +116,7 @@ begin
   Inherited Create;
   fPlayerID     := aPlayerID;
   PlayerType    := pt_Computer;
-  fMissionSettings := TMissionSettings.Create;
+  fPlayerStats  := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
   fUnits        := TKMUnitsCollection.Create;
   fHouses       := TKMHousesCollection.Create;
@@ -133,7 +133,7 @@ end;
 
 destructor TKMPlayerAssets.Destroy;
 begin
-  FreeThenNil(fMissionSettings);
+  FreeThenNil(fPlayerStats);
   FreeThenNil(fRoadsList);
   FreeThenNil(fUnits);
   FreeThenNil(fHouses);
@@ -384,24 +384,24 @@ end;
 
 procedure TKMPlayerAssets.CreatedHouse(aType:THouseType; aWasBuilt:boolean);
 begin
-  fMissionSettings.CreatedHouse(aType,aWasBuilt);
+  fPlayerStats.CreatedHouse(aType,aWasBuilt);
 end;
 
 procedure TKMPlayerAssets.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
 begin
-  fMissionSettings.CreatedUnit(aType,aWasTrained);
+  fPlayerStats.CreatedUnit(aType,aWasTrained);
 end;
 
 
 procedure TKMPlayerAssets.DestroyedHouse(aType:THouseType);
 begin
-  fMissionSettings.DestroyedHouse(aType);
+  fPlayerStats.DestroyedHouse(aType);
 end;
 
 
 procedure TKMPlayerAssets.DestroyedUnit(aType:TUnitType);
 begin
-  if Assigned(fMissionSettings) then fMissionSettings.DestroyedUnit(aType);
+  if Assigned(fPlayerStats) then fPlayerStats.DestroyedUnit(aType);
 end;
 
 
@@ -431,13 +431,13 @@ end;
 
 function TKMPlayerAssets.GetCanBuild(aType:THouseType):boolean;
 begin
-  Result := fMissionSettings.GetCanBuild(aType);
+  Result := fPlayerStats.GetCanBuild(aType);
 end;
 
 
 function TKMPlayerAssets.GetHouseQty(aType:THouseType):integer;
 begin
-  Result := fMissionSettings.GetHouseQty(aType);
+  Result := fPlayerStats.GetHouseQty(aType);
 end;
 
 
@@ -449,7 +449,7 @@ end;
 
 function TKMPlayerAssets.GetUnitQty(aType:TUnitType):integer;
 begin
-  Result := fMissionSettings.GetUnitQty(aType);
+  Result := fPlayerStats.GetUnitQty(aType);
 end;
 
 
@@ -476,7 +476,7 @@ begin
   fDeliverList.Save(SaveStream);
   fBuildList.Save(SaveStream);
 
-  fMissionSettings.Save(SaveStream);
+  fPlayerStats.Save(SaveStream);
   SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
@@ -498,7 +498,7 @@ begin
   fDeliverList.Load(LoadStream);
   fBuildList.Load(LoadStream);
 
-  fMissionSettings.Load(LoadStream);
+  fPlayerStats.Load(LoadStream);
   LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
   LoadStream.Read(PlayerType, SizeOf(PlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));

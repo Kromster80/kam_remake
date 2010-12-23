@@ -187,7 +187,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, Forms, KM_Utils;
+uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
@@ -312,16 +312,16 @@ end;
 
 procedure TKMMainMenuInterface.Fill_Results();
 begin
-  if (MyPlayer=nil) or (MyPlayer.fMissionSettings=nil) then exit;
+  if (MyPlayer=nil) or (MyPlayer.fPlayerStats=nil) then exit;
 
-  Label_Stat[1].Caption := inttostr(MyPlayer.fMissionSettings.GetUnitsLost);
-  Label_Stat[2].Caption := inttostr(MyPlayer.fMissionSettings.GetUnitsKilled);
-  Label_Stat[3].Caption := inttostr(MyPlayer.fMissionSettings.GetHousesLost);
-  Label_Stat[4].Caption := inttostr(MyPlayer.fMissionSettings.GetHousesDestroyed);
-  Label_Stat[5].Caption := inttostr(MyPlayer.fMissionSettings.GetHousesConstructed);
-  Label_Stat[6].Caption := inttostr(MyPlayer.fMissionSettings.GetUnitsTrained);
-  Label_Stat[7].Caption := inttostr(MyPlayer.fMissionSettings.GetWeaponsProduced);
-  Label_Stat[8].Caption := inttostr(MyPlayer.fMissionSettings.GetSoldiersTrained);
+  Label_Stat[1].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsLost);
+  Label_Stat[2].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsKilled);
+  Label_Stat[3].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesLost);
+  Label_Stat[4].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesDestroyed);
+  Label_Stat[5].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesConstructed);
+  Label_Stat[6].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsTrained);
+  Label_Stat[7].Caption := inttostr(MyPlayer.fPlayerStats.GetWeaponsProduced);
+  Label_Stat[8].Caption := inttostr(MyPlayer.fPlayerStats.GetSoldiersTrained);
   Label_Stat[9].Caption := int2time(fGame.GetMissionTime);
 end;
 

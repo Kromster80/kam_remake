@@ -1,4 +1,4 @@
-unit KM_LoadLib;
+unit KM_TextLibrary;
 {$I KaM_Remake.inc}
 interface
 uses
