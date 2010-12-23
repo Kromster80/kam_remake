@@ -659,14 +659,14 @@ begin
     RXData[ID].Qty := Count;
 
   Count := RXData[ID].Qty+1;
-  setlength(GFXData[ID],      Count);
-  setlength(RXData[ID].Flag,  Count);
-  setlength(RXData[ID].Size,  Count);
-  setlength(RXData[ID].Pivot, Count);
-  setlength(RXData[ID].Data,  Count);
-  setlength(RXData[ID].RGBA,  Count);
-  setlength(RXData[ID].Mask,  Count);
-  setlength(RXData[ID].HasMask,  Count);
+  setlength(GFXData[ID],        Count);
+  setlength(RXData[ID].Flag,    Count);
+  setlength(RXData[ID].Size,    Count);
+  setlength(RXData[ID].Pivot,   Count);
+  setlength(RXData[ID].Data,    Count);
+  setlength(RXData[ID].RGBA,    Count);
+  setlength(RXData[ID].Mask,    Count);
+  setlength(RXData[ID].HasMask, Count);
 end;
 
 
@@ -728,7 +728,9 @@ begin
         L := Data[i, Pixel]; //0..255
 
         if L<>0 then
-          if NeedTeamColors and (L in[23..29]) then begin
+          if NeedTeamColors and (L in[23..29]) //Only unit icons and scrolls in RX=4
+          and ((ID<>4) or InRange(i,141,154) or InRange(i,521,550)) then
+          begin
             RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
             case L of //Maybe it makes sense to convert to 8bit?
               23,29:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
