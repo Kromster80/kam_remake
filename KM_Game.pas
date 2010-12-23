@@ -50,7 +50,6 @@ type
     destructor Destroy; override;
     procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
-    procedure ZoomInGameArea(X:single);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -180,14 +179,8 @@ begin
       fMapEditorInterface.SetScreenSize(X,Y)
     else
       fGamePlayInterface.SetScreenSize(X,Y);
-    ZoomInGameArea(1); //Reset zoom to default
+    fViewport.SetZoom(fViewport.Zoom); //Zoom depends on ViewWidth/Height values
   end;
-end;
-
-
-procedure TKMGame.ZoomInGameArea(X:single);
-begin
-  if fGameState in [gsRunning, gsReplay, gsEditor] then fViewport.SetZoom(X);
 end;
 
 
