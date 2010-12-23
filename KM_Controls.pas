@@ -7,8 +7,8 @@ type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta:integer) of object;
 
-  TControlState = (csDown, csFocus, csOver);
-  TControlStateSet = set of TControlState;
+  TKMControlState = (csDown, csFocus, csOver);
+  TKMControlStateSet = set of TKMControlState;
 
 
 {Base class for all TKM elements}
@@ -32,7 +32,7 @@ TKMControl = class
     Anchors: TAnchors;
     Enabled: boolean;
     Visible: boolean;
-    State: TControlStateSet; //Each control has it localy to avoid quering Collection on each Render
+    State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons

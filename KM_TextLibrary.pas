@@ -16,8 +16,6 @@ const
   siCampTPRTexts = 350;
 
 type
-  TStringArray = array of string;
-
   TTextLibrary = class
   private
     TextStrings: array[0..MaxStrings] of string;

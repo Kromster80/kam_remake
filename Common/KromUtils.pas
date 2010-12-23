@@ -9,7 +9,7 @@ type
   PSingleArray = ^TSingleArray;
   TSingleArray = array[1..1024000] of Single;
   PStringArray = ^TStringArray;
-  TStringArray = array[1..256] of String;
+  TStringArray = array of String;
   Vector4f = record X,Y,Z,W:single; end;
   Vector3i = record X,Y,Z:integer; end;
   Vector3f = record X,Y,Z:single; end;
