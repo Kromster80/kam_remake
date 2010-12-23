@@ -191,6 +191,7 @@ TKMButton = class(TKMControl)
     TextAlign: KAlign;
     Caption: string;
     Style:TButtonStyle;
+    function DoClick:boolean; //Try to click a button and return TRUE if succeded
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle); overload;
@@ -1062,6 +1063,21 @@ begin
 end;
 
 
+//DoClick is called by keyboard shortcuts
+//It's important that Control must be:
+// IsVisible (can't shortcut invisible/unaccessible button)
+// Enabled (can't shortcut disabled function, e.g. Halt during fight)
+function TKMButton.DoClick:boolean;
+begin
+  if IsVisible and Enabled then begin
+    TKMControlsCollection(TKMPanel(Parent).GetCollection).CtrlDown := Self; //Release previous control and press self down
+    if Assigned(OnClick) then OnClick(Self);
+    Result := true; //Click has happened
+  end else
+    Result := false; //No, we couldn't click for Control is unreachable
+end;
+
+
 procedure TKMButton.Paint();
 var StateSet:T3DButtonStateSet;
 begin
@@ -1851,7 +1867,7 @@ function TKMControlsCollection.AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHei
 begin
   Result:=TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
-  Result.GetCollection := Self; 
+  Result.GetCollection := Self;
 end;
 
 function TKMControlsCollection.AddBevel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
