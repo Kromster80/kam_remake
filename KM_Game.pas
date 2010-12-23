@@ -21,10 +21,13 @@ type
     ScreenX,ScreenY:word;
     FormControlsVisible:boolean;
     SelectingTroopDirection:boolean;
-    fIsExiting: boolean;
+    fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
-    GlobalTickCount:cardinal; //Not affected by Pause and anything
+    fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
+    fGameSpeed:integer;
+    fGameState:TGameState;
+    fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
   private //Should be saved
     fGameplayTickCount:cardinal;
     fGameName:string;
@@ -32,10 +35,7 @@ type
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     fActiveCampaign:TCampaign; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
-    fGameState:TGameState;
   public
-    AdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
-    GameSpeed:integer;
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
@@ -67,7 +67,7 @@ type
 
     procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
-                               
+
     function  ReplayExists():boolean;
     procedure ReplayView(Sender:TObject);
 
@@ -81,6 +81,8 @@ type
     property IsExiting:boolean read fIsExiting;
     function GetNewID():cardinal;
     property GameState:TGameState read fGameState;
+    procedure SetGameSpeed(aSpeed:byte=0);
+    procedure StepOneFrame();
 
     procedure Save(SlotID:shortint);
     function Load(SlotID:shortint):string;
@@ -126,8 +128,8 @@ begin
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic);
 
   fCampaignSettings := TCampaignSettings.Create;
-  AdvanceFrame := false;
-  GameSpeed := 1;
+  fAdvanceFrame := false;
+  fGameSpeed := 1;
   fGameState := gsNoGame;
   SkipReplayEndCheck := false;
   FormControlsVisible:=true;
@@ -203,103 +205,23 @@ begin
   //F9 is the default key in Fraps for video capture
   //others.. unknown
 
+  //GLOBAL KEYS
   if not IsDown and (Key=VK_F5) then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
   if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F7) then
     MODE_DESIGN_CONTORLS := not MODE_DESIGN_CONTORLS;
-
-  case fGameState of
-    gsNoGame:   if fMainMenuInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit; //Exit if handled
-    gsPaused:   if Key=ord('P') then begin //Ignore all keys if game is on 'Pause'
-                  if IsDown then exit;
-                  SetGameState(gsRunning);
-                  fGamePlayInterface.ShowPause(false); //Hide pause overlay
-                end;
-    gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
-    gsRunning:  begin //Game is running normally
-                  if fGamePlayInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
-
-                  //Scrolling
-                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
-                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
-                  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
-                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
-
-                  if IsDown then exit;
-                  if Key = VK_BACK then begin
-                    //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
-                    //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-                    fViewport.SetZoom(1);
-                    Form1.TB_Angle.Position := 0;
-                    Form1.TB_Angle_Change(Form1.TB_Angle);
-                  end;
-                  if Key = VK_F8 then begin
-                    GameSpeed := fGlobalSettings.GetSpeedup+1-GameSpeed; //1 or 11
-                    if not (GameSpeed in [1,fGlobalSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
-                    fGamePlayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
-                  end;
-                  if Key = ord('P') then begin
-                    SetGameState(gsPaused);
-                    fGamePlayInterface.ShowPause(true); //Display pause overlay
-                  end;
-                  if Key=ord('W') then
-                    fTerrain.RevealWholeMap(MyPlayer.PlayerID);
-                  if fGamePlayInterface <> nil then //Also send shortcut to GamePlayInterface if it is there
-                    fGamePlayInterface.ShortcutPress(Key, IsDown);
-
-                  {Thats my debug example}
-                  if Key=ord('5') then fGamePlayInterface.MessageIssue(msgText,'123',KMPoint(0,0));
-                  if Key=ord('6') then fGamePlayInterface.MessageIssue(msgHouse,'123',KMPointRound(fViewport.GetCenter));
-                  if Key=ord('7') then fGamePlayInterface.MessageIssue(msgUnit,'123',KMPoint(0,0));
-                  if Key=ord('8') then fGamePlayInterface.MessageIssue(msgHorn,'123',KMPoint(0,0));
-                  if Key=ord('9') then fGamePlayInterface.MessageIssue(msgQuill,'123',KMPoint(0,0));
-                  if Key=ord('0') then fGamePlayInterface.MessageIssue(msgScroll,'123',KMPoint(0,0));
-
-                  if Key=ord('V') then begin GameHold(true, gr_Win); exit; end; //Instant victory
-                  if Key=ord('D') then begin GameHold(true, gr_Defeat); exit; end; //Instant defeat
-                end;
-    gsReplay:   begin
-                  if IsDown then exit;
-                  if Key = VK_BACK then begin
-                    //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
-                    //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-                    fViewport.SetZoom(1);
-                    Form1.TB_Angle.Position := 0;
-                    Form1.TB_Angle_Change(Form1.TB_Angle);
-                  end;
-                  if Key = VK_F8 then begin
-                    GameSpeed := fGlobalSettings.GetSpeedup+1-GameSpeed; //1 or 11
-                    if not (GameSpeed in [1,fGlobalSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
-                    fGamePlayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
-                  end;
-                  if Key=ord('W') then
-                    fTerrain.RevealWholeMap(MyPlayer.PlayerID);
-                end;
-    gsEditor:   begin
-                  if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
-                  
-                  //Scrolling
-                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
-                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
-                  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
-                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
-
-                  if IsDown then exit;
-                  if Key = VK_BACK then begin
-                    //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
-                    //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-                    fViewport.SetZoom(1);
-                    Form1.TB_Angle.Position := 0;
-                    Form1.TB_Angle_Change(Form1.TB_Angle);
-                  end;
-                end;
-  end;
-
-  {Global hotkey for menu}
   if not IsDown and (Key=VK_F11) then begin
     Form1.ToggleControlsVisibility(FormControlsVisible);
     FormControlsVisible := not FormControlsVisible;
   end;
 
+  case fGameState of
+    gsNoGame:   fMainMenuInterface.KeyUp(Key, Shift, IsDown); //Exit if handled
+    gsPaused:   fGamePlayInterface.KeyUp(Key, Shift, IsDown);
+    gsOnHold:   fGamePlayInterface.KeyUp(Key, Shift, IsDown);
+    gsRunning:  fGamePlayInterface.KeyUp(Key, Shift, IsDown);
+    gsReplay:   fGamePlayInterface.KeyUp(Key, Shift, IsDown);
+    gsEditor:   fMapEditorInterface.KeyUp(Key, Shift, IsDown);
+  end;
 end;
 
 
@@ -307,7 +229,7 @@ procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Inte
 var MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   case fGameState of
-    gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Shift,Button);
+    gsNoGame:   fMainMenuInterface.MouseDown(Button,Shift,X,Y);
     gsPaused:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
     gsOnHold:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
     gsReplay:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
@@ -369,31 +291,18 @@ begin
                     fGamePlayInterface.ShowDirectionCursor(false);
                   end;
                 end;
-    gsEditor:   begin
-                  fMapEditorInterface.MyControls.MouseDown(X,Y,Shift,Button);
-                  if fMapEditorInterface.MyControls.CtrlOver<>nil then
-                    Screen.Cursor:=c_Default
-                  else
-                    fTerrain.ComputeCursorPosition(X,Y,Shift); //So terrain brushes start on mouse down not mouse move
-                end;
+    gsEditor:   fMapEditorInterface.MouseDown(Button,Shift,X,Y);
   end;
 end;
 
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; DeltaX,DeltaY:shortint;
+var HitUnit: TKMUnit; HitHouse: TKMHouse; DeltaX,DeltaY:shortint;
 begin
   if not InRange(X,1,ScreenX-1) or not InRange(Y,1,ScreenY-1) then exit; //Exit if Cursor is outside of frame
 
   case fGameState of
-    gsNoGame:   begin
-                  fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fMainMenuInterface.MyControls.CtrlOver is TKMEdit then // Show "CanEdit" cursor
-                    Screen.Cursor := c_Edit  //todo: [Lewin] Make our own 'I' cursor using textures from other cursors
-                  else
-                    Screen.Cursor := c_Default;
-                  fMainMenuInterface.MouseMove(X,Y);
-                end;
+    gsNoGame:   fMainMenuInterface.MouseMove(Shift, X,Y);
     gsPaused:   fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
     gsOnHold:   begin
                   fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
@@ -451,49 +360,10 @@ begin
                   end;
                 end;
     gsReplay:   begin
-                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift); //To control minimap                  
+                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift); //To control minimap
                   fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
                 end;
-    gsEditor:   begin
-                  fMapEditorInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fMapEditorInterface.MyControls.CtrlOver<>nil then
-                    Screen.Cursor:=c_Default
-                  else
-                  begin
-                    fTerrain.ComputeCursorPosition(X,Y,Shift);
-                    if GameCursor.Mode=cm_None then
-                      if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
-                         (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
-                        Screen.Cursor:=c_Info
-                      else if not fViewport.Scrolling then
-                        Screen.Cursor:=c_Default;
-
-                    if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
-                    begin
-                      P := GameCursor.Cell; //Get cursor position tile-wise
-                      case GameCursor.Mode of
-                        cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P,false);
-                        cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
-                        cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
-                        //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
-                        cm_Objects: if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
-                        cm_Erase: begin
-                                    case fMapEditorInterface.GetShownPage of
-                                      esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                                      esp_Units:      MyPlayer.RemUnit(P);
-                                      esp_Buildings:  begin
-                                                        MyPlayer.RemHouse(P,true,false,true);
-                                                        if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                                          fTerrain.RemRoad(P);
-                                                        if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                                                          fTerrain.RemField(P);
-                                                      end;
-                                    end;
-                                  end;
-                      end;
-                    end;
-                  end;
-                end;
+    gsEditor:   fMapEditorInterface.MouseMove(Shift,X,Y);
   end;
 
 Form1.StatusBar1.Panels.Items[1].Text := Format('Cursor: %.1f:%.1f [%d:%d]', [
@@ -516,19 +386,19 @@ begin
   end;
 
   case fGameState of //Remember clicked control
-    gsNoGame:   MOver := fMainMenuInterface.MyControls.CtrlOver;
+    gsNoGame:   MOver := nil;
     gsPaused:   MOver := fGamePlayInterface.MyControls.CtrlOver;
     gsOnHold:   MOver := fGamePlayInterface.MyControls.CtrlOver;
     gsRunning:  MOver := fGamePlayInterface.MyControls.CtrlOver;
     gsReplay:   MOver := fGamePlayInterface.MyControls.CtrlOver;
-    gsEditor:   MOver := fMapEditorInterface.MyControls.CtrlOver;
+    gsEditor:   MOver := nil;
     else        MOver := nil; //MOver should always be initialized
   end;
 
   if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled and TKMButton(MOver).MakesSound then fSoundLib.Play(sfx_click);
 
   case fGameState of
-    gsNoGame:   fMainMenuInterface.MyControls.MouseUp(X,Y,Shift,Button);
+    gsNoGame:   fMainMenuInterface.MouseUp(Button, Shift, X,Y);
     gsPaused:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsOnHold:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsReplay:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
@@ -651,111 +521,28 @@ begin
         end;
 
       end; //gsRunning
-    gsEditor: begin
-                if MOver <> nil then
-                  fMapEditorInterface.MyControls.MouseUp(X,Y,Shift,Button)
-                else
-                begin
-                fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
-                P := GameCursor.Cell; //Get cursor position tile-wise
-                if Button = mbRight then
-                begin
-                  fMapEditorInterface.RightClick_Cancel;
-
-                  //Right click performs some special functions and shortcuts
-                  case GameCursor.Mode of
-                    cm_Tiles:   fMapEditorInterface.SetTileDirection(GameCursor.Tag2+1); //Rotate tile direction
-                    cm_Objects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
-                  end;
-                  //Move the selected object to the cursor location
-                  if fPlayers.Selected is TKMHouse then
-                    TKMHouse(fPlayers.Selected).SetPosition(P); //Can place is checked in SetPosition
-
-                  if fPlayers.Selected is TKMUnit then
-                    if fTerrain.CanPlaceUnit(P, TKMUnit(fPlayers.Selected).UnitType) then
-                      TKMUnit(fPlayers.Selected).SetPosition(P);
-
-                end
-                else
-                if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-                  case GameCursor.Mode of
-                    cm_None:  begin
-                                fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                                if fPlayers.Selected is TKMHouse then
-                                  fMapEditorInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                                if fPlayers.Selected is TKMUnit then
-                                  fMapEditorInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                              end;
-                    cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
-                    cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
-                    cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
-                    //cm_Wall:
-                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then
-                              begin
-                                MyPlayer.AddHouse(THouseType(GameCursor.Tag1),P);
-                                fMapEditorInterface.Build_SelectRoad;
-                              end;
-                    cm_Height:; //handled in UpdateStateIdle
-                    cm_Objects: fTerrain.SetTree(P, GameCursor.Tag1);
-                    cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
-                              begin //Check if we can really add a unit
-                                if TUnitType(GameCursor.Tag1) in [ut_Serf..ut_Barbarian] then
-                                  MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, false)
-                                else
-                                  fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
-                              end;
-                    cm_Erase:
-                              case fMapEditorInterface.GetShownPage of
-                                esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                                esp_Units:      begin
-                                                  MyPlayer.RemUnit(P);
-                                                  fPlayers.PlayerAnimals.RemUnit(P); //Animals are common for all
-                                                end;
-                                esp_Buildings:  begin
-                                                  MyPlayer.RemHouse(P,true,false,true);
-                                                  if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                                    fTerrain.RemRoad(P);
-                                                  if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                                                    fTerrain.RemField(P);
-                                                end;
-                              end;
-                  end;
-                  end;
-              end;
+    gsEditor: fMapEditorInterface.MouseUp(Button, Shift, X,Y)
   end;
-
 end;
 
 
 procedure TKMGame.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
-var AllowZoom: boolean;
 begin
-  //e.g. if we're over a scrollbar it shouldn't zoom map, but this can apply for all controls (i.e. only zoom when over the map not controls)
-  AllowZoom := true;
-  case fGameState of //Remember clicked control
-    gsNoGame:   fMainMenuInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-    gsPaused:   ;
-    gsOnHold:   ;
-    gsRunning:  begin
-                  fGamePlayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-                  AllowZoom := (fGamePlayInterface.MyControls.CtrlOver = nil);
-                end;
-    gsReplay:   fGamePlayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-    gsEditor:   begin
-                  fMapEditorInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-                  AllowZoom := (fMapEditorInterface.MyControls.CtrlOver = nil);
-                end;
+  case fGameState of
+    gsNoGame:   fMainMenuInterface.MouseWheel(Shift, WheelDelta, X, Y);
+    gsPaused:   fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
+    gsOnHold:   fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
+    gsRunning:  fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
+    gsReplay:   fGamePlayInterface.MouseWheel(Shift, WheelDelta, X, Y);
+    gsEditor:   fMapEditorInterface.MouseWheel(Shift, WheelDelta, X, Y);
   end;
-
-  if (MOUSEWHEEL_ZOOM_ENABLE) and (fGameState in [gsRunning,gsEditor]) and (AllowZoom) then
-    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 end;
 
 
 procedure TKMGame.GameInit();
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
-  GameSpeed := 1; //In case it was set in last run mission
+  fGameSpeed := 1; //In case it was set in last run mission
   PlayOnState := gr_Cancel;
 
   if fResource.GetDataState<>dls_All then begin
@@ -964,7 +751,7 @@ begin
   GameStop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
-  GameSpeed := 1; //In case it was set in last run mission
+  fGameSpeed := 1; //In case it was set in last run mission
 
   if fResource.GetDataState<>dls_All then begin
     fMainMenuInterface.ShowScreen_Loading('units and houses');
@@ -1088,6 +875,28 @@ begin
 end;
 
 
+procedure TKMGame.SetGameSpeed(aSpeed:byte=0);
+begin
+  if aSpeed=0 then //Make sure it's either 1 or Max, not something inbetween
+    if fGameSpeed = 1 then
+      fGameSpeed := fGlobalSettings.GetSpeedup
+    else
+      fGameSpeed := 1
+  else
+    fGameSpeed := aSpeed;
+
+  fGamePlayInterface.ShowClock(fGameSpeed <> 1);
+end;
+
+
+procedure TKMGame.StepOneFrame();
+begin
+  Assert(fGameState=gsReplay, 'We can work step-by-step only in Replay');
+  SetGameSpeed(1); //Do not allow multiple updates in fGame.UpdateState loop
+  fAdvanceFrame := true;
+end;
+
+
 //Saves the game in all its glory
 //Base savegame gets copied from save99.bas
 //Saves command log to RPL file
@@ -1097,48 +906,44 @@ var
   i:integer;
 begin
   fLog.AppendLog('Saving game');
-  case fGameState of
-    gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
-    gsEditor:   exit; //MapEd gets saved differently from SaveMapEd
-    gsOnHold:   exit; //No sense to save from victory?
-    gsReplay:   exit;
-    gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
-    begin
-      SaveStream := TKMemoryStream.Create;
-      SaveStream.Write('KaM_Savegame');
-      SaveStream.Write(SAVE_VERSION); //This is savegame version
-      SaveStream.Write(fMissionFile); //Save game mission file
-      SaveStream.Write(fGameName); //Save game title
-      SaveStream.Write(fGameplayTickCount); //Required to be saved, e.g. messages being shown after a time
-      SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
-      SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
-
-      fTerrain.Save(SaveStream); //Saves the map
-      fPlayers.Save(SaveStream); //Saves all players properties individually
-      fProjectiles.Save(SaveStream);
-
-      fViewport.Save(SaveStream); //Saves viewed area settings
-      //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
-      fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
-
-      CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-
-      if SlotID = AUTOSAVE_SLOT then begin //Backup earlier autosaves
-        DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'sav'));
-        for i:=AUTOSAVE_SLOT+AUTOSAVE_COUNT downto AUTOSAVE_SLOT+1 do //13 to 11
-          RenameFile(KMSlotToSaveName(i-1,'sav'), KMSlotToSaveName(i,'sav'));
-      end;
-
-      SaveStream.SaveToFile(KMSlotToSaveName(SlotID,'sav')); //Some 70ms for TPR7 map
-      SaveStream.Free;
-
-      if SlotID <> AUTOSAVE_SLOT then begin //Backup earlier autosaves
-        CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame
-        fGameInputProcess.SaveToFile(KMSlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
-      end;//
-
-    end;
+  if not (fGameState in [gsPaused,gsRunning]) then begin
+    Assert(false, 'Saving from wrong state?');
+    exit;
   end;
+
+  SaveStream := TKMemoryStream.Create;
+  SaveStream.Write('KaM_Savegame');
+  SaveStream.Write(SAVE_VERSION); //This is savegame version
+  SaveStream.Write(fMissionFile); //Save game mission file
+  SaveStream.Write(fGameName); //Save game title
+  SaveStream.Write(fGameplayTickCount); //Required to be saved, e.g. messages being shown after a time
+  SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
+  SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
+
+  fTerrain.Save(SaveStream); //Saves the map
+  fPlayers.Save(SaveStream); //Saves all players properties individually
+  fProjectiles.Save(SaveStream);
+
+  fViewport.Save(SaveStream); //Saves viewed area settings
+  //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
+  fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+
+  CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
+
+  if SlotID = AUTOSAVE_SLOT then begin //Backup earlier autosaves
+    DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'sav'));
+    for i:=AUTOSAVE_SLOT+AUTOSAVE_COUNT downto AUTOSAVE_SLOT+1 do //13 to 11
+      RenameFile(KMSlotToSaveName(i-1,'sav'), KMSlotToSaveName(i,'sav'));
+  end;
+
+  SaveStream.SaveToFile(KMSlotToSaveName(SlotID,'sav')); //Some 70ms for TPR7 map
+  SaveStream.Free;
+
+  if SlotID <> AUTOSAVE_SLOT then begin //Backup earlier autosaves
+    CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame
+    fGameInputProcess.SaveToFile(KMSlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
+  end;//
+
   fLog.AppendLog('Saving game',true);
 end;
 
@@ -1195,62 +1000,63 @@ begin
 
   if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent);
 
+  //Load only from menu or stopped game
+  if not (fGameState in [gsNoGame]) then begin
+    Assert(false, 'Loading from wrong state?');
+    exit;
+  end;
+
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  case fGameState of
-    gsEditor, gsPaused, gsOnHold, gsRunning, gsReplay:   exit;
-    gsNoGame: begin  //Load only from menu or stopped game
-      try //Catch exceptions
-        LoadStream.LoadFromFile(FileName);
-        LoadStream.Seek(0, soFromBeginning);
+  try //Catch exceptions
+    LoadStream.LoadFromFile(FileName);
+    LoadStream.Seek(0, soFromBeginning);
 
-        //Raise some exceptions if the file is invalid or the wrong save version
-        LoadStream.Read(s); if s <> 'KaM_Savegame' then Raise Exception.Create('Not a valid KaM Remake save file');
-        LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
+    //Raise some exceptions if the file is invalid or the wrong save version
+    LoadStream.Read(s); if s <> 'KaM_Savegame' then Raise Exception.Create('Not a valid KaM Remake save file');
+    LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
 
-        //Create empty environment
-        GameInit();
+    //Create empty environment
+    GameInit();
 
-        //Substitute tick counter and id tracker
-        LoadStream.Read(fMissionFile); //Savegame mission file
-        LoadStream.Read(fGameName); //Savegame title
-        LoadStream.Read(fGameplayTickCount);
-        LoadStream.Read(ID_Tracker);
-        LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
+    //Substitute tick counter and id tracker
+    LoadStream.Read(fMissionFile); //Savegame mission file
+    LoadStream.Read(fGameName); //Savegame title
+    LoadStream.Read(fGameplayTickCount);
+    LoadStream.Read(ID_Tracker);
+    LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
-        fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
-        MyPlayer := fPlayers.Player[1];
+    fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
+    MyPlayer := fPlayers.Player[1];
 
-        //Load the data into the game
-        fTerrain.Load(LoadStream);
-        fPlayers.Load(LoadStream);
-        fProjectiles.Load(LoadStream);
+    //Load the data into the game
+    fTerrain.Load(LoadStream);
+    fPlayers.Load(LoadStream);
+    fProjectiles.Load(LoadStream);
 
-        fViewport.Load(LoadStream);
-        fGamePlayInterface.Load(LoadStream);
+    fViewport.Load(LoadStream);
+    fGamePlayInterface.Load(LoadStream);
 
-        LoadStream.Free;
+    LoadStream.Free;
 
-        fGameInputProcess := TGameInputProcess.Create(gipRecording);
-        fGameInputProcess.LoadFromFile(KMSlotToSaveName(SlotID,'rpl'));
+    fGameInputProcess := TGameInputProcess.Create(gipRecording);
+    fGameInputProcess.LoadFromFile(KMSlotToSaveName(SlotID,'rpl'));
 
-        CopyFile(PChar(KMSlotToSaveName(SlotID,'bas')), PChar(KMSlotToSaveName(99,'bas')), false); //replace Replay base savegame
+    CopyFile(PChar(KMSlotToSaveName(SlotID,'bas')), PChar(KMSlotToSaveName(99,'bas')), false); //replace Replay base savegame
 
-        fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
-        fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
-        fTerrain.SyncLoad(); //IsUnit values should be replaced with actual pointers
-        fViewport.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
-        Result := ''; //Loading has now completed successfully :)
-        Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
-      except
-        on E : Exception do
-        begin
-          //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-          Result := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
-                        E.ClassName+' error raised with message: '+E.Message;
-          if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
-          exit;
-        end;
-      end;
+    fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
+    fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
+    fTerrain.SyncLoad(); //IsUnit values should be replaced with actual pointers
+    fViewport.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
+    Result := ''; //Loading has now completed successfully :)
+    Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
+  except
+    on E : Exception do
+    begin
+      //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+      Result := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
+                    E.ClassName+' error raised with message: '+E.Message;
+      if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+      exit;
     end;
   end;
 
@@ -1262,19 +1068,19 @@ end;
 procedure TKMGame.UpdateState;
 var i:integer;
 begin
-  inc(GlobalTickCount);
+  inc(fGlobalTickCount);
   case fGameState of
     gsPaused:   exit;
     gsOnHold:   exit;
     gsNoGame:   begin
                   fMainMenuInterface.UpdateState;
-                  if GlobalTickCount mod 10 = 0 then //Once a sec
+                  if fGlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
                     fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic); //Menu tune
                 end;
     gsRunning,
     gsReplay:   begin
-                  for i:=1 to GameSpeed do
+                  for i:=1 to fGameSpeed do
                   begin
                     inc(fGameplayTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
@@ -1291,8 +1097,8 @@ begin
                         GameHold(true, gr_ReplayEnd);
                     end;
 
-                    if AdvanceFrame then begin
-                      AdvanceFrame := false;
+                    if fAdvanceFrame then begin
+                      fAdvanceFrame := false;
                       SetGameState(gsPaused);
                     end;
 
@@ -1301,21 +1107,21 @@ begin
 
                   fGamePlayInterface.UpdateState;
 
-                  if GlobalTickCount mod 10 = 0 then //Every 1000ms
+                  if fGlobalTickCount mod 10 = 0 then //Every 1000ms
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
 
-                  if GlobalTickCount mod 10 = 0 then
+                  if fGlobalTickCount mod 10 = 0 then
                     if fMusicLib.IsMusicEnded then
                       fMusicLib.PlayNextTrack(); //Feed new music track
 
-                  if GlobalTickCount mod 10 = 0 then
+                  if fGlobalTickCount mod 10 = 0 then
                     Form1.StatusBar1.Panels[2].Text:='Time: '+int2time(GetMissionTime);
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
-                  if GlobalTickCount mod 10 = 0 then //Every 500ms
+                  if fGlobalTickCount mod 10 = 0 then //Every 500ms
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;
     end;

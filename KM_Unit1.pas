@@ -376,7 +376,7 @@ end;
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
-  if CheckBox2.Checked then fGame.GameSpeed:=120 else fGame.GameSpeed:=1;
+  if CheckBox2.Checked then fGame.SetGameSpeed(120) else fGame.SetGameSpeed(1);
 end;      
 
 
@@ -542,7 +542,7 @@ end;
 
 procedure TForm1.ExportMainMenu1Click(Sender: TObject);
 begin
-  fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir+'MainMenu.txt');
+  //fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir+'MainMenu.txt');
 end;
 
 

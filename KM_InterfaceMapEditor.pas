@@ -1,11 +1,13 @@
 unit KM_InterfaceMapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils,
+uses Classes, Controls, KromUtils, Math, Windows, SysUtils, KromOGLUtils, Forms, KM_Sound,
      KM_Controls, KM_Defaults, KM_Houses, KM_Units;
 
 type TKMapEdInterface = class
   private
+    MyControls: TKMControlsCollection;
+
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
     PrevHint:TObject;
@@ -18,6 +20,7 @@ type TKMapEdInterface = class
       Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMFlatButtonShape; //Animals are common for all
       KMMinimap:TKMMinimap;
       Label_Stat,Label_Hint:TKMLabel;
+    Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu below
       Label_MissionName: TKMLabel;
@@ -42,11 +45,9 @@ type TKMapEdInterface = class
     Panel_Village:TKMPanel;
       Button_Village:array[1..3]of TKMButton;
       Panel_Build:TKMPanel;
-        Label_Build:TKMLabel;
         Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildWall,Button_BuildCancel:TKMButtonFlat;
         Button_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
       Panel_Units:TKMPanel;
-        Label_Units:TKMLabel;
         Button_UnitCancel:TKMButtonFlat;
         Button_Citizen:array[1..14]of TKMButtonFlat;
         Button_Warriors:array[1..10]of TKMButtonFlat;
@@ -56,9 +57,7 @@ type TKMapEdInterface = class
     Panel_Player:TKMPanel;
       Button_Player:array[1..2]of TKMButton;
       Panel_Goals:TKMPanel;
-        Label_Goals:TKMLabel;
       Panel_Color:TKMPanel;
-        Label_Color:TKMLabel;
         ColorSwatch_Color:TKMColorSwatch;
 
     Panel_Mission:TKMPanel;
@@ -122,9 +121,9 @@ type TKMapEdInterface = class
     procedure Create_Player_Page;
     procedure Create_Mission_Page;
     procedure Create_Menu_Page;
-    procedure Create_Save_Page;
-    procedure Create_Load_Page;
-    procedure Create_Quit_Page;
+    procedure Create_MenuSave_Page;
+    procedure Create_MenuLoad_Page;
+    procedure Create_MenuQuit_Page;
     procedure Create_Unit_Page;
     procedure Create_House_Page;
     procedure Create_Store_Page;
@@ -133,43 +132,48 @@ type TKMapEdInterface = class
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure Minimap_Update(Sender: TObject);
-    procedure Player_ChangeActive(Sender: TObject);
+
+    procedure Menu_Save(Sender:TObject);
+    procedure Menu_Load(Sender:TObject);
+    procedure Menu_QuitMission(Sender:TObject);
     procedure Terrain_HeightChange(Sender: TObject);
     procedure Terrain_TilesChange(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
-    procedure Unit_ButtonClick(Sender: TObject);
-    procedure Barracks_Fill(Sender:TObject);
-    procedure Store_Fill(Sender:TObject);
     procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
+    procedure Unit_ButtonClick(Sender: TObject);
     procedure Unit_ArmyChange1(Sender:TObject); overload;
     procedure Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton); overload;
+    procedure Barracks_Fill(Sender:TObject);
     procedure Barracks_SelectWare(Sender:TObject);
     procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
+    procedure Store_Fill(Sender:TObject);
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
+    procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender:TObject);
     procedure Mission_AlliancesChange(Sender:TObject);
+
+    function GetSelectedTile(): TObject;
+    function GetSelectedObject(): TObject;
+    function GetSelectedUnit(): TObject;
   public
-    MyControls: TKMControlsCollection;
     constructor Create;
     destructor Destroy; override;
     procedure Player_UpdateColors;
     procedure SetScreenSize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
-    procedure Menu_Save(Sender:TObject);
-    procedure Menu_Load(Sender:TObject);
-    procedure Menu_QuitMission(Sender:TObject);
     procedure Build_SelectRoad;
     procedure RightClick_Cancel;
+    procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+    function GetShownPage:TKMMapEdShownPage;
     function GetTilesRandomized: boolean;
     procedure SetTileDirection(aTileDirection: byte);
-    function GetSelectedTile(): TObject;
-    function GetSelectedObject(): TObject;
-    function GetSelectedUnit(): TObject;
-    procedure OnKeyUp(Key:Word; IsDown:boolean=false);
-    function GetShownPage:TKMMapEdShownPage;
     procedure UpdateState;
     procedure Paint;
   end;
@@ -209,13 +213,13 @@ begin
 
   Label_MenuTitle.Caption := '';
   //Now hide all existing pages
-    for i:=1 to Panel_Main.ChildCount do
-      if Panel_Main.Childs[i] is TKMPanel then
+    for i:=1 to Panel_Common.ChildCount do
+      if Panel_Common.Childs[i] is TKMPanel then
       begin
-        for k:=1 to TKMPanel(Panel_Main.Childs[i]).ChildCount do
-          if TKMPanel(Panel_Main.Childs[i]).Childs[k] is TKMPanel then
-            TKMPanel(Panel_Main.Childs[i]).Childs[k].Hide;
-        Panel_Main.Childs[i].Hide;
+        for k:=1 to TKMPanel(Panel_Common.Childs[i]).ChildCount do
+          if TKMPanel(Panel_Common.Childs[i]).Childs[k] is TKMPanel then
+            TKMPanel(Panel_Common.Childs[i]).Childs[k].Hide;
+        Panel_Common.Childs[i].Hide;
       end;
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[1]) then begin
@@ -395,25 +399,27 @@ begin
     KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;
 
+    Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint:=MyControls.AddLabel(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint.Anchors := [akLeft, akBottom];
+
+  Panel_Common := MyControls.AddPanel(Panel_Main,0,300,224,768);
+
     {5 big tabs}
-    Button_Main[1] := MyControls.AddButton(Panel_Main,   8, 372, 36, 36, 381);
-    Button_Main[2] := MyControls.AddButton(Panel_Main,  48, 372, 36, 36, 368);
-    Button_Main[3] := MyControls.AddButton(Panel_Main,  88, 372, 36, 36,  41);
-    Button_Main[4] := MyControls.AddButton(Panel_Main, 128, 372, 36, 36, 441);
-    Button_Main[5] := MyControls.AddButton(Panel_Main, 168, 372, 36, 36, 389);
+    Button_Main[1] := MyControls.AddButton(Panel_Common,   8, 72, 36, 36, 381);
+    Button_Main[2] := MyControls.AddButton(Panel_Common,  48, 72, 36, 36, 368);
+    Button_Main[3] := MyControls.AddButton(Panel_Common,  88, 72, 36, 36,  41);
+    Button_Main[4] := MyControls.AddButton(Panel_Common, 128, 72, 36, 36, 441);
+    Button_Main[5] := MyControls.AddButton(Panel_Common, 168, 72, 36, 36, 389);
     Button_Main[1].Hint := fTextLibrary.GetRemakeString(54);
     Button_Main[2].Hint := fTextLibrary.GetRemakeString(55);
     Button_Main[3].Hint := fTextLibrary.GetRemakeString(56);
     Button_Main[4].Hint := fTextLibrary.GetRemakeString(57);
     Button_Main[5].Hint := fTextLibrary.GetRemakeString(58);
-    //Button_Main[i].Hint := fTextLibrary.GetTextString(160+i);
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
-    Label_MenuTitle:=MyControls.AddLabel(Panel_Main,8,412,138,36,'',fnt_Metal,kaLeft); //Should be one-line
+    Label_MenuTitle:=MyControls.AddLabel(Panel_Common,8,112,138,36,'',fnt_Metal,kaLeft); //Should be one-line
 
-    Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint:=MyControls.AddLabel(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint.Anchors := [akLeft, akBottom]; 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -423,9 +429,9 @@ begin
   Create_Mission_Page();
 
   Create_Menu_Page();
-    Create_Save_Page();
-    Create_Load_Page();
-    Create_Quit_Page();
+    Create_MenuSave_Page();
+    Create_MenuLoad_Page();
+    Create_MenuQuit_Page();
 
   Create_Unit_Page();
   Create_House_Page();
@@ -433,7 +439,7 @@ begin
     Create_Barracks_Page();
     //Create_TownHall_Page();
 
-  Label_MissionName := MyControls.AddLabel(Panel_Main, 8, 350, 100, 10, '', fnt_Metal, kaLeft);
+  Label_MissionName := MyControls.AddLabel(Panel_Main, 8, 280, 100, 10, '', fnt_Metal, kaLeft);
 
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
@@ -463,7 +469,7 @@ end;
 procedure TKMapEdInterface.Create_Terrain_Page;
 var i,k:integer;
 begin
-  Panel_Terrain := MyControls.AddPanel(Panel_Main,0,428,196,28);
+  Panel_Terrain := MyControls.AddPanel(Panel_Common,0,128,196,28);
     Button_Terrain[1] := MyControls.AddButton(Panel_Terrain,   8, 4, 36, 24, 383);
     Button_Terrain[2] := MyControls.AddButton(Panel_Terrain,  48, 4, 36, 24, 388);
     Button_Terrain[3] := MyControls.AddButton(Panel_Terrain,  88, 4, 36, 24, 382);
@@ -537,19 +543,19 @@ end;
 procedure TKMapEdInterface.Create_Village_Page;
 var i:integer;
 begin
-  Panel_Village := MyControls.AddPanel(Panel_Main,0,428,196,28);
+  Panel_Village := MyControls.AddPanel(Panel_Common,0,128,196,28);
     Button_Village[1] := MyControls.AddButton(Panel_Village,   8, 4, 36, 24, 454);
     Button_Village[2] := MyControls.AddButton(Panel_Village,  48, 4, 36, 24, 141);
     Button_Village[3] := MyControls.AddButton(Panel_Village,  88, 4, 36, 24, 327);
     for i:=1 to 3 do Button_Village[i].OnClick := SwitchPage;
 
     Panel_Build := MyControls.AddPanel(Panel_Village,0,28,196,400);
-      Label_Build := MyControls.AddLabel(Panel_Build,100,10,100,30,'',fnt_Outline,kaCenter);
-      Button_BuildRoad   := MyControls.AddButtonFlat(Panel_Build,  8,40,33,33,335);
-      Button_BuildField  := MyControls.AddButtonFlat(Panel_Build, 45,40,33,33,337);
-      Button_BuildWine   := MyControls.AddButtonFlat(Panel_Build, 82,40,33,33,336);
-      Button_BuildWall   := MyControls.AddButtonFlat(Panel_Build,119,40,33,33,339);
-      Button_BuildCancel := MyControls.AddButtonFlat(Panel_Build,156,40,33,33,340);
+      MyControls.AddLabel(Panel_Build,100,10,100,30,'Roadworks',fnt_Outline,kaCenter);
+      Button_BuildRoad   := MyControls.AddButtonFlat(Panel_Build,  8,28,33,33,335);
+      Button_BuildField  := MyControls.AddButtonFlat(Panel_Build, 45,28,33,33,337);
+      Button_BuildWine   := MyControls.AddButtonFlat(Panel_Build, 82,28,33,33,336);
+      Button_BuildWall   := MyControls.AddButtonFlat(Panel_Build,119,28,33,33,339);
+      Button_BuildCancel := MyControls.AddButtonFlat(Panel_Build,156,28,33,33,340);
       Button_BuildRoad.OnClick  := Build_ButtonClick;
       Button_BuildField.OnClick := Build_ButtonClick;
       Button_BuildWine.OnClick  := Build_ButtonClick;
@@ -561,19 +567,20 @@ begin
       Button_BuildWall.Hint     := 'Build a wall';
       Button_BuildCancel.Hint   := fTextLibrary.GetTextString(211);
 
+      MyControls.AddLabel(Panel_Build,100,65,100,30,'Houses',fnt_Outline,kaCenter);
       for i:=1 to HOUSE_COUNT do
         if GUIHouseOrder[i] <> ht_None then begin
-          Button_Build[i]:=MyControls.AddButtonFlat(Panel_Build, 8+((i-1) mod 5)*37,80+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
+          Button_Build[i]:=MyControls.AddButtonFlat(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
           Button_Build[i].OnClick:=Build_ButtonClick;
           Button_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
         end;
 
     Panel_Units := MyControls.AddPanel(Panel_Village,0,28,196,400);
-      Label_Units := MyControls.AddLabel(Panel_Units,100,10,100,30,'',fnt_Outline,kaCenter);
 
+      MyControls.AddLabel(Panel_Units,100,10,100,30,'Citizens',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Citizen) do
       begin
-        Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,30+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 5x5
+        Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,28+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 5x5
         Button_Citizen[i].Hint := TypeToString(School_Order[i]);
         Button_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
         Button_Citizen[i].OnClick := Unit_ButtonClick;
@@ -582,17 +589,19 @@ begin
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
+      MyControls.AddLabel(Panel_Units,100,140,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
-        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,160+((i-1) div 5)*37,33,33, MapEd_Icon[i]);
+        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,158+((i-1) div 5)*37,33,33, MapEd_Icon[i]);
         Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
       end;
 
+      MyControls.AddLabel(Panel_Units,100,230,100,30,'Animals',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Animals) do
       begin
-        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,250+((i-1) div 5)*37,33,33,Animal_Icon[i]);
+        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,248+((i-1) div 5)*37,33,33,Animal_Icon[i]);
         Button_Animals[i].Hint := TypeToString(Animal_Order[i]);
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
@@ -600,22 +609,26 @@ begin
       Unit_ButtonClick(Button_Citizen[1]); //Select serf as default
 
     Panel_Script := MyControls.AddPanel(Panel_Village,0,28,196,400);
+      MyControls.AddLabel(Panel_Script,100,10,100,30,'Scripts',fnt_Outline,kaCenter);
+      {Button_ScriptReveal         := MyControls.AddButtonFlat(Panel_Script,  8,28,33,33,335);
+      Button_ScriptReveal.OnClick := Script_ButtonClick;
+      Button_ScriptReveal.Hint    := 'Reveal a portion of map';}
 end;
 
 
 procedure TKMapEdInterface.Create_Player_Page;
 var i:integer;
 begin
-  Panel_Player := MyControls.AddPanel(Panel_Main,0,428,196,28);
+  Panel_Player := MyControls.AddPanel(Panel_Common,0,128,196,28);
     Button_Player[1] := MyControls.AddButton(Panel_Player,   8, 4, 36, 24, 41);
     Button_Player[2] := MyControls.AddButton(Panel_Player,  48, 4, 36, 24, 382);
     for i:=1 to 2 do Button_Player[i].OnClick := SwitchPage;
 
     Panel_Goals := MyControls.AddPanel(Panel_Player,0,28,196,400);
-      Label_Goals := MyControls.AddLabel(Panel_Goals,100,10,100,30,'Goals',fnt_Outline,kaCenter);
+      MyControls.AddLabel(Panel_Goals,100,10,100,30,'Goals',fnt_Outline,kaCenter);
 
     Panel_Color := MyControls.AddPanel(Panel_Player,0,28,196,400);
-      Label_Color := MyControls.AddLabel(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
+      MyControls.AddLabel(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
       MyControls.AddBevel(Panel_Color,8,30,180,210);
       ColorSwatch_Color := MyControls.AddColorSwatch(Panel_Color, 10, 32, 16, 16);
       ColorSwatch_Color.OnClick := Player_ColorClick;
@@ -625,7 +638,7 @@ end;
 procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:integer;
 begin
-  Panel_Mission := MyControls.AddPanel(Panel_Main,0,428,196,28);
+  Panel_Mission := MyControls.AddPanel(Panel_Common,0,128,196,28);
     Button_Mission[1] := MyControls.AddButton(Panel_Mission, 8, 4, 36, 24, 41);
     for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
 
@@ -651,7 +664,7 @@ end;
 {Menu page}
 procedure TKMapEdInterface.Create_Menu_Page;
 begin
-  Panel_Menu:=MyControls.AddPanel(Panel_Main,0,412,196,400);
+  Panel_Menu:=MyControls.AddPanel(Panel_Common,0,128,196,400);
     Button_Menu_Save:=MyControls.AddButton(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
     Button_Menu_Save.OnClick:=SwitchPage;
     Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
@@ -668,9 +681,9 @@ end;
 
 
 {Save page}
-procedure TKMapEdInterface.Create_Save_Page;
+procedure TKMapEdInterface.Create_MenuSave_Page;
 begin
-  Panel_Save := MyControls.AddPanel(Panel_Main,0,412,196,400);
+  Panel_Save := MyControls.AddPanel(Panel_Common,0,128,196,400);
     MyControls.AddLabel(Panel_Save,100,30,100,30,'Save map',fnt_Outline,kaCenter);
     Edit_SaveName       := MyControls.AddEdit(Panel_Save,8,50,180,20, fnt_Grey);
     Label_SaveExists    := MyControls.AddLabel(Panel_Save,100,80,100,30,'Map already exists',fnt_Outline,kaCenter);
@@ -685,9 +698,9 @@ end;
 
 
 {Load page}
-procedure TKMapEdInterface.Create_Load_Page;
+procedure TKMapEdInterface.Create_MenuLoad_Page;
 begin
-  Panel_Load := MyControls.AddPanel(Panel_Main,0,432,196,400);
+  Panel_Load := MyControls.AddPanel(Panel_Common,0,128,196,400);
     MyControls.AddLabel(Panel_Load, 16, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
     FileList_Load := MyControls.AddFileList(Panel_Load, 8, 20, 200, 200);
     Button_LoadLoad     := MyControls.AddButton(Panel_Load,8,250,180,30,'Load',fnt_Metal);
@@ -698,9 +711,9 @@ end;
 
 
 {Quit page}
-procedure TKMapEdInterface.Create_Quit_Page;
+procedure TKMapEdInterface.Create_MenuQuit_Page;
 begin
-  Panel_Quit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
+  Panel_Quit:=MyControls.AddPanel(Panel_Common,0,128,200,400);
     MyControls.AddLabel(Panel_Quit,100,40,100,30,'Any unsaved|changes will be lost',fnt_Outline,kaCenter);
     Button_Quit_Yes   := MyControls.AddButton(Panel_Quit,8,100,180,30,'Quit',fnt_Metal);
     Button_Quit_No    := MyControls.AddButton(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
@@ -714,7 +727,7 @@ end;
 {Unit page}
 procedure TKMapEdInterface.Create_Unit_Page;
 begin
-  Panel_Unit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
+  Panel_Unit:=MyControls.AddPanel(Panel_Common,0,112,200,400);
     Label_UnitName        := MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
     Image_UnitPic         := MyControls.AddImage(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
@@ -742,7 +755,7 @@ end;
 {House description page}
 procedure TKMapEdInterface.Create_House_Page;
 begin
-  Panel_House:=MyControls.AddPanel(Panel_Main,0,412,200,400);
+  Panel_House:=MyControls.AddPanel(Panel_Common,0,112,200,400);
     //Thats common things
     Label_House:=MyControls.AddLabel(Panel_House,100,14,100,30,'',fnt_Outline,kaCenter);
     Image_House_Logo:=MyControls.AddImage(Panel_House,8,41,32,32,338);
@@ -946,28 +959,21 @@ begin
   GameCursor.Mode:=cm_None;
   GameCursor.Tag1:=0;
   GameCursor.Tag2:=0;
-  Label_Build.Caption := '';
 
   if Button_BuildCancel.Down then begin
     GameCursor.Mode:=cm_Erase;
-    Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
   if Button_BuildRoad.Down then begin
     GameCursor.Mode:=cm_Road;
-    Label_Build.Caption := fTextLibrary.GetTextString(212);
   end;
   if Button_BuildField.Down then begin
     GameCursor.Mode:=cm_Field;
-    Label_Build.Caption := fTextLibrary.GetTextString(214);
   end;
   if Button_BuildWine.Down then begin
     GameCursor.Mode:=cm_Wine;
-    Label_Build.Caption := fTextLibrary.GetTextString(218);
   end;
 {  if Button_BuildWall.Down then begin
     GameCursor.Mode:=cm_Wall;
-    Label_BuildCost_Wood.Caption:='1';
-    //Label_Build.Caption := fTextLibrary.GetTextString(218);
   end;}
 
   for i:=1 to HOUSE_COUNT do
@@ -975,7 +981,6 @@ begin
   if Button_Build[i].Down then begin
      GameCursor.Mode:=cm_Houses;
      GameCursor.Tag1:=byte(GUIHouseOrder[i]);
-     Label_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
   end;
 end;
 
@@ -1008,7 +1013,6 @@ begin
   begin
     GameCursor.Mode := cm_Units;
     GameCursor.Tag1 := byte(TKMButtonFlat(Sender).Tag);
-    Label_Units.Caption := TypeToString(TUnitType(byte(TKMButtonFlat(Sender).Tag)));
   end;
 
 end;
@@ -1117,13 +1121,7 @@ end;
 
 {Quit the mission and return to main menu}
 procedure TKMapEdInterface.Menu_QuitMission(Sender:TObject);
-var i:integer;
 begin
-  Panel_Main.Hide;
-  for i:=1 to Panel_Main.ChildCount do
-    if Panel_Main.Childs[i] is TKMPanel then
-      Panel_Main.Childs[i].Hide;
-
   fGame.GameStop(gr_MapEdEnd);
 end;
 
@@ -1176,7 +1174,7 @@ begin
   Result := nil;
   for i:=1 to 4 do
     if ObjectsTable[i].Down then Result := ObjectsTable[i];
-end;  
+end;
 
 
 function TKMapEdInterface.GetSelectedUnit(): TObject;
@@ -1381,14 +1379,166 @@ begin
 end;
 
 
-procedure TKMapEdInterface.OnKeyUp(Key:Word; IsDown:boolean=false);
+procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
 begin
+  if MyControls.KeyUp(Key, Shift, IsDown) then exit; //Handled by Controls
+
   //1-5 game menu shortcuts
   if Key in [49..53] then
   begin
     if Button_Main[Key-48].Visible then MyControls.CtrlDown := Button_Main[Key-48];
     if not IsDown then SwitchPage(Button_Main[Key-48]);
   end;
+
+  //Scrolling
+  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
+  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
+  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
+  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
+
+  //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
+  //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
+  if (Key = VK_BACK) and not IsDown then fViewport.SetZoom(1);
+end;
+
+
+procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+begin
+  MyControls.MouseDown(X,Y,Shift,Button);
+  if MyControls.CtrlOver<>nil then
+    Screen.Cursor := c_Default
+  else
+    fTerrain.ComputeCursorPosition(X,Y,Shift); //So terrain brushes start on mouse down not mouse move
+end;
+
+
+procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
+var P:TKMPoint;
+begin
+  MyControls.MouseMove(X,Y,Shift);
+  if MyControls.CtrlOver<>nil then begin
+    Screen.Cursor:=c_Default;
+    exit;
+  end;
+
+  fTerrain.ComputeCursorPosition(X,Y,Shift);
+  if GameCursor.Mode=cm_None then
+    if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
+       (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
+      Screen.Cursor:=c_Info
+    else if not fViewport.Scrolling then
+      Screen.Cursor:=c_Default;
+
+  if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
+  begin
+    P := GameCursor.Cell; //Get cursor position tile-wise
+    case GameCursor.Mode of
+      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P,false);
+      cm_Field:     if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
+      cm_Wine:      if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
+      //cm_Wall:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+      cm_Objects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
+      cm_Erase:     case GetShownPage of
+                      esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
+                      esp_Units:      MyPlayer.RemUnit(P);
+                      esp_Buildings:  begin
+                                        MyPlayer.RemHouse(P,true,false,true);
+                                        if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                          fTerrain.RemRoad(P);
+                                        if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                                          fTerrain.RemField(P);
+                                      end;
+                    end;
+    end;
+  end;
+end;
+
+
+procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+var P:TKMPoint;
+begin
+  if MyControls.CtrlOver <> nil then begin
+    MyControls.MouseUp(X,Y,Shift,Button);
+    if (MyControls.CtrlOver <> nil)
+    and (MyControls.CtrlOver is TKMButton)
+    and MyControls.CtrlOver.Enabled
+    and TKMButton(MyControls.CtrlOver).MakesSound then
+      fSoundLib.Play(sfx_click);
+    exit;
+  end;
+
+  fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
+  P := GameCursor.Cell; //Get cursor position tile-wise
+  if Button = mbRight then
+  begin
+    RightClick_Cancel;
+
+    //Right click performs some special functions and shortcuts
+    case GameCursor.Mode of
+      cm_Tiles:   SetTileDirection(GameCursor.Tag2+1); //Rotate tile direction
+      cm_Objects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+    end;
+    //Move the selected object to the cursor location
+    if fPlayers.Selected is TKMHouse then
+      TKMHouse(fPlayers.Selected).SetPosition(P); //Can place is checked in SetPosition
+
+    if fPlayers.Selected is TKMUnit then
+      if fTerrain.CanPlaceUnit(P, TKMUnit(fPlayers.Selected).UnitType) then
+        TKMUnit(fPlayers.Selected).SetPosition(P);
+
+  end
+  else
+  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+    case GameCursor.Mode of
+      cm_None:  begin
+                  fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                  if fPlayers.Selected is TKMHouse then
+                    ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                  if fPlayers.Selected is TKMUnit then
+                    ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                end;
+      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
+      cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
+      cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+      //cm_Wall:
+      cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then
+                begin
+                  MyPlayer.AddHouse(THouseType(GameCursor.Tag1),P);
+                  Build_SelectRoad;
+                end;
+      cm_Height:; //handled in UpdateStateIdle
+      cm_Objects: fTerrain.SetTree(P, GameCursor.Tag1);
+      cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
+                begin //Check if we can really add a unit
+                  if TUnitType(GameCursor.Tag1) in [ut_Serf..ut_Barbarian] then
+                    MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, false)
+                  else
+                    fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
+                end;
+      cm_Erase:
+                case GetShownPage of
+                  esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
+                  esp_Units:      begin
+                                    MyPlayer.RemUnit(P);
+                                    fPlayers.PlayerAnimals.RemUnit(P); //Animals are common for all
+                                  end;
+                  esp_Buildings:  begin
+                                    MyPlayer.RemHouse(P,true,false,true);
+                                    if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                      fTerrain.RemRoad(P);
+                                    if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                                      fTerrain.RemField(P);
+                                  end;
+                end;
+    end;
+end;
+
+
+procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+begin
+  MyControls.MouseWheel(X, Y, WheelDelta);
+  if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) then
+    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 end;
 
 

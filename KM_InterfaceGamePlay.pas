@@ -188,6 +188,7 @@ type TKMGamePlayInterface = class
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
     procedure SetArmyControlsActive(aActive:boolean);
+    procedure SetPause(aValue:boolean);
   public
     MyControls: TKMControlsCollection;
     JoiningGroups: boolean;
@@ -218,13 +219,14 @@ type TKMGamePlayInterface = class
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
-    procedure ShowPause(DoShow:boolean);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
-    procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
     procedure ClearShownUnit;
+
+    procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -1215,6 +1217,7 @@ end;
 
 procedure TKMGamePlayInterface.MessageDelete(Sender: TObject);
 begin
+  if ShownMessage = 0 then exit; //Nothing to delete obviously (player pressed DEL with no msg opened)
   fMessageList.RemoveEntry(ShownMessage);
   MessageClose(Sender);
 end;
@@ -1882,8 +1885,7 @@ begin
   end;
 
   if (Sender = Button_ReplayStep) then begin
-    fGame.GameSpeed := 1; //Do not allow multiple updates in fGame.UpdateState loop
-    fGame.AdvanceFrame := true;
+    fGame.StepOneFrame;
     fGame.SetGameState(gsReplay);
     SetButtons(false);
   end;
@@ -2013,12 +2015,16 @@ procedure TKMGamePlayInterface.ShowClock(DoShow:boolean);
 begin
   Image_Clock.Visible := DoShow;
   Label_Clock.Visible := DoShow;
+  if DoShow then //With slow GPUs it will keep old values till next frame, that can take some seconds
+    Label_Clock.Caption := int2time(fGame.GetMissionTime);
 end;
 
 
-procedure TKMGamePlayInterface.ShowPause(DoShow:boolean);
+procedure TKMGamePlayInterface.SetPause(aValue:boolean);
 begin
-  Panel_Pause.Visible := DoShow;
+  if aValue then fGame.SetGameState(gsPaused)
+            else fGame.SetGameState(gsRunning);
+  Panel_Pause.Visible := aValue;
 end;
 
 
@@ -2053,9 +2059,9 @@ begin
 
   if Sender = Button_PlayQuit then
     case PlayMoreMsg of
-      gr_Win: fGame.GameStop(gr_Win);
-      gr_Defeat:fGame.GameStop(gr_Defeat);
-      gr_ReplayEnd:fGame.GameStop(gr_ReplayEnd);
+      gr_Win:       fGame.GameStop(gr_Win);
+      gr_Defeat:    fGame.GameStop(gr_Defeat);
+      gr_ReplayEnd: fGame.GameStop(gr_ReplayEnd);
     end;
 
   if Sender = Button_PlayMore then
@@ -2078,67 +2084,83 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShortcutPress(Key:Word; IsDown:boolean=false);
-begin
-  //1-4 game menu shortcuts
-  if Key in [49..52] then
-  begin
-    if Button_Main[Key-48].Visible then MyControls.CtrlDown := Button_Main[Key-48];
-    if (not IsDown) and (not Button_Main[5].Visible) then SwitchPage(Button_Main[Key-48]);
-  end;
-  if Key=VK_ESCAPE then
-  begin
-    if Button_Main[5].Visible then MyControls.CtrlDown := Button_Main[5];
-    if Button_MessageClose.Visible then MyControls.CtrlDown := Button_MessageClose;
-    if Button_Army_Join_Cancel.Visible then MyControls.CtrlDown := Button_Army_Join_Cancel;
-    if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
-    if (not IsDown) then MessageClose(Button_MessageClose);
-    if (not IsDown) then Army_CancelJoin(Button_Army_Join_Cancel);
-  end;
-  //Messages
-  if (Key=VK_SPACE) and (Button_MessageGoTo.Enabled) then //In KaM spacebar centers you on the message
-  begin
-    if Button_MessageGoTo.Visible then MyControls.CtrlDown := Button_MessageGoTo;
-    if (not IsDown) then MessageGoTo(Button_MessageGoTo);
-  end;
-  if (Key=VK_DELETE) and (ShownMessage <> 0) then //Delete the opened message
-  begin
-    if Button_MessageDelete.Visible then MyControls.CtrlDown := Button_MessageDelete;
-    if (not IsDown) then MessageDelete(Image_Message[ShownMessage]); //Deletes the open message
-  end;
-  //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
-  if (Key=65) and (Panel_Army.Visible) then //65 = A
-  begin
-    if Button_Army_Attack.Visible then MyControls.CtrlDown := Button_Army_Attack;
-    if (not IsDown) then Army_Issue_Order(Button_Army_Attack);
-  end;
-  if (Key=68) and (Panel_Army.Visible) then //68 = D
-  begin
-    if Button_Army_GoTo.Visible then MyControls.CtrlDown := Button_Army_GoTo;
-    if (not IsDown) then Army_Issue_Order(Button_Army_GoTo);
-  end;
-  if (Key=72) and (Panel_Army.Visible) then //72 = H
-  begin
-    if Button_Army_Stop.Visible then MyControls.CtrlDown := Button_Army_Stop;
-    if (not IsDown) then Army_Issue_Order(Button_Army_Stop);
-  end;
-  if (Key=76) and (Panel_Army.Visible) then //76 = L
-  begin
-    if Button_Army_Join.Visible then MyControls.CtrlDown := Button_Army_Join;
-    if (not IsDown) then Army_Issue_Order(Button_Army_Join);
-  end;
-  if (Key=83) and (Panel_Army.Visible) then //83 = S
-  begin
-    if Button_Army_Split.Visible then MyControls.CtrlDown := Button_Army_Split;
-    if (not IsDown) then Army_Issue_Order(Button_Army_Split);
-  end;
-end;
-
-
 procedure TKMGamePlayInterface.ClearShownUnit;
 begin
   fShownUnit := nil;
   SwitchPage(nil);
+end;
+
+
+//Note: we deliberately don't pass any Keys to MyControls when game is not running
+//thats why MyControls.KeyUp is only in gsRunning clause
+//Ignore all keys if game is on 'Pause'
+procedure TKMGamePlayInterface.KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+begin
+  case fGame.GameState of
+    gsPaused:   if (Key=ord('P')) and not IsDown then SetPause(false);
+    gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
+    gsRunning:  begin //Game is running normally
+                  if MyControls.KeyUp(Key, Shift, IsDown) then exit;
+
+                  //Scrolling
+                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
+                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
+                  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
+                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
+                  if IsDown then exit; //Other commands don't repeat
+
+                  if Key = VK_BACK then  fViewport.SetZoom(1);
+                  //Game speed
+                  if Key = VK_F8 then    fGame.SetGameSpeed(); //Speed will toggle automatically
+                  if Key = ord('P') then SetPause(true); //Display pause overlay
+
+                  //Menu shortcuts
+                  if Key in [ord('1')..ord('4')] then Button_Main[Key-48].DoClick;
+                  if Key=VK_ESCAPE then if Button_Army_Join_Cancel.DoClick then exit
+                                        else if Button_MessageClose.DoClick then exit
+                                        else if Button_Main[5].DoClick then exit;
+                  //Messages
+                  if Key=VK_SPACE  then Button_MessageGoTo.DoClick; //In KaM spacebar centers you on the message
+                  if Key=VK_DELETE then Button_MessageDelete.DoClick;
+
+                  //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
+                  if (Key = ord('A')) and (Panel_Army.Visible) then Button_Army_Attack.DoClick;
+                  if (Key = ord('D')) and (Panel_Army.Visible) then Button_Army_GoTo.DoClick;
+                  if (Key = ord('H')) and (Panel_Army.Visible) then Button_Army_Stop.DoClick;
+                  if (Key = ord('L')) and (Panel_Army.Visible) then Button_Army_Join.DoClick;
+                  if (Key = ord('S')) and (Panel_Army.Visible) then Button_Army_Split.DoClick;
+
+                  {Thats my debug example}
+                  if Key=ord('5') then MessageIssue(msgText,'123',KMPoint(0,0));
+                  if Key=ord('6') then MessageIssue(msgHouse,'123',KMPointRound(fViewport.GetCenter));
+                  if Key=ord('7') then MessageIssue(msgUnit,'123',KMPoint(0,0));
+                  if Key=ord('8') then MessageIssue(msgHorn,'123',KMPoint(0,0));
+                  if Key=ord('9') then MessageIssue(msgQuill,'123',KMPoint(0,0));
+                  if Key=ord('0') then MessageIssue(msgScroll,'123',KMPoint(0,0));
+
+                  {Temporary cheat codes}
+                  if Key=ord('W') then fTerrain.RevealWholeMap(MyPlayer.PlayerID);
+                  if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
+                  if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
+                end;
+    gsReplay:   begin
+                  if IsDown then exit;
+                  if Key = VK_BACK then fViewport.SetZoom(1);
+                  if Key = VK_F8 then   fGame.SetGameSpeed(); //Speed will toggle automatically
+                  if Key=ord('W') then  fTerrain.RevealWholeMap(MyPlayer.PlayerID);
+                end;
+
+   end;
+end;
+
+
+//e.g. if we're over a scrollbar it shouldn't zoom map,
+//but this can apply for all controls (i.e. only zoom when over the map not controls)
+procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+begin
+  MyControls.MouseWheel(X, Y, WheelDelta);
+  if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) and (fGame.GameState in [gsReplay,gsRunning]) then
+    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 end;
 
 

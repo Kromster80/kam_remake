@@ -1,7 +1,7 @@
 unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
-uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, KM_Sound,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   KM_Controls, KM_Defaults, KM_CommonTypes, Windows, KM_Settings, KM_MapInfo, KM_Lobby;
@@ -9,6 +9,7 @@ uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
 
 type TKMMainMenuInterface = class
   private
+    MyControls: TKMControlsCollection;
     fLobby:TKMLobby;
     ScreenX,ScreenY:word;
 
@@ -169,7 +170,6 @@ type TKMMainMenuInterface = class
     procedure MapEditor_Change(Sender: TObject);
     procedure Options_Change(Sender: TObject);
   public
-    MyControls: TKMControlsCollection;
     constructor Create(X,Y:word; aGameSettings:TGlobalSettings);
     destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
@@ -180,7 +180,11 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Results(Msg:TGameResultMsg);
     procedure Fill_Results();
 
-    procedure MouseMove(X,Y:integer);
+    procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure UpdateState;
     procedure Paint;
 end;
@@ -1219,16 +1223,52 @@ begin
 end;
 
 
-//Do something related to mouse movement in menu
-procedure TKMMainMenuInterface.MouseMove(X,Y:integer);
+procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
 begin
+  if MyControls.KeyUp(Key, Shift, IsDown) then exit; //Handled by Controls
+end;
+
+
+procedure TKMMainMenuInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+begin
+  MyControls.MouseDown(X,Y,Shift,Button);
+end;
+
+
+//Do something related to mouse movement in menu
+procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
+begin
+  MyControls.MouseMove(X,Y,Shift);
+  if MyControls.CtrlOver is TKMEdit then // Show "CanEdit" cursor
+    Screen.Cursor := c_Edit  //todo: [Lewin] Make our own 'I' cursor using textures from other cursors
+  else
+    Screen.Cursor := c_Default;
+
   if (Panel_Campaign.Visible)
- and (Y > Panel_Campaign.Top + Panel_Campaign.Height - Panel_CampScroll.Height) then
-      if X < Panel_Campaign.Left +  Panel_CampScroll.Width then
-        Panel_CampScroll.Left := Panel_Campaign.Width - Panel_CampScroll.Width
-      else
-      if X > Panel_Campaign.Left +  Panel_Campaign.Width - Panel_CampScroll.Width then
-        Panel_CampScroll.Left := 0;
+  and (Y > Panel_Campaign.Top + Panel_Campaign.Height - Panel_CampScroll.Height) then
+    if X < Panel_Campaign.Left +  Panel_CampScroll.Width then
+      Panel_CampScroll.Left := Panel_Campaign.Width - Panel_CampScroll.Width
+    else
+    if X > Panel_Campaign.Left +  Panel_Campaign.Width - Panel_CampScroll.Width then
+      Panel_CampScroll.Left := 0;
+end;
+
+
+procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+begin
+  MyControls.MouseUp(X,Y,Shift,Button);
+
+  if (MyControls.CtrlOver <> nil)
+  and (MyControls.CtrlOver is TKMButton)
+  and MyControls.CtrlOver.Enabled
+  and TKMButton(MyControls.CtrlOver).MakesSound then
+    fSoundLib.Play(sfx_click);
+end;
+
+
+procedure TKMMainMenuInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+begin
+  MyControls.MouseWheel(X, Y, WheelDelta);
 end;
 
 
