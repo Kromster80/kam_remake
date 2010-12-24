@@ -401,7 +401,7 @@ end;
 
 procedure TKMPlayerAssets.DestroyedUnit(aType:TUnitType);
 begin
-  if Assigned(fPlayerStats) then fPlayerStats.DestroyedUnit(aType);
+  fPlayerStats.DestroyedUnit(aType);
 end;
 
 

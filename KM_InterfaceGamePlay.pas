@@ -133,9 +133,9 @@ type TKMGamePlayInterface = class
       Label_Common_Demand,Label_Common_Offer,Label_Common_Costs,
       Label_House_UnderConstruction,Label_House_Demolish:TKMLabel;
       Button_House_DemolishYes,Button_House_DemolishNo:TKMButton;
-      Row__Common_Resource:array[1..4]of TKMResourceRow; //4 bars is the maximum
-      Row__Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
-      Row__Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
+      ResRow_Common_Resource:array[1..4]of TKMResourceRow; //4 bars is the maximum
+      ResRow_Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
+      ResRow_Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
     Panel_HouseStore:TKMPanel;
       Button_Store:array[1..28]of TKMButtonFlat;
       Image_Store_Accept:array[1..28]of TKMImage;
@@ -201,7 +201,7 @@ type TKMGamePlayInterface = class
     procedure Save_Click(Sender: TObject);
     procedure Load_Click(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
-    procedure SwitchPageRatios(Sender: TObject);
+    procedure SwitchPage_Ratios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender:TObject);
@@ -249,7 +249,7 @@ KM_Sound, Forms;
 
 
 {Switch between pages}
-procedure TKMGamePlayInterface.SwitchPageRatios(Sender: TObject);
+procedure TKMGamePlayInterface.SwitchPage_Ratios(Sender: TObject);
 const ResPic:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
       ResLab:array[1..4] of word = (298,300,302,304);
       ResQty:array[1..4] of byte = (2,4,2,3);
@@ -306,7 +306,7 @@ procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
   if not (Sender is TKMButton) then exit; //Just in case
   //Don't allow saving over autosave (AUTOSAVE_SLOT)
-  if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) and fGame.fGlobalSettings.Autosave then exit;
+  if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) then exit;
   fGame.Save(TKMControl(Sender).Tag);
   SwitchPage(nil); //Close save menu after saving
 end;
@@ -380,7 +380,7 @@ begin
 
   if Sender=Button_Main[2] then begin
     Panel_Ratios.Show;
-    SwitchPageRatios(Button_Ratios[1]); //Open 1st tab
+    SwitchPage_Ratios(Button_Ratios[1]); //Open 1st tab
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(167);
   end else
 
@@ -422,29 +422,10 @@ begin
     Flip4MainButtons(true);
 
   //Now process all other kinds of pages
-  if Sender=Panel_Unit then
-    TKMPanel(Sender).Show
-  else
-
-  if Sender=Panel_House then
-    TKMPanel(Sender).Show
-  else
-
-  if Sender=Panel_House_Common then
-    TKMPanel(Sender).Show
-  else
-
-  if Sender=Panel_House_School then
-    TKMPanel(Sender).Show
-  else
-
-  if Sender=Panel_HouseBarracks then
-    TKMPanel(Sender).Show
-  else
-
-  if Sender=Panel_HouseStore then
-    TKMPanel(Sender).Show;
-
+  if (Sender=Panel_Unit) or (Sender=Panel_House)
+  or (Sender=Panel_House_Common) or (Sender=Panel_House_School)
+  or (Sender=Panel_HouseBarracks) or (Sender=Panel_HouseStore) then
+    TKMPanel(Sender).Show;       
 end;
 
 
@@ -480,17 +461,16 @@ var
 begin
   GetCursorPos(P); //Convert cursor position to KMPoint within Game render area
   P := Form1.Panel5.ScreenToClient(P);
-
   KMP := KMMinimap.GetMapCoords(P.X, P.Y, -1); //Outset by 1 pixel to catch cases "outside of map"
   if not KMMinimap.InMapCoords(KMP.X,KMP.Y) then exit; //Must be inside map
 
   //Send move order, if applicable
-  if (fShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
-    if fTerrain.Route_CanBeMade(fShownUnit.GetPosition, KMP, CanWalk, 0, false) then
-    begin
-      fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP);
-      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
-    end;
+  if (fShownUnit is TKMUnitWarrior) and (not JoiningGroups)
+  and fTerrain.Route_CanBeMade(fShownUnit.GetPosition, KMP, CanWalk, 0, false) then
+  begin
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP);
+    fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
+  end;
 end;
 
 
@@ -505,13 +485,12 @@ begin
   fShownUnit:=nil;
   fShownHouse:=nil;
   JoiningGroups := false;
+  SelectingTroopDirection := false;
+  SelectingDirPosition    := Point(0,0);
 
   LastSchoolUnit:=1;
   LastBarracksUnit:=1;
   fMessageList:=TKMMessageList.Create;
-
-  SelectingTroopDirection := false;
-  SelectingDirPosition    := Point(0,0);
 
 {Parent Page for whole toolbar in-game}
   Panel_Main := MyControls.AddPanel(nil,0,0,1024,768);
@@ -588,11 +567,12 @@ begin
     Create_Barracks_Page();
     //Create_TownHall_Page(); //I don't want to make it at all yet
 
-  Create_Pause_Page(); 
+  Create_Pause_Page();
   Create_Replay_Page();
   Create_PlayMore_Page(); //Must be created last, so that all controls behind are blocked
 
   //Here we must go through every control and set the hint event to be the parameter
+  //Controls without a hint will reset the Hint to ''
   for i := 0 to MyControls.Count - 1 do
     if MyControls.Items[i] <> nil then
       TKMControl(MyControls.Items[i]).OnMouseOver := DisplayHint;
@@ -623,16 +603,15 @@ end;
 
 {Pause overlay page}
 procedure TKMGamePlayInterface.Create_Pause_Page;
-var SX,SY:integer; //Local variables
+var S:TKMPoint;
 begin
-  SX := fRender.RenderAreaSize.X;
-  SY := fRender.RenderAreaSize.Y;
-  Panel_Pause:=MyControls.AddPanel(Panel_Main,0,0,SX,SY);
+  S := fRender.RenderAreaSize;
+  Panel_Pause:=MyControls.AddPanel(Panel_Main,0,0,S.X,S.Y);
   Panel_Pause.Stretch;
-    Bevel_Pause:=MyControls.AddBevel(Panel_Pause,-1,-1,SX+2,SY+2);
-    Image_Pause:=MyControls.AddImage(Panel_Pause,(SX div 2),(SY div 2)-40,0,0,556);
-    Label_Pause1:=MyControls.AddLabel(Panel_Pause,(SX div 2),(SY div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
-    Label_Pause2:=MyControls.AddLabel(Panel_Pause,(SX div 2),(SY div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    Bevel_Pause:=MyControls.AddBevel(Panel_Pause,-1,-1,S.X+2,S.Y+2);
+    Image_Pause:=MyControls.AddImage(Panel_Pause,(S.X div 2),(S.Y div 2)-40,0,0,556);
+    Label_Pause1:=MyControls.AddLabel(Panel_Pause,(S.X div 2),(S.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    Label_Pause2:=MyControls.AddLabel(Panel_Pause,(S.X div 2),(S.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
     Bevel_Pause.Stretch; //Anchor to all sides
     Image_Pause.ImageCenter;
     Label_Pause1.Center;
@@ -654,7 +633,7 @@ begin
   Panel_PlayMore.Stretch;
     Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,s.X+2,s.Y+2);
     Bevel_PlayMore.Stretch;
-    
+
     Panel_PlayMoreMsg := MyControls.AddPanel(Panel_PlayMore,(s.X div 2)-100,(s.Y div 2)-100,200,200);
     Panel_PlayMoreMsg.Center;
       Image_PlayMore:=MyControls.AddImage(Panel_PlayMoreMsg,100,40,0,0,556);
@@ -786,7 +765,7 @@ begin
     Button_Ratios[i]         := MyControls.AddButton(Panel_Ratios, 8+(i-1)*40,20,32,32,350+byte(ResPic[i]));
     Button_Ratios[i].Hint    := fTextLibrary.GetTextString(ResHint[i]);
     Button_Ratios[i].Tag     := i;
-    Button_Ratios[i].OnClick := SwitchPageRatios;
+    Button_Ratios[i].OnClick := SwitchPage_Ratios;
   end;
 
   Image_RatioPic0 := MyControls.AddImage(Panel_Ratios,12,76,32,32,327);
@@ -919,8 +898,8 @@ begin
   Panel_Load := MyControls.AddPanel(Panel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
       Button_Load[i] := MyControls.AddButton(Panel_Load,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
-      Button_Load[i].Tag := i;
       Button_Load[i].OnClick := Load_Click;
+      Button_Load[i].Tag := i;
     end;
 end;
 
@@ -963,12 +942,12 @@ procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   Panel_Quit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     MyControls.AddLabel(Panel_Quit,100,30,100,30,fTextLibrary.GetTextString(176),fnt_Outline,kaCenter);
-    Button_Quit_Yes:=MyControls.AddButton(Panel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
-    Button_Quit_No:=MyControls.AddButton(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
-    Button_Quit_Yes.Hint:=fTextLibrary.GetTextString(177);
-    Button_Quit_No.Hint:=fTextLibrary.GetTextString(178);
-    Button_Quit_Yes.OnClick:=Menu_QuitMission;
-    Button_Quit_No.OnClick:=SwitchPage;
+    Button_Quit_Yes := MyControls.AddButton(Panel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    Button_Quit_No  := MyControls.AddButton(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
+    Button_Quit_Yes.Hint := fTextLibrary.GetTextString(177);
+    Button_Quit_No.Hint  := fTextLibrary.GetTextString(178);
+    Button_Quit_Yes.OnClick := Menu_QuitMission;
+    Button_Quit_No.OnClick  := SwitchPage;
 end;
 
 
@@ -1081,21 +1060,21 @@ begin
       Label_Common_Demand := MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
       Label_Common_Offer  := MyControls.AddLabel(Panel_House_Common,100,2,100,30,'',fnt_Grey,kaCenter);
       Label_Common_Costs  := MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(248),fnt_Grey,kaCenter);
-      Row__Common_Resource[1] := MyControls.AddResourceRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
-      Row__Common_Resource[2] := MyControls.AddResourceRow(Panel_House_Common,  8,42,180,20,rt_Stone,5);
-      Row__Common_Resource[3] := MyControls.AddResourceRow(Panel_House_Common,  8,62,180,20,rt_Trunk,5);
-      Row__Common_Resource[4] := MyControls.AddResourceRow(Panel_House_Common,  8,82,180,20,rt_Stone,5);
+      ResRow_Common_Resource[1] := MyControls.AddResourceRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
+      ResRow_Common_Resource[2] := MyControls.AddResourceRow(Panel_House_Common,  8,42,180,20,rt_Stone,5);
+      ResRow_Common_Resource[3] := MyControls.AddResourceRow(Panel_House_Common,  8,62,180,20,rt_Trunk,5);
+      ResRow_Common_Resource[4] := MyControls.AddResourceRow(Panel_House_Common,  8,82,180,20,rt_Stone,5);
       for i:=1 to 4 do begin
-        Row__Order[i] := MyControls.AddResourceOrderRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
-        Row__Order[i].OrderRem.OnClickEither := House_OrderClick;
-        Row__Order[i].OrderAdd.OnClickEither := House_OrderClick;
-        Row__Order[i].OrderRem.Hint          := fTextLibrary.GetTextString(234);
-        Row__Order[i].OrderAdd.Hint          := fTextLibrary.GetTextString(235);
+        ResRow_Order[i] := MyControls.AddResourceOrderRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
+        ResRow_Order[i].OrderRem.OnClickEither := House_OrderClick;
+        ResRow_Order[i].OrderAdd.OnClickEither := House_OrderClick;
+        ResRow_Order[i].OrderRem.Hint          := fTextLibrary.GetTextString(234);
+        ResRow_Order[i].OrderAdd.Hint          := fTextLibrary.GetTextString(235);
       end;
-      Row__Costs[1] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
-      Row__Costs[2] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
-      Row__Costs[3] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
-      Row__Costs[4] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      ResRow_Costs[1] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      ResRow_Costs[2] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      ResRow_Costs[3] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      ResRow_Costs[4] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
 end;
 
 {Store page}
@@ -1254,17 +1233,16 @@ begin
       TKMButtonFlat(Panel_Build.Childs[i]).Down:=false;
 
   //Press the button
-  TKMButtonFlat(Sender).Down:=true;
+  TKMButtonFlat(Sender).Down := true;
 
   //Reset cursor and see if it needs to be changed
-  GameCursor.Mode:=cm_None;
-  GameCursor.Tag1:=0;
-  GameCursor.Tag2:=0;
-  Label_BuildCost_Wood.Caption:='-';
-  Label_BuildCost_Stone.Caption:='-';
+  GameCursor.Mode := cm_None;
+  GameCursor.Tag1 := 0;
+  GameCursor.Tag2 := 0;
+  Label_BuildCost_Wood.Caption  := '-';
+  Label_BuildCost_Stone.Caption := '-';
   Label_Build.Caption := '';
 
-  
   if Button_BuildCancel.Down then begin
     GameCursor.Mode:=cm_Erase;
     Image_Build_Selected.TexID := 340;
@@ -1299,7 +1277,7 @@ begin
   if Button_Build[i].Down then begin
      GameCursor.Mode:=cm_Houses;
      GameCursor.Tag1:=byte(GUIHouseOrder[i]);
-     Image_Build_Selected.TexID := GUIBuildIcons[byte(GUIHouseOrder[i])]; //Now update the selected icon
+     Image_Build_Selected.TexID := GUIBuildIcons[byte(GUIHouseOrder[i])];
      Label_BuildCost_Wood.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].WoodCost);
      Label_BuildCost_Stone.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].StoneCost);
      Label_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
@@ -1363,6 +1341,7 @@ begin
 
   for i:=1 to Panel_House.ChildCount do
     Panel_House.Childs[i].Show; //show all
+
   Image_House_Worker.Enabled := Sender.GetHasOwner;
   Image_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
   Button_House_Goods.Enabled := not (HouseInput[byte(Sender.GetHouseType)][1] in [rt_None,rt_All,rt_Warfare]);
@@ -1392,79 +1371,78 @@ begin
           SwitchPage(Panel_HouseBarracks);
           end;
     ht_TownHall:;
-  else begin
+    else begin
 
-    //First thing - hide everything
-    for i:=1 to Panel_House_Common.ChildCount do
-      Panel_House_Common.Childs[i].Hide;
+      //First thing - hide everything
+      for i:=1 to Panel_House_Common.ChildCount do
+        Panel_House_Common.Childs[i].Hide;
 
-    //Now show only what we need
-    RowRes:=1; Line:=0; Base := 2;
-    //Show Demand
-    if HouseInput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
-      Label_Common_Demand.Show;
-      Label_Common_Demand.Top:=Base+Line*LineAdv+6;
-      inc(Line);
-      for i:=1 to 4 do if HouseInput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-        Row__Common_Resource[RowRes].Resource:=HouseInput[byte(Sender.GetHouseType),i];
-        Row__Common_Resource[RowRes].Hint:=TypeToString(HouseInput[byte(Sender.GetHouseType),i]);
-        Row__Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(HouseInput[byte(Sender.GetHouseType),i]);
-        Row__Common_Resource[RowRes].Show;
-        Row__Common_Resource[RowRes].Top:=Base+Line*LineAdv;
+      //Now show only what we need
+      RowRes:=1; Line:=0; Base := 2;
+      //Show Demand
+      if HouseInput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
+        Label_Common_Demand.Show;
+        Label_Common_Demand.Top:=Base+Line*LineAdv+6;
         inc(Line);
-        inc(RowRes);
+        for i:=1 to 4 do if HouseInput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Common_Resource[RowRes].Resource:=HouseInput[byte(Sender.GetHouseType),i];
+          ResRow_Common_Resource[RowRes].Hint:=TypeToString(HouseInput[byte(Sender.GetHouseType),i]);
+          ResRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(HouseInput[byte(Sender.GetHouseType),i]);
+          ResRow_Common_Resource[RowRes].Show;
+          ResRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
+          inc(Line);
+          inc(RowRes);
+        end;
       end;
+      //Show Output
+      if not HousePlaceOrders[byte(Sender.GetHouseType)] then
+      if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
+        Label_Common_Offer.Show;
+        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
+        Label_Common_Offer.Top:=Base+Line*LineAdv+6;
+        inc(Line);
+        for i:=1 to 4 do
+        if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Common_Resource[RowRes].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
+          ResRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
+          ResRow_Common_Resource[RowRes].Show;
+          ResRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
+          ResRow_Common_Resource[RowRes].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
+          inc(Line);
+          inc(RowRes);
+        end;
+      end;
+      //Show Orders
+      if HousePlaceOrders[byte(Sender.GetHouseType)] then begin
+        Label_Common_Offer.Show;
+        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
+        Label_Common_Offer.Top:=Base+Line*LineAdv+6;
+        inc(Line);
+        for i:=1 to 4 do //Orders
+        if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Order[i].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
+          ResRow_Order[i].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
+          ResRow_Order[i].OrderCount:=Sender.CheckResOrder(i);
+          ResRow_Order[i].Show;
+          ResRow_Order[i].OrderAdd.Show;
+          ResRow_Order[i].OrderRem.Show;
+          ResRow_Order[i].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
+          ResRow_Order[i].Top:=Base+Line*LineAdv;
+          inc(Line);
+        end;
+        Label_Common_Costs.Show;
+        Label_Common_Costs.Top:=Base+Line*LineAdv+6;
+        inc(Line);
+        for i:=1 to 4 do //Costs
+        if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Costs[i].CostID:=byte(HouseOutput[byte(Sender.GetHouseType),i]);
+          ResRow_Costs[i].Show;
+          ResRow_Costs[i].Top:=Base+Line*LineAdv;
+          inc(Line);
+        end;
+      end;
+      SwitchPage(Panel_House_Common);
     end;
-    //Show Output
-    if not HousePlaceOrders[byte(Sender.GetHouseType)] then
-    if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
-      Label_Common_Offer.Show;
-      Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
-      Label_Common_Offer.Top:=Base+Line*LineAdv+6;
-      inc(Line);
-      for i:=1 to 4 do
-      if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-        Row__Common_Resource[RowRes].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
-        Row__Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
-        Row__Common_Resource[RowRes].Show;
-        Row__Common_Resource[RowRes].Top:=Base+Line*LineAdv;
-        Row__Common_Resource[RowRes].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
-        inc(Line);
-        inc(RowRes);
-      end;
-    end;
-    //Show Orders
-    if HousePlaceOrders[byte(Sender.GetHouseType)] then begin
-      Label_Common_Offer.Show;
-      Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
-      Label_Common_Offer.Top:=Base+Line*LineAdv+6;
-      inc(Line);
-      for i:=1 to 4 do //Orders
-      if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-        Row__Order[i].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
-        Row__Order[i].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
-        Row__Order[i].OrderCount:=Sender.CheckResOrder(i);
-        Row__Order[i].Show;
-        Row__Order[i].OrderAdd.Show;
-        Row__Order[i].OrderRem.Show;
-        Row__Order[i].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
-        Row__Order[i].Top:=Base+Line*LineAdv;
-        inc(Line);
-      end;
-      Label_Common_Costs.Show;
-      Label_Common_Costs.Top:=Base+Line*LineAdv+6;
-      inc(Line);
-      for i:=1 to 4 do //Costs
-      if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-        Row__Costs[i].CostID:=byte(HouseOutput[byte(Sender.GetHouseType),i]);
-        Row__Costs[i].Show;
-        Row__Costs[i].Top:=Base+Line*LineAdv;
-        inc(Line);
-      end;
-
-    end;
-  SwitchPage(Panel_House_Common);
-  end;
   end;
 end;
 
@@ -1472,25 +1450,23 @@ end;
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
 var Commander:TKMUnitWarrior;
 begin
-  fShownUnit:=Sender;
-  fShownHouse:=nil;
-  if (not Assigned(Sender))or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDead)) then begin
+  fShownUnit  := Sender;
+  fShownHouse := nil;
+
+  if (fShownUnit=nil) or (not fShownUnit.IsVisible) or (fShownUnit.IsDeadOrDying) then begin
     SwitchPage(nil);
-    fShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
     exit;
   end;
+
   SwitchPage(Panel_Unit);
   Label_UnitName.Caption:=TypeToString(Sender.UnitType);
   Image_UnitPic.TexID:=520+byte(Sender.UnitType);
   ConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
-  if Sender.GetHome<>nil then
-    Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText
-  else
-    Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
+  Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   Label_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
+
   if Sender is TKMUnitWarrior then
   begin
-    //Warrior specific
     Label_UnitDescription.Hide;
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if (Commander.Foe <> nil) and (Commander.GetFightMaxRange < 2) then Army_HideJoinMenu(nil); //Cannot be joining while in combat
@@ -1510,8 +1486,7 @@ begin
     Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
   end
   else
-  begin
-    //Citizen specific
+  begin //Citizen specific
     Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.UnitType));
     Label_UnitDescription.Show;
     Panel_Army.Hide;
@@ -1579,9 +1554,9 @@ begin
   if AButton = mbRight then Amt := 10;
 
   for i:=1 to 4 do begin
-    if Sender = Row__Order[i].OrderRem then
+    if Sender = ResRow_Order[i].OrderRem then
       fGame.fGameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, -Amt);
-    if Sender = Row__Order[i].OrderAdd then
+    if Sender = ResRow_Order[i].OrderAdd then
       fGame.fGameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, Amt);
   end;
 end;
