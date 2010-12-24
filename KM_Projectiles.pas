@@ -9,7 +9,7 @@ uses Classes, SysUtils, KromUtils, Math, KM_Utils, KM_Defaults, KM_CommonTypes;
 type
   TKMProjectiles = class
   private
-    fItems:array of record
+    fItems:array of record //1..n
       fScreenStart:TKMPointF; //Screen-space trajectory start
       fScreenEnd:TKMPointF; //Screen-space trajectory end
 
@@ -223,7 +223,7 @@ begin
     if fItems[i].fSpeed <> 0 then inc(Count);
   SaveStream.Write(Count);
 
-  for i:=1 to length(fItems) do
+  for i:=1 to length(fItems)-1 do
     if fItems[i].fSpeed <> 0 then
       with fItems[i] do
       begin

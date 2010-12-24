@@ -29,8 +29,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
   function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
-  function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
-  function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
+  function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPointDir;
   function KMLoopDirection(aDir: byte): TKMDirection;
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
   function KMStepIsDiag(P1,P2:TKMPoint):boolean;
@@ -255,24 +254,14 @@ begin
 end;
 
 
-function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
-const XYBitfield: array [0..8]of array [1..2]of shortint =
-        ((0,0),(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)); //N/A, N, NE, E, SE, S, SW, W, NW
-begin
-  Result.Dir := aPos.Dir;
-  Result.Loc.X := aPos.Loc.X + XYBitfield[shortint(aPos.Dir+1),1]; //+1 to dir because it is 0..7 not 0..8 like TKMDirection is
-  Result.Loc.Y := aPos.Loc.Y + XYBitfield[shortint(aPos.Dir+1),2];
-end;
-
-
-//@Lewin: isn't it the same as previous function?
-//@Krom: Yes, please feel free to merge them
-function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
+function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPointDir;
 const
   XBitField: array[TKMDirection] of smallint = (0, 0, 1,1,1,0,-1,-1,-1);
   YBitField: array[TKMDirection] of smallint = (0,-1,-1,0,1,1, 1, 0,-1);
 begin
-  Result := KMPoint(aPoint.X+XBitField[aDir],aPoint.Y+YBitField[aDir]);
+  Result.Dir := byte(aDir)-1;
+  Result.Loc.X := aPoint.X+XBitField[aDir];
+  Result.Loc.Y := aPoint.Y+YBitField[aDir];
 end;
 
 

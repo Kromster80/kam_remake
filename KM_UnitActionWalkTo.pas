@@ -574,15 +574,7 @@ begin
       end;
 
       //Since only Idle units can be pushed, we don't need to carry on TargetUnit/TargetHouse/etc props
-      fWalker.SetActionWalkToSpot(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability));
-
-      //@Lewin: This might not be a good idea to remain being Pushed?
-      //but if it is, then it could simplify the
-      //fWalker.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability));
-
-      //@Krom: We have to remain pushed, a unit is [almost certainly] depending on us to get out of the way and clear a path.
-      //       If we are unable to move with the way we first tried, (e.g. other unit is stuck) then try another. That's what this does I believe.
-      //       I'm not quite sure what you mean by your comment.
+      fWalker.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability));
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;
@@ -609,7 +601,7 @@ begin
     for i := -1 to 1 do
     if i <> 0 then
     begin
-      TempPos := KMGetPointInDir(fWalker.GetPosition,KMLoopDirection(byte(KMGetDirection(fWalker.GetPosition,NodeList.List[NodePos+1]))+i));
+      TempPos := KMGetPointInDir(fWalker.GetPosition,KMLoopDirection(byte(KMGetDirection(fWalker.GetPosition,NodeList.List[NodePos+1]))+i)).Loc;
       if fTerrain.TileInMapCoords(TempPos.X,TempPos.Y) and fTerrain.CanWalkDiagonaly(fWalker.GetPosition,TempPos)
         and (GetEffectivePassability in fTerrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
       if fTerrain.HasUnit(TempPos) then //Now see if it has a unit

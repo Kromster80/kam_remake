@@ -2238,12 +2238,12 @@ end;
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint; U:TKMUnit; H:TKMHouse; OldSelected: TObject;
 begin
-  MyControls.MouseUp(X,Y,Shift,Button);
-  //@Krom: Occasional crash here (line below) when loading from inside a game. I think it's because the line above has just
-  //       caused the game to exit, thus this fGamePlayInterface no longer exists and any further execution here will be using freed memory.
-  //       Does happen everytime I do it though, about 20%.
-  if (fGame.GameState <> gsRunning) or
-    ((MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor)) then exit;
+  if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) then begin
+    MyControls.MouseUp(X,Y,Shift,Button);
+    exit;
+  end;
+
+  if fGame.GameState <> gsRunning then exit;
 
   P := GameCursor.Cell; //It's used in many places here
 

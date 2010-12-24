@@ -189,7 +189,8 @@ end;
 procedure TViewport.Load(LoadStream:TKMemoryStream);
 var s:string;
 begin
-  LoadStream.Read(s); if s <> 'Viewport' then exit;
+  LoadStream.Read(s);
+  Assert(s = 'Viewport');
   LoadStream.Read(XCoord);
   LoadStream.Read(YCoord);
   LoadStream.Read(Zoom);

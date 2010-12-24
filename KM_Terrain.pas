@@ -1016,7 +1016,7 @@ function TTerrain.CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boole
 var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
-  aPosition := KMGetCoord(aPosition);
+  aPosition := KMGetPointInDir(aPosition.Loc, TKMDirection(aPosition.Dir+1));
   MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Loc.Y,aPosition.Loc.X].WalkConnect[wcFish],not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
