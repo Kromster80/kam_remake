@@ -606,6 +606,8 @@ procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
+  fViewport.SetVisibleScreenArea(X,Y);
+  fViewport.SetZoom(fViewport.Zoom);
 end;
 
 
@@ -705,7 +707,7 @@ begin
     Button_MessageGoTo:=MyControls.AddButton(Panel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
     Button_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
     Button_MessageGoTo.OnClick := MessageGoTo;
-    Button_MessageGoTo.MakesSound := false;
+    Button_MessageGoTo.MakesSound := false; //@Lewin: Why these 3 buttons are special and don't make sound?
 
     Button_MessageDelete:=MyControls.AddButton(Panel_Message,490,104,100,24,fTextLibrary.GetTextString(276),fnt_Antiqua);
     Button_MessageDelete.Hint := fTextLibrary.GetTextString(277);
@@ -1685,7 +1687,6 @@ procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
 begin
   if not (TKMControl(Sender).Tag in [1..6]) then exit;
   fGame.fGameInputProcess.CmdHouse(gic_HouseRemoveTrain, TKMHouseSchool(fPlayers.Selected), TKMControl(Sender).Tag);
-  fSoundLib.Play(sfx_click); //todo: move click sound to flatbuttons property
   House_SchoolUnitChange(nil, mbLeft);
 end;
 
@@ -1736,7 +1737,7 @@ procedure TKMGamePlayInterface.Menu_ShowLoad(Sender: TObject);
 var i:integer;
 begin
   for i:=1 to SAVEGAME_COUNT do begin //We can update both for simplicity
-    Button_Save[i].Caption := fGame.LoadName(i);
+    Button_Save[i].Caption := fGame.SavegameTitle(i);
     Button_Load[i].Caption := Button_Save[i].Caption;
   end;
 end;

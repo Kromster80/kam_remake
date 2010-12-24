@@ -1133,7 +1133,7 @@ procedure TKMMainMenuInterface.Load_PopulateList();
 var i:integer;
 begin
   for i:=1 to SAVEGAME_COUNT do
-    Button_Load[i].Caption := fGame.LoadName(i);
+    Button_Load[i].Caption := fGame.SavegameTitle(i);
 end;
 
 
@@ -1254,13 +1254,8 @@ end;
 
 procedure TKMMainMenuInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  if (MyControls.CtrlOver <> nil)
-  and (MyControls.CtrlOver is TKMButton)
-  and MyControls.CtrlOver.Enabled
-  and TKMButton(MyControls.CtrlOver).MakesSound then
-    fSoundLib.Play(sfx_click);
-
   MyControls.MouseUp(X,Y,Shift,Button);
+  exit; //We could have caused fGame reinit, so exit at once
 end;
 
 

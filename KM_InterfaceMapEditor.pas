@@ -462,6 +462,8 @@ procedure TKMapEdInterface.SetScreenSize(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
+  fViewport.SetVisibleScreenArea(X,Y);
+  fViewport.SetZoom(fViewport.Zoom);
 end;
 
 
@@ -1458,13 +1460,8 @@ procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y
 var P:TKMPoint;
 begin
   if MyControls.CtrlOver <> nil then begin
-    if (MyControls.CtrlOver <> nil)
-    and (MyControls.CtrlOver is TKMButton)
-    and MyControls.CtrlOver.Enabled
-    and TKMButton(MyControls.CtrlOver).MakesSound then
-      fSoundLib.Play(sfx_click);
     MyControls.MouseUp(X,Y,Shift,Button);
-    exit;
+    exit; //We could have caused fGame reinit, so exit at once
   end;
 
   fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed

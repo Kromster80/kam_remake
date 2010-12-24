@@ -1,7 +1,9 @@
 unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, Graphics, MMSystem, Windows, KromUtils, Math, KromOGLUtils, KM_Defaults, SysUtils, KM_CommonTypes;
+uses Classes, Controls, Graphics, Math, MMSystem, Windows, SysUtils,
+    KromUtils, KromOGLUtils,
+    KM_CommonTypes, KM_Defaults;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
@@ -196,6 +198,8 @@ TKMButton = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle); overload;
     procedure Paint(); override;
+  public
+    procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
 end;
 
 
@@ -214,6 +218,8 @@ TKMButtonFlat = class(TKMControl)
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
+  public
+    procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
 end;
 
 
@@ -487,7 +493,7 @@ end;
 
 
 implementation
-uses KM_RenderUI, KM_Utils, KM_ResourceGFX;
+uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
 
 
 { TKMControl }
@@ -1078,6 +1084,13 @@ begin
 end;
 
 
+procedure TKMButton.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  if Enabled and MakesSound and (csDown in State) then fSoundLib.Play(sfx_Click);
+  Inherited;
+end;
+
+
 procedure TKMButton.Paint();
 var StateSet:T3DButtonStateSet;
 begin
@@ -1110,6 +1123,13 @@ begin
   Down:=false;
   HideHighlight:=false;
   ParentTo(aParent);
+end;
+
+
+procedure TKMButtonFlat.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  if Enabled and (csDown in State) then fSoundLib.Play(sfx_Click);
+  Inherited;
 end;
 
 

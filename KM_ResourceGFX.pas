@@ -45,7 +45,7 @@ type
 
     function GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint; //This should belong to TRender?
   public
-    constructor Create;
+    constructor Create(aLocale:string);
     destructor Destroy; override;
     function LoadMenuResources(aLocale:string):boolean;
     function LoadGameResources():boolean;
@@ -75,9 +75,9 @@ implementation
 uses KromUtils, KM_Unit1, KM_Render, KM_CommonTypes, KM_Utils, KM_TGATexture;
 
 
-constructor TResource.Create;
+constructor TResource.Create(aLocale:string);
 begin
-  Inherited;
+  Inherited Create;
   fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
 
@@ -88,6 +88,8 @@ begin
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
   RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=false;
+
+  LoadMenuResources(aLocale);
 end;
 
 

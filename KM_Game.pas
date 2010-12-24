@@ -43,8 +43,8 @@ type
     fMusicLib: TMusicLib;
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
-    fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
+    fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
@@ -85,7 +85,7 @@ type
 
     procedure Save(SlotID:shortint);
     function Load(SlotID:shortint):string;
-    function LoadName(SlotID:shortint):string;
+    function SavegameTitle(SlotID:shortint):string;
 
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime:cardinal);
@@ -104,31 +104,29 @@ uses
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
 begin
   Inherited Create;
-  ID_Tracker := 0;
-  PlayOnState := gr_Cancel;
-  SelectingTroopDirection := false;
-  SelectingDirPosition := Point(0,0);
   ScreenX := aScreenX;
   ScreenY := aScreenY;
+  fAdvanceFrame := false;
+  ID_Tracker    := 0;
+  PlayOnState   := gr_Cancel;
+  fGameSpeed    := 1;
+  fGameState    := gsNoGame;
+  SkipReplayEndCheck  := false;
+  FormControlsVisible :=false;
+  SelectingTroopDirection := false;
+  SelectingDirPosition    := Point(0,0);
 
   fGlobalSettings := TGlobalSettings.Create;
   fRender         := TRender.Create(RenderHandle, aVSync);
   fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib       := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
   fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer {$ENDIF}, fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
-  fResource       := TResource.Create;
-  fResource.LoadMenuResources(fGlobalSettings.Locale);
-
+  fResource       := TResource.Create(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
+  fCampaignSettings := TCampaignSettings.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
 
-  fCampaignSettings := TCampaignSettings.Create;
-  fAdvanceFrame := false;
-  fGameSpeed := 1;
-  fGameState := gsNoGame;
-  SkipReplayEndCheck := false;
-  FormControlsVisible:=true;
   fLog.AppendLog('<== Game creation is done ==>');
 end;
 
@@ -168,17 +166,11 @@ begin
   ScreenY := Y;
   fRender.RenderResize(X,Y,rm2D);
 
-  if fGameState = gsNoGame then
-    fMainMenuInterface.SetScreenSize(X,Y)
-  else begin //If game is running
-    fViewport.SetVisibleScreenArea(X,Y);
-    fMainMenuInterface.SetScreenSize(X,Y); //It's not visible but exists
-    if fGameState = gsEditor then
-      fMapEditorInterface.SetScreenSize(X,Y)
-    else
-      fGamePlayInterface.SetScreenSize(X,Y);
-    fViewport.SetZoom(fViewport.Zoom); //Zoom depends on ViewWidth/Height values
-  end;
+  //Main menu is invisible while in game, but it still exists and when we return to it
+  //it must be properly sized (player could resize the screen while playing)
+  if fMainMenuInterface<>nil then fMainMenuInterface.SetScreenSize(X,Y);
+  if fMapEditorInterface<>nil then fMapEditorInterface.SetScreenSize(X,Y);
+  if fGamePlayInterface<>nil then fGamePlayInterface.SetScreenSize(X,Y);
 end;
 
 
@@ -201,11 +193,12 @@ begin
   if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F7) then
     MODE_DESIGN_CONTORLS := not MODE_DESIGN_CONTORLS;
   if not IsDown and (Key=VK_F11) then begin
-    Form1.ToggleControlsVisibility(FormControlsVisible);
     FormControlsVisible := not FormControlsVisible;
+    Form1.ToggleControlsVisibility(FormControlsVisible);
   end;
   //Alt+Enter toggles fullscreen
-  if not IsDown and (Key=VK_RETURN) and (ssAlt in Shift) then
+  //@Lewin: I suggest we remove it completely, cos Alt-Entering in game will kick you to main menu
+  if ENABLE_ALT_ENTER and not IsDown and (Key=VK_RETURN) and (ssAlt in Shift) then
   begin
     fGlobalSettings.FullScreen := not fGlobalSettings.FullScreen;
     ToggleFullScreen(fGlobalSettings.FullScreen, false);
@@ -393,7 +386,6 @@ begin
     else        MOver := nil; //MOver should always be initialized
   end;
 
-  if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled and TKMButton(MOver).MakesSound then fSoundLib.Play(sfx_click);
 
   case fGameState of
     gsNoGame:   fMainMenuInterface.MouseUp(Button, Shift, X,Y);
@@ -460,7 +452,7 @@ begin
                   fPlayers.Selected := MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Select the house irregardless of unit below/above
                   if MyPlayer.RemHouse(P,false,true) then //Ask wherever player wants to destroy own house
                   begin
-                    //don't ask about houses that are not started, they are removed bellow
+                    //don't ask about houses that are not started, they are removed below
                     if TKMHouse(fPlayers.Selected).BuildingState <> hbs_Glyph then
                     begin
                       fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected),true);
@@ -556,7 +548,7 @@ begin
   fRender.Render;
 
   fViewport := TViewport.Create;
-  fGamePlayInterface := TKMGamePlayInterface.Create();
+  fGamePlayInterface := TKMGamePlayInterface.Create;
 
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
@@ -946,7 +938,7 @@ begin
 end;
 
 
-function TKMGame.LoadName(SlotID:shortint):string;
+function TKMGame.SavegameTitle(SlotID:shortint):string;
 var
   FileName,s,ver:string;
   LoadStream:TKMemoryStream;

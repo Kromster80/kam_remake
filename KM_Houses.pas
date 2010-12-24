@@ -410,9 +410,11 @@ begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
   if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.ShownHouse = Self) then fGame.fGamePlayInterface.ShowHouseInfo(nil);
 
+  //@Lewin: Please check me here - sfx_Click will be called by user clicking "Yes, Demolish" button, right? (and may be overlayed by sfx_HouseDestroy occasionaly)
   if not DoSilent then
-    if (BuildingState = hbs_Glyph)or(NoRubble) then fSoundLib.Play(sfx_click)
-    else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
+    if (BuildingState <> hbs_Glyph) and not NoRubble then
+      fSoundLib.Play(sfx_HouseDestroy,GetPosition);
+      
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveOffer(Self);
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveDemand(Self);
