@@ -20,7 +20,7 @@ type
     function  PlayMusicFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
   public
-    constructor Create({$IFDEF WDC}aMediaPlayer:TMediaPlayer{$ENDIF}; aVolume:single);
+    constructor Create({$IFDEF WDC}aMediaPlayer:TMediaPlayer;{$ENDIF} aVolume:single);
     destructor Destroy; override;
     procedure UpdateMusicVolume(Value:single);
     procedure PlayMenuTrack(JustInit:boolean);
@@ -38,7 +38,7 @@ uses
 
 
 {Music Lib}
-constructor TMusicLib.Create({$IFDEF WDC}aMediaPlayer:TMediaPlayer{$ENDIF}; aVolume:single);
+constructor TMusicLib.Create({$IFDEF WDC}aMediaPlayer:TMediaPlayer;{$ENDIF} aVolume:single);
 begin
   Inherited Create;
   IsMusicInitialized := true;

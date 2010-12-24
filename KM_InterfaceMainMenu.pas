@@ -4,13 +4,13 @@ interface
 uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, KM_Sound,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  KM_Controls, KM_Defaults, KM_CommonTypes, Windows, KM_Settings, KM_MapInfo, KM_Lobby;
+  KM_Controls, KM_Defaults, KM_CommonTypes, Windows, KM_Settings, KM_MapInfo {$IFDEF WDC}, KM_Lobby{$ENDIF};
 
 
 type TKMMainMenuInterface = class
   private
     MyControls: TKMControlsCollection;
-    fLobby:TKMLobby;
+    {$IFDEF WDC} fLobby:TKMLobby; {$ENDIF}
     ScreenX,ScreenY:word;
 
     Campaign_Selected:TCampaign;
@@ -253,7 +253,7 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
-  if fLobby<>nil then FreeAndNil(fLobby); //If user never went to MP area it will be NIL
+  {$IFDEF WDC}if fLobby<>nil then FreeAndNil(fLobby);{$ENDIF} //If user never went to MP area it will be NIL
   FreeAndNil(SingleMapsInfo);
   FreeAndNil(MyControls);
   Inherited;
@@ -1069,10 +1069,10 @@ end;
 { First page actually related to LobbyChat - create fLobby here}
 procedure TKMMainMenuInterface.MultiPlayer_ShowLogin();
 begin
-  with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do begin
+  {$IFDEF WDC}with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do begin
     FreeOnTerminate := true;
     OnTerminate := MultiPlayer_ShowLoginResult; //Will get our IP address asynchronously
-  end;
+  end;{$ENDIF}
 
   Button_WWW_Login.Disable; //Until after we resolve our IP
 end;
@@ -1080,8 +1080,8 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_ShowLoginResult(Sender: TObject);
 begin
-  Label_WWW_IP.Caption := THTTPPostThread(Sender).ResultMsg;
-  THTTPPostThread(Sender).Terminate;
+  {$IFDEF WDC}Label_WWW_IP.Caption := THTTPPostThread(Sender).ResultMsg;
+  THTTPPostThread(Sender).Terminate;{$ENDIF}
 
   Edit_WWW_Login.Text := 'Player';
   Button_WWW_Login.Enable;
@@ -1090,11 +1090,11 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LoginQuery(Sender: TObject);
 begin
-  fLobby := TKMLobby.Create('http://www.assoft.ru/chat/',
+  {$IFDEF WDC}fLobby := TKMLobby.Create('http://www.assoft.ru/chat/',
                             Edit_WWW_Login.Text, //Username
                             Edit_WWW_Pass.Text, //Password, ignored
                             '', //was IP address, now ignored by PHP
-                            MultiPlayer_LoginResult);
+                            MultiPlayer_LoginResult);{$ENDIF}
 
   Button_WWW_Login.Disable; //Should block duplicate clicks
 end;
@@ -1109,15 +1109,15 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LobbyPost(Sender: TObject);
 begin
-  fLobby.PostMessage(Edit_LobbyPost.Text);
+  {$IFDEF WDC}fLobby.PostMessage(Edit_LobbyPost.Text);{$ENDIF}
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_RefreshLobby();
 begin
-  ListBox_LobbyPlayers.Items.Text := fLobby.PlayersList;
+  {$IFDEF WDC}ListBox_LobbyPlayers.Items.Text := fLobby.PlayersList;
   //ListBox_LobbyRooms.Items.Text := fLobby.RoomsList;
-  ListBox_LobbyPosts.Items.Text := fLobby.PostsList;
+  ListBox_LobbyPosts.Items.Text := fLobby.PostsList;{$ENDIF}
 end;
 
 
@@ -1268,10 +1268,10 @@ end;
 {Should update anything we want to be updated, obviously}
 procedure TKMMainMenuInterface.UpdateState;
 begin
-  if fLobby<>nil then begin
+  {$IFDEF WDC}if fLobby<>nil then begin
     fLobby.UpdateState;
     MultiPlayer_RefreshLobby;
-  end;
+  end;{$ENDIF}
 end;
 
 

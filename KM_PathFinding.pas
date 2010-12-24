@@ -140,8 +140,8 @@ begin
       OList[MinCost.ID].Estim:=c_closed;
 
       //Check all surrounding cells and issue costs to them
-      for y:=max(MinCost.Pos.Y-1,1) to min(MinCost.Pos.Y+1, fTerrain.MapY-1) do
-      for x:=max(MinCost.Pos.X-1,1) to min(MinCost.Pos.X+1, fTerrain.MapX-1) do
+      for y:=Math.max(MinCost.Pos.Y-1,1) to Math.min(MinCost.Pos.Y+1, fTerrain.MapY-1) do
+      for x:=Math.max(MinCost.Pos.X-1,1) to Math.min(MinCost.Pos.X+1, fTerrain.MapX-1) do
         if ORef[y,x]=0 then //Cell is new
         if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
         //If we are in InteractionAvoid mode then don't use tiles with workers on them
