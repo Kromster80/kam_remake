@@ -66,18 +66,8 @@ begin
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
   
   case KMUnit.UnitType of
-    ut_Arbaletman: begin
-                     if IsHit then
-                       fSoundLib.Play(sfx_CrossbowShoot,KMUnit.GetPosition,true)
-                     else
-                       fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition,true); //Aiming
-                   end;
-    ut_Bowman:     begin
-                     if IsHit then
-                       fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true)
-                     else
-                       fSoundLib.Play(sfx_BowDraw,KMUnit.GetPosition,true); //Aiming
-                   end;
+    ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition,true); //Aiming
+    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,KMUnit.GetPosition,true); //Aiming
     else           begin
                      {if IsHit then
                        fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true)
@@ -137,10 +127,9 @@ begin
         exit; //do not increment AnimStep, just exit;
       end;
 
-      MakeSound(KMUnit, true); //IsHit means IsShoot for bowmen (true means shooting)
       case KMUnit.UnitType of
-        ut_Arbaletman: fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Bolt);
-        ut_Bowman:     fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow);
+        ut_Arbaletman: fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Bolt, true);
+        ut_Bowman:     fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow, true);
         else Assert(false, 'Unknown shooter');
       end;
 

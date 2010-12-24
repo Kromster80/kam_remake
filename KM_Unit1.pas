@@ -107,7 +107,7 @@ type
   public
     procedure ApplyCursorRestriction;
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean);
+    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean=true);
   end;
 
 var
@@ -432,7 +432,7 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean);
+procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean=true);
 begin
   if Toggle then begin
     SetScreenResolution(SupportedResolutions[ResolutionID,1],SupportedResolutions[ResolutionID,2],SupportedRefreshRates[ResolutionID]);
@@ -459,12 +459,17 @@ begin
   Panel5.Height := Form1.ClientHeight;
   Panel5.Width  := Form1.ClientWidth;
 
-  //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
-  //Don't know how lame it is, but it works well
-  //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
-  FreeThenNil(fGame); //Saves all settings into ini file in midst
-  //Now re-init fGame
-  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,aVSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
+  if ReInitGame then
+  begin
+    //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
+    //Don't know how lame it is, but it works well
+    //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
+    FreeThenNil(fGame); //Saves all settings into ini file in midst
+    //Now re-init fGame
+    fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,aVSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
+  end
+  else
+    fGame.ResetRender(Panel5.Handle,Panel5.Width,Panel5.Height,aVSync);
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 

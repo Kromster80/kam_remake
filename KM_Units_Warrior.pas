@@ -315,7 +315,7 @@ begin
   end;
 
   if fOrderLoc.Loc.X = 0 then //If it is invalid, use commander's values
-    HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,byte(Direction)-1)
+    HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,Direction)
   else
     if fState = ws_Walking then //If we are walking use commander's location, but order Direction
       HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,fOrderLoc.Dir)
@@ -629,7 +629,7 @@ begin
   if (aNewDir=dir_NA) and (fOrderLoc.Loc.X <> 0) then
     NewP := KMPointDir(aLoc.X, aLoc.Y, fOrderLoc.Dir)
   else
-    NewP := KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1);
+    NewP := KMPointDir(aLoc.X, aLoc.Y, Direction);
 
   OrderWalk(NewP);
 end;
@@ -755,8 +755,9 @@ begin
   if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
   //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
-  if (GetFightMaxRange >= 2) and ((not (GetUnitAction is TUnitActionStay)) and
-                                 not((GetUnitAction is TUnitActionFight) and not GetUnitAction.Locked)) then exit;
+  if (GetFightMaxRange >= 2) and (((not (GetUnitAction is TUnitActionStay)) and
+                                 not((GetUnitAction is TUnitActionFight) and not GetUnitAction.Locked))
+                                 or (GetUnitTask is TTaskAttackHouse)) then exit; //Never look for enemies when shooting a house
 
   if (aDir = dir_NA) and (GetFightMaxRange >= 2) then
     aDir := Direction; //Use direction for ranged attacks, if it was not already specified
@@ -800,7 +801,7 @@ end;
 { See if we can abandon other actions in favor of more important things }
 function TKMUnitWarrior.CanInterruptAction:boolean;
 begin
-  if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal else //Only when unit is idling during Interaction pauses
+  if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal and GetUnitAction.StepDone else //Only when unit is idling during Interaction pauses
   if(GetUnitAction is TUnitActionStay) and
     (GetUnitTask   is TTaskAttackHouse)      then Result := true else //We can abandon attack house if the action is stay
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
@@ -872,13 +873,13 @@ begin
     //Change WalkTo
     if (GetUnitAction is TUnitActionWalkTo) then begin
       if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, fCommander <> nil);
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fCommander <> nil);
       fOrder := wo_None;
       fState := ws_Walking;
     end
     else
     //Set WalkTo
-    if GetUnitAction.StepDone and CanInterruptAction then
+    if CanInterruptAction then
     begin
       if GetUnitTask <> nil then FreeAndNil(fUnitTask);
       if fCommander = nil then
@@ -900,17 +901,19 @@ begin
   then begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
-    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, fCommander <> nil, GetOrderTarget);
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, fCommander <> nil, GetOrderTarget);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking;
   end;
 
   //Take attack order
-  if (fOrder=wo_AttackUnit) and GetUnitAction.StepDone and CanInterruptAction then
+  if (fOrder=wo_AttackUnit) and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
     fOrder := wo_None;
+    //todo: We need a ws_AttackingUnit to make this work properly for archers, so they know to shoot the enemy after finishing the walk and follow him if he keeps moving away.
+    //todo: If an archer is too close to attack, move back
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
 
@@ -919,10 +922,11 @@ begin
     AbandonWalk;
 
   //Take attack house order
-  if (fOrder=wo_AttackHouse) and GetUnitAction.StepDone and CanInterruptAction then
+  if (fOrder=wo_AttackHouse) and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
+    fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //Once the house is destroyed we will position where we are standing
     fOrder := wo_None;
   end;
 

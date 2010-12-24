@@ -487,10 +487,11 @@ begin
   L1 := TKMPointList.Create;
   L2 := TKMPointList.Create;
 
-  lx := max(round(X-MaxRad),1); //1.42 gets rounded to 1
-  ly := max(round(Y-MaxRad),1); //1.42 gets rounded to 1
-  hx := min(round(X+MaxRad),MapX); //1.42 gets rounded to 1
-  hy := min(round(Y+MaxRad),MapY); //1.42 gets rounded to 1
+  //Scan one tile further than the maximum radius due to rounding
+  lx := max(round(X-(MaxRad+1)),1); //1.42 gets rounded to 1
+  ly := max(round(Y-(MaxRad+1)),1); //1.42 gets rounded to 1
+  hx := min(round(X+(MaxRad+1)),MapX); //1.42 gets rounded to 1
+  hy := min(round(Y+(MaxRad+1)),MapY); //1.42 gets rounded to 1
 
   for i:=ly to hy do for k:=lx to hx do
   if InRange(GetLength(KMPoint(X,Y), KMPoint(k,i)), MinRad, MaxRad) then //Add 1tile margin to cover all units

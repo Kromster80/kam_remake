@@ -25,7 +25,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection;
+uses KM_Game, KM_PlayersCollection, KM_Sound;
 
 
 { TTaskAttackHouse }
@@ -92,12 +92,17 @@ begin
   with fUnit do
   case fPhase of
     0: if fFightType=ft_Ranged then
-         SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX div (byte(REDUCE_SHOOTING_RANGE)*2))
+         SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX {div (byte(REDUCE_SHOOTING_RANGE)*2)}) //@Krom: Divide by zero??
        else
          SetActionWalkToHouse(fHouse, 1);
     1: if fFightType=ft_Ranged then begin
          SetActionLockedStay(AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
          Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
+         case UnitType of
+           ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,GetPosition,true); //Aiming
+           ut_Bowman:     fSoundLib.Play(sfx_BowDraw,GetPosition,true); //Aiming
+           else Assert(false, 'Unknown shooter');
+         end;
        end else begin
          SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
          Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
@@ -113,8 +118,8 @@ begin
          if fFightType=ft_Ranged then begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
-             ut_Arbaletman: fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt);
-             ut_Bowman:     fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow);
+             ut_Arbaletman: fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt, true);
+             ut_Bowman:     fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow, true);
              else Assert(false, 'Unknown shooter');
            end;
            AnimLength := UnitSprite[byte(UnitType)].Act[byte(ua_Work)].Dir[byte(Direction)].Count;
@@ -123,6 +128,7 @@ begin
          end else begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
            fHouse.AddDamage(2); //All melee units do 2 damage per strike
+           //todo: Melee house hit sound
            fPhase := 1; //Go for another hit (will be 2 after inc below)
          end;
        end;

@@ -36,6 +36,7 @@ EXE-only r1007+:
  +	Sawmill is rendered wrong
  +	Error message on program start (cannot focus on disabled or invisible window)
  +	When a warrior commander dies, the group now continues to do what it was doing
+	Edges of messages and other scrolls should be transparent so they look smooth
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
 	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button

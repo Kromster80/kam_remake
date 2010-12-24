@@ -80,7 +80,7 @@ type
       function  CanAbandonExternal: boolean;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
       function  GetExplanation():string;
-      procedure ChangeWalkTo(aLoc:TKMPoint; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
+      procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
       procedure Paint(); //Used only for debug so far
@@ -798,12 +798,13 @@ end;
 
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil);
 begin
   if fWalkTo.X*fWalkTo.Y = 0 then
     fGame.GameError(fWalkTo, 'Change Walk To 0:0');
 
   fTargetLoc := aLoc;
+  fDistance := aDistance;
 
   if aWalkToNear then
     fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass)
@@ -883,7 +884,7 @@ begin
       and (not fTargetUnit.IsDeadOrDying)
       and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
-      ChangeWalkTo(fTargetUnit.GetPosition,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
+      ChangeWalkTo(fTargetUnit.GetPosition,fDistance,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
       if (fWalker is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).fCommander = nil) then
         TKMUnitWarrior(fWalker).OrderAttackUnit(fTargetUnit,true); //Give members new position

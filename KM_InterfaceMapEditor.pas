@@ -1459,7 +1459,7 @@ var P:TKMPoint;
 begin
   if MyControls.CtrlOver <> nil then begin
     MyControls.MouseUp(X,Y,Shift,Button);
-    if (MyControls.CtrlOver <> nil)
+    if (MyControls.CtrlOver <> nil) //@Krom: Crashes here when exiting from the map editor (using in game menu -> quit)
     and (MyControls.CtrlOver is TKMButton)
     and MyControls.CtrlOver.Enabled
     and TKMButton(MyControls.CtrlOver).MakesSound then

@@ -74,7 +74,7 @@ begin
        end;
     1: begin
          if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
-         fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
+         fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock, false); //Sound is handled by house
          fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
          SetActionStay(1,ua_Walk);
        end;

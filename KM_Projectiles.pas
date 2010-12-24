@@ -25,7 +25,7 @@ type
 
   public
     constructor Create;
-    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType):word;
+    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; MakeSound:boolean):word;
 
     function ProjectileVisible(aIndex:integer):boolean;
 
@@ -50,9 +50,10 @@ end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType):word;
+function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; MakeSound:boolean):word;
 var i:integer; Jitter:single;
 begin
+  MakeSound := MakeSound and (fTerrain.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y, MyPlayer.PlayerID) >= 255);
   //Find empty spot or add one
   i := 0;
   repeat
@@ -64,11 +65,13 @@ begin
 
   case aProjType of
     pt_Arrow:     begin
+                    if MakeSound then fSoundLib.Play(sfx_BowShoot,KMPointRound(aStart),true);
                     fItems[i].fSpeed    := 0.45 + randomS(0.05);
                     fItems[i].fArc      := 1.5 + randomS(0.25);
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_BOWMAN_MAX / 2;
                   end;
     pt_Bolt:      begin
+                    if MakeSound then fSoundLib.Play(sfx_CrossbowShoot,KMPointRound(aStart),true);
                     fItems[i].fSpeed    := 0.5 + randomS(0.05);
                     fItems[i].fArc      := 1 + randomS(0.2);
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_ARBALETMAN_MAX / 2.5;
