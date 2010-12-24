@@ -20,6 +20,7 @@ type
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
     procedure TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
+    //todo: Record kills (units defeated) to stats, possibly by passing fOwnerOfKiller to Unit.HitPointsDecrease
 
     procedure UpdateReqDone(aType:THouseType);
 

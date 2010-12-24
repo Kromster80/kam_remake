@@ -134,9 +134,10 @@ begin
           case fProjType of
             pt_Arrow,
             pt_Bolt:      if U <> nil then
-                            U.HitPointsDecrease(1)
+                            if Random(2) = 1 then U.HitPointsDecrease(1) //Arrows hit unit 50% of the time
                           else begin
-                            H := fPlayers.HousesHitTest(round(fTargetJ.X), round(fTargetJ.Y));
+                            //Stray arrows do not damage houses, they are only hit when directly aimed at. Hence use fTarget not fTargetJ
+                            H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
                             if (H <> nil) then
                               H.AddDamage(1);
                           end;
@@ -212,47 +213,55 @@ begin
 end;
 
 
-//todo: ADD Save!
 procedure TKMProjectiles.Save(SaveStream:TKMemoryStream);
-//var i,Count:integer;
+var i, Count:integer;
 begin
-{  SaveStream.Write('Projectiles');
+  SaveStream.Write('Projectiles');
 
   Count := 0;
-  for i:=1 to length(fItems) do
+  for i:=1 to length(fItems)-1 do
     if fItems[i].fSpeed <> 0 then inc(Count);
   SaveStream.Write(Count);
 
   for i:=1 to length(fItems) do
     if fItems[i].fSpeed <> 0 then
-    begin
-      SaveStream.Write(fItems[i].fStart.X);
-      SaveStream.Write(fItems[i].fStart.Y);
-      SaveStream.Write(fItems[i].fStart.Z);
-      SaveStream.Write(fItems[i].fEnd.X);
-      SaveStream.Write(fItems[i].fEnd.Y);
-      SaveStream.Write(fItems[i].fEnd.Z);
-
-      //wip
-
-    end;   }
+      with fItems[i] do
+      begin
+        SaveStream.Write(fScreenStart);
+        SaveStream.Write(fScreenEnd);
+        SaveStream.Write(fTarget);
+        SaveStream.Write(fTargetJ);
+        SaveStream.Write(fProjType, SizeOf(fProjType));
+        SaveStream.Write(fSpeed);
+        SaveStream.Write(fArc);
+        SaveStream.Write(fPosition);
+        SaveStream.Write(fLength);
+      end;
 end;
 
 
-//todo: ADD Load!
 procedure TKMProjectiles.Load(LoadStream:TKMemoryStream);
-//var i:integer;
+var s:string; i, Count: integer;
 begin
-{  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseTotalCount[i]);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseBuiltCount[i]);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseLostCount[i]);
-  for i:=1 to 40 do LoadStream.Read(UnitTotalCount[i]);
-  for i:=1 to 40 do LoadStream.Read(UnitTrainedCount[i]);
-  for i:=1 to 40 do LoadStream.Read(UnitLostCount[i]);
-  for i:=1 to 4 do for k:=1 to 4 do LoadStream.Read(ResourceRatios[i,k]);
-  LoadStream.Read(fMissionTimeInSec);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(AllowToBuild[i]);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(BuildReqDone[i]);}
+  LoadStream.Read(s);
+  Assert(s = 'Projectiles', 'Projectiles not found');
+
+  LoadStream.Read(Count);
+  SetLength(fItems,Count+2); //Reserve extra space
+     
+  for i:=1 to Count do
+    with fItems[i] do
+    begin
+      LoadStream.Read(fScreenStart);
+      LoadStream.Read(fScreenEnd);
+      LoadStream.Read(fTarget);
+      LoadStream.Read(fTargetJ);
+      LoadStream.Read(fProjType, SizeOf(fProjType));
+      LoadStream.Read(fSpeed);
+      LoadStream.Read(fArc);
+      LoadStream.Read(fPosition);
+      LoadStream.Read(fLength);
+    end;
 end;
 
 
