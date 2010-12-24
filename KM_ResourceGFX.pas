@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  PNGImage,
+  {$IFDEF WDC} PNGImage, {$ENDIF}
   Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, PasZLib {$ENDIF};
@@ -591,13 +591,16 @@ end;
 { This function should parse all valid files in Sprites folder and load them
   additionaly to or replacing original sprites }
 procedure TResource.LoadRX7(RX:integer);
+{$IFDEF WDC}
 var
   FileList:TStringList;
   SearchRec:TSearchRec;
   i:integer; x,y:integer;
   ID:integer; p:cardinal;
   po:TPNGObject;
+  {$ENDIF}
 begin
+  {$IFDEF WDC}
   if not DirectoryExists(ExeDir + 'Sprites\') then exit;
 
   FileList := TStringList.Create;
@@ -652,6 +655,7 @@ begin
   end;
 
   FileList.Free;
+  {$ENDIF}
 end;
 
 

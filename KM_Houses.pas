@@ -462,7 +462,7 @@ begin
 
   Result := GetLength(C.List[1], aPos);
   for i:=2 to C.Count do
-    Result := min(Result, GetLength(C.List[i], aPos));
+    Result := Math.min(Result, GetLength(C.List[i], aPos));
   C.Free;
 end;
 

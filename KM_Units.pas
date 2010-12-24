@@ -78,6 +78,7 @@ type
     fDirection: TKMDirection; //
     procedure SetDirection(aValue:TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
+    function GetSlide(aCheck:TCheckAxis): single;
   public
     AnimStep: integer;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
@@ -149,7 +150,6 @@ type
     procedure UpdateThoughts();
     procedure UpdateVisibility();
     procedure UpdateHitPoints();
-    function GetSlide(aCheck:TCheckAxis): single;
   public
     procedure Save(SaveStream:TKMemoryStream); virtual;
     function UpdateState():boolean; virtual;

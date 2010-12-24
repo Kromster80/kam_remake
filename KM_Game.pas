@@ -616,7 +616,7 @@ end;
 
 procedure TKMGame.StepOneFrame();
 begin
-  Assert(fGameState=gsReplay, 'We can work step-by-step only in Replay');
+  Assert(fGameState in [gsPaused,gsReplay], 'We can work step-by-step only in Replay');
   SetGameSpeed(1); //Do not allow multiple updates in fGame.UpdateState loop
   fAdvanceFrame := true;
 end;
@@ -813,7 +813,8 @@ begin
                     if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                    if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.Autosave then //Each 1min of gameplay time
+                    if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.Autosave
+                      and (fGameState = gsRunning) then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
 
                     if fGameState = gsReplay then begin

@@ -23,7 +23,7 @@ uses
   KM_GameInputProcess in 'KM_GameInputProcess.pas',
   KM_MapInfo in 'KM_MapInfo.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
-  KM_Lobby in 'KM_Lobby.pas',
+  {$IFDEF WDC} KM_Lobby in 'KM_Lobby.pas', {$ENDIF}
   KM_Music in 'KM_Music.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
   KM_Player in 'KM_Player.pas',

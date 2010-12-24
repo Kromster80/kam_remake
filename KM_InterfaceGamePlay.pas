@@ -486,7 +486,8 @@ begin
   fShownHouse:=nil;
   JoiningGroups := false;
   SelectingTroopDirection := false;
-  SelectingDirPosition    := Point(0,0);
+  SelectingDirPosition.X := 0;
+  SelectingDirPosition.Y := 0;
 
   LastSchoolUnit:=1;
   LastBarracksUnit:=1;
@@ -2148,13 +2149,14 @@ begin
       //Record current cursor position so we can stop it from moving while we are setting direction
       GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
       //Restrict cursor to a rectangle (half a rect in both axes)
-      MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
-                     SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
-                     SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
-                     SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1);
+      MyRect.Left   := SelectingDirPosition.X-((DirCursorSqrSize-1) div 2);
+      MyRect.Top    := SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2);
+      MyRect.Right  := SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1;
+      MyRect.Bottom := SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1;
       ClipCursor(@MyRect);
       //Now record it as Client XY
-      SelectingDirPosition := Point(X,Y);
+      SelectingDirPosition.X :=X;
+      SelectingDirPosition.Y :=Y;
       SelectedDirection := dir_NA;
       ShowDirectionCursor(true,X,Y,SelectedDirection);
       Screen.Cursor := c_Invisible;

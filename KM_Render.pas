@@ -8,7 +8,7 @@ uses
   ExtCtrls, ComCtrls, Menus, Buttons,
   dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
-  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes, KM_Projectiles;
+  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
 type
 TRender = class
@@ -133,12 +133,12 @@ end;
 procedure TRender.LoadTileSet();
 var i:integer;
 begin
-  LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);
-  LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT,0);
+  LoadTexture(ExeDir+'Resource\gradient.tga', TextG);
+  LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT);
   if MAKE_ANIM_TERRAIN then begin
-    for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i],0);
-    for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i],0);
-    for i:=1 to 5 do LoadTexture(ExeDir+'Resource\Falls'+inttostr(i)+'.tga', TextF[i],0);
+    for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i]);
+    for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i]);
+    for i:=1 to 5 do LoadTexture(ExeDir+'Resource\Falls'+inttostr(i)+'.tga', TextF[i]);
   end;
 end;
 

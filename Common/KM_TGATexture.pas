@@ -26,7 +26,7 @@ uses
   {$IFDEF FPC}, paszlib {$ENDIF}
   ;
 
-function LoadTexture(FileName: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
+function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
 function GenerateTextureCommon():GLuint;
 
@@ -98,7 +98,7 @@ end;
 {------------------------------------------------------------------}
 {  Loads 24 and 32bpp (alpha channel) TGA textures                 }
 {------------------------------------------------------------------}
-function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
+function LoadTexture(Filename: String; var Texture:GLuint): Boolean;
 var
   TGAHeader : packed record   // Header type for TGA images
     FileType     : Byte;
