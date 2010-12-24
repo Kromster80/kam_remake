@@ -30,7 +30,7 @@ begin
   Result := TaskContinues;
   with fUnit do
   case fPhase of
-    0:  if IsVisible then
+    0:  if Visible then
           SetActionLockedStay(0,ua_Walk)
         else begin
           if GetHome<>nil then begin

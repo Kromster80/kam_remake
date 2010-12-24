@@ -1064,7 +1064,7 @@ var Commander:TKMUnitWarrior;
 begin
   fShownUnit:=Sender;
   fShownHouse:=nil;
-  if (not Assigned(Sender))or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDead)) then begin
+  if (not Assigned(Sender))or(not Sender.Visible)or((Sender<>nil)and(Sender.IsDead)) then begin
     SwitchPage(nil);
     fShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
     exit;
@@ -1072,7 +1072,7 @@ begin
   SwitchPage(Panel_Unit);
   Label_UnitName.Caption:=TypeToString(Sender.UnitType);
   Image_UnitPic.TexID:=520+byte(Sender.UnitType);
-  KMConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
+  KMConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
   if Sender is TKMUnitWarrior then
   begin
     //Warrior specific

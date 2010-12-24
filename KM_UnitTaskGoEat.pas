@@ -80,7 +80,7 @@ begin
    0: begin
         Thought := th_Eat;
         if GetHome<>nil then GetHome.SetState(hst_Empty);
-        if not IsVisible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome) else
+        if not Visible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome) else
                               SetActionLockedStay(0,ua_Walk); //Walk outside the house
       end;
    1: SetActionWalkToSpot(KMPointY1(fInn.GetEntrance));
@@ -93,28 +93,28 @@ begin
       //Sausages = +60%
       //Wine     = +20%
       //Fish     = +50%
-      if (GetCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
+      if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Bread);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.4);
         fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
       end else
         SetActionLockedStay(0,ua_Walk);
-   4: if (GetCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
+   4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Sausages);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.6);
         fInn.UpdateEater(PlaceID,3);
       end else
         SetActionLockedStay(0,ua_Walk);
-   5: if (GetCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
+   5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Wine);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.2);
         fInn.UpdateEater(PlaceID,1);
       end else
         SetActionLockedStay(0,ua_Walk);
-   6: if (GetCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
+   6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Fish);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.5);
@@ -123,7 +123,7 @@ begin
         SetActionLockedStay(0,ua_Walk);
    7: begin
         //Stop showing hungry if we no longer are, but if we are then walk out of the inn thinking hungry so that the player will know that we haven't been fed
-        if GetCondition<UNIT_MAX_CONDITION then
+        if Condition<UNIT_MAX_CONDITION then
           Thought := th_Eat else Thought := th_None;
         SetActionGoIn(ua_Walk,gd_GoOutside,fInn); //Exit Inn
         fInn.EatersGoesOut(PlaceID);

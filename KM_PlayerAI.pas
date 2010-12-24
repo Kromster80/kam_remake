@@ -366,7 +366,7 @@ begin
         if (fCommander = nil) and not IsDeadOrDying then
         begin
           //Check hunger and feed
-          if (GetCondition < UNIT_MIN_CONDITION) then
+          if (Condition < UNIT_MIN_CONDITION) then
             OrderFood;
 
           //Check formation. If the script has defined a group with more units per row than there should be, do not change it

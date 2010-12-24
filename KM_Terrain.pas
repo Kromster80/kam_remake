@@ -513,7 +513,7 @@ begin
 
     U := Land[i,k].IsUnit;
     if (U <> nil) and
-       U.IsVisible and //Inside of house
+       U.Visible and //Inside of house
        CanWalkDiagonaly(KMPoint(X,Y),KMPoint(k,i)) and
        (fPlayers.CheckAlliance(aPlay, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
        (not U.IsDeadOrDying)

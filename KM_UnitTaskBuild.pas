@@ -819,7 +819,7 @@ begin
            Direction:=TKMDirection(Cells.List[CurLoc].Dir);
          end;
       3: begin
-           if (GetCondition<UNIT_MIN_CONDITION) and CanGoEat then begin
+           if (Condition<UNIT_MIN_CONDITION) and CanGoEat then begin
              Result := TaskDone; //Drop the task
              exit;
            end;

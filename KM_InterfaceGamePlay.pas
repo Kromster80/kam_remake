@@ -1453,7 +1453,7 @@ begin
   fShownUnit  := Sender;
   fShownHouse := nil;
 
-  if (fShownUnit=nil) or (not fShownUnit.IsVisible) or (fShownUnit.IsDeadOrDying) then begin
+  if (fShownUnit=nil) or (not fShownUnit.Visible) or (fShownUnit.IsDeadOrDying) then begin
     SwitchPage(nil);
     exit;
   end;
@@ -1461,7 +1461,7 @@ begin
   SwitchPage(Panel_Unit);
   Label_UnitName.Caption:=TypeToString(Sender.UnitType);
   Image_UnitPic.TexID:=520+byte(Sender.UnitType);
-  ConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
+  ConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
   Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   Label_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
 

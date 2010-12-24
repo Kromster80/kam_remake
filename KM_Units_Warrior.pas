@@ -719,7 +719,7 @@ begin
     if (fMembers <> nil) and (not SomeoneHungry) then
       for i:=0 to fMembers.Count-1 do
       begin
-        SomeoneHungry := SomeoneHungry or (TKMUnitWarrior(fMembers.List[i]).GetCondition < UNIT_MIN_CONDITION);
+        SomeoneHungry := SomeoneHungry or (TKMUnitWarrior(fMembers.List[i]).Condition < UNIT_MIN_CONDITION);
         if SomeoneHungry then break;
       end;
 

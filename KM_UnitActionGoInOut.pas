@@ -215,7 +215,7 @@ begin
 
   fStep := fStep - Distance * shortint(fDirection);
   KMUnit.PositionF := KMPointF(Mix(fStreet.X,fDoor.X,fStep),Mix(fStreet.Y,fDoor.Y,fStep));
-  KMUnit.SetVisibility := (fHouse=nil) or (fHouse.IsDestroyed) or (fStep >= 0.3); //Make unit invisible when it's inside of House
+  KMUnit.Visible := (fHouse=nil) or (fHouse.IsDestroyed) or (fStep >= 0.3); //Make unit invisible when it's inside of House
 
   if (fStep<=0)or(fStep>=1) then
   begin

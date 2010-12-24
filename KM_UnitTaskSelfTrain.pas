@@ -29,7 +29,7 @@ begin
   Inherited Create(aUnit);
   fTaskName := utn_SelfTrain;
   fSchool   := TKMHouseSchool(aSchool.GetHousePointer);
-  fUnit.SetVisibility := false;
+  fUnit.Visible := false;
 end;
 
 

@@ -71,7 +71,7 @@ type
     fIsDead:boolean;
     fKillASAP:boolean;
     fPointerCount:integer;
-    fInHouse: TKMHouse; //House we are currently in //todo: This is WIP and is causing weird errors. To fix.
+    fInHouse: TKMHouse; //House we are currently in
     fCurrPosition: TKMPoint; //Where we are now
     fPrevPosition: TKMPoint; //Where we were
     fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
@@ -127,17 +127,14 @@ type
     property UnitType: TUnitType read fUnitType;
     function GetUnitTaskText():string;
     function GetUnitActText():string;
-    property GetCondition: integer read fCondition;
-    property SetCondition: integer write fCondition;
+    property Condition: integer read fCondition write fCondition;
     procedure SetFullCondition;
     procedure HitPointsDecrease(aAmount:integer=1);
     property GetHitPoints:byte read fHitPoints;
     function GetMaxHitPoints:byte;
     procedure CancelUnitTask;
-    property IsVisible: boolean read fVisible;
-    property SetVisibility:boolean write fVisible;
+    property Visible: boolean read fVisible write fVisible;
     procedure SetInHouse(aInHouse:TKMHouse);
-    property GetInHouse:TKMHouse read fInHouse;
     property IsDead:boolean read fIsDead;
     function IsDeadOrDying:boolean;
     function IsArmyUnit():boolean;
@@ -1415,15 +1412,15 @@ end;
 
 procedure TKMUnit.UpdateVisibility;
 begin
-  if GetInHouse <> nil then
-    if GetInHouse.IsDestroyed then
+  if fInHouse <> nil then
+    if fInHouse.IsDestroyed then
     begin
-      SetVisibility := true;
+      Visible := true;
       //If we are walking into/out of the house then don't set our position, ActionGoInOut will sort it out
       if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
       begin
         //Position in a spiral nearest to center of house, updating IsUnit.
-        fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetInHouse.GetPosition.X,GetInHouse.GetPosition.Y,UnitType));
+        fPosition := KMPointF(fPlayers.FindPlaceForUnit(fInHouse.GetPosition.X,fInHouse.GetPosition.Y,UnitType));
         //Make sure these are reset properly
         IsExchanging := false;
         fCurrPosition := KMPointRound(fPosition);

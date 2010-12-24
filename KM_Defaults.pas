@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1275';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1275';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1275;          //Used in replay file format
+  GAME_VERSION          = 'Fighting Demo r1297';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1297';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1297;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -128,7 +128,6 @@ const //Here we store options that are hidden somewhere in code
   RANGE_FISHERMAN   = 12;
 
   //Archer properties
-  //todo: check these against KaM
   RANGE_ARBALETMAN_MAX  = 10; //+1 to Tower range
   RANGE_BOWMAN_MAX      = 10;
   RANGE_WATCHTOWER_MAX  = 9;
