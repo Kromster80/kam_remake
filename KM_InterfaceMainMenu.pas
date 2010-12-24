@@ -1199,7 +1199,7 @@ begin
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
     OldFullScreen := fGame.fGlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
     OldResolution := fGame.fGlobalSettings.ResolutionID;
-    fGame.ToggleFullScreen(fGame.fGlobalSettings.FullScreen, true, true);
+    fGame.ToggleFullScreen(fGame.fGlobalSettings.FullScreen, true);
     exit;
   end;
 

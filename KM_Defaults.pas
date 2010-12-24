@@ -40,7 +40,6 @@ var
   MAKE_TEAM_COLORS      :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
-  FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :boolean=true;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)

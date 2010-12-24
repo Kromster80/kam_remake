@@ -48,10 +48,9 @@ type
     fMapEditorInterface: TKMapEdInterface;
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
-    procedure ResetRender(RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean);
     procedure ToggleLocale(aLocale:shortstring);
     procedure ResizeGameArea(X,Y:integer);
-    procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
+    procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
@@ -151,16 +150,6 @@ begin
 end;
 
 
-procedure TKMGame.ResetRender(RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean);
-begin
-  //@Krom: I left this here in case you figure out a way to make it work. Otherwise it can all be removed/disabled.
-  FreeAndNil(fRender);
-  ScreenX := aScreenX;
-  ScreenY := aScreenY;
-  fRender := TRender.Create(RenderHandle, aVSync);
-end;
-
-
 procedure TKMGame.ToggleLocale(aLocale:shortstring);
 begin
   fGlobalSettings.Locale := aLocale; //Wrong Locale will be ignored
@@ -193,9 +182,9 @@ begin
 end;
 
 
-procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
+procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
 begin
-  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.VSync, ReturnToOptions, ReInitGame);
+  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.VSync, ReturnToOptions);
 end;
 
 
@@ -219,7 +208,8 @@ begin
   if not IsDown and (Key=VK_RETURN) and (ssAlt in Shift) then
   begin
     fGlobalSettings.FullScreen := not fGlobalSettings.FullScreen;
-    ToggleFullScreen(fGlobalSettings.FullScreen, false, false);
+    ToggleFullScreen(fGlobalSettings.FullScreen, false);
+    exit; //Must exit now, cos fGame is recreated
   end;
 
   case fGameState of

@@ -107,7 +107,7 @@ type
   public
     procedure ApplyCursorRestriction;
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
+    procedure ToggleFullScreen(aFullScreen:boolean; aResolutionID:word; aVSync:boolean; aReturnToOptions:boolean);
   end;
 
 var
@@ -177,7 +177,7 @@ begin
   ReadAvailableResolutions;
 
   TempSettings := TGlobalSettings.Create; //Read settings (fullscreen property and resolutions)
-  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false, true); //Now we can decide whether we should make it full screen or not
+  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false); //Now we can decide whether we should make it full screen or not
   TempSettings.Free;
 
   //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
@@ -432,12 +432,12 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
+procedure TForm1.ToggleFullScreen(aFullScreen:boolean; aResolutionID:word; aVSync:boolean; aReturnToOptions:boolean);
 begin
-  if Toggle then begin
-    SetScreenResolution(SupportedResolutions[ResolutionID,1],SupportedResolutions[ResolutionID,2],SupportedRefreshRates[ResolutionID]);
+  if aFullScreen then begin
+    SetScreenResolution(SupportedResolutions[aResolutionID,1],SupportedResolutions[aResolutionID,2],SupportedRefreshRates[aResolutionID]);
     Form1.Refresh;
-    Form1.BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't expand to fullscreen
+    Form1.BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
     Form1.WindowState  := wsMaximized;
     Form1.BorderStyle  := bsNone;     //and now we can make it borderless again
     Form1.FormStyle    := fsStayOnTop;//Should overlay TaskBar
@@ -459,21 +459,14 @@ begin
   Panel5.Height := Form1.ClientHeight;
   Panel5.Width  := Form1.ClientWidth;
 
-  if ReInitGame then
-  begin
-    //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
-    //Don't know how lame it is, but it works well
-    //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
-    FreeThenNil(fGame); //Saves all settings into ini file in midst
-    //Now re-init fGame
-    fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,aVSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
-  end
-  else
-    fGame.ResetRender(Panel5.Handle,Panel5.Width,Panel5.Height,aVSync);
+  //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
+  FreeThenNil(fGame); //Saves all settings into ini file in midst
+  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,aVSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
+
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
-  if ReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
+  if aReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
   ApplyCursorRestriction;
 end;
 
@@ -482,7 +475,6 @@ procedure TForm1.SetScreenResolution(Width, Height, RefreshRate: word);
 var
   DeviceMode: DEVMODE;
 begin
-  if not FORCE_RESOLUTION then exit;
   ZeroMemory(@DeviceMode,sizeof(DeviceMode));
   with DeviceMode do begin
     dmSize := SizeOf(TDeviceMode);
@@ -497,9 +489,10 @@ begin
 end;
 
 
+//Restore initial Windows resolution
 procedure TForm1.ResetResolution;
 begin
-  if FORCE_RESOLUTION then ChangeDisplaySettings(DEVMODE(nil^),0);
+  ChangeDisplaySettings(DEVMODE(nil^),0);
 end;
 
 

@@ -1458,12 +1458,12 @@ procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y
 var P:TKMPoint;
 begin
   if MyControls.CtrlOver <> nil then begin
-    MyControls.MouseUp(X,Y,Shift,Button);
-    if (MyControls.CtrlOver <> nil) //@Krom: Crashes here when exiting from the map editor (using in game menu -> quit)
+    if (MyControls.CtrlOver <> nil)
     and (MyControls.CtrlOver is TKMButton)
     and MyControls.CtrlOver.Enabled
     and TKMButton(MyControls.CtrlOver).MakesSound then
       fSoundLib.Play(sfx_click);
+    MyControls.MouseUp(X,Y,Shift,Button);
     exit;
   end;
 
