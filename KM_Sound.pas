@@ -44,7 +44,7 @@ type
     procedure LoadSoundsDAT();
     function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
   public
-    constructor Create(aLocale:string);
+    constructor Create(aLocale:string; aVolume:single);
     destructor Destroy; override;
     procedure ExportSounds();
     procedure UpdateListener(X,Y:single);
@@ -64,7 +64,7 @@ implementation
 uses KM_Game, Dialogs;
 
 
-constructor TSoundLib.Create(aLocale:string);
+constructor TSoundLib.Create(aLocale:string; aVolume:single);
 var
   Context: PALCcontext;
   Device: PALCdevice;
@@ -124,7 +124,8 @@ begin
   //Set default Listener orientation
   Listener.Ori[1]:=0; Listener.Ori[2]:=1; Listener.Ori[3]:=0; //Look-at vector
   Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
-  AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
+  AlListenerfv(AL_ORIENTATION, @Listener.Ori);
+  SoundGain := aVolume;
 
   fLog.AppendLog('OpenAL init done');
 

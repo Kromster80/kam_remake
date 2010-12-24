@@ -115,17 +115,14 @@ begin
   fGlobalSettings := TGlobalSettings.Create;
   fRender         := TRender.Create(RenderHandle, aVSync);
   fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
-  fSoundLib       := TSoundLib.Create(fGlobalSettings.Locale); //Required for button click sounds
-  fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer {$ENDIF});
-  //todo: @Krom: When I start the game with music disabled there is about 100ms of music
-  //which then cuts off. I assume the INI file is read after starting playback or something?
-  fGlobalSettings.UpdateSFXVolume;
+  fSoundLib       := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
+  fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer {$ENDIF}, fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource       := TResource.Create;
   fResource.LoadMenuResources(fGlobalSettings.Locale);
 
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
 
-  if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic);
+  if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
 
   fCampaignSettings := TCampaignSettings.Create;
   fAdvanceFrame := false;
@@ -198,7 +195,7 @@ end;
 
 procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean; ReInitGame:boolean=true);
 begin
-  Form1.ToggleFullScreen(aToggle, fGlobalSettings.GetResolutionID, fGlobalSettings.IsVSync, ReturnToOptions, ReInitGame);
+  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.VSync, ReturnToOptions);
 end;
 
 
@@ -221,8 +218,8 @@ begin
   //Alt+Enter toggles fullscreen
   if not IsDown and (Key=VK_RETURN) and (ssAlt in Shift) then
   begin
-    fGlobalSettings.IsFullScreen := not fGlobalSettings.IsFullScreen;
-    ToggleFullScreen(fGlobalSettings.IsFullScreen, false, false);
+    fGlobalSettings.FullScreen := not fGlobalSettings.FullScreen;
+    ToggleFullScreen(fGlobalSettings.FullScreen, false, false);
   end;
 
   case fGameState of
@@ -890,7 +887,7 @@ procedure TKMGame.SetGameSpeed(aSpeed:byte=0);
 begin
   if aSpeed=0 then //Make sure it's either 1 or Max, not something inbetween
     if fGameSpeed = 1 then
-      fGameSpeed := fGlobalSettings.GetSpeedup
+      fGameSpeed := fGlobalSettings.Speedup
     else
       fGameSpeed := 1
   else
@@ -1087,7 +1084,7 @@ begin
                   fMainMenuInterface.UpdateState;
                   if fGlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
-                    fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic); //Menu tune
+                    fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn); //Menu tune
                 end;
     gsRunning,
     gsReplay:   begin
@@ -1099,7 +1096,7 @@ begin
                     if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                    if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.IsAutosave then //Each 1min of gameplay time
+                    if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.Autosave then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
 
                     if fGameState = gsReplay then begin

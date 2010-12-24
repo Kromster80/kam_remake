@@ -7,24 +7,35 @@ uses Classes, SysUtils, KromUtils, Math, KM_Defaults, INIfiles, KM_CommonTypes;
 type
   TGlobalSettings = class
   private
-    fBrightness:byte;
-    fAutosave:boolean;
-    fFastScroll:boolean;
-    fMouseSpeed:byte;
-    fSoundFXVolume:byte;
-    fMusicVolume:byte;
-    fMusicOnOff:boolean;
-    fFullScreen:boolean;
-    fVSync:boolean;
-    fLocale:shortstring;
-    fPace:word;
-    fSpeedup:word;
-    fResolutionID:word; //Relates to index in SupportedResolution
-    fSlidersMin,fSlidersMax:byte;
     fNeedsSave: boolean;
+
+    fAutosave:boolean;
+    fBrightness:byte;
+    fFastScroll:boolean;
+    fFullScreen:boolean;
+    fLocale:shortstring;
+    fMouseSpeed:byte;
+    fMusicOn:boolean;
+    fMusicVolume:byte;
+    fResolutionID:word; //Relates to index in SupportedResolution
+    fSlidersMin:byte;
+    fSlidersMax:byte;
+    fSoundFXVolume:byte;
+    fSpeedPace:word;
+    fSpeedup:word;
+    fVSync:boolean;
     function LoadSettingsFromFile(filename:string):boolean;
     procedure SaveSettingsToFile(filename:string);
+
+    procedure SetAutosave(aValue:boolean);
+    procedure SetBrightness(aValue:byte);
+    procedure SetFastScroll(aValue:boolean);
+    procedure SetFullScreen(aValue:boolean);
     procedure SetLocale(aLocale:shortstring);
+    procedure SetMouseSpeed(aValue:byte);
+    procedure SetMusicOn(aValue:boolean);
+    procedure SetMusicVolume(aValue:byte);
+    procedure SetSoundFXVolume(aValue:byte);
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
@@ -32,32 +43,22 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure SaveSettings;
-    property GetBrightness:byte read fBrightness default 1;
+
+    property Autosave:boolean read fAutosave write SetAutosave default true;
+    property Brightness:byte read fBrightness write SetBrightness default 1;
+    property FastScroll:boolean read fFastScroll write SetFastScroll default false;
+    property FullScreen:boolean read fFullScreen write SetFullScreen default true;
     property Locale:shortstring read fLocale write SetLocale;
-    property GetResolutionID:word read fResolutionID;
-    property SetResolutionID:word write fResolutionID;
-    property GetPace:word read fPace;
-    property GetSpeedup:word read fSpeedup;
-    procedure SetBrightness(aValue:integer);
-    procedure SetIsAutosave(val:boolean);
-    procedure SetIsFastScroll(val:boolean);
-    procedure SetIsFullScreen(val:boolean);
-    property IsAutosave:boolean read fAutosave write SetIsAutosave default true;
-    property IsFastScroll:boolean read fFastScroll write SetIsFastScroll default false;
-    property GetSlidersMin:byte read fSlidersMin;
-    property GetSlidersMax:byte read fSlidersMax;
-    property GetNeedsSave:boolean read fNeedsSave;
-    procedure SetMouseSpeed(Value:integer);
-    procedure SetSoundFXVolume(Value:integer);
-    procedure SetMusicVolume(Value:integer);
-    procedure SetMusicOnOff(Value:boolean);
-    procedure UpdateSFXVolume();
-    property GetMouseSpeed:byte read fMouseSpeed;
-    property GetSoundFXVolume:byte read fSoundFXVolume;
-    property GetMusicVolume:byte read fMusicVolume;
-    property IsMusic:boolean read fMusicOnOff write SetMusicOnOff default true;
-    property IsFullScreen:boolean read fFullScreen write SetIsFullScreen default true;
-    property IsVSync:boolean read fVSync;
+    property MouseSpeed:byte read fMouseSpeed write SetMouseSpeed;
+    property MusicOn:boolean read fMusicOn write SetMusicOn default true;
+    property MusicVolume:byte read fMusicVolume write SetMusicVolume;
+    property ResolutionID:word read fResolutionID write fResolutionID;
+    property SlidersMin:byte read fSlidersMin;
+    property SlidersMax:byte read fSlidersMax;
+    property SoundFXVolume:byte read fSoundFXVolume write SetSoundFXVolume;
+    property SpeedPace:word read fSpeedPace;
+    property Speedup:word read fSpeedup;
+    property VSync:boolean read fVSync;
   end;
 
 
@@ -101,9 +102,11 @@ begin
 end;
 
 
+//Save only when needed
 procedure TGlobalSettings.SaveSettings;
 begin
-  SaveSettingsToFile(ExeDir+SETTINGS_FILE);
+  if fNeedsSave then
+    SaveSettingsToFile(ExeDir+SETTINGS_FILE);
 end;
 
 
@@ -123,18 +126,18 @@ begin
   fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
   fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
   Locale         := f.ReadString ('Game','Locale','eng'); //Wrong name will become ENG too
-  fPace          := f.ReadInteger('Game','GamePace',100);
+  fSpeedPace     := f.ReadInteger('Game','SpeedPace',100);
   fSpeedup       := f.ReadInteger('Game','Speedup',10);
 
   fSoundFXVolume := f.ReadInteger('SFX','SFXVolume',10);
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
-  fMusicOnOff    := f.ReadBool   ('SFX','MusicEnabled',true);
+  fMusicOn       := f.ReadBool   ('SFX','MusicEnabled',true);
 
   fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);
   fHitPointRestoreInFights := f.ReadBool('Fights','HitPointRestoreInFights',true);
 
   FreeAndNil(f);
-  fNeedsSave:=false;
+  fNeedsSave := false;
 end;
 
 
@@ -152,12 +155,12 @@ begin
   f.WriteBool   ('Game','FastScroll', fFastScroll);
   f.WriteInteger('Game','MouseSpeed', fMouseSpeed);
   f.WriteString ('Game','Locale',     fLocale);
-  f.WriteInteger('Game','GamePace',   fPace);
+  f.WriteInteger('Game','SpeedPace',  fSpeedPace);
   f.WriteInteger('Game','Speedup',    fSpeedup);
 
   f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);
-  f.WriteBool   ('SFX','MusicEnabled',fMusicOnOff);
+  f.WriteBool   ('SFX','MusicEnabled',fMusicOn);
 
   f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
   f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
@@ -167,7 +170,7 @@ begin
 end;
 
 
-//Scan list of available locales and pick existing one, or ignore 
+//Scan list of available locales and pick existing one, or ignore
 procedure TGlobalSettings.SetLocale(aLocale:shortstring);
 var i:integer;
 begin
@@ -178,76 +181,67 @@ begin
 end;
 
 
-procedure TGlobalSettings.SetBrightness(aValue:integer);
+procedure TGlobalSettings.SetBrightness(aValue:byte);
 begin
   fBrightness := EnsureRange(aValue,0,20);
   fNeedsSave  := true;
 end;
 
 
-procedure TGlobalSettings.SetIsAutosave(val:boolean);
+procedure TGlobalSettings.SetAutosave(aValue:boolean);
 begin
-  fAutosave:=val;
-  fNeedsSave:=true;
+  fAutosave  := aValue;
+  fNeedsSave := true;
 end;
 
 
-procedure TGlobalSettings.SetIsFastScroll(val:boolean);
+procedure TGlobalSettings.SetFastScroll(aValue:boolean);
 begin
-  fFastScroll:=val;
-  fNeedsSave:=true;
+  fFastScroll := aValue;
+  fNeedsSave  := true;
 end;
 
 
-procedure TGlobalSettings.SetIsFullScreen(val:boolean);
+procedure TGlobalSettings.SetFullScreen(aValue:boolean);
 begin
-  fFullScreen:=val;
-  fNeedsSave:=true;
+  fFullScreen := aValue;
+  fNeedsSave  := true;
 end;
 
 
-procedure TGlobalSettings.SetMouseSpeed(Value:integer);
+procedure TGlobalSettings.SetMouseSpeed(aValue:byte);
 begin
-  fMouseSpeed:=EnsureRange(Value,fSlidersMin,fSlidersMax);
-  fNeedsSave:=true;
+  fMouseSpeed := EnsureRange(aValue,fSlidersMin,fSlidersMax);
+  fNeedsSave  := true;
 end;
 
 
-procedure TGlobalSettings.SetSoundFXVolume(Value:integer);
+procedure TGlobalSettings.SetSoundFXVolume(aValue:byte);
 begin
-  fSoundFXVolume:=EnsureRange(Value,fSlidersMin,fSlidersMax);
-  UpdateSFXVolume();
-  fNeedsSave:=true;
+  fSoundFXVolume := EnsureRange(aValue,fSlidersMin,fSlidersMax);
+  fSoundLib.UpdateSoundVolume(fSoundFXVolume/fSlidersMax);
+  fNeedsSave := true;
 end;
 
 
-procedure TGlobalSettings.SetMusicVolume(Value:integer);
+procedure TGlobalSettings.SetMusicVolume(aValue:byte);
 begin
-  fMusicVolume:=EnsureRange(Value,fSlidersMin,fSlidersMax);
-  UpdateSFXVolume();
-  fNeedsSave:=true;
+  fMusicVolume := EnsureRange(aValue,fSlidersMin,fSlidersMax);
+  fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/fSlidersMax);
+  fNeedsSave := true;
 end;
 
 
-procedure TGlobalSettings.SetMusicOnOff(Value:boolean);
+procedure TGlobalSettings.SetMusicOn(aValue:boolean);
 begin
-  if fMusicOnOff <> Value then
+  if fMusicOn <> aValue then
   begin
-    fMusicOnOff:=Value;
-    if Value then
-      fGame.fMusicLib.PlayMenuTrack(not IsMusic) //Start with the default track
+    fMusicOn:=aValue;
+    if aValue then
+      fGame.fMusicLib.PlayMenuTrack(not MusicOn) //Start with the default track
     else
       fGame.fMusicLib.StopMusic;
   end;
-  fNeedsSave:=true;
-end;
-
-
-procedure TGlobalSettings.UpdateSFXVolume();
-begin
-  fSoundLib.UpdateSoundVolume(fSoundFXVolume/fSlidersMax);
-  if fGame<>nil then
-    fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/fSlidersMax);
   fNeedsSave := true;
 end;
 

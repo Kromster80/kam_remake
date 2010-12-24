@@ -174,16 +174,16 @@ begin
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
-  ReadAvailableResolutions;    //Undecided as to how this will fit in with the game, see discussion
+  ReadAvailableResolutions;
 
   TempSettings := TGlobalSettings.Create; //Read settings (fullscreen property and resolutions)
-  ToggleFullScreen(TempSettings.IsFullScreen, TempSettings.GetResolutionID, TempSettings.IsVSync, false); //Now we can decide whether we should make it full screen or not
+  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false); //Now we can decide whether we should make it full screen or not
   TempSettings.Free;
 
   //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
   //fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
 
-  Application.OnIdle:=Form1.OnIdle;
+  Application.OnIdle := Form1.OnIdle;
   fLog.AppendLog('Form1 create is done');
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
@@ -193,7 +193,7 @@ begin
         'Warning', MB_OK or MB_ICONWARNING);
   end;
 
-  Timer100ms.Interval := fGame.fGlobalSettings.GetPace; //FormLoading gets hidden OnTimer event
+  Timer100ms.Interval := fGame.fGlobalSettings.SpeedPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
 
@@ -519,7 +519,7 @@ var
   DevMode : TDevMode;
 begin
   i := 0;
-  FillChar(SupportedRefreshRates, SizeOf(SupportedRefreshRates), 0); //Thats a nice trick to fill it with zeroes ;)
+  FillChar(SupportedRefreshRates, SizeOf(SupportedRefreshRates), #0);
   while EnumDisplaySettings(nil, i, DevMode) do
   with DevMode do
   begin
@@ -535,7 +535,7 @@ end;
 procedure TForm1.ApplyCursorRestriction;
 var Rect: TRect;
 begin
-  if (fGame <> nil) and (fGame.fGlobalSettings <> nil) and fGame.fGlobalSettings.IsFullScreen then
+  if (fGame <> nil) and (fGame.fGlobalSettings <> nil) and fGame.fGlobalSettings.FullScreen then
   begin
     Rect := BoundsRect;
     ClipCursor(@Rect); //Restrict the cursor movement to inside our form
