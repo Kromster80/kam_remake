@@ -58,7 +58,6 @@ var
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   ENABLE_MP_IN_MENU     :boolean=false; //Keep Multiplayer disabled until it's rigged
-  ENABLE_ALT_ENTER      :boolean=false; //Forbid to go fullscreen, it's not working yet 
                        
   //These are debug things, should be FALSE
   {User interface options}

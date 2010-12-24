@@ -196,14 +196,6 @@ begin
     FormControlsVisible := not FormControlsVisible;
     Form1.ToggleControlsVisibility(FormControlsVisible);
   end;
-  //Alt+Enter toggles fullscreen
-  //@Lewin: I suggest we remove it completely, cos Alt-Entering in game will kick you to main menu
-  if ENABLE_ALT_ENTER and not IsDown and (Key=VK_RETURN) and (ssAlt in Shift) then
-  begin
-    fGlobalSettings.FullScreen := not fGlobalSettings.FullScreen;
-    ToggleFullScreen(fGlobalSettings.FullScreen, false);
-    exit; //Must exit now, cos fGame is recreated
-  end;
 
   case fGameState of
     gsNoGame:   fMainMenuInterface.KeyUp(Key, Shift, IsDown); //Exit if handled

@@ -707,17 +707,16 @@ begin
     Button_MessageGoTo:=MyControls.AddButton(Panel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
     Button_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
     Button_MessageGoTo.OnClick := MessageGoTo;
-    Button_MessageGoTo.MakesSound := false; //@Lewin: Why these 3 buttons are special and don't make sound?
 
     Button_MessageDelete:=MyControls.AddButton(Panel_Message,490,104,100,24,fTextLibrary.GetTextString(276),fnt_Antiqua);
     Button_MessageDelete.Hint := fTextLibrary.GetTextString(277);
     Button_MessageDelete.OnClick := MessageDelete;
-    Button_MessageDelete.MakesSound := false;
+    Button_MessageDelete.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
 
     Button_MessageClose:=MyControls.AddButton(Panel_Message,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
     Button_MessageClose.Hint := fTextLibrary.GetTextString(283);
     Button_MessageClose.OnClick := MessageClose;
-    Button_MessageClose.MakesSound := false;
+    Button_MessageClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
 
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 end;
