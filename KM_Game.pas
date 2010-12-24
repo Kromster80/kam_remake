@@ -20,10 +20,7 @@ type
   private //Irrelevant to savegame
     ScreenX,ScreenY:word;
     FormControlsVisible:boolean;
-    SelectingTroopDirection:boolean;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
-    SelectingDirPosition: TPoint;
-    SelectedDirection: TKMDirection;
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
     fGameSpeed:integer;
     fGameState:TGameState;
@@ -112,9 +109,7 @@ begin
   fGameSpeed    := 1;
   fGameState    := gsNoGame;
   SkipReplayEndCheck  := false;
-  FormControlsVisible :=false;
-  SelectingTroopDirection := false;
-  SelectingDirPosition    := Point(0,0);
+  FormControlsVisible := false;
 
   fGlobalSettings := TGlobalSettings.Create;
   fRender         := TRender.Create(RenderHandle, aVSync);
@@ -209,143 +204,28 @@ end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   case fGameState of
     gsNoGame:   fMainMenuInterface.MouseDown(Button,Shift,X,Y);
-    gsPaused:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
-    gsOnHold:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
-    gsReplay:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
-    gsRunning:  begin
-                  fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
-                  MOver := fGamePlayInterface.MyControls.CtrlOver;
-
-                  //These are only for testing purposes, Later on it should be changed a lot
-                  if (Button = mbRight)
-                    and(MOver = nil)
-                    and(fGamePlayInterface <> nil)
-                    and(not fGamePlayInterface.JoiningGroups)
-                    and(fGamePlayInterface.ShownUnit is TKMUnitWarrior)
-                    and(TKMUnit(fGamePlayInterface.ShownUnit).GetOwner = MyPlayer.PlayerID)
-                    then
-                  begin
-                    //See if we are moving or attacking
-                    HitUnit := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                    if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
-                       (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
-                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.ShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
-                    begin
-                      //Place attack order here rather than in mouse up; why here??
-                      fGameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fGamePlayInterface.ShownUnit).GetCommander, HitUnit);
-                    end
-                    else
-                    begin
-                      HitHouse := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                      if (HitHouse <> nil) and (not (HitHouse.IsDestroyed)) and
-                         (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
-                      begin
-                        fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fGamePlayInterface.ShownUnit).GetCommander, HitHouse);
-                      end
-                      else
-                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.ShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
-                      begin
-                        SelectingTroopDirection := true; //MouseMove will take care of cursor changing
-                        //Record current cursor position so we can stop it from moving while we are setting direction
-                        GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
-                        //Restrict cursor to a rectangle (half a rect in both axes)
-                        MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
-                                       SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
-                                       SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
-                                       SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1);
-                        ClipCursor(@MyRect);
-                        //Now record it as Client XY
-                        SelectingDirPosition := Point(X,Y);
-                        SelectedDirection := dir_NA;
-                        fGamePlayInterface.ShowDirectionCursor(true,X,Y,SelectedDirection);
-                        Screen.Cursor := c_Invisible;
-                      end;
-                    end;
-                  end
-                  else
-                  begin
-                    if SelectingTroopDirection then
-                      Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
-                    SelectingTroopDirection := false;
-                    fGamePlayInterface.ShowDirectionCursor(false);
-                  end;
-                end;
+    gsPaused:   fGamePlayInterface.MouseDown(Button,Shift,X,Y);
+    gsOnHold:   fGamePlayInterface.MouseDown(Button,Shift,X,Y);
+    gsReplay:   fGamePlayInterface.MouseDown(Button,Shift,X,Y);
+    gsRunning:  fGamePlayInterface.MouseDown(Button,Shift,X,Y);
     gsEditor:   fMapEditorInterface.MouseDown(Button,Shift,X,Y);
   end;
 end;
 
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
-var HitUnit: TKMUnit; HitHouse: TKMHouse; DeltaX,DeltaY:shortint;
 begin
   if not InRange(X,1,ScreenX-1) or not InRange(Y,1,ScreenY-1) then exit; //Exit if Cursor is outside of frame
 
   case fGameState of
     gsNoGame:   fMainMenuInterface.MouseMove(Shift, X,Y);
-    gsPaused:   fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
-    gsOnHold:   begin
-                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fGamePlayInterface.MyControls.CtrlOver<>nil then
-                    Screen.Cursor := c_Default
-                end;
-    gsRunning:  begin
-                  if SelectingTroopDirection then
-                  begin
-                    DeltaX := SelectingDirPosition.X - X;
-                    DeltaY := SelectingDirPosition.Y - Y;
-                    //Compare cursor position and decide which direction it is
-                    SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
-                    //Update the cursor based on this direction and negate the offset
-                    fGamePlayInterface.ShowDirectionCursor(true,X+DeltaX,Y+DeltaY,SelectedDirection);
-                    Screen.Cursor := c_Invisible; //Keep it invisible, just in case
-                  end
-                  else
-                  begin
-                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fGamePlayInterface.MyControls.CtrlOver<>nil then
-                    Screen.Cursor := c_Default
-                  else begin
-                    fTerrain.ComputeCursorPosition(X,Y,Shift);
-                    if GameCursor.Mode=cm_None then
-                      if fGamePlayInterface.JoiningGroups and
-                        (fGamePlayInterface.ShownUnit is TKMUnitWarrior) then
-                      begin
-                        HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                        if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.ShownUnit))) and
-                           (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.ShownUnit.UnitType)]) then
-                          Screen.Cursor := c_JoinYes
-                        else
-                          Screen.Cursor := c_JoinNo;
-                      end
-                      else
-                        if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
-                           (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
-                          Screen.Cursor := c_Info
-                        else
-                        if fGamePlayInterface.ShownUnit is TKMUnitWarrior then
-                        begin
-                          HitUnit  := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
-                          HitHouse := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                          if (fTerrain.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, MyPlayer.PlayerID)>0) and
-                             (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy))or
-                              ((HitHouse<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy))) then
-                            Screen.Cursor := c_Attack
-                          else if not fViewport.Scrolling then
-                            Screen.Cursor := c_Default;
-                        end
-                        else if not fViewport.Scrolling then
-                          Screen.Cursor := c_Default;
-                  end;
-                  end;
-                end;
-    gsReplay:   begin
-                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift); //To control minimap
-                  fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
-                end;
+    gsPaused:   fGamePlayInterface.MouseMove(Shift, X,Y);
+    gsOnHold:   fGamePlayInterface.MouseMove(Shift, X,Y);
+    gsRunning:  fGamePlayInterface.MouseMove(Shift, X,Y);
+    gsReplay:   fGamePlayInterface.MouseMove(Shift, X,Y);
     gsEditor:   fMapEditorInterface.MouseMove(Shift,X,Y);
   end;
 
@@ -356,154 +236,14 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit; OldSelected: TObject; OldDirSelecting: boolean;
 begin
-  OldDirSelecting := SelectingTroopDirection;
-  if SelectingTroopDirection then
-  begin
-    //Reset the cursor position as it will have moved during direction selection
-    SetCursorPos(Form1.Panel5.ClientToScreen(SelectingDirPosition).X,Form1.Panel5.ClientToScreen(SelectingDirPosition).Y);
-    Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
-    SelectingTroopDirection := false; //As soon as mouse is released
-    fGamePlayInterface.ShowDirectionCursor(false);
-  end;
-
-  case fGameState of //Remember clicked control
-    gsNoGame:   MOver := nil;
-    gsPaused:   MOver := fGamePlayInterface.MyControls.CtrlOver;
-    gsOnHold:   MOver := fGamePlayInterface.MyControls.CtrlOver;
-    gsRunning:  MOver := fGamePlayInterface.MyControls.CtrlOver;
-    gsReplay:   MOver := fGamePlayInterface.MyControls.CtrlOver;
-    gsEditor:   MOver := nil;
-    else        MOver := nil; //MOver should always be initialized
-  end;
-
-
   case fGameState of
     gsNoGame:   fMainMenuInterface.MouseUp(Button, Shift, X,Y);
-    gsPaused:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
-    gsOnHold:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
-    gsReplay:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
-    gsRunning:
-      begin
-        P := GameCursor.Cell; //Get cursor position tile-wise
-        if MOver <> nil then
-          fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button)
-        else begin
-
-          if (Button = mbMiddle) and (fGamePlayInterface.MyControls.CtrlOver = nil) then
-            fGameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
-
-          if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-          begin
-            case GameCursor.Mode of
-              cm_None:
-                if not fGamePlayInterface.JoiningGroups then
-                begin
-                  //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
-                  OldSelected := fPlayers.Selected;
-                  if (not fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y)) or
-                    ((fPlayers.Selected is TKMHouse) and (TKMHouse(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID))or
-                    ((fPlayers.Selected is TKMUnit) and (TKMUnit(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID)) then
-                    fPlayers.Selected := OldSelected;
-
-                  if (fPlayers.Selected is TKMHouse) then
-                    fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
-
-                  if (fPlayers.Selected is TKMUnit) then begin
-                    fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                    if (fPlayers.Selected is TKMUnitWarrior) and (OldSelected <> fPlayers.Selected) then
-                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
-                  end;
-                end;
-              cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
-                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-                        else
-                          fGameInputProcess.CmdBuild(gic_BuildRoadPlan, P);
-
-              cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
-                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-                        else
-                          fGameInputProcess.CmdBuild(gic_BuildFieldPlan, P);
-              cm_Wine:  if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
-                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-                        else
-                          fGameInputProcess.CmdBuild(gic_BuildWinePlan, P);
-              cm_Wall:  if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
-                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-                        else
-                          fGameInputProcess.CmdBuild(gic_BuildWallPlan, P);
-              cm_Houses: if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then begin
-                           fGameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
-                           fSoundLib.Play(sfx_placemarker);
-                           fGamePlayInterface.Build_SelectRoad;
-                         end else
-                           fSoundLib.Play(sfx_CantPlace,P,false,4.0);
-              cm_Erase:
-                begin
-                  fPlayers.Selected := MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Select the house irregardless of unit below/above
-                  if MyPlayer.RemHouse(P,false,true) then //Ask wherever player wants to destroy own house
-                  begin
-                    //don't ask about houses that are not started, they are removed below
-                    if TKMHouse(fPlayers.Selected).BuildingState <> hbs_Glyph then
-                    begin
-                      fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected),true);
-                      fSoundLib.Play(sfx_click);
-                    end;
-                  end;
-                  if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
-                    fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
-                  //Now remove houses that are not started
-                  if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).BuildingState = hbs_Glyph) then
-                  begin
-                    fGameInputProcess.CmdBuild(gic_BuildRemoveHouse, P);
-                    fSoundLib.Play(sfx_click);
-                  end;
-                end;
-
-            end; //case CursorMode.Mode of..
-            if fGamePlayInterface.JoiningGroups and (fGamePlayInterface.ShownUnit <> nil) and
-              (fGamePlayInterface.ShownUnit is TKMUnitWarrior) then
-            begin
-              HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-              if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.ShownUnit))) and
-                 (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.ShownUnit.UnitType)]) then
-              begin
-                fGameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fGamePlayInterface.ShownUnit), HitUnit);
-                fGamePlayInterface.JoiningGroups := false;
-                fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.ShownUnit); //Refresh unit display
-                Screen.Cursor:=c_Default; //Reset cursor when mouse released
-              end;
-            end;
-          end;
-        end; //if MOver<>nil then else..
-
-        //These are only for testing purposes, Later on it should be changed a lot
-        if (Button = mbRight)
-        and(MOver = nil)
-        and(fGamePlayInterface <> nil)
-        and(fGamePlayInterface.ShownUnit <> nil)
-        and(OldDirSelecting) //If this is false then we are not moving, possibly attacking
-        and(SelectingDirPosition.x <> 0)
-        and(fGamePlayInterface.ShownUnit is TKMUnitWarrior)
-        and(TKMUnit(fGamePlayInterface.ShownUnit).GetOwner = MyPlayer.PlayerID)
-        and(not fGamePlayInterface.JoiningGroups)
-        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.ShownUnit).GetPosition, P, CanWalk, 0, false))
-        then
-        begin
-          Screen.Cursor:=c_Default; //Reset cursor when mouse released
-          fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fGamePlayInterface.ShownUnit), P, SelectedDirection);
-        end;
-
-        if (Button = mbRight) and (MOver = nil) then
-        begin
-          fGamePlayInterface.RightClickCancel; //Right clicking closes some menus
-          if (Screen.Cursor = c_JoinYes) or (Screen.Cursor = c_JoinNo) then
-            Screen.Cursor:=c_Default; //Reset cursor if it was joining
-        end;
-
-      end; //gsRunning
-    gsEditor: fMapEditorInterface.MouseUp(Button, Shift, X,Y)
+    gsPaused:   fGamePlayInterface.MouseUp(Button, Shift, X,Y);
+    gsOnHold:   fGamePlayInterface.MouseUp(Button, Shift, X,Y);
+    gsReplay:   fGamePlayInterface.MouseUp(Button, Shift, X,Y);
+    gsRunning:  fGamePlayInterface.MouseUp(Button, Shift, X,Y);
+    gsEditor:   fMapEditorInterface.MouseUp(Button, Shift, X,Y)
   end;
 end;
 

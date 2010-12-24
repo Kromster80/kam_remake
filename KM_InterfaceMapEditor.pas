@@ -164,7 +164,6 @@ type TKMapEdInterface = class
     procedure SetScreenSize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
-    procedure Build_SelectRoad;
     procedure RightClick_Cancel;
     procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -254,7 +253,7 @@ begin
     Panel_Village.Show;
     Panel_Build.Show;
     Label_MenuTitle.Caption:='Village - Buildings';
-    Build_SelectRoad;
+    Build_ButtonClick(Button_BuildRoad);
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[2]) then begin
@@ -1128,13 +1127,6 @@ begin
 end;
 
 
-{Virtually press BuildRoad button when changing page to BuildingPage or after house plan is placed}
-procedure TKMapEdInterface.Build_SelectRoad;
-begin
-  Build_ButtonClick(Button_BuildRoad);
-end;
-
-
 //This function will be called if the user right clicks on the screen.
 procedure TKMapEdInterface.RightClick_Cancel;
 begin
@@ -1501,7 +1493,7 @@ begin
       cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then
                 begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1),P);
-                  Build_SelectRoad;
+                  Build_ButtonClick(Button_BuildRoad);
                 end;
       cm_Height:; //handled in UpdateStateIdle
       cm_Objects: fTerrain.SetTree(P, GameCursor.Tag1);
