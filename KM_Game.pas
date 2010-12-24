@@ -5,7 +5,7 @@ uses Windows,
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils,
-  KM_Controls, KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Music;
 
 type TGameState = ( gsNoGame,  //No game running at all, MainMenu
@@ -268,7 +268,7 @@ begin
   PlayOnState := gr_Cancel;
 
   if fResource.GetDataState<>dls_All then begin
-    fMainMenuInterface.ShowScreen_Loading('units and houses');
+    fMainMenuInterface.ShowScreen_Loading('trees, houses and units');
     fRender.Render;
     fResource.LoadGameResources();
     fMainMenuInterface.ShowScreen_Loading('tileset');
@@ -309,6 +309,9 @@ begin
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(fMissionFile,true) then
   begin
+    fMainMenuInterface.ShowScreen_Loading('script');
+    fRender.Render;
+
     try //Catch exceptions
       fMissionParser := TMissionParser.Create(mpm_Game);
       ResultMsg := fMissionParser.LoadDATFile(fMissionFile);

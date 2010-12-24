@@ -622,20 +622,22 @@ end;
 
 
 {Pause overlay page}
-//todo: do something local here
 procedure TKMGamePlayInterface.Create_Pause_Page;
+var SX,SY:integer; //Local variables
 begin
-  Panel_Pause:=MyControls.AddPanel(Panel_Main,0,0,fRender.RenderAreaSize.X,fRender.RenderAreaSize.Y);
+  SX := fRender.RenderAreaSize.X;
+  SY := fRender.RenderAreaSize.Y;
+  Panel_Pause:=MyControls.AddPanel(Panel_Main,0,0,SX,SY);
   Panel_Pause.Stretch;
-    Bevel_Pause:=MyControls.AddBevel(Panel_Pause,-1,-1,fRender.RenderAreaSize.X+2,fRender.RenderAreaSize.Y+2);
-    Bevel_Pause.Stretch;
-    Image_Pause:=MyControls.AddImage(Panel_Pause,(fRender.RenderAreaSize.X div 2),(fRender.RenderAreaSize.Y div 2)-40,0,0,556);
+    Bevel_Pause:=MyControls.AddBevel(Panel_Pause,-1,-1,SX+2,SY+2);
+    Image_Pause:=MyControls.AddImage(Panel_Pause,(SX div 2),(SY div 2)-40,0,0,556);
+    Label_Pause1:=MyControls.AddLabel(Panel_Pause,(SX div 2),(SY div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    Label_Pause2:=MyControls.AddLabel(Panel_Pause,(SX div 2),(SY div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    Bevel_Pause.Stretch; //Anchor to all sides
     Image_Pause.ImageCenter;
-    Image_Pause.Center;
-    Label_Pause1:=MyControls.AddLabel(Panel_Pause,(fRender.RenderAreaSize.X div 2),(fRender.RenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
     Label_Pause1.Center;
-    Label_Pause2:=MyControls.AddLabel(Panel_Pause,(fRender.RenderAreaSize.X div 2),(fRender.RenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
     Label_Pause2.Center;
+    Image_Pause.Center;
     Panel_Pause.Hide
 end;
 
@@ -1230,6 +1232,7 @@ begin
   if ShownMessage = 0 then exit; //Nothing to delete obviously (player pressed DEL with no msg opened)
   fMessageList.RemoveEntry(ShownMessage);
   Message_Close(Sender);
+  //todo: Hint remains if Msg is deleted 
 end;
 
 
@@ -2161,7 +2164,7 @@ begin
         ((H <> nil) and (not H.IsDestroyed) and
          (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Enemy))) and
       //@Lewin: I doubt about following line, archers can shoot from distance
-      //todo: Revise the condition to take into account Distance
+      //todo: Revise the condition to take into account Distance?
       fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false) then
     else
     begin
