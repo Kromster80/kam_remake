@@ -51,7 +51,7 @@ type
     procedure ResetRender(RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean);
     procedure ToggleLocale(aLocale:shortstring);
     procedure ResizeGameArea(X,Y:integer);
-    procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean; ReInitGame:boolean=true);
+    procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
@@ -193,9 +193,9 @@ begin
 end;
 
 
-procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean; ReInitGame:boolean=true);
+procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
 begin
-  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.VSync, ReturnToOptions);
+  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.VSync, ReturnToOptions, ReInitGame);
 end;
 
 

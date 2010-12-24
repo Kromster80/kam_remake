@@ -107,7 +107,7 @@ type
   public
     procedure ApplyCursorRestriction;
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean=true);
+    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
   end;
 
 var
@@ -177,7 +177,7 @@ begin
   ReadAvailableResolutions;
 
   TempSettings := TGlobalSettings.Create; //Read settings (fullscreen property and resolutions)
-  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false); //Now we can decide whether we should make it full screen or not
+  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false, true); //Now we can decide whether we should make it full screen or not
   TempSettings.Free;
 
   //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
@@ -432,7 +432,7 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean=true);
+procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; aVSync:boolean; ReturnToOptions:boolean; ReInitGame:boolean);
 begin
   if Toggle then begin
     SetScreenResolution(SupportedResolutions[ResolutionID,1],SupportedResolutions[ResolutionID,2],SupportedRefreshRates[ResolutionID]);
