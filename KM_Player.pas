@@ -1,7 +1,7 @@
 unit KM_Player;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings, KM_CommonTypes, KM_Utils, KM_PlayerStats;
+uses Classes, KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_Utils, KM_PlayerStats;
 
 
 type
@@ -553,7 +553,8 @@ end;
 procedure TKMPlayerAnimals.Load(LoadStream:TKMemoryStream);
 var s:string;
 begin
-  LoadStream.Read(s); if s <> 'Animals' then exit;
+  LoadStream.Read(s);
+  Assert(s = 'Animals');
   fUnits.Load(LoadStream);
 end;
 

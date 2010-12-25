@@ -1264,7 +1264,7 @@ begin
     Tmp := KMPoint(0,0);
 
   Width  := Tmp.X + Box.X;
-  Height := max(Tmp.Y, Box.Y);
+  Height := Math.max(Tmp.Y, Box.Y);
 end;
 
 
@@ -1563,7 +1563,7 @@ end;
 procedure TKMListBox.RefreshList();
 begin
   ScrollBar.MinValue := 0;
-  ScrollBar.MaxValue := max(fItems.Count - (fHeight div ItemHeight),0);
+  ScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div ItemHeight),0);
   ScrollBar.Position := EnsureRange(TopIndex, ScrollBar.MinValue, ScrollBar.MaxValue);
   ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
 end;
@@ -1618,7 +1618,7 @@ begin
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
     fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-ScrollBar.Width, ItemHeight, $88888888);
 
-  for i:=0 to min(fItems.Count-1, (fHeight div ItemHeight)-1) do
+  for i:=0 to Math.min(fItems.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
 end;
 
@@ -1744,7 +1744,7 @@ begin
   DirList.Free;
 
   ScrollBar.MinValue := 0;
-  ScrollBar.MaxValue := max(fFiles.Count - (fHeight div ItemHeight),0);
+  ScrollBar.MaxValue := Math.max(fFiles.Count - (fHeight div ItemHeight),0);
   ScrollBar.Position := 0;
   ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
 end;
@@ -1805,7 +1805,7 @@ begin
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
     fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-ScrollBar.Width, ItemHeight, $88888888);
 
-  for i:=0 to min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
+  for i:=0 to Math.min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, TruncateExt(fFiles.Strings[TopIndex+i]) , fnt_Metal, kaLeft, false, $FFFFFFFF);
 
   if (ItemIndex <> -1) then

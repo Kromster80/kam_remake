@@ -505,7 +505,8 @@ end;
 procedure TKMDeliverQueue.Load(LoadStream:TKMemoryStream);
 var i,Count:integer; s:string;
 begin
-  LoadStream.Read(s); if s <> 'Deliveries' then exit;
+  LoadStream.Read(s);
+  Assert(s = 'Deliveries');
   LoadStream.Read(Count);
   for i:=1 to Count do
   begin

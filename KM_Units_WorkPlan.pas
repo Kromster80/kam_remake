@@ -431,7 +431,8 @@ end;
 procedure TUnitWorkPlan.Load(LoadStream:TKMemoryStream);
 var i:integer; s:string;
 begin
-  LoadStream.Read(s); if s <> 'WorkPlan' then exit;
+  LoadStream.Read(s);
+  Assert(s = 'WorkPlan');
   LoadStream.Read(fHome, SizeOf(fHome));
   LoadStream.Read(fIssued);
 //public

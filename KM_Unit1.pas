@@ -120,7 +120,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes, KM_TGATexture;
+uses KM_Settings, KM_CommonTypes;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);

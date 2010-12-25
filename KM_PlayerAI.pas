@@ -60,7 +60,7 @@ type
   end;
 
 implementation
-uses KM_Houses, KM_Units, KM_Game, KM_PlayersCollection, KM_Settings, KM_TextLibrary, KM_PlayerStats;
+uses KM_Houses, KM_Units, KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_PlayerStats;
 
 constructor TAIDefencePosition.Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
 begin

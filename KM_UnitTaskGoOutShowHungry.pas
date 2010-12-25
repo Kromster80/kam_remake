@@ -1,7 +1,7 @@
 unit KM_UnitTaskGoOutShowHungry;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Units, KM_Houses, KromUtils, SysUtils;
+uses Classes, KM_Defaults, KM_Units, KromUtils, SysUtils;
 
   type
     TTaskGoOutShowHungry = class(TUnitTask)
@@ -12,7 +12,6 @@ uses Classes, KM_Defaults, KM_Units, KM_Houses, KromUtils, SysUtils;
 
 
 implementation
-uses KM_Utils;
 
 
 { TTaskGoOutShowHungry }

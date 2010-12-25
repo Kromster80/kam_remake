@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Windows,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units_WorkPlan, KM_Sound;
+  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units_WorkPlan;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
@@ -1865,7 +1865,8 @@ end;
 procedure TKMUnitsCollection.Load(LoadStream:TKMemoryStream);
 var i,UnitCount:integer; s:string; UnitType:TUnitType;
 begin
-  LoadStream.Read(s); if s <> 'Units' then exit;
+  LoadStream.Read(s);
+  Assert(s = 'Units');
   LoadStream.Read(UnitCount);
   for i := 0 to UnitCount - 1 do
   begin

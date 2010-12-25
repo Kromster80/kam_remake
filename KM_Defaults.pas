@@ -128,13 +128,47 @@ const //Here we store options that are hidden somewhere in code
   RANGE_FISHERMAN   = 12;
 
   //Archer properties
-  RANGE_ARBALETMAN_MAX  = 10; //+1 to Tower range
-  RANGE_BOWMAN_MAX      = 10;
-  RANGE_WATCHTOWER_MAX  = 9;
+  {@Krom: In KaM, the ranges are checked using Min < Distance < Max, but we use Min <= Distance <= Max.
+  KaM range visualisation looks something like like: (x can be shot from 0)
+   xxx
+  xxxxx
+  xx0xx
+  xxxxx
+   xxx
+  Remake looks more like: (I know it's not actually a diamond shape, the important feature here is the single tile off each side that isn't in the above one)
+    x
+   xxx
+  xxxxx
+ xxx0xxx
+  xxxxx
+   xxx
+    x
+  While this might appear to make more sense, it means that if you have a group of archers facing
+  one unit that is at the limit of their range, only 1 of the archers will be able to shoot it.
+  In KaM the entire front row would be in range in this circumstance
+  Here's a diagram of what happens in KaM:
+          'A' can shoot to 'B', 'a' cannot shoot
+  aA
+  aA              B
+  aA
+  aA
+          Remake:
+  aa
+  aA              B
+  aa
+  aa
+  As you know in KaM, as soon as one unit of the front line is in range, they all are unless it's a very long line.
+  I think we should switch to '<' rather than '<=' so that it behaves more like KaM, but I'm quite open to discussing it.
+  Talk to me about it on ICQ sometime :)
+  Note: If we implement this we will need to add one to all of the max ranges below
+  }
+  RANGE_ARBALETMAN_MAX  = 9; //KaM: Unit standing 9 tiles from us will be shot, 10 tiles not
+  RANGE_BOWMAN_MAX      = 9;
+  RANGE_WATCHTOWER_MAX  = 6; //Measured in KaM. Distance from the doorway of tower
 
-  RANGE_ARBALETMAN_MIN  = 4;
-  RANGE_BOWMAN_MIN      = 4;
-  RANGE_WATCHTOWER_MIN  = 3;
+  RANGE_ARBALETMAN_MIN  = 3; //KaM: We will shoot a unit standing 3 tiles away, but not one standing 2 tiles away
+  RANGE_BOWMAN_MIN      = 3;
+  RANGE_WATCHTOWER_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
 
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim

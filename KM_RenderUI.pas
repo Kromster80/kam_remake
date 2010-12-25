@@ -26,7 +26,7 @@ var
   fRenderUI: TRenderUI;
 
 implementation
-uses KM_Terrain, KM_PlayersCollection, KM_Game;
+uses KM_Terrain, KM_PlayersCollection;
 
 
 constructor TRenderUI.Create;

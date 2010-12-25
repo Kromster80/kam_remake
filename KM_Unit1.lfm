@@ -68,14 +68,6 @@ object Form1: TForm1
     ClientHeight = 55
     ClientWidth = 421
     TabOrder = 2
-    object TeamColorPicker: TShape
-      Left = 174
-      Height = 22
-      Top = 15
-      Width = 22
-      OnDragDrop = TeamColorPickerDragDrop
-      OnMouseUp = TeamColorPickerMouseUp
-    end
     object Label2: TLabel
       Left = 85
       Height = 14
@@ -90,14 +82,6 @@ object Form1: TForm1
       Top = 35
       Width = 7
       Caption = '0'
-      ParentColor = False
-    end
-    object Label1: TLabel
-      Left = 199
-      Height = 14
-      Top = 22
-      Width = 62
-      Caption = 'Player1 color'
       ParentColor = False
     end
     object CheckBox2: TCheckBox

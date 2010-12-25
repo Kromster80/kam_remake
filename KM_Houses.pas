@@ -1741,7 +1741,8 @@ end;
 procedure TKMHousesCollection.Load(LoadStream:TKMemoryStream);
 var i,HouseCount:integer; s:string; HouseType:THouseType;
 begin
-  LoadStream.Read(s); if s <> 'Houses' then exit;
+  LoadStream.Read(s);
+  Assert(s = 'Houses');
   LoadStream.Read(fSelectedHouse, 4);
   LoadStream.Read(HouseCount);
   for i := 0 to HouseCount - 1 do

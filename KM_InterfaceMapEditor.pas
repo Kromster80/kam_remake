@@ -1,7 +1,7 @@
 unit KM_InterfaceMapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, KromUtils, Math, Windows, SysUtils, KromOGLUtils, Forms, KM_Sound,
+uses Classes, Controls, KromUtils, Math, Windows, SysUtils, KromOGLUtils, Forms,
      KM_Controls, KM_Defaults, KM_Houses, KM_Units;
 
 type TKMapEdInterface = class

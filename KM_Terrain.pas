@@ -2318,7 +2318,8 @@ end;
 procedure TTerrain.Load(LoadStream:TKMemoryStream);
 var i,k:integer; s:string;
 begin
-  LoadStream.Read(s); if s<>'Terrain' then exit;
+  LoadStream.Read(s);
+  Assert(s = 'Terrain', 'Terrain not found');
   LoadStream.Read(MapX);
   LoadStream.Read(MapY);
 

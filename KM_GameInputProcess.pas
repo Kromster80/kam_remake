@@ -1,8 +1,7 @@
 unit KM_GameInputProcess;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, Math, Controls, KromUtils,
-    KM_CommonTypes, KM_Defaults, KM_Utils,
+uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
     KM_Houses, KM_Units, KM_Units_Warrior;
 
 { A. This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
