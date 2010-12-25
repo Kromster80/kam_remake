@@ -1496,7 +1496,7 @@ begin
       Army_ActivateControls((Commander.Foe = nil) or (Commander.GetFightMaxRange >= 2));
       Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and(Commander.Foe = nil);
     end;
-    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
+    //Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
   end
   else
   begin //Citizen specific
