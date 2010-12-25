@@ -234,7 +234,7 @@ begin
     gic_BuildWallPlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WallPlan,  false, MyPlayer.PlayerID);
     gic_BuildRemovePlan:  MyPlayer.RemPlan(KMPoint(Params[1],Params[2]));
     gic_BuildRemoveHouse: MyPlayer.RemHouse(KMPoint(Params[1],Params[2]), false);
-    gic_BuildHousePlan:   MyPlayer.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]), MyPlayer.PlayerID);
+    gic_BuildHousePlan:   MyPlayer.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
     gic_HouseRepairToggle:      MyPlayer.GetHouseByID(Params[1]).RepairToggle;
     gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
@@ -341,7 +341,7 @@ end;
 procedure TGameInputProcess.CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType);
 begin
   Assert(aCommand = gic_BuildHousePlan);
-  MyPlayer.AddHousePlan(aHouse, aLoc, MyPlayer.PlayerID);
+  MyPlayer.AddHousePlan(aHouse, aLoc);
   SaveCommand(aCommand, integer(aHouse), aLoc.X, aLoc.Y);
 end;
 

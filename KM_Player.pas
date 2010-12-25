@@ -43,7 +43,7 @@ type
     procedure AddRoadsToList(aLoc: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
-    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; PlayerRevealID:TPlayerID=play_none);
+    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
@@ -237,7 +237,7 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; PlayerRevealID:TPlayerID=play_none);
+procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var KMHouse:TKMHouse; Loc:TKMPoint;
 begin
   Loc.X := aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
