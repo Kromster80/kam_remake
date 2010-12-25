@@ -161,7 +161,7 @@ type TKMapEdInterface = class
     constructor Create;
     destructor Destroy; override;
     procedure Player_UpdateColors;
-    procedure SetScreenSize(X,Y:word);
+    procedure ResizeGameArea(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure RightClick_Cancel;
@@ -457,11 +457,11 @@ end;
 
 
 //Update Hint position and etc..
-procedure TKMapEdInterface.SetScreenSize(X,Y:word);
+procedure TKMapEdInterface.ResizeGameArea(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-  fViewport.SetVisibleScreenArea(X,Y);
+  fViewport.ResizeGameArea(X,Y);
   fViewport.SetZoom(fViewport.Zoom);
 end;
 

@@ -218,7 +218,7 @@ type TKMGamePlayInterface = class
     JoiningGroups: boolean;
     constructor Create;
     destructor Destroy; override;
-    procedure SetScreenSize(X,Y:word);
+    procedure ResizeGameArea(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
@@ -593,12 +593,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
+procedure TKMGamePlayInterface.ResizeGameArea(X,Y:word);
 var S:TKMPoint;
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-  fViewport.SetVisibleScreenArea(X,Y);
+  fViewport.ResizeGameArea(X,Y);
   fViewport.SetZoom(fViewport.Zoom);
   //Center pause controls when the screen is resized during gameplay
   S := fRender.RenderAreaSize;

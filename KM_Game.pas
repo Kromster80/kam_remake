@@ -159,13 +159,13 @@ procedure TKMGame.ResizeGameArea(X,Y:integer);
 begin
   ScreenX := X;
   ScreenY := Y;
-  fRender.RenderResize(X,Y,rm2D);
+  fRender.ResizeGameArea(X,Y,rm2D);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
-  if fMainMenuInterface<>nil then fMainMenuInterface.SetScreenSize(X,Y);
-  if fMapEditorInterface<>nil then fMapEditorInterface.SetScreenSize(X,Y);
-  if fGamePlayInterface<>nil then fGamePlayInterface.SetScreenSize(X,Y);
+  if fMainMenuInterface<>nil then fMainMenuInterface.ResizeGameArea(X,Y);
+  if fMapEditorInterface<>nil then fMapEditorInterface.ResizeGameArea(X,Y);
+  if fGamePlayInterface<>nil then fGamePlayInterface.ResizeGameArea(X,Y);
 end;
 
 
@@ -286,8 +286,8 @@ begin
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
 
-  fRender.RenderResize(ScreenX,ScreenY,rm2D);
-  fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
+  fRender.ResizeGameArea(ScreenX,ScreenY,rm2D);
+  fViewport.ResizeGameArea(ScreenX,ScreenY);
 
   fGameplayTickCount := 0; //Restart counter
 end;
@@ -527,8 +527,8 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  fRender.RenderResize(ScreenX,ScreenY,rm2D);
-  fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
+  fRender.ResizeGameArea(ScreenX,ScreenY,rm2D);
+  fViewport.ResizeGameArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
 
   fGameplayTickCount := 0; //Restart counter

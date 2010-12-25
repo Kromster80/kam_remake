@@ -62,7 +62,7 @@ public
   destructor Destroy; override;
   procedure LoadTileSet();
   procedure SetRotation(aH,aP,aB:integer);
-  procedure RenderResize(Width,Height:integer; aRenderMode:TRenderMode);
+  procedure ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
   procedure Render();
   {$IFDEF WDC}
   procedure DoPrintScreen(filename:string);
@@ -151,7 +151,7 @@ begin
 end;
 
 
-procedure TRender.RenderResize(Width,Height:integer; aRenderMode:TRenderMode);
+procedure TRender.ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
 begin
   if Height=0 then Height:=1;
   if Width=0  then Width :=1;
@@ -182,7 +182,7 @@ begin
 
     if RENDER_3D then begin
       glLoadIdentity();
-      RenderResize(fRenderAreaSize.X,fRenderAreaSize.Y,rm3D);
+      ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -190,7 +190,7 @@ begin
       glRotatef(rBank   ,0,0,1);
       glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
       glkScale(fViewport.Zoom);
-      RenderResize(fRenderAreaSize.X,fRenderAreaSize.Y,rm2D);
+      ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm2D);
     end;
 
     glLineWidth(fViewport.Zoom*2);

@@ -18,7 +18,7 @@ TViewport = class
     Scrolling: boolean;
     constructor Create;
     procedure SetZoom(aZoom:single);
-    procedure SetVisibleScreenArea(NewWidth,NewHeight:integer);
+    procedure ResizeGameArea(NewWidth,NewHeight:integer);
     function GetCenter():TKMPointF;
     procedure SetCenter(NewX,NewY:single);
     function GetClip():TRect; //returns visible area dimensions in map space
@@ -62,7 +62,7 @@ begin
 end;
 
 
-procedure TViewport.SetVisibleScreenArea(NewWidth,NewHeight:integer);
+procedure TViewport.ResizeGameArea(NewWidth,NewHeight:integer);
 begin
   ViewRect.Left   := ToolBarWidth;
   ViewRect.Top    := 0;
