@@ -2130,7 +2130,7 @@ end;
 //1. Process Controls
 //2. Show SelectingTroopDirection
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var U:TKMUnit; H:TKMHouse; MyRect:TRect;
+var U:TKMUnit; MyRect:TRect;
 begin
   MyControls.MouseDown(X,Y,Shift,Button);
   if (fGame.GameState <> gsRunning) or (MyControls.CtrlOver <> nil)then exit;
@@ -2142,18 +2142,12 @@ begin
   end;
 
   //See if we can show DirectionSelector
+  //Can walk to ally units place, can't walk to house place anyway
   if (Button = mbRight) and (not JoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and(TKMUnit(fShownUnit).GetOwner = MyPlayer.PlayerID) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-
-    if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Ally))
-    and((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Ally)) and
-      //@Lewin: I doubt about following line, archers can shoot from distance
-      //@Krom: This code actually concerns moving (Selecting Direction after move) not attacking. Walking is only possible if route can be made.
-      //       Attacking is done on mouse up now, and your doubt is correct, attacking unreachable units/houses causes strange behavior or it fails.
-      //       I have added todo items for attacking houses/units that are not reachable in KM_UnitWarrior. To be deleted?
+    if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Ally)) and
       fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false) then
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
