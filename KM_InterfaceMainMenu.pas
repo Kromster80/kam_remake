@@ -558,7 +558,6 @@ procedure TKMMainMenuInterface.Create_Load_Page;
 var i:integer;
 begin
   Panel_Load:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     with MyControls.AddImage(Panel_Load,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with MyControls.AddImage(Panel_Load,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
