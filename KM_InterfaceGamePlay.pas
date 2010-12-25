@@ -2272,19 +2272,21 @@ begin
   if (Button = mbRight) and (not JoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and(TKMUnit(fShownUnit).GetOwner = MyPlayer.PlayerID) then
   begin
-    //Try to Attack
+    //Try to Attack unit
     U := fTerrain.UnitsHitTest(P.X, P.Y);
-    H := fPlayers.HousesHitTest(P.X, P.Y);
     if (U <> nil) and (not U.IsDeadOrDying) and
-      (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Enemy) then
+    (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Enemy) then
       fGame.fGameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U)
     else
-    if (H <> nil) and (not H.IsDestroyed) and
+    begin //If there's no unit - try to Attack house
+      H := fPlayers.HousesHitTest(P.X, P.Y);
+      if (H <> nil) and (not H.IsDestroyed) and
       (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Enemy) then
-      fGame.fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H);
-    //Try to Walk
-    if fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, P, CanWalk, 0, false) then
-      fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
+        fGame.fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H)
+      else //If there's no house - Walk to spot
+        if fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, P, CanWalk, 0, false) then
+          fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
+    end;
   end;
 
   //Cancel join

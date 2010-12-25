@@ -647,8 +647,11 @@ begin
     SetOrderTarget(aTargetUnit);
   end;
   //@Lewin: This looks wrong now. WIP
-  //@Krom: The commander is given an order to track the unit (above by setting fOrder to wo_AttackUnit) and members are given an order to wait there
-  //       by issuing a normal walk and making SetOnlyMembers true on the line below. Change of route will occur in WalkToAction. To be written into a better explained comment and discussion deleted.
+  //@Krom: The commander is given an order to track the unit (above by setting fOrder to wo_AttackUnit)
+  //and members are given an order to wait there by issuing a normal walk and making SetOnlyMembers
+  //true on the line below. Change of route will occur in WalkToAction.
+  //To be written into a better explained comment and discussion deleted.
+//@Lewin: offtopic, please turn off word wrap and try to fit your texts in 100 characters
   OrderWalk(KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give members order to walk to approperiate positions
 end;
 
