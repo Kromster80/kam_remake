@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<CONFIG>
-  <Compiler Value="c:\lazarus\fpc\2.0.4\bin\i386-win32\fpc.exe" Date="914008653"/>
-  <Params Value=" -S2cgi -OG1 -gl -WG -vewnhi -l -Fu..\..\..\..\..\lazarus\lcl\units\i386-win32\ -Fu..\..\..\..\..\lazarus\lcl\units\i386-win32\win32\ -Fu..\..\..\..\..\lazarus\packager\units\i386-win32\ -Fu. -oLIBDecoder.exe -dLCL -dLCLwin32 LIBDecoder.lpr"/>
-</CONFIG>
