@@ -639,6 +639,7 @@ end;
 //If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMembers = true, so members will walk to new location.
 procedure TKMUnitWarrior.OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
 begin
+  //todo: Support archers attacking units that cannot be reached by foot, e.g. ones up on a wall.
   if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
     fOrder := wo_AttackUnit; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
@@ -646,7 +647,8 @@ begin
     SetOrderTarget(aTargetUnit);
   end;
   //@Lewin: This looks wrong now. WIP
-  //PlaceOrder(wo_Walk,KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give members order to walk to approperiate positions
+  //@Krom: The commander is given an order to track the unit (above by setting fOrder to wo_AttackUnit) and members are given an order to wait there
+  //       by issuing a normal walk and making SetOnlyMembers true on the line below. Change of route will occur in WalkToAction. To be written into a better explained comment and discussion deleted.
   OrderWalk(KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give members order to walk to approperiate positions
 end;
 
@@ -657,6 +659,7 @@ All units are assigned TTaskAttackHouse which does everything for us
 procedure TKMUnitWarrior.OrderAttackHouse(aTargetHouse:TKMHouse);
 var i: integer;
 begin
+  //todo: If position to attack target house cannot be reached, do not attempt to (currently melee units will walk as close as possible and attack from there)
   fOrder := wo_AttackHouse;
   fState := ws_None; //Clear other states
   SetOrderHouseTarget(aTargetHouse);
@@ -805,7 +808,7 @@ begin
   if(GetUnitAction is TUnitActionStay) and
     (GetUnitTask   is TTaskAttackHouse)      then Result := true else //We can abandon attack house if the action is stay
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
-  if GetUnitAction is TUnitActionAbandonWalk then Result := not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
+  if GetUnitAction is TUnitActionAbandonWalk then Result := GetUnitAction.StepDone and not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
   if GetUnitAction is TUnitActionFight       then Result := (GetFightMaxRange >= 2) or not GetUnitAction.Locked //Only allowed to interupt ranged fights
   else Result := true;

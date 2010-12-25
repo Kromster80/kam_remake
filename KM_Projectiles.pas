@@ -134,8 +134,11 @@ begin
           case fProjType of
             pt_Arrow,
             pt_Bolt:      if U <> nil then
-                            if Random(2) = 1 then U.HitPointsDecrease(1) //Arrows hit unit 50% of the time
-                          else begin
+                          begin
+                            if Random(2) = 1 then U.HitPointsDecrease(1); //Arrows hit unit 50% of the time
+                          end
+                          else
+                          begin
                             //Stray arrows do not damage houses, they are only hit when directly aimed at. Hence use fTarget not fTargetJ
                             H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
                             if (H <> nil) then

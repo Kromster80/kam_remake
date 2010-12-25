@@ -594,11 +594,23 @@ end;
 
 
 procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
+var S:TKMPoint;
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
   fViewport.SetVisibleScreenArea(X,Y);
   fViewport.SetZoom(fViewport.Zoom);
+  //Center pause controls when the screen is resized during gameplay
+  S := fRender.RenderAreaSize;
+  Image_Pause.Left := (S.X div 2);
+  Image_Pause.Top  := (S.Y div 2)-40;
+  Label_Pause1.Left  := (S.X div 2);
+  Label_Pause1.Top   := (S.Y div 2);
+  Label_Pause2.Left := (S.X div 2);
+  Label_Pause2.Top  := (S.Y div 2)+20;
+  Image_Pause.Center;
+  Label_Pause1.Center;
+  Label_Pause2.Center;
 end;
 
 
@@ -2136,14 +2148,13 @@ begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
 
-    if (((U <> nil) and (not U.IsDeadOrDying) and
-         (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Enemy)) or
-        ((H <> nil) and (not H.IsDestroyed) and
-         (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Enemy))) and
+    if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Ally))
+    and((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Ally)) and
       //@Lewin: I doubt about following line, archers can shoot from distance
-      //todo: Revise the condition to take into account Distance?
+      //@Krom: This code actually concerns moving (Selecting Direction after move) not attacking. Walking is only possible if route can be made.
+      //       Attacking is done on mouse up now, and your doubt is correct, attacking unreachable units/houses causes strange behavior or it fails.
+      //       I have added todo items for attacking houses/units that are not reachable in KM_UnitWarrior. To be deleted?
       fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false) then
-    else
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
       //Record current cursor position so we can stop it from moving while we are setting direction
@@ -2259,6 +2270,7 @@ begin
     SetCursorPos(Form1.Panel5.ClientToScreen(SelectingDirPosition).X,Form1.Panel5.ClientToScreen(SelectingDirPosition).Y);
     Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false; //As soon as mouse is released
+    Screen.Cursor := c_Default; //Reset direction selecting cursor cursor when mouse released
     ShowDirectionCursor(false);
   end;
 
@@ -2279,8 +2291,6 @@ begin
     //Try to Walk
     if fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, P, CanWalk, 0, false) then
       fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
-
-    Screen.Cursor := c_Default; //Reset cursor when mouse released
   end;
 
   //Cancel join
