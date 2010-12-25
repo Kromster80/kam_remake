@@ -1076,7 +1076,9 @@ end;
 function TKMButton.DoClick:boolean;
 begin
   if IsVisible and Enabled then begin
-    TKMControlsCollection(TKMPanel(Parent).GetCollection).CtrlDown := Self; //Release previous control and press self down
+    //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
+    TKMControlsCollection(TKMPanel(Parent).GetCollection).CtrlOver := Self;
+    TKMControlsCollection(TKMPanel(Parent).GetCollection).CtrlUp := Self;
     if Assigned(OnClick) then OnClick(Self);
     Result := true; //Click has happened
   end else
@@ -2086,7 +2088,7 @@ end;
 
 procedure TKMControlsCollection.MouseMove(X,Y:Integer; Shift:TShiftState);
 begin
-  if CtrlDown=nil then //User is dragging some Ctrl (e.g. scrollbar) and went away from Strl bounds
+  if CtrlDown=nil then //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
     CtrlOver := HitControl(X,Y);
   if CtrlOver <> nil then CtrlOver.MouseMove(X,Y,Shift);
   if (CtrlDown <> nil) and (CtrlOver <> CtrlDown) then CtrlDown := nil;

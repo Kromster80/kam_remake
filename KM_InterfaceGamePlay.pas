@@ -1221,10 +1221,10 @@ end;
 
 procedure TKMGamePlayInterface.Message_Delete(Sender: TObject);
 begin
-  if ShownMessage = 0 then exit; //Nothing to delete obviously (player pressed DEL with no msg opened)
+  if ShownMessage = 0 then exit; //Player pressed DEL with no Msg opened
   fMessageList.RemoveEntry(ShownMessage);
   Message_Close(Sender);
-  //todo: Hint remains if Msg is deleted 
+  DisplayHint(nil);
 end;
 
 
