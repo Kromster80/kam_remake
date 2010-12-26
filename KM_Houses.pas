@@ -380,7 +380,7 @@ end;
 procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
-  fPlayers.Player[byte(fOwner)].CreatedHouse(fHouseType,aWasBuilt); //Only activated houses count
+  fPlayers.Player[byte(fOwner)].HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
   fTerrain.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
@@ -423,7 +423,7 @@ begin
   if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
   
   if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-    fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
+    fPlayers.Player[byte(fOwner)].HouseLost(fHouseType);
 
   CloseHouse(NoRubble);
 end;

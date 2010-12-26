@@ -322,7 +322,7 @@ begin
   Label_Stat[2].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsKilled);
   Label_Stat[3].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesLost);
   Label_Stat[4].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesDestroyed);
-  Label_Stat[5].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesConstructed);
+  Label_Stat[5].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesBuilt);
   Label_Stat[6].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsTrained);
   Label_Stat[7].Caption := inttostr(MyPlayer.fPlayerStats.GetWeaponsProduced);
   Label_Stat[8].Caption := inttostr(MyPlayer.fPlayerStats.GetSoldiersTrained);

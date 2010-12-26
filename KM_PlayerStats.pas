@@ -7,20 +7,32 @@ uses Classes, KM_Defaults, KM_CommonTypes;
 type
   TKMPlayerStats = class
   private
-    HouseTotalCount,HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of integer;
+    Houses:array[1..HOUSE_COUNT]of record
+      Initial,  //created by script on mission start
+      Built,    //constructed by player
+      Lost,     //lost from attacks and self-demolished
+      Destroyed:word; //damage to other players
+    end; //todo: [Lewin] Do the same for Units (Initial, Trained, Lost, Killed)
     UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of integer;
-    SoldiersTrained: integer;
+    SoldiersTrained: integer; //todo: remove in favor of Units[ut_Militia..ut_Axeman].Trained
     ResourceRatios:array[1..4,1..4]of byte;
   public
     AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
     BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
     constructor Create;
-    procedure CreatedHouse(aType:THouseType; aWasBuilt:boolean);
+    procedure HouseCreated(aType:THouseType; aWasBuilt:boolean);
+    procedure HouseLost(aType:THouseType);
+    procedure HouseDestroyed(aType:THouseType);
     procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
-    procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
     procedure TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
     //todo: Record kills (units defeated) to stats, possibly by passing fOwnerOfKiller to Unit.HitPointsDecrease
+    //@Lewin: Killed unit will have to increase "KilledCount" stats for another player. This is walkaround
+    //straight walk would be killer increases his player stats.
+    //To make this: HitPointsDecrease must return TRUE is unit was killed and false otherwise
+    //Axeman: if fEnemy.HitPointsDecrease then fOwner.KilledUnit(type)
+    //Archer,Tower: launch arrow (tell it fOwnerID) and if arrow hits - dcrease HP and notify KilledUnit
+    //
 
     procedure UpdateReqDone(aType:THouseType);
 
@@ -36,7 +48,7 @@ type
     function GetUnitsKilled:cardinal;
     function GetHousesLost:cardinal;
     function GetHousesDestroyed:cardinal;
-    function GetHousesConstructed:cardinal;
+    function GetHousesBuilt:cardinal;
     function GetUnitsTrained:cardinal;
     function GetWeaponsProduced:cardinal;
     function GetSoldiersTrained:cardinal;
@@ -62,20 +74,13 @@ begin
 end;
 
 
-procedure TKMPlayerStats.CreatedHouse(aType:THouseType; aWasBuilt:boolean);
+procedure TKMPlayerStats.HouseCreated(aType:THouseType; aWasBuilt:boolean);
 begin
-  inc(HouseTotalCount[byte(aType)]);
-  if aWasBuilt then inc(HouseBuiltCount[byte(aType)]);
+  if aWasBuilt then
+    inc(Houses[byte(aType)].Built)
+  else
+    inc(Houses[byte(aType)].Initial);
   UpdateReqDone(aType);
-end;
-
-
-procedure TKMPlayerStats.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
-begin
-  if aWasTrained then
-    inc(UnitTrainedCount[byte(aType)]);
-
-  inc(UnitTotalCount[byte(aType)]);
 end;
 
 
@@ -88,9 +93,24 @@ begin
 end;
 
 
-procedure TKMPlayerStats.DestroyedHouse(aType:THouseType);
+procedure TKMPlayerStats.HouseLost(aType:THouseType);
 begin
-  inc(HouseLostCount[byte(aType)]);
+  inc(Houses[byte(aType)].Lost);
+end;
+
+
+procedure TKMPlayerStats.HouseDestroyed(aType:THouseType);
+begin
+  inc(Houses[byte(aType)].Destroyed);
+end;
+
+
+procedure TKMPlayerStats.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
+begin
+  if aWasTrained then
+    inc(UnitTrainedCount[byte(aType)]);
+
+  inc(UnitTotalCount[byte(aType)]);
 end;
 
 
@@ -110,11 +130,11 @@ function TKMPlayerStats.GetHouseQty(aType:THouseType):integer;
 var i:integer;
 begin
   if aType <> ht_None then
-    Result := HouseTotalCount[byte(aType)] - HouseLostCount[byte(aType)]
+    Result := Houses[byte(aType)].Initial + Houses[byte(aType)].Built - Houses[byte(aType)].Lost
   else begin
     Result := 0;
     for i:=1 to HOUSE_COUNT do
-      inc(Result, HouseTotalCount[i] - HouseLostCount[i]);
+      inc(Result, Houses[i].Initial + Houses[i].Built - Houses[i].Lost);
   end;
 end;
 
@@ -199,8 +219,8 @@ function TKMPlayerStats.GetHousesLost:cardinal;
 var i:integer;
 begin
   Result:=0;
-  for i:=low(HouseLostCount) to high(HouseLostCount) do
-    inc(Result,HouseLostCount[i]);
+  for i:=low(Houses) to high(Houses) do
+    inc(Result,Houses[i].Lost);
 end;
 
 
@@ -210,12 +230,12 @@ begin
 end;
 
 
-function TKMPlayerStats.GetHousesConstructed:cardinal;
+function TKMPlayerStats.GetHousesBuilt:cardinal;
 var i:integer;
 begin
   Result:=0;
-  for i:=low(HouseBuiltCount) to high(HouseBuiltCount) do
-    inc(Result,HouseBuiltCount[i]);
+  for i:=low(Houses) to high(Houses) do
+    inc(Result,Houses[i].Built);
 end;
 
 
@@ -246,9 +266,10 @@ end;
 procedure TKMPlayerStats.Save(SaveStream:TKMemoryStream);
 var i,k:integer;
 begin
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseTotalCount[i]);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseBuiltCount[i]);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseLostCount[i]);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Initial);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Built);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Lost);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Destroyed);
   for i:=1 to 40 do SaveStream.Write(UnitTotalCount[i]);
   for i:=1 to 40 do SaveStream.Write(UnitTrainedCount[i]);
   for i:=1 to 40 do SaveStream.Write(UnitLostCount[i]);
@@ -261,9 +282,10 @@ end;
 procedure TKMPlayerStats.Load(LoadStream:TKMemoryStream);
 var i,k:integer;
 begin
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseTotalCount[i]);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseBuiltCount[i]);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseLostCount[i]);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Initial);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Built);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Lost);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Destroyed);
   for i:=1 to 40 do LoadStream.Read(UnitTotalCount[i]);
   for i:=1 to 40 do LoadStream.Read(UnitTrainedCount[i]);
   for i:=1 to 40 do LoadStream.Read(UnitLostCount[i]);

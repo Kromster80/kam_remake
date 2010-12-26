@@ -63,9 +63,9 @@ type
     property GetHouses:TKMHousesCollection read fHouses;
     property GetUnits:TKMUnitsCollection read fUnits;
 
-    procedure CreatedHouse(aType:THouseType; aWasBuilt:boolean);
+    procedure HouseCreated(aType:THouseType; aWasBuilt:boolean);
     procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
-    procedure DestroyedHouse(aType:THouseType);
+    procedure HouseLost(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
 
     function GetCanBuild(aType:THouseType):boolean;
@@ -382,10 +382,11 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.CreatedHouse(aType:THouseType; aWasBuilt:boolean);
+procedure TKMPlayerAssets.HouseCreated(aType:THouseType; aWasBuilt:boolean);
 begin
-  fPlayerStats.CreatedHouse(aType,aWasBuilt);
+  fPlayerStats.HouseCreated(aType,aWasBuilt);
 end;
+
 
 procedure TKMPlayerAssets.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
 begin
@@ -393,9 +394,9 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.DestroyedHouse(aType:THouseType);
+procedure TKMPlayerAssets.HouseLost(aType:THouseType);
 begin
-  fPlayerStats.DestroyedHouse(aType);
+  fPlayerStats.HouseLost(aType);
 end;
 
 

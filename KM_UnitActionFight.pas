@@ -33,7 +33,7 @@ begin
   fActionName     := uan_Fight;
   Locked          := true;
   AimingDelay     := -1;
-  fOpponent       := aOpponent.GetUnitPointer; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
+  fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
 
@@ -66,8 +66,8 @@ begin
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
   
   case KMUnit.UnitType of
-    ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition,true); //Aiming
-    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,KMUnit.GetPosition,true); //Aiming
+    ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition); //Aiming
+    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,KMUnit.GetPosition); //Aiming
     else           begin
                      {if IsHit then
                        fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true)
