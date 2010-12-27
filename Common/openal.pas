@@ -55,7 +55,10 @@ unit openal;
 interface
 
 uses
-  SysUtils{$IFDEF Win32},Windows{$ENDIF};
+  Classes
+  , SysUtils
+  {$IFDEF Win32},Windows{$ENDIF}
+  ;
 
 { $ DEFINE ALUT} //define ALUT to use alut.dll
 
@@ -120,7 +123,7 @@ type
   // Openal clamped double.
   TALclampd = TALdouble;
   PALclampd = ^TALclampd;
-  
+
   // ALC enumerations.
   TALCenum = integer;
   PALCenum = ^TALCenum;
@@ -369,6 +372,7 @@ const
   AL_FORMAT_MONO16                          =$1101;
   AL_FORMAT_STEREO8                         =$1102;
   AL_FORMAT_STEREO16                        =$1103;
+  AL_FORMAT_VORBIS_EXT                      =$10003;
 
   //source specific reference distance
   //Type: ALfloat
@@ -1581,11 +1585,11 @@ var
 
   //Obtain the address of a function (usually an extension)
   // with the name fname. All addresses are context-independent.
-  alIsExtensionPresent: function(fname: Pchar): TALboolean; cdecl;
+  alIsExtensionPresent: function(fname: PAnsiChar): TALboolean; cdecl;
 
   //Obtain the address of a function (usually an extension)
   //with the name fname. All addresses are context-independent.
-  alGetProcAddress: function(fname: PALuByte): Pointer; cdecl;
+  alGetProcAddress: function(fname: PAnsiChar): Pointer; cdecl;
 
   //Obtain the integer value of an enumeration (usually an extension) with the name ename.
   alGetEnumValue: function(ename: PALuByte): TALenum; cdecl;
@@ -1756,12 +1760,12 @@ var
   //Extension support.
   //Query for the presence of an extension, and obtain any appropriate
   //function pointers and enum values.
-  alcIsExtensionPresent: function(device: TALCdevice; extName: PALuByte): TALCboolean; cdecl;
+  alcIsExtensionPresent: function(device: TALCdevice; extName: PAnsiChar): TALCboolean; cdecl;
   alcGetProcAddress: function(device: TALCdevice; funcName: PALuByte): TALCvoid; cdecl;
   alcGetEnumValue: function(device: TALCdevice; enumName: PALuByte): TALCenum; cdecl;
 
   //Query functions
-  alcGetString: function(device: TALCdevice; param: TALCenum): PALCubyte; cdecl;
+  alcGetString: function(device: TALCdevice; param: TALCenum): PAnsiChar; cdecl;
   alcGetIntegerv: procedure(device: TALCdevice; param: TALCenum; size: TALCsizei; data: PALCint); cdecl;
 
   //Capture functions
@@ -1885,6 +1889,7 @@ var
   procedure alutLoadWAVFile(fname: string; var format: TALenum; var data: TALvoid; var size: TALsizei; var freq: TALsizei; var loop: TALint);
   procedure alutLoadWAVMemory(memory: PALbyte; var format: TALenum; var data: TALvoid; var size: TALsizei; var freq: TALsizei; var loop: TALint);
   procedure alutUnloadWAV(format: TALenum; data: TALvoid; size: TALsizei; freq: TALsizei);
+  function LoadWavStream(Stream: Tstream; var format: TALenum; var data: TALvoid; var size: TALsizei; var freq: TALsizei; var loop: TALint): Boolean; //Unofficial
 {$ENDIF}
 
 var
@@ -1906,20 +1911,20 @@ procedure ReadOpenALExtensions;
 
 implementation
 
-uses classes;
+uses mmsystem;
 
 type
   //WAV file header
   TWAVHeader = record
-    RIFFHeader: array [1..4] of Char;
-    FileSize: Integer;
-    WAVEHeader: array [1..4] of Char;
-    FormatHeader: array [1..4] of Char;
-    FormatHeaderSize: Integer;
+    RIFFHeader: array [1..4] of AnsiChar;
+    FileSize: longint;
+    WAVEHeader: array [1..4] of AnsiChar;
+    FormatHeader: array [1..4] of AnsiChar;
+    FormatHeaderSize: longint;
     FormatCode: Word;
     ChannelNumber: Word;
-    SampleRate: Integer;
-    BytesPerSecond: Integer;
+    SampleRate: longint;
+    BytesPerSecond: longint;
     BytesPerSample: Word;
     BitsPerSample: Word;
   end;
@@ -1963,7 +1968,7 @@ end;
 {$ENDIF}
 
 //ProcName can be case sensitive !!!
-function alProcedure(ProcName : PChar) : Pointer;
+function alProcedure(ProcName : PAnsiChar) : Pointer;
 begin
 Result := NIL;
 if Addr(alGetProcAddress) <> NIL then
@@ -1988,7 +1993,7 @@ begin
 
   if (AlutLibHandle <> 0) then
   begin
-    alutInit:= GetProcAddress(AlutLibHandle, 'alutInit');
+    alutInit:= GetProcAddress(AlutLibHandle, alutInit);
     alutExit:= GetProcAddress(AlutLibHandle, 'alutExit');
     alutLoadWAVFile:= GetProcAddress(AlutLibHandle, 'alutLoadWAVFile');
     alutLoadWAVMemory:= GetProcAddress(AlutLibHandle, 'alutLoadWAVMemory');
@@ -1996,7 +2001,7 @@ begin
   end;
 {$ENDIF}
 
-  alGetProcAddress := GetProcAddress(LibHandle, 'alGetProcAddress');
+  alGetProcAddress := GetProcAddress(LibHandle, 'alGetProcAddress'  );
 
   if (LibHandle <> 0) then
   begin
@@ -2204,11 +2209,14 @@ end;
 function LoadWavStream(Stream: Tstream; var format: TALenum; var data: TALvoid; var size: TALsizei; var freq: TALsizei; var loop: TALint): Boolean;
 var
   WavHeader: TWavHeader;
-  readname: pchar;
-  name: string;
-  readint: integer;
+  readname: pansichar;
+  name: ansistring;
+  readint: longint;
 begin
     Result:=False;
+
+    size:=0;
+    data:=nil;
 
     //Read wav header
     stream.Read(WavHeader, sizeof(TWavHeader));
@@ -2231,18 +2239,19 @@ begin
 
     //go to end of wavheader
     stream.seek((8-44)+12+4+WavHeader.FormatHeaderSize+4,soFromCurrent); //hmm crappy...
+
+    getmem(readname,4); //only alloc memory once, thanks to zy.
     //loop to rest of wave file data chunks
     repeat
       //read chunk name
-      getmem(readname,4);
       stream.Read(readname^, 4);
-      name:=readname[0]+readname[1]+readname[2]+readname[3];
+      name := readname[0]+readname[1]+readname[2]+readname[3];
       if name='data' then
       begin
         //Get the size of the wave data
         stream.Read(readint,4);
         size:=readint;
-        if WavHeader.BitsPerSample = 8 then size:=size+1; //fix for 8bit???
+        //if WavHeader.BitsPerSample = 8 then size:=size+8; //fix for 8bit???
         //Read the actual wave data
         getmem(data,size);
         stream.Read(Data^, size);
@@ -2265,7 +2274,9 @@ begin
         stream.Position:=stream.Position+readint;
       end;
     until stream.Position>=stream.size;
+    freemem(readname);
 
+    loop:= 0;
 end;
 
 procedure alutLoadWAVFile(fname: string; var format: TALenum; var data: TALvoid; var size: TALsizei; var freq: TALsizei; var loop: TALint);
