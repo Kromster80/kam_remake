@@ -38,6 +38,8 @@ type
     procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
     procedure CleanUpHousePointer(var aHouse: TKMHouseInn); overload;
     procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
+    function RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+    function RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -271,6 +273,24 @@ end;
 procedure TKMAllPlayers.CleanUpHousePointer(var aHouse: TKMHouseSchool);
 begin
   CleanUpHousePointer(TKMHouse(aHouse));
+end;
+
+
+function TKMAllPlayers.RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+var i:integer;
+begin
+  Result := false;
+  for i:=1 to fPlayerCount do
+    Result := Result or Player[i].RemHouse(Position, DoSilent, Simulated, IsEditor);
+end;
+
+
+function TKMAllPlayers.RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+var i:integer;
+begin
+  Result := false;
+  for i:=1 to fPlayerCount do
+    Result := Result or Player[i].RemUnit(Position, Simulated);
 end;
 
 

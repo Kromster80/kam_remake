@@ -17,6 +17,7 @@ type
       fTargetJ:TKMPointF; //Logical tile-coords target
 
       fProjType:TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
+      fOwner:TPlayerID; //The ID of the player who launched the projectile, used for kill statistics
       fSpeed:single; //Each projectile speed may vary a little bit
       fArc:single; //Thats how high projectile will go along parabola (varies a little more)
       fPosition:single; //Projectiles position along the route Start>>End
@@ -25,7 +26,7 @@ type
 
   public
     constructor Create;
-    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; MakeSound:boolean):word;
+    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerID; MakeSound:boolean):word;
 
     function ProjectileVisible(aIndex:integer):boolean;
 
@@ -50,7 +51,7 @@ end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; MakeSound:boolean):word;
+function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerID; MakeSound:boolean):word;
 var i:integer; Jitter:single;
 begin
   MakeSound := MakeSound and (fTerrain.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y, MyPlayer.PlayerID) >= 255);
@@ -62,6 +63,7 @@ begin
   until(fItems[i].fSpeed=0);
 
   fItems[i].fProjType := aProjType;
+  fItems[i].fOwner := aOwner;
 
   case aProjType of
     pt_Arrow:     begin
@@ -77,7 +79,7 @@ begin
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_ARBALETMAN_MAX / 2.5;
                   end;
     pt_TowerRock: begin
-                    fItems[i].fSpeed    := 0.3 + randomS(0.05);
+                    fItems[i].fSpeed    := 0.6 + randomS(0.05);
                     fItems[i].fArc      := 1.25;
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_WATCHTOWER_MAX / 1.5;
                   end;
@@ -235,6 +237,7 @@ begin
         SaveStream.Write(fTarget);
         SaveStream.Write(fTargetJ);
         SaveStream.Write(fProjType, SizeOf(fProjType));
+        SaveStream.Write(fOwner, SizeOf(fOwner));
         SaveStream.Write(fSpeed);
         SaveStream.Write(fArc);
         SaveStream.Write(fPosition);
@@ -260,6 +263,7 @@ begin
       LoadStream.Read(fTarget);
       LoadStream.Read(fTargetJ);
       LoadStream.Read(fProjType, SizeOf(fProjType));
+      LoadStream.Read(fOwner, SizeOf(fOwner));
       LoadStream.Read(fSpeed);
       LoadStream.Read(fArc);
       LoadStream.Read(fPosition);

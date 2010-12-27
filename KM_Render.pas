@@ -1364,12 +1364,12 @@ case GameCursor.Mode of
                  if (
                       ( //With Buildings tab see if we can remove Fields or Houses
                         (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
-                        and (TileIsCornField(GameCursor.Cell) or TileIsWineField(GameCursor.Cell) or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road) or CanRemoveHouse(GameCursor.Cell,MyPlayer.PlayerID))
+                        and (TileIsCornField(GameCursor.Cell) or TileIsWineField(GameCursor.Cell) or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road) or CanRemoveHouse(GameCursor.Cell,play_None))
                       )
                       or
                       ( //With Units tab see if there's a unit below cursor
                         (fGame.fMapEditorInterface.GetShownPage = esp_Units)
-                        and CanRemoveUnit(GameCursor.Cell, MyPlayer.PlayerID)
+                        and CanRemoveUnit(GameCursor.Cell, play_None)
                       )
                     )
                  //And ofcourse it it's visible

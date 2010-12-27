@@ -11,6 +11,8 @@ type
       Initial,  //created by script on mission start
       Built,    //constructed by player
       Lost,     //lost from attacks and self-demolished
+      //@Krom: In KaM self-demolished houses are not counted as "lost" in the statistics.
+      //       "Lost" implies the enemy destroyed them.
       Destroyed:word; //damage to other players
     end; //todo: [Lewin] Do the same for Units (Initial, Trained, Lost, Killed)
     UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of integer;

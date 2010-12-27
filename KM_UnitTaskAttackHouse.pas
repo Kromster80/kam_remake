@@ -92,7 +92,7 @@ begin
   with fUnit do
   case fPhase of
     0: if fFightType=ft_Ranged then
-         SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX div (byte(REDUCE_SHOOTING_RANGE)+1))
+         SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX / (byte(REDUCE_SHOOTING_RANGE)+1))
        else
          SetActionWalkToHouse(fHouse, 1);
     1: if fFightType=ft_Ranged then begin
@@ -118,8 +118,8 @@ begin
          if fFightType=ft_Ranged then begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
-             ut_Arbaletman: fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt, true);
-             ut_Bowman:     fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow, true);
+             ut_Arbaletman: fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt, GetOwner, true);
+             ut_Bowman:     fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow, GetOwner, true);
              else Assert(false, 'Unknown shooter');
            end;
            AnimLength := UnitSprite[byte(UnitType)].Act[byte(ua_Work)].Dir[byte(Direction)].Count;

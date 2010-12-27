@@ -1434,9 +1434,9 @@ begin
       cm_Objects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
       cm_Erase:     case GetShownPage of
                       esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                      esp_Units:      MyPlayer.RemUnit(P);  //todo: [Lewin] This should remove units for any player. (same with houses below) Write a function fPlayer.RemUnit to make it global.
+                      esp_Units:      fPlayers.RemAnyUnit(P);
                       esp_Buildings:  begin
-                                        MyPlayer.RemHouse(P,true,false,true);
+                                        fPlayers.RemAnyHouse(P,true,false,true);
                                         if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                           fTerrain.RemRoad(P);
                                         if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
@@ -1508,11 +1508,10 @@ begin
                 case GetShownPage of
                   esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
                   esp_Units:      begin
-                                    MyPlayer.RemUnit(P);
-                                    fPlayers.PlayerAnimals.RemUnit(P); //Animals are common for all
+                                    fPlayers.RemAnyUnit(P);
                                   end;
                   esp_Buildings:  begin
-                                    MyPlayer.RemHouse(P,true,false,true);
+                                    fPlayers.RemAnyHouse(P,true,false,true);
                                     if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                       fTerrain.RemRoad(P);
                                     if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
