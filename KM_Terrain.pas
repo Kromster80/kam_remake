@@ -154,7 +154,7 @@ TTerrain = class
     function TileIsWineField(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
     function UnitsHitTest(X,Y:word):TKMUnit;
-    function UnitsHitTestWithinRad(X,Y:integer; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection{; aPreferWarriors:boolean}): TKMUnit;
+    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection{; aPreferWarriors:boolean}): TKMUnit;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
@@ -459,7 +459,7 @@ end;
 
 
 //Check if there's unit on the tile
-//Note that IsUnit refers to where unit started wlaking to, not the actual unit position
+//Note that IsUnit refers to where unit started walking to, not the actual unit position
 //(which is what we used in unit interaction), so check all 9 tiles to get accurate result
 function TTerrain.UnitsHitTest(X,Y:word):TKMUnit;
 var i,k:integer;
@@ -475,7 +475,7 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over citizens}
-function TTerrain.UnitsHitTestWithinRad(X,Y:integer; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection{; aPreferWarriors:boolean}): TKMUnit;
+function TTerrain.UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection{; aPreferWarriors:boolean}): TKMUnit;
 var
   i,k:integer; //Counters
   lx,ly,hx,hy:integer; //Ranges
@@ -488,18 +488,18 @@ begin
   L2 := TKMPointList.Create;
 
   //Scan one tile further than the maximum radius due to rounding
-  lx := max(round(X-(MaxRad+1)),1); //1.42 gets rounded to 1
-  ly := max(round(Y-(MaxRad+1)),1); //1.42 gets rounded to 1
-  hx := min(round(X+(MaxRad+1)),MapX); //1.42 gets rounded to 1
-  hy := min(round(Y+(MaxRad+1)),MapY); //1.42 gets rounded to 1
+  lx := max(round(aLoc.X-(MaxRad+1)),1); //1.42 gets rounded to 1
+  ly := max(round(aLoc.Y-(MaxRad+1)),1); //1.42 gets rounded to 1
+  hx := min(round(aLoc.X+(MaxRad+1)),MapX); //1.42 gets rounded to 1
+  hy := min(round(aLoc.Y+(MaxRad+1)),MapY); //1.42 gets rounded to 1
 
   for i:=ly to hy do for k:=lx to hx do
-  if InRange(GetLength(KMPoint(X,Y), KMPoint(k,i)), MinRad, MaxRad) then //Add 1tile margin to cover all units
+  if InRange(GetLength(aLoc, KMPoint(k,i)), MinRad, MaxRad) then //Add 1tile margin to cover all units
   if (Land[i,k].IsUnit <> nil) and (Land[i,k].IsUnit.HitTest(k,i)) then //Unit is actually on the tile
   begin
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
-    dX := k-X;
-    dY := i-Y;
+    dX := k-aLoc.X;
+    dY := i-aLoc.Y;
     case Dir of
       dir_N : if not((abs(dX)<=-dY)and(dY<0)) then continue;
       dir_NE: if not((dX>0)        and(dY<0)) then continue;
@@ -514,7 +514,7 @@ begin
     U := Land[i,k].IsUnit;
     if (U <> nil) and
        U.Visible and //Inside of house
-       CanWalkDiagonaly(KMPoint(X,Y),KMPoint(k,i)) and
+       CanWalkDiagonaly(aLoc,KMPoint(k,i)) and
        (fPlayers.CheckAlliance(aPlay, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
        (not U.IsDeadOrDying)
     then
@@ -524,10 +524,14 @@ begin
         L2.AddEntry(KMPoint(k,i));
   end;
 
+  //@Lewin: we need to discuss this.
+  //Recruit in tower should throw rock to closest enemy - for better precision, same goes for archers
+  //Melee units should also aim for closest enemy
+  //Hence - we should return closest unit, not random.
   if L1.Count <> 0 then
     ChosenPos := L1.GetRandom
   else
-    if L2.Count <> 0 then 
+    if L2.Count <> 0 then
       ChosenPos := L2.GetRandom
     else
       ChosenPos := KMPoint(0,0);

@@ -564,7 +564,9 @@ var i,k:integer; FoundUnit:TKMUnit;
 begin
   Result := nil;
 
-  //todo: replace with U := fTerrain.UnitsHitTestWithinRad()
+  //Replacing it with fTerrain.UnitsHitTestWithinRad sounds plausible, but would require
+  //to change input parameters to include TKMUnitWarrior, fOwner, UnitType.
+  //I think thats just not worth it
   for i:=-LINK_RADIUS to LINK_RADIUS do
   for k:=-LINK_RADIUS to LINK_RADIUS do
   if GetLength(i,k) <= LINK_RADIUS then //Check circle area
@@ -769,7 +771,7 @@ begin
     aDir := Direction; //Use direction for ranged attacks, if it was not already specified
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
+  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
 end;
 
 
