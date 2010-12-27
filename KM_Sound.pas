@@ -62,6 +62,7 @@ type
     SoundGain:single; //aka "Global volume"
     WarriorSoundCount: array[15..24, TSoundToPlay] of byte;
     procedure LoadSoundsDAT();
+    procedure CheckOpenALError();
     function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
   public
     constructor Create(aLocale:string; aVolume:single);
@@ -129,13 +130,8 @@ begin
     exit;
   end;
 
-  ErrCode := alcGetError(Device);
-  if ErrCode <> ALC_NO_ERROR then begin
-    fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
-    Application.MessageBox(PChar('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'),'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
-    IsSoundInitialized := false;
-    exit;
-  end;
+  CheckOpenALError;
+  if not IsSoundInitialized then exit;
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
@@ -151,6 +147,10 @@ begin
     AlGenBuffers(1, @Sound[i].ALBuffer);
     AlGenSources(1, @Sound[i].ALSource);
   end;
+
+  CheckOpenALError;
+  if not IsSoundInitialized then exit;
+
   //Set default Listener orientation
   Listener.Ori[1]:=0; Listener.Ori[2]:=1; Listener.Ori[3]:=0; //Look-at vector
   Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
@@ -187,6 +187,17 @@ begin
     AlutExit();
   end;
   Inherited;
+end;
+
+
+procedure TSoundLib.CheckOpenALError();
+begin
+  ErrCode := alcGetError(Device);
+  if ErrCode <> ALC_NO_ERROR then begin
+    fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
+    Application.MessageBox(PChar('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'),'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
+    IsSoundInitialized := false;
+  end;
 end;
 
 
