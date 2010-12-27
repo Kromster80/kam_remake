@@ -7,7 +7,11 @@ uses Forms, Windows,
 
 const MaxWaves = 200;
 //@Krom: On large maps lots of sounds get skipped. Would it be possible to make this larger, as 16 sounds at once isn't very much.
-const MaxSourceCount = 16; //Actually it depends on hardware
+const MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
+
+const MAX_BUFFERS = 16; //16/24/32 looks like the limit, depends on hardware
+const MAX_SOURCES = 32; //depends on hardware as well
+const MAX_DISTANCE = 32; //After this distance sounds are completely silent
 
 const WarriorSFXFolder: array[15..24] of string = (
   'MILITIA','AXEMAN','SWORDMAN',
@@ -27,10 +31,6 @@ type
       Foot: array of char;
       IsLoaded:boolean;
     end;
-    Props: array[1..MaxWaves] of packed record
-      SampleRate,Volume,a,b:integer;
-      i,j,k,l,Index:word;
-    end;
     Listener:record
       Pos: array [1..3] of TALfloat; //Position in 3D space
       Vel: array [1..3] of TALfloat; //Velocity, used in doppler effect calculation
@@ -38,14 +38,35 @@ type
     end;
     IsSoundInitialized:boolean;
     //Buffer used to store the wave data, Source is sound position in space
-    ALSource,ALBuffer: array [1..64] of TALuint;
-    SoundGain:single;
+    {Buffers:array [1..MAX_SOUNDS] of record
+      ALBuffer:TALuint;
+      RefCount:integer; //How many references do we have
+      WaveID:integer; //Reference to wave
+    end;
+    Sources:array [1..MAX_SOURCES] of record
+      ALSource:TALuint;
+      BufferRef:integer; //Reference to Buffer
+      Position:TKMPoint;
+      PlaySince:cardinal;
+    end;}
+
+    Sound:array [1..MAX_SOUNDS] of record
+      ALBuffer:TALuint;
+      ALSource:TALuint;
+      Name:string;
+      Position:TKMPoint;
+      Duration:word; //MSec
+      PlaySince:cardinal;
+    end;
+
+    SoundGain:single; //aka "Global volume"
     WarriorSoundCount: array[15..24, TSoundToPlay] of byte;
     procedure LoadSoundsDAT();
     function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
   public
     constructor Create(aLocale:string; aVolume:single);
     destructor Destroy; override;
+    function ActiveCount():byte;
     procedure ExportSounds();
     procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);
@@ -61,7 +82,7 @@ var
 
 
 implementation
-uses KM_Game, Dialogs;
+uses KM_Render, KM_Game, Dialogs;
 
 
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
@@ -69,6 +90,7 @@ var
   Context: PALCcontext;
   Device: PALCdevice;
   i,k,ErrCode:integer;
+  NumMono,NumStereo:TALCint;
   s:TSoundToPlay;
 begin
   Inherited Create;
@@ -107,10 +129,10 @@ begin
     exit;
   end;
 
-  ErrCode:=alcGetError(Device);
+  ErrCode := alcGetError(Device);
   if ErrCode <> ALC_NO_ERROR then begin
     fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
-    Application.MessageBox(@(String('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'))[1],'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
+    Application.MessageBox(PChar('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'),'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
     IsSoundInitialized := false;
     exit;
   end;
@@ -118,9 +140,17 @@ begin
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
   fLog.AppendLog('Pre-LoadSFX init',true);
-  
-  AlGenBuffers(MaxSourceCount, @ALBuffer); //64 looks like the limit, depends on hardware
-  AlGenSources(MaxSourceCount, @ALSource);
+
+  alcGetIntegerv(Device, ALC_MONO_SOURCES, 4, @NumMono);
+  alcGetIntegerv(Device, ALC_STEREO_SOURCES, 4, @NumStereo);
+
+  fLog.AppendLog('ALC_MONO_SOURCES',NumMono);
+  fLog.AppendLog('ALC_STEREO_SOURCES',NumStereo);
+
+  for i:=1 to MAX_SOUNDS do begin
+    AlGenBuffers(1, @Sound[i].ALBuffer);
+    AlGenSources(1, @Sound[i].ALSource);
+  end;
   //Set default Listener orientation
   Listener.Ori[1]:=0; Listener.Ori[2]:=1; Listener.Ori[3]:=0; //Look-at vector
   Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
@@ -141,17 +171,21 @@ begin
           WarriorSoundCount[i,s] := k;
           break;
         end;
+  fLog.AppendLog('Warrior sounds scanned',true);
 end;
 
 
 destructor TSoundLib.Destroy();
+var i:integer;
 begin
   if IsSoundInitialized then
   begin
-    AlDeleteBuffers(MaxSourceCount, @ALBuffer);
-    AlDeleteSources(MaxSourceCount, @ALSource);
+    for i:=1 to MAX_SOUNDS do begin
+      AlDeleteBuffers(1, @Sound[i].ALBuffer);
+      AlDeleteSources(1, @Sound[i].ALSource);
+    end;
     AlutExit();
-  end;  
+  end;
   Inherited;
 end;
 
@@ -163,7 +197,6 @@ var
   Tab1:array[1..200]of integer;
   Tab2:array[1..200]of smallint;
   i,Tmp:integer;
-  c: array[1..20] of char;
 begin
   if not IsSoundInitialized then exit;
   if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
@@ -185,8 +218,11 @@ begin
     Waves[i].IsLoaded := true;
   end;
 
-  BlockRead(f,c,20);
-  BlockRead(f,Props[1],26*Head.Count);
+  {BlockRead(f,c,20);
+  //Packed record
+  //SampleRate,Volume,a,b:integer;
+  //i,j,k,l,Index:word;
+  BlockRead(f,Props[1],26*Head.Count);}
 
   CloseFile(f);
 end;
@@ -216,7 +252,7 @@ begin
   Listener.Pos[1] := X;
   Listener.Pos[2] := Y;
   Listener.Pos[3] := 12; //Place Listener above the surface
-  AlListenerfv ( AL_POSITION, @Listener.Pos);
+  AlListenerfv(AL_POSITION, @Listener.Pos);
 end;
 
 
@@ -225,7 +261,7 @@ procedure TSoundLib.UpdateSoundVolume(Value:single);
 begin
   if not IsSoundInitialized then exit;
   SoundGain := Value;
-//  alListenerf ( AL_GAIN, SoundGain );
+  //alListenerf(AL_GAIN, SoundGain); //Set in source property
 end;
 
 
@@ -233,7 +269,7 @@ end;
 procedure TSoundLib.Play(SoundID:TSoundFX; const Volume:single=1.0);
 begin
   if not IsSoundInitialized then exit;
-  Play(SoundID, KMPoint(0,0), false, Volume);
+  Play(SoundID, KMPoint(0,0), false, Volume); //Redirect
 end;
 
 
@@ -241,66 +277,73 @@ end;
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
 procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
-var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
-const MAX_DISTANCE = 35.0;
+var Dif:array[1..3]of single;
+  FreeBuf,FreeSrc:integer;
+  i,ID:integer;
+  ALState:TALint;
 begin
   if not IsSoundInitialized then exit;
 
-  //fLog.AddToLog('SoundPlay ID'+inttostr(byte(SoundID))+' at '+TypeToString(Loc));
-
-  //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being fill with sounds on the other side of the map.
+  //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being filled with sounds on the other side of the map.
   if Attenuated and (GetLength(Loc,KMPoint(Round(Listener.Pos[1]),Round(Listener.Pos[2]))) > MAX_DISTANCE) then exit;
 
   //Here should be some sort of RenderQueue/List/Clip
 
+  //1. Find matching buffer
+  //Found - add refCount and reference it
+  //Not found
+  //2. Find free buffer
+  //
+
+
   //Find free buffer and use it
   FreeBuf:=1;
-  for i:=1 to MaxSourceCount do begin
-    alGetSourcei(ALSource[i], AL_SOURCE_STATE, @ALState);
+  for i:=1 to MAX_SOUNDS do begin
+    alGetSourcei(Sound[i].ALSource, AL_SOURCE_STATE, @ALState);
     if ALState<>AL_PLAYING then begin
       FreeBuf:=i;
       break;
     end;
   end;
-
-  //fLog.AddToLog('Assigned buffer '+inttostr(FreeBuf));
-
-  if i>=MaxSourceCount then exit;//Don't play if there's no room left, will need to replace with better scheme sometime
+  if i>=MAX_SOUNDS then exit;//Don't play if there's no room left
 
   ID := word(SoundID);
-
-  if not Waves[ID].IsLoaded then exit;
+  Assert(Waves[ID].IsLoaded);
 
   //Stop previously playing sound and release buffer
-  AlSourceStop(ALSource[FreeBuf]);
-  AlSourcei ( ALSource[FreeBuf], AL_BUFFER, 0);
+  AlSourceStop(Sound[FreeBuf].ALSource);
+  AlSourcei(Sound[FreeBuf].ALSource, AL_BUFFER, 0);
 
   //Assign new data to buffer and assign it to source
-  AlBufferData(ALBuffer[FreeBuf], AL_FORMAT_MONO8, @Waves[ID].Data[0], Waves[ID].Head.DataSize, Waves[ID].Head.SampleRate);
+  AlBufferData(Sound[FreeBuf].ALBuffer, AL_FORMAT_MONO8, @Waves[ID].Data[0], Waves[ID].Head.DataSize, Waves[ID].Head.SampleRate);
 
   //Set source properties
-  AlSourcei ( ALSource[FreeBuf], AL_BUFFER, ALBuffer[FreeBuf]);
-  AlSourcef ( ALSource[FreeBuf], AL_PITCH, 1.0 );
-  AlSourcef ( ALSource[FreeBuf], AL_GAIN, 1.0 * Volume * SoundGain);
+  AlSourcei(Sound[FreeBuf].ALSource, AL_BUFFER, Sound[FreeBuf].ALBuffer);
+  AlSourcef(Sound[FreeBuf].ALSource, AL_PITCH, 1.0);
+  AlSourcef(Sound[FreeBuf].ALSource, AL_GAIN, 1.0 * Volume * SoundGain);
   if Attenuated then begin
     Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
-    AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Dif[1]);
-    AlSourcei ( ALSource[FreeBuf], AL_SOURCE_RELATIVE, AL_FALSE); //If Attenuated then it is not relative to the listener
+    AlSourcefv(Sound[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
+    AlSourcei(Sound[FreeBuf].ALSource, AL_SOURCE_RELATIVE, AL_FALSE); //If Attenuated then it is not relative to the listener
   end else
   begin
     //For sounds that do not change over distance, set to SOURCE_RELATIVE and make the position be 0,0,0 which means it will follow the listener
     //Do not simply set position to the listener as the listener could change while the sound is playing
     Dif[1]:=0; Dif[2]:=0; Dif[3]:=0;
-    AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Dif[1]);
-    AlSourcei ( ALSource[FreeBuf], AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
+    AlSourcefv(Sound[FreeBuf].ALSource, AL_POSITION, @Dif[1]);
+    AlSourcei(Sound[FreeBuf].ALSource, AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
   end;
-  AlSourcef ( ALSource[FreeBuf], AL_REFERENCE_DISTANCE, 4.0 );
-  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, MAX_DISTANCE );
-  AlSourcef ( ALSource[FreeBuf], AL_ROLLOFF_FACTOR, 1.0 );
-  AlSourcei ( ALSource[FreeBuf], AL_LOOPING, AL_FALSE );
+  AlSourcef(Sound[FreeBuf].ALSource, AL_REFERENCE_DISTANCE, 4.0);
+  AlSourcef(Sound[FreeBuf].ALSource, AL_MAX_DISTANCE, MAX_DISTANCE);
+  AlSourcef(Sound[FreeBuf].ALSource, AL_ROLLOFF_FACTOR, 1.0);
+  AlSourcei(Sound[FreeBuf].ALSource, AL_LOOPING, AL_FALSE);
 
   //Start playing
-  AlSourcePlay(ALSource[FreeBuf]);
+  AlSourcePlay(Sound[FreeBuf].ALSource);
+  Sound[FreeBuf].Name := SSoundFX[SoundID];
+  Sound[FreeBuf].Position := Loc;
+  Sound[FreeBuf].Duration := round(Waves[ID].Head.FileSize / Waves[ID].Head.BytesPerSecond * 1000);
+  Sound[FreeBuf].PlaySince := GetTickCount;
 end;
 
 
@@ -334,11 +377,30 @@ begin
 end;
 
 
-procedure TSoundLib.Paint();
+function TSoundLib.ActiveCount():byte;
+var i:integer;
 begin
-  //todo: Render sounds (names/positions/radiuses)
+  Result := 0;
+  for i:=1 to MAX_SOUNDS do
+  if (Sound[i].PlaySince<>0) and (Sound[i].PlaySince+Sound[i].Duration > GetTickCount) then
+      inc(Result)
+    else
+      Sound[i].PlaySince := 0;
 end;
 
+
+procedure TSoundLib.Paint();
+var i:integer;
+begin
+  fRender.RenderDebugCircle(Listener.Pos[1], Listener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);
+  for i:=1 to MAX_SOUNDS do
+  if (Sound[i].PlaySince<>0) and (Sound[i].PlaySince+Sound[i].Duration > GetTickCount) then
+  begin
+    fRender.RenderDebugCircle(Sound[i].Position.X, Sound[i].Position.Y, 5, $4000FFFF, $FFFFFFFF);
+    fRender.RenderDebugText(Sound[i].Position.X, Sound[i].Position.Y, Sound[i].Name, $FFFFFFFF);
+  end else
+    Sound[i].PlaySince := 0;
+end;
 
 
 end.

@@ -76,7 +76,7 @@ var
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
   SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :boolean=false; //Render towers/archers attack radius
-  DISPLAY_SOUNDS        :boolean=false; //Display sounds on map
+  DISPLAY_SOUNDS        :boolean=true; //Display sounds on map
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Stats}
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
@@ -997,6 +997,81 @@ type
     sfx_CatapultReload,
     sfx_SiegeBuildingSmash
         );
+
+const SSoundFX:array[TSoundFX] of string = (
+    'sfx_corncut',
+    'sfx_dig',
+    'sfx_pave',
+    'sfx_minestone',
+    'sfx_cornsow',
+    'sfx_choptree',
+    'sfx_housebuild',
+    'sfx_placemarker',
+    'sfx_click',
+    'sfx_mill',
+    'sfx_saw',
+    'sfx_wineStep',
+    'sfx_wineDrain',
+    'sfx_metallurgists',
+    'sfx_coalDown',
+    'sfx_Pig1','sfx_Pig2','sfx_Pig3','sfx_Pig4',
+    'sfx_Mine',
+    'sfx_unknown21', //Pig?
+    'sfx_Leather',
+    'sfx_BakerSlap',
+    'sfx_CoalMineThud',
+    'sfx_ButcherCut',
+    'sfx_SausageString',
+    'sfx_QuarryClink',
+    'sfx_TreeDown',
+    'sfx_WoodcutterDig',
+    'sfx_CantPlace',
+    'sfx_MessageOpen',
+    'sfx_MessageClose',
+    'sfx_MessageNotice',
+    'sfx_Melee34', //Killed by shot?
+    'sfx_Melee35', //Killed by stone?
+    'sfx_Melee36', //Killed by stone?
+    'sfx_Melee37', //Smacked?
+    'sfx_Melee38',
+    'sfx_Melee39',
+    'sfx_Melee40',
+    'sfx_Melee41', //House hit
+    'sfx_Melee42', //Clung?
+    'sfx_Melee43',
+    'sfx_Melee44', //Killed
+    'sfx_Melee45', //Killed
+    'sfx_Melee46', //Killed
+    'sfx_Melee47', //House hit
+    'sfx_Melee48', //injured?
+    'sfx_Melee49', //injured?
+    'sfx_Melee50',
+    'sfx_Melee51', //Sword-sword', hit blocked?
+    'sfx_Melee52', //Sword-sword', hit blocked?
+    'sfx_Melee53', //Sword-sword', hit blocked?
+    'sfx_Melee54', //Sword-sword', hit blocked?
+    'sfx_Melee55', //Killed?
+    'sfx_Melee56', //Barbarian Killed?
+    'sfx_Melee57', //House hit?
+    'sfx_BowDraw',
+    'sfx_ArrowHit',
+    'sfx_CrossbowShoot',  //60
+    'sfx_CrossbowDraw',
+    'sfx_BowShoot',       //62
+    'sfx_BlacksmithBang',
+    'sfx_BlacksmithFire',
+    'sfx_CarpenterHammer', //65
+    'sfx_Horse1','sfx_Horse2','sfx_Horse3','sfx_Horse4',
+    'sfx_RockThrow',
+    'sfx_HouseDestroy',
+    'sfx_SchoolDing',
+    //Below are TPR sounds ...
+    'sfx_SlingerShoot',
+    'sfx_BalistaShoot',
+    'sfx_CatapultShoot',
+    'sfx_unknown76',
+    'sfx_CatapultReload',
+    'sfx_SiegeBuildingSmash');
 
 
 //Sounds to play on different warrior orders

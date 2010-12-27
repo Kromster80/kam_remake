@@ -70,6 +70,7 @@ public
   procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
+  procedure RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
   procedure RenderDebugLine(x1,y1,x2,y2:single);
   procedure RenderDebugProjectile(x1,y1,x2,y2:single);
   procedure RenderDebugWires(x1,x2,y1,y2:integer);
@@ -77,6 +78,7 @@ public
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
   procedure RenderDebugQuad(pX,pY:integer);
+  procedure RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
   procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection=dir_NA);
   procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
   procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
@@ -115,6 +117,8 @@ begin
   fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +fOpenGL_Version);
 
   SetupVSync(aVSync);
+
+  BuildFont(h_DC, 16, FW_BOLD);
 
   setlength(RenderList,512);
 end;
@@ -444,7 +448,27 @@ begin
   for i:=1 to Count do begin
     RenderObject(Tag[i]+1,AnimStep-Tag2[i],List[i].X,List[i].Y);
     fLog.AssertToLog(AnimStep-Tag2[i] <= 100,'Falling tree overrun?');
-  end;                   
+  end;
+end;
+
+
+procedure TRender.RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
+const step=20;
+var i:integer;
+begin
+  glPushMatrix;
+    glTranslatef(x,y,0);
+    glColor4ubv(@Fill);
+    glBegin(GL_POLYGON);
+      for i:=-step to step do
+      glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
+    glEnd;
+    glColor4ubv(@Line);
+    glBegin(GL_LINE_STRIP);
+      for i:=-step to step do
+      glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
+    glEnd;
+  glPopMatrix;
 end;
 
 
@@ -508,6 +532,14 @@ procedure TRender.RenderDebugQuad(pX,pY:integer);
 begin
   glColor4f(1,1,1,0.15);
   RenderQuad(pX,pY);
+end;
+
+
+procedure TRender.RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
+begin
+  glColor4ubv(@aCol);
+  glRasterPos2f(pX-1+0.1,pY-1+0.1);
+  glPrint(aText);
 end;
 
 

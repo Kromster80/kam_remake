@@ -76,6 +76,7 @@ begin
   ReadImplementationProperties;
 end;
 
+
 procedure SetRenderDefaults();
 begin
   glClearColor(0, 0, 0, 0); 	   //Background
@@ -89,6 +90,7 @@ begin
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
 end;
+
 
 function SetDCPixelFormat(h_DC:HDC):boolean;
 var
@@ -141,6 +143,7 @@ PixelDepth:=32;
 Result:=true;
 end;
 
+
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
 var l,glsl_ok:GLint; s:PChar; i:integer; ShowMessage:boolean;
 begin
@@ -160,6 +163,7 @@ begin
   StrDispose(s); //Free-up space
 end;
 
+
 procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
 var Font: HFONT;
 begin
@@ -171,6 +175,7 @@ begin
   SelectObject(h_dc,font);
   wglUseFontBitmaps(h_dc,0,128,20000);
 end;
+
 
 procedure glPrint(text: string);
 begin

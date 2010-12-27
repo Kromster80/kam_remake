@@ -25,7 +25,7 @@ type TKMGamePlayInterface = class
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
-      Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_Hint:TKMLabel;
+      Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
       Image_Message:array[1..32]of TKMImage; //Queue of messages covers 32*48=1536px height
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
@@ -545,6 +545,8 @@ begin
     Label_PointerCount.Visible := SHOW_POINTER_COUNT;
     Label_CmdQueueCount := MyControls.AddLabel(Panel_Main,224+80,110,0,0,'',fnt_Outline,kaLeft);
     Label_CmdQueueCount.Visible := SHOW_CMDQUEUE_COUNT;
+    Label_SoundsCount := MyControls.AddLabel(Panel_Main,224+80,140,0,0,'',fnt_Outline,kaLeft);
+    Label_SoundsCount.Visible := DISPLAY_SOUNDS;
 
     Label_Hint:=MyControls.AddLabel(Panel_Main,224+32,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint.Anchors := [akLeft, akBottom]; 
@@ -2443,6 +2445,9 @@ begin
 
   if SHOW_CMDQUEUE_COUNT then
     Label_CmdQueueCount.Caption := inttostr(fGame.fGameInputProcess.Count)+' commands stored';
+
+  if DISPLAY_SOUNDS then
+    Label_SoundsCount.Caption := inttostr(fSoundLib.ActiveCount)+' sounds playing';
 end;
 
 
