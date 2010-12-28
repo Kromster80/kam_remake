@@ -8,15 +8,18 @@ type
   TKMPlayerStats = class
   private
     Houses:array[1..HOUSE_COUNT]of record
-      Initial,  //created by script on mission start
-      Built,    //constructed by player
-      Lost,     //lost from attacks and self-demolished
-      //@Krom: In KaM self-demolished houses are not counted as "lost" in the statistics.
-      //       "Lost" implies the enemy destroyed them.
+      Initial,      //created by script on mission start
+      Built,        //constructed by player
+      SelfDestruct, //deconstructed by player
+      Lost,         //lost from attacks and self-demolished
       Destroyed:word; //damage to other players
-    end; //todo: [Lewin] Do the same for Units (Initial, Trained, Lost, Killed)
-    UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of integer;
-    SoldiersTrained: integer; //todo: remove in favor of Units[ut_Militia..ut_Axeman].Trained
+    end;
+    Units:array[1..40]of record
+      Initial,
+      Trained,
+      Lost,
+      Killed:word;
+    end;
     ResourceRatios:array[1..4,1..4]of byte;
   public
     AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
@@ -24,10 +27,12 @@ type
     constructor Create;
     procedure HouseCreated(aType:THouseType; aWasBuilt:boolean);
     procedure HouseLost(aType:THouseType);
+    procedure HouseSelfDestruct(aType:THouseType);
     procedure HouseDestroyed(aType:THouseType);
-    procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
-    procedure DestroyedUnit(aType:TUnitType);
-    procedure TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
+
+    procedure UnitCreated(aType:TUnitType; aWasTrained:boolean);
+    procedure UnitLost(aType:TUnitType);
+    procedure UnitKilled(aType:TUnitType);
     //todo: Record kills (units defeated) to stats, possibly by passing fOwnerOfKiller to Unit.HitPointsDecrease
     //@Lewin: Killed unit will have to increase "KilledCount" stats for another player. This is walkaround
     //straight walk would be killer increases his player stats.
@@ -76,6 +81,15 @@ begin
 end;
 
 
+procedure TKMPlayerStats.UpdateReqDone(aType:THouseType);
+var i:integer;
+begin
+  for i:=1 to length(BuildingAllowed[1]) do
+    if BuildingAllowed[byte(aType),i]<>ht_None then
+      BuildReqDone[byte(BuildingAllowed[byte(aType),i])]:=true;
+end;
+
+
 procedure TKMPlayerStats.HouseCreated(aType:THouseType; aWasBuilt:boolean);
 begin
   if aWasBuilt then
@@ -86,18 +100,15 @@ begin
 end;
 
 
-procedure TKMPlayerStats.UpdateReqDone(aType:THouseType);
-var i:integer;
-begin
-  for i:=1 to length(BuildingAllowed[1]) do
-    if BuildingAllowed[byte(aType),i]<>ht_None then
-      BuildReqDone[byte(BuildingAllowed[byte(aType),i])]:=true;
-end;
-
-
 procedure TKMPlayerStats.HouseLost(aType:THouseType);
 begin
   inc(Houses[byte(aType)].Lost);
+end;
+
+
+procedure TKMPlayerStats.HouseSelfDestruct(aType:THouseType);
+begin
+  inc(Houses[byte(aType)].SelfDestruct);
 end;
 
 
@@ -107,24 +118,24 @@ begin
 end;
 
 
-procedure TKMPlayerStats.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
+procedure TKMPlayerStats.UnitCreated(aType:TUnitType; aWasTrained:boolean);
 begin
   if aWasTrained then
-    inc(UnitTrainedCount[byte(aType)]);
-
-  inc(UnitTotalCount[byte(aType)]);
+    inc(Units[byte(aType)].Trained)
+  else
+    inc(Units[byte(aType)].Initial);
 end;
 
 
-procedure TKMPlayerStats.DestroyedUnit(aType:TUnitType);
+procedure TKMPlayerStats.UnitLost(aType:TUnitType);
 begin
-  inc(UnitLostCount[byte(aType)]);
+  inc(Units[byte(aType)].Lost);
 end;
 
 
-procedure TKMPlayerStats.TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
+procedure TKMPlayerStats.UnitKilled(aType:TUnitType);
 begin
-  inc(SoldiersTrained);
+  inc(Units[byte(aType)].Killed);
 end;
 
 
@@ -132,20 +143,22 @@ function TKMPlayerStats.GetHouseQty(aType:THouseType):integer;
 var i:integer;
 begin
   if aType <> ht_None then
-    Result := Houses[byte(aType)].Initial + Houses[byte(aType)].Built - Houses[byte(aType)].Lost
+    Result := Houses[byte(aType)].Initial + Houses[byte(aType)].Built - Houses[byte(aType)].SelfDestruct - Houses[byte(aType)].Lost
   else begin
     Result := 0;
     for i:=1 to HOUSE_COUNT do
-      inc(Result, Houses[i].Initial + Houses[i].Built - Houses[i].Lost);
+      inc(Result, Houses[i].Initial + Houses[i].Built - Houses[i].SelfDestruct - Houses[i].Lost);
   end;
 end;
 
 
 function TKMPlayerStats.GetUnitQty(aType:TUnitType):integer;
+var i:integer;
 begin
-  Result := UnitTotalCount[byte(aType)] - UnitLostCount[byte(aType)];
+  Result := Units[byte(aType)].Initial + Units[byte(aType)].Trained - Units[byte(aType)].Lost;
   if aType = ut_Recruit then
-    dec(Result,SoldiersTrained); //Trained soldiers use a recruit
+    for i:= byte(ut_Militia) to byte(ut_Barbarian) do
+      dec(Result,Units[i].Trained); //Trained soldiers use a recruit
 end;
 
 
@@ -206,8 +219,8 @@ function TKMPlayerStats.GetUnitsLost:cardinal;
 var i:integer;
 begin
   Result:=0;
-  for i:=low(UnitLostCount) to high(UnitLostCount) do
-    inc(Result,UnitLostCount[i]);
+  for i:=low(Units) to high(Units) do
+    inc(Result,Units[i].Lost);
 end;
 
 
@@ -227,8 +240,11 @@ end;
 
 
 function TKMPlayerStats.GetHousesDestroyed:cardinal;
+var i:integer;
 begin
   Result:=0;
+  for i:=low(Houses) to high(Houses) do
+    inc(Result,Houses[i].Destroyed);
 end;
 
 
@@ -241,12 +257,13 @@ begin
 end;
 
 
+//The value includes all citizens, Warriors are counted separately
 function TKMPlayerStats.GetUnitsTrained:cardinal;
 var i:integer;
 begin
   Result:=0;
   for i:=byte(ut_Serf) to byte(ut_Recruit) do
-    inc(Result,UnitTrainedCount[i]);
+    inc(Result,Units[i].Trained);
 end;
 
 
@@ -256,12 +273,13 @@ begin
 end;
 
 
+//The value includes all Warriors
 function TKMPlayerStats.GetSoldiersTrained:cardinal;
 var i:integer;
 begin
   Result:=0;
   for i:=byte(ut_Militia) to byte(ut_Barbarian) do
-    inc(Result,UnitTrainedCount[i]);
+    inc(Result,Units[i].Trained);
 end;
 
 
@@ -272,9 +290,10 @@ begin
   for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Built);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Lost);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Destroyed);
-  for i:=1 to 40 do SaveStream.Write(UnitTotalCount[i]);
-  for i:=1 to 40 do SaveStream.Write(UnitTrainedCount[i]);
-  for i:=1 to 40 do SaveStream.Write(UnitLostCount[i]);
+  for i:=1 to 40 do SaveStream.Write(Units[i].Initial);
+  for i:=1 to 40 do SaveStream.Write(Units[i].Trained);
+  for i:=1 to 40 do SaveStream.Write(Units[i].Lost);
+  for i:=1 to 40 do SaveStream.Write(Units[i].Killed);
   for i:=1 to 4 do for k:=1 to 4 do SaveStream.Write(ResourceRatios[i,k]);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(AllowToBuild[i]);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(BuildReqDone[i]);
@@ -288,9 +307,10 @@ begin
   for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Built);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Lost);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Destroyed);
-  for i:=1 to 40 do LoadStream.Read(UnitTotalCount[i]);
-  for i:=1 to 40 do LoadStream.Read(UnitTrainedCount[i]);
-  for i:=1 to 40 do LoadStream.Read(UnitLostCount[i]);
+  for i:=1 to 40 do LoadStream.Read(Units[i].Initial);
+  for i:=1 to 40 do LoadStream.Read(Units[i].Trained);
+  for i:=1 to 40 do LoadStream.Read(Units[i].Lost);
+  for i:=1 to 40 do LoadStream.Read(Units[i].Killed);
   for i:=1 to 4 do for k:=1 to 4 do LoadStream.Read(ResourceRatios[i,k]);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(AllowToBuild[i]);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(BuildReqDone[i]);

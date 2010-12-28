@@ -63,11 +63,6 @@ type
     property GetHouses:TKMHousesCollection read fHouses;
     property GetUnits:TKMUnitsCollection read fUnits;
 
-    procedure HouseCreated(aType:THouseType; aWasBuilt:boolean);
-    procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
-    procedure HouseLost(aType:THouseType);
-    procedure DestroyedUnit(aType:TUnitType);
-
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
     function GetHouseWip(aType:THouseType):integer;
@@ -154,7 +149,7 @@ begin
 
   Result := fUnits.Add(fPlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
   if Result <> nil then
-    CreatedUnit(aUnitType, WasTrained);
+    fPlayerStats.UnitCreated(aUnitType, WasTrained);
 end;
 
 
@@ -263,6 +258,7 @@ begin
 end;
 
 
+//Player wants to remove own house
 function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
 var fHouse:TKMHouse;
 begin
@@ -270,8 +266,10 @@ begin
   fHouse := fHouses.HitTest(Position.X, Position.Y);
   if fHouse<>nil then
   begin
-    if not Simulated then
+    if not Simulated then begin
       fHouse.DemolishHouse(DoSilent,IsEditor);
+      fPlayerStats.HouseSelfDestruct(fHouse.GetHouseType);
+    end;
     Result := true;
   end;
 end;
@@ -376,33 +374,10 @@ begin
   fUnits.GetLocations(Loc, ut_Any);
 end;
 
+
 function TKMPlayerAssets.HousesHitTest(X, Y: Integer): TKMHouse;
 begin
   Result:= fHouses.HitTest(X, Y);
-end;
-
-
-procedure TKMPlayerAssets.HouseCreated(aType:THouseType; aWasBuilt:boolean);
-begin
-  fPlayerStats.HouseCreated(aType,aWasBuilt);
-end;
-
-
-procedure TKMPlayerAssets.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
-begin
-  fPlayerStats.CreatedUnit(aType,aWasTrained);
-end;
-
-
-procedure TKMPlayerAssets.HouseLost(aType:THouseType);
-begin
-  fPlayerStats.HouseLost(aType);
-end;
-
-
-procedure TKMPlayerAssets.DestroyedUnit(aType:TUnitType);
-begin
-  fPlayerStats.DestroyedUnit(aType);
 end;
 
 

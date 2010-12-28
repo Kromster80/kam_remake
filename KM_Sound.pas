@@ -374,6 +374,7 @@ end;
 
 //todo: Use sound playing system that allows for multiple sounds at once and a listener position (e.g. deaths and cries in a battle)
 //@Krom: Why can't we simply use OpenAL? Because it needs a listener position so you don't hear battles from the other side of the map. Do the sounds need to be stored in memory? Can we buffer them or something?
+//@Lewin: I think we will do this eventually. I'll be working on it
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 var wave:string;
 begin

@@ -95,7 +95,7 @@ begin
       6: begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
           fSchool.UnitTrainingComplete;
-          fPlayers.Player[byte(GetOwner)].CreatedUnit(UnitType,true);
+          fPlayers.Player[byte(GetOwner)].fPlayerStats.UnitCreated(UnitType,true);
          end;
       else Result := TaskDone;
     end;

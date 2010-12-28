@@ -380,7 +380,7 @@ end;
 procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
-  fPlayers.Player[byte(fOwner)].HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
+  fPlayers.Player[byte(fOwner)].fPlayerStats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
   fTerrain.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
@@ -421,9 +421,6 @@ begin
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
   //Road is removed in CloseHouse
   if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
-  
-  if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-    fPlayers.Player[byte(fOwner)].HouseLost(fHouseType);
 
   CloseHouse(NoRubble);
 end;
@@ -526,7 +523,7 @@ end;
 
 function TKMHouse.GetHealth():word;
 begin
-  Result := EnsureRange(fBuildingProgress-fDamage,0,maxword);
+  Result := max(fBuildingProgress-fDamage, 0);
 end;
 
 
@@ -573,6 +570,11 @@ begin
   if BuildingRepair and (fRepairID = 0) then
     fRepairID := fPlayers.Player[byte(fOwner)].BuildList.AddHouseRepair(Self);
   UpdateDamage();
+  if (GetHealth=0) and (fBuildState>=hbs_Wood) then begin
+    DemolishHouse(false); //Destroyed by Enemy
+    if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+      fPlayers.Player[byte(fOwner)].fPlayerStats.HouseLost(fHouseType);
+  end;
 end;
 
 
@@ -934,8 +936,6 @@ end;
 procedure TKMHouse.UpdateState;
 begin
   if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
-
-  if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
 
   if not fIsDestroyed then
     UpdateResRequest; //Request more resources (if distribution of wares has changed)
@@ -1463,7 +1463,7 @@ begin
       dec(ResourceCount[TroopCost[aUnitType,i]]);
 
   dec(RecruitsInside); //All units take a recruit
-  fPlayers.Player[byte(fOwner)].fPlayerStats.TrainedSoldier(aUnitType);
+  fPlayers.Player[byte(fOwner)].fPlayerStats.UnitCreated(aUnitType, true);
 
   //Make new unit
   Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));
