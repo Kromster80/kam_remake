@@ -33,13 +33,6 @@ type
     procedure UnitCreated(aType:TUnitType; aWasTrained:boolean);
     procedure UnitLost(aType:TUnitType);
     procedure UnitKilled(aType:TUnitType);
-    //todo: Record kills (units defeated) to stats, possibly by passing fOwnerOfKiller to Unit.HitPointsDecrease
-    //@Lewin: Killed unit will have to increase "KilledCount" stats for another player. This is walkaround
-    //straight walk would be killer increases his player stats.
-    //To make this: HitPointsDecrease must return TRUE is unit was killed and false otherwise
-    //Axeman: if fEnemy.HitPointsDecrease then fOwner.KilledUnit(type)
-    //Archer,Tower: launch arrow (tell it fOwnerID) and if arrow hits - dcrease HP and notify KilledUnit
-    //
 
     procedure UpdateReqDone(aType:THouseType);
 
@@ -225,8 +218,11 @@ end;
 
 
 function TKMPlayerStats.GetUnitsKilled:cardinal;
+var i:integer;
 begin
   Result:=0;
+  for i:=low(Units) to high(Units) do
+    inc(Result,Units[i].Killed);
 end;
 
 

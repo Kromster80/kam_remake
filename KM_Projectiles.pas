@@ -137,16 +137,24 @@ begin
             pt_Arrow,
             pt_Bolt:      if U <> nil then
                           begin
-                            if Random(2) = 1 then U.HitPointsDecrease(1); //Arrows hit unit 50% of the time
+                            if Random(2) = 1 then
+                              if  U.HitPointsDecrease(1) then //Arrows hit unit 50% of the time
+                                if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
+                                  fPlayers.Player[byte(fOwner)].fPlayerStats.UnitKilled(U.UnitType);
                           end
                           else
                           begin
                             //Stray arrows do not damage houses, they are only hit when directly aimed at. Hence use fTarget not fTargetJ
                             H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
                             if (H <> nil) then
-                              H.AddDamage(1);
+                              if H.AddDamage(1) then //House was destroyed
+                                if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
+                                  fPlayers.Player[byte(fOwner)].fPlayerStats.HouseDestroyed(H.GetHouseType);
                           end;
-            pt_TowerRock: if U <> nil then U.HitPointsDecrease(10); //Instant death
+            pt_TowerRock: if U <> nil then
+                            if U.HitPointsDecrease(10)then //Instant death
+                              if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
+                                fPlayers.Player[byte(fOwner)].fPlayerStats.UnitKilled(U.UnitType);
           end;
         end;
       end;

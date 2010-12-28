@@ -94,7 +94,7 @@ type
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
     function GetMaxHealth():word;
-    procedure AddDamage(aAmount:word);
+    function  AddDamage(aAmount:word):boolean;
     procedure AddRepair(aAmount:word=5);
     procedure UpdateDamage();
     procedure EnableRepair();
@@ -564,16 +564,19 @@ end;
 
 
 {Add damage to the house, positive number}
-procedure TKMHouse.AddDamage(aAmount:word);
+//Return TRUE if house was destroyed
+function TKMHouse.AddDamage(aAmount:word):boolean;
 begin
+  Result := false;
   fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
   if BuildingRepair and (fRepairID = 0) then
     fRepairID := fPlayers.Player[byte(fOwner)].BuildList.AddHouseRepair(Self);
   UpdateDamage();
-  if (GetHealth=0) and (fBuildState>=hbs_Wood) then begin
+  if (GetHealth=0) and (fBuildState>=hbs_Wood) and not IsDestroyed then begin //Destroy only once
     DemolishHouse(false); //Destroyed by Enemy
     if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
       fPlayers.Player[byte(fOwner)].fPlayerStats.HouseLost(fHouseType);
+    Result := true;
   end;
 end;
 
@@ -1463,7 +1466,6 @@ begin
       dec(ResourceCount[TroopCost[aUnitType,i]]);
 
   dec(RecruitsInside); //All units take a recruit
-  fPlayers.Player[byte(fOwner)].fPlayerStats.UnitCreated(aUnitType, true);
 
   //Make new unit
   Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));

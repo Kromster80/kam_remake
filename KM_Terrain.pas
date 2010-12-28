@@ -452,7 +452,7 @@ begin
   Result := false;
   if (Land[aLoc.Y,aLoc.X].IsUnit <> nil) then begin
     if Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction=nil then
-    Assert(Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction<>nil); //Got a random bug here, due to Fish UnitAction=nil
+    Assert(Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction<>nil);
     Result := (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
   end;
 end;

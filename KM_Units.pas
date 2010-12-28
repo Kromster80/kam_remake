@@ -130,7 +130,7 @@ type
     function GetUnitActText():string;
     property Condition: integer read fCondition write fCondition;
     procedure SetFullCondition;
-    procedure HitPointsDecrease(aAmount:integer=1);
+    function  HitPointsDecrease(aAmount:integer):boolean;
     property GetHitPoints:byte read fHitPoints;
     function GetMaxHitPoints:byte;
     procedure CancelUnitTask;
@@ -1089,12 +1089,17 @@ begin
 end;
 
 
-procedure TKMUnit.HitPointsDecrease(aAmount:integer=1);
+//Return TRUE if unit was killed
+function TKMUnit.HitPointsDecrease(aAmount:integer):boolean;
 begin
+  Result := false;
   //When we are first hit reset the counter
   if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
   fHitPoints := EnsureRange(fHitPoints-aAmount,0,GetMaxHitPoints);
-  if fHitPoints = 0 then KillUnit;
+  if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
+    KillUnit;
+    Result := true;
+  end;
 end;
 
 
