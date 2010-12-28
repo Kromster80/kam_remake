@@ -58,7 +58,7 @@ type
     fTimeSinceUnoccupiedReminder:integer;
     procedure SetWareDelivery(AVal:boolean);
 
-    procedure MakeSound();
+    procedure MakeSound(); dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID:byte):byte; //Will use GetRatio from mission settings to find distribution amount
   public
     ID:integer; //unique ID, used for save/load to sync to
@@ -138,6 +138,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     function FeedBeasts():byte;
     procedure TakeBeast(aID:byte);
+    procedure MakeSound; override;
     procedure Save(SaveStream:TKMemoryStream); override;
     procedure Paint; override;
   end;
@@ -1031,6 +1032,24 @@ procedure TKMHouseSwineStable.TakeBeast(aID:byte);
 begin
   if (aID<>0) and (BeastAge[aID]>3) then
     BeastAge[aID] := 0;
+end;
+
+
+procedure TKMHouseSwineStable.MakeSound;
+var i: integer;
+begin
+  Inherited;
+  if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  //Make beast noises - each beast makes a noise (if it exists) with two second pauses between each one
+  for i:=1 to 5 do
+    if ((20*(i-1))+FlagAnimStep) mod 100 = 0 then
+      if BeastAge[i]>0 then
+      begin
+        if fHouseType = ht_Stables then
+          fSoundLib.Play(TSoundFX(byte(sfx_Horse1)+random(4)),fPosition);
+        if fHouseType = ht_Swine   then
+          fSoundLib.Play(TSoundFX(byte(sfx_Pig1)  +random(4)),fPosition);
+      end;
 end;
 
 

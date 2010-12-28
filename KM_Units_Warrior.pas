@@ -648,9 +648,6 @@ begin
     fState := ws_None; //Clear other states
     SetOrderTarget(aTargetUnit);
   end;
-  //@Lewin: offtopic, please turn off word wrap and try to fit your texts in 100 characters
-  //@Krom: Sorry that I always do that, I forget because I have 1920 pixels. I set the right margin
-  //       to 100 now so I know where to stop. To be deleted.
   //Only the commander tracks the target, group members are just told to walk to the position
   OrderWalk(KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true);
 end;
@@ -860,7 +857,12 @@ begin
       SetOrderTarget(GetCommander.Foe);
     end
     else
-      //todo: When there is a Foe, archers should abandon walks and start shooting right away when it's possible
+    begin
+      //Archers should abandon walk to start shooting if there is a foe
+      if InRange(GetLength(NextPosition, GetCommander.Foe.GetPosition), GetFightMinRange, GetFightMaxRange)
+      and(GetUnitAction is TUnitActionWalkTo) then
+        AbandonWalk;
+      //But if we are already idle then just start shooting right away
       if InRange(GetLength(GetPosition, GetCommander.Foe.GetPosition), GetFightMinRange, GetFightMaxRange)
         and(GetUnitAction is TUnitActionStay) then
       begin
@@ -868,6 +870,7 @@ begin
         Direction := KMGetDirection(GetPosition, GetCommander.Foe.GetPosition);
         CheckForEnemy;
       end;
+    end;
 
   //Override current action if there's an Order in queue paying attention
   //to unit WalkTo current position (let the unit arrive on next tile first!)
