@@ -257,6 +257,7 @@ end;
 
 destructor TCampaignSettings.Destroy;
 begin
+  CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
   SaveINI(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
   fLog.AppendLog('Campaign.ini saved');
   Inherited;

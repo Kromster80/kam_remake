@@ -25,7 +25,8 @@ const WarriorSFX: array[TSoundToPlay] of string = (
 type
   TSoundLib = class
   private
-    Waves: array[1..MaxWaves] of record
+  ALDevice: PALCdevice;
+  Waves: array[1..MaxWaves] of record
       Head: TWAVHeaderEx;
       Data: array of char;
       Foot: array of char;
@@ -89,8 +90,8 @@ uses KM_Render, KM_Game, Dialogs;
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
 var
   Context: PALCcontext;
-  Device: PALCdevice;
-  i,k,ErrCode:integer;
+
+  i,k:integer;
   NumMono,NumStereo:TALCint;
   s:TSoundToPlay;
 begin
@@ -105,8 +106,8 @@ begin
   end;
 
   //Open device
-  Device := alcOpenDevice(nil); // this is supposed to select the "preferred device"
-  if Device = nil then begin
+  ALDevice := alcOpenDevice(nil); // this is supposed to select the "preferred device"
+  if ALDevice = nil then begin
     fLog.AddToLog('OpenAL warning. Device could not be opened.');
     Application.MessageBox('Device could not be opened. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     IsSoundInitialized := false;
@@ -114,7 +115,7 @@ begin
   end;
 
   //Create context(s)
-  Context := alcCreateContext(Device, nil);
+  Context := alcCreateContext(ALDevice, nil);
   if Context = nil then begin
     fLog.AddToLog('OpenAL warning. Context could not be created.');
     Application.MessageBox('Context could not be created. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
@@ -137,8 +138,8 @@ begin
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
   fLog.AppendLog('Pre-LoadSFX init',true);
 
-  alcGetIntegerv(Device, ALC_MONO_SOURCES, 4, @NumMono);
-  alcGetIntegerv(Device, ALC_STEREO_SOURCES, 4, @NumStereo);
+  alcGetIntegerv(ALDevice, ALC_MONO_SOURCES, 4, @NumMono);
+  alcGetIntegerv(ALDevice, ALC_STEREO_SOURCES, 4, @NumStereo);
 
   fLog.AppendLog('ALC_MONO_SOURCES',NumMono);
   fLog.AppendLog('ALC_STEREO_SOURCES',NumStereo);
@@ -191,8 +192,9 @@ end;
 
 
 procedure TSoundLib.CheckOpenALError();
+var ErrCode:integer;
 begin
-  ErrCode := alcGetError(Device);
+  ErrCode := alcGetError(ALDevice);
   if ErrCode <> ALC_NO_ERROR then begin
     fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
     Application.MessageBox(PChar('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'),'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
