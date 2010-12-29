@@ -2042,8 +2042,8 @@ begin
       gr_Win:       fGame.GameStop(gr_Win);
       gr_Defeat:    fGame.GameStop(gr_Defeat);
       gr_ReplayEnd: fGame.GameStop(gr_ReplayEnd);
-    end;
-
+    end
+  else //GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
     case PlayMoreMsg of
       gr_Win:       begin MyPlayer.SkipWinConditionCheck := true; fGame.GameHold(false, gr_Win); end;

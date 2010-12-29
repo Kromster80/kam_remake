@@ -392,6 +392,9 @@ var
   CharSpacing,LineCount,AdvX,LineHeight:integer;
   LineWidth:array of integer; //Some fonts may have negative CharSpacing
 begin
+  Result.X := 0; //Incase Text=''
+  Result.Y := 0;
+
   if Text='' then exit;
 
   LineCount := 1;
@@ -416,7 +419,6 @@ begin
   end;
 
   dec(LineCount);
-  Result.X := 0;
   Result.Y := LineHeight*LineCount;
   for i:=1 to LineCount do
     Result.X := Math.max(Result.X,LineWidth[i]); 
