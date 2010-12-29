@@ -128,10 +128,10 @@ end;
 
 destructor TKMPlayerAssets.Destroy;
 begin
-  FreeThenNil(fPlayerStats);
   FreeThenNil(fRoadsList);
   FreeThenNil(fUnits);
   FreeThenNil(fHouses);
+  FreeThenNil(fPlayerStats); //Used by fhouses and Units
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
   Inherited;
