@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1315';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1315';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1315;          //Used in replay file format
+  GAME_VERSION          = 'Fighting Demo r1330';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1330';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1330;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -76,7 +76,7 @@ var
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
   SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :boolean=false; //Render towers/archers attack radius
-  DISPLAY_SOUNDS        :boolean=true; //Display sounds on map
+  DISPLAY_SOUNDS        :boolean=false; //Display sounds on map
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Stats}
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
