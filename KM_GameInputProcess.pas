@@ -30,6 +30,7 @@ type TGameInputCommand = (
   gic_ArmyAttackHouse,
   gic_ArmyHalt,         //Formation commands
   gic_ArmyWalk,         //Walking
+  gic_ArmyStorm,        //StormAttack
 
   //II.     Building/road plans (what to build and where)
   gic_BuildRoadPlan,
@@ -222,6 +223,7 @@ begin
   case Command of
     gic_ArmyFeed:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderFood;
     gic_ArmySplit:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderSplit;
+    gic_ArmyStorm:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderStorm;
     gic_ArmyLink:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderLinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
     gic_ArmyAttackUnit:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderAttackUnit(fPlayers.GetUnitByID(Params[2]));
     gic_ArmyAttackHouse:  TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderAttackHouse(fPlayers.GetHouseByID(Params[2]));
@@ -272,6 +274,7 @@ begin
   case aCommand of
     gic_ArmyFeed:  aWarrior.OrderFood;
     gic_ArmySplit: aWarrior.OrderSplit;
+    gic_ArmyStorm: aWarrior.OrderStorm;
   end;
 
   SaveCommand(aCommand, aWarrior.ID);

@@ -1012,7 +1012,6 @@ begin
     //Disable not working buttons
     Button_Army_GoTo.Disable;
     Button_Army_Attack.Disable;
-    Button_Army_Storm.Disable;
 
     //Hints
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
@@ -1501,7 +1500,7 @@ begin
                             and not (Commander.GetUnitAction is TUnitActionStormAttack));
       Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and(Commander.Foe = nil);
     end;
-    //Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
+    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
   end
   else
   begin //Citizen specific
@@ -1780,8 +1779,11 @@ begin
     fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, -1, 0);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_RotLeft);
   end;
-  //todo: Storm attack action
-  //if Sender = Button_Army_Storm   then ;
+  if Sender = Button_Army_Storm   then
+  begin
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyStorm, Commander);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_StormAttack);
+  end;
   if Sender = Button_Army_RotCCW  then
   begin
     fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, 1, 0);
@@ -1973,7 +1975,7 @@ begin
   Button_Army_Stop.Enabled := aActive;
   //Button_Army_Attack.Enabled := aActive;
   Button_Army_RotCW.Enabled := aActive;
-  //Button_Army_Storm.Enabled := aActive;
+  Button_Army_Storm.Enabled := aActive;
   Button_Army_RotCCW.Enabled := aActive;
   Button_Army_ForUp.Enabled := aActive;
   Button_Army_ForDown.Enabled := aActive;

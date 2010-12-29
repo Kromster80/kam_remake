@@ -107,6 +107,7 @@ type
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
+    procedure SetActionStorm(aAction: TUnitActionType; aRow:integer);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 
     procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
@@ -244,7 +245,7 @@ type
 
 implementation
 uses KM_Render, KM_TextLibrary, KM_PlayersCollection, KM_Viewport, KM_Game,
-KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
+KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitActionStormAttack,
 KM_Units_Warrior, KM_Terrain, 
 
 KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
@@ -911,6 +912,7 @@ begin
       uan_AbandonWalk: fCurrentAction := TUnitActionAbandonWalk.Load(LoadStream);
       uan_GoInOut:     fCurrentAction := TUnitActionGoInOut.Load(LoadStream);
       uan_Fight:       fCurrentAction := TUnitActionFight.Load(LoadStream);
+      uan_StormAttack: fCurrentAction := TUnitActionStormAttack.Load(LoadStream);
       else             Assert(false, 'ActName can''t be handled');
     end;
   end
@@ -1072,6 +1074,7 @@ begin
   if fUnitTask is TTaskDie              then Result := 'Die';
   if fUnitTask is TTaskAttackHouse      then Result := 'Attack House';
   if fUnitTask is TTaskGoOutShowHungry  then Result := 'Show hunger';
+  if fUnitTask is TTaskThrowRock        then Result := 'Throwing rock';
 end;
 
 
@@ -1203,6 +1206,12 @@ begin
     aStep := UnitStillFrames[Direction];
   end;
   SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame, false), aStep);
+end;
+
+
+procedure TKMUnit.SetActionStorm(aAction: TUnitActionType; aRow:integer);
+begin
+  SetAction(TUnitActionStorm.Create(aAction, aRow), 0);
 end;
 
 

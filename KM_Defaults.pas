@@ -465,8 +465,8 @@ type
     wo_Walk,
     wo_WalkOut,
     wo_AttackUnit,
-    wo_AttackHouse
-    //wo_Storm
+    wo_AttackHouse,
+    wo_Storm
   );
 
   TWarriorState = (

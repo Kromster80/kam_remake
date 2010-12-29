@@ -53,9 +53,10 @@ type //Possibly melee warrior class? with Archer class separate?
   //Commands from player
     procedure OrderHalt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure OrderLinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
-    procedure OrderSplit; //Split group in half and assign another commander
-    procedure OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
     procedure OrderFood;
+    procedure OrderSplit; //Split group in half and assign another commander
+    procedure OrderStorm;
+    procedure OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
     procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false); reintroduce; overload;
     procedure OrderWalk(aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
@@ -470,6 +471,18 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.OrderStorm;
+var i:integer;
+begin
+  fOrder := wo_Storm;
+  fState := ws_None; //Clear other states
+
+  if (fCommander = nil) and (fMembers <> nil) then
+    for i := 0 to fMembers.Count-1 do
+      TKMUnitWarrior(fMembers.Items[i]).OrderStorm;
+end;
+
+
 procedure TKMUnitWarrior.ClearOrderTarget;
 begin
   //Set fOrderTargets to nil, removing pointer if it's still valid
@@ -527,6 +540,18 @@ begin
   if (fFoe <> nil) and (fFoe.IsDead) then
     fPlayers.CleanUpUnitPointer(fFoe);
   Result := fFoe;
+end;
+
+
+//See in which row we are
+function TKMUnitWarrior.GetRow:TKMUnitWarrior;
+begin
+  if (fCommander = nil) and (fMembers <> nil) then
+    Result := 1
+  else
+    Result := 1; //WIP
+
+
 end;
 
 
@@ -938,6 +963,13 @@ begin
     SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
     fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //Once the house is destroyed we will position where we are standing
     fOrder := wo_None;
+  end;
+
+  //Storm
+  if (fOrder=wo_Storm) and CanInterruptAction then
+  begin
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+    SetActionStorm(ua_Spec, GetRow);
   end;
 
   if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places

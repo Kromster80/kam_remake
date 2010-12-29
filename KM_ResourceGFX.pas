@@ -1040,7 +1040,7 @@ begin
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
   ci:=0;
-  for iUnit:=byte(ut_Arbaletman) to byte(ut_Arbaletman) do begin
+  for iUnit:=byte(ut_Militia) to byte(ut_Militia) do begin
     for iAct:=1 to 14 do begin
       for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
         for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin

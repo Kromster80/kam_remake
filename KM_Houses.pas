@@ -1035,20 +1035,20 @@ begin
 end;
 
 
+//Make beast noises - each beast makes a noise (if it exists) with two second pauses between each one
 procedure TKMHouseSwineStable.MakeSound;
-var i: integer;
+var i:byte;
 begin
   Inherited;
   if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
-  //Make beast noises - each beast makes a noise (if it exists) with two second pauses between each one
-  for i:=1 to 5 do
-    if ((20*(i-1))+FlagAnimStep) mod 100 = 0 then
-      if BeastAge[i]>0 then
+  for i:=0 to 4 do
+    if BeastAge[i+1]>0 then
+      if (FlagAnimStep + 20*i) mod 100 = 0 then
       begin
         if fHouseType = ht_Stables then
-          fSoundLib.Play(TSoundFX(byte(sfx_Horse1)+random(4)),fPosition);
+          fSoundLib.Play(TSoundFX(byte(sfx_Horse1)+random(4)),fPosition); //sfx_Horse1..sfx_Horse4
         if fHouseType = ht_Swine   then
-          fSoundLib.Play(TSoundFX(byte(sfx_Pig1)  +random(4)),fPosition);
+          fSoundLib.Play(TSoundFX(byte(sfx_Pig1)  +random(4)),fPosition); //sfx_Pig1..sfx_Pig4
       end;
 end;
 
