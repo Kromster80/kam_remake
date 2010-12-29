@@ -1177,8 +1177,6 @@ begin
     AnimDir  := Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
     AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
 
-    Assert(AnimDir in [1,8], 'AnimDir in [1,8]');
-
     fRender.RenderUnit(UnitType, byte(ua_Eat), AnimDir, AnimStep, byte(fOwner),
       fPosition.X+offX[(i-1) mod 3 +1],
       fPosition.Y+offY[(i-1) mod 3 +1], false);
