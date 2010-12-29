@@ -1483,8 +1483,7 @@ begin
   begin
     Label_UnitDescription.Hide;
     Commander := TKMUnitWarrior(Sender).GetCommander;
-    if ((Commander.Foe <> nil) and (Commander.GetFightMaxRange < 2))
-    or (Commander.GetUnitAction is TUnitActionStormAttack) then
+    if Commander.ArmyIsBusy then
       Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
     if JoiningGroups then
     begin
@@ -1496,11 +1495,10 @@ begin
       Panel_Army.Show;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
-      Army_ActivateControls(((Commander.Foe = nil) or (Commander.GetFightMaxRange >= 2))
-                            and not (Commander.GetUnitAction is TUnitActionStormAttack));
-      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and(Commander.Foe = nil);
+      Army_ActivateControls(not Commander.ArmyIsBusy);
+      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and not Commander.ArmyIsBusy;
     end;
-    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
+    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and not Commander.ArmyIsBusy; //Only melee groups may charge
   end
   else
   begin //Citizen specific

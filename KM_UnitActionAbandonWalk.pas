@@ -68,7 +68,7 @@ begin
 
   if KMSamePointF(KMUnit.PositionF, KMPointF(fWalkTo), Distance/2) then
   begin
-    KMUnit.PositionF := KMPointF(fWalkTo.X,fWalkTo.Y); //Set precise position to avoid rounding errors
+    KMUnit.PositionF := KMPointF(fWalkTo); //Set precise position to avoid rounding errors
     KMUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
     if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
     begin

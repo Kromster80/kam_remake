@@ -107,7 +107,7 @@ type
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
-    procedure SetActionStorm(aAction: TUnitActionType; aRow:integer);
+    procedure SetActionStorm(aRow:integer);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 
     procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
@@ -1209,9 +1209,9 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionStorm(aAction: TUnitActionType; aRow:integer);
+procedure TKMUnit.SetActionStorm(aRow:integer);
 begin
-  SetAction(TUnitActionStorm.Create(aAction, aRow), 0);
+  SetAction(TUnitActionStormAttack.Create(ua_Walk, aRow), 0); //Action is ua_Walk for that is the inital one
 end;
 
 

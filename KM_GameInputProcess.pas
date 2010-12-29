@@ -270,7 +270,7 @@ end;
 
 procedure TGameInputProcess.CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior);
 begin
-  Assert(aCommand in [gic_ArmyFeed, gic_ArmySplit]);
+  Assert(aCommand in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm]);
   case aCommand of
     gic_ArmyFeed:  aWarrior.OrderFood;
     gic_ArmySplit: aWarrior.OrderSplit;

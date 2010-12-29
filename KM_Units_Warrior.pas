@@ -68,6 +68,9 @@ type //Possibly melee warrior class? with Archer class separate?
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property Foe:TKMUnitWarrior read GetFoe write SetFoe;
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
+    property GetOrder:TWarriorOrder read fOrder;
+    function GetRow:integer;
+    function ArmyIsBusy:boolean;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
@@ -88,7 +91,8 @@ type //Possibly melee warrior class? with Archer class separate?
 
 implementation
 uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_Terrain, KM_UnitTaskAttackHouse,
-  KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay;
+  KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
+  KM_UnitActionStormAttack;
 
 
 { TKMUnitWarrior }
@@ -225,7 +229,7 @@ begin
 
       //If we were walking/attacking then it is handled above. Otherwise just reposition
       if fState <> ws_Walking then
-        NewCommander.OrderWalk(NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
+        NewCommander.OrderWalk(KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir)); //Else use position of new commander and direction of group
 
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
       fCommander := NewCommander;
@@ -296,7 +300,7 @@ begin
 
   //This means we are not in position, return false and move into position (unless we are currently walking)
   Result := false;
-  if (fState = ws_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
+  if CanInterruptAction and (fState = ws_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
   begin
     SetActionWalkToSpot(fOrderLoc.Loc);
     fState := ws_Walking;
@@ -543,15 +547,26 @@ begin
 end;
 
 
-//See in which row we are
-function TKMUnitWarrior.GetRow:TKMUnitWarrior;
+//Check which row we are in
+function TKMUnitWarrior.GetRow:integer;
+var i: integer;
 begin
-  if (fCommander = nil) and (fMembers <> nil) then
-    Result := 1
-  else
-    Result := 1; //WIP
+  Result := 1;
+  if fCommander <> nil then
+    for i:=1 to fCommander.fMembers.Count do
+      if Self = TKMUnitWarrior(fCommander.fMembers.Items[i-1]) then
+      begin
+        Result := (i div fCommander.UnitsPerRow)+1; //First row is 1 not 0
+        exit;
+      end;
+end;
 
 
+//Is the player able to issue orders to our group?
+function TKMUnitWarrior.ArmyIsBusy:boolean;
+begin
+  Assert(fCommander = nil); //This should only be called for commanders
+  Result := ((Foe <> nil) and (GetFightMaxRange < 2)) or (GetUnitAction is TUnitActionStormAttack);
 end;
 
 
@@ -835,6 +850,7 @@ begin
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
   if GetUnitAction is TUnitActionAbandonWalk then Result := GetUnitAction.StepDone and not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
+  if GetUnitAction is TUnitActionStormAttack then Result := not GetUnitAction.Locked else //Never interupt storm attack
   if GetUnitAction is TUnitActionFight       then Result := (GetFightMaxRange >= 2) or not GetUnitAction.Locked //Only allowed to interupt ranged fights
   else Result := true;
 end;
@@ -952,8 +968,8 @@ begin
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
 
-  //Abandon walk so we can take attack house order
-  if (fOrder=wo_AttackHouse) and (GetUnitAction is TUnitActionWalkTo) then
+  //Abandon walk so we can take attack house or storm attack order
+  if ((fOrder=wo_AttackHouse) or (fOrder=wo_Storm)) and (GetUnitAction is TUnitActionWalkTo) then
     AbandonWalk;
 
   //Take attack house order
@@ -969,7 +985,9 @@ begin
   if (fOrder=wo_Storm) and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-    SetActionStorm(ua_Spec, GetRow);
+    SetActionStorm(GetRow);
+    fOrder := wo_None;
+    fState := ws_None; //Not needed for storm attack
   end;
 
   if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
