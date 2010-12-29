@@ -356,7 +356,7 @@ begin
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
   begin
-    if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
+    if (fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then AbandonWalk;
     FreeAndNil(fUnitTask);
     fPlayers.CleanUpHousePointer(fHome);
   end;
@@ -514,7 +514,7 @@ begin
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
   begin
-    if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
+    if (fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then AbandonWalk;
     FreeAndNil(fUnitTask);
     fPlayers.CleanUpHousePointer(fHome);
   end;
@@ -1117,7 +1117,7 @@ end;
 
 procedure TKMUnit.CancelUnitTask;
 begin
-  if (fUnitTask <> nil)and(fCurrentAction is TUnitActionWalkTo) then
+  if (fUnitTask <> nil)and(fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then
     AbandonWalk;
   FreeAndNil(fUnitTask);
 end;

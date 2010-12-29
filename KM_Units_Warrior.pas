@@ -901,7 +901,7 @@ begin
     begin
       //Archers should abandon walk to start shooting if there is a foe
       if InRange(GetLength(NextPosition, GetCommander.Foe.GetPosition), GetFightMinRange, GetFightMaxRange)
-      and(GetUnitAction is TUnitActionWalkTo) then
+      and(GetUnitAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then
         AbandonWalk;
       //But if we are already idle then just start shooting right away
       if InRange(GetLength(GetPosition, GetCommander.Foe.GetPosition), GetFightMinRange, GetFightMaxRange)
@@ -922,7 +922,7 @@ begin
   //New walking order
   if (fOrder=wo_Walk) then begin
     //Change WalkTo
-    if (GetUnitAction is TUnitActionWalkTo) then begin
+    if (GetUnitAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then begin
       if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
       TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fCommander <> nil);
       fOrder := wo_None;
@@ -949,7 +949,7 @@ begin
 
   //Change walk in order to attack
   if (fOrder=wo_AttackUnit) and (GetUnitAction is TUnitActionWalkTo) //If we are already walking then change the walk to the new location
-  then begin
+  and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, fCommander <> nil, GetOrderTarget);
@@ -969,7 +969,8 @@ begin
   end;
 
   //Abandon walk so we can take attack house or storm attack order
-  if ((fOrder=wo_AttackHouse) or (fOrder=wo_Storm)) and (GetUnitAction is TUnitActionWalkTo) then
+  if ((fOrder=wo_AttackHouse) or (fOrder=wo_Storm)) and (GetUnitAction is TUnitActionWalkTo)
+  and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then
     AbandonWalk;
 
   //Take attack house order
