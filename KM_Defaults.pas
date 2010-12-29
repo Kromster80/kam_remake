@@ -452,7 +452,7 @@ type
 
 type
   TUnitActionName = ( uan_Unknown=0, //Uninitialized action to detect bugs
-        uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight);
+        uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
 
 type
   TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,

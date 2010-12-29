@@ -43,6 +43,7 @@ uses
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',
   KM_UnitActionStay in 'KM_UnitActionStay.pas',
+  KM_UnitActionStormAttack in 'KM_UnitActionStormAttack.pas',
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_Units in 'KM_Units.pas',
   KM_Units_Warrior in 'KM_Units_Warrior.pas',

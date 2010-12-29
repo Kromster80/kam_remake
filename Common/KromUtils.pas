@@ -83,8 +83,6 @@ function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function PseudoRandom(aMax:cardinal):cardinal;
-function InsideRange(const AValue, AMin, AMax: Integer):boolean; overload
-function InsideRange(const AValue, AMin, AMax: double):boolean; overload;
 function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 
@@ -545,17 +543,6 @@ begin
     Result := 0
   else
     Result := GetTickCount mod aMax;
-end;
-
-//Like InRange but it uses min < X < max rather than <=
-function InsideRange(const AValue, AMin, AMax: Integer):boolean;
-begin
-  Result := (AValue > AMin) and (AValue < AMax);
-end;
-
-function InsideRange(const AValue, AMin, AMax: double):boolean;
-begin
-  Result := (AValue > AMin) and (AValue < AMax);
 end;
 
 

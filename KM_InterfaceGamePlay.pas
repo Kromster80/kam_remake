@@ -245,7 +245,7 @@ type TKMGamePlayInterface = class
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, Forms;
+KM_Sound, Forms, KM_UnitActionStormAttack;
 
 
 {Switch between pages}
@@ -1484,7 +1484,9 @@ begin
   begin
     Label_UnitDescription.Hide;
     Commander := TKMUnitWarrior(Sender).GetCommander;
-    if (Commander.Foe <> nil) and (Commander.GetFightMaxRange < 2) then Army_HideJoinMenu(nil); //Cannot be joining while in combat
+    if ((Commander.Foe <> nil) and (Commander.GetFightMaxRange < 2))
+    or (Commander.GetUnitAction is TUnitActionStormAttack) then
+      Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
     if JoiningGroups then
     begin
       Panel_Army_JoinGroups.Show;
@@ -1495,7 +1497,8 @@ begin
       Panel_Army.Show;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
-      Army_ActivateControls((Commander.Foe = nil) or (Commander.GetFightMaxRange >= 2));
+      Army_ActivateControls(((Commander.Foe = nil) or (Commander.GetFightMaxRange >= 2))
+                            and not (Commander.GetUnitAction is TUnitActionStormAttack));
       Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and(Commander.Foe = nil);
     end;
     //Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
