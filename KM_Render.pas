@@ -544,7 +544,7 @@ end;
 procedure TRender.RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
 begin
   glColor4ubv(@aCol);
-  glRasterPos2f(pX-1+0.1,pY-1+0.1);
+  glRasterPos2f(pX - 0.5,pY - 1 - fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
   glPrint(aText);
 end;
 
