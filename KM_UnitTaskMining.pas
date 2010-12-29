@@ -87,7 +87,7 @@ begin
   Result := TaskContinues;
 
   //there's no point in doing a task if we can't return home
-  if fUnit.GetHome <> nil then if fUnit.GetHome.IsDestroyed then
+  if (fUnit.GetHome <> nil) and fUnit.GetHome.IsDestroyed then
   begin
     Result := TaskDone;
     exit;

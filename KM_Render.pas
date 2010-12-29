@@ -1103,8 +1103,8 @@ begin
     end;
     //RenderQuad(P.X,P.Y);
     RenderList[i].FOWvalue := fTerrain.CheckTileRevelation(P.X,P.Y,MyPlayer.PlayerID);
-    if RenderList[i].FOWvalue<=128 then if RenderList[i].IsUnit then
-      RO[i]:=0;
+    if (RenderList[i].FOWvalue <= 128) and RenderList[i].IsUnit then
+      RO[i] := 0;
   end else begin
     RO[i]:=0;
     RenderList[i].FOWvalue:=RenderList[i-1].FOWvalue; //Take from previous
