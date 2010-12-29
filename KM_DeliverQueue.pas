@@ -8,12 +8,13 @@ uses Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Un
   //Open - job is free to take by anyone
   //Taken - job is taken by some worker
   type TDemandImportance = (di_Norm, di_High);
-  const MaxEntries=1024; //todo: replace with dynamic length list
+  const LENGTH_INC = 32; //Increment array lengths by this value
 
 type
   TKMDeliverQueue = class
   private
-    fOffer:array[1..MaxEntries]of
+    OfferCount:integer;
+    fOffer:array of
     record
       Resource:TResourceType;
       Count:cardinal;
@@ -21,7 +22,8 @@ type
       BeingPerformed:cardinal; //How many items are being delivered atm from total Count offered
       IsDeleted:boolean; //So we don't get pointer issues
     end;
-    fDemand:array[1..MaxEntries]of
+    DemandCount:integer;
+    fDemand:array of
     record
       Resource:TResourceType;
       DemandType:TDemandType; //Once for everything, Always for Store and Barracks
@@ -30,12 +32,13 @@ type
       Loc_Unit:TKMUnit;
       BeingPerformed:boolean;
     end;
-    fQueue:array[1..MaxEntries]of
+    QueueCount:integer;
+    fQueue:array of
     record
       OfferID,DemandID:integer;
       //Bid:integer; //Contains bid of current runner, e.g. 12sec, if new asker can make it quicker, then reassign to him,
       //of course if Resource is still not taken from Offer
-      JobStatus:TJobStatus; //Open slot, resource Taken, job Done
+      JobStatus:TJobStatus; //Empty slot, resource Taken, job Done
     end;
   public
     constructor Create;
@@ -43,7 +46,7 @@ type
     procedure RemoveOffer(aHouse:TKMHouse);
     procedure RemoveDemand(aHouse:TKMHouse); overload;
     procedure RemoveDemand(aUnit:TKMUnit); overload;
-    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
+    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
     function PermitDelivery(iO,iD:integer):boolean;
     function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
     procedure TakenOffer(aID:integer);
@@ -58,7 +61,8 @@ type
 
   TKMBuildingQueue = class
   private
-    fFieldsQueue:array[1..MaxEntries]of
+    FieldsCount:integer;
+    fFieldsQueue:array of
     record
       Loc:TKMPoint;
       FieldType:TFieldType;
@@ -66,20 +70,23 @@ type
       JobStatus:TJobStatus;
       Worker:TKMUnit;
     end;
-    fHousesQueue:array[1..MaxEntries]of
+    HousesCount:integer;
+    fHousesQueue:array of
     record
       House:TKMHouse;
       Importance:byte;
       //No need to have JobStatus since many workers can build same house
     end;
-    fHousePlansQueue:array[1..MaxEntries]of
+    HousePlansCount:integer;
+    fHousePlansQueue:array of
     record
       House:TKMHouse;
       Importance:byte;
       JobStatus:TJobStatus;
       Worker:TKMUnit;
     end;
-    fHousesRepairQueue:array[1..MaxEntries]of
+    HouseRepairsCount:integer;
+    fHouseRepairsQueue:array of
     record
       House:TKMHouse;
       Importance:byte;
@@ -123,11 +130,8 @@ uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_U
 
 { TKMDeliverQueue }
 constructor TKMDeliverQueue.Create;
-var i:integer;
 begin
   Inherited;
-  for i:=1 to length(fQueue) do
-    CloseDelivery(i);
 end;
 
 
@@ -138,15 +142,19 @@ procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; 
 var i:integer;
 begin
   //Add Count of resource to old offer
-  for i:=1 to length(fOffer) do
+  for i:=1 to OfferCount do
     if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource) then
     begin
       inc(fOffer[i].Count, aCount);
       exit; //we should exit now
     end;
 
-  //Find an empty spot for new unique offer
-  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i);
+  i:=1; while (i<=OfferCount)and(fOffer[i].Resource<>rt_None) do inc(i);
+  if i>OfferCount then begin
+    inc(OfferCount, LENGTH_INC);
+    setlength(fOffer, OfferCount+1);
+  end;
+
   with fOffer[i] do begin //Put offer
     if aHouse <> nil then Loc_House:=aHouse.GetHousePointer;
     Resource:=aResource;
@@ -163,7 +171,7 @@ procedure TKMDeliverQueue.RemoveOffer(aHouse:TKMHouse);
 var i:integer;
 begin
   //We need to parse whole list, never knowing how many offers the house had
-  for i:=1 to MaxEntries do
+  for i:=1 to OfferCount do
   if fOffer[i].Loc_House=aHouse then
     if fOffer[i].BeingPerformed > 0 then
     begin
@@ -186,7 +194,7 @@ end;
 procedure TKMDeliverQueue.RemoveDemand(aHouse:TKMHouse);
 var i:integer;
 begin
-  for i:=1 to MaxEntries do
+  for i:=1 to DemandCount do
   if fDemand[i].Loc_House=aHouse then
   begin
     fPlayers.CleanUpHousePointer(fDemand[i].Loc_House);
@@ -201,7 +209,7 @@ end;
 procedure TKMDeliverQueue.RemoveDemand(aUnit:TKMUnit);
 var i:integer;
 begin
-  for i:=1 to MaxEntries do
+  for i:=1 to DemandCount do
   if fDemand[i].Loc_Unit=aUnit then
   begin
     fPlayers.CleanUpUnitPointer(fDemand[i].Loc_Unit);
@@ -213,19 +221,23 @@ end;
 
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
-procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
+procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
 var i,k:integer;
 begin
   if aResource = rt_None then
     fGame.GameError(KMPoint(0,0), 'Demanding rt_None');
 
-  for k:=1 to aDemandCount do begin
-    i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
+  for k:=1 to aCount do begin
+    i:=1; while (i<=DemandCount)and(fDemand[i].Resource<>rt_None) do inc(i);
+    if i>DemandCount then begin
+      inc(DemandCount, LENGTH_INC);
+      setlength(fDemand, DemandCount+1);
+    end;
 
     with fDemand[i] do begin
       if aHouse <> nil then Loc_House:=aHouse.GetHousePointer;
       if aUnit <> nil then Loc_Unit:=aUnit.GetUnitPointer;
-      DemandType:=aDemandType; //Once or Always
+      DemandType:=aType; //Once or Always
       Resource:=aResource;
       Importance:=aImp;
       BeingPerformed:=false;
@@ -303,31 +315,35 @@ end;
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
 var i,iD,iO:integer; Bid,BestBid:single;
 begin
-Result:=nil;
+  Result:=nil;
 
-//Find a place where Delivery will be written to after Offer-Demand pair is found
-i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
-if i=MaxEntries then exit;
+  //Find a place where Delivery will be written to after Offer-Demand pair is found
+  i:=1; while (i<=QueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
+  if i>QueueCount then begin
+    inc(QueueCount, LENGTH_INC);
+    setlength(fQueue, QueueCount+1);
+  end;
+
 
   //if WRITE_DETAILED_LOG then fLog.AppendLog('Reserved delivery ID', i);
 
 //Cleanup for destroyed houses
-{for iD:=1 to length(fDemand) do
+{for iD:=1 to DemandCount do
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.IsDestroyed) then fDemand[iD].Resource:=rt_None
   else
   if (fDemand[iD].Loc_Unit<>nil)and(fDemand[iD].Loc_Unit.IsDestroyed) then fDemand[iD].Resource:=rt_None;
 
-for iO:=1 to length(fOffer) do
+for iO:=1 to OfferCount do
   if (fOffer[iO].Loc_House<>nil)and(fOffer[iO].Loc_House.IsDestroyed) then fOffer[iO].Resource:=rt_None;
 }
 
-//Find Offer matching Demand
-//TravelRoute Asker>Offer>Demand should be shortest
-BestBid:=0;
-for iD:=1 to length(fDemand) do
+  //Find Offer matching Demand
+  //TravelRoute Asker>Offer>Demand should be shortest
+  BestBid:=0;
+  for iD:=1 to DemandCount do
   if BestBid=1 then break else //Quit loop when best bid is found
   if fDemand[iD].Resource <> rt_None then
-  for iO:=1 to length(fOffer) do
+  for iO:=1 to OfferCount do
    if BestBid=1 then break else //Quit loop when best bid is found
     if (KMHouse = nil) or (fOffer[iO].Loc_House = KMHouse) then //Make sure from house is the one requested
     if fOffer[iO].Resource <> rt_None then
@@ -359,7 +375,7 @@ for iD:=1 to length(fDemand) do
 
       //Take first one incase there's nothing better to be found
       //Do not take deliveries with Bid=0 (no route found)
-      if (Bid<>0)and((fQueue[i].JobStatus=js_Open)or(Bid<BestBid)) then begin
+      if (Bid<>0)and((fQueue[i].JobStatus=js_Empty)or(Bid<BestBid)) then begin
 
         if ((KMSerf.ID=143)or(KMSerf.ID=88)) and (i=4) then
           i:=i;
@@ -455,21 +471,18 @@ procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Closed delivery ID', aID);
 
-  //if (aID=4) then fLog.AppendLog('9Closed delivery ID', aID);
-
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
-  fQueue[aID].JobStatus:=js_Open; //Open slot
+  fQueue[aID].JobStatus:=js_Empty; //Open slot
 end;
 
 
 procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
-var i,Count:integer;
+var i:integer;
 begin
   SaveStream.Write('Deliveries');
-  Count := length(fOffer);
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(OfferCount);
+  for i:=1 to OfferCount do
   begin
     SaveStream.Write(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
     SaveStream.Write(fOffer[i].Count);
@@ -478,9 +491,8 @@ begin
     SaveStream.Write(fOffer[i].IsDeleted);
   end;
 
-  Count := length(fDemand);
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(DemandCount);
+  for i:=1 to DemandCount do
   with fDemand[i] do
   begin
     SaveStream.Write(Resource, SizeOf(Resource));
@@ -491,9 +503,8 @@ begin
     SaveStream.Write(BeingPerformed);
   end;
 
-  Count := length(fQueue);
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(QueueCount);
+  for i:=1 to QueueCount do
   begin
     SaveStream.Write(fQueue[i].OfferID);
     SaveStream.Write(fQueue[i].DemandID);
@@ -503,12 +514,13 @@ end;
 
 
 procedure TKMDeliverQueue.Load(LoadStream:TKMemoryStream);
-var i,Count:integer; s:string;
+var i:integer; s:string;
 begin
   LoadStream.Read(s);
   Assert(s = 'Deliveries');
-  LoadStream.Read(Count);
-  for i:=1 to Count do
+  LoadStream.Read(OfferCount);
+  setlength(fOffer, OfferCount+1);
+  for i:=1 to OfferCount do
   begin
     LoadStream.Read(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
     LoadStream.Read(fOffer[i].Count);
@@ -517,8 +529,9 @@ begin
     LoadStream.Read(fOffer[i].IsDeleted);
   end;
 
-  LoadStream.Read(Count);
-  for i:=1 to Count do
+  LoadStream.Read(DemandCount);
+  setlength(fDemand, DemandCount+1);
+  for i:=1 to DemandCount do
   with fDemand[i] do
   begin
     LoadStream.Read(Resource, SizeOf(Resource));
@@ -529,8 +542,9 @@ begin
     LoadStream.Read(BeingPerformed);
   end;
 
-  LoadStream.Read(Count);
-  for i:=1 to Count do
+  LoadStream.Read(QueueCount);
+  setlength(fQueue, QueueCount+1);
+  for i:=1 to QueueCount do
   begin
     LoadStream.Read(fQueue[i].OfferID);
     LoadStream.Read(fQueue[i].DemandID);
@@ -542,10 +556,10 @@ end;
 procedure TKMDeliverQueue.SyncLoad();
 var i:integer;
 begin
-  for i:=1 to length(fOffer) do
+  for i:=1 to OfferCount do
     fOffer[i].Loc_House := fPlayers.GetHouseByID(cardinal(fOffer[i].Loc_House));
 
-  for i:=1 to length(fDemand) do
+  for i:=1 to DemandCount do
   with fDemand[i] do
   begin
     Loc_House := fPlayers.GetHouseByID(cardinal(Loc_House));
@@ -560,7 +574,7 @@ begin
   assignfile(f,aFileName); Rewrite(f);
 
   s:='Demand:'+eol+'---------------------------------'+eol;
-  for i:=1 to length(fDemand) do if fDemand[i].Resource<>rt_None then begin
+  for i:=1 to DemandCount do if fDemand[i].Resource<>rt_None then begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+TypeToString(fDemand[i].Loc_Unit.UnitType)+#9+#9;
@@ -569,7 +583,7 @@ begin
     s:=s+eol;
   end;
   s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;
-  for i:=1 to length(fOffer) do if fOffer[i].Resource<>rt_None then begin
+  for i:=1 to OfferCount do if fOffer[i].Resource<>rt_None then begin
     s:=s+#9;
     if fOffer[i].Loc_House<>nil then s:=s+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9+#9;
     s:=s+TypeToString(fOffer[i].Resource)+#9;
@@ -578,7 +592,7 @@ begin
   end;
 
   s:=s+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
-  for i:=1 to length(fQueue) do if fQueue[i].OfferID<>0 then begin
+  for i:=1 to QueueCount do if fQueue[i].OfferID<>0 then begin
 
     s:=s+'id '+inttostr(i)+'.'+#9;
     s:=s+TypeToString(fOffer[fQueue[i].OfferID].Resource)+#9;
@@ -604,12 +618,8 @@ end;
 {TKMBuildingQueue}
 {==================================================================================================}
 constructor TKMBuildingQueue.Create;
-var i:integer;
 begin
   Inherited;
-  for i:=1 to length(fFieldsQueue) do CloseRoad(i);
-  for i:=1 to length(fHousesQueue) do CloseHouse(i);
-  for i:=1 to length(fHousePlansQueue) do CloseHousePlan(i);
 end;
 
 
@@ -642,15 +652,15 @@ end;
 
 procedure TKMBuildingQueue.CloseHouseRepair(aID:integer);
 begin
-  fPlayers.CleanUpHousePointer(fHousesRepairQueue[aID].House);
-  fHousesRepairQueue[aID].Importance:=0;
+  fPlayers.CleanUpHousePointer(fHouseRepairsQueue[aID].House);
+  fHouseRepairsQueue[aID].Importance:=0;
 end;
 
 
 //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
 procedure TKMBuildingQueue.ReOpenRoad(aID:integer);
 begin
-  fFieldsQueue[aID].JobStatus:=js_Open;
+  fFieldsQueue[aID].JobStatus := js_Open;
   fPlayers.CleanUpUnitPointer(fFieldsQueue[aID].Worker);
 end;
 
@@ -658,7 +668,7 @@ end;
 //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
 procedure TKMBuildingQueue.ReOpenHousePlan(aID:integer);
 begin
-  fHousePlansQueue[aID].JobStatus:=js_Open;
+  fHousePlansQueue[aID].JobStatus := js_Open;
   fPlayers.CleanUpUnitPointer(fHousePlansQueue[aID].Worker);
 end;
 
@@ -666,11 +676,11 @@ end;
 procedure TKMBuildingQueue.RemoveHouseRepair(aHouse: TKMHouse);
 var i:integer;
 begin
-  for i:=1 to MaxEntries do
-  if fHousesRepairQueue[i].House=aHouse then
+  for i:=1 to HouseRepairsCount do
+  if fHouseRepairsQueue[i].House=aHouse then
   begin
-    fPlayers.CleanUpHousePointer(fHousesRepairQueue[i].House);
-    FillChar(fHousesRepairQueue[i],SizeOf(fHousesRepairQueue[i]),#0); //Remove offer
+    fPlayers.CleanUpHousePointer(fHouseRepairsQueue[i].House);
+    FillChar(fHouseRepairsQueue[i],SizeOf(fHouseRepairsQueue[i]),#0); //Remove offer
   end;
 end;
 
@@ -680,19 +690,25 @@ var i:integer;
 begin
   Result := 0;
   Assert(aHouseType <> ht_None, 'Querrying wrong house type');
-  for i:=1 to MaxEntries do begin
+  for i:=1 to HousesCount do
     if (fHousesQueue[i].House<>nil) and (fHousesQueue[i].House.GetHouseType = aHouseType) then
       inc(Result);
+
+  for i:=1 to HousePlansCount do
     if (fHousePlansQueue[i].House<>nil) and (fHousePlansQueue[i].House.GetHouseType = aHouseType) then
       inc(Result);
-  end;
 end;
 
 
 procedure TKMBuildingQueue.AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
 var i:integer;
 begin
-  i:=1; while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Empty) do inc(i);
+  i:=1; while (i<=FieldsCount)and(fFieldsQueue[i].JobStatus<>js_Empty) do inc(i);
+  if i>FieldsCount then begin
+    inc(FieldsCount, LENGTH_INC);
+    setlength(fFieldsQueue, FieldsCount+1);
+  end;
+
   fFieldsQueue[i].Loc:=aLoc;
   fFieldsQueue[i].FieldType:=aFieldType;
   fFieldsQueue[i].Importance:=1;
@@ -704,7 +720,12 @@ end;
 procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
 var i:integer;
 begin
-  i:=1; while (i<MaxEntries)and(fHousesQueue[i].House<>nil) do inc(i);
+  i:=1; while (i<=HousesCount)and(fHousesQueue[i].House<>nil) do inc(i);
+  if i>HousesCount then begin
+    inc(HousesCount, LENGTH_INC);
+    setlength(fHousesQueue, HousesCount+1);
+  end;
+
   if aHouse <> nil then fHousesQueue[i].House := aHouse.GetHousePointer;
   fHousesQueue[i].Importance:=1;
 end;
@@ -713,7 +734,12 @@ end;
 procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
 var i:integer;
 begin
-  i:=1; while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
+  i:=1; while (i<=HousePlansCount)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
+  if i>HousePlansCount then begin
+    inc(HousePlansCount, LENGTH_INC);
+    setlength(fHousePlansQueue, HousePlansCount+1);
+  end;
+
   if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetHousePointer;
   fHousePlansQueue[i].Importance:=1;
   fHousePlansQueue[i].JobStatus:=js_Open;
@@ -723,9 +749,14 @@ end;
 function TKMBuildingQueue.AddHouseRepair(aHouse: TKMHouse):integer;
 var i:integer;
 begin
-  i:=1; while (i<MaxEntries)and(fHousesRepairQueue[i].House<>nil) do inc(i);
-  if aHouse <> nil then fHousesRepairQueue[i].House:=aHouse.GetHousePointer;
-  fHousesRepairQueue[i].Importance:=1;
+  i:=1; while (i<=HouseRepairsCount)and(fHouseRepairsQueue[i].House<>nil) do inc(i);
+  if i>HouseRepairsCount then begin
+    inc(HouseRepairsCount, LENGTH_INC);
+    setlength(fHouseRepairsQueue, HouseRepairsCount+1);
+  end;
+
+  if aHouse <> nil then fHouseRepairsQueue[i].House:=aHouse.GetHousePointer;
+  fHouseRepairsQueue[i].Importance:=1;
   Result:=i;
 end;
 
@@ -737,7 +768,7 @@ function TKMBuildingQueue.CancelRoad(aLoc:TKMPoint; Simulated:boolean=false):boo
 var i:integer;
 begin
   Result:=false;
-  for i:=1 to length(fFieldsQueue) do
+  for i:=1 to FieldsCount do
   with fFieldsQueue[i] do
   if (JobStatus<>js_Empty)and(KMSamePoint(aLoc,Loc)) then
   begin
@@ -762,7 +793,7 @@ function TKMBuildingQueue.CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false
 var i:integer;
 begin
   Result:=false;
-  for i:=1 to length(fHousePlansQueue) do
+  for i:=1 to HousePlansCount do
   with fHousePlansQueue[i] do
   if (JobStatus<>js_Empty)and(House<>nil)and(House.HitTest(aLoc.X,aLoc.Y)) then
   begin
@@ -783,26 +814,23 @@ end;
 function  TKMBuildingQueue.AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
-  Result:=nil;
+  Result := nil;
+  for i:=1 to FieldsCount do
+    if (fFieldsQueue[i].JobStatus = js_Open) and
+      fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, aWorker.GetDesiredPassability, 0, false) then
+    begin
 
-  i:=1;
-  while
-    (i<=MaxEntries)and
-    ((fFieldsQueue[i].JobStatus<>js_Open)or
-    (not fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, aWorker.GetDesiredPassability, 0, false))) do
-      inc(i);
-
-  if i>MaxEntries then exit;
-
-  case fFieldsQueue[i].FieldType of
-    ft_Road: Result:=TTaskBuildRoad.Create(aWorker, fFieldsQueue[i].Loc, i);
-    ft_Corn: Result:=TTaskBuildField.Create(aWorker, fFieldsQueue[i].Loc, i);
-    ft_Wine: Result:=TTaskBuildWine.Create(aWorker, fFieldsQueue[i].Loc, i);
-    ft_Wall: Result:=TTaskBuildWall.Create(aWorker, fFieldsQueue[i].Loc, i);
-    else Result:=nil;
-  end;
-  fFieldsQueue[i].JobStatus:=js_Taken;
-  if aWorker <> nil then fFieldsQueue[i].Worker:=aWorker.GetUnitPointer;
+      case fFieldsQueue[i].FieldType of
+        ft_Road: Result := TTaskBuildRoad.Create(aWorker, fFieldsQueue[i].Loc, i);
+        ft_Corn: Result := TTaskBuildField.Create(aWorker, fFieldsQueue[i].Loc, i);
+        ft_Wine: Result := TTaskBuildWine.Create(aWorker, fFieldsQueue[i].Loc, i);
+        ft_Wall: Result := TTaskBuildWall.Create(aWorker, fFieldsQueue[i].Loc, i);
+        else     Result := nil;
+      end;
+      fFieldsQueue[i].JobStatus := js_Taken;
+      fFieldsQueue[i].Worker := aWorker.GetUnitPointer;
+      exit;
+    end;
 end;
 
 
@@ -810,24 +838,28 @@ end;
 function  TKMBuildingQueue.AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
-  Result:=nil; i:=1;
-  while (i<MaxEntries)and((fHousesQueue[i].House=nil)or(not fHousesQueue[i].House.CheckResToBuild)) do inc(i);
-  if i=MaxEntries then exit;
-
-  Result:=TTaskBuildHouse.Create(aWorker, fHousesQueue[i].House, i);
+  Result := nil;
+  for i:=1 to HousesCount do
+    if (fHousesQueue[i].House<>nil) and fHousesQueue[i].House.CheckResToBuild then
+    begin
+      Result := TTaskBuildHouse.Create(aWorker, fHousesQueue[i].House, i);
+      exit;
+    end;
 end;
 
 
 function  TKMBuildingQueue.AskForHousePlan(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
-  Result:=nil; i:=1;
-  while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Open) do inc(i);
-  if i=MaxEntries then exit;
-
-  Result:=TTaskBuildHouseArea.Create(aWorker, fHousePlansQueue[i].House, i);
-  fHousePlansQueue[i].JobStatus:=js_Taken;
-  if aWorker <> nil then fHousePlansQueue[i].Worker:=aWorker.GetUnitPointer;
+  Result := nil;
+  for i:=1 to HousePlansCount do
+    if fHousePlansQueue[i].JobStatus = js_Open then
+    begin
+      Result := TTaskBuildHouseArea.Create(aWorker, fHousePlansQueue[i].House, i);
+      fHousePlansQueue[i].JobStatus := js_Taken;
+      fHousePlansQueue[i].Worker := aWorker.GetUnitPointer;
+      exit;
+    end;
 end;
 
 
@@ -835,23 +867,22 @@ function  TKMBuildingQueue.AskForHouseRepair(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
   Result := nil;
-  for i:=1 to MaxEntries-1 do
-    if fHousesRepairQueue[i].House<>nil then
-      if fHousesRepairQueue[i].House.IsDamaged then
-        if fHousesRepairQueue[i].House.BuildingRepair then
-        begin
-          Result := TTaskBuildHouseRepair.Create(aWorker, fHousesRepairQueue[i].House, i);
-          exit;
-        end
+  for i:=1 to HouseRepairsCount do
+    if (fHouseRepairsQueue[i].House<>nil) and
+      fHouseRepairsQueue[i].House.IsDamaged and
+      fHouseRepairsQueue[i].House.BuildingRepair then
+    begin
+      Result := TTaskBuildHouseRepair.Create(aWorker, fHouseRepairsQueue[i].House, i);
+      exit;
+    end
 end;
 
 
 procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
-var i,Count:integer;
+var i:integer;
 begin
-  Count := length(fFieldsQueue);
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(FieldsCount);
+  for i:=1 to FieldsCount do
   with fFieldsQueue[i] do
   begin
     SaveStream.Write(Loc);
@@ -861,17 +892,15 @@ begin
     if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Zero);
   end;
 
-  Count := length(fHousesQueue);
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(HousesCount);
+  for i:=1 to HousesCount do
   begin
     if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID) else SaveStream.Write(Zero);
     SaveStream.Write(fHousesQueue[i].Importance);
   end;
 
-  Count := length(fHousePlansQueue);
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(HousePlansCount);
+  for i:=1 to HousePlansCount do
   with fHousePlansQueue[i] do
   begin
     if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Zero);
@@ -880,10 +909,9 @@ begin
     if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Zero);
   end;
 
-  Count := length(fHousesRepairQueue);
-  SaveStream.Write(Count);
-  for i:=1 to Count do
-  with fHousesRepairQueue[i] do
+  SaveStream.Write(HouseRepairsCount);
+  for i:=1 to HouseRepairsCount do
+  with fHouseRepairsQueue[i] do
   begin
     if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Zero);
     SaveStream.Write(Importance);
@@ -892,10 +920,11 @@ end;
 
 
 procedure TKMBuildingQueue.Load(LoadStream:TKMemoryStream);
-var i,Count:integer;
+var i:integer;
 begin
-  LoadStream.Read(Count);
-  for i:=1 to Count do
+  LoadStream.Read(FieldsCount);
+  setlength(fFieldsQueue, FieldsCount+1);
+  for i:=1 to FieldsCount do
   with fFieldsQueue[i] do
   begin
     LoadStream.Read(Loc);
@@ -905,15 +934,17 @@ begin
     LoadStream.Read(Worker, 4);
   end;
 
-  LoadStream.Read(Count);
-  for i:=1 to Count do
+  LoadStream.Read(HousesCount);
+  setlength(fHousesQueue, HousesCount+1);
+  for i:=1 to HousesCount do
   begin
     LoadStream.Read(fHousesQueue[i].House, 4);
     LoadStream.Read(fHousesQueue[i].Importance);
   end;
 
-  LoadStream.Read(Count);
-  for i:=1 to Count do
+  LoadStream.Read(HousePlansCount);
+  setlength(fHousePlansQueue, HousePlansCount+1);
+  for i:=1 to HousePlansCount do
   with fHousePlansQueue[i] do
   begin
     LoadStream.Read(House, 4);
@@ -922,9 +953,10 @@ begin
     LoadStream.Read(Worker, 4);
   end;
 
-  LoadStream.Read(Count);
-  for i:=1 to Count do
-  with fHousesRepairQueue[i] do
+  LoadStream.Read(HouseRepairsCount);
+  setlength(fHouseRepairsQueue, HouseRepairsCount+1);
+  for i:=1 to HouseRepairsCount do
+  with fHouseRepairsQueue[i] do
   begin
     LoadStream.Read(House, 4);
     LoadStream.Read(Importance);
@@ -935,20 +967,20 @@ end;
 procedure TKMBuildingQueue.SyncLoad();
 var i:integer;
 begin
-  for i:=1 to length(fFieldsQueue) do
+  for i:=1 to FieldsCount do
     fFieldsQueue[i].Worker := fPlayers.GetUnitByID(cardinal(fFieldsQueue[i].Worker));
 
-  for i:=1 to length(fHousesQueue) do
+  for i:=1 to HousesCount do
     fHousesQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousesQueue[i].House));
 
-  for i:=1 to length(fHousePlansQueue) do
+  for i:=1 to HousePlansCount do
   begin
     fHousePlansQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousePlansQueue[i].House));
     fHousePlansQueue[i].Worker := fPlayers.GetUnitByID(cardinal(fHousePlansQueue[i].Worker));
   end;
 
-  for i:=1 to length(fHousesRepairQueue) do
-    fHousesRepairQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousesRepairQueue[i].House));
+  for i:=1 to HouseRepairsCount do
+    fHouseRepairsQueue[i].House := fPlayers.GetHouseByID(cardinal(fHouseRepairsQueue[i].House));
 end;
 
 

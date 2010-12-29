@@ -456,17 +456,23 @@ procedure TRender.RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
 const step=20;
 var i:integer;
 begin
+  X := X - 0.5;
+  Y := Y - 1 - fTerrain.InterpolateLandHeight(X,Y)/CELL_HEIGHT_DIV;
   glPushMatrix;
     glTranslatef(x,y,0);
     glColor4ubv(@Fill);
     glBegin(GL_POLYGON);
       for i:=-step to step do
-      glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
+        glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
+    glEnd;
+    glBegin(GL_POLYGON);
+      for i:=-step to step do
+        glvertex3f(cos(i/step*pi)*rad/3,sin(i/step*pi)*rad/3,0);//-1..1
     glEnd;
     glColor4ubv(@Line);
     glBegin(GL_LINE_STRIP);
       for i:=-step to step do
-      glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
+        glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
     glEnd;
   glPopMatrix;
 end;
