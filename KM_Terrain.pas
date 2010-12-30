@@ -2043,14 +2043,14 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     building than walking) and map creators should block tiles themselves with the special invisible block object.}
 
     //Sides of tile
-    Result :=            (abs(Points[1]-Points[2]) < aHeight);
-    Result := Result AND (abs(Points[3]-Points[4]) < aHeight);
-    Result := Result AND (abs(Points[3]-Points[1]) < aHeight);
-    Result := Result AND (abs(Points[4]-Points[2]) < aHeight*2); //Bottom-right to top-right is twice as tolerant
+    Result :=            (abs(Points[1]-Points[2]) <= aHeight);
+    Result := Result AND (abs(Points[3]-Points[4]) <= aHeight);
+    Result := Result AND (abs(Points[3]-Points[1]) <= aHeight);
+    Result := Result AND (abs(Points[4]-Points[2]) <= aHeight*2); //Bottom-right to top-right is twice as tolerant
 
     //Diagonals of tile
-    Result := Result AND (abs(Points[1]-Points[4]) < aHeight);
-    Result := Result AND (abs(Points[3]-Points[2]) < aHeight*2); //Bottom-left to top-right is twice as tolerant
+    Result := Result AND (abs(Points[1]-Points[4]) <= aHeight);
+    Result := Result AND (abs(Points[3]-Points[2]) <= aHeight*2); //Bottom-left to top-right is twice as tolerant
   end;
 begin
   //Three types tested in KaM: >=25 - unwalkable/roadable; >=18 - unbuildable.
