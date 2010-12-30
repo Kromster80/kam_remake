@@ -875,10 +875,14 @@ begin
 
   if fCommander <> nil then
   begin
-    Assert(not fCommander.IsDeadOrDying);
-    Assert(fCommander.fCommander = nil);
+    //@Krom: I still get occasional crashes here in the battle tutorial, however replays do not save because it's an assert.
+    //       Could we make these a game error so the replays save and it gives the option of playing on or aborting?
+    //       I don't have any time I just noticed this error when I did test this morning. We should expect bug
+    //       reports of these errors in the demo, so making them a proper error would be good. Thanks!
+    Assert(not fCommander.IsDeadOrDying, 'not fCommander.IsDeadOrDying');
+    Assert(fCommander.fCommander = nil, 'fCommander.fCommander = nil');
   end;
-  Assert(GetCommander.fCommander = nil);
+  Assert(GetCommander.fCommander = nil, 'GetCommander.fCommander = nil');
 
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
