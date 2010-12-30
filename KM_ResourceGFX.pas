@@ -622,7 +622,7 @@ begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
     if InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
-      RXData[RX].HasMask[i] := false; //todo:  Support alternative textures
+      RXData[RX].HasMask[i] := false; //todo: Support alternative textures
       po := TPNGObject.Create;
       po.LoadFromFile(ExeDir + 'Sprites\' + FileList.Strings[i]);
 

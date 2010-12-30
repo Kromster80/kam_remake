@@ -70,6 +70,7 @@ type //Possibly melee warrior class? with Archer class separate?
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     property GetOrder:TWarriorOrder read fOrder;
     function GetRow:integer;
+    function GetRandomMember: TKMUnitWarrior;
     function ArmyIsBusy:boolean;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
@@ -99,18 +100,18 @@ uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, 
 constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
-  fCommander    := nil;
-  fOrderTargetUnit  := nil;
-  fOrderTargetHouse := nil;
-  fFoe          := nil;
-  fRequestedFood  := false;
-  fFlagAnim     := 0;
+  fCommander         := nil;
+  fOrderTargetUnit   := nil;
+  fOrderTargetHouse  := nil;
+  fFoe               := nil;
+  fRequestedFood     := false;
+  fFlagAnim          := 0;
   fTimeSinceHungryReminder := 0;
-  fOrder        := wo_None;
-  fState        := ws_None;
-  fOrderLoc     := KMPointDir(PosX,PosY,0);
-  fUnitsPerRow  := 1;
-  fMembers      := nil; //Only commander units will have it initialized
+  fOrder             := wo_None;
+  fState             := ws_None;
+  fOrderLoc          := KMPointDir(PosX,PosY,0);
+  fUnitsPerRow       := 1;
+  fMembers           := nil; //Only commander units will have it initialized
   fMapEdMembersCount := 0; //Used only in MapEd
 end;
 
@@ -529,7 +530,7 @@ begin
 end;
 
 
-//Set fFoe to nil, removing pointer if it's still valid
+//First set fFoe to nil, removing pointer if it's still valid. Then update with the new foe
 procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
 begin
   fPlayers.CleanUpUnitPointer(fFoe);
@@ -538,11 +539,13 @@ begin
 end;
 
 
-//If the target unit has died then clear it
+//If the foe has died then clear it
 function TKMUnitWarrior.GetFoe:TKMUnitWarrior;
 begin
+  if (fFoe <> nil) and (fFoe.fCommander <> nil) then
+    SetFoe(fFoe.fCommander); //Always return the commander of the group if it's changed
   if (fFoe <> nil) and (fFoe.IsDead) then
-    fPlayers.CleanUpUnitPointer(fFoe);
+    fPlayers.CleanUpUnitPointer(fFoe); //Foe must not be dead
   Result := fFoe;
 end;
 
@@ -559,6 +562,20 @@ begin
         Result := (i div fCommander.UnitsPerRow)+1; //First row is 1 not 0
         exit;
       end;
+end;
+
+
+function TKMUnitWarrior.GetRandomMember: TKMUnitWarrior;
+var i: integer;
+begin
+  Assert(fCommander = nil);
+  Assert(not IsDeadOrDying);
+  Result := Self;
+  if (fMembers = nil) or (fMembers.Count = 0) then exit; //No members, use self
+  i := Random(fMembers.Count+1); //+1 for commander
+  if i < fMembers.Count then //i=count means commander
+    Result := TKMUnitWarrior(fMembers.Items[i]);
+  if Result.IsDeadOrDying then Result := Self; //If the member is dying, choose self
 end;
 
 
@@ -870,6 +887,7 @@ function TKMUnitWarrior.UpdateState():boolean;
 var
   i:integer;
   PositioningDone:boolean;
+  ChosenFoe: TKMUnitWarrior;
 begin
   if (fCommander <> nil) and not IsDeadOrDying then
   begin
@@ -884,30 +902,36 @@ begin
   if fCommander=nil then
     UpdateFoe;
 
-  if (fState = ws_Engage) and ((GetCommander.Foe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
+  //Choose a random foe from our commander, then use that from here on
+  if GetCommander.Foe = nil then
+    ChosenFoe := nil
+  else
+    ChosenFoe := GetCommander.Foe.GetRandomMember;
+
+  if (fState = ws_Engage) and ((ChosenFoe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
     fState := ws_None; //As soon as combat is over set the state back
 
   //Help out our fellow group members in combat if we are not fighting and someone else is
-  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
+  if (fState <> ws_Engage) and (ChosenFoe <> nil) then
     if GetFightMaxRange < 2 then
     begin
       //Melee
       fOrder := wo_AttackUnit;
       fState := ws_Engage; //Special state so we don't issue this order continuously
-      SetOrderTarget(GetCommander.Foe);
+      SetOrderTarget(ChosenFoe);
     end
     else
     begin
       //Archers should abandon walk to start shooting if there is a foe
-      if InRange(GetLength(NextPosition, GetCommander.Foe.GetPosition), GetFightMinRange, GetFightMaxRange)
+      if InRange(GetLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
       and(GetUnitAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then
         AbandonWalk;
       //But if we are already idle then just start shooting right away
-      if InRange(GetLength(GetPosition, GetCommander.Foe.GetPosition), GetFightMinRange, GetFightMaxRange)
+      if InRange(GetLength(GetPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
         and(GetUnitAction is TUnitActionStay) then
       begin
         //Archers - If foe is reachable then turn in that direction and CheckForEnemy
-        Direction := KMGetDirection(GetPosition, GetCommander.Foe.GetPosition);
+        Direction := KMGetDirection(GetPosition, ChosenFoe.GetPosition);
         CheckForEnemy;
       end;
     end;

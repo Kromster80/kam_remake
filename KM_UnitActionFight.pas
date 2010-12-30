@@ -164,11 +164,12 @@ begin
   StepDone := (KMUnit.AnimStep mod Cycle = 0) or (TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2); //Archers may abandon at any time as they need to walk off imediantly
   inc(KMUnit.AnimStep);
 
+  //If our group (commander) does not have a foe, set it to our opponent
   if (fOpponent is TKMUnitWarrior)
      and not (fOpponent.IsDeadOrDying)
-     and((TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) < 1.5)) then
-    TKMUnitWarrior(KMUnit).GetCommander.Foe := TKMUnitWarrior(fOpponent); //Set our group's foe to this enemy, thus making it constantly change in large fights so no specific unit will be targeted
-    //todo: That isn't very efficient because pointer tracking is constantly changing... should only happen every second or something.
+     and((TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) < 1.5))
+     and (TKMUnitWarrior(KMUnit).GetCommander.Foe = nil) then
+    TKMUnitWarrior(KMUnit).GetCommander.Foe := TKMUnitWarrior(fOpponent).GetCommander;
 end;
 
 
