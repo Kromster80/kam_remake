@@ -262,8 +262,8 @@ begin
 
   if (fQueue[aIndex].Rand <> Cardinal(Random(maxint))) then //This line should always be called to maintain randoms flow
     if CRASH_ON_REPLAY then begin
-      //fGame.GameError(KMPoint(10,10),'Replay mismatch');
-      Assert(false);
+      fGame.GameError(KMPoint(10,10),'Replay mismatch');
+      //Assert(false);
     end;
 end;
 

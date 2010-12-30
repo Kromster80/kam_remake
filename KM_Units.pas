@@ -1540,7 +1540,8 @@ begin
 
   Result := true;
 
-  if fKillASAP then begin
+  //UpdateState can happen right after unit gets killed (Exchange still in progress)
+  if fKillASAP and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then begin
     KillUnit;
     fKillASAP := false;
   end;
