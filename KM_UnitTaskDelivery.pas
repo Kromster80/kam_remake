@@ -163,7 +163,7 @@ begin
             Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
             exit;
           end else //No delivery found then just step outside
-            SetActionGoIn(ua_walk,gd_GoOutside,fToHouse);
+            SetActionGoIn(ua_Walk,gd_GoOutside,fToHouse);
         end;
     else Result := TaskDone;
   end;

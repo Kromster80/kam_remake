@@ -29,6 +29,11 @@ type
   TKMPlayerAI = class
   private
     Assets:TKMPlayerAssets; //This is just alias for Players assets
+
+    procedure CheckGoals;
+    procedure CheckUnitCount();
+    procedure CheckArmiesCount();
+    procedure CheckArmy();
   public
     ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Nunber of each unit type required
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
@@ -44,11 +49,7 @@ type
     ScriptedAttacks: array of TAIAttack;
     constructor Create(aAssets:TKMPlayerAssets);
     destructor Destroy; override;
-    procedure CheckGoals;
-    procedure CheckUnitCount();
-    procedure CheckArmiesCount();
-    procedure CheckArmy();
-  public
+
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
@@ -164,7 +165,7 @@ procedure TKMPlayerAI.CheckGoals;
   begin
     Result := false;
 
-    if aGoal.Player <> play_None then
+    if aGoal.Player <> play_none then
       MS := fPlayers.Player[byte(aGoal.Player)].fPlayerStats
     else
       MS := nil; //Will trigger an error unless it's not gc_Time

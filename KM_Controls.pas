@@ -17,11 +17,17 @@ type
 type
 TKMControl = class
   private
-
     fLeft: Integer;
     fTop: Integer;
     fWidth: Integer;
     fHeight: Integer;
+
+    fOnClick:TNotifyEvent;
+    fOnClickEither:TNotifyEventMB;
+    fOnClickRight:TNotifyEvent;
+    fOnMouseWheel:TNotifyEventMW;
+    fOnMouseOver:TNotifyEvent;
+
     function GetLeft: Integer;
     function GetTop: Integer;
     function GetHeight: Integer;
@@ -38,12 +44,6 @@ TKMControl = class
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
-
-    fOnClick:TNotifyEvent;
-    fOnClickEither:TNotifyEventMB;
-    fOnClickRight:TNotifyEvent;
-    fOnMouseWheel:TNotifyEventMW;
-    fOnMouseOver:TNotifyEvent;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
@@ -152,13 +152,14 @@ end;
 
 {Image stack - for army formation view}
 TKMImageStack = class(TKMControl)
+  private
+    fCount: integer;
+    fColumns: integer;
+    fDrawWidth: integer;
+    fDrawHeight: integer;
   public
     RXid: integer; //RX library
     TexID: integer;
-    Count: integer;
-    Columns: integer;
-    DrawWidth: integer;
-    DrawHeight: integer;
     procedure SetCount(aCount,aColumns:integer);
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
@@ -336,20 +337,20 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 {Scroll bar}
 TKMScrollBar = class(TKMControl)
   private
+    fScrollAxis:TScrollAxis;
     FOnChange:TNotifyEvent;
+    procedure IncPosition(Sender:TObject);
+    procedure DecPosition(Sender:TObject);
     procedure RefreshItems();
   public
     Position:byte;
     MinValue:byte;
     MaxValue:byte;
-    fScrollAxis:TScrollAxis;
     Thumb:word;
     ScrollDec:TKMButton;
     ScrollInc:TKMButton;
     Style:TButtonStyle;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
-    procedure IncPosition(Sender:TObject);
-    procedure DecPosition(Sender:TObject);
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
@@ -943,10 +944,10 @@ constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight,
 begin
   RXid  := aRXid;
   TexID := aTexID;
-  Count := 0;
-  Columns := 0;
-  DrawWidth := 0;
-  DrawHeight := 0;
+  fCount := 0;
+  fColumns := 0;
+  fDrawWidth := 0;
+  fDrawHeight := 0;
   Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
 end;
@@ -955,16 +956,16 @@ end;
 procedure TKMImageStack.SetCount(aCount,aColumns:integer);
 var Aspect: single;
 begin
-  Count := aCount;
-  Columns := Math.max(1,aColumns);
-  DrawWidth  := EnsureRange(Width div Columns, 8, GFXData[RXid, TexID].PxWidth);
-  DrawHeight := EnsureRange(Height div ceil(Count/Columns), 6, GFXData[RXid, TexID].PxHeight);
+  fCount := aCount;
+  fColumns := Math.max(1,aColumns);
+  fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[RXid, TexID].PxWidth);
+  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[RXid, TexID].PxHeight);
 
   Aspect := GFXData[RXid, TexID].PxWidth / GFXData[RXid, TexID].PxHeight;
-  if DrawHeight * Aspect <= DrawWidth then
-    DrawWidth  := round(DrawHeight * Aspect)
+  if fDrawHeight * Aspect <= fDrawWidth then
+    fDrawWidth  := round(fDrawHeight * Aspect)
   else
-    DrawHeight := round(DrawWidth / Aspect);
+    fDrawHeight := round(fDrawWidth / Aspect);
 end;
 
 
@@ -977,16 +978,16 @@ begin
   Inherited;
   if (TexID=0)or(RXid=0) then exit; //No picture to draw
 
-  OffsetX := Width div Columns;
-  OffsetY := Height div ceil(Count/Columns);
+  OffsetX := Width div fColumns;
+  OffsetY := Height div ceil(fCount/fColumns);
 
-  CenterX := (Width - OffsetX * (Columns-1) - DrawWidth) div 2;
-  CenterY := (Height - OffsetY * (ceil(Count/Columns)-1) - DrawHeight) div 2;
+  CenterX := (Width - OffsetX * (fColumns-1) - fDrawWidth) div 2;
+  CenterY := (Height - OffsetY * (ceil(fCount/fColumns)-1) - fDrawHeight) div 2;
 
-  for i := 1 to Count do
-    fRenderUI.WritePicture(Left + CenterX + OffsetX*((i-1) mod Columns),
-                            Top + CenterY + OffsetY*((i-1) div Columns),
-                            DrawWidth, DrawHeight, RXid, TexID, Enabled);
+  for i := 1 to fCount do
+    fRenderUI.WritePicture(Left + CenterX + OffsetX*((i-1) mod fColumns),
+                            Top + CenterY + OffsetY*((i-1) div fColumns),
+                            fDrawWidth, fDrawHeight, RXid, TexID, Enabled);
 end;
 
 

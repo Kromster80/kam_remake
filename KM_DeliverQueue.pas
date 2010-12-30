@@ -40,6 +40,7 @@ type
       //of course if Resource is still not taken from Offer
       JobStatus:TJobStatus; //Empty slot, resource Taken, job Done
     end;
+    procedure CloseDelivery(aID:integer);
   public
     constructor Create;
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
@@ -51,7 +52,6 @@ type
     function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
-    procedure CloseDelivery(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);

@@ -32,6 +32,8 @@ type
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     fActiveCampaign:TCampaign; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
+
+    procedure GameInit();
   public
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
@@ -54,7 +56,6 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure GameInit();
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
     procedure SetGameState(aNewState:TGameState);

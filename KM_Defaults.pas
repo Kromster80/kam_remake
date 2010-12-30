@@ -881,7 +881,7 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 type
   TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
-//The frame shown when a unit is standing still in ua_walk. Same for all units!
+//The frame shown when a unit is standing still in ua_Walk. Same for all units!
 const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
 type
@@ -889,15 +889,15 @@ type
 
 
   TSoundFX = (
-    sfx_corncut=1,
-    sfx_dig,
-    sfx_pave,
-    sfx_minestone,
-    sfx_cornsow,
-    sfx_choptree,
+    sfx_CornCut=1,
+    sfx_Dig,
+    sfx_Pave,
+    sfx_MineStone,
+    sfx_CornSow,
+    sfx_ChopTree,
     sfx_housebuild,
     sfx_placemarker,
-    sfx_click,
+    sfx_Click,
     sfx_mill,
     sfx_saw,
     sfx_wineStep,
@@ -965,15 +965,15 @@ type
         );
 
 const SSoundFX:array[TSoundFX] of string = (
-    'sfx_corncut',
-    'sfx_dig',
-    'sfx_pave',
-    'sfx_minestone',
-    'sfx_cornsow',
-    'sfx_choptree',
+    'sfx_CornCut',
+    'sfx_Dig',
+    'sfx_Pave',
+    'sfx_MineStone',
+    'sfx_CornSow',
+    'sfx_ChopTree',
     'sfx_housebuild',
     'sfx_placemarker',
-    'sfx_click',
+    'sfx_Click',
     'sfx_mill',
     'sfx_saw',
     'sfx_wineStep',

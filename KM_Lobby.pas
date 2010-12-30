@@ -41,11 +41,11 @@ type
       function GetPlayersList():string;
       function GetPostsList():string;
       procedure AskServerFor(i:byte; aQuery,aParams:string; aReturn:PString);
+      procedure AskServerForUsername(aLogin, aPass, aIP:string; aReturn:TNotifyEvent);
+      procedure AskServerForUsernameDone(Sender:TObject);
     public
       constructor Create(aAddress:string; aLogin,aPass,aIP:string; aReturn:TNotifyEvent);
       destructor Destroy; override;
-      procedure AskServerForUsername(aLogin, aPass, aIP:string; aReturn:TNotifyEvent);
-      procedure AskServerForUsernameDone(Sender:TObject);
 
       procedure PostMessage(aText:string);
 

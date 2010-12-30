@@ -236,7 +236,7 @@ function TKMAllPlayers.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
 begin
   Assert(InRange(byte(aPlay1),1,MAX_PLAYERS+1) and InRange(byte(aPlay2),1,MAX_PLAYERS+1)); //Max_players + Animals
 
-  if (aPlay1 = aPlay2) or (aPlay1 = play_Animals) or (aPlay2 = play_Animals) then
+  if (aPlay1 = aPlay2) or (aPlay1 = play_animals) or (aPlay2 = play_animals) then
     Result := at_Ally
   else
     Result := Player[byte(aPlay1)].fAlliances[byte(aPlay2)];

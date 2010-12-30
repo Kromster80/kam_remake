@@ -900,8 +900,8 @@ begin
           (WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount].X<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
     do begin
       inc(WidthPOT,RXData[RXid].Size[LeftIndex+SpanCount].X);
-      if (RXid=5)and(RX5Pal[LeftIndex]<>RX5pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
-      if (RXid=6)and(RX6Pal[LeftIndex]<>RX6pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
+      if (RXid=5)and(RX5Pal[LeftIndex]<>RX5Pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
+      if (RXid=6)and(RX6Pal[LeftIndex]<>RX6Pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
       inc(SpanCount);
     end;
 

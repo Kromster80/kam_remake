@@ -282,7 +282,7 @@ begin
     ct_SetTactic:      IsFight       := true;
     ct_SetHumanPlayer: HumanPlayerID := ParamList[0]+1;
 {                       if TGoalCondition(ParamList[0]) = gc_Time then
-                         VictoryCond := VictoryCond + fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
+                         VictoryCond := VictoryCond + fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else
                          fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
 }
@@ -584,7 +584,7 @@ begin
   ct_AddGoal:        begin
                        //If the condition is time then ParamList[3] is the time, else it is player ID
                        if TGoalCondition(ParamList[0]) = gc_Time then
-                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else begin
                          if fPlayers.Player[ParamList[3]+1] = nil then begin
                            DebugScriptError('Add_Goal for non existing player');
@@ -596,7 +596,7 @@ begin
   ct_AddLostGoal:    begin
                        //If the condition is time then ParamList[3] is the time, else it is player ID
                        if TGoalCondition(ParamList[0]) = gc_Time then
-                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else begin
                          if fPlayers.Player[ParamList[3]+1] = nil then begin
                            DebugScriptError('Add_LostGoal for non existing player');

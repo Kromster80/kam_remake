@@ -13,6 +13,7 @@ type TKMGamePlayInterface = class
     PrevHint:TObject;
     ShownMessage:integer;
     PlayMoreMsg:TGameResultMsg; //Remember which message we are showing
+    fJoiningGroups: boolean;
     AskDemolish:boolean;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection:boolean;
@@ -215,7 +216,6 @@ type TKMGamePlayInterface = class
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
   public
     MyControls: TKMControlsCollection;
-    JoiningGroups: boolean;
     constructor Create;
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:word);
@@ -465,7 +465,7 @@ begin
   if not KMMinimap.InMapCoords(KMP.X,KMP.Y) then exit; //Must be inside map
 
   //Send move order, if applicable
-  if (fShownUnit is TKMUnitWarrior) and (not JoiningGroups)
+  if (fShownUnit is TKMUnitWarrior) and (not fJoiningGroups)
   and fTerrain.Route_CanBeMade(fShownUnit.GetPosition, KMP, CanWalk, 0, false) then
   begin
     fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP);
@@ -484,7 +484,7 @@ begin
 
   fShownUnit:=nil;
   fShownHouse:=nil;
-  JoiningGroups := false;
+  fJoiningGroups := false;
   SelectingTroopDirection := false;
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
@@ -1485,7 +1485,7 @@ begin
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if Commander.ArmyIsBusy then
       Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
-    if JoiningGroups then
+    if fJoiningGroups then
     begin
       Panel_Army_JoinGroups.Show;
       Panel_Army.Hide;
@@ -1806,7 +1806,7 @@ begin
   begin
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Show;
-    JoiningGroups := true;
+    fJoiningGroups := true;
   end;
   if Sender = Button_Army_Feed    then
   begin
@@ -1818,7 +1818,7 @@ end;
 
 procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender:TObject);
 begin
-  JoiningGroups := false;
+  fJoiningGroups := false;
   if (Screen.Cursor = c_JoinYes) or (Screen.Cursor = c_JoinNo) then //Do not override non-joining cursors
     Screen.Cursor := c_Default; //In case this is run with keyboard shortcut, mouse move won't happen
   Panel_Army_JoinGroups.Hide;
@@ -2148,7 +2148,7 @@ begin
 
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway
-  if (Button = mbRight) and (not JoiningGroups) and(fShownUnit is TKMUnitWarrior)
+  if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and(TKMUnit(fShownUnit).GetOwner = MyPlayer.PlayerID) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -2210,7 +2210,7 @@ begin
 
   if GameCursor.Mode<>cm_None then exit;
 
-  if JoiningGroups and (fShownUnit is TKMUnitWarrior) then
+  if fJoiningGroups and (fShownUnit is TKMUnitWarrior) then
   begin
     U := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Scan only teammates
     if (U <> nil) and (U is TKMUnitWarrior) and
@@ -2274,7 +2274,7 @@ begin
   end;
 
   //Attack or Walk
-  if (Button = mbRight) and (not JoiningGroups) and(fShownUnit is TKMUnitWarrior)
+  if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and(TKMUnit(fShownUnit).GetOwner = MyPlayer.PlayerID) then
   begin
     //Try to Attack unit
@@ -2298,12 +2298,12 @@ begin
   if (Button = mbRight) then begin
     if Panel_Build.Visible then
       SwitchPage(Button_Main[5]);
-    if JoiningGroups then
+    if fJoiningGroups then
       Army_HideJoinMenu(nil);
   end;
 
   if Button = mbLeft then
-  if JoiningGroups and (fShownUnit <> nil) and (fShownUnit is TKMUnitWarrior) then
+  if fJoiningGroups and (fShownUnit <> nil) and (fShownUnit is TKMUnitWarrior) then
   begin
     U  := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
     if (U <> nil) and (U is TKMUnitWarrior) and
@@ -2365,7 +2365,7 @@ begin
                   if TKMHouse(fPlayers.Selected).BuildingState <> hbs_Glyph then
                   begin
                     ShowHouseInfo(TKMHouse(fPlayers.Selected),true);
-                    fSoundLib.Play(sfx_click);
+                    fSoundLib.Play(sfx_Click);
                   end;
                 end;
                 if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
@@ -2374,7 +2374,7 @@ begin
                 if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).BuildingState = hbs_Glyph) then
                 begin
                   fGame.fGameInputProcess.CmdBuild(gic_BuildRemoveHouse, P);
-                  fSoundLib.Play(sfx_click);
+                  fSoundLib.Play(sfx_Click);
                 end;
               end;
   end;
@@ -2418,7 +2418,7 @@ begin
   if fShownUnit<>nil then ShowUnitInfo(fShownUnit) else
   if fShownHouse<>nil then ShowHouseInfo(fShownHouse,AskDemolish);
 
-  if fShownUnit=nil then JoiningGroups := false;
+  if fShownUnit=nil then fJoiningGroups := false;
 
   if fGame.fGameInputProcess.State = gipReplaying then begin
     Panel_Replay.Show;

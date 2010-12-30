@@ -22,6 +22,7 @@ type //Possibly melee warrior class? with Archer class separate?
     fMembers:TList;
     function RePosition():boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
+    function CanInterruptAction:boolean;
     procedure UpdateHungerMessage();
 
     procedure SetFoe(aUnit:TKMUnitWarrior);
@@ -30,6 +31,7 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure ClearOrderTarget;
     procedure SetOrderTarget(aUnit:TKMUnit);
     function GetOrderTarget:TKMUnit;
+    function GetOrderHouseTarget:TKMHouse;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
@@ -47,7 +49,6 @@ type //Possibly melee warrior class? with Archer class separate?
     property RequestedFood:boolean write fRequestedFood; //Cleared by Serf delivering food
     procedure SetGroupFullCondition;
     procedure SetOrderHouseTarget(aHouse:TKMHouse);
-    function GetOrderHouseTarget:TKMHouse;
     property GetWarriorState: TWarriorState read fState;
 
   //Commands from player
@@ -81,8 +82,6 @@ type //Possibly melee warrior class? with Archer class separate?
     function CheckForEnemy(aDir:TKMDirection=dir_NA):boolean;
     function FindEnemy(aDir:TKMDirection=dir_NA):TKMUnit;
     procedure FightEnemy(aEnemy:TKMUnit);
-
-    function CanInterruptAction:boolean;
 
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;

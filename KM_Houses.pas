@@ -56,6 +56,9 @@ type
     RemoveRoadWhenDemolish:boolean;
     fPointerCount:integer;
     fTimeSinceUnoccupiedReminder:integer;
+
+    procedure Activate(aWasBuilt:boolean);
+    procedure CloseHouse(IsEditor:boolean=false); virtual;
     procedure SetWareDelivery(AVal:boolean);
 
     procedure MakeSound(); dynamic; //Swine/stables make extra sounds
@@ -72,9 +75,7 @@ type
     function GetHousePointer:TKMHouse; //Returns self and adds one to the pointer counter
     procedure ReleaseHousePointer; //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
-    procedure CloseHouse(IsEditor:boolean=false); virtual;
 
-    procedure Activate(aWasBuilt:boolean);
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 
     property GetPosition:TKMPoint read fPosition;
@@ -133,8 +134,9 @@ type
 
   {SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation}
   TKMHouseSwineStable = class(TKMHouse)
-  public
+  private
     BeastAge:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
+  public
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     function FeedBeasts():byte;
@@ -169,11 +171,11 @@ type
     UnitWIP:Pointer;  //can't replace with TKMUnit since it will lead to circular reference in KM_House-KM_Units
     HideOneGold:boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
     UnitTrainProgress:byte; //Was it 150 steps in KaM?
+    procedure CloseHouse(IsEditor:boolean=false); override;
   public
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
-    procedure CloseHouse(IsEditor:boolean=false); override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
@@ -295,7 +297,7 @@ begin
     fBuildingProgress := HouseDAT[byte(fHouseType)].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
   end else
-    fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, play_None); //Terrain remains neutral yet
+    fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, play_none); //Terrain remains neutral yet
 end;
 
 
@@ -855,7 +857,7 @@ begin
                       else if (WorkID = 2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
     ht_GoldMine:      if (WorkID = 2)and(Step = 5) then fSoundLib.Play(sfx_mine,GetPosition)
                       else if (WorkID = 2)and(Step = 6) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
-    ht_SawMill:       if (WorkID = 2)and(Step = 1) then fSoundLib.Play(sfx_saw,GetPosition);
+    ht_Sawmill:       if (WorkID = 2)and(Step = 1) then fSoundLib.Play(sfx_saw,GetPosition);
     ht_Wineyard:      if (WorkID = 2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
                       else if (WorkID = 5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
                       else if (WorkID = 1)and(Step = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
