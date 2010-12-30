@@ -342,10 +342,10 @@ begin
 
   //Build a route A*
   if NodeList.Count=0 then //Build a route from scratch
-    fTerrain.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, NodeList) //Try to make the route with fPass
+    fTerrain.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
   else begin //Append route to existing part
     NodeList2 := TKMPointList.Create;
-    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, NodeList2); //Try to make the route with fPass
+    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
     for i:=2 to NodeList2.Count do
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);
@@ -407,7 +407,8 @@ begin
       Result := oc_NoObstacle
     else
     //Completely re-route if no simple side step solution is available
-    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance, false) then
+    if ((fTargetHouse = nil) and fterrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance, false))
+    or ((fTargetHouse <> nil) and fterrain.Route_CanBeMadeToHouse(fWalker.GetPosition,fTargetHouse,GetEffectivePassability,fDistance, false)) then
     begin
       fWalker.SetActionWalk(fTargetLoc, fActionType, fDistance, fWalkToNear, fTargetUnit, fTargetHouse);
       Result := oc_ReRouteMade;
@@ -643,10 +644,11 @@ begin
   //Route_MakeAvoid is very CPU intensive, so don't run it every time
   if CheckInteractionFreq(HighestInteractionCount,AVOID_TIMEOUT,AVOID_FREQ) then
   begin
-    if not KMSamePoint(fOpponent.GetPosition,fWalkTo) then //Can't go around our target position
+    //Can't go around our target position unless it's a house
+    if (not KMSamePoint(fOpponent.GetPosition,fWalkTo)) or (fTargetHouse <> nil) then
     if fDestBlocked or fOpponent.GetUnitAction.Locked
     then
-      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,NodeList) then //Make sure the route can be made, if not, we must simply wait
+      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList) then //Make sure the route can be made, if not, we must simply wait
       begin
         //NodeList has now been re-routed, so we need to re-init everything else and start walk again
         SetInitValues;

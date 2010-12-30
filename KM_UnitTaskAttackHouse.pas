@@ -92,20 +92,27 @@ begin
   with fUnit do
   case fPhase of
     0: if fFightType=ft_Ranged then
+         //todo: Sort out cases when archers are too close, either step back to the minimum range or don't participate in the attack
          SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX / (byte(REDUCE_SHOOTING_RANGE)+1))
        else
          SetActionWalkToHouse(fHouse, 1);
-    1: if fFightType=ft_Ranged then begin
-         SetActionLockedStay(AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
-         Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
-         case UnitType of
-           ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,GetPosition,true); //Aiming
-           ut_Bowman:     fSoundLib.Play(sfx_BowDraw,GetPosition,true); //Aiming
-           else Assert(false, 'Unknown shooter');
+    1: begin
+         //Once we've reached the house, if the player clicks halt we reposition here
+         if TKMUnitWarrior(fUnit).fCommander = nil then
+           TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(GetPosition,TKMUnitWarrior(fUnit).OrderLocDir.Dir);
+
+         if fFightType=ft_Ranged then begin
+           SetActionLockedStay(AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
+           Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
+           case UnitType of
+             ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,GetPosition,true); //Aiming
+             ut_Bowman:     fSoundLib.Play(sfx_BowDraw,GetPosition,true); //Aiming
+             else Assert(false, 'Unknown shooter');
+           end;
+         end else begin
+           SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
+           Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
          end;
-       end else begin
-         SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
-         Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
        end;
     2: if fFightType=ft_Ranged then begin
          SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0); //Start shooting

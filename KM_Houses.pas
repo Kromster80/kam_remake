@@ -80,6 +80,7 @@ type
     property GetPosition:TKMPoint read fPosition;
     procedure SetPosition(aPos:TKMPoint); //Used by map editor
     function GetEntrance():TKMPoint;
+    function GetClosestCell(aPos:TKMPoint):TKMPoint;
     function GetDistance(aPos:TKMPoint):single;
     procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
     procedure GetListOfCellsWithin(Cells:TKMPointList);
@@ -448,6 +449,21 @@ function TKMHouse.GetEntrance():TKMPoint;
 begin
   Result.X := GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y := GetPosition.Y;
+end;
+
+
+{Returns the closest cell of the house to aPos}
+function TKMHouse.GetClosestCell(aPos:TKMPoint):TKMPoint;
+var C:TKMPointList; i:integer;
+begin
+  C := TKMPointList.Create;
+  GetListOfCellsWithin(C);
+
+  Result := C.List[1];
+  for i:=2 to C.Count do
+    if GetLength(C.List[i], aPos) < GetLength(Result, aPos) then
+      Result := C.List[i];
+  C.Free;
 end;
 
 

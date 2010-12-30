@@ -533,7 +533,6 @@ begin
   begin
     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
 
-    //todo: Should not run every update state, it takes too long and doesn't need to anyway
     CheckArmy; //Feed army, position defence, arrange/organise groups
     CheckArmiesCount; //Train new soldiers if needed
     //CheckHouseCount; //Build new houses if needed

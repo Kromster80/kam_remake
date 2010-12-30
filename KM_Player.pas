@@ -246,7 +246,7 @@ end;
 procedure TKMPlayerAssets.AutoRoadConnect(LocA,LocB:TKMPoint);
 var fPath:TPathFinding; i:integer; NodeList:TKMPointList;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, CanMakeRoads, 0);
+  fPath := TPathFinding.Create(LocA, LocB, CanMakeRoads, 0, nil);
   NodeList:=TKMPointList.Create;
   fPath.ReturnRoute(NodeList);
   fPath.Free;

@@ -2,7 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-     KM_Defaults, KM_CommonTypes, KM_Units, KM_Units_Warrior, KM_Utils;
+     KM_Defaults, KM_CommonTypes, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses;
 
 
 const MaxMapSize=192;
@@ -127,8 +127,9 @@ TTerrain = class
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
-    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList):boolean;
-    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList);
+    function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
+    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList):boolean;
+    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
     function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
@@ -197,7 +198,7 @@ var
 
 implementation
 
-uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Houses, KM_Game;
+uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game;
 
 constructor TTerrain.Create;
 begin
@@ -1549,11 +1550,24 @@ begin
 end;
 
 
+function TTerrain.Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
+var i:integer; Cells: TKMPointList;
+begin
+  //Check if a route can be made to any tile around this house
+  Result := false;
+  Cells := TKMPointList.Create;
+  aHouse.GetListOfCellsWithin(Cells);
+  for i:=1 to Cells.Count do
+    Result := Result or Route_CanBeMade(LocA,Cells.List[i],aPass,aDistance,aInteractionAvoid);
+  Cells.Free;
+end;
+
+
 //Tests weather route can be made
-function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList):boolean;
+function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList):boolean;
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, true); //True means we are using Interaction Avoid mode (go around busy units)
+  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse, true); //True means we are using Interaction Avoid mode (go around busy units)
   try
     Result := fPath.RouteSuccessfullyBuilt;
     if not Result then exit;
@@ -1567,10 +1581,10 @@ end;
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
-procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList);
+procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance);
+  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse);
   fPath.ReturnRoute(NodeList);
   FreeAndNil(fPath);
 end;

@@ -1,9 +1,9 @@
 unit KM_PathFinding;
 {$I KaM_Remake.inc}
 interface            
-uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
+uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes, KM_Houses;
 
-type TDestinationPoint = (dp_Location, dp_Passability);
+type TDestinationPoint = (dp_Location, dp_Passability, dp_House);
 
 type
   { Here should be pathfinding and all associated stuff }
@@ -31,13 +31,14 @@ type
     fDistance:single;
     IsInteractionAvoid:boolean;
     fDestination:TDestinationPoint;
+    fTargetHouse: TKMHouse;
     fRouteSuccessfullyBuilt:boolean;
     function CheckRouteCanExist():boolean;
     procedure InitRoute();
     function IsDestinationReached():boolean;
     function MakeRoute():boolean;
   public
-    constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aIsInteractionAvoid:boolean=false); overload;
+    constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; fPass:TPassability; aLocB:TKMPoint); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
@@ -46,7 +47,7 @@ type
 implementation
 
 
-constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aIsInteractionAvoid:boolean=false);
+constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false);
 begin
   Inherited Create;
   LocA := aLocA;
@@ -56,7 +57,11 @@ begin
   fDistance := aDistance;
   IsInteractionAvoid := aIsInteractionAvoid;
   fRouteSuccessfullyBuilt := false;
-  fDestination := dp_Location;
+  fTargetHouse := aTargetHouse;
+  if fTargetHouse = nil then
+    fDestination := dp_Location
+  else
+    fDestination := dp_House;
 
   if not CheckRouteCanExist then exit;
 
@@ -85,7 +90,10 @@ end;
 function TPathFinding.CheckRouteCanExist():boolean;
 begin
   if IsInteractionAvoid then fTerrain.RebuildWalkConnect(wcAvoid); //Rebuild on demand
-  Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,fDistance, IsInteractionAvoid);
+  if fDestination = dp_House then
+    Result := fTerrain.Route_CanBeMadeToHouse(LocA,fTargetHouse,Pass,fDistance,IsInteractionAvoid)
+  else
+    Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,fDistance,IsInteractionAvoid);
 end;
 
 
@@ -107,10 +115,8 @@ function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
     dp_Location:    Result := KMLength(MinCost.Pos,LocB) <= fDistance;
-    dp_Passability: if Pass = CanWorker then                                                                  
-                      Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID
-                    else
-                      Result := fTerrain.GetRoadConnectID(MinCost.Pos) = TargetRoadNetworkID;
+    dp_Passability: Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID;
+    dp_House:       Result := fTargetHouse.GetDistance(MinCost.Pos) <= fDistance;
     else            Result := true;
   end;
 end;

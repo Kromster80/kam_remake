@@ -699,7 +699,6 @@ All units are assigned TTaskAttackHouse which does everything for us
 procedure TKMUnitWarrior.OrderAttackHouse(aTargetHouse:TKMHouse);
 var i: integer;
 begin
-  //todo: If position to attack target house cannot be reached, do not attempt to (currently melee units will walk as close as possible and attack from there)
   fOrder := wo_AttackHouse;
   fState := ws_None; //Clear other states
   SetOrderHouseTarget(aTargetHouse);

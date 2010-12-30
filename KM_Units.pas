@@ -1240,15 +1240,15 @@ end;
 // Route will be made to House.Entrance, but will be Done as soon as we are at required range to any(!) side of the house
 procedure TKMUnit.SetActionWalkToHouse(aHouse:TKMHouse; aDistance:single; aActionType:TUnitActionType=ua_Walk);
 begin
-  //todo: WalkToHouse isn't actually working properly yet, units all go for bottom right corner. Pathfinding needs to know about the house to make it work well.
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
 
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
-                                      aHouse.GetPosition, //Target position
+                                      //Target position is the closest cell to our current position (only used for estimating in path finding)
+                                      aHouse.GetClosestCell(Self.GetPosition),
                                       aActionType,        //
                                       aDistance,          //Proximity
                                       false,              //If we were pushed
-                                      true,               //WalkToNear
+                                      false,              //WalkToNear
                                       nil,                //Unit
                                       aHouse              //House
                                       ));
