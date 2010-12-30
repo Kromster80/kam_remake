@@ -382,7 +382,7 @@ begin
     Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407); //Minimap place
 
     //todo: player selection and other "universal" stuff (i.e. which player are we placing for)
-    //
+    //todo: show canStuff areas on demand
     Image_Main3 := MyControls.AddImage(Panel_Main,0, 200,224,400,404);
     Image_Main4 := MyControls.AddImage(Panel_Main,0, 600,224,400,404);
     Image_Main5 := MyControls.AddImage(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed

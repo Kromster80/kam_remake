@@ -2222,7 +2222,7 @@ end;
 
 procedure TTerrain.MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
 var
-  i,k:shortint; //-127..128
+  i,k:integer;
   Tmp:single;
 begin
   for i := (round(aLoc.Y) - aSize div 2) to (round(aLoc.Y) + aSize div 2) do

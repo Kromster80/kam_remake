@@ -868,9 +868,11 @@ var
 begin
   if IsDeadOrDying then
   begin
+    Result:=true; //Required for override compatibility
     Inherited UpdateState;
     exit;
   end;
+
   if fCommander <> nil then
   begin
     Assert(not fCommander.IsDeadOrDying);
