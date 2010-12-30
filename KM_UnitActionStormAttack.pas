@@ -97,6 +97,7 @@ const STORM_SPEEDUP=1.5;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
+  FoundEnemy: TKMUnit;
 begin
   if KMSamePoint(fNextPos,KMPoint(0,0)) then
     fNextPos := KMUnit.GetPosition; //Set fNextPos to current pos so it initializes on the first run
@@ -128,26 +129,24 @@ begin
     if KMStepIsDiag(KMUnit.PrevPosition,KMUnit.NextPosition) and (fTileSteps > 0) then
       DecVertex;
 
-    if fTileSteps >= fStamina then
+    //Begin the next step
+    fNextPos := KMGetPointInDir(KMUnit.GetPosition, KMUnit.Direction).Loc;
+
+    Locked := false; //So find enemy works
+    FoundEnemy := TKMUnitWarrior(KMUnit).FindEnemy;
+    //Action ends if: 1: Used up stamina. 2: There is an enemy to fight. 3: NextPos is an obsticle
+    if (fTileSteps >= fStamina) or (FoundEnemy <> nil) or CheckForObstacle(KMUnit, fNextPos) then
     begin
       Result := ActDone; //Finished run
       //Make it so that when we halt we stay at this new location if we have not been given different order
       if TKMUnitWarrior(KMUnit).GetOrder = wo_None then
         TKMUnitWarrior(KMUnit).OrderLocDir := KMPointDir(KMUnit.GetPosition,TKMUnitWarrior(KMUnit).OrderLocDir.Dir);
-      exit;
+      //Begin the fight right now
+      if FoundEnemy <> nil then TKMUnitWarrior(KMUnit).FightEnemy(FoundEnemy);
+      exit; //Must exit right away as we might have changed this action to fight
     end;
-
-    //Begin the next step
-    fNextPos := KMGetPointInDir(KMUnit.GetPosition, KMUnit.Direction).Loc;
-    if CheckForObstacle(KMUnit, fNextPos) then
-    begin
-      Result := ActDone; //Hit an obstacle
-      //Make it so that when we halt we stay at this new location if we have not been given different order
-      if TKMUnitWarrior(KMUnit).GetOrder = wo_None then
-        TKMUnitWarrior(KMUnit).OrderLocDir := KMPointDir(KMUnit.GetPosition,TKMUnitWarrior(KMUnit).OrderLocDir.Dir);
-      exit;
-    end;
-    //Do some house keeping because we have stepped on a new tile
+    Locked := true; //Finished using FindEnemy
+    //Do some house keeping because we have now stepped on a new tile
     KMUnit.UpdateNextPosition(fNextPos);
     fTerrain.UnitWalk(KMUnit.PrevPosition,KMUnit.NextPosition,KMUnit); //Pre-occupy next tile
     if KMStepIsDiag(KMUnit.PrevPosition,KMUnit.NextPosition) then
@@ -167,6 +166,7 @@ begin
 
   inc(KMUnit.AnimStep);
   StepDone := false; //We are not actually done because now we have just taken another step
+  Result := ActContinues;
 end;
 
 
