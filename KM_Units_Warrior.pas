@@ -17,16 +17,12 @@ type //Possibly melee warrior class? with Archer class separate?
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
   {Commander properties}
-    fFoe:TKMUnitWarrior; //An enemy unit which is currently in combat with one of our memebers (commander use only!) Use only public Foe property!
     fUnitsPerRow:integer;
     fMembers:TList;
     function RePosition():boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     function CanInterruptAction:boolean;
     procedure UpdateHungerMessage();
-
-    procedure SetFoe(aUnit:TKMUnitWarrior);
-    function GetFoe:TKMUnitWarrior;
 
     procedure ClearOrderTarget;
     procedure SetOrderTarget(aUnit:TKMUnit);
@@ -67,11 +63,10 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetFightMaxRange():single;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
-    property Foe:TKMUnitWarrior read GetFoe write SetFoe;
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     property GetOrder:TWarriorOrder read fOrder;
     function GetRow:integer;
-    function GetRandomMember: TKMUnitWarrior;
+    function GetRandomFoeFromMembers: TKMUnitWarrior;
     function ArmyIsBusy:boolean;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
@@ -102,7 +97,6 @@ begin
   fCommander         := nil;
   fOrderTargetUnit   := nil;
   fOrderTargetHouse  := nil;
-  fFoe               := nil;
   fRequestedFood     := false;
   fFlagAnim          := 0;
   fTimeSinceHungryReminder := 0;
@@ -122,7 +116,6 @@ begin
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
-  LoadStream.Read(fFoe, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fRequestedFood);
   LoadStream.Read(fTimeSinceHungryReminder);
@@ -151,7 +144,6 @@ begin
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCommander)));
   fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
   fOrderTargetHouse := TKMHouse(fPlayers.GetHouseByID(cardinal(fOrderTargetHouse)));
-  fFoe := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fFoe)));
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
       fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fMembers.Items[i-1])));
@@ -162,7 +154,6 @@ destructor TKMUnitWarrior.Destroy;
 begin
   fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
   fPlayers.CleanUpHousePointer(fOrderTargetHouse);
-  fPlayers.CleanUpUnitPointer(fFoe);
 
   FreeAndNil(fMembers);
   Inherited;
@@ -238,7 +229,6 @@ begin
   end;
 
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
-  SetFoe(nil); //This ensures that pointer usage tracking is reset
 
   Inherited;
 end;
@@ -529,26 +519,6 @@ begin
 end;
 
 
-//First set fFoe to nil, removing pointer if it's still valid. Then update with the new foe
-procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
-begin
-  fPlayers.CleanUpUnitPointer(fFoe);
-  if aUnit <> nil then
-    fFoe := TKMUnitWarrior(aUnit.GetUnitPointer) //Else it will be nil from CleanUpUnitPointer
-end;
-
-
-//If the foe has died then clear it
-function TKMUnitWarrior.GetFoe:TKMUnitWarrior;
-begin
-  if (fFoe <> nil) and (fFoe.fCommander <> nil) then
-    SetFoe(fFoe.fCommander); //Always return the commander of the group if it's changed
-  if (fFoe <> nil) and (fFoe.IsDead) then
-    fPlayers.CleanUpUnitPointer(fFoe); //Foe must not be dead
-  Result := fFoe;
-end;
-
-
 //Check which row we are in
 function TKMUnitWarrior.GetRow:integer;
 var i: integer;
@@ -564,25 +534,48 @@ begin
 end;
 
 
-function TKMUnitWarrior.GetRandomMember: TKMUnitWarrior;
-var i: integer;
+function TKMUnitWarrior.GetRandomFoeFromMembers: TKMUnitWarrior;
+var Foes: TList; i: integer;
 begin
-  Assert(fCommander = nil);
-  Assert(not IsDeadOrDying);
-  Result := Self;
-  if (fMembers = nil) or (fMembers.Count = 0) then exit; //No members, use self
-  i := Random(fMembers.Count+1); //+1 for commander
-  if i < fMembers.Count then //i=count means commander
-    Result := TKMUnitWarrior(fMembers.Items[i]);
-  if Result.IsDeadOrDying then Result := Self; //If the member is dying, choose self
+  Assert(fCommander = nil); //This should only be called for commanders
+  Foes := TList.Create;
+  if (GetUnitAction is TUnitActionFight) and (TUnitActionFight(GetUnitAction).GetOpponent <> nil)
+  and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior) then
+    Foes.Add(TUnitActionFight(GetUnitAction).GetOpponent);
+    
+  if (fMembers <> nil) and (fMembers.Count > 0) then
+    for i:=1 to fMembers.Count do
+      if (TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight)
+      and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent <> nil)
+      and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
+        Foes.Add(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent);
+
+  if Foes.Count > 0 then
+    Result := TKMUnitWarrior(Foes.Items[Random(Foes.Count)])
+  else
+    Result := nil;
+  Foes.Free;
 end;
 
 
 //Is the player able to issue orders to our group?
 function TKMUnitWarrior.ArmyIsBusy:boolean;
+var i: integer;
 begin
   Assert(fCommander = nil); //This should only be called for commanders
-  Result := ((Foe <> nil) and (GetFightMaxRange < 2)) or (GetUnitAction is TUnitActionStormAttack);
+  Result := false;
+  if GetFightMaxRange >= 2 then exit; //Archers are never busy
+  if (GetUnitAction is TUnitActionStormAttack) or (GetUnitAction is TUnitActionFight) then
+    Result := true //We are busy if the commander is storm attacking or fighting
+  else
+    //Busy if a member is fighting
+    if (fMembers <> nil) and (fMembers.Count > 0) then
+      for i:=1 to fMembers.Count do
+        if TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight then
+        begin
+          Result := true;
+          exit;
+        end;
 end;
 
 
@@ -742,10 +735,6 @@ begin
     SaveStream.Write(fOrderTargetHouse.ID) //Store ID
   else
     SaveStream.Write(Zero);
-  if fFoe <> nil then
-    SaveStream.Write(fFoe.ID) //Store ID
-  else
-    SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fRequestedFood);
   SaveStream.Write(fTimeSinceHungryReminder);
@@ -872,42 +861,34 @@ end;
 
 
 function TKMUnitWarrior.UpdateState():boolean;
-  procedure UpdateFoe; //If noone is fighting - Halt
-  var i:integer;
-  begin
-    if (Foe = nil) or (GetUnitAction is TUnitActionFight) then exit;
-    if fMembers <> nil then for i:=0 to fMembers.Count-1 do
-      if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then exit;
-    Foe := nil; //Nil foe because no one is fighting
-    if fState <> ws_Walking then
-      OrderWalk(GetPosition); //Reposition because the fight has just finished (don't use halt because that returns us to fOrderLoc)
-  end;
-
 var
   i:integer;
   PositioningDone:boolean;
   ChosenFoe: TKMUnitWarrior;
 begin
-  if (fCommander <> nil) and not IsDeadOrDying then
+  if IsDeadOrDying then
+  begin
+    Inherited UpdateState;
+    exit;
+  end;
+  if fCommander <> nil then
   begin
     Assert(not fCommander.IsDeadOrDying);
     Assert(fCommander.fCommander = nil);
   end;
+  Assert(GetCommander.fCommander = nil);
 
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
-  if fCommander=nil then
-    UpdateFoe;
-
-  //Choose a random foe from our commander, then use that from here on
-  if GetCommander.Foe = nil then
-    ChosenFoe := nil
+  //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
+  if (fFlagAnim mod 10 = 0) and GetCommander.ArmyIsBusy then
+    ChosenFoe := GetCommander.GetRandomFoeFromMembers
   else
-    ChosenFoe := GetCommander.Foe.GetRandomMember;
+    ChosenFoe := nil;
 
-  if (fState = ws_Engage) and ((ChosenFoe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
+  if (fState = ws_Engage) and ((not GetCommander.ArmyIsBusy) or (not(GetUnitAction is TUnitActionWalkTo))) then
     fState := ws_None; //As soon as combat is over set the state back
 
   //Help out our fellow group members in combat if we are not fighting and someone else is

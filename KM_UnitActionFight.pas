@@ -3,7 +3,7 @@ unit KM_UnitActionFight;
 interface
 uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units;
 
-
+//todo: Make melee fights occupy vertecies so units will not walk across the path of a swinging axe
 
 {Fight until we die or the opponent dies}
 type
@@ -16,6 +16,7 @@ TUnitActionFight = class(TUnitAction)
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     procedure SyncLoad(); override;
+    property GetOpponent: TKMUnit read fOpponent;
     procedure MakeSound(KMUnit: TKMUnit; IsHit:boolean);
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -101,6 +102,9 @@ begin
     end
     else
     begin
+      //Tell commanders to reposition after a fight
+      if (TKMUnitWarrior(KMUnit).fCommander = nil) and (not TKMUnitWarrior(KMUnit).ArmyIsBusy) then
+        TKMUnitWarrior(KMUnit).OrderWalk(KMUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
       //No one else to fight, so we exit
       Result := ActDone;
       exit;
@@ -163,13 +167,6 @@ begin
 
   StepDone := (KMUnit.AnimStep mod Cycle = 0) or (TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2); //Archers may abandon at any time as they need to walk off imediantly
   inc(KMUnit.AnimStep);
-
-  //If our group (commander) does not have a foe, set it to our opponent
-  if (fOpponent is TKMUnitWarrior)
-     and not (fOpponent.IsDeadOrDying)
-     and((TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) < 1.5))
-     and (TKMUnitWarrior(KMUnit).GetCommander.Foe = nil) then
-    TKMUnitWarrior(KMUnit).GetCommander.Foe := TKMUnitWarrior(fOpponent).GetCommander;
 end;
 
 

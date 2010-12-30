@@ -372,7 +372,7 @@ begin
             if UnitsPerRow < TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow then
               UnitsPerRow := TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow;
 
-          if Foe <> nil then exit;
+          if ArmyIsBusy then exit;
           //Position this group to defend if they already belong to a defence position
           //todo: Restock defence positions listed first with ones listed later (in script order = priority)
           Positioned := false;
