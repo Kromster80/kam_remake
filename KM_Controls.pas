@@ -443,6 +443,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     procedure SetControl(Index: Integer; Item: TKMControl);
     property  Controls[Index: Integer]: TKMControl read GetControl write SetControl; //Use instead of Items[.]
 
+    function HitControl(X,Y:integer):TKMControl;
     procedure SetCtrlDown(aCtrl:TKMControl);
     procedure SetCtrlFocus(aCtrl:TKMControl);
     procedure SetCtrlOver(aCtrl:TKMControl);
@@ -450,8 +451,6 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
   public
     constructor Create;
     destructor Destroy; override;
-
-    function HitControl(X,Y:integer):TKMControl;
 
     property CtrlDown:TKMControl read fCtrlDown write SetCtrlDown;
     property CtrlFocus:TKMControl read fCtrlFocus write SetCtrlFocus;

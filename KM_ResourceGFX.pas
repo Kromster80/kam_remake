@@ -1047,7 +1047,7 @@ begin
           CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\');
           CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\');
           if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
-          ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
+            ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
 
           sx:=RXData[3].Size[ci].X;
           sy:=RXData[3].Size[ci].Y;
@@ -1055,11 +1055,11 @@ begin
           MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-            t:=RXData[3].Data[ci,y*sx+x];
+            t := RXData[3].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
           if sy>0 then MyBitMap.SaveToFile(
-          ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
+            ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
         end;
       end;
     end;
@@ -1088,11 +1088,11 @@ begin
     MyBitMap.Height:=sy;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-      t:=RXData[3].Data[ci,y*sx+x];
+      t := RXData[3].Data[ci,y*sx+x];
       MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
     end;
     if sy>0 then MyBitMap.SaveToFile(
-    ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
+      ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
   end;
 
   MyBitMap.Free;

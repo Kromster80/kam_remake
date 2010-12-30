@@ -13,11 +13,11 @@ type
     fHouse:TKMHouse;
     fHouseState: THouseState;
     fSubAction: THouseActionSet;
+    function GetWorkID():byte;
   public
     constructor Create(aHouse:TKMHouse; aHouseState: THouseState);
     procedure SetState(aHouseState: THouseState);
     procedure SubActionWork(aActionSet: THouseActionType);
-    function GetWorkID():byte;
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
     property ActionType: THouseState read fHouseState;

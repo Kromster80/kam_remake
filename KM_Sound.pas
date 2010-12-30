@@ -310,7 +310,7 @@ begin
 
 
   //Find free buffer and use it
-  FreeBuf:=1;
+  FreeBuf := 0;
   for i:=1 to MAX_SOUNDS do begin
     alGetSourcei(Sound[i].ALSource, AL_SOURCE_STATE, @ALState);
     if ALState<>AL_PLAYING then begin
@@ -318,7 +318,7 @@ begin
       break;
     end;
   end;
-  if i>=MAX_SOUNDS then exit;//Don't play if there's no room left
+  if FreeBuf = 0 then exit;//Don't play if there's no room left
 
   ID := word(SoundID);
   Assert(Waves[ID].IsLoaded);

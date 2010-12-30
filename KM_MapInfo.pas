@@ -54,7 +54,7 @@ procedure TKMMapsInfo.ScanSingleMapsFolder();
     end;
   end;
 var
-  i,ii,k:integer;
+  i,ii:integer;
   SearchRec:TSearchRec;
   S:TKMemoryStream;
   st:string;
@@ -83,7 +83,6 @@ begin
 
   fMissionParser := TMissionParser.Create(mpm_Game);
 
-  for k:=1 to 1 do
   for i:=1 to fCount do with Maps[i] do begin
 
     //Take data from existing Info file if it exists and DAT size matches
