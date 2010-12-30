@@ -190,7 +190,7 @@ end;
 procedure TUnitActionWalkTo.SetInitValues;
 begin
   NodePos       := 1;
-  fDoExchange    := false;
+  fDoExchange   := false;
   DoesWalking   := false;
   WaitingOnStep := false;
   fDestBlocked  := false;
@@ -806,6 +806,7 @@ begin
     fNewWalkTo := aLoc;
 
   //Change target if we need to
+  fPlayers.CleanUpHousePointer(fTargetHouse);
   fPlayers.CleanUpUnitPointer(fTargetUnit);
   if aNewTargetUnit <> nil then
     fTargetUnit := aNewTargetUnit.GetUnitPointer; //Change target
