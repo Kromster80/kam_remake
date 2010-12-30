@@ -42,7 +42,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   procedure KMSwapPoints(var A,B:TKMPoint);
 
-  function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
+  function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; AllowOffMap:boolean=false):TKMPoint;
   function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
 
   function KMMapNameToPath(const aMapName, aExtension:string):string;
@@ -327,7 +327,7 @@ end;
 {Returns point where unit should be placed regarding direction & offset from Commanders position}
 // 23145     231456
 // 6789X     789xxx
-function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
+function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; AllowOffMap:boolean=false):TKMPoint;
 const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
 const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
 var PlaceX, PlaceY, ResultX, ResultY:integer;
@@ -346,9 +346,17 @@ begin
   ResultX := OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
   ResultY := OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
 
-  //Fit to bounds
-  Result.X := EnsureRange(ResultX, 1, MapX-1);
-  Result.Y := EnsureRange(ResultY, 1, MapY-1);
+  if AllowOffMap then
+  begin
+    //Fit to bounds + 1 on all sides so we know when the unit can't reach it's target (GetClosestTile
+    //will correct it)
+    Result.X := EnsureRange(ResultX, 0, MapX);
+    Result.Y := EnsureRange(ResultY, 0, MapY);
+  end else begin
+    //Fit to bounds
+    Result.X := EnsureRange(ResultX, 1, MapX-1);
+    Result.Y := EnsureRange(ResultY, 1, MapY-1);
+  end;
 end;
 
 

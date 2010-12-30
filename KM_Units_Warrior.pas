@@ -655,7 +655,7 @@ begin
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
   for i:=1 to fMembers.Count do begin
     NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1),
-                                  i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY);
+                                  i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, true); //Allow off map positions so GetClosestTile works properly
     TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir))
   end;
 end;
