@@ -184,8 +184,8 @@ begin
   k:=1;
   for i:=1 to NumRead do begin
     Result[k] := Result[i];
-    if (k>1)and(((Result[k-1]+Result[k]=#32#32))or((Result[k-1]+Result[k]='!!'))) then else
-    inc(k);
+    if (k>1) and ((Result[k-1]+Result[k]=#32#32) or (Result[k-1]+Result[k]='!!')) then else
+      inc(k);
   end;
 
   setlength(Result,k); //Because some extra characters were removed

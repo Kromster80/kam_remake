@@ -1285,9 +1285,9 @@ begin
 
     px := ii*16+kk+1;
 
-    TileMMColor[px].R := round(R / (SizeY*SizeY div 256)) ; //each tile is 32x32 px
-    TileMMColor[px].G := round(G / (SizeY*SizeY div 256)) ;
-    TileMMColor[px].B := round(B / (SizeY*SizeY div 256)) ;
+    TileMMColor[px].R := round(R / (SizeX*SizeY div 256)); //each tile is 32x32 px
+    TileMMColor[px].G := round(G / (SizeX*SizeY div 256));
+    TileMMColor[px].B := round(B / (SizeX*SizeY div 256));
 
   end;
 
