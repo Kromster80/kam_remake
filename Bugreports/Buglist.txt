@@ -1,4 +1,37 @@
-EXE-only r1007+:
+EXE-only r1345+:
+<===================================================================================>
+	Edges of messages and other scrolls should be transparent so they look smooth
+	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
+	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
+	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
+
+	Display WIP houses/units in statistics menu
+	Make units/houses highlight red when about to erase them as trees do (in MapEd)
+	Show correct number of players in SingleMap by scaning MapInfo
+	Dots and lines displaying on tile edges
+ 
+	Colored rectangle below cursor	
+	MediaPlayer won't play mp3s and crash
+	Some texts don't fit in the left panel (e.g. "Preparing house area")
+	See-through hills (lighting flaw)
+	Many texts will not change if I change the language in options menu
+	Two monitor config, scrolling works well only on 1st display
+
+ -	The ingame briefing texture is too short, see attached picture
+ -	Serfs should take wares back or to suitable house if destination is destroyed
+ -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+
+ ?	Game crashes in battle tutorial, during i fight and choin  the axemen to the militia troop.
+ ?	Restart game, start tsk map 1, i get 2 strange error messages.
+ ?	Citizen will try to walk home when it has no road tile below entrance (I think thats not a bug)
+ ? 	Music doesn't work
+ ?	game in fullscreen mode flickers terrible! (TK, tested on TV and LCD, 50Hz?) (Gone in r970 ?)
+ ?	when starting the game first time after system boot-up Explorer stops responding for a minute (Win7x64)
+ ?	Houses/units from the mission file should not place on forbidden terrain (height, proximity for houses)
+ ?	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
+
+
+Fixed in KaM Remake Fighting Demo 101231 (r1345):
 <===================================================================================>
  +	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
  +	Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
@@ -36,35 +69,7 @@ EXE-only r1007+:
  +	Sawmill is rendered wrong
  +	Error message on program start (cannot focus on disabled or invisible window)
  +	When a warrior commander dies, the group now continues to do what it was doing
-	Edges of messages and other scrolls should be transparent so they look smooth
-	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
-	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
-	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
 
-	Display WIP houses/units in statistics menu
-	Make units/houses highlight red when about to erase them as trees do (in MapEd)
-	Show correct number of players in SingleMap by scaning MapInfo
-	Dots and lines displaying on tile edges
- 
-	Colored rectangle below cursor	
-	MediaPlayer won't play mp3s and crash
-	Some texts don't fit in the left panel (e.g. "Preparing house area")
-	See-through hills (lighting flaw)
-	Many texts will not change if I change the language in options menu
-	Two monitor config, scrolling works well only on 1st display
-
- -	The ingame briefing texture is too short, see attached picture
- -	Serfs should take wares back or to suitable house if destination is destroyed
- -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
-
- ?	Game crashes in battle tutorial, during i fight and choin  the axemen to the militia troop.
- ?	Restart game, start tsk map 1, i get 2 strange error messages.
- ?	Citizen will try to walk home when it has no road tile below entrance (I think thats not a bug)
- ? 	Music doesn't work
- ?	game in fullscreen mode flickers terrible! (TK, tested on TV and LCD, 50Hz?) (Gone in r970 ?)
- ?	when starting the game first time after system boot-up Explorer stops responding for a minute (Win7x64)
- ?	Houses/units from the mission file should not place on forbidden terrain (height, proximity for houses)
- ?	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
 
 
 
@@ -111,9 +116,7 @@ Fixed in r734:
 +	Demolished houses now leave a dug tile where the road used to be, rather than it just disappearing which looked odd (TK's suggestion)
 +	F11 statusbar shows wrong map size in loaded games
 +	Because the delivery queue prefers closer deliveries, wares will always be delivered to closer buildings. (e.g. with two swine farms, closer one will get all the corn) Same with coal mines. (coal mines in Kuba 2010-02-19 Stuck Workers save09.sav, swine farms in TRB 2010-02-19 Wood and Swine save01.sav)
-
-
-?	(Can't reproduce, probably caused by worker-construction site issues that have been fixed now) Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
++	(Can't reproduce, probably caused by worker-construction site issues that have been fixed now) Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
 
 
 
