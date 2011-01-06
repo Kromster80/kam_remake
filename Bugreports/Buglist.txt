@@ -3,6 +3,8 @@ Bugs since r1345:
  + Always take deliveries from a house if possible rather than a warehouse (Baker-> Inn not
    Baker-> Warehouse-> Inn as it is was) This should also applies to feeding soldiers.
  + Closest units are now chosen properly
+ + AI should not attempt to reposition archers that are shooting (caused them to stop shooting)
+ + Archers now engage targets of their fellow men
 
 
 EXE-only r1345+:

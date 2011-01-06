@@ -67,7 +67,7 @@ type //Possibly melee warrior class? with Archer class separate?
     property GetOrder:TWarriorOrder read fOrder;
     function GetRow:integer;
     function GetRandomFoeFromMembers: TKMUnitWarrior;
-    function ArmyIsBusy:boolean;
+    function ArmyIsBusy(IgnoreArchers:boolean=false):boolean;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
@@ -559,12 +559,12 @@ end;
 
 
 //Is the player able to issue orders to our group?
-function TKMUnitWarrior.ArmyIsBusy:boolean;
+function TKMUnitWarrior.ArmyIsBusy(IgnoreArchers:boolean=false):boolean;
 var i: integer;
 begin
   Assert(fCommander = nil); //This should only be called for commanders
   Result := false;
-  if GetFightMaxRange >= 2 then exit; //Archers are never busy
+  if IgnoreArchers and (GetFightMaxRange >= 2) then exit; //Archers are never busy
   if (GetUnitAction is TUnitActionStormAttack) or (GetUnitAction is TUnitActionFight) then
     Result := true //We are busy if the commander is storm attacking or fighting
   else
@@ -875,14 +875,10 @@ begin
 
   if fCommander <> nil then
   begin
-    //@Krom: I still get occasional crashes here in the battle tutorial, however replays do not save because it's an assert.
-    //       Could we make these a game error so the replays save and it gives the option of playing on or aborting?
-    //       I don't have any time I just noticed this error when I did test this morning. We should expect bug
-    //       reports of these errors in the demo, so making them a proper error would be good. Thanks!
-    Assert(not fCommander.IsDeadOrDying, 'not fCommander.IsDeadOrDying');
-    Assert(fCommander.fCommander = nil, 'fCommander.fCommander = nil');
+    if fCommander.IsDeadOrDying then fGame.GameError(GetPosition, 'fCommander.IsDeadOrDying');
+    if fCommander.fCommander <> nil then fGame.GameError(GetPosition, 'fCommander.fCommander <> nil');
   end;
-  Assert(GetCommander.fCommander = nil, 'GetCommander.fCommander = nil');
+  if GetCommander.fCommander <> nil then fGame.GameError(GetPosition, 'GetCommander.fCommander <> nil');
 
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
