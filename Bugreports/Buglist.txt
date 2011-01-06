@@ -1,3 +1,10 @@
+Bugs since r1345:
+ + Disappearing serfs when they start a delivery from off the road
+ + Always take deliveries from a house if possible rather than a warehouse (Baker-> Inn not
+   Baker-> Warehouse-> Inn as it is was) This should also applies to feeding soldiers.
+ + Closest units are now chosen properly
+
+
 EXE-only r1345+:
 <===================================================================================>
 	Edges of messages and other scrolls should be transparent so they look smooth

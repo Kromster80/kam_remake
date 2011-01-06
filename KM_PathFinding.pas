@@ -27,7 +27,8 @@ type
     LocA:TKMPoint;
     LocB:TKMPoint;
     Pass:TPassability;
-    TargetRoadNetworkID:byte;
+    TargetWalkConnect:TWalkConnect;
+    TargetNetwork:byte;
     fDistance:single;
     IsInteractionAvoid:boolean;
     fDestination:TDestinationPoint;
@@ -39,7 +40,7 @@ type
     function MakeRoute():boolean;
   public
     constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
-    constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; fPass:TPassability; aLocB:TKMPoint); overload;
+    constructor Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
@@ -53,7 +54,8 @@ begin
   LocA := aLocA;
   LocB := aLocB;
   Pass := aPass;
-  TargetRoadNetworkID := 0; //erase just in case
+  TargetNetwork := 0; //erase just in case
+  TargetWalkConnect := wcWalk; //erase just in case
   fDistance := aDistance;
   IsInteractionAvoid := aIsInteractionAvoid;
   fRouteSuccessfullyBuilt := false;
@@ -70,13 +72,14 @@ begin
 end;
 
 
-constructor TPathFinding.Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; fPass:TPassability; aLocB:TKMPoint);
+constructor TPathFinding.Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint);
 begin
   Inherited Create;
   LocA := aLocA;
   LocB := aLocB; //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
   Pass := fPass; //Should be unused here
-  TargetRoadNetworkID := aTargetRoadNetworkID;
+  TargetWalkConnect := aTargetWalkConnect;
+  TargetNetwork := aTargetNetwork;
   fDistance := 0;
   fRouteSuccessfullyBuilt := false;
   fDestination := dp_Passability;
@@ -115,7 +118,7 @@ function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
     dp_Location:    Result := KMLength(MinCost.Pos,LocB) <= fDistance;
-    dp_Passability: Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID;
+    dp_Passability: Result := fTerrain.GetConnectID(TargetWalkConnect, MinCost.Pos) = TargetNetwork;
     dp_House:       Result := fTargetHouse.GetDistance(MinCost.Pos) <= fDistance;
     else            Result := true;
   end;

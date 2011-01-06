@@ -313,7 +313,7 @@ end;
 
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
-var i,iD,iO:integer; Bid,BestBid:single;
+var i,iD,iO:integer; Bid,BestBid:single; BidIsPriority: boolean;
 begin
   Result:=nil;
 
@@ -340,6 +340,7 @@ for iO:=1 to OfferCount do
   //Find Offer matching Demand
   //TravelRoute Asker>Offer>Demand should be shortest
   BestBid:=0;
+  BidIsPriority := false;
   for iD:=1 to DemandCount do
   if BestBid=1 then break else //Quit loop when best bid is found
   if fDemand[iD].Resource <> rt_None then
@@ -358,28 +359,28 @@ for iO:=1 to OfferCount do
         Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
       //Modifications for bidding system
-      if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
-        Bid:=Bid + 20;
+      if (fDemand[iD].Resource=rt_All) //Always prefer deliveries House>House instead of House>Store
+      or (fOffer[iO].Loc_House.GetHouseType = ht_Store) then //Prefer taking wares from House rather than Store
+        Bid:=Bid + 1000;
 
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
         Bid:=Bid + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource);
 
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
-      if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Loc_Unit is TKMUnitWarrior) then //Prefer delivering to houses with fewer supply
+      if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Loc_Unit is TKMUnitWarrior) then
       if (fDemand[iD].Resource = rt_Food) then
         Bid:=Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
-        Bid:=1;
+        BidIsPriority := true
+      else
+        if BidIsPriority then continue; //Do not take any low priority bids once a high one is found
 
       //Take first one incase there's nothing better to be found
       //Do not take deliveries with Bid=0 (no route found)
-      if (Bid<>0)and((fQueue[i].JobStatus=js_Empty)or(Bid<BestBid)) then begin
-
-        if ((KMSerf.ID=143)or(KMSerf.ID=88)) and (i=4) then
-          i:=i;
-
+      if (Bid<>0)and((fQueue[i].JobStatus=js_Empty)or(Bid<BestBid)) then
+      begin
         fQueue[i].DemandID:=iD;
         fQueue[i].OfferID:=iO;
         fQueue[i].JobStatus:=js_Taken; //The job is found, at least something

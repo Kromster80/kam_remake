@@ -326,6 +326,8 @@ type TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGol
                      CanWolf, CanElevate, CanWorker); //14bits so far
      TPassabilitySet = set of TPassability;
 
+type TWalkConnect = (wcWalk, wcRoad, wcFish, wcAvoid);
+
 const PassabilityStr:array[TPassability] of string = (
     'canWalk',      // General passability of tile for any walking units
     'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it

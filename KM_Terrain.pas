@@ -7,8 +7,6 @@ uses Classes, KromUtils, Math, SysUtils,
 
 const MaxMapSize=192;
 
-type TWalkConnect = (wcWalk, wcRoad, wcFish, wcAvoid);
-
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -121,6 +119,7 @@ TTerrain = class
     function HasVertexUnit(Loc:TKMPoint):boolean;
     function GetRoadConnectID(Loc:TKMPoint):byte;
     function GetWalkConnectID(Loc:TKMPoint):byte;
+    function GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint):byte;
 
     function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
     function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
@@ -510,7 +509,7 @@ begin
       dir_NW: if not((dX<0)        and(dY<0)) then continue;
     end;
     //Don't check tiles farther than closest Warrior
-    if (W<>nil) and (GetLength(i,k) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
+    if (W<>nil) and (GetLength(KMPoint(aLoc.X,aLoc.Y),KMPoint(k,i)) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit yet
 
     U := Land[i,k].IsUnit;
@@ -1351,18 +1350,21 @@ end;
 //Check which road connect ID the tile has (to which road network does it belongs to)
 function TTerrain.GetRoadConnectID(Loc:TKMPoint):byte;
 begin
-  if TileInMapCoords(Loc.X,Loc.Y) then
-    Result := Land[Loc.Y,Loc.X].WalkConnect[wcRoad]
-  else
-    Result:=0; //No network
+  Result := GetConnectID(wcRoad, Loc);
 end;
 
 
 //Check which walk connect ID the tile has (to which walk network does it belongs to)
 function TTerrain.GetWalkConnectID(Loc:TKMPoint):byte;
 begin
+  Result := GetConnectID(wcWalk, Loc);
+end;
+
+
+function TTerrain.GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint):byte;
+begin
   if TileInMapCoords(Loc.X,Loc.Y) then
-    Result := Land[Loc.Y,Loc.X].WalkConnect[wcWalk]
+    Result := Land[Loc.Y,Loc.X].WalkConnect[aWalkConnect]
   else
     Result:=0; //No network
 end;
@@ -1593,7 +1595,7 @@ end;
 procedure TTerrain.Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, TargetRoadNetworkID, CanWalk, LocB);
+  fPath := TPathFinding.Create(LocA, wcRoad, TargetRoadNetworkID, CanWalk, LocB);
   fPath.ReturnRoute(NodeList);
   FreeAndNil(fPath);
 end;
@@ -1602,7 +1604,7 @@ end;
 procedure TTerrain.Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, TargetWalkNetworkID, CanWorker, LocB);
+  fPath := TPathFinding.Create(LocA, wcWalk, TargetWalkNetworkID, CanWorker, LocB);
   fPath.ReturnRoute(NodeList);
   FreeAndNil(fPath);
 end;
