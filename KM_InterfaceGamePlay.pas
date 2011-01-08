@@ -2118,7 +2118,7 @@ begin
                   if Key=ord('0') then MessageIssue(msgScroll,'123',KMPoint(0,0));
 
                   {Temporary cheat codes}
-                  if Key=ord('W') then fTerrain.RevealWholeMap(MyPlayer.PlayerID);
+                  if Key=ord('W') then fGame.fGameInputProcess.CmdTemp(gic_TempRevealMap);
                   if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
                   if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
                 end;
@@ -2126,7 +2126,6 @@ begin
                   if IsDown then exit;
                   if Key = VK_BACK then fViewport.SetZoom(1);
                   if Key = VK_F8 then   fGame.SetGameSpeed(); //Speed will toggle automatically
-                  if Key=ord('W') then  fTerrain.RevealWholeMap(MyPlayer.PlayerID);
                 end;
    end;
 end;

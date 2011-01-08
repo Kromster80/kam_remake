@@ -2,9 +2,13 @@ Bugs since r1345:
  + Disappearing serfs when they start a delivery from off the road
  + Always take deliveries from a house if possible rather than a warehouse (Baker-> Inn not
    Baker-> Warehouse-> Inn as it is was) This should also applies to feeding soldiers.
- + Closest units are now chosen properly
- + AI should not attempt to reposition archers that are shooting (caused them to stop shooting)
- + Archers now engage targets of their fellow men
+ + Closest units are now chosen properly for fights
+ + AI should not attempt to reposition archers that are shooting (caused them to stop shooting every second)
+ + Archers now turn to engage targets that their fellow men are shooting
+ + Fixed an inconsistency in saves/replays (including "Replay mismatch" errors)
+ + Warriors should not stop attacking a house to attack a citizen, only warriors
+ + Warriors should still be commandable (controls enabled) when attacking citizens not other warriors
+ - Incorrect statistics are sometimes displayed?
 
 
 EXE-only r1345+:

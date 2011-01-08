@@ -84,7 +84,8 @@ var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
   Result := ActContinues; //Continue action by default, if there is no one to fight then exit
   //See if Opponent has walked away (i.e. Serf) or died
-  if (fOpponent.IsDeadOrDying) or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange) then
+  if (fOpponent.IsDeadOrDying) or (not fOpponent.Visible) //Don't continue to fight dead units in units that have gone into a house
+  or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange) then
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
     //Try to start fighting that enemy by reusing this FightAction, rather than destorying it and making a new one
@@ -102,8 +103,9 @@ begin
     end
     else
     begin
-      //Tell commanders to reposition after a fight
-      if (TKMUnitWarrior(KMUnit).fCommander = nil) and (not TKMUnitWarrior(KMUnit).ArmyIsBusy) then
+      //Tell commanders to reposition after a fight, if we don't have other plans (order)
+      if (TKMUnitWarrior(KMUnit).fCommander = nil) and (not TKMUnitWarrior(KMUnit).ArmyIsBusy) and
+         (TKMUnitWarrior(KMUnit).GetOrder = wo_None) then
         TKMUnitWarrior(KMUnit).OrderWalk(KMUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
       //No one else to fight, so we exit
       Result := ActDone;

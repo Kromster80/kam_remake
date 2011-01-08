@@ -170,7 +170,7 @@ begin
   begin
     fCommander.fMembers.Remove((Self));
     //Now make the group reposition if they were idle (halt has IsDead check in case commander is dead too)
-    if fCommander.fState <> ws_Walking then
+    if (fCommander.fState <> ws_Walking) and not fCommander.ArmyIsBusy then
       fCommander.OrderHalt;
   end;
 
@@ -219,7 +219,7 @@ begin
       end;
 
       //If we were walking/attacking then it is handled above. Otherwise just reposition
-      if fState <> ws_Walking then
+      if (fState <> ws_Walking) and not NewCommander.ArmyIsBusy then
         NewCommander.OrderWalk(KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir)); //Else use position of new commander and direction of group
 
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
@@ -565,13 +565,15 @@ begin
   Assert(fCommander = nil); //This should only be called for commanders
   Result := false;
   if IgnoreArchers and (GetFightMaxRange >= 2) then exit; //Archers are never busy
-  if (GetUnitAction is TUnitActionStormAttack) or (GetUnitAction is TUnitActionFight) then
-    Result := true //We are busy if the commander is storm attacking or fighting
+  if (GetUnitAction is TUnitActionStormAttack)
+  or ((GetUnitAction is TUnitActionFight)and(TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior)) then
+    Result := true //We are busy if the commander is storm attacking or fighting a warrior
   else
-    //Busy if a member is fighting
+    //Busy if a member is fighting a warrior
     if (fMembers <> nil) and (fMembers.Count > 0) then
       for i:=1 to fMembers.Count do
-        if TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight then
+        if (TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight)
+        and(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
         begin
           Result := true;
           exit;
@@ -811,6 +813,9 @@ begin
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
   Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
+  //Only stop attacking a house if it's a warrior
+  if (GetUnitTask is TTaskAttackHouse) and not (Result is TKMUnitWarrior) then
+    Result := nil;
 end;
 
 
@@ -840,7 +845,7 @@ begin
   if aEnemy is TKMUnitWarrior then
   begin
     TKMUnitWarrior(aEnemy).CheckForEnemy; //Let opponent know he is attacked
-    fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //so that after the fight we stay where we are
+    if fCommander = nil then fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //so that after the fight we stay where we are
   end;
 end;
 
@@ -891,7 +896,11 @@ begin
     ChosenFoe := nil;
 
   if (fState = ws_Engage) and ((not GetCommander.ArmyIsBusy) or (not(GetUnitAction is TUnitActionWalkTo))) then
+  begin
     fState := ws_None; //As soon as combat is over set the state back
+    //Tell commanders to reposition after a fight
+    if fCommander = nil then OrderWalk(GetPosition); //Don't use halt because that returns us to fOrderLoc
+  end;
 
   //Help out our fellow group members in combat if we are not fighting and someone else is
   if (fState <> ws_Engage) and (ChosenFoe <> nil) then

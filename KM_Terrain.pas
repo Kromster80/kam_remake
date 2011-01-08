@@ -1727,13 +1727,13 @@ begin
   Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
 
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
-  RecalculatePassability(Loc);
+  RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
   RebuildWalkConnect(wcWalk);
   RebuildWalkConnect(wcRoad);
 end;
 
 
-{Take 4 neighbour heights and approach it}
+{Flatten a list of points in the mission init}
 procedure TTerrain.FlattenTerrain(LocList:TKMPointList);
 var TempH:byte; i:integer; Loc:TKMPoint;
 begin
@@ -1754,7 +1754,7 @@ begin
     if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),CanElevate) then
     Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
     RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
-    RecalculatePassability(Loc);
+    RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
   end;
 
   RebuildWalkConnect(wcWalk);
@@ -2359,7 +2359,7 @@ begin
 
   for i:=1 to MapY do for k:=1 to MapX do
     UpdateBorders(KMPoint(k,i),false);
-     
+
   RebuildLighting(1, MapX, 1, MapY);
   RebuildPassability(1, MapX, 1, MapY);
   RebuildWalkConnect(wcWalk);

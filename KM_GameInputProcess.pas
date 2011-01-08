@@ -56,7 +56,8 @@ type TGameInputCommand = (
 
   //VI. Temporary and debug commands
   gic_TempAddScout,
-  gic_TempKillUnit
+  gic_TempKillUnit,
+  gic_TempRevealMap //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
 
   { Optional input }
   //VI.     Viewport settings for replay (location, zoom)
@@ -104,6 +105,7 @@ TGameInputProcess = class
 
     procedure CmdTemp(aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
     procedure CmdTemp(aCommand:TGameInputCommand; aLoc:TKMPoint); overload;
+    procedure CmdTemp(aCommand:TGameInputCommand); overload;
 
     procedure Tick(aTick:cardinal);
 
@@ -116,7 +118,7 @@ end;
 
 
 implementation
-uses KM_Sound, KM_Game, KM_PlayersCollection;
+uses KM_Sound, KM_Game, KM_PlayersCollection, KM_Terrain;
 
 
 constructor TGameInputProcess.Create(aState:TGIPState);
@@ -256,6 +258,7 @@ begin
 
     gic_TempAddScout:           MyPlayer.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
     gic_TempKillUnit:           MyPlayer.GetUnitByID(Params[1]).KillUnit;
+    gic_TempRevealMap:          fTerrain.RevealWholeMap(MyPlayer.PlayerID);
 
     else Assert(false);
   end;
@@ -420,6 +423,14 @@ begin
   Assert(aCommand = gic_TempAddScout);
   MyPlayer.AddUnit(ut_HorseScout, aLoc);
   SaveCommand(aCommand, aLoc.X, aLoc.Y);
+end;
+
+
+procedure TGameInputProcess.CmdTemp(aCommand:TGameInputCommand);
+begin
+  Assert(aCommand = gic_TempRevealMap);
+  fTerrain.RevealWholeMap(MyPlayer.PlayerID);
+  SaveCommand(aCommand);
 end;
 
 

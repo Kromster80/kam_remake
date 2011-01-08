@@ -1557,10 +1557,16 @@ begin
     if GetDesiredPassability = CanWalkRoad then
     begin
       if not fTerrain.CheckPassability(fCurrPosition, CanWalk) then
+      begin
+        fGame.GameError(fCurrPosition,TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass canWalk');
         exit;
+      end;
     end else
     if not fTerrain.CheckPassability(fCurrPosition, GetDesiredPassability) then
+    begin
+      fGame.GameError(fCurrPosition,TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass '+PassabilityStr[GetDesiredPassability]);
       exit;
+    end;
 
   //
   //Performing Tasks and Actions now

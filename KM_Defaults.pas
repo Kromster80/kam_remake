@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1345';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1345';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1345;          //Used in replay file format
+  GAME_VERSION          = '2nd Fighting Demo r1348';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1348';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1348;          //Used in replay file format
 
 var
   //These should be TRUE
