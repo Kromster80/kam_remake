@@ -50,4 +50,8 @@ object Form1: TForm1
     TabOrder = 3
     OnClick = Button4Click
   end
+  object OpenDialog1: TOpenDialog
+    Left = 16
+    Top = 24
+  end
 end

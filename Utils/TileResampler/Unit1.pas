@@ -2,7 +2,7 @@ unit Unit1;
 interface
 
 uses
-  Forms, Controls, StdCtrls, Classes, ZLibEx, SysUtils;
+  Forms, Controls, StdCtrls, Classes, ZLibEx, SysUtils, KromUtils, Dialogs, Windows;
 
 type
   TForm1 = class(TForm)
@@ -10,6 +10,7 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    OpenDialog1: TOpenDialog;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -100,25 +101,33 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 var
-  i:integer;
   InputStream, OutputStream: TFileStream;
   DeCompressionStream: TZDecompressionStream;
   CompressionStream: TZCompressionStream;
-  InputFileName, OutputFileName: string;
+  c:char;
 begin
-//compress
-  for i:=1 to 8 do begin
-  InputFileName := 'Water'+inttostr(i)+'.tga';
-  OutputFilename := 'Water'+inttostr(i)+'.tga.bzip';
-  InputStream := TFileStream.Create(InputFileName, fmOpenRead);
-  OutputStream := TFileStream.Create(OutputFileName, fmCreate);
+  if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
+  InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
+  InputStream.Position := 0;
+  InputStream.Read(c, 1);
+
+  if c = #120 then begin
+    Application.MessageBox('File is already a zLib archive', 'Error');
+    InputStream.Free;
+    exit;
+  end;
+  InputStream.Position := 0; //Reset just in case
+
+  OutputStream := TFileStream.Create(OpenDialog1.FileName+'.tmp', fmCreate);
   CompressionStream := TZCompressionStream.Create(OutputStream, zcMax);
   CompressionStream.CopyFrom(InputStream, InputStream.Size);
   CompressionStream.Free;
   OutputStream.Free;
   InputStream.Free;
-  end;
+  CopyFile(PChar(OpenDialog1.FileName+'.tmp'),PChar(OpenDialog1.FileName), false); //Overwrite
+  DeleteFile(PChar(OpenDialog1.FileName+'.tmp'));
 end;
+
 
 procedure TForm1.Button4Click(Sender: TObject);
 var
@@ -126,24 +135,29 @@ var
   OutputStream: TMemoryStream;
   DeCompressionStream: TZDecompressionStream;
   CompressionStream: TZCompressionStream;
-  InputFileName, OutputFileName: string;
-  OutBuffer:string;
+  c:char;
 begin
-// decompress
-  InputFileName := 'units.rx.bzip';
-  OutputFilename := 'units.rx2';
-  InputStream := TFileStream.Create(InputFileName, fmOpenRead);
+  if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
+
+  InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
+  InputStream.Position := 0;
+  InputStream.Read(c, 1);
+
+  if c <> #120 then begin
+    Application.MessageBox('File is not a zLib archive', 'Error');
+    InputStream.Free;
+    exit;
+  end;
+  InputStream.Position := 0; //Reset just in case
+
   OutputStream := TMemoryStream.Create;
   DecompressionStream := TZDecompressionStream.Create(InputStream);
   OutputStream.CopyFrom(DecompressionStream, 0);
-
-  SetString(OutBuffer, PChar(OutputStream.Memory), OutputStream.Size);
-
+  InputStream.Free; //Free the Stream before we write to same filename
+  OutputStream.SaveToFile(OpenDialog1.Filename);
   DecompressionStream.Free;
   OutputStream.Free;
-  InputStream.Free;
-
-  Button4.Caption:='Done';
 end;
+
 
 end.
