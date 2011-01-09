@@ -245,7 +245,7 @@ type TKMGamePlayInterface = class
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, Forms, KM_UnitActionStormAttack;
+KM_Sound, Forms;
 
 
 {Switch between pages}

@@ -1712,7 +1712,8 @@ begin
       Dist:=KMLength(Loc,Houses[i].GetPosition);
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
-      if Houses[i].GetHouseType = ht_Barracks then Dist:=Dist*1000;
+      //In case of multiple barracks, prefer the one with less recruits already
+      if Houses[i].GetHouseType = ht_Barracks then Dist:=(Dist*1000) + (TKMHouseBarracks(Houses[i]).RecruitsInside*10000);
 
       if (Bid=0)or(Bid>Dist) then
       begin
@@ -1722,8 +1723,8 @@ begin
 
     end;
 
- if Result<>nil then
- if Result.fHouseType<>ht_Barracks then Result.fHasOwner:=true; //Become owner except Barracks;
+  if Result<>nil then
+  if Result.fHouseType<>ht_Barracks then Result.fHasOwner:=true; //Become owner except Barracks;
 end;
 
 

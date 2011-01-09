@@ -286,7 +286,7 @@ begin
         if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.GetHouseQty(ht_None)), ut_Serf) then
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
-              CheckUnitRequirements(ReqRecruits, ut_Recruit);
+              CheckUnitRequirements(ReqRecruits * Assets.GetHouseQty(ht_Barracks), ut_Recruit);
     end;
   end;
 end;

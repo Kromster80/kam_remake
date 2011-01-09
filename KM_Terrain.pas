@@ -365,11 +365,11 @@ begin
 end;
 
 
-{Check if requested tile is water suitable for fish and/or sail. No waterfalls}
+{Check if requested tile is water suitable for fish and/or sail. No waterfalls, but swamps/shallow water allowed}
 function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
-  Result := Land[Loc.Y,Loc.X].Terrain in [192,193,194,196, 200, 208..211, 235,236, 240,244];
+  Result := Land[Loc.Y,Loc.X].Terrain in [48,114,115,119,192,193,194,196, 200, 208..211, 235,236, 240,244];
 end;
 
 
@@ -2253,6 +2253,7 @@ begin
   begin
     Land[aLoc.Y, aLoc.X].Terrain := aTile;
     Land[aLoc.Y, aLoc.X].Rotation := aRotation;
+    RecalculatePassability(aLoc);
   end;
 end;
 

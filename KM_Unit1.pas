@@ -120,7 +120,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes;
+uses KM_Settings, KM_CommonTypes, KM_GameInputProcess;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
@@ -370,7 +370,7 @@ end;
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
   if (fPlayers<>nil) and (fPlayers.Player[RGPlayer.ItemIndex+1]<>nil) then
-    MyPlayer := fPlayers.Player[RGPlayer.ItemIndex+1];
+    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex+1);
 end;
 
 

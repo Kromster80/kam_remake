@@ -68,6 +68,7 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetRow:integer;
     function GetRandomFoeFromMembers: TKMUnitWarrior;
     function ArmyIsBusy(IgnoreArchers:boolean=false):boolean;
+    procedure ReissueOrder;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
@@ -170,7 +171,8 @@ begin
   begin
     fCommander.fMembers.Remove((Self));
     //Now make the group reposition if they were idle (halt has IsDead check in case commander is dead too)
-    if (fCommander.fState <> ws_Walking) and not fCommander.ArmyIsBusy then
+    if (fCommander.fState <> ws_Walking) and (not (fUnitTask is TTaskAttackHouse))
+    and not fCommander.ArmyIsBusy then
       fCommander.OrderHalt;
   end;
 
@@ -208,6 +210,7 @@ begin
       //Now make the new commander reposition or keep walking where we are going (don't stop group walking because leader dies, we could be in danger)
       NewCommander.fOrderLoc := fOrderLoc;
       NewCommander.SetOrderTarget(fOrderTargetUnit);
+      NewCommander.SetOrderHouseTarget(fOrderTargetHouse);
 
       //Transfer walk/attack
       if (GetUnitAction is TUnitActionWalkTo) and (fState = ws_Walking) then
@@ -217,10 +220,12 @@ begin
         else
           NewCommander.fOrder := wo_Walk;
       end;
-
-      //If we were walking/attacking then it is handled above. Otherwise just reposition
-      if (fState <> ws_Walking) and not NewCommander.ArmyIsBusy then
-        NewCommander.OrderWalk(KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir)); //Else use position of new commander and direction of group
+      if fUnitTask is TTaskAttackHouse then
+        NewCommander.fOrder := wo_AttackHouse
+      else
+        //If we were walking/attacking then it is handled above. Otherwise just reposition
+        if (fState <> ws_Walking) and not NewCommander.ArmyIsBusy then
+          NewCommander.OrderWalk(KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir)); //Else use position of new commander and direction of group
 
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
       fCommander := NewCommander;
@@ -363,8 +368,9 @@ begin
 
   if not AddedSelf then
     aNewCommander.AddMember(Self);
-  //Tell commander to reposition
-  fCommander.OrderHalt;
+
+  //Tell commander to reissue the order so that the new members do it
+  fCommander.ReissueOrder;
 end;
 
 
@@ -470,6 +476,8 @@ var i:integer;
 begin
   fOrder := wo_Storm;
   fState := ws_None; //Clear other states
+  SetOrderTarget(nil);
+  SetOrderHouseTarget(nil);
 
   if (fCommander = nil) and (fMembers <> nil) then
     for i := 0 to fMembers.Count-1 do
@@ -542,7 +550,7 @@ begin
   if (GetUnitAction is TUnitActionFight) and (TUnitActionFight(GetUnitAction).GetOpponent <> nil)
   and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior) then
     Foes.Add(TUnitActionFight(GetUnitAction).GetOpponent);
-    
+
   if (fMembers <> nil) and (fMembers.Count > 0) then
     for i:=1 to fMembers.Count do
       if (TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight)
@@ -651,6 +659,24 @@ begin
 end;
 
 
+//Reissue our current order, or just halt if we don't have one
+procedure TKMUnitWarrior.ReissueOrder;
+begin
+  Assert(fCommander = nil);
+
+  if (fUnitTask is TTaskAttackHouse) and (fOrderTargetHouse <> nil) then
+    OrderAttackHouse(fOrderTargetHouse)
+  else
+    if (fOrderTargetUnit <> nil) and (fState = ws_Walking) then
+      OrderAttackUnit(fOrderTargetUnit)
+    else
+      if fState = ws_Walking then
+        OrderWalk(fOrderLoc)
+      else
+        OrderHalt;
+end;
+
+
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
 procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false);
 var i:integer; NewLoc:TKMPoint;
@@ -661,6 +687,7 @@ begin
     fState    := ws_None; //Clear other states
     fOrderLoc := aLoc;
     SetOrderTarget(nil);
+    SetOrderHouseTarget(nil);
   end;
 
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
@@ -697,10 +724,12 @@ begin
   begin
     fOrder := wo_AttackUnit; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
     fState := ws_None; //Clear other states
+    fOrderLoc := KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir);
+    SetOrderHouseTarget(nil);
     SetOrderTarget(aTargetUnit);
   end;
   //Only the commander tracks the target, group members are just told to walk to the position
-  OrderWalk(KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true);
+  OrderWalk(KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Only set members
 end;
 
 
@@ -712,6 +741,7 @@ var i: integer;
 begin
   fOrder := wo_AttackHouse;
   fState := ws_None; //Clear other states
+  SetOrderTarget(nil);
   SetOrderHouseTarget(aTargetHouse);
 
   //Transmit order to all members if we have any
