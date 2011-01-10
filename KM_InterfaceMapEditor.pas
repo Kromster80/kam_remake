@@ -593,7 +593,7 @@ begin
       MyControls.AddLabel(Panel_Units,100,140,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
-        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,158+((i-1) div 5)*37,33,33, MapEd_Icon[i]);
+        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,158+((i-1) div 5)*37,33,33, MapEd_Icon[i], 7);
         Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
@@ -602,7 +602,7 @@ begin
       MyControls.AddLabel(Panel_Units,100,230,100,30,'Animals',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Animals) do
       begin
-        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,248+((i-1) div 5)*37,33,33,Animal_Icon[i]);
+        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,248+((i-1) div 5)*37,33,33, Animal_Icon[i], 7);
         Button_Animals[i].Hint := TypeToString(Animal_Order[i]);
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;

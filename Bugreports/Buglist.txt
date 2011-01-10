@@ -8,6 +8,7 @@ Bugs since r1345:
  + Fixed an inconsistency in saves/replays (including "Replay mismatch" errors)
  + Warriors should not stop attacking a house to attack a citizen, only warriors
  + Warriors should still be commandable (controls enabled) when attacking citizens not other warriors
+ + All maps of width or height 192 (the current limit) cause a crash
  - Incorrect statistics are sometimes displayed?
 
 

@@ -8,3 +8,5 @@ First digit is RX library index. Second array of 4 digits is sprite index.
 For example to replace main menu logo use: 5-0004.png
 
 Images whose indexes are outside of original ranges will be ignored.
+
+When added new sprites to RX7 you will need to update RX7_SPRITE_COUNT in KM_Defaults.pas

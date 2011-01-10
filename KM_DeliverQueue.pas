@@ -373,7 +373,10 @@ for iO:=1 to OfferCount do
         Bid:=Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
-        BidIsPriority := true
+      begin
+        if not BidIsPriority then BestBid := 9999999; //Override previously chosen low priority delivery
+        BidIsPriority := true;
+      end
       else
         if BidIsPriority then continue; //Do not take any low priority bids once a high one is found
 

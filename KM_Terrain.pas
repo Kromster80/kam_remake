@@ -660,11 +660,11 @@ begin
   //Check all four corners and choose max
   Result := CheckVerticeRevelation(X,Y,PlayerID);
   if Result = 255 then exit;
-  Result := max(Result, CheckVerticeRevelation(X+1,Y,PlayerID));
+  if TileInMapCoords(X+1,Y) then Result := max(Result, CheckVerticeRevelation(X+1,Y,PlayerID));
   if Result = 255 then exit;
-  Result := max(Result, CheckVerticeRevelation(X+1,Y+1,PlayerID));
+  if TileInMapCoords(X+1,Y+1) then Result := max(Result, CheckVerticeRevelation(X+1,Y+1,PlayerID));
   if Result = 255 then exit;
-  Result := max(Result, CheckVerticeRevelation(X,Y+1,PlayerID));
+  if TileInMapCoords(X,Y+1) then Result := max(Result, CheckVerticeRevelation(X,Y+1,PlayerID));
 end;
 
 

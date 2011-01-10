@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1348';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1348';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1348;          //Used in replay file format
+  GAME_VERSION          = '2nd Fighting Demo r1351';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1351';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1351;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -99,9 +99,10 @@ var
   Zero:integer=0; //used in SaveStream to represent NIL
 
 const
-  MAX_RES_IN_HOUSE=5;   //Maximum resource items allowed to be in house
-  MAX_ORDER=999;        //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
-  MAX_TEX_RESOLUTION=512;       //Maximum texture resolution client can handle (used for packing sprites)
+  MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
+  MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
+  MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
+  RX7_SPRITE_COUNT = 23;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
   HOUSE_COUNT = 29;       //Number of KaM houses is 29
@@ -649,16 +650,16 @@ const
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian);
 
   MapEd_Icon:array[1..10] of word = (
-    371, 369, 370, 375, 376,
-    373, 374, 377, 377, 166);
+    5, 6, 7, 8, 9,
+    10, 11, 12, 13, 14);
 
   Animal_Order:array[1..8] of TUnitType = (
     ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
     ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
 
   Animal_Icon:array[1..8] of word = (
-    377, 377, 377, 377,
-    377, 377, 377, 377);
+    15, 16, 17, 18,
+    19, 20, 21, 22);
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
   TroopCost:array[ut_Militia..ut_Cavalry,1..4] of byte = (

@@ -354,6 +354,8 @@ begin
         SetActionLockedStay(11,ua_Work1,false);
         inc(fPhase2);
         if fPhase2 = 2 then fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+        if (fPhase2 = 6) and MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
+          fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields/grasses/other quads as they won't fit with the new field
         if fPhase2 in [6,8] then fTerrain.IncDigState(fLoc);
        end;
     3: begin

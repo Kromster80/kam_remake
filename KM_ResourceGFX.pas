@@ -87,7 +87,7 @@ begin
   RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and icons
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
-  RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=false;
+  RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=true;
 
   LoadMenuResources(aLocale);
 end;
@@ -138,7 +138,7 @@ begin
     StepRefresh();
   end;
 
-  AllocateRX(7,4); //4 pics for start
+  AllocateRX(7, RX7_SPRITE_COUNT);
   LoadRX7(7); //Load RX7 data (custom bitmaps)
   MakeGFX(7);
   ClearUnusedGFX(7);
@@ -622,7 +622,10 @@ begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
     if InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
-      RXData[RX].HasMask[i] := false; //todo: Support alternative textures
+      if Copy(FileList.Strings[i], 7, 1) = 'a' then
+        RXData[RX].HasMask[i] := true //todo: [Krom] Support alternative textures
+      else
+        RXData[RX].HasMask[i] := false;
       po := TPNGObject.Create;
       po.LoadFromFile(ExeDir + 'Sprites\' + FileList.Strings[i]);
 
@@ -649,6 +652,25 @@ begin
           end;
         else Assert(false, 'Unknown PNG transparency mode')
       end;
+
+      //Apply team colour masks after loading
+      //@Krom: I'm struggling a bit here... do you think you could implement alternative textures for
+      //       custom PNG images? Delete my attempt if it's wrong, I tried copying and modifying it.
+      {for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
+          L := RXData[RX].RGBA[ID,y*po.Width+x];
+          if RXData[RX].HasMask[i] and (L in[GetColor32(23),GetColor32(24),GetColor32(25),GetColor32(26),
+                                             GetColor32(27),GetColor32(28),GetColor32(29)]) then
+          begin
+            RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
+            case L of
+              GetColor32(23),GetColor32(29):  RXData[RX].Mask[i,Pixel] := $60FFFFFF;   //7  //6
+              GetColor32(24),GetColor32(28):  RXData[RX].Mask[i,Pixel] := $90FFFFFF;   //11 //9
+              GetColor32(25),GetColor32(27):  RXData[RX].Mask[i,Pixel] := $C0FFFFFF;   //14 //12
+              GetColor32(26):                 RXData[RX].Mask[i,Pixel] := $FFFFFFFF;   //16 //16
+            end;
+            HasMask[i] := true;
+          end;
+      end;}
 
       po.Free;
     end;
