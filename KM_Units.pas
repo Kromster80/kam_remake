@@ -181,6 +181,7 @@ type
   public
     function UpdateState():boolean; override;
     procedure Paint(); override;
+    procedure DestroyInBarracks;
   end;
 
   //Serf class - transports all goods in game between houses
@@ -499,6 +500,15 @@ begin
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, fPosition.Y+1);
+end;
+
+
+procedure TKMUnitRecruit.DestroyInBarracks;
+begin
+  if fPlayers.Selected = Self then fPlayers.Selected := nil;
+  if fGame.fGamePlayInterface.ShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
+  fTerrain.UnitAdd(NextPosition, Self); //CloseUnit removes it, and as we are currently in a house we must first add it
+  CloseUnit;
 end;
 
 

@@ -147,8 +147,6 @@ begin
       KMUnit.Thought := th_None;
       KMUnit.UpdateNextPosition(KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1));
       fTerrain.UnitRem(KMUnit.GetPosition); //Unit does not occupy a tile while inside
-      if (KMUnit.GetHome<>nil) and (KMUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
-        TKMHouseBarracks(KMUnit.GetHome).RecruitsInside := TKMHouseBarracks(KMUnit.GetHome).RecruitsInside + 1;
     end;
 
     //Attempt to find a tile bellow the door we can walk to. Otherwise we can push idle units away.
@@ -179,8 +177,9 @@ begin
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
       KMUnit.UpdateNextPosition(fStreet);
       fTerrain.UnitAdd(KMUnit.NextPosition, KMUnit); //Unit was not occupying tile while inside
-      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-        TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
+      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) //Unit home is barracks
+      and(KMUnit.GetHome = fHouse) then //And is the house we are walking from
+        TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Remove(KMUnit);
     end;
 
     if fUsingDoorway then
@@ -202,8 +201,9 @@ begin
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
       KMUnit.UpdateNextPosition(fStreet);
       fTerrain.UnitAdd(KMUnit.NextPosition, KMUnit); //Unit was not occupying tile while inside
-      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-        TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
+      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) //Unit home is barracks
+      and(KMUnit.GetHome = fHouse) then //And is the house we are walking from
+        TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Remove(KMUnit);
     end
     else exit; //Wait until my push request is dealt with before we move out
   end;
@@ -225,6 +225,9 @@ begin
     if fDirection = gd_GoInside then
     begin
       KMUnit.PositionF := fDoor;
+      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) //Unit home is barracks
+      and(KMUnit.GetHome = fHouse) then //And is the house we are walking into
+        TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Add(KMUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       if (fHouse<>nil) and not fHouse.IsDestroyed then
         KMUnit.SetInHouse(fHouse);
     end

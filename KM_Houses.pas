@@ -71,6 +71,7 @@ type
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); virtual;
+    procedure SyncLoad(); virtual;
     destructor Destroy; override;
     function GetHousePointer:TKMHouse; //Returns self and adds one to the pointer counter
     procedure ReleaseHousePointer; //Decreases the pointer counter
@@ -190,9 +191,10 @@ type
   private
     ResourceCount:array[1..11]of word;
   public
-    RecruitsInside:integer;
+    RecruitsList: TList;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad(); override;
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
     function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; override;
@@ -216,7 +218,7 @@ type
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
-  {SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation}
+
   TKMHouseTower = class(TKMHouse)
   public
     procedure Paint; override;
@@ -336,6 +338,12 @@ begin
   end;
   LoadStream.Read(ResourceDepletedMsgIssued);
   LoadStream.Read(DoorwayUse);
+end;
+
+
+procedure TKMHouse.SyncLoad();
+begin
+  //Should be virtual
 end;
 
 
@@ -1429,16 +1437,31 @@ begin
   Inherited;
   for i:=1 to length(ResourceCount) do
     ResourceCount[i]:=0;
-  RecruitsInside:=0;
+  RecruitsList := TList.Create;
 end;
 
 
 constructor TKMHouseBarracks.Load(LoadStream:TKMemoryStream);
-var i:integer;
+var i,aCount:integer; U:TKMUnit;
 begin
   Inherited;
   for i:=1 to 11 do LoadStream.Read(ResourceCount[i], SizeOf(ResourceCount[i]));
-  LoadStream.Read(RecruitsInside);
+  RecruitsList := TList.Create;
+  LoadStream.Read(aCount);
+  if aCount <> 0 then
+    for i := 1 to aCount do
+    begin
+      LoadStream.Read(U, 4); //subst on syncload
+      RecruitsList.Add(U);
+    end;
+end;
+
+
+procedure TKMHouseBarracks.SyncLoad();
+var i:integer;
+begin
+  for i:=1 to RecruitsList.Count do
+    RecruitsList.Items[i-1] := TKMUnit(fPlayers.GetUnitByID(cardinal(RecruitsList.Items[i-1])));
 end;
 
 
@@ -1478,7 +1501,7 @@ end;
 function TKMHouseBarracks.CanEquip(aUnitType: TUnitType):boolean;
 var i:integer;
 begin
-  Result := RecruitsInside > 0; //Can't equip anything without recruits
+  Result := RecruitsList.Count > 0; //Can't equip anything without recruits
 
   for i:=1 to 4 do
   if TroopCost[aUnitType,i]<>0 then //Can't equip if we don't have a required resource
@@ -1500,7 +1523,8 @@ begin
     if TroopCost[aUnitType,i]<>0 then
       dec(ResourceCount[TroopCost[aUnitType,i]]);
 
-  dec(RecruitsInside); //All units take a recruit
+  TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks; //Special way to kill the unit because it is in a house
+  RecruitsList.Delete(0); //Delete first recruit in the list
 
   //Make new unit
   Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));
@@ -1524,7 +1548,9 @@ var i:integer;
 begin
   Inherited;
   for i:=1 to 11 do SaveStream.Write(ResourceCount[i], SizeOf(ResourceCount[i]));
-  SaveStream.Write(RecruitsInside);
+  SaveStream.Write(RecruitsList.Count);
+  for i:=1 to RecruitsList.Count do
+    SaveStream.Write(TKMUnit(RecruitsList.Items[i-1]).ID) //Store ID
 end;
 
 
@@ -1713,7 +1739,7 @@ begin
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
       //In case of multiple barracks, prefer the one with less recruits already
-      if Houses[i].GetHouseType = ht_Barracks then Dist:=(Dist*1000) + (TKMHouseBarracks(Houses[i]).RecruitsInside*10000);
+      if Houses[i].GetHouseType = ht_Barracks then Dist:=(Dist*1000) + (TKMHouseBarracks(Houses[i]).RecruitsList.Count*10000);
 
       if (Bid=0)or(Bid>Dist) then
       begin
@@ -1806,8 +1832,11 @@ var i:integer;
 begin
   fSelectedHouse := fPlayers.GetHouseByID(cardinal(fSelectedHouse));
   for i := 0 to Count - 1 do
+  begin
+    Houses[i].SyncLoad;
     if Houses[i].fCurrentAction<>nil then
       Houses[i].fCurrentAction.fHouse := fPlayers.GetHouseByID(cardinal(Houses[i].fCurrentAction.fHouse));
+  end;
 end;
 
 

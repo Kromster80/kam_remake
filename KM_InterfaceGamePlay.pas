@@ -1599,7 +1599,7 @@ begin
   CanEquip:=true;
   for i:=1 to 12 do begin
     if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.Selected).CheckResIn(TResourceType(i+16))
-                    else Tmp:=TKMHouseBarracks(fPlayers.Selected).RecruitsInside;
+                    else Tmp:=TKMHouseBarracks(fPlayers.Selected).RecruitsList.Count;
     if Tmp=0 then Button_Barracks[i].Caption:='-'
              else Button_Barracks[i].Caption:=inttostr(Tmp);
     //Set highlights
@@ -1613,7 +1613,7 @@ begin
   end;
   Button_Barracks[12].Down:=true; //Recruit is always enabled, all troops require one
 
-  Button_Barracks_Train.Enabled := CanEquip and (Barracks.RecruitsInside > 0);
+  Button_Barracks_Train.Enabled := CanEquip and (Barracks.RecruitsList.Count > 0);
   Button_Barracks_Left.Enabled := LastBarracksUnit > 1;
   Button_Barracks_Right.Enabled := LastBarracksUnit < length(Barracks_Order);
   Image_Barracks_Left.Visible:= Button_Barracks_Left.Enabled;
