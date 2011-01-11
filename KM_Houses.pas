@@ -195,6 +195,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad(); override;
+    destructor Destroy(); override;
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
     function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; override;
@@ -1460,8 +1461,15 @@ end;
 procedure TKMHouseBarracks.SyncLoad();
 var i:integer;
 begin
-  for i:=1 to RecruitsList.Count do
-    RecruitsList.Items[i-1] := TKMUnit(fPlayers.GetUnitByID(cardinal(RecruitsList.Items[i-1])));
+  for i:=0 to RecruitsList.Count-1 do
+    RecruitsList.Items[i] := TKMUnit(fPlayers.GetUnitByID(cardinal(RecruitsList.Items[i])));
+end;
+
+
+destructor TKMHouseBarracks.Destroy();
+begin
+  FreeAndNil(RecruitsList);
+  Inherited;
 end;
 
 

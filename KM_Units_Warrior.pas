@@ -146,8 +146,8 @@ begin
   fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
   fOrderTargetHouse := TKMHouse(fPlayers.GetHouseByID(cardinal(fOrderTargetHouse)));
   if fMembers<>nil then
-    for i:=1 to fMembers.Count do
-      fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fMembers.Items[i-1])));
+    for i:=0 to fMembers.Count-1 do
+      fMembers.Items[i] := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fMembers.Items[i])));
 end;
 
 
