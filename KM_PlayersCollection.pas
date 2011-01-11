@@ -130,7 +130,7 @@ begin
   for X:=trunc(aLoc.X) to ceil(aLoc.X) do begin
     U := Player[i].UnitsHitTest(X,Y);
     if U<>nil then
-      if (Result=nil) or (GetLength(U.PositionF,aLoc)<GetLength(U.PositionF,Result.PositionF)) then
+      if (Result=nil) or (GetLength(U.PositionF,aLoc)<GetLength(Result.PositionF,aLoc)) then
         Result := U;
   end;
 

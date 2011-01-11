@@ -164,7 +164,12 @@ end;
 procedure TKMUnitWarrior.KillUnit;
 var i,NewCommanderID:integer; Test,Nearest:single; NewCommander:TKMUnitWarrior;
 begin
-  if IsDeadOrDying then exit; //Don't kill unit if it's already dying
+  if IsDeadOrDying then
+  begin
+    //Due to fKillASAP reassigning the commander etc. has already happened, we just need to finish the kill with Inherited
+    Inherited;
+    exit;
+  end;
 
   //Kill group member
   if fCommander <> nil then

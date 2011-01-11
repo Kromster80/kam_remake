@@ -1544,6 +1544,7 @@ begin
   if fKillASAP and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then begin
     KillUnit;
     fKillASAP := false;
+    assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
 
   UpdateHunger();

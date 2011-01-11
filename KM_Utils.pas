@@ -209,7 +209,7 @@ end;
 //  3 4 3
 function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
 begin
-  Result := abs(byte(Dir1)-1 - (byte(Dir2)+4) mod 8);
+  Result := abs(byte(Dir1) - ((byte(Dir2)+4) mod 8));
 
   if Result > 4 then
     Result := 8 - Result; //Mirror it, as the difference must always be 0..4

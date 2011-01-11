@@ -85,7 +85,8 @@ begin
   Result := ActContinues; //Continue action by default, if there is no one to fight then exit
   //See if Opponent has walked away (i.e. Serf) or died
   if (fOpponent.IsDeadOrDying) or (not fOpponent.Visible) //Don't continue to fight dead units in units that have gone into a house
-  or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange) then
+  or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange)
+  or not fTerrain.CanWalkDiagonaly(KMUnit.GetPosition, fOpponent.GetPosition) then //Might be a tree between us now
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
     //Try to start fighting that enemy by reusing this FightAction, rather than destorying it and making a new one
