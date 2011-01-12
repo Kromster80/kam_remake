@@ -208,6 +208,7 @@ begin
     else exit; //Wait until my push request is dealt with before we move out
   end;
 
+  Assert(KMSamePoint(KMPointRound(fDoor),fHouse.GetEntrance)); //Must always go in/out the entrance of the house
   Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
   if (fStreet.X-fDoor.X <> 0) then

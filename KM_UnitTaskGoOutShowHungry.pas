@@ -12,6 +12,7 @@ uses Classes, KM_Defaults, KM_Units, KromUtils, SysUtils;
 
 
 implementation
+uses KM_Utils;
 
 
 { TTaskGoOutShowHungry }
@@ -41,9 +42,10 @@ begin
          GetHome.SetState(hst_Empty);
        end;
     2: SetActionLockedStay(4,ua_Walk);
-    3: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.GetHome);
-    4: begin
-         SetActionStay(20,ua_Walk);
+    3: SetActionWalkToSpot(KMPointY1(fUnit.GetHome.GetEntrance));
+    4: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.GetHome);
+    5: begin
+         SetActionStay(20+Random(10),ua_Walk);
          GetHome.SetState(hst_Idle);
        end;
     else begin

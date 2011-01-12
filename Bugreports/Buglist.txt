@@ -9,7 +9,9 @@ Bugs since r1345:
  + Warriors should not stop attacking a house to attack a citizen, only warriors
  + Warriors should still be commandable (controls enabled) when attacking citizens not other warriors
  + All maps of width or height 192 (the current limit) cause a crash
- - Incorrect statistics are sometimes displayed?
+ + Recruits were not removed properly from the barracks when equipped into soliders
+ + Fixed bug with citizens walking into the wall of their home when they were hungry but no food was available
+ ? Incorrect statistics are sometimes displayed (caused by disappearing serfs?)
 
 
 EXE-only r1345+:
