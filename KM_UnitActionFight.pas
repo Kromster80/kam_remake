@@ -106,7 +106,7 @@ begin
     begin
       //Tell commanders to reposition after a fight, if we don't have other plans (order)
       if (TKMUnitWarrior(KMUnit).fCommander = nil) and (not TKMUnitWarrior(KMUnit).ArmyIsBusy) and
-         (TKMUnitWarrior(KMUnit).GetOrder = wo_None) then
+         (TKMUnitWarrior(KMUnit).GetOrder = wo_None) and (KMUnit.GetUnitTask = nil) then
         TKMUnitWarrior(KMUnit).OrderWalk(KMUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
       //No one else to fight, so we exit
       Result := ActDone;

@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1355';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1355';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1355;          //Used in replay file format
+  GAME_VERSION          = '2nd Fighting Demo r1356';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1356';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1356;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -102,7 +102,7 @@ const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
-  RX7_SPRITE_COUNT = 23;  //Number of sprites to load for RX7 from the folder \Sprites\
+  RX7_SPRITE_COUNT = 22;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
   HOUSE_COUNT = 29;       //Number of KaM houses is 29

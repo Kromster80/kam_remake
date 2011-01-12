@@ -849,7 +849,7 @@ begin
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
   Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
   //Only stop attacking a house if it's a warrior
-  if (GetUnitTask is TTaskAttackHouse) and not (Result is TKMUnitWarrior) then
+  if (GetUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then
     Result := nil;
 end;
 
@@ -925,7 +925,8 @@ begin
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
   //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
-  if (fFlagAnim mod 10 = 0) and GetCommander.ArmyIsBusy then
+  if (fFlagAnim mod 10 = 0) and GetCommander.ArmyIsBusy and not (GetUnitAction is TUnitActionFight)
+  and not (fState = ws_Engage) then
     ChosenFoe := GetCommander.GetRandomFoeFromMembers
   else
     ChosenFoe := nil;

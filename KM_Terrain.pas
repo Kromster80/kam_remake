@@ -1795,9 +1795,9 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
 
   procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
   begin
-    if ((Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
+    if (Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
      ((wcType <> wcAvoid)or
-     ((wcType = wcAvoid)and(Land[y,x].Markup <> mu_UnderConstruction)))) then //Untested area
+     ( (wcType=wcAvoid) and not fTerrain.TileIsLocked(KMPoint(x,y)) )) then //Matches passability
     begin
       Land[y,x].WalkConnect[wcType]:=ID;
       inc(Count);
