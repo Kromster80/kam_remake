@@ -97,7 +97,7 @@ type
     property GetPointerCount:integer read fPointerCount;
 
     procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
-    procedure CloseUnit;
+    procedure CloseUnit; dynamic;
 
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X,Y:integer; const UT:TUnitType = ut_Any): Boolean;

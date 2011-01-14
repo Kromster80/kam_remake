@@ -35,6 +35,7 @@ type //Possibly melee warrior class? with Archer class separate?
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad(); override;
+    procedure CloseUnit; override;
     destructor Destroy; override;
 
     procedure KillUnit; override;
@@ -148,6 +149,18 @@ begin
   if fMembers<>nil then
     for i:=0 to fMembers.Count-1 do
       fMembers.Items[i] := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fMembers.Items[i])));
+end;
+
+
+procedure TKMUnitWarrior.CloseUnit;
+begin
+  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+  FreeAndNil(fMembers);
+  fState := ws_None;
+  fOrder := wo_None;
+  fCommander := nil; //Otherwise if this closed unit is saved memory errors can occur (fCommander does not use pointer tracking)
+  Inherited;
 end;
 
 

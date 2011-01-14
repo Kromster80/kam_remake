@@ -11,6 +11,8 @@ Bugs since r1345:
  + All maps of width or height 192 (the current limit) cause a crash
  + Recruits were not removed properly from the barracks when equipped into soliders
  + Fixed bug with citizens walking into the wall of their home when they were hungry but no food was available
+ + Arrows should not hit units inside houses
+ + Labourers always take the closest job
  ? Incorrect statistics are sometimes displayed (caused by disappearing serfs?)
 
 

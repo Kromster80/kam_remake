@@ -135,7 +135,7 @@ begin
           U := fPlayers.UnitsHitTestF(fTargetJ);
           case fProjType of
             pt_Arrow,
-            pt_Bolt:      if U <> nil then
+            pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                           begin
                             if Random(2) = 1 then
                               if  U.HitPointsDecrease(1) then //Arrows hit unit 50% of the time
@@ -151,7 +151,7 @@ begin
                                 if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
                                   fPlayers.Player[byte(fOwner)].fPlayerStats.HouseDestroyed(H.GetHouseType);
                           end;
-            pt_TowerRock: if U <> nil then
+            pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                             if U.HitPointsDecrease(10)then //Instant death
                               if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
                                 fPlayers.Player[byte(fOwner)].fPlayerStats.UnitKilled(U.UnitType);
