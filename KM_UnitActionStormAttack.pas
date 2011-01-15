@@ -142,7 +142,11 @@ begin
       if TKMUnitWarrior(KMUnit).GetOrder = wo_None then
         TKMUnitWarrior(KMUnit).OrderLocDir := KMPointDir(KMUnit.GetPosition,TKMUnitWarrior(KMUnit).OrderLocDir.Dir);
       //Begin the fight right now
-      if FoundEnemy <> nil then TKMUnitWarrior(KMUnit).FightEnemy(FoundEnemy);
+      if FoundEnemy <> nil then
+      begin
+        TKMUnitWarrior(KMUnit).FightEnemy(FoundEnemy);
+        Result := ActContinues; //Set result to ActContinues so the new fight action isn't destroyed
+      end;
       exit; //Must exit right away as we might have changed this action to fight
     end;
     Locked := true; //Finished using FindEnemy

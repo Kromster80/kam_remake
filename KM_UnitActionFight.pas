@@ -99,8 +99,7 @@ begin
       fOpponent.GetUnitPointer; //Add to pointer count
       Locked := true;
       AimingDelay := -1;
-      KMUnit.AnimStep := 0;
-      KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
+      //Do not face the new opponent or reset the animation step, wait until this strike is over
     end
     else
     begin
@@ -118,7 +117,8 @@ begin
   Step  := KMUnit.AnimStep mod Cycle;
 
   //Opponent can walk next to us, keep facing him
-  KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
+  if Step = 0 then //Only change direction between strikes, otherwise it looks odd
+    KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
 
   if TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2 then begin
     if Step = FIRING_DELAY then

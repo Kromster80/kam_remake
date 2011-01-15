@@ -341,11 +341,15 @@ begin
       HaltPoint := fOrderLoc;
 
   HaltPoint.Dir := byte(KMLoopDirection(HaltPoint.Dir+aTurnAmount+1))-1; //Add the turn amount, using loop in case it goes over 7
+  fOrderLoc.Dir := HaltPoint.Dir;
 
   if fMembers <> nil then
     SetUnitsPerRow(fUnitsPerRow+aLineAmount);
 
-  OrderWalk(HaltPoint);
+  if (aTurnAmount <> 0) or (aLineAmount <> 0) then
+    ReissueOrder //When changing formation/direction do not interupt walks/other orders
+  else
+    OrderWalk(HaltPoint);
 end;
 
 
@@ -599,7 +603,8 @@ begin
     if (fMembers <> nil) and (fMembers.Count > 0) then
       for i:=1 to fMembers.Count do
         if (TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight)
-        and(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
+        and(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent is TKMUnitWarrior)
+        and not(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent.IsDeadOrDying) then
         begin
           Result := true;
           exit;
@@ -938,8 +943,8 @@ begin
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
   //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
-  if (fFlagAnim mod 10 = 0) and GetCommander.ArmyIsBusy and not (GetUnitAction is TUnitActionFight)
-  and not (fState = ws_Engage) then
+  if GetCommander.ArmyIsBusy and (not (GetUnitAction is TUnitActionFight))
+  and (not (GetUnitAction is TUnitActionStormAttack)) and not (fState = ws_Engage) then
     ChosenFoe := GetCommander.GetRandomFoeFromMembers
   else
     ChosenFoe := nil;
@@ -948,7 +953,8 @@ begin
   begin
     fState := ws_None; //As soon as combat is over set the state back
     //Tell commanders to reposition after a fight
-    if fCommander = nil then OrderWalk(GetPosition); //Don't use halt because that returns us to fOrderLoc
+    if (fCommander = nil) and (not GetCommander.ArmyIsBusy) then
+      OrderWalk(GetPosition); //Don't use halt because that returns us to fOrderLoc
   end;
 
   //Help out our fellow group members in combat if we are not fighting and someone else is
