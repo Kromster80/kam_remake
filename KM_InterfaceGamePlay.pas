@@ -596,12 +596,13 @@ end;
 
 
 procedure TKMGamePlayInterface.ResizeGameArea(X,Y:word);
-var S:TKMPoint;
+var S:TKMPoint; i: integer;
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
   fViewport.ResizeGameArea(X,Y);
   fViewport.SetZoom(fViewport.Zoom);
+  Label_Hint.Top := Y-16;
   //Center pause controls when the screen is resized during gameplay
   S := fRender.RenderAreaSize;
   Image_Pause.Left := (S.X div 2);
@@ -613,6 +614,10 @@ begin
   Image_Pause.Center;
   Label_Pause1.Center;
   Label_Pause2.Center;
+  //Messages
+  Panel_Message.Top := Y - 190;
+  for i := low(Image_Message) to high(Image_Message) do
+    Image_Message[i].Top := Y - i*48;
 end;
 
 

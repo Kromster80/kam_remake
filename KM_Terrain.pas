@@ -674,6 +674,7 @@ begin
   Land[Loc.Y,Loc.X].Markup:=aMarkup;
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(wcWalk); //Markups affect passability so therefore also floodfill
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -683,6 +684,7 @@ begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(wcWalk); //Markups affect passability so therefore also floodfill
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -732,6 +734,8 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -780,6 +784,8 @@ begin
   end;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -1045,6 +1051,8 @@ begin
   Land[Loc.Y,Loc.X].TreeAge:=0;
   FallingTrees.RemoveEntry(Loc);
   RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcRoad);
 end;
 
 

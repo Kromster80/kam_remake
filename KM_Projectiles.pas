@@ -137,8 +137,9 @@ begin
             pt_Arrow,
             pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                           begin
-                            if Random(2) = 1 then
-                              if  U.HitPointsDecrease(1) then //Arrows hit unit 50% of the time
+                            //Arrows are more likely to cause damage when the unit is closer
+                            if Random(Round(8 * GetLength(U.PositionF,fTargetJ))) = 0 then
+                              if  U.HitPointsDecrease(1) then
                                 if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
                                   fPlayers.Player[byte(fOwner)].fPlayerStats.UnitKilled(U.UnitType);
                           end

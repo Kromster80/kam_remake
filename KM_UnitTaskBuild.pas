@@ -579,6 +579,8 @@ begin
         fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj:=255; //All objects are removed
         fTerrain.SetMarkup(Cells[Step],mu_HouseFenceNoWalk); //Block passability on tile
         fTerrain.RecalculatePassability(Cells[Step]);
+        fTerrain.RebuildWalkConnect(wcWalk);
+        fTerrain.RebuildWalkConnect(wcRoad);
         dec(Step);
       end;
   7:  begin

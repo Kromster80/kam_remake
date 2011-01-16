@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1358';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1358';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1358;          //Used in replay file format
+  GAME_VERSION          = '2nd Fighting Demo r1359';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1359';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1359;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -129,12 +129,12 @@ const //Here we store options that are hidden somewhere in code
   RANGE_FISHERMAN   = 12;
 
   //Archer properties
-  RANGE_ARBALETMAN_MAX  = 9.99; //KaM: Unit standing 9 tiles from us will be shot, 10 tiles not
-  RANGE_BOWMAN_MAX      = 9.99;
+  RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not
+  RANGE_BOWMAN_MAX      = 10.99;
   RANGE_WATCHTOWER_MAX  = 6.99; //Measured in KaM. Distance from the doorway of tower
 
-  RANGE_ARBALETMAN_MIN  = 3; //KaM: We will shoot a unit standing 3 tiles away, but not one standing 2 tiles away
-  RANGE_BOWMAN_MIN      = 3;
+  RANGE_ARBALETMAN_MIN  = 4; //KaM: We will shoot a unit standing 4 tiles away, but not one standing 3 tiles away
+  RANGE_BOWMAN_MIN      = 4;
   RANGE_WATCHTOWER_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
 
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt

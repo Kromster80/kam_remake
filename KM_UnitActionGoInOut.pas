@@ -78,7 +78,7 @@ end;
 destructor TUnitActionGoInOut.Destroy;
 begin
   if fUsedDoorway then DecDoorway;
-  if fHouse<>nil then fPlayers.CleanUpHousePointer(fHouse);
+  fPlayers.CleanUpHousePointer(fHouse);
   Inherited;
 end;
 
@@ -208,7 +208,7 @@ begin
     else exit; //Wait until my push request is dealt with before we move out
   end;
 
-  Assert(KMSamePoint(KMPointRound(fDoor),fHouse.GetEntrance)); //Must always go in/out the entrance of the house
+  Assert((fHouse = nil) or KMSamePoint(KMPointRound(fDoor),fHouse.GetEntrance)); //Must always go in/out the entrance of the house
   Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
   if (fStreet.X-fDoor.X <> 0) then
@@ -231,6 +231,8 @@ begin
         TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Add(KMUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       if (fHouse<>nil) and not fHouse.IsDestroyed then
         KMUnit.SetInHouse(fHouse);
+      if (fHouse<>nil) and (fHouse.IsDestroyed) then
+        fTerrain.UnitAdd(KMPointRound(KMUnit.PositionF), KMUnit); //Unit was not occupying a tile while walking in
     end
     else
     begin

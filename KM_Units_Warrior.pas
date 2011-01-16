@@ -1060,7 +1060,7 @@ begin
     fState := ws_None; //Not needed for storm attack
   end;
 
-  if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
+  if fFlagAnim mod 5 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;

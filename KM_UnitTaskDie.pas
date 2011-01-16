@@ -21,6 +21,12 @@ constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_Die;
+  //Shortcut to remove the pause before the dying animation which makes fights look odd
+  if aUnit.Visible then
+  begin
+    fPhase := 1; //Phase 0 can be skipped when the unit is visible
+    Execute();
+  end;
 end;
 
 
@@ -36,10 +42,8 @@ begin
           if GetHome<>nil then begin
             GetHome.SetState(hst_Idle);
             GetHome.SetState(hst_Empty);
-            SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome);
-          end
-          else //Inn or Store or etc.. for units without home.
-            SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
+          end;
+          SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
         end;
     1:  begin
           SequenceLength := fResource.GetUnitSequenceLength(UnitType,ua_Die,Direction);
