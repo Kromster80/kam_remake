@@ -5,7 +5,8 @@ Make sure these are checked:	//Assigned to Krom
 	Game version strings in KM_Defaults (include expected revision # and commit it)
 	Turn off debug data in compilation options
 	Compile in Delphi6/7
-	Update bugreports list (move fixed bugs below)
+	Update Bugreports list (move fixed bugs down)
+	Update Fetures list (move implemented features down)
 	Pack EXE file
 	Include OpenAL distributive
 	Test installer and Demo

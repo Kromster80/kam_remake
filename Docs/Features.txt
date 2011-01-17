@@ -1,0 +1,39 @@
+	Improved AI scripting [Lewin]
+	Tutorial missions and texts from KaM
+	Lookout tower [Krom]
+
+2nd Fighting Demo (r1345) - 31.12.2010:
+ +	Lots of bugfixes [Krom/Lewin]
+ +	Ranged attacks [Krom]
+ +	Improved unit-interaction performance [Krom/Lewin]
+ +	Replaceable in-game sprites [Krom]
+ +	Replay controls [Krom]
+
+Fighting Demo (r970) - 13.08.2010:
+ +	Army controls in UI [Krom]
+ +	Army movements [Lewin]
+ +	Units fighting [Lewin]
+ +	Unit interaction bugfixes [Krom]
+ +	Unit voices
+ +	Tower throwing rocks at enemies [Krom]
+ +	House attacks
+ +	Map editor saving simple maps [Krom/Lewin]
+ +	UI for saving maps from MapEd [Krom]
+ +	Replays [Krom]
+ +	Brightness settings as 0..20 range [Krom]
+ +	Working mission result (win/defeat) conditions [Krom]
+
+3rd Economy Demo (r673) 11.02.2010:
++	Unit interaction [Lewin]
++	Wares distribution [Lewin]
++	Save/Load [Krom]
++	Soldiers walking bug-free as groups [Lewin]
++	Show proper error message when route cannot be built [Lewin]
++	Show proper error message and return to main menu/game if load fails or file doesn't exist [Lewin]
++	Change save file type to .sav rather than .txt [Krom]
++	Height effects passability [Lewin]
++	Update Readme file [Krom/Lewin]
+
+2nd Economy Demo (r673) - 01.09.2009:
+
+Economy Demo (r673) - 28.07.2009:

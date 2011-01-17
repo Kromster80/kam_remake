@@ -1,22 +1,4 @@
-Bugs since r1345:
- + Disappearing serfs when they start a delivery from off the road
- + Always take deliveries from a house if possible rather than a warehouse (Baker-> Inn not
-   Baker-> Warehouse-> Inn as it is was) This should also applies to feeding soldiers.
- + Closest units are now chosen properly for fights
- + AI should not attempt to reposition archers that are shooting (caused them to stop shooting every second)
- + Archers now turn to engage targets that their fellow men are shooting
- + Fixed an inconsistency in saves/replays (including "Replay mismatch" errors)
- + Warriors should not stop attacking a house to attack a citizen, only warriors
- + Warriors should still be commandable (controls enabled) when attacking citizens not other warriors
- + All maps of width or height 192 (the current limit) cause a crash
- + Recruits were not removed properly from the barracks when equipped into soliders
- + Fixed bug with citizens walking into the wall of their home when they were hungry but no food was available
- + Arrows should not hit units inside houses
- + Labourers always take the closest job
- ? Incorrect statistics are sometimes displayed (caused by disappearing serfs?)
-
-
-EXE-only r1345+:
+EXE-only r1359+:
 <===================================================================================>
 	Edges of messages and other scrolls should be transparent so they look smooth
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
@@ -26,7 +8,7 @@ EXE-only r1345+:
 	Display WIP houses/units in statistics menu
 	Make units/houses highlight red when about to erase them as trees do (in MapEd)
 	Show correct number of players in SingleMap by scaning MapInfo
-	Dots and lines displaying on tile edges
+	Dots and lines displaying on tile edges [Krom]
  
 	Colored rectangle below cursor	
 	MediaPlayer won't play mp3s and crash
@@ -49,7 +31,28 @@ EXE-only r1345+:
  ?	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
 
 
-Fixed in KaM Remake Fighting Demo 101231 (r1345):
+
+Fixed in r1359:
+<===================================================================================>
+ +	Disappearing serfs when they start a delivery from off the road
+ +	Always take deliveries from a house if possible rather than a warehouse (Baker-> Inn not Baker-> Warehouse-> Inn as it is was) incl. soldiers
+ +	Closest units are now chosen properly for fights
+ +	AI should not attempt to reposition archers that are shooting (caused them to stop shooting every second)
+ +	Archers now turn to engage targets that their fellow men are shooting
+ +	Fixed an inconsistency in saves/replays (including "Replay mismatch" errors)
+ +	Warriors should not stop attacking a house to attack a citizen, only warriors
+ +	Warriors should still be commandable (controls enabled) when attacking citizens not other warriors
+ +	All maps of width or height 192 (the current limit) cause a crash
+ +	Recruits were not removed properly from the barracks when equipped into soliders
+ +	Fixed bug with citizens walking into the wall of their home when they were hungry but no food was available
+ +	Arrows should not hit units inside houses
+ +	Labourers always take the closest job
+ ?	Incorrect statistics are sometimes displayed (caused by disappearing serfs?)
+
+
+
+
+Fixed in KaM Remake 2nd Fighting Demo 101231 (r1345):
 <===================================================================================>
  +	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
  +	Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
@@ -155,7 +158,7 @@ Fixed in r698:
 
 
 
-KaM Remake r565
+Fixed in r565:
 <===================================================================================>
 Gameplay bugs:
 +	Flags are always visible
@@ -171,7 +174,7 @@ Suggested improvements:
 
 
 
-KaM Remake Economy Demo 090901 (r428)
+Fixed in KaM Remake Economy Demo 090901 (r428)
 <===================================================================================>
 Gameplay bugs:
 +	Alt-tabbing with School/Barracks selected causes a crash
@@ -183,7 +186,7 @@ Gameplay bugs:
 
 
 
-KaM Remake Economy Demo 090728 (r363)
+Fixed in KaM Remake Economy Demo 090728 (r363)
 <===================================================================================>
 Gameplay bugs:
 +	Tree (cut by woodcutter?) will fall down repeatedly forever
