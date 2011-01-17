@@ -432,11 +432,13 @@ begin
   begin
     Tmp := fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
     if Tmp=0 then exit; //No orders
-    Tmp := Random(Tmp)+1; //Pick random from overall count
-    for i:=1 to 4 do begin
-      if InRange(Tmp,1,fHome.CheckResOrder(i)) then Res := i;
-      dec(Tmp,fHome.CheckResOrder(i));
-    end;
+    i := 0;
+    repeat
+      Tmp := Random(4)+1; //Pick random from overall count
+      inc(i);
+    until (fHome.CheckResOrder(Tmp) > 0) or (i > 9); //Limit number of attempts to guarantee it doesn't loop forever
+    if fHome.CheckResOrder(Tmp) > 0 then Res := Tmp
+    else exit; //Nothing found
   end;
 
   fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
