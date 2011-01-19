@@ -1,3 +1,11 @@
+	Single-player AI
+	Map Editor
+	Random map generator
+	Local multiplayer
+	Internet multiplayer
+	Support custom campaigns
+	Replays manager
+
 	Improved AI scripting [Lewin]
 	Tutorial missions and texts from KaM
 	Lookout tower [Krom]
