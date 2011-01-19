@@ -5,6 +5,7 @@
 	Internet multiplayer
 	Support custom campaigns
 	Replays manager
+	Multiplayer lobby chat
 
 	Improved AI scripting [Lewin]
 	Tutorial missions and texts from KaM

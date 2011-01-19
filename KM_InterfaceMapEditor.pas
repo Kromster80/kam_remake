@@ -643,6 +643,7 @@ begin
     Button_Mission[1] := MyControls.AddButton(Panel_Mission, 8, 4, 36, 24, 41);
     for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
 
+    //todo: Improve the look and feel of alliances, replace checkboxes with flat buttons, add spaces between rows, etc.
     Panel_Alliances := MyControls.AddPanel(Panel_Mission,0,28,196,400);
       Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
       MyControls.AddBevel(Panel_Alliances, 9, 28, 180, 180);

@@ -298,6 +298,8 @@ end;
 //Save (export) map in KaM .map format with additional tile information on the end?
 procedure TTerrain.SaveToMapFile(aFile:string);
 var f:file; i,k,t:integer;
+    ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
+    Res:array[1..MaxMapSize*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
 begin
 
   if not DirectoryExists(ExtractFilePath(aFile)) then
@@ -325,10 +327,30 @@ begin
     blockwrite(f,t,4); //unknown
   end;
 
-  {blockwrite(f,ResHead,22);
+  
+  //@Krom: Temporary fix to make the maps compatible with KaM. I do not understand the resource footer
+  //       If you would like to write it properly please feel free to do so
+
+  ResHead.x1:=0;
+  ResHead.Allocated:=MapX+MapY;
+  ResHead.Qty1:=0;
+  ResHead.Qty2:=ResHead.Qty1;
+  if ResHead.Qty1>0 then
+    ResHead.x5:=ResHead.Qty1-1
+  else
+    ResHead.x5:=0;
+  ResHead.Len17:=17;
+
+  for i:=1 to ResHead.Allocated do begin
+    Res[i].X1:=-842150451; Res[i].Y1:=-842150451;
+    Res[i].X2:=-842150451; Res[i].Y2:=-842150451;
+    Res[i].Typ:=255;
+  end;
+
+  blockwrite(f,ResHead,22);
   for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
 
-  blockwrite(f,'ADDN',4);
+  {blockwrite(f,'ADDN',4);
   blockwrite(f,'TILE',4); //Chunk name
   i := 4 + MapY*MapX;
   blockwrite(f,i,4); //Chunk size

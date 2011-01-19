@@ -1794,6 +1794,7 @@ begin
       begin
         fPlayers.Player[byte(aOwner)].fPlayerStats.UnitCreated(aUnitType, false);
         U.Direction := aDir;
+        U.AnimStep  := UnitStillFrames[aDir];
       end;
     end;
     Result := nil; //Dunno what to return here
@@ -1808,6 +1809,7 @@ begin
   fPlayers.Player[byte(aOwner)].fPlayerStats.UnitCreated(aUnitType, false);
 
   Commander.Direction := aDir;
+  Commander.AnimStep  := UnitStillFrames[aDir];
   Commander.OrderLocDir := KMPointDir(Commander.OrderLocDir.Loc,byte(aDir)-1); //So when they click Halt for the first time it knows where to place them
 
   //In MapEditor we need only fMapEdMembersCount property, without actual members
@@ -1824,6 +1826,7 @@ begin
     begin
       fPlayers.Player[byte(aOwner)].fPlayerStats.UnitCreated(aUnitType, false);
       W.Direction := aDir;
+      W.AnimStep  := UnitStillFrames[aDir];
       W.fCommander := Commander;
       W.fCondition := Commander.fCondition; //Whole group will have same condition
       Commander.AddMember(W);
