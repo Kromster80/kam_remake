@@ -49,6 +49,7 @@ type
     destructor Destroy; override;
     function LoadMenuResources(aLocale:string):boolean;
     function LoadGameResources():boolean;
+    procedure MakeTileGFXFromTexture(Texture:GLuint);
 
     function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
@@ -142,6 +143,8 @@ begin
   LoadRX7(7); //Load RX7 data (custom bitmaps)
   MakeGFX(7);
   ClearUnusedGFX(7);
+
+  AllocateRX(8, 256); //Terrain tiles are loaded later as RX8
 
   StepCaption('Reading fonts ...');
   LoadFonts(false, aLocale);
@@ -678,6 +681,23 @@ begin
 
   FileList.Free;
   {$ENDIF}
+end;
+
+
+procedure TResource.MakeTileGFXFromTexture(Texture:GLuint);
+var i: integer;
+begin
+  for i:=0 to 255 do
+    with GFXData[8,i+1] do
+    begin
+      TexID := Texture;
+      v1 := (i div 16  )*32/512;
+      u1 := (i mod 16  )*32/512;
+      v2 := (i div 16+1)*32/512;
+      u2 := (i mod 16+1)*32/512;
+      PxWidth := 32;
+      PxHeight := 32;
+    end;
 end;
 
 

@@ -102,7 +102,7 @@ var
   fRender: TRender;
 
 implementation
-uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound;
+uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX;
 
 
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
@@ -139,6 +139,7 @@ var i:integer;
 begin
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG);
   LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT);
+  fResource.MakeTileGFXFromTexture(TextT);
   if MAKE_ANIM_TERRAIN then begin
     for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i]);
     for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i]);

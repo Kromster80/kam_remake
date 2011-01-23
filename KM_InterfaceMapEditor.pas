@@ -96,7 +96,7 @@ type TKMapEdInterface = class
         Button_Army_RotCW,Button_Army_RotCCW:TKMButton;
         Button_Army_ForUp,Button_Army_ForDown:TKMButton;
         ImageStack_Army:TKMImageStack;
-        Button_ArmyDec,Button_ArmyInc:TKMButton;
+        Button_ArmyDec,Button_ArmyFood,Button_ArmyInc:TKMButton;
 
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
@@ -497,21 +497,14 @@ begin
       TilesRandom := MyControls.AddCheckBox(Panel_Tiles, 8, 4, 100, 20, 'Random Direction', fnt_Metal);
       TilesRandom.Checked := true;
       TilesRandom.OnClick := Terrain_TilesChange;
-      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 30 + 4 + MAPED_TILES_ROWS * 32, 180, 20, sa_Horizontal);
+      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal);
       TilesScroll.MinValue := 0;
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
       TilesScroll.OnChange := Terrain_TilesChange;
       for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
-        //@Krom: I have an idea: Lets make the terrain tiles be an RX number, so say RX=10 means
-        //       load the ID as a terrain tile ID. Even though it's not an RX, this special case
-        //       method would involve less changes to the code. (buttons have no reason to render
-        //       tiles in other situations)
-        //@Lewin: Good idea. In fact we might just create GFXData[7] entries which will reference
-        //        to tiles atlas with proper UV values.
-        //todo: implement this
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,30+(k-1)*32,32,32,((i-1)*MAPED_TILES_ROWS+k)mod 8+2); //2..9
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (i-1)*MAPED_TILES_ROWS+k; //Store ID
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,2+(i-1)*32,30+(k-1)*32,32,32,1,8); //2..9
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (k-1)*MAPED_TILES_COLS+i; //Store ID
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
       end;
@@ -747,9 +740,11 @@ begin
     Button_Army_ForUp.OnClick   := Unit_ArmyChange1;
     Button_Army_ForDown.OnClick := Unit_ArmyChange1;
 
-    Button_ArmyDec      := MyControls.AddButton(Panel_Army, 80,92,20,20,'-', fnt_Metal);
-    Button_ArmyInc      := MyControls.AddButton(Panel_Army,160,92,20,20,'+', fnt_Metal);
+    Button_ArmyDec      := MyControls.AddButton(Panel_Army,  8,92,56,40,'-', fnt_Metal);
+    Button_ArmyFood     := MyControls.AddButton(Panel_Army, 70,92,56,40,29);
+    Button_ArmyInc      := MyControls.AddButton(Panel_Army,132,92,56,40,'+', fnt_Metal);
     Button_ArmyDec.OnClickEither := Unit_ArmyChange2;
+    Button_ArmyFood.OnClick := Unit_ArmyChange1;
     Button_ArmyInc.OnClickEither := Unit_ArmyChange2;
 end;
 
@@ -883,7 +878,15 @@ end;
 
 
 procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
-var i,k:integer;
+
+  function GetTileIDFromTag(aTag: byte):byte;
+  var Tile:byte;
+  begin
+    Tile := 32*((aTag-1) div MAPED_TILES_COLS) + (aTag-1) mod MAPED_TILES_COLS + TilesScroll.Position;
+    Result := MapEdTileRemap[EnsureRange(Tile+1,1,256)];
+  end;
+
+var i,k,TileID:integer;
 begin
   if Sender = TilesRandom then
   begin
@@ -893,16 +896,30 @@ begin
     for i:=1 to MAPED_TILES_COLS do
     for k:=1 to MAPED_TILES_ROWS do
     begin
-      TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := (TilesScroll.Position*MAPED_TILES_ROWS+(i-1)*MAPED_TILES_ROWS+k)mod 8+2; //icons are in 2..9
-      TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (GameCursor.Tag1 = TilesScroll.Position*MAPED_TILES_ROWS + TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag);
+      if GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i) <> 0 then
+      begin
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i); //icons are in 2..9
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Enabled := true;
+      end
+      else
+      begin
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := 0;
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Enabled := false;
+      end;
+      if GameCursor.Mode = cm_Tiles then
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (GameCursor.Tag1+1 = GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i));
     end;
   if Sender is TKMButtonFlat then
   begin
-    GameCursor.Mode := cm_Tiles;
-    GameCursor.Tag1 := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
-    for i:=1 to MAPED_TILES_COLS do
-    for k:=1 to MAPED_TILES_ROWS do
-      TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (Sender = TilesTable[(i-1)*MAPED_TILES_ROWS+k]);
+    TileID := GetTileIDFromTag(TKMButtonFlat(Sender).Tag);
+    if TileID <> 0 then
+    begin
+      GameCursor.Mode := cm_Tiles;
+      GameCursor.Tag1 := TileID-1; //MapEdTileRemap is 1 based, tag is 0 based
+      for i:=1 to MAPED_TILES_COLS do
+      for k:=1 to MAPED_TILES_ROWS do
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (Sender = TilesTable[(i-1)*MAPED_TILES_ROWS+k]);
+    end;
   end;
 end;
 
@@ -920,11 +937,18 @@ begin
     begin
       ObjID := ObjectsScroll.Position*2 - 2 + i;
       if ActualMapElem[ObjID]<>0 then
-        ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1
+      begin
+        ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1;
+        ObjectsTable[i].Caption := inttostr(ObjID);
+        ObjectsTable[i].Enabled := true;
+      end
       else
+      begin
         ObjectsTable[i].TexID := 0;
+        ObjectsTable[i].Caption := '';
+        ObjectsTable[i].Enabled := false;
+      end;
       ObjectsTable[i].Down := ObjID = OriginalMapElem[GameCursor.Tag1+1]; //Mark the selected one using reverse lookup
-      ObjectsTable[i].Caption := inttostr(ObjID);
     end;
     ObjectErase.Down := (GameCursor.Tag1 = 255); //or delete button
   end;
@@ -1239,6 +1263,17 @@ begin
 
   if Sender = Button_Army_RotCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)-1);
   if Sender = Button_Army_RotCCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)+1);
+  Commander.AnimStep := UnitStillFrames[Commander.Direction];
+
+  //Toggle between full and half condition
+  if Sender = Button_ArmyFood then
+  begin
+    if Commander.Condition = UNIT_MAX_CONDITION then
+      Commander.Condition := UNIT_MAX_CONDITION div 2
+    else
+      Commander.Condition := UNIT_MAX_CONDITION;
+    KMConditionBar_Unit.Position := EnsureRange(round(Commander.Condition / UNIT_MAX_CONDITION * 100),-10,110);
+  end;
 end;
 
 
@@ -1413,6 +1448,7 @@ begin
   MyControls.MouseMove(X,Y,Shift);
   if MyControls.CtrlOver<>nil then begin
     Screen.Cursor:=c_Default;
+    GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     exit;
   end;
 

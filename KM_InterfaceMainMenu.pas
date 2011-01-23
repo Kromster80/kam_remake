@@ -1237,7 +1237,7 @@ procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   MyControls.MouseMove(X,Y,Shift);
   if MyControls.CtrlOver is TKMEdit then // Show "CanEdit" cursor
-    Screen.Cursor := c_Edit  //todo: [Lewin] Make our own 'I' cursor using textures from other cursors
+    Screen.Cursor := c_Edit  //todo: Make our own 'Writing' cursor using textures from other cursors
   else
     Screen.Cursor := c_Default;
 

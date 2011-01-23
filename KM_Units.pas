@@ -860,7 +860,10 @@ begin
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
-  fCondition    := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
+  if fGame.GameState <> gsEditor then
+    fCondition    := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4)
+  else
+    fCondition    := UNIT_MAX_CONDITION div 2;
   fHitPoints    := GetMaxHitPoints;
   fHitPointCounter := 1;
 

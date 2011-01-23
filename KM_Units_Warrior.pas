@@ -1140,7 +1140,12 @@ begin
     YPaintPos := YPaintPos + FlagYOffset[UnitTyp]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
     TeamColor := byte(fOwner);
     if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals); //Highlight with White color
-    fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);
+
+    //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
+    if fGame.GameState = gsEditor then
+      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fTerrain.AnimStep, TeamColor, XPaintPos, YPaintPos, false)
+    else
+      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);
   end;
 
   if fThought<>th_None then

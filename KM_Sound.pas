@@ -6,7 +6,6 @@ uses Forms, Windows,
   Classes, SysUtils, KromUtils, OpenAL, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;
-//@Krom: On large maps lots of sounds get skipped. Would it be possible to make this larger, as 16 sounds at once isn't very much.
 const MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
 
 const MAX_BUFFERS = 16; //16/24/32 looks like the limit, depends on hardware
