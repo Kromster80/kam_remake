@@ -13,6 +13,10 @@ Add "demolish" task for laborers - so they could remove rocks and trees out of t
 
 Order to expell(?) resources out of the house
 
+Serfs caring resources at mission start
+
+Off-map reinforcements and dynamic map-size expansion
+
 neverending resources
 
 Walls building
