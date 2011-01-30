@@ -273,18 +273,22 @@ begin
         fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
         DemandSet := true;
       end;
-   4: begin //This step is repeated until Serf brings us some wood
+   4: begin
         fTerrain.ResetDigState(fLoc);
-        fTerrain.SetField(fLoc,GetOwner,ft_InitWine);
+        fTerrain.SetField(fLoc,GetOwner,ft_InitWine); //Replace the terrain, but don't seed grapes yet 
         SetActionLockedStay(30,ua_Work1);
         Thought:=th_Wood;
       end;
-   5: begin
+   5: begin //This step is repeated until Serf brings us some wood
+        SetActionLockedStay(30,ua_Work1);
+        Thought:=th_Wood;
+      end;
+   6: begin
         DemandSet := false;
         SetActionLockedStay(11*8,ua_Work2,false);
         Thought:=th_None;
       end;
-   6: begin
+   7: begin
         fTerrain.SetField(fLoc,GetOwner,ft_Wine);
         SetActionStay(5,ua_Walk);
         fTerrain.RemMarkup(fLoc);
@@ -292,7 +296,7 @@ begin
       end;
    else Result := TaskDone;
   end;
-  if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Wood
+  if fPhase<>5 then inc(fPhase); //Phase=5 is when worker waits for rt_Wood
 end;
 
 

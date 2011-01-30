@@ -798,12 +798,12 @@ begin
     end;
   end else
   if (aFieldType=ft_Wine) or (aFieldType=ft_InitWine) then begin
-    Land[Loc.Y,Loc.X].Terrain:=55;
-    Land[Loc.Y,Loc.X].Rotation:=0;
+    Land[Loc.Y,Loc.X].Terrain  := 55;
+    Land[Loc.Y,Loc.X].Rotation := 0;
   end;
-  if aFieldType=ft_Wine then begin
+  if aFieldType=ft_Wine then
     CutGrapes(Loc);
-  end;
+
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(wcWalk);

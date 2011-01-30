@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1359';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1359';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1359;          //Used in replay file format
+  GAME_VERSION          = '2nd Fighting Demo r1371';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1371';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1371;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -825,7 +825,10 @@ const
 
 {Terrain}
 type
-  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine, ft_InitWine, ft_Wall); //This is used only for querying
+  TFieldType = (ft_None=0, ft_Road, ft_Corn,
+                ft_InitWine, //Reset terrain rotation and set grapes ground
+                ft_Wine,
+                ft_Wall); //This is used only for querying
   THouseStage = (hs_None, hs_Plan, hs_Fence, hs_Built);
 
   TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall );

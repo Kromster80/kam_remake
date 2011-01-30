@@ -1,7 +1,8 @@
 unit KM_DeliverQueue;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery;
+uses Classes, SysUtils, KromUtils, Math,
+    KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery;
 
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job
@@ -815,19 +816,22 @@ begin
 end;
 
 
-function  TKMBuildingQueue.AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
+function TKMBuildingQueue.AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
 var i, Best: integer; BestDist: single;
 begin
   Result := nil;
   Best := -1;
+  BestDist := MaxSingle;
+
   for i:=1 to FieldsCount do
     if (fFieldsQueue[i].JobStatus = js_Open) and
       fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, aWorker.GetDesiredPassability, 0, false)
-    and((Best = -1)or(GetLength(aWorker.GetPosition, fFieldsQueue[i].Loc) < BestDist))then
+    and ((Best = -1)or(GetLength(aWorker.GetPosition, fFieldsQueue[i].Loc) < BestDist)) then
     begin
       Best := i;
       BestDist := GetLength(aWorker.GetPosition, fFieldsQueue[i].Loc);
     end;
+
   if Best <> -1 then
   begin
     case fFieldsQueue[Best].FieldType of
@@ -835,7 +839,7 @@ begin
       ft_Corn: Result := TTaskBuildField.Create(aWorker, fFieldsQueue[Best].Loc, Best);
       ft_Wine: Result := TTaskBuildWine.Create(aWorker, fFieldsQueue[Best].Loc, Best);
       ft_Wall: Result := TTaskBuildWall.Create(aWorker, fFieldsQueue[Best].Loc, Best);
-      else     Result := nil;
+      else     begin Assert(false, 'Unexpected Field Type'); Result := nil; exit; end;
     end;
     fFieldsQueue[Best].JobStatus := js_Taken;
     fFieldsQueue[Best].Worker := aWorker.GetUnitPointer;
@@ -844,11 +848,13 @@ end;
 
 
 {Find a job for worker}
-function  TKMBuildingQueue.AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
+function TKMBuildingQueue.AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
 var i, Best: integer; BestDist: single;
 begin
   Result := nil;
   Best := -1;
+  BestDist := MaxSingle;
+
   for i:=1 to HousesCount do
     if (fHousesQueue[i].House<>nil) and fHousesQueue[i].House.CheckResToBuild
     and((Best = -1)or(GetLength(aWorker.GetPosition, fHousesQueue[i].House.GetPosition) < BestDist))then
@@ -856,6 +862,7 @@ begin
       Best := i;
       BestDist := GetLength(aWorker.GetPosition, fHousesQueue[i].House.GetPosition);
     end;
+
   if Best <> -1 then
     Result := TTaskBuildHouse.Create(aWorker, fHousesQueue[Best].House, Best);
 end;
@@ -866,6 +873,8 @@ var i, Best: integer; BestDist: single;
 begin
   Result := nil;
   Best := -1;
+  BestDist := MaxSingle;
+
   for i:=1 to HousePlansCount do
     if (fHousePlansQueue[i].JobStatus = js_Open)
     and((Best = -1)or(GetLength(aWorker.GetPosition, fHousePlansQueue[i].House.GetPosition) < BestDist))then
@@ -873,6 +882,7 @@ begin
       Best := i;
       BestDist := GetLength(aWorker.GetPosition, fHousePlansQueue[i].House.GetPosition);
     end;
+
   if Best <> -1 then
   begin
     Result := TTaskBuildHouseArea.Create(aWorker, fHousePlansQueue[Best].House, Best);
@@ -887,6 +897,8 @@ var i, Best: integer; BestDist: single;
 begin
   Result := nil;
   Best := -1;
+  BestDist := MaxSingle;
+
   for i:=1 to HouseRepairsCount do
     if (fHouseRepairsQueue[i].House<>nil) and
       fHouseRepairsQueue[i].House.IsDamaged and
@@ -896,6 +908,7 @@ begin
       Best := i;
       BestDist := GetLength(aWorker.GetPosition, fHouseRepairsQueue[i].House.GetPosition);
     end;
+    
   if Best <> -1 then
     Result := TTaskBuildHouseRepair.Create(aWorker, fHouseRepairsQueue[Best].House, Best);
 end;
