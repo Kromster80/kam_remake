@@ -16,7 +16,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function KMPointY1(P:TKMPoint): TKMPoint; overload;
   function KMPointY1(P:TKMPointF): TKMPoint; overload;
 
-  function KMPointRound(const P:TKMPointf): TKMPoint;
+  function KMPointRound(const P:TKMPointF): TKMPoint;
   function KMSamePoint(P1,P2:TKMPoint): boolean;
   function KMSamePointF(P1,P2:TKMPointF): boolean; overload;
   function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean; overload;

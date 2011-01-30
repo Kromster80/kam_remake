@@ -84,7 +84,6 @@ type TKMMainMenuInterface = class
       Shape_SingleOverlay:array[1..MENU_SP_MAPS_COUNT]of TKMShape;
       ScrollBar_SingleMaps:TKMScrollBar;
       Shape_SingleMap:TKMShape;
-      Image_SingleScroll1:TKMImage;
       Label_SingleTitle,Label_SingleDesc:TKMLabel;
       Label_SingleCondTyp,Label_SingleCondWin,Label_SingleCondDef:TKMLabel;
       Label_SingleAllies,Label_SingleEnemies:TKMLabel;
@@ -523,10 +522,6 @@ begin
     Panel_SingleDesc:=MyControls.AddPanel(Panel_Single,45,84,445,600);
 
       MyControls.AddBevel(Panel_SingleDesc,0,0,445,220);
-
-      //Image_SingleScroll1:=MyControls.AddImage(Panel_SingleDesc,0,0,445,220,15,5);
-      //Image_SingleScroll1.StretchImage:=true;
-      //Image_SingleScroll1.Height:=220; //Need to reset it after stretching is enabled, cos it can't stretch down by default
 
       Label_SingleTitle:=MyControls.AddLabel(Panel_SingleDesc,445 div 2,35,420,180,'',fnt_Outline, kaCenter);
       Label_SingleTitle.AutoWrap:=true;

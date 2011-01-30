@@ -2205,12 +2205,12 @@ end;
 function TTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
 var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
 begin
-  Xc:=EnsureRange(round(inX+0.5),1,MapX-1); //Cell below cursor without height check
-  Yc:=EnsureRange(round(inY+0.5),1,MapY-1);
+  Xc := EnsureRange(round(inX+0.5),1,MapX-1); //Cell below cursor without height check
+  Yc := EnsureRange(round(inY+0.5),1,MapY-1);
 
   for ii:=-2 to 4 do
   begin//make an array of tile heights above and below cursor (-2..4)
-    Tmp:=EnsureRange(Yc+ii,1,MapY);
+    Tmp := EnsureRange(Yc+ii,1,MapY);
     Ycoef[ii]:=(Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(InX))
                          +fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/CELL_HEIGHT_DIV;
   end;

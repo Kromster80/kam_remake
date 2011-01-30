@@ -96,13 +96,13 @@ type
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
-    function GetMaxHealth():word;
+    function GetMaxHealth:word;
     function  AddDamage(aAmount:word):boolean;
     procedure AddRepair(aAmount:word=5);
-    procedure UpdateDamage();
-    procedure EnableRepair();
-    procedure DisableRepair();
-    procedure RepairToggle();
+    procedure UpdateDamage;
+    procedure EnableRepair;
+    procedure DisableRepair;
+    procedure RepairToggle;
 
     function IsStarted:boolean;
     function IsStone:boolean;
@@ -585,7 +585,7 @@ begin
 end;
 
 
-function TKMHouse.GetMaxHealth():word;
+function TKMHouse.GetMaxHealth:word;
 begin
   Result := HouseDAT[byte(fHouseType)].WoodCost*50 + HouseDAT[byte(fHouseType)].StoneCost*50;
 end;
@@ -622,7 +622,7 @@ end;
 
 
 {Update house damage animation}
-procedure TKMHouse.UpdateDamage();
+procedure TKMHouse.UpdateDamage;
 var Dmg: integer;
 begin
   Dmg := GetMaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
@@ -640,7 +640,7 @@ end;
 
 
 {if house is damaged then add repair to buildlist}
-procedure TKMHouse.EnableRepair();
+procedure TKMHouse.EnableRepair;
 begin
   BuildingRepair := true;
   AddDamage(0); //Shortcut to refresh of damage
@@ -648,21 +648,21 @@ end;
 
 
 {if house is damaged then remove repair from buildlist and free up workers}
-procedure TKMHouse.DisableRepair();
+procedure TKMHouse.DisableRepair;
 begin
   BuildingRepair := false;
   AddRepair(0); //Shortcut to refresh of damage
 end;
 
 
-procedure TKMHouse.RepairToggle();
+procedure TKMHouse.RepairToggle;
 begin
   if BuildingRepair then DisableRepair else EnableRepair;
 end;
 
 
 {Check if house is started to build, so to know if we need to init the building site or not}
-function TKMHouse.IsStarted():boolean;
+function TKMHouse.IsStarted:boolean;
 begin
   Result := fBuildingProgress > 0;
 end;
@@ -675,14 +675,14 @@ end;
 
 
 {Check if house is completely built, nevermind the damage}
-function TKMHouse.IsComplete():boolean;
+function TKMHouse.IsComplete:boolean;
 begin
   Result := fBuildState = hbs_Done;
 end;
 
 
 {Check if house is damaged}
-function TKMHouse.IsDamaged():boolean;
+function TKMHouse.IsDamaged:boolean;
 begin
   Result := fDamage <> 0;
 end;
@@ -1706,7 +1706,7 @@ function TKMHousesCollection.HitTest(X, Y: Integer): TKMHouse;
 var i:integer;
 begin
   Result:= nil;
-  for I:=0 to Count-1 do
+  for i:=0 to Count-1 do
     if Houses[i].HitTest(X, Y) and (not Houses[i].IsDestroyed) then
     begin
       Result := TKMHouse(Items[i]);

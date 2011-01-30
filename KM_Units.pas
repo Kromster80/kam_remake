@@ -1394,7 +1394,7 @@ end;
 {Check wherever this unit is armed}
 function TKMUnit.IsArmyUnit():boolean;
 begin
-  Result:= fUnitType in [ut_Militia .. ut_Barbarian];
+  Result := fUnitType in [ut_Militia .. ut_Barbarian];
 end;
 
 
@@ -1756,29 +1756,28 @@ begin
 
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
     fLog.AppendLog('Unable to add unit to '+TypeToString(KMPoint(PosX,PosY)));
-    Result:=nil;
+    Result := nil;
     exit;
   end;
 
-  U:=-1;
+  U := -1;
   case aUnitType of
-    ut_Serf:    U:= Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_Worker:  U:= Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Serf:    U := Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Worker:  U := Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
 
     ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                U:= Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+                U := Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Recruit: U:= Inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Recruit: U := Inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Militia..ut_Barbarian:   U:= Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
-    //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone
+    ut_Militia..ut_Barbarian:   U := Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Wolf..ut_Duck:           U:= Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Wolf..ut_Duck:           U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
     else                        fGame.GameError(KMPoint(PosX, PosY), 'Add '+TypeToString(aUnitType));
   end;
 
-  if U=-1 then Result:=nil else Result:=Units[U];
+  if U = -1 then Result:=nil else Result := Units[U];
 
 end;
 

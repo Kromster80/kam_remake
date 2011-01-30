@@ -41,7 +41,7 @@ type
       procedure RenderDotOnTile(pX,pY:single);
       procedure RenderLine(x1,y1,x2,y2:single);
       procedure RenderQuad(pX,pY:integer);
-      procedure RenderTile(Index,pX,pY,Rot:integer);
+      procedure RenderTile(Index:byte; pX,pY,Rot:integer);
       procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
       procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
       procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
@@ -354,7 +354,7 @@ begin
   //Render highlights
   glBlendFunc(GL_DST_COLOR,GL_ONE);
   glBindTexture(GL_TEXTURE_2D, TextG);
-  glbegin (GL_QUADS);
+  glBegin (GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
@@ -502,7 +502,7 @@ procedure TRender.RenderDebugWires(x1,x2,y1,y2:integer);
 var i,k,t:integer;
 begin
   for i:=y1 to y2 do begin
-    glbegin (GL_LINE_STRIP);
+    glBegin (GL_LINE_STRIP);
     for k:=x1 to x2 do begin
       glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-GameCursor.Cell.Y)+sqr(k-GameCursor.Cell.X))/10); //Smooth circle gradient blending
       glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
@@ -525,7 +525,7 @@ begin
   end;
 
   glPointSize(3);
-  glbegin (GL_POINTS);
+  glBegin (GL_POINTS);
   for i:=y1 to y2 do for k:=x1 to x2 do begin
     //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
     glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);
@@ -866,9 +866,9 @@ end;
 procedure TRender.RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
-AnimSteps:=SerfCarry[CarryID].Dir[DirID].Count;
-ID:=SerfCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
-if ID<=0 then exit;
+  AnimSteps:=SerfCarry[CarryID].Dir[DirID].Count;
+  ID:=SerfCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
+  if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
@@ -955,44 +955,44 @@ begin
 end;
 
 {Render one terrian cell}
-procedure TRender.RenderTile(Index,pX,pY,Rot:integer);
+procedure TRender.RenderTile(Index:byte; pX,pY,Rot:integer);
 var k,i,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
-if (pX<1)or(pX>fTerrain.MapX) then exit;
-if (pY<1)or(pY>fTerrain.MapY) then exit;
+  if (pX<1)or(pX>fTerrain.MapX) then exit;
+  if (pY<1)or(pY>fTerrain.MapY) then exit;
 
-if not InRange(Index,0,255) then fLog.AssertToLog(false,'Wrong tile index, should be 0..255');
+  if not InRange(Index,0,255) then fLog.AssertToLog(false,'Wrong tile index, should be 0..255');
 
-glColor4f(1,1,1,1);
-glBindTexture(GL_TEXTURE_2D, TextT);
+  glColor4f(1,1,1,1);
+  glBindTexture(GL_TEXTURE_2D, TextT);
 
-TexC[1,1]:=(Index mod 16  )/16; TexC[1,2]:=(Index div 16  )/16;
-TexC[2,1]:=(Index mod 16  )/16; TexC[2,2]:=(Index div 16+1)/16;
-TexC[3,1]:=(Index mod 16+1)/16; TexC[3,2]:=(Index div 16+1)/16;
-TexC[4,1]:=(Index mod 16+1)/16; TexC[4,2]:=(Index div 16  )/16;
-TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
+  TexC[1,1] := (Index mod 16  )/16; TexC[1,2]:=(Index div 16  )/16;
+  TexC[2,1] := (Index mod 16  )/16; TexC[2,2]:=(Index div 16+1)/16;
+  TexC[3,1] := (Index mod 16+1)/16; TexC[3,2]:=(Index div 16+1)/16;
+  TexC[4,1] := (Index mod 16+1)/16; TexC[4,2]:=(Index div 16  )/16;
+  TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
-if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
-if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
+  if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
+  if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
-k:=pX; i:=pY;
-glbegin (GL_QUADS);
-with fTerrain do
-  if RENDER_3D then begin
-  glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
-  end else begin
-  glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
-  end;
-glEnd;
-glBindTexture(GL_TEXTURE_2D, 0);
+  k:=pX; i:=pY;
+  glBegin (GL_QUADS);
+  with fTerrain do
+    if RENDER_3D then begin
+      glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+    end else begin
+      glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+    end;
+  glEnd;
+  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
@@ -1069,19 +1069,19 @@ end;
 {Collect all sprites into list}
 procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
 begin
-inc(RenderCount);
-if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
+  inc(RenderCount);
+  if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
 
-RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
-RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object in tile-space, floating-point
-RenderList[RenderCount].RX:=aRX;              //RX library
-RenderList[RenderCount].ID:=aID;              //Texture ID
-RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
-RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
-RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
-RenderList[RenderCount].IsUnit:=aIsUnit;      //Because units use different FOW offsets
+  RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
+  RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object in tile-space, floating-point
+  RenderList[RenderCount].RX:=aRX;              //RX library
+  RenderList[RenderCount].ID:=aID;              //Texture ID
+  RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
+  RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
+  RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
+  RenderList[RenderCount].IsUnit:=aIsUnit;      //Because units use different FOW offsets
 
-RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
+  RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
 end;
 
 
@@ -1118,7 +1118,7 @@ end;
 procedure TRender.SortRenderList;
 var i,k:integer;
 begin
-  for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparision
+  for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparison
   for k:=i+1 to RenderCount do if RO[k]<>0 then
     if (RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y)
     or((RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y)
@@ -1132,48 +1132,48 @@ end;
 procedure TRender.RenderRenderList;
 var i,h:integer;
 begin
-Stat_Sprites:=RenderCount;
-Stat_Sprites2:=0;
+  Stat_Sprites:=RenderCount;
+  Stat_Sprites2:=0;
 
-for i:=1 to RenderCount do
-if RO[i]<>0 then begin
+  for i:=1 to RenderCount do
+  if RO[i]<>0 then begin
 
-  h:=RO[i];
-  //Incase no sprites were made
-  if (RenderList[h].RX=2) and not MAKE_HOUSE_SPRITES then
-    RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
-  else
-  if (RenderList[h].RX=3) and not MAKE_UNIT_SPRITES then
-    RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
-  else
-  begin
+    h:=RO[i];
+    //Incase no sprites were made
+    if (RenderList[h].RX=2) and not MAKE_HOUSE_SPRITES then
+      RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
+    else
+    if (RenderList[h].RX=3) and not MAKE_UNIT_SPRITES then
+      RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
+    else
+    begin
 
-    glPushMatrix;
-      glTranslatef(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
-      glRotatef(rHeading,-1,0,0);
-      glTranslatef(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
+      glPushMatrix;
+        glTranslatef(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
+        glRotatef(rHeading,-1,0,0);
+        glTranslatef(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
 
-      repeat //Render child sprites only after their parent
-        with RenderList[h] do begin
-          if AlphaStep=-1 then
-            if Team=0 then
-              RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
-            else
-              if Team > MAX_PLAYERS then
-                RenderSprite(RX,ID,Loc.X,Loc.Y,$FFFFFFFF,FOWvalue)
+        repeat //Render child sprites only after their parent
+          with RenderList[h] do begin
+            if AlphaStep=-1 then
+              if Team=0 then
+                RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
               else
-                RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].PlayerColor,FOWvalue)
-          else
-            RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
-        end;
-        inc(h);
-        inc(Stat_Sprites2);
-      until((h>RenderCount)or(RenderList[h].NewInst));
+                if Team > MAX_PLAYERS then
+                  RenderSprite(RX,ID,Loc.X,Loc.Y,$FFFFFFFF,FOWvalue)
+                else
+                  RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].PlayerColor,FOWvalue)
+            else
+              RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
+          end;
+          inc(h);
+          inc(Stat_Sprites2);
+        until((h>RenderCount)or(RenderList[h].NewInst));
 
-    glPopMatrix;
+      glPopMatrix;
+    end;
+
   end;
-
-end;
 
 end;
 
@@ -1361,67 +1361,67 @@ procedure TRender.RenderCursorHighlights;
     Result := fTerrain.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y,MyPlayer.PlayerID) > 0;
   end;
 begin
-if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
-with fTerrain do
-case GameCursor.Mode of
-  cm_None:   ;
-  cm_Erase:  begin
-               if fGame.GameState = gsEditor then
-               begin
-                 if (
-                      ( //With Buildings tab see if we can remove Fields or Houses
-                        (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
-                        and (TileIsCornField(GameCursor.Cell) or TileIsWineField(GameCursor.Cell) or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road) or CanRemoveHouse(GameCursor.Cell,play_none))
+  if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
+  with fTerrain do
+  case GameCursor.Mode of
+    cm_None:   ;
+    cm_Erase:  begin
+                 if fGame.GameState = gsEditor then
+                 begin
+                   if (
+                        ( //With Buildings tab see if we can remove Fields or Houses
+                          (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
+                          and (TileIsCornField(GameCursor.Cell) or TileIsWineField(GameCursor.Cell) or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road) or CanRemoveHouse(GameCursor.Cell,play_none))
+                        )
+                        or
+                        ( //With Units tab see if there's a unit below cursor
+                          (fGame.fMapEditorInterface.GetShownPage = esp_Units)
+                          and CanRemoveUnit(GameCursor.Cell, play_none)
+                        )
                       )
-                      or
-                      ( //With Units tab see if there's a unit below cursor
-                        (fGame.fMapEditorInterface.GetShownPage = esp_Units)
-                        and CanRemoveUnit(GameCursor.Cell, play_none)
-                      )
-                    )
-                 //And ofcourse it it's visible
-                 and TileVisible then
-                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-                 else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-               end;
+                   //And ofcourse it it's visible
+                   and TileVisible then
+                     RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                   else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                 end;
 
-               if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
-               begin
-                 if (CanRemovePlan(GameCursor.Cell, MyPlayer.PlayerID) or CanRemoveHouse(GameCursor.Cell, MyPlayer.PlayerID))
-                 and TileVisible then
-                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-                 else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                 if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
+                 begin
+                   if (CanRemovePlan(GameCursor.Cell, MyPlayer.PlayerID) or CanRemoveHouse(GameCursor.Cell, MyPlayer.PlayerID))
+                   and TileVisible then
+                     RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                   else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                 end;
                end;
-             end;
-  cm_Road:   if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan) and TileVisible then
-               RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-             else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-  cm_Field:  if CanPlaceRoad(GameCursor.Cell, mu_FieldPlan) and TileVisible then
-               RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-             else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-  cm_Wine:   if CanPlaceRoad(GameCursor.Cell, mu_WinePlan) and TileVisible then
-               RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-             else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-  cm_Wall:   if CanPlaceRoad(GameCursor.Cell, mu_WallPlan) and TileVisible then
-               RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-             else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-  cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
-  cm_Tiles:  if fGame.fMapEditorInterface.GetTilesRandomized then
-               RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 10) mod 4) //Spin it slowly so player remembers it is on randomized
-             else
-               RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
-  cm_Objects:begin
-               RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
-               RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
-             end;
-  cm_Height: begin
-               //todo: Render dots on tiles with brightness showing how much they will be elevated
-               RenderDotOnTile(GameCursor.Float.X+1,GameCursor.Float.Y+1);
-             end;
-  cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
-               RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //todo: render unit graphics here?
-             else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-end;
+    cm_Road:   if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan) and TileVisible then
+                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Field:  if CanPlaceRoad(GameCursor.Cell, mu_FieldPlan) and TileVisible then
+                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Wine:   if CanPlaceRoad(GameCursor.Cell, mu_WinePlan) and TileVisible then
+                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Wall:   if CanPlaceRoad(GameCursor.Cell, mu_WallPlan) and TileVisible then
+                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
+    cm_Tiles:  if fGame.fMapEditorInterface.GetTilesRandomized then
+                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 10) mod 4) //Spin it slowly so player remembers it is on randomized
+               else
+                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
+    cm_Objects:begin
+                 RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
+                 RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
+               end;
+    cm_Height: begin
+                 //todo: Render dots on tiles with brightness showing how much they will be elevated
+                 RenderDotOnTile(GameCursor.Float.X+1,GameCursor.Float.Y+1);
+               end;
+    cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
+                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //todo: render unit graphics here?
+               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+  end;
 end;
 
 

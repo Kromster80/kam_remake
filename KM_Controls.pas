@@ -2051,16 +2051,16 @@ end;
 
 { Recursing function to find topmost control (excl. Panels)}
 function TKMControlsCollection.HitControl(X,Y:integer):TKMControl;
-  function ScanChild(P:TKMPanel; X,Y:integer):TKMControl;
+  function ScanChild(P:TKMPanel; aX,aY:integer):TKMControl;
   var i:integer;
   begin
     Result := nil;
     for i:=P.ChildCount downto 1 do
       if (P.Childs[i] is TKMPanel) then begin
-        Result := ScanChild(TKMPanel(P.Childs[i]),X,Y);
+        Result := ScanChild(TKMPanel(P.Childs[i]),aX,aY);
         if Result <> nil then exit;
       end else
-      if P.Childs[i].HitTest(X,Y) then begin
+      if P.Childs[i].HitTest(aX,aY) then begin
         Result := P.Childs[i];
         exit;
       end;
