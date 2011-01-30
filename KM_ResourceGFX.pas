@@ -691,10 +691,10 @@ begin
     with GFXData[8,i+1] do
     begin
       TexID := Texture;
-      v1 := (i div 16  )*32/512;
-      u1 := (i mod 16  )*32/512;
-      v2 := (i div 16+1)*32/512;
-      u2 := (i mod 16+1)*32/512;
+      v1 := (i div 16  ) / 16; //There are 16 tiles across the line
+      u1 := (i mod 16  ) / 16;
+      v2 := (i div 16+1) / 16;
+      u2 := (i mod 16+1) / 16;
       PxWidth := 32;
       PxHeight := 32;
     end;

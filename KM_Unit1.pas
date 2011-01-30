@@ -113,7 +113,6 @@ type
 var
   Form1: TForm1;
   FormLoading:TFormLoading;
-  TextT:GLuint; //Tiles
 
 implementation
 {$IFDEF WDC}

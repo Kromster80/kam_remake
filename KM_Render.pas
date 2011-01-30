@@ -11,92 +11,92 @@ uses
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
 type
-TRender = class
-private
-  h_DC: HDC;
-  h_RC: HGLRC;
-  fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version:string;
-  TextG:GLuint; //Shading gradient
-  //TextT:GLuint; //Tiles
-  TextW:array[1..8]of GLuint; //Water
-  TextS:array[1..3]of GLuint; //Swamps
-  TextF:array[1..5]of GLuint; //WaterFalls
-  fRenderAreaSize:TKMPoint;
+  TRender = class
+    private
+      h_DC: HDC;
+      h_RC: HGLRC;
+      fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version:string;
+      TextG:GLuint; //Shading gradient
+      TextT:GLuint; //Tiles
+      TextW:array[1..8]of GLuint; //Water
+      TextS:array[1..3]of GLuint; //Swamps
+      TextF:array[1..5]of GLuint; //WaterFalls
+      fRenderAreaSize:TKMPoint;
 
-  rPitch,rHeading,rBank:integer;
+      rPitch,rHeading,rBank:integer;
 
-  RenderCount:word;
-  RO:array of word; //RenderOrder
-  RenderList:array of record
-    Loc,Obj:TKMPointF;
-    RX:byte;
-    ID:word;
-    NewInst,IsUnit:boolean;
-    Team:byte;
-    AlphaStep:single; //Only appliable to HouseBuild
-    FOWvalue:byte; // Fog of War thickness
-  end;
+      RenderCount:word;
+      RO:array of word; //RenderOrder
+      RenderList:array of record
+        Loc,Obj:TKMPointF;
+        RX:byte;
+        ID:word;
+        NewInst,IsUnit:boolean;
+        Team:byte;
+        AlphaStep:single; //Only appliable to HouseBuild
+        FOWvalue:byte; // Fog of War thickness
+      end;
 
-  procedure RenderDot(pX,pY:single; Size:single = 0.05);
-  procedure RenderDotOnTile(pX,pY:single);
-  procedure RenderLine(x1,y1,x2,y2:single);
-  procedure RenderQuad(pX,pY:integer);
-  procedure RenderTile(Index,pX,pY,Rot:integer);
-  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
-  procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
-  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
-  procedure ClipRenderList();
-  procedure SortRenderList;
-  procedure RenderRenderList;
-  procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
-  procedure RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
-  procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
-  procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
-  procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-  procedure RenderCursorHighlights;
-  procedure RenderBrightness(Value:byte);
-public
-  Stat_Sprites:integer; //Total sprites in queue
-  Stat_Sprites2:integer;//Rendered sprites
-  constructor Create(RenderFrame:HWND; aVSync:boolean);
-  destructor Destroy; override;
-  procedure LoadTileSet();
-  procedure SetRotation(aH,aP,aB:integer);
-  procedure ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
-  procedure Render();
-  {$IFDEF WDC}
-  procedure DoPrintScreen(filename:string);
-  {$ENDIF}
-  procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
-  procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
-  procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
-  procedure RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
-  procedure RenderDebugLine(x1,y1,x2,y2:single);
-  procedure RenderDebugProjectile(x1,y1,x2,y2:single);
-  procedure RenderDebugWires(x1,x2,y1,y2:integer);
-  procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
-  procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
-  procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
-  procedure RenderDebugQuad(pX,pY:integer);
-  procedure RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
-  procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection=dir_NA);
-  procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-  procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-  procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-  procedure RenderHouseBuild(Index,pX,pY:integer);
-  procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
-  procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
-  procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
-  procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
-  procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
-  procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
-  procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
-  procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
-  procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-  procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
-  property RenderAreaSize:TKMPoint read fRenderAreaSize;
-  property RendererVersion:string read fOpenGL_Version;
-end;
+      procedure RenderDot(pX,pY:single; Size:single = 0.05);
+      procedure RenderDotOnTile(pX,pY:single);
+      procedure RenderLine(x1,y1,x2,y2:single);
+      procedure RenderQuad(pX,pY:integer);
+      procedure RenderTile(Index,pX,pY,Rot:integer);
+      procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
+      procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
+      procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
+      procedure ClipRenderList();
+      procedure SortRenderList;
+      procedure RenderRenderList;
+      procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
+      procedure RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
+      procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
+      procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
+      procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
+      procedure RenderCursorHighlights;
+      procedure RenderBrightness(Value:byte);
+    public
+      Stat_Sprites:integer; //Total sprites in queue
+      Stat_Sprites2:integer;//Rendered sprites
+      constructor Create(RenderFrame:HWND; aVSync:boolean);
+      destructor Destroy; override;
+      procedure LoadTileSet();
+      procedure SetRotation(aH,aP,aB:integer);
+      procedure ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
+      procedure Render();
+      {$IFDEF WDC}
+      procedure DoPrintScreen(filename:string);
+      {$ENDIF}
+      procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
+      procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
+      procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
+      procedure RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
+      procedure RenderDebugLine(x1,y1,x2,y2:single);
+      procedure RenderDebugProjectile(x1,y1,x2,y2:single);
+      procedure RenderDebugWires(x1,x2,y1,y2:integer);
+      procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
+      procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
+      procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
+      procedure RenderDebugQuad(pX,pY:integer);
+      procedure RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
+      procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection=dir_NA);
+      procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+      procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+      procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+      procedure RenderHouseBuild(Index,pX,pY:integer);
+      procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
+      procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
+      procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
+      procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
+      procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
+      procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
+      procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
+      procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
+      procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
+      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
+      property RenderAreaSize:TKMPoint read fRenderAreaSize;
+      property RendererVersion:string read fOpenGL_Version;
+    end;
 
 var
   fRender: TRender;
@@ -169,8 +169,8 @@ begin
     gluPerspective(80, -Width/Height, 0.1, 5000.0);
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
   glLoadIdentity();                   // Reset View
-  fRenderAreaSize.X:=Width;
-  fRenderAreaSize.Y:=Height;
+  fRenderAreaSize.X := Width;
+  fRenderAreaSize.Y := Height;
 end;
 
 
@@ -212,7 +212,7 @@ begin
     SortRenderList(); //sort items overlaying
     RenderRenderList();
 
-    RenderCursorHighlights(); //Will be on-top
+    RenderCursorHighlights(); //Will be on-top of everything
 
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   end;
@@ -244,15 +244,15 @@ begin
   for i:=0 to (sh div 2)-1 do for k:=0 to sw-1 do
   SwapInt(bmp[i*sw+k],bmp[((sh-1)-i)*sw+k]);
 
-  mkbmp:=TBitmap.Create;
+  mkbmp := TBitmap.Create;
   mkbmp.Handle:=CreateBitmap(sw,sh,1,32,@bmp[0]);
 
-  jpg:=TJpegImage.Create;
+  jpg := TJpegImage.Create;
   jpg.assign(mkbmp);
-  jpg.ProgressiveEncoding:=true;
-  jpg.ProgressiveDisplay:=true;
-  jpg.Performance:=jpBestQuality;
-  jpg.CompressionQuality:=90;
+  jpg.ProgressiveEncoding := true;
+  jpg.ProgressiveDisplay  := true;
+  jpg.Performance         := jpBestQuality;
+  jpg.CompressionQuality  := 90;
   jpg.Compress;
   jpg.SaveToFile(FileName);
 
@@ -270,85 +270,85 @@ var
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
-glColor4f(1,1,1,1);
+  glColor4f(1,1,1,1);
 
-for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
-  case iW of
-    1: glBindTexture(GL_TEXTURE_2D, TextT);
-    2: glBindTexture(GL_TEXTURE_2D, TextW[AnimStep mod 8 + 1]); 
-    3: glBindTexture(GL_TEXTURE_2D, TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
-    4: glBindTexture(GL_TEXTURE_2D, TextF[AnimStep mod 5 + 1]);
-  end;
-  glBegin (GL_QUADS);
-    with fTerrain do
-    for i:=y1 to y2 do for k:=x1 to x2 do
-    if (iW=1) or (CheckTileRevelation(k,i,MyPlayer.PlayerID) > FOG_OF_WAR_ACT) then //No animation in FOW
-    begin
-      xt:=fTerrain.Land[i,k].Terrain; 
+  for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
+    case iW of
+      1: glBindTexture(GL_TEXTURE_2D, TextT);
+      2: glBindTexture(GL_TEXTURE_2D, TextW[AnimStep mod 8 + 1]); 
+      3: glBindTexture(GL_TEXTURE_2D, TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
+      4: glBindTexture(GL_TEXTURE_2D, TextF[AnimStep mod 5 + 1]);
+    end;
+    glBegin (GL_QUADS);
+      with fTerrain do
+      for i:=y1 to y2 do for k:=x1 to x2 do
+      if (iW=1) or (CheckTileRevelation(k,i,MyPlayer.PlayerID) > FOG_OF_WAR_ACT) then //No animation in FOW
+      begin
+        xt:=fTerrain.Land[i,k].Terrain; 
 
-      if KAM_WATER_DRAW and (iW=1) and (xt in [192,193,196]) then begin
-        Lay2:=true;
-        xt:=32;
-      end else
-        Lay2:=false;
+        if KAM_WATER_DRAW and (iW=1) and (xt in [192,193,196]) then begin
+          Lay2:=true;
+          xt:=32;
+        end else
+          Lay2:=false;
 
-      TexC[1,1]:=(xt mod 16  )/16; TexC[1,2]:=(xt div 16  )/16;
-      TexC[2,1]:=(xt mod 16  )/16; TexC[2,2]:=(xt div 16+1)/16;
-      TexC[3,1]:=(xt mod 16+1)/16; TexC[3,2]:=(xt div 16+1)/16;
-      TexC[4,1]:=(xt mod 16+1)/16; TexC[4,2]:=(xt div 16  )/16;
+        TexC[1,1]:=(xt mod 16  )/16; TexC[1,2]:=(xt div 16  )/16;
+        TexC[2,1]:=(xt mod 16  )/16; TexC[2,2]:=(xt div 16+1)/16;
+        TexC[3,1]:=(xt mod 16+1)/16; TexC[3,2]:=(xt div 16+1)/16;
+        TexC[4,1]:=(xt mod 16+1)/16; TexC[4,2]:=(xt div 16  )/16;
 
-      TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
+        TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
-      if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
-      if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
+        if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
+        if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
-      if RENDER_3D then begin
-        glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
-        glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
-        glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-        glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
-      end else begin
-      if Lay2 then glColor4f(1,1,1,Land[i,k].Height/CELL_HEIGHT_DIV+0.5)
-      else glColor4f(1,1,1,1);
-        glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-      if Lay2 then glColor4f(1,1,1,Land[i+1,k].Height/CELL_HEIGHT_DIV+0.5)
-      else glColor4f(1,1,1,1);
-        glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-      if Lay2 then glColor4f(1,1,1,Land[i+1,k+1].Height/CELL_HEIGHT_DIV+0.5)
-      else glColor4f(1,1,1,1);
-        glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      if Lay2 then glColor4f(1,1,1,Land[i,k+1].Height/CELL_HEIGHT_DIV+0.5)
-      else glColor4f(1,1,1,1);
-        glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+        if RENDER_3D then begin
+          glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+        end else begin
+        if Lay2 then glColor4f(1,1,1,Land[i,k].Height/CELL_HEIGHT_DIV+0.5)
+        else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+        if Lay2 then glColor4f(1,1,1,Land[i+1,k].Height/CELL_HEIGHT_DIV+0.5)
+        else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+        if Lay2 then glColor4f(1,1,1,Land[i+1,k+1].Height/CELL_HEIGHT_DIV+0.5)
+        else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+        if Lay2 then glColor4f(1,1,1,Land[i,k+1].Height/CELL_HEIGHT_DIV+0.5)
+        else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+        end;
       end;
-    end;
-  glEnd;
-end;
-
-for i:=y1 to y2 do for k:=x1 to x2 do
-begin
-  case fTerrain.Land[i,k].TileOverlay of
-    to_Dig1: RenderTile(249,k,i,0);
-    to_Dig2: RenderTile(251,k,i,0);
-    to_Dig3: RenderTile(253,k,i,0);
-    to_Dig4: RenderTile(255,k,i,0);
-    to_Wall: begin
-               glColor4f(0.5,0,0,0.5);
-               RenderQuad(k,i);
-             end;
+    glEnd;
   end;
 
-  if fTerrain.Land[i,k].TileOverlay=to_Road then
-    begin
-      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].TileOverlay=to_Road) shl 0 +
-          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].TileOverlay=to_Road) shl 1 +
-          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].TileOverlay=to_Road) shl 2 +
-          byte(fTerrain.Land[i                  ,max(k-1,1)         ].TileOverlay=to_Road) shl 3;
-      ID  := RoadsConnectivity[rd,1];
-      Rot := RoadsConnectivity[rd,2];
-      RenderTile(ID,k,i,Rot);
+  for i:=y1 to y2 do for k:=x1 to x2 do
+  begin
+    case fTerrain.Land[i,k].TileOverlay of
+      to_Dig1: RenderTile(249,k,i,0);
+      to_Dig2: RenderTile(251,k,i,0);
+      to_Dig3: RenderTile(253,k,i,0);
+      to_Dig4: RenderTile(255,k,i,0);
+      to_Wall: begin
+                 glColor4f(0.5,0,0,0.5);
+                 RenderQuad(k,i);
+               end;
     end;
-end;
+
+    if fTerrain.Land[i,k].TileOverlay=to_Road then
+      begin
+        rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].TileOverlay=to_Road) shl 0 +
+            byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].TileOverlay=to_Road) shl 1 +
+            byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].TileOverlay=to_Road) shl 2 +
+            byte(fTerrain.Land[i                  ,max(k-1,1)         ].TileOverlay=to_Road) shl 3;
+        ID  := RoadsConnectivity[rd,1];
+        Rot := RoadsConnectivity[rd,2];
+        RenderTile(ID,k,i,Rot);
+      end;
+  end;
 
   glColor4f(1,1,1,1);
   //Render highlights
@@ -373,7 +373,7 @@ end;
   //Render shadows and FOW at once
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, TextG);
-  glbegin (GL_QUADS);
+  glBegin (GL_QUADS);
     with fTerrain do
     for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
