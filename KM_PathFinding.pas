@@ -232,31 +232,6 @@ begin
   end;
 
   NodeList.Inverse;
-    //Nodes[0]:=LocA;
-
-
-  //Should ajoin straight pieces to reduce mem usage
-  //Important rule:
-  // - First node is LocA,
-  // - next to last node is neighbour of LocB (important for delivery to workers),
-  // - last node is LocB
-
-  {if NodeCount>3 then begin
-  k:=2;
-  for i:=3 to NodeCount-1 do begin //simplify within LocA+1 .. LocB-2 range
-  // i/k are always -1 since array is [0..Count-1] range
-    if (sign(Nodes[k-1].X-Nodes[k-2].X) = sign(Nodes[i-1].X-Nodes[i-2].X))and //Direction matches
-       (sign(Nodes[k-1].Y-Nodes[k-2].Y) = sign(Nodes[i-1].Y-Nodes[i-2].Y)) then begin
-      Nodes[k-1]:=Nodes[i-1];
-    end else begin
-      inc(k);
-      Nodes[k-1]:=Nodes[i-1];
-    end;
-  end;
-  inc(k);
-  Nodes[k-1]:=Nodes[NodeCount-1];
-  NodeCount:=k;
-  end;}
 end;
 
 
