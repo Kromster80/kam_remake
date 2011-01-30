@@ -6,6 +6,7 @@
 	Support custom campaigns
 	Replays manager
 	Multiplayer lobby chat
+	Select units/houses by shape, instead of tiles they stand on
 
 	Improved AI scripting [Lewin]
 	Tutorial missions and texts from KaM
