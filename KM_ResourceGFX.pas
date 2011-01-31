@@ -31,6 +31,8 @@ type
     function LoadUnitDAT(filename:string):boolean;
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
+    procedure AddHouseDAT;
+
     procedure AllocateRX(ID:integer; Count:integer=0);
     function  LoadRX(filename:string; ID:integer):boolean;
     procedure LoadRX7(RX:integer);
@@ -96,7 +98,6 @@ end;
 
 destructor TResource.Destroy;
 begin
-  //todo: Add destroy with "DestroyIcon" and move cursor creation to Create here
   Inherited;
 end;
 
@@ -350,25 +351,11 @@ var ii,kk,h:integer; ft:textfile; f:file;
 begin
   Result:=false;
   if not CheckFileExists(filename) then exit;
+  
   assignfile(f,filename); reset(f,1);
-  blockread(f,HouseDATs,30*70);
-  for h:=1 to 29 do begin
-  blockread(f,HouseDAT[h],88+19*70+270);
-  end;
-  //Append info for new houses
-  {for ii:=30 to HOUSE_COUNT do begin
-  fillChar(HouseDAT[ii],SizeOf(HouseDAT[ii]),#0);
-  HouseDAT[ii].StonePic:=129-1;
-  HouseDAT[ii].WoodPic:=130-1;
-  HouseDAT[ii].WoodPal:=132-1;
-  HouseDAT[ii].StonePal:=131-1;
-  HouseDAT[ii].WoodPicSteps:=7;
-  HouseDAT[ii].StonePicSteps:=8;
-  HouseDAT[ii].WoodCost:=1;
-  HouseDAT[ii].StoneCost:=1;
-  HouseDAT[ii].OwnerType:=0;
-  HouseDAT[ii].MaxHealth:=100;
-  end;}
+  blockread(f,HouseDATs,30*70); //Swine&Horses animations
+  for h:=1 to HOUSE_COUNT do
+    blockread(f,HouseDAT[h],88+19*70+270);
   closefile(f);
 
   if WriteResourceInfoToTXT then begin
@@ -425,6 +412,28 @@ begin
 
   Result:=true;
 end;
+
+
+//Append info for new houses
+procedure TResource.AddHouseDAT;
+var i:integer;
+begin
+  for i:=30 to HOUSE_COUNT do begin
+    fillChar(HouseDAT[i],SizeOf(HouseDAT[i]),#0);
+    HouseDAT[i].StonePic:=129-1;
+    HouseDAT[i].WoodPic:=130-1;
+    HouseDAT[i].WoodPal:=132-1;
+    HouseDAT[i].StonePal:=131-1;
+    HouseDAT[i].WoodPicSteps:=7;
+    HouseDAT[i].StonePicSteps:=8;
+    HouseDAT[i].WoodCost:=1;
+    HouseDAT[i].StoneCost:=1;
+    HouseDAT[i].OwnerType:=0;
+    HouseDAT[i].MaxHealth:=100;
+    HouseDAT[i].Sight := 12;
+  end;
+end;
+
 
 //=============================================
 //Reading unit.dat data

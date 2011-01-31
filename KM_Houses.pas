@@ -80,7 +80,7 @@ type
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 
     property GetPosition:TKMPoint read fPosition;
-    procedure SetPosition(aPos:TKMPoint); //Used by map editor
+    procedure SetPosition(aPos:TKMPoint); //Used only by map editor
     function GetEntrance():TKMPoint;
     function GetClosestCell(aPos:TKMPoint):TKMPoint;
     function GetDistance(aPos:TKMPoint):single;
