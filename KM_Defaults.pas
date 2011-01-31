@@ -137,6 +137,8 @@ const //Here we store options that are hidden somewhere in code
   RANGE_BOWMAN_MIN      = 4;
   RANGE_WATCHTOWER_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
 
+  LINK_RADIUS = 8; //Radius to search for groups to link to after being trained at the barracks
+
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
@@ -299,7 +301,7 @@ type
     rt_Bow       =25, rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 
 const //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern:array[1..28]of shortint = (
+  CheatStorePattern:array[1..28]of byte = (
   0,0,1,0,0,
   0,1,0,1,0,
   1,0,0,0,1,
@@ -324,7 +326,7 @@ const {Aligned to right to use them in GUI costs display as well}
 { Terrain }
 type TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGold,
                      CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish, CanCrab,
-                     CanWolf, CanElevate, CanWorker); //14bits so far
+                     CanWolf, CanElevate, CanWorker); //13bits so far
      TPassabilitySet = set of TPassability;
 
 type TWalkConnect = (wcWalk, wcRoad, wcFish, wcAvoid);
@@ -383,7 +385,7 @@ const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
 
 
 //Used for AI defence and linking troops
-type TGroupType = (gt_None=0,gt_Melee,gt_AntiHorse,gt_Ranged,gt_Mounted);
+type TGroupType = (gt_None=0, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
 
 const UnitGroups: array[15..24] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
@@ -441,9 +443,9 @@ const //Corresponding indices in units.rx
 
 type TProjectileType = (pt_Arrow=1, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
 
-const //Corresponding indices in units.rx
+const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileBounds:array[TProjectileType,1..2] of word = (
-  (4186,4190),(4186,4190),(4186,4190)
+  (0,0),(0,0),(4186,4190)
   );
 
 type
@@ -492,10 +494,6 @@ type
 //These are only for debug
 const
   TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
-  
-
-const
-  LINK_RADIUS = 8; //Radius to search for groups to link to after being trained at the barracks
 
 const {Actions names}
   UnitAct:array[1..14]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
@@ -1207,7 +1205,7 @@ var
   //       the defaults. The first 5 are good but I dislike that the last 3 are fairly similar, so maybe for the map editor we should have
   //       different defaults? Give me your thoughts.
   //@Lewin: I guess dark-blue and orange-brown will be noticably different from existing colors
-  //        tbh I don't like default colors that much, they are quite dull (greyish).  
+  //        tbh I don't like default colors that much, they are quite dull (greyish).
   //Default IDs from KaM:
   {229, //Red
   36,  //Cyan
