@@ -1641,7 +1641,9 @@ end;
 
 
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
+//If no tile found - return Origin location
 function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
+const TestDepth = 255;
 var
   i:integer;
   P:TKMPointI;
@@ -1663,9 +1665,10 @@ begin
     Result := TargetLoc;
     exit;
   end;
+
   //If target is not accessable then choose a tile near to the target that is accessable
   //As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
-  for i:=0 to 255 do begin
+  for i:=0 to TestDepth do begin
     P := GetPositionFromIndex(TargetLoc, i);
     if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;
     T := KMPoint(P.X,P.Y);
@@ -1678,7 +1681,7 @@ begin
     end;
   end;
 
-  Result := KMPoint(0,0); //If we don't find one, set to invalid (error)
+  Result := OriginLoc; //If we don't find one, return existing Loc
 end;
 
 

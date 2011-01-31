@@ -1,5 +1,7 @@
 EXE-only r1359+:
 <===================================================================================>
+ +	Units commanded to go deep into unwalkable terrain would cause "walkto 0:0" error
+
 	Edges of messages and other scrolls should be transparent so they look smooth
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
 	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
