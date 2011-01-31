@@ -10,6 +10,7 @@ type TKMapEdInterface = class
 
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
+    fShowPassability:byte;
     PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
     BarracksItem:byte; //Selected ware in barracks
@@ -17,8 +18,10 @@ type TKMapEdInterface = class
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
-      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMFlatButtonShape; //Animals are common for all
       KMMinimap:TKMMinimap;
+      RatioRow_Passability:TKMRatioRow;
+      Label_Passability:TKMLabel;
+      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
     Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
@@ -153,6 +156,7 @@ type TKMapEdInterface = class
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender:TObject);
     procedure Mission_AlliancesChange(Sender:TObject);
+    procedure View_Passability(Sender:TObject);
 
     function GetSelectedTile(): TObject;
     function GetSelectedObject(): TObject;
@@ -164,6 +168,7 @@ type TKMapEdInterface = class
     procedure ResizeGameArea(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
+    property ShowPassability:byte read fShowPassability;
     procedure RightClick_Cancel;
     procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -387,16 +392,25 @@ begin
     Image_Main4 := MyControls.AddImage(Panel_Main,0, 600,224,400,404);
     Image_Main5 := MyControls.AddImage(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
 
-    MyControls.AddLabel(Panel_Main,8,200,100,30,'Player',fnt_Metal,kaLeft);
+    KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
+    KMMinimap.OnChange:=Minimap_Update;
+
+    MyControls.AddLabel(Panel_Main,8,200,100,30,'View passsability',fnt_Metal,kaLeft);
+    RatioRow_Passability := MyControls.AddRatioRow(Panel_Main, 8, 220, 192, 20, 0, 13);
+    RatioRow_Passability.Position := 0;
+    RatioRow_Passability.MaxValue := length(PassabilityStr);
+    RatioRow_Passability.OnChange := View_Passability;
+    Label_Passability := MyControls.AddLabel(Panel_Main,8,240,100,30,'CanWalk',fnt_Metal,kaLeft);
+
+    MyControls.AddLabel(Panel_Main,8,270,100,30,'Player',fnt_Metal,kaLeft);
     for i:=1 to MAX_PLAYERS do begin
-      Button_PlayerSelect[i]         := MyControls.AddFlatButtonShape(Panel_Main, 8 + (i-1)*23, 220, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
+      Button_PlayerSelect[i]         := MyControls.AddFlatButtonShape(Panel_Main, 8 + (i-1)*23, 290, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[i].CapOffsetY := -3;
       Button_PlayerSelect[i].Tag     := i;
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
     end;
 
-    KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
-    KMMinimap.OnChange:=Minimap_Update;
+    Label_MissionName := MyControls.AddLabel(Panel_Main, 8, 340, 100, 10, '', fnt_Metal, kaLeft);
 
     Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint:=MyControls.AddLabel(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
@@ -437,8 +451,6 @@ begin
     Create_Store_Page();
     Create_Barracks_Page();
     //Create_TownHall_Page();
-
-  Label_MissionName := MyControls.AddLabel(Panel_Main, 8, 280, 100, 10, '', fnt_Metal, kaLeft);
 
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
@@ -1041,6 +1053,17 @@ begin
     GameCursor.Tag1 := byte(TKMButtonFlat(Sender).Tag);
   end;
 
+end;
+
+
+procedure TKMapEdInterface.View_Passability(Sender:TObject);
+begin
+  SHOW_TERRAIN_WIRES := TKMRatioRow(Sender).Position <> 0;
+  fShowPassability := TKMRatioRow(Sender).Position;
+  if TKMRatioRow(Sender).Position <> 0 then
+    Label_Passability.Caption := PassabilityStr[TPassability(TKMRatioRow(Sender).Position)]
+  else
+    Label_Passability.Caption := 'Off';
 end;
 
 

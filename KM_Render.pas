@@ -74,6 +74,7 @@ type
       procedure RenderDebugLine(x1,y1,x2,y2:single);
       procedure RenderDebugProjectile(x1,y1,x2,y2:single);
       procedure RenderDebugWires(x1,x2,y1,y2:integer);
+      procedure RenderDebugPassability(x1,x2,y1,y2:integer);
       procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
       procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
       procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
@@ -510,20 +511,6 @@ begin
     glEnd;
   end;
 
-  if Form1.Debug_PassabilityTrack.Position<>0 then
-  begin
-    glColor4f(0,1,0,0.25);
-    t := Form1.Debug_PassabilityTrack.Position;
-    for i:=y1 to y2 do for k:=x1 to x2 do
-      {$IFDEF WDC}
-      if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
-      {$ENDIF}
-      {$IFDEF FPC}
-      if integer(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
-      {$ENDIF}
-        RenderQuad(k,i);
-  end;
-
   glPointSize(3);
   glBegin (GL_POINTS);
   for i:=y1 to y2 do for k:=x1 to x2 do begin
@@ -532,6 +519,25 @@ begin
     glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
   end;
   glEnd;
+end;
+
+
+procedure TRender.RenderDebugPassability(x1,x2,y1,y2:integer);
+var i,k,Passability:integer;
+begin
+  Passability := max(Form1.Debug_PassabilityTrack.Position, fGame.fMapEditorInterface.ShowPassability);
+  if Passability <> 0 then
+  begin
+    glColor4f(0,1,0,0.25);
+    for i:=y1 to y2 do for k:=x1 to x2 do
+      {$IFDEF WDC}
+      if word(fTerrain.Land[i,k].Passability) AND Pow(2,Passability) = Pow(2,Passability) then
+      {$ENDIF}
+      {$IFDEF FPC}
+      if integer(fTerrain.Land[i,k].Passability) AND Pow(2,Passability) = Pow(2,Passability) then
+      {$ENDIF}
+        RenderQuad(k,i);
+  end;
 end;
 
 
