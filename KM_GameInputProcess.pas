@@ -409,6 +409,7 @@ procedure TGameInputProcess.CmdRatio(aCommand:TGameInputCommand; aRes:TResourceT
 begin
   Assert(aCommand = gic_RatioChange);
   MyPlayer.fPlayerStats.SetRatio(aRes, aHouse, aValue);
+  MyPlayer.GetHouses.UpdateResRequest;
   SaveCommand(aCommand, integer(aRes), integer(aHouse), aValue);
 end;
 

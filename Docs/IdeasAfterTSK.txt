@@ -17,6 +17,8 @@ Serfs caring resources at mission start
 
 Off-map reinforcements and dynamic map-size expansion
 
+Support bigger maps (512x512)
+
 neverending resources
 
 Walls building

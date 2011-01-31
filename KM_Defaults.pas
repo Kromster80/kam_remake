@@ -675,6 +675,7 @@ const
   );
 
   //For now it is the same as KaM
+  //The number means how many items should be in houses input max
   DistributionDefaults: array[1..4,1..4]of byte = (
   (5,4,0,0),
   (5,3,4,5),

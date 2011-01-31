@@ -1,16 +1,19 @@
+
 	Single-player AI
 	Map Editor
-	Random map generator
 	Local multiplayer
+
 	Internet multiplayer
+	Random map generator
 	Support custom campaigns
-	Replays manager
 	Multiplayer lobby chat
 	Select units/houses by shape, instead of tiles they stand on
 
 	Improved AI scripting [Lewin]
 	Tutorial missions and texts from KaM
 	Lookout tower [Krom]
+	Replays manager
+
 
 2nd Fighting Demo (r1345) - 31.12.2010:
  +	Lots of bugfixes [Krom/Lewin]

@@ -247,9 +247,11 @@ type
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
     procedure IncAnimStep;
+    procedure UpdateResRequest; //Change resource requested counts for all houses
     procedure UpdateState;
     procedure Paint();
   end;
+
 
 implementation
 uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player;
@@ -272,7 +274,7 @@ begin
   fDamage           := 0; //Undamaged yet
 
   fHasOwner         := false;
-  //Initially repair is [off]. But for PC it's controlled by a command in DAT script
+  //Initially repair is [off]. But for AI it's controlled by a command in DAT script
   fBuildingRepair   := (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (fPlayers.PlayerAI[byte(fOwner)].GetHouseRepair);
   DoorwayUse        := 0;
   fRepairID         := 0;
@@ -784,11 +786,13 @@ begin
 end;
 
 
+//Take resource from Input and order more of that kind if DistributionRatios allow
 function TKMHouse.ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
 var i,k:integer;
 begin
-Result:=false;
-if aResource=rt_None then exit;
+  Result:=false;
+  if aResource=rt_None then exit;
+
   for i:=1 to 4 do
   if aResource = HouseInput[byte(fHouseType),i] then begin
     fLog.AssertToLog(fResourceIn[i]>=aCount,'fResourceIn[i]>0');
@@ -947,19 +951,19 @@ begin
 end;
 
 
-//todo: sort this out for cases when distribution increases and decreases(!)
 //Request more resources (if distribution of wares has changed)
 procedure TKMHouse.UpdateResRequest;
-var i:byte;
+var i:byte; Count:shortint;
 begin
   for i:=1 to 4 do
     if not (HouseInput[byte(fHouseType),i] in [rt_All, rt_Warfare, rt_None]) then
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
     begin
-      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],
-             GetResDistribution(i)-fResourceDeliveryCount[i] ,dt_Once,di_Norm);
+      Count := GetResDistribution(i)-fResourceDeliveryCount[i];
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(
+        Self, nil, HouseInput[byte(fHouseType),i], Count, dt_Once, di_Norm);
 
-      inc(fResourceDeliveryCount[i],GetResDistribution(i)-fResourceDeliveryCount[i]);
+      inc(fResourceDeliveryCount[i], Count);
     end;
 end;
 
@@ -967,9 +971,6 @@ end;
 procedure TKMHouse.UpdateState;
 begin
   if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
-
-  if not fIsDestroyed then
-    UpdateResRequest; //Request more resources (if distribution of wares has changed)
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
   if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) and (HouseDAT[byte(GetHouseType)].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
@@ -1845,6 +1846,16 @@ begin
     if Houses[i].fCurrentAction<>nil then
       Houses[i].fCurrentAction.fHouse := fPlayers.GetHouseByID(cardinal(Houses[i].fCurrentAction.fHouse));
   end;
+end;
+
+
+//Update resource requested counts for all houses
+procedure TKMHousesCollection.UpdateResRequest;
+var i:integer;
+begin
+  for i:=0 to Count-1 do
+  if (not Houses[i].IsDestroyed) and (Houses[i].fBuildState = hbs_Done) then
+    Houses[i].UpdateResRequest;
 end;
 
 

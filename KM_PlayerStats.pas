@@ -66,11 +66,13 @@ constructor TKMPlayerStats.Create;
 var i,k:integer;
 begin
   Inherited;
-  for i:=1 to length(AllowToBuild) do AllowToBuild[i]:=true;
-  BuildReqDone[byte(ht_Store)]:=true;
-  for i:=1 to 4 do
-    for k:=1 to 4 do
-      ResourceRatios[i,k] := DistributionDefaults[i,k];
+  for i:=1 to length(AllowToBuild) do
+    AllowToBuild[i] := true;
+
+  BuildReqDone[byte(ht_Store)] := true;
+
+  for i:=1 to 4 do for k:=1 to 4 do
+    ResourceRatios[i,k] := DistributionDefaults[i,k];
 end;
 
 
