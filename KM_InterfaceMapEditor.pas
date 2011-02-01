@@ -34,7 +34,7 @@ type TKMapEdInterface = class
         BrushSize:TKMRatioRow;
         BrushCircle,BrushSquare:TKMButtonFlat;
       Panel_Heights:TKMPanel;
-        HeightSize:TKMRatioRow;
+        HeightSize,HeightShape:TKMRatioRow;
         HeightCircle,HeightSquare:TKMButtonFlat;
       Panel_Tiles:TKMPanel;
         TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
@@ -493,6 +493,8 @@ begin
       BrushSize   := MyControls.AddRatioRow(Panel_Brushes, 8, 10, 100, 20, 1, 12);
       BrushCircle := MyControls.AddButtonFlat(Panel_Brushes, 114, 8, 24, 24, 359);
       BrushSquare := MyControls.AddButtonFlat(Panel_Brushes, 142, 8, 24, 24, 352);
+      MyControls.AddButtonFlat(Panel_Brushes, 8, 30, 32, 32, 1, 8);
+
       {BrushSize.OnChange   := TerrainBrush_Change;
       BrushCircle.OnChange := TerrainBrush_Change;
       BrushSquare.OnChange := TerrainBrush_Change;}
@@ -501,7 +503,11 @@ begin
       HeightSize   := MyControls.AddRatioRow(Panel_Heights, 8, 10, 100, 20, 1, 12);
       HeightCircle := MyControls.AddButtonFlat(Panel_Heights, 114, 8, 24, 24, 359);
       HeightSquare := MyControls.AddButtonFlat(Panel_Heights, 142, 8, 24, 24, 352);
+      HeightShape  := MyControls.AddRatioRow(Panel_Heights, 8, 30, 100, 20, 1, 12);
+      HeightSize.MaxValue := 15; //4bit for size
+      HeightShape.MaxValue := 15; //4bit for slope shape
       HeightSize.OnChange   := Terrain_HeightChange;
+      HeightShape.OnChange  := Terrain_HeightChange;
       HeightCircle.OnClick  := Terrain_HeightChange;
       HeightSquare.OnClick  := Terrain_HeightChange;
 
@@ -868,24 +874,22 @@ end;
 
 procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
 begin
+  GameCursor.Tag1 := (HeightShape.Position AND $F) shl 4 +  HeightSize.Position AND $F;
+
   if Sender = HeightCircle then
   begin
     HeightCircle.Down := true;
     HeightSquare.Down := false;
     GameCursor.Mode  := cm_Height;
-    GameCursor.Tag1 := HeightSize.Position;
     GameCursor.Tag2 := MAPED_HEIGHT_CIRCLE;
-  end;
+  end else
   if Sender = HeightSquare then
   begin
     HeightSquare.Down := true;
     HeightCircle.Down := false;
     GameCursor.Mode  := cm_Height;
-    GameCursor.Tag1 := HeightSize.Position;
     GameCursor.Tag2 := MAPED_HEIGHT_SQUARE;
   end;
-  if Sender = HeightSize then
-    GameCursor.Tag1 := HeightSize.Position;
 end;
 
 

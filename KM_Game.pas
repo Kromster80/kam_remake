@@ -861,12 +861,10 @@ procedure TKMGame.UpdateStateIdle(aFrameTime:cardinal);
 begin
   case fGameState of
     gsRunning,
-    gsReplay:   begin
-                  fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
-                end;
+    gsReplay:   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
     gsEditor:   begin
                   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
-                  case GameCursor.Mode of
+                  case GameCursor.Mode of //todo: See if we can move this to TTerrain.UpdateStateIdle
                     cm_Height:
                               if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
                               fTerrain.MapEdHeight(KMPointF(GameCursor.Float.X+1,GameCursor.Float.Y+1), GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);

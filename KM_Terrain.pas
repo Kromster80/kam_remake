@@ -2258,25 +2258,30 @@ end;
 procedure TTerrain.MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
 var
   i,k:integer;
+  Size,Slope:byte;
   Tmp:single;
 begin
-  for i := (round(aLoc.Y) - aSize div 2) to (round(aLoc.Y) + aSize div 2) do
-  for k := (round(aLoc.X) - aSize div 2) to (round(aLoc.X) + aSize div 2) do
+  Size := aSize AND $F; //Low bits
+  Slope := aSize SHR 4; //High bits
+
+  for i := (round(aLoc.Y) - Size div 2) to (round(aLoc.Y) + Size div 2) do
+  for k := (round(aLoc.X) - Size div 2) to (round(aLoc.X) + Size div 2) do
   if VerticeInMapCoords(k,i) then
   begin
     case aShape of
-      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(i-aLoc.Y, k-aLoc.X) / (aSize div 2);
-      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(i-aLoc.Y), abs(k-aLoc.X)) / (aSize div 2);
+      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(i-aLoc.Y, k-aLoc.X) / (Size div 2);
+      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(i-aLoc.Y), abs(k-aLoc.X)) / (Size div 2);
       else Tmp := 0;
     end;
+    Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
     //Compute resulting floating-point height
     Tmp := EnsureRange(Land[i,k].Height + Land[i,k].HeightAdd/255 + Math.max(0,Tmp) * (byte(aRaise)*2-1), 0, 100);
     Land[i,k].Height := trunc(Tmp);
     Land[i,k].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1byte) to save us mem
   end;
 
-  RebuildLighting(round(aLoc.X) - aSize div 2,round(aLoc.X) + aSize div 2,round(aLoc.Y) - aSize div 2,round(aLoc.Y) + aSize div 2);
-  RebuildPassability(round(aLoc.X) - aSize div 2,round(aLoc.X) + aSize div 2,round(aLoc.Y) - aSize div 2,round(aLoc.Y) + aSize div 2);
+  RebuildLighting(round(aLoc.X) - Size div 2,round(aLoc.X) + Size div 2,round(aLoc.Y) - Size div 2,round(aLoc.Y) + Size div 2);
+  RebuildPassability(round(aLoc.X) - Size div 2,round(aLoc.X) + Size div 2,round(aLoc.Y) - Size div 2,round(aLoc.Y) + Size div 2);
 end;
 
 
