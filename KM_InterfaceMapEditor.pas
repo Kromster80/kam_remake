@@ -400,7 +400,7 @@ begin
     RatioRow_Passability.Position := 0;
     RatioRow_Passability.MaxValue := length(PassabilityStr);
     RatioRow_Passability.OnChange := View_Passability;
-    Label_Passability := MyControls.AddLabel(Panel_Main,8,240,100,30,'CanWalk',fnt_Metal,kaLeft);
+    Label_Passability := MyControls.AddLabel(Panel_Main,8,240,100,30,'Off',fnt_Metal,kaLeft);
 
     MyControls.AddLabel(Panel_Main,8,270,100,30,'Player',fnt_Metal,kaLeft);
     for i:=1 to MAX_PLAYERS do begin
