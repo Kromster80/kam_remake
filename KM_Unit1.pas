@@ -230,7 +230,7 @@ end;
 procedure TForm1.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them to fGame');
-  //fGame.KeyUp(Key, Shift);
+  //fGame.KeyPress(Key);
 end;
 
 

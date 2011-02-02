@@ -15,13 +15,15 @@ type
   TKMChat = class
     private
       fCount:integer;
+      fLastGiven:integer; //Last message UI querried from us
       fMessages:array of TKMTextMessage;
       procedure CheckLength;
     public
       constructor Create;
       destructor Destroy; override;
       procedure AddMessage(aPlayerID:integer; aTime:string; aText:string);
-      function GetMessages:string;
+      function GetAllMessages:string;
+      function GetNewMessages:string;
     end;
 
 
@@ -33,6 +35,7 @@ constructor TKMChat.Create;
 begin
   Inherited;
   fCount := 0;
+  fLastGiven := 1;
 end;
 
 
@@ -60,12 +63,25 @@ begin
 end;
 
 
-function TKMChat.GetMessages:string;
+function TKMChat.GetAllMessages:string;
 var i:integer;
 begin
   Result := '';
   for i:=0 to fCount-1 do
-    Result := Result + fMessages[i].TimeStamp + fMessages[i].Nik + fMessages[i].Msg + '|';
+    Result := Result + fMessages[i].TimeStamp + ' ' + fMessages[i].Nik +': '+ fMessages[i].Msg + '|';
+
+  fLastGiven := fCount-1+1;
+end;
+
+
+function TKMChat.GetNewMessages:string;
+var i:integer;
+begin
+  Result := '';
+  for i:=fLastGiven to fCount-1 do
+    Result := Result + fMessages[i].TimeStamp + ' ' + fMessages[i].Nik +': '+ fMessages[i].Msg + '|';
+
+  fLastGiven := fCount-1+1;
 end;
 
 

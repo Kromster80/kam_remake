@@ -243,14 +243,16 @@ end;
 {EditField}
 TKMEdit = class(TKMControl)
   private
-    FOnChange:TNotifyEvent;
+    fText:string;
+    fOnChange:TNotifyEvent;
     fOnKeyDown:TNotifyEventKey;
+    procedure SetText(aText:string);
   public
-    Text: string;
     Font: TKMFont;
     Masked:boolean;
     CursorPos:integer;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
+    property Text:string read fText write SetText;
     property OnChange: TNotifyEvent write FOnChange;
     property OnKeyDown: TNotifyEventKey write fOnKeyDown;
     function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
@@ -1188,48 +1190,53 @@ end;
 constructor TKMEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
-  Text := '<<<LEER>>>';
+  fText := '<<<LEER>>>';
   Font := aFont;
   Masked := aMasked;
-  CursorPos := length(Text);
+  CursorPos := length(fText);
   ParentTo(aParent);
 end;
 
 
+procedure TKMEdit.SetText(aText:string);
+begin
+  fText := aText;
+  CursorPos := min(CursorPos, length(fText));
+end;
+
+
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
+  function ValidKey(aKey:word):boolean;
+  begin //Utility, Numbers, NumPad numbers, Letters
+    Result := chr(aKey) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
+  end;
+var s:string;
 begin
   Result := true;
   if Inherited KeyDown(Key, Shift) then exit;
 
+  if ValidKey(Key) then begin
+    s := GetCharFromVirtualKey(Key);
+    Insert(s, fText, CursorPos+1);
+    inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars
+  end;
+
   case Key of
-    VK_BACK:    begin Delete(Text, CursorPos, 1); dec(CursorPos); end;
-    VK_DELETE:  Delete(Text, CursorPos+1, 1);
+    VK_BACK:    begin Delete(fText, CursorPos, 1); dec(CursorPos); end;
+    VK_DELETE:  Delete(fText, CursorPos+1, 1);
     VK_LEFT:    dec(CursorPos);
     VK_RIGHT:   inc(CursorPos);
   end;
-  CursorPos := EnsureRange(CursorPos, 0, length(Text));
+  CursorPos := EnsureRange(CursorPos, 0, length(fText));
 
   if Assigned(fOnKeyDown) then fOnKeyDown(Self, Key);
 end;
 
 
 function TKMEdit.KeyUp(Key: Word; Shift: TShiftState):boolean;
-  function ValidKey():boolean;
-  begin //Utility, Numbers, NumPad numbers, Letters
-    Result := chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
-  end;
-var s:string;
 begin
   Result := true;
   if Inherited KeyUp(Key, Shift) then exit;
-
-  if ValidKey then begin //Make letters repeatable?
-    s := GetCharFromVirtualKey(Key);
-    Insert(s, Text, CursorPos+1);
-    inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars
-  end;
-
-  CursorPos := EnsureRange(CursorPos, 0, length(Text));
 
   if Assigned(fOnChange) then fOnChange(Self);
 end;
@@ -1238,7 +1245,7 @@ end;
 procedure TKMEdit.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
   Inherited;
-  CursorPos := length(Text);
+  CursorPos := length(fText);
 end;
 
 
@@ -1248,7 +1255,7 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
-  if Masked then RText := StringOfChar('*', Length(Text)) else RText:=Text;
+  if Masked then RText := StringOfChar('*', Length(fText)) else RText := fText;
 
   fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
 

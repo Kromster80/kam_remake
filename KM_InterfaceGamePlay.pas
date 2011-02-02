@@ -1,7 +1,7 @@
 unit KM_InterfaceGamePlay;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
+uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows, DateUtils,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 
@@ -52,7 +52,6 @@ type TKMGamePlayInterface = class
     //For multiplayer: Send, reply, text area for typing, etc.
     Panel_Chat:TKMPanel;
       Label_ChatText:TKMLabel;
-      Button_ChatPost:TKMButton;
       Edit_ChatMsg:TKMEdit;
     Panel_Pause:TKMPanel;
       Bevel_Pause:TKMBevel;
@@ -753,10 +752,6 @@ begin
     Label_ChatText:=MyControls.AddLabel(Panel_Chat,45,67,500,122,'',fnt_Antiqua,kaLeft);
     Label_ChatText.AutoWrap := true;
 
-    Button_ChatPost:=MyControls.AddButton(Panel_Chat,490,74,100,24,'Post',fnt_Antiqua);
-    Button_MessageGoTo.Hint := 'Post message';
-    //Button_MessageGoTo.OnClick := Chat_Post;
-
     Edit_ChatMsg := MyControls.AddEdit(Panel_Chat, 45, 160, 500, 20, fnt_Antiqua);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
 
@@ -1243,7 +1238,7 @@ begin
     Panel_Chat.Hide;
     Panel_Message.Show;
   end else begin
-    Label_ChatText.Caption := fGame.fChat.GetMessages;
+    Label_ChatText.Caption := fGame.fChat.GetAllMessages;
     Panel_Chat.Show;
     Panel_Message.Hide;
   end;
@@ -1891,8 +1886,11 @@ end;
 
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
-  if Key <> VK_RETURN then exit;
-  fGame.fGameInputProcess.CmdText(gic_TextMessage, integer(MyPlayer.PlayerID), '00:00', Edit_ChatMsg.Text);
+  if (Key <> VK_RETURN) or (Edit_ChatMsg.Text = '') then exit;
+  fGame.fGameInputProcess.CmdText(gic_TextMessage,
+                                  integer(MyPlayer.PlayerID),
+                                  FormatDateTime('hh:nn:ss', Now),
+                                  Edit_ChatMsg.Text);
   Edit_ChatMsg.Text := '';
 end;
 
@@ -2500,8 +2498,8 @@ begin
   if Panel_Menu.Visible then Menu_Fill(nil);
 
   if Panel_Chat.Visible then begin
-    //Query only new messages?
-    Label_ChatText.Caption := fGame.fChat.GetMessages;
+    //todo: Change this to TKMMemo that will scroll and cut older messages automatically
+    Label_ChatText.Caption := Label_ChatText.Caption + fGame.fChat.GetNewMessages;
   end;
 
   if SHOW_SPRITE_COUNT then
