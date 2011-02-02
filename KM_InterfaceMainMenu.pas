@@ -179,7 +179,8 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Results(Msg:TGameResultMsg);
     procedure Fill_Results();
 
-    procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+    procedure KeyDown(Key:Word; Shift: TShiftState);
+    procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -1215,9 +1216,15 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+procedure TKMMainMenuInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyUp(Key, Shift, IsDown) then exit; //Handled by Controls
+  if MyControls.KeyDown(Key, Shift) then exit; //Handled by Controls
+end;
+
+
+procedure TKMMainMenuInterface.KeyUp(Key:Word; Shift: TShiftState);
+begin
+  if MyControls.KeyUp(Key, Shift) then exit; //Handled by Controls
 end;
 
 

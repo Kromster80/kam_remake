@@ -13,6 +13,7 @@
 	Tutorial missions and texts from KaM
 	Lookout tower [Krom]
 	Replays manager
+	Add hotkeys for armies that player can assign (Ctrl+1,2,etc)
 
 
 2nd Fighting Demo (r1345) - 31.12.2010:

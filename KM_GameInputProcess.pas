@@ -16,7 +16,7 @@ uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
    - playback replays
    - send input through LAN to make multiplayer games }
 
-const MAX_PARAMS = 4;
+const MAX_PARAMS = 4; //There are maximum of 4 integers passed along with a command
 
 type TGIPState = (gipRecording, gipReplaying);
 
@@ -58,11 +58,14 @@ type TGameInputCommand = (
   gic_TempAddScout,
   gic_TempKillUnit,
   gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
-  gic_TempChangeMyPlayer //Make debugging easier
+  gic_TempChangeMyPlayer, //Make debugging easier
 
   { Optional input }
   //VI.     Viewport settings for replay (location, zoom)
   //VII.    Message queue handling in gameplay interface
+  //IX.     Text messages for multiplayer (console)
+  gic_TextMessage
+
   );
 
 type
@@ -74,7 +77,7 @@ TGameInputProcess = class
       Tick:cardinal;
       Command:TGameInputCommand;
       Params:array[1..MAX_PARAMS]of integer;
-      Rand:cardinal;
+      Rand:cardinal; //acts as CRC check
     end;
     fState:TGIPState;
     procedure SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
@@ -109,6 +112,8 @@ TGameInputProcess = class
     procedure CmdTemp(aCommand:TGameInputCommand); overload;
     procedure CmdTemp(aCommand:TGameInputCommand; aPlayerID:integer); overload;
 
+    procedure CmdText(aCommand:TGameInputCommand; aPlayerID:integer; aTime:string; aText:string);
+
     procedure Tick(aTick:cardinal);
 
     property Count:integer read fCount;
@@ -116,7 +121,6 @@ TGameInputProcess = class
     function GetLastTick():integer;
     function Ended():boolean;
 end;
-
 
 
 implementation
@@ -443,6 +447,14 @@ begin
   Assert(aCommand = gic_TempChangeMyPlayer);
   MyPlayer := fPlayers.Player[aPlayerID];
   SaveCommand(aCommand, aPlayerID);
+end;
+
+
+procedure TGameInputProcess.CmdText(aCommand:TGameInputCommand; aPlayerID:integer; aTime:string; aText:string);
+begin
+  Assert(aCommand = gic_TextMessage);
+  fGame.fChat.AddMessage(aPlayerID, aTime, aText);
+  //SaveCommand(aCommand, aPlayerID, aText);
 end;
 
 

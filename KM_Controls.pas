@@ -8,7 +8,8 @@ uses Classes, Controls, Graphics, Math, MMSystem, Windows, SysUtils,
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta:integer) of object;
-
+  TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
+  
   TKMControlState = (csDown, csFocus, csOver);
   TKMControlStateSet = set of TKMControlState;
 
@@ -62,7 +63,8 @@ TKMControl = class
     procedure Stretch;
     function IsVisible():boolean;
 
-    function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
+    function KeyDown(Key: Word; Shift: TShiftState):boolean; virtual;
+    function KeyUp(Key: Word; Shift: TShiftState):boolean; virtual;
     procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseMove (X,Y:integer; Shift:TShiftState); virtual;
     procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
@@ -242,14 +244,17 @@ end;
 TKMEdit = class(TKMControl)
   private
     FOnChange:TNotifyEvent;
+    fOnKeyDown:TNotifyEventKey;
   public
     Text: string;
     Font: TKMFont;
     Masked:boolean;
     CursorPos:integer;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean; override;
+    property OnChange: TNotifyEvent write FOnChange;
+    property OnKeyDown: TNotifyEventKey write fOnKeyDown;
+    function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
+    function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint(); override;
 end;
@@ -480,11 +485,12 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     function AddFileList        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
 
-    function KeyUp              (Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
-    procedure MouseDown       (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-    procedure MouseMove       (X,Y:integer; Shift:TShiftState);
-    procedure MouseUp         (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-    procedure MouseWheel      (X,Y:integer; WheelDelta:integer);
+    function KeyDown            (Key: Word; Shift: TShiftState):boolean;
+    function KeyUp              (Key: Word; Shift: TShiftState):boolean;
+    procedure MouseDown         (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+    procedure MouseMove         (X,Y:integer; Shift:TShiftState);
+    procedure MouseUp           (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+    procedure MouseWheel        (X,Y:integer; WheelDelta:integer);
 
     procedure Paint();
 
@@ -531,21 +537,28 @@ begin
 end;
 
 
-function TKMControl.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
+function TKMControl.KeyDown(Key: Word; Shift: TShiftState):boolean;
 var Amt:byte;
 begin
   Result := false;
   if not MODE_DESIGN_CONTORLS then exit;
-  if IsDown then exit;
 
   Amt := 1;
-  if ssCtrl in Shift then Amt := 10;
+  if ssCtrl  in Shift then Amt := 10;
   if ssShift in Shift then Amt := 100;
 
-  if Key = VK_LEFT then fLeft := fLeft - Amt;
+  if Key = VK_LEFT  then fLeft := fLeft - Amt;
   if Key = VK_RIGHT then fLeft := fLeft + Amt;
-  if Key = VK_UP then fTop := fTop - Amt;
-  if Key = VK_DOWN then fTop := fTop + Amt;
+  if Key = VK_UP    then fTop  := fTop  - Amt;
+  if Key = VK_DOWN  then fTop  := fTop  + Amt;
+end;
+
+
+function TKMControl.KeyUp(Key: Word; Shift: TShiftState):boolean;
+begin
+  Result := false;
+  if not MODE_DESIGN_CONTORLS then exit;
+  //nothing yet
 end;
 
 
@@ -1183,7 +1196,24 @@ begin
 end;
 
 
-function TKMEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean;
+function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
+begin
+  Result := true;
+  if Inherited KeyDown(Key, Shift) then exit;
+
+  case Key of
+    VK_BACK:    begin Delete(Text, CursorPos, 1); dec(CursorPos); end;
+    VK_DELETE:  Delete(Text, CursorPos+1, 1);
+    VK_LEFT:    dec(CursorPos);
+    VK_RIGHT:   inc(CursorPos);
+  end;
+  CursorPos := EnsureRange(CursorPos, 0, length(Text));
+
+  if Assigned(fOnKeyDown) then fOnKeyDown(Self, Key);
+end;
+
+
+function TKMEdit.KeyUp(Key: Word; Shift: TShiftState):boolean;
   function ValidKey():boolean;
   begin //Utility, Numbers, NumPad numbers, Letters
     Result := chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
@@ -1191,24 +1221,17 @@ function TKMEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean;
 var s:string;
 begin
   Result := true;
-  if Inherited KeyUp(Key, Shift, IsDown) then exit;
+  if Inherited KeyUp(Key, Shift) then exit;
 
-  if (not IsDown) and ValidKey then begin//Letters don't auto-repeat
+  if ValidKey then begin //Make letters repeatable?
     s := GetCharFromVirtualKey(Key);
     Insert(s, Text, CursorPos+1);
     inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars
-  end
-  else
-  if IsDown then //Allow repeated delete if IsDown
-    case Key of
-      VK_BACK:    begin Delete(Text, CursorPos, 1); dec(CursorPos); end;
-      VK_DELETE:  Delete(Text, CursorPos+1, 1);
-      VK_LEFT:    dec(CursorPos);
-      VK_RIGHT:   inc(CursorPos);
-    end;
+  end;
 
   CursorPos := EnsureRange(CursorPos, 0, length(Text));
-  if Assigned(OnChange) then OnChange(Self);
+
+  if Assigned(fOnChange) then fOnChange(Self);
 end;
 
 
@@ -2070,10 +2093,19 @@ begin
 end;
 
 
-function TKMControlsCollection.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
+function TKMControlsCollection.KeyDown(Key: Word; Shift: TShiftState):boolean;
 begin
   if CtrlFocus <> nil then
-    Result := CtrlFocus.KeyUp(Key, Shift, IsDown)
+    Result := CtrlFocus.KeyDown(Key, Shift)
+  else
+    Result := false;
+end;
+
+
+function TKMControlsCollection.KeyUp(Key: Word; Shift: TShiftState):boolean;
+begin
+  if CtrlFocus <> nil then
+    Result := CtrlFocus.KeyUp(Key, Shift)
   else
     Result := false;
 end;

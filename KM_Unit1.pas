@@ -65,6 +65,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ExportMainMenu1Click(Sender: TObject);
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -222,7 +223,14 @@ end;
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them to fGame');
-  fGame.KeyUp(Key, Shift, true);
+  fGame.KeyDown(Key, Shift);
+end;
+
+
+procedure TForm1.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them to fGame');
+  //fGame.KeyUp(Key, Shift);
 end;
 
 
@@ -558,6 +566,7 @@ end;
 
 
 {$IFDEF FPC}
+
 initialization
 {$I KM_Unit1.lrs}
 {$ENDIF}

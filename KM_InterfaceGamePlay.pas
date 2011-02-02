@@ -49,7 +49,11 @@ type TKMGamePlayInterface = class
       Button_MessageGoTo: TKMButton;
       Button_MessageDelete: TKMButton;
       Button_MessageClose: TKMButton;
-      //For multiplayer: Send, reply, text area for typing, etc.
+    //For multiplayer: Send, reply, text area for typing, etc.
+    Panel_Chat:TKMPanel;
+      Label_ChatText:TKMLabel;
+      Button_ChatPost:TKMButton;
+      Edit_ChatMsg:TKMEdit;
     Panel_Pause:TKMPanel;
       Bevel_Pause:TKMBevel;
       Image_Pause:TKMImage;
@@ -157,6 +161,7 @@ type TKMGamePlayInterface = class
   private
     procedure Create_Replay_Page;
     procedure Create_Message_Page;
+    procedure Create_Chat_Page;
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
     procedure Create_Build_Page;
@@ -209,6 +214,7 @@ type TKMGamePlayInterface = class
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
+    procedure Chat_Post(Sender:TObject; Key:word);
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
@@ -229,7 +235,8 @@ type TKMGamePlayInterface = class
     property ShownHouse: TKMHouse read fShownHouse;
     procedure ClearShownUnit;
 
-    procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+    procedure KeyDown(Key:Word; Shift: TShiftState);
+    procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -527,6 +534,7 @@ begin
     Image_DirectionCursor.Hide;
 
     Create_Message_Page; //Must go bellow message stack
+    Create_Chat_Page; //MessagePage sibling
 
     for i:=low(Image_Message) to high(Image_Message) do
     begin
@@ -731,6 +739,30 @@ begin
 
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 end;
+
+
+{Chat page}
+procedure TKMGamePlayInterface.Create_Chat_Page;
+begin
+  Panel_Chat:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBARWIDTH, 190);
+  Panel_Chat.Anchors := [akLeft, akRight, akBottom];
+
+    MyControls.AddImage(Panel_Chat,0,20,600,170,409);
+    MyControls.AddImage(Panel_Chat,0,0,600,20,551);
+
+    Label_ChatText:=MyControls.AddLabel(Panel_Chat,45,67,500,122,'',fnt_Antiqua,kaLeft);
+    Label_ChatText.AutoWrap := true;
+
+    Button_ChatPost:=MyControls.AddButton(Panel_Chat,490,74,100,24,'Post',fnt_Antiqua);
+    Button_MessageGoTo.Hint := 'Post message';
+    //Button_MessageGoTo.OnClick := Chat_Post;
+
+    Edit_ChatMsg := MyControls.AddEdit(Panel_Chat, 45, 160, 500, 20, fnt_Antiqua);
+    Edit_ChatMsg.OnKeyDown := Chat_Post;
+
+  Panel_Chat.Hide; //Hide it now because it doesn't get hidden by SwitchPage
+end;
+
 
 {Build page}
 procedure TKMGamePlayInterface.Create_Build_Page;
@@ -1205,9 +1237,16 @@ begin
 
   Image_Message[ShownMessage].Highlight := true; //make it brighter
 
-  Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
-  Button_MessageGoTo.Enabled := fMessageList.GetPicID(ShownMessage)-400 in [92..93]; //Only show Go To for house and units
-  Panel_Message.Show;
+  if fMessageList.GetPicID(ShownMessage)-400 = 92 then begin
+    Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
+    Button_MessageGoTo.Enabled := fMessageList.GetPicID(ShownMessage)-400 in [92..93]; //Only show Go To for house and units
+    Panel_Chat.Hide;
+    Panel_Message.Show;
+  end else begin
+    Label_ChatText.Caption := fGame.fChat.GetMessages;
+    Panel_Chat.Show;
+    Panel_Message.Hide;
+  end;
   fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
 end;
 
@@ -1850,6 +1889,14 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
+begin
+  if Key <> VK_RETURN then exit;
+  fGame.fGameInputProcess.CmdText(gic_TextMessage, integer(MyPlayer.PlayerID), '00:00', Edit_ChatMsg.Text);
+  Edit_ChatMsg.Text := '';
+end;
+
+
 procedure TKMGamePlayInterface.ReplayClick;
   procedure SetButtons(aPaused:boolean);
   begin
@@ -2075,23 +2122,35 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.KeyDown(Key:Word; Shift: TShiftState);
+begin
+  if fGame.GameState = gsRunning then
+  begin
+    if MyControls.KeyDown(Key, Shift) then exit;
+    if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := true;
+    if Key = VK_RIGHT then fViewport.ScrollKeyRight := true;
+    if Key = VK_UP    then fViewport.ScrollKeyUp    := true;
+    if Key = VK_DOWN  then fViewport.ScrollKeyDown  := true;
+  end;
+end;
+
+
 //Note: we deliberately don't pass any Keys to MyControls when game is not running
 //thats why MyControls.KeyUp is only in gsRunning clause
 //Ignore all keys if game is on 'Pause'
-procedure TKMGamePlayInterface.KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+procedure TKMGamePlayInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
   case fGame.GameState of
-    gsPaused:   if (Key=ord('P')) and not IsDown then SetPause(false);
+    gsPaused:   if Key = ord('P') then SetPause(false);
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
-                  if MyControls.KeyUp(Key, Shift, IsDown) then exit;
+                  if MyControls.KeyUp(Key, Shift) then exit;
 
                   //Scrolling
-                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
-                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
-                  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
-                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
-                  if IsDown then exit; //Other commands don't repeat
+                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
+                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := false;
+                  if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
+                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
 
                   if Key = VK_BACK then  fViewport.SetZoom(1);
                   //Game speed
@@ -2128,7 +2187,6 @@ begin
                   if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
                 end;
     gsReplay:   begin
-                  if IsDown then exit;
                   if Key = VK_BACK then fViewport.SetZoom(1);
                   if Key = VK_F8 then   fGame.SetGameSpeed(); //Speed will toggle automatically
                 end;
@@ -2440,6 +2498,11 @@ begin
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
+
+  if Panel_Chat.Visible then begin
+    //Query only new messages?
+    Label_ChatText.Caption := fGame.fChat.GetMessages;
+  end;
 
   if SHOW_SPRITE_COUNT then
   Label_Stat.Caption:=

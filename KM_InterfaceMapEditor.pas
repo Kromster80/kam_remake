@@ -170,7 +170,8 @@ type TKMapEdInterface = class
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
     procedure RightClick_Cancel;
-    procedure KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+    procedure KeyDown(Key:Word; Shift: TShiftState);
+    procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -1436,26 +1437,39 @@ begin
 end;
 
 
-procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState; IsDown:boolean=false);
+procedure TKMapEdInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyUp(Key, Shift, IsDown) then exit; //Handled by Controls
+  if MyControls.KeyDown(Key, Shift) then exit; //Handled by Controls
 
   //1-5 game menu shortcuts
   if Key in [49..53] then
-  begin
     if Button_Main[Key-48].Visible then MyControls.CtrlDown := Button_Main[Key-48];
-    if not IsDown then SwitchPage(Button_Main[Key-48]);
-  end;
 
   //Scrolling
-  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
-  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
-  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
-  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
+  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := true;
+  if Key = VK_RIGHT then fViewport.ScrollKeyRight := true;
+  if Key = VK_UP    then fViewport.ScrollKeyUp    := true;
+  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := true;
+end;
+
+
+procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState);
+begin
+  if MyControls.KeyUp(Key, Shift) then exit; //Handled by Controls
+
+  //1-5 game menu shortcuts
+  if Key in [49..53] then
+    SwitchPage(Button_Main[Key-48]);
+
+  //Scrolling
+  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
+  if Key = VK_RIGHT then fViewport.ScrollKeyRight := false;
+  if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
+  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if (Key = VK_BACK) and not IsDown then fViewport.SetZoom(1);
+  if Key = VK_BACK  then fViewport.SetZoom(1);
 end;
 
 

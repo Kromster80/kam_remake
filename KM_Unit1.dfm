@@ -19,6 +19,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
+  OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
   OnResize = FormResize

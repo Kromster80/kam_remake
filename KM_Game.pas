@@ -6,7 +6,7 @@ uses Windows,
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music;
+  KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Chat;
 
 type TGameState = ( gsNoGame,  //No game running at all, MainMenu
                     gsPaused,  //Game is paused and responds to 'P' key only
@@ -42,6 +42,7 @@ type
     fMusicLib: TMusicLib;
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
+    fChat:TKMChat;
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
@@ -50,7 +51,8 @@ type
     procedure ToggleLocale(aLocale:shortstring);
     procedure ResizeGameArea(X,Y:integer);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
-    procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
+    procedure KeyDown(Key: Word; Shift: TShiftState);
+    procedure KeyUp(Key: Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
@@ -119,6 +121,7 @@ begin
   fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource       := TResource.Create(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
+  fChat           := TKMChat.Create; //Used in Gameplay and Lobby
   fCampaignSettings := TCampaignSettings.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
@@ -133,6 +136,7 @@ begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
 
   FreeThenNil(fCampaignSettings);
+  FreeThenNil(fChat);
   FreeThenNil(fGlobalSettings);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
@@ -176,30 +180,44 @@ begin
 end;
 
 
-procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
+procedure TKMGame.KeyDown(Key: Word; Shift: TShiftState);
+begin
+  case fGameState of
+    gsNoGame:   fMainMenuInterface.KeyDown(Key, Shift); //Exit if handled
+    gsPaused:   fGamePlayInterface.KeyDown(Key, Shift);
+    gsOnHold:   fGamePlayInterface.KeyDown(Key, Shift);
+    gsRunning:  fGamePlayInterface.KeyDown(Key, Shift);
+    gsReplay:   fGamePlayInterface.KeyDown(Key, Shift);
+    gsEditor:   fMapEditorInterface.KeyDown(Key, Shift);
+  end;
+end;
+
+
+procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState);
 begin
   //List of conflicting keys:
   //F12 Pauses Execution and switches to debug
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
+  //F4 and F9 are used in debug to control run-flow
   //others.. unknown
 
   //GLOBAL KEYS
-  if not IsDown and (Key=VK_F5) then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
-  if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F7) then
+  if Key = VK_F5 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
+  if (Key = VK_F7) and ENABLE_DESIGN_CONTORLS then
     MODE_DESIGN_CONTORLS := not MODE_DESIGN_CONTORLS;
-  if not IsDown and (Key=VK_F11) then begin
+  if Key = VK_F11  then begin
     FormControlsVisible := not FormControlsVisible;
     Form1.ToggleControlsVisibility(FormControlsVisible);
   end;
 
   case fGameState of
-    gsNoGame:   fMainMenuInterface.KeyUp(Key, Shift, IsDown); //Exit if handled
-    gsPaused:   fGamePlayInterface.KeyUp(Key, Shift, IsDown);
-    gsOnHold:   fGamePlayInterface.KeyUp(Key, Shift, IsDown);
-    gsRunning:  fGamePlayInterface.KeyUp(Key, Shift, IsDown);
-    gsReplay:   fGamePlayInterface.KeyUp(Key, Shift, IsDown);
-    gsEditor:   fMapEditorInterface.KeyUp(Key, Shift, IsDown);
+    gsNoGame:   fMainMenuInterface.KeyUp(Key, Shift); //Exit if handled
+    gsPaused:   fGamePlayInterface.KeyUp(Key, Shift);
+    gsOnHold:   fGamePlayInterface.KeyUp(Key, Shift);
+    gsRunning:  fGamePlayInterface.KeyUp(Key, Shift);
+    gsReplay:   fGamePlayInterface.KeyUp(Key, Shift);
+    gsEditor:   fMapEditorInterface.KeyUp(Key, Shift);
   end;
 end;
 
