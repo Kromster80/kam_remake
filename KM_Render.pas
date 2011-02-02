@@ -500,7 +500,7 @@ end;
 
 
 procedure TRender.RenderDebugWires(x1,x2,y1,y2:integer);
-var i,k,t:integer;
+var i,k:integer;
 begin
   for i:=y1 to y2 do begin
     glBegin (GL_LINE_STRIP);
@@ -525,7 +525,10 @@ end;
 procedure TRender.RenderDebugPassability(x1,x2,y1,y2:integer);
 var i,k,Passability:integer;
 begin
-  Passability := max(Form1.Debug_PassabilityTrack.Position, fGame.fMapEditorInterface.ShowPassability);
+  Passability := Form1.Debug_PassabilityTrack.Position;
+    if fGame.fMapEditorInterface <> nil then
+      Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
+
   if Passability <> 0 then
   begin
     glColor4f(0,1,0,0.25);
