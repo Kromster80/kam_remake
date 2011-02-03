@@ -962,6 +962,9 @@ begin
     if GetFightMaxRange < 2 then
     begin
       //Melee
+      //todo: Try to avoid making a route through other units. Path finding should weight tiles with units high,
+      //      tiles with fighting (locked) units very high so we route around the locked the battle rather
+      //      than getting stuck trying to walk through fighting units (this will make the fighting system appear smarter)
       fOrder := wo_AttackUnit;
       fState := ws_Engage; //Special state so we don't issue this order continuously
       SetOrderTarget(ChosenFoe);
@@ -1116,8 +1119,30 @@ end;
 
 
 procedure TKMUnitWarrior.Paint();
+
+  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir, UnitTyp:byte);
+  var
+    TeamColor: byte;
+    FlagXPaintPos, FlagYPaintPos: single;
+  begin
+    if (fCommander <> nil) or IsDeadOrDying then exit; //No flags for commanders or dead units
+    //Paint flag
+    //todo: Fix flag render order. For [SE, S, SW] the flag should be rendered BEFORE (under) the unit,
+    //      for all other directions it should be rendered AFTER (over) the unit
+    FlagXPaintPos := XPaintPos + FlagXOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
+    FlagYPaintPos := YPaintPos + FlagYOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
+    TeamColor := byte(fOwner);
+    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals); //Highlight with White color
+
+    //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
+    if fGame.GameState = gsEditor then
+      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fTerrain.AnimStep, TeamColor, FlagXPaintPos, FlagYPaintPos, false)
+    else
+      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, FlagXPaintPos, FlagYPaintPos, false);
+  end;
+
 var
-  UnitTyp, AnimAct, AnimDir, TeamColor:byte;
+  UnitTyp, AnimAct, AnimDir:byte;
   XPaintPos, YPaintPos: single;
   i:integer;
   UnitPosition: TKMPoint;
@@ -1130,23 +1155,16 @@ begin
 
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
+                          PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp);
 
+  //@Krom: If I paint the flag before painting the unit (by uncommenting this line and commenting
+  //       the line after painting the unit) the render order is different. (different things are over
+  //       each other) How can this occur in a sorted render list? Try it yourself, it is noticable for flags.
+  //       On the map "Flags" the flag on the militia facing south is over his head one way, under the other way
+
+  PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //To test render order bug uncomment this line
   fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
-
-  //Paint flag
-  if (fCommander=nil) and not IsDeadOrDying then begin
-    //todo: Fix flag offsets
-    //XPaintPos := XPaintPos + FlagXOffset[UnitType]/CELL_SIZE_PX;
-    YPaintPos := YPaintPos + FlagYOffset[UnitTyp]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
-    TeamColor := byte(fOwner);
-    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals); //Highlight with White color
-
-    //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
-    if fGame.GameState = gsEditor then
-      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fTerrain.AnimStep, TeamColor, XPaintPos, YPaintPos, false)
-    else
-      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);
-  end;
+  //PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //To test render order bug comment/delete this line
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);

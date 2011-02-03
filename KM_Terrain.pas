@@ -2234,6 +2234,7 @@ end;
 function TTerrain.InterpolateLandHeight(inX,inY:single):single;
 var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
+  //todo: Make this match KaM by creating some comparision screenshots of slopes, hills, etc.
   Xc := trunc(inX);
   Yc := trunc(inY);
   Result := 0;

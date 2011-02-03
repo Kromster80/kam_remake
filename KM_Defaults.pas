@@ -409,22 +409,20 @@ const AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
   (ut_Arbaletman,   ut_Bowman,     ut_None),
   (ut_Cavalry,      ut_HorseScout, ut_None));
 
-const FlagXOffset: array[15..24] of shortint = (
-    10,10,10,  //ut_Militia, ut_AxeFighter, ut_Swordsman
-    8,8,       //ut_Bowman, ut_Arbaletman
-    6,6,       //ut_Pikeman, ut_Hallebardman,
-    6,6,       //ut_HorseScout, ut_Cavalry,
-    10         //ut_Barbarian
-    );
 
+const FlagXOffset: array[TGroupType, 1..8] of shortint = (
+    ( 0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
+    (10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
+    ( 6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
+    ( 8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
+    ( 6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
 
-const FlagYOffset: array[15..24] of shortint = (
-    21,23,27,  //ut_Militia, ut_AxeFighter, ut_Swordsman
-    27,28,     //ut_Bowman, ut_Arbaletman
-    20,23,     //ut_Pikeman, ut_Hallebardman,
-    4,3,       //ut_HorseScout, ut_Cavalry,
-    28         //ut_Barbarian
-    );
+const FlagYOffset: array[TGroupType, 1..8] of shortint = (
+    ( 0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
+    (28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
+    (23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
+    (28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
+    ( 4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
 
 
 //Defines which animal prefers which terrain
