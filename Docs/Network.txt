@@ -1,0 +1,11 @@
+Every tick we send orders we have collected since the last tick. Also we send gip_CRC marker with our CRC each tick on the end, to mark that no more command are to happen in the tick. These messages are to be executed in +10 ticks. When we reach +10 ticks, we make sure that we have recieved a message from each player for this tick with enclosing gip_CRC, as well as having our own confirmed by all. If this is okay then we execute the orders.
+
+If some orders/confirmations from players are missing - pause and wait for them.
+
++10 ticks can vary, on LAN it could probably be +3 ticks. Over internet maybe up to +20 ticks. It doesn't matter, as long as all players agree on this and decide to change it if the ping gets better/worse. For now we can make it a fixed +10.
+
+Every now and then the computers can decide whether it needs to change. If we get many time we have to pause, we all agree to increase it by 1, with the change coming into effect on a set tick number, say in +20
+
+we remove randoms from commands and leave them only in gip_CRC, which will happen every tick after previous commands are processed
+
+on moment of execution CRC refers to game state in -10 ticks after updatestate
