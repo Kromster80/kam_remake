@@ -14,13 +14,20 @@ uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
   Thus making possible to:
    - record gameplay
    - playback replays
-   - send input through LAN to make multiplayer games }
+   - send input through LAN to make multiplayer games
+
+  This is a polymorphic unit which is only used as the parent of TGameInputProcess_Single for single
+  player (replays) or TGameInputProcess_Multi for multiplayer
+  It contains a few common methods such as replays as well as abstract methods for the child classes to handle.
+  Most importantly it converts all Cmd____ methods called by TGamePlayInterfaces into one procedure
+  ProcessCommandFromPlayer. Single and Multi then use this according to their needs.
+  Replays are stored and managed here, hidden from the child classes by private. They add new replay
+  commands with StoreCommand, and in gipReplaying state commands are executed on Tick()
+  }
 
 const MAX_PARAMS = 4; //There are maximum of 4 integers passed along with a command
 
-type TGIPState = (gipRecording, gipReplaying);
-
-type TGameInputCommand = (
+type TGameInputCommandType = (
   gic_None,
   //I.      Army commands, only warriors (TKMUnitWarrior, OrderInfo)
   gic_ArmyFeed,
@@ -68,6 +75,18 @@ type TGameInputCommand = (
 
   );
 
+type TGameInputCommand = record
+       CommandType:TGameInputCommandType;
+       Params:array[1..MAX_PARAMS]of integer;
+       //Text: string;
+       //todo: PlayerID: TKMPlayerID; //Player for which the command is to be issued.
+       //                               Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
+     end;
+
+
+type TGIPReplayState = (gipRecording, gipReplaying);
+
+
 type
 TGameInputProcess = class
   private
@@ -76,50 +95,51 @@ TGameInputProcess = class
     fQueue: array of packed record
       Tick:cardinal;
       Command:TGameInputCommand;
-      Params:array[1..MAX_PARAMS]of integer;
       Rand:cardinal; //acts as CRC check
     end;
-    fState:TGIPState;
-    procedure SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
-    procedure ExecCommand(aIndex:integer);
+    fReplayState:TGIPReplayState;
+  protected
+    function MakeCommand(aGIC:TGameInputCommandType; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint):TGameInputCommand;
+    procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
+    procedure ExecCommand(aCommand: TGameInputCommand);
+    procedure StoreCommand(aCommand: TGameInputCommand);
   public
-    constructor Create(aState:TGIPState);
+    constructor Create(aReplayState:TGIPReplayState);
     destructor Destroy; override;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
+
+    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
+    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouse:THouseType); overload;
+
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer); overload;
+
+    procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
+
+    procedure CmdText(aCommandType:TGameInputCommandType; aPlayerID:integer; aTime:string; aText:string);
+
+    procedure Tick(aTick:cardinal); virtual;
+
+    //Replay methods
     procedure SaveToFile(aFileName:string);
     procedure LoadFromFile(aFileName:string);
-
-    procedure CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior); overload;
-    procedure CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aUnit:TKMUnit); overload;
-    procedure CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aHouse:TKMHouse); overload;
-    procedure CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint); overload;
-    procedure CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
-
-    procedure CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint); overload;
-    procedure CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType); overload;
-
-    procedure CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
-    procedure CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aItem, aAmount:integer); overload;
-    procedure CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aItem:TResourceType); overload;
-    procedure CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aUnitType:TUnitType); overload;
-    procedure CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aItem:integer); overload;
-
-    procedure CmdRatio(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
-
-    procedure CmdTemp(aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
-    procedure CmdTemp(aCommand:TGameInputCommand; aLoc:TKMPoint); overload;
-    procedure CmdTemp(aCommand:TGameInputCommand); overload;
-    procedure CmdTemp(aCommand:TGameInputCommand; aPlayerID:integer); overload;
-
-    procedure CmdText(aCommand:TGameInputCommand; aPlayerID:integer; aTime:string; aText:string);
-
-    procedure Tick(aTick:cardinal);
-
     property Count:integer read fCount;
-    property State:TGIPState read fState;
+    property ReplayState:TGIPReplayState read fReplayState;
     function GetLastTick():integer;
-    function Ended():boolean;
+    function ReplayEnded():boolean;
 end;
 
 
@@ -127,13 +147,13 @@ implementation
 uses KM_Sound, KM_Game, KM_PlayersCollection, KM_Terrain;
 
 
-constructor TGameInputProcess.Create(aState:TGIPState);
+constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);
 begin
   Inherited Create;
   setlength(fQueue, 128);
   fCount := 0;
   fCursor := 1;
-  fState := aState;
+  fReplayState := aReplayState;
 end;
 
 
@@ -143,92 +163,21 @@ begin
 end;
 
 
-procedure TGameInputProcess.Save(SaveStream:TKMemoryStream);
-var i,k:integer;
+function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint):TGameInputCommand;
 begin
-  SaveStream.Write('Game input process data');
-  SaveStream.Write(fCount);
-  for i:=1 to fCount do begin
-    SaveStream.Write(fQueue[i].Tick);
-    SaveStream.Write(fQueue[i].Command, SizeOf(fQueue[i].Command));
-    for k:=1 to MAX_PARAMS do
-      SaveStream.Write(fQueue[i].params[k]);
-    SaveStream.Write(fQueue[i].Rand);
-  end;
+  Result.CommandType := aGIC;
+  Result.Params[1] := aParam1;
+  Result.Params[2] := aParam2;
+  Result.Params[3] := aParam3;
+  Result.Params[4] := aParam4;
 end;
 
 
-procedure TGameInputProcess.Load(LoadStream:TKMemoryStream);
-var i,k:integer; s:string;
-begin
-  LoadStream.Read(s);
-  Assert(s='Game input process data');
-  LoadStream.Read(fCount);
-  setlength(fQueue, fCount+1);
-  for i:=1 to fCount do begin
-    LoadStream.Read(fQueue[i].Tick);
-    LoadStream.Read(fQueue[i].Command, SizeOf(fQueue[i].Command));
-    for k:=1 to MAX_PARAMS do
-      LoadStream.Read(fQueue[i].params[k]);
-    LoadStream.Read(fQueue[i].Rand);
-  end;
-end;
-
-
-procedure TGameInputProcess.SaveToFile(aFileName:string);
-var i:integer; S:TKMemoryStream;
-begin
-  S := TKMemoryStream.Create;
-  S.Write(integer(REPLAY_VERSION)); //
-  S.Write(fCount);
-  for i:=1 to fCount do
-    S.Write(fQueue[i].Tick, SizeOf(fQueue[i]));
-
-  S.SaveToFile(aFileName);
-  S.Free;
-end;
-
-
-procedure TGameInputProcess.LoadFromFile(aFileName:string);
-var FileVersion,i:integer; S:TKMemoryStream;
-begin
-  if not FileExists(aFileName) then exit;   
-  S := TKMemoryStream.Create;
-  S.LoadFromFile(aFileName);
-  S.Read(FileVersion);
-  Assert(FileVersion=REPLAY_VERSION, 'Old or unexpected replay file. r'+inttostr(FileVersion)+' is required.');
-  S.Read(fCount);
-  setlength(fQueue, fCount+1);
-  for i:=1 to fCount do
-    S.Read(fQueue[i].Tick, SizeOf(fQueue[i]));
-  S.Free;
-end;
-
-
-procedure TGameInputProcess.SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
-begin
-  Assert(fState=gipRecording);
-  inc(fCount);
-  if length(fQueue) <= fCount then setlength(fQueue, fCount+128);
-
-  with fQueue[fCount] do begin
-    Tick    := fGame.GetTickCount;
-    Command := aGIC;
-    Params[1] := aParam1;
-    Params[2] := aParam2;
-    Params[3] := aParam3;
-    Params[4] := aParam4;
-    Rand := Random(maxint); //This will be our check to ensure everything is consistent
-  end;
-end;
-
-
-procedure TGameInputProcess.ExecCommand(aIndex:integer);
+procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
 var H:TKMHouse;
 begin
-  Assert(fState=gipReplaying);
-  with fQueue[aIndex] do
-  case Command of
+  with aCommand do
+  case CommandType of
     gic_ArmyFeed:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderFood;
     gic_ArmySplit:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderSplit;
     gic_ArmyStorm:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderStorm;
@@ -260,214 +209,176 @@ begin
                                 end;
     gic_HouseRemoveTrain:       TKMHouseSchool(MyPlayer.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
 
-    gic_RatioChange:            MyPlayer.fPlayerStats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
+    gic_RatioChange:            begin
+                                  MyPlayer.fPlayerStats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
+                                  MyPlayer.GetHouses.UpdateResRequest
+                                end;
 
     gic_TempAddScout:           MyPlayer.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
     gic_TempKillUnit:           MyPlayer.GetUnitByID(Params[1]).KillUnit;
     gic_TempRevealMap:          fTerrain.RevealWholeMap(MyPlayer.PlayerID);
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
+    //gic_TextMessage:            fGame.fChat.AddMessage(aPlayerID, aTime, aText);
 
     else Assert(false);
   end;
-
-  if (fQueue[aIndex].Rand <> Cardinal(Random(maxint))) then //This line should always be called to maintain randoms flow
-    if CRASH_ON_REPLAY then begin
-      fGame.GameError(KMPoint(10,10),'Replay mismatch');
-      //Assert(false);
-    end;
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior);
+procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior);
 begin
-  Assert(aCommand in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm]);
-  case aCommand of
-    gic_ArmyFeed:  aWarrior.OrderFood;
-    gic_ArmySplit: aWarrior.OrderSplit;
-    gic_ArmyStorm: aWarrior.OrderStorm;
-  end;
-
-  SaveCommand(aCommand, aWarrior.ID);
+  Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm]);
+  TakeCommand( MakeCommand(aCommandType, aWarrior.ID) );
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aUnit:TKMUnit);
+procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit);
 begin
-  Assert(aCommand in [gic_ArmyLink, gic_ArmyAttackUnit]);
-  case aCommand of
-    gic_ArmyLink:       begin
-                          aWarrior.OrderLinkTo(TKMUnitWarrior(aUnit));
-                          fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Join);
-                        end;
-    gic_ArmyAttackUnit: begin
-                          aWarrior.GetCommander.OrderAttackUnit(aUnit);
-                          fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Attack);
-                        end;
-  end;
-
-  SaveCommand(aCommand, aWarrior.ID, aUnit.ID);
+  Assert(aCommandType in [gic_ArmyLink, gic_ArmyAttackUnit]);
+  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aUnit.ID) );
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aHouse:TKMHouse);
+procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse);
 begin
-  Assert(aCommand = gic_ArmyAttackHouse);
-  aWarrior.GetCommander.OrderAttackHouse(aHouse);
-  fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Attack);
-  SaveCommand(aCommand, aWarrior.ID, aHouse.ID);
+  Assert(aCommandType = gic_ArmyAttackHouse);
+  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aHouse.ID) );
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint);
+procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint);
 begin
-  Assert(aCommand = gic_ArmyHalt);
-  aWarrior.OrderHalt(aTurnAmount, aLineAmount);
-  SaveCommand(aCommand, aWarrior.ID, aTurnAmount, aLineAmount);
+  Assert(aCommandType = gic_ArmyHalt);
+  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aTurnAmount, aLineAmount) );
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommand:TGameInputCommand; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
+procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
 begin
-  Assert(aCommand = gic_ArmyWalk);
-  aWarrior.GetCommander.OrderWalk(aLoc, aDirection);
-  fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Move);
-  SaveCommand(aCommand, aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection));
+  Assert(aCommandType = gic_ArmyWalk);
+  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection)) );
 end;
 
 
-procedure TGameInputProcess.CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint);
+procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
-  case aCommand of
-    gic_BuildRoadPlan:    MyPlayer.AddRoadPlan(aLoc, mu_RoadPlan,  false, MyPlayer.PlayerID);
-    gic_BuildFieldPlan:   MyPlayer.AddRoadPlan(aLoc, mu_FieldPlan, false, MyPlayer.PlayerID);
-    gic_BuildWinePlan:    MyPlayer.AddRoadPlan(aLoc, mu_WinePlan,  false, MyPlayer.PlayerID);
-    gic_BuildWallPlan:    MyPlayer.AddRoadPlan(aLoc, mu_WallPlan,  false, MyPlayer.PlayerID);
-    gic_BuildRemovePlan:  MyPlayer.RemPlan(aLoc);
-    gic_BuildRemoveHouse: MyPlayer.RemHouse(aLoc, false);
-    else Assert(false, 'Unknown CmdBuild');
-  end;
-
-  SaveCommand(aCommand, aLoc.X, aLoc.Y);
+  Assert(aCommandType in [gic_BuildRoadPlan, gic_BuildFieldPlan, gic_BuildWinePlan, gic_BuildWallPlan, gic_BuildRemovePlan, gic_BuildRemoveHouse]);
+  TakeCommand( MakeCommand(aCommandType, aLoc.X, aLoc.Y) );
 end;
 
 
-procedure TGameInputProcess.CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType);
+procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouse:THouseType);
 begin
-  Assert(aCommand = gic_BuildHousePlan);
-  MyPlayer.AddHousePlan(aHouse, aLoc);
-  SaveCommand(aCommand, integer(aHouse), aLoc.X, aLoc.Y);
+  Assert(aCommandType = gic_BuildHousePlan);
+  TakeCommand( MakeCommand(aCommandType, integer(aHouse), aLoc.X, aLoc.Y) );
 end;
 
 
-procedure TGameInputProcess.CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse);
+procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse);
 begin
-  case aCommand of
-    gic_HouseRepairToggle:   aHouse.RepairToggle;
-    gic_HouseDeliveryToggle: aHouse.WareDelivery := not aHouse.WareDelivery;
-    else Assert(false, 'Unknown CmdHouse');
-  end;
-  SaveCommand(aCommand, aHouse.ID);
+  Assert(aCommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle]);
+  TakeCommand( MakeCommand(aCommandType, aHouse.ID) );
 end;
 
 
-procedure TGameInputProcess.CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aItem, aAmount:integer);
+procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer);
 begin
-  Assert(aCommand = gic_HouseOrderProduct);
-  aHouse.ResEditOrder(aItem, aAmount);
-  SaveCommand(aCommand, aHouse.ID, aItem, aAmount);
+  Assert(aCommandType = gic_HouseOrderProduct);
+  TakeCommand( MakeCommand(aCommandType, aHouse.ID, aItem, aAmount) );
 end;
 
 
-procedure TGameInputProcess.CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aItem:TResourceType);
+procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType);
 begin
-  Assert(aCommand = gic_HouseStoreAcceptFlag);
-  TKMHouseStore(aHouse).ToggleAcceptFlag(aItem);
-  SaveCommand(aCommand, aHouse.ID, integer(aItem));
+  Assert(aCommandType = gic_HouseStoreAcceptFlag);
+  TakeCommand( MakeCommand(aCommandType, aHouse.ID, integer(aItem)) );
 end;
 
 
-procedure TGameInputProcess.CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aUnitType:TUnitType);
+procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType);
 begin
-  Assert(aCommand = gic_HouseTrain);
-  //It might not be the best idea to rely on GetHouseType here,
-  //but it will serve as additional data integrity check. Besides it looks better than pile of IF ELSEs
-  case aHouse.GetHouseType of
-    ht_Barracks:  TKMHouseBarracks(aHouse).Equip(aUnitType);
-    ht_School:    TKMHouseSchool(aHouse).AddUnitToQueue(aUnitType);
-    else          Assert(false, 'Only Schools and Barracks supported yet');
-  end;
-  SaveCommand(aCommand, aHouse.ID, integer(aUnitType));
+  Assert(aCommandType = gic_HouseTrain);
+  TakeCommand( MakeCommand(aCommandType, aHouse.ID, integer(aUnitType)) );
 end;
 
 
-procedure TGameInputProcess.CmdHouse(aCommand:TGameInputCommand; aHouse:TKMHouse; aItem:integer);
+procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer);
 begin
-  Assert(aCommand = gic_HouseRemoveTrain);
+  Assert(aCommandType = gic_HouseRemoveTrain);
   Assert(aHouse is TKMHouseSchool);
-  TKMHouseSchool(aHouse).RemUnitFromQueue(aItem);
-  SaveCommand(aCommand, aHouse.ID, aItem);
+  TakeCommand( MakeCommand(aCommandType, aHouse.ID, aItem) );
 end;
 
 
-procedure TGameInputProcess.CmdRatio(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+procedure TGameInputProcess.CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouse:THouseType; aValue:integer);
 begin
-  Assert(aCommand = gic_RatioChange);
-  MyPlayer.fPlayerStats.SetRatio(aRes, aHouse, aValue);
-  MyPlayer.GetHouses.UpdateResRequest;
-  SaveCommand(aCommand, integer(aRes), integer(aHouse), aValue);
+  Assert(aCommandType = gic_RatioChange);
+  TakeCommand( MakeCommand(aCommandType, integer(aRes), integer(aHouse), aValue) );
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommand:TGameInputCommand; aUnit:TKMUnit);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit);
 begin
-  Assert(aCommand = gic_TempKillUnit);
-  aUnit.KillUnit;
-  SaveCommand(aCommand, aUnit.ID);
+  Assert(aCommandType = gic_TempKillUnit);
+  TakeCommand( MakeCommand(aCommandType, aUnit.ID) );
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommand:TGameInputCommand; aLoc:TKMPoint);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
-  Assert(aCommand = gic_TempAddScout);
-  MyPlayer.AddUnit(ut_HorseScout, aLoc);
-  SaveCommand(aCommand, aLoc.X, aLoc.Y);
+  Assert(aCommandType = gic_TempAddScout);
+  TakeCommand( MakeCommand(aCommandType, aLoc.X, aLoc.Y) );
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommand:TGameInputCommand);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType);
 begin
-  Assert(aCommand = gic_TempRevealMap);
-  fTerrain.RevealWholeMap(MyPlayer.PlayerID);
-  SaveCommand(aCommand);
+  Assert(aCommandType = gic_TempRevealMap);
+  TakeCommand( MakeCommand(aCommandType) );
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommand:TGameInputCommand; aPlayerID:integer);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer);
 begin
-  Assert(aCommand = gic_TempChangeMyPlayer);
-  MyPlayer := fPlayers.Player[aPlayerID];
-  SaveCommand(aCommand, aPlayerID);
+  Assert(aCommandType = gic_TempChangeMyPlayer);
+  TakeCommand( MakeCommand(aCommandType, aPlayerID) );
 end;
 
 
-procedure TGameInputProcess.CmdText(aCommand:TGameInputCommand; aPlayerID:integer; aTime:string; aText:string);
+procedure TGameInputProcess.CmdText(aCommandType:TGameInputCommandType; aPlayerID:integer; aTime:string; aText:string);
 begin
-  Assert(aCommand = gic_TextMessage);
-  fGame.fChat.AddMessage(aPlayerID, aTime, aText);
-  //SaveCommand(aCommand, aPlayerID, aText);
+  Assert(aCommandType = gic_TextMessage);
+  //TakeCommand( MakeCommand(aCommandType, aPlayerID, aText) );
 end;
 
 
-procedure TGameInputProcess.Tick(aTick:cardinal);
+procedure TGameInputProcess.SaveToFile(aFileName:string);
+var i:integer; S:TKMemoryStream;
 begin
-  while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command <> gic_None) do
-    inc(fCursor);
+  S := TKMemoryStream.Create;
+  S.Write(integer(REPLAY_VERSION)); //
+  S.Write(fCount);
+  for i:=1 to fCount do
+    S.Write(fQueue[i].Tick, SizeOf(fQueue[i]));
 
-  while (aTick = fQueue[fCursor].Tick) do begin
-    ExecCommand(fCursor);
-    if fGame.GameState <> gsReplay then exit; //GameError during last command calls GIP.Free, exit immidiately
-    inc(fCursor);
-  end;
+  S.SaveToFile(aFileName);
+  S.Free;
+end;
+
+
+procedure TGameInputProcess.LoadFromFile(aFileName:string);
+var FileVersion,i:integer; S:TKMemoryStream;
+begin
+  if not FileExists(aFileName) then exit;
+  S := TKMemoryStream.Create;
+  S.LoadFromFile(aFileName);
+  S.Read(FileVersion);
+  Assert(FileVersion=REPLAY_VERSION, 'Old or unexpected replay file. r'+inttostr(FileVersion)+' is required.');
+  S.Read(fCount);
+  setlength(fQueue, fCount+1);
+  for i:=1 to fCount do
+    S.Read(fQueue[i].Tick, SizeOf(fQueue[i]));
+  S.Free;
 end;
 
 
@@ -479,9 +390,46 @@ end;
 
 
 { See if replay has ended (no more commands in queue) }
-function TGameInputProcess.Ended():boolean;
+function TGameInputProcess.ReplayEnded():boolean;
 begin
   Result := fCursor > fCount;
+end;
+
+
+procedure TGameInputProcess.StoreCommand(aCommand: TGameInputCommand);
+begin
+  //Store the command for the replay
+  Assert(ReplayState=gipRecording);
+  inc(fCount);
+  if length(fQueue) <= fCount then setlength(fQueue, fCount+128);
+
+  with fQueue[fCount] do begin
+    Tick    := fGame.GetTickCount;
+    Command := aCommand;
+    Rand := Random(maxint); //This will be our check to ensure everything is consistent
+  end;
+end;
+
+
+procedure TGameInputProcess.Tick(aTick:cardinal);
+begin
+  if ReplayState = gipReplaying then
+  begin
+    while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
+      inc(fCursor);
+
+    while (aTick = fQueue[fCursor].Tick) do
+    begin
+      ExecCommand(fQueue[fCursor].Command);
+      //CRC check
+      if (fQueue[fCursor].Rand <> Cardinal(Random(maxint))) then //This line should always be called to maintain randoms flow
+        if CRASH_ON_REPLAY then begin
+          fGame.GameError(KMPoint(10,10),'Replay mismatch');
+          exit; //GameError calls GIP.Free, so exit immidiately
+        end;
+      inc(fCursor);
+    end;
+  end;
 end;
 
 

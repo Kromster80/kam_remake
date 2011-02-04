@@ -1201,7 +1201,7 @@ end;
 procedure TKMEdit.SetText(aText:string);
 begin
   fText := aText;
-  CursorPos := min(CursorPos, length(fText));
+  CursorPos := math.min(CursorPos, length(fText));
 end;
 
 

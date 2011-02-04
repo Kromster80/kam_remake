@@ -21,6 +21,8 @@ uses
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
   KM_Game in 'KM_Game.pas',
   KM_GameInputProcess in 'KM_GameInputProcess.pas',
+  KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
+  KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_MapInfo in 'KM_MapInfo.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
   {$IFDEF WDC} KM_Lobby in 'KM_Lobby.pas', {$ENDIF}

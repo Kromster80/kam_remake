@@ -97,7 +97,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Player;
+  KM_Unit1, KM_Player, KM_GameInputProcess_Single;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -367,7 +367,7 @@ begin
 
   fGameState := gsRunning;
 
-  fGameInputProcess := TGameInputProcess.Create(gipRecording);
+  fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   Save(99); //Thats our base for a game record
   CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
 
@@ -393,7 +393,7 @@ begin
 
     GameStop(gr_Error,'') //Exit to main menu will save the Replay data
   else
-    if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
+    if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl')); //Save replay data ourselves
 end;
 
@@ -437,7 +437,7 @@ begin
     if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
       fMainMenuInterface.Fill_Results;
 
-    if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
+    if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl'));
 
     FreeThenNil(fGameInputProcess);
@@ -590,7 +590,7 @@ begin
   Load(99); //We load what was saved right before starting Recording
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
 
-  fGameInputProcess := TGameInputProcess.Create(gipReplaying);
+  fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
   fGameInputProcess.LoadFromFile(KMSlotToSaveName(99,'rpl'));
 
   RandSeed := 4; //Random after StartGame and ViewReplay should match
@@ -782,7 +782,7 @@ begin
 
     LoadStream.Free;
 
-    fGameInputProcess := TGameInputProcess.Create(gipRecording);
+    fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
     fGameInputProcess.LoadFromFile(KMSlotToSaveName(SlotID,'rpl'));
 
     CopyFile(PChar(KMSlotToSaveName(SlotID,'bas')), PChar(KMSlotToSaveName(99,'bas')), false); //replace Replay base savegame
@@ -838,7 +838,7 @@ begin
 
                     if fGameState = gsReplay then begin
                       fGameInputProcess.Tick(fGameplayTickCount);
-                      if not SkipReplayEndCheck and fGameInputProcess.Ended then
+                      if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                         GameHold(true, gr_ReplayEnd);
                     end;
 

@@ -2480,7 +2480,7 @@ begin
 
   if fShownUnit=nil then fJoiningGroups := false;
 
-  if fGame.fGameInputProcess.State = gipReplaying then begin
+  if fGame.fGameInputProcess.ReplayState = gipReplaying then begin
     Panel_Replay.Show;
     PercentBar_Replay.Position := EnsureRange(round(fGame.GetTickCount / fGame.fGameInputProcess.GetLastTick * 100), 0, 100);
     Label_Replay.Caption := Format('%d / %d', [fGame.GetTickCount div 10, fGame.fGameInputProcess.GetLastTick div 10]);
