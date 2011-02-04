@@ -1126,9 +1126,6 @@ procedure TKMUnitWarrior.Paint();
     FlagXPaintPos, FlagYPaintPos: single;
   begin
     if (fCommander <> nil) or IsDeadOrDying then exit; //No flags for commanders or dead units
-    //Paint flag
-    //todo: Fix flag render order. For [SE, S, SW] the flag should be rendered BEFORE (under) the unit,
-    //      for all other directions it should be rendered AFTER (over) the unit
     FlagXPaintPos := XPaintPos + FlagXOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
     FlagYPaintPos := YPaintPos + FlagYOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
     TeamColor := byte(fOwner);
@@ -1155,16 +1152,14 @@ begin
 
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
-                          PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp);
 
-  //@Krom: If I paint the flag before painting the unit (by uncommenting this line and commenting
-  //       the line after painting the unit) the render order is different. (different things are over
-  //       each other) How can this occur in a sorted render list? Try it yourself, it is noticable for flags.
-  //       On the map "Flags" the flag on the militia facing south is over his head one way, under the other way
-
-  PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //To test render order bug uncomment this line
   fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
-  //PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //To test render order bug comment/delete this line
+
+  PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //Paint flag over the top of the unit
+
+  //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
+  if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
+    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, false);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
