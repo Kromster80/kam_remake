@@ -1,12 +1,13 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses KM_GameInputProcess;
+uses KM_GameInputProcess, KM_Network;
 
 
 type
 TGameInputProcess_Multi = class(TGameInputProcess)
   private
+    KMNetwork: TKMNetwork;
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
     constructor Create(aReplayState:TGIPReplayState);

@@ -4,8 +4,8 @@ interface
 uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils, KM_Units_Warrior;
 
 type
-  TAIDefencePosType = (adt_FrontLine, //Top priority to defend, will be replaced by back line troops when they die, and troops will not go on attacks as they are defending an important position
-                       adt_BackLine); //Lower priority defence, can go on AI attacks (these are often placed behind the main defence line as replacement/attacking troops)
+  TAIDefencePosType = (adt_FrontLine, //Front line troops may not go on attacks, they are for defence
+                       adt_BackLine); //Back line troops may attack
 
   TAIDefencePosition = class
   private
@@ -23,6 +23,7 @@ type
     property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
     procedure Save(SaveStream:TKMemoryStream);
     procedure SyncLoad();
+    function IsFullyStocked(aAmount: integer):boolean;
   end;
 
 type
@@ -37,7 +38,7 @@ type
   public
     ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Nunber of each unit type required
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
-    TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not use or default
+    TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not used or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     Autobuild:boolean;
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
@@ -122,6 +123,12 @@ end;
 procedure TAIDefencePosition.SyncLoad();
 begin
   fCurrentCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCurrentCommander)));
+end;
+
+
+function TAIDefencePosition.IsFullyStocked(aAmount: integer):boolean;
+begin
+  Result := (CurrentCommander <> nil) and (CurrentCommander.GetMemberCount+1 >= aAmount);
 end;
 
 
@@ -300,6 +307,8 @@ var
   i,k:integer;
   GroupReq: array[TGroupType] of integer;
 begin
+  if Assets.fPlayerStats.GetArmyCount >= MaxSoldiers then exit; //Don't train if we have reached our limit
+
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq,SizeOf(GroupReq),#0); //Clear up
   for k:=0 to DefencePositionsCount-1 do
@@ -324,14 +333,21 @@ begin
   for k:=1 to Length(Barracks) do
   begin  
     HB := Barracks[k-1];
-    for GType:=gt_Melee to gt_Mounted do
-      for i:=1 to 3 do
-        if AITroopTrainOrder[GType,i] <> ut_None then
-        while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) do
-        begin
-          HB.Equip(AITroopTrainOrder[GType,i]);
-          dec(GroupReq[GType]);
-        end;
+    //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
+    i := 0;
+    repeat
+      GType := TGroupType(Random(4)+1); //Pick random from overall count
+      inc(i);
+    until (GroupReq[GType] > 0) or (i > 9); //Limit number of attempts to guarantee it doesn't loop forever
+
+    for i:=1 to 3 do
+      if AITroopTrainOrder[GType,i] <> ut_None then
+      while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
+            (Assets.fPlayerStats.GetArmyCount < MaxSoldiers) do
+      begin
+        HB.Equip(AITroopTrainOrder[GType,i]);
+        dec(GroupReq[GType]);
+      end;
   end;
 end;
 
@@ -348,7 +364,7 @@ procedure TKMPlayerAI.CheckArmy();
       aCommander.OrderSplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
   end;
 
-var i, k, Matched: integer;
+var i, k, j, Matched: integer;
     Distance, Best: single;
     Positioned: boolean;
     NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
@@ -374,26 +390,41 @@ begin
 
           if ArmyIsBusy then exit;
           //Position this group to defend if they already belong to a defence position
-          //todo: Restock defence positions listed first with ones listed later (in script order = priority)
           Positioned := false;
           for k:=0 to DefencePositionsCount-1 do
             if DefencePositions[k].CurrentCommander = GetCommander then
             begin
               OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
+
+              //If we are a less important position and there is a higher priority position not full we must step up
+              for j:=0 to DefencePositionsCount-1 do
+                if (DefencePositions[j].GroupType = UnitGroups[byte(UnitType)]) and
+                   (j < k) and //Positions defined first are top priority, so keep them stocked
+                   not DefencePositions[j].IsFullyStocked(TroopFormations[DefencePositions[j].GroupType].NumUnits) then
+                   begin
+                     DefencePositions[k].CurrentCommander := nil; //Leave current position
+                     if DefencePositions[j].CurrentCommander <> nil then
+                       RestockPositionWith(DefencePositions[j].CurrentCommander,GetCommander) //Restock it
+                     else
+                       DefencePositions[j].CurrentCommander := GetCommander; //Take new position
+                     break;
+                   end;
+
               break;
             end;
 
           //Look for group that needs additional members, or a new position to defend
+          //In this case we choose the closest group, then move to a higher priority one later (see above)
+          //This means at the start of the mission troops will take the position they are placed at rather than swapping around
           Matched := -1;  Best := 9999;
           if not Positioned then
             for k:=0 to DefencePositionsCount-1 do
-              if (DefencePositions[k].GroupType = UnitGroups[byte(UnitType)]) and (((DefencePositions[k].CurrentCommander <> nil)
-              and (DefencePositions[k].CurrentCommander.GetMemberCount+1 < TroopFormations[DefencePositions[k].GroupType].NumUnits))
-              or  (DefencePositions[k].CurrentCommander = nil)) then
+              if (DefencePositions[k].GroupType = UnitGroups[byte(UnitType)]) and
+                 not DefencePositions[k].IsFullyStocked(TroopFormations[DefencePositions[k].GroupType].NumUnits) then
               begin
-                //Front line always higher priority than backline
-                Distance := (byte(DefencePositions[k].DefenceType = adt_BackLine)*1000) + GetLength(GetPosition,DefencePositions[k].Position.Loc);
+                //Take closest position that is empty or requries restocking
+                Distance := GetLength(GetPosition,DefencePositions[k].Position.Loc);
                 if Distance < Best then
                 begin
                   Matched := k;

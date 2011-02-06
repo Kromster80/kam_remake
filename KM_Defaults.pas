@@ -137,7 +137,7 @@ const //Here we store options that are hidden somewhere in code
   RANGE_BOWMAN_MIN      = 4;
   RANGE_WATCHTOWER_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
 
-  LINK_RADIUS = 8; //Radius to search for groups to link to after being trained at the barracks
+  LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
 
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim

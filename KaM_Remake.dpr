@@ -27,6 +27,7 @@ uses
   KM_MissionScript in 'KM_MissionScript.pas',
   {$IFDEF WDC} KM_Lobby in 'KM_Lobby.pas', {$ENDIF}
   KM_Music in 'KM_Music.pas',
+  KM_Network in 'KM_Network.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
   KM_Player in 'KM_Player.pas',
   KM_PlayerAI in 'KM_PlayerAI.pas',

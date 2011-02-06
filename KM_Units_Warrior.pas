@@ -651,12 +651,12 @@ begin
   //I think thats just not worth it
   for i:=-LINK_RADIUS to LINK_RADIUS do
   for k:=-LINK_RADIUS to LINK_RADIUS do
-  if GetLength(i,k) <= LINK_RADIUS then //Check circle area
+  if GetLength(i,k) < LINK_RADIUS then //Check within circle area
   begin
     FoundUnit := fTerrain.UnitsHitTest(aLoc.X+i, aLoc.Y+k); //off-map coords will be skipped
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit.GetOwner = fOwner) and
-       (FoundUnit.UnitType = fUnitType) then //For initial linking they must be the same type, not just same group type
+       (UnitGroups[byte(FoundUnit.UnitType)] = UnitGroups[byte(fUnitType)]) then //They must be the same group type
     begin
       Result := TKMUnitWarrior(FoundUnit);
       exit;

@@ -1540,7 +1540,7 @@ begin
   fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   Soldier.Visible := false; //Make him invisible as he is inside the barracks
   Soldier.Condition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
-
+  Soldier.OrderLocDir := KMPointDir(KMPointY1(GetEntrance),0); //Position in front of the barracks facing north
   Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
 
   //AI do not need auto linking, they manage linking themselves
