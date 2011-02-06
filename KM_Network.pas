@@ -35,7 +35,7 @@ begin
 end;
 
 
-procedure TKMTCP.Send(aData:string);
+procedure TKMNetwork.Send(aData:string);
 begin
 
 end;

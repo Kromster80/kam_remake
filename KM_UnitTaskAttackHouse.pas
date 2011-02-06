@@ -115,9 +115,11 @@ begin
          end;
        end;
     2: if fFightType=ft_Ranged then begin
+         fHouse.AttackNotification(fUnit); //Let the house know it is being attacked
          SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0); //Start shooting
          fDestroyingHouse := true;
        end else begin
+         fHouse.AttackNotification(fUnit); //Let the house know it is being attacked
          SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
          fDestroyingHouse := true;
        end;

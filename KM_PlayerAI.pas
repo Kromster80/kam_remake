@@ -1,7 +1,7 @@
 unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils, KM_Units_Warrior;
+uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior;
 
 type
   TAIDefencePosType = (adt_FrontLine, //Front line troops may not go on attacks, they are for defence
@@ -30,6 +30,7 @@ type
   TKMPlayerAI = class
   private
     Assets:TKMPlayerAssets; //This is just alias for Players assets
+    fTimeOfLastAttackMessage: cardinal;
 
     procedure CheckGoals;
     procedure CheckUnitCount();
@@ -52,6 +53,9 @@ type
     destructor Destroy; override;
 
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
+    procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
+    procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
+
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
     procedure AddAttack(aAttack: TAIAttack);
@@ -62,7 +66,7 @@ type
   end;
 
 implementation
-uses KM_Houses, KM_Units, KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_PlayerStats;
+uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_PlayerStats, KM_Sound, KM_Viewport;
 
 constructor TAIDefencePosition.Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
 begin
@@ -137,6 +141,7 @@ var i: TGroupType;
 begin
   Inherited Create;
   Assets := aAssets;
+  fTimeOfLastAttackMessage := 0;
   DefencePositionsCount := 0;
   ScriptedAttacksCount := 0;
   //Set some defaults (these are not measured from KaM)
@@ -473,6 +478,42 @@ begin
 end;
 
 
+procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
+begin
+  if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
+  begin
+    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
+    and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+    begin
+      //fSoundLib.PlayWarning(sp_BuildingsAttacked);
+      fTimeOfLastAttackMessage := fGame.GetTickCount;
+    end;
+  end;
+  if Assets.PlayerType = pt_Computer then
+  begin
+    //todo: Defend
+  end;
+end;
+
+
+procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
+begin
+  if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
+  begin
+    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
+    and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+    begin
+      //fSoundLib.PlayWarning(sp_UnitsAttacked);
+      fTimeOfLastAttackMessage := fGame.GetTickCount;
+    end;
+  end;
+  if Assets.PlayerType = pt_Computer then
+  begin
+    //todo: Defend
+  end;
+end;
+
+
 //Do we automatically repair all houses?
 //For now use Autobuild, which is what KaM does. Later we can add a script command to turn this on and off
 //Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
@@ -501,6 +542,7 @@ end;
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var i: integer;
 begin
+  SaveStream.Write(fTimeOfLastAttackMessage);
   SaveStream.Write(ReqWorkers);
   SaveStream.Write(ReqSerfFactor);
   SaveStream.Write(ReqRecruits);
@@ -523,6 +565,7 @@ end;
 procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
 var i: integer;
 begin
+  LoadStream.Read(fTimeOfLastAttackMessage);
   LoadStream.Read(ReqWorkers);
   LoadStream.Read(ReqSerfFactor);
   LoadStream.Read(ReqRecruits);
