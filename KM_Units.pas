@@ -102,7 +102,6 @@ type
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X,Y:integer; const UT:TUnitType = ut_Any): Boolean;
     procedure UpdateNextPosition(aLoc:TKMPoint);
-    procedure AttackNotification(aAttacker: TKMUnit);
 
     procedure SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
@@ -1163,12 +1162,6 @@ procedure TKMUnit.UpdateNextPosition(aLoc:TKMPoint);
 begin
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
-end;
-
-
-procedure TKMUnit.AttackNotification(aAttacker: TKMUnit);
-begin
-  fPlayers.PlayerAI[byte(fOwner)].UnitAttackNotification(Self, TKMUnitWarrior(aAttacker));
 end;
 
 

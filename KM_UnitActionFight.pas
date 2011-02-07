@@ -119,8 +119,9 @@ begin
   //Opponent can walk next to us, keep facing him
   if Step = 0 then //Only change direction between strikes, otherwise it looks odd
     KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
-      
-  if Step = 1 then fOpponent.AttackNotification(KMUnit); //Tell our opponent we are attacking them
+
+  //Tell our opponent we are attacking them
+  if Step = 1 then fPlayers.PlayerAI[byte(fOpponent.GetOwner)].UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
 
   if TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2 then begin
     if Step = FIRING_DELAY then

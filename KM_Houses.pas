@@ -103,7 +103,6 @@ type
     procedure EnableRepair;
     procedure DisableRepair;
     procedure RepairToggle;
-    procedure AttackNotification(aAttacker: pointer); //can't replace with TKMUnitWarrior since it will lead to circular reference in KM_House-KM_Units
 
     function IsStarted:boolean;
     function IsStone:boolean;
@@ -661,12 +660,6 @@ end;
 procedure TKMHouse.RepairToggle;
 begin
   if BuildingRepair then DisableRepair else EnableRepair;
-end;
-
-
-procedure TKMHouse.AttackNotification(aAttacker: pointer);
-begin
-  fPlayers.PlayerAI[byte(fOwner)].HouseAttackNotification(Self, TKMUnitWarrior(aAttacker));
 end;
 
 
