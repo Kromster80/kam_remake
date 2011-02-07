@@ -2,7 +2,7 @@ unit KM_GameInputProcess;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
-    KM_Houses, KM_Units, KM_Units_Warrior;
+    KM_Houses, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Player;
 
 { A. This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
   Then passes it on to game events.
@@ -78,8 +78,8 @@ type TGameInputCommandType = (
 type TGameInputCommand = record
        CommandType:TGameInputCommandType;
        Params:array[1..MAX_PARAMS]of integer;
-       //Text: string;
-       //todo: PlayerID: TKMPlayerID; //Player for which the command is to be issued.
+       //Text: string; //Don't belongs in here, message exchange is not tied to GIP_Multi
+       PlayerID: TPlayerID; //Player for which the command is to be issued.
        //                               Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
      end;
 
@@ -144,7 +144,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Game, KM_PlayersCollection, KM_Terrain;
+uses KM_Sound, KM_Game, KM_Terrain;
 
 
 constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);
@@ -167,6 +167,7 @@ function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; const aParam:
 var i:integer;
 begin
   Result.CommandType := aGIC;
+  Result.PlayerID := MyPlayer.PlayerID;
   for i:=Low(aParam) to High(aParam) do
     Result.Params[i+1] := aParam[i];
   for i:=High(aParam)+1 to High(Result.Params)-1 do
@@ -175,49 +176,50 @@ end;
 
 
 procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
-var H:TKMHouse;
+var H:TKMHouse; P:TKMPlayerAssets;
 begin
+  P := fPlayers.Player[byte(aCommand.PlayerID)];
   with aCommand do
   case CommandType of
-    gic_ArmyFeed:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderFood;
-    gic_ArmySplit:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderSplit;
-    gic_ArmyStorm:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderStorm;
-    gic_ArmyLink:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderLinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
-    gic_ArmyAttackUnit:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderAttackUnit(fPlayers.GetUnitByID(Params[2]));
-    gic_ArmyAttackHouse:  TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderAttackHouse(fPlayers.GetHouseByID(Params[2]));
-    gic_ArmyHalt:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderHalt(Params[2],Params[3]);
-    gic_ArmyWalk:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+    gic_ArmyFeed:         TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderFood;
+    gic_ArmySplit:        TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderSplit;
+    gic_ArmyStorm:        TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderStorm;
+    gic_ArmyLink:         TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderLinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
+    gic_ArmyAttackUnit:   TKMUnitWarrior(P.GetUnitByID(Params[1])).GetCommander.OrderAttackUnit(fPlayers.GetUnitByID(Params[2]));
+    gic_ArmyAttackHouse:  TKMUnitWarrior(P.GetUnitByID(Params[1])).GetCommander.OrderAttackHouse(fPlayers.GetHouseByID(Params[2]));
+    gic_ArmyHalt:         TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderHalt(Params[2],Params[3]);
+    gic_ArmyWalk:         TKMUnitWarrior(P.GetUnitByID(Params[1])).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-    gic_BuildRoadPlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_RoadPlan,  false, MyPlayer.PlayerID);
-    gic_BuildFieldPlan:   MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_FieldPlan,  false, MyPlayer.PlayerID);
-    gic_BuildWinePlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WinePlan,  false, MyPlayer.PlayerID);
-    gic_BuildWallPlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WallPlan,  false, MyPlayer.PlayerID);
-    gic_BuildRemovePlan:  MyPlayer.RemPlan(KMPoint(Params[1],Params[2]));
-    gic_BuildRemoveHouse: MyPlayer.RemHouse(KMPoint(Params[1],Params[2]), false);
-    gic_BuildHousePlan:   MyPlayer.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
+    gic_BuildRoadPlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_RoadPlan,  false, P.PlayerID);
+    gic_BuildFieldPlan:   p.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_FieldPlan,  false, P.PlayerID);
+    gic_BuildWinePlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WinePlan,  false, P.PlayerID);
+    gic_BuildWallPlan:    p.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WallPlan,  false, P.PlayerID);
+    gic_BuildRemovePlan:  P.RemPlan(KMPoint(Params[1],Params[2]));
+    gic_BuildRemoveHouse: P.RemHouse(KMPoint(Params[1],Params[2]), false);
+    gic_BuildHousePlan:   P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
-    gic_HouseRepairToggle:      MyPlayer.GetHouseByID(Params[1]).RepairToggle;
-    gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
-    gic_HouseOrderProduct:      MyPlayer.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
-    gic_HouseStoreAcceptFlag:   TKMHouseStore(MyPlayer.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[2]));
+    gic_HouseRepairToggle:      P.GetHouseByID(Params[1]).RepairToggle;
+    gic_HouseDeliveryToggle:    with P.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
+    gic_HouseOrderProduct:      P.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
+    gic_HouseStoreAcceptFlag:   TKMHouseStore(P.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[2]));
     gic_HouseTrain:             begin
-                                  H := MyPlayer.GetHouseByID(Params[1]);
+                                  H := P.GetHouseByID(Params[1]);
                                   case H.GetHouseType of
                                     ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]));
                                     ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]));
                                     else          Assert(false, 'Only Schools and Barracks supported yet');
                                   end;
                                 end;
-    gic_HouseRemoveTrain:       TKMHouseSchool(MyPlayer.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
+    gic_HouseRemoveTrain:       TKMHouseSchool(P.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
 
     gic_RatioChange:            begin
-                                  MyPlayer.fPlayerStats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
-                                  MyPlayer.GetHouses.UpdateResRequest
+                                  P.fPlayerStats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
+                                  P.GetHouses.UpdateResRequest
                                 end;
 
-    gic_TempAddScout:           MyPlayer.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
-    gic_TempKillUnit:           MyPlayer.GetUnitByID(Params[1]).KillUnit;
-    gic_TempRevealMap:          fTerrain.RevealWholeMap(MyPlayer.PlayerID);
+    gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
+    gic_TempKillUnit:           P.GetUnitByID(Params[1]).KillUnit;
+    gic_TempRevealMap:          fTerrain.RevealWholeMap(P.PlayerID);
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
     //gic_TextMessage:            fGame.fChat.AddMessage(aPlayerID, aTime, aText);
 

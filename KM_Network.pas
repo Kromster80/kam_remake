@@ -12,11 +12,13 @@ type
 type
   TKMNetwork = class
     private
+      procedure Recieve(aData:string);
     public
       OnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
       constructor Create;
       destructor Destroy; override;
       procedure Send(aData:string); //This is the input from the higher level, called to send data (to all?)
+      procedure SendTo(aData:string);
   end;
 
 
