@@ -97,7 +97,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Player, KM_GameInputProcess_Single;
+  KM_Unit1, KM_Player, KM_GameInputProcess_Single, KM_GameInputProcess_Multi;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -836,11 +836,9 @@ begin
                       and (fGameState = gsRunning) then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
 
-                    if fGameState = gsReplay then begin
-                      fGameInputProcess.Tick(fGameplayTickCount);
-                      if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
-                        GameHold(true, gr_ReplayEnd);
-                    end;
+                    fGameInputProcess.Tick(fGameplayTickCount);
+                    if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
+                      GameHold(true, gr_ReplayEnd);
 
                     if fAdvanceFrame then begin
                       fAdvanceFrame := false;

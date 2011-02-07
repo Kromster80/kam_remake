@@ -35,8 +35,29 @@ begin
 end;
 
 
+//Broadcast to all players
 procedure TKMNetwork.Send(aData:string);
 begin
+
+end;
+
+
+//Send to specified players (where would we store IPs and Player-IP bindings?)
+//when trying to recover undelivered packets?
+procedure TKMNetwork.SendTo(aData:string);
+begin
+
+end;
+
+
+//Recieve from anyone
+procedure TKMNetwork.Recieve(aData:string);
+begin
+  //process
+
+  //handle low level errors and convert them to higher ones if required
+
+  //pass message to GIP_Multi (it will be handling the higher level errors)
 
 end;
 

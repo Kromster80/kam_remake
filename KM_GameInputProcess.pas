@@ -393,7 +393,10 @@ end;
 { See if replay has ended (no more commands in queue) }
 function TGameInputProcess.ReplayEnded:boolean;
 begin
-  Result := fCursor > fCount;
+  if ReplayState = gipReplaying then
+    Result := fCursor > fCount
+  else
+    Result := false;
 end;
 
 
