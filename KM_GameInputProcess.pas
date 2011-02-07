@@ -138,8 +138,8 @@ type
       procedure LoadFromFile(aFileName:string);
       property Count:integer read fCount;
       property ReplayState:TGIPReplayState read fReplayState;
-      function GetLastTick():integer;
-      function ReplayEnded():boolean;
+      function GetLastTick:integer;
+      function ReplayEnded:boolean;
   end;
 
 
@@ -391,7 +391,7 @@ end;
 
 
 { See if replay has ended (no more commands in queue) }
-function TGameInputProcess.ReplayEnded():boolean;
+function TGameInputProcess.ReplayEnded:boolean;
 begin
   Result := fCursor > fCount;
 end;
@@ -407,7 +407,7 @@ begin
   with fQueue[fCount] do begin
     Tick    := fGame.GetTickCount;
     Command := aCommand;
-    Rand := Random(maxint); //This will be our check to ensure everything is consistent
+    Rand    := Random(maxint); //This will be our check to ensure everything is consistent
   end;
 end;
 
