@@ -5,15 +5,16 @@ uses KM_GameInputProcess, KM_Network;
 
 
 type
-TGameInputProcess_Multi = class(TGameInputProcess)
-  private
-    KMNetwork: TKMNetwork;
-    procedure TakeCommand(aCommand:TGameInputCommand); override;
-  public
-    constructor Create(aReplayState:TGIPReplayState);
-    destructor Destroy; override;
-    procedure Tick(aTick:cardinal); override;
-end;
+  TGameInputProcess_Multi = class(TGameInputProcess)
+    private
+      KMNetwork: TKMNetwork;
+    protected  
+      procedure TakeCommand(aCommand:TGameInputCommand); override;
+    public
+      constructor Create(aReplayState:TGIPReplayState);
+      destructor Destroy; override;
+      procedure Tick(aTick:cardinal); override;
+  end;
 
 
 implementation

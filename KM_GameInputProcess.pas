@@ -17,7 +17,7 @@ uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
    - send input through LAN to make multiplayer games
 
   This is a polymorphic unit which is only used as the parent of TGameInputProcess_Single for single
-  player (replays) or TGameInputProcess_Multi for multiplayer
+  player or TGameInputProcess_Multi for multiplayer
   It contains a few common methods such as replays as well as abstract methods for the child classes to handle.
   Most importantly it converts all Cmd____ methods called by TGamePlayInterfaces into one procedure
   ProcessCommandFromPlayer. Single and Multi then use this according to their needs.
@@ -88,59 +88,59 @@ type TGIPReplayState = (gipRecording, gipReplaying);
 
 
 type
-TGameInputProcess = class
-  private
-    fCount:integer;
-    fCursor:integer; //Used only in gipReplaying
-    fQueue: array of packed record
-      Tick:cardinal;
-      Command:TGameInputCommand;
-      Rand:cardinal; //acts as CRC check
-    end;
-    fReplayState:TGIPReplayState;
-  protected
-    function MakeCommand(aGIC:TGameInputCommandType; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint):TGameInputCommand;
-    procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
-    procedure ExecCommand(aCommand: TGameInputCommand);
-    procedure StoreCommand(aCommand: TGameInputCommand);
-  public
-    constructor Create(aReplayState:TGIPReplayState);
-    destructor Destroy; override;
+  TGameInputProcess = class
+    private
+      fCount:integer;
+      fCursor:integer; //Used only in gipReplaying
+      fQueue: array of packed record
+        Tick:cardinal;
+        Command:TGameInputCommand;
+        Rand:cardinal; //acts as CRC check
+      end;
+      fReplayState:TGIPReplayState;
+    protected
+      function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
+      procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
+      procedure ExecCommand(aCommand: TGameInputCommand);
+      procedure StoreCommand(aCommand: TGameInputCommand);
+    public
+      constructor Create(aReplayState:TGIPReplayState);
+      destructor Destroy; override;
 
-    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior); overload;
-    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit); overload;
-    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse); overload;
-    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint); overload;
-    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
+      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior); overload;
+      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit); overload;
+      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse); overload;
+      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint); overload;
+      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
 
-    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
-    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouse:THouseType); overload;
+      procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
+      procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType); overload;
 
-    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
-    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer); overload;
-    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType); overload;
-    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType); overload;
-    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer); overload;
+      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
+      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer); overload;
+      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType); overload;
+      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType); overload;
+      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer); overload;
 
-    procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+      procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 
-    procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
-    procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
-    procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
-    procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
+      procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
+      procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
+      procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
+      procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
 
-    procedure CmdText(aCommandType:TGameInputCommandType; aPlayerID:integer; aTime:string; aText:string);
+      procedure CmdText(aCommandType:TGameInputCommandType; aPlayerID:integer; aTime:string; aText:string);
 
-    procedure Tick(aTick:cardinal); virtual;
+      procedure Tick(aTick:cardinal); virtual;
 
-    //Replay methods
-    procedure SaveToFile(aFileName:string);
-    procedure LoadFromFile(aFileName:string);
-    property Count:integer read fCount;
-    property ReplayState:TGIPReplayState read fReplayState;
-    function GetLastTick():integer;
-    function ReplayEnded():boolean;
-end;
+      //Replay methods
+      procedure SaveToFile(aFileName:string);
+      procedure LoadFromFile(aFileName:string);
+      property Count:integer read fCount;
+      property ReplayState:TGIPReplayState read fReplayState;
+      function GetLastTick():integer;
+      function ReplayEnded():boolean;
+  end;
 
 
 implementation
@@ -163,13 +163,14 @@ begin
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint):TGameInputCommand;
+function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
+var i:integer;
 begin
   Result.CommandType := aGIC;
-  Result.Params[1] := aParam1;
-  Result.Params[2] := aParam2;
-  Result.Params[3] := aParam3;
-  Result.Params[4] := aParam4;
+  for i:=Low(aParam) to High(aParam) do
+    Result.Params[i+1] := aParam[i];
+  for i:=High(aParam)+1 to High(Result.Params)-1 do
+    Result.Params[i+1] := maxint;
 end;
 
 
@@ -235,42 +236,42 @@ end;
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit);
 begin
   Assert(aCommandType in [gic_ArmyLink, gic_ArmyAttackUnit]);
-  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aUnit.ID) );
+  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aUnit.ID]) );
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse);
 begin
   Assert(aCommandType = gic_ArmyAttackHouse);
-  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aHouse.ID) );
+  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aHouse.ID]) );
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint);
 begin
   Assert(aCommandType = gic_ArmyHalt);
-  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aTurnAmount, aLineAmount) );
+  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aTurnAmount, aLineAmount]) );
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
 begin
   Assert(aCommandType = gic_ArmyWalk);
-  TakeCommand( MakeCommand(aCommandType, aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection)) );
+  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection)]) );
 end;
 
 
 procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
   Assert(aCommandType in [gic_BuildRoadPlan, gic_BuildFieldPlan, gic_BuildWinePlan, gic_BuildWallPlan, gic_BuildRemovePlan, gic_BuildRemoveHouse]);
-  TakeCommand( MakeCommand(aCommandType, aLoc.X, aLoc.Y) );
+  TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y]) );
 end;
 
 
-procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouse:THouseType);
+procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType);
 begin
   Assert(aCommandType = gic_BuildHousePlan);
-  TakeCommand( MakeCommand(aCommandType, integer(aHouse), aLoc.X, aLoc.Y) );
+  TakeCommand( MakeCommand(aCommandType, [integer(aHouseType), aLoc.X, aLoc.Y]) );
 end;
 
 
@@ -284,21 +285,21 @@ end;
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer);
 begin
   Assert(aCommandType = gic_HouseOrderProduct);
-  TakeCommand( MakeCommand(aCommandType, aHouse.ID, aItem, aAmount) );
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, aItem, aAmount]) );
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType);
 begin
   Assert(aCommandType = gic_HouseStoreAcceptFlag);
-  TakeCommand( MakeCommand(aCommandType, aHouse.ID, integer(aItem)) );
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, integer(aItem)]) );
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType);
 begin
   Assert(aCommandType = gic_HouseTrain);
-  TakeCommand( MakeCommand(aCommandType, aHouse.ID, integer(aUnitType)) );
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, integer(aUnitType)]) );
 end;
 
 
@@ -306,42 +307,42 @@ procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:
 begin
   Assert(aCommandType = gic_HouseRemoveTrain);
   Assert(aHouse is TKMHouseSchool);
-  TakeCommand( MakeCommand(aCommandType, aHouse.ID, aItem) );
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, aItem]) );
 end;
 
 
-procedure TGameInputProcess.CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+procedure TGameInputProcess.CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 begin
   Assert(aCommandType = gic_RatioChange);
-  TakeCommand( MakeCommand(aCommandType, integer(aRes), integer(aHouse), aValue) );
+  TakeCommand( MakeCommand(aCommandType, [integer(aRes), integer(aHouseType), aValue]) );
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit);
 begin
   Assert(aCommandType = gic_TempKillUnit);
-  TakeCommand( MakeCommand(aCommandType, aUnit.ID) );
+  TakeCommand( MakeCommand(aCommandType, [aUnit.ID]) );
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
   Assert(aCommandType = gic_TempAddScout);
-  TakeCommand( MakeCommand(aCommandType, aLoc.X, aLoc.Y) );
+  TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y]) );
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType);
 begin
   Assert(aCommandType = gic_TempRevealMap);
-  TakeCommand( MakeCommand(aCommandType) );
+  TakeCommand( MakeCommand(aCommandType, []) );
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer);
 begin
   Assert(aCommandType = gic_TempChangeMyPlayer);
-  TakeCommand( MakeCommand(aCommandType, aPlayerID) );
+  TakeCommand( MakeCommand(aCommandType, [aPlayerID]) );
 end;
 
 

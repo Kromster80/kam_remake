@@ -5,11 +5,11 @@ uses KM_GameInputProcess;
 
 
 type
-TGameInputProcess_Single = class(TGameInputProcess)
-  private
-    procedure TakeCommand(aCommand:TGameInputCommand); override;
-  public
-end;
+  TGameInputProcess_Single = class(TGameInputProcess)
+    protected
+      procedure TakeCommand(aCommand:TGameInputCommand); override;
+    public
+  end;
 
 
 implementation
