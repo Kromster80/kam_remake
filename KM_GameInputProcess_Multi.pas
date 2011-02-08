@@ -23,23 +23,23 @@ type
       fNetwork: TKMNetwork;
       fDelay:word; //How many ticks ahead the commands are scheduled
       fPlayersEnabled:array[1..MAX_PLAYERS]of boolean; //See which players confirmations do we need
-      fSchedule: array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of packed record //Ring buffer
-        Commands:TGIPList; //Each player can have any number of commands scheduled for execution in one tick
-        Confirmed:array[1..MAX_PLAYERS]of boolean; //All players must confirm they have the same commands in schedule
-      end;
+      //Each player can have any number of commands scheduled for execution in one tick
+      fSchedule: array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of TGIPList; //Ring buffer
+      //All players must confirm they have the have recieved our GIPList
+      fConfirmed: array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of boolean; //Ring buffer
       procedure SendCommands;
     protected
       procedure TakeCommand(aCommand:TGameInputCommand); override;
     public
       constructor Create(aReplayState:TGIPReplayState);
       destructor Destroy; override;
-      procedure RecieveCommands(aData:string); //Called by TKMNetwork
+      procedure RecieveCommands(aData:array of byte); //Called by TKMNetwork
       procedure Tick(aTick:cardinal); override;
   end;
 
 
 implementation
-uses KM_Game;
+uses KM_Game, KM_CommonTypes;
 
 
 procedure TGIPList.Clear;
@@ -74,7 +74,7 @@ begin
 
   //Allocate memory for all commands lists
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
-    fSchedule[i,k].Commands := TGIPList.Create;
+    fSchedule[i,k] := TGIPList.Create;
 end;
 
 
@@ -82,38 +82,47 @@ destructor TGameInputProcess_Multi.Destroy;
 var i,k:integer;
 begin
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
-    fSchedule[i,k].Commands.Free;
+    fSchedule[i,k].Free;
   fNetwork.Free;
   Inherited;
 end;
 
 
 procedure TGameInputProcess_Multi.TakeCommand(aCommand:TGameInputCommand);
-var id:integer; MyPlayerID:byte;
+var id:integer;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
 
   id := (fGame.GetTickCount + fDelay) mod MAX_SCHEDULE; //Place in a ring buffer
-  MyPlayerID := 1; //todo: replace with real ID
 
-  fSchedule[id,MyPlayerID].Commands.Add(aCommand);
-  fSchedule[id,MyPlayerID].Confirmed[MyPlayerID] := true; //Confirm by self
+  fSchedule[id,byte(aCommand.PlayerID)].Add(aCommand);
+  FillChar(fConfirmed[id], SizeOf(fConfirmed[id]), #0); //Reset
+  fConfirmed[id,byte(aCommand.PlayerID)] := true; //Confirm by self
 end;
 
 
 procedure TGameInputProcess_Multi.SendCommands;
-var id:integer; MyPlayerID:byte;
+var i,id:integer; Msg:TKMemoryStream;
 begin
   id := (fGame.GetTickCount + fDelay) mod MAX_SCHEDULE;
-  MyPlayerID := 1; //todo: replace with real ID
-  //fNetwork.SendBatch(fSchedule[id,MyPlayerID].Commands);
+
+  Msg := TKMemoryStream.Create;
+  Msg.Write(id); //Target Tick
+
+  Msg.Write(fSchedule[id,1].Count); //todo: put our player id here
+
+{  for i:=1 to fSchedule[id,1].Count do
+  begin
+    fSchedule[id,1].Get(i).CommandType
+
+  end;}
 
   //Now we just wait till the tick and hopefully everyone will confirm
   //to have recieved our commands
 end;
 
 
-procedure TGameInputProcess_Multi.RecieveCommands(aData:string);
+procedure TGameInputProcess_Multi.RecieveCommands(aData:array of byte);
 begin
   //todo: Decode recieved messages (Commands from other players, Confirmations, Errors)
 end;
@@ -133,8 +142,7 @@ begin
 
   Conf := true; //See if all players confirm this tick commands list
   for i:=1 to MAX_PLAYERS do
-    for k:=1 to MAX_PLAYERS do
-      Conf := Conf and (fSchedule[id,i].Confirmed[k] or not fPlayersEnabled[k]);
+    Conf := Conf and (fConfirmed[id,i] or not fPlayersEnabled[i]);
 
   //Handle the issue
   if not Conf then
@@ -146,14 +154,14 @@ begin
   //Commands are executed in order players go
   if Conf then
   for i:=1 to MAX_PLAYERS do
-    for k:=1 to fSchedule[id,i].Commands.Count do
+    for k:=1 to fSchedule[id,i].Count do
     begin
       if fPlayersEnabled[k] then begin //Skip missing players
-        ExecCommand(fSchedule[id,i].Commands.Get(k));
-        StoreCommand(fSchedule[id,i].Commands.Get(k));
+        ExecCommand(fSchedule[id,i].Get(k));
+        StoreCommand(fSchedule[id,i].Get(k));
       end;
-      fSchedule[id,i].Commands.Clear;
-      FillChar(fSchedule[id,i].Confirmed, SizeOf(fSchedule[id,i].Confirmed), #0); //Reset
+      fSchedule[id,i].Clear;
+      FillChar(fConfirmed[id], SizeOf(fConfirmed[id]), #0); //Reset
     end;
 
 end;
