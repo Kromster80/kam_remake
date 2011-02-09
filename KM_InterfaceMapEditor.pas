@@ -388,7 +388,6 @@ begin
     Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407); //Minimap place
 
     //todo: player selection and other "universal" stuff (i.e. which player are we placing for)
-    //todo: show canStuff areas on demand
     Image_Main3 := MyControls.AddImage(Panel_Main,0, 200,224,400,404);
     Image_Main4 := MyControls.AddImage(Panel_Main,0, 600,224,400,404);
     Image_Main5 := MyControls.AddImage(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
@@ -658,14 +657,15 @@ begin
     //todo: Improve the look and feel of alliances, replace checkboxes with flat buttons, add spaces between rows, etc.
     Panel_Alliances := MyControls.AddPanel(Panel_Mission,0,28,196,400);
       Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
-      MyControls.AddBevel(Panel_Alliances, 9, 28, 180, 180);
+      //MyControls.AddBevel(Panel_Alliances, 9, 28, 180, 180);
       for i:=1 to MAX_PLAYERS do begin
         MyControls.AddLabel(Panel_Alliances,12+i*20+2,30,100,20,inttostr(i),fnt_Outline,kaLeft);
         MyControls.AddLabel(Panel_Alliances,12,30+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
         for k:=1 to MAX_PLAYERS do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
-          CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 12+k*20, 30+i*20, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 8+k*20, 26+i*20, 20, 20, '', fnt_Metal);
           CheckBox_Alliances[i,k].Tag := (i-1)*MAX_PLAYERS + (k-1);
+          CheckBox_Alliances[i,k].FlatStyle := true;
           CheckBox_Alliances[i,k].OnClick := Mission_AlliancesChange;
         end;
       end;

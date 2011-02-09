@@ -31,7 +31,7 @@ type
     function LoadUnitDAT(filename:string):boolean;
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
-    procedure AddHouseDAT;
+    //procedure AddHouseDAT;
 
     procedure AllocateRX(ID:integer; Count:integer=0);
     function  LoadRX(filename:string; ID:integer):boolean;
@@ -414,7 +414,7 @@ begin
 end;
 
 
-//Append info for new houses
+{//Append info for new houses
 procedure TResource.AddHouseDAT;
 var i:integer;
 begin
@@ -432,7 +432,7 @@ begin
     HouseDAT[i].MaxHealth:=100;
     HouseDAT[i].Sight := 12;
   end;
-end;
+end;}
 
 
 //=============================================

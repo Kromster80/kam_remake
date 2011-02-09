@@ -197,21 +197,21 @@ begin
 
     //Background
     glColor4f(0,0,0,0.5);
-    glBegin (GL_QUADS);
+    glBegin(GL_QUADS);
       glkRect(0,0,SizeX-1,SizeY-1);
     glEnd;
 
     //Thin outline rendered on top of background to avoid inset calculations
     glBlendFunc(GL_DST_COLOR,GL_ONE);
     glColor4f(1-byte(HalfContrast)/2,1-byte(HalfContrast)/2,1-byte(HalfContrast)/2,1);
-    glBegin (GL_LINE_STRIP);
+    glBegin(GL_LINE_STRIP);
       glvertex2f(SizeX-1,0);
       glvertex2f(SizeX-1,SizeY-1);
       glvertex2f(0,SizeY-1);
     glEnd;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(0,0,0,0.75-byte(HalfContrast)/2);
-    glBegin (GL_LINE_STRIP);
+    glBegin(GL_LINE_STRIP);
       glvertex2f(0,SizeY-1);
       glvertex2f(0,0);
       glvertex2f(SizeX-1,0);

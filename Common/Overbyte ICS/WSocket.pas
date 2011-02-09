@@ -4272,9 +4272,6 @@ var
     TempClass       : TWndClass;
     ClassRegistered : Boolean;
 begin
-{$IFDEF DELPHI7}
-    Result := 0;  { Just to remove Delphi update 1 warning }
-{$ENDIF}
     EnterCriticalSection(GClassCritSect);
     try
         { Check if the window class is already registered                   }

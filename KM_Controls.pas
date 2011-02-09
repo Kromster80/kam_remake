@@ -265,9 +265,10 @@ end;
 {Checkbox}
 TKMCheckBox = class(TKMControl)
   public
-    Caption: string;
-    Font: TKMFont;
+    Caption:string;
+    Font:TKMFont;
     Checked:boolean;
+    FlatStyle:boolean;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
     procedure Paint(); override;
@@ -1271,8 +1272,8 @@ end;
 constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
-  Caption:=aCaption;
-  Font:=aFont;
+  Font    := aFont;
+  Caption := aCaption;
   ParentTo(aParent);
 end;
 
@@ -1286,9 +1287,17 @@ begin
   Inherited;
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  Box := fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
-  if Checked then
-    fRenderUI.WriteText(Left+3, Top-1, Width, 'x', Font, kaLeft, false, Col);
+  if FlatStyle then begin
+    fRenderUI.WriteBevel(Left, Top, Width, Height, true);
+    Box.X := Width;
+    Box.Y := Height;
+    if Checked then
+      fRenderUI.WriteLayer(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
+  end else begin
+    Box := fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
+    if Checked then
+      fRenderUI.WriteText(Left+3, Top-1, Width, 'x', Font, kaLeft, false, Col);
+  end;
 
   if Caption <> '' then
     Tmp := fRenderUI.WriteText(Left+Box.X, Top, Width, ' '+Caption, Font, kaLeft, false, Col)
