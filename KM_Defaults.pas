@@ -85,6 +85,8 @@ var
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
+  {Multiplayer}
+  MULTIPLE_COPIES       :boolean=false; //Are we running mutliple copies of KaM on the one PC to test multiplayer?
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably

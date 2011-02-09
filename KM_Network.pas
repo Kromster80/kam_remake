@@ -1,66 +1,144 @@
 unit KM_Network;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Sockets, KM_Unit1;
+uses Classes, WinSock, WSocket;
 
-const KAM_PORT = '56789'; //We can decide on something official later
+{
+Features to be implemented:
+ - Input/output as TByteArrays or something, not strings (that was temporary for testing)
+ - Input buffer so we can send multiple packets in quick succession without having to wait for the socket
+   to close in DataSent. They should be buffered until the socket is ready, then sent when DataSent occurs
+ - Proper error/exception handling for all cases
+ - Resend packets that are not recieved (possibly handled at a higher level)
+ - CRC checks on each packet
+ - Support of unlimited size input (split across multiple packets when it is too large)
+}
+
+//We can decide on something official later
+const KAM_PORT1 = '56789'; //Used for computer to computer or by FIRST copy on a single computer
+const KAM_PORT2 = '56790'; //Used for running mutliple copies on one computer (second copy)
 
 type
-  //Maybe we can use TKMPacket later, for now it's a string
   TRecieveKMPacketEvent = procedure (const KMPacket:string) of object;
 
 type
   TKMNetwork = class
     private
-      procedure Recieve(aData:string);
+      fSendPort, fRecievePort:string;
+      fSocketRecieve: TWSocket;
+      fSocketSend: TWSocket;
+      procedure DataAvailable(Sender: TObject; Error: Word);
+      procedure DataSent(Sender: TObject; Error: Word);
     public
       OnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
-      constructor Create;
+      constructor Create(ParentComponentHandle: TComponent; MultipleCopies:boolean=false);
       destructor Destroy; override;
-      procedure Send(aData:string); //This is the input from the higher level, called to send data (to all?)
-      procedure SendTo(aData:string);
+      procedure SendTo(Addr:string; aData:string);
   end;
 
 
 implementation
 
 
-constructor TKMNetwork.Create;
+constructor TKMNetwork.Create(ParentComponentHandle: TComponent; MultipleCopies:boolean=false);
 begin
   Inherited Create;
+  if MultipleCopies then
+  begin
+    fSendPort := KAM_PORT1;
+    fRecievePort := KAM_PORT2;
+  end
+  else
+  begin
+    fSendPort := KAM_PORT1;
+    fRecievePort := KAM_PORT1;
+  end;
+  fSocketRecieve := TWSocket.Create(ParentComponentHandle);
+  fSocketRecieve.Proto := 'udp';
+  fSocketRecieve.Addr := '0.0.0.0';
+  fSocketRecieve.Port := fRecievePort;
+  fSocketRecieve.OnDataAvailable := DataAvailable;
+  if not MultipleCopies then
+  begin
+    fSocketRecieve.Listen;
+  end
+  else
+  begin
+    try
+      fSocketRecieve.Listen;
+    except
+      on E : ESocketException do
+      begin
+        //Assume this means the port is already taken, so try being the second copy
+        fSendPort := KAM_PORT2;
+        fRecievePort := KAM_PORT1;
+        //Try again
+        fSocketRecieve.Proto := 'udp';
+        fSocketRecieve.Addr := '0.0.0.0';
+        fSocketRecieve.Port := fRecievePort;
+        fSocketRecieve.OnDataAvailable := DataAvailable;
+        fSocketRecieve.Listen;
+      end;
+    end;
+  end;
+        
+  fSocketSend := TWSocket.Create(ParentComponentHandle);
+  fSocketSend.Proto := 'udp';
+  fSocketSend.Addr := '0.0.0.0';
+  fSocketSend.Port := fSendPort;
+  fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
+  fSocketSend.OnDataSent := DataSent;
 end;
 
 
 destructor TKMNetwork.Destroy;
 begin
-
-end;
-
-
-//Broadcast to all players
-procedure TKMNetwork.Send(aData:string);
-begin
-
+  fSocketRecieve.Free;
+  fSocketSend.Free;
 end;
 
 
 //Send to specified players (where would we store IPs and Player-IP bindings?)
 //when trying to recover undelivered packets?
-procedure TKMNetwork.SendTo(aData:string);
+procedure TKMNetwork.SendTo(Addr:string; aData:string);
 begin
-
+  assert(fSocketSend.AllSent);
+  fSocketSend.Proto := 'udp';
+  fSocketSend.Port := fSendPort;
+  fSocketSend.Addr := Addr;
+  fSocketSend.Connect; //UDP is connectionless. Connect will just open the socket
+  fSocketSend.SendStr(aData);
+  //fSocketSend.Send(@aData, length(aData));
 end;
 
 
 //Recieve from anyone
-procedure TKMNetwork.Recieve(aData:string);
+procedure TKMNetwork.DataAvailable(Sender: TObject; Error: Word);
+var MyString: string;
+    Buffer : array [0..1023] of char;
+    Len, SrcLen    : Integer;
+    Src    : TSockAddrIn;
 begin
   //process
+  //ReceiveFrom gives us three things:
+  //  Buffer: The data
+  //  Len: The length of the data
+  //  Src: Who sent the data
+  SrcLen := SizeOf(Src);
+  Len := fSocketRecieve.ReceiveFrom(@Buffer, SizeOf(Buffer), Src, SrcLen);
 
   //handle low level errors and convert them to higher ones if required
 
   //pass message to GIP_Multi (it will be handling the higher level errors)
+  MyString := copy(Buffer,0,Len);
+  if Assigned(OnRecieveKMPacket) then
+    OnRecieveKMPacket(MyString);
+end;
 
+
+procedure TKMNetwork.DataSent(Sender: TObject; Error: Word);
+begin
+  fSocketSend.Close; //Once the data is sent, close the socket so it is ready to send new data
 end;
 
 

@@ -3,6 +3,15 @@ unit KM_GameInputProcess_Multi;
 interface
 uses KM_GameInputProcess, KM_Network, KM_Defaults;
 
+type TKMDataType = (kdp_Commands, kdp_ConfirmCommands);
+
+type TKMDataPacket = record
+       PlayerID: byte; //Player who sent the data
+       DataType: TKMDataType;
+       DataLength: Integer;
+       Data: pchar; //e.g. Commands, tick ID that was confirmed. This could be another record for each command type?
+     end;
+
 
 const MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
 
@@ -39,7 +48,7 @@ type
 
 
 implementation
-uses KM_Game, KM_CommonTypes;
+uses KM_Game, KM_CommonTypes, KM_Unit1;
 
 
 procedure TGIPList.Clear;
@@ -70,7 +79,8 @@ begin
   Inherited Create(aReplayState);
   fDelay := 10;
 
-  fNetwork := TKMNetwork.Create;
+  //todo: This should not be managed by GIP
+  fNetwork := TKMNetwork.Create(Form1, MULTIPLE_COPIES);
 
   //Allocate memory for all commands lists
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
