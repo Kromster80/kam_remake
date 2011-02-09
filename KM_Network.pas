@@ -19,7 +19,7 @@ const KAM_PORT1 = '56789'; //Used for computer to computer or by FIRST copy on a
 const KAM_PORT2 = '56790'; //Used for running mutliple copies on one computer (second copy)
 
 type
-  TRecieveKMPacketEvent = procedure (const KMPacket:string) of object;
+  TRecieveKMPacketEvent = procedure (const aData: string) of object;
 
 type
   TKMNetwork = class
@@ -31,7 +31,7 @@ type
       procedure DataSent(Sender: TObject; Error: Word);
     public
       OnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
-      constructor Create(ParentComponentHandle: TComponent; MultipleCopies:boolean=false);
+      constructor Create(MultipleCopies:boolean=false);
       destructor Destroy; override;
       procedure SendTo(Addr:string; aData:string);
   end;
@@ -40,7 +40,7 @@ type
 implementation
 
 
-constructor TKMNetwork.Create(ParentComponentHandle: TComponent; MultipleCopies:boolean=false);
+constructor TKMNetwork.Create(MultipleCopies:boolean=false);
 begin
   Inherited Create;
   if MultipleCopies then
@@ -53,7 +53,7 @@ begin
     fSendPort := KAM_PORT1;
     fRecievePort := KAM_PORT1;
   end;
-  fSocketRecieve := TWSocket.Create(ParentComponentHandle);
+  fSocketRecieve := TWSocket.Create(nil);
   fSocketRecieve.Proto := 'udp';
   fSocketRecieve.Addr := '0.0.0.0';
   fSocketRecieve.Port := fRecievePort;
@@ -82,7 +82,7 @@ begin
     end;
   end;
         
-  fSocketSend := TWSocket.Create(ParentComponentHandle);
+  fSocketSend := TWSocket.Create(nil);
   fSocketSend.Proto := 'udp';
   fSocketSend.Addr := '0.0.0.0';
   fSocketSend.Port := fSendPort;

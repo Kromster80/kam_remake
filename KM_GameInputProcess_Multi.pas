@@ -48,7 +48,7 @@ type
 
 
 implementation
-uses KM_Game, KM_CommonTypes, KM_Unit1;
+uses KM_Game, KM_CommonTypes;
 
 
 procedure TGIPList.Clear;
@@ -80,7 +80,7 @@ begin
   fDelay := 10;
 
   //todo: This should not be managed by GIP
-  fNetwork := TKMNetwork.Create(Form1, MULTIPLE_COPIES);
+  fNetwork := TKMNetwork.Create(MULTIPLE_COPIES);
 
   //Allocate memory for all commands lists
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do

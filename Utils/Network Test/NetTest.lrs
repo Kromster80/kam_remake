@@ -1,0 +1,23 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TfrmNetTest','FORMDATA',[
+  'TPF0'#11'TfrmNetTest'#10'frmNetTest'#4'Left'#2'x'#6'Height'#3'+'#2#3'Top'#3
+  +#128#0#5'Width'#3'n'#4#7'Caption'#6#15'KM_Network Test'#12'ClientHeight'#3'+'
+  +#2#11'ClientWidth'#3'n'#4#11'Font.Height'#2#243#9'Font.Name'#6#13'MS Sans Se'
+  +'rif'#8'OnCreate'#7#10'FormCreate'#9'OnDestroy'#7#11'FormDestroy'#8'Position'
+  +#7#9'poDefault'#10'LCLVersion'#6#8'0.9.28.2'#0#6'TLabel'#13'lblLastPacket'#4
+  +'Left'#2#16#6'Height'#2#17#3'Top'#3#168#0#5'Width'#2'"'#7'Caption'#6#4'None'
+  +#11'ParentColor'#8#0#0#6'TLabel'#6'Label2'#4'Left'#2#16#6'Height'#2#17#3'Top'
+  +#2'H'#5'Width'#2'$'#7'Caption'#6#5'Send:'#11'ParentColor'#8#0#0#6'TLabel'#6
+  +'Label3'#4'Left'#2#16#6'Height'#2#17#3'Top'#2#16#5'Width'#2','#7'Caption'#6#7
+  +'Server:'#11'ParentColor'#8#0#0#6'TLabel'#6'Label4'#4'Left'#2#16#6'Height'#2
+  +#25#3'Top'#3#144#0#5'Width'#3#204#0#7'Caption'#6#21'Last packet recieved:'#12
+  +'Font.CharSet'#7#12'ANSI_CHARSET'#11'Font.Height'#2#236#9'Font.Name'#6#5'Ari'
+  +'al'#10'Font.Style'#11#6'fsBold'#0#11'ParentColor'#8#10'ParentFont'#8#0#0#5
+  +'TEdit'#7'edtSend'#4'Left'#2#16#6'Height'#2#24#3'Top'#2'X'#5'Width'#3#225#0#8
+  +'TabOrder'#2#0#4'Text'#6#18'Enter a message...'#0#0#7'TButton'#7'Button1'#4
+  +'Left'#3#248#0#6'Height'#2#25#3'Top'#2'X'#5'Width'#2'Q'#7'Caption'#6#4'Send'
+  +#7'OnClick'#7#12'Button1Click'#8'TabOrder'#2#1#0#0#5'TEdit'#9'edtServer'#4'L'
+  +'eft'#2#16#6'Height'#2#24#3'Top'#2' '#5'Width'#3#225#0#8'TabOrder'#2#2#4'Tex'
+  +'t'#6#9'127.0.0.1'#0#0#0
+]);

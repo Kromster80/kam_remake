@@ -1,10 +1,11 @@
 unit NetTest;
-
+{$I KaM_Remake.inc}
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, KM_Network, StdCtrls;
+  Dialogs, KM_Network, StdCtrls
+  {$IFDEF FPC} , LResources {$ENDIF};
 
 const
   MULTIPLE_COPIES: boolean = true; //Are we running mutliple copies on the one PC to test?
@@ -24,21 +25,22 @@ type
   private
     { Private declarations }
     fKMNetwork: TKMNetwork;
-    procedure GetData(const aString: String);
   public
     { Public declarations }
+    procedure GetData(const aData: string);
   end;
 
 var
   frmNetTest: TfrmNetTest;
 
 implementation
-
-{$R *.dfm}
+{$IFDEF WDC}
+  {$R *.dfm}
+{$ENDIF}
 
 procedure TfrmNetTest.FormCreate(Sender: TObject);
 begin
-  fKMNetwork := TKMNetwork.Create(frmNetTest, MULTIPLE_COPIES);
+  fKMNetwork := TKMNetwork.Create(MULTIPLE_COPIES);
   fKMNetwork.OnRecieveKMPacket := GetData;
 end;
 
@@ -47,14 +49,19 @@ begin
   fKMNetwork.Free;
 end;
 
-procedure TfrmNetTest.GetData(const aString: String);
+procedure TfrmNetTest.GetData(const aData: String);
 begin
-  lblLastPacket.Caption := aString;
+  lblLastPacket.Caption := aData;
 end;
 
 procedure TfrmNetTest.Button1Click(Sender: TObject);
 begin
   fKMNetwork.SendTo(edtServer.Text,edtSend.Text);
 end;
+
+{$IFDEF FPC}
+initialization
+{$I NetTest.lrs}
+{$ENDIF}
 
 end.
