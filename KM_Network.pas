@@ -57,7 +57,7 @@ begin
   fSocketRecieve.Proto := 'udp';
   fSocketRecieve.Addr := '0.0.0.0';
   fSocketRecieve.Port := fRecievePort;
-  fSocketRecieve.OnDataAvailable := DataAvailable;
+  fSocketRecieve.OnDataAvailable := {$IFDEF FPC}@{$ENDIF}DataAvailable;
   if not MultipleCopies then
   begin
     fSocketRecieve.Listen;
@@ -76,7 +76,7 @@ begin
         fSocketRecieve.Proto := 'udp';
         fSocketRecieve.Addr := '0.0.0.0';
         fSocketRecieve.Port := fRecievePort;
-        fSocketRecieve.OnDataAvailable := DataAvailable;
+        fSocketRecieve.OnDataAvailable := {$IFDEF FPC}@{$ENDIF}DataAvailable;
         fSocketRecieve.Listen;
       end;
     end;
@@ -87,7 +87,7 @@ begin
   fSocketSend.Addr := '0.0.0.0';
   fSocketSend.Port := fSendPort;
   fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
-  fSocketSend.OnDataSent := DataSent;
+  fSocketSend.OnDataSent := {$IFDEF FPC}@{$ENDIF}DataSent;
 end;
 
 

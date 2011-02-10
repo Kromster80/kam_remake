@@ -3,7 +3,7 @@ unit NetTest;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, KM_Network, StdCtrls
   {$IFDEF FPC} , LResources {$ENDIF};
 
@@ -41,7 +41,7 @@ implementation
 procedure TfrmNetTest.FormCreate(Sender: TObject);
 begin
   fKMNetwork := TKMNetwork.Create(MULTIPLE_COPIES);
-  fKMNetwork.OnRecieveKMPacket := GetData;
+  fKMNetwork.OnRecieveKMPacket := {$IFDEF FPC}@{$ENDIF}GetData;
 end;
 
 procedure TfrmNetTest.FormDestroy(Sender: TObject);

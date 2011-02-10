@@ -9,7 +9,9 @@ uses
   Forms,
   NetTest in 'NetTest.pas'; {frmNetTest}
 
+{$IFDEF WDC}
 {$R *.res}
+{$ENDIF}
 
 begin
   Application.Initialize;

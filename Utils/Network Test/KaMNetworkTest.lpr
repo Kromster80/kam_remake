@@ -6,13 +6,14 @@ program KaMNetworkTest;
 
 uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
-  Forms, LResources, NetTest
-  { you can add units after this };
+  Forms,
+  NetTest in 'NetTest.pas'; {frmNetTest}
 
-{$IFDEF WINDOWS}{$R KaMNetworkTest.rc}{$ENDIF}
+{$IFDEF WDC}
+{$R *.res}
+{$ENDIF}
 
 begin
-  {$I KaMNetworkTest.lrs}
   Application.Initialize;
   Application.CreateForm(TfrmNetTest, frmNetTest);
   Application.Run;
