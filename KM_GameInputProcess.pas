@@ -67,6 +67,9 @@ type TGameInputCommandType = (
   gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
   gic_TempChangeMyPlayer, //Make debugging easier
 
+  //VII. Multiplayer
+  gic_CRC, //CRC check send with each command list
+
   { Optional input }
   //VI.     Viewport settings for replay (location, zoom)
   //VII.    Message queue handling in gameplay interface

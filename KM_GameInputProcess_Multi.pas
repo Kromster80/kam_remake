@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses KM_GameInputProcess, KM_Network, KM_Defaults;
+uses SysUtils, KM_GameInputProcess, KM_Network, KM_Defaults;
 
 type TKMDataType = (kdp_Commands, kdp_ConfirmCommands);
 
@@ -107,7 +107,6 @@ begin
 
   fSchedule[id,byte(aCommand.PlayerID)].Add(aCommand);
   FillChar(fConfirmed[id], SizeOf(fConfirmed[id]), #0); //Reset
-  fConfirmed[id,byte(aCommand.PlayerID)] := true; //Confirm by self
 end;
 
 
@@ -132,14 +131,14 @@ begin
 end;
 
 
-procedure TGameInputProcess_Multi.RecieveCommands(aData:array of byte);
+procedure TGameInputProcess_Multi.RecieveCommands(aData:array of byte; Len:integer;);
 begin
   //todo: Decode recieved messages (Commands from other players, Confirmations, Errors)
 end;
 
 
 procedure TGameInputProcess_Multi.Tick(aTick:cardinal);
-var i,k,id:integer; Conf:boolean;
+var i,k,id,CRC:integer; Conf:boolean; ConfCommand: TGameInputCommand;
 begin
   Inherited;
   if ReplayState = gipReplaying then exit;
@@ -149,6 +148,10 @@ begin
   SendCommands;
 
   id := fGame.GetTickCount mod MAX_SCHEDULE; //Place in a ring buffer
+
+  ConfCommand := MakeCommand(gic_CRC, [Random(maxint)]);
+  TakeCommand(ConfCommand);
+  fConfirmed[id,byte(ConfCommand.PlayerID)] := true; //Confirm own commands by self
 
   Conf := true; //See if all players confirm this tick commands list
   for i:=1 to MAX_PLAYERS do
@@ -162,13 +165,23 @@ begin
   end;
 
   //Commands are executed in order players go
+  CRC := -1;
   if Conf then
   for i:=1 to MAX_PLAYERS do
     for k:=1 to fSchedule[id,i].Count do
     begin
       if fPlayersEnabled[k] then begin //Skip missing players
-        ExecCommand(fSchedule[id,i].Get(k));
-        StoreCommand(fSchedule[id,i].Get(k));
+        if fSchedule[id,i].Get(k).CommandType = gic_CRC then
+        begin
+          if (CRC <> -1) and (CRC <> fSchedule[id,i].Get(k).Params[1]) then
+            assert(false, 'CRC failed for player '+IntToStr(i));
+          CRC := fSchedule[id,i].Get(k).Params[1];
+        end
+        else
+        begin
+          ExecCommand(fSchedule[id,i].Get(k));
+          StoreCommand(fSchedule[id,i].Get(k));
+        end;
       end;
       fSchedule[id,i].Clear;
       FillChar(fConfirmed[id], SizeOf(fConfirmed[id]), #0); //Reset
