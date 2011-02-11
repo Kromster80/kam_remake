@@ -43,49 +43,45 @@ implementation
 constructor TKMNetwork.Create(MultipleCopies:boolean=false);
 begin
   Inherited Create;
-  if MultipleCopies then
-  begin
-    fSendPort := KAM_PORT1;
-    fRecievePort := KAM_PORT2;
-  end
-  else
-  begin
-    fSendPort := KAM_PORT1;
-    fRecievePort := KAM_PORT1;
-  end;
+
+  fSendPort     := KAM_PORT1;
+  fRecievePort  := KAM_PORT1;
+
+  if MultipleCopies then fRecievePort := KAM_PORT2; //For tests on the same machine with 2 copies
+
   fSocketRecieve := TWSocket.Create(nil);
-  fSocketRecieve.Proto := 'udp';
-  fSocketRecieve.Addr := '0.0.0.0';
-  fSocketRecieve.Port := fRecievePort;
+  fSocketRecieve.Proto  := 'udp';
+  fSocketRecieve.Addr   := '0.0.0.0';
+  fSocketRecieve.Port   := fRecievePort;
   fSocketRecieve.OnDataAvailable := DataAvailable;
   if not MultipleCopies then
-  begin
-    fSocketRecieve.Listen;
-  end
+    fSocketRecieve.Listen
   else
-  begin
     try
       fSocketRecieve.Listen;
     except
       on E : ESocketException do
       begin
-        //Assume this means the port is already taken, so try being the second copy
-        fSendPort := KAM_PORT2;
-        fRecievePort := KAM_PORT1;
+        //Assume this means the port is already taken, so we are being the second copy
+        fSendPort     := KAM_PORT2; //Swap ports
+        fRecievePort  := KAM_PORT1;
         //Try again
-        fSocketRecieve.Proto := 'udp';
-        fSocketRecieve.Addr := '0.0.0.0';
-        fSocketRecieve.Port := fRecievePort;
+        fSocketRecieve.Proto  := 'udp';
+        fSocketRecieve.Addr   := '0.0.0.0';
+        fSocketRecieve.Port   := fRecievePort;
         fSocketRecieve.OnDataAvailable := DataAvailable;
-        fSocketRecieve.Listen;
+        try
+          fSocketRecieve.Listen;
+        except
+          on E : ESocketException do //todo: add error handling here
+        end;
       end;
     end;
-  end;
         
   fSocketSend := TWSocket.Create(nil);
   fSocketSend.Proto := 'udp';
-  fSocketSend.Addr := '0.0.0.0';
-  fSocketSend.Port := fSendPort;
+  fSocketSend.Addr  := '0.0.0.0';
+  fSocketSend.Port  := fSendPort;
   fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
   fSocketSend.OnDataSent := DataSent;
 end;
@@ -102,7 +98,7 @@ end;
 //when trying to recover undelivered packets?
 procedure TKMNetwork.SendTo(Addr:string; aData:string);
 begin
-  assert(fSocketSend.AllSent);
+  Assert(fSocketSend.AllSent);
   fSocketSend.Proto := 'udp';
   fSocketSend.Port := fSendPort;
   fSocketSend.Addr := Addr;

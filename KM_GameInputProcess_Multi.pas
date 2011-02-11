@@ -15,16 +15,17 @@ type TKMDataPacket = record
 
 const MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
 
-type TGIPList = class
-       private
-         fCount:integer;
-         fList:array of TGameInputCommand; //1..n
-       public
-         procedure Clear;
-         property Count:integer read fCount;
-         procedure Add(aCommand:TGameInputCommand);
-         function Get(aIndex:integer):TGameInputCommand;
-     end;
+type
+  TGIPList = class
+    private
+     fCount:integer;
+     fList:array of TGameInputCommand; //1..n
+    public
+      procedure Clear;
+      property Count:integer read fCount;
+      procedure Add(aCommand:TGameInputCommand);
+      function Get(aIndex:integer):TGameInputCommand;
+  end;
 
 type
   TGameInputProcess_Multi = class(TGameInputProcess)
@@ -42,7 +43,7 @@ type
     public
       constructor Create(aReplayState:TGIPReplayState);
       destructor Destroy; override;
-      procedure RecieveCommands(aData:array of byte); //Called by TKMNetwork
+      procedure RecieveCommands(aData:string); //Called by TKMNetwork when it has data for us
       procedure Tick(aTick:cardinal); override;
   end;
 
@@ -131,7 +132,7 @@ begin
 end;
 
 
-procedure TGameInputProcess_Multi.RecieveCommands(aData:array of byte; Len:integer;);
+procedure TGameInputProcess_Multi.RecieveCommands(aData:string);
 begin
   //todo: Decode recieved messages (Commands from other players, Confirmations, Errors)
 end;
