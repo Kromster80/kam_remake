@@ -49,6 +49,15 @@ type TKMMainMenuInterface = class
       Button_MP_WWW,
       Button_MP_Back:TKMButton;
 
+      Panel_LANLogin:TKMPanel;
+        Panel_LANLogin2:TKMPanel;
+          Label_LAN_IP:TKMLabel;
+          Button_LAN_Host:TKMButton;
+          Edit_LAN_IP:TKMEdit;
+          Button_LAN_Join:TKMButton;
+          Label_LAN_Status:TKMLabel;
+          Button_LAN_LoginBack:TKMButton;
+
     Panel_WWWLogin:TKMPanel;
       Button_WWW_LoginBack:TKMButton;
       Panel_WWWLogin2:TKMPanel;
@@ -136,6 +145,7 @@ type TKMMainMenuInterface = class
     procedure Create_Single_Page;
     procedure Create_Load_Page;
     procedure Create_MultiPlayer_Page;
+    procedure Create_LANLogin_Page;
     procedure Create_WWWLogin_Page;
     procedure Create_Lobby_Page;
     procedure Create_MapEditor_Page;
@@ -157,6 +167,9 @@ type TKMMainMenuInterface = class
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
+    procedure MultiPlayer_LANHost(Sender: TObject);
+    procedure MultiPlayer_LANJoin(Sender: TObject);
+    procedure MultiPlayer_LANShowLogin;
     procedure MultiPlayer_ShowLogin();
     procedure MultiPlayer_ShowLoginResult(Sender: TObject);
     procedure MultiPlayer_LoginQuery(Sender: TObject);
@@ -225,6 +238,7 @@ begin
     Create_Single_Page;
     Create_Load_Page;
   Create_MultiPlayer_Page;
+    Create_LANLogin_Page;
     Create_WWWLogin_Page;
     Create_Lobby_Page;
   Create_MapEditor_Page;
@@ -352,8 +366,8 @@ begin
       Button_MM_Credits.OnClick      := SwitchMenuPage;
       Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
 
-      Button_MM_MapEd.Visible := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
-      Button_MM_MultiPlayer.Enabled :=  ENABLE_MP_IN_MENU
+      Button_MM_MapEd.Visible        := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
+      Button_MM_MultiPlayer.Enabled  :=  ENABLE_MP_IN_MENU
 end;
 
 
@@ -392,14 +406,36 @@ begin
     with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_MPButtons:=MyControls.AddPanel(Panel_MultiPlayer,155,280,350,400);
-      Button_MP_LAN  :=MyControls.AddButton(Panel_MPButtons,0,  0,350,30,fTextLibrary.GetRemakeString(7),fnt_Metal,bsMenu);
-      Button_MP_WWW  :=MyControls.AddButton(Panel_MPButtons,0, 40,350,30,fTextLibrary.GetRemakeString(8),fnt_Metal,bsMenu);
-      Button_MP_LAN.Disable;
-      Button_MP_LAN.OnClick      := SwitchMenuPage;
-      Button_MP_WWW.OnClick      := SwitchMenuPage;
+      Button_MP_LAN  := MyControls.AddButton(Panel_MPButtons,0,  0,350,30,fTextLibrary.GetRemakeString(7),fnt_Metal,bsMenu);
+      Button_MP_WWW  := MyControls.AddButton(Panel_MPButtons,0, 40,350,30,fTextLibrary.GetRemakeString(8),fnt_Metal,bsMenu);
+      Button_MP_LAN.OnClick := SwitchMenuPage;
+      Button_MP_WWW.OnClick := SwitchMenuPage;
+      Button_MP_WWW.Disable;
 
     Button_MP_Back := MyControls.AddButton(Panel_MultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MP_Back.OnClick := SwitchMenuPage;
+end;
+
+
+procedure TKMMainMenuInterface.Create_LANLogin_Page;
+begin
+  Panel_LANLogin := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
+    Panel_LANLogin2 := MyControls.AddPanel(Panel_LANLogin,312,280,400,400);
+
+      MyControls.AddLabel(Panel_LANLogin2, 100, 0, 100, 20, 'Your IP address is:', fnt_Metal, kaCenter);
+      Label_LAN_IP := MyControls.AddLabel(Panel_LANLogin2, 100, 25, 100, 20, '0.0.0.0', fnt_Outline, kaCenter);
+      Button_LAN_Host := MyControls.AddButton(Panel_LANLogin2, 50, 60, 100, 30, 'Host', fnt_Metal, bsMenu);
+      Button_LAN_Host.OnClick := MultiPlayer_LANHost;
+
+      MyControls.AddLabel(Panel_LANLogin2, 300, 0, 100, 20, 'Set partners IP address:', fnt_Metal, kaCenter);
+      Edit_LAN_IP := MyControls.AddEdit(Panel_LANLogin2, 250, 25, 100, 20, fnt_Grey);
+      Button_LAN_Join := MyControls.AddButton(Panel_LANLogin2, 250, 60, 100, 30, 'Join', fnt_Metal, bsMenu);
+      Button_LAN_Join.OnClick := MultiPlayer_LANJoin;
+
+      Label_LAN_Status := MyControls.AddLabel(Panel_LANLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
+
+    Button_LAN_LoginBack := MyControls.AddButton(Panel_LANLogin2, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_LAN_LoginBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -777,6 +813,7 @@ begin
 
   {Return to MultiPlayerMenu}
   if (Sender=Button_WWW_LoginBack)or
+     (Sender=Button_LAN_LoginBack)or
      (Sender=Button_LobbyBack) then
     Panel_MultiPlayer.Show;
 
@@ -833,7 +870,13 @@ begin
     Panel_MultiPlayer.Show;
   end;
 
-  {Show MultiPlayer menu}
+  {Show LAN login}
+  if Sender=Button_MP_LAN then begin
+    MultiPlayer_LANShowLogin();
+    Panel_LANLogin.Show;
+  end;
+
+  {Show WWW menu}
   if Sender=Button_MP_WWW then begin
     MultiPlayer_ShowLogin();
     Panel_WWWLogin.Show;
@@ -1061,7 +1104,36 @@ begin
 end;
 
 
-{ First page actually related to LobbyChat - create fLobby here}
+procedure TKMMainMenuInterface.MultiPlayer_LANShowLogin;
+var s:string;
+begin
+  s := fGame.fNetwork.MyIPString;
+  Button_LAN_Host.Enabled := s<>'';
+  if s <> '' then
+    Label_LAN_IP.Caption := s
+  else
+    Label_LAN_IP.Caption := 'Unknown';
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_LANHost(Sender: TObject);
+begin
+  //Start listening
+
+  //Open LAN lobby
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_LANJoin(Sender: TObject);
+begin
+  //Disable buttons
+
+  //Try to join
+
+  //Enable buttons
+end;
+
+
 procedure TKMMainMenuInterface.MultiPlayer_ShowLogin();
 begin
   {$IFDEF WDC}with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do begin

@@ -5,6 +5,7 @@ uses Windows,
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils,
+  KM_Network,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Chat;
 
@@ -37,6 +38,7 @@ type
   public
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
+    fNetwork:TKMNetwork; //Used by lobby and multiplayer
     fGameInputProcess:TGameInputProcess;
     fProjectiles:TKMProjectiles;
     fMusicLib: TMusicLib;
@@ -59,6 +61,7 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
+    procedure GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
@@ -376,6 +379,36 @@ begin
 end;
 
 
+procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
+var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
+begin
+  GameInit;
+
+  fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
+  fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
+  MyPlayer := fPlayers.Player[aPlayID];
+
+  fPlayers.AfterMissionInit(true);
+  fViewport.SetZoom(1); //This ensures the viewport is centered on the map
+
+  Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
+  fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));
+
+  fLog.AppendLog('Gameplay initialized',true);
+
+  fGameState := gsRunning;
+
+  fNetwork := TKMNetwork.Create(MULTIPLE_COPIES);
+
+  fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetwork);
+  Save(99); //Thats our base for a game record
+  CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
+
+  fLog.AppendLog('Gameplay recording initialized',true);
+  RandSeed := 4; //Random after StartGame and ViewReplay should match
+end;
+
+
 { Set viewport and save command log }
 procedure TKMGame.GameError(aLoc:TKMPoint; aText:string);
 begin
@@ -440,6 +473,7 @@ begin
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl'));
 
+    FreeThenNil(fNetwork);
     FreeThenNil(fGameInputProcess);
     FreeThenNil(fPlayers);
     FreeThenNil(fProjectiles);

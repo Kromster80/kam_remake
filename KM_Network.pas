@@ -1,7 +1,7 @@
 unit KM_Network;
 {$I KaM_Remake.inc}
 interface
-uses Classes, WinSock, WSocket;
+uses Classes, SysUtils, WinSock, WSocket;
 
 {
 Features to be implemented:
@@ -33,6 +33,7 @@ type
       OnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
       constructor Create(MultipleCopies:boolean=false);
       destructor Destroy; override;
+      function MyIPString:string;
       procedure SendTo(Addr:string; aData:string);
   end;
 
@@ -41,8 +42,15 @@ implementation
 
 
 constructor TKMNetwork.Create(MultipleCopies:boolean=false);
+var wsaData: TWSAData;
 begin
   Inherited Create;
+
+  if WSAStartup($101, wsaData) <> 0 then
+  begin
+    Assert(false, 'Error in Network');
+    exit;
+  end;
 
   fSendPort     := KAM_PORT1;
   fRecievePort  := KAM_PORT1;
@@ -91,6 +99,15 @@ destructor TKMNetwork.Destroy;
 begin
   fSocketRecieve.Free;
   fSocketSend.Free;
+end;
+
+
+function TKMNetwork.MyIPString:string;
+begin
+  if LocalIPList.Count >= 1 then
+    Result := LocalIPList[0] //First address should be ours
+  else
+    Result := '';
 end;
 
 

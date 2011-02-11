@@ -41,7 +41,7 @@ type
     protected
       procedure TakeCommand(aCommand:TGameInputCommand); override;
     public
-      constructor Create(aReplayState:TGIPReplayState);
+      constructor Create(aReplayState:TGIPReplayState; aNetwork:TKMNetwork);
       destructor Destroy; override;
       procedure RecieveCommands(aData:string); //Called by TKMNetwork when it has data for us
       procedure Tick(aTick:cardinal); override;
@@ -51,7 +51,7 @@ type
 implementation
 uses KM_Game, KM_CommonTypes;
 
-
+{ TGIPList }
 procedure TGIPList.Clear;
 begin
   fCount := 0;
@@ -74,14 +74,13 @@ begin
 end;
 
 
-constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState);
+{ TGameInputProcess_Multi }
+constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState; aNetwork:TKMNetwork);
 var i,k:integer;
 begin
   Inherited Create(aReplayState);
   fDelay := 10;
-
-  //todo: This should not be managed by GIP
-  fNetwork := TKMNetwork.Create(MULTIPLE_COPIES);
+  fNetwork := aNetwork;
 
   //Allocate memory for all commands lists
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
@@ -94,7 +93,6 @@ var i,k:integer;
 begin
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
     fSchedule[i,k].Free;
-  fNetwork.Free;
   Inherited;
 end;
 
