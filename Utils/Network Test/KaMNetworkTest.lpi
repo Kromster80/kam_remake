@@ -1,20 +1,21 @@
 <?xml version="1.0"?>
 <CONFIG>
   <ProjectOptions>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
-    <Version Value="7"/>
     <General>
       <MainUnit Value="0"/>
-      <TargetFileExt Value=".exe"/>
-      <Icon Value="0"/>
       <UseXPManifest Value="True"/>
-      <ActiveEditorIndexAtStart Value="2"/>
+      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <VersionInfo>
-      <ProjectVersion Value=""/>
       <Language Value=""/>
       <CharSet Value=""/>
+      <StringTable ProductVersion=""/>
     </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="default" Default="True"/>
+    </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
       <IgnoreBinaries Value="False"/>
@@ -37,11 +38,14 @@
         <Filename Value="KaMNetworkTest.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KaMNetworkTest"/>
-        <CursorPos X="39" Y="7"/>
-        <TopLine Value="1"/>
         <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="2" Y="2"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
         <Filename Value="unit1.pas"/>
@@ -49,9 +53,10 @@
         <ComponentName Value="Form1"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-        <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
         <UsageCount Value="21"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="NetTest.pas"/>
@@ -59,34 +64,42 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="NetTest"/>
-        <CursorPos X="55" Y="54"/>
-        <TopLine Value="25"/>
         <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="40"/>
+        <CursorPos X="35" Y="47"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\..\KM_Network.pas"/>
         <UnitName Value="KM_Network"/>
-        <CursorPos X="33" Y="32"/>
-        <TopLine Value="20"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="111"/>
+        <CursorPos X="38" Y="125"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="KM_Network.pas"/>
         <UnitName Value="KM_Network"/>
-        <CursorPos X="30" Y="89"/>
         <TopLine Value="74"/>
+        <CursorPos X="30" Y="89"/>
         <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
         <Filename Value="ICS\WSocket.pas"/>
         <UnitName Value="WSocket"/>
-        <CursorPos X="14" Y="2038"/>
         <TopLine Value="2009"/>
+        <CursorPos X="14" Y="2038"/>
         <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
         <Filename Value="..\..\KM_Unit1.pas"/>
@@ -94,145 +107,175 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_Unit1"/>
-        <CursorPos X="43" Y="8"/>
         <TopLine Value="1"/>
+        <CursorPos X="43" Y="8"/>
         <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
         <Filename Value="NetTest.lrs"/>
-        <CursorPos X="1" Y="24"/>
         <TopLine Value="1"/>
+        <CursorPos X="1" Y="24"/>
         <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\..\KM_Controls.pas"/>
         <UnitName Value="KM_Controls"/>
-        <CursorPos X="69" Y="72"/>
         <TopLine Value="55"/>
+        <CursorPos X="69" Y="72"/>
         <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\..\KM_InterfaceGamePlay.pas"/>
         <UnitName Value="KM_InterfaceGamePlay"/>
-        <CursorPos X="33" Y="203"/>
         <TopLine Value="188"/>
+        <CursorPos X="33" Y="203"/>
         <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
         <Filename Value="KaMNetworkTest.dpr"/>
         <UnitName Value="KaMNetworkTest"/>
-        <CursorPos X="39" Y="8"/>
         <TopLine Value="1"/>
+        <CursorPos X="39" Y="8"/>
         <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
     </Units>
-    <JumpHistory Count="24" HistoryIndex="23">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
-        <Filename Value="..\..\KM_Network.pas"/>
-        <Caret Line="27" Column="61" TopLine="15"/>
+        <Filename Value="NetTest.pas"/>
+        <Caret Line="17" Column="47" TopLine="1"/>
       </Position1>
       <Position2>
-        <Filename Value="..\..\KM_Network.pas"/>
-        <Caret Line="28" Column="42" TopLine="7"/>
+        <Filename Value="NetTest.pas"/>
+        <Caret Line="44" Column="24" TopLine="23"/>
       </Position2>
       <Position3>
-        <Filename Value="..\..\KM_Network.pas"/>
-        <Caret Line="60" Column="38" TopLine="45"/>
+        <Filename Value="NetTest.pas"/>
+        <Caret Line="25" Column="49" TopLine="11"/>
       </Position3>
       <Position4>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="17" Column="47" TopLine="1"/>
+        <Caret Line="25" Column="34" TopLine="5"/>
       </Position4>
       <Position5>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="44" Column="24" TopLine="23"/>
+        <Caret Line="54" Column="33" TopLine="38"/>
       </Position5>
       <Position6>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="25" Column="49" TopLine="11"/>
+        <Caret Line="25" Column="22" TopLine="17"/>
       </Position6>
       <Position7>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="25" Column="34" TopLine="5"/>
+        <Caret Line="44" Column="42" TopLine="29"/>
       </Position7>
       <Position8>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="54" Column="33" TopLine="38"/>
+        <Caret Line="45" Column="45" TopLine="29"/>
       </Position8>
       <Position9>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="25" Column="22" TopLine="17"/>
+        <Caret Line="30" Column="47" TopLine="10"/>
       </Position9>
       <Position10>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="44" Column="42" TopLine="29"/>
+        <Caret Line="44" Column="44" TopLine="17"/>
       </Position10>
       <Position11>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="45" Column="45" TopLine="29"/>
+        <Caret Line="29" Column="46" TopLine="14"/>
       </Position11>
       <Position12>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="30" Column="47" TopLine="10"/>
+        <Caret Line="44" Column="42" TopLine="29"/>
       </Position12>
       <Position13>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="44" Column="44" TopLine="17"/>
+        <Caret Line="30" Column="23" TopLine="14"/>
       </Position13>
       <Position14>
-        <Filename Value="..\..\KM_Network.pas"/>
-        <Caret Line="22" Column="38" TopLine="15"/>
+        <Filename Value="NetTest.pas"/>
+        <Caret Line="44" Column="27" TopLine="23"/>
       </Position14>
       <Position15>
-        <Filename Value="..\..\KM_Network.pas"/>
-        <Caret Line="135" Column="32" TopLine="116"/>
+        <Filename Value="NetTest.pas"/>
+        <Caret Line="44" Column="31" TopLine="29"/>
       </Position15>
       <Position16>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="29" Column="46" TopLine="14"/>
+        <Caret Line="33" Column="38" TopLine="29"/>
       </Position16>
       <Position17>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="44" Column="42" TopLine="29"/>
+        <Caret Line="35" Column="16" TopLine="1"/>
       </Position17>
       <Position18>
         <Filename Value="NetTest.pas"/>
-        <Caret Line="30" Column="23" TopLine="14"/>
+        <Caret Line="44" Column="42" TopLine="29"/>
       </Position18>
       <Position19>
-        <Filename Value="NetTest.pas"/>
-        <Caret Line="44" Column="27" TopLine="23"/>
+        <Filename Value="..\..\KM_Network.pas"/>
+        <Caret Line="29" Column="64" TopLine="1"/>
       </Position19>
       <Position20>
         <Filename Value="..\..\KM_Network.pas"/>
-        <Caret Line="31" Column="24" TopLine="18"/>
+        <Caret Line="9" Column="63" TopLine="1"/>
       </Position20>
       <Position21>
-        <Filename Value="NetTest.pas"/>
-        <Caret Line="44" Column="31" TopLine="29"/>
+        <Filename Value="..\..\KM_Network.pas"/>
+        <Caret Line="24" Column="32" TopLine="1"/>
       </Position21>
       <Position22>
-        <Filename Value="NetTest.pas"/>
-        <Caret Line="33" Column="38" TopLine="29"/>
+        <Filename Value="..\..\KM_Network.pas"/>
+        <Caret Line="9" Column="63" TopLine="1"/>
       </Position22>
       <Position23>
-        <Filename Value="NetTest.pas"/>
-        <Caret Line="35" Column="16" TopLine="1"/>
+        <Filename Value="KaMNetworkTest.lpr"/>
+        <Caret Line="7" Column="39" TopLine="1"/>
       </Position23>
       <Position24>
-        <Filename Value="NetTest.pas"/>
-        <Caret Line="44" Column="42" TopLine="29"/>
+        <Filename Value="KaMNetworkTest.lpr"/>
+        <Caret Line="2" Column="2" TopLine="1"/>
       </Position24>
+      <Position25>
+        <Filename Value="KaMNetworkTest.lpr"/>
+        <Caret Line="16" Column="36" TopLine="1"/>
+      </Position25>
+      <Position26>
+        <Filename Value="NetTest.pas"/>
+        <Caret Line="44" Column="25" TopLine="22"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\..\KM_Network.pas"/>
+        <Caret Line="33" Column="38" TopLine="16"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\..\KM_Network.pas"/>
+        <Caret Line="22" Column="3" TopLine="1"/>
+      </Position28>
+      <Position29>
+        <Filename Value="..\..\KM_Network.pas"/>
+        <Caret Line="60" Column="37" TopLine="1"/>
+      </Position29>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="8"/>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir)\;..\..\"/>
-      <OtherUnitFiles Value="..\..\"/>
-      <SrcPath Value="..\..\"/>
+      <IncludeFiles Value="..\..;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\Common\Overbyte ICS"/>
     </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+        <UseAnsiStrings Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
     <Linking>
       <Options>
         <Win32>
@@ -241,6 +284,9 @@
       </Options>
     </Linking>
     <Other>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
       <CompilerPath Value="$(CompPath)"/>
     </Other>
   </CompilerOptions>

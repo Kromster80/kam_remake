@@ -3,9 +3,9 @@ unit NetTest;
 interface
 
 uses
-  SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, KM_Network, StdCtrls
-  {$IFDEF FPC} , LResources {$ENDIF};
+  {$IFDEF FPC} LResources, {$ENDIF}
+  Classes, Controls, Forms, StdCtrls,
+  KM_Network;
 
 const
   MULTIPLE_COPIES: boolean = true; //Are we running mutliple copies on the one PC to test?
@@ -30,34 +30,41 @@ type
     procedure GetData(const aData: string);
   end;
 
+
 var
   frmNetTest: TfrmNetTest;
+
 
 implementation
 {$IFDEF WDC}
   {$R *.dfm}
 {$ENDIF}
 
+
 procedure TfrmNetTest.FormCreate(Sender: TObject);
 begin
   fKMNetwork := TKMNetwork.Create(MULTIPLE_COPIES);
-  fKMNetwork.OnRecieveKMPacket := {$IFDEF FPC}@{$ENDIF}GetData;
+  fKMNetwork.OnRecieveKMPacket := GetData;
 end;
+
 
 procedure TfrmNetTest.FormDestroy(Sender: TObject);
 begin
   fKMNetwork.Free;
 end;
 
+
 procedure TfrmNetTest.GetData(const aData: String);
 begin
   lblLastPacket.Caption := aData;
 end;
 
+
 procedure TfrmNetTest.Button1Click(Sender: TObject);
 begin
   fKMNetwork.SendTo(edtServer.Text,edtSend.Text);
 end;
+
 
 {$IFDEF FPC}
 initialization
