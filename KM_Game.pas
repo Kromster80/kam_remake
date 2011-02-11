@@ -125,6 +125,7 @@ begin
   fResource       := TResource.Create(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
   fChat           := TKMChat.Create; //Used in Gameplay and Lobby
+  fNetwork        := TKMNetwork.Create(MULTIPLE_COPIES);
   fCampaignSettings := TCampaignSettings.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
@@ -140,6 +141,7 @@ begin
 
   FreeThenNil(fCampaignSettings);
   FreeThenNil(fChat);
+  FreeThenNil(fNetwork);
   FreeThenNil(fGlobalSettings);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
@@ -380,7 +382,7 @@ end;
 
 
 procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
-var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
+//var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
 begin
   GameInit;
 
@@ -397,8 +399,6 @@ begin
   fLog.AppendLog('Gameplay initialized',true);
 
   fGameState := gsRunning;
-
-  fNetwork := TKMNetwork.Create(MULTIPLE_COPIES);
 
   fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetwork);
   Save(99); //Thats our base for a game record
@@ -473,7 +473,6 @@ begin
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl'));
 
-    FreeThenNil(fNetwork);
     FreeThenNil(fGameInputProcess);
     FreeThenNil(fPlayers);
     FreeThenNil(fProjectiles);
@@ -851,6 +850,7 @@ begin
     gsPaused:   exit;
     gsOnHold:   exit;
     gsNoGame:   begin
+                  fNetwork.UpdateState;
                   fMainMenuInterface.UpdateState;
                   if fGlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
@@ -882,6 +882,7 @@ begin
                     if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands
                   end;
 
+                  fNetwork.UpdateState;
                   fGamePlayInterface.UpdateState;
 
                   if fGlobalTickCount mod 10 = 0 then //Every 1000ms
