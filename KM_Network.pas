@@ -45,13 +45,14 @@ type
       fSocketRecieve: TWSocket;
       fSocketSend: TWSocket;
       fWatchlist:TKMWatchlist;
+      fOnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
       procedure DataAvailable(Sender: TObject; Error: Word);
       procedure DataSent(Sender: TObject; Error: Word);
     public
-      OnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
       constructor Create(MultipleCopies:boolean=false);
       destructor Destroy; override;
       function MyIPString:string;
+      property OnRecieveKMPacket:TRecieveKMPacketEvent write fOnRecieveKMPacket;
       procedure SendTo(Addr:string; aData:string; aCode:TMessageCode=mcNone; aTimeOut:cardinal=0);
       procedure UpdateState;
   end;
@@ -169,6 +170,9 @@ end;
 procedure TKMNetwork.SendTo(Addr:string; aData:string; aCode:TMessageCode=mcNone; aTimeOut:cardinal=0);
 begin
   Assert(fSocketSend.AllSent);
+
+  //Handle the case when DataSent not yet occured
+
   fSocketSend.Proto := 'udp';
   fSocketSend.Port := fSendPort;
   fSocketSend.Addr := Addr;
@@ -201,8 +205,8 @@ begin
 
   //pass message to GIP_Multi (it will be handling the higher level errors)
   MyString := copy(Buffer,0,Len);
-  if Assigned(OnRecieveKMPacket) then
-    OnRecieveKMPacket(MyString);
+  if Assigned(fOnRecieveKMPacket) then
+    fOnRecieveKMPacket(MyString);
 end;
 
 
@@ -218,8 +222,8 @@ begin
   M := fWatchlist.Check(GetTickCount);
   if M <> mcNone then
   begin
-    if Assigned(OnRecieveKMPacket) then
-      OnRecieveKMPacket('error');
+    if Assigned(fOnRecieveKMPacket) then
+      fOnRecieveKMPacket('error');
   end;
 end;
 

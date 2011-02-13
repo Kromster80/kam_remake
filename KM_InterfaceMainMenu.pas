@@ -169,15 +169,17 @@ type TKMMainMenuInterface = class
     procedure SingleMap_Start(Sender: TObject);
     procedure MultiPlayer_LANHost(Sender: TObject);
     procedure MultiPlayer_LANJoin(Sender: TObject);
-    procedure MultiPlayer_LANJoinResult(const aData: string);
-    procedure MultiPlayer_LANRecieve(const aData: string);
+    procedure MultiPlayer_LANJoinSucc(Sender: TObject);
+    procedure MultiPlayer_LANJoinFail(Sender: TObject);
+
     procedure MultiPlayer_LANShowLogin;
     procedure MultiPlayer_WWWShowLogin();
     procedure MultiPlayer_WWWShowLoginResult(Sender: TObject);
     procedure MultiPlayer_WWWLoginQuery(Sender: TObject);
     procedure MultiPlayer_WWWLoginResult(Sender: TObject);
     procedure MultiPlayer_LobbyPost(Sender: TObject);
-    procedure MultiPlayer_RefreshLobby();
+    procedure MultiPlayer_LobbyReset;
+    procedure MultiPlayer_LobbyMessage(const aData:string);
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
@@ -269,7 +271,7 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
-  {$IFDEF WDC}if fLobby<>nil then FreeAndNil(fLobby);{$ENDIF} //If user never went to MP area it will be NIL
+  if fLobby<>nil then FreeAndNil(fLobby); //If user never went to MP area it will be NIL
   FreeAndNil(SingleMapsInfo);
   FreeAndNil(MyControls);
   Inherited;
@@ -881,7 +883,7 @@ begin
 
   { Lobby }
   if (Sender=Button_WWW_Login) or (Sender=Button_LAN_Host) or (Sender=Button_LAN_Join) then begin
-    MultiPlayer_RefreshLobby();
+    MultiPlayer_LobbyReset;
     Panel_Lobby.Show;
   end;
 
@@ -1123,79 +1125,64 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LANHost(Sender: TObject);
 begin
-  //fLobby := TKMLobby.Create; //Init lobby
-
-  //Start listening
-  fGame.fNetwork.OnRecieveKMPacket := MultiPlayer_LANRecieve;
+  fLobby := TKMLobby.Create(fGame.fNetwork, '', 'Host'); //Init lobby
+  fLobby.OnMessage := MultiPlayer_LobbyMessage;
   SwitchMenuPage(Sender); //Open lobby page
+  fLobby.PostMessage('Host created');
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_LANJoin(Sender: TObject);
 begin
-  //Validate opponents IP
-  if false then exit;
-
   //Disable buttons to prevent multiple clicks while connection process is in progress
   Button_LAN_Host.Disable;
   Button_LAN_Join.Disable;
-
   Label_LAN_Status.Caption := 'Connecting, please wait';
 
   //Send request to join
-  fGame.fNetwork.SendTo(Edit_LAN_IP.Text, 'I wanna join', mcJoin, 3000);
-  fGame.fNetwork.OnRecieveKMPacket := MultiPlayer_LANJoinResult;
+  fLobby := TKMLobby.Create(fGame.fNetwork, Edit_LAN_IP.Text, 'Joiner'); //Init lobby
+  if fLobby <> nil then begin
+    fLobby.OnSucc := MultiPlayer_LANJoinSucc;
+    fLobby.OnFail := MultiPlayer_LANJoinFail;
+  end else
+    MultiPlayer_LANJoinFail(nil);
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayer_LANJoinResult(const aData: string);
+//We had recieved permission to join
+procedure TKMMainMenuInterface.MultiPlayer_LANJoinSucc(Sender: TObject);
 begin
+  fLobby.OnMessage := MultiPlayer_LobbyMessage;
+  SwitchMenuPage(Button_LAN_Join); //Open lobby page
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_LANJoinFail(Sender: TObject);
+begin
+  if fLobby <> nil then fLobby.Free;
+  
   //Enable buttons anyway
   Button_LAN_Host.Enable;
   Button_LAN_Join.Enable;
-
-  if aData <> 'jump in' then
-  begin
-    Label_LAN_Status.Caption := 'Connection failed: ' + aData;
-    fGame.fNetwork.OnRecieveKMPacket := nil;
-    exit; //Now player can retry
-  end;
-
-  //Otherwise we had recieve permission to join
-  //fLobby := TKMLobby.Create;
-  fGame.fNetwork.OnRecieveKMPacket := MultiPlayer_LANRecieve;
-  SwitchMenuPage(Button_LAN_Join); //Open lobby
-  fGame.fNetwork.SendTo('127.0.0.1', 'Player has joined');
-end;
-
-
-procedure TKMMainMenuInterface.MultiPlayer_LANRecieve(const aData: string);
-begin
-  if aData = 'I wanna join' then
-  begin
-    fGame.fNetwork.SendTo('127.0.0.1', 'jump in');
-    exit;
-  end;
-  
-  ListBox_LobbyPosts.Items.Add(aData);
+  Label_LAN_Status.Caption := 'Connection failed';
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_WWWShowLogin();
-begin
+begin(*
   {$IFDEF WDC}with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do begin
     FreeOnTerminate := true;
     OnTerminate := MultiPlayer_WWWShowLoginResult; //Will get our IP address asynchronously
-  end;{$ENDIF}
+  end;{$ENDIF}*)
 
   Button_WWW_Login.Disable; //Until after we resolve our IP
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_WWWShowLoginResult(Sender: TObject);
-begin
+begin(*
   {$IFDEF WDC}Label_WWW_IP.Caption := THTTPPostThread(Sender).ResultMsg;
-  THTTPPostThread(Sender).Terminate;{$ENDIF}
+  THTTPPostThread(Sender).Terminate;{$ENDIF}*)
 
   Edit_WWW_Login.Text := 'Player';
   Button_WWW_Login.Enable;
@@ -1204,12 +1191,12 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_WWWLoginQuery(Sender: TObject);
 begin
-  {$IFDEF WDC}fLobby := TKMLobby.Create('http://www.assoft.ru/chat/',
+(*  {$IFDEF WDC}fLobby := TKMLobby.Create('http://www.assoft.ru/chat/',
                             Edit_WWW_Login.Text, //Username
                             Edit_WWW_Pass.Text, //Password, ignored
                             '', //was IP address, now ignored by PHP
                             MultiPlayer_WWWLoginResult);{$ENDIF}
-
+  *)
   Button_WWW_Login.Disable; //Block duplicate clicks
 end;
 
@@ -1221,19 +1208,24 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayer_LobbyPost(Sender: TObject);
+procedure TKMMainMenuInterface.MultiPlayer_LobbyReset;
 begin
-  if fLobby <> nil then fLobby.PostMessage(Edit_LobbyPost.Text);
-  ListBox_LobbyPosts.Items.Add(Edit_LobbyPost.Text);
+  ListBox_LobbyPlayers.Items.Clear;
+  ListBox_LobbyPosts.Items.Clear;
+  Edit_LobbyPost.Text := '';
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayer_RefreshLobby();
+procedure TKMMainMenuInterface.MultiPlayer_LobbyPost(Sender: TObject);
 begin
-  if fLobby<> nil then begin
-    ListBox_LobbyPlayers.Items.Text := fLobby.PlayersList;
-    ListBox_LobbyPosts.Items.Text := fLobby.PostsList;
-  end;
+  if fLobby <> nil then fLobby.PostMessage(Edit_LobbyPost.Text);
+  Edit_LobbyPost.Text := '';
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_LobbyMessage(const aData:string);
+begin
+  ListBox_LobbyPosts.Items.Add(aData);
 end;
 
 
@@ -1390,12 +1382,7 @@ end;
 {Should update anything we want to be updated, obviously}
 procedure TKMMainMenuInterface.UpdateState;
 begin
-  {$IFDEF WDC}
-  if fLobby<>nil then begin
-    fLobby.UpdateState;
-    MultiPlayer_RefreshLobby;
-  end;
-  {$ENDIF}
+  //
 end;
 
 
