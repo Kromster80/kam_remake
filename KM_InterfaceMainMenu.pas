@@ -1159,7 +1159,7 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LANJoinFail(Sender: TObject);
 begin
-  if fLobby <> nil then fLobby.Free;
+  if fLobby <> nil then FreeAndNil(fLobby);
   
   //Enable buttons anyway
   Button_LAN_Host.Enable;
@@ -1382,7 +1382,7 @@ end;
 {Should update anything we want to be updated, obviously}
 procedure TKMMainMenuInterface.UpdateState;
 begin
-  //
+  if fLobby <> nil then fLobby.UpdateState;
 end;
 
 

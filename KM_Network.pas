@@ -20,31 +20,12 @@ const KAM_PORT2 = '56790'; //Used for running mutliple copies on one computer (s
 
 type TRecieveKMPacketEvent = procedure (const aData: string) of object;
 
-//Types of messages that can return errors
-type TMessageCode = (mcNone, mcJoin {Ask host if we can join});
-
-//Watchlist for timeout things
-type
-  TKMWatchlist = class
-    private
-      fCount:integer;
-      fItems:array of record //0..n-1
-        Code:TMessageCode;
-        Tick:cardinal;
-      end;
-    public
-      function Add(aCode:TMessageCode; aTick:cardinal):cardinal; //Add new item to watchlist
-      procedure Mute(aItem:cardinal); //Mute the item
-      function Check(aTick:cardinal):TMessageCode; //
-  end;
-
 type
   TKMNetwork = class
     private
       fSendPort, fRecievePort:string;
       fSocketRecieve: TWSocket;
       fSocketSend: TWSocket;
-      fWatchlist:TKMWatchlist;
       fOnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
       procedure DataAvailable(Sender: TObject; Error: Word);
       procedure DataSent(Sender: TObject; Error: Word);
@@ -53,43 +34,12 @@ type
       destructor Destroy; override;
       function MyIPString:string;
       property OnRecieveKMPacket:TRecieveKMPacketEvent write fOnRecieveKMPacket;
-      procedure SendTo(Addr:string; aData:string; aCode:TMessageCode=mcNone; aTimeOut:cardinal=0);
+      procedure SendTo(Addr:string; aData:string);
       procedure UpdateState;
   end;
 
 
 implementation
-
-
-function TKMWatchlist.Add(aCode:TMessageCode; aTick:cardinal):cardinal;
-begin
-  if fCount >= Length(fItems) then SetLength(fItems, fCount + 16);
-  fItems[fCount].Code := aCode;
-  fItems[fCount].Tick := aTick;
-  Result := fCount;
-  inc(fCount);
-end;
-
-
-procedure TKMWatchlist.Mute(aItem:cardinal); //Mute the item
-begin
-  fItems[aItem].Code := mcNone;
-  fItems[aItem].Tick := 0;
-end;
-
-
-function TKMWatchlist.Check(aTick:cardinal):TMessageCode;
-var i:integer;
-begin
-  for i:=0 to fCount-1 do
-    if (fItems[i].Tick <> 0) and (aTick >= fItems[i].Tick) then
-    begin
-      Result := fItems[i].Code;
-      Mute(i);
-      exit;
-    end;
-  Result := mcNone;
-end;
 
 
 constructor TKMNetwork.Create(MultipleCopies:boolean=false);
@@ -143,14 +93,11 @@ begin
   fSocketSend.Port  := fSendPort;
   fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
   fSocketSend.OnDataSent := DataSent;
-
-  fWatchlist := TKMWatchlist.Create;
 end;
 
 
 destructor TKMNetwork.Destroy;
 begin
-  fWatchlist.Free;
   fSocketRecieve.Free;
   fSocketSend.Free;
 end;
@@ -167,7 +114,7 @@ end;
 
 //Send to specified players (where would we store IPs and Player-IP bindings?)
 //when trying to recover undelivered packets?
-procedure TKMNetwork.SendTo(Addr:string; aData:string; aCode:TMessageCode=mcNone; aTimeOut:cardinal=0);
+procedure TKMNetwork.SendTo(Addr:string; aData:string);
 begin
   Assert(fSocketSend.AllSent);
 
@@ -179,9 +126,6 @@ begin
   fSocketSend.Connect; //UDP is connectionless. Connect will just open the socket
   fSocketSend.SendStr(aData);
   //fSocketSend.Send(@aData, length(aData));
-
-  if aTimeOut <> 0 then
-    fWatchlist.Add(aCode, GetTickCount + aTimeOut); //Add command to watchlist
 end;
 
 
@@ -217,14 +161,8 @@ end;
 
 
 procedure TKMNetwork.UpdateState;
-var M:TMessageCode;
 begin
-  M := fWatchlist.Check(GetTickCount);
-  if M <> mcNone then
-  begin
-    if Assigned(fOnRecieveKMPacket) then
-      fOnRecieveKMPacket('error');
-  end;
+  //
 end;
 
 
