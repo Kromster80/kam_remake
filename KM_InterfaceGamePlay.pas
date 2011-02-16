@@ -251,7 +251,7 @@ type TKMGamePlayInterface = class
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, Forms;
+KM_Sound, KM_InterfaceMainMenu, Forms;
 
 
 {Switch between pages}
@@ -322,7 +322,7 @@ procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 var LoadError:string;
 begin
   LoadError := fGame.Load(TKMControl(Sender).Tag);
-  if LoadError <> '' then fGame.fMainMenuInterface.ShowScreen_Error(LoadError); //This will show an option to return back to menu
+  if LoadError <> '' then fGame.fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu
 end;
 
 

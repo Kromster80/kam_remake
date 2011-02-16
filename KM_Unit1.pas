@@ -120,7 +120,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes, KM_GameInputProcess;
+uses KM_Settings, KM_CommonTypes, KM_GameInputProcess, KM_InterfaceMainMenu;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
@@ -473,7 +473,7 @@ begin
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
-  if aReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
+  if aReturnToOptions then fGame.fMainMenuInterface.ShowScreen(msOptions); //Return to the options screen
   ApplyCursorRestriction;
 end;
 

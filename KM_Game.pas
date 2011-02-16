@@ -161,7 +161,7 @@ begin
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fResource.LoadFonts(false, fGlobalSettings.Locale);
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings);
-  fMainMenuInterface.ShowScreen_Options;
+  fMainMenuInterface.ShowScreen(msOptions);
 end;
 
 
@@ -292,15 +292,15 @@ begin
   PlayOnState := gr_Cancel;
 
   if fResource.GetDataState<>dls_All then begin
-    fMainMenuInterface.ShowScreen_Loading('trees, houses and units');
+    fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
     fRender.Render;
     fResource.LoadGameResources();
-    fMainMenuInterface.ShowScreen_Loading('tileset');
+    fMainMenuInterface.ShowScreen(msLoading, 'tileset');
     fRender.Render;
     fRender.LoadTileSet();
   end;
 
-  fMainMenuInterface.ShowScreen_Loading('initializing');
+  fMainMenuInterface.ShowScreen(msLoading, 'initializing');
   fRender.Render;
 
   fViewport := TViewport.Create;
@@ -333,7 +333,7 @@ begin
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(fMissionFile,true) then
   begin
-    fMainMenuInterface.ShowScreen_Loading('script');
+    fMainMenuInterface.ShowScreen(msLoading, 'script');
     fRender.Render;
 
     try //Catch exceptions
@@ -349,7 +349,7 @@ begin
         LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+
                       E.ClassName+': '+E.Message;
         if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
-        fMainMenuInterface.ShowScreen_Error(LoadError);
+        fMainMenuInterface.ShowScreen(msError, LoadError);
         fLog.AppendLog('DAT Load Exception: '+LoadError);
         exit;
       end;
@@ -486,29 +486,29 @@ begin
     case Msg of
       gr_Win    :  begin
                      fLog.AppendLog('Gameplay ended - Win',true);
-                     fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //Mission results screen
                      fCampaignSettings.RevealMap(fActiveCampaign, fActiveCampaignMap+1);
                    end;
       gr_Defeat:   begin
                      fLog.AppendLog('Gameplay ended - Defeat',true);
-                     fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //Mission results screen
                    end;
       gr_Cancel:   begin
                      fLog.AppendLog('Gameplay canceled',true);
-                     fMainMenuInterface.ShowScreen_Results(Msg); //show the results so the user can see how they are going so far
+                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
                    end;
       gr_Error:    begin
                      fLog.AppendLog('Gameplay error',true);
-                     fMainMenuInterface.ShowScreen_Error(TextMsg);
+                     fMainMenuInterface.ShowScreen(msError, TextMsg);
                    end;
       gr_Silent:   fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
       gr_ReplayEnd:begin
                      fLog.AppendLog('Replay canceled',true);
-                     fMainMenuInterface.ShowScreen_Main;
+                     fMainMenuInterface.ShowScreen(msMain);
                    end;
       gr_MapEdEnd: begin
                      fLog.AppendLog('MapEditor closed',true);
-                     fMainMenuInterface.ShowScreen_Main;
+                     fMainMenuInterface.ShowScreen(msMain);
                    end;
     end;
   finally
@@ -531,15 +531,15 @@ begin
   fGameSpeed := 1; //In case it was set in last run mission
 
   if fResource.GetDataState<>dls_All then begin
-    fMainMenuInterface.ShowScreen_Loading('units and houses');
+    fMainMenuInterface.ShowScreen(msLoading, 'units and houses');
     fRender.Render;
     fResource.LoadGameResources();
-    fMainMenuInterface.ShowScreen_Loading('tileset');
+    fMainMenuInterface.ShowScreen(msLoading, 'tileset');
     fRender.Render;
     fRender.LoadTileSet();
   end;
 
-  fMainMenuInterface.ShowScreen_Loading('initializing');
+  fMainMenuInterface.ShowScreen(msLoading, 'initializing');
   fRender.Render;
 
   fViewport := TViewport.Create;

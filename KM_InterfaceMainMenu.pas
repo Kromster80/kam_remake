@@ -7,6 +7,9 @@ uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_CommonTypes, KM_Network, Windows, KM_Settings, KM_MapInfo {$IFDEF WDC}, KM_Lobby{$ENDIF};
 
 
+type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
+
+
 type TKMMainMenuInterface = class
   private
     MyControls: TKMControlsCollection;
@@ -189,11 +192,7 @@ type TKMMainMenuInterface = class
     constructor Create(X,Y:word; aGameSettings:TGlobalSettings);
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:word);
-    procedure ShowScreen_Loading(Text:string);
-    procedure ShowScreen_Error(Text:string);
-    procedure ShowScreen_Main();
-    procedure ShowScreen_Options();
-    procedure ShowScreen_Results(Msg:TGameResultMsg);
+    procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
     procedure Fill_Results();
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
@@ -287,48 +286,36 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ShowScreen_Loading(Text:string);
+procedure TKMMainMenuInterface.ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
 begin
-  Label_Loading.Caption := Text;
-  SwitchMenuPage(Panel_Loading);
-end;
+  case aScreen of
+    msError:    begin
+                  Label_Error.Caption := aText;
+                  SwitchMenuPage(Panel_Error);
+                end;
+    msLoading:  begin
+                  Label_Loading.Caption := aText;
+                  SwitchMenuPage(Panel_Loading);
+                end;
+    msMain:     SwitchMenuPage(nil);
+    msOptions:  SwitchMenuPage(Button_MM_Options);
+    msResults:  begin
+                  case aMsg of
+                    gr_Win:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
+                    gr_Defeat: Label_Results_Result.Caption := fTextLibrary.GetSetupString(112);
+                    gr_Cancel: Label_Results_Result.Caption := fTextLibrary.GetRemakeString(1);
+                    else       Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+                  end;
 
+                  Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
 
-procedure TKMMainMenuInterface.ShowScreen_Error(Text:string);
-begin
-  Label_Error.Caption := Text;
-  SwitchMenuPage(Panel_Error);
-end;
+                  //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
+                  Button_ResultsContinue.Visible := fGame.GetCampaign in [cmp_TSK, cmp_TPR];
+                  Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
-
-procedure TKMMainMenuInterface.ShowScreen_Main();
-begin
-  SwitchMenuPage(nil);
-end;
-
-
-procedure TKMMainMenuInterface.ShowScreen_Options();
-begin
-  SwitchMenuPage(Button_MM_Options);
-end;
-
-
-procedure TKMMainMenuInterface.ShowScreen_Results(Msg:TGameResultMsg);
-begin
-  case Msg of
-    gr_Win:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
-    gr_Defeat: Label_Results_Result.Caption := fTextLibrary.GetSetupString(112);
-    gr_Cancel: Label_Results_Result.Caption := fTextLibrary.GetRemakeString(1);
-    else       Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+                  SwitchMenuPage(Panel_Results);
+                end;
   end;
-
-  Button_ResultsRepeat.Enabled := Msg in [gr_Defeat, gr_Cancel];
-
-  //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-  Button_ResultsContinue.Visible := fGame.GetCampaign in [cmp_TSK, cmp_TPR];
-  Button_ResultsContinue.Enabled := Msg = gr_Win;
-
-  SwitchMenuPage(Panel_Results);
 end;
 
 
@@ -1233,7 +1220,7 @@ procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 var LoadError: string;
 begin
   LoadError := fGame.Load(TKMControl(Sender).Tag);
-  if LoadError <> '' then ShowScreen_Error(LoadError); //This will show an option to return back to menu
+  if LoadError <> '' then ShowScreen(msError, LoadError); //This will show an option to return back to menu
 end;
 
 
@@ -1295,7 +1282,7 @@ begin
 
   for i:=1 to LOCALES_COUNT do
     if Sender = CheckBox_Options_Lang[i] then begin
-      ShowScreen_Loading('Loading new locale');
+      ShowScreen(msLoading, 'Loading new locale');
       fRender.Render; //Force to repaint loading screen
       fGame.ToggleLocale(Locales[i,1]);
       exit; //Whole interface will be recreated
