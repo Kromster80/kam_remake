@@ -4,7 +4,7 @@ interface
 uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  KM_Controls, KM_Defaults, KM_CommonTypes, KM_Network, Windows, KM_Settings, KM_MapInfo {$IFDEF WDC}, KM_Lobby{$ENDIF};
+  KM_Controls, KM_Defaults, KM_CommonTypes, Windows, KM_Settings, KM_MapInfo, KM_Networking;
 
 
 type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
@@ -13,7 +13,6 @@ type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
 type TKMMainMenuInterface = class
   private
     MyControls: TKMControlsCollection;
-    {$IFDEF WDC} fLobby:TKMLobby; {$ENDIF}
     ScreenX,ScreenY:word;
 
     Campaign_Selected:TCampaign;
@@ -270,7 +269,6 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
-  if fLobby<>nil then FreeAndNil(fLobby); //If user never went to MP area it will be NIL
   FreeAndNil(SingleMapsInfo);
   FreeAndNil(MyControls);
   Inherited;
@@ -1099,7 +1097,7 @@ end;
 procedure TKMMainMenuInterface.MultiPlayer_LANShowLogin;
 var s:string;
 begin
-  s := fGame.fNetwork.MyIPString;
+  s := fGame.fNetworking.MyIPString;
   Button_LAN_Host.Enabled := s<>'';
   if s <> '' then
     Label_LAN_IP.Caption := s
@@ -1112,10 +1110,10 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LANHost(Sender: TObject);
 begin
-  fLobby := TKMLobby.Create(fGame.fNetwork, '', 'Host'); //Init lobby
-  fLobby.OnMessage := MultiPlayer_LobbyMessage;
+  fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
+  fGame.fNetworking.Host('Player123');
   SwitchMenuPage(Sender); //Open lobby page
-  fLobby.PostMessage('Host created');
+  fGame.fNetworking.PostMessage('Host created at ' + fGame.fNetworking.MyIPString);
 end;
 
 
@@ -1127,27 +1125,22 @@ begin
   Label_LAN_Status.Caption := 'Connecting, please wait';
 
   //Send request to join
-  fLobby := TKMLobby.Create(fGame.fNetwork, Edit_LAN_IP.Text, 'Joiner'); //Init lobby
-  if fLobby <> nil then begin
-    fLobby.OnSucc := MultiPlayer_LANJoinSucc;
-    fLobby.OnFail := MultiPlayer_LANJoinFail;
-  end else
-    MultiPlayer_LANJoinFail(nil);
+  fGame.fNetworking.Connect(Edit_LAN_IP.Text, 'Joiner'); //Init lobby
+  fGame.fNetworking.OnJoinSucc := MultiPlayer_LANJoinSucc;
+  fGame.fNetworking.OnJoinFail := MultiPlayer_LANJoinFail;
 end;
 
 
 //We had recieved permission to join
 procedure TKMMainMenuInterface.MultiPlayer_LANJoinSucc(Sender: TObject);
 begin
-  fLobby.OnMessage := MultiPlayer_LobbyMessage;
+  fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
   SwitchMenuPage(Button_LAN_Join); //Open lobby page
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_LANJoinFail(Sender: TObject);
 begin
-  if fLobby <> nil then FreeAndNil(fLobby);
-  
   //Enable buttons anyway
   Button_LAN_Host.Enable;
   Button_LAN_Join.Enable;
@@ -1205,7 +1198,7 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LobbyPost(Sender: TObject);
 begin
-  if fLobby <> nil then fLobby.PostMessage(Edit_LobbyPost.Text);
+  fGame.fNetworking.PostMessage(Edit_LobbyPost.Text);
   Edit_LobbyPost.Text := '';
 end;
 
@@ -1369,7 +1362,7 @@ end;
 {Should update anything we want to be updated, obviously}
 procedure TKMMainMenuInterface.UpdateState;
 begin
-  if fLobby <> nil then fLobby.UpdateState;
+  //
 end;
 
 

@@ -5,7 +5,7 @@ uses Windows,
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils,
-  KM_Network,
+  KM_Networking,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Chat;
 
@@ -38,12 +38,12 @@ type
   public
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
-    fNetwork:TKMNetwork; //Used by lobby and multiplayer
     fGameInputProcess:TGameInputProcess;
     fProjectiles:TKMProjectiles;
     fMusicLib: TMusicLib;
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
+    fNetworking:TKMNetworking;
     fChat:TKMChat;
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
@@ -124,8 +124,8 @@ begin
   fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource       := TResource.Create(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
+  fNetworking     := TKMNetworking.Create;
   fChat           := TKMChat.Create; //Used in Gameplay and Lobby
-  fNetwork        := TKMNetwork.Create(MULTIPLE_COPIES);
   fCampaignSettings := TCampaignSettings.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
@@ -141,7 +141,6 @@ begin
 
   FreeThenNil(fCampaignSettings);
   FreeThenNil(fChat);
-  FreeThenNil(fNetwork);
   FreeThenNil(fGlobalSettings);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
@@ -400,7 +399,7 @@ begin
 
   fGameState := gsRunning;
 
-  fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetwork);
+  //fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetwork);
   Save(99); //Thats our base for a game record
   CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
 
@@ -850,7 +849,7 @@ begin
     gsPaused:   exit;
     gsOnHold:   exit;
     gsNoGame:   begin
-                  fNetwork.UpdateState;
+                  fNetworking.UpdateState;
                   fMainMenuInterface.UpdateState;
                   if fGlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
@@ -882,7 +881,7 @@ begin
                     if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands
                   end;
 
-                  fNetwork.UpdateState;
+                  fNetworking.UpdateState;
                   fGamePlayInterface.UpdateState;
 
                   if fGlobalTickCount mod 10 = 0 then //Every 1000ms

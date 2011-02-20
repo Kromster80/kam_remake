@@ -25,9 +25,9 @@ uses
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_MapInfo in 'KM_MapInfo.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
-  {$IFDEF WDC} KM_Lobby in 'KM_Lobby.pas', {$ENDIF}
   KM_Music in 'KM_Music.pas',
   KM_Network in 'KM_Network.pas',
+  KM_Networking in 'KM_Networking.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
   KM_Player in 'KM_Player.pas',
   KM_PlayerAI in 'KM_PlayerAI.pas',

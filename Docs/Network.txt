@@ -9,3 +9,14 @@ Every now and then the computers can decide whether it needs to change. If we ha
 We do not send randoms (CRCs) in each command and leave them only in gip_CRC, which will happen every tick after previous commands are processed
 
 On moment of execution CRC refers to game state in -10 ticks after updatestate. All CRC should match with each other. Commands must be executed in the same order on every machine, player 1, then 2, then 3, etc. using the order in which each player sent them.
+
+
+
+Kinds of messages (minimal set):
+mk_Handshaking (ask to join, allow to join, forbid to join, verify join, sync time, alive, disconnect)
+mk_Text (send text)
+mk_GameInfo (mapname, map crc, player selection)
+mk_Commands (gip_Multi, verify commands)
+
+Maybe text messages will be stored separately from UI (MainMenu / Gameplay) in KM_Chat
+

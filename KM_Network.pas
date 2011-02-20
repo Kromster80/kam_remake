@@ -18,7 +18,7 @@ Features to be implemented:
 const KAM_PORT1 = '56789'; //Used for computer to computer or by FIRST copy on a single computer
 const KAM_PORT2 = '56790'; //Used for running mutliple copies on one computer (second copy)
 
-type TRecieveKMPacketEvent = procedure (const aData: string) of object;
+type TRecieveKMPacketEvent = procedure (const aData: string; aAddr:string) of object;
 
 type
   TKMNetwork = class
@@ -135,6 +135,7 @@ var MyString: string;
     Buffer : array [0..1023] of char;
     Len, SrcLen    : Integer;
     Src    : TSockAddrIn;
+    Addr:string;
 begin
   //process
   //ReceiveFrom gives us three things:
@@ -144,13 +145,19 @@ begin
   SrcLen := SizeOf(Src);
   Len := fSocketRecieve.ReceiveFrom(@Buffer, SizeOf(Buffer), Src, SrcLen);
 
+  //XXX.XXX.XXX.XXX
+  Addr := IntToStr(Ord(Src.sin_addr.S_un_b.s_b1)) +'.'+
+          IntToStr(Ord(Src.sin_addr.S_un_b.s_b2)) +'.'+
+          IntToStr(Ord(Src.sin_addr.S_un_b.s_b3)) +'.'+
+          IntToStr(Ord(Src.sin_addr.S_un_b.s_b4));
+
   //handle low level errors and convert them to higher ones if required
   //Mute corresponding fWatchlist.Item(aIndex) if required
 
   //pass message to GIP_Multi (it will be handling the higher level errors)
   MyString := copy(Buffer,0,Len);
   if Assigned(fOnRecieveKMPacket) then
-    fOnRecieveKMPacket(MyString);
+    fOnRecieveKMPacket(MyString, Addr);
 end;
 
 

@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KM_GameInputProcess, KM_Network, KM_Defaults;
+uses SysUtils, KM_GameInputProcess, KM_Networking, KM_Defaults;
 
 type TKMDataType = (kdp_Commands, kdp_ConfirmCommands);
 
@@ -30,7 +30,6 @@ type
 type
   TGameInputProcess_Multi = class(TGameInputProcess)
     private
-      fNetwork: TKMNetwork;
       fDelay:word; //How many ticks ahead the commands are scheduled
       fPlayersEnabled:array[1..MAX_PLAYERS]of boolean; //See which players confirmations do we need
       //Each player can have any number of commands scheduled for execution in one tick
@@ -41,7 +40,7 @@ type
     protected
       procedure TakeCommand(aCommand:TGameInputCommand); override;
     public
-      constructor Create(aReplayState:TGIPReplayState; aNetwork:TKMNetwork);
+      constructor Create(aReplayState:TGIPReplayState);
       destructor Destroy; override;
       procedure RecieveCommands(aData:string); //Called by TKMNetwork when it has data for us
       procedure Tick(aTick:cardinal); override;
@@ -75,12 +74,11 @@ end;
 
 
 { TGameInputProcess_Multi }
-constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState; aNetwork:TKMNetwork);
+constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState);
 var i,k:integer;
 begin
   Inherited Create(aReplayState);
   fDelay := 10;
-  fNetwork := aNetwork;
 
   //Allocate memory for all commands lists
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
