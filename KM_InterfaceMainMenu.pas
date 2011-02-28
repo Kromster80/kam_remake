@@ -182,6 +182,8 @@ type TKMMainMenuInterface = class
     procedure MultiPlayer_LobbyPost(Sender: TObject);
     procedure MultiPlayer_LobbyReset;
     procedure MultiPlayer_LobbyMessage(const aData:string);
+    procedure MultiPlayer_PlayersList(const aData:string);
+
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
@@ -803,7 +805,7 @@ begin
   {Stop the network when the player exits the lobby screen}
   if Sender=Button_LobbyBack then
   begin
-    fGame.fNetworking.StopNetwork;
+    fGame.fNetworking.Disconnect;
     MultiPlayer_LANShowLogin;
     Panel_LANLogin.Show;
   end;
@@ -1117,9 +1119,11 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LANHost(Sender: TObject);
 begin
-  fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
-  fGame.fNetworking.Host('Player123');
   SwitchMenuPage(Sender); //Open lobby page
+
+  fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
+  fGame.fNetworking.OnPlayersList := MultiPlayer_PlayersList;
+  fGame.fNetworking.Host('Player123');
   fGame.fNetworking.PostMessage('Host created at ' + fGame.fNetworking.MyIPString);
 end;
 
@@ -1141,8 +1145,10 @@ end;
 //We had recieved permission to join
 procedure TKMMainMenuInterface.MultiPlayer_LANJoinSucc(Sender: TObject);
 begin
-  fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
   SwitchMenuPage(Button_LAN_Join); //Open lobby page
+
+  fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
+  fGame.fNetworking.OnPlayersList := MultiPlayer_PlayersList;
 end;
 
 
@@ -1213,6 +1219,12 @@ end;
 procedure TKMMainMenuInterface.MultiPlayer_LobbyMessage(const aData:string);
 begin
   ListBox_LobbyPosts.Items.Add(aData);
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_PlayersList(const aData:string);
+begin
+  ListBox_LobbyPlayers.Items.Text := aData;
 end;
 
 

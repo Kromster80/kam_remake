@@ -9,16 +9,16 @@ type TStringEvent = procedure (const aData: string) of object;
 
 type TMessageKind = (
                       mkUnknown,
-                      mkHandshaking_AskToJoin,
-                      mkHandshaking_Timeout,
-                      mkHandshaking_AllowToJoin,
-                      mkHandshaking_RefuseToJoin,
-                      mkHandshaking_VerifyJoin,
-                      mkHandshaking_SendPlayersList,
+                      mk_AskToJoin,
+                      mk_Timeout,
+                      mk_AllowToJoin,
+                      //mk_RefuseToJoin, //When max players is exceeded
+                      mk_VerifyJoin,
+                      mk_PlayersList,
 
-                      mkText,
-                      mkGameSetup,
-                      mkGameplay);
+                      mk_Text,
+                      mk_GameSetup,
+                      mk_Gameplay);
 
 
 type
@@ -33,8 +33,10 @@ type
       fOnJoinSucc:TNotifyEvent;
       fOnJoinFail:TNotifyEvent;
       fOnTextMessage:TStringEvent;
+      fOnPlayersList:TStringEvent;
 
       procedure SendPlayerList;
+      procedure DecodePlayersList(aSender,aText:string);
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
@@ -45,12 +47,13 @@ type
       function MyIPString:string;
       procedure Host(aUserName:string);
       procedure Connect(aServerAddress,aUserName:string);
-      procedure StopNetwork;
+      procedure Disconnect;
       function Connected: boolean;
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;
       property OnJoinFail:TNotifyEvent write fOnJoinFail;
       property OnTextMessage:TStringEvent write fOnTextMessage;
+      property OnPlayersList:TStringEvent write fOnPlayersList;
 
       procedure PostMessage(aText:string);
       procedure UpdateState;
@@ -86,9 +89,10 @@ end;
 procedure TKMNetworking.Host(aUserName:string);
 begin
   JoinTick := 0;
-  fPlayersList.Add(fNetwork.MyIPString); //Add self
+  fPlayersList.Add('127.0.0.1'); //Add self
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
+  if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
 end;
 
 
@@ -97,12 +101,12 @@ begin
   fServerAddress := aServerAddress;
   JoinTick := GetTickCount + 3000; //3sec
   fNetwork.StartListening;
-  PacketSend(fServerAddress, mkHandshaking_AskToJoin);
+  PacketSend(fServerAddress, mk_AskToJoin);
   fNetwork.OnRecieveKMPacket := PacketRecieveJoin; //Unless we join use shortlist
 end;
 
 
-procedure TKMNetworking.StopNetwork;
+procedure TKMNetworking.Disconnect;
 begin
   fNetwork.StopListening;
   fPlayersList.Clear;
@@ -118,31 +122,59 @@ end;
 procedure TKMNetworking.SendPlayerList;
 var s:string; i:integer;
 begin
-  s := Format('%.2d',[fPlayersList.Count-1]); //Exclude self from overall count
+  s := '';//Format('%.2d',[fPlayersList.Count-1]); //Exclude self from overall count
 
   for i:=1 to fPlayersList.Count-1 do
-    s := s + fPlayersList[i] + #0; //15chars each
+    s := s + fPlayersList[i] + #0;
 
   for i:=1 to fPlayersList.Count-1 do
-    PacketSend(fPlayersList[i], mkHandshaking_SendPlayersList, s);
+    PacketSend(fPlayersList[i], mk_PlayersList, s);
+end;
+
+
+procedure TKMNetworking.DecodePlayersList(aSender,aText:string);
+var s:string; i:integer;
+begin
+  fPlayersList.Clear;
+  fPlayersList.Add('127.0.0.1'); //Self
+  fPlayersList.Add(aSender);
+
+  Assert(aText[length(aText)-1]=#0); //Make sure aText is complete
+
+  repeat
+    i := Pos(#0, aText);
+    s := Copy(aText, 0, i);
+    if s <> fPlayersList[0] then
+      fPlayersList.Add(s);
+    RightStr(aText, length(aText)-i-1);
+  until(length(aText)<=0);
 end;
 
 
 procedure TKMNetworking.PacketRecieve(const aData: array of byte; aAddr:string);
-var Kind:TMessageKind; MyString: string;
+var Kind:TMessageKind; Data:string;
 begin
+  Assert(Length(aData) >= 1, 'Unexpectedly short message'); //Kind, Message
+
   Kind := TMessageKind(aData[0]);
+  if Length(aData) > 1 then
+    SetString(Data, PAnsiChar(@aData[1]), Length(aData)-1)
+  else
+    Data := '';
+
   case Kind of
-    mkHandshaking_AskToJoin:   PacketSend(aAddr, mkHandshaking_AllowToJoin);
-    mkHandshaking_VerifyJoin:  begin
-                                fPlayersList.Add(aAddr);
-                                SendPlayerList;
-                                PostMessage(aAddr+' has joined');
-                               end;
-    mkText:                    begin
-                                 SetString(MyString, PAnsiChar(@aData[1]), Length(aData)-2);
-                                 if Assigned(fOnTextMessage) then fOnTextMessage(MyString);
-                               end;
+    mk_AskToJoin:   PacketSend(aAddr, mk_AllowToJoin);
+    mk_VerifyJoin:  begin
+                      fPlayersList.Add(aAddr);
+                      if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
+                      SendPlayerList;
+                      PostMessage(aAddr+' has joined');
+                    end;
+    mk_PlayersList: begin
+                      DecodePlayersList(aAddr, Data);
+                      if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
+                    end;
+    mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Data);
   end;
 end;
 
@@ -152,19 +184,20 @@ var Kind:TMessageKind;
 begin
   Kind := TMessageKind(aData[0]);
   case Kind of //Handle only 2 messages kinds
-    mkHandshaking_AllowToJoin: begin
-                                JoinTick := 0;
-                                fPlayersList.Add(fNetwork.MyIPString);
-                                fPlayersList.Add(fServerAddress);
-                                PacketSend(fServerAddress, mkHandshaking_VerifyJoin);
-                                fOnJoinSucc(Self);
-                               end;
-    mkHandshaking_RefuseToJoin:begin
-                                JoinTick := 0;
-                                fNetwork.OnRecieveKMPacket := nil;
-                                fNetwork.StopListening;
-                                fOnJoinFail(Self);
-                               end;
+    mk_AllowToJoin: begin
+                      JoinTick := 0;
+                      fPlayersList.Add('127.0.0.1');
+                      fPlayersList.Add(fServerAddress);
+                      PacketSend(fServerAddress, mk_VerifyJoin);
+                      fOnJoinSucc(Self);
+                      if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
+                    end;
+    mk_Timeout:     begin
+                      JoinTick := 0;
+                      fNetwork.OnRecieveKMPacket := nil;
+                      fNetwork.StopListening;
+                      fOnJoinFail(Self);
+                    end;
   end;
 end;
 
@@ -182,16 +215,15 @@ begin
 
   //Send to partners
   for i := 1 to fPlayersList.Count-1 do //Exclude self and send to [2nd to last] range
-    PacketSend(fPlayersList[i], mkText, fPlayersList[0] + ': ' + aText);
-
+    PacketSend(fPlayersList[i], mk_Text, fPlayersList[0] + ': ' + aText);
 end;
 
 
 procedure TKMNetworking.UpdateState;
-const MyArray : array[0..0] of byte = (byte(mkHandshaking_RefuseToJoin));
+const MyArray : array[0..0] of byte = (byte(mk_Timeout)); //Convert byte to array
 begin
   if (JoinTick<>0) and (JoinTick <= GetTickCount) then
-    PacketRecieve(MyArray, '127.0.0.1');
+    PacketRecieve(MyArray, '127.0.0.1'); //Time is up, wait no longer
 end;
 
 
