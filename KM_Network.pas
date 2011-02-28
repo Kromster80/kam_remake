@@ -44,6 +44,7 @@ type
       constructor Create(aMultipleCopies:boolean=false);
       destructor Destroy; override;
       function MyIPString:string;
+      function MyIPStringAndPort:string;
       procedure StartListening;
       procedure StopListening;
       property OnRecieveKMPacket:TRecieveKMPacketEvent write fOnRecieveKMPacket;
@@ -146,6 +147,15 @@ function TKMNetwork.MyIPString:string;
 begin
   if LocalIPList.Count >= 1 then
     Result := LocalIPList[0] //First address should be ours
+  else
+    Result := '';
+end;
+
+
+function TKMNetwork.MyIPStringAndPort:string;
+begin
+  if LocalIPList.Count >= 1 then
+    Result := LocalIPList[0] + ' Send: ' + fSendPort + ' Recieve: ' + fRecievePort //First address should be ours
   else
     Result := '';
 end;

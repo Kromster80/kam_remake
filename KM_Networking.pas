@@ -45,6 +45,7 @@ type
       destructor Destroy; override;
 
       function MyIPString:string;
+      function MyIPStringAndPort:string;
       procedure Host(aUserName:string);
       procedure Connect(aServerAddress,aUserName:string);
       procedure Disconnect;
@@ -83,6 +84,12 @@ end;
 function TKMNetworking.MyIPString:string;
 begin
   Result := fNetwork.MyIPString;
+end;
+
+
+function TKMNetworking.MyIPStringAndPort:string;
+begin
+  Result := fNetwork.MyIPStringAndPort;
 end;
 
 

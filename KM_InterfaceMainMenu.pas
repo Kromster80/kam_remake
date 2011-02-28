@@ -1124,7 +1124,7 @@ begin
   fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
   fGame.fNetworking.OnPlayersList := MultiPlayer_PlayersList;
   fGame.fNetworking.Host('Player123');
-  fGame.fNetworking.PostMessage('Host created at ' + fGame.fNetworking.MyIPString);
+  fGame.fNetworking.PostMessage('Host created at ' + fGame.fNetworking.MyIPStringAndPort);
 end;
 
 
@@ -1149,6 +1149,7 @@ begin
 
   fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
   fGame.fNetworking.OnPlayersList := MultiPlayer_PlayersList;
+  fGame.fNetworking.PostMessage('Joined host from ' + fGame.fNetworking.MyIPStringAndPort);
 end;
 
 
