@@ -36,8 +36,8 @@ type
       fOnTextMessage:TStringEvent;
 
       procedure SendPlayerList;
-      procedure PacketRecieveHost(const aData: string; aAddr:string);
-      procedure PacketRecieveJoin(const aData: string; aAddr:string);
+      procedure PacketRecieveHost(const aData: array of byte; aAddr:string);
+      procedure PacketRecieveJoin(const aData: array of byte; aAddr:string);
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
     public
       constructor Create;
@@ -128,10 +128,10 @@ begin
 end;
 
 
-procedure TKMNetworking.PacketRecieveHost(const aData: string; aAddr:string);
-var Kind:TMessageKind;
+procedure TKMNetworking.PacketRecieveHost(const aData: array of byte; aAddr:string);
+var Kind:TMessageKind; MyString: string;
 begin
-  Kind := TMessageKind(StrToInt(aData[1]));
+  Kind := TMessageKind(aData[0]);
   case Kind of
     mkHandshaking_AskToJoin:   PacketSend(aAddr, mkHandshaking_AllowToJoin);
     mkHandshaking_VerifyJoin:  begin
@@ -139,15 +139,19 @@ begin
                                 SendPlayerList;
                                 PostMessage(aAddr+' has joined');
                                end;
-    mkText:                    if Assigned(fOnTextMessage) then fOnTextMessage(RightStr(aData, length(aData)-1));
+    mkText:                    begin
+                                 SetString(MyString, PAnsiChar(@aData[1]), Length(aData)-2);
+                                 if Assigned(fOnTextMessage) then fOnTextMessage(MyString);
+                               end;
+
   end;
 end;
 
 
-procedure TKMNetworking.PacketRecieveJoin(const aData: string; aAddr:string);
+procedure TKMNetworking.PacketRecieveJoin(const aData: array of byte; aAddr:string);
 var Kind:TMessageKind;
 begin
-  Kind := TMessageKind(StrToInt(aData[1]));
+  Kind := TMessageKind(aData[0]);
   case Kind of //Handle only 2 messages kinds
     mkHandshaking_AllowToJoin: begin
                                 JoinTick := 0;
@@ -168,7 +172,7 @@ end;
 
 procedure TKMNetworking.PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
 begin
-  fNetwork.SendTo(aAddress, inttostr(byte(aKind)) + aData);
+  fNetwork.SendTo(aAddress, char(aKind) + aData);
 end;
 
 
@@ -185,9 +189,10 @@ end;
 
 
 procedure TKMNetworking.UpdateState;
+const MyArray : array[0..0] of byte = (byte(mkHandshaking_RefuseToJoin));
 begin
   if (JoinTick<>0) and (JoinTick <= GetTickCount) then
-    PacketRecieveHost(inttostr(byte(mkHandshaking_RefuseToJoin)), '127.0.0.1');
+    PacketRecieveHost(MyArray, '127.0.0.1');
 end;
 
 

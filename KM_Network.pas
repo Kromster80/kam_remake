@@ -19,7 +19,7 @@ const MAX_BUFFER = 32;
 const KAM_PORT1 = '56789'; //Used for computer to computer or by FIRST copy on a single computer
 const KAM_PORT2 = '56790'; //Used for running mutliple copies on one computer (second copy)
 
-type TRecieveKMPacketEvent = procedure (const aData: string; aAddr:string) of object;
+type TRecieveKMPacketEvent = procedure (const aData: array of byte; aAddr:string) of object;
 
 type
   TKMNetwork = class
@@ -173,8 +173,7 @@ end;
 
 //Recieve from anyone
 procedure TKMNetwork.DataAvailable(Sender: TObject; Error: Word);
-var MyString: string;
-    Buffer : array [0..1023] of char;
+var Buffer : array[0..1023] of byte;
     Len, SrcLen    : Integer;
     Src    : TSockAddrIn;
     Addr:string;
@@ -186,7 +185,12 @@ begin
   //  Src: Who sent the data
   SrcLen := SizeOf(Src);
   Len := fSocketRecieve.ReceiveFrom(@Buffer, SizeOf(Buffer), Src, SrcLen);
-  if Len < 1 then exit; //Sometimes we get Len = -1. This might be an error
+  if Len = -1 then
+  begin
+    //This means there is an error
+    //Assert(false, 'KaM recieve error: '+inttostr(Error)+' last error: '+inttostr(fSocketRecieve.LastError));
+    exit;
+  end;
 
   //XXX.XXX.XXX.XXX
   Addr := IntToStr(Ord(Src.sin_addr.S_un_b.s_b1)) +'.'+
@@ -198,9 +202,8 @@ begin
   //Mute corresponding fWatchlist.Item(aIndex) if required
 
   //pass message to GIP_Multi (it will be handling the higher level errors)
-  MyString := copy(Buffer,0,Len);
   if Assigned(fOnRecieveKMPacket) then
-    fOnRecieveKMPacket(MyString, Addr);
+    fOnRecieveKMPacket(Slice(Buffer, Len), Addr);
 end;
 
 
