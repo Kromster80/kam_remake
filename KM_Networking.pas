@@ -35,8 +35,8 @@ type
       fOnTextMessage:TStringEvent;
 
       procedure SendPlayerList;
-      procedure PacketRecieveHost(const aData: array of byte; aAddr:string);
-      procedure PacketRecieveJoin(const aData: array of byte; aAddr:string);
+      procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
+      procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
     public
       constructor Create;
@@ -88,7 +88,7 @@ begin
   JoinTick := 0;
   fPlayersList.Add(fNetwork.MyIPString); //Add self
   fNetwork.StartListening;
-  fNetwork.OnRecieveKMPacket := PacketRecieveHost; //Start listening
+  fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
 end;
 
 
@@ -116,18 +116,19 @@ end;
 
 
 procedure TKMNetworking.SendPlayerList;
-var
-  MyPlayerList: string;
+var s:string; i:integer;
 begin
-  //MyPlayerList := fPlayersList.Count
-  //for i := 1 to fPlayersList.Count-1 do
+  s := Format('%.2d',[fPlayersList.Count-1]); //Exclude self from overall count
 
-  //for i := 1 to fPlayersList.Count-1 do //Exclude self and send to [2nd to last] range
-  //  PacketSend(fPlayersList[i], mkHandshaking_SendPlayersList, MyPlayerList);
+  for i:=1 to fPlayersList.Count-1 do
+    s := s + fPlayersList[i] + #0; //15chars each
+
+  for i:=1 to fPlayersList.Count-1 do
+    PacketSend(fPlayersList[i], mkHandshaking_SendPlayersList, s);
 end;
 
 
-procedure TKMNetworking.PacketRecieveHost(const aData: array of byte; aAddr:string);
+procedure TKMNetworking.PacketRecieve(const aData: array of byte; aAddr:string);
 var Kind:TMessageKind; MyString: string;
 begin
   Kind := TMessageKind(aData[0]);
@@ -190,7 +191,7 @@ procedure TKMNetworking.UpdateState;
 const MyArray : array[0..0] of byte = (byte(mkHandshaking_RefuseToJoin));
 begin
   if (JoinTick<>0) and (JoinTick <= GetTickCount) then
-    PacketRecieveHost(MyArray, '127.0.0.1');
+    PacketRecieve(MyArray, '127.0.0.1');
 end;
 
 
