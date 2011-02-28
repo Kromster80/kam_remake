@@ -14,6 +14,7 @@ Features to be implemented:
  - Support of unlimited size input (split across multiple packets when it is too large)
 }
 
+const MAX_BUFFER = 32;
 //We can decide on something official later
 const KAM_PORT1 = '56789'; //Used for computer to computer or by FIRST copy on a single computer
 const KAM_PORT2 = '56790'; //Used for running mutliple copies on one computer (second copy)
@@ -26,13 +27,24 @@ type
       fSendPort, fRecievePort:string;
       fSocketRecieve: TWSocket;
       fSocketSend: TWSocket;
+      fMultipleCopies, fSendSocketUsed: boolean;
       fOnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
+
+      fBufAddr: array[1..MAX_BUFFER] of string;
+      fBufData: array[1..MAX_BUFFER] of string;
+      fBufReadPos, fBufWritePos: integer;
+      procedure BufferAdd(const aAddr:string; const aData: string);
+      procedure BufferSendOldest;
+
       procedure DataAvailable(Sender: TObject; Error: Word);
       procedure DataSent(Sender: TObject; Error: Word);
     public
-      constructor Create(MultipleCopies:boolean=false);
+      fListening: boolean;
+      constructor Create(aMultipleCopies:boolean=false);
       destructor Destroy; override;
       function MyIPString:string;
+      procedure StartListening;
+      procedure StopListening;
       property OnRecieveKMPacket:TRecieveKMPacketEvent write fOnRecieveKMPacket;
       procedure SendTo(Addr:string; aData:string);
       procedure UpdateState;
@@ -42,10 +54,15 @@ type
 implementation
 
 
-constructor TKMNetwork.Create(MultipleCopies:boolean=false);
+constructor TKMNetwork.Create(aMultipleCopies:boolean=false);
 var wsaData: TWSAData;
 begin
   Inherited Create;
+  fMultipleCopies := aMultipleCopies;
+  fListening := false;
+  fSendSocketUsed := false;
+  fBufReadPos := 1;
+  fBufWritePos := 1;
 
   if WSAStartup($101, wsaData) <> 0 then
   begin
@@ -56,18 +73,46 @@ begin
   fSendPort     := KAM_PORT1;
   fRecievePort  := KAM_PORT1;
 
-  if MultipleCopies then fRecievePort := KAM_PORT2; //For tests on the same machine with 2 copies
+  if fMultipleCopies then fRecievePort := KAM_PORT2; //For tests on the same machine with 2 copies
 
   fSocketRecieve := TWSocket.Create(nil);
   fSocketRecieve.Proto  := 'udp';
   fSocketRecieve.Addr   := '0.0.0.0';
   fSocketRecieve.Port   := fRecievePort;
   fSocketRecieve.OnDataAvailable := DataAvailable;
-  if not MultipleCopies then
+
+  fSocketSend := TWSocket.Create(nil);
+  fSocketSend.Proto := 'udp';
+  fSocketSend.Addr  := '0.0.0.0';
+  fSocketSend.Port  := fSendPort;
+  fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
+  fSocketSend.OnDataSent := DataSent;
+end;
+
+
+destructor TKMNetwork.Destroy;
+begin
+  fSocketRecieve.Free;
+  fSocketSend.Free;
+end;
+
+
+procedure TKMNetwork.StartListening;
+begin
+  if not fMultipleCopies then
     fSocketRecieve.Listen
   else
     try
+      fSendPort     := KAM_PORT1;
+      fRecievePort  := KAM_PORT1;
+
+      if fMultipleCopies then fRecievePort := KAM_PORT2; //For tests on the same machine with 2 copies
+      fSocketRecieve.Proto  := 'udp';
+      fSocketRecieve.Addr   := '0.0.0.0';
+      fSocketRecieve.Port   := fRecievePort;
+      fSocketRecieve.OnDataAvailable := DataAvailable;
       fSocketRecieve.Listen;
+      fListening := true;
     except
       on E : ESocketException do
       begin
@@ -86,20 +131,13 @@ begin
         end;
       end;
     end;
-        
-  fSocketSend := TWSocket.Create(nil);
-  fSocketSend.Proto := 'udp';
-  fSocketSend.Addr  := '0.0.0.0';
-  fSocketSend.Port  := fSendPort;
-  fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
-  fSocketSend.OnDataSent := DataSent;
 end;
 
 
-destructor TKMNetwork.Destroy;
+procedure TKMNetwork.StopListening;
 begin
-  fSocketRecieve.Free;
-  fSocketSend.Free;
+  fSocketRecieve.Close;
+  fListening := false;
 end;
 
 
@@ -116,9 +154,12 @@ end;
 //when trying to recover undelivered packets?
 procedure TKMNetwork.SendTo(Addr:string; aData:string);
 begin
-  Assert(fSocketSend.AllSent);
-
   //Handle the case when DataSent not yet occured
+  if fSendSocketUsed then
+  begin
+    BufferAdd(Addr, aData);
+    exit;
+  end;
 
   fSocketSend.Proto := 'udp';
   fSocketSend.Port := fSendPort;
@@ -126,6 +167,7 @@ begin
   fSocketSend.Connect; //UDP is connectionless. Connect will just open the socket
   fSocketSend.SendStr(aData);
   //fSocketSend.Send(@aData, length(aData));
+  fSendSocketUsed := true;
 end;
 
 
@@ -144,6 +186,7 @@ begin
   //  Src: Who sent the data
   SrcLen := SizeOf(Src);
   Len := fSocketRecieve.ReceiveFrom(@Buffer, SizeOf(Buffer), Src, SrcLen);
+  if Len < 1 then exit; //Sometimes we get Len = -1. This might be an error
 
   //XXX.XXX.XXX.XXX
   Addr := IntToStr(Ord(Src.sin_addr.S_un_b.s_b1)) +'.'+
@@ -164,6 +207,8 @@ end;
 procedure TKMNetwork.DataSent(Sender: TObject; Error: Word);
 begin
   fSocketSend.Close; //Once the data is sent, close the socket so it is ready to send new data
+  fSendSocketUsed := false;
+  BufferSendOldest;
 end;
 
 
@@ -172,5 +217,24 @@ begin
   //
 end;
 
+
+procedure TKMNetwork.BufferAdd(const aAddr:string; const aData: string);
+begin
+  fBufAddr[fBufWritePos] := aAddr;
+  fBufData[fBufWritePos] := aData;
+  inc(fBufWritePos);
+  if fBufWritePos > MAX_BUFFER then fBufWritePos := 1;
+end;
+
+
+procedure TKMNetwork.BufferSendOldest;
+begin
+  if fBufAddr[fBufReadPos] = '' then exit;
+  SendTo(fBufAddr[fBufReadPos], fBufData[fBufReadPos]);
+  fBufAddr[fBufReadPos] := '';
+  fBufData[fBufReadPos] := '';
+  inc(fBufReadPos);
+  if fBufReadPos > MAX_BUFFER then fBufReadPos := 1;
+end;
 
 end.

@@ -800,10 +800,17 @@ begin
      (Sender=Button_ResultsBack) then
     Panel_MainMenu.Show;
 
+  {Stop the network when the player exits the lobby screen}
+  if Sender=Button_LobbyBack then
+  begin
+    fGame.fNetworking.StopNetwork;
+    MultiPlayer_LANShowLogin;
+    Panel_LANLogin.Show;
+  end;
+
   {Return to MultiPlayerMenu}
   if (Sender=Button_LAN_LoginBack)or
-     (Sender=Button_WWW_LoginBack)or
-     (Sender=Button_LobbyBack) then
+     (Sender=Button_WWW_LoginBack) then
     Panel_MultiPlayer.Show;
 
   {Return to MainMenu and restore resolution changes}
