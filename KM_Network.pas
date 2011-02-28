@@ -14,7 +14,8 @@ Features to be implemented:
  - Support of unlimited size input (split across multiple packets when it is too large)
 }
 
-const MAX_BUFFER = 32;
+const MAX_BUFFER = 32; //How many messages to store while UDP is busy
+
 //We can decide on something official later
 const KAM_PORT1 = '56789'; //Used for computer to computer or by FIRST copy on a single computer
 const KAM_PORT2 = '56790'; //Used for running mutliple copies on one computer (second copy)
@@ -30,8 +31,8 @@ type
       fMultipleCopies, fSendSocketUsed: boolean;
       fOnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
 
-      fBufAddr: array[1..MAX_BUFFER] of string;
-      fBufData: array[1..MAX_BUFFER] of string;
+      fBufAddr: array[0..MAX_BUFFER-1] of string; //-1 so we could use "mod MAX_BUFFER"
+      fBufData: array[0..MAX_BUFFER-1] of string;
       fBufReadPos, fBufWritePos: integer;
       procedure BufferAdd(const aAddr:string; const aData: string);
       procedure BufferSendOldest;
@@ -61,8 +62,8 @@ begin
   fMultipleCopies := aMultipleCopies;
   fListening := false;
   fSendSocketUsed := false;
-  fBufReadPos := 1;
-  fBufWritePos := 1;
+  fBufReadPos := 0; //Start writing from first place
+  fBufWritePos := 0;
 
   if WSAStartup($101, wsaData) <> 0 then
   begin
@@ -223,21 +224,20 @@ end;
 
 procedure TKMNetwork.BufferAdd(const aAddr:string; const aData: string);
 begin
+  Assert(fBufAddr[fBufWritePos]='', 'Network buffer overrun');
   fBufAddr[fBufWritePos] := aAddr;
   fBufData[fBufWritePos] := aData;
-  inc(fBufWritePos);
-  if fBufWritePos > MAX_BUFFER then fBufWritePos := 1;
+  fBufWritePos := (fBufWritePos + 1) mod MAX_BUFFER; //Advance to next entry
 end;
 
 
 procedure TKMNetwork.BufferSendOldest;
 begin
-  if fBufAddr[fBufReadPos] = '' then exit;
+  if fBufAddr[fBufReadPos] = '' then exit; //Otherwise there's data we need to process
   SendTo(fBufAddr[fBufReadPos], fBufData[fBufReadPos]);
   fBufAddr[fBufReadPos] := '';
   fBufData[fBufReadPos] := '';
-  inc(fBufReadPos);
-  if fBufReadPos > MAX_BUFFER then fBufReadPos := 1;
+  fBufReadPos := (fBufReadPos + 1) mod MAX_BUFFER; //Advance to next entry
 end;
 
 end.

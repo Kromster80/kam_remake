@@ -26,7 +26,6 @@ type
     private
       fNetwork:TKMNetwork;
       fServerAddress:string; //Who's the host
-      fUserName:string; //our name
 
       fPlayersList:TStringList; //Stores IP addresses for now
 
@@ -143,7 +142,6 @@ begin
                                  SetString(MyString, PAnsiChar(@aData[1]), Length(aData)-2);
                                  if Assigned(fOnTextMessage) then fOnTextMessage(MyString);
                                end;
-
   end;
 end;
 
