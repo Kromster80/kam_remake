@@ -425,7 +425,7 @@ begin
 
       Label_LAN_Status := MyControls.AddLabel(Panel_LANLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
 
-    Button_LAN_LoginBack := MyControls.AddButton(Panel_LANLogin2, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_LAN_LoginBack := MyControls.AddButton(Panel_LANLogin2, 45, 300, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LAN_LoginBack.OnClick := SwitchMenuPage;
 end;
 

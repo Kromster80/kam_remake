@@ -195,6 +195,7 @@ begin
                       JoinTick := 0;
                       fPlayersList.Add('127.0.0.1');
                       fPlayersList.Add(fServerAddress);
+                      fNetwork.OnRecieveKMPacket := PacketRecieve;
                       PacketSend(fServerAddress, mk_VerifyJoin);
                       fOnJoinSucc(Self);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
