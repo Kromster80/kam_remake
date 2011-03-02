@@ -173,6 +173,7 @@ type TKMMainMenuInterface = class
     procedure MultiPlayer_LANJoin(Sender: TObject);
     procedure MultiPlayer_LANJoinSucc(Sender: TObject);
     procedure MultiPlayer_LANJoinFail(Sender: TObject);
+    procedure MultiPlayer_LANQuitLobby;
 
     procedure MultiPlayer_LANShowLogin;
     procedure MultiPlayer_WWWShowLogin();
@@ -806,6 +807,7 @@ begin
   if Sender=Button_LobbyBack then
   begin
     fGame.fNetworking.Disconnect;
+    MultiPlayer_LANQuitLobby;
     MultiPlayer_LANShowLogin;
     Panel_LANLogin.Show;
   end;
@@ -1159,6 +1161,15 @@ begin
   Button_LAN_Host.Enable;
   Button_LAN_Join.Enable;
   Label_LAN_Status.Caption := 'Connection failed';
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_LANQuitLobby;
+begin
+  //Enable buttons anyway
+  Button_LAN_Host.Enable;
+  Button_LAN_Join.Enable;
+  Label_LAN_Status.Caption := 'Disconnected';
 end;
 
 

@@ -6,6 +6,7 @@ uses Classes, KM_Defaults, KM_Network, KromUtils, SysUtils, StrUtils, Math, Wind
 
 type TStringEvent = procedure (const aData: string) of object;
 
+type TLANPlayerKind = (lpk_Host, lpk_Joiner);
 
 type TMessageKind = (
                       mkUnknown,
@@ -25,6 +26,7 @@ type
   TKMNetworking = class
     private
       fNetwork:TKMNetwork;
+      fLANPlayerKind: TLANPlayerKind;
       fServerAddress:string; //Who's the host
 
       fPlayersList:TStringList; //Stores IP addresses for now
@@ -36,7 +38,7 @@ type
       fOnPlayersList:TStringEvent;
 
       procedure SendPlayerList;
-      procedure DecodePlayersList(aSender,aText:string);
+      procedure DecodePlayersList(aSender:string; const aData: array of byte);
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
@@ -96,7 +98,8 @@ end;
 procedure TKMNetworking.Host(aUserName:string);
 begin
   JoinTick := 0;
-  fPlayersList.Add('127.0.0.1'); //Add self
+  fLANPlayerKind := lpk_Host;
+  fPlayersList.Add(MyIPString); //Add self
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
   if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
@@ -106,6 +109,7 @@ end;
 procedure TKMNetworking.Connect(aServerAddress,aUserName:string);
 begin
   fServerAddress := aServerAddress;
+  fLANPlayerKind := lpk_Joiner;
   JoinTick := GetTickCount + 3000; //3sec
   fNetwork.StartListening;
   PacketSend(fServerAddress, mk_AskToJoin);
@@ -131,7 +135,7 @@ var s:string; i:integer;
 begin
   s := '';//Format('%.2d',[fPlayersList.Count-1]); //Exclude self from overall count
 
-  for i:=1 to fPlayersList.Count-1 do
+  for i:=0 to fPlayersList.Count-1 do
     s := s + fPlayersList[i] + #0;
 
   for i:=1 to fPlayersList.Count-1 do
@@ -139,22 +143,27 @@ begin
 end;
 
 
-procedure TKMNetworking.DecodePlayersList(aSender,aText:string);
-var s:string; i:integer;
+procedure TKMNetworking.DecodePlayersList(aSender:string; const aData: array of byte);
+var s:string; i,k:integer;
 begin
   fPlayersList.Clear;
-  fPlayersList.Add('127.0.0.1'); //Self
-  fPlayersList.Add(aSender);
 
-  Assert(aText[length(aText)-1]=#0); //Make sure aText is complete
+  Assert(aData[length(aData)-1] = 0); //Make sure aText is complete, it must end with a seperator
 
+  i := 1; //Ignore first byte, it is the message kind
+  k := 0;
+  fPlayersList.Add(''); //First blank string, k=0
   repeat
-    i := Pos(#0, aText);
-    s := Copy(aText, 0, i);
-    if s <> fPlayersList[0] then
-      fPlayersList.Add(s);
-    RightStr(aText, length(aText)-i-1);
-  until(length(aText)<=0);
+    //Seperator
+    if aData[i] = 0 then
+    begin
+      inc(k);
+      fPlayersList.Add(''); //Prepare the new string
+    end
+    else
+      fPlayersList.Strings[k] := fPlayersList.Strings[k] + char(aData[i]);
+    inc(i);
+  until(i >= length(aData));
 end;
 
 
@@ -178,7 +187,7 @@ begin
                       PostMessage(aAddr+' has joined');
                     end;
     mk_PlayersList: begin
-                      DecodePlayersList(aAddr, Data);
+                      DecodePlayersList(aAddr, aData);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
                     end;
     mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Data);
@@ -193,8 +202,6 @@ begin
   case Kind of //Handle only 2 messages kinds
     mk_AllowToJoin: begin
                       JoinTick := 0;
-                      fPlayersList.Add('127.0.0.1');
-                      fPlayersList.Add(fServerAddress);
                       fNetwork.OnRecieveKMPacket := PacketRecieve;
                       PacketSend(fServerAddress, mk_VerifyJoin);
                       fOnJoinSucc(Self);
@@ -231,7 +238,7 @@ procedure TKMNetworking.UpdateState;
 const MyArray : array[0..0] of byte = (byte(mk_Timeout)); //Convert byte to array
 begin
   if (JoinTick<>0) and (JoinTick <= GetTickCount) then
-    PacketRecieve(MyArray, '127.0.0.1'); //Time is up, wait no longer
+    PacketRecieveJoin(MyArray, '127.0.0.1'); //Time is up, wait no longer
 end;
 
 
