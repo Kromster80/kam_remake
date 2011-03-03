@@ -45,7 +45,7 @@ type
       procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
       procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
       procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
-      procedure ClipRenderList();
+      procedure ClipRenderList;
       procedure SortRenderList;
       procedure RenderRenderList;
       procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
@@ -60,10 +60,10 @@ type
       Stat_Sprites2:integer;//Rendered sprites
       constructor Create(RenderFrame:HWND; aVSync:boolean);
       destructor Destroy; override;
-      procedure LoadTileSet();
+      procedure LoadTileSet;
       procedure SetRotation(aH,aP,aB:integer);
       procedure ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
-      procedure Render();
+      procedure Render;
       {$IFDEF WDC}
       procedure DoPrintScreen(filename:string);
       {$ENDIF}
@@ -110,7 +110,7 @@ constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
 begin
   Inherited Create;
   SetRenderFrame(RenderFrame, h_DC, h_RC);
-  SetRenderDefaults();
+  SetRenderDefaults;
   glDisable(GL_LIGHTING); //We don't need it
 
   fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor:  '  +fOpenGL_Vendor);
@@ -135,7 +135,7 @@ end;
 
 
 // Load the Textures
-procedure TRender.LoadTileSet();
+procedure TRender.LoadTileSet;
 var i:integer;
 begin
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG);
@@ -163,31 +163,31 @@ begin
   if Width=0  then Width :=1;
   glViewport(0, 0, Width, Height);
   glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
-  glLoadIdentity();                   // Reset View
+  glLoadIdentity;                   // Reset View
   if aRenderMode=rm2D then
     gluOrtho2D(0,Width,Height,0)
   else
     gluPerspective(80, -Width/Height, 0.1, 5000.0);
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
-  glLoadIdentity();                   // Reset View
+  glLoadIdentity;                   // Reset View
   fRenderAreaSize.X := Width;
   fRenderAreaSize.Y := Height;
 end;
 
 
-procedure TRender.Render();
+procedure TRender.Render;
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
   if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then begin //If game is running
-    glLoadIdentity();                // Reset The View
+    glLoadIdentity;                // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
     glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
     glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
 
     if RENDER_3D then begin
-      glLoadIdentity();
+      glLoadIdentity;
       ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
@@ -209,22 +209,22 @@ begin
     if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
       fGame.fProjectiles.Paint; //Render all arrows and etc..
 
-    ClipRenderList(); //drop items that are outside of viewport
-    SortRenderList(); //sort items overlaying
-    RenderRenderList();
+    ClipRenderList; //drop items that are outside of viewport
+    SortRenderList; //sort items overlaying
+    RenderRenderList;
 
-    RenderCursorHighlights(); //Will be on-top of everything
+    RenderCursorHighlights; //Will be on-top of everything
 
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   end;
 
-  glLoadIdentity();             // Reset The View
+  glLoadIdentity;             // Reset The View
   glLineWidth(1);
   glPointSize(1);
   glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
   fGame.PaintInterface;
 
-  glLoadIdentity();
+  glLoadIdentity;
   RenderBrightness(fGame.fGlobalSettings.Brightness);
 
   SwapBuffers(h_DC);
@@ -1094,7 +1094,7 @@ begin
 end;
 
 
-procedure TRender.ClipRenderList();
+procedure TRender.ClipRenderList;
 var i:integer; P:TKMPoint;
 begin
   setlength(RO,RenderCount+1);
@@ -1365,7 +1365,7 @@ end;
 
 
 procedure TRender.RenderCursorHighlights;
-  function TileVisible():boolean;
+  function TileVisible:boolean;
   begin //Shortcut function
     Result := fTerrain.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y,MyPlayer.PlayerID) > 0;
   end;

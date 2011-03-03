@@ -19,10 +19,10 @@ type //Possibly melee warrior class? with Archer class separate?
   {Commander properties}
     fUnitsPerRow:integer;
     fMembers:TList;
-    function RePosition():boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
+    function RePosition:boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     function CanInterruptAction:boolean;
-    procedure UpdateHungerMessage();
+    procedure UpdateHungerMessage;
 
     procedure ClearOrderTarget;
     procedure SetOrderTarget(aUnit:TKMUnit);
@@ -34,7 +34,7 @@ type //Possibly melee warrior class? with Archer class separate?
     fMapEdMembersCount:integer;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
-    procedure SyncLoad(); override;
+    procedure SyncLoad; override;
     procedure CloseUnit; override;
     destructor Destroy; override;
 
@@ -60,8 +60,8 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
 
-    function GetFightMinRange():single;
-    function GetFightMaxRange():single;
+    function GetFightMinRange:single;
+    function GetFightMaxRange:single;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
@@ -81,8 +81,8 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure FightEnemy(aEnemy:TKMUnit);
 
     procedure Save(SaveStream:TKMemoryStream); override;
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
+    function UpdateState:boolean; override;
+    procedure Paint; override;
   end;
 
 
@@ -139,7 +139,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.SyncLoad();
+procedure TKMUnitWarrior.SyncLoad;
 var i:integer;
 begin
   Inherited;
@@ -295,7 +295,7 @@ begin
 end;
 
 
-function TKMUnitWarrior.RePosition():boolean;
+function TKMUnitWarrior.RePosition:boolean;
 var ClosestTile:TKMPoint;
 begin
   Result := true;
@@ -613,7 +613,7 @@ end;
 
 
 //At which range we can fight
-function TKMUnitWarrior.GetFightMaxRange():single;
+function TKMUnitWarrior.GetFightMaxRange:single;
 begin
   case fUnitType of
     ut_Bowman:      Result := RANGE_BOWMAN_MAX;
@@ -624,7 +624,7 @@ end;
 
 
 //At which range we can fight
-function TKMUnitWarrior.GetFightMinRange():single;
+function TKMUnitWarrior.GetFightMinRange:single;
 begin
   case fUnitType of
     ut_Bowman:      Result := RANGE_BOWMAN_MIN;
@@ -812,7 +812,7 @@ end;
 
 
 //Tell the player to feed us if we are hungry
-procedure TKMUnitWarrior.UpdateHungerMessage();
+procedure TKMUnitWarrior.UpdateHungerMessage;
 var i:integer; SomeoneHungry:boolean;
 begin
   if (fOwner = MyPlayer.PlayerID) and (fCommander = nil) then
@@ -918,7 +918,7 @@ begin
 end;
 
 
-function TKMUnitWarrior.UpdateState():boolean;
+function TKMUnitWarrior.UpdateState:boolean;
 var
   i:integer;
   PositioningDone:boolean;
@@ -940,7 +940,7 @@ begin
 
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
-  if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
+  if fFlagAnim mod 10 = 0 then UpdateHungerMessage;
 
   //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
   if GetCommander.ArmyIsBusy and (not (GetUnitAction is TUnitActionFight))
@@ -1118,7 +1118,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.Paint();
+procedure TKMUnitWarrior.Paint;
 
   procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir, UnitTyp:byte);
   var

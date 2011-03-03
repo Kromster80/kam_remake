@@ -19,7 +19,7 @@ type
       DefeatCond:string;
     end;
   public
-    procedure ScanSingleMapsFolder();
+    procedure ScanSingleMapsFolder;
     property Count:byte read fCount;
     function IsFight(ID:integer):boolean;
     function GetPlayerCount(ID:integer):byte;
@@ -38,7 +38,7 @@ uses KM_Defaults, KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
 { TKMMapInfo }
-procedure TKMMapsInfo.ScanSingleMapsFolder();
+procedure TKMMapsInfo.ScanSingleMapsFolder;
   function TakeDataFromINI(aFile:string; aSize:integer):boolean;
   var S:TKMemoryStream; I:integer; Vers:string;
   begin

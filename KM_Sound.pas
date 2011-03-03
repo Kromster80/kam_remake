@@ -61,20 +61,20 @@ type
 
     SoundGain:single; //aka "Global volume"
     WarriorSoundCount: array[15..24, TSoundToPlay] of byte;
-    procedure LoadSoundsDAT();
-    procedure CheckOpenALError();
+    procedure LoadSoundsDAT;
+    procedure CheckOpenALError;
     function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
   public
     constructor Create(aLocale:string; aVolume:single);
     destructor Destroy; override;
-    function ActiveCount():byte;
-    procedure ExportSounds();
+    function ActiveCount:byte;
+    procedure ExportSounds;
     procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay); overload;
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
-    procedure Paint();
+    procedure Paint;
 end;
 
 
@@ -159,7 +159,7 @@ begin
 
   fLog.AppendLog('OpenAL init done');
 
-  LoadSoundsDAT();
+  LoadSoundsDAT;
   fLog.AppendLog('Load Sounds.dat',true);
 
   //Scan and count the number of warrior sounds
@@ -175,7 +175,7 @@ begin
 end;
 
 
-destructor TSoundLib.Destroy();
+destructor TSoundLib.Destroy;
 var i:integer;
 begin
   if IsSoundInitialized then
@@ -184,13 +184,13 @@ begin
       AlDeleteBuffers(1, @Sound[i].ALBuffer);
       AlDeleteSources(1, @Sound[i].ALSource);
     end;
-    AlutExit();
+    AlutExit;
   end;
   Inherited;
 end;
 
 
-procedure TSoundLib.CheckOpenALError();
+procedure TSoundLib.CheckOpenALError;
 var ErrCode:integer;
 begin
   ErrCode := alcGetError(ALDevice);
@@ -202,7 +202,7 @@ begin
 end;
 
 
-procedure TSoundLib.LoadSoundsDAT();
+procedure TSoundLib.LoadSoundsDAT;
 var
   f:file;
   Head:record Size,Count:word; end;
@@ -240,7 +240,7 @@ begin
 end;
 
 
-procedure TSoundLib.ExportSounds();
+procedure TSoundLib.ExportSounds;
 var f:file; i:integer;
 begin
   if not IsSoundInitialized then exit;
@@ -390,7 +390,7 @@ begin
 end;
 
 
-function TSoundLib.ActiveCount():byte;
+function TSoundLib.ActiveCount:byte;
 var i:integer;
 begin
   Result := 0;
@@ -402,7 +402,7 @@ begin
 end;
 
 
-procedure TSoundLib.Paint();
+procedure TSoundLib.Paint;
 var i:integer;
 begin
   fRender.RenderDebugCircle(Listener.Pos[1], Listener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);

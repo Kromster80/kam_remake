@@ -16,7 +16,7 @@ type
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
     MusicGain:single;
-    function  CheckMusicError():boolean;
+    function  CheckMusicError:boolean;
     function  PlayMusicFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
   public
@@ -24,9 +24,9 @@ type
     destructor Destroy; override;
     procedure UpdateMusicVolume(Value:single);
     procedure PlayMenuTrack(JustInit:boolean);
-    procedure PlayNextTrack();
-    procedure PlayPreviousTrack();
-    function IsMusicEnded():boolean;
+    procedure PlayNextTrack;
+    procedure PlayPreviousTrack;
+    function IsMusicEnded:boolean;
     procedure StopMusic;
     function GetTrackTitle:string;
   end;
@@ -50,7 +50,7 @@ begin
 end;
 
 
-destructor TMusicLib.Destroy();
+destructor TMusicLib.Destroy;
 begin
   //MediaPlayer.Close;
   //FreeAndNil(MediaPlayer);
@@ -59,7 +59,7 @@ end;
 
 
 
-function TMusicLib.CheckMusicError():boolean;
+function TMusicLib.CheckMusicError:boolean;
 begin
   Result := false;
   {$IFDEF WDC}
@@ -169,7 +169,7 @@ begin
 end;
 
 
-procedure TMusicLib.PlayNextTrack();
+procedure TMusicLib.PlayNextTrack;
 begin
   if not IsMusicInitialized then exit;
   if not fGame.fGlobalSettings.MusicOn then exit;
@@ -179,7 +179,7 @@ begin
 end;
 
 
-procedure TMusicLib.PlayPreviousTrack();
+procedure TMusicLib.PlayPreviousTrack;
 begin
   if not IsMusicInitialized then exit;
   if not fGame.fGlobalSettings.MusicOn then exit;
@@ -191,7 +191,7 @@ end;
 
 
 //Check if Music is not playing, to know when new mp3 should be feeded
-function TMusicLib.IsMusicEnded():boolean;
+function TMusicLib.IsMusicEnded:boolean;
 begin
   Result:=false;
   {$IFDEF WDC}

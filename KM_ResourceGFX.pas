@@ -21,10 +21,10 @@ type
   private
     fDataState:TDataLoadingState;
 
-    procedure StepRefresh();
+    procedure StepRefresh;
     procedure StepCaption(aCaption:string);
 
-    function LoadPalettes():boolean;
+    function LoadPalettes:boolean;
     function LoadMapElemDAT(filename:string):boolean;
     function LoadPatternDAT(filename:string):boolean;
     function LoadHouseDAT(filename:string):boolean;
@@ -50,7 +50,7 @@ type
     constructor Create(aLocale:string);
     destructor Destroy; override;
     function LoadMenuResources(aLocale:string):boolean;
-    function LoadGameResources():boolean;
+    function LoadGameResources:boolean;
     procedure MakeTileGFXFromTexture(Texture:GLuint);
 
     function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
@@ -60,18 +60,18 @@ type
 
     procedure LoadFonts(DoExport:boolean; aLocale:string);
     //procedure ExportRX2BMP(RXid:integer);
-    //procedure ExportTreeAnim2BMP();
-    //procedure ExportHouseAnim2BMP();
-    //procedure ExportUnitAnim2BMP();
+    //procedure ExportTreeAnim2BMP;
+    //procedure ExportHouseAnim2BMP;
+    //procedure ExportUnitAnim2BMP;
   end;
 
   var
     fResource:TResource;
 
     procedure ExportRX2BMP(RXid:integer);
-    procedure ExportTreeAnim2BMP();
-    procedure ExportHouseAnim2BMP();
-    procedure ExportUnitAnim2BMP();
+    procedure ExportTreeAnim2BMP;
+    procedure ExportHouseAnim2BMP;
+    procedure ExportUnitAnim2BMP;
 
 
 implementation
@@ -102,7 +102,7 @@ begin
 end;
 
 
-procedure TResource.StepRefresh();
+procedure TResource.StepRefresh;
 begin
   if not FormLoading.Visible then exit;
   FormLoading.Bar1.StepIt;
@@ -125,7 +125,7 @@ begin
   fLog.AssertToLog(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
-  LoadPalettes();
+  LoadPalettes;
   fLog.AppendLog('Reading palettes',true);
 
   for i:=4 to 6 do
@@ -137,7 +137,7 @@ begin
     MakeGFX(i);
     ClearUnusedGFX(i);
 
-    StepRefresh();
+    StepRefresh;
   end;
 
   AllocateRX(7, RX7_SPRITE_COUNT);
@@ -151,7 +151,7 @@ begin
   LoadFonts(false, aLocale);
   fLog.AppendLog('Read fonts is done');
 
-  StepRefresh();
+  StepRefresh;
   fLog.AppendLog('ReadGFX is done');
   fDataState:=dls_Menu;
   fLog.AppendLog('Resource loading state - Menu');
@@ -159,17 +159,17 @@ begin
 end;
 
 
-function TResource.LoadGameResources():boolean;
+function TResource.LoadGameResources:boolean;
 var i:integer;
 begin
   fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
-  LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh();
-  LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh();
-  LoadHouseDAT(ExeDir+'data\defines\houses.dat');    StepRefresh();
-  LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh();
+  LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh;
+  LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh;
+  LoadHouseDAT(ExeDir+'data\defines\houses.dat');    StepRefresh;
+  LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh;
 
   for i:=1 to 3 do
     if (i=1) or ((i=2) and MAKE_HOUSE_SPRITES) or ((i=3) and MAKE_UNIT_SPRITES) then
@@ -182,13 +182,13 @@ begin
       //replace above data. 
       if i=2 then MakeGFX_AlphaTest(i);
       ClearUnusedGFX(i);
-      StepRefresh();
+      StepRefresh;
     end;
 
   StepCaption('Making minimap colors ...');
   MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
   fLog.AppendLog('Prepared MiniMap colors...');
-  StepRefresh();
+  StepRefresh;
   fDataState:=dls_All;
   fLog.AppendLog('Resource loading state - Game');
   Result:=true;
@@ -222,7 +222,7 @@ end;
 //=============================================
 //Reading Palette for trees/objects
 //=============================================
-function TResource.LoadPalettes():boolean;
+function TResource.LoadPalettes:boolean;
 var f:file; i:TKMPal; k:integer; FileName:string;
 begin
   Result := true;
@@ -1076,7 +1076,7 @@ begin
 end;
 
 {Export Units graphics categorized by Unit and Action}
-procedure ExportUnitAnim2BMP();
+procedure ExportUnitAnim2BMP;
 var MyBitMap:TBitMap;
     iUnit,iAct,iDir,iFrame,ci:integer; t:byte;
     sy,sx,y,x:integer;
@@ -1151,7 +1151,7 @@ end;
 
 
 {Export Houses graphics categorized by House and Action}
-procedure ExportHouseAnim2BMP();
+procedure ExportHouseAnim2BMP;
 var MyBitMap:TBitMap;
     Q,ID,Ac,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
@@ -1221,7 +1221,7 @@ end;
 
 
 {Export Trees graphics categorized by ID}
-procedure ExportTreeAnim2BMP();
+procedure ExportTreeAnim2BMP;
 var MyBitMap:TBitMap;
     ID,k,ci:integer; t:byte;
     sy,sx,y,x:integer;

@@ -28,7 +28,7 @@ uses
 
 function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
-function GenerateTextureCommon():GLuint;
+function GenerateTextureCommon:GLuint;
 
 implementation
 
@@ -39,7 +39,7 @@ procedure glGenTextures(n: GLsizei; var textures: GLuint); stdcall; external ope
 procedure glBindTexture(target: GLenum; texture: GLuint); stdcall; external opengl32;
 
 
-function GenerateTextureCommon():GLuint;
+function GenerateTextureCommon:GLuint;
 var Texture : GLuint;
 begin
   glGenTextures(1, Texture);

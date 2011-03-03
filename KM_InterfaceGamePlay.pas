@@ -480,7 +480,7 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create();
+constructor TKMGamePlayInterface.Create;
 var i:integer;
 begin
   Inherited;
@@ -560,26 +560,26 @@ begin
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Build_Page();
-  Create_Ratios_Page();
-  Create_Stats_Page();
-  Create_Menu_Page();
-    Create_Save_Page();
-    Create_Load_Page();
-    Create_Settings_Page();
-    Create_Quit_Page();
+  Create_Build_Page;
+  Create_Ratios_Page;
+  Create_Stats_Page;
+  Create_Menu_Page;
+    Create_Save_Page;
+    Create_Load_Page;
+    Create_Settings_Page;
+    Create_Quit_Page;
 
-  Create_Unit_Page();
+  Create_Unit_Page;
 
-  Create_House_Page();
-    Create_Store_Page();
-    Create_School_Page();
-    Create_Barracks_Page();
-    //Create_TownHall_Page(); //I don't want to make it at all yet
+  Create_House_Page;
+    Create_Store_Page;
+    Create_School_Page;
+    Create_Barracks_Page;
+    //Create_TownHall_Page; //I don't want to make it at all yet
 
-  Create_Pause_Page();
-  Create_Replay_Page();
-  Create_PlayMore_Page(); //Must be created last, so that all controls behind are blocked
+  Create_Pause_Page;
+  Create_Replay_Page;
+  Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
 
   //Here we must go through every control and set the hint event to be the parameter
   //Controls without a hint will reset the Hint to ''
@@ -1049,9 +1049,9 @@ begin
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
     Button_Army_Stop.Hint   := fTextLibrary.GetTextString(258);
     Button_Army_Attack.Hint := fTextLibrary.GetTextString(257);
-    //Button_Army_RotCW.Hint  := fTextLibrary.GetTextString(); //KaM has no hint, I guess the icon is enough...
+    //Button_Army_RotCW.Hint  := fTextLibrary.GetTextString; //KaM has no hint, I guess the icon is enough...
     Button_Army_Storm.Hint  := fTextLibrary.GetTextString(263);
-    //Button_Army_RotCCW.Hint := fTextLibrary.GetTextString(); //KaM has no hint, I guess the icon is enough...
+    //Button_Army_RotCCW.Hint := fTextLibrary.GetTextString; //KaM has no hint, I guess the icon is enough...
     Button_Army_ForDown.Hint:= fTextLibrary.GetTextString(264);
     Button_Army_ForUp.Hint  := fTextLibrary.GetTextString(265);
     Button_Army_Split.Hint  := fTextLibrary.GetTextString(261);
@@ -2152,7 +2152,7 @@ begin
 
                   if Key = VK_BACK then  fViewport.SetZoom(1);
                   //Game speed
-                  if Key = VK_F8 then    fGame.SetGameSpeed(); //Speed will toggle automatically
+                  if Key = VK_F8 then    fGame.SetGameSpeed; //Speed will toggle automatically
                   if Key = ord('P') then SetPause(true); //Display pause overlay
 
                   //Menu shortcuts
@@ -2186,7 +2186,7 @@ begin
                 end;
     gsReplay:   begin
                   if Key = VK_BACK then fViewport.SetZoom(1);
-                  if Key = VK_F8 then   fGame.SetGameSpeed(); //Speed will toggle automatically
+                  if Key = VK_F8 then   fGame.SetGameSpeed; //Speed will toggle automatically
                 end;
    end;
 end;

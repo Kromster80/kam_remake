@@ -13,10 +13,10 @@ type
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure SyncLoad; override;
       destructor Destroy; override;
       function Eating:boolean;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -43,7 +43,7 @@ begin
 end;
 
 
-procedure TTaskGoEat.SyncLoad();
+procedure TTaskGoEat.SyncLoad;
 begin
   Inherited;
   fInn := TKMHouseInn(fPlayers.GetHouseByID(cardinal(fInn)));
@@ -65,7 +65,7 @@ begin
 end;
 
 
-function TTaskGoEat.Execute():TTaskResult;
+function TTaskGoEat.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 

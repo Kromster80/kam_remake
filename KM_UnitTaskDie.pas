@@ -8,7 +8,7 @@ type
   TTaskDie = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
     end;
 
 
@@ -25,12 +25,12 @@ begin
   if aUnit.Visible then
   begin
     fPhase := 1; //Phase 0 can be skipped when the unit is visible
-    Execute();
+    Execute;
   end;
 end;
 
 
-function TTaskDie.Execute():TTaskResult;
+function TTaskDie.Execute:TTaskResult;
 var SequenceLength:smallint;
 begin
   Result := TaskContinues;

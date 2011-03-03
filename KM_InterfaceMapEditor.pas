@@ -158,9 +158,9 @@ type TKMapEdInterface = class
     procedure Mission_AlliancesChange(Sender:TObject);
     procedure View_Passability(Sender:TObject);
 
-    function GetSelectedTile(): TObject;
-    function GetSelectedObject(): TObject;
-    function GetSelectedUnit(): TObject;
+    function GetSelectedTile: TObject;
+    function GetSelectedObject: TObject;
+    function GetSelectedUnit: TObject;
   public
     constructor Create;
     destructor Destroy; override;
@@ -244,7 +244,7 @@ begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
     Label_MenuTitle.Caption:='Terrain - Tiles';
-    Terrain_TilesChange(GetSelectedTile());
+    Terrain_TilesChange(GetSelectedTile);
     SetTileDirection(TileDirection);
   end else
 
@@ -252,7 +252,7 @@ begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
     Label_MenuTitle.Caption:='Terrain - Objects';
-    Terrain_ObjectsChange(GetSelectedObject());
+    Terrain_ObjectsChange(GetSelectedObject);
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[1]) then begin
@@ -368,7 +368,7 @@ begin
 end;
 
 
-constructor TKMapEdInterface.Create();
+constructor TKMapEdInterface.Create;
 var i:integer;
 begin
   Inherited;
@@ -436,21 +436,21 @@ begin
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Terrain_Page();
-  Create_Village_Page();
-  Create_Player_Page();
-  Create_Mission_Page();
+  Create_Terrain_Page;
+  Create_Village_Page;
+  Create_Player_Page;
+  Create_Mission_Page;
 
-  Create_Menu_Page();
-    Create_MenuSave_Page();
-    Create_MenuLoad_Page();
-    Create_MenuQuit_Page();
+  Create_Menu_Page;
+    Create_MenuSave_Page;
+    Create_MenuLoad_Page;
+    Create_MenuQuit_Page;
 
-  Create_Unit_Page();
-  Create_House_Page();
-    Create_Store_Page();
-    Create_Barracks_Page();
-    //Create_TownHall_Page();
+  Create_Unit_Page;
+  Create_House_Page;
+    Create_Store_Page;
+    Create_Barracks_Page;
+    //Create_TownHall_Page;
 
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
@@ -1206,7 +1206,7 @@ begin
 end;
 
 
-function TKMapEdInterface.GetSelectedTile(): TObject;
+function TKMapEdInterface.GetSelectedTile: TObject;
 var i: byte;
 begin
   Result := nil;
@@ -1215,7 +1215,7 @@ begin
 end;
 
 
-function TKMapEdInterface.GetSelectedObject(): TObject;
+function TKMapEdInterface.GetSelectedObject: TObject;
 var i: byte;
 begin
   Result := nil;
@@ -1224,7 +1224,7 @@ begin
 end;
 
 
-function TKMapEdInterface.GetSelectedUnit(): TObject;
+function TKMapEdInterface.GetSelectedUnit: TObject;
 var i: byte;
 begin
   Result := nil;

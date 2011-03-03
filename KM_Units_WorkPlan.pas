@@ -8,7 +8,7 @@ type
   private
     fHome:THouseType;
     fIssued:boolean;
-    procedure FillDefaults();
+    procedure FillDefaults;
     procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:shortint=-1); overload;
     procedure SubActAdd(aAct:THouseActionType; aCycles:single);
     procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod1:TResourceType; Prod2:TResourceType=rt_None);
@@ -56,7 +56,7 @@ Then Work2 and Work3 same way. Then adds resource to out and everything to Idle 
 E.g. Farmer arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count, HouseType and Need to sow corn)
 ...... then switches house to Work1 (and self busy for same framecount)
 Then Work2 and Work3 same way. Then adds resource to out and everything to Idle for 5sec.}
-procedure TUnitWorkPlan.FillDefaults();
+procedure TUnitWorkPlan.FillDefaults;
 begin
   fIssued:=true;
   HasToWalk:=false;

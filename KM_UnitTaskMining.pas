@@ -8,13 +8,13 @@ type
   TTaskMining = class(TUnitTask)
     private
       BeastID:byte;
-      function ResourceExists():boolean;
+      function ResourceExists:boolean;
     public
       WorkPlan:TUnitWorkPlan;
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
-      function Execute():TTaskResult; override;
+      procedure SyncLoad; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -41,14 +41,14 @@ begin
 end;
 
 
-procedure TTaskMining.SyncLoad();
+procedure TTaskMining.SyncLoad;
 begin
   Inherited;
   //nothing to sync, Workplan is assigned by unit
 end;
 
 
-function TTaskMining.ResourceExists():boolean;
+function TTaskMining.ResourceExists:boolean;
 begin
   with fTerrain do
   case WorkPlan.GatheringScript of
@@ -80,7 +80,7 @@ end;
 
 
 {This is execution of Resource mining}
-function TTaskMining.Execute():TTaskResult;
+function TTaskMining.Execute:TTaskResult;
 const SkipWalk=8; SkipWork=30; //Skip to certain Phases
 var Dir:integer; TimeToWork, StillFrame:integer; ResAcquired:boolean;
 begin

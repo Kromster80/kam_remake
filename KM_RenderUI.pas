@@ -363,7 +363,7 @@ begin
   glBegin(GL_LINE_LOOP);
     glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
-  glPopAttrib();
+  glPopAttrib;
 end;
 
 
@@ -380,7 +380,7 @@ begin
   glBegin(GL_LINE_LOOP);
     glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
-  glPopAttrib();
+  glPopAttrib;
 end;
 
 

@@ -19,10 +19,10 @@ type
       DeliverKind:TDeliverKind;
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure SyncLoad; override;
       destructor Destroy; override;
       function WalkShouldAbandon:boolean; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -62,7 +62,7 @@ begin
 end;
 
 
-procedure TTaskDeliver.SyncLoad();
+procedure TTaskDeliver.SyncLoad;
 begin
   Inherited;
   fFrom    := fPlayers.GetHouseByID(cardinal(fFrom));
@@ -102,7 +102,7 @@ begin
 end;
 
 
-function TTaskDeliver.Execute():TTaskResult;
+function TTaskDeliver.Execute:TTaskResult;
 var NewDelivery: TUnitTask;
 begin
   Result := TaskContinues;
@@ -148,7 +148,7 @@ begin
     7:  SetActionStay(5,ua_Walk); //wait a bit inside
     8:  begin
           fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
-          TKMUnitSerf(fUnit).CarryTake();
+          TKMUnitSerf(fUnit).CarryTake;
 
           fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
           fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
@@ -176,7 +176,7 @@ begin
     5:  SetActionWalkToSpot(fToHouse.GetEntrance,1); 
     6:  begin
           fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
-          TKMUnitSerf(fUnit).CarryTake();
+          TKMUnitSerf(fUnit).CarryTake;
           fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
           fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
@@ -211,7 +211,7 @@ begin
             fToUnit.SetFullCondition; //Feed the warrior
             TKMUnitWarrior(fToUnit).RequestedFood := false;
           end;
-          TKMUnitSerf(fUnit).CarryTake();
+          TKMUnitSerf(fUnit).CarryTake;
           fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
           fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying

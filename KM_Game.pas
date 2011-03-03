@@ -34,7 +34,7 @@ type
     fActiveCampaign:TCampaign; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
 
-    procedure GameInit();
+    procedure GameInit;
   public
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
@@ -62,7 +62,7 @@ type
 
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
-    procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
+    procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error 
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure GameStop(const Msg:TGameResultMsg; TextMsg:string='');
@@ -70,7 +70,7 @@ type
     procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
 
-    function  ReplayExists():boolean;
+    function  ReplayExists:boolean;
     procedure ReplayView(Sender:TObject);
 
     function GetMissionTime:cardinal;
@@ -81,10 +81,10 @@ type
     property GetCampaign:TCampaign read fActiveCampaign;
     property GetCampaignMap:byte read fActiveCampaignMap;
     property IsExiting:boolean read fIsExiting;
-    function GetNewID():cardinal;
+    function GetNewID:cardinal;
     property GameState:TGameState read fGameState;
     procedure SetGameSpeed(aSpeed:byte=0);
-    procedure StepOneFrame();
+    procedure StepOneFrame;
 
     procedure Save(SlotID:shortint);
     function Load(SlotID:shortint):string;
@@ -284,7 +284,7 @@ begin
 end;
 
 
-procedure TKMGame.GameInit();
+procedure TKMGame.GameInit;
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   fGameSpeed := 1; //In case it was set in last run mission
@@ -293,10 +293,10 @@ begin
   if fResource.GetDataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
     fRender.Render;
-    fResource.LoadGameResources();
+    fResource.LoadGameResources;
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
     fRender.Render;
-    fRender.LoadTileSet();
+    fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
@@ -532,10 +532,10 @@ begin
   if fResource.GetDataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'units and houses');
     fRender.Render;
-    fResource.LoadGameResources();
+    fResource.LoadGameResources;
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
     fRender.Render;
-    fRender.LoadTileSet();
+    fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
@@ -568,7 +568,7 @@ begin
     fGameName := 'New Mission';
   end;
 
-  fMapEditorInterface.Player_UpdateColors();
+  fMapEditorInterface.Player_UpdateColors;
   fPlayers.AfterMissionInit(false);
 
   for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
@@ -609,7 +609,7 @@ end;
 
 
 { Check if replay files exist at location }
-function TKMGame.ReplayExists():boolean;
+function TKMGame.ReplayExists:boolean;
 begin
   Result := FileExists(KMSlotToSaveName(99,'bas')) and
             FileExists(KMSlotToSaveName(99,'rpl'));
@@ -644,7 +644,7 @@ begin
 end;
 
 
-function TKMGame.GetNewID():cardinal;
+function TKMGame.GetNewID:cardinal;
 begin
   inc(ID_Tracker);
   Result := ID_Tracker;
@@ -665,7 +665,7 @@ begin
 end;
 
 
-procedure TKMGame.StepOneFrame();
+procedure TKMGame.StepOneFrame;
 begin
   Assert(fGameState in [gsPaused,gsReplay], 'We can work step-by-step only in Replay');
   SetGameSpeed(1); //Do not allow multiple updates in fGame.UpdateState loop
@@ -792,7 +792,7 @@ begin
     LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
 
     //Create empty environment
-    GameInit();
+    GameInit;
 
     //Substitute tick counter and id tracker
     LoadStream.Read(fMissionFile); //Savegame mission file
@@ -820,8 +820,8 @@ begin
     CopyFile(PChar(KMSlotToSaveName(SlotID,'bas')), PChar(KMSlotToSaveName(99,'bas')), false); //replace Replay base savegame
 
     fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
-    fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
-    fTerrain.SyncLoad(); //IsUnit values should be replaced with actual pointers
+    fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
+    fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
     fViewport.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
     Result := ''; //Loading has now completed successfully :)
     Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
@@ -885,11 +885,11 @@ begin
                   fGamePlayInterface.UpdateState;
 
                   if fGlobalTickCount mod 10 = 0 then //Every 1000ms
-                    fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
+                    fTerrain.RefreshMinimapData; //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
 
                   if fGlobalTickCount mod 10 = 0 then
                     if fMusicLib.IsMusicEnded then
-                      fMusicLib.PlayNextTrack(); //Feed new music track
+                      fMusicLib.PlayNextTrack; //Feed new music track
 
                   if fGlobalTickCount mod 10 = 0 then
                     Form1.StatusBar1.Panels[2].Text:='Time: '+int2time(GetMissionTime);
@@ -899,7 +899,7 @@ begin
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
                   if fGlobalTickCount mod 10 = 0 then //Every 500ms
-                    fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
+                    fTerrain.RefreshMinimapData; //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;
     end;
 

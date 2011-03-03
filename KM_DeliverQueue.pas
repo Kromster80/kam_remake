@@ -56,7 +56,7 @@ type
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     procedure SaveToFile(aFileName:string);
   end;
 
@@ -122,7 +122,7 @@ type
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
   end;
 
 implementation
@@ -558,7 +558,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.SyncLoad();
+procedure TKMDeliverQueue.SyncLoad;
 var i:integer;
 begin
   for i:=1 to OfferCount do
@@ -1000,7 +1000,7 @@ begin
 end;
 
 
-procedure TKMBuildingQueue.SyncLoad();
+procedure TKMBuildingQueue.SyncLoad;
 var i:integer;
 begin
   for i:=1 to FieldsCount do

@@ -13,7 +13,7 @@ type
     fHouse:TKMHouse;
     fHouseState: THouseState;
     fSubAction: THouseActionSet;
-    function GetWorkID():byte;
+    function GetWorkID:byte;
   public
     constructor Create(aHouse:TKMHouse; aHouseState: THouseState);
     procedure SetState(aHouseState: THouseState);
@@ -61,7 +61,7 @@ type
     procedure CloseHouse(IsEditor:boolean=false); virtual;
     procedure SetWareDelivery(AVal:boolean);
 
-    procedure MakeSound(); dynamic; //Swine/stables make extra sounds
+    procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID:byte):byte; //Will use GetRatio from mission settings to find distribution amount
   public
     ID:integer; //unique ID, used for save/load to sync to
@@ -71,7 +71,7 @@ type
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); virtual;
-    procedure SyncLoad(); virtual;
+    procedure SyncLoad; virtual;
     destructor Destroy; override;
     function GetHousePointer:TKMHouse; //Returns self and adds one to the pointer counter
     procedure ReleaseHousePointer; //Decreases the pointer counter
@@ -81,7 +81,7 @@ type
 
     property GetPosition:TKMPoint read fPosition;
     procedure SetPosition(aPos:TKMPoint); //Used only by map editor
-    function GetEntrance():TKMPoint;
+    function GetEntrance:TKMPoint;
     function GetClosestCell(aPos:TKMPoint):TKMPoint;
     function GetDistance(aPos:TKMPoint):single;
     procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
@@ -92,7 +92,7 @@ type
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property GetOwner:TPlayerID read fOwner;
-    function GetHealth():word;
+    function GetHealth:word;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -117,7 +117,7 @@ type
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
     function CheckResOrder(aID:byte):word;
-    function CheckResToBuild():boolean;
+    function CheckResToBuild:boolean;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
@@ -140,7 +140,7 @@ type
   public
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
-    function FeedBeasts():byte;
+    function FeedBeasts:byte;
     procedure TakeBeast(aID:byte);
     procedure MakeSound; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -163,7 +163,7 @@ type
     function HasFood:boolean;
     function HasSpace:boolean;
     procedure Save(SaveStream:TKMemoryStream); override;
-    procedure Paint(); override; //Render all eaters
+    procedure Paint; override; //Render all eaters
   end;
 
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
@@ -182,7 +182,7 @@ type
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
-    function GetTrainingProgress():byte;
+    function GetTrainingProgress:byte;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -194,8 +194,8 @@ type
     RecruitsList: TList;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
-    procedure SyncLoad(); override;
-    destructor Destroy(); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
     function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; override;
@@ -245,11 +245,11 @@ type
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     procedure IncAnimStep;
     procedure UpdateResRequest; //Change resource requested counts for all houses
     procedure UpdateState;
-    procedure Paint();
+    procedure Paint;
   end;
 
 
@@ -344,7 +344,7 @@ begin
 end;
 
 
-procedure TKMHouse.SyncLoad();
+procedure TKMHouse.SyncLoad;
 begin
   //Should be virtual
 end;
@@ -458,7 +458,7 @@ end;
 
 
 {Return Entrance of the house, which is different than house position sometimes}
-function TKMHouse.GetEntrance():TKMPoint;
+function TKMHouse.GetEntrance:TKMPoint;
 begin
   Result.X := GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y := GetPosition.Y;
@@ -551,7 +551,7 @@ begin
 end;
 
 
-function TKMHouse.GetHealth():word;
+function TKMHouse.GetHealth:word;
 begin
   Result := max(fBuildingProgress-fDamage, 0);
 end;
@@ -601,7 +601,7 @@ begin
   fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
   if BuildingRepair and (fRepairID = 0) then
     fRepairID := fPlayers.Player[byte(fOwner)].BuildList.AddHouseRepair(Self);
-  UpdateDamage();
+  UpdateDamage;
   if (GetHealth=0) and (fBuildState>=hbs_Wood) and not IsDestroyed then begin //Destroy only once
     DemolishHouse(false); //Destroyed by Enemy
     if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
@@ -619,7 +619,7 @@ begin
     fPlayers.Player[integer(fOwner)].BuildList.CloseHouseRepair(fRepairID);
     fRepairID:=0;
   end;
-  UpdateDamage();
+  UpdateDamage;
 end;
 
 
@@ -736,7 +736,7 @@ end;
 
 
 {Check if house has enough resource supply to be built depending on it's state}
-function TKMHouse.CheckResToBuild():boolean;
+function TKMHouse.CheckResToBuild:boolean;
 begin
   Result:=false;
   if fBuildState=hbs_Wood then
@@ -838,7 +838,7 @@ begin
 end;
 
 
-procedure TKMHouse.MakeSound();
+procedure TKMHouse.MakeSound;
 var WorkID,Step:byte;
 begin
   //Do not play sounds if house is invisible to MyPlayer
@@ -985,13 +985,13 @@ begin
   else
     fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES;
 
-  if not fIsDestroyed then MakeSound(); //Make some sound/noise along the work
+  if not fIsDestroyed then MakeSound; //Make some sound/noise along the work
 
   IncAnimStep;
 end;
 
 
-procedure TKMHouse.Paint();
+procedure TKMHouse.Paint;
 begin
   case fBuildState of
     hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
@@ -1045,7 +1045,7 @@ end;
 
 
 //Return ID of beast that has grown up
-function TKMHouseSwineStable.FeedBeasts():byte;
+function TKMHouseSwineStable.FeedBeasts:byte;
 var i:integer;
 begin
   Result:=0;
@@ -1313,7 +1313,7 @@ begin
 end;
 
 
-function TKMHouseSchool.GetTrainingProgress():byte;
+function TKMHouseSchool.GetTrainingProgress:byte;
 begin
   Result:=0;
   if UnitWIP=nil then exit;
@@ -1459,7 +1459,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.SyncLoad();
+procedure TKMHouseBarracks.SyncLoad;
 var i:integer;
 begin
   for i:=0 to RecruitsList.Count-1 do
@@ -1467,7 +1467,7 @@ begin
 end;
 
 
-destructor TKMHouseBarracks.Destroy();
+destructor TKMHouseBarracks.Destroy;
 begin
   FreeAndNil(RecruitsList);
   Inherited;
@@ -1596,7 +1596,7 @@ begin
 end;
 
 
-function THouseAction.GetWorkID():byte;
+function THouseAction.GetWorkID:byte;
 begin
   if ha_Work1 in fSubAction then Result := 1 else
   if ha_Work2 in fSubAction then Result := 2 else
@@ -1836,7 +1836,7 @@ begin
 end;
 
 
-procedure TKMHousesCollection.SyncLoad();
+procedure TKMHousesCollection.SyncLoad;
 var i:integer;
 begin
   fSelectedHouse := fPlayers.GetHouseByID(cardinal(fSelectedHouse));
@@ -1902,7 +1902,7 @@ begin
 end;
 
 
-procedure TKMHousesCollection.Paint();
+procedure TKMHousesCollection.Paint;
 var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
   if TEST_VIEW_CLIP_INSET then Margin:=-3 else Margin:=3;
@@ -1912,7 +1912,7 @@ begin
   for i := 0 to Count - 1 do
   if not Houses[i].IsDestroyed then
   if (InRange(Houses[i].fPosition.X,x1,x2) and InRange(Houses[i].fPosition.Y,y1,y2)) then
-    Houses[i].Paint();
+    Houses[i].Paint;
 end;
 
 

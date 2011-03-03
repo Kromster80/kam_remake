@@ -12,9 +12,9 @@ type
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure SyncLoad; override;
       destructor Destroy; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -40,7 +40,7 @@ begin
 end;
 
 
-procedure TTaskSelfTrain.SyncLoad();
+procedure TTaskSelfTrain.SyncLoad;
 begin
   Inherited;
   fSchool := TKMHouseSchool(fPlayers.GetHouseByID(cardinal(fSchool)));
@@ -54,7 +54,7 @@ begin
 end;
 
 
-function TTaskSelfTrain.Execute():TTaskResult;
+function TTaskSelfTrain.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 

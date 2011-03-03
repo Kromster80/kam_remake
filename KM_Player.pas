@@ -33,7 +33,7 @@ type
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
-    function GetColorIndex():byte;
+    function GetColorIndex:byte;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
@@ -67,11 +67,11 @@ type
     function GetHouseQty(aType:THouseType):integer;
     function GetHouseWip(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
-    function GetFieldsCount():integer;
+    function GetFieldsCount:integer;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     procedure IncAnimStep;
     procedure UpdateState;
     procedure Paint;
@@ -94,7 +94,7 @@ type
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     procedure UpdateState;
     procedure Paint;
@@ -395,7 +395,7 @@ begin
 end;
 
 
-function TKMPlayerAssets.GetColorIndex():byte;
+function TKMPlayerAssets.GetColorIndex:byte;
 var i:integer;
 begin
   Result := 3; //3 = Black which can be the default when a non-pallete 32 bit color value is used
@@ -433,7 +433,7 @@ end;
   Queried by MapEditor>SaveDAT;
   Might also be used to show Players strength (or builder/warrior balance) in Tavern
   If Player has none and no Units/Houses we can assume it's empty and does not needs to be saved }
-function TKMPlayerAssets.GetFieldsCount():integer;
+function TKMPlayerAssets.GetFieldsCount:integer;
 var i,k:integer;
 begin
   Result := 0;
@@ -489,7 +489,7 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.SyncLoad();
+procedure TKMPlayerAssets.SyncLoad;
 begin
   fUnits.SyncLoad;
   fHouses.SyncLoad;
@@ -535,7 +535,7 @@ begin
 end;
 
 
-procedure TKMPlayerAnimals.SyncLoad();
+procedure TKMPlayerAnimals.SyncLoad;
 begin
   fUnits.SyncLoad;
 end;

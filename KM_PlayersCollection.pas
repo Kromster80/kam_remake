@@ -30,7 +30,7 @@ type
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y:Integer):boolean;
-    function GetUnitCount():integer;
+    function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
     function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
@@ -43,7 +43,7 @@ type
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     procedure IncAnimStep;
     procedure UpdateState(Tick:cardinal);
     procedure Paint;
@@ -195,7 +195,7 @@ end;
 
 
 //Get total unit count for statistics display
-function TKMAllPlayers.GetUnitCount():integer;
+function TKMAllPlayers.GetUnitCount:integer;
 var i:integer;
 begin
   Result:=0;
@@ -335,7 +335,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.SyncLoad();
+procedure TKMAllPlayers.SyncLoad;
 var i:byte;
 begin
   for i:=1 to fPlayerCount do
@@ -347,7 +347,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.IncAnimStep();
+procedure TKMAllPlayers.IncAnimStep;
 var i:byte;
 begin
   for i:=1 to fPlayerCount do

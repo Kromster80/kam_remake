@@ -14,8 +14,8 @@ type
       constructor Create(aUnit,aTarget:TKMUnit);
       destructor Destroy; override;
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
-      function Execute():TTaskResult; override;
+      procedure SyncLoad; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -48,14 +48,14 @@ begin
 end;
 
 
-procedure TTaskThrowRock.SyncLoad();
+procedure TTaskThrowRock.SyncLoad;
 begin
   Inherited;
   fTarget := fPlayers.GetUnitByID(cardinal(fTarget));
 end;
 
 
-function TTaskThrowRock.Execute():TTaskResult;
+function TTaskThrowRock.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 

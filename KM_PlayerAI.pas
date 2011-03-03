@@ -22,7 +22,7 @@ type
     destructor Destroy; override;
     property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
     procedure Save(SaveStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     function IsFullyStocked(aAmount: integer):boolean;
   end;
 
@@ -33,9 +33,9 @@ type
     fTimeOfLastAttackMessage: cardinal;
 
     procedure CheckGoals;
-    procedure CheckUnitCount();
-    procedure CheckArmiesCount();
-    procedure CheckArmy();
+    procedure CheckUnitCount;
+    procedure CheckArmiesCount;
+    procedure CheckArmy;
   public
     ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Nunber of each unit type required
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
@@ -61,7 +61,7 @@ type
     procedure AddAttack(aAttack: TAIAttack);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     procedure UpdateState;
   end;
 
@@ -124,7 +124,7 @@ begin
 end;
 
 
-procedure TAIDefencePosition.SyncLoad();
+procedure TAIDefencePosition.SyncLoad;
 begin
   fCurrentCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCurrentCommander)));
 end;
@@ -234,7 +234,7 @@ end;
 
 
 { Check existing unit count vs house count and train missing citizens }
-procedure TKMPlayerAI.CheckUnitCount();
+procedure TKMPlayerAI.CheckUnitCount;
 var
   i,k:integer;
   UnitType:TUnitType;
@@ -304,7 +304,7 @@ begin
 end;
 
 
-procedure TKMPlayerAI.CheckArmiesCount();
+procedure TKMPlayerAI.CheckArmiesCount;
 var
   Barracks:array of TKMHouseBarracks;
   HB:TKMHouseBarracks;
@@ -357,7 +357,7 @@ begin
 end;
 
 
-procedure TKMPlayerAI.CheckArmy();
+procedure TKMPlayerAI.CheckArmy;
 
   procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
   var Needed: integer;
@@ -588,7 +588,7 @@ end;
 
 
 //So far this whole procedure is a placeholder
-procedure TKMPlayerAI.SyncLoad();
+procedure TKMPlayerAI.SyncLoad;
 var i: integer;
 begin
   for i:=0 to DefencePositionsCount-1 do

@@ -26,7 +26,7 @@ type
     StepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
-    procedure SyncLoad(); virtual;
+    procedure SyncLoad; virtual;
     property GetActionType: TUnitActionType read fActionType;
     function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -43,13 +43,13 @@ type
   public
     constructor Create(aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); virtual;
-    procedure SyncLoad(); dynamic;
+    procedure SyncLoad; dynamic;
     destructor Destroy; override;
 
     function WalkShouldAbandon:boolean; dynamic;
     property Phase:byte read fPhase write fPhase;
 
-    function Execute():TTaskResult; virtual; abstract;
+    function Execute:TTaskResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
@@ -89,7 +89,7 @@ type
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); dynamic;
-    procedure SyncLoad(); virtual;
+    procedure SyncLoad; virtual;
     destructor Destroy; override;
 
     function GetUnitPointer:TKMUnit; //Returns self and adds one to the pointer counter
@@ -121,14 +121,14 @@ type
     procedure AbandonWalk;
     function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
     property GetOwner:TPlayerID read fOwner;
-    function GetSpeed():single;
+    function GetSpeed:single;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property GetUnitTask: TUnitTask read fUnitTask;
     property SetUnitTask: TUnitTask write fUnitTask;
     property UnitType: TUnitType read fUnitType;
-    function GetUnitTaskText():string;
-    function GetUnitActText():string;
+    function GetUnitTaskText:string;
+    function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
     procedure SetFullCondition;
     function  HitPointsDecrease(aAmount:integer):boolean;
@@ -139,7 +139,7 @@ type
     procedure SetInHouse(aInHouse:TKMHouse);
     property IsDead:boolean read fIsDead;
     function IsDeadOrDying:boolean;
-    function IsArmyUnit():boolean;
+    function IsArmyUnit:boolean;
     function CanGoEat:boolean;
     property GetPosition:TKMPoint read fCurrPosition;
     procedure SetPosition(aPos:TKMPoint);
@@ -147,13 +147,13 @@ type
     property Thought:TUnitThought read fThought write fThought;
   protected
     procedure UpdateHunger;
-    procedure UpdateFOW();
-    procedure UpdateThoughts();
-    procedure UpdateVisibility();
-    procedure UpdateHitPoints();
+    procedure UpdateFOW;
+    procedure UpdateThoughts;
+    procedure UpdateVisibility;
+    procedure UpdateHitPoints;
   public
     procedure Save(SaveStream:TKMemoryStream); virtual;
-    function UpdateState():boolean; virtual;
+    function UpdateState:boolean; virtual;
     procedure Paint; virtual;
   end;
 
@@ -161,26 +161,26 @@ type
   TKMUnitCitizen = class(TKMUnit)
   private
     fWorkPlan:TUnitWorkPlan;
-    function FindHome():boolean;
-    function InitiateMining():TUnitTask;
-    procedure IssueResourceDepletedMessage();
+    function FindHome:boolean;
+    function InitiateMining:TUnitTask;
+    procedure IssueResourceDepletedMessage;
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     procedure Save(SaveStream:TKMemoryStream); override;
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
+    function UpdateState:boolean; override;
+    procedure Paint; override;
   end;
 
 
   TKMUnitRecruit = class(TKMUnit)
   private
-    function FindHome():boolean;
-    function InitiateActivity():TUnitTask;
+    function FindHome:boolean;
+    function InitiateActivity:TUnitTask;
   public
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
+    function UpdateState:boolean; override;
+    procedure Paint; override;
     procedure DestroyInBarracks;
   end;
 
@@ -194,17 +194,17 @@ type
     function GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
     procedure SetNewDelivery(aDelivery:TUnitTask);
     procedure Save(SaveStream:TKMemoryStream); override;
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
+    function UpdateState:boolean; override;
+    procedure Paint; override;
   end;
 
   //Worker class - builds everything in game
   TKMUnitWorker = class(TKMUnit)
   private
-    function GetActionFromQueue():TUnitTask;
+    function GetActionFromQueue:TUnitTask;
   public
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
+    function UpdateState:boolean; override;
+    procedure Paint; override;
   end;
 
 
@@ -217,8 +217,8 @@ type
     function ReduceFish:boolean;
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure Save(SaveStream:TKMemoryStream); override;
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
+    function UpdateState:boolean; override;
+    procedure Paint; override;
   end;
 
 
@@ -238,9 +238,9 @@ type
     function GetTotalPointers: integer;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     procedure UpdateState;
-    procedure Paint();
+    procedure Paint;
   end;
 
 
@@ -283,7 +283,7 @@ end;
 
 
 { Find home for unit }
-function TKMUnitCitizen.FindHome():boolean;
+function TKMUnitCitizen.FindHome:boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
@@ -295,7 +295,7 @@ begin
 end;
 
 
-procedure TKMUnitCitizen.Paint();
+procedure TKMUnitCitizen.Paint;
 var UnitTyp:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
@@ -338,7 +338,7 @@ begin
 end;
 
 
-function TKMUnitCitizen.UpdateState():boolean;
+function TKMUnitCitizen.UpdateState:boolean;
 var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
@@ -394,7 +394,7 @@ begin
 end;
 
 
-procedure TKMUnitCitizen.IssueResourceDepletedMessage();
+procedure TKMUnitCitizen.IssueResourceDepletedMessage;
 var Msg:string;
 begin
   if (fOwner = MyPlayer.PlayerID) //Don't show for AI players
@@ -417,7 +417,7 @@ begin
 end;
 
 
-function TKMUnitCitizen.InitiateMining():TUnitTask;
+function TKMUnitCitizen.InitiateMining:TUnitTask;
 var i,Tmp,Res:integer;
 begin
   Result:=nil;
@@ -460,7 +460,7 @@ end;
 
 
 { TKMUnitRecruit }
-function TKMUnitRecruit.FindHome():boolean;
+function TKMUnitRecruit.FindHome:boolean;
 var KMHouse:TKMHouse;
 begin
   Result  := false;
@@ -472,7 +472,7 @@ begin
 end;
 
 
-procedure TKMUnitRecruit.Paint();
+procedure TKMUnitRecruit.Paint;
 var UnitTyp:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
@@ -514,7 +514,7 @@ begin
 end;
 
 
-function TKMUnitRecruit.UpdateState():boolean;
+function TKMUnitRecruit.UpdateState:boolean;
 var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
@@ -563,7 +563,7 @@ begin
 end;
 
 
-function TKMUnitRecruit.InitiateActivity():TUnitTask;
+function TKMUnitRecruit.InitiateActivity:TUnitTask;
 var
   Enemy:TKMUnit;
 begin
@@ -590,7 +590,7 @@ begin
 end;
 
 
-procedure TKMUnitSerf.Paint();
+procedure TKMUnitSerf.Paint;
 var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
@@ -622,7 +622,7 @@ begin
 end;
 
 
-function TKMUnitSerf.UpdateState():boolean;
+function TKMUnitSerf.UpdateState:boolean;
 var
   H:TKMHouseInn;
   OldThought:TUnitThought;
@@ -679,7 +679,7 @@ end;
 
 
 { TKMWorker }
-procedure TKMUnitWorker.Paint();
+procedure TKMUnitWorker.Paint;
 var XPaintPos, YPaintPos: single;
 begin
   Inherited;
@@ -695,7 +695,7 @@ begin
 end;
 
 
-function TKMUnitWorker.UpdateState():boolean;
+function TKMUnitWorker.UpdateState:boolean;
 var
   H:TKMHouseInn;
 begin
@@ -720,7 +720,7 @@ begin
 end;
 
 
-function TKMUnitWorker.GetActionFromQueue():TUnitTask;
+function TKMUnitWorker.GetActionFromQueue:TUnitTask;
 begin
                      Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouseRepair(Self);
   if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHousePlan(Self);
@@ -774,7 +774,7 @@ begin
 end;
 
 
-function TKMUnitAnimal.UpdateState():boolean;
+function TKMUnitAnimal.UpdateState:boolean;
 var
   Spot:TKMPoint; //Target spot where unit will go
   SpotJit:byte;
@@ -796,7 +796,7 @@ begin
 
   Assert((fUnitTask = nil) or (fUnitTask is TTaskDie));
   if fUnitTask is TTaskDie then
-  case fUnitTask.Execute() of
+  case fUnitTask.Execute of
     TaskContinues:  exit;
     TaskDone:       Assert(false); //TTaskDie never returns TaskDone yet 
   end;
@@ -823,7 +823,7 @@ begin
 end;
 
 
-procedure TKMUnitAnimal.Paint();
+procedure TKMUnitAnimal.Paint;
 var AnimAct,AnimDir:integer;
 begin
   Inherited;
@@ -956,7 +956,7 @@ begin
 end;
 
 
-procedure TKMUnit.SyncLoad();
+procedure TKMUnit.SyncLoad;
 begin
   if fUnitTask<>nil then fUnitTask.SyncLoad;
   if fCurrentAction<>nil then fCurrentAction.SyncLoad;
@@ -1065,13 +1065,13 @@ begin
 end;
 
 
-function TKMUnit.GetSpeed():single;
+function TKMUnit.GetSpeed:single;
 begin
   Result := UnitStat[byte(fUnitType)].Speed/24;
 end;
 
 
-function TKMUnit.GetUnitTaskText():string;
+function TKMUnit.GetUnitTaskText:string;
 begin
   Result:='Idle';                                      {----------} //Thats allowed width
   if fUnitTask is TTaskSelfTrain        then Result := 'Train';
@@ -1093,7 +1093,7 @@ begin
 end;
 
 
-function TKMUnit.GetUnitActText():string;
+function TKMUnit.GetUnitActText:string;
 begin
   Result:=' - ';
   if fCurrentAction is TUnitActionWalkTo then
@@ -1392,7 +1392,7 @@ end;
 
 
 {Check wherever this unit is armed}
-function TKMUnit.IsArmyUnit():boolean;
+function TKMUnit.IsArmyUnit:boolean;
 begin
   Result := fUnitType in [ut_Militia .. ut_Barbarian];
 end;
@@ -1546,7 +1546,7 @@ end;
 
 
 {Here are common Unit.UpdateState routines}
-function TKMUnit.UpdateState():boolean;
+function TKMUnit.UpdateState:boolean;
 begin
   //There are layers of unit activity (bottom to top):
   // - Action (Atom creating layer (walk 1frame, etc..))
@@ -1562,11 +1562,11 @@ begin
     assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
 
-  UpdateHunger();
-  UpdateFOW();
-  UpdateThoughts();
-  UpdateHitPoints();
-  UpdateVisibility(); //incase units home was destroyed
+  UpdateHunger;
+  UpdateFOW;
+  UpdateThoughts;
+  UpdateHitPoints;
+  UpdateVisibility; //incase units home was destroyed
 
   //Shortcut to freeze unit in place if it's on an unwalkable tile
   if fCurrentAction is TUnitActionWalkTo then
@@ -1600,7 +1600,7 @@ begin
 
 
   if fUnitTask <> nil then
-  case fUnitTask.Execute() of
+  case fUnitTask.Execute of
     TaskContinues:  exit;
     TaskDone:       FreeAndNil(fUnitTask);
   end;
@@ -1612,7 +1612,7 @@ begin
 end;
 
 
-procedure TKMUnit.Paint();
+procedure TKMUnit.Paint;
 begin
   if fCurrentAction=nil then
   begin
@@ -1654,7 +1654,7 @@ begin
 end;
 
 
-procedure TUnitTask.SyncLoad();
+procedure TUnitTask.SyncLoad;
 begin
   fUnit := fPlayers.GetUnitByID(cardinal(fUnit));
 end;
@@ -1708,7 +1708,7 @@ begin
 end;
 
 
-procedure TUnitAction.SyncLoad();
+procedure TUnitAction.SyncLoad;
 begin
   //Should be virtual
 end;
@@ -1927,7 +1927,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.SyncLoad();
+procedure TKMUnitsCollection.SyncLoad;
 var i:integer;
 begin
   for i:=0 to Count-1 do
@@ -1992,7 +1992,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.Paint();
+procedure TKMUnitsCollection.Paint;
 var i:integer; x1,x2,y1,y2:smallint; Margin:shortint;
 begin
   if TEST_VIEW_CLIP_INSET then Margin:=-1 else Margin:=1;
@@ -2004,7 +2004,7 @@ begin
   for i:=0 to Count-1 do
   if (Items[i] <> nil) and (not Units[i].IsDead) then
   if (InRange(Units[i].fPosition.X,x1,x2) and InRange(Units[i].fPosition.Y,y1,y2)) then
-    Units[i].Paint();
+    Units[i].Paint;
 end;
 
 

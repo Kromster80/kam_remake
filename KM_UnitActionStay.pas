@@ -14,7 +14,7 @@ TUnitActionStay = class(TUnitAction)
   public
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
     constructor Load(LoadStream:TKMemoryStream); override;
-    function HowLongLeftToStay():integer;
+    function HowLongLeftToStay:integer;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -46,7 +46,7 @@ end;
 
 
 //If someone whats to know how much time unit has to stay
-function TUnitActionStay.HowLongLeftToStay():integer;
+function TUnitActionStay.HowLongLeftToStay:integer;
 begin
   Result := EnsureRange(TimeToStay, 0, maxint);
 end;

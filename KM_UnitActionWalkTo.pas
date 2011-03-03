@@ -40,13 +40,13 @@ type
       fDoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
       fInteractionCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
-      function AssembleTheRoute():boolean;
-      function CheckForNewDestination():TDestinationCheck;
-      function CheckTargetHasDied():TTargetDiedCheck;
-      function CheckForObstacle():TObstacleCheck;
-      function CheckWalkComplete():boolean;
+      function AssembleTheRoute:boolean;
+      function CheckForNewDestination:TDestinationCheck;
+      function CheckTargetHasDied:TTargetDiedCheck;
+      function CheckForObstacle:TObstacleCheck;
+      function CheckWalkComplete:boolean;
       function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
-      function DoUnitInteraction():boolean;
+      function DoUnitInteraction:boolean;
         //Sub functions split out of DoUnitInteraction (these are the solutions)
         function IntCheckIfPushing(fOpponent:TKMUnit):boolean;
         function IntSolutionPush(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
@@ -62,7 +62,7 @@ type
       procedure DecVertex;
       procedure SetInitValues;
       function CanAbandonInternal: boolean;
-      function GetNextNextPosition():TKMPoint;
+      function GetNextNextPosition:TKMPoint;
       function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
       procedure ExplanationLogCreate;
       procedure ExplanationLogAdd;
@@ -75,15 +75,15 @@ type
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
       constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
       constructor Load(LoadStream: TKMemoryStream); override;
-      procedure  SyncLoad(); override;
+      procedure  SyncLoad; override;
       destructor Destroy; override;
       function  CanAbandonExternal: boolean;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
-      function  GetExplanation():string;
+      function  GetExplanation:string;
       procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
-      procedure Paint(); //Used only for debug so far
+      procedure Paint; //Used only for debug so far
     end;
 
 
@@ -132,7 +132,7 @@ begin
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
-  RouteBuilt := AssembleTheRoute();
+  RouteBuilt := AssembleTheRoute;
   //Due to rare circumstances (e.g. floodfill doesn't take notice of CanWalkDiagonally i.e. trees on road corners)
   // there are times when trying to build a route along roads will fail.
   // To reduce crash errors, try rebuilding it with just CanWalk. This will normally fix the problem and
@@ -140,7 +140,7 @@ begin
   if (not RouteBuilt) and (fPass = CanWalkRoad) then
   begin
     fPass := CanWalk;
-    RouteBuilt := AssembleTheRoute();
+    RouteBuilt := AssembleTheRoute;
   end;
 
   if aSetPushed then begin
@@ -149,7 +149,7 @@ begin
     ExplanationLogAdd;
     fPass := GetEffectivePassability; //Units are allowed to step off roads when they are pushed
     //Because the passability has changed we might need to reassemble the route if it failed in create
-    if not RouteBuilt then RouteBuilt := AssembleTheRoute();
+    if not RouteBuilt then RouteBuilt := AssembleTheRoute;
   end;
 
   if not RouteBuilt then
@@ -228,7 +228,7 @@ begin
 end;
 
 
-procedure TUnitActionWalkTo.SyncLoad();
+procedure TUnitActionWalkTo.SyncLoad;
 begin
   Inherited;
   fWalker       := fPlayers.GetUnitByID(cardinal(fWalker));
@@ -276,7 +276,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.GetExplanation():string;
+function TUnitActionWalkTo.GetExplanation:string;
 begin
   Result := TInteractionStatusNames[fInteractionStatus] + ': '+Explanation;
 end;
@@ -321,7 +321,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.AssembleTheRoute():boolean;
+function TUnitActionWalkTo.AssembleTheRoute:boolean;
 var i:integer; NodeList2:TKMPointList; TmpPass: TPassability;
 begin
   TmpPass := fPass;
@@ -355,7 +355,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.CheckForNewDestination():TDestinationCheck;
+function TUnitActionWalkTo.CheckForNewDestination:TDestinationCheck;
 begin
   if KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
     Result := dc_NoChanges
@@ -366,13 +366,13 @@ begin
     fNewWalkTo := KMPoint(0,0);
     //Delete everything past NodePos and add new route from there
     NodeList.Count := NodePos;
-    if not AssembleTheRoute() then
+    if not AssembleTheRoute then
       Result := dc_NoRoute;
   end;
 end;
 
 
-function TUnitActionWalkTo.CheckTargetHasDied():TTargetDiedCheck;
+function TUnitActionWalkTo.CheckTargetHasDied:TTargetDiedCheck;
 begin
   if (fTargetUnit=nil) or not fTargetUnit.IsDeadOrDying then
     Result := tc_NoChanges
@@ -394,7 +394,7 @@ end;
 { There's unexpected immovable obstacle on our way (suddenly grown up tree, wall, house)
 1. go around the obstacle and keep on walking
 2. rebuild the route}
-function TUnitActionWalkTo.CheckForObstacle():TObstacleCheck;
+function TUnitActionWalkTo.CheckForObstacle:TObstacleCheck;
 begin
   Result := oc_NoObstacle;
 
@@ -424,7 +424,7 @@ end;
   - We were walking to unit and met it early
   - The Task wants us to abandon
 }
-function TUnitActionWalkTo.CheckWalkComplete():boolean;
+function TUnitActionWalkTo.CheckWalkComplete:boolean;
 begin
   Result := (NodePos=NodeList.Count)
             or ((fTargetHouse = nil) and (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fDistance))
@@ -708,7 +708,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.DoUnitInteraction():boolean;
+function TUnitActionWalkTo.DoUnitInteraction:boolean;
 var
   fOpponent:TKMUnit;
   HighestInteractionCount: integer;
@@ -783,7 +783,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.GetNextNextPosition():TKMPoint;
+function TUnitActionWalkTo.GetNextNextPosition:TKMPoint;
 begin
   if NodePos+1 > NodeList.Count then
     Result:=KMPoint(0,0) //Error
@@ -1047,7 +1047,7 @@ begin
 end;
 
 
-procedure TUnitActionWalkTo.Paint();
+procedure TUnitActionWalkTo.Paint;
 begin
   fRender.RenderDebugUnitRoute(NodeList, NodePos, byte(fWalker.UnitType));
 end;

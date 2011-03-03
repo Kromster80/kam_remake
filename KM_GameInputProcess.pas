@@ -22,7 +22,7 @@ uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
   Most importantly it converts all Cmd____ methods called by TGamePlayInterfaces into one procedure
   ProcessCommandFromPlayer. Single and Multi then use this according to their needs.
   Replays are stored and managed here, hidden from the child classes by private. They add new replay
-  commands with StoreCommand, and in gipReplaying state commands are executed on Tick()
+  commands with StoreCommand, and in gipReplaying state commands are executed on Tick
   }
 
 const MAX_PARAMS = 4; //There are maximum of 4 integers passed along with a command

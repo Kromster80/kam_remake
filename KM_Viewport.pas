@@ -19,10 +19,10 @@ TViewport = class
     constructor Create;
     procedure SetZoom(aZoom:single);
     procedure ResizeGameArea(NewWidth,NewHeight:integer);
-    function GetCenter():TKMPointF;
+    function GetCenter:TKMPointF;
     procedure SetCenter(NewX,NewY:single);
-    function GetClip():TRect; //returns visible area dimensions in map space
-    function GetMinimapClip():TRect;
+    function GetClip:TRect; //returns visible area dimensions in map space
+    function GetMinimapClip:TRect;
     procedure DoScrolling(aFrameTime:cardinal);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -74,7 +74,7 @@ begin
 end;
 
 
-function TViewport.GetCenter():TKMPointF;
+function TViewport.GetCenter:TKMPointF;
 begin
   Result.X := EnsureRange(XCoord, 1, fTerrain.MapX);
   Result.Y := EnsureRange(YCoord, 1, fTerrain.MapY);
@@ -94,7 +94,7 @@ end;
 
 //Acquire boundaries of area visible to user (including mountain tops from the lower tiles)
 //TestViewportClipInset is for debug, allows to see if all gets clipped well
-function TViewport.GetClip():TRect;
+function TViewport.GetClip:TRect;
 begin
   Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom),1);
   Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
@@ -109,7 +109,7 @@ end;
 
 
 //Same as above function but with some values changed to suit minimap
-function TViewport.GetMinimapClip():TRect;
+function TViewport.GetMinimapClip:TRect;
 begin
   Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,1);
   Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);

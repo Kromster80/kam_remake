@@ -15,7 +15,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -29,7 +29,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -42,7 +42,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -55,7 +55,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -69,9 +69,9 @@ type
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure SyncLoad; override;
       destructor Destroy; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -84,10 +84,10 @@ type
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure SyncLoad; override;
       destructor Destroy; override;
       function WalkShouldAbandon:boolean; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -100,10 +100,10 @@ type
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure SyncLoad; override;
       destructor Destroy; override;
       function WalkShouldAbandon:boolean; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -143,7 +143,7 @@ begin
 end;
 
 
-function TTaskBuildRoad.Execute():TTaskResult;
+function TTaskBuildRoad.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 
@@ -245,7 +245,7 @@ begin
 end;
 
 
-function TTaskBuildWine.Execute():TTaskResult;
+function TTaskBuildWine.Execute:TTaskResult;
 begin
   Result := TaskContinues;
   with fUnit do
@@ -338,7 +338,7 @@ begin
 end;
 
 
-function TTaskBuildField.Execute():TTaskResult;
+function TTaskBuildField.Execute:TTaskResult;
 begin
   Result := TaskContinues;
   with fUnit do
@@ -414,7 +414,7 @@ end;
 
 
 //Need an idea how to make it work
-function TTaskBuildWall.Execute():TTaskResult;
+function TTaskBuildWall.Execute:TTaskResult;
 begin
   Result := TaskContinues;
   with fUnit do
@@ -513,7 +513,7 @@ begin
 end;
 
 
-procedure TTaskBuildHouseArea.SyncLoad();
+procedure TTaskBuildHouseArea.SyncLoad;
 begin
   Inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
@@ -535,7 +535,7 @@ end;
 
 
 {Prepare building site - flatten terrain}
-function TTaskBuildHouseArea.Execute():TTaskResult;
+function TTaskBuildHouseArea.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 
@@ -643,7 +643,7 @@ begin
 end;
 
 
-procedure TTaskBuildHouse.SyncLoad();
+procedure TTaskBuildHouse.SyncLoad;
 begin
   Inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
@@ -672,8 +672,8 @@ end;
 
 
 {Build the house}
-function TTaskBuildHouse.Execute():TTaskResult;
-  function PickRandomSpot(): byte;
+function TTaskBuildHouse.Execute:TTaskResult;
+  function PickRandomSpot: byte;
   var i, MyCount: integer; Spots: array[1..16] of byte;
   begin
     MyCount := 0;
@@ -703,7 +703,7 @@ begin
     case fPhase of
       0: begin
            Thought := th_Build;
-           CurLoc := PickRandomSpot();
+           CurLoc := PickRandomSpot;
            SetActionWalkToSpot(Cells.List[CurLoc].Loc);
          end;
       1: begin
@@ -779,7 +779,7 @@ begin
 end;
 
 
-procedure TTaskBuildHouseRepair.SyncLoad();
+procedure TTaskBuildHouseRepair.SyncLoad;
 begin
   Inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
@@ -801,7 +801,7 @@ end;
 
 
 {Repair the house}
-function TTaskBuildHouseRepair.Execute():TTaskResult;
+function TTaskBuildHouseRepair.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 

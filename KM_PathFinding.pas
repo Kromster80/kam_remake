@@ -34,10 +34,10 @@ type
     fDestination:TDestinationPoint;
     fTargetHouse: TKMHouse;
     fRouteSuccessfullyBuilt:boolean;
-    function CheckRouteCanExist():boolean;
-    procedure InitRoute();
-    function IsDestinationReached():boolean;
-    function MakeRoute():boolean;
+    function CheckRouteCanExist:boolean;
+    procedure InitRoute;
+    function IsDestinationReached:boolean;
+    function MakeRoute:boolean;
   public
     constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint); overload;
@@ -67,8 +67,8 @@ begin
 
   if not CheckRouteCanExist then exit;
 
-  InitRoute();
-  fRouteSuccessfullyBuilt := MakeRoute(); //
+  InitRoute;
+  fRouteSuccessfullyBuilt := MakeRoute; //
 end;
 
 
@@ -84,13 +84,13 @@ begin
   fRouteSuccessfullyBuilt := false;
   fDestination := dp_Passability;
 
-  InitRoute();
-  fRouteSuccessfullyBuilt := MakeRoute(); //
+  InitRoute;
+  fRouteSuccessfullyBuilt := MakeRoute; //
 end;
 
 
 //Don't try to make a route if it's obviously impossible
-function TPathFinding.CheckRouteCanExist():boolean;
+function TPathFinding.CheckRouteCanExist:boolean;
 begin
   if IsInteractionAvoid then fTerrain.RebuildWalkConnect(wcAvoid); //Rebuild on demand
   if fDestination = dp_House then
@@ -100,7 +100,7 @@ begin
 end;
 
 
-procedure TPathFinding.InitRoute();
+procedure TPathFinding.InitRoute;
 begin
   FillChar(ORef,SizeOf(ORef),#0);
   setlength(OList,0); //reset length
@@ -114,7 +114,7 @@ begin
 end;
 
 
-function TPathFinding.IsDestinationReached():boolean;
+function TPathFinding.IsDestinationReached:boolean;
 begin
   case fDestination of
     dp_Location:    Result := KMLength(MinCost.Pos,LocB) <= fDistance;
@@ -125,7 +125,7 @@ begin
 end;
 
 
-function TPathFinding.MakeRoute():boolean;
+function TPathFinding.MakeRoute:boolean;
 const c_closed=65535;
 var i,x,y:integer;
 begin

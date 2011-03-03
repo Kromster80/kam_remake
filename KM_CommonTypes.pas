@@ -104,10 +104,10 @@ type TKMPointList = class
     procedure AddEntry(aLoc:TKMPoint);
     function  RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
-    function  GetRandom():TKMPoint;
-    procedure Inverse();
-    function  GetTopLeft():TKMPoint;
-    function  GetBottomRight():TKMPoint;
+    function  GetRandom:TKMPoint;
+    procedure Inverse;
+    function  GetTopLeft:TKMPoint;
+    function  GetBottomRight:TKMPoint;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
@@ -132,7 +132,7 @@ type TKMPointDirList = class //Used for finding fishing places, fighting positio
     procedure AddEntry(aLoc:TKMPointDir);
     function RemoveEntry(aLoc:TKMPointDir):cardinal;
     procedure InjectEntry(ID:integer; aLoc:TKMPointDir);
-    function GetRandom():TKMPointDir;
+    function GetRandom:TKMPointDir;
     function GetNearest(aLoc:TKMPoint):TKMPointDir;
     procedure Save(SaveStream:TKMemoryStream);
   end;
@@ -487,7 +487,7 @@ begin
 end;
 
 
-function TKMPointList.GetRandom():TKMPoint;
+function TKMPointList.GetRandom:TKMPoint;
 begin
   if Count=0 then Result:=KMPoint(0,0)
              else Result:=List[random(Count)+1];
@@ -495,7 +495,7 @@ end;
 
 
 //Reverse the list
-procedure TKMPointList.Inverse();
+procedure TKMPointList.Inverse;
 var i:integer;
 begin
   for i:=1 to Count div 2 do
@@ -503,7 +503,7 @@ begin
 end;
 
 
-function TKMPointList.GetTopLeft():TKMPoint;
+function TKMPointList.GetTopLeft:TKMPoint;
 var i:integer;
 begin
   if Count=0 then exit;
@@ -515,7 +515,7 @@ begin
 end;
 
 
-function TKMPointList.GetBottomRight():TKMPoint;
+function TKMPointList.GetBottomRight:TKMPoint;
 var i:integer;
 begin
   if Count=0 then exit;
@@ -656,7 +656,7 @@ begin
 end;
 
 
-function TKMPointDirList.GetRandom():TKMPointDir;
+function TKMPointDirList.GetRandom:TKMPointDir;
 begin
   if Count=0 then Result:=KMPointDir(0,0,0)
              else Result:=List[random(Count)+1];

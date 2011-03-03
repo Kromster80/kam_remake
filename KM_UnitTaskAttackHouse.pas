@@ -15,11 +15,11 @@ type
     public
       constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure SyncLoad; override;
       destructor Destroy; override;
       property DestroyingHouse:boolean read fDestroyingHouse;
       function WalkShouldAbandon:boolean; override;
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -53,7 +53,7 @@ begin
 end;
 
 
-procedure TTaskAttackHouse.SyncLoad();
+procedure TTaskAttackHouse.SyncLoad;
 begin
   Inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
@@ -74,7 +74,7 @@ begin
 end;
 
 
-function TTaskAttackHouse.Execute():TTaskResult;
+function TTaskAttackHouse.Execute:TTaskResult;
 var AnimLength:integer;
 begin
   Result := TaskContinues;

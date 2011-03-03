@@ -180,14 +180,14 @@ TTerrain = class
     procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
     procedure MapEdTile(aLoc:TKMPoint; aTile,aRotation:byte);
 
-    procedure RefreshMinimapData();
+    procedure RefreshMinimapData;
 
-    procedure IncAnimStep(); //Lite-weight UpdaState for MapEd
+    procedure IncAnimStep; //Lite-weight UpdaState for MapEd
     property AnimStep: integer read fAnimStep;
     procedure SaveToMapFile(aFile:string);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad();
+    procedure SyncLoad;
     procedure UpdateState;
     procedure Paint;
   end;
@@ -2297,7 +2297,7 @@ begin
 end;
 
 
-procedure TTerrain.RefreshMinimapData();
+procedure TTerrain.RefreshMinimapData;
 var i,k,ID:integer; Light:smallint; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
@@ -2332,7 +2332,7 @@ begin
 end;
 
 
-procedure TTerrain.IncAnimStep();
+procedure TTerrain.IncAnimStep;
 begin
   inc(fAnimStep);
 end;
@@ -2409,7 +2409,7 @@ begin
 end;
 
 
-procedure TTerrain.SyncLoad();
+procedure TTerrain.SyncLoad;
 var i,k:integer;
 begin
   for i:=1 to MapY do for k:=1 to MapX do

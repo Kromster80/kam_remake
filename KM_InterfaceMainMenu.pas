@@ -164,8 +164,8 @@ type TKMMainMenuInterface = class
     procedure Campaign_Set(aCampaign:TCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
-    procedure SingleMap_PopulateList();
-    procedure SingleMap_RefreshList();
+    procedure SingleMap_PopulateList;
+    procedure SingleMap_RefreshList;
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
@@ -176,7 +176,7 @@ type TKMMainMenuInterface = class
     procedure MultiPlayer_LANQuitLobby;
 
     procedure MultiPlayer_LANShowLogin;
-    procedure MultiPlayer_WWWShowLogin();
+    procedure MultiPlayer_WWWShowLogin;
     procedure MultiPlayer_WWWShowLoginResult(Sender: TObject);
     procedure MultiPlayer_WWWLoginQuery(Sender: TObject);
     procedure MultiPlayer_WWWLoginResult(Sender: TObject);
@@ -186,7 +186,7 @@ type TKMMainMenuInterface = class
     procedure MultiPlayer_PlayersList(const aData:string);
 
     procedure Load_Click(Sender: TObject);
-    procedure Load_PopulateList();
+    procedure Load_PopulateList;
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_Change(Sender: TObject);
     procedure Options_Change(Sender: TObject);
@@ -195,7 +195,7 @@ type TKMMainMenuInterface = class
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:word);
     procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
-    procedure Fill_Results();
+    procedure Fill_Results;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyUp(Key:Word; Shift: TShiftState);
@@ -265,7 +265,7 @@ begin
   if SHOW_1024_768_OVERLAY then with MyControls.AddShape(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
   SwitchMenuPage(nil);
-  //ShowScreen_Results(); //Put here page you would like to debug
+  //ShowScreen_Results; //Put here page you would like to debug
   fLog.AppendLog('Main menu init done');
 end;
 
@@ -320,7 +320,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Fill_Results();
+procedure TKMMainMenuInterface.Fill_Results;
 begin
   if (MyPlayer=nil) or (MyPlayer.fPlayerStats=nil) then exit;
 
@@ -848,15 +848,15 @@ begin
 
   {Show SingleMap menu}
   if Sender=Button_SP_Single then begin
-    SingleMap_PopulateList();
-    SingleMap_RefreshList();
+    SingleMap_PopulateList;
+    SingleMap_RefreshList;
     SingleMap_SelectMap(Shape_SingleOverlay[1]);
     Panel_Single.Show;
   end;
 
   {Show Load menu}
   if Sender=Button_SP_Load then begin
-    Load_PopulateList();
+    Load_PopulateList;
     Panel_Load.Show;
   end;
 
@@ -867,13 +867,13 @@ begin
 
   {Show LAN login}
   if Sender=Button_MP_LAN then begin
-    MultiPlayer_LANShowLogin();
+    MultiPlayer_LANShowLogin;
     Panel_LANLogin.Show;
   end;
 
   {Show WWW login}
   if Sender=Button_MP_WWW then begin
-    MultiPlayer_WWWShowLogin();
+    MultiPlayer_WWWShowLogin;
     Panel_WWWLogin.Show;
   end;
 
@@ -1031,13 +1031,13 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_PopulateList();
+procedure TKMMainMenuInterface.SingleMap_PopulateList;
 begin
-  SingleMapsInfo.ScanSingleMapsFolder();
+  SingleMapsInfo.ScanSingleMapsFolder;
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_RefreshList();
+procedure TKMMainMenuInterface.SingleMap_RefreshList;
 var i,ci:integer;
 begin
   for i:=1 to MENU_SP_MAPS_COUNT do begin
@@ -1070,7 +1070,7 @@ begin
     SingleMap_SelectMap(Shape_SingleOverlay[1+SingleMap_Selected-SingleMap_Top])
   else
     SingleMap_SelectMap(nil); //Means it is off visible area
-  SingleMap_RefreshList();
+  SingleMap_RefreshList;
 end;
 
 
@@ -1173,7 +1173,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayer_WWWShowLogin();
+procedure TKMMainMenuInterface.MultiPlayer_WWWShowLogin;
 begin(*
   {$IFDEF WDC}with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do begin
     FreeOnTerminate := true;
@@ -1248,7 +1248,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Load_PopulateList();
+procedure TKMMainMenuInterface.Load_PopulateList;
 var i:integer;
 begin
   for i:=1 to SAVEGAME_COUNT do

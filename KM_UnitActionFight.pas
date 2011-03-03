@@ -15,7 +15,7 @@ TUnitActionFight = class(TUnitAction)
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
-    procedure SyncLoad(); override;
+    procedure SyncLoad; override;
     property GetOpponent: TKMUnit read fOpponent;
     procedure MakeSound(KMUnit: TKMUnit; IsHit:boolean);
     function Execute(KMUnit: TKMUnit):TActionResult; override;
@@ -54,7 +54,7 @@ begin
 end;
 
 
-procedure TUnitActionFight.SyncLoad();
+procedure TUnitActionFight.SyncLoad;
 begin
   Inherited;
   fOpponent := fPlayers.GetUnitByID(cardinal(fOpponent));

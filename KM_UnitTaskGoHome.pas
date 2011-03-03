@@ -7,7 +7,7 @@ type
   TTaskGoHome = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
     end;
 
 
@@ -23,7 +23,7 @@ begin
 end;
 
 
-function TTaskGoHome.Execute():TTaskResult;
+function TTaskGoHome.Execute:TTaskResult;
 begin
   Result := TaskContinues;
   if fUnit.GetHome.IsDestroyed then begin

@@ -38,7 +38,7 @@ type
 
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
-    function GetArmyCount():integer;
+    function GetArmyCount:integer;
     function GetCanBuild(aType:THouseType):boolean;
 
     function GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
@@ -157,7 +157,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetArmyCount():integer;
+function TKMPlayerStats.GetArmyCount:integer;
 var ut:TUnitType;
 begin
   Result := 0;
