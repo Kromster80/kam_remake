@@ -38,7 +38,7 @@ type
       fOnPlayersList:TStringEvent;
 
       procedure SendPlayerList;
-      procedure DecodePlayersList(aSender:string; const aData: array of byte);
+      procedure DecodePlayersList(const aText:string);
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
@@ -131,39 +131,17 @@ end;
 
 
 procedure TKMNetworking.SendPlayerList;
-var s:string; i:integer;
+var i:integer;
 begin
-  s := '';//Format('%.2d',[fPlayersList.Count-1]); //Exclude self from overall count
-
-  for i:=0 to fPlayersList.Count-1 do
-    s := s + fPlayersList[i] + #0;
-
   for i:=1 to fPlayersList.Count-1 do
-    PacketSend(fPlayersList[i], mk_PlayersList, s);
+    PacketSend(fPlayersList[i], mk_PlayersList, fPlayersList.Text);
 end;
 
 
-procedure TKMNetworking.DecodePlayersList(aSender:string; const aData: array of byte);
-var s:string; i,k:integer;
+procedure TKMNetworking.DecodePlayersList(const aText:string);
 begin
-  fPlayersList.Clear;
-
-  Assert(aData[length(aData)-1] = 0); //Make sure aText is complete, it must end with a seperator
-
-  i := 1; //Ignore first byte, it is the message kind
-  k := 0;
-  fPlayersList.Add(''); //First blank string, k=0
-  repeat
-    //Seperator
-    if aData[i] = 0 then
-    begin
-      inc(k);
-      fPlayersList.Add(''); //Prepare the new string
-    end
-    else
-      fPlayersList.Strings[k] := fPlayersList.Strings[k] + char(aData[i]);
-    inc(i);
-  until(i >= length(aData));
+  Assert(RightStr(aText,2) = eol); //Make sure aText is complete, it must end with a seperator
+  fPlayersList.Text := aText; //Replace the text
 end;
 
 
@@ -187,7 +165,7 @@ begin
                       PostMessage(aAddr+' has joined');
                     end;
     mk_PlayersList: begin
-                      DecodePlayersList(aAddr, aData);
+                      DecodePlayersList(Data);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
                     end;
     mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Data);
