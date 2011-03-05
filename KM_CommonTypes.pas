@@ -67,7 +67,7 @@ type
 
 {Messages}
 //number matches pic index in gui.rx
-type TKMMessageType = (msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
+type TKMMessageType = (msgUnknown=0, msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
 
 
 type
@@ -87,7 +87,10 @@ type TKMMessageList = class
     procedure AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
     procedure RemoveEntry(aID:integer);
     procedure InjectEntry(aID:integer; aMsgTyp:TKMMessageType; aText:string);
-    function GetPicID(aID:integer):word;
+    function GetMsgPic(aID:integer):cardinal;
+    function GetMsgType(aID:integer):TKMMessageType;
+    function GetMsgHasGoTo(aID:integer):boolean;
+    function GetMsgHasSound(aID:integer):boolean;
     function GetText(aID:integer):string;
     function GetLoc(aID:integer):TKMPoint;
     procedure Save(SaveStream:TKMemoryStream);
@@ -370,12 +373,40 @@ begin
 end;
 
 
-function TKMMessageList.GetPicID(aID:integer):word;
+function TKMMessageList.GetMsgPic(aID:integer):cardinal;
 begin
   if aID in [1..Count] then
-    Result := word(List[aID].msgType)
+    Result := cardinal(List[aID].msgType)
   else
     Result := 0;
+end;
+
+
+function TKMMessageList.GetMsgType(aID:integer):TKMMessageType;
+begin
+  if aID in [1..Count] then
+    Result := List[aID].msgType
+  else
+    Result := msgUnknown;
+end;
+
+
+function TKMMessageList.GetMsgHasGoTo(aID:integer):boolean;
+begin
+  if aID in [1..Count] then
+    Result := (List[aID].msgType = msgHouse) or (List[aID].msgType = msgUnit)
+  else
+    Result := false;
+end;
+
+
+function TKMMessageList.GetMsgHasSound(aID:integer):boolean;
+begin
+  if aID in [1..Count] then
+    Result := not ((List[aID].msgType = msgHorn) or (List[aID].msgType = msgScroll))
+    //@Lewin: Please write down here why these two types of messages are mute?
+  else
+    Result := false;
 end;
 
 

@@ -1230,7 +1230,7 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LobbyPostKey(Sender: TObject; Key: Word);
 begin
-  if Key <> VK_RETURN then exit;
+  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
   MultiPlayer_LobbyPostClick(nil); //Let it handle the posting
 end;
 

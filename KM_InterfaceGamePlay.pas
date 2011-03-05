@@ -1232,13 +1232,14 @@ begin
 
   Image_Message[ShownMessage].Highlight := true; //make it brighter
 
-  if fMessageList.GetPicID(ShownMessage)-400 = 92 then begin
+  if fMessageList.GetMsgType(ShownMessage) <> msgScroll then begin
     Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
-    Button_MessageGoTo.Enabled := fMessageList.GetPicID(ShownMessage)-400 in [92..93]; //Only show Go To for house and units
+    Button_MessageGoTo.Enabled := fMessageList.GetMsgHasGoTo(ShownMessage);
     Panel_Chat.Hide;
     Panel_Message.Show;
   end else begin
     Label_ChatText.Caption := fGame.fChat.GetAllMessages;
+    MyControls.CtrlFocus := Edit_ChatMsg;
     Panel_Chat.Show;
     Panel_Message.Hide;
   end;
@@ -1886,7 +1887,7 @@ end;
 
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
-  if (Key <> VK_RETURN) or (Edit_ChatMsg.Text = '') then exit;
+  if (Key <> VK_RETURN) or (Trim(Edit_ChatMsg.Text) = '') then exit;
   fGame.fGameInputProcess.CmdText(gic_TextMessage,
                                   integer(MyPlayer.PlayerID),
                                   FormatDateTime('hh:nn:ss', Now),
@@ -1933,7 +1934,7 @@ procedure TKMGamePlayInterface.MessageIssue(MsgTyp:TKMMessageType; Text:string; 
 begin
   fMessageList.AddEntry(MsgTyp,Text,Loc);
   Message_UpdateStack;
-  if fMessageList.GetPicID(fMessageList.Count)-400 in [91..93,95] then
+  if fMessageList.GetMsgHasSound(fMessageList.Count) then
     fSoundLib.Play(sfx_MessageNotice,4); //Play horn sound on new message if it is the right type
 end;
 
@@ -1944,7 +1945,7 @@ begin
   //MassageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
   for i:=low(Image_Message) to high(Image_Message) do
   begin
-    Image_Message[i].TexID := fMessageList.GetPicID(i);
+    Image_Message[i].TexID := fMessageList.GetMsgPic(i);
     Image_Message[i].Enabled := i in [1..fMessageList.Count]; //Disable and hide at once for safety
     Image_Message[i].Visible := i in [1..fMessageList.Count];
   end;
