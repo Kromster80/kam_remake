@@ -244,8 +244,8 @@ begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
     Label_MenuTitle.Caption:='Terrain - Tiles';
+    SetTileDirection(TileDirection); //ensures tags are in allowed ranges
     Terrain_TilesChange(GetSelectedTile);
-    SetTileDirection(TileDirection);
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[4]) then begin
@@ -908,6 +908,7 @@ begin
   if Sender = TilesRandom then
   begin
     TilesRandom.Checked := not TilesRandom.Checked;
+    GameCursor.Tag2 := 4 * byte(TilesRandom.Checked); //Defined=0..3 or Random=4
   end;
   if Sender = TilesScroll then //Shift tiles
     for i:=1 to MAPED_TILES_COLS do
@@ -933,6 +934,8 @@ begin
     begin
       GameCursor.Mode := cm_Tiles;
       GameCursor.Tag1 := TileID-1; //MapEdTileRemap is 1 based, tag is 0 based
+      if TilesRandom.Checked then
+        GameCursor.Tag2 := 4;
       for i:=1 to MAPED_TILES_COLS do
       for k:=1 to MAPED_TILES_ROWS do
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (Sender = TilesTable[(i-1)*MAPED_TILES_ROWS+k]);
@@ -1200,8 +1203,7 @@ end;
 
 procedure TKMapEdInterface.SetTileDirection(aTileDirection: byte);
 begin
-  TileDirection := aTileDirection;
-  if TileDirection > 3 then TileDirection := 0;
+  TileDirection := aTileDirection mod 4; //0..3
   GameCursor.Tag2 := TileDirection;
 end;
 
@@ -1542,7 +1544,10 @@ begin
 
     //Right click performs some special functions and shortcuts
     case GameCursor.Mode of
-      cm_Tiles:   SetTileDirection(GameCursor.Tag2+1); //Rotate tile direction
+      cm_Tiles:   begin
+                    SetTileDirection(GameCursor.Tag2+1); //Rotate tile direction
+                    TilesRandom.Checked := false; //Reset
+                  end;
       cm_Objects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
     end;
     //Move the selected object to the cursor location

@@ -1415,10 +1415,10 @@ begin
                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
     cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
-    cm_Tiles:  if fGame.fMapEditorInterface.GetTilesRandomized then
-                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 10) mod 4) //Spin it slowly so player remembers it is on randomized
+    cm_Tiles:  if GameCursor.Tag2 in [0..3] then
+                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2)
                else
-                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
+                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
     cm_Objects:begin
                  RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
                  RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);

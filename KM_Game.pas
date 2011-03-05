@@ -914,17 +914,7 @@ begin
     gsReplay:   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
     gsEditor:   begin
                   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
-                  case GameCursor.Mode of //todo: See if we can move this to TTerrain.UpdateStateIdle
-                    cm_Height:
-                              if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
-                              fTerrain.MapEdHeight(KMPointF(GameCursor.Float.X+1,GameCursor.Float.Y+1), GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
-                    cm_Tiles:
-                              if (ssLeft in GameCursor.SState) then
-                                if fMapEditorInterface.GetTilesRandomized then
-                                  fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, Random(4))
-                                else
-                                  fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2)
-                  end;
+                  fTerrain.UpdateStateIdle;
                 end;
   end;
 end;
