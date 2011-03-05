@@ -879,6 +879,7 @@ begin
   { Lobby }
   if (Sender=Button_WWW_Login) or (Sender=Button_LAN_Host) or (Sender=Button_LAN_Join) then begin
     MultiPlayer_LobbyReset;
+    MyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
   end;
 
