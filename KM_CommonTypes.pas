@@ -80,19 +80,21 @@ type
 
 
 type TKMMessageList = class
+  private
+    fCount:cardinal;
+    fList:array of TKMMessage; //1..Count
   public
-    Count:integer;
-    List:array of TKMMessage; //1..Count
     destructor Destroy; override;
     procedure AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
-    procedure RemoveEntry(aID:integer);
-    procedure InjectEntry(aID:integer; aMsgTyp:TKMMessageType; aText:string);
-    function GetMsgPic(aID:integer):cardinal;
-    function GetMsgType(aID:integer):TKMMessageType;
-    function GetMsgHasGoTo(aID:integer):boolean;
-    function GetMsgHasSound(aID:integer):boolean;
-    function GetText(aID:integer):string;
-    function GetLoc(aID:integer):TKMPoint;
+    procedure RemoveEntry(aID:cardinal);
+    procedure InjectEntry(aID:cardinal; aMsgTyp:TKMMessageType; aText:string);
+    function GetMsgPic(aID:cardinal):cardinal;
+    function GetMsgType(aID:cardinal):TKMMessageType;
+    function GetMsgHasGoTo(aID:cardinal):boolean;
+    function GetMsgHasSound(aID:cardinal):boolean;
+    function GetText(aID:cardinal):string;
+    function GetLoc(aID:cardinal):TKMPoint;
+    property Count:cardinal read fCount;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
   end;
@@ -331,128 +333,128 @@ begin Result := Inherited Read(Value, SizeOf(Value)); end;
 destructor TKMMessageList.Destroy;
 var i:integer;
 begin
-  for i := 1 to Count do
-    FreeAndNil(List[i]);
+  for i := 1 to fCount do
+    FreeAndNil(fList[i]);
   Inherited;
 end;
 
 
 procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
 begin
-  inc(Count);
-  setlength(List, Count+1);
-  List[Count] := TKMMessage.Create;
-  List[Count].msgType := aMsgTyp;
-  List[Count].msgText := aText;
-  List[Count].msgLoc := aLoc;
+  inc(fCount);
+  setlength(fList, fCount+1);
+  fList[fCount] := TKMMessage.Create;
+  fList[fCount].msgType := aMsgTyp;
+  fList[fCount].msgText := aText;
+  fList[fCount].msgLoc := aLoc;
 end;
 
 
-procedure TKMMessageList.RemoveEntry(aID:integer);
-var i:integer;
+procedure TKMMessageList.RemoveEntry(aID:cardinal);
+var i:cardinal;
 begin
-  dec(Count);
-  FreeAndNil(List[aID]); //First remove the deleted message
-  for i := aID to Count do
-    List[i] := List[i+1]; //Then move the other message up to it
-  List[Count+1] := nil; //Set the last+1 message to be nil, because the last message already points to it. (don't want duplicate pointers)
-  setlength(List, Count+1); //to keep it neat
+  dec(fCount);
+  FreeAndNil(fList[aID]); //First remove the deleted message
+  for i := aID to fCount do
+    fList[i] := fList[i+1]; //Then move the other message up to it
+  fList[fCount+1] := nil; //Set the last+1 message to be nil, because the last message already points to it. (don't want duplicate pointers)
+  setlength(fList, fCount+1); //to keep it neat
 end;
 
 
 //Might be of use with priority messages
-procedure TKMMessageList.InjectEntry(aID:integer; aMsgTyp:TKMMessageType; aText:string);
-var i:integer;
+procedure TKMMessageList.InjectEntry(aID:cardinal; aMsgTyp:TKMMessageType; aText:string);
+var i:cardinal;
 begin
-  inc(Count);
-  setlength(List, Count+1);
-  for i := aID + 1 to Count do
-    List[i] := List[i-1];
-  List[aID].msgType := aMsgTyp;
-  List[aID].msgText := aText;
+  inc(fCount);
+  setlength(fList, fCount+1);
+  for i := aID + 1 to fCount do
+    fList[i] := fList[i-1];
+  fList[aID].msgType := aMsgTyp;
+  fList[aID].msgText := aText;
 end;
 
 
-function TKMMessageList.GetMsgPic(aID:integer):cardinal;
+function TKMMessageList.GetMsgPic(aID:cardinal):cardinal;
 begin
-  if aID in [1..Count] then
-    Result := cardinal(List[aID].msgType)
+  if aID in [1..fCount] then
+    Result := cardinal(fList[aID].msgType)
   else
     Result := 0;
 end;
 
 
-function TKMMessageList.GetMsgType(aID:integer):TKMMessageType;
+function TKMMessageList.GetMsgType(aID:cardinal):TKMMessageType;
 begin
-  if aID in [1..Count] then
-    Result := List[aID].msgType
+  if aID in [1..fCount] then
+    Result := fList[aID].msgType
   else
     Result := msgUnknown;
 end;
 
 
-function TKMMessageList.GetMsgHasGoTo(aID:integer):boolean;
+function TKMMessageList.GetMsgHasGoTo(aID:cardinal):boolean;
 begin
-  if aID in [1..Count] then
-    Result := (List[aID].msgType = msgHouse) or (List[aID].msgType = msgUnit)
+  if aID in [1..fCount] then
+    Result := (fList[aID].msgType = msgHouse) or (fList[aID].msgType = msgUnit)
   else
     Result := false;
 end;
 
 
-function TKMMessageList.GetMsgHasSound(aID:integer):boolean;
+function TKMMessageList.GetMsgHasSound(aID:cardinal):boolean;
 begin
-  if aID in [1..Count] then
-    Result := not ((List[aID].msgType = msgHorn) or (List[aID].msgType = msgScroll))
+  if aID in [1..fCount] then
+    Result := not ((fList[aID].msgType = msgHorn) or (fList[aID].msgType = msgScroll))
     //@Lewin: Please write down here why these two types of messages are mute?
   else
     Result := false;
 end;
 
 
-function TKMMessageList.GetText(aID:integer):string;
+function TKMMessageList.GetText(aID:cardinal):string;
 begin
-  if aID in [1..Count] then
-    Result := List[aID].msgText
+  if aID in [1..fCount] then
+    Result := fList[aID].msgText
   else
     Result := '';
 end;
 
 
-function TKMMessageList.GetLoc(aID:integer):TKMPoint;
+function TKMMessageList.GetLoc(aID:cardinal):TKMPoint;
 begin
-  if aID in [1..Count] then
-    Result := List[aID].msgLoc
+  if aID in [1..fCount] then
+    Result := fList[aID].msgLoc
   else
     Result := KMPoint(0,0);
 end;
 
 
 procedure TKMMessageList.Save(SaveStream:TKMemoryStream);
-var i:integer;
+var i:cardinal;
 begin
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(fCount);
+  for i:=1 to fCount do
   begin
-    SaveStream.Write(List[i].msgType, SizeOf(List[i].msgType));
-    SaveStream.Write(List[i].msgText);
-    SaveStream.Write(List[i].msgLoc);
+    SaveStream.Write(fList[i].msgType, SizeOf(fList[i].msgType));
+    SaveStream.Write(fList[i].msgText);
+    SaveStream.Write(fList[i].msgLoc);
   end;
 end;
 
 
 procedure TKMMessageList.Load(LoadStream:TKMemoryStream);
-var i:integer;
+var i:cardinal;
 begin
-  LoadStream.Read(Count);
-  setlength(List, Count+1);
+  LoadStream.Read(fCount);
+  setlength(fList, fCount+1);
 
-  for i:=1 to Count do
+  for i:=1 to fCount do
   begin
-    List[i] := TKMMessage.Create;
-    LoadStream.Read(List[i].msgType, SizeOf(List[i].msgType));
-    LoadStream.Read(List[i].msgText);
-    LoadStream.Read(List[i].msgLoc);
+    fList[i] := TKMMessage.Create;
+    LoadStream.Read(fList[i].msgType, SizeOf(fList[i].msgType));
+    LoadStream.Read(fList[i].msgText);
+    LoadStream.Read(fList[i].msgLoc);
   end;
 end;
 
