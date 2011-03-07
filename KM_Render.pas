@@ -568,11 +568,12 @@ end;
 
 
 procedure TRender.RenderDebugUnitMoves(x1,x2,y1,y2:integer);
-var i,k:integer;
+var i,k:integer; VertexUsage: byte;
 begin
   for i:=y1 to y2 do for k:=x1 to x2 do begin
-    if fTerrain.Land[i,k].IsVertexUnit<>0 then begin
-      glColor4f(1-fTerrain.Land[i,k].IsVertexUnit/6,fTerrain.Land[i,k].IsVertexUnit/6,1-fTerrain.Land[i,k].IsVertexUnit/6,0.8);
+    if fTerrain.Land[i,k].IsVertexUnit<>vu_None then begin
+      VertexUsage := byte(fTerrain.Land[i,k].IsVertexUnit);
+      glColor4f(1-VertexUsage/3,VertexUsage/3,0.6,0.8);
       RenderDot(k,i-fTerrain.InterpolateLandHeight(k,i)/CELL_HEIGHT_DIV,0.3);
     end;
     if fTerrain.Land[i,k].IsUnit<>nil then begin

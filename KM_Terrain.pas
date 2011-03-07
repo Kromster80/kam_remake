@@ -36,7 +36,7 @@ TTerrain = class
 
       TileOwner:TPlayerID; //Who owns the tile by having a house/road/field on it
       IsUnit:TKMUnit; //Whenever there's a unit on that tile mark the tile as occupied and count the number
-      IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
+      IsVertexUnit:TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
 
       //MAPEDITOR
@@ -137,8 +137,8 @@ TTerrain = class
     procedure UnitRem(LocFrom:TKMPoint);
     procedure UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
     procedure UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
-    procedure UnitVertexAdd(LocTo:TKMPoint);
-    procedure UnitVertexRem(LocFrom:TKMPoint);
+    procedure UnitVertexAdd(LocTo:TKMPoint; UsageType: TKMVertexUsageType);
+    procedure UnitVertexRem(LocFrom:TKMPoint; UsageType: TKMVertexUsageType);
 
     function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
     function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
@@ -198,7 +198,7 @@ var
 
 implementation
 
-uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game;
+uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_UnitActionFight;
 
 constructor TTerrain.Create;
 begin
@@ -235,7 +235,7 @@ begin
     Passability  := []; //Gets recalculated later
     TileOwner    := play_none;
     IsUnit       := nil;
-    IsVertexUnit := 0;
+    IsVertexUnit := vu_None;
     FieldAge     := 0;
     TreeAge      := 0;
     if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge:=TreeAgeFull;
@@ -541,6 +541,8 @@ begin
        U.Visible and //Inside of house
        CanWalkDiagonaly(aLoc,KMPoint(k,i)) and
        (fPlayers.CheckAlliance(aPlay, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
+       ((not HasVertexUnit(KMGetDiagVertex(aLoc,KMPoint(k,i)))) or
+       ((Land[KMGetDiagVertex(aLoc,KMPoint(k,i)).Y,KMGetDiagVertex(aLoc,KMPoint(k,i)).X].IsVertexUnit = vu_FightingOne) and (U.GetUnitAction is TUnitActionFight) and (KMSamePoint(KMGetPointInDir(KMPoint(k,i),U.Direction).Loc,aLoc)))) and
        (not U.IsDeadOrDying)
     then
       if U is TKMUnitWarrior then
@@ -1374,7 +1376,7 @@ end;
 
 function TTerrain.HasVertexUnit(Loc:TKMPoint):boolean;
 begin
-  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsVertexUnit <> 0); //Second condition won't get checked if first is false
+  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsVertexUnit <> vu_None); //Second condition won't get checked if first is false
 end;
 
 
@@ -1726,18 +1728,38 @@ end;
 
 
 {Mark vertex as occupied}
-procedure TTerrain.UnitVertexAdd(LocTo:TKMPoint);
+procedure TTerrain.UnitVertexAdd(LocTo:TKMPoint; UsageType: TKMVertexUsageType);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  inc(Land[LocTo.Y,LocTo.X].IsVertexUnit);
+  if UsageType = vut_Walking then
+  begin
+    assert(Land[LocTo.Y,LocTo.X].IsVertexUnit in [vu_None,vu_WalkingOne],'Cannot walk on vertex');
+    inc(Land[LocTo.Y,LocTo.X].IsVertexUnit);
+  end;
+  if UsageType = vut_Fighting then
+  begin
+    assert(Land[LocTo.Y,LocTo.X].IsVertexUnit in [vu_None,vu_FightingOne],'Cannot fight on vertex');
+    if Land[LocTo.Y,LocTo.X].IsVertexUnit = vu_None then Land[LocTo.Y,LocTo.X].IsVertexUnit := vu_FightingOne
+    else if Land[LocTo.Y,LocTo.X].IsVertexUnit = vu_FightingOne then Land[LocTo.Y,LocTo.X].IsVertexUnit := vu_FightingTwo;
+  end;
 end;
 
 
 {Mark vertex as empty}
-procedure TTerrain.UnitVertexRem(LocFrom:TKMPoint);
+procedure TTerrain.UnitVertexRem(LocFrom:TKMPoint; UsageType: TKMVertexUsageType);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  dec(Land[LocFrom.Y,LocFrom.X].IsVertexUnit);
+  if UsageType = vut_Walking then
+  begin
+    assert(Land[LocFrom.Y,LocFrom.X].IsVertexUnit in [vu_WalkingOne,vu_WalkingTwo],'Cannot walk off vertex');
+    dec(Land[LocFrom.Y,LocFrom.X].IsVertexUnit);
+  end;
+  if UsageType = vut_Fighting then
+  begin
+    assert(Land[LocFrom.Y,LocFrom.X].IsVertexUnit in [vu_FightingOne,vu_FightingTwo],'Cannot fight off vertex');
+    if Land[LocFrom.Y,LocFrom.X].IsVertexUnit = vu_FightingOne then Land[LocFrom.Y,LocFrom.X].IsVertexUnit := vu_None
+    else if Land[LocFrom.Y,LocFrom.X].IsVertexUnit = vu_FightingTwo then Land[LocFrom.Y,LocFrom.X].IsVertexUnit := vu_FightingOne;
+  end;
 end;
 
 
@@ -2365,7 +2387,7 @@ begin
       SaveStream.Write(Land[i,k].IsUnit.ID) //Store ID, then substitute it with reference on SyncLoad
     else
       SaveStream.Write(Zero);
-    SaveStream.Write(Land[i,k].IsVertexUnit);
+    SaveStream.Write(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
     SaveStream.Write(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
   end;       
 end;
@@ -2394,7 +2416,7 @@ begin
     LoadStream.Read(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
     LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
     LoadStream.Read(Land[i,k].IsUnit, 4);
-    LoadStream.Read(Land[i,k].IsVertexUnit);
+    LoadStream.Read(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
     LoadStream.Read(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
   end;
 

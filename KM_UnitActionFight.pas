@@ -11,11 +11,14 @@ TUnitActionFight = class(TUnitAction)
   private
     AimingDelay:integer;
     fOpponent:TKMUnit; //Who we are fighting with
+    fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
   public
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     procedure SyncLoad; override;
+    procedure IncVertex(aFrom, aTo: TKMPoint);
+    procedure DecVertex;
     property GetOpponent: TKMUnit read fOpponent;
     procedure MakeSound(KMUnit: TKMUnit; IsHit:boolean);
     function Execute(KMUnit: TKMUnit):TActionResult; override;
@@ -36,12 +39,17 @@ begin
   AimingDelay     := -1;
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
+  fVertexOccupied := KMPoint(0,0);
+  if KMStepIsDiag(aUnit.GetPosition, fOpponent.GetPosition) and (TKMUnitWarrior(aUnit).GetFightMaxRange < 2) then
+    IncVertex(aUnit.GetPosition, fOpponent.GetPosition);
 end;
 
 
 destructor TUnitActionFight.Destroy;
 begin
   fPlayers.CleanUpUnitPointer(fOpponent);
+  if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
+    DecVertex;
   Inherited;
 end;
 
@@ -51,6 +59,7 @@ begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
   LoadStream.Read(AimingDelay);
+  LoadStream.Read(fVertexOccupied);
 end;
 
 
@@ -58,6 +67,26 @@ procedure TUnitActionFight.SyncLoad;
 begin
   Inherited;
   fOpponent := fPlayers.GetUnitByID(cardinal(fOpponent));
+end;
+
+
+procedure TUnitActionFight.IncVertex(aFrom, aTo: TKMPoint);
+begin
+  //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
+  Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Fight vertex in use');
+
+  fTerrain.UnitVertexAdd(KMGetDiagVertex(aFrom,aTo), vut_Fighting);
+  fVertexOccupied := KMGetDiagVertex(aFrom,aTo);
+end;
+
+
+procedure TUnitActionFight.DecVertex;
+begin
+  //Tell fTerrain that this vertex is not being used anymore
+  if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then exit;
+
+  fTerrain.UnitVertexRem(fVertexOccupied, vut_Fighting);
+  fVertexOccupied := KMPoint(0,0);
 end;
 
 
@@ -119,6 +148,13 @@ begin
   //Opponent can walk next to us, keep facing him
   if Step = 0 then //Only change direction between strikes, otherwise it looks odd
     KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
+  //If the vertex usage has changed we should update it
+  if not KMSamePoint(KMGetDiagVertex(KMUnit.GetPosition, fOpponent.GetPosition), fVertexOccupied) then
+  begin
+    DecVertex;
+    if KMStepIsDiag(KMUnit.GetPosition, fOpponent.GetPosition) and (TKMUnitWarrior(KMUnit).GetFightMaxRange < 2) then
+      IncVertex(KMUnit.GetPosition, fOpponent.GetPosition);
+  end;
 
   //Tell our opponent we are attacking them
   if Step = 1 then fPlayers.PlayerAI[byte(fOpponent.GetOwner)].UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
@@ -184,6 +220,7 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(AimingDelay);
+  SaveStream.Write(fVertexOccupied);
 end;
 
 

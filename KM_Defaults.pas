@@ -850,6 +850,15 @@ type
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 
+  TKMVertexUsageType = (vut_Walking, vut_Fighting);
+
+  //N.B. Cannot be fighting and walking on the same vertex
+  TKMVertexUsage = (vu_None=0,         //Nobody is on this vertex
+                    vu_WalkingOne=1,   //One unit is walking on this vertex
+                    vu_WalkingTwo=2,   //Two units are walking on this vertex (passing)
+                    vu_FightingOne=3,  //One unit is fighting across this tile
+                    vu_FightingTwo=4); //Two units are fighting across this tile (fighting each other)
+
 const
   //Chopable tree, Chopdown animation,
   //Grow1, Grow2, Grow3, Grow4, Chop, Remainder

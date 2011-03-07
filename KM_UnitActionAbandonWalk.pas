@@ -40,7 +40,7 @@ destructor TUnitActionAbandonWalk.Destroy;
 begin
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
   begin
-    fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
+    fTerrain.UnitVertexRem(fVertexOccupied, vut_Walking); //Unoccupy vertex
     fVertexOccupied := KMPoint(0,0);
   end;
   Inherited;
@@ -72,7 +72,7 @@ begin
     KMUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
     if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
     begin
-      fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
+      fTerrain.UnitVertexRem(fVertexOccupied, vut_Walking); //Unoccupy vertex
       fVertexOccupied := KMPoint(0,0);
     end;
     StepDone := true;

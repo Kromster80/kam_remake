@@ -443,7 +443,7 @@ begin
     exit;
   end;
 
-  fTerrain.UnitVertexAdd(KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition));
+  fTerrain.UnitVertexAdd(KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition), vut_Walking);
   fVertexOccupied := KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition);
 end;
 
@@ -457,7 +457,7 @@ begin
     exit;
   end;
 
-  fTerrain.UnitVertexRem(fVertexOccupied);
+  fTerrain.UnitVertexRem(fVertexOccupied, vut_Walking);
   fVertexOccupied := KMPoint(0,0);
 end;
 
@@ -524,7 +524,9 @@ begin
       //Unit not yet arrived on tile, wait till it does, otherwise there might be 2 units on one tile
       and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking) then
     //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
-    if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].Passability) then
+    if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].Passability)
+       and not (KMStepIsDiag(fWalker.GetPosition,fOpponent.GetPosition)                            //Not a diagonal exchange or...
+       and fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,fOpponent.GetPosition))) then //Diagonal vertex is not used
     begin
       //Check unit's future position is where we are now and exchange (use NodeList rather than direction as it's not always right)
       if KMSamePoint(TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then
@@ -537,19 +539,19 @@ begin
         fDoExchange := true;
         //They both will exchange next tick
         Result := true; //Means exit DoUnitInteraction
-      end;
-      //Now try to force the unit to exchange IF they are in the waiting phase
-      if TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionStatus = kis_Waiting then
-      begin
-        //Because we are forcing this exchange we must inject into the other unit's nodelist by passing our current position
-        TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(fWalker.GetPosition);
+      end
+      else //Otherwise try to force the unit to exchange IF they are in the waiting phase
+        if TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionStatus = kis_Waiting then
+        begin
+          //Because we are forcing this exchange we must inject into the other unit's nodelist by passing our current position
+          TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(fWalker.GetPosition);
 
-        Explanation := 'Unit in the way is in waiting phase. Forcing an exchange';
-        ExplanationLogAdd;
-        fDoExchange := true;
-        //They both will exchange next tick
-        Result := true; //Means exit DoUnitInteraction
-      end;
+          Explanation := 'Unit in the way is in waiting phase. Forcing an exchange';
+          ExplanationLogAdd;
+          fDoExchange := true;
+          //They both will exchange next tick
+          Result := true; //Means exit DoUnitInteraction
+        end;
     end;
   end;
 end;
