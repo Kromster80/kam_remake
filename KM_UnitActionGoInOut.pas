@@ -108,6 +108,7 @@ end;
 
 //Attempt to find a tile below the door (on the street) we can walk to.
 //Otherwise we can push idle units away.
+//todo: return best tile (without idling units)
 function TUnitActionGoInOut.FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
 begin
   if ValidTileToGo(aLoc.X, aLoc.Y, aUnit) then   Result := be_Center

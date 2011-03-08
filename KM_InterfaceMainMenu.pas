@@ -75,7 +75,6 @@ type TKMMainMenuInterface = class
       //ListBox_LobbyRooms:TKMListBox;
       ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
-      Button_LobbyPost:TKMButton;
 
 
     Panel_Campaign:TKMPanel;
@@ -180,7 +179,6 @@ type TKMMainMenuInterface = class
     procedure MultiPlayer_WWWShowLoginResult(Sender: TObject);
     procedure MultiPlayer_WWWLoginQuery(Sender: TObject);
     procedure MultiPlayer_WWWLoginResult(Sender: TObject);
-    procedure MultiPlayer_LobbyPostClick(Sender: TObject);
     procedure MultiPlayer_LobbyPostKey(Sender: TObject; Key: Word);
     procedure MultiPlayer_LobbyReset;
     procedure MultiPlayer_LobbyMessage(const aData:string);
@@ -463,10 +461,8 @@ begin
                           MyControls.AddLabel  (Panel_Lobby, 100, 200, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
     ListBox_LobbyPosts := MyControls.AddListBox(Panel_Lobby, 100, 220, 600, 300);
                           MyControls.AddLabel  (Panel_Lobby, 100, 530, 100, 20, 'Post message:', fnt_Outline, kaLeft);
-    Edit_LobbyPost :=     MyControls.AddEdit   (Panel_Lobby, 130, 550, 570, 20, fnt_Metal);
+    Edit_LobbyPost :=     MyControls.AddEdit   (Panel_Lobby, 100, 550, 600, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := MultiPlayer_LobbyPostKey;
-    Button_LobbyPost :=   MyControls.AddButton (Panel_Lobby, 100, 550, 30, 20, '>>', fnt_Metal);
-    Button_LobbyPost.OnClick := MultiPlayer_LobbyPostClick;
 
                             MyControls.AddLabel  (Panel_Lobby, 720, 200, 100, 20, 'Players list:', fnt_Outline, kaLeft);
     ListBox_LobbyPlayers := MyControls.AddListBox(Panel_Lobby, 720, 220, 200, 250);
@@ -1221,17 +1217,11 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayer_LobbyPostClick(Sender: TObject);
-begin
-  fGame.fNetworking.PostMessage(Edit_LobbyPost.Text);
-  Edit_LobbyPost.Text := '';
-end;
-
-
 procedure TKMMainMenuInterface.MultiPlayer_LobbyPostKey(Sender: TObject; Key: Word);
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
-  MultiPlayer_LobbyPostClick(nil); //Let it handle the posting
+  fGame.fNetworking.PostMessage(Edit_LobbyPost.Text);
+  Edit_LobbyPost.Text := '';
 end;
 
 
