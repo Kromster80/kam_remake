@@ -16,12 +16,12 @@ type
       fHasStarted, fWaitingForPush, fUsingDoorway, fUsedDoorway:boolean;
       procedure IncDoorway;
       procedure DecDoorway;
+      function ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
     public
       constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
-      function ValidTileToGo(LocX, LocY:word; WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
       property GetHasStarted: boolean read fHasStarted;
       function Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -108,20 +108,20 @@ end;
 
 
 //Check that tile is walkable and there's no unit blocking it or that unit can be pushed away
-function TUnitActionGoInOut.ValidTileToGo(LocX, LocY:word; WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
-var aUnit:TKMUnit;
+function TUnitActionGoInOut.ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+var U:TKMUnit;
 begin
-  Result := fTerrain.TileInMapCoords(LocX, LocY)
-        and (fTerrain.CheckPassability(KMPoint(LocX, LocY), WalkUnit.GetDesiredPassability));
+  Result := fTerrain.TileInMapCoords(aLocX, aLocY)
+        and (fTerrain.CheckPassability(KMPoint(aLocX, aLocY), aUnit.GetDesiredPassability));
 
   if not Result then exit;
 
-  if not (fTerrain.Land[LocY,LocX].IsUnit = nil) then begin
-    aUnit := fTerrain.UnitsHitTest(LocX, LocY); //Let's see who is standing there
-    Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
-                             and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
+  if not (fTerrain.Land[aLocY, aLocX].IsUnit = nil) then begin
+    U := fTerrain.UnitsHitTest(aLocX, aLocY); //Let's see who is standing there
+    Result := (U <> nil) and (U.GetUnitAction is TUnitActionStay)
+                             and (not TUnitActionStay(U.GetUnitAction).Locked);
     if Result then
-      aUnit.SetActionWalkPushed( fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),CanWalk) );
+      U.SetActionWalkPushed( fTerrain.GetOutOfTheWay(U.GetPosition,KMPoint(0,0),CanWalk) );
   end;
 end;
 
