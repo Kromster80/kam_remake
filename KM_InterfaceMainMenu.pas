@@ -455,17 +455,40 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
+var i:integer;
 begin
   Panel_Lobby := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
 
-                          MyControls.AddLabel  (Panel_Lobby, 100, 200, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
-    ListBox_LobbyPosts := MyControls.AddListBox(Panel_Lobby, 100, 220, 600, 300);
-                          MyControls.AddLabel  (Panel_Lobby, 100, 530, 100, 20, 'Post message:', fnt_Outline, kaLeft);
-    Edit_LobbyPost :=     MyControls.AddEdit   (Panel_Lobby, 100, 550, 600, 20, fnt_Metal);
+    MyControls.AddLabel(Panel_Lobby, 80, 100, 100, 20, 'Players list:', fnt_Outline, kaLeft);
+    ListBox_LobbyPlayers := MyControls.AddListBox(Panel_Lobby, 80, 120, 190, 160);
+
+    MyControls.AddLabel(Panel_Lobby, 80, 290, 100, 20, 'Available maps:', fnt_Outline, kaLeft);
+    {FileList_MapEd := }MyControls.AddFileList(Panel_Lobby, 80, 310, 190, 300);
+
+
+                          MyControls.AddLabel  (Panel_Lobby, 290, 100, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
+    ListBox_LobbyPosts := MyControls.AddListBox(Panel_Lobby, 290, 120, 480, 300);
+                          MyControls.AddLabel  (Panel_Lobby, 290, 430, 100, 20, 'Post message:', fnt_Outline, kaLeft);
+    Edit_LobbyPost :=     MyControls.AddEdit   (Panel_Lobby, 290, 450, 480, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := MultiPlayer_LobbyPostKey;
 
-                            MyControls.AddLabel  (Panel_Lobby, 720, 200, 100, 20, 'Players list:', fnt_Outline, kaLeft);
-    ListBox_LobbyPlayers := MyControls.AddListBox(Panel_Lobby, 720, 220, 200, 250);
+    MyControls.AddLabel(Panel_Lobby, 290, 480, 100, 20, 'Map info:', fnt_Outline, kaLeft);
+    MyControls.AddBevel(Panel_Lobby, 290, 500, 230, 110);
+
+
+    MyControls.AddLabel(Panel_Lobby, 790, 100, 100, 20, 'Start locations:', fnt_Outline, kaLeft);
+    MyControls.AddBevel(Panel_Lobby, 790, 120, 160, 160);
+    MyControls.AddCheckBox(Panel_Lobby, 790, 290, 100, 20, 'Random', fnt_Metal);
+
+    MyControls.AddLabel  (Panel_Lobby, 790, 320, 100, 20, 'Flag colors:', fnt_Outline, kaLeft);
+    for i:=0 to 5 do
+    with MyControls.AddShape(Panel_Lobby, 790+28*i, 340, 24, 24, $00000000) do
+      FillColor := DefaultTeamColors[i+1];
+
+    MyControls.AddLabel  (Panel_Lobby, 790, 380, 100, 20, 'Alliances:', fnt_Outline, kaLeft);
+    for i:=0 to 5 do
+      MyControls.AddCheckBox(Panel_Lobby, 790, 400+i*20, 100, 20, 'Player '+inttostr(i), fnt_Metal);
+
 
     Button_LobbyBack := MyControls.AddButton(Panel_Lobby, 45, 650, 220, 30, 'Quit lobby', fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := SwitchMenuPage;
