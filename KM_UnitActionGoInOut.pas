@@ -17,6 +17,7 @@ type
       procedure IncDoorway;
       procedure DecDoorway;
       function ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+      procedure WalkOut(aUnit:TKMUnit);
     public
       constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -126,6 +127,18 @@ begin
 end;
 
 
+procedure TUnitActionGoInOut.WalkOut(aUnit:TKMUnit);
+begin
+  aUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
+  aUnit.UpdateNextPosition(fStreet);
+  fTerrain.UnitAdd(aUnit.NextPosition, aUnit); //Unit was not occupying tile while inside
+  if (aUnit.GetHome <> nil)
+  and (aUnit.GetHome.GetHouseType = ht_Barracks) //Unit home is barracks
+  and (aUnit.GetHome = fHouse) then //And is the house we are walking from
+    TKMHouseBarracks(aUnit.GetHome).RecruitsList.Remove(aUnit);
+end;
+
+
 function TUnitActionGoInOut.Execute(KMUnit: TKMUnit):TActionResult;
 var Distance:single;
 begin
@@ -169,17 +182,11 @@ begin
       if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> nil) then
       begin
         fWaitingForPush := true;
-        fHasStarted:=true;
-        exit; //Wait until my push request is dealt with before we move out
+        fHasStarted := true;
+        exit; //Wait until our push request is dealt with before we move out
       end;
 
-      //All checks done so unit can walk out now
-      KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-      KMUnit.UpdateNextPosition(fStreet);
-      fTerrain.UnitAdd(KMUnit.NextPosition, KMUnit); //Unit was not occupying tile while inside
-      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) //Unit home is barracks
-      and(KMUnit.GetHome = fHouse) then //And is the house we are walking from
-        TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Remove(KMUnit);
+      WalkOut(KMUnit); //All checks done so unit can walk out now
     end;
 
     if fUsingDoorway then
@@ -189,7 +196,7 @@ begin
         KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
     end;
     
-    fHasStarted:=true;
+    fHasStarted := true;
   end;
 
 
@@ -198,14 +205,10 @@ begin
     if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = nil) then
     begin
       fWaitingForPush := false;
-      KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-      KMUnit.UpdateNextPosition(fStreet);
-      fTerrain.UnitAdd(KMUnit.NextPosition, KMUnit); //Unit was not occupying tile while inside
-      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) //Unit home is barracks
-      and(KMUnit.GetHome = fHouse) then //And is the house we are walking from
-        TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Remove(KMUnit);
+      WalkOut(KMUnit);
     end
-    else exit; //Wait until my push request is dealt with before we move out
+    else 
+      exit; //Wait until our push request is dealt with before we move out
   end;
 
   Assert((fHouse = nil) or KMSamePoint(KMPointRound(fDoor),fHouse.GetEntrance)); //Must always go in/out the entrance of the house
