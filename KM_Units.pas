@@ -1442,25 +1442,26 @@ end;
 
 procedure TKMUnit.UpdateVisibility;
 begin
-  if fInHouse <> nil then
-    if fInHouse.IsDestroyed then
+  if fInHouse = nil then exit; //There's nothing to update, we are always visible
+
+  if fInHouse.IsDestroyed then //Someone has destroyed the house we were in
+  begin
+    Visible := true;
+    //If we are walking into/out of the house then don't set our position, ActionGoInOut will sort it out
+    if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
     begin
-      Visible := true;
-      //If we are walking into/out of the house then don't set our position, ActionGoInOut will sort it out
-      if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
-      begin
-        //Position in a spiral nearest to center of house, updating IsUnit.
-        fPosition := KMPointF(fPlayers.FindPlaceForUnit(fInHouse.GetPosition.X,fInHouse.GetPosition.Y,UnitType));
-        //Make sure these are reset properly
-        IsExchanging := false;
-        fCurrPosition := KMPointRound(fPosition);
-        fPrevPosition := fCurrPosition;
-        fNextPosition := fCurrPosition;
-        fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
-        if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
-      end;
-      SetInHouse(nil); //Can't be in a destroyed house
+      //Position in a spiral nearest to center of house, updating IsUnit.
+      fPosition := KMPointF(fPlayers.FindPlaceForUnit(fInHouse.GetPosition.X,fInHouse.GetPosition.Y,UnitType));
+      //Make sure these are reset properly
+      IsExchanging := false;
+      fCurrPosition := KMPointRound(fPosition);
+      fPrevPosition := fCurrPosition;
+      fNextPosition := fCurrPosition;
+      fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
+      if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
     end;
+    SetInHouse(nil); //Can't be in a destroyed house
+  end;
 end;
 
 
