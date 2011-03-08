@@ -960,7 +960,9 @@ begin
     Ratio_Settings_Brightness:=MyControls.AddRatioRow(Panel_Settings,18,30,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
     Ratio_Settings_Brightness.OnChange := Menu_Settings_Change;
     CheckBox_Settings_Autosave:=MyControls.AddCheckBox(Panel_Settings,8,70,100,30,fTextLibrary.GetTextString(203),fnt_Metal);
+    //CheckBox_Settings_Autosave.OnChange := Menu_Settings_Change;
     CheckBox_Settings_FastScroll:=MyControls.AddCheckBox(Panel_Settings,8,95,100,30,fTextLibrary.GetTextString(204),fnt_Metal);
+    //CheckBox_Settings_FastScroll.OnChange := Menu_Settings_Change
     Label_Settings_MouseSpeed:=MyControls.AddLabel(Panel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Settings_MouseSpeed.Disable;
     Ratio_Settings_Mouse:=MyControls.AddRatioRow(Panel_Settings,18,150,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
@@ -1759,13 +1761,13 @@ begin
   if Sender = Ratio_Settings_SFX then           fGame.fGlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
   if Sender = Ratio_Settings_Music then         fGame.fGlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
   if Sender = Button_Settings_Music then        fGame.fGlobalSettings.MusicOn       := not fGame.fGlobalSettings.MusicOn;
-  
-  Ratio_Settings_Brightness.Position    := fGame.fGlobalSettings.Brightness;
-  CheckBox_Settings_Autosave.Checked    := fGame.fGlobalSettings.Autosave;
-  CheckBox_Settings_FastScroll.Checked  := fGame.fGlobalSettings.FastScroll;
-  Ratio_Settings_Mouse.Position         := fGame.fGlobalSettings.MouseSpeed;
-  Ratio_Settings_SFX.Position           := fGame.fGlobalSettings.SoundFXVolume;
-  Ratio_Settings_Music.Position         := fGame.fGlobalSettings.MusicVolume;
+
+    Ratio_Settings_Brightness.Position    := fGame.fGlobalSettings.Brightness;
+    CheckBox_Settings_Autosave.Checked    := fGame.fGlobalSettings.Autosave;
+    CheckBox_Settings_FastScroll.Checked  := fGame.fGlobalSettings.FastScroll;
+    Ratio_Settings_Mouse.Position         := fGame.fGlobalSettings.MouseSpeed;
+    Ratio_Settings_SFX.Position           := fGame.fGlobalSettings.SoundFXVolume;
+    Ratio_Settings_Music.Position         := fGame.fGlobalSettings.MusicVolume;
 
   if fGame.fGlobalSettings.MusicOn then
     Button_Settings_Music.Caption:=fTextLibrary.GetTextString(201)

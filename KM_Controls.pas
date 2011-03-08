@@ -253,7 +253,7 @@ TKMEdit = class(TKMControl)
     CursorPos:integer;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
     property Text:string read fText write SetText;
-    property OnChange: TNotifyEvent write FOnChange;
+    property OnChange: TNotifyEvent write fOnChange;
     property OnKeyDown: TNotifyEventKey write fOnKeyDown;
     function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
@@ -264,11 +264,18 @@ end;
 
 {Checkbox}
 TKMCheckBox = class(TKMControl)
+  private //todo: [Krom] complete the changes
+    fCaption:string;
+    fChecked:boolean;
+    fFont:TKMFont;
+    fOnChange:TNotifyEvent;
   public
-    Caption:string;
-    Font:TKMFont;
-    Checked:boolean;
     FlatStyle:boolean;
+    property Caption:string read fCaption;
+    property Checked:boolean read fChecked write fChecked;
+    property Font:TKMFont read fFont;
+    property OnChange: TNotifyEvent write fOnChange;
+    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
     procedure Paint; override;
@@ -1272,11 +1279,21 @@ end;
 constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
-  Font    := aFont;
-  Caption := aCaption;
+  fFont     := aFont;
+  fCaption  := aCaption;
   ParentTo(aParent);
 end;
 
+
+procedure TKMCheckBox.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  if (csDown in State) and (Button = mbLeft) then
+  begin
+    fChecked := not fChecked;
+    if Assigned(fOnChange) then fOnChange(Self);
+  end;
+  Inherited;
+end;
 
 //We can replace it with something better later on. For now [x] fits just fine
 //Might need additional graphics to be added to gui.rx
@@ -1291,16 +1308,16 @@ begin
     fRenderUI.WriteBevel(Left, Top, Width, Height, true);
     Box.X := Width;
     Box.Y := Height;
-    if Checked then
+    if fChecked then
       fRenderUI.WriteLayer(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
   end else begin
-    Box := fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
-    if Checked then
-      fRenderUI.WriteText(Left+3, Top-1, Width, 'x', Font, kaLeft, false, Col);
+    Box := fRenderUI.WriteText(Left, Top, Width, '[ ]', fFont, kaLeft, false, Col);
+    if fChecked then
+      fRenderUI.WriteText(Left+3, Top-1, Width, 'x', fFont, kaLeft, false, Col);
   end;
 
   if Caption <> '' then
-    Tmp := fRenderUI.WriteText(Left+Box.X, Top, Width, ' '+Caption, Font, kaLeft, false, Col)
+    Tmp := fRenderUI.WriteText(Left+Box.X, Top, Width, ' '+fCaption, fFont, kaLeft, false, Col)
   else
     Tmp := KMPoint(0,0);
 
