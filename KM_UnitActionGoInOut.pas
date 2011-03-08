@@ -4,6 +4,8 @@ interface
 uses Classes, KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
 
 
+type TBestExit = (be_None, be_Left, be_Center, be_Right);
+
 {This is a [fairly :P] simple action making unit go inside/outside of house}
 type
   TUnitActionGoInOut = class(TUnitAction)
@@ -13,10 +15,14 @@ type
       fDirection:TGoInDirection;
       fDoor:TKMPointF;
       fStreet:TKMPoint;
-      fHasStarted, fWaitingForPush, fUsingDoorway, fUsedDoorway:boolean;
+      fHasStarted:boolean;
+      fWaitingForPush:boolean;
+      fUsedDoorway:boolean;
       procedure IncDoorway;
       procedure DecDoorway;
+      function FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
       function ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+      procedure WalkIn(aUnit:TKMUnit);
       procedure WalkOut(aUnit:TKMUnit);
     public
       constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
@@ -45,7 +51,6 @@ begin
   fDirection      := aDirection;
   fHasStarted     := false;
   fWaitingForPush := false;
-  fUsingDoorway   := true;
 
   if fDirection = gd_GoInside then
     fStep := 1  //go Inside (one cell up)
@@ -64,7 +69,6 @@ begin
   LoadStream.Read(fStreet);
   LoadStream.Read(fHasStarted);
   LoadStream.Read(fWaitingForPush);
-  LoadStream.Read(fUsingDoorway);
   LoadStream.Read(fUsedDoorway);
 end;
 
@@ -86,11 +90,8 @@ end;
 
 procedure TUnitActionGoInOut.IncDoorway;
 begin
-  if fUsedDoorway then
-  begin
-    fLog.AssertToLog(false,'Inc doorway when already in use?');
-    exit;
-  end;
+  Assert(not fUsedDoorway, 'Inc doorway when already in use?');
+
   if fHouse<>nil then inc(fHouse.DoorwayUse);
   fUsedDoorway := true;
 end;
@@ -98,13 +99,24 @@ end;
 
 procedure TUnitActionGoInOut.DecDoorway;
 begin
-  if not fUsedDoorway then
-  begin
-    fLog.AssertToLog(false,'Dec doorway when not in use?');
-    exit;
-  end;
+  Assert(fUsedDoorway, 'Dec doorway when not in use?');
+
   if fHouse<>nil then dec(fHouse.DoorwayUse);
   fUsedDoorway := false;
+end;
+
+
+//Attempt to find a tile below the door (on the street) we can walk to.
+//Otherwise we can push idle units away.
+function TUnitActionGoInOut.FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
+begin
+  if ValidTileToGo(aLoc.X, aLoc.Y, aUnit) then   Result := be_Center
+  else
+  if ValidTileToGo(aLoc.X-1, aLoc.Y, aUnit) then Result := be_Left
+  else
+  if ValidTileToGo(aLoc.X+1, aLoc.Y, aUnit) then Result := be_Right
+  else
+    Result := be_None;
 end;
 
 
@@ -117,19 +129,30 @@ begin
 
   if not Result then exit;
 
-  if not (fTerrain.Land[aLocY, aLocX].IsUnit = nil) then begin
+  //If there's some unit we need to do a better check on him
+  if (fTerrain.Land[aLocY, aLocX].IsUnit <> nil) then
+  begin
     U := fTerrain.UnitsHitTest(aLocX, aLocY); //Let's see who is standing there
     Result := (U <> nil) and (U.GetUnitAction is TUnitActionStay)
                              and (not TUnitActionStay(U.GetUnitAction).Locked);
     if Result then
-      U.SetActionWalkPushed( fTerrain.GetOutOfTheWay(U.GetPosition,KMPoint(0,0),CanWalk) );
+      U.SetActionWalkPushed( fTerrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk) );
   end;
+end;
+
+
+procedure TUnitActionGoInOut.WalkIn(aUnit:TKMUnit);
+begin
+  aUnit.Direction := dir_N;  //one cell up
+  aUnit.Thought := th_None;
+  aUnit.UpdateNextPosition(KMPoint(aUnit.GetPosition.X, aUnit.GetPosition.Y-1));
+  fTerrain.UnitRem(aUnit.GetPosition); //Unit does not occupy a tile while inside
 end;
 
 
 procedure TUnitActionGoInOut.WalkOut(aUnit:TKMUnit);
 begin
-  aUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
+  aUnit.Direction := KMGetDirection(KMPointRound(fDoor), fStreet);
   aUnit.UpdateNextPosition(fStreet);
   fTerrain.UnitAdd(aUnit.NextPosition, aUnit); //Unit was not occupying tile while inside
   if (aUnit.GetHome <> nil)
@@ -146,50 +169,35 @@ begin
 
   if not fHasStarted then //Set Door and Street locations
   begin
-    fUsingDoorway := true; //By default we will use the doorway rather than a diagonal entrance
 
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
     if (fHouse<>nil) and (byte(fHouse.GetHouseType) in [1..length(HouseDAT)]) then
       fDoor.X := fDoor.X + (HouseDAT[byte(fHouse.GetHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX;
 
+    case fDirection of
+      gd_GoInside:  WalkIn(KMUnit);
+      gd_GoOutside: begin
+                      case FindBestExit(fStreet, KMUnit) of
+                        be_Left:    fStreet.X := fStreet.X - 1;
+                        be_Center:  ;
+                        be_Right:   fStreet.X := fStreet.X + 1;
+                        else        exit; //All street tiles are blocked by busy units. Do not exit the house, just wait
+                      end;
 
-    if fDirection=gd_GoInside then
-    begin
-      KMUnit.Direction := dir_N;  //one cell up
-      KMUnit.Thought := th_None;
-      KMUnit.UpdateNextPosition(KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1));
-      fTerrain.UnitRem(KMUnit.GetPosition); //Unit does not occupy a tile while inside
+                      //If there's an idling unit, wait till it goes away
+                      if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> nil) then
+                      begin
+                        fWaitingForPush := true;
+                        fHasStarted := true;
+                        exit; //Wait until our push request is dealt with before we move out
+                      end;
+
+                      WalkOut(KMUnit); //All checks done so we can walk out now
+                    end;
     end;
 
-    //Attempt to find a tile bellow the door we can walk to. Otherwise we can push idle units away.
-    if fDirection=gd_GoOutside then begin
-
-      if ValidTileToGo(fStreet.X, fStreet.Y, KMUnit) then begin
-        fStreet.X := fStreet.X;
-        fUsingDoorway := true;
-      end else
-      if ValidTileToGo(fStreet.X-1, fStreet.Y, KMUnit) then begin
-        fStreet.X := fStreet.X - 1;
-        fUsingDoorway := false;
-      end else
-      if ValidTileToGo(fStreet.X+1, fStreet.Y, KMUnit) then begin
-        fStreet.X := fStreet.X + 1;
-        fUsingDoorway := false;
-      end else
-        exit; //Do not exit the house if all street tiles are blocked by non-idle units, just wait
-
-      if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> nil) then
-      begin
-        fWaitingForPush := true;
-        fHasStarted := true;
-        exit; //Wait until our push request is dealt with before we move out
-      end;
-
-      WalkOut(KMUnit); //All checks done so unit can walk out now
-    end;
-
-    if fUsingDoorway then
+    if fStreet.X = fDoor.X then //We are walking straight
     begin
       IncDoorway;
       if fHouse<>nil then
@@ -213,6 +221,7 @@ begin
 
   Assert((fHouse = nil) or KMSamePoint(KMPointRound(fDoor),fHouse.GetEntrance)); //Must always go in/out the entrance of the house
   Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
+
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
   if (fStreet.X-fDoor.X <> 0) then
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
@@ -261,7 +270,6 @@ begin
   SaveStream.Write(fStreet);
   SaveStream.Write(fHasStarted);
   SaveStream.Write(fWaitingForPush);
-  SaveStream.Write(fUsingDoorway);
   SaveStream.Write(fUsedDoorway);
 end;
 
