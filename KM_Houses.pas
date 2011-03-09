@@ -121,8 +121,8 @@ type
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
-    function ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
-    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; virtual;
+    procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); virtual;
     procedure ResEditOrder(aID:byte; Amount:integer);
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -198,7 +198,7 @@ type
     destructor Destroy; override;
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
-    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; override;
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
     function CanEquip(aUnitType: TUnitType):boolean;
     procedure Equip(aUnitType: TUnitType);
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -215,7 +215,7 @@ type
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
-    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; override;
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -787,15 +787,14 @@ end;
 
 
 //Take resource from Input and order more of that kind if DistributionRatios allow
-function TKMHouse.ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
+procedure TKMHouse.ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
 var i,k:integer;
 begin
-  Result:=false;
-  if aResource=rt_None then exit;
+  Assert(aResource<>rt_None);
 
   for i:=1 to 4 do
   if aResource = HouseInput[byte(fHouseType),i] then begin
-    fLog.AssertToLog(fResourceIn[i]>=aCount,'fResourceIn[i]>0');
+    Assert(fResourceIn[i] >= aCount, 'fResourceIn[i]<0');
     dec(fResourceIn[i],aCount);
     dec(fResourceDeliveryCount[i],aCount);
     //Only request a new resource if it is allowed by the distribution of wares for our parent player
@@ -805,21 +804,20 @@ begin
         fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,1,dt_Once,di_Norm);
         inc(fResourceDeliveryCount[i]);
       end;
-    Result:=true;
+    exit;
   end;
 end;
 
 
-function TKMHouse.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
+procedure TKMHouse.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
 var i:integer;
 begin
-  Result:=false;
-  if aResource=rt_None then exit;
+  Assert(aResource<>rt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks]));
   for i:=1 to 4 do
   if aResource = HouseOutput[byte(fHouseType),i] then begin
-    fResourceOut[i] := Math.max(fResourceOut[i] - aCount, 0);
-    Result:=true;
+    Assert(aCount <= fResourceOut[i]);
+    dec(fResourceOut[i], aCount);
     exit;
   end;
 end;
@@ -1199,7 +1197,7 @@ begin
   if (fBuildState<>hbs_Done) then exit;
 
   for i:=low(Eater) to high(Eater) do
-  if (Eater[i].UnitType<>ut_None)and(Eater[i].FoodKind<>0) then
+  if (Eater[i].UnitType<>ut_None) and (Eater[i].FoodKind<>0) then
   begin
     UnitType := byte(Eater[i].UnitType);
     AnimDir  := Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
@@ -1385,13 +1383,11 @@ begin
 end;
 
 
-function TKMHouseStore.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
+procedure TKMHouseStore.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
 begin
-  if ResourceCount[byte(aResource)]>0 then begin
-    ResourceCount[byte(aResource)] := Math.max(ResourceCount[byte(aResource)] - aCount, 0);
-    Result:=true;
-  end else
-    Result:=false;
+  Assert(aCount <= ResourceCount[byte(aResource)]);
+
+  dec(ResourceCount[byte(aResource)], aCount);
 end;
 
 
@@ -1496,14 +1492,11 @@ begin
 end;
 
 
-function TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
+procedure TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
 begin
   Assert(aResource in [rt_Shield..rt_Horse]);
-  if ResourceCount[byte(aResource)-16]>0 then begin
-    ResourceCount[byte(aResource)-16] := Math.max(ResourceCount[byte(aResource)-16] - aCount, 0);
-    Result:=true;
-  end else
-    Result:=false;
+  Assert(aCount <= ResourceCount[byte(aResource)-16]);
+  dec(ResourceCount[byte(aResource)-16], aCount);
 end;
 
 

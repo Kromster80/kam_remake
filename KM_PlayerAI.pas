@@ -299,6 +299,7 @@ begin
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
               CheckUnitRequirements(ReqRecruits * Assets.GetHouseQty(ht_Barracks), ut_Recruit);
+              //@Lewin: This check ends nowhere, please take a look when you have a spare moment.
     end;
   end;
 end;

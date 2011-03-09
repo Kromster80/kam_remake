@@ -125,11 +125,9 @@ begin
     2:  begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
           SetActionStay(5,ua_Walk); //Wait a moment inside
-          if fFrom.ResTakeFromOut(fResourceType) then begin
-            TKMUnitSerf(fUnit).CarryGive(fResourceType);
-            fPlayers.Player[byte(GetOwner)].DeliverList.TakenOffer(fDeliverID);
-          end else
-            fLog.AssertToLog(false,'Serf '+inttostr(fUnit.ID)+' resource''s gone..?');
+          fFrom.ResTakeFromOut(fResourceType);
+          TKMUnitSerf(fUnit).CarryGive(fResourceType);
+          fPlayers.Player[byte(GetOwner)].DeliverList.TakenOffer(fDeliverID);
         end;
     3:  if fFrom.IsDestroyed then //We have the resource, so we don't care if house is destroyed
           SetActionLockedStay(0,ua_Walk)
