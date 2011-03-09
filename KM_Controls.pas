@@ -94,7 +94,7 @@ end;
 
 { Beveled area }
 TKMBevel = class(TKMControl)
-  protected
+  public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure Paint; override;
 end;
@@ -188,22 +188,24 @@ end;
 
 {3DButton}
 TKMButton = class(TKMControl)
+  private
+    fCaption: string;
+    fFont: TKMFont;
+    fTextAlign: KAlign;
+    fStyle: TButtonStyle;
+    fMakesSound: boolean;
+    fRXid: integer; //RX library
+    fTexID: integer;
   public
-    MakesSound:boolean;
-    RXid: integer; //RX library
-    TexID: integer;
-    Font: TKMFont;
-    TextAlign: KAlign;
-    Caption: string;
-    Style:TButtonStyle;
-    function DoClick:boolean; //Try to click a button and return TRUE if succeded
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle); overload;
-    procedure Paint; override;
-  public
+    property Caption:string read fCaption write fCaption;
+    property MakesSound:boolean read fMakesSound write fMakesSound;
+    property TexID:integer read fTexID write fTexID;
+    function DoClick:boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-end;
+    procedure Paint; override;
+  end;
 
 
 {FlatButton}
@@ -1066,12 +1068,12 @@ end;
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
-  RXid:=aRXid;
-  TexID:=aTexID;
-  Caption:='';
+  fRXid       := aRXid;
+  fTexID      := aTexID;
+  fCaption    := '';
+  fStyle      := aStyle;
+  fMakesSound := true;
   ParentTo(aParent);
-  Style:=aStyle;
-  MakesSound:=true;
 end;
 
 
@@ -1079,14 +1081,14 @@ end;
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
-  RXid:=0;
-  TexID:=0;
-  Caption:=aCaption;
-  Font:=aFont;
-  TextAlign:=kaCenter; //Thats default everywhere in KaM
+  fRXid       := 0;
+  fTexID      := 0;
+  fCaption    := aCaption;
+  fFont       := aFont;
+  fTextAlign  := kaCenter; //Thats default everywhere in KaM
+  fStyle      := aStyle;
+  fMakesSound := true;
   ParentTo(aParent);
-  Style:=aStyle;
-  MakesSound:=true;
 end;
 
 
@@ -1109,7 +1111,7 @@ end;
 
 procedure TKMButton.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  if Enabled and MakesSound and (csDown in State) then fSoundLib.Play(sfx_Click);
+  if Enabled and fMakesSound and (csDown in State) then fSoundLib.Play(sfx_Click);
   Inherited;
 end;
 
@@ -1122,12 +1124,12 @@ begin
   if (csOver in State) and Enabled then StateSet:=StateSet+[bs_Highlight];
   if (csDown in State) then StateSet:=StateSet+[bs_Down];
   if not Enabled then StateSet:=StateSet+[bs_Disabled];
-  fRenderUI.Write3DButton(Left,Top,Width,Height,RXid,TexID,StateSet,Style);
-  if TexID=0 then
+  fRenderUI.Write3DButton(Left,Top,Width,Height,fRXid,fTexID,StateSet,fStyle);
+  if fTexID=0 then
     if Enabled then //If disabled then text should be faded
-      fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, Caption, Font, TextAlign, false, $FFFFFFFF)
+      fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, fCaption, fFont, fTextAlign, false, $FFFFFFFF)
     else
-      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, Caption, Font, TextAlign, false, $FF888888);
+      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, fCaption, fFont, fTextAlign, false, $FF888888);
 end;
 
 
