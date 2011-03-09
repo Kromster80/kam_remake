@@ -290,7 +290,7 @@ end;
 {Attenuated means if sound should fade over distance or not}
 procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 var Dif:array[1..3]of single;
-  FreeBuf,FreeSrc:integer;
+  FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
   ALState:TALint;
 begin

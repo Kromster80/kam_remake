@@ -134,7 +134,7 @@ type
 
       procedure CmdText(aCommandType:TGameInputCommandType; aPlayerID:integer; aTime:string; aText:string);
 
-      procedure Tick(aTick:cardinal); virtual;
+      procedure Timer(aTick:cardinal); virtual;
 
       //Replay methods
       procedure SaveToFile(aFileName:string);
@@ -420,7 +420,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.Tick(aTick:cardinal);
+procedure TGameInputProcess.Timer(aTick:cardinal);
 begin
   if ReplayState = gipReplaying then
   begin

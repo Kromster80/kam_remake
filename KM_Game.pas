@@ -381,7 +381,6 @@ end;
 
 
 procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
-//var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
 begin
   GameInit;
 
@@ -397,11 +396,11 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  fGameState := gsRunning;
-
-  //fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetwork);
+  fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
   Save(99); //Thats our base for a game record
   CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
+
+  fGameState := gsRunning;
 
   fLog.AppendLog('Gameplay recording initialized',true);
   RandSeed := 4; //Random after StartGame and ViewReplay should match
@@ -869,7 +868,7 @@ begin
                       and (fGameState = gsRunning) then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
 
-                    fGameInputProcess.Tick(fGameplayTickCount);
+                    fGameInputProcess.Timer(fGameplayTickCount);
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       GameHold(true, gr_ReplayEnd);
 

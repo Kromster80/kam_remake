@@ -1,7 +1,7 @@
 unit KM_Networking;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Network, KromUtils, SysUtils, StrUtils, Math, Windows;
+uses Classes, KM_Defaults, KM_CommonTypes, KM_Network, KromUtils, SysUtils, StrUtils, Math, Windows;
 
 
 type TStringEvent = procedure (const aData: string) of object;
@@ -52,6 +52,8 @@ type
       procedure Connect(aServerAddress,aUserName:string);
       procedure Disconnect;
       function Connected: boolean;
+
+      procedure SendCommands(aStream:TKMemoryStream);
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;
       property OnJoinFail:TNotifyEvent write fOnJoinFail;
@@ -127,6 +129,14 @@ end;
 function TKMNetworking.Connected: boolean;
 begin
   Result := fNetwork.fListening;
+end;
+
+
+procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
+var i:integer;
+begin
+  for i:=1 to fPlayersList.Count-1 do
+  //todo: send commands to all players
 end;
 
 
