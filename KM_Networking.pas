@@ -39,8 +39,6 @@ type
       fOnPlayersList:TStringEvent;
       fOnCommands:TStreamEvent;
 
-      procedure SendPlayerList;
-      procedure DecodePlayersList(const aText:string);
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
@@ -48,13 +46,19 @@ type
       constructor Create;
       destructor Destroy; override;
 
+      //Lobby
       function MyIPString:string;
       function MyIPStringAndPort:string;
       procedure Host(aUserName:string);
       procedure Connect(aServerAddress,aUserName:string);
       procedure Disconnect;
       function Connected: boolean;
+      procedure MapSelect(aName:string);
 
+      //Common
+      procedure PostMessage(aText:string);
+
+      //Gameplay
       procedure SendCommands(aStream:TKMemoryStream);
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;
@@ -62,8 +66,6 @@ type
       property OnTextMessage:TStringEvent write fOnTextMessage;
       property OnPlayersList:TStringEvent write fOnPlayersList;
       property OnCommands:TStreamEvent write fOnCommands;
-
-      procedure PostMessage(aText:string);
       procedure UpdateState;
     end;
 
@@ -135,6 +137,27 @@ begin
 end;
 
 
+procedure TKMNetworking.MapSelect(aName:string);
+begin
+  Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
+  //Remember map
+  //Tell others
+
+  //Compare map availability and CRC
+end;
+
+
+procedure TKMNetworking.PostMessage(aText:string);
+var i:integer;
+begin
+  fOnTextMessage(fPlayersList[0] + ': ' + aText);
+
+  //Send to partners
+  for i := 1 to fPlayersList.Count-1 do //Exclude self and send to [2nd to last] range
+    PacketSend(fPlayersList[i], mk_Text, fPlayersList[0] + ': ' + aText);
+end;
+
+
 procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
 var i:integer;
 begin
@@ -143,22 +166,20 @@ begin
 end;
 
 
-procedure TKMNetworking.SendPlayerList;
-var i:integer;
-begin
-  for i:=1 to fPlayersList.Count-1 do
-    PacketSend(fPlayersList[i], mk_PlayersList, fPlayersList.Text);
-end;
-
-
-procedure TKMNetworking.DecodePlayersList(const aText:string);
-begin
-  Assert(RightStr(aText,2) = eol); //Make sure aText is complete, it must end with a seperator
-  fPlayersList.Text := aText; //Replace the text
-end;
-
-
 procedure TKMNetworking.PacketRecieve(const aData: array of byte; aAddr:string);
+  procedure SendPlayerList;
+  var i:integer;
+  begin
+    for i:=1 to fPlayersList.Count-1 do
+      PacketSend(fPlayersList[i], mk_PlayersList, fPlayersList.Text);
+  end;
+
+
+  procedure DecodePlayersList(const aText:string);
+  begin
+    Assert(RightStr(aText,2) = eol); //Make sure aText is complete, it must end with a seperator
+    fPlayersList.Text := aText; //Replace the text
+  end;
 var Kind:TMessageKind; Data:string;
 begin
   Assert(Length(aData) >= 1, 'Unexpectedly short message'); //Kind, Message
@@ -211,17 +232,6 @@ end;
 procedure TKMNetworking.PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
 begin
   fNetwork.SendTo(aAddress, char(aKind) + aData);
-end;
-
-
-procedure TKMNetworking.PostMessage(aText:string);
-var i:integer;
-begin
-  fOnTextMessage(fPlayersList[0] + ': ' + aText);
-
-  //Send to partners
-  for i := 1 to fPlayersList.Count-1 do //Exclude self and send to [2nd to last] range
-    PacketSend(fPlayersList[i], mk_Text, fPlayersList[0] + ': ' + aText);
 end;
 
 

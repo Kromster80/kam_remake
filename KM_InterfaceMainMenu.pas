@@ -62,10 +62,13 @@ type TKMMainMenuInterface = class
 
     Panel_Lobby:TKMPanel;
       Button_LobbyBack:TKMButton;
+      Button_LobbyReady:TKMButton;
+      Button_LobbyStart:TKMButton;
       ListBox_LobbyPlayers:TKMListBox;
       FileList_Lobby:TKMFileList;
       ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
+      Label_LobbyMapName:TKMLabel;
 
 
     Panel_Campaign:TKMPanel;
@@ -171,6 +174,9 @@ type TKMMainMenuInterface = class
     procedure Lobby_Reset;
     procedure Lobby_Message(const aData:string);
     procedure Lobby_PlayersList(const aData:string);
+    procedure Lobby_MapSelect(Sender: TObject);
+    procedure Lobby_ReadyClick(Sender: TObject);
+    procedure Lobby_StartClick(Sender: TObject);
 
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList;
@@ -429,7 +435,7 @@ begin
 
     MyControls.AddLabel(Panel_Lobby, 80, 290, 100, 20, 'Available maps:', fnt_Outline, kaLeft);
     FileList_Lobby := MyControls.AddFileList(Panel_Lobby, 80, 310, 190, 300);
-
+    FileList_Lobby.OnChange := Lobby_MapSelect;
 
                           MyControls.AddLabel  (Panel_Lobby, 290, 100, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
     ListBox_LobbyPosts := MyControls.AddListBox(Panel_Lobby, 290, 120, 480, 300);
@@ -439,7 +445,7 @@ begin
 
     MyControls.AddLabel(Panel_Lobby, 290, 480, 100, 20, 'Map info:', fnt_Outline, kaLeft);
     MyControls.AddBevel(Panel_Lobby, 290, 500, 230, 110);
-
+    Label_LobbyMapName := MyControls.AddLabel(Panel_Lobby, 300, 510, 200, 20, '', fnt_Metal, kaLeft);
 
     MyControls.AddLabel(Panel_Lobby, 790, 100, 100, 20, 'Start locations:', fnt_Outline, kaLeft);
     MyControls.AddBevel(Panel_Lobby, 790, 120, 160, 160);
@@ -455,8 +461,12 @@ begin
       MyControls.AddCheckBox(Panel_Lobby, 790, 400+i*20, 100, 20, 'Player '+inttostr(i), fnt_Metal);
 
 
-    Button_LobbyBack := MyControls.AddButton(Panel_Lobby, 45, 650, 220, 30, 'Quit lobby', fnt_Metal, bsMenu);
+    Button_LobbyBack := MyControls.AddButton(Panel_Lobby, 80, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := SwitchMenuPage;
+    Button_LobbyReady := MyControls.AddButton(Panel_Lobby, 700, 650, 120, 30, 'Ready', fnt_Metal, bsMenu);
+    Button_LobbyReady.OnClick := Lobby_ReadyClick;
+    Button_LobbyStart := MyControls.AddButton(Panel_Lobby, 830, 650, 120, 30, 'Start!', fnt_Metal, bsMenu);
+    Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
 
@@ -1137,7 +1147,7 @@ begin
   ListBox_LobbyPlayers.Items.Clear;
   ListBox_LobbyPosts.Items.Clear;
   Edit_LobbyPost.Text := '';
-  
+
   FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
   if FileList_Lobby.fFiles.Count > 0 then
     FileList_Lobby.ItemIndex := 0; //Select first map by default
@@ -1161,6 +1171,26 @@ end;
 procedure TKMMainMenuInterface.Lobby_PlayersList(const aData:string);
 begin
   ListBox_LobbyPlayers.Items.Text := aData;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
+begin
+  fGame.fNetworking.MapSelect(FileList_Lobby.FileName);
+  Label_LobbyMapName.Caption := ExtractFileName(FileList_Lobby.FileName);
+  //Fill in map info
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_ReadyClick(Sender: TObject);
+begin
+  //fGame.fNetworking.MapSelect(FileList_Lobby.FileName);
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_StartClick(Sender: TObject);
+begin
+  //fGame.fNetworking.MapSelect(FileList_Lobby.FileName);
 end;
 
 
