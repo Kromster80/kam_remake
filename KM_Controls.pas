@@ -262,22 +262,20 @@ TKMEdit = class(TKMControl)
 end;
 
 
-{Checkbox}
+{ Checkbox }
 TKMCheckBox = class(TKMControl)
-  private //todo: [Krom] complete the changes
+  private
     fCaption:string;
     fChecked:boolean;
+    fFlatStyle:boolean; //Render the check as a rectangle ()modern style
     fFont:TKMFont;
-    fOnChange:TNotifyEvent;
   public
-    FlatStyle:boolean;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
     property Caption:string read fCaption;
     property Checked:boolean read fChecked write fChecked;
     property Font:TKMFont read fFont;
-    property OnChange: TNotifyEvent write fOnChange;
+    property FlatStyle:boolean read fFlatStyle write fFlatStyle;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
     procedure Paint; override;
 end;
 
@@ -1275,7 +1273,7 @@ begin
 end;
 
 
-{TKMCheckBox}
+{ TKMCheckBox }
 constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -1288,12 +1286,10 @@ end;
 procedure TKMCheckBox.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
   if (csDown in State) and (Button = mbLeft) then
-  begin
     fChecked := not fChecked;
-    if Assigned(fOnChange) then fOnChange(Self);
-  end;
-  Inherited;
+  Inherited; //There are OnMouseUp and OnClick events there
 end;
+
 
 //We can replace it with something better later on. For now [x] fits just fine
 //Might need additional graphics to be added to gui.rx
@@ -1304,7 +1300,7 @@ begin
   Inherited;
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  if FlatStyle then begin
+  if fFlatStyle then begin
     fRenderUI.WriteBevel(Left, Top, Width, Height, true);
     Box.X := Width;
     Box.Y := Height;
@@ -1316,7 +1312,7 @@ begin
       fRenderUI.WriteText(Left+3, Top-1, Width, 'x', fFont, kaLeft, false, Col);
   end;
 
-  if Caption <> '' then
+  if fCaption <> '' then
     Tmp := fRenderUI.WriteText(Left+Box.X, Top, Width, ' '+fCaption, fFont, kaLeft, false, Col)
   else
     Tmp := KMPoint(0,0);
@@ -1326,6 +1322,7 @@ begin
 end;
 
 
+{ TKMPercentBar }
 constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);

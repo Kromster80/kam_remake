@@ -100,7 +100,7 @@ type TKMGamePlayInterface = class
         CheckBox_Settings_Autosave,CheckBox_Settings_FastScroll:TKMCheckBox;
         Label_Settings_MouseSpeed,Label_Settings_SFX,Label_Settings_Music,Label_Settings_Music2:TKMLabel;
         Ratio_Settings_Mouse,Ratio_Settings_SFX,Ratio_Settings_Music:TKMRatioRow;
-        Button_Settings_Music:TKMButton;
+        CheckBox_Settings_MusicOn:TKMCheckBox;
 
       Panel_Quit:TKMPanel;
         Button_Quit_Yes,Button_Quit_No:TKMButton;
@@ -188,7 +188,7 @@ type TKMGamePlayInterface = class
     procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
     procedure House_SchoolUnitRemove(Sender:TObject);
     procedure House_StoreAcceptFlag(Sender:TObject);
-    procedure Menu_ShowSettings(Sender: TObject);
+    procedure Menu_Settings_Fill;
     procedure Menu_Settings_Change(Sender:TObject);
     procedure Menu_ShowLoad(Sender: TObject);
     procedure Menu_QuitMission(Sender:TObject);
@@ -418,6 +418,7 @@ begin
   end else
 
   if Sender=Button_Menu_Settings then begin
+    Menu_Settings_Fill;
     Panel_Settings.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
   end else
@@ -909,7 +910,7 @@ begin
     Button_Menu_Save.OnClick:=SwitchPage;
     Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
     Button_Menu_Settings:=MyControls.AddButton(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
-    Button_Menu_Settings.OnClick:=Menu_ShowSettings;
+    Button_Menu_Settings.OnClick:=SwitchPage;
     Button_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
     Button_Menu_Quit:=MyControls.AddButton(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     Button_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
@@ -953,16 +954,15 @@ end;
 
 {Options page}
 procedure TKMGamePlayInterface.Create_Settings_Page;
-var i:integer;
 begin
   Panel_Settings:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     MyControls.AddLabel(Panel_Settings,24,10,100,30,fTextLibrary.GetTextString(181),fnt_Metal,kaLeft);
     Ratio_Settings_Brightness:=MyControls.AddRatioRow(Panel_Settings,18,30,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
     Ratio_Settings_Brightness.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_Autosave:=MyControls.AddCheckBox(Panel_Settings,8,70,100,30,fTextLibrary.GetTextString(203),fnt_Metal);
-    //CheckBox_Settings_Autosave.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_FastScroll:=MyControls.AddCheckBox(Panel_Settings,8,95,100,30,fTextLibrary.GetTextString(204),fnt_Metal);
-    //CheckBox_Settings_FastScroll.OnChange := Menu_Settings_Change
+    CheckBox_Settings_Autosave:=MyControls.AddCheckBox(Panel_Settings,18,70,100,30,fTextLibrary.GetTextString(203),fnt_Metal);
+    CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
+    CheckBox_Settings_FastScroll:=MyControls.AddCheckBox(Panel_Settings,18,95,100,30,fTextLibrary.GetTextString(204),fnt_Metal);
+    CheckBox_Settings_FastScroll.OnClick := Menu_Settings_Change;
     Label_Settings_MouseSpeed:=MyControls.AddLabel(Panel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Settings_MouseSpeed.Disable;
     Ratio_Settings_Mouse:=MyControls.AddRatioRow(Panel_Settings,18,150,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
@@ -977,12 +977,9 @@ begin
     Ratio_Settings_Music:=MyControls.AddRatioRow(Panel_Settings,18,246,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
     Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_Music.OnChange := Menu_Settings_Change;
-    Label_Settings_Music2:=MyControls.AddLabel(Panel_Settings,100,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
-    Button_Settings_Music:=MyControls.AddButton(Panel_Settings,8,300,180,30,'',fnt_Metal);
-    Button_Settings_Music.Hint:=fTextLibrary.GetTextString(198);
-    //There are many clickable controls, so let them all be handled in one procedure to save dozens of lines of code
-    for i:=1 to Panel_Settings.ChildCount do
-      TKMControl(Panel_Settings.Childs[i]).OnClick:=Menu_Settings_Change;
+    CheckBox_Settings_MusicOn:=MyControls.AddCheckBox(Panel_Settings,18,276,180,30,'Disable',fnt_Metal);
+    CheckBox_Settings_MusicOn.Hint:=fTextLibrary.GetTextString(198);
+    CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
 end;
 
 
@@ -1745,34 +1742,31 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_ShowSettings(Sender: TObject);
+procedure TKMGamePlayInterface.Menu_Settings_Fill;
 begin
-  Menu_Settings_Change(nil); //Prepare eveything first
-  SwitchPage(Sender); //Only then switch
+  Ratio_Settings_Brightness.Position    := fGame.fGlobalSettings.Brightness;
+  CheckBox_Settings_Autosave.Checked    := fGame.fGlobalSettings.Autosave;
+  CheckBox_Settings_FastScroll.Checked  := fGame.fGlobalSettings.FastScroll;
+  Ratio_Settings_Mouse.Position         := fGame.fGlobalSettings.MouseSpeed;
+  Ratio_Settings_SFX.Position           := fGame.fGlobalSettings.SoundFXVolume;
+  Ratio_Settings_Music.Position         := fGame.fGlobalSettings.MusicVolume;
+  CheckBox_Settings_MusicOn.Checked     := not fGame.fGlobalSettings.MusicOn;
+  
+  Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
 
 procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
 begin
-  if Sender = Ratio_Settings_Brightness then    fGame.fGlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
-  if Sender = CheckBox_Settings_Autosave then   fGame.fGlobalSettings.Autosave      := not fGame.fGlobalSettings.Autosave;
-  if Sender = CheckBox_Settings_FastScroll then fGame.fGlobalSettings.FastScroll    := not fGame.fGlobalSettings.FastScroll;
-  if Sender = Ratio_Settings_Mouse then         fGame.fGlobalSettings.MouseSpeed    := Ratio_Settings_Mouse.Position;
-  if Sender = Ratio_Settings_SFX then           fGame.fGlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
-  if Sender = Ratio_Settings_Music then         fGame.fGlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
-  if Sender = Button_Settings_Music then        fGame.fGlobalSettings.MusicOn       := not fGame.fGlobalSettings.MusicOn;
+  fGame.fGlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
+  fGame.fGlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
+  fGame.fGlobalSettings.FastScroll    := CheckBox_Settings_FastScroll.Checked;
+  fGame.fGlobalSettings.MouseSpeed    := Ratio_Settings_Mouse.Position;
+  fGame.fGlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
+  fGame.fGlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
+  fGame.fGlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
 
-    Ratio_Settings_Brightness.Position    := fGame.fGlobalSettings.Brightness;
-    CheckBox_Settings_Autosave.Checked    := fGame.fGlobalSettings.Autosave;
-    CheckBox_Settings_FastScroll.Checked  := fGame.fGlobalSettings.FastScroll;
-    Ratio_Settings_Mouse.Position         := fGame.fGlobalSettings.MouseSpeed;
-    Ratio_Settings_SFX.Position           := fGame.fGlobalSettings.SoundFXVolume;
-    Ratio_Settings_Music.Position         := fGame.fGlobalSettings.MusicVolume;
-
-  if fGame.fGlobalSettings.MusicOn then
-    Button_Settings_Music.Caption:=fTextLibrary.GetTextString(201)
-  else
-    Button_Settings_Music.Caption:=fTextLibrary.GetTextString(199);
+  Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
 

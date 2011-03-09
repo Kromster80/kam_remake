@@ -177,7 +177,6 @@ type TKMapEdInterface = class
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     function GetShownPage:TKMMapEdShownPage;
-    function GetTilesRandomized: boolean;
     procedure SetTileDirection(aTileDirection: byte);
     procedure UpdateState;
     procedure Paint;
@@ -664,14 +663,16 @@ begin
         for k:=1 to MAX_PLAYERS do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
           CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 8+k*20, 26+i*20, 20, 20, '', fnt_Metal);
-          CheckBox_Alliances[i,k].Tag := (i-1)*MAX_PLAYERS + (k-1);
+          CheckBox_Alliances[i,k].Tag       := (i-1) * MAX_PLAYERS + (k-1);
           CheckBox_Alliances[i,k].FlatStyle := true;
-          CheckBox_Alliances[i,k].OnClick := Mission_AlliancesChange;
+          CheckBox_Alliances[i,k].OnClick   := Mission_AlliancesChange;
         end;
       end;
+
+      //It does not have OnClick event for a reason
+      // - we don't have a rule to make alliances symmetrical yet
       CheckBox_AlliancesSym := MyControls.AddCheckBox(Panel_Alliances, 12, 30+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
-      CheckBox_AlliancesSym.OnClick := Mission_AlliancesChange;
 end;
 
 
@@ -906,10 +907,8 @@ procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
 var i,k,TileID:integer;
 begin
   if Sender = TilesRandom then
-  begin
-    TilesRandom.Checked := not TilesRandom.Checked;
     GameCursor.Tag2 := 4 * byte(TilesRandom.Checked); //Defined=0..3 or Random=4
-  end;
+
   if Sender = TilesScroll then //Shift tiles
     for i:=1 to MAPED_TILES_COLS do
     for k:=1 to MAPED_TILES_ROWS do
@@ -1156,10 +1155,8 @@ begin
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
   end;
 
-  if Sender = CheckBox_SaveExists then begin
-    CheckBox_SaveExists.Checked := not CheckBox_SaveExists.Checked;
+  if Sender = CheckBox_SaveExists then
     Button_SaveSave.Enabled := CheckBox_SaveExists.Checked;
-  end;
 
   if Sender = Button_SaveSave then begin
     //Should we expand the path here?
@@ -1192,12 +1189,6 @@ begin
   GameCursor.Mode:=cm_None;
   GameCursor.Tag1:=0;
   GameCursor.Tag2:=0;
-end;
-
-
-function TKMapEdInterface.GetTilesRandomized: boolean;
-begin
-  Result := TilesRandom.Checked;
 end;
 
 
@@ -1409,25 +1400,18 @@ end;
 procedure TKMapEdInterface.Mission_AlliancesChange(Sender:TObject);
 var i,k:integer;
 begin
-  if Sender = CheckBox_AlliancesSym then begin
-    CheckBox_AlliancesSym.Checked := not CheckBox_AlliancesSym.Checked;
-    exit;
-  end;
-
   if Sender = nil then begin
     for i:=1 to MAX_PLAYERS do
     for k:=1 to MAX_PLAYERS do
       if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
         CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerID, fPlayers.Player[k].PlayerID)=at_Ally)
       else
-        CheckBox_Alliances[i,k].Enabled := false;
+        CheckBox_Alliances[i,k].Enabled := false; //Player does not exist?
     exit;
   end;
 
   i := TKMCheckBox(Sender).Tag div MAX_PLAYERS + 1;
   k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS + 1;
-  CheckBox_Alliances[i,k].Checked := not CheckBox_Alliances[i,k].Checked;
-
   if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].fAlliances[k] := at_Ally
                                      else fPlayers.Player[i].fAlliances[k] := at_Enemy;
 
