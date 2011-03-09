@@ -64,7 +64,7 @@ end;
 
 procedure TViewport.ResizeGameArea(NewWidth,NewHeight:integer);
 begin
-  ViewRect.Left   := ToolBarWidth;
+  ViewRect.Left   := TOOLBAR_WIDTH;
   ViewRect.Top    := 0;
   ViewRect.Right  := NewWidth;
   ViewRect.Bottom := NewHeight;
@@ -96,8 +96,8 @@ end;
 //TestViewportClipInset is for debug, allows to see if all gets clipped well
 function TViewport.GetClip:TRect;
 begin
-  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom),1);
-  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
+  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom),1);
+  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
   Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
   Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
   if not TEST_VIEW_CLIP_INSET then exit;
@@ -111,8 +111,8 @@ end;
 //Same as above function but with some values changed to suit minimap
 function TViewport.GetMinimapClip:TRect;
 begin
-  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,1);
-  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
+  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom)+1,1);
+  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
   Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
   Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
 end;

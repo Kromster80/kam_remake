@@ -184,7 +184,7 @@ begin
     //glRotate(-15,0,0,1); //Funny thing
     glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
-    glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
+    glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
 
     if RENDER_3D then begin
       glLoadIdentity;
@@ -194,7 +194,7 @@ begin
       glRotatef(rHeading,1,0,0);
       glRotatef(rPitch  ,0,1,0);
       glRotatef(rBank   ,0,0,1);
-      glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
+      glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
       glkScale(fViewport.Zoom);
       ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm2D);
     end;

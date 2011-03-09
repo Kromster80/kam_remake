@@ -538,7 +538,7 @@ begin
 
     for i:=low(Image_Message) to high(Image_Message) do
     begin
-      Image_Message[i] := MyControls.AddImage(Panel_Main,ToolBarWidth,fRender.RenderAreaSize.Y-i*48,30,48,495);
+      Image_Message[i] := MyControls.AddImage(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-i*48,30,48,495);
       Image_Message[i].Tag := i;
       Image_Message[i].HighlightOnMouseOver := true;
       Image_Message[i].Disable;
@@ -712,7 +712,7 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBARWIDTH, 190);
+  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, 190);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
 
     Image_MessageBG:=MyControls.AddImage(Panel_Message,0,20,600,170,409);
@@ -744,7 +744,7 @@ end;
 {Chat page}
 procedure TKMGamePlayInterface.Create_Chat_Page;
 begin
-  Panel_Chat:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBARWIDTH, 190);
+  Panel_Chat:=MyControls.AddPanel(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, 190);
   Panel_Chat.Anchors := [akLeft, akRight, akBottom];
 
     MyControls.AddImage(Panel_Chat,0,20,600,170,409);

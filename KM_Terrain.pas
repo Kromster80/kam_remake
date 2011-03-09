@@ -2215,7 +2215,7 @@ end;
 procedure TTerrain.ComputeCursorPosition(X,Y:word; Shift: TShiftState);
 begin
   with GameCursor do begin
-    Float.X := fViewport.GetCenter.X + (X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
+    Float.X := fViewport.GetCenter.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := fViewport.GetCenter.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := fTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
 

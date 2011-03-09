@@ -8,7 +8,7 @@ const
 //|===================| <- constant name length                 
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
-  ToolBarWidth          = 224;          //Toolbar width in game
+  TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
   //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
