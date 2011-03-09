@@ -60,15 +60,6 @@ type TKMMainMenuInterface = class
           Label_LAN_Status:TKMLabel;
           Button_LAN_LoginBack:TKMButton;
 
-    Panel_WWWLogin:TKMPanel;
-      Button_WWW_LoginBack:TKMButton;
-      Panel_WWWLogin2:TKMPanel;
-        Edit_WWW_Login:TKMEdit;
-        Edit_WWW_Pass:TKMEdit;
-        Label_WWW_IP:TKMLabel;
-        Button_WWW_Login:TKMButton;
-        Label_WWW_Status:TKMLabel;
-
     Panel_Lobby:TKMPanel;
       Button_LobbyBack:TKMButton;
       ListBox_LobbyPlayers:TKMListBox;
@@ -147,7 +138,6 @@ type TKMMainMenuInterface = class
     procedure Create_Load_Page;
     procedure Create_MultiPlayer_Page;
     procedure Create_LANLogin_Page;
-    procedure Create_WWWLogin_Page;
     procedure Create_Lobby_Page;
     procedure Create_MapEditor_Page;
     procedure Create_Options_Page(aGameSettings:TGlobalSettings);
@@ -163,26 +153,24 @@ type TKMMainMenuInterface = class
     procedure Campaign_Set(aCampaign:TCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
+
     procedure SingleMap_PopulateList;
     procedure SingleMap_RefreshList;
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
+
     procedure MultiPlayer_LANHost(Sender: TObject);
     procedure MultiPlayer_LANJoin(Sender: TObject);
     procedure MultiPlayer_LANJoinSucc(Sender: TObject);
     procedure MultiPlayer_LANJoinFail(Sender: TObject);
+    procedure MultiPlayer_LANUpdate;
     procedure MultiPlayer_LANQuitLobby;
 
-    procedure MultiPlayer_LANShowLogin;
-    procedure MultiPlayer_WWWShowLogin;
-    procedure MultiPlayer_WWWShowLoginResult(Sender: TObject);
-    procedure MultiPlayer_WWWLoginQuery(Sender: TObject);
-    procedure MultiPlayer_WWWLoginResult(Sender: TObject);
     procedure MultiPlayer_LobbyPostKey(Sender: TObject; Key: Word);
     procedure MultiPlayer_LobbyReset;
     procedure MultiPlayer_LobbyMessage(const aData:string);
-    procedure MultiPlayer_PlayersList(const aData:string);
+    procedure MultiPlayer_LobbyPlayersList(const aData:string);
 
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList;
@@ -243,7 +231,6 @@ begin
     Create_Load_Page;
   Create_MultiPlayer_Page;
     Create_LANLogin_Page;
-    Create_WWWLogin_Page;
     Create_Lobby_Page;
   Create_MapEditor_Page;
   Create_Options_Page(aGameSettings);
@@ -420,6 +407,7 @@ begin
 
       MyControls.AddLabel(Panel_LANLogin2, 300, 0, 100, 20, 'Set partners IP address:', fnt_Metal, kaCenter);
       Edit_LAN_IP := MyControls.AddEdit(Panel_LANLogin2, 250, 25, 100, 20, fnt_Grey);
+      Edit_LAN_IP.Text := '127.0.0.1';
       Button_LAN_Join := MyControls.AddButton(Panel_LANLogin2, 250, 60, 100, 30, 'Join', fnt_Metal, bsMenu);
       Button_LAN_Join.OnClick := MultiPlayer_LANJoin;
 
@@ -427,30 +415,6 @@ begin
 
     Button_LAN_LoginBack := MyControls.AddButton(Panel_LANLogin2, 45, 300, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LAN_LoginBack.OnClick := SwitchMenuPage;
-end;
-
-
-procedure TKMMainMenuInterface.Create_WWWLogin_Page;
-begin
-  Panel_WWWLogin := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Panel_WWWLogin2 := MyControls.AddPanel(Panel_WWWLogin,312,280,400,400);
-
-      MyControls.AddLabel(Panel_WWWLogin2, 200, -50, 100, 20, 'Your IP address is:', fnt_Metal, kaCenter);
-      Label_WWW_IP := MyControls.AddLabel(Panel_WWWLogin2, 200, -25, 100, 20, '0.0.0.0', fnt_Outline, kaCenter);
-
-      MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, fTextLibrary.GetRemakeString(9), fnt_Metal, kaLeft);
-      Edit_WWW_Login := MyControls.AddEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
-      Edit_WWW_Login.Text := '';
-      MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, fTextLibrary.GetRemakeString(10), fnt_Metal, kaLeft);
-      Edit_WWW_Pass  := MyControls.AddEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
-      Edit_WWW_Pass.Text := '';
-      Button_WWW_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, 'Login', fnt_Metal, bsMenu);
-      Button_WWW_Login.OnClick := MultiPlayer_WWWLoginQuery;
-
-      Label_WWW_Status := MyControls.AddLabel(Panel_WWWLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
-
-    Button_WWW_LoginBack := MyControls.AddButton(Panel_WWWLogin, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_WWW_LoginBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -824,15 +788,13 @@ begin
   {Stop the network when the player exits the lobby screen}
   if Sender=Button_LobbyBack then
   begin
-    fGame.fNetworking.Disconnect;
     MultiPlayer_LANQuitLobby;
-    MultiPlayer_LANShowLogin;
+    MultiPlayer_LANUpdate;
     Panel_LANLogin.Show;
   end;
 
   {Return to MultiPlayerMenu}
-  if (Sender=Button_LAN_LoginBack)or
-     (Sender=Button_WWW_LoginBack) then
+  if Sender=Button_LAN_LoginBack then
     Panel_MultiPlayer.Show;
 
   {Return to MainMenu and restore resolution changes}
@@ -885,18 +847,12 @@ begin
 
   {Show LAN login}
   if Sender=Button_MP_LAN then begin
-    MultiPlayer_LANShowLogin;
+    MultiPlayer_LANUpdate;
     Panel_LANLogin.Show;
   end;
 
-  {Show WWW login}
-  if Sender=Button_MP_WWW then begin
-    MultiPlayer_WWWShowLogin;
-    Panel_WWWLogin.Show;
-  end;
-
   { Lobby }
-  if (Sender=Button_WWW_Login) or (Sender=Button_LAN_Host) or (Sender=Button_LAN_Join) then begin
+  if (Sender=Button_LAN_Host) or (Sender=Button_LAN_Join) then begin
     MultiPlayer_LobbyReset;
     MyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
@@ -1124,17 +1080,16 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayer_LANShowLogin;
+procedure TKMMainMenuInterface.MultiPlayer_LANUpdate;
 var s:string;
 begin
   s := fGame.fNetworking.MyIPString;
+  
   Button_LAN_Host.Enabled := s<>'';
-  if s <> '' then
-    Label_LAN_IP.Caption := s
-  else
-    Label_LAN_IP.Caption := 'Unknown';
+  Button_LAN_Join.Enable;
 
-  Edit_LAN_IP.Text := '127.0.0.1'; 
+  if s <> '' then Label_LAN_IP.Caption := s
+             else Label_LAN_IP.Caption := 'Unknown';
 end;
 
 
@@ -1143,9 +1098,9 @@ begin
   SwitchMenuPage(Sender); //Open lobby page
 
   fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
-  fGame.fNetworking.OnPlayersList := MultiPlayer_PlayersList;
+  fGame.fNetworking.OnPlayersList := MultiPlayer_LobbyPlayersList;
   fGame.fNetworking.Host('Player123');
-  fGame.fNetworking.PostMessage('Host created at ' + fGame.fNetworking.MyIPStringAndPort);
+  fGame.fNetworking.PostMessage('Host: ' + fGame.fNetworking.MyIPStringAndPort);
 end;
 
 
@@ -1154,7 +1109,7 @@ begin
   //Disable buttons to prevent multiple clicks while connection process is in progress
   Button_LAN_Host.Disable;
   Button_LAN_Join.Disable;
-  Label_LAN_Status.Caption := 'Connecting, please wait';
+  Label_LAN_Status.Caption := 'Connecting, please wait ...';
 
   //Send request to join
   fGame.fNetworking.Connect(Edit_LAN_IP.Text, 'Joiner'); //Init lobby
@@ -1169,66 +1124,23 @@ begin
   SwitchMenuPage(Button_LAN_Join); //Open lobby page
 
   fGame.fNetworking.OnTextMessage := MultiPlayer_LobbyMessage;
-  fGame.fNetworking.OnPlayersList := MultiPlayer_PlayersList;
+  fGame.fNetworking.OnPlayersList := MultiPlayer_LobbyPlayersList;
   fGame.fNetworking.PostMessage('Joined host from ' + fGame.fNetworking.MyIPStringAndPort);
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_LANJoinFail(Sender: TObject);
 begin
-  //Enable buttons anyway
-  Button_LAN_Host.Enable;
-  Button_LAN_Join.Enable;
+  MultiPlayer_LANUpdate; //Reset buttons
   Label_LAN_Status.Caption := 'Connection failed';
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_LANQuitLobby;
 begin
-  //Enable buttons anyway
-  Button_LAN_Host.Enable;
-  Button_LAN_Join.Enable;
+  fGame.fNetworking.Disconnect;
+  MultiPlayer_LANUpdate; //Reset buttons
   Label_LAN_Status.Caption := 'Disconnected';
-end;
-
-
-procedure TKMMainMenuInterface.MultiPlayer_WWWShowLogin;
-begin(*
-  {$IFDEF WDC}with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do begin
-    FreeOnTerminate := true;
-    OnTerminate := MultiPlayer_WWWShowLoginResult; //Will get our IP address asynchronously
-  end;{$ENDIF}*)
-
-  Button_WWW_Login.Disable; //Until after we resolve our IP
-end;
-
-
-procedure TKMMainMenuInterface.MultiPlayer_WWWShowLoginResult(Sender: TObject);
-begin(*
-  {$IFDEF WDC}Label_WWW_IP.Caption := THTTPPostThread(Sender).ResultMsg;
-  THTTPPostThread(Sender).Terminate;{$ENDIF}*)
-
-  Edit_WWW_Login.Text := 'Player';
-  Button_WWW_Login.Enable;
-end;
-
-
-procedure TKMMainMenuInterface.MultiPlayer_WWWLoginQuery(Sender: TObject);
-begin
-(*  {$IFDEF WDC}fLobby := TKMLobby.Create('http://www.assoft.ru/chat/',
-                            Edit_WWW_Login.Text, //Username
-                            Edit_WWW_Pass.Text, //Password, ignored
-                            '', //was IP address, now ignored by PHP
-                            MultiPlayer_WWWLoginResult);{$ENDIF}
-  *)
-  Button_WWW_Login.Disable; //Block duplicate clicks
-end;
-
-
-procedure TKMMainMenuInterface.MultiPlayer_WWWLoginResult(Sender: TObject);
-begin
-  SwitchMenuPage(Button_WWW_Login);
-  Button_WWW_Login.Enable;
 end;
 
 
@@ -1254,7 +1166,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayer_PlayersList(const aData:string);
+procedure TKMMainMenuInterface.MultiPlayer_LobbyPlayersList(const aData:string);
 begin
   ListBox_LobbyPlayers.Items.Text := aData;
 end;

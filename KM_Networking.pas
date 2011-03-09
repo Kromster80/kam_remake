@@ -204,7 +204,7 @@ end;
 procedure TKMNetworking.PostMessage(aText:string);
 var i:integer;
 begin
-  fOnTextMessage(aText);
+  fOnTextMessage(fPlayersList[0] + ': ' + aText);
 
   //Send to partners
   for i := 1 to fPlayersList.Count-1 do //Exclude self and send to [2nd to last] range

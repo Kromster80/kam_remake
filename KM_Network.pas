@@ -155,7 +155,7 @@ end;
 function TKMNetwork.MyIPStringAndPort:string;
 begin
   if LocalIPList.Count >= 1 then
-    Result := LocalIPList[0] + ' Send: ' + fSendPort + ' Recieve: ' + fRecievePort //First address should be ours
+    Result := LocalIPList[0] + ' Ports: ' + fSendPort + '/' + fRecievePort //First address should be ours
   else
     Result := '';
 end;
