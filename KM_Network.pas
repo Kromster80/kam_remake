@@ -96,6 +96,7 @@ destructor TKMNetwork.Destroy;
 begin
   fSocketRecieve.Free;
   fSocketSend.Free;
+  Inherited;
 end;
 
 

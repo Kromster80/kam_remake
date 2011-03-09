@@ -212,6 +212,8 @@ var
   T:TKMPoint;
   aPass:TPassability; //temp for required passability
 begin
+  Result := KMPoint(0,0); //if function fails to find valid position
+
   if aUnitType in [ut_Wolf..ut_Duck] then
     aPass := AnimalTerrain[byte(aUnitType)]
   else
@@ -219,14 +221,14 @@ begin
 
   for i:=0 to 255 do begin
     P := GetPositionFromIndex(KMPoint(PosX,PosY), i);
-    if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;
-    T := KMPoint(P.X,P.Y);
-    if not fTerrain.CheckPassability(T, aPass) or fTerrain.HasUnit(T) then continue;
-    Result := T; //Assign if all test are passed
-    exit;
+    if fTerrain.TileInMapCoords(P.X,P.Y) then begin
+      T := KMPoint(P);
+      if fTerrain.CheckPassability(T, aPass) and not fTerrain.HasUnit(T) then begin
+        Result := T; //Assign if all test are passed
+        exit;
+      end;
+    end;
   end;
-
-  Result := KMPoint(0,0); //if function fails to find valid position
 end;
 
 

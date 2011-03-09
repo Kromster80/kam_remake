@@ -184,7 +184,7 @@ begin
   k:=1;
   for i:=1 to NumRead do begin
     Result[k] := Result[i];
-    if (k>1) and ((Result[k-1]+Result[k]=#32#32) or (Result[k-1]+Result[k]='!!')) then else
+    if (k<=1) or ((Result[k-1]+Result[k]<>#32#32) and (Result[k-1]+Result[k]<>'!!')) then
       inc(k);
   end;
 
