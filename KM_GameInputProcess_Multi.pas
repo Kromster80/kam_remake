@@ -38,7 +38,7 @@ type
     public
       constructor Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
       destructor Destroy; override;
-      procedure RecieveCommands(aData:string); //Called by TKMNetwork when it has data for us
+      procedure RecieveCommands(aData:TKMemoryStream); //Called by TKMNetwork when it has data for us
       procedure Timer(aTick:cardinal); override;
   end;
 
@@ -92,7 +92,7 @@ var i,k:integer;
 begin
   Inherited Create(aReplayState);
   fNetworking := aNetworking;
-  //todo: fNetworking.OnCommands := RecieveCommands;
+  fNetworking.OnCommands := RecieveCommands;
   fDelay := 10;
 
   //Allocate memory for all commands lists
@@ -141,9 +141,12 @@ begin
 end;
 
 
-procedure TGameInputProcess_Multi.RecieveCommands(aData:string);
+//Decode recieved messages (Commands from other players, Confirmations, Errors)
+procedure TGameInputProcess_Multi.RecieveCommands(aData:TKMemoryStream);
 begin
-  //todo: Decode recieved messages (Commands from other players, Confirmations, Errors)
+  //Decode header
+
+  //case Command of TKMDataType
 end;
 
 

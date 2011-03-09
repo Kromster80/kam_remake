@@ -63,7 +63,7 @@ type TKMMainMenuInterface = class
     Panel_Lobby:TKMPanel;
       Button_LobbyBack:TKMButton;
       ListBox_LobbyPlayers:TKMListBox;
-      //ListBox_LobbyRooms:TKMListBox;
+      FileList_Lobby:TKMFileList;
       ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
 
@@ -428,7 +428,7 @@ begin
     ListBox_LobbyPlayers := MyControls.AddListBox(Panel_Lobby, 80, 120, 190, 160);
 
     MyControls.AddLabel(Panel_Lobby, 80, 290, 100, 20, 'Available maps:', fnt_Outline, kaLeft);
-    {FileList_MapEd := }MyControls.AddFileList(Panel_Lobby, 80, 310, 190, 300);
+    FileList_Lobby := MyControls.AddFileList(Panel_Lobby, 80, 310, 190, 300);
 
 
                           MyControls.AddLabel  (Panel_Lobby, 290, 100, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
@@ -1137,6 +1137,10 @@ begin
   ListBox_LobbyPlayers.Items.Clear;
   ListBox_LobbyPosts.Items.Clear;
   Edit_LobbyPost.Text := '';
+  
+  FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
+  if FileList_Lobby.fFiles.Count > 0 then
+    FileList_Lobby.ItemIndex := 0; //Select first map by default
 end;
 
 

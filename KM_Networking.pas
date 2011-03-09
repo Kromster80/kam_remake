@@ -5,6 +5,7 @@ uses Classes, KM_Defaults, KM_CommonTypes, KM_Network, KromUtils, SysUtils, StrU
 
 
 type TStringEvent = procedure (const aData: string) of object;
+type TStreamEvent = procedure (aData: TKMemoryStream) of object;
 
 type TLANPlayerKind = (lpk_Host, lpk_Joiner);
 
@@ -36,6 +37,7 @@ type
       fOnJoinFail:TNotifyEvent;
       fOnTextMessage:TStringEvent;
       fOnPlayersList:TStringEvent;
+      fOnCommands:TStreamEvent;
 
       procedure SendPlayerList;
       procedure DecodePlayersList(const aText:string);
@@ -59,6 +61,7 @@ type
       property OnJoinFail:TNotifyEvent write fOnJoinFail;
       property OnTextMessage:TStringEvent write fOnTextMessage;
       property OnPlayersList:TStringEvent write fOnPlayersList;
+      property OnCommands:TStreamEvent write fOnCommands;
 
       procedure PostMessage(aText:string);
       procedure UpdateState;
