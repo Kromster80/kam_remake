@@ -104,7 +104,6 @@ type
     procedure DisableRepair;
     procedure RepairToggle;
 
-    function IsStarted:boolean;
     function IsStone:boolean;
     function IsComplete:boolean;
     function IsDamaged:boolean;
@@ -660,13 +659,6 @@ end;
 procedure TKMHouse.RepairToggle;
 begin
   if BuildingRepair then DisableRepair else EnableRepair;
-end;
-
-
-{Check if house is started to build, so to know if we need to init the building site or not}
-function TKMHouse.IsStarted:boolean;
-begin
-  Result := fBuildingProgress > 0;
 end;
 
 
