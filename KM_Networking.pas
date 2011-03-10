@@ -17,6 +17,7 @@ type TMessageKind = (
                       //mk_RefuseToJoin, //When max players is exceeded
                       mk_VerifyJoin,
                       mk_PlayersList,
+                      mk_MapSelect,
 
                       mk_Text,
                       mk_GameSetup,
@@ -30,6 +31,8 @@ type
       fLANPlayerKind: TLANPlayerKind;
       fServerAddress:string; //Who's the host
 
+      MapName:string;
+
       fPlayersList:TStringList; //Stores IP addresses for now
 
       JoinTick:cardinal;
@@ -37,7 +40,10 @@ type
       fOnJoinFail:TNotifyEvent;
       fOnTextMessage:TStringEvent;
       fOnPlayersList:TStringEvent;
+      fOnMapName:TStringEvent;
       fOnCommands:TStreamEvent;
+
+      procedure EncodeGameSetup(aStream:TKMemoryStream);
 
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
@@ -54,6 +60,7 @@ type
       procedure Disconnect;
       function Connected: boolean;
       procedure MapSelect(aName:string);
+      procedure StartGame; //All arguments required are in our class
 
       //Common
       procedure PostMessage(aText:string);
@@ -65,6 +72,7 @@ type
       property OnJoinFail:TNotifyEvent write fOnJoinFail;
       property OnTextMessage:TStringEvent write fOnTextMessage;
       property OnPlayersList:TStringEvent write fOnPlayersList;
+      property OnMapName:TStringEvent write fOnMapName;
       property OnCommands:TStreamEvent write fOnCommands;
       procedure UpdateState;
     end;
@@ -137,13 +145,72 @@ begin
 end;
 
 
+//Tell other players which map we will be using
 procedure TKMNetworking.MapSelect(aName:string);
+var i:integer;
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
-  //Remember map
-  //Tell others
+
+  //Send to partners
+  for i := 1 to fPlayersList.Count-1 do //Exclude self and send to [2nd to last] range
+    PacketSend(fPlayersList[i], mk_MapSelect, aName);
+
+  MapName := aName;
+  if Assigned(fOnMapName) then fOnMapName(MapName);
 
   //Compare map availability and CRC
+end;
+
+
+//Tell other players we want to start
+//Send whole game setup info at once, making sure there are no misunderstandings,
+//especially about random values (e.g. start locations)
+procedure TKMNetworking.StartGame;
+var i:integer; AllReady:boolean; Msg:TKMemoryStream;
+begin
+  Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
+
+  //Check if everyone is ready to start
+  AllReady := true;
+  //for i := 1 to fPlayersList.Count-1 do //Exclude self
+    //AllReady := AllReady and fPlayersList[i].Ready;
+
+  if not AllReady then begin
+    Assert(AllReady, 'Not everyone is ready to start');
+    exit;
+  end;
+
+  Msg := TKMemoryStream.Create;
+  EncodeGameSetup(Msg);
+
+  //Send game setup to partners
+  for i := 1 to fPlayersList.Count-1 do //Exclude self and send to [2nd to last] range
+    //PacketSend(fPlayersList[i], mk_StartGame, Msg);
+
+  Msg.Free;
+
+  //Now we will await confirmation messages from other players and start the game
+end;
+
+
+procedure TKMNetworking.EncodeGameSetup(aStream:TKMemoryStream);
+var i:integer;
+begin
+  aStream.Write(MapName);
+  //aStream.Write(AllianceMode); //Fixed / changeable
+  //aStream.Write(StartupConditions);
+  //aStream.Write(WinConditions);
+  //aStream.Write(DefeatConditions);
+  aStream.Write(fPlayersList.Count);
+
+  for i:=0 to fPlayersList.Count-1 do
+  begin
+    //aStream.Write(fPlayersList[i].PlayerType); //Human / AI
+    aStream.Write(i{fPlayersList[i].StartLocID});
+    //aStream.Write(fPlayersList[i].FlagColor);
+    //for k:=0 to fPlayersList.Count-1
+    //  aStream.Write(fPlayersList[i].Alliance[k]); //Startup
+  end;
 end;
 
 
@@ -159,9 +226,9 @@ end;
 
 
 procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
-var i:integer;
+//var i:integer;
 begin
-  for i:=1 to fPlayersList.Count-1 do
+  //for i:=1 to fPlayersList.Count-1 do
   //todo: send commands to all players
 end;
 
@@ -201,6 +268,10 @@ begin
     mk_PlayersList: begin
                       DecodePlayersList(Data);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayersList.Text);
+                    end;
+    mk_MapSelect:   begin
+                      MapName := Data;
+                      if Assigned(fOnMapName) then fOnMapName(MapName);
                     end;
     mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Data);
   end;

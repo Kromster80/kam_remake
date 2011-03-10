@@ -170,11 +170,12 @@ type TKMMainMenuInterface = class
     procedure LAN_Update;
     procedure LAN_QuitLobby;
 
+    procedure Lobby_Reset(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
-    procedure Lobby_Reset;
-    procedure Lobby_Message(const aData:string);
-    procedure Lobby_PlayersList(const aData:string);
     procedure Lobby_MapSelect(Sender: TObject);
+    procedure Lobby_OnMessage(const aData:string);
+    procedure Lobby_OnPlayersList(const aData:string);
+    procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
 
@@ -851,7 +852,7 @@ begin
 
   { Lobby }
   if (Sender=Button_LAN_Host) or (Sender=Button_LAN_Join) then begin
-    Lobby_Reset;
+    Lobby_Reset(Sender);
     MyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
   end;
@@ -1095,8 +1096,9 @@ procedure TKMMainMenuInterface.LAN_Host(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
-  fGame.fNetworking.OnTextMessage := Lobby_Message;
-  fGame.fNetworking.OnPlayersList := Lobby_PlayersList;
+  fGame.fNetworking.OnTextMessage := Lobby_OnMessage;
+  fGame.fNetworking.OnPlayersList := Lobby_OnPlayersList;
+  fGame.fNetworking.OnMapName := Lobby_OnMapName;
   fGame.fNetworking.Host('Player123');
   fGame.fNetworking.PostMessage('Host: ' + fGame.fNetworking.MyIPStringAndPort);
 end;
@@ -1121,8 +1123,9 @@ procedure TKMMainMenuInterface.LAN_JoinSucc(Sender: TObject);
 begin
   SwitchMenuPage(Button_LAN_Join); //Open lobby page
 
-  fGame.fNetworking.OnTextMessage := Lobby_Message;
-  fGame.fNetworking.OnPlayersList := Lobby_PlayersList;
+  fGame.fNetworking.OnTextMessage := Lobby_OnMessage;
+  fGame.fNetworking.OnPlayersList := Lobby_OnPlayersList;
+  fGame.fNetworking.OnMapName := Lobby_OnMapName;
   fGame.fNetworking.PostMessage('Joined host from ' + fGame.fNetworking.MyIPStringAndPort);
 end;
 
@@ -1142,15 +1145,23 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_Reset;
+procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject);
 begin
   ListBox_LobbyPlayers.Items.Clear;
   ListBox_LobbyPosts.Items.Clear;
   Edit_LobbyPost.Text := '';
+  Button_LobbyStart.Disable;
 
-  FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
-  if FileList_Lobby.fFiles.Count > 0 then
-    FileList_Lobby.ItemIndex := 0; //Select first map by default
+  if Sender = Button_LAN_Host then begin
+    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
+    if FileList_Lobby.fFiles.Count > 0 then
+      FileList_Lobby.ItemIndex := 0; //Select first map by default
+    FileList_Lobby.Show;
+    Button_LobbyReady.Disable;
+  end else begin
+    FileList_Lobby.Hide;
+    Button_LobbyReady.Enable;
+  end;
 end;
 
 
@@ -1162,23 +1173,28 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_Message(const aData:string);
+procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
+begin
+  fGame.fNetworking.MapSelect(ExtractFileName(FileList_Lobby.FileName));
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
   ListBox_LobbyPosts.Items.Add(aData);
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_PlayersList(const aData:string);
+procedure TKMMainMenuInterface.Lobby_OnPlayersList(const aData:string);
 begin
   ListBox_LobbyPlayers.Items.Text := aData;
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
+procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 begin
-  fGame.fNetworking.MapSelect(FileList_Lobby.FileName);
-  Label_LobbyMapName.Caption := ExtractFileName(FileList_Lobby.FileName);
   //Fill in map info
+  Label_LobbyMapName.Caption := aData;
 end;
 
 
@@ -1190,7 +1206,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_StartClick(Sender: TObject);
 begin
-  //fGame.fNetworking.MapSelect(FileList_Lobby.FileName);
+  fGame.fNetworking.StartGame;
 end;
 
 
@@ -1359,7 +1375,6 @@ procedure TKMMainMenuInterface.Paint;
 begin
   MyControls.Paint;
 end;
-
-
+     
 
 end.
