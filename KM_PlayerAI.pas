@@ -38,7 +38,7 @@ type
     procedure CheckArmiesCount;
     procedure CheckArmy;
   public
-    ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Nunber of each unit type required
+    ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Number of each unit type required
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not used or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
@@ -275,7 +275,7 @@ begin
     Schools[k-1] := HS;
     for i:=1 to 6 do //Decrease requirement for each unit in training
       if HS.UnitQueue[i]<>ut_None then
-        UnitReq[byte(HS.UnitQueue[i])] := max(UnitReq[byte(HS.UnitQueue[i])] - 1, 0);
+        dec(UnitReq[byte(HS.UnitQueue[i])]); //Can be negative and compensated by e.g. ReqRecruits
     inc(k);
     HS := TKMHouseSchool(Assets.FindHouse(ht_School,k));
   end;
@@ -474,7 +474,8 @@ begin
 end;
 
 
-//This is run by commanders when they die. Dead commander is the one that died, NewCommander is the one that replaced them.
+//This is run by commanders when they die.
+//Dead commander is the one that died, NewCommander is the one that replaced him.
 //We need to update CurrentCommander for defence positions in this case.
 procedure TKMPlayerAI.CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
 var i: integer;
