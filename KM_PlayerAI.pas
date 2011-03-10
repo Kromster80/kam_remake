@@ -1,7 +1,8 @@
 unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior;
+uses Classes, Math, KromUtils,
+    KM_CommonTypes, KM_Defaults, KM_Houses, KM_Player, KM_Units, KM_Units_Warrior, KM_Utils;
 
 type
   TAIDefencePosType = (adt_FrontLine, //Front line troops may not go on attacks, they are for defence
@@ -244,9 +245,10 @@ var
 
   function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
   begin
-    if Assets.GetUnitQty(aUnitType) < (Req+UnitReq[integer(aUnitType)]) then
+    //We summ up requirements for e.g. Recruits required at Towers and Barracks
+    if Assets.GetUnitQty(aUnitType) < (Req+UnitReq[byte(aUnitType)]) then
     begin
-      dec(UnitReq[integer(aUnitType)]); //So other schools don't order same unit
+      dec(UnitReq[byte(aUnitType)]); //So other schools don't order same unit
       HS.AddUnitToQueue(aUnitType);
       Result := true;
     end
@@ -258,29 +260,33 @@ begin
   FillChar(UnitReq,SizeOf(UnitReq),#0); //Clear up
 
   //Citizens
-  for i:=1 to HOUSE_COUNT do begin //Count overall unit requirement
-    if THouseType(i)<>ht_Barracks then //Exclude Barracks
-    if HouseDAT[i].OwnerType<>-1 then //Exclude houses without owners
-    inc(UnitReq[HouseDAT[i].OwnerType+1], Assets.GetHouseQty(THouseType(i)));
-  end;
+  //Count overall unit requirement (excluding Barracks and ownerless houses)
+  for i:=1 to HOUSE_COUNT do
+    if (HouseDAT[i].OwnerType<>-1) and (THouseType(i)<>ht_Barracks) then
+      inc(UnitReq[HouseDAT[i].OwnerType+1], Assets.GetHouseQty(THouseType(i)));
 
+  //Schools
+  //Count overall schools count and exclude already training units from UnitReq
   SetLength(Schools,Assets.GetHouseQty(ht_School));
   k := 1;
   HS := TKMHouseSchool(Assets.FindHouse(ht_School,k));
   while HS <> nil do
   begin
     Schools[k-1] := HS;
-    if HS.UnitQueue[1]<>ut_None then
-      dec(UnitReq[integer(HS.UnitQueue[1])]); //Decrease requirement for each unit in training
+    for i:=1 to 6 do //Decrease requirement for each unit in training
+      if HS.UnitQueue[i]<>ut_None then
+        UnitReq[byte(HS.UnitQueue[i])] := max(UnitReq[byte(HS.UnitQueue[i])] - 1, 0);
     inc(k);
     HS := TKMHouseSchool(Assets.FindHouse(ht_School,k));
   end;
 
+  //Order the training
   for k:=1 to Length(Schools) do
   begin
     HS := Schools[k-1];
     if (HS<>nil)and(HS.UnitQueue[1]=ut_None) then
     begin
+      //Order citizen training
       for i:=1 to length(UnitReq) do
         if UnitReq[i] > Assets.GetUnitQty(TUnitType(i)) then
         begin
@@ -292,14 +298,15 @@ begin
             break; //Don't need more UnitTypes yet
           end;
         end;
+
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
         if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.GetHouseQty(ht_None)), ut_Serf) then
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
-              CheckUnitRequirements(ReqRecruits * Assets.GetHouseQty(ht_Barracks), ut_Recruit);
-              //@Lewin: This check ends nowhere, please take a look when you have a spare moment.
+              if not CheckUnitRequirements(ReqRecruits * Assets.GetHouseQty(ht_Barracks), ut_Recruit) then
+                break; //There's no unit demand at all
     end;
   end;
 end;
