@@ -2441,10 +2441,20 @@ end;
 //e.g. if we're over a scrollbar it shouldn't zoom map,
 //but this can apply for all controls (i.e. only zoom when over the map not controls)
 procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+var PrevCursor: TKMPointF;
 begin
   MyControls.MouseWheel(X, Y, WheelDelta);
   if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) and (fGame.GameState in [gsReplay,gsRunning]) then
+  begin
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
+    PrevCursor := GameCursor.Float;
     fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
+    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
+    fViewport.SetCenter(fViewport.GetCenter.X + PrevCursor.X-GameCursor.Float.X,
+                        fViewport.GetCenter.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
+  end;
 end;
 
 
