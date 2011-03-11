@@ -25,6 +25,7 @@ type
     function Write(const Value:boolean  ): Longint; reintroduce; overload;
     function Write(const Value:word     ): Longint; reintroduce; overload;
     function Write(const Value:shortint ): Longint; reintroduce; overload;
+    procedure WriteAsText(aText:string);
 
     procedure Read(out Value:string); reintroduce; overload;
     function Read(out Value:TKMPoint    ): Longint; reintroduce; overload;
@@ -36,6 +37,7 @@ type
     function Read(out Value:boolean     ): Longint; reintroduce; overload;
     function Read(out Value:word        ): Longint; reintroduce; overload;
     function Read(out Value:shortint    ): Longint; reintroduce; overload;
+    function ReadAsText:string;
   end;
 
 
@@ -300,6 +302,14 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
 
 
+procedure TKMemoryStream.WriteAsText(aText:string);
+begin
+  Position := 0;
+  Write(aText[1], length(aText));
+  Position := 0;
+end;
+
+
 procedure TKMemoryStream.Read(out Value:string);
 var i:word;
 begin
@@ -327,6 +337,12 @@ function TKMemoryStream.Read(out Value:word): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
+
+
+function TKMemoryStream.ReadAsText:string;
+begin
+  SetString(Result, PChar(Memory), Size div SizeOf(Char));
+end;
 
 
 { TKMMessageList }

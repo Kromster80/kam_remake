@@ -198,28 +198,36 @@ end;
 //I estimate it ~50bytes per player at max
 //later it will be byte array?
 function TKMPlayersList.GetAsText:string;
-var i:integer;
+var i:integer; M:TKMemoryStream;
 begin
-  Result := '';
+  M := TKMemoryStream.Create;
+
+  M.Write(fCount);
   for i:=1 to fCount do
-    Result := Result + fPlayers[i].Addr + eol + fPlayers[i].Nikname + eol;
+  begin
+    M.Write(fPlayers[i].Addr);
+    M.Write(fPlayers[i].Nikname);
+  end;
+
+  Result := M.ReadAsText;
+  M.Free;
 end;
 
 
 procedure TKMPlayersList.SetAsText(a:string);
-var i:integer; S:TStringList;
+var i:integer; M:TKMemoryStream;
 begin
-  S := TStringList.Create;
-  S.Text := a;
+  M := TKMemoryStream.Create;
+  M.WriteAsText(a);
 
-  fCount := S.Count div 2;
+  M.Read(fCount);
   for i:=1 to fCount do
   begin
-    fPlayers[i].Addr := S[i*2-2];
-    fPlayers[i].Nikname := S[i*2-1];
+    M.Read(fPlayers[i].Addr);
+    M.Read(fPlayers[i].Nikname);
   end;
 
-  S.Free;
+  M.Free;
 end;
 
 
