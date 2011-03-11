@@ -17,6 +17,7 @@ type TMessageKind = (
                       //mk_RefuseToJoin, //When max players is exceeded
                       mk_VerifyJoin,
                       mk_PlayersList,
+                      mk_ReadyToStart, //Joiner telling he's ready
                       mk_MapSelect,
 
                       mk_Text,
@@ -35,31 +36,38 @@ type
   end;
 
 
-type //Should handle everything related to players list
+//Handles everything related to players list,
+//but knows nothing about networking nor game setup. Only players.
+type
   TKMPlayersList = class
     private
       fCount:integer;
-      fMyAddr:string; //
-      fMyNik:string; //
       fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
       function GetAsStringList:string;
     public
       constructor Create;
       destructor Destroy; override;
       procedure Clear;
-      property MyAddr:string read fMyAddr;
-      property MyNik:string read fMyNik;
-      procedure AddSelf(aAddr,aNik:string);
+      property Count:integer read fCount;
+
+      //Setters
       procedure AddPlayer(aAddr,aNik:string);
+      //procedure SetColor(aNik:string; aColor:cardinal);
+      //procedure SetStartLoc(aNik:string; aLoc:integer);
+      //procedure SetAlliances(aNik:string; aAlliances);
+      procedure SetReady(aNik:string{; aReady:boolean});
+
+      //Getters
+      function GetAddress(aIndex:integer):string;
+      function GetNikname(aIndex:integer):string;
+      //function GetIndexByNik(aNikname:string):integer;
+      function IsHuman(aIndex:integer):boolean;
       function AllReady:boolean;
-      property AsStringList:string read GetAsStringList; //Acquire list of players for UI
-      procedure PacketSend(aNetwork:TKMNetwork; aKind:TMessageKind; const aData:string=''); //Broadcast to all except self
 
-      function GetAsText:string;
-      procedure SetAsText(a:string);
-
-      //procedure Load(aStream:TKMemoryStream);
-      procedure Save(aStream:TKMemoryStream);
+      //Import/Export
+      property AsStringList:string read GetAsStringList; //Acquire list of players for UI Listbox
+      function GetAsText:string; //Gets all relevant information as text string
+      procedure SetAsText(a:string); //Sets all relevant information from text string
     end;
 
 
@@ -68,6 +76,9 @@ type //Should handle message exchange and routing, interacting with UI
     private
       fNetwork:TKMNetwork;
       fLANPlayerKind: TLANPlayerKind;
+      fHostAddress:string;
+      fMyAddress:string;
+      fMyNikname:string;
       fPlayers:TKMPlayersList;
 
       fMapName:string;
@@ -78,6 +89,7 @@ type //Should handle message exchange and routing, interacting with UI
       fOnTextMessage:TStringEvent;
       fOnPlayersList:TStringEvent;
       fOnMapName:TStringEvent;
+      fOnAllReady:TNotifyEvent;
       fOnCommands:TStreamEvent;
 
       procedure EncodeGameSetup(aStream:TKMemoryStream);
@@ -85,6 +97,8 @@ type //Should handle message exchange and routing, interacting with UI
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
+      procedure PacketToAll(aKind:TMessageKind; const aData:string='');
+      procedure PacketToHost(aKind:TMessageKind; const aData:string='');
     public
       constructor Create;
       destructor Destroy; override;
@@ -97,6 +111,7 @@ type //Should handle message exchange and routing, interacting with UI
       procedure Disconnect;
       function Connected: boolean;
       procedure MapSelect(aName:string);
+      procedure ReadyToStart;
       procedure StartGame; //All arguments required are in our class
 
       //Common
@@ -110,6 +125,7 @@ type //Should handle message exchange and routing, interacting with UI
       property OnTextMessage:TStringEvent write fOnTextMessage;
       property OnPlayersList:TStringEvent write fOnPlayersList;
       property OnMapName:TStringEvent write fOnMapName;
+      property OnAllReady:TNotifyEvent write fOnAllReady;
       property OnCommands:TStreamEvent write fOnCommands;
       procedure UpdateState;
     end;
@@ -150,14 +166,6 @@ begin
 end;
 
 
-procedure TKMPlayersList.AddSelf(aAddr,aNik:string);
-begin
-  fMyAddr := aAddr;
-  fMyNik := aNik;
-  AddPlayer(aAddr, aNik);
-end;
-
-
 procedure TKMPlayersList.AddPlayer(aAddr,aNik:string);
 var i:integer;
 begin
@@ -173,6 +181,46 @@ begin
 end;
 
 
+procedure TKMPlayersList.SetReady(aNik:string);
+var i:integer;
+begin
+  for i:=1 to fCount do
+    if fPlayers[i].Nikname = aNik then
+      fPlayers[i].ReadyToStart := true;
+end;
+
+
+function TKMPlayersList.GetAddress(aIndex:integer):string;
+begin
+  Result := fPlayers[aIndex].Addr;
+end;
+
+
+function TKMPlayersList.GetNikname(aIndex:integer):string;
+begin
+  Result := fPlayers[aIndex].Nikname;
+end;
+
+
+{function TKMPlayersList.GetIndexByNik(aNikname:string):integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=1 to fCount do
+    if fPlayers[i].Nikname = aNikname then begin
+      Result := i;
+      exit;
+    end;
+  Assert(Result <> 0, '');
+end;}
+
+
+function TKMPlayersList.IsHuman(aIndex:integer):boolean;
+begin
+  Result := fPlayers[aIndex].PlayerType = pt_Human;
+end;
+
+
 function TKMPlayersList.AllReady:boolean;
 var i:integer;
 begin
@@ -182,8 +230,8 @@ begin
 end;
 
 
-//Broadcast to all except self
-procedure TKMPlayersList.PacketSend(aNetwork:TKMNetwork; aKind:TMessageKind; const aData:string='');
+{//Broadcast to all except self
+procedure TKMPlayersList.PacketToAll(aNetwork:TKMNetwork; aKind:TMessageKind; const aData:string='');
 var i:integer;
 begin
   for i:=1 to fCount do
@@ -191,7 +239,13 @@ begin
        //(fPlayers[i].Addr <> fMyAddr) and //Disabled cos testing on 1 PC messes up Addresses
        (fPlayers[i].Nikname <> fMyNik) then
       aNetwork.SendTo(fPlayers[i].Addr, char(aKind) + aData);
-end;
+end;}
+
+
+{procedure TKMPlayersList.PacketToHost(aNetwork:TKMNetwork; aKind:TMessageKind; const aData:string='');
+begin
+  aNetwork.SendTo(fPlayers[1].Addr, char(aKind) + aData);
+end;}
 
 
 //Save whole amount of data as string to be sent across network to other players
@@ -231,16 +285,6 @@ begin
 end;
 
 
-procedure TKMPlayersList.Save(aStream:TKMemoryStream);
-var i:integer;
-begin
-  aStream.Write(fCount);
-  for i:=1 to fCount do begin
-    //aStream.Write();
-  end;
-end;
-
-
 { TKMNetworking }
 constructor TKMNetworking.Create;
 begin
@@ -273,9 +317,13 @@ end;
 procedure TKMNetworking.Host(aUserName:string);
 begin
   fJoinTick := 0;
+  fHostAddress := ''; //Thats us
+  fMyAddress := MyIPString;
+  fMyNikname := aUserName;
   fLANPlayerKind := lpk_Host;
   fPlayers.Clear;
-  fPlayers.AddSelf(MyIPString, aUserName);
+  fPlayers.AddPlayer(MyIPString, aUserName);
+  fPlayers.SetReady(fMyNikname);
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
   if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
@@ -284,12 +332,15 @@ end;
 
 procedure TKMNetworking.Connect(aServerAddress,aUserName:string);
 begin
+  fHostAddress := aServerAddress;
+  fMyAddress := MyIPString;
+  fMyNikname := aUserName;
   fLANPlayerKind := lpk_Joiner;
   fJoinTick := GetTickCount + 3000; //3sec
   fPlayers.Clear;
-  fPlayers.AddSelf(MyIPString, aUserName);
+  fPlayers.AddPlayer(MyIPString, aUserName);
   fNetwork.StartListening;
-  PacketSend(aServerAddress, mk_AskToJoin);
+  PacketToHost(mk_AskToJoin);
   fNetwork.OnRecieveKMPacket := PacketRecieveJoin; //Unless we join use shortlist
 end;
 
@@ -313,11 +364,19 @@ begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
 
   fMapName := aName;
-  fPlayers.PacketSend(fNetwork, mk_MapSelect, fMapName);
+  PacketToAll(mk_MapSelect, fMapName);
 
   if Assigned(fOnMapName) then fOnMapName(fMapName);
 
   //Compare map availability and CRC
+end;
+
+
+//Joiner indicates that he is ready to start
+procedure TKMNetworking.ReadyToStart;
+begin
+  fPlayers.SetReady(fMyNikname);
+  PacketToAll(mk_ReadyToStart, fMyNikname);
 end;
 
 
@@ -347,14 +406,14 @@ begin
   //aStream.Write(StartupConditions);
   //aStream.Write(WinConditions);
   //aStream.Write(DefeatConditions);
-  fPlayers.Save(aStream);
+  //fPlayers.Save(aStream);
 end;
 
 
 procedure TKMNetworking.PostMessage(aText:string);
 begin
-  fPlayers.PacketSend(fNetwork, mk_Text, fPlayers.MyAddr + '/' + fPlayers.MyNik + ': ' + aText);
-  fOnTextMessage(fPlayers.MyAddr + '/' + fPlayers.MyNik + ': ' + aText);
+  PacketToAll(mk_Text, fMyAddress + '/' + fMyNikname + ': ' + aText);
+  fOnTextMessage(fMyAddress + '/' + fMyNikname + ': ' + aText);
 end;
 
 
@@ -382,12 +441,17 @@ begin
     mk_VerifyJoin:  begin
                       fPlayers.AddPlayer(aAddr, Data);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
-                      fPlayers.PacketSend(fNetwork, mk_PlayersList, fPlayers.GetAsText);
+                      PacketToAll(mk_PlayersList, fPlayers.GetAsText);
                       PostMessage(aAddr+'/'+Data+' has joined');
                     end;
     mk_PlayersList: begin
                       fPlayers.SetAsText(Data);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
+                    end;
+    mk_ReadyToStart:begin
+                      fPlayers.SetReady(Data);
+                      if (fLANPlayerKind = lpk_Host) and fPlayers.AllReady and (fPlayers.Count>1) then
+                        if Assigned(fOnAllReady) then fOnAllReady(nil);
                     end;
     mk_MapSelect:   begin
                       fMapName := Data;
@@ -406,7 +470,7 @@ begin
     mk_AllowToJoin: begin
                       fJoinTick := 0;
                       fNetwork.OnRecieveKMPacket := PacketRecieve;
-                      PacketSend(aAddr, mk_VerifyJoin, fPlayers.fMyNik);
+                      PacketToHost(mk_VerifyJoin, fMyNikname);
                       fOnJoinSucc(Self);
                     end;
     mk_Timeout:     begin
@@ -422,6 +486,22 @@ end;
 procedure TKMNetworking.PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
 begin
   fNetwork.SendTo(aAddress, char(aKind) + aData);
+end;
+
+
+procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string='');
+var i:integer;
+begin
+  for i:=1 to fPlayers.Count do
+    if fPlayers.IsHuman(i) and (fPlayers.GetNikname(i) <> fMyNikname) then
+      PacketSend(fPlayers.GetAddress(i), aKind, aData);
+end;
+
+
+procedure TKMNetworking.PacketToHost(aKind:TMessageKind; const aData:string='');
+begin
+  Assert(fLANPlayerKind = lpk_Joiner, 'Only joined player can send data to Host');
+  PacketSend(fHostAddress, aKind, aData);
 end;
 
 

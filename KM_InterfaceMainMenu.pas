@@ -176,6 +176,7 @@ type TKMMainMenuInterface = class
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnPlayersList(const aData:string);
     procedure Lobby_OnMapName(const aData:string);
+    procedure Lobby_OnAllReady(Sender: TObject);
     procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
 
@@ -1099,6 +1100,7 @@ begin
   fGame.fNetworking.OnTextMessage := Lobby_OnMessage;
   fGame.fNetworking.OnPlayersList := Lobby_OnPlayersList;
   fGame.fNetworking.OnMapName := Lobby_OnMapName;
+  fGame.fNetworking.OnAllReady := Lobby_OnAllReady;
   fGame.fNetworking.Host('Host');
   fGame.fNetworking.PostMessage(fGame.fNetworking.MyIPStringAndPort);
 end;
@@ -1198,9 +1200,16 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Lobby_OnAllReady(Sender: TObject);
+begin
+  Button_LobbyStart.Enable;
+end;
+
+
 procedure TKMMainMenuInterface.Lobby_ReadyClick(Sender: TObject);
 begin
-  //fGame.fNetworking.MapSelect(FileList_Lobby.FileName);
+  fGame.fNetworking.ReadyToStart;
+  Button_LobbyReady.Disable;
 end;
 
 
