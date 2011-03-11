@@ -1099,8 +1099,8 @@ begin
   fGame.fNetworking.OnTextMessage := Lobby_OnMessage;
   fGame.fNetworking.OnPlayersList := Lobby_OnPlayersList;
   fGame.fNetworking.OnMapName := Lobby_OnMapName;
-  fGame.fNetworking.Host('Player123');
-  fGame.fNetworking.PostMessage('Host: ' + fGame.fNetworking.MyIPStringAndPort);
+  fGame.fNetworking.Host('Host');
+  fGame.fNetworking.PostMessage(fGame.fNetworking.MyIPStringAndPort);
 end;
 
 
@@ -1126,7 +1126,7 @@ begin
   fGame.fNetworking.OnTextMessage := Lobby_OnMessage;
   fGame.fNetworking.OnPlayersList := Lobby_OnPlayersList;
   fGame.fNetworking.OnMapName := Lobby_OnMapName;
-  fGame.fNetworking.PostMessage('Joined host from ' + fGame.fNetworking.MyIPStringAndPort);
+  fGame.fNetworking.PostMessage(fGame.fNetworking.MyIPStringAndPort);
 end;
 
 
