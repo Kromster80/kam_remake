@@ -166,7 +166,7 @@ type TKMMainMenuInterface = class
     procedure LAN_Host(Sender: TObject);
     procedure LAN_Join(Sender: TObject);
     procedure LAN_JoinSucc(Sender: TObject);
-    procedure LAN_JoinFail(Sender: TObject);
+    procedure LAN_JoinFail(const aData:string);
     procedure LAN_Update;
     procedure LAN_QuitLobby;
 
@@ -1132,10 +1132,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.LAN_JoinFail(Sender: TObject);
+procedure TKMMainMenuInterface.LAN_JoinFail(const aData:string);
 begin
   LAN_Update; //Reset buttons
-  Label_LAN_Status.Caption := 'Connection failed';
+  Label_LAN_Status.Caption := 'Connection failed: '+aData;
 end;
 
 

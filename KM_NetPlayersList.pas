@@ -42,6 +42,7 @@ type
       //Getters
       function GetAddress(aIndex:integer):string;
       function GetNikname(aIndex:integer):string;
+      function NiknameExists(aNik:string):boolean;
       function IsHuman(aIndex:integer):boolean;
       function AllReady:boolean;
 
@@ -119,6 +120,16 @@ end;
 function TKMPlayersList.GetNikname(aIndex:integer):string;
 begin
   Result := fPlayers[aIndex].Nikname;
+end;
+
+
+function TKMPlayersList.NiknameExists(aNik:string):boolean;
+var i:integer;
+begin
+  Result := true;
+  for i:=1 to fCount do
+    if fPlayers[i].Nikname = aNik then
+      Result := false;
 end;
 
 

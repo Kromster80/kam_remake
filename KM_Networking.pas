@@ -17,7 +17,7 @@ type
                     mk_AskToJoin,
                     mk_Timeout,
                     mk_AllowToJoin,
-                    //mk_RefuseToJoin, //When max players is exceeded
+                    mk_RefuseToJoin, //When max players is exceeded or nikname is taken
                     mk_VerifyJoin,
                     mk_PlayersList,
                     mk_ReadyToStart, //Joiner telling he's ready
@@ -42,18 +42,19 @@ type
 
       fJoinTick:cardinal; //Timer to issue timeout event on connection
       fOnJoinSucc:TNotifyEvent;
-      fOnJoinFail:TNotifyEvent;
+      fOnJoinFail:TStringEvent;
       fOnTextMessage:TStringEvent;
       fOnPlayersList:TStringEvent;
       fOnMapName:TStringEvent;
       fOnAllReady:TNotifyEvent;
       fOnCommands:TStreamEvent;
 
+      function CanJoin(aAddr, aNik:string):string;
       procedure EncodeGameSetup(aStream:TKMemoryStream);
 
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
-      procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
+      procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
       procedure PacketToAll(aKind:TMessageKind; const aData:string='');
       procedure PacketToHost(aKind:TMessageKind; const aData:string='');
     public
@@ -78,7 +79,7 @@ type
       procedure SendCommands(aStream:TKMemoryStream);
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;
-      property OnJoinFail:TNotifyEvent write fOnJoinFail;
+      property OnJoinFail:TStringEvent write fOnJoinFail; //Return text description of error
       property OnTextMessage:TStringEvent write fOnTextMessage;
       property OnPlayersList:TStringEvent write fOnPlayersList;
       property OnMapName:TStringEvent write fOnMapName;
@@ -144,9 +145,9 @@ begin
   fLANPlayerKind := lpk_Joiner;
   fJoinTick := GetTickCount + 3000; //3sec
   fPlayers.Clear;
-  fPlayers.AddPlayer(MyIPString, aUserName);
+  fPlayers.AddPlayer(MyIPString, fMyNikname);
   fNetwork.StartListening;
-  PacketToHost(mk_AskToJoin);
+  PacketToHost(mk_AskToJoin, fMyNikname);
   fNetwork.OnRecieveKMPacket := PacketRecieveJoin; //Unless we join use shortlist
 end;
 
@@ -204,6 +205,17 @@ begin
 end;
 
 
+//See if player can join our game
+function TKMNetworking.CanJoin(aAddr, aNik:string):string;
+begin
+  if fPlayers.Count >= MAX_PLAYERS then 
+    Result := 'No more players can join the game'
+  else
+  if fPlayers.NiknameExists(aNik) then
+    Result := 'Player with this nik already joined the game';
+end;
+
+
 //Encode whole set of game settings into a stream (including players list)
 procedure TKMNetworking.EncodeGameSetup(aStream:TKMemoryStream);
 begin
@@ -232,46 +244,57 @@ end;
 
 
 procedure TKMNetworking.PacketRecieve(const aData: array of byte; aAddr:string);
-var Kind:TMessageKind; Data:string;
+var Kind:TMessageKind; Msg:string; ReMsg:string;
 begin
   Assert(Length(aData) >= 1, 'Unexpectedly short message'); //Kind, Message
 
   Kind := TMessageKind(aData[0]);
   if Length(aData) > 1 then
-    SetString(Data, PAnsiChar(@aData[1]), Length(aData)-1)
+    SetString(Msg, PAnsiChar(@aData[1]), Length(aData)-1)
   else
-    Data := '';
+    Msg := '';
 
   case Kind of
-    mk_AskToJoin:   PacketSend(aAddr, mk_AllowToJoin);
+    mk_AskToJoin:   begin
+                      ReMsg := CanJoin(aAddr, Msg);
+                      if ReMsg = '' then
+                        PacketSend(aAddr, mk_AllowToJoin, 'Allowed')
+                      else
+                        PacketSend(aAddr, mk_RefuseToJoin, ReMsg);
+                    end;
     mk_VerifyJoin:  begin
-                      fPlayers.AddPlayer(aAddr, Data);
+                      fPlayers.AddPlayer(aAddr, Msg);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
                       PacketToAll(mk_PlayersList, fPlayers.GetAsText);
-                      PostMessage(aAddr+'/'+Data+' has joined');
+                      PostMessage(aAddr+'/'+Msg+' has joined');
                     end;
     mk_PlayersList: begin
-                      fPlayers.SetAsText(Data);
+                      fPlayers.SetAsText(Msg);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
                     end;
     mk_ReadyToStart:begin
-                      fPlayers.SetReady(Data);
+                      fPlayers.SetReady(Msg);
                       if (fLANPlayerKind = lpk_Host) and fPlayers.AllReady and (fPlayers.Count>1) then
                         if Assigned(fOnAllReady) then fOnAllReady(nil);
                     end;
     mk_MapSelect:   begin
-                      fMapName := Data;
+                      fMapName := Msg;
                       if Assigned(fOnMapName) then fOnMapName(fMapName);
                     end;
-    mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Data);
+    mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Msg);
   end;
 end;
 
 
 procedure TKMNetworking.PacketRecieveJoin(const aData: array of byte; aAddr:string);
-var Kind:TMessageKind;
+var Kind:TMessageKind; Msg:string;
 begin
   Kind := TMessageKind(aData[0]);
+  if Length(aData) > 1 then
+    SetString(Msg, PAnsiChar(@aData[1]), Length(aData)-1)
+  else
+    Msg := '';
+
   case Kind of //Handle only 2 messages kinds
     mk_AllowToJoin: begin
                       fJoinTick := 0;
@@ -279,17 +302,23 @@ begin
                       PacketToHost(mk_VerifyJoin, fMyNikname);
                       fOnJoinSucc(Self);
                     end;
+    mk_RefuseToJoin:begin
+                      fJoinTick := 0;
+                      fNetwork.OnRecieveKMPacket := nil;
+                      fNetwork.StopListening;
+                      fOnJoinFail(Msg);
+                    end;
     mk_Timeout:     begin
                       fJoinTick := 0;
                       fNetwork.OnRecieveKMPacket := nil;
                       fNetwork.StopListening;
-                      fOnJoinFail(Self);
+                      fOnJoinFail('no response');
                     end;
   end;
 end;
 
 
-procedure TKMNetworking.PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string='');
+procedure TKMNetworking.PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
 begin
   fNetwork.SendTo(aAddress, char(aKind) + aData);
 end;
