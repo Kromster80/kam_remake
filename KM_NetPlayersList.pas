@@ -126,10 +126,10 @@ end;
 function TKMPlayersList.NiknameExists(aNik:string):boolean;
 var i:integer;
 begin
-  Result := true;
+  Result := false;
   for i:=1 to fCount do
     if fPlayers[i].Nikname = aNik then
-      Result := false;
+      Result := true;
 end;
 
 

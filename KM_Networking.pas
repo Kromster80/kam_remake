@@ -129,7 +129,7 @@ begin
   fMyNikname := aUserName;
   fLANPlayerKind := lpk_Host;
   fPlayers.Clear;
-  fPlayers.AddPlayer(MyIPString, aUserName);
+  fPlayers.AddPlayer(MyIPString, fMyNikname);
   fPlayers.SetReady(fMyNikname);
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
@@ -268,16 +268,16 @@ begin
                       PacketToAll(mk_PlayersList, fPlayers.GetAsText);
                       PostMessage(aAddr+'/'+Msg+' has joined');
                     end;
-    mk_PlayersList: begin
+    mk_PlayersList: if fLANPlayerKind <> lpk_Host then begin
                       fPlayers.SetAsText(Msg);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
                     end;
-    mk_ReadyToStart:begin
+    mk_ReadyToStart:if fLANPlayerKind <> lpk_Host then begin
                       fPlayers.SetReady(Msg);
                       if (fLANPlayerKind = lpk_Host) and fPlayers.AllReady and (fPlayers.Count>1) then
                         if Assigned(fOnAllReady) then fOnAllReady(nil);
                     end;
-    mk_MapSelect:   begin
+    mk_MapSelect:   if fLANPlayerKind <> lpk_Host then begin
                       fMapName := Msg;
                       if Assigned(fOnMapName) then fOnMapName(fMapName);
                     end;

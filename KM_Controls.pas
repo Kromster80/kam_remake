@@ -1216,7 +1216,7 @@ end;
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
   function ValidKey(aKey:word):boolean;
   begin //Utility, Numbers, NumPad numbers, Letters
-    Result := chr(aKey) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
+    Result := chr(aKey) in [' ', '_', '.', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
   end;
 var s:string;
 begin
