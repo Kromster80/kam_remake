@@ -157,6 +157,7 @@ begin
   NumRead := FileSize(f);
   SetLength(Result,NumRead+1);
   BlockRead(f,Result[1],NumRead);
+  //todo: XE stop using string for data processing. use memory stream instead?
   CloseFile(f);
 
   //Detect whether mission is encoded so we can support decoded/encoded .DAT files
@@ -168,7 +169,7 @@ begin
   Encoded := (Num/NumRead < 0.20); //so we take half of that as landmark
 
   for i:=1 to NumRead do
-    if Encoded then Result[i] := chr(ord(Result[i]) xor 239);
+    if Encoded then Result[i] := chr(byte(Result[i]) xor 239);
 
   //Save text after decoding but before cleaning
   if WRITE_DECODED_MISSION then begin
@@ -970,7 +971,7 @@ begin
 
   //Encode it
   for i:=1 to length(SaveString) do
-    SaveString[i]:=chr(ord(SaveString[i]) xor 239);
+    SaveString[i]:=chr(byte(SaveString[i]) xor 239);
   //Write it
   assignfile(f, aFileName); rewrite(f);
   write(f, SaveString);
