@@ -863,7 +863,7 @@ begin
     end;
 
     if fText[i]=#32 then inc(AdvX, FontData[Font].WordSpacing)
-                    else inc(AdvX, FontData[Font].Letters[ord(fText[i])].Width + CharSpacing);
+                    else inc(AdvX, FontData[Font].Letters[byte(fText[i])].Width + CharSpacing);
 
     //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
     if ((AdvX>Width)and(LastSpace<>-1))or(fText[i]=#124) then

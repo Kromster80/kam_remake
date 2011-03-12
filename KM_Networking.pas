@@ -40,7 +40,7 @@ type
 
       fMapName:string;
 
-      fJoinTick:cardinal;//Timer to issue timeout event on connection
+      fJoinTick:cardinal; //Timer to issue timeout event on connection
       fOnJoinSucc:TNotifyEvent;
       fOnJoinFail:TNotifyEvent;
       fOnTextMessage:TStringEvent;

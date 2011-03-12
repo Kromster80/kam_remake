@@ -43,10 +43,10 @@ type
 
 type
   TWAVHeaderEx = record
-    RIFFHeader: array [1..4] of Char;
+    RIFFHeader: array [1..4] of AnsiChar;
     FileSize: Integer;
-    WAVEHeader: array [1..4] of Char;
-    FormatHeader: array [1..4] of Char;
+    WAVEHeader: array [1..4] of AnsiChar;
+    FormatHeader: array [1..4] of AnsiChar;
     FormatHeaderSize: Integer;
     FormatCode: Word;
     ChannelNumber: Word;
@@ -54,7 +54,7 @@ type
     BytesPerSecond: Integer;
     BytesPerSample: Word;
     BitsPerSample: Word;
-    DATAHeader: array [1..4] of Char; //Extension
+    DATAHeader: array [1..4] of AnsiChar; //Extension
     DataSize: Integer; //Extension
   end;  
 

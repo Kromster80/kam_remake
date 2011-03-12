@@ -410,7 +410,7 @@ begin
     if Text[i]<>#124 then begin
       if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
                      else inc(LineWidth[LineCount], FontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
-      LineHeight := Math.max(LineHeight, FontData[Fnt].Letters[ord(Text[i])].Height);
+      LineHeight := Math.max(LineHeight, FontData[Fnt].Letters[byte(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       LineWidth[LineCount] := Math.max(0,LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
@@ -454,13 +454,13 @@ begin
       if Text[i]=#32 then
         inc(AdvX, FontData[Fnt].WordSpacing)
       else begin
-        with FontData[Fnt].Letters[ord(Text[i])] do begin
-          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +FontData[Fnt].Letters[ord(Text[i])].YOffset);
-          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +FontData[Fnt].Letters[ord(Text[i])].YOffset);
-          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+FontData[Fnt].Letters[ord(Text[i])].YOffset);
-          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+FontData[Fnt].Letters[ord(Text[i])].YOffset);
+        with FontData[Fnt].Letters[byte(Text[i])] do begin
+          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
+          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
+          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
+          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
+          inc(AdvX, Width + CharSpacing);
         end;
-        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + CharSpacing);
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);
