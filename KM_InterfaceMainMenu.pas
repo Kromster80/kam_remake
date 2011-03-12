@@ -1114,7 +1114,7 @@ begin
   Label_LAN_Status.Caption := 'Connecting, please wait ...';
 
   //Send request to join
-  fGame.fNetworking.Connect(Edit_LAN_IP.Text, 'Joiner'); //Init lobby
+  fGame.fNetworking.Join(Edit_LAN_IP.Text, 'Joiner'); //Init lobby
   fGame.fNetworking.OnJoinSucc := LAN_JoinSucc;
   fGame.fNetworking.OnJoinFail := LAN_JoinFail;
 end;
@@ -1152,7 +1152,7 @@ begin
   ListBox_LobbyPlayers.Items.Clear;
   ListBox_LobbyPosts.Items.Clear;
   Edit_LobbyPost.Text := '';
-  Button_LobbyStart.Disable;
+  //Button_LobbyStart.Disable;
 
   if Sender = Button_LAN_Host then begin
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
@@ -1177,7 +1177,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
-  fGame.fNetworking.MapSelect(ExtractFileName(FileList_Lobby.FileName));
+  fGame.fNetworking.MapSelect(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
 end;
 
 
@@ -1215,7 +1215,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_StartClick(Sender: TObject);
 begin
-  fGame.fNetworking.StartGame;
+  fGame.fNetworking.StartClick;
 end;
 
 

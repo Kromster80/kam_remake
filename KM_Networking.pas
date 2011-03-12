@@ -20,12 +20,11 @@ type
                     mk_RefuseToJoin, //When max players is exceeded or nikname is taken
                     mk_VerifyJoin,
                     mk_PlayersList,
-                    mk_ReadyToStart, //Joiner telling he's ready
                     mk_MapSelect,
+                    mk_ReadyToStart, //Joiner telling he's ready
+                    mk_Start, //Host starting the game
 
-                    mk_Text,
-                    mk_GameSetup,
-                    mk_Gameplay);
+                    mk_Text);
 
 type
   //Should handle message exchange and routing, interacting with UI
@@ -33,7 +32,7 @@ type
     private
       fNetwork:TKMNetwork; //Our Network interface
       fLANPlayerKind: TLANPlayerKind; //Our role
-      fHostAddress:string; 
+      fHostAddress:string;
       fMyAddress:string;
       fMyNikname:string;
       fPlayers:TKMPlayersList;
@@ -50,7 +49,7 @@ type
       fOnCommands:TStreamEvent;
 
       function CanJoin(aAddr, aNik:string):string;
-      procedure EncodeGameSetup(aStream:TKMemoryStream);
+      procedure StartGame;
 
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketRecieveJoin(const aData: array of byte; aAddr:string); //Process only "Join" commands
@@ -65,12 +64,12 @@ type
       function MyIPString:string;
       function MyIPStringAndPort:string;
       procedure Host(aUserName:string);
-      procedure Connect(aServerAddress,aUserName:string);
+      procedure Join(aServerAddress,aUserName:string);
       procedure Disconnect;
       function Connected: boolean;
       procedure MapSelect(aName:string);
       procedure ReadyToStart;
-      procedure StartGame; //All arguments required are in our class
+      procedure StartClick; //All arguments required are in our class
 
       //Common
       procedure PostMessage(aText:string);
@@ -90,6 +89,7 @@ type
 
 
 implementation
+uses KM_Game, KM_Utils;
 
 
 { TKMNetworking }
@@ -123,6 +123,7 @@ end;
 
 procedure TKMNetworking.Host(aUserName:string);
 begin
+  Disconnect;
   fJoinTick := 0;
   fHostAddress := ''; //Thats us
   fMyAddress := MyIPString;
@@ -137,8 +138,9 @@ begin
 end;
 
 
-procedure TKMNetworking.Connect(aServerAddress,aUserName:string);
+procedure TKMNetworking.Join(aServerAddress,aUserName:string);
 begin
+  Disconnect;
   fHostAddress := aServerAddress;
   fMyAddress := MyIPString;
   fMyNikname := aUserName;
@@ -190,18 +192,23 @@ end;
 //Tell other players we want to start
 //Send whole game setup info at once, making sure there are no misunderstandings,
 //especially about random values (e.g. start locations)
-procedure TKMNetworking.StartGame;
-var Msg:TKMemoryStream;
+procedure TKMNetworking.StartClick;
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
   Assert(fPlayers.AllReady, 'Not everyone is ready to start');
 
-  Msg := TKMemoryStream.Create;
-  EncodeGameSetup(Msg);
-  //fPlayers.PacketSend(mk_StartGame, Msg);
-  Msg.Free;
+  //For now we assume that everything is synced
 
-  //Now we will await confirmation messages from other players and start the game
+  PacketToAll(mk_Start, '');
+
+  StartGame;
+end;
+
+
+procedure TKMNetworking.StartGame;
+
+begin
+  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', );
 end;
 
 
@@ -213,18 +220,6 @@ begin
   else
   if fPlayers.NiknameExists(aNik) then
     Result := 'Player with this nik already joined the game';
-end;
-
-
-//Encode whole set of game settings into a stream (including players list)
-procedure TKMNetworking.EncodeGameSetup(aStream:TKMemoryStream);
-begin
-  aStream.Write(fMapName);
-  //aStream.Write(AllianceMode); //Fixed / changeable
-  //aStream.Write(StartupConditions);
-  //aStream.Write(WinConditions);
-  //aStream.Write(DefeatConditions);
-  //fPlayers.Save(aStream);
 end;
 
 
@@ -280,6 +275,9 @@ begin
     mk_MapSelect:   if fLANPlayerKind <> lpk_Host then begin
                       fMapName := Msg;
                       if Assigned(fOnMapName) then fOnMapName(fMapName);
+                    end;
+    mk_Start:       if fLANPlayerKind <> lpk_Host then begin
+                      StartGame;
                     end;
     mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Msg);
   end;

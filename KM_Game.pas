@@ -381,11 +381,39 @@ end;
 
 
 procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
+var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
 begin
   GameInit;
 
-  fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
-  fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
+  fMissionFile := aMissionFile;
+  fGameName := aGameName;
+
+  fLog.AppendLog('Loading DAT...');
+  if CheckFileExists(fMissionFile) then
+  begin
+    fMainMenuInterface.ShowScreen(msLoading, 'script');
+    fRender.Render;
+
+    try //Catch exceptions
+      fMissionParser := TMissionParser.Create(mpm_Game);
+      ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
+      FreeAndNil(fMissionParser);
+      if ResultMsg<>'' then Raise Exception.Create(ResultMsg);
+      fLog.AppendLog('DAT Loaded');
+    except
+      on E : Exception do
+      begin
+        //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+        LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+
+                      E.ClassName+': '+E.Message;
+        if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+        fMainMenuInterface.ShowScreen(msError, LoadError);
+        fLog.AppendLog('DAT Load Exception: '+LoadError);
+        exit;
+      end;
+    end;
+  end;
+
   MyPlayer := fPlayers.Player[aPlayID];
 
   fPlayers.AfterMissionInit(true);
@@ -395,6 +423,8 @@ begin
   fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));
 
   fLog.AppendLog('Gameplay initialized',true);
+
+  fGameState := gsPaused;
 
   fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
   Save(99); //Thats our base for a game record

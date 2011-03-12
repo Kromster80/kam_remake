@@ -44,6 +44,7 @@ type
       function GetNikname(aIndex:integer):string;
       function NiknameExists(aNik:string):boolean;
       function IsHuman(aIndex:integer):boolean;
+      function GetStartLoc(aNik:string):integer;
       function AllReady:boolean;
 
       //Import/Export
@@ -136,6 +137,15 @@ end;
 function TKMPlayersList.IsHuman(aIndex:integer):boolean;
 begin
   Result := fPlayers[aIndex].PlayerType = pt_Human;
+end;
+
+
+function TKMPlayersList.GetStartLoc(aNik:string):integer;
+var i:integer;
+begin
+  for i:=1 to fCount do
+    if fPlayers[i].Nikname = aNik then
+      Result := fPlayers[i].StartLocID;
 end;
 
 
