@@ -28,6 +28,7 @@ uses
   KM_Music in 'KM_Music.pas',
   KM_Network in 'KM_Network.pas',
   KM_Networking in 'KM_Networking.pas',
+  KM_NetPlayersList in 'KM_NetPlayersList.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
   KM_Player in 'KM_Player.pas',
   KM_PlayerAI in 'KM_PlayerAI.pas',
@@ -62,7 +63,6 @@ uses
   KM_UnitTaskThrowRock in 'KM_UnitTaskThrowRock.pas',
   KM_Utils in 'KM_Utils.pas',
   KM_Viewport in 'KM_Viewport.pas';
-
 
 {$IFDEF WDC}
   {$R *.RES}
