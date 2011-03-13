@@ -730,15 +730,20 @@ end;
 
 
 procedure TTerrain.SetRoads(aList:TKMPointList; aOwner:TPlayerID);
-var i:integer;
+var i:integer; TL,BR:TKMPoint;
 begin
+  if aList.Count = 0 then exit; //Nothing to be done
+
   for i:=1 to aList.Count do begin
     Land[aList.List[i].Y,aList.List[i].X].TileOwner:=aOwner;
     Land[aList.List[i].Y,aList.List[i].X].TileOverlay:=to_Road;
     Land[aList.List[i].Y,aList.List[i].X].FieldAge:=0;
     UpdateBorders(aList.List[i]);
   end;
-  RebuildPassability(aList.GetTopLeft.X-1, aList.GetTopLeft.Y-1, aList.GetBottomRight.X+1, aList.GetBottomRight.Y+1);
+  
+  TL := aList.GetTopLeft;
+  BR := aList.GetBottomRight;
+  RebuildPassability(TL.X-1, BR.X+1, TL.Y-1, BR.Y+1);
   RebuildWalkConnect(wcRoad);
 end;
 

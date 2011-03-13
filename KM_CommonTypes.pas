@@ -558,6 +558,7 @@ end;
 function TKMPointList.GetTopLeft:TKMPoint;
 var i:integer;
 begin
+  Result := KMPoint(0,0);
   if Count=0 then exit;
   Result := List[1]; //Something to start with
   for i:=2 to Count do begin
@@ -570,6 +571,7 @@ end;
 function TKMPointList.GetBottomRight:TKMPoint;
 var i:integer;
 begin
+  Result := KMPoint(0,0);
   if Count=0 then exit;
   Result := List[1]; //Something to start with
   for i:=2 to Count do begin
