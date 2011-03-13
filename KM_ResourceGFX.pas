@@ -231,8 +231,10 @@ begin
 
     FileName := ExeDir+'data\gfx\'+PalFiles[i];
     if FileExists(FileName) then begin
-      assignfile(f,FileName);
-      reset(f,1);
+      AssignFile(f,FileName);
+      FileMode := 0;
+      Reset(f,1);
+      FileMode := 2;
       blockread(f,Pal[i],48); //Unknown and/or not important
       blockread(f,Pal[i],768); //256*3
       closefile(f);

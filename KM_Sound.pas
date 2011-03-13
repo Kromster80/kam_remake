@@ -213,7 +213,10 @@ var
 begin
   if not fIsSoundInitialized then exit;
   if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
-  AssignFile(f, ExeDir+'data\sfx\sounds.dat'); Reset(f,1);
+  AssignFile(f, ExeDir+'data\sfx\sounds.dat');
+  FileMode := 0;
+  Reset(f,1);
+  FileMode := 2;
 
   BlockRead(f, Head, 4); //Read 4 bytes into Head record
   BlockRead(f, Tab1, Head.Count*4); //Read Count*4bytes into Tab1(WaveSizes)

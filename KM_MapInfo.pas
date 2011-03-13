@@ -123,8 +123,10 @@ begin
 
     if FileExists(KMMapNameToPath(Maps[i].Folder,'txt')) then
     begin
-      assignfile(ft,KMMapNameToPath(Maps[i].Folder,'txt'));
-      reset(ft);
+      AssignFile(ft,KMMapNameToPath(Maps[i].Folder,'txt'));
+      FileMode := 0;
+      Reset(ft);
+      FileMode := 2;
       repeat
         readln(ft,st);
         if SameText(st, 'SmallDesc') then readln(ft,SmallDesc);

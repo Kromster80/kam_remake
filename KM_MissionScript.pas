@@ -153,7 +153,10 @@ begin
   if not CheckFileExists(aFileName) then exit;
 
   //Load and decode .DAT file into FileText
-  AssignFile(f,aFileName); Reset(f,1);
+  AssignFile(f,aFileName); 
+  FileMode := 0;
+  Reset(f,1);
+  FileMode := 2;
   NumRead := FileSize(f);
   SetLength(Result,NumRead+1);
   BlockRead(f,Result[1],NumRead);
@@ -301,7 +304,10 @@ end;
 function TMissionParser.GetMapDetails(const aFileName:string):TKMMapDetails;
 var f:file; i,k:integer;
 begin
-  assignfile(f,aFileName); reset(f,1);
+  AssignFile(f,aFileName);
+  FileMode := 0;
+  Reset(f,1);
+  FileMode := 2;
   blockread(f,k,4);
   blockread(f,i,4);
   fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'TMissionParser.GetMapDetails - Can''t open the map cos it''s too big.');

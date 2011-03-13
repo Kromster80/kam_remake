@@ -143,7 +143,9 @@ begin
 
   if FileExists(Filename) then begin
     AssignFile(TGAFile, Filename);
-    FileMode:=0; Reset(TGAFile,1); FileMode:=2; //Open ReadOnly
+    FileMode := 0;
+    Reset(TGAFile,1);
+    FileMode := 2; //Open ReadOnly
 
     // Read in the bitmap file header
     BlockRead(TGAFile, TGAHeader, SizeOf(TGAHeader), bytesRead);

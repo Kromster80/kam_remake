@@ -172,7 +172,7 @@ begin
   //but we need this to be Off to reproduce bugs
   TimeBeginPeriod(1); //initialize timer precision
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
-  fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
+  fLog:=TKMLog.Create(ExeDir+'KaM_'+inttostr(GetTickCount)+'.log'); //First thing - create a log
 
   ReadAvailableResolutions;
 

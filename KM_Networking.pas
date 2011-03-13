@@ -199,6 +199,9 @@ begin
 
   //For now we assume that everything is synced
 
+  //Define random parameters (start locations)
+
+  //Let everyone start
   PacketToAll(mk_Start, '');
 
   StartGame;
@@ -208,7 +211,7 @@ end;
 procedure TKMNetworking.StartGame;
 
 begin
-  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', );
+  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fPlayers.GetStartLoc(fMyNikname));
 end;
 
 
@@ -250,33 +253,33 @@ begin
     Msg := '';
 
   case Kind of
-    mk_AskToJoin:   begin
+    mk_AskToJoin:   if fLANPlayerKind = lpk_Host then begin
                       ReMsg := CanJoin(aAddr, Msg);
                       if ReMsg = '' then
                         PacketSend(aAddr, mk_AllowToJoin, 'Allowed')
                       else
                         PacketSend(aAddr, mk_RefuseToJoin, ReMsg);
                     end;
-    mk_VerifyJoin:  begin
+    mk_VerifyJoin:  if fLANPlayerKind = lpk_Host then begin
                       fPlayers.AddPlayer(aAddr, Msg);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
                       PacketToAll(mk_PlayersList, fPlayers.GetAsText);
                       PostMessage(aAddr+'/'+Msg+' has joined');
                     end;
-    mk_PlayersList: if fLANPlayerKind <> lpk_Host then begin
+    mk_PlayersList: if fLANPlayerKind = lpk_Joiner then begin
                       fPlayers.SetAsText(Msg);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
                     end;
-    mk_ReadyToStart:if fLANPlayerKind <> lpk_Host then begin
+    mk_ReadyToStart:if fLANPlayerKind = lpk_Host then begin
                       fPlayers.SetReady(Msg);
                       if (fLANPlayerKind = lpk_Host) and fPlayers.AllReady and (fPlayers.Count>1) then
                         if Assigned(fOnAllReady) then fOnAllReady(nil);
                     end;
-    mk_MapSelect:   if fLANPlayerKind <> lpk_Host then begin
+    mk_MapSelect:   if fLANPlayerKind = lpk_Joiner then begin
                       fMapName := Msg;
                       if Assigned(fOnMapName) then fOnMapName(fMapName);
                     end;
-    mk_Start:       if fLANPlayerKind <> lpk_Host then begin
+    mk_Start:       if fLANPlayerKind = lpk_Joiner then begin
                       StartGame;
                     end;
     mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Msg);

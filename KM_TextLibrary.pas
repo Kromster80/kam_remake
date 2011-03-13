@@ -77,7 +77,10 @@ begin
   }
   if not CheckFileExists(FilePath) then exit;
 
-  assignfile(f,FilePath); reset(f,1);
+  AssignFile(f,FilePath);
+  FileMode := 0;
+  Reset(f,1);
+  FileMode := 2; 
   blockread(f,FileData,100000,NumRead); //100kb should be enough
   closefile(f);
 

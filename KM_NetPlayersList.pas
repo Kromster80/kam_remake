@@ -96,7 +96,7 @@ begin
   fPlayers[fCount].Nikname := aNik;
   fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].FlagColor := 0;
-  fPlayers[fCount].StartLocID := fCount;
+  fPlayers[fCount].StartLocID := 0;
   for i:=1 to MAX_PLAYERS do
     fPlayers[fCount].Alliances[i] := at_Enemy;
   fPlayers[fCount].ReadyToStart := false;
@@ -143,9 +143,12 @@ end;
 function TKMPlayersList.GetStartLoc(aNik:string):integer;
 var i:integer;
 begin
+  Result := -1;
   for i:=1 to fCount do
     if fPlayers[i].Nikname = aNik then
-      Result := fPlayers[i].StartLocID;
+      if fPlayers[i].StartLocID = 0 then Result := i //Order
+                                    else Result := fPlayers[i].StartLocID;
+  Assert(Result<>-1, 'Net Player is missing');
 end;
 
 
