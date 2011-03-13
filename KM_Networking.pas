@@ -48,7 +48,7 @@ type
       fOnAllReady:TNotifyEvent;
       fOnCommands:TStreamEvent;
 
-      function CanJoin(aAddr, aNik:string):string;
+      function CheckCanJoin(aAddr, aNik:string):string;
       procedure StartGame;
 
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
@@ -216,7 +216,7 @@ end;
 
 
 //See if player can join our game
-function TKMNetworking.CanJoin(aAddr, aNik:string):string;
+function TKMNetworking.CheckCanJoin(aAddr, aNik:string):string;
 begin
   if fPlayers.Count >= MAX_PLAYERS then 
     Result := 'No more players can join the game'
@@ -254,7 +254,7 @@ begin
 
   case Kind of
     mk_AskToJoin:   if fLANPlayerKind = lpk_Host then begin
-                      ReMsg := CanJoin(aAddr, Msg);
+                      ReMsg := CheckCanJoin(aAddr, Msg);
                       if ReMsg = '' then
                         PacketSend(aAddr, mk_AllowToJoin, 'Allowed')
                       else
