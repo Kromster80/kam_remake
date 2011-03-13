@@ -1778,8 +1778,8 @@ begin
   dx := LocFrom.X - LocTo.X;
   dy := LocFrom.Y - LocTo.Y;
   Assert((abs(dx) = 1) and (abs(dy) = 1));
-  if (dx*dy = 1) then Result := vu_41
-                 else Result := vu_32;
+  if (dx*dy = 1) then Result := vu_NWSE
+                 else Result := vu_NESW;
 end;
 
 

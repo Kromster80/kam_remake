@@ -852,8 +852,8 @@ type
 
 
   TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
-                    vu_41,      //Vertex is used NE-SW like this: \
-                    vu_32);     //Vertex is used NW-SE like this: /
+                    vu_NWSE,    //Vertex is used NW-SE like this: \
+                    vu_NESW);   //Vertex is used NE-SW like this: /
 
 const
   //Chopable tree, Chopdown animation,
