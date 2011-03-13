@@ -167,8 +167,8 @@ begin
         Thought := th_None;
         fPhase2 := 1;
         GetHome.SetState(hst_Work); //Set house to Work state
-        GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
-        GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
+        if WorkPlan.Resource1 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
+        if WorkPlan.Resource2 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
         if WorkPlan.GatheringScript = gs_SwineBreeder then begin //Swines get feed and taken immediately
           BeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
