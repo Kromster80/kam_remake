@@ -443,7 +443,7 @@ begin
     exit;
   end;
 
-  fTerrain.UnitVertexAdd(KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition), vut_Walking);
+  fTerrain.UnitVertexAdd(fWalker.PrevPosition,fWalker.NextPosition);
   fVertexOccupied := KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition);
 end;
 
@@ -457,7 +457,7 @@ begin
     exit;
   end;
 
-  fTerrain.UnitVertexRem(fVertexOccupied, vut_Walking);
+  fTerrain.UnitVertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
 end;
 
@@ -522,11 +522,11 @@ begin
     //If Unit on the way is walking somewhere and not exchanging with someone else
     if (fOpponent.GetUnitAction is TUnitActionWalkTo) and (not TUnitActionWalkTo(fOpponent.GetUnitAction).fDoExchange)
       //Unit not yet arrived on tile, wait till it does, otherwise there might be 2 units on one tile
-      and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking) then
+      and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking)
+      //Diagonal vertex must not be in use
+      and ((not KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1])) or (not fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,NodeList.List[NodePos+1])))) then
     //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
-    if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].Passability)
-       and not (KMStepIsDiag(fWalker.GetPosition,fOpponent.GetPosition)                            //Not a diagonal exchange or...
-       and fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,fOpponent.GetPosition))) then //Diagonal vertex is not used
+    if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].Passability) then
     begin
       //Check unit's future position is where we are now and exchange (use NodeList rather than direction as it's not always right)
       if KMSamePoint(TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then
@@ -947,6 +947,13 @@ begin
     //Perform exchange
     //Both exchanging units have fDoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
     if fDoExchange then begin
+       //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
+      if KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1])
+      and (not fTerrain.VertexUsageCompatible(fWalker.GetPosition,NodeList.List[NodePos+1])) then
+      begin
+        fLog.AppendLog(Explanation);
+        exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
+      end;
       inc(NodePos);
 
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);

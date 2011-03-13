@@ -137,8 +137,11 @@ TTerrain = class
     procedure UnitRem(LocFrom:TKMPoint);
     procedure UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
     procedure UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
-    procedure UnitVertexAdd(LocTo:TKMPoint; UsageType: TKMVertexUsageType);
-    procedure UnitVertexRem(LocFrom:TKMPoint; UsageType: TKMVertexUsageType);
+    procedure UnitVertexAdd(LocTo:TKMPoint; Usage: TKMVertexUsage); overload;
+    procedure UnitVertexAdd(LocFrom, LocTo:TKMPoint); overload;
+    procedure UnitVertexRem(LocFrom:TKMPoint);
+    function VertexUsageCompatible(LocFrom, LocTo:TKMPoint): boolean;
+    function GetVertexUsageType(LocFrom, LocTo:TKMPoint): TKMVertexUsage;
 
     function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
     function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
@@ -541,8 +544,7 @@ begin
        U.Visible and //Inside of house
        CanWalkDiagonaly(aLoc,KMPoint(k,i)) and
        (fPlayers.CheckAlliance(aPlay, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
-       ((not HasVertexUnit(KMGetDiagVertex(aLoc,KMPoint(k,i)))) or
-       ((Land[KMGetDiagVertex(aLoc,KMPoint(k,i)).Y,KMGetDiagVertex(aLoc,KMPoint(k,i)).X].IsVertexUnit = vu_FightingOne) and (U.GetUnitAction is TUnitActionFight) and (KMSamePoint(KMGetPointInDir(KMPoint(k,i),U.Direction).Loc,aLoc)))) and
+       ((abs(aLoc.X - k) <> 1) or (abs(aLoc.Y - i) <> 1) or VertexUsageCompatible(aLoc,KMPoint(k,i))) and
        (not U.IsDeadOrDying)
     then
       if U is TKMUnitWarrior then
@@ -1728,38 +1730,48 @@ end;
 
 
 {Mark vertex as occupied}
-procedure TTerrain.UnitVertexAdd(LocTo:TKMPoint; UsageType: TKMVertexUsageType);
+procedure TTerrain.UnitVertexAdd(LocTo:TKMPoint; Usage: TKMVertexUsage);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  if UsageType = vut_Walking then
-  begin
-    assert(Land[LocTo.Y,LocTo.X].IsVertexUnit in [vu_None,vu_WalkingOne],'Cannot walk on vertex');
-    inc(Land[LocTo.Y,LocTo.X].IsVertexUnit);
-  end;
-  if UsageType = vut_Fighting then
-  begin
-    assert(Land[LocTo.Y,LocTo.X].IsVertexUnit in [vu_None,vu_FightingOne],'Cannot fight on vertex');
-    if Land[LocTo.Y,LocTo.X].IsVertexUnit = vu_None then Land[LocTo.Y,LocTo.X].IsVertexUnit := vu_FightingOne
-    else if Land[LocTo.Y,LocTo.X].IsVertexUnit = vu_FightingOne then Land[LocTo.Y,LocTo.X].IsVertexUnit := vu_FightingTwo;
-  end;
+  assert(Usage <> vu_None, 'Invalid add vu_None at '+TypeToString(LocTo));
+  assert((Land[LocTo.Y,LocTo.X].IsVertexUnit = vu_None) or (Land[LocTo.Y,LocTo.X].IsVertexUnit = Usage),'Opposite vertex in use at '+TypeToString(LocTo));
+
+  Land[LocTo.Y,LocTo.X].IsVertexUnit := Usage;
+end;
+
+
+procedure TTerrain.UnitVertexAdd(LocFrom, LocTo:TKMPoint);
+begin
+  assert(KMStepIsDiag(LocFrom, LocTo), 'Add non-diagonal vertex?');
+  UnitVertexAdd(KMGetDiagVertex(LocFrom, LocTo), GetVertexUsageType(LocFrom, LocTo));
 end;
 
 
 {Mark vertex as empty}
-procedure TTerrain.UnitVertexRem(LocFrom:TKMPoint; UsageType: TKMVertexUsageType);
+procedure TTerrain.UnitVertexRem(LocFrom:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  if UsageType = vut_Walking then
-  begin
-    assert(Land[LocFrom.Y,LocFrom.X].IsVertexUnit in [vu_WalkingOne,vu_WalkingTwo],'Cannot walk off vertex');
-    dec(Land[LocFrom.Y,LocFrom.X].IsVertexUnit);
-  end;
-  if UsageType = vut_Fighting then
-  begin
-    assert(Land[LocFrom.Y,LocFrom.X].IsVertexUnit in [vu_FightingOne,vu_FightingTwo],'Cannot fight off vertex');
-    if Land[LocFrom.Y,LocFrom.X].IsVertexUnit = vu_FightingOne then Land[LocFrom.Y,LocFrom.X].IsVertexUnit := vu_None
-    else if Land[LocFrom.Y,LocFrom.X].IsVertexUnit = vu_FightingTwo then Land[LocFrom.Y,LocFrom.X].IsVertexUnit := vu_FightingOne;
-  end;
+  Land[LocFrom.Y,LocFrom.X].IsVertexUnit := vu_None;
+end;
+
+
+function TTerrain.VertexUsageCompatible(LocFrom, LocTo:TKMPoint): boolean;
+var Vert: TKMPoint; VertUsage: TKMVertexUsage;
+begin
+  Vert := KMGetDiagVertex(LocFrom, LocTo);
+  VertUsage := GetVertexUsageType(LocFrom, LocTo);
+  Result := (Land[Vert.Y,Vert.X].IsVertexUnit = vu_None) or (Land[Vert.Y,Vert.X].IsVertexUnit = VertUsage);
+end;
+
+
+function TTerrain.GetVertexUsageType(LocFrom, LocTo:TKMPoint): TKMVertexUsage;
+var dx, dy: integer;
+begin
+  dx := LocFrom.X - LocTo.X;
+  dy := LocFrom.Y - LocTo.Y;
+  Assert((abs(dx) = 1) and (abs(dy) = 1));
+  if (dx*dy = 1) then Result := vu_41
+                 else Result := vu_32;
 end;
 
 

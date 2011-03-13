@@ -68,7 +68,7 @@ begin
   Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Storm vertex in use');
   Assert(not fTerrain.HasVertexUnit(KMGetDiagVertex(aFrom,aTo)), 'Storm vertex blocked');
 
-  fTerrain.UnitVertexAdd(KMGetDiagVertex(aFrom,aTo), vut_Walking); //Running counts as walking
+  fTerrain.UnitVertexAdd(aFrom,aTo); //Running counts as walking
   fVertexOccupied := KMGetDiagVertex(aFrom,aTo);
 end;
 
@@ -78,7 +78,7 @@ begin
   //Tell fTerrain that this vertex is not being used anymore
   Assert(not KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'DecVertex 0:0 Storm');
 
-  fTerrain.UnitVertexRem(fVertexOccupied, vut_Walking);
+  fTerrain.UnitVertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
 end;
 

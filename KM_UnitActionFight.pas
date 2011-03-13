@@ -75,7 +75,7 @@ begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
   Assert(KMSamePoint(fVertexOccupied, KMPoint(0,0)), 'Fight vertex in use');
 
-  fTerrain.UnitVertexAdd(KMGetDiagVertex(aFrom,aTo), vut_Fighting);
+  fTerrain.UnitVertexAdd(aFrom,aTo);
   fVertexOccupied := KMGetDiagVertex(aFrom,aTo);
 end;
 
@@ -85,7 +85,7 @@ begin
   //Tell fTerrain that this vertex is not being used anymore
   if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then exit;
 
-  fTerrain.UnitVertexRem(fVertexOccupied, vut_Fighting);
+  fTerrain.UnitVertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
 end;
 
