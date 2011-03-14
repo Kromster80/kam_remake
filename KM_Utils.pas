@@ -311,10 +311,10 @@ end;
 //Length as straight and diagonal
 function KMLength(A,B:TKMPoint): single;
 begin
-if abs(A.X-B.X) > abs(A.Y-B.Y) then
-  Result := abs(A.X-B.X) + abs(A.Y-B.Y)*0.41
-else
-  Result := abs(A.Y-B.Y) + abs(A.X-B.X)*0.41
+  if abs(A.X-B.X) > abs(A.Y-B.Y) then
+    Result := abs(A.X-B.X) + abs(A.Y-B.Y)*0.41
+  else
+    Result := abs(A.Y-B.Y) + abs(A.X-B.X)*0.41
 end;
 
 
@@ -383,9 +383,6 @@ begin
     exit;
   end;
 
-  if aIndex = 5 then
-    sleep(1);
-
   //Find ring in which Index is located
   Ring := 0;
   repeat inc(Ring); until(Rings[Ring]>aIndex);
@@ -439,55 +436,49 @@ end;
 
 {TypeToString routines}
 function TypeToString(t:TUnitType):string;
-var s:string;
 begin
   case byte(t) of
-    1..30: s := fTextLibrary.GetTextString(siUnitNames+byte(t));
-    31:    s := 'Wolf';
-    32:    s := 'Fish';
-    33:    s := 'Watersnake';
-    34:    s := 'Seastar';
-    35:    s := 'Crab';
-    36:    s := 'Waterflower';
-    37:    s := 'Waterleaf';
-    38:    s := 'Duck';
-    else   s := 'N/A';
+    1..30: Result := fTextLibrary.GetTextString(siUnitNames+byte(t));
+    31:    Result := 'Wolf';
+    32:    Result := 'Fish';
+    33:    Result := 'Watersnake';
+    34:    Result := 'Seastar';
+    35:    Result := 'Crab';
+    36:    Result := 'Waterflower';
+    37:    Result := 'Waterleaf';
+    38:    Result := 'Duck';
+    else   Result := 'N/A';
   end;
-  Result := s;
 end;
 
 
 function TypeToString(t:THouseType):string;
-var s:string;
 begin
-if byte(t) in [1..HOUSE_COUNT] then
-  s:=fTextLibrary.GetTextString(siHouseNames+byte(t))
-else
-  s:='N/A';
-Result:=s;
+  if byte(t) in [1..HOUSE_COUNT] then
+    Result := fTextLibrary.GetTextString(siHouseNames+byte(t))
+  else
+    Result := 'N/A';
 end;
 
 
 function TypeToString(t:TResourceType):string;
-var s:string;
 begin
-if byte(t) in [1..28] then
-  s:=fTextLibrary.GetTextString(siResourceNames+byte(t))
-else
-  s:='N/A';
-Result:=s;
+  if byte(t) in [1..28] then
+    Result := fTextLibrary.GetTextString(siResourceNames+byte(t))
+  else
+    Result := 'N/A';
 end;
 
 
 function TypeToString(t:TKMPoint):string;
 begin
-  Result:='('+inttostr(t.x)+';'+inttostr(t.y)+')';
+  Result := '('+inttostr(t.x)+';'+inttostr(t.y)+')';
 end;
 
 
 function TypeToString(t:TKMDirection):string;
 begin
-  Result:=TKMDirectionS[byte(t)];
+  Result := TKMDirectionS[byte(t)];
 end;
 
 end.
