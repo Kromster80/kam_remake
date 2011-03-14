@@ -94,7 +94,7 @@ type
       procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
       procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
       procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
+      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; UnitX,UnitY:single; NewInst:boolean);
       property RenderAreaSize:TKMPoint read fRenderAreaSize;
       property RendererVersion:string read fOpenGL_Version;
     end;
@@ -901,7 +901,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
+procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; UnitX,UnitY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer; Color: TColor4;
 begin
 AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
@@ -910,7 +910,7 @@ if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX -0.5;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
-  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 -2.25;
+  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV-0.4 -2.25;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
   if SHOW_UNIT_MOVEMENT then begin

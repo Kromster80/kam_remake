@@ -1133,9 +1133,9 @@ procedure TKMUnitWarrior.Paint;
 
     //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
     if fGame.GameState = gsEditor then
-      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fTerrain.AnimStep, TeamColor, FlagXPaintPos, FlagYPaintPos, false)
+      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fTerrain.AnimStep, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false)
     else
-      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, FlagXPaintPos, FlagYPaintPos, false);
+      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false);
   end;
 
 var
