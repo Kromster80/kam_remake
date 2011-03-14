@@ -45,12 +45,9 @@ TKMControl = class
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aLeft,aTop,aWidth,aHeight:integer);
-    procedure ParentTo (aParent:TKMControl);
+    constructor Create(aParent:TKMControl; aLeft,aTop,aWidth,aHeight:integer);
     function HitTest(X, Y: Integer): Boolean; virtual;
-    procedure Paint; virtual;
-  public
+
     property Left: Integer read GetLeft write fLeft;
     property Top: Integer read GetTop write fTop;
     property Width: Integer read GetWidth write SetWidth;
@@ -75,6 +72,8 @@ TKMControl = class
     property OnClickRight: TNotifyEvent write fOnClickRight;
     property OnMouseWheel: TNotifyEventMW write fOnMouseWheel;
     property OnMouseOver: TNotifyEvent write fOnMouseOver;
+
+    procedure Paint; virtual;
 end;
 
 
@@ -88,6 +87,8 @@ TKMPanel = class(TKMControl)
     ChildCount:word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    destructor Destroy; override;
+    procedure AddChild(aChild:TKMControl);
     procedure Paint; override;
 end;
 
@@ -104,10 +105,10 @@ end;
 TKMShape = class(TKMControl)
   public
     Hitable:boolean;
-    FillColor:TColor4; 
+    FillColor:TColor4;
     LineColor:TColor4; //color of outline
     LineWidth:byte;
-  protected
+  public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
     function HitTest(X, Y: Integer): Boolean; override;
     procedure Paint; override;
@@ -127,11 +128,10 @@ TKMLabel = class(TKMControl)
     TextAlign: KAlign;
     AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
     SmoothScrollToTop: integer; //Delta between this and TimeGetTime affects vertical position
-    property Caption:string read fCaption write SetCaption;
-    function TextHeight:integer;
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
     function HitTest(X, Y: Integer): Boolean; override;
+    property Caption:string read fCaption write SetCaption;
+    function TextHeight:integer;
     procedure Paint; override;
 end;
 
@@ -144,10 +144,9 @@ TKMImage = class(TKMControl)
     ImageAnchors: TAnchors;
     Highlight:boolean;
     HighlightOnMouseOver:boolean;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure ImageStretch;
     procedure ImageCenter;
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint; override;
 end;
 
@@ -162,9 +161,8 @@ TKMImageStack = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
     procedure SetCount(aCount,aColumns:integer);
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint; override;
 end;
 
@@ -177,12 +175,11 @@ TKMColorSwatch = class(TKMControl)
     Columns:byte;
     Rows:byte;
     Colors:array of TColor4; //Range is 0..255
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
-    procedure Paint; override;
   public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
     function GetColor:TColor4;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure Paint; override;
 end;
 
 
@@ -220,11 +217,10 @@ TKMButtonFlat = class(TKMControl)
     TextAlign: KAlign;
     Down:boolean;
     HideHighlight:boolean;
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
-    procedure Paint; override;
   public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure Paint; override;
 end;
 
 
@@ -236,7 +232,6 @@ TKMFlatButtonShape = class(TKMControl)
     Font: TKMFont;
     ShapeColor:TColor4;
     Down:boolean;
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4);
     procedure Paint; override;
 end;
@@ -290,8 +285,7 @@ TKMPercentBar = class(TKMControl)
     Font: TKMFont;
     FontColor:TColor4;
     TextAlign: KAlign;
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont; aColor:TColor4=$FFFFFFFF);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini; aColor:TColor4=$FFFFFFFF);
     procedure Paint; override;
 end;
 
@@ -301,7 +295,6 @@ TKMResourceRow = class(TKMControl)
   public
     Resource: TResourceType;
     ResourceCount: integer;
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
     procedure Paint; override;
 end;
@@ -312,12 +305,16 @@ TKMResourceOrderRow = class(TKMControl)
   public
     Resource: TResourceType;
     ResourceCount: integer;
-    OrderAdd:TKMButton;
-    OrderLab:TKMLabel;
-    OrderRem:TKMButton;
+    fOrderAdd:TKMButton;
+    fOrderLab:TKMLabel;
+    fOrderRem:TKMButton;
     OrderCount:word;
-  protected
+  public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+
+    property OrderAdd:TKMButton read fOrderAdd;
+    property OrderRem:TKMButton read fOrderRem;
+
     procedure Paint; override;
 end;
 
@@ -326,7 +323,6 @@ end;
 TKMCostsRow = class(TKMControl)
   public
     CostID:byte;
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte);
     procedure Paint; override;
 end;
@@ -366,6 +362,7 @@ TKMScrollBar = class(TKMControl)
     ScrollInc:TKMButton;
     Style:TButtonStyle;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
+    destructor Destroy; override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
@@ -378,8 +375,8 @@ TKMListBox = class(TKMControl)
   private
     ItemHeight:byte;
     fItems:TStringList;
-    ScrollBar:TKMScrollBar;
-    FOnChange:TNotifyEvent;
+    fScrollBar:TKMScrollBar;
+    fOnChange:TNotifyEvent;
     procedure ChangeScrollPosition (Sender:TObject);
   public
     TopIndex:smallint; //up to 32k files
@@ -393,8 +390,7 @@ TKMListBox = class(TKMControl)
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
-  protected
+    property OnChange: TNotifyEvent write fOnChange;
 
     procedure Paint; override;
 end;
@@ -423,7 +419,7 @@ TKMFileList = class(TKMControl)
   private
     ItemHeight:byte;
     fPath:string;
-    ScrollBar:TKMScrollBar;
+    fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
     procedure ChangeScrollPosition (Sender:TObject);
   public
@@ -440,7 +436,6 @@ TKMFileList = class(TKMControl)
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     property OnChange: TNotifyEvent write fOnChange;
-  protected
 
     procedure Paint; override;
 end;
@@ -478,23 +473,18 @@ TKMControlsCollection = class
     function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4):TKMShape;
     function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
-    function AddImageStack      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImageStack;
-    function AddColorSwatch     (aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer):TKMColorSwatch;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
     function AddFlatButtonShape (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4):TKMFlatButtonShape;
     function AddEdit            (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMEdit;
     function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
-    function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
     function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
     function AddListBox         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMListBox;
-    function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
-    function AddFileList        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
 
     function KeyDown            (Key: Word; Shift: TShiftState):boolean;
     function KeyUp              (Key: Word; Shift: TShiftState):boolean;
@@ -514,7 +504,7 @@ uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
 
 
 { TKMControl }
-constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMControl.Create(aParent:TKMControl; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create;
   Left      := aLeft;
@@ -527,24 +517,8 @@ begin
   Visible   := true;
   Tag       := 0;
   Hint      := '';
-end;
 
-
-{Parentize control to another control}
-{Parent control has a list of all it's child controls}
-{Also transform child according to parent position}
-procedure TKMControl.ParentTo(aParent:TKMControl);
-var ParentPanel:TKMPanel;
-begin
-  if aParent=nil then exit; //Has no parent
-  fLog.AssertToLog(aParent is TKMPanel,'Let''s not parent controls to anything else except TKMPanels');
-  ParentPanel := TKMPanel(aParent);
-
-  inc(ParentPanel.ChildCount);
-  {Hereby I still try to make a rule to count starting from 1, not from zero}
-  setlength(ParentPanel.Childs,ParentPanel.ChildCount+1);
-  ParentPanel.Childs[ParentPanel.ChildCount] := Self;
-  Parent := ParentPanel;
+  if aParent<>nil then TKMPanel(aParent).AddChild(Self);
 end;
 
 
@@ -712,10 +686,30 @@ end;
 { TKMPanel } //virtual panels to contain child items
 constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 end;
 
+
+destructor TKMPanel.Destroy; 
+var i:integer;
+begin
+  for i:=1 to ChildCount do
+    Childs[i].Free;
+  Inherited;
+end;
+
+
+{Parentize control to another control}
+{Parent control has a list of all it's child controls}
+{Also transform child according to parent position}
+procedure TKMPanel.AddChild(aChild:TKMControl);
+begin
+  inc(ChildCount);
+  {Hereby I still try to make a rule to count starting from 1, not from zero}
+  setlength(Childs, ChildCount+1);
+  Childs[ChildCount] := aChild;
+  aChild.Parent := Self;
+end;
 
 procedure TKMPanel.SetHeight(aValue:Integer);
 var i:integer;
@@ -764,8 +758,7 @@ end;
 { TKMBevel }
 constructor TKMBevel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 end;
 
 
@@ -779,8 +772,7 @@ end;
 { TKMShape }
 constructor TKMShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   Hitable   := true;
   FillColor := $00000000;
   LineColor := aLineColor;
@@ -808,8 +800,7 @@ end;
 
 constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   Font:=aFont;
   FontColor:=aColor;
   TextAlign:=aTextAlign;
@@ -898,13 +889,12 @@ end;
 
 constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID, aRXid:integer);
 begin
+  Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   RXid := aRXid;
   TexID := aTexID;
   ImageAnchors := [akLeft, akTop];
   Highlight := false;
   HighlightOnMouseOver := false;
-  Inherited Create(aLeft, aTop, aWidth, aHeight);
-  ParentTo(aParent);
 end;
 
 
@@ -963,16 +953,15 @@ end;
 
 
 { TKMImageStack }
-constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID, aRXid:integer);
+constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRXid:integer=4);
 begin
+  Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   RXid  := aRXid;
   TexID := aTexID;
   fCount := 0;
   fColumns := 0;
   fDrawWidth := 0;
   fDrawHeight := 0;
-  Inherited Create(aLeft, aTop, aWidth, aHeight);
-  ParentTo(aParent);
 end;
 
 
@@ -1018,7 +1007,7 @@ end;
 constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
 var i,k:integer;
 begin
-  Inherited Create(aLeft, aTop, 0, 0);
+  Inherited Create(aParent, aLeft, aTop, 0, 0);
 
   Columns := aColumns;
   Rows := aRows;
@@ -1032,7 +1021,6 @@ begin
   for k:=0 to Columns-1 do
   if i*Columns+k<=255 then //Rows*Columns could be >255
     Colors[i*Columns+k] := fResource.GetColor32(i*Columns+k, DEF_PAL);
-  ParentTo(aParent);
 end;
 
 
@@ -1068,20 +1056,19 @@ end;
 { TKMButton }
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fRXid       := aRXid;
   fTexID      := aTexID;
   fCaption    := '';
   fStyle      := aStyle;
   fMakesSound := true;
-  ParentTo(aParent);
 end;
 
 
 {Different version of button, with caption on it instead of image}
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fRXid       := 0;
   fTexID      := 0;
   fCaption    := aCaption;
@@ -1089,7 +1076,6 @@ begin
   fTextAlign  := kaCenter; //Thats default everywhere in KaM
   fStyle      := aStyle;
   fMakesSound := true;
-  ParentTo(aParent);
 end;
 
 
@@ -1137,7 +1123,7 @@ end;
 {Simple version of button, with image and nothing more}
 constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   RXid:=aRXid;
   TexID:=aTexID;
   TexOffsetX:=0;
@@ -1148,7 +1134,6 @@ begin
   TextAlign:=kaLeft;
   Down:=false;
   HideHighlight:=false;
-  ParentTo(aParent);
 end;
 
 
@@ -1174,13 +1159,12 @@ end;
 
 constructor TKMFlatButtonShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   Caption     := aCaption;
   CapOffsetY  := 0;
   ShapeColor  := aShapeColor;
   Font        := aFont;
   Down        := false;
-  ParentTo(aParent);
 end;
 
 
@@ -1198,12 +1182,11 @@ end;
 {TKMEdit}
 constructor TKMEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fText := '<<<LEER>>>';
   Font := aFont;
   Masked := aMasked;
   CursorPos := length(fText);
-  ParentTo(aParent);
 end;
 
 
@@ -1279,10 +1262,9 @@ end;
 { TKMCheckBox }
 constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont     := aFont;
   fCaption  := aCaption;
-  ParentTo(aParent);
 end;
 
 
@@ -1326,10 +1308,9 @@ end;
 
 
 { TKMPercentBar }
-constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont; aColor:TColor4=$FFFFFFFF);
+constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini; aColor:TColor4=$FFFFFFFF);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   Position:=EnsureRange(aPos,0,100);
   Font:=aFont;
   FontColor:=aColor;
@@ -1352,8 +1333,7 @@ end;
 { TKMResourceRow }
 constructor TKMResourceRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   Resource := aRes;
   ResourceCount := aCount;
 end;
@@ -1372,11 +1352,14 @@ end;
 
 constructor TKMResourceOrderRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
 begin
-  Inherited Create(aLeft+68,aTop,aWidth-68,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
   Resource := aRes;
   ResourceCount := aCount;
   OrderCount := 0;
+
+  fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
+  fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
+  fOrderAdd := TKMButton.Create(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal, bsGame);
 end;
 
 
@@ -1384,16 +1367,16 @@ procedure TKMResourceOrderRow.Paint;
 var i:integer;
 begin
   Inherited;
-  OrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
-  OrderLab.Top := fTop + 4;
-  OrderAdd.Top := fTop;
+  fOrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
+  fOrderLab.Top := fTop + 4;
+  fOrderAdd.Top := fTop;
 
   //Otherwise they won't be rendered
-  OrderRem.Visible := Visible;
-  OrderLab.Visible := Visible;
-  OrderAdd.Visible := Visible;
+  fOrderRem.Visible := Visible;
+  fOrderLab.Visible := Visible;
+  fOrderAdd.Visible := Visible;
 
-  OrderLab.Caption := inttostr(OrderCount);
+  fOrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFE0E0E0);
@@ -1405,8 +1388,7 @@ end;
 { TKMCostsRow }
 constructor TKMCostsRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   CostID:=aProductionCostID;
 end;
 
@@ -1430,8 +1412,7 @@ end;
 { TKMRatioRow }
 constructor TKMRatioRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   MinValue:=aMin;
   MaxValue:=aMax;
   Position:=(MinValue+MaxValue) div 2;
@@ -1474,14 +1455,31 @@ end;
 { TKMScrollBar }
 constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
 begin
-  Inherited Create(aLeft, aTop, aWidth, aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fScrollAxis := aScrollAxis;
   Position := 1;
   MaxValue := 10;
   MinValue := 1;
   Thumb    := 10;
   Style    := aStyle;
+
+  if aScrollAxis = sa_Vertical then begin
+    ScrollDec := TKMButton.Create(aParent, aLeft, aTop, aWidth, aWidth, 4, 4, aStyle);
+    ScrollInc := TKMButton.Create(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 5, 4, aStyle);
+  end;
+  if aScrollAxis = sa_Horizontal then begin
+    ScrollDec := TKMButton.Create(aParent, aLeft, aTop, aHeight, aHeight, 2, 4, aStyle);
+    ScrollInc := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, 4, aStyle);
+  end;
+  ScrollDec.OnClick := DecPosition;
+  ScrollInc.OnClick := IncPosition;
+  RefreshItems;
+end;
+
+
+destructor TKMScrollBar.Destroy;
+begin
+  Inherited;
 end;
 
 
@@ -1596,18 +1594,20 @@ end;
 { List }
 constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   ItemHeight := 20;
   TopIndex := 0;
   ItemIndex := -1;
   fItems := TStringList.Create;
+
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-ItemHeight, aTop, ItemHeight, aHeight, sa_Vertical, bsGame);
+  fScrollBar.fOnChange := ChangeScrollPosition;
 end;
 
 
 destructor TKMListBox.Destroy;
 begin
-  FreeAndNil(fItems);
+  fItems.Free;
   Inherited;
 end;
 
@@ -1620,18 +1620,18 @@ end;
 
 procedure TKMListBox.RefreshList;
 begin
-  ScrollBar.MinValue := 0;
-  ScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div ItemHeight),0);
-  ScrollBar.Position := EnsureRange(TopIndex, ScrollBar.MinValue, ScrollBar.MaxValue);
-  ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
+  fScrollBar.MinValue := 0;
+  fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div ItemHeight),0);
+  fScrollBar.Position := EnsureRange(TopIndex, fScrollBar.MinValue, fScrollBar.MaxValue);
+  fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
 end;
 
 
 procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
-  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, ScrollBar.MaxValue);
-  ScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
+  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
+  fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 
@@ -1648,7 +1648,7 @@ begin
   Inherited;
 
   if (ssLeft in Shift) and
-     (InRange(X, Left, Left+Width-ScrollBar.Width)) and
+     (InRange(X, Left, Left+Width-fScrollBar.Width)) and
      (InRange(Y, Top, Top+Height div ItemHeight * ItemHeight))
   then begin
     NewIndex := TopIndex + (Y-Top) div ItemHeight;
@@ -1657,8 +1657,8 @@ begin
 
     if (NewIndex<>ItemIndex) then begin
       ItemIndex := NewIndex;
-      if Assigned(OnChange) and (ssLeft in Shift) then
-        OnChange(Self);
+      if Assigned(fOnChange) and (ssLeft in Shift) then
+        fOnChange(Self);
     end;
   end;
 end;
@@ -1668,13 +1668,12 @@ procedure TKMListBox.Paint;
 var i:integer;
 begin
   Inherited;
-
   RefreshList;
 
-  fRenderUI.WriteBevel(Left, Top, Width-ScrollBar.Width, Height);
+  fRenderUI.WriteBevel(Left, Top, Width-fScrollBar.Width, Height);
 
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-ScrollBar.Width, ItemHeight, $88888888);
+    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-fScrollBar.Width, ItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
@@ -1684,8 +1683,7 @@ end;
 { TKMMinimap }
 constructor TKMMinimap.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   BoundRectAt := KMPoint(0,0);
 end;
 
@@ -1737,21 +1735,23 @@ end;
 { Files list } //Possible solution for MapEd and Save/Load
 constructor TKMFileList.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   ItemHeight := 20;
   TopIndex := 0;
   ItemIndex := -1;
   fPaths := TStringList.Create;
   fFiles := TStringList.Create;
   fPath := ExeDir;
+
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-ItemHeight, aTop, ItemHeight, aHeight, sa_Vertical, bsGame);
+  fScrollBar.OnChange := ChangeScrollPosition;
 end;
 
 
 destructor TKMFileList.Destroy;
 begin
-  FreeAndNil(fFiles);
-  FreeAndNil(fPaths);
+  fFiles.Free;
+  fPaths.Free;
   Inherited;
 end;
 
@@ -1801,18 +1801,18 @@ begin
 
   DirList.Free;
 
-  ScrollBar.MinValue := 0;
-  ScrollBar.MaxValue := Math.max(fFiles.Count - (fHeight div ItemHeight),0);
-  ScrollBar.Position := 0;
-  ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
+  fScrollBar.MinValue := 0;
+  fScrollBar.MaxValue := Math.max(fFiles.Count - (fHeight div ItemHeight),0);
+  fScrollBar.Position := 0;
+  fScrollBar.Enabled  := fScrollBar.MaxValue > fScrollBar.MinValue;
 end;
 
 
 procedure TKMFileList.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
-  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, ScrollBar.MaxValue);
-  ScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
+  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
+  fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 
@@ -1838,7 +1838,7 @@ begin
   Inherited;
 
   if (ssLeft in Shift) and
-     (InRange(X, Left, Left+Width-ScrollBar.Width)) and
+     (InRange(X, Left, Left+Width-fScrollBar.Width)) and
      (InRange(Y, Top, Top+Height div ItemHeight * ItemHeight))
   then begin
     NewIndex := TopIndex + (Y-Top) div ItemHeight;
@@ -1858,10 +1858,10 @@ procedure TKMFileList.Paint;
 var i:integer;
 begin
   Inherited;
-  fRenderUI.WriteBevel(Left, Top, Width-ScrollBar.Width, Height);
+  fRenderUI.WriteBevel(Left, Top, Width-fScrollBar.Width, Height);
 
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-ScrollBar.Width, ItemHeight, $88888888);
+    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-fScrollBar.Width, ItemHeight, $88888888);
 
   for i:=0 to Math.min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, TruncateExt(fFiles.Strings[TopIndex+i]) , fnt_Metal, kaLeft, false, $FFFFFFFF);
@@ -1959,18 +1959,6 @@ begin
 end;
 
 
-function TKMControlsCollection.AddImageStack(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; const aRXid:integer=4):TKMImageStack;
-begin
-  Result:=TKMImageStack.Create(aParent, aLeft, aTop, aWidth, aHeight, aTexID, aRXid);
-end;
-
-
-function TKMControlsCollection.AddColorSwatch(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer):TKMColorSwatch;
-begin
-  Result:=TKMColorSwatch.Create(aParent,aLeft,aTop,aColumns,aRows);
-end;
-
-
 function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton;
 begin
   Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid,aStyle);
@@ -2007,12 +1995,6 @@ begin
 end;
 
 
-function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini):TKMPercentBar;
-begin
-  Result:=TKMPercentBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aPos,aCaption,aFont);
-end;
-
-
 function TKMControlsCollection.AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
 begin
   Result:=TKMResourceRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
@@ -2022,10 +2004,6 @@ end;
 function TKMControlsCollection.AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
 begin
   Result:=TKMResourceOrderRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
-  //These three will be added to collection themselfes
-  Result.OrderRem :=AddButton(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal);
-  Result.OrderLab :=AddLabel(aParent,aLeft+33,aTop+4,0,0,'',fnt_Grey,kaCenter);
-  Result.OrderAdd :=AddButton(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal);
 end;
 
 
@@ -2044,44 +2022,12 @@ end;
 function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
 begin
   Result := TKMScrollBar.Create(aParent, aLeft, aTop, aWidth, aHeight, aScrollAxis, aStyle);
-  //These two will be added to collection by themselfes
-  if aScrollAxis = sa_Vertical then begin
-    Result.ScrollDec := AddButton(aParent, aLeft, aTop, aWidth, aWidth, 4, 4, aStyle);
-    Result.ScrollInc := AddButton(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 5, 4, aStyle);
-  end;
-  if aScrollAxis = sa_Horizontal then begin
-    Result.ScrollDec := AddButton(aParent, aLeft, aTop, aHeight, aHeight, 2, 4, aStyle);
-    Result.ScrollInc := AddButton(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, 4, aStyle);
-  end;
-  Result.ScrollDec.OnClick := Result.DecPosition;
-  Result.ScrollInc.OnClick := Result.IncPosition;
-  Result.RefreshItems;
 end;
 
 
 function TKMControlsCollection.AddListBox(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMListBox;
-const ScrollWidth = 20;
 begin
   Result := TKMListBox.Create(aParent, aLeft,aTop,aWidth,aHeight);
-
-  Result.ScrollBar := AddScrollBar(aParent, aLeft+aWidth-ScrollWidth, aTop, ScrollWidth, aHeight, sa_Vertical);
-  Result.ScrollBar.OnChange := Result.ChangeScrollPosition;
-end;
-
-
-function TKMControlsCollection.AddMinimap(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
-begin
-  Result:=TKMMinimap.Create(aParent, aLeft,aTop,aWidth,aHeight);
-end;
-
-
-function TKMControlsCollection.AddFileList(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
-const ScrollWidth = 20;
-begin
-  Result := TKMFileList.Create(aParent, aLeft,aTop,aWidth,aHeight);
-
-  Result.ScrollBar := AddScrollBar(aParent, aLeft+aWidth-ScrollWidth, aTop, ScrollWidth, aHeight, sa_Vertical);
-  Result.ScrollBar.OnChange := Result.ChangeScrollPosition;
 end;
 
 
@@ -2182,12 +2128,12 @@ end;
 
 
 procedure TKMControlsCollection.SaveToFile(aFileName:string);
-var i:integer; ft:textfile;
+var ft:textfile;
 begin
   AssignFile(ft,aFileName); 
   Rewrite(ft);
 
-  //fCtrl.SaveToFile; //Will save all the childs as well
+  //fCtrl.SaveToFile; //Will save all the childs as well, recursively alike Paint or HitControl
   //writeln(ft, ClassName);
   //writeln(ft, Format('[%d %d %d %d]', [fLeft, fTop, fWidth, fHeight]));
 
