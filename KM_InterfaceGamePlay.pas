@@ -2444,6 +2444,7 @@ procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta: Intege
 var PrevCursor: TKMPointF;
 begin
   MyControls.MouseWheel(X, Y, WheelDelta);
+  if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
   if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) and (fGame.GameState in [gsReplay,gsRunning]) then
   begin
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with

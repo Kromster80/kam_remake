@@ -197,14 +197,9 @@ begin
                       WalkOut(KMUnit); //All checks done so we can walk out now
                     end;
     end;
-
-    if fStreet.X = fDoor.X then //We are walking straight
-    begin
+    if fStreet.X = KMPointRound(fDoor).X then //We are walking straight
       IncDoorway;
-      if fHouse<>nil then
-        KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
-    end;
-    
+
     fHasStarted := true;
   end;
 
@@ -215,10 +210,20 @@ begin
     begin
       fWaitingForPush := false;
       WalkOut(KMUnit);
+      if fStreet.X = KMPointRound(fDoor).X then //We are walking straight
+        IncDoorway;
     end
     else 
       exit; //Wait until our push request is dealt with before we move out
   end;
+
+  //IsExchanging can be updated while we have completed less than 20% of the move. If it is changed after that
+  //the unit makes a noticable "jump". This needs to be updated after starting because we don't know about an
+  //exchanging unit until they have also started walking (otherwise only 1 of the units will have IsExchanging = true)
+  if (shortint(fDirection) - fStep < 0.2) and
+     (fStreet.X = KMPointRound(fDoor).X) and //We are walking straight
+     (fHouse <> nil) then
+     KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
   Assert((fHouse = nil) or KMSamePoint(KMPointRound(fDoor),fHouse.GetEntrance)); //Must always go in/out the entrance of the house
   Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
