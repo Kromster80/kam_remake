@@ -70,11 +70,11 @@ TKMControl = class
     procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); virtual;
 
-    property OnClick: TNotifyEvent read fOnClick write fOnClick;
-    property OnClickEither: TNotifyEventMB read fOnClickEither write fOnClickEither;
-    property OnClickRight: TNotifyEvent read fOnClickRight write fOnClickRight;
-    property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
-    property OnMouseOver: TNotifyEvent read fOnMouseOver write fOnMouseOver;
+    property OnClick: TNotifyEvent write fOnClick;
+    property OnClickEither: TNotifyEventMB write fOnClickEither;
+    property OnClickRight: TNotifyEvent write fOnClickRight;
+    property OnMouseWheel: TNotifyEventMW write fOnMouseWheel;
+    property OnMouseOver: TNotifyEvent write fOnMouseOver;
 end;
 
 
@@ -424,7 +424,7 @@ TKMFileList = class(TKMControl)
     ItemHeight:byte;
     fPath:string;
     ScrollBar:TKMScrollBar;
-    FOnChange:TNotifyEvent;
+    fOnChange:TNotifyEvent;
     procedure ChangeScrollPosition (Sender:TObject);
   public
     TopIndex:smallint; //up to 32k files
@@ -439,7 +439,7 @@ TKMFileList = class(TKMControl)
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property OnChange: TNotifyEvent write fOnChange;
   protected
 
     procedure Paint; override;
@@ -447,16 +447,15 @@ end;
 
 
 { TKMControlsCollection }
-TKMControlsCollection = class(TKMList) //Making list of true TKMControls involves much coding for no visible result
+TKMControlsCollection = class 
   private
+    fCtrl:TKMPanel; //Parentmost control (TKMPanel with all its childs)
     fCtrlDown:TKMControl; //Control that was pressed Down
     fCtrlFocus:TKMControl; //Control which has input Focus
     fCtrlOver:TKMControl; //Control which has cursor Over it
     fCtrlUp:TKMControl; //Control above which cursor was released
-    procedure AddToCollection(Sender:TKMControl);
-    function  GetControl(Index: Integer): TKMControl;
-    procedure SetControl(Index: Integer; Item: TKMControl);
-    property  Controls[Index: Integer]: TKMControl read GetControl write SetControl; //Use instead of Items[.]
+
+    fOnHint:TNotifyEvent; //Comes along with OnMouseOver
 
     function HitControl(X,Y:integer):TKMControl;
     procedure SetCtrlDown(aCtrl:TKMControl);
@@ -471,6 +470,8 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     property CtrlFocus:TKMControl read fCtrlFocus write SetCtrlFocus;
     property CtrlOver:TKMControl read fCtrlOver write SetCtrlOver;
     property CtrlUp:TKMControl read fCtrlUp write SetCtrlUp;
+
+    property OnHint: TNotifyEvent write fOnHint;
 
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
@@ -590,18 +591,18 @@ begin
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
   if (csDown in State) then begin
     State := State - [csDown];
-    if ((Button = mbLeft)or(Button = mbRight)) and Assigned(fOnClickEither) then OnClickEither(Self, Button)
+    if ((Button = mbLeft)or(Button = mbRight)) and Assigned(fOnClickEither) then fOnClickEither(Self, Button)
     else
-    if (Button = mbLeft) and Assigned(fOnClick) then OnClick(Self)
+    if (Button = mbLeft) and Assigned(fOnClick) then fOnClick(Self)
     else
-    if (Button = mbRight) and Assigned(fOnClickRight) then OnClickRight(Self)
+    if (Button = mbRight) and Assigned(fOnClickRight) then fOnClickRight(Self)
   end;
 end;
 
 
 procedure TKMControl.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
-  if Assigned(OnMouseWheel) then OnMouseWheel(Self, WheelDelta);
+  if Assigned(fOnMouseWheel) then fOnMouseWheel(Self, WheelDelta);
 end;
 
 
@@ -1102,7 +1103,7 @@ begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
     TKMControlsCollection(TKMPanel(Parent).GetCollection).CtrlOver := Self;
     TKMControlsCollection(TKMPanel(Parent).GetCollection).CtrlUp := Self;
-    if Assigned(OnClick) then OnClick(Self);
+    if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
   end else
     Result := false; //No, we couldn't click for Control is unreachable
@@ -1846,8 +1847,8 @@ begin
 
     if (NewIndex<>ItemIndex) then begin
       ItemIndex := NewIndex;
-      if Assigned(OnChange) and (ssLeft in Shift) then
-        OnChange(Self);
+      if Assigned(fOnChange) and (ssLeft in Shift) then
+        fOnChange(Self);
     end;
   end;
 end;
@@ -1875,6 +1876,7 @@ constructor TKMControlsCollection.Create;
 begin
   Inherited;
   CtrlPaintCount := 0;
+  fCtrl      := nil;
   fCtrlDown  := nil;
   fCtrlFocus := nil;
   fCtrlOver  := nil;
@@ -1886,6 +1888,7 @@ end;
 
 destructor TKMControlsCollection.Destroy;
 begin
+  fCtrl.Free; //Will destroy all its childs as well
   if fRenderUI <> nil then
     FreeAndNil(fRenderUI);
   Inherited;
@@ -1922,144 +1925,125 @@ begin
 end;
 
 
-procedure TKMControlsCollection.AddToCollection(Sender:TKMControl);
-begin
-  Inherited Add(Sender);
-end;
-
-
-function TKMControlsCollection.GetControl(Index: Integer): TKMControl;
-begin
-  Result := TKMControl(Items[Index]);
-end;
-
-
-procedure TKMControlsCollection.SetControl(Index: Integer; Item: TKMControl);
-begin
-  Items[Index] := Item;
-end;
-
-
 function TKMControlsCollection.AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
 begin
-  Result:=TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
-  AddToCollection(Result);
+  Result := TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
   Result.GetCollection := Self;
+
+  if aParent = nil then fCtrl := Result;
 end;
+
 
 function TKMControlsCollection.AddBevel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
 begin
   Result:=TKMBevel.Create(aParent, aLeft,aTop,aWidth,aHeight);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddShape(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4):TKMShape;
 begin
   Result:=TKMShape.Create(aParent, aLeft,aTop,aWidth,aHeight,aLineColor);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string;
         aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
 begin
   Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
 begin
   Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddImageStack(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; const aRXid:integer=4):TKMImageStack;
 begin
   Result:=TKMImageStack.Create(aParent, aLeft, aTop, aWidth, aHeight, aTexID, aRXid);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddColorSwatch(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer):TKMColorSwatch;
 begin
   Result:=TKMColorSwatch.Create(aParent,aLeft,aTop,aColumns,aRows);
-  AddToCollection(Result);
 end;
 
 
 function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton;
 begin
   Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid,aStyle);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton;
 begin
   Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont,aStyle);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
 begin
   Result:=TKMButtonFlat.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddFlatButtonShape(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4):TKMFlatButtonShape;
 begin
   Result:=TKMFlatButtonShape.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont,aShapeColor);
-  AddToCollection(Result);
 end;
 
 
 function TKMControlsCollection.AddEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMEdit;
 begin
   Result:=TKMEdit.Create(aParent, aLeft,aTop,aWidth,aHeight,aFont,aMasked);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddCheckBox(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
 begin
   Result:=TKMCheckBox.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini):TKMPercentBar;
 begin
   Result:=TKMPercentBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aPos,aCaption,aFont);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
 begin
   Result:=TKMResourceRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
 begin
   Result:=TKMResourceOrderRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
-  AddToCollection(Result);
   //These three will be added to collection themselfes
   Result.OrderRem :=AddButton(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal);
   Result.OrderLab :=AddLabel(aParent,aLeft+33,aTop+4,0,0,'',fnt_Grey,kaCenter);
   Result.OrderAdd :=AddButton(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal);
 end;
 
+
 function TKMControlsCollection.AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
 begin
   Result:=TKMCostsRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aProductionCostID);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
 begin
   Result:=TKMRatioRow.Create(aParent, aLeft,aTop,aWidth,aHeight,aMin,aMax);
-  AddToCollection(Result);
 end;
+
 
 function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
 begin
   Result := TKMScrollBar.Create(aParent, aLeft, aTop, aWidth, aHeight, aScrollAxis, aStyle);
-  AddToCollection(Result);
   //These two will be added to collection by themselfes
   if aScrollAxis = sa_Vertical then begin
     Result.ScrollDec := AddButton(aParent, aLeft, aTop, aWidth, aWidth, 4, 4, aStyle);
@@ -2079,7 +2063,6 @@ function TKMControlsCollection.AddListBox(aParent:TKMPanel; aLeft,aTop,aWidth,aH
 const ScrollWidth = 20;
 begin
   Result := TKMListBox.Create(aParent, aLeft,aTop,aWidth,aHeight);
-  AddToCollection(Result);
 
   Result.ScrollBar := AddScrollBar(aParent, aLeft+aWidth-ScrollWidth, aTop, ScrollWidth, aHeight, sa_Vertical);
   Result.ScrollBar.OnChange := Result.ChangeScrollPosition;
@@ -2089,7 +2072,6 @@ end;
 function TKMControlsCollection.AddMinimap(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
 begin
   Result:=TKMMinimap.Create(aParent, aLeft,aTop,aWidth,aHeight);
-  AddToCollection(Result);
 end;
 
 
@@ -2097,7 +2079,6 @@ function TKMControlsCollection.AddFileList(aParent:TKMPanel; aLeft,aTop,aWidth,a
 const ScrollWidth = 20;
 begin
   Result := TKMFileList.Create(aParent, aLeft,aTop,aWidth,aHeight);
-  AddToCollection(Result);
 
   Result.ScrollBar := AddScrollBar(aParent, aLeft+aWidth-ScrollWidth, aTop, ScrollWidth, aHeight, sa_Vertical);
   Result.ScrollBar.OnChange := Result.ChangeScrollPosition;
@@ -2121,7 +2102,7 @@ function TKMControlsCollection.HitControl(X,Y:integer):TKMControl;
       end;
   end;
 begin
-  Result := ScanChild(TKMPanel(Controls[0]), X, Y);
+  Result := ScanChild(fCtrl, X, Y);
 end;
 
 
@@ -2152,9 +2133,11 @@ end;
 
 procedure TKMControlsCollection.MouseMove(X,Y:Integer; Shift:TShiftState);
 begin
-  if CtrlDown=nil then //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
-    CtrlOver := HitControl(X,Y);
-  if CtrlOver <> nil then CtrlOver.MouseMove(X,Y,Shift);
+  if CtrlDown=nil then CtrlOver := HitControl(X,Y); //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
+  if CtrlOver <> nil then begin
+    CtrlOver.MouseMove(X,Y,Shift);
+    if Assigned(fOnHint) then fOnHint(CtrlOver)
+  end;
   if (CtrlDown <> nil) and (CtrlOver <> CtrlDown) then CtrlDown := nil;
 end;
 
@@ -2190,7 +2173,7 @@ end;
 procedure TKMControlsCollection.Paint;
 begin
   CtrlPaintCount := 0;
-  Controls[0].Paint;
+  fCtrl.Paint;
 
   if MODE_DESIGN_CONTORLS and (CtrlFocus<>nil) then
     with CtrlFocus do
@@ -2201,18 +2184,14 @@ end;
 procedure TKMControlsCollection.SaveToFile(aFileName:string);
 var i:integer; ft:textfile;
 begin
-  assignfile(ft,aFileName); rewrite (ft);
+  AssignFile(ft,aFileName); 
+  Rewrite(ft);
 
-  for i:=0 to Count-1 do
-  with Controls[i] do
-  {if Parent = nil then} begin
-    writeln(ft, i, '.');
-    writeln(ft, ClassName);
-    writeln(ft, Format('{%d %d %d %d}', [fLeft, fTop, fWidth, fHeight]));
-    writeln(ft);
-  end;
+  //fCtrl.SaveToFile; //Will save all the childs as well
+  //writeln(ft, ClassName);
+  //writeln(ft, Format('[%d %d %d %d]', [fLeft, fTop, fWidth, fHeight]));
 
-  closefile(ft);
+  CloseFile(ft);
 end;
 
 

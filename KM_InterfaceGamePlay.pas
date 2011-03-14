@@ -582,11 +582,8 @@ begin
   Create_Replay_Page;
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
 
-  //Here we must go through every control and set the hint event to be the parameter
   //Controls without a hint will reset the Hint to ''
-  for i := 0 to MyControls.Count - 1 do
-    if MyControls.Items[i] <> nil then
-      TKMControl(MyControls.Items[i]).OnMouseOver := DisplayHint;
+  MyControls.OnHint := DisplayHint;
 
   if SHOW_1024_768_OVERLAY then
     with MyControls.AddShape(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;

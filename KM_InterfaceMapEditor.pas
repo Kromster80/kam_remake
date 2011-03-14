@@ -451,10 +451,7 @@ begin
     Create_Barracks_Page;
     //Create_TownHall_Page;
 
-  //Here we must go through every control and set the hint event to be the parameter
-  for i := 0 to MyControls.Count - 1 do
-    if MyControls.Items[i] <> nil then
-      TKMControl(MyControls.Items[i]).OnMouseOver := DisplayHint;
+  MyControls.OnHint := DisplayHint;
 
   SwitchPage(nil); //Update
 end;
