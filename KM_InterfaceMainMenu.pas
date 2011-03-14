@@ -436,7 +436,7 @@ begin
     ListBox_LobbyPlayers := MyControls.AddListBox(Panel_Lobby, 80, 120, 190, 160);
 
     MyControls.AddLabel(Panel_Lobby, 80, 290, 100, 20, 'Available maps:', fnt_Outline, kaLeft);
-    FileList_Lobby := MyControls.AddFileList(Panel_Lobby, 80, 310, 190, 300);
+    FileList_Lobby := TKMFileList.Create(Panel_Lobby, 80, 310, 190, 300);
     FileList_Lobby.OnChange := Lobby_MapSelect;
 
                           MyControls.AddLabel  (Panel_Lobby, 290, 100, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
@@ -614,7 +614,7 @@ begin
 
     Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 462+10, 200, 300, 300);
       MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, fTextLibrary.GetRemakeString(24), fnt_Outline, kaLeft);
-      FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 300, 240);
+      FileList_MapEd := TKMFileList.Create(Panel_MapEd_Load, 0, 20, 300, 240);
       Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 285, 300, 30, fTextLibrary.GetRemakeString(25), fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
 

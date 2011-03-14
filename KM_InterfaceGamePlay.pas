@@ -509,7 +509,7 @@ begin
     Image_Main4 := MyControls.AddImage(Panel_Main,0, 768,224,400,404);
     Image_Main5 := MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
 
-    KMMinimap := MyControls.AddMinimap(Panel_Main,10,10,176,176);
+    KMMinimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     KMMinimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
     KMMinimap.OnClickRight := Minimap_RightClick;
 
@@ -688,7 +688,7 @@ begin
       Anchors := [akLeft, akTop, akRight, akBottom];
 
     Panel_ReplayCtrl := MyControls.AddPanel(Panel_Replay, 320, 8, 160, 60);
-      PercentBar_Replay     := MyControls.AddPercentBar(Panel_ReplayCtrl, 0, 0, 160, 20, 0);
+      PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20, 0);
       Label_Replay          := MyControls.AddLabel(Panel_ReplayCtrl, 80, 2, 125, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
       Button_ReplayRestart  := MyControls.AddButton(Panel_ReplayCtrl, 0, 24, 24, 24, 'I<', fnt_Metal);
       Button_ReplayPause    := MyControls.AddButton(Panel_ReplayCtrl,25, 24, 24, 24, 'II', fnt_Metal);
@@ -1002,7 +1002,7 @@ begin
     Image_UnitPic         := MyControls.AddImage(Panel_Unit,8,38,54,100,521);
     Button_Die            := MyControls.AddButton(Panel_Unit,8,120,54,20,'Die',fnt_Grey);
     Label_UnitCondition   := MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
-    ConditionBar_Unit     := MyControls.AddPercentBar(Panel_Unit,73,55,116,15,80);
+    ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,73,55,116,15,80);
     Label_UnitTask        := MyControls.AddLabel(Panel_Unit,73,74,130,30,'',fnt_Grey,kaLeft);
     Label_UnitAct         := MyControls.AddLabel(Panel_Unit,73,94,130,30,'',fnt_Grey,kaLeft);
     Label_UnitDescription := MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
@@ -1018,7 +1018,7 @@ begin
     Button_Army_Storm  := MyControls.AddButton(Panel_Army, 70, 46, 56, 40, 28);
     Button_Army_RotCCW := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 24);
     Button_Army_ForUp  := MyControls.AddButton(Panel_Army,  8, 92, 56, 40, 33);
-    ImageStack_Army    := MyControls.AddImageStack(Panel_Army,  70, 92, 56, 40, 43);
+    ImageStack_Army    := TKMImageStack.Create(Panel_Army, 70, 92, 56, 40, 43);
     Button_Army_ForDown:= MyControls.AddButton(Panel_Army,132, 92, 56, 40, 32);
     Button_Army_Split  := MyControls.AddButton(Panel_Army,  8,138, 56, 34, 31);
     Button_Army_Join   := MyControls.AddButton(Panel_Army, 70,138, 56, 34, 30);
@@ -1087,7 +1087,7 @@ begin
     Image_House_Worker:=MyControls.AddImage(Panel_House,98,41,32,32,141);
     Image_House_Worker.ImageCenter;
     Label_HouseHealth:=MyControls.AddLabel(Panel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFE0E0E0);
-    HealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50);
+    HealthBar_House:=TKMPercentBar.Create(Panel_House,129,57,55,15,50);
     Label_House_UnderConstruction:=MyControls.AddLabel(Panel_House,100,170,100,30,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);
 
     Label_House_Demolish := MyControls.AddLabel(Panel_House,100,130,100,30,fTextLibrary.GetTextString(232),fnt_Grey,kaCenter);
@@ -1146,7 +1146,7 @@ begin
       Label_School_Res:=MyControls.AddLabel(Panel_House_School,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
       ResRow_School_Resource := MyControls.AddResourceRow(Panel_House_School,  8,22,180,20,rt_Gold,5);
       ResRow_School_Resource.Hint :=TypeToString(rt_Gold);
-      Button_School_UnitWIPBar :=MyControls.AddPercentBar(Panel_House_School,42,54,138,20,0);
+      Button_School_UnitWIPBar :=TKMPercentBar.Create(Panel_House_School,42,54,138,20,0);
       Button_School_UnitWIP := MyControls.AddButton(Panel_House_School,  8,48,32,32,0);
       Button_School_UnitWIP.Hint := fTextLibrary.GetTextString(225);
       Button_School_UnitWIP.Tag := 1;

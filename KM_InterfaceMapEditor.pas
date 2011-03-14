@@ -391,8 +391,8 @@ begin
     Image_Main4 := MyControls.AddImage(Panel_Main,0, 600,224,400,404);
     Image_Main5 := MyControls.AddImage(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
 
-    KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
-    KMMinimap.OnChange:=Minimap_Update;
+    KMMinimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
+    KMMinimap.OnChange := Minimap_Update;
 
     MyControls.AddLabel(Panel_Main,8,200,100,30,'View passsability',fnt_Metal,kaLeft);
     RatioRow_Passability := MyControls.AddRatioRow(Panel_Main, 8, 220, 192, 20, 0, 13);
@@ -638,7 +638,7 @@ begin
     Panel_Color := MyControls.AddPanel(Panel_Player,0,28,196,400);
       MyControls.AddLabel(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
       MyControls.AddBevel(Panel_Color,8,30,180,210);
-      ColorSwatch_Color := MyControls.AddColorSwatch(Panel_Color, 10, 32, 16, 16);
+      ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16);
       ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
 
@@ -714,7 +714,7 @@ procedure TKMapEdInterface.Create_MenuLoad_Page;
 begin
   Panel_Load := MyControls.AddPanel(Panel_Common,0,128,196,400);
     MyControls.AddLabel(Panel_Load, 16, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
-    FileList_Load := MyControls.AddFileList(Panel_Load, 8, 20, 200, 200);
+    FileList_Load := TKMFileList.Create(Panel_Load, 8, 20, 200, 200);
     Button_LoadLoad     := MyControls.AddButton(Panel_Load,8,250,180,30,'Load',fnt_Metal);
     Button_LoadCancel   := MyControls.AddButton(Panel_Load,8,290,180,30,'Cancel',fnt_Metal);
     Button_LoadLoad.OnClick     := Menu_Load;
@@ -743,14 +743,14 @@ begin
     Label_UnitName        := MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
     Image_UnitPic         := MyControls.AddImage(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
-    KMConditionBar_Unit   := MyControls.AddPercentBar(Panel_Unit,73,55,116,15,80);
+    KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,73,55,116,15,80);
     Label_UnitDescription := MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
 
   Panel_Army:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
     Button_Army_RotCW   := MyControls.AddButton(Panel_Army,  8, 0, 56, 40, 23);
     Button_Army_RotCCW  := MyControls.AddButton(Panel_Army,132, 0, 56, 40, 24);
     Button_Army_ForUp   := MyControls.AddButton(Panel_Army,  8, 46, 56, 40, 33);
-    ImageStack_Army     := MyControls.AddImageStack(Panel_Army, 70, 46, 56, 40, 43);
+    ImageStack_Army     := TKMImageStack.Create(Panel_Army, 70, 46, 56, 40, 43);
     Button_Army_ForDown := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 32);
     Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
     Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
@@ -777,7 +777,7 @@ begin
     Image_House_Worker:=MyControls.AddImage(Panel_House,38,41,32,32,141);
     Image_House_Worker.ImageCenter;
     Label_HouseHealth:=MyControls.AddLabel(Panel_House,130,41,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
-    KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,53,60,20,50);
+    KMHealthBar_House:=TKMPercentBar.Create(Panel_House,100,53,60,20,50);
     Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,53,20,20,'-', fnt_Metal);
     Button_HouseHealthInc := MyControls.AddButton(Panel_House,160,53,20,20,'+', fnt_Metal);
     Button_HouseHealthDec.OnClickEither := House_HealthChange;
