@@ -65,6 +65,8 @@ TKMControl = class
     fWidth: Integer;
     fHeight: Integer;
 
+    fVisible: boolean;
+
     fOnClick:TNotifyEvent;
     fOnClickEither:TNotifyEventMB;
     fOnClickRight:TNotifyEvent;
@@ -77,12 +79,14 @@ TKMControl = class
     function GetWidth: Integer;
     procedure SetHeight(aValue:Integer); virtual;
     procedure SetWidth(aValue:Integer); virtual;
+
+    function GetVisible:boolean;
+    procedure SetVisible(aValue:boolean); virtual;
   public
     Parent: TKMControl;
 
     Anchors: TAnchors;
     Enabled: boolean;
-    Visible: boolean;
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
     Tag: integer; //Some tag which can be used for various needs
@@ -94,13 +98,13 @@ TKMControl = class
     property Top: Integer read GetTop write fTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+    property Visible:boolean read GetVisible write SetVisible;
     procedure Enable;
     procedure Disable;
     procedure Show;
     procedure Hide;
     procedure Center;
     procedure Stretch;
-    function IsVisible:boolean;
 
     function KeyDown(Key: Word; Shift: TShiftState):boolean; virtual;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; virtual;
@@ -346,12 +350,14 @@ end;
 
 {Resource order bar}
 TKMResourceOrderRow = class(TKMControl)
-  public
-    Resource: TResourceType;
-    ResourceCount: integer;
+  private
     fOrderAdd:TKMButton;
     fOrderLab:TKMLabel;
     fOrderRem:TKMButton;
+    procedure SetVisible(aValue:boolean); override;
+  public
+    Resource: TResourceType;
+    ResourceCount: integer;
     OrderCount:word;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
@@ -397,6 +403,7 @@ TKMScrollBar = class(TKMControl)
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
     procedure RefreshItems;
+    procedure SetVisible(aValue:boolean); override;
   public
     Position:byte;
     MinValue:byte;
@@ -422,6 +429,7 @@ TKMListBox = class(TKMControl)
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
     procedure ChangeScrollPosition (Sender:TObject);
+    procedure SetVisible(aValue:boolean); override;
   public
     TopIndex:smallint; //up to 32k files
     ItemIndex:smallint;
@@ -466,6 +474,7 @@ TKMFileList = class(TKMControl)
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
     procedure ChangeScrollPosition (Sender:TObject);
+    procedure SetVisible(aValue:boolean); override;
   public
     TopIndex:smallint; //up to 32k files
     ItemIndex:smallint;
@@ -500,7 +509,7 @@ begin
   Anchors   := [akLeft, akTop];
   State     := [];
   Enabled   := true;
-  Visible   := true;
+  fVisible  := true;
   Tag       := 0;
   Hint      := '';
 
@@ -566,9 +575,10 @@ begin
 end;
 
 
+//fVisible is checked earlier
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
-  Result := IsVisible and Enabled and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
+  Result := Enabled and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
 end;
 
 {One common thing - draw childs for self}
@@ -641,8 +651,29 @@ begin
   fWidth := aValue;
 end;
 
+
+{Check Control including all its Parents to see if Control is actually displayed/visible}
+function TKMControl.GetVisible:boolean;
+var C:TKMControl;
+begin
+  Result := fVisible;
+  C := Parent;
+  while C<>nil do begin
+    Result := Result and C.fVisible;
+    C := C.Parent;
+  end;
+end;
+
+
+procedure TKMControl.SetVisible(aValue:boolean);
+begin
+  fVisible := aValue;
+end;
+
+
 procedure TKMControl.Enable;  begin Enabled := true;  end;
 procedure TKMControl.Disable; begin Enabled := false; end;
+
 
 {Will show up entire branch in which control resides}
 procedure TKMControl.Show;
@@ -651,22 +682,10 @@ begin
   Visible := true;
 end;
 
+
 procedure TKMControl.Hide;    begin Visible := false; end;
 procedure TKMControl.Center;  begin Anchors := []; end;
 procedure TKMControl.Stretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
-
-
-{Check Control including all its Parents to see if Control is actually displayed/visible}
-function TKMControl.IsVisible:boolean;
-var C:TKMControl;
-begin
-  Result := Visible;
-  C := Parent;
-  while C<>nil do begin
-    Result := Result and C.Visible;
-    C := C.Parent;
-  end;
-end;
 
 
 { TKMPanel } //virtual panels to contain child items
@@ -738,14 +757,13 @@ begin
 end;
 
 
-
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint;
 var i:integer;
 begin
   Inherited;
   for i:=1 to ChildCount do
-    if Childs[i].Visible then
+    if Childs[i].fVisible then
       Childs[i].Paint;
 end;
 
@@ -815,9 +833,9 @@ end;
 function TKMLabel.HitTest(X, Y: Integer): Boolean;
 begin
   case TextAlign of
-    kaLeft: Result := InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height) and IsVisible;
-    kaCenter: Result := InRange(X, Left - Width div 2, Left + Width div 2) and InRange(Y, Top, Top + Height) and IsVisible;
-    kaRight: Result := InRange(X, Left - Width, Left) and InRange(Y, Top, Top + Height) and IsVisible;
+    kaLeft: Result := InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
+    kaCenter: Result := InRange(X, Left - Width div 2, Left + Width div 2) and InRange(Y, Top, Top + Height);
+    kaRight: Result := InRange(X, Left - Width, Left) and InRange(Y, Top, Top + Height);
     else Result := false;
   end;
 end;
@@ -1081,7 +1099,7 @@ end;
 function TKMButton.DoPress:boolean;
 begin
   //Mark self as CtrlDown
-  if IsVisible and Enabled then begin
+  if Visible and Enabled then begin
     TKMPanel(Parent).GetCollection.CtrlDown := Self;
     Result := true;
   end else
@@ -1095,7 +1113,7 @@ end;
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
 function TKMButton.DoClick:boolean;
 begin
-  if IsVisible and Enabled then begin
+  if Visible and Enabled then begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
     TKMPanel(Parent).GetCollection.CtrlOver := Self;
     TKMPanel(Parent).GetCollection.CtrlUp := Self;
@@ -1373,6 +1391,16 @@ begin
 end;
 
 
+//Copy property to buttons. Otherwise they won't be rendered
+procedure TKMResourceOrderRow.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  fOrderRem.fVisible := fVisible;
+  fOrderLab.fVisible := fVisible;
+  fOrderAdd.fVisible := fVisible;
+end;
+
+
 procedure TKMResourceOrderRow.Paint;
 var i:integer;
 begin
@@ -1380,11 +1408,6 @@ begin
   fOrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
   fOrderLab.Top := fTop + 4;
   fOrderAdd.Top := fTop;
-
-  //Otherwise they won't be rendered
-  fOrderRem.Visible := Visible;
-  fOrderLab.Visible := Visible;
-  fOrderAdd.Visible := Visible;
 
   fOrderLab.Caption := inttostr(OrderCount);
 
@@ -1547,6 +1570,15 @@ begin
 end;
 
 
+//Copy property to child buttons. Otherwise they won't be rendered
+procedure TKMScrollBar.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  ScrollDec.fVisible := fVisible;
+  ScrollInc.fVisible := fVisible;
+end;
+
+
 procedure TKMScrollBar.IncPosition(Sender:TObject);
 begin
   Position := EnsureRange(Position+1, MinValue, MaxValue);
@@ -1565,10 +1597,6 @@ procedure TKMScrollBar.Paint;
 var ThumbPos:word; State:T3DButtonStateSet;
 begin
   Inherited;
-  //Copy property to child buttons. Otherwise they won't be rendered
-  ScrollDec.Visible := Visible;
-  ScrollInc.Visible := Visible;
-
   ThumbPos := 0;
 
   case fScrollAxis of
@@ -1624,7 +1652,15 @@ end;
 
 procedure TKMListBox.ChangeScrollPosition(Sender:TObject);
 begin
-  TopIndex := TKMScrollBar(Sender).Position;
+  TopIndex := fScrollBar.Position;
+end;
+
+
+//Copy property to scrollbar. Otherwise it won't be rendered
+procedure TKMListBox.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
 end;
 
 
@@ -1768,7 +1804,15 @@ end;
 
 procedure TKMFileList.ChangeScrollPosition(Sender:TObject);
 begin
-  TopIndex := TKMScrollBar(Sender).Position;
+  TopIndex := fScrollBar.Position;
+end;
+
+
+//Copy property to scrollbar. Otherwise it won't be rendered
+procedure TKMFileList.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
 end;
 
 
@@ -1942,6 +1986,7 @@ function TKMMasterControl.HitControl(X,Y:integer):TKMControl;
   begin
     Result := nil;
     for i:=P.ChildCount downto 1 do
+    if P.Childs[i].fVisible then //ignore invisible controls
       if (P.Childs[i] is TKMPanel) then begin
         Result := ScanChild(TKMPanel(P.Childs[i]),aX,aY);
         if Result <> nil then exit;

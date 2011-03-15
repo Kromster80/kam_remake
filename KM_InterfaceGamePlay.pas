@@ -333,9 +333,9 @@ var i:integer; LastVisiblePage: TKMPanel;
   procedure Flip4MainButtons(ShowEm:boolean);
   var k:integer;
   begin
-    for k:=1 to 4 do Button_Main[k].Visible:=ShowEm;
-    Button_Main[5].Visible:=not ShowEm;
-    Label_MenuTitle.Visible:=not ShowEm;
+    for k:=1 to 4 do Button_Main[k].Visible := ShowEm;
+    Button_Main[5].Visible := not ShowEm;
+    Label_MenuTitle.Visible := not ShowEm;
   end;
 
 begin

@@ -1053,10 +1053,10 @@ procedure TKMMainMenuInterface.SingleMap_SelectMap(Sender: TObject);
 var i:integer;
 begin
   if Sender = nil then
-    Shape_SingleMap.Visible := false //Off visible list
+    Shape_SingleMap.Hide //Off visible list
   else
   begin
-    Shape_SingleMap.Visible := true;
+    Shape_SingleMap.Show;
     i := TKMControl(Sender).Tag;
 
     Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
