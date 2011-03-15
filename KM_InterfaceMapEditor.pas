@@ -6,7 +6,7 @@ uses Classes, Controls, KromUtils, Math, Windows, SysUtils, KromOGLUtils, Forms,
 
 type TKMapEdInterface = class
   private
-    MyControls: TKMControlsCollection;
+    MyControls: TKMMasterControl;
 
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
@@ -373,7 +373,6 @@ begin
   Inherited;
   fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
-  MyControls := TKMControlsCollection.Create;
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -382,47 +381,48 @@ begin
   TileDirection := 0;
 
 {Parent Page for whole toolbar in-game}
-  Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
+  MyControls := TKMMasterControl.Create;
+  Panel_Main := TKMPanel.Create(MyControls,0,0,224,768);
 
-    Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407); //Minimap place
+    Image_Main1 := TKMImage.Create(Panel_Main,0,0,224,200,407); //Minimap place
 
     //todo: player selection and other "universal" stuff (i.e. which player are we placing for)
-    Image_Main3 := MyControls.AddImage(Panel_Main,0, 200,224,400,404);
-    Image_Main4 := MyControls.AddImage(Panel_Main,0, 600,224,400,404);
-    Image_Main5 := MyControls.AddImage(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
+    Image_Main3 := TKMImage.Create(Panel_Main,0, 200,224,400,404);
+    Image_Main4 := TKMImage.Create(Panel_Main,0, 600,224,400,404);
+    Image_Main5 := TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
 
     KMMinimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     KMMinimap.OnChange := Minimap_Update;
 
-    MyControls.AddLabel(Panel_Main,8,200,100,30,'View passsability',fnt_Metal,kaLeft);
-    RatioRow_Passability := MyControls.AddRatioRow(Panel_Main, 8, 220, 192, 20, 0, 13);
+    TKMLabel.Create(Panel_Main,8,200,100,30,'View passsability',fnt_Metal,kaLeft);
+    RatioRow_Passability := TKMRatioRow.Create(Panel_Main, 8, 220, 192, 20, 0, 13);
     RatioRow_Passability.Position := 0;
     RatioRow_Passability.MaxValue := length(PassabilityStr);
     RatioRow_Passability.OnChange := View_Passability;
-    Label_Passability := MyControls.AddLabel(Panel_Main,8,240,100,30,'Off',fnt_Metal,kaLeft);
+    Label_Passability := TKMLabel.Create(Panel_Main,8,240,100,30,'Off',fnt_Metal,kaLeft);
 
-    MyControls.AddLabel(Panel_Main,8,270,100,30,'Player',fnt_Metal,kaLeft);
+    TKMLabel.Create(Panel_Main,8,270,100,30,'Player',fnt_Metal,kaLeft);
     for i:=1 to MAX_PLAYERS do begin
-      Button_PlayerSelect[i]         := MyControls.AddFlatButtonShape(Panel_Main, 8 + (i-1)*23, 290, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
+      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + (i-1)*23, 290, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[i].CapOffsetY := -3;
       Button_PlayerSelect[i].Tag     := i;
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
     end;
 
-    Label_MissionName := MyControls.AddLabel(Panel_Main, 8, 340, 100, 10, '', fnt_Metal, kaLeft);
+    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 100, 10, '', fnt_Metal, kaLeft);
 
-    Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint:=MyControls.AddLabel(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
-  Panel_Common := MyControls.AddPanel(Panel_Main,0,300,224,768);
+  Panel_Common := TKMPanel.Create(Panel_Main,0,300,224,768);
 
     {5 big tabs}
-    Button_Main[1] := MyControls.AddButton(Panel_Common,   8, 72, 36, 36, 381);
-    Button_Main[2] := MyControls.AddButton(Panel_Common,  48, 72, 36, 36, 368);
-    Button_Main[3] := MyControls.AddButton(Panel_Common,  88, 72, 36, 36,  41);
-    Button_Main[4] := MyControls.AddButton(Panel_Common, 128, 72, 36, 36, 441);
-    Button_Main[5] := MyControls.AddButton(Panel_Common, 168, 72, 36, 36, 389);
+    Button_Main[1] := TKMButton.Create(Panel_Common,   8, 72, 36, 36, 381);
+    Button_Main[2] := TKMButton.Create(Panel_Common,  48, 72, 36, 36, 368);
+    Button_Main[3] := TKMButton.Create(Panel_Common,  88, 72, 36, 36,  41);
+    Button_Main[4] := TKMButton.Create(Panel_Common, 128, 72, 36, 36, 441);
+    Button_Main[5] := TKMButton.Create(Panel_Common, 168, 72, 36, 36, 389);
     Button_Main[1].Hint := fTextLibrary.GetRemakeString(54);
     Button_Main[2].Hint := fTextLibrary.GetRemakeString(55);
     Button_Main[3].Hint := fTextLibrary.GetRemakeString(56);
@@ -430,7 +430,7 @@ begin
     Button_Main[5].Hint := fTextLibrary.GetRemakeString(58);
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
-    Label_MenuTitle:=MyControls.AddLabel(Panel_Common,8,112,138,36,'',fnt_Metal,kaLeft); //Should be one-line
+    Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,138,36,'',fnt_Metal,kaLeft); //Should be one-line
 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -459,7 +459,7 @@ end;
 
 destructor TKMapEdInterface.Destroy;
 begin
-  FreeAndNil(MyControls);
+  MyControls.Free;
   Inherited;
 end;
 
@@ -478,28 +478,28 @@ end;
 procedure TKMapEdInterface.Create_Terrain_Page;
 var i,k:integer;
 begin
-  Panel_Terrain := MyControls.AddPanel(Panel_Common,0,128,196,28);
-    Button_Terrain[1] := MyControls.AddButton(Panel_Terrain,   8, 4, 36, 24, 383);
-    Button_Terrain[2] := MyControls.AddButton(Panel_Terrain,  48, 4, 36, 24, 388);
-    Button_Terrain[3] := MyControls.AddButton(Panel_Terrain,  88, 4, 36, 24, 382);
-    Button_Terrain[4] := MyControls.AddButton(Panel_Terrain, 128, 4, 36, 24, 385);
+  Panel_Terrain := TKMPanel.Create(Panel_Common,0,128,196,28);
+    Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383);
+    Button_Terrain[2] := TKMButton.Create(Panel_Terrain,  48, 4, 36, 24, 388);
+    Button_Terrain[3] := TKMButton.Create(Panel_Terrain,  88, 4, 36, 24, 382);
+    Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 128, 4, 36, 24, 385);
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
-    Panel_Brushes := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      BrushSize   := MyControls.AddRatioRow(Panel_Brushes, 8, 10, 100, 20, 1, 12);
-      BrushCircle := MyControls.AddButtonFlat(Panel_Brushes, 114, 8, 24, 24, 359);
-      BrushSquare := MyControls.AddButtonFlat(Panel_Brushes, 142, 8, 24, 24, 352);
-      MyControls.AddButtonFlat(Panel_Brushes, 8, 30, 32, 32, 1, 8);
+    Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,196,400);
+      BrushSize   := TKMRatioRow.Create(Panel_Brushes, 8, 10, 100, 20, 1, 12);
+      BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 114, 8, 24, 24, 359);
+      BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 142, 8, 24, 24, 352);
+      TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, 8);
 
       {BrushSize.OnChange   := TerrainBrush_Change;
       BrushCircle.OnChange := TerrainBrush_Change;
       BrushSquare.OnChange := TerrainBrush_Change;}
 
-    Panel_Heights := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      HeightSize   := MyControls.AddRatioRow(Panel_Heights, 8, 10, 100, 20, 1, 12);
-      HeightCircle := MyControls.AddButtonFlat(Panel_Heights, 114, 8, 24, 24, 359);
-      HeightSquare := MyControls.AddButtonFlat(Panel_Heights, 142, 8, 24, 24, 352);
-      HeightShape  := MyControls.AddRatioRow(Panel_Heights, 8, 30, 100, 20, 1, 12);
+    Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,196,400);
+      HeightSize   := TKMRatioRow.Create(Panel_Heights, 8, 10, 100, 20, 1, 12);
+      HeightCircle := TKMButtonFlat.Create(Panel_Heights, 114, 8, 24, 24, 359);
+      HeightSquare := TKMButtonFlat.Create(Panel_Heights, 142, 8, 24, 24, 352);
+      HeightShape  := TKMRatioRow.Create(Panel_Heights, 8, 30, 100, 20, 1, 12);
       HeightSize.MaxValue := 15; //4bit for size
       HeightShape.MaxValue := 15; //4bit for slope shape
       HeightSize.OnChange   := Terrain_HeightChange;
@@ -507,17 +507,17 @@ begin
       HeightCircle.OnClick  := Terrain_HeightChange;
       HeightSquare.OnClick  := Terrain_HeightChange;
 
-    Panel_Tiles := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      TilesRandom := MyControls.AddCheckBox(Panel_Tiles, 8, 4, 100, 20, 'Random Direction', fnt_Metal);
+    Panel_Tiles := TKMPanel.Create(Panel_Terrain,0,28,196,400);
+      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 8, 4, 100, 20, 'Random Direction', fnt_Metal);
       TilesRandom.Checked := true;
       TilesRandom.OnClick := Terrain_TilesChange;
-      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal);
+      TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal, bsGame);
       TilesScroll.MinValue := 0;
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
       TilesScroll.OnChange := Terrain_TilesChange;
       for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,2+(i-1)*32,30+(k-1)*32,32,32,1,8); //2..9
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := TKMButtonFlat.Create(Panel_Tiles,2+(i-1)*32,30+(k-1)*32,32,32,1,8); //2..9
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (k-1)*MAPED_TILES_COLS+i; //Store ID
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
@@ -525,17 +525,17 @@ begin
       Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated the first time
       Terrain_TilesChange(TilesTable[1]);
 
-    Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 268, 180, 20, sa_Horizontal);
+    Panel_Objects := TKMPanel.Create(Panel_Terrain,0,28,196,400);
+      ObjectsScroll := TKMScrollBar.Create(Panel_Objects, 8, 268, 180, 20, sa_Horizontal, bsGame);
       ObjectsScroll.MinValue := 1;
       ObjectsScroll.MaxValue := ActualMapElemQty div 2;
       ObjectsScroll.Position := 1;
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
-      ObjectErase := MyControls.AddButtonFlat(Panel_Objects, 8, 8,32,32,340);
-      ObjectsTable[1] := MyControls.AddButtonFlat(Panel_Objects, 8, 40,90,110,1,1); //RXid=1  // 1 2
-      ObjectsTable[2] := MyControls.AddButtonFlat(Panel_Objects, 8,150,90,110,1,1); //RXid=1  // 3 4
-      ObjectsTable[3] := MyControls.AddButtonFlat(Panel_Objects,98, 40,90,110,1,1); //RXid=1
-      ObjectsTable[4] := MyControls.AddButtonFlat(Panel_Objects,98,150,90,110,1,1); //RXid=1
+      ObjectErase := TKMButtonFlat.Create(Panel_Objects, 8, 8,32,32,340);
+      ObjectsTable[1] := TKMButtonFlat.Create(Panel_Objects, 8, 40,90,110,1,1); //RXid=1  // 1 2
+      ObjectsTable[2] := TKMButtonFlat.Create(Panel_Objects, 8,150,90,110,1,1); //RXid=1  // 3 4
+      ObjectsTable[3] := TKMButtonFlat.Create(Panel_Objects,98, 40,90,110,1,1); //RXid=1
+      ObjectsTable[4] := TKMButtonFlat.Create(Panel_Objects,98,150,90,110,1,1); //RXid=1
       for i:=1 to 4 do begin
         ObjectsTable[i].Tag := i; //Store ID
         ObjectsTable[i].OnClick := Terrain_ObjectsChange;
@@ -551,19 +551,19 @@ end;
 procedure TKMapEdInterface.Create_Village_Page;
 var i:integer;
 begin
-  Panel_Village := MyControls.AddPanel(Panel_Common,0,128,196,28);
-    Button_Village[1] := MyControls.AddButton(Panel_Village,   8, 4, 36, 24, 454);
-    Button_Village[2] := MyControls.AddButton(Panel_Village,  48, 4, 36, 24, 141);
-    Button_Village[3] := MyControls.AddButton(Panel_Village,  88, 4, 36, 24, 327);
+  Panel_Village := TKMPanel.Create(Panel_Common,0,128,196,28);
+    Button_Village[1] := TKMButton.Create(Panel_Village,   8, 4, 36, 24, 454);
+    Button_Village[2] := TKMButton.Create(Panel_Village,  48, 4, 36, 24, 141);
+    Button_Village[3] := TKMButton.Create(Panel_Village,  88, 4, 36, 24, 327);
     for i:=1 to 3 do Button_Village[i].OnClick := SwitchPage;
 
-    Panel_Build := MyControls.AddPanel(Panel_Village,0,28,196,400);
-      MyControls.AddLabel(Panel_Build,100,10,100,30,'Roadworks',fnt_Outline,kaCenter);
-      Button_BuildRoad   := MyControls.AddButtonFlat(Panel_Build,  8,28,33,33,335);
-      Button_BuildField  := MyControls.AddButtonFlat(Panel_Build, 45,28,33,33,337);
-      Button_BuildWine   := MyControls.AddButtonFlat(Panel_Build, 82,28,33,33,336);
-      Button_BuildWall   := MyControls.AddButtonFlat(Panel_Build,119,28,33,33,339);
-      Button_BuildCancel := MyControls.AddButtonFlat(Panel_Build,156,28,33,33,340);
+    Panel_Build := TKMPanel.Create(Panel_Village,0,28,196,400);
+      TKMLabel.Create(Panel_Build,100,10,100,30,'Roadworks',fnt_Outline,kaCenter);
+      Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  8,28,33,33,335);
+      Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 45,28,33,33,337);
+      Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 82,28,33,33,336);
+      Button_BuildWall   := TKMButtonFlat.Create(Panel_Build,119,28,33,33,339);
+      Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,156,28,33,33,340);
       Button_BuildRoad.OnClick  := Build_ButtonClick;
       Button_BuildField.OnClick := Build_ButtonClick;
       Button_BuildWine.OnClick  := Build_ButtonClick;
@@ -575,50 +575,50 @@ begin
       Button_BuildWall.Hint     := 'Build a wall';
       Button_BuildCancel.Hint   := fTextLibrary.GetTextString(211);
 
-      MyControls.AddLabel(Panel_Build,100,65,100,30,'Houses',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Build,100,65,100,30,'Houses',fnt_Outline,kaCenter);
       for i:=1 to HOUSE_COUNT do
         if GUIHouseOrder[i] <> ht_None then begin
-          Button_Build[i]:=MyControls.AddButtonFlat(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
+          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
           Button_Build[i].OnClick:=Build_ButtonClick;
           Button_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
         end;
 
-    Panel_Units := MyControls.AddPanel(Panel_Village,0,28,196,400);
+    Panel_Units := TKMPanel.Create(Panel_Village,0,28,196,400);
 
-      MyControls.AddLabel(Panel_Units,100,10,100,30,'Citizens',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Units,100,10,100,30,'Citizens',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Citizen) do
       begin
-        Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,28+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 5x5
+        Button_Citizen[i] := TKMButtonFlat.Create(Panel_Units,8+((i-1) mod 5)*37,28+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 5x5
         Button_Citizen[i].Hint := TypeToString(School_Order[i]);
         Button_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
         Button_Citizen[i].OnClick := Unit_ButtonClick;
       end;
-      Button_UnitCancel := MyControls.AddButtonFlat(Panel_Units,8+(length(Button_Citizen) mod 5)*37,30+(length(Button_Citizen) div 5)*37,33,33,340);
+      Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,8+(length(Button_Citizen) mod 5)*37,30+(length(Button_Citizen) div 5)*37,33,33,340);
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
-      MyControls.AddLabel(Panel_Units,100,140,100,30,'Warriors',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Units,100,140,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
-        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,158+((i-1) div 5)*37,33,33, MapEd_Icon[i], 7);
+        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+((i-1) mod 5)*37,158+((i-1) div 5)*37,33,33, MapEd_Icon[i], 7);
         Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
       end;
 
-      MyControls.AddLabel(Panel_Units,100,230,100,30,'Animals',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Units,100,230,100,30,'Animals',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Animals) do
       begin
-        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,248+((i-1) div 5)*37,33,33, Animal_Icon[i], 7);
+        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+((i-1) mod 5)*37,248+((i-1) div 5)*37,33,33, Animal_Icon[i], 7);
         Button_Animals[i].Hint := TypeToString(Animal_Order[i]);
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
       end;
       Unit_ButtonClick(Button_Citizen[1]); //Select serf as default
 
-    Panel_Script := MyControls.AddPanel(Panel_Village,0,28,196,400);
-      MyControls.AddLabel(Panel_Script,100,10,100,30,'Scripts',fnt_Outline,kaCenter);
-      {Button_ScriptReveal         := MyControls.AddButtonFlat(Panel_Script,  8,28,33,33,335);
+    Panel_Script := TKMPanel.Create(Panel_Village,0,28,196,400);
+      TKMLabel.Create(Panel_Script,100,10,100,30,'Scripts',fnt_Outline,kaCenter);
+      {Button_ScriptReveal         := TKMButtonFlat.Create(Panel_Script,  8,28,33,33,335);
       Button_ScriptReveal.OnClick := Script_ButtonClick;
       Button_ScriptReveal.Hint    := 'Reveal a portion of map';}
 end;
@@ -627,17 +627,17 @@ end;
 procedure TKMapEdInterface.Create_Player_Page;
 var i:integer;
 begin
-  Panel_Player := MyControls.AddPanel(Panel_Common,0,128,196,28);
-    Button_Player[1] := MyControls.AddButton(Panel_Player,   8, 4, 36, 24, 41);
-    Button_Player[2] := MyControls.AddButton(Panel_Player,  48, 4, 36, 24, 382);
+  Panel_Player := TKMPanel.Create(Panel_Common,0,128,196,28);
+    Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24, 41);
+    Button_Player[2] := TKMButton.Create(Panel_Player,  48, 4, 36, 24, 382);
     for i:=1 to 2 do Button_Player[i].OnClick := SwitchPage;
 
-    Panel_Goals := MyControls.AddPanel(Panel_Player,0,28,196,400);
-      MyControls.AddLabel(Panel_Goals,100,10,100,30,'Goals',fnt_Outline,kaCenter);
+    Panel_Goals := TKMPanel.Create(Panel_Player,0,28,196,400);
+      TKMLabel.Create(Panel_Goals,100,10,100,30,'Goals',fnt_Outline,kaCenter);
 
-    Panel_Color := MyControls.AddPanel(Panel_Player,0,28,196,400);
-      MyControls.AddLabel(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
-      MyControls.AddBevel(Panel_Color,8,30,180,210);
+    Panel_Color := TKMPanel.Create(Panel_Player,0,28,196,400);
+      TKMLabel.Create(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
+      TKMBevel.Create(Panel_Color,8,30,180,210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16);
       ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
@@ -646,20 +646,20 @@ end;
 procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:integer;
 begin
-  Panel_Mission := MyControls.AddPanel(Panel_Common,0,128,196,28);
-    Button_Mission[1] := MyControls.AddButton(Panel_Mission, 8, 4, 36, 24, 41);
+  Panel_Mission := TKMPanel.Create(Panel_Common,0,128,196,28);
+    Button_Mission[1] := TKMButton.Create(Panel_Mission, 8, 4, 36, 24, 41);
     for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
 
     //todo: Improve the look and feel of alliances, replace checkboxes with flat buttons, add spaces between rows, etc.
-    Panel_Alliances := MyControls.AddPanel(Panel_Mission,0,28,196,400);
-      Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
-      //MyControls.AddBevel(Panel_Alliances, 9, 28, 180, 180);
+    Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
+      Label_Alliances := TKMLabel.Create(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
+      //TKMBevel.Create(Panel_Alliances, 9, 28, 180, 180);
       for i:=1 to MAX_PLAYERS do begin
-        MyControls.AddLabel(Panel_Alliances,12+i*20+2,30,100,20,inttostr(i),fnt_Outline,kaLeft);
-        MyControls.AddLabel(Panel_Alliances,12,30+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
+        TKMLabel.Create(Panel_Alliances,12+i*20+2,30,100,20,inttostr(i),fnt_Outline,kaLeft);
+        TKMLabel.Create(Panel_Alliances,12,30+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
         for k:=1 to MAX_PLAYERS do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
-          CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 8+k*20, 26+i*20, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 8+k*20, 26+i*20, 20, 20, '', fnt_Metal);
           CheckBox_Alliances[i,k].Tag       := (i-1) * MAX_PLAYERS + (k-1);
           CheckBox_Alliances[i,k].FlatStyle := true;
           CheckBox_Alliances[i,k].OnClick   := Mission_AlliancesChange;
@@ -668,7 +668,7 @@ begin
 
       //It does not have OnClick event for a reason
       // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := MyControls.AddCheckBox(Panel_Alliances, 12, 30+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 30+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
 end;
 
@@ -676,17 +676,17 @@ end;
 {Menu page}
 procedure TKMapEdInterface.Create_Menu_Page;
 begin
-  Panel_Menu:=MyControls.AddPanel(Panel_Common,0,128,196,400);
-    Button_Menu_Save:=MyControls.AddButton(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
+  Panel_Menu:=TKMPanel.Create(Panel_Common,0,128,196,400);
+    Button_Menu_Save:=TKMButton.Create(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
     Button_Menu_Save.OnClick:=SwitchPage;
     Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
-    Button_Menu_Load:=MyControls.AddButton(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
+    Button_Menu_Load:=TKMButton.Create(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
     Button_Menu_Load.OnClick:=SwitchPage;
     Button_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
-    Button_Menu_Settings:=MyControls.AddButton(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
+    Button_Menu_Settings:=TKMButton.Create(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     Button_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
     Button_Menu_Settings.Disable;
-    Button_Menu_Quit:=MyControls.AddButton(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
+    Button_Menu_Quit:=TKMButton.Create(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     Button_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     Button_Menu_Quit.OnClick:=SwitchPage;
 end;
@@ -695,13 +695,13 @@ end;
 {Save page}
 procedure TKMapEdInterface.Create_MenuSave_Page;
 begin
-  Panel_Save := MyControls.AddPanel(Panel_Common,0,128,196,400);
-    MyControls.AddLabel(Panel_Save,100,30,100,30,'Save map',fnt_Outline,kaCenter);
-    Edit_SaveName       := MyControls.AddEdit(Panel_Save,8,50,180,20, fnt_Grey);
-    Label_SaveExists    := MyControls.AddLabel(Panel_Save,100,80,100,30,'Map already exists',fnt_Outline,kaCenter);
-    CheckBox_SaveExists := MyControls.AddCheckBox(Panel_Save,12,100,100,20,'Overwrite', fnt_Metal);
-    Button_SaveSave     := MyControls.AddButton(Panel_Save,8,120,180,30,'Save',fnt_Metal);
-    Button_SaveCancel   := MyControls.AddButton(Panel_Save,8,160,180,30,'Cancel',fnt_Metal);
+  Panel_Save := TKMPanel.Create(Panel_Common,0,128,196,400);
+    TKMLabel.Create(Panel_Save,100,30,100,30,'Save map',fnt_Outline,kaCenter);
+    Edit_SaveName       := TKMEdit.Create(Panel_Save,8,50,180,20, fnt_Grey);
+    Label_SaveExists    := TKMLabel.Create(Panel_Save,100,80,100,30,'Map already exists',fnt_Outline,kaCenter);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,100,100,20,'Overwrite', fnt_Metal);
+    Button_SaveSave     := TKMButton.Create(Panel_Save,8,120,180,30,'Save',fnt_Metal);
+    Button_SaveCancel   := TKMButton.Create(Panel_Save,8,160,180,30,'Cancel',fnt_Metal);
     Edit_SaveName.OnChange      := Menu_Save;
     CheckBox_SaveExists.OnClick := Menu_Save;
     Button_SaveSave.OnClick     := Menu_Save;
@@ -712,11 +712,11 @@ end;
 {Load page}
 procedure TKMapEdInterface.Create_MenuLoad_Page;
 begin
-  Panel_Load := MyControls.AddPanel(Panel_Common,0,128,196,400);
-    MyControls.AddLabel(Panel_Load, 16, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
+  Panel_Load := TKMPanel.Create(Panel_Common,0,128,196,400);
+    TKMLabel.Create(Panel_Load, 16, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
     FileList_Load := TKMFileList.Create(Panel_Load, 8, 20, 200, 200);
-    Button_LoadLoad     := MyControls.AddButton(Panel_Load,8,250,180,30,'Load',fnt_Metal);
-    Button_LoadCancel   := MyControls.AddButton(Panel_Load,8,290,180,30,'Cancel',fnt_Metal);
+    Button_LoadLoad     := TKMButton.Create(Panel_Load,8,250,180,30,'Load',fnt_Metal);
+    Button_LoadCancel   := TKMButton.Create(Panel_Load,8,290,180,30,'Cancel',fnt_Metal);
     Button_LoadLoad.OnClick     := Menu_Load;
     Button_LoadCancel.OnClick   := SwitchPage;
 end;
@@ -725,10 +725,10 @@ end;
 {Quit page}
 procedure TKMapEdInterface.Create_MenuQuit_Page;
 begin
-  Panel_Quit:=MyControls.AddPanel(Panel_Common,0,128,200,400);
-    MyControls.AddLabel(Panel_Quit,100,40,100,30,'Any unsaved|changes will be lost',fnt_Outline,kaCenter);
-    Button_Quit_Yes   := MyControls.AddButton(Panel_Quit,8,100,180,30,'Quit',fnt_Metal);
-    Button_Quit_No    := MyControls.AddButton(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
+  Panel_Quit:=TKMPanel.Create(Panel_Common,0,128,200,400);
+    TKMLabel.Create(Panel_Quit,100,40,100,30,'Any unsaved|changes will be lost',fnt_Outline,kaCenter);
+    Button_Quit_Yes   := TKMButton.Create(Panel_Quit,8,100,180,30,'Quit',fnt_Metal);
+    Button_Quit_No    := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     Button_Quit_Yes.Hint      := fTextLibrary.GetTextString(177);
     Button_Quit_No.Hint       := fTextLibrary.GetTextString(178);
     Button_Quit_Yes.OnClick   := Menu_QuitMission;
@@ -739,27 +739,27 @@ end;
 {Unit page}
 procedure TKMapEdInterface.Create_Unit_Page;
 begin
-  Panel_Unit:=MyControls.AddPanel(Panel_Common,0,112,200,400);
-    Label_UnitName        := MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
-    Image_UnitPic         := MyControls.AddImage(Panel_Unit,8,38,54,100,521);
-    Label_UnitCondition   := MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
+  Panel_Unit:=TKMPanel.Create(Panel_Common,0,112,200,400);
+    Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
+    Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
+    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
     KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,73,55,116,15,80);
-    Label_UnitDescription := MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+    Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
 
-  Panel_Army:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
-    Button_Army_RotCW   := MyControls.AddButton(Panel_Army,  8, 0, 56, 40, 23);
-    Button_Army_RotCCW  := MyControls.AddButton(Panel_Army,132, 0, 56, 40, 24);
-    Button_Army_ForUp   := MyControls.AddButton(Panel_Army,  8, 46, 56, 40, 33);
+  Panel_Army:=TKMPanel.Create(Panel_Unit,0,160,200,400);
+    Button_Army_RotCW   := TKMButton.Create(Panel_Army,  8, 0, 56, 40, 23);
+    Button_Army_RotCCW  := TKMButton.Create(Panel_Army,132, 0, 56, 40, 24);
+    Button_Army_ForUp   := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 33);
     ImageStack_Army     := TKMImageStack.Create(Panel_Army, 70, 46, 56, 40, 43);
-    Button_Army_ForDown := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 32);
+    Button_Army_ForDown := TKMButton.Create(Panel_Army,132, 46, 56, 40, 32);
     Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
     Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
     Button_Army_ForUp.OnClick   := Unit_ArmyChange1;
     Button_Army_ForDown.OnClick := Unit_ArmyChange1;
 
-    Button_ArmyDec      := MyControls.AddButton(Panel_Army,  8,92,56,40,'-', fnt_Metal);
-    Button_ArmyFood     := MyControls.AddButton(Panel_Army, 70,92,56,40,29);
-    Button_ArmyInc      := MyControls.AddButton(Panel_Army,132,92,56,40,'+', fnt_Metal);
+    Button_ArmyDec      := TKMButton.Create(Panel_Army,  8,92,56,40,'-', fnt_Metal);
+    Button_ArmyFood     := TKMButton.Create(Panel_Army, 70,92,56,40,29);
+    Button_ArmyInc      := TKMButton.Create(Panel_Army,132,92,56,40,'+', fnt_Metal);
     Button_ArmyDec.OnClickEither := Unit_ArmyChange2;
     Button_ArmyFood.OnClick := Unit_ArmyChange1;
     Button_ArmyInc.OnClickEither := Unit_ArmyChange2;
@@ -769,17 +769,17 @@ end;
 {House description page}
 procedure TKMapEdInterface.Create_House_Page;
 begin
-  Panel_House:=MyControls.AddPanel(Panel_Common,0,112,200,400);
+  Panel_House:=TKMPanel.Create(Panel_Common,0,112,200,400);
     //Thats common things
-    Label_House:=MyControls.AddLabel(Panel_House,100,14,100,30,'',fnt_Outline,kaCenter);
-    Image_House_Logo:=MyControls.AddImage(Panel_House,8,41,32,32,338);
+    Label_House:=TKMLabel.Create(Panel_House,100,14,100,30,'',fnt_Outline,kaCenter);
+    Image_House_Logo:=TKMImage.Create(Panel_House,8,41,32,32,338);
     Image_House_Logo.ImageCenter;
-    Image_House_Worker:=MyControls.AddImage(Panel_House,38,41,32,32,141);
+    Image_House_Worker:=TKMImage.Create(Panel_House,38,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth:=MyControls.AddLabel(Panel_House,130,41,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
+    Label_HouseHealth:=TKMLabel.Create(Panel_House,130,41,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
     KMHealthBar_House:=TKMPercentBar.Create(Panel_House,100,53,60,20,50);
-    Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,53,20,20,'-', fnt_Metal);
-    Button_HouseHealthInc := MyControls.AddButton(Panel_House,160,53,20,20,'+', fnt_Metal);
+    Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', fnt_Metal);
+    Button_HouseHealthInc := TKMButton.Create(Panel_House,160,53,20,20,'+', fnt_Metal);
     Button_HouseHealthDec.OnClickEither := House_HealthChange;
     Button_HouseHealthInc.OnClickEither := House_HealthChange;
 end;
@@ -789,18 +789,18 @@ end;
 procedure TKMapEdInterface.Create_Store_Page;
 var i:integer;
 begin
-    Panel_HouseStore:=MyControls.AddPanel(Panel_House,0,76,200,400);
+    Panel_HouseStore:=TKMPanel.Create(Panel_House,0,76,200,400);
     for i:=1 to 28 do begin
-      Button_Store[i]:=MyControls.AddButtonFlat(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,350+i);
+      Button_Store[i]:=TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,350+i);
       Button_Store[i].Tag:=i;
       Button_Store[i].Hint:=TypeToString(TResourceType(i));
       Button_Store[i].OnClick := Store_SelectWare;
     end;
-    Button_StoreDec100   := MyControls.AddButton(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
-    Button_StoreDec      := MyControls.AddButton(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
-    Label_Store_WareCount:= MyControls.AddLabel (Panel_HouseStore,156,230,100,30,'',fnt_Metal,kaCenter);
-    Button_StoreInc100   := MyControls.AddButton(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
-    Button_StoreInc      := MyControls.AddButton(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
+    Button_StoreDec100   := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
+    Button_StoreDec      := TKMButton.Create(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
+    Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,156,230,100,30,'',fnt_Metal,kaCenter);
+    Button_StoreInc100   := TKMButton.Create(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
+    Button_StoreInc      := TKMButton.Create(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
     Button_StoreDec100.OnClickEither := Store_EditWareCount;
     Button_StoreDec.OnClickEither    := Store_EditWareCount;
     Button_StoreInc100.OnClickEither := Store_EditWareCount;
@@ -812,10 +812,10 @@ end;
 procedure TKMapEdInterface.Create_Barracks_Page;
 var i:integer;
 begin
-    Panel_HouseBarracks:=MyControls.AddPanel(Panel_House,0,76,200,400);
+    Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
       for i:=1 to 11 do
       begin
-        Button_Barracks[i]:=MyControls.AddButtonFlat(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,366+i);
+        Button_Barracks[i]:=TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,366+i);
         Button_Barracks[i].Tag := i;
         Button_Barracks[i].TexOffsetX:=1;
         Button_Barracks[i].TexOffsetY:=1;
@@ -823,11 +823,11 @@ begin
         Button_Barracks[i].Hint:=TypeToString(TResourceType(16+i));
         Button_Barracks[i].OnClick := Barracks_SelectWare;
       end;
-    Button_BarracksDec100   := MyControls.AddButton(Panel_HouseBarracks,116,218,20,20,'<', fnt_Metal);
-    Button_BarracksDec      := MyControls.AddButton(Panel_HouseBarracks,116,238,20,20,'-', fnt_Metal);
-    Label_Barracks_WareCount:= MyControls.AddLabel (Panel_HouseBarracks,156,230,100,30,'',fnt_Metal,kaCenter);
-    Button_BarracksInc100   := MyControls.AddButton(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
-    Button_BarracksInc      := MyControls.AddButton(Panel_HouseBarracks,176,238,20,20,'+', fnt_Metal);
+    Button_BarracksDec100   := TKMButton.Create(Panel_HouseBarracks,116,218,20,20,'<', fnt_Metal);
+    Button_BarracksDec      := TKMButton.Create(Panel_HouseBarracks,116,238,20,20,'-', fnt_Metal);
+    Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,156,230,100,30,'',fnt_Metal,kaCenter);
+    Button_BarracksInc100   := TKMButton.Create(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
+    Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,176,238,20,20,'+', fnt_Metal);
     Button_BarracksDec100.OnClickEither := Barracks_EditWareCount;
     Button_BarracksDec.OnClickEither    := Barracks_EditWareCount;
     Button_BarracksInc100.OnClickEither := Barracks_EditWareCount;
@@ -1426,7 +1426,7 @@ begin
 
   //1-5 game menu shortcuts
   if Key in [49..53] then
-    if Button_Main[Key-48].Visible then MyControls.CtrlDown := Button_Main[Key-48];
+    Button_Main[Key-48].DoPress;
 
   //Scrolling
   if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := true;
@@ -1442,7 +1442,7 @@ begin
 
   //1-5 game menu shortcuts
   if Key in [49..53] then
-    SwitchPage(Button_Main[Key-48]);
+    Button_Main[Key-48].DoClick;
 
   //Scrolling
   if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
