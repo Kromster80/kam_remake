@@ -197,13 +197,13 @@ end;
 {Image stack - for army formation view}
 TKMImageStack = class(TKMControl)
   private
+    fRXid: integer; //RX library
+    fTexID: integer;
     fCount: integer;
     fColumns: integer;
     fDrawWidth: integer;
     fDrawHeight: integer;
   public
-    RXid: integer; //RX library
-    TexID: integer;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
     procedure SetCount(aCount,aColumns:integer);
     procedure Paint; override;
@@ -951,8 +951,8 @@ end;
 constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRXid:integer=4);
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  RXid  := aRXid;
-  TexID := aTexID;
+  fRXid  := aRXid;
+  fTexID := aTexID;
   fCount := 0;
   fColumns := 0;
   fDrawWidth := 0;
@@ -965,10 +965,10 @@ var Aspect: single;
 begin
   fCount := aCount;
   fColumns := Math.max(1,aColumns);
-  fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[RXid, TexID].PxWidth);
-  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[RXid, TexID].PxHeight);
+  fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[fRXid, fTexID].PxWidth);
+  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[fRXid, fTexID].PxHeight);
 
-  Aspect := GFXData[RXid, TexID].PxWidth / GFXData[RXid, TexID].PxHeight;
+  Aspect := GFXData[fRXid, fTexID].PxWidth / GFXData[fRXid, fTexID].PxHeight;
   if fDrawHeight * Aspect <= fDrawWidth then
     fDrawWidth  := round(fDrawHeight * Aspect)
   else
@@ -983,7 +983,7 @@ var
   OffsetX, OffsetY, CenterX, CenterY:smallint; //variable parameters
 begin
   Inherited;
-  if (TexID=0)or(RXid=0) then exit; //No picture to draw
+  if (fTexID=0)or(fRXid=0) then exit; //No picture to draw
 
   OffsetX := Width div fColumns;
   OffsetY := Height div ceil(fCount/fColumns);
@@ -994,7 +994,7 @@ begin
   for i := 1 to fCount do
     fRenderUI.WritePicture(Left + CenterX + OffsetX*((i-1) mod fColumns),
                             Top + CenterY + OffsetY*((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, RXid, TexID, Enabled);
+                            fDrawWidth, fDrawHeight, fRXid, fTexID, Enabled);
 end;
 
 
