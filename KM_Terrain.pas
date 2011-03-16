@@ -5,7 +5,7 @@ uses Classes, KromUtils, Math, SysUtils,
      KM_Defaults, KM_CommonTypes, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses;
 
 
-const MaxMapSize=192;
+const MAX_MAP_SIZE = 192;
 
 
 type
@@ -16,7 +16,7 @@ TTerrain = class
   public
     MapX,MapY:integer; //Terrain width and height
 
-    Land:array[1..MaxMapSize,1..MaxMapSize]of record
+    Land:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of record
       Terrain:byte;
       Height:byte;
       Rotation:byte;
@@ -58,7 +58,7 @@ TTerrain = class
     end;
 
     FallingTrees: TKMPointTagList;
-    MiniMapRGB:array[1..MaxMapSize,1..MaxMapSize]of cardinal;
+    MiniMapRGB:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of cardinal;
 
     constructor Create;
     destructor Destroy; override;
@@ -222,8 +222,8 @@ end;
 procedure TTerrain.MakeNewMap(Width,Height:integer);
 var i,k:integer;
 begin
-  MapX := min(Width, MaxMapSize);
-  MapY := min(Height,MaxMapSize);
+  MapX := min(Width, MAX_MAP_SIZE);
+  MapY := min(Height,MAX_MAP_SIZE);
 
   for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
     Terrain      := 0;
@@ -272,7 +272,7 @@ begin
   FileMode := 2;
   blockread(f,k,4);
   blockread(f,i,4);
-  fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'Can''t open the map cos it has too big dimensions');
+  fLog.AssertToLog((k<=MAX_MAP_SIZE)and(i<=MAX_MAP_SIZE),'Can''t open the map cos it has too big dimensions');
   MapX:=k;
   MapY:=i;
   MakeNewMap(MapX,MapY); //Reset whole map to default
@@ -306,7 +306,7 @@ end;
 procedure TTerrain.SaveToMapFile(aFile:string);
 var f:file; i,k,t:integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
-    Res:array[1..MaxMapSize*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
+    Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
 begin
 
   if not DirectoryExists(ExtractFilePath(aFile)) then
@@ -2284,7 +2284,7 @@ begin
   if not VerticeInMapCoords(Xc,Yc) then exit;
 
   Tmp1 := mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(inX));
-  if Yc >= MaxMapSize then
+  if Yc >= MAX_MAP_SIZE then
     Tmp2 := 0
   else
     Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(inX));

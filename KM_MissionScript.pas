@@ -264,7 +264,7 @@ begin
   {ExistingPlayers := 0;
   for i:=1 to fPlayers.PlayerCount do begin
     with fPlayers.Player[i] do
-    if (GetHouses.Count + GetUnits.Count + GetFieldsCount > 0) then
+    if (GetHouses.Count + GetUnits.Count > 0) then
       inc(ExistingPlayers);
   end;}
 end;
@@ -295,18 +295,16 @@ end;
 
 {Acquire specific map details in a fast way}
 function TMissionParser.GetMapDetails(const aFileName:string):TKMMapDetails;
-var f:file; i,k:integer;
+var F:TKMemoryStream; sx,sy:integer;
 begin
-  AssignFile(f,aFileName);
-  FileMode := 0;
-  Reset(f,1);
-  FileMode := 2;
-  blockread(f,k,4);
-  blockread(f,i,4);
-  fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'TMissionParser.GetMapDetails - Can''t open the map cos it''s too big.');
-  closefile(f);
-  Result.MapSize.X := k;
-  Result.MapSize.Y := i;
+  F := TKMemoryStream.Create;
+  F.LoadFromFile(aFileName);
+  F.Read(sx);
+  F.Read(sy);
+  F.Free;
+  Assert((sx<=MAX_MAP_SIZE)and(sy<=MAX_MAP_SIZE),'MissionParser can''t open the map cos it''s too big.');
+  Result.MapSize.X := sx;
+  Result.MapSize.Y := sy;
 end;
 
 

@@ -15,7 +15,7 @@ type
       ID:word;
       Pos:TKMPoint;
     end;
-    ORef:array[1..MaxMapSize,1..MaxMapSize] of word; //Ref to OpenList
+    ORef:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE] of word; //Ref to OpenList
     OCount:word;
     OList:array of record //List of checked cells
       Pos:TKMPoint;
