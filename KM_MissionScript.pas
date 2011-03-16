@@ -143,56 +143,49 @@ begin
   //fPlayers.fMissionMode := mm_Normal; //by Default
 end;
 
+
 function TMissionParser.ReadMissionFile(const aFileName:string):string;
 var
-  Encoded:boolean; //If false then files will be opened as text
-  i,k,Num,NumRead:integer;
-  s:TStringList;
-  f:file;
+  i,Num:cardinal;
+  F:TMemoryStream;
 begin
   if not CheckFileExists(aFileName) then exit;
 
   //Load and decode .DAT file into FileText
-  AssignFile(f,aFileName); 
-  FileMode := 0;
-  Reset(f,1);
-  FileMode := 2;
-  NumRead := FileSize(f);
-  SetLength(Result,NumRead+1);
-  BlockRead(f,Result[1],NumRead);
-  //todo: XE stop using string for data processing. use memory stream instead?
-  CloseFile(f);
+  F := TMemoryStream.Create;
+  F.LoadFromFile(aFileName);
 
   //Detect whether mission is encoded so we can support decoded/encoded .DAT files
-  //See how often certain chracters meet, take most common ones
+  //We can't test 1st char, it can be any. Instead see how often common chracters meet
   Num := 0;
-  for i:=1 to NumRead do if Result[i] in [#9,#10,#13,'0'..'9',' ','!'] then inc(Num);
+  for i:=0 to F.Size-1 do
+    if PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13,'0'..'9',' ','!'] then
+      inc(Num);
 
-  //Usually 30-50% of file is numerals/spaces, tested on KaM maps
-  Encoded := (Num/NumRead < 0.20); //so we take half of that as landmark
-
-  for i:=1 to NumRead do
-    if Encoded then Result[i] := chr(byte(Result[i]) xor 239);
+  //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
+  if (Num/F.Size < 0.20) then
+  for i:=0 to F.Size-1 do
+    PByte(cardinal(F.Memory)+i)^ := PByte(cardinal(F.Memory)+i)^ xor 239;
 
   //Save text after decoding but before cleaning
-  if WRITE_DECODED_MISSION then begin
-    s := TStringList.Create;
-    s.Text := Result;
-    s.SaveToFile(aFileName+'.txt');
-    s.Free;
+  if WRITE_DECODED_MISSION then
+    F.SaveToFile(aFileName+'.txt');
+
+  for i:=0 to F.Size-1 do
+    if (PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13]) then
+      PAnsiChar(cardinal(F.Memory)+i)^ := #32;
+
+  Num := 0;
+  for i:=0 to F.Size-1 do begin
+    PAnsiChar(cardinal(F.Memory)+Num)^ := PAnsiChar(cardinal(F.Memory)+i)^;
+    if (Num<=0) or ((PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)^<>#32#32) and (PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)<>'!!')) then
+      inc(Num);
   end;
 
-  for i:=1 to NumRead do
-    if (Result[i] in [#9,#10,#13]) then Result[i] := #32;
-
-  k:=1;
-  for i:=1 to NumRead do begin
-    Result[k] := Result[i];
-    if (k<=1) or ((Result[k-1]+Result[k]<>#32#32) and (Result[k-1]+Result[k]<>'!!')) then
-      inc(k);
-  end;
-
-  setlength(Result,k); //Because some extra characters were removed
+  setlength(Result, Num); //Because some extra characters were removed
+  F.Position := 0;
+  F.ReadBuffer(Result[1], Num);   
+  F.Free;
 end;
 
 
