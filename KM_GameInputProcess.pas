@@ -68,14 +68,12 @@ type TGameInputCommandType = (
   gic_TempChangeMyPlayer, //Make debugging easier
 
   //VII. Multiplayer
-  gic_CRC, //CRC check send with each command list
+  gic_CRC //CRC check send with each command list
 
   { Optional input }
   //VI.     Viewport settings for replay (location, zoom)
   //VII.    Message queue handling in gameplay interface
-  //IX.     Text messages for multiplayer (console)
-  gic_TextMessage
-
+  //IX.     Text messages for multiplayer (moved to Networking)
   );
 
 type TGameInputCommand = record
@@ -131,8 +129,6 @@ type
       procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
       procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
       procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
-
-      procedure CmdText(aCommandType:TGameInputCommandType; aPlayerID:integer; aTime:string; aText:string);
 
       procedure Timer(aTick:cardinal); virtual;
 
@@ -348,13 +344,6 @@ procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aPlayerI
 begin
   Assert(aCommandType = gic_TempChangeMyPlayer);
   TakeCommand( MakeCommand(aCommandType, [aPlayerID]) );
-end;
-
-
-procedure TGameInputProcess.CmdText(aCommandType:TGameInputCommandType; aPlayerID:integer; aTime:string; aText:string);
-begin
-  Assert(aCommandType = gic_TextMessage);
-  //TakeCommand( MakeCommand(aCommandType, aPlayerID, aText) );
 end;
 
 

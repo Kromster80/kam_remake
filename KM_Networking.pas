@@ -24,6 +24,7 @@ type
                     mk_ReadyToStart, //Joiner telling he's ready
                     mk_Start, //Host starting the game
 
+                    mk_Commands,
                     mk_Text);
 
 type
@@ -38,6 +39,7 @@ type
       fPlayers:TKMPlayersList;
 
       fMapName:string;
+      fMissionMode:TMissionMode;
 
       fJoinTick:cardinal; //Timer to issue timeout event on connection
       fOnJoinSucc:TNotifyEvent;
@@ -46,7 +48,7 @@ type
       fOnPlayersList:TStringEvent;
       fOnMapName:TStringEvent;
       fOnAllReady:TNotifyEvent;
-      fOnCommands:TStreamEvent;
+      fOnCommands:TStringEvent;
 
       function CheckCanJoin(aAddr, aNik:string):string;
       procedure StartGame;
@@ -75,15 +77,16 @@ type
       procedure PostMessage(aText:string);
 
       //Gameplay
+      function MissionMode:TMissionMode;
       procedure SendCommands(aStream:TKMemoryStream);
 
-      property OnJoinSucc:TNotifyEvent write fOnJoinSucc;
-      property OnJoinFail:TStringEvent write fOnJoinFail; //Return text description of error
-      property OnTextMessage:TStringEvent write fOnTextMessage;
-      property OnPlayersList:TStringEvent write fOnPlayersList;
-      property OnMapName:TStringEvent write fOnMapName;
-      property OnAllReady:TNotifyEvent write fOnAllReady;
-      property OnCommands:TStreamEvent write fOnCommands;
+      property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
+      property OnJoinFail:TStringEvent write fOnJoinFail;       //We were refused to join
+      property OnTextMessage:TStringEvent write fOnTextMessage; //Text message recieved
+      property OnPlayersList:TStringEvent write fOnPlayersList; //Player list updated
+      property OnMapName:TStringEvent write fOnMapName;         //Map name updated
+      property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start playing
+      property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
       procedure UpdateState;
     end;
 
@@ -233,11 +236,18 @@ begin
 end;
 
 
-procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
-//var i:integer;
+function TKMNetworking.MissionMode:TMissionMode;
 begin
-  //for i:=1 to fPlayersList.Count-1 do
-  //todo: send commands to all players
+  Result := fMissionMode;
+end;
+
+
+procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
+var s:string;
+begin
+  SetLength(s, aStream.Size);
+  aStream.WriteBuffer(s[1], aStream.Size);
+  PacketToAll(mk_Commands, s); //Send commands to all players
 end;
 
 
@@ -282,6 +292,7 @@ begin
     mk_Start:       if fLANPlayerKind = lpk_Joiner then begin
                       StartGame;
                     end;
+    mk_Commands:    if Assigned(fOnCommands) then fOnCommands(Msg);
     mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Msg);
   end;
 end;

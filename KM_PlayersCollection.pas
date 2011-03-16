@@ -5,15 +5,13 @@ uses
   Classes, KromUtils, Math, SysUtils,
   KM_Units, KM_Units_Warrior, KM_Houses, KM_CommonTypes, KM_Defaults, KM_Player, KM_PlayerAI, KM_Utils;
 
-type
-  TMissionMode = (mm_Normal, mm_Tactic);
 
 type
   TKMAllPlayers = class
   private
     fPlayerCount:integer;
   public
-    fMissionMode: TMissionMode;
+    
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
     PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
     PlayerAnimals: TKMPlayerAnimals;
@@ -21,7 +19,7 @@ type
   public
     constructor Create(aPlayerCount:integer);
     destructor Destroy; override;
-  public
+
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure SetPlayerCount(aPlayerCount:integer);
     property PlayerCount:integer read fPlayerCount;
@@ -40,7 +38,7 @@ type
     procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
     function RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     function RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
-  public
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
@@ -300,7 +298,6 @@ procedure TKMAllPlayers.Save(SaveStream:TKMemoryStream);
 var i:word;
 begin
   SaveStream.Write('Players');
-  SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
   SaveStream.Write(fPlayerCount);
   for i:=1 to fPlayerCount do
   begin
@@ -317,7 +314,6 @@ var i:word; s:string; P:TPlayerID;
 begin
   LoadStream.Read(s);
   Assert(s = 'Players', 'Players not found');
-  LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
   LoadStream.Read(fPlayerCount);
   fLog.AssertToLog(fPlayerCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
   Selected := nil;

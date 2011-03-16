@@ -30,6 +30,7 @@ type
     fGameplayTickCount:cardinal;
     fGameName:string;
     fMissionFile:string; //Remember what we are playing incase we might want to replay
+    fMissionMode: TMissionMode;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     fActiveCampaign:TCampaign; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
@@ -81,6 +82,7 @@ type
     property GetCampaign:TCampaign read fActiveCampaign;
     property GetCampaignMap:byte read fActiveCampaignMap;
     property IsExiting:boolean read fIsExiting;
+    property MissionMode:TMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;
     property GameState:TGameState read fGameState;
     procedure SetGameSpeed(aSpeed:byte=0);
@@ -365,7 +367,7 @@ begin
   fViewport.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
-  fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));
+  fGamePlayInterface.MenuIconsEnabled(not (fMissionMode = mm_Tactic));
 
   fLog.AppendLog('Gameplay initialized',true);
 
@@ -381,7 +383,7 @@ end;
 
 
 procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
-var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
+var ResultMsg, LoadError:string; fMissionParser: TMissionParser; i:integer;
 begin
   GameInit;
 
@@ -414,13 +416,23 @@ begin
     end;
   end;
 
+  fMissionMode := fNetworking.MissionMode; //Tactic or normal
+{  //todo: Reassign players (Human, AI, None)
+  for i:=1 to fPlayers.PlayerCount do
+    case fNetworking.Player(i) of
+      pt_None:      fPlayers.Remove(i);
+      pt_Human:     fPlayers.PlayerAI := pt_Human;
+      pt_Computer:
+
+  fPlayers.SetPlayerCount(fNetworking.GetMaxPlayers); //Trim players}
+
   MyPlayer := fPlayers.Player[aPlayID];
 
   fPlayers.AfterMissionInit(true);
   fViewport.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
-  fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));
+  fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
 
   fLog.AppendLog('Gameplay initialized',true);
 
@@ -428,7 +440,7 @@ begin
 
   fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
   Save(99); //Thats our base for a game record
-  CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
+  CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
   fGameState := gsRunning;
 
@@ -722,6 +734,7 @@ begin
   SaveStream.Write(fMissionFile); //Save game mission file
   SaveStream.Write(fGameName); //Save game title
   SaveStream.Write(fGameplayTickCount); //Required to be saved, e.g. messages being shown after a time
+  SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
@@ -827,6 +840,7 @@ begin
     LoadStream.Read(fMissionFile); //Savegame mission file
     LoadStream.Read(fGameName); //Savegame title
     LoadStream.Read(fGameplayTickCount);
+    LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
@@ -848,7 +862,7 @@ begin
 
     CopyFile(PChar(KMSlotToSaveName(SlotID,'bas')), PChar(KMSlotToSaveName(99,'bas')), false); //replace Replay base savegame
 
-    fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
+    fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
     fViewport.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)

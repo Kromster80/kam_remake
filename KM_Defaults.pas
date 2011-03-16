@@ -283,8 +283,9 @@ const //Font01.fnt seems to be damaged..
 //Which MapEditor page is being shown. Add more as they are needed.
 type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
 
-type
-  TAllianceType = (at_Enemy=0, at_Ally=1);
+    TMissionMode = (mm_Normal, mm_Tactic);
+
+    TAllianceType = (at_Enemy=0, at_Ally=1);
 
 type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);

@@ -227,7 +227,7 @@ type TKMGamePlayInterface = class
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
-    procedure EnableOrDisableMenuIcons(NewValue:boolean);
+    procedure MenuIconsEnabled(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     property ShownUnit: TKMUnit read fShownUnit;
@@ -1881,10 +1881,7 @@ end;
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_ChatMsg.Text) = '') then exit;
-  fGame.fGameInputProcess.CmdText(gic_TextMessage,
-                                  integer(MyPlayer.PlayerID),
-                                  FormatDateTime('hh:nn:ss', Now),
-                                  Edit_ChatMsg.Text);
+  fGame.fNetworking.PostMessage(Edit_ChatMsg.Text);
   Edit_ChatMsg.Text := '';
 end;
 
@@ -2027,7 +2024,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.EnableOrDisableMenuIcons(NewValue:boolean);
+procedure TKMGamePlayInterface.MenuIconsEnabled(NewValue:boolean);
 begin
   Button_Main[1].Enabled := NewValue;
   Button_Main[2].Enabled := NewValue;

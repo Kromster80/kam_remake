@@ -99,7 +99,7 @@ end;
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
+uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
 
 
 constructor TMissionParser.Create(aMode:TMissionParserMode);
@@ -141,7 +141,7 @@ procedure TMissionParser.UnloadMission;
 begin
   FreeAndNil(fPlayers);
   CurrentPlayerIndex := 0;
-  //fPlayers.fMissionMode := mm_Normal; //by Default
+  fGame.MissionMode := mm_Normal; //by Default
 end;
 
 
@@ -412,7 +412,7 @@ begin
                      end;
   ct_SetTactic:      begin
                        if fPlayers=nil then fPlayers := TKMAllPlayers.Create(0);
-                       fPlayers.fMissionMode := mm_Tactic;
+                       fGame.MissionMode := mm_Tactic;
                      end;
   ct_SetCurrPlayer:  begin
                      if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
