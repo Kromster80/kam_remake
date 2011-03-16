@@ -1,7 +1,7 @@
 
 	Single-player AI
 	Map Editor
-	Local multiplayer
+	LAN multiplayer
 
 	Internet multiplayer
 	Random map generator

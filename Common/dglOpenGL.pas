@@ -13206,8 +13206,12 @@ begin
   if LibHandle = nil then
     LibHandle := GL_LibHandle;
 
+  {$IFNDEF DGL_WIN}
+  {$IFNDEF DGL_LINUX}
   Result :=  nil;
-   
+  {$ENDIF}
+  {$ENDIF}
+
   {$IFDEF DGL_WIN}
     Result := GetProcAddress(HMODULE(LibHandle), ProcName);
 
@@ -13219,6 +13223,7 @@ begin
   {$ENDIF}
 
   {$IFDEF DGL_LINUX}
+    
     if not ForceDLSym then begin
       if Addr(glXGetProcAddress) <> nil then
         Result := glXGetProcAddress(ProcName);
