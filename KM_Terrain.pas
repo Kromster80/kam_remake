@@ -2359,7 +2359,7 @@ begin
   end;
 
   Loc := TKMPointList.Create;
-  for i:=1 to fPlayers.PlayerCount do begin
+  for i:=1 to fPlayers.Count do begin
     fPlayers.Player[i].GetUnitLocations(Loc);
     for k:=1 to Loc.Count do
     if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then

@@ -415,12 +415,12 @@ begin
                        fGame.MissionMode := mm_Tactic;
                      end;
   ct_SetCurrPlayer:  begin
-                     if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
+                     if InRange(ParamList[0],0,fPlayers.Count-1) then
                        CurrentPlayerIndex := ParamList[0]+1; //+1 because in DAT players IDs are 0 based, but here they are 1 based
                      end;
   ct_SetHumanPlayer: begin
                      if fPlayers <> nil then
-                       if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
+                       if InRange(ParamList[0],0,fPlayers.Count-1) then
                        begin
                          MyPlayer := fPlayers.Player[ParamList[0]+1];
                          MyPlayer.PlayerType:=pt_Human;
@@ -428,7 +428,7 @@ begin
                      end;
   ct_AIPlayer:       begin
                      if fPlayers <> nil then
-                       if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
+                       if InRange(ParamList[0],0,fPlayers.Count-1) then
                          fPlayers.Player[ParamList[0]+1].PlayerType:=pt_Computer
                        else //This command doesn't require an ID, just use the current player
                          fPlayers.Player[CurrentPlayerIndex].PlayerType:=pt_Computer;
@@ -487,7 +487,7 @@ begin
   ct_AddWareToAll:   begin
                        MyInt:=ParamList[1];
                        if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                       for i:=1 to fPlayers.PlayerCount do
+                       for i:=1 to fPlayers.Count do
                        begin
                          Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
                          if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
@@ -753,11 +753,11 @@ begin
 
   //Main header, use same filename for MAP
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + ExtractFileName(TruncateExt(aFileName)) + '.map"');
-  AddCommand(ct_SetMaxPlayer, 1, fPlayers.PlayerCount);
+  AddCommand(ct_SetMaxPlayer, 1, fPlayers.Count);
   AddData(''); //NL
 
   //Player loop
-  for i:=1 to fPlayers.PlayerCount do
+  for i:=1 to fPlayers.Count do
   begin
     //Player header, using same order of commands as KaM
     AddCommand(ct_SetCurrPlayer,1,i-1); //In script player 0 is the first
@@ -843,7 +843,7 @@ begin
 
     //General, e.g. units, roads, houses, etc.
     //Alliances
-    for k:=1 to fPlayers.PlayerCount do
+    for k:=1 to fPlayers.Count do
       if k<>i then
         AddCommand(ct_SetAlliance,2,k-1,byte(fPlayers.Player[i].fAlliances[k])); //0=enemy, 1=ally
     AddData(''); //NL

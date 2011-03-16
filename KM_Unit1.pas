@@ -369,7 +369,7 @@ procedure TForm1.Export_DeliverLists1Click(Sender: TObject);
 var i:integer;
 begin
   if fPlayers=nil then exit;
-  for i:=1 to fPlayers.PlayerCount do
+  for i:=1 to fPlayers.Count do
     fPlayers.Player[i].DeliverList.SaveToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
 end;
 

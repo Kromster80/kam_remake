@@ -9,7 +9,7 @@ uses
 type
   TKMAllPlayers = class
   private
-    fPlayerCount:integer;
+    fCount:integer;
   public
     
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
@@ -22,7 +22,7 @@ type
 
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure SetPlayerCount(aPlayerCount:integer);
-    property PlayerCount:integer read fPlayerCount;
+    property Count:integer read fCount;
     function HousesHitTest(X,Y:Integer):TKMHouse;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
@@ -83,7 +83,7 @@ end;
 procedure TKMAllPlayers.AfterMissionInit(aFlattenRoads:boolean);
 var i:integer;
 begin
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
     Player[i].AfterMissionInit(aFlattenRoads);
 end;
 
@@ -91,14 +91,14 @@ end;
 procedure TKMAllPlayers.SetPlayerCount(aPlayerCount:integer);
 var i:integer;
 begin
-  fLog.AssertToLog(InRange(PlayerCount,0,MAX_PLAYERS),'PlayerCount exceeded');
+  Assert(InRange(aPlayerCount,0,MAX_PLAYERS),'Setting unsupported PlayerCount: '+inttostr(aPlayerCount));
 
-  fPlayerCount := aPlayerCount; //Used internally
-  for i:=1 to fPlayerCount do begin
+  fCount := aPlayerCount; //Used internally
+  for i:=1 to fCount do begin
     if Player[i]   = nil then Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
     if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
   end;
-  for i:=fPlayerCount+1 to MAX_PLAYERS do begin
+  for i:=fCount+1 to MAX_PLAYERS do begin
     FreeThenNil(Player[i]);
     FreeThenNil(PlayerAI[i]);
   end;
@@ -109,7 +109,7 @@ function TKMAllPlayers.HousesHitTest(X, Y: Integer): TKMHouse;
 var i:integer;
 begin
   Result:=nil;
-  for i:=1 to fPlayerCount do begin
+  for i:=1 to fCount do begin
     Result := Player[i].HousesHitTest(X,Y);
     if Result<>nil then exit; //Assuming that there can't be 2 houses on one tile
   end;
@@ -123,7 +123,7 @@ var i,X,Y:integer; U:TKMUnit;
 begin
   Result := nil;
 
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
   for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
   for X:=trunc(aLoc.X) to ceil(aLoc.X) do begin
     U := Player[i].UnitsHitTest(X,Y);
@@ -145,7 +145,7 @@ begin
   Result := nil;
   if aID = 0 then exit;
 
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
   if Player[i]<>nil then
   begin
     Result := Player[i].GetHouseByID(aID);
@@ -160,7 +160,7 @@ begin
   Result := nil;
   if aID = 0 then exit;
 
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
   if Player[i]<>nil then
   begin
     Result := Player[i].GetUnitByID(aID);
@@ -197,7 +197,7 @@ function TKMAllPlayers.GetUnitCount:integer;
 var i:integer;
 begin
   Result:=0;
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
     inc(Result,Player[i].GetUnits.Count);
 end;
 
@@ -280,7 +280,7 @@ function TKMAllPlayers.RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulat
 var i:integer;
 begin
   Result := false;
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
     Result := Result or Player[i].RemHouse(Position, DoSilent, Simulated, IsEditor);
 end;
 
@@ -289,7 +289,7 @@ function TKMAllPlayers.RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):b
 var i:integer;
 begin
   Result := false;
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
     Result := Result or Player[i].RemUnit(Position, Simulated);
 end;
 
@@ -298,8 +298,8 @@ procedure TKMAllPlayers.Save(SaveStream:TKMemoryStream);
 var i:word;
 begin
   SaveStream.Write('Players');
-  SaveStream.Write(fPlayerCount);
-  for i:=1 to fPlayerCount do
+  SaveStream.Write(fCount);
+  for i:=1 to fCount do
   begin
     Player[i].Save(SaveStream);
     PlayerAI[i].Save(SaveStream); //Saves AI stuff
@@ -314,11 +314,11 @@ var i:word; s:string; P:TPlayerID;
 begin
   LoadStream.Read(s);
   Assert(s = 'Players', 'Players not found');
-  LoadStream.Read(fPlayerCount);
-  fLog.AssertToLog(fPlayerCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
+  LoadStream.Read(fCount);
+  fLog.AssertToLog(fCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
   Selected := nil;
 
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
   begin
     if Player[i]   = nil then   Player[i] := TKMPlayerAssets.Create(TPlayerID(i));
     if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
@@ -336,7 +336,7 @@ end;
 procedure TKMAllPlayers.SyncLoad;
 var i:byte;
 begin
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
   begin
     Player[i].SyncLoad;
     PlayerAI[i].SyncLoad;
@@ -348,7 +348,7 @@ end;
 procedure TKMAllPlayers.IncAnimStep;
 var i:byte;
 begin
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
     Player[i].IncAnimStep;
 end;
 
@@ -356,7 +356,7 @@ end;
 procedure TKMAllPlayers.UpdateState(Tick:cardinal);
 var i:byte;
 begin
-  for i:=1 to fPlayerCount do begin
+  for i:=1 to fCount do begin
     DO_WEIGHT_ROUTES := i=1;
     Player[i].UpdateState;
 
@@ -364,7 +364,7 @@ begin
   PlayerAnimals.UpdateState;
 
   //This is not ajoined with previous loop since it can result in StopGame which flushes all data
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
     if (Tick+i) mod 20 = 0 then
     begin//Do only one player per Tick
       PlayerAI[i].UpdateState;
@@ -375,7 +375,7 @@ end;
 procedure TKMAllPlayers.Paint;
 var i:integer;
 begin
-  for i:=1 to fPlayerCount do
+  for i:=1 to fCount do
     Player[i].Paint;
   PlayerAnimals.Paint;
 end;
