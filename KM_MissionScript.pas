@@ -71,7 +71,7 @@ type
 
 type
   TMissionParser = class
-  private     { Private declarations }
+  private
     fParserMode:TMissionParserMode; //Data gets sent to Game differently depending on Game/Editor mode
     ErrorMessage:string; //Should be blank
     OpenedMissionName:string;
@@ -81,6 +81,7 @@ type
     AIAttack: TAIAttack;
     AttackPositions: array of TKMAttackPosition;
     AttackPositionsCount: integer;
+    function GetCommandTypeFromText(const ACommandText: string): TKMCommandType;
     function GetUnitScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
@@ -88,7 +89,7 @@ type
     procedure ProcessAttackPositions;
     procedure UnloadMission;
     function ReadMissionFile(const aFileName:string):string;
-  public      { Public declarations }
+  public
     constructor Create(aMode:TMissionParserMode);
     function LoadDATFile(const aFileName:string):string;
     function SaveDATFile(const aFileName:string):boolean;
@@ -99,23 +100,6 @@ end;
 
 implementation
 uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
-
-
-function GetCommandTypeFromText(const ACommandText: string): TKMCommandType;
-var
-  i: TKMCommandType;
-begin
-  Result := ct_Unknown;
-  for i:=low(TKMCommandType) to high(TKMCommandType) do
-  begin
-    if ACommandText = '!'+COMMANDVALUES[i] then
-    begin
-      Result := i;
-      break;
-    end;
-  end;
-  if Result = ct_Unknown then fLog.AddToLog(ACommandText);
-end;
 
 
 constructor TMissionParser.Create(aMode:TMissionParserMode);
@@ -133,6 +117,23 @@ begin
   AIAttack.Target := att_ClosestUnit;
   AIAttack.Range := 0;
   AIAttack.CustomPosition := KMPoint(0,0);
+end;
+
+
+function TMissionParser.GetCommandTypeFromText(const ACommandText: string): TKMCommandType;
+var
+  i: TKMCommandType;
+begin
+  Result := ct_Unknown;
+  for i:=low(TKMCommandType) to high(TKMCommandType) do
+  begin
+    if ACommandText = '!'+COMMANDVALUES[i] then
+    begin
+      Result := i;
+      break;
+    end;
+  end;
+  if Result = ct_Unknown then fLog.AddToLog(ACommandText);
 end;
 
 
