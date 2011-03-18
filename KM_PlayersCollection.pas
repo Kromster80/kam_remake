@@ -7,47 +7,47 @@ uses
 
 
 type
-  TKMAllPlayers = class
-  private
-    fCount:integer;
-  public
-    Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
-    PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
-    PlayerAnimals: TKMPlayerAnimals;
-    Selected: TObject;
-  public
-    constructor Create(aPlayerCount:integer);
-    destructor Destroy; override;
+  TKMPlayersCollection = class
+    private
+      fCount:integer;
+    public
+      Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
+      PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
+      PlayerAnimals: TKMPlayerAnimals;
+      Selected: TObject;
+    public
+      constructor Create(aPlayerCount:integer);
+      destructor Destroy; override;
 
-    procedure AfterMissionInit(aFlattenRoads:boolean);
-    procedure SetPlayerCount(aPlayerCount:integer);
-    property Count:integer read fCount;
-    function HousesHitTest(X,Y:Integer):TKMHouse;
-    function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
-    function GetHouseByID(aID: Integer): TKMHouse;
-    function GetUnitByID(aID: Integer): TKMUnit;
-    function HitTest(X,Y:Integer):boolean;
-    function GetUnitCount:integer;
-    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
-    function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
-    procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
-    procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
-    procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
-    procedure CleanUpHousePointer(var aHouse: TKMHouseInn); overload;
-    procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
-    function RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    function RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+      procedure AfterMissionInit(aFlattenRoads:boolean);
+      procedure SetPlayerCount(aPlayerCount:integer);
+      property Count:integer read fCount;
+      function HousesHitTest(X,Y:Integer):TKMHouse;
+      function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+      function GetHouseByID(aID: Integer): TKMHouse;
+      function GetUnitByID(aID: Integer): TKMUnit;
+      function HitTest(X,Y:Integer):boolean;
+      function GetUnitCount:integer;
+      function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+      function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
+      procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
+      procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
+      procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
+      procedure CleanUpHousePointer(var aHouse: TKMHouseInn); overload;
+      procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
+      function RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+      function RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad;
-    procedure IncAnimStep;
-    procedure UpdateState(Tick:cardinal);
-    procedure Paint;
-  end;
+      procedure Save(SaveStream:TKMemoryStream);
+      procedure Load(LoadStream:TKMemoryStream);
+      procedure SyncLoad;
+      procedure IncAnimStep;
+      procedure UpdateState(Tick:cardinal);
+      procedure Paint;
+    end;
 
 var
-  fPlayers: TKMAllPlayers;
+  fPlayers: TKMPlayersCollection;
   MyPlayer: TKMPlayerAssets; //shortcut to access players player
 
   
@@ -56,7 +56,7 @@ uses KM_Terrain, KM_Game;
 
 
 {TKMAllPlayers}
-constructor TKMAllPlayers.Create(aPlayerCount:integer);
+constructor TKMPlayersCollection.Create(aPlayerCount:integer);
 begin
   Inherited Create;
   SetPlayerCount(aPlayerCount);
@@ -64,7 +64,7 @@ begin
 end;
 
 
-destructor TKMAllPlayers.Destroy;
+destructor TKMPlayersCollection.Destroy;
 var i:integer;
 begin
   for i:=1 to MAX_PLAYERS do begin //Free all just in case
@@ -79,7 +79,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.AfterMissionInit(aFlattenRoads:boolean);
+procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads:boolean);
 var i:integer;
 begin
   for i:=1 to fCount do
@@ -87,7 +87,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.SetPlayerCount(aPlayerCount:integer);
+procedure TKMPlayersCollection.SetPlayerCount(aPlayerCount:integer);
 var i:integer;
 begin
   Assert(InRange(aPlayerCount,0,MAX_PLAYERS),'Setting unsupported PlayerCount: '+inttostr(aPlayerCount));
@@ -104,7 +104,7 @@ begin
 end;
 
 
-function TKMAllPlayers.HousesHitTest(X, Y: Integer): TKMHouse;
+function TKMPlayersCollection.HousesHitTest(X, Y: Integer): TKMHouse;
 var i:integer;
 begin
   Result:=nil;
@@ -117,7 +117,7 @@ end;
 
 //Floating-point hit test version, required for Projectiles
 //Return unit within range of 1 from aLoc
-function TKMAllPlayers.UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+function TKMPlayersCollection.UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
 var i,X,Y:integer; U:TKMUnit;
 begin
   Result := nil;
@@ -138,7 +138,7 @@ begin
 end;
     
 
-function TKMAllPlayers.GetHouseByID(aID: Integer): TKMHouse;
+function TKMPlayersCollection.GetHouseByID(aID: Integer): TKMHouse;
 var i:integer;
 begin
   Result := nil;
@@ -153,7 +153,7 @@ begin
 end;
 
 
-function TKMAllPlayers.GetUnitByID(aID: Integer): TKMUnit;
+function TKMPlayersCollection.GetUnitByID(aID: Integer): TKMUnit;
 var i:integer;
 begin
   Result := nil;
@@ -173,7 +173,7 @@ end;
   Houses have priority over units, so you can't select an occupant.
   (however, this is only true if the house is built)
   Player should not be able to select dying units either }
-function TKMAllPlayers.HitTest(X,Y: Integer):boolean;
+function TKMPlayersCollection.HitTest(X,Y: Integer):boolean;
 var H:TKMHouse; U:TKMUnit;
 begin
   H := MyPlayer.HousesHitTest(X,Y);
@@ -192,7 +192,7 @@ end;
 
 
 //Get total unit count for statistics display
-function TKMAllPlayers.GetUnitCount:integer;
+function TKMPlayersCollection.GetUnitCount:integer;
 var i:integer;
 begin
   Result:=0;
@@ -202,7 +202,7 @@ end;
 
 
 {Should return closest position where unit can be placed}
-function TKMAllPlayers.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
 var
   i:integer;
   P:TKMPointI;
@@ -231,7 +231,7 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
-function TKMAllPlayers.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
+function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
 begin
   Assert(InRange(byte(aPlay1),1,MAX_PLAYERS+1) and InRange(byte(aPlay2),1,MAX_PLAYERS+1)); //Max_players + Animals
 
@@ -242,20 +242,20 @@ begin
 end;
 
 
-procedure TKMAllPlayers.CleanUpUnitPointer(var aUnit: TKMUnit);
+procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnit);
 begin
   if (aUnit <> nil) and not fGame.IsExiting then
     aUnit.ReleaseUnitPointer;
   aUnit := nil;
 end;
 
-procedure TKMAllPlayers.CleanUpUnitPointer(var aUnit: TKMUnitWarrior);
+procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnitWarrior);
 begin
   CleanUpUnitPointer(TKMUnit(aUnit));
 end;
 
 
-procedure TKMAllPlayers.CleanUpHousePointer(var aHouse: TKMHouse);
+procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouse);
 begin
   if (aHouse <> nil) and not fGame.IsExiting then
     aHouse.ReleaseHousePointer;
@@ -263,19 +263,19 @@ begin
 end;
 
 
-procedure TKMAllPlayers.CleanUpHousePointer(var aHouse: TKMHouseInn);
+procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouseInn);
 begin
   CleanUpHousePointer(TKMHouse(aHouse));
 end;
 
 
-procedure TKMAllPlayers.CleanUpHousePointer(var aHouse: TKMHouseSchool);
+procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouseSchool);
 begin
   CleanUpHousePointer(TKMHouse(aHouse));
 end;
 
 
-function TKMAllPlayers.RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+function TKMPlayersCollection.RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
 var i:integer;
 begin
   Result := false;
@@ -284,7 +284,7 @@ begin
 end;
 
 
-function TKMAllPlayers.RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+function TKMPlayersCollection.RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin
   Result := false;
@@ -293,7 +293,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.Save(SaveStream:TKMemoryStream);
+procedure TKMPlayersCollection.Save(SaveStream:TKMemoryStream);
 var i:word;
 begin
   SaveStream.Write('Players');
@@ -308,7 +308,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.Load(LoadStream:TKMemoryStream);
+procedure TKMPlayersCollection.Load(LoadStream:TKMemoryStream);
 var i:word; s:string; P:TPlayerID;
 begin
   LoadStream.Read(s);
@@ -332,7 +332,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.SyncLoad;
+procedure TKMPlayersCollection.SyncLoad;
 var i:byte;
 begin
   for i:=1 to fCount do
@@ -344,7 +344,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.IncAnimStep;
+procedure TKMPlayersCollection.IncAnimStep;
 var i:byte;
 begin
   for i:=1 to fCount do
@@ -352,7 +352,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.UpdateState(Tick:cardinal);
+procedure TKMPlayersCollection.UpdateState(Tick:cardinal);
 var i:byte;
 begin
   for i:=1 to fCount do begin
@@ -371,7 +371,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.Paint;
+procedure TKMPlayersCollection.Paint;
 var i:integer;
 begin
   for i:=1 to fCount do

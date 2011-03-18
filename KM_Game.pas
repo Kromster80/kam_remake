@@ -359,7 +359,7 @@ begin
   else
   begin
     fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
-    fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
+    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[1];
   end;
 
@@ -602,7 +602,7 @@ begin
     fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
-    fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
+    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[1];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
     fGameName := 'New Mission';
@@ -843,7 +843,7 @@ begin
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
-    fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
+    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[1];
 
     //Load the data into the game

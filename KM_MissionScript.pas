@@ -407,11 +407,11 @@ begin
                        end;
                      end;
   ct_SetMaxPlayer:   begin
-                       if fPlayers=nil then fPlayers := TKMAllPlayers.Create(0);
+                       if fPlayers=nil then fPlayers := TKMPlayersCollection.Create(0);
                        fPlayers.SetPlayerCount(ParamList[0]); //Create players
                      end;
   ct_SetTactic:      begin
-                       if fPlayers=nil then fPlayers := TKMAllPlayers.Create(0);
+                       if fPlayers=nil then fPlayers := TKMPlayersCollection.Create(0);
                        fGame.MissionMode := mm_Tactic;
                      end;
   ct_SetCurrPlayer:  begin
