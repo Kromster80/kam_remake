@@ -11,7 +11,6 @@ type
   private
     fCount:integer;
   public
-    
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
     PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
     PlayerAnimals: TKMPlayerAnimals;

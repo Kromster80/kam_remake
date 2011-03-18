@@ -417,14 +417,13 @@ begin
   end;
 
   fMissionMode := fNetworking.MissionMode; //Tactic or normal
-{  //todo: Reassign players (Human, AI, None)
-  for i:=1 to fPlayers.PlayerCount do
-    case fNetworking.Player(i) of
-      pt_None:      fPlayers.Remove(i);
-      pt_Human:     fPlayers.PlayerAI := pt_Human;
-      pt_Computer:
-
-  fPlayers.SetPlayerCount(fNetworking.GetMaxPlayers); //Trim players}
+  fPlayers.SetPlayerCount(fNetworking.PlayerCount); //Trim players}
+  for i:=1 to fPlayers.Count do
+    case fNetworking.PlayerType(i) of
+      //pt_None:      fPlayers.Clear(i);
+      pt_Human:     fPlayers.Player[i].PlayerType := pt_Human;
+      pt_Computer:  fPlayers.Player[i].PlayerType := pt_Computer;
+    end;
 
   MyPlayer := fPlayers.Player[aPlayID];
 

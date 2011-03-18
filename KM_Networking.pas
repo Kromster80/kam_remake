@@ -3,7 +3,7 @@ unit KM_Networking;
 interface
 uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
   KM_CommonTypes, KM_Defaults,
-  KM_NetPlayersList, KM_Network;
+  KM_NetPlayersList, KM_Network, KM_Player;
 
 
 type
@@ -36,7 +36,7 @@ type
       fHostAddress:string;
       fMyAddress:string;
       fMyNikname:string;
-      fPlayers:TKMPlayersList;
+      fNetPlayers:TKMPlayersList;
 
       fMapName:string;
       fMissionMode:TMissionMode;
@@ -78,6 +78,8 @@ type
 
       //Gameplay
       function MissionMode:TMissionMode;
+      function PlayerCount:integer;
+      function PlayerType(aIndex:integer):TPlayerType;
       procedure SendCommands(aStream:TKMemoryStream);
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
@@ -100,13 +102,13 @@ constructor TKMNetworking.Create;
 begin
   Inherited;
   fNetwork  := TKMNetwork.Create(MULTIPLE_COPIES);
-  fPlayers  := TKMPlayersList.Create;
+  fNetPlayers  := TKMPlayersList.Create;
 end;
 
 
 destructor TKMNetworking.Destroy;
 begin
-  fPlayers.Free;
+  fNetPlayers.Free;
   fNetwork.Free;
   Inherited;
 end;
@@ -132,12 +134,12 @@ begin
   fMyAddress := MyIPString;
   fMyNikname := aUserName;
   fLANPlayerKind := lpk_Host;
-  fPlayers.Clear;
-  fPlayers.AddPlayer(MyIPString, fMyNikname);
-  fPlayers.SetReady(fMyNikname);
+  fNetPlayers.Clear;
+  fNetPlayers.AddPlayer(MyIPString, fMyNikname);
+  fNetPlayers.SetReady(fMyNikname);
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
-  if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
+  if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
 end;
 
 
@@ -149,8 +151,8 @@ begin
   fMyNikname := aUserName;
   fLANPlayerKind := lpk_Joiner;
   fJoinTick := GetTickCount + 3000; //3sec
-  fPlayers.Clear;
-  fPlayers.AddPlayer(MyIPString, fMyNikname);
+  fNetPlayers.Clear;
+  fNetPlayers.AddPlayer(MyIPString, fMyNikname);
   fNetwork.StartListening;
   PacketToHost(mk_AskToJoin, fMyNikname);
   fNetwork.OnRecieveKMPacket := PacketRecieveJoin; //Unless we join use shortlist
@@ -160,7 +162,7 @@ end;
 procedure TKMNetworking.Disconnect;
 begin
   fNetwork.StopListening;
-  fPlayers.Clear;
+  fNetPlayers.Clear;
 end;
 
 
@@ -187,7 +189,7 @@ end;
 //Joiner indicates that he is ready to start
 procedure TKMNetworking.ReadyToStart;
 begin
-  fPlayers.SetReady(fMyNikname);
+  fNetPlayers.SetReady(fMyNikname);
   PacketToAll(mk_ReadyToStart, fMyNikname);
 end;
 
@@ -198,7 +200,7 @@ end;
 procedure TKMNetworking.StartClick;
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
-  Assert(fPlayers.AllReady, 'Not everyone is ready to start');
+  Assert(fNetPlayers.AllReady, 'Not everyone is ready to start');
 
   //For now we assume that everything is synced
 
@@ -214,17 +216,17 @@ end;
 procedure TKMNetworking.StartGame;
 
 begin
-  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fPlayers.GetStartLoc(fMyNikname));
+  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fNetPlayers.GetStartLoc(fMyNikname));
 end;
 
 
 //See if player can join our game
 function TKMNetworking.CheckCanJoin(aAddr, aNik:string):string;
 begin
-  if fPlayers.Count >= MAX_PLAYERS then 
+  if fNetPlayers.Count >= MAX_PLAYERS then
     Result := 'No more players can join the game'
   else
-  if fPlayers.NiknameExists(aNik) then
+  if fNetPlayers.NiknameExists(aNik) then
     Result := 'Player with this nik already joined the game';
 end;
 
@@ -239,6 +241,18 @@ end;
 function TKMNetworking.MissionMode:TMissionMode;
 begin
   Result := fMissionMode;
+end;
+
+
+function TKMNetworking.PlayerCount:integer;
+begin
+  Result := fNetPlayers.Count;
+end;
+
+
+function TKMNetworking.PlayerType(aIndex:integer):TPlayerType;
+begin
+  Result := fNetPlayers.PlayerType(aIndex);
 end;
 
 
@@ -271,18 +285,18 @@ begin
                         PacketSend(aAddr, mk_RefuseToJoin, ReMsg);
                     end;
     mk_VerifyJoin:  if fLANPlayerKind = lpk_Host then begin
-                      fPlayers.AddPlayer(aAddr, Msg);
-                      if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
-                      PacketToAll(mk_PlayersList, fPlayers.GetAsText);
+                      fNetPlayers.AddPlayer(aAddr, Msg);
+                      if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
+                      PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
                       PostMessage(aAddr+'/'+Msg+' has joined');
                     end;
     mk_PlayersList: if fLANPlayerKind = lpk_Joiner then begin
-                      fPlayers.SetAsText(Msg);
-                      if Assigned(fOnPlayersList) then fOnPlayersList(fPlayers.AsStringList);
+                      fNetPlayers.SetAsText(Msg);
+                      if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
                     end;
     mk_ReadyToStart:if fLANPlayerKind = lpk_Host then begin
-                      fPlayers.SetReady(Msg);
-                      if (fLANPlayerKind = lpk_Host) and fPlayers.AllReady and (fPlayers.Count>1) then
+                      fNetPlayers.SetReady(Msg);
+                      if (fLANPlayerKind = lpk_Host) and fNetPlayers.AllReady and (fNetPlayers.Count>1) then
                         if Assigned(fOnAllReady) then fOnAllReady(nil);
                     end;
     mk_MapSelect:   if fLANPlayerKind = lpk_Joiner then begin
@@ -339,9 +353,9 @@ end;
 procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string='');
 var i:integer;
 begin
-  for i:=1 to fPlayers.Count do
-    if fPlayers.IsHuman(i) and (fPlayers.GetNikname(i) <> fMyNikname) then
-      PacketSend(fPlayers.GetAddress(i), aKind, aData);
+  for i:=1 to fNetPlayers.Count do
+    if fNetPlayers.IsHuman(i) and (fNetPlayers.GetNikname(i) <> fMyNikname) then
+      PacketSend(fNetPlayers.GetAddress(i), aKind, aData);
 end;
 
 

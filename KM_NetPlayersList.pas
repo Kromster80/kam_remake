@@ -10,7 +10,7 @@ type
   TKMPlayerInfo = class
     Addr:string;
     Nikname:string;
-    PlayerType:TPlayerType; //pt_Human, pt_Computer
+    PlayerType:TPlayerType; //Human, Computer
     FlagColor:cardinal; //Flag color, 0 means random
     StartLocID:integer; //Start location, 0 means random
     Alliances:array[1..MAX_PLAYERS] of TAllianceType;
@@ -43,6 +43,7 @@ type
       function GetAddress(aIndex:integer):string;
       function GetNikname(aIndex:integer):string;
       function NiknameExists(aNik:string):boolean;
+      function PlayerType(aIndex:integer):TPlayerType;
       function IsHuman(aIndex:integer):boolean;
       function GetStartLoc(aNik:string):integer;
       function AllReady:boolean;
@@ -131,6 +132,12 @@ begin
   for i:=1 to fCount do
     if fPlayers[i].Nikname = aNik then
       Result := true;
+end;
+
+
+function TKMPlayersList.PlayerType(aIndex:integer):TPlayerType;
+begin
+  Result := fPlayers[aIndex].PlayerType;
 end;
 
 

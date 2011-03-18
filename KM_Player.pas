@@ -5,7 +5,10 @@ uses Classes, KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQ
 
 
 type
-  TPlayerType = (pt_Human, pt_Computer, pt_Animals);
+  TPlayerType = (
+        pt_None, //used in Networking setup for missing players
+        pt_Human, 
+        pt_Computer);
 
 
 type
