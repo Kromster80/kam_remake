@@ -2355,7 +2355,7 @@ begin
                         EnsureRange(TileMMColor[ID].G+Light,0,255) shl 8 +
                         EnsureRange(TileMMColor[ID].B+Light,0,255) shl 16;
       end else
-        MiniMapRGB[i,k] :=  fPlayers.Player[byte(fTerrain.Land[i,k].TileOwner)].PlayerColor;
+        MiniMapRGB[i,k] :=  fPlayers.Player[byte(fTerrain.Land[i,k].TileOwner)].FlagColor;
   end;
 
   Loc := TKMPointList.Create;
@@ -2363,7 +2363,7 @@ begin
     fPlayers.Player[i].GetUnitLocations(Loc);
     for k:=1 to Loc.Count do
     if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
-      MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := fPlayers.Player[i].PlayerColor;
+      MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := fPlayers.Player[i].FlagColor;
   end;
 
   fPlayers.PlayerAnimals.GetFishLocations(Loc);

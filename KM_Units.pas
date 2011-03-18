@@ -1038,7 +1038,7 @@ begin
 
   //Update statistics
   if (fPlayers<>nil) and (fOwner <> play_animals) and (fPlayers.Player[byte(fOwner)]<>nil) then
-    fPlayers.Player[byte(fOwner)].fPlayerStats.UnitLost(fUnitType);
+    fPlayers.Player[byte(fOwner)].Stats.UnitLost(fUnitType);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1795,7 +1795,7 @@ begin
       U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
       if U<>nil then
       begin
-        fPlayers.Player[byte(aOwner)].fPlayerStats.UnitCreated(aUnitType, false);
+        fPlayers.Player[byte(aOwner)].Stats.UnitCreated(aUnitType, false);
         U.Direction := aDir;
         U.AnimStep  := UnitStillFrames[aDir];
       end;
@@ -1809,7 +1809,7 @@ begin
   Result := Commander;
 
   if Commander=nil then exit; //Don't add group without a commander
-  fPlayers.Player[byte(aOwner)].fPlayerStats.UnitCreated(aUnitType, false);
+  fPlayers.Player[byte(aOwner)].Stats.UnitCreated(aUnitType, false);
 
   Commander.Direction := aDir;
   Commander.AnimStep  := UnitStillFrames[aDir];
@@ -1827,7 +1827,7 @@ begin
     W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y)); //W will be _nil_ if unit didn't fit on map
     if W<>nil then
     begin
-      fPlayers.Player[byte(aOwner)].fPlayerStats.UnitCreated(aUnitType, false);
+      fPlayers.Player[byte(aOwner)].Stats.UnitCreated(aUnitType, false);
       W.Direction := aDir;
       W.AnimStep  := UnitStillFrames[aDir];
       W.fCommander := Commander;

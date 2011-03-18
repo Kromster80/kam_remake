@@ -394,7 +394,7 @@ end;
 procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
-  fPlayers.Player[byte(fOwner)].fPlayerStats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
+  fPlayers.Player[byte(fOwner)].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
   fTerrain.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
@@ -604,7 +604,7 @@ begin
   if (GetHealth=0) and (fBuildState>=hbs_Wood) and not IsDestroyed then begin //Destroy only once
     DemolishHouse(false); //Destroyed by Enemy
     if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-      fPlayers.Player[byte(fOwner)].fPlayerStats.HouseLost(fHouseType);
+      fPlayers.Player[byte(fOwner)].Stats.HouseLost(fHouseType);
     Result := true;
   end;
 end;
@@ -824,7 +824,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID:byte):byte;
 begin
-  Result := fPlayers.Player[byte(fOwner)].fPlayerStats.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
+  Result := fPlayers.Player[byte(fOwner)].Stats.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
 end;
 
 

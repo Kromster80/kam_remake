@@ -14,29 +14,49 @@ type
 type
   TKMPlayerAssets = class
   private
-    fPlayerID:TPlayerID; //Which ID this player is
     fBuildList: TKMBuildingQueue;
     fDeliverList: TKMDeliverQueue;
     fHouses: TKMHousesCollection;
     fUnits: TKMUnitsCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
+    fStats: TKMPlayerStats;
+
+    fPlayerID:TPlayerID; //Which ID this player is
+    fPlayerType:TPlayerType;
+    fFlagColor:cardinal;
+
+    fSkipWinConditionCheck:boolean;
+    fSkipDefeatConditionCheck:boolean;
+
+    procedure SetPlayerType(aType:TPlayerType);
+    function GetColorIndex:byte;
+
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
     fGoals: array of TPlayerGoal; //0..n-1
     fGoalCount: integer;
-    SkipWinConditionCheck: boolean;
-    SkipDefeatConditionCheck: boolean;
+
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
+
+    property BuildList:TKMBuildingQueue read fBuildList;
+    property DeliverList:TKMDeliverQueue read fDeliverList;
+    property Houses:TKMHousesCollection read fHouses;
+    property Units:TKMUnitsCollection read fUnits;
+    property Stats:TKMPlayerStats read fStats;
+
+    property PlayerID:TPlayerID read fPlayerID;
+    property PlayerType:TPlayerType read fPlayerType write SetPlayerType; //Is it Human or AI or Animals
+    property FlagColor:cardinal read fFlagColor write fFlagColor;
+    property FlagColorIndex:byte read GetColorIndex;
+
+    procedure SkipWinConditionCheck;
+    procedure SkipDefeatConditionCheck;
+
   public
-    fPlayerStats: TKMPlayerStats; //Required to be public so it can be accessed from LoadDAT
-    PlayerType: TPlayerType; //Is it Human or AI or Animals
-    PlayerColor:cardinal;
 
     procedure AfterMissionInit(aFlattenRoads:boolean);
-    procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
-    function GetColorIndex:byte;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
@@ -44,6 +64,7 @@ type
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint; DoFlatten:boolean=true);
     procedure AddRoadsToList(aLoc: TKMPoint);
+    procedure AddRoadConnect(LocA,LocB:TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
@@ -60,16 +81,7 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetUnitLocations(out Loc:TKMPointList);
 
-    property PlayerID:TPlayerID read fPlayerID;
-    property BuildList:TKMBuildingQueue read fBuildList;
-    property DeliverList:TKMDeliverQueue read fDeliverList;
-    property GetHouses:TKMHousesCollection read fHouses;
-    property GetUnits:TKMUnitsCollection read fUnits;
-
-    function GetCanBuild(aType:THouseType):boolean;
-    function GetHouseQty(aType:THouseType):integer;
     function GetHouseWip(aType:THouseType):integer;
-    function GetUnitQty(aType:TUnitType):integer;
     function GetFieldsCount:integer;
   public
     procedure Save(SaveStream:TKMemoryStream);
@@ -88,20 +100,23 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
+    property Units:TKMUnitsCollection read fUnits;
+
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
     procedure GetFishLocations(out Loc:TKMPointList);
-    property GetUnits:TKMUnitsCollection read fUnits;
-  public
+    function UnitsHitTest(X, Y: Integer): TKMUnit;
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
-    function UnitsHitTest(X, Y: Integer): TKMUnit;
     procedure UpdateState;
     procedure Paint;
   end;
+
 
 implementation
 uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
@@ -113,8 +128,8 @@ var i: integer;
 begin
   Inherited Create;
   fPlayerID     := aPlayerID;
-  PlayerType    := pt_Computer;
-  fPlayerStats  := TKMPlayerStats.Create;
+  fPlayerType   := pt_Computer;
+  fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
   fUnits        := TKMUnitsCollection.Create;
   fHouses       := TKMHousesCollection.Create;
@@ -123,9 +138,9 @@ begin
   for i:=1 to MAX_PLAYERS do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
   fGoalCount := 0;
-  SkipWinConditionCheck := false;
-  SkipDefeatConditionCheck := false;
-  PlayerColor := DefaultTeamColors[byte(aPlayerID)]; //Init with default color, later replaced by Script
+  fSkipWinConditionCheck := false;
+  fSkipDefeatConditionCheck := false;
+  fFlagColor := DefaultTeamColors[byte(aPlayerID)]; //Init with default color, later replaced by Script
 end;
 
 
@@ -134,7 +149,7 @@ begin
   FreeThenNil(fRoadsList);
   FreeThenNil(fUnits);
   FreeThenNil(fHouses);
-  FreeThenNil(fPlayerStats); //Used by fhouses and Units
+  FreeThenNil(fStats); //Used by fhouses and Units
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
   Inherited;
@@ -152,7 +167,7 @@ begin
 
   Result := fUnits.Add(fPlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
   if Result <> nil then
-    fPlayerStats.UnitCreated(aUnitType, WasTrained);
+    fStats.UnitCreated(aUnitType, WasTrained);
 end;
 
 
@@ -235,18 +250,8 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
-var KMHouse:TKMHouse; Loc:TKMPoint;
-begin
-  Loc.X := aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
-  Loc.Y := aLoc.Y;
-  KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerID);
-  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerID);
-  BuildList.AddNewHousePlan(KMHouse);
-end;
-
-
-procedure TKMPlayerAssets.AutoRoadConnect(LocA,LocB:TKMPoint);
+//Used mainly for testing purposes
+procedure TKMPlayerAssets.AddRoadConnect(LocA,LocB:TKMPoint);
 var fPath:TPathFinding; i:integer; NodeList:TKMPointList;
 begin
   fPath := TPathFinding.Create(LocA, LocB, CanMakeRoads, 0, nil);
@@ -261,6 +266,17 @@ begin
 end;
 
 
+procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
+var KMHouse:TKMHouse; Loc:TKMPoint;
+begin
+  Loc.X := aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
+  Loc.Y := aLoc.Y;
+  KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerID);
+  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerID);
+  BuildList.AddNewHousePlan(KMHouse);
+end;
+
+
 //Player wants to remove own house
 function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
 var fHouse:TKMHouse;
@@ -271,7 +287,7 @@ begin
   begin
     if not Simulated then begin
       fHouse.DemolishHouse(DoSilent,IsEditor);
-      fPlayerStats.HouseSelfDestruct(fHouse.GetHouseType);
+      fStats.HouseSelfDestruct(fHouse.GetHouseType);
     end;
     Result := true;
   end;
@@ -398,37 +414,32 @@ begin
 end;
 
 
+procedure TKMPlayerAssets.SetPlayerType(aType:TPlayerType);
+begin
+  case aType of
+    pt_None:      begin
+                    //todo: Erase player data
+                  end;
+    pt_Human,
+    pt_Computer:  fPlayerType := aType;
+    else Assert(false, 'Unexpected player type');
+  end;
+end;
+
+
 function TKMPlayerAssets.GetColorIndex:byte;
 var i:integer;
 begin
   Result := 3; //3 = Black which can be the default when a non-pallete 32 bit color value is used
   for i:=0 to 255 do
-    if fResource.GetColor32(i, DEF_PAL) = PlayerColor then
+    if fResource.GetColor32(i, DEF_PAL) = fFlagColor then
       Result := i;
-end;
-
-
-function TKMPlayerAssets.GetCanBuild(aType:THouseType):boolean;
-begin
-  Result := fPlayerStats.GetCanBuild(aType);
-end;
-
-
-function TKMPlayerAssets.GetHouseQty(aType:THouseType):integer;
-begin
-  Result := fPlayerStats.GetHouseQty(aType);
 end;
 
 
 function TKMPlayerAssets.GetHouseWip(aType:THouseType):integer;
 begin
   Result := fBuildList.GetHouseWipCount(aType);
-end;
-
-
-function TKMPlayerAssets.GetUnitQty(aType:TUnitType):integer;
-begin
-  Result := fPlayerStats.GetUnitQty(aType);
 end;
 
 
@@ -447,6 +458,18 @@ begin
 end;
 
 
+procedure TKMPlayerAssets.SkipWinConditionCheck;
+begin
+  fSkipWinConditionCheck := true;
+end;
+
+
+procedure TKMPlayerAssets.SkipDefeatConditionCheck;
+begin
+  fSkipDefeatConditionCheck := true;
+end;
+
+
 procedure TKMPlayerAssets.Save(SaveStream:TKMemoryStream);
 var i: integer;
 begin
@@ -455,17 +478,17 @@ begin
   fDeliverList.Save(SaveStream);
   fBuildList.Save(SaveStream);
 
-  fPlayerStats.Save(SaveStream);
+  fStats.Save(SaveStream);
   SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
-  SaveStream.Write(PlayerType, SizeOf(PlayerType));
+  SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fGoalCount);
   for i:=0 to fGoalCount-1 do
     SaveStream.Write(fGoals[i], SizeOf(fGoals[i]));
 
-  SaveStream.Write(SkipWinConditionCheck);
-  SaveStream.Write(SkipDefeatConditionCheck);
-  SaveStream.Write(PlayerColor);
+  SaveStream.Write(fSkipWinConditionCheck);
+  SaveStream.Write(fSkipDefeatConditionCheck);
+  SaveStream.Write(fFlagColor);
 end;
 
 
@@ -477,18 +500,18 @@ begin
   fDeliverList.Load(LoadStream);
   fBuildList.Load(LoadStream);
 
-  fPlayerStats.Load(LoadStream);
+  fStats.Load(LoadStream);
   LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
-  LoadStream.Read(PlayerType, SizeOf(PlayerType));
+  LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fGoalCount);
   SetLength(fGoals, fGoalCount);
   for i:=0 to fGoalCount-1 do
     LoadStream.Read(fGoals[i], SizeOf(fGoals[i]));
 
-  LoadStream.Read(SkipWinConditionCheck);
-  LoadStream.Read(SkipDefeatConditionCheck);
-  LoadStream.Read(PlayerColor);
+  LoadStream.Read(fSkipWinConditionCheck);
+  LoadStream.Read(fSkipDefeatConditionCheck);
+  LoadStream.Read(fFlagColor);
 end;
 
 

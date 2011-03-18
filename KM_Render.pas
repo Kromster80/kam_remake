@@ -865,7 +865,7 @@ begin
 
   if SHOW_UNIT_MOVEMENT then begin
     if InRange(Owner,1,MAX_PLAYERS) then
-      glColor3ubv(@fPlayers.Player[Owner].PlayerColor)  //Render dot where unit is
+      glColor3ubv(@fPlayers.Player[Owner].FlagColor)  //Render dot where unit is
     else
       glColor3f(1,1,1); //Animals
     RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
@@ -915,7 +915,7 @@ if ID<=0 then exit;
 
   if SHOW_UNIT_MOVEMENT then begin
     if Owner > MAX_PLAYERS then Color := $FFFFFFFF
-                           else Color := fPlayers.Player[Owner].PlayerColor;
+                           else Color := fPlayers.Player[Owner].FlagColor;
     glColor3ubv(@Color);
     RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV); //Render dot where unit is
   end;
@@ -1172,7 +1172,7 @@ begin
                 if Team > MAX_PLAYERS then
                   RenderSprite(RX,ID,Loc.X,Loc.Y,$FFFFFFFF,FOWvalue)
                 else
-                  RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].PlayerColor,FOWvalue)
+                  RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].FlagColor,FOWvalue)
             else
               RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
           end;

@@ -848,7 +848,7 @@ var i:integer;
 begin
   //Set player colors
   for i:=1 to MAX_PLAYERS do
-    Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].PlayerColor;
+    Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].FlagColor;
 
   if MyPlayer <> nil then
     Button_PlayerSelect[byte(MyPlayer.PlayerID)].Down := true;
@@ -1389,7 +1389,7 @@ end;
 procedure TKMapEdInterface.Player_ColorClick(Sender:TObject);
 begin
   if not (Sender = ColorSwatch_Color) then exit;
-  MyPlayer.PlayerColor := ColorSwatch_Color.GetColor;
+  MyPlayer.FlagColor := ColorSwatch_Color.GetColor;
   Player_UpdateColors;
 end;
 

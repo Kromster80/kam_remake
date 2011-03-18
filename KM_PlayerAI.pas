@@ -179,7 +179,7 @@ procedure TKMPlayerAI.CheckGoals;
     Result := false;
 
     if aGoal.Player <> play_none then
-      MS := fPlayers.Player[byte(aGoal.Player)].fPlayerStats
+      MS := fPlayers.Player[byte(aGoal.Player)].Stats
     else
       MS := nil; //Will trigger an error unless it's not gc_Time
 
@@ -246,7 +246,7 @@ var
   function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
   begin
     //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if Assets.GetUnitQty(aUnitType) < (Req+UnitReq[byte(aUnitType)]) then
+    if Assets.Stats.GetUnitQty(aUnitType) < (Req+UnitReq[byte(aUnitType)]) then
     begin
       dec(UnitReq[byte(aUnitType)]); //So other schools don't order same unit
       HS.AddUnitToQueue(aUnitType);
@@ -263,11 +263,11 @@ begin
   //Count overall unit requirement (excluding Barracks and ownerless houses)
   for i:=1 to HOUSE_COUNT do
     if (HouseDAT[i].OwnerType<>-1) and (THouseType(i)<>ht_Barracks) then
-      inc(UnitReq[HouseDAT[i].OwnerType+1], Assets.GetHouseQty(THouseType(i)));
+      inc(UnitReq[HouseDAT[i].OwnerType+1], Assets.Stats.GetHouseQty(THouseType(i)));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq
-  SetLength(Schools,Assets.GetHouseQty(ht_School));
+  SetLength(Schools,Assets.Stats.GetHouseQty(ht_School));
   k := 1;
   HS := TKMHouseSchool(Assets.FindHouse(ht_School,k));
   while HS <> nil do
@@ -288,7 +288,7 @@ begin
     begin
       //Order citizen training
       for i:=1 to length(UnitReq) do
-        if UnitReq[i] > Assets.GetUnitQty(TUnitType(i)) then
+        if UnitReq[i] > Assets.Stats.GetUnitQty(TUnitType(i)) then
         begin
           UnitType := TUnitType(i);
           if UnitType <> ut_None then
@@ -302,10 +302,10 @@ begin
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.GetHouseQty(ht_None)), ut_Serf) then
+        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.Stats.GetHouseQty(ht_None)), ut_Serf) then
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
-              if not CheckUnitRequirements(ReqRecruits * Assets.GetHouseQty(ht_Barracks), ut_Recruit) then
+              if not CheckUnitRequirements(ReqRecruits * Assets.Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
                 break; //There's no unit demand at all
     end;
   end;
@@ -320,7 +320,7 @@ var
   i,k:integer;
   GroupReq: array[TGroupType] of integer;
 begin
-  if Assets.fPlayerStats.GetArmyCount >= MaxSoldiers then exit; //Don't train if we have reached our limit
+  if Assets.Stats.GetArmyCount >= MaxSoldiers then exit; //Don't train if we have reached our limit
 
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq,SizeOf(GroupReq),#0); //Clear up
@@ -332,7 +332,7 @@ begin
       inc(GroupReq[GroupType], TroopFormations[GroupType].NumUnits - (TKMUnitWarrior(CurrentCommander).GetMemberCount+1));
 
   //Find barracks
-  SetLength(Barracks,Assets.GetHouseQty(ht_Barracks));
+  SetLength(Barracks, Assets.Stats.GetHouseQty(ht_Barracks));
   k := 1;
   HB := TKMHouseBarracks(Assets.FindHouse(ht_Barracks,k));
   while HB <> nil do
@@ -356,7 +356,7 @@ begin
     for i:=1 to 3 do
       if AITroopTrainOrder[GType,i] <> ut_None then
       while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
-            (Assets.fPlayerStats.GetArmyCount < MaxSoldiers) do
+            (Assets.Stats.GetArmyCount < MaxSoldiers) do
       begin
         HB.Equip(AITroopTrainOrder[GType,i]);
         dec(GroupReq[GType]);
@@ -386,10 +386,10 @@ begin
     NeedsLinkingTo[TGroupType(i)] := nil;
 
   //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
-  for i:=0 to Assets.GetUnits.Count-1 do
+  for i:=0 to Assets.Units.Count-1 do
   begin
-    if TKMUnit(Assets.GetUnits.Items[i]) is TKMUnitWarrior then
-      with TKMUnitWarrior(Assets.GetUnits.Items[i]) do
+    if TKMUnit(Assets.Units.Items[i]) is TKMUnitWarrior then
+      with TKMUnitWarrior(Assets.Units.Items[i]) do
         if (fCommander = nil) and not IsDeadOrDying then
         begin
           //Check hunger and feed

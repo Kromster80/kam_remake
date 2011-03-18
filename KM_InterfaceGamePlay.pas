@@ -267,7 +267,7 @@ const ResPic:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
 var i:integer; ResID:TResourceType; HouseID:THouseType;
 begin
 
-  if (MyPlayer=nil)or(MyPlayer.fPlayerStats=nil) then exit; //We need to be able to access these
+  if (MyPlayer=nil)or(MyPlayer.Stats=nil) then exit; //We need to be able to access these
 
   if not (Sender is TKMButton) then exit;
 
@@ -287,7 +287,7 @@ begin
     HouseID:=ResHouse[TKMButton(Sender).Tag,i];
     Image_RatioPic[i].TexID := GUIBuildIcons[byte(HouseID)];
     Label_RatioLab[i].Caption := fTextLibrary.GetTextString(GUIBuildIcons[byte(HouseID)]-300);
-    Ratio_RatioRat[i].Position := MyPlayer.fPlayerStats.GetRatio(ResID,HouseID);
+    Ratio_RatioRat[i].Position := MyPlayer.Stats.GetRatio(ResID,HouseID);
     Image_RatioPic[i].Show;
     Label_RatioLab[i].Show;
     Ratio_RatioRat[i].Show;
@@ -298,7 +298,7 @@ end;
 procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
 var ResID:TResourceType; HouseID:THouseType;
 begin
-  if (MyPlayer=nil)or(MyPlayer.fPlayerStats=nil) then exit; //We need to be able to access these
+  if (MyPlayer=nil)or(MyPlayer.Stats=nil) then exit; //We need to be able to access these
   if not (Sender is TKMRatioRow) then exit;
 
   ResID   := TResourceType(Image_RatioPic0.TexID-350);
@@ -1865,7 +1865,7 @@ var i:integer;
 begin
   for i:=1 to HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
-  if MyPlayer.GetCanBuild(THouseType(byte(GUIHouseOrder[i]))) then begin
+  if MyPlayer.Stats.GetCanBuild(THouseType(byte(GUIHouseOrder[i]))) then begin
     Button_Build[i].Enable;
     Button_Build[i].TexID:=GUIBuildIcons[byte(GUIHouseOrder[i])];
     Button_Build[i].OnClick:=Build_ButtonClick;
@@ -1981,11 +1981,11 @@ var i,Tmp,Tmp2:integer;
 begin
   for i:=low(StatHouse) to high(StatHouse) do
   begin
-    Tmp := MyPlayer.GetHouseQty(StatHouse[i]);
+    Tmp := MyPlayer.Stats.GetHouseQty(StatHouse[i]);
     Tmp2 := MyPlayer.GetHouseWip(StatHouse[i]);
     if Tmp=0 then Stat_HouseQty[i].Caption:='-' else Stat_HouseQty[i].Caption:=inttostr(Tmp);
     if Tmp2=0 then Stat_HouseWip[i].Caption:='' else Stat_HouseWip[i].Caption:='+'+inttostr(Tmp2);
-    if MyPlayer.GetCanBuild(StatHouse[i]) or (Tmp>0) then
+    if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
       Stat_HousePic[i].TexID:=byte(StatHouse[i])+300;
       Stat_HousePic[i].Hint:=TypeToString(StatHouse[i]);
@@ -2000,7 +2000,7 @@ begin
   end;
   for i:=low(StatUnit) to high(StatUnit) do
   begin
-    Tmp:=MyPlayer.GetUnitQty(StatUnit[i]);
+    Tmp:=MyPlayer.Stats.GetUnitQty(StatUnit[i]);
     if Tmp=0 then Stat_UnitQty[i].Caption:='-' else Stat_UnitQty[i].Caption:=inttostr(Tmp);
     Stat_UnitPic[i].Hint:=TypeToString(StatUnit[i]);
     Stat_UnitQty[i].Hint:=TypeToString(StatUnit[i]);
@@ -2087,8 +2087,8 @@ begin
   else //GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
     case PlayMoreMsg of
-      gr_Win:       begin MyPlayer.SkipWinConditionCheck := true; fGame.GameHold(false, gr_Win); end;
-      gr_Defeat:    begin MyPlayer.SkipDefeatConditionCheck := true; fGame.GameHold(false, gr_Defeat); end;
+      gr_Win:       begin MyPlayer.SkipWinConditionCheck; fGame.GameHold(false, gr_Win); end;
+      gr_Defeat:    begin MyPlayer.SkipDefeatConditionCheck; fGame.GameHold(false, gr_Defeat); end;
       gr_ReplayEnd: begin fGame.SkipReplayEndCheck := true; fGame.GameHold(false, gr_ReplayEnd); end;
     end;
 end;
@@ -2511,7 +2511,7 @@ begin
         inttostr(CtrlPaintCount)+' controls rendered';
 
   if SHOW_POINTER_COUNT then
-    Label_PointerCount.Caption := Format('Pointers: %d units, %d houses', [MyPlayer.GetUnits.GetTotalPointers, MyPlayer.GetHouses.GetTotalPointers]);
+    Label_PointerCount.Caption := Format('Pointers: %d units, %d houses', [MyPlayer.Units.GetTotalPointers, MyPlayer.Houses.GetTotalPointers]);
 
   if SHOW_CMDQUEUE_COUNT then
     Label_CmdQueueCount.Caption := inttostr(fGame.fGameInputProcess.Count)+' commands stored';

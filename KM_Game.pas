@@ -419,11 +419,11 @@ begin
   fMissionMode := fNetworking.MissionMode; //Tactic or normal
   fPlayers.SetPlayerCount(fNetworking.PlayerCount); //Trim players}
   for i:=1 to fPlayers.Count do
-    case fNetworking.PlayerType(i) of
+{    case fNetworking.PlayerType(i) of
       //pt_None:      fPlayers.Clear(i);
-      pt_Human:     fPlayers.Player[i].PlayerType := pt_Human;
-      pt_Computer:  fPlayers.Player[i].PlayerType := pt_Computer;
-    end;
+      //pt_Human:     fPlayers.Player[i].PlayerType := pt_Human;
+      //pt_Computer:  fPlayers.Player[i].PlayerType := pt_Computer;
+    end;}
 
   MyPlayer := fPlayers.Player[aPlayID];
 

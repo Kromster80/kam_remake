@@ -212,8 +212,8 @@ begin
     gic_HouseRemoveTrain:       TKMHouseSchool(P.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
 
     gic_RatioChange:            begin
-                                  P.fPlayerStats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
-                                  P.GetHouses.UpdateResRequest
+                                  P.Stats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
+                                  P.Houses.UpdateResRequest
                                 end;
 
     gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));

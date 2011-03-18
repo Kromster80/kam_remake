@@ -199,7 +199,7 @@ begin
       if IsHit then
         if fOpponent.HitPointsDecrease(1) then
           if (fPlayers <> nil) and (fPlayers.Player[byte(KMUnit.GetOwner)] <> nil) then
-            fPlayers.Player[byte(KMUnit.GetOwner)].fPlayerStats.UnitKilled(fOpponent.UnitType);
+            fPlayers.Player[byte(KMUnit.GetOwner)].Stats.UnitKilled(fOpponent.UnitType);
 
       MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
     end;

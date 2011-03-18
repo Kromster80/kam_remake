@@ -10,6 +10,7 @@ type
   TKMPlayersCollection = class
     private
       fCount:integer;
+      procedure SetCount(aCount:integer);
     public
       Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
       PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
@@ -19,9 +20,9 @@ type
       constructor Create(aPlayerCount:integer);
       destructor Destroy; override;
 
+      property Count:integer read fCount write SetCount;
+
       procedure AfterMissionInit(aFlattenRoads:boolean);
-      procedure SetPlayerCount(aPlayerCount:integer);
-      property Count:integer read fCount;
       function HousesHitTest(X,Y:Integer):TKMHouse;
       function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
       function GetHouseByID(aID: Integer): TKMHouse;
@@ -59,7 +60,7 @@ uses KM_Terrain, KM_Game;
 constructor TKMPlayersCollection.Create(aPlayerCount:integer);
 begin
   Inherited Create;
-  SetPlayerCount(aPlayerCount);
+  SetCount(aPlayerCount);
   PlayerAnimals := TKMPlayerAnimals.Create;
 end;
 
@@ -87,12 +88,12 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.SetPlayerCount(aPlayerCount:integer);
+procedure TKMPlayersCollection.SetCount(aCount:integer);
 var i:integer;
 begin
-  Assert(InRange(aPlayerCount,0,MAX_PLAYERS),'Setting unsupported PlayerCount: '+inttostr(aPlayerCount));
+  Assert(InRange(aCount,0,MAX_PLAYERS),'Setting unsupported PlayersCount: '+inttostr(aCount));
 
-  fCount := aPlayerCount; //Used internally
+  fCount := aCount;
   for i:=1 to fCount do begin
     if Player[i]   = nil then Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
     if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
@@ -197,7 +198,7 @@ var i:integer;
 begin
   Result:=0;
   for i:=1 to fCount do
-    inc(Result,Player[i].GetUnits.Count);
+    inc(Result,Player[i].Units.Count);
 end;
 
 

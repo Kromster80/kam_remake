@@ -317,16 +317,16 @@ end;
 
 procedure TKMMainMenuInterface.Fill_Results;
 begin
-  if (MyPlayer=nil) or (MyPlayer.fPlayerStats=nil) then exit;
+  if (MyPlayer=nil) or (MyPlayer.Stats=nil) then exit;
 
-  Label_Stat[1].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsLost);
-  Label_Stat[2].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsKilled);
-  Label_Stat[3].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesLost);
-  Label_Stat[4].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesDestroyed);
-  Label_Stat[5].Caption := inttostr(MyPlayer.fPlayerStats.GetHousesBuilt);
-  Label_Stat[6].Caption := inttostr(MyPlayer.fPlayerStats.GetUnitsTrained);
-  Label_Stat[7].Caption := inttostr(MyPlayer.fPlayerStats.GetWeaponsProduced);
-  Label_Stat[8].Caption := inttostr(MyPlayer.fPlayerStats.GetSoldiersTrained);
+  Label_Stat[1].Caption := inttostr(MyPlayer.Stats.GetUnitsLost);
+  Label_Stat[2].Caption := inttostr(MyPlayer.Stats.GetUnitsKilled);
+  Label_Stat[3].Caption := inttostr(MyPlayer.Stats.GetHousesLost);
+  Label_Stat[4].Caption := inttostr(MyPlayer.Stats.GetHousesDestroyed);
+  Label_Stat[5].Caption := inttostr(MyPlayer.Stats.GetHousesBuilt);
+  Label_Stat[6].Caption := inttostr(MyPlayer.Stats.GetUnitsTrained);
+  Label_Stat[7].Caption := inttostr(MyPlayer.Stats.GetWeaponsProduced);
+  Label_Stat[8].Caption := inttostr(MyPlayer.Stats.GetSoldiersTrained);
   Label_Stat[9].Caption := int2time(fGame.GetMissionTime);
 end;
 

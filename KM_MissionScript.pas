@@ -507,15 +507,15 @@ begin
                      end;
   ct_BlockHouse:     begin
                        if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                         fPlayers.Player[CurrentPlayerIndex].fPlayerStats.AllowToBuild[ParamList[0]+1]:=false;
+                         fPlayers.Player[CurrentPlayerIndex].Stats.AllowToBuild[ParamList[0]+1]:=false;
                      end;
   ct_ReleaseHouse:   begin
                        if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                         fPlayers.Player[CurrentPlayerIndex].fPlayerStats.BuildReqDone[ParamList[0]+1]:=true;
+                         fPlayers.Player[CurrentPlayerIndex].Stats.BuildReqDone[ParamList[0]+1]:=true;
                      end;
  ct_ReleaseAllHouses:begin
                        for i:=1 to HOUSE_COUNT do
-                         fPlayers.Player[CurrentPlayerIndex].fPlayerStats.BuildReqDone[i]:=true;
+                         fPlayers.Player[CurrentPlayerIndex].Stats.BuildReqDone[i]:=true;
                      end;
   ct_SetGroup:       begin
                        if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
@@ -609,7 +609,7 @@ begin
                      end;
   ct_SetMapColor:    begin
                        //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                       fPlayers.Player[CurrentPlayerIndex].PlayerColor := fResource.GetColor32(ParamList[0], DEF_PAL);
+                       fPlayers.Player[CurrentPlayerIndex].FlagColor := fResource.GetColor32(ParamList[0], DEF_PAL);
                      end;
   ct_AIAttack:       begin
                        //Set up the attack command
@@ -767,7 +767,7 @@ begin
     if fPlayers.Player[i].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer);
 
-    AddCommand(ct_SetMapColor, 1, fPlayers.Player[i].GetColorIndex);
+    AddCommand(ct_SetMapColor, 1, fPlayers.Player[i].FlagColorIndex);
 
     AddData(''); //NL
 
@@ -851,13 +851,13 @@ begin
     ReleaseAllHouses := true;
     for k:=1 to HOUSE_COUNT do
     begin
-      if not fPlayers.Player[i].fPlayerStats.AllowToBuild[k] then
+      if not fPlayers.Player[i].Stats.AllowToBuild[k] then
       begin
         AddCommand(ct_BlockHouse,1,k-1);
         ReleaseAllHouses := false;
       end
       else
-        if fPlayers.Player[i].fPlayerStats.BuildReqDone[k] then
+        if fPlayers.Player[i].Stats.BuildReqDone[k] then
           AddCommand(ct_ReleaseHouse,1,k-1)
         else
           ReleaseAllHouses := false;
@@ -866,9 +866,9 @@ begin
       AddCommand(ct_ReleaseAllHouses);
 
     //Houses
-    for k:=0 to fPlayers.Player[i].GetHouses.Count-1 do
+    for k:=0 to fPlayers.Player[i].Houses.Count-1 do
     begin
-      CurHouse := TKMHouse(fPlayers.Player[i].GetHouses.Items[k]);
+      CurHouse := TKMHouse(fPlayers.Player[i].Houses.Items[k]);
       if not CurHouse.IsDestroyed then
       begin
         AddCommand(ct_SetHouse,3,byte(CurHouse.GetHouseType)-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1);
@@ -881,9 +881,9 @@ begin
     //Wares. Check every house to see if it's a store or barracks
     StoreCount := 0;
     BarracksCount := 0;
-    for k:=0 to fPlayers.Player[i].GetHouses.Count-1 do
+    for k:=0 to fPlayers.Player[i].Houses.Count-1 do
     begin
-      CurHouse := TKMHouse(fPlayers.Player[i].GetHouses.Items[k]);
+      CurHouse := TKMHouse(fPlayers.Player[i].Houses.Items[k]);
       if not CurHouse.IsDestroyed then
       begin
         if CurHouse is TKMHouseStore then
@@ -928,9 +928,9 @@ begin
     AddData(''); //NL
 
     //Units
-    for k:=0 to fPlayers.Player[i].GetUnits.Count-1 do
+    for k:=0 to fPlayers.Player[i].Units.Count-1 do
     begin
-      CurUnit := TKMUnit(fPlayers.Player[i].GetUnits.Items[k]);
+      CurUnit := TKMUnit(fPlayers.Player[i].Units.Items[k]);
       if CurUnit is TKMUnitWarrior then
       begin
         if TKMUnitWarrior(CurUnit).fCommander = nil then //Parse only Commanders
@@ -952,9 +952,9 @@ begin
 
   //Animals, wares to all, etc. go here
   AddData('//Animals');
-  for i:=0 to fPlayers.PlayerAnimals.GetUnits.Count-1 do
+  for i:=0 to fPlayers.PlayerAnimals.Units.Count-1 do
   begin
-    CurUnit := fPlayers.PlayerAnimals.GetUnits.Items[i];
+    CurUnit := fPlayers.PlayerAnimals.Units.Items[i];
     AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
   end;
   AddData(''); //NL
