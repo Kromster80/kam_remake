@@ -21,7 +21,6 @@ type
       destructor Destroy; override;
 
       property Count:integer read fCount write SetCount;
-
       procedure AfterMissionInit(aFlattenRoads:boolean);
       function HousesHitTest(X,Y:Integer):TKMHouse;
       function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;

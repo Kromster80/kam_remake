@@ -408,7 +408,7 @@ begin
                      end;
   ct_SetMaxPlayer:   begin
                        if fPlayers=nil then fPlayers := TKMPlayersCollection.Create(0);
-                       fPlayers.SetPlayerCount(ParamList[0]); //Create players
+                       fPlayers.Count := ParamList[0];
                      end;
   ct_SetTactic:      begin
                        if fPlayers=nil then fPlayers := TKMPlayersCollection.Create(0);

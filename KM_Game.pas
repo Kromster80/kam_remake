@@ -417,7 +417,7 @@ begin
   end;
 
   fMissionMode := fNetworking.MissionMode; //Tactic or normal
-  fPlayers.SetPlayerCount(fNetworking.PlayerCount); //Trim players}
+  fPlayers.Count := fNetworking.PlayerCount; //Trim players}
   for i:=1 to fPlayers.Count do
 {    case fNetworking.PlayerType(i) of
       //pt_None:      fPlayers.Clear(i);
@@ -597,7 +597,7 @@ begin
       exit;
     end;
     FreeAndNil(fMissionParser);
-    fPlayers.SetPlayerCount(MAX_PLAYERS); //Enable them all for editing
+    fPlayers.Count := MAX_PLAYERS; //Enable them all for editing
     fLog.AppendLog('DAT Loaded');
     fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin

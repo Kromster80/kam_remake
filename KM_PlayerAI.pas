@@ -27,7 +27,7 @@ type
     function IsFullyStocked(aAmount: integer):boolean;
   end;
 
-type
+
   TKMPlayerAI = class
   private
     Assets:TKMPlayerAssets; //This is just alias for Players assets
