@@ -69,6 +69,7 @@ type TKMMainMenuInterface = class
       ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
       Label_LobbyMapName:TKMLabel;
+      Radio_LobbyLoc:TKMRadioGroup;
 
 
     Panel_Campaign:TKMPanel;
@@ -172,6 +173,7 @@ type TKMMainMenuInterface = class
 
     procedure Lobby_Reset(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
+    procedure Lobby_LocSelect(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnPlayersList(const aData:string);
@@ -458,10 +460,11 @@ begin
     with TKMShape.Create(Panel_Lobby, 790+28*i, 340, 24, 24, $00000000) do
       FillColor := DefaultTeamColors[i+1];
 
-    TKMLabel.Create  (Panel_Lobby, 790, 380, 100, 20, 'Alliances:', fnt_Outline, kaLeft);
-    for i:=0 to 5 do
-      TKMCheckBox.Create(Panel_Lobby, 790, 400+i*20, 100, 20, 'Player '+inttostr(i), fnt_Metal);
-
+    TKMLabel.Create  (Panel_Lobby, 790, 380, 100, 20, 'Start location:', fnt_Outline, kaLeft);
+    Radio_LobbyLoc := TKMRadioGroup.Create(Panel_Lobby, 790, 400, 100, 160, fnt_Metal);
+    for i:=1 to MAX_PLAYERS do
+      Radio_LobbyLoc.Items.Add('Location ' + inttostr(i));
+    Radio_LobbyLoc.OnClick := Lobby_LocSelect;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 80, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := SwitchMenuPage;
@@ -1172,6 +1175,12 @@ begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
   fGame.fNetworking.PostMessage(Edit_LobbyPost.Text);
   Edit_LobbyPost.Text := '';
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_LocSelect(Sender: TObject);
+begin
+  //todo: fGame.fNetworking.LocSelect(Radio_LobbyLoc.ItemIndex+1);
 end;
 
 

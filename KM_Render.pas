@@ -207,7 +207,7 @@ begin
     fTerrain.Paint;
     fPlayers.Paint; //Quite slow           //Units and houses
     if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
-      fGame.fProjectiles.Paint; //Render all arrows and etc..
+      fGame.Projectiles.Paint; //Render all arrows and etc..
 
     ClipRenderList; //drop items that are outside of viewport
     SortRenderList; //sort items overlaying

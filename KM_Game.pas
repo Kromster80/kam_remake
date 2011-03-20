@@ -26,6 +26,8 @@ type
     fGameSpeed:integer;
     fGameState:TGameState;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
+    fMusicLib: TMusicLib;
+    fProjectiles:TKMProjectiles;
   private //Should be saved
     fGameplayTickCount:cardinal;
     fGameName:string;
@@ -40,8 +42,6 @@ type
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
-    fProjectiles:TKMProjectiles;
-    fMusicLib: TMusicLib;
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
     fNetworking:TKMNetworking;
@@ -87,6 +87,9 @@ type
     property GameState:TGameState read fGameState;
     procedure SetGameSpeed(aSpeed:byte=0);
     procedure StepOneFrame;
+
+    property MusicLib:TMusicLib read fMusicLib;
+    property Projectiles:TKMProjectiles read fProjectiles;
 
     procedure Save(SlotID:shortint);
     function Load(SlotID:shortint):string;

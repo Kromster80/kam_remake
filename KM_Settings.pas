@@ -227,7 +227,7 @@ end;
 procedure TGlobalSettings.SetMusicVolume(aValue:byte);
 begin
   fMusicVolume := EnsureRange(aValue,fSlidersMin,fSlidersMax);
-  fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/fSlidersMax);
+  fGame.MusicLib.UpdateMusicVolume(fMusicVolume/fSlidersMax);
   fNeedsSave := true;
 end;
 
@@ -238,9 +238,9 @@ begin
   begin
     fMusicOn:=aValue;
     if aValue then
-      fGame.fMusicLib.PlayMenuTrack(not MusicOn) //Start with the default track
+      fGame.MusicLib.PlayMenuTrack(not MusicOn) //Start with the default track
     else
-      fGame.fMusicLib.StopMusic;
+      fGame.MusicLib.StopMusic;
   end;
   fNeedsSave := true;
 end;

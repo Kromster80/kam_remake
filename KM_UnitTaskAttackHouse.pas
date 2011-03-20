@@ -129,8 +129,8 @@ begin
          if fFightType=ft_Ranged then begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
-             ut_Arbaletman: fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt, GetOwner, true);
-             ut_Bowman:     fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow, GetOwner, true);
+             ut_Arbaletman: fGame.Projectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt, GetOwner, true);
+             ut_Bowman:     fGame.Projectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow, GetOwner, true);
              else Assert(false, 'Unknown shooter');
            end;
            AnimLength := UnitSprite[byte(UnitType)].Act[byte(ua_Work)].Dir[byte(Direction)].Count;

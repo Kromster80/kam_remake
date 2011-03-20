@@ -1786,8 +1786,8 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fGame.fMusicLib.PlayNextTrack; end;
-procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fGame.fMusicLib.PlayPreviousTrack; end;
+procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fGame.MusicLib.PlayNextTrack; end;
+procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fGame.MusicLib.PlayPreviousTrack; end;
 
 
 procedure TKMGamePlayInterface.Army_Issue_Order(Sender:TObject);
@@ -1962,7 +1962,7 @@ procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
   if fGame.fGlobalSettings.MusicOn then
   begin
-    Label_Menu_Track.Caption := fGame.fMusicLib.GetTrackTitle;
+    Label_Menu_Track.Caption := fGame.MusicLib.GetTrackTitle;
     Label_Menu_Track.Enable;
     Button_Menu_TrackUp.Enable;
     Button_Menu_TrackDown.Enable;

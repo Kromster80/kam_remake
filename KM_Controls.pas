@@ -318,8 +318,25 @@ TKMCheckBox = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
     property Caption:string read fCaption;
     property Checked:boolean read fChecked write fChecked;
-    property Font:TKMFont read fFont;
     property FlatStyle:boolean read fFlatStyle write fFlatStyle;
+    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure Paint; override;
+end;
+
+
+{ TKMRadioGroup }
+TKMRadioGroup = class(TKMControl)
+  private
+    fItemIndex:integer;
+    fItems:TStringList;
+    fFont:TKMFont;
+    function GetItemCount:integer;
+  public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    destructor Destroy; override;
+    property ItemCount:integer read GetItemCount;
+    property ItemIndex:integer read fItemIndex;
+    property Items:TStringList read fItems;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
 end;
@@ -1332,6 +1349,58 @@ begin
 
   Width  := Tmp.X + Box.X;
   Height := Math.max(Tmp.Y, Box.Y);
+end;
+
+
+{ TKMRadioGroup }
+constructor TKMRadioGroup.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+begin
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  fFont := aFont;
+  fItemIndex := -1;
+  fItems := TStringList.Create;
+end;
+
+
+destructor TKMRadioGroup.Destroy;
+begin
+  fItems.Free;
+  Inherited;
+end;
+
+
+function TKMRadioGroup.GetItemCount:integer;
+begin
+  Result := fItems.Count;
+end;
+
+
+procedure TKMRadioGroup.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  if (csDown in State) and (Button = mbLeft) and (X-Left < 20) then
+    fItemIndex := (Y-Top) div round(Height/ItemCount);
+  Inherited; //There are OnMouseUp and OnClick events there
+end;
+
+
+//We can replace it with something better later on. For now [x] fits just fine
+//Might need additional graphics to be added to gui.rx
+//Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
+procedure TKMRadioGroup.Paint;
+var Box:TKMPoint; Col:TColor4; LineHeight:integer; i:integer;
+begin
+  Inherited;
+  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+
+  LineHeight := round(fHeight / ItemCount);
+  for i:=0 to ItemCount-1 do
+  begin
+    Box := fRenderUI.WriteText(Left, Top + i*LineHeight, Width, '[ ]', fFont, kaLeft, false, Col);
+    if fItemIndex = i then
+      fRenderUI.WriteText(Left+3, Top + i*LineHeight - 1, Width, 'x', fFont, kaLeft, false, Col);
+
+    fRenderUI.WriteText(Left+Box.X, Top + i*LineHeight, Width, ' '+fItems.Strings[i], fFont, kaLeft, false, Col);
+  end;
 end;
 
 
