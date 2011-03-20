@@ -66,8 +66,11 @@ type
     procedure UpdateState;
   end;
 
+
 implementation
-uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_PlayerStats, KM_Sound, KM_Viewport;
+uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_PlayerStats, KM_Sound, KM_Viewport;
+
+
 
 constructor TAIDefencePosition.Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
 begin
@@ -173,7 +176,7 @@ end;
 
 procedure TKMPlayerAI.CheckGoals;
 
-  function GoalConditionSatisfied(aGoal: TPlayerGoal):boolean;
+  function GoalConditionSatisfied(aGoal: TKMGoal):boolean;
   var MS: TKMPlayerStats;
   begin
     Result := false;
@@ -208,21 +211,21 @@ begin
   SurvivalSatisfied := true;
 
   with Assets do
-  for i:=0 to fGoalCount-1 do //Test each goal to see if it has occured
-    if GoalConditionSatisfied(fGoals[i]) then
+  for i:=0 to Goals.Count-1 do //Test each goal to see if it has occured
+    if GoalConditionSatisfied(Goals[i]) then
     begin
       //Display message if set and not already shown and not a blank text
-      if (fGoals[i].MessageToShow <> 0) and (not fGoals[i].MessageHasShown) and (fTextLibrary.GetTextString(fGoals[i].MessageToShow) <> '') then
+      if (Goals[i].MessageToShow <> 0) and (not Goals[i].MessageHasShown) and (fTextLibrary.GetTextString(Goals[i].MessageToShow) <> '') then
       begin
-        fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(fGoals[i].MessageToShow),KMPoint(0,0));
-        fGoals[i].MessageHasShown := true;
+        fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(Goals[i].MessageToShow),KMPoint(0,0));
+        Goals[i].MessageHasShown := true;
       end;
     end
     else
     begin
-      if fGoals[i].GoalType = glt_Victory then
+      if Goals[i].GoalType = glt_Victory then
         VictorySatisfied := false;
-      if fGoals[i].GoalType = glt_Survive then
+      if Goals[i].GoalType = glt_Survive then
         SurvivalSatisfied := false;
     end;
 
@@ -608,21 +611,19 @@ end;
 procedure TKMPlayerAI.UpdateState;
 begin
   //Check goals only for MyPlayer
-  if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
-  begin
-    CheckGoals; //This procedure manages victory, loss and messages all in one
-  end
-  else
-  if Assets.PlayerType=pt_Computer then
-  begin
-    CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
-
-    CheckArmy; //Feed army, position defence, arrange/organise groups
-    CheckArmiesCount; //Train new soldiers if needed
-    //CheckHouseCount; //Build new houses if needed
-    //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
-    //CheckAndIssueAttack; //Attack enemy
-    //Anything Else?
+  case Assets.PlayerType of
+    pt_None:      ; //Nothing to do
+    pt_Human:     if (MyPlayer=Assets) then
+                    CheckGoals; //This procedure manages victory, loss and messages all in one
+    pt_Computer:  begin
+                    CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
+                    CheckArmy; //Feed army, position defence, arrange/organise groups
+                    CheckArmiesCount; //Train new soldiers if needed
+                    //CheckHouseCount; //Build new houses if needed
+                    //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
+                    //CheckAndIssueAttack; //Attack enemy
+                    //Anything Else?
+                  end;
   end;
 end;
 

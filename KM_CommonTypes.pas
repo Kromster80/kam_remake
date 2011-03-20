@@ -60,7 +60,7 @@ type
 
 
 type
-  {List that clears up its items, used only in Units/Houses/Controls}
+  {List that clears up its items, used only in Units/Houses}
   TKMList = class(TList)
   public
     procedure Clear; override;

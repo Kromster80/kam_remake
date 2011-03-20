@@ -583,25 +583,25 @@ begin
   ct_AddGoal:        begin
                        //If the condition is time then ParamList[3] is the time, else it is player ID
                        if TGoalCondition(ParamList[0]) = gc_Time then
-                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
+                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else begin
                          if fPlayers.Player[ParamList[3]+1] = nil then begin
                            DebugScriptError('Add_Goal for non existing player');
                            exit;
                          end;
-                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
                        end;
                      end;
   ct_AddLostGoal:    begin
                        //If the condition is time then ParamList[3] is the time, else it is player ID
                        if TGoalCondition(ParamList[0]) = gc_Time then
-                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
+                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else begin
                          if fPlayers.Player[ParamList[3]+1] = nil then begin
                            DebugScriptError('Add_LostGoal for non existing player');
                            exit;
                          end;
-                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
                        end;
                      end;
   ct_AIDefence:      begin
@@ -772,8 +772,8 @@ begin
     AddData(''); //NL
 
     //Human specific, e.g. goals, center screen (though all players can have it, only human can use it)
-    for k:=0 to fPlayers.Player[i].fGoalCount-1 do
-      with fPlayers.Player[i].fGoals[k] do
+    for k:=0 to fPlayers.Player[i].Goals.Count-1 do
+      with fPlayers.Player[i].Goals[k] do
       begin
         if (GoalType = glt_Victory) or (GoalType = glt_None) then //For now treat none same as normal goal, we can add new command for it later
           if GoalCondition = gc_Time then

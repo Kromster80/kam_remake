@@ -1,0 +1,182 @@
+unit KM_Goals;
+{$I KaM_Remake.inc}
+interface
+uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
+  KM_CommonTypes, KM_Defaults;
+
+
+type
+  TKMGoal = class
+    GoalType: TGoalType; //Victory, survive, neither
+    GoalCondition: TGoalCondition; //Buildings, troops, time passing
+    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occour?
+    GoalTime: cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
+    MessageToShow: integer; //Message to be shown when the goal is completed
+    MessageHasShown: boolean; //Whether we have shown this message yet
+    Player: TPlayerID; //Player whose buildings or troops must be destroyed
+    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
+  end;
+  //Because the goal system is hard to understand, here are some examples:
+  {Destroy troops of player 2 in order to win
+  Script command: !ADD_GOAL 4 1 0 2
+  GoalType=glt_Victory
+  GoalCondition=gc_Troops
+  GoalStatus=gs_False         //Troops must be dead, non-existant. i.e. the condition that player 2 has troops must be FALSE.
+  Player=play_2
+  }
+
+  {Save (protect) troops of player 1 or else you will lose the game
+  Script command: !ADD_LOST_GOAL 4 0 0 1
+  GoalType=glt_Survive
+  GoalCondition=gc_Troops
+  GoalStatus=gs_True         //Troops must be alive. i.e. the condition that player 1 has troops must be TRUE otherwise you lose.
+  Player=play_1
+  }
+
+  {Display message 500 after 10 minutes (no goal, just message)
+  Script command: !ADD_GOAL 2 0 500 600
+  GoalType=glt_None
+  GoalCondition=gc_Time
+  GoalStatus=gs_True      //Time must have passed
+  GoalTime=600
+  MessageToShow=500
+  }
+
+  {Display message 510 upon buildings of player 4 being destroyed
+  Script command: !ADD_GOAL 3 1 510 4 (in this case the script command would also require the buildings to be destroyed for a victory condition, as mentioned bellow)
+  GoalType=glt_None            //If this was set to victory or survive not only would the message be displayed, but it would also be a condition for winning/losing
+  GoalCondition=gc_Buildings
+  GoalStatus=gs_False         //Buildings must be destroyed
+  MessageToShow=500
+  }
+
+
+type
+  TKMGoals = class
+    private
+      fCount:integer;
+      fGoals:array of TKMGoal;
+      function GetGoal(Index:integer):TKMGoal;
+    public
+      constructor Create;
+      destructor Destroy; override;
+
+      property Count:integer read fCount;
+      property Item[Index:integer]:TKMGoal read GetGoal; default;
+      procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+      procedure RemGoal(aIndex:integer);
+      procedure RemoveReference(aPlayerID:TPlayerID);
+
+      procedure Save(SaveStream:TKMemoryStream);
+      procedure Load(LoadStream:TKMemoryStream);
+    end;
+
+implementation
+
+
+procedure TKMGoal.Load(LoadStream:TKMemoryStream);
+begin
+  LoadStream.Read(GoalType,SizeOf(GoalType));
+  LoadStream.Read(GoalCondition,SizeOf(GoalCondition));
+  LoadStream.Read(GoalStatus,SizeOf(GoalStatus));
+  LoadStream.Read(GoalTime);
+  LoadStream.Read(MessageToShow);
+  LoadStream.Read(MessageHasShown);
+  LoadStream.Read(Player,SizeOf(Player));
+end;
+
+
+procedure TKMGoal.Save(SaveStream:TKMemoryStream);
+begin
+  SaveStream.Write(GoalType,SizeOf(GoalType));
+  SaveStream.Write(GoalCondition,SizeOf(GoalCondition));
+  SaveStream.Write(GoalStatus,SizeOf(GoalStatus));
+  SaveStream.Write(GoalTime);
+  SaveStream.Write(MessageToShow);
+  SaveStream.Write(MessageHasShown);
+  SaveStream.Write(Player,SizeOf(Player));
+end;
+
+
+constructor TKMGoals.Create;
+begin
+  Inherited
+  //
+end;
+
+
+destructor TKMGoals.Destroy;
+begin
+  //
+  Inherited;
+end;
+
+
+function TKMGoals.GetGoal(Index:integer):TKMGoal;
+begin
+  Result := fGoals[Index];
+end;
+
+
+procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+begin
+  setlength(fGoals,fCount+1);
+  fGoals[fCount] := TKMGoal.Create;
+  fGoals[fCount].GoalType         := aGoalType;
+  fGoals[fCount].GoalCondition    := aGoalCondition;
+  fGoals[fCount].GoalStatus       := aGoalStatus;
+  fGoals[fCount].GoalTime         := aGoalTime;
+  fGoals[fCount].MessageToShow    := aMessageToShow;
+  fGoals[fCount].Player           := aPlayer;
+  fGoals[fCount].MessageHasShown  := false;
+  inc(fCount);
+end;
+
+
+procedure TKMGoals.RemGoal(aIndex:integer);
+var i:cardinal;
+begin
+  fGoals[aIndex].Free; //Release item
+  for i := aIndex to fCount-2 do
+    fGoals[i] := fGoals[i+1]; //shift remaining items
+  dec(fCount);
+  setlength(fGoals, fCount);
+end;
+
+
+//Remove every reference to specified PlayerID.
+//Used when we delete certain player from the network game right after init
+//We don't want anyones goal to use deleted player
+procedure TKMGoals.RemoveReference(aPlayerID:TPlayerID);
+var i:integer;
+begin
+  for i:=fCount-1 downto 0 do
+    if fGoals[i].Player = aPlayerID then
+      RemGoal(i);
+end;
+
+
+procedure TKMGoals.Save(SaveStream:TKMemoryStream);
+var i:integer;
+begin
+  SaveStream.Write(fCount);
+  for i:=0 to fCount-1 do
+    fGoals[i].Save(SaveStream);
+end;
+
+
+procedure TKMGoals.Load(LoadStream:TKMemoryStream);
+var i:integer;
+begin
+  LoadStream.Read(fCount);
+  setlength(fGoals, fCount);
+  for i:=0 to fCount-1 do
+  begin
+    fGoals[i] := TKMGoal.Create;
+    fGoals[i].Load(LoadStream);
+  end;
+end;
+
+
+end.

@@ -1,7 +1,9 @@
 unit KM_Player;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_Utils, KM_PlayerStats;
+uses Classes, KromUtils, SysUtils,
+      KM_Defaults, KM_Utils,
+      KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals;
 
 
 type
@@ -20,6 +22,7 @@ type
     fUnits: TKMUnitsCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMPlayerStats;
+    fGoals: TKMGoals;
 
     fPlayerID:TPlayerID; //Which ID this player is
     fPlayerType:TPlayerType;
@@ -33,8 +36,6 @@ type
 
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
-    fGoals: array of TPlayerGoal; //0..n-1
-    fGoalCount: integer;
 
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
@@ -44,6 +45,7 @@ type
     property Houses:TKMHousesCollection read fHouses;
     property Units:TKMUnitsCollection read fUnits;
     property Stats:TKMPlayerStats read fStats;
+    property Goals:TKMGoals read fGoals;
 
     property PlayerID:TPlayerID read fPlayerID;
     property PlayerType:TPlayerType read fPlayerType write SetPlayerType; //Is it Human or AI or Animals
@@ -56,7 +58,6 @@ type
   public
 
     procedure AfterMissionInit(aFlattenRoads:boolean);
-    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
@@ -129,6 +130,7 @@ begin
   Inherited Create;
   fPlayerID     := aPlayerID;
   fPlayerType   := pt_Computer;
+  fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
   fUnits        := TKMUnitsCollection.Create;
@@ -137,7 +139,7 @@ begin
   fBuildList    := TKMBuildingQueue.Create;
   for i:=1 to MAX_PLAYERS do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
-  fGoalCount := 0;
+
   fSkipWinConditionCheck := false;
   fSkipDefeatConditionCheck := false;
   fFlagColor := DefaultTeamColors[byte(aPlayerID)]; //Init with default color, later replaced by Script
@@ -149,7 +151,8 @@ begin
   FreeThenNil(fRoadsList);
   FreeThenNil(fUnits);
   FreeThenNil(fHouses);
-  FreeThenNil(fStats); //Used by fhouses and Units
+  FreeThenNil(fStats); //Used by Houses and Units
+  FreeThenNil(fGoals);
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
   Inherited;
@@ -400,20 +403,6 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
-begin
-  setlength(fGoals,fGoalCount+1);
-  fGoals[fGoalCount].GoalType := aGoalType;
-  fGoals[fGoalCount].GoalCondition := aGoalCondition;
-  fGoals[fGoalCount].GoalStatus := aGoalStatus;
-  fGoals[fGoalCount].GoalTime := aGoalTime;
-  fGoals[fGoalCount].MessageToShow := aMessageToShow;
-  fGoals[fGoalCount].Player := aPlayer;
-  fGoals[fGoalCount].MessageHasShown := false;
-  inc(fGoalCount);
-end;
-
-
 procedure TKMPlayerAssets.SetPlayerType(aType:TPlayerType);
 begin
   case aType of
@@ -471,21 +460,17 @@ end;
 
 
 procedure TKMPlayerAssets.Save(SaveStream:TKMemoryStream);
-var i: integer;
 begin
   fUnits.Save(SaveStream);
   fHouses.Save(SaveStream);
   fDeliverList.Save(SaveStream);
   fBuildList.Save(SaveStream);
-
   fStats.Save(SaveStream);
+  fGoals.Save(SaveStream);
+
   SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
-  SaveStream.Write(fGoalCount);
-  for i:=0 to fGoalCount-1 do
-    SaveStream.Write(fGoals[i], SizeOf(fGoals[i]));
-
   SaveStream.Write(fSkipWinConditionCheck);
   SaveStream.Write(fSkipDefeatConditionCheck);
   SaveStream.Write(fFlagColor);
@@ -493,22 +478,17 @@ end;
 
 
 procedure TKMPlayerAssets.Load(LoadStream:TKMemoryStream);
-var i: integer;
 begin
   fUnits.Load(LoadStream);
   fHouses.Load(LoadStream);
   fDeliverList.Load(LoadStream);
   fBuildList.Load(LoadStream);
-
   fStats.Load(LoadStream);
+  fGoals.Load(LoadStream);
+
   LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
-  LoadStream.Read(fGoalCount);
-  SetLength(fGoals, fGoalCount);
-  for i:=0 to fGoalCount-1 do
-    LoadStream.Read(fGoals[i], SizeOf(fGoals[i]));
-
   LoadStream.Read(fSkipWinConditionCheck);
   LoadStream.Read(fSkipDefeatConditionCheck);
   LoadStream.Read(fFlagColor);

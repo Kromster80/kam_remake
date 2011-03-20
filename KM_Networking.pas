@@ -17,9 +17,10 @@ type
                     mk_AskToJoin,
                     mk_Timeout,
                     mk_AllowToJoin,
-                    mk_RefuseToJoin, //When max players is exceeded or nikname is taken
+                    mk_RefuseToJoin, //When nikname is taken
                     mk_VerifyJoin,
                     mk_PlayersList,
+
                     mk_MapSelect,
                     mk_ReadyToStart, //Joiner telling he's ready
                     mk_Start, //Host starting the game
@@ -195,16 +196,13 @@ end;
 
 
 //Tell other players we want to start
-//Send whole game setup info at once, making sure there are no misunderstandings,
-//especially about random values (e.g. start locations)
 procedure TKMNetworking.StartClick;
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
   Assert(fNetPlayers.AllReady, 'Not everyone is ready to start');
 
-  //For now we assume that everything is synced
-
-  //Define random parameters (start locations)
+  //Assume that everything is synced
+  //Define random parameters (start locations?)
 
   //Let everyone start
   PacketToAll(mk_Start, '');
@@ -214,7 +212,6 @@ end;
 
 
 procedure TKMNetworking.StartGame;
-
 begin
   fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fNetPlayers.GetStartLoc(fMyNikname));
 end;
@@ -223,9 +220,9 @@ end;
 //See if player can join our game
 function TKMNetworking.CheckCanJoin(aAddr, aNik:string):string;
 begin
-  if fNetPlayers.Count >= MAX_PLAYERS then
-    Result := 'No more players can join the game'
-  else
+  //if fNetPlayers.Count >= MAX_PLAYERS then
+  //  Result := 'No more players can join the game'
+  //else
   if fNetPlayers.NiknameExists(aNik) then
     Result := 'Player with this nik already joined the game';
 end;

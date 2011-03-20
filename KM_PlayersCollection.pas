@@ -21,6 +21,7 @@ type
       destructor Destroy; override;
 
       property Count:integer read fCount write SetCount;
+      procedure RemovePlayer(aIndex:integer);
       procedure AfterMissionInit(aFlattenRoads:boolean);
       function HousesHitTest(X,Y:Integer):TKMHouse;
       function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
@@ -83,6 +84,7 @@ procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads:boolean);
 var i:integer;
 begin
   for i:=1 to fCount do
+  if Player[i]<>nil then
     Player[i].AfterMissionInit(aFlattenRoads);
 end;
 
@@ -104,11 +106,25 @@ begin
 end;
 
 
+//Remove the player from the map completely
+procedure TKMPlayersCollection.RemovePlayer(aIndex:integer);
+var i:integer;
+begin
+  FreeThenNil(Player[aIndex]);
+  FreeThenNil(PlayerAI[aIndex]);
+
+  for i:=1 to fCount do
+    if Player[i]<>nil then
+      Player[i].Goals.RemoveReference(TPlayerID(aIndex));
+end;
+
+
 function TKMPlayersCollection.HousesHitTest(X, Y: Integer): TKMHouse;
 var i:integer;
 begin
   Result:=nil;
   for i:=1 to fCount do begin
+    if Player[i]<>nil then
     Result := Player[i].HousesHitTest(X,Y);
     if Result<>nil then exit; //Assuming that there can't be 2 houses on one tile
   end;
@@ -123,6 +139,7 @@ begin
   Result := nil;
 
   for i:=1 to fCount do
+  if Player[i]<>nil then
   for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
   for X:=trunc(aLoc.X) to ceil(aLoc.X) do begin
     U := Player[i].UnitsHitTest(X,Y);
@@ -145,7 +162,7 @@ begin
   if aID = 0 then exit;
 
   for i:=1 to fCount do
-  if Player[i]<>nil then
+  if Player[i] <> nil then
   begin
     Result := Player[i].GetHouseByID(aID);
     if Result<>nil then Break; //else keep on testing
@@ -197,6 +214,7 @@ var i:integer;
 begin
   Result:=0;
   for i:=1 to fCount do
+  if Player[i]<>nil then
     inc(Result,Player[i].Units.Count);
 end;
 
@@ -280,6 +298,7 @@ var i:integer;
 begin
   Result := false;
   for i:=1 to fCount do
+  if Player[i]<>nil then
     Result := Result or Player[i].RemHouse(Position, DoSilent, Simulated, IsEditor);
 end;
 
@@ -289,6 +308,7 @@ var i:integer;
 begin
   Result := false;
   for i:=1 to fCount do
+  if Player[i]<>nil then
     Result := Result or Player[i].RemUnit(Position, Simulated);
 end;
 
@@ -300,8 +320,11 @@ begin
   SaveStream.Write(fCount);
   for i:=1 to fCount do
   begin
-    Player[i].Save(SaveStream);
-    PlayerAI[i].Save(SaveStream); //Saves AI stuff
+    SaveStream.Write(Player[i]<>nil);
+    if Player[i]<>nil then begin
+      Player[i].Save(SaveStream);
+      PlayerAI[i].Save(SaveStream); //Saves AI stuff
+    end;
   end;
   PlayerAnimals.Save(SaveStream);
   SaveStream.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
@@ -309,7 +332,7 @@ end;
 
 
 procedure TKMPlayersCollection.Load(LoadStream:TKMemoryStream);
-var i:word; s:string; P:TPlayerID;
+var i:word; s:string; P:TPlayerID; PlayerExists:boolean;
 begin
   LoadStream.Read(s);
   Assert(s = 'Players', 'Players not found');
@@ -319,11 +342,14 @@ begin
 
   for i:=1 to fCount do
   begin
-    if Player[i]   = nil then   Player[i] := TKMPlayerAssets.Create(TPlayerID(i));
-    if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
-
-    Player[i].Load(LoadStream);
-    PlayerAI[i].Load(LoadStream);
+    LoadStream.Read(PlayerExists);
+    if PlayerExists then
+    begin
+      if Player[i]   = nil then   Player[i] := TKMPlayerAssets.Create(TPlayerID(i));
+      if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
+      Player[i].Load(LoadStream);
+      PlayerAI[i].Load(LoadStream);
+    end;
   end;
   PlayerAnimals.Load(LoadStream);
 
@@ -336,6 +362,7 @@ procedure TKMPlayersCollection.SyncLoad;
 var i:byte;
 begin
   for i:=1 to fCount do
+  if Player[i]<>nil then
   begin
     Player[i].SyncLoad;
     PlayerAI[i].SyncLoad;
@@ -348,6 +375,7 @@ procedure TKMPlayersCollection.IncAnimStep;
 var i:byte;
 begin
   for i:=1 to fCount do
+  if Player[i]<>nil then
     Player[i].IncAnimStep;
 end;
 
@@ -355,19 +383,17 @@ end;
 procedure TKMPlayersCollection.UpdateState(Tick:cardinal);
 var i:byte;
 begin
-  for i:=1 to fCount do begin
-    DO_WEIGHT_ROUTES := i=1;
+  for i:=1 to fCount do
+  if Player[i]<>nil then
     Player[i].UpdateState;
 
-  end;
   PlayerAnimals.UpdateState;
 
   //This is not ajoined with previous loop since it can result in StopGame which flushes all data
   for i:=1 to fCount do
-    if (Tick+i) mod 20 = 0 then
-    begin//Do only one player per Tick
+  if PlayerAI[i]<>nil then
+    if (Tick+i) mod 20 = 0 then //Do only one player per Tick
       PlayerAI[i].UpdateState;
-    end;
 end;
 
 
@@ -375,11 +401,10 @@ procedure TKMPlayersCollection.Paint;
 var i:integer;
 begin
   for i:=1 to fCount do
+  if Player[i]<>nil then
     Player[i].Paint;
   PlayerAnimals.Paint;
 end;
-
-
 
 
 end.

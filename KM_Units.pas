@@ -874,6 +874,7 @@ end;
 
 destructor TKMUnit.Destroy;
 begin
+  if not IsDead then fTerrain.UnitRem(NextPosition); //Happens only when removing player from map on GameStart (network)
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
   SetInHouse(nil); //Free pointer

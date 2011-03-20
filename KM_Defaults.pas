@@ -1128,50 +1128,6 @@ const
   GoalStatusStr: array [TGoalStatus] of string =
   ('True', 'False');
 
-type
-  TPlayerGoal = record
-    GoalType: TGoalType; //Victory, survive, neither
-    GoalCondition: TGoalCondition; //Buildings, troops, time passing
-    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occour?
-    GoalTime: cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
-    MessageToShow: integer; //Message to be shown when the goal is completed
-    MessageHasShown: boolean; //Whether we have shown this message yet
-    Player: TPlayerID; //Player whose buildings or troops must be destroyed
-  end;
-  //Because the goal system is hard to understand, here are some examples:
-  {Destroy troops of player 2 in order to win
-  Script command: !ADD_GOAL 4 1 0 2
-  GoalType=glt_Victory
-  GoalCondition=gc_Troops
-  GoalStatus=gs_False         //Troops must be dead, non-existant. i.e. the condition that player 2 has troops must be FALSE.
-  Player=play_2
-  }
-
-  {Save (protect) troops of player 1 or else you will lose the game
-  Script command: !ADD_LOST_GOAL 4 0 0 1
-  GoalType=glt_Survive
-  GoalCondition=gc_Troops
-  GoalStatus=gs_True         //Troops must be alive. i.e. the condition that player 1 has troops must be TRUE otherwise you lose.
-  Player=play_1
-  }
-
-  {Display message 500 after 10 minutes (no goal, just message)
-  Script command: !ADD_GOAL 2 0 500 600
-  GoalType=glt_None
-  GoalCondition=gc_Time
-  GoalStatus=gs_True      //Time must have passed
-  GoalTime=600
-  MessageToShow=500
-  }
-
-  {Display message 510 upon buildings of player 4 being destroyed
-  Script command: !ADD_GOAL 3 1 510 4 (in this case the script command would also require the buildings to be destroyed for a victory condition, as mentioned bellow)
-  GoalType=glt_None            //If this was set to victory or survive not only would the message be displayed, but it would also be a condition for winning/losing
-  GoalCondition=gc_Buildings
-  GoalStatus=gs_False         //Buildings must be destroyed
-  MessageToShow=500
-  }
-
 
 //Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
 //Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
