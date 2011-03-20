@@ -6,7 +6,7 @@ uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
 
 
 type
-  TKMGoal = class
+  TKMGoal = packed record
     GoalType: TGoalType; //Victory, survive, neither
     GoalCondition: TGoalCondition; //Buildings, troops, time passing
     GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occour?
@@ -14,8 +14,6 @@ type
     MessageToShow: integer; //Message to be shown when the goal is completed
     MessageHasShown: boolean; //Whether we have shown this message yet
     Player: TPlayerID; //Player whose buildings or troops must be destroyed
-    procedure Load(LoadStream:TKMemoryStream);
-    procedure Save(SaveStream:TKMemoryStream);
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
@@ -75,30 +73,7 @@ type
 implementation
 
 
-procedure TKMGoal.Load(LoadStream:TKMemoryStream);
-begin
-  LoadStream.Read(GoalType,SizeOf(GoalType));
-  LoadStream.Read(GoalCondition,SizeOf(GoalCondition));
-  LoadStream.Read(GoalStatus,SizeOf(GoalStatus));
-  LoadStream.Read(GoalTime);
-  LoadStream.Read(MessageToShow);
-  LoadStream.Read(MessageHasShown);
-  LoadStream.Read(Player,SizeOf(Player));
-end;
-
-
-procedure TKMGoal.Save(SaveStream:TKMemoryStream);
-begin
-  SaveStream.Write(GoalType,SizeOf(GoalType));
-  SaveStream.Write(GoalCondition,SizeOf(GoalCondition));
-  SaveStream.Write(GoalStatus,SizeOf(GoalStatus));
-  SaveStream.Write(GoalTime);
-  SaveStream.Write(MessageToShow);
-  SaveStream.Write(MessageHasShown);
-  SaveStream.Write(Player,SizeOf(Player));
-end;
-
-
+{ TKMGoals }
 constructor TKMGoals.Create;
 begin
   Inherited
@@ -122,7 +97,6 @@ end;
 procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
 begin
   setlength(fGoals,fCount+1);
-  fGoals[fCount] := TKMGoal.Create;
   fGoals[fCount].GoalType         := aGoalType;
   fGoals[fCount].GoalCondition    := aGoalCondition;
   fGoals[fCount].GoalStatus       := aGoalStatus;
@@ -137,7 +111,6 @@ end;
 procedure TKMGoals.RemGoal(aIndex:integer);
 var i:cardinal;
 begin
-  fGoals[aIndex].Free; //Release item
   for i := aIndex to fCount-2 do
     fGoals[i] := fGoals[i+1]; //shift remaining items
   dec(fCount);
@@ -162,7 +135,7 @@ var i:integer;
 begin
   SaveStream.Write(fCount);
   for i:=0 to fCount-1 do
-    fGoals[i].Save(SaveStream);
+    SaveStream.Write(fGoals[i], SizeOf(fGoals[i]));
 end;
 
 
@@ -172,10 +145,7 @@ begin
   LoadStream.Read(fCount);
   setlength(fGoals, fCount);
   for i:=0 to fCount-1 do
-  begin
-    fGoals[i] := TKMGoal.Create;
-    fGoals[i].Load(LoadStream);
-  end;
+    LoadStream.Read(fGoals[i], SizeOf(fGoals[i]));
 end;
 
 

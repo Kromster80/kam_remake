@@ -218,7 +218,7 @@ begin
       if (Goals[i].MessageToShow <> 0) and (not Goals[i].MessageHasShown) and (fTextLibrary.GetTextString(Goals[i].MessageToShow) <> '') then
       begin
         fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(Goals[i].MessageToShow),KMPoint(0,0));
-        Goals[i].MessageHasShown := true;
+        with Goals[i] do MessageHasShown := true;
       end;
     end
     else
