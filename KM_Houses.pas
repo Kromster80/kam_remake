@@ -469,13 +469,16 @@ function TKMHouse.GetClosestCell(aPos:TKMPoint):TKMPoint;
 var C:TKMPointList; i:integer;
 begin
   C := TKMPointList.Create;
-  GetListOfCellsWithin(C);
+  try
+    GetListOfCellsWithin(C);
 
-  Result := C.List[1];
-  for i:=2 to C.Count do
-    if GetLength(C.List[i], aPos) < GetLength(Result, aPos) then
-      Result := C.List[i];
-  C.Free;
+    Result := C.List[1];
+    for i:=2 to C.Count do
+      if GetLength(C.List[i], aPos) < GetLength(Result, aPos) then
+        Result := C.List[i];
+  finally
+    C.Free;
+  end;
 end;
 
 
@@ -484,12 +487,15 @@ function TKMHouse.GetDistance(aPos:TKMPoint):single;
 var C:TKMPointList; i:integer;
 begin
   C := TKMPointList.Create;
-  GetListOfCellsWithin(C);
+  try
+    GetListOfCellsWithin(C);
 
-  Result := GetLength(C.List[1], aPos);
-  for i:=2 to C.Count do
-    Result := Math.min(Result, GetLength(C.List[i], aPos));
-  C.Free;
+    Result := GetLength(C.List[1], aPos);
+    for i:=2 to C.Count do
+      Result := Math.min(Result, GetLength(C.List[i], aPos));
+  finally
+    C.Free;
+  end;  
 end;
 
 

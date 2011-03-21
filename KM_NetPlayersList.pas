@@ -50,7 +50,7 @@ type
       //Import/Export
       property AsStringList:string read GetAsStringList; //Acquire list of players for UI Listbox
       function GetAsText:string; //Gets all relevant information as text string
-      procedure SetAsText(a:string); //Sets all relevant information from text string
+      procedure SetAsText(const aText:string); //Sets all relevant information from text string
     end;
 
 implementation
@@ -194,20 +194,21 @@ begin
 end;
 
 
-procedure TKMPlayersList.SetAsText(a:string);
+procedure TKMPlayersList.SetAsText(const aText:string);
 var i:integer; M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
-  M.WriteAsText(a);
-
-  M.Read(fCount);
-  for i:=1 to fCount do
-  begin
-    M.Read(fPlayers[i].Addr);
-    M.Read(fPlayers[i].Nikname);
+  try
+    M.WriteAsText(aText);
+    M.Read(fCount);
+    for i:=1 to fCount do
+    begin
+      M.Read(fPlayers[i].Addr);
+      M.Read(fPlayers[i].Nikname);
+    end;
+  finally
+    M.Free;
   end;
-
-  M.Free;
 end;
 
 

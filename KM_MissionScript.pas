@@ -154,39 +154,42 @@ begin
 
   //Load and decode .DAT file into FileText
   F := TMemoryStream.Create;
-  F.LoadFromFile(aFileName);
+  try
+    F.LoadFromFile(aFileName);
 
-  //Detect whether mission is encoded so we can support decoded/encoded .DAT files
-  //We can't test 1st char, it can be any. Instead see how often common chracters meet
-  Num := 0;
-  for i:=0 to F.Size-1 do
-    if PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13,'0'..'9',' ','!'] then
-      inc(Num);
+    //Detect whether mission is encoded so we can support decoded/encoded .DAT files
+    //We can't test 1st char, it can be any. Instead see how often common chracters meet
+    Num := 0;
+    for i:=0 to F.Size-1 do
+      if PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13,'0'..'9',' ','!'] then
+        inc(Num);
 
-  //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
-  if (Num/F.Size < 0.20) then
-  for i:=0 to F.Size-1 do
-    PByte(cardinal(F.Memory)+i)^ := PByte(cardinal(F.Memory)+i)^ xor 239;
+    //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
+    if (Num/F.Size < 0.20) then
+    for i:=0 to F.Size-1 do
+      PByte(cardinal(F.Memory)+i)^ := PByte(cardinal(F.Memory)+i)^ xor 239;
 
-  //Save text after decoding but before cleaning
-  if WRITE_DECODED_MISSION then
-    F.SaveToFile(aFileName+'.txt');
+    //Save text after decoding but before cleaning
+    if WRITE_DECODED_MISSION then
+      F.SaveToFile(aFileName+'.txt');
 
-  for i:=0 to F.Size-1 do
-    if (PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13]) then
-      PAnsiChar(cardinal(F.Memory)+i)^ := #32;
+    for i:=0 to F.Size-1 do
+      if (PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13]) then
+        PAnsiChar(cardinal(F.Memory)+i)^ := #32;
 
-  Num := 0;
-  for i:=0 to F.Size-1 do begin
-    PAnsiChar(cardinal(F.Memory)+Num)^ := PAnsiChar(cardinal(F.Memory)+i)^;
-    if (Num<=0) or ((PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)^<>#32#32) and (PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)<>'!!')) then
-      inc(Num);
+    Num := 0;
+    for i:=0 to F.Size-1 do begin
+      PAnsiChar(cardinal(F.Memory)+Num)^ := PAnsiChar(cardinal(F.Memory)+i)^;
+      if (Num<=0) or ((PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)^<>#32#32) and (PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)<>'!!')) then
+        inc(Num);
+    end;
+
+    setlength(Result, Num); //Because some extra characters were removed
+    F.Position := 0;
+    F.ReadBuffer(Result[1], Num);
+  finally
+    F.Free;
   end;
-
-  setlength(Result, Num); //Because some extra characters were removed
-  F.Position := 0;
-  F.ReadBuffer(Result[1], Num);   
-  F.Free;
 end;
 
 
@@ -299,10 +302,13 @@ function TMissionParser.GetMapDetails(const aFileName:string):TKMMapDetails;
 var F:TKMemoryStream; sx,sy:integer;
 begin
   F := TKMemoryStream.Create;
-  F.LoadFromFile(aFileName);
-  F.Read(sx);
-  F.Read(sy);
-  F.Free;
+  try
+    F.LoadFromFile(aFileName);
+    F.Read(sx);
+    F.Read(sy);
+  finally
+    F.Free;
+  end;
   Assert((sx<=MAX_MAP_SIZE)and(sy<=MAX_MAP_SIZE),'MissionParser can''t open the map cos it''s too big.');
   Result.MapSize.X := sx;
   Result.MapSize.Y := sy;

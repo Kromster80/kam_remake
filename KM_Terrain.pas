@@ -1601,10 +1601,13 @@ begin
   //Check if a route can be made to any tile around this house
   Result := false;
   Cells := TKMPointList.Create;
-  aHouse.GetListOfCellsWithin(Cells);
-  for i:=1 to Cells.Count do
-    Result := Result or Route_CanBeMade(LocA,Cells.List[i],aPass,aDistance,aInteractionAvoid);
-  Cells.Free;
+  try
+    aHouse.GetListOfCellsWithin(Cells);
+    for i:=1 to Cells.Count do
+      Result := Result or Route_CanBeMade(LocA,Cells.List[i],aPass,aDistance,aInteractionAvoid);
+  finally
+    Cells.Free;
+  end;
 end;
 
 
@@ -1619,7 +1622,7 @@ begin
     if NodeList <> nil then NodeList.Clearup;
     fPath.ReturnRoute(NodeList);
   finally
-    FreeAndNil(fPath);
+    fPath.Free;
   end;
 end;
 
