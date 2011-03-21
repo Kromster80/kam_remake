@@ -173,8 +173,8 @@ type TKMMainMenuInterface = class
 
     procedure Lobby_Reset(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
-    procedure Lobby_LocSelect(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
+    procedure Lobby_LocSelect(Sender: TObject);
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnPlayersList(const aData:string);
     procedure Lobby_OnMapName(const aData:string);
@@ -1178,15 +1178,15 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_LocSelect(Sender: TObject);
-begin
-  //todo: fGame.fNetworking.LocSelect(Radio_LobbyLoc.ItemIndex+1);
-end;
-
-
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
   fGame.fNetworking.MapSelect(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_LocSelect(Sender: TObject);
+begin
+  fGame.fNetworking.LocSelect(Radio_LobbyLoc.ItemIndex+1);
 end;
 
 

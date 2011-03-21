@@ -422,7 +422,7 @@ begin
   fMissionMode := fNetworking.MissionMode; //Tactic or normal
 
   for i:=1 to fPlayers.Count do
-    case fNetworking.PlayerType(i) of
+    case fNetworking.NetPlayers.Player[i].PlayerType of
       pt_None:      fPlayers.RemovePlayer(i);
       pt_Human:     fPlayers.Player[i].PlayerType := pt_Human;
       pt_Computer:  fPlayers.Player[i].PlayerType := pt_Computer;

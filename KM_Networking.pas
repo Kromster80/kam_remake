@@ -8,6 +8,7 @@ uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
 
 type
   TStringEvent = procedure (const aData: string) of object;
+  TIntegerEvent = procedure (const aData: integer) of object;
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
 
 type
@@ -20,6 +21,9 @@ type
                     mk_RefuseToJoin, //When nikname is taken
                     mk_VerifyJoin,
                     mk_PlayersList,
+
+                    mk_StartingLocQuery,    //Ask if we can take that starting location
+                    mk_StartingLocAssign,   //Reply with starting location (-1 for undefined)
 
                     mk_MapSelect,
                     mk_ReadyToStart, //Joiner telling he's ready
@@ -48,6 +52,7 @@ type
       fOnTextMessage:TStringEvent;
       fOnPlayersList:TStringEvent;
       fOnMapName:TStringEvent;
+      fOnStartingLoc:TIntegerEvent;
       fOnAllReady:TNotifyEvent;
       fOnCommands:TStringEvent;
 
@@ -71,6 +76,7 @@ type
       procedure Disconnect;
       function Connected: boolean;
       procedure MapSelect(aName:string);
+      procedure LocSelect(aIndex:integer);
       procedure ReadyToStart;
       procedure StartClick; //All arguments required are in our class
 
@@ -78,9 +84,9 @@ type
       procedure PostMessage(aText:string);
 
       //Gameplay
-      function MissionMode:TMissionMode;
-      function PlayerCount:integer;
-      function PlayerType(aIndex:integer):TPlayerType;
+      property MissionMode:TMissionMode read fMissionMode;
+      property NetPlayers:TKMPlayersList read fNetPlayers;
+//      function PlayerType(aIndex:integer):TPlayerType;
       procedure SendCommands(aStream:TKMemoryStream);
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
@@ -88,6 +94,7 @@ type
       property OnTextMessage:TStringEvent write fOnTextMessage; //Text message recieved
       property OnPlayersList:TStringEvent write fOnPlayersList; //Player list updated
       property OnMapName:TStringEvent write fOnMapName;         //Map name updated
+      property OnStartingLoc:TIntegerEvent write fOnStartingLoc;         //Map name updated
       property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start playing
       property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
       procedure UpdateState;
@@ -137,7 +144,7 @@ begin
   fLANPlayerKind := lpk_Host;
   fNetPlayers.Clear;
   fNetPlayers.AddPlayer(MyIPString, fMyNikname);
-  fNetPlayers.SetReady(fMyNikname);
+  fNetPlayers[fMyNikname].ReadyToStart := true;
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
   if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
@@ -187,10 +194,24 @@ begin
 end;
 
 
+//Tell other players which map we will be using
+procedure TKMNetworking.LocSelect(aIndex:integer);
+begin
+  case fLANPlayerKind of
+    lpk_Host:   begin
+                  fNetPlayers[fMyNikname].StartLocID := aIndex;
+                  PacketToAll(mk_StartingLocAssign, inttostr(aIndex) + fMyNikname); //Just inform others
+                  fOnStartingLoc(aIndex);
+                end;
+    lpk_Joiner: PacketToHost(mk_StartingLocQuery, inttostr(aIndex) + fMyNikname);
+  end;
+end;
+
+
 //Joiner indicates that he is ready to start
 procedure TKMNetworking.ReadyToStart;
 begin
-  fNetPlayers.SetReady(fMyNikname);
+  fNetPlayers[fMyNikname].ReadyToStart := true;
   PacketToAll(mk_ReadyToStart, fMyNikname);
 end;
 
@@ -235,22 +256,10 @@ begin
 end;
 
 
-function TKMNetworking.MissionMode:TMissionMode;
-begin
-  Result := fMissionMode;
-end;
-
-
-function TKMNetworking.PlayerCount:integer;
-begin
-  Result := fNetPlayers.Count;
-end;
-
-
-function TKMNetworking.PlayerType(aIndex:integer):TPlayerType;
+{function TKMNetworking.PlayerType(aIndex:integer):TPlayerType;
 begin
   Result := fNetPlayers.PlayerType(aIndex);
-end;
+end;}
 
 
 procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
@@ -292,10 +301,24 @@ begin
                       if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
                     end;
     mk_ReadyToStart:if fLANPlayerKind = lpk_Host then begin
-                      fNetPlayers.SetReady(Msg);
+                      fNetPlayers[Msg].ReadyToStart := true;
                       if (fLANPlayerKind = lpk_Host) and fNetPlayers.AllReady and (fNetPlayers.Count>1) then
                         if Assigned(fOnAllReady) then fOnAllReady(nil);
                     end;
+
+            
+    mk_StartingLocQuery:    if fLANPlayerKind = lpk_Host then begin
+                              //todo: Check starting loc availability (fNetPlayers, fMapInfo)
+                              //todo: Confirm/reject the query
+                              //todo: event to UI
+                            end;
+    mk_StartingLocAssign:   if fLANPlayerKind = lpk_Joiner then begin
+                              //todo: 1. Server informs us of his starting loc
+                              //todo: 2. Server confirms our choice of starting loc
+                              //todo: event to UI
+                            end;
+
+
     mk_MapSelect:   if fLANPlayerKind = lpk_Joiner then begin
                       fMapName := Msg;
                       if Assigned(fOnMapName) then fOnMapName(fMapName);

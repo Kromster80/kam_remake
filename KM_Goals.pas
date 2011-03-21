@@ -118,9 +118,8 @@ begin
 end;
 
 
-//Remove every reference to specified PlayerID.
-//Used when we delete certain player from the network game right after init
 //We don't want anyones goal to use deleted player
+//Used when we delete certain player from the network game right after init
 procedure TKMGoals.RemoveReference(aPlayerID:TPlayerID);
 var i:integer;
 begin

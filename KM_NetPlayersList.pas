@@ -26,24 +26,23 @@ type
       fCount:integer;
       fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
       function GetAsStringList:string;
+      function GetPlayerStr(Index:string):TKMPlayerInfo;
+      function GetPlayerInt(Index:integer):TKMPlayerInfo;
     public
       constructor Create;
       destructor Destroy; override;
       procedure Clear;
       property Count:integer read fCount;
 
-      //Setters
       procedure AddPlayer(aAddr,aNik:string);
-      //procedure SetColor(aNik:string; aColor:cardinal);
-      //procedure SetStartLoc(aNik:string; aLoc:integer);
-      //procedure SetAlliances(aNik:string; aAlliances);
-      procedure SetReady(aNik:string{; aReady:boolean});
+      property Item[Index:string]:TKMPlayerInfo read GetPlayerStr; default;
+      property Player[Index:integer]:TKMPlayerInfo read GetPlayerInt;
 
       //Getters
       function GetAddress(aIndex:integer):string;
       function GetNikname(aIndex:integer):string;
       function NiknameExists(aNik:string):boolean;
-      function PlayerType(aIndex:integer):TPlayerType;
+//      function PlayerType(aIndex:integer):TPlayerType;
       function IsHuman(aIndex:integer):boolean;
       function GetStartLoc(aNik:string):integer;
       function AllReady:boolean;
@@ -89,6 +88,22 @@ begin
 end;
 
 
+function TKMPlayersList.GetPlayerStr(Index:string):TKMPlayerInfo;
+var i:integer;
+begin
+  Result := nil;
+  for i:=1 to fCount do
+  if Index = fPlayers[i].Nikname then
+    Result := fPlayers[i];
+end;
+
+
+function TKMPlayersList.GetPlayerInt(Index:integer):TKMPlayerInfo;
+begin
+  Result := fPlayers[Index];
+end;
+
+
 procedure TKMPlayersList.AddPlayer(aAddr,aNik:string);
 var i:integer;
 begin
@@ -101,15 +116,6 @@ begin
   for i:=1 to MAX_PLAYERS do
     fPlayers[fCount].Alliances[i] := at_Enemy;
   fPlayers[fCount].ReadyToStart := false;
-end;
-
-
-procedure TKMPlayersList.SetReady(aNik:string);
-var i:integer;
-begin
-  for i:=1 to fCount do
-    if fPlayers[i].Nikname = aNik then
-      fPlayers[i].ReadyToStart := true;
 end;
 
 
@@ -135,10 +141,10 @@ begin
 end;
 
 
-function TKMPlayersList.PlayerType(aIndex:integer):TPlayerType;
+{function TKMPlayersList.PlayerType(aIndex:integer):TPlayerType;
 begin
   Result := fPlayers[aIndex].PlayerType;
-end;
+end;}
 
 
 function TKMPlayersList.IsHuman(aIndex:integer):boolean;
