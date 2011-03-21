@@ -8,13 +8,19 @@ uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
 
 type
   TKMPlayerInfo = class
-    Addr:string;
-    Nikname:string;
-    PlayerType:TPlayerType; //Human, Computer
-    FlagColor:cardinal; //Flag color, 0 means random
-    StartLocID:integer; //Start location, 0 means random
-    Alliances:array[1..MAX_PLAYERS] of TAllianceType;
-    ReadyToStart:boolean;
+    private
+      fAddress:string;
+      fNikname:string;
+    public
+      PlayerType:TPlayerType; //Human, Computer
+      FlagColor:cardinal; //Flag color, 0 means random
+      StartLocID:integer; //Start location, 0 means random
+      Alliances:array[1..MAX_PLAYERS] of TAllianceType;
+      ReadyToStart:boolean;
+    public
+      function IsHuman:boolean;
+      property Address:string read fAddress;
+      property Nikname:string read fNikname;
   end;
 
 
@@ -26,7 +32,6 @@ type
       fCount:integer;
       fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
       function GetAsStringList:string;
-      function GetPlayerStr(Index:string):TKMPlayerInfo;
       function GetPlayerInt(Index:integer):TKMPlayerInfo;
     public
       constructor Create;
@@ -35,15 +40,10 @@ type
       property Count:integer read fCount;
 
       procedure AddPlayer(aAddr,aNik:string);
-      property Item[Index:string]:TKMPlayerInfo read GetPlayerStr; default;
-      property Player[Index:integer]:TKMPlayerInfo read GetPlayerInt;
+      property Player[Index:integer]:TKMPlayerInfo read GetPlayerInt; default;
 
       //Getters
-      function GetAddress(aIndex:integer):string;
-      function GetNikname(aIndex:integer):string;
-      function NiknameExists(aNik:string):boolean;
-//      function PlayerType(aIndex:integer):TPlayerType;
-      function IsHuman(aIndex:integer):boolean;
+      function NiknameIndex(aNik:string):integer;
       function GetStartLoc(aNik:string):integer;
       function AllReady:boolean;
 
@@ -56,6 +56,14 @@ type
 implementation
 
 
+{ TKMPlayerInfo }
+function TKMPlayerInfo.IsHuman:boolean;
+begin
+  Result := PlayerType = pt_Human;
+end;
+
+
+{ TKMPlayersList }
 constructor TKMPlayersList.Create;
 var i:integer;
 begin
@@ -84,17 +92,7 @@ var i:integer;
 begin
   Result := '';
   for i:=1 to fCount do
-    Result := Result + fPlayers[i].Addr + '/' + fPlayers[i].Nikname + eol;
-end;
-
-
-function TKMPlayersList.GetPlayerStr(Index:string):TKMPlayerInfo;
-var i:integer;
-begin
-  Result := nil;
-  for i:=1 to fCount do
-  if Index = fPlayers[i].Nikname then
-    Result := fPlayers[i];
+    Result := Result + fPlayers[i].Address + '/' + fPlayers[i].Nikname + eol;
 end;
 
 
@@ -108,8 +106,8 @@ procedure TKMPlayersList.AddPlayer(aAddr,aNik:string);
 var i:integer;
 begin
   inc(fCount);
-  fPlayers[fCount].Addr := aAddr;
-  fPlayers[fCount].Nikname := aNik;
+  fPlayers[fCount].fAddress := aAddr;
+  fPlayers[fCount].fNikname := aNik;
   fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].FlagColor := 0;
   fPlayers[fCount].StartLocID := 0;
@@ -119,37 +117,13 @@ begin
 end;
 
 
-function TKMPlayersList.GetAddress(aIndex:integer):string;
-begin
-  Result := fPlayers[aIndex].Addr;
-end;
-
-
-function TKMPlayersList.GetNikname(aIndex:integer):string;
-begin
-  Result := fPlayers[aIndex].Nikname;
-end;
-
-
-function TKMPlayersList.NiknameExists(aNik:string):boolean;
+function TKMPlayersList.NiknameIndex(aNik:string):integer;
 var i:integer;
 begin
-  Result := false;
+  Result := -1;
   for i:=1 to fCount do
-    if fPlayers[i].Nikname = aNik then
-      Result := true;
-end;
-
-
-{function TKMPlayersList.PlayerType(aIndex:integer):TPlayerType;
-begin
-  Result := fPlayers[aIndex].PlayerType;
-end;}
-
-
-function TKMPlayersList.IsHuman(aIndex:integer):boolean;
-begin
-  Result := fPlayers[aIndex].PlayerType = pt_Human;
+    if fPlayers[i].fNikname = aNik then
+      Result := i;
 end;
 
 
@@ -185,8 +159,8 @@ begin
   M.Write(fCount);
   for i:=1 to fCount do
   begin
-    M.Write(fPlayers[i].Addr);
-    M.Write(fPlayers[i].Nikname);
+    M.Write(fPlayers[i].fAddress);
+    M.Write(fPlayers[i].fNikname);
   end;
 
   Result := M.ReadAsText;
@@ -203,8 +177,8 @@ begin
     M.Read(fCount);
     for i:=1 to fCount do
     begin
-      M.Read(fPlayers[i].Addr);
-      M.Read(fPlayers[i].Nikname);
+      M.Read(fPlayers[i].fAddress);
+      M.Read(fPlayers[i].fNikname);
     end;
   finally
     M.Free;

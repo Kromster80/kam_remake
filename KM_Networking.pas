@@ -41,6 +41,7 @@ type
       fHostAddress:string;
       fMyAddress:string;
       fMyNikname:string;
+      fMyIndex:integer;
       fNetPlayers:TKMPlayersList;
 
       fMapName:string;
@@ -141,10 +142,11 @@ begin
   fHostAddress := ''; //Thats us
   fMyAddress := MyIPString;
   fMyNikname := aUserName;
+  fMyIndex := 1;
   fLANPlayerKind := lpk_Host;
   fNetPlayers.Clear;
   fNetPlayers.AddPlayer(MyIPString, fMyNikname);
-  fNetPlayers[fMyNikname].ReadyToStart := true;
+  fNetPlayers[fMyIndex].ReadyToStart := true;
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
   if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
@@ -157,6 +159,7 @@ begin
   fHostAddress := aServerAddress;
   fMyAddress := MyIPString;
   fMyNikname := aUserName;
+  fMyIndex := -1;
   fLANPlayerKind := lpk_Joiner;
   fJoinTick := GetTickCount + 3000; //3sec
   fNetPlayers.Clear;
@@ -199,7 +202,7 @@ procedure TKMNetworking.LocSelect(aIndex:integer);
 begin
   case fLANPlayerKind of
     lpk_Host:   begin
-                  fNetPlayers[fMyNikname].StartLocID := aIndex;
+                  fNetPlayers[fMyIndex].StartLocID := aIndex;
                   PacketToAll(mk_StartingLocAssign, inttostr(aIndex) + fMyNikname); //Just inform others
                   fOnStartingLoc(aIndex);
                 end;
@@ -211,7 +214,7 @@ end;
 //Joiner indicates that he is ready to start
 procedure TKMNetworking.ReadyToStart;
 begin
-  fNetPlayers[fMyNikname].ReadyToStart := true;
+  fNetPlayers[fMyIndex].ReadyToStart := true;
   PacketToAll(mk_ReadyToStart, fMyNikname);
 end;
 
@@ -244,7 +247,7 @@ begin
   //if fNetPlayers.Count >= MAX_PLAYERS then
   //  Result := 'No more players can join the game'
   //else
-  if fNetPlayers.NiknameExists(aNik) then
+  if fNetPlayers.NiknameIndex(aNik) <> -1 then
     Result := 'Player with this nik already joined the game';
 end;
 
@@ -298,10 +301,11 @@ begin
                     end;
     mk_PlayersList: if fLANPlayerKind = lpk_Joiner then begin
                       fNetPlayers.SetAsText(Msg);
+                      fMyIndex := fNetPlayers.NiknameIndex(Msg);
                       if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
                     end;
     mk_ReadyToStart:if fLANPlayerKind = lpk_Host then begin
-                      fNetPlayers[Msg].ReadyToStart := true;
+                      fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
                       if (fLANPlayerKind = lpk_Host) and fNetPlayers.AllReady and (fNetPlayers.Count>1) then
                         if Assigned(fOnAllReady) then fOnAllReady(nil);
                     end;
@@ -374,8 +378,8 @@ procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string='');
 var i:integer;
 begin
   for i:=1 to fNetPlayers.Count do
-    if fNetPlayers.IsHuman(i) and (fNetPlayers.GetNikname(i) <> fMyNikname) then
-      PacketSend(fNetPlayers.GetAddress(i), aKind, aData);
+    if fNetPlayers[i].IsHuman and (i <> fMyIndex) then
+      PacketSend(fNetPlayers[i].Address, aKind, aData);
 end;
 
 
