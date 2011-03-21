@@ -180,14 +180,14 @@ begin
   P := fPlayers.Player[byte(aCommand.PlayerID)];
   with aCommand do
   case CommandType of
-    gic_ArmyFeed:         TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderFood;
-    gic_ArmySplit:        TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderSplit;
-    gic_ArmyStorm:        TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderStorm;
-    gic_ArmyLink:         TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderLinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
-    gic_ArmyAttackUnit:   TKMUnitWarrior(P.GetUnitByID(Params[1])).GetCommander.OrderAttackUnit(fPlayers.GetUnitByID(Params[2]));
-    gic_ArmyAttackHouse:  TKMUnitWarrior(P.GetUnitByID(Params[1])).GetCommander.OrderAttackHouse(fPlayers.GetHouseByID(Params[2]));
-    gic_ArmyHalt:         TKMUnitWarrior(P.GetUnitByID(Params[1])).OrderHalt(Params[2],Params[3]);
-    gic_ArmyWalk:         TKMUnitWarrior(P.GetUnitByID(Params[1])).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+    gic_ArmyFeed:         TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).OrderFood;
+    gic_ArmySplit:        TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).OrderSplit;
+    gic_ArmyStorm:        TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).OrderStorm;
+    gic_ArmyLink:         TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).OrderLinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
+    gic_ArmyAttackUnit:   TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).GetCommander.OrderAttackUnit(fPlayers.GetUnitByID(Params[2]));
+    gic_ArmyAttackHouse:  TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).GetCommander.OrderAttackHouse(fPlayers.GetHouseByID(Params[2]));
+    gic_ArmyHalt:         TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).OrderHalt(Params[2],Params[3]);
+    gic_ArmyWalk:         TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
     gic_BuildRoadPlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_RoadPlan,  false, P.PlayerID);
     gic_BuildFieldPlan:   p.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_FieldPlan,  false, P.PlayerID);
@@ -197,19 +197,19 @@ begin
     gic_BuildRemoveHouse: P.RemHouse(KMPoint(Params[1],Params[2]), false);
     gic_BuildHousePlan:   P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
-    gic_HouseRepairToggle:      P.GetHouseByID(Params[1]).RepairToggle;
-    gic_HouseDeliveryToggle:    with P.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
-    gic_HouseOrderProduct:      P.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
-    gic_HouseStoreAcceptFlag:   TKMHouseStore(P.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[2]));
+    gic_HouseRepairToggle:      P.Houses.GetHouseByID(Params[1]).RepairToggle;
+    gic_HouseDeliveryToggle:    with P.Houses.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
+    gic_HouseOrderProduct:      P.Houses.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
+    gic_HouseStoreAcceptFlag:   TKMHouseStore(P.Houses.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[2]));
     gic_HouseTrain:             begin
-                                  H := P.GetHouseByID(Params[1]);
+                                  H := P.Houses.GetHouseByID(Params[1]);
                                   case H.GetHouseType of
                                     ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]));
                                     ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]));
                                     else          Assert(false, 'Only Schools and Barracks supported yet');
                                   end;
                                 end;
-    gic_HouseRemoveTrain:       TKMHouseSchool(P.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
+    gic_HouseRemoveTrain:       TKMHouseSchool(P.Houses.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
 
     gic_RatioChange:            begin
                                   P.Stats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
@@ -217,7 +217,7 @@ begin
                                 end;
 
     gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
-    gic_TempKillUnit:           P.GetUnitByID(Params[1]).KillUnit;
+    gic_TempKillUnit:           P.Units.GetUnitByID(Params[1]).KillUnit;
     gic_TempRevealMap:          fTerrain.RevealWholeMap(P.PlayerID);
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
     //gic_TextMessage:            fGame.fChat.AddMessage(aPlayerID, aTime, aText);

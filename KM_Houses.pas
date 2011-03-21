@@ -233,7 +233,7 @@ type
     procedure SetHouse(Index: Integer; Item: TKMHouse);
     property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; //Use instead of Items[.]
   public
-    function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
+    function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; RelativeEntrance:boolean):TKMHouse;
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
     function Rem(aHouse:TKMHouse):boolean;
     function HitTest(X, Y: Integer): TKMHouse;
@@ -1668,9 +1668,12 @@ begin
 end;
 
 
-function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
+function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; RelativeEntrance:boolean):TKMHouse;
 begin
-  Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_Done);
+  if RelativeEntrance then
+    Result := AddToCollection(aHouseType,PosX - HouseDAT[byte(aHouseType)].EntranceOffsetX,PosY,aOwner,hbs_Done)
+  else
+    Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_Done);
 end;
 
 

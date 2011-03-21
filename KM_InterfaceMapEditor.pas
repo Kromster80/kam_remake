@@ -1409,13 +1409,13 @@ begin
 
   i := TKMCheckBox(Sender).Tag div MAX_PLAYERS + 1;
   k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS + 1;
-  if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].fAlliances[k] := at_Ally
-                                     else fPlayers.Player[i].fAlliances[k] := at_Enemy;
+  if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].Alliances[k] := at_Ally
+                                     else fPlayers.Player[i].Alliances[k] := at_Enemy;
 
   //Copy status to symmetrical item
   if CheckBox_AlliancesSym.Checked then begin
     CheckBox_Alliances[k,i].Checked := CheckBox_Alliances[i,k].Checked;
-    fPlayers.Player[k].fAlliances[i] := fPlayers.Player[i].fAlliances[k];
+    fPlayers.Player[k].Alliances[i] := fPlayers.Player[i].Alliances[k];
   end;
 end;
 
@@ -1488,7 +1488,7 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P,false);
+      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P);
       cm_Field:     if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
       cm_Wine:      if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
       //cm_Wall:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
@@ -1550,13 +1550,13 @@ begin
                   if fPlayers.Selected is TKMUnit then
                     ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
-      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
+      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P);
       cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
       cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
       //cm_Wall:
       cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then
                 begin
-                  MyPlayer.AddHouse(THouseType(GameCursor.Tag1),P);
+                  MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                   Build_ButtonClick(Button_BuildRoad);
                 end;
       cm_Height:; //handled in UpdateStateIdle

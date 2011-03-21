@@ -172,8 +172,8 @@ type
   var
     fLog: TKMLog;
 
-implementation
 
+implementation 
 uses KM_Utils;
 
 
@@ -190,6 +190,7 @@ begin
   AddToLog('Log is up and running');
 end;
 
+
 {Lines are timestamped, each line invokes file open/close for writing,
 meaning no lines will be lost if Remake crashes}
 procedure TKMLog.AddLine(const aText:string);
@@ -204,6 +205,7 @@ begin
   closefile(fl);
 end;
 
+
 {Same line but without timestamp}
 procedure TKMLog.AddLineNoTime(const aText:string);
 begin
@@ -213,25 +215,30 @@ begin
   closefile(fl);
 end;
 
+
 procedure TKMLog.AppendLog(const aText:string);
 begin
   AddLine(aText);
 end;
+
 
 procedure TKMLog.AppendLog(const aText:string; num:integer);
 begin
   AddLine(aText+' '+inttostr(num));
 end;
 
+
 procedure TKMLog.AppendLog(const aText:string; num:single);
 begin
   AddLine(aText+' '+FloatToStr(num));
 end;
 
+
 procedure TKMLog.AppendLog(num:integer; const aText:string);
 begin
   AddLine(inttostr(num)+' '+aText);
 end;
+
 
 procedure TKMLog.AppendLog(const aText:string; Res:boolean);
 var s:string;
@@ -239,6 +246,7 @@ begin
   if Res then s:='done' else s:='fail';
   AddLine(aText+' ... '+s);
 end;
+
 
 procedure TKMLog.AppendLog(a,b:integer);
 begin
@@ -281,6 +289,7 @@ begin
   if i=0 then exit;
   Inherited Write(Value[1], i);
 end;
+
 
 function TKMemoryStream.Write(const Value:TKMPoint): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;

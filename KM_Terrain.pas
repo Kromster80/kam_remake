@@ -2361,13 +2361,13 @@ begin
   Loc := TKMPointList.Create;
   for i:=1 to fPlayers.Count do
   if fPlayers.Player[i]<>nil then begin
-    fPlayers.Player[i].GetUnitLocations(Loc);
+    fPlayers.Player[i].Units.GetLocations(Loc);
     for k:=1 to Loc.Count do
     if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
       MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := fPlayers.Player[i].FlagColor;
   end;
 
-  fPlayers.PlayerAnimals.GetFishLocations(Loc);
+  fPlayers.PlayerAnimals.Units.GetLocations(Loc, ut_Fish);
   for k:=1 to Loc.Count do
   if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
     MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := $FF4444;

@@ -164,7 +164,7 @@ begin
   for i:=1 to fCount do
   if Player[i] <> nil then
   begin
-    Result := Player[i].GetHouseByID(aID);
+    Result := Player[i].Houses.GetHouseByID(aID);
     if Result<>nil then Break; //else keep on testing
   end;
 end;
@@ -179,10 +179,10 @@ begin
   for i:=1 to fCount do
   if Player[i]<>nil then
   begin
-    Result := Player[i].GetUnitByID(aID);
+    Result := Player[i].Units.GetUnitByID(aID);
     if Result<>nil then Break; //else keep on testing
   end;
-  if Result = nil then Result := PlayerAnimals.GetUnitByID(aID);
+  if Result = nil then Result := PlayerAnimals.Units.GetUnitByID(aID);
 end;
 
 
@@ -256,7 +256,7 @@ begin
   if (aPlay1 = aPlay2) or (aPlay1 = play_animals) or (aPlay2 = play_animals) then
     Result := at_Ally
   else
-    Result := Player[byte(aPlay1)].fAlliances[byte(aPlay2)];
+    Result := Player[byte(aPlay1)].Alliances[byte(aPlay2)];
 end;
 
 

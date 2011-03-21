@@ -33,6 +33,8 @@ type
     Assets:TKMPlayerAssets; //This is just alias for Players assets
     fTimeOfLastAttackMessage: cardinal;
 
+    fAutobuild:boolean;
+
     procedure CheckGoals;
     procedure CheckUnitCount;
     procedure CheckArmiesCount;
@@ -42,7 +44,6 @@ type
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not used or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
-    Autobuild:boolean;
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
                                             NumUnits, UnitsPerRow:integer;
                                           end;
@@ -53,6 +54,8 @@ type
     constructor Create(aAssets:TKMPlayerAssets);
     destructor Destroy; override;
 
+    property Autobuild:boolean read fAutobuild write fAutobuild;
+
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
     procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
@@ -60,6 +63,7 @@ type
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
     procedure AddAttack(aAttack: TAIAttack);
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
@@ -153,7 +157,7 @@ begin
   ReqRecruits := 5; //This means the number in the barracks, watchtowers are counted seperately
   ReqSerfFactor := 10; //Means 1 serf per building
   RecruitTrainTimeout := 0; //Can train at start
-  Autobuild := true; //In KaM it is on by default, and most missions turn it off
+  fAutobuild := true; //In KaM it is on by default, and most missions turn it off
   StartPosition := KMPoint(0,0);
   MaxSoldiers := high(MaxSoldiers); //No limit by default
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
@@ -527,11 +531,11 @@ end;
 
 
 //Do we automatically repair all houses?
-//For now use Autobuild, which is what KaM does. Later we can add a script command to turn this on and off
+//For now use fAutobuild, which is what KaM does. Later we can add a script command to turn this on and off
 //Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
 function TKMPlayerAI.GetHouseRepair:boolean;
 begin
-  Result := Autobuild;
+  Result := fAutobuild;
 end;
 
 
@@ -563,7 +567,7 @@ begin
   SaveStream.Write(MaxSoldiers);
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(StartPosition);
-  SaveStream.Write(Autobuild);
+  SaveStream.Write(fAutobuild);
   SaveStream.Write(TroopFormations,SizeOf(TroopFormations));
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
@@ -586,7 +590,7 @@ begin
   LoadStream.Read(MaxSoldiers);
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(StartPosition);
-  LoadStream.Read(Autobuild);
+  LoadStream.Read(fAutobuild);
   LoadStream.Read(TroopFormations,SizeOf(TroopFormations));
   LoadStream.Read(DefencePositionsCount);
   SetLength(DefencePositions, DefencePositionsCount);

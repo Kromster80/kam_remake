@@ -444,7 +444,7 @@ begin
                      end;
   ct_SetHouse:       begin
                      if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                       LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), KMPointX1Y1(ParamList[1]+HouseDAT[ParamList[0]+1].EntranceOffsetX,ParamList[2]));
+                       LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), ParamList[1]+1, ParamList[2]+1, false);
                      end;
   ct_SetHouseDamage: begin
                      if LastHouse <> nil then
@@ -472,7 +472,7 @@ begin
                        fPlayers.Player[CurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Wine);
                      end;
   ct_SetStock:       begin //This command basically means: Put a storehouse here with road bellow it
-                       LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0]-1,ParamList[1]));
+                       LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, ParamList[0]+1,ParamList[1]+1, false);
                        fPlayers.Player[CurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0],ParamList[1]+1));
                        fPlayers.Player[CurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1));
                        fPlayers.Player[CurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1));
@@ -563,9 +563,9 @@ begin
                      end;
   ct_SetAlliance:    begin
                        if ParamList[1] = 1 then
-                         fPlayers.Player[CurrentPlayerIndex].fAlliances[ParamList[0]+1] := at_Ally
+                         fPlayers.Player[CurrentPlayerIndex].Alliances[ParamList[0]+1] := at_Ally
                        else
-                         fPlayers.Player[CurrentPlayerIndex].fAlliances[ParamList[0]+1] := at_Enemy;
+                         fPlayers.Player[CurrentPlayerIndex].Alliances[ParamList[0]+1] := at_Enemy;
                      end;
   ct_AttackPosition: begin
                        //If target is building: Attack building
@@ -845,7 +845,7 @@ begin
     //Alliances
     for k:=1 to fPlayers.Count do
       if k<>i then
-        AddCommand(ct_SetAlliance,2,k-1,byte(fPlayers.Player[i].fAlliances[k])); //0=enemy, 1=ally
+        AddCommand(ct_SetAlliance,2,k-1,byte(fPlayers.Player[i].Alliances[k])); //0=enemy, 1=ally
     AddData(''); //NL
     //Release/block houses
     ReleaseAllHouses := true;

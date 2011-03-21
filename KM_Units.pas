@@ -284,12 +284,12 @@ end;
 
 { Find home for unit }
 function TKMUnitCitizen.FindHome:boolean;
-var KMHouse:TKMHouse;
+var H:TKMHouse;
 begin
   Result:=false;
-  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,fCurrPosition);
-  if KMHouse<>nil then begin
-    fHome  := KMHouse.GetHousePointer;
+  H := fPlayers.Player[byte(fOwner)].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  if H<>nil then begin
+    fHome  := H.GetHousePointer;
     Result := true;
   end;
 end;
@@ -461,12 +461,12 @@ end;
 
 { TKMUnitRecruit }
 function TKMUnitRecruit.FindHome:boolean;
-var KMHouse:TKMHouse;
+var H:TKMHouse;
 begin
   Result  := false;
-  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,fCurrPosition);
-  if KMHouse<>nil then begin
-    fHome  := KMHouse.GetHousePointer;
+  H := fPlayers.Player[byte(fOwner)].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  if H<>nil then begin
+    fHome  := H.GetHousePointer;
     Result := true;
   end;
 end;

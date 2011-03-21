@@ -227,6 +227,7 @@ begin
   glLoadIdentity;
   RenderBrightness(fGame.fGlobalSettings.Brightness);
 
+  glFinish;
   SwapBuffers(h_DC);
 end;
 
