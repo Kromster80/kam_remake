@@ -783,7 +783,6 @@ begin
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   LoadStream.LoadFromFile(FileName);
-  LoadStream.Seek(0, soFromBeginning);
 
   LoadStream.Read(s);
   if s = 'KaM_Savegame' then begin
@@ -829,7 +828,6 @@ begin
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   try //Catch exceptions
     LoadStream.LoadFromFile(FileName);
-    LoadStream.Seek(0, soFromBeginning);
 
     //Raise some exceptions if the file is invalid or the wrong save version
     LoadStream.Read(s); if s <> 'KaM_Savegame' then Raise Exception.Create('Not a valid KaM Remake save file');

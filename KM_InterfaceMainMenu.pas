@@ -1019,19 +1019,19 @@ procedure TKMMainMenuInterface.SingleMap_RefreshList;
 var i,ci:integer;
 begin
   for i:=1 to MENU_SP_MAPS_COUNT do begin
-    ci:=SingleMap_Top+i-1;
-    if ci>SingleMapsInfo.Count then begin
+    ci:=SingleMap_Top-1+i-1;
+    if ci>=SingleMapsInfo.Count then begin
       Image_SingleMode[i].TexID       := 0;
       Label_SinglePlayers[i].Caption  := '';
       Label_SingleTitle1[i].Caption   := '';
       Label_SingleTitle2[i].Caption   := '';
       Label_SingleSize[i].Caption     := '';
     end else begin
-      Image_SingleMode[i].TexID       := 28+byte(not SingleMapsInfo.IsFight(ci))*14;  //28 or 42
-      Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo.GetPlayerCount(ci));
-      Label_SingleTitle1[i].Caption   := SingleMapsInfo.GetFolder(ci);
-      Label_SingleTitle2[i].Caption   := SingleMapsInfo.GetSmallDesc(ci);
-      Label_SingleSize[i].Caption     := SingleMapsInfo.GetMapSize(ci);
+      Image_SingleMode[i].TexID       := 28+byte(not SingleMapsInfo[ci].IsFight)*14;  //28 or 42
+      Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo[ci].PlayerCount);
+      Label_SingleTitle1[i].Caption   := SingleMapsInfo[ci].Folder;
+      Label_SingleTitle2[i].Caption   := SingleMapsInfo[ci].SmallDesc;
+      Label_SingleSize[i].Caption     := SingleMapsInfo[ci].MapSize;
     end;
   end;
 
@@ -1065,10 +1065,10 @@ begin
     Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
 
     SingleMap_Selected        := SingleMap_Top+i-1;
-    Label_SingleTitle.Caption := SingleMapsInfo.GetFolder(SingleMap_Selected);
-    Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
+    Label_SingleTitle.Caption := SingleMapsInfo[SingleMap_Selected].Folder;
+    Label_SingleDesc.Caption  := SingleMapsInfo[SingleMap_Selected].BigDesc;
 
-    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(14)+SingleMapsInfo.GetTyp(SingleMap_Selected);
+    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(14)+BoolToStr(SingleMapsInfo[SingleMap_Selected].IsFight); //todo: use text here
     Label_SingleCondWin.Caption := fTextLibrary.GetRemakeString(15);//+SingleMapsInfo.GetWin(SingleMap_Selected);
     Label_SingleCondDef.Caption := fTextLibrary.GetRemakeString(16);//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
   end;
@@ -1079,7 +1079,7 @@ procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
   if not InRange(SingleMap_Selected, 1, SingleMapsInfo.Count) then exit;
-  fGame.GameStart(KMMapNameToPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
+  fGame.GameStart(KMMapNameToPath(SingleMapsInfo[SingleMap_Selected].Folder,'dat'),SingleMapsInfo[SingleMap_Selected].Folder); //Provide mission filename mask and title here
 end;
 
 
