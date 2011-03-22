@@ -7,18 +7,21 @@ uses Classes, KM_Defaults, KM_CommonTypes;
 type
   TKMPlayerStats = class
   private
-    Houses:array[1..HOUSE_COUNT]of record
+    Houses:array[1..HOUSE_COUNT]of packed record
       Initial,      //created by script on mission start
       Built,        //constructed by player
       SelfDestruct, //deconstructed by player
       Lost,         //lost from attacks and self-demolished
       Destroyed:word; //damage to other players
     end;
-    Units:array[1..40]of record
+    Units:array[ut_Serf..ut_Barbarian]of packed record
       Initial,
       Trained,
       Lost,
       Killed:word;
+    end;
+    Goods:array[rt_Trunk..rt_Fish]of packed record
+      Produced:word;
     end;
     ResourceRatios:array[1..4,1..4]of byte;
   public
@@ -33,6 +36,8 @@ type
     procedure UnitCreated(aType:TUnitType; aWasTrained:boolean);
     procedure UnitLost(aType:TUnitType);
     procedure UnitKilled(aType:TUnitType);
+
+    procedure GoodProduced(aRes:TResourceType; aCount:integer);
 
     procedure UpdateReqDone(aType:THouseType);
 
@@ -116,21 +121,28 @@ end;
 procedure TKMPlayerStats.UnitCreated(aType:TUnitType; aWasTrained:boolean);
 begin
   if aWasTrained then
-    inc(Units[byte(aType)].Trained)
+    inc(Units[aType].Trained)
   else
-    inc(Units[byte(aType)].Initial);
+    inc(Units[aType].Initial);
 end;
 
 
 procedure TKMPlayerStats.UnitLost(aType:TUnitType);
 begin
-  inc(Units[byte(aType)].Lost);
+  inc(Units[aType].Lost);
 end;
 
 
 procedure TKMPlayerStats.UnitKilled(aType:TUnitType);
 begin
-  inc(Units[byte(aType)].Killed);
+  inc(Units[aType].Killed);
+end;
+
+
+procedure TKMPlayerStats.GoodProduced(aRes:TResourceType; aCount:integer);
+begin
+  if aRes<>rt_None then
+    inc(Goods[aRes].Produced, aCount);
 end;
 
 
@@ -148,11 +160,11 @@ end;
 
 
 function TKMPlayerStats.GetUnitQty(aType:TUnitType):integer;
-var i:integer;
+var i:TUnitType;
 begin
-  Result := Units[byte(aType)].Initial + Units[byte(aType)].Trained - Units[byte(aType)].Lost;
+  Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
   if aType = ut_Recruit then
-    for i:= byte(ut_Militia) to byte(ut_Barbarian) do
+    for i:= ut_Militia to ut_Barbarian do
       dec(Result,Units[i].Trained); //Trained soldiers use a recruit
 end;
 
@@ -211,7 +223,7 @@ end;
 
 
 function TKMPlayerStats.GetUnitsLost:cardinal;
-var i:integer;
+var i:TUnitType;
 begin
   Result:=0;
   for i:=low(Units) to high(Units) do
@@ -220,7 +232,7 @@ end;
 
 
 function TKMPlayerStats.GetUnitsKilled:cardinal;
-var i:integer;
+var i:TUnitType;
 begin
   Result:=0;
   for i:=low(Units) to high(Units) do
@@ -257,61 +269,57 @@ end;
 
 //The value includes all citizens, Warriors are counted separately
 function TKMPlayerStats.GetUnitsTrained:cardinal;
-var i:integer;
+var i:TUnitType;
 begin
   Result:=0;
-  for i:=byte(ut_Serf) to byte(ut_Recruit) do
+  for i:=ut_Serf to ut_Recruit do
     inc(Result,Units[i].Trained);
 end;
 
 
+//@Lewin: I don't remember if shields/horses/armor should be included, for now it will be only weapons
 function TKMPlayerStats.GetWeaponsProduced:cardinal;
+var i:TResourceType;
 begin
-  Result:=0;
+  Result := 0;
+  for i:=rt_Axe to rt_Arbalet do
+    inc(Result, Goods[i].Produced);
 end;
 
 
 //The value includes all Warriors
 function TKMPlayerStats.GetSoldiersTrained:cardinal;
-var i:integer;
+var i:TUnitType;
 begin
   Result:=0;
-  for i:=byte(ut_Militia) to byte(ut_Barbarian) do
+  for i:=ut_Militia to ut_Barbarian do
     inc(Result,Units[i].Trained);
 end;
 
 
 procedure TKMPlayerStats.Save(SaveStream:TKMemoryStream);
-var i,k:integer;
 begin
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Initial);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Built);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Lost);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(Houses[i].Destroyed);
-  for i:=1 to 40 do SaveStream.Write(Units[i].Initial);
-  for i:=1 to 40 do SaveStream.Write(Units[i].Trained);
-  for i:=1 to 40 do SaveStream.Write(Units[i].Lost);
-  for i:=1 to 40 do SaveStream.Write(Units[i].Killed);
-  for i:=1 to 4 do for k:=1 to 4 do SaveStream.Write(ResourceRatios[i,k]);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(AllowToBuild[i]);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(BuildReqDone[i]);
+  SaveStream.Write('PlayerStats');
+  SaveStream.Write(Houses, SizeOf(Houses));
+  SaveStream.Write(Units, SizeOf(Units));
+  SaveStream.Write(Goods, SizeOf(Goods));
+  SaveStream.Write(ResourceRatios, SizeOf(ResourceRatios));
+  SaveStream.Write(AllowToBuild, SizeOf(AllowToBuild));
+  SaveStream.Write(BuildReqDone, SizeOf(BuildReqDone));
 end;
 
 
 procedure TKMPlayerStats.Load(LoadStream:TKMemoryStream);
-var i,k:integer;
+var s:string;
 begin
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Initial);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Built);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Lost);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(Houses[i].Destroyed);
-  for i:=1 to 40 do LoadStream.Read(Units[i].Initial);
-  for i:=1 to 40 do LoadStream.Read(Units[i].Trained);
-  for i:=1 to 40 do LoadStream.Read(Units[i].Lost);
-  for i:=1 to 40 do LoadStream.Read(Units[i].Killed);
-  for i:=1 to 4 do for k:=1 to 4 do LoadStream.Read(ResourceRatios[i,k]);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(AllowToBuild[i]);
-  for i:=1 to HOUSE_COUNT do LoadStream.Read(BuildReqDone[i]);
+  LoadStream.Read(s);
+  Assert(s = 'PlayerStats');
+  LoadStream.Read(Houses, SizeOf(Houses));
+  LoadStream.Read(Units, SizeOf(Units));
+  LoadStream.Read(Goods, SizeOf(Goods));
+  LoadStream.Read(ResourceRatios, SizeOf(ResourceRatios));
+  LoadStream.Read(AllowToBuild, SizeOf(AllowToBuild));
+  LoadStream.Read(BuildReqDone, SizeOf(BuildReqDone));
 end;
 
 

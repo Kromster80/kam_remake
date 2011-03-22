@@ -82,11 +82,11 @@ type TKMMainMenuInterface = class
     Panel_Single:TKMPanel;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
       Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize:TKMButton;
-      Bevel_SingleBG:array[1..MENU_SP_MAPS_COUNT,1..4]of TKMBevel;
-      Image_SingleMode:array[1..MENU_SP_MAPS_COUNT]of TKMImage;
+      Bevel_SingleBG:array[0..MENU_SP_MAPS_COUNT-1,1..4]of TKMBevel;
+      Image_SingleMode:array[0..MENU_SP_MAPS_COUNT-1]of TKMImage;
       Label_SinglePlayers,Label_SingleSize,
-      Label_SingleTitle1,Label_SingleTitle2:array[1..MENU_SP_MAPS_COUNT]of TKMLabel;
-      Shape_SingleOverlay:array[1..MENU_SP_MAPS_COUNT]of TKMShape;
+      Label_SingleTitle1,Label_SingleTitle2:array[0..MENU_SP_MAPS_COUNT-1]of TKMLabel;
+      Shape_SingleOverlay:array[0..MENU_SP_MAPS_COUNT-1]of TKMShape;
       ScrollBar_SingleMaps:TKMScrollBar;
       Shape_SingleMap:TKMShape;
       Label_SingleTitle,Label_SingleDesc:TKMLabel;
@@ -219,8 +219,8 @@ begin
   ScreenX := min(X,MENU_DESIGN_X);
   ScreenY := min(Y,MENU_DESIGN_Y);
   Campaign_Mission_Choice := 1;
-  SingleMap_Top := 1;
-  SingleMap_Selected := 1;
+  SingleMap_Top := 0;
+  SingleMap_Selected := 0;
   MapEdSizeX := 64;
   MapEdSizeY := 64;
 
@@ -522,21 +522,21 @@ begin
       Button_SingleHeadSize  := TKMButton.Create(Panel_SingleList,380,0, 40,40,fTextLibrary.GetRemakeString(13),fnt_Metal,bsMenu);
       with TKMButton.Create(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
 
-      for i:=1 to MENU_SP_MAPS_COUNT do
+      for i:=0 to MENU_SP_MAPS_COUNT-1 do
       begin
-        Bevel_SingleBG[i,1] := TKMBevel.Create(Panel_SingleList,0,  40+(i-1)*40,40,40);
-        Bevel_SingleBG[i,2] := TKMBevel.Create(Panel_SingleList,40, 40+(i-1)*40,40,40);
-        Bevel_SingleBG[i,3] := TKMBevel.Create(Panel_SingleList,80, 40+(i-1)*40,300,40);
-        Bevel_SingleBG[i,4] := TKMBevel.Create(Panel_SingleList,380,40+(i-1)*40,40,40);
+        Bevel_SingleBG[i,1] := TKMBevel.Create(Panel_SingleList,0,  40+i*40, 40,40);
+        Bevel_SingleBG[i,2] := TKMBevel.Create(Panel_SingleList,40, 40+i*40, 40,40);
+        Bevel_SingleBG[i,3] := TKMBevel.Create(Panel_SingleList,80, 40+i*40,300,40);
+        Bevel_SingleBG[i,4] := TKMBevel.Create(Panel_SingleList,380,40+i*40, 40,40);
 
-        Image_SingleMode[i]    := TKMImage.Create(Panel_SingleList,  0   ,40+(i-1)*40,40,40,28);
+        Image_SingleMode[i]    := TKMImage.Create(Panel_SingleList,  0   ,40+i*40,40,40,28);
         Image_SingleMode[i].ImageCenter;
-        Label_SinglePlayers[i] := TKMLabel.Create(Panel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
-        Label_SingleTitle1[i]  := TKMLabel.Create(Panel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
-        Label_SingleTitle2[i]  := TKMLabel.Create(Panel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
-        Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
+        Label_SinglePlayers[i] := TKMLabel.Create(Panel_SingleList, 40+20, 40+i*40+14, 40,40,'0',fnt_Metal, kaCenter);
+        Label_SingleTitle1[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+ 5, 40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
+        Label_SingleTitle2[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+22, 40,40,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
+        Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,380+20, 40+i*40+14, 40,40,'0',fnt_Metal, kaCenter);
 
-        Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+(i-1)*40, 420, 40, $00000000);
+        Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, 420, 40, $00000000);
         Shape_SingleOverlay[i].LineWidth := 0;
         Shape_SingleOverlay[i].Tag := i;
         Shape_SingleOverlay[i].OnClick := SingleMap_SelectMap;
@@ -1016,27 +1016,27 @@ end;
 
 
 procedure TKMMainMenuInterface.SingleMap_RefreshList;
-var i,ci:integer;
+var i,MapID:integer;
 begin
-  for i:=1 to MENU_SP_MAPS_COUNT do begin
-    ci:=SingleMap_Top-1+i-1;
-    if ci>=SingleMapsInfo.Count then begin
+  for i:=0 to MENU_SP_MAPS_COUNT-1 do begin
+    MapID := SingleMap_Top + i;
+    if MapID > SingleMapsInfo.Count-1 then begin
       Image_SingleMode[i].TexID       := 0;
       Label_SinglePlayers[i].Caption  := '';
       Label_SingleTitle1[i].Caption   := '';
       Label_SingleTitle2[i].Caption   := '';
       Label_SingleSize[i].Caption     := '';
     end else begin
-      Image_SingleMode[i].TexID       := 28+byte(not SingleMapsInfo[ci].IsFight)*14;  //28 or 42
-      Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo[ci].PlayerCount);
-      Label_SingleTitle1[i].Caption   := SingleMapsInfo[ci].Folder;
-      Label_SingleTitle2[i].Caption   := SingleMapsInfo[ci].SmallDesc;
-      Label_SingleSize[i].Caption     := SingleMapsInfo[ci].MapSize;
+      Image_SingleMode[i].TexID       := 28+byte(not SingleMapsInfo[MapID].IsFight)*14;  //28 or 42
+      Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo[MapID].PlayerCount);
+      Label_SingleTitle1[i].Caption   := SingleMapsInfo[MapID].Folder;
+      Label_SingleTitle2[i].Caption   := SingleMapsInfo[MapID].SmallDesc;
+      Label_SingleSize[i].Caption     := SingleMapsInfo[MapID].MapSize;
     end;
   end;
 
-  ScrollBar_SingleMaps.MinValue := 1;
-  ScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.Count - MENU_SP_MAPS_COUNT + 1);
+  ScrollBar_SingleMaps.MinValue := 0;
+  ScrollBar_SingleMaps.MaxValue := max(0, SingleMapsInfo.Count - MENU_SP_MAPS_COUNT);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
 end;
 
@@ -1044,8 +1044,8 @@ end;
 procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
 begin
   SingleMap_Top := ScrollBar_SingleMaps.Position;
-  if InRange(1+SingleMap_Selected-SingleMap_Top,1,MENU_SP_MAPS_COUNT) then
-    SingleMap_SelectMap(Shape_SingleOverlay[1+SingleMap_Selected-SingleMap_Top])
+  if InRange(SingleMap_Selected-SingleMap_Top,0,MENU_SP_MAPS_COUNT-1) then
+    SingleMap_SelectMap(Shape_SingleOverlay[SingleMap_Selected-SingleMap_Top])
   else
     SingleMap_SelectMap(nil); //Means it is off visible area
   SingleMap_RefreshList;
@@ -1062,9 +1062,9 @@ begin
     Shape_SingleMap.Show;
     i := TKMControl(Sender).Tag;
 
-    Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
+    Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * (i+1); // Including header height
 
-    SingleMap_Selected        := SingleMap_Top+i-1;
+    SingleMap_Selected        := SingleMap_Top+i;
     Label_SingleTitle.Caption := SingleMapsInfo[SingleMap_Selected].Folder;
     Label_SingleDesc.Caption  := SingleMapsInfo[SingleMap_Selected].BigDesc;
 

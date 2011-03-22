@@ -295,7 +295,8 @@ begin
     begin
       //Order citizen training
       for i:=1 to length(UnitReq) do
-        if UnitReq[i] > Assets.Stats.GetUnitQty(TUnitType(i)) then
+        if (UnitReq[i] > 0) and
+           (UnitReq[i] > Assets.Stats.GetUnitQty(TUnitType(i))) then
         begin
           UnitType := TUnitType(i);
           if UnitType <> ut_None then

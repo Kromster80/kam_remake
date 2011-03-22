@@ -1,13 +1,15 @@
 unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
-uses Math, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Workplan;
+uses Math, KromUtils,
+    KM_CommonTypes, KM_Units, KM_Units_Workplan;
+
 
 {Perform resource mining}
 type
   TTaskMining = class(TUnitTask)
     private
-      BeastID:byte;
+      fBeastID:byte;
       function ResourceExists:boolean;
     public
       WorkPlan:TUnitWorkPlan;
@@ -20,7 +22,7 @@ type
 
 
 implementation
-uses KM_Terrain;
+uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain, KM_Utils;
 
 
 { TTaskMining }
@@ -29,14 +31,14 @@ begin
   Inherited Create(aUnit);
   fTaskName := utn_Mining;
   WorkPlan  := aWorkPlan;
-  BeastID   := 0;
+  fBeastID   := 0;
 end;
 
 
 constructor TTaskMining.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(BeastID);
+  LoadStream.Read(fBeastID);
   //Don't load WorkPlan, it's linked by TKMUnitCitizen
 end;
 
@@ -114,18 +116,18 @@ begin
     3: //IF resource still exists on location
        if ResourceExists then
        begin //Choose direction and time to work
-         //If WorkDir is -1 it means keep direction from walk (i.e. it doesn't matter)
-         if WorkPlan.WorkDir <> -1 then
+         if WorkPlan.WorkDir = -1 then
+           Dir := byte(Direction) //Keep direction from walk (i.e. it doesn't matter)
+         else
          begin
-           Dir := integer(WorkPlan.WorkDir+1);
+           Dir := byte(WorkPlan.WorkDir+1);
            if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
              for Dir:=1 to 8 do
                if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
            Dir := Math.min(Dir,8);
            Direction := TKMDirection(Dir);
-         end else
-           Dir := byte(Direction); //Use direction from walk
-         TimeToWork := WorkPlan.WorkCyc*Math.max(UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
+         end;
+         TimeToWork := WorkPlan.WorkCyc * Math.max(UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else
@@ -171,8 +173,8 @@ begin
         if WorkPlan.Resource2 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
         if WorkPlan.GatheringScript = gs_SwineBreeder then begin //Swines get feed and taken immediately
-          BeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
-          TKMHouseSwineStable(GetHome).TakeBeast(BeastID);
+          fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
+          TKMHouseSwineStable(GetHome).TakeBeast(fBeastID);
         end;
         if WorkPlan.ActCount >= fPhase2 then begin
            GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
@@ -187,7 +189,7 @@ begin
     9..29: begin //Allow for 20 different "house work" phases
            inc(fPhase2);
            if (fPhase2 = 2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then
-             BeastID := TKMHouseSwineStable(GetHome).FeedBeasts; //Feed a horse
+             fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts; //Feed a horse
            if WorkPlan.ActCount >= fPhase2 then
            begin
              GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
@@ -203,20 +205,22 @@ begin
        end;
     30: begin
           if WorkPlan.GatheringScript = gs_HorseBreeder then
-            TKMHouseSwineStable(GetHome).TakeBeast(BeastID); //Take the horse after feeding
+            TKMHouseSwineStable(GetHome).TakeBeast(fBeastID); //Take the horse after feeding
 
           case WorkPlan.GatheringScript of
             gs_CoalMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_Coal);
             gs_GoldMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_GoldOre);
             gs_IronMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_IronOre);
-            gs_SwineBreeder: ResAcquired := BeastID<>0;
-            gs_HorseBreeder: ResAcquired := BeastID<>0;
+            gs_SwineBreeder: ResAcquired := fBeastID<>0;
+            gs_HorseBreeder: ResAcquired := fBeastID<>0;
             else             ResAcquired := true;
           end;
 
           if ResAcquired then begin
             GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
+            fPlayers.Player[byte(fUnit.GetOwner)].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
+            fPlayers.Player[byte(fUnit.GetOwner)].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
           end;
 
           GetHome.SetState(hst_Idle);
@@ -231,8 +235,9 @@ end;
 procedure TTaskMining.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
-  SaveStream.Write(BeastID);
+  SaveStream.Write(fBeastID);
   //Don't save WorkPlan, we'll use link to TKMUnitCitizen.WorkPlan.
 end;
+
 
 end.

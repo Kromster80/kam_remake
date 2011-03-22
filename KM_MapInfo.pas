@@ -40,10 +40,10 @@ uses KM_Defaults, KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
 { TKMMapInfo }
-//Remove any EOLs and limit length
+//Remove any EOLs and trim
 function TKMapInfo.SmallDesc:string;
 begin
-  Result := StringReplace(SmallDesc, #124, ' ', [rfReplaceAll]);
+  Result := StringReplace(fSmallDesc, #124, ' ', [rfReplaceAll]);
   if length(Result)>36 then Result := Copy(Result,0,36)+' ...';
 end;
 
