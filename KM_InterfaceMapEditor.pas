@@ -512,7 +512,6 @@ begin
       TilesRandom.Checked := true;
       TilesRandom.OnClick := Terrain_TilesChange;
       TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal, bsGame);
-      TilesScroll.MinValue := 0;
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
       TilesScroll.OnChange := Terrain_TilesChange;

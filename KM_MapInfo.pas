@@ -9,6 +9,8 @@ type
   TKMapInfo = class
     private
       fSmallDesc:string;
+      VictoryCond:string;
+      DefeatCond:string;
     public
       Folder:string; //Map folder
       DatSize:integer;
@@ -16,9 +18,10 @@ type
       PlayerCount:byte;
       BigDesc:string;
       MapSize:string; //S,M,L,XL
-      VictoryCond:string;
-      DefeatCond:string;
       function SmallDesc:string;
+      function MissionMode:string;
+      function VictoryCondition:string;
+      function DefeatCondition:string;
     end;
 
 
@@ -45,6 +48,27 @@ function TKMapInfo.SmallDesc:string;
 begin
   Result := StringReplace(fSmallDesc, #124, ' ', [rfReplaceAll]);
   if length(Result)>36 then Result := Copy(Result,0,36)+' ...';
+end;
+
+
+function TKMapInfo.MissionMode:string;
+begin
+  if IsFight then
+    Result := 'Fighting'
+  else
+    Result := 'Building and Fighting';
+end;
+
+
+function TKMapInfo.VictoryCondition:string;
+begin
+  Result := 'Win'; //todo: scan Goals and make a text essence out of it
+end;
+
+
+function TKMapInfo.DefeatCondition:string;
+begin
+  Result := 'Loose'; //todo: scan Goals and make a text essence out of it
 end;
 
 

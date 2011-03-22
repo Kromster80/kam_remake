@@ -335,7 +335,7 @@ TKMRadioGroup = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     destructor Destroy; override;
     property ItemCount:integer read GetItemCount;
-    property ItemIndex:integer read fItemIndex;
+    property ItemIndex:integer read fItemIndex write fItemIndex;
     property Items:TStringList read fItems;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
@@ -420,6 +420,7 @@ TKMScrollBar = class(TKMControl)
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
     procedure RefreshItems;
+    procedure SetHeight(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
   public
     Position:byte;
@@ -443,18 +444,22 @@ TKMListBox = class(TKMControl)
   private
     ItemHeight:byte;
     fItems:TStringList;
+    fTopIndex:smallint; //up to 32k files
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
     procedure ChangeScrollPosition (Sender:TObject);
+    procedure SetHeight(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
+    procedure SetTopIndex(aIndex:smallint);
   public
-    TopIndex:smallint; //up to 32k files
     ItemIndex:smallint;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     destructor Destroy; override;
 
     procedure RefreshList;
     property Items:TStringList read fItems;
+
+    property TopIndex:smallint read fTopIndex write SetTopIndex;
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
@@ -463,6 +468,34 @@ TKMListBox = class(TKMControl)
 
     procedure Paint; override;
 end;
+
+
+TKMDropBox = class(TKMControl)
+  private
+    fItemHeight:byte;
+    fItemIndex:smallint;
+    fDropCount:byte;
+    fCaption:string;
+    fFont: TKMFont;
+    fItems:TStringList;
+    fButton:TKMButton;
+    //fShape:TKMShape;
+    fList:TKMListBox;
+    fOnChange:TNotifyEvent;
+    procedure ListShow(Sender:TObject);
+    procedure ListClick(Sender:TObject);
+    procedure ListHide(Sender:TObject);
+  public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    destructor Destroy; override;
+    property DropCount:byte write fDropCount;
+    property ItemIndex:smallint read fItemIndex write fItemIndex;
+    property Items:TStringList read fItems;
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    property OnChange: TNotifyEvent write fOnChange;
+    procedure Paint; override;
+end;
+
 
 
 { Minimap as stand-alone control }
@@ -519,10 +552,10 @@ uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
 constructor TKMControl.Create(aParent:TKMControl; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create;
-  Left      := aLeft;
-  Top       := aTop;
-  Width     := aWidth;
-  Height    := aHeight;
+  fLeft     := aLeft;
+  fTop      := aTop;
+  fWidth    := aWidth;
+  fHeight   := aHeight;
   Anchors   := [akLeft, akTop];
   State     := [];
   Enabled   := true;
@@ -595,7 +628,7 @@ end;
 //fVisible is checked earlier
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
-  Result := Enabled and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
+  Result := Enabled and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
 end;
 
 {One common thing - draw childs for self}
@@ -613,9 +646,9 @@ begin
 
   if Self is TKMLabel then begin //Special case for aligned text
     case TKMLabel(Self).TextAlign of
-      kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $2000FFFF);
-      kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $2000FFFF);
-      kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $2000FFFF);
+      kaLeft:   fRenderUI.WriteLayer(Left, Top, fWidth, fHeight, $2000FFFF);
+      kaCenter: fRenderUI.WriteLayer(Left - fWidth div 2, Top, fWidth, fHeight, $2000FFFF);
+      kaRight:  fRenderUI.WriteLayer(Left - fWidth, Top, fWidth, fHeight, $2000FFFF);
     end;
     fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
     exit;
@@ -630,7 +663,7 @@ begin
 
   if csOver in State then sColor := sColor OR $30000000; //Highlight on mouse over
 
-  fRenderUI.WriteLayer(Left, Top, Width, Height, sColor);
+  fRenderUI.WriteLayer(Left, Top, fWidth, fHeight, sColor);
   fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
 end;
 
@@ -658,11 +691,13 @@ begin
   Result := fWidth;
 end;
 
+//Overriden in child classes
 procedure TKMControl.SetHeight(aValue:Integer);
 begin
   fHeight := aValue;
 end;
 
+//Overriden in child classes
 procedure TKMControl.SetWidth(aValue:Integer);
 begin
   fWidth := aValue;
@@ -1464,9 +1499,9 @@ end;
 procedure TKMResourceOrderRow.SetVisible(aValue:boolean);
 begin
   Inherited;
-  fOrderRem.fVisible := fVisible;
-  fOrderLab.fVisible := fVisible;
-  fOrderAdd.fVisible := fVisible;
+  fOrderRem.Visible := fVisible;
+  fOrderLab.Visible := fVisible;
+  fOrderAdd.Visible := fVisible;
 end;
 
 
@@ -1559,9 +1594,9 @@ constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:inte
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fScrollAxis := aScrollAxis;
-  Position := 1;
+  Position := 0;
+  MinValue := 0;
   MaxValue := 10;
-  MinValue := 1;
   Thumb    := 10;
   Style    := aStyle;
 
@@ -1639,12 +1674,20 @@ begin
 end;
 
 
+procedure TKMScrollBar.SetHeight(aValue:Integer);
+begin
+  Inherited;
+  if fScrollAxis = sa_Vertical then
+    ScrollInc.Top := fTop+fHeight-fWidth;
+end;
+
+
 //Copy property to child buttons. Otherwise they won't be rendered
 procedure TKMScrollBar.SetVisible(aValue:boolean);
 begin
   Inherited;
-  ScrollDec.fVisible := fVisible;
-  ScrollInc.fVisible := fVisible;
+  ScrollDec.Visible := fVisible;
+  ScrollInc.Visible := fVisible;
 end;
 
 
@@ -1703,7 +1746,7 @@ constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:intege
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   ItemHeight := 20;
-  TopIndex := 0;
+  fTopIndex := 0;
   ItemIndex := -1;
   fItems := TStringList.Create;
 
@@ -1721,7 +1764,14 @@ end;
 
 procedure TKMListBox.ChangeScrollPosition(Sender:TObject);
 begin
-  TopIndex := fScrollBar.Position;
+  fTopIndex := fScrollBar.Position;
+end;
+
+
+procedure TKMListBox.SetHeight(aValue:Integer);
+begin
+  Inherited;
+  fScrollBar.Height := fHeight;
 end;
 
 
@@ -1733,11 +1783,17 @@ begin
 end;
 
 
+procedure TKMListBox.SetTopIndex(aIndex:smallint);
+begin
+  fTopIndex := EnsureRange(aIndex, 0, max(fItems.Count - (fHeight div ItemHeight),0));
+end;
+
+
+//fItems.Count has changed
 procedure TKMListBox.RefreshList;
 begin
-  fScrollBar.MinValue := 0;
   fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div ItemHeight),0);
-  fScrollBar.Position := EnsureRange(TopIndex, fScrollBar.MinValue, fScrollBar.MaxValue);
+  fScrollBar.Position := fTopIndex;
   fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
 end;
 
@@ -1745,7 +1801,7 @@ end;
 procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
-  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
+  fTopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
@@ -1787,11 +1843,97 @@ begin
 
   fRenderUI.WriteBevel(Left, Top, Width-fScrollBar.Width, Height);
 
-  if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-fScrollBar.Width, ItemHeight, $88888888);
+  if (ItemIndex <> -1) and (ItemIndex >= fTopIndex) and (ItemIndex <= fTopIndex+(fHeight div ItemHeight)-1) then
+    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-fTopIndex), Width-fScrollBar.Width, ItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
+end;
+
+
+constructor TKMDropBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+begin
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  fItemHeight := 20;
+  fItemIndex := -1;
+  fDropCount := 10;
+  fFont := aFont;
+  fItems := TStringList.Create;
+
+  fButton := TKMButton.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, 5, 4, bsMenu);
+  fButton.fOnClick := ListShow;
+
+  //fShape := TKMButton.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, 5, 4, bsMenu);
+  //fShape.fOnClick := ListShow;
+
+  fList := TKMListBox.Create(aParent, aLeft, aTop+fItemHeight, aWidth, 0);
+  fList.fOnClick := ListClick;
+  fList.Visible := false;
+
+  //fOnFocusLoose := ListHide;
+end;
+
+
+destructor TKMDropBox.Destroy;
+begin
+  //fButton.Free;
+  //fShape.Free;
+  //fList.Free;
+  fItems.Free;
+  Inherited;
+end;
+
+
+procedure TKMDropBox.ListShow(Sender:TObject);
+begin
+  if fList.Visible then
+  begin
+    ListHide(nil);
+    exit;
+  end;
+
+  if fItems.Count < 1 then exit; 
+  fList.Items.Text := fItems.Text;
+  fList.ItemIndex := fItemIndex;
+  fList.Height := min(fDropCount, fList.Items.Count)*fItemHeight;
+  fList.TopIndex := fItemIndex - fDropCount div 2;
+  fList.Show;
+end;
+
+
+procedure TKMDropBox.ListClick(Sender:TObject);
+begin
+  if (fList.ItemIndex <> -1) and (fList.ItemIndex <> fItemIndex) then
+  begin
+    fItemIndex := fList.ItemIndex;
+    fCaption := fList.Items[fList.ItemIndex];
+    if Assigned(fOnChange) then fOnChange(Self);
+  end;
+  ListHide(nil);
+end;
+
+
+procedure TKMDropBox.ListHide(Sender:TObject);
+begin
+  fList.Hide;
+end;
+
+
+procedure TKMDropBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  //MouseMove(X,Y,Shift); //Will change Position and call OnChange event
+end;
+
+
+procedure TKMDropBox.Paint;
+var Col:TColor4;
+begin
+  Inherited;
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, fCaption, fFont, kaLeft, false, Col);
 end;
 
 
@@ -1924,7 +2066,6 @@ begin
 
   DirList.Free;
 
-  fScrollBar.MinValue := 0;
   fScrollBar.MaxValue := Math.max(fFiles.Count - (fHeight div ItemHeight),0);
   fScrollBar.Position := 0;
   fScrollBar.Enabled  := fScrollBar.MaxValue > fScrollBar.MinValue;

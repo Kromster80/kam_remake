@@ -10,7 +10,8 @@ uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
 type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
 
 
-type TKMMainMenuInterface = class
+type
+  TKMMainMenuInterface = class
   private
     MyControls: TKMMasterControl;
     ScreenX,ScreenY:word;
@@ -69,7 +70,7 @@ type TKMMainMenuInterface = class
       ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
       Label_LobbyMapName:TKMLabel;
-      Radio_LobbyLoc:TKMRadioGroup;
+      DropBox_LobbyLoc:TKMDropBox;
 
 
     Panel_Campaign:TKMPanel;
@@ -98,7 +99,7 @@ type TKMMainMenuInterface = class
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
-      CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZES_COUNT] of TKMCheckBox;
+      CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZES_COUNT] of TKMCheckBox; //todo: Replace with RadioGroup
       Panel_MapEd_Load:TKMPanel;
       FileList_MapEd:TKMFileList;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
@@ -115,10 +116,10 @@ type TKMMainMenuInterface = class
         Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
         CheckBox_Options_MusicOn:TKMCheckBox;
       Panel_Options_Lang:TKMPanel;
-        CheckBox_Options_Lang:array[1..LOCALES_COUNT] of TKMCheckBox;
+        Radio_Options_Lang:TKMRadioGroup;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
-        CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
+        CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox; //todo: Replace with RadioGroup
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
@@ -356,7 +357,7 @@ begin
       Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
 
       Button_MM_MapEd.Visible        := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
-      Button_MM_MultiPlayer.Enabled  :=  ENABLE_MP_IN_MENU
+      Button_MM_MultiPlayer.Enabled  :=  ENABLE_MP_IN_MENU;
 end;
 
 
@@ -461,10 +462,10 @@ begin
       FillColor := DefaultTeamColors[i+1];
 
     TKMLabel.Create  (Panel_Lobby, 790, 380, 100, 20, 'Start location:', fnt_Outline, kaLeft);
-    Radio_LobbyLoc := TKMRadioGroup.Create(Panel_Lobby, 790, 400, 100, 160, fnt_Metal);
+    DropBox_LobbyLoc := TKMDropBox.Create(Panel_Lobby, 790, 400, 150, 20, fnt_Metal);
     for i:=1 to MAX_PLAYERS do
-      Radio_LobbyLoc.Items.Add('Location ' + inttostr(i));
-    Radio_LobbyLoc.OnClick := Lobby_LocSelect;
+      DropBox_LobbyLoc.Items.Add('Location ' + inttostr(i));
+    DropBox_LobbyLoc.OnChange := Lobby_LocSelect;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 80, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := SwitchMenuPage;
@@ -691,11 +692,9 @@ begin
       TKMLabel.Create(Panel_Options_Lang,6,0,100,30,fTextLibrary.GetRemakeString(33),fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,200,10+LOCALES_COUNT*20);
 
-      for i:=1 to LOCALES_COUNT do
-      begin
-        CheckBox_Options_Lang[i]:=TKMCheckBox.Create(Panel_Options_Lang,12,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
-        CheckBox_Options_Lang[i].OnClick:=Options_Change;
-      end;
+      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 100, 20*LOCALES_COUNT, fnt_Metal);
+      for i:=1 to LOCALES_COUNT do Radio_Options_Lang.Items.Add(Locales[i,2]);
+      Radio_Options_Lang.OnClick := Options_Change;
 
     Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
@@ -833,7 +832,7 @@ begin
   if Sender=Button_SP_Single then begin
     SingleMap_PopulateList;
     SingleMap_RefreshList;
-    SingleMap_SelectMap(Shape_SingleOverlay[1]);
+    SingleMap_SelectMap(Shape_SingleOverlay[0]); //Select first entry
     Panel_Single.Show;
   end;
 
@@ -1035,7 +1034,6 @@ begin
     end;
   end;
 
-  ScrollBar_SingleMaps.MinValue := 0;
   ScrollBar_SingleMaps.MaxValue := max(0, SingleMapsInfo.Count - MENU_SP_MAPS_COUNT);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
 end;
@@ -1068,9 +1066,9 @@ begin
     Label_SingleTitle.Caption := SingleMapsInfo[SingleMap_Selected].Folder;
     Label_SingleDesc.Caption  := SingleMapsInfo[SingleMap_Selected].BigDesc;
 
-    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(14)+BoolToStr(SingleMapsInfo[SingleMap_Selected].IsFight); //todo: use text here
-    Label_SingleCondWin.Caption := fTextLibrary.GetRemakeString(15);//+SingleMapsInfo.GetWin(SingleMap_Selected);
-    Label_SingleCondDef.Caption := fTextLibrary.GetRemakeString(16);//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
+    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(14)+SingleMapsInfo[SingleMap_Selected].MissionMode;
+    Label_SingleCondWin.Caption := fTextLibrary.GetRemakeString(15)+SingleMapsInfo[SingleMap_Selected].VictoryCondition;
+    Label_SingleCondDef.Caption := fTextLibrary.GetRemakeString(16)+SingleMapsInfo[SingleMap_Selected].DefeatCondition;
   end;
 end;
 
@@ -1186,7 +1184,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_LocSelect(Sender: TObject);
 begin
-  fGame.fNetworking.LocSelect(Radio_LobbyLoc.ItemIndex+1);
+  fGame.fNetworking.LocSelect(DropBox_LobbyLoc.ItemIndex+1);
 end;
 
 
@@ -1285,7 +1283,8 @@ begin
   Ratio_Options_Music.Enabled := not CheckBox_Options_MusicOn.Checked;
 
   for i:=1 to LOCALES_COUNT do
-    CheckBox_Options_Lang[i].Checked := SameText(fGame.fGlobalSettings.Locale, Locales[i,1]);
+    if SameText(fGame.fGlobalSettings.Locale, Locales[i,1]) then
+      Radio_Options_Lang.ItemIndex := i-1;
 
   CheckBox_Options_FullScreen.Checked := fGame.fGlobalSettings.FullScreen;
   for i:=1 to RESOLUTION_COUNT do begin
@@ -1308,13 +1307,12 @@ begin
 
   Ratio_Options_Music.Enabled := not CheckBox_Options_MusicOn.Checked;
 
-  for i:=1 to LOCALES_COUNT do
-    if Sender = CheckBox_Options_Lang[i] then begin
-      ShowScreen(msLoading, 'Loading new locale');
-      fRender.Render; //Force to repaint loading screen
-      fGame.ToggleLocale(Locales[i,1]);
-      exit; //Whole interface will be recreated
-    end;
+  if Sender = Radio_Options_Lang then begin
+    ShowScreen(msLoading, 'Loading new locale');
+    fRender.Render; //Force to repaint loading screen
+    fGame.ToggleLocale(Locales[Radio_Options_Lang.ItemIndex+1,1]);
+    exit; //Whole interface will be recreated
+  end;
 
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
     OldFullScreen := fGame.fGlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
