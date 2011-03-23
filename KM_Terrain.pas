@@ -201,7 +201,7 @@ var
 
 implementation
 
-uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_UnitActionFight;
+uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game;
 
 constructor TTerrain.Create;
 begin
@@ -1869,10 +1869,10 @@ end;
 
 { Rebuilds connected areas using flood fill algorithm }
 procedure TTerrain.RebuildWalkConnect(wcType:TWalkConnect);
-const MinSize=9; //Minimum size that is treated as new area
+//const MinSize=9; //Minimum size that is treated as new area
 var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
 
-  procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
+  procedure FillArea(x,y:word; ID:byte; var Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
   begin
     if (Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
      ((wcType <> wcAvoid)or
@@ -1899,10 +1899,6 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
   end;
 
 begin
-  {fLog.AppendLog('FloodFill for '+TypeToString(KMPoint(MapX,MapY))+' map');
-  for h:=1 to 200 do
-  begin}
-
     case wcType of
       wcWalk:  Pass := CanWalk;
       wcRoad:  Pass := CanWalkRoad;
@@ -1913,31 +1909,27 @@ begin
 
     //Reset everything
     for i:=1 to MapY do for k:=1 to MapX do
-      Land[i,k].WalkConnect[wcType]:=0;
+      Land[i,k].WalkConnect[wcType] := 0;
 
-    AreaID:=0;
+    AreaID := 0;
     for i:=1 to MapY do for k:=1 to MapX do
     if (Land[i,k].WalkConnect[wcType]=0) and (Pass in Land[i,k].Passability) and
      ((wcType <> wcAvoid)or
      ( (wcType=wcAvoid) and not fTerrain.TileIsLocked(KMPoint(k,i)) )) then
     begin
       inc(AreaID);
-      Count:=0;
+      Count := 0;
       FillArea(k,i,AreaID,Count);
 
       if Count=1 {<MinSize} then //Revert
       begin
         dec(AreaID);
-        Count:=0;
-        Land[i,k].WalkConnect[wcType]:=0;
+        Count := 0;
+        Land[i,k].WalkConnect[wcType] := 0;
       end;
-      
-      //if (Count<>0) then
-      //  fLog.AddToLog(inttostr(Count)+' area');
+
       fLog.AssertToLog(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
     end;
-{  end;
-  fLog.AppendLog('FloodFill done 200 times');}
 end;
 
 

@@ -667,7 +667,7 @@ begin
         else Assert(false, 'Unknown PNG transparency mode')
       end;
 
-      //Apply team colour masks after loading
+      //todo: Apply team colour masks after loading
       //@Krom: I'm struggling a bit here... do you think you could implement alternative textures for
       //       custom PNG images? Delete my attempt if it's wrong, I tried copying and modifying it.
       {for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
@@ -929,8 +929,8 @@ In result we have GFXData filled.}
 procedure TResource.MakeGFX(RXid:integer);
 var
   ci,j,i,k,LeftIndex,RightIndex,TexCount,SpanCount:integer;
-  AllocatedRAM,RequiredRAM,ColorsRAM:integer;
-  WidthPOT,HeightPOT:integer;
+  AllocatedRAM,RequiredRAM,ColorsRAM:cardinal;
+  WidthPOT,HeightPOT:word;
   TD:array of cardinal;
   TA:array of cardinal;
   hm:boolean;

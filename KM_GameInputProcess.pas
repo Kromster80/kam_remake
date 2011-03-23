@@ -351,7 +351,7 @@ procedure TGameInputProcess.SaveToFile(aFileName:string);
 var i:integer; S:TKMemoryStream;
 begin
   S := TKMemoryStream.Create;
-  S.Write(integer(REPLAY_VERSION)); //
+  S.Write(GAME_VERSION); //
   S.Write(fCount);
   for i:=1 to fCount do
     S.Write(fQueue[i].Tick, SizeOf(fQueue[i]));
@@ -362,13 +362,13 @@ end;
 
 
 procedure TGameInputProcess.LoadFromFile(aFileName:string);
-var FileVersion,i:integer; S:TKMemoryStream;
+var FileVersion:string; i:integer; S:TKMemoryStream;
 begin
   if not FileExists(aFileName) then exit;
   S := TKMemoryStream.Create;
   S.LoadFromFile(aFileName);
   S.Read(FileVersion);
-  Assert(FileVersion=REPLAY_VERSION, 'Old or unexpected replay file. r'+inttostr(FileVersion)+' is required.');
+  Assert(FileVersion=GAME_VERSION, 'Old or unexpected replay file. '+GAME_VERSION+' is required.');
   S.Read(fCount);
   setlength(fQueue, fCount+1);
   for i:=1 to fCount do

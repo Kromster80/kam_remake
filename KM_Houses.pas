@@ -137,7 +137,6 @@ type
   private
     BeastAge:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
   public
-    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     function FeedBeasts:byte;
     procedure TakeBeast(aID:byte);
@@ -154,7 +153,6 @@ type
       EatStep:cardinal;
     end;
   public
-    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     function EaterGetsInside(aUnitType:TUnitType):byte;
     procedure UpdateEater(aID:byte; aFoodKind:byte);
@@ -174,7 +172,6 @@ type
     procedure CloseHouse(IsEditor:boolean=false); override;
   public
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
-    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
@@ -209,7 +206,6 @@ type
     ResourceCount:array[1..28]of word;
   public
     NotAcceptFlag:array[1..28]of boolean;
-    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
@@ -1022,21 +1018,10 @@ end;
 
 
 {TKMHouseSwineStable}
-constructor TKMHouseSwineStable.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-var i:integer;
-begin
-  Inherited;
-  for i:=1 to length(BeastAge) do
-    BeastAge[i]:=0;
-end;
-
-
 constructor TKMHouseSwineStable.Load(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
-  for i:=1 to 5 do
-    LoadStream.Read(BeastAge[i]);
+  LoadStream.Read(BeastAge, SizeOf(BeastAge));
 end;
 
 
@@ -1078,11 +1063,9 @@ end;
 
 
 procedure TKMHouseSwineStable.Save(SaveStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
-  for i:=1 to 5 do
-    SaveStream.Write(BeastAge[i]);
+  SaveStream.Write(BeastAge, SizeOf(BeastAge));
 end;
 
 
@@ -1099,26 +1082,11 @@ begin
 end;
 
 
-constructor TKMHouseInn.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-var i:integer;
-begin
-  Inherited;
-  for i:=low(Eater) to high(Eater) do
-    Eater[i].UnitType := ut_None;
-end;
-
-
+{ TKMHouseInn }
 constructor TKMHouseInn.Load(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
-  for i:=low(Eater) to high(Eater) do
-  with Eater[i] do
-  begin
-    LoadStream.Read(UnitType, SizeOf(UnitType));
-    LoadStream.Read(FoodKind);
-    LoadStream.Read(EatStep);
-  end;
+  LoadStream.Read(Eater, SizeOf(Eater));
 end;
 
 
@@ -1172,16 +1140,9 @@ end;
 
 
 procedure TKMHouseInn.Save(SaveStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
-  for i:=low(Eater) to high(Eater) do
-  with Eater[i] do
-  begin
-    SaveStream.Write(UnitType, SizeOf(UnitType));
-    SaveStream.Write(FoodKind);
-    SaveStream.Write(EatStep);
-  end;
+  SaveStream.Write(Eater, SizeOf(Eater));
 end;
 
 
@@ -1208,25 +1169,15 @@ begin
 end;
 
 
-constructor TKMHouseSchool.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-var i:integer;
-begin
-  Inherited;
-  for i:=1 to length(UnitQueue) do
-    UnitQueue[i]:=ut_None;
-  UnitWIP:=nil;
-end;
-
-
+{ TKMHouseSchool }
 constructor TKMHouseSchool.Load(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
   LoadStream.Read(UnitWIP, 4);
   UnitWIP := fPlayers.GetUnitByID(cardinal(UnitWIP)); //Units get loaded before houses ;)
   LoadStream.Read(HideOneGold);
   LoadStream.Read(UnitTrainProgress);
-  for i:=1 to 6 do LoadStream.Read(UnitQueue[i], SizeOf(UnitQueue[i]));
+  LoadStream.Read(UnitQueue, SizeOf(UnitQueue));
 end;
 
 
@@ -1321,7 +1272,6 @@ end;
 
 
 procedure TKMHouseSchool.Save(SaveStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
   if TKMUnit(UnitWIP) <> nil then
@@ -1330,27 +1280,16 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(HideOneGold);
   SaveStream.Write(UnitTrainProgress);
-  for i:=1 to 6 do SaveStream.Write(UnitQueue[i], SizeOf(UnitQueue[i]));
+  SaveStream.Write(UnitQueue, SizeOf(UnitQueue));
 end;
 
 
-constructor TKMHouseStore.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-var i:integer;
-begin
-  Inherited;
-  for i:=1 to length(ResourceCount) do begin
-    ResourceCount[i] := 0;
-    NotAcceptFlag[i] := false;
-  end;
-end;
-
-
+{ TKMHouseStore }
 constructor TKMHouseStore.Load(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
-  for i:=1 to 28 do LoadStream.Read(ResourceCount[i], SizeOf(ResourceCount[i]));
-  for i:=1 to 28 do LoadStream.Read(NotAcceptFlag[i]);
+  LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
+  LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 
 
@@ -1419,20 +1358,16 @@ end;
 
 
 procedure TKMHouseStore.Save(SaveStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
-  for i:=1 to 28 do SaveStream.Write(ResourceCount[i], SizeOf(ResourceCount[i]));
-  for i:=1 to 28 do SaveStream.Write(NotAcceptFlag[i]);
+  SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
+  SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
 
 
 constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-var i:integer;
 begin
   Inherited;
-  for i:=1 to length(ResourceCount) do
-    ResourceCount[i]:=0;
   RecruitsList := TList.Create;
 end;
 
@@ -1441,7 +1376,7 @@ constructor TKMHouseBarracks.Load(LoadStream:TKMemoryStream);
 var i,aCount:integer; U:TKMUnit;
 begin
   Inherited;
-  for i:=1 to 11 do LoadStream.Read(ResourceCount[i], SizeOf(ResourceCount[i]));
+  LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
   RecruitsList := TList.Create;
   LoadStream.Read(aCount);
   if aCount <> 0 then
@@ -1457,13 +1392,13 @@ procedure TKMHouseBarracks.SyncLoad;
 var i:integer;
 begin
   for i:=0 to RecruitsList.Count-1 do
-    RecruitsList.Items[i] := TKMUnit(fPlayers.GetUnitByID(cardinal(RecruitsList.Items[i])));
+    RecruitsList.Items[i] := fPlayers.GetUnitByID(cardinal(RecruitsList.Items[i]));
 end;
 
 
 destructor TKMHouseBarracks.Destroy;
 begin
-  FreeAndNil(RecruitsList);
+  RecruitsList.Free;
   Inherited;
 end;
 
@@ -1547,7 +1482,7 @@ procedure TKMHouseBarracks.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   Inherited;
-  for i:=1 to 11 do SaveStream.Write(ResourceCount[i], SizeOf(ResourceCount[i]));
+  SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
   SaveStream.Write(RecruitsList.Count);
   for i:=1 to RecruitsList.Count do
     SaveStream.Write(TKMUnit(RecruitsList.Items[i-1]).ID) //Store ID

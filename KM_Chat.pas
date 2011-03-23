@@ -1,7 +1,7 @@
 unit KM_Chat;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KromUtils, SysUtils, StrUtils, Math, Windows;
+uses Classes, KM_Defaults, KromUtils, SysUtils;
 
 type
   TKMTextMessage = record
