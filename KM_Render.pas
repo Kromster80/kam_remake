@@ -225,7 +225,7 @@ begin
   fGame.PaintInterface;
 
   glLoadIdentity;
-  RenderBrightness(fGame.fGlobalSettings.Brightness);
+  RenderBrightness(fGame.GlobalSettings.Brightness);
 
   glFinish;
   SwapBuffers(h_DC);

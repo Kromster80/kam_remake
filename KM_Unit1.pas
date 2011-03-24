@@ -193,7 +193,7 @@ begin
         'Warning', MB_OK or MB_ICONWARNING);
   end;
 
-  Timer100ms.Interval := fGame.fGlobalSettings.SpeedPace; //FormLoading gets hidden OnTimer event
+  Timer100ms.Interval := fGame.GlobalSettings.SpeedPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
 
@@ -361,7 +361,7 @@ procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.Expo
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
 begin
   fLog.AssertToLog(fResource<>nil, 'Can''t export Fonts cos they aren''t loaded yet');
-  fResource.LoadFonts(true, fGame.fGlobalSettings.Locale);
+  fResource.LoadFonts(true, fGame.GlobalSettings.Locale);
 end;
 
 
@@ -535,7 +535,7 @@ end;
 procedure TForm1.ApplyCursorRestriction;
 var Rect: TRect;
 begin
-  if (fGame <> nil) and (fGame.fGlobalSettings <> nil) and fGame.fGlobalSettings.FullScreen then
+  if (fGame <> nil) and (fGame.GlobalSettings <> nil) and fGame.GlobalSettings.FullScreen then
   begin
     Rect := BoundsRect;
     ClipCursor(@Rect); //Restrict the cursor movement to inside our form

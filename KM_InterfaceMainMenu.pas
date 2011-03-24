@@ -385,7 +385,7 @@ begin
       Button_SP_TPR.OnClick      := SwitchMenuPage;
       Button_SP_Single.OnClick   := SwitchMenuPage;
       Button_SP_Load.OnClick     := SwitchMenuPage;
-      Button_SP_Replay.OnClick   := MainMenu_ReplayView; //Should be done this way since fGame is NIL yet
+      Button_SP_Replay.OnClick   := MainMenu_ReplayView; //Reroute since fGame is not initialized yet
       Button_SP_Back.OnClick     := SwitchMenuPage;
 end;
 
@@ -801,8 +801,8 @@ begin
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
-    fGame.fGlobalSettings.FullScreen := OldFullScreen;
-    fGame.fGlobalSettings.ResolutionID := OldResolution;
+    fGame.GlobalSettings.FullScreen := OldFullScreen;
+    fGame.GlobalSettings.ResolutionID := OldResolution;
     Panel_MainMenu.Show;
   end;
 
@@ -871,8 +871,8 @@ begin
 
   {Show Options menu}
   if Sender=Button_MM_Options then begin
-    OldFullScreen := fGame.fGlobalSettings.FullScreen;
-    OldResolution := fGame.fGlobalSettings.ResolutionID;
+    OldFullScreen := fGame.GlobalSettings.FullScreen;
+    OldResolution := fGame.GlobalSettings.ResolutionID;
     Options_Fill;
     Panel_Options.Show;
   end;
@@ -897,7 +897,7 @@ begin
 
   { Save settings when leaving options, if needed }
   if Sender=Button_Options_Back then
-    fGame.fGlobalSettings.SaveSettings;
+    fGame.GlobalSettings.SaveSettings;
 end;
 
 
@@ -916,7 +916,7 @@ end;
 //Should be done this way since fGame is NIL on UI creation
 procedure TKMMainMenuInterface.MainMenu_ReplayView(Sender: TObject);
 begin
-  fGame.ReplayView(nil);
+  fGame.ReplayView;
 end;
 
 
@@ -930,8 +930,8 @@ procedure TKMMainMenuInterface.Campaign_Set(aCampaign:TCampaign);
 var i,Top,Revealed:integer;
 begin
   Campaign_Selected := aCampaign;
-  Top := fGame.fCampaignSettings.GetMapsCount(Campaign_Selected);
-  Revealed := min(fGame.fCampaignSettings.GetUnlockedMaps(Campaign_Selected), Top); //INI could be wrong
+  Top := fGame.CampaignSettings.GetMapsCount(Campaign_Selected);
+  Revealed := min(fGame.CampaignSettings.GetUnlockedMaps(Campaign_Selected), Top); //INI could be wrong
 
   //Choose background
   case Campaign_Selected of
@@ -979,7 +979,7 @@ begin
   TKMImage(Sender).Highlight := true;
 
   Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
-  Label_CampaignText.Caption := fGame.fCampaignSettings.GetMapText(Campaign_Selected, TKMImage(Sender).Tag);
+  Label_CampaignText.Caption := fGame.CampaignSettings.GetMapText(Campaign_Selected, TKMImage(Sender).Tag);
 
   Panel_CampScroll.Height := 50 + Label_CampaignText.TextHeight + 70; //Add offset from top and space on bottom
   Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height;
@@ -1084,8 +1084,8 @@ end;
 procedure TKMMainMenuInterface.LAN_Update;
 var s:string;
 begin
-  s := fGame.fNetworking.MyIPString;
-  
+  s := fGame.Networking.MyIPString;
+
   Button_LAN_Host.Enabled := s<>'';
   Button_LAN_Join.Enable;
 
@@ -1098,12 +1098,12 @@ procedure TKMMainMenuInterface.LAN_Host(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
-  fGame.fNetworking.OnTextMessage := Lobby_OnMessage;
-  fGame.fNetworking.OnPlayersList := Lobby_OnPlayersList;
-  fGame.fNetworking.OnMapName := Lobby_OnMapName;
-  fGame.fNetworking.OnAllReady := Lobby_OnAllReady;
-  fGame.fNetworking.Host('Host');
-  fGame.fNetworking.PostMessage(fGame.fNetworking.MyIPStringAndPort);
+  fGame.Networking.OnTextMessage := Lobby_OnMessage;
+  fGame.Networking.OnPlayersList := Lobby_OnPlayersList;
+  fGame.Networking.OnMapName := Lobby_OnMapName;
+  fGame.Networking.OnAllReady := Lobby_OnAllReady;
+  fGame.Networking.Host('Host');
+  fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
 end;
 
 
@@ -1115,9 +1115,9 @@ begin
   Label_LAN_Status.Caption := 'Connecting, please wait ...';
 
   //Send request to join
-  fGame.fNetworking.Join(Edit_LAN_IP.Text, 'Joiner'); //Init lobby
-  fGame.fNetworking.OnJoinSucc := LAN_JoinSucc;
-  fGame.fNetworking.OnJoinFail := LAN_JoinFail;
+  fGame.Networking.Join(Edit_LAN_IP.Text, 'Joiner'); //Init lobby
+  fGame.Networking.OnJoinSucc := LAN_JoinSucc;
+  fGame.Networking.OnJoinFail := LAN_JoinFail;
 end;
 
 
@@ -1126,10 +1126,10 @@ procedure TKMMainMenuInterface.LAN_JoinSucc(Sender: TObject);
 begin
   SwitchMenuPage(Button_LAN_Join); //Open lobby page
 
-  fGame.fNetworking.OnTextMessage := Lobby_OnMessage;
-  fGame.fNetworking.OnPlayersList := Lobby_OnPlayersList;
-  fGame.fNetworking.OnMapName := Lobby_OnMapName;
-  fGame.fNetworking.PostMessage(fGame.fNetworking.MyIPStringAndPort);
+  fGame.Networking.OnTextMessage := Lobby_OnMessage;
+  fGame.Networking.OnPlayersList := Lobby_OnPlayersList;
+  fGame.Networking.OnMapName := Lobby_OnMapName;
+  fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
 end;
 
 
@@ -1142,7 +1142,7 @@ end;
 
 procedure TKMMainMenuInterface.LAN_QuitLobby;
 begin
-  fGame.fNetworking.Disconnect;
+  fGame.Networking.Disconnect;
   LAN_Update; //Reset buttons
   Label_LAN_Status.Caption := 'Disconnected';
 end;
@@ -1171,20 +1171,20 @@ end;
 procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
-  fGame.fNetworking.PostMessage(Edit_LobbyPost.Text);
+  fGame.Networking.PostMessage(Edit_LobbyPost.Text);
   Edit_LobbyPost.Text := '';
 end;
 
 
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
-  fGame.fNetworking.MapSelect(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
+  fGame.Networking.MapSelect(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
 end;
 
 
 procedure TKMMainMenuInterface.Lobby_LocSelect(Sender: TObject);
 begin
-  fGame.fNetworking.LocSelect(DropBox_LobbyLoc.ItemIndex+1);
+  fGame.Networking.LocSelect(DropBox_LobbyLoc.ItemIndex+1);
 end;
 
 
@@ -1215,14 +1215,14 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_ReadyClick(Sender: TObject);
 begin
-  fGame.fNetworking.ReadyToStart;
+  fGame.Networking.ReadyToStart;
   Button_LobbyReady.Disable;
 end;
 
 
 procedure TKMMainMenuInterface.Lobby_StartClick(Sender: TObject);
 begin
-  fGame.fNetworking.StartClick;
+  fGame.Networking.StartClick;
 end;
 
 
@@ -1273,23 +1273,23 @@ end;
 procedure TKMMainMenuInterface.Options_Fill;
 var i:cardinal;
 begin
-  CheckBox_Options_Autosave.Checked := fGame.fGlobalSettings.Autosave;
-  Ratio_Options_Brightness.Position := fGame.fGlobalSettings.Brightness;
-  Ratio_Options_Mouse.Position      := fGame.fGlobalSettings.MouseSpeed;
-  Ratio_Options_SFX.Position        := fGame.fGlobalSettings.SoundFXVolume;
-  Ratio_Options_Music.Position      := fGame.fGlobalSettings.MusicVolume;
-  CheckBox_Options_MusicOn.Checked  := not fGame.fGlobalSettings.MusicOn;
+  CheckBox_Options_Autosave.Checked := fGame.GlobalSettings.Autosave;
+  Ratio_Options_Brightness.Position := fGame.GlobalSettings.Brightness;
+  Ratio_Options_Mouse.Position      := fGame.GlobalSettings.MouseSpeed;
+  Ratio_Options_SFX.Position        := fGame.GlobalSettings.SoundFXVolume;
+  Ratio_Options_Music.Position      := fGame.GlobalSettings.MusicVolume;
+  CheckBox_Options_MusicOn.Checked  := not fGame.GlobalSettings.MusicOn;
 
   Ratio_Options_Music.Enabled := not CheckBox_Options_MusicOn.Checked;
 
   for i:=1 to LOCALES_COUNT do
-    if SameText(fGame.fGlobalSettings.Locale, Locales[i,1]) then
+    if SameText(fGame.GlobalSettings.Locale, Locales[i,1]) then
       Radio_Options_Lang.ItemIndex := i-1;
 
-  CheckBox_Options_FullScreen.Checked := fGame.fGlobalSettings.FullScreen;
+  CheckBox_Options_FullScreen.Checked := fGame.GlobalSettings.FullScreen;
   for i:=1 to RESOLUTION_COUNT do begin
-    CheckBox_Options_Resolution[i].Checked := (i = fGame.fGlobalSettings.ResolutionID);
-    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.fGlobalSettings.FullScreen;
+    CheckBox_Options_Resolution[i].Checked := (i = fGame.GlobalSettings.ResolutionID);
+    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.GlobalSettings.FullScreen;
   end;
 end;
 
@@ -1297,13 +1297,13 @@ end;
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 var i:cardinal;
 begin
-  fGame.fGlobalSettings.Autosave        := CheckBox_Options_Autosave.Checked;
-  fGame.fGlobalSettings.Brightness      := Ratio_Options_Brightness.Position;
-  fGame.fGlobalSettings.MouseSpeed      := Ratio_Options_Mouse.Position;
-  fGame.fGlobalSettings.SoundFXVolume   := Ratio_Options_SFX.Position;
-  fGame.fGlobalSettings.MusicVolume     := Ratio_Options_Music.Position;
-  fGame.fGlobalSettings.MusicOn         := not CheckBox_Options_MusicOn.Checked;
-  fGame.fGlobalSettings.FullScreen      := CheckBox_Options_FullScreen.Checked;
+  fGame.GlobalSettings.Autosave        := CheckBox_Options_Autosave.Checked;
+  fGame.GlobalSettings.Brightness      := Ratio_Options_Brightness.Position;
+  fGame.GlobalSettings.MouseSpeed      := Ratio_Options_Mouse.Position;
+  fGame.GlobalSettings.SoundFXVolume   := Ratio_Options_SFX.Position;
+  fGame.GlobalSettings.MusicVolume     := Ratio_Options_Music.Position;
+  fGame.GlobalSettings.MusicOn         := not CheckBox_Options_MusicOn.Checked;
+  fGame.GlobalSettings.FullScreen      := CheckBox_Options_FullScreen.Checked;
 
   Ratio_Options_Music.Enabled := not CheckBox_Options_MusicOn.Checked;
 
@@ -1315,18 +1315,18 @@ begin
   end;
 
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
-    OldFullScreen := fGame.fGlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
-    OldResolution := fGame.fGlobalSettings.ResolutionID;
-    fGame.ToggleFullScreen(fGame.fGlobalSettings.FullScreen, true);
+    OldFullScreen := fGame.GlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
+    OldResolution := fGame.GlobalSettings.ResolutionID;
+    fGame.ToggleFullScreen(fGame.GlobalSettings.FullScreen, true);
     exit; //Whole interface will be recreated
   end;
 
   for i:=1 to RESOLUTION_COUNT do
     if Sender = CheckBox_Options_Resolution[i] then
-      fGame.fGlobalSettings.ResolutionID := i;
+      fGame.GlobalSettings.ResolutionID := i;
 
   //Make button enabled only if new resolution/mode differs from old
-  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGlobalSettings.FullScreen) or (OldResolution <> fGame.fGlobalSettings.ResolutionID);
+  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.GlobalSettings.FullScreen) or (OldResolution <> fGame.GlobalSettings.ResolutionID);
 end;
 
 

@@ -359,7 +359,7 @@ begin
 
   //If they just closed settings then we should save them (if something has changed)
   if LastVisiblePage = Panel_Settings then
-    fGame.fGlobalSettings.SaveSettings;
+    fGame.GlobalSettings.SaveSettings;
 
   //First thing - hide all existing pages, except for message page
   for i:=1 to Panel_Main.ChildCount do
@@ -953,7 +953,7 @@ procedure TKMGamePlayInterface.Create_Settings_Page;
 begin
   Panel_Settings:=TKMPanel.Create(Panel_Main,0,412,200,400);
     TKMLabel.Create(Panel_Settings,24,10,100,30,fTextLibrary.GetTextString(181),fnt_Metal,kaLeft);
-    Ratio_Settings_Brightness:=TKMRatioRow.Create(Panel_Settings,18,30,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
+    Ratio_Settings_Brightness:=TKMRatioRow.Create(Panel_Settings,18,30,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Brightness.OnChange := Menu_Settings_Change;
     CheckBox_Settings_Autosave:=TKMCheckBox.Create(Panel_Settings,18,70,100,30,fTextLibrary.GetTextString(203),fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
@@ -961,16 +961,16 @@ begin
     CheckBox_Settings_FastScroll.OnClick := Menu_Settings_Change;
     Label_Settings_MouseSpeed:=TKMLabel.Create(Panel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Settings_MouseSpeed.Disable;
-    Ratio_Settings_Mouse:=TKMRatioRow.Create(Panel_Settings,18,150,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
+    Ratio_Settings_Mouse:=TKMRatioRow.Create(Panel_Settings,18,150,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Mouse.Disable;
     Ratio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
     Ratio_Settings_Mouse.OnChange := Menu_Settings_Change;
     Label_Settings_SFX:=TKMLabel.Create(Panel_Settings,24,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-    Ratio_Settings_SFX:=TKMRatioRow.Create(Panel_Settings,18,198,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
+    Ratio_Settings_SFX:=TKMRatioRow.Create(Panel_Settings,18,198,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_SFX.OnChange := Menu_Settings_Change;
     Label_Settings_Music:=TKMLabel.Create(Panel_Settings,24,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,246,160,20,fGame.fGlobalSettings.SlidersMin,fGame.fGlobalSettings.SlidersMax);
+    Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,246,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_Music.OnChange := Menu_Settings_Change;
     CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,30,'Disable',fnt_Metal);
@@ -1741,13 +1741,13 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Settings_Fill;
 begin
-  Ratio_Settings_Brightness.Position    := fGame.fGlobalSettings.Brightness;
-  CheckBox_Settings_Autosave.Checked    := fGame.fGlobalSettings.Autosave;
-  CheckBox_Settings_FastScroll.Checked  := fGame.fGlobalSettings.FastScroll;
-  Ratio_Settings_Mouse.Position         := fGame.fGlobalSettings.MouseSpeed;
-  Ratio_Settings_SFX.Position           := fGame.fGlobalSettings.SoundFXVolume;
-  Ratio_Settings_Music.Position         := fGame.fGlobalSettings.MusicVolume;
-  CheckBox_Settings_MusicOn.Checked     := not fGame.fGlobalSettings.MusicOn;
+  Ratio_Settings_Brightness.Position    := fGame.GlobalSettings.Brightness;
+  CheckBox_Settings_Autosave.Checked    := fGame.GlobalSettings.Autosave;
+  CheckBox_Settings_FastScroll.Checked  := fGame.GlobalSettings.FastScroll;
+  Ratio_Settings_Mouse.Position         := fGame.GlobalSettings.MouseSpeed;
+  Ratio_Settings_SFX.Position           := fGame.GlobalSettings.SoundFXVolume;
+  Ratio_Settings_Music.Position         := fGame.GlobalSettings.MusicVolume;
+  CheckBox_Settings_MusicOn.Checked     := not fGame.GlobalSettings.MusicOn;
   
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
@@ -1755,13 +1755,13 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
 begin
-  fGame.fGlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
-  fGame.fGlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
-  fGame.fGlobalSettings.FastScroll    := CheckBox_Settings_FastScroll.Checked;
-  fGame.fGlobalSettings.MouseSpeed    := Ratio_Settings_Mouse.Position;
-  fGame.fGlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
-  fGame.fGlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
-  fGame.fGlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
+  fGame.GlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
+  fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
+  fGame.GlobalSettings.FastScroll    := CheckBox_Settings_FastScroll.Checked;
+  fGame.GlobalSettings.MouseSpeed    := Ratio_Settings_Mouse.Position;
+  fGame.GlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
+  fGame.GlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
+  fGame.GlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
 
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
@@ -1881,7 +1881,7 @@ end;
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_ChatMsg.Text) = '') then exit;
-  fGame.fNetworking.PostMessage(Edit_ChatMsg.Text);
+  fGame.Networking.PostMessage(Edit_ChatMsg.Text);
   Edit_ChatMsg.Text := '';
 end;
 
@@ -1896,7 +1896,7 @@ procedure TKMGamePlayInterface.ReplayClick;
 begin
   if (Sender = Button_ReplayRestart) then begin
     fGame.GameStop(gr_Silent);
-    fGame.ReplayView(nil); //reload it once again
+    fGame.ReplayView; //reload it once again
   end;
 
   if (Sender = Button_ReplayPause) then begin
@@ -1960,7 +1960,7 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
-  if fGame.fGlobalSettings.MusicOn then
+  if fGame.GlobalSettings.MusicOn then
   begin
     Label_Menu_Track.Caption := fGame.MusicLib.GetTrackTitle;
     Label_Menu_Track.Enable;

@@ -26,8 +26,11 @@ type
     fGameSpeed:integer;
     fGameState:TGameState;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
+    fGlobalSettings: TGlobalSettings;
+    fCampaignSettings: TCampaignSettings;
     fMusicLib: TMusicLib;
     fProjectiles:TKMProjectiles;
+    fNetworking:TKMNetworking;
   private //Should be saved
     fGameplayTickCount:cardinal;
     fGameName:string;
@@ -42,9 +45,6 @@ type
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
-    fGlobalSettings: TGlobalSettings;
-    fCampaignSettings: TCampaignSettings;
-    fNetworking:TKMNetworking;
     fChat:TKMChat;
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
@@ -72,7 +72,7 @@ type
     procedure MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
 
     function  ReplayExists:boolean;
-    procedure ReplayView(Sender:TObject);
+    procedure ReplayView;
 
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
@@ -88,8 +88,11 @@ type
     procedure SetGameSpeed(aSpeed:byte=0);
     procedure StepOneFrame;
 
+    property GlobalSettings: TGlobalSettings read fGlobalSettings;
+    property CampaignSettings: TCampaignSettings read fCampaignSettings;
     property MusicLib:TMusicLib read fMusicLib;
     property Projectiles:TKMProjectiles read fProjectiles;
+    property Networking:TKMNetworking read fNetworking;
 
     procedure Save(SlotID:shortint);
     function Load(SlotID:shortint):string;
@@ -659,7 +662,7 @@ begin
 end;
 
 
-procedure TKMGame.ReplayView(Sender:TObject);
+procedure TKMGame.ReplayView;
 begin
   CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(99,'sav')), false);
   Load(99); //We load what was saved right before starting Recording
