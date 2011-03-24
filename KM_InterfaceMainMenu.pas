@@ -179,6 +179,7 @@ type
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnPlayersList(const aData:string);
     procedure Lobby_OnMapName(const aData:string);
+    procedure Lobby_OnStartingLoc(aData:integer);
     procedure Lobby_OnAllReady(Sender: TObject);
     procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
@@ -1101,6 +1102,7 @@ begin
   fGame.Networking.OnTextMessage := Lobby_OnMessage;
   fGame.Networking.OnPlayersList := Lobby_OnPlayersList;
   fGame.Networking.OnMapName := Lobby_OnMapName;
+  fGame.Networking.OnStartingLoc := Lobby_OnStartingLoc;
   fGame.Networking.OnAllReady := Lobby_OnAllReady;
   fGame.Networking.Host('Host');
   fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
@@ -1129,6 +1131,7 @@ begin
   fGame.Networking.OnTextMessage := Lobby_OnMessage;
   fGame.Networking.OnPlayersList := Lobby_OnPlayersList;
   fGame.Networking.OnMapName := Lobby_OnMapName;
+  fGame.Networking.OnStartingLoc := Lobby_OnStartingLoc;
   fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
 end;
 
@@ -1204,6 +1207,13 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 begin
   //Fill in map info
   Label_LobbyMapName.Caption := aData;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_OnStartingLoc(aData:integer);
+begin
+  //Fill in map info
+//  Label_LobbyMapName.Caption := aData;
 end;
 
 

@@ -8,7 +8,7 @@ uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
 
 type
   TStringEvent = procedure (const aData: string) of object;
-  TIntegerEvent = procedure (const aData: integer) of object;
+  TIntegerEvent = procedure (aData: integer) of object;
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
 
 type
@@ -28,6 +28,8 @@ type
                     mk_MapSelect,
                     mk_ReadyToStart, //Joiner telling he's ready
                     mk_Start, //Host starting the game
+
+                    //mk_ReadyToPlay,
 
                     mk_Commands,
                     mk_Text);

@@ -234,7 +234,7 @@ end;
 
 {$IFDEF WDC}
 procedure TRender.DoPrintScreen(FileName:string);
- var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
+var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
   sw := fRenderAreaSize.X;
   sh := fRenderAreaSize.Y;
