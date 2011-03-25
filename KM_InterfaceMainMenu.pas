@@ -62,15 +62,19 @@ type
           Button_LAN_LoginBack:TKMButton;
 
     Panel_Lobby:TKMPanel;
+      Panel_LobbyPlayers:TKMPanel;
+        Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
+        DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropBox;
+
+      Panel_LobbySetup:TKMPanel;
+        FileList_Lobby:TKMFileList;
+        Label_LobbyMapName:TKMLabel;
+
       Button_LobbyBack:TKMButton;
       Button_LobbyReady:TKMButton;
       Button_LobbyStart:TKMButton;
-      ListBox_LobbyPlayers:TKMListBox;
-      FileList_Lobby:TKMFileList;
       ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
-      Label_LobbyMapName:TKMLabel;
-      DropBox_LobbyLoc:TKMDropBox;
 
 
     Panel_Campaign:TKMPanel;
@@ -432,41 +436,48 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-var i:integer;
+var i,k:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
-    TKMLabel.Create(Panel_Lobby, 80, 100, 100, 20, 'Players list:', fnt_Outline, kaLeft);
-    ListBox_LobbyPlayers := TKMListBox.Create(Panel_Lobby, 80, 120, 190, 160);
+    //Players
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,80,100,510,240);
+      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 510, 240);
+      TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 150, 20, 'Players list:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 170, 10, 150, 20, 'Start location:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 330, 10, 140, 20, 'Flag colors:', fnt_Outline, kaLeft);
 
-    TKMLabel.Create(Panel_Lobby, 80, 290, 100, 20, 'Available maps:', fnt_Outline, kaLeft);
-    FileList_Lobby := TKMFileList.Create(Panel_Lobby, 80, 310, 190, 300);
-    FileList_Lobby.OnChange := Lobby_MapSelect;
+      for i:=0 to MAX_PLAYERS-1 do begin
+        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, 30+i*25, 150, 20, '. ', fnt_Metal, kaLeft);
+        Label_LobbyPlayer[i].Tag := i;
 
-                          TKMLabel.Create  (Panel_Lobby, 290, 100, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
-    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 290, 120, 480, 300);
-                          TKMLabel.Create  (Panel_Lobby, 290, 430, 100, 20, 'Post message:', fnt_Outline, kaLeft);
-    Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 290, 450, 480, 20, fnt_Metal);
+        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 170, 30+i*25, 150, 20, fnt_Metal);
+        DropBox_LobbyLoc[i].Items.Add('Undefined');
+        for k:=1 to MAX_PLAYERS do
+          DropBox_LobbyLoc[i].Items.Add('Location ' + inttostr(k));
+        DropBox_LobbyLoc[i].OnChange := Lobby_LocSelect;
+
+        for k:=0 to 5 do
+        with TKMShape.Create(Panel_LobbyPlayers, 330+28*k, 30+i*25, 24, 20, $00000000) do
+          FillColor := DefaultTeamColors[k+1];
+      end;
+
+    //Chat
+                          TKMLabel.Create  (Panel_Lobby, 80, 350, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
+    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 80, 370, 510, 200);
+                          TKMLabel.Create  (Panel_Lobby, 80, 580, 100, 20, 'Post message:', fnt_Outline, kaLeft);
+    Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 80, 600, 510, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
-    TKMLabel.Create(Panel_Lobby, 290, 480, 100, 20, 'Map info:', fnt_Outline, kaLeft);
-    TKMBevel.Create(Panel_Lobby, 290, 500, 230, 110);
-    Label_LobbyMapName := TKMLabel.Create(Panel_Lobby, 300, 510, 200, 20, '', fnt_Metal, kaLeft);
 
-    TKMLabel.Create(Panel_Lobby, 790, 100, 100, 20, 'Start locations:', fnt_Outline, kaLeft);
-    TKMBevel.Create(Panel_Lobby, 790, 120, 160, 160);
-    TKMCheckBox.Create(Panel_Lobby, 790, 290, 100, 20, 'Random', fnt_Metal);
-
-    TKMLabel.Create  (Panel_Lobby, 790, 320, 100, 20, 'Flag colors:', fnt_Outline, kaLeft);
-    for i:=0 to 5 do
-    with TKMShape.Create(Panel_Lobby, 790+28*i, 340, 24, 24, $00000000) do
-      FillColor := DefaultTeamColors[i+1];
-
-    TKMLabel.Create  (Panel_Lobby, 790, 380, 100, 20, 'Start location:', fnt_Outline, kaLeft);
-    DropBox_LobbyLoc := TKMDropBox.Create(Panel_Lobby, 790, 400, 150, 20, fnt_Metal);
-    for i:=1 to MAX_PLAYERS do
-      DropBox_LobbyLoc.Items.Add('Location ' + inttostr(i));
-    DropBox_LobbyLoc.OnChange := Lobby_LocSelect;
+    //Setup
+    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,700,100,240,400);
+      TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 400);
+      TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Available maps:', fnt_Outline, kaLeft);
+      FileList_Lobby := TKMFileList.Create(Panel_LobbySetup, 10, 30, 220, 300);
+      FileList_Lobby.OnChange := Lobby_MapSelect;
+      TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, 'Map info:', fnt_Outline, kaLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 80, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := SwitchMenuPage;
@@ -1152,8 +1163,11 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject);
+var i:integer;
 begin
-  ListBox_LobbyPlayers.Items.Clear;
+  for i:=0 to MAX_PLAYERS-1 do
+    Label_LobbyPlayer[i].Caption := '.';
+
   ListBox_LobbyPosts.Items.Clear;
   Edit_LobbyPost.Text := '';
   //Button_LobbyStart.Disable;
@@ -1187,7 +1201,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_LocSelect(Sender: TObject);
 begin
-  fGame.Networking.LocSelect(DropBox_LobbyLoc.ItemIndex+1);
+//  fGame.Networking.LocSelect(DropBox_LobbyLoc.ItemIndex+1);
 end;
 
 
@@ -1199,7 +1213,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnPlayersList(const aData:string);
 begin
-  ListBox_LobbyPlayers.Items.Text := aData;
+//  ListBox_LobbyPlayers.Items.Text := aData;
 end;
 
 
