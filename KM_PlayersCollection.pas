@@ -9,8 +9,8 @@ uses
 type
   TKMPlayersCollection = class
     private
-      fCount:integer;
-      procedure SetCount(aCount:integer);
+      fCount:byte;
+      procedure SetCount(aCount:byte);
     public
       Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
       PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
@@ -20,7 +20,7 @@ type
       constructor Create(aPlayerCount:integer);
       destructor Destroy; override;
 
-      property Count:integer read fCount write SetCount;
+      property Count:byte read fCount write SetCount;
       procedure RemovePlayer(aIndex:integer);
       procedure AfterMissionInit(aFlattenRoads:boolean);
       function HousesHitTest(X,Y:Integer):TKMHouse;
@@ -89,10 +89,10 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.SetCount(aCount:integer);
+procedure TKMPlayersCollection.SetCount(aCount:byte);
 var i:integer;
 begin
-  Assert(InRange(aCount,0,MAX_PLAYERS),'Setting unsupported PlayersCount: '+inttostr(aCount));
+  Assert(aCount <= MAX_PLAYERS, 'Setting unsupported PlayersCount: ' + inttostr(aCount));
 
   fCount := aCount;
   for i:=1 to fCount do begin
