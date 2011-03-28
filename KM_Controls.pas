@@ -60,6 +60,8 @@ end;
 {Base class for all TKM elements}
 TKMControl = class
   private
+    fParent: TKMPanel;
+
     fLeft: Integer;
     fTop: Integer;
     fWidth: Integer;
@@ -83,17 +85,16 @@ TKMControl = class
     function GetVisible:boolean;
     procedure SetVisible(aValue:boolean); virtual;
   public
-    Parent: TKMControl;
-
     Anchors: TAnchors;
     Enabled: boolean;
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
-    constructor Create(aParent:TKMControl; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     function HitTest(X, Y: Integer): Boolean; virtual;
 
+    property Parent: TKMPanel read fParent;
     property Left: Integer read GetLeft write fLeft;
     property Top: Integer read GetTop write fTop;
     property Width: Integer read GetWidth write SetWidth;
@@ -105,6 +106,7 @@ TKMControl = class
     procedure Hide;
     procedure Center;
     procedure Stretch;
+    function MasterParent:TKMPanel;
 
     function KeyDown(Key: Word; Shift: TShiftState):boolean; virtual;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; virtual;
@@ -416,7 +418,7 @@ TScrollAxis = (sa_Vertical, sa_Horizontal);
 TKMScrollBar = class(TKMControl)
   private
     fScrollAxis:TScrollAxis;
-    FOnChange:TNotifyEvent;
+    fOnChange:TNotifyEvent;
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
     procedure RefreshItems;
@@ -435,7 +437,7 @@ TKMScrollBar = class(TKMControl)
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
 end;
 
@@ -479,7 +481,7 @@ TKMDropBox = class(TKMControl)
     fFont: TKMFont;
     fItems:TStringList;
     fButton:TKMButton;
-    //fShape:TKMShape;
+    fShape:TKMShape;
     fList:TKMListBox;
     fOnChange:TNotifyEvent;
     procedure ListShow(Sender:TObject);
@@ -549,7 +551,7 @@ uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
 
 
 { TKMControl }
-constructor TKMControl.Create(aParent:TKMControl; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMControl.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create;
   fLeft     := aLeft;
@@ -563,6 +565,8 @@ begin
   Tag       := 0;
   Hint      := '';
 
+  //Parent will be Nil only for master Panel which contains all the controls in it
+  fParent   := aParent;
   if aParent<>nil then TKMPanel(aParent).AddChild(Self);
 end;
 
@@ -740,6 +744,17 @@ procedure TKMControl.Center;  begin Anchors := []; end;
 procedure TKMControl.Stretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
 
 
+function TKMControl.MasterParent:TKMPanel;
+var P:TKMPanel;
+begin
+  P := Parent;
+  while P.Parent <> nil do
+    P := P.Parent;
+  Result := P;
+end;
+
+
+
 { TKMPanel } //virtual panels to contain child items
 constructor TKMPanel.Create(aParent:TKMMasterControl; aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -772,9 +787,8 @@ procedure TKMPanel.AddChild(aChild:TKMControl);
 begin
   inc(ChildCount);
   {Hereby I still try to make a rule to count starting from 1, not from zero}
-  setlength(Childs, ChildCount+1);
+  SetLength(Childs, ChildCount+1);
   Childs[ChildCount] := aChild;
-  aChild.Parent := Self;
 end;
 
 procedure TKMPanel.SetHeight(aValue:Integer);
@@ -1645,8 +1659,8 @@ begin
 
     if NewPos <> Position then begin
       Position := EnsureRange(NewPos, MinValue, MaxValue);
-      if Assigned(OnChange) then
-        OnChange(Self);
+      if Assigned(fOnChange) then
+        fOnChange(Self);
     end;
 
   end;
@@ -1694,14 +1708,14 @@ end;
 procedure TKMScrollBar.IncPosition(Sender:TObject);
 begin
   Position := EnsureRange(Position+1, MinValue, MaxValue);
-  if Assigned(OnChange) then OnChange(Self);
+  if Assigned(fOnChange) then fOnChange(Self);
 end;
 
 
 procedure TKMScrollBar.DecPosition(Sender:TObject);
 begin
   Position := EnsureRange(Position-1, MinValue, MaxValue);
-  if Assigned(OnChange) then OnChange(Self);
+  if Assigned(fOnChange) then fOnChange(Self);
 end;
 
 
@@ -1718,8 +1732,8 @@ begin
 
   if MinValue = MaxValue then begin
     case fScrollAxis of
-      sa_Vertical:   ThumbPos := (Height-Width*2-Thumb) div 2;
-      sa_Horizontal: ThumbPos := (Width-Height*2-Thumb) div 2;
+      sa_Vertical:   ThumbPos := max((Height-Width*2-Thumb),0) div 2;
+      sa_Horizontal: ThumbPos := max((Width-Height*2-Thumb),0) div 2;
     end;
     State := [bs_Disabled];
     ScrollDec.Disable;
@@ -1852,6 +1866,7 @@ end;
 
 
 constructor TKMDropBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+var P:TKMPanel;
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fItemHeight := 20;
@@ -1863,22 +1878,19 @@ begin
   fButton := TKMButton.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
 
-  //fShape := TKMButton.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, 5, 4, bsMenu);
-  //fShape.fOnClick := ListShow;
+  P := MasterParent;                                     
+  fShape := TKMShape.Create(P, P.Left, P.Top, P.Width, P.Height, $00000000);
+  fShape.fOnClick := ListHide;
 
-  fList := TKMListBox.Create(aParent, aLeft, aTop+fItemHeight, aWidth, 0);
+  fList := TKMListBox.Create(P, aLeft, aTop+fItemHeight, aWidth, 0);
   fList.fOnClick := ListClick;
-  fList.Visible := false;
 
-  //fOnFocusLoose := ListHide;
+  ListHide(nil);
 end;
 
 
 destructor TKMDropBox.Destroy;
 begin
-  //fButton.Free;
-  //fShape.Free;
-  //fList.Free;
   fItems.Free;
   Inherited;
 end;
@@ -1897,7 +1909,9 @@ begin
   fList.ItemIndex := fItemIndex;
   fList.Height := min(fDropCount, fList.Items.Count)*fItemHeight;
   fList.TopIndex := fItemIndex - fDropCount div 2;
+  fList.RefreshList;
   fList.Show;
+  fShape.Show;
 end;
 
 
@@ -1916,6 +1930,7 @@ end;
 procedure TKMDropBox.ListHide(Sender:TObject);
 begin
   fList.Hide;
+  fShape.Hide;
 end;
 
 
