@@ -347,7 +347,7 @@ begin
     with TKMImage.Create(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    with TKMDropBox.Create(Panel_MainMenu, 500, 270, 150, 20, fnt_Metal) do
+    with TKMDropBox.Create(Panel_MainMenu, 500, 260, 150, 20, fnt_Metal) do
     begin
       Items.Add('Undefined');
       Items.Add('Undefined');
