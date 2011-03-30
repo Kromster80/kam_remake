@@ -188,7 +188,7 @@ procedure TKMNetwork.DataAvailable(Sender: TObject; Error: Word);
 var Buffer : array[0..1023] of byte;
     Len, SrcLen    : Integer;
     Src    : TSockAddrIn;
-    Addr:string;
+    Address:string;
 begin
   //process
   //ReceiveFrom gives us three things:
@@ -205,17 +205,17 @@ begin
   end;
 
   //XXX.XXX.XXX.XXX
-  Addr := IntToStr(Ord(Src.sin_addr.S_un_b.s_b1)) +'.'+
-          IntToStr(Ord(Src.sin_addr.S_un_b.s_b2)) +'.'+
-          IntToStr(Ord(Src.sin_addr.S_un_b.s_b3)) +'.'+
-          IntToStr(Ord(Src.sin_addr.S_un_b.s_b4));
+  Address := IntToStr(Ord(Src.sin_addr.S_un_b.s_b1)) +'.'+
+             IntToStr(Ord(Src.sin_addr.S_un_b.s_b2)) +'.'+
+             IntToStr(Ord(Src.sin_addr.S_un_b.s_b3)) +'.'+
+             IntToStr(Ord(Src.sin_addr.S_un_b.s_b4));
 
   //handle low level errors and convert them to higher ones if required
   //Mute corresponding fWatchlist.Item(aIndex) if required
 
   //pass message to GIP_Multi (it will be handling the higher level errors)
   if Assigned(fOnRecieveKMPacket) then
-    fOnRecieveKMPacket(Slice(Buffer, Len), Addr);
+    fOnRecieveKMPacket(Slice(Buffer, Len), Address);
 end;
 
 

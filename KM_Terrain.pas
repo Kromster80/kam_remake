@@ -2249,21 +2249,22 @@ begin
   Xc := EnsureRange(round(inX+0.5),1,MapX-1); //Cell below cursor without height check
   Yc := EnsureRange(round(inY+0.5),1,MapY-1);
 
-  for ii:=-2 to 4 do
-  begin//make an array of tile heights above and below cursor (-2..4)
+  for ii:=-2 to 4 do //make an array of tile heights above and below cursor (-2..4)
+  begin
     Tmp := EnsureRange(Yc+ii,1,MapY);
-    Ycoef[ii]:=(Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(InX))
-                         +fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/CELL_HEIGHT_DIV;
+    Ycoef[ii] := (Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(inX))
+                           +fTerrain.Land[Tmp,Xc+1].Height*frac(inX))/CELL_HEIGHT_DIV;
   end;
 
-  Result:=Yc; //Assign something incase following code returns nothing 
+  Result := Yc; //Assign something incase following code returns nothing
 
   for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
-    if (InY>=Ycoef[ii])and(InY<=Ycoef[ii+1]) then
-      begin
-        Result:=Yc+ii-(Ycoef[ii+1]-InY) / (Ycoef[ii+1]-Ycoef[ii]);
-        break;
-      end;
+    if InRange(inY, Ycoef[ii], Ycoef[ii+1]) then
+    begin
+      Result := Yc+ii-(Ycoef[ii+1]-inY) / (Ycoef[ii+1]-Ycoef[ii]);
+      break;
+    end;
+    
   //fLog.AssertToLog(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
 end;
 
@@ -2283,7 +2284,7 @@ begin
     Tmp2 := 0
   else
     Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(inX));
-  Result:=mix(Tmp2, Tmp1, frac(InY));
+  Result := mix(Tmp2, Tmp1, frac(inY));
 end;
 
 
