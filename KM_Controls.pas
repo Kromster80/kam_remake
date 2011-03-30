@@ -1897,7 +1897,7 @@ begin
   fShape := TKMShape.Create(P, P.Left, P.Top, P.Width, P.Height, $00000000);
   fShape.fOnClick := ListHide;
 
-  fList := TKMListBox.Create(P, aLeft, aTop+aHeight, aWidth, 0);
+  fList := TKMListBox.Create(P, Left, Top+aHeight, aWidth, 0);
   fList.BackAlpha := 1;
   fList.fOnClick := ListClick;
 
@@ -1963,6 +1963,7 @@ end;
 procedure TKMDropBox.SetItemIndex(aIndex:smallint);
 begin
   fList.ItemIndex := aIndex;
+  fCaption := Items[ItemIndex];
 end;
 
 

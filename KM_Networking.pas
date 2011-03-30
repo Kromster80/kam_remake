@@ -53,9 +53,8 @@ type
       fOnJoinSucc:TNotifyEvent;
       fOnJoinFail:TStringEvent;
       fOnTextMessage:TStringEvent;
-      fOnPlayersList:TStringEvent;
+      fOnPlayersSetup:TNotifyEvent;
       fOnMapName:TStringEvent;
-      fOnStartingLoc:TIntegerEvent;
       fOnAllReady:TNotifyEvent;
       fOnCommands:TStringEvent;
 
@@ -81,10 +80,11 @@ type
       procedure MapSelect(aName:string);
       procedure LocSelect(aIndex:integer);
       procedure ReadyToStart;
-      procedure StartClick; //All arguments required are in our class
+      procedure StartClick; //All required arguments are in our class
 
       //Common
       procedure PostMessage(aText:string);
+      property MyIndex:integer read fMyIndex;
 
       //Gameplay
       property MissionMode:TMissionMode read fMissionMode;
@@ -95,9 +95,8 @@ type
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
       property OnJoinFail:TStringEvent write fOnJoinFail;       //We were refused to join
       property OnTextMessage:TStringEvent write fOnTextMessage; //Text message recieved
-      property OnPlayersList:TStringEvent write fOnPlayersList; //Player list updated
+      property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
       property OnMapName:TStringEvent write fOnMapName;         //Map name updated
-      property OnStartingLoc:TIntegerEvent write fOnStartingLoc;         //Map name updated
       property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start playing
       property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
       procedure UpdateState;
@@ -151,7 +150,7 @@ begin
   fNetPlayers[fMyIndex].ReadyToStart := true;
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
-  if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
+  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;
 
 
@@ -205,8 +204,8 @@ begin
   case fLANPlayerKind of
     lpk_Host:   begin
                   fNetPlayers[fMyIndex].StartLocID := aIndex;
-                  PacketToAll(mk_StartingLocAssign, inttostr(aIndex) + fMyNikname); //Just inform others
-                  fOnStartingLoc(aIndex);
+                  PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
     lpk_Joiner: PacketToHost(mk_StartingLocQuery, inttostr(aIndex) + fMyNikname);
   end;
@@ -297,14 +296,14 @@ begin
                     end;
     mk_VerifyJoin:  if fLANPlayerKind = lpk_Host then begin
                       fNetPlayers.AddPlayer(aAddr, Msg);
-                      if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
+                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                       PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
                       PostMessage(aAddr+'/'+Msg+' has joined');
                     end;
     mk_PlayersList: if fLANPlayerKind = lpk_Joiner then begin
                       fNetPlayers.SetAsText(Msg);
                       fMyIndex := fNetPlayers.NiknameIndex(Msg);
-                      if Assigned(fOnPlayersList) then fOnPlayersList(fNetPlayers.AsStringList);
+                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                     end;
     mk_ReadyToStart:if fLANPlayerKind = lpk_Host then begin
                       fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;

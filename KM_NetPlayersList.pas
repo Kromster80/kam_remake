@@ -13,9 +13,8 @@ type
       fNikname:string;
     public
       PlayerType:TPlayerType; //Human, Computer
-      FlagColor:cardinal; //Flag color, 0 means random
+      FlagColorID:integer; //Flag color, 0 means random
       StartLocID:integer; //Start location, 0 means random
-      Alliances:array[1..MAX_PLAYERS] of TAllianceType;
       ReadyToStart:boolean;
     public
       function IsHuman:boolean;
@@ -103,16 +102,13 @@ end;
 
 
 procedure TKMPlayersList.AddPlayer(aAddr,aNik:string);
-var i:integer;
 begin
   inc(fCount);
   fPlayers[fCount].fAddress := aAddr;
   fPlayers[fCount].fNikname := aNik;
   fPlayers[fCount].PlayerType := pt_Human;
-  fPlayers[fCount].FlagColor := 0;
+  fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocID := 0;
-  for i:=1 to MAX_PLAYERS do
-    fPlayers[fCount].Alliances[i] := at_Enemy;
   fPlayers[fCount].ReadyToStart := false;
 end;
 
@@ -161,6 +157,10 @@ begin
   begin
     M.Write(fPlayers[i].fAddress);
     M.Write(fPlayers[i].fNikname);
+    M.Write(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
+    M.Write(fPlayers[i].FlagColorID);
+    M.Write(fPlayers[i].StartLocID);
+    M.Write(fPlayers[i].ReadyToStart);
   end;
 
   Result := M.ReadAsText;
@@ -179,6 +179,10 @@ begin
     begin
       M.Read(fPlayers[i].fAddress);
       M.Read(fPlayers[i].fNikname);
+      M.Read(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
+      M.Read(fPlayers[i].FlagColorID);
+      M.Read(fPlayers[i].StartLocID);
+      M.Read(fPlayers[i].ReadyToStart);
     end;
   finally
     M.Free;
