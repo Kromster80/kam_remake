@@ -1200,12 +1200,12 @@ begin
 
   if Sender = Button_LAN_Host then begin
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
-    if FileList_Lobby.fFiles.Count > 0 then
-      FileList_Lobby.ItemIndex := 0; //Select first map by default
+    FileList_Lobby.ItemIndex := -1;
     FileList_Lobby.Show;
-    Button_LobbyReady.Disable;
+    Button_LobbyReady.Hide; //Don't care if it's enabled or not
   end else begin
     FileList_Lobby.Hide;
+    Button_LobbyReady.Show;
     Button_LobbyReady.Enable;
   end;
 end;
