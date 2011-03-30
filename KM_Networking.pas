@@ -8,14 +8,12 @@ uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
 
 type
   TStringEvent = procedure (const aData: string) of object;
-  TIntegerEvent = procedure (aData: integer) of object;
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
 
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
 
-  TMessageKind = (  mk_Unknown,
-                    mk_AskToJoin,
+  TMessageKind = (  mk_AskToJoin,
                     mk_Timeout,
                     mk_AllowToJoin,
                     mk_RefuseToJoin, //When nikname is taken
@@ -23,7 +21,7 @@ type
                     mk_PlayersList,
 
                     mk_StartingLocQuery,    //Ask if we can take that starting location
-                    mk_StartingLocAssign,   //Reply with starting location (-1 for undefined)
+                    mk_FlagColorQuery,    //Ask if we can take that starting location
 
                     mk_MapSelect,
                     mk_ReadyToStart, //Joiner telling he's ready
@@ -58,7 +56,6 @@ type
       fOnAllReady:TNotifyEvent;
       fOnCommands:TStringEvent;
 
-      function CheckCanJoin(aAddr, aNik:string):string;
       procedure StartGame;
 
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
@@ -78,7 +75,8 @@ type
       procedure Disconnect;
       function Connected: boolean;
       procedure MapSelect(aName:string);
-      procedure LocSelect(aIndex:integer);
+      procedure SelectLoc(aIndex:integer);
+      procedure SelectColor(aIndex:integer);
       procedure ReadyToStart;
       procedure StartClick; //All required arguments are in our class
 
@@ -160,7 +158,7 @@ begin
   fHostAddress := aServerAddress;
   fMyAddress := MyIPString;
   fMyNikname := aUserName;
-  fMyIndex := -1;
+  fMyIndex := -1; //Host will send us Players lista and we will get our index from there
   fLANPlayerKind := lpk_Joiner;
   fJoinTick := GetTickCount + 3000; //3sec
   fNetPlayers.Clear;
@@ -185,6 +183,7 @@ end;
 
 
 //Tell other players which map we will be using
+//Players will reset their starting locations and "Ready" status on their own
 procedure TKMNetworking.MapSelect(aName:string);
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
@@ -192,22 +191,57 @@ begin
   fMapName := aName;
   PacketToAll(mk_MapSelect, fMapName);
 
-  if Assigned(fOnMapName) then fOnMapName(fMapName);
+  fNetPlayers.ResetLocAndReady;
+  fNetPlayers[fMyIndex].ReadyToStart := true;
+  //PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
 
+  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+  if Assigned(fOnMapName) then fOnMapName(fMapName);
   //Compare map availability and CRC
 end;
 
 
-//Tell other players which map we will be using
-procedure TKMNetworking.LocSelect(aIndex:integer);
+//Tell other players which start position we would like to use
+//Each players choice should be unique
+procedure TKMNetworking.SelectLoc(aIndex:integer);
 begin
+  if not fNetPlayers.LocAvailable(aIndex) then
+  begin
+    if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+    exit;
+  end;
+
+  //Host makes rules, Joiner will get confirmation from Host
+  fNetPlayers[fMyIndex].StartLocID := aIndex;
+
   case fLANPlayerKind of
     lpk_Host:   begin
-                  fNetPlayers[fMyIndex].StartLocID := aIndex;
                   PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
     lpk_Joiner: PacketToHost(mk_StartingLocQuery, inttostr(aIndex) + fMyNikname);
+  end;
+end;
+
+
+//Tell other players which color we will be using
+//For now players colors are not unique, many players may have one color
+procedure TKMNetworking.SelectColor(aIndex:integer);
+begin
+  //if not fNetPlayers.ColorAvailable(aIndex) then exit;
+
+  //Host makes rules, Joiner will get confirmation from Host
+  fNetPlayers[fMyIndex].FlagColorID := aIndex;
+
+  case fLANPlayerKind of
+    lpk_Host:   begin
+                  PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                end;
+    lpk_Joiner: begin
+                  PacketToHost(mk_FlagColorQuery, inttostr(aIndex) + fMyNikname);
+                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                end;
   end;
 end;
 
@@ -242,28 +276,11 @@ begin
 end;
 
 
-//See if player can join our game
-function TKMNetworking.CheckCanJoin(aAddr, aNik:string):string;
-begin
-  //if fNetPlayers.Count >= MAX_PLAYERS then
-  //  Result := 'No more players can join the game'
-  //else
-  if fNetPlayers.NiknameIndex(aNik) <> -1 then
-    Result := 'Player with this nik already joined the game';
-end;
-
-
 procedure TKMNetworking.PostMessage(aText:string);
 begin
   PacketToAll(mk_Text, fMyAddress + '/' + fMyNikname + ': ' + aText);
   fOnTextMessage(fMyAddress + '/' + fMyNikname + ': ' + aText);
 end;
-
-
-{function TKMNetworking.PlayerType(aIndex:integer):TPlayerType;
-begin
-  Result := fNetPlayers.PlayerType(aIndex);
-end;}
 
 
 procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
@@ -276,7 +293,12 @@ end;
 
 
 procedure TKMNetworking.PacketRecieve(const aData: array of byte; aAddr:string);
-var Kind:TMessageKind; Msg:string; ReMsg:string;
+var
+  Kind:TMessageKind;
+  Msg:string;
+  ReMsg:string;
+  LocID,ColorID:integer;
+  NikID:integer;
 begin
   Assert(Length(aData) >= 1, 'Unexpectedly short message'); //Kind, Message
 
@@ -287,52 +309,80 @@ begin
     Msg := '';
 
   case Kind of
-    mk_AskToJoin:   if fLANPlayerKind = lpk_Host then begin
-                      ReMsg := CheckCanJoin(aAddr, Msg);
-                      if ReMsg = '' then
-                        PacketSend(aAddr, mk_AllowToJoin, 'Allowed')
-                      else
-                        PacketSend(aAddr, mk_RefuseToJoin, ReMsg);
-                    end;
-    mk_VerifyJoin:  if fLANPlayerKind = lpk_Host then begin
-                      fNetPlayers.AddPlayer(aAddr, Msg);
-                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                      PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
-                      PostMessage(aAddr+'/'+Msg+' has joined');
-                    end;
-    mk_PlayersList: if fLANPlayerKind = lpk_Joiner then begin
-                      fNetPlayers.SetAsText(Msg);
-                      fMyIndex := fNetPlayers.NiknameIndex(Msg);
-                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                    end;
-    mk_ReadyToStart:if fLANPlayerKind = lpk_Host then begin
-                      fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
-                      if (fLANPlayerKind = lpk_Host) and fNetPlayers.AllReady and (fNetPlayers.Count>1) then
-                        if Assigned(fOnAllReady) then fOnAllReady(nil);
-                    end;
+    mk_AskToJoin:
+            if fLANPlayerKind = lpk_Host then begin
+              ReMsg := fNetPlayers.CheckCanJoin(aAddr, Msg);
+              if ReMsg = '' then
+                PacketSend(aAddr, mk_AllowToJoin, 'Allowed')
+              else
+                PacketSend(aAddr, mk_RefuseToJoin, ReMsg);
+            end;
 
-            
-    mk_StartingLocQuery:    if fLANPlayerKind = lpk_Host then begin
-                              //todo: Check starting loc availability (fNetPlayers, fMapInfo)
-                              //todo: Confirm/reject the query
-                              //todo: event to UI
-                            end;
-    mk_StartingLocAssign:   if fLANPlayerKind = lpk_Joiner then begin
-                              //todo: 1. Server informs us of his starting loc
-                              //todo: 2. Server confirms our choice of starting loc
-                              //todo: event to UI
-                            end;
+    mk_VerifyJoin:
+            if fLANPlayerKind = lpk_Host then begin
+              fNetPlayers.AddPlayer(aAddr, Msg);
+              PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+              PacketSend(aAddr, mk_MapSelect, fMapName);
+              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+              PostMessage(aAddr+'/'+Msg+' has joined');
+            end;
 
+    mk_PlayersList:
+            if fLANPlayerKind = lpk_Joiner then begin
+              fNetPlayers.SetAsText(Msg); //Our index could have changed on players add/removal
+              fMyIndex := fNetPlayers.NiknameIndex(fMyNikname);
+              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+            end;
 
-    mk_MapSelect:   if fLANPlayerKind = lpk_Joiner then begin
-                      fMapName := Msg;
-                      if Assigned(fOnMapName) then fOnMapName(fMapName);
-                    end;
-    mk_Start:       if fLANPlayerKind = lpk_Joiner then begin
-                      StartGame;
-                    end;
-    mk_Commands:    if Assigned(fOnCommands) then fOnCommands(Msg);
-    mk_Text:        if Assigned(fOnTextMessage) then fOnTextMessage(Msg);
+    mk_ReadyToStart:
+            if fLANPlayerKind = lpk_Host then begin
+              fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
+              if fNetPlayers.AllReady and (fNetPlayers.Count>1) then
+                if Assigned(fOnAllReady) then fOnAllReady(nil);
+            end;
+
+    mk_StartingLocQuery:
+            if fLANPlayerKind = lpk_Host then begin
+              LocID := strtoint(Msg[1]); //Location index
+              NikID := fNetPlayers.NiknameIndex(RightStr(Msg, length(Msg)-1)); //Player index
+              if fNetPlayers.LocAvailable(LocID) then //Update Players setup
+              begin
+                fNetPlayers[NikID].StartLocID := LocID;
+                PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+              end
+              else //Quietly refuse
+                PacketSend(aAddr, mk_PlayersList, fNetPlayers.GetAsText);
+            end;
+
+    mk_FlagColorQuery:
+            if fLANPlayerKind = lpk_Host then begin
+              ColorID := strtoint(Msg[1]); //Color index
+              NikID := fNetPlayers.NiknameIndex(RightStr(Msg, length(Msg)-1)); //Player index
+
+              fNetPlayers[NikID].FlagColorID := ColorID;
+              PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+            end;
+
+    mk_MapSelect:
+            if fLANPlayerKind = lpk_Joiner then begin
+              fMapName := Msg;
+              fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
+              if Assigned(fOnMapName) then fOnMapName(fMapName);
+              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+            end;
+
+    mk_Start:
+            if fLANPlayerKind = lpk_Joiner then begin
+              StartGame;
+            end;
+
+    mk_Commands:
+            if Assigned(fOnCommands) then fOnCommands(Msg);
+
+    mk_Text:
+            if Assigned(fOnTextMessage) then fOnTextMessage(Msg);
   end;
 end;
 

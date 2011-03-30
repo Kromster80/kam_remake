@@ -43,7 +43,10 @@ type
 
       //Getters
       function NiknameIndex(aNik:string):integer;
+      function CheckCanJoin(aAddr, aNik:string):string;
       function GetStartLoc(aNik:string):integer;
+      function LocAvailable(aIndex:integer):boolean;
+      procedure ResetLocAndReady;
       function AllReady:boolean;
 
       //Import/Export
@@ -123,6 +126,17 @@ begin
 end;
 
 
+//See if player can join our game
+function TKMPlayersList.CheckCanJoin(aAddr, aNik:string):string;
+begin
+  if fCount >= MAX_PLAYERS then
+    Result := 'No more players can join the game'
+  else
+  if NiknameIndex(aNik) <> -1 then
+    Result := 'Player with this nik already joined the game';
+end;
+
+
 function TKMPlayersList.GetStartLoc(aNik:string):integer;
 var i:integer;
 begin
@@ -132,6 +146,30 @@ begin
       if fPlayers[i].StartLocID = 0 then Result := i //Order
                                     else Result := fPlayers[i].StartLocID;
   Assert(Result<>-1, 'Net Player is missing');
+end;
+
+
+function TKMPlayersList.LocAvailable(aIndex:integer):boolean;
+var i:integer;
+begin
+  Result := true;
+  if aIndex=0 then exit;
+
+  Result := aIndex <= 6; // Check with map max players
+
+  for i:=1 to fCount do
+    Result := Result and not (fPlayers[i].StartLocID = aIndex);
+end;
+
+
+procedure TKMPlayersList.ResetLocAndReady;
+var i:integer;
+begin
+  for i:=1 to fCount do
+  begin
+    fPlayers[i].StartLocID := 0;
+    fPlayers[i].ReadyToStart := false;
+  end;
 end;
 
 

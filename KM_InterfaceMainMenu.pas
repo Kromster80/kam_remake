@@ -193,7 +193,7 @@ type
     procedure Lobby_StartClick(Sender: TObject);
 
     procedure Load_Click(Sender: TObject);
-    procedure Load_PopulateList;
+    procedure Load_RefreshList;
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_Change(Sender: TObject);
     procedure Options_Fill;
@@ -878,7 +878,7 @@ begin
 
   {Show Load menu}
   if Sender=Button_SP_Load then begin
-    Load_PopulateList;
+    Load_RefreshList;
     Panel_Load.Show;
   end;
 
@@ -1225,15 +1225,27 @@ begin
 end;
 
 
+//Try to change players setup, Networking will check if it can be done under current
+//conditions immediately and reverts the change without disturbing Host.
+//If the change is possible Networking will send query to the Host.
+//Host will reply with OnPlayersSetup event and data will be actual.
 procedure TKMMainMenuInterface.Lobby_PlayersSetupChange(Sender: TObject);
+var i:integer;
 begin
-  //fGame.Networking.LocSelect(DropBox_LobbyLoc.ItemIndex+1);
-end;
+  i := fGame.Networking.MyIndex-1; //0..n Matches index of editable fields
 
+  //Starting location
+  if Sender = DropBox_LobbyLoc[i] then
+  begin
+    fGame.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex);
+    DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocID;
+  end;
 
-procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
-begin
-  ListBox_LobbyPosts.Items.Add(aData);
+  if Sender = DropBox_LobbyColor[i] then
+  begin
+    fGame.Networking.SelectColor(DropBox_LobbyColor[i].ItemIndex);
+    DropBox_LobbyColor[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+  end;
 end;
 
 
@@ -1244,16 +1256,17 @@ var i:integer; MyNik:boolean;
 begin
   for i:=0 to MAX_PLAYERS-1 do
   begin
-    MyNik := (i+1 = fGame.Networking.MyIndex);
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocID;
     DropBox_LobbyColor[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
 
+    MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
     DropBox_LobbyLoc[i].Enabled := MyNik;
     DropBox_LobbyColor[i].Enabled := MyNik;
-    CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (replace with icon perhaps)
-  end;                   
+    CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will need to replace it with an icon)
+    Button_LobbyReady.Enabled := MyNik and fGame.Networking.NetPlayers[i+1].ReadyToStart;
+  end;
 end;
 
 
@@ -1261,6 +1274,17 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 begin
   //Fill in map info
   Label_LobbyMapName.Caption := aData;
+
+  //Cut DropBox_LobbyLoc according to map max players
+
+  //todo: Keep disabled if Map does not matches Hosts or missing
+  Button_LobbyReady.Enabled := true;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
+begin
+  ListBox_LobbyPosts.Items.Add(aData);
 end;
 
 
@@ -1273,7 +1297,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_ReadyClick(Sender: TObject);
 begin
   fGame.Networking.ReadyToStart;
-  Button_LobbyReady.Disable;
+  Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[fGame.Networking.MyIndex].ReadyToStart;
 end;
 
 
@@ -1291,7 +1315,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Load_PopulateList;
+procedure TKMMainMenuInterface.Load_RefreshList;
 var i:integer;
 begin
   for i:=1 to SAVEGAME_COUNT do

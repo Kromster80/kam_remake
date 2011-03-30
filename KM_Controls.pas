@@ -1898,7 +1898,7 @@ begin
   fShape.fOnClick := ListHide;
 
   fList := TKMListBox.Create(P, Left, Top+aHeight, aWidth, 0);
-  fList.BackAlpha := 1;
+  fList.BackAlpha := 0.75;
   fList.fOnClick := ListClick;
 
   ListHide(nil);
