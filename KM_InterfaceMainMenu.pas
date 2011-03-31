@@ -179,6 +179,7 @@ type
     procedure LAN_Join(Sender: TObject);
     procedure LAN_JoinSucc(Sender: TObject);
     procedure LAN_JoinFail(const aData:string);
+    procedure LAN_BindEvents(aKind:TLANPlayerKind);
     procedure LAN_Update;
     procedure LAN_QuitLobby;
 
@@ -1135,11 +1136,9 @@ procedure TKMMainMenuInterface.LAN_Host(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
-  fGame.Networking.OnTextMessage := Lobby_OnMessage;
-  fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
-  fGame.Networking.OnMapName := Lobby_OnMapName;
-  fGame.Networking.OnAllReady := Lobby_OnAllReady;
-  fGame.Networking.Host('Host');
+  fGame.Networking.Host('Host'); //All events are nilled
+  LAN_BindEvents(lpk_Host);
+  Lobby_OnPlayersSetup(nil); //Update players list
   fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
 end;
 
@@ -1163,17 +1162,31 @@ procedure TKMMainMenuInterface.LAN_JoinSucc(Sender: TObject);
 begin
   SwitchMenuPage(Button_LAN_Join); //Open lobby page
 
-  fGame.Networking.OnTextMessage := Lobby_OnMessage;
-  fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
-  fGame.Networking.OnMapName := Lobby_OnMapName;
+  fGame.Networking.OnJoinSucc := nil;
+  fGame.Networking.OnJoinFail := nil;
+  LAN_BindEvents(lpk_Joiner);
+
   fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
 end;
 
 
 procedure TKMMainMenuInterface.LAN_JoinFail(const aData:string);
 begin
+  fGame.Networking.OnJoinSucc := nil;
+  fGame.Networking.OnJoinFail := nil;
   LAN_Update; //Reset buttons
   Label_LAN_Status.Caption := 'Connection failed: '+aData;
+end;
+
+
+procedure TKMMainMenuInterface.LAN_BindEvents(aKind:TLANPlayerKind);
+begin
+  fGame.Networking.OnTextMessage  := Lobby_OnMessage;
+  fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
+  fGame.Networking.OnMapName      := Lobby_OnMapName;
+
+  if aKind = lpk_Host then
+    fGame.Networking.OnAllReady   := Lobby_OnAllReady;
 end;
 
 
@@ -1193,7 +1206,7 @@ begin
 
   ListBox_LobbyPosts.Items.Clear;
   Edit_LobbyPost.Text := '';
-  //Button_LobbyStart.Disable;
+  Button_LobbyStart.Disable;
 
   if Sender = Button_LAN_Host then begin
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
@@ -1204,6 +1217,7 @@ begin
     FileList_Lobby.Hide;
     Button_LobbyReady.Show;
     Button_LobbyReady.Enable;
+    Button_LobbyStart.Hide;
   end;
 end;
 

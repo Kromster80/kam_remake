@@ -182,6 +182,14 @@ end;
 
 procedure TKMNetworking.Disconnect;
 begin
+  fOnJoinSucc := nil;
+  fOnJoinFail := nil;
+  fOnTextMessage := nil;
+  fOnPlayersSetup := nil;
+  fOnMapName := nil;
+  fOnAllReady := nil;
+  fOnCommands := nil;
+  fOnPing := nil;
   fNetwork.StopListening;
   fNetPlayers.Clear;
 end;
@@ -283,6 +291,7 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
+  //Hold on timeout checks, Game will resume them
   fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fNetPlayers.GetStartLoc(fMyNikname));
 end;
 
@@ -479,27 +488,29 @@ begin
   if GetTickCount > fLastUpdateTick + (REPLY_TIMEOUT div 2) then
   begin
     case fLANPlayerKind of
-      lpk_Joiner: begin//Joiner checks if Host is lost
-                    if GetTickCount > fNetPlayers[1].TimeTick then
-                    begin
-                      fNetwork.OnRecieveKMPacket := nil;
-                      fNetwork.StopListening;
-                      //fOnHostFail('lost connection to Host');
-                      exit;
-                    end;
-                    PacketToHost(mk_Poke, fMyNikname); //Tell Host we are still connected
-                  end;
-      lpk_Host:   begin
-                    LostPlayers := fNetPlayers.DropMissing(GetTickCount);
-                    if LostPlayers <> '' then
-                    begin
-                      //LostPlayers won't recieve Host messages any more and will loose connection too
-                      PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
-                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                      PostMessage(LostPlayers + ' disconnected');
-                    end;
-                    PacketToAll(mk_Poke, fMyNikname); //Tell everyone Host is still running
-                  end;
+      lpk_Joiner:
+          begin//Joiner checks if Host is lost
+            if GetTickCount > fNetPlayers[1].TimeTick then
+            begin
+              fNetwork.OnRecieveKMPacket := nil;
+              fNetwork.StopListening;
+              //fOnHostFail('lost connection to Host');
+              exit;
+            end;
+            PacketToHost(mk_Poke, fMyNikname); //Tell Host we are still connected
+          end;
+      lpk_Host:
+          begin
+            LostPlayers := fNetPlayers.DropMissing(GetTickCount);
+            if LostPlayers <> '' then
+            begin
+              //LostPlayers won't recieve Host messages any more and will loose connection too
+              PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+              PostMessage(LostPlayers + ' disconnected');
+            end;
+            PacketToAll(mk_Poke, fMyNikname); //Tell everyone Host is still running
+          end;
     end;
     fLastUpdateTick := GetTickCount;
   end;
