@@ -67,6 +67,7 @@ type
         DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropBox;
         DropBox_LobbyColor:array [0..MAX_PLAYERS-1] of TKMDropBox;
         CheckBox_LobbyReady:array [0..MAX_PLAYERS-1] of TKMCheckBox;
+        Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
       Panel_LobbySetup:TKMPanel;
         FileList_Lobby:TKMFileList;
@@ -185,6 +186,8 @@ type
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
+    procedure Lobby_Ping(Sender: TObject);
+    procedure Lobby_OnPing(Sender: TObject);
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
@@ -351,16 +354,6 @@ begin
     with TKMImage.Create(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    with TKMDropBox.Create(Panel_MainMenu, 500, 260, 150, 20, fnt_Metal) do
-    begin
-      Items.Add('Undefined');
-      Items.Add('Undefined');
-      Items.Add('Undefined');
-      Items.Add('Undefined');
-      Items.Add('Undefined');
-    end;
-
-
     Panel_MMButtons:=TKMPanel.Create(Panel_MainMenu,337,290,350,400);
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary.GetRemakeString(4),fnt_Metal,bsMenu);
       Button_MM_MultiPlayer  := TKMButton.Create(Panel_MMButtons,0, 40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
@@ -373,8 +366,7 @@ begin
       Button_MM_MapEd.OnClick        := SwitchMenuPage;
       Button_MM_Options.OnClick      := SwitchMenuPage;
       Button_MM_Credits.OnClick      := SwitchMenuPage;
-      Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
-
+      Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;  
 
       Button_MM_MapEd.Visible        := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
       Button_MM_MultiPlayer.Enabled  :=  ENABLE_MP_IN_MENU;
@@ -456,23 +448,25 @@ begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,80,100,580,240);
-      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 580, 240);
-      TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 150, 20, 'Players list:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 170, 10, 150, 20, 'Start location:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 340, 10, 140, 20, 'Flag colors:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 510, 10, 40, 20, 'Ready:', fnt_Outline, kaLeft);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,80,100,590,240);
+      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 590, 240);
+      TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 140, 20, 'Players list:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 160, 10, 150, 20, 'Start location:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 330, 10, 140, 20, 'Flag color:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 500, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
+      with TKMLabel.Create(Panel_LobbyPlayers, 560, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft) do
+        OnClick := Lobby_Ping;
 
       for i:=0 to MAX_PLAYERS-1 do begin
-        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, 30+i*25, 150, 20, '. ', fnt_Metal, kaLeft);
+        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, 30+i*25, 140, 20, '. ', fnt_Metal, kaLeft);
 
-        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 170, 30+i*25, 150, 20, fnt_Metal);
+        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, 30+i*25, 150, 20, fnt_Metal);
         DropBox_LobbyLoc[i].Items.Add('Undefined');
         for k:=1 to MAX_PLAYERS do
           DropBox_LobbyLoc[i].Items.Add('Location ' + inttostr(k));
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyColor[i] := TKMDropBox.Create(Panel_LobbyPlayers, 340, 30+i*25, 150, 20, fnt_Metal);
+        DropBox_LobbyColor[i] := TKMDropBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 150, 20, fnt_Metal);
         DropBox_LobbyColor[i].Items.Add('Undefined');
         DropBox_LobbyColor[i].Items.Add('Red');
         DropBox_LobbyColor[i].Items.Add('Cyan');
@@ -484,7 +478,10 @@ begin
         DropBox_LobbyColor[i].Items.Add('Black');
         DropBox_LobbyColor[i].OnChange := Lobby_PlayersSetupChange;
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 510, 30+i*25, 40, 20, '', fnt_Metal);
+        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 500+15, 30+i*25, 50, 20, '', fnt_Metal);
+
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 560, 30+i*25, 40, 20, '', fnt_Metal, kaLeft);
+        Label_LobbyPing[i].Disable;
       end;
 
     //Chat
@@ -1222,6 +1219,21 @@ end;
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
   fGame.Networking.MapSelect(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_Ping(Sender: TObject);
+begin
+  fGame.Networking.Ping;
+  fGame.Networking.OnPing := Lobby_OnPing;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_OnPing(Sender: TObject);
+var i:integer;
+begin
+  for i:=0 to MAX_PLAYERS-1 do
+    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].Ping);
 end;
 
 

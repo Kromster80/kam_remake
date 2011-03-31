@@ -912,12 +912,12 @@ begin
       if GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i) <> 0 then
       begin
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i); //icons are in 2..9
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Enabled := true;
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Enable;
       end
       else
       begin
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := 0;
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Enabled := false;
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Disable;
       end;
       if GameCursor.Mode = cm_Tiles then
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (GameCursor.Tag1+1 = GetTileIDFromTag((k-1)*MAPED_TILES_COLS+i));
@@ -955,13 +955,13 @@ begin
       begin
         ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1;
         ObjectsTable[i].Caption := inttostr(ObjID);
-        ObjectsTable[i].Enabled := true;
+        ObjectsTable[i].Enable;
       end
       else
       begin
         ObjectsTable[i].TexID := 0;
         ObjectsTable[i].Caption := '';
-        ObjectsTable[i].Enabled := false;
+        ObjectsTable[i].Disable;
       end;
       ObjectsTable[i].Down := ObjID = OriginalMapElem[GameCursor.Tag1+1]; //Mark the selected one using reverse lookup
     end;
@@ -1402,7 +1402,7 @@ begin
       if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
         CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerID, fPlayers.Player[k].PlayerID)=at_Ally)
       else
-        CheckBox_Alliances[i,k].Enabled := false; //Player does not exist?
+        CheckBox_Alliances[i,k].Disable; //Player does not exist?
     exit;
   end;
 

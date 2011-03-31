@@ -1158,10 +1158,10 @@ begin
       end;
       Label_School_Unit:=TKMLabel.Create(Panel_House_School,100,116,100,30,'',fnt_Outline,kaCenter);
       Image_School_Left :=TKMImage.Create(Panel_House_School,  8,136,54,80,521);
-      Image_School_Left.Enabled := false;
+      Image_School_Left.Disable;
       Image_School_Train:=TKMImage.Create(Panel_House_School, 70,136,54,80,522);
       Image_School_Right:=TKMImage.Create(Panel_House_School,132,136,54,80,523);
-      Image_School_Right.Enabled := false;
+      Image_School_Right.Disable;
       Button_School_Left :=TKMButton.Create(Panel_House_School,  8,226,54,40,35);
       Button_School_Train:=TKMButton.Create(Panel_House_School, 70,226,54,40,42);
       Button_School_Right:=TKMButton.Create(Panel_House_School,132,226,54,40,36);
@@ -1194,10 +1194,10 @@ begin
       Label_Barracks_Unit:=TKMLabel.Create(Panel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
 
       Image_Barracks_Left :=TKMImage.Create(Panel_HouseBarracks,  8,116,54,80,535);
-      Image_Barracks_Left.Enabled := false;
+      Image_Barracks_Left.Disable;
       Image_Barracks_Train:=TKMImage.Create(Panel_HouseBarracks, 70,116,54,80,536);
       Image_Barracks_Right:=TKMImage.Create(Panel_HouseBarracks,132,116,54,80,537);
-      Image_Barracks_Right.Enabled := false;
+      Image_Barracks_Right.Disable;
 
       Button_Barracks_Left :=TKMButton.Create(Panel_HouseBarracks,  8,226,54,40,35);
       Button_Barracks_Train:=TKMButton.Create(Panel_HouseBarracks, 70,226,54,40,42);

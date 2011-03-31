@@ -1,7 +1,7 @@
 unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils,
+uses Classes, KromUtils, Math, SysUtils,
   KM_CommonTypes, KM_Defaults,
   KM_Player;
 
@@ -11,15 +11,20 @@ type
     private
       fAddress:string;
       fNikname:string;
+      fTimeTick:cardinal;
     public
       PlayerType:TPlayerType; //Human, Computer
       FlagColorID:integer; //Flag color, 0 means random
       StartLocID:integer; //Start location, 0 means random
       ReadyToStart:boolean;
+
+      PingSent:cardinal; //Time of last "ping" message
+      Ping:word; //Last known ping
     public
       function IsHuman:boolean;
       property Address:string read fAddress;
       property Nikname:string read fNikname;
+      property TimeTick:cardinal read fTimeTick write fTimeTick;
   end;
 
 
@@ -31,15 +36,16 @@ type
       fCount:integer;
       fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
       function GetAsStringList:string;
-      function GetPlayerInt(Index:integer):TKMPlayerInfo;
+      function GetPlayer(Index:integer):TKMPlayerInfo;
     public
       constructor Create;
       destructor Destroy; override;
       procedure Clear;
       property Count:integer read fCount;
 
-      procedure AddPlayer(aAddr,aNik:string);
-      property Player[Index:integer]:TKMPlayerInfo read GetPlayerInt; default;
+      procedure AddPlayer(aAddr,aNik:string; aTick:cardinal);
+      procedure RemPlayer(aIndex:integer);
+      property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
       //Getters
       function NiknameIndex(aNik:string):integer;
@@ -47,6 +53,7 @@ type
       function GetStartLoc(aNik:string):integer;
       function LocAvailable(aIndex:integer):boolean;
       procedure ResetLocAndReady;
+      function DropMissing(aTick:cardinal):string;
       function AllReady:boolean;
 
       //Import/Export
@@ -98,13 +105,13 @@ begin
 end;
 
 
-function TKMPlayersList.GetPlayerInt(Index:integer):TKMPlayerInfo;
+function TKMPlayersList.GetPlayer(Index:integer):TKMPlayerInfo;
 begin
   Result := fPlayers[Index];
 end;
 
 
-procedure TKMPlayersList.AddPlayer(aAddr,aNik:string);
+procedure TKMPlayersList.AddPlayer(aAddr,aNik:string; aTick:cardinal);
 begin
   inc(fCount);
   fPlayers[fCount].fAddress := aAddr;
@@ -113,6 +120,26 @@ begin
   fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;
+  fPlayers[fCount].TimeTick := aTick;
+end;
+
+
+procedure TKMPlayersList.RemPlayer(aIndex:integer);
+var i:integer;
+begin
+  Assert(InRange(aIndex, 1, fCount), 'Can not remove player');
+  for i:=aIndex to fCount-1 do
+    fPlayers[i] := fPlayers[i+1];
+
+  fPlayers[fCount].fAddress := '';
+  fPlayers[fCount].fNikname := '';
+  fPlayers[fCount].PlayerType := pt_Human;
+  fPlayers[fCount].FlagColorID := 0;
+  fPlayers[fCount].StartLocID := 0;
+  fPlayers[fCount].ReadyToStart := false;
+  fPlayers[fCount].TimeTick := 0;
+
+  dec(fCount);
 end;
 
 
@@ -170,6 +197,19 @@ begin
     fPlayers[i].StartLocID := 0;
     fPlayers[i].ReadyToStart := false;
   end;
+end;
+
+
+function TKMPlayersList.DropMissing(aTick:cardinal):string;
+var i:integer;
+begin
+  Result := '';
+  for i:=fCount downto 2 do //Don't check Host
+    if aTick > fPlayers[i].fTimeTick then
+    begin
+      Result := Result + fPlayers[i].fNikname;
+      RemPlayer(i);
+    end;
 end;
 
 

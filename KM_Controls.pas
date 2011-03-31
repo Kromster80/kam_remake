@@ -67,6 +67,7 @@ TKMControl = class
     fWidth: Integer;
     fHeight: Integer;
 
+    fEnabled: boolean;
     fVisible: boolean;
 
     fOnClick:TNotifyEvent;
@@ -84,9 +85,9 @@ TKMControl = class
 
     function GetVisible:boolean;
     procedure SetVisible(aValue:boolean); virtual;
+    procedure SetEnabled(aValue:boolean); virtual;
   public
     Anchors: TAnchors;
-    Enabled: boolean;
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
     Tag: integer; //Some tag which can be used for various needs
@@ -99,6 +100,7 @@ TKMControl = class
     property Top: Integer read GetTop write fTop;
     property Width: Integer read GetWidth write SetWidth;
     property Height: Integer read GetHeight write SetHeight;
+    property Enabled:boolean read fEnabled write SetEnabled;
     property Visible:boolean read GetVisible write SetVisible;
     procedure Enable;
     procedure Disable;
@@ -424,6 +426,7 @@ TKMScrollBar = class(TKMControl)
     procedure DecPosition(Sender:TObject);
     procedure RefreshItems;
     procedure SetHeight(aValue:Integer); override;
+    procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
   public
     Position:byte;
@@ -460,6 +463,7 @@ TKMListBox = class(TKMControl)
     procedure SetVisible(aValue:boolean); override;
     procedure SetTopIndex(aIndex:smallint);
     procedure SetBackAlpha(aValue:single);
+    procedure SetEnabled(aValue:boolean); override;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     destructor Destroy; override;
@@ -496,6 +500,7 @@ TKMDropBox = class(TKMControl)
     function GetItems:TStringList;
     function GetItemIndex:smallint;
     procedure SetItemIndex(aIndex:smallint);
+    procedure SetEnabled(aValue:boolean); override;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     destructor Destroy; override;
@@ -568,7 +573,7 @@ begin
   fHeight   := aHeight;
   Anchors   := [akLeft, akTop];
   State     := [];
-  Enabled   := true;
+  fEnabled  := true;
   fVisible  := true;
   Tag       := 0;
   Hint      := '';
@@ -640,7 +645,7 @@ end;
 //fVisible is checked earlier
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
-  Result := Enabled and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
+  Result := fEnabled and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
 end;
 
 {One common thing - draw childs for self}
@@ -729,14 +734,20 @@ begin
 end;
 
 
+procedure TKMControl.SetEnabled(aValue:boolean);
+begin
+  fEnabled := aValue;
+end;
+
+
 procedure TKMControl.SetVisible(aValue:boolean);
 begin
   fVisible := aValue;
 end;
 
 
-procedure TKMControl.Enable;  begin Enabled := true;  end;
-procedure TKMControl.Disable; begin Enabled := false; end;
+procedure TKMControl.Enable;  begin SetEnabled(true);  end; //Overrides will be set too
+procedure TKMControl.Disable; begin SetEnabled(false); end;
 
 
 {Will show up entire branch in which control resides}
@@ -964,7 +975,7 @@ begin
   else
     NewTop := Top;
 
-  if Enabled then
+  if fEnabled then
     Tmp := fRenderUI.WriteText(Left, NewTop, Width, fText, Font, TextAlign, AutoWrap, FontColor)
   else
     Tmp := fRenderUI.WriteText(Left, NewTop, Width, fText, Font, TextAlign, AutoWrap, $FF888888);
@@ -1033,9 +1044,9 @@ begin
     OffsetY := (Height - GFXData[RXid, TexID].PxHeight) div 2;
 
   if StretchDraw then
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, Enabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
 end;
 
 
@@ -1086,7 +1097,7 @@ begin
   for i := 1 to fCount do
     fRenderUI.WritePicture(Left + CenterX + OffsetX*((i-1) mod fColumns),
                             Top + CenterY + OffsetY*((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRXid, fTexID, Enabled);
+                            fDrawWidth, fDrawHeight, fRXid, fTexID, fEnabled);
 end;
 
 
@@ -1173,7 +1184,7 @@ end;
 function TKMButton.DoPress:boolean;
 begin
   //Mark self as CtrlDown
-  if Visible and Enabled then begin
+  if Visible and fEnabled then begin
     TKMPanel(Parent).GetCollection.CtrlDown := Self;
     Result := true;
   end else
@@ -1187,7 +1198,7 @@ end;
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
 function TKMButton.DoClick:boolean;
 begin
-  if Visible and Enabled then begin
+  if Visible and fEnabled then begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
     TKMPanel(Parent).GetCollection.CtrlOver := Self;
     TKMPanel(Parent).GetCollection.CtrlUp := Self;
@@ -1200,7 +1211,7 @@ end;
 
 procedure TKMButton.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  if Enabled and fMakesSound and (csDown in State) then fSoundLib.Play(sfx_Click);
+  if fEnabled and fMakesSound and (csDown in State) then fSoundLib.Play(sfx_Click);
   Inherited;
 end;
 
@@ -1210,12 +1221,12 @@ var StateSet:T3DButtonStateSet;
 begin
   Inherited;
   StateSet:=[];
-  if (csOver in State) and Enabled then StateSet:=StateSet+[bs_Highlight];
+  if (csOver in State) and fEnabled then StateSet:=StateSet+[bs_Highlight];
   if (csDown in State) then StateSet:=StateSet+[bs_Down];
-  if not Enabled then StateSet:=StateSet+[bs_Disabled];
+  if not fEnabled then StateSet:=StateSet+[bs_Disabled];
   fRenderUI.Write3DButton(Left,Top,Width,Height,fRXid,fTexID,StateSet,fStyle);
   if fTexID=0 then
-    if Enabled then //If disabled then text should be faded
+    if fEnabled then //If disabled then text should be faded
       fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, fCaption, fFont, fTextAlign, false, $FFFFFFFF)
     else
       fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, fCaption, fFont, fTextAlign, false, $FF888888);
@@ -1241,7 +1252,7 @@ end;
 
 procedure TKMButtonFlat.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  if Enabled and (csDown in State) then fSoundLib.Play(sfx_Click);
+  if fEnabled and (csDown in State) then fSoundLib.Play(sfx_Click);
   Inherited;
 end;
 
@@ -1251,7 +1262,7 @@ var StateSet:TFlatButtonStateSet;
 begin
   Inherited;
   StateSet:=[];
-  if (csOver in State) and Enabled and not HideHighlight then StateSet:=StateSet+[fbs_Highlight];
+  if (csOver in State) and fEnabled and not HideHighlight then StateSet:=StateSet+[fbs_Highlight];
   if (csDown in State) or Down then StateSet:=StateSet+[fbs_Selected];
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
@@ -1276,7 +1287,7 @@ begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
   fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY,Width, Caption, Font, kaCenter, false, $FFFFFFFF);
-  if (csOver in State) and Enabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00);
+  if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00);
   if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
 end;
 
@@ -1348,7 +1359,7 @@ var Col:TColor4; RText:String; OffX:integer;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
-  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
   if Masked then RText := StringOfChar('*', Length(fText)) else RText := fText;
 
   fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
@@ -1385,7 +1396,7 @@ procedure TKMCheckBox.Paint;
 var Box,Tmp:TKMPoint; Col:TColor4;
 begin
   Inherited;
-  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if fFlatStyle then begin
     fRenderUI.WriteBevel(Left, Top, Width, Height, true);
@@ -1447,7 +1458,7 @@ procedure TKMRadioGroup.Paint;
 var Box:TKMPoint; Col:TColor4; LineHeight:integer; i:integer;
 begin
   Inherited;
-  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   LineHeight := round(fHeight / ItemCount);
   for i:=0 to ItemCount-1 do
@@ -1604,7 +1615,7 @@ begin
   fRenderUI.WriteBevel(Left+2,Top+2,Width-4,Height-4);
   ThumbPos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
   fRenderUI.WritePicture(Left+ThumbPos+2, Top, 4,132);
-  if Enabled then
+  if fEnabled then
     fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FFFFFFFF)
   else
     fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FF888888);
@@ -1691,9 +1702,6 @@ begin
     sa_Vertical:   Thumb := Math.max(0, (Height-2*Width)) div 4;
     sa_Horizontal: Thumb := Math.max(0, (Width-2*Height)) div 4;
   end;
-
-  ScrollDec.Enabled := Enabled; //Copy property from TKMScrollBar
-  ScrollInc.Enabled := Enabled;
 end;
 
 
@@ -1702,6 +1710,14 @@ begin
   Inherited;
   if fScrollAxis = sa_Vertical then
     ScrollInc.Top := fTop+fHeight-fWidth;
+end;
+
+
+procedure TKMScrollBar.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  ScrollDec.Enabled := aValue;
+  ScrollInc.Enabled := aValue;
 end;
 
 
@@ -1817,6 +1833,13 @@ procedure TKMListBox.SetBackAlpha(aValue:single);
 begin
   fBackAlpha := aValue;
   fScrollBar.BackAlpha := aValue;
+end;
+
+
+procedure TKMListBox.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  fScrollBar.Enabled := aValue;
 end;
 
 
@@ -1967,6 +1990,14 @@ begin
 end;
 
 
+procedure TKMDropBox.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  fButton.Enabled := aValue;
+  fList.Enabled := aValue;  
+end;
+
+
 procedure TKMDropBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
 begin
   Inherited;
@@ -1979,7 +2010,7 @@ var Col:TColor4;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
-  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   fRenderUI.WriteText(Left+4, Top+4, Width-8, fCaption, fFont, kaLeft, false, Col);
 end;
