@@ -65,7 +65,7 @@ type
       procedure ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
       procedure Render;
       {$IFDEF WDC}
-      procedure DoPrintScreen(filename:string);
+      procedure DoPrintScreen(FileName:string);
       {$ENDIF}
       procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
       procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);

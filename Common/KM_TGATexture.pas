@@ -99,7 +99,7 @@ end;
 {------------------------------------------------------------------}
 {  Loads 24 and 32bpp (alpha channel) TGA textures                 }
 {------------------------------------------------------------------}
-function LoadTexture(Filename: String; var Texture:GLuint): Boolean;
+function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
 var
   TGAHeader : packed record   // Header type for TGA images
     FileType     : Byte;
@@ -141,8 +141,8 @@ begin
 
   {$IFDEF WDC} OutputStream := nil; {$ENDIF} //This makes compiler happy
 
-  if FileExists(Filename) then begin
-    AssignFile(TGAFile, Filename);
+  if FileExists(FileName) then begin
+    AssignFile(TGAFile, FileName);
     FileMode := 0;
     Reset(TGAFile,1);
     FileMode := 2; //Open ReadOnly
@@ -152,13 +152,13 @@ begin
 
     if SizeOf(TGAHeader) <> bytesRead then begin
       CloseFile(TGAFile);
-      Errs := 'Couldn''t read file header "'+ Filename +'".';
+      Errs := 'Couldn''t read file header "'+ FileName +'".';
       MessageBox(HWND(nil),PChar(Errs), PChar('TGA File Error'), MB_OK);
       Exit;
     end;
 
   end else begin
-    Errs := 'File not found  - ' + Filename;
+    Errs := 'File not found  - ' + FileName;
     Application.MessageBox(PChar(Errs), PChar('TGA Texture'), MB_OK);
     Exit;
   end;
@@ -197,7 +197,7 @@ begin
   if (TGAHeader.ImageType <> 2) then    { TGA_RGB }
   begin
     CloseFile(TGAFile);
-    Errs := 'Couldn''t load "'+ Filename +'". Only 24 and 32bit TGA supported.';
+    Errs := 'Couldn''t load "'+ FileName +'". Only 24 and 32bit TGA supported.';
     Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
@@ -206,7 +206,7 @@ begin
   if TGAHeader.ColorMapType <> 0 then
   begin
     CloseFile(TGAFile);
-    Errs := 'Couldn''t load "'+ Filename +'". Colormapped TGA files not supported.';
+    Errs := 'Couldn''t load "'+ FileName +'". Colormapped TGA files not supported.';
     Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
@@ -220,7 +220,7 @@ begin
   if ColorDepth < 24 then
   begin
     CloseFile(TGAFile);
-    Errs := 'Couldn''t load "'+ Filename +'". Only 24 and 32 bit TGA files supported.';
+    Errs := 'Couldn''t load "'+ FileName +'". Only 24 and 32 bit TGA files supported.';
     Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
@@ -253,7 +253,7 @@ begin
   if bytesRead <> ImageSize then
   begin
     Result := False;
-    Errs := 'Couldn''t read file "'+ Filename +'".';
+    Errs := 'Couldn''t read file "'+ FileName +'".';
     Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
