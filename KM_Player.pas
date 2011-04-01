@@ -286,7 +286,8 @@ begin
   begin
     if not Simulated then begin
       fHouse.DemolishHouse(DoSilent,IsEditor);
-      fStats.HouseSelfDestruct(fHouse.GetHouseType);
+      if fHouse.BuildingState = hbs_Done then //Only Done houses are treated as Self-Sestruct
+        fStats.HouseSelfDestruct(fHouse.GetHouseType);
     end;
     Result := true;
   end;

@@ -1,7 +1,7 @@
 unit KM_Networking;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, Windows,
+uses Classes, KromUtils, StrUtils, SysUtils, Windows,
   KM_CommonTypes, KM_Defaults,
   KM_NetPlayersList, KM_Network;
 

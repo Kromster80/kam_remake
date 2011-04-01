@@ -7,6 +7,7 @@ EXE-only r1359+:
  +	Zooming ingame should pivot to cursor location
  +	Updated MapEd sprites (thanks to StarGazer)
  +	Fixed flag rendering order for army units
+ +	Fixed bug when unfinished house demolishing would count as self-destroyed house and cause players defeat
 
 	Edges of messages and other scrolls should be transparent so they look smooth
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home

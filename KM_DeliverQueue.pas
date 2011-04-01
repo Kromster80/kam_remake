@@ -153,7 +153,7 @@ begin
   i:=1; while (i<=OfferCount)and(fOffer[i].Resource<>rt_None) do inc(i);
   if i>OfferCount then begin
     inc(OfferCount, LENGTH_INC);
-    setlength(fOffer, OfferCount+1);
+    SetLength(fOffer, OfferCount+1);
   end;
 
   with fOffer[i] do begin //Put offer
@@ -232,7 +232,7 @@ begin
     i:=1; while (i<=DemandCount)and(fDemand[i].Resource<>rt_None) do inc(i);
     if i>DemandCount then begin
       inc(DemandCount, LENGTH_INC);
-      setlength(fDemand, DemandCount+1);
+      SetLength(fDemand, DemandCount+1);
     end;
 
     with fDemand[i] do begin
@@ -322,7 +322,7 @@ begin
   i:=1; while (i<=QueueCount)and(fQueue[i].JobStatus<>js_Empty) do inc(i);
   if i>QueueCount then begin
     inc(QueueCount, LENGTH_INC);
-    setlength(fQueue, QueueCount+1);
+    SetLength(fQueue, QueueCount+1);
   end;
 
 
@@ -524,7 +524,7 @@ begin
   LoadStream.Read(s);
   Assert(s = 'Deliveries');
   LoadStream.Read(OfferCount);
-  setlength(fOffer, OfferCount+1);
+  SetLength(fOffer, OfferCount+1);
   for i:=1 to OfferCount do
   begin
     LoadStream.Read(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
@@ -535,7 +535,7 @@ begin
   end;
 
   LoadStream.Read(DemandCount);
-  setlength(fDemand, DemandCount+1);
+  SetLength(fDemand, DemandCount+1);
   for i:=1 to DemandCount do
   with fDemand[i] do
   begin
@@ -548,7 +548,7 @@ begin
   end;
 
   LoadStream.Read(QueueCount);
-  setlength(fQueue, QueueCount+1);
+  SetLength(fQueue, QueueCount+1);
   for i:=1 to QueueCount do
   begin
     LoadStream.Read(fQueue[i].OfferID);
@@ -711,7 +711,7 @@ begin
   i:=1; while (i<=FieldsCount)and(fFieldsQueue[i].JobStatus<>js_Empty) do inc(i);
   if i>FieldsCount then begin
     inc(FieldsCount, LENGTH_INC);
-    setlength(fFieldsQueue, FieldsCount+1);
+    SetLength(fFieldsQueue, FieldsCount+1);
   end;
 
   fFieldsQueue[i].Loc:=aLoc;
@@ -728,7 +728,7 @@ begin
   i:=1; while (i<=HousesCount)and(fHousesQueue[i].House<>nil) do inc(i);
   if i>HousesCount then begin
     inc(HousesCount, LENGTH_INC);
-    setlength(fHousesQueue, HousesCount+1);
+    SetLength(fHousesQueue, HousesCount+1);
   end;
 
   if aHouse <> nil then fHousesQueue[i].House := aHouse.GetHousePointer;
@@ -742,7 +742,7 @@ begin
   i:=1; while (i<=HousePlansCount)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
   if i>HousePlansCount then begin
     inc(HousePlansCount, LENGTH_INC);
-    setlength(fHousePlansQueue, HousePlansCount+1);
+    SetLength(fHousePlansQueue, HousePlansCount+1);
   end;
 
   if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetHousePointer;
@@ -757,7 +757,7 @@ begin
   i:=1; while (i<=HouseRepairsCount)and(fHouseRepairsQueue[i].House<>nil) do inc(i);
   if i>HouseRepairsCount then begin
     inc(HouseRepairsCount, LENGTH_INC);
-    setlength(fHouseRepairsQueue, HouseRepairsCount+1);
+    SetLength(fHouseRepairsQueue, HouseRepairsCount+1);
   end;
 
   if aHouse <> nil then fHouseRepairsQueue[i].House:=aHouse.GetHousePointer;
@@ -959,7 +959,7 @@ procedure TKMBuildingQueue.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   LoadStream.Read(FieldsCount);
-  setlength(fFieldsQueue, FieldsCount+1);
+  SetLength(fFieldsQueue, FieldsCount+1);
   for i:=1 to FieldsCount do
   with fFieldsQueue[i] do
   begin
@@ -971,7 +971,7 @@ begin
   end;
 
   LoadStream.Read(HousesCount);
-  setlength(fHousesQueue, HousesCount+1);
+  SetLength(fHousesQueue, HousesCount+1);
   for i:=1 to HousesCount do
   begin
     LoadStream.Read(fHousesQueue[i].House, 4);
@@ -979,7 +979,7 @@ begin
   end;
 
   LoadStream.Read(HousePlansCount);
-  setlength(fHousePlansQueue, HousePlansCount+1);
+  SetLength(fHousePlansQueue, HousePlansCount+1);
   for i:=1 to HousePlansCount do
   with fHousePlansQueue[i] do
   begin
@@ -990,7 +990,7 @@ begin
   end;
 
   LoadStream.Read(HouseRepairsCount);
-  setlength(fHouseRepairsQueue, HouseRepairsCount+1);
+  SetLength(fHouseRepairsQueue, HouseRepairsCount+1);
   for i:=1 to HouseRepairsCount do
   with fHouseRepairsQueue[i] do
   begin
