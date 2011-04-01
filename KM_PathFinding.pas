@@ -41,7 +41,7 @@ type
   public
     constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint); overload;
-    procedure ReturnRoute(out NodeList:TKMPointList);
+    procedure ReturnRoute(var NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
 
@@ -199,7 +199,7 @@ begin
 end;
 
 
-procedure TPathFinding.ReturnRoute(out NodeList:TKMPointList);
+procedure TPathFinding.ReturnRoute(var NodeList:TKMPointList);
 var i,k:integer; NodesCount:integer;
 begin
   NodeList.Clearup;

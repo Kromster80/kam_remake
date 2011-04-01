@@ -143,7 +143,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Game, KM_Terrain;
+uses KM_Game, KM_Terrain;
 
 
 constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);

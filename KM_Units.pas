@@ -234,7 +234,7 @@ type
     procedure RemoveUnit(aUnit:TKMUnit);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
-    procedure GetLocations(out Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
+    procedure GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
     function GetTotalPointers: integer;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -1874,7 +1874,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.GetLocations(out Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
+procedure TKMUnitsCollection.GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
 var i:integer;
 begin
   Loc.Clearup;

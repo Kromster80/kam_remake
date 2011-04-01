@@ -127,10 +127,10 @@ TTerrain = class
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
-    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList):boolean;
-    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList);
-    procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
-    procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
+    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList):boolean;
+    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
+    procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
+    procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
     function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
 
     procedure UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
@@ -1612,7 +1612,7 @@ end;
 
 
 //Tests weather route can be made
-function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList):boolean;
+function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList):boolean;
 var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse, true); //True means we are using Interaction Avoid mode (go around busy units)
@@ -1629,7 +1629,7 @@ end;
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
-procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; out NodeList:TKMPointList);
+procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse);
@@ -1638,7 +1638,7 @@ begin
 end;
 
 
-procedure TTerrain.Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
+procedure TTerrain.Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, wcRoad, TargetRoadNetworkID, CanWalk, LocB);
@@ -1647,7 +1647,7 @@ begin
 end;
 
 
-procedure TTerrain.Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
+procedure TTerrain.Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, wcWalk, TargetWalkNetworkID, CanWorker, LocB);

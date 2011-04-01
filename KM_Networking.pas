@@ -1,9 +1,9 @@
 unit KM_Networking;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, StrUtils, SysUtils, Windows,
+uses Classes, KromUtils, SysUtils, Windows,
   KM_CommonTypes, KM_Defaults,
-  KM_NetPlayersList, KM_Network, KM_Player;
+  KM_NetPlayersList, KM_Network;
 
 const
     REPLY_TIMEOUT = 5000; //Default timeout before "could not get reply" message occurs, in Game ticks

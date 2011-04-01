@@ -295,14 +295,15 @@ const
 {Resources}
 type
   TResourceType = (
-    rt_None      =0 , rt_All        =30, rt_Warfare    =31, rt_Food        =32, //Special resource types
+    rt_None      =0 ,  //Special resource types
     rt_Trunk     =1 , rt_Stone      =2 , rt_Wood       =3 , rt_IronOre     =4 ,
     rt_GoldOre   =5 , rt_Coal       =6 , rt_Steel      =7 , rt_Gold        =8 ,
     rt_Wine      =9 , rt_Corn       =10, rt_Bread      =11, rt_Flour       =12,
     rt_Leather   =13, rt_Sausages   =14, rt_Pig        =15, rt_Skin        =16,
     rt_Shield    =17, rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
     rt_Axe       =21, rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
-    rt_Bow       =25, rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
+    rt_Bow       =25, rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28,
+    rt_All       =30, rt_Warfare    =31, rt_Food       =32);
 
 const //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern:array[1..28]of byte = (
@@ -353,7 +354,7 @@ const PassabilityStr:array[TPassability] of string = (
 
 {Units}
 type
-  TUnitType = ( ut_None=0, ut_Any=40,
+  TUnitType = ( ut_None=0,
     ut_Serf=1,          ut_Woodcutter=2,    ut_Miner=3,         ut_AnimalBreeder=4,
     ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
     ut_Fisher=9,        ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
@@ -367,7 +368,9 @@ type
     //ut_Catapult=29,   ut_Ballista=30,
 
     ut_Wolf=31,         ut_Fish=32,         ut_Watersnake=33,   ut_Seastar=34,
-    ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38);
+    ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38,
+
+    ut_Any=40);
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)
@@ -433,7 +436,7 @@ const FlagYOffset: array[TGroupType, 1..8] of shortint = (
 const AnimalTerrain: array[31..38] of TPassability = (
     CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
 
-type TGoInDirection = (gd_GoInside=1, gd_GoOutside=-1); //Switch to set if unit goes into house or out of it
+type TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
 
 type //Army_Flag=4962,
   TUnitThought = (th_None=0, th_Eat=1, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);

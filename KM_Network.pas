@@ -1,7 +1,7 @@
 unit KM_Network;
 {$I KaM_Remake.inc}
 interface
-uses Windows, Classes, SysUtils, WinSock, WSocket;
+uses Classes, SysUtils, WinSock, WSocket;
 
 {
 Features to be implemented:
