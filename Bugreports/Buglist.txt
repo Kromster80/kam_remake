@@ -8,10 +8,10 @@ EXE-only r1359+:
  +	Updated MapEd sprites (thanks to StarGazer)
  +	Fixed flag rendering order for army units
  +	Fixed bug when unfinished house demolishing would count as self-destroyed house and cause players defeat
+ +	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
 
 	Edges of messages and other scrolls should be transparent so they look smooth
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
-	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
 
 	Display WIP houses/units in statistics menu

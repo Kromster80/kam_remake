@@ -967,21 +967,30 @@ end;
 
 {Send caption to render and recieve in result how much space did it took on screen}
 procedure TKMLabel.Paint;
-var Tmp:TKMPoint; NewTop:integer;
+var Tmp:TKMPoint; NewTop:integer; Col:cardinal;
 begin
   Inherited;
-  if SmoothScrollToTop<>0 then
+
+  if SmoothScrollToTop = 0 then
+    NewTop := Top
+  else
+  begin //Setup clipping planes
+    fRenderUI.SetupClip(Top, Top+Height);
     NewTop := Top + Height - (integer(TimeGetTime) - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
-  else
-    NewTop := Top;
+  end;
 
-  if fEnabled then
-    Tmp := fRenderUI.WriteText(Left, NewTop, Width, fText, Font, TextAlign, AutoWrap, FontColor)
-  else
-    Tmp := fRenderUI.WriteText(Left, NewTop, Width, fText, Font, TextAlign, AutoWrap, $FF888888);
+  if fEnabled then Col := FontColor
+              else Col := $FF888888;
 
-  if not AutoWrap then Width := Tmp.X;
-  if SmoothScrollToTop=0 then Height := Tmp.Y;
+  Tmp := fRenderUI.WriteText(Left, NewTop, Width, fText, Font, TextAlign, AutoWrap, Col);
+
+  if not AutoWrap then 
+    Width := Tmp.X;
+
+  if SmoothScrollToTop = 0 then
+    Height := Tmp.Y
+  else
+    fRenderUI.ReleaseClip;
 end;
 
 

@@ -753,7 +753,7 @@ begin
     ,fnt_Grey,kaCenter);
 
     TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,'Knights & Merchants Credits',fnt_Outline,kaCenter);
-    Label_Credits:=TKMLabel.Create(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-140,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
+    Label_Credits:=TKMLabel.Create(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-160,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;

@@ -10,6 +10,8 @@ type
 TRenderUI = class
   public
     constructor Create;
+    procedure SetupClip         (Y1,Y2:smallint);
+    procedure ReleaseClip;
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
@@ -32,6 +34,29 @@ uses KM_Terrain, KM_PlayersCollection;
 constructor TRenderUI.Create;
 begin
   Inherited;
+end;
+
+
+procedure TRenderUI.SetupClip(Y1,Y2:smallint);
+var cp:array[0..3]of real; //Function uses 8byte floats
+begin
+  glEnable(GL_CLIP_PLANE0);
+  glEnable(GL_CLIP_PLANE1);
+  FillChar(cp, SizeOf(cp), 0);
+  cp[1] := 1; cp[3] := -Y1; //Upper edge
+  glClipPlane(GL_CLIP_PLANE0, @cp);
+  cp[1] := -1; cp[3] := Y2; //Lower edge
+  glClipPlane(GL_CLIP_PLANE1, @cp);
+end;
+
+
+//Release all clipping planes
+procedure TRenderUI.ReleaseClip;
+begin
+  glDisable(GL_CLIP_PLANE0);
+  glDisable(GL_CLIP_PLANE1);
+  glDisable(GL_CLIP_PLANE2);
+  glDisable(GL_CLIP_PLANE3);
 end;
 
 
