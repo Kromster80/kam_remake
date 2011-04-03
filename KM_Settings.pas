@@ -24,8 +24,8 @@ type
     fSpeedPace:word;
     fSpeedup:word;
     fVSync:boolean;
-    function LoadSettingsFromFile(filename:string):boolean;
-    procedure SaveSettingsToFile(filename:string);
+    function LoadSettingsFromFile(FileName:string):boolean;
+    procedure SaveSettingsToFile(FileName:string);
 
     procedure SetAutosave(aValue:boolean);
     procedure SetBrightness(aValue:byte);
@@ -68,8 +68,8 @@ type
   private
     fUnlockedMapsTSK:byte; //When player wins campaign mission this should be increased
     fUnlockedMapsTPR:byte;
-    procedure LoadINI(filename:string);
-    procedure SaveINI(filename:string);
+    procedure LoadINI(FileName:string);
+    procedure SaveINI(FileName:string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -110,12 +110,12 @@ begin
 end;
 
 
-function TGlobalSettings.LoadSettingsFromFile(filename:string):boolean;
+function TGlobalSettings.LoadSettingsFromFile(FileName:string):boolean;
 var f:TIniFile;
 begin
-  Result := FileExists(filename);
+  Result := FileExists(FileName);
 
-  f := TIniFile.Create(filename);
+  f := TIniFile.Create(FileName);
   
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
   fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
@@ -141,10 +141,10 @@ begin
 end;
 
 
-procedure TGlobalSettings.SaveSettingsToFile(filename:string);
+procedure TGlobalSettings.SaveSettingsToFile(FileName:string);
 var f:TIniFile;
 begin
-  f := TIniFile.Create(filename);
+  f := TIniFile.Create(FileName);
 
   f.WriteInteger('GFX','Brightness',  fBrightness);
   f.WriteBool   ('GFX','FullScreen',  fFullScreen);
@@ -313,20 +313,20 @@ begin
 end;
 
 
-procedure TCampaignSettings.SaveINI(filename:string);
+procedure TCampaignSettings.SaveINI(FileName:string);
 var f:TIniFile;
 begin
-  f := TIniFile.Create(filename);
+  f := TIniFile.Create(FileName);
   f.WriteInteger('Campaign', 'TSK', fUnlockedMapsTSK);
   f.WriteInteger('Campaign', 'TPR', fUnlockedMapsTPR);
   FreeAndNil(f);
 end;
 
 
-procedure TCampaignSettings.LoadINI(filename:string);
+procedure TCampaignSettings.LoadINI(FileName:string);
 var f:TIniFile;
 begin
-  f := TIniFile.Create(filename);
+  f := TIniFile.Create(FileName);
   fUnlockedMapsTSK := f.ReadInteger('Campaign', 'TSK', 1);
   fUnlockedMapsTPR := f.ReadInteger('Campaign', 'TPR', 1);
   FreeAndNil(f);

@@ -25,16 +25,16 @@ type
     procedure StepCaption(aCaption:string);
 
     function LoadPalettes:boolean;
-    function LoadMapElemDAT(filename:string):boolean;
-    function LoadPatternDAT(filename:string):boolean;
-    function LoadHouseDAT(filename:string):boolean;
-    function LoadUnitDAT(filename:string):boolean;
-    function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
+    function LoadMapElemDAT(FileName:string):boolean;
+    function LoadPatternDAT(FileName:string):boolean;
+    function LoadHouseDAT(FileName:string):boolean;
+    function LoadUnitDAT(FileName:string):boolean;
+    function LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
     //procedure AddHouseDAT;
 
     procedure AllocateRX(ID:integer; Count:integer=0);
-    function  LoadRX(filename:string; ID:integer):boolean;
+    function  LoadRX(FileName:string; ID:integer):boolean;
     procedure LoadRX7(RX:integer);
     procedure ExpandRX(ID:integer);
     procedure MakeGFX(RXid:integer);
@@ -254,12 +254,12 @@ end;
 //=============================================
 //Reading map elements (has animation data)
 //=============================================
-function TResource.LoadMapElemDAT(filename:string):boolean;
+function TResource.LoadMapElemDAT(FileName:string):boolean;
 var ii,kk:integer; ft:textfile; f:file;
 begin
   Result:=false;
-  if not CheckFileExists(filename) then exit;
-  assignfile(f,filename); reset(f,1);
+  if not CheckFileExists(FileName) then exit;
+  assignfile(f,FileName); reset(f,1);
   blockread(f,MapElem[1],MapElemQty*99);
   closefile(f);
 
@@ -297,12 +297,12 @@ end;
 //=============================================
 //Reading pattern data (tile info)
 //=============================================
-function TResource.LoadPatternDAT(filename:string):boolean;
+function TResource.LoadPatternDAT(FileName:string):boolean;
 var ii,kk:integer; ft:textfile; f:file; s:byte;
 begin
   Result:=false;
-  if not CheckFileExists(filename) then exit;
-  assignfile(f,filename); reset(f,1);
+  if not CheckFileExists(FileName) then exit;
+  assignfile(f,FileName); reset(f,1);
   blockread(f,PatternDAT[1],6*256);
   for ii:=1 to 30 do begin
     blockread(f,TileTable[ii,1],30*10);
@@ -348,13 +348,13 @@ end;
 //=============================================
 //Reading houses.dat data
 //=============================================
-function TResource.LoadHouseDAT(filename:string):boolean;
+function TResource.LoadHouseDAT(FileName:string):boolean;
 var ii,kk,h:integer; ft:textfile; f:file;
 begin
   Result:=false;
-  if not CheckFileExists(filename) then exit;
+  if not CheckFileExists(FileName) then exit;
   
-  assignfile(f,filename); reset(f,1);
+  assignfile(f,FileName); reset(f,1);
   blockread(f,HouseDATs,30*70); //Swine&Horses animations
   for h:=1 to HOUSE_COUNT do
     blockread(f,HouseDAT[h],88+19*70+270);
@@ -440,13 +440,13 @@ end;}
 //=============================================
 //Reading unit.dat data
 //=============================================
-function TResource.LoadUnitDAT(filename:string):boolean;
+function TResource.LoadUnitDAT(FileName:string):boolean;
 var ii,kk,jj,hh:integer; ft:textfile; f:file;
 begin
   Result := false;
 
-  if not CheckFileExists(filename) then exit;
-  assignfile(f,filename); reset(f,1);
+  if not CheckFileExists(FileName) then exit;
+  assignfile(f,FileName); reset(f,1);
 
   for ii:=1 to 28 do
     blockread(f,SerfCarry[ii],8*70);
@@ -507,7 +507,7 @@ Result:=true;
 end;
 
 
-function TResource.LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
+function TResource.LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 const
   TexWidth=256; //Connected to TexData, don't change
 var
@@ -521,9 +521,9 @@ var
 begin
   Result:=false;
   MaxHeight:=0;
-  if not CheckFileExists(filename, true) then exit;
+  if not CheckFileExists(FileName, true) then exit;
 
-  assignfile(f,filename); reset(f,1);
+  assignfile(f,FileName); reset(f,1);
   blockread(f,FontData[aFont].Unk1,8);
   blockread(f,FontData[aFont].Pal[0],256);
 
@@ -593,7 +593,7 @@ begin
 
     CreateDir(ExeDir+'Export\');
     CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+PalFiles[FontPal[aFont]]+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(FileName)+PalFiles[FontPal[aFont]]+'.bmp');
     MyBitMap.Free;
   end;
 
@@ -732,13 +732,13 @@ end;
 //=============================================
 //Reading RX Data
 //=============================================
-function TResource.LoadRX(filename:string; ID:integer):boolean;
+function TResource.LoadRX(FileName:string; ID:integer):boolean;
 var i:integer; f:file;
 begin
   Result:=false;
-  if not CheckFileExists(filename) then exit;
+  if not CheckFileExists(FileName) then exit;
 
-  assignfile(f,filename); reset(f,1);
+  assignfile(f,FileName); reset(f,1);
   blockread(f, RXData[ID].Qty, 4);
   AllocateRX(ID);
   blockread(f, RXData[ID].Flag[1], RXData[ID].Qty);
@@ -1264,7 +1264,7 @@ end;
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
-var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {ft:textfile;}
+var ii,kk,h,j,pX:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {ft:textfile;}
   {$IFDEF WDC}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
@@ -1330,17 +1330,17 @@ begin
     for j:=0 to (SizeY div 16 - 1) do
     for h:=0 to (SizeX div 16 - 1) do
     begin
-      px := (((SizeX-1)-(ii*(SizeY div 16)+j))*SizeX+kk*(SizeX div 16)+h)*4; //TGA comes flipped upside down
-      inc(B, c[px+1]);
-      inc(G, c[px+2]);
-      inc(R, c[px+3]);
+      pX := (((SizeX-1)-(ii*(SizeY div 16)+j))*SizeX+kk*(SizeX div 16)+h)*4; //TGA comes flipped upside down
+      inc(B, c[pX+1]);
+      inc(G, c[pX+2]);
+      inc(R, c[pX+3]);
     end;
 
-    px := ii*16+kk+1;
+    pX := ii*16+kk+1;
 
-    TileMMColor[px].R := round(R / (SizeX*SizeY div 256)); //each tile is 32x32 px
-    TileMMColor[px].G := round(G / (SizeX*SizeY div 256));
-    TileMMColor[px].B := round(B / (SizeX*SizeY div 256));
+    TileMMColor[pX].R := round(R / (SizeX*SizeY div 256)); //each tile is 32x32 px
+    TileMMColor[pX].G := round(G / (SizeX*SizeY div 256));
+    TileMMColor[pX].B := round(B / (SizeX*SizeY div 256));
 
   end;
 

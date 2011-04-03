@@ -34,10 +34,10 @@ function GenerateTextureCommon:GLuint;
 implementation
 
 {$IFDEF WDC}
-function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, atype: GLenum; Data: Pointer): GLint; stdcall; external glu32;
+function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, aType: GLenum; Data: Pointer): GLint; stdcall; external glu32;
 {$ENDIF}
-procedure glGenTextures(n: GLsizei; var textures: GLuint); stdcall; external opengl32;
-procedure glBindTexture(target: GLenum; texture: GLuint); stdcall; external opengl32;
+procedure glGenTextures(n: GLsizei; var Textures: GLuint); stdcall; external opengl32;
+procedure glBindTexture(Target: GLenum; Texture: GLuint); stdcall; external opengl32;
 
 
 function GenerateTextureCommon:GLuint;

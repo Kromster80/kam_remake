@@ -63,7 +63,7 @@ TTerrain = class
     constructor Create;
     destructor Destroy; override;
     procedure MakeNewMap(Width,Height:integer);
-    function OpenMapFromFile(filename:string):boolean;
+    function OpenMapFromFile(FileName:string):boolean;
 
     procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
@@ -257,16 +257,16 @@ begin
 end;
 
 
-function TTerrain.OpenMapFromFile(filename:string):boolean;
+function TTerrain.OpenMapFromFile(FileName:string):boolean;
 var
   i,k:integer;
   c:array[1..23]of byte;
   f:file;
 begin
   Result:=false;
-  if not CheckFileExists(filename) then exit;
+  if not CheckFileExists(FileName) then exit;
   fLog.AppendLog('Loading map file');
-  AssignFile(f,filename);
+  AssignFile(f,FileName);
   FileMode := 0;
   Reset(f,1);
   FileMode := 2;

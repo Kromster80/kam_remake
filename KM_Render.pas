@@ -456,7 +456,7 @@ end;
 
 
 procedure TRender.RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
-const step=20;
+const SEC_COUNT=20;
 var i:integer;
 begin
   X := X - 0.5;
@@ -465,17 +465,17 @@ begin
     glTranslatef(x,y,0);
     glColor4ubv(@Fill);
     glBegin(GL_POLYGON);
-      for i:=-step to step do
-        glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
+      for i:=-SEC_COUNT to SEC_COUNT do
+        glvertex3f(cos(i/SEC_COUNT*pi)*rad,sin(i/SEC_COUNT*pi)*rad,0);//-1..1
     glEnd;
     glBegin(GL_POLYGON);
-      for i:=-step to step do
-        glvertex3f(cos(i/step*pi)*rad/3,sin(i/step*pi)*rad/3,0);//-1..1
+      for i:=-SEC_COUNT to SEC_COUNT do
+        glvertex3f(cos(i/SEC_COUNT*pi)*rad/3,sin(i/SEC_COUNT*pi)*rad/3,0);//-1..1
     glEnd;
     glColor4ubv(@Line);
     glBegin(GL_LINE_STRIP);
-      for i:=-step to step do
-        glvertex3f(cos(i/step*pi)*rad,sin(i/step*pi)*rad,0);//-1..1
+      for i:=-SEC_COUNT to SEC_COUNT do
+        glvertex3f(cos(i/SEC_COUNT*pi)*rad,sin(i/SEC_COUNT*pi)*rad,0);//-1..1
     glEnd;
   glPopMatrix;
 end;
@@ -1301,13 +1301,15 @@ var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
   MarkedLocations:array[1..64] of TKMPoint; //List of locations with special marks on them
   MarkCount:integer;
 
-  procedure MarkPoint(APoint:TKMPoint; AID:integer);
+  procedure MarkPoint(aPoint:TKMPoint; aID:integer);
   var v: integer;
   begin
-    for v:=1 to MarkCount do if KMSamePoint(MarkedLocations[v],APoint) then exit;
-    RenderCursorBuildIcon(APoint,AID);
+    for v:=1 to MarkCount do
+      if KMSamePoint(MarkedLocations[v],aPoint) then
+        exit;
+    RenderCursorBuildIcon(aPoint,aID);
     inc(MarkCount);
-    MarkedLocations[MarkCount] := APoint;
+    MarkedLocations[MarkCount] := aPoint;
   end;
 begin
   MarkCount := 0;

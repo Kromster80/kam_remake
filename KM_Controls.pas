@@ -316,7 +316,7 @@ TKMCheckBox = class(TKMControl)
   private
     fCaption:string;
     fChecked:boolean;
-    fFlatStyle:boolean; //Render the check as a rectangle ()modern style
+    fFlatStyle:boolean; //Render the check as a rectangle (modern style)
     fFont:TKMFont;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
@@ -402,14 +402,14 @@ end;
 {Ratio bar}
 TKMRatioRow = class(TKMControl)
   private
-    FOnChange:TNotifyEvent;
+    fOnChange:TNotifyEvent;
   public
     Position:byte;
     MinValue:byte;
     MaxValue:byte;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
 end;
 
@@ -516,7 +516,7 @@ end;
 { Minimap as stand-alone control }
 TKMMinimap = class(TKMControl)
   private
-    FOnChange:TNotifyEvent;
+    fOnChange:TNotifyEvent;
   public
     MapSize:TKMPoint;
     BoundRectAt:TKMPoint;
@@ -526,7 +526,7 @@ TKMMinimap = class(TKMControl)
     function InMapCoords(X,Y:integer):boolean;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
 end;
 
@@ -1609,8 +1609,8 @@ begin
   if NewPos <> Position then
   begin
     Position := NewPos;
-    if Assigned(OnChange) then
-      OnChange(Self);
+    if Assigned(fOnChange) then
+      fOnChange(Self);
   end
   else
     Position := NewPos;
@@ -2045,8 +2045,8 @@ begin
   Inherited;
   if ssLeft in Shift then begin
     BoundRectAt := GetMapCoords(X,Y);
-    if Assigned(OnChange) then
-      OnChange(Self);
+    if Assigned(fOnChange) then
+      fOnChange(Self);
   end;
 end;
 
