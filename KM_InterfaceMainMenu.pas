@@ -180,9 +180,9 @@ type
     procedure LAN_JoinSucc(Sender: TObject);
     procedure LAN_JoinFail(const aData:string);
     procedure LAN_BindEvents(aKind:TLANPlayerKind);
-    procedure LAN_Update;
+    procedure LAN_Update(const aData:string);
 
-
+    procedure Lobby_BackClick(Sender: TObject);
     procedure Lobby_Reset(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
     procedure Lobby_MapSelect(Sender: TObject);
@@ -194,7 +194,6 @@ type
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_OnAllReady(Sender: TObject);
     procedure Lobby_OnDisconnect(const aData:string);
-    procedure Lobby_Quit(const aData:string);
     procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
 
@@ -508,7 +507,7 @@ begin
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, 'Conditions: Town', fnt_Metal, kaLeft);
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 80, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
-    Button_LobbyBack.OnClick := SwitchMenuPage;
+    Button_LobbyBack.OnClick := Lobby_BackClick;
     Button_LobbyReady := TKMButton.Create(Panel_Lobby, 700, 650, 120, 30, 'Ready', fnt_Metal, bsMenu);
     Button_LobbyReady.OnClick := Lobby_ReadyClick;
     Button_LobbyStart := TKMButton.Create(Panel_Lobby, 830, 650, 120, 30, 'Start!', fnt_Metal, bsMenu);
@@ -745,8 +744,8 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
-    TKMLabel.Create(Panel_Credits,200,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
-    TKMLabel.Create(Panel_Credits,200,140,100,30,
+    TKMLabel.Create(Panel_Credits,232,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Credits,232,140,100,30,
     'PROGRAMMING:|Krom|Lewin||'+
     'ADDITIONAL PROGRAMMING:|Alex||'+
     'FRENCH TRANSLATION:|Sylvain Domange||'+
@@ -754,7 +753,7 @@ begin
     'SPECIAL THANKS:|KaM Community members'
     ,fnt_Grey,kaCenter);
 
-    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,'Knights & Merchants Credits',fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,'Original Knights & Merchants Credits',fnt_Outline,kaCenter);
     Label_Credits:=TKMLabel.Create(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-160,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
@@ -827,13 +826,9 @@ begin
      (Sender=Button_ResultsBack) then
     Panel_MainMenu.Show;
 
-  {Stop the network when the player exits the lobby screen}
+  {Player leaves lobby (LAN text is updated)}
   if Sender=Button_LobbyBack then
-  begin
-    Lobby_Quit('You have disconnected');
-    LAN_Update;
     Panel_LANLogin.Show;
-  end;
 
   {Return to MultiPlayerMenu}
   if Sender=Button_LAN_LoginBack then
@@ -883,13 +878,12 @@ begin
   end;
 
   {Show MultiPlayer menu}
-  if Sender=Button_MM_MultiPlayer then begin
+  if Sender=Button_MM_MultiPlayer then 
     Panel_MultiPlayer.Show;
-  end;
 
   {Show LAN login}
   if Sender=Button_MP_LAN then begin
-    LAN_Update;
+    LAN_Update('Ready');
     Panel_LANLogin.Show;
   end;
 
@@ -1121,7 +1115,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.LAN_Update;
+procedure TKMMainMenuInterface.LAN_Update(const aData:string);
 var s:string;
 begin
   s := fGame.Networking.MyIPString;
@@ -1131,6 +1125,8 @@ begin
 
   if s <> '' then Label_LAN_IP.Caption := s
              else Label_LAN_IP.Caption := 'Unknown';
+
+  Label_LAN_Status.Caption := aData;
 end;
 
 
@@ -1174,10 +1170,8 @@ end;
 
 procedure TKMMainMenuInterface.LAN_JoinFail(const aData:string);
 begin
-  fGame.Networking.OnJoinSucc := nil;
-  fGame.Networking.OnJoinFail := nil;
-  LAN_Update; //Reset buttons
-  Label_LAN_Status.Caption := 'Connection failed: '+aData;
+  fGame.Networking.Disconnect;
+  LAN_Update('Connection failed: '+aData);
 end;
 
 
@@ -1195,11 +1189,11 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_Quit(const aData:string);
+procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
   fGame.Networking.Disconnect;
-  LAN_Update; //Reset buttons
-  Label_LAN_Status.Caption := aData;
+  LAN_Update('You have disconnected');
+  SwitchMenuPage(Button_LobbyBack);
 end;
 
 
@@ -1328,11 +1322,9 @@ end;
 //We were disconnected from Host. Either we were kicked, or connection broke down
 procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
-  Button_LobbyStart.Disable;
-  //Should we quit to LAN menu immediately or let player remain in Lobby?
-  //Maybe try to reconnect to Host?
-  //Or countdown 5..1 and quit
-  Lobby_Quit(aData);
+  fGame.Networking.Disconnect;
+  LAN_Update(aData);
+  SwitchMenuPage(Button_LobbyBack);
 end;
 
 

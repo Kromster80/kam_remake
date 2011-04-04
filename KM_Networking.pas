@@ -6,7 +6,7 @@ uses Classes, KromUtils, StrUtils, SysUtils, Windows,
   KM_NetPlayersList, KM_Network;
 
 const
-    REPLY_TIMEOUT = 5000; //Default timeout before "could not get reply" message occurs, in Game ticks
+    REPLY_TIMEOUT = 3000; //Default timeout before "could not get reply" message occurs, in Game ticks
 
 
 type
@@ -98,7 +98,6 @@ type
       //Gameplay
       property MissionMode:TMissionMode read fMissionMode;
       property NetPlayers:TKMPlayersList read fNetPlayers;
-//      function PlayerType(aIndex:integer):TPlayerType;
       procedure SendCommands(aStream:TKMemoryStream);
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
@@ -191,6 +190,7 @@ begin
   fOnMapName := nil;
   fOnAllReady := nil;
   fOnCommands := nil;
+  fOnDisconnect := nil;
   fOnPing := nil;
   fNetwork.StopListening;
   fNetPlayers.Clear;
