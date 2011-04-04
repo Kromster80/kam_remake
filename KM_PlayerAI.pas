@@ -495,6 +495,7 @@ begin
 end;
 
 
+//aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
 begin
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
@@ -513,6 +514,7 @@ begin
 end;
 
 
+//aUnit is our unit that was attacked
 procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
 begin
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then

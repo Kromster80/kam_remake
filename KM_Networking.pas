@@ -64,6 +64,7 @@ type
       fOnMapName:TStringEvent;
       fOnAllReady:TNotifyEvent;
       fOnCommands:TStringEvent;
+      fOnDisconnect:TStringEvent;
       fOnPing:TNotifyEvent;
 
       procedure StartGame;
@@ -108,6 +109,7 @@ type
       property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start playing
       property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
       property OnPing:TNotifyEvent write fOnPing;
+      property OnDisconnect:TStringEvent write fOnDisconnect; //Lost connection, was kicked
       procedure UpdateState;
     end;
 
@@ -494,7 +496,7 @@ begin
             begin
               fNetwork.OnRecieveKMPacket := nil;
               fNetwork.StopListening;
-              //fOnHostFail('lost connection to Host');
+              fOnDisconnect('Lost connection to Host');
               exit;
             end;
             PacketToHost(mk_Poke, fMyNikname); //Tell Host we are still connected

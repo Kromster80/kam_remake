@@ -35,7 +35,6 @@ type
     private
       fCount:integer;
       fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
-      function GetAsStringList:string;
       function GetPlayer(Index:integer):TKMPlayerInfo;
     public
       constructor Create;
@@ -57,7 +56,6 @@ type
       function AllReady:boolean;
 
       //Import/Export
-      property AsStringList:string read GetAsStringList; //Acquire list of players for UI Listbox
       function GetAsText:string; //Gets all relevant information as text string
       procedure SetAsText(const aText:string); //Sets all relevant information from text string
     end;
@@ -96,15 +94,6 @@ begin
 end;
 
 
-function TKMPlayersList.GetAsStringList:string;
-var i:integer;
-begin
-  Result := '';
-  for i:=1 to fCount do
-    Result := Result + fPlayers[i].Address + '/' + fPlayers[i].Nikname + eol;
-end;
-
-
 function TKMPlayersList.GetPlayer(Index:integer):TKMPlayerInfo;
 begin
   Result := fPlayers[Index];
@@ -131,6 +120,7 @@ begin
   for i:=aIndex to fCount-1 do
     fPlayers[i] := fPlayers[i+1];
 
+  //Cleanup to avoid consequences of erroneous access
   fPlayers[fCount].fAddress := '';
   fPlayers[fCount].fNikname := '';
   fPlayers[fCount].PlayerType := pt_Human;

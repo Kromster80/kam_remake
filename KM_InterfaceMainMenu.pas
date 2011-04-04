@@ -181,7 +181,7 @@ type
     procedure LAN_JoinFail(const aData:string);
     procedure LAN_BindEvents(aKind:TLANPlayerKind);
     procedure LAN_Update;
-    procedure LAN_QuitLobby;
+
 
     procedure Lobby_Reset(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
@@ -193,6 +193,8 @@ type
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_OnAllReady(Sender: TObject);
+    procedure Lobby_OnDisconnect(const aData:string);
+    procedure Lobby_Quit(const aData:string);
     procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
 
@@ -828,7 +830,7 @@ begin
   {Stop the network when the player exits the lobby screen}
   if Sender=Button_LobbyBack then
   begin
-    LAN_QuitLobby;
+    Lobby_Quit('You have disconnected');
     LAN_Update;
     Panel_LANLogin.Show;
   end;
@@ -1187,14 +1189,17 @@ begin
 
   if aKind = lpk_Host then
     fGame.Networking.OnAllReady   := Lobby_OnAllReady;
+
+  if aKind = lpk_Joiner then
+    fGame.Networking.OnDisconnect := Lobby_OnDisconnect;
 end;
 
 
-procedure TKMMainMenuInterface.LAN_QuitLobby;
+procedure TKMMainMenuInterface.Lobby_Quit(const aData:string);
 begin
   fGame.Networking.Disconnect;
   LAN_Update; //Reset buttons
-  Label_LAN_Status.Caption := 'Disconnected';
+  Label_LAN_Status.Caption := aData;
 end;
 
 
@@ -1317,6 +1322,17 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnAllReady(Sender: TObject);
 begin
   Button_LobbyStart.Enable;
+end;
+
+
+//We were disconnected from Host. Either we were kicked, or connection broke down
+procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
+begin
+  Button_LobbyStart.Disable;
+  //Should we quit to LAN menu immediately or let player remain in Lobby?
+  //Maybe try to reconnect to Host?
+  //Or countdown 5..1 and quit
+  Lobby_Quit(aData);
 end;
 
 
