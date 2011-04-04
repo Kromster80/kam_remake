@@ -391,6 +391,8 @@ end;
 procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
 var ResultMsg, LoadError:string; fMissionParser: TMissionParser; i:integer;
 begin
+  fGame.Networking.HoldTimeoutChecks;
+
   GameInit;
 
   fMissionFile := aMissionFile;

@@ -51,9 +51,11 @@ type
       function CheckCanJoin(aAddr, aNik:string):string;
       function GetStartLoc(aNik:string):integer;
       function LocAvailable(aIndex:integer):boolean;
+      function AllReady:boolean;
+
       procedure ResetLocAndReady;
       function DropMissing(aTick:cardinal):string;
-      function AllReady:boolean;
+      procedure DefineSetup(aMaxLoc:byte);
 
       //Import/Export
       function GetAsText:string; //Gets all relevant information as text string
@@ -179,6 +181,15 @@ begin
 end;
 
 
+function TKMPlayersList.AllReady:boolean;
+var i:integer;
+begin
+  Result := true;
+  for i:=1 to fCount do
+    Result := Result and fPlayers[i].ReadyToStart;
+end;
+
+
 procedure TKMPlayersList.ResetLocAndReady;
 var i:integer;
 begin
@@ -203,12 +214,31 @@ begin
 end;
 
 
-function TKMPlayersList.AllReady:boolean;
-var i:integer;
+//Convert random start locations to fixed
+//For now we assume all locations are valid
+-
+procedure TKMPlayersList.DefineSetup(aMaxLoc:byte);
+var i,k:integer; Used:array[1..MAX_PLAYERS] of boolean; Avail:array[1..MAX_PLAYERS] of byte;
 begin
-  Result := true;
   for i:=1 to fCount do
-    Result := Result and fPlayers[i].ReadyToStart;
+    Used[fPlayers[i].StartLocID] := true;
+
+  k := 0;
+  for i:=1 to fCount do
+  if not Used[i] then begin
+    inc(k);
+    Avail[k] := i;
+  end;
+
+  for i:=1 to k do //Randomize
+    SwapInt(Avail[i], Avail[random(k)+1]);
+
+  k := 0;
+  for i:=1 to fCount do
+  if fPlayers[i].StartLocID = 0 then begin
+    inc(k);
+    fPlayers[i].StartLocID := Avail[k];
+  end;
 end;
 
 

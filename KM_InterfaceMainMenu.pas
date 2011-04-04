@@ -1180,6 +1180,7 @@ begin
   fGame.Networking.OnTextMessage  := Lobby_OnMessage;
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
+  fGame.Networking.OnPing         := Lobby_OnPing;
 
   if aKind = lpk_Host then
     fGame.Networking.OnAllReady   := Lobby_OnAllReady;
@@ -1246,7 +1247,8 @@ procedure TKMMainMenuInterface.Lobby_OnPing(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
-    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].Ping);
+  if fGame.Networking.Connected then
+    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].TimeTick{.Ping});
 end;
 
 

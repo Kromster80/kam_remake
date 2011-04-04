@@ -56,6 +56,7 @@ type
 
       fJoinTick:cardinal; //Timer to issue timeout event on connection
       fLastUpdateTick:cardinal;
+      fHoldTimeoutChecks:boolean;
 
       fOnJoinSucc:TNotifyEvent;
       fOnJoinFail:TStringEvent;
@@ -92,6 +93,7 @@ type
 
       //Common
       procedure Ping;
+      procedure HoldTimeoutChecks;
       procedure PostMessage(aText:string);
       property MyIndex:integer read fMyIndex;
 
@@ -156,7 +158,7 @@ begin
   fMyIndex := 1;
   fLANPlayerKind := lpk_Host;
   fNetPlayers.Clear;
-  fNetPlayers.AddPlayer(MyIPString, fMyNikname, GetTickCount + REPLY_TIMEOUT);
+  fNetPlayers.AddPlayer(MyIPString, fMyNikname, 0); //Selfs tick is not important
   fNetPlayers[fMyIndex].ReadyToStart := true;
   fNetwork.StartListening;
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Start listening
@@ -170,11 +172,10 @@ begin
   fHostAddress := aServerAddress;
   fMyAddress := MyIPString;
   fMyNikname := aUserName;
-  fMyIndex := -1; //Host will send us Players lista and we will get our index from there
+  fMyIndex := -1; //Host will send us Players list and we will get our index from there
   fLANPlayerKind := lpk_Joiner;
   fJoinTick := GetTickCount + REPLY_TIMEOUT; //3sec
   fNetPlayers.Clear;
-  fNetPlayers.AddPlayer(MyIPString, fMyNikname, GetTickCount + REPLY_TIMEOUT);
   fNetwork.StartListening;
   PacketToHost(mk_AskToJoin, fMyNikname);
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Unless we join use shortlist
@@ -281,11 +282,13 @@ begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
   Assert(fNetPlayers.AllReady, 'Not everyone is ready to start');
 
-  //Assume that everything is synced
-  //Define random parameters (start locations?)
+  //Define random parameters (start locations and flag colors)
+  fNetPlayers.DefineSetup(MAX_PLAYERS); //todo: Take maps MaxPlayers
 
-  //Let everyone start
-  PacketToAll(mk_Start, '');
+
+
+  //Let everyone start with final version of fNetPlayers
+  PacketToAll(mk_Start, fNetPlayers.GetAsText);
 
   StartGame;
 end;
@@ -305,6 +308,12 @@ begin
     fNetPlayers[i].PingSent := GetTickCount;
 
   PacketToAll(mk_Ping, fMyNikname);
+end;
+
+
+procedure TKMNetworking.HoldTimeoutChecks;
+begin
+  fHoldTimeoutChecks := true;
 end;
 
 
@@ -441,6 +450,8 @@ begin
 
     mk_Start:
             if fLANPlayerKind = lpk_Joiner then begin
+              fNetPlayers.SetAsText(Msg);
+              fMyIndex := fNetPlayers.NiknameIndex(fMyNikname);
               StartGame;
             end;
 
@@ -487,12 +498,13 @@ begin
   end;
 
   //Test once per half of REPLY_TIMEOUT
+  if not fHoldTimeoutChecks then
   if GetTickCount > fLastUpdateTick + (REPLY_TIMEOUT div 2) then
   begin
     case fLANPlayerKind of
       lpk_Joiner:
           begin//Joiner checks if Host is lost
-            if GetTickCount > fNetPlayers[1].TimeTick then
+            if (GetTickCount > fNetPlayers[1].TimeTick) and (fNetPlayers[1].TimeTick <> 0) then
             begin
               fNetwork.OnRecieveKMPacket := nil;
               fNetwork.StopListening;
