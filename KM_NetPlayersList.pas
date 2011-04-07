@@ -214,31 +214,51 @@ begin
 end;
 
 
-//Convert random start locations to fixed
-//For now we assume all locations are valid
--
+//Convert undefined/random start locations to fixed
+//Remove odd players
 procedure TKMPlayersList.DefineSetup(aMaxLoc:byte);
-var i,k:integer; Used:array[1..MAX_PLAYERS] of boolean; Avail:array[1..MAX_PLAYERS] of byte;
+var 
+  i,k,LocCount:integer;
+  UsedLoc:array[0..MAX_PLAYERS] of boolean;
+  AvailableLoc:array[1..MAX_PLAYERS] of byte;
 begin
-  for i:=1 to fCount do
-    Used[fPlayers[i].StartLocID] := true;
 
-  k := 0;
+  //All wrong start locations will be reset to "undefined"
   for i:=1 to fCount do
-  if not Used[i] then begin
-    inc(k);
-    Avail[k] := i;
+    if fPlayers[i].StartLocID > aMaxLoc then fPlayers[i].StartLocID := 0;
+
+  //Remember all used locations and drop duplicates
+  for i:=1 to fCount do
+    if UsedLoc[fPlayers[i].StartLocID] then
+      fPlayers[i].StartLocID := 0
+    else
+      UsedLoc[fPlayers[i].StartLocID] := true;
+
+  //Collect available locations
+  LocCount := 0;
+  for i:=1 to aMaxLoc do
+  if not UsedLoc[i] then begin
+    inc(LocCount);
+    AvailableLoc[LocCount] := i;
   end;
 
-  for i:=1 to k do //Randomize
-    SwapInt(Avail[i], Avail[random(k)+1]);
+  //Randomize
+  for i:=1 to LocCount do
+    SwapInt(AvailableLoc[i], AvailableLoc[random(LocCount)+1]);
 
+  //Allocate available starting locations
   k := 0;
   for i:=1 to fCount do
   if fPlayers[i].StartLocID = 0 then begin
     inc(k);
-    fPlayers[i].StartLocID := Avail[k];
+    if k<=LocCount then
+      fPlayers[i].StartLocID := AvailableLoc[k];
   end;
+
+  //Drop odd players
+  for i:=fCount downto 1 do
+  if fPlayers[i].StartLocID = 0 then
+    RemPlayer(i);
 end;
 
 

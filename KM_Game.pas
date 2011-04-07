@@ -769,7 +769,7 @@ begin
     fGameInputProcess.SaveToFile(KMSlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
   end;//
 
-  fLog.AppendLog('Saving game',true);
+  fLog.AppendLog('Saving game', true);
 end;
 
 

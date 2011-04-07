@@ -1291,21 +1291,22 @@ begin
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
     DropBox_LobbyLoc[i].Enabled := MyNik;
     DropBox_LobbyColor[i].Enabled := MyNik;
-    CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will need to replace it with an icon)
-    Button_LobbyReady.Enabled := MyNik and fGame.Networking.NetPlayers[i+1].ReadyToStart;
+    CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
+    if MyNik then
+      Button_LobbyReady.Enabled := (fGame.Networking.MapName<>'') and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
   end;
 end;
 
 
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 begin
-  //Fill in map info
+  //todo: Fill in map info
   Label_LobbyMapName.Caption := aData;
 
-  //Cut DropBox_LobbyLoc according to map max players
+  //todo: Cut/filter DropBox_LobbyLoc according to map max players
 
   //todo: Keep disabled if Map does not matches Hosts or missing
-  Button_LobbyReady.Enabled := true;
+  Button_LobbyReady.Enable;
 end;
 
 
@@ -1333,7 +1334,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_ReadyClick(Sender: TObject);
 begin
   fGame.Networking.ReadyToStart;
-  Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[fGame.Networking.MyIndex].ReadyToStart;
+  Button_LobbyReady.Disable;
 end;
 
 

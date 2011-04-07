@@ -98,6 +98,7 @@ type
       property MyIndex:integer read fMyIndex;
 
       //Gameplay
+      property MapName:string read fMapName;
       property MissionMode:TMissionMode read fMissionMode;
       property NetPlayers:TKMPlayersList read fNetPlayers;
       procedure SendCommands(aStream:TKMemoryStream);
@@ -272,20 +273,25 @@ end;
 procedure TKMNetworking.ReadyToStart;
 begin
   fNetPlayers[fMyIndex].ReadyToStart := true;
+  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
   PacketToAll(mk_ReadyToStart, fMyNikname);
 end;
 
 
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
+const MapLoc = 6; //todo: Take maps MaxPlayers
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
-  Assert(fNetPlayers.AllReady, 'Not everyone is ready to start');
+
+  //Do not allow to start the game
+  if not fNetPlayers.AllReady or //We might miss a starting location
+    ((fNetPlayers[fMyIndex].StartLocID = 0) and (fNetPlayers.Count > MapLoc)) then
+    exit;
 
   //Define random parameters (start locations and flag colors)
-  fNetPlayers.DefineSetup(MAX_PLAYERS); //todo: Take maps MaxPlayers
-
-
+  //This will also remove odd players from the List, they will loose Host in few seconds
+  fNetPlayers.DefineSetup(MapLoc);
 
   //Let everyone start with final version of fNetPlayers
   PacketToAll(mk_Start, fNetPlayers.GetAsText);
@@ -412,6 +418,7 @@ begin
     mk_ReadyToStart:
             if fLANPlayerKind = lpk_Host then begin
               fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
+              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               if fNetPlayers.AllReady and (fNetPlayers.Count>1) then
                 if Assigned(fOnAllReady) then fOnAllReady(nil);
             end;
