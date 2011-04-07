@@ -373,15 +373,15 @@ begin
   fViewport.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
-  fGamePlayInterface.MenuIconsEnabled(not (fMissionMode = mm_Tactic));
+  fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
 
-  fLog.AppendLog('Gameplay initialized',true);
+  fLog.AppendLog('Gameplay initialized', true);
 
   fGameState := gsRunning;
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   Save(99); //Thats our base for a game record
-  CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
+  CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
   fLog.AppendLog('Gameplay recording initialized',true);
   RandSeed := 4; //Random after StartGame and ViewReplay should match
@@ -441,7 +441,7 @@ begin
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
 
-  fLog.AppendLog('Gameplay initialized',true);
+  fLog.AppendLog('Gameplay initialized', true);
 
   fGameState := gsPaused;
 
@@ -730,7 +730,7 @@ var
   i:integer;
 begin
   fLog.AppendLog('Saving game');
-  if not (fGameState in [gsPaused,gsRunning]) then begin
+  if not (fGameState in [gsPaused, gsRunning]) then begin
     Assert(false, 'Saving from wrong state?');
     exit;
   end;
@@ -763,6 +763,8 @@ begin
 
   SaveStream.SaveToFile(KMSlotToSaveName(SlotID,'sav')); //Some 70ms for TPR7 map
   SaveStream.Free;
+
+  fLog.AppendLog('Sav done');
 
   if SlotID <> AUTOSAVE_SLOT then begin //Backup earlier autosaves
     CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame

@@ -49,7 +49,6 @@ type
       //Getters
       function NiknameIndex(aNik:string):integer;
       function CheckCanJoin(aAddr, aNik:string):string;
-      function GetStartLoc(aNik:string):integer;
       function LocAvailable(aIndex:integer):boolean;
       function AllReady:boolean;
 
@@ -125,7 +124,7 @@ begin
   //Cleanup to avoid consequences of erroneous access
   fPlayers[fCount].fAddress := '';
   fPlayers[fCount].fNikname := '';
-  fPlayers[fCount].PlayerType := pt_Human;
+  fPlayers[fCount].PlayerType := pt_None;
   fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;
@@ -153,18 +152,6 @@ begin
   else
   if NiknameIndex(aNik) <> -1 then
     Result := 'Player with this nik already joined the game';
-end;
-
-
-function TKMPlayersList.GetStartLoc(aNik:string):integer;
-var i:integer;
-begin
-  Result := -1;
-  for i:=1 to fCount do
-    if fPlayers[i].Nikname = aNik then
-      if fPlayers[i].StartLocID = 0 then Result := i //Order
-                                    else Result := fPlayers[i].StartLocID;
-  Assert(Result<>-1, 'Net Player is missing');
 end;
 
 

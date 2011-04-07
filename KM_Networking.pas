@@ -303,7 +303,7 @@ end;
 procedure TKMNetworking.StartGame;
 begin
   //Hold on timeout checks, Game will resume them
-  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fNetPlayers.GetStartLoc(fMyNikname));
+  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fNetPlayers[fMyIndex].StartLocID);
 end;
 
 

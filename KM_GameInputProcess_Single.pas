@@ -8,7 +8,6 @@ type
   TGameInputProcess_Single = class(TGameInputProcess)
     protected
       procedure TakeCommand(aCommand:TGameInputCommand); override;
-    public
   end;
 
 
