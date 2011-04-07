@@ -214,7 +214,7 @@ end;
 
 function TResource.GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 begin
-  Result := UnitSprite[Integer(aUnitType)].Act[Integer(aAction)].Dir[Integer(aDir)].Count;
+  Result := UnitSprite[byte(aUnitType)].Act[byte(aAction)].Dir[byte(aDir)].Count;
 end;
 
 

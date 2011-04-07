@@ -545,7 +545,7 @@ function TKMHouse.HitTest(X, Y: Integer): Boolean;
 begin
   Result:=false;
   if (X-fPosition.X+3 in [1..4])and(Y-fPosition.Y+4 in [1..4]) then
-  if HousePlanYX[integer(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
+  if HousePlanYX[byte(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
     Result:=true;
     exit;
   end;
@@ -617,7 +617,7 @@ procedure TKMHouse.AddRepair(aAmount:word=5);
 begin
   fDamage:= EnsureRange(fDamage - aAmount,0,maxword);
   if (fDamage=0)and(fRepairID<>0) then begin
-    fPlayers.Player[integer(fOwner)].BuildList.CloseHouseRepair(fRepairID);
+    fPlayers.Player[byte(fOwner)].BuildList.CloseHouseRepair(fRepairID);
     fRepairID:=0;
   end;
   UpdateDamage;

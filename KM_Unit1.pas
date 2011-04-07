@@ -202,9 +202,9 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   //Reset the resolution
   ResetResolution;
-  fGame.GameStop(gr_Silent);
-  FreeThenNil(fGame);
-  FreeThenNil(fLog);
+  if fGame<>nil then fGame.GameStop(gr_Silent);
+  if fGame<>nil then FreeThenNil(fGame);
+  if fLog<>nil then FreeThenNil(fLog);
   TimeEndPeriod(1);
   ClipCursor(nil); //Release the cursor restriction
 end;
@@ -223,38 +223,38 @@ end;
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them to fGame');
-  fGame.KeyDown(Key, Shift);
+  if fGame<>nil then fGame.KeyDown(Key, Shift);
 end;
 
 
 procedure TForm1.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them to fGame');
-  //fGame.KeyPress(Key);
+  //if fGame<>nil then fGame.KeyPress(Key);
 end;
 
 
 procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them to fGame');
-  fGame.KeyUp(Key, Shift);
+  if fGame<>nil then fGame.KeyUp(Key, Shift);
 end;
 
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin fGame.MouseDown(Button, Shift, X, Y); end;
+begin if fGame<>nil then fGame.MouseDown(Button, Shift, X, Y); end;
 
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-begin fGame.MouseMove(Shift, X, Y); end;
+begin if fGame<>nil then fGame.MouseMove(Shift, X, Y); end;
 
 
 procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin fGame.MouseUp(Button, Shift, X, Y); end;
+begin if fGame<>nil then fGame.MouseUp(Button, Shift, X, Y); end;
 
 
 procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin fGame.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Panel5.ScreenToClient(MousePos).Y); end;
+begin if fGame<>nil then fGame.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Panel5.ScreenToClient(MousePos).Y); end;
 
 
 procedure TForm1.Timer100msTimer(Sender: TObject);

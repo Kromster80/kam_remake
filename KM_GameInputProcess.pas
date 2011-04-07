@@ -258,7 +258,7 @@ end;
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
 begin
   Assert(aCommandType = gic_ArmyWalk);
-  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection)]) );
+  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aLoc.X, aLoc.Y, byte(aDirection)]) );
 end;
 
 
@@ -272,7 +272,7 @@ end;
 procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType);
 begin
   Assert(aCommandType = gic_BuildHousePlan);
-  TakeCommand( MakeCommand(aCommandType, [integer(aHouseType), aLoc.X, aLoc.Y]) );
+  TakeCommand( MakeCommand(aCommandType, [byte(aHouseType), aLoc.X, aLoc.Y]) );
 end;
 
 
@@ -293,14 +293,14 @@ end;
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType);
 begin
   Assert(aCommandType = gic_HouseStoreAcceptFlag);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, integer(aItem)]) );
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aItem)]) );
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType);
 begin
   Assert(aCommandType = gic_HouseTrain);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, integer(aUnitType)]) );
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aUnitType)]) );
 end;
 
 
@@ -315,7 +315,7 @@ end;
 procedure TGameInputProcess.CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 begin
   Assert(aCommandType = gic_RatioChange);
-  TakeCommand( MakeCommand(aCommandType, [integer(aRes), integer(aHouseType), aValue]) );
+  TakeCommand( MakeCommand(aCommandType, [byte(aRes), byte(aHouseType), aValue]) );
 end;
 
 
@@ -402,7 +402,7 @@ begin
   if length(fQueue) <= fCount then setlength(fQueue, fCount+128);
 
   with fQueue[fCount] do begin
-    Tick    := fGame.GetTickCount;
+    Tick    := fGame.GameTickCount;
     Command := aCommand;
     Rand    := Random(maxint); //This will be our check to ensure everything is consistent
   end;

@@ -504,7 +504,7 @@ begin
     and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
     begin
       //fSoundLib.PlayWarning(sp_BuildingsAttacked);
-      fTimeOfLastAttackMessage := fGame.GetTickCount;
+      fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
   if Assets.PlayerType = pt_Computer then
@@ -523,7 +523,7 @@ begin
     and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
     begin
       //fSoundLib.PlayWarning(sp_UnitsAttacked);
-      fTimeOfLastAttackMessage := fGame.GetTickCount;
+      fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
   if Assets.PlayerType = pt_Computer then

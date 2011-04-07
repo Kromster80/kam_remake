@@ -196,8 +196,8 @@ meaning no lines will be lost if Remake crashes}
 procedure TKMLog.AddLine(const aText:string);
 var Delta:cardinal;
 begin
-  Delta:=TimeGetTime - PreviousTick;
-  PreviousTick:=TimeGetTime;
+  Delta := TimeGetTime - PreviousTick;
+  PreviousTick := TimeGetTime;
   if Delta>100000 then Delta:=0; //ommit first usage
   AssignFile(fl, fLogPath);
   append(fl);

@@ -2047,7 +2047,7 @@ end;
 
 function TTerrain.CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
 begin
-   Result := fPlayers.Player[integer(PlayerID)].RemPlan(Loc,true);
+   Result := fPlayers.Player[byte(PlayerID)].RemPlan(Loc,true);
 end;
 
 
@@ -2056,7 +2056,7 @@ begin
    if PlayerID = play_none then
      Result := fPlayers.RemAnyHouse(Loc,true,true)
    else
-     Result := fPlayers.Player[integer(PlayerID)].RemHouse(Loc,true,true);
+     Result := fPlayers.Player[byte(PlayerID)].RemHouse(Loc,true,true);
 end;
 
 
@@ -2066,7 +2066,7 @@ begin
   if PlayerID = play_none then
     Result := fPlayers.RemAnyUnit(Loc,true)
   else
-    Result := fPlayers.Player[integer(PlayerID)].RemUnit(Loc,true) or fPlayers.PlayerAnimals.RemUnit(Loc,true);
+    Result := fPlayers.Player[byte(PlayerID)].RemUnit(Loc,true) or fPlayers.PlayerAnimals.RemUnit(Loc,true);
 end;
 
 

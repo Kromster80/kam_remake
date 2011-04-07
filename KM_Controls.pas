@@ -178,7 +178,7 @@ TKMLabel = class(TKMControl)
     FontColor: TColor4;
     TextAlign: KAlign;
     AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
-    SmoothScrollToTop: integer; //Delta between this and TimeGetTime affects vertical position
+    SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
     function HitTest(X, Y: Integer): Boolean; override;
     property Caption:string read fCaption write SetCaption;
@@ -976,7 +976,7 @@ begin
   else
   begin //Setup clipping planes
     fRenderUI.SetupClip(Top, Top+Height);
-    NewTop := Top + Height - (integer(TimeGetTime) - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
+    NewTop := Top + Height - integer(TimeGetTime - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
   end;
 
   if fEnabled then Col := FontColor

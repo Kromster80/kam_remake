@@ -115,7 +115,7 @@ var Tick:integer;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
 
-  Tick := (fGame.GetTickCount + fDelay) mod MAX_SCHEDULE; //Place in a ring buffer
+  Tick := (fGame.GameTickCount + fDelay) mod MAX_SCHEDULE; //Place in a ring buffer
 
   fSchedule[Tick,byte(aCommand.PlayerID)].Add(aCommand);
   FillChar(fConfirmed[Tick], SizeOf(fConfirmed[Tick]), #0); //Reset

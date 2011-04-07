@@ -32,7 +32,7 @@ type
     fProjectiles:TKMProjectiles;
     fNetworking:TKMNetworking;
   private //Should be saved
-    fGameplayTickCount:cardinal;
+    fGameTickCount:cardinal;
     fGameName:string;
     fMissionFile:string; //Remember what we are playing incase we might want to replay
     fMissionMode: TMissionMode;
@@ -76,7 +76,7 @@ type
 
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
-    property GetTickCount:cardinal read fGameplayTickCount;
+    property GameTickCount:cardinal read fGameTickCount;
     property GetMissionFile:string read fMissionFile;
     property GetGameName:string read fGameName;
     property GetCampaign:TCampaign read fActiveCampaign;
@@ -320,7 +320,7 @@ begin
   fRender.ResizeGameArea(ScreenX,ScreenY,rm2D);
   fViewport.ResizeGameArea(ScreenX,ScreenY);
 
-  fGameplayTickCount := 0; //Restart counter
+  fGameTickCount := 0; //Restart counter
 end;
 
 
@@ -630,7 +630,7 @@ begin
   fViewport.ResizeGameArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
 
-  fGameplayTickCount := 0; //Restart counter
+  fGameTickCount := 0; //Restart counter
 
   fGameState := gsEditor;
 end;
@@ -740,7 +740,7 @@ begin
   SaveStream.Write(SAVE_VERSION); //This is savegame version
   SaveStream.Write(fMissionFile); //Save game mission file
   SaveStream.Write(fGameName); //Save game title
-  SaveStream.Write(fGameplayTickCount); //Required to be saved, e.g. messages being shown after a time
+  SaveStream.Write(fGameTickCount); //Required to be saved, e.g. messages being shown after a time
   SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
@@ -844,7 +844,7 @@ begin
     //Substitute tick counter and id tracker
     LoadStream.Read(fMissionFile); //Savegame mission file
     LoadStream.Read(fGameName); //Savegame title
-    LoadStream.Read(fGameplayTickCount);
+    LoadStream.Read(fGameTickCount);
     LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
@@ -907,17 +907,17 @@ begin
     gsReplay:   begin
                   for i:=1 to fGameSpeed do
                   begin
-                    inc(fGameplayTickCount); //Thats our tick counter for gameplay events
+                    inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
-                    fPlayers.UpdateState(fGameplayTickCount); //Quite slow
+                    fPlayers.UpdateState(fGameTickCount); //Quite slow
                     if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                    if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.Autosave
+                    if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave
                       and (fGameState = gsRunning) then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
 
-                    fGameInputProcess.Timer(fGameplayTickCount);
+                    fGameInputProcess.Timer(fGameTickCount);
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       GameHold(true, gr_ReplayEnd);
 

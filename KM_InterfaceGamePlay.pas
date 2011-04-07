@@ -1535,7 +1535,7 @@ begin
       Army_ActivateControls(not Commander.ArmyIsBusy(true));
       Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and not Commander.ArmyIsBusy(true);
     end;
-    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and not Commander.ArmyIsBusy(true); //Only melee groups may charge
+    Button_Army_Storm.Enabled := (UnitGroups[byte(Sender.UnitType)] = gt_Melee)and not Commander.ArmyIsBusy(true); //Only melee groups may charge
   end
   else
   begin //Citizen specific
@@ -2485,8 +2485,8 @@ begin
 
   if fGame.fGameInputProcess.ReplayState = gipReplaying then begin
     Panel_Replay.Show;
-    PercentBar_Replay.Position := EnsureRange(round(fGame.GetTickCount / fGame.fGameInputProcess.GetLastTick * 100), 0, 100);
-    Label_Replay.Caption := Format('%d / %d', [fGame.GetTickCount div 10, fGame.fGameInputProcess.GetLastTick div 10]);
+    PercentBar_Replay.Position := EnsureRange(round(fGame.GameTickCount / fGame.fGameInputProcess.GetLastTick * 100), 0, 100);
+    Label_Replay.Caption := Format('%d / %d', [fGame.GameTickCount div 10, fGame.fGameInputProcess.GetLastTick div 10]);
   end else
     Panel_Replay.Hide;
 

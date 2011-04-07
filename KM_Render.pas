@@ -537,7 +537,7 @@ begin
       {$IFDEF WDC}
       if word(fTerrain.Land[i,k].Passability) AND Pow(2,Passability) = Pow(2,Passability) then
       {$ENDIF}
-      {$IFDEF FPC}
+      {$IFDEF FPC} //Can't accept word
       if integer(fTerrain.Land[i,k].Passability) AND Pow(2,Passability) = Pow(2,Passability) then
       {$ENDIF}
         RenderQuad(k,i);
@@ -894,7 +894,7 @@ var ShiftX,ShiftY:single; ID:integer;
 begin
   if byte(Thought) = 0 then exit;
   ID:=ThoughtBounds[byte(Thought),2]+1 -
-     (fGame.GetTickCount mod word(ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
+     (fGame.GameTickCount mod word(ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;

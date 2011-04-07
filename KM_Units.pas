@@ -389,7 +389,7 @@ begin
       else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
+          SetActionStay(HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
@@ -558,7 +558,7 @@ begin
       else begin
         fUnitTask := InitiateActivity; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
+          SetActionStay(HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
@@ -597,8 +597,8 @@ var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
-  AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
-  AnimDir:=integer(Direction);
+  AnimAct := integer(fCurrentAction.fActionType); //should correspond with UnitAction
+  AnimDir := byte(Direction);
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
@@ -608,7 +608,7 @@ begin
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry<>rt_None then
-    fRender.RenderUnitCarry(integer(Carry), AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos)
+    fRender.RenderUnitCarry(byte(Carry), AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos)
   else
     fRender.RenderUnit(byte(UnitType), 9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
 

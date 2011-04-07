@@ -176,7 +176,7 @@ begin
   ExplanationLog.Add(Format(
   '%d'+#9+'%d:%d > %d:%d > %d:%d'+#9+Explanation+'',
   [
-  fGame.GetTickCount,
+  fGame.GameTickCount,
   fWalker.PrevPosition.X,
   fWalker.PrevPosition.Y,
   fWalker.GetPosition.X,
