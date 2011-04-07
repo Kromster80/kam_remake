@@ -5,7 +5,8 @@ uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows, DateUt
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 
-type TKMGamePlayInterface = class
+type
+  TKMGamePlayInterface = class
   private
     //not saved
     fShownUnit:TKMUnit;
@@ -22,6 +23,68 @@ type TKMGamePlayInterface = class
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
+
+    procedure Create_Replay_Page;
+    procedure Create_Message_Page;
+    procedure Create_Chat_Page;
+    procedure Create_Pause_Page;
+    procedure Create_PlayMore_Page;
+    procedure Create_Build_Page;
+    procedure Create_Ratios_Page;
+    procedure Create_Stats_Page;
+    procedure Create_Menu_Page;
+    procedure Create_Save_Page;
+    procedure Create_Load_Page;
+    procedure Create_Settings_Page;
+    procedure Create_Quit_Page;
+    procedure Create_Unit_Page;
+    procedure Create_House_Page;
+    procedure Create_Store_Page;
+    procedure Create_School_Page;
+    procedure Create_Barracks_Page;
+
+    procedure Army_ActivateControls(aActive:boolean);
+    procedure Army_HideJoinMenu(Sender:TObject);
+    procedure Army_Issue_Order(Sender:TObject);
+    procedure House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
+    procedure House_Demolish(Sender:TObject);
+    procedure House_RepairToggle(Sender:TObject);
+    procedure House_WareDeliveryToggle(Sender:TObject);
+    procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
+    procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
+    procedure House_SchoolUnitRemove(Sender:TObject);
+    procedure House_StoreAcceptFlag(Sender:TObject);
+    procedure Menu_Settings_Fill;
+    procedure Menu_Settings_Change(Sender:TObject);
+    procedure Menu_ShowLoad(Sender: TObject);
+    procedure Menu_QuitMission(Sender:TObject);
+    procedure Menu_NextTrack(Sender:TObject);
+    procedure Menu_PreviousTrack(Sender:TObject);
+    procedure Message_Close(Sender: TObject);
+    procedure Message_Delete(Sender: TObject);
+    procedure Message_Display(Sender: TObject);
+    procedure Message_GoTo(Sender: TObject);
+    procedure Message_UpdateStack;
+    procedure Minimap_Update(Sender: TObject);
+    procedure Minimap_RightClick(Sender: TObject);
+    procedure Unit_Die(Sender:TObject);
+
+    procedure Save_Click(Sender: TObject);
+    procedure Load_Click(Sender: TObject);
+    procedure SwitchPage(Sender: TObject);
+    procedure SwitchPage_Ratios(Sender: TObject);
+    procedure RatiosChange(Sender: TObject);
+    procedure DisplayHint(Sender: TObject);
+    procedure PlayMoreClick(Sender:TObject);
+    procedure ReplayClick(Sender: TObject);
+    procedure Build_ButtonClick(Sender: TObject);
+    procedure Build_Fill(Sender:TObject);
+    procedure Chat_Post(Sender:TObject; Key:word);
+    procedure Store_Fill(Sender:TObject);
+    procedure Stats_Fill(Sender:TObject);
+    procedure Menu_Fill(Sender:TObject);
+    procedure SetPause(aValue:boolean);
+    procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -157,68 +220,6 @@ type TKMGamePlayInterface = class
       Label_Barracks_Unit:TKMLabel;
       Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
       Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
-  private
-    procedure Create_Replay_Page;
-    procedure Create_Message_Page;
-    procedure Create_Chat_Page;
-    procedure Create_Pause_Page;
-    procedure Create_PlayMore_Page;
-    procedure Create_Build_Page;
-    procedure Create_Ratios_Page;
-    procedure Create_Stats_Page;
-    procedure Create_Menu_Page;
-    procedure Create_Save_Page;
-    procedure Create_Load_Page;
-    procedure Create_Settings_Page;
-    procedure Create_Quit_Page;
-    procedure Create_Unit_Page;
-    procedure Create_House_Page;
-    procedure Create_Store_Page;
-    procedure Create_School_Page;
-    procedure Create_Barracks_Page;
-
-    procedure Army_ActivateControls(aActive:boolean);
-    procedure Army_HideJoinMenu(Sender:TObject);
-    procedure Army_Issue_Order(Sender:TObject);
-    procedure House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
-    procedure House_Demolish(Sender:TObject);
-    procedure House_RepairToggle(Sender:TObject);
-    procedure House_WareDeliveryToggle(Sender:TObject);
-    procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
-    procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
-    procedure House_SchoolUnitRemove(Sender:TObject);
-    procedure House_StoreAcceptFlag(Sender:TObject);
-    procedure Menu_Settings_Fill;
-    procedure Menu_Settings_Change(Sender:TObject);
-    procedure Menu_ShowLoad(Sender: TObject);
-    procedure Menu_QuitMission(Sender:TObject);
-    procedure Menu_NextTrack(Sender:TObject);
-    procedure Menu_PreviousTrack(Sender:TObject);
-    procedure Message_Close(Sender: TObject);
-    procedure Message_Delete(Sender: TObject);
-    procedure Message_Display(Sender: TObject);
-    procedure Message_GoTo(Sender: TObject);
-    procedure Message_UpdateStack;
-    procedure Minimap_Update(Sender: TObject);
-    procedure Minimap_RightClick(Sender: TObject);
-    procedure Unit_Die(Sender:TObject);
-
-    procedure Save_Click(Sender: TObject);
-    procedure Load_Click(Sender: TObject);
-    procedure SwitchPage(Sender: TObject);
-    procedure SwitchPage_Ratios(Sender: TObject);
-    procedure RatiosChange(Sender: TObject);
-    procedure DisplayHint(Sender: TObject);
-    procedure PlayMoreClick(Sender:TObject);
-    procedure ReplayClick(Sender: TObject);
-    procedure Build_ButtonClick(Sender: TObject);
-    procedure Build_Fill(Sender:TObject);
-    procedure Chat_Post(Sender:TObject; Key:word);
-    procedure Store_Fill(Sender:TObject);
-    procedure Stats_Fill(Sender:TObject);
-    procedure Menu_Fill(Sender:TObject);
-    procedure SetPause(aValue:boolean);
-    procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
   public
     MyControls: TKMMasterControl;
     constructor Create;

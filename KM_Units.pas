@@ -55,7 +55,7 @@ type
 
 
   TKMUnit = class
-  protected
+  protected //Accessible for child classes
     fID:integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
@@ -76,17 +76,20 @@ type
     fPrevPosition: TKMPoint; //Where we were
     fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
     fDirection: TKMDirection; //
+
     procedure SetDirection(aValue:TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
     function GetSlide(aCheck:TCheckAxis): single;
+
+    procedure UpdateHunger;
+    procedure UpdateFOW;
+    procedure UpdateThoughts;
+    procedure UpdateVisibility;
+    procedure UpdateHitPoints;
   public
     AnimStep: integer;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
-    property ID:integer read fID;
-    property PrevPosition: TKMPoint read fPrevPosition;
-    property NextPosition: TKMPoint read fNextPosition;
-    property Direction:TKMDirection read fDirection write SetDirection;
-  public
+
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
@@ -98,6 +101,11 @@ type
 
     procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit; dynamic;
+
+    property ID:integer read fID;
+    property PrevPosition: TKMPoint read fPrevPosition;
+    property NextPosition: TKMPoint read fNextPosition;
+    property Direction:TKMDirection read fDirection write SetDirection;
 
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X,Y:integer; const UT:TUnitType = ut_Any): Boolean;
@@ -145,13 +153,7 @@ type
     procedure SetPosition(aPos:TKMPoint);
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
-  protected
-    procedure UpdateHunger;
-    procedure UpdateFOW;
-    procedure UpdateThoughts;
-    procedure UpdateVisibility;
-    procedure UpdateHitPoints;
-  public
+
     procedure Save(SaveStream:TKMemoryStream); virtual;
     function UpdateState:boolean; virtual;
     procedure Paint; virtual;
@@ -1849,13 +1851,13 @@ end;
 
 
 function TKMUnitsCollection.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
-var I:Integer;
+var i:integer;
 begin
   Result:= nil;
-  for I:=0 to Count-1 do
-    if Units[I].HitTest(X,Y,UT) and (not Units[I].IsDead) then
+  for i:=0 to Count-1 do
+    if Units[i].HitTest(X,Y,UT) and (not Units[i].IsDead) then
     begin
-      Result := Units[I];
+      Result := Units[i];
       exit;
     end;
 end;

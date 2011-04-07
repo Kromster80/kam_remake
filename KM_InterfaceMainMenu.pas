@@ -25,6 +25,64 @@ type
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
     OldResolution:word;
+
+    procedure Create_MainMenu_Page;
+    procedure Create_SinglePlayer_Page;
+    procedure Create_Campaign_Page;
+    procedure Create_Single_Page;
+    procedure Create_Load_Page;
+    procedure Create_MultiPlayer_Page;
+    procedure Create_LANLogin_Page;
+    procedure Create_Lobby_Page;
+    procedure Create_MapEditor_Page;
+    procedure Create_Options_Page(aGameSettings:TGlobalSettings);
+    procedure Create_Credits_Page;
+    procedure Create_Loading_Page;
+    procedure Create_Error_Page;
+    procedure Create_Results_Page;
+    procedure SwitchMenuPage(Sender: TObject);
+    procedure MainMenu_PlayTutorial(Sender: TObject);
+    procedure MainMenu_PlayBattle(Sender: TObject);
+    procedure MainMenu_ReplayView(Sender: TObject);
+    procedure MainMenu_ReplayLastMap(Sender: TObject);
+    procedure Campaign_Set(aCampaign:TCampaign);
+    procedure Campaign_SelectMap(Sender: TObject);
+    procedure Campaign_StartMap(Sender: TObject);
+
+    procedure SingleMap_PopulateList;
+    procedure SingleMap_RefreshList;
+    procedure SingleMap_ScrollChange(Sender: TObject);
+    procedure SingleMap_SelectMap(Sender: TObject);
+    procedure SingleMap_Start(Sender: TObject);
+
+    procedure LAN_Host(Sender: TObject);
+    procedure LAN_Join(Sender: TObject);
+    procedure LAN_JoinSucc(Sender: TObject);
+    procedure LAN_JoinFail(const aData:string);
+    procedure LAN_BindEvents(aKind:TLANPlayerKind);
+    procedure LAN_Update(const aData:string);
+
+    procedure Lobby_BackClick(Sender: TObject);
+    procedure Lobby_Reset(Sender: TObject);
+    procedure Lobby_PostKey(Sender: TObject; Key: Word);
+    procedure Lobby_MapSelect(Sender: TObject);
+    procedure Lobby_PlayersSetupChange(Sender: TObject);
+    procedure Lobby_Ping(Sender: TObject);
+    procedure Lobby_OnPing(Sender: TObject);
+    procedure Lobby_OnMessage(const aData:string);
+    procedure Lobby_OnPlayersSetup(Sender: TObject);
+    procedure Lobby_OnMapName(const aData:string);
+    procedure Lobby_OnAllReady(Sender: TObject);
+    procedure Lobby_OnDisconnect(const aData:string);
+    procedure Lobby_ReadyClick(Sender: TObject);
+    procedure Lobby_StartClick(Sender: TObject);
+
+    procedure Load_Click(Sender: TObject);
+    procedure Load_RefreshList;
+    procedure MapEditor_Start(Sender: TObject);
+    procedure MapEditor_Change(Sender: TObject);
+    procedure Options_Fill;
+    procedure Options_Change(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -145,64 +203,6 @@ type
       Panel_Stats:TKMPanel;
       Label_Stat:array[1..9]of TKMLabel;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue:TKMButton;
-  private
-    procedure Create_MainMenu_Page;
-    procedure Create_SinglePlayer_Page;
-    procedure Create_Campaign_Page;
-    procedure Create_Single_Page;
-    procedure Create_Load_Page;
-    procedure Create_MultiPlayer_Page;
-    procedure Create_LANLogin_Page;
-    procedure Create_Lobby_Page;
-    procedure Create_MapEditor_Page;
-    procedure Create_Options_Page(aGameSettings:TGlobalSettings);
-    procedure Create_Credits_Page;
-    procedure Create_Loading_Page;
-    procedure Create_Error_Page;
-    procedure Create_Results_Page;
-    procedure SwitchMenuPage(Sender: TObject);
-    procedure MainMenu_PlayTutorial(Sender: TObject);
-    procedure MainMenu_PlayBattle(Sender: TObject);
-    procedure MainMenu_ReplayView(Sender: TObject);
-    procedure MainMenu_ReplayLastMap(Sender: TObject);
-    procedure Campaign_Set(aCampaign:TCampaign);
-    procedure Campaign_SelectMap(Sender: TObject);
-    procedure Campaign_StartMap(Sender: TObject);
-
-    procedure SingleMap_PopulateList;
-    procedure SingleMap_RefreshList;
-    procedure SingleMap_ScrollChange(Sender: TObject);
-    procedure SingleMap_SelectMap(Sender: TObject);
-    procedure SingleMap_Start(Sender: TObject);
-
-    procedure LAN_Host(Sender: TObject);
-    procedure LAN_Join(Sender: TObject);
-    procedure LAN_JoinSucc(Sender: TObject);
-    procedure LAN_JoinFail(const aData:string);
-    procedure LAN_BindEvents(aKind:TLANPlayerKind);
-    procedure LAN_Update(const aData:string);
-
-    procedure Lobby_BackClick(Sender: TObject);
-    procedure Lobby_Reset(Sender: TObject);
-    procedure Lobby_PostKey(Sender: TObject; Key: Word);
-    procedure Lobby_MapSelect(Sender: TObject);
-    procedure Lobby_PlayersSetupChange(Sender: TObject);
-    procedure Lobby_Ping(Sender: TObject);
-    procedure Lobby_OnPing(Sender: TObject);
-    procedure Lobby_OnMessage(const aData:string);
-    procedure Lobby_OnPlayersSetup(Sender: TObject);
-    procedure Lobby_OnMapName(const aData:string);
-    procedure Lobby_OnAllReady(Sender: TObject);
-    procedure Lobby_OnDisconnect(const aData:string);
-    procedure Lobby_ReadyClick(Sender: TObject);
-    procedure Lobby_StartClick(Sender: TObject);
-
-    procedure Load_Click(Sender: TObject);
-    procedure Load_RefreshList;
-    procedure MapEditor_Start(Sender: TObject);
-    procedure MapEditor_Change(Sender: TObject);
-    procedure Options_Fill;
-    procedure Options_Change(Sender: TObject);
   public
     constructor Create(X,Y:word; aGameSettings:TGlobalSettings);
     destructor Destroy; override;

@@ -233,12 +233,10 @@ end;
 
 function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
 begin
-if fileexists(FileName) then
-  Result:=true
-else begin
-  if not IsSilent then ShowMessage('Unable to locate '+#13+'"'+FileName+'" file');
-  Result:=false;
-end;
+  Result := FileExists(FileName);
+
+  if not IsSilent and not Result then
+    MessageBox(Application.Handle, PAnsiChar('Unable to locate '+#13+'"'+FileName+'" file'), 'Error', MB_OK); //Should be topmost
 end;
 
 

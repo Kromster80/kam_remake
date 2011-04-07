@@ -91,16 +91,16 @@ end;
 
 procedure TKMMapsInfo.ScanSingleMapsFolder;
   function CanTakeDataFromINI(aFile:string; aSize:integer):boolean;
-  var S:TKMemoryStream; I:integer; Vers:string;
+  var S:TKMemoryStream; i:integer; Vers:string;
   begin
     Result := false;
     if FileExists(aFile) then begin
       S := TKMemoryStream.Create;
       try
         S.LoadFromFile(aFile);
-        S.Read(I);
+        S.Read(i);
         S.Read(Vers);
-        Result := (I = aSize) and (Vers = SAVE_VERSION);
+        Result := (i = aSize) and (Vers = SAVE_VERSION);
       finally
         S.Free;
       end;

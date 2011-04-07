@@ -195,7 +195,7 @@ end;
 
 function TTextLibrary.GetRemakeString(aIndex:word):string;
 begin
-  if aIndex <= MaxStrings then
+  if aIndex < length(RemakeStrings) then
     Result := RemakeStrings[aIndex]
   else
     Result := '~~~RemakeString out of range!~~~';

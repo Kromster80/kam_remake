@@ -4,7 +4,8 @@ interface
 uses Classes, Controls, KromUtils, Math, Windows, SysUtils, KromOGLUtils, Forms,
      KM_Controls, KM_Defaults, KM_Houses, KM_Units;
 
-type TKMapEdInterface = class
+type
+  TKMapEdInterface = class
   private
     MyControls: TKMMasterControl;
 
@@ -15,6 +16,49 @@ type TKMapEdInterface = class
     StorehouseItem:byte; //Selected ware in storehouse
     BarracksItem:byte; //Selected ware in barracks
     TileDirection: byte;
+
+    procedure Create_Terrain_Page;
+    procedure Create_Village_Page;
+    procedure Create_Player_Page;
+    procedure Create_Mission_Page;
+    procedure Create_Menu_Page;
+    procedure Create_MenuSave_Page;
+    procedure Create_MenuLoad_Page;
+    procedure Create_MenuQuit_Page;
+    procedure Create_Unit_Page;
+    procedure Create_House_Page;
+    procedure Create_Store_Page;
+    procedure Create_Barracks_Page;
+
+    procedure SwitchPage(Sender: TObject);
+    procedure DisplayHint(Sender: TObject);
+    procedure Minimap_Update(Sender: TObject);
+
+    procedure Menu_Save(Sender:TObject);
+    procedure Menu_Load(Sender:TObject);
+    procedure Menu_QuitMission(Sender:TObject);
+    procedure Terrain_HeightChange(Sender: TObject);
+    procedure Terrain_TilesChange(Sender: TObject);
+    procedure Terrain_ObjectsChange(Sender: TObject);
+    procedure Build_ButtonClick(Sender: TObject);
+    procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
+    procedure Unit_ButtonClick(Sender: TObject);
+    procedure Unit_ArmyChange1(Sender:TObject); overload;
+    procedure Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton); overload;
+    procedure Barracks_Fill(Sender:TObject);
+    procedure Barracks_SelectWare(Sender:TObject);
+    procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
+    procedure Store_Fill(Sender:TObject);
+    procedure Store_SelectWare(Sender:TObject);
+    procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
+    procedure Player_ChangeActive(Sender: TObject);
+    procedure Player_ColorClick(Sender:TObject);
+    procedure Mission_AlliancesChange(Sender:TObject);
+    procedure View_Passability(Sender:TObject);
+
+    function GetSelectedTile: TObject;
+    function GetSelectedObject: TObject;
+    function GetSelectedUnit: TObject;
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -118,49 +162,6 @@ type TKMapEdInterface = class
       Label_Barracks_WareCount:TKMLabel;
       Button_BarracksDec100,Button_BarracksDec:TKMButton;
       Button_BarracksInc100,Button_BarracksInc:TKMButton;
-  private
-    procedure Create_Terrain_Page;
-    procedure Create_Village_Page;
-    procedure Create_Player_Page;
-    procedure Create_Mission_Page;
-    procedure Create_Menu_Page;
-    procedure Create_MenuSave_Page;
-    procedure Create_MenuLoad_Page;
-    procedure Create_MenuQuit_Page;
-    procedure Create_Unit_Page;
-    procedure Create_House_Page;
-    procedure Create_Store_Page;
-    procedure Create_Barracks_Page;
-
-    procedure SwitchPage(Sender: TObject);
-    procedure DisplayHint(Sender: TObject);
-    procedure Minimap_Update(Sender: TObject);
-
-    procedure Menu_Save(Sender:TObject);
-    procedure Menu_Load(Sender:TObject);
-    procedure Menu_QuitMission(Sender:TObject);
-    procedure Terrain_HeightChange(Sender: TObject);
-    procedure Terrain_TilesChange(Sender: TObject);
-    procedure Terrain_ObjectsChange(Sender: TObject);
-    procedure Build_ButtonClick(Sender: TObject);
-    procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
-    procedure Unit_ButtonClick(Sender: TObject);
-    procedure Unit_ArmyChange1(Sender:TObject); overload;
-    procedure Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton); overload;
-    procedure Barracks_Fill(Sender:TObject);
-    procedure Barracks_SelectWare(Sender:TObject);
-    procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
-    procedure Store_Fill(Sender:TObject);
-    procedure Store_SelectWare(Sender:TObject);
-    procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
-    procedure Player_ChangeActive(Sender: TObject);
-    procedure Player_ColorClick(Sender:TObject);
-    procedure Mission_AlliancesChange(Sender:TObject);
-    procedure View_Passability(Sender:TObject);
-
-    function GetSelectedTile: TObject;
-    function GetSelectedObject: TObject;
-    function GetSelectedUnit: TObject;
   public
     constructor Create;
     destructor Destroy; override;

@@ -79,16 +79,16 @@ begin
 end;
 
 
-procedure FlipImageVertical(W,H,bpp:word; Image:pointer);
+procedure FlipImageVertical(W,H,BPP:word; Image:pointer);
 var ii,kk:cardinal;
   Front: ^Byte;
   Back: ^Byte;
   Temp: Byte;
 begin
 for kk:=0 to (H div 2)-1 do
-for ii:=0 to W*bpp-1 do begin
-          Front := Pointer(cardinal(Image)+kk*W*bpp+ii);
-          Back := Pointer(cardinal(Image)+(H-kk-1)*W*bpp+ii);
+for ii:=0 to W*BPP-1 do begin
+          Front := Pointer(cardinal(Image)+kk*W*BPP+ii);
+          Back := Pointer(cardinal(Image)+(H-kk-1)*W*BPP+ii);
           Temp := Front^;
           Front^ := Back^;
           Back^ := Temp;
@@ -120,7 +120,7 @@ var
   Width, Height : Integer;
   ColorDepth    : Integer;
   ImageSize     : Integer;
-  I : cardinal;
+  i : cardinal;
   Front: ^Byte;
   Back: ^Byte;
   Temp: Byte;
@@ -264,10 +264,10 @@ begin
   // 32 bit TGA files have alpha channel and gets loaded differently
   if TGAHeader.BPP = 24 then
   begin
-    for I :=0 to Width * Height - 1 do
+    for i:=0 to Width*Height-1 do
     begin
-      Front := Pointer(cardinal(Image) + I*3);
-      Back := Pointer(cardinal(Image) + I*3 + 2);
+      Front := Pointer(cardinal(Image) + i*3);
+      Back := Pointer(cardinal(Image) + i*3 + 2);
       Temp := Front^;
       Front^ := Back^;
       Back^ := Temp;
@@ -276,10 +276,10 @@ begin
   end
   else
   begin
-    for I :=0 to Width * Height - 1 do
+    for i:=0 to Width*Height-1 do
     begin
-      Front := Pointer(cardinal(Image) + I*4);
-      Back := Pointer(cardinal(Image) + I*4 + 2);
+      Front := Pointer(cardinal(Image) + i*4);
+      Back := Pointer(cardinal(Image) + i*4 + 2);
       Temp := Front^;
       Front^ := Back^;
       Back^ := Temp;

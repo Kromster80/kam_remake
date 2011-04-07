@@ -59,7 +59,7 @@ type
 
     procedure Activate(aWasBuilt:boolean);
     procedure CloseHouse(IsEditor:boolean=false); virtual;
-    procedure SetWareDelivery(AVal:boolean);
+    procedure SetWareDelivery(aVal:boolean);
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID:byte):byte; //Will use GetRatio from mission settings to find distribution amount
@@ -1011,9 +1011,9 @@ begin
   end;
 end;
 
-procedure TKMHouse.SetWareDelivery(AVal:boolean);
+procedure TKMHouse.SetWareDelivery(aVal:boolean);
 begin
-  fWareDelivery := AVal;
+  fWareDelivery := aVal;
 end;
 
 
@@ -1148,8 +1148,8 @@ end;
 
 procedure TKMHouseInn.Paint;
 const
-  offX:array[1..3]of single = (-0.5, 0.0, 0.5);
-  offY:array[1..3]of single = ( 0.35, 0.4, 0.45);
+  OffX:array[1..3]of single = (-0.5, 0.0, 0.5);
+  OffY:array[1..3]of single = ( 0.35, 0.4, 0.45);
 var i:integer; UnitType,AnimDir:byte; AnimStep:cardinal;
 begin
   Inherited;
@@ -1163,8 +1163,8 @@ begin
     AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
 
     fRender.RenderUnit(UnitType, byte(ua_Eat), AnimDir, AnimStep, byte(fOwner),
-      fPosition.X+offX[(i-1) mod 3 +1],
-      fPosition.Y+offY[(i-1) mod 3 +1], false);
+      fPosition.X+OffX[(i-1) mod 3 +1],
+      fPosition.Y+OffY[(i-1) mod 3 +1], false);
   end;
 end;
 

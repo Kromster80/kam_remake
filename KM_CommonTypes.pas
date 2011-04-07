@@ -150,12 +150,12 @@ type
   TKMLog = class
   private
     fl:textfile;
-    logfile:string;
+    fLogPath:string;
     PreviousTick:cardinal;
     procedure AddLine(const aText:string);
     procedure AddLineNoTime(const aText:string);
   public
-    constructor Create(path:string);
+    constructor Create(aPath:string);
     //AppendLog adds the line to Log along with time passed since previous line added
     procedure AppendLog(const aText:string); overload;
     procedure AppendLog(const aText:string; num:integer); overload;
@@ -178,11 +178,11 @@ uses KM_Utils;
 
 
 {Reset log file}
-constructor TKMLog.Create(path:string);
+constructor TKMLog.Create(aPath:string);
 begin
   Inherited Create;
-  logfile:=path;
-  assignfile(fl,logfile);
+  fLogPath := aPath;
+  AssignFile(fl, fLogPath);
   rewrite(fl);
   closefile(fl);
   AddToLog('');
@@ -199,17 +199,17 @@ begin
   Delta:=TimeGetTime - PreviousTick;
   PreviousTick:=TimeGetTime;
   if Delta>100000 then Delta:=0; //ommit first usage
-  assignfile(fl,logfile);
+  AssignFile(fl, fLogPath);
   append(fl);
   writeln(fl,#9+inttostr(Delta)+'ms'+#9+aText);
-  closefile(fl);
+  closefile(fl);   
 end;
 
 
 {Same line but without timestamp}
 procedure TKMLog.AddLineNoTime(const aText:string);
 begin
-  assignfile(fl,logfile);
+  AssignFile(fl, fLogPath);
   append(fl);
   writeln(fl,#9+#9+aText);
   closefile(fl);

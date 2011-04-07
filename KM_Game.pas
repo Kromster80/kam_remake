@@ -127,7 +127,7 @@ begin
 
   fGlobalSettings := TGlobalSettings.Create;
   fRender         := TRender.Create(RenderHandle, aVSync);
-  fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
+  fTextLibrary    := TTextLibrary.Create(ExeDir+'Data\misc\', fGlobalSettings.Locale);
   fSoundLib       := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
   fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource       := TResource.Create(fGlobalSettings.Locale);
@@ -165,7 +165,7 @@ begin
   fGlobalSettings.Locale := aLocale; //Wrong Locale will be ignored
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
+  fTextLibrary := TTextLibrary.Create(ExeDir+'Data\misc\', fGlobalSettings.Locale);
   fResource.LoadFonts(false, fGlobalSettings.Locale);
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings);
   fMainMenuInterface.ShowScreen(msOptions);

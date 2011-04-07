@@ -61,28 +61,28 @@ end;
 
 
 procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
-var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte; bRX,bID:word;
+var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte; BackRX,BackID:word;
 begin
-  bRX:=4; bID:=402; //4-402 is a stone background
+  BackRX:=4; BackID:=402; //4-402 is a stone background
   if aStyle=bsMenu then begin
-    bRX:=5; bID:=9; //5-3 is a metal background used in main menu
+    BackRX:=5; BackID:=9; //5-3 is a metal background used in main menu
   end;
 
-  with GFXData[bRX,bID] do
-  if PxWidth*PxHeight<>0 then //Incase data wasn't loaded properly
+  with GFXData[BackRX,BackID] do
+  if PxWidth*PxHeight<>0 then //Make sure data was loaded properly
   begin
     a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) /2/ PxWidth;
     b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) /2/ PxWidth;
     a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) /2/ PxHeight;
     b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) /2/ PxHeight;
-    a.x:=a.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2; b.x:=b.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2;
-    a.y:=a.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2; b.y:=b.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2;
-    a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2);
-    a.y:=EnsureRange(a.y,v1,v2); b.y:=EnsureRange(b.y,v1,v2);
+    a.x := a.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2; b.x := b.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2;
+    a.y := a.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2; b.y := b.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2;
+    a.x := EnsureRange(a.x,u1,u2); b.x := EnsureRange(b.x,u1,u2);
+    a.y := EnsureRange(a.y,v1,v2); b.y := EnsureRange(b.y,v1,v2);
   end;
 
-  InsetX:=3/SizeX; //3px
-  InsetY:=3/SizeY; //3px
+  InsetX := 3/SizeX; //3px
+  InsetY := 3/SizeY; //3px
 
   glPushMatrix;
     glTranslatef(PosX,PosY,0);
@@ -99,7 +99,7 @@ begin
 
       //Background
       glColor4f(1,1,1,1);
-      glBindTexture(GL_TEXTURE_2D, GFXData[bRX,bID].TexID);
+      glBindTexture(GL_TEXTURE_2D, GFXData[BackRX,BackID].TexID);
       glBegin (GL_QUADS);
         glTexCoord2f(a.x,a.y); glvertex2f(0,0);
         glTexCoord2f(b.x,a.y); glvertex2f(SizeX,0);
