@@ -133,7 +133,8 @@ type
   private
     fl:textfile;
     fLogPath:string;
-    PreviousTick:cardinal;
+    fFirstTick:cardinal;
+    fPreviousTick:cardinal;
     procedure AddLine(const aText:string);
     procedure AddLineNoTime(const aText:string);
   public
@@ -165,27 +166,25 @@ constructor TKMLog.Create(aPath:string);
 begin
   Inherited Create;
   fLogPath := aPath;
+  fFirstTick := TimeGetTime;
+  fPreviousTick := TimeGetTime;
   AssignFile(fl, fLogPath);
-  rewrite(fl);
-  closefile(fl);
-  AddToLog('');
-  AddToLog('');
-  AddToLog('Log is up and running');
+  Rewrite(fl);
+  CloseFile(fl);
+  AddLine('Log is up and running');
 end;
 
 
 {Lines are timestamped, each line invokes file open/close for writing,
 meaning no lines will be lost if Remake crashes}
 procedure TKMLog.AddLine(const aText:string);
-var Delta:cardinal;
 begin
-  Delta := TimeGetTime - PreviousTick;
-  PreviousTick := TimeGetTime;
-  if Delta>100000 then Delta:=0; //ommit first usage
   AssignFile(fl, fLogPath);
-  append(fl);
-  writeln(fl,#9+inttostr(Delta)+'ms'+#9+aText);
-  closefile(fl);   
+  Append(fl);
+  WriteLn(fl,floattostr((TimeGetTime - fFirstTick)/1000)+'s'+#9+
+             floattostr((TimeGetTime - fPreviousTick)/1000)+'s'+#9+aText);
+  CloseFile(fl);
+  fPreviousTick := TimeGetTime;
 end;
 
 
@@ -193,9 +192,9 @@ end;
 procedure TKMLog.AddLineNoTime(const aText:string);
 begin
   AssignFile(fl, fLogPath);
-  append(fl);
-  writeln(fl,#9+#9+aText);
-  closefile(fl);
+  Append(fl);
+  WriteLn(fl,#9+#9+aText);
+  CloseFile(fl);
 end;
 
 
