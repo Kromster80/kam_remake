@@ -389,7 +389,12 @@ end;
 
 
 procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
-var ResultMsg, LoadError:string; fMissionParser: TMissionParser; i:integer;
+var
+  ResultMsg, LoadError:string;
+  i:integer;
+  fMissionParser:TMissionParser;
+  PlayerID:integer;
+  PlayerUsed:array[1..MAX_PLAYERS]of boolean;
 begin
   fGame.Networking.HoldTimeoutChecks;
 
@@ -424,14 +429,24 @@ begin
     end;
   end;
 
+  fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
+  fRender.Render;
+
   fMissionMode := fNetworking.MissionMode; //Tactic or normal
 
+  //Assign existing NetPlayers to map players
+  for i:=1 to fNetworking.NetPlayers.Count do
+  begin
+    PlayerID := fNetworking.NetPlayers[i].StartLocID;
+    fPlayers.Player[PlayerID].PlayerType := fNetworking.NetPlayers[i].PlayerType;
+    fPlayers.Player[PlayerID].FlagColor := fNetworking.NetPlayers[i].FlagColorID;
+    PlayerUsed[PlayerID] := true;
+  end;
+
+  //Clear remaining players
   for i:=1 to fPlayers.Count do
-    case fNetworking.NetPlayers.Player[i].PlayerType of
-      pt_None:      fPlayers.RemovePlayer(i);
-      pt_Human:     fPlayers.Player[i].PlayerType := pt_Human;
-      pt_Computer:  fPlayers.Player[i].PlayerType := pt_Computer;
-    end;
+    if not PlayerUsed[i] then
+      fPlayers.RemovePlayer(i);
 
   MyPlayer := fPlayers.Player[aPlayID];
 
@@ -449,7 +464,7 @@ begin
   Save(99); //Thats our base for a game record
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
-  fGameState := gsRunning;
+  //fGameState := gsRunning;
 
   fLog.AppendLog('Gameplay recording initialized',true);
   RandSeed := 4; //Random after StartGame and ViewReplay should match

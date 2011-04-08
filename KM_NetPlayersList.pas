@@ -124,7 +124,7 @@ begin
   //Cleanup to avoid consequences of erroneous access
   fPlayers[fCount].fAddress := '';
   fPlayers[fCount].fNikname := '';
-  fPlayers[fCount].PlayerType := pt_None;
+  fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;

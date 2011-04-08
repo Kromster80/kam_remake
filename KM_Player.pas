@@ -8,8 +8,7 @@ uses Classes, KromUtils, SysUtils,
 
 type
   TPlayerType = (
-        pt_None, //used in Networking setup for missing players
-        pt_Human, 
+        pt_Human,
         pt_Computer);
 
 
@@ -32,7 +31,6 @@ type
     fSkipWinConditionCheck:boolean;
     fSkipDefeatConditionCheck:boolean;
 
-    procedure SetPlayerType(aType:TPlayerType);
     function GetColorIndex:byte;
 
     function  GetAlliances(Index:integer):TAllianceType;
@@ -50,7 +48,7 @@ type
     property Goals:TKMGoals read fGoals;
 
     property PlayerID:TPlayerID read fPlayerID;
-    property PlayerType:TPlayerType read fPlayerType write SetPlayerType; //Is it Human or AI or Animals
+    property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor:cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex:byte read GetColorIndex;
     property Alliances[Index:integer]:TAllianceType read GetAlliances write SetAlliances;
@@ -373,19 +371,6 @@ end;
 function TKMPlayerAssets.HousesHitTest(X, Y: Integer): TKMHouse;
 begin
   Result:= fHouses.HitTest(X, Y);
-end;
-
-
-procedure TKMPlayerAssets.SetPlayerType(aType:TPlayerType);
-begin
-  case aType of
-    pt_None:      begin
-                    //todo: Erase player data
-                  end;
-    pt_Human,
-    pt_Computer:  fPlayerType := aType;
-    else Assert(false, 'Unexpected player type');
-  end;
 end;
 
 

@@ -44,10 +44,9 @@ type
   TKMNetworking = class
     private
       fNetwork:TKMNetwork; //Our Network interface
-      fLANPlayerKind: TLANPlayerKind; //Our role
+      fLANPlayerKind: TLANPlayerKind; //Our role (Host or Joiner)
       fHostAddress:string;
-      fMyAddress:string;
-      fMyNikname:string;
+      fMyNikname:string; //Stored to identify our Index in new players list
       fMyIndex:integer;
       fNetPlayers:TKMPlayersList;
 
@@ -154,7 +153,6 @@ begin
   Disconnect;
   fJoinTick := 0;
   fHostAddress := ''; //Thats us
-  fMyAddress := MyIPString;
   fMyNikname := aUserName;
   fMyIndex := 1;
   fLANPlayerKind := lpk_Host;
@@ -171,7 +169,6 @@ procedure TKMNetworking.Join(aServerAddress,aUserName:string);
 begin
   Disconnect;
   fHostAddress := aServerAddress;
-  fMyAddress := MyIPString;
   fMyNikname := aUserName;
   fMyIndex := -1; //Host will send us Players list and we will get our index from there
   fLANPlayerKind := lpk_Joiner;
@@ -325,8 +322,8 @@ end;
 
 procedure TKMNetworking.PostMessage(aText:string);
 begin
-  PacketToAll(mk_Text, fMyAddress + '/' + fMyNikname + ': ' + aText);
-  fOnTextMessage(fMyAddress + '/' + fMyNikname + ': ' + aText);
+  PacketToAll(mk_Text, MyIPString + '/' + fMyNikname + ': ' + aText);
+  fOnTextMessage(MyIPString + '/' + fMyNikname + ': ' + aText);
 end;
 
 

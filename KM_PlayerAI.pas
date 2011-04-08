@@ -619,7 +619,6 @@ procedure TKMPlayerAI.UpdateState;
 begin
   //Check goals only for MyPlayer
   case Assets.PlayerType of
-    pt_None:      ; //Nothing to do
     pt_Human:     if (MyPlayer=Assets) then
                     CheckGoals; //This procedure manages victory, loss and messages all in one
     pt_Computer:  begin
