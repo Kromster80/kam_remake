@@ -2131,7 +2131,7 @@ end;
 procedure TKMGamePlayInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
   case fGame.GameState of
-    gsPaused:   if Key = ord('P') then SetPause(false);
+    gsPaused:   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(false);
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
                   if MyControls.KeyUp(Key, Shift) then exit;
@@ -2144,8 +2144,8 @@ begin
 
                   if Key = VK_BACK then  fViewport.SetZoom(1);
                   //Game speed
-                  if Key = VK_F8 then    fGame.SetGameSpeed; //Speed will toggle automatically
-                  if Key = ord('P') then SetPause(true); //Display pause overlay
+                  if (Key = VK_F8) and not fGame.MultiplayerMode then fGame.SetGameSpeed; //Speed will toggle automatically
+                  if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(true); //Display pause overlay
 
                   //Menu shortcuts
                   if Key in [ord('1')..ord('4')] then Button_Main[Key-48].DoClick;
@@ -2173,8 +2173,8 @@ begin
 
                   {Temporary cheat codes}
                   if Key=ord('W') then fGame.fGameInputProcess.CmdTemp(gic_TempRevealMap);
-                  if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
-                  if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
+                  if (Key=ord('V')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
+                  if (Key=ord('D')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
                 end;
     gsReplay:   begin
                   if Key = VK_BACK then fViewport.SetZoom(1);

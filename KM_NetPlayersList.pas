@@ -17,6 +17,7 @@ type
       FlagColorID:integer; //Flag color, 0 means random
       StartLocID:integer; //Start location, 0 means random
       ReadyToStart:boolean;
+      ReadyToPlay:boolean;
 
       PingSent:cardinal; //Time of last "ping" message
       Ping:word; //Last known ping
@@ -110,6 +111,7 @@ begin
   fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;
+  fPlayers[fCount].ReadyToPlay := false;
   fPlayers[fCount].TimeTick := aTick;
 end;
 
@@ -128,6 +130,7 @@ begin
   fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;
+  fPlayers[fCount].ReadyToPlay := false;
   fPlayers[fCount].TimeTick := 0;
 
   dec(fCount);

@@ -34,7 +34,7 @@ type
                     mk_ReadyToStart, //Joiner telling he's ready
                     mk_Start, //Host starting the game
 
-                    //mk_ReadyToPlay,
+                    mk_ReadyToPlay, //Joiner tells Host he has loaded the map
 
                     mk_Commands,
                     mk_Text);
@@ -63,6 +63,7 @@ type
       fOnPlayersSetup:TNotifyEvent;
       fOnMapName:TStringEvent;
       fOnAllReady:TNotifyEvent;
+      fOnAllReadyToPlay:TNotifyEvent;
       fOnCommands:TStringEvent;
       fOnDisconnect:TStringEvent;
       fOnPing:TNotifyEvent;
@@ -95,19 +96,22 @@ type
       procedure HoldTimeoutChecks;
       procedure PostMessage(aText:string);
       property MyIndex:integer read fMyIndex;
+      property LANPlayerKind:TLANPlayerKind read fLANPlayerKind;
 
       //Gameplay
       property MapName:string read fMapName;
       property MissionMode:TMissionMode read fMissionMode;
       property NetPlayers:TKMPlayersList read fNetPlayers;
       procedure SendCommands(aStream:TKMemoryStream);
+      procedure GameCreated;
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
       property OnJoinFail:TStringEvent write fOnJoinFail;       //We were refused to join
       property OnTextMessage:TStringEvent write fOnTextMessage; //Text message recieved
       property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
       property OnMapName:TStringEvent write fOnMapName;         //Map name updated
-      property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start playing
+      property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start
+      property OnAllReadyToPlay:TNotifyEvent write fOnAllReadyToPlay; //Everyones ready to play
       property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
       property OnPing:TNotifyEvent write fOnPing;
       property OnDisconnect:TStringEvent write fOnDisconnect; //Lost connection, was kicked
@@ -299,7 +303,6 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
-  //Hold on timeout checks, Game will resume them
   fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fNetPlayers[fMyIndex].StartLocID);
 end;
 
@@ -336,7 +339,15 @@ begin
 end;
 
 
-//Holds
+procedure TKMNetworking.GameCreated;
+begin
+  case fLANPlayerKind of
+    lpk_Host:   fNetPlayers[fMyIndex].ReadyToPlay := true;
+    lpk_Joiner: PacketToHost(mk_ReadyToPlay, fMyNikname);
+  end;
+end;
+
+
 procedure TKMNetworking.PacketRecieve(const aData: array of byte; aAddr:string);
 var
   Kind:TMessageKind;
@@ -457,6 +468,11 @@ begin
               fNetPlayers.SetAsText(Msg);
               fMyIndex := fNetPlayers.NiknameIndex(fMyNikname);
               StartGame;
+            end;
+
+    mk_ReadyToPlay:
+            if fLANPlayerKind = lpk_Host then begin
+              fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToPlay := true;
             end;
 
     mk_Commands:

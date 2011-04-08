@@ -25,6 +25,7 @@ type
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
     fGameSpeed:integer;
     fGameState:TGameState;
+    fMultiplayerMode:boolean;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
@@ -40,7 +41,7 @@ type
     fActiveCampaign:TCampaign; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
 
-    procedure GameInit;
+    procedure GameInit(aMultiplayerMode:boolean);
   public
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
@@ -81,6 +82,7 @@ type
     property GetGameName:string read fGameName;
     property GetCampaign:TCampaign read fActiveCampaign;
     property GetCampaignMap:byte read fActiveCampaignMap;
+    property MultiplayerMode:boolean read fMultiplayerMode; 
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;
@@ -125,15 +127,15 @@ begin
   SkipReplayEndCheck  := false;
   FormControlsVisible := false;
 
-  fGlobalSettings := TGlobalSettings.Create;
-  fRender         := TRender.Create(RenderHandle, aVSync);
-  fTextLibrary    := TTextLibrary.Create(ExeDir+'Data\misc\', fGlobalSettings.Locale);
-  fSoundLib       := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
-  fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
-  fResource       := TResource.Create(fGlobalSettings.Locale);
+  fGlobalSettings   := TGlobalSettings.Create;
+  fRender           := TRender.Create(RenderHandle, aVSync);
+  fTextLibrary      := TTextLibrary.Create(ExeDir+'Data\misc\', fGlobalSettings.Locale);
+  fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
+  fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
+  fResource         := TResource.Create(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
-  fNetworking     := TKMNetworking.Create;
-  fChat           := TKMChat.Create; //Used in Gameplay and Lobby
+  fNetworking       := TKMNetworking.Create;
+  fChat             := TKMChat.Create; //Used in Gameplay and Lobby
   fCampaignSettings := TCampaignSettings.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
@@ -292,11 +294,12 @@ begin
 end;
 
 
-procedure TKMGame.GameInit;
+procedure TKMGame.GameInit(aMultiplayerMode:boolean);
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   fGameSpeed := 1; //In case it was set in last run mission
   PlayOnState := gr_Cancel;
+  fMultiplayerMode := aMultiplayerMode;
 
   if fResource.GetDataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
@@ -327,7 +330,7 @@ end;
 procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
 var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
 begin
-  GameInit;
+  GameInit(false);
 
   //If input is empty - replay last map
   if aMissionFile <> '' then begin
@@ -398,7 +401,7 @@ var
 begin
   fGame.Networking.HoldTimeoutChecks;
 
-  GameInit;
+  GameInit(true);
 
   fMissionFile := aMissionFile;
   fGameName := aGameName;
@@ -464,7 +467,9 @@ begin
   Save(99); //Thats our base for a game record
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
-  //fGameState := gsRunning;
+  //fNetworking.OnAllReadyToPlay := 
+  fNetworking.GameCreated;
+  fGameState := gsOnHold;
 
   fLog.AppendLog('Gameplay recording initialized',true);
   RandSeed := 4; //Random after StartGame and ViewReplay should match
@@ -856,7 +861,7 @@ begin
     LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
 
     //Create empty environment
-    GameInit;
+    GameInit(false);
 
     //Substitute tick counter and id tracker
     LoadStream.Read(fMissionFile); //Savegame mission file
