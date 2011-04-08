@@ -1181,6 +1181,7 @@ begin
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
   fGame.Networking.OnPing         := Lobby_OnPing;
+  fGame.Networking.OnStartGame    := fGame.GameStartMP;
 
   if aKind = lpk_Host then
     fGame.Networking.OnAllReady   := Lobby_OnAllReady;

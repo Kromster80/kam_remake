@@ -5,13 +5,10 @@ uses Classes, KromUtils, StrUtils, SysUtils, Windows,
   KM_CommonTypes, KM_Defaults,
   KM_NetPlayersList, KM_Network;
 
+  
 const
     REPLY_TIMEOUT = 3000; //Default timeout before "could not get reply" message occurs, in Game ticks
 
-
-type
-  TStringEvent = procedure (const aData: string) of object;
-  TStreamEvent = procedure (aData: TKMemoryStream) of object;
 
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
@@ -63,12 +60,11 @@ type
       fOnPlayersSetup:TNotifyEvent;
       fOnMapName:TStringEvent;
       fOnAllReady:TNotifyEvent;
+      fOnStartGame:TNotifyEvent;
       fOnAllReadyToPlay:TNotifyEvent;
-      fOnCommands:TStringEvent;
       fOnDisconnect:TStringEvent;
       fOnPing:TNotifyEvent;
-
-      procedure StartGame;
+      fOnCommands:TStringEvent;
 
       procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
       procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
@@ -111,16 +107,17 @@ type
       property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
       property OnMapName:TStringEvent write fOnMapName;         //Map name updated
       property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start
+      property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game
       property OnAllReadyToPlay:TNotifyEvent write fOnAllReadyToPlay; //Everyones ready to play
-      property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
       property OnPing:TNotifyEvent write fOnPing;
       property OnDisconnect:TStringEvent write fOnDisconnect; //Lost connection, was kicked
+      property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
       procedure UpdateState;
     end;
 
 
 implementation
-uses KM_Game, KM_Utils;
+uses KM_Utils;
 
 
 { TKMNetworking }
@@ -297,13 +294,7 @@ begin
   //Let everyone start with final version of fNetPlayers
   PacketToAll(mk_Start, fNetPlayers.GetAsText);
 
-  StartGame;
-end;
-
-
-procedure TKMNetworking.StartGame;
-begin
-  fGame.GameStartMP(KMMapNameToPath(fMapName, 'dat'), 'MP game', fNetPlayers[fMyIndex].StartLocID);
+  if Assigned(fOnStartGame) then fOnStartGame(Self);
 end;
 
 
@@ -467,7 +458,7 @@ begin
             if fLANPlayerKind = lpk_Joiner then begin
               fNetPlayers.SetAsText(Msg);
               fMyIndex := fNetPlayers.NiknameIndex(fMyNikname);
-              StartGame;
+              if Assigned(fOnStartGame) then fOnStartGame(Self);
             end;
 
     mk_ReadyToPlay:

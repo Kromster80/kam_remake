@@ -22,6 +22,23 @@ const
         'FORMAT','DEATH','BATTLE','STORM');
 
 type
+  TWAVHeaderEx = record
+    RIFFHeader: array [1..4] of AnsiChar;
+    FileSize: Integer;
+    WAVEHeader: array [1..4] of AnsiChar;
+    FormatHeader: array [1..4] of AnsiChar;
+    FormatHeaderSize: Integer;
+    FormatCode: Word;
+    ChannelNumber: Word;
+    SampleRate: Integer;
+    BytesPerSecond: Integer;
+    BytesPerSample: Word;
+    BitsPerSample: Word;
+    DATAHeader: array [1..4] of AnsiChar; //Extension
+    DataSize: Integer; //Extension
+  end;
+
+
   TSoundLib = class
   private
     fALDevice: PALCdevice;

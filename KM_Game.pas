@@ -63,7 +63,7 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
-    procedure GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
+    procedure GameStartMP(Sender:TObject);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error 
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
@@ -391,7 +391,8 @@ begin
 end;
 
 
-procedure TKMGame.GameStartMP(aMissionFile, aGameName:string; aPlayID:byte);
+//All setup data gets taken from fNetworking class 
+procedure TKMGame.GameStartMP(Sender:TObject);
 var
   ResultMsg, LoadError:string;
   i:integer;
@@ -399,12 +400,12 @@ var
   PlayerID:integer;
   PlayerUsed:array[1..MAX_PLAYERS]of boolean;
 begin
-  fGame.Networking.HoldTimeoutChecks;
+  fNetworking.HoldTimeoutChecks;
 
   GameInit(true);
 
-  fMissionFile := aMissionFile;
-  fGameName := aGameName;
+  fMissionFile := KMMapNameToPath(fNetworking.MapName, 'dat');
+  fGameName := fNetworking.MapName + ' MP';
 
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(fMissionFile) then
@@ -451,7 +452,7 @@ begin
     if not PlayerUsed[i] then
       fPlayers.RemovePlayer(i);
 
-  MyPlayer := fPlayers.Player[aPlayID];
+  MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocID];
 
   fPlayers.AfterMissionInit(true);
   fViewport.SetZoom(1); //This ensures the viewport is centered on the map

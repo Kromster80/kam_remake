@@ -10,7 +10,6 @@ type
   TKMPointF = record X,Y:single; end;
   TKMPointI = record X,Y:integer; end; //Allows negative values
 
-
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)
@@ -41,22 +40,8 @@ type
   end;
 
 
-type
-  TWAVHeaderEx = record
-    RIFFHeader: array [1..4] of AnsiChar;
-    FileSize: Integer;
-    WAVEHeader: array [1..4] of AnsiChar;
-    FormatHeader: array [1..4] of AnsiChar;
-    FormatHeaderSize: Integer;
-    FormatCode: Word;
-    ChannelNumber: Word;
-    SampleRate: Integer;
-    BytesPerSecond: Integer;
-    BytesPerSample: Word;
-    BitsPerSample: Word;
-    DATAHeader: array [1..4] of AnsiChar; //Extension
-    DataSize: Integer; //Extension
-  end;  
+  TStringEvent = procedure (const aData: string) of object;
+  TStreamEvent = procedure (aData: TKMemoryStream) of object;
 
 
 type
@@ -69,10 +54,9 @@ type
 
 {Messages}
 //number matches pic index in gui.rx
-type TKMMessageType = (msgUnknown=0, msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
-
-
 type
+  TKMMessageType = (msgUnknown=0, msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
+
   TKMMessage = class
   public
     msgType:TKMMessageType;
@@ -80,8 +64,7 @@ type
     msgLoc:TKMPoint;
   end;
 
-
-type TKMMessageList = class
+  TKMMessageList = class
   private
     fCount:cardinal;
     fList:array of TKMMessage; //1..Count
@@ -102,7 +85,7 @@ type TKMMessageList = class
   end;
 
 
-type TKMPointList = class
+  TKMPointList = class
   public
     Count:integer;
     List:array of TKMPoint; //1..Count
@@ -119,7 +102,7 @@ type TKMPointList = class
   end;
 
 
-type TKMPointTagList = class(TKMPointList)
+  TKMPointTagList = class(TKMPointList)
   public
     Tag,Tag2:array of integer; //1..Count
     constructor Load(LoadStream:TKMemoryStream); override;
@@ -130,7 +113,7 @@ type TKMPointTagList = class(TKMPointList)
   end;
 
 
-type TKMPointDirList = class //Used for finding fishing places, fighting positions, etc.
+  TKMPointDirList = class //Used for finding fishing places, fighting positions, etc.
   public
     Count:integer;
     List:array of TKMPointDir; //1..Count
@@ -145,8 +128,7 @@ type TKMPointDirList = class //Used for finding fishing places, fighting positio
   end;
 
 
-{This is custom logging system}
-type
+  {This is our custom logging system}
   TKMLog = class
   private
     fl:textfile;
@@ -169,6 +151,7 @@ type
     procedure AddToLog(const aText:string);
   end;
 
+  
   var
     fLog: TKMLog;
 
