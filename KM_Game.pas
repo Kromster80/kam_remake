@@ -929,11 +929,8 @@ begin
     gsPaused:   exit;
     gsOnHold:   exit;
     gsNoGame:   begin
-                  fNetworking.UpdateState;
+                  fNetworking.UpdateState; //Monitor connection timeout and connection lost
                   fMainMenuInterface.UpdateState;
-                  if fGlobalTickCount mod 10 = 0 then //Once a sec
-                  if fMusicLib.IsMusicEnded then
-                    fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn); //Menu tune
                 end;
     gsRunning:  begin
                   for i:=1 to fGameSpeed do
@@ -944,23 +941,15 @@ begin
                     if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
+                    //GIP_Multi issues all commands for this tick
+                    fGameInputProcess.Timer(fGameTickCount);
+
                     //Each 1min of gameplay time
                     if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
                       Save(AUTOSAVE_SLOT);
                   end;
 
-                  fNetworking.UpdateState;
                   fGamePlayInterface.UpdateState;
-
-                  if fGlobalTickCount mod 10 = 0 then //Every 1000ms
-                    fTerrain.RefreshMinimapData; //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
-
-                  if fGlobalTickCount mod 10 = 0 then
-                    if fMusicLib.IsMusicEnded then
-                      fMusicLib.PlayNextTrack; //Feed new music track
-
-                  if fGlobalTickCount mod 10 = 0 then
-                    Form1.StatusBar1.Panels[2].Text:='Time: '+int2time(GetMissionTime);
                 end;
     gsReplay:   begin
                   for i:=1 to fGameSpeed do
@@ -971,6 +960,7 @@ begin
                     if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
+                    //Issue stored commands
                     fGameInputProcess.Timer(fGameTickCount);
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       GameHold(true, gr_ReplayEnd);
@@ -984,26 +974,32 @@ begin
                   end;
 
                   fGamePlayInterface.UpdateState;
-
-                  if fGlobalTickCount mod 10 = 0 then //Every 1000ms
-                    fTerrain.RefreshMinimapData; //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
-
-                  if fGlobalTickCount mod 10 = 0 then
-                    if fMusicLib.IsMusicEnded then
-                      fMusicLib.PlayNextTrack; //Feed new music track
-
-                  if fGlobalTickCount mod 10 = 0 then
-                    Form1.StatusBar1.Panels[2].Text:='Time: '+int2time(GetMissionTime);
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
-                  if fGlobalTickCount mod 10 = 0 then //Every 500ms
-                    fTerrain.RefreshMinimapData; //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;
     end;
 
+  //Every 1000ms
+  if fGlobalTickCount mod 10 = 0 then
+  begin
+    //Minimap
+    if (fGameState in [gsRunning, gsReplay, gsEditor]) then
+      fTerrain.RefreshMinimapData;
+
+    //Music
+    if fMusicLib.IsMusicEnded then
+      case fGameState of
+        gsRunning, gsReplay: fMusicLib.PlayNextTrack; //Feed new music track
+        gsNoGame:            fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn); //Menu tune
+      end;
+
+    //StatusBar  
+    if (fGameState in [gsRunning, gsReplay]) then
+      Form1.StatusBar1.Panels[2].Text := 'Time: '+int2time(GetMissionTime);
+  end;
 end;
 
 
