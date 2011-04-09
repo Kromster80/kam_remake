@@ -304,7 +304,7 @@ end;
 
 //Save (export) map in KaM .map format with additional tile information on the end?
 procedure TTerrain.SaveToMapFile(aFile:string);
-var f:file; i,k,t:integer;
+var f:file; i,k,t,u:integer;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
 begin
@@ -318,14 +318,30 @@ begin
   blockwrite(f,MapY,4);
 
   t := 0;
+  u := 255;
   for i:=1 to MapY do for k:=1 to MapX do
   begin
-    blockwrite(f,Land[i,k].Terrain,1);
+    if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
+      blockwrite(f,Land[i,k].OldTerrain,1) //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
+    else
+      blockwrite(f,Land[i,k].Terrain,1);
+
     blockwrite(f,t,1); //Light
     blockwrite(f,Land[i,k].Height,1);
-    blockwrite(f,Land[i,k].Rotation,1);
+
+    if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
+      blockwrite(f,Land[i,k].OldRotation,1) //Map file stores terrain, not the fields placed over it, so save OldRotation rather than Rotation
+    else
+      blockwrite(f,Land[i,k].Rotation,1);
+
     blockwrite(f,t,1); //unknown
-    blockwrite(f,Land[i,k].Obj,1);
+
+    //Don't save winefield objects as they are part of the DAT not map
+    if TileIsWineField(KMPoint(k,i)) then
+      blockwrite(f,u,1)
+    else
+      blockwrite(f,Land[i,k].Obj,1);
+
     blockwrite(f,t,1); //Passability?
 
     blockwrite(f,t,4); //unknown
