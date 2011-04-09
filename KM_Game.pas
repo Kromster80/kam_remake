@@ -935,20 +935,23 @@ begin
     gsRunning:  begin
                   for i:=1 to fGameSpeed do
                   begin
-                    inc(fGameTickCount); //Thats our tick counter for gameplay events
-                    fTerrain.UpdateState;
-                    fPlayers.UpdateState(fGameTickCount); //Quite slow
-                    if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
-                    fProjectiles.UpdateState; //If game has stopped it's NIL
+                    fGameInputProcess.UpdateState(fGameTickCount+1); //Keep updating
+                    if fGameInputProcess.TickReady(fGameTickCount+1) then
+                    begin
+                      inc(fGameTickCount); //Thats our tick counter for gameplay events
+                      fTerrain.UpdateState;
+                      fPlayers.UpdateState(fGameTickCount); //Quite slow
+                      if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                      fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                    //GIP_Multi issues all commands for this tick
-                    fGameInputProcess.Timer(fGameTickCount);
+                      //GIP_Multi issues all commands for this tick
+                      fGameInputProcess.Timer(fGameTickCount);
 
-                    //Each 1min of gameplay time
-                    if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
-                      Save(AUTOSAVE_SLOT);
+                      //Each 1min of gameplay time
+                      if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
+                        Save(AUTOSAVE_SLOT);
+                    end;
                   end;
-
                   fGamePlayInterface.UpdateState;
                 end;
     gsReplay:   begin

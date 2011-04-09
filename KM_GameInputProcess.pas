@@ -130,7 +130,9 @@ type
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
 
+    function TickReady(aTick:cardinal):boolean; virtual;
     procedure Timer(aTick:cardinal); virtual;
+    procedure UpdateState(aTick:cardinal); virtual;
 
     //Replay methods
     procedure SaveToFile(aFileName:string);
@@ -409,6 +411,12 @@ begin
 end;
 
 
+function TGameInputProcess.TickReady(aTick:cardinal):boolean;
+begin
+  Result := true;
+end;
+
+
 procedure TGameInputProcess.Timer(aTick:cardinal);
 begin
   if ReplayState = gipReplaying then
@@ -428,6 +436,12 @@ begin
       inc(fCursor);
     end;
   end;
+end;
+
+
+procedure TGameInputProcess.UpdateState(aTick:cardinal);
+begin
+  //Only used in GIP_Multi
 end;
 
 
