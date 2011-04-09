@@ -16,6 +16,7 @@ type
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
+      function WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean; override;
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -47,6 +48,37 @@ procedure TTaskMining.SyncLoad;
 begin
   Inherited;
   //nothing to sync, Workplan is assigned by unit
+end;
+
+
+//This procedure is run by the walk action when the walk target is blocked by a busy unit.
+//The unit might have taken our resource, if so we should find a new one.
+function TTaskMining.WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean;
+var OldLoc: TKMPoint;
+begin
+  //Is the unit taking our resource? (are they are mining with the same gathering script)
+  if (aBlockingUnit.GetUnitTask is TTaskMining) and
+    (TTaskMining(aBlockingUnit.GetUnitTask).WorkPlan.GatheringScript = WorkPlan.GatheringScript) then
+  begin
+    Result := true;
+    OldLoc := WorkPlan.Loc;
+    //Tell the work plan to find a new resource of the same gathering script
+    if WorkPlan.FindDifferentResource(KMPointY1(fUnit.GetHome.GetEntrance), WorkPlan.Loc) then
+    begin
+      if not KMSamePoint(OldLoc,WorkPlan.Loc) then
+      begin
+        fUnit.AbandonWalk; //Abandon the current walk
+        fPhase := 1 //Set the walk again
+      end;
+    end
+    else
+    begin
+      fUnit.AbandonWalk; //Abandon the current walk
+      fPhase := 99; //Exit the task
+    end;
+  end
+  else
+    Result := false;
 end;
 
 

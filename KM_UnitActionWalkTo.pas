@@ -648,25 +648,31 @@ begin
   begin
     //Can't go around our target position unless it's a house
     if (not KMSamePoint(fOpponent.GetPosition,fWalkTo)) or (fTargetHouse <> nil) then
-    if fDestBlocked or fOpponent.GetUnitAction.Locked
-    then
-      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList) then //Make sure the route can be made, if not, we must simply wait
-      begin
-        //NodeList has now been re-routed, so we need to re-init everything else and start walk again
-        SetInitValues;
-        Explanation := 'Unit in the way is working so we will re-route around it';
-        ExplanationLogAdd;
-        fDestBlocked := false;
-        //Exit, then on next tick new walk will start
-        Result := true; //Means exit DoUnitInteraction
-      end
-      else
-      begin
-        fDestBlocked := true; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
-        fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
-        Explanation := 'Our destination is blocked by busy units';
-        ExplanationLogAdd;
-      end;
+    begin
+      if fDestBlocked or fOpponent.GetUnitAction.Locked then
+        if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList) then //Make sure the route can be made, if not, we must simply wait
+        begin
+          //NodeList has now been re-routed, so we need to re-init everything else and start walk again
+          SetInitValues;
+          Explanation := 'Unit in the way is working so we will re-route around it';
+          ExplanationLogAdd;
+          fDestBlocked := false;
+          //Exit, then on next tick new walk will start
+          Result := true; //Means exit DoUnitInteraction
+        end
+        else
+        begin
+          fDestBlocked := true; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
+          fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
+          Explanation := 'Our destination is blocked by busy units';
+          ExplanationLogAdd;
+        end;
+    end
+    else
+      if fOpponent.GetUnitAction.Locked then
+        if fWalker.GetUnitTask <> nil then //We might need to notify our task that there is a unit blocking our destination
+          if fWalker.GetUnitTask.WalkTargetBlocked(fOpponent) then //If it returns true then this walk action has been destroyed so exit immediately
+            Result := true; //Means exit DoUnitInteraction
   end;
 end;
 

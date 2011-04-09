@@ -88,12 +88,12 @@ TTerrain = class
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
-    function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
-    function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
-    function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+    function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint):TKMPoint;
+    function FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
+    function FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
     function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
-    function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-    function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+    function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
+    function FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
     function CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
     function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
@@ -843,13 +843,13 @@ end;
 
 { Should find closest field around}
 {aAgeFull is used for ft_Corn. Incase Farmer is looking for empty or full field of corn}
-function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
+function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint):TKMPoint;
 var i,k:integer; List:TKMPointList;
 begin
   List := TKMPointList.Create;
   for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
   for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
          ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
         if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
@@ -863,7 +863,7 @@ end;
 
 
 {Find closest chopable Tree around}
-function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
 const Ins=2; //2..Map-2
 var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint;
 begin
@@ -871,7 +871,7 @@ begin
   List:=TKMPointList.Create;
   for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins) do
   for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
         if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),CanWalk) then
           List.AddEntry(KMPoint(k,i));
@@ -898,14 +898,14 @@ end;
 
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
-function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
 const Ins=2; //2..Map-2
 var i,k:integer; List:TKMPointList;
 begin
   List := TKMPointList.Create;
   for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
   for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
       if (TileIsStone(KMPoint(k,i))>0) then
         if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
           if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,0,false) then
@@ -956,14 +956,14 @@ end;
 
 {Find suitable place to plant a tree.
 Prefer ex-trees locations}
-function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
 var i,k:integer; List1,List2:TKMPointList;
 begin
   List1:=TKMPointList.Create;
   List2:=TKMPointList.Create;
   for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
   for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,0,false) then begin
 
         if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
@@ -983,7 +983,7 @@ end;
 
 {Find seaside}
 {Return walkable tile nearby}
-function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
 const Ins=2; //2..Map-2
 var i,k,j,l:integer; List:TKMPointDirList;
 begin
@@ -1003,8 +1003,9 @@ begin
         for j:=-1 to 1 do
           for l:=-1 to 1 do
             if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
-              // D) Final check: route can be made
-              if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, 0,false) then
+              // D) Final check: route can be made and isn't avoid loc
+              if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, 0,false)
+              and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
                 List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
 
   Result:=List.GetRandom;
