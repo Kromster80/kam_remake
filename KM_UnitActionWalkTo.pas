@@ -88,7 +88,7 @@ type
 
 
 implementation
-uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay, Controls, KM_Units_Warrior;
+uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay, Controls, KM_Units_Warrior, KM_UnitTaskMining;
 
 
 { TUnitActionWalkTo }
@@ -670,8 +670,8 @@ begin
     end
     else
       if fOpponent.GetUnitAction.Locked then
-        if fWalker.GetUnitTask <> nil then //We might need to notify our task that there is a unit blocking our destination
-          if fWalker.GetUnitTask.WalkTargetBlocked(fOpponent) then //If it returns true then this walk action has been destroyed so exit immediately
+        if fWalker.GetUnitTask is TTaskMining then //We might need to notify our task that there is a unit blocking our destination
+          if TTaskMining(fWalker.GetUnitTask).WalkTargetBlocked(fOpponent) then //If it returns true then this walk action has been destroyed so exit immediately
             Result := true; //Means exit DoUnitInteraction
   end;
 end;

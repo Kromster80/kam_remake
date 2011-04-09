@@ -46,7 +46,6 @@ type
     procedure SyncLoad; dynamic;
     destructor Destroy; override;
 
-    function WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean; virtual; abstract;
     function WalkShouldAbandon:boolean; dynamic;
     property Phase:byte read fPhase write fPhase;
 

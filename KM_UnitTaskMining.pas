@@ -16,7 +16,7 @@ type
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
-      function WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean; override;
+      function WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean;
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
