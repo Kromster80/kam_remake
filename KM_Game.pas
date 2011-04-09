@@ -32,7 +32,7 @@ type
     fMusicLib: TMusicLib;
     fProjectiles:TKMProjectiles;
     fNetworking:TKMNetworking;
-  private //Should be saved
+  //Should be saved
     fGameTickCount:cardinal;
     fGameName:string;
     fMissionFile:string; //Remember what we are playing incase we might want to replay
@@ -64,7 +64,8 @@ type
 
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameStartMP(Sender:TObject);
-    procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error 
+    procedure GameMPPlay(Sender:TObject);
+    procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure GameStop(const Msg:TGameResultMsg; TextMsg:string='');
@@ -391,7 +392,7 @@ begin
 end;
 
 
-//All setup data gets taken from fNetworking class 
+//All setup data gets taken from fNetworking class
 procedure TKMGame.GameStartMP(Sender:TObject);
 var
   ResultMsg, LoadError:string;
@@ -468,12 +469,20 @@ begin
   Save(99); //Thats our base for a game record
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
-  //fNetworking.OnAllReadyToPlay := 
-  fNetworking.GameCreated;
   fGameState := gsOnHold;
+  fNetworking.OnPlay := GameMPPlay;
+  fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
+  fNetworking.GameCreated;
 
   fLog.AppendLog('Gameplay recording initialized',true);
   RandSeed := 4; //Random after StartGame and ViewReplay should match
+end;
+
+
+//Everyone is ready to start playing
+procedure TKMGame.GameMPPlay(Sender:TObject);
+begin
+  //
 end;
 
 
@@ -926,8 +935,7 @@ begin
                   if fMusicLib.IsMusicEnded then
                     fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn); //Menu tune
                 end;
-    gsRunning,
-    gsReplay:   begin
+    gsRunning:  begin
                   for i:=1 to fGameSpeed do
                   begin
                     inc(fGameTickCount); //Thats our tick counter for gameplay events
@@ -936,9 +944,32 @@ begin
                     if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                    if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave
-                      and (fGameState = gsRunning) then //Each 1min of gameplay time
-                      Save(AUTOSAVE_SLOT); //Autosave slot
+                    //Each 1min of gameplay time
+                    if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
+                      Save(AUTOSAVE_SLOT);
+                  end;
+
+                  fNetworking.UpdateState;
+                  fGamePlayInterface.UpdateState;
+
+                  if fGlobalTickCount mod 10 = 0 then //Every 1000ms
+                    fTerrain.RefreshMinimapData; //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
+
+                  if fGlobalTickCount mod 10 = 0 then
+                    if fMusicLib.IsMusicEnded then
+                      fMusicLib.PlayNextTrack; //Feed new music track
+
+                  if fGlobalTickCount mod 10 = 0 then
+                    Form1.StatusBar1.Panels[2].Text:='Time: '+int2time(GetMissionTime);
+                end;
+    gsReplay:   begin
+                  for i:=1 to fGameSpeed do
+                  begin
+                    inc(fGameTickCount); //Thats our tick counter for gameplay events
+                    fTerrain.UpdateState;
+                    fPlayers.UpdateState(fGameTickCount); //Quite slow
+                    if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                    fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     fGameInputProcess.Timer(fGameTickCount);
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
@@ -952,7 +983,6 @@ begin
                     if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands
                   end;
 
-                  fNetworking.UpdateState;
                   fGamePlayInterface.UpdateState;
 
                   if fGlobalTickCount mod 10 = 0 then //Every 1000ms

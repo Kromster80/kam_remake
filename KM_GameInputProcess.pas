@@ -90,55 +90,55 @@ type TGIPReplayState = (gipRecording, gipReplaying);
 
 type
   TGameInputProcess = class
-    private
-      fCount:integer;
-      fCursor:integer; //Used only in gipReplaying
-      fQueue: array of packed record
-        Tick:cardinal;
-        Command:TGameInputCommand;
-        Rand:cardinal; //acts as CRC check
-      end;
-      fReplayState:TGIPReplayState;
-    protected
-      function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
-      procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
-      procedure ExecCommand(aCommand: TGameInputCommand);
-      procedure StoreCommand(aCommand: TGameInputCommand);
-    public
-      constructor Create(aReplayState:TGIPReplayState);
-      destructor Destroy; override;
+  private
+    fCount:integer;
+    fCursor:integer; //Used only in gipReplaying
+    fQueue: array of packed record
+      Tick:cardinal;
+      Command:TGameInputCommand;
+      Rand:cardinal; //acts as CRC check
+    end;
+    fReplayState:TGIPReplayState;
+  protected
+    function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
+    procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
+    procedure ExecCommand(aCommand: TGameInputCommand);
+    procedure StoreCommand(aCommand: TGameInputCommand);
+  public
+    constructor Create(aReplayState:TGIPReplayState);
+    destructor Destroy; override;
 
-      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior); overload;
-      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit); overload;
-      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse); overload;
-      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint); overload;
-      procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
 
-      procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
-      procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType); overload;
+    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
+    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType); overload;
 
-      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
-      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer); overload;
-      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType); overload;
-      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType); overload;
-      procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer); overload;
 
-      procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
+    procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 
-      procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
-      procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
-      procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
-      procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
 
-      procedure Timer(aTick:cardinal); virtual;
+    procedure Timer(aTick:cardinal); virtual;
 
-      //Replay methods
-      procedure SaveToFile(aFileName:string);
-      procedure LoadFromFile(aFileName:string);
-      property Count:integer read fCount;
-      property ReplayState:TGIPReplayState read fReplayState;
-      function GetLastTick:integer;
-      function ReplayEnded:boolean;
+    //Replay methods
+    procedure SaveToFile(aFileName:string);
+    procedure LoadFromFile(aFileName:string);
+    property Count:integer read fCount;
+    property ReplayState:TGIPReplayState read fReplayState;
+    function GetLastTick:integer;
+    function ReplayEnded:boolean;
   end;
 
 

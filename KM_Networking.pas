@@ -32,6 +32,7 @@ type
                     mk_Start, //Host starting the game
 
                     mk_ReadyToPlay, //Joiner tells Host he has loaded the map
+                    mk_Play,        //Host tells all can play
 
                     mk_Commands,
                     mk_Text);
@@ -59,9 +60,9 @@ type
       fOnTextMessage:TStringEvent;
       fOnPlayersSetup:TNotifyEvent;
       fOnMapName:TStringEvent;
-      fOnAllReady:TNotifyEvent;
       fOnStartGame:TNotifyEvent;
-      fOnAllReadyToPlay:TNotifyEvent;
+      fOnAllReady:TNotifyEvent;
+      fOnPlay:TNotifyEvent;
       fOnDisconnect:TStringEvent;
       fOnPing:TNotifyEvent;
       fOnCommands:TStringEvent;
@@ -108,7 +109,7 @@ type
       property OnMapName:TStringEvent write fOnMapName;         //Map name updated
       property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start
       property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game
-      property OnAllReadyToPlay:TNotifyEvent write fOnAllReadyToPlay; //Everyones ready to play
+      property OnPlay:TNotifyEvent write fOnPlay; //Everyones ready to play
       property OnPing:TNotifyEvent write fOnPing;
       property OnDisconnect:TStringEvent write fOnDisconnect; //Lost connection, was kicked
       property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
@@ -414,12 +415,12 @@ begin
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
-    mk_ReadyToStart:
-            if fLANPlayerKind = lpk_Host then begin
-              fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
+    mk_MapSelect:
+            if fLANPlayerKind = lpk_Joiner then begin
+              fMapName := Msg;
+              fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
+              if Assigned(fOnMapName) then fOnMapName(fMapName);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              if fNetPlayers.AllReady and (fNetPlayers.Count>1) then
-                if Assigned(fOnAllReady) then fOnAllReady(nil);
             end;
 
     mk_StartingLocQuery:
@@ -446,12 +447,12 @@ begin
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
-    mk_MapSelect:
-            if fLANPlayerKind = lpk_Joiner then begin
-              fMapName := Msg;
-              fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
-              if Assigned(fOnMapName) then fOnMapName(fMapName);
+    mk_ReadyToStart:
+            if fLANPlayerKind = lpk_Host then begin
+              fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+              if fNetPlayers.AllReady and (fNetPlayers.Count>1) then
+                if Assigned(fOnAllReady) then fOnAllReady(nil);
             end;
 
     mk_Start:
@@ -464,7 +465,16 @@ begin
     mk_ReadyToPlay:
             if fLANPlayerKind = lpk_Host then begin
               fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToPlay := true;
+              if fNetPlayers.AllReadyToPlay then
+              begin
+                PacketToAll(mk_Play,'111111111');
+                if Assigned(fOnPlay) then fOnPlay(Self);
+              end;
             end;
+
+    mk_Play:
+            if fLANPlayerKind = lpk_Joiner then
+              if Assigned(fOnPlay) then fOnPlay(Self);
 
     mk_Commands:
             if Assigned(fOnCommands) then fOnCommands(Msg);

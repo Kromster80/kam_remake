@@ -3,12 +3,13 @@ unit KM_GameInputProcess_Multi;
 interface
 uses SysUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes;
 
-type TKMDataType = (kdp_Commands, kdp_ConfirmCommands);
-
-const MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
-
+const
+  MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
 
 type
+  TKMDataType = (kdp_Commands, kdp_ConfirmCommands);
+
+
   TGIPList = class
     private
       fCount:integer;
@@ -22,8 +23,7 @@ type
   end;
 
 
-type
-  TGameInputProcess_Multi = class(TGameInputProcess)
+  TGameInputProcess_Multi = class (TGameInputProcess)
     private
       fNetworking:TKMNetworking;
       fDelay:word; //How many ticks ahead the commands are scheduled

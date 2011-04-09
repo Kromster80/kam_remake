@@ -52,6 +52,7 @@ type
       function CheckCanJoin(aAddr, aNik:string):string;
       function LocAvailable(aIndex:integer):boolean;
       function AllReady:boolean;
+      function AllReadyToPlay:boolean;
 
       procedure ResetLocAndReady;
       function DropMissing(aTick:cardinal):string;
@@ -177,6 +178,15 @@ begin
   Result := true;
   for i:=1 to fCount do
     Result := Result and fPlayers[i].ReadyToStart;
+end;
+
+
+function TKMPlayersList.AllReadyToPlay:boolean;
+var i:integer;
+begin
+  Result := true;
+  for i:=1 to fCount do
+    Result := Result and fPlayers[i].ReadyToPlay;
 end;
 
 
