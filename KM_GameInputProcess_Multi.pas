@@ -114,6 +114,7 @@ begin
 end;
 
 
+//Stack the command into schedule
 procedure TGameInputProcess_Multi.TakeCommand(aCommand:TGameInputCommand);
 var Tick:integer;
 begin

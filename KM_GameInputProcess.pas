@@ -27,68 +27,68 @@ uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
 
 const MAX_PARAMS = 4; //There are maximum of 4 integers passed along with a command
 
-type TGameInputCommandType = (
-  gic_None,
-  //I.      Army commands, only warriors (TKMUnitWarrior, OrderInfo)
-  gic_ArmyFeed,
-  gic_ArmySplit,
-  gic_ArmyLink,
-  gic_ArmyAttackUnit,
-  gic_ArmyAttackHouse,
-  gic_ArmyHalt,         //Formation commands
-  gic_ArmyWalk,         //Walking
-  gic_ArmyStorm,        //StormAttack
-
-  //II.     Building/road plans (what to build and where)
-  gic_BuildRoadPlan,
-  gic_BuildFieldPlan,
-  gic_BuildWinePlan,
-  gic_BuildWallPlan,
-  gic_BuildRemovePlan,  //Removal of a plan
-  gic_BuildRemoveHouse, //Removal of house
-  gic_BuildHousePlan,   //Build HouseType
-
-  //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
-  gic_HouseRepairToggle,
-  gic_HouseDeliveryToggle,  //Including storehouse. (On/Off, ResourceType)
-  gic_HouseOrderProduct,    //Place an order to manufacture warfare
-  gic_HouseStoreAcceptFlag,
-  gic_HouseTrain,           //Place an order to train citizen/warrior
-  gic_HouseRemoveTrain,     //Remove unit being trained from School
-
-  //IV.     Delivery ratios changes (and other game-global settings)
-  gic_RatioChange,
-
-  //V.      Cheatcodes affecting gameplay (props)
-
-  //VI. Temporary and debug commands
-  gic_TempAddScout,
-  gic_TempKillUnit,
-  gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
-  gic_TempChangeMyPlayer, //Make debugging easier
-
-  //VII. Multiplayer
-  gic_CRC //CRC check send with each command list
-
-  { Optional input }
-  //VI.     Viewport settings for replay (location, zoom)
-  //VII.    Message queue handling in gameplay interface
-  //IX.     Text messages for multiplayer (moved to Networking)
-  );
-
-type TGameInputCommand = record
-       CommandType:TGameInputCommandType;
-       Params:array[1..MAX_PARAMS]of integer;
-       //Text: string; //Don't belongs in here, message exchange is not tied to GIP_Multi
-       PlayerID: TPlayerID; //Player for which the command is to be issued.
-       //                               Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
-     end;
-
-
-type TGIPReplayState = (gipRecording, gipReplaying);
-
-
 type
+  TGIPReplayState = (gipRecording, gipReplaying);
+
+  TGameInputCommandType = (
+    gic_None,
+    //I.      Army commands, only warriors (TKMUnitWarrior, OrderInfo)
+    gic_ArmyFeed,
+    gic_ArmySplit,
+    gic_ArmyLink,
+    gic_ArmyAttackUnit,
+    gic_ArmyAttackHouse,
+    gic_ArmyHalt,         //Formation commands
+    gic_ArmyWalk,         //Walking
+    gic_ArmyStorm,        //StormAttack
+
+    //II.     Building/road plans (what to build and where)
+    gic_BuildRoadPlan,
+    gic_BuildFieldPlan,
+    gic_BuildWinePlan,
+    gic_BuildWallPlan,
+    gic_BuildRemovePlan,  //Removal of a plan
+    gic_BuildRemoveHouse, //Removal of house
+    gic_BuildHousePlan,   //Build HouseType
+
+    //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
+    gic_HouseRepairToggle,
+    gic_HouseDeliveryToggle,  //Including storehouse. (On/Off, ResourceType)
+    gic_HouseOrderProduct,    //Place an order to manufacture warfare
+    gic_HouseStoreAcceptFlag,
+    gic_HouseTrain,           //Place an order to train citizen/warrior
+    gic_HouseRemoveTrain,     //Remove unit being trained from School
+
+    //IV.     Delivery ratios changes (and other game-global settings)
+    gic_RatioChange,
+
+    //V.      Cheatcodes affecting gameplay (props)
+
+    //VI. Temporary and debug commands
+    gic_TempAddScout,
+    gic_TempKillUnit,
+    gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
+    gic_TempChangeMyPlayer, //Make debugging easier
+
+    //VII. Multiplayer
+    gic_CRC //CRC check send with each command list
+
+    { Optional input }
+    //VI.     Viewport settings for replay (location, zoom)
+    //VII.    Message queue handling in gameplay interface
+    //IX.     Text messages for multiplayer (moved to Networking)
+    );
+
+
+  TGameInputCommand = record
+    CommandType:TGameInputCommandType;
+    Params:array[1..MAX_PARAMS]of integer;
+    //Text: string; //Don't belongs in here, message exchange is not tied to GIP_Multi
+    PlayerID: TPlayerID; //Player for which the command is to be issued.
+    //                               Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
+  end;
+
+
   TGameInputProcess = class
   private
     fCount:integer;
@@ -222,9 +222,7 @@ begin
     gic_TempKillUnit:           P.Units.GetUnitByID(Params[1]).KillUnit;
     gic_TempRevealMap:          fTerrain.RevealWholeMap(P.PlayerID);
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
-    //gic_TextMessage:            fGame.fChat.AddMessage(aPlayerID, aTime, aText);
-
-    else Assert(false);
+    else                        Assert(false);
   end;
 end;
 
@@ -403,11 +401,9 @@ begin
   inc(fCount);
   if length(fQueue) <= fCount then setlength(fQueue, fCount+128);
 
-  with fQueue[fCount] do begin
-    Tick    := fGame.GameTickCount;
-    Command := aCommand;
-    Rand    := Random(maxint); //This will be our check to ensure everything is consistent
-  end;
+  fQueue[fCount].Tick    := fGame.GameTickCount;
+  fQueue[fCount].Command := aCommand;
+  fQueue[fCount].Rand    := Random(maxint); //This will be our check to ensure everything is consistent
 end;
 
 
@@ -424,13 +420,14 @@ begin
     while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
       inc(fCursor);
 
-    while (aTick = fQueue[fCursor].Tick) do
+    while (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
     begin
       ExecCommand(fQueue[fCursor].Command);
-      //CRC check
-      if (fQueue[fCursor].Rand <> Cardinal(Random(maxint))) then //This line should always be called to maintain randoms flow
-        if CRASH_ON_REPLAY then begin
-          fGame.GameError(KMPoint(10,10),'Replay mismatch');
+      //CRC check after the command
+      if (fQueue[fCursor].Rand <> Cardinal(Random(maxint))) then //Should always be called to maintain randoms flow
+        if CRASH_ON_REPLAY then
+        begin
+          fGame.GameError(KMPoint(10,10), 'Replay mismatch');
           exit; //GameError calls GIP.Free, so exit immidiately
         end;
       inc(fCursor);
