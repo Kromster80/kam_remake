@@ -67,13 +67,13 @@ begin
     begin
       if not KMSamePoint(OldLoc,WorkPlan.Loc) then
       begin
-        fUnit.AbandonWalk; //Abandon the current walk
+        fUnit.SetActionAbandonWalk(fUnit.NextPosition,WorkPlan.WalkTo); //Abandon the current walk
         fPhase := 1 //Set the walk again
       end;
     end
     else
     begin
-      fUnit.AbandonWalk; //Abandon the current walk
+      fUnit.SetActionAbandonWalk(fUnit.NextPosition,WorkPlan.WalkTo); //Abandon the current walk
       fPhase := 99; //Exit the task
     end;
   end

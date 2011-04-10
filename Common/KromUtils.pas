@@ -236,7 +236,7 @@ begin
   Result := FileExists(FileName);
 
   if not IsSilent and not Result then
-    MessageBox(Application.Handle, PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
+    Application.MessageBox(PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
 end;
 
 

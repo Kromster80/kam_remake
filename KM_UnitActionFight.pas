@@ -3,8 +3,6 @@ unit KM_UnitActionFight;
 interface
 uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units;
 
-//todo: Make melee fights occupy vertecies so units will not walk across the path of a swinging axe
-
 {Fight until we die or the opponent dies}
 type
 TUnitActionFight = class(TUnitAction)

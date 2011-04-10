@@ -1314,6 +1314,8 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
   ListBox_LobbyPosts.Items.Add(aData);
+  //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
+  ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.Items.Count;
 end;
 
 

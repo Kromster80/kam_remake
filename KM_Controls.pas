@@ -1766,8 +1766,8 @@ begin
 
   if MinValue = MaxValue then begin
     case fScrollAxis of
-      sa_Vertical:   ThumbPos := max((Height-Width*2-Thumb),0) div 2;
-      sa_Horizontal: ThumbPos := max((Width-Height*2-Thumb),0) div 2;
+      sa_Vertical:   ThumbPos := Math.max((Height-Width*2-Thumb),0) div 2;
+      sa_Horizontal: ThumbPos := Math.max((Width-Height*2-Thumb),0) div 2;
     end;
     State := [bs_Disabled];
     ScrollDec.Disable;
@@ -1834,7 +1834,7 @@ end;
 
 procedure TKMListBox.SetTopIndex(aIndex:smallint);
 begin
-  fTopIndex := EnsureRange(aIndex, 0, max(fItems.Count - (fHeight div fItemHeight),0));
+  fTopIndex := EnsureRange(aIndex, 0, Math.max(fItems.Count - (fHeight div fItemHeight),0));
 end;
 
 
@@ -1953,7 +1953,7 @@ begin
 
   if Items.Count < 1 then exit;
 
-  fList.Height := min(fDropCount, Items.Count)*fList.ItemHeight;
+  fList.Height := Math.min(fDropCount, Items.Count)*fList.ItemHeight;
   fList.TopIndex := ItemIndex - fDropCount div 2;
   fList.RefreshList;
 

@@ -111,11 +111,11 @@ end;
 
 
 function TGlobalSettings.LoadSettingsFromFile(FileName:string):boolean;
-var f:TIniFile;
+var f:TMemIniFile;
 begin
   Result := FileExists(FileName);
 
-  f := TIniFile.Create(FileName);
+  f := TMemIniFile.Create(FileName);
   
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
   fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
@@ -142,9 +142,9 @@ end;
 
 
 procedure TGlobalSettings.SaveSettingsToFile(FileName:string);
-var f:TIniFile;
+var f:TMemIniFile; //Don't rewrite the file for each change, do it in one batch
 begin
-  f := TIniFile.Create(FileName);
+  f := TMemIniFile.Create(FileName);
 
   f.WriteInteger('GFX','Brightness',  fBrightness);
   f.WriteBool   ('GFX','FullScreen',  fFullScreen);
@@ -165,6 +165,7 @@ begin
   f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
   f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
 
+  f.UpdateFile; //Write changes to file
   FreeAndNil(f);
   fNeedsSave := false;
 end;
@@ -314,19 +315,20 @@ end;
 
 
 procedure TCampaignSettings.SaveINI(FileName:string);
-var f:TIniFile;
+var f:TMemIniFile; //Don't rewrite the file for each change, do it in one batch
 begin
-  f := TIniFile.Create(FileName);
+  f := TMemIniFile.Create(FileName);
   f.WriteInteger('Campaign', 'TSK', fUnlockedMapsTSK);
   f.WriteInteger('Campaign', 'TPR', fUnlockedMapsTPR);
+  f.UpdateFile; //Write changes to file
   FreeAndNil(f);
 end;
 
 
 procedure TCampaignSettings.LoadINI(FileName:string);
-var f:TIniFile;
+var f:TMemIniFile;
 begin
-  f := TIniFile.Create(FileName);
+  f := TMemIniFile.Create(FileName);
   fUnlockedMapsTSK := f.ReadInteger('Campaign', 'TSK', 1);
   fUnlockedMapsTPR := f.ReadInteger('Campaign', 'TPR', 1);
   FreeAndNil(f);
