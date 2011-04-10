@@ -2327,6 +2327,7 @@ begin
 
   //Attack or Walk
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
+    and(not TKMUnitWarrior(fShownUnit).GetCommander.ArmyIsBusy(true)) //Can't give orders to busy warriors
     and(TKMUnit(fShownUnit).GetOwner = MyPlayer.PlayerID) then
   begin
     //Try to Attack unit

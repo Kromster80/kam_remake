@@ -88,7 +88,8 @@ type
 
 
 implementation
-uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay, Controls, KM_Units_Warrior, KM_UnitTaskMining;
+uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
+     Controls, KM_Units_Warrior, KM_UnitTaskMining, KM_Player;
 
 
 { TUnitActionWalkTo }
@@ -381,9 +382,13 @@ begin
     begin
       //If a warrior is following a unit it means we are attacking it. (for now anyway)
       //So if this unit dies we must now follow it's commander
+      fTargetUnit.ReleaseUnitPointer;
       fTargetUnit := TKMUnitWarrior(fTargetUnit).GetCommander.GetUnitPointer;
       //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
       TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
+      //If we are an AI player then we do not keep walking to a dead enemy's position, we halt (and go home) instead
+      if (fWalker is TKMUnitWarrior) and (fPlayers.Player[byte(fWalker.GetOwner)].PlayerType = pt_Computer) then
+        TKMUnitWarrior(fWalker).OrderHalt;
       Result := tc_TargetUpdated;
     end else
       Result := tc_Died;

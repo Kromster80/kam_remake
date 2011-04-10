@@ -65,6 +65,7 @@ type
       procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
       procedure RemGoal(aIndex:integer);
       procedure RemoveReference(aPlayerID:TPlayerID);
+      procedure SetMessageHasShown(aIndex:integer);
 
       procedure Save(SaveStream:TKMemoryStream);
       procedure Load(LoadStream:TKMemoryStream);
@@ -126,6 +127,12 @@ begin
   for i:=fCount-1 downto 0 do
     if fGoals[i].Player = aPlayerID then
       RemGoal(i);
+end;
+
+
+procedure TKMGoals.SetMessageHasShown(aIndex:integer);
+begin
+  fGoals[aIndex].MessageHasShown := true;
 end;
 
 

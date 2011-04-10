@@ -56,6 +56,7 @@ type
 
     property Autobuild:boolean read fAutobuild write fAutobuild;
 
+    procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
     procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
@@ -72,7 +73,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_PlayerStats, KM_Viewport;
+uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_PlayerStats, KM_Viewport, KM_UnitTaskAttackHouse;
 
 
 
@@ -222,7 +223,7 @@ begin
       if (Goals[i].MessageToShow <> 0) and (not Goals[i].MessageHasShown) and (fTextLibrary.GetTextString(Goals[i].MessageToShow) <> '') then
       begin
         fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(Goals[i].MessageToShow),KMPoint(0,0));
-        with Goals[i] do MessageHasShown := true;
+        Assets.Goals.SetMessageHasShown(i);
       end;
     end
     else
@@ -400,6 +401,18 @@ begin
       with TKMUnitWarrior(Assets.Units.Items[i]) do
         if (fCommander = nil) and not IsDeadOrDying then
         begin
+          //If the warrior is busy then skip this group because the AI should not give orders to fighting warriors
+          if ArmyIsBusy or (GetUnitTask is TTaskAttackHouse) or (OrderTarget <> nil) then
+          begin
+            //If this group belongs to a defence position and they are too far away we should disassociate
+            //them from the defence position so new warriors can take up the defence if needs be
+            for k:=0 to DefencePositionsCount-1 do
+              with DefencePositions[k] do
+                if (CurrentCommander = GetCommander) and (KMLength(Position.Loc, GetPosition) > DefenceRadius) then
+                  CurrentCommander := nil;
+            continue;
+          end;
+
           //Check hunger and feed
           if (Condition < UNIT_MIN_CONDITION) then
             OrderFood;
@@ -408,8 +421,6 @@ begin
           if UnitGroups[byte(UnitType)] <> gt_None then
             if UnitsPerRow < TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow then
               UnitsPerRow := TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow;
-
-          if ArmyIsBusy then exit;
           //Position this group to defend if they already belong to a defence position
           Positioned := false;
           for k:=0 to DefencePositionsCount-1 do
@@ -495,6 +506,20 @@ begin
 end;
 
 
+procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
+var i: integer;
+begin
+  if Assets.PlayerType = pt_Human then exit;
+  //Any defence position that is within their defence radius of this threat will retaliate against it
+  for i := 0 to DefencePositionsCount-1 do
+    with DefencePositions[i] do
+      if (CurrentCommander <> nil) and (not CurrentCommander.ArmyIsBusy)
+      and (CurrentCommander.OrderTarget = nil) then
+        if KMLength(CurrentCommander.GetPosition,aAttacker.GetPosition) <= DefenceRadius then
+          CurrentCommander.OrderAttackUnit(aAttacker);
+end;
+
+
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
 begin
@@ -508,9 +533,7 @@ begin
     end;
   end;
   if Assets.PlayerType = pt_Computer then
-  begin
-    //todo: Defend
-  end;
+    RetaliateAgainstThreat(aAttacker);
 end;
 
 
@@ -522,13 +545,24 @@ begin
     if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
     and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
     begin
-      //fSoundLib.PlayWarning(sp_UnitsAttacked);
+      {if aUnit is TKMUnitWarrior then
+        fSoundLib.PlayWarning(sp_TroopsAttacked)
+      else
+        fSoundLib.PlayWarning(sp_CitizensAttacked);}
       fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
   if Assets.PlayerType = pt_Computer then
   begin
-    //todo: Defend
+    if aUnit is TKMUnitWarrior then
+    begin
+      //If we are attacked, then we should counter attack the attacker!
+      with TKMUnitWarrior(aUnit).GetCommander do
+        if not ArmyIsBusy then
+          OrderAttackUnit(aAttacker);
+    end
+    else
+      RetaliateAgainstThreat(aAttacker); //Come to the defence of our citizens
   end;
 end;
 

@@ -154,8 +154,15 @@ begin
       IncVertex(KMUnit.GetPosition, fOpponent.GetPosition);
   end;
 
-  //Tell our opponent we are attacking them
-  if Step = 1 then fPlayers.PlayerAI[byte(fOpponent.GetOwner)].UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
+
+  if Step = 1 then
+  begin
+    //Tell our opponent we are attacking them
+    fPlayers.PlayerAI[byte(fOpponent.GetOwner)].UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
+    //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
+    if (fOpponent is TKMUnitWarrior) and (TKMUnitWarrior(KMUnit).GetFightMaxRange < 2) then
+      fPlayers.PlayerAI[byte(KMUnit.GetOwner)].RetaliateAgainstThreat(TKMUnitWarrior(fOpponent));
+  end;
 
   if TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2 then begin
     if Step = FIRING_DELAY then
