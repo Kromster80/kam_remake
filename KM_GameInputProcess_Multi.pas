@@ -221,6 +221,7 @@ begin
           begin
             M.Read(CRC);
             Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].CRC);
+            fConfirmation[Tick mod MAX_SCHEDULE, byte(PlayID)] := true;
           end;
     end;
   finally
