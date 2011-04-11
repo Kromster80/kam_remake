@@ -100,6 +100,7 @@ type
       property MissionMode:TMissionMode read fMissionMode;
       property NetPlayers:TKMPlayersList read fNetPlayers;
       procedure SendCommands(aStream:TKMemoryStream);
+      procedure SendConfirmation(aStream:TKMemoryStream; aPlayerLoc:byte);
       procedure GameCreated;
 
       property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
@@ -331,6 +332,15 @@ begin
 end;
 
 
+procedure TKMNetworking.SendConfirmation(aStream:TKMemoryStream; aPlayerLoc:byte);
+var s:string;
+begin
+  SetLength(s, aStream.Size);
+  aStream.WriteBuffer(s[1], aStream.Size);
+  PacketToAll(mk_Commands, s); //Send commands to all players
+end;
+
+
 procedure TKMNetworking.GameCreated;
 begin
   case fLANPlayerKind of
@@ -467,7 +477,7 @@ begin
               fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToPlay := true;
               if fNetPlayers.AllReadyToPlay then
               begin
-                PacketToAll(mk_Play,'111111111');
+                PacketToAll(mk_Play,'111111111'); //todo: Should include lag difference
                 if Assigned(fOnPlay) then fOnPlay(Self);
               end;
             end;

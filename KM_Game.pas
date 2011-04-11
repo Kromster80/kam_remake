@@ -469,7 +469,6 @@ begin
   Save(99); //Thats our base for a game record
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
-  fGameState := gsOnHold;
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
   fNetworking.GameCreated;
@@ -480,9 +479,10 @@ end;
 
 
 //Everyone is ready to start playing
+//Issued by fNetworking at the time depending on each Players lag individually
 procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
-  //
+  fGameState := gsRunning;
 end;
 
 
@@ -935,8 +935,7 @@ begin
     gsRunning:  begin
                   for i:=1 to fGameSpeed do
                   begin
-                    fGameInputProcess.UpdateState(fGameTickCount+1); //Keep updating
-                    if fGameInputProcess.TickReady(fGameTickCount+1) then
+                    if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
                     begin
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
                       fTerrain.UpdateState;
@@ -944,13 +943,12 @@ begin
                       if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                      //GIP_Multi issues all commands for this tick
-                      fGameInputProcess.Timer(fGameTickCount);
+                      fGameInputProcess.Timer(fGameTickCount); //GIP_Multi issues all commands for this tick
 
-                      //Each 1min of gameplay time
                       if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
-                        Save(AUTOSAVE_SLOT);
+                        Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
                     end;
+                    fGameInputProcess.UpdateState(fGameTickCount+1); //Do maintenance
                   end;
                   fGamePlayInterface.UpdateState;
                 end;

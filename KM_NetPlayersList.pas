@@ -8,60 +8,59 @@ uses Classes, KromUtils, Math, SysUtils,
 
 type
   TKMPlayerInfo = class
-    private
-      fAddress:string;
-      fNikname:string;
-      fTimeTick:cardinal;
-    public
-      PlayerType:TPlayerType; //Human, Computer
-      FlagColorID:integer; //Flag color, 0 means random
-      StartLocID:integer; //Start location, 0 means random
-      ReadyToStart:boolean;
-      ReadyToPlay:boolean;
+  private
+    fAddress:string;
+    fNikname:string;
+    fTimeTick:cardinal;
+  public
+    PlayerType:TPlayerType; //Human, Computer
+    FlagColorID:integer; //Flag color, 0 means random
+    StartLocID:integer; //Start location, 0 means random
+    ReadyToStart:boolean;
+    ReadyToPlay:boolean;
+    Alive:boolean; //Player is still connected and not defeated
 
-      PingSent:cardinal; //Time of last "ping" message
-      Ping:word; //Last known ping
-    public
-      function IsHuman:boolean;
-      property Address:string read fAddress;
-      property Nikname:string read fNikname;
-      property TimeTick:cardinal read fTimeTick write fTimeTick;
+    PingSent:cardinal; //Time of last "ping" message
+    Ping:word; //Last known ping
+  public
+    function IsHuman:boolean;
+    property Address:string read fAddress;
+    property Nikname:string read fNikname;
+    property TimeTick:cardinal read fTimeTick write fTimeTick;
   end;
 
-
-//Handles everything related to players list,
-//but knows nothing about networking nor game setup. Only players.
-type
+  //Handles everything related to players list,
+  //but knows nothing about networking nor game setup. Only players.
   TKMPlayersList = class
-    private
-      fCount:integer;
-      fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
-      function GetPlayer(Index:integer):TKMPlayerInfo;
-    public
-      constructor Create;
-      destructor Destroy; override;
-      procedure Clear;
-      property Count:integer read fCount;
+  private
+    fCount:integer;
+    fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
+    function GetPlayer(Index:integer):TKMPlayerInfo;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear;
+    property Count:integer read fCount;
 
-      procedure AddPlayer(aAddr,aNik:string; aTick:cardinal);
-      procedure RemPlayer(aIndex:integer);
-      property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
+    procedure AddPlayer(aAddr,aNik:string; aTick:cardinal);
+    procedure RemPlayer(aIndex:integer);
+    property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
-      //Getters
-      function NiknameIndex(aNik:string):integer;
-      function CheckCanJoin(aAddr, aNik:string):string;
-      function LocAvailable(aIndex:integer):boolean;
-      function AllReady:boolean;
-      function AllReadyToPlay:boolean;
+    //Getters
+    function NiknameIndex(aNik:string):integer;
+    function CheckCanJoin(aAddr, aNik:string):string;
+    function LocAvailable(aIndex:integer):boolean;
+    function AllReady:boolean;
+    function AllReadyToPlay:boolean;
 
-      procedure ResetLocAndReady;
-      function DropMissing(aTick:cardinal):string;
-      procedure DefineSetup(aMaxLoc:byte);
+    procedure ResetLocAndReady;
+    function DropMissing(aTick:cardinal):string;
+    procedure DefineSetup(aMaxLoc:byte);
 
-      //Import/Export
-      function GetAsText:string; //Gets all relevant information as text string
-      procedure SetAsText(const aText:string); //Sets all relevant information from text string
-    end;
+    //Import/Export
+    function GetAsText:string; //Gets all relevant information as text string
+    procedure SetAsText(const aText:string); //Sets all relevant information from text string
+  end;
 
 implementation
 
@@ -113,6 +112,7 @@ begin
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;
+  fPlayers[fCount].Alive := true;
   fPlayers[fCount].TimeTick := aTick;
 end;
 
@@ -132,6 +132,7 @@ begin
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;
+  fPlayers[fCount].Alive := false;
   fPlayers[fCount].TimeTick := 0;
 
   dec(fCount);
@@ -279,6 +280,7 @@ begin
     M.Write(fPlayers[i].FlagColorID);
     M.Write(fPlayers[i].StartLocID);
     M.Write(fPlayers[i].ReadyToStart);
+    M.Write(fPlayers[i].Alive);
   end;
 
   Result := M.ReadAsText;
@@ -301,6 +303,7 @@ begin
       M.Read(fPlayers[i].FlagColorID);
       M.Read(fPlayers[i].StartLocID);
       M.Read(fPlayers[i].ReadyToStart);
+      M.Read(fPlayers[i].Alive);
     end;
   finally
     M.Free;

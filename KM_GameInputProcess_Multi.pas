@@ -7,58 +7,62 @@ const
   MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
 
 type
-  TKMDataType = (kdp_Commands, kdp_ConfirmCommands);
+  TKMDataType = (kdp_Commands, kdp_Confirmation);
 
-
-  TGIPList = class
-    private
-      fCount:integer;
-      fList:array of TGameInputCommand; //1..n
-    public
-      procedure Clear;
-      procedure Add(aCommand:TGameInputCommand);
-      function  Get(aIndex:integer):TGameInputCommand;
-      property  Count:integer read fCount;
-      procedure Save(aStream:TKMemoryStream);
+  TCommandsPack = class
+  private
+    fCount:integer;
+    fList:array of TGameInputCommand; //1..n
+  public
+    property  Count:integer read fCount;
+    procedure Clear;
+    procedure Add(aCommand:TGameInputCommand);
+    function  Get(aIndex:integer):TGameInputCommand;
+    function CRC:cardinal;
+    procedure Save(aStream:TKMemoryStream);
+    procedure Load(aStream:TKMemoryStream);
   end;
 
-
   TGameInputProcess_Multi = class (TGameInputProcess)
-    private
-      fNetworking:TKMNetworking;
-      fDelay:word; //How many ticks ahead the commands are scheduled
-      fPlayerEnabled:array[1..MAX_PLAYERS]of boolean; //See which players confirmations do we need
+  private
+    fNetworking:TKMNetworking;
+    fDelay:word; //How many ticks ahead the commands are scheduled
 
-      //Each player can have any number of commands scheduled for execution in one tick
-      fSchedule: array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of TGIPList; //Ring buffer
+    //Each player can have any number of commands scheduled for execution in one tick
+    fSchedule:array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of TCommandsPack; //Ring buffer
 
-      //All players must confirm they have recieved our GIPList
-      fConfirmation: array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of boolean; //Ring buffer
-      procedure SendCommands(aTick:cardinal);
-    protected
-      procedure TakeCommand(aCommand:TGameInputCommand); override;
-    public
-      constructor Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
-      destructor Destroy; override;
-      procedure RecieveCommands(const aData:string); //Called by TKMNetwork when it has data for us
-      function TickReady(aTick:cardinal):boolean; override;
-      procedure Timer(aTick:cardinal); override;
-      procedure UpdateState(aTick:cardinal); override;
+    //All players must confirm they have recieved our GIPList
+    fConfirmation:array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of boolean; //Ring buffer
+
+    //Mark commands we've already sent to other players
+    fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
+
+    procedure SendCommands(aTick:cardinal);
+    procedure SendConfirmation(aTick:cardinal; aPlayerLoc:byte);
+  protected
+    procedure TakeCommand(aCommand:TGameInputCommand); override;
+  public
+    constructor Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
+    destructor Destroy; override;
+    procedure RecieveCommands(const aData:string); //Called by TKMNetwork when it has data for us
+    function CommandsConfirmed(aTick:cardinal):boolean; override;
+    procedure Timer(aTick:cardinal); override;
+    procedure UpdateState(aTick:cardinal); override;
   end;
 
 
 implementation
-uses KM_Game;
+uses KM_Game, KM_PlayersCollection;
 
 
 { TGIPList }
-procedure TGIPList.Clear;
+procedure TCommandsPack.Clear;
 begin
   fCount := 0;
 end;
 
 
-procedure TGIPList.Add(aCommand:TGameInputCommand);
+procedure TCommandsPack.Add(aCommand:TGameInputCommand);
 begin
   inc(fCount);
   if fCount >= length(fList) then
@@ -68,13 +72,20 @@ begin
 end;
 
 
-function TGIPList.Get(aIndex:integer):TGameInputCommand;
+function TCommandsPack.Get(aIndex:integer):TGameInputCommand;
 begin
   Result := fList[aIndex];
 end;
 
 
-procedure TGIPList.Save(aStream:TKMemoryStream);
+function TCommandsPack.CRC:cardinal;
+begin
+  //todo: return CRC of the pack
+  Result := 0;
+end;
+
+
+procedure TCommandsPack.Save(aStream:TKMemoryStream);
 var i:integer;
 begin
   aStream.Write(fCount);
@@ -90,6 +101,22 @@ begin
 end;
 
 
+procedure TCommandsPack.Load(aStream:TKMemoryStream);
+var i:integer;
+begin
+  aStream.Read(fCount);
+  for i:=1 to fCount do
+  begin
+    aStream.Read(fList[i].CommandType, SizeOf(fList[i].CommandType));
+    aStream.Read(fList[i].Params[1]);
+    aStream.Read(fList[i].Params[2]);
+    aStream.Read(fList[i].Params[3]);
+    aStream.Read(fList[i].Params[4]);
+    //Skip Players ID
+  end;               
+end;
+
+
 { TGameInputProcess_Multi }
 constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
 var i,k:integer;
@@ -99,9 +126,9 @@ begin
   fNetworking.OnCommands := RecieveCommands;
   fDelay := 10; //1sec
 
-  //Allocate memory for all commands lists
+  //Allocate memory for all commands packs
   for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
-    fSchedule[i,k] := TGIPList.Create;
+    fSchedule[i,k] := TCommandsPack.Create;
 end;
 
 
@@ -116,60 +143,106 @@ end;
 
 //Stack the command into schedule
 procedure TGameInputProcess_Multi.TakeCommand(aCommand:TGameInputCommand);
-var Tick:integer;
+var i:cardinal; Tick:integer;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
 
-  Tick := (fGame.GameTickCount + fDelay) mod MAX_SCHEDULE; //Place in a ring buffer
+  //Find first unsent pack
+  Tick := -1;
+  for i:=fDelay to MAX_SCHEDULE do
+  if not fSent[(fGame.GameTickCount + i) mod MAX_SCHEDULE] then
+  begin
+    Tick := (fGame.GameTickCount + i) mod MAX_SCHEDULE; //Place in a ring buffer
+    break;
+  end;
+  Assert(Tick<>-1, 'Could not find place for new commands');
 
-  fSchedule[Tick,byte(aCommand.PlayerID)].Add(aCommand);
-  FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset
+  fSchedule[Tick, byte(aCommand.PlayerID)].Add(aCommand);
+  FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset to false
+
+  fConfirmation[Tick, byte(aCommand.PlayerID)] := true; //Self confirmed
 end;
 
 
 procedure TGameInputProcess_Multi.SendCommands(aTick:cardinal);
-var Tick:integer; Msg:TKMemoryStream;
+var Msg:TKMemoryStream;
 begin
-  Tick := (aTick + fDelay) mod MAX_SCHEDULE;
-
   Msg := TKMemoryStream.Create;
-  Msg.Write(byte(kdp_Commands));
-  Msg.Write(Tick); //Target Tick
+  try
+    Msg.Write(byte(kdp_Commands));
+    Msg.Write(aTick); //Target Tick in 1..n range
+    Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
 
-  //todo: not 1
-  fSchedule[Tick,1].Save(Msg); //Write all commands to the stream
+    fSchedule[aTick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].Save(Msg); //Write all commands to the stream
+    fNetworking.SendCommands(Msg); //Send to all opponents
+    fSent[aTick mod MAX_SCHEDULE] := true;
+  finally
+    Msg.Free;
+  end;
 
-  //Send the commands
-  fNetworking.SendCommands(Msg); //Will send to all the opponents
+  //Now we wait for the Tick and hopefully everyone will confirm our commands
+end;
 
-  //Now we wait for the Tick and hopefully everyone will confirm to have recieved our commands
-  Msg.Free;
+
+procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerLoc:byte);
+var Msg:TKMemoryStream;
+begin
+  Msg := TKMemoryStream.Create;
+  try
+    Msg.Write(byte(kdp_Confirmation));
+    Msg.Write(aTick); //Target Tick in 1..n range
+    Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
+    Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, aPlayerLoc].CRC);
+    fNetworking.SendConfirmation(Msg, aPlayerLoc); //Send to opponent
+  finally
+    Msg.Free;
+  end;
 end;
 
 
 //Decode recieved messages (Commands from other players, Confirmations, Errors)
 procedure TGameInputProcess_Multi.RecieveCommands(const aData:string);
+var M:TKMemoryStream; D:TKMDataType; Tick:integer; PlayID:TPlayerID; CRC:cardinal;
 begin
-  //Decode header
+  M := TKMemoryStream.Create;
+  try
+    M.WriteAsText(aData);
+    M.Read(D, 1); //Decode header
+    M.Read(Tick); //Target tick
+    M.Read(PlayID, SizeOf(PlayID)); //Message sender
 
-  //case Command of TKMDataType
+    case D of
+      kdp_Commands:
+          begin
+            fSchedule[Tick mod MAX_SCHEDULE, byte(PlayID)].Load(M);
+            SendConfirmation(Tick, byte(PlayID));
+          end;
+      kdp_Confirmation: //Recieved CRC should match our commands pack
+          begin
+            M.Read(CRC);
+            Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].CRC);
+          end;
+    end;
+  finally
+    M.Free;
+  end;
 end;
 
 
 //Are all the commands are confirmed?
-function TGameInputProcess_Multi.TickReady(aTick:cardinal):boolean;
+function TGameInputProcess_Multi.CommandsConfirmed(aTick:cardinal):boolean;
 var i:integer;
 begin
   Result := True;
-  for i:=1 to MAX_PLAYERS do
-    Result := Result and (fConfirmation[aTick,i] or not fPlayerEnabled[i]);
+  for i:=1 to fNetworking.NetPlayers.Count do
+    Result := Result and (fConfirmation[aTick, fNetworking.NetPlayers[i].StartLocID] or not fNetworking.NetPlayers[i].Alive);
 end;
 
 
 //Timer is called after all commands from player are taken,
 //upcoming commands will be stacked into next batch
 procedure TGameInputProcess_Multi.Timer(aTick:cardinal);
-var i,k,Tick,CRC:integer;
+var i,k,Tick:integer;
 begin
   Inherited;
   Assert(ReplayState <> gipReplaying);
@@ -177,49 +250,31 @@ begin
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
 
   //Execute commands, in order players go (1,2,3..)
-  CRC := -1;
-  for i:=1 to MAX_PLAYERS do
-    for k:=1 to fSchedule[Tick,i].Count do
-    begin
-      if fPlayerEnabled[k] then begin //Skip missing players
-        if fSchedule[Tick,i].Get(k).CommandType = gic_CRC then
-        begin
-          if (CRC <> -1) and (CRC <> fSchedule[Tick,i].Get(k).Params[1]) then
-            Assert(false, 'CRC failed for player '+IntToStr(i));
-          CRC := fSchedule[Tick,i].Get(k).Params[1];
-        end
-        else
-        begin
-          ExecCommand(fSchedule[Tick,i].Get(k));
-          StoreCommand(fSchedule[Tick,i].Get(k));
-        end;
-      end;
-      fSchedule[Tick,i].Clear;
-      FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset
-    end;
-end;
-
-
-//Make sure commands starting from (aTick) to (aTick+fDelay) are sent to other players
-//Since fDelay can change make sure whole range is sent
-procedure TGameInputProcess_Multi.UpdateState(aTick:cardinal);
-var i:Integer; Signature:TGameInputCommand;
-begin
-  //todo: Oops. We can't use randoms here in such a fashion
-  //Delays may change unevenly between PCs and whole CRC-random thing will break
-  Signature := MakeCommand(gic_CRC, [Random(maxint)]); //Current GameTick CRC signature
-
-  //What we haven't confirmed is what we didn't sent it yet
-  for i:=aTick to aTick+fDelay do
-  if not fConfirmation[i mod MAX_SCHEDULE,1] then //todo: not 1
+  for i:=1 to fNetworking.NetPlayers.Count do
+  for k:=1 to fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Count do
   begin
-    TakeCommand(Signature); //Add signature to unsent pack
-    SendCommands(aTick); //Send all commands, now including CRC signature
-    fConfirmation[i mod MAX_SCHEDULE,byte(Signature.PlayerID)] := true; //Confirm own commands
+    if fNetworking.NetPlayers[i].Alive then //Skip dead players
+    begin
+      ExecCommand(fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Get(k));
+      StoreCommand(fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Get(k));
+    end;
+    fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Clear;
+    FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset
+    fSent[Tick] := false;
   end;
 end;
 
 
+//todo: Join unsent commands from player
+//todo: Check CRCs
+procedure TGameInputProcess_Multi.UpdateState(aTick:cardinal);
+var i:integer;
+begin
+  //if not CRC = CRC then
+  //  fOnCRCFail(Self);
+  for i:=aTick to aTick+fDelay do
+    SendCommands(i);
+end;
 
 
 end.

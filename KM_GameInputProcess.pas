@@ -130,7 +130,7 @@ type
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
 
-    function TickReady(aTick:cardinal):boolean; virtual;
+    function CommandsConfirmed(aTick:cardinal):boolean; virtual;
     procedure Timer(aTick:cardinal); virtual;
     procedure UpdateState(aTick:cardinal); virtual;
 
@@ -407,7 +407,7 @@ begin
 end;
 
 
-function TGameInputProcess.TickReady(aTick:cardinal):boolean;
+function TGameInputProcess.CommandsConfirmed(aTick:cardinal):boolean;
 begin
   Result := true;
 end;
@@ -436,7 +436,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.UpdateState(aTick:cardinal);
+procedure TGameInputProcess.UpdateState;
 begin
   //Only used in GIP_Multi
 end;
