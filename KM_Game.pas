@@ -483,6 +483,7 @@ end;
 procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
   fGameState := gsRunning;
+  fLog.AppendLog('Net game began');
 end;
 
 
@@ -759,6 +760,8 @@ var
   SaveStream:TKMemoryStream;
   i:integer;
 begin
+  exit;
+
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
     Assert(false, 'Saving from wrong state?');

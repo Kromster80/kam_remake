@@ -436,7 +436,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.UpdateState;
+procedure TGameInputProcess.UpdateState(aTick:cardinal);
 begin
   //Only used in GIP_Multi
 end;

@@ -1289,7 +1289,7 @@ begin
   begin
     {$IFDEF WDC}
     closefile(f);
-    InputStream := TFileStream.Create(FileName, fmOpenRead);
+    InputStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
     OutputStream := TMemoryStream.Create;
     DecompressionStream := TZDecompressionStream.Create(InputStream);
     OutputStream.CopyFrom(DecompressionStream, 0);

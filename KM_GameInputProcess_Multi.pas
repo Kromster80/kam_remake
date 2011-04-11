@@ -160,7 +160,7 @@ begin
   fSchedule[Tick, byte(aCommand.PlayerID)].Add(aCommand);
   FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset to false
 
-  fConfirmation[Tick, byte(aCommand.PlayerID)] := true; //Self confirmed
+
 end;
 
 
@@ -176,6 +176,7 @@ begin
     fSchedule[aTick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].Save(Msg); //Write all commands to the stream
     fNetworking.SendCommands(Msg); //Send to all opponents
     fSent[aTick mod MAX_SCHEDULE] := true;
+    fConfirmation[aTick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)] := true; //Self confirmed
   finally
     Msg.Free;
   end;
@@ -236,7 +237,7 @@ var i:integer;
 begin
   Result := True;
   for i:=1 to fNetworking.NetPlayers.Count do
-    Result := Result and (fConfirmation[aTick, fNetworking.NetPlayers[i].StartLocID] or not fNetworking.NetPlayers[i].Alive);
+    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].StartLocID] or not fNetworking.NetPlayers[i].Alive);
 end;
 
 
@@ -247,6 +248,9 @@ var i,k,Tick:integer;
 begin
   Inherited;
   Assert(ReplayState <> gipReplaying);
+
+  Random(maxint); //thats our CRC
+  //todo: use it
 
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
 
@@ -274,6 +278,7 @@ begin
   //if not CRC = CRC then
   //  fOnCRCFail(Self);
   for i:=aTick to aTick+fDelay do
+  if not fSent[aTick mod MAX_SCHEDULE] then
     SendCommands(i);
 end;
 

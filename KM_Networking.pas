@@ -333,11 +333,15 @@ end;
 
 
 procedure TKMNetworking.SendConfirmation(aStream:TKMemoryStream; aPlayerLoc:byte);
-var s:string;
+var s:string; i:integer;
 begin
   SetLength(s, aStream.Size);
   aStream.WriteBuffer(s[1], aStream.Size);
-  PacketToAll(mk_Commands, s); //Send commands to all players
+
+  //todo: optimize and error-check
+  for i:=1 to fNetPlayers.Count do
+    if fNetPlayers[i].StartLocID = aPlayerLoc then
+      PacketSend(fNetPlayers[i].Address, mk_Commands, s);
 end;
 
 
