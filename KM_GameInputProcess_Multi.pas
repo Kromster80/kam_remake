@@ -278,7 +278,7 @@ begin
   //if not CRC = CRC then
   //  fOnCRCFail(Self);
   for i:=aTick to aTick+fDelay do
-  if not fSent[aTick mod MAX_SCHEDULE] then
+  if not fSent[i mod MAX_SCHEDULE] then
     SendCommands(i);
 end;
 

@@ -324,24 +324,18 @@ end;
 
 
 procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
-var s:string;
 begin
-  SetLength(s, aStream.Size);
-  aStream.WriteBuffer(s[1], aStream.Size);
-  PacketToAll(mk_Commands, s); //Send commands to all players
+  PacketToAll(mk_Commands, aStream.ReadAsText); //Send commands to all players
 end;
 
 
 procedure TKMNetworking.SendConfirmation(aStream:TKMemoryStream; aPlayerLoc:byte);
-var s:string; i:integer;
+var i:integer;
 begin
-  SetLength(s, aStream.Size);
-  aStream.WriteBuffer(s[1], aStream.Size);
-
   //todo: optimize and error-check
   for i:=1 to fNetPlayers.Count do
     if fNetPlayers[i].StartLocID = aPlayerLoc then
-      PacketSend(fNetPlayers[i].Address, mk_Commands, s);
+      PacketSend(fNetPlayers[i].Address, mk_Commands, aStream.ReadAsText);
 end;
 
 
@@ -481,7 +475,7 @@ begin
               fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToPlay := true;
               if fNetPlayers.AllReadyToPlay then
               begin
-                PacketToAll(mk_Play,'111111111'); //todo: Should include lag difference
+                PacketToAll(mk_Play,'+'); //todo: Should include lag difference
                 if Assigned(fOnPlay) then fOnPlay(Self);
               end;
             end;
