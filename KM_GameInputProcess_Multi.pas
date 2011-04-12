@@ -12,13 +12,14 @@ type
   TCommandsPack = class
   private
     fCount:integer;
-    fList:array of TGameInputCommand; //1..n
+    fItems:array of TGameInputCommand; //1..n
+    function GetItem(aIndex:integer):TGameInputCommand;
   public
     property  Count:integer read fCount;
     procedure Clear;
     procedure Add(aCommand:TGameInputCommand);
-    function  Get(aIndex:integer):TGameInputCommand;
     function CRC:cardinal;
+    property Items[aIndex:integer]:TGameInputCommand read GetItem;
     procedure Save(aStream:TKMemoryStream);
     procedure Load(aStream:TKMemoryStream);
   end;
@@ -55,7 +56,7 @@ implementation
 uses KM_Game, KM_PlayersCollection;
 
 
-{ TGIPList }
+{ TCommandsPack }
 procedure TCommandsPack.Clear;
 begin
   fCount := 0;
@@ -65,16 +66,16 @@ end;
 procedure TCommandsPack.Add(aCommand:TGameInputCommand);
 begin
   inc(fCount);
-  if fCount >= length(fList) then
-    setlength(fList, fCount+8);
+  if fCount >= length(fItems) then
+    SetLength(fItems, fCount+8);
 
-  fList[fCount] := aCommand;
+  fItems[fCount] := aCommand;
 end;
 
 
-function TCommandsPack.Get(aIndex:integer):TGameInputCommand;
+function TCommandsPack.GetItem(aIndex:integer):TGameInputCommand;
 begin
-  Result := fList[aIndex];
+  Result := fItems[aIndex];
 end;
 
 
@@ -90,14 +91,7 @@ var i:integer;
 begin
   aStream.Write(fCount);
   for i:=1 to fCount do
-  begin
-    aStream.Write(fList[i].CommandType, SizeOf(fList[i].CommandType));
-    aStream.Write(fList[i].Params[1]);
-    aStream.Write(fList[i].Params[2]);
-    aStream.Write(fList[i].Params[3]);
-    aStream.Write(fList[i].Params[4]);
-    //Skip Players ID
-  end;               
+    aStream.Write(fItems[i], SizeOf(fItems[i]));
 end;
 
 
@@ -105,15 +99,10 @@ procedure TCommandsPack.Load(aStream:TKMemoryStream);
 var i:integer;
 begin
   aStream.Read(fCount);
+  SetLength(fItems, fCount+1);
+
   for i:=1 to fCount do
-  begin
-    aStream.Read(fList[i].CommandType, SizeOf(fList[i].CommandType));
-    aStream.Read(fList[i].Params[1]);
-    aStream.Read(fList[i].Params[2]);
-    aStream.Read(fList[i].Params[3]);
-    aStream.Read(fList[i].Params[4]);
-    //Skip Players ID
-  end;               
+    aStream.Read(fItems[i], SizeOf(fItems[i]));
 end;
 
 
@@ -149,18 +138,16 @@ begin
 
   //Find first unsent pack
   Tick := -1;
-  for i:=fDelay to MAX_SCHEDULE do
-  if not fSent[(fGame.GameTickCount + i) mod MAX_SCHEDULE] then
+  for i:=fGame.GameTickCount + fDelay to fGame.GameTickCount + MAX_SCHEDULE-1 do
+  if not fSent[i mod MAX_SCHEDULE] then
   begin
-    Tick := (fGame.GameTickCount + i) mod MAX_SCHEDULE; //Place in a ring buffer
+    Tick := i mod MAX_SCHEDULE; //Place in a ring buffer
     break;
   end;
   Assert(Tick<>-1, 'Could not find place for new commands');
 
   fSchedule[Tick, byte(aCommand.PlayerID)].Add(aCommand);
   FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset to false
-
-
 end;
 
 
@@ -175,16 +162,13 @@ begin
 
     fSchedule[aTick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].Save(Msg); //Write all commands to the stream
     fNetworking.SendCommands(Msg); //Send to all opponents
-    fSent[aTick mod MAX_SCHEDULE] := true;
-    fConfirmation[aTick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)] := true; //Self confirmed
   finally
     Msg.Free;
   end;
-
-  //Now we wait for the Tick and hopefully everyone will confirm our commands
 end;
 
 
+//Confirm that we have recieved the commands with CRC
 procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerLoc:byte);
 var Msg:TKMemoryStream;
 begin
@@ -250,23 +234,24 @@ begin
   Assert(ReplayState <> gipReplaying);
 
   Random(maxint); //thats our CRC
-  //todo: use it
+  //todo: Remember CRC and do the CRC checking once in a while
 
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
 
   //Execute commands, in order players go (1,2,3..)
-  for i:=1 to fNetworking.NetPlayers.Count do
-  for k:=1 to fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Count do
-  begin
-    if fNetworking.NetPlayers[i].Alive then //Skip dead players
+  for i:=1 to MAX_PLAYERS do
+    for k:=1 to fSchedule[Tick, i].Count do
     begin
-      ExecCommand(fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Get(k));
-      StoreCommand(fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Get(k));
+      //if fNetworking.NetPlayers[i].Alive then //todo: Skip dead players
+      begin
+        ExecCommand(fSchedule[Tick, i].Items[k]);
+        StoreCommand(fSchedule[Tick, i].Items[k]);
+      end;
+      fSchedule[Tick, i].Clear;
     end;
-    fSchedule[Tick, fNetworking.NetPlayers[i].StartLocID].Clear;
-    FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset
-    fSent[Tick] := false;
-  end;
+
+  FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset
+  fSent[Tick] := false;
 end;
 
 
@@ -277,9 +262,14 @@ var i:integer;
 begin
   //if not CRC = CRC then
   //  fOnCRCFail(Self);
-  for i:=aTick to aTick+fDelay do
+
+  for i:=aTick+1 to aTick+fDelay do
   if not fSent[i mod MAX_SCHEDULE] then
+  begin
     SendCommands(i);
+    fSent[i mod MAX_SCHEDULE] := true;
+    fConfirmation[i mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)] := true; //Self confirmed
+  end;
 end;
 
 

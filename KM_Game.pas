@@ -951,7 +951,7 @@ begin
                       if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
                         Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
                     end;
-                    fGameInputProcess.UpdateState(fGameTickCount+1); //Do maintenance
+                    fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
                   fGamePlayInterface.UpdateState;
                 end;
