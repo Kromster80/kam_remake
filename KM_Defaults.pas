@@ -28,8 +28,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1506';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1506';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '2nd Fighting Demo r1552';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1552';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
@@ -85,7 +85,7 @@ var
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
   {Multiplayer}
-  MULTIPLE_COPIES       :boolean=true; //Are we running mutliple copies of KaM on the one PC to test multiplayer?
+  MULTIPLE_COPIES       :boolean=false; //Are we running mutliple copies of KaM on the one PC to test multiplayer?
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably

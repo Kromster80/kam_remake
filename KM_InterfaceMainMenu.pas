@@ -210,6 +210,7 @@ type
     procedure Fill_Results;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
+    procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
@@ -432,7 +433,7 @@ begin
 
       TKMLabel.Create(Panel_LANLogin2, 300, 0, 100, 20, 'Set partners IP address:', fnt_Metal, kaCenter);
       Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 250, 25, 100, 20, fnt_Grey);
-      Edit_LAN_IP.Text := '127.0.0.1';
+      Edit_LAN_IP.Text := '5.30.230.70';
       Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 250, 60, 100, 30, 'Join', fnt_Metal, bsMenu);
       Button_LAN_Join.OnClick := LAN_Join;
 
@@ -1278,7 +1279,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
 var i:integer; MyNik:boolean;
 begin
-  for i:=0 to MAX_PLAYERS-1 do
+  for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocID;
@@ -1293,6 +1294,18 @@ begin
       Button_LobbyReady.Enabled := (fGame.Networking.MapName<>'') and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
   end;
 
+  for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
+  begin
+    Label_LobbyPlayer[i].Caption := '';
+    DropBox_LobbyLoc[i].ItemIndex := 0;
+    DropBox_LobbyColor[i].ItemIndex := 0;
+    CheckBox_LobbyReady[i].Checked := false;
+    DropBox_LobbyLoc[i].Enabled := false;
+    DropBox_LobbyColor[i].Enabled := false;
+    CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
+  end;
+
+  //todo: Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[fGame.Networking.NetPlayers.NiknameIndex(fGame.Networking.)].ReadyToStart;
   Button_LobbyStart.Enabled := fGame.Networking.CanStart;
 end;
 
@@ -1446,6 +1459,12 @@ end;
 procedure TKMMainMenuInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
   if MyControls.KeyDown(Key, Shift) then exit; //Handled by Controls
+end;
+
+
+procedure TKMMainMenuInterface.KeyPress(Key: Char);
+begin
+  if MyControls.KeyPress(Key) then exit;
 end;
 
 

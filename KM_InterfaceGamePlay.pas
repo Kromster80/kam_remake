@@ -236,6 +236,7 @@ type
     procedure ClearShownUnit;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
+    procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
@@ -2122,6 +2123,12 @@ begin
     if Key = VK_UP    then fViewport.ScrollKeyUp    := true;
     if Key = VK_DOWN  then fViewport.ScrollKeyDown  := true;
   end;
+end;
+
+
+procedure TKMGamePlayInterface.KeyPress(Key: Char);
+begin
+  if MyControls.KeyPress(Key) then exit;
 end;
 
 

@@ -45,6 +45,7 @@ TKMMasterControl = class
     property OnHint: TNotifyEvent write fOnHint;
 
     function KeyDown    (Key: Word; Shift: TShiftState):boolean;
+    function KeyPress   (Key: Char):boolean;
     function KeyUp      (Key: Word; Shift: TShiftState):boolean;
     procedure MouseDown (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
     procedure MouseMove (X,Y:integer; Shift:TShiftState);
@@ -111,6 +112,7 @@ TKMControl = class
     function MasterParent:TKMPanel;
 
     function KeyDown(Key: Word; Shift: TShiftState):boolean; virtual;
+    function KeyPress(Key: Char):boolean; virtual;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; virtual;
     procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseMove (X,Y:integer; Shift:TShiftState); virtual;
@@ -305,6 +307,7 @@ TKMEdit = class(TKMControl)
     property OnChange: TNotifyEvent write fOnChange;
     property OnKeyDown: TNotifyEventKey write fOnKeyDown;
     function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
+    function KeyPress(Key: Char):boolean; override;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
@@ -598,6 +601,12 @@ begin
   if Key = VK_RIGHT then fLeft := fLeft + Amt;
   if Key = VK_UP    then fTop  := fTop  - Amt;
   if Key = VK_DOWN  then fTop  := fTop  + Amt;
+end;
+
+
+function TKMControl.KeyPress(Key: Char):boolean;
+begin
+  Result := false;
 end;
 
 
@@ -1320,20 +1329,9 @@ end;
 
 
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
-  function ValidKey(aKey:word):boolean;
-  begin //Utility, Numbers, NumPad numbers, Letters
-    Result := chr(aKey) in [' ', '_', '.', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
-  end;
-var s:string;
 begin
   Result := true;
   if Inherited KeyDown(Key, Shift) then exit;
-
-  if ValidKey(Key) then begin
-    s := GetCharFromVirtualKey(Key);
-    Insert(s, fText, CursorPos+1);
-    inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars
-  end;
 
   case Key of
     VK_BACK:    begin Delete(fText, CursorPos, 1); dec(CursorPos); end;
@@ -1344,6 +1342,18 @@ begin
   CursorPos := EnsureRange(CursorPos, 0, length(fText));
 
   if Assigned(fOnKeyDown) then fOnKeyDown(Self, Key);
+end;
+
+
+function TKMEdit.KeyPress(Key: Char):boolean;
+begin
+  Result := true;
+  if Inherited KeyPress(Key) then exit;
+
+  if Key < #32 then Exit;
+
+  Insert(Key, fText, CursorPos+1);
+  inc(CursorPos);
 end;
 
 
@@ -2303,6 +2313,15 @@ function TKMMasterControl.KeyDown(Key: Word; Shift: TShiftState):boolean;
 begin
   if CtrlFocus <> nil then
     Result := CtrlFocus.KeyDown(Key, Shift)
+  else
+    Result := false;
+end;
+
+
+function TKMMasterControl.KeyPress(Key: Char):boolean;
+begin
+  if CtrlFocus <> nil then
+    Result := CtrlFocus.KeyPress(Key)
   else
     Result := false;
 end;

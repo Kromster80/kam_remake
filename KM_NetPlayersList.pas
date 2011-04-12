@@ -122,18 +122,10 @@ var i:integer;
 begin
   Assert(InRange(aIndex, 1, fCount), 'Can not remove player');
   for i:=aIndex to fCount-1 do
-    fPlayers[i] := fPlayers[i+1];
+    fPlayers[i] := fPlayers[i+1]; //todo: I wonder if that's ill strategy to handle Tsomething
 
   //Cleanup to avoid consequences of erroneous access
-  fPlayers[fCount].fAddress := '';
-  fPlayers[fCount].fNikname := '';
-  fPlayers[fCount].PlayerType := pt_Human;
-  fPlayers[fCount].FlagColorID := 0;
-  fPlayers[fCount].StartLocID := 0;
-  fPlayers[fCount].ReadyToStart := false;
-  fPlayers[fCount].ReadyToPlay := false;
-  fPlayers[fCount].Alive := false;
-  fPlayers[fCount].TimeTick := 0;
+  FillChar(fPlayers[fCount], SizeOf(fPlayers[fCount]), #0);
 
   dec(fCount);
 end;

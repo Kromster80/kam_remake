@@ -56,6 +56,7 @@ type
     procedure ResizeGameArea(X,Y:integer);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     procedure KeyDown(Key: Word; Shift: TShiftState);
+    procedure KeyPress(Key: Char);
     procedure KeyUp(Key: Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
@@ -198,12 +199,25 @@ end;
 procedure TKMGame.KeyDown(Key: Word; Shift: TShiftState);
 begin
   case fGameState of
-    gsNoGame:   fMainMenuInterface.KeyDown(Key, Shift); //Exit if handled
+    gsNoGame:   fMainMenuInterface.KeyDown(Key, Shift);
     gsPaused:   fGamePlayInterface.KeyDown(Key, Shift);
     gsOnHold:   fGamePlayInterface.KeyDown(Key, Shift);
     gsRunning:  fGamePlayInterface.KeyDown(Key, Shift);
     gsReplay:   fGamePlayInterface.KeyDown(Key, Shift);
     gsEditor:   fMapEditorInterface.KeyDown(Key, Shift);
+  end;
+end;
+
+
+procedure TKMGame.KeyPress(Key: Char);
+begin
+  case fGameState of
+    gsNoGame:   fMainMenuInterface.KeyPress(Key);
+    gsPaused:   fGamePlayInterface.KeyPress(Key);
+    gsOnHold:   fGamePlayInterface.KeyPress(Key);
+    gsRunning:  fGamePlayInterface.KeyPress(Key);
+    gsReplay:   fGamePlayInterface.KeyPress(Key);
+    gsEditor:   fMapEditorInterface.KeyPress(Key);
   end;
 end;
 

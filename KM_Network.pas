@@ -72,23 +72,6 @@ begin
     exit;
   end;
 
-  fSendPort     := KAM_PORT1;
-  fRecievePort  := KAM_PORT1;
-
-  if fMultipleCopies then fRecievePort := KAM_PORT2; //For tests on the same machine with 2 copies
-
-  fSocketRecieve := TWSocket.Create(nil);
-  fSocketRecieve.Proto  := 'udp';
-  fSocketRecieve.Addr   := '0.0.0.0';
-  fSocketRecieve.Port   := fRecievePort;
-  fSocketRecieve.OnDataAvailable := DataAvailable;
-
-  fSocketSend := TWSocket.Create(nil);
-  fSocketSend.Proto := 'udp';
-  fSocketSend.Addr  := '0.0.0.0';
-  fSocketSend.Port  := fSendPort;
-  fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
-  fSocketSend.OnDataSent := DataSent;
 end;
 
 
@@ -103,23 +86,52 @@ end;
 procedure TKMNetwork.StartListening;
 begin
   if not fMultipleCopies then
-    fSocketRecieve.Listen
+  begin
+    fSendPort     := KAM_PORT1;
+    fRecievePort  := KAM_PORT1;
+
+    fSocketRecieve := TWSocket.Create(nil);
+    fSocketRecieve.Proto  := 'udp';
+    fSocketRecieve.Addr   := '0.0.0.0';
+    fSocketRecieve.Port   := fRecievePort;
+    fSocketRecieve.OnDataAvailable := DataAvailable;
+
+    fSocketSend := TWSocket.Create(nil);
+    fSocketSend.Proto := 'udp';
+    fSocketSend.Addr  := '0.0.0.0';
+    fSocketSend.Port  := fSendPort;
+    fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
+    fSocketSend.OnDataSent := DataSent;
+
+    fSocketRecieve.Listen;
+    fListening := true;
+  end
   else
     try
       fSendPort     := KAM_PORT1;
-      fRecievePort  := KAM_PORT1;
+      fRecievePort  := KAM_PORT2; //For tests on the same machine with 2 copies
 
-      if fMultipleCopies then fRecievePort := KAM_PORT2; //For tests on the same machine with 2 copies
       fSocketRecieve.Proto  := 'udp';
       fSocketRecieve.Addr   := '0.0.0.0';
       fSocketRecieve.Port   := fRecievePort;
       fSocketRecieve.OnDataAvailable := DataAvailable;
+
+      fSocketSend := TWSocket.Create(nil);
+      fSocketSend.Proto := 'udp';
+      fSocketSend.Addr  := '0.0.0.0';
+      fSocketSend.Port  := fSendPort;
+      fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
+      fSocketSend.OnDataSent := DataSent;
+
       fSocketRecieve.Listen;
       fListening := true;
     except
       on E : ESocketException do
-      begin
+      try
         //Assume this means the port is already taken, so we are being the second copy
+        FreeAndNil(fSocketRecieve);
+        FreeAndNil(fSocketSend);
+
         fSendPort     := KAM_PORT2; //Swap ports
         fRecievePort  := KAM_PORT1;
         //Try again
@@ -127,11 +139,18 @@ begin
         fSocketRecieve.Addr   := '0.0.0.0';
         fSocketRecieve.Port   := fRecievePort;
         fSocketRecieve.OnDataAvailable := DataAvailable;
-        try
-          fSocketRecieve.Listen;
-        except
+
+        fSocketSend := TWSocket.Create(nil);
+        fSocketSend.Proto := 'udp';
+        fSocketSend.Addr  := '0.0.0.0';
+        fSocketSend.Port  := fSendPort;
+        fSocketSend.LocalPort := '0'; //System assigns a port for sending automatically
+        fSocketSend.OnDataSent := DataSent;
+
+        fSocketRecieve.Listen;
+        fListening := true;
+      except
           on E : ESocketException do //todo: add error handling here
-        end;
       end;
     end;
 end;
@@ -139,7 +158,10 @@ end;
 
 procedure TKMNetwork.StopListening;
 begin
-  fSocketRecieve.Close;
+  if fSocketRecieve <> nil then fSocketRecieve.Close;
+  if fSocketSend <> nil    then fSocketSend.Close;
+  FreeAndNil(fSocketRecieve);
+  FreeAndNil(fSocketSend);
   fListening := false;
 end;
 

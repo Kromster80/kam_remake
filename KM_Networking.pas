@@ -270,9 +270,7 @@ end;
 //Joiner indicates that he is ready to start
 procedure TKMNetworking.ReadyToStart;
 begin
-  fNetPlayers[fMyIndex].ReadyToStart := true;
-  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-  PacketToAll(mk_ReadyToStart, fMyNikname);
+  PacketToHost(mk_ReadyToStart, fMyNikname);
 end;
 
 
@@ -454,8 +452,6 @@ begin
             if fLANPlayerKind = lpk_Host then begin
               fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              if fNetPlayers.AllReady and (fNetPlayers.Count>1) then
-                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
     mk_Start:
@@ -523,6 +519,7 @@ end;
 procedure TKMNetworking.UpdateState;
 var LostPlayers:string;
 begin
+
   if (fJoinTick<>0) and (GetTickCount > fJoinTick) then
   begin
     fJoinTick := 0;
@@ -531,6 +528,8 @@ begin
     fOnJoinFail('no response');
   end;
 
+  if not Connected then Exit;
+  
   //Test once per half of REPLY_TIMEOUT
   if not fHoldTimeoutChecks then
   if GetTickCount > fLastUpdateTick + (REPLY_TIMEOUT div 2) then
