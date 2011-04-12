@@ -1043,7 +1043,7 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_PopulateList;
 begin
-  SingleMapsInfo.ScanSingleMapsFolder;
+  SingleMapsInfo.ScanMapsFolder;
 end;
 
 
