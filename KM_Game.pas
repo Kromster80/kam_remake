@@ -401,8 +401,6 @@ var
   PlayerID:integer;
   PlayerUsed:array[1..MAX_PLAYERS]of boolean;
 begin
-  fNetworking.HoldTimeoutChecks;
-
   GameInit(true);
 
   fMissionFile := KMMapNameToPath(fNetworking.MapName, 'dat');

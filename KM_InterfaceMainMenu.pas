@@ -72,7 +72,6 @@ type
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
-    procedure Lobby_OnAllReady(Sender: TObject);
     procedure Lobby_OnDisconnect(const aData:string);
     procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
@@ -1183,9 +1182,6 @@ begin
   fGame.Networking.OnPing         := Lobby_OnPing;
   fGame.Networking.OnStartGame    := fGame.GameStartMP;
 
-  if aKind = lpk_Host then
-    fGame.Networking.OnAllReady   := Lobby_OnAllReady;
-
   if aKind = lpk_Joiner then
     fGame.Networking.OnDisconnect := Lobby_OnDisconnect;
 end;
@@ -1256,7 +1252,7 @@ end;
 //Try to change players setup, Networking will check if it can be done under current
 //conditions immediately and reverts the change without disturbing Host.
 //If the change is possible Networking will send query to the Host.
-//Host will reply with OnPlayersSetup event and data will be actual.
+//Host will reply with OnPlayersSetup event and data will be actualized.
 procedure TKMMainMenuInterface.Lobby_PlayersSetupChange(Sender: TObject);
 var i:integer;
 begin
@@ -1296,6 +1292,8 @@ begin
     if MyNik then
       Button_LobbyReady.Enabled := (fGame.Networking.MapName<>'') and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
   end;
+
+  Button_LobbyStart.Enabled := fGame.Networking.CanStart;
 end;
 
 
@@ -1316,12 +1314,6 @@ begin
   ListBox_LobbyPosts.Items.Add(aData);
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
   ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.Items.Count;
-end;
-
-
-procedure TKMMainMenuInterface.Lobby_OnAllReady(Sender: TObject);
-begin
-  Button_LobbyStart.Enable;
 end;
 
 

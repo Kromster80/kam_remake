@@ -7,7 +7,7 @@ uses Classes, KromUtils, StrUtils, SysUtils, Windows,
 
   
 const
-    REPLY_TIMEOUT = 3000; //Default timeout before "could not get reply" message occurs, in Game ticks
+  REPLY_TIMEOUT = 3000; //Default timeout before "could not get reply" message occurs, in Game ticks
 
 
 type
@@ -37,85 +37,84 @@ type
                     mk_Commands,
                     mk_Text);
 
-type
+
   //Should handle message exchange and routing, interacting with UI
   TKMNetworking = class
-    private
-      fNetwork:TKMNetwork; //Our Network interface
-      fLANPlayerKind: TLANPlayerKind; //Our role (Host or Joiner)
-      fHostAddress:string;
-      fMyNikname:string; //Stored to identify our Index in new players list
-      fMyIndex:integer;
-      fNetPlayers:TKMPlayersList;
+  private
+    fNetwork:TKMNetwork; //Our Network interface
+    fLANPlayerKind: TLANPlayerKind; //Our role (Host or Joiner)
+    fHostAddress:string;
+    fMyNikname:string; //Stored to identify our Index in new players list
+    fMyIndex:integer;
+    fNetPlayers:TKMPlayersList;
 
-      fMapName:string;
-      fMissionMode:TMissionMode;
+    fMapName:string; //todo: Replace with TKMMapInfo and send TKMMapInfo.Folder+CRC across network
+    fMissionMode:TMissionMode; //todo: Will be removed by previous todo
 
-      fJoinTick:cardinal; //Timer to issue timeout event on connection
-      fLastUpdateTick:cardinal;
-      fHoldTimeoutChecks:boolean;
+    fJoinTick:cardinal; //Timer to issue timeout event on connection
+    fLastUpdateTick:cardinal;
+    fHoldTimeoutChecks:boolean;
 
-      fOnJoinSucc:TNotifyEvent;
-      fOnJoinFail:TStringEvent;
-      fOnTextMessage:TStringEvent;
-      fOnPlayersSetup:TNotifyEvent;
-      fOnMapName:TStringEvent;
-      fOnStartGame:TNotifyEvent;
-      fOnAllReady:TNotifyEvent;
-      fOnPlay:TNotifyEvent;
-      fOnDisconnect:TStringEvent;
-      fOnPing:TNotifyEvent;
-      fOnCommands:TStringEvent;
+    fOnJoinSucc:TNotifyEvent;
+    fOnJoinFail:TStringEvent;
+    fOnTextMessage:TStringEvent;
+    fOnPlayersSetup:TNotifyEvent;
+    fOnMapName:TStringEvent;
+    fOnStartGame:TNotifyEvent;
+    fOnPlay:TNotifyEvent;
+    fOnDisconnect:TStringEvent;
+    fOnPing:TNotifyEvent;
+    fOnCommands:TStringEvent;
 
-      procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
-      procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
-      procedure PacketToAll(aKind:TMessageKind; const aData:string='');
-      procedure PacketToHost(aKind:TMessageKind; const aData:string='');
-    public
-      constructor Create;
-      destructor Destroy; override;
+    procedure PacketRecieve(const aData: array of byte; aAddr:string); //Process all commands
+    procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
+    procedure PacketToAll(aKind:TMessageKind; const aData:string='');
+    procedure PacketToHost(aKind:TMessageKind; const aData:string='');
+    procedure StartGame;
+  public
+    constructor Create;
+    destructor Destroy; override;
 
-      //Lobby
-      function MyIPString:string;
-      function MyIPStringAndPort:string;
-      procedure Host(aUserName:string);
-      procedure Join(aServerAddress,aUserName:string);
-      procedure Disconnect;
-      function Connected: boolean;
-      procedure MapSelect(aName:string);
-      procedure SelectLoc(aIndex:integer);
-      procedure SelectColor(aIndex:integer);
-      procedure ReadyToStart;
-      procedure StartClick; //All required arguments are in our class
+    property MyIndex:integer read fMyIndex;
+    function MyIPString:string;
+    function MyIPStringAndPort:string;
 
-      //Common
-      procedure Ping;
-      procedure HoldTimeoutChecks;
-      procedure PostMessage(aText:string);
-      property MyIndex:integer read fMyIndex;
-      property LANPlayerKind:TLANPlayerKind read fLANPlayerKind;
+    //Lobby
+    procedure Host(aUserName:string);
+    procedure Join(aServerAddress,aUserName:string);
+    procedure Disconnect;
+    function Connected: boolean;
+    procedure MapSelect(aName:string);
+    procedure SelectLoc(aIndex:integer);
+    procedure SelectColor(aIndex:integer);
+    procedure ReadyToStart;
+    function  CanStart:boolean;
+    procedure StartClick; //All required arguments are in our class
 
-      //Gameplay
-      property MapName:string read fMapName;
-      property MissionMode:TMissionMode read fMissionMode;
-      property NetPlayers:TKMPlayersList read fNetPlayers;
-      procedure SendCommands(aStream:TKMemoryStream);
-      procedure SendConfirmation(aStream:TKMemoryStream; aPlayerLoc:byte);
-      procedure GameCreated;
+    //Common
+    procedure Ping;
+    procedure PostMessage(aText:string);
 
-      property OnJoinSucc:TNotifyEvent write fOnJoinSucc;       //We were allowed to join
-      property OnJoinFail:TStringEvent write fOnJoinFail;       //We were refused to join
-      property OnTextMessage:TStringEvent write fOnTextMessage; //Text message recieved
-      property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
-      property OnMapName:TStringEvent write fOnMapName;         //Map name updated
-      property OnAllReady:TNotifyEvent write fOnAllReady;       //Everyones ready to start
-      property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game
-      property OnPlay:TNotifyEvent write fOnPlay; //Everyones ready to play
-      property OnPing:TNotifyEvent write fOnPing;
-      property OnDisconnect:TStringEvent write fOnDisconnect; //Lost connection, was kicked
-      property OnCommands:TStringEvent write fOnCommands;       //Recieved commands
-      procedure UpdateState;
-    end;
+    //Gameplay
+    property MapName:string read fMapName;
+    property MissionMode:TMissionMode read fMissionMode;
+    property NetPlayers:TKMPlayersList read fNetPlayers;
+    procedure GameCreated;
+    procedure SendCommands(aStream:TKMemoryStream; aPlayerLoc:byte=0);
+
+    property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
+    property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
+    property OnTextMessage:TStringEvent write fOnTextMessage;   //Text message recieved
+    property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
+    property OnMapName:TStringEvent write fOnMapName;           //Map name updated
+    property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game loading
+    property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
+    property OnPing:TNotifyEvent write fOnPing;                 //Ping info updated
+    property OnDisconnect:TStringEvent write fOnDisconnect;     //Lost connection, was kicked
+    property OnCommands:TStringEvent write fOnCommands;         //Recieved GIP commands
+
+    procedure UpdateState;
+  end;
 
 
 implementation
@@ -190,7 +189,6 @@ begin
   fOnTextMessage := nil;
   fOnPlayersSetup := nil;
   fOnMapName := nil;
-  fOnAllReady := nil;
   fOnCommands := nil;
   fOnDisconnect := nil;
   fOnPing := nil;
@@ -278,6 +276,12 @@ begin
 end;
 
 
+function TKMNetworking.CanStart:boolean;
+begin
+  Result := (fNetPlayers.Count > 1) and fNetPlayers.AllReady and (fMapName <> '');
+end;
+
+
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
 const MapLoc = 6; //todo: Take maps MaxPlayers
@@ -296,7 +300,7 @@ begin
   //Let everyone start with final version of fNetPlayers
   PacketToAll(mk_Start, fNetPlayers.GetAsText);
 
-  if Assigned(fOnStartGame) then fOnStartGame(Self);
+  StartGame;
 end;
 
 
@@ -310,12 +314,6 @@ begin
 end;
 
 
-procedure TKMNetworking.HoldTimeoutChecks;
-begin
-  fHoldTimeoutChecks := true;
-end;
-
-
 procedure TKMNetworking.PostMessage(aText:string);
 begin
   PacketToAll(mk_Text, MyIPString + '/' + fMyNikname + ': ' + aText);
@@ -323,17 +321,14 @@ begin
 end;
 
 
-procedure TKMNetworking.SendCommands(aStream:TKMemoryStream);
-begin
-  PacketToAll(mk_Commands, aStream.ReadAsText); //Send commands to all players
-end;
-
-
-procedure TKMNetworking.SendConfirmation(aStream:TKMemoryStream; aPlayerLoc:byte);
+//Send our commands to either to all players, or to specified one
+procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerLoc:byte=0);
 var i:integer;
 begin
-  //todo: optimize and error-check
-  for i:=1 to fNetPlayers.Count do
+  if aPlayerLoc = 0 then
+    PacketToAll(mk_Commands, aStream.ReadAsText) //Send commands to all players
+  else
+  for i:=1 to fNetPlayers.Count do //todo: optimize and error-check
     if fNetPlayers[i].StartLocID = aPlayerLoc then
       PacketSend(fNetPlayers[i].Address, mk_Commands, aStream.ReadAsText);
 end;
@@ -460,14 +455,14 @@ begin
               fNetPlayers[fNetPlayers.NiknameIndex(Msg)].ReadyToStart := true;
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               if fNetPlayers.AllReady and (fNetPlayers.Count>1) then
-                if Assigned(fOnAllReady) then fOnAllReady(nil);
+                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
     mk_Start:
             if fLANPlayerKind = lpk_Joiner then begin
               fNetPlayers.SetAsText(Msg);
               fMyIndex := fNetPlayers.NiknameIndex(fMyNikname);
-              if Assigned(fOnStartGame) then fOnStartGame(Self);
+              StartGame;
             end;
 
     mk_ReadyToPlay:
@@ -512,6 +507,16 @@ procedure TKMNetworking.PacketToHost(aKind:TMessageKind; const aData:string='');
 begin
   Assert(fLANPlayerKind = lpk_Joiner, 'Only joined player can send data to Host');
   PacketSend(fHostAddress, aKind, aData);
+end;
+
+
+procedure TKMNetworking.StartGame;
+begin
+  if Assigned(fOnStartGame) then
+  begin
+    fOnStartGame(Self);
+    fHoldTimeoutChecks := true;
+  end;
 end;
 
 

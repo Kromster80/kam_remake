@@ -159,7 +159,6 @@ begin
     Msg.Write(byte(kdp_Commands));
     Msg.Write(aTick); //Target Tick in 1..n range
     Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
-
     fSchedule[aTick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].Save(Msg); //Write all commands to the stream
     fNetworking.SendCommands(Msg); //Send to all opponents
   finally
@@ -178,7 +177,7 @@ begin
     Msg.Write(aTick); //Target Tick in 1..n range
     Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
     Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, aPlayerLoc].CRC);
-    fNetworking.SendConfirmation(Msg, aPlayerLoc); //Send to opponent
+    fNetworking.SendCommands(Msg, aPlayerLoc); //Send to opponent
   finally
     Msg.Free;
   end;
