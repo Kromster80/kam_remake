@@ -44,9 +44,11 @@ type
   TForm1 = class(TForm)
     ATK: TEdit;
     AHB: TEdit;
+    Button1: TButton;
     Defence: TLabel;
     DEF: TEdit;
     CVA: TEdit;
+    Label11: TLabel;
     x11: TEdit;
     Label10: TLabel;
     Label9: TLabel;
@@ -70,12 +72,12 @@ type
     SName: TLabel;
     UnitNumber: TLabel;
     uname : TMainMenu;
-    unit_name: TEdit;
     SolderName: TLabel;
     Open: TButton;
     File_name: TEdit;
   procedure FormActivate(Sender: TObject);
   procedure open_file(Sender: TObject);
+  procedure saveDAT(Sender: TObject);
   private
     { private declarations }
   public
@@ -123,8 +125,6 @@ end;
 function LoadUnitDAT(FileName:string):boolean;
 var
   ii:integer;
-// kk,jj,hh:integer;
-// ft:textfile;
   f:file;
 begin
   Result := false;
@@ -140,53 +140,29 @@ begin
     blockread(f,UnitSprite[ii],112*70);
     blockread(f,UnitSprite2[ii],36);
   end;
-
   closefile(f);
+Result:=true;
+end;
 
-//  if WriteResourceInfoToTXT then begin
-//    assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
-//    writeln(ft,'Name;x1;Attack;AttackHorseBonus;x4;HitPoints;Speed;x7;Sight;x9;x10;CanWalkOut;0;');
-//   for ii:=1 to 40 do begin
-//      write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
-//      write(ft,inttostr(UnitStat[ii].HitPoints)+';');
-//      write(ft,inttostr(UnitStat[ii].Attack)+';');
-//      write(ft,inttostr(UnitStat[ii].AttackHorseBonus)+';');
-//     write(ft,inttostr(UnitStat[ii].x4)+';');
-//      write(ft,inttostr(UnitStat[ii].Defence)+';');
-//      write(ft,inttostr(UnitStat[ii].Speed)+';');
-//      write(ft,inttostr(UnitStat[ii].x7)+';');
-//      write(ft,inttostr(UnitStat[ii].Sight)+';');
-//      write(ft,inttostr(UnitStat[ii].x9)+';');
-//      write(ft,inttostr(UnitStat[ii].x10)+';');
-//      write(ft,inttostr(UnitStat[ii].CanWalkOut)+';');
-//      write(ft,inttostr(UnitStat[ii].x11)+';');
-//      for kk:=1 to 18 do
-//        write(ft,inttostr(UnitSprite2[ii,kk])+';');
-//      writeln(ft);
-//    end;
-//    closefile(ft);
-//
-//    assignfile(ft,ExeDir+'Units.txt'); rewrite(ft);
-//    for ii:=1 to 40 do begin
-//    writeln(ft);
-//    writeln(ft);
-//    writeln(ft,'NewUnit'+inttostr(ii));
-//    for kk:=1 to 14 do
-//    for hh:=1 to 8 do
-//    //  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
-//       begin
-//         write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
-//          for jj:=1 to 30 do
-//          if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then //write(ft,'#');
-//          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+'. ');
-//          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
-//          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
-//          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
-//          writeln(ft);
-//        end;
-//    end;
-//    closefile(ft);
-//  end;
+function SaveUnitDAT(FileName:string):boolean;
+var
+  ii:integer;
+  f:file;
+begin
+  Result := false;
+
+  if not CheckFileExists(FileName) then exit;
+  assignfile(f,FileName); reset(f,1);
+
+  for ii:=1 to 28 do
+    blockread(f,SerfCarry[ii],8*70);
+
+  for ii:=1 to 41 do begin
+    blockwrite(f,UnitStat[ii],22);
+    blockwrite(f,UnitSprite[ii],112*70);
+    blockwrite(f,UnitSprite2[ii],36);
+  end;
+  closefile(f);
 Result:=true;
 end;
 
@@ -199,19 +175,39 @@ begin
 
   LoadUnitDAT(File_name.Text);
   i := strtoint(number.Text);
-  unit_name.Text := UnitNames[TUnitType(i)];
+  Label11.Caption := UnitNames[TUnitType(i)];
   HP.Text := inttostr(UnitStat[i].HitPoints);
   ATK.Text := inttostr(UnitStat[i].Attack);
   AHB.Text := inttostr(UnitStat[i].AttackHorseBonus);
   x4.Text := inttostr(UnitStat[i].x4);
   DEF.Text := inttostr(UnitStat[i].Defence);
   SPD.Text := inttostr(UnitStat[i].Speed);
- // x7.Text := inttostr(UnitStat[i].x7);
+  x7.Text := '0'; // inttostr(UnitStat[i].x7);
   Sight.Text := inttostr(UnitStat[i].Sight);
   x9.Text := inttostr(UnitStat[i].x9);
   x10.Text := inttostr(UnitStat[i].x10);
   CVA.Text := inttostr(UnitStat[i].CanWalkOut);
   x11.Text := inttostr(UnitStat[i].x11);
+end;
+
+procedure TForm1.saveDAT(Sender: TObject);
+var
+  i :integer;
+begin
+  i := strtoint(number.Text);
+  UnitStat[i].HitPoints := strtoint(HP.Text);
+  UnitStat[i].Attack := strtoint(ATK.Text);
+  UnitStat[i].AttackHorseBonus := strtoint(AHB.Text);
+  UnitStat[i].x4 := strtoint(x4.Text);
+  UnitStat[i].Defence := strtoint(DEF.Text);
+  UnitStat[i].Speed := strtoint(SPD.Text);
+  UnitStat[i].Sight := strtoint(Sight.Text);
+  UnitStat[i].x9 := strtoint(x9.Text);
+  UnitStat[i].x10 := strtoint(x10.Text);
+  UnitStat[i].CanWalkOut := strtoint(CVA.Text);
+  UnitStat[i].x11 := strtoint(x11.Text);
+
+  SaveUnitDAT(File_name.Text);
 end;
 
 end.
