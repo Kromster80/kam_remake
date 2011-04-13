@@ -98,6 +98,7 @@ type
     procedure CloseRoad(aID:integer);
     procedure CloseHouse(aID:integer);
     procedure CloseHousePlan(aID:integer);
+    procedure RemoveHouse(aHouse: TKMHouse);
 
     procedure ReOpenRoad(aID:integer);
     procedure ReOpenHousePlan(aID:integer);
@@ -652,6 +653,18 @@ begin
   fHousePlansQueue[aID].Importance:=0;
   fHousePlansQueue[aID].JobStatus:=js_Empty;
   fPlayers.CleanUpUnitPointer(fHousePlansQueue[aID].Worker);
+end;
+
+
+procedure TKMBuildingQueue.RemoveHouse(aHouse: TKMHouse);
+var i:integer;
+begin
+  for i:=1 to HousesCount do
+  if fHousesQueue[i].House=aHouse then
+  begin
+    fPlayers.CleanUpHousePointer(fHousesQueue[i].House);
+    FillChar(fHousesQueue[i],SizeOf(fHousesQueue[i]),#0); //Remove offer
+  end;
 end;
 
 

@@ -1935,10 +1935,11 @@ begin
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
 
-  P := MasterParent;                                     
+  P := MasterParent;
   fShape := TKMShape.Create(P, P.Left, P.Top, P.Width, P.Height, $00000000);
   fShape.fOnClick := ListHide;
 
+  //todo: @Krom: In full screen mode the list appears at the wrong place
   fList := TKMListBox.Create(P, Left, Top+aHeight, aWidth, 0);
   fList.BackAlpha := 0.75;
   fList.fOnClick := ListClick;

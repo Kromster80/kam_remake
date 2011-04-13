@@ -111,6 +111,7 @@ begin
       fSendPort     := KAM_PORT1;
       fRecievePort  := KAM_PORT2; //For tests on the same machine with 2 copies
 
+      fSocketRecieve := TWSocket.Create(nil);
       fSocketRecieve.Proto  := 'udp';
       fSocketRecieve.Addr   := '0.0.0.0';
       fSocketRecieve.Port   := fRecievePort;
@@ -135,6 +136,7 @@ begin
         fSendPort     := KAM_PORT2; //Swap ports
         fRecievePort  := KAM_PORT1;
         //Try again
+        fSocketRecieve := TWSocket.Create(nil);
         fSocketRecieve.Proto  := 'udp';
         fSocketRecieve.Addr   := '0.0.0.0';
         fSocketRecieve.Port   := fRecievePort;

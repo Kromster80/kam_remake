@@ -398,6 +398,7 @@ end;
 
 function TKMPlayerAssets.GetHouseWip(aType:THouseType):integer;
 begin
+  //todo: Count houses that are being dug (don't appear in build list)
   Result := fBuildList.GetHouseWipCount(aType);
 end;
 
