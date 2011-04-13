@@ -110,6 +110,7 @@ begin
   AttackPositionsCount := 0;
   //Set up default values for AI attack
   AIAttack.AttackType := aat_Once;
+  AIAttack.HasOccured := false;
   AIAttack.Delay := 0;
   AIAttack.TotalMen := 0;
   FillChar(AIAttack.GroupAmounts,SizeOf(AIAttack.GroupAmounts),0);

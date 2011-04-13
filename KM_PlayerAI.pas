@@ -39,6 +39,8 @@ type
     procedure CheckUnitCount;
     procedure CheckArmiesCount;
     procedure CheckArmy;
+    function CheckAttackMayOccur(aAttack: TAIAttack; MenAvailable:integer; GroupsAvailableCount: array of integer):boolean;
+    procedure OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
   public
     ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Number of each unit type required
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
@@ -374,6 +376,39 @@ begin
 end;
 
 
+function TKMPlayerAI.CheckAttackMayOccur(aAttack: TAIAttack; MenAvailable:integer; GroupsAvailableCount: array of integer):boolean;
+var i: TGroupType;
+begin
+  Result := true;
+  with aAttack do
+  begin
+    Result := Result AND ((AttackType <> aat_Once) or HasOccured);
+    Result := Result AND fGame.CheckTime(Delay);
+    Result := Result AND (TotalMen <= MenAvailable);
+    if not TakeAll then
+      for i:=low(TGroupType) to high(TGroupType) do
+        Result := Result AND (GroupAmounts[i] <= GroupsAvailableCount[byte(i)]);
+    //todo: Range
+  end;
+end;
+
+
+procedure TKMPlayerAI.OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
+begin
+  {case aTarget of
+    att_ClosestUnit:
+      //aCommander.OrderAttackUnit();
+    att_ClosestBuildingFromArmy:
+      //aCommander.OrderAttackUnit();
+    att_ClosestBuildingFromStartPos:
+      //aCommander.OrderAttackUnit();
+    att_CustomPosition:
+      
+      //aCommander.OrderAttackUnit();
+  end;}
+end;
+
+
 procedure TKMPlayerAI.CheckArmy;
 
   procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
@@ -386,13 +421,32 @@ procedure TKMPlayerAI.CheckArmy;
       aCommander.OrderSplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
   end;
 
+var AttackTotalAvailable: integer; //Total number of warriors available to attack the enemy
+    AttackGroupsCount: array[TGroupType] of integer;
+    AttackGroups: array[TGroupType] of array of TKMUnitWarrior;
+
+  procedure AddToAvailableToAttack(aCommander: TKMUnitWarrior);
+  var GT: TGroupType;
+  begin
+    GT := UnitGroups[byte(aCommander.UnitType)];
+    if Length(AttackGroups[GT]) <= AttackGroupsCount[GT] then
+      SetLength(AttackGroups[GT],AttackGroupsCount[GT]+10);
+    AttackGroups[GT,AttackGroupsCount[GT]] := aCommander;
+    inc(AttackGroupsCount[GT]);
+    AttackTotalAvailable := AttackTotalAvailable + aCommander.GetMemberCount+1;
+  end;
+
 var i, k, j, Matched: integer;
     Distance, Best: single;
     Positioned: boolean;
     NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
 begin
+  AttackTotalAvailable := 0;
   for i:=byte(low(TGroupType)) to byte(high(TGroupType)) do
+  begin
     NeedsLinkingTo[TGroupType(i)] := nil;
+    AttackGroupsCount[TGroupType(i)] := 0;
+  end;
 
   //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
   for i:=0 to Assets.Units.Count-1 do
@@ -428,6 +482,10 @@ begin
             begin
               OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
+
+              //If this group is available to attack then count them
+              if DefencePositions[k].DefenceType = adt_BackLine then
+                AddToAvailableToAttack(GetCommander);
 
               //If we are a less important position and there is a higher priority position not full we must step up
               for j:=0 to DefencePositionsCount-1 do
@@ -477,6 +535,8 @@ begin
 
           //Just chill and link with other idle groups
           if not Positioned then
+          begin
+            AddToAvailableToAttack(GetCommander); //Idle groups may also attack
             //If this group doesn't have enough members
             if (GetMemberCount+1 < TroopFormations[UnitGroups[byte(UnitType)]].NumUnits) then
               if NeedsLinkingTo[UnitGroups[byte(UnitType)]] = nil then
@@ -487,8 +547,28 @@ begin
                 if NeedsLinkingTo[UnitGroups[byte(UnitType)]].GetMemberCount+1 >= TroopFormations[UnitGroups[byte(UnitType)]].NumUnits then
                   NeedsLinkingTo[UnitGroups[byte(UnitType)]] := nil; //Group is now full
               end;
+          end;
 
         end;
+  end;
+  //Now process AI attacks (we have compiled a list of warriors available to attack)
+  for i:=0 to ScriptedAttacksCount-1 do
+  with ScriptedAttacks[i] do
+  begin
+    //Check conditions are right
+    if not CheckAttackMayOccur(ScriptedAttacks[i], AttackTotalAvailable, AttackGroupsCount) then continue;
+    //Order groups to attack
+    if TakeAll then
+    begin
+      //while ()
+    end
+    else
+    begin
+      for k:=byte(low(TGroupType)) to byte(high(TGroupType)) do
+        for j:=1 to GroupAmounts[TGroupType(i)] do
+          OrderAttack(AttackGroups[TGroupType(i),integer(j)-1],Target,CustomPosition);
+    end;
+    HasOccured := true;
   end;
 end;
 

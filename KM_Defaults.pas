@@ -1085,6 +1085,7 @@ type
 
   TAIAttack = record
     AttackType: TAIAttackType; //Once or repeating
+    HasOccured: boolean; //Has this attack happened already?
     Delay: cardinal; //The attack will not occur before this time has passed
     TotalMen: integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
     GroupAmounts: array[TGroupType] of byte; //How many squads of each group type will be taken
