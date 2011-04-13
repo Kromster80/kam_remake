@@ -382,7 +382,7 @@ begin
   Result := true;
   with aAttack do
   begin
-    Result := Result AND ((AttackType <> aat_Once) or HasOccured);
+    Result := Result AND ((AttackType <> aat_Once) or not HasOccured);
     Result := Result AND fGame.CheckTime(Delay);
     Result := Result AND (TotalMen <= MenAvailable);
     if not TakeAll then
@@ -394,18 +394,39 @@ end;
 
 
 procedure TKMPlayerAI.OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
+var i: integer;
+    TargetHouse: TKMHouse;
+    TargetUnit: TKMUnit;
 begin
-  {case aTarget of
+  TargetHouse := nil;
+  TargetUnit  := nil;
+  case aTarget of
     att_ClosestUnit:
-      //aCommander.OrderAttackUnit();
+      for i:=1 to MAX_PLAYERS do
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+          TargetUnit := fPlayers.Player[i].Units.GetClosestUnit(aCommander.GetPosition);
     att_ClosestBuildingFromArmy:
-      //aCommander.OrderAttackUnit();
+      for i:=1 to MAX_PLAYERS do
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_None, aCommander.GetPosition.X, aCommander.GetPosition.Y);
     att_ClosestBuildingFromStartPos:
-      //aCommander.OrderAttackUnit();
+      for i:=1 to MAX_PLAYERS do
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_None, StartPosition.X, StartPosition.Y);
     att_CustomPosition:
-      
-      //aCommander.OrderAttackUnit();
-  end;}
+      for i:=1 to MAX_PLAYERS do
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+        begin
+          if TargetHouse = nil then TargetHouse := fPlayers.Player[i].HousesHitTest(aCustomPos.X, aCustomPos.Y);
+          if TargetUnit  = nil then TargetUnit  := fPlayers.Player[i].UnitsHitTest (aCustomPos.X, aCustomPos.Y);
+        end;
+  end;
+  if TargetHouse <> nil then
+    aCommander.OrderAttackHouse(TargetHouse)
+  else if TargetUnit <> nil then
+    aCommander.OrderAttackUnit(TargetUnit)
+  else if aTarget = att_CustomPosition then
+    aCommander.OrderWalk(aCustomPos);
 end;
 
 
@@ -589,6 +610,7 @@ end;
 procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 var i: integer;
 begin
+  //todo: Idle troops should also retaliate
   if Assets.PlayerType = pt_Human then exit;
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for i := 0 to DefencePositionsCount-1 do

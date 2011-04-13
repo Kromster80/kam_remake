@@ -1707,7 +1707,7 @@ begin
 
   for i:=0 to Count-1 do
   if Items[i] <> nil then
-  if (Houses[i].fHouseType=aType) and Houses[i].IsComplete and not Houses[i].fIsDestroyed then
+  if ((Houses[i].fHouseType=aType) or (aType = ht_None)) and Houses[i].IsComplete and not Houses[i].fIsDestroyed then
   begin
       inc(id);
       if UsePosition then

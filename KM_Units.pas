@@ -237,6 +237,7 @@ type
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
+    function GetClosestUnit(aPoint: TKMPoint):TKMUnit;
     function GetTotalPointers: integer;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -1884,6 +1885,28 @@ begin
     if aUnitType in [ut_Any, Units[i].fUnitType] then
     if Units[i].fVisible then //Excludes units inside of houses and recently died ones
       Loc.AddEntry(Units[i].fCurrPosition)
+end;
+
+
+function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint):TKMUnit;
+var
+  i: integer;
+  UsePosition: boolean;
+  BestMatch,Dist: single;
+begin
+  Result := nil;
+  BestMatch := -1; //Use -1 value to init variable on first run
+  for i:=0 to Count-1 do
+    if (Items[i] <> nil) and (not Units[i].IsDeadOrDying) and (Units[i].fVisible) then
+    begin
+      Dist := GetLength(Units[i].GetPosition,aPoint);
+      if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
+      if Dist < BestMatch then
+      begin
+        BestMatch := Dist;
+        Result := Units[i];
+      end;
+    end;
 end;
 
 

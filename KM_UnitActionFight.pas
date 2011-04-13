@@ -151,7 +151,14 @@ begin
   begin
     DecVertex;
     if KMStepIsDiag(KMUnit.GetPosition, fOpponent.GetPosition) and (TKMUnitWarrior(KMUnit).GetFightMaxRange < 2) then
-      IncVertex(KMUnit.GetPosition, fOpponent.GetPosition);
+      if fTerrain.VertexUsageCompatible(KMUnit.GetPosition, fOpponent.GetPosition) then
+        IncVertex(KMUnit.GetPosition, fOpponent.GetPosition)
+      else
+      begin
+        //This vertex is being used so we can't fight
+        Result := actDone;
+        exit;
+      end;
   end;
 
 
