@@ -6,7 +6,7 @@ object Form1: TForm1
   Caption = 'Form1'
   ClientHeight = 391
   ClientWidth = 608
-  OnCreate = FormActivate
+  OnCreate = init
   LCLVersion = '0.9.30'
   object File_name: TEdit
     Left = 16
@@ -46,6 +46,7 @@ object Form1: TForm1
     Height = 23
     Top = 48
     Width = 80
+    OnChange = showDAT
     TabOrder = 2
     Text = '1'
   end

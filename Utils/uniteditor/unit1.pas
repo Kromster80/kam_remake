@@ -75,9 +75,10 @@ type
     SolderName: TLabel;
     Open: TButton;
     File_name: TEdit;
-  procedure FormActivate(Sender: TObject);
+  procedure init(Sender: TObject);
   procedure open_file(Sender: TObject);
   procedure saveDAT(Sender: TObject);
+  procedure showDAT(Sender: TObject);
   private
     { private declarations }
   public
@@ -117,10 +118,6 @@ implementation
 {$R *.lfm}
 
 { TForm1 }
-
-procedure TForm1.FormActivate(Sender: TObject);
-begin
-end;
 
 function LoadUnitDAT(FileName:string):boolean;
 var
@@ -167,27 +164,14 @@ Result:=true;
 end;
 
 procedure TForm1.open_file(Sender: TObject);
-var
-  i :integer;
+begin
+  LoadUnitDAT(File_name.Text);
+end;
+
+procedure TForm1.init(Sender: TObject);
 begin
   //default location
   File_name.Text := '../../Data/Defines/Unit.dat';
-
-  LoadUnitDAT(File_name.Text);
-  i := strtoint(number.Text);
-  Label11.Caption := UnitNames[TUnitType(i)];
-  HP.Text := inttostr(UnitStat[i].HitPoints);
-  ATK.Text := inttostr(UnitStat[i].Attack);
-  AHB.Text := inttostr(UnitStat[i].AttackHorseBonus);
-  x4.Text := inttostr(UnitStat[i].x4);
-  DEF.Text := inttostr(UnitStat[i].Defence);
-  SPD.Text := inttostr(UnitStat[i].Speed);
-  x7.Text := '0'; // inttostr(UnitStat[i].x7);
-  Sight.Text := inttostr(UnitStat[i].Sight);
-  x9.Text := inttostr(UnitStat[i].x9);
-  x10.Text := inttostr(UnitStat[i].x10);
-  CVA.Text := inttostr(UnitStat[i].CanWalkOut);
-  x11.Text := inttostr(UnitStat[i].x11);
 end;
 
 procedure TForm1.saveDAT(Sender: TObject);
@@ -208,6 +192,26 @@ begin
   UnitStat[i].x11 := strtoint(x11.Text);
 
   SaveUnitDAT(File_name.Text);
+end;
+
+procedure TForm1.showDAT(Sender: TObject);
+var
+  i :integer;
+begin
+  i := strtoint(number.Text);
+  Label11.Caption := UnitNames[TUnitType(i)];
+  HP.Text := inttostr(UnitStat[i].HitPoints);
+  ATK.Text := inttostr(UnitStat[i].Attack);
+  AHB.Text := inttostr(UnitStat[i].AttackHorseBonus);
+  x4.Text := inttostr(UnitStat[i].x4);
+  DEF.Text := inttostr(UnitStat[i].Defence);
+  SPD.Text := inttostr(UnitStat[i].Speed);
+  x7.Text := '0'; // inttostr(UnitStat[i].x7);
+  Sight.Text := inttostr(UnitStat[i].Sight);
+  x9.Text := inttostr(UnitStat[i].x9);
+  x10.Text := inttostr(UnitStat[i].x10);
+  CVA.Text := inttostr(UnitStat[i].CanWalkOut);
+  x11.Text := inttostr(UnitStat[i].x11);
 end;
 
 end.
