@@ -86,7 +86,7 @@ var i:integer;
 begin
   for i:=1 to length(BuildingAllowed[1]) do
     if BuildingAllowed[byte(aType),i]<>ht_None then
-      BuildReqDone[byte(BuildingAllowed[byte(aType),i])]:=true;
+      BuildReqDone[byte(BuildingAllowed[byte(aType),i])] := true;
 end;
 
 
@@ -149,12 +149,12 @@ end;
 function TKMPlayerStats.GetHouseQty(aType:THouseType):integer;
 var i:integer;
 begin
-  if aType <> ht_None then
-    Result := Houses[byte(aType)].Initial + Houses[byte(aType)].Built - Houses[byte(aType)].SelfDestruct - Houses[byte(aType)].Lost
-  else begin
-    Result := 0;
-    for i:=1 to HOUSE_COUNT do
-      inc(Result, Houses[i].Initial + Houses[i].Built - Houses[i].SelfDestruct - Houses[i].Lost);
+  Result := 0;
+  case aType of
+    ht_None:    ;
+    ht_Any:     for i:=1 to HOUSE_COUNT do
+                  inc(Result, Houses[i].Initial + Houses[i].Built - Houses[i].SelfDestruct - Houses[i].Lost);
+    else        Result := Houses[byte(aType)].Initial + Houses[byte(aType)].Built - Houses[byte(aType)].SelfDestruct - Houses[byte(aType)].Lost;
   end;
 end;
 

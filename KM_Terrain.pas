@@ -2004,14 +2004,14 @@ end;
 procedure TTerrain.SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
 var i,k:integer;
 begin
-  if aHouseType<>ht_None then //If this is a house make a change for whole place
-    for i:=1 to 4 do for k:=1 to 4 do
-      if HousePlanYX[byte(aHouseType),i,k]<>0 then
-        if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
-          Land[Loc.Y+i-4,Loc.X+k-3].TileOwner:=aOwner;
-
-  if aHouseType=ht_None then
-    Land[Loc.Y,Loc.X].TileOwner:=aOwner;
+  case aHouseType of
+    ht_None:    Land[Loc.Y,Loc.X].TileOwner := aOwner;
+    ht_Any:     ; //Do nothing
+    else        for i:=1 to 4 do for k:=1 to 4 do //If this is a house make change for whole place
+                  if HousePlanYX[byte(aHouseType),i,k]<>0 then
+                    if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
+                      Land[Loc.Y+i-4,Loc.X+k-3].TileOwner := aOwner;
+  end;
 end;
 
 

@@ -707,7 +707,8 @@ function TKMBuildingQueue.GetHouseWipCount(aHouseType: THouseType):integer;
 var i:integer;
 begin
   Result := 0;
-  Assert(aHouseType <> ht_None, 'Querrying wrong house type');
+  Assert(not (aHouseType in [ht_None, ht_Any]), 'Querrying wrong house type');
+  
   for i:=1 to HousesCount do
     if (fHousesQueue[i].House<>nil) and (fHousesQueue[i].House.GetHouseType = aHouseType) then
       inc(Result);

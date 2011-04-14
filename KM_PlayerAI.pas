@@ -313,7 +313,7 @@ begin
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.Stats.GetHouseQty(ht_None)), ut_Serf) then
+        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.Stats.GetHouseQty(ht_Any)), ut_Serf) then
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
               if not CheckUnitRequirements(ReqRecruits * Assets.Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
@@ -408,11 +408,11 @@ begin
     att_ClosestBuildingFromArmy:
       for i:=1 to MAX_PLAYERS do
         if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
-          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_None, aCommander.GetPosition.X, aCommander.GetPosition.Y);
+          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_Any, aCommander.GetPosition.X, aCommander.GetPosition.Y);
     att_ClosestBuildingFromStartPos:
       for i:=1 to MAX_PLAYERS do
         if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
-          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_None, StartPosition.X, StartPosition.Y);
+          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_Any, StartPosition.X, StartPosition.Y);
     att_CustomPosition:
       for i:=1 to MAX_PLAYERS do
         if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then

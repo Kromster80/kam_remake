@@ -544,7 +544,7 @@ type
 
 {Houses in game}
 type
-  THouseType = ( ht_None=0,
+  THouseType = ( ht_None=0, ht_Any=30,
     ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
     ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutters=10,
     ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,

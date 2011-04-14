@@ -1891,19 +1891,17 @@ end;
 function TKMUnitsCollection.GetClosestUnit(aPoint: TKMPoint):TKMUnit;
 var
   i: integer;
-  UsePosition: boolean;
-  BestMatch,Dist: single;
+  BestDist,Dist: single;
 begin
   Result := nil;
-  BestMatch := -1; //Use -1 value to init variable on first run
+  BestDist := MaxSingle; //Any distance will be closer than that
   for i:=0 to Count-1 do
-    if (Items[i] <> nil) and (not Units[i].IsDeadOrDying) and (Units[i].fVisible) then
+    if (not Units[i].IsDeadOrDying) and (Units[i].fVisible) then
     begin
-      Dist := GetLength(Units[i].GetPosition,aPoint);
-      if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
-      if Dist < BestMatch then
+      Dist := GetLength(Units[i].GetPosition, aPoint);
+      if Dist < BestDist then
       begin
-        BestMatch := Dist;
+        BestDist := Dist;
         Result := Units[i];
       end;
     end;
