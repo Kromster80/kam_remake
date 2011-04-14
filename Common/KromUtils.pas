@@ -3,7 +3,8 @@ unit KromUtils;
 {$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
-uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, ShellApi, Controls;
+uses sysutils,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, Controls, ShellApi;
+//Linux do not like: windows (removed), ShellApi;
 
 type
   PSingleArray = ^TSingleArray;
@@ -236,7 +237,7 @@ begin
   Result := FileExists(FileName);
 
   if not IsSilent and not Result then
-    Application.MessageBox(PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
+    ShowMessage(PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"')); //Should be topmost
 end;
 
 
