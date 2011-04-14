@@ -3,7 +3,7 @@ unit KM_Networking;
 interface
 uses Classes, KromUtils, StrUtils, SysUtils, Windows,
   KM_CommonTypes, KM_Defaults,
-  KM_NetPlayersList, KM_Network;
+  KM_MapInfo, KM_NetPlayersList, KM_Network;
 
   
 const
@@ -48,8 +48,7 @@ type
     fMyIndex:integer;
     fNetPlayers:TKMPlayersList;
 
-    fMapName:string; //todo: Replace with TKMMapInfo and send TKMMapInfo.Folder+CRC across network
-    fMissionMode:TMissionMode; //todo: Will be removed by previous todo
+    fMapInfo:TKMapInfo; //Everything related to selected map
 
     fJoinTick:cardinal; //Timer to issue timeout event on connection
     fLastUpdateTick:cardinal;
@@ -96,8 +95,7 @@ type
     procedure PostMessage(aText:string);
 
     //Gameplay
-    property MapName:string read fMapName;
-    property MissionMode:TMissionMode read fMissionMode;
+    property MapInfo:TKMapInfo read fMapInfo;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     procedure GameCreated;
     procedure SendCommands(aStream:TKMemoryStream; aPlayerLoc:byte=0);
@@ -125,8 +123,9 @@ uses KM_Utils;
 constructor TKMNetworking.Create;
 begin
   Inherited;
-  fNetwork  := TKMNetwork.Create(MULTIPLE_COPIES);
-  fNetPlayers  := TKMPlayersList.Create;
+  fMapInfo    := TKMapInfo.Create;
+  fNetwork    := TKMNetwork.Create(MULTIPLE_COPIES);
+  fNetPlayers := TKMPlayersList.Create;
 end;
 
 
@@ -134,6 +133,7 @@ destructor TKMNetworking.Destroy;
 begin
   fNetPlayers.Free;
   fNetwork.Free;
+  fMapInfo.Free;
   Inherited;
 end;
 
@@ -209,15 +209,19 @@ procedure TKMNetworking.MapSelect(aName:string);
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
 
-  fMapName := aName;
-  PacketToAll(mk_MapSelect, fMapName);
+  fMapInfo.Load(aName);
+
+  //if not fMapInfo.IsValid then exit; 
+  //todo: Check if map is valid fMapInfo.IsValid
+
+  PacketToAll(mk_MapSelect, fMapInfo.Folder);
 
   fNetPlayers.ResetLocAndReady;
   fNetPlayers[fMyIndex].ReadyToStart := true;
   //PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
 
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-  if Assigned(fOnMapName) then fOnMapName(fMapName);
+  if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
   //Compare map availability and CRC
 end;
 
@@ -276,7 +280,7 @@ end;
 
 function TKMNetworking.CanStart:boolean;
 begin
-  Result := (fNetPlayers.Count > 1) and fNetPlayers.AllReady and (fMapName <> '');
+  Result := (fNetPlayers.Count > 1) and fNetPlayers.AllReady and fMapInfo.IsValid;
 end;
 
 
@@ -387,7 +391,7 @@ begin
             if fLANPlayerKind = lpk_Host then begin
               fNetPlayers.AddPlayer(aAddr, Msg, GetTickCount + REPLY_TIMEOUT);
               PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
-              PacketSend(aAddr, mk_MapSelect, fMapName);
+              PacketSend(aAddr, mk_MapSelect, fMapInfo.Folder);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               PostMessage(aAddr+'/'+Msg+' has joined');
             end;
@@ -418,9 +422,9 @@ begin
 
     mk_MapSelect:
             if fLANPlayerKind = lpk_Joiner then begin
-              fMapName := Msg;
+              fMapInfo.Load(Msg); //todo: Check map validity and availability
               fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
-              if Assigned(fOnMapName) then fOnMapName(fMapName);
+              if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 

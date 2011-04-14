@@ -55,7 +55,7 @@ const
 type
   TKMMissionDetails = record
     MapPath: string;
-    IsFight: boolean;
+    MissionMode: TKMissionMode;
     TeamCount, HumanPlayerID: shortint;
     VictoryCond:string;
     DefeatCond:string;
@@ -208,7 +208,7 @@ var
 begin
   //Set default values
   Result.MapPath := '';
-  Result.IsFight := false;
+  Result.MissionMode := mm_Normal;
   Result.TeamCount := 0;
   Result.HumanPlayerID := 0;
   Result.VictoryCond := '';
@@ -283,7 +283,7 @@ begin
   case CommandType of
     ct_SetMap:         MapPath       := RemoveQuotes(TextParam);
     ct_SetMaxPlayer:   TeamCount     := ParamList[0];
-    ct_SetTactic:      IsFight       := true;
+    ct_SetTactic:      MissionMode   := mm_Tactic;
     ct_SetHumanPlayer: HumanPlayerID := ParamList[0]+1;
 {                       if TGoalCondition(ParamList[0]) = gc_Time then
                          VictoryCond := VictoryCond + fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
@@ -421,7 +421,7 @@ begin
                      end;
   ct_SetTactic:      begin
                        if fPlayers=nil then fPlayers := TKMPlayersCollection.Create(0);
-                       fGame.MissionMode := mm_Tactic;
+                       fGame.MissionMode := mm_Tactic; //todo: Refactor this (do not set values to fGame!)
                      end;
   ct_SetCurrPlayer:  begin
                      if InRange(ParamList[0],0,fPlayers.Count-1) then

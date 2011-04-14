@@ -2,7 +2,7 @@ unit KM_MapInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils;
+  Classes, KromUtils, SysUtils, KM_Defaults;
 
 
 type
@@ -10,8 +10,9 @@ type
   private
     fFolder:string; //Map folder
     fDatSize:integer;
+    fIsValid:boolean;
     fVersion:string;
-    fIsFight:boolean; //Fighting or Build-a-City map
+    fMissionMode:TKMissionMode; //Fighting or Build-a-City map
     fPlayerCount:byte;
     fSmallDesc:string;
     fMapSize:string; //S,M,L,XL
@@ -22,13 +23,14 @@ type
     procedure SaveToFile(const aPath:string);
   public
     BigDesc:string;
-    constructor Create(const aFolder:string);
+    procedure Load(const aFolder:string);
     property Folder:string read fFolder;
-    property IsFight:boolean read fIsFight;
+    property IsValid:boolean read fIsValid;
+    property MissionMode:TKMissionMode read fMissionMode;
     property PlayerCount:byte read fPlayerCount;
     property MapSize:string read fMapSize;
     function SmallDesc:string;
-    function MissionMode:string;
+    function MissionModeText:string;
     function VictoryCondition:string;
     function DefeatCondition:string;
   end;
@@ -47,13 +49,14 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Utils, KM_MissionScript, KM_CommonTypes;
+uses KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
 { TKMMapInfo }
-constructor TKMapInfo.Create(const aFolder:string);
+procedure TKMapInfo.Load(const aFolder:string);
 begin
   fFolder := aFolder;
+  fIsValid := true; //todo: Check existance, validity and etc..
   ScanMap;
 end;
 
@@ -75,7 +78,7 @@ begin
     try
       MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(fFolder,'dat'));
       MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(fFolder,'map'));
-      fIsFight       := MissionDetails.IsFight;
+      fMissionMode   := MissionDetails.MissionMode;
       fPlayerCount   := MissionDetails.TeamCount;
       VictoryCond    := MissionDetails.VictoryCond;
       DefeatCond     := MissionDetails.DefeatCond;
@@ -116,7 +119,7 @@ begin
     S.LoadFromFile(aPath);
     S.Read(fDatSize);
     S.Read(fVersion);
-    S.Read(fIsFight);
+    S.Read(fMissionMode, SizeOf(fMissionMode));
     S.Read(fPlayerCount);
     S.Read(VictoryCond);
     S.Read(DefeatCond);
@@ -134,7 +137,7 @@ begin
   try
     S.Write(fDatSize);
     S.Write(SAVE_VERSION); //Use actual version
-    S.Write(fIsFight);
+    S.Write(fMissionMode, SizeOf(fMissionMode));
     S.Write(fPlayerCount);
     S.Write(VictoryCond);
     S.Write(DefeatCond);
@@ -154,12 +157,13 @@ begin
 end;
 
 
-function TKMapInfo.MissionMode:string;
+function TKMapInfo.MissionModeText:string;
 begin
-  if IsFight then
-    Result := 'Fighting'
-  else
-    Result := 'Building and Fighting';
+  case fMissionMode of
+    mm_Normal: Result := 'Building and Fighting';
+    mm_Tactic: Result := 'Fighting'
+    else       Result := 'Unknown';
+  end;
 end;
 
 
@@ -183,9 +187,11 @@ end;
 
 
 procedure TKMMapsInfo.ScanMapsFolder;
-var
-  SearchRec:TSearchRec;
+var SearchRec:TSearchRec; i:integer;
 begin
+  for i:=0 to fCount-1 do 
+    FreeAndNil(fMaps[fCount-1]);
+
   fCount := 0;
   if not DirectoryExists(ExeDir+'Maps\') then exit;
 
@@ -199,7 +205,8 @@ begin
     begin
       inc(fCount);
       SetLength(fMaps, fCount);
-      fMaps[fCount-1] := TKMapInfo.Create(SearchRec.Name);
+      fMaps[fCount-1] := TKMapInfo.Create;
+      fMaps[fCount-1].Load(SearchRec.Name);
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);

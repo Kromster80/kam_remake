@@ -36,7 +36,7 @@ type
     fGameTickCount:cardinal;
     fGameName:string;
     fMissionFile:string; //Remember what we are playing incase we might want to replay
-    fMissionMode: TMissionMode;
+    fMissionMode: TKMissionMode;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     fActiveCampaign:TCampaign; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
@@ -86,7 +86,7 @@ type
     property GetCampaignMap:byte read fActiveCampaignMap;
     property MultiplayerMode:boolean read fMultiplayerMode; 
     property IsExiting:boolean read fIsExiting;
-    property MissionMode:TMissionMode read fMissionMode write fMissionMode;
+    property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;
     property GameState:TGameState read fGameState;
     procedure SetGameSpeed(aSpeed:byte=0);
@@ -417,8 +417,8 @@ var
 begin
   GameInit(true);
 
-  fMissionFile := KMMapNameToPath(fNetworking.MapName, 'dat');
-  fGameName := fNetworking.MapName + ' MP';
+  fMissionFile := KMMapNameToPath(fNetworking.MapInfo.Folder, 'dat');
+  fGameName := fNetworking.MapInfo.Folder + ' MP';
 
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(fMissionFile) then
@@ -449,7 +449,7 @@ begin
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
   fRender.Render;
 
-  fMissionMode := fNetworking.MissionMode; //Tactic or normal
+  fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
   //Assign existing NetPlayers to map players
   for i:=1 to fNetworking.NetPlayers.Count do

@@ -452,7 +452,7 @@ TKMScrollBar = class(TKMControl)
 end;
 
 
-TKMListBox = class(TKMControl)
+  TKMListBox = class(TKMControl)
   private
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fItemHeight:byte;
@@ -485,10 +485,10 @@ TKMListBox = class(TKMControl)
     property OnChange: TNotifyEvent write fOnChange;
 
     procedure Paint; override;
-end;
+  end;
 
 
-TKMDropBox = class(TKMControl)
+  TKMDropBox = class(TKMControl)
   private
     fCaption:string;
     fDropCount:byte;
@@ -513,7 +513,7 @@ TKMDropBox = class(TKMControl)
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
-end;
+  end;
   
 
 { Minimap as stand-alone control }

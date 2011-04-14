@@ -445,7 +445,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-var i,k:integer;
+var i:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
@@ -463,9 +463,7 @@ begin
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, 30+i*25, 140, 20, '. ', fnt_Metal, kaLeft);
 
         DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, 30+i*25, 150, 20, fnt_Metal);
-        DropBox_LobbyLoc[i].Items.Add('Undefined');
-        for k:=1 to MAX_PLAYERS do
-          DropBox_LobbyLoc[i].Items.Add('Location ' + inttostr(k));
+        DropBox_LobbyLoc[i].Items.Add('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyColor[i] := TKMDropBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 150, 20, fnt_Metal);
@@ -1060,7 +1058,7 @@ begin
       Label_SingleTitle2[i].Caption   := '';
       Label_SingleSize[i].Caption     := '';
     end else begin
-      Image_SingleMode[i].TexID       := 28+byte(not SingleMapsInfo[MapID].IsFight)*14;  //28 or 42
+      Image_SingleMode[i].TexID       := 28+byte(SingleMapsInfo[MapID].MissionMode = mm_Tactic)*14;  //28 or 42
       Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo[MapID].PlayerCount);
       Label_SingleTitle1[i].Caption   := SingleMapsInfo[MapID].Folder;
       Label_SingleTitle2[i].Caption   := SingleMapsInfo[MapID].SmallDesc;
@@ -1100,7 +1098,7 @@ begin
     Label_SingleTitle.Caption := SingleMapsInfo[SingleMap_Selected].Folder;
     Label_SingleDesc.Caption  := SingleMapsInfo[SingleMap_Selected].BigDesc;
 
-    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(14)+SingleMapsInfo[SingleMap_Selected].MissionMode;
+    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(14)+SingleMapsInfo[SingleMap_Selected].MissionModeText;
     Label_SingleCondWin.Caption := fTextLibrary.GetRemakeString(15)+SingleMapsInfo[SingleMap_Selected].VictoryCondition;
     Label_SingleCondDef.Caption := fTextLibrary.GetRemakeString(16)+SingleMapsInfo[SingleMap_Selected].DefeatCondition;
   end;
@@ -1291,7 +1289,7 @@ begin
     DropBox_LobbyColor[i].Enabled := MyNik;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
     if MyNik then
-      Button_LobbyReady.Enabled := (fGame.Networking.MapName<>'') and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
+      Button_LobbyReady.Enabled := fGame.Networking.MapInfo.IsValid and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
   end;
 
   for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
@@ -1311,11 +1309,19 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
+var i:Integer; DropText:string;
 begin
   //todo: Fill in map info
   Label_LobbyMapName.Caption := aData;
 
-  //todo: Cut/filter DropBox_LobbyLoc according to map max players
+  DropText := 'Random' + eol;
+  for i:=1 to fGame.Networking.MapInfo.PlayerCount do
+    DropText := DropText + 'Location ' + inttostr(i) + eol;
+
+  for i:=0 to MAX_PLAYERS-1 do
+    DropBox_LobbyLoc[i].Items.Text := DropText;
+
+  Label_LobbyMapCount.Caption := 'Players: '+inttostr(fGame.Networking.MapInfo.PlayerCount);
 
   //todo: Keep disabled if Map does not matches Hosts or missing
   Button_LobbyReady.Enable;
