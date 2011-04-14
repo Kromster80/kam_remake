@@ -35,7 +35,7 @@ type
   end;
 
 
-  TKMMapsInfo = class
+  TKMapsCollection = class
   private
     fCount:byte;
     fMaps:array of TKMapInfo;
@@ -187,14 +187,14 @@ begin
 end;
 
 
-{ TKMMapsInfo }
-function TKMMapsInfo.GetMap(Index:integer):TKMapInfo;
+{ TKMapsCollection }
+function TKMapsCollection.GetMap(Index:integer):TKMapInfo;
 begin
   Result := fMaps[Index];
 end;
 
 
-procedure TKMMapsInfo.ScanMapsFolder;
+procedure TKMapsCollection.ScanMapsFolder;
 var SearchRec:TSearchRec; i:integer;
 begin
   for i:=0 to fCount-1 do 

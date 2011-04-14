@@ -21,7 +21,7 @@ type
 
     SingleMap_Top:integer; //Top map in list
     SingleMap_Selected:integer; //Selected map
-    SingleMapsInfo:TKMMapsInfo;
+    SingleMapsInfo:TKMapsCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
     OldResolution:word;
@@ -546,7 +546,7 @@ end;
 procedure TKMMainMenuInterface.Create_Single_Page;
 var i:integer;
 begin
-  SingleMapsInfo:=TKMMapsInfo.Create;
+  SingleMapsInfo := TKMapsCollection.Create;
 
   Panel_Single:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     Panel_SingleList:=TKMPanel.Create(Panel_Single,512+22,84,445,600);
