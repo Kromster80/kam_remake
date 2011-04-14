@@ -7,7 +7,6 @@ object Form1: TForm1
   ClientHeight = 391
   ClientWidth = 608
   OnCreate = init
-  LCLVersion = '0.9.30'
   object File_name: TEdit
     Left = 16
     Height = 23

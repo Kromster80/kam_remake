@@ -1,42 +1,26 @@
-unit Unit1; 
-
-{$mode objfpc}{$H+}
+unit Unit1;
+{$I uniteditor.inc}
+{$IFDEF FPC}
+  {$Mode Delphi} {$H+}
+{$ENDIF}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Menus, KromUtils;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  Menus, KromUtils
+  {$IFDEF FPC}, LResources{$ENDIF};
 
-type
-   TUnitType = ( ut_None=0,
-    ut_Serf=1,          ut_Woodcutter=2,    ut_Miner=3,         ut_AnimalBreeder=4,
-    ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
-    ut_Fisher=9,        ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
-    ut_Metallurgist=13, ut_Recruit=14,
-
-    ut_Militia=15,      ut_AxeFighter=16,   ut_Swordsman=17,    ut_Bowman=18,
-    ut_Arbaletman=19,   ut_Pikeman=20,      ut_Hallebardman=21, ut_HorseScout=22,
-    ut_Cavalry=23,      ut_Barbarian=24,
-
-    ut_Peasant=25,    ut_Slingshot=26,    ut_MetalBarbarian=27,ut_Horseman=28,
-    ut_Catapult=29,   ut_Ballista=30,
-
-    ut_Wolf=31,         ut_Fish=32,         ut_Watersnake=33,   ut_Seastar=34,
-    ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38,
-    ut_39=39,
-    ut_Any=40);
 
 const
- siUnitNames = 69;
- UnitNames: array[ut_Serf..ut_Any] of string = ('None', 'Serf', 'Woodcutter',
- 'Miner', 'Animal Breeder',
+ UnitNames: array[1..41] of string = (
+ 'Serf', 'Woodcutter', 'Miner', 'Animal Breeder',
  'Farmer', 'Lamberjack', 'Baker', 'Butcher', 'Fisher', 'Worker', 'StoneCutter',
  'Smith', 'Metallurgist', 'Recruit', 'Militia', 'AxeFighter', 'Swordsman',
  'Bowman', 'Arbaletman', 'Pikeman', 'Hallebardman', 'HorseScout', 'Cavalry',
  'Barbarian', 'Peasant', 'Slingshot', 'MetalBarbarian', 'Horseman', 'Catapult',
  'Ballista', 'Wolf', 'Fish', 'Watersnake', 'Seastar', 'Crab', 'Waterflower',
- 'Duck', 'x', 'Any');
+ 'Waterleaf', 'Duck', 'Unknown', 'Unknown', 'Unknown');
 
   { TForm1 }
 type
@@ -71,8 +55,6 @@ type
     number: TEdit;
     SName: TLabel;
     UnitNumber: TLabel;
-    uname : TMainMenu;
-    SolderName: TLabel;
     Open: TButton;
     File_name: TEdit;
   procedure init(Sender: TObject);
@@ -87,8 +69,8 @@ type
 
 var
   Form1: TForm1;
-  WriteResourceInfoToTXT :Boolean;
-    UnitStat:array[1..41]of record
+
+  UnitStat:array[1..41]of record
     HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,label5,Sight:smallint;
     x9,x10:shortint;
     CanWalkOut,x11:smallint;
@@ -111,11 +93,11 @@ var
   end;
   UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
   ExeDir:string;
-  //fTextLibrary:TTextLibrary;
 
 implementation
-
-{$R *.lfm}
+{$IFDEF WDC}
+  {$R *.dfm}
+{$ENDIF}
 
 { TForm1 }
 
@@ -199,7 +181,7 @@ var
   i :integer;
 begin
   i := strtoint(number.Text);
-  Label11.Caption := UnitNames[TUnitType(i)];
+  Label11.Caption := UnitNames[i];
   HP.Text := inttostr(UnitStat[i].HitPoints);
   ATK.Text := inttostr(UnitStat[i].Attack);
   AHB.Text := inttostr(UnitStat[i].AttackHorseBonus);
@@ -213,6 +195,11 @@ begin
   CVA.Text := inttostr(UnitStat[i].CanWalkOut);
   x11.Text := inttostr(UnitStat[i].x11);
 end;
+
+{$IFDEF FPC}
+initialization
+  {$I unit1.lrs}
+{$ENDIF}
 
 end.
 
