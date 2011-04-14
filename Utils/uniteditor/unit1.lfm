@@ -3,15 +3,16 @@ object Form1: TForm1
   Height = 391
   Top = 376
   Width = 608
+  ActiveControl = Button1
   Caption = 'Form1'
   ClientHeight = 391
   ClientWidth = 608
-  LCLVersion = '0.9.30'
+  LCLVersion = '0.9.28.2'
   object SName: TLabel
     Left = 25
     Height = 16
     Top = 80
-    Width = 58
+    Width = 66
     Caption = 'Unit Name'
     ParentColor = False
   end
@@ -19,7 +20,7 @@ object Form1: TForm1
     Left = 25
     Height = 16
     Top = 47
-    Width = 67
+    Width = 75
     Caption = 'UnitNumber'
     ParentColor = False
   end
@@ -27,7 +28,7 @@ object Form1: TForm1
     Left = 25
     Height = 16
     Top = 120
-    Width = 50
+    Width = 57
     Caption = 'Hitpoints'
     ParentColor = False
   end
@@ -35,7 +36,7 @@ object Form1: TForm1
     Left = 25
     Height = 16
     Top = 159
-    Width = 31
+    Width = 37
     Caption = 'Atack'
     ParentColor = False
   end
@@ -43,7 +44,7 @@ object Form1: TForm1
     Left = 25
     Height = 16
     Top = 199
-    Width = 99
+    Width = 118
     Caption = 'AttackHorseBonus'
     ParentColor = False
   end
@@ -51,7 +52,7 @@ object Form1: TForm1
     Left = 25
     Height = 16
     Top = 232
-    Width = 12
+    Width = 16
     Caption = 'x4'
     ParentColor = False
   end
@@ -59,7 +60,7 @@ object Form1: TForm1
     Left = 25
     Height = 16
     Top = 272
-    Width = 44
+    Width = 55
     Caption = 'Defence'
     ParentColor = False
   end
@@ -67,7 +68,7 @@ object Form1: TForm1
     Left = 25
     Height = 16
     Top = 312
-    Width = 33
+    Width = 41
     Caption = 'Speed'
     ParentColor = False
   end
@@ -75,7 +76,7 @@ object Form1: TForm1
     Left = 288
     Height = 16
     Top = 120
-    Width = 12
+    Width = 16
     Caption = 'x7'
     ParentColor = False
   end
@@ -83,7 +84,7 @@ object Form1: TForm1
     Left = 288
     Height = 16
     Top = 160
-    Width = 28
+    Width = 33
     Caption = 'Sight'
     ParentColor = False
   end
@@ -91,7 +92,7 @@ object Form1: TForm1
     Left = 288
     Height = 16
     Top = 199
-    Width = 12
+    Width = 16
     Caption = 'x9'
     ParentColor = False
   end
@@ -99,7 +100,7 @@ object Form1: TForm1
     Left = 288
     Height = 16
     Top = 232
-    Width = 18
+    Width = 24
     Caption = 'x10'
     ParentColor = False
   end
@@ -107,7 +108,7 @@ object Form1: TForm1
     Left = 288
     Height = 16
     Top = 272
-    Width = 68
+    Width = 79
     Caption = 'CanWalkOut'
     ParentColor = False
   end
@@ -115,7 +116,7 @@ object Form1: TForm1
     Left = 288
     Height = 16
     Top = 312
-    Width = 18
+    Width = 24
     Caption = 'x11'
     ParentColor = False
   end
@@ -123,7 +124,7 @@ object Form1: TForm1
     Left = 161
     Height = 16
     Top = 82
-    Width = 31
+    Width = 36
     Caption = 'name'
     ParentColor = False
   end
@@ -138,7 +139,7 @@ object Form1: TForm1
   end
   object number: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 48
     Width = 80
     OnChange = showDAT
@@ -147,84 +148,84 @@ object Form1: TForm1
   end
   object HP: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 120
     Width = 80
     TabOrder = 2
   end
   object ATK: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 160
     Width = 80
     TabOrder = 3
   end
   object AHB: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 199
     Width = 80
     TabOrder = 4
   end
   object x4: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 232
     Width = 80
     TabOrder = 5
   end
   object DEF: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 272
     Width = 80
     TabOrder = 6
   end
   object SPD: TEdit
     Left = 161
-    Height = 23
+    Height = 21
     Top = 312
     Width = 79
     TabOrder = 7
   end
   object x7: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 120
     Width = 81
     TabOrder = 8
   end
   object Sight: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 159
     Width = 81
     TabOrder = 9
   end
   object x9: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 199
     Width = 81
     TabOrder = 10
   end
   object x10: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 232
     Width = 81
     TabOrder = 11
   end
   object CVA: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 272
     Width = 81
     TabOrder = 12
   end
   object x11: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 312
     Width = 81
     TabOrder = 13

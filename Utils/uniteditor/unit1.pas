@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Menus
+  Menus, Math
   {$IFDEF FPC}, LResources{$ENDIF};
 
 
@@ -146,10 +146,12 @@ end;
 
 procedure TForm1.open_file(Sender: TObject);
 begin
+  if DirectoryExists('../../Data/Defines/') then
+  SaveDialog1.InitialDir := '../../Data/Defines/'
+  else
+  SaveDialog1.InitialDir := '';
   if OpenDialog1.Execute then
   LoadUnitDAT(OpenDialog1.Filename);
-  //todo: Use InitialDir to set folder ../../Data/Defines/ if it exists
-  //if not - take Exe Dir
 
   //todo: Replace UnitNumber field with TListBox
 end;
@@ -182,7 +184,7 @@ var
 begin
   //todo: Replace all TEdits with TSpinEdits
   i := strtoint(number.Text);
-  if (i<42) then begin //todo: use Math.InRange(i, 1, 42) ;)
+  if Math.InRange(i, 1, 41) then begin
    Label11.Caption := UnitNames[i];
    HP.Text := inttostr(UnitStat[i].HitPoints);
    ATK.Text := inttostr(UnitStat[i].Attack);

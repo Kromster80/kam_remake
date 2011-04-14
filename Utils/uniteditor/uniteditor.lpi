@@ -1,17 +1,15 @@
 <?xml version="1.0"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
     <PathDelim Value="\"/>
+    <Version Value="7"/>
     <General>
       <MainUnit Value="0"/>
-      <UseXPManifest Value="True"/>
+      <TargetFileExt Value=""/>
       <Icon Value="0"/>
-      <ActiveWindowIndexAtStart Value="0"/>
+      <UseXPManifest Value="True"/>
+      <ActiveEditorIndexAtStart Value="0"/>
     </General>
-    <BuildModes Count="1">
-      <Item1 Name="default" Default="True"/>
-    </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
       <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
@@ -33,8 +31,8 @@
         <Filename Value="uniteditor.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uniteditor"/>
-        <TopLine Value="1"/>
         <CursorPos X="2" Y="10"/>
+        <TopLine Value="1"/>
         <UsageCount Value="33"/>
       </Unit0>
       <Unit1>
@@ -43,46 +41,40 @@
         <ComponentName Value="Form1"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-        <IsVisibleTab Value="True"/>
+        <CursorPos X="23" Y="149"/>
+        <TopLine Value="134"/>
         <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="145"/>
-        <CursorPos X="27" Y="172"/>
         <UsageCount Value="33"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\..\..\..\lazarus\fpc\2.4.2\source\rtl\inc\objpash.inc"/>
-        <TopLine Value="215"/>
         <CursorPos X="26" Y="230"/>
+        <TopLine Value="215"/>
         <UsageCount Value="10"/>
       </Unit2>
       <Unit3>
         <Filename Value="unit1.lrs"/>
-        <TopLine Value="1"/>
         <CursorPos X="1" Y="3"/>
+        <TopLine Value="1"/>
         <UsageCount Value="10"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\..\KM_Defaults.pas"/>
         <UnitName Value="KM_Defaults"/>
-        <TopLine Value="340"/>
         <CursorPos X="11" Y="357"/>
+        <TopLine Value="340"/>
         <UsageCount Value="10"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\Common\KromUtils.pas"/>
         <UnitName Value="KromUtils"/>
-        <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="40" Y="7"/>
+        <TopLine Value="1"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit5>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="28" HistoryIndex="27">
       <Position1>
         <Filename Value="unit1.pas"/>
         <Caret Line="51" Column="21" TopLine="49"/>
@@ -112,114 +104,101 @@
         <Caret Line="182" Column="41" TopLine="161"/>
       </Position7>
       <Position8>
-        <Filename Value="..\..\Common\KromUtils.pas"/>
-        <Caret Line="7" Column="25" TopLine="1"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="11" Column="12" TopLine="1"/>
       </Position8>
       <Position9>
-        <Filename Value="..\..\Common\KromUtils.pas"/>
-        <Caret Line="6" Column="73" TopLine="1"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="105" Column="10" TopLine="90"/>
       </Position9>
       <Position10>
         <Filename Value="unit1.pas"/>
-        <Caret Line="11" Column="12" TopLine="1"/>
+        <Caret Line="191" Column="4" TopLine="183"/>
       </Position10>
       <Position11>
         <Filename Value="unit1.pas"/>
-        <Caret Line="105" Column="10" TopLine="90"/>
+        <Caret Line="190" Column="8" TopLine="175"/>
       </Position11>
       <Position12>
         <Filename Value="unit1.pas"/>
-        <Caret Line="191" Column="4" TopLine="183"/>
+        <Caret Line="203" Column="41" TopLine="184"/>
       </Position12>
       <Position13>
         <Filename Value="unit1.pas"/>
-        <Caret Line="190" Column="8" TopLine="175"/>
+        <Caret Line="190" Column="7" TopLine="175"/>
       </Position13>
       <Position14>
         <Filename Value="unit1.pas"/>
-        <Caret Line="203" Column="41" TopLine="184"/>
+        <Caret Line="203" Column="42" TopLine="184"/>
       </Position14>
       <Position15>
         <Filename Value="unit1.pas"/>
-        <Caret Line="190" Column="7" TopLine="175"/>
+        <Caret Line="204" Column="20" TopLine="184"/>
       </Position15>
       <Position16>
         <Filename Value="unit1.pas"/>
-        <Caret Line="203" Column="42" TopLine="184"/>
+        <Caret Line="190" Column="7" TopLine="103"/>
       </Position16>
       <Position17>
         <Filename Value="unit1.pas"/>
-        <Caret Line="204" Column="20" TopLine="184"/>
+        <Caret Line="194" Column="7" TopLine="1"/>
       </Position17>
       <Position18>
         <Filename Value="unit1.pas"/>
-        <Caret Line="190" Column="7" TopLine="103"/>
+        <Caret Line="147" Column="7" TopLine="129"/>
       </Position18>
       <Position19>
         <Filename Value="unit1.pas"/>
-        <Caret Line="194" Column="7" TopLine="1"/>
+        <Caret Line="133" Column="17" TopLine="111"/>
       </Position19>
       <Position20>
         <Filename Value="unit1.pas"/>
-        <Caret Line="147" Column="7" TopLine="129"/>
+        <Caret Line="147" Column="1" TopLine="127"/>
       </Position20>
       <Position21>
         <Filename Value="unit1.pas"/>
-        <Caret Line="133" Column="17" TopLine="111"/>
+        <Caret Line="11" Column="17" TopLine="1"/>
       </Position21>
       <Position22>
         <Filename Value="unit1.pas"/>
-        <Caret Line="147" Column="1" TopLine="127"/>
+        <Caret Line="133" Column="17" TopLine="118"/>
       </Position22>
       <Position23>
         <Filename Value="unit1.pas"/>
-        <Caret Line="11" Column="17" TopLine="1"/>
+        <Caret Line="11" Column="8" TopLine="6"/>
       </Position23>
       <Position24>
         <Filename Value="unit1.pas"/>
-        <Caret Line="133" Column="17" TopLine="118"/>
+        <Caret Line="160" Column="5" TopLine="144"/>
       </Position24>
       <Position25>
         <Filename Value="unit1.pas"/>
-        <Caret Line="11" Column="8" TopLine="6"/>
+        <Caret Line="159" Column="5" TopLine="143"/>
       </Position25>
       <Position26>
         <Filename Value="unit1.pas"/>
-        <Caret Line="130" Column="19" TopLine="136"/>
+        <Caret Line="62" Column="19" TopLine="44"/>
       </Position26>
       <Position27>
         <Filename Value="unit1.pas"/>
-        <Caret Line="160" Column="5" TopLine="144"/>
+        <Caret Line="149" Column="31" TopLine="134"/>
       </Position27>
       <Position28>
         <Filename Value="unit1.pas"/>
-        <Caret Line="159" Column="5" TopLine="143"/>
+        <Caret Line="154" Column="37" TopLine="140"/>
       </Position28>
-      <Position29>
-        <Filename Value="unit1.pas"/>
-        <Caret Line="62" Column="19" TopLine="44"/>
-      </Position29>
-      <Position30>
-        <Filename Value="unit1.pas"/>
-        <Caret Line="149" Column="31" TopLine="134"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="8"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="uniteditor"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir);..\..\Common"/>
-      <OtherUnitFiles Value="..\..\Common"/>
+      <IncludeFiles Value="$(ProjOutDir)\;..\..\Common\"/>
+      <OtherUnitFiles Value="..\..\Common\"/>
     </SearchPaths>
-    <Parsing>
-      <SyntaxOptions>
-        <UseAnsiStrings Value="False"/>
-      </SyntaxOptions>
-    </Parsing>
     <Linking>
       <Options>
         <Win32>
