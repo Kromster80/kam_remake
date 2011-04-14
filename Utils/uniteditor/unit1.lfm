@@ -1,16 +1,137 @@
 object Form1: TForm1
-  Left = 231
+  Left = 527
   Height = 391
-  Top = 158
+  Top = 294
   Width = 608
+  ActiveControl = File_name
   Caption = 'Form1'
   ClientHeight = 391
   ClientWidth = 608
   OnCreate = init
-  LCLVersion = '0.9.30'
+  LCLVersion = '0.9.28.2'
+  object SName: TLabel
+    Left = 25
+    Height = 16
+    Top = 80
+    Width = 66
+    Caption = 'Unit Name'
+    ParentColor = False
+  end
+  object UnitNumber: TLabel
+    Left = 25
+    Height = 16
+    Top = 47
+    Width = 75
+    Caption = 'UnitNumber'
+    ParentColor = False
+  end
+  object Label1: TLabel
+    Left = 25
+    Height = 16
+    Top = 120
+    Width = 57
+    Caption = 'Hitpoints'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 25
+    Height = 16
+    Top = 159
+    Width = 37
+    Caption = 'Atack'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 25
+    Height = 16
+    Top = 199
+    Width = 118
+    Caption = 'AttackHorseBonus'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 25
+    Height = 16
+    Top = 232
+    Width = 16
+    Caption = 'x4'
+    ParentColor = False
+  end
+  object Defence: TLabel
+    Left = 25
+    Height = 16
+    Top = 272
+    Width = 55
+    Caption = 'Defence'
+    ParentColor = False
+  end
+  object Speed: TLabel
+    Left = 25
+    Height = 16
+    Top = 312
+    Width = 41
+    Caption = 'Speed'
+    ParentColor = False
+  end
+  object label5: TLabel
+    Left = 288
+    Height = 16
+    Top = 120
+    Width = 16
+    Caption = 'x7'
+    ParentColor = False
+  end
+  object Label6: TLabel
+    Left = 288
+    Height = 16
+    Top = 160
+    Width = 33
+    Caption = 'Sight'
+    ParentColor = False
+  end
+  object Label7: TLabel
+    Left = 288
+    Height = 16
+    Top = 199
+    Width = 16
+    Caption = 'x9'
+    ParentColor = False
+  end
+  object Label8: TLabel
+    Left = 288
+    Height = 16
+    Top = 232
+    Width = 24
+    Caption = 'x10'
+    ParentColor = False
+  end
+  object Label9: TLabel
+    Left = 288
+    Height = 16
+    Top = 272
+    Width = 79
+    Caption = 'CanWalkOut'
+    ParentColor = False
+  end
+  object Label10: TLabel
+    Left = 288
+    Height = 16
+    Top = 312
+    Width = 24
+    Caption = 'x11'
+    ParentColor = False
+  end
+  object Label11: TLabel
+    Left = 161
+    Height = 16
+    Top = 82
+    Width = 36
+    Caption = 'name'
+    ParentColor = False
+  end
   object File_name: TEdit
     Left = 16
-    Height = 23
+    Height = 21
     Top = 8
     Width = 80
     TabOrder = 0
@@ -25,218 +146,98 @@ object Form1: TForm1
     OnClick = open_file
     TabOrder = 1
   end
-  object SName: TLabel
-    Left = 25
-    Height = 16
-    Top = 80
-    Width = 58
-    Caption = 'Unit Name'
-    ParentColor = False
-  end
-  object UnitNumber: TLabel
-    Left = 25
-    Height = 16
-    Top = 47
-    Width = 67
-    Caption = 'UnitNumber'
-    ParentColor = False
-  end
   object number: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 48
     Width = 80
     OnChange = showDAT
     TabOrder = 2
     Text = '1'
   end
-  object Label1: TLabel
-    Left = 25
-    Height = 16
-    Top = 120
-    Width = 50
-    Caption = 'Hitpoints'
-    ParentColor = False
-  end
   object HP: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 120
     Width = 80
     TabOrder = 3
   end
-  object Label2: TLabel
-    Left = 25
-    Height = 16
-    Top = 159
-    Width = 31
-    Caption = 'Atack'
-    ParentColor = False
-  end
   object ATK: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 160
     Width = 80
     TabOrder = 4
   end
-  object Label3: TLabel
-    Left = 25
-    Height = 16
-    Top = 199
-    Width = 99
-    Caption = 'AttackHorseBonus'
-    ParentColor = False
-  end
   object AHB: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 199
     Width = 80
     TabOrder = 5
   end
-  object Label4: TLabel
-    Left = 25
-    Height = 16
-    Top = 232
-    Width = 12
-    Caption = 'x4'
-    ParentColor = False
-  end
   object x4: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 232
     Width = 80
     TabOrder = 6
   end
-  object Defence: TLabel
-    Left = 25
-    Height = 16
-    Top = 272
-    Width = 44
-    Caption = 'Defence'
-    ParentColor = False
-  end
   object DEF: TEdit
     Left = 160
-    Height = 23
+    Height = 21
     Top = 272
     Width = 80
     TabOrder = 7
   end
-  object Speed: TLabel
-    Left = 25
-    Height = 16
-    Top = 312
-    Width = 33
-    Caption = 'Speed'
-    ParentColor = False
-  end
   object SPD: TEdit
     Left = 161
-    Height = 23
+    Height = 21
     Top = 312
     Width = 79
     TabOrder = 8
   end
-  object label5: TLabel
-    Left = 288
-    Height = 16
-    Top = 120
-    Width = 12
-    Caption = 'x7'
-    ParentColor = False
-  end
   object x7: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 120
     Width = 81
     TabOrder = 9
   end
-  object Label6: TLabel
-    Left = 288
-    Height = 16
-    Top = 160
-    Width = 28
-    Caption = 'Sight'
-    ParentColor = False
-  end
   object Sight: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 159
     Width = 81
     TabOrder = 10
   end
-  object Label7: TLabel
-    Left = 288
-    Height = 16
-    Top = 199
-    Width = 12
-    Caption = 'x9'
-    ParentColor = False
-  end
-  object Label8: TLabel
-    Left = 288
-    Height = 16
-    Top = 232
-    Width = 18
-    Caption = 'x10'
-    ParentColor = False
-  end
   object x9: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 199
     Width = 81
     TabOrder = 11
   end
   object x10: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 232
     Width = 81
     TabOrder = 12
   end
-  object Label9: TLabel
-    Left = 288
-    Height = 16
-    Top = 272
-    Width = 68
-    Caption = 'CanWalkOut'
-    ParentColor = False
-  end
   object CVA: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 272
     Width = 81
     TabOrder = 13
   end
-  object Label10: TLabel
-    Left = 288
-    Height = 16
-    Top = 312
-    Width = 18
-    Caption = 'x11'
-    ParentColor = False
-  end
   object x11: TEdit
     Left = 380
-    Height = 23
+    Height = 21
     Top = 312
     Width = 81
     TabOrder = 14
-  end
-  object Label11: TLabel
-    Left = 161
-    Height = 16
-    Top = 82
-    Width = 31
-    Caption = 'name'
-    ParentColor = False
   end
   object Button1: TButton
     Left = 192

@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Menus, KromUtils
+  Menus //, KromUtils
   {$IFDEF FPC}, LResources{$ENDIF};
 
 
@@ -102,7 +102,7 @@ var
 begin
   Result := false;
 
-  if not CheckFileExists(FileName) then exit;
+  if not FileExists(FileName) then exit;
   assignfile(f,FileName); reset(f,1);
 
   for ii:=1 to 28 do
@@ -128,7 +128,7 @@ begin
 
   //todo: Add file-save dialog
   //todo: Allow to save if file not exists (create new file)
-  if not CheckFileExists(FileName) then exit;
+  if not FileExists(FileName) then exit;
   assignfile(f,FileName); reset(f,1);
 
   for ii:=1 to 28 do
