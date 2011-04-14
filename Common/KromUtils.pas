@@ -5,7 +5,7 @@ unit KromUtils;
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
 uses
-  Controls, Dialogs, ExtCtrls, Forms, Math, Registry, SysUtils, TypInfo,
+  Controls, Dialogs, ExtCtrls, Forms, Math, Registry, SysUtils, TypInfo
   {$IFDEF MSWindows} ,Windows, ShellApi {$ENDIF}
   {$IFDEF FPC} ,UTF8Process, LazHelpHTML {$ENDIF}
   {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
@@ -592,19 +592,17 @@ end;
 
 
 function BrowseURL(const URL: string) : boolean;
+{$IFDEF FPC}
 var
-  {$IFDEF WDC} Browser: string; {$ENDIF}
-
-  {$IFDEF FPC}
   v: THTMLBrowserHelpViewer;
   BrowserPath, BrowserParams: string;
   p: LongInt;
   BrowserProcess: TProcessUTF8;
-  {$ENDIF}
+{$ENDIF}
 begin
   {$IFDEF WDC}
   Result := true;
-  ShellExecute(Application.Handle, 'open', URL,nil,nil, SW_SHOWNORMAL);
+  ShellExecute(Application.Handle, 'open', PAnsiChar(URL),nil,nil, SW_SHOWNORMAL);
   {$ENDIF}
 
   {$IFDEF FPC}

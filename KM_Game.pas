@@ -724,14 +724,14 @@ end;
 //Treat 10 ticks as 1 sec irregardless of user-set pace
 function TKMGame.GetMissionTime:cardinal;
 begin
-  Result := GameTickCount div 10;
+  Result := fGameTickCount div 10;
 end;
 
 
 //Tests whether time has past
 function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
 begin
-  Result := (GameTickCount >= aTimeTicks);
+  Result := (fGameTickCount >= aTimeTicks);
 end;
 
 

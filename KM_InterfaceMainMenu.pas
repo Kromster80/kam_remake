@@ -433,7 +433,7 @@ begin
 
       TKMLabel.Create(Panel_LANLogin2, 300, 0, 100, 20, 'Set partners IP address:', fnt_Metal, kaCenter);
       Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 250, 25, 100, 20, fnt_Grey);
-      Edit_LAN_IP.Text := '5.30.230.70';
+      Edit_LAN_IP.Text := '127.0.0.1';
       Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 250, 60, 100, 30, 'Join', fnt_Metal, bsMenu);
       Button_LAN_Join.OnClick := LAN_Join;
 
