@@ -210,13 +210,11 @@ begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
 
   fMapInfo.Load(aName);
+  fNetPlayers.ResetLocAndReady; //Reset start locations
 
-  //if not fMapInfo.IsValid then exit; 
-  //todo: Check if map is valid fMapInfo.IsValid
+  if not fMapInfo.IsValid then exit;
 
   PacketToAll(mk_MapSelect, fMapInfo.Folder);
-
-  fNetPlayers.ResetLocAndReady;
   fNetPlayers[fMyIndex].ReadyToStart := true;
   //PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
 
@@ -422,7 +420,7 @@ begin
 
     mk_MapSelect:
             if fLANPlayerKind = lpk_Joiner then begin
-              fMapInfo.Load(Msg); //todo: Check map validity and availability
+              fMapInfo.Load(Msg);
               fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);

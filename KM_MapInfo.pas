@@ -10,7 +10,6 @@ type
   private
     fFolder:string; //Map folder
     fDatSize:integer;
-    fIsValid:boolean;
     fVersion:string;
     fMissionMode:TKMissionMode; //Fighting or Build-a-City map
     fPlayerCount:byte;
@@ -25,7 +24,7 @@ type
     BigDesc:string;
     procedure Load(const aFolder:string);
     property Folder:string read fFolder;
-    property IsValid:boolean read fIsValid;
+    function IsValid:boolean;
     property MissionMode:TKMissionMode read fMissionMode;
     property PlayerCount:byte read fPlayerCount;
     property MapSize:string read fMapSize;
@@ -52,12 +51,12 @@ implementation
 uses KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
-{ TKMMapInfo }
+{ TKMapInfo }
 procedure TKMapInfo.Load(const aFolder:string);
 begin
   fFolder := aFolder;
-  fIsValid := true; //todo: Check existance, validity and etc..
   ScanMap;
+  if not IsValid then fFolder := '';
 end;
 
 
@@ -146,6 +145,15 @@ begin
   finally
     S.Free;
   end;
+end;
+
+
+function TKMapInfo.IsValid:boolean;
+begin
+  Result := (Folder <> '') and
+            FileExists(KMMapNameToPath(fFolder,'dat')) and
+            FileExists(KMMapNameToPath(fFolder,'map')) and
+            (fPlayerCount > 0);
 end;
 
 
