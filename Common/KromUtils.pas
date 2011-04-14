@@ -6,10 +6,10 @@ unit KromUtils;
 interface
 uses
   Controls, Dialogs, ExtCtrls, Forms, Math, Registry, SysUtils, TypInfo,
-  {$IFDEF WDC} Windows, {$ENDIF}
-  ShellApi;
-
-//Linux do not like: windows (removed), ShellApi;
+  {$IFDEF MSWindows} ,Windows, ShellApi {$ENDIF}
+  {$IFDEF FPC} ,UTF8Process, LazHelpHTML {$ENDIF}
+  {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
+  ;
 
 type
   PSingleArray = ^TSingleArray;
@@ -243,7 +243,7 @@ begin
   Result := FileExists(FileName);
 
   if not IsSilent and not Result then
-    ShowMessage(PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"')); //Should be topmost
+    Application.MessageBox(PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
 end;
 
 
@@ -591,31 +591,45 @@ begin
 end;
 
 
-//By Zarko Gajic, About.com
 function BrowseURL(const URL: string) : boolean;
 var
-   Browser: string;
+  {$IFDEF WDC} Browser: string; {$ENDIF}
+
+  {$IFDEF FPC}
+  v: THTMLBrowserHelpViewer;
+  BrowserPath, BrowserParams: string;
+  p: LongInt;
+  BrowserProcess: TProcessUTF8;
+  {$ENDIF}
 begin
-   Result := True;
-   Browser := '';
-   with TRegistry.Create do
-   try
-     RootKey := HKEY_CLASSES_ROOT;
-     Access := KEY_QUERY_VALUE;
-     if OpenKey('\htmlfile\shell\open\command', False) then
-       Browser := ReadString('') ;
-     CloseKey;
-   finally
-     Free;
-   end;
-   if Browser = '' then
-   begin
-     Result := False;
-     Exit;
-   end;
-   Browser := Copy(Browser, Pos('"', Browser) + 1, Length(Browser)) ;
-   Browser := Copy(Browser, 1, Pos('"', Browser) - 1) ;
-   ShellExecute(0, 'open', PChar(@Browser[1]), PChar(@URL[1]), nil, SW_SHOW);
+  {$IFDEF WDC}
+  Result := true;
+  ShellExecute(Application.Handle, 'open', URL,nil,nil, SW_SHOWNORMAL);
+  {$ENDIF}
+
+  {$IFDEF FPC}
+  Result := False;
+  v:=THTMLBrowserHelpViewer.Create(nil);
+  try
+    v.FindDefaultBrowser(BrowserPath,BrowserParams);
+
+    p:=System.Pos('%s', BrowserParams);
+    System.Delete(BrowserParams,p,2);
+    System.Insert(URL,BrowserParams,p);
+ 
+    // start browser
+    BrowserProcess:=TProcessUTF8.Create(nil);
+    try
+      BrowserProcess.CommandLine:=BrowserPath+' '+BrowserParams;
+      BrowserProcess.Execute;
+      Result := True;
+    finally
+      BrowserProcess.Free;
+    end;
+  finally
+    v.Free;
+  end;
+  {$ENDIF}
 end;
 
 

@@ -724,14 +724,14 @@ end;
 //Treat 10 ticks as 1 sec irregardless of user-set pace
 function TKMGame.GetMissionTime:cardinal;
 begin
-  Result := GetTickCount div 10;
+  Result := GameTickCount div 10;
 end;
 
 
 //Tests whether time has past
 function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
 begin
-  Result := (GetTickCount >= aTimeTicks);
+  Result := (GameTickCount >= aTimeTicks);
 end;
 
 
@@ -772,8 +772,6 @@ var
   SaveStream:TKMemoryStream;
   i:integer;
 begin
-  exit;
-
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
     Assert(false, 'Saving from wrong state?');
