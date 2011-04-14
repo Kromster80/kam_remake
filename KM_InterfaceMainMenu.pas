@@ -1049,7 +1049,8 @@ end;
 procedure TKMMainMenuInterface.SingleMap_RefreshList;
 var i,MapID:integer;
 begin
-  for i:=0 to MENU_SP_MAPS_COUNT-1 do begin
+  for i:=0 to MENU_SP_MAPS_COUNT-1 do
+  begin
     MapID := SingleMap_Top + i;
     if MapID > SingleMapsInfo.Count-1 then begin
       Image_SingleMode[i].TexID       := 0;
@@ -1058,7 +1059,7 @@ begin
       Label_SingleTitle2[i].Caption   := '';
       Label_SingleSize[i].Caption     := '';
     end else begin
-      Image_SingleMode[i].TexID       := 28+byte(SingleMapsInfo[MapID].MissionMode = mm_Tactic)*14;  //28 or 42
+      Image_SingleMode[i].TexID       := 28+byte(SingleMapsInfo[MapID].MissionMode <> mm_Tactic)*14;  //28 or 42
       Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo[MapID].PlayerCount);
       Label_SingleTitle1[i].Caption   := SingleMapsInfo[MapID].Folder;
       Label_SingleTitle2[i].Caption   := SingleMapsInfo[MapID].SmallDesc;
