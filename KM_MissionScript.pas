@@ -60,6 +60,8 @@ type
     VictoryCond:string;
     DefeatCond:string;
   end;
+
+  //Save map specific information (size, what else?)
   TKMMapDetails = record
     MapSize: TKMPoint;
   end;

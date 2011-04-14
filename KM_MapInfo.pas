@@ -2,24 +2,31 @@ unit KM_MapInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, Dialogs;
+  Classes, KromUtils, SysUtils;
 
 
 type
   TKMapInfo = class
   private
+    fFolder:string; //Map folder
+    fDatSize:integer;
+    fVersion:string;
+    fIsFight:boolean; //Fighting or Build-a-City map
+    fPlayerCount:byte;
     fSmallDesc:string;
+    fMapSize:string; //S,M,L,XL
     VictoryCond:string;
     DefeatCond:string;
     procedure ScanMap;
+    procedure LoadFromFile(const aPath:string);
+    procedure SaveToFile(const aPath:string);
   public
-    Folder:string; //Map folder
-    DatSize:integer;
-    IsFight:boolean; //Fight or Build map
-    PlayerCount:byte;
     BigDesc:string;
-    MapSize:string; //S,M,L,XL
-    constructor Create(const aName:string; aSize:integer);
+    constructor Create(const aFolder:string);
+    property Folder:string read fFolder;
+    property IsFight:boolean read fIsFight;
+    property PlayerCount:byte read fPlayerCount;
+    property MapSize:string read fMapSize;
     function SmallDesc:string;
     function MissionMode:string;
     function VictoryCondition:string;
@@ -44,99 +51,97 @@ uses KM_Defaults, KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
 { TKMMapInfo }
-constructor TKMapInfo.Create(const aName:string; aSize:integer);
+constructor TKMapInfo.Create(const aFolder:string);
 begin
-  Folder := aName;
-  DatSize := aSize;
+  fFolder := aFolder;
   ScanMap;
 end;
 
 
 procedure TKMapInfo.ScanMap;
-  function CanTakeDataFromINI(aFile:string; aSize:integer):boolean;
-  var S:TKMemoryStream; Size:integer; Vers:string;
-  begin
-    Result := false;
-    if FileExists(aFile) then begin
-      S := TKMemoryStream.Create;
-      try
-        S.LoadFromFile(aFile);
-        S.Read(Size);
-        S.Read(Vers);
-        Result := (Size = aSize) and (Vers = SAVE_VERSION);
-      finally
-        S.Free;
-      end;
-    end;
-  end;
 var
-  i:integer;
-  S:TKMemoryStream;
   st:string;
   ft:textfile;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
   fMissionParser:TMissionParser;
 begin
-  fMissionParser := TMissionParser.Create(mpm_Game);
-  try
-    //Take data from existing Info file if it exists and DAT size matches
-    if CanTakeDataFromINI(KMMapNameToPath(Folder,'tmp'), DatSize) then
-    begin
-      S := TKMemoryStream.Create;
-      try
-        S.LoadFromFile(KMMapNameToPath(Folder,'tmp'));
-        S.Read(i);
-        S.Read(st);
-        S.Read(IsFight);
-        S.Read(PlayerCount);
-        S.Read(VictoryCond);
-        S.Read(DefeatCond);
-        S.Read(MapSize);
-      finally
-        S.Free;
-      end;
-    end else begin
-      MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(Folder,'dat'));
-      MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(Folder,'map'));
-      IsFight        := MissionDetails.IsFight;
-      PlayerCount    := MissionDetails.TeamCount;
+  LoadFromFile(KMMapNameToPath(fFolder,'tmp')); //Data will be empty if failed
+
+  //We will scan map once again if anything has changed
+  if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or (fVersion <> SAVE_VERSION) {or HashChanged} then
+  begin
+    fMissionParser := TMissionParser.Create(mpm_Game);
+    try
+      MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(fFolder,'dat'));
+      MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(fFolder,'map'));
+      fIsFight       := MissionDetails.IsFight;
+      fPlayerCount   := MissionDetails.TeamCount;
       VictoryCond    := MissionDetails.VictoryCond;
       DefeatCond     := MissionDetails.DefeatCond;
-      MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
-      S := TKMemoryStream.Create;
-      try
-        S.Write(DatSize);
-        S.Write(SAVE_VERSION);
-        S.Write(IsFight);
-        S.Write(PlayerCount);
-        S.Write(VictoryCond);
-        S.Write(DefeatCond);
-        S.Write(MapSize);
-        S.SaveToFile(KMMapNameToPath(Folder,'tmp'));
-      finally
-        S.Free;
-      end;
-    end;
+      fMapSize       := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
 
-    fSmallDesc     := '-';
-    BigDesc        := '-';
-
-    if FileExists(KMMapNameToPath(Folder,'txt')) then
-    begin
-      AssignFile(ft,KMMapNameToPath(Folder,'txt'));
-      FileMode := 0;
-      Reset(ft);
-      FileMode := 2;
-      repeat
-        readln(ft,st);
-        if SameText(st, 'SmallDesc') then readln(ft,fSmallDesc);
-        if SameText(st, 'BigDesc') then readln(ft,BigDesc);
-      until(eof(ft));
-      closefile(ft);
+      SaveToFile(KMMapNameToPath(fFolder,'tmp')); //Save new TMP file
+    finally
+      fMissionParser.Free;
     end;
+  end;
+
+  fSmallDesc     := '-';
+  BigDesc        := '-';
+
+  //Load additional text info
+  if FileExists(KMMapNameToPath(fFolder,'txt')) then
+  begin
+    AssignFile(ft, KMMapNameToPath(fFolder,'txt'));
+    FileMode := 0;
+    Reset(ft);
+    FileMode := 2;
+    repeat
+      readln(ft,st);
+      if SameText(st, 'SmallDesc') then readln(ft,fSmallDesc);
+      if SameText(st, 'BigDesc') then readln(ft,BigDesc);
+    until(eof(ft));
+    closefile(ft);
+  end;
+end;
+
+
+procedure TKMapInfo.LoadFromFile(const aPath:string);
+var S:TKMemoryStream;
+begin
+  if not FileExists(aPath) then exit;
+  S := TKMemoryStream.Create;
+  try
+    S.LoadFromFile(aPath);
+    S.Read(fDatSize);
+    S.Read(fVersion);
+    S.Read(fIsFight);
+    S.Read(fPlayerCount);
+    S.Read(VictoryCond);
+    S.Read(DefeatCond);
+    S.Read(fMapSize);
   finally
-    fMissionParser.Free;
+    S.Free;
+  end;
+end;
+
+
+procedure TKMapInfo.SaveToFile(const aPath:string);
+var S:TKMemoryStream;
+begin
+  S := TKMemoryStream.Create;
+  try
+    S.Write(fDatSize);
+    S.Write(SAVE_VERSION); //Use actual version
+    S.Write(fIsFight);
+    S.Write(fPlayerCount);
+    S.Write(VictoryCond);
+    S.Write(DefeatCond);
+    S.Write(fMapSize);
+    S.SaveToFile(aPath);
+  finally
+    S.Free;
   end;
 end;
 
@@ -194,7 +199,7 @@ begin
     begin
       inc(fCount);
       SetLength(fMaps, fCount);
-      fMaps[fCount-1] := TKMapInfo.Create(SearchRec.Name, SearchRec.Size);
+      fMaps[fCount-1] := TKMapInfo.Create(SearchRec.Name);
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);

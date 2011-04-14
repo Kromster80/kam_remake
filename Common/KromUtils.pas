@@ -1,9 +1,14 @@
 unit KromUtils;
 {$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
 {$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
+{$IFDEF VER220} {$DEFINE WDC} {$ENDIF}  // Delphi XE
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
-uses sysutils,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, Controls, ShellApi;
+uses
+  Controls, Dialogs, ExtCtrls, Forms, Math, Registry, SysUtils, TypInfo,
+  {$IFDEF WDC} Windows, {$ENDIF}
+  ShellApi;
+
 //Linux do not like: windows (removed), ShellApi;
 
 type
@@ -225,7 +230,8 @@ begin
   try
     if FindFirst(ExpandFileName(FileName), faAnyFile, SearchRec) = 0 then
       Result := SearchRec.Size
-    else Result := -1;
+    else
+      Result := -1;
   finally
     SysUtils.FindClose(SearchRec);
   end;
