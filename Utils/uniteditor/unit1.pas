@@ -22,9 +22,8 @@ const
  'Ballista', 'Wolf', 'Fish', 'Watersnake', 'Seastar', 'Crab', 'Waterflower',
  'Waterleaf', 'Duck', 'Unknown', 'Unknown', 'Unknown');
 
-  { TForm1 }
-type
 
+type
   TForm1 = class(TForm)
     ATK: TEdit;
     AHB: TEdit;
@@ -57,15 +56,11 @@ type
     UnitNumber: TLabel;
     Open: TButton;
     File_name: TEdit;
-  procedure init(Sender: TObject);
-  procedure open_file(Sender: TObject);
-  procedure saveDAT(Sender: TObject);
-  procedure showDAT(Sender: TObject);
-  private
-    { private declarations }
-  public
-    { public declarations }
-  end; 
+    procedure init(Sender: TObject);
+    procedure open_file(Sender: TObject);
+    procedure saveDAT(Sender: TObject);
+    procedure showDAT(Sender: TObject);
+  end;
 
 var
   Form1: TForm1;
@@ -99,7 +94,6 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-{ TForm1 }
 
 function LoadUnitDAT(FileName:string):boolean;
 var
@@ -120,8 +114,10 @@ begin
     blockread(f,UnitSprite2[ii],36);
   end;
   closefile(f);
-Result:=true;
+
+  Result := true;
 end;
+
 
 function SaveUnitDAT(FileName:string):boolean;
 var
@@ -130,6 +126,8 @@ var
 begin
   Result := false;
 
+  //todo: Add file-save dialog
+  //todo: Allow to save if file not exists (create new file)
   if not CheckFileExists(FileName) then exit;
   assignfile(f,FileName); reset(f,1);
 
@@ -142,19 +140,26 @@ begin
     blockwrite(f,UnitSprite2[ii],36);
   end;
   closefile(f);
-Result:=true;
+
+  Result := true;
 end;
+
 
 procedure TForm1.open_file(Sender: TObject);
 begin
+  //todo: Add file-open dialog
   LoadUnitDAT(File_name.Text);
+
+  //todo: Replace UnitNumber field with TListBox
 end;
+
 
 procedure TForm1.init(Sender: TObject);
 begin
   //default location
   File_name.Text := '../../Data/Defines/Unit.dat';
 end;
+
 
 procedure TForm1.saveDAT(Sender: TObject);
 var
@@ -176,11 +181,13 @@ begin
   SaveUnitDAT(File_name.Text);
 end;
 
+
 procedure TForm1.showDAT(Sender: TObject);
 var
   i :integer;
 begin
-  i := strtoint(number.Text);
+  //todo: Replace all TEdits with TSpinEdits
+  i := strtoint(number.Text);  //todo: Check that i is within allowed range
   Label11.Caption := UnitNames[i];
   HP.Text := inttostr(UnitStat[i].HitPoints);
   ATK.Text := inttostr(UnitStat[i].Attack);
@@ -195,6 +202,7 @@ begin
   CVA.Text := inttostr(UnitStat[i].CanWalkOut);
   x11.Text := inttostr(UnitStat[i].x11);
 end;
+
 
 {$IFDEF FPC}
 initialization
