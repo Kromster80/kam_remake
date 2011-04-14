@@ -127,8 +127,7 @@ begin
   Result := false;
 
   //todo: Add file-save dialog
-  //todo: Allow to save if file not exists (create new file)
-  if not FileExists(FileName) then exit;
+
   assignfile(f,FileName); reset(f,1);
 
   for ii:=1 to 28 do
@@ -187,20 +186,23 @@ var
   i :integer;
 begin
   //todo: Replace all TEdits with TSpinEdits
-  i := strtoint(number.Text);  //todo: Check that i is within allowed range
-  Label11.Caption := UnitNames[i];
-  HP.Text := inttostr(UnitStat[i].HitPoints);
-  ATK.Text := inttostr(UnitStat[i].Attack);
-  AHB.Text := inttostr(UnitStat[i].AttackHorseBonus);
-  x4.Text := inttostr(UnitStat[i].x4);
-  DEF.Text := inttostr(UnitStat[i].Defence);
-  SPD.Text := inttostr(UnitStat[i].Speed);
-  x7.Text := '0'; // inttostr(UnitStat[i].x7);
-  Sight.Text := inttostr(UnitStat[i].Sight);
-  x9.Text := inttostr(UnitStat[i].x9);
-  x10.Text := inttostr(UnitStat[i].x10);
-  CVA.Text := inttostr(UnitStat[i].CanWalkOut);
-  x11.Text := inttostr(UnitStat[i].x11);
+  i := strtoint(number.Text);
+  if (i<42) then begin
+   Label11.Caption := UnitNames[i];
+   HP.Text := inttostr(UnitStat[i].HitPoints);
+   ATK.Text := inttostr(UnitStat[i].Attack);
+   AHB.Text := inttostr(UnitStat[i].AttackHorseBonus);
+   x4.Text := inttostr(UnitStat[i].x4);
+   DEF.Text := inttostr(UnitStat[i].Defence);
+   SPD.Text := inttostr(UnitStat[i].Speed);
+   x7.Text := '0'; // inttostr(UnitStat[i].x7);
+   Sight.Text := inttostr(UnitStat[i].Sight);
+   x9.Text := inttostr(UnitStat[i].x9);
+   x10.Text := inttostr(UnitStat[i].x10);
+   CVA.Text := inttostr(UnitStat[i].CanWalkOut);
+   x11.Text := inttostr(UnitStat[i].x11);
+  end
+  else ShowMessage ('wrong unit number');
 end;
 
 
