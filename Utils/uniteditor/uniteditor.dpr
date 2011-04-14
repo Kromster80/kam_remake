@@ -5,16 +5,13 @@ program uniteditor;
 {$ENDIF}
 
 uses
-  {$IFDEF UNIX}{$IFDEF UseCThreads}
-  cthreads,
-  {$ENDIF}{$ENDIF}
+  {$IFDEF UNIX}
+    {$IFDEF UseCThreads}
+    cthreads,
+    {$ENDIF}
+  {$ENDIF}
   {$IFDEF FPC} Interfaces, {$ENDIF}
-  Forms, Unit1
-  { you can add units after this };
-
-{$IFDEF WDC}
-  {$R *.RES}
-{$ENDIF}
+  Forms, Unit1;
 
 begin
   Application.Initialize;

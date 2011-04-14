@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Menus //, KromUtils
+  Menus
   {$IFDEF FPC}, LResources{$ENDIF};
 
 
@@ -121,6 +121,7 @@ begin
   Result := true;
 end;
 
+
 function SaveUnitDAT(FileName:string):boolean;
 var
   ii:integer;
@@ -147,6 +148,8 @@ procedure TForm1.open_file(Sender: TObject);
 begin
   if OpenDialog1.Execute then
   LoadUnitDAT(OpenDialog1.Filename);
+  //todo: Use InitialDir to set folder ../../Data/Defines/ if it exists
+  //if not - take Exe Dir
 
   //todo: Replace UnitNumber field with TListBox
 end;
@@ -179,7 +182,7 @@ var
 begin
   //todo: Replace all TEdits with TSpinEdits
   i := strtoint(number.Text);
-  if (i<42) then begin
+  if (i<42) then begin //todo: use Math.InRange(i, 1, 42) ;)
    Label11.Caption := UnitNames[i];
    HP.Text := inttostr(UnitStat[i].HitPoints);
    ATK.Text := inttostr(UnitStat[i].Attack);
