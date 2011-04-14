@@ -24,6 +24,9 @@ const
 
 
 type
+
+  { TForm1 }
+
   TForm1 = class(TForm)
     ATK: TEdit;
     AHB: TEdit;
@@ -32,6 +35,8 @@ type
     DEF: TEdit;
     CVA: TEdit;
     Label11: TLabel;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     x11: TEdit;
     Label10: TLabel;
     Label9: TLabel;
@@ -55,8 +60,6 @@ type
     SName: TLabel;
     UnitNumber: TLabel;
     Open: TButton;
-    File_name: TEdit;
-    procedure init(Sender: TObject);
     procedure open_file(Sender: TObject);
     procedure saveDAT(Sender: TObject);
     procedure showDAT(Sender: TObject);
@@ -118,16 +121,12 @@ begin
   Result := true;
 end;
 
-
 function SaveUnitDAT(FileName:string):boolean;
 var
   ii:integer;
   f:file;
 begin
   Result := false;
-
-  //todo: Add file-save dialog
-
   assignfile(f,FileName); reset(f,1);
 
   for ii:=1 to 28 do
@@ -146,17 +145,10 @@ end;
 
 procedure TForm1.open_file(Sender: TObject);
 begin
-  //todo: Add file-open dialog
-  LoadUnitDAT(File_name.Text);
+  if OpenDialog1.Execute then
+  LoadUnitDAT(OpenDialog1.Filename);
 
   //todo: Replace UnitNumber field with TListBox
-end;
-
-
-procedure TForm1.init(Sender: TObject);
-begin
-  //default location
-  File_name.Text := '../../Data/Defines/Unit.dat';
 end;
 
 
@@ -176,8 +168,8 @@ begin
   UnitStat[i].x10 := strtoint(x10.Text);
   UnitStat[i].CanWalkOut := strtoint(CVA.Text);
   UnitStat[i].x11 := strtoint(x11.Text);
-
-  SaveUnitDAT(File_name.Text);
+  if SaveDialog1.Execute then
+  SaveUnitDAT(SaveDialog1.Filename);
 end;
 
 
