@@ -166,7 +166,7 @@ type
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
-      CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZES_COUNT] of TKMCheckBox; //todo: Replace with RadioGroup
+      Radio_MapEd_SizeX,Radio_MapEd_SizeY:TKMRadioGroup;
       Panel_MapEd_Load:TKMPanel;
       FileList_MapEd:TKMFileList;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
@@ -236,8 +236,6 @@ begin
   Campaign_Mission_Choice := 1;
   SingleMap_Top := 0;
   SingleMap_Selected := 0;
-  MapEdSizeX := 64;
-  MapEdSizeY := 64;
 
   MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, (X-MENU_DESIGN_X) div 2,
@@ -643,13 +641,19 @@ begin
       TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 40 + MAPSIZES_COUNT*20);
       TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 100, 30, fTextLibrary.GetRemakeString(21), fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 100, 30, fTextLibrary.GetRemakeString(22), fnt_Outline, kaLeft);
-      for i:=1 to MAPSIZES_COUNT do
-      begin
-        CheckBox_MapEd_SizeX[i] := TKMCheckBox.Create(Panel_MapEd_SizeXY, 8, 52+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
-        CheckBox_MapEd_SizeY[i] := TKMCheckBox.Create(Panel_MapEd_SizeXY, 108, 52+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
-        CheckBox_MapEd_SizeX[i].OnClick := MapEditor_Change;
-        CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
+
+      Radio_MapEd_SizeX := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 8, 52, 100, 200, fnt_Metal);
+      Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 108, 52, 100, 200, fnt_Metal);
+      Radio_MapEd_SizeX.ItemIndex := 2; //64
+      Radio_MapEd_SizeY.ItemIndex := 2; //64
+      Radio_MapEd_SizeX.OnChange := MapEditor_Change;
+      Radio_MapEd_SizeY.OnChange := MapEditor_Change;
+
+      for i:=1 to MAPSIZES_COUNT do begin
+        Radio_MapEd_SizeX.Items.Add(inttostr(MapSize[i]));
+        Radio_MapEd_SizeY.Items.Add(inttostr(MapSize[i]));
       end;
+
       Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 285, 200, 30, fTextLibrary.GetRemakeString(23), fnt_Metal, bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
@@ -1378,20 +1382,10 @@ end;
 
 
 procedure TKMMainMenuInterface.MapEditor_Change(Sender: TObject);
-var i:integer;
 begin
   //Find out new map dimensions
-  for i:=1 to MAPSIZES_COUNT do
-  begin
-    if Sender = CheckBox_MapEd_SizeX[i] then MapEdSizeX := MapSize[i];
-    if Sender = CheckBox_MapEd_SizeY[i] then MapEdSizeY := MapSize[i];
-  end;
-  //Put checkmarks
-  for i:=1 to MAPSIZES_COUNT do
-  begin
-    CheckBox_MapEd_SizeX[i].Checked := MapEdSizeX = MapSize[i];
-    CheckBox_MapEd_SizeY[i].Checked := MapEdSizeY = MapSize[i];
-  end;
+  MapEdSizeX := MapSize[Radio_MapEd_SizeX.ItemIndex+1];
+  MapEdSizeY := MapSize[Radio_MapEd_SizeY.ItemIndex+1];
 end;
 
 
