@@ -337,6 +337,7 @@ TKMRadioGroup = class(TKMControl)
     fItemIndex:integer;
     fItems:TStringList;
     fFont:TKMFont;
+    fOnChange:TNotifyEvent;
     function GetItemCount:integer;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
@@ -344,6 +345,7 @@ TKMRadioGroup = class(TKMControl)
     property ItemCount:integer read GetItemCount;
     property ItemIndex:integer read fItemIndex write fItemIndex;
     property Items:TStringList read fItems;
+    property OnChange: TNotifyEvent write fOnChange;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
 end;
@@ -1463,9 +1465,17 @@ end;
 
 
 procedure TKMRadioGroup.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+var NewIndex:integer;
 begin
   if (csDown in State) and (Button = mbLeft) and (X-Left < 20) then
-    fItemIndex := (Y-Top) div round(Height/ItemCount);
+  begin
+    NewIndex := (Y-Top) div round(Height/ItemCount);
+    if NewIndex <> fItemIndex then
+    begin
+      fItemIndex := NewIndex;
+      if Assigned(fOnChange) then fOnChange(Self);
+    end;
+  end;
   Inherited; //There are OnMouseUp and OnClick events there
 end;
 

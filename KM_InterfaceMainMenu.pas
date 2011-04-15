@@ -729,7 +729,7 @@ begin
 
       Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 100, 20*LOCALES_COUNT, fnt_Metal);
       for i:=1 to LOCALES_COUNT do Radio_Options_Lang.Items.Add(Locales[i,2]);
-      Radio_Options_Lang.OnClick := Options_Change;
+      Radio_Options_Lang.OnChange := Options_Change;
 
     Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
