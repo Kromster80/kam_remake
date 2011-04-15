@@ -11,7 +11,6 @@ const
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
-  //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
   ACTION_TIME_DELTA     = 0.1;          //Multiplied with units speed gives distance unit walks per frame
 
   FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
@@ -28,8 +27,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1567';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1567';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '2nd Fighting Demo r1580';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1580';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE

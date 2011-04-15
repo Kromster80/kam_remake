@@ -22,6 +22,7 @@ type
 
       property Count:byte read fCount write SetCount;
       procedure RemovePlayer(aIndex:integer);
+      procedure MovePlayer(aFrom,aTo:integer);
       procedure AfterMissionInit(aFlattenRoads:boolean);
       function HousesHitTest(X,Y:Integer):TKMHouse;
       function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
@@ -116,6 +117,17 @@ begin
   for i:=1 to fCount do
     if Player[i]<>nil then
       Player[i].Goals.RemoveReference(TPlayerID(aIndex));
+end;
+
+
+//todo: it will be right to remove empty players before save (called my SaveDAT)
+procedure TKMPlayersCollection.MovePlayer(aFrom,aTo:integer);
+begin
+  //Update IDs, Alliances, Goals
+
+  //Remove references from Terrain
+
+  //Do not Trim empty players (MapEd UI won't like it)
 end;
 
 

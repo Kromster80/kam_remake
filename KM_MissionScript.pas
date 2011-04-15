@@ -91,6 +91,7 @@ type
     procedure ProcessAttackPositions;
     procedure UnloadMission;
     function ReadMissionFile(const aFileName:string):string;
+    function AlignPlayersCount:integer;
   public
     constructor Create(aMode:TMissionParserMode);
     function LoadDATFile(const aFileName:string):string;
@@ -107,7 +108,7 @@ uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_Playe
 constructor TMissionParser.Create(aMode:TMissionParserMode);
 begin
   Inherited Create;
-  fParserMode := aMode;
+  fParserMode := aMode; //In Editor mode Armies created bit differently
   ErrorMessage:='';
   AttackPositionsCount := 0;
   //Set up default values for AI attack
@@ -312,7 +313,7 @@ begin
   finally
     F.Free;
   end;
-  Assert((sx<=MAX_MAP_SIZE)and(sy<=MAX_MAP_SIZE),'MissionParser can''t open the map cos it''s too big.');
+  Assert((sx<=MAX_MAP_SIZE)and(sy<=MAX_MAP_SIZE), 'MissionParser can''t open the map cos it''s too big.');
   Result.MapSize.X := sx;
   Result.MapSize.Y := sy;
 end;
@@ -666,7 +667,7 @@ begin
 end;
 
 
-{ Determine what we are attacking; House, Unit or just walking to some place}
+//Determine what we are attacking: House, Unit or just walking to some place
 procedure TMissionParser.ProcessAttackPositions;
 var
   i: integer;
@@ -689,7 +690,7 @@ begin
         else
 
           Warrior.OrderWalk(Target); //Just move to position
-          
+
       end;
     end;
 end;
@@ -708,6 +709,36 @@ begin
 end;
 
 
+function TMissionParser.AlignPlayersCount:integer;
+var ActivePlayer:array of boolean; i,k:integer; FirstEmpty:integer;
+begin
+  //Scan active players
+  SetLength(ActivePlayer, fPlayers.Count);
+
+  Result := 0;
+  for i:=0 to fPlayers.Count-1 do
+  begin
+    //We can fill the array right before use, cos FirstEmpty scans only preceding entries
+    ActivePlayer[i] := (fPlayers.Player[i+1].Stats.GetHouseQty(ht_Any) +
+                        fPlayers.Player[i+1].Stats.GetUnitQty(ut_Any)) <> 0;
+
+    if ActivePlayer[i] then begin
+      inc(Result);
+      FirstEmpty := -1; //Scan previous entries to find first empty spot
+      for k:=i-1 downto 0 do //Check only previous players
+      if not ActivePlayer[k] then
+        FirstEmpty := k;
+
+      if FirstEmpty <> -1 then begin
+        fPlayers.MovePlayer(i, FirstEmpty); //Move player From-To
+        ActivePlayer[i] := true; //From becomes free
+        ActivePlayer[FirstEmpty] := false; //To becomes used
+      end;
+    end;
+  end;
+end;
+
+
 function TMissionParser.SaveDATFile(const aFileName:string):boolean;
 const
   COMMANDLAYERS = 4;
@@ -715,6 +746,7 @@ var
   f:textfile;
   i: longint; //longint because it is used for encoding entire output, which will limit the file size
   k,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
+  SavePlayCount:integer;//How many players to save
   Res:TResourceType;
   Group: TGroupType;
   CurUnit: TKMUnit;
@@ -758,8 +790,7 @@ var
 begin
   //Write out a KaM format mission file to aFileName
 
-  //todo: it will be right to remove empty players before save
-  //Update Count, IDs, Alliances, Goals
+  SavePlayCount := AlignPlayersCount;
 
   //Put data into stream
   SaveString := '';
@@ -767,11 +798,11 @@ begin
 
   //Main header, use same filename for MAP
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + ExtractFileName(TruncateExt(aFileName)) + '.map"');
-  AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
+  AddCommand(ct_SetMaxPlayer, [SavePlayCount]);
   AddData(''); //NL
 
   //Player loop
-  for i:=1 to fPlayers.Count do
+  for i:=1 to SavePlayCount do
   begin
     //Player header, using same order of commands as KaM
     AddCommand(ct_SetCurrPlayer, [i-1]); //In script player 0 is the first
@@ -857,7 +888,7 @@ begin
 
     //General, e.g. units, roads, houses, etc.
     //Alliances
-    for k:=1 to fPlayers.Count do
+    for k:=1 to SavePlayCount do
       if k<>i then
         AddCommand(ct_SetAlliance, [k-1,byte(fPlayers.Player[i].Alliances[k])]); //0=enemy, 1=ally
     AddData(''); //NL
