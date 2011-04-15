@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes;
+uses SysUtils, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes;
 
 const
   MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
@@ -79,10 +79,13 @@ begin
 end;
 
 
+//Return CRC of the pack
 function TCommandsPack.CRC:cardinal;
+var i:integer;
 begin
-  //todo: return CRC of the pack
-  Result := 0;
+  Result := 0;    
+  for i:=1 to fCount do
+    Result := Result xor Adler32CRC(@fItems[i], SizeOf(fItems[i]))
 end;
 
 

@@ -467,7 +467,7 @@ begin
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyColor[i] := TKMDropBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 150, 20, fnt_Metal);
-        DropBox_LobbyColor[i].Items.Add('Undefined');
+        DropBox_LobbyColor[i].Items.Add('Random');
         DropBox_LobbyColor[i].Items.Add('Red');
         DropBox_LobbyColor[i].Items.Add('Cyan');
         DropBox_LobbyColor[i].Items.Add('Green');

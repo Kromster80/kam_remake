@@ -68,10 +68,7 @@ type
     gic_TempAddScout,
     gic_TempKillUnit,
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
-    gic_TempChangeMyPlayer, //Make debugging easier
-
-    //VII. Multiplayer
-    gic_CRC //CRC check send with each command list
+    gic_TempChangeMyPlayer //Make debugging easier
 
     { Optional input }
     //VI.     Viewport settings for replay (location, zoom)
@@ -83,9 +80,8 @@ type
   TGameInputCommand = record
     CommandType:TGameInputCommandType;
     Params:array[1..MAX_PARAMS]of integer;
-    //Text: string; //Don't belongs in here, message exchange is not tied to GIP_Multi
     PlayerID: TPlayerID; //Player for which the command is to be issued.
-    //                               Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
+                         //Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
   end;
 
 

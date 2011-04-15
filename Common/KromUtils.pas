@@ -85,7 +85,7 @@ function Abs2Z(AbsoluteValue,SizeX:integer):integer;
 
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
 function MakePOT(num:integer):integer;
-function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
+function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function PseudoRandom(aMax:cardinal):cardinal;
@@ -511,7 +511,7 @@ begin
 end;
 
 
-function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
+function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal;
 var i,A,B:cardinal;
 begin
   A := 1;

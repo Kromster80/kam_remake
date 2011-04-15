@@ -158,8 +158,6 @@ begin
   Result := true;
   if aIndex=0 then exit;
 
-  Result := aIndex <= 6; // Check with map max players
-
   for i:=1 to fCount do
     Result := Result and not (fPlayers[i].StartLocID = aIndex);
 end;
@@ -215,6 +213,7 @@ var
   UsedLoc:array[0..MAX_PLAYERS] of boolean;
   AvailableLoc:array[1..MAX_PLAYERS] of byte;
 begin
+  Assert(fCount <= aMaxLoc, 'Players count exceeds map limit');
 
   //All wrong start locations will be reset to "undefined"
   for i:=1 to fCount do
@@ -248,10 +247,9 @@ begin
       fPlayers[i].StartLocID := AvailableLoc[k];
   end;
 
-  //Drop odd players
-  for i:=fCount downto 1 do
-  if fPlayers[i].StartLocID = 0 then
-    RemPlayer(i);
+  //Check for odd players
+  for i:=1 to fCount do
+    Assert(fPlayers[i].StartLocID <> 0, 'Everyone should have a starting location!');
 end;
 
 

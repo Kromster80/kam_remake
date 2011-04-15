@@ -7,7 +7,7 @@ uses Classes, KromUtils, StrUtils, SysUtils, Windows,
 
   
 const
-  REPLY_TIMEOUT = 3000; //Default timeout before "could not get reply" message occurs, in Game ticks
+  REPLY_TIMEOUT = 3000; //Default timeout before "could not get reply" message occurs
 
 
 type
@@ -82,7 +82,7 @@ type
     procedure Host(aUserName:string);
     procedure Join(aServerAddress,aUserName:string);
     procedure Disconnect;
-    function Connected: boolean;
+    function  Connected: boolean;
     procedure MapSelect(aName:string);
     procedure SelectLoc(aIndex:integer);
     procedure SelectColor(aIndex:integer);
@@ -228,7 +228,10 @@ end;
 //Each players choice should be unique
 procedure TKMNetworking.SelectLoc(aIndex:integer);
 begin
-  if not fNetPlayers.LocAvailable(aIndex) then
+  //Check if position can be taken before sending
+  if (not fMapInfo.IsValid) or
+     (aIndex > fMapInfo.PlayerCount) or
+     (not fNetPlayers.LocAvailable(aIndex)) then
   begin
     if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
     exit;
@@ -284,18 +287,26 @@ end;
 
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
-const MapLoc = 6; //todo: Take maps MaxPlayers
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
 
   //Do not allow to start the game
-  if not fNetPlayers.AllReady or //We might miss a starting location
-    ((fNetPlayers[fMyIndex].StartLocID = 0) and (fNetPlayers.Count > MapLoc)) then
+  if not fNetPlayers.AllReady then
+  begin
+    fOnTextMessage('Can not start: Not everyone is ready to start');
     exit;
+  end;
+
+  //Host can not miss a starting location!
+  if fNetPlayers.Count > fMapInfo.Playercount then
+  begin
+    fOnTextMessage('Can not start: Player count exceeds map limit');
+    exit;
+  end;
 
   //Define random parameters (start locations and flag colors)
   //This will also remove odd players from the List, they will loose Host in few seconds
-  fNetPlayers.DefineSetup(MapLoc);
+  fNetPlayers.DefineSetup(fMapInfo.PlayerCount);
 
   //Let everyone start with final version of fNetPlayers
   PacketToAll(mk_Start, fNetPlayers.GetAsText);
@@ -430,14 +441,17 @@ begin
             if fLANPlayerKind = lpk_Host then begin
               LocID := strtoint(Msg[1]); //Location index
               NikID := fNetPlayers.NiknameIndex(RightStr(Msg, length(Msg)-1)); //Player index
-              if fNetPlayers.LocAvailable(LocID) then //Update Players setup
-              begin
+              //Check if position can't be taken
+              if fMapInfo.IsValid and
+                 (LocID <= fMapInfo.PlayerCount) and
+                 fNetPlayers.LocAvailable(LocID) then
+              begin //Update Players setup
                 fNetPlayers[NikID].StartLocID := LocID;
                 PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               end
               else //Quietly refuse
-                PacketSend(aAddr, mk_PlayersList, fNetPlayers.GetAsText);
+                PacketSend(fNetPlayers[NikID].Address, mk_PlayersList, fNetPlayers.GetAsText);
             end;
 
     mk_FlagColorQuery:
