@@ -241,8 +241,8 @@ begin
 
   MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, (X-MENU_DESIGN_X) div 2,
-                                         (Y-MENU_DESIGN_Y) div 2,
-                                         ScreenX, ScreenY); //Parent Panel for whole menu
+                                            (Y-MENU_DESIGN_Y) div 2,
+                                            ScreenX, ScreenY); //Parent Panel for whole menu
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
   TKMImage.Create(Panel_Main,-448,-216,960,600,1,7);

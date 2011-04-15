@@ -1934,6 +1934,7 @@ begin
 end;
 
 
+{ TKMDropBox }
 constructor TKMDropBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
 var P:TKMPanel;
 begin
@@ -1946,11 +1947,11 @@ begin
   fButton.fOnClick := ListShow;
 
   P := MasterParent;
-  fShape := TKMShape.Create(P, P.Left, P.Top, P.Width, P.Height, $00000000);
+  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
   fShape.fOnClick := ListHide;
 
-  //todo: @Krom: In full screen mode the list appears at the wrong place
-  fList := TKMListBox.Create(P, Left, Top+aHeight, aWidth, 0);
+  //In FullScreen mode P initialized already with offset (P.Top <> 0)
+  fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0);
   fList.BackAlpha := 0.75;
   fList.fOnClick := ListClick;
 
