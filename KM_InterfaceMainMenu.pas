@@ -722,8 +722,6 @@ begin
 
       Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary.GetRemakeString(32),fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
-      Button_Options_ResApply.Disable;
-
 
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,560,130,200,30+LOCALES_COUNT*20);
       TKMLabel.Create(Panel_Options_Lang,6,0,100,30,fTextLibrary.GetRemakeString(33),fnt_Outline,kaLeft);
@@ -836,6 +834,7 @@ begin
   if Sender=Button_Options_Back then begin
     fGame.GlobalSettings.FullScreen := OldFullScreen;
     fGame.GlobalSettings.ResolutionID := OldResolution;
+    fGame.GlobalSettings.SaveSettings;
     Panel_MainMenu.Show;
   end;
 
@@ -903,8 +902,6 @@ begin
 
   {Show Options menu}
   if Sender=Button_MM_Options then begin
-    OldFullScreen := fGame.GlobalSettings.FullScreen;
-    OldResolution := fGame.GlobalSettings.ResolutionID;
     Options_Fill;
     Panel_Options.Show;
   end;
@@ -926,10 +923,6 @@ begin
   {Show Results screen}
   if Sender=Panel_Results then //This page can be accessed only by itself
     Panel_Results.Show;
-
-  { Save settings when leaving options, if needed }
-  if Sender=Button_Options_Back then
-    fGame.GlobalSettings.SaveSettings;
 end;
 
 
@@ -1412,8 +1405,7 @@ begin
   Ratio_Options_SFX.Position        := fGame.GlobalSettings.SoundFXVolume;
   Ratio_Options_Music.Position      := fGame.GlobalSettings.MusicVolume;
   CheckBox_Options_MusicOn.Checked  := not fGame.GlobalSettings.MusicOn;
-
-  Ratio_Options_Music.Enabled := not CheckBox_Options_MusicOn.Checked;
+  Ratio_Options_Music.Enabled       := not CheckBox_Options_MusicOn.Checked;
 
   for i:=1 to LOCALES_COUNT do
     if SameText(fGame.GlobalSettings.Locale, Locales[i,1]) then
@@ -1424,21 +1416,24 @@ begin
     CheckBox_Options_Resolution[i].Checked := (i = fGame.GlobalSettings.ResolutionID);
     CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.GlobalSettings.FullScreen;
   end;
+
+  OldFullScreen := fGame.GlobalSettings.FullScreen;
+  OldResolution := fGame.GlobalSettings.ResolutionID;
+  Button_Options_ResApply.Disable;
 end;
 
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 var i:cardinal;
 begin
-  fGame.GlobalSettings.Autosave        := CheckBox_Options_Autosave.Checked;
-  fGame.GlobalSettings.Brightness      := Ratio_Options_Brightness.Position;
-  fGame.GlobalSettings.MouseSpeed      := Ratio_Options_Mouse.Position;
-  fGame.GlobalSettings.SoundFXVolume   := Ratio_Options_SFX.Position;
-  fGame.GlobalSettings.MusicVolume     := Ratio_Options_Music.Position;
-  fGame.GlobalSettings.MusicOn         := not CheckBox_Options_MusicOn.Checked;
-  fGame.GlobalSettings.FullScreen      := CheckBox_Options_FullScreen.Checked;
-
-  Ratio_Options_Music.Enabled := not CheckBox_Options_MusicOn.Checked;
+  fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
+  fGame.GlobalSettings.Brightness       := Ratio_Options_Brightness.Position;
+  fGame.GlobalSettings.MouseSpeed       := Ratio_Options_Mouse.Position;
+  fGame.GlobalSettings.SoundFXVolume    := Ratio_Options_SFX.Position;
+  fGame.GlobalSettings.MusicVolume      := Ratio_Options_Music.Position;
+  fGame.GlobalSettings.MusicOn          := not CheckBox_Options_MusicOn.Checked;
+  fGame.GlobalSettings.FullScreen       := CheckBox_Options_FullScreen.Checked;
+  Ratio_Options_Music.Enabled           := not CheckBox_Options_MusicOn.Checked;
 
   if Sender = Radio_Options_Lang then begin
     ShowScreen(msLoading, 'Loading new locale');
@@ -1458,8 +1453,14 @@ begin
     if Sender = CheckBox_Options_Resolution[i] then
       fGame.GlobalSettings.ResolutionID := i;
 
+  for i:=1 to RESOLUTION_COUNT do begin
+    CheckBox_Options_Resolution[i].Checked := (i = fGame.GlobalSettings.ResolutionID);
+    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.GlobalSettings.FullScreen;
+  end;
+
   //Make button enabled only if new resolution/mode differs from old
-  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.GlobalSettings.FullScreen) or (OldResolution <> fGame.GlobalSettings.ResolutionID);
+  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.GlobalSettings.FullScreen) or
+                                     (fGame.GlobalSettings.FullScreen and (OldResolution <> fGame.GlobalSettings.ResolutionID));
 end;
 
 
