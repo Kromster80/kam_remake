@@ -73,6 +73,7 @@ begin
   //We will scan map once again if anything has changed
   if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or (fVersion <> SAVE_VERSION) {or HashChanged} then
   begin
+    fDatSize := GetFileSize(KMMapNameToPath(fFolder,'dat'));
     fMissionParser := TMissionParser.Create(mpm_Game);
     try
       MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(fFolder,'dat'));
