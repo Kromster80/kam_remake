@@ -451,6 +451,10 @@ begin
 
   fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
+  //Initilise
+  for i:=1 to fPlayers.Count do
+    PlayerUsed[i] := false;
+
   //Assign existing NetPlayers to map players
   for i:=1 to fNetworking.NetPlayers.Count do
   begin

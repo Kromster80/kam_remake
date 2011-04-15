@@ -213,7 +213,8 @@ begin
 
   if fGame.GameState = gsReplay then exit; //Don't check conditions in Replay
   if fGame.PlayOnState <> gr_Cancel then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
-  
+  if fGame.MultiplayerMode then exit; //Don't check goals in multiplayer (yet)
+
   VictorySatisfied  := true; //Assume they will win/survive, then prove it with goals
   SurvivalSatisfied := true;
 
