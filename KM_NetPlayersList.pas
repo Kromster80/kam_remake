@@ -210,7 +210,7 @@ end;
 procedure TKMPlayersList.DefineSetup(aMaxLoc:byte);
 var 
   i,k,LocCount:integer;
-  UsedLoc:array[0..MAX_PLAYERS] of boolean;
+  UsedLoc:array of boolean;
   AvailableLoc:array[1..MAX_PLAYERS] of byte;
 begin
   Assert(fCount <= aMaxLoc, 'Players count exceeds map limit');
@@ -218,6 +218,8 @@ begin
   //All wrong start locations will be reset to "undefined"
   for i:=1 to fCount do
     if fPlayers[i].StartLocID > aMaxLoc then fPlayers[i].StartLocID := 0;
+
+  SetLength(UsedLoc, aMaxLoc+1); //01..aMaxLoc, all false
 
   //Remember all used locations and drop duplicates
   for i:=1 to fCount do

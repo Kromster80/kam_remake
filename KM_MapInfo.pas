@@ -13,10 +13,10 @@ type
     fVersion:string;
     fMissionMode:TKMissionMode; //Fighting or Build-a-City map
     fPlayerCount:byte;
-    fSmallDesc:string;
     fMapSize:string; //S,M,L,XL
     VictoryCond:string;
     DefeatCond:string;
+    fSmallDesc:string;
     procedure ScanMap;
     procedure LoadFromFile(const aPath:string);
     procedure SaveToFile(const aPath:string);
@@ -56,7 +56,6 @@ procedure TKMapInfo.Load(const aFolder:string);
 begin
   fFolder := aFolder;
   ScanMap;
-  if not IsValid then fFolder := '';
 end;
 
 
@@ -71,6 +70,7 @@ begin
   LoadFromFile(KMMapNameToPath(fFolder,'tmp')); //Data will be empty if failed
 
   //We will scan map once again if anything has changed
+  if FileExists(KMMapNameToPath(fFolder,'dat')) then
   if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or (fVersion <> SAVE_VERSION) {or HashChanged} then
   begin
     fDatSize := GetFileSize(KMMapNameToPath(fFolder,'dat'));
@@ -90,8 +90,8 @@ begin
     end;
   end;
 
-  fSmallDesc     := '-';
-  BigDesc        := '-';
+  fSmallDesc     := '';
+  BigDesc        := '';
 
   //Load additional text info
   if FileExists(KMMapNameToPath(fFolder,'txt')) then
@@ -113,7 +113,16 @@ end;
 procedure TKMapInfo.LoadFromFile(const aPath:string);
 var S:TKMemoryStream;
 begin
-  if not FileExists(aPath) then exit;
+  //Reset everything
+  if not FileExists(aPath) then begin
+    fDatSize      := -1;
+    fVersion      := '';
+    fPlayerCount  := 0;
+    VictoryCond   := '';
+    DefeatCond    := '';
+    fMapSize      := '';
+    exit;
+  end;
   S := TKMemoryStream.Create;
   try
     S.LoadFromFile(aPath);

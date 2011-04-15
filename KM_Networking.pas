@@ -397,7 +397,8 @@ begin
             end;
 
     mk_VerifyJoin:
-            if fLANPlayerKind = lpk_Host then begin
+            if fLANPlayerKind = lpk_Host then
+            begin
               fNetPlayers.AddPlayer(aAddr, Msg, GetTickCount + REPLY_TIMEOUT);
               PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
               PacketSend(aAddr, mk_MapSelect, fMapInfo.Folder);
@@ -510,7 +511,7 @@ procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string='');
 var i:integer;
 begin
   for i:=1 to fNetPlayers.Count do
-    if fNetPlayers[i].IsHuman and (i <> fMyIndex) then
+    if (i <> fMyIndex) and fNetPlayers[i].IsHuman then //First check local data
       PacketSend(fNetPlayers[i].Address, aKind, aData);
 end;
 
