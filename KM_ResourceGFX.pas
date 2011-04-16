@@ -5,7 +5,8 @@ uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   {$IFDEF WDC} PNGImage, {$ENDIF}
-  Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, PasZLib {$ENDIF};
 
