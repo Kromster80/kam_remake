@@ -421,6 +421,10 @@ begin
   fGameName := fNetworking.MapInfo.Folder + ' MP';
 
   fLog.AppendLog('Loading DAT...');
+
+  //todo: Random seed MUST be initialised before loading the script and then not changed, because of things like units being assigned random amounts of health. Make sure all players load the mission exactly the same and do not use rand anywhere else in loading/initialising
+  //todo: Check this for single player too (it could be causing replay inconsistencies)
+
   if CheckFileExists(fMissionFile) then
   begin
     fMainMenuInterface.ShowScreen(msLoading, 'script');
@@ -460,7 +464,7 @@ begin
   begin
     PlayerID := fNetworking.NetPlayers[i].StartLocID;
     fPlayers.Player[PlayerID].PlayerType := fNetworking.NetPlayers[i].PlayerType;
-    fPlayers.Player[PlayerID].FlagColor := fNetworking.NetPlayers[i].FlagColorID;
+    fPlayers.Player[PlayerID].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
     PlayerUsed[PlayerID] := true;
   end;
 

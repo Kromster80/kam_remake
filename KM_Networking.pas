@@ -254,7 +254,7 @@ end;
 //For now players colors are not unique, many players may have one color
 procedure TKMNetworking.SelectColor(aIndex:integer);
 begin
-  //if not fNetPlayers.ColorAvailable(aIndex) then exit;
+  if not fNetPlayers.ColorAvailable(aIndex) then exit;
 
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[fMyIndex].FlagColorID := aIndex;
@@ -459,9 +459,14 @@ begin
             if fLANPlayerKind = lpk_Host then begin
               ColorID := strtoint(Msg[1]); //Color index
               NikID := fNetPlayers.NiknameIndex(RightStr(Msg, length(Msg)-1)); //Player index
-
-              fNetPlayers[NikID].FlagColorID := ColorID;
-              PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+              //The player list could have changed since the joiner sent this request (over slow connection)
+              if fNetPlayers.ColorAvailable(ColorID) then
+              begin
+                fNetPlayers[NikID].FlagColorID := ColorID;
+                PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+              end
+              else //Quietly refuse
+                PacketSend(fNetPlayers[NikID].Address, mk_PlayersList, fNetPlayers.GetAsText);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 

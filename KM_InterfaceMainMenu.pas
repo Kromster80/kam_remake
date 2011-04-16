@@ -448,7 +448,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-var i:integer;
+var i,k:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
@@ -471,14 +471,11 @@ begin
 
         DropBox_LobbyColor[i] := TKMDropBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 150, 20, fnt_Metal);
         DropBox_LobbyColor[i].Items.Add('Random');
-        DropBox_LobbyColor[i].Items.Add('Red');
-        DropBox_LobbyColor[i].Items.Add('Cyan');
-        DropBox_LobbyColor[i].Items.Add('Green');
-        DropBox_LobbyColor[i].Items.Add('Magenta');
-        DropBox_LobbyColor[i].Items.Add('Yellow');
-        DropBox_LobbyColor[i].Items.Add('Grey');
-        DropBox_LobbyColor[i].Items.Add('Black');
-        DropBox_LobbyColor[i].Items.Add('Black');
+        //@Krom: I think we should just show an block of the colour, rather than a name. That makes translations
+        //       easier and is more obvious to the player. Do you agree? If so we'll need a way to have colored blocks in a dropbox...
+        for k:=1 to MP_COLOR_COUNT do
+          DropBox_LobbyColor[i].Items.Add(MP_TEAM_COLOR_NAMES[k]);
+
         DropBox_LobbyColor[i].OnChange := Lobby_PlayersSetupChange;
 
         CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 500+15, 30+i*25, 50, 20, '', fnt_Metal);

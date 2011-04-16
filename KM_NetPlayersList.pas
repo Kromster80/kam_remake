@@ -50,6 +50,7 @@ type
     function NiknameIndex(aNik:string):integer;
     function CheckCanJoin(aAddr, aNik:string):string;
     function LocAvailable(aIndex:integer):boolean;
+    function ColorAvailable(aIndex:integer):boolean;
     function AllReady:boolean;
     function AllReadyToPlay:boolean;
 
@@ -121,12 +122,14 @@ procedure TKMPlayersList.RemPlayer(aIndex:integer);
 var i:integer;
 begin
   Assert(InRange(aIndex, 1, fCount), 'Can not remove player');
+  fPlayers[aIndex].Free;
   for i:=aIndex to fCount-1 do
     fPlayers[i] := fPlayers[i+1]; //todo: I wonder if that's ill strategy to handle Tsomething
+  //@Krom: As far as I know it would be okay, except you should have fPlayers[aIndex].Free first.
+  //All you are doing with ObjectA := ObjectB is assigning a pointer to some memory.
 
   //Cleanup to avoid consequences of erroneous access
-  FillChar(fPlayers[fCount], SizeOf(fPlayers[fCount]), #0);
-
+  fPlayers[fCount] := nil;
   dec(fCount);
 end;
 
@@ -160,6 +163,17 @@ begin
 
   for i:=1 to fCount do
     Result := Result and not (fPlayers[i].StartLocID = aIndex);
+end;
+
+
+function TKMPlayersList.ColorAvailable(aIndex:integer):boolean;
+var i:integer;
+begin
+  Result := true;
+  if aIndex=0 then exit;
+
+  for i:=1 to fCount do
+    Result := Result and not (fPlayers[i].FlagColorID = aIndex);
 end;
 
 
@@ -205,21 +219,22 @@ begin
 end;
 
 
-//Convert undefined/random start locations to fixed
+//Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
 procedure TKMPlayersList.DefineSetup(aMaxLoc:byte);
-var 
-  i,k,LocCount:integer;
-  UsedLoc:array of boolean;
-  AvailableLoc:array[1..MAX_PLAYERS] of byte;
+var
+  i,k,LocCount,ColorCount:integer;
+  UsedLoc, UsedColor:array of boolean;
+  AvailableLoc, AvailableColor:array[1..MAX_PLAYERS] of byte;
 begin
   Assert(fCount <= aMaxLoc, 'Players count exceeds map limit');
 
   //All wrong start locations will be reset to "undefined"
   for i:=1 to fCount do
-    if fPlayers[i].StartLocID > aMaxLoc then fPlayers[i].StartLocID := 0;
+    if not Math.InRange(fPlayers[i].StartLocID,0,aMaxLoc) then fPlayers[i].StartLocID := 0;
 
   SetLength(UsedLoc, aMaxLoc+1); //01..aMaxLoc, all false
+  for i:=1 to aMaxLoc do UsedLoc[i] := false;
 
   //Remember all used locations and drop duplicates
   for i:=1 to fCount do
@@ -252,6 +267,45 @@ begin
   //Check for odd players
   for i:=1 to fCount do
     Assert(fPlayers[i].StartLocID <> 0, 'Everyone should have a starting location!');
+
+  //All wrong colors will be reset to random
+  for i:=1 to fCount do
+    if not Math.InRange(fPlayers[i].FlagColorID,0,MP_COLOR_COUNT) then fPlayers[i].FlagColorID := 0;
+
+  SetLength(UsedColor, MP_COLOR_COUNT+1); //01..MP_COLOR_COUNT, all false
+  for i:=1 to MP_COLOR_COUNT do UsedColor[i] := false;
+
+  //Remember all used colors and drop duplicates
+  for i:=1 to fCount do
+    if UsedColor[fPlayers[i].FlagColorID] then
+      fPlayers[i].FlagColorID := 0
+    else
+      UsedColor[fPlayers[i].FlagColorID] := true;
+
+  //Collect available colors
+  ColorCount := 0;
+  for i:=1 to MP_COLOR_COUNT do
+  if not UsedColor[i] then begin
+    inc(ColorCount);
+    AvailableColor[ColorCount] := i;
+  end;
+
+  //Randomize
+  for i:=1 to ColorCount do
+    SwapInt(AvailableColor[i], AvailableColor[random(ColorCount)+1]);
+
+  //Allocate available colors
+  k := 0;
+  for i:=1 to fCount do
+  if fPlayers[i].FlagColorID = 0 then begin
+    inc(k);
+    if k<=ColorCount then
+      fPlayers[i].FlagColorID := AvailableColor[k];
+  end;
+
+  //Check for odd players
+  for i:=1 to fCount do
+    Assert(fPlayers[i].FlagColorID <> 0, 'Everyone should have a color!');
 end;
 
 

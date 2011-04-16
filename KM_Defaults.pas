@@ -1162,6 +1162,27 @@ const
   MAPSIZES_COUNT = 10;
   MapSize: array[1..MAPSIZES_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176 );
 
+
+  //Colors available for selection in multiplayer
+  MP_COLOR_COUNT = 7;
+  MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
+  $FF0707FF, //Red
+  $FFE3BB5B, //Cyan
+  $FF27A700, //Green
+  $FFFF67FF, //Magenta
+  $FF07FFFF, //Yellow
+  $FF577B7B, //Grey
+  $FFFFFFFF  //White
+  );
+  MP_TEAM_COLOR_NAMES:array[1..MP_COLOR_COUNT]of shortstring = (
+  'Red',
+  'Cyan',
+  'Green',
+  'Magenta',
+  'Yellow',
+  'Grey',
+  'White'
+  );
 var
   //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
   SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
