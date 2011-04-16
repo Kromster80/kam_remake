@@ -11,6 +11,11 @@ uses
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render,
   KM_Form_Loading, Math, Grids, Spin, ImgList;
 
+{$IFDEF Unix}
+type HGLRC = integer;
+type HDC = integer;
+{$ENDIF}
+
 type
   TForm1 = class(TForm)
     OpenDialog1: TOpenDialog;
