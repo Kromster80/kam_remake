@@ -6,7 +6,7 @@ uses
   {$IFDEF WDC} OpenGL, {$ENDIF}  dglOpenGL,
   {$IFDEF FPC} GL, LCLIntf, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLType, {$ENDIF}
+  {$IFDEF Unix} LCLType, glx, {$ENDIF}
   sysutils, Forms, KromUtils;
 
 type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
@@ -72,13 +72,23 @@ begin
   end;
   if not SetDCPixelFormat(h_DC) then
     exit;
+  {$IFDEF MSWindows}
   h_RC := wglCreateContext(h_DC);
+  {$ENDIF}
+  {$IFDEF Unix}
+  h_RC := glxCreateContext(h_DC);
+  {$ENDIF}
   if h_RC=0 then
   begin
     MessageBox(HWND(nil), 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
+  {$IFDEF MSWindows}
   if not wglMakeCurrent(h_DC, h_RC) then
+  {$ENDIF}
+  {$IFDEF Unix}
+  if not glxMakeCurrent(h_DC, h_RC) then
+  {$ENDIF}
   begin
     MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
@@ -192,7 +202,13 @@ begin
   ANTIALIASED_QUALITY,FF_DONTCARE or DEFAULT_PITCH,
   'Terminal');
   SelectObject(h_dc,font);
+  {$IFDEF MSWindows}
   wglUseFontBitmaps(h_dc,0,128,20000);
+  {$ENDIF}
+  {$IFDEF Unix}
+  //TODO need to emulate these functions (with freetype you should be able to code a multi platform solution).
+  {$ENDIF}
+
 end;
 
 
@@ -282,13 +298,12 @@ if DoShift then glTranslatef(Value,Value,0)
            else glTranslatef(-Value,-Value,0);
 end;
 
-
+{$IFDEF MSWindows}
 procedure SetupVSync(aVSync:boolean);
 begin
   if WGL_EXT_swap_control then
     wglSwapIntervalEXT(byte(aVSync)); //1 or 0
 end;
-
-
+{$ENDIF}
 
 end.
