@@ -48,13 +48,13 @@
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmMain"/>
         <UnitName Value="umain"/>
-        <CursorPos X="5" Y="445"/>
+        <CursorPos X="48" Y="444"/>
         <TopLine Value="428"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="113"/>
         <Bookmarks Count="3">
-          <Item0 X="29" Y="582" ID="1"/>
-          <Item1 X="3" Y="498" ID="4"/>
+          <Item0 X="29" Y="583" ID="1"/>
+          <Item1 X="3" Y="499" ID="4"/>
           <Item2 X="47" Y="285" ID="5"/>
         </Bookmarks>
         <Loaded Value="True"/>

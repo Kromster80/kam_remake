@@ -5,7 +5,9 @@ interface
 uses
   {$IFDEF WDC} OpenGL, {$ENDIF}  dglOpenGL,
   {$IFDEF FPC} GL, {$ENDIF}
-  sysutils, windows, Forms, KromUtils;
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  sysutils, Forms, KromUtils;
 
 type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok

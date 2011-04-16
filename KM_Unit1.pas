@@ -2,13 +2,13 @@ unit KM_Unit1;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
   Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, Menus, Buttons, Messages,
   Math, SysUtils, KromUtils,
   {$IFDEF WDC} OpenGL, MPlayer, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
-  dglOpenGL, MMSystem,
+  dglOpenGL,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection, 
   KM_TextLibrary, KM_Sound;

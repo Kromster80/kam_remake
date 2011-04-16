@@ -4,7 +4,8 @@ interface
 uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  Windows, Classes, Graphics, Controls, Forms, Dialogs,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Menus, Buttons,
   dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet

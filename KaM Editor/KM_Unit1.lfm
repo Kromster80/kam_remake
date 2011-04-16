@@ -4,7 +4,7 @@ object Form1: TForm1
   Top = 112
   Width = 910
   HelpType = htKeyword
-  ActiveControl = Memo2
+  ActiveControl = NewMapButton
   Caption = 'Form1'
   ClientHeight = 715
   ClientWidth = 910
@@ -102,16 +102,16 @@ object Form1: TForm1
   end
   object Label1: TLabel
     Left = 185
-    Height = 14
+    Height = 15
     Top = 246
-    Width = 27
+    Width = 36
     Caption = '100%'
     ParentColor = False
     OnClick = ResetZoomClick
   end
   object TBZoomControl: TTrackBar
     Left = 20
-    Height = 21
+    Height = 36
     Top = 245
     Width = 141
     Frequency = 10
@@ -136,8 +136,8 @@ object Form1: TForm1
     OnChange = PalletePageChange
     object TabSheet1: TTabSheet
       Caption = 'Terrain'
-      ClientHeight = 348
-      ClientWidth = 202
+      ClientHeight = 349
+      ClientWidth = 208
       object LB01: TSpeedButton
         Left = 4
         Height = 36
@@ -3078,17 +3078,17 @@ object Form1: TForm1
       end
       object Label3: TLabel
         Left = 4
-        Height = 14
+        Height = 15
         Top = 4
-        Width = 52
+        Width = 74
         Caption = 'Brush size:'
         ParentColor = False
       end
       object CBRandomizeTiling: TCheckBox
         Left = 4
-        Height = 17
+        Height = 22
         Top = 52
-        Width = 98
+        Width = 135
         Caption = 'Randomize Tiles'
         Checked = True
         State = cbChecked
@@ -3118,8 +3118,8 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 44
-        ClientWidth = 81
+        ClientHeight = 47
+        ClientWidth = 83
         ItemIndex = 0
         Items.Strings = (
           'Circle'
@@ -3130,8 +3130,8 @@ object Form1: TForm1
     end
     object TabSheet6: TTabSheet
       Caption = 'Tiles'
-      ClientHeight = 348
-      ClientWidth = 202
+      ClientHeight = 349
+      ClientWidth = 208
       ImageIndex = 5
       object ScrollBox2: TScrollBox
         Left = 0
@@ -3139,7 +3139,7 @@ object Form1: TForm1
         Top = 64
         Width = 201
         ClientHeight = 264
-        ClientWidth = 197
+        ClientWidth = 199
         TabOrder = 1
         object Image5: TImage
           Left = 0
@@ -11419,8 +11419,8 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 2
-        ClientHeight = 42
-        ClientWidth = 117
+        ClientHeight = 45
+        ClientWidth = 119
         Columns = 2
         ItemIndex = 4
         Items.Strings = (
@@ -11435,8 +11435,8 @@ object Form1: TForm1
     end
     object TabSheet4: TTabSheet
       Caption = 'Relief'
-      ClientHeight = 348
-      ClientWidth = 202
+      ClientHeight = 349
+      ClientWidth = 208
       ImageIndex = 4
       object GB01: TSpeedButton
         Left = 4
@@ -11522,8 +11522,8 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 31
-        ClientWidth = 81
+        ClientHeight = 34
+        ClientWidth = 83
         ItemIndex = 0
         Items.Strings = (
           'Circle'
@@ -11537,8 +11537,8 @@ object Form1: TForm1
         Top = 4
         Width = 113
         Caption = ' Brush size  '
-        ClientHeight = 31
-        ClientWidth = 109
+        ClientHeight = 34
+        ClientWidth = 111
         TabOrder = 2
         object ElevSize: TTrackBar
           Left = 2
@@ -11557,8 +11557,8 @@ object Form1: TForm1
         Top = 56
         Width = 113
         Caption = ' Brush speed  '
-        ClientHeight = 31
-        ClientWidth = 109
+        ClientHeight = 34
+        ClientWidth = 111
         TabOrder = 3
         object ElevSpeed: TTrackBar
           Left = 2
@@ -11579,8 +11579,8 @@ object Form1: TForm1
         Top = 264
         Width = 201
         Caption = ' Hint  '
-        ClientHeight = 31
-        ClientWidth = 197
+        ClientHeight = 34
+        ClientWidth = 199
         TabOrder = 4
         object Label2: TLabel
           Left = 7
@@ -11595,8 +11595,8 @@ object Form1: TForm1
     end
     object TabSheet2: TTabSheet
       Caption = 'Objects'
-      ClientHeight = 348
-      ClientWidth = 202
+      ClientHeight = 349
+      ClientWidth = 208
       ImageIndex = 1
       object ObjBlock: TSpeedButton
         Left = 4
@@ -11652,7 +11652,7 @@ object Form1: TForm1
       end
       object ObjPallete: TDrawGrid
         Left = 0
-        Height = 278
+        Height = 279
         Top = 40
         Width = 185
         Anchors = [akTop, akLeft, akBottom]
@@ -11675,9 +11675,9 @@ object Form1: TForm1
       end
       object ObjPalleteScroll: TScrollBar
         Left = 184
-        Height = 277
+        Height = 278
         Top = 40
-        Width = 16
+        Width = 15
         Anchors = [akTop, akLeft, akBottom]
         Kind = sbVertical
         LargeChange = 2
@@ -11690,8 +11690,8 @@ object Form1: TForm1
     end
     object TabSheet3: TTabSheet
       Caption = 'Houses'
-      ClientHeight = 348
-      ClientWidth = 202
+      ClientHeight = 349
+      ClientWidth = 208
       ImageIndex = 2
       object BB01: TSpeedButton
         Left = 164
@@ -13286,8 +13286,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 20
-    Top = 695
+    Height = 17
+    Top = 698
     Width = 910
     Panels = <    
       item
@@ -13694,10 +13694,10 @@ object Form1: TForm1
       OnMouseUp = Panel1MouseUp
     end
     object ScrollBar2: TScrollBar
-      Left = 662
+      Left = 663
       Height = 615
       Top = 2
-      Width = 16
+      Width = 15
       Anchors = [akTop, akRight, akBottom]
       Kind = sbVertical
       LargeChange = 8
@@ -13710,8 +13710,8 @@ object Form1: TForm1
     end
     object ScrollBar1: TScrollBar
       Left = 2
-      Height = 16
-      Top = 616
+      Height = 15
+      Top = 617
       Width = 661
       Anchors = [akLeft, akRight, akBottom]
       LargeChange = 8
@@ -13774,7 +13774,7 @@ object Form1: TForm1
     Left = 432
     Height = 163
     Top = 16
-    Width = 16
+    Width = 15
     Anchors = [akTop, akLeft, akBottom]
     Kind = sbVertical
     LargeChange = 2
@@ -13791,38 +13791,38 @@ object Form1: TForm1
     Top = 192
     Width = 257
     Caption = 'GroupBox1'
-    ClientHeight = 87
-    ClientWidth = 253
+    ClientHeight = 90
+    ClientWidth = 255
     Enabled = False
     TabOrder = 14
     Visible = False
     object Label6: TLabel
       Left = 72
-      Height = 14
+      Height = 15
       Top = 24
-      Width = 84
+      Width = 124
       Caption = 'Byte offset (1..23)'
       ParentColor = False
     end
     object Label7: TLabel
       Left = 152
-      Height = 14
+      Height = 15
       Top = 48
-      Width = 96
+      Width = 136
       Caption = 'Set value (min, max)'
       ParentColor = False
     end
     object Label8: TLabel
       Left = 72
-      Height = 14
+      Height = 15
       Top = 48
-      Width = 10
+      Width = 17
       Caption = 'to'
       ParentColor = False
     end
     object SpinEdit1: TSpinEdit
       Left = 8
-      Height = 21
+      Height = 20
       Top = 19
       Width = 57
       MaxValue = 23
@@ -13841,7 +13841,7 @@ object Form1: TForm1
     end
     object SpinEdit2: TSpinEdit
       Left = 8
-      Height = 21
+      Height = 20
       Top = 43
       Width = 57
       MaxValue = 255
@@ -13849,7 +13849,7 @@ object Form1: TForm1
     end
     object SpinEdit3: TSpinEdit
       Left = 88
-      Height = 21
+      Height = 20
       Top = 43
       Width = 57
       MaxValue = 255

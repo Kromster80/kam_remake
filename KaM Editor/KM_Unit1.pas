@@ -2,8 +2,9 @@ unit KM_Unit1;
 {$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 uses
-  Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, KromUtils,
+  //Windows,
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF VER150} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
