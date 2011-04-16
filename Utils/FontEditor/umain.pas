@@ -5,7 +5,9 @@ unit umain;
 interface
 uses
   {$IFDEF FPC} LCLIntf, LResources, {$ENDIF}
-  Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLType, {$ENDIF}
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
   StdCtrls, Math, ComCtrls, Buttons, Spin, StrUtils, KromUtils, Constants;
 
 

@@ -3,6 +3,7 @@ object frmMain: TfrmMain
   Height = 653
   Top = 94
   Width = 817
+  ActiveControl = RefreshData
   Caption = 'KaM Font Editor'
   ClientHeight = 653
   ClientWidth = 817
@@ -38,9 +39,9 @@ object frmMain: TfrmMain
   end
   object Label3: TLabel
     Left = 62
-    Height = 14
+    Height = 15
     Top = 427
-    Width = 84
+    Width = 116
     Caption = 'BaseCharHeight?'
     Color = clBtnFace
     ParentColor = False
@@ -48,9 +49,9 @@ object frmMain: TfrmMain
   end
   object Label4: TLabel
     Left = 62
-    Height = 14
+    Height = 15
     Top = 451
-    Width = 73
+    Width = 101
     Caption = 'Word spacing?'
     Color = clBtnFace
     ParentColor = False
@@ -58,9 +59,9 @@ object frmMain: TfrmMain
   end
   object Label5: TLabel
     Left = 62
-    Height = 14
+    Height = 15
     Top = 475
-    Width = 63
+    Width = 88
     Caption = 'Char spacing'
     Color = clBtnFace
     ParentColor = False
@@ -68,9 +69,9 @@ object frmMain: TfrmMain
   end
   object Label6: TLabel
     Left = 62
-    Height = 14
+    Height = 15
     Top = 499
-    Width = 67
+    Width = 92
     Caption = 'Line spacing?'
     Color = clBtnFace
     ParentColor = False
@@ -87,9 +88,9 @@ object frmMain: TfrmMain
   end
   object Label7: TLabel
     Left = 62
-    Height = 14
+    Height = 15
     Top = 523
-    Width = 108
+    Width = 162
     Caption = 'Selected letter Y offset'
     Color = clBtnFace
     ParentColor = False
@@ -103,6 +104,7 @@ object frmMain: TfrmMain
     ItemHeight = 0
     OnClick = ListBox1Click
     TabOrder = 1
+    TopIndex = -1
   end
   object RefreshData: TButton
     Left = 8
@@ -124,8 +126,8 @@ object frmMain: TfrmMain
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 20
-    Top = 633
+    Height = 17
+    Top = 636
     Width = 817
     Panels = <    
       item
@@ -144,7 +146,7 @@ object frmMain: TfrmMain
   end
   object Edit1: TEdit
     Left = 160
-    Height = 21
+    Height = 20
     Top = 540
     Width = 145
     OnChange = Edit1Change
@@ -153,9 +155,9 @@ object frmMain: TfrmMain
   end
   object CheckCells: TCheckBox
     Left = 8
-    Height = 17
+    Height = 22
     Top = 549
-    Width = 71
+    Width = 94
     Caption = 'Show cells'
     Checked = True
     OnClick = CheckCellsClick
@@ -195,8 +197,8 @@ object frmMain: TfrmMain
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclTopToBottomThenLeftToRight
     ChildSizing.ControlsPerLine = 6
-    ClientHeight = 94
-    ClientWidth = 141
+    ClientHeight = 97
+    ClientWidth = 143
     ColumnLayout = clVerticalThenHorizontal
     Columns = 2
     Items.Strings = (
@@ -218,7 +220,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit1: TSpinEdit
     Left = 8
-    Height = 21
+    Height = 20
     Top = 424
     Width = 50
     MaxValue = 65535
@@ -228,7 +230,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit2: TSpinEdit
     Left = 8
-    Height = 21
+    Height = 20
     Top = 448
     Width = 50
     MaxValue = 65535
@@ -238,7 +240,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit3: TSpinEdit
     Left = 8
-    Height = 21
+    Height = 20
     Top = 472
     Width = 50
     MaxValue = 65535
@@ -248,7 +250,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit4: TSpinEdit
     Left = 8
-    Height = 21
+    Height = 20
     Top = 496
     Width = 50
     MaxValue = 65535
@@ -258,7 +260,7 @@ object frmMain: TfrmMain
   end
   object SpinEdit5: TSpinEdit
     Left = 8
-    Height = 21
+    Height = 20
     Top = 520
     Width = 50
     MaxValue = 65535
