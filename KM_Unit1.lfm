@@ -4,7 +4,6 @@ object Form1: TForm1
   Top = 90
   Width = 867
   HelpType = htKeyword
-  ActiveControl = Debug_PassabilityTrack
   BorderStyle = bsNone
   Caption = 'Form1'
   ClientHeight = 226
@@ -20,7 +19,7 @@ object Form1: TForm1
   OnMouseWheel = FormMouseWheel
   OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '0.9.28.2'
+  LCLVersion = '0.9.29'
   object Panel5: TPanel
     Left = 0
     Height = 206
@@ -38,8 +37,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 17
-    Top = 209
+    Height = 20
+    Top = 206
     Width = 867
     Panels = <    
       item
@@ -66,30 +65,30 @@ object Form1: TForm1
     Top = 8
     Width = 425
     Caption = '  Additional controls   ..   Press F11 to swap controls visibility'
-    ClientHeight = 58
-    ClientWidth = 423
+    ClientHeight = 55
+    ClientWidth = 421
     TabOrder = 2
     object Label2: TLabel
       Left = 85
-      Height = 15
+      Height = 14
       Top = 15
-      Width = 75
+      Width = 50
       Caption = 'Passability'
       ParentColor = False
     end
     object Label3: TLabel
       Left = 101
-      Height = 15
+      Height = 14
       Top = 35
-      Width = 9
+      Width = 7
       Caption = '0'
       ParentColor = False
     end
     object CheckBox2: TCheckBox
       Left = 8
-      Height = 22
+      Height = 17
       Top = 52
-      Width = 93
+      Width = 71
       Caption = 'Speed x50'
       OnClick = CheckBox2Click
       TabOrder = 1
@@ -122,8 +121,8 @@ object Form1: TForm1
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 3
-      ClientHeight = 46
-      ClientWidth = 103
+      ClientHeight = 43
+      ClientWidth = 101
       Columns = 3
       ItemIndex = 0
       Items.Strings = (

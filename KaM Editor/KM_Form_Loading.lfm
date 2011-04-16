@@ -171,7 +171,7 @@ object FormLoading: TFormLoading
     Top = 80
     Width = 111
     Caption = 'kromster80@gmail.com'
-    Font.Color = clHotLight
+    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsUnderline]
@@ -202,7 +202,7 @@ object FormLoading: TFormLoading
     Width = 108
     Caption = 'http://krom.reveur.de/'
     Color = clBtnFace
-    Font.Color = clHotLight
+    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsUnderline]

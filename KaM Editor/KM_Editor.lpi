@@ -8,7 +8,7 @@
       <TargetFileExt Value=".exe"/>
       <Icon Value="0"/>
       <UseXPManifest Value="True"/>
-      <ActiveEditorIndexAtStart Value="2"/>
+      <ActiveEditorIndexAtStart Value="0"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -48,9 +48,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_Unit1"/>
-        <CursorPos X="14" Y="7"/>
+        <CursorPos X="33" Y="8"/>
         <TopLine Value="1"/>
+        <EditorIndex Value="0"/>
         <UsageCount Value="27"/>
+        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="KM_Defaults.pas"/>
@@ -83,9 +85,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_Form_NewMap"/>
-        <CursorPos X="37" Y="2"/>
+        <CursorPos X="19" Y="3"/>
         <TopLine Value="1"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="27"/>
+        <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="KM_Form_Loading.pas"/>
@@ -94,9 +98,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_Form_Loading"/>
-        <CursorPos X="1" Y="26"/>
+        <CursorPos X="59" Y="24"/>
         <TopLine Value="1"/>
+        <EditorIndex Value="1"/>
         <UsageCount Value="27"/>
+        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="KM_LoadDAT.pas"/>
@@ -207,18 +213,14 @@
         <UnitName Value="KromUtils"/>
         <CursorPos X="19" Y="446"/>
         <TopLine Value="430"/>
-        <EditorIndex Value="1"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit22>
       <Unit23>
         <Filename Value="..\Common\dglOpenGL.pas"/>
         <UnitName Value="dglOpenGL"/>
         <CursorPos X="121" Y="13196"/>
-        <TopLine Value="461"/>
-        <EditorIndex Value="2"/>
+        <TopLine Value="13156"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit23>
       <Unit24>
         <Filename Value="..\Utils\TileResampler\Unit1.dfm"/>
@@ -230,39 +232,12 @@
       <Unit25>
         <Filename Value="..\Utils\TileResampler\Unit1.pas"/>
         <UnitName Value="Unit1"/>
-        <CursorPos X="57" Y="5"/>
+        <CursorPos X="39" Y="25"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="0"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit25>
     </Units>
-    <JumpHistory Count="6" HistoryIndex="5">
-      <Position1>
-        <Filename Value="..\Common\KromUtils.pas"/>
-        <Caret Line="446" Column="19" TopLine="430"/>
-      </Position1>
-      <Position2>
-        <Filename Value="..\Common\dglOpenGL.pas"/>
-        <Caret Line="685" Column="27" TopLine="669"/>
-      </Position2>
-      <Position3>
-        <Filename Value="..\Common\dglOpenGL.pas"/>
-        <Caret Line="470" Column="45" TopLine="461"/>
-      </Position3>
-      <Position4>
-        <Filename Value="..\Common\dglOpenGL.pas"/>
-        <Caret Line="13196" Column="121" TopLine="13180"/>
-      </Position4>
-      <Position5>
-        <Filename Value="..\Common\dglOpenGL.pas"/>
-        <Caret Line="9820" Column="125" TopLine="9804"/>
-      </Position5>
-      <Position6>
-        <Filename Value="..\Common\dglOpenGL.pas"/>
-        <Caret Line="17859" Column="1" TopLine="17828"/>
-      </Position6>
-    </JumpHistory>
+    <JumpHistory Count="0" HistoryIndex="-1"/>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="8"/>
