@@ -13193,7 +13193,7 @@ begin
 end;
 
 
-function dglGetProcAddress(ProcName: PAnsiChar; LibHandle: Pointer = nil {$IFDEF DGL_LINUX}; ForceDLSym: Boolean{$ENDIF}): Pointer;
+function dglGetProcAddress(ProcName: PAnsiChar; LibHandle: Pointer = nil {$IFDEF DGL_LINUX}; ForceDLSym: Boolean = False {$ENDIF}): Pointer;
 begin
   if LibHandle = nil then
     LibHandle := GL_LibHandle;
