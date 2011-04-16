@@ -8,6 +8,7 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, KromOGLUtils,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
+  {$IFDEF MSWindows} Windows, {$ENDIF}
   dglOpenGL, KromUtils;
 
 type
