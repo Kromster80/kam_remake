@@ -1,8 +1,10 @@
 unit KM_Houses;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils, Windows,
-     KM_CommonTypes, KM_Defaults, KM_Utils;
+uses
+   {$IFDEF MSWindows} Windows, {$ENDIF}
+   Classes, KromUtils, Math, SysUtils,
+   KM_CommonTypes, KM_Defaults, KM_Utils;
 
   {Everything related to houses is here}
 type

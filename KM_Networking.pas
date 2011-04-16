@@ -1,7 +1,9 @@
 unit KM_Networking;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, StrUtils, SysUtils, Windows,
+uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  Classes, KromUtils, StrUtils, SysUtils,
   KM_CommonTypes, KM_Defaults,
   KM_MapInfo, KM_NetPlayersList, KM_Network;
 
