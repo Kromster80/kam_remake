@@ -1164,7 +1164,7 @@ const
 
 
   //Colors available for selection in multiplayer
-  MP_COLOR_COUNT = 7;
+  MP_COLOR_COUNT = MAX_PLAYERS;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
@@ -1172,7 +1172,8 @@ const
   $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
   $FF577B7B, //Grey
-  $FFFFFFFF  //White
+  $FFFFFFFF, //White
+  $FF202010  //Black
   );
   MP_TEAM_COLOR_NAMES:array[1..MP_COLOR_COUNT]of shortstring = (
   'Red',
@@ -1181,7 +1182,8 @@ const
   'Magenta',
   'Yellow',
   'Grey',
-  'White'
+  'White',
+  'Black'
   );
 var
   //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
