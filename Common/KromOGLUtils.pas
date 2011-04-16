@@ -11,7 +11,42 @@ uses
 
 type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok
-{$IFDEF Unix}type HGLRC = integer {$ENDIF};
+{$IFDEF Unix}
+type TPixelFormatDescriptor = integer;
+type HGLRC = integer;
+type nSize = integer;
+type nVersion = integer;
+type dwFlags = integer;
+type PFD_DRAW_TO_WINDOW = integer;
+type PFD_SUPPORT_OPENGL = integer;
+type PFD_DOUBLEBUFFER = integer;
+type iPixelType = integer;
+type cColorBits = integer;
+type cRedBits = integer;
+type cRedShift = integer;
+type cGreenBits = integer;
+type cGreenShift = integer;
+type cBlueBits = integer;
+type cBlueShift = integer;
+type cAlphaBits = integer;
+type cAlphaShift = integer;
+type cAccumBits = integer;
+type cAccumRedBits = integer;
+type cAccumGreenBits = integer;
+type cAccumBlueBits = integer;
+type cAccumAlphaBits = integer;
+type cDepthBits = integer;
+type cStencilBits = integer;
+type cAuxBuffers = integer;
+type iLayerType = integer;
+type PFD_TYPE_RGBA = integer;
+type PFD_MAIN_PLANE = integer;
+type bReserved = integer;
+type dwLayerMask = integer;
+type dwVisibleMask = integer;
+type dwDamageMask = integer;
+{$ENDIF}
+
 KAlign = (kaLeft, kaCenter, kaRight);
 
 TColor4 = cardinal;
