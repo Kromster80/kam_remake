@@ -47,14 +47,15 @@
         <Filename Value="UMAIN.PAS"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmMain"/>
+        <ResourceBaseClass Value="Form"/>
         <UnitName Value="umain"/>
-        <CursorPos X="48" Y="444"/>
-        <TopLine Value="428"/>
+        <CursorPos X="21" Y="431"/>
+        <TopLine Value="424"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="113"/>
         <Bookmarks Count="3">
-          <Item0 X="29" Y="583" ID="1"/>
-          <Item1 X="3" Y="499" ID="4"/>
+          <Item0 X="29" Y="581" ID="1"/>
+          <Item1 X="3" Y="497" ID="4"/>
           <Item2 X="47" Y="285" ID="5"/>
         </Bookmarks>
         <Loaded Value="True"/>
@@ -177,21 +178,21 @@
         <UsageCount Value="12"/>
       </Unit17>
       <Unit18>
-        <Filename Value="..\..\..\..\..\lazarus\lcl\graphics.pp"/>
+        <Filename Value="..\..\..\..\lazarus\lcl\graphics.pp"/>
         <UnitName Value="Graphics"/>
         <CursorPos X="35" Y="511"/>
         <TopLine Value="498"/>
         <UsageCount Value="10"/>
       </Unit18>
       <Unit19>
-        <Filename Value="..\..\..\..\..\lazarus\lcl\lcltype.pp"/>
+        <Filename Value="..\..\..\..\lazarus\lcl\lcltype.pp"/>
         <UnitName Value="LCLType"/>
         <CursorPos X="17" Y="1181"/>
         <TopLine Value="1162"/>
         <UsageCount Value="10"/>
       </Unit19>
     </Units>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
         <Filename Value="UMAIN.PAS"/>
         <Caret Line="119" Column="58" TopLine="100"/>
@@ -200,6 +201,14 @@
         <Filename Value="UMAIN.PAS"/>
         <Caret Line="303" Column="77" TopLine="294"/>
       </Position2>
+      <Position3>
+        <Filename Value="UMAIN.PAS"/>
+        <Caret Line="439" Column="29" TopLine="428"/>
+      </Position3>
+      <Position4>
+        <Filename Value="UMAIN.PAS"/>
+        <Caret Line="153" Column="15" TopLine="133"/>
+      </Position4>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

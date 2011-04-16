@@ -441,8 +441,7 @@ begin
   if MessageDlg('Are you sure you want to delete the last string?',mtWarning,mbYesNo,0) = mrYes then
   begin
   StringsData[StrCount] := '';
-  //TODO: Linux compile works without this line:
-  FreeAndNil(TreeView.Items.Item[TreeView.Items.Count-1].Data);
+  TStringData(TreeView.Items.Item[TreeView.Items.Count-1].Data).Free;
 
   ToSelect := TreeView.Items.Item[TreeView.Items.Count-1].GetPrev;
   
