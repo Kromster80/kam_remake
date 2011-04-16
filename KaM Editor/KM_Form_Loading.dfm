@@ -179,7 +179,7 @@ object FormLoading: TFormLoading
     Height = 13
     Caption = 'kromster80@gmail.com'
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clHotLight
+    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsUnderline]
@@ -208,7 +208,7 @@ object FormLoading: TFormLoading
     Caption = 'http://krom.reveur.de/'
     Color = clBtnFace
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clHotLight
+    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsUnderline]

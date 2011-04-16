@@ -1,10 +1,10 @@
 unit KM_Render;
+{$I KM_Editor.inc}
 {$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 
 uses Windows, SysUtils, Forms,
-  {$IFDEF VER140} OpenGL, {$ENDIF}
-  {$IFDEF VER150} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, KromOGLUtils, Math, ExtCtrls;
 

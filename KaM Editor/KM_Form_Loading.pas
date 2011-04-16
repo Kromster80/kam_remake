@@ -1,12 +1,12 @@
 unit KM_Form_Loading;
+{$I KM_Editor.inc}
 {$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 
 uses
   Windows, SysUtils, Classes, Controls, Forms, Graphics,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, KromOGLUtils,
-  {$IFDEF VER140} OpenGL, {$ENDIF}
-  {$IFDEF VER150} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, KromUtils;
 
@@ -32,8 +32,7 @@ var
 
 
 implementation
-{$IFDEF VER140} {$R *.dfm} {$ENDIF}
-{$IFDEF VER150} {$R *.dfm} {$ENDIF}
+{$IFDEF WDC} {$R *.dfm} {$ENDIF}
 
 
 uses KM_Unit1, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT;

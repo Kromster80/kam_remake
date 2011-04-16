@@ -1,12 +1,11 @@
 unit KM_Unit1;
+{$I KM_Editor.inc}
 {$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, KromUtils,
-  //Windows,
-  {$IFDEF VER140} OpenGL, {$ENDIF}
-  {$IFDEF VER150} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render,
   KM_Form_Loading, Math, Grids, Spin, ImgList;
@@ -341,8 +340,7 @@ end;
 
 
 implementation
-{$IFDEF VER140} {$R *.dfm} {$ENDIF}
-{$IFDEF VER150} {$R *.dfm} {$ENDIF}
+{$IFDEF WDC} {$R *.dfm} {$ENDIF}
 
 
 uses KM_Form_NewMap, KM_LoadDAT, KM_TPlayer, KM_TGATexture;
@@ -472,9 +470,9 @@ begin
   glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiff);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
-  LoadTexture(ExeDir+'Resource\Tiles1.tga', Text1,0);    // Load the Textures
-  LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0); // Load the Textures
-  LoadTexture(ExeDir+'Resource\arrow.tga', TextA,0);    // Load the Textures
+  LoadTexture(ExeDir+'Resource\Tiles1.tga', Text1);    // Load the Textures
+  LoadTexture(ExeDir+'Resource\gradient.tga', TextG); // Load the Textures
+  LoadTexture(ExeDir+'Resource\arrow.tga', TextA);    // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glPolygonMode(GL_FRONT,GL_FILL);
 end;
@@ -582,8 +580,7 @@ procedure BuildMiniMap();
 var
   i,k,j:integer;
   MyBitmap:TBitmap;
-  {$IFDEF VER140}P:PByteArray;{$ENDIF}
-  {$IFDEF VER150}P:PByteArray;{$ENDIF}
+  {$IFDEF WDC}P:PByteArray;{$ENDIF}
 begin
   MyBitmap:=TBitmap.Create;
   MyBitmap.PixelFormat:=pf24bit;
@@ -592,15 +589,9 @@ begin
   MyBitmap.Height:=Map.Y;
 
   for i:=1 to Map.Y-1 do begin
-    {$IFDEF VER140} P:=MyBitmap.ScanLine[i-1]; {$ENDIF}
-    {$IFDEF VER150} P:=MyBitmap.ScanLine[i-1]; {$ENDIF}
+    {$IFDEF WDC} P:=MyBitmap.ScanLine[i-1]; {$ENDIF}
     for k:=1 to Map.X-1 do begin
-      {$IFDEF VER140}
-      P[k*3-1]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF + Land2[i,k].Light*4-64,0,255);
-      P[k*3-2]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF00 SHR 8 + Land2[i,k].Light*4-64,0,255);
-      P[k*3-3]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF0000 SHR 16 + Land2[i,k].Light*4-64,0,255);
-      {$ENDIF}
-      {$IFDEF VER150}
+      {$IFDEF WDC}
       P[k*3-1]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF + Land2[i,k].Light*4-64,0,255);
       P[k*3-2]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF00 SHR 8 + Land2[i,k].Light*4-64,0,255);
       P[k*3-3]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF0000 SHR 16 + Land2[i,k].Light*4-64,0,255);

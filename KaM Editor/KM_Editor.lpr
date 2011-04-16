@@ -1,4 +1,5 @@
 program KM_Editor;
+{$I KM_Editor.inc}
 {$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 
 uses
@@ -15,7 +16,7 @@ uses
   KM_TPlayer in 'KM_TPlayer.pas',
   KM_TGATexture in 'KM_TGATexture.pas';
 
-{$IFDEF VER140}
+{$IFDEF WDC}
   {$R *.RES}
 {$ENDIF}
 

@@ -1,8 +1,11 @@
 program KM_Editor;
+{$I KM_Editor.inc}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 
 uses
   Forms,
-  sysutils,
+  SysUtils,
+  {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Defaults in 'KM_Defaults.pas',
   KM_Render in 'KM_Render.pas',
@@ -10,9 +13,12 @@ uses
   KM_Form_NewMap in 'KM_Form_NewMap.pas' {FormNewMap},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
   KM_LoadDAT in 'KM_LoadDAT.pas',
-  KM_TPlayer in 'KM_TPlayer.pas';
+  KM_TPlayer in 'KM_TPlayer.pas',
+  KM_TGATexture in 'KM_TGATexture.pas';
 
-{$R *.RES}
+{$IFDEF WDC}
+  {$R *.RES}
+{$ENDIF}
 
 begin
   Application.Initialize;
