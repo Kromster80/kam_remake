@@ -11,6 +11,12 @@ uses
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
+{$IFDEF Unix}
+type HDC = integer;
+type HGLRC = integer;
+type HWND = integer;
+{$ENDIF}
+
 type
   TRender = class
     private
