@@ -5,7 +5,9 @@ interface
 
 uses
   {$IFDEF FPC} LResources, {$ENDIF}
-  Windows, SysUtils, Classes, Graphics, Controls, Forms,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, KM_Unit1, ExtCtrls, Math;
 
 type
@@ -40,7 +42,7 @@ uses KM_Defaults;
 procedure TFormNewMap.CreateMap(Sender: TObject);
 begin
   if not (InRange(MapSizes[RGX.ItemIndex+1],32,192) and InRange(MapSizes[RGY.ItemIndex+1],32,192)) then
-    MessageBox(FormNewMap.Handle,'KaM won''t be able to handle such a big map. It can be used only as reference.','Warning',MB_OK or MB_ICONWARNING or MB_APPLMODAL);
+    MessageBox(FormNewMap.Handle,'KaM won''t be able to handle such a big map. It can be used only as reference.','Warning',MB_OK or MB_ICONWARNING{$IFDEF MSWindows} or MB_APPLMODAL{$ENDIF});
   Map.X:=MapSizes[RGX.ItemIndex+1]; //0..10 -> 32..192
   Map.Y:=MapSizes[RGY.ItemIndex+1]; //0..10 -> 32..192
   InitializeNewMap(Map.X,Map.Y);
