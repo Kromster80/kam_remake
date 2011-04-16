@@ -311,7 +311,6 @@ end;
 
 procedure TKMGame.GameInit(aMultiplayerMode:boolean);
 begin
-  RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   fGameSpeed := 1; //In case it was set in last run mission
   PlayOnState := gr_Cancel;
   fMultiplayerMode := aMultiplayerMode;
@@ -332,6 +331,7 @@ begin
   fGamePlayInterface := TKMGamePlayInterface.Create;
 
   //Here comes terrain/mission init
+  RandSeed := 4; //Set it before creating any game-logic Types, should be consistent for replays and MP
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
 
@@ -422,8 +422,13 @@ begin
 
   fLog.AppendLog('Loading DAT...');
 
-  //todo: Random seed MUST be initialised before loading the script and then not changed, because of things like units being assigned random amounts of health. Make sure all players load the mission exactly the same and do not use rand anywhere else in loading/initialising
+  //todo: Random seed MUST be initialised before loading the script and then not changed,
+  //because of things like units being assigned random amounts of health. Make sure all
+  //players load the mission exactly the same and do not use rand anywhere else in
+  //loading/initialising
   //todo: Check this for single player too (it could be causing replay inconsistencies)
+  //@Lewin: RandSeed is set in GameInit, so it is the same for MP and SP, always :)
+  //To be deleted..
 
   if CheckFileExists(fMissionFile) then
   begin

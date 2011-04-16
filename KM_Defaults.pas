@@ -1164,6 +1164,7 @@ const
 
 
   //Colors available for selection in multiplayer
+  //todo: @Lewin: Should be adjoined with DefaultTeamColors.
   MP_COLOR_COUNT = MAX_PLAYERS;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
