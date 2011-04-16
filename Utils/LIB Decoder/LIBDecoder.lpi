@@ -2,10 +2,12 @@
 <CONFIG>
   <ProjectOptions>
     <PathDelim Value="\"/>
-    <Version Value="5"/>
+    <Version Value="7"/>
     <General>
+      <Flags>
+        <LRSInOutputDirectory Value="False"/>
+      </Flags>
       <MainUnit Value="0"/>
-      <IconPath Value="./"/>
       <TargetFileExt Value=".exe"/>
       <Title Value="LIB Decoder"/>
       <ActiveEditorIndexAtStart Value="0"/>
@@ -22,7 +24,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+        <LaunchingApplication PathPlusParams="\usr\X11R6\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
     <RequiredPackages Count="1">
@@ -37,23 +39,22 @@
         <UnitName Value="LIBDecoder"/>
         <CursorPos X="36" Y="17"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="3"/>
         <UsageCount Value="113"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="UMAIN.PAS"/>
-        <ComponentName Value="frmMain"/>
         <IsPartOfProject Value="True"/>
-        <ResourceFilename Value="umain.lrs"/>
+        <ComponentName Value="frmMain"/>
         <UnitName Value="umain"/>
-        <CursorPos X="77" Y="303"/>
-        <TopLine Value="294"/>
+        <CursorPos X="5" Y="445"/>
+        <TopLine Value="428"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="113"/>
         <Bookmarks Count="3">
-          <Item0 X="29" Y="581" ID="1"/>
-          <Item1 X="3" Y="497" ID="4"/>
+          <Item0 X="29" Y="582" ID="1"/>
+          <Item1 X="3" Y="498" ID="4"/>
           <Item2 X="47" Y="285" ID="5"/>
         </Bookmarks>
         <Loaded Value="True"/>
@@ -63,9 +64,7 @@
         <UnitName Value="umap"/>
         <CursorPos X="26" Y="918"/>
         <TopLine Value="889"/>
-        <EditorIndex Value="6"/>
         <UsageCount Value="56"/>
-        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value=""/>
@@ -76,9 +75,7 @@
         <UnitName Value="umissionobjects"/>
         <CursorPos X="34" Y="4024"/>
         <TopLine Value="4002"/>
-        <EditorIndex Value="5"/>
         <UsageCount Value="56"/>
-        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\Custom\Lewin\lazarus\lcl\comctrls.pp"/>
@@ -114,13 +111,13 @@
       </Unit9>
       <Unit10>
         <Filename Value="ugoto.pas"/>
-        <ComponentName Value="frmGoTo"/>
         <IsPartOfProject Value="True"/>
-        <ResourceFilename Value="ugoto.lrs"/>
+        <ComponentName Value="frmGoTo"/>
+        <ResourceBaseClass Value="Form"/>
         <UnitName Value="uGoTo"/>
         <CursorPos X="21" Y="13"/>
         <TopLine Value="7"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="86"/>
         <Loaded Value="True"/>
       </Unit10>
@@ -135,7 +132,6 @@
         <Filename Value="..\..\lazarus projects\LIB Decoder\ufind.pas"/>
         <ComponentName Value="frmFind"/>
         <HasResources Value="True"/>
-        <ResourceFilename Value="..\..\lazarus projects\LIB Decoder\ufind.lrs"/>
         <UnitName Value="ufind"/>
         <CursorPos X="3" Y="28"/>
         <TopLine Value="11"/>
@@ -145,11 +141,11 @@
         <Filename Value="ufind.pas"/>
         <ComponentName Value="frmFind"/>
         <HasResources Value="True"/>
-        <ResourceFilename Value="ufind.lrs"/>
+        <ResourceBaseClass Value="Form"/>
         <UnitName Value="ufind"/>
         <CursorPos X="44" Y="28"/>
         <TopLine Value="27"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="1"/>
         <UsageCount Value="32"/>
         <Loaded Value="True"/>
       </Unit13>
@@ -158,9 +154,7 @@
         <UnitName Value="KaMMissionEdit"/>
         <CursorPos X="14" Y="14"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="8"/>
         <UsageCount Value="31"/>
-        <Loaded Value="True"/>
       </Unit14>
       <Unit15>
         <Filename Value="..\..\..\lazarus\lcl\stdctrls.pp"/>
@@ -187,33 +181,30 @@
         <UnitName Value="Graphics"/>
         <CursorPos X="35" Y="511"/>
         <TopLine Value="498"/>
-        <EditorIndex Value="1"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit18>
       <Unit19>
         <Filename Value="..\..\..\..\..\lazarus\lcl\lcltype.pp"/>
         <UnitName Value="LCLType"/>
         <CursorPos X="17" Y="1181"/>
         <TopLine Value="1162"/>
-        <EditorIndex Value="2"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit19>
     </Units>
-    <JumpHistory Count="1" HistoryIndex="0">
+    <JumpHistory Count="2" HistoryIndex="1">
       <Position1>
         <Filename Value="UMAIN.PAS"/>
         <Caret Line="119" Column="58" TopLine="100"/>
       </Position1>
+      <Position2>
+        <Filename Value="UMAIN.PAS"/>
+        <Caret Line="303" Column="77" TopLine="294"/>
+      </Position2>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="5"/>
+    <Version Value="8"/>
     <PathDelim Value="\"/>
-    <CodeGeneration>
-      <Generate Value="Faster"/>
-    </CodeGeneration>
     <Linking>
       <Options>
         <Win32>
