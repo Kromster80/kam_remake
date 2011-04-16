@@ -12,7 +12,6 @@ uses
 type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok
 {$IFDEF Unix}
-type TPixelFormatDescriptor = integer;
 type HGLRC = integer;
 type PFD_DRAW_TO_WINDOW = integer;
 type PFD_SUPPORT_OPENGL = integer;
@@ -25,9 +24,15 @@ KAlign = (kaLeft, kaCenter, kaRight);
 
 TColor4 = cardinal;
 
+//this is used really for sth?
+{$IFDEF MSWindows}
+procedure SetupVSync(aVSync:boolean);
+{$ENDIF}
+
+function SetDCPixelFormat(h_DC:HDC):boolean;
+
 procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
 procedure SetRenderDefaults();
-function SetDCPixelFormat(h_DC:HDC):boolean;
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
     procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
 procedure glPrint(text: string);
@@ -36,7 +41,6 @@ procedure glkScale(x:single);
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
 procedure glkRect(Ax,Ay,Bx,By:single);
 procedure glkMoveAALines(DoShift:boolean);
-procedure SetupVSync(aVSync:boolean);
 procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
 
@@ -76,7 +80,7 @@ begin
   h_RC := wglCreateContext(h_DC);
   {$ENDIF}
   {$IFDEF Unix}
-  h_RC := glxCreateContext(h_DC);
+  //h_RC := glxCreateContext(h_DC);
   {$ENDIF}
   if h_RC=0 then
   begin
@@ -87,7 +91,7 @@ begin
   if not wglMakeCurrent(h_DC, h_RC) then
   {$ENDIF}
   {$IFDEF Unix}
-  if not glxMakeCurrent(h_DC, h_RC) then
+  //if not glxMakeCurrent(h_DC, h_RC) then
   {$ENDIF}
   begin
     MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
@@ -114,6 +118,8 @@ end;
 
 
 function SetDCPixelFormat(h_DC:HDC):boolean;
+{$IFDEF MSWindows}
+//this function looks like not for Linux at all
 var
   nPixelFormat: Integer;
   PixelDepth:integer;
@@ -158,7 +164,13 @@ PixelDepth:=32;
     dwVisibleMask   := 0;                    // Transparent color of underlay plane
     dwDamageMask    := 0;                     // Ignored
   end;
+  {$IFDEF MSWindows}
   nPixelFormat:=ChoosePixelFormat(h_DC, @pfd);
+  {$ENDIF}
+  {$IFDEF Unix}
+  //nPixelFormat:=glXChooseVisual(h_DC, @pfd);
+  {$ENDIF}
+
   if nPixelFormat=0 then begin
   MessageBox(0, 'Unable to find a suitable pixel format', 'Error', MB_OK or MB_ICONERROR);
     Result:=false;
@@ -169,6 +181,16 @@ PixelDepth:=32;
     Result:=false;
     exit;
   end;
+{$ENDIF}
+{$IFDEF Unix}
+//TODO some example maybe here
+//http://zengl.googlecode.com/svn-history/r723/trunk/src/zgl_opengl.pas
+//now just create stub:
+begin
+  MessageBox(0, 'SetDCPixelFormat failed', 'Error', MB_OK or MB_ICONERROR);
+    Result:=false;
+    exit;
+{$ENDIF}
 Result:=true;
 end;
 
