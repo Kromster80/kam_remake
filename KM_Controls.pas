@@ -1,7 +1,9 @@
 unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, Graphics, Math, MMSystem, Windows, SysUtils,
+uses
+    {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
+    Classes, Controls, Graphics, Math, SysUtils,
     KromUtils, KromOGLUtils,
     KM_CommonTypes, KM_Defaults;
 

@@ -1,10 +1,12 @@
 unit KM_InterfaceMainMenu;
 {$I KaM_Remake.inc}
 interface
-uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+uses
+  {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
+  SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  KM_Controls, KM_Defaults, KM_CommonTypes, Windows, KM_Settings, KM_MapInfo, KM_Networking;
+  KM_Controls, KM_Defaults, KM_CommonTypes, KM_Settings, KM_MapInfo, KM_Networking;
 
 
 type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);

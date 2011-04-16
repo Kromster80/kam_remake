@@ -2,8 +2,9 @@ unit KM_Sound;
 {$I KaM_Remake.inc}
 interface
 uses Classes, Forms, SysUtils,
-  {$IFDEF WDC} MMSystem,  {$ENDIF}
-  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF MSWindows}
+  {$IFDEF WDC} MMSystem, {$ENDIF}
+  Windows, {$ENDIF}
   OpenAL, KromUtils,
   KM_CommonTypes, KM_Defaults, KM_Utils;
 
