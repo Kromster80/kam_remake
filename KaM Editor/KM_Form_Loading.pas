@@ -4,7 +4,7 @@ unit KM_Form_Loading;
 interface
 
 uses
-  Windows, SysUtils, Classes, Controls, Forms, Graphics,
+  SysUtils, Classes, Controls, Forms, Graphics,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, KromOGLUtils,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
