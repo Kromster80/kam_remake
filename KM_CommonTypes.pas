@@ -163,13 +163,20 @@ implementation
 uses KM_Utils;
 
 
+//Linux wants this instead of timegettime, it should work on Windows too
+function TimeGet: DWord;
+begin
+    Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
+end;
+
+
 {Reset log file}
 constructor TKMLog.Create(aPath:string);
 begin
   Inherited Create;
   fLogPath := aPath;
-  fFirstTick := TimeGetTime;
-  fPreviousTick := TimeGetTime;
+  fFirstTick := TimeGet();
+  fPreviousTick := TimeGet();
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
@@ -183,10 +190,10 @@ procedure TKMLog.AddLine(const aText:string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
-  WriteLn(fl,floattostr((TimeGetTime - fFirstTick)/1000)+'s'+#9+
-             floattostr((TimeGetTime - fPreviousTick)/1000)+'s'+#9+aText);
+  WriteLn(fl,floattostr((TimeGet() - fFirstTick)/1000)+'s'+#9+
+             floattostr((TimeGet() - fPreviousTick)/1000)+'s'+#9+aText);
   CloseFile(fl);
-  fPreviousTick := TimeGetTime;
+  fPreviousTick := TimeGet();
 end;
 
 
@@ -381,12 +388,6 @@ begin
     fList[i] := fList[i-1];
   fList[aID].msgType := aMsgTyp;
   fList[aID].msgText := aText;
-end;
-
-//Linux wants this instead of timegettime, it should work on Windows too
-function TimeGet: DWord;
-begin
-    Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
 end;
 
 function TKMMessageList.GetMsgPic(aID:cardinal):cardinal;
