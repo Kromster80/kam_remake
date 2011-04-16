@@ -1,7 +1,9 @@
 unit KM_CommonTypes;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, MMSystem;
+uses
+{$IFDEF MSWindows} MMSystem, {$ENDIF}
+Classes, SysUtils;
 
 
 type
@@ -381,6 +383,11 @@ begin
   fList[aID].msgText := aText;
 end;
 
+//Linux wants this instead of timegettime, it should work on Windows too
+function TimeGet: DWord;
+begin
+    Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
+end;
 
 function TKMMessageList.GetMsgPic(aID:cardinal):cardinal;
 begin
