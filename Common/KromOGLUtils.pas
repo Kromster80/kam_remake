@@ -1,6 +1,7 @@
 unit KromOGLUtils;
 {$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
 {$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
+{$IFDEF VER220} {$DEFINE WDC} {$ENDIF}  // Delphi XE
 interface
 uses
   {$IFDEF WDC} OpenGL, {$ENDIF}  dglOpenGL,
@@ -24,15 +25,9 @@ KAlign = (kaLeft, kaCenter, kaRight);
 
 TColor4 = cardinal;
 
-//this is used really for sth?
-{$IFDEF MSWindows}
-procedure SetupVSync(aVSync:boolean);
-{$ENDIF}
-
-function SetDCPixelFormat(h_DC:HDC):boolean;
-
 procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
 procedure SetRenderDefaults();
+function SetDCPixelFormat(h_DC:HDC):boolean;
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
     procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
 procedure glPrint(text: string);
@@ -41,6 +36,7 @@ procedure glkScale(x:single);
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
 procedure glkRect(Ax,Ay,Bx,By:single);
 procedure glkMoveAALines(DoShift:boolean);
+procedure SetupVSync(aVSync:boolean); //@Vitautas: See my comment below
 procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
 
@@ -120,12 +116,18 @@ end;
 function SetDCPixelFormat(h_DC:HDC):boolean;
 {$IFDEF MSWindows}
 //this function looks like not for Linux at all
+//@Vitautas: Perhaps, I don't know for sure. I hope you will find an analog in Unix :)
 var
   nPixelFormat: Integer;
   PixelDepth:integer;
   pfd: TPixelFormatDescriptor;
 
   {$IFDEF Unix}
+//@Vitautas: All these fields are memmbers of record pfd:
+{pfd: record 
+  nSize, 
+  nVersion... 
+end;}
   nSize, nVersion, dwFlags, iPixelType, cColorBits, cRedBits,
   cRedShift, cGreenBits, cGreenShift, cBlueBits, cBlueShift,
   cAlphaBits, cAlphaShift, cAccumBits, cAccumRedBits, cAccumGreenBits,
@@ -230,7 +232,6 @@ begin
   {$IFDEF Unix}
   //TODO need to emulate these functions (with freetype you should be able to code a multi platform solution).
   {$ENDIF}
-
 end;
 
 
@@ -320,12 +321,15 @@ if DoShift then glTranslatef(Value,Value,0)
            else glTranslatef(-Value,-Value,0);
 end;
 
-{$IFDEF MSWindows}
+
+//@Vitautas: This function is used to enable/disable V-Sync
 procedure SetupVSync(aVSync:boolean);
 begin
+{$IFDEF MSWindows}
   if WGL_EXT_swap_control then
     wglSwapIntervalEXT(byte(aVSync)); //1 or 0
-end;
 {$ENDIF}
+end;
+
 
 end.
