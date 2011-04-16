@@ -29,6 +29,11 @@ uses
   {$IFDEF FPC}, paszlib {$ENDIF}
   ;
 
+const
+{$IFDEF UNIX}
+    opengl32 = 'libGL.so';
+    glu32 = 'libGLU.so';
+{$ENDIF}
 
 function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
@@ -40,7 +45,6 @@ implementation
 function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, aType: GLenum; Data: Pointer): GLint; stdcall; external glu32;
 {$ENDIF}
 
-//Linux Error: Identifier not found "opengl32"
 procedure glGenTextures(n: GLsizei; var Textures: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
 procedure glBindTexture(Target: GLenum; Texture: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
 
