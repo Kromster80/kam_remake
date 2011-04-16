@@ -17,8 +17,8 @@ type
   TKMPanel = class;
 
 
-{ TKMMaster }
-TKMMasterControl = class
+  { TKMMaster }
+  TKMMasterControl = class
   private
     fCtrl:TKMPanel; //Parentmost control (TKMPanel with all its childs)
     fCtrlDown:TKMControl; //Control that was pressed Down
@@ -55,11 +55,11 @@ TKMMasterControl = class
     procedure Paint;
 
     procedure SaveToFile(aFileName:string);
-end;
+  end;
 
 
-{Base class for all TKM elements}
-TKMControl = class
+  {Base class for all TKM elements}
+  TKMControl = class
   private
     fParent: TKMPanel;
 
@@ -126,11 +126,11 @@ TKMControl = class
     //property OnMouseOver: TNotifyEvent write fOnMouseOver;
 
     procedure Paint; virtual;
-end;
+  end;
 
 
-{ Panel which keeps child items in it, it's virtual and invisible }
-TKMPanel = class(TKMControl)
+  { Panel which keeps child items in it, it's virtual and invisible }
+  TKMPanel = class(TKMControl)
   private
     GetCollection:TKMMasterControl;
     procedure SetHeight(aValue:Integer); override;
@@ -143,19 +143,19 @@ TKMPanel = class(TKMControl)
     destructor Destroy; override;
     procedure AddChild(aChild:TKMControl);
     procedure Paint; override;
-end;
+  end;
 
 
-{ Beveled area }
-TKMBevel = class(TKMControl)
+  { Beveled area }
+  TKMBevel = class(TKMControl)
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure Paint; override;
-end;
+  end;
 
 
-{Rectangle}
-TKMShape = class(TKMControl)
+  {Rectangle}
+  TKMShape = class(TKMControl)
   public
     Hitable:boolean;
     FillColor:TColor4;
@@ -165,11 +165,11 @@ TKMShape = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
     function HitTest(X, Y: Integer): Boolean; override;
     procedure Paint; override;
-end;
+  end;
 
 
-{Text Label}
-TKMLabel = class(TKMControl)
+  {Text Label}
+  TKMLabel = class(TKMControl)
   private
     fCaption: string;
     fText:string;
@@ -186,11 +186,11 @@ TKMLabel = class(TKMControl)
     property Caption:string read fCaption write SetCaption;
     function TextHeight:integer;
     procedure Paint; override;
-end;
+  end;
 
 
-{Image}
-TKMImage = class(TKMControl)
+  {Image}
+  TKMImage = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
@@ -201,11 +201,11 @@ TKMImage = class(TKMControl)
     procedure ImageStretch;
     procedure ImageCenter;
     procedure Paint; override;
-end;
+  end;
 
 
-{Image stack - for army formation view}
-TKMImageStack = class(TKMControl)
+  {Image stack - for army formation view}
+  TKMImageStack = class(TKMControl)
   private
     fRXid: integer; //RX library
     fTexID: integer;
@@ -217,11 +217,11 @@ TKMImageStack = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
     procedure SetCount(aCount,aColumns:integer);
     procedure Paint; override;
-end;
+  end;
 
 
-{ Color swatch - to select a color from given samples/palette }
-TKMColorSwatch = class(TKMControl)
+  { Color swatch - to select a color from given samples/palette }
+  TKMColorSwatch = class(TKMControl)
   private
     CellSize:byte; //in pixels
     SelectedColor:byte; //Index 0..255
@@ -233,11 +233,11 @@ TKMColorSwatch = class(TKMControl)
     function GetColor:TColor4;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
-end;
+  end;
 
 
-{3DButton}
-TKMButton = class(TKMControl)
+  {3DButton}
+  TKMButton = class(TKMControl)
   private
     fCaption: string;
     fFont: TKMFont;
@@ -259,8 +259,8 @@ TKMButton = class(TKMControl)
   end;
 
 
-{FlatButton}
-TKMButtonFlat = class(TKMControl)
+  {FlatButton}
+  TKMButtonFlat = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
@@ -275,11 +275,11 @@ TKMButtonFlat = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
     procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
-end;
+  end;
 
 
-{FlatButton with Shape on it}
-TKMFlatButtonShape = class(TKMControl)
+  {FlatButton with Shape on it}
+  TKMFlatButtonShape = class(TKMControl)
   public
     CapOffsetY:shortint;
     Caption: string;
@@ -288,11 +288,11 @@ TKMFlatButtonShape = class(TKMControl)
     Down:boolean;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4);
     procedure Paint; override;
-end;
+  end;
 
 
-{EditField}
-TKMEdit = class(TKMControl)
+  {EditField}
+  TKMEdit = class(TKMControl)
   private
     fText:string;
     fOnChange:TNotifyEvent;
@@ -311,11 +311,11 @@ TKMEdit = class(TKMControl)
     function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
-end;
+  end;
 
 
-{ Checkbox }
-TKMCheckBox = class(TKMControl)
+  { Checkbox }
+  TKMCheckBox = class(TKMControl)
   private
     fCaption:string;
     fChecked:boolean;
@@ -328,11 +328,11 @@ TKMCheckBox = class(TKMControl)
     property FlatStyle:boolean read fFlatStyle write fFlatStyle;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
-end;
+  end;
 
 
-{ TKMRadioGroup }
-TKMRadioGroup = class(TKMControl)
+  { TKMRadioGroup }
+  TKMRadioGroup = class(TKMControl)
   private
     fItemIndex:integer;
     fItems:TStringList;
@@ -348,11 +348,11 @@ TKMRadioGroup = class(TKMControl)
     property OnChange: TNotifyEvent write fOnChange;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
-end;
+  end;
 
 
-{Percent bar}
-TKMPercentBar = class(TKMControl)
+  {Percent bar}
+  TKMPercentBar = class(TKMControl)
   public
     Position: integer;
     Caption: string;
@@ -361,21 +361,21 @@ TKMPercentBar = class(TKMControl)
     TextAlign: KAlign;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini; aColor:TColor4=$FFFFFFFF);
     procedure Paint; override;
-end;
+  end;
 
 
-{Resource bar}
-TKMResourceRow = class(TKMControl)
+  {Resource bar}
+  TKMResourceRow = class(TKMControl)
   public
     Resource: TResourceType;
     ResourceCount: integer;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
     procedure Paint; override;
-end;
+  end;
 
 
-{Resource order bar}
-TKMResourceOrderRow = class(TKMControl)
+  {Resource order bar}
+  TKMResourceOrderRow = class(TKMControl)
   private
     fOrderAdd:TKMButton;
     fOrderLab:TKMLabel;
@@ -392,20 +392,20 @@ TKMResourceOrderRow = class(TKMControl)
     property OrderRem:TKMButton read fOrderRem;
 
     procedure Paint; override;
-end;
+  end;
 
 
-{Production cost bar}
-TKMCostsRow = class(TKMControl)
+  {Production cost bar}
+  TKMCostsRow = class(TKMControl)
   public
     CostID:byte;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte);
     procedure Paint; override;
-end;
+  end;
 
 
-{Ratio bar}
-TKMRatioRow = class(TKMControl)
+  {Ratio bar}
+  TKMRatioRow = class(TKMControl)
   private
     fOnChange:TNotifyEvent;
   public
@@ -416,13 +416,13 @@ TKMRatioRow = class(TKMControl)
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
-end;
+  end;
 
 
-TScrollAxis = (sa_Vertical, sa_Horizontal);
+  TScrollAxis = (sa_Vertical, sa_Horizontal);
 
-{Scroll bar}
-TKMScrollBar = class(TKMControl)
+  { Scroll bar }
+  TKMScrollBar = class(TKMControl)
   private
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fScrollAxis:TScrollAxis;
@@ -451,7 +451,7 @@ TKMScrollBar = class(TKMControl)
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
-end;
+  end;
 
 
   TKMListBox = class(TKMControl)
@@ -518,8 +518,8 @@ end;
   end;
   
 
-{ Minimap as stand-alone control }
-TKMMinimap = class(TKMControl)
+  { Minimap as stand-alone control }
+  TKMMinimap = class(TKMControl)
   private
     fOnChange:TNotifyEvent;
   public
@@ -533,11 +533,11 @@ TKMMinimap = class(TKMControl)
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
-end;
+  end;
 
 
-{ Files list } //Possible solution for MapEd and Save/Load
-TKMFileList = class(TKMControl)
+  { Files list } //Possible solution for MapEd and Save/Load
+  TKMFileList = class(TKMControl)
   private
     ItemHeight:byte;
     fPath:string;
@@ -561,7 +561,7 @@ TKMFileList = class(TKMControl)
     property OnChange: TNotifyEvent write fOnChange;
 
     procedure Paint; override;
-end;
+  end;
 
 
 implementation
