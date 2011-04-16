@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Menus, Math
+  Menus
   {$IFDEF FPC}, LResources{$ENDIF};
 
 
@@ -34,7 +34,7 @@ type
     Defence: TLabel;
     DEF: TEdit;
     CVA: TEdit;
-    Label11: TLabel;
+    ListBox1: TListBox;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     x11: TEdit;
@@ -56,10 +56,8 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
-    number: TEdit;
-    SName: TLabel;
-    UnitNumber: TLabel;
     Open: TButton;
+    procedure init(Sender: TObject);
     procedure open_file(Sender: TObject);
     procedure saveDAT(Sender: TObject);
     procedure showDAT(Sender: TObject);
@@ -152,54 +150,55 @@ begin
   SaveDialog1.InitialDir := '';
   if OpenDialog1.Execute then
   LoadUnitDAT(OpenDialog1.Filename);
+end;
 
-  //todo: Replace UnitNumber field with TListBox
+procedure TForm1.init(Sender: TObject);
+var
+  x :integer;
+begin
+x := 1;
+ with ListBox1 do begin
+     while (x <42) do begin
+      Items.Add(UnitNames[x]);
+      x := x + 1;
+     end;
+ end;
 end;
 
 
 procedure TForm1.saveDAT(Sender: TObject);
-var
-  i :integer;
 begin
-  i := strtoint(number.Text);
-  UnitStat[i].HitPoints := strtoint(HP.Text);
-  UnitStat[i].Attack := strtoint(ATK.Text);
-  UnitStat[i].AttackHorseBonus := strtoint(AHB.Text);
-  UnitStat[i].x4 := strtoint(x4.Text);
-  UnitStat[i].Defence := strtoint(DEF.Text);
-  UnitStat[i].Speed := strtoint(SPD.Text);
-  UnitStat[i].Sight := strtoint(Sight.Text);
-  UnitStat[i].x9 := strtoint(x9.Text);
-  UnitStat[i].x10 := strtoint(x10.Text);
-  UnitStat[i].CanWalkOut := strtoint(CVA.Text);
-  UnitStat[i].x11 := strtoint(x11.Text);
+  UnitStat[ListBox1.ItemIndex].HitPoints := strtoint(HP.Text);
+  UnitStat[ListBox1.ItemIndex].Attack := strtoint(ATK.Text);
+  UnitStat[ListBox1.ItemIndex].AttackHorseBonus := strtoint(AHB.Text);
+  UnitStat[ListBox1.ItemIndex].x4 := strtoint(x4.Text);
+  UnitStat[ListBox1.ItemIndex].Defence := strtoint(DEF.Text);
+  UnitStat[ListBox1.ItemIndex].Speed := strtoint(SPD.Text);
+  UnitStat[ListBox1.ItemIndex].Sight := strtoint(Sight.Text);
+  UnitStat[ListBox1.ItemIndex].x9 := strtoint(x9.Text);
+  UnitStat[ListBox1.ItemIndex].x10 := strtoint(x10.Text);
+  UnitStat[ListBox1.ItemIndex].CanWalkOut := strtoint(CVA.Text);
+  UnitStat[ListBox1.ItemIndex].x11 := strtoint(x11.Text);
   if SaveDialog1.Execute then
   SaveUnitDAT(SaveDialog1.Filename);
 end;
 
 
 procedure TForm1.showDAT(Sender: TObject);
-var
-  i :integer;
 begin
   //todo: Replace all TEdits with TSpinEdits
-  i := strtoint(number.Text);
-  if Math.InRange(i, 1, 41) then begin
-   Label11.Caption := UnitNames[i];
-   HP.Text := inttostr(UnitStat[i].HitPoints);
-   ATK.Text := inttostr(UnitStat[i].Attack);
-   AHB.Text := inttostr(UnitStat[i].AttackHorseBonus);
-   x4.Text := inttostr(UnitStat[i].x4);
-   DEF.Text := inttostr(UnitStat[i].Defence);
-   SPD.Text := inttostr(UnitStat[i].Speed);
-   x7.Text := '0'; // inttostr(UnitStat[i].x7);
-   Sight.Text := inttostr(UnitStat[i].Sight);
-   x9.Text := inttostr(UnitStat[i].x9);
-   x10.Text := inttostr(UnitStat[i].x10);
-   CVA.Text := inttostr(UnitStat[i].CanWalkOut);
-   x11.Text := inttostr(UnitStat[i].x11);
-  end
-  else ShowMessage ('wrong unit number');
+   HP.Text := inttostr(UnitStat[ListBox1.ItemIndex].HitPoints);
+   ATK.Text := inttostr(UnitStat[ListBox1.ItemIndex].Attack);
+   AHB.Text := inttostr(UnitStat[ListBox1.ItemIndex].AttackHorseBonus);
+   x4.Text := inttostr(UnitStat[ListBox1.ItemIndex].x4);
+   DEF.Text := inttostr(UnitStat[ListBox1.ItemIndex].Defence);
+   SPD.Text := inttostr(UnitStat[ListBox1.ItemIndex].Speed);
+   x7.Text := '0';
+   Sight.Text := inttostr(UnitStat[ListBox1.ItemIndex].Sight);
+   x9.Text := inttostr(UnitStat[ListBox1.ItemIndex].x9);
+   x10.Text := inttostr(UnitStat[ListBox1.ItemIndex].x10);
+   CVA.Text := inttostr(UnitStat[ListBox1.ItemIndex].CanWalkOut);
+   x11.Text := inttostr(UnitStat[ListBox1.ItemIndex].x11);
 end;
 
 
