@@ -2,7 +2,8 @@ unit KM_Units;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils, Windows,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  Classes, Math, SysUtils, KromUtils,
   KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units_WorkPlan;
 
 //Memo on directives:
