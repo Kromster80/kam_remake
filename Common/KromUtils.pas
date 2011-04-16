@@ -71,7 +71,7 @@ procedure decs(var AText:string; const Len:integer=1); overload;
 procedure decs(var AText:widestring; const Len:integer=1); overload;
 function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
 function RemoveQuotes(Input:string):string;
-function GetCharFromVirtualKey(Key:word):string;
+//function GetCharFromVirtualKey(Key:word):string;
 procedure SwapStr(var A,B:string);
 procedure SwapInt(var A,B:byte); overload;
 procedure SwapInt(var A,B:word); overload;
@@ -438,21 +438,21 @@ begin
 end;
 
 
-function GetCharFromVirtualKey(Key:word):string;
-var
-  KeyboardState: TKeyboardState;
-  AsciiResult: Integer;
-begin
-  GetKeyboardState(KeyboardState);
-  SetLength(Result, 2);
-  AsciiResult := ToAscii(Key, MapVirtualKey(Key,0), KeyboardState, @Result[1], 0);
-  case AsciiResult of
-    0:    Result := '';
-    1:    SetLength(Result, 1);
-    2:    ;
-    else  Result := '';
-  end;
-end;
+//function GetCharFromVirtualKey(Key:word):string;
+//var
+//  KeyboardState: TKeyboardState;
+//  AsciiResult: Integer;
+//begin
+//  GetKeyboardState(KeyboardState);
+//  SetLength(Result, 2);
+//  AsciiResult := ToAscii(Key, MapVirtualKey(Key,0), KeyboardState, @Result[1], 0);
+//  case AsciiResult of
+//    0:    Result := '';
+//    1:    SetLength(Result, 1);
+//    2:    ;
+//    else  Result := '';
+//  end;
+//end;
 
 
 procedure SwapStr(var A,B:string);
