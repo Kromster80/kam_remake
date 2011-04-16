@@ -24,6 +24,8 @@ type
     fSpeedPace:word;
     fSpeedup:word;
     fVSync:boolean;
+    fMultiplayerName:string;
+    fMultiplayerIP:string;
     function LoadSettingsFromFile(FileName:string):boolean;
     procedure SaveSettingsToFile(FileName:string);
 
@@ -36,6 +38,8 @@ type
     procedure SetMusicOn(aValue:boolean);
     procedure SetMusicVolume(aValue:byte);
     procedure SetSoundFXVolume(aValue:byte);
+    procedure SetMultiplayerName(aValue:string);
+    procedure SetMultiplayerIP(aValue:string);
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
@@ -59,6 +63,8 @@ type
     property SpeedPace:word read fSpeedPace;
     property Speedup:word read fSpeedup;
     property VSync:boolean read fVSync;
+    property MultiplayerName:string read fMultiplayerName write SetMultiplayerName;
+    property MultiplayerIP:string read fMultiplayerIP write SetMultiplayerIP;
   end;
 
 
@@ -136,6 +142,9 @@ begin
   fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);
   fHitPointRestoreInFights := f.ReadBool('Fights','HitPointRestoreInFights',true);
 
+  fMultiplayerName := f.ReadString('Multiplayer','Name','NoName');
+  fMultiplayerIP   := f.ReadString('Multiplayer','IP','127.0.0.1');
+
   FreeAndNil(f);
   fNeedsSave := false;
 end;
@@ -164,6 +173,9 @@ begin
 
   f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
   f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
+
+  f.WriteString('Multiplayer','Name',fMultiplayerName);
+  f.WriteString('Multiplayer','IP',fMultiplayerIP);
 
   f.UpdateFile; //Write changes to file
   FreeAndNil(f);
@@ -221,6 +233,20 @@ procedure TGlobalSettings.SetSoundFXVolume(aValue:byte);
 begin
   fSoundFXVolume := EnsureRange(aValue,fSlidersMin,fSlidersMax);
   fSoundLib.UpdateSoundVolume(fSoundFXVolume/fSlidersMax);
+  fNeedsSave := true;
+end;
+
+
+procedure TGlobalSettings.SetMultiplayerName(aValue:string);
+begin
+  fMultiplayerName := aValue;
+  fNeedsSave := true;
+end;
+
+
+procedure TGlobalSettings.SetMultiplayerIP(aValue:string);
+begin
+  fMultiplayerIP := aValue;
   fNeedsSave := true;
 end;
 

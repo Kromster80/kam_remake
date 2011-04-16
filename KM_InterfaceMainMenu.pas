@@ -61,6 +61,8 @@ type
     procedure LAN_JoinFail(const aData:string);
     procedure LAN_BindEvents(aKind:TLANPlayerKind);
     procedure LAN_Update(const aData:string);
+    procedure LAN_Fill;
+    procedure LAN_Save_Settings;
 
     procedure Lobby_BackClick(Sender: TObject);
     procedure Lobby_Reset(Sender: TObject);
@@ -111,6 +113,7 @@ type
 
       Panel_LANLogin:TKMPanel;
         Panel_LANLogin2:TKMPanel;
+          Edit_LAN_Name: TKMEdit;
           Label_LAN_IP:TKMLabel;
           Button_LAN_Host:TKMButton;
           Edit_LAN_IP:TKMEdit;
@@ -422,22 +425,24 @@ end;
 procedure TKMMainMenuInterface.Create_LANLogin_Page;
 begin
   Panel_LANLogin := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    Panel_LANLogin2 := TKMPanel.Create(Panel_LANLogin,312,280,400,400);
+    Panel_LANLogin2 := TKMPanel.Create(Panel_LANLogin,312,240,400,400);
+                                                                  
+      TKMLabel.Create(Panel_LANLogin2, 200, 0, 100, 20, 'Player Name:', fnt_Metal, kaCenter);
+      Edit_LAN_Name := TKMEdit.Create(Panel_LANLogin2, 150, 25, 100, 20, fnt_Grey);
 
-      TKMLabel.Create(Panel_LANLogin2, 100, 0, 100, 20, 'Your IP address is:', fnt_Metal, kaCenter);
-      Label_LAN_IP := TKMLabel.Create(Panel_LANLogin2, 100, 25, 100, 20, '0.0.0.0', fnt_Outline, kaCenter);
-      Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 50, 60, 100, 30, 'Host', fnt_Metal, bsMenu);
+      TKMLabel.Create(Panel_LANLogin2, 100, 80, 100, 20, 'Your IP address is:', fnt_Metal, kaCenter);
+      Label_LAN_IP := TKMLabel.Create(Panel_LANLogin2, 100, 105, 100, 20, '0.0.0.0', fnt_Outline, kaCenter);
+      Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 50, 140, 100, 30, 'Host', fnt_Metal, bsMenu);
       Button_LAN_Host.OnClick := LAN_Host;
 
-      TKMLabel.Create(Panel_LANLogin2, 300, 0, 100, 20, 'Set partners IP address:', fnt_Metal, kaCenter);
-      Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 250, 25, 100, 20, fnt_Grey);
-      Edit_LAN_IP.Text := '127.0.0.1';
-      Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 250, 60, 100, 30, 'Join', fnt_Metal, bsMenu);
+      TKMLabel.Create(Panel_LANLogin2, 300, 80, 100, 20, 'Set partners IP address:', fnt_Metal, kaCenter);
+      Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 250, 105, 100, 20, fnt_Grey);
+      Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 250, 140, 100, 30, 'Join', fnt_Metal, bsMenu);
       Button_LAN_Join.OnClick := LAN_Join;
 
-      Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
+      Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 180, 100, 20, ' ... ', fnt_Outline, kaCenter);
 
-    Button_LAN_LoginBack := TKMButton.Create(Panel_LANLogin2, 45, 300, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_LAN_LoginBack := TKMButton.Create(Panel_LANLogin2, 100, 300, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LAN_LoginBack.OnClick := SwitchMenuPage;
 end;
 
@@ -832,7 +837,10 @@ begin
 
   {Return to MultiPlayerMenu}
   if Sender=Button_LAN_LoginBack then
+  begin
     Panel_MultiPlayer.Show;
+    LAN_Save_Settings;
+  end;
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
@@ -885,6 +893,7 @@ begin
   {Show LAN login}
   if Sender=Button_MP_LAN then begin
     LAN_Update('Ready');
+    LAN_Fill;
     Panel_LANLogin.Show;
   end;
 
@@ -893,6 +902,7 @@ begin
     Lobby_Reset(Sender);
     MyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
+    LAN_Save_Settings;
   end;
 
   {Show MapEditor menu}
@@ -1126,11 +1136,25 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.LAN_Fill;
+begin
+  Edit_LAN_Name.Text := fGame.GlobalSettings.MultiplayerName;
+  Edit_LAN_IP.Text := fGame.GlobalSettings.MultiplayerIP;
+end;
+
+
+procedure TKMMainMenuInterface.LAN_Save_Settings;
+begin
+  fGame.GlobalSettings.MultiplayerName := Edit_LAN_Name.Text;
+  fGame.GlobalSettings.MultiplayerIP := Edit_LAN_IP.Text;
+end;
+
+
 procedure TKMMainMenuInterface.LAN_Host(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
-  fGame.Networking.Host('Host'); //All events are nilled
+  fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
   LAN_BindEvents(lpk_Host);
   Lobby_OnPlayersSetup(nil); //Update players list
   fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
@@ -1145,7 +1169,7 @@ begin
   Label_LAN_Status.Caption := 'Connecting, please wait ...';
 
   //Send request to join
-  fGame.Networking.Join(Edit_LAN_IP.Text, 'Joiner'); //Init lobby
+  fGame.Networking.Join(Edit_LAN_IP.Text, Edit_LAN_Name.Text); //Init lobby
   fGame.Networking.OnJoinSucc := LAN_JoinSucc;
   fGame.Networking.OnJoinFail := LAN_JoinFail;
 end;
