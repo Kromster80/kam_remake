@@ -4,7 +4,7 @@ unit KM_Unit1;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, glx, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, KromUtils,
   {$IFDEF WDC} OpenGL, {$ENDIF}
@@ -527,6 +527,7 @@ SwapBuffers(h_DC);
 {$ENDIF}
 {$IFDEF Unix}
 //?OpenGLControl1.SwapBuffers(h_DC);
+  MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
 {$ENDIF}
 end;
 
@@ -1016,8 +1017,9 @@ wglDeleteContext(h_RC);
 {$ENDIF}
 {$IFDEF Unix}
 //do not know how to fix them :(
-glXMakeCurrent(display, wid, util_glctx);
-glXDestroyContext(h_RC);
+//glXMakeCurrent(display, wid, util_glctx);
+//glXDestroyContext(h_RC);
+  MessageBox(Form1.Handle,'glXMakeCurrent and glXDestroyContext not working', 'Error', MB_OK);
 {$ENDIF}
 end;
 

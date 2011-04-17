@@ -9,6 +9,7 @@ uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   dglOpenGL, KromUtils;
 
 type
@@ -53,6 +54,7 @@ begin
 
   InitOpenGL;
   h_DC := GetDC(Form1.Panel1.Handle);
+  {$IFDEF MSWindows}
   if h_DC=0 then begin MessageBox(Form1.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR); exit; end;
   if not SetDCPixelFormat(h_DC) then exit;
   h_RC := wglCreateContext(h_DC);
@@ -61,7 +63,10 @@ begin
     MessageBox(Form1.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
-
+  {$ENDIF}
+  {$IFDEF Unix}
+  MessageBox(Form1.Handle,'wglMakeCurrent and wglCreateContext not ported', 'Error', MB_OK);
+  {$ENDIF}
   ReadExtensions;
   ReadImplementationProperties;
   Form1.RenderInit();

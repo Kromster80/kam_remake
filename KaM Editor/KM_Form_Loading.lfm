@@ -151,7 +151,7 @@ object FormLoading: TFormLoading
     Left = 100
     Height = 17
     Top = 8
-    Width = 137
+    Width = 142
     Caption = 'KaM Editor by Krom'
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
@@ -167,11 +167,10 @@ object FormLoading: TFormLoading
   end
   object Label4: TLabel
     Left = 100
-    Height = 14
+    Height = 15
     Top = 80
-    Width = 111
+    Width = 161
     Caption = 'kromster80@gmail.com'
-    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsUnderline]
@@ -181,28 +180,27 @@ object FormLoading: TFormLoading
   end
   object Label5: TLabel
     Left = 100
-    Height = 14
+    Height = 15
     Top = 28
-    Width = 120
+    Width = 168
     Caption = 'version 0.6 (16 Apr 2009)'
     ParentColor = False
   end
   object Label6: TLabel
     Left = 100
-    Height = 14
+    Height = 15
     Top = 64
-    Width = 41
+    Width = 60
     Caption = 'Contact:'
     ParentColor = False
   end
   object Label7: TLabel
     Left = 100
-    Height = 14
+    Height = 15
     Top = 96
-    Width = 108
+    Width = 149
     Caption = 'http://krom.reveur.de/'
     Color = clBtnFace
-    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsUnderline]
@@ -213,9 +211,9 @@ object FormLoading: TFormLoading
   end
   object Label1: TLabel
     Left = 4
-    Height = 14
+    Height = 15
     Top = 80
-    Width = 51
+    Width = 72
     Caption = 'Loading ...'
     Enabled = False
     ParentColor = False

@@ -6,7 +6,7 @@ interface
 uses
   {$IFDEF FPC} LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  {$IFDEF Unix} FileUtil, LCLIntf, LCLType, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, KM_Unit1, ExtCtrls, Math;
 

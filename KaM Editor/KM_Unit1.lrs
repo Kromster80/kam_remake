@@ -1,5 +1,3 @@
-{ This is an automatically generated lazarus resource file }
-
 LazarusResources.Add('TForm1','FORMDATA',[
   'TPF0'#6'TForm1'#5'Form1'#4'Left'#3')'#1#6'Height'#3#222#2#3'Top'#2'p'#5'Widt'
   +'h'#3#142#3#8'HelpType'#7#9'htKeyword'#13'ActiveControl'#7#12'NewMapButton'#7

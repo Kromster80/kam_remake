@@ -115,24 +115,23 @@ LazarusResources.Add('TFormLoading','FORMDATA',[
   +'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'#0#0'!!!!!!!!!!!!!!!!!!!'
   +'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'#0#0'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
   +'!!!!!!'#11'Transparent'#9#0#0#6'TLabel'#6'Label3'#4'Left'#2'd'#6'Height'#2
-  +#17#3'Top'#2#8#5'Width'#3#137#0#7'Caption'#6#18'KaM Editor by Krom'#11'Font.'
+  +#17#3'Top'#2#8#5'Width'#3#142#0#7'Caption'#6#18'KaM Editor by Krom'#11'Font.'
   +'Height'#2#243#9'Font.Name'#6#13'MS Sans Serif'#10'Font.Style'#11#6'fsBold'#0
   +#11'ParentColor'#8#10'ParentFont'#8#0#0#6'TBevel'#6'Bevel1'#4'Left'#2'\'#6'H'
   +'eight'#2'i'#3'Top'#2#8#5'Width'#2#2#0#0#6'TLabel'#6'Label4'#4'Left'#2'd'#6
-  +'Height'#2#14#3'Top'#2'P'#5'Width'#2'o'#7'Caption'#6#20'kromster80@gmail.com'
-  +#10'Font.Color'#7#12'clWindowText'#11'Font.Height'#2#245#9'Font.Name'#6#13'M'
-  +'S Sans Serif'#10'Font.Style'#11#11'fsUnderline'#0#11'ParentColor'#8#10'Pare'
-  +'ntFont'#8#7'OnClick'#7#11'Label4Click'#0#0#6'TLabel'#6'Label5'#4'Left'#2'd'
-  +#6'Height'#2#14#3'Top'#2#28#5'Width'#2'x'#7'Caption'#6#25'version 0.6 (16 Ap'
-  +'r 2009)'#11'ParentColor'#8#0#0#6'TLabel'#6'Label6'#4'Left'#2'd'#6'Height'#2
-  +#14#3'Top'#2'@'#5'Width'#2')'#7'Caption'#6#8'Contact:'#11'ParentColor'#8#0#0
-  +#6'TLabel'#6'Label7'#4'Left'#2'd'#6'Height'#2#14#3'Top'#2'`'#5'Width'#2'l'#7
-  ,'Caption'#6#22'http://krom.reveur.de/'#5'Color'#7#9'clBtnFace'#10'Font.Color'
-  +#7#12'clWindowText'#11'Font.Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'#10
-  +'Font.Style'#11#11'fsUnderline'#0#11'ParentColor'#8#10'ParentFont'#8#11'Tran'
-  +'sparent'#8#7'OnClick'#7#11'Label7Click'#0#0#6'TLabel'#6'Label1'#4'Left'#2#4
-  +#6'Height'#2#14#3'Top'#2'P'#5'Width'#2'3'#7'Caption'#6#11'Loading ...'#7'Ena'
-  +'bled'#8#11'ParentColor'#8#7'Visible'#8#0#0#12'TProgressBar'#4'Bar1'#4'Left'
-  +#2#0#6'Height'#2#18#3'Top'#2'y'#5'Width'#3#1#1#7'Anchors'#11#6'akLeft'#8'akB'
-  +'ottom'#0#3'Max'#2#8#4'Step'#2#1#8'TabOrder'#2#0#0#0#0
+  +'Height'#2#15#3'Top'#2'P'#5'Width'#3#161#0#7'Caption'#6#20'kromster80@gmail.'
+  +'com'#11'Font.Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'#10'Font.Style'
+  +#11#11'fsUnderline'#0#11'ParentColor'#8#10'ParentFont'#8#7'OnClick'#7#11'Lab'
+  +'el4Click'#0#0#6'TLabel'#6'Label5'#4'Left'#2'd'#6'Height'#2#15#3'Top'#2#28#5
+  +'Width'#3#168#0#7'Caption'#6#25'version 0.6 (16 Apr 2009)'#11'ParentColor'#8
+  +#0#0#6'TLabel'#6'Label6'#4'Left'#2'd'#6'Height'#2#15#3'Top'#2'@'#5'Width'#2
+  +'<'#7'Caption'#6#8'Contact:'#11'ParentColor'#8#0#0#6'TLabel'#6'Label7'#4'Lef'
+  +'t'#2'd'#6'Height'#2#15#3'Top'#2'`'#5'Width'#3#149#0#7'Caption'#6#22'http://'
+  ,'krom.reveur.de/'#5'Color'#7#9'clBtnFace'#11'Font.Height'#2#245#9'Font.Name'
+  +#6#13'MS Sans Serif'#10'Font.Style'#11#11'fsUnderline'#0#11'ParentColor'#8#10
+  +'ParentFont'#8#11'Transparent'#8#7'OnClick'#7#11'Label7Click'#0#0#6'TLabel'#6
+  +'Label1'#4'Left'#2#4#6'Height'#2#15#3'Top'#2'P'#5'Width'#2'H'#7'Caption'#6#11
+  +'Loading ...'#7'Enabled'#8#11'ParentColor'#8#7'Visible'#8#0#0#12'TProgressBa'
+  +'r'#4'Bar1'#4'Left'#2#0#6'Height'#2#18#3'Top'#2'y'#5'Width'#3#1#1#7'Anchors'
+  +#11#6'akLeft'#8'akBottom'#0#3'Max'#2#8#4'Step'#2#1#8'TabOrder'#2#0#0#0#0
 ]);

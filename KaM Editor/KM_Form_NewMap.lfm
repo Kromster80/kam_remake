@@ -3,6 +3,7 @@ object FormNewMap: TFormNewMap
   Height = 145
   Top = 417
   Width = 361
+  ActiveControl = ButtonHelp
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Create New Map'
@@ -50,8 +51,8 @@ object FormNewMap: TFormNewMap
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 47
-    ClientWidth = 197
+    ClientHeight = 50
+    ClientWidth = 199
     Enabled = False
     ItemIndex = 1
     Items.Strings = (
@@ -67,32 +68,32 @@ object FormNewMap: TFormNewMap
     Top = 8
     Width = 201
     Caption = ' Map size  '
-    ClientHeight = 39
-    ClientWidth = 197
+    ClientHeight = 42
+    ClientWidth = 199
     TabOrder = 4
     object Label1: TLabel
       Left = 56
-      Height = 14
+      Height = 15
       Top = 11
-      Width = 12
+      Width = 16
       Caption = ' x '
       ParentColor = False
     end
     object Label2: TLabel
       Left = 124
-      Height = 14
+      Height = 15
       Top = 11
-      Width = 23
+      Width = 34
       Caption = 'Tiles'
       ParentColor = False
     end
     object RGX: TComboBox
       Left = 6
-      Height = 21
+      Height = 25
       Top = 8
       Width = 49
       DropDownCount = 16
-      ItemHeight = 13
+      ItemHeight = 0
       ItemIndex = 4
       Items.Strings = (
         '32'
@@ -113,11 +114,11 @@ object FormNewMap: TFormNewMap
     end
     object RGY: TComboBox
       Left = 70
-      Height = 21
+      Height = 25
       Top = 8
       Width = 49
       DropDownCount = 16
-      ItemHeight = 13
+      ItemHeight = 0
       ItemIndex = 4
       Items.Strings = (
         '32'
