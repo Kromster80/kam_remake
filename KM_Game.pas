@@ -408,6 +408,7 @@ begin
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
   fLog.AppendLog('Gameplay recording initialized',true);
+  //@Krom: Same here? (see below)
   RandSeed := 4; //Random after StartGame and ViewReplay should match
 end;
 
@@ -427,14 +428,6 @@ begin
   fGameName := fNetworking.MapInfo.Folder + ' MP';
 
   fLog.AppendLog('Loading DAT...');
-
-  //todo: Random seed MUST be initialised before loading the script and then not changed,
-  //because of things like units being assigned random amounts of health. Make sure all
-  //players load the mission exactly the same and do not use rand anywhere else in
-  //loading/initialising
-  //todo: Check this for single player too (it could be causing replay inconsistencies)
-  //@Lewin: RandSeed is set in GameInit, so it is the same for MP and SP, always :)
-  //To be deleted..
 
   if CheckFileExists(fMissionFile) then
   begin
@@ -509,6 +502,9 @@ begin
   fNetworking.GameCreated;
 
   fLog.AppendLog('Gameplay recording initialized',true);
+  //@Krom: Thanks for that, you are right. Can we delete this line then? As I see it we should set the
+  //random seed once in the init, then not change it. If the random seeds to not match at this point,
+  //surely that means there is a flaw somewhere?
   RandSeed := 4; //Random after StartGame and ViewReplay should match
 end;
 

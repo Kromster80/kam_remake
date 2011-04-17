@@ -1165,6 +1165,18 @@ const
 
   //Colors available for selection in multiplayer
   //todo: @Lewin: Should be adjoined with DefaultTeamColors.
+  //@Krom: No I disagree. I think it should be like this: DefaultTeamColors is only used when loading
+  //       the mission script to allow for backwards compatibility to KaM. Those colors are the ones
+  //       that KaM will use when the script does not define a color. Without them the original campaign
+  //       missions will have different team colors in some cases because they are not always specified.
+  //       For multiplayer I think we should have 16 or more colors for people to choose from. I don't
+  //       think they should be the same as the mission script colors because they are dull. (the last 3
+  //       are indentical)
+  //       If you agree I will change DefaultTeamColors to be DefaultScriptTeamColors and add more colors
+  //       to multiplayer
+  //       The map editor should not use DefaultTeamColors anymore, I think they should just be for
+  //       mission scripts in cases where no color is defined.
+  //       What do you think?
   MP_COLOR_COUNT = MAX_PLAYERS;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red

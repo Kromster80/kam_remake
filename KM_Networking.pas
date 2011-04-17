@@ -403,14 +403,15 @@ begin
             if fLANPlayerKind = lpk_Host then
             begin
               fNetPlayers.AddPlayer(aAddr, Msg, GetTickCount + REPLY_TIMEOUT);
+              PacketSend(aAddr, mk_MapSelect, fMapInfo.Folder); //Send the map first so it doesn't override starting locs
               PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
-              PacketSend(aAddr, mk_MapSelect, fMapInfo.Folder);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               PostMessage(aAddr+'/'+Msg+' has joined');
             end;
 
     mk_Poke:
             begin
+              Assert(fNetPlayers.NiknameIndex(Msg) <> -1, 'Poked by an unknown player: '+Msg);
               fNetPlayers[fNetPlayers.NiknameIndex(Msg)].TimeTick := GetTickCount + REPLY_TIMEOUT;
             end;
 
@@ -569,7 +570,9 @@ begin
               fOnDisconnect('Lost connection to Host');
               exit;
             end;
-            PacketToHost(mk_Poke, fMyNikname); //Tell Host we are still connected
+            //Do not send pokes if we are still waiting to recieve the player list
+            if fNetPlayers.NiknameIndex(fMyNikname) <> -1 then
+              PacketToHost(mk_Poke, fMyNikname); //Tell Host we are still connected
           end;
       lpk_Host:
           begin

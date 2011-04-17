@@ -278,11 +278,12 @@ end;
 
 
 //@Lewin: I don't remember if shields/horses/armor should be included, for now it will be only weapons
+//@Krom: I just ran a test in KaM: it includes all weapons and armor, but not horses. To be deleted
 function TKMPlayerStats.GetWeaponsProduced:cardinal;
 var i:TResourceType;
 begin
   Result := 0;
-  for i:=rt_Axe to rt_Arbalet do
+  for i:=rt_Shield to rt_Arbalet do
     inc(Result, Goods[i].Produced);
 end;
 
