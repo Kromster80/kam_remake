@@ -4,7 +4,7 @@ unit KM_Render;
 interface
 
 uses SysUtils, Forms,
-  //{$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, KromOGLUtils, Math, ExtCtrls;
