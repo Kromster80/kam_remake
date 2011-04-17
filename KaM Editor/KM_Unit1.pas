@@ -4,7 +4,7 @@ unit KM_Unit1;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, glut, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, KromUtils,
   {$IFDEF WDC} OpenGL, {$ENDIF}
@@ -14,7 +14,7 @@ uses
 
 {$IFDEF Unix}
 type HGLRC = integer;
-type HDC = integer;
+//type HDC = integer;
 {$ENDIF}
 
 type
@@ -526,8 +526,9 @@ RenderArrows();
 SwapBuffers(h_DC);
 {$ENDIF}
 {$IFDEF Unix}
-//?OpenGLControl1.SwapBuffers(h_DC);
-  MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
+//Hopefully it swaps correct thing or something at all;
+glutSwapBuffers;
+//MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
 {$ENDIF}
 end;
 
