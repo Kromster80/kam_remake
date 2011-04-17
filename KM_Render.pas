@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, glut, {$ENDIF}
   Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Menus, Buttons,
   dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
@@ -259,7 +259,8 @@ begin
   SwapBuffers(h_DC);
   {$ENDIF}
   {$IFDEF Unix}
-  MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
+  glutswapbuffers;
+  //MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
   {$ENDIF}
 end;
 
