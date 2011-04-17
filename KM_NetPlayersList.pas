@@ -128,8 +128,8 @@ begin
   //@Krom: As far as I know it would be okay, except you should have fPlayers[aIndex].Free first.
   //All you are doing with ObjectA := ObjectB is assigning a pointer to some memory.
 
-  //Cleanup to avoid consequences of erroneous access
-  fPlayers[fCount] := nil;
+  //Cleanup
+  fPlayers[fCount] := TKMPlayerInfo.Create;
   dec(fCount);
 end;
 

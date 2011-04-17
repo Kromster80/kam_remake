@@ -1210,6 +1210,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
+  fGame.Networking.StopLobby;
   fGame.Networking.Disconnect;
   LAN_Update('You have disconnected');
   SwitchMenuPage(Button_LobbyBack);

@@ -1164,20 +1164,7 @@ const
 
 
   //Colors available for selection in multiplayer
-  //todo: @Lewin: Should be adjoined with DefaultTeamColors.
-  //@Krom: No I disagree. I think it should be like this: DefaultTeamColors is only used when loading
-  //       the mission script to allow for backwards compatibility to KaM. Those colors are the ones
-  //       that KaM will use when the script does not define a color. Without them the original campaign
-  //       missions will have different team colors in some cases because they are not always specified.
-  //       For multiplayer I think we should have 16 or more colors for people to choose from. I don't
-  //       think they should be the same as the mission script colors because they are dull. (the last 3
-  //       are indentical)
-  //       If you agree I will change DefaultTeamColors to be DefaultScriptTeamColors and add more colors
-  //       to multiplayer
-  //       The map editor should not use DefaultTeamColors anymore, I think they should just be for
-  //       mission scripts in cases where no color is defined.
-  //       What do you think?
-  //@Lewin: You are perfectly right. Go ahead! To be deleted..
+  //todo: Add more multiplayer colors
   MP_COLOR_COUNT = MAX_PLAYERS;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
@@ -1203,12 +1190,8 @@ var
   //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
   SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
 
-  //Players colors (as they appear in KaM when the color is not specified in the script, copied from pallete values)
-  //@Krom: These new IDs should be used as defaults when loading a script because some missions may not include a color ID and rely on
-  //       the defaults. The first 5 are good but I dislike that the last 3 are fairly similar, so maybe for the map editor we should have
-  //       different defaults? Give me your thoughts.
-  //@Lewin: I guess dark-blue and orange-brown will be noticably different from existing colors
-  //        tbh I don't like default colors that much, they are quite dull (greyish).
+  //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.
+  //Using these as the defaults when loading the script means the colors will be the same as KaM when not defined.
   //Default IDs from KaM:
   {229, //Red
   36,  //Cyan

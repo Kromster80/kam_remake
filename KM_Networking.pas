@@ -21,6 +21,9 @@ type
                     mk_RefuseToJoin, //When nikname is taken
                     mk_VerifyJoin,
 
+                    mk_Disconnect,  //Joiner telling host he is leaving the lobby/game
+                    mk_HostDisconnect, //Host telling joiners the host is exiting (server stops)
+
                     mk_Poke,        //Tell partner we are still connected
 
                     mk_Ping,  //Perform on request
@@ -84,6 +87,7 @@ type
     //Lobby
     procedure Host(aUserName:string);
     procedure Join(aServerAddress,aUserName:string);
+    procedure StopLobby;
     procedure Disconnect;
     function  Connected: boolean;
     procedure MapSelect(aName:string);
@@ -182,6 +186,15 @@ begin
   fNetwork.StartListening;
   PacketToHost(mk_AskToJoin, fMyNikname);
   fNetwork.OnRecieveKMPacket := PacketRecieve; //Unless we join use shortlist
+end;
+
+
+procedure TKMNetworking.StopLobby;
+begin
+  if fLANPlayerKind = lpk_Host then
+    PacketToAll(mk_HostDisconnect);
+  if fLANPlayerKind = lpk_Joiner then
+    PacketToHost(mk_Disconnect,fMyNikname);
 end;
 
 
@@ -409,6 +422,28 @@ begin
               PostMessage(aAddr+'/'+Msg+' has joined');
             end;
 
+    mk_Disconnect:
+            begin
+              if fLANPlayerKind = lpk_Host then
+              begin
+                fNetPlayers.RemPlayer(fNetPlayers.NiknameIndex(Msg));
+                PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
+                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                PostMessage(aAddr+'/'+Msg+' quit');
+              end;
+            end;
+
+    mk_HostDisconnect:
+            begin
+              if fLANPlayerKind = lpk_Joiner then
+              begin
+                fNetwork.OnRecieveKMPacket := nil;
+                fNetwork.StopListening;
+                if Assigned(fOnDisconnect) then
+                  fOnDisconnect('The host quit');
+              end;
+            end;
+
     mk_Poke:
             begin
               Assert(fNetPlayers.NiknameIndex(Msg) <> -1, 'Poked by an unknown player: '+Msg);
@@ -567,7 +602,7 @@ begin
             begin
               fNetwork.OnRecieveKMPacket := nil;
               fNetwork.StopListening;
-              fOnDisconnect('Lost connection to Host');
+              if Assigned(fOnDisconnect) then fOnDisconnect('Lost connection to Host');
               exit;
             end;
             //Do not send pokes if we are still waiting to recieve the player list
