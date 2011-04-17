@@ -1,7 +1,10 @@
 unit KM_InterfaceMapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, KromUtils, Math, Windows, SysUtils, KromOGLUtils, Forms,
+uses
+     {$IFDEF MSWindows} Windows, {$ENDIF}
+     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+     Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils, Forms,
      KM_Controls, KM_Defaults, KM_Houses, KM_Units;
 
 type

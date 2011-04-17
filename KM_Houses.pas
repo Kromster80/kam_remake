@@ -618,7 +618,7 @@ end;
 {Add repair to the house}
 procedure TKMHouse.AddRepair(aAmount:word=5);
 begin
-  fDamage:= EnsureRange(fDamage - aAmount,0,maxword);
+  fDamage:= EnsureRange(fDamage - aAmount,0,High(Word));
   if (fDamage=0)and(fRepairID<>0) then begin
     fPlayers.Player[byte(fOwner)].BuildList.CloseHouseRepair(fRepairID);
     fRepairID:=0;
@@ -1301,12 +1301,12 @@ var i:integer;
 begin
   case aResource of
     rt_All:     for i:=1 to length(ResourceCount) do begin
-                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
+                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,High(Word));
                   fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
                 end;
     rt_Trunk..
     rt_Fish:    begin
-                  ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,MAXWORD);
+                  ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,High(Word));
                   fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
                 end;
     else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
@@ -1340,7 +1340,7 @@ begin
     ApplyCheat := true;
 
     for i:=1 to length(ResourceCount) do
-      ApplyCheat := ApplyCheat and (NotAcceptFlag[i] = bool(CheatStorePattern[i]));
+      ApplyCheat := ApplyCheat and (NotAcceptFlag[i] = boolean(CheatStorePattern[i]));
 
     if ApplyCheat and (aRes = rt_Arbalet) then begin
       AddMultiResource(rt_All, 10);
@@ -1411,9 +1411,9 @@ var i:integer;
 begin
   case aResource of
     rt_Warfare: for i:=1 to length(ResourceCount) do
-                ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
+                ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,High(Word));
     rt_Shield..
-    rt_Horse:   ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,MAXWORD)
+    rt_Horse:   ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,High(Word))
     else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
   end;
 end;

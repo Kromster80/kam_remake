@@ -1,8 +1,8 @@
 unit KM_Network;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, WSocket
-{$IFDEF MSWindows}, WinSock{$ENDIF};
+uses Classes, SysUtils
+{$IFDEF MSWindows} ,WSocket, WinSock{$ENDIF};
 
 {
 Features to be implemented:
@@ -27,8 +27,15 @@ type
   TKMNetwork = class
     private
       fSendPort, fRecievePort:string;
+      {$IFDEF MSWindows}
       fSocketRecieve: TWSocket;
       fSocketSend: TWSocket;
+      {$ENDIF}
+      {$IFDEF Unix}
+      //todo: Implement LNet for networking in Lazarus (it is Windows/Linux compataible)
+      //fSocketRecieve: ;
+      //fSocketSend: ;
+      {$ENDIF}
       fMultipleCopies, fSendSocketUsed: boolean;
       fOnRecieveKMPacket: TRecieveKMPacketEvent; //This event will be run when we recieve a KaM packet. It is our output to the higher level
 
@@ -58,7 +65,7 @@ implementation
 
 
 constructor TKMNetwork.Create(aMultipleCopies:boolean=false);
-var wsaData: TWSAData;
+{$IFDEF MSWindows}var wsaData: TWSAData;{$ENDIF}
 begin
   Inherited Create;
   fMultipleCopies := aMultipleCopies;
@@ -67,25 +74,29 @@ begin
   fBufReadPos := 0; //Start writing from first place
   fBufWritePos := 0;
 
+  {$IFDEF MSWindows}
   if WSAStartup($101, wsaData) <> 0 then
   begin
     Assert(false, 'Error in Network');
     exit;
   end;
-
+  {$ENDIF}
 end;
 
 
 destructor TKMNetwork.Destroy;
 begin
+  {$IFDEF MSWindows}
   fSocketRecieve.Free;
   fSocketSend.Free;
+  {$ENDIF}
   Inherited;
 end;
 
 
 procedure TKMNetwork.StartListening;
 begin
+  {$IFDEF MSWindows}
   if not fMultipleCopies then
   begin
     fSendPort     := KAM_PORT1;
@@ -156,33 +167,40 @@ begin
           on E : ESocketException do //todo: add error handling here
       end;
     end;
+    {$ENDIF}
 end;
 
 
 procedure TKMNetwork.StopListening;
 begin
+  {$IFDEF MSWindows}
   if fSocketRecieve <> nil then fSocketRecieve.Close;
   if fSocketSend <> nil    then fSocketSend.Close;
   FreeAndNil(fSocketRecieve);
   FreeAndNil(fSocketSend);
+  {$ENDIF}
   fListening := false;
 end;
 
 
 function TKMNetwork.MyIPString:string;
 begin
+  {$IFDEF MSWindows}
   if LocalIPList.Count >= 1 then
     Result := LocalIPList[0] //First address should be ours
   else
+  {$ENDIF}
     Result := '';
 end;
 
 
 function TKMNetwork.MyIPStringAndPort:string;
 begin
+  {$IFDEF MSWindows}
   if LocalIPList.Count >= 1 then
     Result := LocalIPList[0] + ' Ports: ' + fSendPort + '/' + fRecievePort //First address should be ours
   else
+  {$ENDIF}
     Result := '';
 end;
 
@@ -192,6 +210,7 @@ end;
 procedure TKMNetwork.SendTo(Addr:string; aData:string);
 begin
   //Handle the case when DataSent not yet occured
+  {$IFDEF MSWindows}
   if fSendSocketUsed then
   begin
     BufferAdd(Addr, aData);
@@ -205,16 +224,20 @@ begin
   fSocketSend.SendStr(aData);
   //fSocketSend.Send(@aData, length(aData));
   fSendSocketUsed := true;
+  {$ENDIF}
 end;
 
 
 //Recieve from anyone
 procedure TKMNetwork.DataAvailable(Sender: TObject; Error: Word);
+{$IFDEF MSWindows}
 var Buffer : array[0..1023] of byte;
     Len, SrcLen    : Integer;
     Src    : TSockAddrIn;
     Address:string;
+{$ENDIF}
 begin
+  {$IFDEF MSWindows}
   //process
   //ReceiveFrom gives us three things:
   //  Buffer: The data
@@ -241,14 +264,17 @@ begin
   //pass message to GIP_Multi (it will be handling the higher level errors)
   if Assigned(fOnRecieveKMPacket) then
     fOnRecieveKMPacket(Slice(Buffer, Len), Address);
+  {$ENDIF}
 end;
 
 
 procedure TKMNetwork.DataSent(Sender: TObject; Error: Word);
 begin
+  {$IFDEF MSWindows}
   fSocketSend.Close; //Once the data is sent, close the socket so it is ready to send new data
   fSendSocketUsed := false;
   BufferSendOldest;
+  {$ENDIF}
 end;
 
 

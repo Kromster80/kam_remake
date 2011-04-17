@@ -1898,8 +1898,6 @@ var
   AlutLibHandle      : THandle = 0;
 {$ENDIF}
   EFXUtilLibHandle       : THandle = 0;
-type
-  HMODULE = THandle;
 
 {$IFDEF ALUT}
 function InitOpenAL(LibName: String = callibname;AlutLibName: String = calutlibname): Boolean;
@@ -1911,7 +1909,7 @@ procedure ReadOpenALExtensions;
 
 implementation
 
-uses mmsystem;
+{$IFDEF MSWindows} uses mmsystem; {$ENDIF}
 
 type
   //WAV file header

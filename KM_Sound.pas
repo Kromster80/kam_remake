@@ -3,8 +3,10 @@ unit KM_Sound;
 interface
 uses Classes, Forms, SysUtils,
   {$IFDEF MSWindows}
-  {$IFDEF WDC} MMSystem, {$ENDIF}
-  Windows, {$ENDIF}
+    {$IFDEF WDC} MMSystem, {$ENDIF}
+    Windows,
+  {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   OpenAL, KromUtils,
   KM_CommonTypes, KM_Defaults, KM_Utils;
 

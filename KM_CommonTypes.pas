@@ -3,7 +3,7 @@ unit KM_CommonTypes;
 interface
 uses
 {$IFDEF MSWindows} MMSystem, {$ENDIF}
-Classes, SysUtils;
+Classes, SysUtils, KromUtils;
 
 
 type
@@ -154,20 +154,13 @@ type
     procedure AddToLog(const aText:string);
   end;
 
-  
+
   var
     fLog: TKMLog;
 
 
-implementation 
+implementation
 uses KM_Utils;
-
-
-//Linux wants this instead of timegettime, it should work on Windows too
-function TimeGet: LongWord;
-begin
-    Result := LongWord(Trunc(Now * 24 * 60 * 60 * 1000));
-end;
 
 
 {Reset log file}

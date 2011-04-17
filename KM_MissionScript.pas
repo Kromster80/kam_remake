@@ -490,14 +490,14 @@ begin
                      end;
   ct_AddWare:        begin
                        MyInt:=ParamList[1];
-                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                       MyInt:=EnsureRange(MyInt,0,MAXWORD); //Sometimes user can define it to be 999999
+                       if MyInt = -1 then MyInt:=High(Word); //-1 means maximum resources
+                       MyInt:=EnsureRange(MyInt,0,High(Word)); //Sometimes user can define it to be 999999
                        Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,1));
                        if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_AddWareToAll:   begin
                        MyInt:=ParamList[1];
-                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                       if MyInt = -1 then MyInt:=High(Word); //-1 means maximum resources
                        for i:=1 to fPlayers.Count do
                        begin
                          Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
@@ -506,13 +506,13 @@ begin
                      end;
   ct_AddWareToSecond:begin
                        MyInt:=ParamList[1];
-                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                       if MyInt = -1 then MyInt:=High(Word); //-1 means maximum resources
                        Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,2));
                        if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_AddWeapon:      begin
                        MyInt:=ParamList[1];
-                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum weapons
+                       if MyInt = -1 then MyInt:=High(Word); //-1 means maximum weapons
                        Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,1));
                        if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;

@@ -3,6 +3,7 @@ unit KM_Controls;
 interface
 uses
     {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
+    {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls, Graphics, Math, SysUtils,
     KromUtils, KromOGLUtils,
     KM_CommonTypes, KM_Defaults;
@@ -989,7 +990,7 @@ begin
   else
   begin //Setup clipping planes
     fRenderUI.SetupClip(Top, Top+Height);
-    NewTop := Top + Height - integer(TimeGetTime - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
+    NewTop := Top + Height - integer(TimeGet - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
   end;
 
   if fEnabled then Col := FontColor
@@ -1378,7 +1379,7 @@ end;
 
 
 procedure TKMEdit.Paint;
-var Col:TColor4; RText:String; OffX:integer;
+var Col:TColor4; RText:String; OffX:integer; TextSize: TKMPoint;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
@@ -1387,9 +1388,10 @@ begin
 
   fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
 
-  if (csFocus in State) and ((TimeGetTime div 500) mod 2 = 0)then begin
+  if (csFocus in State) and ((TimeGet div 500) mod 2 = 0)then begin
     setlength(RText,CursorPos);
-    OffX := Left + 3 + fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col).X;
+    TextSize := fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
+    OffX := Left + 3 + TextSize.X;
     fRenderUI.WriteLayer(OffX-1, Top+2, 3, Height-4, Col, $FF000000);
   end;
 end;

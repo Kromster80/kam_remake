@@ -26,6 +26,7 @@ type
 
   TKMouseButton = (kmb_None, kmb_Left, kmb_Right, kmb_Middle);
 
+function TimeGet: LongWord;
 function ElapsedTime(i1: pcardinal): string;
 function ExtractOpenedFileName(in_s: string):string;
 function GetFileExt (const FileName: string): string;
@@ -134,6 +135,13 @@ end;
 function Max(const A,B,C: single): single; overload;
 begin if A > B then if A > C then Result := A else Result := C
                else if B > C then Result := B else Result := C;
+end;
+
+
+//Linux wants this instead of timegettime, it should work on Windows too
+function TimeGet: LongWord;
+begin
+    Result := LongWord(Trunc(Now * 24 * 60 * 60 * 1000));
 end;
 
 

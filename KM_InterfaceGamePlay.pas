@@ -1,7 +1,10 @@
 unit KM_InterfaceGamePlay;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows, DateUtils,
+uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, DateUtils,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 
@@ -2222,7 +2225,9 @@ begin
       MyRect.Top    := SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2);
       MyRect.Right  := SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1;
       MyRect.Bottom := SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1;
+      {$IFDEF MSWindows}
       ClipCursor(@MyRect);
+      {$ENDIF}
       //Now record it as Client XY
       SelectingDirPosition.X :=X;
       SelectingDirPosition.Y :=Y;
@@ -2444,7 +2449,7 @@ end;
 //e.g. if we're over a scrollbar it shouldn't zoom map,
 //but this can apply for all controls (i.e. only zoom when over the map not controls)
 procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-var PrevCursor: TKMPointF;
+var PrevCursor, ViewCenter: TKMPointF;
 begin
   MyControls.MouseWheel(X, Y, WheelDelta);
   if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
@@ -2455,8 +2460,9 @@ begin
     fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fViewport.SetCenter(fViewport.GetCenter.X + PrevCursor.X-GameCursor.Float.X,
-                        fViewport.GetCenter.Y + PrevCursor.Y-GameCursor.Float.Y);
+    ViewCenter := fViewport.GetCenter; //Required for Linux compatibility
+    fViewport.SetCenter(ViewCenter.X + PrevCursor.X-GameCursor.Float.X,
+                        ViewCenter.Y + PrevCursor.Y-GameCursor.Float.Y);
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
   end;
 end;

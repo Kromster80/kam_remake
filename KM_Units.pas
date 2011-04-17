@@ -1670,8 +1670,8 @@ destructor TUnitTask.Destroy;
 begin
   fUnit.Thought := th_None; //Stop any thoughts
   fPlayers.CleanUpUnitPointer(fUnit);
-  fPhase        := MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
-  fPhase2       := MAXBYTE-1;
+  fPhase        := high(byte)-1; //-1 so that if it is increased on the next run it won't overrun before exiting
+  fPhase2       := high(byte)-1;
   Inherited;
 end;
 

@@ -3,6 +3,7 @@ unit KM_InterfaceMainMenu;
 interface
 uses
   {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
@@ -922,7 +923,7 @@ begin
   {Show Credits}
   if Sender=Button_MM_Credits then begin
     Panel_Credits.Show;
-    Label_Credits.SmoothScrollToTop := TimeGetTime; //Set initial position
+    Label_Credits.SmoothScrollToTop := TimeGet; //Set initial position
   end;
 
   {Show Loading... screen}

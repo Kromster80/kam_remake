@@ -2,9 +2,10 @@ unit KM_Unit1;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, MMSystem, {$ENDIF}
+  {$IFDEF MSWindows} Windows, MMSystem, Messages, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, Menus, Buttons, Messages,
+  ExtCtrls, ComCtrls, Menus, Buttons,
   Math, SysUtils, KromUtils,
   {$IFDEF WDC} OpenGL, MPlayer, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
@@ -104,7 +105,9 @@ type
     procedure ResetResolution;
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
+    {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg : TWMSysCommand); message WM_SYSCOMMAND;
+    {$ENDIF}
     procedure ReadAvailableResolutions;
   public
     procedure ApplyCursorRestriction;
@@ -131,8 +134,8 @@ begin
 
   //Counting FPS
   begin
-    FrameTime  := TimeGetTime - OldTimeFPS;
-    OldTimeFPS := TimeGetTime;
+    FrameTime  := TimeGet - OldTimeFPS;
+    OldTimeFPS := TimeGet;
 
     if CAP_MAX_FPS and (FPS_LAG<>1)and(FrameTime<FPS_LAG) then begin
       sleep(FPS_LAG-FrameTime);
@@ -171,7 +174,9 @@ begin
 
   //Randomize; //Randomize the random seed to ensure that we don't get repeditive patterns,
   //but we need this to be Off to reproduce bugs
+  {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
+  {$ENDIF}
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM_'+inttostr(GetTickCount)+'.log'); //First thing - create a log
 
@@ -206,8 +211,10 @@ begin
   if fGame<>nil then fGame.GameStop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
   if fLog<>nil then FreeThenNil(fLog);
+  {$IFDEF MSWindows}
   TimeEndPeriod(1);
   ClipCursor(nil); //Release the cursor restriction
+  {$ENDIF}
 end;
 
 
@@ -480,9 +487,9 @@ end;
 
 
 procedure TForm1.SetScreenResolution(Width, Height, RefreshRate: word);
-var
-  DeviceMode: DEVMODE;
+{$IFDEF MSWindows} var DeviceMode: DEVMODE; {$ENDIF}
 begin
+  {$IFDEF MSWindows}
   ZeroMemory(@DeviceMode,sizeof(DeviceMode));
   with DeviceMode do begin
     dmSize := SizeOf(TDeviceMode);
@@ -494,16 +501,18 @@ begin
   end;
   ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
   ApplyCursorRestriction;
+  {$ENDIF}
 end;
 
 
 //Restore initial Windows resolution
 procedure TForm1.ResetResolution;
 begin
-  ChangeDisplaySettings(DEVMODE(nil^),0);
+  {$IFDEF MSWindows}ChangeDisplaySettings(DEVMODE(nil^),0);{$ENDIF}
 end;
 
 
+{$IFDEF MSWindows}
 procedure TForm1.WMSysCommand(var Msg : TWMSysCommand);
 begin
   //If the system message is screensaver or monitor power off then trap the message and set its result to -1
@@ -512,13 +521,15 @@ begin
   else
     Inherited;
 end;
+{$ENDIF}
 
 
 procedure TForm1.ReadAvailableResolutions;
 var
   i,k : integer;
-  DevMode : TDevMode;
+  {$IFDEF MSWindows}DevMode : TDevMode;{$ENDIF}
 begin
+  {$IFDEF MSWindows}
   i := 0;
   FillChar(SupportedRefreshRates, SizeOf(SupportedRefreshRates), #0);
   while EnumDisplaySettings(nil, i, DevMode) do
@@ -530,12 +541,14 @@ begin
     if (SupportedResolutions[k,1] = dmPelsWidth) and (SupportedResolutions[k,2] = dmPelsHeight)then
       SupportedRefreshRates[k] := Math.max(SupportedRefreshRates[k], dmDisplayFrequency);
   end;
+  {$ENDIF}
 end;
 
 
 procedure TForm1.ApplyCursorRestriction;
 var Rect: TRect;
 begin
+  {$IFDEF MSWindows}
   if (fGame <> nil) and (fGame.GlobalSettings <> nil) and fGame.GlobalSettings.FullScreen then
   begin
     Rect := BoundsRect;
@@ -543,6 +556,7 @@ begin
   end
   else
     ClipCursor(nil); //Otherwise have no restriction
+  {$ENDIF}
 end;
 
 

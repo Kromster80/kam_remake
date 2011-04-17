@@ -3,6 +3,7 @@ unit KM_Game;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils,
@@ -400,6 +401,10 @@ begin
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   Save(99); //Thats our base for a game record
+  {$IFDEF Unix}
+  //In Linux CopyFile does not overwrite
+  if FileExists(KMSlotToSaveName(99,'bas')) then DeleteFile(KMSlotToSaveName(99,'bas'));
+  {$ENDIF}
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
   fLog.AppendLog('Gameplay recording initialized',true);
@@ -493,6 +498,10 @@ begin
 
   fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
   Save(99); //Thats our base for a game record
+  {$IFDEF Unix}
+  //In Linux CopyFile does not overwrite
+  if FileExists(KMSlotToSaveName(99,'bas')) then DeleteFile(KMSlotToSaveName(99,'bas'));
+  {$ENDIF}
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
   fNetworking.OnPlay := GameMPPlay;

@@ -6,6 +6,7 @@ uses
   {$IFDEF FPC} GL, {$ENDIF}
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, PasZLib {$ENDIF};
@@ -841,12 +842,12 @@ begin
     MyBitMap.Height:=DestY;
 
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(Data)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
+      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
     MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
 
     if Mode=tm_AlphaTest then begin //these Alphas are worth looking at
       for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-        MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(Data)+(i*DestX+k)*4))^) SHR 24 *65793;
+        MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) SHR 24 *65793;
       MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'a.bmp');
     end;
 
@@ -1359,6 +1360,7 @@ var
   i,sx,sy,x,y:integer;
   bm,bm2:TBitMap;
   IconInfo:TIconInfo;
+  {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
 begin
   bm:=TBitMap.Create;  bm.PixelFormat:=pf24bit;
   bm2:=TBitMap.Create; bm2.PixelFormat:=pf24bit;
@@ -1401,7 +1403,13 @@ begin
     IconInfo.hbmColor:=bm.Handle;
     IconInfo.hbmMask:=bm2.Handle;
 
+    {$IFDEF Unix}
+    IconInfoPointer := @IconInfo;
+    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfoPointer);
+    {$ENDIF}
+    {$IFDEF MSWindows}
     Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfo);
+    {$ENDIF}
   end;
 
   bm.Free;

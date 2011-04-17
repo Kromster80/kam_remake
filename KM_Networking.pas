@@ -3,6 +3,7 @@ unit KM_Networking;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, KromUtils, StrUtils, SysUtils,
   KM_CommonTypes, KM_Defaults,
   KM_MapInfo, KM_NetPlayersList, KM_Network;
