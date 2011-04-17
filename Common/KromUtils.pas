@@ -139,9 +139,16 @@ end;
 
 
 //Linux wants this instead of timegettime, it should work on Windows too
-function TimeGet: LongWord;
+//@Vytautas: WTF? ))))) You did it way too overcomplicated ))) No offense :)
+//           Just take a look at "Now" function and take SystemTime from it
+function TimeGet:cardinal;
 begin
-    Result := LongWord(Trunc(Now * 24 * 60 * 60 * 1000));
+  {$IFDEF MSWindows}
+  Result := TimeGetTime; //Return milliseconds with ~1ms precision
+  {$ENDIF}
+  {$IFDEF Unix}
+  Result := cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
+  {$ENDIF}
 end;
 
 
