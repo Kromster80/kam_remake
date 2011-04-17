@@ -45,20 +45,20 @@ type
     Label3: TLabel;
     Label4: TLabel;
     Open: TButton;
-    SpinEdit1: TSpinEdit;
-    SpinEdit10: TSpinEdit;
-    SpinEdit11: TSpinEdit;
-    SpinEdit12: TSpinEdit;
-    SpinEdit2: TSpinEdit;
-    SpinEdit3: TSpinEdit;
-    SpinEdit4: TSpinEdit;
-    SpinEdit5: TSpinEdit;
-    SpinEdit6: TSpinEdit;
-    SpinEdit7: TSpinEdit;
-    SpinEdit8: TSpinEdit;
-    SpinEdit9: TSpinEdit;
+    HitPoints: TSpinEdit;
+    x10: TSpinEdit;
+    CanWalkOut: TSpinEdit;
+    x11: TSpinEdit;
+    Attack: TSpinEdit;
+    AttackHorseBonus: TSpinEdit;
+    x4: TSpinEdit;
+    DefenceSpinEdit: TSpinEdit;
+    SpeedSpinEdit: TSpinEdit;
+    x7: TSpinEdit;
+    Sight: TSpinEdit;
+    x9: TSpinEdit;
     procedure init(Sender: TObject);
-    procedure Click(Sender: TObject);
+    procedure ChangeSpinEdits(Sender: TObject);
     procedure open_file(Sender: TObject);
     procedure saveDAT(Sender: TObject);
     procedure showDAT(Sender: TObject);
@@ -166,19 +166,19 @@ x := 1;
  end;
 end;
 
-procedure TForm1.Click(Sender: TObject);
+procedure TForm1.ChangeSpinEdits(Sender: TObject);
 begin
-  UnitStat[ListBox1.ItemIndex].HitPoints := SpinEdit1.Value;
-  UnitStat[ListBox1.ItemIndex].Attack := SpinEdit2.Value;
-  UnitStat[ListBox1.ItemIndex].AttackHorseBonus := SpinEdit3.Value;
-  UnitStat[ListBox1.ItemIndex].x4 := SpinEdit4.Value;
-  UnitStat[ListBox1.ItemIndex].Defence := SpinEdit5.Value;
-  UnitStat[ListBox1.ItemIndex].Speed := SpinEdit6.Value;
-  UnitStat[ListBox1.ItemIndex].Sight := SpinEdit8.Value;
-  UnitStat[ListBox1.ItemIndex].x9 := SpinEdit9.Value;
-  UnitStat[ListBox1.ItemIndex].x10 := SpinEdit10.Value;
-  UnitStat[ListBox1.ItemIndex].CanWalkOut := SpinEdit11.Value;
-  UnitStat[ListBox1.ItemIndex].x11 := SpinEdit12.Value;
+  UnitStat[ListBox1.ItemIndex].HitPoints := HitPoints.Value;
+  UnitStat[ListBox1.ItemIndex].Attack := Attack.Value;
+  UnitStat[ListBox1.ItemIndex].AttackHorseBonus := AttackHorseBonus.Value;
+  UnitStat[ListBox1.ItemIndex].x4 := x4.Value;
+  UnitStat[ListBox1.ItemIndex].Defence := DefenceSpinEdit.Value;
+  UnitStat[ListBox1.ItemIndex].Speed := SpeedSpinEdit.Value;
+  UnitStat[ListBox1.ItemIndex].Sight := Sight.Value;
+  UnitStat[ListBox1.ItemIndex].x9 := x9.Value;
+  UnitStat[ListBox1.ItemIndex].x10 := x10.Value;
+  UnitStat[ListBox1.ItemIndex].CanWalkOut := CanWalkOut.Value;
+  UnitStat[ListBox1.ItemIndex].x11 := x11.Value;
 end;
 
 
@@ -191,18 +191,18 @@ end;
 
 procedure TForm1.showDAT(Sender: TObject);
 begin
-   SpinEdit1.Value := UnitStat[ListBox1.ItemIndex].HitPoints;
-   SpinEdit2.Value :=UnitStat[ListBox1.ItemIndex].Attack;
-   SpinEdit3.Value :=UnitStat[ListBox1.ItemIndex].AttackHorseBonus;
-   SpinEdit4.Value :=UnitStat[ListBox1.ItemIndex].x4;
-   SpinEdit5.Value :=UnitStat[ListBox1.ItemIndex].Defence;
-   SpinEdit6.Value :=UnitStat[ListBox1.ItemIndex].Speed;
-   SpinEdit7.Value :=0;
-   SpinEdit8.Value :=UnitStat[ListBox1.ItemIndex].Sight;
-   SpinEdit9.Value :=UnitStat[ListBox1.ItemIndex].x9;
-   SpinEdit10.Value :=UnitStat[ListBox1.ItemIndex].x10;
-   SpinEdit11.Value :=UnitStat[ListBox1.ItemIndex].CanWalkOut;
-   SpinEdit12.Value :=UnitStat[ListBox1.ItemIndex].x11;
+   HitPoints.Value := UnitStat[ListBox1.ItemIndex].HitPoints;
+   Attack.Value :=UnitStat[ListBox1.ItemIndex].Attack;
+   AttackHorseBonus.Value :=UnitStat[ListBox1.ItemIndex].AttackHorseBonus;
+   x4.Value :=UnitStat[ListBox1.ItemIndex].x4;
+   DefenceSpinEdit.Value :=UnitStat[ListBox1.ItemIndex].Defence;
+   SpeedSpinEdit.Value :=UnitStat[ListBox1.ItemIndex].Speed;
+   x7.Value :=0;
+   Sight.Value :=UnitStat[ListBox1.ItemIndex].Sight;
+   x9.Value :=UnitStat[ListBox1.ItemIndex].x9;
+   x10.Value :=UnitStat[ListBox1.ItemIndex].x10;
+   CanWalkOut.Value :=UnitStat[ListBox1.ItemIndex].CanWalkOut;
+   x11.Value :=UnitStat[ListBox1.ItemIndex].x11;
 end;
 
 

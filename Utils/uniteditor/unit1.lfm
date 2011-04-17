@@ -133,100 +133,100 @@ object Form1: TForm1
     TabOrder = 2
     TopIndex = -1
   end
-  object SpinEdit1: TSpinEdit
+  object HitPoints: TSpinEdit
     Left = 301
     Height = 21
     Top = 72
     Width = 42
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 3
   end
-  object SpinEdit2: TSpinEdit
+  object Attack: TSpinEdit
     Left = 301
     Height = 21
     Top = 111
     Width = 42
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 4
   end
-  object SpinEdit3: TSpinEdit
+  object AttackHorseBonus: TSpinEdit
     Left = 302
     Height = 21
     Top = 151
     Width = 41
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 5
   end
-  object SpinEdit4: TSpinEdit
+  object x4: TSpinEdit
     Left = 302
     Height = 21
     Top = 184
     Width = 42
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 6
   end
-  object SpinEdit5: TSpinEdit
+  object DefenceSpinEdit: TSpinEdit
     Left = 301
     Height = 21
     Top = 224
     Width = 43
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 7
   end
-  object SpinEdit6: TSpinEdit
+  object SpeedSpinEdit: TSpinEdit
     Left = 301
     Height = 21
     Top = 264
     Width = 42
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 8
   end
-  object SpinEdit7: TSpinEdit
+  object x7: TSpinEdit
     Left = 523
     Height = 21
     Top = 72
     Width = 50
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 9
   end
-  object SpinEdit8: TSpinEdit
+  object Sight: TSpinEdit
     Left = 523
     Height = 21
     Top = 111
     Width = 50
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 10
   end
-  object SpinEdit9: TSpinEdit
+  object x9: TSpinEdit
     Left = 523
     Height = 21
     Top = 151
     Width = 50
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 11
   end
-  object SpinEdit10: TSpinEdit
+  object x10: TSpinEdit
     Left = 523
     Height = 21
     Top = 184
     Width = 50
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 12
   end
-  object SpinEdit11: TSpinEdit
+  object CanWalkOut: TSpinEdit
     Left = 523
     Height = 21
     Top = 224
     Width = 50
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 13
   end
-  object SpinEdit12: TSpinEdit
+  object x11: TSpinEdit
     Left = 523
     Height = 21
     Top = 264
     Width = 50
-    OnChange = Click
+    OnChange = ChangeSpinEdits
     TabOrder = 14
   end
   object SaveDialog1: TSaveDialog
