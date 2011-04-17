@@ -3,7 +3,8 @@ unit KM_Render;
 {$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 
-uses Windows, SysUtils, Forms,
+uses SysUtils, Forms,
+  //{$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, KromOGLUtils, Math, ExtCtrls;
