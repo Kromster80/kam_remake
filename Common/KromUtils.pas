@@ -6,7 +6,7 @@ unit KromUtils;
 interface
 uses
   Controls, Dialogs, ExtCtrls, Forms, Math, SysUtils
-  {$IFDEF MSWindows} ,Windows, ShellApi {$ENDIF}
+  {$IFDEF MSWindows} ,Windows, MMSystem, ShellApi {$ENDIF}
   {$IFDEF FPC} ,UTF8Process, LazHelpHTML {$ENDIF}
   {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
   ;

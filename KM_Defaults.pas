@@ -1177,6 +1177,7 @@ const
   //       The map editor should not use DefaultTeamColors anymore, I think they should just be for
   //       mission scripts in cases where no color is defined.
   //       What do you think?
+  //@Lewin: You are perfectly right. Go ahead! To be deleted..
   MP_COLOR_COUNT = MAX_PLAYERS;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
