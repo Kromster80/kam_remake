@@ -208,8 +208,9 @@ begin
     glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
     //TODO Linux: Fatal: Internal error 200310121
+    {$IFDEF MSWindows}
     glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
-
+    {$ENDIF}
     if RENDER_3D then begin
       glLoadIdentity;
       ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm3D);
@@ -218,7 +219,9 @@ begin
       glRotatef(rHeading,1,0,0);
       glRotatef(rPitch  ,0,1,0);
       glRotatef(rBank   ,0,0,1);
+      {$IFDEF MSWindows}
       glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
+      {$ENDIF}
       glkScale(fViewport.Zoom);
       ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm2D);
     end;
