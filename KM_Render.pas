@@ -5,6 +5,7 @@ uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Menus, Buttons,
   dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
@@ -15,6 +16,7 @@ uses
 type HDC = integer;
 type HGLRC = integer;
 type HWND = integer;
+type FW_BOLD = integer;
 {$ENDIF}
 
 type
@@ -116,6 +118,7 @@ uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound,
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
 begin
   Inherited Create;
+  {$IFDEF MSWindows}
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults;
   glDisable(GL_LIGHTING); //We don't need it
@@ -129,14 +132,27 @@ begin
   BuildFont(h_DC, 16, FW_BOLD);
 
   setlength(RenderList,512);
+  {$ENDIF}
+  {$IFDEF Unix}
+    MessageBox(Form1.Handle,'Trender.Create not working', 'Error', MB_OK);
+  {$ENDIF}
 end;
 
 
 destructor TRender.Destroy;
 begin
   setlength(RenderList,0);
+  {$IFDEF MSWindows}
   wglMakeCurrent(h_DC, 0);
   wglDeleteContext(h_RC);
+  {$ENDIF}
+  {$IFDEF Unix}
+  //do not know how to fix them :(
+  //just error for now
+  MessageBox(Form1.Handle,'glXMakeCurrent and glXDestroyContext not working', 'Error', MB_OK);
+  //glXMakeCurrent(display, wid, util_glctx);
+  //glXDestroyContext(h_RC);
+  {$ENDIF}
   Inherited;
 end;
 
@@ -191,6 +207,7 @@ begin
     //glRotate(-15,0,0,1); //Funny thing
     glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
+    //TODO Linux: Fatal: Internal error 200310121
     glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
 
     if RENDER_3D then begin
@@ -235,7 +252,12 @@ begin
   RenderBrightness(fGame.GlobalSettings.Brightness);
 
   glFinish;
+  {$IFDEF MSWindows}
   SwapBuffers(h_DC);
+  {$ENDIF}
+  {$IFDEF Unix}
+  MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
+  {$ENDIF}
 end;
 
 
