@@ -4,6 +4,7 @@ unit KM_Unit1;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, glx, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, KromUtils,
   {$IFDEF WDC} OpenGL, {$ENDIF}
@@ -418,7 +419,7 @@ end;
 procedure TForm1.OpenMapClick(Sender: TObject);
 begin
   if AnyChangesMade then
-  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) <> IDOK then exit;
+  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL{$IFDEF MSWindows} or MB_APPLMODAL{$ENDIF}) <> IDOK then exit;
 
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
   OpenMap(OpenDialog1.FileName);
@@ -521,7 +522,12 @@ RenderBuildings();
 RenderCursorPosition(Form1.Pallete.ActivePage.Caption);
 
 RenderArrows();
+{$IFDEF MSWindows}
 SwapBuffers(h_DC);
+{$ENDIF}
+{$IFDEF Unix}
+//?OpenGLControl1.SwapBuffers(h_DC);
+{$ENDIF}
 end;
 
 
@@ -898,7 +904,7 @@ end;
 procedure TForm1.NewMapClick(Sender: TObject);
 begin
   if AnyChangesMade then
-  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) <> IDOK then exit;
+  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL{$IFDEF MSWindows} or MB_APPLMODAL{$ENDIF}) <> IDOK then exit;
   FormNewMap.Show;
 end;
 
@@ -1003,7 +1009,17 @@ PasteAreaMenu.Checked:=false;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
-begin wglMakeCurrent(h_DC, 0); wglDeleteContext(h_RC); end;
+begin
+{$IFDEF MSWindows}
+wglMakeCurrent(h_DC, 0);
+wglDeleteContext(h_RC);
+{$ENDIF}
+{$IFDEF Unix}
+//do not know how to fix them :(
+glXMakeCurrent(display, wid, util_glctx);
+glXDestroyContext(h_RC);
+{$ENDIF}
+end;
 
 procedure TForm1.ObjBlockClick(Sender: TObject);
 begin
@@ -1102,7 +1118,7 @@ end;
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if AnyChangesMade then
-    CanClose := MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) = IDOK;
+    CanClose := MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL{$IFDEF MSWindows} or MB_APPLMODAL{$ENDIF}) = IDOK;
 end;
 
 procedure TForm1.LoadReliefFromBMPClick(Sender: TObject);
@@ -1159,7 +1175,7 @@ end;
 procedure TForm1.OpenProClick(Sender: TObject);
 begin
   if AnyChangesMade then
-  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) <> IDOK then exit;
+  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL{$IFDEF MSWindows} or MB_APPLMODAL{$ENDIF}) <> IDOK then exit;
 
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map project (*.pro)|*.pro') then exit;
   OpenPro(OpenDialog1.FileName);
