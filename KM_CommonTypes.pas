@@ -164,9 +164,9 @@ uses KM_Utils;
 
 
 //Linux wants this instead of timegettime, it should work on Windows too
-function TimeGet: DWord;
+function TimeGet: LongWord;
 begin
-    Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
+    Result := LongWord(Trunc(Now * 24 * 60 * 60 * 1000));
 end;
 
 

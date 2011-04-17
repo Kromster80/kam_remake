@@ -1385,7 +1385,7 @@ end;
 
 procedure TKMUnit.Feed(Amount:single);
 begin
-  fCondition := min(fCondition + round(Amount), UNIT_MAX_CONDITION);
+  fCondition := Math.min(fCondition + round(Amount), UNIT_MAX_CONDITION);
 end;
 
 
@@ -1791,7 +1791,7 @@ end;
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint;
 begin
-  aUnitPerRow := min(aUnitPerRow,aUnitCount); //Can have more rows than units
+  aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
   begin
     for i:=1 to aUnitCount do

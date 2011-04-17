@@ -29,8 +29,8 @@ uses
   {$IFDEF FPC}, paszlib {$ENDIF}
   ;
 
-const
 {$IFDEF UNIX}
+const
     opengl32 = 'libGL.so';
     glu32 = 'libGLU.so';
 {$ENDIF}
