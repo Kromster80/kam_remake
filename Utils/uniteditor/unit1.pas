@@ -58,7 +58,7 @@ type
     SpinEdit8: TSpinEdit;
     SpinEdit9: TSpinEdit;
     procedure init(Sender: TObject);
-    procedure Label7Click(Sender: TObject);
+    procedure Click(Sender: TObject);
     procedure open_file(Sender: TObject);
     procedure saveDAT(Sender: TObject);
     procedure showDAT(Sender: TObject);
@@ -166,13 +166,7 @@ x := 1;
  end;
 end;
 
-procedure TForm1.Label7Click(Sender: TObject);
-begin
-
-end;
-
-
-procedure TForm1.saveDAT(Sender: TObject);
+procedure TForm1.Click(Sender: TObject);
 begin
   UnitStat[ListBox1.ItemIndex].HitPoints := SpinEdit1.Value;
   UnitStat[ListBox1.ItemIndex].Attack := SpinEdit2.Value;
@@ -185,6 +179,11 @@ begin
   UnitStat[ListBox1.ItemIndex].x10 := SpinEdit10.Value;
   UnitStat[ListBox1.ItemIndex].CanWalkOut := SpinEdit11.Value;
   UnitStat[ListBox1.ItemIndex].x11 := SpinEdit12.Value;
+end;
+
+
+procedure TForm1.saveDAT(Sender: TObject);
+begin
   if SaveDialog1.Execute then
   SaveUnitDAT(SaveDialog1.Filename);
 end;

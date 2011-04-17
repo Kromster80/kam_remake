@@ -80,7 +80,6 @@ object Form1: TForm1
     Width = 16
     Caption = 'x9'
     ParentColor = False
-    OnClick = Label7Click
   end
   object Label8: TLabel
     Left = 423
@@ -139,6 +138,7 @@ object Form1: TForm1
     Height = 21
     Top = 72
     Width = 42
+    OnChange = Click
     TabOrder = 3
   end
   object SpinEdit2: TSpinEdit
@@ -146,6 +146,7 @@ object Form1: TForm1
     Height = 21
     Top = 111
     Width = 42
+    OnChange = Click
     TabOrder = 4
   end
   object SpinEdit3: TSpinEdit
@@ -153,6 +154,7 @@ object Form1: TForm1
     Height = 21
     Top = 151
     Width = 41
+    OnChange = Click
     TabOrder = 5
   end
   object SpinEdit4: TSpinEdit
@@ -160,6 +162,7 @@ object Form1: TForm1
     Height = 21
     Top = 184
     Width = 42
+    OnChange = Click
     TabOrder = 6
   end
   object SpinEdit5: TSpinEdit
@@ -167,6 +170,7 @@ object Form1: TForm1
     Height = 21
     Top = 224
     Width = 43
+    OnChange = Click
     TabOrder = 7
   end
   object SpinEdit6: TSpinEdit
@@ -174,6 +178,7 @@ object Form1: TForm1
     Height = 21
     Top = 264
     Width = 42
+    OnChange = Click
     TabOrder = 8
   end
   object SpinEdit7: TSpinEdit
@@ -181,6 +186,7 @@ object Form1: TForm1
     Height = 21
     Top = 72
     Width = 50
+    OnChange = Click
     TabOrder = 9
   end
   object SpinEdit8: TSpinEdit
@@ -188,6 +194,7 @@ object Form1: TForm1
     Height = 21
     Top = 111
     Width = 50
+    OnChange = Click
     TabOrder = 10
   end
   object SpinEdit9: TSpinEdit
@@ -195,6 +202,7 @@ object Form1: TForm1
     Height = 21
     Top = 151
     Width = 50
+    OnChange = Click
     TabOrder = 11
   end
   object SpinEdit10: TSpinEdit
@@ -202,6 +210,7 @@ object Form1: TForm1
     Height = 21
     Top = 184
     Width = 50
+    OnChange = Click
     TabOrder = 12
   end
   object SpinEdit11: TSpinEdit
@@ -209,6 +218,7 @@ object Form1: TForm1
     Height = 21
     Top = 224
     Width = 50
+    OnChange = Click
     TabOrder = 13
   end
   object SpinEdit12: TSpinEdit
@@ -216,6 +226,7 @@ object Form1: TForm1
     Height = 21
     Top = 264
     Width = 50
+    OnChange = Click
     TabOrder = 14
   end
   object SaveDialog1: TSaveDialog
