@@ -9,7 +9,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
   Menus
-  {$IFDEF FPC}, LResources{$ENDIF};
+  {$IFDEF FPC}, LResources, Spin{$ENDIF};
 
 
 const
@@ -28,36 +28,37 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    ATK: TEdit;
-    AHB: TEdit;
     Button1: TButton;
     Defence: TLabel;
-    DEF: TEdit;
-    CVA: TEdit;
     ListBox1: TListBox;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    x11: TEdit;
     Label10: TLabel;
     Label9: TLabel;
-    x10: TEdit;
-    x9: TEdit;
     Label7: TLabel;
     Label8: TLabel;
-    Sight: TEdit;
     Label6: TLabel;
-    x7: TEdit;
     label5: TLabel;
-    SPD: TEdit;
     Speed: TLabel;
-    x4: TEdit;
-    HP: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Open: TButton;
+    SpinEdit1: TSpinEdit;
+    SpinEdit10: TSpinEdit;
+    SpinEdit11: TSpinEdit;
+    SpinEdit12: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    SpinEdit3: TSpinEdit;
+    SpinEdit4: TSpinEdit;
+    SpinEdit5: TSpinEdit;
+    SpinEdit6: TSpinEdit;
+    SpinEdit7: TSpinEdit;
+    SpinEdit8: TSpinEdit;
+    SpinEdit9: TSpinEdit;
     procedure init(Sender: TObject);
+    procedure Label7Click(Sender: TObject);
     procedure open_file(Sender: TObject);
     procedure saveDAT(Sender: TObject);
     procedure showDAT(Sender: TObject);
@@ -165,20 +166,25 @@ x := 1;
  end;
 end;
 
+procedure TForm1.Label7Click(Sender: TObject);
+begin
+
+end;
+
 
 procedure TForm1.saveDAT(Sender: TObject);
 begin
-  UnitStat[ListBox1.ItemIndex].HitPoints := strtoint(HP.Text);
-  UnitStat[ListBox1.ItemIndex].Attack := strtoint(ATK.Text);
-  UnitStat[ListBox1.ItemIndex].AttackHorseBonus := strtoint(AHB.Text);
-  UnitStat[ListBox1.ItemIndex].x4 := strtoint(x4.Text);
-  UnitStat[ListBox1.ItemIndex].Defence := strtoint(DEF.Text);
-  UnitStat[ListBox1.ItemIndex].Speed := strtoint(SPD.Text);
-  UnitStat[ListBox1.ItemIndex].Sight := strtoint(Sight.Text);
-  UnitStat[ListBox1.ItemIndex].x9 := strtoint(x9.Text);
-  UnitStat[ListBox1.ItemIndex].x10 := strtoint(x10.Text);
-  UnitStat[ListBox1.ItemIndex].CanWalkOut := strtoint(CVA.Text);
-  UnitStat[ListBox1.ItemIndex].x11 := strtoint(x11.Text);
+  UnitStat[ListBox1.ItemIndex].HitPoints := SpinEdit1.Value;
+  UnitStat[ListBox1.ItemIndex].Attack := SpinEdit2.Value;
+  UnitStat[ListBox1.ItemIndex].AttackHorseBonus := SpinEdit3.Value;
+  UnitStat[ListBox1.ItemIndex].x4 := SpinEdit4.Value;
+  UnitStat[ListBox1.ItemIndex].Defence := SpinEdit5.Value;
+  UnitStat[ListBox1.ItemIndex].Speed := SpinEdit6.Value;
+  UnitStat[ListBox1.ItemIndex].Sight := SpinEdit8.Value;
+  UnitStat[ListBox1.ItemIndex].x9 := SpinEdit9.Value;
+  UnitStat[ListBox1.ItemIndex].x10 := SpinEdit10.Value;
+  UnitStat[ListBox1.ItemIndex].CanWalkOut := SpinEdit11.Value;
+  UnitStat[ListBox1.ItemIndex].x11 := SpinEdit12.Value;
   if SaveDialog1.Execute then
   SaveUnitDAT(SaveDialog1.Filename);
 end;
@@ -186,19 +192,18 @@ end;
 
 procedure TForm1.showDAT(Sender: TObject);
 begin
-  //todo: Replace all TEdits with TSpinEdits
-   HP.Text := inttostr(UnitStat[ListBox1.ItemIndex].HitPoints);
-   ATK.Text := inttostr(UnitStat[ListBox1.ItemIndex].Attack);
-   AHB.Text := inttostr(UnitStat[ListBox1.ItemIndex].AttackHorseBonus);
-   x4.Text := inttostr(UnitStat[ListBox1.ItemIndex].x4);
-   DEF.Text := inttostr(UnitStat[ListBox1.ItemIndex].Defence);
-   SPD.Text := inttostr(UnitStat[ListBox1.ItemIndex].Speed);
-   x7.Text := '0';
-   Sight.Text := inttostr(UnitStat[ListBox1.ItemIndex].Sight);
-   x9.Text := inttostr(UnitStat[ListBox1.ItemIndex].x9);
-   x10.Text := inttostr(UnitStat[ListBox1.ItemIndex].x10);
-   CVA.Text := inttostr(UnitStat[ListBox1.ItemIndex].CanWalkOut);
-   x11.Text := inttostr(UnitStat[ListBox1.ItemIndex].x11);
+   SpinEdit1.Value := UnitStat[ListBox1.ItemIndex].HitPoints;
+   SpinEdit2.Value :=UnitStat[ListBox1.ItemIndex].Attack;
+   SpinEdit3.Value :=UnitStat[ListBox1.ItemIndex].AttackHorseBonus;
+   SpinEdit4.Value :=UnitStat[ListBox1.ItemIndex].x4;
+   SpinEdit5.Value :=UnitStat[ListBox1.ItemIndex].Defence;
+   SpinEdit6.Value :=UnitStat[ListBox1.ItemIndex].Speed;
+   SpinEdit7.Value :=0;
+   SpinEdit8.Value :=UnitStat[ListBox1.ItemIndex].Sight;
+   SpinEdit9.Value :=UnitStat[ListBox1.ItemIndex].x9;
+   SpinEdit10.Value :=UnitStat[ListBox1.ItemIndex].x10;
+   SpinEdit11.Value :=UnitStat[ListBox1.ItemIndex].CanWalkOut;
+   SpinEdit12.Value :=UnitStat[ListBox1.ItemIndex].x11;
 end;
 
 

@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 296
+  Left = 279
   Height = 331
-  Top = 403
+  Top = 463
   Width = 636
   ActiveControl = Button1
   Caption = 'Form1'
@@ -66,9 +66,9 @@ object Form1: TForm1
     ParentColor = False
   end
   object Label6: TLabel
-    Left = 423
+    Left = 424
     Height = 16
-    Top = 112
+    Top = 111
     Width = 33
     Caption = 'Sight'
     ParentColor = False
@@ -80,6 +80,7 @@ object Form1: TForm1
     Width = 16
     Caption = 'x9'
     ParentColor = False
+    OnClick = Label7Click
   end
   object Label8: TLabel
     Left = 423
@@ -90,7 +91,7 @@ object Form1: TForm1
     ParentColor = False
   end
   object Label9: TLabel
-    Left = 423
+    Left = 424
     Height = 16
     Top = 224
     Width = 79
@@ -114,90 +115,6 @@ object Form1: TForm1
     OnClick = open_file
     TabOrder = 0
   end
-  object HP: TEdit
-    Left = 295
-    Height = 21
-    Top = 72
-    Width = 80
-    TabOrder = 1
-  end
-  object ATK: TEdit
-    Left = 295
-    Height = 21
-    Top = 112
-    Width = 80
-    TabOrder = 2
-  end
-  object AHB: TEdit
-    Left = 295
-    Height = 21
-    Top = 151
-    Width = 80
-    TabOrder = 3
-  end
-  object x4: TEdit
-    Left = 295
-    Height = 21
-    Top = 184
-    Width = 80
-    TabOrder = 4
-  end
-  object DEF: TEdit
-    Left = 295
-    Height = 21
-    Top = 224
-    Width = 80
-    TabOrder = 5
-  end
-  object SPD: TEdit
-    Left = 296
-    Height = 21
-    Top = 264
-    Width = 79
-    TabOrder = 6
-  end
-  object x7: TEdit
-    Left = 515
-    Height = 21
-    Top = 72
-    Width = 81
-    TabOrder = 7
-  end
-  object Sight: TEdit
-    Left = 515
-    Height = 21
-    Top = 111
-    Width = 81
-    TabOrder = 8
-  end
-  object x9: TEdit
-    Left = 515
-    Height = 21
-    Top = 151
-    Width = 81
-    TabOrder = 9
-  end
-  object x10: TEdit
-    Left = 515
-    Height = 21
-    Top = 184
-    Width = 81
-    TabOrder = 10
-  end
-  object CVA: TEdit
-    Left = 515
-    Height = 21
-    Top = 224
-    Width = 81
-    TabOrder = 11
-  end
-  object x11: TEdit
-    Left = 515
-    Height = 21
-    Top = 264
-    Width = 81
-    TabOrder = 12
-  end
   object Button1: TButton
     Left = 112
     Height = 23
@@ -205,7 +122,7 @@ object Form1: TForm1
     Width = 83
     Caption = 'Save'
     OnClick = saveDAT
-    TabOrder = 13
+    TabOrder = 1
   end
   object ListBox1: TListBox
     Left = 24
@@ -214,8 +131,92 @@ object Form1: TForm1
     Width = 124
     ItemHeight = 0
     OnClick = showDAT
-    TabOrder = 14
+    TabOrder = 2
     TopIndex = -1
+  end
+  object SpinEdit1: TSpinEdit
+    Left = 301
+    Height = 21
+    Top = 72
+    Width = 42
+    TabOrder = 3
+  end
+  object SpinEdit2: TSpinEdit
+    Left = 301
+    Height = 21
+    Top = 111
+    Width = 42
+    TabOrder = 4
+  end
+  object SpinEdit3: TSpinEdit
+    Left = 302
+    Height = 21
+    Top = 151
+    Width = 41
+    TabOrder = 5
+  end
+  object SpinEdit4: TSpinEdit
+    Left = 302
+    Height = 21
+    Top = 184
+    Width = 42
+    TabOrder = 6
+  end
+  object SpinEdit5: TSpinEdit
+    Left = 301
+    Height = 21
+    Top = 224
+    Width = 43
+    TabOrder = 7
+  end
+  object SpinEdit6: TSpinEdit
+    Left = 301
+    Height = 21
+    Top = 264
+    Width = 42
+    TabOrder = 8
+  end
+  object SpinEdit7: TSpinEdit
+    Left = 523
+    Height = 21
+    Top = 72
+    Width = 50
+    TabOrder = 9
+  end
+  object SpinEdit8: TSpinEdit
+    Left = 523
+    Height = 21
+    Top = 111
+    Width = 50
+    TabOrder = 10
+  end
+  object SpinEdit9: TSpinEdit
+    Left = 523
+    Height = 21
+    Top = 151
+    Width = 50
+    TabOrder = 11
+  end
+  object SpinEdit10: TSpinEdit
+    Left = 523
+    Height = 21
+    Top = 184
+    Width = 50
+    TabOrder = 12
+  end
+  object SpinEdit11: TSpinEdit
+    Left = 523
+    Height = 21
+    Top = 224
+    Width = 50
+    TabOrder = 13
+  end
+  object SpinEdit12: TSpinEdit
+    Left = 523
+    Height = 21
+    Top = 264
+    Width = 50
+    TabOrder = 14
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.dat'
