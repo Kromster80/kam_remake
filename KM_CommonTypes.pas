@@ -414,10 +414,8 @@ function TKMMessageList.GetMsgHasSound(aID:cardinal):boolean;
 begin
   if aID in [1..fCount] then
     Result := not ((fList[aID].msgType = msgHorn) or (fList[aID].msgType = msgScroll))
-    //@Lewin: Please write down here why these two types of messages are mute?
-    //@Krom: I can't remember. These are the two multiplayer options (one for sending text messages, one for alliances)
-    //       so maybe that don't make a noise when you open them in KaM. But I think they do so I don't know why I did it.
-    //       I see no reason for this, feel free to change it so all messages make a noise. To be deleted.
+    //These are the two multiplayer options (one for sending text messages, one for alliances)
+    //unlike other messages they are sticky and can't be possibly Issued
   else
     Result := false;
 end;

@@ -277,8 +277,7 @@ begin
 end;
 
 
-//@Lewin: I don't remember if shields/horses/armor should be included, for now it will be only weapons
-//@Krom: I just ran a test in KaM: it includes all weapons and armor, but not horses. To be deleted
+//KaM includes all weapons and armor, but not horses
 function TKMPlayerStats.GetWeaponsProduced:cardinal;
 var i:TResourceType;
 begin

@@ -333,7 +333,7 @@ begin
   fGamePlayInterface := TKMGamePlayInterface.Create;
 
   //Here comes terrain/mission init
-  RandSeed := 4; //Set it before creating any game-logic Types, should be consistent for replays and MP
+  RandSeed := 4; //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
 
@@ -401,14 +401,13 @@ begin
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   Save(99); //Thats our base for a game record
-  {$IFDEF Unix}
-  //In Linux CopyFile does not overwrite
+
+  {$IFDEF Unix} //In Linux CopyFile does not overwrite
   if FileExists(KMSlotToSaveName(99,'bas')) then DeleteFile(KMSlotToSaveName(99,'bas'));
   {$ENDIF}
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
 
   fLog.AppendLog('Gameplay recording initialized',true);
-  //@Krom: Same here? (see below)
   RandSeed := 4; //Random after StartGame and ViewReplay should match
 end;
 
@@ -491,8 +490,8 @@ begin
 
   fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
   Save(99); //Thats our base for a game record
-  {$IFDEF Unix}
-  //In Linux CopyFile does not overwrite
+
+  {$IFDEF Unix} //In Linux CopyFile does not overwrite
   if FileExists(KMSlotToSaveName(99,'bas')) then DeleteFile(KMSlotToSaveName(99,'bas'));
   {$ENDIF}
   CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
@@ -505,7 +504,14 @@ begin
   //@Krom: Thanks for that, you are right. Can we delete this line then? As I see it we should set the
   //random seed once in the init, then not change it. If the random seeds to not match at this point,
   //surely that means there is a flaw somewhere?
-  RandSeed := 4; //Random after StartGame and ViewReplay should match
+  //@Lewin: 1. We need Seed to be the same after GameStart and ReplayLoad, before starting main game
+  //        loop. GameStart loads the mission and uses Random to e.g. set units health, while
+  //        Replay does not sets anything it just loads savegame. Thats why we need to reset Seed
+  //        AFTER everything is init here or replay is loaded.
+  //        2. We don't want to remove Seed from GameInit and MapEdStart (where they are meaningless)
+  //        because of the similar reason - to keep consistency in debug. We can start TownTutorial
+  //        again and again and each time game will be created perfectly the same.
+  RandSeed := 4; //Random after StartGameMP and ViewReplay should match
 end;
 
 
@@ -636,7 +642,7 @@ begin
 
   GameStop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
-  RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
+  RandSeed := 4; //Every time MapEd will be the same as previous. Good for debug.
   fGameSpeed := 1; //In case it was set in last run mission
 
   if fResource.GetDataState<>dls_All then begin

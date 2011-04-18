@@ -124,12 +124,9 @@ begin
   Assert(InRange(aIndex, 1, fCount), 'Can not remove player');
   fPlayers[aIndex].Free;
   for i:=aIndex to fCount-1 do
-    fPlayers[i] := fPlayers[i+1]; //todo: I wonder if that's ill strategy to handle Tsomething
-  //@Krom: As far as I know it would be okay, except you should have fPlayers[aIndex].Free first.
-  //All you are doing with ObjectA := ObjectB is assigning a pointer to some memory.
+    fPlayers[i] := fPlayers[i+1]; //Shift only pointers
 
-  //Cleanup
-  fPlayers[fCount] := TKMPlayerInfo.Create;
+  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but now used
   dec(fCount);
 end;
 

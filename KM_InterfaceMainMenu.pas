@@ -472,10 +472,9 @@ begin
         DropBox_LobbyLoc[i].Items.Add('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
+        //todo: Replace with TKMDropColorBox (containing ~20-30 different color boxes without captions)
         DropBox_LobbyColor[i] := TKMDropBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 150, 20, fnt_Metal);
         DropBox_LobbyColor[i].Items.Add('Random');
-        //@Krom: I think we should just show an block of the colour, rather than a name. That makes translations
-        //       easier and is more obvious to the player. Do you agree? If so we'll need a way to have colored blocks in a dropbox...
         for k:=1 to MP_COLOR_COUNT do
           DropBox_LobbyColor[i].Items.Add(MP_TEAM_COLOR_NAMES[k]);
 
