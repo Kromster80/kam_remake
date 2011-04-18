@@ -1544,7 +1544,8 @@ end;
 
 procedure THouseAction.SubActionRem(aActionSet: THouseActionSet);
 begin
-  fSubAction := fSubAction - aActionSet;
+  fSubAction := fSubAction - aActionSet; 
+  //todo: bug. when clicking fast on decrease house health in MapEd it crashes here
 end;
 
 

@@ -189,7 +189,7 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes;
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes, KM_ResourceGFX;
 
 
 {Switch between pages}
@@ -629,7 +629,7 @@ end;
 
 
 procedure TKMapEdInterface.Create_Player_Page;
-var i:integer;
+var i:integer; Col:array[0..255] of TColor4;
 begin
   Panel_Player := TKMPanel.Create(Panel_Common,0,128,196,28);
     Button_Player[1] := TKMButton.Create(Panel_Player,   8, 4, 36, 24, 41);
@@ -642,7 +642,9 @@ begin
     Panel_Color := TKMPanel.Create(Panel_Player,0,28,196,400);
       TKMLabel.Create(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
       TKMBevel.Create(Panel_Color,8,30,180,210);
-      ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16);
+      ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16, 11);
+      for i:=0 to 255 do Col[i] := fResource.GetColor32(i);
+      ColorSwatch_Color.AddColors(Col);
       ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
 

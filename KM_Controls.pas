@@ -226,15 +226,18 @@ type
   { Color swatch - to select a color from given samples/palette }
   TKMColorSwatch = class(TKMControl)
   private
-    CellSize:byte; //in pixels
-    SelectedColor:byte; //Index 0..255
-    Columns:byte;
-    Rows:byte;
+    fCellSize:byte; //Size of the square in pixels
+    fColumnCount:byte;
+    fRowCount:byte;
+    SelectedColor:byte; //Index 0..255 should be enough
     Colors:array of TColor4; //Range is 0..255
+    fOnChange:TNotifyEvent;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
+    procedure AddColors(aColors:array of TColor4);
     function GetColor:TColor4;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+    property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
 
@@ -488,7 +491,7 @@ type
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     property OnChange: TNotifyEvent write fOnChange;
-
+    
     procedure Paint; override;
   end;
 
@@ -568,7 +571,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
+uses KM_RenderUI, KM_Sound, KM_Utils;
 
 
 { TKMControl }
@@ -1125,52 +1128,60 @@ end;
 
 
 { TKMColorSwatch }
-constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
-var i,k:integer;
+constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
 begin
   Inherited Create(aParent, aLeft, aTop, 0, 0);
 
-  Columns := aColumns;
-  Rows := aRows;
-  CellSize := 11;
+  fColumnCount := aColumnCount;
+  fRowCount := aRowCount;
+  fCellSize := aSize;
 
-  Width := Columns*CellSize;
-  Height := Rows*CellSize;
+  Width := fColumnCount*fCellSize;
+  Height := fRowCount*fCellSize;
+end;
 
-  setlength(Colors, Columns*Rows);
-  for i:=0 to Rows-1 do
-  for k:=0 to Columns-1 do
-  if i*Columns+k<=255 then //Rows*Columns could be >255
-    Colors[i*Columns+k] := fResource.GetColor32(i*Columns+k, DEF_PAL);
+
+procedure TKMColorSwatch.AddColors(aColors:array of TColor4);
+begin
+  SetLength(Colors, Length(aColors));
+  CopyMemory(@Colors[0], @aColors[0], SizeOf(aColors));
 end;
 
 
 function TKMColorSwatch.GetColor:TColor4;
 begin
-  Result := fResource.GetColor32(SelectedColor, DEF_PAL);
+  Result := Colors[SelectedColor];
 end;
 
 
 procedure TKMColorSwatch.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+var NewColor:integer;
 begin
-  SelectedColor := EnsureRange(
-                     EnsureRange((Y-Top)div CellSize,0,Rows-1)*Columns +
-                     EnsureRange((X-Left)div CellSize,0,Columns-1),
-                     0,255);
+  if Button = mbLeft then begin
+    NewColor := EnsureRange((Y-Top) div fCellSize, 0, fRowCount-1)*fColumnCount +
+                EnsureRange((X-Left) div fCellSize, 0, fColumnCount-1);
+    if InRange(NewColor, 0, Length(Colors)-1) then
+    begin
+      SelectedColor := NewColor;
+      if Assigned(fOnChange) then fOnChange(Self);
+    end;
+  end;
   Inherited;
 end;
 
 
 procedure TKMColorSwatch.Paint;
-var i,k:integer;
+var i:integer;
 begin
   Inherited;
-  for i:=0 to Rows-1 do
-  for k:=0 to Columns-1 do
-  if i*Columns+k<=255 then
-    fRenderUI.WriteLayer(Left+k*CellSize, Top+i*CellSize, CellSize, CellSize, Colors[i*Columns+k], $00);
 
-  //fRenderUI.WriteLayer(Left, Top+Rows*CellSize, CellSize, CellSize, Colors[SelectedColor], $00);
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+
+  for i:=0 to Length(Colors)-1 do
+    fRenderUI.WriteLayer(Left+(i mod fColumnCount)*fCellSize, Top+(i div fColumnCount)*fCellSize, fCellSize, fCellSize, Colors[i], $00);
+
+  //Paint selection
+  fRenderUI.WriteLayer(Left+(SelectedColor mod fColumnCount)*fCellSize, Top+(SelectedColor div fColumnCount)*fCellSize, fCellSize, fCellSize, $00, $FFFFFFFF);
 end; 
 
 
@@ -1885,14 +1896,6 @@ begin
 end;
 
 
-procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
-begin
-  Inherited;
-  fTopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
-  fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
-end;
-
-
 procedure TKMListBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
 begin
   Inherited;
@@ -1919,6 +1922,14 @@ begin
         fOnChange(Self);
     end;
   end;
+end;
+
+
+procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
+begin
+  Inherited;
+  fTopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
+  fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 

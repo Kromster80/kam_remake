@@ -192,7 +192,7 @@ type
         Radio_Options_Lang:TKMRadioGroup;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
-        CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox; //todo: Replace with RadioGroup
+        CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
@@ -372,7 +372,7 @@ begin
       Button_MM_MapEd.OnClick        := SwitchMenuPage;
       Button_MM_Options.OnClick      := SwitchMenuPage;
       Button_MM_Credits.OnClick      := SwitchMenuPage;
-      Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;  
+      Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
 
       Button_MM_MapEd.Visible        := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
       Button_MM_MultiPlayer.Enabled  :=  ENABLE_MP_IN_MENU;
