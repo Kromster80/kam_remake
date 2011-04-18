@@ -1158,6 +1158,10 @@ const
   (1920,1200)
   );
 
+var
+  //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
+  SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
+
 const
   MAPSIZES_COUNT = 10;
   MapSize: array[1..MAPSIZES_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176 );
@@ -1165,7 +1169,7 @@ const
 
   //Colors available for selection in multiplayer
   //todo: Add more multiplayer colors
-  MP_COLOR_COUNT = MAX_PLAYERS;
+  MP_COLOR_COUNT = 8;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
@@ -1176,19 +1180,6 @@ const
   $FFFFFFFF, //White
   $FF202010  //Black
   );
-  MP_TEAM_COLOR_NAMES:array[1..MP_COLOR_COUNT]of shortstring = (
-  'Red',
-  'Cyan',
-  'Green',
-  'Magenta',
-  'Yellow',
-  'Grey',
-  'White',
-  'Black'
-  );
-var
-  //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
-  SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
 
   //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.
   //Using these as the defaults when loading the script means the colors will be the same as KaM when not defined.

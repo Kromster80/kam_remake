@@ -226,15 +226,18 @@ type
   { Color swatch - to select a color from given samples/palette }
   TKMColorSwatch = class(TKMControl)
   private
+    fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fCellSize:byte; //Size of the square in pixels
     fColumnCount:byte;
     fRowCount:byte;
-    SelectedColor:byte; //Index 0..255 should be enough
+    fColorIndex:byte; //Index 0..255 should be enough
     Colors:array of TColor4; //Range is 0..255
     fOnChange:TNotifyEvent;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
     procedure AddColors(aColors:array of TColor4);
+    property BackAlpha:single write fBackAlpha;
+    property ColorIndex:Byte read fColorIndex;
     function GetColor:TColor4;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     property OnChange: TNotifyEvent write fOnChange;
@@ -514,11 +517,29 @@ type
     procedure SetEnabled(aValue:boolean); override;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
-    destructor Destroy; override;
     property DropCount:byte write fDropCount;
     property ItemIndex:smallint read GetItemIndex write SetItemIndex;
     property Items:TStringList read GetItems;
-    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    property OnChange: TNotifyEvent write fOnChange;
+    procedure Paint; override;
+  end;
+
+
+  TKMDropColorBox = class(TKMControl)
+  private
+    fColorIndex:integer;
+    fButton:TKMButton;
+    fSwatch:TKMColorSwatch;
+    fShape:TKMShape;
+    fOnChange:TNotifyEvent;
+    procedure ListShow(Sender:TObject);
+    procedure ListClick(Sender:TObject);
+    procedure ListHide(Sender:TObject);
+    procedure SetEnabled(aValue:boolean); override;
+  public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
+    property ColorIndex:integer read fColorIndex write fColorIndex;
+    procedure AddColors(aColors:array of TColor4);
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -1132,6 +1153,7 @@ constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRow
 begin
   Inherited Create(aParent, aLeft, aTop, 0, 0);
 
+  fBackAlpha := 0.5;
   fColumnCount := aColumnCount;
   fRowCount := aRowCount;
   fCellSize := aSize;
@@ -1150,7 +1172,7 @@ end;
 
 function TKMColorSwatch.GetColor:TColor4;
 begin
-  Result := Colors[SelectedColor];
+  Result := Colors[fColorIndex];
 end;
 
 
@@ -1162,7 +1184,7 @@ begin
                 EnsureRange((X-Left) div fCellSize, 0, fColumnCount-1);
     if InRange(NewColor, 0, Length(Colors)-1) then
     begin
-      SelectedColor := NewColor;
+      fColorIndex := NewColor;
       if Assigned(fOnChange) then fOnChange(Self);
     end;
   end;
@@ -1175,13 +1197,13 @@ var i:integer;
 begin
   Inherited;
 
-  fRenderUI.WriteBevel(Left, Top, Width, Height);
+  fRenderUI.WriteBevel(Left, Top, Width, Height, false, fBackAlpha);
 
   for i:=0 to Length(Colors)-1 do
     fRenderUI.WriteLayer(Left+(i mod fColumnCount)*fCellSize, Top+(i div fColumnCount)*fCellSize, fCellSize, fCellSize, Colors[i], $00);
 
   //Paint selection
-  fRenderUI.WriteLayer(Left+(SelectedColor mod fColumnCount)*fCellSize, Top+(SelectedColor div fColumnCount)*fCellSize, fCellSize, fCellSize, $00, $FFFFFFFF);
+  fRenderUI.WriteLayer(Left+(fColorIndex mod fColumnCount)*fCellSize, Top+(fColorIndex div fColumnCount)*fCellSize, fCellSize, fCellSize, $00, $FFFFFFFF);
 end; 
 
 
@@ -1974,12 +1996,6 @@ begin
 end;
 
 
-destructor TKMDropBox.Destroy;
-begin
-  Inherited;
-end;
-
-
 procedure TKMDropBox.ListShow(Sender:TObject);
 begin
   if fList.Visible then
@@ -2044,13 +2060,6 @@ begin
 end;
 
 
-procedure TKMDropBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
-begin
-  Inherited;
-  //MouseMove(X,Y,Shift); //Will change Position and call OnChange event
-end;
-
-
 procedure TKMDropBox.Paint;
 var Col:TColor4;
 begin
@@ -2059,6 +2068,82 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   fRenderUI.WriteText(Left+4, Top+4, Width-8, fCaption, fFont, kaLeft, false, Col);
+end;
+
+
+{ TKMDropColorBox }
+constructor TKMDropColorBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
+var P:TKMPanel; Size:integer;
+begin
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+
+  fColorIndex := 0;
+
+  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
+  fButton.fOnClick := ListShow;
+
+  P := MasterParent;
+  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
+  fShape.fOnClick := ListHide;
+
+  Size := Round(Sqrt(aCount)+0.5); //Round up
+
+  //In FullScreen mode P initialized already with offset (P.Top <> 0)
+  fSwatch := TKMColorSwatch.Create(P, Left-P.Left, Top+aHeight-P.Top, Size, Size, aWidth div Size);
+  fSwatch.BackAlpha := 0.75;
+  fSwatch.fOnClick := ListClick;
+
+  ListHide(nil);
+end;
+
+
+procedure TKMDropColorBox.ListShow(Sender:TObject);
+begin
+  if fSwatch.Visible then
+  begin
+    ListHide(nil);
+    exit;
+  end;
+
+  fSwatch.Show;
+  fShape.Show;
+end;
+
+
+procedure TKMDropColorBox.ListClick(Sender:TObject);
+begin
+  fColorIndex := fSwatch.ColorIndex;
+  if Assigned(fOnChange) then fOnChange(Self);
+  ListHide(nil);
+end;
+
+
+procedure TKMDropColorBox.ListHide(Sender:TObject);
+begin
+  fSwatch.Hide;
+  fShape.Hide;
+end;
+
+
+procedure TKMDropColorBox.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  fButton.Enabled := aValue;
+  fSwatch.Enabled := aValue;
+end;
+
+
+procedure TKMDropColorBox.AddColors(aColors:array of TColor4);
+begin
+  fSwatch.AddColors(aColors);
+end;
+
+
+procedure TKMDropColorBox.Paint;
+begin
+  Inherited;
+  fRenderUI.WriteBevel(Left, Top, Width-fButton.Width, Height);
+  fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-4, Height-4, fSwatch.GetColor, $00);
 end;
 
 

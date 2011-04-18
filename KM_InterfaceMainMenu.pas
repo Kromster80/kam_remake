@@ -128,7 +128,7 @@ type
       Panel_LobbyPlayers:TKMPanel;
         Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
         DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropBox;
-        DropBox_LobbyColor:array [0..MAX_PLAYERS-1] of TKMDropBox;
+        DropColorBox_Lobby:array [0..MAX_PLAYERS-1] of TKMDropColorBox;
         CheckBox_LobbyReady:array [0..MAX_PLAYERS-1] of TKMCheckBox;
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
@@ -451,7 +451,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-var i,k:integer;
+var i:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
@@ -461,8 +461,8 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 140, 20, 'Players list:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 160, 10, 150, 20, 'Start location:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 330, 10, 140, 20, 'Flag color:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 500, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
-      with TKMLabel.Create(Panel_LobbyPlayers, 560, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft) do
+      TKMLabel.Create(Panel_LobbyPlayers, 450, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
+      with TKMLabel.Create(Panel_LobbyPlayers, 520, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft) do
         OnClick := Lobby_Ping;
 
       for i:=0 to MAX_PLAYERS-1 do begin
@@ -472,17 +472,13 @@ begin
         DropBox_LobbyLoc[i].Items.Add('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        //todo: Replace with TKMDropColorBox (containing ~20-30 different color boxes without captions)
-        DropBox_LobbyColor[i] := TKMDropBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 150, 20, fnt_Metal);
-        DropBox_LobbyColor[i].Items.Add('Random');
-        for k:=1 to MP_COLOR_COUNT do
-          DropBox_LobbyColor[i].Items.Add(MP_TEAM_COLOR_NAMES[k]);
+        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 100, 20, MP_COLOR_COUNT);
+        DropColorBox_Lobby[i].AddColors(MP_TEAM_COLORS);
+        DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyColor[i].OnChange := Lobby_PlayersSetupChange;
+        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 450+15, 30+i*25, 50, 20, '', fnt_Metal);
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 500+15, 30+i*25, 50, 20, '', fnt_Metal);
-
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 560, 30+i*25, 40, 20, '', fnt_Metal, kaLeft);
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 510, 30+i*25, 40, 20, '', fnt_Metal, kaLeft);
         Label_LobbyPing[i].Disable;
       end;
 
@@ -1286,10 +1282,10 @@ begin
     DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocID;
   end;
 
-  if Sender = DropBox_LobbyColor[i] then
+  if Sender = DropColorBox_Lobby[i] then
   begin
-    fGame.Networking.SelectColor(DropBox_LobbyColor[i].ItemIndex);
-    DropBox_LobbyColor[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+    fGame.Networking.SelectColor(DropColorBox_Lobby[i].ColorIndex);
+    DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
   end;
 end;
 
@@ -1303,12 +1299,12 @@ begin
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocID;
-    DropBox_LobbyColor[i].ItemIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+    DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
 
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
     DropBox_LobbyLoc[i].Enabled := MyNik;
-    DropBox_LobbyColor[i].Enabled := MyNik;
+    DropColorBox_Lobby[i].Enabled := MyNik;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
     if MyNik then
       Button_LobbyReady.Enabled := fGame.Networking.MapInfo.IsValid and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
@@ -1318,10 +1314,10 @@ begin
   begin
     Label_LobbyPlayer[i].Caption := '';
     DropBox_LobbyLoc[i].ItemIndex := 0;
-    DropBox_LobbyColor[i].ItemIndex := 0;
+    DropColorBox_Lobby[i].ColorIndex := 0;
     CheckBox_LobbyReady[i].Checked := false;
     DropBox_LobbyLoc[i].Enabled := false;
-    DropBox_LobbyColor[i].Enabled := false;
+    DropColorBox_Lobby[i].Enabled := false;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
   end;
 
