@@ -1344,11 +1344,11 @@ procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boole
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
 var i,RowRes,Base,Line:integer;
 begin
-  fShownUnit:=nil;
-  fShownHouse:=Sender;
-  AskDemolish:=aAskDemolish;
+  fShownUnit  := nil;
+  fShownHouse := Sender;
+  AskDemolish := aAskDemolish;
 
-  if (not Assigned(Sender)) then begin //=nil produces wrong result when there's no object at all
+  if not Assigned(Sender) then begin //=nil produces wrong result when there's no object at all
     SwitchPage(nil);
     exit;
   end;

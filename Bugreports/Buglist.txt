@@ -10,18 +10,19 @@ EXE-only r1359+:
  +	Fixed bug when unfinished house demolishing would count as self-destroyed house and cause players defeat
  +	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
  +	Fixed crash when .libx file is missing
+ +	Fixed crash in MapEd when decreasing house condition below 0
+ +	If two units attempt to gather the same resource, 2nd unit will now find a different resource or go home. 
 
 	Edges of messages and other scrolls should be transparent so they look smooth
- +	If two units attempt to gather the same resource, the second unit will now find a different resource or go home. For example: If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
 
 	Display WIP houses/units in statistics menu
 	Make units/houses highlight red when about to erase them as trees do (in MapEd)
-	Show correct number of players in SingleMap by scaning MapInfo
+	Save correct number of players in MapEd
 	Dots and lines displaying on tile edges [Krom]
  
 	Colored rectangle below cursor	
-	MediaPlayer won't play mp3s and crash
+	MediaPlayer won't play some mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	See-through hills (lighting flaw)
 	Many texts will not change if I change the language in options menu

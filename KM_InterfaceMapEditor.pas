@@ -1079,10 +1079,10 @@ end;
 
 procedure TKMapEdInterface.ShowHouseInfo(Sender:TKMHouse);
 begin
-  fShownUnit:=nil;
-  fShownHouse:=Sender;
+  fShownUnit  := nil;
+  fShownHouse := Sender;
 
-  if (not Assigned(Sender)) then begin //=nil produces wrong result when there's no object at all
+  if not Assigned(Sender) then begin //=nil produces wrong result when there's no object at all?
     SwitchPage(nil);
     exit;
   end;
@@ -1270,7 +1270,10 @@ begin
   if AButton = mbRight then Amt:=50;
   if Sender = Button_HouseHealthDec then fShownHouse.AddDamage(Amt);
   if Sender = Button_HouseHealthInc then fShownHouse.AddRepair(Amt);
-  ShowHouseInfo(fShownHouse);
+  if fShownHouse.IsDestroyed then
+    ShowHouseInfo(nil)
+  else
+    ShowHouseInfo(fShownHouse);
 end;
 
 
