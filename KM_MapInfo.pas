@@ -14,6 +14,7 @@ type
     fMissionMode:TKMissionMode; //Fighting or Build-a-City map
     fPlayerCount:byte;
     fMapSize:string; //S,M,L,XL
+    fMapCRC:cardinal;
     VictoryCond:string;
     DefeatCond:string;
     fSmallDesc:string;
@@ -71,7 +72,7 @@ begin
 
   //We will scan map once again if anything has changed
   if FileExists(KMMapNameToPath(fFolder,'dat')) then
-  if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or (fVersion <> SAVE_VERSION) {or HashChanged} then
+  if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or (fVersion <> SAVE_VERSION) {or HashChanged} then //todo: add CRC check here
   begin
     fDatSize := GetFileSize(KMMapNameToPath(fFolder,'dat'));
     fMissionParser := TMissionParser.Create(mpm_Game);
@@ -83,6 +84,7 @@ begin
       VictoryCond    := MissionDetails.VictoryCond;
       DefeatCond     := MissionDetails.DefeatCond;
       fMapSize       := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
+      fMapCRC        := Adler32CRC(KMMapNameToPath(fFolder,'dat')) xor Adler32CRC(KMMapNameToPath(fFolder,'map'));
 
       SaveToFile(KMMapNameToPath(fFolder,'tmp')); //Save new TMP file
     finally
@@ -121,6 +123,7 @@ begin
     VictoryCond   := '';
     DefeatCond    := '';
     fMapSize      := '';
+    fMapCRC       := 0;
     exit;
   end;
   S := TKMemoryStream.Create;
@@ -133,6 +136,7 @@ begin
     S.Read(VictoryCond);
     S.Read(DefeatCond);
     S.Read(fMapSize);
+    S.Read(fMapCRC);
   finally
     S.Free;
   end;
@@ -151,6 +155,7 @@ begin
     S.Write(VictoryCond);
     S.Write(DefeatCond);
     S.Write(fMapSize);
+    S.Write(fMapCRC);
     S.SaveToFile(aPath);
   finally
     S.Free;

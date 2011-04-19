@@ -5,7 +5,7 @@ unit KromUtils;
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
 uses
-  Controls, Dialogs, ExtCtrls, Forms, Math, SysUtils
+  Controls, Dialogs, ExtCtrls, Forms, Math, SysUtils, Classes
   {$IFDEF MSWindows} ,Windows, MMSystem, ShellApi {$ENDIF}
   {$IFDEF FPC} ,UTF8Process, LazHelpHTML {$ENDIF}
   {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
@@ -85,7 +85,8 @@ function Abs2Z(AbsoluteValue,SizeX:integer):integer;
 
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
 function MakePOT(num:integer):integer;
-function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal;
+function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
+function Adler32CRC(const aPath:string):cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function PseudoRandom(aMax:cardinal):cardinal;
@@ -520,6 +521,32 @@ begin
   A := A mod 65521; //65521 (the largest prime number smaller than 2^16)
   B := B mod 65521;
   Adler32CRC := B + A shl 16; //reverse order for smaller numbers
+end;
+
+
+function Adler32CRC(const aPath:string):cardinal;
+var S:TMemoryStream; i,A,B:cardinal;
+begin
+  Result := 0;
+
+  if not FileExists(aPath) then exit;
+
+  S := TMemoryStream.Create;
+  try
+    S.LoadFromFile(aPath);
+
+    A := 1;
+    B := 0; //A is initialized to 1, B to 0
+    //We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
+    for i:=0 to S.Size do begin
+      inc(A,pbyte(cardinal(S.Memory)+i)^);
+      B := (B + A) mod 65521; //65521 (the largest prime number smaller than 2^16)
+    end;
+    A := A mod 65521;
+    Result := B + A shl 16; //reverse order for smaller numbers
+  finally
+    S.Free;
+  end;
 end;
 
 
