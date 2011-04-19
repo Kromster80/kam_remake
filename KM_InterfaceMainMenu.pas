@@ -451,7 +451,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-var i:integer;
+var i,top:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
@@ -466,19 +466,20 @@ begin
         OnClick := Lobby_Ping;
 
       for i:=0 to MAX_PLAYERS-1 do begin
-        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, 30+i*25, 140, 20, '. ', fnt_Metal, kaLeft);
+        top := 30+i*25;
+        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top, 140, 20, '. ', fnt_Metal, kaLeft);
 
-        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, 30+i*25, 150, 20, fnt_Metal);
+        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 150, 20, fnt_Metal);
         DropBox_LobbyLoc[i].Items.Add('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, 30+i*25, 100, 20, MP_COLOR_COUNT);
+        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT);
         DropColorBox_Lobby[i].AddColors(MP_TEAM_COLORS);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 450+15, 30+i*25, 50, 20, '', fnt_Metal);
+        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 450, top, 50, 20, '', fnt_Metal);
 
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 510, 30+i*25, 40, 20, '', fnt_Metal, kaLeft);
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 510, top, 40, 20, '', fnt_Metal, kaLeft);
         Label_LobbyPing[i].Disable;
       end;
 
@@ -748,9 +749,9 @@ begin
     TKMLabel.Create(Panel_Credits,232,140,100,30,
     'PROGRAMMING:|Krom|Lewin||'+
     'ADDITIONAL PROGRAMMING:|Alex||'+
-    'FRENCH TRANSLATION:|Sylvain Domange||'+
-    'SLOVAK TRANSLATION:|Robert Marko||'+
-    'SPECIAL THANKS:|KaM Community members'
+    'ADDITIONAL GRAPHICS:|StarGazer||'+
+    'ADDITIONAL TRANSLATIONS:|French - Sylvain Domange|Slovak - Robert Marko||'+
+    'SPECIAL THANKS TO:|KaM Community members'
     ,fnt_Grey,kaCenter);
 
     TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,'Original Knights & Merchants Credits',fnt_Outline,kaCenter);
@@ -1326,12 +1327,15 @@ begin
 end;
 
 
+//todo: Fill in map info
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
-  //todo: Fill in map info
-  Label_LobbyMapName.Caption := aData;
+  Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Folder;
+  Label_LobbyMapCount.Caption := 'Players: ' + inttostr(fGame.Networking.MapInfo.PlayerCount);
+  Label_LobbyMapMode.Caption := 'Mode: ' + fGame.Networking.MapInfo.MissionModeText;
 
+  //Update starting locations
   DropText := 'Random' + eol;
   for i:=1 to fGame.Networking.MapInfo.PlayerCount do
     DropText := DropText + 'Location ' + inttostr(i) + eol;
@@ -1339,10 +1343,9 @@ begin
   for i:=0 to MAX_PLAYERS-1 do
     DropBox_LobbyLoc[i].Items.Text := DropText;
 
-  Label_LobbyMapCount.Caption := 'Players: '+inttostr(fGame.Networking.MapInfo.PlayerCount);
 
   //todo: Keep disabled if Map does not matches Hosts or missing
-  Button_LobbyReady.Enable;
+  Button_LobbyReady.Enabled := fGame.Networking.MapInfo.IsValid;
 end;
 
 
@@ -1507,7 +1510,7 @@ procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
   MyControls.MouseMove(X,Y,Shift);
   if MyControls.CtrlOver is TKMEdit then // Show "CanEdit" cursor
-    Screen.Cursor := c_Edit  //todo: Make our own 'Writing' cursor using textures from other cursors
+    Screen.Cursor := c_Edit
   else
     Screen.Cursor := c_Default;
 
