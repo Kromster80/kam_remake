@@ -31,7 +31,7 @@ On/Off switch for unit (citizen) interaction
 Roadsigns objects, buildable?
 They will feature some short texts on them
 
-Add new house: LookoutTower
+Add new house: Lookout tower
 Sight range = 20+
 Owner=recruit
 Reveals FOW while owner is inside
