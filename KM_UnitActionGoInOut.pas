@@ -106,12 +106,11 @@ begin
 end;
 
 
-//Attempt to find a tile below the door (on the street) we can walk to.
-//Otherwise we can push idle units away.
-//todo: return best tile (without idling units)
+//Attempt to find a tile below the door (on the street) we can walk to
+//We can push idle units away. Check center first
 function TUnitActionGoInOut.FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
 begin
-  if ValidTileToGo(aLoc.X, aLoc.Y, aUnit) then   Result := be_Center
+  if ValidTileToGo(aLoc.X, aLoc.Y, aUnit)   then Result := be_Center
   else
   if ValidTileToGo(aLoc.X-1, aLoc.Y, aUnit) then Result := be_Left
   else
@@ -134,8 +133,9 @@ begin
   if (fTerrain.Land[aLocY, aLocX].IsUnit <> nil) then
   begin
     U := fTerrain.UnitsHitTest(aLocX, aLocY); //Let's see who is standing there
-    Result := (U <> nil) and (U.GetUnitAction is TUnitActionStay)
-                             and (not TUnitActionStay(U.GetUnitAction).Locked);
+    Result := (U <> nil) and
+              (U.GetUnitAction is TUnitActionStay) and
+              (not TUnitActionStay(U.GetUnitAction).Locked);
     if Result then
       U.SetActionWalkPushed( fTerrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk) );
   end;
