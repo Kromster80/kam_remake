@@ -97,7 +97,7 @@ type
       procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
       procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
       procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
-      procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
+      procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:cardinal);
       procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
       procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
       procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
@@ -796,25 +796,23 @@ begin
 end;
 
 
-procedure TRender.RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
-var ShiftX,ShiftY:single; ID,AnimCount:integer; i:integer; Arr:array[0..24]of integer;
+procedure TRender.RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:cardinal);
+var AnimCount,ID:cardinal; i:byte; ShiftX,ShiftY:single;
 begin
-  if AnimType<>0 then
+  if AnimType=0 then exit;
+
+  for i:=1 to Length(HouseDAT[Index].Anim) do
+  if AnimType and (1 shl i) = (1 shl i) then
   begin
-  ConvertSetToArray(AnimType, @Arr);
-  for i:=1 to Arr[0] do
+    AnimCount := HouseDAT[Index].Anim[i].Count;
+    if AnimCount<>0 then
     begin
-      AnimType:=Arr[i];
-      AnimCount:=HouseDAT[Index].Anim[AnimType].Count;
-      if AnimCount<>0 then
-        begin
-          ID:=HouseDAT[Index].Anim[AnimType].Step[AnimStep mod AnimCount + 1]+1;
-          ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-          ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-          ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CELL_SIZE_PX;
-          ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CELL_SIZE_PX;
-          AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
-        end;
+      ID := HouseDAT[Index].Anim[i].Step[AnimStep mod AnimCount + 1]+1;
+      ShiftX := RXData[2].Pivot[ID].x/CELL_SIZE_PX;
+      ShiftY := (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+      ShiftX := ShiftX+HouseDAT[Index].Anim[i].MoveX/CELL_SIZE_PX;
+      ShiftY := ShiftY+HouseDAT[Index].Anim[i].MoveY/CELL_SIZE_PX;
+      AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
     end;
   end;
 end;

@@ -77,7 +77,6 @@ function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 function Abs2X(AbsoluteValue,SizeX:integer):integer;
 function Abs2Z(AbsoluteValue,SizeX:integer):integer;
 
-procedure ConvertSetToArray(iSet:integer; Ar:pointer);
 function MakePOT(num:integer):integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
 function Adler32CRC(const aPath:string):cardinal; overload;
@@ -305,22 +304,6 @@ begin
   R := Col AND $FF;
   G := Col AND $FF00 SHR 8;
   B := Col AND $FF0000 SHR 16;
-end;
-
-
-procedure ConvertSetToArray(iSet:integer; Ar:pointer);
-var i,k:cardinal; A:^integer;
-begin
-  k:=1;
-  for i:=1 to 24 do
-    if iSet and pow(2,i) = pow(2,i) then
-      begin
-        A:=pointer(cardinal(Ar)+k*4);
-        A^:=i;
-        inc(k);
-      end;
-  A:=pointer(cardinal(Ar));
-  A^:=k-1;
 end;
 
 
