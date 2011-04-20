@@ -90,7 +90,7 @@ type
     procedure StopLobby;
     procedure Disconnect;
     function  Connected: boolean;
-    procedure MapSelect(aName:string);
+    procedure SelectMap(aName:string);
     procedure SelectLoc(aIndex:integer);
     procedure SelectColor(aIndex:integer);
     procedure ReadyToStart;
@@ -191,10 +191,10 @@ end;
 
 procedure TKMNetworking.StopLobby;
 begin
-  if fLANPlayerKind = lpk_Host then
-    PacketToAll(mk_HostDisconnect);
-  if fLANPlayerKind = lpk_Joiner then
-    PacketToHost(mk_Disconnect,fMyNikname);
+  case fLANPlayerKind of
+    lpk_Host:   PacketToAll(mk_HostDisconnect);
+    lpk_Joiner: PacketToHost(mk_Disconnect, fMyNikname);
+  end;
 end;
 
 
@@ -221,22 +221,20 @@ end;
 
 //Tell other players which map we will be using
 //Players will reset their starting locations and "Ready" status on their own
-procedure TKMNetworking.MapSelect(aName:string);
+procedure TKMNetworking.SelectMap(aName:string);
 begin
   Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
 
-  fMapInfo.Load(aName);
+  fMapInfo.Load(aName, true);
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
   if not fMapInfo.IsValid then exit;
 
-  PacketToAll(mk_MapSelect, fMapInfo.Folder);
+  PacketToAll(mk_MapSelect, fMapInfo.Folder); //todo: Send map name and CRC
   fNetPlayers[fMyIndex].ReadyToStart := true;
-  //PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
 
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
   if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
-  //Compare map availability and CRC
 end;
 
 
@@ -471,7 +469,7 @@ begin
 
     mk_MapSelect:
             if fLANPlayerKind = lpk_Joiner then begin
-              fMapInfo.Load(Msg);
+              fMapInfo.Load(Msg, true);
               fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);

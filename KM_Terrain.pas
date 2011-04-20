@@ -2488,12 +2488,9 @@ var i,k,h,j:integer;
 begin
   inc(fAnimStep);
 
-  for i:=1 to FallingTrees.Count do
-  if fAnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then begin
+  for i:=FallingTrees.Count downto 1 do
+  if fAnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then
     fTerrain.ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
-    break; //Remove only 1 tree at a time, otherwise FallingTrees.Count is becoming wrong
-    //it loads it from the MapElem now in case someone adds a tree with a different falling count
-  end;
 
   for i:=1 to MapY do
   for k:=1 to MapX do

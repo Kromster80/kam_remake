@@ -1247,7 +1247,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
-  fGame.Networking.MapSelect(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
+  fGame.Networking.SelectMap(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
 end;
 
 

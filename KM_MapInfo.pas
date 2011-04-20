@@ -9,6 +9,7 @@ type
   TKMapInfo = class
   private
     fFolder:string; //Map folder
+    fStrict:boolean; //Use strict map checking, important for MP
     fDatSize:integer;
     fVersion:string;
     fMissionMode:TKMissionMode; //Fighting or Build-a-City map
@@ -23,9 +24,10 @@ type
     procedure SaveToFile(const aPath:string);
   public
     BigDesc:string;
-    procedure Load(const aFolder:string);
+    procedure Load(const aFolder:string; aStrict:boolean);
     property Folder:string read fFolder;
     function IsValid:boolean;
+    property CRC:cardinal read fMapCRC;
     property MissionMode:TKMissionMode read fMissionMode;
     property PlayerCount:byte read fPlayerCount;
     property MapSize:string read fMapSize;
@@ -53,9 +55,10 @@ uses KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
 { TKMapInfo }
-procedure TKMapInfo.Load(const aFolder:string);
+procedure TKMapInfo.Load(const aFolder:string; aStrict:boolean);
 begin
   fFolder := aFolder;
+  fStrict := aStrict;
   ScanMap;
 end;
 
@@ -71,8 +74,13 @@ begin
   LoadFromFile(KMMapNameToPath(fFolder,'tmp')); //Data will be empty if failed
 
   //We will scan map once again if anything has changed
+  //In SP mode we check DAT size and version, that is enough
+  //In MP mode we also need exact CRCs to match maps between players
   if FileExists(KMMapNameToPath(fFolder,'dat')) then
-  if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or (fVersion <> SAVE_VERSION) {or HashChanged} then //todo: add CRC check here
+  if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or
+     (fVersion <> SAVE_VERSION) or
+     (fStrict and (fMapCRC <> Adler32CRC(KMMapNameToPath(fFolder,'dat')) xor Adler32CRC(KMMapNameToPath(fFolder,'map'))))
+  then
   begin
     fDatSize := GetFileSize(KMMapNameToPath(fFolder,'dat'));
     fMissionParser := TMissionParser.Create(mpm_Game);
@@ -212,7 +220,7 @@ end;
 procedure TKMapsCollection.ScanMapsFolder;
 var SearchRec:TSearchRec; i:integer;
 begin
-  for i:=0 to fCount-1 do 
+  for i:=0 to fCount-1 do
     FreeAndNil(fMaps[fCount-1]);
 
   fCount := 0;
@@ -229,7 +237,7 @@ begin
       inc(fCount);
       SetLength(fMaps, fCount);
       fMaps[fCount-1] := TKMapInfo.Create;
-      fMaps[fCount-1].Load(SearchRec.Name);
+      fMaps[fCount-1].Load(SearchRec.Name, false);
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
