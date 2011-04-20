@@ -54,12 +54,6 @@ function Min(const A,B,C: single):single; overload;
 function Max(const A,B,C: integer):integer; overload;
 function Max(const A,B,C: single):single; overload;
 
-function Ceil(const X: Extended):Integer;
-function ArcCos(const X: Extended): Extended;
-function ArcSin(const X: Extended): Extended;
-function ArcTan2(const Y, X: Extended): Extended;
-function Pow(const Base, Exponent: integer): integer;
-
   function GetLengthSQR(ix,iy,iz:integer): integer; //Length without SQRT
   function GetLength(ix,iy,iz:single): single; overload;
   function GetLength(ix:Vector3f): single; overload;
@@ -314,43 +308,6 @@ begin
 end;
 
 
-function Ceil(const X: Extended): Integer;
-begin
-  Result := Integer(Trunc(X));
-  if Frac(X) > 0 then
-    Inc(Result);
-end;
-
-function ArcCos(const X: Extended): Extended;
-begin
-  Result := ArcTan2(Sqrt(1 - X * X), X);
-end;
-
-function ArcSin(const X: Extended): Extended;
-begin
-  Result := ArcTan2(X, Sqrt(1 - X * X))
-end;
-
-function ArcTan2(const Y, X: Extended): Extended;
-asm
-        FLD     Y
-        FLD     X
-        FPATAN
-        FWAIT
-end;
-
-function Pow(const Base, Exponent: integer): integer;
-begin
-  if Exponent = 0 then
-    Result := 1               { n**0 = 1 }
-  else
-  if (Base = 0) and (Exponent > 0) then
-    Result := 0               { 0**n = 0, n > 0 }
-  else
-    Result := round(IntPower(Base, Exponent))
-end;
-
-
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
 var i,k:cardinal; A:^integer;
 begin
@@ -367,9 +324,10 @@ begin
 end;
 
 
+//Return closest bigger PowerOfTwo number
 function MakePOT(num:integer):integer;
 begin
-  num := num - 1; //Took this rather smart code from Net
+  num := num - 1;
   num := num OR (num SHR 1);
   num := num OR (num SHR 2);
   num := num OR (num SHR 4);

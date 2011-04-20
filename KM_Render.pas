@@ -8,7 +8,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, glut, {$ENDIF}
   Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Menus, Buttons,
-  dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
+  dglOpenGL, sysutils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
@@ -568,10 +568,10 @@ begin
     glColor4f(0,1,0,0.25);
     for i:=y1 to y2 do for k:=x1 to x2 do
       {$IFDEF WDC}
-      if word(fTerrain.Land[i,k].Passability) AND Pow(2,Passability) = Pow(2,Passability) then
+      if word(fTerrain.Land[i,k].Passability) AND (1 shl Passability) = (1 shl Passability) then
       {$ENDIF}
       {$IFDEF FPC} //Can't accept word
-      if integer(fTerrain.Land[i,k].Passability) AND Pow(2,Passability) = Pow(2,Passability) then
+      if integer(fTerrain.Land[i,k].Passability) AND (1 shl Passability) = (1 shl Passability) then
       {$ENDIF}
         RenderQuad(k,i);
   end;
