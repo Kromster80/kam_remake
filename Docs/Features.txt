@@ -1,12 +1,11 @@
-
 	Single-player AI
 	Map Editor
-	LAN multiplayer
+	WAN multiplayer 
 
-	Internet multiplayer
+   LAN multiplayer
 	Random map generator
 	Support custom campaigns
-	Multiplayer lobby chat
+ +	Multiplayer lobby    
 	Select units/houses by shape, instead of tiles they stand on
 
 	Improved AI scripting [Lewin]
@@ -14,7 +13,6 @@
 	Lookout tower [Krom]
 	Replays manager
 	Add hotkeys for armies that player can assign (Ctrl+1,2,etc)
-
 
 2nd Fighting Demo (r1345) - 31.12.2010:
  +	Lots of bugfixes [Krom/Lewin]
