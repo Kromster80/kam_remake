@@ -7,9 +7,6 @@ uses
   Classes, Controls, Forms, StdCtrls,
   KM_Server, KM_Client;
 
-const
-  MULTIPLE_COPIES: boolean = true; //Are we running mutliple copies on the one PC to test?
-
 type
   TfrmNetTest = class(TForm)
     edtSend: TEdit;
@@ -26,15 +23,16 @@ type
     procedure btnHostClick(Sender: TObject);
     procedure btnJoinClick(Sender: TObject);
   private
-    fServer:TKMServer;
-    fClient: TKMClient;
+    fServer:TKMServerControl;
+    fClient: TKMClientControl;
   public
-    procedure GetData(const aData:string);
+    procedure GetData(const S:string);
   end;
 
 
-var
-  frmNetTest: TfrmNetTest;
+const KAM_PORT = '56789'; //We can decide on something official later
+
+var frmNetTest: TfrmNetTest;
 
 
 implementation
@@ -50,9 +48,9 @@ begin
 end;
 
 
-procedure TfrmNetTest.GetData(const aData:string);
+procedure TfrmNetTest.GetData(const S:string);
 begin
-  Memo1.Lines.Add(aData);
+  Memo1.Lines.Add(S);
 end;
 
 
@@ -64,18 +62,19 @@ end;
 
 procedure TfrmNetTest.btnHostClick(Sender: TObject);
 begin
-  fServer := TKMServer.Create;
-  fServer.OnRecievePacket := GetData;
-  fServer.StartListening;
+  fServer := TKMServerControl.Create;
+  fServer.OnStatusMessage := GetData;
+  fServer.StartListening(KAM_PORT);
   btnHost.Enabled := false;
 end;
 
 
 procedure TfrmNetTest.btnJoinClick(Sender: TObject);
 begin
-  fClient := TKMClient.Create;
-  fClient.OnRecievePacket := GetData;
-  fClient.ConnectTo(edtServer.Text);
+  fClient := TKMClientControl.Create;
+  fClient.OnStatusMessage := GetData;
+  fClient.OnRecieveStr := GetData;
+  fClient.ConnectTo(edtServer.Text, KAM_PORT);
   btnJoin.Enabled := false;
   btnSend.Enabled := true;
 end;

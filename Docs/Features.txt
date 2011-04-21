@@ -2,7 +2,7 @@
 	Map Editor
 	WAN multiplayer 
 
-   LAN multiplayer
+	LAN multiplayer
 	Random map generator
 	Support custom campaigns
  +	Multiplayer lobby    

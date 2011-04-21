@@ -1,86 +1,97 @@
 unit KM_Client;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, WSocket, WinSock;
+uses Classes, SysUtils, KM_ClientOverbyte;
 
-
-const KAM_PORT = '56789';
-
-
-type TRecievePacketEvent = procedure (const aData:string) of object;
 
 type
-  TKMClient = class
+  TKMClientControl = class
   private
-    fSocket:TWSocket;
-    fOnRecievePacket:TRecievePacketEvent;
-    procedure Connected(Sender: TObject; Error: Word);
-    procedure DataAvailable(Sender: TObject; Error: Word);
+    fClient:TKMClient;
+    fConnected:boolean;
+    fOnStatusMessage:TGetStrProc;
+    fOnRecieveStr:TGetStrProc;
+    procedure Error(const S: string);
+    procedure Connected(Sender: TObject);
+    procedure Disconnected(Sender: TObject);
+    procedure RecieveStr(const S: string);
   public
     constructor Create;
     destructor Destroy; override;
-    procedure ConnectTo(const aAddress:string);
+    procedure ConnectTo(const aAddress:string; const aPort:string);
+    procedure Disconnect;
     procedure SendText(const aData:string);
-    property OnRecievePacket:TRecievePacketEvent write fOnRecievePacket;
+    property OnStatusMessage:TGetStrProc write fOnStatusMessage;
+    property OnRecieveStr:TGetStrProc write fOnRecieveStr;
   end;
 
 
 implementation
 
 
-constructor TKMClient.Create;
-var wsaData: TWSAData;
+constructor TKMClientControl.Create;
 begin
-  Inherited Create;
-  if WSAStartup($101, wsaData) <> 0 then
-    Assert(false, 'Client: Error in Network');
+  Inherited;
+  fClient := TKMClient.Create;
+  fConnected := false;
 end;
 
 
-destructor TKMClient.Destroy;
+destructor TKMClientControl.Destroy;
 begin
-  fSocket.Free;
+  fClient.Free;
   Inherited;
 end;
 
 
-procedure TKMClient.ConnectTo(const aAddress:string);
+procedure TKMClientControl.Error(const S: string);
 begin
-  fSocket := TWSocket.Create(nil);
-  fSocket.Proto     := 'tcp';
-  fSocket.Addr      := aAddress;
-  fSocket.Port      := KAM_PORT;
-  //fSocket.LineMode  := TRUE;
-  //fSocket.LineEnd   := #13#10;
-  fSocket.OnSessionConnected := Connected;
-  fSocket.OnDataAvailable := DataAvailable;
-  fSocket.Connect;
-  fOnRecievePacket('Client: Connecting..');
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Error '+S);
 end;
 
 
-procedure TKMClient.SendText(const aData:string);
+procedure TKMClientControl.ConnectTo(const aAddress:string; const aPort:string);
 begin
-  fSocket.SendStr(aData);
+  fClient.OnError := Error;
+  fClient.OnSessionDisconnected := Disconnected;
+  fClient.OnSessionConnected := Connected;
+  fClient.OnRecieveStr := RecieveStr;
+  fClient.ConnectTo(aAddress, aPort);
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Connecting..');
+end;
+
+
+procedure TKMClientControl.Disconnect;
+begin
+  fClient.Disconnect;
+  fConnected := false;
+end;
+
+
+procedure TKMClientControl.SendText(const aData:string);
+begin
+  fClient.SendText(aData);
 end;
 
 
 //Recieve from anyone
-procedure TKMClient.Connected(Sender: TObject; Error: Word);
+procedure TKMClientControl.Connected(Sender: TObject);
 begin
-  if Error <> 0 then
-    fOnRecievePacket('Client: Can''t connect. Error #' + IntToStr(Error))
-  else
-    fOnRecievePacket('Client: Connected');
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Connected');
+  fConnected := true;
+end;
+
+
+procedure TKMClientControl.Disconnected(Sender: TObject);
+begin
+  fConnected := false;
 end;
 
 
 //Recieve from anyone
-procedure TKMClient.DataAvailable(Sender: TObject; Error: Word);
-var Msg:string;
+procedure TKMClientControl.RecieveStr(const S: string);
 begin
-  Msg := TWSocket(Sender).ReceiveStr;
-  fOnRecievePacket('Client: '+Msg);
+  fOnRecieveStr(S);
 end;
 
 

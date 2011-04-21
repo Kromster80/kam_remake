@@ -1,96 +1,97 @@
 unit KM_Server;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, WSocket, WSocketS, WinSock;
+uses Classes, SysUtils, KM_ServerOverbyte;
 
 
-const KAM_PORT2 = '56789'; //We can decide on something official later
-
-type TRecievePacketEvent = procedure (const aData:string) of object;
-
+{ For now KaM server has the simpliest structure - it allows all connections and repeats messages
+from one client to everyone else }
 type
-  TKMServer = class
+  TKMServerControl = class
   private
-    fClientID:cardinal;
-    fSocketRecieve:TWSocketServer;
-    fOnRecievePacket:TRecievePacketEvent;
-    procedure Connected(Sender: TObject; Client: TWSocketClient; Error: Word);
-    procedure DataAvailable(Sender: TObject; Error: Word);
+    fClientList:TList; //Remember our clients in list
+    fServer:TKMServer;
+    fOnStatusMessage:TGetStrProc;
+    procedure Error(const S: string);
+    procedure ClientConnect(aHandle:cardinal);
+    procedure ClientDisconnect(aHandle:cardinal);
+    procedure DataAvailable(aHandle:cardinal; const aData:string);
   public
     constructor Create;
     destructor Destroy; override;
-    procedure StartListening;
+    procedure StartListening(aPort:string);
     procedure StopListening;
-    property OnRecievePacket:TRecievePacketEvent write fOnRecievePacket;
+    property OnStatusMessage:TGetStrProc write fOnStatusMessage;
   end;
 
 
 implementation
 
 
-constructor TKMServer.Create;
-var wsaData: TWSAData;
+constructor TKMServerControl.Create;
 begin
-  Inherited Create;
-  fClientID := 0;
-  if WSAStartup($101, wsaData) <> 0 then
-    Assert(false, 'Server: Error in Network');
+  Inherited;
+  fClientList := TList.Create;
+  fServer := TKMServer.Create;
 end;
 
 
-destructor TKMServer.Destroy;
+destructor TKMServerControl.Destroy;
 begin
-  fSocketRecieve.Free;
+  fServer.Free;
+  fClientList.Free;
   Inherited;
 end;
 
 
-procedure TKMServer.StartListening;
+//There's an error in fServer, perhaps fatal for multiplayer.
+procedure TKMServerControl.Error(const S: string);
 begin
-  fSocketRecieve := TWSocketServer.Create(nil);
-  fSocketRecieve.Proto  := 'tcp';
-  fSocketRecieve.Addr   := '0.0.0.0'; //Listen to whole range
-  fSocketRecieve.Port   := KAM_PORT2;
-  //fSocketRecieve.LineMode  := TRUE;
-  //fSocketRecieve.LineEnd   := #13#10;
-  fSocketRecieve.OnClientConnect := Connected;
-  fSocketRecieve.OnDataAvailable := DataAvailable;
-  fSocketRecieve.Listen;
-  fOnRecievePacket('Server: Listening..');
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Error '+S);
 end;
 
 
-procedure TKMServer.StopListening;
+procedure TKMServerControl.StartListening(aPort:string);
 begin
-  if fSocketRecieve <> nil then fSocketRecieve.Close;
-  FreeAndNil(fSocketRecieve);
+  fServer.OnError := Error;
+  fServer.OnClientConnect := ClientConnect;
+  fServer.OnClientDisconnect := ClientDisconnect;
+  fServer.OnDataAvailable := DataAvailable;
+  fServer.StartListening(aPort);
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Listening..');
 end;
 
 
-//Recieve from anyone
-procedure TKMServer.Connected(Sender: TObject; Client: TWSocketClient; Error: Word);
+procedure TKMServerControl.StopListening;
 begin
-  if Error <> 0 then
-    fOnRecievePacket('Server: Can''t connect. Error #' + IntToStr(Error))
-  else
-    fOnRecievePacket('Server: Client connected');
-
-  Client.OnDataAvailable := DataAvailable;
-  inc(fClientID);
-  Client.Tag := fClientID;
+  fServer.StopListening;
 end;
 
 
-//Recieve from anyone
-procedure TKMServer.DataAvailable(Sender: TObject; Error: Word);
-var i:Integer; Msg:string;
+//Someone has connected to us. We can use supplied Handle to negotiate
+procedure TKMServerControl.ClientConnect(aHandle:cardinal);
 begin
-  Msg := TWSocket(Sender).ReceiveStr;
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
+  fClientList.Add(pointer(aHandle));
+end;
 
-  //fOnRecievePacket('Server: repeating "'+Msg+'"');
 
-  for i:=0 to fSocketRecieve.ClientCount-1 do
-    fSocketRecieve.Client[i].SendStr(inttostr(TWSocket(Sender).Tag)+' said: "'+Msg+'"');
+//Someone has disconnected from us. We can use supplied Handle to negotiate
+procedure TKMServerControl.ClientDisconnect(aHandle:cardinal);
+begin
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
+  fClientList.Remove(pointer(aHandle));
+end;
+
+
+//Someone has send us something
+//For now just repeat the message to everyone including Sender (to calculate ping)
+procedure TKMServerControl.DataAvailable(aHandle:cardinal; const aData:string);
+var i:Integer;
+begin
+  for i:=0 to fClientList.Count-1 do
+    //if aHandle<>cardinal(fClientList.Items[i]) then
+      fServer.SendData(cardinal(fClientList.Items[i]), aData);
 end;
 
 
