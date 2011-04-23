@@ -405,11 +405,11 @@ begin
                        MyStr := RemoveQuotes(TextParam);
                        //Check for same filename.map in same folder first - Remake format
                        if CheckFileExists(ChangeFileExt(OpenedMissionName,'.map'),true) then
-                         fTerrain.OpenMapFromFile(ChangeFileExt(OpenedMissionName,'.map'))
+                         fTerrain.LoadFromFile(ChangeFileExt(OpenedMissionName,'.map'))
                        else
                        //Check for KaM format map path
                        if CheckFileExists(ExeDir+MyStr,true) then
-                         fTerrain.OpenMapFromFile(ExeDir+MyStr)
+                         fTerrain.LoadFromFile(ExeDir+MyStr)
                        else
                        begin
                          //Else abort loading and fail

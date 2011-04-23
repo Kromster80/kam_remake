@@ -63,7 +63,7 @@ TTerrain = class
     constructor Create;
     destructor Destroy; override;
     procedure MakeNewMap(Width,Height:integer);
-    function OpenMapFromFile(FileName:string):boolean;
+    function LoadFromFile(FileName:string):boolean;
 
     procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
@@ -241,7 +241,7 @@ begin
     IsVertexUnit := vu_None;
     FieldAge     := 0;
     TreeAge      := 0;
-    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge:=TreeAgeFull;
+    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge := TreeAgeFull;
     Border       := bt_None;
     BorderTop    := false;
     BorderLeft   := false;
@@ -257,48 +257,51 @@ begin
 end;
 
 
-function TTerrain.OpenMapFromFile(FileName:string):boolean;
+function TTerrain.LoadFromFile(FileName:string):boolean;
 var
   i,k:integer;
-  c:array[1..23]of byte;
-  f:file;
+  S:TKMemoryStream;
+  NewX,NewY:integer;
 begin
-  Result:=false;
+  Result := false;
   if not CheckFileExists(FileName) then exit;
   fLog.AppendLog('Loading map file');
-  AssignFile(f,FileName);
-  FileMode := 0;
-  Reset(f,1);
-  FileMode := 2;
-  blockread(f,k,4);
-  blockread(f,i,4);
-  fLog.AssertToLog((k<=MAX_MAP_SIZE)and(i<=MAX_MAP_SIZE),'Can''t open the map cos it has too big dimensions');
-  MapX:=k;
-  MapY:=i;
-  MakeNewMap(MapX,MapY); //Reset whole map to default
-  for i:=1 to MapY do for k:=1 to MapX do
-    begin
-      blockread(f,c,23);
-      Land[i,k].Terrain:=c[1];
-      Land[i,k].Height:=c[3];
-      Land[i,k].Rotation:=c[4];
-      Land[i,k].Obj:=c[6];
-      if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge:=1;
-      if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge:=TreeAge1;
-      if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge:=TreeAge2;
-      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge:=TreeAgeFull;
 
+  S := TKMemoryStream.Create;
+  try
+    S.LoadFromFile(FileName);
+    S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
+    S.Read(NewY);
+    Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
+    MapX := NewX;
+    MapY := NewY;
+    MakeNewMap(MapX, MapY); //Reset whole map to default
+    for i:=1 to MapY do for k:=1 to MapX do
+    begin
+      S.Read(Land[i,k].Terrain); //1
+      S.Seek(1, soFromCurrent);
+      S.Read(Land[i,k].Height); //3
+      S.Read(Land[i,k].Rotation); //4
+      S.Seek(1, soFromCurrent);
+      S.Read(Land[i,k].Obj); //6
+      S.Seek(17, soFromCurrent);
+      if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge := 1;
+      if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge := TreeAge1;
+      if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge := TreeAge2;
+      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge := TreeAgeFull;
       //Everything else is default
-      //Land[i,k].Passability:=[];
-      //Land[i,k].TileOwner:=play_none; //no roads
     end;
-closefile(f);
-RebuildLighting(1,MapX,1,MapY);
-RebuildPassability(1,MapX,1,MapY);
-RebuildWalkConnect(wcWalk);
-RebuildWalkConnect(wcFish);
-fLog.AppendLog('Map file loaded');
-Result:=true;
+  finally
+    S.Free;
+  end;
+
+  RebuildLighting(1,MapX,1,MapY);
+  RebuildPassability(1,MapX,1,MapY);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcFish);
+  fLog.AppendLog('Map file loaded');
+
+  Result := true;
 end;
 
 
