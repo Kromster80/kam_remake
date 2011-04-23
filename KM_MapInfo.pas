@@ -65,36 +65,38 @@ end;
 
 procedure TKMapInfo.ScanMap;
 var
-  st:string;
+  st,DatFile,MapFile:string;
   ft:textfile;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
   fMissionParser:TMissionParser;
 begin
-  LoadFromFile(KMMapNameToPath(fFolder,'tmp')); //Data will be empty if failed
+  DatFile := KMMapNameToPath(fFolder, 'dat');
+  MapFile := KMMapNameToPath(fFolder, 'map');
+  LoadFromFile(KMMapNameToPath(fFolder, 'mi')); //Data will be empty if failed
 
   //We will scan map once again if anything has changed
   //In SP mode we check DAT size and version, that is enough
   //In MP mode we also need exact CRCs to match maps between players
-  if FileExists(KMMapNameToPath(fFolder,'dat')) then
-  if (fDatSize <> GetFileSize(KMMapNameToPath(fFolder,'dat'))) or
+  if FileExists(DatFile) then
+  if (fDatSize <> GetFileSize(DatFile)) or
      (fVersion <> SAVE_VERSION) or
-     (fStrict and (fMapCRC <> Adler32CRC(KMMapNameToPath(fFolder,'dat')) xor Adler32CRC(KMMapNameToPath(fFolder,'map'))))
+     (fStrict and (fMapCRC <> Adler32CRC(DatFile) xor Adler32CRC(MapFile)))
   then
   begin
-    fDatSize := GetFileSize(KMMapNameToPath(fFolder,'dat'));
+    fDatSize := GetFileSize(DatFile);
     fMissionParser := TMissionParser.Create(mpm_Game);
     try
-      MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(fFolder,'dat'));
-      MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(fFolder,'map'));
+      MissionDetails := fMissionParser.GetMissionDetails(DatFile);
+      MapDetails     := fMissionParser.GetMapDetails(MapFile);
       fMissionMode   := MissionDetails.MissionMode;
       fPlayerCount   := MissionDetails.TeamCount;
       VictoryCond    := MissionDetails.VictoryCond;
       DefeatCond     := MissionDetails.DefeatCond;
       fMapSize       := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
-      fMapCRC        := Adler32CRC(KMMapNameToPath(fFolder,'dat')) xor Adler32CRC(KMMapNameToPath(fFolder,'map'));
+      fMapCRC        := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
 
-      SaveToFile(KMMapNameToPath(fFolder,'tmp')); //Save new TMP file
+      SaveToFile(KMMapNameToPath(fFolder, 'mi')); //Save new TMP file
     finally
       fMissionParser.Free;
     end;
@@ -104,9 +106,9 @@ begin
   BigDesc        := '';
 
   //Load additional text info
-  if FileExists(KMMapNameToPath(fFolder,'txt')) then
+  if FileExists(KMMapNameToPath(fFolder, 'txt')) then
   begin
-    AssignFile(ft, KMMapNameToPath(fFolder,'txt'));
+    AssignFile(ft, KMMapNameToPath(fFolder, 'txt'));
     FileMode := 0;
     Reset(ft);
     FileMode := 2;
