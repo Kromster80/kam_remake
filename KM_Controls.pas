@@ -1166,7 +1166,8 @@ end;
 procedure TKMColorSwatch.AddColors(aColors:array of TColor4);
 begin
   SetLength(Colors, Length(aColors));
-  CopyMemory(@Colors[0], @aColors[0], SizeOf(aColors));
+  //CopyMemory(@Colors[0], @aColors[0], SizeOf(aColors));
+  Move((@aColors[0])^, (@Colors[0])^, SizeOf(aColors));
 end;
 
 
