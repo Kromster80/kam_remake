@@ -702,7 +702,7 @@ const
   SD_SEND                   = 1;  { Use this one for graceful close }
   SD_BOTH                   = 2;
 {$ENDIF}
-{$IFDEF WIN32}
+{$IFDEF MSWindows}
   winsocket  = 'wsock32.dll';      { 32 bits TCP/IP system DLL }
   winsocket2 = 'ws2_32.dll';       { 32 bits TCP/IP system DLL version 2}
 {$ELSE}
