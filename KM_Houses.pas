@@ -95,6 +95,7 @@ type
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property GetOwner:TPlayerID read fOwner;
     function GetHealth:word;
+    property RepairID: integer read fRepairID write fRepairID;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;

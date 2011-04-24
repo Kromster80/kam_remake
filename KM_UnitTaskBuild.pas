@@ -839,6 +839,7 @@ begin
            Thought := th_None;
            fPlayers.Player[byte(GetOwner)].BuildList.CloseHouseRepair(BuildID);
            BuildID := 0;
+           fHouse.RepairID := 0;
            SetActionStay(1,ua_Walk);
          end;
       else Result := TaskDone;
