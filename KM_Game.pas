@@ -385,7 +385,8 @@ begin
   else
   begin
     fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
-    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS);
+    fPlayers := TKMPlayersCollection.Create;
+    fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[1];
   end;
 
@@ -673,12 +674,13 @@ begin
       exit;
     end;
     FreeAndNil(fMissionParser);
-    fPlayers.Count := MAX_PLAYERS; //Enable them all for editing
+    fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
     fLog.AppendLog('DAT Loaded');
     fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
-    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS); //Create MAX players
+    fPlayers := TKMPlayersCollection.Create;
+    fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[1];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
     fGameName := 'New Mission';
@@ -919,8 +921,8 @@ begin
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
-    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS);
-    MyPlayer := fPlayers.Player[1];
+    fPlayers := TKMPlayersCollection.Create;
+    MyPlayer := fPlayers.Player[1]; //todo: Check if this is required
 
     //Load the data into the game
     fTerrain.Load(LoadStream);
