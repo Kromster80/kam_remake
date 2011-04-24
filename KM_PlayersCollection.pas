@@ -121,6 +121,7 @@ IDs are importants for player identification (units ownership and etc..)
 Alliance info works with IDs
 Goals need to check if player exists, cleaning goals may break win/defeat conditions
 (e.g. play_2 must stay alive for someones victory)
+Conclusion: we just ommit (do not load) players data and leave everything else intact
 
 When MapEditor removes a player it wants to remove it completely, leaving no trace
 Only problem is with menu - will it be smart enough to handle this? }
