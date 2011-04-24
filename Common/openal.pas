@@ -63,7 +63,7 @@ uses
 { $ DEFINE ALUT} //define ALUT to use alut.dll
 
 const
-{$IFDEF Win32}
+{$IFDEF MSWindows}
   callibname='OpenAL32.dll';
   calutlibname='Alut.dll';
 {$ENDIF}
