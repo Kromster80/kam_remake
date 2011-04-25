@@ -137,7 +137,7 @@ type
 {$IFDEF CLR}
   TOutputDebugStringType = type String;
 {$ENDIF}
-{$IFDEF WIN32}
+{$IFDEF MSWindows}
   TOutputDebugStringType = PChar;
 {$ENDIF}
 

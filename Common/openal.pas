@@ -47,7 +47,7 @@ unit openal;
   {$DEFINE CPU386}
   {$ASMMODE INTEL}
  {$ENDIF}
- {$IFNDEF WIN32}
+ {$IFNDEF MSWindows}
   {$LINKLIB c}
  {$ENDIF}
 {$ENDIF}
@@ -57,13 +57,13 @@ interface
 uses
   Classes
   , SysUtils
-  {$IFDEF Win32},Windows{$ENDIF}
+  {$IFDEF MSWindows},Windows{$ENDIF}
   ;
 
 { $ DEFINE ALUT} //define ALUT to use alut.dll
 
 const
-{$IFDEF Win32}
+{$IFDEF MSWindows}
   callibname='OpenAL32.dll';
   calutlibname='Alut.dll';
 {$ENDIF}
@@ -1933,7 +1933,7 @@ const
   WAV_MP3       = $0055;
 
 {$IFDEF FPC}
-{$IFNDEF Win32}
+{$IFNDEF MSWindows}
 // Added by bero
 const
   RTLD_LAZY         = $001;
