@@ -116,15 +116,37 @@ begin
 end;
 
 
-{ When Multiplayer wants to remove the player - preserve all IDs/Alliances/Goals
-IDs are importants for player identification (units ownership and etc..)
-Alliance info works with IDs
-Goals need to check if player exists, cleaning goals may break win/defeat conditions
-(e.g. play_2 must stay alive for someones victory)
-Conclusion: we just ommit (do not load) players data and leave everything else intact
+{   There are 2 cases when we need to remove players:
 
-When MapEditor removes a player it wants to remove it completely, leaving no trace
-Only problem is with menu - will it be smart enough to handle this? }
+    When Multiplayer wants to skip/remove the player we have issues with: IDs/Terrain/Alliances/Goals
+- In multiplayer, mission loading may be already instructed to perform certain simple tasks
+(skip armies, skip houses other than Store) other tasks may be issued by Game (add wares, etc..)
+- IDs are importants for player identification (units ownership and etc..) if we alter IDs then we
+will need to go through all units and houses to change their IDs, thats doable
+- Terrain is already initialized with tile ownership (unless we told mission loader to skip certin
+players), but we can ge through all tiles as well
+- Alliance info works with IDs. It's easy to update too
+- Goals need to check if player exists, cleaning goals may break win/defeat conditions
+(e.g. play_2 must stay alive for someones victory, if we alter goals mission will become unbeatable,
+in other case mission will return Defeat immediately - that is better)
+- Connection between NetPlayers and Players lists is not straight anyway
+Conclusion: IDs are alias for starting locations, not players order in game. We might want to ommit
+(do not load) players data and leave everything else intact.
+
+    When MapEditor removes a player, before saving a map, it wants to remove it completely, leaving
+no trace. Since IDs are alias for starting locations we need to pack them (1348 -> 1234). Later on,
+on map loading, players will be stuffed to MAX_PLAYERS
+- IDs, update all units and houses owners
+- Alliances, update
+- Goals, remove goals for missing players. We can show warnings before save on erroneous goals anyway
+- Terrain, what to do with tile ownership, roads? (thats is pretty rare case, presumably happening
+by mistake)
+- Problem with the menu - will it be smart enough to handle suddenly changed players layout?
+
+In the end we have alliances and goals set/depending between starting locations, and players are
+choosing which location they want to use, with all its assets and properties.
+}
+
 procedure TKMPlayersCollection.RemovePlayer(aIndex:integer; a);
 var i:integer;
 begin
