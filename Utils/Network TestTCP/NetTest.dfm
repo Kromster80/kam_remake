@@ -4,7 +4,7 @@ object frmNetTest: TfrmNetTest
   BorderStyle = bsSingle
   Caption = 'KM_Network Test'
   ClientHeight = 385
-  ClientWidth = 277
+  ClientWidth = 343
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -88,5 +88,25 @@ object frmNetTest: TfrmNetTest
     Width = 253
     Height = 247
     TabOrder = 5
+  end
+  object btnStop: TButton
+    Left = 270
+    Top = 12
+    Width = 63
+    Height = 19
+    Caption = 'Stop'
+    Enabled = False
+    TabOrder = 6
+    OnClick = btnStopClick
+  end
+  object btnQuit: TButton
+    Left = 270
+    Top = 36
+    Width = 63
+    Height = 19
+    Caption = 'Quit'
+    Enabled = False
+    TabOrder = 7
+    OnClick = btnQuitClick
   end
 end

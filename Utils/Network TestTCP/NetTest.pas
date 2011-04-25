@@ -18,15 +18,21 @@ type
     btnJoin: TButton;
     Memo1: TMemo;
     Label1: TLabel;
+    btnStop: TButton;
+    btnQuit: TButton;
     procedure FormDestroy(Sender: TObject);
     procedure btnSendClick(Sender: TObject);
     procedure btnHostClick(Sender: TObject);
     procedure btnJoinClick(Sender: TObject);
+    procedure btnStopClick(Sender: TObject);
+    procedure btnQuitClick(Sender: TObject);
   private
     fServer:TKMServerControl;
     fClient: TKMClientControl;
   public
     procedure GetData(const S:string);
+    procedure Foo(Sender: TObject);
+    procedure Bar(const S:string);
   end;
 
 
@@ -54,6 +60,18 @@ begin
 end;
 
 
+procedure TfrmNetTest.Foo(Sender: TObject);
+begin
+  //
+end;
+
+
+procedure TfrmNetTest.Bar(const S:string);
+begin
+  //
+end;
+
+
 procedure TfrmNetTest.btnSendClick(Sender: TObject);
 begin
   fClient.SendText(edtSend.Text);
@@ -66,23 +84,39 @@ begin
   fServer.OnStatusMessage := GetData;
   fServer.StartListening(KAM_PORT);
   btnHost.Enabled := false;
+  btnStop.Enabled := true;
 end;
 
 
 procedure TfrmNetTest.btnJoinClick(Sender: TObject);
 begin
   fClient := TKMClientControl.Create;
+  fClient.OnConnectSucceed := Foo;
+  fClient.OnConnectFailed := Bar;
+  fClient.OnForcedDisconnect := Bar;
+  fClient.OnRecieveText := GetData;
   fClient.OnStatusMessage := GetData;
-  fClient.OnRecieveStr := GetData;
   fClient.ConnectTo(edtServer.Text, KAM_PORT);
   btnJoin.Enabled := false;
   btnSend.Enabled := true;
+  btnQuit.Enabled := true;
 end;
 
 
-{$IFDEF FPC}
-initialization
-{$I NetTest.lrs}
-{$ENDIF}
+procedure TfrmNetTest.btnStopClick(Sender: TObject);
+begin
+  fServer.StopListening;
+  btnHost.Enabled := true;
+  btnStop.Enabled := false;
+end;
+
+
+procedure TfrmNetTest.btnQuitClick(Sender: TObject);
+begin
+  fClient.Disconnect;
+  btnJoin.Enabled := true;
+  btnSend.Enabled := false;
+  btnQuit.Enabled := false;
+end;
 
 end.

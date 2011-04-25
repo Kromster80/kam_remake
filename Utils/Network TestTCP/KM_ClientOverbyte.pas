@@ -12,7 +12,8 @@ type
   private
     fSocket:TWSocket;
     fOnError:TGetStrProc;
-    fOnSessionConnected:TNotifyEvent;
+    fOnConnectSucceed:TNotifyEvent;
+    fOnConnectFailed:TGetStrProc;
     fOnSessionDisconnected:TNotifyEvent;
     fOnRecieveStr:TGetStrProc;
     procedure Connected(Sender: TObject; Error: Word);
@@ -25,7 +26,8 @@ type
     procedure Disconnect;
     procedure SendText(const aData:string);
     property OnError:TGetStrProc write fOnError;
-    property OnSessionConnected:TNotifyEvent write fOnSessionConnected;
+    property OnConnectSucceed:TNotifyEvent write fOnConnectSucceed;
+    property OnConnectFailed:TGetStrProc write fOnConnectFailed;
     property OnSessionDisconnected:TNotifyEvent write fOnSessionDisconnected;
     property OnRecieveStr:TGetStrProc write fOnRecieveStr;
   end;
@@ -38,8 +40,7 @@ constructor TKMClient.Create;
 var wsaData: TWSAData;
 begin
   Inherited Create;
-  if WSAStartup($101, wsaData) <> 0 then
-    fOnError('Error in Network');
+  Assert(WSAStartup($101, wsaData) = 0, 'Error in Network');
 end;
 
 
@@ -79,9 +80,9 @@ end;
 procedure TKMClient.Connected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
-    fOnError('Client: Connection error #' + IntToStr(Error))
+    fOnConnectFailed('Error #' + IntToStr(Error))
   else
-    fOnSessionConnected(Self);
+    fOnConnectSucceed(Self);
 end;
 
 
