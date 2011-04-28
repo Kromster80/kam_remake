@@ -10,7 +10,7 @@ uses Classes, SysUtils, KM_ClientOverbyte;
     - signal if we have successfully connected to server
     - signal if we could not connect to server
 
-    - disconnect from server
+    - disconnect from server (always successfull)
     - signal if we were forcefully disconnected by server
 
     - send binary data to other server clients
@@ -28,13 +28,13 @@ type
     fOnConnectSucceed:TNotifyEvent;
     fOnConnectFailed:TGetStrProc;
     fOnForcedDisconnect:TGetStrProc;
-    fOnRecieveText:TGetStrProc;
+    fOnRecieveData:TNotifyDataEvent;
     fOnStatusMessage:TGetStrProc;
     procedure Error(const S: string);
     procedure ConnectSucceed(Sender: TObject);
     procedure ConnectFailed(const S: string);
     procedure ForcedDisconnect(Sender: TObject);
-    procedure RecieveText(const S: string);
+    procedure RecieveData(aData:pointer; aLength:cardinal);
   public
     constructor Create;
     destructor Destroy; override;
@@ -47,7 +47,8 @@ type
     property OnForcedDisconnect:TGetStrProc write fOnForcedDisconnect; //Signal we were forcelly disconnected
 
     procedure SendText(const aData:string); //For now we use just plain text
-    property OnRecieveText:TGetStrProc write fOnRecieveText;
+    property OnRecieveData:TNotifyDataEvent write fOnRecieveData;
+    procedure SendData(aData:pointer; aLength:cardinal);
 
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
   end;
@@ -83,7 +84,7 @@ begin
   fClient.OnConnectSucceed := ConnectSucceed;
   fClient.OnConnectFailed := ConnectFailed;
   fClient.OnSessionDisconnected := ForcedDisconnect;
-  fClient.OnRecieveStr := RecieveText;
+  fClient.OnRecieveData := RecieveData;
   fClient.ConnectTo(aAddress, aPort);
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Connecting..');
 end;
@@ -129,14 +130,34 @@ end;
 
 procedure TKMClientControl.SendText(const aData:string);
 begin
-  fClient.SendText(aData);
+  SendData(@aData[1], length(aData));
 end;
 
 
-procedure TKMClientControl.RecieveText(const S: string);
+procedure TKMClientControl.SendData(aData:pointer; aLength:cardinal);
 begin
-  //Parse the data
-  fOnRecieveText(S);
+  fClient.SendData(@aLength, SizeOf(aLength));
+  fClient.SendData(aData, aLength);
+  fClient.SendData(@aLength, SizeOf(aLength)); //Fail-check
+end;
+
+
+//Split recieved data into single packets
+//todo: handle partial chunks
+procedure TKMClientControl.RecieveData(aData:pointer; aLength:cardinal);
+var ReadCount,PacketLength,Check:Cardinal;
+begin
+  ReadCount := 0;
+  while (aLength > ReadCount) do
+  begin
+    PacketLength := PCardinal(Cardinal(aData)+ReadCount)^;
+    inc(ReadCount, 4);
+    fOnRecieveData(Pointer(Cardinal(aData)+ReadCount), PacketLength);
+    inc(ReadCount, PacketLength);
+    Check := PInteger(Cardinal(aData)+ReadCount)^;
+    inc(ReadCount, 4);
+    Assert(PacketLength=Check);
+  end;
 end;
 
 

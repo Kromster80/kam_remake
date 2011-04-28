@@ -8,8 +8,8 @@ uses Classes, SysUtils, WSocket, WSocketS, WinSock;
 doing all the low level work on TCP. So we can replace this unit with other TCP client
 without KaM even noticing. }
 type
-  THandleEvent = procedure (aHandle:cardinal) of object;
-  TDataAvailableEvent = procedure (aHandle:cardinal; const aData:string) of object;
+  THandleEvent = procedure (aHandle:integer) of object;
+  TNotifyDataEvent = procedure(aHandle:integer; aData:pointer; aLength:cardinal)of object;
 
   TKMServer = class
   private
@@ -17,7 +17,7 @@ type
     fOnError:TGetStrProc;
     fOnClientConnect:THandleEvent;
     fOnClientDisconnect:THandleEvent;
-    fOnDataAvailable:TDataAvailableEvent;
+    fOnDataAvailable:TNotifyDataEvent;
     procedure ClientConnect(Sender: TObject; Client: TWSocketClient; Error: Word);
     procedure ClientDisconnect(Sender: TObject; Client: TWSocketClient; Error: Word);
     procedure DataAvailable(Sender: TObject; Error: Word);
@@ -26,11 +26,11 @@ type
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
-    procedure SendData(aHandle:cardinal; const aData:string);
+    procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
-    property OnDataAvailable:TDataAvailableEvent write fOnDataAvailable;
+    property OnDataAvailable:TNotifyDataEvent write fOnDataAvailable;
   end;
 
 
@@ -59,6 +59,7 @@ begin
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range
   fSocketServer.Port   := aPort;
+  fSocketServer.Banner := '';
   fSocketServer.OnClientConnect := ClientConnect;
   fSocketServer.OnClientDisconnect := ClientDisconnect;
   fSocketServer.OnDataAvailable := DataAvailable;
@@ -117,7 +118,8 @@ end;
 
 //We recieved data from someone
 procedure TKMServer.DataAvailable(Sender: TObject; Error: Word);
-var Msg:string;
+const BufferSize = 10240; //10kb
+var P:pointer; L:cardinal;
 begin
   if Error <> 0 then
   begin
@@ -125,15 +127,19 @@ begin
     exit;
   end;
 
-  Msg := TWSocket(Sender).ReceiveStr;
-
-  fOnDataAvailable(TWSocket(Sender).Tag, Msg);
+  GetMem(P, BufferSize);
+  L := TWSocket(Sender).Receive(P, BufferSize);
+  fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+  FreeMem(P);
 end;
 
 
-procedure TKMServer.SendData(aHandle:cardinal; const aData:string);
+procedure TKMServer.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
+var i:integer;
 begin
-  fSocketServer.Client[aHandle].SendStr(aData);
+  for i:=0 to fSocketServer.ClientCount-1 do
+    if fSocketServer.Client[i].Tag = aHandle then
+      fSocketServer.Client[i].Send(aData, aLength);
 end;
 
 

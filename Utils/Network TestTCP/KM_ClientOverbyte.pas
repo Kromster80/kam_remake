@@ -8,6 +8,8 @@ uses Classes, SysUtils, WSocket, WinSock;
 doing all the low level work on TCP. So we can replace this unit with other TCP client
 without KaM even noticing. }
 type
+  TNotifyDataEvent = procedure(aData:pointer; aLength:cardinal)of object;
+
   TKMClient = class
   private
     fSocket:TWSocket;
@@ -15,7 +17,7 @@ type
     fOnConnectSucceed:TNotifyEvent;
     fOnConnectFailed:TGetStrProc;
     fOnSessionDisconnected:TNotifyEvent;
-    fOnRecieveStr:TGetStrProc;
+    fOnRecieveData:TNotifyDataEvent;
     procedure Connected(Sender: TObject; Error: Word);
     procedure Disconnected(Sender: TObject; Error: Word);
     procedure DataAvailable(Sender: TObject; Error: Word);
@@ -24,12 +26,12 @@ type
     destructor Destroy; override;
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
-    procedure SendText(const aData:string);
+    procedure SendData(aData:pointer; aLength:cardinal);
     property OnError:TGetStrProc write fOnError;
     property OnConnectSucceed:TNotifyEvent write fOnConnectSucceed;
     property OnConnectFailed:TGetStrProc write fOnConnectFailed;
     property OnSessionDisconnected:TNotifyEvent write fOnSessionDisconnected;
-    property OnRecieveStr:TGetStrProc write fOnRecieveStr;
+    property OnRecieveData:TNotifyDataEvent write fOnRecieveData;
   end;
 
 
@@ -70,13 +72,12 @@ begin
 end;
 
 
-procedure TKMClient.SendText(const aData:string);
+procedure TKMClient.SendData(aData:pointer; aLength:cardinal);
 begin
-  fSocket.SendStr(aData);
+  fSocket.Send(aData, aLength);
 end;
 
 
-//Recieve from anyone
 procedure TKMClient.Connected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
@@ -86,7 +87,6 @@ begin
 end;
 
 
-//Recieve from anyone
 procedure TKMClient.Disconnected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
@@ -96,12 +96,14 @@ begin
 end;
 
 
-//Recieve from anyone
 procedure TKMClient.DataAvailable(Sender: TObject; Error: Word);
-var Msg:string;
+const BufferSize = 10240; //10kb
+var P:pointer; L:cardinal;
 begin
-  Msg := TWSocket(Sender).ReceiveStr;
-  fOnRecieveStr(Msg);
+  GetMem(P, BufferSize);
+  L := TWSocket(Sender).Receive(P, BufferSize);
+  fOnRecieveData(P, L);
+  FreeMem(P);
 end;
 
 

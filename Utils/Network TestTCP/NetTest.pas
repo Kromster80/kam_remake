@@ -30,7 +30,8 @@ type
     fServer:TKMServerControl;
     fClient: TKMClientControl;
   public
-    procedure GetData(const S:string);
+    procedure GetData(aData:pointer; aLength:cardinal);
+    procedure GetStatusMsg(const S:string);
     procedure Foo(Sender: TObject);
     procedure Bar(const S:string);
   end;
@@ -54,7 +55,15 @@ begin
 end;
 
 
-procedure TfrmNetTest.GetData(const S:string);
+procedure TfrmNetTest.GetData(aData:pointer; aLength:cardinal);
+var S:string;
+begin
+  SetString(S, PAnsiChar(aData), aLength);
+  Memo1.Lines.Add(S);
+end;
+
+
+procedure TfrmNetTest.GetStatusMsg(const S:string);
 begin
   Memo1.Lines.Add(S);
 end;
@@ -73,7 +82,9 @@ end;
 
 
 procedure TfrmNetTest.btnSendClick(Sender: TObject);
+var i:integer;
 begin
+  for i:=1 to 1 do
   fClient.SendText(edtSend.Text);
 end;
 
@@ -81,10 +92,19 @@ end;
 procedure TfrmNetTest.btnHostClick(Sender: TObject);
 begin
   fServer := TKMServerControl.Create;
-  fServer.OnStatusMessage := GetData;
+  fServer.OnStatusMessage := GetStatusMsg;
   fServer.StartListening(KAM_PORT);
   btnHost.Enabled := false;
   btnStop.Enabled := true;
+end;
+
+
+procedure TfrmNetTest.btnStopClick(Sender: TObject);
+begin
+  fServer.StopListening;
+  fServer.Free;
+  btnHost.Enabled := true;
+  btnStop.Enabled := false;
 end;
 
 
@@ -94,8 +114,8 @@ begin
   fClient.OnConnectSucceed := Foo;
   fClient.OnConnectFailed := Bar;
   fClient.OnForcedDisconnect := Bar;
-  fClient.OnRecieveText := GetData;
-  fClient.OnStatusMessage := GetData;
+  fClient.OnRecieveData := GetData;
+  fClient.OnStatusMessage := GetStatusMsg;
   fClient.ConnectTo(edtServer.Text, KAM_PORT);
   btnJoin.Enabled := false;
   btnSend.Enabled := true;
@@ -103,20 +123,14 @@ begin
 end;
 
 
-procedure TfrmNetTest.btnStopClick(Sender: TObject);
-begin
-  fServer.StopListening;
-  btnHost.Enabled := true;
-  btnStop.Enabled := false;
-end;
-
-
 procedure TfrmNetTest.btnQuitClick(Sender: TObject);
 begin
   fClient.Disconnect;
+  fClient.Free;
   btnJoin.Enabled := true;
   btnSend.Enabled := false;
   btnQuit.Enabled := false;
 end;
+
 
 end.

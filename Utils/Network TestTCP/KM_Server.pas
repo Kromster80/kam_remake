@@ -4,8 +4,15 @@ interface
 uses Classes, SysUtils, KM_ServerOverbyte;
 
 
-{ For now KaM server has the simpliest structure - it allows all connections and repeats messages
-from one client to everyone else }
+{ Contains basic items we need for smooth Net experience:
+
+    - start the server
+    - stop the server
+
+    - optionaly report non-important status messages
+
+  Everything except that whould be handled by Host (kick players, etc..)
+}
 type
   TKMServerControl = class
   private
@@ -13,9 +20,9 @@ type
     fServer:TKMServer;
     fOnStatusMessage:TGetStrProc;
     procedure Error(const S: string);
-    procedure ClientConnect(aHandle:cardinal);
-    procedure ClientDisconnect(aHandle:cardinal);
-    procedure DataAvailable(aHandle:cardinal; const aData:string);
+    procedure ClientConnect(aHandle:integer);
+    procedure ClientDisconnect(aHandle:integer);
+    procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
   public
     constructor Create;
     destructor Destroy; override;
@@ -69,7 +76,7 @@ end;
 
 
 //Someone has connected to us. We can use supplied Handle to negotiate
-procedure TKMServerControl.ClientConnect(aHandle:cardinal);
+procedure TKMServerControl.ClientConnect(aHandle:integer);
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
   fClientList.Add(pointer(aHandle));
@@ -77,7 +84,7 @@ end;
 
 
 //Someone has disconnected from us. We can use supplied Handle to negotiate
-procedure TKMServerControl.ClientDisconnect(aHandle:cardinal);
+procedure TKMServerControl.ClientDisconnect(aHandle:integer);
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
   fClientList.Remove(pointer(aHandle));
@@ -86,12 +93,12 @@ end;
 
 //Someone has send us something
 //For now just repeat the message to everyone including Sender (to calculate ping)
-procedure TKMServerControl.DataAvailable(aHandle:cardinal; const aData:string);
-var i:Integer;
+procedure TKMServerControl.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
+var i:integer;
 begin
   for i:=0 to fClientList.Count-1 do
     //if aHandle<>cardinal(fClientList.Items[i]) then
-      fServer.SendData(cardinal(fClientList.Items[i]), aData);
+      fServer.SendData(cardinal(fClientList.Items[i]), aData, aLength);
 end;
 
 

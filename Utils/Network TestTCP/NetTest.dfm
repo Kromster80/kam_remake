@@ -87,6 +87,7 @@ object frmNetTest: TfrmNetTest
     Top = 126
     Width = 253
     Height = 247
+    ScrollBars = ssVertical
     TabOrder = 5
   end
   object btnStop: TButton
