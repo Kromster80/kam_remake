@@ -37,7 +37,8 @@ type
   end;
 
 
-const KAM_PORT = '56789'; //We can decide on something official later
+const
+    KAM_PORT = '56789'; //We can decide on something official later
 
 var frmNetTest: TfrmNetTest;
 
@@ -50,8 +51,8 @@ implementation
 
 procedure TfrmNetTest.FormDestroy(Sender: TObject);
 begin
-  if fServer<>nil then fServer.Free;
   if fClient<>nil then fClient.Free;
+  if fServer<>nil then fServer.Free;
 end;
 
 

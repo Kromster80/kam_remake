@@ -14,6 +14,7 @@ type
   TKMServer = class
   private
     fSocketServer:TWSocketServer;
+    fLastTag:integer;
     fOnError:TGetStrProc;
     fOnClientConnect:THandleEvent;
     fOnClientDisconnect:THandleEvent;
@@ -41,6 +42,7 @@ constructor TKMServer.Create;
 var wsaData: TWSAData;
 begin
   Inherited Create;
+  fLastTag := 0;
   if WSAStartup($101, wsaData) <> 0 then
     fOnError('Error in Network');
 end;
@@ -76,7 +78,6 @@ end;
 
 //Someone has connected to us
 procedure TKMServer.ClientConnect(Sender: TObject; Client: TWSocketClient; Error: Word);
-var i:integer;
 begin
   if Error <> 0 then
   begin
@@ -85,11 +86,8 @@ begin
   end;
 
   //Identify index of the Client, so we could address it
-  Client.Tag := -1;
-  for i:=0 to fSocketServer.ClientCount-1 do
-    if Client = fSocketServer.Client[i] then
-      Client.Tag := i;
-  Assert(Client.Tag <> -1);
+  inc(fLastTag);
+  Client.Tag := fLastTag;
 
   Client.OnDataAvailable := DataAvailable;
   fOnClientConnect(Client.Tag);
@@ -97,20 +95,12 @@ end;
 
 
 procedure TKMServer.ClientDisconnect(Sender: TObject; Client: TWSocketClient; Error: Word);
-var i:integer;
 begin
   if Error <> 0 then
   begin
     fOnError('ClientConnect. Error #' + IntToStr(Error));
     exit;
   end;
-
-  //Identify index of the Client, so we could address it
-  Client.Tag := -1;
-  for i:=0 to fSocketServer.ClientCount-1 do
-    if Client = fSocketServer.Client[i] then
-      Client.Tag := i;
-  Assert(Client.Tag <> -1);
 
   fOnClientDisconnect(Client.Tag);
 end;
