@@ -124,6 +124,7 @@ begin
 end;
 
 
+//Make sure we send data to specified client
 procedure TKMServer.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
 var i:integer;
 begin
