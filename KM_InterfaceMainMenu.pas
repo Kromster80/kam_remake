@@ -58,26 +58,25 @@ type
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
 
-    procedure LAN_Host(Sender: TObject);
-    procedure LAN_Join(Sender: TObject);
-    procedure LAN_JoinSucc(Sender: TObject);
+    procedure LAN_Update(const aStatus:string);
+    procedure LAN_HostClick(Sender: TObject);
+    procedure LAN_JoinClick(Sender: TObject);
+    procedure LAN_JoinSuccess(Sender: TObject);
     procedure LAN_JoinFail(const aData:string);
     procedure LAN_BindEvents(aKind:TLANPlayerKind);
-    procedure LAN_Update(const aData:string);
-    procedure LAN_Fill;
     procedure LAN_Save_Settings;
 
-    procedure Lobby_BackClick(Sender: TObject);
     procedure Lobby_Reset(Sender: TObject);
-    procedure Lobby_PostKey(Sender: TObject; Key: Word);
-    procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
+    procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_Ping(Sender: TObject);
     procedure Lobby_OnPing(Sender: TObject);
-    procedure Lobby_OnMessage(const aData:string);
-    procedure Lobby_OnPlayersSetup(Sender: TObject);
+    procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
+    procedure Lobby_PostKey(Sender: TObject; Key: Word);
+    procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnDisconnect(const aData:string);
+    procedure Lobby_BackClick(Sender: TObject);
     procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
 
@@ -436,12 +435,12 @@ begin
       TKMLabel.Create(Panel_LANLogin2, 100, 80, 100, 20, 'Your IP address is:', fnt_Metal, kaCenter);
       Label_LAN_IP := TKMLabel.Create(Panel_LANLogin2, 100, 105, 100, 20, '0.0.0.0', fnt_Outline, kaCenter);
       Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 50, 140, 100, 30, 'Host', fnt_Metal, bsMenu);
-      Button_LAN_Host.OnClick := LAN_Host;
+      Button_LAN_Host.OnClick := LAN_HostClick;
 
       TKMLabel.Create(Panel_LANLogin2, 300, 80, 100, 20, 'Set partners IP address:', fnt_Metal, kaCenter);
       Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 250, 105, 100, 20, fnt_Grey);
       Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 250, 140, 100, 30, 'Join', fnt_Metal, bsMenu);
-      Button_LAN_Join.OnClick := LAN_Join;
+      Button_LAN_Join.OnClick := LAN_JoinClick;
 
       Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 180, 100, 20, ' ... ', fnt_Outline, kaCenter);
 
@@ -889,16 +888,15 @@ begin
   {Show LAN login}
   if Sender=Button_MP_LAN then begin
     LAN_Update('Ready');
-    LAN_Fill;
     Panel_LANLogin.Show;
   end;
 
   { Lobby }
   if (Sender=Button_LAN_Host) or (Sender=Button_LAN_Join) then begin
+    LAN_Save_Settings;
     Lobby_Reset(Sender);
     MyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
-    LAN_Save_Settings;
   end;
 
   {Show MapEditor menu}
@@ -1117,28 +1115,26 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.LAN_Update(const aData:string);
+//Update LAN connection settings and info (Nikname, server IP, own IP)
+procedure TKMMainMenuInterface.LAN_Update(const aStatus:string);
 var s:string;
-begin
-  s := fGame.Networking.MyIPString;
+begin  
+  //Load connection settings                                    
+  Edit_LAN_Name.Text := fGame.GlobalSettings.MultiplayerName;
+  Edit_LAN_IP.Text := fGame.GlobalSettings.MultiplayerIP;
 
+  s := fGame.Networking.MyIPString;
   Button_LAN_Host.Enabled := s<>'';
   Button_LAN_Join.Enable;
 
   if s <> '' then Label_LAN_IP.Caption := s
              else Label_LAN_IP.Caption := 'Unknown';
 
-  Label_LAN_Status.Caption := aData;
+  Label_LAN_Status.Caption := aStatus;
 end;
 
 
-procedure TKMMainMenuInterface.LAN_Fill;
-begin
-  Edit_LAN_Name.Text := fGame.GlobalSettings.MultiplayerName;
-  Edit_LAN_IP.Text := fGame.GlobalSettings.MultiplayerIP;
-end;
-
-
+//Save connection settings when user leaves LAN_Login page
 procedure TKMMainMenuInterface.LAN_Save_Settings;
 begin
   fGame.GlobalSettings.MultiplayerName := Edit_LAN_Name.Text;
@@ -1146,7 +1142,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.LAN_Host(Sender: TObject);
+procedure TKMMainMenuInterface.LAN_HostClick(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
@@ -1157,7 +1153,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.LAN_Join(Sender: TObject);
+procedure TKMMainMenuInterface.LAN_JoinClick(Sender: TObject);
 begin
   //Disable buttons to prevent multiple clicks while connection process is in progress
   Button_LAN_Host.Disable;
@@ -1166,13 +1162,13 @@ begin
 
   //Send request to join
   fGame.Networking.Join(Edit_LAN_IP.Text, Edit_LAN_Name.Text); //Init lobby
-  fGame.Networking.OnJoinSucc := LAN_JoinSucc;
+  fGame.Networking.OnJoinSucc := LAN_JoinSuccess;
   fGame.Networking.OnJoinFail := LAN_JoinFail;
 end;
 
 
 //We had recieved permission to join
-procedure TKMMainMenuInterface.LAN_JoinSucc(Sender: TObject);
+procedure TKMMainMenuInterface.LAN_JoinSuccess(Sender: TObject);
 begin
   SwitchMenuPage(Button_LAN_Join); //Open lobby page
 
@@ -1198,21 +1194,12 @@ begin
   fGame.Networking.OnMapName      := Lobby_OnMapName;
   fGame.Networking.OnPing         := Lobby_OnPing;
   fGame.Networking.OnStartGame    := fGame.GameStartMP;
-
-  if aKind = lpk_Joiner then
-    fGame.Networking.OnDisconnect := Lobby_OnDisconnect;
+  //Host can be disconnected by Server as well (when e.g. Server fails)
+  fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
-begin
-  fGame.Networking.StopLobby;
-  fGame.Networking.Disconnect;
-  LAN_Update('You have disconnected');
-  SwitchMenuPage(Button_LobbyBack);
-end;
-
-
+//Reset everything to it's defaults depending on users role (Host/Joiner)
 procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject);
 var i:integer;
 begin
@@ -1221,49 +1208,20 @@ begin
 
   ListBox_LobbyPosts.Items.Clear;
   Edit_LobbyPost.Text := '';
-  Button_LobbyStart.Disable;
 
   if Sender = Button_LAN_Host then begin
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
     FileList_Lobby.ItemIndex := -1;
     FileList_Lobby.Show;
-    Button_LobbyReady.Hide; //Don't care if it's enabled or not
+    Button_LobbyReady.Hide;
+    Button_LobbyStart.Show;
+    Button_LobbyStart.Disable;
   end else begin
     FileList_Lobby.Hide;
     Button_LobbyReady.Show;
     Button_LobbyReady.Enable;
     Button_LobbyStart.Hide;
   end;
-end;
-
-
-procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
-begin
-  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
-  fGame.Networking.PostMessage(Edit_LobbyPost.Text);
-  Edit_LobbyPost.Text := '';
-end;
-
-
-procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
-begin
-  fGame.Networking.SelectMap(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
-end;
-
-
-procedure TKMMainMenuInterface.Lobby_Ping(Sender: TObject);
-begin
-  fGame.Networking.Ping;
-  fGame.Networking.OnPing := Lobby_OnPing;
-end;
-
-
-procedure TKMMainMenuInterface.Lobby_OnPing(Sender: TObject);
-var i:integer;
-begin
-  for i:=0 to MAX_PLAYERS-1 do
-  if fGame.Networking.Connected then
-    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].TimeTick{.Ping});
 end;
 
 
@@ -1327,6 +1285,28 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Lobby_Ping(Sender: TObject);
+begin
+  fGame.Networking.Ping;
+  fGame.Networking.OnPing := Lobby_OnPing;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_OnPing(Sender: TObject);
+var i:integer;
+begin
+  for i:=0 to MAX_PLAYERS-1 do
+  if fGame.Networking.Connected then
+    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].TimeTick{.Ping});
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
+begin
+  fGame.Networking.SelectMap(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
+end;
+
+
 //todo: Fill in map info
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
@@ -1349,6 +1329,15 @@ begin
 end;
 
 
+//Post what user has typed
+procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
+begin
+  if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
+  fGame.Networking.PostMessage(Edit_LobbyPost.Text);
+  Edit_LobbyPost.Text := '';
+end;
+
+
 procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
   ListBox_LobbyPosts.Items.Add(aData);
@@ -1357,11 +1346,20 @@ begin
 end;
 
 
-//We were disconnected from Host. Either we were kicked, or connection broke down
+//We were disconnected from Server. Either we were kicked, or connection broke down
 procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
   fGame.Networking.Disconnect;
   LAN_Update(aData);
+  SwitchMenuPage(Button_LobbyBack);
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
+begin
+  fGame.Networking.LeaveLobby;
+  fGame.Networking.Disconnect;
+  LAN_Update('You have disconnected');
   SwitchMenuPage(Button_LobbyBack);
 end;
 

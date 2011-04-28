@@ -87,7 +87,7 @@ type
     //Lobby
     procedure Host(aUserName:string);
     procedure Join(aServerAddress,aUserName:string);
-    procedure StopLobby;
+    procedure LeaveLobby;
     procedure Disconnect;
     function  Connected: boolean;
     procedure SelectMap(aName:string);
@@ -189,7 +189,7 @@ begin
 end;
 
 
-procedure TKMNetworking.StopLobby;
+procedure TKMNetworking.LeaveLobby;
 begin
   case fLANPlayerKind of
     lpk_Host:   PacketToAll(mk_HostDisconnect);
