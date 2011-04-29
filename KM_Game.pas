@@ -78,6 +78,8 @@ type
     function  ReplayExists:boolean;
     procedure ReplayView;
 
+    procedure NetworkInit;
+
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
@@ -85,7 +87,7 @@ type
     property GetGameName:string read fGameName;
     property GetCampaign:TCampaign read fActiveCampaign;
     property GetCampaignMap:byte read fActiveCampaignMap;
-    property MultiplayerMode:boolean read fMultiplayerMode; 
+    property MultiplayerMode:boolean read fMultiplayerMode;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;
@@ -137,7 +139,6 @@ begin
   fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource         := TResource.Create(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
-  fNetworking       := TKMNetworking.Create;
   fCampaignSettings := TCampaignSettings.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
@@ -152,6 +153,7 @@ begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
 
   FreeThenNil(fCampaignSettings);
+  if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGlobalSettings);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
@@ -740,6 +742,13 @@ begin
 
   RandSeed := 4; //Random after StartGame and ViewReplay should match
   fGameState := gsReplay;
+end;
+
+
+procedure TKMGame.NetworkInit;
+begin
+  if fNetworking=nil then
+    fNetworking := TKMNetworking.Create;
 end;
 
 

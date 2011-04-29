@@ -11,7 +11,6 @@ type
   private
     fAddress:string;
     fNikname:string;
-    fTimeTick:cardinal;
   public
     PlayerType:TPlayerType; //Human, Computer
     FlagColorID:integer; //Flag color, 0 means random
@@ -26,7 +25,6 @@ type
     function IsHuman:boolean;
     property Address:string read fAddress;
     property Nikname:string read fNikname;
-    property TimeTick:cardinal read fTimeTick write fTimeTick;
   end;
 
   //Handles everything related to players list,
@@ -42,20 +40,19 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aAddr,aNik:string; aTick:cardinal);
+    procedure AddPlayer(aAddr,aNik:string);
     procedure RemPlayer(aIndex:integer);
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
     //Getters
     function NiknameIndex(aNik:string):integer;
-    function CheckCanJoin(aAddr, aNik:string):string;
+    function CheckCanJoin(aNik:string):string;
     function LocAvailable(aIndex:integer):boolean;
     function ColorAvailable(aIndex:integer):boolean;
     function AllReady:boolean;
     function AllReadyToPlay:boolean;
 
     procedure ResetLocAndReady;
-    function DropMissing(aTick:cardinal):string;
     procedure DefineSetup(aMaxLoc:byte);
 
     //Import/Export
@@ -103,7 +100,7 @@ begin
 end;
 
 
-procedure TKMPlayersList.AddPlayer(aAddr,aNik:string; aTick:cardinal);
+procedure TKMPlayersList.AddPlayer(aAddr,aNik:string);
 begin
   inc(fCount);
   fPlayers[fCount].fAddress := aAddr;
@@ -114,7 +111,6 @@ begin
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;
   fPlayers[fCount].Alive := true;
-  fPlayers[fCount].TimeTick := aTick;
 end;
 
 
@@ -142,7 +138,7 @@ end;
 
 
 //See if player can join our game
-function TKMPlayersList.CheckCanJoin(aAddr, aNik:string):string;
+function TKMPlayersList.CheckCanJoin(aNik:string):string;
 begin
   if fCount >= MAX_PLAYERS then
     Result := 'No more players can join the game'
@@ -200,19 +196,6 @@ begin
     fPlayers[i].StartLocID := 0;
     fPlayers[i].ReadyToStart := false;
   end;
-end;
-
-
-function TKMPlayersList.DropMissing(aTick:cardinal):string;
-var i:integer;
-begin
-  Result := '';
-  for i:=fCount downto 2 do //Don't check Host
-    if aTick > fPlayers[i].fTimeTick then
-    begin
-      Result := Result + fPlayers[i].fNikname;
-      RemPlayer(i);
-    end;
 end;
 
 

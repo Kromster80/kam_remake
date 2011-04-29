@@ -27,6 +27,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
+  KAM_PORT              = '56789';      //Port used in TCP networking
+
   GAME_VERSION          = '2nd Fighting Demo r1580';       //Game version string displayed in menu corner
   SAVE_VERSION          = 'r1580';       //Should be updated for every release (each time save format is changed)
 

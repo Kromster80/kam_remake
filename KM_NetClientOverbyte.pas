@@ -24,6 +24,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    function MyIPString:string;  
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -53,6 +54,15 @@ begin
 end;
 
 
+function TKMNetClientOverbyte.MyIPString:string;
+begin
+  if LocalIPList.Count >= 1 then
+    Result := LocalIPList[0] //First address should be ours
+  else
+    Result := '';
+end;
+
+
 procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:string);
 begin
   fSocket := TWSocket.Create(nil);
@@ -68,7 +78,8 @@ end;
 
 procedure TKMNetClientOverbyte.Disconnect;
 begin
-  fSocket.Close;
+  if fSocket <> nil then
+    fSocket.Close;
 end;
 
 

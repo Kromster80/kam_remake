@@ -39,6 +39,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    property Connected:boolean read fConnected;
+    function MyIPString:string;
+
     procedure ConnectTo(const aAddress:string; const aPort:string); //Try to connect to server
     property OnConnectSucceed:TNotifyEvent write fOnConnectSucceed; //Signal success
     property OnConnectFailed:TGetStrProc write fOnConnectFailed; //Signal fail and text description
@@ -69,6 +72,12 @@ destructor TKMNetClient.Destroy;
 begin
   fClient.Free;
   Inherited;
+end;
+
+
+function TKMNetClient.MyIPString:string;
+begin
+  Result := fClient.MyIPString;
 end;
 
 
