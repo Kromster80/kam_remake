@@ -1,7 +1,7 @@
-unit KM_Client;
+unit KM_NetClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_ClientOverbyte;
+uses Classes, SysUtils, KM_NetClientOverbyte;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -20,9 +20,9 @@ uses Classes, SysUtils, KM_ClientOverbyte;
 
 }
 type
-  TKMClientControl = class
+  TKMNetClient = class
   private
-    fClient:TKMClient;
+    fClient:TKMNetClientOverbyte;
     fConnected:boolean;
 
     fOnConnectSucceed:TNotifyEvent;
@@ -57,28 +57,28 @@ type
 implementation
 
 
-constructor TKMClientControl.Create;
+constructor TKMNetClient.Create;
 begin
   Inherited;
-  fClient := TKMClient.Create;
+  fClient := TKMNetClientOverbyte.Create;
   fConnected := false;
 end;
 
 
-destructor TKMClientControl.Destroy;
+destructor TKMNetClient.Destroy;
 begin
   fClient.Free;
   Inherited;
 end;
 
 
-procedure TKMClientControl.Error(const S: string);
+procedure TKMNetClient.Error(const S: string);
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Error '+S);
 end;
 
 
-procedure TKMClientControl.ConnectTo(const aAddress:string; const aPort:string);
+procedure TKMNetClient.ConnectTo(const aAddress:string; const aPort:string);
 begin
   fClient.OnError := Error;
   fClient.OnConnectSucceed := ConnectSucceed;
@@ -90,7 +90,7 @@ begin
 end;
 
 
-procedure TKMClientControl.ConnectSucceed(Sender: TObject);
+procedure TKMNetClient.ConnectSucceed(Sender: TObject);
 begin
   fConnected := true;
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Connected');
@@ -98,7 +98,7 @@ begin
 end;
 
 
-procedure TKMClientControl.ConnectFailed(const S: string);
+procedure TKMNetClient.ConnectFailed(const S: string);
 begin
   fConnected := false;
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Connection failed. '+S);
@@ -106,7 +106,7 @@ begin
 end;
 
 
-procedure TKMClientControl.Disconnect;
+procedure TKMNetClient.Disconnect;
 begin
   fConnected := false;
   fClient.Disconnect;
@@ -117,7 +117,7 @@ end;
 //  - when we deliberately disconnect
 //  - when connection failed
 //  - when server disconnects us
-procedure TKMClientControl.ForcedDisconnect(Sender: TObject);
+procedure TKMNetClient.ForcedDisconnect(Sender: TObject);
 begin
   if fConnected then
   begin
@@ -128,13 +128,13 @@ begin
 end;
 
 
-procedure TKMClientControl.SendText(const aData:string);
+procedure TKMNetClient.SendText(const aData:string);
 begin
   SendData(@aData[1], length(aData));
 end;
 
 
-procedure TKMClientControl.SendData(aData:pointer; aLength:cardinal);
+procedure TKMNetClient.SendData(aData:pointer; aLength:cardinal);
 begin
   fClient.SendData(@aLength, SizeOf(aLength));
   fClient.SendData(aData, aLength);
@@ -144,7 +144,7 @@ end;
 
 //Split recieved data into single packets
 //todo: handle partial chunks
-procedure TKMClientControl.RecieveData(aData:pointer; aLength:cardinal);
+procedure TKMNetClient.RecieveData(aData:pointer; aLength:cardinal);
 var ReadCount,PacketLength,Check:Cardinal;
 begin
   ReadCount := 0;

@@ -1,4 +1,4 @@
-unit KM_ServerOverbyte;
+unit KM_NetServerOverbyte;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, WSocket, WSocketS, WinSock;
@@ -11,7 +11,7 @@ type
   THandleEvent = procedure (aHandle:integer) of object;
   TNotifyDataEvent = procedure(aHandle:integer; aData:pointer; aLength:cardinal)of object;
 
-  TKMServer = class
+  TKMNetServerOverbyte = class
   private
     fSocketServer:TWSocketServer;
     fLastTag:integer;
@@ -38,7 +38,7 @@ type
 implementation
 
 
-constructor TKMServer.Create;
+constructor TKMNetServerOverbyte.Create;
 var wsaData: TWSAData;
 begin
   Inherited Create;
@@ -48,14 +48,14 @@ begin
 end;
 
 
-destructor TKMServer.Destroy;
+destructor TKMNetServerOverbyte.Destroy;
 begin
   if fSocketServer<> nil then fSocketServer.Free;
   Inherited;
 end;
 
 
-procedure TKMServer.StartListening(aPort:string);
+procedure TKMNetServerOverbyte.StartListening(aPort:string);
 begin
   fSocketServer := TWSocketServer.Create(nil);
   fSocketServer.Proto  := 'tcp';
@@ -69,7 +69,7 @@ begin
 end;
 
 
-procedure TKMServer.StopListening;
+procedure TKMNetServerOverbyte.StopListening;
 begin
   if fSocketServer <> nil then fSocketServer.Close;
   FreeAndNil(fSocketServer);
@@ -77,7 +77,7 @@ end;
 
 
 //Someone has connected to us
-procedure TKMServer.ClientConnect(Sender: TObject; Client: TWSocketClient; Error: Word);
+procedure TKMNetServerOverbyte.ClientConnect(Sender: TObject; Client: TWSocketClient; Error: Word);
 begin
   if Error <> 0 then
   begin
@@ -94,7 +94,7 @@ begin
 end;
 
 
-procedure TKMServer.ClientDisconnect(Sender: TObject; Client: TWSocketClient; Error: Word);
+procedure TKMNetServerOverbyte.ClientDisconnect(Sender: TObject; Client: TWSocketClient; Error: Word);
 begin
   if Error <> 0 then
   begin
@@ -107,7 +107,7 @@ end;
 
 
 //We recieved data from someone
-procedure TKMServer.DataAvailable(Sender: TObject; Error: Word);
+procedure TKMNetServerOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const BufferSize = 10240; //10kb
 var P:pointer; L:cardinal;
 begin
@@ -125,7 +125,7 @@ end;
 
 
 //Make sure we send data to specified client
-procedure TKMServer.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
+procedure TKMNetServerOverbyte.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
 var i:integer;
 begin
   for i:=0 to fSocketServer.ClientCount-1 do

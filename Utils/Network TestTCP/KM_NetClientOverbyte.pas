@@ -1,4 +1,4 @@
-unit KM_ClientOverbyte;
+unit KM_NetClientOverbyte;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, WSocket, WinSock;
@@ -10,7 +10,7 @@ without KaM even noticing. }
 type
   TNotifyDataEvent = procedure(aData:pointer; aLength:cardinal)of object;
 
-  TKMClient = class
+  TKMNetClientOverbyte = class
   private
     fSocket:TWSocket;
     fOnError:TGetStrProc;
@@ -38,7 +38,7 @@ type
 implementation
 
 
-constructor TKMClient.Create;
+constructor TKMNetClientOverbyte.Create;
 var wsaData: TWSAData;
 begin
   Inherited Create;
@@ -46,14 +46,14 @@ begin
 end;
 
 
-destructor TKMClient.Destroy;
+destructor TKMNetClientOverbyte.Destroy;
 begin
   if fSocket<>nil then fSocket.Free;
   Inherited;
 end;
 
 
-procedure TKMClient.ConnectTo(const aAddress:string; const aPort:string);
+procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:string);
 begin
   fSocket := TWSocket.Create(nil);
   fSocket.Proto     := 'tcp';
@@ -66,19 +66,19 @@ begin
 end;
 
 
-procedure TKMClient.Disconnect;
+procedure TKMNetClientOverbyte.Disconnect;
 begin
   fSocket.Close;
 end;
 
 
-procedure TKMClient.SendData(aData:pointer; aLength:cardinal);
+procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
 begin
   fSocket.Send(aData, aLength);
 end;
 
 
-procedure TKMClient.Connected(Sender: TObject; Error: Word);
+procedure TKMNetClientOverbyte.Connected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
     fOnConnectFailed('Error #' + IntToStr(Error))
@@ -87,7 +87,7 @@ begin
 end;
 
 
-procedure TKMClient.Disconnected(Sender: TObject; Error: Word);
+procedure TKMNetClientOverbyte.Disconnected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
     fOnError('Client: Disconnection error #' + IntToStr(Error))
@@ -96,7 +96,7 @@ begin
 end;
 
 
-procedure TKMClient.DataAvailable(Sender: TObject; Error: Word);
+procedure TKMNetClientOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const BufferSize = 10240; //10kb
 var P:pointer; L:cardinal;
 begin

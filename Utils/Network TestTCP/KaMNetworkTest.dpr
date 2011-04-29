@@ -7,8 +7,8 @@ program KaMNetworkTest;
 uses
   Forms,
   NetTest in 'NetTest.pas',
-  KM_Client in 'KM_Client.pas',
-  KM_Server in 'KM_Server.pas';
+  KM_NetClient in 'KM_NetClient.pas',
+  KM_NetServer in 'KM_NetServer.pas';
 
 {frmNetTest}
 

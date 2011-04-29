@@ -5,7 +5,7 @@ interface
 uses
   {$IFDEF FPC} LResources, {$ENDIF}
   Classes, Controls, Forms, StdCtrls,
-  KM_Server, KM_Client;
+  KM_NetServer, KM_NetClient;
 
 type
   TfrmNetTest = class(TForm)
@@ -27,8 +27,8 @@ type
     procedure btnStopClick(Sender: TObject);
     procedure btnQuitClick(Sender: TObject);
   private
-    fServer:TKMServerControl;
-    fClient: TKMClientControl;
+    fNetServer:TKMNetServer;
+    fNetClient: TKMNetClient;
   public
     procedure GetData(aData:pointer; aLength:cardinal);
     procedure GetStatusMsg(const S:string);
@@ -51,8 +51,8 @@ implementation
 
 procedure TfrmNetTest.FormDestroy(Sender: TObject);
 begin
-  if fClient<>nil then fClient.Free;
-  if fServer<>nil then fServer.Free;
+  if fNetClient<>nil then fNetClient.Free;
+  if fNetServer<>nil then fNetServer.Free;
 end;
 
 
@@ -86,15 +86,15 @@ procedure TfrmNetTest.btnSendClick(Sender: TObject);
 var i:integer;
 begin
   for i:=1 to 1 do
-  fClient.SendText(edtSend.Text);
+  fNetClient.SendText(edtSend.Text);
 end;
 
 
 procedure TfrmNetTest.btnHostClick(Sender: TObject);
 begin
-  fServer := TKMServerControl.Create;
-  fServer.OnStatusMessage := GetStatusMsg;
-  fServer.StartListening(KAM_PORT);
+  fNetServer := TKMNetServer.Create;
+  fNetServer.OnStatusMessage := GetStatusMsg;
+  fNetServer.StartListening(KAM_PORT);
   btnHost.Enabled := false;
   btnStop.Enabled := true;
 end;
@@ -102,8 +102,8 @@ end;
 
 procedure TfrmNetTest.btnStopClick(Sender: TObject);
 begin
-  fServer.StopListening;
-  fServer.Free;
+  fNetServer.StopListening;
+  fNetServer.Free;
   btnHost.Enabled := true;
   btnStop.Enabled := false;
 end;
@@ -111,13 +111,13 @@ end;
 
 procedure TfrmNetTest.btnJoinClick(Sender: TObject);
 begin
-  fClient := TKMClientControl.Create;
-  fClient.OnConnectSucceed := Foo;
-  fClient.OnConnectFailed := Bar;
-  fClient.OnForcedDisconnect := Bar;
-  fClient.OnRecieveData := GetData;
-  fClient.OnStatusMessage := GetStatusMsg;
-  fClient.ConnectTo(edtServer.Text, KAM_PORT);
+  fNetClient := TKMNetClient.Create;
+  fNetClient.OnConnectSucceed := Foo;
+  fNetClient.OnConnectFailed := Bar;
+  fNetClient.OnForcedDisconnect := Bar;
+  fNetClient.OnRecieveData := GetData;
+  fNetClient.OnStatusMessage := GetStatusMsg;
+  fNetClient.ConnectTo(edtServer.Text, KAM_PORT);
   btnJoin.Enabled := false;
   btnSend.Enabled := true;
   btnQuit.Enabled := true;
@@ -126,8 +126,8 @@ end;
 
 procedure TfrmNetTest.btnQuitClick(Sender: TObject);
 begin
-  fClient.Disconnect;
-  fClient.Free;
+  fNetClient.Disconnect;
+  fNetClient.Free;
   btnJoin.Enabled := true;
   btnSend.Enabled := false;
   btnQuit.Enabled := false;
