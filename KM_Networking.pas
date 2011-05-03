@@ -64,6 +64,8 @@ type
     fOnPing:TNotifyEvent;
     fOnCommands:TStringEvent;
 
+    procedure ConnectSucceed(Sender:TObject);
+    procedure ConnectFailed(const S: string);
     procedure PacketRecieve(aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
     procedure PacketToAll(aKind:TMessageKind; const aData:string='');
@@ -162,7 +164,8 @@ begin
 
   fNetClient.ConnectTo('127.0.0.1', KAM_PORT);
   fNetClient.OnRecieveData := PacketRecieve;
-  fNetClient.OnConnectSucceed
+  fNetClient.OnConnectSucceed := ConnectSucceed;
+  fNetClient.OnConnectFailed := ConnectFailed;
 
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;
@@ -179,8 +182,34 @@ begin
 
   fNetClient.ConnectTo(fHostAddress, KAM_PORT);
   fNetClient.OnRecieveData := PacketRecieve;
+  fNetClient.OnConnectSucceed := ConnectSucceed;
+  fNetClient.OnConnectFailed := ConnectFailed;
+end;
 
-  PacketToHost(mk_AskToJoin, fMyNikname);
+
+procedure TKMNetworking.ConnectSucceed(Sender:TObject);
+begin
+  case fLANPlayerKind of
+    lpk_Host:   fOnTextMessage('Connected to server');
+    lpk_Joiner: PacketToHost(mk_AskToJoin, fMyNikname);
+  end;
+end;
+
+
+procedure TKMNetworking.ConnectFailed(const S: string);
+begin
+  case fLANPlayerKind of
+    lpk_Host:   begin
+                  fNetClient.OnRecieveData := nil;
+                  fNetClient.Disconnect;
+                  fOnJoinFail(S);
+                end;
+    lpk_Joiner: begin
+                  fNetClient.OnRecieveData := nil;
+                  fNetClient.Disconnect;
+                  fOnJoinFail(S);
+                end;
+  end;
 end;
 
 
