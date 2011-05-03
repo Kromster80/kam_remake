@@ -132,14 +132,14 @@ begin
   Result.Y := P.Y;
 end;
 
-function KMPointY1(P:TKMPoint): TKMPoint; overload;
+function KMPointY1(P:TKMPoint): TKMPoint;
 begin
   Result.X := P.X;
   Result.Y := P.Y+1;
 end;
 
 
-function KMPointY1(P:TKMPointF): TKMPoint; overload;
+function KMPointY1(P:TKMPointF): TKMPoint;
 begin
   Result.X := round(P.X);
   Result.Y := round(P.Y)+1;
