@@ -111,9 +111,18 @@ procedure TKMNetClientOverbyte.DataAvailable(Sender: TObject; Error: Word);
 const BufferSize = 10240; //10kb
 var P:pointer; L:cardinal;
 begin
+  if Error <> 0 then
+  begin
+    fOnError('DataAvailable. Error #' + IntToStr(Error));
+    exit;
+  end;
+
   GetMem(P, BufferSize);
   L := TWSocket(Sender).Receive(P, BufferSize);
-  fOnRecieveData(P, L);
+
+  if L > 0 then //if L=0 then exit;
+    fOnRecieveData(P, L);
+
   FreeMem(P);
 end;
 

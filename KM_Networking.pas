@@ -598,11 +598,8 @@ end;
 
 
 procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string='');
-var i:integer;
 begin
-  //for i:=1 to fNetPlayers.Count do
-    //if (i <> fMyIndex) and fNetPlayers[i].IsHuman then //First check local data
-      PacketSend({fNetPlayers[i].Address}'', aKind, aData);
+  PacketSend('', aKind, aData);
 end;
 
 

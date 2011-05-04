@@ -143,11 +143,16 @@ begin
 end;
 
 
+//Assemble the packet as [Length.Data.Length]
 procedure TKMNetClient.SendData(aData:pointer; aLength:cardinal);
+var P:pointer;
 begin
-  fClient.SendData(@aLength, SizeOf(aLength));
-  fClient.SendData(aData, aLength);
-  fClient.SendData(@aLength, SizeOf(aLength)); //Fail-check
+  GetMem(P, aLength+8);
+  PInteger(P)^ := aLength;
+  PInteger(cardinal(P)+4+aLength)^ := aLength;
+  Move(aData^, Pointer(cardinal(P)+4)^, aLength);
+  fClient.SendData(P, aLength+8);
+  FreeMem(P);
 end;
 
 

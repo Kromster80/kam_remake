@@ -113,13 +113,16 @@ var P:pointer; L:cardinal;
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
+    fOnError('DataAvailable. Error #' + IntToStr(Error));
     exit;
   end;
 
   GetMem(P, BufferSize);
   L := TWSocket(Sender).Receive(P, BufferSize);
-  fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+
+  if L > 0 then //if L=0 then exit;
+    fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+
   FreeMem(P);
 end;
 

@@ -39,6 +39,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    property Connected:boolean read fConnected;
+    function MyIPString:string;
+
     procedure ConnectTo(const aAddress:string; const aPort:string); //Try to connect to server
     property OnConnectSucceed:TNotifyEvent write fOnConnectSucceed; //Signal success
     property OnConnectFailed:TGetStrProc write fOnConnectFailed; //Signal fail and text description
@@ -69,6 +72,12 @@ destructor TKMNetClient.Destroy;
 begin
   fClient.Free;
   Inherited;
+end;
+
+
+function TKMNetClient.MyIPString:string;
+begin
+  Result := fClient.MyIPString;
 end;
 
 
@@ -134,11 +143,16 @@ begin
 end;
 
 
+//Assemble the packet as [Length.Data.Length]
 procedure TKMNetClient.SendData(aData:pointer; aLength:cardinal);
+var P:pointer;
 begin
-  fClient.SendData(@aLength, SizeOf(aLength));
-  fClient.SendData(aData, aLength);
-  fClient.SendData(@aLength, SizeOf(aLength)); //Fail-check
+  GetMem(P, aLength+8);
+  PInteger(P)^ := aLength;
+  PInteger(cardinal(P)+4+aLength)^ := aLength;
+  Move(aData^, Pointer(cardinal(P)+4)^, aLength);
+  fClient.SendData(P, aLength+8);
+  FreeMem(P);
 end;
 
 
