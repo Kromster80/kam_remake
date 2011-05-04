@@ -119,6 +119,7 @@ begin
 
   GetMem(P, BufferSize);
   L := TWSocket(Sender).Receive(P, BufferSize);
+  Assert(L > 0);
   fOnDataAvailable(TWSocket(Sender).Tag, P, L);
   FreeMem(P);
 end;

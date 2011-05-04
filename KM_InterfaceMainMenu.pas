@@ -1150,7 +1150,6 @@ begin
   fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
   LAN_BindEvents(lpk_Host);
   Lobby_OnPlayersSetup(nil); //Update players list (with ourselves on first line)
-  fGame.Networking.PostMessage(fGame.Networking.MyIPString);
 end;
 
 

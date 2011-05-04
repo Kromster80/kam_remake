@@ -97,7 +97,7 @@ procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:car
 var i:integer;
 begin
   for i:=0 to fClientList.Count-1 do
-    //if aHandle<>cardinal(fClientList.Items[i]) then
+    if aHandle<>integer(fClientList.Items[i]) then
       fServer.SendData(cardinal(fClientList.Items[i]), aData, aLength);
 end;
 
