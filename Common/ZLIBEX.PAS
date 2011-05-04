@@ -1,28 +1,36 @@
 {*****************************************************************************
-*  ZLibEx.pas (zlib 1.2.3)                                                   *
+*  ZLibEx.pas                                                                *
 *                                                                            *
-*  copyright (c) 2002-2005 Roberto Della Pasqua (www.dellapasqua.com)        *
-*  copyright (c) 2000-2002 base2 technologies (www.base2ti.com)              *
-*  copyright (c) 1997 Borland International (www.borland.com)                *
+*  copyright (c) 2000-2007 base2 technologies                                *
+*  copyright (c) 1995-2002 Borland Software Corporation                      *
 *                                                                            *
 *  revision history                                                          *
-*    2006.04.21  updated with latest Borland C++ 2006 SP2                    *
-*    2005.02.03  updated with latest zlib 1.2.2, thanks to Fabio Dell'Aria   *
-*                (www.eurekalog.com) for provide me the compiled objects     *
-*                zlib is compiled without crc32-compressBound                *
-*    2003.12.18  updated with latest zlib 1.2.1 (see www.zlib.org)           *
-*                obj's compiled with fastest speed optimizations (bcc 5.6.4) *
-*                (hint:see basm newsgroup about a Move RTL fast replacement) *
-*                Thanks to Cosmin Truta for the pascal zlib reference        *
-*                                                                            *
-*    2002.11.02  ZSendToBrowser: deflate algorithm for HTTP1.1 compression   *
-*    2002.10.24  ZFastCompressString and ZFastDecompressString:300% faster   *
-*    2002.10.15  recompiled zlib 1.1.4 c sources with speed optimizations    *
-*                (and targeting 686+ cpu) and changes to accomodate Borland  *
-*                standards  (C++ v5.6 compiler)                              *
-*    2002.10.15  optimized move mem for not aligned structures  (strings,etc)*
-*    2002.10.15  little changes to avoid system unique string calls          *
-*                                                                            *
+*    2007.02.24  added PWord declaration for delphi 5-                       *
+*    2006.10.07  fixed EZLibError constructor for c++ builder compatibility  *
+*    2006.08.10  added ZDecompressStrG (simple gzip format)                  *
+*    2006.06.02  added DateTimeToUnix for delphi 5-                          *
+*    2006.03.28  moved Z_DEFLATED to interface section                       *
+*                added custom compression levels zcLevel1 thru zcLevel9      *
+*    2006.03.27  added ZCompressStreamWeb                                    *
+*                added ZCompressStreamG (simple gzip format)                 *
+*    2006.03.24  added ZCompressStrG (simple gzip format)                    *
+*                added ZAdler32 and ZCrc32                                   *
+*    2005.11.29  changed FStreamPos to Int64 for delphi 6+                   *
+*    2005.07.25  updated to zlib version 1.2.3                               *
+*    2005.03.04  modified ZInternalCompressStream loops                      *
+*                modified ZInternalDecompressStream loops                    *
+*    2005.02.07  fixed ZInternalCompressStream loop conditions               *
+*                fixed ZInternalDecompressStream loop conditions             *
+*    2005.01.11  updated to zlib version 1.2.2                               *
+*                added ZCompressStrWeb                                       *
+*    2004.01.06  updated to zlib version 1.2.1                               *
+*    2003.04.14  added ZCompress2 and ZDecompress2                           *
+*                added ZCompressStr2 and ZDecompressStr2                     *
+*                added ZCompressStream2 and ZDecompressStream2               *
+*                added overloaded T*Stream constructors to support           *
+*                  InflateInit2 and DeflateInit2                             *
+*                fixed ZDecompressStream to use ZDecompressCheck instead of  *
+*                  ZCompressCheck                                            *
 *    2002.03.15  updated to zlib version 1.1.4                               *
 *    2001.11.27  enhanced TZDecompressionStream.Read to adjust source        *
 *                  stream position upon end of compression data              *
@@ -35,60 +43,133 @@
 *                  included on the delphi cd (zlib version 1.1.3)            *
 *                                                                            *
 *  acknowledgements                                                          *
-*    erik turner    Z*Stream routines                                        *
-*    david bennion  finding the nastly little endless loop quirk with the    *
-*                     TZDecompressionStream.Read method                      *
-*    burak kalayci  informing me about the zlib 1.1.4 update                 *
+*    2001.10.26  erik turner                                                 *
+*      Z*Stream routines                                                     *
+*                                                                            *
+*    2001.11.27  david bennion                                               *
+*      finding the nastly little endless loop quirk with the                 *
+*        TZDecompressionStream.Read method                                   *
+*                                                                            *
+*    2002.03.15  burak kalayci                                               *
+*      informing me about the zlib 1.1.4 update and the 1.2.1 update         *
+*                                                                            *
+*    2005.01.11  vicente sánchez-alarcos                                     *
+*      informing me about the zlib 1.2.2 update                              *
+*                                                                            *
+*    2005.02.07  luigi sandon                                                *
+*      pointing out the missing loop condition (Z_STREAM_END) in             *
+*        ZInternalCompressStream and ZInternalDecompressStream               *
+*                                                                            *
+*    2005.03.04  ferry van genderen                                          *
+*      assiting me fine tune and beta test ZInternalCompressStream and       *
+*        ZInternalDecompressStream                                           *
+*                                                                            *
+*    2005.07.25  mathijs van veluw                                           *
+*      informing me about the zlib 1.2.3 update                              *
+*                                                                            *
+*    2005.11.28  j. rathlev                                                  *
+*      pointing out the FStreamPos and TStream.Position type inconsitency    *
+*                                                                            *
+*    2006.03.24  ralf wenske                                                 *
+*      prototyping and assisting with ZCompressStrG and ZCompressStreamG     *
+*                                                                            *
+*    2006.06.02  roman krupicka                                              *
+*      pointing out the DateUtils unit and the DateTimeToUnix function       *
+*        wasn't available prior to Delphi 6                                  *
+*                                                                            *
+*    2006.10.07  anders johansen                                             *
+*      pointing out the ELibError constructor incompatibility with c++       *
+*        builder                                                             *
+*                                                                            *
+*    2007.02.24  marcin treffler                                             *
+*      pointing out the missing PWord declaration for Delphi 5               *
 *****************************************************************************}
 
 unit ZLibEx;
 
 interface
 
+{$I ZLibEx.inc}
+
 uses
-  Windows,
-  Sysutils,
-  Classes;
+  SysUtils, Classes {$IFDEF Version6Plus}, DateUtils {$ENDIF};
 
 const
-  ZLIB_VERSION = '1.2.3';
+  {** version ids ***********************************************************}
+
+  ZLIB_VERSION   = '1.2.3';
+  ZLIB_VERNUM    = $1230;
+
+  {** compression methods ***************************************************}
+
+  Z_DEFLATED = 8;
 
 type
-  TZAlloc = function(opaque: Pointer; items, size: Integer): Pointer;
-  TZFree = procedure(opaque, block: Pointer);
-  TZCompressionLevel = (zcNone, zcFastest, zcDefault, zcMax);
+  TZAlloc = function (opaque: Pointer; items, size: Integer): Pointer;
+  TZFree  = procedure (opaque, block: Pointer);
+
+  TZCompressionLevel = (
+    zcNone,
+    zcFastest,
+    zcDefault,
+    zcMax,
+    zcLevel1,
+    zcLevel2,
+    zcLevel3,
+    zcLevel4,
+    zcLevel5,
+    zcLevel6,
+    zcLevel7,
+    zcLevel8,
+    zcLevel9
+  );
+
+  TZStrategy = (
+    zsDefault,
+    zsFiltered,
+    zsHuffman,
+    zsRLE,
+    zsFixed
+  );
 
   {** TZStreamRec ***********************************************************}
 
   TZStreamRec = packed record
-    next_in: PChar; // next input byte
-    avail_in: Longint; // number of bytes available at next_in
-    total_in: Longint; // total nb of input bytes read so far
-    next_out: PChar; // next output byte should be put here
-    avail_out: Longint; // remaining free space at next_out
-    total_out: Longint; // total nb of bytes output so far
-    msg: PChar; // last error message, NULL if no error
-    state: Pointer; // not visible by applications
-    zalloc: TZAlloc; // used to allocate the internal state
-    zfree: TZFree; // used to free the internal state
-    opaque: Pointer; // private data object passed to zalloc and zfree
-    data_type: Integer; // best guess about the data type: ascii or binary
-    adler: Longint; // adler32 value of the uncompressed data
-    reserved: Longint; // reserved for future use
+    next_in  : PChar;     // next input byte
+    avail_in : Longint;   // number of bytes available at next_in
+    total_in : Longint;   // total nb of input bytes read so far
+
+    next_out : PChar;     // next output byte should be put here
+    avail_out: Longint;   // remaining free space at next_out
+    total_out: Longint;   // total nb of bytes output so far
+
+    msg      : PChar;     // last error message, NULL if no error
+    state    : Pointer;   // not visible by applications
+
+    zalloc   : TZAlloc;   // used to allocate the internal state
+    zfree    : TZFree;    // used to free the internal state
+    opaque   : Pointer;   // private data object passed to zalloc and zfree
+
+    data_type: Integer;   // best guess about the data type: ascii or binary
+    adler    : Longint;   // adler32 value of the uncompressed data
+    reserved : Longint;   // reserved for future use
   end;
 
   {** TCustomZStream ********************************************************}
 
   TCustomZStream = class(TStream)
   private
-    FStream: TStream;
-    FStreamPos: Integer;
+    FStream    : TStream;
+    FStreamPos : {$ifdef Version6Plus} Int64 {$else} Longint {$endif};
     FOnProgress: TNotifyEvent;
-    FZStream: TZStreamRec;
-    FBuffer: array[Word] of Char;
+
+    FZStream   : TZStreamRec;
+    FBuffer    : Array [Word] of Char;
   protected
     constructor Create(stream: TStream);
+
     procedure DoProgress; dynamic;
+
     property OnProgress: TNotifyEvent read FOnProgress write FOnProgress;
   end;
 
@@ -98,11 +179,18 @@ type
   private
     function GetCompressionRate: Single;
   public
-    constructor Create(dest: TStream; compressionLevel: TZCompressionLevel = zcDefault);
-    destructor Destroy; override;
-    function Read(var buffer; count: Longint): Longint; override;
-    function Write(const buffer; count: Longint): Longint; override;
-    function Seek(offset: Longint; origin: Word): Longint; override;
+    constructor Create(dest: TStream;
+      compressionLevel: TZCompressionLevel = zcDefault); overload;
+
+    constructor Create(dest: TStream; compressionLevel: TZCompressionLevel;
+      windowBits, memLevel: Integer; strategy: TZStrategy); overload;
+
+    destructor  Destroy; override;
+
+    function  Read(var buffer; count: Longint): Longint; override;
+    function  Write(const buffer; count: Longint): Longint; override;
+    function  Seek(offset: Longint; origin: Word): Longint; override;
+
     property CompressionRate: Single read GetCompressionRate;
     property OnProgress;
   end;
@@ -111,11 +199,15 @@ type
 
   TZDecompressionStream = class(TCustomZStream)
   public
-    constructor Create(source: TStream);
-    destructor Destroy; override;
-    function Read(var buffer; count: Longint): Longint; override;
-    function Write(const buffer; count: Longint): Longint; override;
-    function Seek(offset: Longint; origin: Word): Longint; override;
+    constructor Create(source: TStream); overload;
+    constructor Create(source: TStream; windowBits: Integer); overload;
+
+    destructor  Destroy; override;
+
+    function  Read(var buffer; count: Longint): Longint; override;
+    function  Write(const buffer; count: Longint): Longint; override;
+    function  Seek(offset: Longint; origin: Word): Longint; override;
+
     property OnProgress;
   end;
 
@@ -140,6 +232,28 @@ procedure ZCompress(const inBuffer: Pointer; inSize: Integer;
   level: TZCompressionLevel = zcDefault);
 
 {*****************************************************************************
+*  ZCompress2                                                                *
+*                                                                            *
+*  pre-conditions                                                            *
+*    inBuffer   = pointer to uncompressed data                               *
+*    inSize     = size of inBuffer (bytes)                                   *
+*    outBuffer  = pointer (unallocated)                                      *
+*    level      = compression level                                          *
+*    method     = compression method                                         *
+*    windowBits = window bits                                                *
+*    memLevel   = memory level                                               *
+*    strategy   = compression strategy                                       *
+*                                                                            *
+*  post-conditions                                                           *
+*    outBuffer = pointer to compressed data (allocated)                      *
+*    outSize   = size of outBuffer (bytes)                                   *
+*****************************************************************************}
+
+procedure ZCompress2(const inBuffer: Pointer; inSize: Integer;
+  out outBuffer: Pointer; out outSize: Integer; level: TZCompressionLevel;
+  windowBits, memLevel: Integer; strategy: TZStrategy);
+
+{*****************************************************************************
 *  ZDecompress                                                               *
 *                                                                            *
 *  pre-conditions                                                            *
@@ -154,193 +268,382 @@ procedure ZCompress(const inBuffer: Pointer; inSize: Integer;
 *****************************************************************************}
 
 procedure ZDecompress(const inBuffer: Pointer; inSize: Integer;
-  out outBuffer: Pointer; out outSize: Integer; outEstimate: Integer = 0);
+ out outBuffer: Pointer; out outSize: Integer; outEstimate: Integer = 0);
+
+{*****************************************************************************
+*  ZDecompress2                                                              *
+*                                                                            *
+*  pre-conditions                                                            *
+*    inBuffer    = pointer to compressed data                                *
+*    inSize      = size of inBuffer (bytes)                                  *
+*    outBuffer   = pointer (unallocated)                                     *
+*    windowBits  = window bits                                               *
+*    outEstimate = estimated size of uncompressed data (bytes)               *
+*                                                                            *
+*  post-conditions                                                           *
+*    outBuffer = pointer to decompressed data (allocated)                    *
+*    outSize   = size of outBuffer (bytes)                                   *
+*****************************************************************************}
+
+procedure ZDecompress2(const inBuffer: Pointer; inSize: Integer;
+ out outBuffer: Pointer; out outSize: Integer; windowBits: Integer;
+ outEstimate: Integer = 0);
 
 {** string routines *********************************************************}
 
-function ZCompressStr(const s: string; level: TZCompressionLevel = zcDefault): string;
+{*****************************************************************************
+*  ZCompressStr                                                              *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s     = uncompressed data string                                        *
+*    level = compression level                                               *
+*                                                                            *
+*  return                                                                    *
+*    compressed data string                                                  *
+*****************************************************************************}
 
-function ZDecompressStr(const s: string): string;
+function ZCompressStr(const s: String;
+  level: TZCompressionLevel = zcDefault): String;
+
+{*****************************************************************************
+*  ZCompressStrEx                                                            *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s     = uncompressed data string                                        *
+*    level = compression level                                               *
+*                                                                            *
+*  return                                                                    *
+*    compressed data string with 4 byte (integer) header indicating          *
+*    original uncompressed data length                                       *
+*****************************************************************************}
+
+function ZCompressStrEx(const s: String;
+  level: TZCompressionLevel = zcDefault): String;
+
+{*****************************************************************************
+*  ZCompressStr2                                                             *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s          = uncompressed data string                                   *
+*    level      = compression level                                          *
+*    windowBits = window bits                                                *
+*    memLevel   = memory level                                               *
+*    strategy   = compression strategy                                       *
+*                                                                            *
+*  return                                                                    *
+*    compressed data string                                                  *
+*****************************************************************************}
+
+function ZCompressStr2(const s: String; level: TZCompressionLevel;
+  windowBits, memLevel: Integer; strategy: TZStrategy): String;
+
+function ZCompressStrWeb(const s: String): String;
+
+{*****************************************************************************
+*  ZCompressStrG                                                             *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s          = uncompressed data string                                   *
+*    fileName   = filename                                                   *
+*    comment    = comment                                                    *
+*    dateTime   = date/time                                                  *
+*                                                                            *
+*  return                                                                    *
+*    compressed data string in gzip format                                   *
+*****************************************************************************}
+
+function ZCompressStrG(const s: String; const fileName, comment: String;
+  dateTime: TDateTime): String;
+
+{*****************************************************************************
+*  ZDecompressStr                                                            *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s = compressed data string                                              *
+*                                                                            *
+*  return                                                                    *
+*    uncompressed data string                                                *
+*****************************************************************************}
+
+function ZDecompressStr(const s: String): String;
+
+{*****************************************************************************
+*  ZDecompressStrEx                                                          *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s = compressed data string with 4 byte (integer) header indicating      *
+*        original uncompressed data length                                   *
+*                                                                            *
+*  return                                                                    *
+*    uncompressed data string                                                *
+*****************************************************************************}
+
+function ZDecompressStrEx(const s: String): String;
+
+{*****************************************************************************
+*  ZDecompressStr2                                                           *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s          = compressed data string                                     *
+*    windowBits = window bits                                                *
+*                                                                            *
+*  return                                                                    *
+*    uncompressed data string                                                *
+*****************************************************************************}
+
+function ZDecompressStr2(const s: String; windowBits: Integer): String;
+
+{*****************************************************************************
+*  ZDecompressStrG                                                           *
+*                                                                            *
+*  pre-conditions                                                            *
+*    s = compressed data string in gzip format                               *
+*                                                                            *
+*  post-conditions                                                           *
+*    fileName   = filename                                                   *
+*    comment    = comment                                                    *
+*    dateTime   = date/time                                                  *
+*                                                                            *
+*  return                                                                    *
+*    uncompressed data string                                                *
+*****************************************************************************}
+
+function ZDecompressStrG(const s: String; var fileName, comment: String;
+  var dateTime: TDateTime): String; overload;
+
+function ZDecompressStrG(const s: String): String; overload;
 
 {** stream routines *********************************************************}
 
 procedure ZCompressStream(inStream, outStream: TStream;
   level: TZCompressionLevel = zcDefault);
 
+procedure ZCompressStream2(inStream, outStream: TStream;
+  level: TZCompressionLevel; windowBits, memLevel: Integer;
+  strategy: TZStrategy);
+
+procedure ZCompressStreamWeb(inStream, outStream: TStream);
+
+procedure ZCompressStreamG(inStream, outStream: TStream; const fileName,
+  comment: String; dateTime: TDateTime);
+
 procedure ZDecompressStream(inStream, outStream: TStream);
 
-{** export routines ********************************************************}
+procedure ZDecompressStream2(inStream, outStream: TStream;
+  windowBits: Integer);
 
-function adler32(adler: LongInt; const buf: PChar; len: Integer): LongInt;
-procedure MoveI32(const Source; var Dest; Count: Integer);
-procedure ZFastCompressString(var s: string; level: TZCompressionLevel);
-procedure ZFastDecompressString(var s: string);
-procedure ZSendToBrowser(var s: string);
-function deflateInit_(var strm: TZStreamRec; level: Integer; version: PChar; recsize: Integer): Integer;
-function DeflateInit2_(var strm: TZStreamRec; level: integer; method: integer; windowBits: integer; memLevel: integer; strategy: integer; version: PChar; recsize: integer): integer;
-function deflate(var strm: TZStreamRec; flush: Integer): Integer;
-function deflateEnd(var strm: TZStreamRec): Integer;
-function inflateInit_(var strm: TZStreamRec; version: PChar; recsize: Integer): Integer;
-function inflateInit2_(var strm: TZStreamRec; windowBits: integer;  version: PChar; recsize: integer): integer;
-function inflate(var strm: TZStreamRec; flush: Integer): Integer;
-function inflateEnd(var strm: TZStreamRec): Integer;
-function inflateReset(var strm: TZStreamRec): Integer; 
+{** checksum routines *******************************************************}
+
+function ZAdler32(adler: Longint; const buffer; size: Integer): Longint;
+function ZCrc32(crc: Longint; const buffer; size: Integer): Longint;
+
+{****************************************************************************}
 
 type
-  EZLibError = class(Exception);
+  EZLibErrorClass = class of EZlibError;
+
+  EZLibError = class(Exception)
+  private
+    FErrorCode: Integer;
+  public
+    constructor Create(code: Integer; const dummy: String = ''); overload;
+
+    property ErrorCode: Integer read FErrorCode write FErrorCode;
+  end;
+
   EZCompressionError = class(EZLibError);
   EZDecompressionError = class(EZLibError);
 
 implementation
 
-{** link zlib 1.2.3 **************************************************************}
-{** bcc32 -c -6 -O2 -Ve -X -pr -a8 -b -d -k- -vi -tWM -r -RT- -ff *.c **}
+{** link zlib code **********************************************************}
 
-{$L Zlib/adler32.obj}
-{$L Zlib/deflate.obj}
-{$L Zlib/infback.obj}
-{$L Zlib/inffast.obj}
-{$L Zlib/inflate.obj}
-{$L Zlib/inftrees.obj}
-{$L Zlib/trees.obj}
-{$L Zlib/compress.obj}
-{$L Zlib/crc32.obj}
+{$L deflate.obj}
+{$L inflate.obj}
+{$L inftrees.obj}
+{$L infback.obj}
+{$L inffast.obj}
+{$L trees.obj}
+{$L compress.obj}
+{$L adler32.obj}
+{$L crc32.obj}
 
 {*****************************************************************************
 *  note: do not reorder the above -- doing so will result in external        *
 *  functions being undefined                                                 *
 *****************************************************************************}
 
+{** gzip ********************************************************************}
+
+type
+  PGZHeader = ^TGZHeader;
+  TGZHeader = packed record
+    Id1       : Byte;
+    Id2       : Byte;
+    Method    : Byte;
+    Flags     : Byte;
+    Time      : Cardinal;
+    ExtraFlags: Byte;
+    OS        : Byte;
+  end;
+
+  PGZTrailer = ^TGZTrailer;
+  TGZTrailer = packed record
+    Crc : Cardinal;
+    Size: Cardinal;
+  end;
+
+const
+  GZ_ASCII_TEXT  = $01;
+  GZ_HEADER_CRC  = $02;
+  GZ_EXTRA_FIELD = $04;
+  GZ_FILENAME    = $08;
+  GZ_COMMENT     = $10;
+  GZ_RESERVED    = $E0;
+
+  GZ_EXTRA_DEFAULT = 0;
+  GZ_EXTRA_MAX     = 2;
+  GZ_EXTRA_FASTEST = 4;
+
 const
   {** flush constants *******************************************************}
 
-  Z_NO_FLUSH = 0;
+  Z_NO_FLUSH      = 0;
   Z_PARTIAL_FLUSH = 1;
-  Z_SYNC_FLUSH = 2;
-  Z_FULL_FLUSH = 3;
-  Z_FINISH = 4;
+  Z_SYNC_FLUSH    = 2;
+  Z_FULL_FLUSH    = 3;
+  Z_FINISH        = 4;
+  Z_BLOCK         = 5;
 
   {** return codes **********************************************************}
 
-  Z_OK = 0;
-  Z_STREAM_END = 1;
-  Z_NEED_DICT = 2;
-  Z_ERRNO = (-1);
-  Z_STREAM_ERROR = (-2);
-  Z_DATA_ERROR = (-3);
-  Z_MEM_ERROR = (-4);
-  Z_BUF_ERROR = (-5);
+  Z_OK            = 0;
+  Z_STREAM_END    = 1;
+  Z_NEED_DICT     = 2;
+  Z_ERRNO         = (-1);
+  Z_STREAM_ERROR  = (-2);
+  Z_DATA_ERROR    = (-3);
+  Z_MEM_ERROR     = (-4);
+  Z_BUF_ERROR     = (-5);
   Z_VERSION_ERROR = (-6);
 
   {** compression levels ****************************************************}
 
-  Z_NO_COMPRESSION = 0;
-  Z_BEST_SPEED = 1;
-  Z_BEST_COMPRESSION = 9;
-  Z_DEFAULT_COMPRESSION = (-1);
+  Z_NO_COMPRESSION       =   0;
+  Z_BEST_SPEED           =   1;
+  Z_BEST_COMPRESSION     =   9;
+  Z_DEFAULT_COMPRESSION  = (-1);
 
   {** compression strategies ************************************************}
 
-  Z_FILTERED = 1;
-  Z_HUFFMAN_ONLY = 2;
-  Z_DEFAULT_STRATEGY = 0;
+  Z_FILTERED            = 1;
+  Z_HUFFMAN_ONLY        = 2;
+  Z_RLE                 = 3;
+  Z_FIXED               = 4;
+  Z_DEFAULT_STRATEGY    = 0;
 
   {** data types ************************************************************}
 
-  Z_BINARY = 0;
-  Z_ASCII = 1;
-  Z_UNKNOWN = 2;
-
-  {** compression methods ***************************************************}
-
-  Z_DEFLATED = 8;
+  Z_BINARY   = 0;
+  Z_ASCII    = 1;
+  Z_TEXT     = Z_ASCII;
+  Z_UNKNOWN  = 2;
 
   {** return code messages **************************************************}
 
   _z_errmsg: array[0..9] of PChar = (
-    'need dictionary', // Z_NEED_DICT      (2)
-    'stream end', // Z_STREAM_END     (1)
-    '', // Z_OK             (0)
-    'file error', // Z_ERRNO          (-1)
-    'stream error', // Z_STREAM_ERROR   (-2)
-    'data error', // Z_DATA_ERROR     (-3)
-    'insufficient memory', // Z_MEM_ERROR      (-4)
-    'buffer error', // Z_BUF_ERROR      (-5)
+    'need dictionary',      // Z_NEED_DICT      (2)
+    'stream end',           // Z_STREAM_END     (1)
+    'ok',                   // Z_OK             (0)
+    'file error',           // Z_ERRNO          (-1)
+    'stream error',         // Z_STREAM_ERROR   (-2)
+    'data error',           // Z_DATA_ERROR     (-3)
+    'insufficient memory',  // Z_MEM_ERROR      (-4)
+    'buffer error',         // Z_BUF_ERROR      (-5)
     'incompatible version', // Z_VERSION_ERROR  (-6)
     ''
-    );
+  );
 
-  ZLevels: array[TZCompressionLevel] of Shortint = (
-    Z_NO_COMPRESSION,
-    Z_BEST_SPEED,
-    Z_DEFAULT_COMPRESSION,
-    Z_BEST_COMPRESSION
-    );
+  ZLevels: Array [TZCompressionLevel] of Shortint = (
+    Z_NO_COMPRESSION,       // zcNone
+    Z_BEST_SPEED,           // zcFastest
+    Z_DEFAULT_COMPRESSION,  // zcDefault
+    Z_BEST_COMPRESSION,     // zcMax
+    1,                      // zcLevel1
+    2,                      // zcLevel2
+    3,                      // zcLevel3
+    4,                      // zcLevel4
+    5,                      // zcLevel5
+    6,                      // zcLevel6
+    7,                      // zcLevel7
+    8,                      // zcLevel8
+    9                       // zcLevel9
+  );
+
+  ZStrategies: Array [TZStrategy] of Shortint = (
+    Z_DEFAULT_STRATEGY,     // zsDefault
+    Z_FILTERED,             // zsFiltered
+    Z_HUFFMAN_ONLY,         // zsHuffman
+    Z_RLE,                  // zsRLE
+    Z_FIXED                 // zsFixed
+  );
 
   SZInvalid = 'Invalid ZStream operation!';
 
-{*********************** Peter Morris not aligned move **********************}
+{$IFNDEF Version6Plus}
 
-procedure MoveI32(const Source; var Dest; Count: Integer); register;
-asm
-        cmp   ECX,0
-        Je    @JustQuit
-        push  ESI
-        push  EDI
-        mov   ESI, EAX
-        mov   EDI, EDX
-    @Loop:
-	Mov   AL, [ESI]
-        Inc   ESI
-        mov   [EDI], AL
-        Inc   EDI
-        Dec   ECX
-        Jnz   @Loop
-        pop   EDI
-        pop   ESI
-    @JustQuit:
-end;
-{****************************************************************************}
+  PWord = ^Word;
+
+{$ENDIF}
 
 {** deflate routines ********************************************************}
 
 function deflateInit_(var strm: TZStreamRec; level: Integer; version: PChar;
-  recsize: Integer): Integer; external;
+  recsize: Integer): Integer;
+  external;
 
-function DeflateInit2_(var strm: TZStreamRec; level: integer; method: integer; windowBits: integer;
-  memLevel: integer; strategy: integer; version: PChar; recsize: integer): integer; external;
+function deflateInit2_(var strm: TZStreamRec; level, method, windowBits,
+  memLevel, strategy: Integer; version: PChar; recsize: Integer): Integer;
+  external;
 
 function deflate(var strm: TZStreamRec; flush: Integer): Integer;
   external;
 
-function deflateEnd(var strm: TZStreamRec): Integer; external;
+function deflateEnd(var strm: TZStreamRec): Integer;
+  external;
 
 {** inflate routines ********************************************************}
 
 function inflateInit_(var strm: TZStreamRec; version: PChar;
-  recsize: Integer): Integer; external;
+  recsize: Integer): Integer;
+  external;
 
-function inflateInit2_(var strm: TZStreamRec; windowBits: integer;
-  version: PChar; recsize: integer): integer; external;
+function inflateInit2_(var strm: TZStreamRec; windowBits: Integer;
+  version: PChar; recsize: Integer): Integer;
+  external;
 
 function inflate(var strm: TZStreamRec; flush: Integer): Integer;
   external;
 
-function inflateEnd(var strm: TZStreamRec): Integer; external;
+function inflateEnd(var strm: TZStreamRec): Integer;
+  external;
 
-function inflateReset(var strm: TZStreamRec): Integer; external;
+function inflateReset(var strm: TZStreamRec): Integer;
+  external;
 
-{** utility routines  *******************************************************}
+{** checksum routines *******************************************************}
 
-function adler32; external;
-//function crc32; external;
-//function compressBound; external;
+function adler32(adler: Longint; const buf; len: Integer): Longint;
+  external;
+
+function crc32(crc: Longint; const buf; len: Integer): Longint;
+  external;
 
 {** zlib function implementations *******************************************}
 
 function zcalloc(opaque: Pointer; items, size: Integer): Pointer;
 begin
-  GetMem(result, items * size);
+  GetMem(result,items * size);
 end;
 
 procedure zcfree(opaque, block: Pointer);
@@ -352,46 +655,58 @@ end;
 
 procedure _memset(p: Pointer; b: Byte; count: Integer); cdecl;
 begin
-  FillChar(p^, count, b);
+  FillChar(p^,count,b);
 end;
 
 procedure _memcpy(dest, source: Pointer; count: Integer); cdecl;
 begin
-  Move(source^, dest^, count);
-end;
-
-function _malloc(Size: Integer): Pointer; cdecl;
-begin
-  GetMem(Result, Size);
-end;
-
-procedure _free(Block: Pointer); cdecl;
-begin
-  FreeMem(Block);
+  Move(source^,dest^,count);
 end;
 
 {** custom zlib routines ****************************************************}
 
 function DeflateInit(var stream: TZStreamRec; level: Integer): Integer;
 begin
-  result := DeflateInit_(stream, level, ZLIB_VERSION, SizeOf(TZStreamRec));
+  result := deflateInit_(stream,level,ZLIB_VERSION,SizeOf(TZStreamRec));
 end;
 
 function DeflateInit2(var stream: TZStreamRec; level, method, windowBits,
   memLevel, strategy: Integer): Integer;
 begin
-  result := DeflateInit2_(stream, level, method, windowBits, memLevel, strategy, ZLIB_VERSION, SizeOf(TZStreamRec));
+  result := deflateInit2_(stream,level,method,windowBits,memLevel,strategy,
+    ZLIB_VERSION,SizeOf(TZStreamRec));
 end;
 
 function InflateInit(var stream: TZStreamRec): Integer;
 begin
-  result := InflateInit_(stream, ZLIB_VERSION, SizeOf(TZStreamRec));
+  result := inflateInit_(stream,ZLIB_VERSION,SizeOf(TZStreamRec));
 end;
 
 function InflateInit2(var stream: TZStreamRec; windowBits: Integer): Integer;
 begin
-  result := InflateInit2_(stream, windowBits, ZLIB_VERSION, SizeOf(TZStreamRec));
+  result := inflateInit2_(stream,windowBits,ZLIB_VERSION,SizeOf(TZStreamRec));
 end;
+
+{** DateTimeToUnix **********************************************************}
+
+{$IFNDEF Version6Plus}
+
+{ Days between TDateTime basis (12/31/1899) and Unix time_t basis (1/1/1970) }
+
+const
+  UnixDateDelta = 25569;
+
+function DateTimeToUnix(const AValue: TDateTime): Cardinal;
+begin
+  Result := Round((AValue - UnixDateDelta) * SecsPerDay);
+end;
+
+function UnixToDateTime(const AValue: Cardinal): TDateTime;
+begin
+  Result := AValue / SecsPerDay + UnixDateDelta;
+end;
+
+{$ENDIF}
 
 {****************************************************************************}
 
@@ -401,7 +716,7 @@ begin
 
   if code < 0 then
   begin
-    raise EZCompressionError.Create(_z_errmsg[2 - code]);
+    raise EZCompressionError.Create(code);
   end;
 end;
 
@@ -411,36 +726,29 @@ begin
 
   if code < 0 then
   begin
-    raise EZDecompressionError.Create(_z_errmsg[2 - code]);
+    raise EZDecompressionError.Create(code);
   end;
 end;
 
-procedure ZCompress(const inBuffer: Pointer; inSize: Integer;
-  out outBuffer: Pointer; out outSize: Integer;
-  level: TZCompressionLevel);
+procedure ZInternalCompress(var zstream: TZStreamRec; const inBuffer: Pointer;
+  inSize: Integer; out outBuffer: Pointer; out outSize: Integer);
 const
   delta = 256;
-var
-  zstream: TZStreamRec;
 begin
-  FillChar(zstream, SizeOf(TZStreamRec), 0);
-
   outSize := ((inSize + (inSize div 10) + 12) + 255) and not 255;
-  GetMem(outBuffer, outSize);
+  GetMem(outBuffer,outSize);
 
   try
-    zstream.next_in := inBuffer;
-    zstream.avail_in := inSize;
-    zstream.next_out := outBuffer;
-    zstream.avail_out := outSize;
-
-    ZCompressCheck(DeflateInit(zstream, ZLevels[level]));
-
     try
-      while ZCompressCheck(deflate(zstream, Z_FINISH)) <> Z_STREAM_END do
+      zstream.next_in := inBuffer;
+      zstream.avail_in := inSize;
+      zstream.next_out := outBuffer;
+      zstream.avail_out := outSize;
+
+      while ZCompressCheck(deflate(zstream,Z_FINISH)) <> Z_STREAM_END do
       begin
-        Inc(outSize, delta);
-        ReallocMem(outBuffer, outSize);
+        Inc(outSize,delta);
+        ReallocMem(outBuffer,outSize);
 
         zstream.next_out := PChar(Integer(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
@@ -449,7 +757,7 @@ begin
       ZCompressCheck(deflateEnd(zstream));
     end;
 
-    ReallocMem(outBuffer, zstream.total_out);
+    ReallocMem(outBuffer,zstream.total_out);
     outSize := zstream.total_out;
   except
     FreeMem(outBuffer);
@@ -457,75 +765,30 @@ begin
   end;
 end;
 
-procedure ZCompress2(const inBuffer: Pointer; inSize: Integer;
-  out outBuffer: Pointer; out outSize: Integer);
-const
-  delta = 256;
+procedure ZInternalDecompress(zstream: TZStreamRec; const inBuffer: Pointer;
+  inSize: Integer; out outBuffer: Pointer; out outSize: Integer;
+  outEstimate: Integer);
 var
-  zstream: TZStreamRec;
-begin
-  FillChar(zstream, SizeOf(TZStreamRec), 0);
-
-  outSize := ((inSize + (inSize div 10) + 12) + 255) and not 255;
-  GetMem(outBuffer, outSize);
-
-  try
-    zstream.next_in := inBuffer;
-    zstream.avail_in := inSize;
-    zstream.next_out := outBuffer;
-    zstream.avail_out := outSize;
-
-    ZCompressCheck(DeflateInit2(zstream, 1, 8, -15, 9, 0));
-
-    try
-      while ZCompressCheck(deflate(zstream, Z_FINISH)) <> Z_STREAM_END do
-      begin
-        Inc(outSize, delta);
-        ReallocMem(outBuffer, outSize);
-
-        zstream.next_out := PChar(Integer(outBuffer) + zstream.total_out);
-        zstream.avail_out := delta;
-      end;
-    finally
-      ZCompressCheck(deflateEnd(zstream));
-    end;
-
-    ReallocMem(outBuffer, zstream.total_out);
-    outSize := zstream.total_out;
-  except
-    FreeMem(outBuffer);
-    raise;
-  end;
-end;
-
-procedure ZDecompress(const inBuffer: Pointer; inSize: Integer;
-  out outBuffer: Pointer; out outSize: Integer; outEstimate: Integer);
-var
-  zstream: TZStreamRec;
   delta: Integer;
 begin
-  FillChar(zstream, SizeOf(TZStreamRec), 0);
-
   delta := (inSize + 255) and not 255;
 
   if outEstimate = 0 then outSize := delta
   else outSize := outEstimate;
 
-  GetMem(outBuffer, outSize);
+  GetMem(outBuffer,outSize);
 
   try
-    zstream.next_in := inBuffer;
-    zstream.avail_in := inSize;
-    zstream.next_out := outBuffer;
-    zstream.avail_out := outSize;
-
-    ZDecompressCheck(InflateInit(zstream));
-
     try
-      while ZDecompressCheck(inflate(zstream, Z_NO_FLUSH)) <> Z_STREAM_END do
+      zstream.next_in := inBuffer;
+      zstream.avail_in := inSize;
+      zstream.next_out := outBuffer;
+      zstream.avail_out := outSize;
+
+      while ZDecompressCheck(inflate(zstream,Z_NO_FLUSH)) <> Z_STREAM_END do
       begin
-        Inc(outSize, delta);
-        ReallocMem(outBuffer, outSize);
+        Inc(outSize,delta);
+        ReallocMem(outBuffer,outSize);
 
         zstream.next_out := PChar(Integer(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
@@ -534,7 +797,7 @@ begin
       ZDecompressCheck(inflateEnd(zstream));
     end;
 
-    ReallocMem(outBuffer, zstream.total_out);
+    ReallocMem(outBuffer,zstream.total_out);
     outSize := zstream.total_out;
   except
     FreeMem(outBuffer);
@@ -542,168 +805,562 @@ begin
   end;
 end;
 
+procedure ZCompress(const inBuffer: Pointer; inSize: Integer;
+  out outBuffer: Pointer; out outSize: Integer;
+  level: TZCompressionLevel);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZCompressCheck(DeflateInit(zstream,ZLevels[level]));
+
+  ZInternalCompress(zstream,inBuffer,inSize,outBuffer,outSize);
+end;
+
+procedure ZCompress2(const inBuffer: Pointer; inSize: Integer;
+  out outBuffer: Pointer; out outSize: Integer; level: TZCompressionLevel;
+  windowBits, memLevel: Integer; strategy: TZStrategy);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZCompressCheck(DeflateInit2(zstream,ZLevels[level],Z_DEFLATED,windowBits,
+    memLevel,ZStrategies[strategy]));
+
+  ZInternalCompress(zstream,inBuffer,inSize,outBuffer,outSize);
+end;
+
+procedure ZDecompress(const inBuffer: Pointer; inSize: Integer;
+  out outBuffer: Pointer; out outSize: Integer; outEstimate: Integer);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZDecompressCheck(InflateInit(zstream));
+
+  ZInternalDecompress(zstream,inBuffer,inSize,outBuffer,outSize,outEstimate);
+end;
+
+procedure ZDecompress2(const inBuffer: Pointer; inSize: Integer;
+  out outBuffer: Pointer; out outSize: Integer; windowBits: Integer;
+  outEstimate: Integer);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZDecompressCheck(InflateInit2(zstream,windowBits));
+
+  ZInternalDecompress(zstream,inBuffer,inSize,outBuffer,outSize,outEstimate);
+end;
+
 {** string routines *********************************************************}
 
-function ZCompressStr(const s: string; level: TZCompressionLevel): string;
+function ZCompressStr(const s: String; level: TZCompressionLevel): String;
 var
   buffer: Pointer;
-  size: Integer;
+  size  : Integer;
 begin
-  ZCompress(PChar(s), Length(s), buffer, size, level);
-  SetLength(result, size);
-  Move(buffer^, pointer(result)^, size);
+  ZCompress(PChar(s),Length(s),buffer,size,level);
+
+  SetLength(result,size);
+  Move(buffer^,result[1],size);
+
   FreeMem(buffer);
 end;
 
-procedure ZFastCompressString(var s: string; level: TZCompressionLevel);
-var
-  outBuf: Pointer;
-  outBytes: Integer;
-begin
-  ZCompress(pointer(s), length(s), outBuf, outBytes, level);
-  SetLength(s, outBytes);
-  MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
-  FreeMem(outBuf);
-end;
-
-procedure ZFastDecompressString(var s: string);
-var
-  outBuf: Pointer;
-  outBytes: Integer;
-begin
-  ZDecompress(pointer(s), Length(s), outBuf, outBytes);
-  SetLength(s, outBytes);
-  MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
-  FreeMem(outBuf);
-end;
-
-procedure ZSendToBrowser(var s: string);
-var
-  outBuf: Pointer;
-  outBytes: Integer;
-begin
-  ZCompress2(pointer(s), length(s), outBuf, outBytes);
-  SetLength(s, outBytes);
-  Move(pointer(outBuf)^, pointer(s)^, outBytes);
-  FreeMem(outBuf);
-end;
-
-function ZDecompressStr(const s: string): string;
+function ZCompressStrEx(const s: String; level: TZCompressionLevel): String;
 var
   buffer: Pointer;
-  size: Integer;
+  size  : Integer;
 begin
-  ZDecompress(PChar(s), Length(s), buffer, size);
-  SetLength(result, size);
-  Move(buffer^, pointer(result)^, size);
+  ZCompress(PChar(s),Length(s),buffer,size,level);
+
+  SetLength(result,size + SizeOf(Integer));
+
+  Move(buffer^,result[5],size);
+
+  size := Length(s);
+  Move(size,result[1],SizeOf(Integer));
+
   FreeMem(buffer);
+end;
+
+function ZCompressStr2(const s: String; level: TZCompressionLevel;
+  windowBits, memLevel: Integer; strategy: TZStrategy): String;
+var
+  buffer: Pointer;
+  size  : Integer;
+begin
+  ZCompress2(PChar(s),Length(s),buffer,size,level,windowBits,memLevel,
+    strategy);
+
+  SetLength(result,size);
+  Move(buffer^,result[1],size);
+
+  FreeMem(buffer);
+end;
+
+function ZCompressStrWeb(const s: String): String;
+begin
+  result := ZCompressStr2(s,zcFastest,-15,9,zsDefault);
+end;
+
+function ZCompressStrG(const s: String; const fileName, comment: String;
+  dateTime: TDateTime): String;
+var
+  header : PGZHeader;
+  trailer: PGZTrailer;
+  len    : Integer;
+begin
+  SetLength(result,SizeOf(TGZHeader));
+
+  header := PGZHeader(@result[1]);
+
+  FillChar(header^,SizeOf(TGZHeader),0);
+
+  header^.Id1 := $1F;
+  header^.Id2 := $8B;
+  header^.Method := Z_DEFLATED;
+
+  if dateTime <> 0 then header^.Time := DateTimeToUnix(dateTime);
+
+  header^.ExtraFlags := GZ_EXTRA_DEFAULT;
+  header^.OS := 0;
+
+  header^.Flags := 0;
+
+  if Length(fileName) > 0 then
+  begin
+    header^.Flags := header^.Flags or GZ_FILENAME;
+
+    result := result + fileName + #$00;
+  end;
+
+  if Length(comment) > 0 then
+  begin
+    header^.Flags := header^.Flags or GZ_COMMENT;
+
+    result := result + comment + #$00;
+  end;
+
+  result := result + ZCompressStr2(s,zcDefault,-15,9,zsDefault);
+
+  len := Length(result);
+
+  SetLength(result,len + SizeOf(TGZTrailer));
+
+  trailer := PGZTrailer(@result[len + 1]);
+
+  FillChar(trailer^,SizeOf(TGZTrailer),0);
+
+  trailer^.Crc := crc32(0,s[1],Length(s));
+  trailer^.Size := Length(s);
+end;
+
+function ZDecompressStr(const s: String): String;
+var
+  buffer: Pointer;
+  size  : Integer;
+begin
+  ZDecompress(PChar(s),Length(s),buffer,size);
+
+  SetLength(result,size);
+  Move(buffer^,result[1],size);
+
+  FreeMem(buffer);
+end;
+
+function ZDecompressStrEx(const s: String): String;
+var
+  buffer  : Pointer;
+  size    : Integer;
+  data    : String;
+  dataSize: Integer;
+begin
+  Move(s[1],size,SizeOf(Integer));
+
+  dataSize := Length(s) - SizeOf(Integer);
+
+  SetLength(data,dataSize);
+  Move(s[5],data[1],dataSize);
+
+  ZDecompress(PChar(data),dataSize,buffer,size,size);
+
+  SetLength(result,size);
+  Move(buffer^,result[1],size);
+
+  FreeMem(buffer);
+end;
+
+function ZDecompressStr2(const s: String; windowBits: Integer): String;
+var
+  buffer: Pointer;
+  size  : Integer;
+begin
+  ZDecompress2(PChar(s),Length(s),buffer,size,windowBits);
+
+  SetLength(result,size);
+  Move(buffer^,result[1],size);
+
+  FreeMem(buffer);
+end;
+
+function ZDecompressStrG(const s: String; var fileName, comment: String;
+  var dateTime: TDateTime): String;
+var
+  header  : PGZHeader;
+  trailer : PGZTrailer;
+  index   : Integer;
+  maxIndex: Integer;
+  endIndex: Integer;
+  size    : Integer;
+begin
+  result := '';
+
+  if Length(s) < SizeOf(TGZHeader) then
+  begin
+    raise EZDecompressionError.Create(Z_DATA_ERROR);
+  end;
+
+  header := PGZHeader(@s[1]);
+
+  if (header^.Id1 <> $1F)
+    or (header^.Id2 <> $8B)
+    or (header^.Method <> Z_DEFLATED)
+    or ((header^.Flags and GZ_RESERVED) <> 0) then
+  begin
+    raise EZDecompressionError.Create(Z_DATA_ERROR);
+  end;
+
+  if header^.Time <> 0 then dateTime := UnixToDateTime(header^.Time)
+  else dateTime := 0;
+
+  maxIndex := Length(s) - SizeOf(TGZTrailer);
+
+  index := SizeOf(TGZHeader) + 1;
+
+  if (header^.Flags and GZ_EXTRA_FIELD) <> 0 then
+  begin
+    if index <= (maxIndex - 1) then
+    begin
+      size := PWord(@s[index])^;
+
+      Inc(index,2);
+
+      if (size >= 0) and ((index + size) <= maxIndex) then Inc(index,size)
+      else index := maxIndex + 1;
+    end
+    else index := maxIndex + 1;
+  end;
+
+  if (header^.Flags and GZ_FILENAME) <> 0 then
+  begin
+    endIndex := index;
+
+    while (endIndex <= maxIndex) and (s[endIndex] <> #$00) do Inc(endIndex);
+
+    SetLength(fileName,endIndex - index);
+    Move(s[index],fileName[1],endIndex - index);
+
+    index := endIndex;
+
+    if index <= maxIndex then Inc(index);
+  end
+  else fileName := '';
+
+  if (header^.Flags and GZ_COMMENT) <> 0 then
+  begin
+    endIndex := index;
+
+    while (endIndex <= maxIndex) and (s[endIndex] <> #$00) do Inc(endIndex);
+
+    SetLength(comment,endIndex - index);
+    Move(s[index],comment[1],endIndex - index);
+
+    index := endIndex;
+
+    if index <= maxIndex then Inc(index);
+  end
+  else comment := '';
+
+  if (header^.Flags and GZ_HEADER_CRC) <> 0 then
+  begin
+    if index <= (maxIndex - 1) then
+    begin
+      // todo: validate header crc
+
+      Inc(index,2);
+    end
+    else index := maxIndex + 1; // force eof
+  end;
+
+  if index > maxIndex then
+  begin
+    raise EZDecompressionError.Create(Z_DATA_ERROR);
+  end;
+
+  size := maxIndex - index + 1;
+
+  result := ZDecompressStr2(Copy(s,index,size),-15);
+
+  Inc(index,size);
+
+  trailer := PGZTrailer(@s[index]);
+
+  if (trailer^.Crc <> Cardinal(crc32(0,result[1],Length(result))))
+    or (trailer^.Size <> Cardinal(Length(result))) then
+  begin
+    raise EZDecompressionError.Create(Z_DATA_ERROR);
+  end;
+end;
+
+function ZDecompressStrG(const s: String): String;
+var
+  fileName: String;
+  comment : String;
+  dateTime: TDateTime;
+begin
+  result := ZDecompressStrG(s,fileName,comment,dateTime);
 end;
 
 {** stream routines *********************************************************}
 
-procedure ZCompressStream(inStream, outStream: TStream;
-  level: TZCompressionLevel);
+procedure ZInternalCompressStream(zstream: TZStreamRec; inStream,
+  outStream: TStream);
 const
   bufferSize = 32768;
 var
-  zstream: TZStreamRec;
-  zresult: Integer;
-  inBuffer: array[0..bufferSize - 1] of Char;
-  outBuffer: array[0..bufferSize - 1] of Char;
-  inSize: Integer;
-  outSize: Integer;
+  zresult  : Integer;
+  inBuffer : Array [0..bufferSize-1] of Char;
+  outBuffer: Array [0..bufferSize-1] of Char;
+  outSize  : Integer;
 begin
-  FillChar(zstream, SizeOf(TZStreamRec), 0);
+  zresult := Z_STREAM_END;
 
-  ZCompressCheck(DeflateInit(zstream, ZLevels[level]));
+  zstream.avail_in := inStream.Read(inBuffer,bufferSize);
 
-  inSize := inStream.Read(inBuffer, bufferSize);
-
-  while inSize > 0 do
+  while zstream.avail_in > 0 do
   begin
     zstream.next_in := inBuffer;
-    zstream.avail_in := inSize;
 
     repeat
       zstream.next_out := outBuffer;
       zstream.avail_out := bufferSize;
 
-      ZCompressCheck(deflate(zstream, Z_NO_FLUSH));
+      zresult := ZCompressCheck(deflate(zstream,Z_NO_FLUSH));
 
-      // outSize := zstream.next_out - outBuffer;
       outSize := bufferSize - zstream.avail_out;
 
-      outStream.Write(outBuffer, outSize);
-    until (zstream.avail_in = 0) and (zstream.avail_out > 0);
+      outStream.Write(outBuffer,outSize);
+    until (zresult = Z_STREAM_END) or (zstream.avail_in = 0);
 
-    inSize := inStream.Read(inBuffer, bufferSize);
+    zstream.avail_in := inStream.Read(inBuffer,bufferSize);
   end;
 
-  repeat
+  while zresult <> Z_STREAM_END do
+  begin
     zstream.next_out := outBuffer;
     zstream.avail_out := bufferSize;
 
-    zresult := ZCompressCheck(deflate(zstream, Z_FINISH));
+    zresult := ZCompressCheck(deflate(zstream,Z_FINISH));
 
-    // outSize := zstream.next_out - outBuffer;
     outSize := bufferSize - zstream.avail_out;
 
-    outStream.Write(outBuffer, outSize);
-  until (zresult = Z_STREAM_END) and (zstream.avail_out > 0);
+    outStream.Write(outBuffer,outSize);
+  end;
 
   ZCompressCheck(deflateEnd(zstream));
 end;
 
-procedure ZDecompressStream(inStream, outStream: TStream);
+procedure ZInternalDecompressStream(zstream: TZStreamRec; inStream,
+  outStream: TStream);
 const
   bufferSize = 32768;
 var
-  zstream: TZStreamRec;
-  zresult: Integer;
-  inBuffer: array[0..bufferSize - 1] of Char;
-  outBuffer: array[0..bufferSize - 1] of Char;
-  inSize: Integer;
-  outSize: Integer;
+  zresult  : Integer;
+  inBuffer : Array [0..bufferSize-1] of Char;
+  outBuffer: Array [0..bufferSize-1] of Char;
+  outSize  : Integer;
 begin
-  FillChar(zstream, SizeOf(TZStreamRec), 0);
+  zresult := Z_STREAM_END;
 
-  ZCompressCheck(InflateInit(zstream));
+  zstream.avail_in := inStream.Read(inBuffer,bufferSize);
 
-  inSize := inStream.Read(inBuffer, bufferSize);
-
-  while inSize > 0 do
+  while zstream.avail_in > 0 do
   begin
     zstream.next_in := inBuffer;
-    zstream.avail_in := inSize;
 
     repeat
       zstream.next_out := outBuffer;
       zstream.avail_out := bufferSize;
 
-      ZCompressCheck(inflate(zstream, Z_NO_FLUSH));
+      zresult := ZDecompressCheck(inflate(zstream,Z_NO_FLUSH));
 
-      // outSize := zstream.next_out - outBuffer;
       outSize := bufferSize - zstream.avail_out;
 
-      outStream.Write(outBuffer, outSize);
-    until (zstream.avail_in = 0) and (zstream.avail_out > 0);
+      outStream.Write(outBuffer,outSize);
+    until (zresult = Z_STREAM_END) or (zstream.avail_in = 0);
 
-    inSize := inStream.Read(inBuffer, bufferSize);
+    if zresult <> Z_STREAM_END then
+    begin
+      zstream.avail_in := inStream.Read(inBuffer,bufferSize);
+    end
+    else if zstream.avail_in > 0 then
+    begin
+      inStream.Position := inStream.Position - zstream.avail_in;
+      zstream.avail_in := 0;
+    end;
   end;
 
-  repeat
+  while zresult <> Z_STREAM_END do
+  begin
     zstream.next_out := outBuffer;
     zstream.avail_out := bufferSize;
 
-    zresult := ZCompressCheck(inflate(zstream, Z_FINISH));
+    zresult := ZDecompressCheck(inflate(zstream,Z_FINISH));
 
-    // outSize := zstream.next_out - outBuffer;
     outSize := bufferSize - zstream.avail_out;
 
-    outStream.Write(outBuffer, outSize);
-  until (zresult = Z_STREAM_END) and (zstream.avail_out > 0);
+    outStream.Write(outBuffer,outSize);
+  end;
 
-  ZCompressCheck(inflateEnd(zstream));
+  ZDecompressCheck(inflateEnd(zstream));
+end;
+
+procedure ZCompressStream(inStream, outStream: TStream;
+  level: TZCompressionLevel);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZCompressCheck(DeflateInit(zstream,ZLevels[level]));
+
+  ZInternalCompressStream(zstream,inStream,outStream);
+end;
+
+procedure ZCompressStream2(inStream, outStream: TStream;
+  level: TZCompressionLevel; windowBits, memLevel: Integer;
+  strategy: TZStrategy);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZCompressCheck(DeflateInit2(zstream,ZLevels[level],Z_DEFLATED,windowBits,
+    memLevel,ZStrategies[strategy]));
+
+  ZInternalCompressStream(zstream,inStream,outStream);
+end;
+
+procedure ZCompressStreamWeb(inStream, outStream: TStream);
+begin
+  ZCompressStream2(inStream,outStream,zcFastest,-15,9,zsDefault);
+end;
+
+procedure ZCompressStreamG(inStream, outStream: TStream; const fileName,
+  comment: String; dateTime: TDateTime);
+const
+  bufferSize = 32768;
+var
+  header    : TGZHeader;
+  trailer   : TGZTrailer;
+  buffer    : Array [0..bufferSize-1] of Char;
+  count     : Integer;
+  position  : {$ifdef Version6Plus} Int64 {$else} Longint {$endif};
+  nullString: String;
+begin
+  FillChar(header,SizeOf(TGZHeader),0);
+
+  header.Id1 := $1F;
+  header.Id2 := $8B;
+  header.Method := Z_DEFLATED;
+
+  if dateTime <> 0 then header.Time := DateTimeToUnix(dateTime);
+
+  header.ExtraFlags := GZ_EXTRA_DEFAULT;
+  header.OS := 0;
+
+  header.Flags := 0;
+
+  if Length(fileName) > 0 then header.Flags := header.Flags or GZ_FILENAME;
+  if Length(comment) > 0 then header.Flags := header.Flags or GZ_COMMENT;
+
+  FillChar(trailer,SizeOf(TGZTrailer),0);
+
+  trailer.Crc := 0;
+
+  position := inStream.Position;
+
+  while inStream.Position < inStream.Size do
+  begin
+    count := inStream.Read(buffer[0],bufferSize);
+
+    trailer.Crc := crc32(trailer.Crc,buffer[0],count);
+  end;
+
+  inStream.Position := position;
+
+  trailer.Size := inStream.Size - inStream.Position;
+
+  outStream.Write(header,SizeOf(TGZHeader));
+
+  if Length(filename) > 0 then
+  begin
+    nullString := fileName + #$00;
+
+    outStream.Write(nullString[1],Length(nullString));
+  end;
+
+  if Length(comment) > 0 then
+  begin
+    nullString := comment + #$00;
+
+    outStream.Write(nullString[1],Length(nullString));
+  end;
+
+  ZCompressStream2(inStream,outStream,zcDefault,-15,9,zsDefault);
+
+  outStream.Write(trailer,SizeOf(TGZTrailer));
+end;
+
+procedure ZDecompressStream(inStream, outStream: TStream);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZDecompressCheck(InflateInit(zstream));
+
+  ZInternalDecompressStream(zstream,inStream,outStream);
+end;
+
+procedure ZDecompressStream2(inStream, outStream: TStream;
+  windowBits: Integer);
+var
+  zstream: TZStreamRec;
+begin
+  FillChar(zstream,SizeOf(TZStreamRec),0);
+
+  ZDecompressCheck(InflateInit2(zstream,windowBits));
+
+  ZInternalDecompressStream(zstream,inStream,outStream);
+end;
+
+{** checksum routines *******************************************************}
+
+function ZAdler32(adler: Longint; const buffer; size: Integer): Longint;
+begin
+  result := adler32(adler,buffer,size);
+end;
+
+function ZCrc32(crc: Longint; const buffer; size: Integer): Longint;
+begin
+  result := crc32(crc,buffer,size);
 end;
 
 {** TCustomZStream **********************************************************}
@@ -711,6 +1368,7 @@ end;
 constructor TCustomZStream.Create(stream: TStream);
 begin
   inherited Create;
+
   FStream := stream;
   FStreamPos := stream.Position;
 end;
@@ -730,20 +1388,33 @@ begin
   FZStream.next_out := FBuffer;
   FZStream.avail_out := SizeOf(FBuffer);
 
-  ZCompressCheck(DeflateInit(FZStream, ZLevels[compressionLevel]));
+  ZCompressCheck(DeflateInit(FZStream,ZLevels[compressionLevel]));
+end;
+
+constructor TZCompressionStream.Create(dest: TStream;
+  compressionLevel: TZCompressionLevel; windowBits, memLevel: Integer;
+  strategy: TZStrategy);
+begin
+  inherited Create(dest);
+
+  FZStream.next_out := FBuffer;
+  FZStream.avail_out := SizeOf(FBuffer);
+
+  ZCompressCheck(DeflateInit2(FZStream,ZLevels[compressionLevel],Z_DEFLATED,
+    windowBits,memLevel,ZStrategies[strategy]));
 end;
 
 destructor TZCompressionStream.Destroy;
 begin
-  FZStream.next_in := nil;
+  FZStream.next_in := Nil;
   FZStream.avail_in := 0;
 
   try
     if FStream.Position <> FStreamPos then FStream.Position := FStreamPos;
 
-    while ZCompressCheck(deflate(FZStream, Z_FINISH)) <> Z_STREAM_END do
+    while ZCompressCheck(deflate(FZStream,Z_FINISH)) <> Z_STREAM_END do
     begin
-      FStream.WriteBuffer(FBuffer, SizeOf(FBuffer) - FZStream.avail_out);
+      FStream.WriteBuffer(FBuffer,SizeOf(FBuffer) - FZStream.avail_out);
 
       FZStream.next_out := FBuffer;
       FZStream.avail_out := SizeOf(FBuffer);
@@ -751,7 +1422,7 @@ begin
 
     if FZStream.avail_out < SizeOf(FBuffer) then
     begin
-      FStream.WriteBuffer(FBuffer, SizeOf(FBuffer) - FZStream.avail_out);
+      FStream.WriteBuffer(FBuffer,SizeOf(FBuffer) - FZStream.avail_out);
     end;
   finally
     deflateEnd(FZStream);
@@ -774,11 +1445,11 @@ begin
 
   while FZStream.avail_in > 0 do
   begin
-    ZCompressCheck(deflate(FZStream, Z_NO_FLUSH));
+    ZCompressCheck(deflate(FZStream,Z_NO_FLUSH));
 
     if FZStream.avail_out = 0 then
     begin
-      FStream.WriteBuffer(FBuffer, SizeOf(FBuffer));
+      FStream.WriteBuffer(FBuffer,SizeOf(FBuffer));
 
       FZStream.next_out := FBuffer;
       FZStream.avail_out := SizeOf(FBuffer);
@@ -812,14 +1483,28 @@ end;
 constructor TZDecompressionStream.Create(source: TStream);
 begin
   inherited Create(source);
+
   FZStream.next_in := FBuffer;
   FZStream.avail_in := 0;
+
   ZDecompressCheck(InflateInit(FZStream));
+end;
+
+constructor TZDecompressionStream.Create(source: TStream;
+  windowBits: Integer);
+begin
+  inherited Create(source);
+
+  FZStream.next_in := FBuffer;
+  FZStream.avail_in := 0;
+
+  ZDecompressCheck(InflateInit2(FZStream,windowBits));
 end;
 
 destructor TZDecompressionStream.Destroy;
 begin
   inflateEnd(FZStream);
+
   inherited Destroy;
 end;
 
@@ -838,7 +1523,7 @@ begin
   begin
     if FZStream.avail_in = 0 then
     begin
-      FZStream.avail_in := FStream.Read(FBuffer, SizeOf(FBuffer));
+      FZStream.avail_in := FStream.Read(FBuffer,SizeOf(FBuffer));
 
       if FZStream.avail_in = 0 then
       begin
@@ -853,7 +1538,7 @@ begin
       DoProgress;
     end;
 
-    zresult := ZDecompressCheck(inflate(FZStream, Z_NO_FLUSH));
+    zresult := ZDecompressCheck(inflate(FZStream,Z_NO_FLUSH));
   end;
 
   if (zresult = Z_STREAM_END) and (FZStream.avail_in > 0) then
@@ -874,8 +1559,8 @@ end;
 
 function TZDecompressionStream.Seek(Offset: Longint; Origin: Word): Longint;
 var
-  buf: array[0..8191] of Char;
-  i: Integer;
+  buf: Array [0..8191] of Char;
+  i  : Integer;
 begin
   if (offset = 0) and (origin = soFromBeginning) then
   begin
@@ -888,24 +1573,32 @@ begin
     FStreamPos := 0;
   end
   else if ((offset >= 0) and (origin = soFromCurrent)) or
-    (((offset - FZStream.total_out) > 0) and (origin = soFromBeginning)) then
+          (((offset - FZStream.total_out) > 0) and (origin = soFromBeginning)) then
   begin
-    if origin = soFromBeginning then Dec(offset, FZStream.total_out);
+    if origin = soFromBeginning then Dec(offset,FZStream.total_out);
 
     if offset > 0 then
     begin
-      for i := 1 to offset div SizeOf(buf) do ReadBuffer(buf, SizeOf(buf));
-      ReadBuffer(buf, offset mod SizeOf(buf));
+      for i := 1 to offset div SizeOf(buf) do ReadBuffer(buf,SizeOf(buf));
+      ReadBuffer(buf,offset mod SizeOf(buf));
     end;
   end
   else if (offset = 0) and (origin = soFromEnd) then
   begin
-    while Read(buf, SizeOf(buf)) > 0 do ;
+    while Read(buf,SizeOf(buf)) > 0 do ;
   end
   else raise EZDecompressionError.Create(SZInvalid);
 
   result := FZStream.total_out;
 end;
 
-end.
+{** EZLibError **************************************************************}
 
+constructor EZLibError.Create(code: Integer; const dummy: String);
+begin
+  inherited Create(_z_errmsg[2 - code]);
+
+  FErrorCode := code;
+end;
+
+end.
