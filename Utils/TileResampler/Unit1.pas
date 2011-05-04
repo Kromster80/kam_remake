@@ -5,9 +5,10 @@ unit Unit1;
 interface
 
 uses
-  Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, LResources, KromUtils, ZLibEx
+  Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, LResources, KromUtils
   {$IFDEF MSWindows}, Windows {$ENDIF}
-  {$IFDEF Unix}, LCLType {$ENDIF}
+  {$IFDEF WDC}, ZLibEx {$ENDIF}
+  {$IFDEF FPC}, paszlib, fileutil {$ENDIF}
   ;
 
 type
@@ -107,17 +108,20 @@ end;
 procedure TForm1.Button3Click(Sender: TObject);
 var
   InputStream, OutputStream: TFileStream;
+  {$IFDEF WDC}
   DeCompressionStream: TZDecompressionStream;
   CompressionStream: TZCompressionStream;
+  {$ENDIF}
   c:char;
 begin
   if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
+  {$IFDEF WDC}
   InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
   InputStream.Position := 0;
   InputStream.Read(c, 1);
 
   if c = #120 then begin
-    Application.MessageBox('File is already a zLib archive', 'Error',{$IFDEF Unix} MB_OK{$ENDIF});
+    Application.MessageBox('File is already a zLib archive', 'Error');
     InputStream.Free;
     exit;
   end;
@@ -129,6 +133,20 @@ begin
   CompressionStream.Free;
   OutputStream.Free;
   InputStream.Free;
+  {$ENDIF}
+  {$IFDEF FPC}
+    {
+    InStream := TMemoryStream.Create;
+    InStream.LoadFromFile(FileName);
+
+    GetMem(Comp, InStream.Size);
+    InStream.Read(Comp^, InStream.Size);
+
+    DestSize := SizeOf(TGAHeader);
+    i := uncompress(@TGAHeader, DestSize, Comp, InStream.Size);
+    }
+  exit;
+  {$ENDIF}
   CopyFile(PChar(OpenDialog1.FileName+'.tmp'),PChar(OpenDialog1.FileName), false); //Overwrite
   DeleteFile(PChar(OpenDialog1.FileName+'.tmp'));
 end;
@@ -138,12 +156,14 @@ procedure TForm1.Button4Click(Sender: TObject);
 var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
+  {$IFDEF WDC}
   DeCompressionStream: TZDecompressionStream;
   CompressionStream: TZCompressionStream;
+  {$ENDIF}
   c:char;
 begin
   if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
-
+  {$IFDEF WDC}
   InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
   InputStream.Position := 0;
   InputStream.Read(c, 1);
@@ -162,6 +182,10 @@ begin
   OutputStream.SaveToFile(OpenDialog1.Filename);
   DecompressionStream.Free;
   OutputStream.Free;
+  {$ENDIF}
+  {$IFDEF FPC}
+  exit;
+  {$ENDIF}
 end;
 
 
