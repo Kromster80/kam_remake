@@ -1,8 +1,14 @@
 unit Unit1;
+
+{$MODE Delphi}
+
 interface
 
 uses
-  Forms, Controls, StdCtrls, Classes, ZLibEx, SysUtils, KromUtils, Dialogs, Windows;
+  Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, LResources, KromUtils, ZLibEx
+  {$IFDEF MSWindows}, Windows {$ENDIF}
+  {$IFDEF Unix}, LCLType {$ENDIF}
+  ;
 
 type
   TForm1 = class(TForm)
@@ -20,8 +26,7 @@ type
 var
   Form1: TForm1;
 
-implementation  
-{$R *.dfm}
+implementation
 
 procedure TForm1.Button1Click(Sender: TObject);
 var f,f2:file;
@@ -112,7 +117,7 @@ begin
   InputStream.Read(c, 1);
 
   if c = #120 then begin
-    Application.MessageBox('File is already a zLib archive', 'Error');
+    Application.MessageBox('File is already a zLib archive', 'Error',{$IFDEF Unix} MB_OK{$ENDIF});
     InputStream.Free;
     exit;
   end;
@@ -159,5 +164,9 @@ begin
   OutputStream.Free;
 end;
 
+
+initialization
+  {$i unit1.lrs}
+  {$i Unit1.lrs}
 
 end.
