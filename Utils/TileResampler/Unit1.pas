@@ -7,8 +7,9 @@ interface
 uses
   Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, LResources, KromUtils
   {$IFDEF MSWindows}, Windows {$ENDIF}
+  {$IFDEF Unix}, LCLType {$ENDIF}
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, paszlib, fileutil {$ENDIF}
+  {$IFDEF FPC}, zstream, fileutil {$ENDIF}
   ;
 
 type
@@ -115,30 +116,39 @@ var
   DeCompressionStream: TZDecompressionStream;
   CompressionStream: TZCompressionStream;
   {$ENDIF}
+  {$IFDEF FPC}
+  DeCompressionStream: TDecompressionStream;
+  CompressionStream: TCompressionStream;
+  {$ENDIF}
   c:char;
 begin
   if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
-  {$IFDEF WDC}
+//  {$IFDEF WDC}
   InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
   InputStream.Position := 0;
   InputStream.Read(c, 1);
 
   if c = #120 then begin
-    Application.MessageBox('File is already a zLib archive', 'Error');
+    Application.MessageBox('File is already a zLib archive', 'Error', MB_OK);
     InputStream.Free;
     exit;
   end;
   InputStream.Position := 0; //Reset just in case
 
   OutputStream := TFileStream.Create(OpenDialog1.FileName+'.tmp', fmCreate);
+  {$IFDEF WDC}
   CompressionStream := TZCompressionStream.Create(OutputStream, zcMax);
+  {$ENDIF}
+  {$IFDEF FPC}
+  CompressionStream := TCompressionStream.Create(clMax, OutputStream);
+  {$ENDIF}
   CompressionStream.CopyFrom(InputStream, InputStream.Size);
   CompressionStream.Free;
   OutputStream.Free;
   InputStream.Free;
-  {$ENDIF}
   {$IFDEF FPC}
     {
+    We really do not need this in game too:
     InStream := TMemoryStream.Create;
     InStream.LoadFromFile(FileName);
 
@@ -163,32 +173,36 @@ var
   DeCompressionStream: TZDecompressionStream;
   CompressionStream: TZCompressionStream;
   {$ENDIF}
+  {$IFDEF FPC}
+  DeCompressionStream: TDecompressionStream;
+  CompressionStream: TCompressionStream;
+  {$ENDIF}
   c:char;
 begin
   if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
-  {$IFDEF WDC}
   InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
   InputStream.Position := 0;
   InputStream.Read(c, 1);
 
   if c <> #120 then begin
-    Application.MessageBox('File is not a zLib archive', 'Error');
+    Application.MessageBox('File is not a zLib archive', 'Error', MB_OK);
     InputStream.Free;
     exit;
   end;
   InputStream.Position := 0; //Reset just in case
 
   OutputStream := TMemoryStream.Create;
+  {$IFDEF WDC}
   DecompressionStream := TZDecompressionStream.Create(InputStream);
+  {$ENDIF}
+  {$IFDEF FPC}
+  DecompressionStream := TDecompressionStream.Create(InputStream);
+  {$ENDIF}
   OutputStream.CopyFrom(DecompressionStream, 0);
   InputStream.Free; //Free the Stream before we write to same filename
   OutputStream.SaveToFile(OpenDialog1.Filename);
   DecompressionStream.Free;
   OutputStream.Free;
-  {$ENDIF}
-  {$IFDEF FPC}
-  exit;
-  {$ENDIF}
 end;
 
 
