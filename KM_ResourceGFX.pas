@@ -9,7 +9,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, PasZLib {$ENDIF};
+  {$IFDEF FPC}, Zstream {$ENDIF};
 
 
 type
@@ -1267,15 +1267,13 @@ end;
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
 var ii,kk,h,j,pX:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {ft:textfile;}
-  {$IFDEF WDC}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
+  {$IFDEF WDC}
   DecompressionStream: TZDecompressionStream;
   {$ENDIF}
   {$IFDEF FPC}
-  {InStream: TMemoryStream;
-  Comp:Pointer;
-  DestSize:cardinal;}
+  DecompressionStream: TDecompressionStream;
   {$ENDIF}
 begin
   if not FileExists(FileName) then exit;
@@ -1289,11 +1287,15 @@ begin
 
   if c[1]=120 then
   begin
-    {$IFDEF WDC}
     closefile(f);
     InputStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
     OutputStream := TMemoryStream.Create;
-    DecompressionStream := TZDecompressionStream.Create(InputStream);
+    {$IFDEF WDC}
+     DecompressionStream := TZDecompressionStream.Create(InputStream);
+    {$ENDIF}
+    {$IFDEF FPC}
+     DecompressionStream := TDecompressionStream.Create(InputStream);
+    {$ENDIF}
     OutputStream.CopyFrom(DecompressionStream, 0);
     OutputStream.Position := 0; //SizeOf(TGAHeader)
     OutputStream.ReadBuffer(c[1], 18);
@@ -1304,19 +1306,6 @@ begin
     InputStream.Free;
     OutputStream.Free;
     DecompressionStream.Free;
-    {$ENDIF};
-    {$IFDEF FPC}
-    //todo: Read zlib packed texture to minimap color in FPC
-    {InStream := TMemoryStream.Create;
-    InStream.LoadFromFile(FileName);
-    GetMem(Comp, InStream.Size);
-    InStream.Read(Comp^, InStream.Size);
-    setlength(c,SizeX*SizeY*4+1);
-    DestSize := SizeX*SizeY*4 + 18; //SizeOf(TGAHeader)
-    uncompress(@c[1], DestSize, Comp, InStream.Size);
-    InStream.Free;}
-    exit;
-    {$ENDIF};
   end
   else
   begin
