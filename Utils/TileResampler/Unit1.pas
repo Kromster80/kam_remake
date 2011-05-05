@@ -28,6 +28,9 @@ var
   Form1: TForm1;
 
 implementation
+{$IFDEF WDC}
+  {$R *.dfm}
+{$ENDIF}
 
 procedure TForm1.Button1Click(Sender: TObject);
 var f,f2:file;
@@ -190,7 +193,5 @@ end;
 
 
 initialization
-  {$i unit1.lrs}
   {$i Unit1.lrs}
-
 end.
