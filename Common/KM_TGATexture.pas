@@ -141,6 +141,8 @@ var
   {$ENDIF}
   {$IFDEF FPC}
   DecompressionStream: TDecompressionStream;
+  ii: Integer;
+  Buf: array[0..1023]of Byte;
   {$ENDIF}
 begin
   Result := false;
@@ -180,11 +182,15 @@ begin
     OutputStream := TMemoryStream.Create;
     {$IFDEF WDC}
     DecompressionStream := TZDecompressionStream.Create(InputStream);
+    OutputStream.CopyFrom(DecompressionStream, 0);
     {$ENDIF}
     {$IFDEF FPC}
     DecompressionStream := TDecompressionStream.Create(InputStream);
+    repeat
+    ii:=DecompressionStream.Read(Buf, SizeOf(Buf));
+    if i <> 0 then OutputStream.Write(Buf, i);
+    until i <= 0;
     {$ENDIF}
-    OutputStream.CopyFrom(DecompressionStream, 0);
     InputStream.Free;
     DecompressionStream.Free;
     OutputStream.Position:=0;
@@ -225,22 +231,9 @@ begin
 
   if ZLibCompressed then
   begin
-    //{$IFDEF WDC}
     GetMem(Image, ImageSize);
     bytesRead := OutputStream.Read(Image^, ImageSize);
     OutputStream.Free;
-    //{$ENDIF}
-    {$IFDEF FPC}
-    {
-    DestSize := ImageSize + SizeOf(TGAHeader);
-    GetMem(DeComp, DestSize);
-    i := uncompress(DeComp, DestSize, Comp, InStream.Size);
-    Image := DeComp + 18; //Just a pointer offset by 18
-    bytesRead := ImageSize;
-    InStream.Free;
-    FreeMem(Comp); //Cleanup after use
-    }
-    {$ENDIF}
   end
   else
   begin

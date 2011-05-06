@@ -1274,6 +1274,8 @@ var ii,kk,h,j,pX:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {f
   {$ENDIF}
   {$IFDEF FPC}
   DecompressionStream: TDecompressionStream;
+  i: Integer;
+  Buf: array[0..1023]of Byte;
   {$ENDIF}
 begin
   if not FileExists(FileName) then exit;
@@ -1292,11 +1294,15 @@ begin
     OutputStream := TMemoryStream.Create;
     {$IFDEF WDC}
      DecompressionStream := TZDecompressionStream.Create(InputStream);
+     OutputStream.CopyFrom(DecompressionStream, 0);
     {$ENDIF}
     {$IFDEF FPC}
      DecompressionStream := TDecompressionStream.Create(InputStream);
+     repeat
+     i:=DecompressionStream.Read(Buf, SizeOf(Buf));
+     if i <> 0 then OutputStream.Write(Buf, i);
+     until i <= 0;
     {$ENDIF}
-    OutputStream.CopyFrom(DecompressionStream, 0);
     OutputStream.Position := 0; //SizeOf(TGAHeader)
     OutputStream.ReadBuffer(c[1], 18);
     SizeX := c[13]+c[14]*256;
