@@ -170,7 +170,7 @@ begin
   //Try to read data packet from buffer
   while fBufferSize >= 4 do
   begin
-    PacketLength := PCardinal(aData)^;
+    PacketLength := PCardinal(fBuffer)^;
     if PacketLength <= fBufferSize-4 then
     begin
       fOnRecieveData(@fBuffer[4], PacketLength); //Skip PacketLength

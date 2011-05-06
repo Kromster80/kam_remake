@@ -68,8 +68,8 @@ type
     procedure ConnectFailed(const S: string);
     procedure PacketRecieve(aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
-    procedure PacketToAll(aKind:TMessageKind; const aData:string='');
-    procedure PacketToHost(aKind:TMessageKind; const aData:string='');
+    procedure PacketToAll(aKind:TMessageKind; const aData:string);
+    procedure PacketToHost(aKind:TMessageKind; const aData:string);
     procedure StartGame;
   public
     constructor Create;
@@ -216,7 +216,7 @@ end;
 procedure TKMNetworking.LeaveLobby;
 begin
   case fLANPlayerKind of
-    lpk_Host:   PacketToAll(mk_HostDisconnect);
+    lpk_Host:   PacketToAll(mk_HostDisconnect, fMyNikname);
     lpk_Joiner: PacketToHost(mk_Disconnect, fMyNikname);
   end;
 end;
@@ -408,7 +408,9 @@ begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 
   M := TKMemoryStream.Create;
-  M.WriteBuffer(aData, aLength);
+  M.WriteBuffer(aData^, aLength);
+  M.Position := 0;
+
   M.Read(Kind, SizeOf(TMessageKind));
 
   case Kind of
@@ -583,6 +585,8 @@ begin
               if Assigned(fOnTextMessage) then fOnTextMessage(Msg);
             end;
   end;
+
+  M.Free;
 end;
 
 
@@ -597,13 +601,13 @@ begin
 end;
 
 
-procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string='');
+procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string);
 begin
   PacketSend('', aKind, aData);
 end;
 
 
-procedure TKMNetworking.PacketToHost(aKind:TMessageKind; const aData:string='');
+procedure TKMNetworking.PacketToHost(aKind:TMessageKind; const aData:string);
 begin
   Assert(fLANPlayerKind = lpk_Joiner, 'Only joined player can send data to Host');
   PacketSend(fHostAddress, aKind, aData);
