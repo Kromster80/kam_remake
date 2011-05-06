@@ -117,7 +117,7 @@ begin
     exit;
   end;
 
-  GetMem(P, BufferSize);
+  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
   L := TWSocket(Sender).Receive(P, BufferSize);
 
   if L > 0 then //if L=0 then exit;

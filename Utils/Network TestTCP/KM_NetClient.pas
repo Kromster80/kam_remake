@@ -25,6 +25,9 @@ type
     fClient:TKMNetClientOverbyte;
     fConnected:boolean;
 
+    fBufferSize:cardinal;
+    fBuffer:array of byte;
+
     fOnConnectSucceed:TNotifyEvent;
     fOnConnectFailed:TGetStrProc;
     fOnForcedDisconnect:TGetStrProc;
@@ -143,34 +146,39 @@ begin
 end;
 
 
-//Assemble the packet as [Length.Data.Length]
+//Assemble the packet as [Length.Data]
 procedure TKMNetClient.SendData(aData:pointer; aLength:cardinal);
-var P:pointer;
+var P:Pointer;
 begin
-  GetMem(P, aLength+8);
+  GetMem(P, aLength+4);
   PInteger(P)^ := aLength;
-  PInteger(cardinal(P)+4+aLength)^ := aLength;
   Move(aData^, Pointer(cardinal(P)+4)^, aLength);
-  fClient.SendData(P, aLength+8);
+  fClient.SendData(P, aLength+4);
   FreeMem(P);
 end;
 
 
 //Split recieved data into single packets
-//todo: handle partial chunks
 procedure TKMNetClient.RecieveData(aData:pointer; aLength:cardinal);
-var ReadCount,PacketLength,Check:Cardinal;
+var PacketLength:Cardinal;
 begin
-  ReadCount := 0;
-  while (aLength > ReadCount) do
+  //Append new data to buffer
+  SetLength(fBuffer, fBufferSize + aLength);
+  Move(aData^, fBuffer[fBufferSize], aLength);
+  fBufferSize := fBufferSize + aLength;
+
+  //Try to read data packet from buffer
+  while fBufferSize >= 4 do
   begin
-    PacketLength := PCardinal(Cardinal(aData)+ReadCount)^;
-    inc(ReadCount, 4);
-    fOnRecieveData(Pointer(Cardinal(aData)+ReadCount), PacketLength);
-    inc(ReadCount, PacketLength);
-    Check := PInteger(Cardinal(aData)+ReadCount)^;
-    inc(ReadCount, 4);
-    Assert(PacketLength=Check);
+    PacketLength := PCardinal(aData)^;
+    if PacketLength <= fBufferSize-4 then
+    begin
+      fOnRecieveData(@fBuffer[4], PacketLength); //Skip PacketLength
+      if 4+PacketLength < fBufferSize then //Check range
+        Move(fBuffer[4+PacketLength], fBuffer[0], fBufferSize-PacketLength-4);
+      fBufferSize := fBufferSize - PacketLength - 4;
+    end else
+      Exit;
   end;
 end;
 
