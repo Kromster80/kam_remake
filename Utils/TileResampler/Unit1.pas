@@ -176,6 +176,8 @@ var
   {$IFDEF FPC}
   DeCompressionStream: TDecompressionStream;
   CompressionStream: TCompressionStream;
+  i: Integer;
+  Buf: array[0..1023]of Byte;
   {$ENDIF}
   c:char;
 begin
@@ -194,11 +196,15 @@ begin
   OutputStream := TMemoryStream.Create;
   {$IFDEF WDC}
   DecompressionStream := TZDecompressionStream.Create(InputStream);
+  OutputStream.CopyFrom(DecompressionStream, 0);
   {$ENDIF}
   {$IFDEF FPC}
   DecompressionStream := TDecompressionStream.Create(InputStream);
+  repeat
+  i:=DecompressionStream.Read(Buf, SizeOf(Buf));
+  if i <> 0 then OutputStream.Write(Buf, i);
+  until i <= 0;
   {$ENDIF}
-  OutputStream.CopyFrom(DecompressionStream, 0);
   InputStream.Free; //Free the Stream before we write to same filename
   OutputStream.SaveToFile(OpenDialog1.Filename);
   DecompressionStream.Free;
