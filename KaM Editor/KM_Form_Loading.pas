@@ -9,7 +9,7 @@ uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {xlib, x,} {$ENDIF}
   dglOpenGL, KromUtils;
 
 type
@@ -41,8 +41,17 @@ uses KM_Unit1, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT;
 
 
 procedure TFormLoading.FormCreate(Sender: TObject);
-var InputParam:string;
+var
+  InputParam:string;
+  {$IFDEF Unix}
+  {winattr: XWindowAttributes;
+  vitemp: xlib.XVisualInfo;
+  nret: Integer;
+  glwin: Cardinal;
+  vi: PXvisualInfo; }
+  {$ENDIF}
 begin
+  //MessageBox(Form1.Handle,'TFormLoading...', 'Error', MB_OK);
   Form1.Hide;
   ExeDir := ExtractFilePath(Application.ExeName);
 
@@ -54,9 +63,9 @@ begin
 
   InitOpenGL;
   h_DC := GetDC(Form1.Panel1.Handle);
-  {$IFDEF MSWindows}
   if h_DC=0 then begin MessageBox(Form1.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR); exit; end;
   if not SetDCPixelFormat(h_DC) then exit;
+  {$IFDEF MSWindows}
   h_RC := wglCreateContext(h_DC);
   if h_RC=0 then begin MessageBox(Form1.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR); exit; end;
   if not wglMakeCurrent(h_DC, h_RC) then begin
@@ -65,6 +74,22 @@ begin
   end;
   {$ENDIF}
   {$IFDEF Unix}
+  { here example I foud still no idea how to add it properlyd:
+  // Just in case it didn't happen already.
+  if not InitOpenGL then RaiseLastOSError;
+  // Create OpenGL context
+  FOutputDevice := QWidgetH(outputDevice);
+  glwin := QWidget_winId(FOutputDevice);
+  xlib.XGetWindowAttributes(Application.Display, glwin, @winattr);
+  vitemp.visual := winattr.visual;
+  vitemp.visualid := XVisualIDFromVisual(vitemp.visual);
+  vi := XGetVisualInfo(Application.Display, VisualIDMask, @vitemp, @nret);
+  FRenderingContext := glXCreateContext(Application.Display, vi, nil, True);
+  if RenderingContext = nil then
+    raise Exception.Create('Failed to create rendering context');
+  if RenderingContext = GLX_BAD_CONTEXT then
+    raise Exception.Create('bad context');
+  }
   MessageBox(Form1.Handle,'wglMakeCurrent and wglCreateContext not ported', 'Error', MB_OK);
   {$ENDIF}
   ReadExtensions;
