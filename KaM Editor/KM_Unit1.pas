@@ -486,6 +486,8 @@ end;
 
 procedure TForm1.RenderResize(Sender:TObject);
 begin
+  //this procedure crashes on Linux
+  {$IFDEF MSWindows}
   if Panel1.Height=0 then Panel1.Height:=1;
   if Panel1.Width=0  then Panel1.Width :=1;        // Panel1.Height/Panel1.Width
 //  if not then exit;
@@ -497,6 +499,10 @@ begin
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
   glLoadIdentity();                   // Reset View
   ZoomChange(nil);
+  {$ENDIF}
+  {$IFDEF Unix}
+  MessageBox(Form1.Handle,'RenderResize disabled', 'Error', MB_OK);
+  {$ENDIF}
 end;      
 
 procedure TForm1.RenderFrame(Sender:TObject);
