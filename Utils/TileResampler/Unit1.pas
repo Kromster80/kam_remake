@@ -1,15 +1,17 @@
 unit Unit1;
+{$I TilesetResampler.inc}
 
+{$IFDEF FPC}
 {$MODE Delphi}
-
+{$ENDIF}
 interface
 
 uses
-  Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, LResources, KromUtils
+  Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, KromUtils
   {$IFDEF MSWindows}, Windows {$ENDIF}
   {$IFDEF Unix}, LCLType {$ENDIF}
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, zstream, fileutil {$ENDIF}
+  {$IFDEF FPC} ,LResources, zstream, fileutil {$ENDIF}
   ;
 
 type
@@ -64,7 +66,7 @@ end;
 
 
 procedure TForm1.Button2Click(Sender: TObject);
-var f1,f2,f3,f4,f5,f6,f7,f8:file;
+var f1,f2,f3,f4,f5,f6:file;
     h:array[1..18]of char;
     e:array[1..4]of char;
     a,b,c:array[1..4]of char;
@@ -113,11 +115,9 @@ procedure TForm1.Button3Click(Sender: TObject);
 var
   InputStream, OutputStream: TFileStream;
   {$IFDEF WDC}
-  DeCompressionStream: TZDecompressionStream;
   CompressionStream: TZCompressionStream;
   {$ENDIF}
   {$IFDEF FPC}
-  DeCompressionStream: TDecompressionStream;
   CompressionStream: TCompressionStream;
   {$ENDIF}
   c:char;
@@ -146,20 +146,6 @@ begin
   CompressionStream.Free;
   OutputStream.Free;
   InputStream.Free;
-  {$IFDEF FPC}
-    {
-    We really do not need this in game too:
-    InStream := TMemoryStream.Create;
-    InStream.LoadFromFile(FileName);
-
-    GetMem(Comp, InStream.Size);
-    InStream.Read(Comp^, InStream.Size);
-
-    DestSize := SizeOf(TGAHeader);
-    i := uncompress(@TGAHeader, DestSize, Comp, InStream.Size);
-    }
-  exit;
-  {$ENDIF}
   CopyFile(PChar(OpenDialog1.FileName+'.tmp'),PChar(OpenDialog1.FileName), false); //Overwrite
   DeleteFile(PChar(OpenDialog1.FileName+'.tmp'));
 end;
@@ -171,11 +157,9 @@ var
   OutputStream: TMemoryStream;
   {$IFDEF WDC}
   DeCompressionStream: TZDecompressionStream;
-  CompressionStream: TZCompressionStream;
   {$ENDIF}
   {$IFDEF FPC}
   DeCompressionStream: TDecompressionStream;
-  CompressionStream: TCompressionStream;
   i: Integer;
   Buf: array[0..1023]of Byte;
   {$ENDIF}
@@ -212,6 +196,9 @@ begin
 end;
 
 
+{$IFDEF FPC}
 initialization
   {$i Unit1.lrs}
+{$ENDIF}
+
 end.

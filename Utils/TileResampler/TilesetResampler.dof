@@ -45,7 +45,7 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=..\ Common \
+SearchPath=..\..\Common\;..\..\Common\zlib
 Packages=VCL50;VCLX50;VCLSMP50;VCLDB50;VCLADO50;ibevnt50;VCLBDE50;VCLDBX50;QRPT50;TEEUI50;TEEDB50;TEE50;DSS50;TEEQR50;VCLIB50;VCLMID50;VCLIE50;INETDB50;INET50;NMFAST50;WEBMID50;dclocx50;dclaxserver50;AGLd5;TAMovie
 Conditionals=
 DebugSourceDirs=
@@ -89,8 +89,11 @@ Comments=
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=4
-Item0=..\ Common \
-Item1=..\..\ Common 
-Item2=C:\Documents and Settings\Krom\Desktop\Delphi\ Common ;E:\Delphi\ Common 
-Item3=C:\Documents and Settings\Krom\Desktop\Delphi\ Common 
+Count=7
+Item0=..\..\Common\;..\..\Common\zlib
+Item1=..\..\Common\
+Item2=..\Common\
+Item3=..\ Common \
+Item4=..\..\ Common 
+Item5=C:\Documents and Settings\Krom\Desktop\Delphi\ Common ;E:\Delphi\ Common 
+Item6=C:\Documents and Settings\Krom\Desktop\Delphi\ Common 
