@@ -1,0 +1,215 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="7"/>
+    <General>
+      <MainUnit Value="0"/>
+      <TargetFileExt Value=".exe"/>
+      <Icon Value="0"/>
+      <UseXPManifest Value="True"/>
+      <ActiveEditorIndexAtStart Value="0"/>
+    </General>
+    <VersionInfo>
+      <Language Value=""/>
+      <CharSet Value=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="6">
+      <Unit0>
+        <Filename Value="TilesetResampler.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <CursorPos X="1" Y="15"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="24"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="Unit1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit1"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="24"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="../../Common/ZLIBEX.PAS"/>
+        <UnitName Value="ZLibEx"/>
+        <CursorPos X="47" Y="1006"/>
+        <TopLine Value="988"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="../../../../Downloads/ZLIBEX.PAS"/>
+        <UnitName Value="ZLibEx"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="81"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../../../lazarus/lcl/include/control.inc"/>
+        <CursorPos X="1" Y="2228"/>
+        <TopLine Value="2208"/>
+        <UsageCount Value="10"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../Common/KromUtils.pas"/>
+        <UnitName Value="KromUtils"/>
+        <CursorPos X="163" Y="488"/>
+        <TopLine Value="463"/>
+        <UsageCount Value="10"/>
+      </Unit5>
+    </Units>
+    <JumpHistory Count="25" HistoryIndex="24">
+      <Position1>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="186" Column="1" TopLine="166"/>
+      </Position1>
+      <Position2>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="187" Column="1" TopLine="167"/>
+      </Position2>
+      <Position3>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="189" Column="1" TopLine="169"/>
+      </Position3>
+      <Position4>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="190" Column="1" TopLine="170"/>
+      </Position4>
+      <Position5>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="196" Column="57" TopLine="171"/>
+      </Position5>
+      <Position6>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="185" Column="1" TopLine="165"/>
+      </Position6>
+      <Position7>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="186" Column="1" TopLine="166"/>
+      </Position7>
+      <Position8>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="187" Column="1" TopLine="167"/>
+      </Position8>
+      <Position9>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="189" Column="1" TopLine="169"/>
+      </Position9>
+      <Position10>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="190" Column="1" TopLine="170"/>
+      </Position10>
+      <Position11>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="191" Column="1" TopLine="171"/>
+      </Position11>
+      <Position12>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="192" Column="1" TopLine="172"/>
+      </Position12>
+      <Position13>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="212" Column="1" TopLine="177"/>
+      </Position13>
+      <Position14>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="187" Column="20" TopLine="177"/>
+      </Position14>
+      <Position15>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="39" Column="48" TopLine="23"/>
+      </Position15>
+      <Position16>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="160" Column="8" TopLine="130"/>
+      </Position16>
+      <Position17>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="177" Column="146" TopLine="148"/>
+      </Position17>
+      <Position18>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="165" Column="48" TopLine="146"/>
+      </Position18>
+      <Position19>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="166" Column="3" TopLine="146"/>
+      </Position19>
+      <Position20>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="191" Column="34" TopLine="167"/>
+      </Position20>
+      <Position21>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="174" Column="21" TopLine="154"/>
+      </Position21>
+      <Position22>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="121" Column="48" TopLine="102"/>
+      </Position22>
+      <Position23>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="130" Column="21" TopLine="110"/>
+      </Position23>
+      <Position24>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="69" Column="22" TopLine="49"/>
+      </Position24>
+      <Position25>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="91" Column="19" TopLine="71"/>
+      </Position25>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="8"/>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)/"/>
+      <OtherUnitFiles Value="../../Common/"/>
+    </SearchPaths>
+    <Other>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

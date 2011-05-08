@@ -26,7 +26,7 @@ uses
   {$IFDEF FPC} GL, {$ENDIF}
   SysUtils, Classes, dglOpenGL
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, paszlib {$ENDIF}
+  {$IFDEF FPC}, zstream {$ENDIF}
   ;
 
 {$IFDEF UNIX}
@@ -134,15 +134,15 @@ var
   Temp: Byte;
   Errs:string;
 
-  {$IFDEF WDC}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
+  {$IFDEF WDC}
   DecompressionStream: TZDecompressionStream;
   {$ENDIF}
   {$IFDEF FPC}
-  InStream: TMemoryStream;
-  DeComp, Comp:Pointer;
-  DestSize:cardinal;
+  DecompressionStream: TDecompressionStream;
+  ii: Integer;
+  Buf: array[0..1023]of Byte;
   {$ENDIF}
 begin
   Result := false;
@@ -178,27 +178,23 @@ begin
   if ZLibCompressed then
   begin
     CloseFile(TGAFile);
-  {$IFDEF WDC}
     InputStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
     OutputStream := TMemoryStream.Create;
+    {$IFDEF WDC}
     DecompressionStream := TZDecompressionStream.Create(InputStream);
     OutputStream.CopyFrom(DecompressionStream, 0);
+    {$ENDIF}
+    {$IFDEF FPC}
+    DecompressionStream := TDecompressionStream.Create(InputStream);
+    repeat
+      ii := DecompressionStream.Read(Buf, SizeOf(Buf));
+      if ii <> 0 then OutputStream.Write(Buf, ii);
+    until ii <= 0;
+    {$ENDIF}
     InputStream.Free;
     DecompressionStream.Free;
     OutputStream.Position:=0;
     OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
-  {$ENDIF}
-  {$IFDEF FPC}
-    {InStream := TMemoryStream.Create;
-    InStream.LoadFromFile(FileName);
-
-    GetMem(Comp, InStream.Size);
-    InStream.Read(Comp^, InStream.Size);
-
-    DestSize := SizeOf(TGAHeader);
-    i := uncompress(@TGAHeader, DestSize, Comp, InStream.Size);}
-    exit;
-  {$ENDIF}
   end;
 
   // Only support 24, 32 bit uncompressed images
@@ -235,21 +231,9 @@ begin
 
   if ZLibCompressed then
   begin
-    {$IFDEF WDC}
     GetMem(Image, ImageSize);
     bytesRead := OutputStream.Read(Image^, ImageSize);
     OutputStream.Free;
-    {$ENDIF}
-
-    {$IFDEF FPC}
-    DestSize := ImageSize + SizeOf(TGAHeader);
-    GetMem(DeComp, DestSize);
-    i := uncompress(DeComp, DestSize, Comp, InStream.Size);
-    Image := DeComp + 18; //Just a pointer offset by 18
-    bytesRead := ImageSize;
-    InStream.Free;
-    FreeMem(Comp); //Cleanup after use
-    {$ENDIF}
   end
   else
   begin
@@ -296,18 +280,7 @@ begin
   end;
 
   Result := true;
-  if ZLibCompressed then
-  begin
-    {$IFDEF WDC}
-    FreeMem(Image);
-    {$ENDIF}
-    {$IFDEF FPC}
-    Image := nil;
-    FreeMem(DeComp);
-    {$ENDIF}
-  end
-  else
-    FreeMem(Image);
+  FreeMem(Image);
 end;
 
 end.

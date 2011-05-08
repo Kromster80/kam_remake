@@ -31,7 +31,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="108">
+    <Units Count="107">
       <Unit0>
         <Filename Value="KaM_Remake.dpr"/>
         <IsPartOfProject Value="True"/>
@@ -935,13 +935,6 @@
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit106>
-      <Unit107>
-        <Filename Value="C:\Lazarus\lcl\graphics.pp"/>
-        <UnitName Value="Graphics"/>
-        <CursorPos X="36" Y="808"/>
-        <TopLine Value="780"/>
-        <UsageCount Value="10"/>
-      </Unit107>
     </Units>
     <JumpHistory Count="19" HistoryIndex="18">
       <Position1>
