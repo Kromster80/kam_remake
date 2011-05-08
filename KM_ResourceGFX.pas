@@ -1299,8 +1299,8 @@ begin
     {$IFDEF FPC}
      DecompressionStream := TDecompressionStream.Create(InputStream);
      repeat
-     i:=DecompressionStream.Read(Buf, SizeOf(Buf));
-     if i <> 0 then OutputStream.Write(Buf, i);
+       i:=DecompressionStream.Read(Buf, SizeOf(Buf));
+       if i <> 0 then OutputStream.Write(Buf, i);
      until i <= 0;
     {$ENDIF}
     OutputStream.Position := 0; //SizeOf(TGAHeader)

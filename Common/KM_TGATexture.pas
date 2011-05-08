@@ -187,9 +187,9 @@ begin
     {$IFDEF FPC}
     DecompressionStream := TDecompressionStream.Create(InputStream);
     repeat
-    ii:=DecompressionStream.Read(Buf, SizeOf(Buf));
-    if i <> 0 then OutputStream.Write(Buf, i);
-    until i <= 0;
+      ii := DecompressionStream.Read(Buf, SizeOf(Buf));
+      if ii <> 0 then OutputStream.Write(Buf, ii);
+    until ii <= 0;
     {$ENDIF}
     InputStream.Free;
     DecompressionStream.Free;
@@ -280,20 +280,7 @@ begin
   end;
 
   Result := true;
-  if ZLibCompressed then
-  begin
-    //{$IFDEF WDC}
-    FreeMem(Image);
-    //{$ENDIF}
-    {$IFDEF FPC}
-    {
-    Image := nil;
-    FreeMem(DeComp);
-    }
-    {$ENDIF}
-  end
-  else
-    FreeMem(Image);
+  FreeMem(Image);
 end;
 
 end.
