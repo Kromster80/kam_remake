@@ -237,7 +237,7 @@ type
     constructor Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
     procedure AddColors(aColors:array of TColor4);
     property BackAlpha:single write fBackAlpha;
-    property ColorIndex:Byte read fColorIndex;
+    property ColorIndex:Byte read fColorIndex write fColorIndex;
     function GetColor:TColor4;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     property OnChange: TNotifyEvent write fOnChange;
@@ -536,9 +536,10 @@ type
     procedure ListClick(Sender:TObject);
     procedure ListHide(Sender:TObject);
     procedure SetEnabled(aValue:boolean); override;
+    procedure SetColorIndex(aIndex:integer);
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
-    property ColorIndex:integer read fColorIndex write fColorIndex;
+    property ColorIndex:integer read fColorIndex write SetColorIndex;
     procedure AddColors(aColors:array of TColor4);
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
@@ -2131,6 +2132,13 @@ begin
   Inherited;
   fButton.Enabled := aValue;
   fSwatch.Enabled := aValue;
+end;
+
+
+procedure TKMDropColorBox.SetColorIndex(aIndex:integer);
+begin
+  fColorIndex := aIndex;
+  fSwatch.ColorIndex := aIndex;
 end;
 
 

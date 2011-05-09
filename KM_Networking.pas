@@ -287,7 +287,7 @@ begin
                   PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
-    lpk_Joiner: PacketToHost(mk_StartingLocQuery, inttostr(aIndex) + fMyNikname);
+    lpk_Joiner: PacketToHost(mk_StartingLocQuery, char(aIndex) + fMyNikname);
   end;
 end;
 
@@ -307,7 +307,7 @@ begin
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
     lpk_Joiner: begin
-                  PacketToHost(mk_FlagColorQuery, inttostr(aIndex) + fMyNikname);
+                  PacketToHost(mk_FlagColorQuery, char(aIndex) + fMyNikname);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
   end;
@@ -512,7 +512,7 @@ begin
     mk_StartingLocQuery:
             if fLANPlayerKind = lpk_Host then begin
               M.Read(Msg);
-              LocID := strtoint(Msg[1]); //Location index
+              LocID := byte(Msg[1]); //Location index
               NikID := fNetPlayers.NiknameIndex(RightStr(Msg, length(Msg)-1)); //Player index
               //Check if position can't be taken
               if fMapInfo.IsValid and
@@ -530,7 +530,7 @@ begin
     mk_FlagColorQuery:
             if fLANPlayerKind = lpk_Host then begin
               M.Read(Msg);
-              ColorID := strtoint(Msg[1]); //Color index
+              ColorID := byte(Msg[1]); //Color index
               NikID := fNetPlayers.NiknameIndex(RightStr(Msg, length(Msg)-1)); //Player index
               //The player list could have changed since the joiner sent this request (over slow connection)
               if fNetPlayers.ColorAvailable(ColorID) then

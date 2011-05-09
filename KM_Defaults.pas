@@ -1170,17 +1170,24 @@ const
 
 
   //Colors available for selection in multiplayer
-  //todo: Add more multiplayer colors
-  MP_COLOR_COUNT = 8;
+  MP_COLOR_COUNT = 16;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
-  $FF27A700, //Green
-  $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
-  $FF577B7B, //Grey
-  $FFFFFFFF, //White
-  $FF202010  //Black
+  $FFFF67FF, //Magenta
+  $FF008000, //Green
+  $FFC0C0C0, //Silver
+  $FF808080, //Grey
+  $FF008080, //Olive
+  $FF800080, //Purple
+  $FF000080, //Maroon
+  $FF00FF00, //Lime green
+  $FF808000, //Teal
+  $FFFF0000, //Blue
+  $FF800000, //Navy
+  $FF000000, //Black
+  $FFFFFFFF  //White
   );
 
   //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.
