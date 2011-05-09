@@ -108,8 +108,11 @@ end;
 
 //We recieved data from someone
 procedure TKMNetServerOverbyte.DataAvailable(Sender: TObject; Error: Word);
-const BufferSize = 10240; //10kb
-var P:pointer; L:cardinal;
+const
+  BufferSize = 10240; //10kb
+var
+  P:pointer;
+  L:integer; //L could be -1 when no data is available
 begin
   if Error <> 0 then
   begin
