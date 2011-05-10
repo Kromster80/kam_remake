@@ -2106,7 +2106,7 @@ begin
     exit;
   end;
 
-  fSwatch.ColorIndex := aIndex; //Update before show
+  fSwatch.ColorIndex := fColorIndex; //Update before show
   fSwatch.Show;
   fShape.Show;
 end;

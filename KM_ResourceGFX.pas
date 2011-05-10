@@ -1263,6 +1263,7 @@ begin
   MyBitMap.Free;
 end;
 
+
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
@@ -1303,8 +1304,8 @@ begin
        if i <> 0 then OutputStream.Write(Buf, i);
      until i <= 0;
     {$ENDIF}
-    OutputStream.Position := 0; //SizeOf(TGAHeader)
-    OutputStream.ReadBuffer(c[1], 18);
+    OutputStream.Position := 0; 
+    OutputStream.ReadBuffer(c[1], 18); //SizeOf(TGAHeader)
     SizeX := c[13]+c[14]*256;
     SizeY := c[15]+c[16]*256;
     setlength(c,SizeX*SizeY*4+1);
