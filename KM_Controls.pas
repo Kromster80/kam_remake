@@ -237,7 +237,7 @@ type
     constructor Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
     procedure AddColors(aColors:array of TColor4);
     property BackAlpha:single write fBackAlpha;
-    property ColorIndex:Byte read fColorIndex;
+    property ColorIndex:Byte read fColorIndex write fColorIndex;
     function GetColor:TColor4;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     property OnChange: TNotifyEvent write fOnChange;
@@ -2106,6 +2106,7 @@ begin
     exit;
   end;
 
+  fSwatch.ColorIndex := fColorIndex; //Update before show
   fSwatch.Show;
   fShape.Show;
 end;

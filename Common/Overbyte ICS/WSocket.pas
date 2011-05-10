@@ -706,7 +706,8 @@ const
   winsocket  = 'wsock32.dll';      { 32 bits TCP/IP system DLL }
   winsocket2 = 'ws2_32.dll';       { 32 bits TCP/IP system DLL version 2}
 {$ELSE}
-  winsocket = 'winsock.dll';      { 16 bits TCP/IP system DLL }
+  winsocket = 'wsock64.dll';      { 64 bits TCP/IP system DLL }
+  winsocket2 = 'ws2_32.dll';       { TODO 64 bits TCP/IP system DLL version }
 {$ENDIF}
 
 type
@@ -741,10 +742,6 @@ type
   TWSocketSyncNextProc  = procedure of object;
   TWSocketOption        = (wsoNoReceiveLoop, wsoTcpNoDelay, wsoSIO_RCVALL);
   TWSocketOptions       = set of TWSocketOption;
-{$IFDEF DELPHI4_UP}
-  { TSocket type definition has been removed starting from Delphi 4 }
-  TSocket = u_int;
-{$ENDIF}
 
   TTcpKeepAlive = packed record
     OnOff             : u_long;

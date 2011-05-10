@@ -1,8 +1,18 @@
 unit Unit1;
+{$I TilesetResampler.inc}
+
+{$IFDEF FPC}
+{$MODE Delphi}
+{$ENDIF}
 interface
 
 uses
-  Forms, Controls, StdCtrls, Classes, ZLibEx, SysUtils, KromUtils, Dialogs, Windows;
+  Forms, Controls, StdCtrls, Classes, SysUtils, Dialogs, KromUtils
+  {$IFDEF MSWindows}, Windows {$ENDIF}
+  {$IFDEF Unix}, LCLType {$ENDIF}
+  {$IFDEF WDC}, ZLibEx {$ENDIF}
+  {$IFDEF FPC} ,LResources, zstream, fileutil {$ENDIF}
+  ;
 
 type
   TForm1 = class(TForm)
@@ -20,8 +30,10 @@ type
 var
   Form1: TForm1;
 
-implementation  
-{$R *.dfm}
+implementation
+{$IFDEF WDC}
+  {$R *.dfm}
+{$ENDIF}
 
 procedure TForm1.Button1Click(Sender: TObject);
 var f,f2:file;
@@ -54,7 +66,7 @@ end;
 
 
 procedure TForm1.Button2Click(Sender: TObject);
-var f1,f2,f3,f4,f5,f6,f7,f8:file;
+var f1,f2,f3,f4,f5,f6:file;
     h:array[1..18]of char;
     e:array[1..4]of char;
     a,b,c:array[1..4]of char;
@@ -102,8 +114,12 @@ end;
 procedure TForm1.Button3Click(Sender: TObject);
 var
   InputStream, OutputStream: TFileStream;
-  DeCompressionStream: TZDecompressionStream;
+  {$IFDEF WDC}
   CompressionStream: TZCompressionStream;
+  {$ENDIF}
+  {$IFDEF FPC}
+  CompressionStream: TCompressionStream;
+  {$ENDIF}
   c:char;
 begin
   if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
@@ -112,14 +128,19 @@ begin
   InputStream.Read(c, 1);
 
   if c = #120 then begin
-    Application.MessageBox('File is already a zLib archive', 'Error');
+    Application.MessageBox('File is already a zLib archive', 'Error', MB_OK);
     InputStream.Free;
     exit;
   end;
   InputStream.Position := 0; //Reset just in case
 
   OutputStream := TFileStream.Create(OpenDialog1.FileName+'.tmp', fmCreate);
+  {$IFDEF WDC}
   CompressionStream := TZCompressionStream.Create(OutputStream, zcMax);
+  {$ENDIF}
+  {$IFDEF FPC}
+  CompressionStream := TCompressionStream.Create(clMax, OutputStream);
+  {$ENDIF}
   CompressionStream.CopyFrom(InputStream, InputStream.Size);
   CompressionStream.Free;
   OutputStream.Free;
@@ -133,31 +154,50 @@ procedure TForm1.Button4Click(Sender: TObject);
 var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
+  {$IFDEF WDC}
   DeCompressionStream: TZDecompressionStream;
-  CompressionStream: TZCompressionStream;
+  {$ENDIF}
+  {$IFDEF FPC}
+  DeCompressionStream: TDecompressionStream;
+  i: Integer;
+  Buf: array[0..1023]of Byte;
+  {$ENDIF}
   c:char;
 begin
   if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
-
   InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
   InputStream.Position := 0;
   InputStream.Read(c, 1);
 
   if c <> #120 then begin
-    Application.MessageBox('File is not a zLib archive', 'Error');
+    Application.MessageBox('File is not a zLib archive', 'Error', MB_OK);
     InputStream.Free;
     exit;
   end;
   InputStream.Position := 0; //Reset just in case
 
   OutputStream := TMemoryStream.Create;
+  {$IFDEF WDC}
   DecompressionStream := TZDecompressionStream.Create(InputStream);
   OutputStream.CopyFrom(DecompressionStream, 0);
+  {$ENDIF}
+  {$IFDEF FPC}
+  DecompressionStream := TDecompressionStream.Create(InputStream);
+  repeat
+  i:=DecompressionStream.Read(Buf, SizeOf(Buf));
+  if i <> 0 then OutputStream.Write(Buf, i);
+  until i <= 0;
+  {$ENDIF}
   InputStream.Free; //Free the Stream before we write to same filename
   OutputStream.SaveToFile(OpenDialog1.Filename);
   DecompressionStream.Free;
   OutputStream.Free;
 end;
 
+
+{$IFDEF FPC}
+initialization
+  {$i Unit1.lrs}
+{$ENDIF}
 
 end.

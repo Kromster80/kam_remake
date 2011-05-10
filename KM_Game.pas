@@ -9,7 +9,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Chat;
+  KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music;
 
 type TGameState = ( gsNoGame,  //No game running at all, MainMenu
                     gsPaused,  //Game is paused and responds to 'P' key only
@@ -48,7 +48,6 @@ type
     PlayOnState:TGameResultMsg;
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
-    fChat:TKMChat;
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
@@ -79,6 +78,8 @@ type
     function  ReplayExists:boolean;
     procedure ReplayView;
 
+    procedure NetworkInit;
+
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
@@ -86,7 +87,7 @@ type
     property GetGameName:string read fGameName;
     property GetCampaign:TCampaign read fActiveCampaign;
     property GetCampaignMap:byte read fActiveCampaignMap;
-    property MultiplayerMode:boolean read fMultiplayerMode; 
+    property MultiplayerMode:boolean read fMultiplayerMode;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;
@@ -138,8 +139,6 @@ begin
   fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource         := TResource.Create(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
-  fNetworking       := TKMNetworking.Create;
-  fChat             := TKMChat.Create; //Used in Gameplay and Lobby
   fCampaignSettings := TCampaignSettings.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
@@ -154,7 +153,7 @@ begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
 
   FreeThenNil(fCampaignSettings);
-  FreeThenNil(fChat);
+  if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGlobalSettings);
   FreeThenNil(fMainMenuInterface);
   FreeThenNil(fResource);
@@ -745,6 +744,13 @@ begin
 
   RandSeed := 4; //Random after StartGame and ViewReplay should match
   fGameState := gsReplay;
+end;
+
+
+procedure TKMGame.NetworkInit;
+begin
+  if fNetworking = nil then
+    fNetworking := TKMNetworking.Create;
 end;
 
 

@@ -1,0 +1,54 @@
+object Form1: TForm1
+  Left = 38
+  Height = 292
+  Top = 52
+  Width = 361
+  ActiveControl = Button1
+  Caption = 'Form1'
+  ClientHeight = 292
+  ClientWidth = 361
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Position = poScreenCenter
+  LCLVersion = '0.9.28.2'
+  object Button1: TButton
+    Left = 88
+    Height = 25
+    Top = 24
+    Width = 163
+    Caption = 'Resample 640 > 512'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object Button2: TButton
+    Left = 88
+    Height = 25
+    Top = 56
+    Width = 161
+    Caption = 'Exclude Common From Set'
+    OnClick = Button2Click
+    TabOrder = 1
+  end
+  object Button3: TButton
+    Left = 88
+    Height = 25
+    Top = 120
+    Width = 161
+    Caption = 'Compress file ZLibEx'
+    OnClick = Button3Click
+    TabOrder = 2
+  end
+  object Button4: TButton
+    Left = 88
+    Height = 25
+    Top = 152
+    Width = 161
+    Caption = 'Decompress file ZLibEx'
+    OnClick = Button4Click
+    TabOrder = 3
+  end
+  object OpenDialog1: TOpenDialog
+    left = 16
+    top = 24
+  end
+end

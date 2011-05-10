@@ -5,9 +5,12 @@ program KaMNetworkTest;
 {$ENDIF}
 
 uses
-  {$IFDEF FPC} Interfaces, {$ENDIF}
   Forms,
-  NetTest in 'NetTest.pas'; {frmNetTest}
+  NetTest in 'NetTest.pas',
+  KM_NetClient in 'KM_NetClient.pas',
+  KM_NetServer in 'KM_NetServer.pas';
+
+{frmNetTest}
 
 {$IFDEF WDC}
 {$R *.res}

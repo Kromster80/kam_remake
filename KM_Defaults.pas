@@ -3,9 +3,10 @@ unit KM_Defaults;
 interface
 uses Classes, SysUtils, KromUtils, dglOpenGL, KM_CommonTypes;
 
+
 //Global const
 const
-//|===================| <- constant name length                 
+//|===================| <- constant name length
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
@@ -27,8 +28,10 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1580';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1580';       //Should be updated for every release (each time save format is changed)
+  KAM_PORT              = '56789';      //Port used in TCP networking
+
+  GAME_VERSION          = '1st Multiplayer Demo r1711';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1711';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
@@ -56,7 +59,7 @@ var
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
-                       
+
   //These are debug things, should be FALSE
   {User interface options}
   SHOW_DEBUG_CONTROLS   :boolean=false; //Show debug panel / Form1 menu (F11)
@@ -83,8 +86,6 @@ var
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
-  {Multiplayer}
-  MULTIPLE_COPIES       :boolean=true; //Are we running mutliple copies of KaM on the one PC to test multiplayer?
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
@@ -105,11 +106,11 @@ const
   RX7_SPRITE_COUNT = 22;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
-  HOUSE_COUNT = 29;       //Number of KaM houses is 29
-  MAX_PLAYERS = 8;        //Maximum players per map
-  SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
-  AUTOSAVE_SLOT = 10;     //Slot ID used for autosaving
-  AUTOSAVE_COUNT = 3;
+  HOUSE_COUNT       = 29;   //Number of KaM houses is 29
+  MAX_PLAYERS       = 8;    //Maximum players per map
+  SAVEGAME_COUNT    = 10;   //Savegame slots available in game menu
+  AUTOSAVE_SLOT     = 10;   //Slot ID used for autosaving
+  AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 const //Here we store options that are hidden somewhere in code
   MAX_WARFARE_IN_BARRACKS = 255;          //Maximum number of weapons in the barracks from producers. Not a big problem as they are not from the store.
@@ -1168,17 +1169,24 @@ const
 
 
   //Colors available for selection in multiplayer
-  //todo: Add more multiplayer colors
-  MP_COLOR_COUNT = 8;
+  MP_COLOR_COUNT = 16;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
-  $FF27A700, //Green
-  $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
-  $FF577B7B, //Grey
-  $FFFFFFFF, //White
-  $FF202010  //Black
+  $FFFF67FF, //Magenta
+  $FF008000, //Green
+  $FFC0C0C0, //Silver
+  $FF808080, //Grey
+  $FF008080, //Olive
+  $FF800080, //Purple
+  $FF000080, //Maroon
+  $FF00FF00, //Lime green
+  $FF808000, //Teal
+  $FFFF0000, //Blue
+  $FF800000, //Navy
+  $FF000000, //Black
+  $FFFFFFFF  //White
   );
 
   //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.

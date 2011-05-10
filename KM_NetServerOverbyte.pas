@@ -1,4 +1,4 @@
-unit KM_ServerOverbyte;
+unit KM_NetServerOverbyte;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, WSocket, WSocketS, WinSock;
@@ -8,16 +8,17 @@ uses Classes, SysUtils, WSocket, WSocketS, WinSock;
 doing all the low level work on TCP. So we can replace this unit with other TCP client
 without KaM even noticing. }
 type
-  THandleEvent = procedure (aHandle:cardinal) of object;
-  TDataAvailableEvent = procedure (aHandle:cardinal; const aData:string) of object;
+  THandleEvent = procedure (aHandle:integer) of object;
+  TNotifyDataEvent = procedure(aHandle:integer; aData:pointer; aLength:cardinal)of object;
 
-  TKMServer = class
+  TKMNetServerOverbyte = class
   private
     fSocketServer:TWSocketServer;
+    fLastTag:integer;
     fOnError:TGetStrProc;
     fOnClientConnect:THandleEvent;
     fOnClientDisconnect:THandleEvent;
-    fOnDataAvailable:TDataAvailableEvent;
+    fOnDataAvailable:TNotifyDataEvent;
     procedure ClientConnect(Sender: TObject; Client: TWSocketClient; Error: Word);
     procedure ClientDisconnect(Sender: TObject; Client: TWSocketClient; Error: Word);
     procedure DataAvailable(Sender: TObject; Error: Word);
@@ -26,39 +27,41 @@ type
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
-    procedure SendData(aHandle:cardinal; const aData:string);
+    procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
-    property OnDataAvailable:TDataAvailableEvent write fOnDataAvailable;
+    property OnDataAvailable:TNotifyDataEvent write fOnDataAvailable;
   end;
 
 
 implementation
 
 
-constructor TKMServer.Create;
+constructor TKMNetServerOverbyte.Create;
 var wsaData: TWSAData;
 begin
   Inherited Create;
+  fLastTag := 0;
   if WSAStartup($101, wsaData) <> 0 then
     fOnError('Error in Network');
 end;
 
 
-destructor TKMServer.Destroy;
+destructor TKMNetServerOverbyte.Destroy;
 begin
   if fSocketServer<> nil then fSocketServer.Free;
   Inherited;
 end;
 
 
-procedure TKMServer.StartListening(aPort:string);
+procedure TKMNetServerOverbyte.StartListening(aPort:string);
 begin
   fSocketServer := TWSocketServer.Create(nil);
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range
   fSocketServer.Port   := aPort;
+  fSocketServer.Banner := '';
   fSocketServer.OnClientConnect := ClientConnect;
   fSocketServer.OnClientDisconnect := ClientDisconnect;
   fSocketServer.OnDataAvailable := DataAvailable;
@@ -66,7 +69,7 @@ begin
 end;
 
 
-procedure TKMServer.StopListening;
+procedure TKMNetServerOverbyte.StopListening;
 begin
   if fSocketServer <> nil then fSocketServer.Close;
   FreeAndNil(fSocketServer);
@@ -74,8 +77,7 @@ end;
 
 
 //Someone has connected to us
-procedure TKMServer.ClientConnect(Sender: TObject; Client: TWSocketClient; Error: Word);
-var i:integer;
+procedure TKMNetServerOverbyte.ClientConnect(Sender: TObject; Client: TWSocketClient; Error: Word);
 begin
   if Error <> 0 then
   begin
@@ -84,56 +86,57 @@ begin
   end;
 
   //Identify index of the Client, so we could address it
-  Client.Tag := -1;
-  for i:=0 to fSocketServer.ClientCount-1 do
-    if Client = fSocketServer.Client[i] then
-      Client.Tag := i;
-  Assert(Client.Tag <> -1);
+  inc(fLastTag);
+  Client.Tag := fLastTag;
 
   Client.OnDataAvailable := DataAvailable;
   fOnClientConnect(Client.Tag);
 end;
 
 
-procedure TKMServer.ClientDisconnect(Sender: TObject; Client: TWSocketClient; Error: Word);
-var i:integer;
+procedure TKMNetServerOverbyte.ClientDisconnect(Sender: TObject; Client: TWSocketClient; Error: Word);
 begin
   if Error <> 0 then
   begin
     fOnError('ClientConnect. Error #' + IntToStr(Error));
     exit;
   end;
-
-  //Identify index of the Client, so we could address it
-  Client.Tag := -1;
-  for i:=0 to fSocketServer.ClientCount-1 do
-    if Client = fSocketServer.Client[i] then
-      Client.Tag := i;
-  Assert(Client.Tag <> -1);
 
   fOnClientDisconnect(Client.Tag);
 end;
 
 
 //We recieved data from someone
-procedure TKMServer.DataAvailable(Sender: TObject; Error: Word);
-var Msg:string;
+procedure TKMNetServerOverbyte.DataAvailable(Sender: TObject; Error: Word);
+const
+  BufferSize = 10240; //10kb
+var
+  P:pointer;
+  L:integer; //L could be -1 when no data is available
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
+    fOnError('DataAvailable. Error #' + IntToStr(Error));
     exit;
   end;
 
-  Msg := TWSocket(Sender).ReceiveStr;
+  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
+  L := TWSocket(Sender).Receive(P, BufferSize);
 
-  fOnDataAvailable(TWSocket(Sender).Tag, Msg);
+  if L > 0 then //if L=0 then exit;
+    fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+
+  FreeMem(P);
 end;
 
 
-procedure TKMServer.SendData(aHandle:cardinal; const aData:string);
+//Make sure we send data to specified client
+procedure TKMNetServerOverbyte.SendData(aHandle:integer; aData:pointer; aLength:cardinal);
+var i:integer;
 begin
-  fSocketServer.Client[aHandle].SendStr(aData);
+  for i:=0 to fSocketServer.ClientCount-1 do
+    if fSocketServer.Client[i].Tag = aHandle then
+      fSocketServer.Client[i].Send(aData, aLength);
 end;
 
 

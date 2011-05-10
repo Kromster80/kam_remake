@@ -1239,7 +1239,7 @@ begin
     Panel_Chat.Hide;
     Panel_Message.Show;
   end else begin
-    Label_ChatText.Caption := fGame.fChat.GetAllMessages;
+    //Label_ChatText.Caption := fGame.fChat.GetAllMessages;
     MyControls.CtrlFocus := Edit_ChatMsg;
     Panel_Chat.Show;
     Panel_Message.Hide;
@@ -2516,7 +2516,7 @@ begin
 
   if Panel_Chat.Visible then begin
     //todo: Change this to TKMMemo that will scroll and cut older messages automatically
-    Label_ChatText.Caption := Label_ChatText.Caption + fGame.fChat.GetNewMessages;
+    //Label_ChatText.Caption := Label_ChatText.Caption + fGame.fChat.GetNewMessages;
   end;
 
   if SHOW_SPRITE_COUNT then

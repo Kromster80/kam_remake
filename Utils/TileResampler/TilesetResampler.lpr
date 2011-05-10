@@ -12,7 +12,6 @@ uses
 {$IFDEF WDC}
 {$R *.res}
 {$ENDIF}
-
 begin
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);
