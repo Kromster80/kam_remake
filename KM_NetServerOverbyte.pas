@@ -108,18 +108,24 @@ end;
 
 //We recieved data from someone
 procedure TKMNetServerOverbyte.DataAvailable(Sender: TObject; Error: Word);
-const BufferSize = 10240; //10kb
-var P:pointer; L:cardinal;
+const
+  BufferSize = 10240; //10kb
+var
+  P:pointer;
+  L:integer; //L could be -1 when no data is available
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
+    fOnError('DataAvailable. Error #' + IntToStr(Error));
     exit;
   end;
 
-  GetMem(P, BufferSize);
+  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
   L := TWSocket(Sender).Receive(P, BufferSize);
-  fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+
+  if L > 0 then //if L=0 then exit;
+    fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+
   FreeMem(P);
 end;
 

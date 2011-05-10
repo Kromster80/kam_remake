@@ -887,6 +887,7 @@ begin
 
   {Show LAN login}
   if Sender=Button_MP_LAN then begin
+    fGame.NetworkInit;
     LAN_Update('Ready');
     Panel_LANLogin.Show;
   end;
@@ -1148,8 +1149,7 @@ begin
 
   fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
   LAN_BindEvents(lpk_Host);
-  Lobby_OnPlayersSetup(nil); //Update players list
-  fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
+  Lobby_OnPlayersSetup(nil); //Update players list (with ourselves on first line)
 end;
 
 
@@ -1176,7 +1176,7 @@ begin
   fGame.Networking.OnJoinFail := nil;
   LAN_BindEvents(lpk_Joiner);
 
-  fGame.Networking.PostMessage(fGame.Networking.MyIPStringAndPort);
+  fGame.Networking.PostMessage(fGame.Networking.MyIPString);
 end;
 
 
@@ -1297,7 +1297,7 @@ var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
   if fGame.Networking.Connected then
-    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].TimeTick{.Ping});
+    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].Ping);
 end;
 
 

@@ -11,6 +11,11 @@ uses Classes, SysUtils, KM_NetServerOverbyte;
 
     - optionaly report non-important status messages
 
+    - send server messages:
+      1. player has disconnected
+      2. players bindings (IDs)
+      3. ...
+
   Everything except that whould be handled by Host (kick players, etc..)
 }
 type
@@ -18,6 +23,10 @@ type
   private
     fClientList:TList; //Remember our clients in list
     fServer:TKMNetServerOverbyte;
+
+    fBufferSize:cardinal;
+    fBuffer:array of byte;
+
     fOnStatusMessage:TGetStrProc;
     procedure Error(const S: string);
     procedure ClientConnect(aHandle:integer);
@@ -88,17 +97,38 @@ procedure TKMNetServer.ClientDisconnect(aHandle:integer);
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
   fClientList.Remove(pointer(aHandle));
+  //todo: Send message to remaining clients that client has disconnected
 end;
 
 
 //Someone has send us something
-//For now just repeat the message to everyone including Sender (to calculate ping)
+//For now just repeat the message to everyone excluding Sender
+//Send only complete messages to allow to add server messages inbetween
 procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
-var i:integer;
+var i:integer; PacketLength:Cardinal;
 begin
-  for i:=0 to fClientList.Count-1 do
-    //if aHandle<>cardinal(fClientList.Items[i]) then
-      fServer.SendData(cardinal(fClientList.Items[i]), aData, aLength);
+  //Append new data to buffer
+  SetLength(fBuffer, fBufferSize + aLength);
+  Move(aData^, fBuffer[fBufferSize], aLength);
+  fBufferSize := fBufferSize + aLength;
+
+  //Try to read data packet from buffer
+  while fBufferSize >= 4 do
+  begin
+    PacketLength := PCardinal(fBuffer)^;
+    if PacketLength <= fBufferSize-4 then
+    begin
+
+      for i:=0 to fClientList.Count-1 do
+        if aHandle<>integer(fClientList.Items[i]) then
+          fServer.SendData(cardinal(fClientList.Items[i]), @fBuffer[0], PacketLength+4);
+
+      if 4+PacketLength < fBufferSize then //Check range
+        Move(fBuffer[4+PacketLength], fBuffer[0], fBufferSize-PacketLength-4);
+      fBufferSize := fBufferSize - PacketLength - 4;
+    end else
+      Exit;
+  end;
 end;
 
 

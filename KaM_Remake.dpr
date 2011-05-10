@@ -27,6 +27,8 @@ uses
   KM_MissionScript in 'KM_MissionScript.pas',
   KM_Music in 'KM_Music.pas',
   KM_Network in 'KM_Network.pas',
+  KM_NetClient in 'KM_NetClient.pas',
+  KM_NetServer in 'KM_NetServer.pas',
   KM_Networking in 'KM_Networking.pas',
   KM_NetPlayersList in 'KM_NetPlayersList.pas',
   KM_PathFinding in 'KM_PathFinding.pas',

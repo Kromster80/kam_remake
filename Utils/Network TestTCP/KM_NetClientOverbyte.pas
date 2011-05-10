@@ -24,6 +24,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    function MyIPString:string;  
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -53,6 +54,15 @@ begin
 end;
 
 
+function TKMNetClientOverbyte.MyIPString:string;
+begin
+  if LocalIPList.Count >= 1 then
+    Result := LocalIPList[0] //First address should be ours
+  else
+    Result := '';
+end;
+
+
 procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:string);
 begin
   fSocket := TWSocket.Create(nil);
@@ -68,7 +78,8 @@ end;
 
 procedure TKMNetClientOverbyte.Disconnect;
 begin
-  fSocket.Close;
+  if fSocket <> nil then
+    fSocket.Close;
 end;
 
 
@@ -97,12 +108,24 @@ end;
 
 
 procedure TKMNetClientOverbyte.DataAvailable(Sender: TObject; Error: Word);
-const BufferSize = 10240; //10kb
-var P:pointer; L:cardinal;
+const
+  BufferSize = 10240; //10kb
+var
+  P:pointer;
+  L:integer; //L could be -1 when no data is available
 begin
-  GetMem(P, BufferSize);
+  if Error <> 0 then
+  begin
+    fOnError('DataAvailable. Error #' + IntToStr(Error));
+    exit;
+  end;
+
+  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
   L := TWSocket(Sender).Receive(P, BufferSize);
-  fOnRecieveData(P, L);
+
+  if L > 0 then //if L=0 then exit;
+    fOnRecieveData(P, L);
+
   FreeMem(P);
 end;
 
