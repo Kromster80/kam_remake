@@ -152,12 +152,13 @@ end;
 procedure TKMPlayersList.AllocateColors;
 var
   i,k,ColorCount:integer;
-  UsedColor:array[1..MP_COLOR_COUNT] of boolean;
+  UsedColor:array[0..MP_COLOR_COUNT] of boolean; //0 means Random
   AvailableColor:array[1..MP_COLOR_COUNT] of byte;
 begin
   //All wrong colors will be reset to random
   for i:=1 to fCount do
-    if not Math.InRange(fPlayers[i].FlagColorID, 0, MP_COLOR_COUNT) then fPlayers[i].FlagColorID := 0;
+    if not Math.InRange(fPlayers[i].FlagColorID, 0, MP_COLOR_COUNT) then
+      fPlayers[i].FlagColorID := 0;
 
   FillChar(UsedColor, SizeOf(UsedColor), #0);
 
