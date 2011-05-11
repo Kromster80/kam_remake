@@ -11,12 +11,31 @@ uses Classes, SysUtils, KM_NetServerOverbyte;
 
     - optionaly report non-important status messages
 
-    - send server messages:
-      1. player has disconnected
-      2. players bindings (IDs)
-      3. ...
+    - generate replies/messages:
+      1. player# has disconnected
+      2. player# binding (ID)
+      3. players ping
+      4. players IPs
+      5. ...
 
-  Everything except that whould be handled by Host (kick players, etc..)
+    - handle orders from Host
+      0. declaration of host (associate Hoster rights with this player)
+      1. kick player#
+      2. request for players ping
+      3. request for players IPs
+      4. ...
+
+      //Following commands will be added to TKMessageKind
+      mk_PlayerLost
+      mk_IndexOnServer
+      mk_Ping
+      mk_PlayersIP
+
+      mk_IAmHost
+      mk_KickPlayer
+      mk_WasKicked
+      mk_AskPing
+      mk_AskIPs
 }
 type
   TKMNetServer = class
@@ -42,6 +61,7 @@ type
 
 
 implementation
+uses KM_CommonTypes;
 
 
 constructor TKMNetServer.Create;
@@ -86,9 +106,19 @@ end;
 
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
+//var M:TKMemoryStream; MK:byte;
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
   fClientList.Add(pointer(aHandle));
+
+  //todo: Generate reply message with mk_IndexOnServer
+{  M := TKMemoryStream.Create;
+  M.Write(1+2+length(inttostr(aHandle)));
+  MK := 18;
+  M.Write(MK, 1);//mk_Text, SizeOf(TKMessageKind));
+  M.Write(inttostr(aHandle));
+  fServer.SendData(aHandle, M.Memory, M.Size);
+  M.Free;}
 end;
 
 

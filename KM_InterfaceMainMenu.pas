@@ -1147,8 +1147,10 @@ procedure TKMMainMenuInterface.LAN_HostClick(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
-  fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
+  if fGame.Networking.Connected then fGame.Networking.Disconnect;
+
   LAN_BindEvents(lpk_Host);
+  fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
   Lobby_OnPlayersSetup(nil); //Update players list (with ourselves on first line)
 end;
 

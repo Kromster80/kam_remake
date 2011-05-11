@@ -8,21 +8,19 @@ uses
   KM_CommonTypes, KM_Defaults,
   KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
 
-  
+
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
 
-  TMessageKind = (  mk_AskToJoin,
+  TKMessageKind = ( mk_AskToJoin,
                     mk_AllowToJoin,
-                    mk_RefuseToJoin, //When nikname is taken
+                    mk_RefuseToJoin,    //When nikname is taken
                     mk_VerifyJoin,
 
-                    mk_Disconnect,  //Joiner telling host he is leaving the lobby/game
-                    mk_HostDisconnect, //Host telling joiners the host is exiting (server stops)
+                    mk_Disconnect,      //Joiner telling host he is leaving the lobby/game
+                    mk_HostDisconnect,  //Host telling joiners the host is exiting (server stops)
 
-                    mk_Poke,        //Tell partner we are still connected
-
-                    mk_Ping,  //Perform on request
+                    mk_Ping,
                     mk_Pong,
                     mk_PlayersList,
 
@@ -67,9 +65,9 @@ type
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
     procedure PacketRecieve(aData:pointer; aLength:cardinal); //Process all commands
-    procedure PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
-    procedure PacketToAll(aKind:TMessageKind; const aData:string);
-    procedure PacketToHost(aKind:TMessageKind; const aData:string);
+    procedure PacketSend(const aAddress:string; aKind:TKMessageKind; const aData:string);
+    procedure PacketToAll(aKind:TKMessageKind; const aData:string);
+    procedure PacketToHost(aKind:TKMessageKind; const aData:string);
     procedure StartGame;
   public
     constructor Create;
@@ -149,8 +147,6 @@ end;
 
 procedure TKMNetworking.Host(aUserName:string);
 begin
-  Disconnect;
-
   fNetServer.OnStatusMessage := fOnTextMessage;
   fNetServer.StartListening(KAM_PORT);
 
@@ -236,6 +232,8 @@ begin
   fNetPlayers.Clear;
 
   fNetClient.Disconnect;
+
+  fNetServer.OnStatusMessage := nil;
   if fLANPlayerKind = lpk_Host then
     fNetServer.StopListening;
 end;
@@ -358,12 +356,8 @@ end;
 
 
 procedure TKMNetworking.Ping;
-var i:integer;
 begin
-  for i:=1 to fNetPlayers.Count do
-    fNetPlayers[i].PingSent := GetTickCount;
-
-  PacketToAll(mk_Ping, fMyNikname);
+  //todo: Send request to Server to ping everyone
 end;
 
 
@@ -398,7 +392,7 @@ end;
 
 procedure TKMNetworking.PacketRecieve(aData:pointer; aLength:cardinal);
 var
-  Kind:TMessageKind;
+  Kind:TKMessageKind;
   M:TKMemoryStream;
   Msg:string;
   ReMsg:string;
@@ -411,7 +405,7 @@ begin
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
 
-  M.Read(Kind, SizeOf(TMessageKind));
+  M.Read(Kind, SizeOf(TKMessageKind));
 
   case Kind of
     mk_AskToJoin:
@@ -471,25 +465,10 @@ begin
                 fOnDisconnect('The host quit');
             end;
 
-    {mk_Poke:
-            begin
-              M.Read(Msg);
-              Assert(fNetPlayers.NiknameIndex(Msg) <> -1, 'Poked by an unknown player: '+Msg);
-              fNetPlayers[fNetPlayers.NiknameIndex(Msg)].TimeTick := GetTickCount + REPLY_TIMEOUT;
-            end;}
-
     mk_Ping:
             begin
               M.Read(Msg);
               PacketSend(fNetPlayers[fNetPlayers.NiknameIndex(Msg)].Address, mk_Pong, fMyNikname);
-            end;
-
-    mk_Pong:
-            begin
-              M.Read(Msg);
-              NikID := fNetPlayers.NiknameIndex(Msg);
-              fNetPlayers[NikID].Ping := GetTickCount - fNetPlayers[NikID].PingSent;
-              if Assigned(fOnPing) then fOnPing(Self);
             end;
 
     mk_PlayersList:
@@ -590,24 +569,24 @@ begin
 end;
 
 
-procedure TKMNetworking.PacketSend(const aAddress:string; aKind:TMessageKind; const aData:string);
+procedure TKMNetworking.PacketSend(const aAddress:string; aKind:TKMessageKind; const aData:string);
 var M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
-  M.Write(aKind, SizeOf(TMessageKind));
+  M.Write(aKind, SizeOf(TKMessageKind));
   M.Write(aData);
   fNetClient.SendData(M.Memory, M.Size);
   M.Free;
 end;
 
 
-procedure TKMNetworking.PacketToAll(aKind:TMessageKind; const aData:string);
+procedure TKMNetworking.PacketToAll(aKind:TKMessageKind; const aData:string);
 begin
   PacketSend('', aKind, aData);
 end;
 
 
-procedure TKMNetworking.PacketToHost(aKind:TMessageKind; const aData:string);
+procedure TKMNetworking.PacketToHost(aKind:TKMessageKind; const aData:string);
 begin
   Assert(fLANPlayerKind = lpk_Joiner, 'Only joined player can send data to Host');
   PacketSend(fHostAddress, aKind, aData);
@@ -622,52 +601,8 @@ end;
 
 
 procedure TKMNetworking.UpdateState;
-//var LostPlayers:string;
 begin
-{
-  if (fJoinTick<>0) and (GetTickCount > fJoinTick) then
-  begin
-    fJoinTick := 0;
-    fNetwork.OnRecieveKMPacket := nil;
-    fNetwork.StopListening;
-    fOnJoinFail('no response');
-  end;
-
-  if not Connected then Exit;
-
-  //Test once per half of REPLY_TIMEOUT
-  if not fHoldTimeoutChecks then
-  if GetTickCount > fLastUpdateTick + (REPLY_TIMEOUT div 2) then
-  begin
-    case fLANPlayerKind of
-      lpk_Joiner:
-          begin//Joiner checks if Host is lost
-            if (GetTickCount > fNetPlayers[1].TimeTick) and (fNetPlayers[1].TimeTick <> 0) then
-            begin
-              fNetwork.OnRecieveKMPacket := nil;
-              fNetwork.StopListening;
-              if Assigned(fOnDisconnect) then fOnDisconnect('Lost connection to Host');
-              exit;
-            end;
-            //Do not send pokes if we are still waiting to recieve the player list
-            if fNetPlayers.NiknameIndex(fMyNikname) <> -1 then
-              PacketToHost(mk_Poke, fMyNikname); //Tell Host we are still connected
-          end;
-      lpk_Host:
-          begin
-            LostPlayers := fNetPlayers.DropMissing(GetTickCount);
-            if LostPlayers <> '' then
-            begin
-              //LostPlayers won't recieve Host messages any more and will loose connection too
-              PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
-              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              PostMessage(LostPlayers + ' disconnected');
-            end;
-            PacketToAll(mk_Poke, fMyNikname); //Tell everyone Host is still running
-          end;
-    end;
-    fLastUpdateTick := GetTickCount;
-  end;}
+  //Nothing yet
 end;
 
 
