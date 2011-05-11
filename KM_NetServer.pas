@@ -106,19 +106,18 @@ end;
 
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
-//var M:TKMemoryStream; MK:byte;
+var M:TKMemoryStream;
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
   fClientList.Add(pointer(aHandle));
 
   //todo: Generate reply message with mk_IndexOnServer
-{  M := TKMemoryStream.Create;
-  M.Write(1+2+length(inttostr(aHandle)));
-  MK := 18;
-  M.Write(MK, 1);//mk_Text, SizeOf(TKMessageKind));
-  M.Write(inttostr(aHandle));
+  M := TKMemoryStream.Create;
+  M.Write(Integer(5)); //1byte MessageKind + 4byte aHanle
+  M.Write(Byte(mk_IndexOnServer));
+  M.Write(aHandle);
   fServer.SendData(aHandle, M.Memory, M.Size);
-  M.Free;}
+  M.Free;
 end;
 
 

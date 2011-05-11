@@ -12,6 +12,39 @@ type
   TKMPointF = record X,Y:single; end;
   TKMPointI = record X,Y:integer; end; //Allows negative values
 
+  //Client-Server-Client exchange packets. Each packet is a certain type
+  TKMessageKind = (
+    mk_AskToJoin,       //Client asks Host if he can join
+    mk_AllowToJoin,     //Host allows Client to join
+    mk_RefuseToJoin,    //Host can refuse when e.g. Nikname is already taken
+    mk_VerifyJoin,      //Client seconds that he will join
+
+    mk_IndexOnServer,   //Server tells Client his index
+
+    mk_Disconnect,      //Joiner tells Host that he is leaving the lobby/game deliberately
+    mk_HostDisconnect,  //Host tells joiners he is exiting
+                        //A. Server runs on the same machine and stops right after
+                        //B. Server runs on different machine and assigns Host role to some Client
+
+    mk_Ping,            //Server pings Clients
+    mk_Pong,            //Clients reply to Server with pong
+
+    mk_PlayersList,     //Host keeps the players list and sends it to everyone on change
+
+    mk_StartingLocQuery,//Joiner asks Host if he can take that starting location
+    mk_FlagColorQuery,  //Joiner asks Host if he can take specific color
+
+    mk_MapSelect,       //Host selects the map to play
+    mk_ReadyToStart,    //Joiner tells he's ready to play the game
+    mk_Start,           //Host says to start the game
+
+    mk_ReadyToPlay,     //Joiner tells Host he has loaded the map and clock can start
+    mk_Play,            //Host tells everyone that the game may begin
+
+    mk_Commands,        //Clients exchange commands for next ticks
+    mk_Text             //Clients exchange text messages
+    );
+
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)

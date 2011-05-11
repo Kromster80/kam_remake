@@ -12,32 +12,6 @@ uses
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
 
-  TKMessageKind = ( mk_AskToJoin,
-                    mk_AllowToJoin,
-                    mk_RefuseToJoin,    //When nikname is taken
-                    mk_VerifyJoin,
-
-                    mk_Disconnect,      //Joiner telling host he is leaving the lobby/game
-                    mk_HostDisconnect,  //Host telling joiners the host is exiting (server stops)
-
-                    mk_Ping,
-                    mk_Pong,
-                    mk_PlayersList,
-
-                    mk_StartingLocQuery,    //Ask if we can take that starting location
-                    mk_FlagColorQuery,    //Ask if we can take that starting location
-
-                    mk_MapSelect,
-                    mk_ReadyToStart, //Joiner telling he's ready
-                    mk_Start, //Host starting the game
-
-                    mk_ReadyToPlay, //Joiner tells Host he has loaded the map
-                    mk_Play,        //Host tells all can play
-
-                    mk_Commands,
-                    mk_Text);
-
-
   //Should handle message exchange and routing, interacting with UI
   TKMNetworking = class
   private
@@ -444,6 +418,12 @@ begin
               PacketToAll(mk_PlayersList, fNetPlayers.GetAsText);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               PostMessage(Msg+' has joined');
+            end;
+
+    mk_IndexOnServer:
+            begin
+              M.Read(NikID);
+              if Assigned(fOnTextMessage) then fOnTextMessage(inttostr(NikID));
             end;
 
     mk_Disconnect:
