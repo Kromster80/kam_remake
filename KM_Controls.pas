@@ -536,9 +536,10 @@ type
     procedure ListClick(Sender:TObject);
     procedure ListHide(Sender:TObject);
     procedure SetEnabled(aValue:boolean); override;
+    procedure SetColorIndex(aIndex:integer);
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
-    property ColorIndex:integer read fColorIndex write fColorIndex;
+    property ColorIndex:integer read fColorIndex write SetColorIndex;
     procedure AddColors(aColors:array of TColor4);
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
@@ -2106,7 +2107,10 @@ begin
     exit;
   end;
 
-  fSwatch.ColorIndex := fColorIndex; //Update before show
+  //@Krom: This must happen as soon as fColorIndex is changed, because fSwatch also paints the users selection in the drop box.
+  //       So the swatch has to know as soon as the color is changed, otherwise the selection will appear wrong until
+  //       the user shows the list again. To be deleted (or rewritten in another way that works if you prefer)
+  //fSwatch.ColorIndex := fColorIndex; //Update before show
   fSwatch.Show;
   fShape.Show;
 end;
@@ -2132,6 +2136,13 @@ begin
   Inherited;
   fButton.Enabled := aValue;
   fSwatch.Enabled := aValue;
+end;
+
+
+procedure TKMDropColorBox.SetColorIndex(aIndex:integer);
+begin
+  fColorIndex := aIndex;
+  fSwatch.ColorIndex := aIndex;
 end;
 
 
