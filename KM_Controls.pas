@@ -2107,10 +2107,6 @@ begin
     exit;
   end;
 
-  //@Krom: This must happen as soon as fColorIndex is changed, because fSwatch also paints the users selection in the drop box.
-  //       So the swatch has to know as soon as the color is changed, otherwise the selection will appear wrong until
-  //       the user shows the list again. To be deleted (or rewritten in another way that works if you prefer)
-  //fSwatch.ColorIndex := fColorIndex; //Update before show
   fSwatch.Show;
   fShape.Show;
 end;
@@ -2139,6 +2135,7 @@ begin
 end;
 
 
+//Set ColorIndex to fSwatch as well since it holds the actual color that we use on Paint
 procedure TKMDropColorBox.SetColorIndex(aIndex:integer);
 begin
   fColorIndex := aIndex;
