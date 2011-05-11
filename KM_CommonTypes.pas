@@ -20,6 +20,7 @@ type
     mk_VerifyJoin,      //Client seconds that he will join
 
     mk_IndexOnServer,   //Server tells Client his index
+    mk_ClientLost,      //Server tells clients that someone has disconnected
 
     mk_Disconnect,      //Joiner tells Host that he is leaving the lobby/game deliberately
     mk_HostDisconnect,  //Host tells joiners he is exiting

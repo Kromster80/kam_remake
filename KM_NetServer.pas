@@ -41,6 +41,7 @@ type
   TKMNetServer = class
   private
     fClientList:TList; //Remember our clients in list
+    fHost:integer;
     fServer:TKMNetServerOverbyte;
 
     fBufferSize:cardinal;
@@ -89,6 +90,7 @@ end;
 
 procedure TKMNetServer.StartListening(aPort:string);
 begin
+  fHost := -1;
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
   fServer.OnClientDisconnect := ClientDisconnect;
@@ -111,9 +113,16 @@ begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
   fClientList.Add(pointer(aHandle));
 
-  //todo: Generate reply message with mk_IndexOnServer
+  //Let the first client be a Host
+  if fHost = -1 then
+    fHost := aHandle;
+
+  //@Lewin: We can tell the Client he is going to be a Host (has control over server and game setup)
+  //Someone has to be in charge of that sort of things. And later on we can support reassign of Host
+  //role, so any Client could be in charge (e.g. if Host is defeated or quit)
+
   M := TKMemoryStream.Create;
-  M.Write(Integer(5)); //1byte MessageKind + 4byte aHanle
+  M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
   M.Write(Byte(mk_IndexOnServer));
   M.Write(aHandle);
   fServer.SendData(aHandle, M.Memory, M.Size);
@@ -121,12 +130,24 @@ begin
 end;
 
 
-//Someone has disconnected from us. We can use supplied Handle to negotiate
+//Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
+var i:integer; M:TKMemoryStream;
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
   fClientList.Remove(pointer(aHandle));
+
+  if fHost = aHandle then
+    fHost := -1;
+
   //todo: Send message to remaining clients that client has disconnected
+  M := TKMemoryStream.Create;
+  M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
+  M.Write(Byte(mk_ClientLost));
+  M.Write(aHandle);
+  for i:=0 to fClientList.Count-1 do
+    fServer.SendData(cardinal(fClientList.Items[i]), M.Memory, M.Size);
+  M.Free;
 end;
 
 
