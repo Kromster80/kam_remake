@@ -39,10 +39,10 @@ type
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
-    procedure PacketRecieve(aData:pointer; aLength:cardinal); //Process all commands
+    procedure PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketToAll(aKind:TKMessageKind; const aText:string; aParam:integer);
     procedure PacketToHost(aKind:TKMessageKind; const aText:string; aParam:integer);
-    procedure PacketSend(aIndexOnServer:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
+    procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
     procedure StartGame;
   public
     constructor Create;
@@ -362,14 +362,13 @@ begin
 end;
 
 
-procedure TKMNetworking.PacketRecieve(aData:pointer; aLength:cardinal);
+procedure TKMNetworking.PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal);
 var
   Kind:TKMessageKind;
   M:TKMemoryStream;
   Msg:string;
   ReMsg:string;
   LocID,ColorID:integer;
-  SenderIndex:integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 
@@ -377,7 +376,6 @@ begin
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
 
-  M.Read(SenderIndex);
   M.Read(Kind, SizeOf(TKMessageKind));
 
   case Kind of
@@ -401,18 +399,18 @@ begin
             if fLANPlayerKind = lpk_Host then
             begin
               M.Read(Msg); //Players Nikname
-              ReMsg := fNetPlayers.CheckCanJoin(Msg, SenderIndex);
+              ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
               if ReMsg = '' then
               begin
-                fNetPlayers.AddPlayer(Msg, SenderIndex);
-                PacketSend(SenderIndex, mk_AllowToJoin, '', 0);
-                PacketSend(SenderIndex, mk_MapSelect, fMapInfo.Folder, 0); //Send the map first so it doesn't override starting locs
+                fNetPlayers.AddPlayer(Msg, aSenderIndex);
+                PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
+                PacketSend(aSenderIndex, mk_MapSelect, fMapInfo.Folder, 0); //Send the map first so it doesn't override starting locs
                 PacketToAll(mk_PlayersList, fNetPlayers.GetAsText, 0);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 PostMessage(Msg+' has joined');
               end
               else
-                PacketSend(SenderIndex, mk_RefuseToJoin, ReMsg, 0);
+                PacketSend(aSenderIndex, mk_RefuseToJoin, ReMsg, 0);
             end;
 
     mk_AllowToJoin:
@@ -432,7 +430,7 @@ begin
             if fLANPlayerKind = lpk_Host then
             begin
               M.Read(Msg);
-              fNetPlayers.RemPlayer(SenderIndex);
+              fNetPlayers.RemPlayer(aSenderIndex);
               PacketToAll(mk_PlayersList, fNetPlayers.GetAsText, 0);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               PostMessage(Msg+' quit');
@@ -450,7 +448,7 @@ begin
     mk_Ping:
             begin
               M.Read(Msg);
-              PacketSend(SenderIndex, mk_Pong, '', 0); //Server will intercept this message
+              PacketSend(aSenderIndex, mk_Pong, '', 0); //Server will intercept this message
             end;
 
     mk_PlayersList:
@@ -479,12 +477,12 @@ begin
                  (LocID <= fMapInfo.PlayerCount) and
                  fNetPlayers.LocAvailable(LocID) then
               begin //Update Players setup
-                fNetPlayers[fNetPlayers.ServerToLocal(SenderIndex)].StartLocID := LocID;
+                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].StartLocID := LocID;
                 PacketToAll(mk_PlayersList, fNetPlayers.GetAsText, 0);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               end
               else //Quietly refuse
-                PacketSend(SenderIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
+                PacketSend(aSenderIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
             end;
 
     mk_FlagColorQuery:
@@ -494,17 +492,17 @@ begin
               //The player list could have changed since the joiner sent this request (over slow connection)
               if fNetPlayers.ColorAvailable(ColorID) then
               begin
-                fNetPlayers[fNetPlayers.ServerToLocal(SenderIndex)].FlagColorID := ColorID;
+                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].FlagColorID := ColorID;
                 PacketToAll(mk_PlayersList, fNetPlayers.GetAsText, 0);
               end
               else //Quietly refuse
-                PacketSend(SenderIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
+                PacketSend(aSenderIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
     mk_ReadyToStart:
             if fLANPlayerKind = lpk_Host then begin
-              fNetPlayers[fNetPlayers.ServerToLocal(SenderIndex)].ReadyToStart := true;
+              fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart := true;
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
@@ -518,7 +516,7 @@ begin
 
     mk_ReadyToPlay:
             if fLANPlayerKind = lpk_Host then begin
-              fNetPlayers[fNetPlayers.ServerToLocal(SenderIndex)].ReadyToPlay := true;
+              fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToPlay := true;
               if fNetPlayers.AllReadyToPlay then
               begin
                 PacketToAll(mk_Play, '', 0); //todo: Should include lag difference
@@ -561,15 +559,14 @@ end;
 
 
 // Sender.MessageKind.TextData
-procedure TKMNetworking.PacketSend(aIndexOnServer:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
+procedure TKMNetworking.PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
 var M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
-  M.Write(fMyIndexOnServer);
   M.Write(aKind, SizeOf(TKMessageKind));
   M.Write(aText);
   M.Write(aParam);
-  fNetClient.SendData(aIndexOnServer, M.Memory, M.Size); //todo: Add recipient index, so Server route the message only to him
+  fNetClient.SendData(fMyIndexOnServer, aRecipient, M.Memory, M.Size); //todo: Add recipient index, so Server route the message only to him
   M.Free;
 end;
 

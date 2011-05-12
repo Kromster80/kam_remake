@@ -134,7 +134,7 @@ begin
     fHost := -1;
 
   //todo: Send message to remaining clients that client has disconnected
-  SendMessage(-1, mk_ClientLost, aHandle);
+  SendMessage(NET_RECIPIENT_ALL, mk_ClientLost, aHandle);
 end;
 
 
@@ -142,10 +142,13 @@ procedure TKMNetServer.SendMessage(aHandle:integer; aKind:TKMessageKind; aMsg:in
 var i:integer; M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
+  
+  M.Write(NET_SENDER_SERVER);
+  M.Write(NET_RECIPIENT_ALL);
   M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
   M.Write(Byte(aKind));
   M.Write(aMsg);
-  if aHandle = -1 then
+  if aHandle = NET_RECIPIENT_ALL then
     for i:=0 to fClientList.Count-1 do
       fServer.SendData(cardinal(fClientList.Items[i]), M.Memory, M.Size)
   else
