@@ -1,7 +1,7 @@
 unit KM_NetClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_NetClientOverbyte;
+uses Classes, SysUtils, KM_CommonTypes, KM_NetClientOverbyte;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -54,7 +54,7 @@ type
 
     procedure SendText(const aData:string); //For now we use just plain text
     property OnRecieveData:TNotifyDataEvent write fOnRecieveData;
-    procedure SendData(aData:pointer; aLength:cardinal);
+    procedure SendData(aRecepient:integer; aData:pointer; aLength:cardinal);
 
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
   end;
@@ -142,12 +142,12 @@ end;
 
 procedure TKMNetClient.SendText(const aData:string);
 begin
-  SendData(@aData[1], length(aData));
+  SendData(NET_RECIPIENT_ALL, @aData[1], length(aData));
 end;
 
 
-//Assemble the packet as [Length.Data]
-procedure TKMNetClient.SendData(aData:pointer; aLength:cardinal);
+//Assemble the packet as [Recepient.Length.Data]
+procedure TKMNetClient.SendData(aRecepient:integer; aData:pointer; aLength:cardinal);
 var P:Pointer;
 begin
   GetMem(P, aLength+4);

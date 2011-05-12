@@ -17,7 +17,6 @@ type
     mk_AskToJoin,       //Client asks Host if he can join
     mk_AllowToJoin,     //Host allows Client to join
     mk_RefuseToJoin,    //Host can refuse when e.g. Nikname is already taken
-    mk_VerifyJoin,      //Client seconds that he will join
 
     mk_IndexOnServer,   //Server tells Client his index
     mk_ClientLost,      //Server tells clients that someone has disconnected
@@ -45,6 +44,13 @@ type
     mk_Commands,        //Clients exchange commands for next ticks
     mk_Text             //Clients exchange text messages
     );
+
+const
+  NET_RECIPIENT_HOST = -2;
+  NET_RECIPIENT_ALL = -1;
+
+  NET_SENDER_UNDEFINED = -1;
+  NET_SENDER_SERVER = -2;
 
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}

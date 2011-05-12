@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_NetServerOverbyte;
+uses Classes, SysUtils, KM_CommonTypes, KM_NetServerOverbyte;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -51,6 +51,7 @@ type
     procedure Error(const S: string);
     procedure ClientConnect(aHandle:integer);
     procedure ClientDisconnect(aHandle:integer);
+    procedure SendMessage(aHandle:integer; aKind:TKMessageKind; aMsg:integer);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
   public
     constructor Create;
@@ -62,7 +63,6 @@ type
 
 
 implementation
-uses KM_CommonTypes;
 
 
 constructor TKMNetServer.Create;
@@ -108,7 +108,6 @@ end;
 
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
-var M:TKMemoryStream;
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
   fClientList.Add(pointer(aHandle));
@@ -121,18 +120,12 @@ begin
   //Someone has to be in charge of that sort of things. And later on we can support reassign of Host
   //role, so any Client could be in charge (e.g. if Host is defeated or quit)
 
-  M := TKMemoryStream.Create;
-  M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
-  M.Write(Byte(mk_IndexOnServer));
-  M.Write(aHandle);
-  fServer.SendData(aHandle, M.Memory, M.Size);
-  M.Free;
+  SendMessage(aHandle, mk_IndexOnServer, aHandle);
 end;
 
 
 //Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
-var i:integer; M:TKMemoryStream;
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
   fClientList.Remove(pointer(aHandle));
@@ -141,12 +134,22 @@ begin
     fHost := -1;
 
   //todo: Send message to remaining clients that client has disconnected
+  SendMessage(-1, mk_ClientLost, aHandle);
+end;
+
+
+procedure TKMNetServer.SendMessage(aHandle:integer; aKind:TKMessageKind; aMsg:integer);
+var i:integer; M:TKMemoryStream;
+begin
   M := TKMemoryStream.Create;
   M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
-  M.Write(Byte(mk_ClientLost));
-  M.Write(aHandle);
-  for i:=0 to fClientList.Count-1 do
-    fServer.SendData(cardinal(fClientList.Items[i]), M.Memory, M.Size);
+  M.Write(Byte(aKind));
+  M.Write(aMsg);
+  if aHandle = -1 then
+    for i:=0 to fClientList.Count-1 do
+      fServer.SendData(cardinal(fClientList.Items[i]), M.Memory, M.Size)
+  else
+    fServer.SendData(aHandle, M.Memory, M.Size);
   M.Free;
 end;
 
