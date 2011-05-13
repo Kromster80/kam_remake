@@ -42,7 +42,7 @@ constructor TKMNetServerOverbyte.Create;
 var wsaData: TWSAData;
 begin
   Inherited Create;
-  fLastTag := 0;
+  fLastTag := 8; //Start from some number away from -2 -1 0 used as sender/recipient constants (HOST,ALL,UNDEFINED)
   if WSAStartup($101, wsaData) <> 0 then
     fOnError('Error in Network');
 end;

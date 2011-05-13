@@ -51,7 +51,7 @@ type
     procedure Error(const S: string);
     procedure ClientConnect(aHandle:integer);
     procedure ClientDisconnect(aHandle:integer);
-    procedure SendMessage(aHandle:integer; aKind:TKMessageKind; aMsg:integer);
+    procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
   public
     constructor Create;
@@ -90,7 +90,7 @@ end;
 
 procedure TKMNetServer.StartListening(aPort:string);
 begin
-  fHost := -1;
+  fHost := 0;
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
   fServer.OnClientDisconnect := ClientDisconnect;
@@ -138,21 +138,22 @@ begin
 end;
 
 
-procedure TKMNetServer.SendMessage(aHandle:integer; aKind:TKMessageKind; aMsg:integer);
+//Assemble the packet as [Sender.Recepient.Length.Data]
+procedure TKMNetServer.SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer);
 var i:integer; M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   
-  M.Write(NET_SENDER_SERVER);
-  M.Write(NET_RECIPIENT_ALL);
+  M.Write(integer(NET_SENDER_SERVER)); //Make sure constant gets treated as 4byte integer
+  M.Write(aRecipient);
   M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
   M.Write(Byte(aKind));
   M.Write(aMsg);
-  if aHandle = NET_RECIPIENT_ALL then
+  if aRecipient = NET_RECIPIENT_ALL then
     for i:=0 to fClientList.Count-1 do
       fServer.SendData(cardinal(fClientList.Items[i]), M.Memory, M.Size)
   else
-    fServer.SendData(aHandle, M.Memory, M.Size);
+    fServer.SendData(aRecipient, M.Memory, M.Size);
   M.Free;
 end;
 
@@ -161,7 +162,7 @@ end;
 //For now just repeat the message to everyone excluding Sender
 //Send only complete messages to allow to add server messages inbetween
 procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
-var i:integer; PacketLength:Cardinal;
+var PacketRecipient:integer; PacketLength:Cardinal; i:integer;
 begin
   //Append new data to buffer
   SetLength(fBuffer, fBufferSize + aLength);
@@ -169,19 +170,27 @@ begin
   fBufferSize := fBufferSize + aLength;
 
   //Try to read data packet from buffer
-  while fBufferSize >= 4 do
+  while fBufferSize >= 12 do
   begin
-    PacketLength := PCardinal(fBuffer)^;
-    if PacketLength <= fBufferSize-4 then
+    //We skip PacketSender because Server does not care
+    PacketRecipient := PInteger(Cardinal(@fBuffer)+4)^;
+    PacketLength := PCardinal(Cardinal(@fBuffer)+8)^;
+    if PacketLength <= fBufferSize-12 then
     begin
 
-      for i:=0 to fClientList.Count-1 do
-        if aHandle<>integer(fClientList.Items[i]) then
-          fServer.SendData(cardinal(fClientList.Items[i]), @fBuffer[0], PacketLength+4);
+      case PacketRecipient of
+        NET_RECIPIENT_ALL:
+            for i:=0 to fClientList.Count-1 do
+              if aHandle<>integer(fClientList.Items[i]) then //Do not send to sender
+                fServer.SendData(cardinal(fClientList.Items[i]), @fBuffer[0], PacketLength+12);
+        NET_RECIPIENT_HOST:
+                fServer.SendData(fHost, @fBuffer[0], PacketLength+12);
+        else    fServer.SendData(PacketRecipient, @fBuffer[0], PacketLength+12);
+      end;
 
-      if 4+PacketLength < fBufferSize then //Check range
-        Move(fBuffer[4+PacketLength], fBuffer[0], fBufferSize-PacketLength-4);
-      fBufferSize := fBufferSize - PacketLength - 4;
+      if 12+PacketLength < fBufferSize then //Check range
+        Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
+      fBufferSize := fBufferSize - PacketLength - 12;
     end else
       Exit;
   end;

@@ -148,14 +148,15 @@ begin
 end;
 
 
-//Assemble the packet as [Recepient.Length.Data]
+//Assemble the packet as [Sender.Recepient.Length.Data]
+//We can pack/clean the header later on (if we hit bandwidth limits)
 procedure TKMNetClient.SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
 var P:Pointer;
 begin
   GetMem(P, aLength+12);
   PInteger(P)^ := aSender;
-  PInteger(P)^ := aRecepient;
-  PCardinal(P)^ := aLength;
+  PInteger(cardinal(P)+4)^ := aRecepient;
+  PCardinal(cardinal(P)+8)^ := aLength;
   Move(aData^, Pointer(cardinal(P)+12)^, aLength);
   fClient.SendData(P, aLength+12);
   FreeMem(P);
@@ -164,7 +165,7 @@ end;
 
 //Split recieved data into single packets
 procedure TKMNetClient.RecieveData(aData:pointer; aLength:cardinal);
-var PacketSender,PacketRecipient:integer; PacketLength:Cardinal;
+var PacketSender:integer; PacketLength:Cardinal;
 begin
   //Append new data to buffer
   SetLength(fBuffer, fBufferSize + aLength);
@@ -174,9 +175,9 @@ begin
   //Try to read data packet from buffer
   while fBufferSize >= 12 do
   begin
-    PacketSender := PCardinal(fBuffer)^;
-    PacketRecipient := PCardinal(fBuffer)^; //Thats us
-    PacketLength := PCardinal(fBuffer)^;
+    PacketSender := PInteger(fBuffer)^;
+    //We skip PacketRecipient because thats us
+    PacketLength := PCardinal(Cardinal(@fBuffer)+8)^;  //TODO: ERROR HERE
     if PacketLength <= fBufferSize-12 then
     begin
       fOnRecieveData(PacketSender, @fBuffer[12], PacketLength); //Skip packet header

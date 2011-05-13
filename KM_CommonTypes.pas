@@ -46,6 +46,7 @@ type
     );
 
 const
+  //Force integer type throughout
   NET_RECIPIENT_HOST = -2;
   NET_RECIPIENT_ALL = -1;
 

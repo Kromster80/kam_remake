@@ -135,8 +135,6 @@ begin
   fNetClient.OnConnectSucceed := ConnectSucceed;
   fNetClient.OnConnectFailed := ConnectFailed;
   fNetClient.ConnectTo('127.0.0.1', KAM_PORT);
-
-  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;
 
 
@@ -389,6 +387,7 @@ begin
                       fNetPlayers.Clear;
                       fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer);
                       fNetPlayers[fMyIndex].ReadyToStart := true;
+                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                     end;
                 lpk_Joiner:
                     PacketToHost(mk_AskToJoin, fMyNikname, 0);
