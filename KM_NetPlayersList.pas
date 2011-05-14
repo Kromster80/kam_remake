@@ -19,7 +19,6 @@ type
     ReadyToPlay:boolean;
     Alive:boolean; //Player is still connected and not defeated
 
-    PingSent:cardinal; //Time of last "ping" message
     Ping:word; //Last known ping
   public
     function IsHuman:boolean;

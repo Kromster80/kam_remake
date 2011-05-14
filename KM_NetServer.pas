@@ -59,6 +59,7 @@ type
     procedure AddPlayer(aHandle:integer);
     procedure RemPlayer(aHandle:integer);
     property Item[Index:integer]:TKMServerClient read GetItem; default;
+    function GetByHandle(aHandle:integer):TKMServerClient;
   end;
 
 
@@ -68,6 +69,7 @@ type
 
     fClientList:TKMClientsList;
     fHostHandle:integer;
+    fPingStarted:cardinal;
 
     fBufferSize:cardinal;
     fBuffer:array of byte;
@@ -132,6 +134,14 @@ begin
   SetLength(fItems, fCount);
 end;
 
+
+function TKMClientsList.GetByHandle(aHandle: integer): TKMServerClient;
+var i:integer;
+begin
+  for i:=0 to fCount-1 do
+              if aHandle <> fClientList[i].Handle then
+
+end;
 
 { TKMNetServer }
 constructor TKMNetServer.Create;
@@ -265,8 +275,21 @@ begin
   case Kind of
     mk_AskPingInfo:
             begin
+              M := TKMemoryStream.Create;
+              M.Write(fClientList.Count);
               for i:=0 to fClientList.Count-1 do
-                SendMessage(aSenderHandle, mk_Text, 0, 'Player'+inttostr(fClientList[i].Handle) + ': ' + inttostr(fClientList[i].Ping) + 'ms');
+              begin
+                M.Write(fClientList[i].Handle);
+                M.Write(fClientList[i].Ping);
+              end;
+              SendMessage(aSenderHandle, mk_PingInfo, 0, M.ReadAsText);
+              M.Free;
+            end;
+    mk_Pong:
+            begin
+             fClientList.GetByHandle(aSenderHandle).Ping := GetTickCount - fPingStart;
+
+
             end;
   end;
 
@@ -311,7 +334,7 @@ begin
     end else
       Exit;
   end;
-end; 
+end;
 
 
 end.

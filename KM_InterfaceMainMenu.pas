@@ -70,7 +70,7 @@ type
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_Ping(Sender: TObject);
-    procedure Lobby_OnPing(Sender: TObject);
+    procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
@@ -1194,7 +1194,7 @@ begin
   fGame.Networking.OnTextMessage  := Lobby_OnMessage;
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
-  fGame.Networking.OnPing         := Lobby_OnPing;
+  fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
   fGame.Networking.OnStartGame    := fGame.GameStartMP;
   //Host can be disconnected by Server as well (when e.g. Server fails)
   fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
@@ -1290,11 +1290,10 @@ end;
 procedure TKMMainMenuInterface.Lobby_Ping(Sender: TObject);
 begin
   fGame.Networking.Ping;
-  fGame.Networking.OnPing := Lobby_OnPing;
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_OnPing(Sender: TObject);
+procedure TKMMainMenuInterface.Lobby_OnPingInfo(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do

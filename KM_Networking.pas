@@ -34,7 +34,7 @@ type
     fOnStartGame:TNotifyEvent;
     fOnPlay:TNotifyEvent;
     fOnDisconnect:TStringEvent;
-    fOnPing:TNotifyEvent;
+    fOnPingInfo:TNotifyEvent;
     fOnCommands:TStringEvent;
 
     procedure ConnectSucceed(Sender:TObject);
@@ -43,6 +43,7 @@ type
     procedure PacketToAll(aKind:TKMessageKind; const aText:string; aParam:integer);
     procedure PacketToHost(aKind:TKMessageKind; const aText:string; aParam:integer);
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
+    procedure DecodePingInfo(aInfo:string);
     procedure StartGame;
   public
     constructor Create;
@@ -81,7 +82,7 @@ type
     property OnMapName:TStringEvent write fOnMapName;           //Map name updated
     property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game loading
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
-    property OnPing:TNotifyEvent write fOnPing;                 //Ping info updated
+    property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
     property OnDisconnect:TStringEvent write fOnDisconnect;     //Lost connection, was kicked
     property OnCommands:TStringEvent write fOnCommands;         //Recieved GIP commands
 
@@ -198,7 +199,7 @@ begin
   fOnMapName := nil;
   fOnCommands := nil;
   fOnDisconnect := nil;
-  fOnPing := nil;
+  fOnPingInfo := nil;
 
   fNetPlayers.Clear;
 
@@ -213,6 +214,28 @@ end;
 function TKMNetworking.Connected: boolean;
 begin
   Result := fNetClient.Connected;
+end;
+
+
+procedure TKMNetworking.DecodePingInfo(aInfo:string);
+var
+  i:integer;
+  M:TKMemoryStream;
+  PingCount:integer;
+  PlayerHandle:integer;
+  PingValue:integer;
+begin
+  M := TKMemoryStream.Create;
+  M.WriteAsText(aInfo);
+  M.Position := 0;
+  M.Read(PingCount);
+  for i:=1 to PingCount do
+  begin
+    M.Read(PlayerHandle);
+    M.Read(PingValue);
+    fNetPlayers[fNetPlayers.ServerToLocal(PlayerHandle)].Ping := PingValue;
+  end;
+  M.Free;
 end;
 
 
@@ -448,6 +471,12 @@ begin
     mk_Ping:
             begin
               PacketSend(aSenderIndex, mk_Pong, '', 0); //Server will intercept this message
+            end;
+
+    mk_PingInfo:
+            begin
+              DecodePingInfo(Msg);
+              if Assigned(fOnPingInfo) then fOnPingInfo(Self);
             end;
 
     mk_PlayersList:

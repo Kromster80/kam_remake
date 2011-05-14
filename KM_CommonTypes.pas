@@ -36,6 +36,7 @@ type
     mk_AskPingInfo,     //Ask server about ping info
     mk_Ping,            //Server pings Clients
     mk_Pong,            //Clients reply to Server with pong
+    mk_PingInfo,        //Server sends list of ping times to Clients
 
     mk_PlayersList,     //Host keeps the players list and sends it to everyone on change
 
@@ -68,6 +69,7 @@ const
     pfNoData,   //mk_AskPingInfo
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong
+    pfText,     //mk_PingInfo
     pfText,     //mk_PlayersList
     pfNumber,   //mk_StartingLocQuery
     pfNumber,   //mk_FlagColorQuery
