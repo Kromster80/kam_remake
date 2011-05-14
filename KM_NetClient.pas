@@ -144,7 +144,7 @@ end;
 
 procedure TKMNetClient.SendText(const aData:string);
 begin
-  SendData(NET_SENDER_UNDEFINED, NET_RECIPIENT_ALL, @aData[1], length(aData));
+  SendData(NET_ADDRESS_SERVER, NET_ADDRESS_ALL, @aData[1], length(aData));
 end;
 
 
@@ -177,7 +177,7 @@ begin
   begin
     PacketSender := PInteger(fBuffer)^;
     //We skip PacketRecipient because thats us
-    PacketLength := PCardinal(Cardinal(@fBuffer)+8)^;  //TODO: ERROR HERE
+    PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
     if PacketLength <= fBufferSize-12 then
     begin
       fOnRecieveData(PacketSender, @fBuffer[12], PacketLength); //Skip packet header

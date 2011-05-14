@@ -46,12 +46,10 @@ type
     );
 
 const
-  //Force integer type throughout
-  NET_RECIPIENT_HOST = -2;
-  NET_RECIPIENT_ALL = -1;
-
-  NET_SENDER_UNDEFINED = -1;
-  NET_SENDER_SERVER = -2;
+  NET_ADDRESS_EMPTY = 0;    //Yet undefined
+  NET_ADDRESS_ALL = -1;     //Recipient
+  NET_ADDRESS_HOST = -2;    //Sender/Recipient
+  NET_ADDRESS_SERVER = -3;  //Sender/Recipient
 
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}

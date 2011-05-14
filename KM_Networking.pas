@@ -157,7 +157,8 @@ end;
 
 procedure TKMNetworking.ConnectSucceed(Sender:TObject);
 begin
-  fOnTextMessage(MyIPString + ' Connected to server');
+  if Assigned fOnTextMessage then 
+    fOnTextMessage(MyIPString + ' Connected to server');
   //Now wait for mk_IndexOnServer message
 end;
 
@@ -546,14 +547,14 @@ end;
 
 procedure TKMNetworking.PacketToAll(aKind:TKMessageKind; const aText:string; aParam:integer);
 begin
-  PacketSend(NET_RECIPIENT_ALL, aKind, aText, aParam);
+  PacketSend(NET_ADDRESS_ALL, aKind, aText, aParam);
 end;
 
 
 procedure TKMNetworking.PacketToHost(aKind:TKMessageKind; const aText:string; aParam:integer);
 begin
   Assert(fLANPlayerKind = lpk_Joiner, 'Only joined player can send data to Host');
-  PacketSend(NET_RECIPIENT_HOST, aKind, aText, aParam);
+  PacketSend(NET_ADDRESS_HOST, aKind, aText, aParam);
 end;
 
 

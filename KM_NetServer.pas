@@ -90,7 +90,7 @@ end;
 
 procedure TKMNetServer.StartListening(aPort:string);
 begin
-  fHost := 0;
+  fHost := NET_ADDRESS_EMPTY;
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
   fServer.OnClientDisconnect := ClientDisconnect;
@@ -113,8 +113,11 @@ begin
   fClientList.Add(pointer(aHandle));
 
   //Let the first client be a Host
-  if fHost = -1 then
+  if fHost = NET_ADDRESS_EMPTY then
+  begin
     fHost := aHandle;
+    if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Host assigned to '+inttostr(fHost));
+  end;
 
   //@Lewin: We can tell the Client he is going to be a Host (has control over server and game setup)
   //Someone has to be in charge of that sort of things. And later on we can support reassign of Host
@@ -131,10 +134,10 @@ begin
   fClientList.Remove(pointer(aHandle));
 
   if fHost = aHandle then
-    fHost := -1;
+    fHost := NET_ADDRESS_EMPTY;
 
   //todo: Send message to remaining clients that client has disconnected
-  SendMessage(NET_RECIPIENT_ALL, mk_ClientLost, aHandle);
+  SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle);
 end;
 
 
@@ -144,12 +147,12 @@ var i:integer; M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   
-  M.Write(integer(NET_SENDER_SERVER)); //Make sure constant gets treated as 4byte integer
+  M.Write(integer(NET_ADDRESS_SERVER)); //Make sure constant gets treated as 4byte integer
   M.Write(aRecipient);
   M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
   M.Write(Byte(aKind));
   M.Write(aMsg);
-  if aRecipient = NET_RECIPIENT_ALL then
+  if aRecipient = NET_ADDRESS_ALL then
     for i:=0 to fClientList.Count-1 do
       fServer.SendData(cardinal(fClientList.Items[i]), M.Memory, M.Size)
   else
@@ -173,17 +176,17 @@ begin
   while fBufferSize >= 12 do
   begin
     //We skip PacketSender because Server does not care
-    PacketRecipient := PInteger(Cardinal(@fBuffer)+4)^;
-    PacketLength := PCardinal(Cardinal(@fBuffer)+8)^;
+    PacketRecipient := PInteger(Cardinal(fBuffer)+4)^;
+    PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
     if PacketLength <= fBufferSize-12 then
     begin
 
       case PacketRecipient of
-        NET_RECIPIENT_ALL:
+        NET_ADDRESS_ALL:
             for i:=0 to fClientList.Count-1 do
               if aHandle<>integer(fClientList.Items[i]) then //Do not send to sender
                 fServer.SendData(cardinal(fClientList.Items[i]), @fBuffer[0], PacketLength+12);
-        NET_RECIPIENT_HOST:
+        NET_ADDRESS_HOST:
                 fServer.SendData(fHost, @fBuffer[0], PacketLength+12);
         else    fServer.SendData(PacketRecipient, @fBuffer[0], PacketLength+12);
       end;
