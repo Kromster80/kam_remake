@@ -157,7 +157,7 @@ end;
 
 procedure TKMNetworking.ConnectSucceed(Sender:TObject);
 begin
-  if Assigned fOnTextMessage then 
+  if Assigned(fOnTextMessage) then 
     fOnTextMessage(MyIPString + ' Connected to server');
   //Now wait for mk_IndexOnServer message
 end;
