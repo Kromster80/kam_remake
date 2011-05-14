@@ -256,7 +256,7 @@ begin
                   PacketToAll(mk_PlayersList, fNetPlayers.GetAsText, 0);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
-    lpk_Joiner: PacketToHost(mk_StartingLocQuery, chr(aIndex), 0);
+    lpk_Joiner: PacketToHost(mk_StartingLocQuery, '', aIndex);
   end;
 end;
 
@@ -276,7 +276,7 @@ begin
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
     lpk_Joiner: begin
-                  PacketToHost(mk_FlagColorQuery, chr(aIndex), 0);
+                  PacketToHost(mk_FlagColorQuery, '', aIndex);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
   end;
@@ -366,6 +366,7 @@ procedure TKMNetworking.PacketRecieve(aSenderIndex:integer; aData:pointer; aLeng
 var
   Kind:TKMessageKind;
   M:TKMemoryStream;
+  Param:integer;
   Msg:string;
   ReMsg:string;
   LocID,ColorID:integer;
@@ -375,13 +376,18 @@ begin
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
-
   M.Read(Kind, SizeOf(TKMessageKind));
+  case NetPacketType[Kind] of
+    pfNumber: M.Read(Param);
+    pfText:   M.Write(Msg);
+  end;
+  M.Free;
+
 
   case Kind of
     mk_IndexOnServer:
             begin
-              M.Read(fMyIndexOnServer);
+              fMyIndexOnServer := Param;
               if Assigned(fOnTextMessage) then fOnTextMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
               case fLANPlayerKind of
                 lpk_Host:
@@ -397,9 +403,7 @@ begin
             end;
 
     mk_AskToJoin:
-            if fLANPlayerKind = lpk_Host then
-            begin
-              M.Read(Msg); //Players Nikname
+            if fLANPlayerKind = lpk_Host then begin
               ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
               if ReMsg = '' then
               begin
@@ -419,27 +423,22 @@ begin
               fOnJoinSucc(Self); //Enter lobby
 
     mk_RefuseToJoin:
-            if fLANPlayerKind = lpk_Joiner then
-            begin
-              M.Read(Msg); //Contains error description
+            if fLANPlayerKind = lpk_Joiner then begin
               fNetClient.OnRecieveData := nil;
               fNetClient.Disconnect;
               fOnJoinFail(Msg);
             end;
 
     mk_Disconnect:
-            if fLANPlayerKind = lpk_Host then
-            begin
-              M.Read(Msg);
+            if fLANPlayerKind = lpk_Host then begin
               fNetPlayers.RemPlayer(aSenderIndex);
               PacketToAll(mk_PlayersList, fNetPlayers.GetAsText, 0);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              PostMessage(Msg+' quit');
+              PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
             end;
 
     mk_HostDisconnect:
-            if fLANPlayerKind = lpk_Joiner then
-            begin
+            if fLANPlayerKind = lpk_Joiner then begin
               fNetClient.OnRecieveData := nil;
               fNetClient.Disconnect;
               if Assigned(fOnDisconnect) then
@@ -448,13 +447,11 @@ begin
 
     mk_Ping:
             begin
-              M.Read(Msg);
               PacketSend(aSenderIndex, mk_Pong, '', 0); //Server will intercept this message
             end;
 
     mk_PlayersList:
             if fLANPlayerKind = lpk_Joiner then begin
-              M.Read(Msg);
               fNetPlayers.SetAsText(Msg); //Our index could have changed on players add/removal
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -462,7 +459,6 @@ begin
 
     mk_MapSelect:
             if fLANPlayerKind = lpk_Joiner then begin
-              M.Read(Msg);
               fMapInfo.Load(Msg, true);
               fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
@@ -471,9 +467,7 @@ begin
 
     mk_StartingLocQuery:
             if fLANPlayerKind = lpk_Host then begin
-              M.Read(Msg);
-              LocID := byte(Msg[1]); //Location index
-              //Check if position can't be taken
+              LocID := Param;
               if fMapInfo.IsValid and
                  (LocID <= fMapInfo.PlayerCount) and
                  fNetPlayers.LocAvailable(LocID) then
@@ -488,8 +482,7 @@ begin
 
     mk_FlagColorQuery:
             if fLANPlayerKind = lpk_Host then begin
-              M.Read(Msg);
-              ColorID := byte(Msg[1]); //Color index
+              ColorID := Param;
               //The player list could have changed since the joiner sent this request (over slow connection)
               if fNetPlayers.ColorAvailable(ColorID) then
               begin
@@ -509,7 +502,6 @@ begin
 
     mk_Start:
             if fLANPlayerKind = lpk_Joiner then begin
-              M.Read(Msg);
               fNetPlayers.SetAsText(Msg);
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               StartGame;
@@ -531,18 +523,14 @@ begin
 
     mk_Commands:
             begin
-              M.Read(Msg);
               if Assigned(fOnCommands) then fOnCommands(Msg);
             end;
 
     mk_Text:
             begin
-              M.Read(Msg);
               if Assigned(fOnTextMessage) then fOnTextMessage(Msg);
             end;
   end;
-
-  M.Free;
 end;
 
 
@@ -565,8 +553,12 @@ var M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   M.Write(aKind, SizeOf(TKMessageKind));
-  M.Write(aText);
-  M.Write(aParam);
+
+  case NetPacketType[aKind] of
+    pfNumber: M.Write(aParam);
+    pfText:   M.Write(aText);
+  end;
+
   fNetClient.SendData(fMyIndexOnServer, aRecipient, M.Memory, M.Size); //todo: Add recipient index, so Server route the message only to him
   M.Free;
 end;

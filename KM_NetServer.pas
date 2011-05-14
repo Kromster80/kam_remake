@@ -76,7 +76,7 @@ type
     procedure Error(const S: string);
     procedure ClientConnect(aHandle:integer);
     procedure ClientDisconnect(aHandle:integer);
-    procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer);
+    procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
   public
@@ -192,7 +192,7 @@ begin
   //Someone has to be in charge of that sort of things. And later on we can support reassign of Host
   //role, so any Client could be in charge (e.g. if Host is defeated or quit)
 
-  SendMessage(aHandle, mk_IndexOnServer, aHandle);
+  SendMessage(aHandle, mk_IndexOnServer, aHandle, '');
 end;
 
 
@@ -206,21 +206,33 @@ begin
     fHostHandle := NET_ADDRESS_EMPTY;
 
   //todo: Send message to remaining clients that client has disconnected
-  SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle);
+  SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle, '');
 end;
 
 
 //Assemble the packet as [Sender.Recepient.Length.Data]
-procedure TKMNetServer.SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer);
-var i:integer; M:TKMemoryStream;
+procedure TKMNetServer.SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
+var i:integer; M:TKMemoryStream; PacketLength:integer;
 begin
   M := TKMemoryStream.Create;
-  
+
   M.Write(integer(NET_ADDRESS_SERVER)); //Make sure constant gets treated as 4byte integer
   M.Write(aRecipient);
-  M.Write(Integer(5)); //1byte MessageKind + 4byte aHandle
+
+  PacketLength := 1;
+  case NetPacketType[aKind] of
+    pfNumber: inc(PacketLength, SizeOf(Integer));
+    pfText:   inc(PacketLength, SizeOf(Word) + Length(aText));
+  end;
+
+  M.Write(PacketLength);
   M.Write(Byte(aKind));
-  M.Write(aMsg);
+
+  case NetPacketType[aKind] of
+    pfNumber: M.Write(aMsg);
+    pfText:   M.Write(aText);
+  end;
+
   if aRecipient = NET_ADDRESS_ALL then
     for i:=0 to fClientList.Count-1 do
       fServer.SendData(fClientList[i].Handle, M.Memory, M.Size)
@@ -235,43 +247,29 @@ var
   i:integer;
   Kind:TKMessageKind;
   M:TKMemoryStream;
+  Param:integer;
   Msg:string;
-  ReMsg:string;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
-
   M.Read(Kind, SizeOf(TKMessageKind));
+  case NetPacketType[Kind] of
+    pfNumber: M.Read(Param);
+    pfText:   M.Write(Msg);
+  end;
+  M.Free;
 
   case Kind of
     mk_AskPingInfo:
-            {begin
-              //We need to store the time when ping was send
+            begin
               for i:=0 to fClientList.Count-1 do
-
-              SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer);
-
-
-              M.Read(fMyIndexOnServer);
-              if Assigned(fOnTextMessage) then fOnTextMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
-              case fLANPlayerKind of
-                lpk_Host:
-                    begin
-                      fNetPlayers.Clear;
-                      fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer);
-                      fNetPlayers[fMyIndex].ReadyToStart := true;
-                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                    end;
-                lpk_Joiner:
-                    PacketToHost(mk_AskToJoin, fMyNikname, 0);
-              end;
-            end;}
+                SendMessage(aSenderHandle, mk_Text, 0, 'Player'+inttostr(fClientList[i].Handle) + ': ' + inttostr(fClientList[i].Ping) + 'ms');
+            end;
   end;
 
-  M.Free;
 end;
 
 
