@@ -26,6 +26,7 @@ type
                         //A. Server runs on the same machine and stops right after
                         //B. Server runs on different machine and assigns Host role to some Client
 
+    mk_AskPingInfo,     //Ask server about ping info
     mk_Ping,            //Server pings Clients
     mk_Pong,            //Clients reply to Server with pong
 

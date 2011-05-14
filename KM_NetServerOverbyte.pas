@@ -38,11 +38,14 @@ type
 implementation
 
 
+//Tagging starts with some number away from -2 -1 0 used as sender/recipient constants
+//and off from usual players indexes 1..8, so we could not confuse them by mistake
 constructor TKMNetServerOverbyte.Create;
+const TAG = 14;
 var wsaData: TWSAData;
 begin
   Inherited Create;
-  fLastTag := 8; //Start from some number away from -2 -1 0 used as sender/recipient constants (HOST,ALL,UNDEFINED)
+  fLastTag := TAG;
   if WSAStartup($101, wsaData) <> 0 then
     fOnError('Error in Network');
 end;

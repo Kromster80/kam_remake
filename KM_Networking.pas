@@ -326,9 +326,10 @@ begin
 end;
 
 
+//Send request to Server to ping everyone
 procedure TKMNetworking.Ping;
 begin
-  //todo: Send request to Server to ping everyone
+  PacketSend(NET_ADDRESS_SERVER, mk_AskPingInfo, '', 0);
 end;
 
 

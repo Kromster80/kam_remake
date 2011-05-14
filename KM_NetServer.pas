@@ -38,11 +38,36 @@ uses Classes, SysUtils, KM_CommonTypes, KM_NetServerOverbyte;
       mk_AskIPs
 }
 type
+  TKMServerClient = class
+  private
+    fHandle:integer;
+    fPing:integer;
+  public
+    constructor Create(aHandle:integer);
+    property Handle:integer read fHandle; //ReadOnly
+    property Ping:integer read fPing write fPing;
+  end;
+
+
+  TKMClientsList = class
+  private
+    fCount:integer;
+    fItems:array of TKMServerClient;
+    function GetItem(Index:integer):TKMServerClient;
+  public
+    property Count:integer read fCount;
+    procedure AddPlayer(aHandle:integer);
+    procedure RemPlayer(aHandle:integer);
+    property Item[Index:integer]:TKMServerClient read GetItem; default;
+  end;
+
+
   TKMNetServer = class
   private
-    fClientList:TList; //Remember our clients in list
-    fHost:integer;
     fServer:TKMNetServerOverbyte;
+
+    fClientList:TKMClientsList;
+    fHostHandle:integer;
 
     fBufferSize:cardinal;
     fBuffer:array of byte;
@@ -52,6 +77,7 @@ type
     procedure ClientConnect(aHandle:integer);
     procedure ClientDisconnect(aHandle:integer);
     procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer);
+    procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
   public
     constructor Create;
@@ -65,10 +91,53 @@ type
 implementation
 
 
+{ TKMServerClient }
+constructor TKMServerClient.Create(aHandle: integer);
+begin
+  Inherited Create;
+  fHandle := aHandle;
+end;
+
+
+{ TKMClientsList }
+function TKMClientsList.GetItem(Index: integer): TKMServerClient;
+begin
+  Result := fItems[Index];
+end;
+
+
+procedure TKMClientsList.AddPlayer(aHandle: integer);
+begin
+  inc(fCount);
+  SetLength(fItems, fCount);
+  fItems[fCount-1] := TKMServerClient.Create(aHandle);
+end;
+
+
+procedure TKMClientsList.RemPlayer(aHandle: integer);
+var i,ID:integer;
+begin
+  ID := -1; //Convert Handle to Index
+  for i:=0 to fCount-1 do
+    if fItems[i].Handle = aHandle then
+      ID := i;
+
+  Assert(ID <> -1, 'TKMClientsList. Can not remove player');
+
+  fItems[ID].Free;
+  for i:=ID to fCount-2 do
+    fItems[i] := fItems[i+1]; //Shift only pointers
+
+  dec(fCount);
+  SetLength(fItems, fCount);
+end;
+
+
+{ TKMNetServer }
 constructor TKMNetServer.Create;
 begin
   Inherited;
-  fClientList := TList.Create;
+  fClientList := TKMClientsList.Create;
   fServer := TKMNetServerOverbyte.Create;
 end;
 
@@ -90,7 +159,7 @@ end;
 
 procedure TKMNetServer.StartListening(aPort:string);
 begin
-  fHost := NET_ADDRESS_EMPTY;
+  fHostHandle := NET_ADDRESS_EMPTY;
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
   fServer.OnClientDisconnect := ClientDisconnect;
@@ -110,13 +179,13 @@ end;
 procedure TKMNetServer.ClientConnect(aHandle:integer);
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
-  fClientList.Add(pointer(aHandle));
+  fClientList.AddPlayer(aHandle);
 
   //Let the first client be a Host
-  if fHost = NET_ADDRESS_EMPTY then
+  if fHostHandle = NET_ADDRESS_EMPTY then
   begin
-    fHost := aHandle;
-    if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Host assigned to '+inttostr(fHost));
+    fHostHandle := aHandle;
+    if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Host assigned to '+inttostr(fHostHandle));
   end;
 
   //@Lewin: We can tell the Client he is going to be a Host (has control over server and game setup)
@@ -131,10 +200,10 @@ end;
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
 begin
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
-  fClientList.Remove(pointer(aHandle));
+  fClientList.RemPlayer(aHandle);
 
-  if fHost = aHandle then
-    fHost := NET_ADDRESS_EMPTY;
+  if fHostHandle = aHandle then
+    fHostHandle := NET_ADDRESS_EMPTY;
 
   //todo: Send message to remaining clients that client has disconnected
   SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle);
@@ -154,9 +223,54 @@ begin
   M.Write(aMsg);
   if aRecipient = NET_ADDRESS_ALL then
     for i:=0 to fClientList.Count-1 do
-      fServer.SendData(cardinal(fClientList.Items[i]), M.Memory, M.Size)
+      fServer.SendData(fClientList[i].Handle, M.Memory, M.Size)
   else
     fServer.SendData(aRecipient, M.Memory, M.Size);
+  M.Free;
+end;
+
+
+procedure TKMNetServer.RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
+var
+  i:integer;
+  Kind:TKMessageKind;
+  M:TKMemoryStream;
+  Msg:string;
+  ReMsg:string;
+begin
+  Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
+
+  M := TKMemoryStream.Create;
+  M.WriteBuffer(aData^, aLength);
+  M.Position := 0;
+
+  M.Read(Kind, SizeOf(TKMessageKind));
+
+  case Kind of
+    mk_AskPingInfo:
+            {begin
+              //We need to store the time when ping was send
+              for i:=0 to fClientList.Count-1 do
+
+              SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer);
+
+
+              M.Read(fMyIndexOnServer);
+              if Assigned(fOnTextMessage) then fOnTextMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
+              case fLANPlayerKind of
+                lpk_Host:
+                    begin
+                      fNetPlayers.Clear;
+                      fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer);
+                      fNetPlayers[fMyIndex].ReadyToStart := true;
+                      if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                    end;
+                lpk_Joiner:
+                    PacketToHost(mk_AskToJoin, fMyNikname, 0);
+              end;
+            end;}
+  end;
+
   M.Free;
 end;
 
@@ -165,7 +279,7 @@ end;
 //For now just repeat the message to everyone excluding Sender
 //Send only complete messages to allow to add server messages inbetween
 procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
-var PacketRecipient:integer; PacketLength:Cardinal; i:integer;
+var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i:integer;
 begin
   //Append new data to buffer
   SetLength(fBuffer, fBufferSize + aLength);
@@ -175,19 +289,21 @@ begin
   //Try to read data packet from buffer
   while fBufferSize >= 12 do
   begin
-    //We skip PacketSender because Server does not care
+    PacketSender := PInteger(fBuffer)^;
     PacketRecipient := PInteger(Cardinal(fBuffer)+4)^;
     PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
     if PacketLength <= fBufferSize-12 then
     begin
 
       case PacketRecipient of
-        NET_ADDRESS_ALL:
+        NET_ADDRESS_ALL: //Transmit to all except sender
             for i:=0 to fClientList.Count-1 do
-              if aHandle<>integer(fClientList.Items[i]) then //Do not send to sender
-                fServer.SendData(cardinal(fClientList.Items[i]), @fBuffer[0], PacketLength+12);
+              if aHandle <> fClientList[i].Handle then
+                fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
         NET_ADDRESS_HOST:
-                fServer.SendData(fHost, @fBuffer[0], PacketLength+12);
+                fServer.SendData(fHostHandle, @fBuffer[0], PacketLength+12);
+        NET_ADDRESS_SERVER:
+                RecieveMessage(PacketSender, @fBuffer[12], PacketLength);
         else    fServer.SendData(PacketRecipient, @fBuffer[0], PacketLength+12);
       end;
 
@@ -197,7 +313,7 @@ begin
     end else
       Exit;
   end;
-end;
+end; 
 
 
 end.
