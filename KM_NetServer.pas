@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_CommonTypes, KM_NetServerOverbyte;
+uses Classes, SysUtils, Windows, KM_CommonTypes, KM_NetServerOverbyte;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -138,10 +138,15 @@ end;
 function TKMClientsList.GetByHandle(aHandle: integer): TKMServerClient;
 var i:integer;
 begin
+  Result := nil;
   for i:=0 to fCount-1 do
-              if aHandle <> fClientList[i].Handle then
-
+    if fItems[i].Handle = aHandle then
+    begin
+      Result := fItems[i];
+      Exit;
+    end;
 end;
+
 
 { TKMNetServer }
 constructor TKMNetServer.Create;
@@ -188,14 +193,17 @@ end;
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
 begin
-  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Got connection '+inttostr(aHandle));
+  if Assigned(fOnStatusMessage) then
+    fOnStatusMessage('Server: Client has connected '+inttostr(aHandle));
+
   fClientList.AddPlayer(aHandle);
 
   //Let the first client be a Host
   if fHostHandle = NET_ADDRESS_EMPTY then
   begin
     fHostHandle := aHandle;
-    if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Host assigned to '+inttostr(fHostHandle));
+    if Assigned(fOnStatusMessage) then
+      fOnStatusMessage('Server: Host rights assigned to '+inttostr(fHostHandle));
   end;
 
   //@Lewin: We can tell the Client he is going to be a Host (has control over server and game setup)
@@ -209,7 +217,9 @@ end;
 //Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
 begin
-  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
+  if Assigned(fOnStatusMessage) then
+    fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
+
   fClientList.RemPlayer(aHandle);
 
   if fHostHandle = aHandle then
@@ -260,7 +270,7 @@ var
   Param:integer;
   Msg:string;
 begin
-  Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
+  Assert(aLength >= 1, 'Unexpectedly short message');
 
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
@@ -287,7 +297,7 @@ begin
             end;
     mk_Pong:
             begin
-             fClientList.GetByHandle(aSenderHandle).Ping := GetTickCount - fPingStart;
+             fClientList.GetByHandle(aSenderHandle).Ping := GetTickCount - fPingStarted;
 
 
             end;
@@ -297,7 +307,6 @@ end;
 
 
 //Someone has send us something
-//For now just repeat the message to everyone excluding Sender
 //Send only complete messages to allow to add server messages inbetween
 procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
 var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i:integer;
@@ -317,10 +326,13 @@ begin
     begin
 
       case PacketRecipient of
-        NET_ADDRESS_ALL: //Transmit to all except sender
+        NET_ADDRESS_OTHERS: //Transmit to all except sender
             for i:=0 to fClientList.Count-1 do
-              if aHandle <> fClientList[i].Handle then
-                fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
+                if aHandle <> fClientList[i].Handle then
+                  fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
+        NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
+                for i:=0 to fClientList.Count-1 do
+                  fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
         NET_ADDRESS_HOST:
                 fServer.SendData(fHostHandle, @fBuffer[0], PacketLength+12);
         NET_ADDRESS_SERVER:

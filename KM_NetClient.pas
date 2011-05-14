@@ -54,7 +54,6 @@ type
     procedure Disconnect; //Disconnect from server
     property OnForcedDisconnect:TGetStrProc write fOnForcedDisconnect; //Signal we were forcelly disconnected
 
-    procedure SendText(const aData:string); //For now we use just plain text
     property OnRecieveData:TNotifySenderDataEvent write fOnRecieveData;
     procedure SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
 
@@ -139,12 +138,6 @@ begin
     fOnForcedDisconnect('9');
   end;
   fConnected := false;
-end;
-
-
-procedure TKMNetClient.SendText(const aData:string);
-begin
-  SendData(NET_ADDRESS_SERVER, NET_ADDRESS_ALL, @aData[1], length(aData));
 end;
 
 

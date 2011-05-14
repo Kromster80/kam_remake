@@ -14,9 +14,10 @@ type
 
 const
   NET_ADDRESS_EMPTY = 0;    //Yet undefined
-  NET_ADDRESS_ALL = -1;     //Recipient
-  NET_ADDRESS_HOST = -2;    //Sender/Recipient
-  NET_ADDRESS_SERVER = -3;  //Sender/Recipient
+  NET_ADDRESS_OTHERS = -1;     //Recipient
+  NET_ADDRESS_ALL = -2;     //Recipient
+  NET_ADDRESS_HOST = -3;    //Sender/Recipient
+  NET_ADDRESS_SERVER = -4;  //Sender/Recipient
 
   //Client-Server-Client exchange packets. Each packet is a certain type
 type

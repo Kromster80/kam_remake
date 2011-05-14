@@ -13,14 +13,12 @@ type
     fIndexOnServer:integer;
   public
     PlayerType:TPlayerType; //Human, Computer
-    FlagColorID:integer; //Flag color, 0 means random
-    StartLocID:integer; //Start location, 0 means random
+    FlagColorID:integer;    //Flag color, 0 means random
+    StartLocID:integer;     //Start location, 0 means random
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
-    Alive:boolean; //Player is still connected and not defeated
-
-    Ping:word; //Last known ping
-  public
+    Alive:boolean;          //Player is still connected and not defeated
+    Ping:word;              //Last known ping
     function IsHuman:boolean;
     property Nikname:string read fNikname;
     property IndexOnServer:integer read fIndexOnServer;
@@ -231,10 +229,14 @@ begin
   Result := -1;
   for i:=1 to fCount do
     if fPlayers[i].fIndexOnServer = aIndexOnServer then
+    begin
       Result := i;
+      Exit;
+    end;
 end;
 
 
+//Networking needs to convert Nikname to local index in players list
 function TKMPlayersList.NiknameToLocal(aNikname:string):integer;
 var i:integer;
 begin
