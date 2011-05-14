@@ -348,7 +348,7 @@ begin
     PacketToAll(mk_Commands, aStream.ReadAsText, 0) //Send commands to all players
   else
   for i:=1 to fNetPlayers.Count do //todo: optimize and error-check
-    if fNetPlayers[i].StartLocID = aPlayerLoc then
+    if fNetPlayers[i].StartLocID = aPlayerLoc then   //TODO: ERROR HERE
       PacketSend(fNetPlayers[i].IndexOnServer, mk_Commands, aStream.ReadAsText, 0);
 end;
 
@@ -379,7 +379,7 @@ begin
   M.Read(Kind, SizeOf(TKMessageKind));
   case NetPacketType[Kind] of
     pfNumber: M.Read(Param);
-    pfText:   M.Write(Msg);
+    pfText:   M.Read(Msg);
   end;
   M.Free;
 
