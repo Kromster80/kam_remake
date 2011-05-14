@@ -14,7 +14,7 @@ uses
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
   KM_LoadDAT in 'KM_LoadDAT.pas',
   KM_TPlayer in 'KM_TPlayer.pas',
-  KM_TGATexture in 'KM_TGATexture.pas';
+  KM_TGATexture in '..\Common\KM_TGATexture.pas';
 
 {$IFDEF WDC}
   {$R *.RES}
