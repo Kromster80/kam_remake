@@ -225,7 +225,7 @@ begin
   if fHostHandle = aHandle then
     fHostHandle := NET_ADDRESS_EMPTY;
 
-  //todo: Send message to remaining clients that client has disconnected
+  //Send message to all remaining clients that client has disconnected
   SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle, '');
 end;
 

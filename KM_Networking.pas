@@ -576,7 +576,7 @@ begin
     pfText:   M.Write(aText);
   end;
 
-  fNetClient.SendData(fMyIndexOnServer, aRecipient, M.Memory, M.Size); //todo: Add recipient index, so Server route the message only to him
+  fNetClient.SendData(fMyIndexOnServer, aRecipient, M.Memory, M.Size);
   M.Free;
 end;
 
