@@ -30,7 +30,7 @@ type
     mk_ClientLost,      //Server tells clients that someone has disconnected
 
     mk_Disconnect,      //Joiner tells Host that he is leaving the lobby/game deliberately
-    mk_HostDisconnect,  //Host tells joiners he is exiting
+                        //Host tells Joiners that he is quitting
                         //A. Server runs on the same machine and stops right after
                         //B. Server runs on different machine and assigns Host role to some Client
 
@@ -66,7 +66,6 @@ const
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
     pfNoData,   //mk_Disconnect
-    pfNoData,   //mk_HostDisconnect
     pfNoData,   //mk_AskPingInfo
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong

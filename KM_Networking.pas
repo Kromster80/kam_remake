@@ -37,12 +37,14 @@ type
     fOnPingInfo:TNotifyEvent;
     fOnCommands:TStringEvent;
 
+    procedure DecodePingInfo(aInfo:string);
+    procedure ForcedDisconnect(const S: string);
+    procedure StartGame;
+
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
     procedure PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
-    procedure DecodePingInfo(aInfo:string);
-    procedure StartGame;
   public
     constructor Create;
     destructor Destroy; override;
@@ -75,14 +77,17 @@ type
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
-    property OnTextMessage:TStringEvent write fOnTextMessage;   //Text message recieved
+
     property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnMapName:TStringEvent write fOnMapName;           //Map name updated
     property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game loading
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
+
     property OnDisconnect:TStringEvent write fOnDisconnect;     //Lost connection, was kicked
     property OnCommands:TStringEvent write fOnCommands;         //Recieved GIP commands
+
+    property OnTextMessage:TStringEvent write fOnTextMessage;   //Text message recieved
 
     procedure UpdateState;
   end;
@@ -146,17 +151,17 @@ begin
   fNetClient.OnRecieveData := PacketRecieve;
   fNetClient.OnConnectSucceed := ConnectSucceed;
   fNetClient.OnConnectFailed := ConnectFailed;
-//  fNetClient.OnForcedDisconnect :=
+  fNetClient.OnForcedDisconnect := ForcedDisconnect;
   fNetClient.OnStatusMessage := fOnTextMessage;
   fNetClient.ConnectTo(fHostAddress, KAM_PORT);
 end;
 
 
+//Connection was successfull, but we still need mk_IndexOnServer to be able to do anything
 procedure TKMNetworking.ConnectSucceed(Sender:TObject);
 begin
-  if Assigned(fOnTextMessage) then 
+  if Assigned(fOnTextMessage) then
     fOnTextMessage('Connection successfull');
-  //Now wait for mk_IndexOnServer message
 end;
 
 
@@ -167,12 +172,10 @@ begin
 end;
 
 
+//Send message that we have deliberately disconnected
 procedure TKMNetworking.LeaveLobby;
 begin
-  case fLANPlayerKind of
-    lpk_Host:   PacketSend(NET_ADDRESS_OTHERS, mk_HostDisconnect, '', 0);
-    lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_Disconnect, '', 0);
-  end;
+  PacketSend(NET_ADDRESS_OTHERS, mk_Disconnect, '', 0);
 end;
 
 
@@ -189,6 +192,12 @@ begin
 
   fNetPlayers.Clear;
   fNetClient.Disconnect;
+end;
+
+
+procedure TKMNetworking.ForcedDisconnect(const S: string);
+begin
+  fOnDisconnect(S);
 end;
 
 
@@ -429,25 +438,25 @@ begin
 
     mk_RefuseToJoin:
             if fLANPlayerKind = lpk_Joiner then begin
-              fNetClient.OnRecieveData := nil;
               fNetClient.Disconnect;
               fOnJoinFail(Msg);
             end;
 
     mk_Disconnect:
-            if fLANPlayerKind = lpk_Host then begin
-              fNetPlayers.RemPlayer(aSenderIndex);
-              PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
-              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-              PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
-            end;
-
-    mk_HostDisconnect:
-            if fLANPlayerKind = lpk_Joiner then begin
-              fNetClient.OnRecieveData := nil;
-              fNetClient.Disconnect;
-              if Assigned(fOnDisconnect) then
-                fOnDisconnect('Host has quit');
+            case fLANPlayerKind of
+              lpk_Host:
+                  begin
+                    fNetPlayers.RemPlayer(aSenderIndex);
+                    PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
+                    if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                    PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
+                  end;
+              lpk_Joiner:
+                  begin
+                    fNetClient.Disconnect;
+                    if Assigned(fOnDisconnect) then
+                      fOnDisconnect('Host has quit');
+                  end;
             end;
 
     mk_Ping:
