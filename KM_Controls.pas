@@ -613,7 +613,7 @@ begin
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
-  if aParent<>nil then TKMPanel(aParent).AddChild(Self);
+  if aParent<>nil then aParent.AddChild(Self);
 end;
 
 
@@ -853,14 +853,14 @@ procedure TKMPanel.SetHeight(aValue:Integer);
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if (akTop in TKMControl(Childs[i]).Anchors)and(akBottom in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Height := TKMControl(Childs[i]).Height + (aValue-fHeight)
+    if (akTop in Childs[i].Anchors)and(akBottom in Childs[i].Anchors) then
+      Childs[i].Height := Childs[i].Height + (aValue-fHeight)
     else
-    if akBottom in TKMControl(Childs[i]).Anchors then
-      TKMControl(Childs[i]).Top := TKMControl(Childs[i]).Top + (aValue-fHeight)
+    if akBottom in Childs[i].Anchors then
+      Childs[i].Top := Childs[i].Top + (aValue-fHeight)
     else
-    if not (akTop in TKMControl(Childs[i]).Anchors)and not(akBottom in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Top := TKMControl(Childs[i]).Top + (aValue-fHeight) div 2;
+    if not (akTop in Childs[i].Anchors)and not(akBottom in Childs[i].Anchors) then
+      Childs[i].Top := Childs[i].Top + (aValue-fHeight) div 2;
 
   Inherited;
 end;
@@ -869,14 +869,14 @@ procedure TKMPanel.SetWidth(aValue:Integer);
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if (akLeft in TKMControl(Childs[i]).Anchors)and(akRight in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Width := TKMControl(Childs[i]).Width + (aValue-fWidth)
+    if (akLeft in Childs[i].Anchors)and(akRight in Childs[i].Anchors) then
+      Childs[i].Width := Childs[i].Width + (aValue-fWidth)
     else
-    if akRight in TKMControl(Childs[i]).Anchors then
-      TKMControl(Childs[i]).Left := TKMControl(Childs[i]).Left + (aValue-fWidth)
+    if akRight in Childs[i].Anchors then
+      Childs[i].Left := Childs[i].Left + (aValue-fWidth)
     else
-    if not (akLeft in TKMControl(Childs[i]).Anchors)and not(akRight in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Left := TKMControl(Childs[i]).Left + (aValue-fWidth) div 2;
+    if not (akLeft in Childs[i].Anchors)and not(akRight in Childs[i].Anchors) then
+      Childs[i].Left := Childs[i].Left + (aValue-fWidth) div 2;
   Inherited;
 end;
 
@@ -1243,7 +1243,7 @@ function TKMButton.DoPress:boolean;
 begin
   //Mark self as CtrlDown
   if Visible and fEnabled then begin
-    TKMPanel(Parent).GetCollection.CtrlDown := Self;
+    Parent.GetCollection.CtrlDown := Self;
     Result := true;
   end else
     Result := false;
@@ -1258,8 +1258,8 @@ function TKMButton.DoClick:boolean;
 begin
   if Visible and fEnabled then begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
-    TKMPanel(Parent).GetCollection.CtrlOver := Self;
-    TKMPanel(Parent).GetCollection.CtrlUp := Self;
+    Parent.GetCollection.CtrlOver := Self;
+    Parent.GetCollection.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
   end else

@@ -145,7 +145,7 @@ begin
   Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCommander)));
   fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
-  fOrderTargetHouse := TKMHouse(fPlayers.GetHouseByID(cardinal(fOrderTargetHouse)));
+  fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
   if fMembers<>nil then
     for i:=0 to fMembers.Count-1 do
       fMembers.Items[i] := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fMembers.Items[i])));
