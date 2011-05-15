@@ -903,7 +903,7 @@ begin
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin
     FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
-    if FileList_MapEd.fFiles.Count > 0 then
+    if FileList_MapEd.FileCount > 0 then
       FileList_MapEd.ItemIndex := 0; //Select first map by default
     MapEditor_Change(nil);
     Panel_MapEd.Show;
