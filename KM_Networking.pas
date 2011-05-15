@@ -119,37 +119,35 @@ begin
 end;
 
 
+//Startup a local server and connect to it as ordinary client
 procedure TKMNetworking.Host(aUserName:string);
 begin
+  fNetServer.StopListening;
+
   fNetServer.OnStatusMessage := fOnTextMessage;
   fNetServer.StartListening(KAM_PORT);
 
-  fHostAddress := ''; //Thats us
-  fMyNikname := aUserName;
-  fMyIndexOnServer := -1; //Yet Unknown
-  fMyIndex := -1; //Yet unknown
-  fLANPlayerKind := lpk_Host;
-
-  fNetClient.OnRecieveData := PacketRecieve;
-  fNetClient.OnConnectSucceed := ConnectSucceed;
-  fNetClient.OnConnectFailed := ConnectFailed;
-  fNetClient.ConnectTo('127.0.0.1', KAM_PORT);
+  Join('127.0.0.1', aUserName);
+  fLANPlayerKind := lpk_Host; //todo: Instead of overriding our role - let Server assign Host rights to us (possibly along with IndexOnServer message)
 end;
 
 
 procedure TKMNetworking.Join(aServerAddress,aUserName:string);
 begin
-  Disconnect;
+  Assert(not fNetClient.Connected, 'We were not properly disconnected');
+
+  fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
+  fMyIndexOnServer := -1; //Assigned by Server
+
   fHostAddress := aServerAddress;
   fMyNikname := aUserName;
-  fMyIndexOnServer := -1; //Unknown yet
-  fMyIndex := -1; //Host will send us Players list and we will get our index from there
   fLANPlayerKind := lpk_Joiner;
-  fNetPlayers.Clear;
 
   fNetClient.OnRecieveData := PacketRecieve;
   fNetClient.OnConnectSucceed := ConnectSucceed;
   fNetClient.OnConnectFailed := ConnectFailed;
+//  fNetClient.OnForcedDisconnect :=
+  fNetClient.OnStatusMessage := fOnTextMessage;
   fNetClient.ConnectTo(fHostAddress, KAM_PORT);
 end;
 
@@ -157,25 +155,15 @@ end;
 procedure TKMNetworking.ConnectSucceed(Sender:TObject);
 begin
   if Assigned(fOnTextMessage) then 
-    fOnTextMessage(MyIPString + ' Connected to server');
+    fOnTextMessage('Connection successfull');
   //Now wait for mk_IndexOnServer message
 end;
 
 
 procedure TKMNetworking.ConnectFailed(const S: string);
 begin
-  case fLANPlayerKind of
-    lpk_Host:   begin
-                  fNetClient.OnRecieveData := nil;
-                  fNetClient.Disconnect;
-                  fOnJoinFail(S);
-                end;
-    lpk_Joiner: begin
-                  fNetClient.OnRecieveData := nil;
-                  fNetClient.Disconnect;
-                  fOnJoinFail(S);
-                end;
-  end;
+  fNetClient.Disconnect;
+  fOnJoinFail(S);
 end;
 
 
@@ -200,12 +188,7 @@ begin
   fOnPingInfo := nil;
 
   fNetPlayers.Clear;
-
   fNetClient.Disconnect;
-
-  fNetServer.OnStatusMessage := nil;
-  if fLANPlayerKind = lpk_Host then
-    fNetServer.StopListening;
 end;
 
 
@@ -414,7 +397,6 @@ begin
               case fLANPlayerKind of
                 lpk_Host:
                     begin
-                      fNetPlayers.Clear;
                       fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer);
                       fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                       fNetPlayers[fMyIndex].ReadyToStart := true;
@@ -465,7 +447,7 @@ begin
               fNetClient.OnRecieveData := nil;
               fNetClient.Disconnect;
               if Assigned(fOnDisconnect) then
-                fOnDisconnect('The host quit');
+                fOnDisconnect('Host has quit');
             end;
 
     mk_Ping:

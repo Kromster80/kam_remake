@@ -180,12 +180,14 @@ begin
   fServer.OnClientDisconnect := ClientDisconnect;
   fServer.OnDataAvailable := DataAvailable;
   fServer.StartListening(aPort);
-  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Listening..');
+  if Assigned(fOnStatusMessage) then
+    fOnStatusMessage('Server: Listening..');
 end;
 
 
 procedure TKMNetServer.StopListening;
 begin
+  fOnStatusMessage := nil;
   fServer.StopListening;
 end;
 

@@ -63,8 +63,9 @@ type
     procedure LAN_JoinClick(Sender: TObject);
     procedure LAN_JoinSuccess(Sender: TObject);
     procedure LAN_JoinFail(const aData:string);
-    procedure LAN_BindEvents(aKind:TLANPlayerKind);
+    procedure LAN_BindEvents;
     procedure LAN_Save_Settings;
+    procedure LAN_BackClick(Sender: TObject);
 
     procedure Lobby_Reset(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
@@ -445,7 +446,7 @@ begin
       Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 180, 100, 20, ' ... ', fnt_Outline, kaCenter);
 
     Button_LAN_LoginBack := TKMButton.Create(Panel_LANLogin2, 100, 300, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_LAN_LoginBack.OnClick := SwitchMenuPage;
+    Button_LAN_LoginBack.OnClick := LAN_BackClick;
 end;
 
 
@@ -834,7 +835,6 @@ begin
   if Sender=Button_LAN_LoginBack then
   begin
     Panel_MultiPlayer.Show;
-    LAN_Save_Settings;
   end;
 
   {Return to MainMenu and restore resolution changes}
@@ -1120,7 +1120,7 @@ end;
 procedure TKMMainMenuInterface.LAN_Update(const aStatus:string);
 var s:string;
 begin  
-  //Load connection settings                                    
+  //Load connection settings
   Edit_LAN_Name.Text := fGame.GlobalSettings.MultiplayerName;
   Edit_LAN_IP.Text := fGame.GlobalSettings.MultiplayerIP;
 
@@ -1147,11 +1147,8 @@ procedure TKMMainMenuInterface.LAN_HostClick(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
-  if fGame.Networking.Connected then fGame.Networking.Disconnect;
-
-  LAN_BindEvents(lpk_Host);
+  LAN_BindEvents;
   fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
-  Lobby_OnPlayersSetup(nil); //Update players list (with ourselves on first line)
 end;
 
 
@@ -1176,9 +1173,7 @@ begin
 
   fGame.Networking.OnJoinSucc := nil;
   fGame.Networking.OnJoinFail := nil;
-  LAN_BindEvents(lpk_Joiner);
-
-  fGame.Networking.PostMessage(fGame.Networking.MyIPString);
+  LAN_BindEvents;
 end;
 
 
@@ -1189,15 +1184,25 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.LAN_BindEvents(aKind:TLANPlayerKind);
+//Events binding is the same for Host and Joiner because of stand-alone Server
+//E.g. If Server fails, Host can be disconnected from it as well as a Joiner
+procedure TKMMainMenuInterface.LAN_BindEvents;
 begin
   fGame.Networking.OnTextMessage  := Lobby_OnMessage;
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
   fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
   fGame.Networking.OnStartGame    := fGame.GameStartMP;
-  //Host can be disconnected by Server as well (when e.g. Server fails)
   fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
+end;
+
+
+//Disconnect in case NetClient is waiting for reply from server
+procedure TKMMainMenuInterface.LAN_BackClick(Sender: TObject);
+begin
+  fGame.Networking.Disconnect;
+  LAN_Save_Settings;
+  SwitchMenuPage(Sender);
 end;
 
 

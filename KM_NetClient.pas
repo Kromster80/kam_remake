@@ -121,6 +121,12 @@ end;
 
 procedure TKMNetClient.Disconnect;
 begin
+  fOnConnectSucceed := nil;
+  fOnConnectFailed := nil;
+  fOnForcedDisconnect := nil;
+  fOnRecieveData := nil;
+  fOnStatusMessage := nil;
+
   fConnected := false;
   fClient.Disconnect;
 end;
@@ -134,8 +140,9 @@ procedure TKMNetClient.ForcedDisconnect(Sender: TObject);
 begin
   if fConnected then
   begin
-    if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Forced disconnect');
-    fOnForcedDisconnect('9');
+    if Assigned(fOnStatusMessage) then
+      fOnStatusMessage('Client: Forced disconnect');
+    fOnForcedDisconnect('Server stopped responding');
   end;
   fConnected := false;
 end;
