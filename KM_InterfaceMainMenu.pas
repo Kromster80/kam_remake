@@ -271,9 +271,6 @@ begin
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
-    //FL := MyControls.AddFileList(Panel_Main1, 550, 300, 320, 220);
-    //FL.RefreshList(ExeDir+'Maps\','dat',true);
-
 
   //Show version info on every page
   Label_Version := TKMLabel.Create(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.RendererVersion,fnt_Antiqua,kaLeft);
@@ -470,7 +467,7 @@ begin
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top, 140, 20, '. ', fnt_Metal, kaLeft);
 
         DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 150, 20, fnt_Metal);
-        DropBox_LobbyLoc[i].Items.Add('Random');
+        DropBox_LobbyLoc[i].AddItem('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
         DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT);
@@ -903,8 +900,7 @@ begin
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin
     FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
-    if FileList_MapEd.FileCount > 0 then
-      FileList_MapEd.ItemIndex := 0; //Select first map by default
+    FileList_MapEd.ItemIndex := 0; //Try to select first map by default
     MapEditor_Change(nil);
     Panel_MapEd.Show;
   end;
@@ -1213,7 +1209,7 @@ begin
   for i:=0 to MAX_PLAYERS-1 do
     Label_LobbyPlayer[i].Caption := '.';
 
-  ListBox_LobbyPosts.Items.Clear;
+  ListBox_LobbyPosts.Clear;
   Edit_LobbyPost.Text := '';
 
   if Sender = Button_LAN_Host then begin
@@ -1326,7 +1322,7 @@ begin
     DropText := DropText + 'Location ' + inttostr(i) + eol;
 
   for i:=0 to MAX_PLAYERS-1 do
-    DropBox_LobbyLoc[i].Items.Text := DropText;
+    DropBox_LobbyLoc[i].SetItems(DropText);
 
 
   //todo: Keep disabled if Map does not matches Hosts or missing
@@ -1345,9 +1341,9 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
-  ListBox_LobbyPosts.Items.Add(aData);
+  ListBox_LobbyPosts.AddItem(aData);
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
-  ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.Items.Count;
+  ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.ItemCount;
 end;
 
 
