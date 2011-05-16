@@ -12,6 +12,76 @@ type
   TKMPointF = record X,Y:single; end;
   TKMPointI = record X,Y:integer; end; //Allows negative values
 
+const
+  NET_ADDRESS_EMPTY = 0;    //Yet undefined
+  NET_ADDRESS_OTHERS = -1;     //Recipient
+  NET_ADDRESS_ALL = -2;     //Recipient
+  NET_ADDRESS_HOST = -3;    //Sender/Recipient
+  NET_ADDRESS_SERVER = -4;  //Sender/Recipient
+
+  //Client-Server-Client exchange packets. Each packet is a certain type
+type
+  TKMessageKind = (
+    mk_AskToJoin,       //Client asks Host if he can join
+    mk_AllowToJoin,     //Host allows Client to join
+    mk_RefuseToJoin,    //Host can refuse when e.g. Nikname is already taken
+
+    mk_IndexOnServer,   //Server tells Client his index
+    mk_ClientLost,      //Server tells clients that someone has disconnected
+
+    mk_Disconnect,      //Joiner tells Host that he is leaving the lobby/game deliberately
+                        //Host tells Joiners that he is quitting
+                        //A. Server runs on the same machine and stops right after
+                        //B. Server runs on different machine and assigns Host role to some Client
+
+    mk_AskPingInfo,     //Ask server about ping info
+    mk_Ping,            //Server pings Clients
+    mk_Pong,            //Clients reply to Server with pong
+    mk_PingInfo,        //Server sends list of ping times to Clients
+
+    mk_PlayersList,     //Host keeps the players list and sends it to everyone on change
+
+    mk_StartingLocQuery,//Joiner asks Host if he can take that starting location
+    mk_FlagColorQuery,  //Joiner asks Host if he can take specific color
+
+    mk_MapSelect,       //Host selects the map to play
+    mk_ReadyToStart,    //Joiner tells he's ready to play the game
+    mk_Start,           //Host says to start the game
+
+    mk_ReadyToPlay,     //Joiner tells Host he has loaded the map and clock can start
+    mk_Play,            //Host tells everyone that the game may begin
+
+    mk_Commands,        //Clients exchange commands for next ticks
+    mk_Text             //Clients exchange text messages
+    );
+
+
+  TKMPacketFormat = (pfNoData, pfNumber, pfText);
+
+const
+  NetPacketType:array[TKMessageKind] of TKMPacketFormat =
+  ( pfText,     //mk_AskToJoin
+    pfNoData,   //mk_AllowToJoin
+    pfText,     //mk_RefuseToJoin
+    pfNumber,   //mk_IndexOnServer
+    pfNumber,   //mk_ClientLost
+    pfNoData,   //mk_Disconnect
+    pfNoData,   //mk_AskPingInfo
+    pfNoData,   //mk_Ping
+    pfNoData,   //mk_Pong
+    pfText,     //mk_PingInfo
+    pfText,     //mk_PlayersList
+    pfNumber,   //mk_StartingLocQuery
+    pfNumber,   //mk_FlagColorQuery
+    pfText,     //mk_MapSelect
+    pfNoData,   //mk_ReadyToStart
+    pfText,     //mk_Start
+    pfNoData,   //mk_ReadyToPlay
+    pfNoData,   //mk_Play          
+    pfText,     //mk_Commands
+    pfText      //mk_Text
+  );
+
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)

@@ -1717,7 +1717,7 @@ begin
   if Button_School_Left.Enabled then
     Image_School_Left.TexID:=520+byte(School_Order[LastSchoolUnit-1]);
 
-  Label_School_Unit.Caption:=TypeToString(TUnitType(School_Order[LastSchoolUnit]));
+  Label_School_Unit.Caption:=TypeToString(School_Order[LastSchoolUnit]);
   Image_School_Train.TexID:=520+byte(School_Order[LastSchoolUnit]);
 
   if Button_School_Right.Enabled then
@@ -2211,11 +2211,11 @@ begin
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
-    and(TKMUnit(fShownUnit).GetOwner = MyPlayer.PlayerID) then
+    and(fShownUnit.GetOwner = MyPlayer.PlayerID) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Ally)) and
-      fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false) then
+      fTerrain.Route_CanBeMade(fShownUnit.GetPosition, GameCursor.Cell, CanWalk, 0, false) then
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
       //Record current cursor position so we can stop it from moving while we are setting direction
@@ -2340,7 +2340,7 @@ begin
   //Attack or Walk
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and(not TKMUnitWarrior(fShownUnit).GetCommander.ArmyIsBusy(true)) //Can't give orders to busy warriors
-    and(TKMUnit(fShownUnit).GetOwner = MyPlayer.PlayerID) then
+    and(fShownUnit.GetOwner = MyPlayer.PlayerID) then
   begin
     //Try to Attack unit
     U := fTerrain.UnitsHitTest(P.X, P.Y);
@@ -2354,7 +2354,7 @@ begin
       (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Enemy) then
         fGame.fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H)
       else //If there's no house - Walk to spot
-        if fTerrain.Route_CanBeMade(TKMUnit(fShownUnit).GetPosition, P, CanWalk, 0, false) then
+        if fTerrain.Route_CanBeMade(fShownUnit.GetPosition, P, CanWalk, 0, false) then
           fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
     end;
   end;

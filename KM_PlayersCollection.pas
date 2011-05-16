@@ -130,18 +130,26 @@ players), but we can ge through all tiles as well
 (e.g. play_2 must stay alive for someones victory, if we alter goals mission will become unbeatable,
 in other case mission will return Defeat immediately - that is better)
 - Connection between NetPlayers and Players lists is not straight anyway
-Conclusion: IDs are alias for starting locations, not players order in game. We might want to ommit
+
+Conclusion:
+A. IDs are alias for starting locations, not players order in game. We might want to ommit
 (do not load) players data and leave everything else intact.
+B. We don't need to remove players for multiplayer.
 
     When MapEditor removes a player, before saving a map, it wants to remove it completely, leaving
 no trace. Since IDs are alias for starting locations we need to pack them (1348 -> 1234). Later on,
 on map loading, players will be stuffed to MAX_PLAYERS
 - IDs, update all units and houses owners
 - Alliances, update
-- Goals, remove goals for missing players. We can show warnings before save on erroneous goals anyway
+- Goals, remove goals for missing players. We can show warnings before save on erroneous goals,
+but anyway - it's MapEd and everything is not final yet
 - Terrain, what to do with tile ownership, roads? (thats is pretty rare case, presumably happening
-by mistake)
+by mistake) Either we remove them with a note, or try to convert ownership? IMO removing is better
 - Problem with the menu - will it be smart enough to handle suddenly changed players layout?
+It should handle it.
+
+Conclusion:
+MapEditor needs to be able to remove players smoothly
 
 In the end we have alliances and goals set/depending between starting locations, and players are
 choosing which location they want to use, with all its assets and properties.

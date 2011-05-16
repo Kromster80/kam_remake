@@ -311,10 +311,12 @@ type
     Font: TKMFont;
     Masked:boolean;
     CursorPos:integer;
+    ReadOnly:boolean;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false);
     property Text:string read fText write SetText;
     property OnChange: TNotifyEvent write fOnChange;
     property OnKeyDown: TNotifyEventKey write fOnKeyDown;
+    function HitTest(X, Y: Integer): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
     function KeyPress(Key: Char):boolean; override;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
@@ -436,12 +438,12 @@ type
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fScrollAxis:TScrollAxis;
     fOnChange:TNotifyEvent;
-    procedure IncPosition(Sender:TObject);
-    procedure DecPosition(Sender:TObject);
-    procedure RefreshItems;
     procedure SetHeight(aValue:Integer); override;
     procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
+    procedure IncPosition(Sender:TObject);
+    procedure DecPosition(Sender:TObject);
+    procedure UpdateThumbSize;
   public
     Position:byte;
     MinValue:byte;
@@ -451,7 +453,6 @@ type
     ScrollInc:TKMButton;
     Style:TButtonStyle;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
-    destructor Destroy; override;
 
     property BackAlpha:single write fBackAlpha;
 
@@ -472,22 +473,27 @@ type
     fTopIndex:smallint; //up to 32k files
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
-    procedure ChangeScrollPosition (Sender:TObject);
     procedure SetHeight(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
     procedure SetTopIndex(aIndex:smallint);
     procedure SetBackAlpha(aValue:single);
     procedure SetEnabled(aValue:boolean); override;
+    procedure ChangeScrollPosition (Sender:TObject);
+    procedure UpdateScrollBar;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     destructor Destroy; override;
 
-    procedure RefreshList;
+    procedure AddItem(aItem:string);
+    procedure Clear;
+    procedure SetItems(aText:string);
 
     property BackAlpha:single write SetBackAlpha;
+    function ItemCount:integer;
+    function ItemCaption:string;
     property ItemHeight:byte read fItemHeight;
     property ItemIndex:smallint read fItemIndex write fItemIndex;
-    property Items:TStringList read fItems;
+    //property Items:TStringList read fItems;
     property TopIndex:smallint read fTopIndex write SetTopIndex;
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
@@ -511,16 +517,40 @@ type
     procedure ListShow(Sender:TObject);
     procedure ListClick(Sender:TObject);
     procedure ListHide(Sender:TObject);
-    function GetItems:TStringList;
     function GetItemIndex:smallint;
     procedure SetItemIndex(aIndex:smallint);
     procedure SetEnabled(aValue:boolean); override;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    procedure AddItem(aItem:string);
+    procedure SetItems(aText:string);
     property DropCount:byte write fDropCount;
     property ItemIndex:smallint read GetItemIndex write SetItemIndex;
-    property Items:TStringList read GetItems;
     property OnChange: TNotifyEvent write fOnChange;
+    procedure Paint; override;
+  end;
+
+  TKMFileList = class;
+
+  TKMDropFileBox = class(TKMControl)
+  private
+    fCaption:string;
+    fDropCount:byte;
+    fFont: TKMFont;
+    fButton:TKMButton;
+    fFileList:TKMFileList;
+    fShape:TKMShape;
+    fOnChange:TNotifyEvent;
+    procedure ListShow(Sender:TObject);
+    procedure ListClick(Sender:TObject);
+    procedure ListHide(Sender:TObject);
+    procedure SetEnabled(aValue:boolean); override;
+  public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    property DropCount:byte write fDropCount;
+    property OnChange: TNotifyEvent write fOnChange;
+    function FileName:string;
+    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
     procedure Paint; override;
   end;
 
@@ -536,9 +566,10 @@ type
     procedure ListClick(Sender:TObject);
     procedure ListHide(Sender:TObject);
     procedure SetEnabled(aValue:boolean); override;
+    procedure SetColorIndex(aIndex:integer);
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
-    property ColorIndex:integer read fColorIndex write fColorIndex;
+    property ColorIndex:integer read fColorIndex write SetColorIndex;
     procedure AddColors(aColors:array of TColor4);
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
@@ -566,22 +597,32 @@ type
   { Files list } //Possible solution for MapEd and Save/Load
   TKMFileList = class(TKMControl)
   private
+    fTopIndex:smallint; //up to 32k files
     ItemHeight:byte;
+    fItemIndex:smallint;
     fPath:string;
-    fScrollBar:TKMScrollBar;
-    fOnChange:TNotifyEvent;
-    procedure ChangeScrollPosition (Sender:TObject);
-    procedure SetVisible(aValue:boolean); override;
-  public
-    TopIndex:smallint; //up to 32k files
-    ItemIndex:smallint;
     fPaths:TStringList;
     fFiles:TStringList;
+    fScrollBar:TKMScrollBar;
+    fEdit:TKMEdit;
+    fOnChange:TNotifyEvent;
+    procedure SetHeight(aValue:Integer); override;
+    procedure SetVisible(aValue:boolean); override;
+    procedure ChangeScrollPosition (Sender:TObject);
+    procedure SetItemIndex(aValue:smallint);
+    procedure SetTopIndex(aValue:smallint);
+    function GetFileCount:integer;
+    procedure UpdateScrollBar;
+  public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     destructor Destroy; override;
 
-    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+    property FileCount:integer read GetFileCount;
     function FileName:string;
+    property ItemIndex:smallint read fItemIndex write SetItemIndex;
+    property TopIndex:smallint read fTopIndex write SetTopIndex;
+    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
@@ -612,7 +653,7 @@ begin
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
-  if aParent<>nil then TKMPanel(aParent).AddChild(Self);
+  if aParent<>nil then aParent.AddChild(Self);
 end;
 
 
@@ -852,14 +893,14 @@ procedure TKMPanel.SetHeight(aValue:Integer);
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if (akTop in TKMControl(Childs[i]).Anchors)and(akBottom in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Height := TKMControl(Childs[i]).Height + (aValue-fHeight)
+    if (akTop in Childs[i].Anchors)and(akBottom in Childs[i].Anchors) then
+      Childs[i].Height := Childs[i].Height + (aValue-fHeight)
     else
-    if akBottom in TKMControl(Childs[i]).Anchors then
-      TKMControl(Childs[i]).Top := TKMControl(Childs[i]).Top + (aValue-fHeight)
+    if akBottom in Childs[i].Anchors then
+      Childs[i].Top := Childs[i].Top + (aValue-fHeight)
     else
-    if not (akTop in TKMControl(Childs[i]).Anchors)and not(akBottom in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Top := TKMControl(Childs[i]).Top + (aValue-fHeight) div 2;
+    if not (akTop in Childs[i].Anchors)and not(akBottom in Childs[i].Anchors) then
+      Childs[i].Top := Childs[i].Top + (aValue-fHeight) div 2;
 
   Inherited;
 end;
@@ -868,14 +909,14 @@ procedure TKMPanel.SetWidth(aValue:Integer);
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if (akLeft in TKMControl(Childs[i]).Anchors)and(akRight in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Width := TKMControl(Childs[i]).Width + (aValue-fWidth)
+    if (akLeft in Childs[i].Anchors)and(akRight in Childs[i].Anchors) then
+      Childs[i].Width := Childs[i].Width + (aValue-fWidth)
     else
-    if akRight in TKMControl(Childs[i]).Anchors then
-      TKMControl(Childs[i]).Left := TKMControl(Childs[i]).Left + (aValue-fWidth)
+    if akRight in Childs[i].Anchors then
+      Childs[i].Left := Childs[i].Left + (aValue-fWidth)
     else
-    if not (akLeft in TKMControl(Childs[i]).Anchors)and not(akRight in TKMControl(Childs[i]).Anchors) then
-      TKMControl(Childs[i]).Left := TKMControl(Childs[i]).Left + (aValue-fWidth) div 2;
+    if not (akLeft in Childs[i].Anchors)and not(akRight in Childs[i].Anchors) then
+      Childs[i].Left := Childs[i].Left + (aValue-fWidth) div 2;
   Inherited;
 end;
 
@@ -1242,7 +1283,7 @@ function TKMButton.DoPress:boolean;
 begin
   //Mark self as CtrlDown
   if Visible and fEnabled then begin
-    TKMPanel(Parent).GetCollection.CtrlDown := Self;
+    Parent.GetCollection.CtrlDown := Self;
     Result := true;
   end else
     Result := false;
@@ -1257,8 +1298,8 @@ function TKMButton.DoClick:boolean;
 begin
   if Visible and fEnabled then begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
-    TKMPanel(Parent).GetCollection.CtrlOver := Self;
-    TKMPanel(Parent).GetCollection.CtrlUp := Self;
+    Parent.GetCollection.CtrlOver := Self;
+    Parent.GetCollection.CtrlUp := Self;
     if Assigned(fOnClick) then fOnClick(Self);
     Result := true; //Click has happened
   end else
@@ -1360,6 +1401,13 @@ begin
 end;
 
 
+function TKMEdit.HitTest(X, Y: Integer): Boolean;
+begin
+  //When control is read-only we don't want to recieve Focus event
+  Result := Inherited HitTest(X,Y) and not ReadOnly;
+end;
+
+
 procedure TKMEdit.SetText(aText:string);
 begin
   fText := aText;
@@ -1370,7 +1418,7 @@ end;
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
 begin
   Result := true;
-  if Inherited KeyDown(Key, Shift) then exit;
+  if Inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
   case Key of
     VK_BACK:    begin Delete(fText, CursorPos, 1); dec(CursorPos); end;
@@ -1387,7 +1435,7 @@ end;
 function TKMEdit.KeyPress(Key: Char):boolean;
 begin
   Result := true;
-  if Inherited KeyPress(Key) then exit;
+  if Inherited KeyPress(Key) or ReadOnly then exit;
 
   if Key < #32 then Exit;
 
@@ -1399,7 +1447,7 @@ end;
 function TKMEdit.KeyUp(Key: Word; Shift: TShiftState):boolean;
 begin
   Result := true;
-  if Inherited KeyUp(Key, Shift) then exit;
+  if Inherited KeyUp(Key, Shift) or ReadOnly then exit;
 
   if Assigned(fOnChange) then fOnChange(Self);
 end;
@@ -1407,6 +1455,7 @@ end;
 
 procedure TKMEdit.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
+  if ReadOnly then exit;
   Inherited;
   CursorPos := length(fText);
 end;
@@ -1420,11 +1469,11 @@ begin
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
   if Masked then RText := StringOfChar('*', Length(fText)) else RText := fText;
 
-  fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
+  fRenderUI.WriteText(Left+4, Top+3, Width-8, RText, Font, kaLeft, false, Col);
 
-  if (csFocus in State) and ((TimeGet div 500) mod 2 = 0)then begin
+  if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then begin
     setlength(RText,CursorPos);
-    TextSize := fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
+    TextSize := fRenderUI.WriteText(Left+4, Top+3, Width-8, RText, Font, kaLeft, false, Col);
     OffX := Left + 3 + TextSize.X;
     fRenderUI.WriteLayer(OffX-1, Top+2, 3, Height-4, Col, $FF000000);
   end;
@@ -1711,13 +1760,57 @@ begin
   end;
   ScrollDec.OnClick := DecPosition;
   ScrollInc.OnClick := IncPosition;
-  RefreshItems;
+  UpdateThumbSize;
 end;
 
 
-destructor TKMScrollBar.Destroy;
+procedure TKMScrollBar.SetHeight(aValue:Integer);
 begin
   Inherited;
+  if fScrollAxis = sa_Vertical then
+    ScrollInc.Top := fTop+fHeight-fWidth;
+
+  UpdateThumbSize; //Update Thumb size
+end;
+
+
+procedure TKMScrollBar.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  ScrollDec.Enabled := aValue;
+  ScrollInc.Enabled := aValue;
+end;
+
+
+//Copy property to child buttons. Otherwise they won't be rendered
+procedure TKMScrollBar.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  ScrollDec.Visible := fVisible;
+  ScrollInc.Visible := fVisible;
+end;
+
+
+procedure TKMScrollBar.IncPosition(Sender:TObject);
+begin
+  Position := EnsureRange(Position+1, MinValue, MaxValue);
+  if Assigned(fOnChange) then fOnChange(Self);
+end;
+
+
+procedure TKMScrollBar.DecPosition(Sender:TObject);
+begin
+  Position := EnsureRange(Position-1, MinValue, MaxValue);
+  if Assigned(fOnChange) then fOnChange(Self);
+end;
+
+
+procedure TKMScrollBar.UpdateThumbSize;
+begin
+  case fScrollAxis of
+    sa_Vertical:   Thumb := Math.max(0, (Height-2*Width)) div 4;
+    sa_Horizontal: Thumb := Math.max(0, (Width-2*Height)) div 4;
+  end;
 end;
 
 
@@ -1762,55 +1855,6 @@ begin
 end;
 
 
-{Refresh button sizes and etc.}
-procedure TKMScrollBar.RefreshItems;
-begin
-  case fScrollAxis of
-    sa_Vertical:   Thumb := Math.max(0, (Height-2*Width)) div 4;
-    sa_Horizontal: Thumb := Math.max(0, (Width-2*Height)) div 4;
-  end;
-end;
-
-
-procedure TKMScrollBar.SetHeight(aValue:Integer);
-begin
-  Inherited;
-  if fScrollAxis = sa_Vertical then
-    ScrollInc.Top := fTop+fHeight-fWidth;
-end;
-
-
-procedure TKMScrollBar.SetEnabled(aValue:boolean);
-begin
-  Inherited;
-  ScrollDec.Enabled := aValue;
-  ScrollInc.Enabled := aValue;
-end;
-
-
-//Copy property to child buttons. Otherwise they won't be rendered
-procedure TKMScrollBar.SetVisible(aValue:boolean);
-begin
-  Inherited;
-  ScrollDec.Visible := fVisible;
-  ScrollInc.Visible := fVisible;
-end;
-
-
-procedure TKMScrollBar.IncPosition(Sender:TObject);
-begin
-  Position := EnsureRange(Position+1, MinValue, MaxValue);
-  if Assigned(fOnChange) then fOnChange(Self);
-end;
-
-
-procedure TKMScrollBar.DecPosition(Sender:TObject);
-begin
-  Position := EnsureRange(Position-1, MinValue, MaxValue);
-  if Assigned(fOnChange) then fOnChange(Self);
-end;
-
-
 procedure TKMScrollBar.Paint;
 var ThumbPos:word; State:T3DButtonStateSet;
 begin
@@ -1847,7 +1891,7 @@ begin
 end;
 
 
-{ List }
+{ TKMListBox }
 constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
@@ -1879,6 +1923,7 @@ procedure TKMListBox.SetHeight(aValue:Integer);
 begin
   Inherited;
   fScrollBar.Height := fHeight;
+  UpdateScrollBar; //Since height has changed
 end;
 
 
@@ -1892,7 +1937,8 @@ end;
 
 procedure TKMListBox.SetTopIndex(aIndex:smallint);
 begin
-  fTopIndex := EnsureRange(aIndex, 0, Math.max(fItems.Count - (fHeight div fItemHeight),0));
+  fTopIndex := EnsureRange(aIndex, 0, fScrollBar.MaxValue);
+  fScrollBar.Position := fTopIndex;
 end;
 
 
@@ -1911,11 +1957,48 @@ end;
 
 
 //fItems.Count has changed
-procedure TKMListBox.RefreshList;
+procedure TKMListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div fItemHeight),0);
+  fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div fItemHeight), 0);
   fScrollBar.Position := fTopIndex;
   fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
+end;
+
+
+procedure TKMListBox.AddItem(aItem:string);
+begin
+  fItems.Add(aItem);
+  UpdateScrollBar;
+end;
+
+
+procedure TKMListBox.Clear;
+begin
+  fItems.Clear;
+  fItemIndex := -1;
+  fTopIndex := 0;
+  UpdateScrollBar;
+end;
+
+
+procedure TKMListBox.SetItems(aText:string);
+begin
+  fItems.Text := aText;
+  fItemIndex := -1;
+  fTopIndex := 0;
+  UpdateScrollBar;
+end;
+
+
+function TKMListBox.ItemCount:integer;
+begin
+  Result := fItems.Count;
+end;
+
+
+function TKMListBox.ItemCaption:string;
+begin
+  Result := fItems[ItemIndex];
 end;
 
 
@@ -1941,7 +2024,7 @@ begin
 
     if (NewIndex<>fItemIndex) then begin
       fItemIndex := NewIndex;
-      if Assigned(fOnChange) and (ssLeft in Shift) then
+      if Assigned(fOnChange) then
         fOnChange(Self);
     end;
   end;
@@ -1951,7 +2034,7 @@ end;
 procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
-  fTopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
+  SetTopIndex(TopIndex - sign(WheelDelta));
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
@@ -1960,11 +2043,9 @@ procedure TKMListBox.Paint;
 var i:integer;
 begin
   Inherited;
-  RefreshList;
-
   fRenderUI.WriteBevel(Left, Top, Width-fScrollBar.Width, Height, false, fBackAlpha);
 
-  if (fItemIndex <> -1) and (fItemIndex >= fTopIndex) and (fItemIndex <= fTopIndex+(fHeight div fItemHeight)-1) then
+  if (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-1) then
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), Width-fScrollBar.Width, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
@@ -2005,11 +2086,10 @@ begin
     exit;
   end;
 
-  if Items.Count < 1 then exit;
+  if fList.ItemCount < 1 then exit;
 
-  fList.Height := Math.min(fDropCount, Items.Count)*fList.ItemHeight;
+  fList.Height := Math.min(fDropCount, fList.ItemCount)*fList.ItemHeight;
   fList.TopIndex := ItemIndex - fDropCount div 2;
-  fList.RefreshList;
 
   fList.Show;
   fShape.Show;
@@ -2020,7 +2100,7 @@ procedure TKMDropBox.ListClick(Sender:TObject);
 begin
   if (ItemIndex <> -1) then
   begin
-    fCaption := Items[ItemIndex];
+    fCaption := fList.ItemCaption;
     if Assigned(fOnChange) then fOnChange(Self);
   end;
   ListHide(nil);
@@ -2034,12 +2114,6 @@ begin
 end;
 
 
-function TKMDropBox.GetItems:TStringList;
-begin
-  Result := fList.Items;
-end;
-
-
 function TKMDropBox.GetItemIndex:smallint;
 begin
   Result := fList.ItemIndex;
@@ -2049,7 +2123,7 @@ end;
 procedure TKMDropBox.SetItemIndex(aIndex:smallint);
 begin
   fList.ItemIndex := aIndex;
-  fCaption := Items[ItemIndex];
+  fCaption := fList.ItemCaption;
 end;
 
 
@@ -2061,7 +2135,111 @@ begin
 end;
 
 
+procedure TKMDropBox.AddItem(aItem:string);
+begin
+  fList.AddItem(aItem);
+end;
+
+
+procedure TKMDropBox.SetItems(aText:string);
+begin
+  fList.SetItems(aText);
+end;
+
+
 procedure TKMDropBox.Paint;
+var Col:TColor4;
+begin
+  Inherited;
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
+
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, fCaption, fFont, kaLeft, false, Col);
+end;
+
+
+{ TKMDropFileBox }
+constructor TKMDropFileBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+var P:TKMPanel;
+begin
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+
+  fDropCount := 10;
+  fFont := aFont;
+
+  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
+  fButton.fOnClick := ListShow;
+
+  P := MasterParent;
+  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
+  fShape.fOnClick := ListHide;
+
+  //In FullScreen mode P initialized already with offset (P.Top <> 0)
+  fFileList := TKMFileList.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0);
+  fFileList.fOnClick := ListClick;
+
+  ListHide(nil);
+end;
+
+
+procedure TKMDropFileBox.ListShow(Sender:TObject);
+begin
+  if fFileList.Visible then
+  begin
+    ListHide(nil);
+    exit;
+  end;
+
+  if fFileList.FileCount < 1 then exit;
+
+  fFileList.Height := fDropCount * fFileList.ItemHeight;
+  fFileList.TopIndex := fFileList.ItemIndex - fDropCount div 2;
+
+  fFileList.Show;
+  fShape.Show;
+end;
+
+
+procedure TKMDropFileBox.ListClick(Sender:TObject);
+begin
+  if (fFileList.ItemIndex <> -1) then
+  begin
+    fCaption := TruncateExt(ExtractFileName(fFileList.FileName));
+    if Assigned(fOnChange) then fOnChange(Self);
+  end;
+  ListHide(nil);
+end;
+
+
+procedure TKMDropFileBox.ListHide(Sender:TObject);
+begin
+  fFileList.Hide;
+  fShape.Hide;
+end;
+
+
+procedure TKMDropFileBox.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  fButton.Enabled := aValue;
+  fFileList.Enabled := aValue;
+end;
+
+
+function TKMDropFileBox.FileName:string;
+begin
+  Result := fFileList.FileName;
+end;
+
+
+procedure TKMDropFileBox.RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+begin
+  fFileList.RefreshList(aPath, aExtension, ScanSubFolders);
+  fCaption := ' Select a map ..';
+end;
+
+
+procedure TKMDropFileBox.Paint;
 var Col:TColor4;
 begin
   Inherited;
@@ -2106,7 +2284,6 @@ begin
     exit;
   end;
 
-  fSwatch.ColorIndex := fColorIndex; //Update before show
   fSwatch.Show;
   fShape.Show;
 end;
@@ -2132,6 +2309,14 @@ begin
   Inherited;
   fButton.Enabled := aValue;
   fSwatch.Enabled := aValue;
+end;
+
+
+//Set ColorIndex to fSwatch as well since it holds the actual color that we use on Paint
+procedure TKMDropColorBox.SetColorIndex(aIndex:integer);
+begin
+  fColorIndex := aIndex;
+  fSwatch.ColorIndex := aIndex;
 end;
 
 
@@ -2206,14 +2391,18 @@ constructor TKMFileList.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integ
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   ItemHeight := 20;
-  TopIndex := 0;
-  ItemIndex := -1;
+  fTopIndex := 0;
+  fItemIndex := -1;
   fPaths := TStringList.Create;
   fFiles := TStringList.Create;
   fPath := ExeDir;
 
-  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-ItemHeight, aTop, ItemHeight, aHeight, sa_Vertical, bsGame);
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-ItemHeight, aTop, ItemHeight, aHeight-ItemHeight, sa_Vertical, bsGame);
   fScrollBar.OnChange := ChangeScrollPosition;
+
+  fEdit := TKMEdit.Create(aParent, aLeft, aTop+aHeight-ItemHeight, aWidth-ItemHeight, ItemHeight, fnt_Grey);
+  fEdit.Text := '\';
+  fEdit.ReadOnly := true;
 end;
 
 
@@ -2225,9 +2414,12 @@ begin
 end;
 
 
-procedure TKMFileList.ChangeScrollPosition(Sender:TObject);
+procedure TKMFileList.SetHeight(aValue:Integer);
 begin
-  TopIndex := fScrollBar.Position;
+  Inherited;
+  fScrollBar.Height := Height - ItemHeight;
+  fEdit.Top := fTop + Height - ItemHeight;
+  UpdateScrollBar;
 end;
 
 
@@ -2236,6 +2428,49 @@ procedure TKMFileList.SetVisible(aValue:boolean);
 begin
   Inherited;
   fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
+  fEdit.Visible := fVisible;
+end;
+
+
+procedure TKMFileList.ChangeScrollPosition(Sender:TObject);
+begin
+  fTopIndex := fScrollBar.Position;
+end;
+
+
+procedure TKMFileList.SetItemIndex(aValue:smallint);
+begin
+  if InRange(aValue, 0, fFiles.Count-1) then
+  begin
+    fItemIndex := aValue;
+    fEdit.Text := '\'+fPaths.Strings[fItemIndex] + fFiles.Strings[fItemIndex];
+  end
+  else
+  begin
+    fItemIndex := -1;
+    fEdit.Text := '';
+  end;
+end;
+
+
+procedure TKMFileList.SetTopIndex(aValue:smallint);
+begin
+  fTopIndex := EnsureRange(aValue, 0, fScrollBar.MaxValue);
+  fScrollBar.Position := fTopIndex;
+end;
+
+
+function TKMFileList.GetFileCount:integer;
+begin
+  Result := fFiles.Count;
+end;
+
+
+procedure TKMFileList.UpdateScrollBar;
+begin
+  fScrollBar.MaxValue := Math.max(fFiles.Count - (fHeight div ItemHeight) + 1,0);
+  fScrollBar.Position := fTopIndex;
+  fScrollBar.Enabled  := fScrollBar.MaxValue > fScrollBar.MinValue;
 end;
 
 
@@ -2245,57 +2480,56 @@ var
   SearchRec:TSearchRec;
   DirList:TStringList;
 begin
-  if not DirectoryExists(aPath) then begin
-    fFiles.Clear;
-    exit;
-  end;
-
-  fPath := aPath;
   fPaths.Clear;
   fFiles.Clear;
-  DirList := TStringList.Create;
 
-  DirList.Add(''); //Initialize
-  DirID := 0;
+  if DirectoryExists(aPath) then
+  begin
+    fPath := aPath;
+    DirList := TStringList.Create;
 
-  repeat
-    ChDir(fPath+DirList[DirID]);
-    FindFirst('*', faAnyFile, SearchRec);
+    DirList.Add(''); //Initialize
+    DirID := 0;
+
     repeat
-      if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
-        if SearchRec.Attr and faDirectory = faDirectory then begin
-          if ScanSubFolders then
-            DirList.Add(DirList[DirID]+SearchRec.Name+'\')
-        end else
-        if (aExtension='') or (GetFileExt(SearchRec.Name) = UpperCase(aExtension)) then begin
-          fPaths.Add(DirList[DirID]);
-          fFiles.Add(SearchRec.Name);
-        end;
-    until (FindNext(SearchRec)<>0);
-    inc(DirID);
-    FindClose(SearchRec);
-  until(DirID = DirList.Count);
+      ChDir(fPath+DirList[DirID]);
+      FindFirst('*', faAnyFile, SearchRec);
+      repeat
+        if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
+          if SearchRec.Attr and faDirectory = faDirectory then begin
+            if ScanSubFolders then
+              DirList.Add(DirList[DirID]+SearchRec.Name+'\')
+          end else
+          if (aExtension='') or (GetFileExt(SearchRec.Name) = UpperCase(aExtension)) then begin
+            fPaths.Add(DirList[DirID]);
+            fFiles.Add(SearchRec.Name);
+          end;
+      until (FindNext(SearchRec)<>0);
+      inc(DirID);
+      FindClose(SearchRec);
+    until(DirID = DirList.Count);
 
-  DirList.Free;
+    DirList.Free;
+  end;
 
-  fScrollBar.MaxValue := Math.max(fFiles.Count - (fHeight div ItemHeight),0);
-  fScrollBar.Position := 0;
-  fScrollBar.Enabled  := fScrollBar.MaxValue > fScrollBar.MinValue;
+  fItemIndex := -1;
+  TopIndex := 0;
+  UpdateScrollBar;
 end;
 
 
 procedure TKMFileList.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
-  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, fScrollBar.MaxValue);
-  fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
+  SetTopIndex(TopIndex - sign(WheelDelta));
+  fScrollBar.Position := fTopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 
 function TKMFileList.FileName:string;
 begin
-  if InRange(ItemIndex, 0, fFiles.Count) then
-    Result := fPath + fPaths.Strings[ItemIndex] + fFiles.Strings[ItemIndex]
+  if InRange(fItemIndex, 0, fFiles.Count) then
+    Result := fPath + fPaths.Strings[fItemIndex] + fFiles.Strings[fItemIndex]
   else
     Result := '';
 end;
@@ -2314,16 +2548,17 @@ begin
   Inherited;
 
   if (ssLeft in Shift) and
-     (InRange(X, Left, Left+Width-fScrollBar.Width)) and
-     (InRange(Y, Top, Top+Height div ItemHeight * ItemHeight))
+     (InRange(X-Left, 0, Width-fScrollBar.Width)) and
+     (InRange(Y-Top, 0, (Height div ItemHeight - 1) * ItemHeight - 1))
   then begin
-    NewIndex := TopIndex + (Y-Top) div ItemHeight;
+    NewIndex := fTopIndex + (Y-Top) div ItemHeight;
 
     if NewIndex > fFiles.Count-1 then NewIndex := -1;
 
-    if (NewIndex<>ItemIndex) then begin
-      ItemIndex := NewIndex;
-      if Assigned(fOnChange) and (ssLeft in Shift) then
+    if NewIndex <> fItemIndex then
+    begin
+      SetItemIndex(NewIndex);
+      if Assigned(fOnChange) then
         fOnChange(Self);
     end;
   end;
@@ -2334,16 +2569,13 @@ procedure TKMFileList.Paint;
 var i:integer;
 begin
   Inherited;
-  fRenderUI.WriteBevel(Left, Top, Width-fScrollBar.Width, Height);
+  fRenderUI.WriteBevel(Left, Top, Width-fScrollBar.Width, Height-ItemHeight);
 
-  if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-fScrollBar.Width, ItemHeight, $88888888);
+  if (fItemIndex <> -1) and InRange(fItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-2) then
+    fRenderUI.WriteLayer(Left, Top+ItemHeight*(fItemIndex-fTopIndex), Width-fScrollBar.Width, ItemHeight, $88888888);
 
-  for i:=0 to Math.min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
-    fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, TruncateExt(fFiles.Strings[TopIndex+i]) , fnt_Metal, kaLeft, false, $FFFFFFFF);
-
-  if (ItemIndex <> -1) then
-  fRenderUI.WriteText(Left+8, Top+Height+4, Width, '\'+fPaths.Strings[ItemIndex] + fFiles.Strings[ItemIndex], fnt_Grey, kaLeft, false, $FFFFFFFF);
+  for i:=0 to Math.min(fFiles.Count-1, (fHeight div ItemHeight)-2) do
+    fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, TruncateExt(fFiles.Strings[fTopIndex+i]) , fnt_Metal, kaLeft, false, $FFFFFFFF);
 end;
 
 

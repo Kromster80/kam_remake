@@ -318,8 +318,7 @@ begin
 
   if Sender = Button_Menu_Load then begin
     FileList_Load.RefreshList(ExeDir+'Maps\', 'dat', true);
-    if FileList_Load.fFiles.Count > 0 then
-      FileList_Load.ItemIndex := 0; //Select first map by default
+    FileList_Load.ItemIndex := 0; //Try to select first map by default
     Panel_Load.Show;
   end;
 

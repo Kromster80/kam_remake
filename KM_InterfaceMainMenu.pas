@@ -63,14 +63,15 @@ type
     procedure LAN_JoinClick(Sender: TObject);
     procedure LAN_JoinSuccess(Sender: TObject);
     procedure LAN_JoinFail(const aData:string);
-    procedure LAN_BindEvents(aKind:TLANPlayerKind);
+    procedure LAN_BindEvents;
     procedure LAN_Save_Settings;
+    procedure LAN_BackClick(Sender: TObject);
 
     procedure Lobby_Reset(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_Ping(Sender: TObject);
-    procedure Lobby_OnPing(Sender: TObject);
+    procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
@@ -132,7 +133,7 @@ type
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
       Panel_LobbySetup:TKMPanel;
-        FileList_Lobby:TKMFileList;
+        FileList_Lobby:TKMDropFileBox;
         Label_LobbyMapName:TKMLabel;
         Label_LobbyMapCount:TKMLabel;
         Label_LobbyMapMode:TKMLabel;
@@ -270,9 +271,6 @@ begin
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
-    //FL := MyControls.AddFileList(Panel_Main1, 550, 300, 320, 220);
-    //FL.RefreshList(ExeDir+'Maps\','dat',true);
-
 
   //Show version info on every page
   Label_Version := TKMLabel.Create(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.RendererVersion,fnt_Antiqua,kaLeft);
@@ -445,7 +443,7 @@ begin
       Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 180, 100, 20, ' ... ', fnt_Outline, kaCenter);
 
     Button_LAN_LoginBack := TKMButton.Create(Panel_LANLogin2, 100, 300, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_LAN_LoginBack.OnClick := SwitchMenuPage;
+    Button_LAN_LoginBack.OnClick := LAN_BackClick;
 end;
 
 
@@ -469,7 +467,7 @@ begin
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top, 140, 20, '. ', fnt_Metal, kaLeft);
 
         DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 150, 20, fnt_Metal);
-        DropBox_LobbyLoc[i].Items.Add('Random');
+        DropBox_LobbyLoc[i].AddItem('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
         DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT);
@@ -493,8 +491,8 @@ begin
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,700,100,240,400);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 520);
-      TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Available maps:', fnt_Outline, kaLeft);
-      FileList_Lobby := TKMFileList.Create(Panel_LobbySetup, 10, 30, 220, 300);
+      TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Choose map:', fnt_Outline, kaLeft);
+      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 30, 220, 20, fnt_Metal);
       FileList_Lobby.OnChange := Lobby_MapSelect;
       TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, 'Map info:', fnt_Outline, kaLeft);
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
@@ -834,7 +832,6 @@ begin
   if Sender=Button_LAN_LoginBack then
   begin
     Panel_MultiPlayer.Show;
-    LAN_Save_Settings;
   end;
 
   {Return to MainMenu and restore resolution changes}
@@ -903,8 +900,7 @@ begin
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin
     FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
-    if FileList_MapEd.fFiles.Count > 0 then
-      FileList_MapEd.ItemIndex := 0; //Select first map by default
+    FileList_MapEd.ItemIndex := 0; //Try to select first map by default
     MapEditor_Change(nil);
     Panel_MapEd.Show;
   end;
@@ -1120,7 +1116,7 @@ end;
 procedure TKMMainMenuInterface.LAN_Update(const aStatus:string);
 var s:string;
 begin  
-  //Load connection settings                                    
+  //Load connection settings
   Edit_LAN_Name.Text := fGame.GlobalSettings.MultiplayerName;
   Edit_LAN_IP.Text := fGame.GlobalSettings.MultiplayerIP;
 
@@ -1147,9 +1143,8 @@ procedure TKMMainMenuInterface.LAN_HostClick(Sender: TObject);
 begin
   SwitchMenuPage(Sender); //Open lobby page
 
+  LAN_BindEvents;
   fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
-  LAN_BindEvents(lpk_Host);
-  Lobby_OnPlayersSetup(nil); //Update players list (with ourselves on first line)
 end;
 
 
@@ -1174,9 +1169,7 @@ begin
 
   fGame.Networking.OnJoinSucc := nil;
   fGame.Networking.OnJoinFail := nil;
-  LAN_BindEvents(lpk_Joiner);
-
-  fGame.Networking.PostMessage(fGame.Networking.MyIPString);
+  LAN_BindEvents;
 end;
 
 
@@ -1187,15 +1180,25 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.LAN_BindEvents(aKind:TLANPlayerKind);
+//Events binding is the same for Host and Joiner because of stand-alone Server
+//E.g. If Server fails, Host can be disconnected from it as well as a Joiner
+procedure TKMMainMenuInterface.LAN_BindEvents;
 begin
   fGame.Networking.OnTextMessage  := Lobby_OnMessage;
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
-  fGame.Networking.OnPing         := Lobby_OnPing;
+  fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
   fGame.Networking.OnStartGame    := fGame.GameStartMP;
-  //Host can be disconnected by Server as well (when e.g. Server fails)
   fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
+end;
+
+
+//Disconnect in case NetClient is waiting for reply from server
+procedure TKMMainMenuInterface.LAN_BackClick(Sender: TObject);
+begin
+  fGame.Networking.Disconnect;
+  LAN_Save_Settings;
+  SwitchMenuPage(Sender);
 end;
 
 
@@ -1206,12 +1209,11 @@ begin
   for i:=0 to MAX_PLAYERS-1 do
     Label_LobbyPlayer[i].Caption := '.';
 
-  ListBox_LobbyPosts.Items.Clear;
+  ListBox_LobbyPosts.Clear;
   Edit_LobbyPost.Text := '';
 
   if Sender = Button_LAN_Host then begin
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
-    FileList_Lobby.ItemIndex := -1;
     FileList_Lobby.Show;
     Button_LobbyReady.Hide;
     Button_LobbyStart.Show;
@@ -1288,11 +1290,10 @@ end;
 procedure TKMMainMenuInterface.Lobby_Ping(Sender: TObject);
 begin
   fGame.Networking.Ping;
-  fGame.Networking.OnPing := Lobby_OnPing;
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_OnPing(Sender: TObject);
+procedure TKMMainMenuInterface.Lobby_OnPingInfo(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
@@ -1321,7 +1322,7 @@ begin
     DropText := DropText + 'Location ' + inttostr(i) + eol;
 
   for i:=0 to MAX_PLAYERS-1 do
-    DropBox_LobbyLoc[i].Items.Text := DropText;
+    DropBox_LobbyLoc[i].SetItems(DropText);
 
 
   //todo: Keep disabled if Map does not matches Hosts or missing
@@ -1340,9 +1341,9 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
-  ListBox_LobbyPosts.Items.Add(aData);
+  ListBox_LobbyPosts.AddItem(aData);
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
-  ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.Items.Count;
+  ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.ItemCount;
 end;
 
 

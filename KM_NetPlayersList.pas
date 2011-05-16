@@ -9,22 +9,19 @@ uses Classes, KromUtils, Math, SysUtils,
 type
   TKMPlayerInfo = class
   private
-    fAddress:string;
     fNikname:string;
+    fIndexOnServer:integer;
   public
     PlayerType:TPlayerType; //Human, Computer
-    FlagColorID:integer; //Flag color, 0 means random
-    StartLocID:integer; //Start location, 0 means random
+    FlagColorID:integer;    //Flag color, 0 means random
+    StartLocID:integer;     //Start location, 0 means random
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
-    Alive:boolean; //Player is still connected and not defeated
-
-    PingSent:cardinal; //Time of last "ping" message
-    Ping:word; //Last known ping
-  public
+    Alive:boolean;          //Player is still connected and not defeated
+    Ping:word;              //Last known ping
     function IsHuman:boolean;
-    property Address:string read fAddress;
     property Nikname:string read fNikname;
+    property IndexOnServer:integer read fIndexOnServer;
   end;
 
   //Handles everything related to players list,
@@ -42,13 +39,14 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aAddr,aNik:string);
-    procedure RemPlayer(aIndex:integer);
+    procedure AddPlayer(aNik:string; aIndexOnServer:integer);
+    procedure RemPlayer(aIndexOnServer:integer);
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
     //Getters
-    function NiknameIndex(aNik:string):integer;
-    function CheckCanJoin(aNik:string):string;
+    function ServerToLocal(aIndexOnServer:integer):integer;
+    function NiknameToLocal(aNikname:string):integer;
+    function CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
     function LocAvailable(aIndex:integer):boolean;
     function ColorAvailable(aIndex:integer):boolean;
     function AllReady:boolean;
@@ -197,11 +195,11 @@ begin
 end;
 
 
-procedure TKMPlayersList.AddPlayer(aAddr,aNik:string);
+procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer);
 begin
   inc(fCount);
-  fPlayers[fCount].fAddress := aAddr;
   fPlayers[fCount].fNikname := aNik;
+  fPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocID := 0;
@@ -211,12 +209,13 @@ begin
 end;
 
 
-procedure TKMPlayersList.RemPlayer(aIndex:integer);
-var i:integer;
+procedure TKMPlayersList.RemPlayer(aIndexOnServer:integer);
+var ID,i:integer;
 begin
-  Assert(InRange(aIndex, 1, fCount), 'Can not remove player');
-  fPlayers[aIndex].Free;
-  for i:=aIndex to fCount-1 do
+  ID := ServerToLocal(aIndexOnServer);
+  Assert(ID <> -1, 'Can not remove player');
+  fPlayers[ID].Free;
+  for i:=ID to fCount-1 do
     fPlayers[i] := fPlayers[i+1]; //Shift only pointers
 
   fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but now used
@@ -224,24 +223,43 @@ begin
 end;
 
 
-function TKMPlayersList.NiknameIndex(aNik:string):integer;
+function TKMPlayersList.ServerToLocal(aIndexOnServer:integer):integer;
 var i:integer;
 begin
   Result := -1;
   for i:=1 to fCount do
-    if fPlayers[i].fNikname = aNik then
+    if fPlayers[i].fIndexOnServer = aIndexOnServer then
+    begin
+      Result := i;
+      Exit;
+    end;
+end;
+
+
+//Networking needs to convert Nikname to local index in players list
+function TKMPlayersList.NiknameToLocal(aNikname:string):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=1 to fCount do
+    if fPlayers[i].fNikname = aNikname then
       Result := i;
 end;
 
 
 //See if player can join our game
-function TKMPlayersList.CheckCanJoin(aNik:string):string;
+function TKMPlayersList.CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
 begin
   if fCount >= MAX_PLAYERS then
     Result := 'No more players can join the game'
   else
-  if NiknameIndex(aNik) <> -1 then
-    Result := 'Player with this nik already joined the game';
+  if ServerToLocal(aIndexOnServer) <> -1 then
+    Result := 'Player with said index already joined the game'
+  else
+  if NiknameToLocal(aNik) <> -1 then
+    Result := 'Player with such Nikname already joined the game'
+  else
+    Result := '';
 end;
 
 
@@ -318,8 +336,8 @@ begin
   M.Write(fCount);
   for i:=1 to fCount do
   begin
-    M.Write(fPlayers[i].fAddress);
     M.Write(fPlayers[i].fNikname);
+    M.Write(fPlayers[i].fIndexOnServer);
     M.Write(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
     M.Write(fPlayers[i].FlagColorID);
     M.Write(fPlayers[i].StartLocID);
@@ -341,8 +359,8 @@ begin
     M.Read(fCount);
     for i:=1 to fCount do
     begin
-      M.Read(fPlayers[i].fAddress);
       M.Read(fPlayers[i].fNikname);
+      M.Read(fPlayers[i].fIndexOnServer);
       M.Read(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
       M.Read(fPlayers[i].FlagColorID);
       M.Read(fPlayers[i].StartLocID);

@@ -1,7 +1,7 @@
 unit KM_NetClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_NetClientOverbyte;
+uses Classes, SysUtils, KM_CommonTypes, KM_NetClientOverbyte;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -20,6 +20,8 @@ uses Classes, SysUtils, KM_NetClientOverbyte;
 
 }
 type
+  TNotifySenderDataEvent = procedure(aSenderIndex:integer; aData:pointer; aLength:cardinal)of object;
+
   TKMNetClient = class
   private
     fClient:TKMNetClientOverbyte;
@@ -31,7 +33,7 @@ type
     fOnConnectSucceed:TNotifyEvent;
     fOnConnectFailed:TGetStrProc;
     fOnForcedDisconnect:TGetStrProc;
-    fOnRecieveData:TNotifyDataEvent;
+    fOnRecieveData:TNotifySenderDataEvent;
     fOnStatusMessage:TGetStrProc;
     procedure Error(const S: string);
     procedure ConnectSucceed(Sender: TObject);
@@ -52,9 +54,8 @@ type
     procedure Disconnect; //Disconnect from server
     property OnForcedDisconnect:TGetStrProc write fOnForcedDisconnect; //Signal we were forcelly disconnected
 
-    procedure SendText(const aData:string); //For now we use just plain text
-    property OnRecieveData:TNotifyDataEvent write fOnRecieveData;
-    procedure SendData(aData:pointer; aLength:cardinal);
+    property OnRecieveData:TNotifySenderDataEvent write fOnRecieveData;
+    procedure SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
 
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
   end;
@@ -120,6 +121,12 @@ end;
 
 procedure TKMNetClient.Disconnect;
 begin
+  fOnConnectSucceed := nil;
+  fOnConnectFailed := nil;
+  fOnForcedDisconnect := nil;
+  fOnRecieveData := nil;
+  fOnStatusMessage := nil;
+
   fConnected := false;
   fClient.Disconnect;
 end;
@@ -133,34 +140,32 @@ procedure TKMNetClient.ForcedDisconnect(Sender: TObject);
 begin
   if fConnected then
   begin
-    if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Forced disconnect');
-    fOnForcedDisconnect('9');
+    if Assigned(fOnStatusMessage) then
+      fOnStatusMessage('Client: Forced disconnect');
+    fOnForcedDisconnect('Server stopped responding');
   end;
   fConnected := false;
 end;
 
 
-procedure TKMNetClient.SendText(const aData:string);
-begin
-  SendData(@aData[1], length(aData));
-end;
-
-
-//Assemble the packet as [Length.Data]
-procedure TKMNetClient.SendData(aData:pointer; aLength:cardinal);
+//Assemble the packet as [Sender.Recepient.Length.Data]
+//We can pack/clean the header later on (if we hit bandwidth limits)
+procedure TKMNetClient.SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
 var P:Pointer;
 begin
-  GetMem(P, aLength+4);
-  PInteger(P)^ := aLength;
-  Move(aData^, Pointer(cardinal(P)+4)^, aLength);
-  fClient.SendData(P, aLength+4);
+  GetMem(P, aLength+12);
+  PInteger(P)^ := aSender;
+  PInteger(cardinal(P)+4)^ := aRecepient;
+  PCardinal(cardinal(P)+8)^ := aLength;
+  Move(aData^, Pointer(cardinal(P)+12)^, aLength);
+  fClient.SendData(P, aLength+12);
   FreeMem(P);
 end;
 
 
 //Split recieved data into single packets
 procedure TKMNetClient.RecieveData(aData:pointer; aLength:cardinal);
-var PacketLength:Cardinal;
+var PacketSender:integer; PacketLength:Cardinal;
 begin
   //Append new data to buffer
   SetLength(fBuffer, fBufferSize + aLength);
@@ -168,15 +173,17 @@ begin
   fBufferSize := fBufferSize + aLength;
 
   //Try to read data packet from buffer
-  while fBufferSize >= 4 do
+  while fBufferSize >= 12 do
   begin
-    PacketLength := PCardinal(fBuffer)^;
-    if PacketLength <= fBufferSize-4 then
+    PacketSender := PInteger(fBuffer)^;
+    //We skip PacketRecipient because thats us
+    PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
+    if PacketLength <= fBufferSize-12 then
     begin
-      fOnRecieveData(@fBuffer[4], PacketLength); //Skip PacketLength
-      if 4+PacketLength < fBufferSize then //Check range
-        Move(fBuffer[4+PacketLength], fBuffer[0], fBufferSize-PacketLength-4);
-      fBufferSize := fBufferSize - PacketLength - 4;
+      fOnRecieveData(PacketSender, @fBuffer[12], PacketLength); //Skip packet header
+      if 12+PacketLength < fBufferSize then //Check range
+        Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
+      fBufferSize := fBufferSize - PacketLength - 12;
     end else
       Exit;
   end;

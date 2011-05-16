@@ -832,8 +832,9 @@ var AnimAct,AnimDir:integer;
 begin
   Inherited;
   if fUnitType = ut_Fish then
-       AnimAct:=byte(fFishCount) //For fish the action is the number of fish in the group
-  else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
+    AnimAct := fFishCount //For fish the action is the number of fish in the group
+  else
+    AnimAct := byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
   fRender.RenderUnit(byte(fUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y),true);
