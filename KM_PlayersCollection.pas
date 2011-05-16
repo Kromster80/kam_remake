@@ -27,7 +27,6 @@ type
     property PlayerAI[Index:integer]:TKMPlayerAI read GetPlayerAI;
     property PlayerAnimals:TKMPlayerAnimals read fPlayerAnimals;
 
-    procedure AddPlayer;
     procedure AddPlayers(aCount:byte); //Batch add several players
 
     procedure RemovePlayer(aIndex:integer);
@@ -61,7 +60,7 @@ var
   fPlayers: TKMPlayersCollection;
   MyPlayer: TKMPlayerAssets; //shortcut to access players player
 
-  
+
 implementation
 uses KM_Terrain, KM_Game;
 
@@ -96,15 +95,29 @@ end;
 
 function TKMPlayersCollection.GetPlayer(Index:integer):TKMPlayerAssets;
 begin
-  Assert(index<fCount);
+  Assert(Index < fCount);
   Result := TKMPlayerAssets(fPlayerList[Index]);
 end;
 
 
 function TKMPlayersCollection.GetPlayerAI(Index:integer):TKMPlayerAI;
 begin
-  Assert(index<fCount);
+  Assert(Index < fCount);
   Result := TKMPlayerAI(fPlayerAIList[Index]);
+end;
+
+
+procedure TKMPlayersCollection.AddPlayers(aCount: byte);
+var i:integer;
+begin
+  Assert(fCount+aCount <= MAX_PLAYERS);
+
+  for i:=fCount to fCount+aCount-1 do
+  begin
+    fPlayerList.Add(TKMPlayerAssets.Create(TPlayerID(i)));
+    inc(fCount);
+    fPlayerAIList.Add(TKMPlayerAI.Create(Player[i]));
+  end;
 end;
 
 
@@ -116,55 +129,14 @@ begin
 end;
 
 
-{   There are 2 cases when we need to remove players:
 
-    When Multiplayer wants to skip/remove the player we have issues with: IDs/Terrain/Alliances/Goals
-- In multiplayer, mission loading may be already instructed to perform certain simple tasks
-(skip armies, skip houses other than Store) other tasks may be issued by Game (add wares, etc..)
-- IDs are importants for player identification (units ownership and etc..) if we alter IDs then we
-will need to go through all units and houses to change their IDs, thats doable
-- Terrain is already initialized with tile ownership (unless we told mission loader to skip certin
-players), but we can ge through all tiles as well
-- Alliance info works with IDs. It's easy to update too
-- Goals need to check if player exists, cleaning goals may break win/defeat conditions
-(e.g. play_2 must stay alive for someones victory, if we alter goals mission will become unbeatable,
-in other case mission will return Defeat immediately - that is better)
-- Connection between NetPlayers and Players lists is not straight anyway
-
-Conclusion:
-A. IDs are alias for starting locations, not players order in game. We might want to ommit
-(do not load) players data and leave everything else intact.
-B. We don't need to remove players for multiplayer.
-
-    When MapEditor removes a player, before saving a map, it wants to remove it completely, leaving
-no trace. Since IDs are alias for starting locations we need to pack them (1348 -> 1234). Later on,
-on map loading, players will be stuffed to MAX_PLAYERS
-- IDs, update all units and houses owners
-- Alliances, update
-- Goals, remove goals for missing players. We can show warnings before save on erroneous goals,
-but anyway - it's MapEd and everything is not final yet
-- Terrain, what to do with tile ownership, roads? (thats is pretty rare case, presumably happening
-by mistake) Either we remove them with a note, or try to convert ownership? IMO removing is better
-- Problem with the menu - will it be smart enough to handle suddenly changed players layout?
-It should handle it.
-
-Conclusion:
-MapEditor needs to be able to remove players smoothly
-
-In the end we have alliances and goals set/depending between starting locations, and players are
-choosing which location they want to use, with all its assets and properties.
-}
-
-procedure TKMPlayersCollection.RemovePlayer(aIndex:integer; a);
+procedure TKMPlayersCollection.RemovePlayer(aIndex:integer);
 var i:integer;
 begin
-  Player[i].Free;
-  PlayerAI[i].Free;
+  Player[aIndex].Free;
+  PlayerAI[aIndex].Free;
 
-  FreeThenNil(Player[aIndex]);
-  FreeThenNil(PlayerAI[aIndex]);
-
-  for i:=1 to fCount do
+  for i:=0 to fCount-1 do
     if Player[i]<>nil then
       Player[i].Goals.RemoveReference(TPlayerID(aIndex));
 end;
@@ -309,7 +281,7 @@ end;
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
 function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
 begin
-  Assert(InRange(byte(aPlay1),1,MAX_PLAYERS+1) and InRange(byte(aPlay2),1,MAX_PLAYERS+1)); //Max_players + Animals
+  Assert(InRange(byte(aPlay1),0,MAX_PLAYERS) and InRange(byte(aPlay2),0,MAX_PLAYERS)); //MAX_PLAYERS + Animals
 
   if (aPlay1 = aPlay2) or (aPlay1 = play_animals) or (aPlay2 = play_animals) then
     Result := at_Ally
@@ -390,21 +362,21 @@ begin
   LoadStream.Read(s);
   Assert(s = 'Players', 'Players not found');
   LoadStream.Read(fCount);
-  AddPlayers(fCount);
   fLog.AssertToLog(fCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
-  Selected := nil;
 
   for i:=0 to fCount-1 do
   begin
-    Player[i] := TKMPlayerAssets.Create(TPlayerID(i));
-    PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
+    fPlayerList.Add(TKMPlayerAssets.Create(play_none));
     Player[i].Load(LoadStream);
+
+    fPlayerAIList.Add(TKMPlayerAI.Create(Player[i]));
     PlayerAI[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
 
   LoadStream.Read(P, SizeOf(P));
   MyPlayer := fPlayers.Player[integer(P)];
+  Selected := nil;
 end;
 
 

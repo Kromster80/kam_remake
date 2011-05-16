@@ -26,7 +26,7 @@ type
     fPlayerID:TPlayerID; //Which ID this player is
     fPlayerType:TPlayerType;
     fFlagColor:cardinal;
-    fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
+    fAlliances: array[0..MAX_PLAYERS-1] of TAllianceType;
 
     fSkipWinConditionCheck:boolean;
     fSkipDefeatConditionCheck:boolean;
@@ -130,12 +130,12 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
-  for i:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
 
   fSkipWinConditionCheck := false;
   fSkipDefeatConditionCheck := false;
-  fFlagColor := DefaultTeamColors[byte(aPlayerID)]; //Init with default color, later replaced by Script
+  fFlagColor := DefaultTeamColors[aPlayerID]; //Init with default color, later replaced by Script
 end;
 
 

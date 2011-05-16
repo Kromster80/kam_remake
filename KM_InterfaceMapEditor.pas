@@ -68,7 +68,7 @@ type
       KMMinimap:TKMMinimap;
       RatioRow_Passability:TKMRatioRow;
       Label_Passability:TKMLabel;
-      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMFlatButtonShape; //Animals are common for all
+      Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
     Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
@@ -114,7 +114,7 @@ type
       Button_Mission:array[1..1]of TKMButton;
       Panel_Alliances:TKMPanel;
         Label_Alliances:TKMLabel;
-        CheckBox_Alliances: array[1..MAX_PLAYERS,1..MAX_PLAYERS] of TKMCheckBox;
+        CheckBox_Alliances: array[0..MAX_PLAYERS-1,0..MAX_PLAYERS-1] of TKMCheckBox;
         CheckBox_AlliancesSym:TKMCheckBox;
 
     Panel_Menu:TKMPanel;
@@ -406,8 +406,8 @@ begin
     Label_Passability := TKMLabel.Create(Panel_Main,8,240,100,30,'Off',fnt_Metal,kaLeft);
 
     TKMLabel.Create(Panel_Main,8,270,100,30,'Player',fnt_Metal,kaLeft);
-    for i:=1 to MAX_PLAYERS do begin
-      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + (i-1)*23, 290, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
+    for i:=0 to MAX_PLAYERS-1 do begin
+      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + i*23, 290, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[i].CapOffsetY := -3;
       Button_PlayerSelect[i].Tag     := i;
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
@@ -659,13 +659,13 @@ begin
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
       Label_Alliances := TKMLabel.Create(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
       //TKMBevel.Create(Panel_Alliances, 9, 28, 180, 180);
-      for i:=1 to MAX_PLAYERS do begin
-        TKMLabel.Create(Panel_Alliances,12+i*20+2,30,100,20,inttostr(i),fnt_Outline,kaLeft);
-        TKMLabel.Create(Panel_Alliances,12,30+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
-        for k:=1 to MAX_PLAYERS do begin
+      for i:=0 to MAX_PLAYERS-1 do begin
+        TKMLabel.Create(Panel_Alliances,32+i*20+2,30,100,20,inttostr(i+1),fnt_Outline,kaLeft);
+        TKMLabel.Create(Panel_Alliances,12,50+i*20,100,20,inttostr(i+1),fnt_Outline,kaLeft);
+        for k:=0 to MAX_PLAYERS-1 do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
-          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 8+k*20, 26+i*20, 20, 20, '', fnt_Metal);
-          CheckBox_Alliances[i,k].Tag       := (i-1) * MAX_PLAYERS + (k-1);
+          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 8+k*20, 46+i*20, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[i,k].Tag       := i * MAX_PLAYERS + k;
           CheckBox_Alliances[i,k].FlatStyle := true;
           CheckBox_Alliances[i,k].OnClick   := Mission_AlliancesChange;
         end;
@@ -673,7 +673,7 @@ begin
 
       //It does not have OnClick event for a reason
       // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 30+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 30+MAX_PLAYERS*20, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
 end;
 
@@ -852,7 +852,7 @@ procedure TKMapEdInterface.Player_UpdateColors;
 var i:integer;
 begin
   //Set player colors
-  for i:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_PLAYERS-1 do
     Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].FlagColor;
 
   if MyPlayer <> nil then
@@ -863,10 +863,10 @@ end;
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 var i:integer;
 begin
-  for i:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_PLAYERS-1 do
     Button_PlayerSelect[i].Down := false;
 
-  if (TKMControl(Sender).Tag in [1..MAX_PLAYERS]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then begin
+  if (TKMControl(Sender).Tag in [0..MAX_PLAYERS-1]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then begin
     MyPlayer := fPlayers.Player[TKMControl(Sender).Tag];
     Button_PlayerSelect[TKMControl(Sender).Tag].Down := true;
   end;
@@ -1406,8 +1406,8 @@ procedure TKMapEdInterface.Mission_AlliancesChange(Sender:TObject);
 var i,k:integer;
 begin
   if Sender = nil then begin
-    for i:=1 to MAX_PLAYERS do
-    for k:=1 to MAX_PLAYERS do
+    for i:=0 to MAX_PLAYERS-1 do
+    for k:=0 to MAX_PLAYERS-1 do
       if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
         CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerID, fPlayers.Player[k].PlayerID)=at_Ally)
       else
@@ -1415,8 +1415,8 @@ begin
     exit;
   end;
 
-  i := TKMCheckBox(Sender).Tag div MAX_PLAYERS + 1;
-  k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS + 1;
+  i := TKMCheckBox(Sender).Tag div MAX_PLAYERS;
+  k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS;
   if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].Alliances[k] := at_Ally
                                      else fPlayers.Player[i].Alliances[k] := at_Enemy;
 

@@ -377,15 +377,15 @@ procedure TForm1.Export_DeliverLists1Click(Sender: TObject);
 var i:integer;
 begin
   if fPlayers=nil then exit;
-  for i:=1 to fPlayers.Count do
+  for i:=0 to fPlayers.Count-1 do
     fPlayers.Player[i].DeliverList.SaveToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
 end;
 
 
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
-  if (fPlayers<>nil) and (fPlayers.Player[RGPlayer.ItemIndex+1]<>nil) then
-    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex+1);
+  if (fPlayers<>nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
+    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
 end;
 
 

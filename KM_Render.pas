@@ -896,7 +896,7 @@ begin
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
 
   if SHOW_UNIT_MOVEMENT then begin
-    if InRange(Owner,1,MAX_PLAYERS) then
+    if InRange(Owner,0,MAX_PLAYERS-1) then
       glColor3ubv(@fPlayers.Player[Owner].FlagColor)  //Render dot where unit is
     else
       glColor3f(1,1,1); //Animals
@@ -946,8 +946,8 @@ if ID<=0 then exit;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
   if SHOW_UNIT_MOVEMENT then begin
-    if Owner > MAX_PLAYERS then Color := $FFFFFFFF
-                           else Color := fPlayers.Player[Owner].FlagColor;
+    if Owner >= MAX_PLAYERS then Color := $FFFFFFFF
+                            else Color := fPlayers.Player[Owner].FlagColor;
     glColor3ubv(@Color);
     RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV); //Render dot where unit is
   end;
@@ -1201,7 +1201,7 @@ begin
               if Team=0 then
                 RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
               else
-                if Team > MAX_PLAYERS then
+                if Team >= MAX_PLAYERS then
                   RenderSprite(RX,ID,Loc.X,Loc.Y,$FFFFFFFF,FOWvalue)
                 else
                   RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].FlagColor,FOWvalue)

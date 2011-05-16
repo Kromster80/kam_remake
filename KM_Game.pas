@@ -386,7 +386,7 @@ begin
     fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
     fPlayers := TKMPlayersCollection.Create;
     fPlayers.AddPlayers(MAX_PLAYERS);
-    MyPlayer := fPlayers.Player[1];
+    MyPlayer := fPlayers.Player[0];
   end;
 
   fPlayers.AfterMissionInit(true);
@@ -419,7 +419,7 @@ var
   i:integer;
   fMissionParser:TMissionParser;
   PlayerID:integer;
-  PlayerUsed:array[1..MAX_PLAYERS]of boolean;
+  PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
   GameInit(true);
 
@@ -459,20 +459,20 @@ begin
   fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
   //Initilise
-  for i:=1 to fPlayers.Count do
+  for i:=0 to fPlayers.Count-1 do
     PlayerUsed[i] := false;
 
-  //Assign existing NetPlayers to map players
+  //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
   begin
-    PlayerID := fNetworking.NetPlayers[i].StartLocID;
+    PlayerID := fNetworking.NetPlayers[i].StartLocID - 1; //PlayerID is 0 based
     fPlayers.Player[PlayerID].PlayerType := fNetworking.NetPlayers[i].PlayerType;
     fPlayers.Player[PlayerID].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
     PlayerUsed[PlayerID] := true;
   end;
 
   //Clear remaining players
-  for i:=1 to fPlayers.Count do
+  for i:=0 to fPlayers.Count-1 do
     if not PlayerUsed[i] then
       fPlayers.RemovePlayer(i);
 
@@ -680,7 +680,7 @@ begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
     fPlayers := TKMPlayersCollection.Create;
     fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
-    MyPlayer := fPlayers.Player[1];
+    MyPlayer := fPlayers.Player[0];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
     fGameName := 'New Mission';
   end;
@@ -688,7 +688,7 @@ begin
   fMapEditorInterface.Player_UpdateColors;
   fPlayers.AfterMissionInit(false);
 
-  for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
+  for i:=0 to MAX_PLAYERS-1 do //Reveal all players since we'll swap between them in MapEd
     fTerrain.RevealWholeMap(TPlayerID(i));
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
@@ -928,7 +928,6 @@ begin
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
     fPlayers := TKMPlayersCollection.Create;
-    MyPlayer := fPlayers.Player[1]; //todo: Check if this is required
 
     //Load the data into the game
     fTerrain.Load(LoadStream);

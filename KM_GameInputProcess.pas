@@ -393,6 +393,7 @@ end;
 procedure TGameInputProcess.StoreCommand(aCommand: TGameInputCommand);
 begin
   //Store the command for the replay
+  //todo: Allow and mute gic_TempChangeMyPlayer when viewing replay
   Assert(ReplayState=gipRecording);
   inc(fCount);
   if length(fQueue) <= fCount then setlength(fQueue, fCount+128);

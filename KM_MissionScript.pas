@@ -286,11 +286,11 @@ begin
     ct_SetMap:         MapPath       := RemoveQuotes(TextParam);
     ct_SetMaxPlayer:   TeamCount     := ParamList[0];
     ct_SetTactic:      MissionMode   := mm_Tactic;
-    ct_SetHumanPlayer: HumanPlayerID := ParamList[0]+1;
+    ct_SetHumanPlayer: HumanPlayerID := ParamList[0];
 {                       if TGoalCondition(ParamList[0]) = gc_Time then
                          VictoryCond := VictoryCond + fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else
-                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]));
 }
     ct_AddGoal:        VictoryCond   := VictoryCond
                                         + GoalConditionStr[TGoalCondition(ParamList[0])]
@@ -427,20 +427,20 @@ begin
                      end;
   ct_SetCurrPlayer:  begin
                      if InRange(ParamList[0],0,fPlayers.Count-1) then
-                       CurrentPlayerIndex := ParamList[0]+1; //+1 because in DAT players IDs are 0 based, but here they are 1 based
+                       CurrentPlayerIndex := ParamList[0];
                      end;
   ct_SetHumanPlayer: begin
                      if fPlayers <> nil then
                        if InRange(ParamList[0],0,fPlayers.Count-1) then
                        begin
-                         MyPlayer := fPlayers.Player[ParamList[0]+1];
+                         MyPlayer := fPlayers.Player[ParamList[0]];
                          MyPlayer.PlayerType:=pt_Human;
                        end;
                      end;
   ct_AIPlayer:       begin
                      if fPlayers <> nil then
                        if InRange(ParamList[0],0,fPlayers.Count-1) then
-                         fPlayers.Player[ParamList[0]+1].PlayerType:=pt_Computer
+                         fPlayers.Player[ParamList[0]].PlayerType:=pt_Computer
                        else //This command doesn't require an ID, just use the current player
                          fPlayers.Player[CurrentPlayerIndex].PlayerType:=pt_Computer;
                      end;
@@ -498,7 +498,7 @@ begin
   ct_AddWareToAll:   begin
                        MyInt:=ParamList[1];
                        if MyInt = -1 then MyInt:=High(Word); //-1 means maximum resources
-                       for i:=1 to fPlayers.Count do
+                       for i:=0 to fPlayers.Count-1 do
                        begin
                          Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
                          if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
@@ -574,9 +574,9 @@ begin
                      end;
   ct_SetAlliance:    begin
                        if ParamList[1] = 1 then
-                         fPlayers.Player[CurrentPlayerIndex].Alliances[ParamList[0]+1] := at_Ally
+                         fPlayers.Player[CurrentPlayerIndex].Alliances[ParamList[0]] := at_Ally
                        else
-                         fPlayers.Player[CurrentPlayerIndex].Alliances[ParamList[0]+1] := at_Enemy;
+                         fPlayers.Player[CurrentPlayerIndex].Alliances[ParamList[0]] := at_Enemy;
                      end;
   ct_AttackPosition: begin
                        //If target is building: Attack building
@@ -586,7 +586,7 @@ begin
                        if LastTroop <> nil then
                        begin
                          inc(AttackPositionsCount);
-                         SetLength(AttackPositions,AttackPositionsCount+1);
+                         SetLength(AttackPositions, AttackPositionsCount+1);
                          AttackPositions[AttackPositionsCount-1].Warrior := LastTroop;
                          AttackPositions[AttackPositionsCount-1].Target := KMPointX1Y1(ParamList[0],ParamList[1]);
                        end;
@@ -596,11 +596,11 @@ begin
                        if TGoalCondition(ParamList[0]) = gc_Time then
                          fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else begin
-                         if fPlayers.Player[ParamList[3]+1] = nil then begin
+                         if ParamList[3] > fPlayers.Count-1 then begin
                            DebugScriptError('Add_Goal for non existing player');
                            exit;
                          end;
-                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]));
                        end;
                      end;
   ct_AddLostGoal:    begin
@@ -608,11 +608,11 @@ begin
                        if TGoalCondition(ParamList[0]) = gc_Time then
                          fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
                        else begin
-                         if fPlayers.Player[ParamList[3]+1] = nil then begin
+                         if ParamList[3] > fPlayers.Count-1 then begin
                            DebugScriptError('Add_LostGoal for non existing player');
                            exit;
                          end;
-                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                         fPlayers.Player[CurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]));
                        end;
                      end;
   ct_AIDefence:      begin
@@ -720,8 +720,8 @@ begin
   for i:=0 to fPlayers.Count-1 do
   begin
     //We can fill the array right before use, cos FirstEmpty scans only preceding entries
-    ActivePlayer[i] := (fPlayers.Player[i+1].Stats.GetHouseQty(ht_Any) +
-                        fPlayers.Player[i+1].Stats.GetUnitQty(ut_Any)) <> 0;
+    ActivePlayer[i] := (fPlayers.Player[i].Stats.GetHouseQty(ht_Any) +
+                        fPlayers.Player[i].Stats.GetUnitQty(ut_Any)) <> 0;
 
     if ActivePlayer[i] then begin
       inc(Result);

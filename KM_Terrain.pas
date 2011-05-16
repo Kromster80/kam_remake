@@ -54,7 +54,7 @@ TTerrain = class
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
 
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
-      FogOfWar:array[1..8]of byte;
+      FogOfWar:array[0..7]of byte; //todo: It belongs to TKMPlayer
     end;
 
     FallingTrees: TKMPointTagList;
@@ -675,7 +675,7 @@ end;
 procedure TTerrain.RevealWholeMap(PlayerID:TPlayerID);
 var i,k:integer;
 begin
-  if not InRange(byte(PlayerID),1,8) then exit;
+  if not InRange(byte(PlayerID),0,MAX_PLAYERS-1) then exit;
   for i:=1 to MapY do for k:=1 to MapX do
     Land[i,k].FogOfWar[byte(PlayerID)] := FOG_OF_WAR_MAX;
 end;
@@ -2377,7 +2377,7 @@ begin
   end;
 
   Loc := TKMPointList.Create;
-  for i:=1 to fPlayers.Count do
+  for i:=0 to fPlayers.Count-1 do
   if fPlayers.Player[i]<>nil then begin
     fPlayers.Player[i].Units.GetLocations(Loc);
     for k:=1 to Loc.Count do
