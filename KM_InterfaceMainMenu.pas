@@ -133,6 +133,7 @@ type
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
       Panel_LobbySetup:TKMPanel;
+        Label_LobbyChooseMap: TKMLabel;
         FileList_Lobby:TKMDropFileBox;
         Label_LobbyMapName:TKMLabel;
         Label_LobbyMapCount:TKMLabel;
@@ -491,7 +492,7 @@ begin
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,700,100,240,400);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 520);
-      TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Choose map:', fnt_Outline, kaLeft);
+      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Choose map:', fnt_Outline, kaLeft);
       FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 30, 220, 20, fnt_Metal);
       FileList_Lobby.OnChange := Lobby_MapSelect;
       TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, 'Map info:', fnt_Outline, kaLeft);
@@ -1215,11 +1216,13 @@ begin
   if Sender = Button_LAN_Host then begin
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
     FileList_Lobby.Show;
+    Label_LobbyChooseMap.Show;
     Button_LobbyReady.Hide;
     Button_LobbyStart.Show;
     Button_LobbyStart.Disable;
   end else begin
     FileList_Lobby.Hide;
+    Label_LobbyChooseMap.Hide;
     Button_LobbyReady.Show;
     Button_LobbyReady.Enable;
     Button_LobbyStart.Hide;

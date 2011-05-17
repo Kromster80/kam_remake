@@ -545,6 +545,7 @@ type
     procedure ListClick(Sender:TObject);
     procedure ListHide(Sender:TObject);
     procedure SetEnabled(aValue:boolean); override;
+    procedure SetVisible(aValue:boolean); override;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     property DropCount:byte write fDropCount;
@@ -2223,6 +2224,13 @@ begin
   Inherited;
   fButton.Enabled := aValue;
   fFileList.Enabled := aValue;
+end;
+
+
+procedure TKMDropFileBox.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  fButton.Visible := aValue;
 end;
 
 
