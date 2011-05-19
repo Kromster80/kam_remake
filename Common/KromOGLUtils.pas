@@ -19,6 +19,7 @@ type PFD_TYPE_RGBA = integer;
 type PFD_MAIN_PLANE = integer;
 {$ENDIF}
 
+type
     KAlign = (kaLeft, kaCenter, kaRight);
 
     TColor4 = cardinal;
