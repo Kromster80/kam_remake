@@ -19,12 +19,13 @@ type PFD_TYPE_RGBA = integer;
 type PFD_MAIN_PLANE = integer;
 {$ENDIF}
 
+type
     KAlign = (kaLeft, kaCenter, kaRight);
 
     TColor4 = cardinal;
 
-    procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);
     procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+    procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);
 
     procedure SetRenderDefaults;
     procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
@@ -347,6 +348,7 @@ if DoShift then glTranslatef(Value,Value,0)
 end;
 
 
+//@Vitautas: This function is used to enable/disable V-Sync
 procedure SetupVSync(aVSync:boolean);
 begin
   {$IFDEF MSWindows}
