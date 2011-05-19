@@ -3,7 +3,7 @@ unit KM_Player;
 interface
 uses Classes, KromUtils, SysUtils,
       KM_Defaults, KM_Utils,
-      KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals;
+      KM_PlayerAI, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals;
 
 
 type
@@ -12,9 +12,9 @@ type
         pt_Computer);
 
 
-type
   TKMPlayerAssets = class
   private
+    fAI:TKMPlayerAI;
     fBuildList: TKMBuildingQueue;
     fDeliverList: TKMDeliverQueue;
     fHouses: TKMHousesCollection;
@@ -37,9 +37,10 @@ type
     procedure SetAlliances(Index:integer; aValue:TAllianceType);
   public
 
-    constructor Create(aPlayerID:TPlayerID);
+    constructor Create(aPlayerID:TPlayerID; PlayerIndex:integer);
     destructor Destroy; override;
 
+    property AI:TKMPlayerAI read fAI;
     property BuildList:TKMBuildingQueue read fBuildList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
@@ -57,7 +58,6 @@ type
     procedure SkipWinConditionCheck;
     procedure SkipDefeatConditionCheck;
 
-  public
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
@@ -79,17 +79,16 @@ type
 
     function GetHouseWip(aType:THouseType):integer;
     function GetFieldsCount:integer;
-  public
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
     procedure IncAnimStep;
-    procedure UpdateState;
+    procedure UpdateState(Tick,PlayerIndex:cardinal);
     procedure Paint;
   end;
 
 
-type
   TKMPlayerAnimals = class
   private
     fUnits: TKMUnitsCollection;
@@ -117,12 +116,13 @@ uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
 
 
 { TKMPlayerAssets }
-constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
+constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID; PlayerIndex:integer);
 var i: integer;
 begin
   Inherited Create;
   fPlayerID     := aPlayerID;
   fPlayerType   := pt_Computer;
+  fAI           := TKMPlayerAI.Create(PlayerIndex);
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
@@ -148,6 +148,7 @@ begin
   FreeThenNil(fGoals);
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
+  FreeThenNil(fAI);
   Inherited;
 end;
 
@@ -430,12 +431,13 @@ end;
 
 procedure TKMPlayerAssets.Save(SaveStream:TKMemoryStream);
 begin
-  fUnits.Save(SaveStream);
-  fHouses.Save(SaveStream);
-  fDeliverList.Save(SaveStream);
+  fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
-  fStats.Save(SaveStream);
+  fDeliverList.Save(SaveStream);
   fGoals.Save(SaveStream);
+  fHouses.Save(SaveStream);
+  fStats.Save(SaveStream);
+  fUnits.Save(SaveStream);
 
   SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
@@ -448,12 +450,13 @@ end;
 
 procedure TKMPlayerAssets.Load(LoadStream:TKMemoryStream);
 begin
-  fUnits.Load(LoadStream);
-  fHouses.Load(LoadStream);
-  fDeliverList.Load(LoadStream);
+  fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
-  fStats.Load(LoadStream);
+  fDeliverList.Load(LoadStream);
   fGoals.Load(LoadStream);
+  fHouses.Load(LoadStream);
+  fStats.Load(LoadStream);
+  fUnits.Load(LoadStream);
 
   LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
@@ -470,6 +473,7 @@ begin
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
   fBuildList.SyncLoad;
+  fAI.SyncLoad;
 end;
 
 
@@ -479,10 +483,14 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.UpdateState;
+procedure TKMPlayerAssets.UpdateState(Tick,PlayerIndex:cardinal);
 begin
   fUnits.UpdateState;
   fHouses.UpdateState;
+
+  //Do only one players AI per Tick
+  if (Tick+PlayerIndex) mod 20 = 0 then
+    fAI.UpdateState;
 end;
 
 

@@ -12,10 +12,8 @@ type
   private
     fCount:byte;
     fPlayerList:TList;
-    fPlayerAIList:TList;
     fPlayerAnimals:TKMPlayerAnimals;
     function GetPlayer(Index:integer):TKMPlayerAssets;
-    function GetPlayerAI(Index:integer):TKMPlayerAI;
   public
     Selected: TObject;
   public
@@ -23,8 +21,7 @@ type
     destructor Destroy; override;
 
     property Count:byte read fCount;
-    property Player[Index:integer]:TKMPlayerAssets read GetPlayer;
-    property PlayerAI[Index:integer]:TKMPlayerAI read GetPlayerAI;
+    property Player[Index:integer]:TKMPlayerAssets read GetPlayer; default;
     property PlayerAnimals:TKMPlayerAnimals read fPlayerAnimals;
 
     procedure AddPlayers(aCount:byte); //Batch add several players
@@ -70,7 +67,6 @@ constructor TKMPlayersCollection.Create;
 begin
   Inherited Create;
   fPlayerList := TList.Create;
-  fPlayerAIList := TList.Create;
   fPlayerAnimals := TKMPlayerAnimals.Create; //Always create players
 end;
 
@@ -78,13 +74,10 @@ end;
 destructor TKMPlayersCollection.Destroy;
 var i:integer;
 begin
-  for i:=0 to fCount-1 do begin
+  for i:=0 to fCount-1 do
     Player[i].Free;
-    PlayerAI[i].Free;
-  end;
 
   fPlayerList.Free;
-  fPlayerAIList.Free;
   PlayerAnimals.Free;
 
   MyPlayer := nil;
@@ -100,13 +93,6 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetPlayerAI(Index:integer):TKMPlayerAI;
-begin
-  Assert(Index < fCount);
-  Result := TKMPlayerAI(fPlayerAIList[Index]);
-end;
-
-
 procedure TKMPlayersCollection.AddPlayers(aCount: byte);
 var i:integer;
 begin
@@ -114,9 +100,8 @@ begin
 
   for i:=fCount to fCount+aCount-1 do
   begin
-    fPlayerList.Add(TKMPlayerAssets.Create(TPlayerID(i)));
+    fPlayerList.Add(TKMPlayerAssets.Create(TPlayerID(i), i));
     inc(fCount);
-    fPlayerAIList.Add(TKMPlayerAI.Create(Player[i]));
   end;
 end;
 
@@ -137,7 +122,6 @@ begin
     Player[i].Goals.RemoveReference(Player[i].PlayerID);
 
   Player[aIndex].Free;
-  PlayerAI[aIndex].Free;
 end;
 
 
@@ -346,10 +330,7 @@ begin
   SaveStream.Write('Players');
   SaveStream.Write(fCount);
   for i:=0 to fCount-1 do
-  begin
     Player[i].Save(SaveStream);
-    PlayerAI[i].Save(SaveStream); //Saves AI stuff
-  end;
   PlayerAnimals.Save(SaveStream);
   SaveStream.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
 end;
@@ -365,11 +346,8 @@ begin
 
   for i:=0 to fCount-1 do
   begin
-    fPlayerList.Add(TKMPlayerAssets.Create(play_none));
+    fPlayerList.Add(TKMPlayerAssets.Create(play_none, 0));
     Player[i].Load(LoadStream);
-
-    fPlayerAIList.Add(TKMPlayerAI.Create(Player[i]));
-    PlayerAI[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
 
@@ -383,10 +361,7 @@ procedure TKMPlayersCollection.SyncLoad;
 var i:byte;
 begin
   for i:=0 to fCount-1 do
-  begin
     Player[i].SyncLoad;
-    PlayerAI[i].SyncLoad;
-  end;
   PlayerAnimals.SyncLoad;
 end;
 
@@ -403,14 +378,12 @@ procedure TKMPlayersCollection.UpdateState(Tick:cardinal);
 var i:byte;
 begin
   for i:=0 to fCount-1 do
-    Player[i].UpdateState;
+    if fGame.GameState = gsRunning then
+      Player[i].UpdateState(Tick, i)
+    else
+      Exit; //PlayerAI can stop the game and clear everything
 
   PlayerAnimals.UpdateState;
-
-  //This is not ajoined with previous loop since it can result in StopGame which flushes all data
-  for i:=0 to fCount-1 do
-    if (Tick+i) mod 20 = 0 then //Do only one player per Tick
-      PlayerAI[i].UpdateState;
 end;
 
 

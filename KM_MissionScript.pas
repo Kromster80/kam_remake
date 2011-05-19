@@ -552,7 +552,7 @@ begin
                      end;
   ct_AICharacter:    begin
                        if fPlayers.Player[CurrentPlayerIndex].PlayerType <> pt_Computer then exit;
-                       iPlayerAI := fPlayers.PlayerAI[CurrentPlayerIndex]; //Setup the AI's character
+                       iPlayerAI := fPlayers.Player[CurrentPlayerIndex].AI; //Setup the AI's character
                        if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.ReqRecruits         := ParamList[1];
                        if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.ReqWorkers          := ParamList[1];
                        if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.ReqSerfFactor       := ParamList[1];
@@ -567,10 +567,10 @@ begin
                        end;
                      end;
   ct_AINoBuild:      begin
-                       fPlayers.PlayerAI[CurrentPlayerIndex].Autobuild := false;
+                       fPlayers.Player[CurrentPlayerIndex].AI.Autobuild := false;
                      end;
   ct_AIStartPosition:begin
-                       fPlayers.PlayerAI[CurrentPlayerIndex].StartPosition := KMPointX1Y1(ParamList[0],ParamList[1]);
+                       fPlayers.Player[CurrentPlayerIndex].AI.StartPosition := KMPointX1Y1(ParamList[0],ParamList[1]);
                      end;
   ct_SetAlliance:    begin
                        if ParamList[1] = 1 then
@@ -616,7 +616,7 @@ begin
                        end;
                      end;
   ct_AIDefence:      begin
-                       fPlayers.PlayerAI[CurrentPlayerIndex].AddDefencePosition(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
+                       fPlayers.Player[CurrentPlayerIndex].AI.AddDefencePosition(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
                      end;
   ct_SetMapColor:    begin
                        //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
@@ -647,7 +647,7 @@ begin
                      end;
   ct_CopyAIAttack:   begin
                        //Save the attack to the AI assets
-                       fPlayers.PlayerAI[CurrentPlayerIndex].AddAttack(AIAttack);
+                       fPlayers.Player[CurrentPlayerIndex].AI.AddAttack(AIAttack);
                      end;
   ct_EnablePlayer:   begin
                        //Serves no real purpose, all players have this command anyway
@@ -838,29 +838,29 @@ begin
     //Computer specific, e.g. AI commands
     if fPlayers.Player[i].PlayerType = pt_Computer then
     begin
-      AddCommand(ct_AIStartPosition, [fPlayers.PlayerAI[i].StartPosition.X,fPlayers.PlayerAI[i].StartPosition.Y]);
-      if not fPlayers.PlayerAI[i].Autobuild then
+      AddCommand(ct_AIStartPosition, [fPlayers.Player[i].AI.StartPosition.X,fPlayers.Player[i].AI.StartPosition.Y]);
+      if not fPlayers.Player[i].AI.Autobuild then
         AddCommand(ct_AINoBuild, []);
-      AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers.PlayerAI[i].ReqRecruits]);
-      AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers.PlayerAI[i].ReqSerfFactor]);
-      AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers.PlayerAI[i].ReqWorkers]);
-      AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers.PlayerAI[i].TownDefence]);
+      AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers.Player[i].AI.ReqRecruits]);
+      AddCommand(ct_AICharacter,cpt_WorkerFactor, [fPlayers.Player[i].AI.ReqSerfFactor]);
+      AddCommand(ct_AICharacter,cpt_Constructors, [fPlayers.Player[i].AI.ReqWorkers]);
+      AddCommand(ct_AICharacter,cpt_TownDefence, [fPlayers.Player[i].AI.TownDefence]);
       //Only store if a limit is in place (high is the default)
-      if fPlayers.PlayerAI[i].MaxSoldiers <> high(fPlayers.PlayerAI[i].MaxSoldiers) then
-        AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers.PlayerAI[i].MaxSoldiers]);
-      AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers.PlayerAI[i].Aggressiveness]);
-      AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.PlayerAI[i].RecruitTrainTimeout]);
+      if fPlayers.Player[i].AI.MaxSoldiers <> high(fPlayers.Player[i].AI.MaxSoldiers) then
+        AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers.Player[i].AI.MaxSoldiers]);
+      AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers.Player[i].AI.Aggressiveness]);
+      AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.Player[i].AI.RecruitTrainTimeout]);
       for Group:=low(TGroupType) to high(TGroupType) do
-        if (Group <> gt_None) and (fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits <> 0) then //Must be valid and used
-          AddCommand(ct_AICharacter,cpt_TroopParam, [byte(Group)-1,fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits,fPlayers.PlayerAI[i].TroopFormations[Group].UnitsPerRow]);
+        if (Group <> gt_None) and (fPlayers.Player[i].AI.TroopFormations[Group].NumUnits <> 0) then //Must be valid and used
+          AddCommand(ct_AICharacter,cpt_TroopParam, [byte(Group)-1,fPlayers.Player[i].AI.TroopFormations[Group].NumUnits,fPlayers.Player[i].AI.TroopFormations[Group].UnitsPerRow]);
       AddData(''); //NL
-      for k:=0 to fPlayers.PlayerAI[i].DefencePositionsCount-1 do
-        with fPlayers.PlayerAI[i].DefencePositions[k] do
+      for k:=0 to fPlayers.Player[i].AI.DefencePositionsCount-1 do
+        with fPlayers.Player[i].AI.DefencePositions[k] do
           AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,Position.Dir,byte(GroupType)-1,DefenceRadius,byte(DefenceType)]);
       AddData(''); //NL
       AddData(''); //NL
-      for k:=0 to fPlayers.PlayerAI[i].ScriptedAttacksCount-1 do
-        with fPlayers.PlayerAI[i].ScriptedAttacks[k] do
+      for k:=0 to fPlayers.Player[i].AI.ScriptedAttacksCount-1 do
+        with fPlayers.Player[i].AI.ScriptedAttacks[k] do
         begin
           AddCommand(ct_AIAttack,cpt_Type, [byte(AttackType)]);
           AddCommand(ct_AIAttack,cpt_TotalAmount, [TotalMen]);

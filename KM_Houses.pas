@@ -176,6 +176,7 @@ type
   public
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
     constructor Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad; override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
@@ -273,7 +274,7 @@ begin
 
   fHasOwner         := false;
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
-  fBuildingRepair   := (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (fPlayers.PlayerAI[byte(fOwner)].GetHouseRepair);
+  fBuildingRepair   := (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (fPlayers.Player[byte(fOwner)].AI.HouseAutoRepair);
   DoorwayUse        := 0;
   fRepairID         := 0;
   fWareDelivery     := true;
@@ -1178,10 +1179,15 @@ constructor TKMHouseSchool.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(UnitWIP, 4);
-  UnitWIP := fPlayers.GetUnitByID(cardinal(UnitWIP)); //Units get loaded before houses ;)
   LoadStream.Read(HideOneGold);
   LoadStream.Read(UnitTrainProgress);
   LoadStream.Read(UnitQueue, SizeOf(UnitQueue));
+end;
+
+
+procedure TKMHouseSchool.SyncLoad;
+begin
+  UnitWIP := fPlayers.GetUnitByID(cardinal(UnitWIP));
 end;
 
 
