@@ -146,6 +146,7 @@ begin
 end;
 
 
+{ TKMPlayerAI }
 constructor TKMPlayerAI.Create(aPlayerIndex:integer);
 var i: TGroupType;
 begin
@@ -188,7 +189,7 @@ procedure TKMPlayerAI.CheckGoals;
     Result := false;
 
     if aGoal.Player <> play_none then
-      MS := fPlayers.Player[byte(aGoal.Player)].Stats
+      MS := fPlayers[byte(aGoal.Player)].Stats
     else
       MS := nil; //Will trigger an error unless it's not gc_Time
 
@@ -217,8 +218,7 @@ begin
   VictorySatisfied  := true; //Assume they will win/survive, then prove it with goals
   SurvivalSatisfied := true;
 
-
-  with fPlayers.Player[PlayerIndex] do
+  with fPlayers[PlayerIndex] do
   for i:=0 to Goals.Count-1 do //Test each goal to see if it has occured
     if GoalConditionSatisfied(Goals[i]) then
     begin
@@ -257,7 +257,7 @@ var
   function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
   begin
     //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if fPlayers.Player[PlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[byte(aUnitType)]) then
+    if fPlayers[PlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[byte(aUnitType)]) then
     begin
       dec(UnitReq[byte(aUnitType)]); //So other schools don't order same unit
       HS.AddUnitToQueue(aUnitType);
@@ -274,13 +274,13 @@ begin
   //Count overall unit requirement (excluding Barracks and ownerless houses)
   for i:=1 to HOUSE_COUNT do
     if (HouseDAT[i].OwnerType<>-1) and (THouseType(i)<>ht_Barracks) then
-      inc(UnitReq[HouseDAT[i].OwnerType+1], fPlayers.Player[PlayerIndex].Stats.GetHouseQty(THouseType(i)));
+      inc(UnitReq[HouseDAT[i].OwnerType+1], fPlayers[PlayerIndex].Stats.GetHouseQty(THouseType(i)));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq
-  SetLength(Schools, fPlayers.Player[PlayerIndex].Stats.GetHouseQty(ht_School));
+  SetLength(Schools, fPlayers[PlayerIndex].Stats.GetHouseQty(ht_School));
   k := 1;
-  HS := TKMHouseSchool(fPlayers.Player[PlayerIndex].FindHouse(ht_School,k));
+  HS := TKMHouseSchool(fPlayers[PlayerIndex].FindHouse(ht_School,k));
   while HS <> nil do
   begin
     Schools[k-1] := HS;
@@ -288,7 +288,7 @@ begin
       if HS.UnitQueue[i]<>ut_None then
         dec(UnitReq[byte(HS.UnitQueue[i])]); //Can be negative and compensated by e.g. ReqRecruits
     inc(k);
-    HS := TKMHouseSchool(fPlayers.Player[PlayerIndex].FindHouse(ht_School,k));
+    HS := TKMHouseSchool(fPlayers[PlayerIndex].FindHouse(ht_School,k));
   end;
 
   //Order the training
@@ -300,7 +300,7 @@ begin
       //Order citizen training
       for i:=1 to length(UnitReq) do
         if (UnitReq[i] > 0) and
-           (UnitReq[i] > fPlayers.Player[PlayerIndex].Stats.GetUnitQty(TUnitType(i))) then
+           (UnitReq[i] > fPlayers[PlayerIndex].Stats.GetUnitQty(TUnitType(i))) then
         begin
           UnitType := TUnitType(i);
           if UnitType <> ut_None then
@@ -314,10 +314,10 @@ begin
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*fPlayers.Player[PlayerIndex].Stats.GetHouseQty(ht_Any)), ut_Serf) then
+        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*fPlayers[PlayerIndex].Stats.GetHouseQty(ht_Any)), ut_Serf) then
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
-              if not CheckUnitRequirements(ReqRecruits * fPlayers.Player[PlayerIndex].Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
+              if not CheckUnitRequirements(ReqRecruits * fPlayers[PlayerIndex].Stats.GetHouseQty(ht_Barracks), ut_Recruit) then
                 break; //There's no unit demand at all
     end;
   end;
@@ -332,7 +332,7 @@ var
   i,k:integer;
   GroupReq: array[TGroupType] of integer;
 begin
-  if fPlayers.Player[PlayerIndex].Stats.GetArmyCount >= MaxSoldiers then exit; //Don't train if we have reached our limit
+  if fPlayers[PlayerIndex].Stats.GetArmyCount >= MaxSoldiers then exit; //Don't train if we have reached our limit
 
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq,SizeOf(GroupReq),#0); //Clear up
@@ -344,14 +344,14 @@ begin
       inc(GroupReq[GroupType], TroopFormations[GroupType].NumUnits - (TKMUnitWarrior(CurrentCommander).GetMemberCount+1));
 
   //Find barracks
-  SetLength(Barracks, fPlayers.Player[PlayerIndex].Stats.GetHouseQty(ht_Barracks));
+  SetLength(Barracks, fPlayers[PlayerIndex].Stats.GetHouseQty(ht_Barracks));
   k := 1;
-  HB := TKMHouseBarracks(fPlayers.Player[PlayerIndex].FindHouse(ht_Barracks,k));
+  HB := TKMHouseBarracks(fPlayers[PlayerIndex].FindHouse(ht_Barracks,k));
   while HB <> nil do
   begin
     Barracks[k-1] := HB;
     inc(k);
-    HB := TKMHouseBarracks(fPlayers.Player[PlayerIndex].FindHouse(ht_Barracks,k));
+    HB := TKMHouseBarracks(fPlayers[PlayerIndex].FindHouse(ht_Barracks,k));
   end;
 
   //Train troops where possible in each barracks
@@ -368,7 +368,7 @@ begin
     for i:=1 to 3 do
       if AITroopTrainOrder[GType,i] <> ut_None then
       while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
-            (fPlayers.Player[PlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
+            (fPlayers[PlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
       begin
         HB.Equip(AITroopTrainOrder[GType,i]);
         dec(GroupReq[GType]);
@@ -401,27 +401,26 @@ var i: integer;
 begin
   TargetHouse := nil;
   TargetUnit  := nil;
-  case aTarget of
-    att_ClosestUnit:
-      for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(fPlayers.Player[PlayerIndex].PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
-          TargetUnit := fPlayers.Player[i].Units.GetClosestUnit(aCommander.GetPosition);
-    att_ClosestBuildingFromArmy:
-      for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(fPlayers.Player[PlayerIndex].PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
-          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_Any, aCommander.GetPosition.X, aCommander.GetPosition.Y);
-    att_ClosestBuildingFromStartPos:
-      for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(fPlayers.Player[PlayerIndex].PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
-          TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_Any, StartPosition.X, StartPosition.Y);
-    att_CustomPosition:
-      for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(fPlayers.Player[PlayerIndex].PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
-        begin
-          if TargetHouse = nil then TargetHouse := fPlayers.Player[i].HousesHitTest(aCustomPos.X, aCustomPos.Y);
-          if TargetUnit  = nil then TargetUnit  := fPlayers.Player[i].UnitsHitTest (aCustomPos.X, aCustomPos.Y);
-        end;
-  end;
+
+  //@Lewin: There's an inconsistency in behavior here. First 3 cases will choose last enemy
+  //Was it made so intentionaly? Should we make it to choose random or actualy closest one instead?
+
+  for i:=0 to fPlayers.Count-1 do
+    if fPlayers.CheckAlliance(fPlayers[PlayerIndex].PlayerID, fPlayers[i].PlayerID) = at_Enemy then
+      case aTarget of
+        att_ClosestUnit:
+            TargetUnit := fPlayers[i].Units.GetClosestUnit(aCommander.GetPosition);
+        att_ClosestBuildingFromArmy:
+            TargetHouse := fPlayers[i].Houses.FindHouse(ht_Any, aCommander.GetPosition.X, aCommander.GetPosition.Y);
+        att_ClosestBuildingFromStartPos:
+            TargetHouse := fPlayers[i].Houses.FindHouse(ht_Any, StartPosition.X, StartPosition.Y);
+        att_CustomPosition:
+            begin
+              if TargetHouse = nil then TargetHouse := fPlayers[i].HousesHitTest(aCustomPos.X, aCustomPos.Y);
+              if TargetUnit  = nil then TargetUnit  := fPlayers[i].UnitsHitTest (aCustomPos.X, aCustomPos.Y);
+            end;
+      end;
+
   if TargetHouse <> nil then
     aCommander.OrderAttackHouse(TargetHouse)
   else if TargetUnit <> nil then
@@ -471,10 +470,10 @@ begin
   end;
 
   //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
-  for i:=0 to fPlayers.Player[PlayerIndex].Units.Count-1 do
+  for i:=0 to fPlayers[PlayerIndex].Units.Count-1 do
   begin
-    if TKMUnit(fPlayers.Player[PlayerIndex].Units.Items[i]) is TKMUnitWarrior then
-      with TKMUnitWarrior(fPlayers.Player[PlayerIndex].Units.Items[i]) do
+    if TKMUnit(fPlayers[PlayerIndex].Units.Items[i]) is TKMUnitWarrior then
+      with TKMUnitWarrior(fPlayers[PlayerIndex].Units.Items[i]) do
         if (fCommander = nil) and not IsDeadOrDying then
         begin
           //If the warrior is busy then skip this group because the AI should not give orders to fighting warriors
@@ -612,7 +611,7 @@ procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 var i: integer;
 begin
   //todo: Idle troops should also retaliate
-  if fPlayers.Player[PlayerIndex].PlayerType = pt_Human then exit;
+  if fPlayers[PlayerIndex].PlayerType = pt_Human then exit;
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for i := 0 to DefencePositionsCount-1 do
     with DefencePositions[i] do
@@ -626,7 +625,7 @@ end;
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
 begin
-  if (MyPlayer=fPlayers.Player[PlayerIndex])and(fPlayers.Player[PlayerIndex].PlayerType=pt_Human) then
+  if (MyPlayer=fPlayers[PlayerIndex])and(fPlayers[PlayerIndex].PlayerType=pt_Human) then
   begin
     if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
     and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
@@ -635,7 +634,7 @@ begin
       fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
-  if fPlayers.Player[PlayerIndex].PlayerType = pt_Computer then
+  if fPlayers[PlayerIndex].PlayerType = pt_Computer then
     RetaliateAgainstThreat(aAttacker);
 end;
 
@@ -643,7 +642,7 @@ end;
 //aUnit is our unit that was attacked
 procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
 begin
-  if (MyPlayer=fPlayers.Player[PlayerIndex])and(fPlayers.Player[PlayerIndex].PlayerType=pt_Human) then
+  if (MyPlayer=fPlayers[PlayerIndex])and(fPlayers[PlayerIndex].PlayerType=pt_Human) then
   begin
     if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
     and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
@@ -655,7 +654,7 @@ begin
       fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
-  if fPlayers.Player[PlayerIndex].PlayerType = pt_Computer then
+  if fPlayers[PlayerIndex].PlayerType = pt_Computer then
   begin
     if aUnit is TKMUnitWarrior then
     begin
@@ -757,8 +756,8 @@ end;
 procedure TKMPlayerAI.UpdateState;
 begin
   //Check goals only for MyPlayer
-  case fPlayers.Player[PlayerIndex].PlayerType of
-    pt_Human:     if (MyPlayer=fPlayers.Player[PlayerIndex]) then
+  case fPlayers[PlayerIndex].PlayerType of
+    pt_Human:     if (MyPlayer=fPlayers[PlayerIndex]) then
                     CheckGoals; //This procedure manages victory, loss and messages all in one
     pt_Computer:  begin
                     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
