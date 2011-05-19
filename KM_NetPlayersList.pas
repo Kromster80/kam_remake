@@ -201,7 +201,7 @@ begin
   fPlayers[fCount].fNikname := aNik;
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fPlayers[fCount].PlayerType := pt_Human;
-  fPlayers[fCount].FlagColorID := 0;
+  fPlayers[fCount].FlagColorID := 0; //todo: Allocate unused color to player
   fPlayers[fCount].StartLocID := 0;
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;
