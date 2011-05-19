@@ -404,19 +404,19 @@ begin
   case aTarget of
     att_ClosestUnit:
       for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
           TargetUnit := fPlayers.Player[i].Units.GetClosestUnit(aCommander.GetPosition);
     att_ClosestBuildingFromArmy:
       for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
           TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_Any, aCommander.GetPosition.X, aCommander.GetPosition.Y);
     att_ClosestBuildingFromStartPos:
       for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
           TargetHouse := fPlayers.Player[i].Houses.FindHouse(ht_Any, StartPosition.X, StartPosition.Y);
     att_CustomPosition:
       for i:=0 to MAX_PLAYERS-1 do
-        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID,TPlayerID(i)) = at_Enemy) then
+        if (fPlayers.Player[i] <> nil) and (fPlayers.CheckAlliance(Assets.PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
         begin
           if TargetHouse = nil then TargetHouse := fPlayers.Player[i].HousesHitTest(aCustomPos.X, aCustomPos.Y);
           if TargetUnit  = nil then TargetUnit  := fPlayers.Player[i].UnitsHitTest (aCustomPos.X, aCustomPos.Y);

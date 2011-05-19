@@ -675,9 +675,11 @@ end;
 procedure TTerrain.RevealWholeMap(PlayerID:TPlayerID);
 var i,k:integer;
 begin
-  if not InRange(byte(PlayerID),0,MAX_PLAYERS-1) then exit;
-  for i:=1 to MapY do for k:=1 to MapX do
-    Land[i,k].FogOfWar[byte(PlayerID)] := FOG_OF_WAR_MAX;
+  if PlayerID in [play_0..play_7] then
+  begin
+    for i:=1 to MapY do for k:=1 to MapX do
+      Land[i,k].FogOfWar[byte(PlayerID)] := FOG_OF_WAR_MAX;
+  end;
 end;
 
 

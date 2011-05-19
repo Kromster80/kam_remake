@@ -133,12 +133,11 @@ end;
 procedure TKMPlayersCollection.RemovePlayer(aIndex:integer);
 var i:integer;
 begin
+  for i:=0 to fCount-1 do
+    Player[i].Goals.RemoveReference(Player[i].PlayerID);
+
   Player[aIndex].Free;
   PlayerAI[aIndex].Free;
-
-  for i:=0 to fCount-1 do
-    if Player[i]<>nil then
-      Player[i].Goals.RemoveReference(TPlayerID(aIndex));
 end;
 
 
