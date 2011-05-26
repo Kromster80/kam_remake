@@ -395,7 +395,9 @@ procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[byte(fOwner)].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-  fTerrain.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
+
+  if fOwner = MyPlayer.PlayerID then
+    MyPlayer.FogOfWar.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -839,7 +841,7 @@ procedure TKMHouse.MakeSound;
 var WorkID,Step:byte;
 begin
   //Do not play sounds if house is invisible to MyPlayer
-  if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
   if fCurrentAction = nil then exit; //no action means no sound ;)
 
   WorkID := fCurrentAction.GetWorkID;
@@ -944,7 +946,9 @@ begin
   inc(WorkAnimStep);
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
-  if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
+  if (fOwner = MyPlayer.PlayerID) then
+  if FlagAnimStep mod 10 = 0 then
+    MyPlayer.FogOfWar.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1054,7 +1058,7 @@ procedure TKMHouseSwineStable.MakeSound;
 var i:byte;
 begin
   Inherited;
-  if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
   for i:=0 to 4 do
     if BeastAge[i+1]>0 then
       if (FlagAnimStep + 20*i) mod 100 = 0 then

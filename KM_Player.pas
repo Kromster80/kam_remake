@@ -3,7 +3,7 @@ unit KM_Player;
 interface
 uses Classes, KromUtils, SysUtils,
       KM_Defaults, KM_Utils,
-      KM_PlayerAI, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals;
+      KM_PlayerAI, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals, KM_FogOfWar;
 
 
 type
@@ -15,13 +15,14 @@ type
   TKMPlayer = class
   private
     fAI:TKMPlayerAI;
-    fBuildList: TKMBuildingQueue;
-    fDeliverList: TKMDeliverQueue;
-    fHouses: TKMHousesCollection;
-    fUnits: TKMUnitsCollection;
+    fBuildList:TKMBuildingQueue;
+    fDeliverList:TKMDeliverQueue;
+    fHouses:TKMHousesCollection;
+    fUnits:TKMUnitsCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
-    fStats: TKMPlayerStats;
-    fGoals: TKMGoals;
+    fStats:TKMPlayerStats;
+    fGoals:TKMGoals;
+    fFogOfWar:TKMFogOfWar; //Stores FOW info for current player, which includes
 
     fPlayerID:TPlayerID; //Which ID this player is
     fPlayerType:TPlayerType;
@@ -47,6 +48,7 @@ type
     property Units:TKMUnitsCollection read fUnits;
     property Stats:TKMPlayerStats read fStats;
     property Goals:TKMGoals read fGoals;
+    property FogOfWar:TKMFogOfWar read fFogOfWar;
 
     property PlayerID:TPlayerID read fPlayerID;
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
@@ -123,6 +125,7 @@ begin
   fPlayerID     := aPlayerID;
   fPlayerType   := pt_Computer;
   fAI           := TKMPlayerAI.Create(PlayerIndex);
+  fFogOfWar     := TKMFogOfWar.Create;
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
@@ -132,6 +135,8 @@ begin
   fBuildList    := TKMBuildingQueue.Create;
   for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
+
+  fFogOfWar.SetMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fSkipWinConditionCheck := false;
   fSkipDefeatConditionCheck := false;
@@ -146,6 +151,7 @@ begin
   FreeThenNil(fHouses);
   FreeThenNil(fStats); //Used by Houses and Units
   FreeThenNil(fGoals);
+  FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
   FreeThenNil(fAI);
@@ -434,6 +440,7 @@ begin
   fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
   fDeliverList.Save(SaveStream);
+  fFogOfWar.Save(SaveStream);
   fGoals.Save(SaveStream);
   fHouses.Save(SaveStream);
   fStats.Save(SaveStream);
@@ -453,6 +460,7 @@ begin
   fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
   fDeliverList.Load(LoadStream);
+  fFogOfWar.Load(LoadStream);
   fGoals.Load(LoadStream);
   fHouses.Load(LoadStream);
   fStats.Load(LoadStream);
@@ -487,6 +495,9 @@ procedure TKMPlayer.UpdateState(Tick,PlayerIndex:cardinal);
 begin
   fUnits.UpdateState;
   fHouses.UpdateState;
+
+  if MyPlayer.PlayerID = PlayerID then
+    fFogOfWar.UpdateState;
 
   //Do only one players AI per Tick
   if (Tick+PlayerIndex) mod 20 = 0 then

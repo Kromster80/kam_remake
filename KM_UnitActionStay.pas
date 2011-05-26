@@ -55,7 +55,7 @@ end;
 procedure TUnitActionStay.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
-  if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
 
   case KMUnit.UnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case GetActionType of

@@ -216,7 +216,7 @@ begin
 
     gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
     gic_TempKillUnit:           P.Units.GetUnitByID(Params[1]).KillUnit;
-    gic_TempRevealMap:          fTerrain.RevealWholeMap(P.PlayerID);
+    gic_TempRevealMap:          MyPlayer.FogOfWar.RevealEverything;
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
     else                        Assert(false);
   end;

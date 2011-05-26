@@ -52,24 +52,24 @@ type
 
 type
   TKMGoals = class
-    private
-      fCount:integer;
-      fGoals:array of TKMGoal;
-      function GetGoal(Index:integer):TKMGoal;
-    public
-      constructor Create;
-      destructor Destroy; override;
+  private
+    fCount:integer;
+    fGoals:array of TKMGoal;
+    function GetGoal(Index:integer):TKMGoal;
+  public
+    constructor Create;
+    destructor Destroy; override;
 
-      property Count:integer read fCount;
-      property Item[Index:integer]:TKMGoal read GetGoal; default;
-      procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
-      procedure RemGoal(aIndex:integer);
-      procedure RemoveReference(aPlayerID:TPlayerID);
-      procedure SetMessageHasShown(aIndex:integer);
+    property Count:integer read fCount;
+    property Item[Index:integer]:TKMGoal read GetGoal; default;
+    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+    procedure RemGoal(aIndex:integer);
+    procedure RemoveReference(aPlayerID:TPlayerID);
+    procedure SetMessageHasShown(aIndex:integer);
 
-      procedure Save(SaveStream:TKMemoryStream);
-      procedure Load(LoadStream:TKMemoryStream);
-    end;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
+  end;
 
 implementation
 
@@ -149,7 +149,7 @@ procedure TKMGoals.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   LoadStream.Read(fCount);
-  setlength(fGoals, fCount);
+  SetLength(fGoals, fCount);
   for i:=0 to fCount-1 do
     LoadStream.Read(fGoals[i], SizeOf(fGoals[i]));
 end;

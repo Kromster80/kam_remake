@@ -636,7 +636,7 @@ end;
 - absolute path, when opening a map from Form1.Menu
 - relative, from Maps folder}
 procedure TKMGame.MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
-var ResultMsg:string; fMissionParser:TMissionParser; i:TPlayerID;
+var ResultMsg:string; fMissionParser:TMissionParser; i:integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
@@ -688,8 +688,8 @@ begin
   fMapEditorInterface.Player_UpdateColors;
   fPlayers.AfterMissionInit(false);
 
-  for i:=Low(TPlayerID) to High(TPlayerID) do //Reveal all players since we'll swap between them in MapEd
-    fTerrain.RevealWholeMap(i);
+  for i:=0 to fPlayers.Count do //Reveal all players since we'll swap between them in MapEd
+    fPlayers[i].FogOfWar.RevealEverything;
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
 

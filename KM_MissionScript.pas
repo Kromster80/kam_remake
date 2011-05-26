@@ -449,9 +449,9 @@ begin
                      end;
   ct_ClearUp:        begin
                      if ParamList[0] = 255 then
-                       fTerrain.RevealWholeMap(fPlayers.Player[CurrentPlayerIndex].PlayerID)
+                       fPlayers.Player[CurrentPlayerIndex].FogOfWar.RevealEverything
                      else
-                       fTerrain.RevealCircle(KMPointX1Y1(ParamList[0],ParamList[1]), ParamList[2], 255, fPlayers.Player[CurrentPlayerIndex].PlayerID);
+                       fPlayers.Player[CurrentPlayerIndex].FogOfWar.RevealCircle(KMPointX1Y1(ParamList[0],ParamList[1]), ParamList[2], 255);
                      end;
   ct_SetHouse:       begin
                      if InRange(ParamList[0],0,HOUSE_COUNT-1) then

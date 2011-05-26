@@ -317,7 +317,7 @@ begin
     glBegin (GL_QUADS);
       with fTerrain do
       for i:=y1 to y2 do for k:=x1 to x2 do
-      if (iW=1) or (CheckTileRevelation(k,i,MyPlayer.PlayerID) > FOG_OF_WAR_ACT) then //No animation in FOW
+      if (iW=1) or (MyPlayer.FogOfWar.CheckTileRevelation(k,i) > FOG_OF_WAR_ACT) then //No animation in FOW
       begin
         xt:=fTerrain.Land[i,k].Terrain; 
 
@@ -412,22 +412,22 @@ begin
     with fTerrain do
     for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
-      glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i)/255));
       glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0,-Land[i+1,k  ].Light,1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1)/255));
       glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0,-Land[i+1,k+1].Light,1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k+1].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1)/255));
       glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i)/255));
       glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord1f(kromutils.max(0, -Land[i  ,k  ].Light, 1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i  ,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i)/255));
       glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0, -Land[i+1,k  ].Light, 1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i+1,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1)/255));
       glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0, -Land[i+1,k+1].Light, 1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i+1,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1)/255));
       glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(kromutils.max(0, -Land[i  ,k+1].Light, 1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i  ,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i)/255));
       glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
@@ -658,7 +658,7 @@ var
   ID:integer;
   ShiftX,ShiftY:single;
 begin
-  FOW:=fTerrain.CheckTileRevelation(round(pX),round(pY),MyPlayer.PlayerID);
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(round(pX),round(pY));
   if FOW <= 128 then exit; //Don't render objects which are behind FOW
 
   case aProj of
@@ -692,7 +692,7 @@ var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
   if MapElem[Index].Count=0 then exit;
 
-  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
   ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
@@ -731,7 +731,7 @@ var FOW:byte;
     if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
   end;
 begin
-  FOW := fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY);
   if FOW <=128 then AnimStep:=0; //Stop animation
 
   AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  , -0.4);
@@ -1145,7 +1145,7 @@ begin
       P.Y:=round(RenderList[i].Obj.Y);
     end;
     //RenderQuad(P.X,P.Y);
-    RenderList[i].FOWvalue := fTerrain.CheckTileRevelation(P.X,P.Y,MyPlayer.PlayerID);
+    RenderList[i].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(P.X,P.Y);
     if (RenderList[i].FOWvalue <= 128) and RenderList[i].IsUnit then
       RO[i] := 0;
   end else begin
@@ -1231,7 +1231,7 @@ begin
     else exit;  //WTF?
   end;
 
-  FOW := fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY);
 
   glColor3ub(FOW,FOW,FOW);
   glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
@@ -1274,11 +1274,11 @@ begin
     b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
     t:=GFXData[4,ID].PxWidth/CELL_SIZE_PX; //Height of border
     glBegin(GL_QUADS);
-      FOW:=fTerrain.CheckVerticeRevelation(pX,pY,MyPlayer.PlayerID);
+      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY);
       glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      FOW:=fTerrain.CheckVerticeRevelation(pX+1,pY,MyPlayer.PlayerID);
+      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX+1,pY);
       glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
@@ -1291,11 +1291,11 @@ begin
     b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2 * (HeightInPx / GFXData[4,ID].PxHeight);
     t:=GFXData[4,ID].PxWidth/CELL_SIZE_PX; //Width of border
     glBegin(GL_QUADS);
-      FOW:=fTerrain.CheckVerticeRevelation(pX,pY,MyPlayer.PlayerID);
+      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY);
       glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      FOW:=fTerrain.CheckVerticeRevelation(pX,pY+1,MyPlayer.PlayerID);
+      FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY+1);
       glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
@@ -1363,7 +1363,7 @@ begin
       end;
 
       //Forbid planning on unrevealed areas
-      AllowBuild := AllowBuild and (fTerrain.CheckTileRevelation(P2.X,P2.Y,MyPlayer.PlayerID) > 0);
+      AllowBuild := AllowBuild and (MyPlayer.FogOfWar.CheckTileRevelation(P2.X,P2.Y) > 0);
 
       //Check surrounding tiles in +/- 1 range for other houses pressence
       if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
@@ -1402,7 +1402,7 @@ end;
 procedure TRender.RenderCursorHighlights;
   function TileVisible:boolean;
   begin //Shortcut function
-    Result := fTerrain.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y,MyPlayer.PlayerID) > 0;
+    Result := MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y) > 0;
   end;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
