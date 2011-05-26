@@ -13,7 +13,7 @@ type
     fCount:byte;
     fPlayerList:TList;
     fPlayerAnimals:TKMPlayerAnimals;
-    function GetPlayer(Index:integer):TKMPlayerAssets;
+    function GetPlayer(Index:integer):TKMPlayer;
   public
     Selected: TObject;
   public
@@ -21,7 +21,7 @@ type
     destructor Destroy; override;
 
     property Count:byte read fCount;
-    property Player[Index:integer]:TKMPlayerAssets read GetPlayer; default;
+    property Player[Index:integer]:TKMPlayer read GetPlayer; default;
     property PlayerAnimals:TKMPlayerAnimals read fPlayerAnimals;
 
     procedure AddPlayers(aCount:byte); //Batch add several players
@@ -55,7 +55,7 @@ type
 
 var
   fPlayers: TKMPlayersCollection;
-  MyPlayer: TKMPlayerAssets; //shortcut to access players player
+  MyPlayer: TKMPlayer; //shortcut to access players player
 
 
 implementation
@@ -86,10 +86,10 @@ begin
 end;
 
 
-function TKMPlayersCollection.GetPlayer(Index:integer):TKMPlayerAssets;
+function TKMPlayersCollection.GetPlayer(Index:integer):TKMPlayer;
 begin
   Assert(Index < fCount);
-  Result := TKMPlayerAssets(fPlayerList[Index]);
+  Result := TKMPlayer(fPlayerList[Index]);
 end;
 
 
@@ -100,7 +100,7 @@ begin
 
   for i:=fCount to fCount+aCount-1 do
   begin
-    fPlayerList.Add(TKMPlayerAssets.Create(TPlayerID(i), i));
+    fPlayerList.Add(TKMPlayer.Create(TPlayerID(i), i));
     inc(fCount);
   end;
 end;
@@ -346,7 +346,7 @@ begin
 
   for i:=0 to fCount-1 do
   begin
-    fPlayerList.Add(TKMPlayerAssets.Create(play_none, 0));
+    fPlayerList.Add(TKMPlayer.Create(play_none, 0));
     Player[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);

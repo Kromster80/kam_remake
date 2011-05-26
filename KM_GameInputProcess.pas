@@ -173,7 +173,7 @@ end;
 
 
 procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
-var H:TKMHouse; P:TKMPlayerAssets;
+var H:TKMHouse; P:TKMPlayer;
 begin
   P := fPlayers.Player[byte(aCommand.PlayerID)];
   with aCommand do
