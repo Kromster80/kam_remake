@@ -114,16 +114,14 @@ begin
            Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
          end;
        end;
-    2: if fFightType=ft_Ranged then begin
+    2: begin
          //Let the house know it is being attacked
-         fPlayers.PlayerAI[byte(fHouse.GetOwner)].HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
-         SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0); //Start shooting
+         fPlayers.Player[byte(fHouse.GetOwner)].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := true;
-       end else begin
-         //Let the house know it is being attacked
-         fPlayers.PlayerAI[byte(fHouse.GetOwner)].HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
-         SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
-         fDestroyingHouse := true;
+         case fFightType of
+           ft_Ranged: SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0); //Start shooting
+           ft_Melee:  SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
+         end;
        end;
     3: begin
          if fFightType=ft_Ranged then begin //Launch the missile and forget about it

@@ -384,8 +384,9 @@ begin
   else
   begin
     fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
-    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS);
-    MyPlayer := fPlayers.Player[1];
+    fPlayers := TKMPlayersCollection.Create;
+    fPlayers.AddPlayers(MAX_PLAYERS);
+    MyPlayer := fPlayers.Player[0];
   end;
 
   fPlayers.AfterMissionInit(true);
@@ -418,7 +419,7 @@ var
   i:integer;
   fMissionParser:TMissionParser;
   PlayerID:integer;
-  PlayerUsed:array[1..MAX_PLAYERS]of boolean;
+  PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
   GameInit(true);
 
@@ -458,20 +459,20 @@ begin
   fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
   //Initilise
-  for i:=1 to fPlayers.Count do
+  for i:=0 to fPlayers.Count-1 do
     PlayerUsed[i] := false;
 
-  //Assign existing NetPlayers to map players
+  //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
   begin
-    PlayerID := fNetworking.NetPlayers[i].StartLocID;
+    PlayerID := fNetworking.NetPlayers[i].StartLocID - 1; //PlayerID is 0 based
     fPlayers.Player[PlayerID].PlayerType := fNetworking.NetPlayers[i].PlayerType;
     fPlayers.Player[PlayerID].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
     PlayerUsed[PlayerID] := true;
   end;
 
   //Clear remaining players
-  for i:=1 to fPlayers.Count do
+  for i:=0 to fPlayers.Count-1 do
     if not PlayerUsed[i] then
       fPlayers.RemovePlayer(i);
 
@@ -635,7 +636,7 @@ end;
 - absolute path, when opening a map from Form1.Menu
 - relative, from Maps folder}
 procedure TKMGame.MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
-var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
+var ResultMsg:string; fMissionParser:TMissionParser; i:integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
@@ -672,13 +673,14 @@ begin
       exit;
     end;
     FreeAndNil(fMissionParser);
-    fPlayers.Count := MAX_PLAYERS; //Enable them all for editing
+    fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
     fLog.AppendLog('DAT Loaded');
     fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
-    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS); //Create MAX players
-    MyPlayer := fPlayers.Player[1];
+    fPlayers := TKMPlayersCollection.Create;
+    fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
+    MyPlayer := fPlayers.Player[0];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
     fGameName := 'New Mission';
   end;
@@ -686,8 +688,8 @@ begin
   fMapEditorInterface.Player_UpdateColors;
   fPlayers.AfterMissionInit(false);
 
-  for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
-    fTerrain.RevealWholeMap(TPlayerID(i));
+  for i:=0 to fPlayers.Count do //Reveal all players since we'll swap between them in MapEd
+    fPlayers[i].FogOfWar.RevealEverything;
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
 
@@ -925,8 +927,7 @@ begin
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
-    fPlayers := TKMPlayersCollection.Create(MAX_PLAYERS);
-    MyPlayer := fPlayers.Player[1];
+    fPlayers := TKMPlayersCollection.Create;
 
     //Load the data into the game
     fTerrain.Load(LoadStream);

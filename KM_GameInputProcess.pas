@@ -173,7 +173,7 @@ end;
 
 
 procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
-var H:TKMHouse; P:TKMPlayerAssets;
+var H:TKMHouse; P:TKMPlayer;
 begin
   P := fPlayers.Player[byte(aCommand.PlayerID)];
   with aCommand do
@@ -216,7 +216,7 @@ begin
 
     gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
     gic_TempKillUnit:           P.Units.GetUnitByID(Params[1]).KillUnit;
-    gic_TempRevealMap:          fTerrain.RevealWholeMap(P.PlayerID);
+    gic_TempRevealMap:          MyPlayer.FogOfWar.RevealEverything;
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
     else                        Assert(false);
   end;
@@ -393,6 +393,7 @@ end;
 procedure TGameInputProcess.StoreCommand(aCommand: TGameInputCommand);
 begin
   //Store the command for the replay
+  //todo: Allow and mute gic_TempChangeMyPlayer when viewing replay
   Assert(ReplayState=gipRecording);
   inc(fCount);
   if length(fQueue) <= fCount then setlength(fQueue, fCount+128);

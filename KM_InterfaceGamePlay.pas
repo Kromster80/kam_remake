@@ -2294,13 +2294,15 @@ begin
 
   if fShownUnit is TKMUnitWarrior then
   begin
-    if (fTerrain.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, MyPlayer.PlayerID)>0) then begin
+    if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y)>0) then
+    begin
       U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       if ((U<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Enemy)) or
          ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Enemy)) then
         Screen.Cursor := c_Attack
-      else if not fViewport.Scrolling then
+      else
+      if not fViewport.Scrolling then
         Screen.Cursor := c_Default;
     end;
     exit;

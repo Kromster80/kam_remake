@@ -3,7 +3,7 @@ unit KM_Player;
 interface
 uses Classes, KromUtils, SysUtils,
       KM_Defaults, KM_Utils,
-      KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals;
+      KM_PlayerAI, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals, KM_FogOfWar;
 
 
 type
@@ -12,21 +12,22 @@ type
         pt_Computer);
 
 
-type
-  TKMPlayerAssets = class
+  TKMPlayer = class
   private
-    fBuildList: TKMBuildingQueue;
-    fDeliverList: TKMDeliverQueue;
-    fHouses: TKMHousesCollection;
-    fUnits: TKMUnitsCollection;
+    fAI:TKMPlayerAI;
+    fBuildList:TKMBuildingQueue;
+    fDeliverList:TKMDeliverQueue;
+    fHouses:TKMHousesCollection;
+    fUnits:TKMUnitsCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
-    fStats: TKMPlayerStats;
-    fGoals: TKMGoals;
+    fStats:TKMPlayerStats;
+    fGoals:TKMGoals;
+    fFogOfWar:TKMFogOfWar; //Stores FOW info for current player, which includes
 
     fPlayerID:TPlayerID; //Which ID this player is
     fPlayerType:TPlayerType;
     fFlagColor:cardinal;
-    fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
+    fAlliances: array[0..MAX_PLAYERS-1] of TAllianceType;
 
     fSkipWinConditionCheck:boolean;
     fSkipDefeatConditionCheck:boolean;
@@ -37,15 +38,17 @@ type
     procedure SetAlliances(Index:integer; aValue:TAllianceType);
   public
 
-    constructor Create(aPlayerID:TPlayerID);
+    constructor Create(aPlayerID:TPlayerID; PlayerIndex:integer);
     destructor Destroy; override;
 
+    property AI:TKMPlayerAI read fAI;
     property BuildList:TKMBuildingQueue read fBuildList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
     property Units:TKMUnitsCollection read fUnits;
     property Stats:TKMPlayerStats read fStats;
     property Goals:TKMGoals read fGoals;
+    property FogOfWar:TKMFogOfWar read fFogOfWar;
 
     property PlayerID:TPlayerID read fPlayerID;
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
@@ -57,7 +60,6 @@ type
     procedure SkipWinConditionCheck;
     procedure SkipDefeatConditionCheck;
 
-  public
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
@@ -79,17 +81,16 @@ type
 
     function GetHouseWip(aType:THouseType):integer;
     function GetFieldsCount:integer;
-  public
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
     procedure IncAnimStep;
-    procedure UpdateState;
+    procedure UpdateState(Tick,PlayerIndex:cardinal);
     procedure Paint;
   end;
 
 
-type
   TKMPlayerAnimals = class
   private
     fUnits: TKMUnitsCollection;
@@ -117,12 +118,14 @@ uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
 
 
 { TKMPlayerAssets }
-constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
+constructor TKMPlayer.Create(aPlayerID:TPlayerID; PlayerIndex:integer);
 var i: integer;
 begin
   Inherited Create;
   fPlayerID     := aPlayerID;
   fPlayerType   := pt_Computer;
+  fAI           := TKMPlayerAI.Create(PlayerIndex);
+  fFogOfWar     := TKMFogOfWar.Create;
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
@@ -130,29 +133,33 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
-  for i:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
+
+  fFogOfWar.SetMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fSkipWinConditionCheck := false;
   fSkipDefeatConditionCheck := false;
-  fFlagColor := DefaultTeamColors[byte(aPlayerID)]; //Init with default color, later replaced by Script
+  fFlagColor := DefaultTeamColors[aPlayerID]; //Init with default color, later replaced by Script
 end;
 
 
-destructor TKMPlayerAssets.Destroy;
+destructor TKMPlayer.Destroy;
 begin
   FreeThenNil(fRoadsList);
   FreeThenNil(fUnits);
   FreeThenNil(fHouses);
   FreeThenNil(fStats); //Used by Houses and Units
   FreeThenNil(fGoals);
+  FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
+  FreeThenNil(fAI);
   Inherited;
 end;
 
 
-function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false):TKMUnit;
+function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false):TKMUnit;
 begin
   //Animals must get redirected to animal player
   if aUnitType in [ut_Wolf..ut_Duck] then
@@ -169,27 +176,27 @@ end;
 
 //Start training unit in school/barracks
 //User can cancel the training, so we don't add unit to stats just yet
-function TKMPlayerAssets.TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
+function TKMPlayer.TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
 begin
   Result := fUnits.Add(fPlayerID, aUnitType, Position.X, Position.Y, false);
   //Do not add unit to statistic just yet, wait till it's training complete
 end;
 
 
-function TKMPlayerAssets.AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+function TKMPlayer.AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 begin
   Result := fUnits.AddGroup(fPlayerID, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
   //Add unit to statistic inside the function for some units may not fit on map
 end;
 
 
-function TKMPlayerAssets.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace:boolean):TKMHouse;
+function TKMPlayer.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace:boolean):TKMHouse;
 begin
   Result := fHouses.AddHouse(aHouseType, PosX, PosY, fPlayerID, RelativeEntrace);
 end;
 
 
-procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint);
+procedure TKMPlayer.AddRoad(aLoc: TKMPoint);
 begin
   //if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
   //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
@@ -199,7 +206,7 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddRoadsToList(aLoc: TKMPoint);
+procedure TKMPlayer.AddRoadsToList(aLoc: TKMPoint);
 begin
   if fRoadsList=nil then exit;
   fRoadsList.AddEntry(aLoc);
@@ -207,7 +214,7 @@ end;
 
 
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
-procedure TKMPlayerAssets.AfterMissionInit(aFlattenRoads:boolean);
+procedure TKMPlayer.AfterMissionInit(aFlattenRoads:boolean);
 begin
   if fRoadsList<>nil then begin
     fTerrain.SetRoads(fRoadsList,fPlayerID);
@@ -217,14 +224,14 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddField(aLoc: TKMPoint; aFieldType:TFieldType);
+procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType:TFieldType);
 begin
   fTerrain.SetField(aLoc,fPlayerID,aFieldType);
 end;
 
 
 {DoSilent means that there will be no sound when markup is placed, needed e.g. when script used}
-procedure TKMPlayerAssets.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
+procedure TKMPlayer.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
 begin
   if not fTerrain.CanPlaceRoad(aLoc,aMarkup,PlayerRevealID) then
   begin
@@ -246,7 +253,7 @@ end;
 
 
 //Used mainly for testing purposes
-procedure TKMPlayerAssets.AddRoadConnect(LocA,LocB:TKMPoint);
+procedure TKMPlayer.AddRoadConnect(LocA,LocB:TKMPoint);
 var fPath:TPathFinding; i:integer; NodeList:TKMPointList;
 begin
   fPath := TPathFinding.Create(LocA, LocB, CanMakeRoads, 0, nil);
@@ -261,7 +268,7 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
+procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var KMHouse:TKMHouse; Loc:TKMPoint;
 begin
   Loc.X := aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
@@ -273,7 +280,7 @@ end;
 
 
 //Player wants to remove own house
-function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+function TKMPlayer.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
 var fHouse:TKMHouse;
 begin
   Result := BuildList.CancelHousePlan(Position,Simulated);
@@ -290,7 +297,7 @@ begin
 end;
 
 
-function TKMPlayerAssets.RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+function TKMPlayer.RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
 var FoundUnit:TKMUnit;
 begin
   Result := false;
@@ -304,7 +311,7 @@ begin
 end;
 
 
-function TKMPlayerAssets.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
+function TKMPlayer.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
 begin
   Result := BuildList.CancelRoad(Position,Simulated);
   if (Result) and (not Simulated) then
@@ -315,19 +322,19 @@ begin
 end;
 
 
-function TKMPlayerAssets.FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
+function TKMPlayer.FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
 begin
   Result := fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
 end;
 
 
-function TKMPlayerAssets.FindHouse(aType:THouseType; const Index:byte=1): TKMHouse;
+function TKMPlayer.FindHouse(aType:THouseType; const Index:byte=1): TKMHouse;
 begin
   Result := fHouses.FindHouse(aType, 0, 0, Index);
 end;
 
 
-function TKMPlayerAssets.FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
+function TKMPlayer.FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
 var
   H: TKMHouseInn;
   i: integer;
@@ -360,19 +367,19 @@ begin
 end;
 
 
-function TKMPlayerAssets.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+function TKMPlayer.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 begin
   Result:= fUnits.HitTest(X, Y, UT);
 end;
 
 
-function TKMPlayerAssets.HousesHitTest(X, Y: Integer): TKMHouse;
+function TKMPlayer.HousesHitTest(X, Y: Integer): TKMHouse;
 begin
   Result:= fHouses.HitTest(X, Y);
 end;
 
 
-function TKMPlayerAssets.GetColorIndex:byte;
+function TKMPlayer.GetColorIndex:byte;
 var i:integer;
 begin
   Result := 3; //3 = Black which can be the default when a non-pallete 32 bit color value is used
@@ -382,19 +389,19 @@ begin
 end;
 
 
-function  TKMPlayerAssets.GetAlliances(Index:integer):TAllianceType;
+function  TKMPlayer.GetAlliances(Index:integer):TAllianceType;
 begin
   Result := fAlliances[Index];
 end;
 
 
-procedure TKMPlayerAssets.SetAlliances(Index:integer; aValue:TAllianceType);
+procedure TKMPlayer.SetAlliances(Index:integer; aValue:TAllianceType);
 begin
   fAlliances[Index] := aValue;
 end;
 
 
-function TKMPlayerAssets.GetHouseWip(aType:THouseType):integer;
+function TKMPlayer.GetHouseWip(aType:THouseType):integer;
 begin
   //todo: Count houses that are being dug (don't appear in build list)
   Result := fBuildList.GetHouseWipCount(aType);
@@ -405,7 +412,7 @@ end;
   Queried by MapEditor>SaveDAT;
   Might also be used to show Players strength (or builder/warrior balance) in Tavern
   If Player has none and no Units/Houses we can assume it's empty and does not needs to be saved }
-function TKMPlayerAssets.GetFieldsCount:integer;
+function TKMPlayer.GetFieldsCount:integer;
 var i,k:integer;
 begin
   Result := 0;
@@ -416,26 +423,28 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.SkipWinConditionCheck;
+procedure TKMPlayer.SkipWinConditionCheck;
 begin
   fSkipWinConditionCheck := true;
 end;
 
 
-procedure TKMPlayerAssets.SkipDefeatConditionCheck;
+procedure TKMPlayer.SkipDefeatConditionCheck;
 begin
   fSkipDefeatConditionCheck := true;
 end;
 
 
-procedure TKMPlayerAssets.Save(SaveStream:TKMemoryStream);
+procedure TKMPlayer.Save(SaveStream:TKMemoryStream);
 begin
-  fUnits.Save(SaveStream);
-  fHouses.Save(SaveStream);
-  fDeliverList.Save(SaveStream);
+  fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
-  fStats.Save(SaveStream);
+  fDeliverList.Save(SaveStream);
+  fFogOfWar.Save(SaveStream);
   fGoals.Save(SaveStream);
+  fHouses.Save(SaveStream);
+  fStats.Save(SaveStream);
+  fUnits.Save(SaveStream);
 
   SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
@@ -446,14 +455,16 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.Load(LoadStream:TKMemoryStream);
+procedure TKMPlayer.Load(LoadStream:TKMemoryStream);
 begin
-  fUnits.Load(LoadStream);
-  fHouses.Load(LoadStream);
-  fDeliverList.Load(LoadStream);
+  fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
-  fStats.Load(LoadStream);
+  fDeliverList.Load(LoadStream);
+  fFogOfWar.Load(LoadStream);
   fGoals.Load(LoadStream);
+  fHouses.Load(LoadStream);
+  fStats.Load(LoadStream);
+  fUnits.Load(LoadStream);
 
   LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
@@ -464,29 +475,37 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.SyncLoad;
+procedure TKMPlayer.SyncLoad;
 begin
   fUnits.SyncLoad;
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
   fBuildList.SyncLoad;
+  fAI.SyncLoad;
 end;
 
 
-procedure TKMPlayerAssets.IncAnimStep;
+procedure TKMPlayer.IncAnimStep;
 begin
   fHouses.IncAnimStep;
 end;
 
 
-procedure TKMPlayerAssets.UpdateState;
+procedure TKMPlayer.UpdateState(Tick,PlayerIndex:cardinal);
 begin
   fUnits.UpdateState;
   fHouses.UpdateState;
+
+  if MyPlayer.PlayerID = PlayerID then
+    fFogOfWar.UpdateState;
+
+  //Do only one players AI per Tick
+  if (Tick+PlayerIndex) mod 20 = 0 then
+    fAI.UpdateState;
 end;
 
 
-procedure TKMPlayerAssets.Paint;
+procedure TKMPlayer.Paint;
 begin
   fUnits.Paint;
   fHouses.Paint;

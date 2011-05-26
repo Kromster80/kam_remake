@@ -52,9 +52,6 @@ TTerrain = class
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
-
-      //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
-      FogOfWar:array[1..8]of byte;
     end;
 
     FallingTrees: TKMPointTagList;
@@ -163,10 +160,6 @@ TTerrain = class
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
     function FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
 
-    procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
-    procedure RevealWholeMap(PlayerID:TPlayerID);
-    function CheckVerticeRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
-    function CheckTileRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
     procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     procedure FlattenTerrain(Loc:TKMPoint); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
@@ -247,7 +240,6 @@ begin
     BorderLeft   := false;
     BorderBottom := false;
     BorderRight  := false;
-    FillChar(FogOfWar, SizeOf(FogOfWar), #0);
   end;
 
   RebuildLighting(1,MapX,1,MapY);
@@ -656,64 +648,6 @@ begin
 
   Result := Options.GetRandom;
   Options.Free;
-end;
-
-
-{Reveal circle on map}
-{Amount controls how "strong" terrain is revealed, almost instantly or slowly frame-by-frame in multiple calls}
-procedure TTerrain.RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
-var i,k:integer;
-begin
-  for i:=max(Pos.Y-Radius,2) to min(Pos.Y+Radius,MapY-1) do //Keep map edges unrevealed
-  for k:=max(Pos.X-Radius,2) to min(Pos.X+Radius,MapX-1) do
-  if sqrt(sqr(Pos.x-k) + sqr(Pos.y-i)) <= Radius then
-    Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,FOG_OF_WAR_MAX);
-end;
-
-
-{Reveal whole map to max value}
-procedure TTerrain.RevealWholeMap(PlayerID:TPlayerID);
-var i,k:integer;
-begin
-  if not InRange(byte(PlayerID),1,8) then exit;
-  for i:=1 to MapY do for k:=1 to MapX do
-    Land[i,k].FogOfWar[byte(PlayerID)] := FOG_OF_WAR_MAX;
-end;
-
-
-{Check if requested vertice is revealed for given player}
-{Return value of revelation is 0..255}
-//0 unrevealed, 255 revealed completely
-function TTerrain.CheckVerticeRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
-begin
-  //I like how "alive" fog looks with some tweaks
-  //pulsating around units and slowly thickening when they leave :)
-  if FOG_OF_WAR_ENABLE then
-    if (Land[Y,X].FogOfWar[byte(PlayerID)] >= FOG_OF_WAR_ACT) then
-      Result := 255
-    else
-      Result := (Land[Y,X].FogOfWar[byte(PlayerID)] shl 8) div FOG_OF_WAR_ACT
-  else
-    if (Land[Y,X].FogOfWar[byte(PlayerID)] >= FOG_OF_WAR_MIN) then
-      Result := 255
-    else
-      Result := 0;
-end;
-
-
-{Check if requested tile is revealed for given player}
-{Return value of revelation is 0..255}
-//0 unrevealed, 255 revealed completely
-function TTerrain.CheckTileRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
-begin
-  //Check all four corners and choose max
-  Result := CheckVerticeRevelation(X,Y,PlayerID);
-  if Result = 255 then exit;
-  if TileInMapCoords(X+1,Y) then Result := max(Result, CheckVerticeRevelation(X+1,Y,PlayerID));
-  if Result = 255 then exit;
-  if TileInMapCoords(X+1,Y+1) then Result := max(Result, CheckVerticeRevelation(X+1,Y+1,PlayerID));
-  if Result = 255 then exit;
-  if TileInMapCoords(X,Y+1) then Result := max(Result, CheckVerticeRevelation(X,Y+1,PlayerID));
 end;
 
 
@@ -2060,7 +1994,7 @@ Result:=true;
       end;
 
       if PlayerRevealID <> play_none then
-        Result := Result AND (CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
+        Result := Result AND (MyPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4) > 0);
     end;
 end;
 
@@ -2102,7 +2036,7 @@ begin
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
   if PlayerRevealID <> play_none then
-    Result := Result AND (CheckTileRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0); //We check tile revelation to place a tile-based markup, right?
+    Result := Result AND (MyPlayer.FogOfWar.CheckTileRevelation(Loc.X,Loc.Y) > 0); //We check tile revelation to place a tile-based markup, right?
 end;
 
 
@@ -2362,7 +2296,7 @@ procedure TTerrain.RefreshMinimapData;
 var i,k,ID:integer; Light:smallint; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
-    FOW := fTerrain.CheckTileRevelation(k,i,MyPlayer.PlayerID);
+    FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i);
     if FOW = 0 then
       MiniMapRGB[i,k] := 0
     else
@@ -2377,17 +2311,17 @@ begin
   end;
 
   Loc := TKMPointList.Create;
-  for i:=1 to fPlayers.Count do
+  for i:=0 to fPlayers.Count-1 do
   if fPlayers.Player[i]<>nil then begin
     fPlayers.Player[i].Units.GetLocations(Loc);
     for k:=1 to Loc.Count do
-    if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
+    if (MyPlayer.FogOfWar.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y)=255) then
       MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := fPlayers.Player[i].FlagColor;
   end;
 
   fPlayers.PlayerAnimals.Units.GetLocations(Loc, ut_Fish);
   for k:=1 to Loc.Count do
-  if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
+  if (MyPlayer.FogOfWar.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y)=255) then
     MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := $FF4444;
 
   Loc.Free;
@@ -2427,8 +2361,7 @@ begin
     else
       SaveStream.Write(Zero);
     SaveStream.Write(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
-    SaveStream.Write(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
-  end;       
+  end;
 end;
 
 
@@ -2456,7 +2389,6 @@ begin
     LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
     LoadStream.Read(Land[i,k].IsUnit, 4);
     LoadStream.Read(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
-    LoadStream.Read(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
   end;
 
   for i:=1 to MapY do for k:=1 to MapX do
@@ -2501,46 +2433,42 @@ begin
   if (i*MapX+k+fAnimStep) mod TERRAIN_PACE = 0 then
   begin
 
-    if FOG_OF_WAR_ENABLE then
-    for h:=1 to 1 do //Decrease FOW only for these players?
-      if Land[i,k].FogOfWar[h] > FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h], FOG_OF_WAR_DEC);
-
-      if InRange(Land[i,k].FieldAge,1,65534) then
-      begin
-        inc(Land[i,k].FieldAge);
-        if TileIsCornField(KMPoint(k,i)) then
-          case Land[i,k].FieldAge of
-            CORN_AGE1: SetLand(k,i,61,255);
-            CORN_AGE2: SetLand(k,i,59,255);
-            CORN_AGE3: SetLand(k,i,60,58);
-            CORN_AGEFULL: begin SetLand(k,i,60,59); Land[i,k].FieldAge:=65535; end; //Skip to the end
-          end
-        else
-        if TileIsWineField(KMPoint(k,i)) then
-          case Land[i,k].FieldAge of
-            WINE_AGE1: SetLand(k,i,55,54); //54=naked weeds
-            WINE_AGE2: SetLand(k,i,55,55);
-            WINE_AGE3: SetLand(k,i,55,56);
-            WINE_AGEFULL: begin SetLand(k,i,55,57); Land[i,k].FieldAge:=65535; end;//Skip to the end
-          end;
-      end;
-
-      if InRange(Land[i,k].TreeAge,1,TreeAgeFull) then
-      begin
-        inc(Land[i,k].TreeAge);
-        if (Land[i,k].TreeAge=TreeAge1)or(Land[i,k].TreeAge=TreeAge2)or
-           (Land[i,k].TreeAge=TreeAgeFull) then //Speedup
-        for h:=1 to length(ChopableTrees) do
-          for j:=1 to 3 do
-            if Land[i,k].Obj=ChopableTrees[h,j] then
-              case Land[i,k].TreeAge of
-                TreeAge1:    Land[i,k].Obj:=ChopableTrees[h,2];
-                TreeAge2:    Land[i,k].Obj:=ChopableTrees[h,3];
-                TreeAgeFull: Land[i,k].Obj:=ChopableTrees[h,4];
-              end;
-      end;
-
+    if InRange(Land[i,k].FieldAge,1,65534) then
+    begin
+      inc(Land[i,k].FieldAge);
+      if TileIsCornField(KMPoint(k,i)) then
+        case Land[i,k].FieldAge of
+          CORN_AGE1: SetLand(k,i,61,255);
+          CORN_AGE2: SetLand(k,i,59,255);
+          CORN_AGE3: SetLand(k,i,60,58);
+          CORN_AGEFULL: begin SetLand(k,i,60,59); Land[i,k].FieldAge:=65535; end; //Skip to the end
+        end
+      else
+      if TileIsWineField(KMPoint(k,i)) then
+        case Land[i,k].FieldAge of
+          WINE_AGE1: SetLand(k,i,55,54); //54=naked weeds
+          WINE_AGE2: SetLand(k,i,55,55);
+          WINE_AGE3: SetLand(k,i,55,56);
+          WINE_AGEFULL: begin SetLand(k,i,55,57); Land[i,k].FieldAge:=65535; end;//Skip to the end
+        end;
     end;
+
+    if InRange(Land[i,k].TreeAge,1,TreeAgeFull) then
+    begin
+      inc(Land[i,k].TreeAge);
+      if (Land[i,k].TreeAge=TreeAge1)or(Land[i,k].TreeAge=TreeAge2)or
+         (Land[i,k].TreeAge=TreeAgeFull) then //Speedup
+      for h:=1 to length(ChopableTrees) do
+        for j:=1 to 3 do
+          if Land[i,k].Obj=ChopableTrees[h,j] then
+            case Land[i,k].TreeAge of
+              TreeAge1:    Land[i,k].Obj:=ChopableTrees[h,2];
+              TreeAge2:    Land[i,k].Obj:=ChopableTrees[h,3];
+              TreeAgeFull: Land[i,k].Obj:=ChopableTrees[h,4];
+            end;
+    end;
+
+  end;
 end;
 
 

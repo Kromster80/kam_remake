@@ -30,10 +30,10 @@ type
     fDelay:word; //How many ticks ahead the commands are scheduled
 
     //Each player can have any number of commands scheduled for execution in one tick
-    fSchedule:array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of TCommandsPack; //Ring buffer
+    fSchedule:array[0..MAX_SCHEDULE-1, 0..MAX_PLAYERS-1] of TCommandsPack; //Ring buffer
 
     //All players must confirm they have recieved our GIPList
-    fConfirmation:array[0..MAX_SCHEDULE-1, 1..MAX_PLAYERS] of boolean; //Ring buffer
+    fConfirmation:array[0..MAX_SCHEDULE-1, 0..MAX_PLAYERS-1] of boolean; //Ring buffer
 
     //Mark commands we've already sent to other players
     fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
@@ -119,7 +119,7 @@ begin
   fDelay := 10; //1sec
 
   //Allocate memory for all commands packs
-  for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
     fSchedule[i,k] := TCommandsPack.Create;
 end;
 
@@ -127,7 +127,7 @@ end;
 destructor TGameInputProcess_Multi.Destroy;
 var i,k:integer;
 begin
-  for i:=0 to MAX_SCHEDULE-1 do for k:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
     fSchedule[i,k].Free;
   Inherited;
 end;
@@ -241,7 +241,7 @@ begin
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
 
   //Execute commands, in order players go (1,2,3..)
-  for i:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_PLAYERS-1 do
     for k:=1 to fSchedule[Tick, i].Count do
     begin
       //if fNetworking.NetPlayers[i].Alive then //todo: Skip dead players

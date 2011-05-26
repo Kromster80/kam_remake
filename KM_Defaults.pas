@@ -913,7 +913,7 @@ type
 const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
 type
-  TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8, play_animals=9);
+  TPlayerID = (play_none=-1, play_0=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_animals);
 
 
   TSoundFX = (
@@ -1201,7 +1201,9 @@ const
   3,   //Black
   3,   //Black
   255  //White}
-  DefaultTeamColors:array[1..MAX_PLAYERS+1]of cardinal = (
+  DefaultTeamColors:array[TPlayerID]of cardinal = (
+  $00000000, //None
+
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
   $FF27A700, //Green
@@ -1210,6 +1212,7 @@ const
   $FF577B7B, //Grey
   $FF000000, //Black
   $FF000000, //Black
+
   $FFFFFFFF //White, used for highlighting army flag on selection, team_animals
   );
 

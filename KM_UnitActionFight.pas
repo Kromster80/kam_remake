@@ -91,7 +91,7 @@ end;
 procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
-  if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
   
   case KMUnit.UnitType of
     ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition); //Aiming
@@ -164,11 +164,11 @@ begin
 
   if Step = 1 then
   begin
-    //Tell our opponent we are attacking them
-    fPlayers.PlayerAI[byte(fOpponent.GetOwner)].UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
+    //Tell the Opponent we are attacking him
+    fPlayers.Player[byte(fOpponent.GetOwner)].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
+
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
-    if (fOpponent is TKMUnitWarrior) and (TKMUnitWarrior(KMUnit).GetFightMaxRange < 2) then
-      fPlayers.PlayerAI[byte(KMUnit.GetOwner)].RetaliateAgainstThreat(TKMUnitWarrior(fOpponent));
+    fPlayers.Player[byte(KMUnit.GetOwner)].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2 then begin

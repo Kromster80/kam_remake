@@ -54,7 +54,7 @@ end;
 function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerID; MakeSound:boolean):word;
 var i:integer; Jitter:single;
 begin
-  MakeSound := MakeSound and (fTerrain.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y, MyPlayer.PlayerID) >= 255);
+  MakeSound := MakeSound and (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255);
   //Find empty spot or add one
   i := 0;
   repeat

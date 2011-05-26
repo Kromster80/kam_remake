@@ -248,7 +248,7 @@ begin
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
       fCommander := NewCommander;
     end;
-    fPlayers.PlayerAI[byte(fOwner)].CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
+    fPlayers.Player[byte(fOwner)].AI.CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
   end;
 
   ClearOrderTarget; //This ensures that pointer usage tracking is reset

@@ -176,6 +176,7 @@ type
   public
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
     constructor Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad; override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
@@ -273,7 +274,7 @@ begin
 
   fHasOwner         := false;
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
-  fBuildingRepair   := (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (fPlayers.PlayerAI[byte(fOwner)].GetHouseRepair);
+  fBuildingRepair   := (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (fPlayers.Player[byte(fOwner)].AI.HouseAutoRepair);
   DoorwayUse        := 0;
   fRepairID         := 0;
   fWareDelivery     := true;
@@ -394,7 +395,9 @@ procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[byte(fOwner)].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-  fTerrain.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
+
+  if fOwner = MyPlayer.PlayerID then
+    MyPlayer.FogOfWar.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -838,7 +841,7 @@ procedure TKMHouse.MakeSound;
 var WorkID,Step:byte;
 begin
   //Do not play sounds if house is invisible to MyPlayer
-  if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
   if fCurrentAction = nil then exit; //no action means no sound ;)
 
   WorkID := fCurrentAction.GetWorkID;
@@ -943,7 +946,9 @@ begin
   inc(WorkAnimStep);
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
-  if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
+  if (fOwner = MyPlayer.PlayerID) then
+  if FlagAnimStep mod 10 = 0 then
+    MyPlayer.FogOfWar.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1053,7 +1058,7 @@ procedure TKMHouseSwineStable.MakeSound;
 var i:byte;
 begin
   Inherited;
-  if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
   for i:=0 to 4 do
     if BeastAge[i+1]>0 then
       if (FlagAnimStep + 20*i) mod 100 = 0 then
@@ -1178,10 +1183,15 @@ constructor TKMHouseSchool.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(UnitWIP, 4);
-  UnitWIP := fPlayers.GetUnitByID(cardinal(UnitWIP)); //Units get loaded before houses ;)
   LoadStream.Read(HideOneGold);
   LoadStream.Read(UnitTrainProgress);
   LoadStream.Read(UnitQueue, SizeOf(UnitQueue));
+end;
+
+
+procedure TKMHouseSchool.SyncLoad;
+begin
+  UnitWIP := fPlayers.GetUnitByID(cardinal(UnitWIP));
 end;
 
 
