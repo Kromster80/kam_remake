@@ -3,6 +3,7 @@
 	WAN multiplayer 
 
 	LAN multiplayer
+	Marketplace
 	Random map generator
 	Support custom campaigns
  +	Multiplayer lobby    
