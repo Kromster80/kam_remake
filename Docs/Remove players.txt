@@ -1,4 +1,4 @@
-There are 2 cases when we need to remove players:
+There are 2 cases when we might need to remove players:
 
     When Multiplayer wants to skip/remove the player we have issues with: IDs/Terrain/Alliances/Goals
 - In multiplayer, mission loading may be already instructed to perform certain simple tasks
@@ -16,11 +16,11 @@ in other case mission will return Defeat immediately - that is better)
 Conclusion:
 A. IDs are alias for starting locations, not players order in game. We might want to ommit
 (do not load) players data and leave everything else intact.
-B. We don't need to remove players for multiplayer.
+B. We don't need to remove players for multiplayer, we should skip / not load them in the first place.
 
-    When MapEditor removes a player, before saving a map, it wants to remove it completely, leaving
-no trace. Since IDs are alias for starting locations we need to pack them (1348 -> 1234). Later on,
-on map loading, players will be stuffed to MAX_PLAYERS
+    When MapEditor removes a player, (e.g. before saving a map), it wants to remove it completely, 
+leaving no trace. Since IDs are alias for starting locations we need to pack them (1348 -> 1234). 
+Later on, on map loading, players will be stuffed to MAX_PLAYERS again.
 - IDs, update all units and houses owners
 - Alliances, update
 - Goals, remove goals for missing players. We can show warnings before save on erroneous goals,
@@ -33,5 +33,5 @@ It should handle it.
 Conclusion:
 MapEditor needs to be able to remove players smoothly
 
-In the end we have alliances and goals set/depending between starting locations, and players are
+In the end we have alliances and goals set/depend between starting locations, and players are
 choosing which location they want to use, with all its assets and properties.
