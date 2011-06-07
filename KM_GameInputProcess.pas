@@ -88,14 +88,15 @@ type
   TGameInputProcess = class
   private
     fCount:integer;
+    fReplayState:TGIPReplayState;
+  protected
     fCursor:integer; //Used only in gipReplaying
     fQueue: array of packed record
       Tick:cardinal;
       Command:TGameInputCommand;
       Rand:cardinal; //acts as CRC check
     end;
-    fReplayState:TGIPReplayState;
-  protected
+
     function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
     procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
@@ -127,7 +128,8 @@ type
     procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
 
     function CommandsConfirmed(aTick:cardinal):boolean; virtual;
-    procedure Timer(aTick:cardinal); virtual;
+    procedure ReplayTimer(aTick:cardinal); virtual;
+    procedure RunningTimer(aTick:cardinal); virtual;
     procedure UpdateState(aTick:cardinal); virtual;
 
     //Replay methods
@@ -216,7 +218,7 @@ begin
 
     gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
     gic_TempKillUnit:           P.Units.GetUnitByID(Params[1]).KillUnit;
-    gic_TempRevealMap:          MyPlayer.FogOfWar.RevealEverything;
+    gic_TempRevealMap:          P.FogOfWar.RevealEverything;
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
     else                        Assert(false);
   end;
@@ -390,17 +392,23 @@ begin
 end;
 
 
+//Store commands for the replay
+//While in replay there are no commands to process, but for debug we might allow ChangePlayer
 procedure TGameInputProcess.StoreCommand(aCommand: TGameInputCommand);
 begin
-  //Store the command for the replay
-  //todo: Allow and mute gic_TempChangeMyPlayer when viewing replay
-  Assert(ReplayState=gipRecording);
+  if (ReplayState = gipReplaying) and (aCommand.CommandType = gic_TempChangeMyPlayer) then
+  begin
+    MyPlayer := fPlayers.Player[aCommand.Params[1]];
+    Exit;
+  end;
+
+  Assert(ReplayState = gipRecording);
   inc(fCount);
-  if length(fQueue) <= fCount then setlength(fQueue, fCount+128);
+  if length(fQueue) <= fCount then SetLength(fQueue, fCount+128);
 
   fQueue[fCount].Tick    := fGame.GameTickCount;
   fQueue[fCount].Command := aCommand;
-  fQueue[fCount].Rand    := Random(maxint); //This will be our check to ensure everything is consistent
+  fQueue[fCount].Rand    := Cardinal(Random(maxint)); //This will be our check to ensure everything is consistent
 end;
 
 
@@ -410,26 +418,13 @@ begin
 end;
 
 
-procedure TGameInputProcess.Timer(aTick:cardinal);
+procedure TGameInputProcess.ReplayTimer(aTick:cardinal);
 begin
-  if ReplayState = gipReplaying then
-  begin
-    while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
-      inc(fCursor);
+end;
 
-    while (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
-    begin
-      ExecCommand(fQueue[fCursor].Command);
-      //CRC check after the command
-      if (fQueue[fCursor].Rand <> Cardinal(Random(maxint))) then //Should always be called to maintain randoms flow
-        if CRASH_ON_REPLAY then
-        begin
-          fGame.GameError(KMPoint(10,10), 'Replay mismatch');
-          exit; //GameError calls GIP.Free, so exit immidiately
-        end;
-      inc(fCursor);
-    end;
-  end;
+
+procedure TGameInputProcess.RunningTimer(aTick:cardinal);
+begin
 end;
 
 

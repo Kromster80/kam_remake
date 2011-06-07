@@ -47,7 +47,7 @@ type
     destructor Destroy; override;
     procedure RecieveCommands(const aData:string); //Called by TKMNetwork when it has data for us
     function CommandsConfirmed(aTick:cardinal):boolean; override;
-    procedure Timer(aTick:cardinal); override;
+    procedure RunningTimer(aTick:cardinal); override;
     procedure UpdateState(aTick:cardinal); override;
   end;
 
@@ -229,12 +229,9 @@ end;
 
 //Timer is called after all commands from player are taken,
 //upcoming commands will be stacked into next batch
-procedure TGameInputProcess_Multi.Timer(aTick:cardinal);
+procedure TGameInputProcess_Multi.RunningTimer(aTick:cardinal);
 var i,k,Tick:integer;
 begin
-  Inherited;
-  Assert(ReplayState <> gipReplaying);
-
   Random(maxint); //thats our CRC
   //todo: Remember CRC and do the CRC checking once in a while
 

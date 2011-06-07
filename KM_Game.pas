@@ -988,7 +988,7 @@ begin
                       if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                      fGameInputProcess.Timer(fGameTickCount); //GIP_Multi issues all commands for this tick
+                      fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
 
                       if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
                         Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
@@ -1007,7 +1007,7 @@ begin
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     //Issue stored commands
-                    fGameInputProcess.Timer(fGameTickCount);
+                    fGameInputProcess.ReplayTimer(fGameTickCount);
                     if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
                       GameHold(true, gr_ReplayEnd);
 

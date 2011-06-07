@@ -9,11 +9,12 @@ type
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
-    procedure Timer(aTick:cardinal); override;
+    procedure ReplayTimer(aTick:cardinal); override;
   end;
 
 
 implementation
+uses KM_Game, KM_Defaults, KM_Utils;
 
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand:TGameInputCommand);
@@ -23,9 +24,24 @@ begin
 end;
 
 
-procedure TGameInputProcess_Single.Timer(aTick:cardinal);
+procedure TGameInputProcess_Single.ReplayTimer(aTick:cardinal);
+var MyRand:cardinal;
 begin
-  Random(maxint); //thats our CRC used in Multiplayer. We do it here to maintain replay compatibility
+  while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
+    inc(fCursor);
+
+  while (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
+  begin
+    ExecCommand(fQueue[fCursor].Command);
+    MyRand := Cardinal(Random(maxint)); //Just like in StoreCommand
+    //CRC check after the command
+    if CRASH_ON_REPLAY and (fQueue[fCursor].Rand <> MyRand) then //Should always be called to maintain randoms flow
+    begin
+      fGame.GameError(KMPoint(10,10), 'Replay mismatch');
+      Exit; //GameError calls GIP.Free, so exit immidiately
+    end;
+    inc(fCursor);
+  end;
 end;
 
 
