@@ -1,4 +1,3 @@
-
 	Here I suggest to write down ideas for KaM Remake after it reaches TSK replica status
 	My main concern is to keep TSK spirit through it while making gameplay better
 	
@@ -23,6 +22,8 @@ neverending resources
 
 Walls building
 wooden and stone
+
+Trophies. Award player with trophies for certain actions (won TSK, won TPR, killed 10000 enemies, made 10000 wine barrels, Explored every tile, etc.)
 
 Orders to plant/chop trees
 
