@@ -1446,7 +1446,7 @@ end;
 
 procedure TKMapEdInterface.KeyPress(Key: Char);
 begin
-  if MyControls.KeyPress(Key) then exit;
+  MyControls.KeyPress(Key);
 end;
 
 

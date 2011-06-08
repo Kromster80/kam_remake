@@ -48,7 +48,7 @@ type
     property OnHint: TNotifyEvent write fOnHint;
 
     function KeyDown    (Key: Word; Shift: TShiftState):boolean;
-    function KeyPress   (Key: Char):boolean;
+    procedure KeyPress  (Key: Char);
     function KeyUp      (Key: Word; Shift: TShiftState):boolean;
     procedure MouseDown (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
     procedure MouseMove (X,Y:integer; Shift:TShiftState);
@@ -115,7 +115,7 @@ type
     function MasterParent:TKMPanel;
 
     function KeyDown(Key: Word; Shift: TShiftState):boolean; virtual;
-    function KeyPress(Key: Char):boolean; virtual;
+    procedure KeyPress(Key: Char); virtual;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; virtual;
     procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseMove (X,Y:integer; Shift:TShiftState); virtual;
@@ -318,7 +318,7 @@ type
     property OnKeyDown: TNotifyEventKey write fOnKeyDown;
     function HitTest(X, Y: Integer): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
-    function KeyPress(Key: Char):boolean; override;
+    procedure KeyPress(Key: Char); override;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
@@ -675,9 +675,9 @@ begin
 end;
 
 
-function TKMControl.KeyPress(Key: Char):boolean;
+procedure TKMControl.KeyPress(Key: Char);
 begin
-  Result := false;
+  //Could be something common
 end;
 
 
@@ -1433,12 +1433,10 @@ begin
 end;
 
 
-function TKMEdit.KeyPress(Key: Char):boolean;
+procedure TKMEdit.KeyPress(Key: Char);
 begin
-  Result := true;
-  if Inherited KeyPress(Key) or ReadOnly then exit;
-
-  if Key < #32 then Exit;
+  if ReadOnly or (Key < #32) then
+    Exit;
 
   Insert(Key, fText, CursorPos+1);
   inc(CursorPos);
@@ -2672,12 +2670,10 @@ begin
 end;
 
 
-function TKMMasterControl.KeyPress(Key: Char):boolean;
+procedure TKMMasterControl.KeyPress(Key: Char);
 begin
   if CtrlFocus <> nil then
-    Result := CtrlFocus.KeyPress(Key)
-  else
-    Result := false;
+    CtrlFocus.KeyPress(Key);
 end;
 
 
