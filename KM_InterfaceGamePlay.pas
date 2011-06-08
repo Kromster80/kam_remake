@@ -2118,9 +2118,10 @@ end;
 
 procedure TKMGamePlayInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
-  if fGame.GameState = gsRunning then
+  if fGame.GameState in [gsRunning, gsReplay] then
   begin
-    if MyControls.KeyDown(Key, Shift) then exit;
+    if (fGame.GameState = gsRunning) and MyControls.KeyDown(Key, Shift) then
+      Exit;
     if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := true;
     if Key = VK_RIGHT then fViewport.ScrollKeyRight := true;
     if Key = VK_UP    then fViewport.ScrollKeyUp    := true;
@@ -2144,7 +2145,7 @@ begin
     gsPaused:   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(false);
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
-                  if MyControls.KeyUp(Key, Shift) then exit;
+                  if MyControls.KeyUp(Key, Shift) then Exit;
 
                   //Scrolling
                   if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
@@ -2187,6 +2188,12 @@ begin
                   if (Key=ord('D')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
                 end;
     gsReplay:   begin
+                  //Scrolling
+                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
+                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := false;
+                  if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
+                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
+
                   if Key = VK_BACK then fViewport.SetZoom(1);
                   if Key = VK_F8 then   fGame.SetGameSpeed; //Speed will toggle automatically
                 end;

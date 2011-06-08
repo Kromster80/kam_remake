@@ -1452,7 +1452,8 @@ end;
 
 procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyUp(Key, Shift) then exit; //Handled by Controls
+  if MyControls.KeyUp(Key, Shift) then
+    Exit; //Handled by Controls
 
   //1-5 game menu shortcuts
   if Key in [49..53] then
