@@ -202,16 +202,15 @@ procedure TRender.Render;
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
-  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then begin //If game is running
-    glLoadIdentity;                // Reset The View
+  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
+  begin //If game is running
+    glLoadIdentity; // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
-    glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
+    glTranslatef(fViewport.ViewWidth/2, fViewport.ViewHeight/2, 0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
-    //TODO Linux: Fatal: Internal error 200310121
-    {$IFDEF MSWindows}
-    glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
-    {$ENDIF}
-    if RENDER_3D then begin
+    glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y, 0);
+    if RENDER_3D then
+    begin
       glLoadIdentity;
       ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm3D);
 
@@ -219,11 +218,9 @@ begin
       glRotatef(rHeading,1,0,0);
       glRotatef(rPitch  ,0,1,0);
       glRotatef(rBank   ,0,0,1);
-      {$IFDEF MSWindows}
-      glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
-      {$ENDIF}
+      glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y-8, 10);
       glkScale(fViewport.Zoom);
-      ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm2D);
+      ResizeGameArea(fRenderAreaSize.X, fRenderAreaSize.Y, rm2D);
     end;
 
     glLineWidth(fViewport.Zoom*2);
@@ -260,7 +257,6 @@ begin
   {$ENDIF}
   {$IFDEF Unix}
   glutswapbuffers;
-  //MessageBox(Form1.Handle,'SwapBuffers not working', 'Error', MB_OK);
   {$ENDIF}
 end;
 
