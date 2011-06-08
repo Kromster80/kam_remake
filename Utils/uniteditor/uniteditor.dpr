@@ -11,7 +11,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF FPC} Interfaces, {$ENDIF}
-  Forms, Unit1;
+  Forms,
+  Unit1;
 
 begin
   Application.Initialize;

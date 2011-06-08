@@ -3,13 +3,11 @@ unit Unit1;
 {$IFDEF FPC}
   {$Mode Delphi} {$H+}
 {$ENDIF}
-
 interface
-
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Menus
-  {$IFDEF FPC}, LResources, Spin{$ENDIF};
+  Classes, SysUtils, Forms, Controls, Dialogs, StdCtrls,
+  Menus, Spin
+  {$IFDEF FPC}, LResources{$ENDIF};
 
 
 const
@@ -24,9 +22,6 @@ const
 
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     Button1: TButton;
     Defence: TLabel;
@@ -127,7 +122,8 @@ var
   f:file;
 begin
   Result := false;
-  assignfile(f,FileName); reset(f,1);
+  AssignFile(f,FileName);
+  Reset(f,1);
 
   for ii:=1 to 28 do
     blockread(f,SerfCarry[ii],8*70);
@@ -145,64 +141,71 @@ end;
 
 procedure TForm1.open_file(Sender: TObject);
 begin
-  if DirectoryExists('../../Data/Defines/') then
-  SaveDialog1.InitialDir := '../../Data/Defines/'
+  if DirectoryExists('..\..\Data\Defines\') then
+    OpenDialog1.InitialDir := '..\..\Data\Defines\'
   else
-  SaveDialog1.InitialDir := '';
+    OpenDialog1.InitialDir := '';
+
   if OpenDialog1.Execute then
-  LoadUnitDAT(OpenDialog1.Filename);
+  begin
+    LoadUnitDAT(OpenDialog1.Filename);
+    SaveDialog1.InitialDir := OpenDialog1.GetNamePath;
+  end;
 end;
 
 procedure TForm1.init(Sender: TObject);
 var
-  x :integer;
+  i :integer;
 begin
-x := 1;
- with ListBox1 do begin
-     while (x <42) do begin
-      Items.Add(UnitNames[x]);
-      x := x + 1;
-     end;
- end;
+  for i:=Low(UnitNames) to High(UnitNames) do
+    ListBox1.Items.Add(UnitNames[i]);
 end;
 
 procedure TForm1.ChangeSpinEdits(Sender: TObject);
+var ID:integer;
 begin
-  UnitStat[ListBox1.ItemIndex].HitPoints := HitPoints.Value;
-  UnitStat[ListBox1.ItemIndex].Attack := Attack.Value;
-  UnitStat[ListBox1.ItemIndex].AttackHorseBonus := AttackHorseBonus.Value;
-  UnitStat[ListBox1.ItemIndex].x4 := x4.Value;
-  UnitStat[ListBox1.ItemIndex].Defence := DefenceSpinEdit.Value;
-  UnitStat[ListBox1.ItemIndex].Speed := SpeedSpinEdit.Value;
-  UnitStat[ListBox1.ItemIndex].Sight := Sight.Value;
-  UnitStat[ListBox1.ItemIndex].x9 := x9.Value;
-  UnitStat[ListBox1.ItemIndex].x10 := x10.Value;
-  UnitStat[ListBox1.ItemIndex].CanWalkOut := CanWalkOut.Value;
-  UnitStat[ListBox1.ItemIndex].x11 := x11.Value;
+   ID := ListBox1.ItemIndex + 1;
+   if ID = 0 then Exit;
+
+  UnitStat[ID].HitPoints        := HitPoints.Value;
+  UnitStat[ID].Attack           := Attack.Value;
+  UnitStat[ID].AttackHorseBonus := AttackHorseBonus.Value;
+  UnitStat[ID].x4               := x4.Value;
+  UnitStat[ID].Defence          := DefenceSpinEdit.Value;
+  UnitStat[ID].Speed            := SpeedSpinEdit.Value;
+  UnitStat[ID].Sight            := Sight.Value;
+  UnitStat[ID].x9               := x9.Value;
+  UnitStat[ID].x10              := x10.Value;
+  UnitStat[ID].CanWalkOut       := CanWalkOut.Value;
+  UnitStat[ID].x11              := x11.Value;
 end;
 
 
 procedure TForm1.saveDAT(Sender: TObject);
 begin
   if SaveDialog1.Execute then
-  SaveUnitDAT(SaveDialog1.Filename);
+    SaveUnitDAT(SaveDialog1.Filename);
 end;
 
 
 procedure TForm1.showDAT(Sender: TObject);
+var ID:integer;
 begin
-   HitPoints.Value := UnitStat[ListBox1.ItemIndex].HitPoints;
-   Attack.Value :=UnitStat[ListBox1.ItemIndex].Attack;
-   AttackHorseBonus.Value :=UnitStat[ListBox1.ItemIndex].AttackHorseBonus;
-   x4.Value :=UnitStat[ListBox1.ItemIndex].x4;
-   DefenceSpinEdit.Value :=UnitStat[ListBox1.ItemIndex].Defence;
-   SpeedSpinEdit.Value :=UnitStat[ListBox1.ItemIndex].Speed;
-   x7.Value :=0;
-   Sight.Value :=UnitStat[ListBox1.ItemIndex].Sight;
-   x9.Value :=UnitStat[ListBox1.ItemIndex].x9;
-   x10.Value :=UnitStat[ListBox1.ItemIndex].x10;
-   CanWalkOut.Value :=UnitStat[ListBox1.ItemIndex].CanWalkOut;
-   x11.Value :=UnitStat[ListBox1.ItemIndex].x11;
+   ID := ListBox1.ItemIndex + 1;
+   if ID = 0 then Exit;
+
+   HitPoints.Value        := UnitStat[ID].HitPoints;
+   Attack.Value           := UnitStat[ID].Attack;
+   AttackHorseBonus.Value := UnitStat[ID].AttackHorseBonus;
+   x4.Value               := UnitStat[ID].x4;
+   DefenceSpinEdit.Value  := UnitStat[ID].Defence;
+   SpeedSpinEdit.Value    := UnitStat[ID].Speed;
+   x7.Value               := 0;
+   Sight.Value            := UnitStat[ID].Sight;
+   x9.Value               := UnitStat[ID].x9;
+   x10.Value              := UnitStat[ID].x10;
+   CanWalkOut.Value       := UnitStat[ID].CanWalkOut;
+   x11.Value              := UnitStat[ID].x11;
 end;
 
 
