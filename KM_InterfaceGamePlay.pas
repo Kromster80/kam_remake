@@ -2229,8 +2229,8 @@ begin
       ClipCursor(@MyRect);
       {$ENDIF}
       //Now record it as Client XY
-      SelectingDirPosition.X :=X;
-      SelectingDirPosition.Y :=Y;
+      SelectingDirPosition.X := X;
+      SelectingDirPosition.Y := Y;
       SelectedDirection := dir_NA;
       ShowDirectionCursor(true,X,Y,SelectedDirection);
       Screen.Cursor := c_Invisible;

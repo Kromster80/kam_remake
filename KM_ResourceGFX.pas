@@ -201,10 +201,10 @@ procedure TResource.LoadFonts(DoExport:boolean; aLocale:string);
 var i:TKMFont;
 begin
   for i:=low(TKMFont) to high(TKMFont) do
-  if FileExists(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt') then
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt', i, DoExport)
+  if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt') then
+    LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt', i, DoExport)
   else
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt', i, DoExport);
+    LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', i, DoExport);
 end;
 
 

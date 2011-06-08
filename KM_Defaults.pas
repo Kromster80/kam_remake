@@ -30,8 +30,10 @@ const
 
   KAM_PORT              = '56789';      //Port used in TCP networking
 
-  GAME_VERSION          = '1st Multiplayer Demo r1711';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1711';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r1769';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+
+  FONTS_FOLDER = 'data\gfx\fonts\';
 
 var
   //These should be TRUE
@@ -55,10 +57,10 @@ var
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
   //Not fully implemented yet
+  ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
-  ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
 
   //These are debug things, should be FALSE
   {User interface options}
@@ -87,7 +89,7 @@ var
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
   {Data output}
-  WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
+  WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :boolean=false; //Write even more output into log + slows down game noticably
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading

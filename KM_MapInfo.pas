@@ -80,7 +80,7 @@ begin
   //In MP mode we also need exact CRCs to match maps between players
   if FileExists(DatFile) then
   if (fDatSize <> GetFileSize(DatFile)) or
-     (fVersion <> SAVE_VERSION) or
+     (fVersion <> GAME_REVISION) or
      (fStrict and (fMapCRC <> Adler32CRC(DatFile) xor Adler32CRC(MapFile)))
   then
   begin
@@ -90,7 +90,7 @@ begin
       MissionDetails := fMissionParser.GetMissionDetails(DatFile);
       MapDetails     := fMissionParser.GetMapDetails(MapFile);
       fMissionMode   := MissionDetails.MissionMode;
-      fPlayerCount   := MissionDetails.TeamCount;
+      fPlayerCount   := MissionDetails.PlayerCount;
       VictoryCond    := MissionDetails.VictoryCond;
       DefeatCond     := MissionDetails.DefeatCond;
       fMapSize       := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
@@ -159,7 +159,7 @@ begin
   S := TKMemoryStream.Create;
   try
     S.Write(fDatSize);
-    S.Write(SAVE_VERSION); //Use actual version
+    S.Write(GAME_REVISION); //Use actual version
     S.Write(fMissionMode, SizeOf(fMissionMode));
     S.Write(fPlayerCount);
     S.Write(VictoryCond);

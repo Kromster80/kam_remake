@@ -813,7 +813,7 @@ begin
 
   SaveStream := TKMemoryStream.Create;
   SaveStream.Write('KaM_Savegame');
-  SaveStream.Write(SAVE_VERSION); //This is savegame version
+  SaveStream.Write(GAME_REVISION); //This is savegame version
   SaveStream.Write(fMissionFile); //Save game mission file
   SaveStream.Write(fGameName); //Save game title
   SaveStream.Write(fGameTickCount); //Required to be saved, e.g. messages being shown after a time
@@ -870,7 +870,7 @@ begin
   LoadStream.Read(s);
   if s = 'KaM_Savegame' then begin
     LoadStream.Read(ver);
-    if ver = SAVE_VERSION then begin
+    if ver = GAME_REVISION then begin
       LoadStream.Read(s); //Savegame mission file
       LoadStream.Read(s); //GameName
       LoadStream.Read(i);
@@ -914,7 +914,7 @@ begin
 
     //Raise some exceptions if the file is invalid or the wrong save version
     LoadStream.Read(s); if s <> 'KaM_Savegame' then Raise Exception.Create('Not a valid KaM Remake save file');
-    LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
+    LoadStream.Read(s); if s <> GAME_REVISION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
 
     //Create empty environment
     GameInit(false);
