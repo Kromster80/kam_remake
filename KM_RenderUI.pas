@@ -7,7 +7,7 @@ uses dglOpenGL,
   Math, KromUtils, KromOGLUtils, SysUtils, KM_CommonTypes, KM_Defaults, Graphics;
 
 type
-TRenderUI = class
+  TRenderUI = class
   public
     constructor Create;
     procedure SetupClip         (Y1,Y2:smallint);
@@ -20,8 +20,8 @@ TRenderUI = class
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-    function  GetTextSize       (SizeX:smallint; Text:string; Fnt:TKMFont):TKMPoint;
-    function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4):TKMPoint; //Should return text width in px
+    function  GetTextSize       (Text:string; Fnt:TKMFont):TKMPoint;
+    procedure WriteText         (PosX,PosY:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
@@ -187,9 +187,9 @@ begin
     end;
 
     if fbs_Disabled in State then
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, $FF808080)
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, Caption, fnt_Game, kaCenter, $FF808080)
     else
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, $FFE0E0E0);
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, Caption, fnt_Game, kaCenter, $FFE0E0E0);
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);
@@ -410,16 +410,16 @@ begin
 end;
 
 
-function TRenderUI.GetTextSize(SizeX:smallint; Text:string; Fnt:TKMFont):TKMPoint;
+function TRenderUI.GetTextSize(Text:string; Fnt:TKMFont):TKMPoint;
 var
   i:integer;
-  CharSpacing,LineCount,AdvX,LineHeight:integer;
+  CharSpacing,LineCount:integer;
   LineWidth:array of integer; //Some fonts may have negative CharSpacing
 begin
-  Result.X := 0; //Incase Text=''
+  Result.X := 0;
   Result.Y := 0;
 
-  if Text='' then exit;
+  if Text='' then Exit;
 
   LineCount := 1;
   for i:=1 to length(Text) do
@@ -428,14 +428,11 @@ begin
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
-  LineHeight := 0;
   CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
   for i:=1 to length(Text) do begin
-    if Text[i]<>#124 then begin
+    if Text[i]<>#124 then
       if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
                      else inc(LineWidth[LineCount], FontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
-      LineHeight := Math.max(LineHeight, FontData[Fnt].Letters[byte(Text[i])].Height);
-    end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       LineWidth[LineCount] := Math.max(0,LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
@@ -443,25 +440,23 @@ begin
   end;
 
   dec(LineCount);
-  Result.Y := LineHeight*LineCount;
+  Result.Y := (FontData[Fnt].Unk1 + FONT_INTERLINE)*LineCount;
   for i:=1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[i]);
 end;
 
-//todo: Move text size calculation out
+
 {Renders a line of text and returns text width and height in px}
 {By default color must be non-transparent white}
-function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4):TKMPoint;
+procedure TRenderUI.WriteText(PosX,PosY:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
 var
   i:integer;
-  CharSpacing,LineCount,AdvX,LineHeight:integer;
-  LineWidth:array of integer; //Some fonts may have negative CharSpacing
+  CharSpacing,LineCount,AdvX,LineHeight,BlockWidth:integer;
+  LineWidth:array of integer; //Use signed format since some fonts may have negative CharSpacing
 begin
-  Result.X := 0; //Incase Text=''
-  Result.Y := 0;
+  if (Text = '') or (Color = $00000000) then exit;
 
-  if Text='' then exit;
-
+  //Calculate line count and each lines width to be able to properly align them
   LineCount := 1;
   for i:=1 to length(Text) do
     if Text[i]=#124 then inc(LineCount);
@@ -469,26 +464,23 @@ begin
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
-  LineHeight := 0;
   CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
   for i:=1 to length(Text) do begin
-    if Text[i]<>#124 then begin
+    if Text[i]<>#124 then
       if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
                      else inc(LineWidth[LineCount], FontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
-      LineHeight := Math.max(LineHeight, FontData[Fnt].Letters[byte(Text[i])].Height);
-    end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
-      LineWidth[LineCount] := Math.max(0,LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
+      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
     end;
   end;
 
-  dec(LineCount);
-  Result.Y := LineHeight*LineCount;
-  for i:=1 to LineCount do
-    Result.X := Math.max(Result.X,LineWidth[i]); 
+  LineHeight := FontData[Fnt].Unk1 + FONT_INTERLINE;
 
-  if Color = $00000000 then exit; //Just compute dimensions and exit
+  dec(LineCount);
+  BlockWidth := 0;
+  for i:=1 to LineCount do
+    BlockWidth := Math.max(BlockWidth, LineWidth[i]);
 
   AdvX := 0;
   LineCount := 1;
@@ -498,9 +490,11 @@ begin
     glColor4ubv(@Color);
     glkMoveAALines(false);
 
-    if Align=kaLeft   then glTranslatef(PosX,                      PosY, 0);
-    if Align=kaCenter then glTranslatef(PosX - LineWidth[1] div 2, PosY, 0);
-    if Align=kaRight  then glTranslatef(PosX - LineWidth[1],       PosY, 0);
+    case Align of
+      kaLeft:   glTranslatef(PosX,                      PosY, 0);
+      kaCenter: glTranslatef(PosX - LineWidth[1] div 2, PosY, 0);
+      kaRight:  glTranslatef(PosX - LineWidth[1],       PosY, 0);
+    end;
 
     glBegin(GL_QUADS);
       for i:=1 to length(Text) do
@@ -511,32 +505,50 @@ begin
         glEnd;
         inc(LineCount);
         if Align=kaLeft   then glTranslatef(0, LineHeight, 0); //Negate previous line length
-        if Align=kaCenter then glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, LineHeight, 0);
+        if Align=kaCenter then glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
         if Align=kaRight  then glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
-        AdvX:=0;
+        AdvX := 0;
         glBegin(GL_QUADS);
       end else
       if Text[i]=#32 then
         inc(AdvX, FontData[Fnt].WordSpacing)
-      else begin
-        with FontData[Fnt].Letters[byte(Text[i])] do begin
-          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
-          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
-          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
-          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
-          inc(AdvX, Width + CharSpacing);
-        end;
+      else
+      with FontData[Fnt].Letters[byte(Text[i])] do begin
+        glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
+        glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
+        glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
+        glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
+        inc(AdvX, Width + CharSpacing);
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);
-    glColor4f(1,0,0,0.5);
-    glBegin(GL_LINE_LOOP);
-      glVertex2f(0       , 0       );
-      glVertex2f(Result.X, 0       );
-      glVertex2f(Result.X, Result.Y);
-      glVertex2f(0       , Result.Y);
-    glEnd;
   glPopMatrix;
+
+  if SHOW_TEXT_OUTLINES then
+  begin
+    glPushMatrix;
+      case Align of
+        kaLeft:   glTranslatef(PosX,                      PosY, 0);
+        kaCenter: glTranslatef(PosX - LineWidth[1] div 2, PosY, 0);
+        kaRight:  glTranslatef(PosX - LineWidth[1],       PosY, 0);
+      end;
+
+      glColor4f(1,0,0,0.5);
+      glBegin(GL_LINE_LOOP);
+        glVertex2f(0         , 0       );
+        glVertex2f(BlockWidth, 0       );
+        glVertex2f(BlockWidth, LineHeight*LineCount);
+        glVertex2f(0         , LineHeight*LineCount);
+      glEnd;
+
+      glBegin(GL_LINE_LOOP);
+        glVertex2f(0         , 0       );
+        glVertex2f(BlockWidth, 0       );
+        glVertex2f(BlockWidth, LineHeight);
+        glVertex2f(0         , LineHeight);
+      glEnd;
+    glPopMatrix;
+  end;
 end;
 
 
