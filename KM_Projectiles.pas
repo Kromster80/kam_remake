@@ -59,7 +59,7 @@ begin
   i := 0;
   repeat
     inc(i);
-    if i>=length(fItems) then setlength(fItems,i+10); //Add new
+    if i>=length(fItems) then SetLength(fItems,i+10); //Add new
   until(fItems[i].fSpeed=0);
 
   fItems[i].fProjType := aProjType;

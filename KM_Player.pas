@@ -495,9 +495,7 @@ procedure TKMPlayer.UpdateState(Tick,PlayerIndex:cardinal);
 begin
   fUnits.UpdateState;
   fHouses.UpdateState;
-
-  if MyPlayer.PlayerID = PlayerID then
-    fFogOfWar.UpdateState;
+  fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
   //Do only one players AI per Tick
   if (Tick+PlayerIndex) mod 20 = 0 then

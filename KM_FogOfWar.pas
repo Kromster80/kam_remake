@@ -1,7 +1,7 @@
 unit KM_FogOfWar;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_CommonTypes;
+uses Classes, Math, KM_Defaults, KM_CommonTypes;
 
 {These are mission specific settings and stats for each player}
 type
@@ -13,10 +13,10 @@ type
     Revelation:array of array of record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
       Visibility:byte;
-      LastTerrain:byte;
+      {LastTerrain:byte;
       LastHeight:byte;
       LastTree:byte;
-      LastHouse:THouseType;
+      LastHouse:THouseType;}
     end;
   public
     procedure SetMapSize(X,Y:integer);
@@ -33,7 +33,6 @@ type
 
 
 implementation
-uses Math;
 
 
 { TKMFogOfWar }
@@ -143,7 +142,7 @@ begin
   for i:=1 to MapY do
   for k:=1 to MapX do
   if (i*MapX+k+fAnimStep) mod TERRAIN_PACE = 0 then //All those global things can be performed once a sec, or even less frequent
-   if Revelation[i,k].Visibility > FOG_OF_WAR_MIN then dec(Revelation[i,k].Visibility, FOG_OF_WAR_DEC);
+    if Revelation[i,k].Visibility > FOG_OF_WAR_MIN then dec(Revelation[i,k].Visibility, FOG_OF_WAR_DEC);
 end;
 
 

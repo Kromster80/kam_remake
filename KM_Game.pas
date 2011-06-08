@@ -688,7 +688,7 @@ begin
   fMapEditorInterface.Player_UpdateColors;
   fPlayers.AfterMissionInit(false);
 
-  for i:=0 to fPlayers.Count do //Reveal all players since we'll swap between them in MapEd
+  for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
     fPlayers[i].FogOfWar.RevealEverything;
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);

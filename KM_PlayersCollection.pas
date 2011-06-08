@@ -378,7 +378,7 @@ procedure TKMPlayersCollection.UpdateState(Tick:cardinal);
 var i:byte;
 begin
   for i:=0 to fCount-1 do
-    if fGame.GameState = gsRunning then
+    if fGame.GameState in [gsRunning, gsReplay] then
       Player[i].UpdateState(Tick, i)
     else
       Exit; //PlayerAI can stop the game and clear everything

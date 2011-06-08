@@ -97,7 +97,7 @@ end;
 
 procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
 begin
-  setlength(fGoals,fCount+1);
+  SetLength(fGoals,fCount+1);
   fGoals[fCount].GoalType         := aGoalType;
   fGoals[fCount].GoalCondition    := aGoalCondition;
   fGoals[fCount].GoalStatus       := aGoalStatus;

@@ -1428,9 +1428,8 @@ end;
 //Can use fCondition as a sort of counter to reveal terrain X times a sec
 procedure TKMUnit.UpdateFOW;
 begin
-  if fOwner = MyPlayer.PlayerID then
   if fCondition mod 10 = 0 then
-    MyPlayer.FogOfWar.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC);
+    fPlayers.Player[Byte(fOwner)].FogOfWar.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC);
 end;
 
 

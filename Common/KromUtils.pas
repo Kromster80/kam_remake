@@ -516,7 +516,7 @@ end;
 //and some of player input needs Random too, but it should not affect AI
 function PseudoRandom(aMax:cardinal):cardinal;
 begin
-  if aMax <=0 then
+  if aMax = 0 then
     Result := 0
   else
     Result := GetTickCount mod aMax;

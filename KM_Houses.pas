@@ -395,9 +395,7 @@ procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[byte(fOwner)].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-
-  if fOwner = MyPlayer.PlayerID then
-    MyPlayer.FogOfWar.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
+  fPlayers.Player[byte(fOwner)].FogOfWar.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -946,9 +944,8 @@ begin
   inc(WorkAnimStep);
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
-  if (fOwner = MyPlayer.PlayerID) then
   if FlagAnimStep mod 10 = 0 then
-    MyPlayer.FogOfWar.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
+    fPlayers.Player[byte(fOwner)].FogOfWar.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1064,9 +1061,9 @@ begin
       if (FlagAnimStep + 20*i) mod 100 = 0 then
       begin
         if fHouseType = ht_Stables then
-          fSoundLib.Play(TSoundFX(byte(sfx_Horse1)+random(4)),fPosition); //sfx_Horse1..sfx_Horse4
+          fSoundLib.Play(TSoundFX(byte(sfx_Horse1) + PseudoRandom(4)), fPosition); //sfx_Horse1..sfx_Horse4
         if fHouseType = ht_Swine   then
-          fSoundLib.Play(TSoundFX(byte(sfx_Pig1)  +random(4)),fPosition); //sfx_Pig1..sfx_Pig4
+          fSoundLib.Play(TSoundFX(byte(sfx_Pig1)   + PseudoRandom(4)), fPosition); //sfx_Pig1..sfx_Pig4
       end;
 end;
 
