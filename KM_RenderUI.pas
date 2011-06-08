@@ -20,7 +20,8 @@ TRenderUI = class
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-    function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint; //Should return text width in px
+    function  GetTextSize       (SizeX:smallint; Text:string; Fnt:TKMFont):TKMPoint;
+    function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4):TKMPoint; //Should return text width in px
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
@@ -186,9 +187,9 @@ begin
     end;
 
     if fbs_Disabled in State then
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FF808080)
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, $FF808080)
     else
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FFE0E0E0);
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, $FFE0E0E0);
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);
@@ -409,9 +410,7 @@ begin
 end;
 
 
-{Renders a line of text and returns text width and height in px}
-{By default color must be non-transparent white}
-function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint;
+function TRenderUI.GetTextSize(SizeX:smallint; Text:string; Fnt:TKMFont):TKMPoint;
 var
   i:integer;
   CharSpacing,LineCount,AdvX,LineHeight:integer;
@@ -426,7 +425,48 @@ begin
   for i:=1 to length(Text) do
     if Text[i]=#124 then inc(LineCount);
 
-  setlength(LineWidth, LineCount+2); //1..n+1 (for last line)
+  SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
+
+  LineCount := 1;
+  LineHeight := 0;
+  CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
+  for i:=1 to length(Text) do begin
+    if Text[i]<>#124 then begin
+      if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
+                     else inc(LineWidth[LineCount], FontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
+      LineHeight := Math.max(LineHeight, FontData[Fnt].Letters[byte(Text[i])].Height);
+    end;
+    if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
+      LineWidth[LineCount] := Math.max(0,LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
+      inc(LineCount);
+    end;
+  end;
+
+  dec(LineCount);
+  Result.Y := LineHeight*LineCount;
+  for i:=1 to LineCount do
+    Result.X := Math.max(Result.X, LineWidth[i]);
+end;
+
+//todo: Move text size calculation out
+{Renders a line of text and returns text width and height in px}
+{By default color must be non-transparent white}
+function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4):TKMPoint;
+var
+  i:integer;
+  CharSpacing,LineCount,AdvX,LineHeight:integer;
+  LineWidth:array of integer; //Some fonts may have negative CharSpacing
+begin
+  Result.X := 0; //Incase Text=''
+  Result.Y := 0;
+
+  if Text='' then exit;
+
+  LineCount := 1;
+  for i:=1 to length(Text) do
+    if Text[i]=#124 then inc(LineCount);
+
+  SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
   LineHeight := 0;
@@ -489,6 +529,13 @@ begin
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);
+    glColor4f(1,0,0,0.5);
+    glBegin(GL_LINE_LOOP);
+      glVertex2f(0       , 0       );
+      glVertex2f(Result.X, 0       );
+      glVertex2f(Result.X, Result.Y);
+      glVertex2f(0       , Result.Y);
+    glEnd;
   glPopMatrix;
 end;
 

@@ -2207,9 +2207,10 @@ procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftStat
 var U:TKMUnit; MyRect:TRect;
 begin
   MyControls.MouseDown(X,Y,Shift,Button);
-  if (fGame.GameState <> gsRunning) or (MyControls.CtrlOver <> nil)then exit;
+  if (fGame.GameState <> gsRunning) or (MyControls.CtrlOver <> nil) then exit;
 
-  if SelectingTroopDirection then begin
+  if SelectingTroopDirection then
+  begin
     Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false;
     ShowDirectionCursor(false);
