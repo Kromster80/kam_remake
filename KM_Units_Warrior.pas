@@ -20,6 +20,8 @@ type //Possibly melee warrior class? with Archer class separate?
   {Commander properties}
     fUnitsPerRow:integer;
     fMembers:TList;
+
+    function GetRandomFoeFromMembers: TKMUnitWarrior;
     function RePosition:boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     function CanInterruptAction:boolean;
@@ -68,7 +70,6 @@ type //Possibly melee warrior class? with Archer class separate?
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     property GetOrder:TWarriorOrder read fOrder;
     function GetRow:integer;
-    function GetRandomFoeFromMembers: TKMUnitWarrior;
     function ArmyIsBusy(IgnoreArchers:boolean=false):boolean;
     procedure ReissueOrder;
 
@@ -469,10 +470,11 @@ begin
       inc(DeletedCount);
     end;
 
-  if GetMemberCount = 0 then FreeAndNil(fMembers); //All members taken
-
   //Make sure units per row is still valid
-  fUnitsPerRow := min(fUnitsPerRow, GetMemberCount+1);
+  fUnitsPerRow := min(fUnitsPerRow, fMembers.Count+1);
+
+  if fMembers.Count = 0 then
+    FreeAndNil(fMembers);
 
   //Tell both commanders to reposition
   OrderHalt;
@@ -557,20 +559,21 @@ function TKMUnitWarrior.GetRow:integer;
 var i: integer;
 begin
   Result := 1;
-  if fCommander <> nil then
+  if not IsCommander then
     for i:=1 to fCommander.fMembers.Count do
       if Self = TKMUnitWarrior(fCommander.fMembers.Items[i-1]) then
       begin
         Result := (i div fCommander.UnitsPerRow)+1; //First row is 1 not 0
-        exit;
+        Exit;
       end;
 end;
 
 
+//Get random unit from those our squad is fighting with
 function TKMUnitWarrior.GetRandomFoeFromMembers: TKMUnitWarrior;
 var Foes: TList; i: integer;
 begin
-  Assert(fCommander = nil); //This should only be called for commanders
+  Assert(IsCommander); //This should only be called for commanders
   Foes := TList.Create;
   if (GetUnitAction is TUnitActionFight) and (TUnitActionFight(GetUnitAction).GetOpponent <> nil)
   and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior) then
@@ -579,7 +582,6 @@ begin
   if (fMembers <> nil) and (fMembers.Count > 0) then
     for i:=1 to fMembers.Count do
       if (TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight)
-      and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent <> nil)
       and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
         Foes.Add(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent);
 

@@ -475,15 +475,17 @@ type
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
+  //What player has ordered us to do
   TWarriorOrder = (
-    wo_None,
-    wo_Walk,
-    wo_WalkOut,
-    wo_AttackUnit,
-    wo_AttackHouse,
-    wo_Storm
+    wo_None, //No orders
+    wo_Walk, //Walk somewhere
+    wo_WalkOut, //Walk out of Barracks
+    wo_AttackUnit, //Attack someone
+    wo_AttackHouse, //Attack house
+    wo_Storm //Do Storm attack
   );
 
+  //What we are doing at the moment
   TWarriorState = (
     ws_None, //Warrior is idle
     ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
