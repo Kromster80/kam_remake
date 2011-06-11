@@ -1524,7 +1524,7 @@ begin
   begin
     Label_UnitDescription.Hide;
     Commander := TKMUnitWarrior(Sender).GetCommander;
-    if Commander.ArmyIsBusy(true) then
+    if not Commander.ArmyCanTakeOrders then
       Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
     if fJoiningGroups then
     begin
@@ -1536,10 +1536,10 @@ begin
       Panel_Army.Show;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
-      Army_ActivateControls(not Commander.ArmyIsBusy(true));
-      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and not Commander.ArmyIsBusy(true);
+      Army_ActivateControls(Commander.ArmyCanTakeOrders);
+      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and Commander.ArmyCanTakeOrders;
     end;
-    Button_Army_Storm.Enabled := (UnitGroups[byte(Sender.UnitType)] = gt_Melee)and not Commander.ArmyIsBusy(true); //Only melee groups may charge
+    Button_Army_Storm.Enabled := (UnitGroups[byte(Sender.UnitType)] = gt_Melee)and Commander.ArmyCanTakeOrders; //Only melee groups may charge
   end
   else
   begin //Citizen specific
@@ -2349,7 +2349,7 @@ begin
 
   //Attack or Walk
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
-    and(not TKMUnitWarrior(fShownUnit).GetCommander.ArmyIsBusy(true)) //Can't give orders to busy warriors
+    and TKMUnitWarrior(fShownUnit).GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
     and(fShownUnit.GetOwner = MyPlayer.PlayerID) then
   begin
     //Try to Attack unit

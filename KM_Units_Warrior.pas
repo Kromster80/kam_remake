@@ -70,7 +70,8 @@ type //Possibly melee warrior class? with Archer class separate?
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     property GetOrder:TWarriorOrder read fOrder;
     function GetRow:integer;
-    function ArmyIsBusy(IgnoreArchers:boolean=false):boolean;
+    function ArmyCanTakeOrders:boolean;
+    function ArmyInFight:boolean;
     procedure ReissueOrder;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
@@ -193,7 +194,7 @@ begin
     fCommander.fMembers.Remove((Self));
     //Now make the group reposition if they were idle (halt has IsDead check in case commander is dead too)
     if (fCommander.fState <> ws_Walking) and (not (fUnitTask is TTaskAttackHouse))
-    and not fCommander.ArmyIsBusy then
+    and not fCommander.ArmyInFight then
       fCommander.OrderHalt;
   end;
 
@@ -245,7 +246,7 @@ begin
         NewCommander.fOrder := wo_AttackHouse
       else
         //If we were walking/attacking then it is handled above. Otherwise just reposition
-        if (fState <> ws_Walking) and not NewCommander.ArmyIsBusy then
+        if (fState <> ws_Walking) and not NewCommander.ArmyInFight then
           NewCommander.OrderWalk(KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir)); //Else use position of new commander and direction of group
 
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
@@ -593,26 +594,32 @@ begin
 end;
 
 
-//Is the player able to issue orders to our group?
-function TKMUnitWarrior.ArmyIsBusy(IgnoreArchers:boolean=false):boolean;
+//If the player is allowed to issue orders to group
+function TKMUnitWarrior.ArmyCanTakeOrders:boolean;
+begin
+  Result := IsRanged or not ArmyInFight; //Ranged units can always take orders
+end;
+
+
+//If the group is in fight with someone
+function TKMUnitWarrior.ArmyInFight:boolean;
 var i: integer;
 begin
   Assert(fCommander = nil); //This should only be called for commanders
   Result := false;
-  if IgnoreArchers and IsRanged then exit; //Archers are never busy
   if (GetUnitAction is TUnitActionStormAttack)
   or ((GetUnitAction is TUnitActionFight)and(TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior)) then
     Result := true //We are busy if the commander is storm attacking or fighting a warrior
   else
     //Busy if a member is fighting a warrior
-    if (fMembers <> nil) and (fMembers.Count > 0) then
-      for i:=1 to fMembers.Count do
-        if (TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight)
-        and(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent is TKMUnitWarrior)
-        and not(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent.IsDeadOrDying) then
+    if fMembers <> nil then
+      for i:=0 to fMembers.Count-1 do
+        if (TKMUnitWarrior(fMembers.Items[i]).GetUnitAction is TUnitActionFight)
+        and(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent is TKMUnitWarrior)
+        and not(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent.IsDeadOrDying) then
         begin
           Result := true;
-          exit;
+          Exit;
         end;
 end;
 
@@ -966,17 +973,17 @@ begin
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage;
 
   //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
-  if GetCommander.ArmyIsBusy and (not (GetUnitAction is TUnitActionFight))
+  if GetCommander.ArmyInFight and (not (GetUnitAction is TUnitActionFight))
   and (not (GetUnitAction is TUnitActionStormAttack)) and not (fState = ws_Engage) then
     ChosenFoe := GetCommander.GetRandomFoeFromMembers
   else
     ChosenFoe := nil;
 
-  if (fState = ws_Engage) and ((not GetCommander.ArmyIsBusy) or (not(GetUnitAction is TUnitActionWalkTo))) then
+  if (fState = ws_Engage) and ((not GetCommander.ArmyInFight) or (not(GetUnitAction is TUnitActionWalkTo))) then
   begin
     fState := ws_None; //As soon as combat is over set the state back
     //Tell commanders to reposition after a fight
-    if (fCommander = nil) and (not GetCommander.ArmyIsBusy) then
+    if (fCommander = nil) and (not GetCommander.ArmyInFight) then
       OrderWalk(GetPosition); //Don't use halt because that returns us to fOrderLoc
   end;
 
@@ -1047,6 +1054,7 @@ begin
   and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
+    //todo: Do not WalkTo enemies location if we are archers, stay in place
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, fCommander <> nil, GetOrderTarget);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking;

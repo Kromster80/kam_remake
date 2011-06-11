@@ -477,7 +477,7 @@ begin
         if IsCommander and not IsDeadOrDying then
         begin
           //If the warrior is busy then skip this group because the AI should not give orders to fighting warriors
-          if ArmyIsBusy or (GetUnitTask is TTaskAttackHouse) or (OrderTarget <> nil) then
+          if ArmyInFight or (GetUnitTask is TTaskAttackHouse) or (OrderTarget <> nil) then
           begin
             //If this group belongs to a defence position and they are too far away we should disassociate
             //them from the defence position so new warriors can take up the defence if needs be
@@ -615,7 +615,7 @@ begin
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for i := 0 to DefencePositionsCount-1 do
     with DefencePositions[i] do
-      if (CurrentCommander <> nil) and (not CurrentCommander.ArmyIsBusy)
+      if (CurrentCommander <> nil) and (not CurrentCommander.ArmyInFight)
       and (CurrentCommander.OrderTarget = nil) then
         if KMLength(CurrentCommander.GetPosition,aAttacker.GetPosition) <= DefenceRadius then
           CurrentCommander.OrderAttackUnit(aAttacker);
@@ -660,7 +660,7 @@ begin
     begin
       //If we are attacked, then we should counter attack the attacker!
       with TKMUnitWarrior(aUnit).GetCommander do
-        if not ArmyIsBusy then
+        if not ArmyInFight then
           OrderAttackUnit(aAttacker);
     end
     else
