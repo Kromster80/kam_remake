@@ -16,6 +16,7 @@ type //Possibly melee warrior class? with Archer class separate?
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
+    fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
   {Commander properties}
     fUnitsPerRow:integer;
     fMembers:TList;
@@ -29,7 +30,6 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetOrderTarget:TKMUnit;
     function GetOrderHouseTarget:TKMHouse;
   public
-    fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
     fMapEdMembersCount:integer;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -42,6 +42,7 @@ type //Possibly melee warrior class? with Archer class separate?
 
     procedure AddMember(aWarrior:TKMUnitWarrior);
     function GetCommander:TKMUnitWarrior;
+    function IsCommander:boolean;
     function GetMemberCount:integer;
     property RequestedFood:boolean write fRequestedFood; //Cleared by Serf delivering food
     procedure SetGroupFullCondition;
@@ -258,11 +259,14 @@ begin
 end;
 
 
+//Members should added only to commanders
+//fMembers list is not initialized until first memeber is added
 procedure TKMUnitWarrior.AddMember(aWarrior:TKMUnitWarrior);
 begin
-  if fCommander <> nil then exit; //Only commanders may have members
+  Assert(IsCommander);
   if fMembers = nil then fMembers := TList.Create;
   fMembers.Add(aWarrior);
+  aWarrior.fCommander := Self;
 end;
 
 
@@ -286,13 +290,20 @@ begin
 end;
 
 
-{Return Commander or Self if unit is single}
+//Return Commander or Self if unit is single
 function TKMUnitWarrior.GetCommander:TKMUnitWarrior;
 begin
   if fCommander <> nil then
     Result := fCommander
   else
     Result := Self;
+end;
+
+
+//If we don't have a commander, then we are Commander, at least to ourselves
+function TKMUnitWarrior.IsCommander:boolean;
+begin
+  Result := fCommander = nil;
 end;
 
 
@@ -355,7 +366,7 @@ end;
 
 
 procedure TKMUnitWarrior.OrderLinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
-var i:integer; AddedSelf: boolean;
+var i:integer;
 begin
   //Redirect command so that both units are Commanders
   if (GetCommander<>Self) or (aNewCommander.GetCommander<>aNewCommander) then begin
@@ -369,27 +380,20 @@ begin
   //Can't link to self for obvious reasons
   if aNewCommander = Self then exit;
 
-  fCommander := aNewCommander;
-  AddedSelf := false;
-
   //Move our members and self to the new commander
   if fMembers <> nil then
   begin
     for i:=0 to fMembers.Count-1 do
     begin
-      //Put the commander in the right place (in to the middle of his members)
+      //Add the commander in the middle of his members
       if i = fUnitsPerRow div 2 then
-      begin
         aNewCommander.AddMember(Self);
-        AddedSelf := true;
-      end;
+
       aNewCommander.AddMember(TKMUnitWarrior(fMembers.Items[i]));
-      TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
     end;
     FreeAndNil(fMembers); //We are not a commander now so nil our memebers list (they have been moved to new commander)
-  end;
-
-  if not AddedSelf then
+  end
+  else //If we don't have members, then add just ourself
     aNewCommander.AddMember(Self);
 
   //Tell commander to reissue the order so that the new members do it
@@ -432,7 +436,6 @@ begin
       ((not MultipleTypes)and(i-DeletedCount >= fMembers.Count div 2)) then
     begin
       NewCommander.AddMember(fMembers.Items[i-DeletedCount]); //Join new commander
-      TKMUnitWarrior(fMembers.Items[i-DeletedCount]).fCommander := NewCommander;
       fMembers.Delete(i-DeletedCount); //Leave this commander
       inc(DeletedCount);
     end; //Else stay with this commander
@@ -462,7 +465,6 @@ begin
     if DeletedCount < aNumberOfMen then
     begin
       aNewCommander.AddMember(fMembers.Items[i]);
-      TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
       fMembers.Delete(i);
       inc(DeletedCount);
     end;

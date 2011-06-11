@@ -894,7 +894,7 @@ begin
     begin
       ChangeWalkTo(fTargetUnit.GetPosition,fDistance,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
-      if (fWalker is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).fCommander = nil) then
+      if (fWalker is TKMUnitWarrior) and TKMUnitWarrior(fWalker).IsCommander then
       begin
         TKMUnitWarrior(fWalker).OrderAttackUnit(fTargetUnit,true); //Give members new position
         TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fTargetUnit.GetPosition,TKMUnitWarrior(fWalker).OrderLocDir.Dir);

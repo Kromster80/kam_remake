@@ -947,7 +947,7 @@ begin
       CurUnit := TKMUnit(fPlayers.Player[i].Units.Items[k]);
       if CurUnit is TKMUnitWarrior then
       begin
-        if TKMUnitWarrior(CurUnit).fCommander = nil then //Parse only Commanders
+        if TKMUnitWarrior(CurUnit).IsCommander then //Parse only Commanders
         begin
           AddCommand(ct_SetGroup, [GetUnitScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1]);
           if CurUnit.Condition = UNIT_MAX_CONDITION then

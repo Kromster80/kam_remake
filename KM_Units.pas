@@ -1835,9 +1835,8 @@ begin
       fPlayers.Player[byte(aOwner)].Stats.UnitCreated(aUnitType, false);
       W.Direction := aDir;
       W.AnimStep  := UnitStillFrames[aDir];
-      W.fCommander := Commander;
-      W.fCondition := Commander.fCondition; //Whole group will have same condition
       Commander.AddMember(W);
+      W.fCondition := Commander.fCondition; //Whole group will have same condition
     end;
   end;
   Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members

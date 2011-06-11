@@ -474,7 +474,7 @@ begin
   begin
     if TKMUnit(fPlayers[PlayerIndex].Units.Items[i]) is TKMUnitWarrior then
       with TKMUnitWarrior(fPlayers[PlayerIndex].Units.Items[i]) do
-        if (fCommander = nil) and not IsDeadOrDying then
+        if IsCommander and not IsDeadOrDying then
         begin
           //If the warrior is busy then skip this group because the AI should not give orders to fighting warriors
           if ArmyIsBusy or (GetUnitTask is TTaskAttackHouse) or (OrderTarget <> nil) then

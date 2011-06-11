@@ -82,7 +82,7 @@ begin
   begin
     Result := TaskDone;
     //Commander should reposition his men after destroying the house
-    if TKMUnitWarrior(fUnit).fCommander = nil then
+    if TKMUnitWarrior(fUnit).IsCommander then
       TKMUnitWarrior(fUnit).OrderWalk(fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
     exit;
   end;
@@ -96,7 +96,7 @@ begin
          SetActionWalkToHouse(fHouse, 1);
     1: begin
          //Once we've reached the house, if the player clicks halt we reposition here
-         if TKMUnitWarrior(fUnit).fCommander = nil then
+         if TKMUnitWarrior(fUnit).IsCommander then
            TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(GetPosition,TKMUnitWarrior(fUnit).OrderLocDir.Dir);
 
          if TKMUnitWarrior(fUnit).IsRanged then begin
