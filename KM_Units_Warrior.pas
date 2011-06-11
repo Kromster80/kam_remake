@@ -1071,7 +1071,7 @@ begin
     fState := ws_None; //Not needed for storm attack
   end;
 
-  if fFlagAnim mod 5 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
+  if (fFlagAnim mod 5 = 0) and (fState <> ws_RepositionPause) then CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -1105,7 +1105,7 @@ begin
   begin
     fState := ws_RepositionPause; //Means we are in position and waiting until we turn
     SetActionStay(4+Random(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
-    CheckForEnemy(TKMDirection(fOrderLoc.Dir+1)); //Check for enemy once here, mainly important to make archers shoot as soon as they have finished walking
+    //Do not check for enemy, let archers face right direction first (enemies could be behind = unattackable)
   end
   else
   begin
