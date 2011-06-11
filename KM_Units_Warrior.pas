@@ -580,11 +580,11 @@ begin
   and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior) then
     Foes.Add(TUnitActionFight(GetUnitAction).GetOpponent);
 
-  if (fMembers <> nil) and (fMembers.Count > 0) then
-    for i:=1 to fMembers.Count do
-      if (TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction is TUnitActionFight)
-      and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
-        Foes.Add(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i-1]).GetUnitAction).GetOpponent);
+  if fMembers <> nil then
+    for i:=0 to fMembers.Count-1 do
+      if (TKMUnitWarrior(fMembers.Items[i]).GetUnitAction is TUnitActionFight)
+      and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
+        Foes.Add(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent);
 
   if Foes.Count > 0 then
     Result := TKMUnitWarrior(Foes.Items[Random(Foes.Count)])
