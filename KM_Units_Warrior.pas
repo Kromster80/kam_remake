@@ -207,11 +207,11 @@ begin
       //Get nearest neighbour and give him the Flag
       NewCommanderID := 0;
       Nearest := maxSingle;
-      for i:=1 to fMembers.Count do begin
-        Test := GetLength(GetPosition, TKMUnitWarrior(fMembers.Items[i-1]).GetPosition);
+      for i:=0 to fMembers.Count-1 do begin
+        Test := GetLength(GetPosition, TKMUnitWarrior(fMembers.Items[i]).GetPosition);
         if Test < Nearest then begin
           Nearest := Test;
-          NewCommanderID := i-1;
+          NewCommanderID := i;
         end;
       end;
 
@@ -221,10 +221,10 @@ begin
       NewCommander.fMembers := TList.Create;
 
       //Transfer all members to new commander
-      for i:=1 to fMembers.Count do
-        if i-1 <> NewCommanderID then begin
-          TKMUnitWarrior(fMembers.Items[i-1]).fCommander := NewCommander; //Reassign new Commander
-          NewCommander.fMembers.Add(fMembers.Items[i-1]); //Reassign membership
+      for i:=0 to fMembers.Count-1 do
+        if i <> NewCommanderID then begin
+          TKMUnitWarrior(fMembers.Items[i]).fCommander := NewCommander; //Reassign new Commander
+          NewCommander.fMembers.Add(fMembers.Items[i]); //Reassign membership
         end;
 
       //Make sure units per row is still valid
