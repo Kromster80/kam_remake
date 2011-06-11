@@ -66,7 +66,7 @@ var
   {User interface options}
   SHOW_DEBUG_CONTROLS   :boolean=false; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
-  SHOW_TEXT_OUTLINES    :boolean=false;
+  SHOW_TEXT_OUTLINES    :boolean=false; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame

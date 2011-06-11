@@ -38,7 +38,7 @@ begin
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
   fVertexOccupied := KMPoint(0,0);
-  if KMStepIsDiag(aUnit.GetPosition, fOpponent.GetPosition) and (TKMUnitWarrior(aUnit).GetFightMaxRange < 2) then
+  if KMStepIsDiag(aUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(aUnit).IsRanged then
     IncVertex(aUnit.GetPosition, fOpponent.GetPosition);
 end;
 
@@ -150,7 +150,7 @@ begin
   if not KMSamePoint(KMGetDiagVertex(KMUnit.GetPosition, fOpponent.GetPosition), fVertexOccupied) then
   begin
     DecVertex;
-    if KMStepIsDiag(KMUnit.GetPosition, fOpponent.GetPosition) and (TKMUnitWarrior(KMUnit).GetFightMaxRange < 2) then
+    if KMStepIsDiag(KMUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(KMUnit).IsRanged then
       if fTerrain.VertexUsageCompatible(KMUnit.GetPosition, fOpponent.GetPosition) then
         IncVertex(KMUnit.GetPosition, fOpponent.GetPosition)
       else
@@ -171,7 +171,8 @@ begin
     fPlayers.Player[byte(KMUnit.GetOwner)].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
   end;
 
-  if TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2 then begin
+  if TKMUnitWarrior(KMUnit).IsRanged then 
+  begin
     if Step = FIRING_DELAY then
     begin
       if AimingDelay=-1 then //Initialize
@@ -219,7 +220,7 @@ begin
 
   //Aiming Archers may miss few ticks, so don't put anything critical below!
 
-  StepDone := (KMUnit.AnimStep mod Cycle = 0) or (TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2); //Archers may abandon at any time as they need to walk off imediantly
+  StepDone := (KMUnit.AnimStep mod Cycle = 0) or TKMUnitWarrior(KMUnit).IsRanged; //Archers may abandon at any time as they need to walk off imediantly
   inc(KMUnit.AnimStep);
 end;
 

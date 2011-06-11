@@ -8,8 +8,8 @@ type
   TTaskAttackHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
+      //todo: Test fUnit:TKMUnitWarrior;
       fDestroyingHouse:boolean; //House destruction in progress
-      fFightType:TFightType;
       LocID:byte; //Current attack location
       CellsW:TKMPointList; //List of cells within
     public
@@ -35,10 +35,9 @@ begin
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;
-  fFightType := WarriorFightType[aWarrior.UnitType];
   LocID  := 0;
   CellsW  := TKMPointList.Create; //Pass pre-made list to make sure we Free it in the same unit
-  if fFightType = ft_Ranged then fHouse.GetListOfCellsWithin(CellsW);
+  if aWarrior.IsRanged then fHouse.GetListOfCellsWithin(CellsW);
 end;
 
 
@@ -47,7 +46,6 @@ begin
   Inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
-  LoadStream.Read(fFightType, SizeOf(fFightType));
   LoadStream.Read(LocID);
   CellsW := TKMPointList.Load(LoadStream);
 end;
@@ -91,7 +89,7 @@ begin
 
   with fUnit do
   case fPhase of
-    0: if fFightType=ft_Ranged then
+    0: if TKMUnitWarrior(fUnit).IsRanged then
          //todo: Sort out cases when archers are too close, either step back to the minimum range or don't participate in the attack
          SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX / (byte(REDUCE_SHOOTING_RANGE)+1))
        else
@@ -101,7 +99,7 @@ begin
          if TKMUnitWarrior(fUnit).fCommander = nil then
            TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(GetPosition,TKMUnitWarrior(fUnit).OrderLocDir.Dir);
 
-         if fFightType=ft_Ranged then begin
+         if TKMUnitWarrior(fUnit).IsRanged then begin
            SetActionLockedStay(AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
            Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
            case UnitType of
@@ -118,13 +116,14 @@ begin
          //Let the house know it is being attacked
          fPlayers.Player[byte(fHouse.GetOwner)].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := true;
-         case fFightType of
-           ft_Ranged: SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0); //Start shooting
-           ft_Melee:  SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
-         end;
+         if TKMUnitWarrior(fUnit).IsRanged then
+           SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0) //Start shooting
+         else
+           SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
        end;
     3: begin
-         if fFightType=ft_Ranged then begin //Launch the missile and forget about it
+         if TKMUnitWarrior(fUnit).IsRanged then
+         begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
              ut_Arbaletman: fGame.Projectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt, GetOwner, true);
@@ -157,7 +156,6 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fDestroyingHouse);
-  SaveStream.Write(fFightType, SizeOf(fFightType));
   SaveStream.Write(LocID);
   CellsW.Save(SaveStream);
 end;

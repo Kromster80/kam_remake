@@ -72,6 +72,7 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure ReissueOrder;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
+    function IsRanged:boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
@@ -594,7 +595,7 @@ var i: integer;
 begin
   Assert(fCommander = nil); //This should only be called for commanders
   Result := false;
-  if IgnoreArchers and (GetFightMaxRange >= 2) then exit; //Archers are never busy
+  if IgnoreArchers and IsRanged then exit; //Archers are never busy
   if (GetUnitAction is TUnitActionStormAttack)
   or ((GetUnitAction is TUnitActionFight)and(TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior)) then
     Result := true //We are busy if the commander is storm attacking or fighting a warrior
@@ -638,6 +639,12 @@ end;
 function TKMUnitWarrior.IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
 begin
   Result := (GetCommander = aWarrior.GetCommander);
+end;
+
+
+function TKMUnitWarrior.IsRanged:boolean;
+begin
+  Result := WarriorFightType[UnitType] = ft_Ranged;
 end;
 
 
@@ -858,11 +865,11 @@ begin
   if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
   //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
-  if (GetFightMaxRange >= 2) and (((not (GetUnitAction is TUnitActionStay)) and
-                                 not((GetUnitAction is TUnitActionFight) and not GetUnitAction.Locked))
-                                 or (GetUnitTask is TTaskAttackHouse)) then exit; //Never look for enemies when shooting a house
+  if IsRanged and (((not (GetUnitAction is TUnitActionStay)) and
+                     not((GetUnitAction is TUnitActionFight) and not GetUnitAction.Locked))
+                     or (GetUnitTask is TTaskAttackHouse)) then exit; //Never look for enemies when shooting a house
 
-  if (aDir = dir_NA) and (GetFightMaxRange >= 2) then
+  if (aDir = dir_NA) and IsRanged then
     aDir := Direction; //Use direction for ranged attacks, if it was not already specified
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
@@ -914,7 +921,7 @@ begin
   if GetUnitAction is TUnitActionAbandonWalk then Result := GetUnitAction.StepDone and not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
   if GetUnitAction is TUnitActionStormAttack then Result := not GetUnitAction.Locked else //Never interupt storm attack
-  if GetUnitAction is TUnitActionFight       then Result := (GetFightMaxRange >= 2) or not GetUnitAction.Locked //Only allowed to interupt ranged fights
+  if GetUnitAction is TUnitActionFight       then Result := IsRanged or not GetUnitAction.Locked //Only allowed to interupt ranged fights
   else Result := true;
 end;
 
@@ -960,17 +967,7 @@ begin
 
   //Help out our fellow group members in combat if we are not fighting and someone else is
   if (fState <> ws_Engage) and (ChosenFoe <> nil) then
-    if GetFightMaxRange < 2 then
-    begin
-      //Melee
-      //todo: Try to avoid making a route through other units. Path finding should weight tiles with units high,
-      //      tiles with fighting (locked) units very high so we route around the locked the battle rather
-      //      than getting stuck trying to walk through fighting units (this will make the fighting system appear smarter)
-      fOrder := wo_AttackUnit;
-      fState := ws_Engage; //Special state so we don't issue this order continuously
-      SetOrderTarget(ChosenFoe);
-    end
-    else
+    if IsRanged then
     begin
       //Archers should abandon walk to start shooting if there is a foe
       if InRange(GetLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
@@ -984,6 +981,16 @@ begin
         Direction := KMGetDirection(GetPosition, ChosenFoe.GetPosition);
         CheckForEnemy;
       end;
+    end
+    else
+    begin
+      //Melee
+      //todo: Try to avoid making a route through other units. Path finding should weight tiles with units high,
+      //      tiles with fighting (locked) units very high so we route around the locked the battle rather
+      //      than getting stuck trying to walk through fighting units (this will make the fighting system appear smarter)
+      fOrder := wo_AttackUnit;
+      fState := ws_Engage; //Special state so we don't issue this order continuously
+      SetOrderTarget(ChosenFoe);
     end;
 
   //Override current action if there's an Order in queue paying attention
@@ -1119,6 +1126,7 @@ begin
 end;
 
 
+//todo: Compact this function, maybe split it into 2-3 smaller ones
 procedure TKMUnitWarrior.Paint;
 
   procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir, UnitTyp:byte);
@@ -1142,7 +1150,7 @@ procedure TKMUnitWarrior.Paint;
 var
   UnitTyp, AnimAct, AnimDir:byte;
   XPaintPos, YPaintPos: single;
-  i:integer;
+  i,k:integer;
   UnitPosition: TKMPoint;
 begin
   Inherited;
@@ -1173,6 +1181,14 @@ begin
     YPaintPos := UnitPosition.Y + 1  ;
     fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
   end;
+
+  if SHOW_ATTACK_RADIUS then
+    if IsRanged then
+    for i:=-round(RANGE_BOWMAN_MAX)-1 to round(RANGE_BOWMAN_MAX) do
+    for k:=-round(RANGE_BOWMAN_MAX)-1 to round(RANGE_BOWMAN_MAX) do
+    if InRange(GetLength(i,k),RANGE_BOWMAN_MIN,RANGE_BOWMAN_MAX) then
+    if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
+      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i);
 end;
 
 

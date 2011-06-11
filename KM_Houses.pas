@@ -1583,10 +1583,9 @@ begin
   if SHOW_ATTACK_RADIUS then
     for i:=-round(RANGE_WATCHTOWER_MAX)-1 to round(RANGE_WATCHTOWER_MAX) do
     for k:=-round(RANGE_WATCHTOWER_MAX)-1 to round(RANGE_WATCHTOWER_MAX) do
-    if InRange(GetLength(i,k),RANGE_WATCHTOWER_MAX,RANGE_WATCHTOWER_MIN) then
+    if InRange(GetLength(i,k),RANGE_WATCHTOWER_MIN,RANGE_WATCHTOWER_MAX) then
     if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
-      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i);
-
+      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i); 
 end;
 
 

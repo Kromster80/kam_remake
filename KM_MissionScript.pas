@@ -718,7 +718,6 @@ var
   f:textfile;
   i: longint; //longint because it is used for encoding entire output, which will limit the file size
   k,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
-  SavePlayCount:integer;//How many players to save
   Res:TResourceType;
   Group: TGroupType;
   CurUnit: TKMUnit;
@@ -767,17 +766,17 @@ begin
 
   //Main header, use same filename for MAP
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + ExtractFileName(TruncateExt(aFileName)) + '.map"');
-  AddCommand(ct_SetMaxPlayer, [SavePlayCount]);
+  AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
   AddData(''); //NL
 
   //Player loop
-  for i:=1 to SavePlayCount do
+  for i:=0 to fPlayers.Count-1 do
   begin
     //Player header, using same order of commands as KaM
-    AddCommand(ct_SetCurrPlayer, [i-1]); //In script player 0 is the first
+    AddCommand(ct_SetCurrPlayer, [i]); //In script player 0 is the first
     if fPlayers.Player[i].PlayerType = pt_Human then
-      AddCommand(ct_SetHumanPlayer, [i-1]);
-    AddCommand(ct_EnablePlayer, [i-1]);
+      AddCommand(ct_SetHumanPlayer, [i]);
+    AddCommand(ct_EnablePlayer, [i]);
     if fPlayers.Player[i].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer, []);
 
@@ -793,13 +792,13 @@ begin
           if GoalCondition = gc_Time then
             AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime])
           else
-            AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)-1]);
+            AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)]);
 
         if GoalType = glt_Survive then
           if GoalCondition = gc_Time then
             AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime])
           else
-            AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)-1]);
+            AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)]);
       end;
     AddData(''); //NL
 
@@ -857,10 +856,11 @@ begin
 
     //General, e.g. units, roads, houses, etc.
     //Alliances
-    for k:=1 to SavePlayCount do
+    for k:=0 to fPlayers.Count-1 do
       if k<>i then
-        AddCommand(ct_SetAlliance, [k-1,byte(fPlayers.Player[i].Alliances[k])]); //0=enemy, 1=ally
+        AddCommand(ct_SetAlliance, [k,byte(fPlayers.Player[i].Alliances[k])]); //0=enemy, 1=ally
     AddData(''); //NL
+    
     //Release/block houses
     ReleaseAllHouses := true;
     for k:=1 to HOUSE_COUNT do

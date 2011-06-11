@@ -154,7 +154,7 @@ TTerrain = class
     function TileIsWineField(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
     function UnitsHitTest(X,Y:word):TKMUnit;
-    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection{; aPreferWarriors:boolean}): TKMUnit;
+    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
@@ -514,13 +514,13 @@ end;
 //Function to use with WatchTowers/Archers/AutoLinking/
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
-  Prefer Warriors over citizens}
-function TTerrain.UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection{; aPreferWarriors:boolean}): TKMUnit;
+  Prefer Warriors over Citizens}
+function TTerrain.UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlay:TPlayerID; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
 var
   i,k:integer; //Counters
   lx,ly,hx,hy:integer; //Ranges
   dX,dY:integer;
-  U,C,W:TKMUnit;
+  U,C,W:TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
 begin
   W := nil;
   C := nil;
@@ -532,8 +532,10 @@ begin
   hy := min(round(aLoc.Y+(MaxRad+1)),MapY); //1.42 gets rounded to 1
 
   for i:=ly to hy do for k:=lx to hx do
-  if InRange(GetLength(aLoc, KMPoint(k,i)), MinRad, MaxRad) then //Add 1tile margin to cover all units
-  if (Land[i,k].IsUnit <> nil) and (Land[i,k].IsUnit.HitTest(k,i)) then //Unit is actually on the tile
+  if InRange(GetLength(aLoc, KMPoint(k,i)), MinRad, MaxRad)
+    and (fPlayers.Player[byte(aPlay)].FogOfWar.CheckTileRevelation(k,i) = 255) 
+    and (Land[i,k].IsUnit <> nil)
+    and (Land[i,k].IsUnit.HitTest(k,i)) then //Unit is actually on the tile
   begin
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
     dX := k-aLoc.X;
@@ -550,7 +552,7 @@ begin
     end;
     //Don't check tiles farther than closest Warrior
     if (W<>nil) and (GetLength(KMPoint(aLoc.X,aLoc.Y),KMPoint(k,i)) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
-      Continue; //Since we check left-to-right we can't exit yet
+      Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
     U := Land[i,k].IsUnit;
 
