@@ -79,7 +79,7 @@ type
       destructor Destroy; override;
       function  CanAbandonExternal: boolean;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
-      function  GetExplanation:string;
+      function  GetExplanation:string; override;
       procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;

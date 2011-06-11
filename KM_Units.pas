@@ -29,6 +29,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
     property GetActionType: TUnitActionType read fActionType;
+    function GetExplanation:string; virtual; abstract;
     function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
@@ -1101,9 +1102,7 @@ end;
 
 function TKMUnit.GetUnitActText:string;
 begin
-  Result:=' - ';
-  if fCurrentAction is TUnitActionWalkTo then
-    Result := TUnitActionWalkTo(fCurrentAction).GetExplanation;
+  Result := fCurrentAction.GetExplanation;
 end;
 
 

@@ -14,6 +14,7 @@ TUnitActionFight = class(TUnitAction)
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
+    function GetExplanation:string; override;
     procedure SyncLoad; override;
     procedure IncVertex(aFrom, aTo: TKMPoint);
     procedure DecVertex;
@@ -65,6 +66,12 @@ procedure TUnitActionFight.SyncLoad;
 begin
   Inherited;
   fOpponent := fPlayers.GetUnitByID(cardinal(fOpponent));
+end;
+
+
+function TUnitActionFight.GetExplanation: string;
+begin
+  Result := 'Fighting';
 end;
 
 

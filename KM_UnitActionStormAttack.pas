@@ -17,6 +17,7 @@ TUnitActionStormAttack = class(TUnitAction)
     constructor Create(aActionType:TUnitActionType; aRow:integer);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
+    function GetExplanation:string; override;
     procedure IncVertex(aFrom, aTo: TKMPoint);
     procedure DecVertex;
     function CheckForObstacle(KMUnit: TKMUnit; NextPos: TKMPoint):boolean;
@@ -59,6 +60,12 @@ begin
   LoadStream.Read(fStamina);
   LoadStream.Read(fNextPos);
   LoadStream.Read(fVertexOccupied);
+end;
+
+
+function TUnitActionStormAttack.GetExplanation: string;
+begin
+  Result := 'Storming';
 end;
 
 

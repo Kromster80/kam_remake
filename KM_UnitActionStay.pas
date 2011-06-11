@@ -5,7 +5,7 @@ uses Classes, KM_Defaults, KromUtils, KM_CommonTypes, KM_Units, SysUtils, Math;
 
 {Stay in place for set time}
 type
-TUnitActionStay = class(TUnitAction)
+  TUnitActionStay = class(TUnitAction)
   private
     StayStill:boolean;
     TimeToStay:integer;
@@ -14,6 +14,7 @@ TUnitActionStay = class(TUnitAction)
   public
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
     constructor Load(LoadStream:TKMemoryStream); override;
+    function GetExplanation: string; override;
     function HowLongLeftToStay:integer;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -42,6 +43,12 @@ begin
   LoadStream.Read(StayStill);
   LoadStream.Read(TimeToStay);
   LoadStream.Read(StillFrame);
+end;
+
+
+function TUnitActionStay.GetExplanation: string;
+begin
+  Result := 'Staying';
 end;
 
 

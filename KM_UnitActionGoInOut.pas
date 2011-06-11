@@ -9,30 +9,31 @@ type TBestExit = (be_None, be_Left, be_Center, be_Right);
 {This is a [fairly :P] simple action making unit go inside/outside of house}
 type
   TUnitActionGoInOut = class(TUnitAction)
-    private
-      fStep:single;
-      fHouse:TKMHouse;
-      fDirection:TGoInDirection;
-      fDoor:TKMPointF;
-      fStreet:TKMPoint;
-      fHasStarted:boolean;
-      fWaitingForPush:boolean;
-      fUsedDoorway:boolean;
-      procedure IncDoorway;
-      procedure DecDoorway;
-      function FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
-      function ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
-      procedure WalkIn(aUnit:TKMUnit);
-      procedure WalkOut(aUnit:TKMUnit);
-    public
-      constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      property GetHasStarted: boolean read fHasStarted;
-      function Execute(KMUnit: TKMUnit):TActionResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
+  private
+    fStep:single;
+    fHouse:TKMHouse;
+    fDirection:TGoInDirection;
+    fDoor:TKMPointF;
+    fStreet:TKMPoint;
+    fHasStarted:boolean;
+    fWaitingForPush:boolean;
+    fUsedDoorway:boolean;
+    procedure IncDoorway;
+    procedure DecDoorway;
+    function FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
+    function ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+    procedure WalkIn(aUnit:TKMUnit);
+    procedure WalkOut(aUnit:TKMUnit);
+  public
+    constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    function GetExplanation:string; override;
+    property GetHasStarted: boolean read fHasStarted;
+    function Execute(KMUnit: TKMUnit):TActionResult; override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+  end;
 
 
 implementation
@@ -85,6 +86,12 @@ begin
   if fUsedDoorway then DecDoorway;
   fPlayers.CleanUpHousePointer(fHouse);
   Inherited;
+end;
+
+
+function TUnitActionGoInOut.GetExplanation: string;
+begin
+  Result := 'Walking in/out';
 end;
 
 

@@ -15,6 +15,7 @@ type
     constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
+    function GetExplanation:string; override;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -52,6 +53,12 @@ begin
   Inherited;
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fVertexOccupied);
+end;
+
+
+function TUnitActionAbandonWalk.GetExplanation: string;
+begin
+  Result := 'Abandoning walk';
 end;
 
 

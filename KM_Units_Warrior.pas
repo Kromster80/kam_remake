@@ -864,10 +864,21 @@ begin
   Result := nil; //No one to fight
   if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
-  //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
-  if IsRanged and (((not (GetUnitAction is TUnitActionStay)) and
-                     not((GetUnitAction is TUnitActionFight) and not GetUnitAction.Locked))
-                     or (GetUnitTask is TTaskAttackHouse)) then exit; //Never look for enemies when shooting a house
+
+  if IsRanged then
+  begin
+    if (GetUnitTask is TTaskAttackHouse) or GetUnitAction.Locked then
+      Exit; //Never look for enemies when shooting at house or Locked in other fight
+
+    //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
+    if (GetUnitAction is TUnitActionWalkTo)
+    and ((GetOrderTarget = nil) or GetOrderTarget.IsDeadOrDying or not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange))
+    then
+    begin
+      Result := nil;
+      Exit;
+    end;
+  end;
 
   if (aDir = dir_NA) and IsRanged then
     aDir := Direction; //Use direction for ranged attacks, if it was not already specified
@@ -1038,7 +1049,10 @@ begin
   end;
 
   //Take attack order
-  if (fOrder=wo_AttackUnit) and CanInterruptAction then
+  if (fOrder=wo_AttackUnit)
+  and CanInterruptAction
+  and (GetOrderTarget <> nil)
+  and not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange) then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
