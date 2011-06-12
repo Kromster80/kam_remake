@@ -3,7 +3,7 @@ Make sure these are checked:	//Assigned to Krom
 	Remove FastMM from 'uses'
 	True/false switches in KM_Defaults
 	Game version strings in KM_Defaults (include expected revision # and commit it)
-	Turn off debug data in compilation options
+	Turn off debug data (Project > Options > Linker > DebugInfo)
 	Compile in Delphi6/7
 	Update Bugreports list (move fixed bugs down)
 	Update Fetures list (move implemented features down)

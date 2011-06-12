@@ -13,10 +13,11 @@
 	Replays manager
 	Add hotkeys for armies that player can assign (Ctrl+1,2,etc)
 
-1st Multiplayer Demo (r1***) - 31.06.2011:
+1st Multiplayer Demo (r1787) - 2011-06-13:
  +	Multiplayer lobby
  +	LAN multiplayer beta
  +	Improved AI scripting [Lewin]
+ +	Custom images in menu and cursors
  +	Bugfixes
 
 
