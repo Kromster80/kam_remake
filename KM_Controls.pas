@@ -1560,7 +1560,11 @@ begin
     if NewIndex <> fItemIndex then
     begin
       fItemIndex := NewIndex;
-      if Assigned(fOnChange) then fOnChange(Self);
+      if Assigned(fOnChange) then
+      begin
+        fOnChange(Self);
+        Exit; //Don't generate OnClick after OnChanged event (esp. when reloading Game on local change)
+      end;
     end;
   end;
   Inherited; //There are OnMouseUp and OnClick events there
