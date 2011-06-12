@@ -6,14 +6,19 @@
 	Marketplace
 	Random map generator
 	Support custom campaigns
- +	Multiplayer lobby    
 	Select units/houses by shape, instead of tiles they stand on
-
-	Improved AI scripting [Lewin]
+	
 	Tutorial missions and texts from KaM
 	Lookout tower [Krom]
 	Replays manager
 	Add hotkeys for armies that player can assign (Ctrl+1,2,etc)
+
+1st Multiplayer Demo (r1***) - 31.06.2011:
+ +	Multiplayer lobby
+ +	LAN multiplayer beta
+ +	Improved AI scripting [Lewin]
+ +	Bugfixes
+
 
 2nd Fighting Demo (r1345) - 31.12.2010:
  +	Lots of bugfixes [Krom/Lewin]

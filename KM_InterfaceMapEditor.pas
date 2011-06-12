@@ -655,26 +655,25 @@ begin
     Button_Mission[1] := TKMButton.Create(Panel_Mission, 8, 4, 36, 24, 41);
     for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
 
-    //todo: Improve the look and feel of alliances, replace checkboxes with flat buttons, add spaces between rows, etc.
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
       Label_Alliances := TKMLabel.Create(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
-      //TKMBevel.Create(Panel_Alliances, 9, 28, 180, 180);
       for i:=0 to MAX_PLAYERS-1 do begin
         TKMLabel.Create(Panel_Alliances,32+i*20+2,30,100,20,inttostr(i+1),fnt_Outline,kaLeft);
-        TKMLabel.Create(Panel_Alliances,12,50+i*20,100,20,inttostr(i+1),fnt_Outline,kaLeft);
+        TKMLabel.Create(Panel_Alliances,12,50+i*25,100,20,inttostr(i+1),fnt_Outline,kaLeft);
         for k:=0 to MAX_PLAYERS-1 do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
-          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 8+k*20, 46+i*20, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 28+k*20, 46+i*25, 20, 20, '', fnt_Metal);
           CheckBox_Alliances[i,k].Tag       := i * MAX_PLAYERS + k;
           CheckBox_Alliances[i,k].FlatStyle := true;
           CheckBox_Alliances[i,k].OnClick   := Mission_AlliancesChange;
         end;
       end;
 
-      //It does not have OnClick event for a reason
+      //It does not have OnClick event for a reason:
       // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 30+MAX_PLAYERS*20, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
+      CheckBox_AlliancesSym.Disable;
 end;
 
 
