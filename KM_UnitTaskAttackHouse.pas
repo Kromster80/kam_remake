@@ -8,7 +8,6 @@ type
   TTaskAttackHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
-      //todo: Test fUnit:TKMUnitWarrior;
       fDestroyingHouse:boolean; //House destruction in progress
       LocID:byte; //Current attack location
       CellsW:TKMPointList; //List of cells within

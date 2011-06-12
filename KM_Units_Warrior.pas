@@ -1152,7 +1152,6 @@ begin
 end;
 
 
-//todo: Compact this function, maybe split it into 2-3 smaller ones
 procedure TKMUnitWarrior.Paint;
 
   procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir, UnitTyp:byte);
@@ -1160,17 +1159,19 @@ procedure TKMUnitWarrior.Paint;
     TeamColor: byte;
     FlagXPaintPos, FlagYPaintPos: single;
   begin
-    if (fCommander <> nil) or IsDeadOrDying then exit; //No flags for commanders or dead units
     FlagXPaintPos := XPaintPos + FlagXOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
     FlagYPaintPos := YPaintPos + FlagYOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
-    TeamColor := byte(fOwner);
-    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals); //Highlight with White color
+
+    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then
+      TeamColor := byte(play_animals) //Highlight with White color
+    else
+      TeamColor := byte(fOwner); //Normal color
 
     //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
     if fGame.GameState = gsEditor then
-      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fTerrain.AnimStep, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false)
+      fRender.RenderUnitFlag(UnitTyp, 9, AnimDir, fTerrain.AnimStep, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false)
     else
-      fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false);
+      fRender.RenderUnitFlag(UnitTyp, 9, AnimDir, fFlagAnim, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false);
   end;
 
 var
@@ -1190,7 +1191,8 @@ begin
 
   fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
-  PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //Paint flag over the top of the unit
+  if IsCommander and not IsDeadOrDying then
+    PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //Paint flag over the top of the unit
 
   //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
   if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
