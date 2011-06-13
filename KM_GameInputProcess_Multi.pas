@@ -254,7 +254,6 @@ begin
 end;
 
 
-//todo: Join unsent commands from player
 //todo: Check CRCs
 procedure TGameInputProcess_Multi.UpdateState(aTick:cardinal);
 var i:integer;

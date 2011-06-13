@@ -361,8 +361,8 @@ begin
   if aPlayerID = play_none then
     PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream.ReadAsText, 0) //Send commands to all players
   else
-  for i:=1 to fNetPlayers.Count do //todo: optimize and error-check
-    if fNetPlayers[i].PlayerIndex.PlayerID = aPlayerID then   //TODO: ERROR HERE
+  for i:=1 to fNetPlayers.Count do
+    if fNetPlayers[i].PlayerIndex.PlayerID = aPlayerID then
       PacketSend(fNetPlayers[i].IndexOnServer, mk_Commands, aStream.ReadAsText, 0);
 end;
 
@@ -423,7 +423,7 @@ begin
               begin
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
-                PacketSend(aSenderIndex, mk_MapSelect, fMapInfo.Folder, 0); //Send the map first so it doesn't override starting locs
+                PacketSend(aSenderIndex, mk_MapSelect, fMapInfo.Folder, 0 {Integer(fMapInfo.CRC)}); //Send the map first so it doesn't override starting locs
                 PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 PostMessage(Msg+' has joined');

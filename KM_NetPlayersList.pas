@@ -203,7 +203,7 @@ begin
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].PlayerIndex := nil;
-  fPlayers[fCount].FlagColorID := 0; //todo: Allocate unused color to player
+  fPlayers[fCount].FlagColorID := 0; //todo: Color 0 should be "random color" option
   fPlayers[fCount].StartLocation := 0;
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;
