@@ -125,6 +125,9 @@ procedure TKMGoals.RemoveReference(aPlayerID:TPlayerID);
 var i:integer;
 begin
   for i:=fCount-1 downto 0 do
+    if fGoals[i].Player > aPlayerID then
+      fGoals[i].Player := pred(fGoals[i].Player)
+    else
     if fGoals[i].Player = aPlayerID then
       RemGoal(i);
 end;

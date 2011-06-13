@@ -236,6 +236,7 @@ type
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; RelativeEntrance:boolean):TKMHouse;
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
     function Rem(aHouse:TKMHouse):boolean;
+    procedure OwnerUpdate(aOwner:TPlayerID);
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
@@ -1639,6 +1640,14 @@ function TKMHousesCollection.Rem(aHouse:TKMHouse):boolean;
 begin
   Remove(aHouse);
   Result := true;
+end;
+
+
+procedure TKMHousesCollection.OwnerUpdate(aOwner:TPlayerID);
+var i:integer;
+begin
+  for i:=0 to Count-1 do
+    Houses[i].fOwner := aOwner;
 end;
 
 

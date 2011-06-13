@@ -33,13 +33,13 @@ type
     fSchedule:array[0..MAX_SCHEDULE-1, 0..MAX_PLAYERS-1] of TCommandsPack; //Ring buffer
 
     //All players must confirm they have recieved our GIPList
-    fConfirmation:array[0..MAX_SCHEDULE-1, 0..MAX_PLAYERS-1] of boolean; //Ring buffer
+    fConfirmation:array[0..MAX_SCHEDULE-1, TPlayerID] of boolean; //Ring buffer
 
     //Mark commands we've already sent to other players
     fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
 
     procedure SendCommands(aTick:cardinal);
-    procedure SendConfirmation(aTick:cardinal; aPlayerLoc:byte);
+    procedure SendConfirmation(aTick:cardinal; aPlayerID:TPlayerID);
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
@@ -145,7 +145,7 @@ begin
   if not fSent[i mod MAX_SCHEDULE] then
   begin
     Tick := i mod MAX_SCHEDULE; //Place in a ring buffer
-    break;
+    Break;
   end;
   Assert(Tick<>-1, 'Could not find place for new commands');
 
@@ -171,7 +171,7 @@ end;
 
 
 //Confirm that we have recieved the commands with CRC
-procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerLoc:byte);
+procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerID:TPlayerID);
 var Msg:TKMemoryStream;
 begin
   Msg := TKMemoryStream.Create;
@@ -179,8 +179,8 @@ begin
     Msg.Write(byte(kdp_Confirmation));
     Msg.Write(aTick); //Target Tick in 1..n range
     Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
-    Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, aPlayerLoc].CRC);
-    fNetworking.SendCommands(Msg, aPlayerLoc); //Send to opponent
+    //Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, aStartLocID-1].CRC);
+    fNetworking.SendCommands(Msg, aPlayerID); //Send to opponent
   finally
     Msg.Free;
   end;
@@ -202,13 +202,13 @@ begin
       kdp_Commands:
           begin
             fSchedule[Tick mod MAX_SCHEDULE, byte(PlayID)].Load(M);
-            SendConfirmation(Tick, byte(PlayID));
+            SendConfirmation(Tick, PlayID);
           end;
       kdp_Confirmation: //Recieved CRC should match our commands pack
           begin
             M.Read(CRC);
-            Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].CRC);
-            fConfirmation[Tick mod MAX_SCHEDULE, byte(PlayID)] := true;
+            //Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].CRC);
+            fConfirmation[Tick mod MAX_SCHEDULE, PlayID] := true;
           end;
     end;
   finally
@@ -223,7 +223,7 @@ var i:integer;
 begin
   Result := True;
   for i:=1 to fNetworking.NetPlayers.Count do
-    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].StartLocID] or not fNetworking.NetPlayers[i].Alive);
+    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerID] or not fNetworking.NetPlayers[i].Alive);
 end;
 
 
@@ -267,7 +267,7 @@ begin
   begin
     SendCommands(i);
     fSent[i mod MAX_SCHEDULE] := true;
-    fConfirmation[i mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)] := true; //Self confirmed
+    fConfirmation[i mod MAX_SCHEDULE, MyPlayer.PlayerID] := true; //Self confirmed
   end;
 end;
 

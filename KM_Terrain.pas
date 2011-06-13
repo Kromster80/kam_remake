@@ -69,6 +69,7 @@ TTerrain = class
     procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; const aFlattenTerrain:boolean=false);
     procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
 
+    procedure RemovePlayer(aPlayer:TPlayerID);
     procedure RemMarkup(Loc:TKMPoint);
     procedure RemRoad(Loc:TKMPoint);
     procedure RemField(Loc:TKMPoint);
@@ -726,6 +727,18 @@ begin
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(wcWalk);
   RebuildWalkConnect(wcRoad);
+end;
+
+
+procedure TTerrain.RemovePlayer(aPlayer:TPlayerID);
+var i,k:word;
+begin
+  for i:=1 to MapY do for k:=1 to MapX do
+    if Land[i,k].TileOwner > aPlayer then
+      Land[i,k].TileOwner := pred(Land[i,k].TileOwner)
+    else
+    if Land[i,k].TileOwner = aPlayer then
+      Land[i,k].TileOwner := play_none;
 end;
 
 

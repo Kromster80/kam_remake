@@ -73,7 +73,7 @@ type
     property MapInfo:TKMapInfo read fMapInfo;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     procedure GameCreated;
-    procedure SendCommands(aStream:TKMemoryStream; aPlayerLoc:byte=0);
+    procedure SendCommands(aStream:TKMemoryStream; aPlayerID:TPlayerID=play_none);
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
@@ -262,7 +262,7 @@ begin
   end;
 
   //Host makes rules, Joiner will get confirmation from Host
-  fNetPlayers[fMyIndex].StartLocID := aIndex;
+  fNetPlayers[fMyIndex].StartLocation := aIndex;
 
   case fLANPlayerKind of
     lpk_Host:   begin
@@ -355,14 +355,14 @@ end;
 
 
 //Send our commands to either to all players, or to specified one
-procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerLoc:byte=0);
+procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerID:TPlayerID=play_none);
 var i:integer;
 begin
-  if aPlayerLoc = 0 then
+  if aPlayerID = play_none then
     PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream.ReadAsText, 0) //Send commands to all players
   else
   for i:=1 to fNetPlayers.Count do //todo: optimize and error-check
-    if fNetPlayers[i].StartLocID = aPlayerLoc then   //TODO: ERROR HERE
+    if fNetPlayers[i].PlayerIndex.PlayerID = aPlayerID then   //TODO: ERROR HERE
       PacketSend(fNetPlayers[i].IndexOnServer, mk_Commands, aStream.ReadAsText, 0);
 end;
 
@@ -492,7 +492,7 @@ begin
                  (LocID <= fMapInfo.PlayerCount) and
                  fNetPlayers.LocAvailable(LocID) then
               begin //Update Players setup
-                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].StartLocID := LocID;
+                fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].StartLocation := LocID;
                 PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
                 if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
               end

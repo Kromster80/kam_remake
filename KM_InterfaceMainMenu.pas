@@ -1243,7 +1243,7 @@ begin
   if Sender = DropBox_LobbyLoc[i] then
   begin
     fGame.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex);
-    DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocID;
+    DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
   end;
 
   if Sender = DropColorBox_Lobby[i] then
@@ -1262,7 +1262,7 @@ begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
-    DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocID;
+    DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
     DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
 

@@ -14,7 +14,8 @@ type
   public
     PlayerType:TPlayerType; //Human, Computer
     FlagColorID:integer;    //Flag color, 0 means random
-    StartLocID:integer;     //Start location, 0 means random
+    StartLocation:integer;     //Start location, 0 means random
+    PlayerIndex:TKMPlayer;
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
     Alive:boolean;          //Player is still connected and not defeated
@@ -108,17 +109,17 @@ var
 begin
   //All wrong start locations will be reset to "undefined"
   for i:=1 to fCount do
-    if not Math.InRange(fPlayers[i].StartLocID, 0, aMaxLoc) then fPlayers[i].StartLocID := 0;
+    if not Math.InRange(fPlayers[i].StartLocation, 0, aMaxLoc) then fPlayers[i].StartLocation := 0;
 
   SetLength(UsedLoc, aMaxLoc+1); //01..aMaxLoc, all false
   for i:=1 to aMaxLoc do UsedLoc[i] := false;
 
   //Remember all used locations and drop duplicates
   for i:=1 to fCount do
-    if UsedLoc[fPlayers[i].StartLocID] then
-      fPlayers[i].StartLocID := 0
+    if UsedLoc[fPlayers[i].StartLocation] then
+      fPlayers[i].StartLocation := 0
     else
-      UsedLoc[fPlayers[i].StartLocID] := true;
+      UsedLoc[fPlayers[i].StartLocation] := true;
 
   //Collect available locations in a list
   LocCount := 0;
@@ -135,15 +136,15 @@ begin
   //Allocate available starting locations
   k := 0;
   for i:=1 to fCount do
-  if fPlayers[i].StartLocID = 0 then begin
+  if fPlayers[i].StartLocation = 0 then begin
     inc(k);
     if k<=LocCount then
-      fPlayers[i].StartLocID := AvailableLoc[k];
+      fPlayers[i].StartLocation := AvailableLoc[k];
   end;
 
   //Check for odd players
   for i:=1 to fCount do
-    Assert(fPlayers[i].StartLocID <> 0, 'Everyone should have a starting location!');
+    Assert(fPlayers[i].StartLocation <> 0, 'Everyone should have a starting location!');
 end;
 
 
@@ -201,8 +202,9 @@ begin
   fPlayers[fCount].fNikname := aNik;
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fPlayers[fCount].PlayerType := pt_Human;
+  fPlayers[fCount].PlayerIndex := nil;
   fPlayers[fCount].FlagColorID := 0; //todo: Allocate unused color to player
-  fPlayers[fCount].StartLocID := 0;
+  fPlayers[fCount].StartLocation := 0;
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;
   fPlayers[fCount].Alive := true;
@@ -270,7 +272,7 @@ begin
   if aIndex=0 then exit;
 
   for i:=1 to fCount do
-    Result := Result and not (fPlayers[i].StartLocID = aIndex);
+    Result := Result and not (fPlayers[i].StartLocation = aIndex);
 end;
 
 
@@ -308,7 +310,7 @@ var i:integer;
 begin
   for i:=1 to fCount do
   begin
-    fPlayers[i].StartLocID := 0;
+    fPlayers[i].StartLocation := 0;
     fPlayers[i].ReadyToStart := false;
   end;
 end;
@@ -340,7 +342,7 @@ begin
     M.Write(fPlayers[i].fIndexOnServer);
     M.Write(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
     M.Write(fPlayers[i].FlagColorID);
-    M.Write(fPlayers[i].StartLocID);
+    M.Write(fPlayers[i].StartLocation);
     M.Write(fPlayers[i].ReadyToStart);
     M.Write(fPlayers[i].Alive);
   end;
@@ -363,7 +365,7 @@ begin
       M.Read(fPlayers[i].fIndexOnServer);
       M.Read(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
       M.Read(fPlayers[i].FlagColorID);
-      M.Read(fPlayers[i].StartLocID);
+      M.Read(fPlayers[i].StartLocation);
       M.Read(fPlayers[i].ReadyToStart);
       M.Read(fPlayers[i].Alive);
     end;

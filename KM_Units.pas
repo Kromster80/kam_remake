@@ -12,7 +12,7 @@ uses
 //Abstract - declared but used only in child classes
 
 type TCheckAxis = (ax_X, ax_Y);
-type
+
   TKMUnit = class;
   TKMUnitWorker = class;
 
@@ -236,6 +236,7 @@ type
     function Add(aOwner:TPlayerID; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
     function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     procedure RemoveUnit(aUnit:TKMUnit);
+    procedure OwnerUpdate(aOwner:TPlayerID);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
@@ -1848,6 +1849,14 @@ begin
   aUnit.CloseUnit; //Should free up the unit properly (freeing terrain usage and memory)
   aUnit.Free;
   Remove(aUnit);
+end;
+
+
+procedure TKMUnitsCollection.OwnerUpdate(aOwner:TPlayerID);
+var i:integer;
+begin
+  for i:=0 to Count-1 do
+    Units[i].fOwner := aOwner;
 end;
 
 

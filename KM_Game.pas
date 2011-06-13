@@ -388,8 +388,8 @@ begin
     fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[0];
   end;
-
   fPlayers.AfterMissionInit(true);
+
   fViewport.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
@@ -418,7 +418,7 @@ var
   ResultMsg, LoadError:string;
   i:integer;
   fMissionParser:TMissionParser;
-  PlayerID:integer;
+  PlayerIndex:integer;
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
   GameInit(true);
@@ -452,6 +452,7 @@ begin
       end;
     end;
   end;
+  fPlayers.AfterMissionInit(true);
 
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
   fRender.Render;
@@ -464,20 +465,21 @@ begin
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
   begin
-    PlayerID := fNetworking.NetPlayers[i].StartLocID - 1; //PlayerID is 0 based
-    fPlayers.Player[PlayerID].PlayerType := fNetworking.NetPlayers[i].PlayerType;
-    fPlayers.Player[PlayerID].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
-    PlayerUsed[PlayerID] := true;
+    PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
+    fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
+    fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].PlayerType;
+    fPlayers.Player[PlayerIndex].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
+    PlayerUsed[PlayerIndex] := true;
   end;
+
+  //MyPlayer is a pointer to TKMPlayer
+  MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
   //Clear remaining players
   for i:=fPlayers.Count-1 downto 0 do
     if not PlayerUsed[i] then
       fPlayers.RemovePlayer(i);
 
-  MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocID];
-
-  fPlayers.AfterMissionInit(true);
   fViewport.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);

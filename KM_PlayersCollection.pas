@@ -113,15 +113,32 @@ begin
 end;
 
 
-
+//Remove player aIndex
+//todo: Comment and refactor
 procedure TKMPlayersCollection.RemovePlayer(aIndex:integer);
-var i:integer;
+var i,k:integer;
 begin
+  Assert(MyPlayer <> fPlayerList[aIndex], 'Can not remove Player referenced by MyPlayer');
+
   for i:=0 to fCount-1 do
     fPlayerList[i].Goals.RemoveReference(fPlayerList[aIndex].PlayerID);
 
   FreeThenNil(fPlayerList[aIndex]);
+
+  for i:=aIndex to fCount-2 do
+  begin
+    fPlayerList[i] := fPlayerList[i+1];
+    fPlayerList[i].SetPlayerID(TPlayerID(i));
+  end;
+
   dec(fCount);
+  SetLength(fPlayerList, fCount);
+
+  for i:=0 to fCount-1 do
+    for k:=aIndex to fCount-1 do
+      fPlayerList[i].Alliances[k] := fPlayerList[i].Alliances[k+1];
+
+  fTerrain.RemovePlayer(TPlayerID(aIndex));
 end;
 
 

@@ -51,6 +51,7 @@ type
     property FogOfWar:TKMFogOfWar read fFogOfWar;
 
     property PlayerID:TPlayerID read fPlayerID;
+    procedure SetPlayerID(aNewID:TPlayerID);
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor:cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex:byte read GetColorIndex;
@@ -221,6 +222,15 @@ begin
     if aFlattenRoads then fTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);
   end;
+end;
+
+
+procedure TKMPlayer.SetPlayerID(aNewID:TPlayerID);
+begin
+  fPlayerID := aNewID;
+  fUnits.OwnerUpdate(aNewID);
+  fHouses.OwnerUpdate(aNewID);
+  fAI.OwnerUpdate(aNewID);
 end;
 
 
