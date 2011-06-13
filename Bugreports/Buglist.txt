@@ -21,7 +21,7 @@ EXE-only r1787+:
 
 
 
-Fixed in KaM Remake 1st Multiplayer Demo 2011-06-13 (r1787):
+Fixed in KaM Remake 1st Multiplayer Demo 2011-06-13 (r1793):
 <===================================================================================>
  +	Units commanded to go deep into unwalkable terrain would cause "walkto 0:0" error
  +	CanWalkRoads displayed wrong areas in MapEd

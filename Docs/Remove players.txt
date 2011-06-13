@@ -35,3 +35,12 @@ MapEditor needs to be able to remove players smoothly
 
 In the end we have alliances and goals set/depend between starting locations, and players are
 choosing which location they want to use, with all its assets and properties.
+
+
+RemovePlayer:
+	Units.OwnerUpdate
+	Houses.OwnerUpdate
+	AI.OwnerUpdate
+	Alliances
+	Goals
+	Terrain
