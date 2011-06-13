@@ -179,7 +179,7 @@ begin
     Msg.Write(byte(kdp_Confirmation));
     Msg.Write(aTick); //Target Tick in 1..n range
     Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
-    //Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, aStartLocID-1].CRC);
+    Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, byte(aPlayerID)].CRC);
     fNetworking.SendCommands(Msg, aPlayerID); //Send to opponent
   finally
     Msg.Free;
@@ -207,7 +207,7 @@ begin
       kdp_Confirmation: //Recieved CRC should match our commands pack
           begin
             M.Read(CRC);
-            //Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].CRC);
+            Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].CRC);
             fConfirmation[Tick mod MAX_SCHEDULE, PlayID] := true;
           end;
     end;
