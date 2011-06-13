@@ -459,8 +459,7 @@ begin
   fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
   //Initilise
-  for i:=0 to fPlayers.Count-1 do
-    PlayerUsed[i] := false;
+  FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
@@ -472,7 +471,7 @@ begin
   end;
 
   //Clear remaining players
-  for i:=0 to fPlayers.Count-1 do
+  for i:=fPlayers.Count-1 downto 0 do
     if not PlayerUsed[i] then
       fPlayers.RemovePlayer(i);
 

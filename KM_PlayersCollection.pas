@@ -11,7 +11,7 @@ type
   TKMPlayersCollection = class
   private
     fCount:byte;
-    fPlayerList:TList;
+    fPlayerList:array of TKMPlayer;
     fPlayerAnimals:TKMPlayerAnimals;
     function GetPlayer(Index:integer):TKMPlayer;
   public
@@ -66,8 +66,7 @@ uses KM_Terrain, KM_Game;
 constructor TKMPlayersCollection.Create;
 begin
   Inherited Create;
-  fPlayerList := TList.Create;
-  fPlayerAnimals := TKMPlayerAnimals.Create; //Always create players
+  fPlayerAnimals := TKMPlayerAnimals.Create; //Always create Animals
 end;
 
 
@@ -75,9 +74,8 @@ destructor TKMPlayersCollection.Destroy;
 var i:integer;
 begin
   for i:=0 to fCount-1 do
-    Player[i].Free;
+    FreeThenNil(fPlayerList[i]);
 
-  fPlayerList.Free;
   PlayerAnimals.Free;
 
   MyPlayer := nil;
@@ -89,7 +87,7 @@ end;
 function TKMPlayersCollection.GetPlayer(Index:integer):TKMPlayer;
 begin
   Assert(Index < fCount);
-  Result := TKMPlayer(fPlayerList[Index]);
+  Result := fPlayerList[Index];
 end;
 
 
@@ -98,11 +96,12 @@ var i:integer;
 begin
   Assert(fCount+aCount <= MAX_PLAYERS);
 
+  SetLength(fPlayerList, fCount+aCount);
+
   for i:=fCount to fCount+aCount-1 do
-  begin
-    fPlayerList.Add(TKMPlayer.Create(TPlayerID(i), i));
-    inc(fCount);
-  end;
+    fPlayerList[i] := TKMPlayer.Create(TPlayerID(i), i);
+
+  fCount := fCount+aCount;
 end;
 
 
@@ -110,7 +109,7 @@ procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads:boolean);
 var i:integer;
 begin
   for i:=0 to fCount-1 do
-    Player[i].AfterMissionInit(aFlattenRoads);
+    fPlayerList[i].AfterMissionInit(aFlattenRoads);
 end;
 
 
@@ -119,9 +118,10 @@ procedure TKMPlayersCollection.RemovePlayer(aIndex:integer);
 var i:integer;
 begin
   for i:=0 to fCount-1 do
-    Player[i].Goals.RemoveReference(Player[i].PlayerID);
+    fPlayerList[i].Goals.RemoveReference(fPlayerList[aIndex].PlayerID);
 
-  Player[aIndex].Free;
+  FreeThenNil(fPlayerList[aIndex]);
+  dec(fCount);
 end;
 
 
@@ -142,7 +142,7 @@ begin
   Result:=nil;
   for i:=0 to fCount-1 do
   begin
-    Result := Player[i].HousesHitTest(X,Y);
+    Result := fPlayerList[i].HousesHitTest(X,Y);
     if Result<>nil then exit; //Assuming that there can't be 2 houses on one tile
   end;
 end;
@@ -158,7 +158,7 @@ begin
   for i:=0 to fCount-1 do
   for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
   for X:=trunc(aLoc.X) to ceil(aLoc.X) do begin
-    U := Player[i].UnitsHitTest(X,Y);
+    U := fPlayerList[i].UnitsHitTest(X,Y);
     if U<>nil then
       if (Result=nil) or (GetLength(U.PositionF,aLoc)<GetLength(Result.PositionF,aLoc)) then
         Result := U;
@@ -179,7 +179,7 @@ begin
 
   for i:=0 to fCount-1 do
   begin
-    Result := Player[i].Houses.GetHouseByID(aID);
+    Result := fPlayerList[i].Houses.GetHouseByID(aID);
     if Result<>nil then exit; //else keep on testing
   end;
 end;
@@ -193,7 +193,7 @@ begin
 
   for i:=0 to fCount-1 do
   begin
-    Result := Player[i].Units.GetUnitByID(aID);
+    Result := fPlayerList[i].Units.GetUnitByID(aID);
     if Result<>nil then exit; //else keep on testing
   end;
   if Result = nil then Result := PlayerAnimals.Units.GetUnitByID(aID);
@@ -228,7 +228,7 @@ var i:integer;
 begin
   Result := 0;
   for i:=0 to fCount-1 do
-    inc(Result, Player[i].Units.Count);
+    inc(Result, fPlayerList[i].Units.Count);
 end;
 
 
@@ -269,7 +269,7 @@ begin
   if (aPlay1 = aPlay2) or (aPlay1 = play_animals) or (aPlay2 = play_animals) then
     Result := at_Ally
   else
-    Result := Player[byte(aPlay1)].Alliances[byte(aPlay2)];
+    Result := fPlayerList[byte(aPlay1)].Alliances[byte(aPlay2)];
 end;
 
 
@@ -311,7 +311,7 @@ var i:integer;
 begin
   Result := false;
   for i:=0 to fCount-1 do
-    Result := Result or Player[i].RemHouse(Position, DoSilent, Simulated, IsEditor);
+    Result := Result or fPlayerList[i].RemHouse(Position, DoSilent, Simulated, IsEditor);
 end;
 
 
@@ -320,7 +320,7 @@ var i:integer;
 begin
   Result := false;
   for i:=0 to fCount-1 do
-    Result := Result or Player[i].RemUnit(Position, Simulated);
+    Result := Result or fPlayerList[i].RemUnit(Position, Simulated);
 end;
 
 
@@ -330,7 +330,7 @@ begin
   SaveStream.Write('Players');
   SaveStream.Write(fCount);
   for i:=0 to fCount-1 do
-    Player[i].Save(SaveStream);
+    fPlayerList[i].Save(SaveStream);
   PlayerAnimals.Save(SaveStream);
   SaveStream.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
 end;
@@ -344,15 +344,17 @@ begin
   LoadStream.Read(fCount);
   fLog.AssertToLog(fCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 
+  SetLength(fPlayerList, fCount);
+
   for i:=0 to fCount-1 do
   begin
-    fPlayerList.Add(TKMPlayer.Create(play_none, 0));
-    Player[i].Load(LoadStream);
+    fPlayerList[i] := TKMPlayer.Create(play_none, 0);
+    fPlayerList[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
 
   LoadStream.Read(P, SizeOf(P));
-  MyPlayer := fPlayers.Player[integer(P)];
+  MyPlayer := fPlayerList[integer(P)];
   Selected := nil;
 end;
 
@@ -361,7 +363,7 @@ procedure TKMPlayersCollection.SyncLoad;
 var i:byte;
 begin
   for i:=0 to fCount-1 do
-    Player[i].SyncLoad;
+    fPlayerList[i].SyncLoad;
   PlayerAnimals.SyncLoad;
 end;
 
@@ -370,7 +372,7 @@ procedure TKMPlayersCollection.IncAnimStep;
 var i:byte;
 begin
   for i:=0 to fCount-1 do
-    Player[i].IncAnimStep;
+    fPlayerList[i].IncAnimStep;
 end;
 
 
@@ -379,7 +381,7 @@ var i:byte;
 begin
   for i:=0 to fCount-1 do
     if fGame.GameState in [gsRunning, gsReplay] then
-      Player[i].UpdateState(Tick, i)
+      fPlayerList[i].UpdateState(Tick, i)
     else
       Exit; //PlayerAI can stop the game and clear everything
 
@@ -391,7 +393,7 @@ procedure TKMPlayersCollection.Paint;
 var i:integer;
 begin
   for i:=0 to fCount-1 do
-    Player[i].Paint;
+    fPlayerList[i].Paint;
   PlayerAnimals.Paint;
 end;
 
