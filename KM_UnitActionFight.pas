@@ -163,7 +163,7 @@ begin
       else
       begin
         //This vertex is being used so we can't fight
-        Result := actDone;
+        Result := ActDone;
         exit;
       end;
   end;

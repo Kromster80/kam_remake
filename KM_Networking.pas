@@ -322,7 +322,7 @@ begin
   end;
 
   //Host can not miss a starting location!
-  if fNetPlayers.Count > fMapInfo.Playercount then
+  if fNetPlayers.Count > fMapInfo.PlayerCount then
   begin
     fOnTextMessage('Can not start: Player count exceeds map limit');
     exit;

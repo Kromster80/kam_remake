@@ -75,6 +75,7 @@ end;
 constructor TKMPlayersList.Create;
 var i:integer;
 begin
+  Inherited;
   for i:=1 to MAX_PLAYERS do
     fPlayers[i] := TKMPlayerInfo.Create;
 end;

@@ -574,6 +574,7 @@ begin
 
         end;
   end;
+
   //Now process AI attacks (we have compiled a list of warriors available to attack)
   for i:=0 to ScriptedAttacksCount-1 do
   with ScriptedAttacks[i] do
@@ -586,7 +587,7 @@ begin
       //while ()
     end
     else
-    begin
+    begin //@Lewin: Please verify why "k" is not used in a loop, should it replace "i" ?
       for k:=byte(low(TGroupType)) to byte(high(TGroupType)) do
         for j:=1 to GroupAmounts[TGroupType(i)] do
           OrderAttack(AttackGroups[TGroupType(i),integer(j)-1],Target,CustomPosition);

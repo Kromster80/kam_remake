@@ -7,7 +7,7 @@ uses Classes, KM_Defaults, KM_Units, KromUtils, SysUtils;
     TTaskGoOutShowHungry = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
     end;
 
 
@@ -23,10 +23,11 @@ begin
 end;
 
 
-function TTaskGoOutShowHungry.Execute():TTaskResult;
+function TTaskGoOutShowHungry.Execute:TTaskResult;
 begin
   Result := TaskContinues;
-  if fUnit.GetHome.IsDestroyed then begin
+  if fUnit.GetHome.IsDestroyed then
+  begin
     Result := TaskDone;
     exit;
   end;

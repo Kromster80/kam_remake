@@ -125,7 +125,7 @@ type
     procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
-    procedure CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerID:TPlayerID); overload;
 
     function CommandsConfirmed(aTick:cardinal):boolean; virtual;
     procedure ReplayTimer(aTick:cardinal); virtual;
@@ -338,10 +338,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aPlayerID:integer);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerID:TPlayerID);
 begin
   Assert(aCommandType = gic_TempChangeMyPlayer);
-  TakeCommand( MakeCommand(aCommandType, [aPlayerID]) );
+  TakeCommand( MakeCommand(aCommandType, [Integer(aNewPlayerID)]) );
 end;
 
 

@@ -385,7 +385,7 @@ end;
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
   if (fPlayers<>nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
-    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
+    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, TPlayerID(RGPlayer.ItemIndex));
 end;
 
 
