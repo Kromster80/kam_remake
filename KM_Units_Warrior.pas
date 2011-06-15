@@ -572,7 +572,10 @@ end;
 
 //Get random unit from those our squad is fighting with
 function TKMUnitWarrior.GetRandomFoeFromMembers: TKMUnitWarrior;
-var Foes: TList; i: integer;
+var
+  i:Integer;
+  Foes: TList; //List of found foes
+  Test, BestLength : single;
 begin
   Assert(IsCommander); //This should only be called for commanders
   Foes := TList.Create;
@@ -580,16 +583,27 @@ begin
   and (TUnitActionFight(GetUnitAction).GetOpponent is TKMUnitWarrior) then
     Foes.Add(TUnitActionFight(GetUnitAction).GetOpponent);
 
+  //Check through fellow members to see who is in fight with enemy forces (excluding Citizen)
   if fMembers <> nil then
     for i:=0 to fMembers.Count-1 do
       if (TKMUnitWarrior(fMembers.Items[i]).GetUnitAction is TUnitActionFight)
       and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
         Foes.Add(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent);
 
+  BestLength := MaxSingle;
   if Foes.Count > 0 then
-    Result := TKMUnitWarrior(Foes.Items[Random(Foes.Count)])
+    for i:=0 to Foes.Count - 1 do
+    begin
+      Test := GetLength(GetPosition, TKMUnitWarrior(Foes.Items[i]).GetPosition);
+      if Test < BestLength then
+      begin
+        BestLength := Test;
+        Result := TKMUnitWarrior(Foes.Items[Random(Foes.Count)]);
+      end;
+    end
   else
     Result := nil;
+
   Foes.Free;
 end;
 

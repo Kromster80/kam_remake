@@ -1,5 +1,8 @@
 EXE-only r1787+:
 <===================================================================================>
+ +	In a fight warrior chooses to help to random foe, where it should prefer nearest enemy
+	When choosing color for multiplayer it affects only minimap, flags color remains default
+
 	Edges of messages and other scrolls should be transparent so they look smooth
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
 
