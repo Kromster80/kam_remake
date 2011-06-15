@@ -583,12 +583,13 @@ begin
   inc(fBuildingProgress,5); //is how many effort was put into building nevermind applied damage
   dec(fBuildReserve,5); //This is reserve we build from
 
-  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCost*50) then begin
+  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCost*50) then
     fBuildState:=hbs_Stone;
-    //fBuildingProgress:=0;
-  end;
-  if (fBuildState=hbs_Stone)and(fBuildingProgress-HouseDAT[byte(fHouseType)].WoodCost*50 = HouseDAT[byte(fHouseType)].StoneCost*50) then begin
+
+  if (fBuildState=hbs_Stone)and(fBuildingProgress-HouseDAT[byte(fHouseType)].WoodCost*50 = HouseDAT[byte(fHouseType)].StoneCost*50) then
+  begin
     fBuildState:=hbs_Done;
+    fPlayers.Player[Byte(fOwner)].Stats.HouseEnded(fHouseType);
     Activate(true);
   end;
 end;
@@ -605,14 +606,28 @@ end;
 function TKMHouse.AddDamage(aAmount:word):boolean;
 begin
   Result := false;
+  if IsDestroyed then
+    Exit;
+
+  if fBuildState < hbs_Wood then
+  begin
+    fPlayers.Player[byte(fOwner)].RemHouse(GetEntrance, true);
+    Exit;
+  end;
+
   fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
   if BuildingRepair and (fRepairID = 0) then
     fRepairID := fPlayers.Player[byte(fOwner)].BuildList.AddHouseRepair(Self);
   UpdateDamage;
-  if (GetHealth=0) and (fBuildState>=hbs_Wood) and not IsDestroyed then begin //Destroy only once
+
+  if GetHealth = 0 then
+  begin
     DemolishHouse(false); //Destroyed by Enemy
-    if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-      fPlayers.Player[byte(fOwner)].Stats.HouseLost(fHouseType);
+    if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+      if (fBuildState = hbs_Done) then
+        fPlayers.Player[byte(fOwner)].Stats.HouseLost(fHouseType)
+      else
+        fPlayers.Player[byte(fOwner)].Stats.HouseEnded(fHouseType);
     Result := true;
   end;
 end;

@@ -492,6 +492,7 @@ begin
   BuildID   := aID;
   HouseSet  := false;
   Step      := 0;
+
   for i := 1 to 4 do for k := 1 to 4 do
   if HousePlanYX[byte(fHouse.GetHouseType),i,k] <> 0 then begin
     inc(Step);
@@ -524,7 +525,8 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   //Allow other workers to take this task
-  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenHousePlan(BuildID);
+  if BuildID<>0 then
+    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenHousePlan(BuildID);
 
   if HouseSet and (fHouse<>nil) then
     fPlayers.Player[byte(fUnit.GetOwner)].RemHouse(fHouse.GetPosition,true);

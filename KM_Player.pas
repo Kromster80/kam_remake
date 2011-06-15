@@ -80,7 +80,6 @@ type
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 
-    function GetHouseWip(aType:THouseType):integer;
     function GetFieldsCount:integer;
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -281,10 +280,11 @@ end;
 procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var KMHouse:TKMHouse; Loc:TKMPoint;
 begin
-  Loc.X := aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
+  Loc.X := aLoc.X - HouseDAT[byte(aHouseType)].EntranceOffsetX;
   Loc.Y := aLoc.Y;
   KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerID);
   fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerID);
+  fStats.HouseStarted(aHouseType);
   BuildList.AddNewHousePlan(KMHouse);
 end;
 
@@ -299,7 +299,7 @@ begin
   begin
     if not Simulated then begin
       fHouse.DemolishHouse(DoSilent,IsEditor);
-      if fHouse.BuildingState = hbs_Done then //Only Done houses are treated as Self-Sestruct
+      if fHouse.BuildingState = hbs_Done then //Only Done houses are treated as Self-Destruct
         fStats.HouseSelfDestruct(fHouse.GetHouseType);
     end;
     Result := true;
@@ -408,13 +408,6 @@ end;
 procedure TKMPlayer.SetAlliances(Index:integer; aValue:TAllianceType);
 begin
   fAlliances[Index] := aValue;
-end;
-
-
-function TKMPlayer.GetHouseWip(aType:THouseType):integer;
-begin
-  //todo: Count houses that are being dug (don't appear in build list)
-  Result := fBuildList.GetHouseWipCount(aType);
 end;
 
 

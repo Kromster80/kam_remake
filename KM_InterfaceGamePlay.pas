@@ -1987,28 +1987,28 @@ begin
   for i:=low(StatHouse) to high(StatHouse) do
   begin
     Tmp := MyPlayer.Stats.GetHouseQty(StatHouse[i]);
-    Tmp2 := MyPlayer.GetHouseWip(StatHouse[i]);
-    if Tmp=0 then Stat_HouseQty[i].Caption:='-' else Stat_HouseQty[i].Caption:=inttostr(Tmp);
-    if Tmp2=0 then Stat_HouseWip[i].Caption:='' else Stat_HouseWip[i].Caption:='+'+inttostr(Tmp2);
+    Tmp2 := MyPlayer.Stats.GetHouseWip(StatHouse[i]);
+    if Tmp  = 0 then Stat_HouseQty[i].Caption := '-' else Stat_HouseQty[i].Caption := inttostr(Tmp);
+    if Tmp2 = 0 then Stat_HouseWip[i].Caption := ''  else Stat_HouseWip[i].Caption := '+'+inttostr(Tmp2);
     if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
-      Stat_HousePic[i].TexID:=byte(StatHouse[i])+300;
-      Stat_HousePic[i].Hint:=TypeToString(StatHouse[i]);
-      Stat_HouseQty[i].Hint:=TypeToString(StatHouse[i]);
+      Stat_HousePic[i].TexID := byte(StatHouse[i])+300;
+      Stat_HousePic[i].Hint := TypeToString(StatHouse[i]);
+      Stat_HouseQty[i].Hint := TypeToString(StatHouse[i]);
     end
     else
     begin
-      Stat_HousePic[i].TexID:=41;
-      Stat_HousePic[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
-      Stat_HouseQty[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
+      Stat_HousePic[i].TexID := 41;
+      Stat_HousePic[i].Hint := fTextLibrary.GetTextString(251); //Building not available
+      Stat_HouseQty[i].Hint := fTextLibrary.GetTextString(251); //Building not available
     end;
   end;
   for i:=low(StatUnit) to high(StatUnit) do
   begin
-    Tmp:=MyPlayer.Stats.GetUnitQty(StatUnit[i]);
-    if Tmp=0 then Stat_UnitQty[i].Caption:='-' else Stat_UnitQty[i].Caption:=inttostr(Tmp);
-    Stat_UnitPic[i].Hint:=TypeToString(StatUnit[i]);
-    Stat_UnitQty[i].Hint:=TypeToString(StatUnit[i]);
+    Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[i]);
+    if Tmp = 0 then Stat_UnitQty[i].Caption := '-' else Stat_UnitQty[i].Caption := inttostr(Tmp);
+    Stat_UnitPic[i].Hint := TypeToString(StatUnit[i]);
+    Stat_UnitQty[i].Hint := TypeToString(StatUnit[i]);
   end;
 end;
 
@@ -2186,6 +2186,8 @@ begin
                   if Key=ord('W') then fGame.fGameInputProcess.CmdTemp(gic_TempRevealMap);
                   if (Key=ord('V')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
                   if (Key=ord('D')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
+                  if (Key=ord('Q')) and not fGame.MultiplayerMode then fGame.fGameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
+
                 end;
     gsReplay:   begin
                   //Scrolling

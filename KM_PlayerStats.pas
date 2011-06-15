@@ -8,6 +8,8 @@ type
   TKMPlayerStats = class
   private
     Houses:array[1..HOUSE_COUNT]of packed record
+      Started,      //Construction started
+      Ended,        //Construction ended (either done or destroyed/cancelled)
       Initial,      //created by script on mission start
       Built,        //constructed by player
       SelfDestruct, //deconstructed by player
@@ -28,6 +30,9 @@ type
     AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
     BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
     constructor Create;
+
+    procedure HouseStarted(aType:THouseType);
+    procedure HouseEnded(aType:THouseType);
     procedure HouseCreated(aType:THouseType; aWasBuilt:boolean);
     procedure HouseLost(aType:THouseType);
     procedure HouseSelfDestruct(aType:THouseType);
@@ -42,6 +47,7 @@ type
     procedure UpdateReqDone(aType:THouseType);
 
     function GetHouseQty(aType:THouseType):integer;
+    function GetHouseWip(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetArmyCount:integer;
     function GetCanBuild(aType:THouseType):boolean;
@@ -90,6 +96,21 @@ begin
 end;
 
 
+//New house in progress
+procedure TKMPlayerStats.HouseStarted(aType:THouseType);
+begin
+  inc(Houses[byte(aType)].Started);
+end;
+
+
+//Since we track only WIP houses, we don't care if it's done or canceled/destroyed, that could be separate stats
+procedure TKMPlayerStats.HouseEnded(aType:THouseType);
+begin
+  inc(Houses[byte(aType)].Ended);
+end;
+
+
+//New house, either built by player or created by mission script
 procedure TKMPlayerStats.HouseCreated(aType:THouseType; aWasBuilt:boolean);
 begin
   if aWasBuilt then
@@ -100,6 +121,7 @@ begin
 end;
 
 
+//Destroyed by enemy
 procedure TKMPlayerStats.HouseLost(aType:THouseType);
 begin
   inc(Houses[byte(aType)].Lost);
@@ -112,6 +134,7 @@ begin
 end;
 
 
+//Player has destroyed an enemy house
 procedure TKMPlayerStats.HouseDestroyed(aType:THouseType);
 begin
   inc(Houses[byte(aType)].Destroyed);
@@ -155,6 +178,19 @@ begin
     ht_Any:     for i:=1 to HOUSE_COUNT do
                   inc(Result, Houses[i].Initial + Houses[i].Built - Houses[i].SelfDestruct - Houses[i].Lost);
     else        Result := Houses[byte(aType)].Initial + Houses[byte(aType)].Built - Houses[byte(aType)].SelfDestruct - Houses[byte(aType)].Lost;
+  end;
+end;
+
+
+function TKMPlayerStats.GetHouseWip(aType:THouseType):integer;
+var i:integer;
+begin
+  Result := 0;
+  case aType of
+    ht_None:    ;
+    ht_Any:     for i:=1 to HOUSE_COUNT do
+                  inc(Result, Houses[i].Started - Houses[i].Ended);
+    else        Result := Houses[byte(aType)].Started - Houses[byte(aType)].Ended;
   end;
 end;
 

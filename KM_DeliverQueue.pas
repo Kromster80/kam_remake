@@ -119,8 +119,6 @@ type
     procedure CloseHouseRepair(aID:integer);
     procedure RemoveHouseRepair(aHouse: TKMHouse);
 
-    function GetHouseWipCount(aHouseType: THouseType):integer;
-
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
@@ -703,22 +701,6 @@ begin
 end;
 
 
-function TKMBuildingQueue.GetHouseWipCount(aHouseType: THouseType):integer;
-var i:integer;
-begin
-  Result := 0;
-  Assert(not (aHouseType in [ht_None, ht_Any]), 'Querrying wrong house type');
-  
-  for i:=1 to HousesCount do
-    if (fHousesQueue[i].House<>nil) and (fHousesQueue[i].House.GetHouseType = aHouseType) then
-      inc(Result);
-
-  for i:=1 to HousePlansCount do
-    if (fHousePlansQueue[i].House<>nil) and (fHousePlansQueue[i].House.GetHouseType = aHouseType) then
-      inc(Result);
-end;
-
-
 procedure TKMBuildingQueue.AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
 var i:integer;
 begin
@@ -811,20 +793,21 @@ end;
 function TKMBuildingQueue.CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin
-  Result:=false;
+  Result := false;
   for i:=1 to HousePlansCount do
   with fHousePlansQueue[i] do
-  if (JobStatus<>js_Empty)and(House<>nil)and(House.HitTest(aLoc.X,aLoc.Y)) then
+  if (JobStatus<>js_Empty) and (House<>nil) and (House.HitTest(aLoc.X,aLoc.Y)) then
   begin
 
     if not Simulated then
     begin
       if Worker<>nil then
         Worker.CancelUnitTask;
+      fPlayers.Player[Byte(House.GetOwner)].Stats.HouseEnded(House.GetHouseType);
       CloseHousePlan(i);
     end;
 
-    Result:=true;
+    Result := true;
     break;
   end;
 end;
