@@ -419,7 +419,7 @@ begin
 
 end;
 
-                             
+
 procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
@@ -588,7 +588,7 @@ begin
 
   if (fBuildState=hbs_Stone)and(fBuildingProgress-HouseDAT[byte(fHouseType)].WoodCost*50 = HouseDAT[byte(fHouseType)].StoneCost*50) then
   begin
-    fBuildState:=hbs_Done;
+    fBuildState := hbs_Done;
     fPlayers.Player[Byte(fOwner)].Stats.HouseEnded(fHouseType);
     Activate(true);
   end;
@@ -625,9 +625,7 @@ begin
     DemolishHouse(false); //Destroyed by Enemy
     if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
       if (fBuildState = hbs_Done) then
-        fPlayers.Player[byte(fOwner)].Stats.HouseLost(fHouseType)
-      else
-        fPlayers.Player[byte(fOwner)].Stats.HouseEnded(fHouseType);
+        fPlayers.Player[byte(fOwner)].Stats.HouseLost(fHouseType);
     Result := true;
   end;
 end;

@@ -590,6 +590,7 @@ begin
       and (TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent is TKMUnitWarrior) then
         Foes.Add(TUnitActionFight(TKMUnitWarrior(fMembers.Items[i]).GetUnitAction).GetOpponent);
 
+  Result := nil;
   BestLength := MaxSingle;
   if Foes.Count > 0 then
     for i:=0 to Foes.Count - 1 do
@@ -600,9 +601,7 @@ begin
         BestLength := Test;
         Result := TKMUnitWarrior(Foes.Items[Random(Foes.Count)]);
       end;
-    end
-  else
-    Result := nil;
+    end;
 
   Foes.Free;
 end;

@@ -803,7 +803,6 @@ begin
     begin
       if Worker<>nil then
         Worker.CancelUnitTask;
-      fPlayers.Player[Byte(House.GetOwner)].Stats.HouseEnded(House.GetHouseType);
       CloseHousePlan(i);
     end;
 
