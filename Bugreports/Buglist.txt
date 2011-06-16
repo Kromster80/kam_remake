@@ -1,6 +1,6 @@
 EXE-only r1787+:
 <===================================================================================>
- +	In a fight warrior chooses to help to random foe, where it should prefer nearest enemy
+ +	In a fight warrior chose to attack random comrades foe, where he should prefer nearest foe from all comrades foes
 	When choosing color for multiplayer it affects only minimap, flags color remains default
 
 	Edges of messages and other scrolls should be transparent so they look smooth
