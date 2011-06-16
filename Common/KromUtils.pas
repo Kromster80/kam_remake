@@ -252,7 +252,7 @@ begin
   Result := FileExists(FileName);
 
   if not IsSilent and not Result then
-    Application.MessageBox(PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
+    Application.MessageBox(PChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
 end;
 
 
@@ -574,7 +574,7 @@ var
 begin
   {$IFDEF WDC}
   Result := true;
-  ShellExecute(Application.Handle, 'open', PAnsiChar(URL),nil,nil, SW_SHOWNORMAL);
+  ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL);
   {$ENDIF}
 
   {$IFDEF FPC}

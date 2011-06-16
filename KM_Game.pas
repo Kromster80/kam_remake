@@ -405,7 +405,7 @@ begin
   {$IFDEF Unix} //In Linux CopyFile does not overwrite
   if FileExists(KMSlotToSaveName(99,'bas')) then DeleteFile(KMSlotToSaveName(99,'bas'));
   {$ENDIF}
-  CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
+  CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
 
   fLog.AppendLog('Gameplay recording initialized',true);
   RandSeed := 4; //Random after StartGame and ViewReplay should match
@@ -495,7 +495,7 @@ begin
   {$IFDEF Unix} //In Linux CopyFile does not overwrite
   if FileExists(KMSlotToSaveName(99,'bas')) then DeleteFile(KMSlotToSaveName(99,'bas'));
   {$ENDIF}
-  CopyFile(PAnsiChar(KMSlotToSaveName(99,'sav')), PAnsiChar(KMSlotToSaveName(99,'bas')), false);
+  CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
 
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
@@ -1070,7 +1070,7 @@ begin
     gsNoGame:  fMainMenuInterface.Paint;
     gsPaused:  fGamePlayInterface.Paint;
     gsOnHold:  fGamePlayInterface.Paint;
-    gsRunning: fGamePlayInterface.Paint;
+    //gsRunning: fGamePlayInterface.Paint;
     gsReplay:  fGamePlayInterface.Paint;
     gsEditor:  fMapEditorInterface.Paint;
   end;

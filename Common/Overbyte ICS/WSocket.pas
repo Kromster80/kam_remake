@@ -3267,7 +3267,7 @@ begin
         if Length(ProcName) = 0 then
             Result := nil
         else begin
-            Result := GetProcAddress(FDllHandle, @ProcName[1]);
+            Result := GetProcAddress(FDllHandle, PAnsiChar(ProcName[1]));
             if Result = nil then
                 raise ESocketException.Create('Procedure ' + ProcName +
                                               ' not found in ' + winsocket +
@@ -3303,7 +3303,7 @@ begin
         if Length(ProcName) = 0 then
             Result := nil
         else begin
-            Result := GetProcAddress(FDll2Handle, @ProcName[1]);
+            Result := GetProcAddress(FDll2Handle, PAnsiChar(ProcName[1]));
             if Result = nil then
                 raise ESocketException.Create('Procedure ' + ProcName +
                                               ' not found in ' + winsocket2 +
@@ -4388,14 +4388,14 @@ end;
 {$IFNDEF NOFORMS}
 function AllocateHWnd(Method: TWndMethod): HWND;
 begin
-    Result := Forms.AllocateHWnd(Method);
+    Result := Classes.AllocateHWnd(Method);
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure DeallocateHWnd(Wnd: HWND);
 begin
-    Forms.DeallocateHWnd(Wnd);
+    Classes.DeallocateHWnd(Wnd);
 end;
 {$ENDIF}
 
@@ -7950,7 +7950,7 @@ begin
         I := SearchFrom;
         while I < (FRcvdCnt - Length(FLineEnd) + 1) do begin
             if FRcvdPtr[I] = FLineEnd[1] then begin
-                Found := (StrLComp(@FRcvdPtr[I], @FLineEnd[1], Length(FLineEnd)) = 0);
+                Found := (StrLComp(PAnsiChar(FRcvdPtr[I]), PAnsiChar(FLineEnd[1]), Length(FLineEnd)) = 0);
                 if Found then
                     break;    { Found the end of line marker }
             end;
