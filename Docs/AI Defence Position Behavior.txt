@@ -35,7 +35,6 @@ Training:
 9. Warriors will be trained in sequence. For example, in the first AI update, they will train 1 melee unit, next time 1 ranged unit, next time 1 mounted unit, etc.
 
 
-
 =======================
 Suggestions for Remake:
 =======================
@@ -44,4 +43,3 @@ Suggestions for Remake:
 7. To be used
 8. Not to be used. We will train units until the defence positions are full and then stop. However some missions do not use defence positions and the AI positions the idle units in a defence formation. We will need to implement this later, but for now we will only train units to fill the available defence positions
 9. We will randomly choose a warrior that is required and attempt to train that. This is similar to what the AI does but does not require storing a sequence counter.
-
