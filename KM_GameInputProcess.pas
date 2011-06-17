@@ -1,7 +1,7 @@
 unit KM_GameInputProcess;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, Controls, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils,
+uses SysUtils, Controls, KM_CommonTypes, KM_Defaults, KM_Utils,
     KM_Houses, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Player;
 
 { A. This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
@@ -143,7 +143,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Terrain;
+uses KM_Game;
 
 
 constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);

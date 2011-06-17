@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Sound;
+uses KM_PlayersCollection, KM_Sound;
 
 
 { TUnitActionStay }

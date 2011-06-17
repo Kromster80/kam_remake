@@ -1,7 +1,7 @@
 unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
-uses Math, KromUtils,
+uses Math, 
     KM_CommonTypes, KM_Units, KM_Units_Workplan;
 
 

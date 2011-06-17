@@ -1,7 +1,7 @@
 unit KM_Goals;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils,
+uses Classes, SysUtils,
   KM_CommonTypes, KM_Defaults;
 
 

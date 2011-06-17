@@ -1,7 +1,7 @@
 unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
-uses Math, Types, Controls, Forms, KromUtils, KM_CommonTypes;
+uses Math, Types, Controls, Forms, KM_CommonTypes;
 
 type
 { Here should be viewport routines }

@@ -1,7 +1,7 @@
 unit KM_UnitTaskSelfTrain;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KromUtils, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, SysUtils;
 
 
 {Train in school}

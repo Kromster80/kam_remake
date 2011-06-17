@@ -1,7 +1,7 @@
 unit KM_UnitActionAbandonWalk;
 {$I KaM_Remake.inc}
 interface
-uses Math, KromUtils,
+uses Math, 
   KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units;
 
 

@@ -2,13 +2,11 @@ unit KM_Render;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC} OpenGL, {$ENDIF}
-  {$IFDEF FPC} GL, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, glut, {$ENDIF}
   Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, ComCtrls, Menus, Buttons,
-  dglOpenGL, sysutils, KromOGLUtils, KromUtils, Math,
+  ExtCtrls, Menus, Buttons,
+  dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 

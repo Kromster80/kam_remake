@@ -2,7 +2,6 @@ unit KM_CommonTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-{$IFDEF MSWindows} MMSystem, {$ENDIF}
 Classes, SysUtils, KromUtils;
 
 

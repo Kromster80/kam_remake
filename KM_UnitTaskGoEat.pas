@@ -1,7 +1,7 @@
 unit KM_UnitTaskGoEat;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KM_Houses, KromUtils, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KM_Houses, SysUtils;
 
 
 {Throw a rock}

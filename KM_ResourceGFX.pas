@@ -2,8 +2,6 @@ unit KM_ResourceGFX;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC} OpenGL, {$ENDIF}
-  {$IFDEF FPC} GL, {$ENDIF}
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}

@@ -4,7 +4,7 @@ interface
 uses dglOpenGL,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  Math, KromUtils, KromOGLUtils, SysUtils, KM_CommonTypes, KM_Defaults, Graphics;
+  Math, KromOGLUtils, SysUtils, KM_CommonTypes, KM_Defaults, Graphics;
 
 type
   TRenderUI = class

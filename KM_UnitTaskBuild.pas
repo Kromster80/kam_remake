@@ -1,7 +1,7 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils, SysUtils, KM_CommonTypes, KM_Houses, KM_Units;
+uses SysUtils, KM_CommonTypes, KM_Houses, KM_Units;
 
 {Perform building}
 type

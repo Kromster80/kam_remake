@@ -1,7 +1,7 @@
 unit KM_NetClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_CommonTypes, KM_NetClientOverbyte;
+uses Classes, SysUtils, KM_NetClientOverbyte;
 
 
 { Contains basic items we need for smooth Net experience:

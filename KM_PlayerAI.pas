@@ -1,7 +1,7 @@
 unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, KromUtils,
+uses Classes, KromUtils,
     KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils;
 
 type

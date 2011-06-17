@@ -7,7 +7,7 @@ uses
   Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, Menus, Buttons,
   Math, SysUtils, KromUtils,
-  {$IFDEF WDC} OpenGL, MPlayer, {$ENDIF}
+  {$IFDEF WDC} MPlayer, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,

@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, {$ENDIF}
-  Classes, KromUtils, StrUtils, SysUtils,
+  Classes, SysUtils,
   KM_CommonTypes, KM_Defaults,
   KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
 
@@ -94,7 +94,6 @@ type
 
 
 implementation
-uses KM_Utils;
 
 
 { TKMNetworking }
