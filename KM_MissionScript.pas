@@ -176,6 +176,7 @@ begin
 end;
 
 
+//Read mission file to a string and if necessary - decode it
 function TMissionParser.ReadMissionFile(const aFileName:string):string;
 var
   i,Num:cardinal;
@@ -191,8 +192,8 @@ begin
     //Detect whether mission is encoded so we can support decoded/encoded .DAT files
     //We can't test 1st char, it can be any. Instead see how often common chracters meet
     Num := 0;
-    for i:=0 to F.Size-1 do
-      if PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13,'0'..'9',' ','!'] then
+    for i:=0 to F.Size-1 do               //tab, eol, 0..9, space, !
+      if PByte(cardinal(F.Memory)+i)^ in [9,10,13,ord('0')..ord('9'),$20,$21] then
         inc(Num);
 
     //Usually 30-50% is numerals/spaces, tested on typical KaM maps, take half of that as margin
@@ -205,17 +206,19 @@ begin
       F.SaveToFile(aFileName+'.txt');
 
     for i:=0 to F.Size-1 do
-      if (PAnsiChar(cardinal(F.Memory)+i)^ in [#9,#10,#13]) then
-        PAnsiChar(cardinal(F.Memory)+i)^ := #32;
+      if PByte(cardinal(F.Memory)+i)^ in [9,10,13] then //tab, eol
+        PByte(cardinal(F.Memory)+i)^ := $20; //Space
 
     Num := 0;
     for i:=0 to F.Size-1 do begin
-      PAnsiChar(cardinal(F.Memory)+Num)^ := PAnsiChar(cardinal(F.Memory)+i)^;
-      if (Num<=0) or ((PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)^<>#32#32) and (PAnsiChar(cardinal(F.Memory)+Num-1)^+PAnsiChar(cardinal(F.Memory)+Num)<>'!!')) then
+      PByte(cardinal(F.Memory)+Num)^ := PByte(cardinal(F.Memory)+i)^;
+      if (Num<=0) or (
+        (PWord(cardinal(F.Memory)+Num-1)^ <> $2020) //Skip double spaces and !!
+        and (PWord(cardinal(F.Memory)+Num-1)^ <> $2121)) then
         inc(Num);
     end;
 
-    setlength(Result, Num); //Because some extra characters were removed
+    SetLength(Result, Num); //Because some extra characters were removed
     F.Position := 0;
     F.ReadBuffer(Result[1], Num);
   finally
