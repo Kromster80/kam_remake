@@ -68,7 +68,6 @@ var
   st,DatFile,MapFile:string;
   ft:textfile;
   MissionDetails: TKMMissionDetails;
-  MapDetails: TKMMapDetails;
   fMissionParser:TMissionParser;
 begin
   DatFile := KMMapNameToPath(fFolder, 'dat');
@@ -87,13 +86,13 @@ begin
     fDatSize := GetFileSize(DatFile);
     fMissionParser := TMissionParser.Create(mpm_Info);
     try
-      MissionDetails := fMissionParser.GetMissionDetails(DatFile);
-      MapDetails     := fMissionParser.GetMapDetails(MapFile);
+      fMissionParser.LoadMission(DatFile);
+      MissionDetails := fMissionParser.MissionDetails;
       fMissionMode   := MissionDetails.MissionMode;
       fPlayerCount   := MissionDetails.PlayerCount;
       VictoryCond    := MissionDetails.VictoryCond;
       DefeatCond     := MissionDetails.DefeatCond;
-      fMapSize       := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
+      fMapSize       := MapSizeToString(MissionDetails.MapSize.X, MissionDetails.MapSize.Y);
       fMapCRC        := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
 
       SaveToFile(KMMapNameToPath(fFolder, 'mi')); //Save new TMP file

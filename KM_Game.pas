@@ -344,7 +344,7 @@ end;
 
 
 procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
-var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
+var LoadError:string; fMissionParser: TMissionParser;
 begin
   GameInit(false);
 
@@ -364,10 +364,11 @@ begin
 
     try //Catch exceptions
       fMissionParser := TMissionParser.Create(mpm_Single);
-      ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
+      if fMissionParser.LoadMission(fMissionFile) then
+        fLog.AppendLog('DAT Loaded')
+      else
+        Raise Exception.Create(fMissionParser.ErrorMessage);
       FreeAndNil(fMissionParser);
-      if ResultMsg<>'' then Raise Exception.Create(ResultMsg);
-      fLog.AppendLog('DAT Loaded');
     except
       on E : Exception do
       begin
@@ -415,7 +416,7 @@ end;
 //All setup data gets taken from fNetworking class
 procedure TKMGame.GameStartMP(Sender:TObject);
 var
-  ResultMsg, LoadError:string;
+  LoadError:string;
   i:integer;
   fMissionParser:TMissionParser;
   PlayerIndex:integer;
@@ -435,10 +436,11 @@ begin
 
     try //Catch exceptions
       fMissionParser := TMissionParser.Create(mpm_Multi);
-      ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
+      if fMissionParser.LoadMission(fMissionFile) then
+        fLog.AppendLog('DAT Loaded')
+      else
+        Raise Exception.Create(fMissionParser.ErrorMessage);
       FreeAndNil(fMissionParser);
-      if ResultMsg<>'' then Raise Exception.Create(ResultMsg);
-      fLog.AppendLog('DAT Loaded');
     except
       on E : Exception do
       begin
@@ -637,7 +639,7 @@ end;
 - absolute path, when opening a map from Form1.Menu
 - relative, from Maps folder}
 procedure TKMGame.MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
-var ResultMsg:string; fMissionParser:TMissionParser; i:integer;
+var fMissionParser:TMissionParser; i:integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
@@ -665,13 +667,17 @@ begin
   fTerrain := TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
-  if FileExists(aMissionPath) then begin
+  if FileExists(aMissionPath) then
+  begin
     fMissionParser := TMissionParser.Create(mpm_Editor);
-    ResultMsg := fMissionParser.LoadDATFile(aMissionPath);
-    if ResultMsg<>'' then begin
-      GameStop(gr_Error, ResultMsg);
+
+    if fMissionParser.LoadMission(aMissionPath) then
+      fLog.AppendLog('DAT Loaded')
+    else
+    begin
       //Show all required error messages here
-      exit;
+      GameStop(gr_Error, fMissionParser.ErrorMessage);
+      Exit;
     end;
     FreeAndNil(fMissionParser);
     fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
@@ -1070,7 +1076,7 @@ begin
     gsNoGame:  fMainMenuInterface.Paint;
     gsPaused:  fGamePlayInterface.Paint;
     gsOnHold:  fGamePlayInterface.Paint;
-    //gsRunning: fGamePlayInterface.Paint;
+    gsRunning: fGamePlayInterface.Paint;
     gsReplay:  fGamePlayInterface.Paint;
     gsEditor:  fMapEditorInterface.Paint;
   end;

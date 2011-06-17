@@ -82,15 +82,11 @@ const
 type
   TKMMissionDetails = record
     MapPath: string;
+    MapSize: TKMPoint;
     MissionMode: TKMissionMode;
     PlayerCount, HumanPlayerID: shortint;
     VictoryCond:string;
     DefeatCond:string;
-  end;
-
-  //Save map specific information (size, what else?)
-  TKMMapDetails = record
-    MapSize: TKMPoint;
   end;
 
   TKMAttackPosition = record
@@ -103,27 +99,36 @@ type
   private
     fParsingMode:TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
     fErrorMessage:string; //Errors descriptions accumulate here
-    fOpenedMissionName:string;
+    fMissionFileName:string;
+
     fCurrentPlayerIndex: integer;
     fLastHouse: TKMHouse;
     fLastTroop: TKMUnitWarrior;
     fAIAttack: TAIAttack;
     fAttackPositions: array of TKMAttackPosition;
     fAttackPositionsCount: integer;
+
+    fMissionInfo:TKMMissionDetails;
+
+    function LoadSimple(const aFileName:string):boolean;
+    function LoadStandard(const aFileName:string):boolean;
+    function LoadMapInfo(const aFileName:string):boolean;
+
     function TextToCommandType(const ACommandText: shortstring): TKMCommandType;
     function UnitTypeToScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:shortstring):boolean;
-    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring; var MissionDetails: TKMMissionDetails);
+    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
     procedure DebugScriptError(const ErrorMsg:string);
     procedure ProcessAttackPositions;
-    procedure UnloadMission;
     function ReadMissionFile(const aFileName:string):string;
   public
     constructor Create(aMode:TMissionParsingMode);
-    function LoadDATFile(const aFileName:string):string;
+    function LoadMission(const aFileName:string):boolean;
+
+    property ErrorMessage:string read fErrorMessage;
+    property MissionDetails:TKMMissionDetails read fMissionInfo;
+
     function SaveDATFile(const aFileName:string):boolean;
-    function GetMissionDetails(const aFileName:string):TKMMissionDetails;
-    function GetMapDetails(const aFileName:string):TKMMapDetails;
   end;
 
 
@@ -131,23 +136,26 @@ implementation
 uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
 
 
+{ TMissionParser }
+//Mode affect how certain parameters are loaded a bit differently
 constructor TMissionParser.Create(aMode:TMissionParsingMode);
 begin
   Inherited Create;
-  fParsingMode := aMode; //In Editor mode Armies created bit differently
-  fErrorMessage := '';
-  fAttackPositionsCount := 0;
+  fParsingMode := aMode;
+end;
 
-  //Set up default values for AI attack
-  fAIAttack.AttackType := aat_Once;
-  fAIAttack.HasOccured := false;
-  fAIAttack.Delay := 0;
-  fAIAttack.TotalMen := 0;
-  FillChar(fAIAttack.GroupAmounts, SizeOf(fAIAttack.GroupAmounts), 0);
-  fAIAttack.TakeAll := false;
-  fAIAttack.Target := att_ClosestUnit;
-  fAIAttack.Range := 0;
-  fAIAttack.CustomPosition := KMPoint(0,0);
+
+function TMissionParser.LoadMission(const aFileName:string):boolean;
+begin
+  fMissionFileName := aFileName;
+
+  if fParsingMode = mpm_Info then
+    Result := LoadSimple(aFileName)
+  else
+    Result := LoadStandard(aFileName);
+
+  //We double-check against success of every loading step and no errors
+  Result := Result and (fErrorMessage='');
 end;
 
 
@@ -165,14 +173,6 @@ begin
     end;
   end;
   if Result = ct_Unknown then fLog.AddToLog(ACommandText);
-end;
-
-
-procedure TMissionParser.UnloadMission;
-begin
-  FreeAndNil(fPlayers);
-  fCurrentPlayerIndex := 0;
-  fGame.MissionMode := mm_Normal; //by Default
 end;
 
 
@@ -225,7 +225,7 @@ end;
 
 
 {Acquire specific map details in a fast way}
-function TMissionParser.GetMissionDetails(const aFileName:string):TKMMissionDetails;
+function TMissionParser.LoadSimple(const aFileName:string):boolean;
 const
   Max_Cmd=2;
 var
@@ -235,16 +235,18 @@ var
   k, l: integer;
   CommandType: TKMCommandType;
 begin
+  Result := false;
+
   //Set default values
-  Result.MapPath := '';
-  Result.MissionMode := mm_Normal;
-  Result.PlayerCount := 0;
-  Result.HumanPlayerID := 0;
-  Result.VictoryCond := '';
-  Result.DefeatCond := '';
+  fMissionInfo.MapPath := '';
+  fMissionInfo.MissionMode := mm_Normal;
+  fMissionInfo.PlayerCount := 0;
+  fMissionInfo.HumanPlayerID := 0;
+  fMissionInfo.VictoryCond := '';
+  fMissionInfo.DefeatCond := '';
 
   FileText := ReadMissionFile(aFileName);
-  if FileText = '' then exit;
+  if FileText = '' then Exit;
 
   //We need only these 6 commands
   //!SET_MAP, !SET_MAX_PLAYER, !SET_TACTIC, !SET_HUMAN_PLAYER, !ADD_GOAL, !ADD_LOST_GOAL
@@ -288,19 +290,24 @@ begin
             if FileText[k]=#32 then inc(k);
           end;
         //We now have command text and parameters, so process them
-        GetDetailsProcessCommand(CommandType,ParamList,TextParam,Result);
+        GetDetailsProcessCommand(CommandType,ParamList,TextParam);
       end;
     end
     else
       inc(k);
   until (k>=length(FileText));
   //Apparently it's faster to parse till file end than check if all details are filled
+
+  //It must have worked if we got to this point
+  Result := true;
+
+  Result := Result and LoadMapInfo(ChangeFileExt(fMissionFileName,'.map'));
 end;
 
 
-procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring; var MissionDetails: TKMMissionDetails);
+procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
 begin
-  with MissionDetails do
+  with fMissionInfo do
   case CommandType of
     ct_SetMap:         MapPath       := RemoveQuotes(TextParam);
     ct_SetMaxPlayer:   PlayerCount   := ParamList[0];
@@ -322,9 +329,12 @@ end;
 
 
 {Acquire specific map details in a fast way}
-function TMissionParser.GetMapDetails(const aFileName:string):TKMMapDetails;
+function TMissionParser.LoadMapInfo(const aFileName:string):boolean;
 var F:TKMemoryStream; sx,sy:integer;
 begin
+  Result := false;
+  if not FileExists(aFileName) then Exit;
+
   F := TKMemoryStream.Create;
   try
     F.LoadFromFile(aFileName);
@@ -333,23 +343,33 @@ begin
   finally
     F.Free;
   end;
-  Assert((sx<=MAX_MAP_SIZE)and(sy<=MAX_MAP_SIZE), 'MissionParser can''t open the map cos it''s too big.');
-  Result.MapSize.X := sx;
-  Result.MapSize.Y := sy;
+
+  if (sx > MAX_MAP_SIZE) or (sy > MAX_MAP_SIZE) then
+  begin
+    DebugScriptError('MissionParser can''t open the map because it''s too big.');
+    Result := false;
+    Exit;
+  end;
+  
+  fMissionInfo.MapSize.X := sx;
+  fMissionInfo.MapSize.Y := sy;
+  Result := true;
 end;
 
 
-function TMissionParser.LoadDATFile(const aFileName:string):string;
+function TMissionParser.LoadStandard(const aFileName:string):boolean;
 var
   FileText, CommandText, Param, TextParam: AnsiString;
   ParamList: array[1..8] of integer;
   k, l: integer;
   CommandType: TKMCommandType;
 begin
-  Result := ''; //Set it right from the start
-  UnloadMission; //Call function which will reset fPlayers and other stuff
+  Result := false; //Set it right from the start
 
-  fOpenedMissionName := aFileName; //Used in MAP loading later on
+  //Reset fPlayers and other stuff
+  FreeAndNil(fPlayers);
+  fCurrentPlayerIndex := 0;
+  fGame.MissionMode := mm_Normal; //by Default
 
   //Read the mission file into FileText
   FileText := ReadMissionFile(aFileName);
@@ -392,7 +412,7 @@ begin
 
       if not ProcessCommand(CommandType, ParamList, TextParam) then //A returned value of false indicates an error has occoured and we should exit
       begin
-        Result := fErrorMessage;
+        Result := false;
         Exit;
       end;
     end
@@ -406,7 +426,7 @@ begin
   if MyPlayer = nil then
     DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
 
-  Result := fErrorMessage; //If we have reach here without exiting then it must have worked
+  Result := true; //If we have reach here without exiting then it must have worked
 end;
 
 
@@ -424,8 +444,8 @@ begin
     ct_SetMap:         begin
                          MyStr := RemoveQuotes(TextParam);
                          //Check for same filename.map in same folder first - Remake format
-                         if CheckFileExists(ChangeFileExt(fOpenedMissionName,'.map'),true) then
-                           fTerrain.LoadFromFile(ChangeFileExt(fOpenedMissionName,'.map'))
+                         if CheckFileExists(ChangeFileExt(fMissionFileName,'.map'),true) then
+                           fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'))
                          else
                          //Check for KaM format map path
                          if CheckFileExists(ExeDir+MyStr,true) then
