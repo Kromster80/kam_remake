@@ -1076,15 +1076,19 @@ const SSoundFX:array[TSoundFX] of string = (
 
 
 //Sounds to play on different warrior orders
-type TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
-                     sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
+type
+  TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
+                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
+
+
+  TAIAttackType = (aat_Once=0,       //Attack will occur once (after the set time has passed and if they have enough troops
+                   aat_Repeating=1); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+
+const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
+  RemakeAttackType:array[0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
 
 
 type
-  TAIAttackType = (                  //0 is an old repeating TSK attack that does not support new TPR features, so we always replace it with 1
-                   aat_Once=1,       //Attack will occur once (after the set time has passed and if they have enough troops
-                   aat_Repeating=2); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
-
   TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
                      att_ClosestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
                      att_ClosestBuildingFromStartPos=2, //Closest building from the AI's start position

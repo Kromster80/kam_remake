@@ -363,7 +363,7 @@ begin
     fRender.Render;
 
     try //Catch exceptions
-      fMissionParser := TMissionParser.Create(mpm_Game);
+      fMissionParser := TMissionParser.Create(mpm_Single);
       ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
       FreeAndNil(fMissionParser);
       if ResultMsg<>'' then Raise Exception.Create(ResultMsg);
@@ -434,7 +434,7 @@ begin
     fRender.Render;
 
     try //Catch exceptions
-      fMissionParser := TMissionParser.Create(mpm_Game);
+      fMissionParser := TMissionParser.Create(mpm_Multi);
       ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
       FreeAndNil(fMissionParser);
       if ResultMsg<>'' then Raise Exception.Create(ResultMsg);

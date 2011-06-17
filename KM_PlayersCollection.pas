@@ -16,7 +16,7 @@ type
     function GetPlayer(Index:integer):TKMPlayer;
   public
     Selected: TObject;
-  public
+
     constructor Create;
     destructor Destroy; override;
 

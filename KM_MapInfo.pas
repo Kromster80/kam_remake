@@ -85,7 +85,7 @@ begin
   then
   begin
     fDatSize := GetFileSize(DatFile);
-    fMissionParser := TMissionParser.Create(mpm_Game);
+    fMissionParser := TMissionParser.Create(mpm_Info);
     try
       MissionDetails := fMissionParser.GetMissionDetails(DatFile);
       MapDetails     := fMissionParser.GetMapDetails(MapFile);
