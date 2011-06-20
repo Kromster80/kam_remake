@@ -133,7 +133,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
+uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
 
 
 { TMissionParser }
@@ -148,6 +148,16 @@ end;
 function TMissionParser.LoadMission(const aFileName:string):boolean;
 begin
   fMissionFileName := aFileName;
+
+  //Set default values
+  fMissionInfo.MapPath := '';
+  fMissionInfo.MapSize.X := 0;
+  fMissionInfo.MapSize.Y := 0;
+  fMissionInfo.MissionMode := mm_Normal;
+  fMissionInfo.PlayerCount := 0;
+  fMissionInfo.HumanPlayerID := 0;
+  fMissionInfo.VictoryCond := '';
+  fMissionInfo.DefeatCond := '';
 
   if fParsingMode = mpm_Info then
     Result := LoadSimple(aFileName)
@@ -239,14 +249,6 @@ var
   CommandType: TKMCommandType;
 begin
   Result := false;
-
-  //Set default values
-  fMissionInfo.MapPath := '';
-  fMissionInfo.MissionMode := mm_Normal;
-  fMissionInfo.PlayerCount := 0;
-  fMissionInfo.HumanPlayerID := 0;
-  fMissionInfo.VictoryCond := '';
-  fMissionInfo.DefeatCond := '';
 
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then Exit;
@@ -372,7 +374,6 @@ begin
   //Reset fPlayers and other stuff
   FreeAndNil(fPlayers);
   fCurrentPlayerIndex := 0;
-  fGame.MissionMode := mm_Normal; //by Default
 
   //Read the mission file into FileText
   FileText := ReadMissionFile(aFileName);
@@ -466,7 +467,7 @@ begin
                        end;
     ct_SetTactic:      begin
                          if fPlayers=nil then fPlayers := TKMPlayersCollection.Create;
-                         fGame.MissionMode := mm_Tactic; //todo: Refactor this (do not set values to fGame!)
+                         fMissionInfo.MissionMode := mm_Tactic;
                        end;
     ct_SetCurrPlayer:  begin
                        if InRange(ParamList[0], 0, fPlayers.Count-1) then

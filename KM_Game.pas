@@ -368,6 +368,7 @@ begin
         fLog.AppendLog('DAT Loaded')
       else
         Raise Exception.Create(fMissionParser.ErrorMessage);
+      fMissionMode := fMissionParser.MissionDetails.MissionMode;
       FreeAndNil(fMissionParser);
     except
       on E : Exception do
@@ -440,6 +441,7 @@ begin
         fLog.AppendLog('DAT Loaded')
       else
         Raise Exception.Create(fMissionParser.ErrorMessage);
+      fMissionMode := fMissionParser.MissionDetails.MissionMode;
       FreeAndNil(fMissionParser);
     except
       on E : Exception do
