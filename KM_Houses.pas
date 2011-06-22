@@ -275,7 +275,7 @@ begin
 
   fHasOwner         := false;
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
-  fBuildingRepair   := (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (fPlayers.Player[byte(fOwner)].AI.HouseAutoRepair);
+  fBuildingRepair   := (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (fPlayers.Player[fOwner].AI.HouseAutoRepair);
   DoorwayUse        := 0;
   fRepairID         := 0;
   fWareDelivery     := true;
@@ -395,8 +395,8 @@ end;
 procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
-  fPlayers.Player[byte(fOwner)].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-  fPlayers.Player[byte(fOwner)].FogOfWar.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
+  fPlayers.Player[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
+  fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -404,7 +404,7 @@ begin
   for i:=1 to 4 do
   begin
     Res := HouseInput[byte(fHouseType),i];
-    with fPlayers.Player[byte(fOwner)].DeliverList do
+    with fPlayers.Player[fOwner].DeliverList do
     case Res of
       rt_None:    ;
       rt_Warfare: AddNewDemand(Self, nil, Res, 1, dt_Always, di_Norm);
@@ -430,10 +430,10 @@ begin
       fSoundLib.Play(sfx_HouseDestroy,GetPosition);
       
   //Dispose of delivery tasks performed in DeliverQueue unit
-  fPlayers.Player[byte(fOwner)].DeliverList.RemoveOffer(Self);
-  fPlayers.Player[byte(fOwner)].DeliverList.RemoveDemand(Self);
-  fPlayers.Player[byte(fOwner)].BuildList.RemoveHouseRepair(Self);
-  fPlayers.Player[byte(fOwner)].BuildList.RemoveHouse(Self);
+  fPlayers.Player[fOwner].DeliverList.RemoveOffer(Self);
+  fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
+  fPlayers.Player[fOwner].BuildList.RemoveHouseRepair(Self);
+  fPlayers.Player[fOwner].BuildList.RemoveHouse(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
   //Road is removed in CloseHouse
   if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
@@ -590,7 +590,7 @@ begin
   if (fBuildState=hbs_Stone)and(fBuildingProgress-HouseDAT[byte(fHouseType)].WoodCost*50 = HouseDAT[byte(fHouseType)].StoneCost*50) then
   begin
     fBuildState := hbs_Done;
-    fPlayers.Player[Byte(fOwner)].Stats.HouseEnded(fHouseType);
+    fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
     Activate(true);
   end;
 end;
@@ -612,21 +612,21 @@ begin
 
   if fBuildState < hbs_Wood then
   begin
-    fPlayers.Player[byte(fOwner)].RemHouse(GetEntrance, true);
+    fPlayers.Player[fOwner].RemHouse(GetEntrance, true);
     Exit;
   end;
 
   fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
   if BuildingRepair and (fRepairID = 0) then
-    fRepairID := fPlayers.Player[byte(fOwner)].BuildList.AddHouseRepair(Self);
+    fRepairID := fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
   UpdateDamage;
 
   if GetHealth = 0 then
   begin
     DemolishHouse(false); //Destroyed by Enemy
-    if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+    if Assigned(fPlayers) and Assigned(fPlayers.Player[fOwner]) then
       if (fBuildState = hbs_Done) then
-        fPlayers.Player[byte(fOwner)].Stats.HouseLost(fHouseType);
+        fPlayers.Player[fOwner].Stats.HouseLost(fHouseType);
     Result := true;
   end;
 end;
@@ -637,7 +637,7 @@ procedure TKMHouse.AddRepair(aAmount:word=5);
 begin
   fDamage:= EnsureRange(fDamage - aAmount,0,High(Word));
   if (fDamage=0)and(fRepairID<>0) then begin
-    fPlayers.Player[byte(fOwner)].BuildList.CloseHouseRepair(fRepairID);
+    fPlayers.Player[fOwner].BuildList.CloseHouseRepair(fRepairID);
     fRepairID:=0;
   end;
   UpdateDamage;
@@ -742,7 +742,7 @@ end;
 function TKMHouse.CheckResOrder(aID:byte):word;
 begin
   //AI always order production of everything. Could be changed later with a script command to only make certain things
-  if (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (HouseOutput[byte(fHouseType),aID] <> rt_None) then
+  if (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (HouseOutput[byte(fHouseType),aID] <> rt_None) then
     Result := 1
   else
     Result := fResourceOrder[aID];
@@ -784,7 +784,7 @@ begin
   if aResource = HouseOutput[byte(fHouseType),i] then
     begin
       inc(fResourceOut[i],aCount);
-      fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
+      fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
     end;
 end;
 
@@ -815,7 +815,7 @@ begin
     for k:=1 to aCount do
       if fResourceDeliveryCount[i] < GetResDistribution(i) then
       begin
-        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,1,dt_Once,di_Norm);
+        fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self,nil,aResource,1,dt_Once,di_Norm);
         inc(fResourceDeliveryCount[i]);
       end;
     exit;
@@ -846,7 +846,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID:byte):byte;
 begin
-  Result := fPlayers.Player[byte(fOwner)].Stats.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
+  Result := fPlayers.Player[fOwner].Stats.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
 end;
 
 
@@ -960,7 +960,7 @@ begin
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
   if FlagAnimStep mod 10 = 0 then
-    fPlayers.Player[byte(fOwner)].FogOfWar.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
+    fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -973,7 +973,7 @@ begin
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
     begin
       Count := GetResDistribution(i)-fResourceDeliveryCount[i];
-      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(
+      fPlayers.Player[fOwner].DeliverList.AddNewDemand(
         Self, nil, HouseInput[byte(fHouseType),i], Count, dt_Once, di_Norm);
 
       inc(fResourceDeliveryCount[i], Count);
@@ -1027,7 +1027,7 @@ begin
       fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
       fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
       if fCurrentAction=nil then exit;
-      fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
+      fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fOwner,fPosition.X, fPosition.Y);
     end;
   end;
 end;
@@ -1099,7 +1099,7 @@ begin
     if BeastAge[i]>0 then
       fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
   if (fCurrentAction<>nil) then //Overlay, not entirely correct, but works ok
-  fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
+  fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fOwner,fPosition.X, fPosition.Y);
 end;
 
 
@@ -1267,7 +1267,7 @@ begin
   if UnitQueue[1] = ut_None then exit;
   if CheckResIn(rt_Gold) = 0 then exit;
   HideOneGold := true;
-  UnitWIP := fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
+  UnitWIP := fPlayers.Player[fOwner].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
   fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   TKMUnit(UnitWIP).SetUnitTask := TTaskSelfTrain.Create(UnitWIP,Self);
 end;
@@ -1326,12 +1326,12 @@ begin
   case aResource of
     rt_All:     for i:=1 to length(ResourceCount) do begin
                   ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,High(Word));
-                  fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
+                  fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
                 end;
     rt_Trunk..
     rt_Fish:    begin
                   ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,High(Word));
-                  fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
+                  fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
                 end;
     else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
   end;
@@ -1489,7 +1489,7 @@ begin
   RecruitsList.Delete(0); //Delete first recruit in the list
 
   //Make new unit
-  Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));
+  Soldier := TKMUnitWarrior(fPlayers.Player[fOwner].AddUnit(aUnitType,GetEntrance,false,true));
   fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   Soldier.Visible := false; //Make him invisible as he is inside the barracks
   Soldier.Condition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
@@ -1497,7 +1497,7 @@ begin
   Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
 
   //AI do not need auto linking, they manage linking themselves
-  if fPlayers.Player[byte(fOwner)].PlayerType = pt_Human then
+  if fPlayers.Player[fOwner].PlayerType = pt_Human then
     LinkUnit := Soldier.FindLinkUnit(GetEntrance)
   else LinkUnit := nil;
   if LinkUnit <> nil then

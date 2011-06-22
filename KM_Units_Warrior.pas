@@ -252,7 +252,7 @@ begin
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
       fCommander := NewCommander;
     end;
-    fPlayers.Player[byte(fOwner)].AI.CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
+    fPlayers.Player[fOwner].AI.CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
   end;
 
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
@@ -488,7 +488,7 @@ procedure TKMUnitWarrior.OrderFood;
 var i:integer;
 begin
   if (fCondition<(UNIT_MAX_CONDITION*TROOPS_FEED_MAX)) and not (fRequestedFood) then begin
-    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_High);
+    fPlayers.Player[fOwner].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_High);
     fRequestedFood := true;
   end;
   //Commanders also tell troops to ask for some food

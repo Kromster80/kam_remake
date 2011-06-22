@@ -271,9 +271,7 @@ function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:shortint):TAllianceTyp
 begin
   Result := at_Ally;
 
-  //todo: INCLUDE CHECK FOR ANIMALS
-
-//  if (fPlayerList[aPlay1] is TKMPlayerAnimal) or (fPlayerList[aPlay2] is TKMPlayerAnimal) then
+  if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) then
     Exit;
 
   Result := fPlayerList[aPlay1].Alliances[aPlay2];

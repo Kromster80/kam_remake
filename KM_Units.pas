@@ -293,7 +293,7 @@ function TKMUnitCitizen.FindHome:boolean;
 var H:TKMHouse;
 begin
   Result:=false;
-  H := fPlayers.Player[byte(fOwner)].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  H := fPlayers.Player[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
   if H<>nil then begin
     fHome  := H.GetHousePointer;
     Result := true;
@@ -371,7 +371,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
-    H := fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self,not fVisible);
+    H := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
     if H<>nil then
       fUnitTask := TTaskGoEat.Create(H,Self)
     else
@@ -470,7 +470,7 @@ function TKMUnitRecruit.FindHome:boolean;
 var H:TKMHouse;
 begin
   Result  := false;
-  H := fPlayers.Player[byte(fOwner)].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  H := fPlayers.Player[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
   if H<>nil then begin
     fHome  := H.GetHousePointer;
     Result := true;
@@ -540,7 +540,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self,not fVisible);
+    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self)
     else
@@ -640,7 +640,7 @@ begin
   fThought:=th_None;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self);
+    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
@@ -674,7 +674,7 @@ end;
 
 function TKMUnitSerf.GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
 begin
-  Result:=fPlayers.Player[byte(fOwner)].DeliverList.AskForDelivery(Self,aHouse);
+  Result:=fPlayers.Player[fOwner].DeliverList.AskForDelivery(Self,aHouse);
 end;
 
 
@@ -709,7 +709,7 @@ begin
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self);
+    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
@@ -728,10 +728,10 @@ end;
 
 function TKMUnitWorker.GetActionFromQueue:TUnitTask;
 begin
-                     Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouseRepair(Self);
-  if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHousePlan(Self);
-  if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForRoad(Self);
-  if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouse(Self);
+                     Result:=fPlayers.Player[fOwner].BuildList.AskForHouseRepair(Self);
+  if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForHousePlan(Self);
+  if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForRoad(Self);
+  if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForHouse(Self);
 end;
 
 
@@ -839,7 +839,7 @@ begin
     AnimAct := byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(fUnitType), AnimAct, AnimDir, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(byte(fUnitType), AnimAct, AnimDir, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
 end;
 
 
@@ -1406,7 +1406,7 @@ end;
 
 function TKMUnit.CanGoEat:boolean;
 begin
-  Result := fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self) <> nil;
+  Result := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self) <> nil;
 end;
 
 
@@ -1429,7 +1429,7 @@ end;
 procedure TKMUnit.UpdateFOW;
 begin
   if fCondition mod 10 = 0 then
-    fPlayers.Player[Byte(fOwner)].FogOfWar.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC);
+    fPlayers.Player[fOwner].FogOfWar.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC);
 end;
 
 

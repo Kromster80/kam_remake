@@ -917,12 +917,14 @@ type
   TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
-const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
+const
+  UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
+
+  
+  PLAYER_ANIMAL = -2;
+
 
 type
-  //TPlayerID = (play_none=-1, play_0=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_animals);
-
-
   TSoundFX = (
     sfx_CornCut=1,
     sfx_Dig,

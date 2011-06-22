@@ -140,8 +140,8 @@ begin
                             //Arrows are more likely to cause damage when the unit is closer
                             if Random(Round(8 * GetLength(U.PositionF,fTargetJ))) = 0 then
                               if  U.HitPointsDecrease(1) then
-                                if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
-                                  fPlayers.Player[byte(fOwner)].Stats.UnitKilled(U.UnitType);
+                                if (fPlayers <> nil) then
+                                  fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
                           end
                           else
                           begin
@@ -149,13 +149,13 @@ begin
                             H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
                             if (H <> nil) then
                               if H.AddDamage(1) then //House was destroyed
-                                if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
-                                  fPlayers.Player[byte(fOwner)].Stats.HouseDestroyed(H.GetHouseType);
+                                if (fPlayers <> nil) then
+                                  fPlayers.Player[fOwner].Stats.HouseDestroyed(H.GetHouseType);
                           end;
             pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                             if U.HitPointsDecrease(10)then //Instant death
-                              if (fPlayers <> nil) and (fPlayers.Player[byte(fOwner)] <> nil) then
-                                fPlayers.Player[byte(fOwner)].Stats.UnitKilled(U.UnitType);
+                              if (fPlayers <> nil) then
+                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
           end;
         end;
       end;

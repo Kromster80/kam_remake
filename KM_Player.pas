@@ -564,6 +564,7 @@ end;
 constructor TKMPlayerAnimals.Create;
 begin
   Inherited;
+  fPlayerIndex := PLAYER_ANIMAL;
   fUnits := TKMUnitsCollection.Create;
 end;
 
