@@ -1434,16 +1434,16 @@ begin
                    else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
                  end;
                end;
-    cm_Road:   if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan) and TileVisible then
+    cm_Road:   if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan, MyPlayer) and TileVisible then
                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Field:  if CanPlaceRoad(GameCursor.Cell, mu_FieldPlan) and TileVisible then
+    cm_Field:  if CanPlaceRoad(GameCursor.Cell, mu_FieldPlan, MyPlayer) and TileVisible then
                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wine:   if CanPlaceRoad(GameCursor.Cell, mu_WinePlan) and TileVisible then
+    cm_Wine:   if CanPlaceRoad(GameCursor.Cell, mu_WinePlan, MyPlayer) and TileVisible then
                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wall:   if CanPlaceRoad(GameCursor.Cell, mu_WallPlan) and TileVisible then
+    cm_Wall:   if CanPlaceRoad(GameCursor.Cell, mu_WallPlan, MyPlayer) and TileVisible then
                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
     cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad

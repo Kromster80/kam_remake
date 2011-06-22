@@ -69,7 +69,7 @@ type
     procedure AddRoadsToList(aLoc: TKMPoint);
     procedure AddRoadConnect(LocA,LocB:TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
-    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
+    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
@@ -240,9 +240,9 @@ end;
 
 
 {DoSilent means that there will be no sound when markup is placed, needed e.g. when script used}
-procedure TKMPlayer.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
+procedure TKMPlayer.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
 begin
-  if not fTerrain.CanPlaceRoad(aLoc,aMarkup,PlayerRevealID) then
+  if not fTerrain.CanPlaceRoad(aLoc,aMarkup,Self) then
   begin
     if not DoSilent then
       fSoundLib.Play(sfx_CantPlace,aLoc,false,4.0);

@@ -189,10 +189,10 @@ begin
     gic_ArmyHalt:         TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).OrderHalt(Params[2],Params[3]);
     gic_ArmyWalk:         TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-    gic_BuildRoadPlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_RoadPlan,  false, P.PlayerID);
-    gic_BuildFieldPlan:   P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_FieldPlan,  false, P.PlayerID);
-    gic_BuildWinePlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WinePlan,  false, P.PlayerID);
-    gic_BuildWallPlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WallPlan,  false, P.PlayerID);
+    gic_BuildRoadPlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_RoadPlan,  false);
+    gic_BuildFieldPlan:   P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_FieldPlan,  false);
+    gic_BuildWinePlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WinePlan,  false);
+    gic_BuildWallPlan:    P.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WallPlan,  false);
     gic_BuildRemovePlan:  P.RemPlan(KMPoint(Params[1],Params[2]));
     gic_BuildRemoveHouse: P.RemHouse(KMPoint(Params[1],Params[2]), false);
     gic_BuildHousePlan:   P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));

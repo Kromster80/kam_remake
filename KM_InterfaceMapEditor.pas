@@ -1502,9 +1502,9 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P);
-      cm_Field:     if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
-      cm_Wine:      if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
+      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer)  then MyPlayer.AddRoad(P);
+      cm_Field:     if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer) then MyPlayer.AddField(P,ft_Corn);
+      cm_Wine:      if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer)  then MyPlayer.AddField(P,ft_Wine);
       //cm_Wall:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
       cm_Objects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
       cm_Erase:     case GetShownPage of
@@ -1564,11 +1564,11 @@ begin
                   if fPlayers.Selected is TKMUnit then
                     ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
-      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P);
-      cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
-      cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer) then MyPlayer.AddRoad(P);
+      cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer) then MyPlayer.AddField(P,ft_Corn);
+      cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer) then MyPlayer.AddField(P,ft_Wine);
       //cm_Wall:
-      cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then
+      cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then
                 begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                   Build_ButtonClick(Button_BuildRoad);

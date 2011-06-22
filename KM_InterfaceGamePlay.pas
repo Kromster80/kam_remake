@@ -2428,7 +2428,7 @@ begin
                 fGame.fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
               else
                 fGame.fGameInputProcess.CmdBuild(gic_BuildWallPlan, P);
-    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then begin
+    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then begin
                 fGame.fGameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
                 fSoundLib.Play(sfx_placemarker);
                 Build_ButtonClick(Button_BuildRoad);

@@ -2,7 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-     KM_Defaults, KM_CommonTypes, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses;
+     KM_Defaults, KM_CommonTypes, KM_Player, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses;
 
 
 const MAX_MAP_SIZE = 192;
@@ -78,8 +78,8 @@ TTerrain = class
     procedure ResetDigState(Loc:TKMPoint);
 
     function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
-    function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
-    function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
+    function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
+    function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; aPlayer:TKMPlayer):boolean;
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
@@ -1987,7 +1987,7 @@ end;
 
 
 {Check if house can be placed in that place}
-function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
+function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
 var i,k:integer;
 begin
 Result:=true;
@@ -2005,13 +2005,12 @@ Result:=true;
         Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
       end;
 
-      if PlayerRevealID <> play_none then
-        Result := Result AND (MyPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4) > 0);
+      Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4) > 0);
     end;
 end;
 
 
-function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
+function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; aPlayer:TKMPlayer):boolean;
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y); //Make sure it is inside map, roads can be built on edge
   case aMarkup of
@@ -2022,8 +2021,7 @@ begin
     else          Result := false;
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
-  if PlayerRevealID <> play_none then
-    Result := Result AND (MyPlayer.FogOfWar.CheckTileRevelation(Loc.X,Loc.Y) > 0); //We check tile revelation to place a tile-based markup, right?
+  Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X,Loc.Y) > 0); //We check tile revelation to place a tile-based markup, right?
 end;
 
 

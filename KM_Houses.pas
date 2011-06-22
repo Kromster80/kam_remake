@@ -442,13 +442,14 @@ begin
 end;
 
 
+//Used by MapEditor
 procedure TKMHouse.SetPosition(aPos:TKMPoint);
 begin
   Assert(fGame.GameState=gsEditor);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
   fTerrain.RemRoad(GetEntrance);
-  if fTerrain.CanPlaceHouse(aPos, GetHouseType) then
+  if fTerrain.CanPlaceHouse(aPos, GetHouseType, MyPlayer) then
   begin
     fPosition.X := aPos.X - HouseDAT[byte(fHouseType)].EntranceOffsetX;
     fPosition.Y := aPos.Y;
