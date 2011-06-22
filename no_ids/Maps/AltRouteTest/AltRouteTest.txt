@@ -1,8 +1,0 @@
-Title
-Alternate Route Test
-
-SmallDesc
-
-
-BigDesc
-Test map to check alternative routing on busy roads
