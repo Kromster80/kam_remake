@@ -1,0 +1,37 @@
+New unit file, KM_UnitInteraction.
+
+Contains class TInteraction, and each team has one of these, Player.fInteraction. (might only need to be one for all teams, it depends on whether it needs to store things relevant to the team)
+
+When a unit encounters an interaction issue in walk action (i.e. can't walk to a tile because someone else is there) it calls a procedure in fInteraction that tells it what it should do. This would probably be by passing the walk action object to fInteraction so it can access and change it directly. The walk action would simply run this procedure then exit in cases where there is an interaction issue. (walk action only deals with moving the unit, not where it is moving to)
+
+
+Procedure in fInteraction to handle interaction resolution requests:
+There needs to be a counter for this particular interaction problem which is the number of times that a request has been made to solve it. (should probably be a property of walk action which gets reset when a problem is resolved) As the counter gets higher, the things that the unit will try in order to solve the problem get more and more desperate. (sic)
+General idea, exact numbers will need tweaking to optimise it:
+ - For 1, (first request) nothing will happen. (simulates pause in KaM when a unit first encounters an issue)
+~~~no need to simulate KaM flaw here, in real life ppl don't pause while exchanging places~~~
+ - For > 1 it will try to pass with the unit infront of it if the unit is walking to our tile. (i.e. in the path it plans to take) This can be forced if the other unit is in the "waiting phase", see bellow.
+ - For > 1 it will push the unit out of the way if it is idle. (this causes the unit to create a move action to a nearby tile, preferably unoccupied)
+ - For > 8 it will try dodging to one of the two adjacent tiles to the one it wants to be on then returning to it's original path. (try both in turn, possibly randomly so for example units don't always dodge to the left)
+ - For > 14 it will try swapping positions with the unit on the above mentioned adjacent tiles. This can be forced if the other unit is in the "waiting phase", see bellow. ~~~ under question, cos waiting unit has to walk somewhere too. maybe you could increase that unit counter aswell? meaning it will try to solve interaction faster if it's blocking multiple units ~~~
+ - For > 40 it will wait. (which means try all of the above options will be tried each time) [Only] during this waiting phase other units are allowed to tell us to swap positions with them to keep things moving. (this resolves the request and the problem must be reassessed once we reach the new tile)
+ - For > 99 it will give up and re-route the whole thing. (always a valid solution, even when totally surrounded by other units in which case still re-route but avoid the tile with the original blocked unit on it if possible)
+
+~~~ foresee fighting ~~~
+check units team and include fighting actions
+
+
+Things to note:
+ - Each time it should try every option starting from the best, breaking as soon as a solution is found or the required attempts number is reached.
+ - As soon as one of these attempts succeeds, it "resolves" the request and resets the counter. This means that the best options should be first, (e.g. passing with the offending unit) followed by slower and less desirable options. (like dodging or completely re-routing the movement)
+ - We can only ever tell a unit to get-out-of-the-way to an empty tile if that unit is idle. Moving units can only be told to swap with us during their waiting phase. Also we can never ask idle units to swap positions with us.
+ - It would probably be a good idea to add a random amount to the values mentioned above so that the system resolves more naturally and units don't advance phases in-sync with each other. ~~~I don't think thats ever gonna happen, units will always get stuck in random ticks~~~
+ - The final option, re-routing should happen very rarely because it is most likely that before then someone will ask us to swap with them during their waiting phase. (or we will force someone else to swap) The circumstance where this is likely to happen (same thing happens in KaM) is where there are labourers waiting for resources and cause unmovable blockages. ~~~ then we could just check for such laborers in route if e.g. counter>15 ~~~
+ - There should also be another counter which ensures that we will always give up and re-route after a certain amount of time. (otherwise units could swap places forever when two or more units are trying to reach something behind a labourer waiting for stone) This counter would only reset when we re-route (not just resolve unlike the other counter) and would cause a re-route after maybe 200. (20 seconds) ~~~ need to make a test-case for such matter, maybe it's never gonna happen.. ~~~
+
+Conclusion:
+This system means that the unit will wait and consider the possibilities, rather than finding a solution first time. Time consuming solutions such as re-routing will only be used after having waited for quite a while for someone else to get out of our way. Fast and simple solutions will be taken as soon as they become available. The "waiting phase" force move system should ensure that total lock-ups are rare and someone will keep moving and eventually resolve the problem.
+
+Note that all of these algorithms need to be very fast as this code could be run hundreds of times every 100ms.
+
+~~~another idea (dunno how it will correspond with army movements though) - add counter to route-finder to let it handle only, say, 10routes a tick and postpone others on next tick~~~

@@ -1,0 +1,8 @@
+Title
+Stone Mines
+
+SmallDesc
+A mission designed to test the stone mining algorithm
+
+BigDesc
+This mission uses the map from mission 1 TSK and has lots of stonemasons placed around all of the stonehills to test the algorithms for stone mining.

@@ -1,0 +1,151 @@
+object FormNewMap: TFormNewMap
+  Left = 422
+  Height = 145
+  Top = 417
+  Width = 361
+  ActiveControl = ButtonHelp
+  BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
+  BorderStyle = bsDialog
+  Caption = 'Create New Map'
+  ClientHeight = 145
+  ClientWidth = 361
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsStayOnTop
+  HelpFile = 'KM_Editor.hlp'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnShow = FormShow
+  Position = poMainFormCenter
+  LCLVersion = '0.9.28.2'
+  object ButtonOK: TButton
+    Left = 216
+    Height = 25
+    Top = 80
+    Width = 137
+    Caption = 'OK'
+    OnClick = CreateMap
+    TabOrder = 0
+  end
+  object ButtonCancel: TButton
+    Left = 216
+    Height = 25
+    Top = 112
+    Width = 137
+    Caption = 'Cancel'
+    OnClick = CreateCancel
+    TabOrder = 1
+  end
+  object RGMapVersion: TRadioGroup
+    Left = 8
+    Height = 65
+    Top = 72
+    Width = 201
+    AutoFill = True
+    Caption = ' Map format  '
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 50
+    ClientWidth = 199
+    Enabled = False
+    ItemIndex = 1
+    Items.Strings = (
+      'Original KaM TSK'
+      'Original KaM TPR/TSK'
+      'KaM TKE'
+    )
+    TabOrder = 3
+  end
+  object GrMapSize: TGroupBox
+    Left = 8
+    Height = 57
+    Top = 8
+    Width = 201
+    Caption = ' Map size  '
+    ClientHeight = 42
+    ClientWidth = 199
+    TabOrder = 4
+    object Label1: TLabel
+      Left = 56
+      Height = 15
+      Top = 11
+      Width = 16
+      Caption = ' x '
+      ParentColor = False
+    end
+    object Label2: TLabel
+      Left = 124
+      Height = 15
+      Top = 11
+      Width = 34
+      Caption = 'Tiles'
+      ParentColor = False
+    end
+    object RGX: TComboBox
+      Left = 6
+      Height = 25
+      Top = 8
+      Width = 49
+      DropDownCount = 16
+      ItemHeight = 0
+      ItemIndex = 4
+      Items.Strings = (
+        '32'
+        '48'
+        '64'
+        '80'
+        '96'
+        '112'
+        '128'
+        '144'
+        '160'
+        '176'
+        '192'
+      )
+      Style = csDropDownList
+      TabOrder = 0
+      Text = '96'
+    end
+    object RGY: TComboBox
+      Left = 70
+      Height = 25
+      Top = 8
+      Width = 49
+      DropDownCount = 16
+      ItemHeight = 0
+      ItemIndex = 4
+      Items.Strings = (
+        '32'
+        '48'
+        '64'
+        '80'
+        '96'
+        '112'
+        '128'
+        '144'
+        '160'
+        '176'
+        '192'
+      )
+      Style = csDropDownList
+      TabOrder = 1
+      Text = '96'
+    end
+  end
+  object ButtonHelp: TButton
+    Left = 216
+    Height = 25
+    Top = 8
+    Width = 137
+    HelpType = htKeyword
+    Caption = 'Help'
+    OnClick = ButtonHelpClick
+    TabOrder = 2
+  end
+end

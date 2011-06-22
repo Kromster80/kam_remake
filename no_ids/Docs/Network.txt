@@ -1,0 +1,22 @@
+Every tick we send orders we have collected since the last tick. Also we send gip_CRC marker with our CRC each tick on the end, to mark that no more command are to happen in the tick. These messages are to be executed in +10 ticks. When we reach +10 ticks, we make sure that we have recieved a message from each player for this tick with enclosing gip_CRC, as well as having our own confirmed by all. If this is okay then we execute the orders.
+
+If some orders/confirmations from players are missing - pause and wait for them.
+
++10 ticks can vary, on LAN it could probably be +3 ticks. Over internet maybe up to +20 ticks. It doesn't matter, as long as all players agree on this and decide to change it if the ping gets better/worse. For now we can make it a fixed +10.
+
+Every now and then the computers can decide whether it needs to change. If we have to pause to wait for data many times, we all agree to increase it by 1, with the change coming into effect on a set tick number, say in +20 to make sure everyone knows about the change when it happens.
+
+We do not send randoms (CRCs) in each command and leave them only in gip_CRC, which will happen every tick after previous commands are processed
+
+On moment of execution CRC refers to game state in -10 ticks after updatestate. All CRC should match with each other. Commands must be executed in the same order on every machine, player 1, then 2, then 3, etc. using the order in which each player sent them.
+
+
+
+Kinds of messages (minimal set):
+mk_Handshaking (ask to join, allow to join, forbid to join, verify join, sync time, alive, disconnect)
+mk_Text (send text)
+mk_GameInfo (mapname, map crc, player selection)
+mk_Commands (gip_Multi, verify commands)
+
+Maybe text messages will be stored separately from UI (MainMenu / Gameplay) in KM_Chat
+

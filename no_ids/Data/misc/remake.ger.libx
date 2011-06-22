@@ -1,0 +1,69 @@
+﻿
+MaxID:58
+
+KM_InterfaceMainMenu
+ 1:Mission abgebrochen
+ 2:Aufbau Tutorial
+ 3:Kampf Tutorial
+ 4:Einzelspieler
+ 5:Map Editor
+ 6:Letzten Replay anzeigen
+ 7:Über Netzwerk spielen
+ 8:Über Internet spielen
+ 9:Login
+10:Passwort
+11:Mission starten
+12:Titel
+13:Größe
+14:Missions Typ: 
+15:Siegbedingung: 
+16:Niederlagebedingung: 
+17:Verbündete: 
+18:Feinde: 
+19:Slot 
+20:Neue Karte Größe
+21:Breite
+22:Höhe
+23:Neue Karte erstellen
+24:Verfügbare Karten
+25:Vorhandene Karte laden
+26:Eingabe:
+27:Gameplay:
+28:Sound:
+29:Grafik:
+30:Helligkeit
+31:Vollbild
+32:Übernehmen
+33:Sprache:
+34:Lade... Bitte warten
+35:Ein Fehler ist aufgetreten!
+
+KM_InterfaceGamePlay
+39:Sie haben gewonnen!
+40:Weiterspielen
+41:Sieg!
+42:Sie haben Verloren!
+43:Weiter betrachten
+44:Niederlage!
+45:Replay zuende
+46:Weiter betrachten
+47:Zurück zum Menü
+
+KM_Game
+48:Ein Fehler ist während des Spiels aufgetreten. 
+49:Bitte senden Sie die Dateien save99.bas, save99.sav und save99.rpl aus Ihren KaM Remake\\Save Ordner an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+
+KM_Units
+50:Abbau an der falschen Stelle
+51:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
+52:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
+
+KM_Unit1
+53:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
+
+KM_InterfaceMapEditor
+54:Terrain berarbeiten
+55:Häuser bearbeiten
+56:Optische Skripts
+57:Globale Skripts
+58:Menü

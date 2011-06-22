@@ -1,0 +1,40 @@
+LazarusResources.Add('TFormNewMap','FORMDATA',[
+  'TPF0'#11'TFormNewMap'#10'FormNewMap'#4'Left'#3#166#1#6'Height'#3#145#0#3'Top'
+  +#3#161#1#5'Width'#3'i'#1#13'ActiveControl'#7#10'ButtonHelp'#11'BorderIcons'
+  +#11#12'biSystemMenu'#10'biMinimize'#10'biMaximize'#6'biHelp'#0#11'BorderStyl'
+  +'e'#7#8'bsDialog'#7'Caption'#6#14'Create New Map'#12'ClientHeight'#3#145#0#11
+  +'ClientWidth'#3'i'#1#11'Font.Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'#9
+  +'FormStyle'#7#11'fsStayOnTop'#8'HelpFile'#6#13'KM_Editor.hlp'#7'OnClose'#7#9
+  +'FormClose'#8'OnCreate'#7#10'FormCreate'#6'OnShow'#7#8'FormShow'#8'Position'
+  +#7#16'poMainFormCenter'#10'LCLVersion'#6#8'0.9.28.2'#0#7'TButton'#8'ButtonOK'
+  +#4'Left'#3#216#0#6'Height'#2#25#3'Top'#2'P'#5'Width'#3#137#0#7'Caption'#6#2
+  +'OK'#7'OnClick'#7#9'CreateMap'#8'TabOrder'#2#0#0#0#7'TButton'#12'ButtonCance'
+  +'l'#4'Left'#3#216#0#6'Height'#2#25#3'Top'#2'p'#5'Width'#3#137#0#7'Caption'#6
+  +#6'Cancel'#7'OnClick'#7#12'CreateCancel'#8'TabOrder'#2#1#0#0#11'TRadioGroup'
+  +#12'RGMapVersion'#4'Left'#2#8#6'Height'#2'A'#3'Top'#2'H'#5'Width'#3#201#0#8
+  +'AutoFill'#9#7'Caption'#6#13' Map format  '#28'ChildSizing.LeftRightSpacing'
+  +#2#6#28'ChildSizing.TopBottomSpacing'#2#6#29'ChildSizing.EnlargeHorizontal'#7
+  +#24'crsHomogenousChildResize'#27'ChildSizing.EnlargeVertical'#7#24'crsHomoge'
+  +'nousChildResize'#28'ChildSizing.ShrinkHorizontal'#7#14'crsScaleChilds'#26'C'
+  +'hildSizing.ShrinkVertical'#7#14'crsScaleChilds'#18'ChildSizing.Layout'#7#29
+  +'cclLeftToRightThenTopToBottom'#27'ChildSizing.ControlsPerLine'#2#1#12'Clien'
+  +'tHeight'#2'2'#11'ClientWidth'#3#199#0#7'Enabled'#8#9'ItemIndex'#2#1#13'Item'
+  +'s.Strings'#1#6#16'Original KaM TSK'#6#20'Original KaM TPR/TSK'#6#7'KaM TKE'
+  +#0#8'TabOrder'#2#3#0#0#9'TGroupBox'#9'GrMapSize'#4'Left'#2#8#6'Height'#2'9'#3
+  +'Top'#2#8#5'Width'#3#201#0#7'Caption'#6#11' Map size  '#12'ClientHeight'#2'*'
+  +#11'ClientWidth'#3#199#0#8'TabOrder'#2#4#0#6'TLabel'#6'Label1'#4'Left'#2'8'#6
+  +'Height'#2#15#3'Top'#2#11#5'Width'#2#16#7'Caption'#6#3' x '#11'ParentColor'#8
+  +#0#0#6'TLabel'#6'Label2'#4'Left'#2'|'#6'Height'#2#15#3'Top'#2#11#5'Width'#2
+  +'"'#7'Caption'#6#5'Tiles'#11'ParentColor'#8#0#0#9'TComboBox'#3'RGX'#4'Left'#2
+  +#6#6'Height'#2#25#3'Top'#2#8#5'Width'#2'1'#13'DropDownCount'#2#16#10'ItemHei'
+  +'ght'#2#0#9'ItemIndex'#2#4#13'Items.Strings'#1#6#2'32'#6#2'48'#6#2'64'#6#2'8'
+  +'0'#6#2'96'#6#3'112'#6#3'128'#6#3'144'#6#3'160'#6#3'176'#6#3'192'#0#5'Style'
+  +#7#14'csDropDownList'#8'TabOrder'#2#0#4'Text'#6#2'96'#0#0#9'TComboBox'#3'RGY'
+  +#4'Left'#2'F'#6'Height'#2#25#3'Top'#2#8#5'Width'#2'1'#13'DropDownCount'#2#16
+  +#10'ItemHeight'#2#0#9'ItemIndex'#2#4#13'Items.Strings'#1#6#2'32'#6#2'48'#6#2
+  +'64'#6#2'80'#6#2'96'#6#3'112'#6#3'128'#6#3'144'#6#3'160'#6#3'176'#6#3'192'#0
+  +#5'Style'#7#14'csDropDownList'#8'TabOrder'#2#1#4'Text'#6#2'96'#0#0#0#7'TButt'
+  +'on'#10'ButtonHelp'#4'Left'#3#216#0#6'Height'#2#25#3'Top'#2#8#5'Width'#3#137
+  +#0#8'HelpType'#7#9'htKeyword'#7'Caption'#6#4'Help'#7'OnClick'#7#15'ButtonHel'
+  +'pClick'#8'TabOrder'#2#2#0#0#0
+]);

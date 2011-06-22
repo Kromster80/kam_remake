@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de">
+<head>
+	<title>HowTo</title>
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<meta name="Keyword" content="Knights and Merchante Remake" />
+	<meta name="Author" content="Siegfried" />
+	<meta name="Description" content="Knights and Merchants Remake" />
+	<link rel="Shortcut Icon" href="img/kamr.ico" />
+	<script type="text/javascript" src="js/jquery-1.4.3.min.js"></script>
+	<script type="text/javascript" src="js/local.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/local.css"></link>
+</head>
+<body>
+
+<div class="outer">
+
+<table id="framework" class="frame">
+<tr>
+<td class="topleft"></td>
+<td class="top"></td>
+<td class="topright"></td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="main">
+
+<p><strong>step 1: pascal compiler + IDE</strong><br />
+Go to <a href="http://www.lazarus.freepascal.org/">Lazarus Homepage</a> and download Lazarus.<br />
+As of the date of this guide (Oct 2010), the latest stable Lazarus build is quite old, so it's recommended to use one of the nightly builds. They can be found on the lazarus homepage under "Daily Snapshots" (<a href="http://www.hu.freepascal.org/lazarus/" rel="img/s1p1.png">direct link</a>).<br />
+Which version you use is up to you, the snapshots are available for the different pascal compilers (fpc) 2.4.0 and 2.4.3 for 32bit-Windows and 64bit-Windows. In the tutorial we use the latest version <a href="img/s1p2.png" rel="img/s1p2.png">"Lazarus + fpc 2.4.3"</a>, but fpc 2.4.0 was also tested and should be fine, too. We will use the win32 version for now.<br />
+We donwload and install it. You will need administrator rights to install it! As the installer of the daily snapshots don't automatically ask for administrator permissions, you better start the installation with administrator rights already. therefore click the file with the right mouse button and select "Run as administrator" if you don't have administrator rights already. For troubleshooting, see <a href="http://www.sevenforums.com/tutorials/11841-run-administrator.html">this forum</a>.<br />
+On the page <em>Select Components</em>, we select every component (equivalently choose <em>Full Installation</em>).</p>
+
+<p><strong>step 2: svn</strong><br />
+If you already have svn installed or know how to use it, you can skip this paragraph and head to the next step.<br />
+Go to <a href="http://tortoisesvn.tigris.org/">TortoiseSVN Homepage</a> and download it. According to your system, you can safely use the 64bit oder 32bit-version (<a href="http://tortoisesvn.net/downloads">direct link</a>).<br />
+You again will need administrator rights to install TortoiseSVN and also need to reboot your system after installation. This is because TortoiseSVN needs some overlay icons to be correctly displayed in windows explorer <a href="img/s2p1.png" rel="img/s2p1.png">like these examples</a>. A nive description of the important overlay icons can be found <a href="http://tortoisesvn.net/node/138">here</a>. In brief, the most important icons are the green checkmark, that means that the file on your computer matches the file on the svn host server. The red exclamation mark means that the file stored on your computer is modified, which means it differs from the one on the server. The blue question mark means, that the file on your computer is not (yet) stored in the svn host server. All of those icons are displayed above the existing icons of your file. It appears as a circle on the bottom left.<br />
+</p>
+
+<p><strong>step 3: get the latest source code</strong><br />
+The Knights and Merchants Remake-Project is hosted on google code, <a href="http://code.google.com/p/castlesand/">here!</a>. On the page <a href="http://code.google.com/p/castlesand/source/checkout" rel="img/s3p1.png">Source</a>, it says how to checkout the code. Forget about the command line tool for the moment, we only need to remember the URL <em>http://castlesand.googlecode.com/svn/</em>.<br />
+Now go to the folder of your choice where you want to download the latest version of the Remake to. Create a new folder, in this example it is called <em>kam</em>. Right-click on it and select <a href="" rel="img/s3p2.png">SVN check-out</a>.<br />
+In the appearing dialog, you need to enter the URL in the first line, <a href="img/s3p3.png" rel="img/s3p3.png">http://castlesand.googlecode.com/svn/</a>. Then click <em>OK</em> and <a href="img/s3p4.png" rel="img/s3p4.png">see how the files are being downloaded to your PC</a>.<br />
+Wait until the process has finished, it then says something like <a href="img/s3p4.png" rel="img/s3p4.png">Done in revision xxxx</a>, where xxxx is the current revision (version) of the code. You can safely click <em>OK</em> now, you're already done and the code is saved locally on your computer. You will notice the green checkmark on your kam-folder and on all item inside the folder. It will look something like <a href="img/s3p5.png" rel="img/s3p5.png">this</a>. Enjoy the view once, because as soon as we load the project into lazarus, many files will be added or changed.
+</p>
+
+<p><strong>step 4: start lazarus</strong><br />
+We are now ready to start lazarus. On the first run, it will look similar like <a href="img/s4p1.png" rel="img/s4p1.png">this</a>, with the five windows overlapping each other.</p>
+<ol>
+<li>Main windows: here the familiar menus like <em>File</em> and <em>Edit</em> can be found</li>
+<li>Source editor: this is the editor window, where the pascal source code files can be edited</li>
+<li>Messages: will become important when we compile</li>
+<li>Object Inspector: can be used to change properties of the form elements</li>
+<li>Form-Window: how the form of the program looks like</li>
+</ol>
+<p>On the startup, lazarus will have build a new project, so you will see some lines in the Source Editor in a file called "Unit1" and an empty Form-Window. Ignore them all and directly go to open our kam-project. Press Ctrl+O oder File-Open and <a href="img/s4p2.png" rel="img/s4p2.png">a) browse to your recently filled kam-folder</a>, <a href="img/s4p2.png" rel="img/s4p2.png">b) select that you only wish to see project files</a> and <a href="img/s4p2.png" rel="img/s4p2.png">c) select the KaM-Remake.lpi</a>, the project file of Knights and Merchants Remake.<br />
+Lazarus will ask you wheter you want to open the project or the file as a XML file. Choose <a href="img/s4p3.png" rel="img/s4p3.png">Open project</a>. The changes made to the automatically generated prject1 can be safely discarded. Choose <em>no</em> to not save them.<br />
+Now you have loaded the project. You will notice that the Source Editor now shows <a href="img/s4p4.png" rel="img/s4p4.png">many files and the Form window shows something, too</a>.<br />
+We are now very close to our aim of compiling it - but the most important step is missing: the actual compiling. Now the moment of truth appears. We either hit Ctrl+F9 or click in the Main Window on Run-Build and curiously look at the message window. But first, it will ask you <a href="img/s4p5.png" rel="img/s4p5.png">a question about the LCL</a>. Click <em>Ignore</em> for the moment, and the compiler will start and fill the Messages-window.<br />
+It is not unlikely that the code doesn't compile, for example the revision 1107 we are using in this tutorial gives us <a href="img/s4p6.png" rel="img/s4p6.png">the following error</a>. In the Messages-window, the compiler tells us where the problems appears, first the file name, then in brackets the line number and the position. Then it provides us the actual error message, in the previos case it is <em>Error: method identifier expected</em>. If you are a programer, you can now start an fix this bug. If you are not familiar with programing, just go to the <a href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&amp;mforum=knights">Knights and Merchants Forums</a> and tell the programers about the bug. Alternatively, if you have a google account, you can go to google code and submit a <a href="http://code.google.com/p/castlesand/issues/list">New issue</a> to the bug tracker.<br />
+You know that the code compiles without error (for this tutorial, we used revision 1039 which builds in Lazarus and fpc 2.4.3 without changing the code), when the message <a href="img/s4p7.png" rel="img/s4p7.png"><em>Project "KaM_Remake" successfully built</em></a> appears at the bottom of the Messages-window. If this is the case, you are happy, because everything went fine and you just compiled KaM Remake on your own!<br />
+
+Now it is time to look for the exe file the compiler has generated. If the compilation was successful, <a href="img/s4p8.png" rel="img/s4p8.png">inside your kam-folder you will find the freshly built exe-file</a>. Don't be scared that this file my be some 10 Megabytes large, this is because the compiler with the standard settings builds the exe-file with all debugging-information needed. If you set the compiler to build a release exe-file, it will be much smaller.<br />
+This exe-file can now copied to your installation of Knights and Merchants Remake, replacing the existing exe file. You can now start KaM with the latest version available and with the good feeling of running your self-compiled program.
+</p>
+
+<p>Now let's all praise the makes of KaM-Remake, it's an awesome piece of software they're creating! Thank you very much.</p>
+
+</td>
+<td class="right"></td>    
+</tr>
+<tr>
+<td class="bottomleft"></td>
+<td class="bottom"></td>
+<td class="bottomright"></td>
+</tr>
+</table>
+</div>
+</body>
+</html>

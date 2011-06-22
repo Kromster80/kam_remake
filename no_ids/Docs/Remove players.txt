@@ -1,0 +1,46 @@
+There are 2 cases when we might need to remove players:
+
+    When Multiplayer wants to skip/remove the player we have issues with: IDs/Terrain/Alliances/Goals
+- In multiplayer, mission loading may be already instructed to perform certain simple tasks
+(skip armies, skip houses other than Store) other tasks may be issued by Game (add wares, etc..)
+- IDs are importants for player identification (units ownership and etc..) if we alter IDs then we
+will need to go through all units and houses to change their IDs, thats doable
+- Terrain is already initialized with tile ownership (unless we told mission loader to skip certin
+players), but we can ge through all tiles as well
+- Alliance info works with IDs. It's easy to update too
+- Goals need to check if player exists, cleaning goals may break win/defeat conditions
+(e.g. play_2 must stay alive for someones victory, if we alter goals mission will become unbeatable,
+in other case mission will return Defeat immediately - that is better)
+- Connection between NetPlayers and Players lists is not straight anyway
+
+Conclusion:
+A. IDs are alias for starting locations, not players order in game. We might want to ommit
+(do not load) players data and leave everything else intact.
+B. We don't need to remove players for multiplayer, we should skip / not load them in the first place.
+
+    When MapEditor removes a player, (e.g. before saving a map), it wants to remove it completely, 
+leaving no trace. Since IDs are alias for starting locations we need to pack them (1348 -> 1234). 
+Later on, on map loading, players will be stuffed to MAX_PLAYERS again.
+- IDs, update all units and houses owners
+- Alliances, update
+- Goals, remove goals for missing players. We can show warnings before save on erroneous goals,
+but anyway - it's MapEd and everything is not final yet
+- Terrain, what to do with tile ownership, roads? (thats is pretty rare case, presumably happening
+by mistake) Either we remove them with a note, or try to convert ownership? IMO removing is better
+- Problem with the menu - will it be smart enough to handle suddenly changed players layout?
+It should handle it.
+
+Conclusion:
+MapEditor needs to be able to remove players smoothly
+
+In the end we have alliances and goals set/depend between starting locations, and players are
+choosing which location they want to use, with all its assets and properties.
+
+
+RemovePlayer:
+	Units.OwnerUpdate
+	Houses.OwnerUpdate
+	AI.OwnerUpdate
+	Alliances
+	Goals
+	Terrain

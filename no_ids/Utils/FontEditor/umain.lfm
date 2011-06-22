@@ -1,0 +1,279 @@
+object frmMain: TfrmMain
+  Left = 185
+  Height = 653
+  Top = 94
+  Width = 817
+  ActiveControl = RefreshData
+  Caption = 'KaM Font Editor'
+  ClientHeight = 653
+  ClientWidth = 817
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.28.2'
+  object Image1: TImage
+    Left = 160
+    Height = 512
+    Top = 16
+    Width = 512
+    OnMouseMove = Image1MouseMove
+    OnMouseUp = Image1MouseUp
+  end
+  object Image3: TImage
+    Left = 680
+    Height = 512
+    Top = 16
+    Width = 128
+  end
+  object Image4: TImage
+    Left = 312
+    Height = 30
+    Top = 536
+    Width = 497
+  end
+  object Image5: TImage
+    Left = 160
+    Height = 60
+    Top = 565
+    Width = 649
+  end
+  object Label3: TLabel
+    Left = 62
+    Height = 15
+    Top = 427
+    Width = 116
+    Caption = 'BaseCharHeight?'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Label4: TLabel
+    Left = 62
+    Height = 15
+    Top = 451
+    Width = 101
+    Caption = 'Word spacing?'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Label5: TLabel
+    Left = 62
+    Height = 15
+    Top = 475
+    Width = 88
+    Caption = 'Char spacing'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Label6: TLabel
+    Left = 62
+    Height = 15
+    Top = 499
+    Width = 92
+    Caption = 'Line spacing?'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Shape1: TShape
+    Left = 160
+    Height = 32
+    Top = 16
+    Width = 32
+    Brush.Style = bsClear
+    Pen.Color = clWhite
+    Pen.Width = 2
+  end
+  object Label7: TLabel
+    Left = 62
+    Height = 15
+    Top = 523
+    Width = 162
+    Caption = 'Selected letter Y offset'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object ListBox1: TListBox
+    Left = 8
+    Height = 257
+    Top = 40
+    Width = 145
+    ItemHeight = 0
+    OnClick = ListBox1Click
+    TabOrder = 1
+    TopIndex = -1
+  end
+  object RefreshData: TButton
+    Left = 8
+    Height = 21
+    Top = 8
+    Width = 97
+    Caption = 'Refresh list'
+    OnClick = RefreshDataClick
+    TabOrder = 2
+  end
+  object BitBtn1: TBitBtn
+    Left = 8
+    Height = 25
+    Top = 600
+    Width = 145
+    Caption = 'Save Font File'
+    OnClick = BitBtn1Click
+    TabOrder = 0
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 17
+    Top = 636
+    Width = 817
+    Panels = <    
+      item
+        Text = 'Font'
+        Width = 240
+      end    
+      item
+        Text = 'Coordinates'
+        Width = 120
+      end    
+      item
+        Text = 'Font Hex Code'
+        Width = 50
+      end>
+    SimplePanel = False
+  end
+  object Edit1: TEdit
+    Left = 160
+    Height = 20
+    Top = 540
+    Width = 145
+    OnChange = Edit1Change
+    TabOrder = 4
+    Text = 'Sample phrase'
+  end
+  object CheckCells: TCheckBox
+    Left = 8
+    Height = 22
+    Top = 549
+    Width = 94
+    Caption = 'Show cells'
+    Checked = True
+    OnClick = CheckCellsClick
+    State = cbChecked
+    TabOrder = 6
+  end
+  object btnExportBig: TBitBtn
+    Left = 8
+    Height = 25
+    Top = 572
+    Width = 73
+    Caption = 'Export BMP'
+    OnClick = btnExportBigClick
+    TabOrder = 7
+  end
+  object btnImportBig: TBitBtn
+    Left = 80
+    Height = 25
+    Top = 572
+    Width = 73
+    Caption = 'Import BMP'
+    OnClick = btnImportBigClick
+    TabOrder = 5
+  end
+  object RGPalette: TRadioGroup
+    Left = 8
+    Height = 112
+    Top = 304
+    Width = 145
+    AutoFill = True
+    Caption = ' Preview palette  '
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ChildSizing.ControlsPerLine = 6
+    ClientHeight = 97
+    ClientWidth = 143
+    ColumnLayout = clVerticalThenHorizontal
+    Columns = 2
+    Items.Strings = (
+      'map.bbm'
+      'pal0.bbm'
+      'pal1.bbm'
+      'pal2.bbm'
+      'pal3.bbm'
+      'pal4.bbm'
+      'pal5.bbm'
+      'setup.bbm'
+      'setup2.bbm'
+      'linear'
+      'mapgold.lbm'
+      'setup.lbm'
+    )
+    OnClick = RGPaletteClick
+    TabOrder = 8
+  end
+  object SpinEdit1: TSpinEdit
+    Left = 8
+    Height = 20
+    Top = 424
+    Width = 50
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
+    TabOrder = 9
+  end
+  object SpinEdit2: TSpinEdit
+    Left = 8
+    Height = 20
+    Top = 448
+    Width = 50
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
+    TabOrder = 10
+  end
+  object SpinEdit3: TSpinEdit
+    Left = 8
+    Height = 20
+    Top = 472
+    Width = 50
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
+    TabOrder = 11
+  end
+  object SpinEdit4: TSpinEdit
+    Left = 8
+    Height = 20
+    Top = 496
+    Width = 50
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
+    TabOrder = 12
+  end
+  object SpinEdit5: TSpinEdit
+    Left = 8
+    Height = 20
+    Top = 520
+    Width = 50
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit5Change
+    TabOrder = 13
+  end
+  object OpenDialog1: TOpenDialog
+    left = 88
+    top = 8
+  end
+  object SaveDialog1: TSaveDialog
+    left = 120
+    top = 8
+  end
+end

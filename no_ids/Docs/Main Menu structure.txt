@@ -1,0 +1,22 @@
+Single-Player
+	Town tutorial
+	Battle tutorial
+	Play Campaign
+		Campaign TSK
+		Campaign TPR
+		Custom campaigns
+	Single map
+	Load game
+	View replay
+
+Multi-Player
+	Single-map
+	Load game
+
+Map Editor
+
+Options
+
+Credits
+
+Exit

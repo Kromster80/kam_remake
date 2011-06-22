@@ -1,0 +1,45 @@
+-----------------------------------------------------------------------
+21/12/10 - Tested AI Defence Position behaviour in KaM and recorded facts (Lewin)
+
+
+Formation:
+1. If defence formation is not specified, AI will form warriors into groups that are 3x3 (9 men, 3 rows)
+2. AI will link excess warriors into groups of specified size but not position them anywhere
+3. AI will increase formation to 3 rows, but never decrease it (if group starts off as 10 rows when only 4 is recomended, it stays as 10)
+4. AI will not split groups that are larger than the specified amount (if group starts off as 20 men when only 12 are recomended, it stays as 20)
+
+
+Positioning:
+5. AI will fill up the defence positions in the order they were defined in the script. For example if the AI has 20 soldiers and each defence position A, B and C should contain 8 warriors, then A and B will get 8 warriors and C will get 4. Script order = priority.
+
+
+=======================
+Suggestions for Remake:
+=======================
+1: To be used
+2: To be used
+3&4: To be used
+5: To be used with one exception. New groups will go to the CLOSEST defence position rather than the highest priority. During the next update they will be moved a higher priority position if it hasn't already been taken. Here is the reason: In many missions defence positions are scripted with a group of warriors standing at that position at the start of the mission. In KaM, unless the order of warriors EXACTLY matches the order of defence positions, at the start of the mission the warriors will all swap place, in order for the FIRST warrior in script order to match with the FIRST AI defence position in script order. This creates a mess and it takes a lot of effort to script the mission so that these match up. So at the start of the mission, warrior groups will take the position they are closest to. During the next AI update priority will be checked. To clarify this please talk to Lewin.
+
+
+-----------------------------------------------------------------------
+06/01/11 - Tested front/back line behavior and warrior training (Lewin)
+
+
+Lines:
+6. Front/back lines ONLY mean this one thing: Backline troops are allowed to attack, front are not. Line status does NOT effect the priority, that is controled by the script order.
+
+Training:
+7. Warriors always train the best unit of each group type, e.g. swordfighter > axefighter > militia
+8. AI will continue to train warriors even once all defence positions for that warrior type are full. 
+9. Warriors will be trained in sequence. For example, in the first AI update, they will train 1 melee unit, next time 1 ranged unit, next time 1 mounted unit, etc.
+
+
+=======================
+Suggestions for Remake:
+=======================
+
+6. To be used
+7. To be used
+8. Not to be used. We will train units until the defence positions are full and then stop. However some missions do not use defence positions and the AI positions the idle units in a defence formation. We will need to implement this later, but for now we will only train units to fill the available defence positions
+9. We will randomly choose a warrior that is required and attempt to train that. This is similar to what the AI does but does not require storing a sequence counter.

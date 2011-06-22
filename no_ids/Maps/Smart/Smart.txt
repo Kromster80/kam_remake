@@ -1,0 +1,7 @@
+Title
+Smart
+
+SmallDesc
+By Nick
+
+BigDesc

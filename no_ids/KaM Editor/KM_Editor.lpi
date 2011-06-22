@@ -1,0 +1,405 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="\"/>
+    <Version Value="7"/>
+    <General>
+      <MainUnit Value="0"/>
+      <TargetFileExt Value=".exe"/>
+      <Icon Value="0"/>
+      <UseXPManifest Value="True"/>
+      <ActiveEditorIndexAtStart Value="2"/>
+    </General>
+    <VersionInfo>
+      <ProjectVersion Value=""/>
+      <Language Value=""/>
+      <CharSet Value=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="\usr\X11R6\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="26">
+      <Unit0>
+        <Filename Value="KM_Editor.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KM_Editor"/>
+        <CursorPos X="18" Y="6"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="28"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="KM_Unit1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="KM_Unit1"/>
+        <CursorPos X="35" Y="7"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="KM_Defaults.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KM_Defaults"/>
+        <CursorPos X="5" Y="331"/>
+        <TopLine Value="299"/>
+        <UsageCount Value="28"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="KM_Render.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KM_Render"/>
+        <CursorPos X="3" Y="10"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="KM_ReadGFX1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KM_ReadGFX1"/>
+        <CursorPos X="29" Y="20"/>
+        <TopLine Value="5"/>
+        <UsageCount Value="28"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="KM_Form_NewMap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormNewMap"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="KM_Form_NewMap"/>
+        <CursorPos X="47" Y="11"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="KM_Form_Loading.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormLoading"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="KM_Form_Loading"/>
+        <CursorPos X="35" Y="12"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="KM_LoadDAT.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KM_LoadDAT"/>
+        <CursorPos X="69" Y="3"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="28"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="KM_TPlayer.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KM_TPlayer"/>
+        <CursorPos X="27" Y="4"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="28"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="KM_MapSettings.pas"/>
+        <UnitName Value="KM_MapSettings"/>
+        <CursorPos X="1" Y="82"/>
+        <TopLine Value="49"/>
+        <UsageCount Value="20"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="KM_TGATexture.pas"/>
+        <UnitName Value="KM_TGATexture"/>
+        <CursorPos X="19" Y="143"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\ Common \KM_TGATexture.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KM_TGATexture"/>
+        <CursorPos X="15" Y="16"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="28"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="KM_Editor.dpr"/>
+        <UnitName Value="KM_Editor"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="KM_Unit1.lfm"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="12"/>
+        <SyntaxHighlighter Value="LFM"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\KM_Render.pas"/>
+        <UnitName Value="KM_Render"/>
+        <CursorPos X="24" Y="4"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="..\Common\KM_TGATexture.pas"/>
+        <UnitName Value="KM_TGATexture"/>
+        <CursorPos X="12" Y="133"/>
+        <TopLine Value="120"/>
+        <UsageCount Value="10"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\ Common \KromUtils.pas"/>
+        <UnitName Value="KromUtils"/>
+        <CursorPos X="1" Y="3"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="13"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\ Common \ColorPicker.lrs"/>
+        <CursorPos X="17" Y="3"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="KM_Unit1.lrs"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="KM_Form_Loading.lrs"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="..\..\..\Lazarus\lcl\avglvltree.pas"/>
+        <UnitName Value="AvgLvlTree"/>
+        <CursorPos X="1" Y="1628"/>
+        <TopLine Value="1599"/>
+        <UsageCount Value="10"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="..\..\..\Lazarus\lcl\include\application.inc"/>
+        <CursorPos X="1" Y="1951"/>
+        <TopLine Value="1933"/>
+        <UsageCount Value="10"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="..\Common\KromUtils.pas"/>
+        <UnitName Value="KromUtils"/>
+        <CursorPos X="19" Y="446"/>
+        <TopLine Value="430"/>
+        <UsageCount Value="10"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="..\Common\dglOpenGL.pas"/>
+        <UnitName Value="dglOpenGL"/>
+        <CursorPos X="121" Y="13196"/>
+        <TopLine Value="13156"/>
+        <UsageCount Value="10"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="..\Utils\TileResampler\Unit1.dfm"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="27"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="LFM"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="..\Utils\TileResampler\Unit1.pas"/>
+        <UnitName Value="Unit1"/>
+        <CursorPos X="39" Y="25"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit25>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="KM_Form_Loading.pas"/>
+        <Caret Line="65" Column="4" TopLine="45"/>
+      </Position1>
+      <Position2>
+        <Filename Value="KM_Form_Loading.pas"/>
+        <Caret Line="57" Column="3" TopLine="39"/>
+      </Position2>
+      <Position3>
+        <Filename Value="KM_Form_Loading.pas"/>
+        <Caret Line="58" Column="3" TopLine="45"/>
+      </Position3>
+      <Position4>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="5" Column="6" TopLine="1"/>
+      </Position4>
+      <Position5>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="34" Column="15" TopLine="18"/>
+      </Position5>
+      <Position6>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="37" Column="10" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="51" Column="17" TopLine="35"/>
+      </Position7>
+      <Position8>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="41" Column="10" TopLine="25"/>
+      </Position8>
+      <Position9>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="38" Column="10" TopLine="22"/>
+      </Position9>
+      <Position10>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="34" Column="15" TopLine="1"/>
+      </Position10>
+      <Position11>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="40" Column="10" TopLine="24"/>
+      </Position11>
+      <Position12>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="37" Column="10" TopLine="1"/>
+      </Position12>
+      <Position13>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="34" Column="15" TopLine="18"/>
+      </Position13>
+      <Position14>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="38" Column="10" TopLine="22"/>
+      </Position14>
+      <Position15>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="96" Column="33" TopLine="80"/>
+      </Position15>
+      <Position16>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="111" Column="33" TopLine="95"/>
+      </Position16>
+      <Position17>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="112" Column="34" TopLine="96"/>
+      </Position17>
+      <Position18>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="8" Column="27" TopLine="1"/>
+      </Position18>
+      <Position19>
+        <Filename Value="KM_Unit1.pas"/>
+        <Caret Line="528" Column="22" TopLine="1011"/>
+      </Position19>
+      <Position20>
+        <Filename Value="KM_Unit1.pas"/>
+        <Caret Line="7" Column="26" TopLine="1"/>
+      </Position20>
+      <Position21>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="35" Column="15" TopLine="1"/>
+      </Position21>
+      <Position22>
+        <Filename Value="KM_Form_NewMap.pas"/>
+        <Caret Line="9" Column="27" TopLine="1"/>
+      </Position22>
+      <Position23>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="35" Column="15" TopLine="1"/>
+      </Position23>
+      <Position24>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="8" Column="27" TopLine="1"/>
+      </Position24>
+      <Position25>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="35" Column="15" TopLine="19"/>
+      </Position25>
+      <Position26>
+        <Filename Value="KM_Form_NewMap.pas"/>
+        <Caret Line="9" Column="27" TopLine="1"/>
+      </Position26>
+      <Position27>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="35" Column="15" TopLine="19"/>
+      </Position27>
+      <Position28>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="8" Column="3" TopLine="1"/>
+      </Position28>
+      <Position29>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="9" Column="3" TopLine="1"/>
+      </Position29>
+      <Position30>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="10" Column="21" TopLine="1"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="8"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <IncludeFiles Value="..\Common\"/>
+      <OtherUnitFiles Value="..\Common\"/>
+      <SrcPath Value="..\Common\"/>
+    </SearchPaths>
+    <CodeGeneration>
+      <Checks>
+        <IOChecks Value="True"/>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+        <StackChecks Value="True"/>
+      </Checks>
+      <VerifyObjMethodCallValidity Value="True"/>
+    </CodeGeneration>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Source Value="KM_Form_Loading.pas"/>
+        <Line Value="46"/>
+      </Item1>
+    </BreakPoints>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
