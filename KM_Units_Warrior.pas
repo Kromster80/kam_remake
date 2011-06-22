@@ -717,6 +717,7 @@ end;
 //Reissue our current order, or just halt if we don't have one
 procedure TKMUnitWarrior.ReissueOrder;
 begin
+  //@Lewin: There's bug happening here
   Assert(fCommander = nil);
 
   if (fUnitTask is TTaskAttackHouse) and (fOrderTargetHouse <> nil) then
