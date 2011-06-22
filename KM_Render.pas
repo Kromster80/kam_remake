@@ -1409,12 +1409,15 @@ begin
                    if (
                         ( //With Buildings tab see if we can remove Fields or Houses
                           (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
-                          and (TileIsCornField(GameCursor.Cell) or TileIsWineField(GameCursor.Cell) or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road) or CanRemoveHouse(GameCursor.Cell,play_none))
+                          and (    TileIsCornField(GameCursor.Cell)
+                                or TileIsWineField(GameCursor.Cell)
+                                or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road)
+                                or fPlayers.RemAnyHouse(GameCursor.Cell, true, true))
                         )
                         or
                         ( //With Units tab see if there's a unit below cursor
                           (fGame.fMapEditorInterface.GetShownPage = esp_Units)
-                          and CanRemoveUnit(GameCursor.Cell, play_none)
+                          and fPlayers.RemAnyUnit(GameCursor.Cell,true)
                         )
                       )
                    //And ofcourse it it's visible
@@ -1425,7 +1428,7 @@ begin
 
                  if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
                  begin
-                   if (CanRemovePlan(GameCursor.Cell, MyPlayer.PlayerID) or CanRemoveHouse(GameCursor.Cell, MyPlayer.PlayerID))
+                   if (MyPlayer.RemPlan(GameCursor.Cell, true) or MyPlayer.RemHouse(GameCursor.Cell, true, true))
                    and TileVisible then
                      RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                    else RenderCursorBuildIcon(GameCursor.Cell);       //Red X

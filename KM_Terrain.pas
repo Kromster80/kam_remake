@@ -79,9 +79,6 @@ TTerrain = class
 
     function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
     function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
-    function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-    function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-    function CanRemoveUnit(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
     function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
@@ -2011,31 +2008,6 @@ Result:=true;
       if PlayerRevealID <> play_none then
         Result := Result AND (MyPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4) > 0);
     end;
-end;
-
-
-function TTerrain.CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-begin
-   Result := fPlayers.Player[byte(PlayerID)].RemPlan(Loc,true);
-end;
-
-
-function TTerrain.CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-begin
-   if PlayerID = play_none then
-     Result := fPlayers.RemAnyHouse(Loc,true,true)
-   else
-     Result := fPlayers.Player[byte(PlayerID)].RemHouse(Loc,true,true);
-end;
-
-
-//Check for current player and PlayerAnimals
-function TTerrain.CanRemoveUnit(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-begin
-  if PlayerID = play_none then
-    Result := fPlayers.RemAnyUnit(Loc,true)
-  else
-    Result := fPlayers.Player[byte(PlayerID)].RemUnit(Loc,true) or fPlayers.PlayerAnimals.RemUnit(Loc,true);
 end;
 
 
