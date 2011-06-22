@@ -80,7 +80,7 @@ type
   TGameInputCommand = record
     CommandType:TGameInputCommandType;
     Params:array[1..MAX_PARAMS]of integer;
-    PlayerID: TPlayerID; //Player for which the command is to be issued.
+    PlayerIndex: shortint; //Player for which the command is to be issued.
                          //Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
   end;
 
@@ -125,7 +125,7 @@ type
     procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
-    procedure CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerID:TPlayerID); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:shortint); overload;
 
     function CommandsConfirmed(aTick:cardinal):boolean; virtual;
     procedure ReplayTimer(aTick:cardinal); virtual;
@@ -166,7 +166,7 @@ function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; const aParam:
 var i:integer;
 begin
   Result.CommandType := aGIC;
-  Result.PlayerID := MyPlayer.PlayerID;
+  Result.PlayerIndex := MyPlayer.PlayerIndex;
   for i:=Low(aParam) to High(aParam) do
     Result.Params[i+1] := aParam[i];
   for i:=High(aParam)+1 to High(Result.Params)-1 do
@@ -177,7 +177,7 @@ end;
 procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
 var H:TKMHouse; P:TKMPlayer;
 begin
-  P := fPlayers.Player[byte(aCommand.PlayerID)];
+  P := fPlayers.Player[aCommand.PlayerIndex];
   with aCommand do
   case CommandType of
     gic_ArmyFeed:         TKMUnitWarrior(P.Units.GetUnitByID(Params[1])).OrderFood;
@@ -338,10 +338,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerID:TPlayerID);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:shortint);
 begin
   Assert(aCommandType = gic_TempChangeMyPlayer);
-  TakeCommand( MakeCommand(aCommandType, [Integer(aNewPlayerID)]) );
+  TakeCommand( MakeCommand(aCommandType, [aNewPlayerIndex]) );
 end;
 
 

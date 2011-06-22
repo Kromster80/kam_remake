@@ -58,7 +58,7 @@ type
 
     property Autobuild:boolean read fAutobuild write fAutobuild;
 
-    procedure OwnerUpdate(aPlayer:TPlayerID);
+    procedure OwnerUpdate(aPlayer:shortint);
 
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
@@ -190,8 +190,8 @@ procedure TKMPlayerAI.CheckGoals;
   begin
     Result := false;
 
-    if aGoal.Player <> play_none then
-      MS := fPlayers[byte(aGoal.Player)].Stats
+    if aGoal.PlayerIndex <> -1 then
+      MS := fPlayers[aGoal.PlayerIndex].Stats
     else
       MS := nil; //Will trigger an error unless it's not gc_Time
 
@@ -408,7 +408,7 @@ begin
   //Was it made so intentionaly? Should we make it to choose random or actualy closest one instead?
 
   for i:=0 to fPlayers.Count-1 do
-    if fPlayers.CheckAlliance(fPlayers[PlayerIndex].PlayerID, fPlayers[i].PlayerID) = at_Enemy then
+    if fPlayers.CheckAlliance(PlayerIndex, fPlayers[i].PlayerIndex) = at_Enemy then
       case aTarget of
         att_ClosestUnit:
             TargetUnit := fPlayers[i].Units.GetClosestUnit(aCommander.GetPosition);
@@ -597,9 +597,9 @@ begin
 end;
 
 
-procedure TKMPlayerAI.OwnerUpdate(aPlayer:TPlayerID);
+procedure TKMPlayerAI.OwnerUpdate(aPlayer:shortint);
 begin
-  PlayerIndex := byte(aPlayer);
+  PlayerIndex := aPlayer;
 end;
 
 

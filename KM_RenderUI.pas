@@ -317,7 +317,7 @@ begin
       glEnd;
       if (AltID<>0)and(MyPlayer<>nil) then begin
         glBindTexture(GL_TEXTURE_2D, AltID);
-        Col := fPlayers.Player[byte(MyPlayer.PlayerID)].FlagColor;
+        Col := MyPlayer.FlagColor;
         if Enabled then
           glColor3ub(Col AND $FF, Col SHR 8 AND $FF, Col SHR 16 AND $FF)
         else

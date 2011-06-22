@@ -13,7 +13,7 @@ type
     GoalTime: cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
     MessageToShow: integer; //Message to be shown when the goal is completed
     MessageHasShown: boolean; //Whether we have shown this message yet
-    Player: TPlayerID; //Player whose buildings or troops must be destroyed
+    PlayerIndex: shortint; //Player whose buildings or troops must be destroyed
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
@@ -62,9 +62,9 @@ type
 
     property Count:integer read fCount;
     property Item[Index:integer]:TKMGoal read GetGoal; default;
-    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayerIndex: shortint);
     procedure RemGoal(aIndex:integer);
-    procedure RemoveReference(aPlayerID:TPlayerID);
+    procedure RemoveReference(aPlayerIndex:shortint);
     procedure SetMessageHasShown(aIndex:integer);
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -95,7 +95,7 @@ begin
 end;
 
 
-procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayerIndex: shortint);
 begin
   SetLength(fGoals,fCount+1);
   fGoals[fCount].GoalType         := aGoalType;
@@ -103,7 +103,7 @@ begin
   fGoals[fCount].GoalStatus       := aGoalStatus;
   fGoals[fCount].GoalTime         := aGoalTime;
   fGoals[fCount].MessageToShow    := aMessageToShow;
-  fGoals[fCount].Player           := aPlayer;
+  fGoals[fCount].PlayerIndex      := aPlayerIndex;
   fGoals[fCount].MessageHasShown  := false;
   inc(fCount);
 end;
@@ -121,14 +121,14 @@ end;
 
 //We don't want anyones goal to use deleted player
 //Used when we delete certain player from the network game right after init
-procedure TKMGoals.RemoveReference(aPlayerID:TPlayerID);
+procedure TKMGoals.RemoveReference(aPlayerIndex:shortint);
 var i:integer;
 begin
   for i:=fCount-1 downto 0 do
-    if fGoals[i].Player > aPlayerID then
-      fGoals[i].Player := pred(fGoals[i].Player)
+    if fGoals[i].PlayerIndex > aPlayerIndex then
+      fGoals[i].PlayerIndex := pred(fGoals[i].PlayerIndex)
     else
-    if fGoals[i].Player = aPlayerID then
+    if fGoals[i].PlayerIndex = aPlayerIndex then
       RemGoal(i);
 end;
 

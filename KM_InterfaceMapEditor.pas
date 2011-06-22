@@ -855,7 +855,7 @@ begin
     Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].FlagColor;
 
   if MyPlayer <> nil then
-    Button_PlayerSelect[byte(MyPlayer.PlayerID)].Down := true;
+    Button_PlayerSelect[MyPlayer.PlayerIndex].Down := true;
 end;
                   
 
@@ -1408,7 +1408,7 @@ begin
     for i:=0 to MAX_PLAYERS-1 do
     for k:=0 to MAX_PLAYERS-1 do
       if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
-        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerID, fPlayers.Player[k].PlayerID)=at_Ally)
+        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerIndex, fPlayers.Player[k].PlayerIndex)=at_Ally)
       else
         CheckBox_Alliances[i,k].Disable; //Player does not exist?
     exit;

@@ -650,25 +650,25 @@ begin
     ct_AddGoal:        begin
                          //If the condition is time then ParamList[3] is the time, else it is player ID
                          if TGoalCondition(ParamList[0]) = gc_Time then
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
+                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
                          else begin
                            if ParamList[3] > fPlayers.Count-1 then begin
                              DebugScriptError('Add_Goal for non existing player');
                              exit;
                            end;
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]));
+                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
                          end;
                        end;
     ct_AddLostGoal:    begin
                          //If the condition is time then ParamList[3] is the time, else it is player ID
                          if TGoalCondition(ParamList[0]) = gc_Time then
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_none)
+                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
                          else begin
                            if ParamList[3] > fPlayers.Count-1 then begin
                              DebugScriptError('Add_LostGoal for non existing player');
                              exit;
                            end;
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]));
+                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
                          end;
                        end;
     ct_AIDefence:      begin
@@ -843,13 +843,13 @@ begin
           if GoalCondition = gc_Time then
             AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime])
           else
-            AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)]);
+            AddCommand(ct_AddGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,PlayerIndex]);
 
         if GoalType = glt_Survive then
           if GoalCondition = gc_Time then
             AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime])
           else
-            AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)]);
+            AddCommand(ct_AddLostGoal, [byte(GoalCondition),byte(GoalStatus),MessageToShow,PlayerIndex]);
       end;
     AddData(''); //NL
 
@@ -979,7 +979,7 @@ begin
     CommandLayerCount := 0; //Enable command layering
     for iY := 1 to fTerrain.MapY do
       for iX := 1 to fTerrain.MapX do
-        if fTerrain.Land[iY,iX].TileOwner = fPlayers.Player[i].PlayerID then
+        if fTerrain.Land[iY,iX].TileOwner = fPlayers.Player[i].PlayerIndex then
         begin
           if fTerrain.Land[iY,iX].TileOverlay = to_Road then
             AddCommand(ct_SetRoad, [iX-1,iY-1]);

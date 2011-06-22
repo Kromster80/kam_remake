@@ -33,13 +33,13 @@ type
     fSchedule:array[0..MAX_SCHEDULE-1, 0..MAX_PLAYERS-1] of TCommandsPack; //Ring buffer
 
     //All players must confirm they have recieved our GIPList
-    fConfirmation:array[0..MAX_SCHEDULE-1, TPlayerID] of boolean; //Ring buffer
+    fConfirmation:array[0..MAX_SCHEDULE-1, shortint] of boolean; //Ring buffer
 
     //Mark commands we've already sent to other players
     fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
 
     procedure SendCommands(aTick:cardinal);
-    procedure SendConfirmation(aTick:cardinal; aPlayerID:TPlayerID);
+    procedure SendConfirmation(aTick:cardinal; aPlayerIndex:shortint);
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
@@ -149,7 +149,7 @@ begin
   end;
   Assert(Tick<>-1, 'Could not find place for new commands');
 
-  fSchedule[Tick, byte(aCommand.PlayerID)].Add(aCommand);
+  fSchedule[Tick, aCommand.PlayerIndex].Add(aCommand);
   FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset to false
 end;
 
@@ -161,8 +161,8 @@ begin
   try
     Msg.Write(byte(kdp_Commands));
     Msg.Write(aTick); //Target Tick in 1..n range
-    Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
-    fSchedule[aTick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].Save(Msg); //Write all commands to the stream
+    Msg.Write(MyPlayer.PlayerIndex);
+    fSchedule[aTick mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Save(Msg); //Write all commands to the stream
     fNetworking.SendCommands(Msg); //Send to all opponents
   finally
     Msg.Free;
@@ -171,16 +171,16 @@ end;
 
 
 //Confirm that we have recieved the commands with CRC
-procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerID:TPlayerID);
+procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerIndex:shortint);
 var Msg:TKMemoryStream;
 begin
   Msg := TKMemoryStream.Create;
   try
     Msg.Write(byte(kdp_Confirmation));
     Msg.Write(aTick); //Target Tick in 1..n range
-    Msg.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
-    Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, byte(aPlayerID)].CRC);
-    fNetworking.SendCommands(Msg, aPlayerID); //Send to opponent
+    Msg.Write(MyPlayer.PlayerIndex);
+    Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, aPlayerIndex].CRC);
+    fNetworking.SendCommands(Msg, aPlayerIndex); //Send to opponent
   finally
     Msg.Free;
   end;
@@ -189,26 +189,26 @@ end;
 
 //Decode recieved messages (Commands from other players, Confirmations, Errors)
 procedure TGameInputProcess_Multi.RecieveCommands(const aData:string);
-var M:TKMemoryStream; D:TKMDataType; Tick:integer; PlayID:TPlayerID; CRC:cardinal;
+var M:TKMemoryStream; D:TKMDataType; Tick:integer; PlayerIndex:shortint; CRC:cardinal;
 begin
   M := TKMemoryStream.Create;
   try
     M.WriteAsText(aData);
     M.Read(D, 1); //Decode header
     M.Read(Tick); //Target tick
-    M.Read(PlayID, SizeOf(PlayID)); //Message sender
+    M.Read(PlayerIndex); //Message sender
 
     case D of
       kdp_Commands:
           begin
-            fSchedule[Tick mod MAX_SCHEDULE, byte(PlayID)].Load(M);
-            SendConfirmation(Tick, PlayID);
+            fSchedule[Tick mod MAX_SCHEDULE, PlayerIndex].Load(M);
+            SendConfirmation(Tick, PlayerIndex);
           end;
       kdp_Confirmation: //Recieved CRC should match our commands pack
           begin
             M.Read(CRC);
-            Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, byte(MyPlayer.PlayerID)].CRC);
-            fConfirmation[Tick mod MAX_SCHEDULE, PlayID] := true;
+            Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, MyPlayer.PlayerIndex].CRC);
+            fConfirmation[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
           end;
     end;
   finally
@@ -223,7 +223,7 @@ var i:integer;
 begin
   Result := True;
   for i:=1 to fNetworking.NetPlayers.Count do
-    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerID] or not fNetworking.NetPlayers[i].Alive);
+    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or not fNetworking.NetPlayers[i].Alive);
 end;
 
 
@@ -266,7 +266,7 @@ begin
   begin
     SendCommands(i);
     fSent[i mod MAX_SCHEDULE] := true;
-    fConfirmation[i mod MAX_SCHEDULE, MyPlayer.PlayerID] := true; //Self confirmed
+    fConfirmation[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex] := true; //Self confirmed
   end;
 end;
 

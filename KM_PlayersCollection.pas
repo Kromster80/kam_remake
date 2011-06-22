@@ -26,8 +26,7 @@ type
 
     procedure AddPlayers(aCount:byte); //Batch add several players
 
-    procedure RemovePlayer(aIndex:integer);
-    procedure MovePlayer(aFrom,aTo:integer);
+    procedure RemovePlayer(aIndex:shortint);
     procedure AfterMissionInit(aFlattenRoads:boolean);
     function HousesHitTest(X,Y:Integer):TKMHouse;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
@@ -36,7 +35,7 @@ type
     function HitTest(X,Y:Integer):boolean;
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
-    function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
+    function CheckAlliance(aPlay1,aPlay2:shortint):TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
     procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
     procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
@@ -99,7 +98,7 @@ begin
   SetLength(fPlayerList, fCount+aCount);
 
   for i:=fCount to fCount+aCount-1 do
-    fPlayerList[i] := TKMPlayer.Create(TPlayerID(i), i);
+    fPlayerList[i] := TKMPlayer.Create(i);
 
   fCount := fCount+aCount;
 end;
@@ -115,20 +114,20 @@ end;
 
 //Remove player aIndex
 //todo: Comment and refactor
-procedure TKMPlayersCollection.RemovePlayer(aIndex:integer);
+procedure TKMPlayersCollection.RemovePlayer(aIndex:shortint);
 var i,k:integer;
 begin
   Assert(MyPlayer <> fPlayerList[aIndex], 'Can not remove Player referenced by MyPlayer');
 
   for i:=0 to fCount-1 do
-    fPlayerList[i].Goals.RemoveReference(fPlayerList[aIndex].PlayerID);
+    fPlayerList[i].Goals.RemoveReference(aIndex);
 
   FreeThenNil(fPlayerList[aIndex]);
 
   for i:=aIndex to fCount-2 do
   begin
     fPlayerList[i] := fPlayerList[i+1];
-    fPlayerList[i].SetPlayerID(TPlayerID(i));
+    fPlayerList[i].SetPlayerID(i);
   end;
 
   dec(fCount);
@@ -138,18 +137,7 @@ begin
     for k:=aIndex to fCount-1 do
       fPlayerList[i].Alliances[k] := fPlayerList[i].Alliances[k+1];
 
-  fTerrain.RemovePlayer(TPlayerID(aIndex));
-end;
-
-
-//todo: it will be right to remove empty players before save (called my SaveDAT)
-procedure TKMPlayersCollection.MovePlayer(aFrom,aTo:integer);
-begin
-  //Update IDs, Alliances, Goals
-
-  //Remove references from Terrain
-
-  //Do not Trim empty players (MapEd UI won't like it)
+  fTerrain.RemovePlayer(aIndex);
 end;
 
 
@@ -279,14 +267,16 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
-function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
+function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:shortint):TAllianceType;
 begin
-  Assert(InRange(byte(aPlay1),0,MAX_PLAYERS) and InRange(byte(aPlay2),0,MAX_PLAYERS)); //MAX_PLAYERS + Animals
+  Result := at_Ally;
 
-  if (aPlay1 = aPlay2) or (aPlay1 = play_animals) or (aPlay2 = play_animals) then
-    Result := at_Ally
-  else
-    Result := fPlayerList[byte(aPlay1)].Alliances[byte(aPlay2)];
+  //todo: INCLUDE CHECK FOR ANIMALS
+
+//  if (fPlayerList[aPlay1] is TKMPlayerAnimal) or (fPlayerList[aPlay2] is TKMPlayerAnimal) then
+    Exit;
+
+  Result := fPlayerList[aPlay1].Alliances[aPlay2];
 end;
 
 
@@ -349,12 +339,12 @@ begin
   for i:=0 to fCount-1 do
     fPlayerList[i].Save(SaveStream);
   PlayerAnimals.Save(SaveStream);
-  SaveStream.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
+  SaveStream.Write(MyPlayer.PlayerIndex);
 end;
 
 
 procedure TKMPlayersCollection.Load(LoadStream:TKMemoryStream);
-var i:word; s:string; P:TPlayerID;
+var i:word; s:string; PlayerIndex:shortint;
 begin
   LoadStream.Read(s);
   Assert(s = 'Players', 'Players not found');
@@ -365,13 +355,13 @@ begin
 
   for i:=0 to fCount-1 do
   begin
-    fPlayerList[i] := TKMPlayer.Create(play_none, 0);
+    fPlayerList[i] := TKMPlayer.Create(0);
     fPlayerList[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
 
-  LoadStream.Read(P, SizeOf(P));
-  MyPlayer := fPlayerList[integer(P)];
+  LoadStream.Read(PlayerIndex);
+  MyPlayer := fPlayerList[PlayerIndex];
   Selected := nil;
 end;
 

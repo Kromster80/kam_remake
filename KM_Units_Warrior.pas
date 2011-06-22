@@ -34,7 +34,7 @@ type //Possibly melee warrior class? with Archer class separate?
   public
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
     fMapEdMembersCount:integer;
-    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure CloseUnit; override;
@@ -97,7 +97,7 @@ uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, 
 
 
 { TKMUnitWarrior }
-constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitWarrior.Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
   fCommander         := nil;
@@ -847,7 +847,7 @@ end;
 procedure TKMUnitWarrior.UpdateHungerMessage;
 var i:integer; SomeoneHungry:boolean;
 begin
-  if (fOwner = MyPlayer.PlayerID) and (fCommander = nil) then
+  if (fOwner = MyPlayer.PlayerIndex) and (fCommander = nil) then
   begin
     SomeoneHungry := (fCondition < UNIT_MIN_CONDITION); //Check commander
     if (fMembers <> nil) and (not SomeoneHungry) then
@@ -1169,22 +1169,22 @@ procedure TKMUnitWarrior.Paint;
 
   procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir, UnitTyp:byte);
   var
-    TeamColor: byte;
+    TeamColor: cardinal;
     FlagXPaintPos, FlagYPaintPos: single;
   begin
     FlagXPaintPos := XPaintPos + FlagXOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
     FlagYPaintPos := YPaintPos + FlagYOffset[UnitGroups[UnitTyp],AnimDir]/CELL_SIZE_PX;
 
     if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then
-      TeamColor := byte(play_animals) //Highlight with White color
+      TeamColor := $FFFFFFFF //Highlight with White color
     else
-      TeamColor := byte(fOwner); //Normal color
+      TeamColor := fPlayers.Player[fOwner].FlagColor; //Normal color
 
     //In MapEd mode we borrow the anim step from terrain, as fFlagAnim is not updated
     if fGame.GameState = gsEditor then
-      fRender.RenderUnitFlag(UnitTyp, 9, AnimDir, fTerrain.AnimStep, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false)
+      fRender.RenderUnitFlag(UnitTyp, 9, AnimDir, fTerrain.AnimStep, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false)
     else
-      fRender.RenderUnitFlag(UnitTyp, 9, AnimDir, fFlagAnim, TeamColor, FlagXPaintPos, FlagYPaintPos, XPaintPos, YPaintPos, false);
+      fRender.RenderUnitFlag(UnitTyp, 9, AnimDir, fFlagAnim, FlagXPaintPos, FlagYPaintPos, TeamColor, XPaintPos, YPaintPos, false);
   end;
 
 var
@@ -1202,14 +1202,14 @@ begin
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+  fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if IsCommander and not IsDeadOrDying then
     PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //Paint flag over the top of the unit
 
   //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
   if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, false);
+    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -1220,7 +1220,7 @@ begin
     UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY);
     XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
     YPaintPos := UnitPosition.Y + 1  ;
-    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   end;
 
   if SHOW_ATTACK_RADIUS then

@@ -39,7 +39,7 @@ type
         RX:byte;
         ID:word;
         NewInst,IsUnit:boolean;
-        Team:byte;
+        Team:cardinal;
         AlphaStep:single; //Only appliable to HouseBuild
         FOWvalue:byte; // Fog of War thickness
       end;
@@ -51,7 +51,7 @@ type
       procedure RenderTile(Index:byte; pX,pY,Rot:integer);
       procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
       procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
-      procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
+      procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
       procedure ClipRenderList;
       procedure SortRenderList;
       procedure RenderRenderList;
@@ -98,10 +98,10 @@ type
       procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:cardinal);
       procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
       procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
-      procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
-      procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
+      procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean);
+      procedure RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
       procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; UnitX,UnitY:single; NewInst:boolean);
+      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; UnitX,UnitY:single; NewInst:boolean);
       property RenderAreaSize:TKMPoint read fRenderAreaSize;
       property RendererVersion:string read fOpenGL_Version;
     end;
@@ -876,7 +876,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
+procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
   AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
@@ -890,16 +890,13 @@ begin
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
 
   if SHOW_UNIT_MOVEMENT then begin
-    if InRange(Owner,0,MAX_PLAYERS-1) then
-      glColor3ubv(@fPlayers.Player[Owner].FlagColor)  //Render dot where unit is
-    else
-      glColor3f(1,1,1); //Animals
+    glColor3ubv(@Owner);  //Render dot where unit is
     RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
   end;
 end;
 
 
-procedure TRender.RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
+procedure TRender.RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
   AnimSteps:=SerfCarry[CarryID].Dir[DirID].Count;
@@ -910,7 +907,7 @@ begin
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   ShiftX:=ShiftX+SerfCarry[CarryID].Dir[DirID].MoveX/CELL_SIZE_PX;
   ShiftY:=ShiftY+SerfCarry[CarryID].Dir[DirID].MoveY/CELL_SIZE_PX;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,0);
 end;
 
 
@@ -927,12 +924,13 @@ begin
 end;
 
 
-procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; UnitX,UnitY:single; NewInst:boolean);
-var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer; Color: TColor4;
+procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; UnitX,UnitY:single; NewInst:boolean);
+var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
-AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
-ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
-if ID<=0 then exit;
+  AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
+  ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
+  if ID<=0 then exit;
+
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX -0.5;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
@@ -940,9 +938,7 @@ if ID<=0 then exit;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
   if SHOW_UNIT_MOVEMENT then begin
-    if Owner >= MAX_PLAYERS then Color := $FFFFFFFF
-                            else Color := fPlayers.Player[Owner].FlagColor;
-    glColor3ubv(@Color);
+    glColor3ubv(@Owner);
     RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV); //Render dot where unit is
   end;
 end;
@@ -1103,7 +1099,7 @@ end;
 
 
 {Collect all sprites into list}
-procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
+procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
 begin
   inc(RenderCount);
   if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
@@ -1192,13 +1188,7 @@ begin
         repeat //Render child sprites only after their parent
           with RenderList[h] do begin
             if AlphaStep=-1 then
-              if Team=0 then
-                RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
-              else
-                if Team >= MAX_PLAYERS then
-                  RenderSprite(RX,ID,Loc.X,Loc.Y,$FFFFFFFF,FOWvalue)
-                else
-                  RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].FlagColor,FOWvalue)
+              RenderSprite(RX,ID,Loc.X,Loc.Y,Team,FOWvalue)
             else
               RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
           end;

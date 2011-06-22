@@ -2221,10 +2221,10 @@ begin
   //See if we can show DirectionSelector
   //Can walk to ally units place, can't walk to house place anyway
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
-    and(fShownUnit.GetOwner = MyPlayer.PlayerID) then
+    and(fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Ally)) and
+    if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
       fTerrain.Route_CanBeMade(fShownUnit.GetPosition, GameCursor.Cell, CanWalk, 0, false) then
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
@@ -2308,8 +2308,8 @@ begin
     begin
       U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      if ((U<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Enemy)) or
-         ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Enemy)) then
+      if ((U<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy)) or
+         ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
         Screen.Cursor := c_Attack
       else
       if not fViewport.Scrolling then
@@ -2352,18 +2352,18 @@ begin
   //Attack or Walk
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and TKMUnitWarrior(fShownUnit).GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
-    and(fShownUnit.GetOwner = MyPlayer.PlayerID) then
+    and(fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
   begin
     //Try to Attack unit
     U := fTerrain.UnitsHitTest(P.X, P.Y);
     if (U <> nil) and (not U.IsDeadOrDying) and
-    (fPlayers.CheckAlliance(MyPlayer.PlayerID, U.GetOwner) = at_Enemy) then
+    (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
       fGame.fGameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U)
     else
     begin //If there's no unit - try to Attack house
       H := fPlayers.HousesHitTest(P.X, P.Y);
       if (H <> nil) and (not H.IsDestroyed) and
-      (fPlayers.CheckAlliance(MyPlayer.PlayerID, H.GetOwner) = at_Enemy) then
+      (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
         fGame.fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H)
       else //If there's no house - Walk to spot
         if fTerrain.Route_CanBeMade(fShownUnit.GetPosition, P, CanWalk, 0, false) then
@@ -2399,8 +2399,8 @@ begin
                 //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
                 OldSelected := fPlayers.Selected;
                 if (not fPlayers.HitTest(P.X, P.Y)) or
-                  ((fPlayers.Selected is TKMHouse) and (TKMHouse(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID))or
-                  ((fPlayers.Selected is TKMUnit) and (TKMUnit(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID)) then
+                  ((fPlayers.Selected is TKMHouse) and (TKMHouse(fPlayers.Selected).GetOwner <> MyPlayer.PlayerIndex))or
+                  ((fPlayers.Selected is TKMUnit) and (TKMUnit(fPlayers.Selected).GetOwner <> MyPlayer.PlayerIndex)) then
                   fPlayers.Selected := OldSelected;
 
                 if (fPlayers.Selected is TKMHouse) then

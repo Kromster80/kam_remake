@@ -73,7 +73,7 @@ type
     property MapInfo:TKMapInfo read fMapInfo;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     procedure GameCreated;
-    procedure SendCommands(aStream:TKMemoryStream; aPlayerID:TPlayerID=play_none);
+    procedure SendCommands(aStream:TKMemoryStream; aPlayerIndex:shortint=-1);
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
@@ -354,14 +354,14 @@ end;
 
 
 //Send our commands to either to all players, or to specified one
-procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerID:TPlayerID=play_none);
+procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerIndex:shortint=-1);
 var i:integer;
 begin
-  if aPlayerID = play_none then
+  if aPlayerIndex = -1 then
     PacketSend(NET_ADDRESS_OTHERS, mk_Commands, aStream.ReadAsText, 0) //Send commands to all players
   else
   for i:=1 to fNetPlayers.Count do
-    if fNetPlayers[i].PlayerIndex.PlayerID = aPlayerID then
+    if fNetPlayers[i].PlayerIndex.PlayerIndex = aPlayerIndex then
       PacketSend(fNetPlayers[i].IndexOnServer, mk_Commands, aStream.ReadAsText, 0);
 end;
 

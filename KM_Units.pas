@@ -66,7 +66,7 @@ type TCheckAxis = (ax_X, ax_Y);
     fHitPoints:byte;
     fHitPointCounter: cardinal;
     fCondition:integer; //Unit condition, when it reaches zero unit should die
-    fOwner:TPlayerID;
+    fOwner:shortint;
     fHome:TKMHouse;
     fPosition: TKMPointF;
     fVisible:boolean;
@@ -92,7 +92,7 @@ type TCheckAxis = (ax_X, ax_Y);
     AnimStep: integer;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
 
-    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -130,7 +130,7 @@ type TCheckAxis = (ax_X, ax_Y);
     procedure Feed(Amount:single);
     procedure AbandonWalk;
     function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
-    property GetOwner:TPlayerID read fOwner;
+    property GetOwner:shortint read fOwner;
     function GetSpeed:single;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
@@ -169,7 +169,7 @@ type TCheckAxis = (ax_X, ax_Y);
     function InitiateMining:TUnitTask;
     procedure IssueResourceDepletedMessage;
   public
-    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -216,7 +216,7 @@ type TCheckAxis = (ax_X, ax_Y);
   TKMUnitAnimal = class(TKMUnit)
     fFishCount:byte; //1-5
   public
-    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType); overload;
+    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType); overload;
     constructor Load(LoadStream:TKMemoryStream); override;
     function ReduceFish:boolean;
     function GetSupportedActions: TUnitActionTypeSet; override;
@@ -233,10 +233,10 @@ type TCheckAxis = (ax_X, ax_Y);
     property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; //Use instead of Items[.]
   public
     destructor Destroy; override;
-    function Add(aOwner:TPlayerID; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
-    function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+    function Add(aOwner:shortint; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
+    function AddGroup(aOwner:shortint;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     procedure RemoveUnit(aUnit:TKMUnit);
-    procedure OwnerUpdate(aOwner:TPlayerID);
+    procedure OwnerUpdate(aOwner:shortint);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
@@ -259,7 +259,7 @@ KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome,
 
 
 { TKMUnitCitizen }
-constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitCitizen.Create(aOwner:shortint; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
   fWorkPlan := TUnitWorkPlan.Create;
@@ -316,16 +316,16 @@ begin
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   end;
 
@@ -403,7 +403,7 @@ end;
 procedure TKMUnitCitizen.IssueResourceDepletedMessage;
 var Msg:string;
 begin
-  if (fOwner = MyPlayer.PlayerID) //Don't show for AI players
+  if (fOwner = MyPlayer.PlayerIndex) //Don't show for AI players
   and not fHome.ResourceDepletedMsgIssued then
   begin
     case fHome.GetHouseType of
@@ -493,16 +493,16 @@ begin
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   end;
 
@@ -607,14 +607,14 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(byte(UnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+  fRender.RenderUnit(byte(UnitType), AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry<>rt_None then
-    fRender.RenderUnitCarry(byte(Carry), AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos)
+    fRender.RenderUnitCarry(byte(Carry), AnimDir, AnimStep, XPaintPos, YPaintPos)
   else
-    fRender.RenderUnit(byte(UnitType), 9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+    fRender.RenderUnit(byte(UnitType), 9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -694,7 +694,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(byte(UnitType), byte(fCurrentAction.fActionType), byte(Direction), AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+  fRender.RenderUnit(byte(UnitType), byte(fCurrentAction.fActionType), byte(Direction), AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -736,7 +736,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitAnimal.Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
   if aUnitType = ut_Fish then fFishCount := 5;  //Always start with 5 fish in the group
@@ -839,12 +839,12 @@ begin
     AnimAct := byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(fUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y),true);
+  fRender.RenderUnit(byte(fUnitType), AnimAct, AnimDir, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), fPlayers.Player[fOwner].FlagColor, true);
 end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnit.Create(aOwner:shortint; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
   fID           := fGame.GetNewID;
@@ -1010,7 +1010,7 @@ begin
   fCurrPosition := KMPoint(0,0);
   fPrevPosition := fCurrPosition;
   fNextPosition := fCurrPosition;
-  fOwner        := play_none;
+  fOwner        := -1;
   //Do not reset the unit type when they die as we still need to know during Load
   //fUnitType     := ut_None;
   fDirection     := dir_NA;
@@ -1045,8 +1045,8 @@ begin
   end;
 
   //Update statistics
-  if (fPlayers<>nil) and (fOwner <> play_animals) and (fPlayers.Player[byte(fOwner)]<>nil) then
-    fPlayers.Player[byte(fOwner)].Stats.UnitLost(fUnitType);
+  if (fPlayers<>nil) and (fOwner <> -1)  then
+    fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1752,7 +1752,7 @@ end;
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
-function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
+function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
 var U:Integer; P:TKMPoint;
 begin
   if AutoPlace then begin
@@ -1789,7 +1789,7 @@ begin
 end;
 
 
-function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+function TKMUnitsCollection.AddGroup(aOwner:shortint;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint;
 begin
   aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
@@ -1852,7 +1852,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.OwnerUpdate(aOwner:TPlayerID);
+procedure TKMUnitsCollection.OwnerUpdate(aOwner:shortint);
 var i:integer;
 begin
   for i:=0 to Count-1 do

@@ -11,8 +11,15 @@ type
         pt_Human,
         pt_Computer);
 
+  TKMPlayerCommon = class
+  private
+    fPlayerIndex:shortint; //Which ID this player is
+  public
+    property PlayerIndex:shortint read fPlayerIndex;
+  end;
 
-  TKMPlayer = class
+
+  TKMPlayer = class (TKMPlayerCommon)
   private
     fAI:TKMPlayerAI;
     fBuildList:TKMBuildingQueue;
@@ -24,7 +31,6 @@ type
     fGoals:TKMGoals;
     fFogOfWar:TKMFogOfWar; //Stores FOW info for current player, which includes
 
-    fPlayerID:TPlayerID; //Which ID this player is
     fPlayerType:TPlayerType;
     fFlagColor:cardinal;
     fAlliances: array[0..MAX_PLAYERS-1] of TAllianceType;
@@ -38,7 +44,7 @@ type
     procedure SetAlliances(Index:integer; aValue:TAllianceType);
   public
 
-    constructor Create(aPlayerID:TPlayerID; PlayerIndex:integer);
+    constructor Create(aPlayerIndex:shortint);
     destructor Destroy; override;
 
     property AI:TKMPlayerAI read fAI;
@@ -50,8 +56,7 @@ type
     property Goals:TKMGoals read fGoals;
     property FogOfWar:TKMFogOfWar read fFogOfWar;
 
-    property PlayerID:TPlayerID read fPlayerID;
-    procedure SetPlayerID(aNewID:TPlayerID);
+    procedure SetPlayerID(aNewIndex:shortint);
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor:cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex:byte read GetColorIndex;
@@ -75,8 +80,8 @@ type
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
-    function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse; overload;
-    function FindHouse(aType:THouseType; const Index:byte=1): TKMHouse; overload;
+    function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
+    function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 
@@ -91,7 +96,7 @@ type
   end;
 
 
-  TKMPlayerAnimals = class
+  TKMPlayerAnimals = class (TKMPlayerCommon)
   private
     fUnits: TKMUnitsCollection;
   public
@@ -118,13 +123,13 @@ uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
 
 
 { TKMPlayerAssets }
-constructor TKMPlayer.Create(aPlayerID:TPlayerID; PlayerIndex:integer);
+constructor TKMPlayer.Create(aPlayerIndex:shortint);
 var i: integer;
 begin
   Inherited Create;
-  fPlayerID     := aPlayerID;
+  fPlayerIndex  := aPlayerIndex;
   fPlayerType   := pt_Computer;
-  fAI           := TKMPlayerAI.Create(PlayerIndex);
+  fAI           := TKMPlayerAI.Create(fPlayerIndex);
   fFogOfWar     := TKMFogOfWar.Create;
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
@@ -140,7 +145,7 @@ begin
 
   fSkipWinConditionCheck := false;
   fSkipDefeatConditionCheck := false;
-  fFlagColor := DefaultTeamColors[aPlayerID]; //Init with default color, later replaced by Script
+  fFlagColor := DefaultTeamColors[fPlayerIndex]; //Init with default color, later replaced by Script
 end;
 
 
@@ -168,7 +173,7 @@ begin
     exit;
   end;
 
-  Result := fUnits.Add(fPlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
+  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
   if Result <> nil then
     fStats.UnitCreated(aUnitType, WasTrained);
 end;
@@ -178,21 +183,21 @@ end;
 //User can cancel the training, so we don't add unit to stats just yet
 function TKMPlayer.TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
 begin
-  Result := fUnits.Add(fPlayerID, aUnitType, Position.X, Position.Y, false);
+  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, false);
   //Do not add unit to statistic just yet, wait till it's training complete
 end;
 
 
 function TKMPlayer.AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 begin
-  Result := fUnits.AddGroup(fPlayerID, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
+  Result := fUnits.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
   //Add unit to statistic inside the function for some units may not fit on map
 end;
 
 
 function TKMPlayer.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace:boolean):TKMHouse;
 begin
-  Result := fHouses.AddHouse(aHouseType, PosX, PosY, fPlayerID, RelativeEntrace);
+  Result := fHouses.AddHouse(aHouseType, PosX, PosY, fPlayerIndex, RelativeEntrace);
 end;
 
 
@@ -202,7 +207,7 @@ begin
   //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
   //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
 
-  fTerrain.SetRoad(aLoc, fPlayerID);
+  fTerrain.SetRoad(aLoc, fPlayerIndex);
 end;
 
 
@@ -217,25 +222,25 @@ end;
 procedure TKMPlayer.AfterMissionInit(aFlattenRoads:boolean);
 begin
   if fRoadsList<>nil then begin
-    fTerrain.SetRoads(fRoadsList,fPlayerID);
+    fTerrain.SetRoads(fRoadsList,fPlayerIndex);
     if aFlattenRoads then fTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);
   end;
 end;
 
 
-procedure TKMPlayer.SetPlayerID(aNewID:TPlayerID);
+procedure TKMPlayer.SetPlayerID(aNewIndex:shortint);
 begin
-  fPlayerID := aNewID;
-  fUnits.OwnerUpdate(aNewID);
-  fHouses.OwnerUpdate(aNewID);
-  fAI.OwnerUpdate(aNewID);
+  fPlayerIndex := aNewIndex;
+  fUnits.OwnerUpdate(aNewIndex);
+  fHouses.OwnerUpdate(aNewIndex);
+  fAI.OwnerUpdate(aNewIndex);
 end;
 
 
 procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType:TFieldType);
 begin
-  fTerrain.SetField(aLoc,fPlayerID,aFieldType);
+  fTerrain.SetField(aLoc,fPlayerIndex,aFieldType);
 end;
 
 
@@ -282,8 +287,8 @@ var KMHouse:TKMHouse; Loc:TKMPoint;
 begin
   Loc.X := aLoc.X - HouseDAT[byte(aHouseType)].EntranceOffsetX;
   Loc.Y := aLoc.Y;
-  KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerID);
-  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerID);
+  KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerIndex);
+  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex);
   fStats.HouseStarted(aHouseType);
   BuildList.AddNewHousePlan(KMHouse);
 end;
@@ -334,13 +339,13 @@ begin
 end;
 
 
-function TKMPlayer.FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
+function TKMPlayer.FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse;
 begin
   Result := fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
 end;
 
 
-function TKMPlayer.FindHouse(aType:THouseType; const Index:byte=1): TKMHouse;
+function TKMPlayer.FindHouse(aType:THouseType; Index:byte=1): TKMHouse;
 begin
   Result := fHouses.FindHouse(aType, 0, 0, Index);
 end;
@@ -423,7 +428,7 @@ begin
   Result := 0;
   for i:=1 to fTerrain.MapY do
   for k:=1 to fTerrain.MapX do
-    if fTerrain.Land[i,k].TileOwner = fPlayerID then
+    if fTerrain.Land[i,k].TileOwner = fPlayerIndex then
       inc(Result);
 end;
 
@@ -451,7 +456,7 @@ begin
   fStats.Save(SaveStream);
   fUnits.Save(SaveStream);
 
-  SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
+  SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fSkipWinConditionCheck);
@@ -471,7 +476,7 @@ begin
   fStats.Load(LoadStream);
   fUnits.Load(LoadStream);
 
-  LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
+  LoadStream.Read(fPlayerIndex);
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fSkipWinConditionCheck);
@@ -572,7 +577,7 @@ end;
 
 function TKMPlayerAnimals.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
 begin
-  Result := fUnits.Add(play_animals, aUnitType, Position.X, Position.Y, AutoPlace);
+  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
 end;
 
 
