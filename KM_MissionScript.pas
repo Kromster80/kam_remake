@@ -427,8 +427,15 @@ begin
   //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
   ProcessAttackPositions;
 
-  if MyPlayer = nil then
+  if fParsingMode = mpm_Editor then
+    MyPlayer := fPlayers.Player[0];
+
+  //SinglePlayer needs a player
+  if (MyPlayer = nil) and (fParsingMode = mpm_Single)then
+  begin
     DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
+    Exit;
+  end;
 
   Result := true; //If we have reach here without exiting then it must have worked
 end;
