@@ -397,9 +397,10 @@ end;
 
 
 procedure TKMPlayerAI.OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
-var i: integer;
-    TargetHouse: TKMHouse;
-    TargetUnit: TKMUnit;
+var
+  i: integer;
+  TargetHouse: TKMHouse;
+  TargetUnit: TKMUnit;
 begin
   TargetHouse := nil;
   TargetUnit  := nil;

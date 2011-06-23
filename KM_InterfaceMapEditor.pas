@@ -1405,8 +1405,8 @@ procedure TKMapEdInterface.Mission_AlliancesChange(Sender:TObject);
 var i,k:integer;
 begin
   if Sender = nil then begin
-    for i:=0 to MAX_PLAYERS-1 do
-    for k:=0 to MAX_PLAYERS-1 do
+    for i:=0 to fPlayers.Count-1 do
+    for k:=0 to fPlayers.Count-1 do
       if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
         CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerIndex, fPlayers.Player[k].PlayerIndex)=at_Ally)
       else
@@ -1414,8 +1414,8 @@ begin
     exit;
   end;
 
-  i := TKMCheckBox(Sender).Tag div MAX_PLAYERS;
-  k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS;
+  i := TKMCheckBox(Sender).Tag div fPlayers.Count;
+  k := TKMCheckBox(Sender).Tag mod fPlayers.Count;
   if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].Alliances[k] := at_Ally
                                      else fPlayers.Player[i].Alliances[k] := at_Enemy;
 

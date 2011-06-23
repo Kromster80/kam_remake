@@ -1027,7 +1027,7 @@ begin
       fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
       fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
       if fCurrentAction=nil then exit;
-      fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fOwner,fPosition.X, fPosition.Y);
+      fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fPlayers.Player[fOwner].FlagColor,fPosition.X, fPosition.Y);
     end;
   end;
 end;
