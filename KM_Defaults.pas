@@ -153,6 +153,12 @@ const //Here we store options that are hidden somewhere in code
 type
   TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
 
+  TPlayerIndex = shortint;
+
+const
+  PLAYER_NONE = -1; //No player
+  PLAYER_ANIMAL = -2; //animals
+
 const
   //Maps count in Campaigns
   MAX_MAPS = 32;
@@ -921,9 +927,6 @@ const
   UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
   
-  PLAYER_ANIMAL = -2;
-
-
 type
   TSoundFX = (
     sfx_CornCut=1,

@@ -17,7 +17,7 @@ type
       fTargetJ:TKMPointF; //Logical tile-coords target
 
       fProjType:TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
-      fOwner:shortint; //The ID of the player who launched the projectile, used for kill statistics
+      fOwner:TPlayerIndex; //The ID of the player who launched the projectile, used for kill statistics
       fSpeed:single; //Each projectile speed may vary a little bit
       fArc:single; //Thats how high projectile will go along parabola (varies a little more)
       fPosition:single; //Projectiles position along the route Start>>End
@@ -26,7 +26,7 @@ type
 
   public
     constructor Create;
-    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:shortint; MakeSound:boolean):word;
+    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex; MakeSound:boolean):word;
 
     function ProjectileVisible(aIndex:integer):boolean;
 
@@ -51,7 +51,7 @@ end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:shortint; MakeSound:boolean):word;
+function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex; MakeSound:boolean):word;
 var i:integer; Jitter:single;
 begin
   MakeSound := MakeSound and (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255);

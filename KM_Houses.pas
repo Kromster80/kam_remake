@@ -33,7 +33,7 @@ type
     fHouseType: THouseType; //House type
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
-    fOwner: shortint; //House owner player, determines flag color as well
+    fOwner: TPlayerIndex; //House owner player, determines flag color as well
 
     fBuildSupplyWood: byte; //How much Wood was delivered to house building site
     fBuildSupplyStone: byte; //How much Stone was delivered to house building site
@@ -71,7 +71,7 @@ type
     ResourceDepletedMsgIssued: boolean;
     DoorwayUse: byte; //number of units using our door way. Used for sliding.
 
-    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:shortint; aBuildState:THouseBuildState);
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
@@ -93,7 +93,7 @@ type
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
-    property GetOwner:shortint read fOwner;
+    property GetOwner:TPlayerIndex read fOwner;
     function GetHealth:word;
     property RepairID: integer read fRepairID write fRepairID;
 
@@ -192,7 +192,7 @@ type
     ResourceCount:array[1..11]of word;
   public
     RecruitsList: TList;
-    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:shortint; aBuildState:THouseBuildState);
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
@@ -236,7 +236,7 @@ type
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; RelativeEntrance:boolean):TKMHouse;
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
     function Rem(aHouse:TKMHouse):boolean;
-    procedure OwnerUpdate(aOwner:shortint);
+    procedure OwnerUpdate(aOwner:TPlayerIndex);
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
@@ -258,7 +258,7 @@ uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_
 
 
 { TKMHouse }
-constructor TKMHouse.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:shortint; aBuildState:THouseBuildState);
+constructor TKMHouse.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
 var i: byte;
 begin
   Inherited Create;
@@ -1392,7 +1392,7 @@ begin
 end;
 
 
-constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:shortint; aBuildState:THouseBuildState);
+constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
 begin
   Inherited;
   RecruitsList := TList.Create;
@@ -1658,7 +1658,7 @@ begin
 end;
 
 
-procedure TKMHousesCollection.OwnerUpdate(aOwner:shortint);
+procedure TKMHousesCollection.OwnerUpdate(aOwner:TPlayerIndex);
 var i:integer;
 begin
   for i:=0 to Count-1 do

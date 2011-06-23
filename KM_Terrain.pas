@@ -34,7 +34,7 @@ TTerrain = class
       //Used to display half-dug road
       TileOverlay:TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-      TileOwner:shortint; //Who owns the tile by having a house/road/field on it
+      TileOwner:TPlayerIndex; //Who owns the tile by having a house/road/field on it
       IsUnit:TKMUnit; //Whenever there's a unit on that tile mark the tile as occupied and count the number
       IsVertexUnit:TKMVertexUsage; //Whether there are units blocking the vertex. (walking diagonally or fighting)
 
@@ -63,17 +63,17 @@ TTerrain = class
     function LoadFromFile(FileName:string):boolean;
 
     procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
-    procedure SetRoad(Loc:TKMPoint; aOwner:shortint);
-    procedure SetRoads(aList:TKMPointList; aOwner:shortint);
-    procedure SetField(Loc:TKMPoint; aOwner:shortint; aFieldType:TFieldType);
-    procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:shortint; const aFlattenTerrain:boolean=false);
-    procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:shortint);
+    procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
+    procedure SetRoads(aList:TKMPointList; aOwner:TPlayerIndex);
+    procedure SetField(Loc:TKMPoint; aOwner:TPlayerIndex; aFieldType:TFieldType);
+    procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerIndex; const aFlattenTerrain:boolean=false);
+    procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerIndex);
 
-    procedure RemovePlayer(aPlayer:shortint);
+    procedure RemovePlayer(aPlayer:TPlayerIndex);
     procedure RemMarkup(Loc:TKMPoint);
     procedure RemRoad(Loc:TKMPoint);
     procedure RemField(Loc:TKMPoint);
-    procedure SetWall(Loc:TKMPoint; aOwner:shortint);
+    procedure SetWall(Loc:TKMPoint; aOwner:TPlayerIndex);
     procedure IncDigState(Loc:TKMPoint);
     procedure ResetDigState(Loc:TKMPoint);
 
@@ -152,7 +152,7 @@ TTerrain = class
     function TileIsWineField(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
     function UnitsHitTest(X,Y:word):TKMUnit;
-    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:shortint; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
+    function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
@@ -513,7 +513,7 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TTerrain.UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:shortint; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
+function TTerrain.UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
 var
   i,k:integer; //Counters
   lx,ly,hx,hy:integer; //Ranges
@@ -671,7 +671,7 @@ begin
 end;
 
 
-procedure TTerrain.SetRoad(Loc:TKMPoint; aOwner:shortint);
+procedure TTerrain.SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
   Land[Loc.Y,Loc.X].TileOverlay:=to_Road;
@@ -682,7 +682,7 @@ begin
 end;
 
 
-procedure TTerrain.SetRoads(aList:TKMPointList; aOwner:shortint);
+procedure TTerrain.SetRoads(aList:TKMPointList; aOwner:TPlayerIndex);
 var i:integer; TL,BR:TKMPoint;
 begin
   if aList.Count = 0 then exit; //Nothing to be done
@@ -727,7 +727,7 @@ begin
 end;
 
 
-procedure TTerrain.RemovePlayer(aPlayer:shortint);
+procedure TTerrain.RemovePlayer(aPlayer:TPlayerIndex);
 var i,k:word;
 begin
   for i:=1 to MapY do for k:=1 to MapX do
@@ -739,7 +739,7 @@ begin
 end;
 
 
-procedure TTerrain.SetWall(Loc:TKMPoint; aOwner:shortint);
+procedure TTerrain.SetWall(Loc:TKMPoint; aOwner:TPlayerIndex);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
   Land[Loc.Y,Loc.X].TileOverlay:=to_Wall;
@@ -751,7 +751,7 @@ end;
 
 
 {Set field on tile - corn/wine}
-procedure TTerrain.SetField(Loc:TKMPoint; aOwner:shortint; aFieldType:TFieldType);
+procedure TTerrain.SetField(Loc:TKMPoint; aOwner:TPlayerIndex; aFieldType:TFieldType);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
   Land[Loc.Y,Loc.X].TileOverlay:=to_None;
@@ -1900,7 +1900,7 @@ end;
 
 
 {Place house plan on terrain and change terrain properties accordingly}
-procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:shortint; const aFlattenTerrain:boolean=false);
+procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerIndex; const aFlattenTerrain:boolean=false);
 var i,k,x,y:word; L,H:TKMPoint; ToFlatten:TKMPointList;
 begin
   if aFlattenTerrain then //We will check aFlattenTerrain only once, otherwise there are compiler warnings
@@ -1950,7 +1950,7 @@ end;
 
 
 {That is mainly used for minimap now}
-procedure TTerrain.SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:shortint);
+procedure TTerrain.SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerIndex);
 var i,k:integer;
 begin
   case aHouseType of

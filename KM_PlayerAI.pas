@@ -58,7 +58,7 @@ type
 
     property Autobuild:boolean read fAutobuild write fAutobuild;
 
-    procedure OwnerUpdate(aPlayer:shortint);
+    procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
@@ -597,7 +597,7 @@ begin
 end;
 
 
-procedure TKMPlayerAI.OwnerUpdate(aPlayer:shortint);
+procedure TKMPlayerAI.OwnerUpdate(aPlayer:TPlayerIndex);
 begin
   PlayerIndex := aPlayer;
 end;

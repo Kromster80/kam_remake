@@ -80,7 +80,7 @@ type
   TGameInputCommand = record
     CommandType:TGameInputCommandType;
     Params:array[1..MAX_PARAMS]of integer;
-    PlayerIndex: shortint; //Player for which the command is to be issued.
+    PlayerIndex: TPlayerIndex; //Player for which the command is to be issued.
                          //Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
   end;
 
@@ -125,7 +125,7 @@ type
     procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
-    procedure CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:shortint); overload;
+    procedure CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:TPlayerIndex); overload;
 
     function CommandsConfirmed(aTick:cardinal):boolean; virtual;
     procedure ReplayTimer(aTick:cardinal); virtual;
@@ -338,7 +338,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:shortint);
+procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:TPlayerIndex);
 begin
   Assert(aCommandType = gic_TempChangeMyPlayer);
   TakeCommand( MakeCommand(aCommandType, [aNewPlayerIndex]) );

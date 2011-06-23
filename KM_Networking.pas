@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, SysUtils,
-  KM_CommonTypes, KM_Defaults,
+  KM_CommonTypes, KM_Defaults, KM_Player,
   KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
 
 
@@ -73,7 +73,7 @@ type
     property MapInfo:TKMapInfo read fMapInfo;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     procedure GameCreated;
-    procedure SendCommands(aStream:TKMemoryStream; aPlayerIndex:shortint=-1);
+    procedure SendCommands(aStream:TKMemoryStream; aPlayerIndex:TPlayerIndex=-1);
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
@@ -354,7 +354,7 @@ end;
 
 
 //Send our commands to either to all players, or to specified one
-procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerIndex:shortint=-1);
+procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerIndex:TPlayerIndex=-1);
 var i:integer;
 begin
   if aPlayerIndex = -1 then

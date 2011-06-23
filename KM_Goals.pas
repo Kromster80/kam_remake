@@ -64,7 +64,7 @@ type
     property Item[Index:integer]:TKMGoal read GetGoal; default;
     procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayerIndex: shortint);
     procedure RemGoal(aIndex:integer);
-    procedure RemoveReference(aPlayerIndex:shortint);
+    procedure RemoveReference(aPlayerIndex:TPlayerIndex);
     procedure SetMessageHasShown(aIndex:integer);
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -121,7 +121,7 @@ end;
 
 //We don't want anyones goal to use deleted player
 //Used when we delete certain player from the network game right after init
-procedure TKMGoals.RemoveReference(aPlayerIndex:shortint);
+procedure TKMGoals.RemoveReference(aPlayerIndex:TPlayerIndex);
 var i:integer;
 begin
   for i:=fCount-1 downto 0 do

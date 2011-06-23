@@ -26,7 +26,7 @@ type
 
     procedure AddPlayers(aCount:byte); //Batch add several players
 
-    procedure RemovePlayer(aIndex:shortint);
+    procedure RemovePlayer(aIndex:TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
     function HousesHitTest(X,Y:Integer):TKMHouse;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
@@ -35,7 +35,7 @@ type
     function HitTest(X,Y:Integer):boolean;
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
-    function CheckAlliance(aPlay1,aPlay2:shortint):TAllianceType;
+    function CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
     procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
     procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
@@ -65,7 +65,7 @@ uses KM_Terrain, KM_Game;
 constructor TKMPlayersCollection.Create;
 begin
   Inherited Create;
-  fPlayerAnimals := TKMPlayerAnimals.Create; //Always create Animals
+  fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 end;
 
 
@@ -85,7 +85,7 @@ end;
 
 function TKMPlayersCollection.GetPlayer(Index:integer):TKMPlayer;
 begin
-  Assert(Index < fCount);
+  Assert(InRange(Index, 0, fCount));
   Result := fPlayerList[Index];
 end;
 
@@ -114,7 +114,7 @@ end;
 
 //Remove player aIndex
 //todo: Comment and refactor
-procedure TKMPlayersCollection.RemovePlayer(aIndex:shortint);
+procedure TKMPlayersCollection.RemovePlayer(aIndex:TPlayerIndex);
 var i,k:integer;
 begin
   Assert(MyPlayer <> fPlayerList[aIndex], 'Can not remove Player referenced by MyPlayer');
@@ -267,11 +267,11 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
-function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:shortint):TAllianceType;
+function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
 begin
   Result := at_Ally;
 
-  if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) then
+  if (aPlay1 = PLAYER_ANIMAL) or (aPlay2 = PLAYER_ANIMAL) or (aPlay1 = aPlay2) then
     Exit;
 
   Result := fPlayerList[aPlay1].Alliances[aPlay2];
@@ -342,7 +342,7 @@ end;
 
 
 procedure TKMPlayersCollection.Load(LoadStream:TKMemoryStream);
-var i:word; s:string; PlayerIndex:shortint;
+var i:word; s:string; PlayerIndex:TPlayerIndex;
 begin
   LoadStream.Read(s);
   Assert(s = 'Players', 'Players not found');

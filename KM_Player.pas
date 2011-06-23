@@ -13,9 +13,10 @@ type
 
   TKMPlayerCommon = class
   private
-    fPlayerIndex:shortint; //Which ID this player is
+    fPlayerIndex:TPlayerIndex; //Which ID this player is
   public
-    property PlayerIndex:shortint read fPlayerIndex;
+    constructor Create(aPlayerIndex:TPlayerIndex);
+    property PlayerIndex:TPlayerIndex read fPlayerIndex;
   end;
 
 
@@ -43,8 +44,7 @@ type
     function  GetAlliances(Index:integer):TAllianceType;
     procedure SetAlliances(Index:integer; aValue:TAllianceType);
   public
-
-    constructor Create(aPlayerIndex:shortint);
+    constructor Create(aPlayerIndex:TPlayerIndex);
     destructor Destroy; override;
 
     property AI:TKMPlayerAI read fAI;
@@ -56,7 +56,7 @@ type
     property Goals:TKMGoals read fGoals;
     property FogOfWar:TKMFogOfWar read fFogOfWar;
 
-    procedure SetPlayerID(aNewIndex:shortint);
+    procedure SetPlayerID(aNewIndex:TPlayerIndex);
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor:cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex:byte read GetColorIndex;
@@ -100,7 +100,7 @@ type
   private
     fUnits: TKMUnitsCollection;
   public
-    constructor Create;
+    constructor Create(aPlayerIndex:TPlayerIndex);
     destructor Destroy; override;
 
     property Units:TKMUnitsCollection read fUnits;
@@ -122,12 +122,18 @@ implementation
 uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
 
 
-{ TKMPlayerAssets }
-constructor TKMPlayer.Create(aPlayerIndex:shortint);
-var i: integer;
+constructor TKMPlayerCommon.Create(aPlayerIndex:TPlayerIndex);
 begin
   Inherited Create;
   fPlayerIndex  := aPlayerIndex;
+end;
+
+
+{ TKMPlayerAssets }
+constructor TKMPlayer.Create(aPlayerIndex:TPlayerIndex);
+var i: integer;
+begin
+  Inherited Create (aPlayerIndex);
   fPlayerType   := pt_Computer;
   fAI           := TKMPlayerAI.Create(fPlayerIndex);
   fFogOfWar     := TKMFogOfWar.Create;
@@ -229,7 +235,7 @@ begin
 end;
 
 
-procedure TKMPlayer.SetPlayerID(aNewIndex:shortint);
+procedure TKMPlayer.SetPlayerID(aNewIndex:TPlayerIndex);
 begin
   fPlayerIndex := aNewIndex;
   fUnits.OwnerUpdate(aNewIndex);
@@ -561,10 +567,9 @@ begin
 end;
 
 
-constructor TKMPlayerAnimals.Create;
+constructor TKMPlayerAnimals.Create(aPlayerIndex:TPlayerIndex);
 begin
-  Inherited;
-  fPlayerIndex := PLAYER_ANIMAL;
+  Inherited Create(aPlayerIndex);
   fUnits := TKMUnitsCollection.Create;
 end;
 

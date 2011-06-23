@@ -66,7 +66,7 @@ type TCheckAxis = (ax_X, ax_Y);
     fHitPoints:byte;
     fHitPointCounter: cardinal;
     fCondition:integer; //Unit condition, when it reaches zero unit should die
-    fOwner:shortint;
+    fOwner:TPlayerIndex;
     fHome:TKMHouse;
     fPosition: TKMPointF;
     fVisible:boolean;
@@ -130,7 +130,7 @@ type TCheckAxis = (ax_X, ax_Y);
     procedure Feed(Amount:single);
     procedure AbandonWalk;
     function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
-    property GetOwner:shortint read fOwner;
+    property GetOwner:TPlayerIndex read fOwner;
     function GetSpeed:single;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
@@ -233,10 +233,10 @@ type TCheckAxis = (ax_X, ax_Y);
     property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; //Use instead of Items[.]
   public
     destructor Destroy; override;
-    function Add(aOwner:shortint; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
-    function AddGroup(aOwner:shortint;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+    function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
+    function AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     procedure RemoveUnit(aUnit:TKMUnit);
-    procedure OwnerUpdate(aOwner:shortint);
+    procedure OwnerUpdate(aOwner:TPlayerIndex);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
@@ -259,7 +259,7 @@ KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome,
 
 
 { TKMUnitCitizen }
-constructor TKMUnitCitizen.Create(aOwner:shortint; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnitCitizen.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
   fWorkPlan := TUnitWorkPlan.Create;
@@ -844,7 +844,7 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aOwner:shortint; PosX, PosY:integer; aUnitType:TUnitType);
+constructor TKMUnit.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
   fID           := fGame.GetNewID;
@@ -1789,7 +1789,7 @@ begin
 end;
 
 
-function TKMUnitsCollection.AddGroup(aOwner:shortint;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+function TKMUnitsCollection.AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint;
 begin
   aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
@@ -1852,7 +1852,7 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.OwnerUpdate(aOwner:shortint);
+procedure TKMUnitsCollection.OwnerUpdate(aOwner:TPlayerIndex);
 var i:integer;
 begin
   for i:=0 to Count-1 do

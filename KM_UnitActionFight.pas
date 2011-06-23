@@ -172,7 +172,7 @@ begin
   if Step = 1 then
   begin
     //Tell the Opponent we are attacking him
-    fPlayers.Player[byte(fOpponent.GetOwner)].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
+    fPlayers.Player[fOpponent.GetOwner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
     fPlayers.Player[byte(KMUnit.GetOwner)].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));

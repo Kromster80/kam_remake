@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes;
+uses SysUtils, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes, KM_Player;
 
 const
   MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
@@ -30,16 +30,16 @@ type
     fDelay:word; //How many ticks ahead the commands are scheduled
 
     //Each player can have any number of commands scheduled for execution in one tick
-    fSchedule:array[0..MAX_SCHEDULE-1, 0..MAX_PLAYERS-1] of TCommandsPack; //Ring buffer
+    fSchedule:array[0..MAX_SCHEDULE-1, TPlayerIndex] of TCommandsPack; //Ring buffer
 
     //All players must confirm they have recieved our GIPList
-    fConfirmation:array[0..MAX_SCHEDULE-1, shortint] of boolean; //Ring buffer
+    fConfirmation:array[0..MAX_SCHEDULE-1, TPlayerIndex] of boolean; //Ring buffer
 
     //Mark commands we've already sent to other players
     fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
 
     procedure SendCommands(aTick:cardinal);
-    procedure SendConfirmation(aTick:cardinal; aPlayerIndex:shortint);
+    procedure SendConfirmation(aTick:cardinal; aPlayerIndex:TPlayerIndex);
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
@@ -111,7 +111,7 @@ end;
 
 { TGameInputProcess_Multi }
 constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
-var i,k:integer;
+var i:integer; k:TPlayerIndex;
 begin
   Inherited Create(aReplayState);
   fNetworking := aNetworking;
@@ -119,15 +119,15 @@ begin
   fDelay := 10; //1sec
 
   //Allocate memory for all commands packs
-  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count do
     fSchedule[i,k] := TCommandsPack.Create;
 end;
 
 
 destructor TGameInputProcess_Multi.Destroy;
-var i,k:integer;
+var i:integer; k:TPlayerIndex;
 begin
-  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count do
     fSchedule[i,k].Free;
   Inherited;
 end;
@@ -161,7 +161,7 @@ begin
   try
     Msg.Write(byte(kdp_Commands));
     Msg.Write(aTick); //Target Tick in 1..n range
-    Msg.Write(MyPlayer.PlayerIndex);
+    Msg.Write(MyPlayer.PlayerIndex, SizeOf(MyPlayer.PlayerIndex));
     fSchedule[aTick mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Save(Msg); //Write all commands to the stream
     fNetworking.SendCommands(Msg); //Send to all opponents
   finally
@@ -171,14 +171,14 @@ end;
 
 
 //Confirm that we have recieved the commands with CRC
-procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerIndex:shortint);
+procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerIndex:TPlayerIndex);
 var Msg:TKMemoryStream;
 begin
   Msg := TKMemoryStream.Create;
   try
     Msg.Write(byte(kdp_Confirmation));
     Msg.Write(aTick); //Target Tick in 1..n range
-    Msg.Write(MyPlayer.PlayerIndex);
+    Msg.Write(MyPlayer.PlayerIndex, SizeOf(MyPlayer.PlayerIndex));
     Msg.Write(fSchedule[aTick mod MAX_SCHEDULE, aPlayerIndex].CRC);
     fNetworking.SendCommands(Msg, aPlayerIndex); //Send to opponent
   finally
@@ -189,14 +189,14 @@ end;
 
 //Decode recieved messages (Commands from other players, Confirmations, Errors)
 procedure TGameInputProcess_Multi.RecieveCommands(const aData:string);
-var M:TKMemoryStream; D:TKMDataType; Tick:integer; PlayerIndex:shortint; CRC:cardinal;
+var M:TKMemoryStream; D:TKMDataType; Tick:integer; PlayerIndex:TPlayerIndex; CRC:cardinal;
 begin
   M := TKMemoryStream.Create;
   try
     M.WriteAsText(aData);
     M.Read(D, 1); //Decode header
     M.Read(Tick); //Target tick
-    M.Read(PlayerIndex); //Message sender
+    M.Read(PlayerIndex, SizeOf(PlayerIndex)); //Message sender
 
     case D of
       kdp_Commands:
@@ -238,7 +238,7 @@ begin
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
 
   //Execute commands, in order players go (1,2,3..)
-  for i:=0 to MAX_PLAYERS-1 do
+  for i:=0 to fPlayers.Count-1 do
     for k:=1 to fSchedule[Tick, i].Count do
     begin
       //if fNetworking.NetPlayers[i].Alive then //todo: Skip dead players
