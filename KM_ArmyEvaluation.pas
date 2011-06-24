@@ -8,13 +8,21 @@ uses
 
 type
 
-  TKMEvaluation = record
-    EmemyIndex : TPlayerIndex; // to make sure on get
-    VictoryChance : Single;
-    Power : Single;
-    UnitTypesPower : array [ut_Militia..ut_Barbarian] of Single;
+  TKMEvaluation = class
+  private
+  protected
+  public
+
+    fEmemyIndex : TPlayerIndex; // to make sure on get
+    fVictoryChance : Single;
+    fPower : Single;
+    fUnitTypesPower : array [ut_Militia..ut_Barbarian] of Single;
+
+    constructor Create;
+
+    procedure Reset;
+    
   end;
-  PKMEvaluation  = ^TKMEvaluation;
 
   // This class evaluate self army relatively enemy armies
   TKMArmyEvaluation = class (TObject)
@@ -25,7 +33,7 @@ type
     fEvals : array [0..MAX_PLAYERS] of TKMEvaluation; // Results of evaluetion (PKMEvaluation)
 
     function GetEnemiesCount : integer;                              
-    function GetEvaluationByIndex(Index : TPlayerIndex) : PKMEvaluation;
+    function GetEvaluationByIndex(Index : TPlayerIndex) : TKMEvaluation;
     procedure ResetEvaluation; // Reset to default                            
     procedure EvaluateChance(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
     procedure EvaluatePower(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
@@ -43,7 +51,7 @@ type
     procedure UpdateState; // Call to update evaluation
 
     property EnemiesCount : integer read GetEnemiesCount;
-    property Evaluations[Index:TPlayerIndex]:PKMEvaluation read GetEvaluationByIndex;
+    property Evaluations[Index:TPlayerIndex]:TKMEvaluation read GetEvaluationByIndex;
 
   end;
 
@@ -53,60 +61,75 @@ uses KM_Player;
 
 { TKMArmyEvaluation assets}
 
-function TKMArmyEvaluation.GetEnemiesCount : Integer;
+constructor TKMEvaluation.Create;
 begin
-  Result := fEnemies.Count;
-end;                   
-
-function TKMArmyEvaluation.GetEvaluationByIndex(Index : TPlayerIndex) : PKMEvaluation;
-begin
-  Assert(Index <= MAX_PLAYERS);
-  Result := @fEvals[Index];
+  fEmemyIndex := 0;
+  Reset;
 end;
 
-procedure TKMArmyEvaluation.ResetEvaluation;
-var i : TPlayerIndex;
-    Res : PKMEvaluation;
+procedure TKMEvaluation.Reset;
 begin
-  for i := 0 to MAX_PLAYERS do begin
-    Res := @fEvals[i];
-    Res.EmemyIndex := i;
-    Res.VictoryChance := 0.0;
-    Res.Power := 0.0;
-    FillChar(Res.UnitTypesPower, SizeOf(Res.UnitTypesPower), #0);
-  end;
+  fVictoryChance := 0.0;
+  fPower := 0.0;
+  FillChar(fUnitTypesPower, SizeOf(fUnitTypesPower), #0);
 end;
 
-procedure TKMArmyEvaluation.EvaluateChance(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
-var
-  Res : PKMEvaluation;
-begin
-  Res := @fEvals[PlayerIndex];
-  Res.VictoryChance := 1.0;
-end;
-
-procedure TKMArmyEvaluation.EvaluatePower(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
-var
-  Res : PKMEvaluation;
-begin
-  Res := @fEvals[PlayerIndex];
-  Res.Power := 1.0;
-end;
+{ TKMArmyEvaluation assets}
 
 constructor TKMArmyEvaluation.Create(SelfPlayer : TObject);
+var i : Integer;
 begin
   inherited Create;
   if not(SelfPlayer is TKMPlayer) then fSelfPlayer := nil
   else fSelfPlayer := SelfPlayer;
   fEnemies := TObjectList.Create(false); // false - Container will not controls the memory. See TObjectList
-  ResetEvaluation;
+  for i := 0 to MAX_PLAYERS do begin
+    fEvals[i] := TKMEvaluation.Create;
+    fEvals[i].fEmemyIndex := i;
+  end;
 end;
 
 destructor TKMArmyEvaluation.Destroy;
+var i : Integer;
 begin
-  FreeThenNil(fEvals);
+  for i := 0 to MAX_PLAYERS do
+    fEvals[i].Free;
   FreeThenNil(fEnemies);
   inherited;
+end;
+
+function TKMArmyEvaluation.GetEnemiesCount : Integer;
+begin
+  Result := fEnemies.Count;
+end;                   
+
+function TKMArmyEvaluation.GetEvaluationByIndex(Index : TPlayerIndex) : TKMEvaluation;
+begin
+  Assert(Index <= MAX_PLAYERS);
+  Result := fEvals[Index];
+end;
+
+procedure TKMArmyEvaluation.ResetEvaluation;
+var i : TPlayerIndex;
+begin
+  for i := 0 to MAX_PLAYERS do
+    fEvals[i].Reset;
+end;
+
+procedure TKMArmyEvaluation.EvaluateChance(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
+var
+  Res : TKMEvaluation;
+begin
+  Res := fEvals[PlayerIndex];
+  Res.fVictoryChance := 1.0;
+end;
+
+procedure TKMArmyEvaluation.EvaluatePower(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
+var
+  Res : TKMEvaluation;
+begin
+  Res := fEvals[PlayerIndex];
+  Res.fPower := 1.0;
 end;
 
 function TKMArmyEvaluation.AddEnemy(Player : TObject) : Integer;
