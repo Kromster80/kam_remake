@@ -175,7 +175,7 @@ begin
     fPlayers.Player[fOpponent.GetOwner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
-    fPlayers.Player[byte(KMUnit.GetOwner)].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
+    fPlayers.Player[KMUnit.GetOwner].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(KMUnit).IsRanged then 
@@ -218,8 +218,8 @@ begin
 
       if IsHit then
         if fOpponent.HitPointsDecrease(1) then
-          if (fPlayers <> nil) and (fPlayers.Player[byte(KMUnit.GetOwner)] <> nil) then
-            fPlayers.Player[byte(KMUnit.GetOwner)].Stats.UnitKilled(fOpponent.UnitType);
+          if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
+            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
 
       MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
     end;

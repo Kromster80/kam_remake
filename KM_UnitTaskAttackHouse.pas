@@ -113,7 +113,7 @@ begin
        end;
     2: begin
          //Let the house know it is being attacked
-         fPlayers.Player[byte(fHouse.GetOwner)].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
+         fPlayers.Player[fHouse.GetOwner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := true;
          if TKMUnitWarrior(fUnit).IsRanged then
            SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0) //Start shooting
@@ -135,8 +135,8 @@ begin
          end else begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
            if fHouse.AddDamage(2) then //All melee units do 2 damage per strike
-             if (fPlayers <> nil) and (fPlayers.Player[byte(GetOwner)] <> nil) then
-               fPlayers.Player[byte(GetOwner)].Stats.HouseDestroyed(fHouse.GetHouseType);
+             if (fPlayers <> nil) and (fPlayers.Player[GetOwner] <> nil) then
+               fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.GetHouseType);
            //todo: Melee house hit sound
            fPhase := 1; //Go for another hit (will be 2 after inc below)
          end;

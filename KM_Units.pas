@@ -1801,7 +1801,7 @@ begin
       U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
       if U<>nil then
       begin
-        fPlayers.Player[byte(aOwner)].Stats.UnitCreated(aUnitType, false);
+        fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
         U.Direction := aDir;
         U.AnimStep  := UnitStillFrames[aDir];
       end;
@@ -1815,7 +1815,7 @@ begin
   Result := Commander;
 
   if Commander=nil then exit; //Don't add group without a commander
-  fPlayers.Player[byte(aOwner)].Stats.UnitCreated(aUnitType, false);
+  fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
 
   Commander.Direction := aDir;
   Commander.AnimStep  := UnitStillFrames[aDir];
@@ -1833,7 +1833,7 @@ begin
     W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y)); //W will be _nil_ if unit didn't fit on map
     if W<>nil then
     begin
-      fPlayers.Player[byte(aOwner)].Stats.UnitCreated(aUnitType, false);
+      fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
       W.Direction := aDir;
       W.AnimStep  := UnitStillFrames[aDir];
       Commander.AddMember(W);

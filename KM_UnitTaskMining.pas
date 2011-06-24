@@ -251,8 +251,8 @@ begin
           if ResAcquired then begin
             GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
-            fPlayers.Player[byte(fUnit.GetOwner)].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
-            fPlayers.Player[byte(fUnit.GetOwner)].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
+            fPlayers.Player[fUnit.GetOwner].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
+            fPlayers.Player[fUnit.GetOwner].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
           end;
 
           GetHome.SetState(hst_Idle);

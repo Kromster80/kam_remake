@@ -37,7 +37,7 @@ begin
     //CRC check after the command
     if CRASH_ON_REPLAY and (fQueue[fCursor].Rand <> MyRand) then //Should always be called to maintain randoms flow
     begin
-      fGame.GameError(KMPoint(10,10), 'Replay mismatch');
+      fGame.GameError(KMPoint(10,10), 'Replay mismatch '+chr(fQueue[fCursor].Rand));
       Exit; //GameError calls GIP.Free, so exit immidiately
     end;
     inc(fCursor);

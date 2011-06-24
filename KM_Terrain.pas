@@ -2289,10 +2289,10 @@ begin
         ID := fTerrain.Land[i,k].Terrain+1;
         Light := round(fTerrain.Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
         MiniMapRGB[i,k] :=  EnsureRange(TileMMColor[ID].R+Light,0,255) +
-                        EnsureRange(TileMMColor[ID].G+Light,0,255) shl 8 +
-                        EnsureRange(TileMMColor[ID].B+Light,0,255) shl 16;
+                            EnsureRange(TileMMColor[ID].G+Light,0,255) shl 8 +
+                            EnsureRange(TileMMColor[ID].B+Light,0,255) shl 16;
       end else
-        MiniMapRGB[i,k] :=  fPlayers.Player[byte(fTerrain.Land[i,k].TileOwner)].FlagColor;
+        MiniMapRGB[i,k] :=  fPlayers.Player[fTerrain.Land[i,k].TileOwner].FlagColor;
   end;
 
   Loc := TKMPointList.Create;

@@ -387,7 +387,7 @@ begin
       //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
       TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
       //If we are an AI player then we do not keep walking to a dead enemy's position, we halt (and go home) instead
-      if (fWalker is TKMUnitWarrior) and (fPlayers.Player[byte(fWalker.GetOwner)].PlayerType = pt_Computer) then
+      if (fWalker is TKMUnitWarrior) and (fPlayers.Player[fWalker.GetOwner].PlayerType = pt_Computer) then
         TKMUnitWarrior(fWalker).OrderHalt;
       Result := tc_TargetUpdated;
     end else

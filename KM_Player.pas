@@ -146,7 +146,7 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
-  fArmyEval     := TKMArmyEvaluation.Create(fStats);
+  //fArmyEval     := TKMArmyEvaluation.Create(fStats);
   for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
 
@@ -520,7 +520,7 @@ begin
   //Do only one players AI per Tick
   if (Tick+PlayerIndex) mod 20 = 0 then begin
     fAI.UpdateState;
-    fArmyEval.UpdateState;
+    //fArmyEval.UpdateState;
   end;
 end;
 
