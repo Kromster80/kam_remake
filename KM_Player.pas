@@ -3,7 +3,8 @@ unit KM_Player;
 interface
 uses Classes, KromUtils, SysUtils,
       KM_Defaults, KM_Utils,
-      KM_PlayerAI, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals, KM_FogOfWar;
+      KM_PlayerAI, KM_Units, KM_Houses, KM_DeliverQueue, KM_CommonTypes, KM_PlayerStats, KM_Goals, KM_FogOfWar,
+      KM_ArmyEvaluation;
 
 
 type
@@ -31,6 +32,7 @@ type
     fStats:TKMPlayerStats;
     fGoals:TKMGoals;
     fFogOfWar:TKMFogOfWar; //Stores FOW info for current player, which includes
+    fArmyEval:TKMArmyEvaluation; // Can used by all players 
 
     fPlayerType:TPlayerType;
     fFlagColor:cardinal;
@@ -144,6 +146,7 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
+  fArmyEval     := TKMArmyEvaluation.Create(fStats);
   for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
 
@@ -157,6 +160,7 @@ end;
 
 destructor TKMPlayer.Destroy;
 begin
+  FreeThenNil(fArmyEval);
   FreeThenNil(fRoadsList);
   FreeThenNil(fUnits);
   FreeThenNil(fHouses);
@@ -514,8 +518,10 @@ begin
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
   //Do only one players AI per Tick
-  if (Tick+PlayerIndex) mod 20 = 0 then
+  if (Tick+PlayerIndex) mod 20 = 0 then begin
     fAI.UpdateState;
+    fArmyEval.UpdateState;
+  end;
 end;
 
 
