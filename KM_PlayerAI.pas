@@ -76,7 +76,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_Viewport, KM_UnitTaskAttackHouse;
+uses KM_Game, KM_Terrain, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_Viewport, KM_UnitTaskAttackHouse;
 
 
 
@@ -398,57 +398,26 @@ end;
 
 procedure TKMPlayerAI.OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
 var
-  i: integer;
-  TargetHouse, NewHouse: TKMHouse;
-  TargetUnit, NewUnit: TKMUnit;
-  MeasureFrom: TKMPoint;
+  TargetHouse: TKMHouse;
+  TargetUnit: TKMUnit;
 begin
   TargetHouse := nil;
   TargetUnit  := nil;
 
-  //@Lewin: There's an inconsistency in behavior here. First 3 cases will choose last enemy
-  //Was it made so intentionaly? Should we make it to choose random or actualy closest one instead?
-  //@Krom: I see what you mean. I think it should use the closest one. I've implemented it that way,
-  //       you can change my algorithm if you have a better way to do it, I haven't been coding for while ;)
-  //       To be deleted.
+  //Find target
+  case aTarget of
+    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, aCommander.GetOwner, at_Enemy);
+    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, aCommander.GetOwner, at_Enemy);
+    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, aCommander.GetOwner, at_Enemy);
+    att_CustomPosition:               begin
+                                        TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
+                                        if fPlayers.CheckAlliance(aCommander.GetOwner, TargetHouse.GetOwner) = at_Ally then
+                                          TargetHouse := nil;
+                                        TargetUnit  := fPlayers.UnitsHitTestF(KMPointF(aCommander.GetPosition), false);
+                                      end;
+  end;
 
-  for i:=0 to fPlayers.Count-1 do
-    if fPlayers.CheckAlliance(PlayerIndex, fPlayers[i].PlayerIndex) = at_Enemy then
-    begin
-      NewUnit := nil;
-      NewHouse := nil;
-      case aTarget of
-        att_ClosestUnit:
-          begin
-            MeasureFrom := aCommander.GetPosition;
-            NewUnit := fPlayers[i].Units.GetClosestUnit(MeasureFrom);
-          end;
-        att_ClosestBuildingFromArmy:
-          begin
-            MeasureFrom := aCommander.GetPosition;
-            NewHouse := fPlayers[i].Houses.FindHouse(ht_Any, MeasureFrom.X, MeasureFrom.Y);
-          end;
-        att_ClosestBuildingFromStartPos:
-          begin
-            MeasureFrom := StartPosition;
-            NewHouse := fPlayers[i].Houses.FindHouse(ht_Any, MeasureFrom.X, MeasureFrom.Y);
-          end;
-        att_CustomPosition:
-          begin
-            MeasureFrom := KMPoint(0,0);
-            if TargetHouse = nil then TargetHouse := fPlayers[i].HousesHitTest(aCustomPos.X, aCustomPos.Y);
-            if TargetUnit  = nil then TargetUnit  := fPlayers[i].UnitsHitTest (aCustomPos.X, aCustomPos.Y);
-          end;
-      end;
-      //Take the new target if it is closer than the last one (from a different player)
-      if NewUnit <> nil then
-        if (TargetUnit = nil) or (GetLength(MeasureFrom, NewUnit.GetPosition) < GetLength(MeasureFrom, TargetUnit.GetPosition)) then
-          TargetUnit := NewUnit;
-      if NewHouse <> nil then
-        if (TargetHouse = nil) or (GetLength(MeasureFrom, NewHouse.GetPosition) < GetLength(MeasureFrom, TargetHouse.GetPosition)) then
-          TargetHouse := NewHouse;
-    end;
-
+  //Choose best option
   if TargetHouse <> nil then
     aCommander.OrderAttackHouse(TargetHouse)
   else if TargetUnit <> nil then

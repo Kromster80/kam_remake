@@ -132,7 +132,7 @@ begin
 
         if fPosition >= fLength then begin
           fSpeed := 0; //remove projectile
-          U := fPlayers.UnitsHitTestF(fTargetJ);
+          U := fPlayers.UnitsHitTestF(fTargetJ, false);
           case fProjType of
             pt_Arrow,
             pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then

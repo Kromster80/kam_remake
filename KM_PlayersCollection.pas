@@ -29,7 +29,9 @@ type
     procedure RemovePlayer(aIndex:TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
     function HousesHitTest(X,Y:Integer):TKMHouse;
-    function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+    function UnitsHitTestF(aLoc: TKMPointF; aIncludeAnimals:boolean): TKMUnit;
+    function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
+    function GetClosestHouse(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y:Integer):boolean;
@@ -155,7 +157,8 @@ end;
 
 //Floating-point hit test version, required for Projectiles
 //Return unit within range of 1 from aLoc
-function TKMPlayersCollection.UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+//TODO: Remove in favor of UnitHitTest on Terrain
+function TKMPlayersCollection.UnitsHitTestF(aLoc: TKMPointF; aIncludeAnimals:boolean): TKMUnit;
 var i,X,Y:integer; U:TKMUnit;
 begin
   Result := nil;
@@ -169,10 +172,41 @@ begin
         Result := U;
   end;
 
-  if Result = nil then
+  if (Result = nil) and (aIncludeAnimals) then
   for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
   for X:=trunc(aLoc.X) to ceil(aLoc.X) do
     Result := PlayerAnimals.UnitsHitTest(X,Y);
+end;
+
+
+function TKMPlayersCollection.GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
+var i:integer; U:TKMUnit;
+begin
+  Result := nil;
+
+  for i:=0 to fCount-1 do
+  if (aIndex<>i) and (CheckAlliance(aIndex,i) = aAlliance) then
+  begin
+    U := fPlayerList[i].Units.GetClosestUnit(aLoc);
+    if (U<>nil) and ((Result=nil) or (GetLength(U.PositionF, KMPointF(aLoc)) < GetLength(Result.PositionF, KMPointF(aLoc)))) then
+      Result := U;
+  end;
+end;
+
+
+//Get closest house. Note: we check by house cells, not by entrance
+function TKMPlayersCollection.GetClosestHouse(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMHouse;
+var i:integer; H:TKMHouse;
+begin
+  Result := nil;
+
+  for i:=0 to fCount-1 do
+  if (aIndex<>i) and (CheckAlliance(aIndex,i) = aAlliance) then
+  begin
+    H := fPlayerList[i].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y);
+    if (H<>nil) and ((Result=nil) or (H.GetDistance(aLoc) < Result.GetDistance(aLoc))) then
+      Result := H;
+  end;
 end;
 
 
