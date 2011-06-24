@@ -160,7 +160,7 @@ type
   public
     Count:integer;
     List:array of TKMPoint; //1..Count
-    constructor Load(LoadStream:TKMemoryStream); virtual;
+    procedure Load(LoadStream:TKMemoryStream); virtual;
     procedure Clearup; virtual;
     procedure AddEntry(aLoc:TKMPoint);
     function  RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
@@ -176,7 +176,7 @@ type
   TKMPointTagList = class(TKMPointList)
   public
     Tag,Tag2:array of integer; //1..Count
-    constructor Load(LoadStream:TKMemoryStream); override;
+    procedure Load(LoadStream:TKMemoryStream); override;
     procedure Clearup; override;
     procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
     function RemoveEntry(aLoc:TKMPoint):cardinal; override;
@@ -538,7 +538,7 @@ end;
 
 
 { TKMPointList }
-constructor TKMPointList.Load(LoadStream:TKMemoryStream);
+procedure TKMPointList.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   Inherited Create;
@@ -650,7 +650,7 @@ end;
 
 
 { TKMPointTagList }
-constructor TKMPointTagList.Load(LoadStream:TKMemoryStream);
+procedure TKMPointTagList.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   Inherited; //Reads Count

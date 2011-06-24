@@ -2359,7 +2359,7 @@ begin
   LoadStream.Read(MapY);
 
   LoadStream.Read(fAnimStep);
-  FallingTrees := TKMPointTagList.Load(LoadStream);
+  FallingTrees.Load(LoadStream);
 
   for i:=1 to MapY do for k:=1 to MapX do
   begin

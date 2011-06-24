@@ -46,7 +46,8 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(LocID);
-  CellsW := TKMPointList.Load(LoadStream);
+  CellsW := TKMPointList.Create;
+  CellsW.Load(LoadStream);
 end;
 
 
