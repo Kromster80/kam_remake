@@ -762,8 +762,10 @@ procedure TKMPlayerAI.UpdateState;
 begin
   //Check goals only for MyPlayer
   case fPlayers[PlayerIndex].PlayerType of
-    pt_Human:     CheckGoals; //This procedure manages victory, loss and messages all in one
-    pt_Computer:  begin
+    pt_Human:     if (MyPlayer=fPlayers[PlayerIndex]) then
+                    CheckGoals; //This procedure manages victory, loss and messages all in one
+    pt_Computer:  if (MyPlayer <> fPlayers[PlayerIndex]) then
+                  begin
                     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
                     CheckArmy; //Feed army, position defence, arrange/organise groups
                     CheckArmiesCount; //Train new soldiers if needed

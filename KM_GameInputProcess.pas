@@ -396,9 +396,11 @@ end;
 //While in replay there are no commands to process, but for debug we might allow ChangePlayer
 procedure TGameInputProcess.StoreCommand(aCommand: TGameInputCommand);
 begin
-  if (ReplayState = gipReplaying) and (aCommand.CommandType = gic_TempChangeMyPlayer) then
+  if ReplayState = gipReplaying then
   begin
-    MyPlayer := fPlayers.Player[aCommand.Params[1]];
+    //Changing MyPlayer affect AI replay which leads to replay mismatch errors soon after
+    //if aCommand.CommandType = gic_TempChangeMyPlayer then
+      //MyPlayer := fPlayers.Player[aCommand.Params[1]];
     Exit;
   end;
 
