@@ -394,8 +394,9 @@ begin
       aNewCommander.AddMember(TKMUnitWarrior(fMembers.Items[i]));
     end;
     FreeAndNil(fMembers); //We are not a commander now so nil our memebers list (they have been moved to new commander)
-  end
-  else //If we don't have members, then add just ourself
+  end;
+  //If we haven't added ourself yet (happens if we have <= 1 members) then add ourself now
+  if fCommander <> aNewCommander then
     aNewCommander.AddMember(Self);
 
   //Tell commander to reissue the order so that the new members do it
@@ -717,7 +718,6 @@ end;
 //Reissue our current order, or just halt if we don't have one
 procedure TKMUnitWarrior.ReissueOrder;
 begin
-  //@Lewin: There's bug happening here
   Assert(fCommander = nil);
 
   if (fUnitTask is TTaskAttackHouse) and (fOrderTargetHouse <> nil) then
