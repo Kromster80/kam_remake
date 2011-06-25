@@ -596,7 +596,8 @@ begin
           fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, WoodCost, dt_Once, di_High);
           fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, StoneCost, dt_Once, di_High);
         end;
-        SetActionStay(1,ua_Walk);
+        //Walk away from building site, before we get trapped when house becomes stoned
+        SetActionWalkToSpot(fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk), 0, ua_Walk);
         HouseSet := false;
       end;
   else Result := TaskDone;

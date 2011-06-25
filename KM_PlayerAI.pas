@@ -750,6 +750,7 @@ begin
   SetLength(ScriptedAttacks, ScriptedAttacksCount);
   for i:=0 to ScriptedAttacksCount-1 do
     LoadStream.Read(ScriptedAttacks[i], SizeOf(ScriptedAttacks[i]));
+  //@Lewin: I've checked some attack commands from TPR7 mission and some of them appeared to be wrong, with delay 0 and men count 500. Could it be a alignment bug?
 end;
 
 
