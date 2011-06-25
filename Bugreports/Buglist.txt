@@ -1,7 +1,6 @@
-EXE-only r1787+:
+EXE-only r1793+:
 <===================================================================================>
- +	In a fight warrior chose to attack random comrades foe, where he should prefer nearest foe from all comrades foes
-	Can't copy IP into IP field / IP field to short / IP resets when you are not able to connect
+	Can't copy IP into IP field / IP resets when you are not able to connect
 	Crabs are stuck between roads building on them is buggy
 	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence.
 	When choosing color for multiplayer it affects only minimap, flags color remains default
@@ -9,7 +8,6 @@ EXE-only r1787+:
 	Edges of messages and other scrolls should be transparent so they look smooth
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
 
-	Display WIP houses/units in statistics menu
 	Make units/houses highlight red when about to erase them as trees do (in MapEd)
 	Save correct number of players from MapEd
 	Dots and lines displaying on tile edges [Krom]
@@ -24,6 +22,17 @@ EXE-only r1787+:
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+
+
+Fixed in r1831:
+<===================================================================================>
+ +	In a fight warrior chose to attack random comrades foe, where he should prefer nearest foe from all comrades foes
+ +	Laborers keep standing on building sites after area is prepared, they should walk away to avoid get trapping
+ +	Display WIP houses/units in statistics menu
+ +	IP field is too short
+ +	Fixed minor bug in AI scripts
+ +	Game would crash when you kill too much of AI defense troops
+ +	Allowed to load maps without human player into MapEditor
 
 
 

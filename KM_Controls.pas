@@ -737,7 +737,7 @@ begin
 
   sColor := $FFFFFFFF;
 
-  if Self is TKMPanel then exit;//sColor := $000000FF;
+  if Self is TKMPanel then sColor := $200000FF;
   if Self is TKMBevel then sColor := $20FFFFFF;
   if Self is TKMShape then sColor := $20FFFFFF;
 

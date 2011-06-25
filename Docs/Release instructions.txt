@@ -6,7 +6,7 @@ Make sure these are checked:	//Assigned to Krom
 	Turn off debug data (Project > Options > Linker > DebugInfo)
 	Compile in Delphi6/7
 	Update Bugreports list (move fixed bugs down)
-	Update Fetures list (move implemented features down)
+	Update Features list (move implemented features down)
 	Pack EXE file
 	Include OpenAL distributive
 	Test installer and Demo
