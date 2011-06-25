@@ -1,5 +1,7 @@
-EXE-only r1793+:
+EXE-only r1831+:
 <===================================================================================>
+ +	Swinefarm and Stables had discolored flags
+ +	In damaged stables fire was painted on horses back! it should be behind it
 	Can't copy IP into IP field / IP resets when you are not able to connect
 	Crabs are stuck between roads building on them is buggy
 	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence.

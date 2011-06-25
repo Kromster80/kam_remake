@@ -1026,8 +1026,8 @@ begin
     else begin
       fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
       fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
-      if fCurrentAction=nil then exit;
-      fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fPlayers.Player[fOwner].FlagColor,fPosition.X, fPosition.Y);
+      if fCurrentAction<>nil then
+        fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fPlayers.Player[fOwner].FlagColor,fPosition.X, fPosition.Y);
     end;
   end;
 end;
@@ -1094,12 +1094,12 @@ procedure TKMHouseSwineStable.Paint;
 var i:integer;
 begin
   Inherited;
-  if (fBuildState<>hbs_Done) then exit;
-  for i:=1 to 5 do
-    if BeastAge[i]>0 then
-      fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
-  if (fCurrentAction<>nil) then //Overlay, not entirely correct, but works ok
-  fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fOwner,fPosition.X, fPosition.Y);
+  //We render beasts on top of the HouseWork (which is mostly flames in this case), because otherwise
+  //Swinefarm looks okay, but Stables are totaly wrong - flames are right on horses backs!
+  if fBuildState=hbs_Done then
+    for i:=1 to 5 do
+      if BeastAge[i]>0 then
+        fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
 end;
 
 
@@ -1183,7 +1183,7 @@ begin
     AnimDir  := Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
     AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
 
-    fRender.RenderUnit(UnitType, byte(ua_Eat), AnimDir, AnimStep, 
+    fRender.RenderUnit(UnitType, byte(ua_Eat), AnimDir, AnimStep,
       fPosition.X+OffX[(i-1) mod 3 +1],
       fPosition.Y+OffY[(i-1) mod 3 +1],
       fPlayers.Player[fOwner].FlagColor, false);
@@ -1528,15 +1528,13 @@ end;
 procedure THouseAction.SetState(aHouseState: THouseState);
 begin
   fHouseState := aHouseState;
-  if aHouseState=hst_Idle then begin
-    SubActionRem([ha_Work1..ha_Smoke]); //remove all work attributes
-    SubActionAdd([ha_Idle]);
-  end;
-  if aHouseState=hst_Work then begin
-    SubActionRem([ha_Idle]);
-  end;
-  if aHouseState=hst_Empty then begin
-    SubActionRem([ha_Idle]);
+  case fHouseState of
+    hst_Idle:   begin
+                  SubActionRem([ha_Work1..ha_Smoke]); //remove all work attributes
+                  SubActionAdd([ha_Idle]);
+                end;
+    hst_Work:   SubActionRem([ha_Idle]);
+    hst_Empty:  SubActionRem([ha_Idle]);
   end;
 end;
 
