@@ -22,7 +22,8 @@ MainMenu
 		Goals (AI can ignore them, but it's required for multiplayer maps)
 
 	Mission settings (PerMission)
-		Alliances, team modes		
+		Alliances, team modes
+		Player types (human, computer)
 
 	Menu (PerMission)
 		Save/Load

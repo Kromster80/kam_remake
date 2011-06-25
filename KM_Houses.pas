@@ -1100,6 +1100,12 @@ begin
     for i:=1 to 5 do
       if BeastAge[i]>0 then
         fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
+
+  //But Animal Breeders should be on top of beasts
+  if fCurrentAction<>nil then
+    fRender.RenderHouseWork(byte(fHouseType),
+                            integer(fCurrentAction.fSubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5]),
+                            WorkAnimStep,fPlayers.Player[fOwner].FlagColor,fPosition.X, fPosition.Y);
 end;
 
 

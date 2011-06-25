@@ -485,7 +485,7 @@ begin
                        end;
                        end;
     ct_SetHumanPlayer: begin
-                       if fPlayers <> nil then
+                       if (fPlayers <> nil) and (fParsingMode <> mpm_Multi) then
                          if InRange(ParamList[0],0,fPlayers.Count-1) then
                          begin
                            MyPlayer := fPlayers.Player[ParamList[0]];
@@ -493,7 +493,7 @@ begin
                          end;
                        end;
     ct_AIPlayer:       begin
-                       if fPlayers <> nil then
+                       if (fPlayers <> nil) and (fParsingMode <> mpm_Multi) then
                          if InRange(ParamList[0],0,fPlayers.Count-1) then
                            fPlayers.Player[ParamList[0]].PlayerType:=pt_Computer
                          else //This command doesn't require an ID, just use the current player

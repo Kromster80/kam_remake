@@ -27,6 +27,9 @@ end;
 procedure TGameInputProcess_Single.ReplayTimer(aTick:cardinal);
 var MyRand:cardinal;
 begin
+  if fCursor > Count then 
+    Exit; //There are no more commands left
+    
   while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
     inc(fCursor);
 

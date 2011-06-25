@@ -57,6 +57,7 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender:TObject);
     procedure Mission_AlliancesChange(Sender:TObject);
+    procedure Mission_PlayerTypesChange(Sender:TObject);
     procedure View_Passability(Sender:TObject);
 
     function GetSelectedTile: TObject;
@@ -111,11 +112,12 @@ type
         ColorSwatch_Color:TKMColorSwatch;
 
     Panel_Mission:TKMPanel;
-      Button_Mission:array[1..1]of TKMButton;
+      Button_Mission:array[1..2]of TKMButton;
       Panel_Alliances:TKMPanel;
-        Label_Alliances:TKMLabel;
         CheckBox_Alliances: array[0..MAX_PLAYERS-1,0..MAX_PLAYERS-1] of TKMCheckBox;
         CheckBox_AlliancesSym:TKMCheckBox;
+      Panel_PlayerTypes:TKMPanel;
+        CheckBox_PlayerTypes: array[0..MAX_PLAYERS-1,0..1] of TKMCheckBox;
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
@@ -189,7 +191,7 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes, KM_ResourceGFX;
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_Render, KM_TextLibrary, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes, KM_ResourceGFX;
 
 
 {Switch between pages}
@@ -296,6 +298,13 @@ begin
     Panel_Alliances.Show;
     Label_MenuTitle.Caption:='Mission - Alliances';
     Mission_AlliancesChange(nil);
+  end else
+
+  if (Sender = Button_Main[4])or(Sender = Button_Mission[2]) then begin
+    Panel_Mission.Show;
+    Panel_PlayerTypes.Show;
+    Label_MenuTitle.Caption:='Mission - Player Types';
+    Mission_PlayerTypesChange(nil);
   end else
 
   if (Sender=Button_Main[5]) or
@@ -652,11 +661,12 @@ procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:integer;
 begin
   Panel_Mission := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Mission[1] := TKMButton.Create(Panel_Mission, 8, 4, 36, 24, 41);
-    for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
+    Button_Mission[1] := TKMButton.Create(Panel_Mission,  8, 4, 36, 24, 41);
+    Button_Mission[2] := TKMButton.Create(Panel_Mission, 48, 4, 36, 24, 41);
+    for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
-      Label_Alliances := TKMLabel.Create(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
       for i:=0 to MAX_PLAYERS-1 do begin
         TKMLabel.Create(Panel_Alliances,32+i*20+2,30,100,20,inttostr(i+1),fnt_Outline,kaLeft);
         TKMLabel.Create(Panel_Alliances,12,50+i*25,100,20,inttostr(i+1),fnt_Outline,kaLeft);
@@ -666,6 +676,28 @@ begin
           CheckBox_Alliances[i,k].Tag       := i * MAX_PLAYERS + k;
           CheckBox_Alliances[i,k].FlatStyle := true;
           CheckBox_Alliances[i,k].OnClick   := Mission_AlliancesChange;
+        end;
+      end;
+
+      //It does not have OnClick event for a reason:
+      // - we don't have a rule to make alliances symmetrical yet
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym.Checked := true;
+      CheckBox_AlliancesSym.Disable;
+
+    Panel_PlayerTypes := TKMPanel.Create(Panel_Mission,0,28,196,400);
+      TKMLabel.Create(Panel_PlayerTypes,100,10,100,30,'Player types',fnt_Outline,kaCenter);
+      for i:=0 to MAX_PLAYERS-1 do begin
+        TKMLabel.Create(Panel_PlayerTypes,12,30,100,20,'#',fnt_Grey,kaLeft);
+        TKMLabel.Create(Panel_PlayerTypes,32,30,100,20,'Human',fnt_Grey,kaLeft);
+        TKMLabel.Create(Panel_PlayerTypes,102,30,100,20,'Computer',fnt_Grey,kaLeft);
+        TKMLabel.Create(Panel_PlayerTypes,12,50+i*25,100,20,inttostr(i+1),fnt_Outline,kaLeft);
+        for k:=0 to 1 do
+        begin
+          CheckBox_PlayerTypes[i,k] := TKMCheckBox.Create(Panel_PlayerTypes, 52+k*70, 48+i*25, 20, 20, '', fnt_Metal);
+          CheckBox_PlayerTypes[i,k].Tag       := i;
+          CheckBox_PlayerTypes[i,k].FlatStyle := true;
+          CheckBox_PlayerTypes[i,k].OnClick   := Mission_PlayerTypesChange;
         end;
       end;
 
@@ -1423,6 +1455,36 @@ begin
   if CheckBox_AlliancesSym.Checked then begin
     CheckBox_Alliances[k,i].Checked := CheckBox_Alliances[i,k].Checked;
     fPlayers.Player[k].Alliances[i] := fPlayers.Player[i].Alliances[k];
+  end;
+end;
+
+
+procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender:TObject);
+var i:integer;
+begin
+  if Sender = nil then begin
+    for i:=0 to fPlayers.Count-1 do
+    begin
+      CheckBox_PlayerTypes[i,0].Enabled := fPlayers[i]<>nil;
+      CheckBox_PlayerTypes[i,1].Enabled := fPlayers[i]<>nil;
+      CheckBox_PlayerTypes[i,0].Checked := (fPlayers[i]<>nil) and (fPlayers[i].PlayerType = pt_Human);
+      CheckBox_PlayerTypes[i,1].Checked := (fPlayers[i]<>nil) and (fPlayers[i].PlayerType = pt_Computer);
+    end;
+    Exit;
+  end;
+
+  //@Lewin: Are we allowed to define players freely, e.g. make 5 Human players?
+  //How is it working in multiplayer?
+  i := TKMCheckBox(Sender).Tag;
+  if Sender = CheckBox_PlayerTypes[i,0] then
+  begin
+    CheckBox_PlayerTypes[i,0].Checked := true;
+    CheckBox_PlayerTypes[i,1].Checked := false;
+    fPlayers[i].PlayerType := pt_Human
+  end else begin
+    CheckBox_PlayerTypes[i,0].Checked := false;
+    CheckBox_PlayerTypes[i,1].Checked := true;
+    fPlayers[i].PlayerType := pt_Computer;
   end;
 end;
 
