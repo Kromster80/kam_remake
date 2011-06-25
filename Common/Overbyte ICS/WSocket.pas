@@ -3197,7 +3197,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function WSocketGetProc(const ProcName : String) : Pointer;
+function WSocketGetProc(const ProcName : AnsiString) : Pointer;
 {$IFDEF DELPHI1}
 var
     Error     : THandle;
@@ -3267,7 +3267,7 @@ begin
         if Length(ProcName) = 0 then
             Result := nil
         else begin
-            Result := GetProcAddress(FDllHandle, PAnsiChar(ProcName[1]));
+            Result := GetProcAddress(FDllHandle, @ProcName[1]);
             if Result = nil then
                 raise ESocketException.Create('Procedure ' + ProcName +
                                               ' not found in ' + winsocket +
@@ -3282,7 +3282,7 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFDEF COMPILER2_UP}
-function WSocket2GetProc(const ProcName : String) : Pointer;
+function WSocket2GetProc(const ProcName : AnsiString) : Pointer;
 begin
     { Prevents compiler warning "Return value might be undefined"  }
     Result := nil;
@@ -3303,7 +3303,7 @@ begin
         if Length(ProcName) = 0 then
             Result := nil
         else begin
-            Result := GetProcAddress(FDll2Handle, PAnsiChar(ProcName[1]));
+            Result := GetProcAddress(FDll2Handle, @ProcName[1]);
             if Result = nil then
                 raise ESocketException.Create('Procedure ' + ProcName +
                                               ' not found in ' + winsocket2 +

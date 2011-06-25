@@ -411,9 +411,13 @@ begin
     att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, aCommander.GetOwner, at_Enemy);
     att_CustomPosition:               begin
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
-                                        if fPlayers.CheckAlliance(aCommander.GetOwner, TargetHouse.GetOwner) = at_Ally then
+                                        if (TargetHouse <> nil) and
+                                           (fPlayers.CheckAlliance(aCommander.GetOwner, TargetHouse.GetOwner) = at_Ally) then
                                           TargetHouse := nil;
-                                        TargetUnit  := fPlayers.UnitsHitTestF(KMPointF(aCommander.GetPosition), false);
+                                        TargetUnit := fPlayers.UnitsHitTestF(KMPointF(aCommander.GetPosition), false);
+                                        if (TargetUnit <> nil) and
+                                           (fPlayers.CheckAlliance(aCommander.GetOwner, TargetUnit.GetOwner) = at_Ally) then
+                                          TargetUnit := nil;
                                       end;
   end;
 
