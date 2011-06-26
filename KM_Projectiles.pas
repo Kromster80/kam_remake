@@ -25,7 +25,7 @@ type
       fLength:single; //Route length to look-up for hit
     end;
 
-    function GetFreeIndex:integer;
+    function AddNewProjectile(aProjType:TProjectileType):integer;
     function ProjectileVisible(aIndex:integer):boolean;
   public
     constructor Create;
@@ -52,15 +52,36 @@ end;
 
 
 //Find empty spot or add one
-function TKMProjectiles.GetFreeIndex:integer;
+function TKMProjectiles.AddNewProjectile(aProjType:TProjectileType):integer;
 begin
   Result := -1;
   repeat
     inc(Result);
     if Result >= length(fItems) then
       SetLength(fItems, Result+8); //Add new
-  until(fItems[Result].fSpeed=0);
+  until(fItems[Result].fSpeed = 0);
+
+  //Fill in basic info
+  fItems[Result].fType  := aProjType;
+  fItems[Result].fSpeed := ProjectileSpeeds[aProjType] + RandomS(0.05);
+  fItems[Result].fArc   := ProjectileArcs[aProjType, 1] + RandomS(ProjectileArcs[aProjType, 2]);
 end;
+
+
+{function TKMProjectiles.AddItem(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+begin
+  i := AddNewProjectile(aProjType);
+
+  AddItem;
+end;
+
+
+function TKMProjectiles.AddItem(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+begin
+  i := AddNewProjectile(aProjType);
+
+  AddItem;
+end;}
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
@@ -72,12 +93,9 @@ var
   i:integer;
   Jitter:single;
 begin
-  i := GetFreeIndex;
+  i := AddNewProjectile(aProjType);
 
-  fItems[i].fType   := aProjType;
-  fItems[i].fOwner  := aOwner;
-  fItems[i].fSpeed  := ProjectileSpeeds[aProjType] + RandomS(0.05);
-  fItems[i].fArc    := ProjectileArcs[aProjType, 1] + RandomS(ProjectileArcs[aProjType, 2]);
+  fItems[i].fOwner  := aOwner;      
 
   //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
 
