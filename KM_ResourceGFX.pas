@@ -1397,12 +1397,14 @@ begin
     IconInfo.hbmColor:=bm.Handle;
     IconInfo.hbmMask:=bm2.Handle;
 
+    //I have a suspicion that maybe Windows could create icon delayed, at a time when bitmap data is
+    //no longer valid (replaced by other bitmap or freed). Hence issues with transparency.
+    {$IFDEF MSWindows}
+    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfo);
+    {$ENDIF}
     {$IFDEF Unix}
     IconInfoPointer := @IconInfo;
     Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfoPointer);
-    {$ENDIF}
-    {$IFDEF MSWindows}
-    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfo);
     {$ENDIF}
   end;
 
@@ -1410,9 +1412,6 @@ begin
   bm2.Free;
   Screen.Cursor := c_Default;
 end;
-
-
-
 
 
 end.
