@@ -457,13 +457,6 @@ const //Corresponding indices in units.rx
   (6250,6257),(6258,6265),(6266,6273),(6274,6281),(6282,6289),(6290,6297),(6298,6305)
   );
 
-type TProjectileType = (pt_Arrow=1, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
-
-const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
-  ProjectileBounds:array[TProjectileType,1..2] of word = (
-  (0,0),(0,0),(4186,4190)
-  );
-
 type
   TUnitTaskName = ( utn_Unknown=0, //Uninitialized task to detect bugs
         utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
@@ -1085,7 +1078,13 @@ type
   TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
                   sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
 
+  TProjectileType = (pt_Arrow, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
 
+const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
+  ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(4186,4190) );
+  ProjectileSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_RockThrow);
+
+type
   TAIAttackType = (aat_Once=0,       //Attack will occur once (after the set time has passed and if they have enough troops
                    aat_Repeating=1); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
 

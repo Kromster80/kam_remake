@@ -913,7 +913,7 @@ begin
     ht_Butchers:      if (WorkID = 2)and(Step in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
                       else if (WorkID = 3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
     ht_Swine:         if ((WorkID = 2)and(Step in [10,20]))or((WorkID = 3)and(Step = 1)) then fSoundLib.Play(sfx_ButcherCut,GetPosition);
-    ht_WatchTower:    if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_RockThrow,GetPosition);
+    //ht_WatchTower:  Handled by projectile itself 
   end;
 end;
 

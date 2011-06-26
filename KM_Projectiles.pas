@@ -29,7 +29,7 @@ type
     function ProjectileVisible(aIndex:integer):boolean;
   public
     constructor Create;
-    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex; MakeSound:boolean):word;
+    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
 
     procedure UpdateState;
     procedure Paint;
@@ -64,25 +64,21 @@ end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex; MakeSound:boolean):word;
+function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
 var i:integer; Jitter:single;
 begin
   i := GetFreeIndex;
-
-  MakeSound := MakeSound and (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255);
 
   fItems[i].fProjType := aProjType;
   fItems[i].fOwner := aOwner;
 
   case aProjType of
     pt_Arrow:     begin
-                    if MakeSound then fSoundLib.Play(sfx_BowShoot,KMPointRound(aStart),true);
                     fItems[i].fSpeed    := 0.45 + randomS(0.05);
                     fItems[i].fArc      := 1.5 + randomS(0.25);
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_BOWMAN_MAX / 2;
                   end;
     pt_Bolt:      begin
-                    if MakeSound then fSoundLib.Play(sfx_CrossbowShoot,KMPointRound(aStart),true);
                     fItems[i].fSpeed    := 0.5 + randomS(0.05);
                     fItems[i].fArc      := 1 + randomS(0.2);
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_ARBALETMAN_MAX / 2.5;
@@ -118,6 +114,10 @@ begin
 
   fItems[i].fPosition := 0; //projectile position on its route
   fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
+
+  if (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
+    fSoundLib.Play(ProjectileSounds[pt_Arrow], KMPointRound(aStart), true);
+
   Result := round(fItems[i].fLength / fItems[i].fSpeed);
 end;
 
