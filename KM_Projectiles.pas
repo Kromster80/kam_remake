@@ -79,7 +79,9 @@ begin
   fItems[i].fSpeed  := ProjectileSpeeds[aProjType] + RandomS(0.05);
   fItems[i].fArc    := ProjectileArcs[aProjType, 1] + RandomS(ProjectileArcs[aProjType, 2]);
 
-  Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / ProjectileJitter[aProjType];
+  //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
+
+  Jitter := GetLength(aStart, aEnd) * ProjectileJitter[aProjType];
 
   fItems[i].fTarget.X   := aEnd.X; //Thats logical target in tile-coords
   fItems[i].fTarget.Y   := aEnd.Y;

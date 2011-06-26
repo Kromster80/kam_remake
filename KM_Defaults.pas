@@ -1085,7 +1085,7 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_RockThrow);
   ProjectileSpeeds:array[TProjectileType] of single = (0.45, 0.5, 0.6);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.25, 0)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (RANGE_BOWMAN_MAX / 2, RANGE_ARBALETMAN_MAX / 2.5, RANGE_WATCHTOWER_MAX / 1.5);
+  ProjectileJitter:array[TProjectileType] of single = (0.125, 0.1, 0.075);
 
 type
   TAIAttackType = (aat_Once=0,       //Attack will occur once (after the set time has passed and if they have enough troops
