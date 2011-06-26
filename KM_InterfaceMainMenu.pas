@@ -1140,6 +1140,12 @@ end;
 
 procedure TKMMainMenuInterface.LAN_HostClick(Sender: TObject);
 begin
+  LAN_Save_Settings; //Save the player and IP name so it is not lost if something fails
+  if Trim(Edit_LAN_Name.Text) = '' then
+  begin
+    LAN_Update('Error: Player name must not be blank');
+    exit;
+  end;
   SwitchMenuPage(Sender); //Open lobby page
 
   LAN_BindEvents;
@@ -1149,15 +1155,21 @@ end;
 
 procedure TKMMainMenuInterface.LAN_JoinClick(Sender: TObject);
 begin
+  LAN_Save_Settings; //Save the player and IP name so it is not lost if the connection fails
+  if Trim(Edit_LAN_Name.Text) = '' then
+  begin
+    LAN_Update('Error: Player name must not be blank');
+    exit;
+  end;
   //Disable buttons to prevent multiple clicks while connection process is in progress
   Button_LAN_Host.Disable;
   Button_LAN_Join.Disable;
   Label_LAN_Status.Caption := 'Connecting, please wait ...';
 
   //Send request to join
-  fGame.Networking.Join(Edit_LAN_IP.Text, Edit_LAN_Name.Text); //Init lobby
   fGame.Networking.OnJoinSucc := LAN_JoinSuccess;
   fGame.Networking.OnJoinFail := LAN_JoinFail;
+  fGame.Networking.Join(Edit_LAN_IP.Text, Edit_LAN_Name.Text); //Init lobby
 end;
 
 

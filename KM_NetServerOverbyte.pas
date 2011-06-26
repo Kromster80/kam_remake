@@ -84,7 +84,7 @@ procedure TKMNetServerOverbyte.ClientConnect(Sender: TObject; Client: TWSocketCl
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
+    fOnError('ClientConnect. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
     exit;
   end;
 
@@ -101,7 +101,7 @@ procedure TKMNetServerOverbyte.ClientDisconnect(Sender: TObject; Client: TWSocke
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
+    fOnError('ClientConnect. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
     exit;
   end;
 
@@ -119,7 +119,7 @@ var
 begin
   if Error <> 0 then
   begin
-    fOnError('DataAvailable. Error #' + IntToStr(Error));
+    fOnError('DataAvailable. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
     exit;
   end;
 

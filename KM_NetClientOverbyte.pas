@@ -72,7 +72,15 @@ begin
   fSocket.OnSessionClosed := Disconnected;
   fSocket.OnSessionConnected := Connected;
   fSocket.OnDataAvailable := DataAvailable;
-  fSocket.Connect;
+  try
+    fSocket.Connect;
+  except
+    on E : Exception do
+    begin
+      //Trap the exception and tell the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+      fOnConnectFailed(E.Message);
+    end;
+  end;
 end;
 
 
@@ -92,7 +100,7 @@ end;
 procedure TKMNetClientOverbyte.Connected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
-    fOnConnectFailed('Error #' + IntToStr(Error))
+    fOnConnectFailed('Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')')
   else
     fOnConnectSucceed(Self);
 end;
@@ -101,7 +109,7 @@ end;
 procedure TKMNetClientOverbyte.Disconnected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
-    fOnError('Client: Disconnection error #' + IntToStr(Error))
+    fOnError('Client: Disconnection error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')')
   else
     fOnSessionDisconnected(Self);
 end;
@@ -116,7 +124,7 @@ var
 begin
   if Error <> 0 then
   begin
-    fOnError('DataAvailable. Error #' + IntToStr(Error));
+    fOnError('DataAvailable. Error '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
     exit;
   end;
 

@@ -4,7 +4,7 @@ interface
 uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-    Classes, Controls, Graphics, Math, SysUtils,
+    Classes, Controls, Graphics, Math, SysUtils, Clipbrd,
     KromUtils, KromOGLUtils,
     KM_CommonTypes, KM_Defaults;
 
@@ -1422,6 +1422,16 @@ begin
   Result := true;
   if Inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
+  //Clipboard opperations
+  if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
+  begin
+    case Key of
+      Ord('C'):    Clipboard.AsText := fText;
+      Ord('X'):    begin Clipboard.AsText := fText; fText := ''; end;
+      Ord('V'):    begin Insert(Clipboard.AsText, fText, CursorPos+1);
+                         inc(CursorPos, Length(Clipboard.AsText)); end;
+    end;
+  end;
   case Key of
     VK_BACK:    begin Delete(fText, CursorPos, 1); dec(CursorPos); end;
     VK_DELETE:  Delete(fText, CursorPos+1, 1);
