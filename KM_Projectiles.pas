@@ -3,7 +3,6 @@ unit KM_Projectiles;
 interface
 uses Classes, SysUtils, KromUtils, KM_Utils, KM_Defaults, KM_CommonTypes;
 
-//todo: Convert to 0-based
 //todo: Make projectiles take into account targets speed/direction and aim for predicted position
 
 {Projectiles in-game: arrows, bolts, rocks, etc..}
@@ -26,11 +25,11 @@ type
       fLength:single; //Route length to look-up for hit
     end;
 
+    function GetFreeIndex:integer;
+    function ProjectileVisible(aIndex:integer):boolean;
   public
     constructor Create;
     function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex; MakeSound:boolean):word;
-
-    function ProjectileVisible(aIndex:integer):boolean;
 
     procedure UpdateState;
     procedure Paint;
@@ -48,7 +47,19 @@ uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Houses, KM_Units, KM_Terrain;
 constructor TKMProjectiles.Create;
 begin
   Inherited;
-  SetLength(fItems, 2); //Reserve some space already
+  //Nothing here yet
+end;
+
+
+//Find empty spot or add one
+function TKMProjectiles.GetFreeIndex:integer;
+begin
+  Result := -1;
+  repeat
+    inc(Result);
+    if Result >= length(fItems) then
+      SetLength(fItems, Result+8); //Add new
+  until(fItems[Result].fSpeed=0);
 end;
 
 
@@ -56,13 +67,9 @@ end;
 function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex; MakeSound:boolean):word;
 var i:integer; Jitter:single;
 begin
+  i := GetFreeIndex;
+
   MakeSound := MakeSound and (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255);
-  //Find empty spot or add one
-  i := 0;
-  repeat
-    inc(i);
-    if i>=length(fItems) then SetLength(fItems,i+10); //Add new
-  until(fItems[i].fSpeed=0);
 
   fItems[i].fProjType := aProjType;
   fItems[i].fOwner := aOwner;
@@ -120,7 +127,7 @@ procedure TKMProjectiles.UpdateState;
 const HTicks = 6; //The number of ticks before hitting that an arrow will make the hit noise
 var i:integer; U:TKMUnit; H:TKMHouse;
 begin
-  for i:=1 to length(fItems)-1 do
+  for i:=0 to length(fItems)-1 do
     with fItems[i] do
       if fSpeed <> 0 then
       begin
@@ -141,9 +148,8 @@ begin
                           begin
                             //Arrows are more likely to cause damage when the unit is closer
                             if Random(Round(8 * GetLength(U.PositionF,fTargetJ))) = 0 then
-                              if  U.HitPointsDecrease(1) then
-                                if (fPlayers <> nil) then
-                                  fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                              if U.HitPointsDecrease(1) then
+                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
                           end
                           else
                           begin
@@ -151,13 +157,11 @@ begin
                             H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
                             if (H <> nil) then
                               if H.AddDamage(1) then //House was destroyed
-                                if (fPlayers <> nil) then
-                                  fPlayers.Player[fOwner].Stats.HouseDestroyed(H.GetHouseType);
+                                fPlayers.Player[fOwner].Stats.HouseDestroyed(H.GetHouseType);
                           end;
             pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
-                            if U.HitPointsDecrease(10)then //Instant death
-                              if (fPlayers <> nil) then
-                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                            if U.HitPointsDecrease(10) then //Instant death
+                              fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
           end;
         end;
       end;
@@ -187,7 +191,7 @@ var
   P1,P2:TKMPointF; //Arrows and bolts send 2 points for head and tail
   Dir:TKMDirection;
 begin
-  for i:=1 to length(fItems)-1 do
+  for i:=0 to length(fItems)-1 do
     if (fItems[i].fSpeed<>0) and ProjectileVisible(i) then
     begin
 
@@ -235,51 +239,28 @@ begin
   SaveStream.Write('Projectiles');
 
   Count := 0;
-  for i:=1 to length(fItems)-1 do
+  for i:=0 to length(fItems)-1 do
     if fItems[i].fSpeed <> 0 then inc(Count);
   SaveStream.Write(Count);
 
-  for i:=1 to length(fItems)-1 do
+  for i:=0 to length(fItems)-1 do
     if fItems[i].fSpeed <> 0 then
-      with fItems[i] do
-      begin
-        SaveStream.Write(fScreenStart);
-        SaveStream.Write(fScreenEnd);
-        SaveStream.Write(fTarget);
-        SaveStream.Write(fTargetJ);
-        SaveStream.Write(fProjType, SizeOf(fProjType));
-        SaveStream.Write(fOwner, SizeOf(fOwner));
-        SaveStream.Write(fSpeed);
-        SaveStream.Write(fArc);
-        SaveStream.Write(fPosition);
-        SaveStream.Write(fLength);
-      end;
+      SaveStream.Write(fItems[i], SizeOf(fItems[i]));
 end;
 
 
 procedure TKMProjectiles.Load(LoadStream:TKMemoryStream);
-var s:string; i, Count: integer;
+var s:string;
+  i,Count:integer;
 begin
   LoadStream.Read(s);
   Assert(s = 'Projectiles', 'Projectiles not found');
 
   LoadStream.Read(Count);
-  SetLength(fItems,Count+2); //Reserve extra space
-     
-  for i:=1 to Count do
-    with fItems[i] do
-    begin
-      LoadStream.Read(fScreenStart);
-      LoadStream.Read(fScreenEnd);
-      LoadStream.Read(fTarget);
-      LoadStream.Read(fTargetJ);
-      LoadStream.Read(fProjType, SizeOf(fProjType));
-      LoadStream.Read(fOwner, SizeOf(fOwner));
-      LoadStream.Read(fSpeed);
-      LoadStream.Read(fArc);
-      LoadStream.Read(fPosition);
-      LoadStream.Read(fLength);
-    end;
+  SetLength(fItems, Count);
+
+  for i:=0 to Count-1 do
+    LoadStream.Read(fItems[i], SizeOf(fItems[i]));
 end;
 
 
