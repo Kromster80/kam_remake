@@ -1475,6 +1475,29 @@ begin
 
   //@Lewin: Are we allowed to define players freely, e.g. make 5 Human players?
   //How is it working in multiplayer?
+  //@Krom: In KaM it works like this: Single player missions have 1 human player and the others computer.
+  //       For multiplayer the players are all humans. (although they are not defined in the script with !SET_HUMAN_PLAYER as that is for single missions)
+  //       I think we should be a bit more relaxed about it. Here are some cases:
+  //       1. Campaign/single missions: Only 1 player is human, the others are computer and this cannot be changed. (usually story based)
+  //       2. Tournament missions: (like single missions from TPR but configurable for every game) All players start equal and any can be
+  //                               human/AI/not-participating. This means you can chose the number of enemies you wish to fight, and configure alliances.
+  //                               e.g. I can chose to fight with me plus 1 computer (team 1) against 3 computers allied together. (team 2)
+  //       3. Multiplayer tournament: Same as a single tournament mission, but you can have many humans and many AI. (with configurable teams or deathmatch)
+  //       4. Multiplayer cooperative: Similar to a tournament but one or more AI are fixed and cannot be made human. (and the mission is usually story based)
+  //                                   This allows a mission to be made where many humans siege AI players in a castle, where the AI have an obvious
+  //                                   advantage and the humans must work together to defeat them.
+  //       These are just some ideas for the kinds of missions I think we should allow. Note that TPR only allows for types 1 and 3.
+  //       I do NOT think that each mission should be given a "type" of the ones mentioned above. That just makes things complicated having 4 mission types.
+  //       We do not even need a single/multiplayer distinction. I think we can make this work by having two kinds of players:
+  //       a) General: which can be controlled by a human or a computer
+  //       b) Fixed AI: which can only be computers, never human controlled.
+  //       Therefore both single and multiplayer tournament missions will only use General players, but the other two types will use
+  //       some Fixed AI for the players which must always be computer controlled, and some General players which can be either or not-participating.
+  //       When you make a mission you can define AI options for the General players if you wish, otherwise they will use defaults. (and figure it out
+  //       automatically) Fixed AI will mostly need to be told how to behave, for the story make sense and fit with the circumstances.
+  //       (e.g. so they don't try to build a city when it is a siege mission) This allows single player missions to be used for multiplayer and vice versa.
+  //       These are just ideas and I think they could be redesigned in a less confusing way for both the players and mission creators.
+  //       Let me know what you think. Maybe we should discuss this.
   i := TKMCheckBox(Sender).Tag;
   if Sender = CheckBox_PlayerTypes[i,0] then
   begin
