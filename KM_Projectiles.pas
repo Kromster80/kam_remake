@@ -12,12 +12,12 @@ type
   private
     fItems:array of record //1..n
       fScreenStart:TKMPointF; //Screen-space trajectory start
-      fScreenEnd:TKMPointF; //Screen-space trajectory end
+      fScreenEnd:TKMPointF;   //Screen-space trajectory end
 
-      fTarget:TKMPointF; //Logical tile-coords target before jitter (used for debug only)
-      fTargetJ:TKMPointF; //Logical tile-coords target
+      fTarget:TKMPointF;  //Tile-space target before jitter (used for debug and house hits)
+      fTargetJ:TKMPointF; //Tile-space target
 
-      fProjType:TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
+      fType:TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
       fOwner:TPlayerIndex; //The ID of the player who launched the projectile, used for kill statistics
       fSpeed:single; //Each projectile speed may vary a little bit
       fArc:single; //Thats how high projectile will go along parabola (varies a little more)
@@ -65,52 +65,31 @@ end;
 
 { Return flight time (archers like to know when they hit target before firing again) }
 function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
-var i:integer; Jitter:single;
+const //TowerRock position is a bit different for said reasons
+  OffsetX:array[TProjectileType] of single = (0.5,0.5,-0.25); //Recruit stands in entrance, Tower middleline is X-0.75
+  OffsetY:array[TProjectileType] of single = (0.2,0.2,-0.5); //Add towers height
+var
+  i:integer;
+  Jitter:single;
 begin
   i := GetFreeIndex;
 
-  fItems[i].fProjType := aProjType;
-  fItems[i].fOwner := aOwner;
+  fItems[i].fType   := aProjType;
+  fItems[i].fOwner  := aOwner;
+  fItems[i].fSpeed  := ProjectileSpeeds[aProjType] + RandomS(0.05);
+  fItems[i].fArc    := ProjectileArcs[aProjType, 1] + RandomS(ProjectileArcs[aProjType, 2]);
 
-  case aProjType of
-    pt_Arrow:     begin
-                    fItems[i].fSpeed    := 0.45 + randomS(0.05);
-                    fItems[i].fArc      := 1.5 + randomS(0.25);
-                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_BOWMAN_MAX / 2;
-                  end;
-    pt_Bolt:      begin
-                    fItems[i].fSpeed    := 0.5 + randomS(0.05);
-                    fItems[i].fArc      := 1 + randomS(0.2);
-                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_ARBALETMAN_MAX / 2.5;
-                  end;
-    pt_TowerRock: begin
-                    fItems[i].fSpeed    := 0.6 + randomS(0.05);
-                    fItems[i].fArc      := 1.25;
-                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_WATCHTOWER_MAX / 1.5;
-                  end;
-    else          Jitter := 0; //
-  end;
+  Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / ProjectileJitter[aProjType];
 
-  fItems[i].fTarget.X := aEnd.X; //Thats logical target in tile-coords
-  fItems[i].fTarget.Y := aEnd.Y;
-  fItems[i].fTargetJ.X := aEnd.X + RandomS(Jitter); //Thats logical target in tile-coords
-  fItems[i].fTargetJ.Y := aEnd.Y + RandomS(Jitter);
+  fItems[i].fTarget.X   := aEnd.X; //Thats logical target in tile-coords
+  fItems[i].fTarget.Y   := aEnd.Y;
+  fItems[i].fTargetJ.X  := aEnd.X + RandomS(Jitter); //Thats logical target in tile-coords
+  fItems[i].fTargetJ.Y  := aEnd.Y + RandomS(Jitter);
 
-  //Converting tile-coords into screen coords
-  case aProjType of
-    pt_Arrow,
-    pt_Bolt:      begin
-                    fItems[i].fScreenStart.X := aStart.X + 0.5; //
-                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV + 0.2;
-                  end;
-    pt_TowerRock: begin
-                    fItems[i].fScreenStart.X := aStart.X - 0.25; //Recruit stands in entrance, Tower middleline is X-0.75
-                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5 {1.75}; //Add towers height
-                  end;
-  end;
-
-  fItems[i].fScreenEnd.X    := fItems[i].fTargetJ.X + 0.5; //projectile hits on Unit's chest height
-  fItems[i].fScreenEnd.Y    := fItems[i].fTargetJ.Y + 0.5 - fTerrain.InterpolateLandHeight(aEnd.X,aEnd.Y)/CELL_HEIGHT_DIV;
+  fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
+  fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart)/CELL_HEIGHT_DIV + OffsetX[aProjType];
+  fItems[i].fScreenEnd.X := fItems[i].fTargetJ.X + 0.5; //projectile hits on Unit's chest height
+  fItems[i].fScreenEnd.Y := fItems[i].fTargetJ.Y + 0.5 - fTerrain.InterpolateLandHeight(aEnd)/CELL_HEIGHT_DIV;
 
   fItems[i].fPosition := 0; //projectile position on its route
   fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
@@ -136,13 +115,13 @@ begin
         //Will hit the target in X..X-1 ticks (this ensures it only happens once)
         //Can't use InRange cos it might get called twice due to <= X <= comparison
         if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed)
-        and (fProjType in [pt_Arrow, pt_Bolt]) then //These projectiles make the sound
+        and (fType in [pt_Arrow, pt_Bolt]) then //These projectiles make the sound
           fSoundLib.Play(sfx_ArrowHit, KMPointRound(fTargetJ));
 
         if fPosition >= fLength then begin
           fSpeed := 0; //remove projectile
           U := fPlayers.UnitsHitTestF(fTargetJ, false);
-          case fProjType of
+          case fType of
             pt_Arrow,
             pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                           begin
@@ -171,7 +150,7 @@ end;
 //Test wherever projectile is visible (used by rocks thrown from Towers mostly)
 function TKMProjectiles.ProjectileVisible(aIndex:integer):boolean;
 begin
-  case fItems[aIndex].fProjType of
+  case fItems[aIndex].fType of
     pt_Arrow:      Result := true;
     pt_Bolt:       Result := true;
     pt_TowerRock:  if (fItems[aIndex].fScreenEnd.Y - fItems[aIndex].fScreenStart.Y) < 0 then
@@ -196,7 +175,7 @@ begin
     begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
-      case fItems[i].fProjType of
+      case fItems[i].fType of
         pt_Arrow, pt_Bolt:
         begin
           MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
@@ -204,7 +183,7 @@ begin
           P1.Y := P1.Y - fItems[i].fArc * MixArc;
           P2.X := P1.X+3; P2.Y := P2.Y+1;
           Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
-          fRender.RenderProjectile(fItems[i].fProjType, P1.X, P1.Y, MixValue, Dir);
+          fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, Dir);
         end;
 
         pt_TowerRock:
@@ -213,7 +192,7 @@ begin
           P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
           P1.Y := P1.Y - fItems[i].fArc * MixArc;
           P2.X := 0; P2.Y := 0;
-          fRender.RenderProjectile(fItems[i].fProjType, P1.X, P1.Y, MixValue);
+          fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue);
         end;
         else
       end;

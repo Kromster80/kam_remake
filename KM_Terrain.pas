@@ -168,7 +168,8 @@ TTerrain = class
     procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
     function GetVertexCursorPosition:TKMPoint;
     function ConvertCursorToMapCoord(inX,inY:single):single;
-    function InterpolateLandHeight(inX,inY:single):single;
+    function InterpolateLandHeight(inX,inY:single):single; overload;
+    function InterpolateLandHeight(aPoint:TKMPointF):single; overload;
     function MixLandHeight(inX,inY:byte):byte;
 
     procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
@@ -2226,6 +2227,12 @@ begin
   else
     Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(inX));
   Result := mix(Tmp2, Tmp1, frac(inY));
+end;
+
+
+function TTerrain.InterpolateLandHeight(aPoint:TKMPointF):single;
+begin
+  Result := InterpolateLandHeight(aPoint.X,aPoint.Y);
 end;
 
 
