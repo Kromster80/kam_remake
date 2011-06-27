@@ -88,6 +88,7 @@ type
     function GetDistance(aPos:TKMPoint):single;
     procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
     procedure GetListOfCellsWithin(Cells:TKMPointList);
+    function GetRandomCellWithin:TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
@@ -545,6 +546,16 @@ begin
   for i:=max(Loc.Y-3,1) to Loc.Y do for k:=max(Loc.X-2,1) to min(Loc.X+1,fTerrain.MapX) do
   if HousePlanYX[byte(fHouseType),i-Loc.Y+4,k-Loc.X+3]<>0 then
     Cells.AddEntry(KMPoint(k,i));
+end;
+
+
+function TKMHouse.GetRandomCellWithin:TKMPoint;
+var Cells:TKMPointList;
+begin
+  Cells := TKMPointList.Create;
+  GetListOfCellsWithin(Cells);
+  Result := Cells.GetRandom;
+  Cells.Free;
 end;
 
 

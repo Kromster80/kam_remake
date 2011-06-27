@@ -1,7 +1,7 @@
 unit KM_Projectiles;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, KM_Utils, KM_Defaults, KM_CommonTypes;
+uses Classes, SysUtils, KromUtils, KM_Utils, KM_Defaults, KM_CommonTypes, KM_Units, KM_Houses;
 
 //todo: Make projectiles take into account targets speed/direction and aim for predicted position
 
@@ -25,11 +25,13 @@ type
       fLength:single; //Route length to look-up for hit
     end;
 
+    function AddItem(I:integer; aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
     function AddNewProjectile(aProjType:TProjectileType):integer;
     function ProjectileVisible(aIndex:integer):boolean;
   public
     constructor Create;
-    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+    function AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word; overload;
+    function AimTarget(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex):word; overload;
 
     procedure UpdateState;
     procedure Paint;
@@ -40,7 +42,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Houses, KM_Units, KM_Terrain;
+uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Terrain;
 
 
 { TKMProjectiles }
@@ -68,36 +70,37 @@ begin
 end;
 
 
-{function TKMProjectiles.AddItem(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+var Target:TKMPointF; i:integer;
 begin
   i := AddNewProjectile(aProjType);
 
-  AddItem;
+  //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
+
+  Target := aTarget.PositionF;
+
+  Result := AddItem(i, aStart, Target, aProjType, aOwner);
 end;
 
 
-function TKMProjectiles.AddItem(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+var i:integer;
 begin
   i := AddNewProjectile(aProjType);
 
-  AddItem;
-end;}
+  Result := AddItem(i, aStart, KMPointF(aTarget.GetRandomCellWithin), aProjType, aOwner);
+end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+function TKMProjectiles.AddItem(I:integer; aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
 const //TowerRock position is a bit different for said reasons
   OffsetX:array[TProjectileType] of single = (0.5,0.5,-0.25); //Recruit stands in entrance, Tower middleline is X-0.75
   OffsetY:array[TProjectileType] of single = (0.2,0.2,-0.5); //Add towers height
 var
-  i:integer;
   Jitter:single;
 begin
-  i := AddNewProjectile(aProjType);
-
-  fItems[i].fOwner  := aOwner;      
-
-  //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
+  fItems[i].fOwner  := aOwner;
 
   Jitter := GetLength(aStart, aEnd) * ProjectileJitter[aProjType];
 

@@ -10,7 +10,6 @@ type
       fHouse:TKMHouse;
       fDestroyingHouse:boolean; //House destruction in progress
       LocID:byte; //Current attack location
-      CellsW:TKMPointList; //List of cells within
     public
       constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -35,8 +34,6 @@ begin
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;
   LocID  := 0;
-  CellsW  := TKMPointList.Create; //Pass pre-made list to make sure we Free it in the same unit
-  if aWarrior.IsRanged then fHouse.GetListOfCellsWithin(CellsW);
 end;
 
 
@@ -46,8 +43,6 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(LocID);
-  CellsW := TKMPointList.Create;
-  CellsW.Load(LoadStream);
 end;
 
 
@@ -61,7 +56,6 @@ end;
 destructor TTaskAttackHouse.Destroy;
 begin
   fPlayers.CleanUpHousePointer(fHouse);
-  FreeAndNil(CellsW);
   Inherited;
 end;
 
@@ -126,8 +120,8 @@ begin
          begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
-             ut_Arbaletman: fGame.Projectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt, GetOwner);
-             ut_Bowman:     fGame.Projectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow, GetOwner);
+             ut_Arbaletman: fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Bolt, GetOwner);
+             ut_Bowman:     fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Arrow, GetOwner);
              else Assert(false, 'Unknown shooter');
            end;
            AnimLength := UnitSprite[byte(UnitType)].Act[byte(ua_Work)].Dir[byte(Direction)].Count;
@@ -157,7 +151,6 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(fDestroyingHouse);
   SaveStream.Write(LocID);
-  CellsW.Save(SaveStream);
 end;
 
 

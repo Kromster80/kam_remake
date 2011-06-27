@@ -194,8 +194,8 @@ begin
       end;
 
       case KMUnit.UnitType of
-        ut_Arbaletman: fGame.Projectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Bolt, KMUnit.GetOwner);
-        ut_Bowman:     fGame.Projectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow, KMUnit.GetOwner);
+        ut_Arbaletman: fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Bolt, KMUnit.GetOwner);
+        ut_Bowman:     fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Arrow, KMUnit.GetOwner);
         else Assert(false, 'Unknown shooter');
       end;
 
