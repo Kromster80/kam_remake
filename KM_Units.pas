@@ -1132,7 +1132,8 @@ begin
   if not (byte(UnitType) in [1..length(UnitStat)]) then
     fGame.GameError(fCurrPosition, 'GetMaxHitPoints for wrong unit');
 
-  Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints,0,255);
+  Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints*40,0,255);
+  // *40 - [LifePoints/OneHitPoint] (MaxHitPoint in Units.dat - 4) 4*40 = 160
 end;
 
 
@@ -1476,7 +1477,8 @@ begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks
   if (GetUnitAction is TUnitActionFight) and not fGame.GlobalSettings.fHitPointRestoreInFights then exit;
   if fGame.GlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
-  if fHitPointCounter mod fGame.GlobalSettings.fHitPointRestorePace = 0 then HitPointsDecrease(-1); //Add 1 hit point
+  if fHitPointCounter mod fGame.GlobalSettings.fHitPointRestorePace = 0 then
+    HitPointsDecrease(-Round(0.3*GetMaxHitPoints)); //Add 30% of MaxHitPoints. 30% - debug value
   inc(fHitPointCounter);
 end;
 

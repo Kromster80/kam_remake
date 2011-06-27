@@ -214,12 +214,18 @@ begin
       Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
       Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
 
-      IsHit := (Damage >= Random(101)); //0..100
+      Damage := Round(Damage*Random(101)/100);
+      IsHit := (Damage >= UnitStat[ut].Attack*0.15); // IsHit = true if Damage >= 15% of Base damage
+      if not(IsHit) then Damage := 0;
+      //IsHit := (Damage >= Random(101)); //0..100
 
-      if IsHit then
+      if fOpponent.HitPointsDecrease(Damage) then
+        if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
+          fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
+      {if IsHit then
         if fOpponent.HitPointsDecrease(1) then
           if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
-            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
+            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);}
 
       MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
     end;

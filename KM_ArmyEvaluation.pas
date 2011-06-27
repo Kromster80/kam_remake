@@ -70,6 +70,7 @@ var i : Integer;
 begin
   inherited Create;
   Assert(SelfPlayer is TKMPlayer);
+  fSelfPlayer := SelfPlayer;
 
   fEnemies := TObjectList.Create(false); // false - Container will not controls the memory. See TObjectList
   for i := 0 to MAX_PLAYERS-1 do
@@ -131,7 +132,6 @@ end;
 
 function TKMArmyEvaluation.AddEnemy(Player : TObject) : Integer;
 begin
-  Result := -1;
   Assert(Player is TKMPlayer);
   Assert(fEnemies.Count <= MAX_PLAYERS-1);
   Result := fEnemies.Add(Player);

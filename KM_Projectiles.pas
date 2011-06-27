@@ -128,6 +128,7 @@ end;
 procedure TKMProjectiles.UpdateState;
 const HTicks = 6; //The number of ticks before hitting that an arrow will make the hit noise
 var i:integer; U:TKMUnit; H:TKMHouse;
+    Damage : Smallint;
 begin
   for i:=0 to length(fItems)-1 do
     with fItems[i] do
@@ -148,9 +149,12 @@ begin
             pt_Arrow,
             pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                           begin
+                            Damage := 0;
+                            if fType = pt_Arrow then Damage := UnitStat[byte(ut_Bowman)].Attack;
+                            if fType = pt_Bolt then Damage := UnitStat[byte(ut_Arbaletman)].Attack;
                             //Arrows are more likely to cause damage when the unit is closer
                             if Random(Round(8 * GetLength(U.PositionF,fTargetJ))) = 0 then
-                              if U.HitPointsDecrease(1) then
+                              if U.HitPointsDecrease(Damage) then
                                 fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
                           end
                           else
