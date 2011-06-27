@@ -222,6 +222,7 @@ begin
       if fOpponent.HitPointsDecrease(Damage) then
         if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
           fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
+
       {if IsHit then
         if fOpponent.HitPointsDecrease(1) then
           if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then

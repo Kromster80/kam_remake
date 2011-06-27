@@ -1478,7 +1478,7 @@ begin
   if (GetUnitAction is TUnitActionFight) and not fGame.GlobalSettings.fHitPointRestoreInFights then exit;
   if fGame.GlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
   if fHitPointCounter mod fGame.GlobalSettings.fHitPointRestorePace = 0 then
-    HitPointsDecrease(-Round(0.3*GetMaxHitPoints)); //Add 30% of MaxHitPoints. 30% - debug value
+    HitPointsDecrease(-Round(0.3*GetMaxHitPoints)); //Add 30% of MaxHitPoints
   inc(fHitPointCounter);
 end;
 

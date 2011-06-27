@@ -69,6 +69,7 @@ constructor TKMArmyEvaluation.Create(SelfPlayer : TObject);
 var i : Integer;
 begin
   inherited Create;
+
   Assert(SelfPlayer is TKMPlayer);
   fSelfPlayer := SelfPlayer;
 

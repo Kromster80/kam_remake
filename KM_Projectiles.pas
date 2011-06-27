@@ -149,6 +149,7 @@ begin
             pt_Arrow,
             pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                           begin
+                          
                             Damage := 0;
                             if fType = pt_Arrow then Damage := UnitStat[byte(ut_Bowman)].Attack;
                             if fType = pt_Bolt then Damage := UnitStat[byte(ut_Arbaletman)].Attack;
