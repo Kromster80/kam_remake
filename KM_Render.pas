@@ -98,10 +98,11 @@ type
       procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:cardinal);
       procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
       procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
-      procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean);
+      procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
       procedure RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
       procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
       procedure RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; UnitX,UnitY:single; NewInst:boolean);
+      procedure RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
       property RenderAreaSize:TKMPoint read fRenderAreaSize;
       property RendererVersion:string read fOpenGL_Version;
     end;
@@ -110,7 +111,7 @@ var
   fRender: TRender;
 
 implementation
-uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX;
+uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_Units;
 
 
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
@@ -876,7 +877,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean);
+procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
   AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
@@ -888,6 +889,7 @@ begin
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
+  if DoImmediateRender then RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,Owner,255,Deleting);
 
   if SHOW_UNIT_MOVEMENT then begin
     glColor3ubv(@Owner);  //Render dot where unit is
@@ -943,6 +945,13 @@ begin
   end;
 end;
 
+
+procedure TRender.RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+begin
+  RenderUnit(UnitID,ActID,DirID,StepID,pX,pY,Owner,NewInst,DoImmediateRender,Deleting);
+  if (ua_WalkArm in UnitSupportedActions[TUnitType(UnitID)]) or (TUnitType(UnitID) = ut_Serf) then
+    RenderUnit(UnitID,byte(ua_WalkArm),DirID,StepID,pX,pY,Owner,NewInst,DoImmediateRender,Deleting);
+end;
 
 
 {Simple dot to know where it actualy is}
@@ -1388,6 +1397,8 @@ procedure TRender.RenderCursorHighlights;
   begin //Shortcut function
     Result := MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y) > 0;
   end;
+var
+  UnitDelete: TKMUnit;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
   with fTerrain do
@@ -1396,21 +1407,23 @@ begin
     cm_Erase:  begin
                  if fGame.GameState = gsEditor then
                  begin
+                   if (fGame.fMapEditorInterface.GetShownPage = esp_Units) //With Units tab see if there's a unit below cursor
+                   and fPlayers.RemAnyUnit(GameCursor.Cell,true) and TileVisible then
+                   begin
+                     UnitDelete := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                     if UnitDelete <> nil then
+                       RenderUnitWithDefaultArm(byte(UnitDelete.UnitType),byte(ua_Walk),byte(UnitDelete.Direction),UnitDelete.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,fPlayers[UnitDelete.GetOwner].FlagColor,true,true,true);
+                   end
+                   else
                    if (
-                        ( //With Buildings tab see if we can remove Fields or Houses
+                         //With Buildings tab see if we can remove Fields or Houses
                           (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
                           and (    TileIsCornField(GameCursor.Cell)
                                 or TileIsWineField(GameCursor.Cell)
                                 or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road)
                                 or fPlayers.RemAnyHouse(GameCursor.Cell, true, true))
-                        )
-                        or
-                        ( //With Units tab see if there's a unit below cursor
-                          (fGame.fMapEditorInterface.GetShownPage = esp_Units)
-                          and fPlayers.RemAnyUnit(GameCursor.Cell,true)
-                        )
                       )
-                   //And ofcourse it it's visible
+                   //And of course it is visible
                    and TileVisible then
                      RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                    else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
@@ -1450,7 +1463,7 @@ begin
                  RenderDotOnTile(GameCursor.Float.X+1,GameCursor.Float.Y+1);
                end;
     cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
-                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //todo: render unit graphics here?
+                 RenderUnitWithDefaultArm(GameCursor.Tag1,byte(ua_Walk),byte(dir_S),UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   end;
 end;

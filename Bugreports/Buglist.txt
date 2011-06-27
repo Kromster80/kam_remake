@@ -6,12 +6,12 @@ EXE-only r1831+:
  +	Can't copy IP into IP field / IP resets when you are not able to connect
 	Crabs are stuck between roads building on them is buggy
 	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence.
-	When choosing color for multiplayer it affects only minimap, flags color remains default
+ ?	When choosing color for multiplayer it affects only minimap, flags color remains default
 
 	Edges of messages and other scrolls should be transparent so they look smooth
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
 
-	Make units/houses highlight red when about to erase them as trees do (in MapEd)
+	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Save correct number of players from MapEd
 	Dots and lines displaying on tile edges [Krom]
  
