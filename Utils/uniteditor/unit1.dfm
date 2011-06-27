@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 279
-  Top = 463
+  Left = 165
+  Top = 322
   Width = 644
   Height = 358
   ActiveControl = Button1
@@ -12,7 +12,7 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = True
-  OnActivate = init
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel

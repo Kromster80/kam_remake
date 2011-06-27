@@ -52,15 +52,18 @@ type
     x7: TSpinEdit;
     Sight: TSpinEdit;
     x9: TSpinEdit;
-    procedure init(Sender: TObject);
     procedure ChangeSpinEdits(Sender: TObject);
     procedure open_file(Sender: TObject);
     procedure saveDAT(Sender: TObject);
     procedure showDAT(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   end;
+
+  TAppState = ( asWait=0, asView=1 );
 
 var
   Form1: TForm1;
+  AppState : TAppState;
 
   UnitStat:array[1..41]of record
     HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,label5,Sight:smallint;
@@ -90,11 +93,17 @@ implementation
 {$IFDEF WDC}
   {$R *.dfm}
 {$ENDIF}
-
+procedure TForm1.FormCreate(Sender: TObject);
+var i : Integer;
+begin
+  for i:=Low(UnitNames) to High(UnitNames) do
+    ListBox1.Items.Add(UnitNames[i]);
+  AppState := asWait;
+end;
 
 function LoadUnitDAT(FileName:string):boolean;
 var
-  ii:integer;
+  i:integer;
   f:file;
 begin
   Result := false;
@@ -102,13 +111,14 @@ begin
   if not FileExists(FileName) then exit;
   assignfile(f,FileName); reset(f,1);
 
-  for ii:=1 to 28 do
-    blockread(f,SerfCarry[ii],8*70);
+  for i:=1 to 28 do
+    blockread(f,SerfCarry[i],8*70);
 
-  for ii:=1 to 41 do begin
-    blockread(f,UnitStat[ii],22);
-    blockread(f,UnitSprite[ii],112*70);
-    blockread(f,UnitSprite2[ii],36);
+  for i:=1 to 41 do
+  begin
+    blockread(f,UnitStat[i],22);
+    blockread(f,UnitSprite[i],112*70);
+    blockread(f,UnitSprite2[i],36);
   end;
   closefile(f);
 
@@ -118,20 +128,22 @@ end;
 
 function SaveUnitDAT(FileName:string):boolean;
 var
-  ii:integer;
+  i:integer;
   f:file;
 begin
   Result := false;
   AssignFile(f,FileName);
   Reset(f,1);
 
-  for ii:=1 to 28 do
-    blockread(f,SerfCarry[ii],8*70);
+  Seek(f, 15680); // 15680 = 28 * (8 * 70)
+  {for i:=1 to 28 do
+    blockwrite(f,SerfCarry[i],8*70);}
 
-  for ii:=1 to 41 do begin
-    blockwrite(f,UnitStat[ii],22);
-    blockwrite(f,UnitSprite[ii],112*70);
-    blockwrite(f,UnitSprite2[ii],36);
+  for i:=1 to 41 do
+  begin
+    blockwrite(f,UnitStat[i],22);
+    blockwrite(f,UnitSprite[i],112*70);
+    blockwrite(f,UnitSprite2[i],36);
   end;
   closefile(f);
 
@@ -151,19 +163,13 @@ begin
     LoadUnitDAT(OpenDialog1.Filename);
     SaveDialog1.InitialDir := OpenDialog1.GetNamePath;
   end;
-end;
-
-procedure TForm1.init(Sender: TObject);
-var
-  i :integer;
-begin
-  for i:=Low(UnitNames) to High(UnitNames) do
-    ListBox1.Items.Add(UnitNames[i]);
+  AppState := asWait;
 end;
 
 procedure TForm1.ChangeSpinEdits(Sender: TObject);
 var ID:integer;
 begin
+  if AppState <> asWait then exit;
    ID := ListBox1.ItemIndex + 1;
    if ID = 0 then Exit;
 
@@ -194,6 +200,7 @@ begin
    ID := ListBox1.ItemIndex + 1;
    if ID = 0 then Exit;
 
+   AppState := asView;
    HitPoints.Value        := UnitStat[ID].HitPoints;
    Attack.Value           := UnitStat[ID].Attack;
    AttackHorseBonus.Value := UnitStat[ID].AttackHorseBonus;
@@ -206,10 +213,12 @@ begin
    x10.Value              := UnitStat[ID].x10;
    CanWalkOut.Value       := UnitStat[ID].CanWalkOut;
    x11.Value              := UnitStat[ID].x11;
+   AppState := asWait;
 end;
 
 
 {$IFDEF FPC}
+
 initialization
   {$I unit1.lrs}
 {$ENDIF}
