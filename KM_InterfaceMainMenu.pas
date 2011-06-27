@@ -83,6 +83,7 @@ type
     procedure Load_RefreshList;
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_Change(Sender: TObject);
+    procedure MapEditor_UpdateList;
     procedure Options_Fill;
     procedure Options_Change(Sender: TObject);
   protected
@@ -898,8 +899,7 @@ begin
 
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin
-    FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
-    FileList_MapEd.ItemIndex := 0; //Try to select first map by default
+    MapEditor_UpdateList;
     MapEditor_Change(nil);
     Panel_MapEd.Show;
   end;
@@ -1224,7 +1224,7 @@ begin
   Edit_LobbyPost.Text := '';
 
   if Sender = Button_LAN_Host then begin
-    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
+    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'map', 'dat', true); //Refresh each time we go here
     FileList_Lobby.Show;
     Label_LobbyChooseMap.Show;
     Button_LobbyReady.Hide;
@@ -1421,6 +1421,13 @@ begin
   //Find out new map dimensions
   MapEdSizeX := MapSize[Radio_MapEd_SizeX.ItemIndex+1];
   MapEdSizeY := MapSize[Radio_MapEd_SizeY.ItemIndex+1];
+end;
+
+
+procedure TKMMainMenuInterface.MapEditor_UpdateList;
+begin
+  FileList_MapEd.RefreshList(ExeDir+'Maps\', 'map', 'dat', true); //Refresh each time we go here
+  FileList_MapEd.ItemIndex := 0; //Try to select first map by default
 end;
 
 

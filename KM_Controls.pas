@@ -551,7 +551,7 @@ type
     property DropCount:byte write fDropCount;
     property OnChange: TNotifyEvent write fOnChange;
     function FileName:string;
-    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+    procedure RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
     procedure Paint; override;
   end;
 
@@ -622,7 +622,7 @@ type
     function FileName:string;
     property ItemIndex:smallint read fItemIndex write SetItemIndex;
     property TopIndex:smallint read fTopIndex write SetTopIndex;
-    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+    procedure RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
@@ -2251,9 +2251,9 @@ begin
 end;
 
 
-procedure TKMDropFileBox.RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+procedure TKMDropFileBox.RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
 begin
-  fFileList.RefreshList(aPath, aExtension, ScanSubFolders);
+  fFileList.RefreshList(aPath, aExt1, aExt2, ScanSubFolders);
   fCaption := ' Select a map ..';
 end;
 
@@ -2493,42 +2493,39 @@ begin
 end;
 
 
-procedure TKMFileList.RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+procedure TKMFileList.RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
 var
-  DirID:integer;
   SearchRec:TSearchRec;
-  DirList:TStringList;
 begin
   fPaths.Clear;
   fFiles.Clear;
 
+  Assert(ScanSubFolders and (aExt2<>''), 'When scanning subfolders you expected to supply 2 extensions, e.g. "map" and "dat"');
+
   if DirectoryExists(aPath) then
   begin
     fPath := aPath;
-    DirList := TStringList.Create;
 
-    DirList.Add(''); //Initialize
-    DirID := 0;
-
+    FindFirst(fPath+'*', faDirectory, SearchRec);
     repeat
-      ChDir(fPath+DirList[DirID]);
-      FindFirst('*', faAnyFile, SearchRec);
-      repeat
-        if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
-          if SearchRec.Attr and faDirectory = faDirectory then begin
-            if ScanSubFolders then
-              DirList.Add(DirList[DirID]+SearchRec.Name+'\')
-          end else
-          if (aExtension='') or (GetFileExt(SearchRec.Name) = UpperCase(aExtension)) then begin
-            fPaths.Add(DirList[DirID]);
-            fFiles.Add(SearchRec.Name);
-          end;
-      until (FindNext(SearchRec)<>0);
-      inc(DirID);
-      FindClose(SearchRec);
-    until(DirID = DirList.Count);
-
-    DirList.Free;
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then //Exclude parent folders
+        //Check folders
+        if ScanSubFolders and (SearchRec.Attr and faDirectory = faDirectory) then
+          if FileExists(fPath + SearchRec.Name + '\' + SearchRec.Name + '.' + aExt1) and
+             FileExists(fPath + SearchRec.Name + '\' + SearchRec.Name + '.' + aExt2) then
+          begin
+            fPaths.Add(SearchRec.Name);
+            fFiles.Add(SearchRec.Name + '.' + aExt1);
+          end
+        else
+        //Check files
+        if (SearchRec.Attr and faDirectory <> faDirectory)
+        and (GetFileExt(SearchRec.Name) = UpperCase(aExt1)) then
+        begin
+          fPaths.Add('');
+          fFiles.Add(SearchRec.Name);
+        end;
+    until (FindNext(SearchRec)<>0);
   end;
 
   fItemIndex := -1;

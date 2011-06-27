@@ -326,7 +326,7 @@ begin
   end;
 
   if Sender = Button_Menu_Load then begin
-    FileList_Load.RefreshList(ExeDir+'Maps\', 'dat', true);
+    FileList_Load.RefreshList(ExeDir+'Maps\', 'map', 'dat', true);
     FileList_Load.ItemIndex := 0; //Try to select first map by default
     Panel_Load.Show;
   end;
