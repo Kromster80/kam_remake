@@ -91,18 +91,18 @@ type
       procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
       procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
       procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-      procedure RenderHouseBuild(Index,pX,pY:integer);
-      procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
-      procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
-      procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
-      procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:cardinal);
-      procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
-      procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
-      procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+      procedure RenderHouseBuild(Index:integer; Loc:TKMPoint);
+      procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; Loc:TKMPoint);
+      procedure RenderHouseWood(Index:integer; Step:single; Loc:TKMPoint);
+      procedure RenderHouseStone(Index:integer; Step:single; Loc:TKMPoint);
+      procedure RenderHouseWork(Index,AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+      procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; Loc:TKMPoint);
+      procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
+      procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
       procedure RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
       procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; UnitX,UnitY:single; NewInst:boolean);
-      procedure RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+      procedure RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
       property RenderAreaSize:TKMPoint read fRenderAreaSize;
       property RendererVersion:string read fOpenGL_Version;
     end;
@@ -738,63 +738,63 @@ end;
 
 
 {Render house WIP tablet}
-procedure TRender.RenderHouseBuild(Index,pX,pY:integer);
+procedure TRender.RenderHouseBuild(Index:integer; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  pX:=pX+HouseDAT[Index].EntranceOffsetX;
-  ID:=Index+250;
-  ShiftX:=RXData[4].Pivot[ID].x/CELL_SIZE_PX+0.5;
-  ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID].Y)/CELL_SIZE_PX+0.5-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(4,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
+  Loc.X := Loc.X + HouseDAT[Index].EntranceOffsetX;
+  ID := Index + 250;
+  ShiftX := Loc.X + RXData[4].Pivot[ID].x/CELL_SIZE_PX + 0.5;
+  ShiftY := Loc.Y + (RXData[4].Pivot[ID].y + RXData[4].Size[ID].Y)/CELL_SIZE_PX + 0.5 - fTerrain.Land[Loc.Y+1, Loc.X].Height/CELL_HEIGHT_DIV;
+  AddSpriteToList(4,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true);
 end;
 
 
 {Render house build supply}
-procedure TRender.RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
+procedure TRender.RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if Wood<>0 then begin
-    ID:=260+Wood-1;
-    ShiftX:=HouseDAT[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
-    ShiftY:=(HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+    ID := 260+Wood-1;
+    ShiftX := Loc.X + HouseDAT[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
+    ShiftY := Loc.Y + (HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+    AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
   if Stone<>0 then begin
-    ID:=267+Stone-1;
-    ShiftX:=HouseDAT[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
-    ShiftY:=(HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+    ID := 267+Stone-1;
+    ShiftX := Loc.X + HouseDAT[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
+    ShiftY := Loc.Y + (HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+    AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
 end;
 
 
 {Render house in wood}
-procedure TRender.RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
+procedure TRender.RenderHouseWood(Index:integer; Step:single; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  ID:=HouseDAT[Index].WoodPic+1;
-  ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,true,0,Step);
+  ID := HouseDAT[Index].WoodPic+1;
+  ShiftX := Loc.X + RXData[2].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY := Loc.Y + (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+  AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true,0,Step);
 end;
 
 
 {Render house in stone}
-procedure TRender.RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
+procedure TRender.RenderHouseStone(Index:integer; Step:single; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  RenderHouseWood(Index,1,pX,pY); //Render Wood part of it, opaque
-  ID:=HouseDAT[Index].StonePic+1;
-  ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,0,Step);
+  RenderHouseWood(Index,1,Loc); //Render Wood part of it, opaque
+  ID := HouseDAT[Index].StonePic+1;
+  ShiftX := Loc.X + RXData[2].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY := Loc.Y + (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+  AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false,0,Step);
 end;
 
 
-procedure TRender.RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:cardinal);
+procedure TRender.RenderHouseWork(Index,AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
 var AnimCount,ID:cardinal; i:byte; ShiftX,ShiftY:single;
 begin
-  if AnimType=0 then exit;
+  if AnimType = 0 then exit;
 
   for i:=1 to Length(HouseDAT[Index].Anim) do
   if AnimType and (1 shl i) = (1 shl i) then
@@ -804,16 +804,16 @@ begin
     begin
       ID := HouseDAT[Index].Anim[i].Step[AnimStep mod AnimCount + 1]+1;
       ShiftX := RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-      ShiftY := (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+      ShiftY := (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
       ShiftX := ShiftX+HouseDAT[Index].Anim[i].MoveX/CELL_SIZE_PX;
       ShiftY := ShiftY+HouseDAT[Index].Anim[i].MoveY/CELL_SIZE_PX;
-      AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
+      AddSpriteToList(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false,FlagColor);
     end;
   end;
 end;
 
 
-procedure TRender.RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
+procedure TRender.RenderHouseSupply(Index:integer; const R1,R2:array of byte; Loc:TKMPoint);
 var ID,i,k:integer;
 
   procedure AddHouseSupplySprite(aID:integer);
@@ -821,9 +821,9 @@ var ID,i,k:integer;
   begin
     if aID>0 then
     begin
-      ShiftX:=RXData[2].Pivot[aID].x/CELL_SIZE_PX;
-      ShiftY:=(RXData[2].Pivot[aID].y+RXData[2].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-      AddSpriteToList(2,aID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+      ShiftX := Loc.X + RXData[2].Pivot[aID].x/CELL_SIZE_PX;
+      ShiftY := Loc.Y + (RXData[2].Pivot[aID].y+RXData[2].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+      AddSpriteToList(2,aID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
     end;
   end;
 
@@ -853,7 +853,7 @@ begin
 end;
 
 
-procedure TRender.RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
+procedure TRender.RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
 var ShiftX,ShiftY:single; Q,ID:integer;
 begin
   case Index of
@@ -872,12 +872,12 @@ begin
   end;
 
   ShiftX:=ShiftX+RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+  ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+  AddSpriteToList(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false);
 end;
 
 
-procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
   AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
@@ -888,11 +888,11 @@ begin
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
-  if DoImmediateRender then RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,Owner,255,Deleting);
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor,-1,true);
+  if DoImmediateRender then RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,FlagColor,255,Deleting);
 
   if SHOW_UNIT_MOVEMENT then begin
-    glColor3ubv(@Owner);  //Render dot where unit is
+    glColor3ubv(@FlagColor);  //Render dot where unit is
     RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
   end;
 end;
@@ -926,7 +926,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; UnitX,UnitY:single; NewInst:boolean);
+procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
   AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
@@ -937,20 +937,20 @@ begin
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV-0.4 -2.25;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor);
 
   if SHOW_UNIT_MOVEMENT then begin
-    glColor3ubv(@Owner);
+    glColor3ubv(@FlagColor);
     RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV); //Render dot where unit is
   end;
 end;
 
 
-procedure TRender.RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; Owner:cardinal; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
-  RenderUnit(UnitID,ActID,DirID,StepID,pX,pY,Owner,NewInst,DoImmediateRender,Deleting);
+  RenderUnit(UnitID,ActID,DirID,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
   if (ua_WalkArm in UnitSupportedActions[TUnitType(UnitID)]) or (TUnitType(UnitID) = ut_Serf) then
-    RenderUnit(UnitID,byte(ua_WalkArm),DirID,StepID,pX,pY,Owner,NewInst,DoImmediateRender,Deleting);
+    RenderUnit(UnitID,byte(ua_WalkArm),DirID,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
 end;
 
 

@@ -1007,27 +1007,27 @@ end;
 procedure TKMHouse.Paint;
 begin
   case fBuildState of
-    hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
+    hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType), fPosition);
     hbs_NoGlyph:; //Nothing
     hbs_Wood:
       begin
         fRender.RenderHouseWood(byte(fHouseType),
         fBuildingProgress/50/HouseDAT[byte(fHouseType)].WoodCost, //0...1 range
-        fPosition.X, fPosition.Y);
-        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
+        fPosition);
+        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition);
       end;
     hbs_Stone:
       begin
         fRender.RenderHouseStone(byte(fHouseType),
         (fBuildingProgress/50-HouseDAT[byte(fHouseType)].WoodCost)/HouseDAT[byte(fHouseType)].StoneCost, //0...1 range
-        fPosition.X, fPosition.Y);
-        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
+        fPosition);
+        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition);
       end;
     else begin
-      fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
-      fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
+      fRender.RenderHouseStone(byte(fHouseType),1,fPosition);
+      fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition);
       if fCurrentAction<>nil then
-        fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fPlayers.Player[fOwner].FlagColor,fPosition.X, fPosition.Y);
+        fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
     end;
   end;
 end;
@@ -1099,13 +1099,13 @@ begin
   if fBuildState=hbs_Done then
     for i:=1 to 5 do
       if BeastAge[i]>0 then
-        fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
+        fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition);
 
   //But Animal Breeders should be on top of beasts
   if fCurrentAction<>nil then
     fRender.RenderHouseWork(byte(fHouseType),
                             integer(fCurrentAction.fSubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5]),
-                            WorkAnimStep,fPlayers.Player[fOwner].FlagColor,fPosition.X, fPosition.Y);
+                            WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
 end;
 
 
