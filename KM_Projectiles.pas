@@ -71,24 +71,81 @@ end;
 
 
 function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
-var Target:TKMPointF; i:integer;
+var i:integer; ArrowVector,TargetVector,Target:TKMPointF; ApproachSpeed,TimeToHit:single;
 begin
   i := AddNewProjectile(aProjType);
 
   //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
 
-  Target := aTarget.PositionF;
+  //I wonder if medieval archers knew about vectors
+
+
+  TargetVector := aTarget.GetMovementVector;
+
+  {
+    Target.X := aTarget.PositionF.X + TargetVector.X * Time;
+    Target.Y := aTarget.PositionF.Y + TargetVector.Y * Time;
+
+    FlightDistance := ArrowSpeed * Time;
+
+    DistanceToArrow := GetLength(aStart, Target) - FlightDistance;
+
+    sqr(Target.X)+sqr(Target.Y) = sqr(FlightDistance);
+
+    sqr(aTarget.PositionF.X + TargetVector.X * Time) + sqr(aTarget.PositionF.Y + TargetVector.Y * Time) = sqr(ArrowSpeed * Time)
+
+    sqr(aTarget.PositionF.X) + 2 * Time * aTarget.PositionF.X * TargetVector.X + sqr(Time) * sqr(TargetVector.X) +
+    sqr(aTarget.PositionF.Y) + 2 * Time * aTarget.PositionF.Y * TargetVector.Y + sqr(Time) * sqr(TargetVector.Y) =
+    sqr(ArrowSpeed) * sqr(Time)
+
+    sqr(aTarget.PositionF.X) + sqr(aTarget.PositionF.Y) +
+    2 * Time * (aTarget.PositionF.X * TargetVector.X + aTarget.PositionF.Y * TargetVector.Y) +
+    sqr(Time) * (sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(ArrowSpeed)) = 0
+
+
+
+
+
+    D + A * Time + B * sqr(Time) = C * sqr(Time)
+
+    D + A * Time - B * sqr(Time) = 0
+
+    a-b * a-b = a*a-2ab+b
+
+    sqr(A - Time) = 0
+
+  }
+
+  //Get arrows and targets vector per 1 tick (vector length = speed)
+  ArrowVector.X := (aTarget.PositionF.X - aStart.X);
+  ArrowVector.Y := (aTarget.PositionF.Y - aStart.Y);
+  ArrowVector := Normalize(ArrowVector);
+  ArrowVector.X := ArrowVector.X * fItems[i].fSpeed;
+  ArrowVector.Y := ArrowVector.Y * fItems[i].fSpeed;
+
+  //Now we need to know speed of approach
+  ApproachSpeed := GetLength(ArrowVector.X-TargetVector.X, ArrowVector.Y-TargetVector.Y);
+
+  //Compute estimated time to hit
+  TimeToHit := GetLength(aStart, aTarget.PositionF) / ApproachSpeed;
+
+  Target.X := aTarget.PositionF.X + TargetVector.X * TimeToHit;
+  Target.Y := aTarget.PositionF.Y + TargetVector.X * TimeToHit;
 
   Result := AddItem(i, aStart, Target, aProjType, aOwner);
 end;
 
 
 function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
-var i:integer;
+var i:integer; Target:TKMPointF;
 begin
   i := AddNewProjectile(aProjType);
 
-  Result := AddItem(i, aStart, KMPointF(aTarget.GetRandomCellWithin), aProjType, aOwner);
+  Target := KMPointF(aTarget.GetRandomCellWithin);
+  Target.X := Target.X + Random; //So that arrows were within house area, without attitude to tile corners
+  Target.Y := Target.Y + Random;
+
+  Result := AddItem(i, aStart, Target, aProjType, aOwner);
 end;
 
 
@@ -102,7 +159,7 @@ var
 begin
   fItems[i].fOwner  := aOwner;
 
-  Jitter := GetLength(aStart, aEnd) * ProjectileJitter[aProjType];
+  Jitter := 0;//GetLength(aStart, aEnd) * ProjectileJitter[aProjType];
 
   fItems[i].fTarget.X   := aEnd.X; //Thats logical target in tile-coords
   fItems[i].fTarget.Y   := aEnd.Y;
@@ -167,7 +224,7 @@ begin
                                 fPlayers.Player[fOwner].Stats.HouseDestroyed(H.GetHouseType);
                           end;
             pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
-                            if U.HitPointsDecrease(10) then //Instant death
+                            if U.HitPointsDecrease(10*40) then //Instant death
                               fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
           end;
         end;

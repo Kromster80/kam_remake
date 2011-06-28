@@ -156,6 +156,7 @@ type TCheckAxis = (ax_X, ax_Y);
     procedure SetPosition(aPos:TKMPoint);
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
+    function GetMovementVector: TKMPointF;
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
     function UpdateState:boolean; virtual;
@@ -1516,6 +1517,22 @@ begin
     PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
     Result := -(DX*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;
+end;
+
+
+function TKMUnit.GetMovementVector: TKMPointF;
+var MovementSpeed:single;
+begin
+  if (GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).DoesWalking then
+    MovementSpeed := GetSpeed
+  else
+  if (GetUnitAction is TUnitActionStormAttack) then
+    MovementSpeed := GetSpeed * STORM_SPEEDUP
+  else
+    MovementSpeed := 0;
+
+  Result.X := MovementSpeed * KMGetVertex(fDirection).X;
+  Result.Y := MovementSpeed * KMGetVertex(fDirection).Y;
 end;
 
 

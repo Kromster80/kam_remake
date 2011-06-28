@@ -30,6 +30,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
   function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
+  function KMGetVertex(Dir: TKMDirection):TKMPointF;
   function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPointDir;
   function KMLoopDirection(aDir: byte): TKMDirection;
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
@@ -37,8 +38,10 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function GetLength(A,B:TKMPoint): single; overload;
   function GetLength(A,B:TKMPointF): single; overload;
+  function GetLength(A:TKMPointF): single; overload;
   function KMLength(A,B:TKMPoint): single;
 
+  function Normalize(var A:TKMPointF): TKMPointF;
   function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload;
 
   procedure KMSwapPoints(var A,B:TKMPoint);
@@ -255,11 +258,20 @@ end;
 
 
 function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
-const 
+const
   XBitField: array[TKMDirection] of smallint = (0,0,1,0,1,0,0,0,0);
   YBitField: array[TKMDirection] of smallint = (0,0,0,0,1,0,1,0,0);
 begin
   Result := KMPoint(P.X+XBitField[Dir], P.Y+YBitField[Dir]);
+end;
+
+
+function KMGetVertex(Dir: TKMDirection):TKMPointF;
+const
+  XBitField: array[TKMDirection] of single = (0, 0, 0.7,1,0.7,0,-0.7,-1,-0.7);
+  YBitField: array[TKMDirection] of single = (0,-1,-0.7,0,0.7,1, 0.7, 0,-0.7);
+begin
+  Result := KMPointF(XBitField[Dir], YBitField[Dir]);
 end;
 
 
@@ -305,6 +317,21 @@ end;
 function GetLength(A,B:TKMPointF): single; overload;
 begin
   Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
+end;
+
+
+function GetLength(A:TKMPointF): single; overload;
+begin
+  Result := sqrt(sqr(A.x) + sqr(A.y));
+end;
+
+
+function Normalize(var A:TKMPointF): TKMPointF;
+var Len:single;
+begin
+  Len := GetLength(A);
+  Result.X := A.X /Len;
+  Result.Y := A.Y /Len;
 end;
 
 

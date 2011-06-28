@@ -36,7 +36,7 @@ type
       fTargetUnit:TKMUnit; //Folow this unit
       fTargetHouse:TKMHouse; //Go to this House
       fPass:TPassability; //Desired passability set once on Create
-      DoesWalking, WaitingOnStep, fDestBlocked:boolean;
+      fDoesWalking, fWaitingOnStep, fDestBlocked:boolean;
       fDoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
       fInteractionCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
@@ -77,10 +77,13 @@ type
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure  SyncLoad; override;
       destructor Destroy; override;
+
       function  CanAbandonExternal: boolean;
+      property DoesWalking:boolean read fDoesWalking;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
       function  GetExplanation:string; override;
       procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
+
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
       procedure Paint; //Used only for debug so far
@@ -192,8 +195,8 @@ procedure TUnitActionWalkTo.SetInitValues;
 begin
   NodePos       := 1;
   fDoExchange   := false;
-  DoesWalking   := false;
-  WaitingOnStep := false;
+  fDoesWalking   := false;
+  fWaitingOnStep := false;
   fDestBlocked  := false;
   fLastSideStepNodePos := -2; //Start negitive so it is at least 2 less than NodePos at the start
   fVertexOccupied      := KMPoint(0,0);
@@ -215,8 +218,8 @@ begin
   LoadStream.Read(fTargetUnit, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fTargetHouse, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fPass, SizeOf(fPass));
-  LoadStream.Read(DoesWalking);
-  LoadStream.Read(WaitingOnStep);
+  LoadStream.Read(fDoesWalking);
+  LoadStream.Read(fWaitingOnStep);
   LoadStream.Read(fDestBlocked);
   LoadStream.Read(fDoExchange);
   LoadStream.Read(fInteractionCount);
@@ -299,7 +302,7 @@ begin
     if KMSamePoint(fWalker.GetPosition, ForcedExchangePos) then
       fGame.GameError(fWalker.GetPosition, 'Exchange to same place');
     fWalker.Direction := KMGetDirection(fWalker.GetPosition,ForcedExchangePos);
-    DoesWalking := true;
+    fDoesWalking := true;
   end
   else
   begin
@@ -528,7 +531,7 @@ begin
     //If Unit on the way is walking somewhere and not exchanging with someone else
     if (fOpponent.GetUnitAction is TUnitActionWalkTo) and (not TUnitActionWalkTo(fOpponent.GetUnitAction).fDoExchange)
       //Unit not yet arrived on tile, wait till it does, otherwise there might be 2 units on one tile
-      and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking)
+      and (not TUnitActionWalkTo(fOpponent.GetUnitAction).fDoesWalking)
       //Diagonal vertex must not be in use
       and ((not KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1])) or (not fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,NodeList.List[NodePos+1])))) then
     //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
@@ -621,7 +624,7 @@ begin
         //Make sure unit really exists, is walking and has arrived on tile
         if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
           (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoExchange)
-          and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).DoesWalking)
+          and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoesWalking)
           and ((not KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])) //Isn't diagonal
           or ((KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])       //...or is diagonal and...
           and not fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,TempPos))))) then //...vertex is free
@@ -844,7 +847,7 @@ var
 begin
   Result := ActContinues;
   StepDone := false;
-  DoesWalking := false; //Set it to false at start of update
+  fDoesWalking := false; //Set it to false at start of update
 
   //Happens whe e.g. Serf stays in front of Store and gets Deliver task
   if KMSamePoint(fWalkFrom,fWalkTo) then begin
@@ -876,10 +879,10 @@ begin
     //Set precise position to avoid rounding errors
     fWalker.PositionF := KMPointF(NodeList.List[NodePos]);
 
-    if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then
+    if (NodePos > 1) and (not fWaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then
       DecVertex; //Unoccupy vertex
 
-    WaitingOnStep := true;
+    fWaitingOnStep := true;
 
     StepDone := true; //Unit stepped on a new tile
     fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
@@ -1009,7 +1012,7 @@ begin
     end;
 
   end;
-  WaitingOnStep := false;
+  fWaitingOnStep := false;
 
   if NodePos>NodeList.Count then
     fGame.GameError(fWalker.GetPosition, 'WalkTo overrun');
@@ -1027,7 +1030,7 @@ begin
 
   inc(fWalker.AnimStep);
   StepDone := false; //We are not actually done because now we have just taken another step
-  DoesWalking:=true; //Now it's definitely true that unit did walked one step
+  fDoesWalking:=true; //Now it's definitely true that unit did walked one step
 end;
 
 
@@ -1054,8 +1057,8 @@ begin
     SaveStream.Write(Zero);
 
   SaveStream.Write(fPass,SizeOf(fPass));
-  SaveStream.Write(DoesWalking);
-  SaveStream.Write(WaitingOnStep);
+  SaveStream.Write(fDoesWalking);
+  SaveStream.Write(fWaitingOnStep);
   SaveStream.Write(fDestBlocked);
   SaveStream.Write(fDoExchange);
   SaveStream.Write(fInteractionCount);

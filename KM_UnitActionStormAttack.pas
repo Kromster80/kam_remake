@@ -6,7 +6,7 @@ uses Classes, KM_Utils, KM_CommonTypes, KM_Defaults, KM_Units, Math;
 
 {Charge forwards until we are tired or hit an obstacle}
 type
-TUnitActionStormAttack = class(TUnitAction)
+  TUnitActionStormAttack = class(TUnitAction)
   private
     fDelay: integer; //Delay before action starts
     fTileSteps: integer; //The number of tiles we have walked onto so far
@@ -100,7 +100,6 @@ end;
 
 
 function TUnitActionStormAttack.Execute(KMUnit: TKMUnit):TActionResult;
-const STORM_SPEEDUP=1.5;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
