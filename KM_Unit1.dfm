@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 277
-  Top = 163
+  Left = 280
+  Top = 215
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 245
@@ -151,6 +151,15 @@ object Form1: TForm1
       TickMarks = tmBoth
       TickStyle = tsNone
       OnChange = TB_Angle_Change
+    end
+    object Button_CalcArmy: TButton
+      Left = 126
+      Top = 45
+      Width = 103
+      Height = 16
+      Caption = 'TestCalcArmy'
+      TabOrder = 5
+      OnClick = Button_CalcArmyClick
     end
   end
   object MediaPlayer1: TMediaPlayer

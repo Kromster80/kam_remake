@@ -59,7 +59,8 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     {$IFDEF WDC} MediaPlayer1: TMediaPlayer; {$ENDIF}
-    ExportMainMenu1: TMenuItem; 
+    ExportMainMenu1: TMenuItem;
+    Button_CalcArmy: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -68,6 +69,7 @@ type
     procedure ExportMainMenu1Click(Sender: TObject);
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
+    procedure Button_CalcArmyClick(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -402,6 +404,20 @@ begin
   fGame.GameStop(gr_Cancel);
 end;
 
+procedure TForm1.Button_CalcArmyClick(Sender: TObject);
+var
+  Point : TKMPoint;
+begin // For test Army evaluation
+  fGame.GameStart('', 'TestCalcArmy');
+  {Point.X := 10; Point.Y := 10;
+  MyPlayer.AddGroup(ut_Bowman, Point, dir_E, 3, 50);}
+  Point.X := 12; Point.Y := 31;
+  MyPlayer.AddGroup(ut_Militia, Point, dir_E, 2, 20);
+  Point.X := 30; Point.Y := 31;
+  fPlayers[1].AddGroup(ut_AxeFighter, Point, dir_W, 2, 10);
+  {Point.X := 32; Point.Y := 10;
+  fPlayers[1].AddGroup(ut_Bowman, Point, dir_W, 1, 1);}
+end;
 
 procedure TForm1.TB_Angle_Change(Sender: TObject);
 begin
