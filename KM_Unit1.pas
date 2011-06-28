@@ -384,6 +384,7 @@ end;
 
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
+  if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
   if (fPlayers<>nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
     fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
 end;
@@ -391,6 +392,7 @@ end;
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
+  if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
   if CheckBox2.Checked then fGame.SetGameSpeed(120) else fGame.SetGameSpeed(1);
 end;      
 
