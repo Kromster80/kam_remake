@@ -209,19 +209,23 @@ begin
       ut := byte(KMUnit.UnitType);
       ot := byte(fOpponent.UnitType);
       Damage := UnitStat[ut].Attack; //Base damage
-      if InRange(ot, low(UnitGroups), high(UnitGroups)) then
-        Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
-      Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
-      Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
-
       Damage := Round(Damage*Random(101)/100);
       IsHit := (Damage >= UnitStat[ut].Attack*0.15); // IsHit = true if Damage >= 15% of Base damage
-      if not(IsHit) then Damage := 0;
+      if not(IsHit) then Damage := 0
+      else begin // if IsHit
+        if InRange(ot, low(UnitGroups), high(UnitGroups)) then
+          Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
+        Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
+        // Now, defence modifier in HitPointsDecrease
+        //Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
+      end;
+
       //IsHit := (Damage >= Random(101)); //0..100
 
-      if fOpponent.HitPointsDecrease(Damage) then
-        if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
-          fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
+      if IsHit then
+        if fOpponent.HitPointsDecrease(Damage) then
+          if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
+            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
 
       {if IsHit then
         if fOpponent.HitPointsDecrease(1) then

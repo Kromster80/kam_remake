@@ -141,7 +141,8 @@ type TCheckAxis = (ax_X, ax_Y);
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
     procedure SetFullCondition;
-    function  HitPointsDecrease(aAmount:integer):boolean;
+    function  HitPointsDecrease(aAmount:integer):boolean; 
+    procedure HitPointsIncrease(aAmount:integer);
     property GetHitPoints:byte read fHitPoints;
     function GetMaxHitPoints:byte;
     procedure CancelUnitTask;
@@ -1119,11 +1120,21 @@ begin
   Result := false;
   //When we are first hit reset the counter
   if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
-  fHitPoints := EnsureRange(fHitPoints-aAmount,0,GetMaxHitPoints);
+  // Defence modifier
+  aAmount := aAmount div max(UnitStat[byte(fUnitType)].Defence,1); //Not needed, but animals have 0 defence
+  // Sign of aAmount does not affect
+  fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, GetMaxHitPoints);
   if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
     KillUnit;
     Result := true;
   end;
+end;
+
+
+procedure TKMUnit.HitPointsIncrease(aAmount:integer);
+begin
+  // Sign of aAmount does not affect
+  fHitPoints := EnsureRange(fHitPoints + abs(aAmount), 0, GetMaxHitPoints);
 end;
 
 
@@ -1478,7 +1489,7 @@ begin
   if (GetUnitAction is TUnitActionFight) and not fGame.GlobalSettings.fHitPointRestoreInFights then exit;
   if fGame.GlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
   if fHitPointCounter mod fGame.GlobalSettings.fHitPointRestorePace = 0 then
-    HitPointsDecrease(-Round(0.3*GetMaxHitPoints)); //Add 30% of MaxHitPoints
+    HitPointsIncrease(Round(0.3*GetMaxHitPoints)); //Add 30% of MaxHitPoints
   inc(fHitPointCounter);
 end;
 
