@@ -116,9 +116,9 @@ TTerrain = class
     function GetWalkConnectID(Loc:TKMPoint):byte;
     function GetConnectID(aWalkConnect: TWalkConnect; Loc:TKMPoint):byte;
 
-    function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
+    function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability; aCheckUnits:boolean=true):boolean;
     function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-    function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
+    function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; OnlyTakeBest: boolean=false):TKMPoint;
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
@@ -1380,7 +1380,7 @@ begin
 end;
 
 
-function TTerrain.CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
+function TTerrain.CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability; aCheckUnits:boolean=true):boolean;
 var i,k: integer;
 begin
   Result := true; //Assume we are stuck
@@ -1388,7 +1388,7 @@ begin
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
       if (i<>0)or(k<>0) then
         if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then
-          if Land[Loc.Y+i,Loc.X+k].IsUnit = nil then
+          if (Land[Loc.Y+i,Loc.X+k].IsUnit = nil) or (not aCheckUnits) then
             if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
             begin
               Result := false; //at least one tile is empty, so unit is not stuck
@@ -1451,7 +1451,7 @@ begin
 end;
 
 
-function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
+function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; OnlyTakeBest: boolean=false):TKMPoint;
 var i,k:integer; L1,L2:TKMPointList;
 begin
   //List 1 holds all positions next to both Loc and Loc2
@@ -1459,7 +1459,7 @@ begin
   for i:=-1 to 1 do for k:=-1 to 1 do
   if ((i<>0)or(k<>0)) and TileInMapCoords(Loc.X+k,Loc.Y+i) then //Valid tile for test
   if not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2) then
-  if CanWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses CanWalk because we can step off roads for side steps
+  if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
   if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
   if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
   if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)

@@ -811,7 +811,8 @@ begin
 
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if not fTerrain.CheckPassability(fCurrPosition,AnimalTerrain[byte(UnitType)]) then begin
+  if (not fTerrain.CheckPassability(fCurrPosition,AnimalTerrain[byte(UnitType)]))
+  or fTerrain.CheckAnimalIsStuck(fCurrPosition,AnimalTerrain[byte(UnitType)],false) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -1047,7 +1048,7 @@ begin
   end;
 
   //Update statistics
-  if (fPlayers<>nil) and (fOwner <> -1) and (fOwner <> -2) then
+  if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
     fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
 
   fThought := th_None; //Reset thought

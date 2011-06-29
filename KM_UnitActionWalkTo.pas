@@ -697,9 +697,9 @@ begin
 
   //Find a node
   if NodePos+2 > NodeList.Count then //Tell Terrain about our next position if we can
-    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,aPosition, KMPoint(0,0), NodePos-fLastSideStepNodePos < 2)
+    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,aPosition, KMPoint(0,0), GetEffectivePassability, NodePos-fLastSideStepNodePos < 2)
   else
-    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,aPosition, NodeList.List[NodePos+2], NodePos-fLastSideStepNodePos < 2);
+    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,aPosition, NodeList.List[NodePos+2], GetEffectivePassability, NodePos-fLastSideStepNodePos < 2);
 
   if KMSamePoint(SideStepTest, KMPoint(0,0)) then exit; //It could be 0,0 if all tiles were blocked
 
