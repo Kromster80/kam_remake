@@ -81,34 +81,34 @@ begin
 
   //I wonder if medieval archers knew about vectors and quadratic equations
 
+  TargetPosition.X := (aTarget.PositionF.X - aStart.X);
+  TargetPosition.Y := (aTarget.PositionF.Y - aStart.Y);
   TargetVector := aTarget.GetMovementVector;
 
-  { Target.X := Position.X + Vector.X * Time;
-    Target.Y := Position.Y + Vector.Y * Time;
+  { Target.X := TargetPosition.X + TargetVector.X * Time;
+    Target.Y := TargetPosition.Y + TargetVector.Y * Time;
 
     FlightDistance := ArrowSpeed * Time;
 
     sqr(Target.X)+sqr(Target.Y) = sqr(FlightDistance);
 
-    sqr(Position.X + Vector.X * Time) + sqr(Position.Y + Vector.Y * Time) = sqr(ArrowSpeed * Time)
+    sqr(TargetPosition.X + TargetVector.X * Time) + sqr(TargetPosition.Y + TargetVector.Y * Time) = sqr(ArrowSpeed * Time)
 
-    sqr(Position.X) + 2 * Time * Position.X * Vector.X + sqr(Time) * sqr(Vector.X) +
-    sqr(Position.Y) + 2 * Time * Position.Y * Vector.Y + sqr(Time) * sqr(Vector.Y) =
+    sqr(TargetPosition.X) + 2 * Time * TargetPosition.X * TargetVector.X + sqr(Time) * sqr(TargetVector.X) +
+    sqr(TargetPosition.Y) + 2 * Time * TargetPosition.Y * TargetVector.Y + sqr(Time) * sqr(TargetVector.Y) =
     sqr(ArrowSpeed) * sqr(Time)
 
-    sqr(Time) * (sqr(Vector.X) + sqr(Vector.Y) - sqr(ArrowSpeed)) +
-    2 * Time * (Position.X * Vector.X + Position.Y * Vector.Y) +
-    sqr(Position.X) + sqr(Position.Y) = 0
+    sqr(Time) * (sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(ArrowSpeed)) +
+    2 * Time * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y) +
+    sqr(TargetPosition.X) + sqr(TargetPosition.Y) = 0
 
     //Lets try to solve this quadratic equation
     //ATT + BT + C = 0
     //by using formulae X = (-B +- sqrt(B*B - 4*A*C)) / 2*A
-    A = sqr(Vector.X) + sqr(Vector.Y) - sqr(ArrowSpeed)
-    B = 2 * (Position.X * Vector.X + Position.Y * Vector.Y)
-    C = sqr(Position.X) + sqr(Position.Y) }
+    A = sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(ArrowSpeed)
+    B = 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y)
+    C = sqr(TargetPosition.X) + sqr(TargetPosition.Y) }
 
-  TargetPosition.X := (aTarget.PositionF.X - aStart.X);
-  TargetPosition.Y := (aTarget.PositionF.Y - aStart.Y);
 
   A := sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(fItems[i].fSpeed);
   B := 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y);
