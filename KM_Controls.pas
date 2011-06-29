@@ -2514,7 +2514,7 @@ begin
           if FileExists(fPath + SearchRec.Name + '\' + SearchRec.Name + '.' + aExt1) and
              FileExists(fPath + SearchRec.Name + '\' + SearchRec.Name + '.' + aExt2) then
           begin
-            fPaths.Add(SearchRec.Name);
+            fPaths.Add(SearchRec.Name + '\');
             fFiles.Add(SearchRec.Name + '.' + aExt1);
           end
         else

@@ -1224,7 +1224,7 @@ begin
   Edit_LobbyPost.Text := '';
 
   if Sender = Button_LAN_Host then begin
-    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'map', 'dat', true); //Refresh each time we go here
+    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', 'map', true); //Refresh each time we go here
     FileList_Lobby.Show;
     Label_LobbyChooseMap.Show;
     Button_LobbyReady.Hide;
@@ -1426,7 +1426,7 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_UpdateList;
 begin
-  FileList_MapEd.RefreshList(ExeDir+'Maps\', 'map', 'dat', true); //Refresh each time we go here
+  FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', 'map', true); //Refresh each time we go here
   FileList_MapEd.ItemIndex := 0; //Try to select first map by default
 end;
 
