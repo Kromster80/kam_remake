@@ -32,7 +32,7 @@ var
   fViewport: TViewport;
 
 implementation
-uses KM_Defaults, KM_Terrain, KM_Sound, KM_Game;
+uses KM_Defaults, KM_Terrain, KM_Sound, KM_Game, KM_Unit1;
 
 
 constructor TViewport.Create;
@@ -124,16 +124,22 @@ procedure TViewport.DoScrolling(aFrameTime:cardinal);
 const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
 var
   ScrollAdv:single;
+  CursorPoint: TKMPoint;
+  ScreenBounds: TRect;
   Temp:byte;
 begin
+  ScreenBounds := Form1.GetScreenBounds;
+  //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
+  CursorPoint.X := EnsureRange(Mouse.CursorPos.X, ScreenBounds.Left, ScreenBounds.Right );
+  CursorPoint.Y := EnsureRange(Mouse.CursorPos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
   if not ScrollKeyLeft  and
      not ScrollKeyUp    and
      not ScrollKeyRight and
      not ScrollKeyDown  and
-     not (Mouse.CursorPos.X <= SCROLLFLEX) and
-     not (Mouse.CursorPos.Y <= SCROLLFLEX) and
-     not (Mouse.CursorPos.X >= Screen.Width -1-SCROLLFLEX) and
-     not (Mouse.CursorPos.Y >= Screen.Height-1-SCROLLFLEX) then
+     not (CursorPoint.X <= ScreenBounds.Left + SCROLLFLEX) and
+     not (CursorPoint.Y <= ScreenBounds.Top + SCROLLFLEX) and
+     not (CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX) and
+     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX) then
   begin
     Scrolling := false;
     if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
@@ -160,10 +166,10 @@ begin
   if ScrollKeyRight then XCoord := XCoord + ScrollAdv;
   if ScrollKeyDown  then YCoord := YCoord + ScrollAdv;
   //Mouse
-  if Mouse.CursorPos.X <= SCROLLFLEX then begin inc(Temp,1); XCoord := XCoord - ScrollAdv*(1-Mouse.CursorPos.X/SCROLLFLEX); end;
-  if Mouse.CursorPos.Y <= SCROLLFLEX then begin inc(Temp,2); YCoord := YCoord - ScrollAdv*(1-Mouse.CursorPos.Y/SCROLLFLEX); end;
-  if Mouse.CursorPos.X >= Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); XCoord := XCoord + ScrollAdv*(1-(Screen.Width -1-Mouse.CursorPos.X)/SCROLLFLEX); end;
-  if Mouse.CursorPos.Y >= Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord + ScrollAdv*(1-(Screen.Height-1-Mouse.CursorPos.Y)/SCROLLFLEX); end;
+  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(Temp,1); XCoord := XCoord - ScrollAdv*(1-(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
+  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(Temp,2); YCoord := YCoord - ScrollAdv*(1-(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
+  if CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX then begin inc(Temp,4); XCoord := XCoord + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLLFLEX); end;
+  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
 
   //Now do actual the scrolling, if needed
   Scrolling := Temp<>0;

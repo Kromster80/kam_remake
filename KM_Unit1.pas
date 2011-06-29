@@ -11,7 +11,7 @@ uses
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
-  KM_Game, KM_PlayersCollection, 
+  KM_Game, KM_PlayersCollection,
   KM_TextLibrary, KM_Sound;
 
 type
@@ -105,6 +105,7 @@ type
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure SetScreenResolution(Width, Height, RefreshRate: word);
     procedure ResetResolution;
+    function GetScreenBounds: TRect;
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
     {$IFDEF MSWindows}
@@ -396,7 +397,7 @@ procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
   if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
   if CheckBox2.Checked then fGame.SetGameSpeed(120) else fGame.SetGameSpeed(1);
-end;      
+end;
 
 
 procedure TForm1.Button_StopClick(Sender: TObject);
@@ -527,6 +528,56 @@ end;
 procedure TForm1.ResetResolution;
 begin
   {$IFDEF MSWindows}ChangeDisplaySettings(DEVMODE(nil^),0);{$ENDIF}
+end;
+
+
+function TForm1.GetScreenBounds: TRect;
+var i: integer;
+    FirstTime: boolean;
+begin
+  Result := Rect(-1,-1,-1,-1);
+  FirstTime := true;
+  //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
+  if WindowState = wsMaximized then
+  begin
+    for i:=0 to Screen.MonitorCount-1 do
+      //Find the monitor with the left closest to the left of the form
+      if (i = 0) or
+         ((abs(Form1.Left - Screen.Monitors[i].Left) <= abs(Form1.Left - Result.Left)) and
+          (abs(Form1.Top  - Screen.Monitors[i].Top ) <= abs(Form1.Top  - Result.Top))) then
+      begin
+        Result.Left  := Screen.Monitors[i].Left;
+        Result.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
+        Result.Top   := Screen.Monitors[i].Top;
+        Result.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+      end;
+  end
+  else
+    for i:=0 to Screen.MonitorCount-1 do
+      //See if our form is within the boundaries of this monitor (i.e. when it is not outside the boundaries)
+      if not ((Form1.Left               >= Screen.Monitors[i].Width + Screen.Monitors[i].Left) or
+              (Form1.Width + Form1.Left <= Screen.Monitors[i].Left) or
+              (Form1.Top                >= Screen.Monitors[i].Height + Screen.Monitors[i].Top) or
+              (Form1.Height + Form1.Top <= Screen.Monitors[i].Top)) then
+      begin
+        if FirstTime then
+        begin
+          //First time we have to initialise the result
+          FirstTime := false;
+          Result.Left  := Screen.Monitors[i].Left;
+          Result.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
+          Result.Top   := Screen.Monitors[i].Top;
+          Result.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+        end
+        else
+        begin
+          //After the first time we compare it with the previous result and take the largest possible area
+          Result.Left  := Math.Min(Result.Left,  Screen.Monitors[i].Left);
+          Result.Right := Math.Max(Result.Right, Screen.Monitors[i].Width+Screen.Monitors[i].Left);
+          Result.Top   := Math.Min(Result.Top,   Screen.Monitors[i].Top);
+          Result.Bottom:= Math.Max(Result.Bottom,Screen.Monitors[i].Height+Screen.Monitors[i].Top);
+        end;
+      end;
 end;
 
 

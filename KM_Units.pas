@@ -1047,7 +1047,7 @@ begin
   end;
 
   //Update statistics
-  if (fPlayers<>nil) and (fOwner <> -1)  then
+  if (fPlayers<>nil) and (fOwner <> -1) and (fOwner <> -2) then
     fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
 
   fThought := th_None; //Reset thought

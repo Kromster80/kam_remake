@@ -237,6 +237,7 @@ type
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
     procedure ClearShownUnit;
+    procedure ReleaseDirectionSelector;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -598,6 +599,7 @@ end;
 
 destructor TKMGamePlayInterface.Destroy;
 begin
+  ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
   fMessageList.Free;
   MyControls.Free;
   Inherited;
@@ -2048,6 +2050,7 @@ end;
 
 procedure TKMGamePlayInterface.SetPause(aValue:boolean);
 begin
+  ReleaseDirectionSelector; //Don't restrict cursor movement to direction selection while paused
   if aValue then fGame.SetGameState(gsPaused)
             else fGame.SetGameState(gsRunning);
   Panel_Pause.Visible := aValue;
@@ -2113,6 +2116,20 @@ procedure TKMGamePlayInterface.ClearShownUnit;
 begin
   fShownUnit := nil;
   SwitchPage(nil);
+end;
+
+
+procedure TKMGamePlayInterface.ReleaseDirectionSelector;
+begin
+  if SelectingTroopDirection then
+  begin
+    //Reset the cursor position as it will have moved during direction selection
+    SetCursorPos(Form1.Panel5.ClientToScreen(SelectingDirPosition).X,Form1.Panel5.ClientToScreen(SelectingDirPosition).Y);
+    Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
+    SelectingTroopDirection := false;
+    Screen.Cursor := c_Default; //Reset direction selection cursor when mouse released
+    ShowDirectionCursor(false);
+  end;
 end;
 
 
@@ -2339,15 +2356,8 @@ begin
     fGame.fGameInputProcess.CmdTemp(gic_TempAddScout, P);
 
   //Select direction
-  if (Button = mbRight) and SelectingTroopDirection then
-  begin
-    //Reset the cursor position as it will have moved during direction selection
-    SetCursorPos(Form1.Panel5.ClientToScreen(SelectingDirPosition).X,Form1.Panel5.ClientToScreen(SelectingDirPosition).Y);
-    Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
-    SelectingTroopDirection := false; //As soon as mouse is released
-    Screen.Cursor := c_Default; //Reset direction selecting cursor cursor when mouse released
-    ShowDirectionCursor(false);
-  end;
+  if Button = mbRight then
+    ReleaseDirectionSelector;
 
   //Attack or Walk
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)

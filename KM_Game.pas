@@ -560,6 +560,7 @@ end;
 //Put the game on Hold for Victory screen
 procedure TKMGame.GameHold(DoHold:boolean; Msg:TGameResultMsg);
 begin
+  fGamePlayInterface.ReleaseDirectionSelector; //In case of victory/defeat while moving troops
   PlayOnState := Msg;
   case Msg of
     gr_ReplayEnd:     begin
