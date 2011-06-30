@@ -544,6 +544,9 @@ begin
     fTextLibrary.GetRemakeString(48)+UpperCase(aText)+eol+fTextLibrary.GetRemakeString(49)
     , mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
+    //@Krom: When you answer "no" the game usually crashes, because GameError is called from within
+    //       UpdateState. (usually for some unit) We cannot run GameStop until we have dropped out of UpdateState
+    //       because otherwise it will try to update all other units, which are freed by GameStop. Any ideas?
     GameStop(gr_Error,'') //Exit to main menu will save the Replay data
   else
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
@@ -999,6 +1002,9 @@ begin
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
                       fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
+                      //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
+                      if AGGRESSIVE_REPLAYS then
+                        fGameInputProcess.CmdTemp(gic_TempDoNothing);
 
                       if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
                         Save(AUTOSAVE_SLOT); //Each 1min of gameplay time

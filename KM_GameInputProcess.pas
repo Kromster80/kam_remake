@@ -68,7 +68,8 @@ type
     gic_TempAddScout,
     gic_TempKillUnit,
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
-    gic_TempChangeMyPlayer //Make debugging easier
+    gic_TempChangeMyPlayer, //Make debugging easier
+    gic_TempDoNothing //Used for "aggressive" replays that store a command every tick
 
     { Optional input }
     //VI.     Viewport settings for replay (location, zoom)
@@ -220,6 +221,7 @@ begin
     gic_TempKillUnit:           P.Units.GetUnitByID(Params[1]).KillUnit;
     gic_TempRevealMap:          P.FogOfWar.RevealEverything;
     gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
+    gic_TempDoNothing:          ;
     else                        Assert(false);
   end;
 end;
@@ -333,7 +335,7 @@ end;
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType);
 begin
-  Assert(aCommandType = gic_TempRevealMap);
+  Assert(aCommandType in [gic_TempRevealMap, gic_TempDoNothing]);
   TakeCommand( MakeCommand(aCommandType, []) );
 end;
 
