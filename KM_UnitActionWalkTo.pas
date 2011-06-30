@@ -690,7 +690,7 @@ end;
 function TUnitActionWalkTo.IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
 var SideStepTest:TKMPoint;
 begin
-  Result := false;
+  Result := false; //Should only return true if a sidestep was taken (for use in CheckForObstacle)
   if (HighestInteractionCount < SIDESTEP_TIMEOUT) or fDoExchange then exit;
   if KMSamePoint(aPosition, fWalkTo) then exit; //Someone stays right on target, no point in side-stepping
   if not CheckInteractionFreq(HighestInteractionCount, SIDESTEP_TIMEOUT, SIDESTEP_FREQ) then exit; //FindSideStepPosition is CPU intensive, so don't run it every time
@@ -701,20 +701,14 @@ begin
   else
     SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,aPosition, NodeList.List[NodePos+2], GetEffectivePassability, NodePos-fLastSideStepNodePos < 2);
 
-  if KMSamePoint(SideStepTest, KMPoint(0,0)) then exit; //It could be 0,0 if all tiles were blocked
+  if KMSamePoint(SideStepTest, KMPoint(0,0)) then exit; //It could be 0,0 if all tiles were blocked (return false)
 
-  //Someone took it, so exit out and hope for better luck next time
-  if fTerrain.HasUnit(SideStepTest) then
-    Result := true //Means exit DoUnitInteraction without change
-  else
-  begin
-    //Modify our route to go via this tile
-    Explanation := 'Sidestepping to a tile next to target';
-    ExplanationLogAdd;
-    ChangeStepTo(SideStepTest);
-    fLastSideStepNodePos := NodePos;
-    Result := true; //Means exit DoUnitInteraction
-  end;
+  //Otherwise the sidestep is valid so modify our route to go via this tile
+  Explanation := 'Sidestepping to a tile next to target';
+  ExplanationLogAdd;
+  ChangeStepTo(SideStepTest);
+  fLastSideStepNodePos := NodePos;
+  Result := true; //Means exit DoUnitInteraction, but also means a sidestep has been taken (for use in CheckForObstacle)
 end;
 
 

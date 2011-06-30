@@ -1470,7 +1470,7 @@ begin
   if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
   if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
   if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
-  if fTerrain.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
+  if not fTerrain.HasUnit(KMPoint(Loc.X+k,Loc.Y+i)) then //Doesn't have a unit
     L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
