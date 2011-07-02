@@ -981,6 +981,7 @@ begin
 
       if not DoUnitInteraction then
       begin
+        //todo: Crashes here during replay, but only sometimes
         if (KMUnit.UnitType in [ut_Wolf..ut_Duck]) and  //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
                   not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
                   Result := ActDone;

@@ -1006,7 +1006,8 @@ begin
                       if AGGRESSIVE_REPLAYS then
                         fGameInputProcess.CmdTemp(gic_TempDoNothing);
 
-                      if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave then
+                      if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave
+                        and not (GameState = gsOnHold) then //Don't autosave if the game was put on hold during this tick
                         Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
