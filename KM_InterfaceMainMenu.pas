@@ -125,6 +125,7 @@ type
 
     Panel_Lobby:TKMPanel;
       Panel_LobbyPlayers:TKMPanel;
+        DropBox_LobbyPlayerSlot:array [0..MAX_PLAYERS-1] of TKMDropBox;
         Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
         DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropBox;
         DropColorBox_Lobby:array [0..MAX_PLAYERS-1] of TKMDropColorBox;
@@ -228,7 +229,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils;
+uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
@@ -465,6 +466,13 @@ begin
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top, 140, 20, '. ', fnt_Metal, kaLeft);
+        Label_LobbyPlayer[i].Hide;
+
+        DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 10, top, 140, 20, fnt_Metal);
+        DropBox_LobbyPlayerSlot[i].AddItem('Open'); //Player can join into this slot
+        DropBox_LobbyPlayerSlot[i].AddItem('AI Player'); //This slot is an AI player
+        DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
+        DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 150, 20, fnt_Metal);
         DropBox_LobbyLoc[i].AddItem('Random');
@@ -1218,7 +1226,12 @@ procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
+  begin
     Label_LobbyPlayer[i].Caption := '.';
+    Label_LobbyPlayer[i].Hide;
+    DropBox_LobbyPlayerSlot[i].Show;
+    DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
+  end;
 
   ListBox_LobbyPosts.Clear;
   Edit_LobbyPost.Text := '';
@@ -1247,19 +1260,33 @@ end;
 procedure TKMMainMenuInterface.Lobby_PlayersSetupChange(Sender: TObject);
 var i:integer;
 begin
-  i := fGame.Networking.MyIndex-1; //0..n Matches index of editable fields
-
-  //Starting location
-  if Sender = DropBox_LobbyLoc[i] then
+  for i:=0 to MAX_PLAYERS-1 do
   begin
-    fGame.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex);
-    DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
-  end;
+    //Starting location
+    if (Sender = DropBox_LobbyLoc[i]) and DropBox_LobbyLoc[i].Enabled then
+    begin
+      fGame.Networking.SelectLoc(DropBox_LobbyLoc[i].ItemIndex, i+1);
+      DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
+    end;
 
-  if Sender = DropColorBox_Lobby[i] then
-  begin
-    fGame.Networking.SelectColor(DropColorBox_Lobby[i].ColorIndex);
-    DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+    if (Sender = DropColorBox_Lobby[i]) and DropColorBox_Lobby[i].Enabled then
+    begin
+      fGame.Networking.SelectColor(DropColorBox_Lobby[i].ColorIndex, i+1);
+      DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
+    end;
+
+    if Sender = DropBox_LobbyPlayerSlot[i] then
+    begin
+      if i < fGame.Networking.NetPlayers.Count then
+      begin
+        if (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer) and (DropBox_LobbyPlayerSlot[i].ItemIndex = 0) then
+          fGame.Networking.NetPlayers.RemAIPlayer(i+1);
+      end
+      else
+        if DropBox_LobbyPlayerSlot[i].ItemIndex = 1 then
+          fGame.Networking.NetPlayers.AddAIPlayer;
+      fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
+    end;
   end;
 end;
 
@@ -1267,18 +1294,31 @@ end;
 //Players list has been updated
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
-var i:integer; MyNik:boolean;
+var i:integer; MyNik, CanEdit:boolean;
 begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
+    if fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer then
+    begin
+      Label_LobbyPlayer[i].Hide;
+      DropBox_LobbyPlayerSlot[i].Show;
+      DropBox_LobbyPlayerSlot[i].ItemIndex := 1; //AI
+    end
+    else
+    begin
+      Label_LobbyPlayer[i].Show;
+      DropBox_LobbyPlayerSlot[i].Hide;
+      DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
+    end;
     DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
     DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
 
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
-    DropBox_LobbyLoc[i].Enabled := MyNik;
-    DropColorBox_Lobby[i].Enabled := MyNik;
+    CanEdit := MyNik or (fGame.Networking.IsHost and (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer));
+    DropBox_LobbyLoc[i].Enabled := CanEdit;
+    DropColorBox_Lobby[i].Enabled := CanEdit;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
     if MyNik then
       Button_LobbyReady.Enabled := fGame.Networking.MapInfo.IsValid and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
@@ -1287,8 +1327,13 @@ begin
   for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
   begin
     Label_LobbyPlayer[i].Caption := '';
+    Label_LobbyPlayer[i].Hide;
+    DropBox_LobbyPlayerSlot[i].Show;
+    DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     DropBox_LobbyLoc[i].ItemIndex := 0;
     DropColorBox_Lobby[i].ColorIndex := 0;
+    //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
+    DropBox_LobbyPlayerSlot[i].Enabled := fGame.Networking.IsHost and (i = fGame.Networking.NetPlayers.Count);
     CheckBox_LobbyReady[i].Checked := false;
     DropBox_LobbyLoc[i].Enabled := false;
     DropColorBox_Lobby[i].Enabled := false;

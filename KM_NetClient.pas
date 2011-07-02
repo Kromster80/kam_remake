@@ -10,7 +10,7 @@ uses Classes, SysUtils, KM_NetClientOverbyte;
     - signal if we have successfully connected to server
     - signal if we could not connect to server
 
-    - disconnect from server (always successfull)
+    - disconnect from server (always successful)
     - signal if we were forcefully disconnected by server
 
     - send binary data to other server clients

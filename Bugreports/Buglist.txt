@@ -13,6 +13,7 @@ EXE-only r1831+:
  ?	When choosing color for multiplayer it affects only minimap, flags color remains default
 
 	Edges of messages and other scrolls should be transparent so they look smooth
+	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
 
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)

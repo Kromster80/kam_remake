@@ -53,7 +53,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection;
+uses KM_Game, KM_PlayersCollection, KM_NetPlayersList;
 
 
 { TCommandsPack }
@@ -223,7 +223,8 @@ var i:integer;
 begin
   Result := True;
   for i:=1 to fNetworking.NetPlayers.Count do
-    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or not fNetworking.NetPlayers[i].Alive);
+    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or
+                         (fNetworking.NetPlayers[i].PlayerType = pt_Computer) or not fNetworking.NetPlayers[i].Alive);
 end;
 
 

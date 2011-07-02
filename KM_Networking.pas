@@ -51,6 +51,7 @@ type
 
     property MyIndex:integer read fMyIndex;
     function MyIPString:string;
+    function IsHost:boolean;
 
     //Lobby
     procedure Host(aUserName:string);
@@ -59,11 +60,12 @@ type
     procedure Disconnect;
     function  Connected: boolean;
     procedure SelectMap(aName:string);
-    procedure SelectLoc(aIndex:integer);
-    procedure SelectColor(aIndex:integer);
+    procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
+    procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
     procedure ReadyToStart;
     function  CanStart:boolean;
     procedure StartClick; //All required arguments are in our class
+    procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
 
     //Common
     procedure Ping;
@@ -123,6 +125,12 @@ begin
 end;
 
 
+function TKMNetworking.IsHost:boolean;
+begin
+  Result := (fLANPlayerKind = lpk_Host)
+end;
+
+
 //Startup a local server and connect to it as ordinary client
 procedure TKMNetworking.Host(aUserName:string);
 begin
@@ -156,11 +164,11 @@ begin
 end;
 
 
-//Connection was successfull, but we still need mk_IndexOnServer to be able to do anything
+//Connection was successful, but we still need mk_IndexOnServer to be able to do anything
 procedure TKMNetworking.ConnectSucceed(Sender:TObject);
 begin
   if Assigned(fOnTextMessage) then
-    fOnTextMessage('Connection successfull');
+    fOnTextMessage('Connection successful');
 end;
 
 
@@ -232,7 +240,7 @@ end;
 //Players will reset their starting locations and "Ready" status on their own
 procedure TKMNetworking.SelectMap(aName:string);
 begin
-  Assert(fLANPlayerKind = lpk_Host, 'Only host can select maps');
+  Assert(IsHost, 'Only host can select maps');
 
   fMapInfo.Load(aName, true);
   fNetPlayers.ResetLocAndReady; //Reset start locations
@@ -249,7 +257,7 @@ end;
 
 //Tell other players which start position we would like to use
 //Each players choice should be unique
-procedure TKMNetworking.SelectLoc(aIndex:integer);
+procedure TKMNetworking.SelectLoc(aIndex:integer; aPlayerIndex:integer);
 begin
   //Check if position can be taken before sending
   if (not fMapInfo.IsValid) or
@@ -261,13 +269,10 @@ begin
   end;
 
   //Host makes rules, Joiner will get confirmation from Host
-  fNetPlayers[fMyIndex].StartLocation := aIndex;
+  fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
 
   case fLANPlayerKind of
-    lpk_Host:   begin
-                  PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
-                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                end;
+    lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
     lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_StartingLocQuery, '', aIndex);
   end;
 end;
@@ -275,18 +280,15 @@ end;
 
 //Tell other players which color we will be using
 //For now players colors are not unique, many players may have one color
-procedure TKMNetworking.SelectColor(aIndex:integer);
+procedure TKMNetworking.SelectColor(aIndex:integer; aPlayerIndex:integer);
 begin
   if not fNetPlayers.ColorAvailable(aIndex) then exit;
 
   //Host makes rules, Joiner will get confirmation from Host
-  fNetPlayers[fMyIndex].FlagColorID := aIndex;
+  fNetPlayers[aPlayerIndex].FlagColorID := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
 
   case fLANPlayerKind of
-    lpk_Host:   begin
-                  PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
-                  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                end;
+    lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
     lpk_Joiner: begin
                   PacketSend(NET_ADDRESS_HOST, mk_FlagColorQuery, '', aIndex);
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -311,7 +313,7 @@ end;
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
 begin
-  Assert(fLANPlayerKind = lpk_Host, 'Only host can start the game');
+  Assert(IsHost, 'Only host can start the game');
 
   //Do not allow to start the game
   if not fNetPlayers.AllReady then
@@ -328,13 +330,26 @@ begin
   end;
 
   //Define random parameters (start locations and flag colors)
-  //This will also remove odd players from the List, they will loose Host in few seconds
+  //This will also remove odd players from the List, they will lose Host in few seconds
   fNetPlayers.DefineSetup(fMapInfo.PlayerCount);
 
   //Let everyone start with final version of fNetPlayers
+  //@Krom: If the server is local then this message will not be recieved by the other players until we have finished this process
+  //       because the server will not process and resend the message until then. Adding Application.ProcessMessage; here would fix
+  //       it, but possibly cause other problems. (using ProcessMessages is frowned upon because it can create recursive calls)
+  //       This is the reason why the server loads the map first. Maybe the NetServer should run on a seperate thread to prevent
+  //       the host from locking it up under any circumstances?
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, fNetPlayers.GetAsText, 0);
 
   StartGame;
+end;
+
+
+procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
+begin
+  Assert(IsHost, 'Only host can send player list');
+  PacketSend(aPlayerIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
+  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;
 
 
@@ -369,7 +384,15 @@ end;
 procedure TKMNetworking.GameCreated;
 begin
   case fLANPlayerKind of
-    lpk_Host:   fNetPlayers[fMyIndex].ReadyToPlay := true;
+    lpk_Host:   begin
+                  fNetPlayers[fMyIndex].ReadyToPlay := true;
+                  //Check this here because it is possible to start a multiplayer game without other humans, just AI (at least for debugging)
+                  if fNetPlayers.AllReadyToPlay then
+                  begin
+                    PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0); //todo: Should include lag difference
+                    if Assigned(fOnPlay) then fOnPlay(Self);
+                  end;
+                end;
     lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_ReadyToPlay, '', 0);
   end;
 end;
@@ -416,15 +439,14 @@ begin
             end;
 
     mk_AskToJoin:
-            if fLANPlayerKind = lpk_Host then begin
+            if IsHost then begin
               ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
               if ReMsg = '' then
               begin
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
                 PacketSend(aSenderIndex, mk_MapSelect, fMapInfo.Folder, 0 {Integer(fMapInfo.CRC)}); //Send the map first so it doesn't override starting locs
-                PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
-                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                SendPlayerListAndRefreshPlayersSetup;
                 PostMessage(Msg+' has joined');
               end
               else
@@ -446,8 +468,7 @@ begin
               lpk_Host:
                   begin
                     fNetPlayers.RemPlayer(aSenderIndex);
-                    PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
-                    if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                    SendPlayerListAndRefreshPlayersSetup;
                     PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
                   end;
               lpk_Joiner:
@@ -485,36 +506,34 @@ begin
             end;
 
     mk_StartingLocQuery:
-            if fLANPlayerKind = lpk_Host then begin
+            if IsHost then begin
               LocID := Param;
               if fMapInfo.IsValid and
                  (LocID <= fMapInfo.PlayerCount) and
                  fNetPlayers.LocAvailable(LocID) then
               begin //Update Players setup
                 fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].StartLocation := LocID;
-                PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
-                if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                SendPlayerListAndRefreshPlayersSetup;
               end
               else //Quietly refuse
-                PacketSend(aSenderIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
+                SendPlayerListAndRefreshPlayersSetup(aSenderIndex);
             end;
 
     mk_FlagColorQuery:
-            if fLANPlayerKind = lpk_Host then begin
+            if IsHost then begin
               ColorID := Param;
               //The player list could have changed since the joiner sent this request (over slow connection)
               if fNetPlayers.ColorAvailable(ColorID) then
               begin
                 fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].FlagColorID := ColorID;
-                PacketSend(NET_ADDRESS_OTHERS, mk_PlayersList, fNetPlayers.GetAsText, 0);
+                SendPlayerListAndRefreshPlayersSetup;
               end
               else //Quietly refuse
-                PacketSend(aSenderIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
-              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                SendPlayerListAndRefreshPlayersSetup(aSenderIndex);
             end;
 
     mk_ReadyToStart:
-            if fLANPlayerKind = lpk_Host then begin
+            if IsHost then begin
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart := true;
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
@@ -527,7 +546,7 @@ begin
             end;
 
     mk_ReadyToPlay:
-            if fLANPlayerKind = lpk_Host then begin
+            if IsHost then begin
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToPlay := true;
               if fNetPlayers.AllReadyToPlay then
               begin

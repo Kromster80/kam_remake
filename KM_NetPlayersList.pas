@@ -41,7 +41,9 @@ type
     property Count:integer read fCount;
 
     procedure AddPlayer(aNik:string; aIndexOnServer:integer);
+    procedure AddAIPlayer;
     procedure RemPlayer(aIndexOnServer:integer);
+    procedure RemAIPlayer(ID:integer);
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
     //Getters
@@ -212,6 +214,21 @@ begin
 end;
 
 
+procedure TKMPlayersList.AddAIPlayer;
+begin
+  inc(fCount);
+  fPlayers[fCount].fNikname := 'AI Player';
+  fPlayers[fCount].fIndexOnServer := -1;
+  fPlayers[fCount].PlayerType := pt_Computer;
+  fPlayers[fCount].PlayerIndex := nil;
+  fPlayers[fCount].FlagColorID := 0; //todo: Color 0 should be "random color" option
+  fPlayers[fCount].StartLocation := 0;
+  fPlayers[fCount].ReadyToStart := true;
+  fPlayers[fCount].ReadyToPlay := true;
+  fPlayers[fCount].Alive := true;
+end;
+
+
 procedure TKMPlayersList.RemPlayer(aIndexOnServer:integer);
 var ID,i:integer;
 begin
@@ -221,7 +238,19 @@ begin
   for i:=ID to fCount-1 do
     fPlayers[i] := fPlayers[i+1]; //Shift only pointers
 
-  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but now used
+  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but not used
+  dec(fCount);
+end;
+
+
+procedure TKMPlayersList.RemAIPlayer(ID:integer);
+var i:integer;
+begin
+  fPlayers[ID].Free;
+  for i:=ID to fCount-1 do
+    fPlayers[i] := fPlayers[i+1]; //Shift only pointers
+
+  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but not used
   dec(fCount);
 end;
 
@@ -312,7 +341,8 @@ begin
   for i:=1 to fCount do
   begin
     fPlayers[i].StartLocation := 0;
-    fPlayers[i].ReadyToStart := false;
+    if fPlayers[i].PlayerType <> pt_Computer then //AI players are always ready
+      fPlayers[i].ReadyToStart := false;
   end;
 end;
 

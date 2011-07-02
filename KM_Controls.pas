@@ -487,6 +487,7 @@ type
     procedure AddItem(aItem:string);
     procedure Clear;
     procedure SetItems(aText:string);
+    procedure AutoHideScrollBar;
 
     property BackAlpha:single write SetBackAlpha;
     function ItemCount:integer;
@@ -520,6 +521,7 @@ type
     function GetItemIndex:smallint;
     procedure SetItemIndex(aIndex:smallint);
     procedure SetEnabled(aValue:boolean); override;
+    procedure SetVisible(aValue:boolean); override;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     procedure AddItem(aItem:string);
@@ -2002,6 +2004,13 @@ begin
 end;
 
 
+//Hide the scrollbar if it is not required (disabled) This is used for drop boxes.
+procedure TKMListBox.AutoHideScrollBar;
+begin
+   fScrollBar.Visible := Visible and fScrollBar.Enabled;
+end;
+
+
 function TKMListBox.ItemCount:integer;
 begin
   Result := fItems.Count;
@@ -2052,13 +2061,18 @@ end;
 
 
 procedure TKMListBox.Paint;
-var i:integer;
+var i,PaintWidth:integer;
 begin
   Inherited;
-  fRenderUI.WriteBevel(Left, Top, Width-fScrollBar.Width, Height, false, fBackAlpha);
+  if fScrollBar.Visible then
+    PaintWidth := Width-fScrollBar.Width //Leave space for scrollbar
+  else    
+    PaintWidth := Width; //List takes up the entire width
+
+  fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
   if (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), Width-fScrollBar.Width, fItemHeight, $88888888);
+    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, $FFFFFFFF);
@@ -2083,7 +2097,7 @@ begin
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
   fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0);
-  fList.BackAlpha := 0.75;
+  fList.BackAlpha := 0.85;
   fList.fOnClick := ListClick;
 
   ListHide(nil);
@@ -2104,6 +2118,7 @@ begin
   fList.TopIndex := ItemIndex - fDropCount div 2;
 
   fList.Show;
+  fList.AutoHideScrollBar; //A drop box should only have a scrollbar if required
   fShape.Show;
 end;
 
@@ -2143,7 +2158,15 @@ procedure TKMDropBox.SetEnabled(aValue:boolean);
 begin
   Inherited;
   fButton.Enabled := aValue;
-  fList.Enabled := aValue;  
+  fList.Enabled := aValue;
+end;
+
+
+procedure TKMDropBox.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  fButton.Visible := aValue;
+  if not aValue then ListHide(Self);
 end;
 
 
