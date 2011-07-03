@@ -199,6 +199,8 @@ begin
 
   fNetPlayers.Clear;
   fNetClient.Disconnect;
+  fNetServer.StopListening;
+  fNetServer.ClearClients;
 end;
 
 

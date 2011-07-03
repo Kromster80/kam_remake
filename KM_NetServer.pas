@@ -58,6 +58,7 @@ type
     property Count:integer read fCount;
     procedure AddPlayer(aHandle:integer);
     procedure RemPlayer(aHandle:integer);
+    procedure Clear;
     property Item[Index:integer]:TKMServerClient read GetItem; default;
     function GetByHandle(aHandle:integer):TKMServerClient;
   end;
@@ -86,6 +87,7 @@ type
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
+    procedure ClearClients;
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
   end;
 
@@ -132,6 +134,15 @@ begin
 
   dec(fCount);
   SetLength(fItems, fCount);
+end;
+
+
+procedure TKMClientsList.Clear;
+var i:integer;
+begin
+  for i:=0 to fCount-1 do
+    FreeAndNil(fItems[i]);
+  fCount := 0;
 end;
 
 
@@ -189,6 +200,12 @@ procedure TKMNetServer.StopListening;
 begin
   fOnStatusMessage := nil;
   fServer.StopListening;
+end;
+
+
+procedure TKMNetServer.ClearClients;
+begin
+  fClientList.Clear;
 end;
 
 

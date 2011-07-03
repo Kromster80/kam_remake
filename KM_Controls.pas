@@ -233,8 +233,9 @@ type
     fColorIndex:byte; //Index 0..255 should be enough
     Colors:array of TColor4; //Range is 0..255
     fOnChange:TNotifyEvent;
+    fFirstIsRandom:boolean;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer; aFirstIsRandom:boolean=false);
     procedure AddColors(aColors:array of TColor4);
     property BackAlpha:single write fBackAlpha;
     property ColorIndex:Byte read fColorIndex write fColorIndex;
@@ -565,13 +566,14 @@ type
     fSwatch:TKMColorSwatch;
     fShape:TKMShape;
     fOnChange:TNotifyEvent;
+    fFirstIsRandom:boolean;
     procedure ListShow(Sender:TObject);
     procedure ListClick(Sender:TObject);
     procedure ListHide(Sender:TObject);
     procedure SetEnabled(aValue:boolean); override;
     procedure SetColorIndex(aIndex:integer);
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer; aFirstIsRandom:boolean=false);
     property ColorIndex:integer read fColorIndex write SetColorIndex;
     procedure AddColors(aColors:array of TColor4);
     property OnChange: TNotifyEvent write fOnChange;
@@ -1194,11 +1196,12 @@ end;
 
 
 { TKMColorSwatch }
-constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
+constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer; aFirstIsRandom:boolean=false);
 begin
   Inherited Create(aParent, aLeft, aTop, 0, 0);
 
   fBackAlpha := 0.5;
+  fFirstIsRandom := aFirstIsRandom;
   fColumnCount := aColumnCount;
   fRowCount := aRowCount;
   fCellSize := aSize;
@@ -1210,9 +1213,18 @@ end;
 
 procedure TKMColorSwatch.AddColors(aColors:array of TColor4);
 begin
-  SetLength(Colors, Length(aColors));
-  //CopyMemory(@Colors[0], @aColors[0], SizeOf(aColors));
-  Move((@aColors[0])^, (@Colors[0])^, SizeOf(aColors));
+  if fFirstIsRandom then
+  begin
+    SetLength(Colors, Length(aColors)+SizeOf(cardinal));
+    Colors[0] := $00000000; //This one is reserved for random
+    Move((@aColors[0])^, (@Colors[1])^, SizeOf(aColors));
+  end
+  else
+  begin
+    SetLength(Colors, Length(aColors));
+    //CopyMemory(@Colors[0], @aColors[0], SizeOf(aColors));
+    Move((@aColors[0])^, (@Colors[1])^, SizeOf(aColors));
+  end;
 end;
 
 
@@ -1239,13 +1251,22 @@ end;
 
 
 procedure TKMColorSwatch.Paint;
-var i:integer;
+var i,Start:integer;
 begin
   Inherited;
 
   fRenderUI.WriteBevel(Left, Top, Width, Height, false, fBackAlpha);
 
-  for i:=0 to Length(Colors)-1 do
+  Start := 0;
+  if fFirstIsRandom then
+  begin
+    for i:=0 to Length(Colors)-1 do
+      fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount), Top+(i div fColumnCount)*(fCellSize div fColumnCount), (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
+    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, '?', fnt_Metal, kaCenter, $FFFFFFFF);
+    Start := 1;
+  end;
+
+  for i:=Start to Length(Colors)-1 do
     fRenderUI.WriteLayer(Left+(i mod fColumnCount)*fCellSize, Top+(i div fColumnCount)*fCellSize, fCellSize, fCellSize, Colors[i], $00);
 
   //Paint selection
@@ -2293,12 +2314,13 @@ end;
 
 
 { TKMDropColorBox }
-constructor TKMDropColorBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
+constructor TKMDropColorBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer; aFirstIsRandom:boolean=false);
 var P:TKMPanel; Size:integer;
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   fColorIndex := 0;
+  fFirstIsRandom := aFirstIsRandom;
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
@@ -2310,7 +2332,7 @@ begin
   Size := Round(Sqrt(aCount)+0.5); //Round up
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fSwatch := TKMColorSwatch.Create(P, Left-P.Left, Top+aHeight-P.Top, Size, Size, aWidth div Size);
+  fSwatch := TKMColorSwatch.Create(P, Left-P.Left, Top+aHeight-P.Top, Size, Size, aWidth div Size, aFirstIsRandom);
   fSwatch.BackAlpha := 0.75;
   fSwatch.fOnClick := ListClick;
 
@@ -2373,6 +2395,8 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width-fButton.Width, Height);
   fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-4, Height-4, fSwatch.GetColor, $00);
+  if fFirstIsRandom and (fSwatch.ColorIndex = 0) then
+    fRenderUI.WriteText(Left+4, Top+3, 'Random', fnt_Metal, kaLeft, $FFFFFFFF);
 end;
 
 

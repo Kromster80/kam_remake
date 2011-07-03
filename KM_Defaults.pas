@@ -236,6 +236,7 @@ type TGameResultMsg = (     //Game result
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
         gr_Error,       //Some known error occured
+        gr_Disconnect,  //Disconnected from multiplayer game
         gr_Silent,      //Used when loading savegame from running game (show no screens)
         gr_ReplayEnd,   //Replay was cancelled - return to menu without screens
         gr_MapEdEnd);   //Map Editor was closed - return to menu without screens
@@ -1190,14 +1191,13 @@ const
 
 
   //Colors available for selection in multiplayer
-  MP_COLOR_COUNT = 16;
-  MP_TEAM_COLORS: array[0..MP_COLOR_COUNT-1] of cardinal = (
+  MP_COLOR_COUNT = 15;
+  MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
   $FF07FFFF, //Yellow
   $FFFF67FF, //Magenta
   $FF008000, //Green
-  $FFC0C0C0, //Silver
   $FF808080, //Grey
   $FF008080, //Olive
   $FF800080, //Purple

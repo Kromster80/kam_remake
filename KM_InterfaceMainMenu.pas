@@ -465,7 +465,7 @@ begin
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
-        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top, 140, 20, '. ', fnt_Metal, kaLeft);
+        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top+2, 140, 20, '. ', fnt_Metal, kaLeft);
         Label_LobbyPlayer[i].Hide;
 
         DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 10, top, 140, 20, fnt_Metal);
@@ -478,7 +478,7 @@ begin
         DropBox_LobbyLoc[i].AddItem('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT);
+        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT, true);
         DropColorBox_Lobby[i].AddColors(MP_TEAM_COLORS);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
@@ -1411,7 +1411,10 @@ procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
   fGame.Networking.Disconnect;
   LAN_Update(aData);
-  SwitchMenuPage(Button_LobbyBack);
+  if fGame.GameState = gsRunning then
+    fGame.GameStop(gr_Disconnect, 'Network error: '+aData)
+  else
+    SwitchMenuPage(Button_LobbyBack);
 end;
 
 

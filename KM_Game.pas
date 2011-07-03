@@ -590,6 +590,9 @@ begin
   try
     fGameState := gsNoGame;
 
+    if MultiplayerMode then
+      fNetworking.Disconnect;
+
     //Take results from MyPlayer before data is flushed
     if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
       fMainMenuInterface.Fill_Results;
@@ -623,6 +626,10 @@ begin
                    end;
       gr_Error:    begin
                      fLog.AppendLog('Gameplay error',true);
+                     fMainMenuInterface.ShowScreen(msError, TextMsg);
+                   end;
+      gr_Disconnect:begin
+                     fLog.AppendLog('Network error',true);
                      fMainMenuInterface.ShowScreen(msError, TextMsg);
                    end;
       gr_Silent:   fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
