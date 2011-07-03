@@ -8,6 +8,9 @@ EXE-only r1831+:
  +	Two monitor config, scrolling works well only on 1st display
  +	The cursor could become stuck if the victory/defeat overlay appeared while you were ordering troops to move
  +	Animals becoming stuck (e.g. on building sites) causes the game to crash
+ +	Fixed a bug that occurs occasionally when destroying a school: "Unexpected error. Destoyed school erases the task"
+ +	Fixed "saving from wrong state" error
+ +	Fixed some causes of "unit on unwalkable tile" errors
 	Crabs are stuck between roads building on them is buggy
  +	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence. (Bug happens when either side uses super speedup from F11 panel)
  ?	When choosing color for multiplayer it affects only minimap, flags color remains default

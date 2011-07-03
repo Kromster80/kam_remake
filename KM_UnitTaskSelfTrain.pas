@@ -58,7 +58,9 @@ function TTaskSelfTrain.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 
-  if fSchool.IsDestroyed then
+  //If the school has been destroyed then this task should not be running (school frees it on CloseHouse)
+  //However, if we are past phase 6 (task ends on phase 7) then the school does not know about us (we have stepped outside)
+  if fSchool.IsDestroyed and (fPhase <= 6) then
   begin //School will cancel the training on own destruction
     Assert(false, 'Unexpected error. Destoyed school erases the task');
     Result := TaskDone;
@@ -70,27 +72,27 @@ begin
       0: begin
           fSchool.SetState(hst_Work);
           fSchool.fCurrentAction.SubActionWork(ha_Work1);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       1: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work2);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       2: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work3);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       3: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work4);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       4: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work5);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       5: begin
           fSchool.SetState(hst_Idle);
-          SetActionStay(9,ua_Walk);
+          SetActionLockedStay(9,ua_Walk);
          end;
       6: begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
