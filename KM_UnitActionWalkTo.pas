@@ -351,6 +351,8 @@ begin
   else begin //Append route to existing part
     NodeList2 := TKMPointList.Create;
     fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
+    //If this part of the route fails, the whole route has failed. At minimum Route_Make returns count=1 (fWalkTo)
+    if NodeList2.Count = 0 then NodeList.Clearup; //Clear NodeList so we return false
     for i:=2 to NodeList2.Count do
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);
