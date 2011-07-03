@@ -201,7 +201,7 @@ begin
           if (fToUnit.UnitType = ut_Worker)and(fToUnit.GetUnitTask<>nil) then
           begin
             fToUnit.GetUnitTask.Phase := fToUnit.GetUnitTask.Phase + 1;
-            fToUnit.SetActionStay(0,ua_Work1); //Tell the worker to resume work
+            fToUnit.SetActionLockedStay(0,ua_Work1); //Tell the worker to resume work by resetting his action (causes task to execute)
           end;
           //Warrior
           if (fToUnit is TKMUnitWarrior) then
