@@ -316,6 +316,7 @@ end;
 
 procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
+  if fGame.MultiplayerMode then exit; //Saving/loading disabled in multiplayer for now
   if not (Sender is TKMButton) then exit; //Just in case
   //Don't allow saving over autosave (AUTOSAVE_SLOT)
   if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) then exit;
@@ -327,6 +328,7 @@ end;
 procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 var LoadError:string;
 begin
+  if fGame.MultiplayerMode then exit; //Saving/loading disabled in multiplayer for now
   LoadError := fGame.Load(TKMControl(Sender).Tag);
   if LoadError <> '' then fGame.fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu
 end;

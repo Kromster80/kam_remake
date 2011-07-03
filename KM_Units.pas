@@ -1357,7 +1357,7 @@ begin
   if GetUnitAction is TUnitActionWalkTo then
     SetActionAbandonWalk(NextPosition, ua_Walk)
   else
-    SetActionStay(0, ua_Walk); //Error
+    SetActionLockedStay(0, ua_Walk); //Error
 end;
 
 

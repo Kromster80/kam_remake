@@ -1114,7 +1114,8 @@ end;
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
-  if not InRange(SingleMap_Selected, 1, SingleMapsInfo.Count) then exit;
+  //SingleMap_Selected is 0..(n-1)
+  if not InRange(SingleMap_Selected, 0, SingleMapsInfo.Count-1) then exit;
   fGame.GameStart(KMMapNameToPath(SingleMapsInfo[SingleMap_Selected].Folder,'dat'),SingleMapsInfo[SingleMap_Selected].Folder); //Provide mission filename mask and title here
 end;
 
