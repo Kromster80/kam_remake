@@ -572,7 +572,7 @@ begin
     Label_Hint.Anchors := [akLeft, akBottom];
 
     // Temporary interface (By @Crow)
-    Label_VictoryChance := TKMLabel.Create(Panel_Main, fRender.RenderAreaSize.X - 100, 20, 0, 0, 'Метка!!!', fnt_Outline, kaLeft);
+    Label_VictoryChance := TKMLabel.Create(Panel_Main, fRender.RenderAreaSize.X - 150, 20, 0, 0, '', fnt_Outline, kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -2523,7 +2523,7 @@ end;
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState;
-var i : Integer;
+var i:Integer; S:String;
 begin
   if fShownUnit<>nil then ShowUnitInfo(fShownUnit) else
   if fShownHouse<>nil then ShowHouseInfo(fShownHouse,AskDemolish);
@@ -2569,13 +2569,12 @@ begin
 
   // Temporary inteface (By @Crow)
   if SHOW_ARMYEVALS then begin
-    Label_VictoryChance.Caption := '';
-    for i := 0 to fPlayers.Count-1 do if i <> MyPlayer.PlayerIndex then
-      Label_VictoryChance.Caption := Label_VictoryChance.Caption +
-        IntToStr(i)+' : '+
-        FloatToStrF(MyPlayer.ArmyEval.Evaluations[i].fPower, ffFixed, 3, 6) +
-        #124;
-  end; // if SHOW_ARMYEVALS
+    S := '';
+    for i := 0 to fPlayers.Count-1 do
+    if i <> MyPlayer.PlayerIndex then
+      S := S+'Enemy '+IntToStr(i)+': '+FloatToStr(RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)) + #124;
+    Label_VictoryChance.Caption := S;
+  end;
 end;
 
 

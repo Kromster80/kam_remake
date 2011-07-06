@@ -69,7 +69,7 @@ begin
   Result := ActContinues;
 
   //Execute the route in series of moves
-  Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed;
+  Distance := KMUnit.GetSpeed;
 
   //Check if unit has arrived on tile
 

@@ -1078,7 +1078,7 @@ end;
 
 function TKMUnit.GetSpeed:single;
 begin
-  Result := UnitStat[byte(fUnitType)].Speed/24;
+  Result := UnitStat[byte(fUnitType)].Speed/240;
 end;
 
 
@@ -1532,8 +1532,8 @@ begin
   else
     MovementSpeed := 0;
 
-  Result.X := MovementSpeed * KMGetVertex(fDirection).X;
-  Result.Y := MovementSpeed * KMGetVertex(fDirection).Y;
+  Result.X := KMGetVertex(fDirection).X * MovementSpeed;
+  Result.Y := KMGetVertex(fDirection).Y * MovementSpeed;
 end;
 
 

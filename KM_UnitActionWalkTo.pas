@@ -866,7 +866,7 @@ begin
   end;
 
   //Execute the route in series of moves
-  Distance := ACTION_TIME_DELTA * fWalker.GetSpeed;
+  Distance := fWalker.GetSpeed;
 
   //Check if unit has arrived on tile
   if KMSamePointF(fWalker.PositionF, KMPointF(NodeList.List[NodePos]), Distance/2) then

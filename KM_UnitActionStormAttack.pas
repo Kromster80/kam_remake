@@ -118,10 +118,10 @@ begin
 
   //First and last steps are walking, inbetween are running
   if (fTileSteps<=0) or (fTileSteps>=fStamina-1) then begin
-    Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed;
+    Distance := KMUnit.GetSpeed;
     fActionType := ua_Walk;
   end else begin
-    Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed * STORM_SPEEDUP;
+    Distance := KMUnit.GetSpeed * STORM_SPEEDUP;
     fActionType := ua_Spec;
   end;
 

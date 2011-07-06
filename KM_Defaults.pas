@@ -12,7 +12,6 @@ const
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
-  ACTION_TIME_DELTA     = 0.1;          //Multiplied with units speed gives distance unit walks per frame
 
   FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
@@ -30,7 +29,7 @@ const
 
   KAM_PORT              = '56789';      //Port used in TCP networking
 
-  GAME_REVISION         = 'r1830';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r1872';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data\gfx\fonts\';
@@ -61,7 +60,7 @@ var
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
-  AGGRESSIVE_REPLAYS     :boolean=true;  //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
+  AGGRESSIVE_REPLAYS    :boolean=true; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
 
   //These are debug things, should be FALSE
   {User interface options}
@@ -87,7 +86,7 @@ var
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
-  SHOW_ARMYEVALS        :boolean=false; //Show result of enemy armies evaluation
+  SHOW_ARMYEVALS        :boolean=true; //Show result of enemy armies evaluation
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
@@ -150,6 +149,7 @@ const //Here we store options that are hidden somewhere in code
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
+  FRIENDLY_FIRE = false; //Whenever archers could kill fellow men with their arrows
 
 
 type
@@ -1088,7 +1088,7 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_RockThrow);
   ProjectileSpeeds:array[TProjectileType] of single = (0.45, 0.5, 0.6);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.25, 0)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.125, 0.1, 0.075);
+  ProjectileJitter:array[TProjectileType] of single = (0.1, 0.075, 0.05);
 
   const STORM_SPEEDUP=1.5;
   

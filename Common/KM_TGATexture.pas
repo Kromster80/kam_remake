@@ -22,7 +22,6 @@ uses
   Forms,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   SysUtils, Classes, dglOpenGL
   {$IFDEF WDC}, ZLibEx {$ENDIF}
@@ -41,17 +40,13 @@ function GenerateTextureCommon:GLuint;
 
 implementation
 
-{$IFDEF WDC}
-function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, aType: GLenum; Data: Pointer): GLint; stdcall; external glu32;
-{$ENDIF}
-
-procedure glGenTextures(n: GLsizei; var Textures: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
-procedure glBindTexture(Target: GLenum; Texture: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
+//procedure glGenTextures(n: GLsizei; var Textures: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
+//procedure glBindTexture(Target: GLenum; Texture: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
 
 function GenerateTextureCommon:GLuint;
 var Texture : GLuint;
 begin
-  glGenTextures(1, Texture);
+  glGenTextures(1, @Texture);
   glBindTexture(GL_TEXTURE_2D, Texture);
 
   {Enable color blending into texture}

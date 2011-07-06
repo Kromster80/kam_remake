@@ -1,7 +1,7 @@
 unit KM_Projectiles;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, KM_Utils, KM_Defaults, KM_CommonTypes, KM_Units, KM_Houses;
+uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonTypes, KM_Units, KM_Houses;
 
 //todo: Make projectiles take into account targets speed/direction and aim for predicted position
 
@@ -14,8 +14,8 @@ type
       fScreenStart:TKMPointF; //Screen-space trajectory start
       fScreenEnd:TKMPointF;   //Screen-space trajectory end
 
-      fTarget:TKMPointF;  //Tile-space target before jitter (used for debug and house hits)
-      fTargetJ:TKMPointF; //Tile-space target
+      fAim:TKMPointF;  //Where we were aiming to hit
+      fTarget:TKMPointF; //Where projectile will hit
 
       fType:TProjectileType; //type of projectile (arrow, bolt, rocks, etc..)
       fOwner:TPlayerIndex; //The ID of the player who launched the projectile, used for kill statistics
@@ -25,8 +25,8 @@ type
       fLength:single; //Route length to look-up for hit
     end;
 
-    function AddItem(I:integer; aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
-    function AddNewProjectile(aProjType:TProjectileType):integer;
+    function AddItem(aStart,aAim,aEnd:TKMPointF; aSpeed:single; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+    procedure RemItem(aIndex: integer);
     function ProjectileVisible(aIndex:integer):boolean;
   public
     constructor Create;
@@ -53,30 +53,19 @@ begin
 end;
 
 
-//Find empty spot or add one
-function TKMProjectiles.AddNewProjectile(aProjType:TProjectileType):integer;
+procedure TKMProjectiles.RemItem(aIndex: integer);
 begin
-  Result := -1;
-  repeat
-    inc(Result);
-    if Result >= length(fItems) then
-      SetLength(fItems, Result+8); //Add new
-  until(fItems[Result].fSpeed = 0);
-
-  //Fill in basic info
-  fItems[Result].fType  := aProjType;
-  fItems[Result].fSpeed := ProjectileSpeeds[aProjType] + RandomS(0.05);
-  fItems[Result].fArc   := ProjectileArcs[aProjType, 1] + RandomS(ProjectileArcs[aProjType, 2]);
+  fItems[aIndex].fSpeed := 0;
 end;
 
 
 function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
-var i:integer; ArrowVector,TargetVector,Target,TargetPosition:TKMPointF; TimeToHit:single;
- A,B,C,D:single;
- Time1, Time2: single;
+var
+  TargetVector,Target,TargetPosition:TKMPointF;
+  A,B,C,D:single;
+  TimeToHit, Time1, Time2: single;
+  Jitter, Speed:single;
 begin
-  i := AddNewProjectile(aProjType);
-
   //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
 
   //I wonder if medieval archers knew about vectors and quadratic equations
@@ -109,58 +98,85 @@ begin
     B = 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y)
     C = sqr(TargetPosition.X) + sqr(TargetPosition.Y) }
 
+  Speed := ProjectileSpeeds[aProjType] + RandomS(0.05);
 
-  A := sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(fItems[i].fSpeed);
+  A := sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(Speed);
   B := 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y);
   C := sqr(TargetPosition.X) + sqr(TargetPosition.Y);
 
   D := sqr(B) - 4 * A * C;
 
-  Time1 := (-B + sqrt(D)) / (2 * A);
-  Time2 := (-B - sqrt(D)) / (2 * A);
+  if (D >= 0) and (A <> 0) then
+  begin
+    Time1 := (-B + sqrt(D)) / (2 * A);
+    Time2 := (-B - sqrt(D)) / (2 * A);
 
+    //Choose smallest positive time
+    if (Time1 > 0) and (Time2 > 0) then
+      TimeToHit := min(Time1, Time2)
+    else
+    if (Time1 < 0) and (Time2 < 0) then
+      TimeToHit := 0
+    else
+      TimeToHit := max(Time1, Time2);
+  end
+  else
+    TimeToHit := 0;
 
-  Target.X := aTarget.PositionF.X{ + Time1*Time2/100000};
-  Target.Y := aTarget.PositionF.Y;
+  if TimeToHit <> 0 then
+  begin
+    Jitter := GetLength(aStart, aTarget.PositionF) * ProjectileJitter[aProjType];
 
-  Result := AddItem(i, aStart, Target, aProjType, aOwner);
+    Target.X := aTarget.PositionF.X + TargetVector.X*TimeToHit + RandomS(Jitter);
+    Target.Y := aTarget.PositionF.Y + TargetVector.Y*TimeToHit + RandomS(Jitter);
+    Result := AddItem(aStart, aTarget.PositionF, Target, Speed, aProjType, aOwner);
+  end else
+    Result := 0;
 end;
 
 
 function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
-var i:integer; Target:TKMPointF;
+var
+  Speed: single;
+  Aim, Target: TKMPointF;
 begin
-  i := AddNewProjectile(aProjType);
+  Speed := ProjectileSpeeds[aProjType] + RandomS(0.05);
 
-  Target := KMPointF(aTarget.GetRandomCellWithin);
-  Target.X := Target.X + Random; //So that arrows were within house area, without attitude to tile corners
-  Target.Y := Target.Y + Random;
+  Aim := KMPointF(aTarget.GetRandomCellWithin);
+  Target.X := Aim.X + Random; //So that arrows were within house area, without attitude to tile corners
+  Target.Y := Aim.Y + Random;
 
-  Result := AddItem(i, aStart, Target, aProjType, aOwner);
+  Result := AddItem(aStart, Aim, Target, Speed, aProjType, aOwner);
 end;
 
 
 { Return flight time (archers like to know when they hit target before firing again) }
-function TKMProjectiles.AddItem(I:integer; aStart,aEnd:TKMPointF; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
-const //TowerRock position is a bit different for said reasons
+function TKMProjectiles.AddItem(aStart,aAim,aEnd:TKMPointF; aSpeed:single; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+const //TowerRock position is a bit different for reasons said below
   OffsetX:array[TProjectileType] of single = (0.5,0.5,-0.25); //Recruit stands in entrance, Tower middleline is X-0.75
   OffsetY:array[TProjectileType] of single = (0.2,0.2,-0.5); //Add towers height
 var
-  Jitter:single;
+  i:integer;
 begin
+  i := -1;
+  repeat
+    inc(i);
+    if i >= length(fItems) then
+      SetLength(fItems, i+8); //Add new
+  until(fItems[i].fSpeed = 0);
+
+  //Fill in basic info
+  fItems[i].fType   := aProjType;
+  fItems[i].fSpeed  := aSpeed;
+  fItems[i].fArc    := ProjectileArcs[aProjType, 1] + RandomS(ProjectileArcs[aProjType, 2]);
   fItems[i].fOwner  := aOwner;
-
-  Jitter := 0;//GetLength(aStart, aEnd) * ProjectileJitter[aProjType];
-
-  fItems[i].fTarget.X   := aEnd.X; //Thats logical target in tile-coords
-  fItems[i].fTarget.Y   := aEnd.Y;
-  fItems[i].fTargetJ.X  := aEnd.X + RandomS(Jitter); //Thats logical target in tile-coords
-  fItems[i].fTargetJ.Y  := aEnd.Y + RandomS(Jitter);
+  fItems[i].fAim    := aAim;
+  fItems[i].fTarget := aEnd;
 
   fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
   fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart)/CELL_HEIGHT_DIV + OffsetX[aProjType];
-  fItems[i].fScreenEnd.X := fItems[i].fTargetJ.X + 0.5; //projectile hits on Unit's chest height
-  fItems[i].fScreenEnd.Y := fItems[i].fTargetJ.Y + 0.5 - fTerrain.InterpolateLandHeight(aEnd)/CELL_HEIGHT_DIV;
+  fItems[i].fScreenEnd.X := fItems[i].fTarget.X + 0.5; //projectile hits on Unit's chest height
+  fItems[i].fScreenEnd.Y := fItems[i].fTarget.Y + 0.5 - fTerrain.InterpolateLandHeight(aEnd)/CELL_HEIGHT_DIV;
 
   fItems[i].fPosition := 0; //projectile position on its route
   fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
@@ -188,36 +204,36 @@ begin
         //Can't use InRange cos it might get called twice due to <= X <= comparison
         if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed)
         and (fType in [pt_Arrow, pt_Bolt]) then //These projectiles make the sound
-          fSoundLib.Play(sfx_ArrowHit, KMPointRound(fTargetJ));
+          fSoundLib.Play(sfx_ArrowHit, KMPointRound(fTarget));
 
         if fPosition >= fLength then begin
-          fSpeed := 0; //remove projectile
-          U := fPlayers.UnitsHitTestF(fTargetJ, false);
+          U := fPlayers.UnitsHitTestF(fTarget, false);
           case fType of
             pt_Arrow,
             pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                           begin
-                          
                             Damage := 0;
                             if fType = pt_Arrow then Damage := UnitStat[byte(ut_Bowman)].Attack;
                             if fType = pt_Bolt then Damage := UnitStat[byte(ut_Arbaletman)].Attack;
                             //Arrows are more likely to cause damage when the unit is closer
-                            if Random(Round(8 * GetLength(U.PositionF,fTargetJ))) = 0 then
+                            Damage := Round(Damage * (1-min(GetLength(U.PositionF,fTarget),1)));
+                            if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
                               if U.HitPointsDecrease(Damage) then
                                 fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
                           end
                           else
                           begin
-                            //Stray arrows do not damage houses, they are only hit when directly aimed at. Hence use fTarget not fTargetJ
                             H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
-                            if (H <> nil) then
+                            if (H <> nil) and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.GetOwner)= at_Enemy)) then
                               if H.AddDamage(1) then //House was destroyed
                                 fPlayers.Player[fOwner].Stats.HouseDestroyed(H.GetHouseType);
                           end;
             pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
-                            if U.HitPointsDecrease(10*40) then //Instant death
-                              fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                            if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
+                              if U.HitPointsDecrease(U.GetMaxHitPoints) then //Instant death
+                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
           end;
+          RemItem(i);
         end;
       end;
 end;
@@ -279,10 +295,10 @@ begin
                                       fItems[i].fScreenEnd.X,
                                       fItems[i].fScreenEnd.Y);
 
-        fRender.RenderDebugProjectile(fItems[i].fTarget.X,
-                                      fItems[i].fTarget.Y,
-                                      fItems[i].fTargetJ.X,
-                                      fItems[i].fTargetJ.Y);
+        fRender.RenderDebugProjectile(fItems[i].fAim.X,
+                                      fItems[i].fAim.Y,
+                                      fItems[i].fTarget.X,
+                                      fItems[i].fTarget.Y);
       end;
     end;
 end;
