@@ -99,6 +99,10 @@ type
       Label_Clock:TKMLabel;
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
+      
+      // Temporary interface (By @Crow)
+      Label_VictoryChance : TKMLabel;
+
     Panel_Replay:TKMPanel; //Bigger Panel to contain Shapes to block all interface below
     Panel_ReplayCtrl:TKMPanel; //Smaller Panel to contain replay controls
       PercentBar_Replay:TKMPercentBar;
@@ -223,6 +227,7 @@ type
       Label_Barracks_Unit:TKMLabel;
       Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
       Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
+
   public
     MyControls: TKMMasterControl;
     constructor Create;
@@ -564,7 +569,10 @@ begin
     Label_SoundsCount.Visible := DISPLAY_SOUNDS;
 
     Label_Hint:=TKMLabel.Create(Panel_Main,224+32,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint.Anchors := [akLeft, akBottom]; 
+    Label_Hint.Anchors := [akLeft, akBottom];
+
+    // Temporary interface (By @Crow)
+    Label_VictoryChance := TKMLabel.Create(Panel_Main, fRender.RenderAreaSize.X - 100, 20, 0, 0, 'Метка!!!', fnt_Outline, kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -2515,6 +2523,7 @@ end;
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState;
+var i : Integer;
 begin
   if fShownUnit<>nil then ShowUnitInfo(fShownUnit) else
   if fShownHouse<>nil then ShowHouseInfo(fShownHouse,AskDemolish);
@@ -2557,6 +2566,16 @@ begin
 
   if DISPLAY_SOUNDS then
     Label_SoundsCount.Caption := inttostr(fSoundLib.ActiveCount)+' sounds playing';
+
+  // Temporary inteface (By @Crow)
+  if SHOW_ARMYEVALS then begin
+    Label_VictoryChance.Caption := '';
+    for i := 0 to fPlayers.Count-1 do if i <> MyPlayer.PlayerIndex then
+      Label_VictoryChance.Caption := Label_VictoryChance.Caption +
+        IntToStr(i)+' : '+
+        FloatToStrF(MyPlayer.ArmyEval.Evaluations[i].fPower, ffFixed, 3, 6) +
+        #124;
+  end; // if SHOW_ARMYEVALS
 end;
 
 

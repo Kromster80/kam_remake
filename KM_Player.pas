@@ -57,6 +57,7 @@ type
     property Stats:TKMPlayerStats read fStats;
     property Goals:TKMGoals read fGoals;
     property FogOfWar:TKMFogOfWar read fFogOfWar;
+    property ArmyEval:TKMArmyEvaluation read fArmyEval;
 
     procedure SetPlayerID(aNewIndex:TPlayerIndex);
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
@@ -146,7 +147,7 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
-  //fArmyEval     := TKMArmyEvaluation.Create(fStats);
+  fArmyEval     := TKMArmyEvaluation.Create(Self);
   for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
 
@@ -230,12 +231,15 @@ end;
 
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
 procedure TKMPlayer.AfterMissionInit(aFlattenRoads:boolean);
+var i : Integer;
 begin
   if fRoadsList<>nil then begin
     fTerrain.SetRoads(fRoadsList,fPlayerIndex);
     if aFlattenRoads then fTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);
   end;
+  for i := 0 to fPlayers.Count-1 do
+    if fPlayerIndex <> i then fArmyEval.AddEnemy(fPlayers[i]);
 end;
 
 
@@ -520,7 +524,7 @@ begin
   //Do only one players AI per Tick
   if (Tick+PlayerIndex) mod 20 = 0 then begin
     fAI.UpdateState;
-    //fArmyEval.UpdateState;
+    fArmyEval.UpdateState;
   end;
 end;
 

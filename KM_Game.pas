@@ -9,7 +9,8 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music;
+  KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music,
+  KM_ArmyEvaluation;
 
 type TGameState = ( gsNoGame,  //No game running at all, MainMenu
                     gsPaused,  //Game is paused and responds to 'P' key only
@@ -320,6 +321,7 @@ begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
     fRender.Render;
     fResource.LoadGameResources;
+    InitUnitStatEvals;
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
     fRender.Render;
     fRender.LoadTileSet;

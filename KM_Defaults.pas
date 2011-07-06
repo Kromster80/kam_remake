@@ -87,6 +87,7 @@ var
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
+  SHOW_ARMYEVALS        :boolean=false; //Show result of enemy armies evaluation
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug

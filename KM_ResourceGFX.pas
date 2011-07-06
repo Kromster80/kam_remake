@@ -461,7 +461,7 @@ begin
 
   if WriteResourceInfoToTXT then begin
     assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
-    writeln(ft,'Name;x1;Attack;AttackHorseBonus;x4;HitPoints;Speed;x7;Sight;x9;x10;CanWalkOut;0;');
+    writeln(ft,'Name;HitPoints;Attack;AttackHorseBonus;x4;Defence;Speed;x7;Sight;x9;x10;CanWalkOut;x11;');
     for ii:=1 to 40 do begin
       write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
       write(ft,inttostr(UnitStat[ii].HitPoints)+';');

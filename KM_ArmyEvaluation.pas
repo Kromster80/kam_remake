@@ -44,9 +44,16 @@ type
   end;
 
 
-implementation
-uses KM_Player;
 
+procedure InitUnitStatEvals;
+
+
+implementation
+uses Math, KM_Player;
+
+var
+  // Evals matrix. 1 - Power ratio, 2 - Chance
+  UnitStatEvals : array [ut_Militia..ut_Barbarian, ut_Militia..ut_Barbarian, 1..2] of Single;
 
 { TKMArmyEvaluation assets}
 constructor TKMEvaluation.Create;
@@ -124,10 +131,32 @@ end;
 
 procedure TKMArmyEvaluation.EvaluatePower(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
 var
-  Res : TKMEvaluation;
+  SelfStats : TKMPlayerStats;
+  EnemySize : Integer;
+  Eval : TKMEvaluation;
+  i, j : TUnitType;
+  EnemyQty, SelfQty : Integer;
+  UnitSum : Single;
 begin
-  Res := fEvals[PlayerIndex];
-  Res.fPower := 1.0;
+  SelfStats := (fSelfPlayer as TKMPlayer).Stats;
+  Eval := fEvals[PlayerIndex];
+  EnemySize := Stats.GetArmyCount;
+  Eval.fPower := 0.0;
+  for i := ut_Militia to ut_Barbarian do begin
+    SelfQty := SelfStats.GetUnitQty(i);
+    if SelfQty = 0 then begin
+      Eval.fUnitTypesPower[i] := 0.0;
+      continue;
+    end;
+    UnitSum := 0.0;
+    for j := ut_Militia to ut_Barbarian do begin
+      EnemyQty := Stats.GetUnitQty(j);
+      if EnemyQty <> 0 then
+        UnitSum := UnitSum + SelfQty * UnitStatEvals[i,j,1] / EnemyQty * (EnemyQty / EnemySize);
+    end;
+    Eval.fUnitTypesPower[i] := UnitSum;
+    Eval.fPower := Eval.fPower + Eval.fUnitTypesPower[i];
+  end;
 end;
 
 
@@ -165,6 +194,27 @@ begin
     EvaluatePower(Player.Stats, Player.PlayerIndex);
     EvaluateChance(Player.Stats, Player.PlayerIndex);
   end;
+end;
+
+
+procedure InitUnitStatEvals;
+var
+  i,j : Integer;
+  a,b,c : Single;
+begin
+  for i := Byte(ut_Militia) to Byte(ut_Barbarian) do
+    for j := Byte(ut_Militia) to Byte(ut_Barbarian) do begin
+      a := UnitStat[i].HitPoints / UnitStat[j].HitPoints;
+      b := UnitStat[i].Attack;
+      if InRange(j, low(UnitGroups), high(UnitGroups)) then
+        b := b + UnitStat[i].AttackHorseBonus * byte(UnitGroups[j] = gt_Mounted);
+      b := b / max(UnitStat[j].Defence,1);
+      c := UnitStat[j].Attack;
+      if InRange(i, low(UnitGroups), high(UnitGroups)) then
+        c := c + UnitStat[j].AttackHorseBonus * byte(UnitGroups[i] = gt_Mounted);
+      c := c / max(UnitStat[i].Defence,1);
+      UnitStatEvals[TUnitType(i), TUnitType(j), 1] := b * a / c;
+    end;
 end;
 
 
