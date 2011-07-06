@@ -32,9 +32,6 @@ type
     PlayerIndex:integer;
     fTimeOfLastAttackMessage: cardinal;
 
-    // Temporary fields for test of new functional (By @Crow)
-    fVicroryChance : Single; // Result of armies evaluating
-
     fAutobuild:boolean;
 
     procedure CheckGoals;
@@ -44,9 +41,6 @@ type
     function CheckAttackMayOccur(aAttack: TAIAttack; MenAvailable:integer; GroupsAvailableCount: array of integer):boolean;
     procedure OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
-
-    // Temporary functions of new functional (mainly for testing) (By @Crow)
-    procedure ArmyEvaluating; // Calling from UpdateState
 
   public
     ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Number of each unit type required
@@ -80,8 +74,6 @@ type
     procedure SyncLoad;
     procedure UpdateState;
 
-    // Temporary properties (By @Crow)
-    property VictoryChance : Single read fVicroryChance;
   end;
 
 
@@ -163,9 +155,6 @@ constructor TKMPlayerAI.Create(aPlayerIndex:integer);
 var i: TGroupType;
 begin
   Inherited Create;
-
-  // Temp fields initialization
-  fVicroryChance := 0.0;
 
   PlayerIndex := aPlayerIndex;
   fTimeOfLastAttackMessage := 0;
@@ -644,74 +633,6 @@ begin
           CurrentCommander.OrderAttackUnit(aAttacker);
 end;
 
-//+/ TKMPlayerAI temporary functions of new functional (By @Crow)
-
-procedure TKMPlayerAI.ArmyEvaluating;
-var
-  i : integer;
-  SelfStat, EnemyStat : TKMPlayerStats;
-  QtyValuation : single; // Valuation of units quantity
-  QualityValuations : array[0..15, 0..1] of single; // Valuations of units quality. 0 - valuation, 1 - divisor factor
-  QualityValuation : single;
-begin
-  SelfStat := fPlayers[PlayerIndex].Stats;
-  EnemyStat := nil;
-  if fPlayers.Count >= 2 then EnemyStat := fPlayers[0].Stats; // Always 2-nd Player for test
-  if EnemyStat = nil then exit;
-  // Quantity evaluation
-  if SelfStat.GetArmyCount = 0 then QtyValuation := 0.0
-  else if EnemyStat.GetArmyCount = 0 then QtyValuation := 1.0
-  else QtyValuation := SelfStat.GetArmyCount / EnemyStat.GetArmyCount;
-  // Quality evaluation
-  if SelfStat.GetUnitQty(ut_Bowman) = 0 then QualityValuations[0,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_AxeFighter) = 0 then QualityValuations[0,0] := 0.2
-  else QualityValuations[0,0] := SelfStat.GetUnitQty(ut_Bowman)*0.5 / EnemyStat.GetUnitQty(ut_AxeFighter);
-  QualityValuations[0,1] := SelfStat.GetUnitQty(ut_Bowman) / SelfStat.GetArmyCount;
-
-  if SelfStat.GetUnitQty(ut_AxeFighter) = 0 then QualityValuations[1,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_Bowman) = 0 then QualityValuations[1,0] := 0.5
-  else QualityValuations[1,0] := SelfStat.GetUnitQty(ut_AxeFighter)*0.5 / EnemyStat.GetUnitQty(ut_Bowman);
-  QualityValuations[1,1] := SelfStat.GetUnitQty(ut_AxeFighter) / SelfStat.GetArmyCount;
-
-  if SelfStat.GetUnitQty(ut_Arbaletman) = 0 then QualityValuations[2,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_Swordsman) = 0 then QualityValuations[2,0] := 0.3
-  else QualityValuations[2,0] := SelfStat.GetUnitQty(ut_Arbaletman)*0.3 / EnemyStat.GetUnitQty(ut_Swordsman);
-  QualityValuations[2,1] := SelfStat.GetUnitQty(ut_Arbaletman) / SelfStat.GetArmyCount;
-  
-  if SelfStat.GetUnitQty(ut_Swordsman) = 0 then QualityValuations[3,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_Arbaletman) = 0 then QualityValuations[3,0] := 0.7
-  else QualityValuations[3,0] := SelfStat.GetUnitQty(ut_Swordsman)*0.7 / EnemyStat.GetUnitQty(ut_Arbaletman);
-  QualityValuations[3,1] := SelfStat.GetUnitQty(ut_Swordsman) / SelfStat.GetArmyCount;
-
-  if SelfStat.GetUnitQty(ut_Pikeman) = 0 then QualityValuations[4,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_HorseScout) = 0 then QualityValuations[4,0] := 0.6
-  else QualityValuations[4,0] := SelfStat.GetUnitQty(ut_Pikeman)*0.6 / EnemyStat.GetUnitQty(ut_HorseScout);
-  QualityValuations[4,1] := SelfStat.GetUnitQty(ut_Pikeman) / SelfStat.GetArmyCount;
-
-  if SelfStat.GetUnitQty(ut_HorseScout) = 0 then QualityValuations[5,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_Pikeman) = 0 then QualityValuations[5,0] := 0.4
-  else QualityValuations[5,0] := SelfStat.GetUnitQty(ut_HorseScout)*0.4 / EnemyStat.GetUnitQty(ut_Pikeman);
-  QualityValuations[5,1] := SelfStat.GetUnitQty(ut_HorseScout) / SelfStat.GetArmyCount; 
-
-  if SelfStat.GetUnitQty(ut_Hallebardman) = 0 then QualityValuations[6,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_Cavalry) = 0 then QualityValuations[6,0] := 0.65
-  else QualityValuations[6,0] := SelfStat.GetUnitQty(ut_Hallebardman)*0.65 / EnemyStat.GetUnitQty(ut_Cavalry);
-  QualityValuations[6,1] := SelfStat.GetUnitQty(ut_Hallebardman) / SelfStat.GetArmyCount;
-
-  if SelfStat.GetUnitQty(ut_Cavalry) = 0 then QualityValuations[7,0] := 0.0
-  else if EnemyStat.GetUnitQty(ut_Hallebardman) = 0 then QualityValuations[7,0] := 0.35
-  else QualityValuations[7,0] := SelfStat.GetUnitQty(ut_Cavalry)*0.35 / EnemyStat.GetUnitQty(ut_Hallebardman);
-  QualityValuations[7,1] := SelfStat.GetUnitQty(ut_Cavalry) / SelfStat.GetArmyCount;
-  // Average quality valuation
-  QualityValuation := 0.0;
-  for i:=0 to 7 do
-    QualityValuation := QualityValuation + QualityValuations[i,0]*QualityValuations[i,1];
-  fVicroryChance := 0.2*QtyValuation + 0.8*QualityValuation;
-end;
-
-//-/ TKMPlayerAI temporary functions of new functional
-
-
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
 begin
@@ -846,7 +767,6 @@ end;
 
 procedure TKMPlayerAI.UpdateState;
 begin
-  ArmyEvaluating; // for all players
 
   //Check goals only for MyPlayer
   case fPlayers[PlayerIndex].PlayerType of
