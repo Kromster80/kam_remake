@@ -8,7 +8,6 @@ uses SysUtils, Forms,
   {$IFDEF Unix} FileUtil, LCLIntf, LCLType,
   Classes, Graphics, Controls,
   {$ENDIF}
-  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, KromOGLUtils, Math, ExtCtrls;
 

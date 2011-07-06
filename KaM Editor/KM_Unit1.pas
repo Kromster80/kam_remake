@@ -7,7 +7,6 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, glut, {$ENDIF}
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, KromUtils,
-  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render,
   KM_Form_Loading, Math, Grids, Spin, ImgList;

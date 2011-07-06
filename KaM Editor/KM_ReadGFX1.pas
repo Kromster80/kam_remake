@@ -10,7 +10,6 @@ interface
 implementation
 
 uses KM_Unit1, KM_Defaults, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math,
-  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, KromUtils;
 

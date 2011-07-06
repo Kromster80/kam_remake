@@ -6,7 +6,6 @@ interface
 uses
   SysUtils, Classes, Controls, Forms, Graphics,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, KromOGLUtils,
-  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
@@ -52,27 +51,17 @@ begin
   Bar1.Position:=0;
   Refresh;
 
-  InitOpenGL;
-  h_DC := GetDC(Form1.Panel1.Handle);
   {$IFDEF MSWindows}
-  if h_DC=0 then begin MessageBox(Form1.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR); exit; end;
-  if not SetDCPixelFormat(h_DC) then exit;
-  h_RC := wglCreateContext(h_DC);
-  if h_RC=0 then begin MessageBox(Form1.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR); exit; end;
-  if not wglMakeCurrent(h_DC, h_RC) then begin
-    MessageBox(Form1.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
+  SetRenderFrame(Form1.Panel1.Handle, h_DC, h_RC);
   {$ENDIF}
   {$IFDEF Unix}
   MessageBox(Form1.Handle,'wglMakeCurrent and wglCreateContext not ported', 'Error', MB_OK);
   {$ENDIF}
-  ReadExtensions;
-  ReadImplementationProperties;
-  Form1.RenderInit();
+  Form1.RenderInit;
+
   BuildFont(h_DC,16);
   DecimalSeparator:='.';
-  
+
   if ReadGFX(ExeDir) then begin
     MakeObjectsGFX(nil);
     MakeHousesGFX(nil);
