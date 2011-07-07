@@ -8,7 +8,7 @@ uses
 type
   TKMEvaluation = class
   public
-    fEmemyIndex : TPlayerIndex; // to make sure on get
+    fEnemyIndex : TPlayerIndex; // to make sure on get
     fVictoryChance : Single;
     fPower : Single;
     fUnitTypesPower : array [ut_Militia..ut_Barbarian] of Single;
@@ -58,7 +58,7 @@ var
 { TKMArmyEvaluation assets}
 constructor TKMEvaluation.Create;
 begin
-  fEmemyIndex := 0;
+  fEnemyIndex := 0;
   Reset;
 end;
 
@@ -84,7 +84,7 @@ begin
   for i := 0 to MAX_PLAYERS-1 do
   begin
     fEvals[i] := TKMEvaluation.Create;
-    fEvals[i].fEmemyIndex := i;
+    fEvals[i].fEnemyIndex := i;
   end;
 end;
 
@@ -132,15 +132,13 @@ end;
 procedure TKMArmyEvaluation.EvaluatePower(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
 var
   SelfStats : TKMPlayerStats;
-  EnemySize : Integer;
   Eval : TKMEvaluation;
   i, j : TUnitType;
   EnemyQty, SelfQty : Integer;
-  UnitSum : Single;
+  PowerSum : Single;
 begin
   SelfStats := (fSelfPlayer as TKMPlayer).Stats;
   Eval := fEvals[PlayerIndex];
-  EnemySize := Stats.GetArmyCount;
   Eval.fPower := 0.0;
   for i := ut_Militia to ut_Barbarian do begin
     SelfQty := SelfStats.GetUnitQty(i);
@@ -148,13 +146,13 @@ begin
       Eval.fUnitTypesPower[i] := 0.0;
       continue;
     end;
-    UnitSum := 0.0;
+    PowerSum := 0.0;
     for j := ut_Militia to ut_Barbarian do begin
       EnemyQty := Stats.GetUnitQty(j);
-      if EnemyQty <> 0 then
-        UnitSum := UnitSum + SelfQty * UnitStatEvals[i,j,1] / EnemyQty * (EnemyQty / EnemySize);
+      PowerSum := PowerSum + UnitStatEvals[i,j,1] * EnemyQty;
     end;
-    Eval.fUnitTypesPower[i] := UnitSum;
+    if PowerSum = 0 then Eval.fUnitTypesPower[i] := 0.0
+    else Eval.fUnitTypesPower[i] := SelfQty / PowerSum;
     Eval.fPower := Eval.fPower + Eval.fUnitTypesPower[i];
   end;
 end;
