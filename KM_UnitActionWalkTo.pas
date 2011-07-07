@@ -128,7 +128,7 @@ begin
   ExplanationLogAdd;
 
   if fWalkTo.X*fWalkTo.Y = 0 then
-    fGame.GameError(fWalkTo, 'WalkTo 0:0');
+    raise TKaMLocException.Create('WalkTo 0:0',fWalkTo);
 
   NodeList      := TKMPointList.Create; //Freed on destroy
   SetInitValues;
@@ -300,7 +300,7 @@ begin
       NodeList.InjectEntry(NodePos+1,fWalker.GetPosition); //We must back-track if we cannot continue our route from the new tile
     NodeList.InjectEntry(NodePos+1,ForcedExchangePos);
     if KMSamePoint(fWalker.GetPosition, ForcedExchangePos) then
-      fGame.GameError(fWalker.GetPosition, 'Exchange to same place');
+      raise TKaMLocException.Create('Exchange to same place',fWalker.GetPosition);
     fWalker.Direction := KMGetDirection(fWalker.GetPosition,ForcedExchangePos);
     fDoesWalking := true;
   end
@@ -449,10 +449,7 @@ procedure TUnitActionWalkTo.IncVertex;
 begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
-  begin
-    fGame.GameError(fVertexOccupied, 'IncVertex');
-    exit;
-  end;
+    raise TKaMLocException.Create('IncVertex',fVertexOccupied);
 
   fTerrain.UnitVertexAdd(fWalker.PrevPosition,fWalker.NextPosition);
   fVertexOccupied := KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition);
@@ -463,10 +460,7 @@ procedure TUnitActionWalkTo.DecVertex;
 begin
   //Tell fTerrain that this vertex is not being used anymore
   if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
-  begin
-    fGame.GameError(fVertexOccupied, 'DecVertex 0:0');
-    exit;
-  end;
+    raise TKaMLocException.Create('DecVertex 0:0',fVertexOccupied);
 
   fTerrain.UnitVertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
@@ -509,10 +503,8 @@ begin
     OpponentPassability := fOpponent.GetDesiredPassability;
     if OpponentPassability = CanWalkRoad then OpponentPassability := CanWalk;
 
-    if not CanAbandonInternal then begin
-      fGame.GameError(fWalker.GetPosition, 'Unit walk IntSolutionPush');
-      exit;
-    end;
+    if not CanAbandonInternal then
+      raise TKaMLocException.Create('Unit walk IntSolutionPush',fWalker.GetPosition);
 
     fOpponent.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
 
@@ -582,10 +574,8 @@ begin
     begin
 
       fInteractionStatus := kis_None;
-      if not CanAbandonInternal then begin //in fact tests only for fDoExchange
-        fGame.GameError(fWalker.GetPosition, 'Unit walk IntCheckIfPushed');
-        exit;
-      end;
+      if not CanAbandonInternal then //in fact tests only for fDoExchange
+        raise TKaMLocException.Create('Unit walk IntCheckIfPushed',fWalker.GetPosition);
 
       //Since only Idle units can be pushed, we don't need to carry on TargetUnit/TargetHouse/etc props
       fWalker.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability));
@@ -808,7 +798,7 @@ end;
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil);
 begin
   if fWalkTo.X*fWalkTo.Y = 0 then
-    fGame.GameError(fWalkTo, 'Change Walk To 0:0');
+    raise TKaMLocException.Create('Change Walk To 0;0',fWalkTo);
 
   fTargetLoc := aLoc;
   fDistance := aDistance;
@@ -994,15 +984,11 @@ begin
       inc(NodePos);
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
-      if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then begin
-        fGame.GameError(fWalker.PrevPosition, 'Unit walk length>1.5');
-        exit;
-      end;
+      if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then
+        raise TKaMLocException.Create('Unit walk length>1.5',fWalker.PrevPosition);
 
-      if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = nil then begin
-        fGame.GameError(fWalker.PrevPosition, 'Unit walk Prev position IsUnit = nil');
-        exit;
-      end;
+      if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = nil then
+        raise TKaMLocException.Create('Unit walk Prev position IsUnit = nil',fWalker.PrevPosition);
 
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition,fWalker); //Pre-occupy next tile
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
@@ -1012,7 +998,7 @@ begin
   fWaitingOnStep := false;
 
   if NodePos>NodeList.Count then
-    fGame.GameError(fWalker.GetPosition, 'WalkTo overrun');
+    raise TKaMLocException.Create('WalkTo overrun',fWalker.GetPosition);
 
   WalkX := NodeList.List[NodePos].X - fWalker.PositionF.X;
   WalkY := NodeList.List[NodePos].Y - fWalker.PositionF.Y;

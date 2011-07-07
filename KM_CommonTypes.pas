@@ -225,12 +225,26 @@ type
   end;
 
 
+  { Custom Exception that includes a TKMPoint }
+  TKaMLocException = class(Exception)
+    Loc: TKMPoint;
+    constructor Create(const Msg: string; aLoc:TKMPoint);
+  end;
+
+
   var
     fLog: TKMLog;
 
 
 implementation
 uses KM_Utils, KM_Defaults;
+
+
+constructor TKaMLocException.Create(const Msg: string; aLoc:TKMPoint);
+begin
+  Inherited Create(Msg);
+  Loc := aLoc;
+end;
 
 
 {Reset log file}

@@ -370,7 +370,7 @@ end;
 procedure TKMHouse.ReleaseHousePointer;
 begin
   if fPointerCount < 1 then
-    fGame.GameError(fPosition, 'House remove pointer');
+    raise TKaMLocException.Create('House remove pointer for '+TypeToString(fHouseType), fPosition);
   dec(fPointerCount);
 end;
 
@@ -806,7 +806,7 @@ begin
   case aResource of
     rt_Wood: inc(fBuildSupplyWood);
     rt_Stone: inc(fBuildSupplyStone);
-  else fGame.GameError(GetPosition, 'WIP house is not supposed to recieve '+TypeToString(aResource)+', right?');
+  else raise TKaMLocException.Create('WIP house is not supposed to recieve '+TypeToString(aResource)+', right?', fPosition);
   end;
 end;
 
@@ -1350,7 +1350,7 @@ begin
                   ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,High(Word));
                   fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
                 end;
-    else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
+    else        raise TKaMLocException.Create('Cant''t add '+TypeToString(aResource), GetPosition);
   end;
 end;
 
@@ -1455,7 +1455,7 @@ begin
                 ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,High(Word));
     rt_Shield..
     rt_Horse:   ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,High(Word))
-    else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
+    else        raise TKaMLocException.Create('Cant''t add '+TypeToString(aResource), GetPosition);
   end;
 end;
 

@@ -473,7 +473,7 @@ begin
   if (aUnitType=ut_Recruit)and(aHome=ht_WatchTower) then begin
     fIssued:=false; //Let him idle
   end else
-    fGame.GameError(KMPoint(0,0), 'No work plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
+    Assert(false, 'No work plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
 end;
 
 

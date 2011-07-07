@@ -107,7 +107,7 @@ var
   B: String;
 begin
   if not FileExists(Name) then exit;
-  if PathOnZip <> '' then PathOnZip := IncludeTrailingBackslash(PathOnZip);
+  if PathOnZip <> '' then PathOnZip := SysUtils.IncludeTrailingBackslash(PathOnZip);
   F := TFileStream.Create(Name, fmOpenRead);
   try
     SetLength(B, F.Size);

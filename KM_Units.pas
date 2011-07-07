@@ -398,7 +398,7 @@ begin
           SetActionStay(HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
+  if fCurrentAction=nil then raise TKaMLocException.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
 end;
 
 
@@ -431,7 +431,7 @@ begin
   Result:=nil;
 
   if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
-    fGame.GameError(fCurrPosition, fTextLibrary.GetRemakeString(50));
+    raise TKaMLocException.Create(fTextLibrary.GetRemakeString(50),fCurrPosition);
 
   Res := 1;
   //Check if House has production orders
@@ -567,7 +567,7 @@ begin
           SetActionStay(HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
+  if fCurrentAction=nil then raise TKaMLocException.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
 end;
 
 
@@ -656,7 +656,7 @@ begin
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
+  if fCurrentAction=nil then raise TKaMLocException.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
 end;
 
 
@@ -724,7 +724,7 @@ begin
 
   if fUnitTask=nil then SetActionStay(20,ua_Walk);
 
-  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
+  if fCurrentAction=nil then raise TKaMLocException.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
 end;
 
 
@@ -792,7 +792,7 @@ begin
   fCurrPosition := KMPointRound(fPosition);
 
   if fCurrentAction = nil then
-    fGame.GameError(fCurrPosition, 'Unit has no action!'); //Someone has nilled our action!
+    raise TKaMLocException.Create(TypeToString(UnitType)+' has no action!',fCurrPosition); //Someone has nilled our action!
 
   case fCurrentAction.Execute(Self) of
     ActContinues: exit;
@@ -828,7 +828,7 @@ begin
   else
     SetActionWalkToSpot(Spot);
 
-  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
+  if fCurrentAction=nil then raise TKaMLocException.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
 end;
 
 
@@ -988,7 +988,7 @@ end;
 procedure TKMUnit.ReleaseUnitPointer;
 begin
   if fPointerCount < 1 then
-    fGame.GameError(PrevPosition, 'Unit remove pointer');
+    raise TKaMLocException.Create('Unit remove pointer',PrevPosition);
   dec(fPointerCount);
 end;
 
@@ -1143,7 +1143,7 @@ end;
 function TKMUnit.GetMaxHitPoints:byte;
 begin
   if not (byte(UnitType) in [1..length(UnitStat)]) then
-    fGame.GameError(fCurrPosition, 'GetMaxHitPoints for wrong unit');
+    raise TKaMLocException.Create('GetMaxHitPoints for wrong unit',fCurrPosition);
 
   Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints*40,0,255);
   // *40 - [LifePoints/OneHitPoint] (MaxHitPoint in Units.dat - 4) 4*40 = 160
@@ -1218,10 +1218,8 @@ end;
 
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then begin
-    fGame.GameError(fCurrPosition, 'Unit fight overrides walk');
-    exit;
-  end;
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+    raise TKaMLocException.Create('Unit fight overrides walk',fCurrPosition);
   SetAction(TUnitActionFight.Create(aAction, aOpponent, Self));
 end;
 
@@ -1611,22 +1609,17 @@ begin
     if GetDesiredPassability = CanWalkRoad then
     begin
       if not fTerrain.CheckPassability(fCurrPosition, CanWalk) then
-      begin
-        fGame.GameError(fCurrPosition,TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass canWalk');
-        exit;
-      end;
+        raise TKaMLocException.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass canWalk',fCurrPosition);
     end else
     if not fTerrain.CheckPassability(fCurrPosition, GetDesiredPassability) then
-    begin
-      fGame.GameError(fCurrPosition,TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass '+PassabilityStr[GetDesiredPassability]);
-      exit;
-    end;
+      raise TKaMLocException.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass '+PassabilityStr[GetDesiredPassability],fCurrPosition);
+
 
   //
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
   if fCurrentAction=nil then
-    fGame.GameError(fCurrPosition, TypeToString(fUnitType)+' has no action in TKMUnit.UpdateState');
+    raise TKaMLocException.Create(TypeToString(fUnitType)+' has no action in TKMUnit.UpdateState',fCurrPosition);
 
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute(Self) of
@@ -1653,10 +1646,8 @@ end;
 procedure TKMUnit.Paint;
 begin
   if fCurrentAction=nil then
-  begin
-    fGame.GameError(fCurrPosition, TypeToString(fUnitType)+' has no action!');
-    exit;
-  end;
+    raise TKaMLocException.Create(TypeToString(fUnitType)+' has no action!',fCurrPosition);
+
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
 
@@ -1812,7 +1803,7 @@ begin
 
     ut_Wolf..ut_Duck:           U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
-    else                        fGame.GameError(KMPoint(PosX, PosY), 'Add '+TypeToString(aUnitType));
+    else                        raise TKaMLocException.Create('Add '+TypeToString(aUnitType),KMPoint(PosX, PosY));
   end;
 
   if U = -1 then Result:=nil else Result := Units[U];

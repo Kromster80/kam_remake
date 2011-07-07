@@ -583,16 +583,13 @@ begin
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
-    fTextLibrary.GetRemakeString(48)+eol+aText+eol+
+    fTextLibrary.GetRemakeString(48)+eol+aText+eol+eol+
     'Please send the file '+CrashFile+' from your KaM Remake\Crash Reports folder to the developers. '+
     'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
     'WARNING: Continuing to play after this error may cause further crashes and instabilities. '+
     'Would you like to take this risk and continue playing?'
     , mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
-    //@Krom: When you answer "no" the game usually crashes, because GameError is called from within
-    //       UpdateState. (usually for some unit) We cannot run GameStop until we have dropped out of UpdateState
-    //       because otherwise it will try to update all other units, which are freed by GameStop. Any ideas?
     GameStop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
   else
     //If they choose to play on, start the game again because the player cannot tell that the game is paused
@@ -1074,11 +1071,9 @@ begin
                     fGamePlayInterface.UpdateState;
 
                   except
-                    on E : Exception do
-                    begin
-                      //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                    end;
+                    //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+                    on E : TKaMLocException do GameError(E.Loc, E.ClassName+': '+E.Message);
+                    on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
                   end;
                 end;
     gsReplay:   begin
@@ -1108,11 +1103,9 @@ begin
                     fGamePlayInterface.UpdateState;
 
                   except
-                    on E : Exception do
-                    begin
-                      //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                    end;
+                    //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+                    on E : TKaMLocException do GameError(E.Loc, E.ClassName+': '+E.Message);
+                    on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
                   end;
                 end;
     gsEditor:   begin
