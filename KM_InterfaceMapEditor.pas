@@ -1497,7 +1497,7 @@ begin
   //       (e.g. so they don't try to build a city when it is a siege mission) This allows single player missions to be used for multiplayer and vice versa.
   //       These are just ideas and I think they could be redesigned in a less confusing way for both the players and mission creators.
   //       Let me know what you think. Maybe we should discuss this.
-
+  //@Lewin: Looks like we can't achieve it without changing(adding) mission scripts.. discussed in ICQ.
   //Reset everything
   for i:=0 to fPlayers.Count-1 do
   begin

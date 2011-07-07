@@ -347,6 +347,9 @@ begin
   
   //@Krom: Temporary fix to make the maps compatible with KaM. I do not understand the resource footer
   //       If you would like to write it properly please feel free to do so
+  //@Lewin: I don't know nothing about resource footers. I know they exist and thats all, so if that
+  //        hack works we should probably leave it 'as is', until something better comes up
+  //        (e.g. format description)
 
   ResHead.x1:=0;
   ResHead.Allocated:=MapX+MapY;
@@ -1141,6 +1144,8 @@ begin
   //       Same thing would happen if you had any unit standing near a stone hill. We need to discuss a solution.
   //       I think this is the same bug being reported on the forums. I can't see any easy solutions.
   //       We need to flatten this tile without making any other tiles become unwalkable. (at least ones with units)
+  //@Lewin: I think we should add code to FlattenTerrain that would check tiles and neighbour tiles it flattens
+  //        and flatten them recursively to compensate Passability worsening
   FlattenTerrain(Loc);
   //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
   if not CheckHeightPass(KMPointY1(Loc),CanWalk) then

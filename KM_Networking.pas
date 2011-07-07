@@ -341,6 +341,7 @@ begin
   //       it, but possibly cause other problems. (using ProcessMessages is frowned upon because it can create recursive calls)
   //       This is the reason why the server loads the map first. Maybe the NetServer should run on a seperate thread to prevent
   //       the host from locking it up under any circumstances?
+  //@Lewin: Thats low priority, but yes, separate thread would be good solution AFAIK
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, fNetPlayers.GetAsText, 0);
 
   StartGame;

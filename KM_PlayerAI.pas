@@ -589,8 +589,7 @@ begin
       //while ()
     end
     else
-    begin //@Lewin: Please verify why "k" is not used in a loop, should it replace "i" ?
-          //@Krom: Thanks, can't believe I wrote that :D It will have been causing bugs. To be deleted.
+    begin
       for k:=byte(low(TGroupType)) to byte(high(TGroupType)) do
         for j:=1 to GroupAmounts[TGroupType(k)] do
           OrderAttack(AttackGroups[TGroupType(k),integer(j)-1],Target,CustomPosition);
