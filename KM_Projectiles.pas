@@ -3,7 +3,6 @@ unit KM_Projectiles;
 interface
 uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonTypes, KM_Units, KM_Houses;
 
-//todo: Make projectiles take into account targets speed/direction and aim for predicted position
 
 {Projectiles in-game: arrows, bolts, rocks, etc..}
 //Once launched they are on their own
