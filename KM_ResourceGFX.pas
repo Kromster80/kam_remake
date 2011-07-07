@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
+  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes, KM_CommonTypes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, Zstream {$ENDIF};
 
@@ -47,7 +47,10 @@ type
 
     function GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint; //This should belong to TRender?
   public
-    constructor Create(aLocale:string);
+    OnLoadingStep:TNotifyEvent;
+    OnLoadingText:TStringEvent;
+
+    constructor Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
     destructor Destroy; override;
     function LoadMenuResources(aLocale:string):boolean;
     function LoadGameResources:boolean;
@@ -75,14 +78,17 @@ type
 
 
 implementation
-uses KromUtils, KM_Unit1, KM_Render, KM_CommonTypes, KM_Utils, KM_TGATexture;
+uses KromUtils, KM_Render, KM_Utils, KM_TGATexture;
 
 
-constructor TResource.Create(aLocale:string);
+constructor TResource.Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
 begin
   Inherited Create;
   fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
+
+  OnLoadingStep := aLS;
+  OnLoadingText := aLT;
 
   RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
   RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
@@ -104,17 +110,13 @@ end;
 
 procedure TResource.StepRefresh;
 begin
-  if not FormLoading.Visible then exit;
-  FormLoading.Bar1.StepIt;
-  FormLoading.Refresh;
+  if Assigned(OnLoadingStep) then OnLoadingStep(Self);
 end;
 
 
 procedure TResource.StepCaption(aCaption:string);
 begin
-  if not FormLoading.Visible then exit;
-  FormLoading.Label1.Caption:=aCaption;
-  FormLoading.Refresh;
+  if Assigned(OnLoadingText) then OnLoadingText(aCaption);
 end;
 
 

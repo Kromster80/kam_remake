@@ -495,9 +495,18 @@ begin
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGame); //Saves all settings into ini file in midst
-  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,aVSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
+  fGame := TKMGame.Create(
+                          ExeDir,
+                          Panel5.Handle,
+                          Panel5.Width,
+                          Panel5.Height,
+                          aVSync,
+                          FormLoading.LoadingStep,
+                          FormLoading.LoadingText,
+                          {$IFDEF WDC}MediaPlayer1 {$ENDIF}
+                          );
 
-  fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+  fGame.ResizeGameArea(Panel5.Width, Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
   if aReturnToOptions then fGame.fMainMenuInterface.ShowScreen(msOptions); //Return to the options screen
@@ -650,8 +659,7 @@ end;
 
 
 {$IFDEF FPC}
-
-initialization
+initialization
 {$I KM_Unit1.lrs}
 {$ENDIF}
 

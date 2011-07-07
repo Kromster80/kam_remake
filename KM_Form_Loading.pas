@@ -17,12 +17,33 @@ type
     Label6: TLabel;
     Label7: TLabel;
     Label2: TLabel;
+  public
+    procedure LoadingStep(Sender:TObject);
+    procedure LoadingText(const aData:string);
   end;
 
 implementation
 {$IFDEF WDC}
   {$R *.dfm}
 {$ENDIF}
+
+
+{ TFormLoading }
+procedure TFormLoading.LoadingStep(Sender:TObject);
+begin
+  if not Visible then exit;
+  Bar1.StepIt;
+  Refresh;
+end;
+
+
+procedure TFormLoading.LoadingText(const aData: string);
+begin
+  if not Visible then exit;
+  Label1.Caption := aData;
+  Refresh;
+end;
+
 
 {$IFDEF FPC}
 initialization
