@@ -37,7 +37,7 @@ begin
   fTaskName := utn_Deliver;
 
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
-  fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Serf '+inttostr(fUnit.ID)+' deliver to House AND Unit?');
+  Assert((toHouse=nil)or(toUnit=nil),'Serf '+inttostr(fUnit.ID)+' deliver to House AND Unit?');
 
   if aFrom   <> nil then fFrom    := aFrom.GetHousePointer;
   if toHouse <> nil then fToHouse := toHouse.GetHousePointer;

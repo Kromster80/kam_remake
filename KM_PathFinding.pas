@@ -195,7 +195,7 @@ begin
          (MinCost.Cost=65535)); // There's no more open cells available
 
   Result := IsDestinationReached;
-  //fLog.AssertToLog(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
+  //Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
 end;
 
 

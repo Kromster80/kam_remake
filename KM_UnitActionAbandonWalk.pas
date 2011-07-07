@@ -28,7 +28,7 @@ uses KM_Terrain;
 { TUnitActionAbandonWalk }
 constructor TUnitActionAbandonWalk.Create(LocB,aVertexOccupied:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
 begin
-  fLog.AssertToLog(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
+  Assert(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
   Inherited Create(aActionType);
   fActionName     := uan_AbandonWalk;
   Locked          := false;

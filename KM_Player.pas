@@ -273,7 +273,7 @@ begin
     mu_FieldPlan: BuildList.AddNewRoad(aLoc, ft_Corn);
     mu_WinePlan: BuildList.AddNewRoad(aLoc, ft_Wine);
     mu_WallPlan: BuildList.AddNewRoad(aLoc, ft_Wall);
-    else fLog.AssertToLog(false,'Wrong markup');
+    else Assert(false,'Wrong markup');
   end;
   if not DoSilent then
     fSoundLib.Play(sfx_placemarker);

@@ -1878,7 +1878,7 @@ begin
       wcRoad:  Pass := CanWalkRoad;
       wcFish:  Pass := CanFish;
       wcAvoid: Pass := CanWalk; //Special case for unit interaction avoiding
-      else     fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
+      else     Assert(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
     //Reset everything
@@ -1902,7 +1902,7 @@ begin
         Land[i,k].WalkConnect[wcType] := 0;
       end;
 
-      fLog.AssertToLog(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
+      Assert(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
     end;
 end;
 

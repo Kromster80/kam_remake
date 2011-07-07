@@ -253,7 +253,7 @@ begin
     rt_Corn:  if aHouse=ht_Mill           then ResourceRatios[4,1]:=aValue else
               if aHouse=ht_Swine          then ResourceRatios[4,2]:=aValue else
               if aHouse=ht_Stables        then ResourceRatios[4,3]:=aValue;
-    else fLog.AssertToLog(false,'Unexpected resource at SetRatio');
+    else Assert(false,'Unexpected resource at SetRatio');
   end;
 end;
 

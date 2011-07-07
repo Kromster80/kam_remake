@@ -535,28 +535,37 @@ end;
 
 { Set viewport and save command log }
 procedure TKMGame.GameError(aLoc:TKMPoint; aText:string);
+var PreviousState: TGameState;
 begin
   //Negotiate duplicate calls for GameError
   if fGameState = gsNoGame then exit;
 
-  fViewport.SetCenter(aLoc.X, aLoc.Y);
+  PreviousState := GameState; //Could be running, replay, map editor, etc.
   SetGameState(gsPaused);
-  SHOW_UNIT_ROUTES := true;
-  SHOW_UNIT_MOVEMENT := true;
+  if not KMSamePoint(aLoc, KMPoint(0,0)) then
+  begin
+    fViewport.SetCenter(aLoc.X, aLoc.Y);
+    SHOW_UNIT_ROUTES := true;
+    SHOW_UNIT_MOVEMENT := true;
+  end;
 
   fLog.AppendLog('Gameplay Error: "'+aText+'" at location '+TypeToString(aLoc));
 
   if MessageDlg(
-    fTextLibrary.GetRemakeString(48)+UpperCase(aText)+eol+fTextLibrary.GetRemakeString(49)
+    fTextLibrary.GetRemakeString(48)+eol+aText+eol+fTextLibrary.GetRemakeString(49)
     , mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
     //@Krom: When you answer "no" the game usually crashes, because GameError is called from within
     //       UpdateState. (usually for some unit) We cannot run GameStop until we have dropped out of UpdateState
     //       because otherwise it will try to update all other units, which are freed by GameStop. Any ideas?
-    GameStop(gr_Error,'') //Exit to main menu will save the Replay data
+    GameStop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) ) //Exit to main menu will save the Replay data
   else
+  begin
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl')); //Save replay data ourselves
+    //If they choose to play on, start the game again because the player cannot tell that the game is paused
+    SetGameState(PreviousState);
+  end;
 end;
 
 
@@ -1005,9 +1014,43 @@ begin
                   fMainMenuInterface.UpdateState;
                 end;
     gsRunning:  begin
-                  for i:=1 to fGameSpeed do
-                  begin
-                    if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
+                  try //Catch exceptions during update state
+
+                    for i:=1 to fGameSpeed do
+                    begin
+                      if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
+                      begin
+                        inc(fGameTickCount); //Thats our tick counter for gameplay events
+                        fTerrain.UpdateState;
+                        fPlayers.UpdateState(fGameTickCount); //Quite slow
+                        if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                        fProjectiles.UpdateState; //If game has stopped it's NIL
+
+                        fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
+                        //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
+                        if AGGRESSIVE_REPLAYS then
+                          fGameInputProcess.CmdTemp(gic_TempDoNothing);
+
+                        if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave
+                          and not (GameState = gsOnHold) then //Don't autosave if the game was put on hold during this tick
+                          Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
+                      end;
+                      fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
+                    end;
+                    fGamePlayInterface.UpdateState;
+
+                  except
+                    on E : Exception do
+                    begin
+                      //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
+                    end;
+                  end;
+                end;
+    gsReplay:   begin
+                  try //Catch exceptions during update state
+
+                    for i:=1 to fGameSpeed do
                     begin
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
                       fTerrain.UpdateState;
@@ -1015,42 +1058,28 @@ begin
                       if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                       fProjectiles.UpdateState; //If game has stopped it's NIL
 
-                      fGameInputProcess.RunningTimer(fGameTickCount); //GIP_Multi issues all commands for this tick
-                      //In aggressive mode store a command every tick so we can find exactly when a replay mismatch occurs
-                      if AGGRESSIVE_REPLAYS then
-                        fGameInputProcess.CmdTemp(gic_TempDoNothing);
+                      //Issue stored commands
+                      fGameInputProcess.ReplayTimer(fGameTickCount);
+                      if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
+                        GameHold(true, gr_ReplayEnd);
 
-                      if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave
-                        and not (GameState = gsOnHold) then //Don't autosave if the game was put on hold during this tick
-                        Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
-                    end;
-                    fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
-                  end;
-                  fGamePlayInterface.UpdateState;
-                end;
-    gsReplay:   begin
-                  for i:=1 to fGameSpeed do
-                  begin
-                    inc(fGameTickCount); //Thats our tick counter for gameplay events
-                    fTerrain.UpdateState;
-                    fPlayers.UpdateState(fGameTickCount); //Quite slow
-                    if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
-                    fProjectiles.UpdateState; //If game has stopped it's NIL
+                      if fAdvanceFrame then begin
+                        fAdvanceFrame := false;
+                        SetGameState(gsPaused);
+                      end;
 
-                    //Issue stored commands
-                    fGameInputProcess.ReplayTimer(fGameTickCount);
-                    if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
-                      GameHold(true, gr_ReplayEnd);
-
-                    if fAdvanceFrame then begin
-                      fAdvanceFrame := false;
-                      SetGameState(gsPaused);
+                      if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands
                     end;
 
-                    if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands
-                  end;
+                    fGamePlayInterface.UpdateState;
 
-                  fGamePlayInterface.UpdateState;
+                  except
+                    on E : Exception do
+                    begin
+                      //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+                      GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
+                    end;
+                  end;
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;

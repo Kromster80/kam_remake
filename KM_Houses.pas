@@ -1754,7 +1754,7 @@ begin
   id := 0;
   BestMatch := MaxSingle; //Any distance will be closer than that
   UsePosition := X*Y<>0; //Calculate this once to save computing lots of multiplications
-  fLog.AssertToLog((not UsePosition)or(aIndex=1), 'Can''t find house basing both on Position and Index');
+  Assert((not UsePosition)or(aIndex=1), 'Can''t find house basing both on Position and Index');
 
   for i:=0 to Count-1 do
   if ((Houses[i].fHouseType = aType) or (aType = ht_Any)) and Houses[i].IsComplete and not Houses[i].fIsDestroyed then
@@ -1810,7 +1810,7 @@ begin
       ht_Barracks: Inherited Add(TKMHouseBarracks.Load(LoadStream));
       ht_Store:    Inherited Add(TKMHouseStore.Load(LoadStream));
       else         Inherited Add(TKMHouse.Load(LoadStream));
-//    else fLog.AssertToLog(false, 'Uknown house type in Savegame')
+//    else Assert(false, 'Uknown house type in Savegame')
     end;
   end;
 end;
