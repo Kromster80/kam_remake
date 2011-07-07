@@ -1626,7 +1626,7 @@ begin
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
   if fCurrentAction=nil then
-    Assert(fCurrentAction<>nil);
+    fGame.GameError(fCurrPosition, TypeToString(fUnitType)+' has no action in TKMUnit.UpdateState');
 
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute(Self) of

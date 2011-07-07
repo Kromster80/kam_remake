@@ -229,7 +229,7 @@ type
 
 
 implementation
-uses KM_Utils;
+uses KM_Utils, KM_Defaults;
 
 
 {Reset log file}
@@ -242,7 +242,7 @@ begin
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
-  AddLine('Log is up and running');
+  AddLine('Log is up and running. Game version: '+GAME_VERSION);
 end;
 
 

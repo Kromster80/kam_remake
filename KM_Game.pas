@@ -348,6 +348,7 @@ end;
 procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
 var LoadError:string; fMissionParser: TMissionParser;
 begin
+  fLog.AppendLog('GameStart');
   GameInit(false);
 
   //If input is empty - replay last map
@@ -358,7 +359,7 @@ begin
     fActiveCampaignMap := aCampMap; //MapID is incremented in CampSettings and passed on to here from outside
   end;
 
-  fLog.AppendLog('Loading DAT...');
+  fLog.AppendLog('Loading DAT file: '+fMissionFile);
   if CheckFileExists(fMissionFile,true) then
   begin
     fMainMenuInterface.ShowScreen(msLoading, 'script');
@@ -425,12 +426,13 @@ var
   PlayerIndex:integer;
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
+  fLog.AppendLog('GameStart Multiplayer');
   GameInit(true);
 
   fMissionFile := KMMapNameToPath(fNetworking.MapInfo.Folder, 'dat');
   fGameName := fNetworking.MapInfo.Folder + ' MP';
 
-  fLog.AppendLog('Loading DAT...');
+  fLog.AppendLog('Loading DAT file: '+fMissionFile);
 
   if CheckFileExists(fMissionFile) then
   begin
@@ -541,6 +543,8 @@ begin
   SetGameState(gsPaused);
   SHOW_UNIT_ROUTES := true;
   SHOW_UNIT_MOVEMENT := true;
+
+  fLog.AppendLog('Gameplay Error: "'+aText+'" at location '+TypeToString(aLoc));
 
   if MessageDlg(
     fTextLibrary.GetRemakeString(48)+UpperCase(aText)+eol+fTextLibrary.GetRemakeString(49)
@@ -658,6 +662,7 @@ var fMissionParser:TMissionParser; i:integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
+  fLog.AppendLog('Starting Map Editor');
   GameStop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
   RandSeed := 4; //Every time MapEd will be the same as previous. Good for debug.
@@ -681,7 +686,7 @@ begin
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
 
-  fLog.AppendLog('Loading DAT...');
+  fLog.AppendLog('Loading DAT file: '+aMissionPath);
   if FileExists(aMissionPath) then
   begin
     fMissionParser := TMissionParser.Create(mpm_Editor);

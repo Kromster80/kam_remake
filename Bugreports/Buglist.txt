@@ -13,7 +13,8 @@ EXE-only r1831+:
  +	Fixed some causes of "unit on unwalkable tile" errors
  +	Sometimes workers would step off the tile they were building a road on at the moment the stone was delivered, then hammer the ground at the wrong location
  +	The first item in the Single Maps list could not be played
-	Crabs are stuck between roads building on them is buggy
+	Victory/defeat causes a mismatch in the replay
+ +	Crabs are stuck between roads building on them is buggy
  +	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence. (Bug happens when either side uses super speedup from F11 panel)
  ?	When choosing color for multiplayer it affects only minimap, flags color remains default
 

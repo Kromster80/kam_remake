@@ -158,7 +158,7 @@ begin
 
   if not RouteBuilt then
   begin
-    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
+    fLog.AddToLog('Unable to make a route for '+TypeToString(aUnit.UnitType)+' from '+TypeToString(fWalkFrom)+' to '+TypeToString(fWalkTo)+' with default fPass');
     exit; //NoList.Count = 0, means it will exit in Execute
   end;
 end;

@@ -256,7 +256,7 @@ var
 begin
   Result := false;
   if not CheckFileExists(FileName) then exit;
-  fLog.AppendLog('Loading map file');
+  fLog.AppendLog('Loading map file: '+FileName);
 
   S := TKMemoryStream.Create;
   try
