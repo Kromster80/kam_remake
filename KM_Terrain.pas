@@ -1190,10 +1190,14 @@ end;
 
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
-var i,k:integer;
-  HousesNearBy:boolean;
+var
+  i,k:integer;
+  HousesNearBy,WasWalkable:boolean;
+
   procedure AddPassability(aLoc:TKMPoint; aPass:TPassabilitySet);
-  begin Land[aLoc.Y,aLoc.X].Passability:=Land[aLoc.Y,aLoc.X].Passability + aPass; end;
+  begin
+    Land[aLoc.Y,aLoc.X].Passability:=Land[aLoc.Y,aLoc.X].Passability + aPass;
+  end;
 
   function IsObjectsNearby(X,Y:integer):boolean;
   var i,k:integer;
@@ -1213,11 +1217,12 @@ var i,k:integer;
         end;
   end;
 begin
-  //First of all exclude all tiles outside of actual map
-  if not TileInMapCoords(Loc.X,Loc.Y) then begin
-    fGame.GameError(Loc, 'Failed to recalculate passability');
-    exit;
-  end;
+  Assert(TileInMapCoords(Loc.X,Loc.Y)); //First of all exclude all tiles outside of actual map
+
+  //Check if tile occupied by Unit was walkable in previous state and now is unwalkable due to Height change
+  //We should try restore walkability at least by flattening terrain, otherwise it's different and more serious error
+  WasWalkable := (Land[Loc.Y,Loc.X].IsUnit <> nil) and CheckPassability(Loc,CanWalk) and not CheckHeightPass(Loc,CanWalk);
+  if WasWalkable then FlattenTerrain(Loc);
 
   Land[Loc.Y,Loc.X].Passability := [];
 
@@ -1227,7 +1232,7 @@ begin
    if (TileIsWalkable(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-      CheckHeightPass(Loc,CanWalk)then
+      CheckHeightPass(Loc,CanWalk) then
      AddPassability(Loc, [CanWalk]);
 
    if (Land[Loc.Y,Loc.X].TileOverlay=to_Road)and
