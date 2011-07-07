@@ -106,6 +106,7 @@ var
   F: TFileStream;
   B: String;
 begin
+  if not FileExists(Name) then exit;
   if PathOnZip <> '' then PathOnZip := IncludeTrailingBackslash(PathOnZip);
   F := TFileStream.Create(Name, fmOpenRead);
   try
