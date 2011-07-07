@@ -236,7 +236,7 @@ constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings)
 begin
   Inherited Create;
 
-  fLog.AssertToLog(fTextLibrary<>nil, 'fTextLibrary should be initialized before MainMenuInterface');
+  Assert(fTextLibrary<>nil, 'fTextLibrary should be initialized before MainMenuInterface');
 
   ScreenX := min(X,MENU_DESIGN_X);
   ScreenY := min(Y,MENU_DESIGN_Y);
@@ -478,8 +478,8 @@ begin
         DropBox_LobbyLoc[i].AddItem('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT, true);
-        DropColorBox_Lobby[i].AddColors(MP_TEAM_COLORS);
+        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT);
+        DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, true);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
         CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 450, top, 50, 20, '', fnt_Metal);
