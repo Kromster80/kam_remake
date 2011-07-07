@@ -1497,16 +1497,22 @@ begin
   //       (e.g. so they don't try to build a city when it is a siege mission) This allows single player missions to be used for multiplayer and vice versa.
   //       These are just ideas and I think they could be redesigned in a less confusing way for both the players and mission creators.
   //       Let me know what you think. Maybe we should discuss this.
+
+  //Reset everything
+  for i:=0 to fPlayers.Count-1 do
+  begin
+    CheckBox_PlayerTypes[i,0].Checked := false;
+    CheckBox_PlayerTypes[i,1].Checked := true;
+    fPlayers[i].PlayerType := pt_Computer;
+  end;
+
+  //Define only 1 human player
   i := TKMCheckBox(Sender).Tag;
   if Sender = CheckBox_PlayerTypes[i,0] then
   begin
     CheckBox_PlayerTypes[i,0].Checked := true;
     CheckBox_PlayerTypes[i,1].Checked := false;
     fPlayers[i].PlayerType := pt_Human
-  end else begin
-    CheckBox_PlayerTypes[i,0].Checked := false;
-    CheckBox_PlayerTypes[i,1].Checked := true;
-    fPlayers[i].PlayerType := pt_Computer;
   end;
 end;
 

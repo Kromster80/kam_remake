@@ -15,7 +15,7 @@ type
     fPlayerAnimals:TKMPlayerAnimals;
     function GetPlayer(Index:integer):TKMPlayer;
   public
-    Selected: TObject;
+    Selected: TObject; //Unit or House
 
     constructor Create;
     destructor Destroy; override;

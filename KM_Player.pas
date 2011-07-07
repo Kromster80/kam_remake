@@ -137,9 +137,8 @@ constructor TKMPlayer.Create(aPlayerIndex:TPlayerIndex);
 var i: integer;
 begin
   Inherited Create (aPlayerIndex);
-  fPlayerType   := pt_Computer;
   fAI           := TKMPlayerAI.Create(fPlayerIndex);
-  fFogOfWar     := TKMFogOfWar.Create;
+  fFogOfWar     := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
@@ -148,10 +147,10 @@ begin
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
+
+  fPlayerType   := pt_Computer;
   for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
-
-  fFogOfWar.SetMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fSkipWinConditionCheck := false;
   fSkipDefeatConditionCheck := false;

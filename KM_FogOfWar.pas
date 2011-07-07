@@ -19,6 +19,7 @@ type
       LastHouse:THouseType;}
     end;
   public
+    constructor Create(X,Y:integer);
     procedure SetMapSize(X,Y:integer);
     procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word);
     procedure RevealEverything;
@@ -36,6 +37,13 @@ implementation
 
 
 { TKMFogOfWar }
+constructor TKMFogOfWar.Create(X,Y:integer);
+begin
+  Inherited Create;
+  SetMapSize(X,Y);
+end;
+
+
 procedure TKMFogOfWar.SetMapSize(X,Y:integer);
 var i:integer;
 begin
