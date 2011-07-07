@@ -25,6 +25,7 @@ type
   private //Irrelevant to savegame
     ScreenX,ScreenY:word;
     FormControlsVisible:boolean;
+    fFormPassability:integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
     fGameSpeed:integer;
@@ -91,6 +92,7 @@ type
     property GetCampaign:TCampaign read fActiveCampaign;
     property GetCampaignMap:byte read fActiveCampaignMap;
     property MultiplayerMode:boolean read fMultiplayerMode;
+    property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;

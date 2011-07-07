@@ -353,6 +353,8 @@ begin
     Label2.Caption := PassabilityStr[TPassability(Debug_PassabilityTrack.Position)]
   else
     Label2.Caption := '';
+  if fGame<> nil then
+    fGame.FormPassability := Debug_PassabilityTrack.Position;
 end;
 
 

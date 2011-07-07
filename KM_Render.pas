@@ -107,11 +107,13 @@ type
       property RendererVersion:string read fOpenGL_Version;
     end;
 
+    
 var
   fRender: TRender;
 
+
 implementation
-uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_Units;
+uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_Units;
 
 
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
@@ -554,9 +556,9 @@ end;
 procedure TRender.RenderDebugPassability(x1,x2,y1,y2:integer);
 var i,k,Passability:integer;
 begin
-  Passability := Form1.Debug_PassabilityTrack.Position;
-    if fGame.fMapEditorInterface <> nil then
-      Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
+  Passability := fGame.FormPassability;
+  if fGame.fMapEditorInterface <> nil then
+    Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
 
   if Passability <> 0 then
   begin
