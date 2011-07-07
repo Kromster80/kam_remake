@@ -1604,15 +1604,16 @@ begin
   UpdateHitPoints;
   UpdateVisibility; //incase units home was destroyed
 
-  //Shortcut to freeze unit in place if it's on an unwalkable tile
+  //Shortcut to freeze unit in place if it's on an unwalkable tile. We use fNextPosition rather than fCurrPosition
+  //because once we have taken a step from a tile we no longer care about it. (fNextPosition matches up with IsUnit in terrain)
   if fCurrentAction is TUnitActionWalkTo then
     if GetDesiredPassability = CanWalkRoad then
     begin
-      if not fTerrain.CheckPassability(fCurrPosition, CanWalk) then
-        raise TKaMLocException.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass canWalk',fCurrPosition);
+      if not fTerrain.CheckPassability(fNextPosition, CanWalk) then
+        raise TKaMLocException.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fNextPosition)+' pass canWalk',fNextPosition);
     end else
-    if not fTerrain.CheckPassability(fCurrPosition, GetDesiredPassability) then
-      raise TKaMLocException.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fCurrPosition)+' pass '+PassabilityStr[GetDesiredPassability],fCurrPosition);
+    if not fTerrain.CheckPassability(fNextPosition, GetDesiredPassability) then
+      raise TKaMLocException.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fNextPosition)+' pass '+PassabilityStr[GetDesiredPassability],fNextPosition);
 
 
   //

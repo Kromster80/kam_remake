@@ -674,6 +674,8 @@ begin
       //       custom PNG images? Delete my attempt if it's wrong, I tried copying and modifying it.
       //@Lewin: I'm not sure how to make it to work so that custom 24bit images were easy to edit and
       //        loaded without errors in color areas recognition.
+      //todo: Think about using grey masks for flag colors (see above)
+
       {for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
           L := RXData[RX].RGBA[ID,y*po.Width+x];
           if RXData[RX].HasMask[i] and (L in[GetColor32(23),GetColor32(24),GetColor32(25),GetColor32(26),

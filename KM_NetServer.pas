@@ -228,6 +228,7 @@ begin
   //@Lewin: We can tell the Client he is going to be a Host (has control over server and game setup)
   //Someone has to be in charge of that sort of things. And later on we can support reassign of Host
   //role, so any Client could be in charge (e.g. if Host is defeated or quit)
+  //@Krom: Sounds good to me. Implement it as you described.
 
   SendMessage(aHandle, mk_IndexOnServer, aHandle, '');
 end;

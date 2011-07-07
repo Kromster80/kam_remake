@@ -527,6 +527,7 @@ begin
   //        2. We don't want to remove Seed from GameInit and MapEdStart (where they are meaningless)
   //        because of the similar reason - to keep consistency in debug. We can start TownTutorial
   //        again and again and each time game will be created perfectly the same.
+  //@Krom: Thanks, I understand now. To be deleted (or converted to a comment if you think it's necessary)
   RandSeed := 4; //Random after StartGameMP and ViewReplay should match
 end;
 

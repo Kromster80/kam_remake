@@ -344,13 +344,8 @@ begin
     blockwrite(f,t,4); //unknown
   end;
 
-  
-  //@Krom: Temporary fix to make the maps compatible with KaM. I do not understand the resource footer
-  //       If you would like to write it properly please feel free to do so
-  //@Lewin: I don't know nothing about resource footers. I know they exist and thats all, so if that
-  //        hack works we should probably leave it 'as is', until something better comes up
-  //        (e.g. format description)
-
+  //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
+  //are formatted we can implement it, but for now it appears to work fine like this.
   ResHead.x1:=0;
   ResHead.Allocated:=MapX+MapY;
   ResHead.Qty1:=0;
@@ -1137,15 +1132,6 @@ begin
   UpdateTransition(Loc.X+1,Loc.Y); //  x X x
   UpdateTransition(Loc.X,Loc.Y+1); //    x
   UpdateTransition(Loc.X-1,Loc.Y);
-  //@Krom: We have a crash caused by this. Start the town tutorial, then leave it running without touching anything.
-  //       After ~30 minutes the game crashes with a "serf on unwalkable tile" error. It is caused by a serf
-  //       walking past the stone hill at the exact moment the stonemason finishes mining and flatterns the hill.
-  //       The tile the serf is stepping to becomes unwalkable, (too steep) triggering this error.
-  //       Same thing would happen if you had any unit standing near a stone hill. We need to discuss a solution.
-  //       I think this is the same bug being reported on the forums. I can't see any easy solutions.
-  //       We need to flatten this tile without making any other tiles become unwalkable. (at least ones with units)
-  //@Lewin: I think we should add code to FlattenTerrain that would check tiles and neighbour tiles it flattens
-  //        and flatten them recursively to compensate Passability worsening
   FlattenTerrain(Loc);
   //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
   if not CheckHeightPass(KMPointY1(Loc),CanWalk) then
