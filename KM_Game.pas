@@ -8,6 +8,7 @@ uses
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
+  KM_MapEditor,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music,
   KM_ArmyEvaluation;
@@ -33,6 +34,7 @@ type
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
     fMusicLib: TMusicLib;
+    fMapEditor: TKMMapEditor;
     fProjectiles:TKMProjectiles;
     fNetworking:TKMNetworking;
   //Should be saved
@@ -98,6 +100,7 @@ type
 
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
     property CampaignSettings: TCampaignSettings read fCampaignSettings;
+    property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib:TMusicLib read fMusicLib;
     property Projectiles:TKMProjectiles read fProjectiles;
     property Networking:TKMNetworking read fNetworking;
@@ -371,6 +374,8 @@ begin
         fLog.AppendLog('DAT Loaded')
       else
         Raise Exception.Create(fMissionParser.ErrorMessage);
+      MyPlayer := fPlayers.Player[fMissionParser.MissionDetails.HumanPlayerID];
+      Assert(MyPlayer.PlayerType = pt_Human);
       fMissionMode := fMissionParser.MissionDetails.MissionMode;
       FreeAndNil(fMissionParser);
     except
@@ -619,6 +624,7 @@ begin
     FreeThenNil(fPlayers);
     FreeThenNil(fProjectiles);
     FreeThenNil(fTerrain);
+    FreeThenNil(fMapEditor);
 
     FreeThenNil(fGamePlayInterface);  //Free both interfaces
     FreeThenNil(fMapEditorInterface); //Free both interfaces
@@ -690,6 +696,7 @@ begin
   fRender.Render;
 
   fViewport := TViewport.Create;
+  fMapEditor := TKMMapEditor.Create;
   fMapEditorInterface := TKMapEdInterface.Create;
 
   //Here comes terrain/mission init
@@ -708,8 +715,9 @@ begin
       GameStop(gr_Error, fMissionParser.ErrorMessage);
       Exit;
     end;
-    FreeAndNil(fMissionParser);
+    MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
+    FreeAndNil(fMissionParser);
     fLog.AppendLog('DAT Loaded');
     fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin

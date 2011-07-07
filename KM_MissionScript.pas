@@ -84,7 +84,8 @@ type
     MapPath: string;
     MapSize: TKMPoint;
     MissionMode: TKMissionMode;
-    PlayerCount, HumanPlayerID: shortint;
+    PlayerCount: shortint;
+    HumanPlayerID: TPlayerIndex;
     VictoryCond:string;
     DefeatCond:string;
   end;
@@ -155,7 +156,7 @@ begin
   fMissionInfo.MapSize.Y := 0;
   fMissionInfo.MissionMode := mm_Normal;
   fMissionInfo.PlayerCount := 0;
-  fMissionInfo.HumanPlayerID := 0;
+  fMissionInfo.HumanPlayerID := PLAYER_NONE;
   fMissionInfo.VictoryCond := '';
   fMissionInfo.DefeatCond := '';
 
@@ -427,11 +428,8 @@ begin
   //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
   ProcessAttackPositions;
 
-  if fParsingMode = mpm_Editor then
-    MyPlayer := fPlayers.Player[0];
-
   //SinglePlayer needs a player
-  if (MyPlayer = nil) and (fParsingMode = mpm_Single)then
+  if (fMissionInfo.HumanPlayerID = PLAYER_NONE) and (fParsingMode = mpm_Single) then
   begin
     DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
     Exit;
@@ -488,8 +486,8 @@ begin
                        if (fPlayers <> nil) and (fParsingMode <> mpm_Multi) then
                          if InRange(ParamList[0],0,fPlayers.Count-1) then
                          begin
-                           MyPlayer := fPlayers.Player[ParamList[0]];
-                           MyPlayer.PlayerType := pt_Human;
+                           fMissionInfo.HumanPlayerID := ParamList[0];
+                           fPlayers.Player[ParamList[0]].PlayerType := pt_Human;
                          end;
                        end;
     ct_AIPlayer:       begin
