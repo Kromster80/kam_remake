@@ -221,6 +221,7 @@ type
     procedure AssertToLog(TestValue:boolean; const aMessageText:string);
     //AddToLog simply adds the text
     procedure AddToLog(const aText:string);
+    property LogPath: string read fLogPath;
   end;
 
 
