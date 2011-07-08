@@ -31,6 +31,7 @@ type
     fOnJoinSucc:TNotifyEvent;
     fOnJoinFail:TStringEvent;
     fOnJoinAssignedHost:TNotifyEvent;
+    fOnHostFail:TStringEvent;
     fOnTextMessage:TStringEvent;
     fOnPlayersSetup:TNotifyEvent;
     fOnMapName:TStringEvent;
@@ -83,6 +84,7 @@ type
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
+    property OnHostFail:TStringEvent write fOnHostFail;         //Server failed to start (already running a server?)
     property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights
 
     property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
@@ -142,8 +144,17 @@ begin
   fNetServer.StopListening;
 
   fNetServer.OnStatusMessage := fOnTextMessage;
-  fNetServer.StartListening(KAM_PORT);
-
+  try
+    fNetServer.StartListening(KAM_PORT);
+  except
+    on E : Exception do
+    begin
+      //Server failed to start
+      fOnHostFail(E.ClassName+': '+E.Message);
+      fNetServer.StopListening;
+      exit;
+    end;
+  end;
   Join('127.0.0.1', aUserName); //Server will assign hosting rights to us as we are the first joiner
 end;
 
@@ -198,6 +209,8 @@ procedure TKMNetworking.Disconnect;
 begin
   fOnJoinSucc := nil;
   fOnJoinFail := nil;
+  fOnJoinAssignedHost := nil;
+  fOnHostFail := nil;
   fOnTextMessage := nil;
   fOnPlayersSetup := nil;
   fOnMapName := nil;
@@ -264,7 +277,7 @@ begin
   PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Folder, 0 {Integer(fMapInfo.CRC)}); //todo: Send CRC as well
   fNetPlayers[fMyIndex].ReadyToStart := true;
 
-  if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+  SendPlayerListAndRefreshPlayersSetup;
   if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
 end;
 
@@ -439,6 +452,17 @@ begin
 
 
   case Kind of
+    mk_GameVersion:
+            begin
+              if Msg <> GAME_REVISION then
+              begin
+                Assert(not IsHost);
+                fOnJoinFail('Wrong game version: '+GAME_REVISION+'. Server uses: '+Msg);
+                fNetClient.Disconnect;
+                exit;
+              end;
+            end;
+
     mk_HostingRights:
             begin
               fLANPlayerKind := lpk_Host;
@@ -541,7 +565,7 @@ begin
     mk_MapSelect:
             if fLANPlayerKind = lpk_Joiner then begin
               fMapInfo.Load(Msg, true);
-              fNetPlayers.ResetLocAndReady; //We can ignore Hosts "Ready" flag for now
+              fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
@@ -576,7 +600,7 @@ begin
     mk_ReadyToStart:
             if IsHost then begin
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart := true;
-              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+              SendPlayerListAndRefreshPlayersSetup;
             end;
 
     mk_Start:

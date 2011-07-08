@@ -62,6 +62,7 @@ type
     procedure LAN_JoinSuccess(Sender: TObject);
     procedure LAN_JoinFail(const aData:string);
     procedure LAN_JoinAssignedHost(Sender: TObject);
+    procedure LAN_HostFail(const aData:string);
     procedure LAN_BindEvents;
     procedure LAN_Save_Settings;
     procedure LAN_BackClick(Sender: TObject);
@@ -1158,6 +1159,7 @@ begin
   SwitchMenuPage(Sender); //Open lobby page
 
   LAN_BindEvents;
+  fGame.Networking.OnHostFail := LAN_HostFail;
   fGame.Networking.Host(Edit_LAN_Name.Text); //All events are nilled
 end;
 
@@ -1210,7 +1212,16 @@ begin
   fGame.Networking.OnJoinSucc := nil;
   fGame.Networking.OnJoinFail := nil;
   fGame.Networking.OnJoinAssignedHost := nil;
+  fGame.Networking.OnHostFail := LAN_HostFail;
   LAN_BindEvents;
+end;
+
+
+procedure TKMMainMenuInterface.LAN_HostFail(const aData:string);
+begin
+  fGame.Networking.Disconnect;
+  SwitchMenuPage(Button_LobbyBack);
+  LAN_Update(aData);
 end;
 
 

@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Windows, KM_CommonTypes, KM_NetServerOverbyte;
+uses Classes, SysUtils, Windows, KM_CommonTypes, KM_NetServerOverbyte, KM_Defaults;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -169,6 +169,8 @@ begin
   fClientList := TKMClientsList.Create;
   fServer := TKMNetServerOverbyte.Create;
   fListening := false;
+  SetLength(fBuffer,0);
+  fBufferSize := 0;
 end;
 
 
@@ -189,6 +191,8 @@ end;
 
 procedure TKMNetServer.StartListening(aPort:string);
 begin
+  SetLength(fBuffer,0);
+  fBufferSize := 0;
   fHostHandle := NET_ADDRESS_EMPTY;
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
@@ -203,6 +207,8 @@ end;
 
 procedure TKMNetServer.StopListening;
 begin
+  SetLength(fBuffer,0);
+  fBufferSize := 0;
   fOnStatusMessage := nil;
   fServer.StopListening;
   fListening := false;
@@ -229,6 +235,7 @@ begin
     fOnStatusMessage('Server: Client has connected '+inttostr(aHandle));
 
   fClientList.AddPlayer(aHandle);
+  SendMessage(aHandle, mk_GameVersion, 0, GAME_REVISION); //First make sure they are using the right version
 
   //Let the first client be a Host
   if fHostHandle = NET_ADDRESS_EMPTY then
@@ -313,7 +320,7 @@ begin
   M.Read(Kind, SizeOf(TKMessageKind));
   case NetPacketType[Kind] of
     pfNumber: M.Read(Param);
-    pfText:   M.Write(Msg);
+    pfText:   M.Read(Msg);
   end;
   M.Free;
 

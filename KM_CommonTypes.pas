@@ -29,6 +29,8 @@ type
     mk_IndexOnServer,   //Server tells Client his index
     mk_ClientLost,      //Server tells clients that someone has disconnected
 
+    mk_GameVersion,     //Server tells a new client which game version we are using
+
     mk_Disconnect,      //Joiner tells Host that he is leaving the lobby/game deliberately
                         //Host tells Joiners that he is quitting
                         //A. Server runs on the same machine and stops right after
@@ -66,6 +68,7 @@ const
     pfNoData,   //mk_HostingRights
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
+    pfText,     //mk_GameVersion
     pfNoData,   //mk_Disconnect
     pfNoData,   //mk_AskPingInfo
     pfNoData,   //mk_Ping

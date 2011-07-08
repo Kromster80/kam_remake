@@ -69,6 +69,8 @@ begin
   Inherited;
   fClient := TKMNetClientOverbyte.Create;
   fConnected := false;
+  SetLength(fBuffer,0);
+  fBufferSize := 0;
 end;
 
 
@@ -93,6 +95,8 @@ end;
 
 procedure TKMNetClient.ConnectTo(const aAddress:string; const aPort:string);
 begin
+  SetLength(fBuffer,0);
+  fBufferSize := 0;
   fClient.OnError := Error;
   fClient.OnConnectSucceed := ConnectSucceed;
   fClient.OnConnectFailed := ConnectFailed;
@@ -126,6 +130,9 @@ begin
   fOnForcedDisconnect := nil;
   fOnRecieveData := nil;
   fOnStatusMessage := nil;
+
+  SetLength(fBuffer,0);
+  fBufferSize := 0;
 
   fConnected := false;
   fClient.Disconnect;
@@ -181,6 +188,7 @@ begin
     if PacketLength <= fBufferSize-12 then
     begin
       fOnRecieveData(PacketSender, @fBuffer[12], PacketLength); //Skip packet header
+      if not Assigned(fOnRecieveData) then exit; //Network was stopped by processing above packet (e.g. version mismatch)
       if 12+PacketLength < fBufferSize then //Check range
         Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
       fBufferSize := fBufferSize - PacketLength - 12;

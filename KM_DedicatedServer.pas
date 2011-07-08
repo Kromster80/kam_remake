@@ -41,7 +41,16 @@ end;
 procedure TKMDedicatedServer.Start;
 begin
   fNetServer.OnStatusMessage := StatusMessage;
-  fNetServer.StartListening(KAM_PORT);
+  try
+    fNetServer.StartListening(KAM_PORT);
+  except
+    on E : Exception do
+    begin
+      //Server failed to start
+      StatusMessage('SERVER FAILED TO START! '+E.ClassName+': '+E.Message);
+      Stop;
+    end;
+  end;
 end;
 
 procedure TKMDedicatedServer.Stop;

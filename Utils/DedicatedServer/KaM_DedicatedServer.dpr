@@ -6,11 +6,12 @@ uses
   SysUtils,
   Windows,
   KM_Defaults,
+  KM_CommonTypes,
   KM_DedicatedServer,
-  KM_EventHandler in 'KM_EventHandler.pas';
+  KM_ServerEventHandler in 'KM_ServerEventHandler.pas';
 
 var
-  fEventHandler: TKMEventHandler;
+  fEventHandler: TKMServerEventHandler;
   fDedicatedServer: TKMDedicatedServer;
 
 procedure MyProcessMessages;
@@ -26,8 +27,10 @@ end;
 
 
 begin
-  fEventHandler := TKMEventHandler.Create;
+  fEventHandler := TKMServerEventHandler.Create;
   Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
+  Writeln('');
+  Writeln('Log file: '+fLog.LogPath);
   Writeln('');
   fDedicatedServer := TKMDedicatedServer.Create;
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
