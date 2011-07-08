@@ -1283,9 +1283,10 @@ end;
 
 
 procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
+var Point : TKMPoint;
 begin
-  if (fMessageList.GetLoc(ShownMessage).X <> 0) and (fMessageList.GetLoc(ShownMessage).Y <> 0) then
-    fViewport.SetCenter(fMessageList.GetLoc(ShownMessage).X,fMessageList.GetLoc(ShownMessage).Y);
+  if not(fMessageList.GetLoc(ShownMessage, Point)) then exit;
+  fViewport.SetCenter(Point.X, Point.Y);
 end;
 
 

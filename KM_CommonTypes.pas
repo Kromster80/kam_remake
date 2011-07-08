@@ -151,7 +151,7 @@ type
     function GetMsgHasGoTo(aID:cardinal):boolean;
     function GetMsgHasSound(aID:cardinal):boolean;
     function GetText(aID:cardinal):string;
-    function GetLoc(aID:cardinal):TKMPoint;
+    function GetLoc(aID:cardinal; var Point:TKMPoint):Boolean;
     property Count:cardinal read fCount;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -516,12 +516,12 @@ begin
 end;
 
 
-function TKMMessageList.GetLoc(aID:cardinal):TKMPoint;
+function TKMMessageList.GetLoc(aID:cardinal; var Point:TKMPoint):Boolean;
 begin
-  if aID in [1..fCount] then
-    Result := fList[aID].msgLoc
-  else
-    Result := KMPoint(0,0);
+  Result := false;
+  if not(aID in [1..fCount]) then exit;
+  Point := fList[aID].msgLoc;
+  Result := true;
 end;
 
 
