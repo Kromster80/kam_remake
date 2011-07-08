@@ -898,6 +898,7 @@ begin
   SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
+  SaveStream.Write(RandSeed); //Include the random seed in the save file to ensure consistency in replays
 
   fTerrain.Save(SaveStream); //Saves the map
   fPlayers.Save(SaveStream); //Saves all players properties individually
@@ -966,6 +967,7 @@ function TKMGame.Load(SlotID:shortint):string;
 var
   LoadStream:TKMemoryStream;
   s,FileName:string;
+  LoadedSeed:Longint;
 begin
   fLog.AppendLog('Loading game');
   Result := '';
@@ -1004,6 +1006,7 @@ begin
     LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
+    LoadStream.Read(LoadedSeed);
 
     fPlayers := TKMPlayersCollection.Create;
 
@@ -1039,6 +1042,7 @@ begin
     end;
   end;
 
+  RandSeed := LoadedSeed;
   fGameState := gsRunning;
   fLog.AppendLog('Loading game',true);
 end;

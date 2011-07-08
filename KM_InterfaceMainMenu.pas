@@ -505,9 +505,9 @@ begin
       FileList_Lobby.OnChange := Lobby_MapSelect;
       TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, 'Map info:', fnt_Outline, kaLeft);
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
-      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 400, 220, 20, 'Players: 4/6', fnt_Metal, kaLeft);
-      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 420, 220, 20, 'Mode: Building', fnt_Metal, kaLeft);
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, 'Conditions: Town', fnt_Metal, kaLeft);
+      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 400, 220, 20, '', fnt_Metal, kaLeft);
+      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 420, 220, 20, '', fnt_Metal, kaLeft);
+      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, '', fnt_Metal, kaLeft);
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 80, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
@@ -1262,6 +1262,11 @@ begin
 
   ListBox_LobbyPosts.Clear;
   Edit_LobbyPost.Text := '';
+
+  Label_LobbyMapName.Caption := '';
+  Label_LobbyMapCount.Caption := 'Players: ';
+  Label_LobbyMapMode.Caption := 'Mode: ';
+  Label_LobbyMapCond.Caption := 'Conditions: ';
 
   if Sender = Button_LAN_Host then begin
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', 'map', true); //Refresh each time we go here

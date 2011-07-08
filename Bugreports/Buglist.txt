@@ -1,4 +1,29 @@
-EXE-only r1831+:
+Unfixed from r1901+:
+<===================================================================================>
+ 	Multiplayer has a fixed delay of 3.2 seconds between a command being issued and it being carried out. This should be adjusted based on ping.
+ 	Replay mismatches caused by an unknown bug
+ 	Multiplayer becomes out of sync
+	Edges of messages and other scrolls should be transparent so they look smooth
+	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+	Because KaM uses unusual character sets, special letters from LIBX files are shown incorrectly. We need to do a conversion from standard LIBX character set to KaM character set. (German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button)
+
+	Make houses highlight red when about to erase them as trees/units do (in MapEd)
+	Save correct number of players from MapEd
+	Dots and lines displaying on tile edges [Krom]
+ 
+	Colored rectangle below cursor	
+	MediaPlayer won't play some mp3s and crash
+	Some texts don't fit in the left panel (e.g. "Preparing house area")
+	See-through hills (lighting flaw)
+	Many texts will not change if I change the language in options menu
+
+ -	The ingame briefing texture is too short, see attached picture
+ -	Serfs should take wares back or to suitable house if destination is destroyed
+ -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+
+
+
+Fixed in r1901:
 <===================================================================================>
  +	Swinefarm and Stables had discolored flags
  +	In damaged stables fire was painted on horses back! it should be behind it
@@ -19,31 +44,13 @@ EXE-only r1831+:
  +	Dedicated server added
  +	Cannot join a server running a different game version
  +	Victory/defeat causes a mismatch in the replay
+ +	Loading a saved game caused the replay to mismatch (random seed was not stored)
  +	Crabs are stuck between roads building on them is buggy
  +	Fixed terrain flattening bug that made tiles underneath units unwalkable
  +	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence. (Bug happens when either side uses super speedup from F11 panel)
  +	Archers do not compensate for moving targets, they should try to predict enemy position when shooting
  ?	When choosing color for multiplayer it affects only minimap, flags color remains default
 
- 	Replay mismatches caused by an unknown bug
- 	Multiplayer becomes out of sync
-	Edges of messages and other scrolls should be transparent so they look smooth
-	The story message on campaign map should fade between sides when you mouse over, rather than jumping
-	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
-
-	Make houses highlight red when about to erase them as trees/units do (in MapEd)
-	Save correct number of players from MapEd
-	Dots and lines displaying on tile edges [Krom]
- 
-	Colored rectangle below cursor	
-	MediaPlayer won't play some mp3s and crash
-	Some texts don't fit in the left panel (e.g. "Preparing house area")
-	See-through hills (lighting flaw)
-	Many texts will not change if I change the language in options menu
-
- -	The ingame briefing texture is too short, see attached picture
- -	Serfs should take wares back or to suitable house if destination is destroyed
- -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
 
 
 Fixed in r1831:

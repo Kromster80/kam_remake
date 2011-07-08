@@ -159,6 +159,7 @@ object Form1: TForm1
       Height = 16
       Caption = 'TestCalcArmy'
       TabOrder = 5
+      Visible = False
       OnClick = Button_CalcArmyClick
     end
   end

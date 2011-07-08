@@ -222,6 +222,9 @@ begin
   fNetClient.Disconnect;
   fNetServer.StopListening;
   fNetServer.ClearClients;
+
+  fMapInfo.Free;
+  fMapInfo := TKMapInfo.Create;
 end;
 
 
