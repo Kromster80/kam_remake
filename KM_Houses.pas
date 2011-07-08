@@ -255,7 +255,7 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player, KM_ResourceGFX;
 
 
 { TKMHouse }
@@ -300,7 +300,7 @@ begin
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
   begin 
     Activate(false);
-    fBuildingProgress := HouseDAT[byte(fHouseType)].MaxHealth;
+    fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
   end else
     fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, -1); //Terrain remains neutral yet
@@ -370,7 +370,7 @@ end;
 procedure TKMHouse.ReleaseHousePointer;
 begin
   if fPointerCount < 1 then
-    raise ELocError.Create('House remove pointer for '+TypeToString(fHouseType), fPosition);
+    raise ELocError.Create('House remove pointer for '+fResource.HouseDat.HouseName(fHouseType), fPosition);
   dec(fPointerCount);
 end;
 
@@ -397,7 +397,7 @@ procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-  fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
+  fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -452,7 +452,7 @@ begin
   fTerrain.RemRoad(GetEntrance);
   if fTerrain.CanPlaceHouse(aPos, GetHouseType, MyPlayer) then
   begin
-    fPosition.X := aPos.X - HouseDAT[byte(fHouseType)].EntranceOffsetX;
+    fPosition.X := aPos.X - fResource.HouseDat[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
   end;
   fTerrain.SetHouse(fPosition,fHouseType,hs_Built,fOwner);
@@ -463,7 +463,7 @@ end;
 {Return Entrance of the house, which is different than house position sometimes}
 function TKMHouse.GetEntrance:TKMPoint;
 begin
-  Result.X := GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
+  Result.X := GetPosition.X + fResource.HouseDat[fHouseType].EntranceOffsetX;
   Result.Y := GetPosition.Y;
 end;
 
@@ -595,10 +595,10 @@ begin
   inc(fBuildingProgress,5); //is how many effort was put into building nevermind applied damage
   dec(fBuildReserve,5); //This is reserve we build from
 
-  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCost*50) then
+  if (fBuildState=hbs_Wood)and(fBuildingProgress = fResource.HouseDat[fHouseType].WoodCost*50) then
     fBuildState:=hbs_Stone;
 
-  if (fBuildState=hbs_Stone)and(fBuildingProgress-HouseDAT[byte(fHouseType)].WoodCost*50 = HouseDAT[byte(fHouseType)].StoneCost*50) then
+  if (fBuildState=hbs_Stone)and(fBuildingProgress-fResource.HouseDat[fHouseType].WoodCost*50 = fResource.HouseDat[fHouseType].StoneCost*50) then
   begin
     fBuildState := hbs_Done;
     fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
@@ -609,7 +609,7 @@ end;
 
 function TKMHouse.GetMaxHealth:word;
 begin
-  Result := HouseDAT[byte(fHouseType)].WoodCost*50 + HouseDAT[byte(fHouseType)].StoneCost*50;
+  Result := fResource.HouseDat[fHouseType].WoodCost*50 + fResource.HouseDat[fHouseType].StoneCost*50;
 end;
 
 
@@ -871,7 +871,7 @@ begin
   WorkID := fCurrentAction.GetWorkID;
   if WorkID=0 then exit;
 
-  Step := HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
+  Step := fResource.HouseDat[fHouseType].Anim[WorkID].Count;
   if Step=0 then exit;
 
   //WatchTower has only 1 anim frame at Work2, hence it repeats the sound each frame
@@ -971,7 +971,7 @@ begin
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
   if FlagAnimStep mod 10 = 0 then
-    fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC);
+    fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition,fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -997,7 +997,7 @@ begin
   if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (HouseDAT[byte(GetHouseType)].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
+  if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (fResource.HouseDat[fHouseType].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
   begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
@@ -1018,27 +1018,27 @@ end;
 procedure TKMHouse.Paint;
 begin
   case fBuildState of
-    hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType), fPosition);
+    hbs_Glyph: fRender.RenderHouseBuild(fHouseType, fPosition);
     hbs_NoGlyph:; //Nothing
     hbs_Wood:
       begin
-        fRender.RenderHouseWood(byte(fHouseType),
-        fBuildingProgress/50/HouseDAT[byte(fHouseType)].WoodCost, //0...1 range
+        fRender.RenderHouseWood(fHouseType,
+        fBuildingProgress/50/fResource.HouseDat[fHouseType].WoodCost, //0...1 range
         fPosition);
-        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition);
+        fRender.RenderHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
       end;
     hbs_Stone:
       begin
-        fRender.RenderHouseStone(byte(fHouseType),
-        (fBuildingProgress/50-HouseDAT[byte(fHouseType)].WoodCost)/HouseDAT[byte(fHouseType)].StoneCost, //0...1 range
+        fRender.RenderHouseStone(fHouseType,
+        (fBuildingProgress/50-fResource.HouseDat[fHouseType].WoodCost)/fResource.HouseDat[fHouseType].StoneCost, //0...1 range
         fPosition);
-        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition);
+        fRender.RenderHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
       end;
     else begin
-      fRender.RenderHouseStone(byte(fHouseType),1,fPosition);
-      fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition);
+      fRender.RenderHouseStone(fHouseType,1,fPosition);
+      fRender.RenderHouseSupply(fHouseType,fResourceIn,fResourceOut,fPosition);
       if fCurrentAction<>nil then
-        fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
+        fRender.RenderHouseWork(fHouseType,integer(fCurrentAction.fSubAction),WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
     end;
   end;
 end;
@@ -1110,11 +1110,11 @@ begin
   if fBuildState=hbs_Done then
     for i:=1 to 5 do
       if BeastAge[i]>0 then
-        fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition);
+        fRender.RenderHouseStableBeasts(fHouseType, i, min(BeastAge[i],3), WorkAnimStep, fPosition);
 
   //But Animal Breeders should be on top of beasts
   if fCurrentAction<>nil then
-    fRender.RenderHouseWork(byte(fHouseType),
+    fRender.RenderHouseWork(fHouseType,
                             integer(fCurrentAction.fSubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5]),
                             WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
 end;
@@ -1653,7 +1653,7 @@ end;
 function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; RelativeEntrance:boolean):TKMHouse;
 begin
   if RelativeEntrance then
-    Result := AddToCollection(aHouseType,PosX - HouseDAT[byte(aHouseType)].EntranceOffsetX,PosY,aOwner,hbs_Done)
+    Result := AddToCollection(aHouseType,PosX - fResource.HouseDat[aHouseType].EntranceOffsetX,PosY,aOwner,hbs_Done)
   else
     Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_Done);
 end;
@@ -1716,7 +1716,7 @@ begin
   Bid:=0;
 
   for i:=0 to Count-1 do
-    if (TUnitType(HouseDAT[byte(Houses[i].fHouseType)].OwnerType+1)=aUnitType)and //If Unit can work in here
+    if (TUnitType(fResource.HouseDat[Houses[i].fHouseType].OwnerType+1)=aUnitType)and //If Unit can work in here
        (not Houses[i].fHasOwner)and                              //If there's yet no owner
        (not Houses[i].IsDestroyed)and
        (Houses[i].IsComplete) then                               //If house is built

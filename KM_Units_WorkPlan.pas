@@ -42,8 +42,7 @@ type
   end;
 
 implementation
-
-uses KM_Game, KM_Terrain, KM_Utils;
+uses KM_Game, KM_Terrain, KM_Utils, KM_ResourceGFX;
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
 Everything should be issued by units
@@ -96,7 +95,7 @@ end;
 procedure TUnitWorkPlan.SubActAdd(aAct:THouseActionType; aCycles:single);
 begin
   inc(ActCount); HouseAct[ActCount].Act:=aAct;
-  HouseAct[ActCount].TimeToWork:=round(HouseDAT[byte(fHome)].Anim[byte(aAct)].Count * aCycles);
+  HouseAct[ActCount].TimeToWork:=round(fResource.HouseDat[fHome].Anim[byte(aAct)].Count * aCycles);
 end;
 
 
@@ -104,9 +103,9 @@ procedure TUnitWorkPlan.ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResour
 begin
   Resource1:=Res1; Count1:=Qty1;
   Resource2:=Res2; Count2:=Qty2;
-  Product1:=Prod1; ProdCount1:=HouseDAT[byte(fHome)].ResProductionX;
+  Product1:=Prod1; ProdCount1:=fResource.HouseDat[fHome].ResProductionX;
   if Prod2=rt_None then exit;
-  Product2:=Prod2; ProdCount2:=HouseDAT[byte(fHome)].ResProductionX;
+  Product2:=Prod2; ProdCount2:=fResource.HouseDat[fHome].ResProductionX;
 end;
 
 
@@ -163,7 +162,7 @@ var i:integer; Tmp: TKMPointDir;
 begin
   fHome := aHome;
   FillDefaults;
-  AfterWorkIdle := HouseDAT[byte(aHome)].WorkerRest*10;
+  AfterWorkIdle := fResource.HouseDat[aHome].WorkerRest*10;
 
   //Now we need to fill only specific properties
   if (aUnitType=ut_LamberJack)and(aHome=ht_Sawmill) then begin
@@ -473,7 +472,7 @@ begin
   if (aUnitType=ut_Recruit)and(aHome=ht_WatchTower) then begin
     fIssued:=false; //Let him idle
   end else
-    Assert(false, 'No work plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
+    Assert(false, 'No work plan for '+TypeToString(aUnitType)+' in '+fResource.HouseDat.HouseName(aHome));
 end;
 
 

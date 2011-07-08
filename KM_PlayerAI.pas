@@ -78,7 +78,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Terrain, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_Viewport, KM_UnitTaskAttackHouse;
+uses KM_Game, KM_Terrain, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_Viewport, KM_UnitTaskAttackHouse, KM_ResourceGFX;
 
 
 
@@ -255,6 +255,7 @@ end;
 procedure TKMPlayerAI.CheckUnitCount;
 var
   i,k:integer;
+  h:THouseType;
   UnitType:TUnitType;
   HS:TKMHouseSchool;
   UnitReq:array[1..HOUSE_COUNT]of integer; //There are only ~10 unit types, but using HOUSE_COUNT is easier
@@ -278,9 +279,9 @@ begin
 
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
-  for i:=1 to HOUSE_COUNT do
-    if (HouseDAT[i].OwnerType<>-1) and (THouseType(i)<>ht_Barracks) then
-      inc(UnitReq[HouseDAT[i].OwnerType+1], fPlayers[PlayerIndex].Stats.GetHouseQty(THouseType(i)));
+  for h:=Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat.IsValid(h) and (fResource.HouseDat[h].OwnerType <> -1) and (h <> ht_Barracks) then
+      inc(UnitReq[fResource.HouseDat[h].OwnerType+1], fPlayers[PlayerIndex].Stats.GetHouseQty(h));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq

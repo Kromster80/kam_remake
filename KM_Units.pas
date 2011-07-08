@@ -255,7 +255,7 @@ type TCheckAxis = (ax_X, ax_Y);
 implementation
 uses KM_Render, KM_TextLibrary, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitActionStormAttack,
-KM_Units_Warrior, KM_Terrain, 
+KM_Units_Warrior, KM_Terrain, KM_ResourceGFX,
 
 KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
@@ -395,7 +395,7 @@ begin
       else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
+          SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
@@ -417,7 +417,7 @@ begin
                       Msg := fTextLibrary.GetRemakeString(51)
                     else
                       Msg := fTextLibrary.GetRemakeString(52);
-      else         begin Assert(false, TypeToString(fHome.GetHouseType)+' resource cant possibly deplet'); Msg := ''; end;
+      else         begin Assert(false, fResource.HouseDat.HouseName(fHome.GetHouseType)+' resource cant possibly deplet'); Msg := ''; end;
     end;
     if Msg <> '' then fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
     fHome.ResourceDepletedMsgIssued := true;
@@ -564,7 +564,7 @@ begin
       else begin
         fUnitTask := InitiateActivity; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
+          SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);

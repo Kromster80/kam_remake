@@ -54,7 +54,6 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function MapSizeToString(X,Y:integer):string;
 
-  function TypeToString(t:THouseType):string; overload;
   function TypeToString(t:TResourceType):string; overload;
   function TypeToString(t:TUnitType):string; overload;
   function TypeToString(t:TKMPoint):string; overload;
@@ -476,15 +475,6 @@ begin
     38:    Result := 'Duck';
     else   Result := 'N/A';
   end;
-end;
-
-
-function TypeToString(t:THouseType):string;
-begin
-  if byte(t) in [1..HOUSE_COUNT] then
-    Result := fTextLibrary.GetTextString(siHouseNames+byte(t))
-  else
-    Result := 'N/A';
 end;
 
 

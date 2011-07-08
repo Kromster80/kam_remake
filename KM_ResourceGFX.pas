@@ -17,9 +17,61 @@ type
 
 
 type
+  TKMHouseDat = packed record
+    StonePic,WoodPic,WoodPal,StonePal:smallint;
+    SupplyIn:array[1..4,1..5]of smallint;
+    SupplyOut:array[1..4,1..5]of smallint;
+    Anim:array[1..19] of record
+      Step:array[1..30]of smallint;
+      Count:smallint;
+      MoveX,MoveY:integer;
+    end;
+    WoodPicSteps,StonePicSteps:word;
+    a1:smallint;
+    EntranceOffsetX,EntranceOffsetY:shortint;
+    EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
+    BuildArea:array[1..10,1..10]of shortint;
+    WoodCost,StoneCost:byte;
+    BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
+    a5,SizeArea:smallint;
+    SizeX,SizeY,sx2,sy2:shortint;
+    WorkerWork,WorkerRest:smallint;
+    ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
+    ResProductionX:shortint;
+    MaxHealth,Sight:smallint;
+    OwnerType:shortint;
+    Foot1:array[1..12]of shortint; //Sound indices
+    Foot2:array[1..12]of smallint; //vs sprite ID
+  end;
+
+  //Swine&Horses, 5 beasts in each house, 3 ages for each beast
+  TKMHouseBeast = packed record
+    Step:array[1..30]of smallint;
+    Count:smallint;
+    MoveX,MoveY:integer;
+  end;
+
+  //todo: Get rid of HOUSE_COUNT throughout the code and replace it with more flexible Low(THouseType)..High(THouseType)
+  TKMHouseDatCollection = class
+  private
+    fItems: array[THouseType] of TKMHouseDat;
+    fBeastAnim: array[1..2,1..5,1..3] of TKMHouseBeast; //Swine&Horses, 5 beasts in each house, 3 ages for each beast
+    function GetHouseDat(aType:THouseType):TKMHouseDat;
+    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer):TKMHouseBeast;
+  public
+    property HouseDat[aType:THouseType]:TKMHouseDat read GetHouseDat; default;
+    property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeast read GetBeastAnim;
+    function IsValid(aType:THouseType):boolean;
+    function HouseName(aType:THouseType):string;
+    procedure LoadHouseDat(aPath:string);
+    procedure ExportCSV(aPath: string);
+  end;
+
+
   TResource = class
   private
     fDataState:TDataLoadingState;
+    fHouseDat: TKMHouseDatCollection;
 
     procedure StepRefresh;
     procedure StepCaption(aCaption:string);
@@ -27,7 +79,6 @@ type
     function LoadPalettes:boolean;
     function LoadMapElemDAT(FileName:string):boolean;
     function LoadPatternDAT(FileName:string):boolean;
-    function LoadHouseDAT(FileName:string):boolean;
     function LoadUnitDAT(FileName:string):boolean;
     function LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
@@ -58,7 +109,9 @@ type
 
     function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
-    property DataState:TDataLoadingState read fDataState;
+    property DataState: TDataLoadingState read fDataState;
+    property HouseDat: TKMHouseDatCollection read fHouseDat;
+
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 
     procedure LoadFonts(DoExport:boolean; aLocale:string);
@@ -104,6 +157,7 @@ end;
 
 destructor TResource.Destroy;
 begin
+  if fHouseDat <> nil then FreeAndNil(fHouseDat);
   Inherited;
 end;
 
@@ -163,13 +217,19 @@ end;
 procedure TResource.LoadGameResources;
 var i:integer;
 begin
+  if fDataState = dls_All then Exit;
+
   Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
   LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh;
   LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh;
-  LoadHouseDAT(ExeDir+'data\defines\houses.dat');    StepRefresh;
+
+  fHouseDat := TKMHouseDatCollection.Create;
+  fHouseDat.LoadHouseDat(ExeDir+'data\defines\houses.dat');
+  StepRefresh;
+
   LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh;
 
   for i:=1 to 3 do
@@ -180,7 +240,7 @@ begin
       LoadRX7(i); //Updated sprites
       MakeGFX(i);
       //Alpha_tested sprites for houses. They come after MakeGFX cos they will
-      //replace above data. 
+      //replace above data.
       if i=2 then MakeGFX_AlphaTest(i);
       ClearUnusedGFX(i);
       StepRefresh;
@@ -343,98 +403,6 @@ begin
 
   Result:=true;
 end;
-
-
-//=============================================
-//Reading houses.dat data
-//=============================================
-function TResource.LoadHouseDAT(FileName:string):boolean;
-var ii,kk,h:integer; ft:textfile; f:file;
-begin
-  Result:=false;
-  if not CheckFileExists(FileName) then exit;
-  
-  assignfile(f,FileName); reset(f,1);
-  blockread(f,HouseDATs,30*70); //Swine&Horses animations
-  for h:=1 to HOUSE_COUNT do
-    blockread(f,HouseDAT[h],88+19*70+270);
-  closefile(f);
-
-  if WriteResourceInfoToTXT then begin
-    assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
-    writeln(ft,'House;a1;a3;a4;a5;a8;Foot---------->;');
-    for ii:=1 to HOUSE_COUNT do begin
-    //writeln(ft);
-    write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+';');
-    {  write(ft,'Resource In: ');
-      for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
-      write(ft,'#') else write(ft,' ');
-      writeln(ft);
-      write(ft,'Resource Out: ');
-      for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
-      write(ft,'#') else write(ft,' ');
-      writeln(ft);
-      for kk:=1 to 19 do writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
-      //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+'wooding ;');
-      //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+'stoning ;');
-      write(ft,inttostr(HouseDAT[ii].a1)+';'); //0
-      //write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
-      //write(ft,'Y '+inttostr(HouseDAT[ii].EntranceOffsetY)+';'); //0
-      //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
-      //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
-      {writeln(ft);
-      for kk:=1 to length(HouseDAT[ii].BuildArea) do begin
-        for h:=1 to 10 do
-          write(ft,inttostr(HouseDAT[ii].BuildArea[kk,h])+';');
-        writeln(ft,';');
-      end;}
-      //write(ft,inttostr(HouseDAT[ii].WoodCost)+';');
-      //write(ft,inttostr(HouseDAT[ii].StoneCost)+';');
-      //for kk:=1 to 12 do write(ft,'dx '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveX)+' dy '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveY)+';');
-      write(ft,inttostr(HouseDAT[ii].a5)+';');
-      //write(ft,'Area '+inttostr(HouseDAT[ii].SizeArea)+';');
-      //write(ft,'Size '+inttostr(HouseDAT[ii].SizeX)+'x'+inttostr(HouseDAT[ii].SizeY)+';');
-      write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
-      write(ft,inttostr(HouseDAT[ii].WorkerWork)+'W sec;');
-      write(ft,inttostr(HouseDAT[ii].WorkerRest)+'R sec;');
-      //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResInput[kk]+1))+';');
-      //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResOutput[kk]+1))+';');
-      //write(ft,'Product x'+inttostr(HouseDAT[ii].ResProductionX)+';');
-      //write(ft,inttostr(HouseDAT[ii].MaxHealth)+'hp;');
-      //write(ft,'Sight '+inttostr(HouseDAT[ii].Sight)+';');
-      //write(ft,TypeToString(TUnitType(HouseDAT[ii].OwnerType+1))+';');
-      for kk:=1 to 12 do write(ft,inttostr(HouseDAT[ii].Foot1[kk])+';');
-      for kk:=1 to 12 do write(ft,inttostr(HouseDAT[ii].Foot2[kk])+';');
-      writeln(ft);
-    end;
-    closefile(ft);
-  end;
-
-  //Form1.Close;
-
-  Result:=true;
-end;
-
-
-{//Append info for new houses
-procedure TResource.AddHouseDAT;
-var i:integer;
-begin
-  for i:=30 to HOUSE_COUNT do begin
-    fillChar(HouseDAT[i],SizeOf(HouseDAT[i]),#0);
-    HouseDAT[i].StonePic:=129-1;
-    HouseDAT[i].WoodPic:=130-1;
-    HouseDAT[i].WoodPal:=132-1;
-    HouseDAT[i].StonePal:=131-1;
-    HouseDAT[i].WoodPicSteps:=7;
-    HouseDAT[i].StonePicSteps:=8;
-    HouseDAT[i].WoodCost:=1;
-    HouseDAT[i].StoneCost:=1;
-    HouseDAT[i].OwnerType:=0;
-    HouseDAT[i].MaxHealth:=100;
-    HouseDAT[i].Sight := 12;
-  end;
-end;}
 
 
 //=============================================
@@ -867,15 +835,16 @@ Textures should be POT to improve performance and avoid drivers bugs
 In result we have GFXData filled.}
 procedure TResource.MakeGFX_AlphaTest(RXid:integer);
 var
-  ID,ID1,ID2:integer; //RGB and A index
+  ID:THouseType;
+  ID1,ID2:integer; //RGB and A index
   i,k,h,StepCount:integer;
   t,tx,ty:integer;
   ColorID:byte;
   WidthPOT,HeightPOT:integer;
   TD:array of cardinal;
 begin
-  for ID:=1 to HOUSE_COUNT do
-    if HouseDAT[ID].StonePic<>-1 then //Exlude House27 which is unused
+  for ID:=Low(THouseType) to High(THouseType) do
+    if HouseDat.IsValid(ID) and (HouseDAT[ID].StonePic <> -1) then //Exlude House27 which is unused
 
       for h:=1 to 2 do begin
         if h=1 then begin
@@ -1159,7 +1128,8 @@ end;
 {Export Houses graphics categorized by House and Action}
 procedure ExportHouseAnim2BMP;
 var MyBitMap:TBitMap;
-    Q,ID,Ac,k,ci:integer; t:byte;
+    ID:THouseType;
+    Q,Beast,Ac,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
     s:string;
 begin
@@ -1168,17 +1138,16 @@ begin
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
 
-  fResource.LoadHouseDAT(ExeDir+'data\defines\houses.dat');
-  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
+  fResource.LoadGameResources;
 
   ci:=0;
-  for ID:=byte(ht_WatchTower) to byte(ht_WatchTower) do begin
+  for ID:=ht_WatchTower to ht_WatchTower do begin
     for Ac:=1 to 5 do begin //Work1..Work5
-      for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
-        CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\');
-        CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
-        if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
-        ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
+      for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do begin
+        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\');
+        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\Work'+IntToStr(Ac)+'\');
+        if fResource.HouseDat[ID].Anim[Ac].Step[k]+1<>0 then
+        ci:=fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
         sx:=RXData[2].Size[ci].X;
         sy:=RXData[2].Size[ci].Y;
@@ -1190,22 +1159,22 @@ begin
           MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
         end;
         if sy>0 then MyBitMap.SaveToFile(
-        ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
+        ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
       end;
     end;
   end;
 
   ci:=0;
   for Q:=1 to 2 do begin
-    if Q=1 then s:='_Swine';
-    if Q=2 then s:='_Stables';
-    CreateDir(ExeDir+'Export\HouseAnim\'+s+'\');
-    for ID:=1 to 5 do begin
+    if Q=1 then ID:=ht_Swine
+           else ID:=ht_Stables;
+    CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat.HouseName(ID)+'\');
+    for Beast:=1 to 5 do begin
       for Ac:=1 to 3 do begin //Age 1..3
-        for k:=1 to HouseDATs[Q,ID,Ac].Count do begin
-          CreateDir(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\');
-          if HouseDATs[Q,ID,Ac].Step[k]+1<>0 then
-          ci:=HouseDATs[Q,ID,Ac].Step[k]+1;
+        for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,Ac].Count do begin
+          CreateDir(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(Beast,2)+'\');
+          if fResource.HouseDat.BeastAnim[ID,Beast,Ac].Step[k]+1<>0 then
+          ci:=fResource.HouseDat.BeastAnim[ID,Beast,Ac].Step[k]+1;
 
           sx:=RXData[2].Size[ci].X;
           sy:=RXData[2].Size[ci].Y;
@@ -1216,7 +1185,7 @@ begin
             t:=RXData[2].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
-          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat.HouseName(ID)+'\'+int2fix(Beast,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
     end;
@@ -1417,5 +1386,79 @@ begin
   Screen.Cursor := c_Default;
 end;
 
+
+{ TKMHouseDatCollection }
+function TKMHouseDatCollection.GetHouseDat(aType:THouseType): TKMHouseDat;
+begin
+  Assert(IsValid(aType));
+  Result := fItems[aType];
+end;
+
+
+function TKMHouseDatCollection.GetBeastAnim(aType:THouseType; aBeast, aAge: integer): TKMHouseBeast;
+begin
+  Assert(aType in [ht_Swine, ht_Stables]);
+  Assert(InRange(aBeast, 1, 5));
+  Assert(InRange(aAge, 1, 3));
+  case aType of
+    ht_Swine:   Result := fBeastAnim[1, aBeast, aAge];
+    ht_Stables: Result := fBeastAnim[2, aBeast, aAge];
+  end;
+end;
+
+
+procedure TKMHouseDatCollection.LoadHouseDat(aPath: string);
+var f:file; i:THouseType;
+begin
+  Assert(FileExists(aPath));
+
+  assignfile(f,aPath); reset(f,1);
+  blockread(f,fBeastAnim,30*70); //Swine&Horses animations
+
+  //Set the range explicitely since that is how it's stored in Houses.dat
+  for i:=ht_Sawmill to ht_Wineyard do
+    blockread(f,fItems[i],88+19*70+270);
+  closefile(f);
+
+  //ExportCSV(ExeDir+'Houses.csv');
+end;
+
+
+procedure TKMHouseDatCollection.ExportCSV(aPath: string);
+var i:THouseType; Ap:string; S:TStringList;
+  procedure AddField(aField:string); overload; begin Ap := Ap + aField + ';'; end;
+  procedure AddField(aField:integer); overload; begin Ap := Ap + inttostr(aField) + ';'; end;
+begin
+  S := TStringList.Create;
+
+  Ap := 'House name;WoodCost;StoneCost';
+  S.Append(Ap);
+
+  for i:=Low(THouseType) to High(THouseType) do begin
+    Ap := '';
+    AddField(HouseName(i));
+    AddField(fItems[i].WoodCost);
+    AddField(fItems[i].StoneCost);
+    S.Append(Ap);
+  end;
+
+  S.SaveToFile(aPath);
+  S.Free;
+end;
+
+
+function TKMHouseDatCollection.IsValid(aType: THouseType): boolean;
+begin
+  Result := (aType in [Low(THouseType)..High(THouseType)]-[ht_None, ht_Any]);
+end;
+
+
+function TKMHouseDatCollection.HouseName(aType: THouseType): string;
+begin
+  if IsValid(aType) then
+    Result := fTextLibrary.GetTextString(siHouseNames+byte(aType))
+  else
+    Result := 'N/A';
+end;
 
 end.

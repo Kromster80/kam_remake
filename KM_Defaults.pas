@@ -1280,40 +1280,6 @@ var
     end;
   end;
 
-  //Swine&Horses, 5 beasts in each house, 3 ages for each beast
-  HouseDATs:array[1..2,1..5,1..3] of packed record
-    Step:array[1..30]of smallint;
-    Count:smallint;
-    MoveX,MoveY:integer;
-  end;
-
-  HouseDAT:array[1..HOUSE_COUNT] of packed record
-    StonePic,WoodPic,WoodPal,StonePal:smallint;
-    SupplyIn:array[1..4,1..5]of smallint;
-    SupplyOut:array[1..4,1..5]of smallint;
-    Anim:array[1..19] of record
-      Step:array[1..30]of smallint;
-      Count:smallint;
-      MoveX,MoveY:integer;
-    end;
-    WoodPicSteps,StonePicSteps:word;
-    a1:smallint;
-    EntranceOffsetX,EntranceOffsetY:shortint;
-    EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
-    BuildArea:array[1..10,1..10]of shortint;
-    WoodCost,StoneCost:byte;
-    BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
-    a5,SizeArea:smallint;
-    SizeX,SizeY,sx2,sy2:shortint;
-    WorkerWork,WorkerRest:smallint;
-    ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
-    ResProductionX:shortint;
-    MaxHealth,Sight:smallint;
-    OwnerType:shortint;
-    Foot1:array[1..12]of shortint; //Sound indices
-    Foot2:array[1..12]of smallint; //vs sprite ID
-  end;
-
   //Resource types serf carries around
   SerfCarry:array[1..28] of packed record
     Dir:array[1..8]of packed record

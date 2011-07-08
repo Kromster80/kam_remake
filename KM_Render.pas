@@ -91,13 +91,13 @@ type
       procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
       procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
       procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-      procedure RenderHouseBuild(Index:integer; Loc:TKMPoint);
-      procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; Loc:TKMPoint);
-      procedure RenderHouseWood(Index:integer; Step:single; Loc:TKMPoint);
-      procedure RenderHouseStone(Index:integer; Step:single; Loc:TKMPoint);
-      procedure RenderHouseWork(Index,AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
-      procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; Loc:TKMPoint);
-      procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
+      procedure RenderHouseBuild(Index:THouseType; Loc:TKMPoint);
+      procedure RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+      procedure RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
+      procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
+      procedure RenderHouseWork(Index:THouseType; AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+      procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
+      procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
       procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
       procedure RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
       procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
@@ -740,11 +740,11 @@ end;
 
 
 {Render house WIP tablet}
-procedure TRender.RenderHouseBuild(Index:integer; Loc:TKMPoint);
+procedure TRender.RenderHouseBuild(Index:THouseType; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  Loc.X := Loc.X + HouseDAT[Index].EntranceOffsetX;
-  ID := Index + 250;
+  Loc.X := Loc.X + fResource.HouseDat[Index].EntranceOffsetX;
+  ID := byte(Index) + 250;
   ShiftX := Loc.X + RXData[4].Pivot[ID].x/CELL_SIZE_PX + 0.5;
   ShiftY := Loc.Y + (RXData[4].Pivot[ID].y + RXData[4].Size[ID].Y)/CELL_SIZE_PX + 0.5 - fTerrain.Land[Loc.Y+1, Loc.X].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(4,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true);
@@ -752,29 +752,29 @@ end;
 
 
 {Render house build supply}
-procedure TRender.RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; Loc:TKMPoint);
+procedure TRender.RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if Wood<>0 then begin
     ID := 260+Wood-1;
-    ShiftX := Loc.X + HouseDAT[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
-    ShiftY := Loc.Y + (HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+    ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
+    ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
   if Stone<>0 then begin
     ID := 267+Stone-1;
-    ShiftX := Loc.X + HouseDAT[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
-    ShiftY := Loc.Y + (HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+    ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
+    ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
 end;
 
 
 {Render house in wood}
-procedure TRender.RenderHouseWood(Index:integer; Step:single; Loc:TKMPoint);
+procedure TRender.RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  ID := HouseDAT[Index].WoodPic+1;
+  ID := fResource.HouseDat[Index].WoodPic+1;
   ShiftX := Loc.X + RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := Loc.Y + (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true,0,Step);
@@ -782,40 +782,40 @@ end;
 
 
 {Render house in stone}
-procedure TRender.RenderHouseStone(Index:integer; Step:single; Loc:TKMPoint);
+procedure TRender.RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   RenderHouseWood(Index,1,Loc); //Render Wood part of it, opaque
-  ID := HouseDAT[Index].StonePic+1;
+  ID := fResource.HouseDat[Index].StonePic+1;
   ShiftX := Loc.X + RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := Loc.Y + (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false,0,Step);
 end;
 
 
-procedure TRender.RenderHouseWork(Index,AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+procedure TRender.RenderHouseWork(Index:THouseType; AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
 var AnimCount,ID:cardinal; i:byte; ShiftX,ShiftY:single;
 begin
   if AnimType = 0 then exit;
 
-  for i:=1 to Length(HouseDAT[Index].Anim) do
+  for i:=1 to Length(fResource.HouseDat[Index].Anim) do
   if AnimType and (1 shl i) = (1 shl i) then
   begin
-    AnimCount := HouseDAT[Index].Anim[i].Count;
+    AnimCount := fResource.HouseDat[Index].Anim[i].Count;
     if AnimCount<>0 then
     begin
-      ID := HouseDAT[Index].Anim[i].Step[AnimStep mod AnimCount + 1]+1;
+      ID := fResource.HouseDat[Index].Anim[i].Step[AnimStep mod AnimCount + 1]+1;
       ShiftX := RXData[2].Pivot[ID].x/CELL_SIZE_PX;
       ShiftY := (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      ShiftX := ShiftX+HouseDAT[Index].Anim[i].MoveX/CELL_SIZE_PX;
-      ShiftY := ShiftY+HouseDAT[Index].Anim[i].MoveY/CELL_SIZE_PX;
+      ShiftX := ShiftX+fResource.HouseDat[Index].Anim[i].MoveX/CELL_SIZE_PX;
+      ShiftY := ShiftY+fResource.HouseDat[Index].Anim[i].MoveY/CELL_SIZE_PX;
       AddSpriteToList(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false,FlagColor);
     end;
   end;
 end;
 
 
-procedure TRender.RenderHouseSupply(Index:integer; const R1,R2:array of byte; Loc:TKMPoint);
+procedure TRender.RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
 var ID,i,k:integer;
 
   procedure AddHouseSupplySprite(aID:integer);
@@ -832,7 +832,7 @@ var ID,i,k:integer;
 begin
   for i:=1 to 4 do if (R1[i-1])>0 then
     begin
-      ID:=HouseDAT[Index].SupplyIn[i,min(R1[i-1],5)]+1;
+      ID:=fResource.HouseDat[Index].SupplyIn[i,min(R1[i-1],5)]+1;
       AddHouseSupplySprite(ID);
     end;
   for i:=1 to 4 do if (R2[i-1])>0 then
@@ -842,32 +842,23 @@ begin
     begin
       for k := 1 to min(R2[i-1],5) do
       begin
-        ID:=HouseDAT[Index].SupplyOut[i,k]+1;
+        ID:=fResource.HouseDat[Index].SupplyOut[i,k]+1;
         AddHouseSupplySprite(ID);
       end
     end
     else
     begin
-      ID:=HouseDAT[Index].SupplyOut[i,min(R2[i-1],5)]+1;
+      ID:=fResource.HouseDat[Index].SupplyOut[i,min(R2[i-1],5)]+1;
       AddHouseSupplySprite(ID);
     end;
   end
 end;
 
 
-procedure TRender.RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
-var ShiftX,ShiftY:single; Q,ID:integer;
+procedure TRender.RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
+var ShiftX,ShiftY:single; ID:integer;
 begin
-  case Index of
-    13: Q:=2; //Stables
-    17: Q:=1; //Swine
-    else Q:=0;
-  end;
-  fLog.AssertToLog(Q<>0,'Wrong house for RenderHouseStableBeasts');
-  fLog.AssertToLog(InRange(BeastID,1,5),'Wrong ID for RenderHouseStableBeasts');
-  fLog.AssertToLog(InRange(BeastAge,1,3),'Wrong Age for RenderHouseStableBeasts');
-
-  with HouseDATs[Q,BeastID,BeastAge] do begin
+  with fResource.HouseDat.BeastAnim[Index,BeastID,BeastAge] do begin
     ID := Step[AnimStep mod Count + 1]+1;
     ShiftX := MoveX/CELL_SIZE_PX;
     ShiftY := MoveY/CELL_SIZE_PX;
@@ -1345,10 +1336,10 @@ begin
   if HousePlanYX[byte(aHouseType),i,k]<>0 then
   begin
 
-    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then
+    if fTerrain.TileInMapCoords(P.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,P.Y+i-4,1) then
     begin
       //This can't be done earlier since values can be off-map
-      P2 := KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
+      P2 := KMPoint(P.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,P.Y+i-4);
 
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of
@@ -1388,8 +1379,8 @@ begin
       end;
 
     end else
-    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,0) then
-      MarkPoint(KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4),479);
+    if fTerrain.TileInMapCoords(P.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,P.Y+i-4,0) then
+      MarkPoint(KMPoint(P.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,P.Y+i-4),479);
   end;
 end;
 

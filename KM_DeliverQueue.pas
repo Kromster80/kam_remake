@@ -125,7 +125,7 @@ type
   end;
 
 implementation
-uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild;
+uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX;
 
 
 { TKMDeliverQueue }
@@ -580,7 +580,7 @@ begin
   s:='Demand:'+eol+'---------------------------------'+eol;
   for i:=1 to DemandCount do if fDemand[i].Resource<>rt_None then begin
     s:=s+#9;
-    if fDemand[i].Loc_House<>nil then s:=s+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
+    if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat.HouseName(fDemand[i].Loc_House.GetHouseType)+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+TypeToString(fDemand[i].Loc_Unit.UnitType)+#9+#9;
     s:=s+TypeToString(fDemand[i].Resource);
     if fDemand[i].Importance=di_High then s:=s+'^';
@@ -589,7 +589,7 @@ begin
   s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;
   for i:=1 to OfferCount do if fOffer[i].Resource<>rt_None then begin
     s:=s+#9;
-    if fOffer[i].Loc_House<>nil then s:=s+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9+#9;
+    if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat.HouseName(fOffer[i].Loc_House.GetHouseType)+#9+#9;
     s:=s+TypeToString(fOffer[i].Resource)+#9;
     s:=s+IntToStr(fOffer[i].Count);
     s:=s+eol;
@@ -604,12 +604,12 @@ begin
     if fOffer[fQueue[i].OfferID].Loc_House = nil then
       s:=s+'Destroyed'+' >>> '
     else
-      s:=s+TypeToString(fOffer[fQueue[i].OfferID].Loc_House.GetHouseType)+' >>> ';
+      s:=s+fResource.HouseDat.HouseName(fOffer[fQueue[i].OfferID].Loc_House.GetHouseType)+' >>> ';
 
     if fDemand[fQueue[i].DemandID].Loc_House = nil then
       s:=s+'Destroyed'
     else
-      s:=s+TypeToString(fDemand[fQueue[i].DemandID].Loc_House.GetHouseType);
+      s:=s+fResource.HouseDat.HouseName(fDemand[fQueue[i].DemandID].Loc_House.GetHouseType);
     s:=s+eol;
   end;
 

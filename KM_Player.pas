@@ -298,7 +298,7 @@ end;
 procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var KMHouse:TKMHouse; Loc:TKMPoint;
 begin
-  Loc.X := aLoc.X - HouseDAT[byte(aHouseType)].EntranceOffsetX;
+  Loc.X := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX;
   Loc.Y := aLoc.Y;
   KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerIndex);
   fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex);

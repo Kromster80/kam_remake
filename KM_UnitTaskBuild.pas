@@ -109,7 +109,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain;
+uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
 
 
 { TTaskBuildRoad }
@@ -592,10 +592,8 @@ begin
   7:  begin
         fHouse.BuildingState := hbs_Wood;
         fPlayers.Player[GetOwner].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
-        with HouseDAT[byte(fHouse.GetHouseType)] do begin
-          fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, WoodCost, dt_Once, di_High);
-          fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, StoneCost, dt_Once, di_High);
-        end;
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.GetHouseType].WoodCost, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.GetHouseType].StoneCost, dt_Once, di_High);
         //Walk away from building site, before we get trapped when house becomes stoned
         SetActionWalkToSpot(fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk), 0, ua_Walk);
         HouseSet := false;

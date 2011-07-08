@@ -262,7 +262,7 @@ type
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, KM_InterfaceMainMenu, Forms;
+KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX;
 
 
 {Switch between pages}
@@ -891,9 +891,9 @@ begin
           Stat_HousePic[hc]:=TKMImage.Create(Panel_Stats,off,LineBase,House_Width,30,41); //Filled with [?] at start
           Stat_HouseWip[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width  ,LineBase   ,37,30,'',fnt_Grey,kaRight);
           Stat_HouseQty[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,kaRight);
-          Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
-          Stat_HouseWip[hc].Hint:=TypeToString(StatHouse[hc]);
-          Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
+          Stat_HousePic[hc].Hint:=fResource.HouseDat.HouseName(StatHouse[hc]);
+          Stat_HouseWip[hc].Hint:=fResource.HouseDat.HouseName(StatHouse[hc]);
+          Stat_HouseQty[hc].Hint:=fResource.HouseDat.HouseName(StatHouse[hc]);
           Stat_HousePic[hc].ImageCenter;
           inc(hc);
           inc(off,House_Width);
@@ -1283,10 +1283,10 @@ end;
 
 
 procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
-var Point : TKMPoint;
+var Point: TKMPoint;
 begin
-  if not(fMessageList.GetLoc(ShownMessage, Point)) then exit;
-  fViewport.SetCenter(Point.X, Point.Y);
+  if fMessageList.GetLoc(ShownMessage, Point) then
+    fViewport.SetCenter(Point.X, Point.Y);
 end;
 
 
@@ -1346,9 +1346,9 @@ begin
      GameCursor.Mode:=cm_Houses;
      GameCursor.Tag1:=byte(GUIHouseOrder[i]);
      Image_Build_Selected.TexID := GUIBuildIcons[byte(GUIHouseOrder[i])];
-     Label_BuildCost_Wood.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].WoodCost);
-     Label_BuildCost_Stone.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].StoneCost);
-     Label_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
+     Label_BuildCost_Wood.Caption:=inttostr(fResource.HouseDat[GUIHouseOrder[i]].WoodCost);
+     Label_BuildCost_Stone.Caption:=inttostr(fResource.HouseDat[GUIHouseOrder[i]].StoneCost);
+     Label_Build.Caption := fResource.HouseDat.HouseName(GUIHouseOrder[i]);
   end;
 end;
 
@@ -1367,12 +1367,12 @@ begin
   end;
 
   {Common data}
-  Label_House.Caption:=TypeToString(Sender.GetHouseType);
+  Label_House.Caption:=fResource.HouseDat.HouseName(Sender.GetHouseType);
   Image_House_Logo.TexID:=300+byte(Sender.GetHouseType);
-  Image_House_Worker.TexID:=140+HouseDAT[byte(Sender.GetHouseType)].OwnerType+1;
-  Image_House_Worker.Hint := TypeToString(TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1));
-  HealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(HouseDAT[byte(Sender.GetHouseType)].MaxHealth);
-  HealthBar_House.Position:=round( Sender.GetHealth / HouseDAT[byte(Sender.GetHouseType)].MaxHealth * 100 );
+  Image_House_Worker.TexID:=140+fResource.HouseDat[Sender.GetHouseType].OwnerType+1;
+  Image_House_Worker.Hint := TypeToString(TUnitType(fResource.HouseDat[Sender.GetHouseType].OwnerType+1));
+  HealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
+  HealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
 
   if AskDemolish then
   begin
@@ -1411,7 +1411,7 @@ begin
     Panel_House.Childs[i].Show; //show all
 
   Image_House_Worker.Enabled := Sender.GetHasOwner;
-  Image_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
+  Image_House_Worker.Visible := TUnitType(fResource.HouseDat[Sender.GetHouseType].OwnerType+1) <> ut_None;
   Button_House_Goods.Enabled := not (HouseInput[byte(Sender.GetHouseType)][1] in [rt_None,rt_All,rt_Warfare]);
   if Sender.BuildingRepair then Button_House_Repair.TexID:=39 else Button_House_Repair.TexID:=40;
   if Sender.WareDelivery then Button_House_Goods.TexID:=37 else Button_House_Goods.TexID:=38;
@@ -1466,7 +1466,7 @@ begin
       if not HousePlaceOrders[byte(Sender.GetHouseType)] then
       if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
         Label_Common_Offer.Show;
-        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
+        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.GetHouseType].ResProductionX)+'):';
         Label_Common_Offer.Top:=Base+Line*LineAdv+6;
         inc(Line);
         for i:=1 to 4 do
@@ -1483,7 +1483,7 @@ begin
       //Show Orders
       if HousePlaceOrders[byte(Sender.GetHouseType)] then begin
         Label_Common_Offer.Show;
-        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
+        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.GetHouseType].ResProductionX)+'):';
         Label_Common_Offer.Top:=Base+Line*LineAdv+6;
         inc(Line);
         for i:=1 to 4 do //Orders
@@ -1887,7 +1887,7 @@ begin
     Button_Build[i].Enable;
     Button_Build[i].TexID:=GUIBuildIcons[byte(GUIHouseOrder[i])];
     Button_Build[i].OnClick:=Build_ButtonClick;
-    Button_Build[i].Hint:=TypeToString(THouseType(byte(GUIHouseOrder[i])));
+    Button_Build[i].Hint:=fResource.HouseDat.HouseName(GUIHouseOrder[i]);
   end else begin
     Button_Build[i].OnClick:=nil;
     Button_Build[i].TexID:=41;
@@ -2006,8 +2006,8 @@ begin
     if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
       Stat_HousePic[i].TexID := byte(StatHouse[i])+300;
-      Stat_HousePic[i].Hint := TypeToString(StatHouse[i]);
-      Stat_HouseQty[i].Hint := TypeToString(StatHouse[i]);
+      Stat_HousePic[i].Hint := fResource.HouseDat.HouseName(StatHouse[i]);
+      Stat_HouseQty[i].Hint := fResource.HouseDat.HouseName(StatHouse[i]);
     end
     else
     begin

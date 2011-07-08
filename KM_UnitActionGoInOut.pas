@@ -37,7 +37,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay;
+uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX;
 
 
 constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
@@ -180,8 +180,8 @@ begin
 
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
-    if (fHouse<>nil) and (byte(fHouse.GetHouseType) in [1..length(HouseDAT)]) then
-      fDoor.X := fDoor.X + (HouseDAT[byte(fHouse.GetHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX;
+    if (fHouse<>nil) then
+      fDoor.X := fDoor.X + (fResource.HouseDat[fHouse.GetHouseType].EntranceOffsetXpx/4)/CELL_SIZE_PX;
 
     case fDirection of
       gd_GoInside:  WalkIn(KMUnit);
