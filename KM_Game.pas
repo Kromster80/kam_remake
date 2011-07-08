@@ -1042,10 +1042,11 @@ begin
     gsPaused:   exit;
     gsOnHold:   exit;
     gsNoGame:   begin
-                  fNetworking.UpdateState; //Monitor connection timeout and connection lost
+                  if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
                   fMainMenuInterface.UpdateState;
                 end;
     gsRunning:  begin
+                  if fMultiplayerMode then  fNetworking.UpdateState(fGlobalTickCount); //Measures pings
                   try //Catch exceptions during update state
 
                     for i:=1 to fGameSpeed do

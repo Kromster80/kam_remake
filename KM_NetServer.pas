@@ -71,6 +71,7 @@ type
     fClientList:TKMClientsList;
     fHostHandle:integer;
     fPingStarted:cardinal;
+    fListening:boolean;
 
     fBufferSize:cardinal;
     fBuffer:array of byte;
@@ -88,7 +89,9 @@ type
     procedure StartListening(aPort:string);
     procedure StopListening;
     procedure ClearClients;
+    procedure MeasurePings;
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
+    property Listening: boolean read fListening;
   end;
 
 
@@ -165,6 +168,7 @@ begin
   Inherited;
   fClientList := TKMClientsList.Create;
   fServer := TKMNetServerOverbyte.Create;
+  fListening := false;
 end;
 
 
@@ -193,6 +197,7 @@ begin
   fServer.StartListening(aPort);
   if Assigned(fOnStatusMessage) then
     fOnStatusMessage('Server: Listening..');
+  fListening := true;
 end;
 
 
@@ -200,12 +205,20 @@ procedure TKMNetServer.StopListening;
 begin
   fOnStatusMessage := nil;
   fServer.StopListening;
+  fListening := false;
 end;
 
 
 procedure TKMNetServer.ClearClients;
 begin
   fClientList.Clear;
+end;
+
+
+procedure TKMNetServer.MeasurePings;
+begin
+  fPingStarted := GetTickCount;
+  SendMessage(NET_ADDRESS_ALL, mk_Ping, 0, '');
 end;
 
 
@@ -231,6 +244,7 @@ begin
   //@Krom: Sounds good to me. Implement it as you described.
 
   SendMessage(aHandle, mk_IndexOnServer, aHandle, '');
+  MeasurePings;
 end;
 
 

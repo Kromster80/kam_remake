@@ -482,10 +482,9 @@ begin
         DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, true);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 450, top, 50, 20, '', fnt_Metal);
+        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 470, top, 50, 20, '', fnt_Metal);
 
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 510, top, 40, 20, '', fnt_Metal, kaLeft);
-        Label_LobbyPing[i].Disable;
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 540, top, 40, 20, '', fnt_Metal, kaCenter);
       end;
 
     //Chat
@@ -1232,6 +1231,7 @@ begin
     Label_LobbyPlayer[i].Hide;
     DropBox_LobbyPlayerSlot[i].Show;
     DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
+    Label_LobbyPing[i].Caption := '';
   end;
 
   ListBox_LobbyPosts.Clear;
@@ -1356,8 +1356,18 @@ procedure TKMMainMenuInterface.Lobby_OnPingInfo(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
-  if fGame.Networking.Connected then
+  if (fGame.Networking.Connected) and (i < fGame.Networking.NetPlayers.Count) then
+  begin
     Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].Ping);
+    case fGame.Networking.NetPlayers[i+1].Ping of
+      0..99   : Label_LobbyPing[i].FontColor := $FF00C000; //Green
+      100..199: Label_LobbyPing[i].FontColor := $FF07FFFF; //Yellow
+      200..300: Label_LobbyPing[i].FontColor := $FF0099FF; //Orange
+      else      Label_LobbyPing[i].FontColor := $FF0707FF; //Red
+    end;
+  end
+  else
+    Label_LobbyPing[i].Caption := '';
 end;
 
 

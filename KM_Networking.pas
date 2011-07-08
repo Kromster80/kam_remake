@@ -91,7 +91,7 @@ type
 
     property OnTextMessage:TStringEvent write fOnTextMessage;   //Text message recieved
 
-    procedure UpdateState;
+    procedure UpdateState(aTick: cardinal);
   end;
 
 
@@ -438,6 +438,7 @@ begin
                       fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                       fNetPlayers[fMyIndex].ReadyToStart := true;
                       if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                      PacketSend(NET_ADDRESS_SERVER,mk_AskPingInfo,'',0);
                     end;
                 lpk_Joiner:
                     PacketSend(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname, 0);
@@ -461,7 +462,10 @@ begin
 
     mk_AllowToJoin:
             if fLANPlayerKind = lpk_Joiner then
+            begin
               fOnJoinSucc(Self); //Enter lobby
+              PacketSend(NET_ADDRESS_SERVER,mk_AskPingInfo,'',0);
+            end;
 
     mk_RefuseToJoin:
             if fLANPlayerKind = lpk_Joiner then begin
@@ -603,9 +607,14 @@ begin
 end;
 
 
-procedure TKMNetworking.UpdateState;
+procedure TKMNetworking.UpdateState(aTick: cardinal);
 begin
-  //Nothing yet
+  //Server should measure pings once per second
+  if (fNetServer.Listening) and (aTick mod 10 = 0) then
+    fNetServer.MeasurePings;
+  //As a client, request pings once per second
+  if (fNetClient.Connected) and (aTick mod 10 = 0) then
+    PacketSend(NET_ADDRESS_SERVER,mk_AskPingInfo,'',0);
 end;
 
 
