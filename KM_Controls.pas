@@ -2394,12 +2394,16 @@ end;
 
 
 procedure TKMDropColorBox.Paint;
+var Col:TColor4;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width-fButton.Width, Height);
   fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-4, Height-4, fSwatch.GetColor, $00);
   if fInclRandom and (fSwatch.ColorIndex = 0) then
-    fRenderUI.WriteText(Left+4, Top+3, 'Random', fnt_Metal, kaLeft, $FFFFFFFF);
+  begin
+    if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
+    fRenderUI.WriteText(Left+4, Top+3, 'Random', fnt_Metal, kaLeft, Col);
+  end;
 end;
 
 

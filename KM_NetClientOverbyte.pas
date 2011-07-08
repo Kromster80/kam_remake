@@ -93,6 +93,7 @@ end;
 
 procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
 begin
+  assert(fSocket.State <> wsClosed);
   fSocket.Send(aData, aLength);
 end;
 
@@ -108,10 +109,11 @@ end;
 
 procedure TKMNetClientOverbyte.Disconnected(Sender: TObject; Error: Word);
 begin
+  //Do not exit on error, because when a disconnect error occurs, the client has still disconnected
   if Error <> 0 then
-    fOnError('Client: Disconnection error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')')
-  else
-    fOnSessionDisconnected(Self);
+    fOnError('Client: Disconnection error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
+
+  fOnSessionDisconnected(Self);
 end;
 
 

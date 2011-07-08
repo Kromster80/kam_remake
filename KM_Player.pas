@@ -523,7 +523,7 @@ begin
   //Do only one players AI per Tick
   if (Tick+PlayerIndex) mod 20 = 0 then begin
     fAI.UpdateState;
-    fArmyEval.UpdateState;
+    //fArmyEval.UpdateState;
   end;
 end;
 

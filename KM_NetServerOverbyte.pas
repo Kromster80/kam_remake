@@ -101,8 +101,8 @@ procedure TKMNetServerOverbyte.ClientDisconnect(Sender: TObject; Client: TWSocke
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
-    exit;
+    fOnError('ClientDisconnect. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
+    //Do not exit because the client has still disconnected
   end;
 
   fOnClientDisconnect(Client.Tag);

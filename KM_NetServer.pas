@@ -196,7 +196,7 @@ begin
   fServer.OnDataAvailable := DataAvailable;
   fServer.StartListening(aPort);
   if Assigned(fOnStatusMessage) then
-    fOnStatusMessage('Server: Listening..');
+    fOnStatusMessage('Server: Listening...');
   fListening := true;
 end;
 
@@ -332,9 +332,9 @@ begin
             end;
     mk_Pong:
             begin
-             fClientList.GetByHandle(aSenderHandle).Ping := GetTickCount - fPingStarted;
-
-
+             //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
+             if fClientList.GetByHandle(aSenderHandle) <> nil then
+               fClientList.GetByHandle(aSenderHandle).Ping := GetTickCount - fPingStarted;
             end;
   end;
 

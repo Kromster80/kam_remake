@@ -187,7 +187,10 @@ end;
 //Send message that we have deliberately disconnected
 procedure TKMNetworking.LeaveLobby;
 begin
-  PacketSend(NET_ADDRESS_OTHERS, mk_Disconnect, '', 0);
+  if IsHost then
+    PacketSend(NET_ADDRESS_OTHERS, mk_Disconnect, '', 0) //Host tells everyone when they quit
+  else
+    PacketSend(NET_ADDRESS_HOST, mk_Disconnect, '', 0); //Joiners should only tell host when they quit
 end;
 
 
@@ -228,6 +231,7 @@ var
   PingCount:integer;
   PlayerHandle:integer;
   PingValue:integer;
+  LocalHandle:integer;
 begin
   M := TKMemoryStream.Create;
   M.WriteAsText(aInfo);
@@ -236,8 +240,11 @@ begin
   for i:=1 to PingCount do
   begin
     M.Read(PlayerHandle);
+    LocalHandle := fNetPlayers.ServerToLocal(PlayerHandle);
     M.Read(PingValue);
-    fNetPlayers[fNetPlayers.ServerToLocal(PlayerHandle)].Ping := PingValue;
+    //This player might not be in the lobby yet, could still be asking to join. If so we do not care about their ping.
+    if LocalHandle <> -1 then
+      fNetPlayers[LocalHandle].Ping := PingValue;
   end;
   M.Free;
 end;
@@ -487,13 +494,23 @@ begin
               fOnJoinFail(Msg);
             end;
 
+    mk_ClientLost:
+            if IsHost then
+            begin
+              if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
+              PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' lost connection');
+              fNetPlayers.RemPlayer(aSenderIndex);
+              SendPlayerListAndRefreshPlayersSetup;
+            end;
+
     mk_Disconnect:
             case fLANPlayerKind of
               lpk_Host:
                   begin
+                    if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
+                    PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
                     fNetPlayers.RemPlayer(aSenderIndex);
                     SendPlayerListAndRefreshPlayersSetup;
-                    PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
                   end;
               lpk_Joiner:
                   begin
