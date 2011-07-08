@@ -216,7 +216,6 @@ var i: integer; VictorySatisfied, SurvivalSatisfied: boolean;
 begin
   if not CHECK_WIN_CONDITIONS then exit; //Debug switch
 
-  if fGame.GameState = gsReplay then exit; //Don't check conditions in Replay
   if fGame.PlayOnState <> gr_Cancel then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
   if fGame.MultiplayerMode then exit; //Don't check goals in multiplayer (yet)
 
@@ -242,11 +241,13 @@ begin
         SurvivalSatisfied := false;
     end;
 
+  if fGame.PlayOnState <> gr_Cancel then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
+  if fGame.GameState = gsReplay then exit; //Don't check conditions in Replay
   if VictorySatisfied then
-    fGame.GameHold(true, gr_Win); //They win
+    fGame.RequestGameHold(gr_Win); //They win
 
   if not SurvivalSatisfied then
-    fGame.GameHold(true, gr_Defeat); //They lose
+    fGame.RequestGameHold(gr_Defeat); //They lose
 end;
 
 

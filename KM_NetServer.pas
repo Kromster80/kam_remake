@@ -196,7 +196,7 @@ begin
   fServer.OnDataAvailable := DataAvailable;
   fServer.StartListening(aPort);
   if Assigned(fOnStatusMessage) then
-    fOnStatusMessage('Server: Listening...');
+    fOnStatusMessage('Server: Listening on port '+aPort);
   fListening := true;
 end;
 

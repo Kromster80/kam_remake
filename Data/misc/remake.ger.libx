@@ -51,7 +51,7 @@ KM_InterfaceGamePlay
 
 KM_Game
 48:Ein Fehler ist während des Spiels aufgetreten. 
-49:Bitte senden Sie die Dateien save99.bas, save99.sav und save99.rpl aus Ihren KaM Remake\\Save Ordner an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+49:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
 
 KM_Units
 50:Abbau an der falschen Stelle

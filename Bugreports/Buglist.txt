@@ -17,13 +17,14 @@ EXE-only r1831+:
  +	Ping is measured and shown in multiplayer games
  +	You can no longer join a multiplayer game that is in progress (caused a crash)
  +	Dedicated server added
-	Victory/defeat causes a mismatch in the replay
+ +	Victory/defeat causes a mismatch in the replay
  +	Crabs are stuck between roads building on them is buggy
  +	Fixed terrain flattening bug that made tiles underneath units unwalkable
  +	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence. (Bug happens when either side uses super speedup from F11 panel)
  +	Archers do not compensate for moving targets, they should try to predict enemy position when shooting
  ?	When choosing color for multiplayer it affects only minimap, flags color remains default
 
+ 	Replay mismatches caused by an unknown bug
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button

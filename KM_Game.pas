@@ -50,6 +50,8 @@ type
     procedure GameInit(aMultiplayerMode:boolean);
   public
     PlayOnState:TGameResultMsg;
+    DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
+    DoGameHoldState:TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
     fGamePlayInterface: TKMGamePlayInterface;
@@ -74,6 +76,7 @@ type
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
+    procedure RequestGameHold(Msg:TGameResultMsg);
     procedure GameStop(const Msg:TGameResultMsg; TextMsg:string='');
 
     procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
@@ -133,6 +136,7 @@ begin
   fAdvanceFrame := false;
   ID_Tracker    := 0;
   PlayOnState   := gr_Cancel;
+  DoGameHold    := false;
   fGameSpeed    := 1;
   fGameState    := gsNoGame;
   SkipReplayEndCheck  := false;
@@ -320,6 +324,7 @@ procedure TKMGame.GameInit(aMultiplayerMode:boolean);
 begin
   fGameSpeed := 1; //In case it was set in last run mission
   PlayOnState := gr_Cancel;
+  SkipReplayEndCheck := false; //Reset before each mission
   fMultiplayerMode := aMultiplayerMode;
 
   if fResource.DataState<>dls_All then begin
@@ -585,11 +590,7 @@ begin
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
-    fTextLibrary.GetRemakeString(48)+eol+aText+eol+eol+
-    'Please send the file '+CrashFile+' from your KaM Remake\Crash Reports folder to the developers. '+
-    'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
-    'WARNING: Continuing to play after this error may cause further crashes and instabilities. '+
-    'Would you like to take this risk and continue playing?'
+    fTextLibrary.GetRemakeString(48)+eol+aText+eol+eol+Format(fTextLibrary.GetRemakeString(49),[CrashFile])
     , mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
     GameStop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
@@ -608,6 +609,7 @@ end;
 //Put the game on Hold for Victory screen
 procedure TKMGame.GameHold(DoHold:boolean; Msg:TGameResultMsg);
 begin
+  DoGameHold := false;
   fGamePlayInterface.ReleaseDirectionSelector; //In case of victory/defeat while moving troops
   PlayOnState := Msg;
   case Msg of
@@ -626,6 +628,13 @@ begin
                           SetGameState(gsRunning);
                       end;
   end;
+end;
+
+
+procedure TKMGame.RequestGameHold(Msg:TGameResultMsg);
+begin
+  DoGameHold := true;
+  DoGameHoldState := Msg;
 end;
 
 
@@ -1068,6 +1077,8 @@ begin
                         if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave
                           and not (GameState = gsOnHold) then //Don't autosave if the game was put on hold during this tick
                           Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
+                        //During this tick we were requested to GameHold
+                        if DoGameHold then break; //Break the for loop (if we are using speed up)
                       end;
                       fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                     end;
@@ -1092,15 +1103,17 @@ begin
 
                       //Issue stored commands
                       fGameInputProcess.ReplayTimer(fGameTickCount);
+                      if fGameState = gsNoGame then exit; //Quit if the game was stopped by a replay mismatch
                       if not SkipReplayEndCheck and fGameInputProcess.ReplayEnded then
-                        GameHold(true, gr_ReplayEnd);
+                        RequestGameHold(gr_ReplayEnd);
 
                       if fAdvanceFrame then begin
                         fAdvanceFrame := false;
                         SetGameState(gsPaused);
                       end;
 
-                      if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands
+                      //During this tick we were requested to GameHold
+                      if DoGameHold then break; //Break the for loop (if we are using speed up)
                     end;
 
                     fGamePlayInterface.UpdateState;
@@ -1136,6 +1149,7 @@ begin
     if (fGameState in [gsRunning, gsReplay]) then
       Form1.StatusBar1.Panels[2].Text := 'Time: '+int2time(GetMissionTime);
   end;
+  if DoGameHold then GameHold(true,DoGameHoldState);
 end;
 
 

@@ -1388,11 +1388,11 @@ begin
       exit;
     end;
     if ApplyCheat and (aRes = rt_Horse) then begin
-      fGame.GameHold(true, gr_Win);
+      fGame.RequestGameHold(gr_Win);
       exit;
     end;
     if ApplyCheat and (aRes = rt_Fish) then begin
-      fGame.GameHold(true, gr_Defeat);
+      fGame.RequestGameHold(gr_Defeat);
       exit;
     end;
   end;

@@ -15,7 +15,7 @@ implementation
 
 procedure TKMEventHandler.ServerStatusMessage(const aData: string);
 begin
-  Writeln(aData);
+  Writeln(FormatDateTime('yyyy-mm-dd hh-nn-ss ',Now)+aData);
 end;
 
 end.

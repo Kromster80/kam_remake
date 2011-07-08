@@ -5,16 +5,13 @@ program KaM_DedicatedServer;
 uses
   SysUtils,
   Windows,
-  KM_NetServer,
   KM_Defaults,
-  KM_CommonTypes,
   KM_DedicatedServer,
   KM_EventHandler in 'KM_EventHandler.pas';
 
 var
   fEventHandler: TKMEventHandler;
   fDedicatedServer: TKMDedicatedServer;
-  c: char;
 
 procedure MyProcessMessages;
 var Msg : TMsg;
@@ -30,6 +27,8 @@ end;
 
 begin
   fEventHandler := TKMEventHandler.Create;
+  Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
+  Writeln('');
   fDedicatedServer := TKMDedicatedServer.Create;
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
   fDedicatedServer.Start;
@@ -38,6 +37,7 @@ begin
   begin
     fDedicatedServer.UpdateState;
     MyProcessMessages; //This will process network (or other) events
+    sleep(1); //Don't hog CPU
   end;
 
   fDedicatedServer.Stop;
