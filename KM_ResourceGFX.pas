@@ -14,7 +14,7 @@ type
   TCardinalArray2 = array of Cardinal;
   TexMode = (tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
-    
+
 
 type
   TResource = class
@@ -52,13 +52,13 @@ type
 
     constructor Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
     destructor Destroy; override;
-    function LoadMenuResources(aLocale:string):boolean;
-    function LoadGameResources:boolean;
+    procedure LoadMenuResources(aLocale:string);
+    procedure LoadGameResources;
     procedure MakeTileGFXFromTexture(Texture:GLuint);
 
     function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
-    property GetDataState:TDataLoadingState read fDataState;
+    property DataState:TDataLoadingState read fDataState;
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 
     procedure LoadFonts(DoExport:boolean; aLocale:string);
@@ -120,11 +120,11 @@ begin
 end;
 
 
-function TResource.LoadMenuResources(aLocale:string):boolean;
+procedure TResource.LoadMenuResources(aLocale:string);
 var i:integer;
 begin
-  fLog.AssertToLog(fTextLibrary <> nil, 'fTextLibrary should be init before ReadGFX');
-  fLog.AssertToLog(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
+  Assert(fTextLibrary <> nil, 'fTextLibrary should be init before ReadGFX');
+  Assert(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
   LoadPalettes;
@@ -157,15 +157,14 @@ begin
   fLog.AppendLog('ReadGFX is done');
   fDataState:=dls_Menu;
   fLog.AppendLog('Resource loading state - Menu');
-  Result:=true;
 end;
 
 
-function TResource.LoadGameResources:boolean;
+procedure TResource.LoadGameResources;
 var i:integer;
 begin
-  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
-  fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
   LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh;
@@ -193,7 +192,6 @@ begin
   StepRefresh;
   fDataState:=dls_All;
   fLog.AppendLog('Resource loading state - Game');
-  Result:=true;
 end;
 
 

@@ -322,7 +322,7 @@ begin
   PlayOnState := gr_Cancel;
   fMultiplayerMode := aMultiplayerMode;
 
-  if fResource.GetDataState<>dls_All then begin
+  if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
     fRender.Render;
     fResource.LoadGameResources;
@@ -708,7 +708,7 @@ begin
   RandSeed := 4; //Every time MapEd will be the same as previous. Good for debug.
   fGameSpeed := 1; //In case it was set in last run mission
 
-  if fResource.GetDataState<>dls_All then begin
+  if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'units and houses');
     fRender.Render;
     fResource.LoadGameResources;

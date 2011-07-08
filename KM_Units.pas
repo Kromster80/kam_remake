@@ -1790,7 +1790,6 @@ begin
     exit;
   end;
 
-  U := -1;
   case aUnitType of
     ut_Serf:    U := Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
     ut_Worker:  U := Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
@@ -1807,8 +1806,7 @@ begin
     else                        raise ELocError.Create('Add '+TypeToString(aUnitType),KMPoint(PosX, PosY));
   end;
 
-  if U = -1 then Result:=nil else Result := Units[U];
-
+  Result := Units[U];
 end;
 
 
