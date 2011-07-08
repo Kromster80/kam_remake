@@ -28,6 +28,7 @@ type
 
     fOnJoinSucc:TNotifyEvent;
     fOnJoinFail:TStringEvent;
+    fOnJoinAssignedHost:TNotifyEvent;
     fOnTextMessage:TStringEvent;
     fOnPlayersSetup:TNotifyEvent;
     fOnMapName:TStringEvent;
@@ -79,6 +80,7 @@ type
 
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
+    property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights
 
     property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnMapName:TStringEvent write fOnMapName;           //Map name updated
@@ -139,8 +141,7 @@ begin
   fNetServer.OnStatusMessage := fOnTextMessage;
   fNetServer.StartListening(KAM_PORT);
 
-  Join('127.0.0.1', aUserName);
-  fLANPlayerKind := lpk_Host; //todo: Instead of overriding our role - let Server assign Host rights to us (possibly along with IndexOnServer message)
+  Join('127.0.0.1', aUserName); //Server will assign hosting rights to us as we are the first joiner
 end;
 
 
@@ -427,6 +428,13 @@ begin
 
 
   case Kind of
+    mk_HostingRights:
+            begin
+              fLANPlayerKind := lpk_Host;
+              if Assigned(fOnJoinAssignedHost) then fOnJoinAssignedHost(Self); //Enter the lobby if we had hosting rights assigned to us
+              if Assigned(fOnTextMessage) then fOnTextMessage('Server has assigned hosting rights to us');
+            end;
+
     mk_IndexOnServer:
             begin
               fMyIndexOnServer := Param;

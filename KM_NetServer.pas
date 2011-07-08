@@ -234,6 +234,7 @@ begin
   if fHostHandle = NET_ADDRESS_EMPTY then
   begin
     fHostHandle := aHandle;
+    SendMessage(aHandle, mk_HostingRights, 0, '');
     if Assigned(fOnStatusMessage) then
       fOnStatusMessage('Server: Host rights assigned to '+inttostr(fHostHandle));
   end;

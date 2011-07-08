@@ -61,6 +61,7 @@ type
     procedure LAN_JoinClick(Sender: TObject);
     procedure LAN_JoinSuccess(Sender: TObject);
     procedure LAN_JoinFail(const aData:string);
+    procedure LAN_JoinAssignedHost(Sender: TObject);
     procedure LAN_BindEvents;
     procedure LAN_Save_Settings;
     procedure LAN_BackClick(Sender: TObject);
@@ -1177,6 +1178,7 @@ begin
   //Send request to join
   fGame.Networking.OnJoinSucc := LAN_JoinSuccess;
   fGame.Networking.OnJoinFail := LAN_JoinFail;
+  fGame.Networking.OnJoinAssignedHost := LAN_JoinAssignedHost;
   fGame.Networking.Join(Edit_LAN_IP.Text, Edit_LAN_Name.Text); //Init lobby
 end;
 
@@ -1188,6 +1190,7 @@ begin
 
   fGame.Networking.OnJoinSucc := nil;
   fGame.Networking.OnJoinFail := nil;
+  fGame.Networking.OnJoinAssignedHost := nil;
   LAN_BindEvents;
 end;
 
@@ -1196,6 +1199,18 @@ procedure TKMMainMenuInterface.LAN_JoinFail(const aData:string);
 begin
   fGame.Networking.Disconnect;
   LAN_Update('Connection failed: '+aData);
+end;
+
+
+procedure TKMMainMenuInterface.LAN_JoinAssignedHost(Sender: TObject);
+begin
+  //We were joining a game and the server assigned hosting rights to us
+  SwitchMenuPage(Button_LAN_Host); //Open lobby page in host mode
+
+  fGame.Networking.OnJoinSucc := nil;
+  fGame.Networking.OnJoinFail := nil;
+  fGame.Networking.OnJoinAssignedHost := nil;
+  LAN_BindEvents;
 end;
 
 

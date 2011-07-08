@@ -25,6 +25,7 @@ type
     mk_AllowToJoin,     //Host allows Client to join
     mk_RefuseToJoin,    //Host can refuse when e.g. Nikname is already taken
 
+    mk_HostingRights,   //Server tells client they have hosting rights
     mk_IndexOnServer,   //Server tells Client his index
     mk_ClientLost,      //Server tells clients that someone has disconnected
 
@@ -62,6 +63,7 @@ const
   ( pfText,     //mk_AskToJoin
     pfNoData,   //mk_AllowToJoin
     pfText,     //mk_RefuseToJoin
+    pfNoData,   //mk_HostingRights
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
     pfNoData,   //mk_Disconnect
