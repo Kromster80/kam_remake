@@ -1,4 +1,4 @@
-Unfixed from r1901+:
+Unfixed from r1902+:
 <===================================================================================>
  	Multiplayer has a fixed delay of 3.2 seconds between a command being issued and it being carried out. This should be adjusted based on ping.
  	Replay mismatches caused by an unknown bug
@@ -23,7 +23,7 @@ Unfixed from r1901+:
 
 
 
-Fixed in r1901:
+Fixed in r1902:
 <===================================================================================>
  +	Swinefarm and Stables had discolored flags
  +	In damaged stables fire was painted on horses back! it should be behind it
