@@ -29,7 +29,7 @@ const
 
   KAM_PORT              = '56789';      //Port used in TCP networking
 
-  GAME_REVISION         = 'r1886';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r1900';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data\gfx\fonts\';
@@ -614,6 +614,7 @@ const
 
   //Building of certain house allows player to build following houses,
   //unless they are blocked in mission script of course
+  //todo: Replace with Sets
   BuildingAllowed:array[1..HOUSE_COUNT,1..8]of THouseType = (
   (ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks, ht_FisherHut), //Sawmill
   (ht_WeaponSmithy,ht_ArmorSmithy,ht_SiegeWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None), //IronSmithy

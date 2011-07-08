@@ -270,7 +270,7 @@ procedure TKMGamePlayInterface.SwitchPage_Ratios(Sender: TObject);
 const ResPic:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
       ResLab:array[1..4] of word = (298,300,302,304);
       ResQty:array[1..4] of byte = (2,4,2,3);
-      ResHouse:array[1..4,1..4] of THouseType = (
+      ResHouse:array[1..4,1..4] of THouseType = ( //todo: replace with Sets
       (ht_WeaponSmithy,ht_ArmorSmithy,ht_None,ht_None),
       (ht_IronSmithy,ht_Metallurgists,ht_WeaponSmithy,ht_ArmorSmithy),
       (ht_ArmorWorkshop,ht_WeaponWorkshop,ht_None,ht_None),
