@@ -14,6 +14,9 @@ EXE-only r1831+:
  +	Sometimes workers would step off the tile they were building a road on at the moment the stone was delivered, then hammer the ground at the wrong location
  +	The first item in the Single Maps list could not be played
  +	Crashes now create a nice timestamped ZIP file with everything we need to have in the Crash Reports folder. Now you can simply email this file to us.
+ +	Ping is measured and shown in multiplayer games
+ +	You can no longer join a multiplayer game that is in progress (caused a crash)
+ +	Dedicated server added
 	Victory/defeat causes a mismatch in the replay
  +	Crabs are stuck between roads building on them is buggy
  +	Fixed terrain flattening bug that made tiles underneath units unwalkable

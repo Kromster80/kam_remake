@@ -11,6 +11,7 @@ uses
 
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
+  TLANGameState = (lgs_Lobby, lgs_Game);
 
   //Should handle message exchange and routing, interacting with UI
   TKMNetworking = class
@@ -18,6 +19,7 @@ type
     fNetServer:TKMNetServer;
     fNetClient:TKMNetClient;
     fLANPlayerKind: TLANPlayerKind; //Our role (Host or Joiner)
+    fLANGameState: TLANGameState;
     fHostAddress:string;
     fMyNikname:string;
     fMyIndexOnServer:integer;
@@ -53,6 +55,7 @@ type
     property MyIndex:integer read fMyIndex;
     function MyIPString:string;
     function IsHost:boolean;
+    property LANGameState: TLANGameState read fLANGameState write fLANGameState;
 
     //Lobby
     procedure Host(aUserName:string);
@@ -151,6 +154,7 @@ begin
 
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
   fMyIndexOnServer := -1; //Assigned by Server
+  fLANGameState := lgs_Lobby; //Game starts in the lobby
 
   fHostAddress := aServerAddress;
   fMyNikname := aUserName;
@@ -456,6 +460,8 @@ begin
     mk_AskToJoin:
             if IsHost then begin
               ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
+              if (ReMsg = '') and (fLANGameState = lgs_Game) then
+                ReMsg := 'Cannot join while the game is in progress';
               if ReMsg = '' then
               begin
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
