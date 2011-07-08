@@ -1073,7 +1073,7 @@ begin
 
                   except
                     //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                    on E : TKaMLocException do GameError(E.Loc, E.ClassName+': '+E.Message);
+                    on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
                     on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
                   end;
                 end;
@@ -1105,7 +1105,7 @@ begin
 
                   except
                     //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                    on E : TKaMLocException do GameError(E.Loc, E.ClassName+': '+E.Message);
+                    on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
                     on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
                   end;
                 end;

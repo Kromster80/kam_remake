@@ -977,10 +977,10 @@ begin
 
   if fCommander <> nil then
   begin
-    if fCommander.IsDeadOrDying then raise TKaMLocException.Create('fCommander.IsDeadOrDying',GetPosition);
-    if fCommander.fCommander <> nil then raise TKaMLocException.Create('fCommander.fCommander <> nil',GetPosition);
+    if fCommander.IsDeadOrDying then raise ELocError.Create('fCommander.IsDeadOrDying',GetPosition);
+    if fCommander.fCommander <> nil then raise ELocError.Create('fCommander.fCommander <> nil',GetPosition);
   end;
-  if GetCommander.fCommander <> nil then raise TKaMLocException.Create('GetCommander.fCommander <> nil',GetPosition);
+  if GetCommander.fCommander <> nil then raise ELocError.Create('GetCommander.fCommander <> nil',GetPosition);
 
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
@@ -1162,7 +1162,7 @@ begin
   end;
 
   if fCurrentAction = nil then
-    raise TKaMLocException.Create('Warrior '+TypeToString(UnitType)+' has no action',GetPosition);
+    raise ELocError.Create('Warrior '+TypeToString(UnitType)+' has no action',GetPosition);
 end;
 
 

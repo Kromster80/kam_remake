@@ -884,7 +884,7 @@ function TTerrain.FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
 var i,k,RadLeft,RadRight,RadTop,RadBottom,R1,R2,R3,R4:integer; L:array[1..4]of TKMPointList;
 begin
   if not (Rt in [rt_IronOre, rt_GoldOre, rt_Coal]) then
-    raise TKaMLocException.Create('Wrong resource as Ore',aPosition);
+    raise ELocError.Create('Wrong resource as Ore',aPosition);
 
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
@@ -1088,7 +1088,7 @@ begin
     rt_Coal:    Land[Loc.Y,Loc.X].Terrain:=155;
     rt_IronOre: Land[Loc.Y,Loc.X].Terrain:=151;
     rt_GoldOre: Land[Loc.Y,Loc.X].Terrain:=147;
-    else        raise TKaMLocException.Create('Wrong resource deposit',Loc);
+    else        raise ELocError.Create('Wrong resource deposit',Loc);
   end;
   RecalculatePassability(Loc);
 end;
@@ -1146,7 +1146,7 @@ end;
 function TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType):boolean;
 begin
   if not (rt in [rt_IronOre,rt_GoldOre,rt_Coal]) then
-    raise TKaMLocException.Create('Wrong ore decrease',Loc);
+    raise ELocError.Create('Wrong ore decrease',Loc);
 
   Result := true;
   case Land[Loc.Y,Loc.X].Terrain of
