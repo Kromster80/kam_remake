@@ -2,6 +2,7 @@ Since r1902:
 <===================================================================================>
  +	Attacking houses that were under construction caused crashes
  +	Units dying of hunger while walking out of a house caused crashes
+ +	If a unit's home was inaccessible it would lock up continuously trying to go home, and fill the log file with "Unable to make a route".
  	Multiplayer has a fixed delay of 3.2 seconds between a command being issued and it being carried out. This should be adjusted based on ping.
  	Replay mismatches caused by an unknown bug
  	Multiplayer becomes out of sync

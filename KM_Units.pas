@@ -132,6 +132,7 @@ type TCheckAxis = (ax_X, ax_Y);
     function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
     property GetOwner:TPlayerIndex read fOwner;
     function GetSpeed:single;
+    function CanAccessHome: boolean;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property GetUnitTask: TUnitTask read fUnitTask;
@@ -390,9 +391,13 @@ begin
         SetActionStay(60, ua_Walk) //There's no home
       end
     else
-      if fVisible then//Unit is not at home, but it has one
-        fUnitTask := TTaskGoHome.Create(Self)
-      else begin
+      if fVisible then //Unit is not at home, but it has one
+      begin
+        if CanAccessHome then
+          fUnitTask := TTaskGoHome.Create(Self)
+        else
+          SetActionStay(60, ua_Walk) //Home can't be reached
+      end else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
           SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
@@ -559,9 +564,13 @@ begin
         SetActionStay(120, ua_Walk) //There's no home
       end
     else
-      if fVisible then//Unit is not at home, but it has one
-        fUnitTask := TTaskGoHome.Create(Self)
-      else begin
+      if fVisible then //Unit is not at home, but it has one
+      begin
+        if CanAccessHome then
+          fUnitTask := TTaskGoHome.Create(Self)
+        else
+          SetActionStay(60, ua_Walk) //Home can't be reached
+      end else begin
         fUnitTask := InitiateActivity; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
           SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
@@ -1079,6 +1088,12 @@ end;
 function TKMUnit.GetSpeed:single;
 begin
   Result := UnitStat[byte(fUnitType)].Speed/240;
+end;
+
+
+function TKMUnit.CanAccessHome:boolean;
+begin
+  Result := (fHome = nil) or fTerrain.Route_CanBeMade(GetPosition, KMPointY1(fHome.GetEntrance), canWalk, 0, false);
 end;
 
 
