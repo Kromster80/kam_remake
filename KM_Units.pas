@@ -1226,7 +1226,7 @@ end;
 
 procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
 begin
-  SetAction(TUnitActionGoInOut.Create(aAction, aGoDir, aHouse));
+  SetAction(TUnitActionGoInOut.Create(aAction, Self, aGoDir, aHouse));
 end;
 
 

@@ -1,6 +1,7 @@
 Since r1902:
 <===================================================================================>
  +	Attacking houses that were under construction caused crashes
+ +	Units dying of hunger while walking out of a house caused crashes
  	Multiplayer has a fixed delay of 3.2 seconds between a command being issued and it being carried out. This should be adjusted based on ping.
  	Replay mismatches caused by an unknown bug
  	Multiplayer becomes out of sync

@@ -10,6 +10,7 @@ type TBestExit = (be_None, be_Left, be_Center, be_Right);
 type
   TUnitActionGoInOut = class(TUnitAction)
   private
+    fUnit: TKMUnit;
     fStep:single;
     fHouse:TKMHouse;
     fDirection:TGoInDirection;
@@ -25,7 +26,7 @@ type
     procedure WalkIn(aUnit:TKMUnit);
     procedure WalkOut(aUnit:TKMUnit);
   public
-    constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
+    constructor Create(aAction: TUnitActionType; aUnit:TKMUnit; aDirection:TGoInDirection; aHouse:TKMHouse);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
@@ -40,10 +41,11 @@ implementation
 uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX;
 
 
-constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
+constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aUnit:TKMUnit; aDirection:TGoInDirection; aHouse:TKMHouse);
 begin
   Inherited Create(aAction);
   fActionName     := uan_GoInOut;
+  fUnit           := aUnit.GetUnitPointer;
   Locked          := true;
   //We might stuck trying to exit when house gets destroyed (1)
   //and we might be dying in destroyed house (2)
@@ -85,6 +87,12 @@ destructor TUnitActionGoInOut.Destroy;
 begin
   if fUsedDoorway then DecDoorway;
   fPlayers.CleanUpHousePointer(fHouse);
+  //A bug can occur because this action is destroyed early when a unit is told to die. If we are still invisible
+  //then TTaskDie assumes we are inside and creates a new GoOut action. Therefore if we are invisible we do not occupy a tile.
+  if (fDirection = gd_GoOutside) and (fHasStarted) and (fUnit<>nil) and (not fUnit.Visible) and
+    (fTerrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
+    fTerrain.UnitRem(fUnit.NextPosition);
+  fPlayers.CleanUpUnitPointer(fUnit);
   Inherited;
 end;
 
