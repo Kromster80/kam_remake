@@ -39,7 +39,7 @@ begin
     0:  if Visible then
           SetActionLockedStay(0,ua_Walk)
         else begin
-          if GetHome<>nil then begin
+          if (GetHome<>nil) and not GetHome.IsDestroyed then begin
             GetHome.SetState(hst_Idle);
             GetHome.SetState(hst_Empty);
           end;

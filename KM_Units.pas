@@ -351,6 +351,15 @@ function TKMUnitCitizen.UpdateState:boolean;
 var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
+
+  //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
+  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
+  begin
+    if (fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then AbandonWalk;
+    FreeAndNil(fUnitTask);
+    fPlayers.CleanUpHousePointer(fHome);
+  end;
+
   if Inherited UpdateState then exit;
   if IsDead then exit; //Caused by SelfTrain.Abandoned
 
@@ -362,14 +371,6 @@ begin
   if not TestAtHome then
   if not TestMining then
     Idle..}
-
-  //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
-  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
-  begin
-    if (fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then AbandonWalk;
-    FreeAndNil(fUnitTask);
-    fPlayers.CleanUpHousePointer(fHome);
-  end;
 
 
   if fCondition<UNIT_MIN_CONDITION then
@@ -531,10 +532,6 @@ function TKMUnitRecruit.UpdateState:boolean;
 var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
-  if Inherited UpdateState then exit;
-  if IsDead then exit; //Caused by SelfTrain.Abandoned
-
-  fThought := th_None;
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
@@ -543,6 +540,11 @@ begin
     FreeAndNil(fUnitTask);
     fPlayers.CleanUpHousePointer(fHome);
   end;
+
+  if Inherited UpdateState then exit;
+  if IsDead then exit; //Caused by SelfTrain.Abandoned
+
+  fThought := th_None;
 
 
   if fCondition<UNIT_MIN_CONDITION then

@@ -553,6 +553,7 @@ var
   PreviousState: TGameState;
   MyZip: TZippit;
   CrashFile: string;
+  i: integer;
 begin
   //Negotiate duplicate calls for GameError
   if fGameState = gsNoGame then exit;
@@ -575,13 +576,9 @@ begin
   //Include in the bug report:
   MyZip.AddFiles(ExeDir+'Saves\save99.*','Replay'); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
-  MyZip.AddFile(ExeDir+'Saves\save15.sav','Autosaves'); //All autosaves
-  MyZip.AddFile(ExeDir+'Saves\save14.sav','Autosaves');
-  MyZip.AddFile(ExeDir+'Saves\save13.sav','Autosaves');
-  MyZip.AddFile(ExeDir+'Saves\save12.sav','Autosaves');
-  MyZip.AddFile(ExeDir+'Saves\save11.sav','Autosaves');
-  MyZip.AddFile(ExeDir+'Saves\save10.sav','Autosaves');
-  MyZip.AddFile(fMissionFile,'Mission');
+  MyZip.AddFile(fMissionFile,'Mission'); //Mission script
+  for i:=AUTOSAVE_SLOT to AUTOSAVE_SLOT+AUTOSAVE_COUNT-1 do
+    MyZip.AddFiles(ExeDir+'Saves\save'+IntToStr(i)+'.*','Autosaves'); //All autosaves
 
   //Save it
   CrashFile := 'KaM Crash '+GAME_REVISION+' '+FormatDateTime('yyyy-mm-dd hh-nn-ss',Now)+'.zip'; //KaM Crash r1830 2007-12-23 15-24-33.zip
@@ -912,8 +909,14 @@ begin
 
   if SlotID = AUTOSAVE_SLOT then begin //Backup earlier autosaves
     DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'sav'));
+    DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'rpl'));
+    DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'bas'));
     for i:=AUTOSAVE_SLOT+AUTOSAVE_COUNT downto AUTOSAVE_SLOT+1 do //13 to 11
+    begin
       RenameFile(KMSlotToSaveName(i-1,'sav'), KMSlotToSaveName(i,'sav'));
+      RenameFile(KMSlotToSaveName(i-1,'rpl'), KMSlotToSaveName(i,'rpl'));
+      RenameFile(KMSlotToSaveName(i-1,'bas'), KMSlotToSaveName(i,'bas'));
+    end;
   end;
 
   SaveStream.SaveToFile(KMSlotToSaveName(SlotID,'sav')); //Some 70ms for TPR7 map
@@ -921,10 +924,8 @@ begin
 
   fLog.AppendLog('Sav done');
 
-  if SlotID <> AUTOSAVE_SLOT then begin //Backup earlier autosaves
-    CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame
-    fGameInputProcess.SaveToFile(KMSlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
-  end;//
+  CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame
+  fGameInputProcess.SaveToFile(KMSlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
 
   fLog.AppendLog('Saving game', true);
 end;

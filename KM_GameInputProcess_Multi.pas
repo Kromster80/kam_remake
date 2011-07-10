@@ -244,8 +244,8 @@ begin
     begin
       //if fNetworking.NetPlayers[i].Alive then //todo: Skip dead players
       begin
+        StoreCommand(fSchedule[Tick, i].Items[k]); //Store the command first so if Exec fails we still have it in the replay
         ExecCommand(fSchedule[Tick, i].Items[k]);
-        StoreCommand(fSchedule[Tick, i].Items[k]);
       end;
       fSchedule[Tick, i].Clear;
     end;

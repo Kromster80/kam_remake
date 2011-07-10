@@ -10,6 +10,7 @@ type
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
     procedure ReplayTimer(aTick:cardinal); override;
+    procedure RunningTimer(aTick:cardinal); override;
   end;
 
 
@@ -19,14 +20,15 @@ uses KM_Game, KM_Defaults, KM_Utils;
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand:TGameInputCommand);
 begin
+  StoreCommand(aCommand); //Store the command for the replay (store it first in case Exec crashes and we want to debug it)
   ExecCommand(aCommand); //Execute the command now
-  StoreCommand(aCommand); //Store the command for the replay
 end;
 
 
 procedure TGameInputProcess_Single.ReplayTimer(aTick:cardinal);
 var MyRand:cardinal;
 begin
+  Random(maxint); //This is to match up with multiplayer CRC generation, so multiplayer replays can be replayed in singleplayer mode
   if fCursor > Count then 
     Exit; //There are no more commands left
     
@@ -47,5 +49,10 @@ begin
   end;
 end;
 
+
+procedure TGameInputProcess_Single.RunningTimer(aTick:cardinal);
+begin
+  Random(maxint); //This is to match up with multiplayer CRC generation, so multiplayer replays can be replayed in singleplayer mode
+end;
 
 end.
