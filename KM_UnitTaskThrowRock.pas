@@ -70,7 +70,7 @@ begin
     0: begin
          GetHome.SetState(hst_Work); //Set house to Work state
          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
-         SetActionStay(5,ua_Walk); //pretend taking the stone
+         SetActionStay(2,ua_Walk); //pretend to be taking the stone
        end;
     1: begin
          if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
@@ -78,9 +78,10 @@ begin
          fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
          SetActionStay(1,ua_Walk);
        end;
-    2: begin
+    2: SetActionStay(fFlightTime,ua_Walk); //look how it goes
+    3: begin
          GetHome.SetState(hst_Idle);
-         SetActionStay(fFlightTime,ua_Walk); //look how it goes
+         SetActionStay(20,ua_Walk); //Idle before throwing another rock
        end;
     else Result := TaskDone;
   end;

@@ -181,7 +181,7 @@ begin
   fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
 
   if (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
-    fSoundLib.Play(ProjectileSounds[pt_Arrow], KMPointRound(aStart), true);
+    fSoundLib.Play(ProjectileSounds[aProjType], KMPointRound(aStart), true);
 
   Result := round(fItems[i].fLength / fItems[i].fSpeed);
 end;

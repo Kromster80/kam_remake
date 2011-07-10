@@ -2234,7 +2234,7 @@ end;
 //1. Process Controls
 //2. Show SelectingTroopDirection
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var U:TKMUnit; MyRect:TRect;
+var U:TKMUnit; H:TKMHouse; MyRect:TRect;
 begin
   MyControls.MouseDown(X,Y,Shift,Button);
   if (fGame.GameState <> gsRunning) or (MyControls.CtrlOver <> nil) then exit;
@@ -2247,12 +2247,14 @@ begin
   end;
 
   //See if we can show DirectionSelector
-  //Can walk to ally units place, can't walk to house place anyway
+  //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied 
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and(fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
+       ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Ally)) and
       fTerrain.Route_CanBeMade(fShownUnit.GetPosition, GameCursor.Cell, CanWalk, 0, false) then
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
