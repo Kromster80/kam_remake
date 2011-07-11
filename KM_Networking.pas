@@ -246,7 +246,7 @@ var
   M:TKMemoryStream;
   PingCount:integer;
   PlayerHandle:integer;
-  PingValue:integer;
+  PingValue:word;
   LocalHandle:integer;
 begin
   M := TKMemoryStream.Create;

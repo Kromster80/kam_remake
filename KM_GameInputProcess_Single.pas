@@ -28,25 +28,26 @@ end;
 procedure TGameInputProcess_Single.ReplayTimer(aTick:cardinal);
 var MyRand:cardinal;
 begin
-  Random(maxint); //This is to match up with multiplayer CRC generation, so multiplayer replays can be replayed in singleplayer mode
-  if fCursor > Count then 
-    Exit; //There are no more commands left
-    
-  while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
-    inc(fCursor);
-
-  while (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
+  //There are still more commands left
+  if fCursor <= Count then
   begin
-    ExecCommand(fQueue[fCursor].Command);
-    MyRand := Cardinal(Random(maxint)); //Just like in StoreCommand
-    //CRC check after the command
-    if CRASH_ON_REPLAY and (fQueue[fCursor].Rand <> MyRand) then //Should always be called to maintain randoms flow
+    while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
+      inc(fCursor);
+
+    while (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
     begin
-      fGame.GameError(KMPoint(0,0), 'Replay mismatch: '+IntToStr(fQueue[fCursor].Rand)+' on tick '+IntToStr(aTick));
-      Exit; //GameError sometimes calls GIP.Free, so exit immidiately
+      ExecCommand(fQueue[fCursor].Command);
+      MyRand := Cardinal(Random(maxint)); //Just like in StoreCommand
+      //CRC check after the command
+      if CRASH_ON_REPLAY and (fQueue[fCursor].Rand <> MyRand) then //Should always be called to maintain randoms flow
+      begin
+        fGame.GameError(KMPoint(0,0), 'Replay mismatch: '+IntToStr(fQueue[fCursor].Rand)+' on tick '+IntToStr(aTick));
+        Exit; //GameError sometimes calls GIP.Free, so exit immidiately
+      end;
+      inc(fCursor);
     end;
-    inc(fCursor);
   end;
+  Random(maxint); //This is to match up with multiplayer random check generation, so multiplayer replays can be replayed in singleplayer mode
 end;
 
 

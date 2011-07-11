@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Windows, KM_CommonTypes, KM_NetServerOverbyte, KM_Defaults;
+uses Classes, SysUtils, Windows, Math, KM_CommonTypes, KM_NetServerOverbyte, KM_Defaults;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -41,11 +41,11 @@ type
   TKMServerClient = class
   private
     fHandle:integer;
-    fPing:integer;
+    fPing:word;
   public
     constructor Create(aHandle:integer);
     property Handle:integer read fHandle; //ReadOnly
-    property Ping:integer read fPing write fPing;
+    property Ping:word read fPing write fPing;
   end;
 
 
@@ -341,7 +341,7 @@ begin
             begin
              //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
              if fClientList.GetByHandle(aSenderHandle) <> nil then
-               fClientList.GetByHandle(aSenderHandle).Ping := GetTickCount - fPingStarted;
+               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTickCount - fPingStarted, maxword);
             end;
   end;
 

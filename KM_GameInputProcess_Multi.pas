@@ -7,7 +7,7 @@ const
   MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
 
 type
-  TKMDataType = (kdp_Commands, kdp_Confirmation);
+  TKMDataType = (kdp_Commands, kdp_Confirmation, kdp_RandomCheck);
 
   TCommandsPack = class
   private
@@ -24,6 +24,12 @@ type
     procedure Load(aStream:TKMemoryStream);
   end;
 
+  TRandomCheck = record
+    OurCheck: cardinal;
+    PlayerCheck:array[TPlayerIndex] of cardinal;
+    PlayerWasChecked:array[TPlayerIndex] of boolean;
+  end;
+
   TGameInputProcess_Multi = class (TGameInputProcess)
   private
     fNetworking:TKMNetworking;
@@ -35,11 +41,19 @@ type
     //All players must confirm they have recieved our GIPList
     fConfirmation:array[0..MAX_SCHEDULE-1, TPlayerIndex] of boolean; //Ring buffer
 
+    //All players must send us data every tick
+    fRecievedData:array[0..MAX_SCHEDULE-1, TPlayerIndex] of boolean; //Ring buffer
+
     //Mark commands we've already sent to other players
     fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
 
+    //Store random seeds at each tick then confirm with other players
+    fRandomCheck:array[0..MAX_SCHEDULE-1] of TRandomCheck; //Ring buffer
+
     procedure SendCommands(aTick:cardinal);
+    procedure SendRandomCheck(aTick:cardinal);
     procedure SendConfirmation(aTick:cardinal; aPlayerIndex:TPlayerIndex);
+    procedure DoRandomCheck(aTick:cardinal; aPlayerIndex:TPlayerIndex);
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
@@ -120,7 +134,10 @@ begin
 
   //Allocate memory for all commands packs
   for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count do
+  begin
     fSchedule[i,k] := TCommandsPack.Create;
+    fRandomCheck[i].PlayerWasChecked[k] := true; //We don't have anything to be checked yet
+  end;
 end;
 
 
@@ -170,6 +187,22 @@ begin
 end;
 
 
+procedure TGameInputProcess_Multi.SendRandomCheck(aTick:cardinal);
+var Msg:TKMemoryStream;
+begin
+  Msg := TKMemoryStream.Create;
+  try
+    Msg.Write(byte(kdp_RandomCheck));
+    Msg.Write(aTick); //Target Tick in 1..n range
+    Msg.Write(MyPlayer.PlayerIndex, SizeOf(MyPlayer.PlayerIndex));
+    Msg.Write(fRandomCheck[aTick mod MAX_SCHEDULE].OurCheck); //Write our random check to the stream
+    fNetworking.SendCommands(Msg); //Send to all opponents
+  finally
+    Msg.Free;
+  end;
+end;
+
+
 //Confirm that we have recieved the commands with CRC
 procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerIndex:TPlayerIndex);
 var Msg:TKMemoryStream;
@@ -183,6 +216,17 @@ begin
     fNetworking.SendCommands(Msg, aPlayerIndex); //Send to opponent
   finally
     Msg.Free;
+  end;
+end;
+
+
+procedure TGameInputProcess_Multi.DoRandomCheck(aTick:cardinal; aPlayerIndex:TPlayerIndex);
+begin
+  with fRandomCheck[aTick mod MAX_SCHEDULE] do
+  begin
+    Assert(OurCheck = PlayerCheck[aPlayerIndex],Format('Random check mismatch for tick %d from player %d processed at tick %d',
+                                                       [aTick, aPlayerIndex, fGame.GameTickCount]));
+    PlayerWasChecked[aPlayerIndex] := true;
   end;
 end;
 
@@ -201,14 +245,28 @@ begin
     case D of
       kdp_Commands:
           begin
+            Assert(Tick > fGame.GameTickCount,Format('Commands for tick %d from player %d recieved too late at %d');
+                                                     [Tick, PlayerIndex, fGame.GameTickCount]);
             fSchedule[Tick mod MAX_SCHEDULE, PlayerIndex].Load(M);
+            fRecievedData[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
             SendConfirmation(Tick, PlayerIndex);
           end;
       kdp_Confirmation: //Recieved CRC should match our commands pack
           begin
+            Assert(Tick > fGame.GameTickCount,Format('Confirmation for tick %d from player %d recieved too late at %d');
+                                                     [Tick, PlayerIndex, fGame.GameTickCount]);
             M.Read(CRC);
             Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, MyPlayer.PlayerIndex].CRC);
             fConfirmation[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
+          end;
+      kdp_RandomCheck: //Other player is confirming that random seeds matched at a tick in the past
+          begin
+            M.Read(CRC); //Read the random check from the message
+            fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheck[PlayerIndex] := CRC; //Store it for this player
+            fRandomCheck[Tick mod MAX_SCHEDULE].PlayerWasChecked[PlayerIndex] := false;
+            //If we have processed this tick already, check now
+            if Tick <= fGame.GameTickCount then
+              DoRandomCheck(Tick, PlayerIndex);
           end;
     end;
   finally
@@ -223,7 +281,8 @@ var i:integer;
 begin
   Result := True;
   for i:=1 to fNetworking.NetPlayers.Count do
-    Result := Result and (fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or
+    Result := Result and ((fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] and
+                           fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex]) or
                          (fNetworking.NetPlayers[i].PlayerType = pt_Computer) or not fNetworking.NetPlayers[i].Alive);
 end;
 
@@ -233,9 +292,6 @@ end;
 procedure TGameInputProcess_Multi.RunningTimer(aTick:cardinal);
 var i,k,Tick:integer;
 begin
-  Random(maxint); //thats our CRC
-  //todo: Remember CRC and do the CRC checking once in a while
-
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
 
   //Execute commands, in order players go (1,2,3..)
@@ -250,24 +306,29 @@ begin
       fSchedule[Tick, i].Clear;
     end;
 
+  fRandomCheck[Tick].OurCheck := cardinal(Random(maxint)); //thats our CRC
+  SendRandomCheck(aTick);
+  //It is possible that we have already recieved other player's random checks, if so check them now
+  for i:=0 to fPlayers.Count-1 do
+    if not fRandomCheck[Tick].PlayerWasChecked[i] then
+      DoRandomCheck(aTick, i);
+
   FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset
+  FillChar(fRecievedData[Tick], SizeOf(fRecievedData[Tick]), #0); //Reset
   fSent[Tick] := false;
 end;
 
 
-//todo: Check CRCs
 procedure TGameInputProcess_Multi.UpdateState(aTick:cardinal);
 var i:integer;
 begin
-  //if not CRC = CRC then
-  //  fOnCRCFail(Self);
-
   for i:=aTick+1 to aTick+fDelay do
   if not fSent[i mod MAX_SCHEDULE] then
   begin
     SendCommands(i);
     fSent[i mod MAX_SCHEDULE] := true;
     fConfirmation[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex] := true; //Self confirmed
+    fRecievedData[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex] := true; //Recieved commands from self
   end;
 end;
 
