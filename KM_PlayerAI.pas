@@ -753,8 +753,6 @@ begin
   SetLength(ScriptedAttacks, ScriptedAttacksCount);
   for i:=0 to ScriptedAttacksCount-1 do
     LoadStream.Read(ScriptedAttacks[i], SizeOf(ScriptedAttacks[i]));
-  //@Lewin: I've checked some attack commands from TPR7 mission and some of them appeared to be wrong, with delay 0 and men count 500. Could it be a alignment bug?
-  //@Krom: That's correct KaM scripting. Delay 0 means the attack will happen instantly at game start. Men count 500 is a shortcut to make it take all available warriors.
 end;
 
 
