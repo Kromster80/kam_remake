@@ -323,6 +323,7 @@ var Dif:array[1..3]of single;
   i,ID:integer;
   ALState:TALint;
 begin
+  if SoundID = sfx_None then exit; //No sound
   if not fIsSoundInitialized then exit;
 
   //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being filled with sounds on the other side of the map.

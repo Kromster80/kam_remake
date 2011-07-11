@@ -149,7 +149,7 @@ const //Here we store options that are hidden somewhere in code
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
-  FRIENDLY_FIRE = false; //Whenever archers could kill fellow men with their arrows
+  FRIENDLY_FIRE = true; //Whenever archers could kill fellow men with their arrows
 
 
 type
@@ -926,6 +926,7 @@ const
   
 type
   TSoundFX = (
+    sfx_None=0,
     sfx_CornCut=1,
     sfx_Dig,
     sfx_Pave,
@@ -1002,6 +1003,7 @@ type
         );
 
 const SSoundFX:array[TSoundFX] of string = (
+    'sfx_None',
     'sfx_CornCut',
     'sfx_Dig',
     'sfx_Pave',
@@ -1086,7 +1088,8 @@ type
 
 const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(4186,4190) );
-  ProjectileSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_RockThrow);
+  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_RockThrow);
+  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_None);
   ProjectileSpeeds:array[TProjectileType] of single = (0.45, 0.5, 0.6);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.25, 0)); //Arc curve and random fraction
   ProjectileJitter:array[TProjectileType] of single = (0.1, 0.075, 0.05);
@@ -1161,9 +1164,9 @@ const
 //I tweaked it by hand to look similar to KaM.
 //1st row for straight, 2nd for diagonal sliding
 const
-  SlideLookup: array[1..2, 0..round(CELL_SIZE_PX*1.41)] of byte = (
-    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0));
+  SlideLookup: array[1..2, 0..Round(CELL_SIZE_PX*1.42)] of byte = ( //1.42 instead of 1.41 because we want to round up just in case
+    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
 
 
 const

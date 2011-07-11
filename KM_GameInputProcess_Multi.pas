@@ -245,16 +245,16 @@ begin
     case D of
       kdp_Commands:
           begin
-            Assert(Tick > fGame.GameTickCount,Format('Commands for tick %d from player %d recieved too late at %d');
-                                                     [Tick, PlayerIndex, fGame.GameTickCount]);
+            Assert(Tick > fGame.GameTickCount,Format('Commands for tick %d from player %d recieved too late at %d',
+                                                     [Tick, PlayerIndex, fGame.GameTickCount]));
             fSchedule[Tick mod MAX_SCHEDULE, PlayerIndex].Load(M);
             fRecievedData[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
             SendConfirmation(Tick, PlayerIndex);
           end;
       kdp_Confirmation: //Recieved CRC should match our commands pack
           begin
-            Assert(Tick > fGame.GameTickCount,Format('Confirmation for tick %d from player %d recieved too late at %d');
-                                                     [Tick, PlayerIndex, fGame.GameTickCount]);
+            Assert(Tick > fGame.GameTickCount,Format('Confirmation for tick %d from player %d recieved too late at %d',
+                                                     [Tick, PlayerIndex, fGame.GameTickCount]));
             M.Read(CRC);
             Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, MyPlayer.PlayerIndex].CRC);
             fConfirmation[Tick mod MAX_SCHEDULE, PlayerIndex] := true;

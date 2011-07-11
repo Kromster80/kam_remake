@@ -181,7 +181,7 @@ begin
   fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
 
   if (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y) >= 255) then
-    fSoundLib.Play(ProjectileSounds[aProjType], KMPointRound(aStart), true);
+    fSoundLib.Play(ProjectileLaunchSounds[aProjType], KMPointRound(aStart), true);
 
   Result := round(fItems[i].fLength / fItems[i].fSpeed);
 end;
@@ -201,9 +201,8 @@ begin
 
         //Will hit the target in X..X-1 ticks (this ensures it only happens once)
         //Can't use InRange cos it might get called twice due to <= X <= comparison
-        if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed)
-        and (fType in [pt_Arrow, pt_Bolt]) then //These projectiles make the sound
-          fSoundLib.Play(sfx_ArrowHit, KMPointRound(fTarget));
+        if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed) then
+          fSoundLib.Play(ProjectileHitSounds[fType], KMPointRound(fTarget));
 
         if fPosition >= fLength then begin
           U := fPlayers.UnitsHitTestF(fTarget, false);

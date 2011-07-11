@@ -1,12 +1,16 @@
 Since r1902:
 <===================================================================================>
  +	Attacking houses that were under construction caused crashes
+ +	All types of projectiles used longbow release sounds
  +	Units dying of hunger while walking out of a house caused crashes
  +	If a unit's home was inaccessible it would lock up continuously trying to go home, and fill the log file with "Unable to make a route".
  +	The game would crash if you destroyed the home of a unit and it died soon afterwards
+ +	Autosaves now include a replay for extra debugging
+ +	Multiplayer replays can now be viewed normally from singleplayer mode without crashing
+ +	Multiplayer becomes out of sync
+ +	Archers now have friendly fire, stray arrows can hit your own units/buildings
+ ?	Replay mismatches caused by an unknown bug (can't reproduce anymore, presumed fixed)
  	Multiplayer has a fixed delay of 3.2 seconds between a command being issued and it being carried out. This should be adjusted based on ping.
- 	Replay mismatches caused by an unknown bug
- 	Multiplayer becomes out of sync
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 	Because KaM uses unusual character sets, special letters from LIBX files are shown incorrectly. We need to do a conversion from standard LIBX character set to KaM character set. (German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button)
