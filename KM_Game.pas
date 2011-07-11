@@ -433,7 +433,7 @@ end;
 procedure TKMGame.GameStartMP(Sender:TObject);
 var
   LoadError:string;
-  i:integer;
+  i,k:integer;
   fMissionParser:TMissionParser;
   PlayerIndex:integer;
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
@@ -489,9 +489,19 @@ begin
     PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
     fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
     fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].PlayerType;
+
+    for k:=0 to fPlayers.Count-1 do
+      if (fNetworking.NetPlayers[i].Team = 0) or (fNetworking.NetPlayers.StartingLocToLocal(k+1) = -1) or
+        (fNetworking.NetPlayers[i].Team <> fNetworking.NetPlayers[fNetworking.NetPlayers.StartingLocToLocal(k+1)].Team) then
+        fPlayers.Player[PlayerIndex].Alliances[k] := at_Enemy
+      else
+        fPlayers.Player[PlayerIndex].Alliances[k] := at_Ally;
+
     fPlayers.Player[PlayerIndex].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
     PlayerUsed[PlayerIndex] := true;
   end;
+  //Setup alliances afterwards
+  for i:=0 to fPlayers.Count-1 do
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];

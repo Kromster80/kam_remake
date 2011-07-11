@@ -8,6 +8,7 @@ Since r1902:
  +	Autosaves now include a replay for extra debugging
  +	Multiplayer replays can now be viewed normally from singleplayer mode without crashing
  +	Multiplayer becomes out of sync
+ +	Multiplayer lobby now lets you choose teams
  +	Archers now have friendly fire, stray arrows can hit your own units/buildings
  ?	Replay mismatches caused by an unknown bug (can't reproduce anymore, presumed fixed)
  	Multiplayer has a fixed delay of 3.2 seconds between a command being issued and it being carried out. This should be adjusted based on ping.

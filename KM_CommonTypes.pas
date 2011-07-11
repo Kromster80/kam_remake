@@ -44,6 +44,7 @@ type
     mk_PlayersList,     //Host keeps the players list and sends it to everyone on change
 
     mk_StartingLocQuery,//Joiner asks Host if he can take that starting location
+    mk_SetTeam,         //Joiner tells Host which team he is on
     mk_FlagColorQuery,  //Joiner asks Host if he can take specific color
 
     mk_MapSelect,       //Host selects the map to play
@@ -76,6 +77,7 @@ const
     pfText,     //mk_PingInfo
     pfText,     //mk_PlayersList
     pfNumber,   //mk_StartingLocQuery
+    pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery
     pfText,     //mk_MapSelect
     pfNoData,   //mk_ReadyToStart

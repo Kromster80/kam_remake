@@ -15,6 +15,7 @@ type
     PlayerType:TPlayerType; //Human, Computer
     FlagColorID:integer;    //Flag color, 0 means random
     StartLocation:integer;     //Start location, 0 means random
+    Team:integer;
     PlayerIndex:TKMPlayer;
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
@@ -49,6 +50,7 @@ type
     //Getters
     function ServerToLocal(aIndexOnServer:integer):integer;
     function NiknameToLocal(aNikname:string):integer;
+    function StartingLocToLocal(aLoc:integer):integer;
     function CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
     function LocAvailable(aIndex:integer):boolean;
     function ColorAvailable(aIndex:integer):boolean;
@@ -279,6 +281,16 @@ begin
 end;
 
 
+function TKMPlayersList.StartingLocToLocal(aLoc:integer):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=1 to fCount do
+    if fPlayers[i].StartLocation = aLoc then
+      Result := i;
+end;
+
+
 //See if player can join our game
 function TKMPlayersList.CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
 begin
@@ -374,6 +386,7 @@ begin
     M.Write(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
     M.Write(fPlayers[i].FlagColorID);
     M.Write(fPlayers[i].StartLocation);
+    M.Write(fPlayers[i].Team);
     M.Write(fPlayers[i].ReadyToStart);
     M.Write(fPlayers[i].Alive);
   end;
@@ -397,6 +410,7 @@ begin
       M.Read(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
       M.Read(fPlayers[i].FlagColorID);
       M.Read(fPlayers[i].StartLocation);
+      M.Read(fPlayers[i].Team);
       M.Read(fPlayers[i].ReadyToStart);
       M.Read(fPlayers[i].Alive);
     end;

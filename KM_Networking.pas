@@ -66,6 +66,7 @@ type
     function  Connected: boolean;
     procedure SelectMap(aName:string);
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
+    procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
     procedure ReadyToStart;
     function  CanStart:boolean;
@@ -308,6 +309,18 @@ begin
 end;
 
 
+//Tell other players which team we are on. Player selections need not be unique
+procedure TKMNetworking.SelectTeam(aIndex:integer; aPlayerIndex:integer);
+begin
+  fNetPlayers[aPlayerIndex].Team := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
+
+  case fLANPlayerKind of
+    lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
+    lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_SetTeam, '', aIndex);
+  end;
+end;
+
+
 //Tell other players which color we will be using
 //For now players colors are not unique, many players may have one color
 procedure TKMNetworking.SelectColor(aIndex:integer; aPlayerIndex:integer);
@@ -439,7 +452,7 @@ var
   Param:integer;
   Msg:string;
   ReMsg:string;
-  LocID,ColorID:integer;
+  LocID,TeamID,ColorID:integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
 
@@ -585,6 +598,14 @@ begin
               end
               else //Quietly refuse
                 SendPlayerListAndRefreshPlayersSetup(aSenderIndex);
+            end;
+
+    mk_SetTeam:
+            if IsHost then begin
+              TeamID := Param;
+              //Update Players setup
+              fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Team := TeamID;
+              SendPlayerListAndRefreshPlayersSetup;
             end;
 
     mk_FlagColorQuery:

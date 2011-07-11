@@ -1,0 +1,7 @@
+Title
+Battle in the Ruined City
+
+SmallDesc
+A multiplayer battle mission by War_Its_Life
+
+BigDesc

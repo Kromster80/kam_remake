@@ -1,0 +1,8 @@
+Title
+A Farmer's Wish
+
+SmallDesc
+A mission by Hellracer
+
+BigDesc
+The small farmer village has been threatened. They rely on you to protect them from any attacks. An attack has already been planned, stop it and prepare for the next. Then stop them from ever attacking again!

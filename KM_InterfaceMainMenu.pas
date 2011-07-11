@@ -130,6 +130,7 @@ type
         DropBox_LobbyPlayerSlot:array [0..MAX_PLAYERS-1] of TKMDropBox;
         Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
         DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropBox;
+        DropBox_LobbyTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
         DropColorBox_Lobby:array [0..MAX_PLAYERS-1] of TKMDropColorBox;
         CheckBox_LobbyReady:array [0..MAX_PLAYERS-1] of TKMCheckBox;
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
@@ -451,18 +452,19 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Lobby_Page;
-var i,top:integer;
+var i,k,top:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,80,100,590,240);
-      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 590, 240);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,40,100,670,240);
+      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 670, 240);
       TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 140, 20, 'Players list:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 160, 10, 150, 20, 'Start location:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 330, 10, 140, 20, 'Flag color:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 450, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
-      with TKMLabel.Create(Panel_LobbyPlayers, 520, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft) do
+      TKMLabel.Create(Panel_LobbyPlayers, 300, 10, 140, 20, 'Team:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 410, 10, 140, 20, 'Flag color:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 530, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
+      with TKMLabel.Create(Panel_LobbyPlayers, 600, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft) do
         OnClick := Lobby_Ping;
 
       for i:=0 to MAX_PLAYERS-1 do begin
@@ -476,29 +478,34 @@ begin
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 150, 20, fnt_Metal);
+        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 130, 20, fnt_Metal);
         DropBox_LobbyLoc[i].AddItem('Random');
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 330, top, 100, 20, MP_COLOR_COUNT);
+        DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 300, top, 100, 20, fnt_Metal);
+        DropBox_LobbyTeam[i].AddItem('None');
+        for k:=1 to 4 do DropBox_LobbyTeam[i].AddItem('Team '+IntToStr(k));
+        DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
+
+        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 410, top, 100, 20, MP_COLOR_COUNT);
         DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, true);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 470, top, 50, 20, '', fnt_Metal);
+        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 550, top, 50, 20, '', fnt_Metal);
 
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 540, top, 40, 20, '', fnt_Metal, kaCenter);
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 620, top, 40, 20, '', fnt_Metal, kaCenter);
       end;
 
     //Chat
-                          TKMLabel.Create  (Panel_Lobby, 80, 350, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
-    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 80, 370, 580, 200);
-                          TKMLabel.Create  (Panel_Lobby, 80, 580, 100, 20, 'Post message:', fnt_Outline, kaLeft);
-    Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 80, 600, 580, 20, fnt_Metal);
+                          TKMLabel.Create  (Panel_Lobby, 40, 350, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
+    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 40, 370, 670, 200);
+                          TKMLabel.Create  (Panel_Lobby, 40, 580, 100, 20, 'Post message:', fnt_Outline, kaLeft);
+    Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 40, 600, 670, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
 
     //Setup
-    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,700,100,240,400);
+    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,740,100,240,400);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 520);
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Choose map:', fnt_Outline, kaLeft);
       FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 30, 220, 20, fnt_Metal);
@@ -509,11 +516,11 @@ begin
       Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 420, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, '', fnt_Metal, kaLeft);
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 80, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 40, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyReady := TKMButton.Create(Panel_Lobby, 700, 650, 120, 30, 'Ready', fnt_Metal, bsMenu);
+    Button_LobbyReady := TKMButton.Create(Panel_Lobby, 740, 650, 115, 30, 'Ready', fnt_Metal, bsMenu);
     Button_LobbyReady.OnClick := Lobby_ReadyClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 830, 650, 120, 30, 'Start!', fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 865, 650, 115, 30, 'Start!', fnt_Metal, bsMenu);
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
@@ -1301,6 +1308,11 @@ begin
       DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
     end;
 
+    //Team
+    if (Sender = DropBox_LobbyTeam[i]) and DropBox_LobbyTeam[i].Enabled then
+      fGame.Networking.SelectTeam(DropBox_LobbyTeam[i].ItemIndex, i+1);
+
+    //Color
     if (Sender = DropColorBox_Lobby[i]) and DropColorBox_Lobby[i].Enabled then
     begin
       fGame.Networking.SelectColor(DropColorBox_Lobby[i].ColorIndex, i+1);
@@ -1344,12 +1356,14 @@ begin
       DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     end;
     DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
+    DropBox_LobbyTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
     DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
 
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
     CanEdit := MyNik or (fGame.Networking.IsHost and (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer));
     DropBox_LobbyLoc[i].Enabled := CanEdit;
+    DropBox_LobbyTeam[i].Enabled := CanEdit;
     DropColorBox_Lobby[i].Enabled := CanEdit;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
     if MyNik then
@@ -1363,13 +1377,15 @@ begin
     DropBox_LobbyPlayerSlot[i].Show;
     DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     DropBox_LobbyLoc[i].ItemIndex := 0;
+    DropBox_LobbyTeam[i].ItemIndex := 0;
     DropColorBox_Lobby[i].ColorIndex := 0;
     //Only host may change player slots, and only the first unused slot may be changed (so there are no gaps in net players list)
     DropBox_LobbyPlayerSlot[i].Enabled := fGame.Networking.IsHost and (i = fGame.Networking.NetPlayers.Count);
     CheckBox_LobbyReady[i].Checked := false;
-    DropBox_LobbyLoc[i].Enabled := false;
-    DropColorBox_Lobby[i].Enabled := false;
-    CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
+    DropBox_LobbyLoc[i].Disable;
+    DropBox_LobbyTeam[i].Disable;
+    DropColorBox_Lobby[i].Disable;
+    CheckBox_LobbyReady[i].Disable; //Read-only, just for info (perhaps we will replace it with an icon)
   end;
 
   //todo: Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[fGame.Networking.NetPlayers.NiknameIndex(fGame.Networking.)].ReadyToStart;
