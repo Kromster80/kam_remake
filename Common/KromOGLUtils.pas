@@ -31,7 +31,6 @@ type
     procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
     procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
     procedure glPrint(text: string);
-    function ReadClick(X, Y: word): Vector3f;
     procedure glkScale(x:single);
     procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
     procedure glkRect(Ax,Ay,Bx,By:single);
@@ -276,37 +275,6 @@ begin
   glListBase(20000);
   glCallLists(length(text),GL_UNSIGNED_BYTE,Pchar(@text[1]));
   glPopAttrib;
-end;
-
-
-function ReadClick(X, Y: word): Vector3f;
-var viewport:TVector4i;
-    projection:TMatrix4d;
-    modelview:TMatrix4d;
-    vx,vy:integer;
-    vz:single; //required to match GL_FLOAT - single
-    wx,wy,wz:GLdouble;
-begin
-  glGetIntegerv(GL_VIEWPORT,@viewport);
-  glGetDoublev(GL_PROJECTION_MATRIX,@projection);
-  glGetDoublev(GL_MODELVIEW_MATRIX,@modelview);
-
-  vx := x;
-  vy := y;
-
-  glReadPixels(vx, vy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, @vz);
-
-  if vz=1 then begin
-    Result.x:=1000000; //Something out of working range
-    Result.y:=0;
-    Result.z:=0;
-  end else begin
-    //This function uses OpenGL parameters, not dglOpenGL
-    gluUnProject(vx, vy, vz, modelview, projection, viewport, @wx, @wy, @wz);
-    Result.x:=wx;
-    Result.y:=wy;
-    Result.z:=wz;
-  end;
 end;
 
 

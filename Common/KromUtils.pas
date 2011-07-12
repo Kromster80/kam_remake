@@ -12,23 +12,10 @@ uses
   ;
 
 type
-  PSingleArray = ^TSingleArray;
-  TSingleArray = array[1..1024000] of Single;
-  PStringArray = ^TStringArray;
   TStringArray = array of String;
-  Vector4f = record X,Y,Z,W:single; end;
-  Vector3i = record X,Y,Z:integer; end;
-  Vector3f = record X,Y,Z:single; end;
-  Vector2f = record U,V:single; end;
-  PVector3f = ^Vector3f;
 
-  FWord = word; //Floating-point with 1 decimal place 0..6553.5  Int/10=FWord
 
-  TKMouseButton = (kmb_None, kmb_Left, kmb_Right, kmb_Middle);
-
-function TimeGet: LongWord;
-function ElapsedTime(i1: pcardinal): string;
-function ExtractOpenedFileName(in_s: string):string;
+function TimeGet: Cardinal;
 function GetFileExt (const FileName: string): string;
 function AssureFileExt(FileName,Ext:string): string;
 function TruncateExt(FileName:string): string;
@@ -39,14 +26,10 @@ procedure FreeThenNil(var Obj);
 
 function ReverseString(s1:string):string;
 
-function hextoint(st: char): integer;
 function int2fix(Number,Len:integer):string;
 function float2fix(Number:single; Digits:integer):string;
 function int2time(Time:integer):string;
 procedure Color2RGB(Col:integer; out R,G,B:byte);
-
-function Vectorize(A,B:single):Vector2f; overload;
-function Vectorize(A,B,C:single):Vector3f; overload;
 
 function Min(const A,B,C: integer):integer; overload;
 function Min(const A,B,C: single):single; overload;
@@ -56,7 +39,6 @@ function Max(const A,B,C: single):single; overload;
 
   function GetLengthSQR(ix,iy,iz:integer): integer; //Length without SQRT
   function GetLength(ix,iy,iz:single): single; overload;
-  function GetLength(ix:Vector3f): single; overload;
   function GetLength(ix,iy:single): single; overload;
 
   function Mix(x1,x2,MixValue:single):single; overload;
@@ -75,10 +57,7 @@ procedure SwapInt(var A,B:cardinal); overload;
 procedure SwapFloat(var A,B:single);
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 
-function Abs2X(AbsoluteValue,SizeX:integer):integer;
-function Abs2Z(AbsoluteValue,SizeX:integer):integer;
-
-function MakePOT(num:integer):integer;
+function MakePOT(num:cardinal): cardinal;
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
 function Adler32CRC(const aPath:string):cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
@@ -96,21 +75,9 @@ procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
 const
   eol:string=#13+#10; //EndOfLine
 
+
 implementation
 
-function Vectorize(A,B:single):Vector2f; overload;
-begin
-Result.U:=A;
-Result.V:=B;
-end;
-
-
-function Vectorize(A,B,C:single):Vector3f; overload;
-begin
-Result.X:=A;
-Result.Y:=B;
-Result.Z:=C;
-end;
 
 function Min(const A,B,C: integer): integer; overload;
 begin if A < B then if A < C then Result := A else Result := C
@@ -136,7 +103,8 @@ end;
 //Linux wants this instead of timegettime, it should work on Windows too
 //@Vytautas: WTF? ))))) You did it way too overcomplicated ))) No offense :)
 //           Just take a look at "Now" function and take SystemTime from it
-function TimeGet:cardinal;
+//@Lewin: I don't think this is a high priority, but if you happen to know the easy way - please write it here. To be deleted..
+function TimeGet: Cardinal;
 begin
   {$IFDEF MSWindows}
   Result := TimeGetTime; //Return milliseconds with ~1ms precision
@@ -144,57 +112,6 @@ begin
   {$IFDEF Unix}
   Result := cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
   {$ENDIF}
-end;
-
-
-function ElapsedTime(i1:pcardinal): string;
-begin
-result:=' '+inttostr(GetTickCount-i1^)+'ms'; //get time passed
-i1^:=GetTickCount;                           //assign new value to source
-end;
-
-
-function hextoint(st: char): integer;
-begin st:=uppercase(st)[1];
-if (ord(st)>=48)and(ord(st)<=57) then hextoint:=ord(st)-48 else
-if (ord(st)>=65)and(ord(st)<=70) then hextoint:=ord(st)-55 else
-hextoint:=0;
-end;
-
-function ExtractOpenedFileName(in_s: string):string;
-var k:word; out_s:string; QMarks:boolean;
-begin
-k:=0; out_s:=''; QMarks:=false;
-
-repeat      //First of all skip exe path
-inc(k);
-  if in_s[k]='"' then
-  repeat inc(k);
-  until(in_s[k]='"');
-until((k>=length(in_s))or(in_s[k]=#32));  //in_s[k]=#32 now
-
-inc(k);     //in_s[k]=" or first char
-
-if (length(in_s)>k)and(in_s[k]=#32) then //Skip doublespace, WinXP bug ?
-    repeat
-    inc(k);
-    until((k>=length(in_s))or(in_s[k]<>#32));
-
-if (length(in_s)>k) then begin
-
-    if in_s[k]='"' then begin
-    inc(k); //Getting path from "...."
-    QMarks:=true;
-    end;
-
-    repeat
-    out_s:=out_s+in_s[k];
-    inc(k);
-    until((length(in_s)=k-1)or(in_s[k]='"')or((QMarks=false)and(in_s[k]=' ')));
-
-end else out_s:='';
-
-Result:=out_s;
 end;
 
 
@@ -309,7 +226,7 @@ end;
 
 
 //Return closest bigger PowerOfTwo number
-function MakePOT(num:integer):integer;
+function MakePOT(num:cardinal): cardinal;
 begin
   num := num - 1;
   num := num OR (num SHR 1);
@@ -317,7 +234,7 @@ begin
   num := num OR (num SHR 4);
   num := num OR (num SHR 8);
   num := num OR (num SHR 16); //32bit needs no more
-  Result := num+1;
+  Result := num + 1;
 end;
 
 
@@ -332,10 +249,6 @@ begin
   Result:=sqrt(sqr(ix)+sqr(iy)+sqr(iz));
 end;
 
-function GetLength(ix:Vector3f): single; overload;
-begin
-  Result:=sqrt(sqr(ix.x)+sqr(ix.y)+sqr(ix.z));
-end;
 
 function GetLength(ix,iy:single): single; overload;
 begin
@@ -345,12 +258,12 @@ end;
 
 function Mix(x1,x2,MixValue:single):single; overload;
 begin
-Result:=x1*MixValue+x2*(1-MixValue);
+  Result := x1*MixValue + x2*(1-MixValue);
 end;
 
 function Mix(x1,x2:integer; MixValue:single):integer; overload;
 begin
-Result:=round(x1*MixValue+x2*(1-MixValue));
+  Result := round(x1*MixValue + x2*(1-MixValue));
 end;
 
 
@@ -445,18 +358,6 @@ begin
 end;
 
 
-function Abs2X(AbsoluteValue,SizeX:integer):integer;
-begin
-  Result:=((AbsoluteValue-1) mod SizeX+1); //X
-end;
-
-
-function Abs2Z(AbsoluteValue,SizeX:integer):integer;
-begin
-  Result:=((AbsoluteValue-1) div SizeX+1); //Z
-end;
-
-
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal;
 var i,A,B:cardinal;
 begin
@@ -519,7 +420,7 @@ begin
   if aMax = 0 then
     Result := 0
   else
-    Result := GetTickCount mod aMax;
+    Result := TimeGet mod aMax;
 end;
 
 
@@ -531,6 +432,7 @@ begin
   Result:=Sender.Execute; //Returns "false" if user pressed "Cancel"
   //Result:=Result and FileExists(Sender.FileName); //Already should be enabled in OpenDialog options
 end;
+
 
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 begin
@@ -563,7 +465,7 @@ begin
 end;
 
 
-function BrowseURL(const URL: string) : boolean;
+function BrowseURL(const URL: string): boolean;
 {$IFDEF FPC}
 var
   v: THTMLBrowserHelpViewer;

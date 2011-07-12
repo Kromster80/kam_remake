@@ -138,7 +138,7 @@ type
     procedure LoadFromFile(aFileName:string);
     property Count:integer read fCount;
     property ReplayState:TGIPReplayState read fReplayState;
-    function GetLastTick:integer;
+    function GetLastTick:Cardinal;
     function ReplayEnded:boolean;
   end;
 
@@ -378,7 +378,7 @@ end;
 
 
 { Return last recorded tick }
-function TGameInputProcess.GetLastTick:integer;
+function TGameInputProcess.GetLastTick:Cardinal;
 begin
   Result := fQueue[fCount].Tick;
 end;

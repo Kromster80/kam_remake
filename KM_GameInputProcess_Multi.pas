@@ -152,19 +152,19 @@ end;
 
 //Stack the command into schedule
 procedure TGameInputProcess_Multi.TakeCommand(aCommand:TGameInputCommand);
-var i:cardinal; Tick:integer;
+var i,Tick:Cardinal;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
 
   //Find first unsent pack
-  Tick := -1;
+  Tick := MAX_SCHEDULE; //Out of range value
   for i:=fGame.GameTickCount + fDelay to fGame.GameTickCount + MAX_SCHEDULE-1 do
   if not fSent[i mod MAX_SCHEDULE] then
   begin
     Tick := i mod MAX_SCHEDULE; //Place in a ring buffer
     Break;
   end;
-  Assert(Tick<>-1, 'Could not find place for new commands');
+  Assert(Tick < MAX_SCHEDULE, 'Could not find place for new commands');
 
   fSchedule[Tick, aCommand.PlayerIndex].Add(aCommand);
   FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset to false
@@ -204,7 +204,7 @@ end;
 
 
 //Confirm that we have recieved the commands with CRC
-procedure TGameInputProcess_Multi.SendConfirmation(aTick:cardinal; aPlayerIndex:TPlayerIndex);
+procedure TGameInputProcess_Multi.SendConfirmation(aTick:Cardinal; aPlayerIndex:TPlayerIndex);
 var Msg:TKMemoryStream;
 begin
   Msg := TKMemoryStream.Create;
@@ -233,7 +233,7 @@ end;
 
 //Decode recieved messages (Commands from other players, Confirmations, Errors)
 procedure TGameInputProcess_Multi.RecieveCommands(const aData:string);
-var M:TKMemoryStream; D:TKMDataType; Tick:integer; PlayerIndex:TPlayerIndex; CRC:cardinal;
+var M:TKMemoryStream; D:TKMDataType; Tick:Cardinal; PlayerIndex:TPlayerIndex; CRC:cardinal;
 begin
   M := TKMemoryStream.Create;
   try
@@ -245,7 +245,7 @@ begin
     case D of
       kdp_Commands:
           begin
-            Assert(Tick > fGame.GameTickCount,Format('Commands for tick %d from player %d recieved too late at %d',
+            Assert(Tick > fGame.GameTickCount, Format('Commands for tick %d from player %d recieved too late at %d',
                                                      [Tick, PlayerIndex, fGame.GameTickCount]));
             fSchedule[Tick mod MAX_SCHEDULE, PlayerIndex].Load(M);
             fRecievedData[Tick mod MAX_SCHEDULE, PlayerIndex] := true;
@@ -253,7 +253,7 @@ begin
           end;
       kdp_Confirmation: //Recieved CRC should match our commands pack
           begin
-            Assert(Tick > fGame.GameTickCount,Format('Confirmation for tick %d from player %d recieved too late at %d',
+            Assert(Tick > fGame.GameTickCount, Format('Confirmation for tick %d from player %d recieved too late at %d',
                                                      [Tick, PlayerIndex, fGame.GameTickCount]));
             M.Read(CRC);
             Assert(CRC = fSchedule[Tick mod MAX_SCHEDULE, MyPlayer.PlayerIndex].CRC);
@@ -290,7 +290,7 @@ end;
 //Timer is called after all commands from player are taken,
 //upcoming commands will be stacked into next batch
 procedure TGameInputProcess_Multi.RunningTimer(aTick:cardinal);
-var i,k,Tick:integer;
+var i,k,Tick:Cardinal;
 begin
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
 

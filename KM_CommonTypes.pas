@@ -259,8 +259,8 @@ constructor TKMLog.Create(aPath:string);
 begin
   Inherited Create;
   fLogPath := aPath;
-  fFirstTick := TimeGet();
-  fPreviousTick := TimeGet();
+  fFirstTick := TimeGet;
+  fPreviousTick := TimeGet;
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
@@ -274,10 +274,10 @@ procedure TKMLog.AddLine(const aText:string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
-  WriteLn(fl,floattostr((TimeGet() - fFirstTick)/1000)+'s'+#9+
-             floattostr((TimeGet() - fPreviousTick)/1000)+'s'+#9+aText);
+  WriteLn(fl,floattostr((TimeGet - fFirstTick)/1000)+'s'+#9+
+             floattostr((TimeGet - fPreviousTick)/1000)+'s'+#9+aText);
   CloseFile(fl);
-  fPreviousTick := TimeGet();
+  fPreviousTick := TimeGet;
 end;
 
 
