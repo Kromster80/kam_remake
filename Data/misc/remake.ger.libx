@@ -1,4 +1,4 @@
-ï»¿
+
 MaxID:58
 
 KM_InterfaceMainMenu
@@ -8,24 +8,24 @@ KM_InterfaceMainMenu
  4:Einzelspieler
  5:Map Editor
  6:Letzten Replay anzeigen
- 7:Ãœber Netzwerk spielen
- 8:Ãœber Internet spielen
+ 7:Über Netzwerk spielen
+ 8:Über Internet spielen
  9:Login
 10:Passwort
 11:Mission starten
 12:Titel
-13:GrÃ¶ÃŸe
+13:Größe
 14:Missions Typ: 
 15:Siegbedingung: 
 16:Niederlagebedingung: 
-17:VerbÃ¼ndete: 
+17:Verbündete: 
 18:Feinde: 
 19:Slot 
-20:Neue Karte GrÃ¶ÃŸe
+20:Neue Karte Größe
 21:Breite
-22:HÃ¶he
+22:Höhe
 23:Neue Karte erstellen
-24:VerfÃ¼gbare Karten
+24:Verfügbare Karten
 25:Vorhandene Karte laden
 26:Eingabe:
 27:Gameplay:
@@ -33,7 +33,7 @@ KM_InterfaceMainMenu
 29:Grafik:
 30:Helligkeit
 31:Vollbild
-32:Ãœbernehmen
+32:Übernehmen
 33:Sprache:
 34:Lade... Bitte warten
 35:Ein Fehler ist aufgetreten!
@@ -47,23 +47,23 @@ KM_InterfaceGamePlay
 44:Niederlage!
 45:Replay zuende
 46:Weiter betrachten
-47:ZurÃ¼ck zum MenÃ¼
+47:Zurück zum Menü
 
 KM_Game
-48:Ein Fehler ist wÃ¤hrend des Spiels aufgetreten. 
-49:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank fÃ¼r Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere AbstÃ¼rze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+48:Ein Fehler ist während des Spiels aufgetreten. 
+49:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
 
 KM_Units
 50:Abbau an der falschen Stelle
-51:Ihre FischerhÃ¼tte ist zu weit vom Wasser entfernt!
-52:Ihre FischerhÃ¼tte kann keine Fische im nahegelegenen Wasser fangen!
+51:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
+52:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
 
 KM_Unit1
-53:Alte OpenGL Version entdeckt! Das Spiel kÃ¶nnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
+53:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
 
 KM_InterfaceMapEditor
 54:Terrain berarbeiten
-55:HÃ¤user bearbeiten
+55:Häuser bearbeiten
 56:Optische Skripts
 57:Globale Skripts
-58:MenÃ¼
+58:Menü

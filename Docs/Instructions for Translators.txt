@@ -1,0 +1,23 @@
+Would you like to make a translation? Or improve one of the existing translations? If so thank you and read on...
+
+
+The first thing you need to make a translation is the right font to write the characters for your language. Please note we do not support Unicode yet, so some languages can't be translated because they have too many characters. You can look at the available fonts by downloading the FontEditor from the Remake's Google Code site:
+http://code.google.com/p/castlesand/downloads/list
+
+Install it in your KaM Remake folder and find the language font that has the most characters that you need. The available fonts are in "KaM Remake\data\gfx\fonts" The characters you need might not be in any of them, so you can either edit the language's fonts that are is closest to add the extra characters, (warning: this is a LOT of work) or simply ignore the ones that are not there and use the closest alternative (e.g. u for ü)
+
+The next thing to do is edit the LIB files. Download Lewin's LIB Decoder from here:
+http://lewin.namsys.com.au/kam/downloads/LIBDecoder-0.8.2.zip
+
+Use it to open the files "setup.eng.lib" and "text.eng.lib" in "KaM Remake\data\misc". Save these files over the language of the fonts you want it to use, e.g. save "setup.eng.lib" as "setup.ger.lib" if you want it to use German fonts. You can now translate these files and test them in the Remake by changing the language to the one you chose. You will need to exit the Remake each time you save the file in order for the text to update.
+
+The last step is to translate the LIBX file for your language. (e.g. for German it is "Data\Misc\remake.ger.libx") It is plain text and can be edited in Notepad or another text editor. This file contains some of the new messages used in the Remake, but not all of them. We will be updating this file as development progresses. Take a copy of the English file and translate it to your language.
+
+Please let us know when you are doing a translation so we don't end up with multiple people doing the same language. When you are done, send us the following files:
+setup.###.lib
+text.###.lib
+remake.###.libx
+*.###.fnt (if you created your own font files, otherise tell us which ones we should use for your language)
+
+
+If you have any questions please contact us and we will help you out. Contract details can be found in the Readme file.
