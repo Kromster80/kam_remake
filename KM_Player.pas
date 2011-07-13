@@ -78,10 +78,10 @@ type
     procedure AddRoadConnect(LocA,LocB:TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
-    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
+    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
-    function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
+    function RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
@@ -295,7 +295,7 @@ begin
 end;
 
 
-procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
+procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
 var KMHouse:TKMHouse; Loc:TKMPoint;
 begin
   Loc.X := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX;
@@ -304,6 +304,7 @@ begin
   fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex);
   fStats.HouseStarted(aHouseType);
   BuildList.AddNewHousePlan(KMHouse);
+  if not DoSilent then fSoundLib.Play(sfx_placemarker);
 end;
 
 
@@ -312,6 +313,7 @@ function TKMPlayer.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:bool
 var fHouse:TKMHouse;
 begin
   Result := BuildList.CancelHousePlan(Position,Simulated);
+  if Result and not DoSilent then fSoundLib.Play(sfx_Click);
   fHouse := fHouses.HitTest(Position.X, Position.Y);
   if fHouse<>nil then
   begin
@@ -341,12 +343,12 @@ begin
 end;
 
 
-function TKMPlayer.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
+function TKMPlayer.RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
 begin
   Result := BuildList.CancelRoad(Position,Simulated);
   if (Result) and (not Simulated) then
   begin
-    fSoundLib.Play(sfx_Click);
+    if not DoSilent then fSoundLib.Play(sfx_Click);
     fTerrain.RemMarkup(Position);
   end;
 end;

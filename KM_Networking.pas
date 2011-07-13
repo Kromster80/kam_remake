@@ -537,9 +537,9 @@ begin
     mk_ClientLost:
             if IsHost then
             begin
-              if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-              PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' lost connection');
-              fNetPlayers.RemPlayer(aSenderIndex);
+              if fNetPlayers.ServerToLocal(Param) = -1 then exit; //Has already disconnected
+              PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(Param)].Nikname+' lost connection');
+              fNetPlayers.RemPlayer(Param);
               SendPlayerListAndRefreshPlayersSetup;
             end;
 

@@ -142,7 +142,8 @@ function TUnitActionGoInOut.ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):bool
 var U:TKMUnit;
 begin
   Result := fTerrain.TileInMapCoords(aLocX, aLocY)
-        and (fTerrain.CheckPassability(KMPoint(aLocX, aLocY), aUnit.GetDesiredPassability));
+        and (fTerrain.CheckPassability(KMPoint(aLocX, aLocY), aUnit.GetDesiredPassability))
+        and (fTerrain.CanWalkDiagonaly(aUnit.GetPosition, KMPoint(aLocX, aLocY)));
 
   if not Result then exit;
 

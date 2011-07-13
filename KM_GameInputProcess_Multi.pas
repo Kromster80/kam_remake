@@ -4,8 +4,9 @@ interface
 uses SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes, KM_Player;
 
 const
-  MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
-  DELAY_ADJUST = 10; //How often to adjust fDelay (1 second)
+  MAX_SCHEDULE = 100; //Size of ring buffers (10 sec) Make them large so overruns do not occur
+  DELAY_ADJUST = 40; //How often to adjust fDelay (every 4 seconds) This must be higher than MAX_DELAY
+  MAX_DELAY = 32; //Maximum number of ticks (3.2 sec) to plan ahead (highest value fDelay can take)
 
 type
   TKMDataType = (kdp_Commands, kdp_Confirmation, kdp_RandomCheck);
@@ -141,13 +142,13 @@ begin
   Inherited Create(aReplayState);
   fNetworking := aNetworking;
   fNetworking.OnCommands := RecieveCommands;
-  fDelay := 10; //1sec
+  SetDelay(MAX_DELAY); //Start with maximum delay, then AdjustDelay will choose the optimal delay
   fNumberWaits := 0;
   fPrevNumberWaits := 0;
   fMinimumReadyEarly := MAX_SCHEDULE; //First measurement will override this
 
   //Allocate memory for all commands packs
-  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count do
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count-1 do
   begin
     fSchedule[i,k] := TCommandsPack.Create;
     fRandomCheck[i].PlayerWasChecked[k] := true; //We don't have anything to be checked yet
@@ -187,6 +188,7 @@ end;
 
 procedure TGameInputProcess_Multi.WaitingForConfirmation(aTick:cardinal);
 begin
+  if aTick <= 1 then exit; //Expect delays on the first few ticks during the initial transfer of commands
   if not CommandsConfirmed(aTick, true) then //Only count waiting for confirmation, waiting for data is not the fault of our fDelay
     inc(fNumberWaits);
 end;
@@ -214,21 +216,19 @@ end;
 
 procedure TGameInputProcess_Multi.SetDelay(aNewDelay:word);
 begin
-  fDelay := EnsureRange(aNewDelay,1,MAX_SCHEDULE-1);
+  fDelay := EnsureRange(aNewDelay,1,MAX_DELAY);
 end;
 
 
 procedure TGameInputProcess_Multi.AdjustDelay;
 begin
-  if (fNumberWaits = 0) and (fMinimumReadyEarly = MAX_SCHEDULE) then exit; //Initialise
-
   if (fNumberWaits > 0) and (fPrevNumberWaits > 0) then
     SetDelay(fDelay+1) //Quality was bad for the last two calculations, so increase delay
   else
     if fMinimumReadyEarly > 0 then
-      SetDelay(fDelay-fMinimumReadyEarly); //Quality is good, so decrease delay
+      SetDelay(fDelay-fMinimumReadyEarly); //Quality is good, so decrease delay to our calculated optimum
 
-  fMinimumReadyEarly := MAX_SCHEDULE; //Next measurement will override this because it will be smaller
+  fMinimumReadyEarly := MAX_DELAY; //Next measurement will override this because it will be smaller
   fPrevNumberWaits := fNumberWaits;
   fNumberWaits := 0;
 end;
@@ -356,6 +356,7 @@ procedure TGameInputProcess_Multi.RunningTimer(aTick:cardinal);
 var i,k,Tick:Cardinal;
 begin
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
+  fRandomCheck[Tick].OurCheck := cardinal(Random(maxint)); //thats our CRC (must go before commands for replay compatibility)
 
   //Execute commands, in order players go (1,2,3..)
   for i:=0 to fPlayers.Count-1 do
@@ -369,7 +370,6 @@ begin
       fSchedule[Tick, i].Clear;
     end;
 
-  fRandomCheck[Tick].OurCheck := cardinal(Random(maxint)); //thats our CRC
   SendRandomCheck(aTick);
   //It is possible that we have already recieved other player's random checks, if so check them now
   for i:=0 to fPlayers.Count-1 do

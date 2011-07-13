@@ -2438,46 +2438,35 @@ begin
                     fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
                 end;
               end;
-    cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
-                fGame.fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-              else
-                fGame.fGameInputProcess.CmdBuild(gic_BuildRoadPlan, P);
-    cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
-                fGame.fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-              else
-                fGame.fGameInputProcess.CmdBuild(gic_BuildFieldPlan, P);
-    cm_Wine:  if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
-                fGame.fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-              else
-                fGame.fGameInputProcess.CmdBuild(gic_BuildWinePlan, P);
-    cm_Wall:  if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
-                fGame.fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
-              else
-                fGame.fGameInputProcess.CmdBuild(gic_BuildWallPlan, P);
+    cm_Road:  fGame.fGameInputProcess.CmdBuild(gic_BuildPlan, P, mu_RoadPlan);
+    cm_Field: fGame.fGameInputProcess.CmdBuild(gic_BuildPlan, P, mu_FieldPlan);
+    cm_Wine:  fGame.fGameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WinePlan);
+    cm_Wall:  fGame.fGameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WallPlan);
     cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then begin
                 fGame.fGameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
-                fSoundLib.Play(sfx_placemarker);
                 Build_ButtonClick(Button_BuildRoad);
-              end else
+              end
+              else
                 fSoundLib.Play(sfx_CantPlace,P,false,4.0);
     cm_Erase: begin
-                fPlayers.Selected := MyPlayer.HousesHitTest(P.X, P.Y); //Select the house irregardless of unit below/above
-                if MyPlayer.RemHouse(P,false,true) then //Ask wherever player wants to destroy own house
+                H := MyPlayer.HousesHitTest(P.X, P.Y);
+                //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
+                if MyPlayer.RemHouse(P,true,true) and (H.BuildingState <> hbs_Glyph) then
                 begin
-                  //don't ask about houses that are not started, they are removed below
-                  if TKMHouse(fPlayers.Selected).BuildingState <> hbs_Glyph then
-                  begin
-                    ShowHouseInfo(TKMHouse(fPlayers.Selected),true);
-                    fSoundLib.Play(sfx_Click);
-                  end;
-                end;
-                if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
-                  fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
-                //Now remove houses that are not started
-                if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).BuildingState = hbs_Glyph) then
-                begin
-                  fGame.fGameInputProcess.CmdBuild(gic_BuildRemoveHouse, P);
+                  fPlayers.Selected := H; //Select the house irregardless of unit below/above
+                  ShowHouseInfo(H,true);
                   fSoundLib.Play(sfx_Click);
+                end
+                else
+                begin
+                  //Now remove houses that are not started
+                  if MyPlayer.RemHouse(P,true,true) and (H.BuildingState = hbs_Glyph) then
+                    fGame.fGameInputProcess.CmdBuild(gic_BuildRemoveHouse, P)
+                  else
+                    if MyPlayer.RemPlan(P,true,true) then
+                      fGame.fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P) //Remove plans
+                    else
+                      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
                 end;
               end;
   end;

@@ -1263,6 +1263,10 @@ begin
     Label_LobbyPlayer[i].Caption := '.';
     Label_LobbyPlayer[i].Hide;
     DropBox_LobbyPlayerSlot[i].Show;
+    DropBox_LobbyPlayerSlot[i].Disable;
+    DropBox_LobbyLoc[i].Disable;
+    DropBox_LobbyTeam[i].Disable;
+    DropColorBox_Lobby[i].Disable;
     DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     Label_LobbyPing[i].Caption := '';
   end;
@@ -1409,7 +1413,7 @@ begin
     case fGame.Networking.NetPlayers[i+1].Ping of
       0..99   : Label_LobbyPing[i].FontColor := $FF00C000; //Green
       100..199: Label_LobbyPing[i].FontColor := $FF07FFFF; //Yellow
-      200..300: Label_LobbyPing[i].FontColor := $FF0099FF; //Orange
+      200..399: Label_LobbyPing[i].FontColor := $FF0099FF; //Orange
       else      Label_LobbyPing[i].FontColor := $FF0707FF; //Red
     end;
   end
