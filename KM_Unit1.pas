@@ -426,6 +426,7 @@ procedure TForm1.TB_Angle_Change(Sender: TObject);
 begin
   RENDER_3D:=TB_Angle.Position<>0;
   Label3.Caption:=inttostr(TB_Angle.Position)+' 3D';
+  //@Krom: The 3D angle slider just makes the screen go black, any idea why?
   fRender.SetRotation(-TB_Angle.Position,0,0);
   fRender.Render;
 end;

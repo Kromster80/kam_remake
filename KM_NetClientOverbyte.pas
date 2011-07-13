@@ -93,8 +93,8 @@ end;
 
 procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
 begin
-  assert(fSocket.State <> wsClosed,'Cannot send: Socket is closed');
-  fSocket.Send(aData, aLength);
+  if fSocket.State <> wsClosed then //Sometimes this occurs just before Disconnected
+    fSocket.Send(aData, aLength);
 end;
 
 

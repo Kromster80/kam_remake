@@ -241,7 +241,7 @@ type
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
-    function FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1): TKMHouse;
+    function FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
     function GetTotalPointers: integer;
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
     procedure Save(SaveStream:TKMemoryStream);
@@ -1749,7 +1749,7 @@ end;
 //Find closest house to given position
 //or
 //Find house by index (1st, 2nd)
-function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1): TKMHouse;
+function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const aIndex:byte=1; aOnlyCompleted:boolean=true): TKMHouse;
 var
   i,id: integer;
   UsePosition: boolean;
@@ -1762,7 +1762,7 @@ begin
   Assert((not UsePosition)or(aIndex=1), 'Can''t find house basing both on Position and Index');
 
   for i:=0 to Count-1 do
-  if ((Houses[i].fHouseType = aType) or (aType = ht_Any)) and Houses[i].IsComplete and not Houses[i].fIsDestroyed then
+  if ((Houses[i].fHouseType = aType) or (aType = ht_Any)) and (Houses[i].IsComplete or not aOnlyCompleted) and not Houses[i].fIsDestroyed then
   begin
       inc(id);
       if UsePosition then

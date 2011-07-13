@@ -67,6 +67,7 @@ begin
   Inherited;
   LoadStream.Read(fStep);
   LoadStream.Read(fHouse, 4);
+  LoadStream.Read(fUnit, 4);
   LoadStream.Read(fDirection, SizeOf(fDirection));
   LoadStream.Read(fDoor);
   LoadStream.Read(fStreet);
@@ -80,6 +81,7 @@ procedure TUnitActionGoInOut.SyncLoad;
 begin
   Inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
+  fUnit := fPlayers.GetUnitByID(cardinal(fUnit))
 end;
 
 
@@ -284,6 +286,10 @@ begin
   SaveStream.Write(fStep);
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero);
+  if fUnit <> nil then
+    SaveStream.Write(fUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fDirection, SizeOf(fDirection));

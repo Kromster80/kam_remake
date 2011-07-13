@@ -57,7 +57,7 @@ procedure SwapInt(var A,B:cardinal); overload;
 procedure SwapFloat(var A,B:single);
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 
-function MakePOT(num:cardinal): cardinal;
+function MakePOT(num:integer): integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
 function Adler32CRC(const aPath:string):cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
@@ -226,7 +226,7 @@ end;
 
 
 //Return closest bigger PowerOfTwo number
-function MakePOT(num:cardinal): cardinal;
+function MakePOT(num:integer): integer;
 begin
   num := num - 1;
   num := num OR (num SHR 1);

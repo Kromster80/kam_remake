@@ -1,10 +1,11 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes, KM_Player;
+uses SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes, KM_Player;
 
 const
   MAX_SCHEDULE = 32; //How many turns to plan ahead (3.2sec)
+  DELAY_ADJUST = 10; //How often to adjust fDelay (1 second)
 
 type
   TKMDataType = (kdp_Commands, kdp_Confirmation, kdp_RandomCheck);
@@ -35,6 +36,10 @@ type
     fNetworking:TKMNetworking;
     fDelay:word; //How many ticks ahead the commands are scheduled
 
+    fNumberWaits:word; //Number of times we were "waiting for network" since the last adjust
+    fPrevNumberWaits:integer; //The number of waits from before the last adjust
+    fMinimumReadyEarly:word; //Minimum number of ticks ahead of time that ticks were "ready to go"
+
     //Each player can have any number of commands scheduled for execution in one tick
     fSchedule:array[0..MAX_SCHEDULE-1, TPlayerIndex] of TCommandsPack; //Ring buffer
 
@@ -54,13 +59,19 @@ type
     procedure SendRandomCheck(aTick:cardinal);
     procedure SendConfirmation(aTick:cardinal; aPlayerIndex:TPlayerIndex);
     procedure DoRandomCheck(aTick:cardinal; aPlayerIndex:TPlayerIndex);
+
+    procedure CheckReadyEarly(aTick:cardinal);
+    procedure SetDelay(aNewDelay:word);
+    procedure AdjustDelay;
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
   public
     constructor Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
     destructor Destroy; override;
+    procedure WaitingForConfirmation(aTick:cardinal); override;
+    function GetNetworkDelay:word; override;
     procedure RecieveCommands(const aData:string); //Called by TKMNetwork when it has data for us
-    function CommandsConfirmed(aTick:cardinal):boolean; override;
+    function CommandsConfirmed(aTick:cardinal; aIgnoreRecieved:boolean=false):boolean; override;
     procedure RunningTimer(aTick:cardinal); override;
     procedure UpdateState(aTick:cardinal); override;
   end;
@@ -131,6 +142,9 @@ begin
   fNetworking := aNetworking;
   fNetworking.OnCommands := RecieveCommands;
   fDelay := 10; //1sec
+  fNumberWaits := 0;
+  fPrevNumberWaits := 0;
+  fMinimumReadyEarly := MAX_SCHEDULE; //First measurement will override this
 
   //Allocate memory for all commands packs
   for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count do
@@ -168,6 +182,55 @@ begin
 
   fSchedule[Tick, aCommand.PlayerIndex].Add(aCommand);
   FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset to false
+end;
+
+
+procedure TGameInputProcess_Multi.WaitingForConfirmation(aTick:cardinal);
+begin
+  if not CommandsConfirmed(aTick, true) then //Only count waiting for confirmation, waiting for data is not the fault of our fDelay
+    inc(fNumberWaits);
+end;
+
+
+function TGameInputProcess_Multi.GetNetworkDelay:word;
+begin
+  Result := fDelay;
+end;
+
+
+procedure TGameInputProcess_Multi.CheckReadyEarly(aTick:cardinal);
+var i:cardinal;
+begin
+  //Find the number of ticks ahead we are prepared
+  for i:=aTick+MAX_SCHEDULE downto aTick+1 do
+    if CommandsConfirmed(i, true) then
+    begin
+      fMinimumReadyEarly := min(fMinimumReadyEarly, i-aTick);
+      exit;
+    end;
+  fMinimumReadyEarly := 0; //No ticks were ready early
+end;
+
+
+procedure TGameInputProcess_Multi.SetDelay(aNewDelay:word);
+begin
+  fDelay := EnsureRange(aNewDelay,1,MAX_SCHEDULE-1);
+end;
+
+
+procedure TGameInputProcess_Multi.AdjustDelay;
+begin
+  if (fNumberWaits = 0) and (fMinimumReadyEarly = MAX_SCHEDULE) then exit; //Initialise
+
+  if (fNumberWaits > 0) and (fPrevNumberWaits > 0) then
+    SetDelay(fDelay+1) //Quality was bad for the last two calculations, so increase delay
+  else
+    if fMinimumReadyEarly > 0 then
+      SetDelay(fDelay-fMinimumReadyEarly); //Quality is good, so decrease delay
+
+  fMinimumReadyEarly := MAX_SCHEDULE; //Next measurement will override this because it will be smaller
+  fPrevNumberWaits := fNumberWaits;
+  fNumberWaits := 0;
 end;
 
 
@@ -276,13 +339,13 @@ end;
 
 
 //Are all the commands are confirmed?
-function TGameInputProcess_Multi.CommandsConfirmed(aTick:cardinal):boolean;
+function TGameInputProcess_Multi.CommandsConfirmed(aTick:cardinal; aIgnoreRecieved:boolean=false):boolean;
 var i:integer;
 begin
   Result := True;
   for i:=1 to fNetworking.NetPlayers.Count do
     Result := Result and ((fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] and
-                           fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex]) or
+                          (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or aIgnoreRecieved)) or
                          (fNetworking.NetPlayers[i].PlayerType = pt_Computer) or not fNetworking.NetPlayers[i].Alive);
 end;
 
@@ -316,6 +379,9 @@ begin
   FillChar(fConfirmation[Tick], SizeOf(fConfirmation[Tick]), #0); //Reset
   FillChar(fRecievedData[Tick], SizeOf(fRecievedData[Tick]), #0); //Reset
   fSent[Tick] := false;
+
+  CheckReadyEarly(aTick); //See whether ticks are ready early (for delay adjustment)
+  if aTick mod DELAY_ADJUST = 0 then AdjustDelay; //Adjust fDelay every X ticks
 end;
 
 

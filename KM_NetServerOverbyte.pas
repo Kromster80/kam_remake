@@ -140,8 +140,8 @@ begin
   for i:=0 to fSocketServer.ClientCount-1 do
     if fSocketServer.Client[i].Tag = aHandle then
     begin
-      assert(fSocketServer.Client[i].State <> wsClosed,'Cannot send to client '+IntToStr(aHandle)+': Socket is closed');
-      fSocketServer.Client[i].Send(aData, aLength);
+      if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
+        fSocketServer.Client[i].Send(aData, aLength);
     end;
 end;
 

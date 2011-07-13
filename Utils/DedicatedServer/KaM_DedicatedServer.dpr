@@ -40,7 +40,7 @@ begin
   begin
     fDedicatedServer.UpdateState;
     MyProcessMessages; //This will process network (or other) events
-    sleep(1); //Don't hog CPU
+    sleep(1); //Don't hog CPU (this can also be used to create an artifical latency)
   end;
 
   fDedicatedServer.Stop;

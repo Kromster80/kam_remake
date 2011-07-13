@@ -618,6 +618,7 @@ procedure TKMGame.GameHold(DoHold:boolean; Msg:TGameResultMsg);
 begin
   DoGameHold := false;
   fGamePlayInterface.ReleaseDirectionSelector; //In case of victory/defeat while moving troops
+  fViewport.ReleaseScrollKeys;
   PlayOnState := Msg;
   case Msg of
     gr_ReplayEnd:     begin
@@ -1094,7 +1095,9 @@ begin
                           Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
                         //During this tick we were requested to GameHold
                         if DoGameHold then break; //Break the for loop (if we are using speed up)
-                      end;
+                      end
+                      else
+                        fGameInputProcess.WaitingForConfirmation(fGameTickCount);
                       fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                     end;
                     fGamePlayInterface.UpdateState;

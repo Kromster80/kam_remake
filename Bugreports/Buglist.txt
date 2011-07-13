@@ -9,10 +9,12 @@ Since r1902:
  +	Multiplayer replays can now be viewed normally from singleplayer mode without crashing
  +	Multiplayer becomes out of sync
  +	Multiplayer lobby now lets you choose teams
+ +	Multiplayer has a fixed delay of 1 second between a command being issued and it being carried out. This should be adjusted based on ping.
  +	Archers now have friendly fire, stray arrows can hit your own units/buildings
  +	The German LIBX (translation file) was encoded in Unicode, (which is not supported by KaM Remake yet) meaning that special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = Ãœ, ö = Ã¶, etc.)
+ +	Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
+ +	AI did not attack unbuilt houses
  ?	Replay mismatches caused by an unknown bug (can't reproduce anymore, presumed fixed)
- 	Multiplayer has a fixed delay of 3.2 seconds between a command being issued and it being carried out. This should be adjusted based on ping.
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 

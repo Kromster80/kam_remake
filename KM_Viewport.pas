@@ -23,6 +23,7 @@ TViewport = class
     procedure SetCenter(NewX,NewY:single);
     function GetClip:TRect; //returns visible area dimensions in map space
     function GetMinimapClip:TRect;
+    procedure ReleaseScrollKeys;
     procedure DoScrolling(aFrameTime:cardinal);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -41,10 +42,7 @@ begin
   FillChar(PrevScrollAdv, SizeOf(PrevScrollAdv), #0);
   PrevScrollPos := 0;
   Zoom := 1;
-  ScrollKeyLeft  := false;
-  ScrollKeyRight := false;
-  ScrollKeyUp    := false;
-  ScrollKeyDown  := false;
+  ReleaseScrollKeys;
   XCoord := 0;
   YCoord := 0;
   fSoundLib.UpdateListener(XCoord, YCoord);
@@ -115,6 +113,15 @@ begin
   Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
   Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
   Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
+end;
+
+
+procedure TViewport.ReleaseScrollKeys;
+begin
+  ScrollKeyLeft  := false;
+  ScrollKeyRight := false;
+  ScrollKeyUp    := false;
+  ScrollKeyDown  := false;
 end;
 
 

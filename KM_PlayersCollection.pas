@@ -31,7 +31,7 @@ type
     function HousesHitTest(X,Y:Integer):TKMHouse;
     function UnitsHitTestF(aLoc: TKMPointF; aIncludeAnimals:boolean): TKMUnit;
     function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
-    function GetClosestHouse(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMHouse;
+    function GetClosestHouse(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType; aOnlyCompleted:boolean=true): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y:Integer):boolean;
@@ -195,7 +195,7 @@ end;
 
 
 //Get closest house. Note: we check by house cells, not by entrance
-function TKMPlayersCollection.GetClosestHouse(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMHouse;
+function TKMPlayersCollection.GetClosestHouse(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType; aOnlyCompleted:boolean=true): TKMHouse;
 var i:integer; H:TKMHouse;
 begin
   Result := nil;
@@ -203,7 +203,7 @@ begin
   for i:=0 to fCount-1 do
   if (aIndex<>i) and (CheckAlliance(aIndex,i) = aAlliance) then
   begin
-    H := fPlayerList[i].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y);
+    H := fPlayerList[i].Houses.FindHouse(ht_Any, aLoc.X, aLoc.Y, 1, aOnlyCompleted);
     if (H<>nil) and ((Result=nil) or (H.GetDistance(aLoc) < Result.GetDistance(aLoc))) then
       Result := H;
   end;
