@@ -838,7 +838,7 @@ begin
   for i:=1 to 4 do if (R2[i-1])>0 then
   begin
     //Exception for some houses that render layered
-    if THouseType(Index) in [ht_WeaponSmithy,ht_ArmorSmithy,ht_WeaponWorkshop,ht_ArmorWorkshop] then
+    if THouseType(Index) in [ht_WeaponSmithy, ht_ArmorSmithy, ht_WeaponWorkshop, ht_ArmorWorkshop] then
     begin
       for k := 1 to min(R2[i-1],5) do
       begin
@@ -1317,6 +1317,7 @@ procedure TRender.RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
 var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
   MarkedLocations:array[1..64] of TKMPoint; //List of locations with special marks on them
   MarkCount:integer;
+  HA: THouseArea;
 
   procedure MarkPoint(aPoint:TKMPoint; aID:integer);
   var v: integer;
@@ -1332,8 +1333,10 @@ begin
   MarkCount := 0;
   FillChar(MarkedLocations, SizeOf(MarkedLocations), #0); //It's filled with garbage if not initialized
 
+  HA := fResource.HouseDat.HouseArea(aHouseType);
+
   for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[byte(aHouseType),i,k]<>0 then
+  if HA[i,k]<>0 then
   begin
 
     if fTerrain.TileInMapCoords(P.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,P.Y+i-4,1) then
@@ -1365,11 +1368,11 @@ begin
       if AllowBuild then
       begin
         RenderCursorWireQuad(P2,$FFFFFF00); //Cyan
-        if HousePlanYX[byte(aHouseType),i,k]=2 then
+        if HA[i,k]=2 then
           MarkPoint(P2,481);
       end else
       begin
-        if HousePlanYX[byte(aHouseType),i,k]=2 then
+        if HA[i,k]=2 then
           MarkPoint(P2,482)
         else
           if aHouseType in [ht_GoldMine,ht_IronMine] then

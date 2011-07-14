@@ -4,7 +4,7 @@ interface
 uses
    {$IFDEF MSWindows} Windows, {$ENDIF}
    Classes, KromUtils, Math, SysUtils,
-   KM_CommonTypes, KM_Defaults, KM_Utils;
+   KM_CommonTypes, KM_Defaults, KM_Utils, KM_ResourceGFX;
 
   {Everything related to houses is here}
 type
@@ -90,6 +90,7 @@ type
     procedure GetListOfCellsWithin(Cells:TKMPointList);
     function GetRandomCellWithin:TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
+    function HouseArea:THouseArea;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
@@ -255,7 +256,7 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player, KM_ResourceGFX;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player;
 
 
 { TKMHouse }
@@ -499,14 +500,13 @@ begin
       Result := Math.min(Result, GetLength(C.List[i], aPos));
   finally
     C.Free;
-  end;  
+  end;
 end;
 
 
 procedure TKMHouse.GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
 var
   i,k:integer;
-  ht:byte;
   Loc:TKMPoint;
 
   procedure AddLoc(X,Y:word; Dir:TKMDirection);
@@ -519,19 +519,18 @@ var
 begin
 
   Cells.Clearup;
-  ht := byte(fHouseType); //array needs byte id
   Loc := fPosition;
 
   for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[ht,i,k]<>0 then
+  if HouseArea[i,k]<>0 then
   begin
-    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then
+    if (i=1)or(HouseArea[i-1,k]=0) then
       AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S); //Above
-    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then
+    if (i=4)or(HouseArea[i+1,k]=0) then
       AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N); //Below
-    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then
+    if (k=4)or(HouseArea[i,k+1]=0) then
       AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W); //FromRight
-    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then
+    if (k=1)or(HouseArea[i,k-1]=0) then
       AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E); //FromLeft
   end;
 end;
@@ -544,7 +543,7 @@ begin
   Loc := fPosition;
 
   for i:=max(Loc.Y-3,1) to Loc.Y do for k:=max(Loc.X-2,1) to min(Loc.X+1,fTerrain.MapX) do
-  if HousePlanYX[byte(fHouseType),i-Loc.Y+4,k-Loc.X+3]<>0 then
+  if HouseArea[i-Loc.Y+4,k-Loc.X+3]<>0 then
     Cells.AddEntry(KMPoint(k,i));
 end;
 
@@ -563,7 +562,7 @@ function TKMHouse.HitTest(X, Y: Integer): Boolean;
 begin
   Result:=false;
   if (X-fPosition.X+3 in [1..4])and(Y-fPosition.Y+4 in [1..4]) then
-  if HousePlanYX[byte(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
+  if HouseArea[Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
     Result:=true;
     exit;
   end;
@@ -1056,6 +1055,12 @@ end;
 procedure TKMHouse.SetWareDelivery(aVal:boolean);
 begin
   fWareDelivery := aVal;
+end;
+
+
+function TKMHouse.HouseArea: THouseArea;
+begin
+  Result := fResource.HouseDat.HouseArea(fHouseType);
 end;
 
 

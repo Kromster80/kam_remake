@@ -16,7 +16,6 @@ type
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
 
 
-type
   TKMHouseDat = packed record
     StonePic,WoodPic,WoodPal,StonePal:smallint;
     SupplyIn:array[1..4,1..5]of smallint;
@@ -51,6 +50,10 @@ type
     MoveX,MoveY:integer;
   end;
 
+  THouseArea = array[1..4,1..4]of byte;
+
+//1-building area //2-entrance
+
   //todo: Get rid of HOUSE_COUNT throughout the code and replace it with more flexible Low(THouseType)..High(THouseType)
   TKMHouseDatCollection = class
   private
@@ -62,6 +65,7 @@ type
     property HouseDat[aType:THouseType]:TKMHouseDat read GetHouseDat; default;
     property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeast read GetBeastAnim;
     function IsValid(aType:THouseType):boolean;
+    function HouseArea(aType:THouseType):THouseArea;
     function HouseName(aType:THouseType):string;
     procedure LoadHouseDat(aPath:string);
     procedure ExportCSV(aPath: string);
@@ -120,6 +124,40 @@ type
     //procedure ExportHouseAnim2BMP;
     //procedure ExportUnitAnim2BMP;
   end;
+
+const
+HousePlanYX_:array[0..HouseDatCount] of THouseArea = (
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //0
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
+((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine
+((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut
+((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm
+((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)), //Woodcutter
+((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)), //Armor smithy
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist
+((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine
+((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
+((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)), //Armor workshop
+((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Barracks
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop
+((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butcher
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
+((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard
+);
 
   var
     fResource:TResource;
@@ -1408,24 +1446,32 @@ end;
 
 
 procedure TKMHouseDatCollection.LoadHouseDat(aPath: string);
-var f:file; i:THouseType;
+var
+  S:TKMemoryStream;
+  i:integer;
 begin
   Assert(FileExists(aPath));
 
-  assignfile(f,aPath); reset(f,1);
-  blockread(f,fBeastAnim,30*70); //Swine&Horses animations
+  S := TKMemoryStream.Create;
+  S.LoadFromFile(aPath);
 
-  //Set the range explicitely since that is how it's stored in Houses.dat
-  for i:=ht_Sawmill to ht_Wineyard do
-    blockread(f,fItems[i],88+19*70+270);
-  closefile(f);
+  S.Read(fBeastAnim, SizeOf(fBeastAnim){30*70}); //Swine&Horses animations
+
+  //Read the records one by one because we need to reorder them and skip one in the middle
+  for i:=0 to HouseDatCount-1 do
+  if HouseOrderKaM[i] <> ht_None then
+    S.Read(fItems[HouseOrderKaM[i]], SizeOf(fItems[ht_None]){88+19*70+270})
+  else
+    S.Seek(SizeOf(fItems[ht_None]){88+19*70+270}, soFromCurrent);
+
+  S.Free;
 
   //ExportCSV(ExeDir+'Houses.csv');
 end;
 
 
 procedure TKMHouseDatCollection.ExportCSV(aPath: string);
-var i:THouseType; Ap:string; S:TStringList;
+var i:THouseType; Ap:string; S:TStringList; j,k:integer;
   procedure AddField(aField:string); overload; begin Ap := Ap + aField + ';'; end;
   procedure AddField(aField:integer); overload; begin Ap := Ap + inttostr(aField) + ';'; end;
 begin
@@ -1437,7 +1483,15 @@ begin
   for i:=Low(THouseType) to High(THouseType) do begin
     Ap := '';
     AddField(HouseName(i));
-    AddField(fItems[i].WoodCost);
+    S.Append(Ap);
+    for j := 1 to 10 do
+    begin
+      Ap := '';
+      for k:=1 to 10 do
+        AddField(fItems[i].BuildArea[j,k]);
+      S.Append(Ap);
+    end;
+    Ap := '';
     AddField(fItems[i].StoneCost);
     S.Append(Ap);
   end;
@@ -1453,12 +1507,20 @@ begin
 end;
 
 
+function TKMHouseDatCollection.HouseArea(aType: THouseType): THouseArea;
+begin
+  Result := HousePlanYX_[HouseTypeKaM[aType]];
+end;
+
+
 function TKMHouseDatCollection.HouseName(aType: THouseType): string;
 begin
   if IsValid(aType) then
-    Result := fTextLibrary.GetTextString(siHouseNames+byte(aType))
+    Result := fTextLibrary.GetTextString(siHouseNames+HouseTypeKaM[aType])
   else
     Result := 'N/A';
 end;
+
+
 
 end.

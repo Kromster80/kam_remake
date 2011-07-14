@@ -508,7 +508,8 @@ begin
                        end;
     ct_SetHouse:       begin
                        if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                         fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), ParamList[1]+1, ParamList[2]+1, false);
+                         fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(
+                           HouseOrderKaM[ParamList[0]], ParamList[1]+1, ParamList[2]+1, false);
                        end;
     ct_SetHouseDamage: begin
                        if fLastHouse <> nil then

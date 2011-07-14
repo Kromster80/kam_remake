@@ -554,14 +554,32 @@ type
 
 {Houses in game}
 type
-  THouseType = ( ht_None=0, ht_Any=30,
-    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
-    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutters=10,
-    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
-    ht_Metallurgists=16, ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
-    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
+  THouseType = ( ht_None, ht_Any,
+    ht_ArmorSmithy,     ht_ArmorWorkshop, ht_Bakery,        ht_Barracks,    ht_Butchers,
+    ht_CoalMine,        ht_Farm,          ht_FisherHut,     ht_GoldMine,    ht_Inn,
+    ht_IronMine,        ht_IronSmithy,    ht_Metallurgists, ht_Mill,        ht_Quary,
+    ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,     ht_Store,
+    ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,  ht_WeaponSmithy,
+    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
+const
+  HouseDatCount = 29; //KaM scripts and HouseDat keep addressing house in this order
+  HouseOrderKaM: array[0..HouseDatCount-1] of THouseType = (
+  ht_Sawmill, ht_IronSmithy, ht_WeaponSmithy, ht_CoalMine, ht_IronMine,
+  ht_GoldMine, ht_FisherHut, ht_Bakery, ht_Farm, ht_Woodcutters,
+  ht_ArmorSmithy, ht_Store, ht_Stables, ht_School, ht_Quary,
+  ht_Metallurgists, ht_Swine, ht_WatchTower, ht_TownHall, ht_WeaponWorkshop,
+  ht_ArmorWorkshop, ht_Barracks, ht_Mill, ht_SiegeWorkshop, ht_Butchers,
+  ht_Tannery, ht_None, ht_Inn, ht_Wineyard);
+
+  //THouseType corresponds to this index in KaM scripts and libs
+  HouseTypeKaM: array[THouseType] of byte = (0, 0,
+  11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
+  5, 2, 16, 23, 15, 1, 14, 24, 13, 12,
+  17, 26, 19, 18, 3, 20, 29, 10);
+
+
+type
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = ( hst_Empty, hst_Idle, hst_Work );
   //These are house building states
@@ -711,39 +729,6 @@ MapEdTileRemap:array[1..256]of integer = (
 // 247 - doesn't work in game, replaced with random road
 
 
-//1-building area //2-entrance
-HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut
-((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)), //Woodcutter
-((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)), //Armor smithy
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)), //Armor workshop
-((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Barracks
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butcher
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard
-//,((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,1,0))  //Wall
-);
 
 //Does house output needs to be ordered by Player or it keeps on producing by itself
 HousePlaceOrders:array[1..HOUSE_COUNT] of boolean = (
