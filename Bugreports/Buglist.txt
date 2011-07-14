@@ -11,10 +11,12 @@ Since r1902:
  +	Multiplayer lobby now lets you choose teams
  +	Multiplayer has a fixed delay of 1 second between a command being issued and it being carried out. This should be adjusted based on ping.
  +	In multiplayer you no longer hear sounds for placing roads etc. from other players
+ +	When the host disconnected from a dedicated server, the next client is automatically assigned hosting rights
  +	Archers now have friendly fire, stray arrows can hit your own units/buildings
  +	The German LIBX (translation file) was encoded in Unicode, (which is not supported by KaM Remake yet) meaning that special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = Ãœ, ö = Ã¶, etc.)
  +	Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
  +	AI did not attack unbuilt houses
+ +	Bowmen are smarter about shooting after walking
  ?	Replay mismatches caused by an unknown bug (can't reproduce anymore, presumed fixed)
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping

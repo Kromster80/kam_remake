@@ -800,6 +800,9 @@ begin
   if fWalkTo.X*fWalkTo.Y = 0 then
     raise ELocError.Create('Change Walk To 0;0',fWalkTo);
 
+  if fInteractionStatus = kis_Pushed then
+    fInteractionStatus := kis_None; //We are no longer being pushed
+
   fTargetLoc := aLoc;
   fDistance := aDistance;
 

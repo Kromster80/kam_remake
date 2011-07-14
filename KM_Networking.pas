@@ -32,6 +32,7 @@ type
     fOnJoinFail:TStringEvent;
     fOnJoinAssignedHost:TNotifyEvent;
     fOnHostFail:TStringEvent;
+    fOnReassignedHost:TNotifyEvent;
     fOnTextMessage:TStringEvent;
     fOnPlayersSetup:TNotifyEvent;
     fOnMapName:TStringEvent;
@@ -86,7 +87,8 @@ type
     property OnJoinSucc:TNotifyEvent write fOnJoinSucc;         //We were allowed to join
     property OnJoinFail:TStringEvent write fOnJoinFail;         //We were refused to join
     property OnHostFail:TStringEvent write fOnHostFail;         //Server failed to start (already running a server?)
-    property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights
+    property OnJoinAssignedHost:TNotifyEvent write fOnJoinAssignedHost; //We were assigned hosting rights upon connection
+    property OnReassignedHost:TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
 
     property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnMapName:TStringEvent write fOnMapName;           //Map name updated
@@ -218,6 +220,7 @@ begin
   fOnCommands := nil;
   fOnDisconnect := nil;
   fOnPingInfo := nil;
+  fOnReassignedHost := nil;
 
   fNetPlayers.Clear;
   fNetClient.Disconnect;
@@ -541,7 +544,10 @@ begin
               PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(Param)].Nikname+' lost connection');
               fNetPlayers.RemPlayer(Param);
               SendPlayerListAndRefreshPlayersSetup;
-            end;
+            end
+            else
+              if fNetPlayers.ServerToLocal(Param) <> -1 then
+                fNetPlayers.RemPlayer(Param); //Remove the player anyway as it might be the host that was lost
 
     mk_Disconnect:
             case fLANPlayerKind of
@@ -554,10 +560,24 @@ begin
                   end;
               lpk_Joiner:
                   begin
-                    fNetClient.Disconnect;
-                    if Assigned(fOnDisconnect) then
-                      fOnDisconnect('Host has quit');
+                    if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
+                    if Assigned(fOnTextMessage) then fOnTextMessage('The host has disconnected');
+                    fNetPlayers.RemPlayer(aSenderIndex);
                   end;
+            end;
+
+    mk_ReassignHost:
+            begin
+              if Param = fMyIndexOnServer then
+              begin
+                //We are now the host
+                fLANPlayerKind := lpk_Host;
+                fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
+                if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
+                SendPlayerListAndRefreshPlayersSetup;
+                if Assigned(fOnTextMessage) then fOnTextMessage('Server has reassigned hosting rights to us');
+                PostMessage('I am the new host');
+              end;
             end;
 
     mk_Ping:

@@ -1144,21 +1144,22 @@ begin
   if fState = ws_Walking then
   begin
     fState := ws_RepositionPause; //Means we are in position and waiting until we turn
-    SetActionStay(4+Random(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
+    SetActionLockedStay(4+Random(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
     //Do not check for enemy, let archers face right direction first (enemies could be behind = unattackable)
   end
   else
   begin
-    if fState = ws_RepositionPause then
-    begin
-      Direction := TKMDirection(fOrderLoc.Dir+1); //Face the way we were told to after our walk (this creates a short pause before we fix direction)
-      if PositioningDone then
-        fState := ws_None;
-    end;
     if PositioningDone then
       SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
     else
       SetActionStay(5,ua_Walk);
+    if fState = ws_RepositionPause then
+    begin
+      Direction := TKMDirection(fOrderLoc.Dir+1); //Face the way we were told to after our walk (this creates a short pause before we fix direction)
+      CheckForEnemy; //Important for archers, check for enemy once we are in position
+      if PositioningDone then
+        fState := ws_None;
+    end;
   end;
 
   if fCurrentAction = nil then

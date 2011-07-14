@@ -74,6 +74,7 @@ type
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
+    procedure Lobby_OnReassignedToHost(Sender: TObject);
     procedure Lobby_PostKey(Sender: TObject; Key: Word);
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnDisconnect(const aData:string);
@@ -1242,6 +1243,7 @@ begin
   fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
   fGame.Networking.OnStartGame    := fGame.GameStartMP;
   fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
+  fGame.Networking.OnReassignedHost := Lobby_OnReassignedToHost;
 end;
 
 
@@ -1447,6 +1449,13 @@ begin
 
   //todo: Keep disabled if Map does not matches Hosts or missing
   Button_LobbyReady.Enabled := fGame.Networking.MapInfo.IsValid;
+end;
+
+
+//We have been assigned to the host of the game because the host disconnected. Reopen lobby page in correct mode.
+procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
+begin
+  Lobby_Reset(Button_LAN_Host); //Will reset the lobby page into host mode
 end;
 
 

@@ -264,11 +264,22 @@ begin
 
   fClientList.RemPlayer(aHandle);
 
-  if fHostHandle = aHandle then
-    fHostHandle := NET_ADDRESS_EMPTY;
-
   //Send message to all remaining clients that client has disconnected
   SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle, '');
+
+  //Assign a new host
+  if fHostHandle = aHandle then
+  begin
+    if fClientList.Count = 0 then
+      fHostHandle := NET_ADDRESS_EMPTY //Server is now empty so we don't need a new host
+    else
+    begin
+      fHostHandle := fClientList[0].fHandle; //Assign hosting rights to the first client
+      SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, fHostHandle, ''); //Tell everyone about the new host
+      if Assigned(fOnStatusMessage) then
+        fOnStatusMessage('Server: Reassigned hosting rights to '+inttostr(fHostHandle));
+    end;
+  end;
 end;
 
 

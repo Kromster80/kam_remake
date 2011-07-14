@@ -25,9 +25,10 @@ type
     mk_AllowToJoin,     //Host allows Client to join
     mk_RefuseToJoin,    //Host can refuse when e.g. Nikname is already taken
 
-    mk_HostingRights,   //Server tells client they have hosting rights
+    mk_HostingRights,   //Server tells client they have hosting rights (during inital connection only)
     mk_IndexOnServer,   //Server tells Client his index
     mk_ClientLost,      //Server tells clients that someone has disconnected
+    mk_ReassignHost,    //Server tells clients who is the new host after the host disconnects
 
     mk_GameVersion,     //Server tells a new client which game version we are using
 
@@ -69,6 +70,7 @@ const
     pfNoData,   //mk_HostingRights
     pfNumber,   //mk_IndexOnServer
     pfNumber,   //mk_ClientLost
+    pfNumber,   //mk_ReassignHost
     pfText,     //mk_GameVersion
     pfNoData,   //mk_Disconnect
     pfNoData,   //mk_AskPingInfo

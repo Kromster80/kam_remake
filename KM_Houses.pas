@@ -276,7 +276,7 @@ begin
 
   fHasOwner         := false;
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
-  fBuildingRepair   := (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (fPlayers.Player[fOwner].AI.HouseAutoRepair);
+  fBuildingRepair   := false; //Don't set it yet because we don't always know who are AIs yet (in multiplayer) It is set in first UpdateState
   DoorwayUse        := 0;
   fRepairID         := 0;
   fWareDelivery     := true;
@@ -1000,6 +1000,11 @@ end;
 procedure TKMHouse.UpdateState;
 begin
   if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
+  //Toggle repair for AI players (allows AI to turn repair on and off based on requirements)
+  if (not fBuildingRepair) and (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (fPlayers.Player[fOwner].AI.HouseAutoRepair) then
+    EnableRepair;
+  if fBuildingRepair and (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (not fPlayers.Player[fOwner].AI.HouseAutoRepair) then
+    DisableRepair;
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
   if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (fResource.HouseDat[fHouseType].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
