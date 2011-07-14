@@ -76,6 +76,7 @@ type
 
     //Common
     procedure Ping;
+    function GetHighestRoundTripLatency:word;
     procedure PostMessage(aText:string);
 
     //Gameplay
@@ -415,6 +416,12 @@ end;
 procedure TKMNetworking.PostMessage(aText:string);
 begin
   PacketSend(NET_ADDRESS_ALL, mk_Text, aText, 0);
+end;
+
+
+function TKMNetworking.GetHighestRoundTripLatency:word;
+begin
+  Result := fNetPlayers.GetHighestRoundTripLatency;
 end;
 
 

@@ -95,7 +95,8 @@ begin
 
          if TKMUnitWarrior(fUnit).IsRanged then begin
            SetActionLockedStay(AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
-           Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
+           if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
+             Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
            case UnitType of
              ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,GetPosition,true); //Aiming
              ut_Bowman:     fSoundLib.Play(sfx_BowDraw,GetPosition,true); //Aiming
@@ -103,7 +104,8 @@ begin
            end;
          end else begin
            SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
-           Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
+           if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
+             Direction := KMGetDirection(GetPosition, fHouse.GetClosestCell(GetPosition)); //Look at house
          end;
        end;
     2: begin

@@ -93,7 +93,10 @@ begin
   //then TTaskDie assumes we are inside and creates a new GoOut action. Therefore if we are invisible we do not occupy a tile.
   if (fDirection = gd_GoOutside) and (fHasStarted) and (fUnit<>nil) and (not fUnit.Visible) and
     (fTerrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
+  begin
     fTerrain.UnitRem(fUnit.NextPosition);
+    if not KMSamePointF(fDoor, KMPointF(0,0)) then fUnit.PositionF := fDoor; //Put us back inside the house
+  end;
   fPlayers.CleanUpUnitPointer(fUnit);
   Inherited;
 end;

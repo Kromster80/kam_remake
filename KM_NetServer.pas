@@ -352,7 +352,7 @@ begin
             begin
              //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
              if fClientList.GetByHandle(aSenderHandle) <> nil then
-               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTickCount - fPingStarted, maxword);
+               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTickCount - fPingStarted, High(Word));
             end;
   end;
 

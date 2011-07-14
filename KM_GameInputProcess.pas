@@ -240,7 +240,10 @@ begin
       gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
       gic_TempKillUnit:           U.KillUnit;
       gic_TempRevealMap:          P.FogOfWar.RevealEverything;
-      gic_TempChangeMyPlayer:     MyPlayer := fPlayers.Player[Params[1]];
+      gic_TempChangeMyPlayer:     begin
+                                    fGame.fGamePlayInterface.ClearSelectedUnitOrHouse;
+                                    MyPlayer := fPlayers.Player[Params[1]];
+                                  end;
       gic_TempDoNothing:          ;
       else                        Assert(false);
     end;

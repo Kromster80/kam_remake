@@ -49,6 +49,7 @@ end;
 
 destructor TTaskSelfTrain.Destroy;
 begin
+  if fPhase <= 5 then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
   fPlayers.CleanUpHousePointer(fSchool);
   Inherited;
 end;

@@ -56,6 +56,7 @@ type
     function ColorAvailable(aIndex:integer):boolean;
     function AllReady:boolean;
     function AllReadyToPlay:boolean;
+    function GetHighestRoundTripLatency:word;
 
     procedure ResetLocAndReady;
     procedure DefineSetup(aMaxLoc:byte);
@@ -344,6 +345,23 @@ begin
   Result := true;
   for i:=1 to fCount do
     Result := Result and fPlayers[i].ReadyToPlay;
+end;
+
+
+function TKMPlayersList.GetHighestRoundTripLatency:word;
+var i:integer; Highest, Highest2: word;
+begin
+  Highest := 0;
+  Highest2 := 0;
+  for i:=1 to fCount do
+  begin
+    if fPlayers[i].Ping > Highest then
+      Highest := fPlayers[i].Ping
+    else
+      if fPlayers[i].Ping > Highest2 then
+        Highest2 := fPlayers[i].Ping;
+  end;
+  Result := min(Highest + Highest2, High(Word));
 end;
 
 

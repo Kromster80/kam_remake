@@ -14,6 +14,7 @@ type
     public
       WorkPlan:TUnitWorkPlan;
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
+      destructor Destroy; override;
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       function WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean;
@@ -33,6 +34,14 @@ begin
   fTaskName := utn_Mining;
   WorkPlan  := aWorkPlan;
   fBeastID   := 0;
+end;
+
+
+destructor TTaskMining.Destroy;
+begin
+  if fUnit.GetHome.GetState = hst_Work then
+    fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
+  Inherited;
 end;
 
 

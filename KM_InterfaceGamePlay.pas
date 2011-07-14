@@ -242,6 +242,7 @@ type
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
     procedure ClearShownUnit;
+    procedure ClearSelectedUnitOrHouse;
     procedure ReleaseDirectionSelector;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
@@ -2129,6 +2130,15 @@ end;
 procedure TKMGamePlayInterface.ClearShownUnit;
 begin
   fShownUnit := nil;
+  SwitchPage(nil);
+end;
+
+
+procedure TKMGamePlayInterface.ClearSelectedUnitOrHouse;
+begin
+  fShownUnit := nil;
+  fShownHouse := nil;
+  fPlayers.Selected := nil;
   SwitchPage(nil);
 end;
 

@@ -142,7 +142,8 @@ begin
   Inherited Create(aReplayState);
   fNetworking := aNetworking;
   fNetworking.OnCommands := RecieveCommands;
-  SetDelay(MAX_DELAY); //Start with maximum delay, then AdjustDelay will choose the optimal delay
+  //Guess a good value for delay based on pings (AdjustDelay will improve this, but latency is a good guess)
+  SetDelay(Round(fNetworking.GetHighestRoundTripLatency / 100) + 1); //+1 because it's only a guess, AdjustDelay can improve it
   fNumberWaits := 0;
   fPrevNumberWaits := 0;
   fMinimumReadyEarly := MAX_SCHEDULE; //First measurement will override this
