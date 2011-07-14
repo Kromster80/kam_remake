@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes, KM_Player;
+uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes, KM_Player;
 
 const
   MAX_SCHEDULE = 100; //Size of ring buffers (10 sec) Make them large so overruns do not occur
@@ -38,6 +38,7 @@ type
     fDelay:word; //How many ticks ahead the commands are scheduled
 
     fNumberWaits:word; //Number of times we were "waiting for network" since the last adjust
+    fNumberConsecutiveWaits:word; //Number of consecutive times we have been waiting for network
     fPrevNumberWaits:integer; //The number of waits from before the last adjust
     fMinimumReadyEarly:word; //Minimum number of ticks ahead of time that ticks were "ready to go"
 
@@ -71,6 +72,8 @@ type
     destructor Destroy; override;
     procedure WaitingForConfirmation(aTick:cardinal); override;
     function GetNetworkDelay:word; override;
+    property GetNumberConsecutiveWaits:word read fNumberConsecutiveWaits;
+    procedure GetWaitingPlayers(aTick:cardinal; aPlayersList:TStringList);
     procedure RecieveCommands(const aData:string); //Called by TKMNetwork when it has data for us
     function CommandsConfirmed(aTick:cardinal; aIgnoreRecieved:boolean=false):boolean; override;
     procedure RunningTimer(aTick:cardinal); override;
@@ -143,8 +146,9 @@ begin
   fNetworking := aNetworking;
   fNetworking.OnCommands := RecieveCommands;
   //Guess a good value for delay based on pings (AdjustDelay will improve this, but latency is a good guess)
-  SetDelay(Round(fNetworking.GetHighestRoundTripLatency / 100) + 1); //+1 because it's only a guess, AdjustDelay can improve it
+  SetDelay(Round(fNetworking.NetPlayers.GetHighestRoundTripLatency / 100) + 1); //+1 because it's only a guess, AdjustDelay can improve it
   fNumberWaits := 0;
+  fNumberConsecutiveWaits := 0;
   fPrevNumberWaits := 0;
   fMinimumReadyEarly := MAX_SCHEDULE; //First measurement will override this
 
@@ -189,6 +193,7 @@ end;
 
 procedure TGameInputProcess_Multi.WaitingForConfirmation(aTick:cardinal);
 begin
+  inc(fNumberConsecutiveWaits);
   if aTick <= 1 then exit; //Expect delays on the first few ticks during the initial transfer of commands
   if not CommandsConfirmed(aTick, true) then //Only count waiting for confirmation, waiting for data is not the fault of our fDelay
     inc(fNumberWaits);
@@ -351,11 +356,23 @@ begin
 end;
 
 
+procedure TGameInputProcess_Multi.GetWaitingPlayers(aTick:cardinal; aPlayersList:TStringList);
+var i: integer;
+begin
+  for i:=1 to fNetworking.NetPlayers.Count do
+    if not (((fConfirmation[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] and
+              fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex]) or
+             (fNetworking.NetPlayers[i].PlayerType = pt_Computer) or not fNetworking.NetPlayers[i].Alive)) then
+      aPlayersList.Add(fNetworking.NetPlayers[i].Nikname);
+end;
+
+
 //Timer is called after all commands from player are taken,
 //upcoming commands will be stacked into next batch
 procedure TGameInputProcess_Multi.RunningTimer(aTick:cardinal);
 var i,k,Tick:Cardinal;
 begin
+  fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
   fRandomCheck[Tick].OurCheck := cardinal(Random(maxint)); //thats our CRC (must go before commands for replay compatibility)
 

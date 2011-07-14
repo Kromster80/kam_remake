@@ -538,6 +538,7 @@ type
   TKMDropFileBox = class(TKMControl)
   private
     fCaption:string;
+    fDefaultCaption:string;
     fDropCount:byte;
     fFont: TKMFont;
     fButton:TKMButton;
@@ -550,10 +551,11 @@ type
     procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
     property DropCount:byte write fDropCount;
     property OnChange: TNotifyEvent write fOnChange;
     function FileName:string;
+    procedure SetByFileName(aFile:string);
     procedure RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
     procedure Paint; override;
   end;
@@ -624,6 +626,7 @@ type
 
     property FileCount:integer read GetFileCount;
     function FileName:string;
+    procedure SetByFileName(aFile:string);
     property ItemIndex:smallint read fItemIndex write SetItemIndex;
     property TopIndex:smallint read fTopIndex write SetTopIndex;
     procedure RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
@@ -2216,13 +2219,14 @@ end;
 
 
 { TKMDropFileBox }
-constructor TKMDropFileBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+constructor TKMDropFileBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
 var P:TKMPanel;
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   fDropCount := 10;
   fFont := aFont;
+  fDefaultCaption := aDefaultCaption;
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
@@ -2296,10 +2300,18 @@ begin
 end;
 
 
+procedure TKMDropFileBox.SetByFileName(aFile:string);
+begin
+  fFileList.SetByFileName(aFile);
+  fCaption := TruncateExt(ExtractFileName(fFileList.FileName));
+  if fCaption = '' then fCaption := fDefaultCaption;
+end;
+
+
 procedure TKMDropFileBox.RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
 begin
   fFileList.RefreshList(aPath, aExt1, aExt2, ScanSubFolders);
-  fCaption := ' Select a map ..';
+  fCaption := fDefaultCaption;
 end;
 
 
@@ -2602,6 +2614,19 @@ begin
     Result := fPath + fPaths.Strings[fItemIndex] + fFiles.Strings[fItemIndex]
   else
     Result := '';
+end;
+
+
+procedure TKMFileList.SetByFileName(aFile:string);
+var i: integer;
+begin
+  for i:=0 to fFiles.Count-1 do
+    if TruncateExt(fFiles.Strings[i]) = aFile then
+    begin
+      SetItemIndex(i);
+      exit;
+    end;
+  SetItemIndex(-1); //Else select nothing
 end;
 
 

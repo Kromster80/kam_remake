@@ -57,8 +57,10 @@ type
     function AllReady:boolean;
     function AllReadyToPlay:boolean;
     function GetHighestRoundTripLatency:word;
+    procedure GetNotReadyToPlayPlayers(aPlayerList:TStringList);
 
     procedure ResetLocAndReady;
+    procedure SetAIReady;
     procedure DefineSetup(aMaxLoc:byte);
 
     //Import/Export
@@ -209,6 +211,7 @@ begin
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].PlayerIndex := nil;
+  fPlayers[fCount].Team := 0;
   fPlayers[fCount].FlagColorID := 0; //todo: Color 0 should be "random color" option
   fPlayers[fCount].StartLocation := 0;
   fPlayers[fCount].ReadyToStart := false;
@@ -224,7 +227,8 @@ begin
   fPlayers[fCount].fIndexOnServer := -1;
   fPlayers[fCount].PlayerType := pt_Computer;
   fPlayers[fCount].PlayerIndex := nil;
-  fPlayers[fCount].FlagColorID := 0; //todo: Color 0 should be "random color" option
+  fPlayers[fCount].Team := 0;
+  fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocation := 0;
   fPlayers[fCount].ReadyToStart := true;
   fPlayers[fCount].ReadyToPlay := true;
@@ -365,6 +369,15 @@ begin
 end;
 
 
+procedure TKMPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
+var i:integer;
+begin
+  for i:=1 to fCount do
+    if not fPlayers[i].ReadyToPlay then
+      aPlayerList.Add(fPlayers[i].Nikname);
+end;
+
+
 procedure TKMPlayersList.ResetLocAndReady;
 var i:integer;
 begin
@@ -374,6 +387,18 @@ begin
     if fPlayers[i].PlayerType <> pt_Computer then //AI players are always ready
       fPlayers[i].ReadyToStart := false;
   end;
+end;
+
+
+procedure TKMPlayersList.SetAIReady;
+var i:integer;
+begin
+  for i:=1 to fCount do
+    if fPlayers[i].PlayerType = pt_Computer then
+    begin
+      fPlayers[i].ReadyToStart := true;
+      fPlayers[i].ReadyToPlay := true;
+    end;
 end;
 
 

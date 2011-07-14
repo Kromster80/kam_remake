@@ -31,6 +31,7 @@ type
     fGameSpeed:integer;
     fGameState:TGameState;
     fMultiplayerMode:boolean;
+    fWaitingForNetwork:boolean;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
@@ -77,6 +78,7 @@ type
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
+    procedure GameWaitingForNetwork(aWaiting:boolean);
     procedure GameStop(const Msg:TGameResultMsg; TextMsg:string='');
 
     procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
@@ -141,6 +143,7 @@ begin
   fGameState    := gsNoGame;
   SkipReplayEndCheck  := false;
   FormControlsVisible := false;
+  fWaitingForNetwork := false;
 
   fGlobalSettings   := TGlobalSettings.Create;
   fRender           := TRender.Create(RenderHandle, aVSync);
@@ -531,6 +534,7 @@ begin
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
   fNetworking.GameCreated;
+  if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
 
   fLog.AppendLog('Gameplay recording initialized',true);
   //@Krom: Thanks for that, you are right. Can we delete this line then? As I see it we should set the
@@ -552,6 +556,7 @@ end;
 //Issued by fNetworking at the time depending on each Players lag individually
 procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
+  GameWaitingForNetwork(false); //Finished waiting for players
   fGameState := gsRunning;
   fLog.AppendLog('Net game began');
 end;
@@ -643,6 +648,23 @@ procedure TKMGame.RequestGameHold(Msg:TGameResultMsg);
 begin
   DoGameHold := true;
   DoGameHoldState := Msg;
+end;
+
+
+procedure TKMGame.GameWaitingForNetwork(aWaiting:boolean);
+var WaitingPlayers: TStringList;
+begin
+  fWaitingForNetwork := aWaiting;
+
+  WaitingPlayers := TStringList.Create;
+  //todo: we need a better way to tell whether it is the initial load, as we will add pausing to multiplayer later 
+  if fGameState = gsRunning then
+    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(GetTickCount, WaitingPlayers) //GIP is waiting
+  else
+    fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
+
+  fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers);
+  WaitingPlayers.Free;
 end;
 
 
@@ -1079,6 +1101,7 @@ begin
                     begin
                       if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
                       begin
+                        if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                         inc(fGameTickCount); //Thats our tick counter for gameplay events
                         fTerrain.UpdateState;
                         fPlayers.UpdateState(fGameTickCount); //Quite slow
@@ -1097,7 +1120,11 @@ begin
                         if DoGameHold then break; //Break the for loop (if we are using speed up)
                       end
                       else
+                      begin
                         fGameInputProcess.WaitingForConfirmation(fGameTickCount);
+                        if TGameInputProcess_Multi(fGameInputProcess).GetNumberConsecutiveWaits > 5 then
+                          GameWaitingForNetwork(true);
+                      end;
                       fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                     end;
                     fGamePlayInterface.UpdateState;

@@ -76,7 +76,6 @@ type
 
     //Common
     procedure Ping;
-    function GetHighestRoundTripLatency:word;
     procedure PostMessage(aText:string);
 
     //Gameplay
@@ -258,6 +257,8 @@ begin
   M.WriteAsText(aInfo);
   M.Position := 0;
   M.Read(PingCount);
+  for i:=1 to MAX_PLAYERS do
+    fNetPlayers[i].Ping := 0; //Reset them all so players dropped by the server are 0
   for i:=1 to PingCount do
   begin
     M.Read(PlayerHandle);
@@ -419,12 +420,6 @@ begin
 end;
 
 
-function TKMNetworking.GetHighestRoundTripLatency:word;
-begin
-  Result := fNetPlayers.GetHighestRoundTripLatency;
-end;
-
-
 //Send our commands to either to all players, or to specified one
 procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerIndex:TPlayerIndex=-1);
 var i:integer;
@@ -581,6 +576,8 @@ begin
                 fLANPlayerKind := lpk_Host;
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
+                fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
+                fNetPlayers.SetAIReady; //Set all AI players to ready
                 SendPlayerListAndRefreshPlayersSetup;
                 if Assigned(fOnTextMessage) then fOnTextMessage('Server has reassigned hosting rights to us');
                 PostMessage('I am the new host');

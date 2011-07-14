@@ -509,7 +509,7 @@ begin
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,740,100,240,400);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 520);
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Choose map:', fnt_Outline, kaLeft);
-      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 30, 220, 20, fnt_Metal);
+      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 30, 220, 20, fnt_Metal, 'Select a map...');
       FileList_Lobby.OnChange := Lobby_MapSelect;
       TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, 'Map info:', fnt_Outline, kaLeft);
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
@@ -1354,6 +1354,7 @@ begin
       Label_LobbyPlayer[i].Hide;
       DropBox_LobbyPlayerSlot[i].Show;
       DropBox_LobbyPlayerSlot[i].ItemIndex := 1; //AI
+      DropBox_LobbyPlayerSlot[i].Enabled := fGame.Networking.IsHost;
     end
     else
     begin
@@ -1409,7 +1410,8 @@ procedure TKMMainMenuInterface.Lobby_OnPingInfo(Sender: TObject);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
-  if (fGame.Networking.Connected) and (i < fGame.Networking.NetPlayers.Count) then
+  if (fGame.Networking.Connected) and (i < fGame.Networking.NetPlayers.Count) and
+     (fGame.Networking.NetPlayers[i+1].PlayerType <> pt_Computer) then
   begin
     Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].Ping);
     case fGame.Networking.NetPlayers[i+1].Ping of
@@ -1456,6 +1458,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Lobby_Reset(Button_LAN_Host); //Will reset the lobby page into host mode
+  FileList_Lobby.SetByFileName(fGame.Networking.MapInfo.Folder); //Select the map
 end;
 
 

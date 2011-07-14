@@ -239,6 +239,7 @@ type
     procedure MenuIconsEnabled(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
+    procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
     procedure ClearShownUnit;
@@ -2093,6 +2094,21 @@ begin
                   end;
     else if DoShow then Assert(false,'Wrong message in ShowPlayMore'); //Can become hidden with any message
   end;
+  Panel_PlayMore.Visible := DoShow;
+end;
+
+
+procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
+var i:integer;
+begin
+  Label_PlayMore.Caption := 'Waiting for players: ';
+  for i:=0 to aPlayers.Count-2 do
+    Label_PlayMore.Caption := Label_PlayMore.Caption + aPlayers.Strings[i] + ', ';
+  if aPlayers.Count > 0 then
+    Label_PlayMore.Caption := Label_PlayMore.Caption + aPlayers.Strings[aPlayers.Count-1];
+
+  Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(47);
+  Button_PlayMore.Visible := not DoShow; //Hide play more button, we only allow quit
   Panel_PlayMore.Visible := DoShow;
 end;
 
