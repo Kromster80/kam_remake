@@ -8,6 +8,10 @@ uses
 type
   TKMapInfo = class
   private
+    fIsSave:boolean; //Allow peaking at saves (for multiplayer lobby)
+    fSaveSlot:integer;
+    fSaveIsMultiplayer:boolean;
+
     fFolder:string; //Map folder
     fStrict:boolean; //Use strict map checking, important for MP
     fDatSize:integer;
@@ -20,17 +24,23 @@ type
     DefeatCond:string;
     fSmallDesc:string;
     procedure ScanMap;
+    procedure ScanSave;
     procedure LoadFromFile(const aPath:string);
     procedure SaveToFile(const aPath:string);
   public
     BigDesc:string;
     procedure Load(const aFolder:string; aStrict:boolean);
+    procedure LoadSavedGame(aSlot:integer; aIsMultiplayer, aStrict:boolean);
+
+    property IsSave:boolean read fIsSave;
+    property SaveSlot:integer read fSaveSlot;
     property Folder:string read fFolder;
-    function IsValid:boolean;
     property CRC:cardinal read fMapCRC;
     property MissionMode:TKMissionMode read fMissionMode;
     property PlayerCount:byte read fPlayerCount;
     property MapSize:string read fMapSize;
+
+    function IsValid:boolean;
     function SmallDesc:string;
     function MissionModeText:string;
     function VictoryCondition:string;
@@ -59,7 +69,20 @@ procedure TKMapInfo.Load(const aFolder:string; aStrict:boolean);
 begin
   fFolder := aFolder;
   fStrict := aStrict;
+  fIsSave := false;
+  fSaveSlot := -1;
   ScanMap;
+end;
+
+
+procedure TKMapInfo.LoadSavedGame(aSlot:integer; aIsMultiplayer, aStrict:boolean);
+begin
+  fFolder := '';
+  fStrict := aStrict;
+  fIsSave := true;
+  fSaveIsMultiplayer := aIsMultiplayer;
+  fSaveSlot := aSlot;
+  ScanSave;
 end;
 
 
@@ -118,6 +141,12 @@ begin
     until(eof(ft));
     closefile(ft);
   end;
+end;
+
+
+procedure TKMapInfo.ScanSave;
+begin
+  //todo: peak at contents
 end;
 
 

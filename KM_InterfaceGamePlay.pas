@@ -323,11 +323,13 @@ end;
 
 procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
-  if fGame.MultiplayerMode then exit; //Saving/loading disabled in multiplayer for now
   if not (Sender is TKMButton) then exit; //Just in case
   //Don't allow saving over autosave (AUTOSAVE_SLOT)
   if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) then exit;
-  fGame.Save(TKMControl(Sender).Tag);
+  if fGame.MultiplayerMode then
+    fGame.fGameInputProcess.CmdGame(gic_GameSave, TKMControl(Sender).Tag)
+  else
+    fGame.Save(TKMControl(Sender).Tag);
   SwitchPage(nil); //Close save menu after saving
 end;
 
@@ -418,6 +420,7 @@ begin
     Menu_Fill(Sender); //Make sure updating happens before it is shown
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
     Panel_Menu.Show;
+    Button_Menu_Load.Enabled := not fGame.MultiplayerMode; //No loading during multiplayer games
   end else
 
   if Sender=Button_Menu_Save then begin

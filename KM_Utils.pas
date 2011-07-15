@@ -50,7 +50,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
 
   function KMMapNameToPath(const aMapName, aExtension:string):string;
-  function KMSlotToSaveName(aSlot:integer; const aExtension:string):string;
+  function KMSlotToSaveName(aSlot:integer; const aExtension:string; aIsMultiplayer:boolean):string;
 
   function MapSizeToString(X,Y:integer):string;
 
@@ -440,9 +440,13 @@ begin
 end;
 
 
-function KMSlotToSaveName(aSlot:integer; const aExtension:string):string;
+function KMSlotToSaveName(aSlot:integer; const aExtension:string; aIsMultiplayer:boolean):string;
 begin
-  Result := ExeDir+'Saves\save'+int2fix(aSlot,2)+'.'+aExtension;
+  if aIsMultiplayer then
+    Result := ExeDir+'SavesM' //Multiplayer saves go in a different folder
+  else
+    Result := ExeDir+'Saves';
+  Result := Result+'\save'+int2fix(aSlot,2)+'.'+aExtension;
 end;
 
 

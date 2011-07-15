@@ -1362,7 +1362,9 @@ begin
     end;
     //If we can't load the map, don't attempt to show starting locations
     if fGame.Networking.MapInfo.IsValid then
-      DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
+      DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation
+    else
+      DropBox_LobbyLoc[i].ItemIndex := 0;
     DropBox_LobbyTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
     DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;

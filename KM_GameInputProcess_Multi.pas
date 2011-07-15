@@ -153,7 +153,7 @@ begin
   fMinimumReadyEarly := MAX_SCHEDULE; //First measurement will override this
 
   //Allocate memory for all commands packs
-  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count-1 do
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
   begin
     fSchedule[i,k] := TCommandsPack.Create;
     fRandomCheck[i].PlayerWasChecked[k] := true; //We don't have anything to be checked yet

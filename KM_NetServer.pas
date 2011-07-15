@@ -37,10 +37,16 @@ uses Classes, SysUtils, Windows, Math, KM_CommonTypes, KM_NetServerOverbyte, KM_
       mk_AskPing
       mk_AskIPs
 }
+
+const
+  //todo: This should be in config file for both game and dedicated server
+  KICK_TIMEOUT = 10000; //10 sec
+
 type
   TKMServerClient = class
   private
     fHandle:integer;
+    fPingStarted:cardinal;
     fPing:word;
   public
     constructor Create(aHandle:integer);
@@ -70,7 +76,6 @@ type
 
     fClientList:TKMClientsList;
     fHostHandle:integer;
-    fPingStarted:cardinal;
     fListening:boolean;
 
     fBufferSize:cardinal;
@@ -78,6 +83,7 @@ type
 
     fOnStatusMessage:TGetStrProc;
     procedure Error(const S: string);
+    procedure Status(const S: string);
     procedure ClientConnect(aHandle:integer);
     procedure ClientDisconnect(aHandle:integer);
     procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
@@ -185,7 +191,14 @@ end;
 //There's an error in fServer, perhaps fatal for multiplayer.
 procedure TKMNetServer.Error(const S: string);
 begin
-  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: Error '+S);
+  Status('Error '+S);
+end;
+
+
+//There's an error in fServer, perhaps fatal for multiplayer.
+procedure TKMNetServer.Status(const S: string);
+begin
+  if Assigned(fOnStatusMessage) then fOnStatusMessage('Server: '+S);
 end;
 
 
@@ -199,8 +212,7 @@ begin
   fServer.OnClientDisconnect := ClientDisconnect;
   fServer.OnDataAvailable := DataAvailable;
   fServer.StartListening(aPort);
-  if Assigned(fOnStatusMessage) then
-    fOnStatusMessage('Server: Listening on port '+aPort);
+  Status('Listening on port '+aPort);
   fListening := true;
 end;
 
@@ -235,16 +247,27 @@ begin
   SendMessage(NET_ADDRESS_ALL, mk_PingInfo, 0, M.ReadAsText);
   M.Free;
   //Measure pings
-  fPingStarted := GetTickCount;
-  SendMessage(NET_ADDRESS_ALL, mk_Ping, 0, '');
+  for i:=0 to fClientList.Count-1 do
+    if fClientList[i].fPingStarted = 0 then //We have recieved mk_Pong for our previous measurement, so start a new one
+    begin
+      fClientList[i].fPingStarted := GetTickCount;
+      SendMessage(fClientList[i].fHandle, mk_Ping, 0, '');
+    end
+    else
+      //If they don't respond within a reasonable time, kick them
+      if GetTickCount-fClientList[i].fPingStarted > KICK_TIMEOUT then
+      begin
+        fServer.Kick(fClientList[i].fHandle);
+        Status('Client timed out '+inttostr(fClientList[i].fHandle));
+      end;
+
 end;
 
 
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
 begin
-  if Assigned(fOnStatusMessage) then
-    fOnStatusMessage('Server: Client has connected '+inttostr(aHandle));
+  Status('Client has connected '+inttostr(aHandle));
 
   fClientList.AddPlayer(aHandle);
   SendMessage(aHandle, mk_GameVersion, 0, GAME_REVISION); //First make sure they are using the right version
@@ -254,14 +277,8 @@ begin
   begin
     fHostHandle := aHandle;
     SendMessage(aHandle, mk_HostingRights, 0, '');
-    if Assigned(fOnStatusMessage) then
-      fOnStatusMessage('Server: Host rights assigned to '+inttostr(fHostHandle));
+    Status('Host rights assigned to '+inttostr(fHostHandle));
   end;
-
-  //@Lewin: We can tell the Client he is going to be a Host (has control over server and game setup)
-  //Someone has to be in charge of that sort of things. And later on we can support reassign of Host
-  //role, so any Client could be in charge (e.g. if Host is defeated or quit)
-  //@Krom: Sounds good to me. Implement it as you described.
 
   SendMessage(aHandle, mk_IndexOnServer, aHandle, '');
   MeasurePings;
@@ -271,8 +288,7 @@ end;
 //Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
 begin
-  if Assigned(fOnStatusMessage) then
-    fOnStatusMessage('Server: Client has disconnected '+inttostr(aHandle));
+  Status('Client has disconnected '+inttostr(aHandle));
 
   fClientList.RemPlayer(aHandle);
 
@@ -288,8 +304,7 @@ begin
     begin
       fHostHandle := fClientList[0].fHandle; //Assign hosting rights to the first client
       SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, fHostHandle, ''); //Tell everyone about the new host
-      if Assigned(fOnStatusMessage) then
-        fOnStatusMessage('Server: Reassigned hosting rights to '+inttostr(fHostHandle));
+      Status('Reassigned hosting rights to '+inttostr(fHostHandle));
     end;
   end;
 end;
@@ -329,7 +344,6 @@ end;
 
 procedure TKMNetServer.RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
 var
-  i:integer;
   Kind:TKMessageKind;
   M:TKMemoryStream;
   Param:integer;
@@ -351,8 +365,11 @@ begin
     mk_Pong:
             begin
              //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
-             if fClientList.GetByHandle(aSenderHandle) <> nil then
-               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTickCount - fPingStarted, High(Word));
+             if (fClientList.GetByHandle(aSenderHandle) <> nil) and (fClientList.GetByHandle(aSenderHandle).fPingStarted <> 0) then
+             begin
+               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTickCount - fClientList.GetByHandle(aSenderHandle).fPingStarted, High(Word));
+               fClientList.GetByHandle(aSenderHandle).fPingStarted := 0;
+             end;
             end;
   end;
 

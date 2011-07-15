@@ -28,6 +28,7 @@ type
     procedure StartListening(aPort:string);
     procedure StopListening;
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
+    procedure Kick(aHandle:integer);
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
@@ -142,6 +143,18 @@ begin
     begin
       if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
         fSocketServer.Client[i].Send(aData, aLength);
+    end;
+end;
+
+
+procedure TKMNetServerOverbyte.Kick(aHandle:integer);
+var i:integer;
+begin
+  for i:=0 to fSocketServer.ClientCount-1 do
+    if fSocketServer.Client[i].Tag = aHandle then
+    begin
+      if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
+        fSocketServer.Client[i].Close;
     end;
 end;
 

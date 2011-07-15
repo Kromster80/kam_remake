@@ -59,9 +59,13 @@ type
     //IV.     Delivery ratios changes (and other game-global settings)
     gic_RatioChange,
 
-    //V.      Cheatcodes affecting gameplay (props)
+    //V.      Game changes
+    gic_GamePause,
+    gic_GameSave,
 
-    //VI. Temporary and debug commands
+    //VI.      Cheatcodes affecting gameplay (props)
+
+    //VII. Temporary and debug commands
     gic_TempAddScout,
     gic_TempKillUnit,
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
@@ -121,6 +125,9 @@ type
 
     procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 
+    procedure CmdGame(aCommandType:TGameInputCommandType; aValue:integer); overload;
+    procedure CmdGame(aCommandType:TGameInputCommandType; aValue:boolean); overload;
+
     procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
@@ -144,7 +151,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Terrain;
+uses KM_Game, KM_Terrain, KM_InterfaceGameplay;
 
 
 constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);
@@ -245,6 +252,9 @@ begin
                                     MyPlayer := fPlayers.Player[Params[1]];
                                   end;
       gic_TempDoNothing:          ;
+
+      gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
+      gic_GameSave:               if fReplayState = gipRecording then fGame.Save(Params[1]);
       else                        Assert(false);
     end;
   end;
@@ -347,6 +357,20 @@ procedure TGameInputProcess.CmdRatio(aCommandType:TGameInputCommandType; aRes:TR
 begin
   Assert(aCommandType = gic_RatioChange);
   TakeCommand( MakeCommand(aCommandType, [byte(aRes), byte(aHouseType), aValue]) );
+end;
+
+
+procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aValue:integer);
+begin
+  Assert(aCommandType = gic_GameSave);
+  TakeCommand( MakeCommand(aCommandType, [aValue]) );
+end;
+
+
+procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aValue:boolean);
+begin
+  Assert(aCommandType = gic_GamePause);
+  TakeCommand( MakeCommand(aCommandType, [integer(aValue)]) );
 end;
 
 
