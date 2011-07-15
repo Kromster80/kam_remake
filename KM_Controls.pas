@@ -31,7 +31,7 @@ type
 
     fOnHint:TNotifyEvent; //Comes along with OnMouseOver
 
-    function HitControl(X,Y:integer):TKMControl;
+    function HitControl(X,Y:integer; aIncludeDisabled:boolean=false):TKMControl;
     procedure SetCtrlDown(aCtrl:TKMControl);
     procedure SetCtrlFocus(aCtrl:TKMControl);
     procedure SetCtrlOver(aCtrl:TKMControl);
@@ -97,7 +97,7 @@ type
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    function HitTest(X, Y: Integer): Boolean; virtual;
+    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; virtual;
 
     property Parent: TKMPanel read fParent;
     property Left: Integer read GetLeft write fLeft;
@@ -166,7 +166,7 @@ type
     LineWidth:byte;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
-    function HitTest(X, Y: Integer): Boolean; override;
+    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     procedure Paint; override;
   end;
 
@@ -185,7 +185,7 @@ type
     AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
-    function HitTest(X, Y: Integer): Boolean; override;
+    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     property Caption:string read fCaption write SetCaption;
     function TextHeight:integer;
     procedure Paint; override;
@@ -317,7 +317,7 @@ type
     property Text:string read fText write SetText;
     property OnChange: TNotifyEvent write fOnChange;
     property OnKeyDown: TNotifyEventKey write fOnKeyDown;
-    function HitTest(X, Y: Integer): Boolean; override;
+    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
     procedure KeyPress(Key: Char); override;
     function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
@@ -553,6 +553,7 @@ type
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
     property DropCount:byte write fDropCount;
+    property DefaultCaption:string read fDefaultCaption write fDefaultCaption;
     property OnChange: TNotifyEvent write fOnChange;
     function FileName:string;
     procedure SetByFileName(aFile:string);
@@ -730,9 +731,9 @@ end;
 
 
 //fVisible is checked earlier
-function TKMControl.HitTest(X, Y: Integer): Boolean;
+function TKMControl.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
-  Result := fEnabled and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
+  Result := (fEnabled or aIncludeDisabled) and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
 end;
 
 {One common thing - draw childs for self}
@@ -966,7 +967,7 @@ end;
 
 
 {If Fill color alpha is transparent, then treat the thing as non-hitable}
-function TKMShape.HitTest(X,Y:Integer): Boolean;
+function TKMShape.HitTest(X,Y:Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
   if Hitable then
     Result := Inherited HitTest(X,Y)
@@ -1002,7 +1003,7 @@ begin
 end;
 
 
-function TKMLabel.HitTest(X, Y: Integer): Boolean;
+function TKMLabel.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
   case TextAlign of
     kaLeft: Result := InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
@@ -1430,7 +1431,7 @@ begin
 end;
 
 
-function TKMEdit.HitTest(X, Y: Integer): Boolean;
+function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
   //When control is read-only we don't want to recieve Focus event
   Result := Inherited HitTest(X,Y) and not ReadOnly;
@@ -1591,7 +1592,7 @@ end;
 procedure TKMRadioGroup.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 var NewIndex:integer;
 begin
-  if (csDown in State) and (Button = mbLeft) and (X-Left < 20) then
+  if (csDown in State) and (Button = mbLeft) then
   begin
     NewIndex := (Y-Top) div round(Height/ItemCount);
     if NewIndex <> fItemIndex then
@@ -2577,12 +2578,14 @@ begin
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then //Exclude parent folders
         //Check folders
         if ScanSubFolders and (SearchRec.Attr and faDirectory = faDirectory) then
+        begin
           if FileExists(fPath + SearchRec.Name + '\' + SearchRec.Name + '.' + aExt1) and
              FileExists(fPath + SearchRec.Name + '\' + SearchRec.Name + '.' + aExt2) then
           begin
             fPaths.Add(SearchRec.Name + '\');
             fFiles.Add(SearchRec.Name + '.' + aExt1);
           end
+        end
         else
         //Check files
         if (SearchRec.Attr and faDirectory <> faDirectory)
@@ -2729,7 +2732,7 @@ end;
 
 
 { Recursing function to find topmost control (excl. Panels)}
-function TKMMasterControl.HitControl(X,Y:integer):TKMControl;
+function TKMMasterControl.HitControl(X,Y:integer; aIncludeDisabled:boolean=false):TKMControl;
   function ScanChild(P:TKMPanel; aX,aY:integer):TKMControl;
   var i:integer;
   begin
@@ -2740,7 +2743,7 @@ function TKMMasterControl.HitControl(X,Y:integer):TKMControl;
         Result := ScanChild(TKMPanel(P.Childs[i]),aX,aY);
         if Result <> nil then exit;
       end else
-      if P.Childs[i].HitTest(aX,aY) then begin
+      if P.Childs[i].HitTest(aX,aY,aIncludeDisabled) then begin
         Result := P.Childs[i];
         exit;
       end;
@@ -2783,12 +2786,14 @@ end;
 
 
 procedure TKMMasterControl.MouseMove(X,Y:Integer; Shift:TShiftState);
+var HintControl:TKMControl;
 begin
   if CtrlDown=nil then CtrlOver := HitControl(X,Y); //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
-  if CtrlOver <> nil then begin
+  if CtrlOver <> nil then
     CtrlOver.MouseMove(X,Y,Shift);
-    if Assigned(fOnHint) then fOnHint(CtrlOver)
-  end;
+
+  HintControl := HitControl(X,Y,true); //Include disabled controls
+  if (HintControl <> nil) and Assigned(fOnHint) then fOnHint(HintControl);
   if (CtrlDown <> nil) and (CtrlOver <> CtrlDown) then CtrlDown := nil;
 end;
 

@@ -373,7 +373,7 @@ procedure TKMPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
 var i:integer;
 begin
   for i:=1 to fCount do
-    if not fPlayers[i].ReadyToPlay then
+    if (not fPlayers[i].ReadyToPlay) or (fPlayers[i].PlayerType = pt_Computer) then
       aPlayerList.Add(fPlayers[i].Nikname);
 end;
 

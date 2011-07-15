@@ -63,7 +63,7 @@ type
     procedure DoRandomCheck(aTick:cardinal; aPlayerIndex:TPlayerIndex);
 
     procedure CheckReadyEarly(aTick:cardinal);
-    procedure SetDelay(aNewDelay:word);
+    procedure SetDelay(aNewDelay:integer);
     procedure AdjustDelay;
   protected
     procedure TakeCommand(aCommand:TGameInputCommand); override;
@@ -220,7 +220,7 @@ begin
 end;
 
 
-procedure TGameInputProcess_Multi.SetDelay(aNewDelay:word);
+procedure TGameInputProcess_Multi.SetDelay(aNewDelay:integer);
 begin
   fDelay := EnsureRange(aNewDelay,1,MAX_DELAY);
 end;
@@ -231,7 +231,7 @@ begin
   if (fNumberWaits > 0) and (fPrevNumberWaits > 0) then
     SetDelay(fDelay+1) //Quality was bad for the last two calculations, so increase delay
   else
-    if fMinimumReadyEarly > 0 then
+    if (fMinimumReadyEarly > 0) and (fMinimumReadyEarly <> MAX_DELAY) then //Measurement has been taken
       SetDelay(fDelay-fMinimumReadyEarly); //Quality is good, so decrease delay to our calculated optimum
 
   fMinimumReadyEarly := MAX_DELAY; //Next measurement will override this because it will be smaller

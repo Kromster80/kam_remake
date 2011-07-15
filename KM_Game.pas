@@ -412,6 +412,7 @@ begin
   end;
   fPlayers.AfterMissionInit(true);
 
+  fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
   fViewport.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
@@ -448,7 +449,7 @@ begin
 
   if fNetworking.MapInfo.IsSave then
   begin
-    Load(fNetworking.MapInfo.SaveSlot);
+    Load(fNetworking.MapInfo.SaveSlot, true);
   end
   else
   begin
@@ -489,8 +490,6 @@ begin
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
-  fViewport.SetZoom(1); //This ensures the viewport is centered on the map
-  fRender.Render;
 
   fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
@@ -523,6 +522,10 @@ begin
   for i:=fPlayers.Count-1 downto 0 do
     if not PlayerUsed[i] then
       fPlayers.RemovePlayer(i);
+
+  fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
+  fViewport.SetZoom(1); //This ensures the viewport is centered on the map
+  fRender.Render;
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
@@ -941,12 +944,13 @@ begin
   SaveStream := TKMemoryStream.Create;
   SaveStream.Write('KaM_Savegame');
   SaveStream.Write(GAME_REVISION); //This is savegame version
-  SaveStream.Write(fMissionFile); //Save game mission file
+  if fMultiplayerMode then SaveStream.Write('') //Multiplayer saves must be identical between computers
+                      else SaveStream.Write(fMissionFile); //Save game mission file
   SaveStream.Write(fGameName); //Save game title
   SaveStream.Write(fGameTickCount); //Required to be saved, e.g. messages being shown after a time
   SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
-  SaveStream.Write(MultiplayerMode);
-  if MultiplayerMode then
+  SaveStream.Write(fMultiplayerMode);
+  if fMultiplayerMode then
   begin
     //We store a short header for multiplayer so the lobby can peak at the map size, number of players, etc.
     SaveStream.Write(fTerrain.MapX);
@@ -961,9 +965,12 @@ begin
   fPlayers.Save(SaveStream); //Saves all players properties individually
   fProjectiles.Save(SaveStream);
 
-  fViewport.Save(SaveStream); //Saves viewed area settings
-  //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
-  fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+  if fMultiplayerMode then
+  begin
+    fViewport.Save(SaveStream); //Saves viewed area settings
+    //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
+    fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+  end;
 
   CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
   CreateDir(ExeDir+'SavesM\');
@@ -1042,7 +1049,7 @@ var
 begin
   fLog.AppendLog('Loading game');
   Result := '';
-  FileName := SlotToSaveName(SlotID,'sav'); //Full path
+  FileName := KMSlotToSaveName(SlotID,'sav',aIsMultiplayer); //Full path
 
   //Check if file exists early so that current game will not be lost if user tries to load an empty save
   if not FileExists(FileName) then
@@ -1096,8 +1103,11 @@ begin
     fPlayers.Load(LoadStream);
     fProjectiles.Load(LoadStream);
 
-    fViewport.Load(LoadStream);
-    fGamePlayInterface.Load(LoadStream);
+    if IsSaveMultiplayer then
+    begin
+      fViewport.Load(LoadStream);
+      fGamePlayInterface.Load(LoadStream);
+    end;
 
     LoadStream.Free;
 

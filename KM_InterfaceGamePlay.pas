@@ -2079,6 +2079,7 @@ end;
 procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
 begin
   PlayMoreMsg := Msg;
+  Button_PlayMore.Show; //Could be hidden if network lag screen was being shown (PlayMore should override it)
   case Msg of
     gr_Win:       begin
                     Label_PlayMore.Caption := fTextLibrary.GetRemakeString(39);

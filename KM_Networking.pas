@@ -66,7 +66,10 @@ type
     procedure LeaveLobby;
     procedure Disconnect;
     function  Connected: boolean;
+    procedure SendMapOrSave;
+    procedure SelectNoMap;
     procedure SelectMap(aName:string);
+    procedure SelectSave(aSlot:integer);
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
@@ -273,6 +276,34 @@ begin
 end;
 
 
+procedure TKMNetworking.SendMapOrSave;
+begin
+  if fMapInfo.IsSave then
+  begin
+    PacketSend(NET_ADDRESS_OTHERS, mk_SaveSelect, '', fMapInfo.SaveSlot);
+    PacketSend(NET_ADDRESS_OTHERS, mk_SaveCRC, '', Integer(fMapInfo.CRC));
+  end
+  else
+  begin
+    PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Folder, 0);
+    PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.CRC));
+  end;
+end;
+
+
+procedure TKMNetworking.SelectNoMap;
+begin
+  Assert(IsHost, 'Only host can reset map');
+  fMapInfo.Free;
+  fMapInfo := TKMapInfo.Create;
+  PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
+  fNetPlayers.ResetLocAndReady; //Reset start locations
+  fNetPlayers[fMyIndex].ReadyToStart := true;
+  SendPlayerListAndRefreshPlayersSetup;
+  if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+end;
+
+
 //Tell other players which map we will be using
 //Players will reset their starting locations and "Ready" status on their own
 procedure TKMNetworking.SelectMap(aName:string);
@@ -280,12 +311,31 @@ begin
   Assert(IsHost, 'Only host can select maps');
 
   fMapInfo.Load(aName, true);
+
+  if not fMapInfo.IsValid then SelectNoMap;
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
-  if not fMapInfo.IsValid then exit;
+  SendMapOrSave;
 
-  PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Folder, 0);
-  PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.CRC));
+  fNetPlayers[fMyIndex].ReadyToStart := true;
+
+  SendPlayerListAndRefreshPlayersSetup;
+  if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+end;
+
+
+//Tell other players which save we will be using
+//Players will reset their starting locations and "Ready" status on their own
+procedure TKMNetworking.SelectSave(aSlot:integer);
+begin
+  Assert(IsHost, 'Only host can select saves');
+
+  fMapInfo.LoadSavedGame(aSlot, true, true);
+
+  if not fMapInfo.IsValid then SelectNoMap;
+  fNetPlayers.ResetLocAndReady; //Reset start locations
+
+  SendMapOrSave;
 
   fNetPlayers[fMyIndex].ReadyToStart := true;
 
@@ -527,8 +577,7 @@ begin
               begin
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
-                PacketSend(aSenderIndex, mk_MapSelect, fMapInfo.Folder, 0); //Send the map first so it doesn't override starting locs
-                PacketSend(aSenderIndex, mk_MapCRC, '', Integer(fMapInfo.CRC));
+                SendMapOrSave; //Send the map first so it doesn't override starting locs
                 SendPlayerListAndRefreshPlayersSetup;
                 PostMessage(Msg+' has joined');
               end
@@ -610,6 +659,12 @@ begin
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
             end;
 
+    mk_ResetMap:
+            begin
+              fMapInfo.Free;
+              fMapInfo := TKMapInfo.Create;
+            end;
+
     mk_MapSelect:
             if fLANPlayerKind = lpk_Joiner then begin
               fMapInfo.Load(Msg, true);
@@ -627,6 +682,31 @@ begin
                   PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.Folder)
                 else
                   PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.Folder);
+                fMapInfo.Free;
+                fMapInfo := TKMapInfo.Create;
+                if fMyIndex <> -1 then //In the process of joining
+                  fNetPlayers[fMyIndex].ReadyToStart := false;
+                if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+              end
+            end;
+
+    mk_SaveSelect:
+            if fLANPlayerKind = lpk_Joiner then begin
+              fMapInfo.LoadSavedGame(Param, true, true);
+              fNetPlayers.ResetLocAndReady;
+              if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+              if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+            end;
+
+    mk_SaveCRC:
+            if fLANPlayerKind = lpk_Joiner then
+            begin
+              if Integer(fMapInfo.CRC) <> Param then
+              begin
+                if fMapInfo.IsValid then
+                  PostMessage('Error: '+fMyNikname+' has a different version of the save '+fMapInfo.Folder)
+                else
+                  PostMessage('Error: '+fMyNikname+' does not have the save '+fMapInfo.Folder);
                 fMapInfo.Free;
                 fMapInfo := TKMapInfo.Create;
                 if fMyIndex <> -1 then //In the process of joining

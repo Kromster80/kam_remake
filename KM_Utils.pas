@@ -1,7 +1,7 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
+uses KromUtils, SysUtils, StrUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMPoint(X,Y:word): TKMPoint; overload;
   function KMPoint(P:TKMPointI): TKMPoint; overload;
@@ -51,6 +51,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMMapNameToPath(const aMapName, aExtension:string):string;
   function KMSlotToSaveName(aSlot:integer; const aExtension:string; aIsMultiplayer:boolean):string;
+  function KMSaveNameToSlot(const aSaveName:string):integer;
 
   function MapSizeToString(X,Y:integer):string;
 
@@ -447,6 +448,17 @@ begin
   else
     Result := ExeDir+'Saves';
   Result := Result+'\save'+int2fix(aSlot,2)+'.'+aExtension;
+end;
+
+
+function KMSaveNameToSlot(const aSaveName:string):integer;
+var SaveFile: string;
+begin
+  SaveFile := TruncateExt(ExtractFileName(aSaveName));
+  if LeftStr(SaveFile,4) = 'save' then
+    Result := StrToIntDef(RightStr(SaveFile,2),-1)
+  else
+    Result := -1;
 end;
 
 

@@ -498,7 +498,7 @@ begin
                            fPlayers.Player[fCurrentPlayerIndex].PlayerType:=pt_Computer;
                        end;
     ct_CenterScreen:   begin
-                         fViewport.SetCenter(ParamList[0],ParamList[1]);
+                         fPlayers.Player[fCurrentPlayerIndex].CenterScreen := KMPointX1Y1(ParamList[0],ParamList[1]);
                        end;
     ct_ClearUp:        begin
                        if ParamList[0] = 255 then
@@ -837,6 +837,8 @@ begin
       AddCommand(ct_AIPlayer, []);
 
     AddCommand(ct_SetMapColor, [fPlayers.Player[i].FlagColorIndex]);
+    if not KMSamePoint(fPlayers.Player[i].CenterScreen, KMPoint(0,0)) then
+      AddCommand(ct_CenterScreen, [fPlayers.Player[i].CenterScreen.X-1,fPlayers.Player[i].CenterScreen.Y-1]);
 
     AddData(''); //NL
 

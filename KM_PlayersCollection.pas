@@ -371,7 +371,10 @@ begin
   for i:=0 to fCount-1 do
     fPlayerList[i].Save(SaveStream);
   PlayerAnimals.Save(SaveStream);
-  SaveStream.Write(MyPlayer.PlayerIndex);
+  if not fGame.MultiplayerMode then
+    SaveStream.Write(MyPlayer.PlayerIndex)
+  else
+    SaveStream.Write(Player[0].PlayerIndex); //Multiplayer saves must be identical
 end;
 
 

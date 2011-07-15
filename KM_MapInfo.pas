@@ -28,7 +28,7 @@ type
     procedure LoadFromFile(const aPath:string);
     procedure SaveToFile(const aPath:string);
   public
-    BigDesc:string;
+    BigDesc, Title:string;
     procedure Load(const aFolder:string; aStrict:boolean);
     procedure LoadSavedGame(aSlot:integer; aIsMultiplayer, aStrict:boolean);
 
@@ -61,7 +61,7 @@ type
 
 
 implementation
-uses KM_Utils, KM_MissionScript, KM_CommonTypes;
+uses KM_Utils, KM_MissionScript, KM_CommonTypes, KM_TextLibrary;
 
 
 { TKMapInfo }
@@ -77,7 +77,7 @@ end;
 
 procedure TKMapInfo.LoadSavedGame(aSlot:integer; aIsMultiplayer, aStrict:boolean);
 begin
-  fFolder := '';
+  fFolder := 'save'+int2fix(aSlot,2);
   fStrict := aStrict;
   fIsSave := true;
   fSaveIsMultiplayer := aIsMultiplayer;
@@ -126,6 +126,7 @@ begin
 
   fSmallDesc     := '';
   BigDesc        := '';
+  Title          := Folder;
 
   //Load additional text info
   if FileExists(KMMapNameToPath(fFolder, 'txt')) then
@@ -138,6 +139,7 @@ begin
       readln(ft,st);
       if SameText(st, 'SmallDesc') then readln(ft,fSmallDesc);
       if SameText(st, 'BigDesc') then readln(ft,BigDesc);
+      if SameText(st, 'Title') then readln(ft,Title);
     until(eof(ft));
     closefile(ft);
   end;
@@ -145,8 +147,49 @@ end;
 
 
 procedure TKMapInfo.ScanSave;
+var
+  FileName,s,ver:string;
+  LoadStream:TKMemoryStream;
+  i:cardinal;
+  MapX,MapY:integer;
+  IsSaveMultiplayer:boolean;
 begin
-  //todo: peak at contents
+  fSmallDesc     := '';
+  BigDesc        := '';
+  FileName := KMSlotToSaveName(fSaveSlot,'sav',fSaveIsMultiplayer); //Full path
+  if not FileExists(FileName) then begin
+    exit;
+  end;
+
+  fMapCRC := Adler32CRC(FileName);
+
+  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  LoadStream.LoadFromFile(FileName);
+
+  LoadStream.Read(s);
+  if s = 'KaM_Savegame' then begin
+    LoadStream.Read(ver);
+    if ver = GAME_REVISION then begin
+      LoadStream.Read(s); //Savegame mission file
+      LoadStream.Read(s); //GameName
+      LoadStream.Read(i);
+      Title := s + ' ' + int2time(i div 10);
+      if fSaveSlot = AUTOSAVE_SLOT then Title := fTextLibrary.GetTextString(203) + ' ' + Title;
+      LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
+      LoadStream.Read(IsSaveMultiplayer);
+      Assert(IsSaveMultiplayer,'Can''t load singleplayer saves into multiplayer yet');
+      if IsSaveMultiplayer then
+      begin
+        LoadStream.Read(MapX);
+        LoadStream.Read(MapY);
+        fMapSize := MapSizeToString(MapX,MapY);
+        LoadStream.Read(fPlayerCount);
+      end;
+    end else
+      Title := 'Unsupported save ' + ver;
+  end else
+    Title := 'Unsupported format';
+  LoadStream.Free;
 end;
 
 
@@ -207,6 +250,7 @@ begin
             FileExists(KMMapNameToPath(fFolder,'dat')) and
             FileExists(KMMapNameToPath(fFolder,'map')) and
             (fPlayerCount > 0);
+  Result := Result or fIsSave; //todo: check validity properly
 end;
 
 

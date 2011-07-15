@@ -71,6 +71,7 @@ type
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnPingInfo(Sender: TObject);
+    procedure Lobby_MapTypeSelect(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
@@ -137,6 +138,7 @@ type
 
       Panel_LobbySetup:TKMPanel;
         Label_LobbyChooseMap: TKMLabel;
+        Radio_LobbyMapType:TKMRadioGroup;
         FileList_Lobby:TKMDropFileBox;
         Label_LobbyMapName:TKMLabel;
         Label_LobbyMapCount:TKMLabel;
@@ -507,7 +509,12 @@ begin
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,740,100,240,400);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 520);
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Choose map:', fnt_Outline, kaLeft);
-      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 30, 220, 20, fnt_Metal, 'Select a map...');
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 220, 30, fnt_Metal);
+      Radio_LobbyMapType.ItemIndex := 0;
+      Radio_LobbyMapType.Items.Add('Single Map');
+      Radio_LobbyMapType.Items.Add('Saved Game');
+      Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
+      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, 'Select a map...');
       FileList_Lobby.OnChange := Lobby_MapSelect;
       TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, 'Map info:', fnt_Outline, kaLeft);
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
@@ -1280,6 +1287,8 @@ begin
   Label_LobbyMapCond.Caption := 'Conditions: ';
 
   if Sender = Button_LAN_Host then begin
+    Radio_LobbyMapType.Show;
+    Radio_LobbyMapType.ItemIndex := 0;
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', 'map', true); //Refresh each time we go here
     FileList_Lobby.Show;
     Label_LobbyChooseMap.Show;
@@ -1287,6 +1296,7 @@ begin
     Button_LobbyStart.Show;
     Button_LobbyStart.Disable;
   end else begin
+    Radio_LobbyMapType.Hide;
     FileList_Lobby.Hide;
     Label_LobbyChooseMap.Hide;
     Button_LobbyReady.Show;
@@ -1422,9 +1432,28 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
+begin
+  if Radio_LobbyMapType.ItemIndex = 0 then
+  begin
+    FileList_Lobby.DefaultCaption := 'Select a map...';
+    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', 'map', true);
+  end
+  else
+  begin
+    FileList_Lobby.DefaultCaption := 'Select a save...';
+    FileList_Lobby.RefreshList(ExeDir+'SavesM\', 'sav', 'rpl', true);
+  end;
+  fGame.Networking.SelectNoMap;
+end;
+
+
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
-  fGame.Networking.SelectMap(TruncateExt(ExtractFileName(FileList_Lobby.FileName)));
+  if Radio_LobbyMapType.ItemIndex = 0 then
+    fGame.Networking.SelectMap(TruncateExt(ExtractFileName(FileList_Lobby.FileName)))
+  else
+    fGame.Networking.SelectSave(KMSaveNameToSlot(FileList_Lobby.FileName));
 end;
 
 
@@ -1432,7 +1461,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
-  Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Folder;
+  Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Title;
   Label_LobbyMapCount.Caption := 'Players: ' + inttostr(fGame.Networking.MapInfo.PlayerCount);
   Label_LobbyMapMode.Caption := 'Mode: ' + fGame.Networking.MapInfo.MissionModeText;
 

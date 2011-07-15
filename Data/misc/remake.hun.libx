@@ -1,0 +1,69 @@
+
+MaxID:58
+
+KM_InterfaceMainMenu
+ 1:Küldetés megszakítva
+ 2:Oktató Küldetés (Város)
+ 3:Oktató Küldetés (Csata)
+ 4:Egyjátékos mód
+ 5:Pálya Szerkesztõ
+ 6:Utolsó visszajátszás megtekintése
+ 7:Helyi hálózati játék
+ 8:Internetes játék
+ 9:Felhasználónév
+10:Jelszó
+11:Küldetés indítása
+12:Cím
+13:Méret
+14:Küldetés Típusa: 
+15:Gyõzelmi feltétel: 
+16:Vereség feltétel: 
+17:Szövetségesek: 
+18:Elenségek: 
+19:Hely 
+20:Térkép mérete
+21:Szélesség
+22:Magasság
+23:Új Térkép Készítése
+24:Elérhetõ térképek
+25:Térkép Betöltése
+26:Vezérlõk:
+27:Játékmenet:
+28:Hangok:
+29:Grafika:
+30:Fényerõsség
+31:Teljes képernyõ
+32:Alkalmaz
+33:Nyelv:
+34:Betöltés... Kérem várjon
+35:Hiba történt!
+
+KM_InterfaceGamePlay
+39:Megnyerted a játékot!
+40:Játék folytatása
+41:Gyõzelem!
+42:Elvesztetted a játékot!
+43:Folytatás megfigyelõként
+44:Vereség
+45:A visszajátszás végetért
+46:Folytatás megfigyelõként
+47:Vissza a menübe
+
+KM_Game
+48:Egy hiba történt a játék során. 
+49:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot?? 
+
+KM_Units
+50:Rossz helyrõl bányászik
+51:A halászkunyhód túl messze van a víztõl.
+52:A halászod nem tud több halat fogni a közeli vízbõl.
+
+KM_Unit1
+53:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
+
+KM_InterfaceMapEditor
+54:Tereprendezés
+55:Település tervezés
+56:Vizuális szkriptek
+57:Globális szkriptek
+58:Menü

@@ -36,6 +36,7 @@ type
 
     fPlayerType:TPlayerType;
     fFlagColor:cardinal;
+    fCenterScreen:TKMPoint;
     fAlliances: array[0..MAX_PLAYERS-1] of TAllianceType;
 
     fSkipWinConditionCheck:boolean;
@@ -64,6 +65,7 @@ type
     property FlagColor:cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex:byte read GetColorIndex;
     property Alliances[Index:integer]:TAllianceType read GetAlliances write SetAlliances;
+    property CenterScreen:TKMPoint read fCenterScreen write fCenterScreen;
 
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure SkipWinConditionCheck;
@@ -474,6 +476,7 @@ begin
   SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
+  SaveStream.Write(fCenterScreen);
   SaveStream.Write(fSkipWinConditionCheck);
   SaveStream.Write(fSkipDefeatConditionCheck);
   SaveStream.Write(fFlagColor);
@@ -494,6 +497,7 @@ begin
   LoadStream.Read(fPlayerIndex);
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
+  LoadStream.Read(fCenterScreen);
   LoadStream.Read(fSkipWinConditionCheck);
   LoadStream.Read(fSkipDefeatConditionCheck);
   LoadStream.Read(fFlagColor);

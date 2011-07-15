@@ -47,8 +47,11 @@ type
     mk_SetTeam,         //Joiner tells Host which team he is on
     mk_FlagColorQuery,  //Joiner asks Host if he can take specific color
 
+    mk_ResetMap,        //Reset the map selection to blank
     mk_MapSelect,       //Host selects the map to play
     mk_MapCRC,          //Host tells clients what the CRC of the map should be
+    mk_SaveSelect,      //Host selects the save to play
+    mk_SaveCRC,         //Host tells clients what the CRC of the save should be
     mk_ReadyToStart,    //Joiner tells he's ready to play the game
     mk_Start,           //Host says to start the game
 
@@ -80,8 +83,11 @@ const
     pfNumber,   //mk_StartingLocQuery
     pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery
+    pfNoData,   //mk_ResetMap
     pfText,     //mk_MapSelect
     pfNumber,   //mk_MapCRC
+    pfNumber,   //mk_SaveSelect
+    pfNumber,   //mk_SaveCRC
     pfNoData,   //mk_ReadyToStart
     pfText,     //mk_Start
     pfNoData,   //mk_ReadyToPlay
