@@ -153,7 +153,7 @@ type
       Label_BuildCost_Wood:TKMLabel;
       Label_BuildCost_Stone:TKMLabel;
       Button_BuildRoad,Button_BuildField,Button_BuildWine{,Button_BuildWall},Button_BuildCancel:TKMButtonFlat;
-      Button_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
+      Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown:TKMButton;
@@ -297,8 +297,8 @@ begin
 
   for i:=1 to ResQty[TKMButton(Sender).Tag] do begin
     HouseID:=ResHouse[TKMButton(Sender).Tag,i];
-    Image_RatioPic[i].TexID := GUIBuildIcons[byte(HouseID)];
-    Label_RatioLab[i].Caption := fTextLibrary.GetTextString(GUIBuildIcons[byte(HouseID)]-300);
+    Image_RatioPic[i].TexID := fResource.HouseDat.HouseGUIIcon(HouseID);
+    Label_RatioLab[i].Caption := fResource.HouseDat.HouseName(HouseID);
     Ratio_RatioRat[i].Position := MyPlayer.Stats.GetRatio(ResID,HouseID);
     Image_RatioPic[i].Show;
     Label_RatioLab[i].Show;
@@ -806,13 +806,13 @@ begin
 //    Button_BuildWall.Hint:='Build a wall';
     Button_BuildCancel.Hint:=fTextLibrary.GetTextString(211);
 
-    for i:=1 to HOUSE_COUNT do
+    for i:=1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[i] <> ht_None then begin
         Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,
-        GUIBuildIcons[byte(GUIHouseOrder[i])]);
+        fResource.HouseDat.HouseGUIIcon(GUIHouseOrder[i]));
 
         Button_Build[i].OnClick:=Build_ButtonClick;
-        Button_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
+        Button_Build[i].Hint := fResource.HouseDat.HouseName(GUIHouseOrder[i]);
       end;
 end;
 
@@ -1298,10 +1298,10 @@ var i:integer;
 begin
   if Sender=nil then begin GameCursor.Mode:=cm_None; exit; end;
 
-  //Release all buttons
+  //Release all buttons (houses and fields)
   for i:=1 to Panel_Build.ChildCount do
     if Panel_Build.Childs[i] is TKMButtonFlat then
-      TKMButtonFlat(Panel_Build.Childs[i]).Down:=false;
+      TKMButtonFlat(Panel_Build.Childs[i]).Down := false;
 
   //Press the button
   TKMButtonFlat(Sender).Down := true;
@@ -1343,12 +1343,12 @@ begin
     //Label_Build.Caption := fTextLibrary.GetTextString(218);
   end;}
 
-  for i:=1 to HOUSE_COUNT do
+  for i:=1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
      GameCursor.Mode:=cm_Houses;
      GameCursor.Tag1:=byte(GUIHouseOrder[i]);
-     Image_Build_Selected.TexID := GUIBuildIcons[byte(GUIHouseOrder[i])];
+     Image_Build_Selected.TexID := fResource.HouseDat.HouseGUIIcon(GUIHouseOrder[i]);
      Label_BuildCost_Wood.Caption:=inttostr(fResource.HouseDat[GUIHouseOrder[i]].WoodCost);
      Label_BuildCost_Stone.Caption:=inttostr(fResource.HouseDat[GUIHouseOrder[i]].StoneCost);
      Label_Build.Caption := fResource.HouseDat.HouseName(GUIHouseOrder[i]);
@@ -1371,7 +1371,7 @@ begin
 
   {Common data}
   Label_House.Caption:=fResource.HouseDat.HouseName(Sender.GetHouseType);
-  Image_House_Logo.TexID:=300+byte(Sender.GetHouseType);
+  Image_House_Logo.TexID:= fResource.HouseDat.HouseGUIIcon(Sender.GetHouseType);
   Image_House_Worker.TexID:=140+fResource.HouseDat[Sender.GetHouseType].OwnerType+1;
   Image_House_Worker.Hint := TypeToString(TUnitType(fResource.HouseDat[Sender.GetHouseType].OwnerType+1));
   HealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
@@ -1466,7 +1466,7 @@ begin
         end;
       end;
       //Show Output
-      if not HousePlaceOrders[byte(Sender.GetHouseType)] then
+      if not fResource.HouseDat.HouseDoesOrders(Sender.GetHouseType) then
       if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
         Label_Common_Offer.Show;
         Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.GetHouseType].ResProductionX)+'):';
@@ -1484,7 +1484,7 @@ begin
         end;
       end;
       //Show Orders
-      if HousePlaceOrders[byte(Sender.GetHouseType)] then begin
+      if fResource.HouseDat.HouseDoesOrders(Sender.GetHouseType) then begin
         Label_Common_Offer.Show;
         Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.GetHouseType].ResProductionX)+'):';
         Label_Common_Offer.Top:=Base+Line*LineAdv+6;
@@ -1884,11 +1884,11 @@ end;
 procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
 var i:integer;
 begin
-  for i:=1 to HOUSE_COUNT do
+  for i:=1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
-  if MyPlayer.Stats.GetCanBuild(THouseType(byte(GUIHouseOrder[i]))) then begin
+  if MyPlayer.Stats.GetCanBuild(GUIHouseOrder[i]) then begin
     Button_Build[i].Enable;
-    Button_Build[i].TexID:=GUIBuildIcons[byte(GUIHouseOrder[i])];
+    Button_Build[i].TexID:=fResource.HouseDat.HouseGUIIcon(GUIHouseOrder[i]);
     Button_Build[i].OnClick:=Build_ButtonClick;
     Button_Build[i].Hint:=fResource.HouseDat.HouseName(GUIHouseOrder[i]);
   end else begin
@@ -2008,7 +2008,7 @@ begin
     if Tmp2 = 0 then Stat_HouseWip[i].Caption := ''  else Stat_HouseWip[i].Caption := '+'+inttostr(Tmp2);
     if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
-      Stat_HousePic[i].TexID := byte(StatHouse[i])+300;
+      Stat_HousePic[i].TexID := fResource.HouseDat.HouseGUIIcon(StatHouse[i]);
       Stat_HousePic[i].Hint := fResource.HouseDat.HouseName(StatHouse[i]);
       Stat_HouseQty[i].Hint := fResource.HouseDat.HouseName(StatHouse[i]);
     end

@@ -67,6 +67,9 @@ type
     function IsValid(aType:THouseType):boolean;
     function HouseArea(aType:THouseType):THouseArea;
     function HouseName(aType:THouseType):string;
+    function HouseUnlock(aType:THouseType):THouseTypeSet;
+    function HouseDoesOrders(aType:THouseType):boolean;
+    function HouseGUIIcon(aType:THouseType):word;
     procedure LoadHouseDat(aPath:string);
     procedure ExportCSV(aPath: string);
   end;
@@ -126,37 +129,154 @@ type
   end;
 
 const
-HousePlanYX_:array[0..HouseDatCount] of THouseArea = (
+HousePlanYX:array[THouseType] of THouseArea = (
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //0
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut
-((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)), //Woodcutter
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //0
 ((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)), //Armor smithy
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
 ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)), //Armor workshop
+((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery
 ((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Barracks
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butcher
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
+((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butchers
+((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm
+((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine
 ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store
+((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall
+((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)),  //Wineyard
+((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)) //Woodcutter
+);
+
+  //Building of certain house allows player to build following houses,
+  //unless they are blocked in mission script of course
+  HouseRelease:array[THouseType]of THouseTypeSet = (
+  [], [],
+  [], [], [], [], [],
+  [],
+  [ht_Mill,ht_Swine,ht_Stables], //Farm
+  [],
+  [ht_Metallurgists], //GoldMine
+  [ht_Quary], //Inn
+  [ht_IronSmithy], //IronMine
+  [ht_WeaponSmithy,ht_ArmorSmithy,ht_SiegeWorkshop], //IronSmithy
+  [ht_TownHall], //Metallurgists
+  [ht_Bakery], //Mill
+  [ht_Woodcutters,ht_WatchTower], //Quary
+  [ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks, ht_FisherHut], //Sawmill
+  [ht_Inn],  //School
+  [],
+  [],
+  [ht_School], //Store
+  [ht_Butchers,ht_Tannery], //Swine
+  [ht_ArmorWorkshop],  //Tannery
+  [],
+  [],
+  [],
+  [],
+  [],
+  [ht_Sawmill] //Woodcutters
+  );
+
+  //Does house output needs to be ordered by Player or it keeps on producing by itself
+  HouseDoesOrders_:array[THouseType] of boolean = (
+  false, false,
+  true, true, false,false,false,false,false,false,false,false,
+  false,false,false,false,false,false,false,true ,false,false,
+  false,false,false,false,true ,true ,false,false);
+
+  GUIBuildIcons_:array[0..HouseDatCount]of word = (
+  0, //ht_None
+  301, 302, 303, 304, 305,
+  306, 307, 308, 309, 310,
+  311, 312, 313, 314, 315,
+  316, 317, 318, 319, 320,
+  321, 322, 323, 324, 325,
+  326, 327, 328, 329{, 338});
+
+
+//What does house produces
+HouseOutput:array[0..HouseDatCount,1..4] of TResourceType = (
+(rt_None,       rt_None,       rt_None,       rt_None), //None
+(rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill
+(rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy
+(rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None), //Weapon smithy
+(rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine
+(rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine
+(rt_GoldOre,    rt_None,       rt_None,       rt_None), //Gold mine
+(rt_Fish,       rt_None,       rt_None,       rt_None), //Fisher hut
+(rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Farm
+(rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter
+(rt_MetalArmor, rt_MetalShield,rt_None,       rt_None), //Armor smithy
+(rt_All,        rt_None,       rt_None,       rt_None), //Store
+(rt_Horse,      rt_None,       rt_None,       rt_None), //Stables
+(rt_None,       rt_None,       rt_None,       rt_None), //School
+(rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry
+(rt_Gold,       rt_None,       rt_None,       rt_None), //Metallurgist
+(rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine
+(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower
+(rt_None,       rt_None,       rt_None,       rt_None), //Town hall
+(rt_Axe,        rt_Pike,       rt_Bow,        rt_None), //Weapon workshop
+(rt_Shield,     rt_Armor,      rt_None,       rt_None), //Armor workshop
+(rt_None,       rt_None,       rt_None,       rt_None), //Barracks
+(rt_Flour,      rt_None,       rt_None,       rt_None), //Mill
+(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop
+(rt_Sausages,   rt_None,       rt_None,       rt_None), //Butcher
+(rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery
+(rt_None,       rt_None,       rt_None,       rt_None), //N/A
+(rt_None,       rt_None,       rt_None,       rt_None), //Inn
+(rt_Wine,       rt_None,       rt_None,       rt_None){, //Wineyard
+(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
+);
+
+//What house requires
+HouseInput:array[0..HouseDatCount,1..4] of TResourceType = (
+(rt_None,       rt_None,       rt_None,       rt_None), //None
+(rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill
+(rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy
+(rt_Coal,       rt_Steel,      rt_None,       rt_None), //Weapon smithy
+(rt_None,       rt_None,       rt_None,       rt_None), //Coal mine
+(rt_None,       rt_None,       rt_None,       rt_None), //Iron mine
+(rt_None,       rt_None,       rt_None,       rt_None), //Gold mine
+(rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut
+(rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery
+(rt_None,       rt_None,       rt_None,       rt_None), //Farm
+(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter
+(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Armor smithy
+(rt_All,        rt_None,       rt_None,       rt_None), //Store
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Stables
+(rt_Gold,       rt_None,       rt_None,       rt_None), //School
+(rt_None,       rt_None,       rt_None,       rt_None), //Quarry
+(rt_GoldOre,    rt_Coal,       rt_None,       rt_None), //Metallurgist
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Swine
+(rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower
+(rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall
+(rt_Wood,       rt_None,       rt_None,       rt_None), //Weapon workshop
+(rt_Wood,       rt_Leather,    rt_None,       rt_None), //Armor workshop
+(rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Mill
+(rt_Wood,       rt_Steel,      rt_None,       rt_None), //Siege workshop
+(rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher
+(rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery
+(rt_None,       rt_None,       rt_None,       rt_None), //N/A
+(rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn
+(rt_None,       rt_None,       rt_None,       rt_None){, //Wineyard
+(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
 );
 
   var
@@ -1459,8 +1579,8 @@ begin
 
   //Read the records one by one because we need to reorder them and skip one in the middle
   for i:=0 to HouseDatCount-1 do
-  if HouseOrderKaM[i] <> ht_None then
-    S.Read(fItems[HouseOrderKaM[i]], SizeOf(fItems[ht_None]){88+19*70+270})
+  if HouseKaMType[i] <> ht_None then
+    S.Read(fItems[HouseKaMType[i]], SizeOf(fItems[ht_None]){88+19*70+270})
   else
     S.Seek(SizeOf(fItems[ht_None]){88+19*70+270}, soFromCurrent);
 
@@ -1509,18 +1629,35 @@ end;
 
 function TKMHouseDatCollection.HouseArea(aType: THouseType): THouseArea;
 begin
-  Result := HousePlanYX_[HouseTypeKaM[aType]];
+  Result := HousePlanYX[aType];
 end;
 
 
 function TKMHouseDatCollection.HouseName(aType: THouseType): string;
 begin
   if IsValid(aType) then
-    Result := fTextLibrary.GetTextString(siHouseNames+HouseTypeKaM[aType])
+    Result := fTextLibrary.GetTextString(siHouseNames+HouseKaMOrder[aType])
   else
     Result := 'N/A';
 end;
 
+
+function TKMHouseDatCollection.HouseUnlock(aType: THouseType):THouseTypeSet;
+begin
+  Result := HouseRelease[aType];
+end;
+
+
+function TKMHouseDatCollection.HouseDoesOrders(aType: THouseType): boolean;
+begin
+  Result := HouseDoesOrders_[aType];
+end;
+
+
+function TKMHouseDatCollection.HouseGUIIcon(aType: THouseType): word;
+begin
+  Result := GUIBuildIcons_[HouseKaMOrder[aType]];
+end;
 
 
 end.

@@ -91,6 +91,7 @@ type
     function GetRandomCellWithin:TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
     function HouseArea:THouseArea;
+    function DoesOrders:boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
@@ -1063,6 +1064,11 @@ begin
   Result := fResource.HouseDat.HouseArea(fHouseType);
 end;
 
+
+function TKMHouse.DoesOrders: boolean;
+begin
+  Result := fResource.HouseDat.HouseDoesOrders(fHouseType);
+end;
 
 {TKMHouseSwineStable}
 constructor TKMHouseSwineStable.Load(LoadStream:TKMemoryStream);

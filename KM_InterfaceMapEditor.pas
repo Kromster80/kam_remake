@@ -97,7 +97,7 @@ type
       Button_Village:array[1..3]of TKMButton;
       Panel_Build:TKMPanel;
         Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildWall,Button_BuildCancel:TKMButtonFlat;
-        Button_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
+        Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
       Panel_Units:TKMPanel;
         Button_UnitCancel:TKMButtonFlat;
         Button_Citizen:array[1..14]of TKMButtonFlat;
@@ -587,11 +587,11 @@ begin
       Button_BuildCancel.Hint   := fTextLibrary.GetTextString(211);
 
       TKMLabel.Create(Panel_Build,100,65,100,30,'Houses',fnt_Outline,kaCenter);
-      for i:=1 to HOUSE_COUNT do
+      for i:=1 to GUI_HOUSE_COUNT do
         if GUIHouseOrder[i] <> ht_None then begin
-          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
+          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,fResource.HouseDat.HouseGUIIcon(GUIHouseOrder[i]));
           Button_Build[i].OnClick:=Build_ButtonClick;
-          Button_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
+          Button_Build[i].Hint := fResource.HouseDat.HouseName(GUIHouseOrder[i]);
         end;
 
     Panel_Units := TKMPanel.Create(Panel_Village,0,28,196,400);
@@ -1053,11 +1053,11 @@ begin
     GameCursor.Mode:=cm_Wall;
   end;}
 
-  for i:=1 to HOUSE_COUNT do
+  for i:=1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
-     GameCursor.Mode:=cm_Houses;
-     GameCursor.Tag1:=byte(GUIHouseOrder[i]);
+     GameCursor.Mode := cm_Houses;
+     GameCursor.Tag1 := byte(GUIHouseOrder[i]);
   end;
 end;
 
