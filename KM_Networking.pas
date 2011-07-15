@@ -38,6 +38,7 @@ type
     fOnMapName:TStringEvent;
     fOnStartGame:TNotifyEvent;
     fOnPlay:TNotifyEvent;
+    fOnReadyToPlay:TNotifyEvent;
     fOnDisconnect:TStringEvent;
     fOnPingInfo:TNotifyEvent;
     fOnCommands:TStringEvent;
@@ -69,14 +70,13 @@ type
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
-    procedure ReadyToStart;
+    function ReadyToStart:boolean;
     function  CanStart:boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
 
     //Common
-    procedure Ping;
-    procedure PostMessage(aText:string);
+    procedure PostMessage(aText:string; aShowName:boolean=false);
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
@@ -94,6 +94,7 @@ type
     property OnMapName:TStringEvent write fOnMapName;           //Map name updated
     property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game loading
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
+    property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
 
     property OnDisconnect:TStringEvent write fOnDisconnect;     //Lost connection, was kicked
@@ -283,7 +284,9 @@ begin
 
   if not fMapInfo.IsValid then exit;
 
-  PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Folder, 0 {Integer(fMapInfo.CRC)}); //todo: Send CRC as well
+  PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Folder, 0);
+  PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.CRC));
+
   fNetPlayers[fMyIndex].ReadyToStart := true;
 
   SendPlayerListAndRefreshPlayersSetup;
@@ -346,9 +349,18 @@ end;
 
 
 //Joiner indicates that he is ready to start
-procedure TKMNetworking.ReadyToStart;
+function TKMNetworking.ReadyToStart:boolean;
 begin
-  PacketSend(NET_ADDRESS_HOST, mk_ReadyToStart, '', 0);
+  if fMapInfo.IsValid then
+  begin
+    PacketSend(NET_ADDRESS_HOST, mk_ReadyToStart, '', 0);
+    Result := true;
+  end
+  else
+  begin
+    if Assigned(fOnTextMessage) then fOnTextMessage('Error: Map failed to load');
+    Result := false;
+  end;
 end;
 
 
@@ -373,7 +385,7 @@ begin
   //Host can not miss a starting location!
   if fNetPlayers.Count > fMapInfo.PlayerCount then
   begin
-    fOnTextMessage('Can not start: Player count exceeds map limit');
+    fOnTextMessage('Cannot start: Player count exceeds map limit');
     exit;
   end;
 
@@ -405,17 +417,11 @@ begin
 end;
 
 
-//Send request to Server to ping everyone
-procedure TKMNetworking.Ping;
-begin
-  PacketSend(NET_ADDRESS_SERVER, mk_AskPingInfo, '', 0);
-end;
-
-
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostMessage(aText:string);
+procedure TKMNetworking.PostMessage(aText:string; aShowName:boolean=false);
 begin
+  if aShowName then aText := fMyNikname+': '+aText;
   PacketSend(NET_ADDRESS_ALL, mk_Text, aText, 0);
 end;
 
@@ -438,6 +444,7 @@ begin
   case fLANPlayerKind of
     lpk_Host:   begin
                   fNetPlayers[fMyIndex].ReadyToPlay := true;
+                  PacketSend(NET_ADDRESS_OTHERS, mk_ReadyToPlay, '', 0);
                   //Check this here because it is possible to start a multiplayer game without other humans, just AI (at least for debugging)
                   if fNetPlayers.AllReadyToPlay then
                   begin
@@ -445,7 +452,10 @@ begin
                     if Assigned(fOnPlay) then fOnPlay(Self);
                   end;
                 end;
-    lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_ReadyToPlay, '', 0);
+    lpk_Joiner: begin
+                  fNetPlayers[fMyIndex].ReadyToPlay := true;
+                  PacketSend(NET_ADDRESS_OTHERS, mk_ReadyToPlay, '', 0);
+                end;
   end;
 end;
 
@@ -502,7 +512,6 @@ begin
                       fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                       fNetPlayers[fMyIndex].ReadyToStart := true;
                       if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                      PacketSend(NET_ADDRESS_SERVER,mk_AskPingInfo,'',0);
                     end;
                 lpk_Joiner:
                     PacketSend(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname, 0);
@@ -518,7 +527,8 @@ begin
               begin
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
-                PacketSend(aSenderIndex, mk_MapSelect, fMapInfo.Folder, 0 {Integer(fMapInfo.CRC)}); //Send the map first so it doesn't override starting locs
+                PacketSend(aSenderIndex, mk_MapSelect, fMapInfo.Folder, 0); //Send the map first so it doesn't override starting locs
+                PacketSend(aSenderIndex, mk_MapCRC, '', Integer(fMapInfo.CRC));
                 SendPlayerListAndRefreshPlayersSetup;
                 PostMessage(Msg+' has joined');
               end
@@ -530,7 +540,6 @@ begin
             if fLANPlayerKind = lpk_Joiner then
             begin
               fOnJoinSucc(Self); //Enter lobby
-              PacketSend(NET_ADDRESS_SERVER,mk_AskPingInfo,'',0);
             end;
 
     mk_RefuseToJoin:
@@ -579,8 +588,7 @@ begin
                 fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
                 fNetPlayers.SetAIReady; //Set all AI players to ready
                 SendPlayerListAndRefreshPlayersSetup;
-                if Assigned(fOnTextMessage) then fOnTextMessage('Server has reassigned hosting rights to us');
-                PostMessage('I am the new host');
+                PostMessage('Hosting rights reassigned to '+fMyNikname);
               end;
             end;
 
@@ -608,6 +616,23 @@ begin
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+            end;
+
+    mk_MapCRC:
+            if fLANPlayerKind = lpk_Joiner then
+            begin
+              if Integer(fMapInfo.CRC) <> Param then
+              begin
+                if fMapInfo.IsValid then
+                  PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.Folder)
+                else
+                  PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.Folder);
+                fMapInfo.Free;
+                fMapInfo := TKMapInfo.Create;
+                if fMyIndex <> -1 then //In the process of joining
+                  fNetPlayers[fMyIndex].ReadyToStart := false;
+                if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+              end
             end;
 
     mk_StartingLocQuery:
@@ -659,9 +684,10 @@ begin
             end;
 
     mk_ReadyToPlay:
-            if IsHost then begin
+            begin
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToPlay := true;
-              if fNetPlayers.AllReadyToPlay then
+              if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
+              if IsHost and fNetPlayers.AllReadyToPlay then
               begin
                 PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0); //todo: Should include lag difference
                 if Assigned(fOnPlay) then fOnPlay(Self);
@@ -680,7 +706,7 @@ begin
     mk_Text:
             begin
               if Assigned(fOnTextMessage) then
-                fOnTextMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname +': '+ Msg);
+                fOnTextMessage(Msg);
             end;
   end;
 end;
@@ -715,9 +741,6 @@ begin
   //Server should measure pings once per second
   if (fNetServer.Listening) and (aTick mod 10 = 0) then
     fNetServer.MeasurePings;
-  //As a client, request pings once per second
-  if (fNetClient.Connected) and (aTick mod 10 = 0) then
-    PacketSend(NET_ADDRESS_SERVER,mk_AskPingInfo,'',0);
 end;
 
 

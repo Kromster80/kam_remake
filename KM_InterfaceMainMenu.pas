@@ -67,10 +67,9 @@ type
     procedure LAN_Save_Settings;
     procedure LAN_BackClick(Sender: TObject);
 
-    procedure Lobby_Reset(Sender: TObject);
+    procedure Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
-    procedure Lobby_Ping(Sender: TObject);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
@@ -465,8 +464,7 @@ begin
       TKMLabel.Create(Panel_LobbyPlayers, 300, 10, 140, 20, 'Team:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 410, 10, 140, 20, 'Flag color:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 530, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
-      with TKMLabel.Create(Panel_LobbyPlayers, 600, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft) do
-        OnClick := Lobby_Ping;
+      TKMLabel.Create(Panel_LobbyPlayers, 600, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft);
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
@@ -1256,8 +1254,8 @@ begin
 end;
 
 
-//Reset everything to it's defaults depending on users role (Host/Joiner)
-procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject);
+//Reset everything to it's defaults depending on users role (Host/Joiner/Reassigned)
+procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
 var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
@@ -1273,7 +1271,7 @@ begin
     Label_LobbyPing[i].Caption := '';
   end;
 
-  ListBox_LobbyPosts.Clear;
+  if not aPreserveMessage then ListBox_LobbyPosts.Clear;
   Edit_LobbyPost.Text := '';
 
   Label_LobbyMapName.Caption := '';
@@ -1362,7 +1360,9 @@ begin
       DropBox_LobbyPlayerSlot[i].Hide;
       DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     end;
-    DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
+    //If we can't load the map, don't attempt to show starting locations
+    if fGame.Networking.MapInfo.IsValid then
+      DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation;
     DropBox_LobbyTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
     DropColorBox_Lobby[i].ColorIndex := fGame.Networking.NetPlayers[i+1].FlagColorID;
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
@@ -1374,7 +1374,7 @@ begin
     DropColorBox_Lobby[i].Enabled := CanEdit;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
     if MyNik then
-      Button_LobbyReady.Enabled := fGame.Networking.MapInfo.IsValid and not fGame.Networking.NetPlayers[i+1].ReadyToStart;
+      Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[i+1].ReadyToStart;
   end;
 
   for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
@@ -1397,12 +1397,6 @@ begin
 
   //todo: Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[fGame.Networking.NetPlayers.NiknameIndex(fGame.Networking.)].ReadyToStart;
   Button_LobbyStart.Enabled := fGame.Networking.CanStart;
-end;
-
-
-procedure TKMMainMenuInterface.Lobby_Ping(Sender: TObject);
-begin
-  fGame.Networking.Ping;
 end;
 
 
@@ -1447,17 +1441,13 @@ begin
 
   for i:=0 to MAX_PLAYERS-1 do
     DropBox_LobbyLoc[i].SetItems(DropText);
-
-
-  //todo: Keep disabled if Map does not matches Hosts or missing
-  Button_LobbyReady.Enabled := fGame.Networking.MapInfo.IsValid;
 end;
 
 
 //We have been assigned to the host of the game because the host disconnected. Reopen lobby page in correct mode.
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
-  Lobby_Reset(Button_LAN_Host); //Will reset the lobby page into host mode
+  Lobby_Reset(Button_LAN_Host,true); //Will reset the lobby page into host mode, preserving messages
   FileList_Lobby.SetByFileName(fGame.Networking.MapInfo.Folder); //Select the map
 end;
 
@@ -1466,7 +1456,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
-  fGame.Networking.PostMessage(Edit_LobbyPost.Text);
+  fGame.Networking.PostMessage(Edit_LobbyPost.Text, true);
   Edit_LobbyPost.Text := '';
 end;
 
@@ -1502,8 +1492,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_ReadyClick(Sender: TObject);
 begin
-  fGame.Networking.ReadyToStart;
-  Button_LobbyReady.Disable;
+  Button_LobbyReady.Enabled := not fGame.Networking.ReadyToStart;
 end;
 
 

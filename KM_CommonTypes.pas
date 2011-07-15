@@ -37,7 +37,6 @@ type
                         //A. Server runs on the same machine and stops right after
                         //B. Server runs on different machine and assigns Host role to some Client
 
-    mk_AskPingInfo,     //Ask server about ping info
     mk_Ping,            //Server pings Clients
     mk_Pong,            //Clients reply to Server with pong
     mk_PingInfo,        //Server sends list of ping times to Clients
@@ -49,6 +48,7 @@ type
     mk_FlagColorQuery,  //Joiner asks Host if he can take specific color
 
     mk_MapSelect,       //Host selects the map to play
+    mk_MapCRC,          //Host tells clients what the CRC of the map should be
     mk_ReadyToStart,    //Joiner tells he's ready to play the game
     mk_Start,           //Host says to start the game
 
@@ -73,7 +73,6 @@ const
     pfNumber,   //mk_ReassignHost
     pfText,     //mk_GameVersion
     pfNoData,   //mk_Disconnect
-    pfNoData,   //mk_AskPingInfo
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong
     pfText,     //mk_PingInfo
@@ -82,6 +81,7 @@ const
     pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery
     pfText,     //mk_MapSelect
+    pfNumber,   //mk_MapCRC
     pfNoData,   //mk_ReadyToStart
     pfText,     //mk_Start
     pfNoData,   //mk_ReadyToPlay

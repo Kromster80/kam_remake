@@ -222,7 +222,19 @@ end;
 
 
 procedure TKMNetServer.MeasurePings;
+var M:TKMemoryStream; i: integer;
 begin
+  //Sends current ping info to everyone
+  M := TKMemoryStream.Create;
+  M.Write(fClientList.Count);
+  for i:=0 to fClientList.Count-1 do
+  begin
+    M.Write(fClientList[i].Handle);
+    M.Write(fClientList[i].Ping);
+  end;
+  SendMessage(NET_ADDRESS_ALL, mk_PingInfo, 0, M.ReadAsText);
+  M.Free;
+  //Measure pings
   fPingStarted := GetTickCount;
   SendMessage(NET_ADDRESS_ALL, mk_Ping, 0, '');
 end;
@@ -336,18 +348,6 @@ begin
   M.Free;
 
   case Kind of
-    mk_AskPingInfo:
-            begin
-              M := TKMemoryStream.Create;
-              M.Write(fClientList.Count);
-              for i:=0 to fClientList.Count-1 do
-              begin
-                M.Write(fClientList[i].Handle);
-                M.Write(fClientList[i].Ping);
-              end;
-              SendMessage(aSenderHandle, mk_PingInfo, 0, M.ReadAsText);
-              M.Free;
-            end;
     mk_Pong:
             begin
              //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it

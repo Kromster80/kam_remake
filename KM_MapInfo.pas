@@ -207,7 +207,7 @@ end;
 
 function TKMapInfo.DefeatCondition:string;
 begin
-  Result := 'Loose'; //todo: scan Goals and make a text essence out of it
+  Result := 'Lose'; //todo: scan Goals and make a text essence out of it
 end;
 
 

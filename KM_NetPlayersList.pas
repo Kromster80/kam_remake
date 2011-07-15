@@ -14,7 +14,7 @@ type
   public
     PlayerType:TPlayerType; //Human, Computer
     FlagColorID:integer;    //Flag color, 0 means random
-    StartLocation:integer;     //Start location, 0 means random
+    StartLocation:integer;  //Start location, 0 means random
     Team:integer;
     PlayerIndex:TKMPlayer;
     ReadyToStart:boolean;

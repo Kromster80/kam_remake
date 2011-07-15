@@ -74,6 +74,7 @@ type
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameStartMP(Sender:TObject);
     procedure GameMPPlay(Sender:TObject);
+    procedure GameMPReadyToPlay(Sender:TObject);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
@@ -532,6 +533,7 @@ begin
   CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
 
   fNetworking.OnPlay := GameMPPlay;
+  fNetworking.OnReadyToPlay := GameMPReadyToPlay;
   fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
   fNetworking.GameCreated;
   if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
@@ -559,6 +561,13 @@ begin
   GameWaitingForNetwork(false); //Finished waiting for players
   fGameState := gsRunning;
   fLog.AppendLog('Net game began');
+end;
+
+
+procedure TKMGame.GameMPReadyToPlay(Sender:TObject);
+begin
+  //Update the list of players that are ready to play
+  GameWaitingForNetwork(true);
 end;
 
 
@@ -659,7 +668,7 @@ begin
   WaitingPlayers := TStringList.Create;
   //todo: we need a better way to tell whether it is the initial load, as we will add pausing to multiplayer later 
   if fGameState = gsRunning then
-    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(GetTickCount, WaitingPlayers) //GIP is waiting
+    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers) //GIP is waiting for next tick
   else
     fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
 
