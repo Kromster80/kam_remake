@@ -182,7 +182,7 @@ begin
   case aType of
     ht_None:    ;
     ht_Any:     for H:=Low(THouseType) to High(THouseType) do
-                if fResource.HouseDat.IsValid(H) then
+                if fResource.HouseDat[H].IsValid then
                   inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
@@ -196,7 +196,7 @@ begin
   case aType of
     ht_None:    ;
     ht_Any:     for H:=Low(THouseType) to High(THouseType) do
-                if fResource.HouseDat.IsValid(H) then
+                if fResource.HouseDat[H].IsValid then
                   inc(Result, Houses[H].Started - Houses[H].Ended);
     else        Result := Houses[aType].Started - Houses[aType].Ended;
   end;

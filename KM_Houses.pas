@@ -406,7 +406,7 @@ begin
 
   for i:=1 to 4 do
   begin
-    Res := HouseInput[byte(fHouseType),i];
+    Res := fResource.HouseDat[fHouseType].ResOutput[i];
     with fPlayers.Player[fOwner].DeliverList do
     case Res of
       rt_None:    ;
@@ -738,7 +738,7 @@ var i:integer;
 begin
 Result:=0;
   for i:=1 to 4 do
-  if (aResource = HouseInput[byte(fHouseType),i])or(aResource=rt_All) then
+  if (aResource = fResource.HouseDat[fHouseType].ResInput[i])or(aResource=rt_All) then
     inc(Result,fResourceIn[i]);
 end;
 
@@ -749,7 +749,7 @@ var i:integer;
 begin
 Result:=0;
   for i:=1 to 4 do
-  if (aResource = HouseOutput[byte(fHouseType),i])or(aResource=rt_All) then
+  if (aResource = fResource.HouseDat[fHouseType].ResOutput[i])or(aResource=rt_All) then
     inc(Result,fResourceOut[i]);
 end;
 
@@ -758,7 +758,7 @@ end;
 function TKMHouse.CheckResOrder(aID:byte):word;
 begin
   //AI always order production of everything. Could be changed later with a script command to only make certain things
-  if (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (HouseOutput[byte(fHouseType),aID] <> rt_None) then
+  if (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
     Result := 1
   else
     Result := fResourceOrder[aID];
@@ -780,14 +780,14 @@ procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 var i:integer;
 begin
   if aResource=rt_None then exit;
-  if HouseInput[byte(fHouseType),1]=rt_All then
+  if fResource.HouseDat[fHouseType].ResInput[1] = rt_All then
     TKMHouseStore(Self).AddMultiResource(aResource, aCount)
   else
-  if HouseInput[byte(fHouseType),1]=rt_Warfare then
+  if fResource.HouseDat[fHouseType].ResInput[1] = rt_Warfare then
     TKMHouseBarracks(Self).AddMultiResource(aResource, aCount)
   else
     for i:=1 to 4 do
-    if aResource = HouseInput[byte(fHouseType),i] then
+    if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
       inc(fResourceIn[i],aCount);
 end;
 

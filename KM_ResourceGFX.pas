@@ -16,13 +16,13 @@ type
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
 
 
-  THouseAnim = array[1..19] of record
+  THouseAnim = array[1..19] of packed record
       Step:array[1..30]of smallint;
       Count:smallint;
       MoveX,MoveY:integer;
     end;
 
-  THouseBuildSupply = array[1..12] of record MoveX,MoveY:integer; end;
+  THouseBuildSupply = array[1..12] of packed record MoveX,MoveY:integer; end;
   THouseSupply = array[1..4,1..5]of smallint;
 
   TKMHouseDat = packed record
@@ -49,6 +49,7 @@ type
   end;
 
   THouseArea = array[1..4,1..4]of byte;
+  THouseRes = array[1..4]of TResourceType;
 
   //This class wraps KaM House info and hides unused fields
   TKMHouseDatClass = class
@@ -56,14 +57,19 @@ type
     fHouseType:THouseType; //Our class
     fHouseDat:TKMHouseDat;
     function GetArea:THouseArea;
+    function GetAcceptsGoods:boolean;
     function GetDoesOrders:boolean;
     function GetGUIIcon:word;
     function GetHouseName:string;
     function GetHouseUnlock:THouseTypeSet;
+    function GetResInput:THouseRes;
+    function GetResOutput:THouseRes;
     function GetOwnerType:TUnitType;
+    function GetProducesGoods:boolean;
   public
     constructor Create(aHouseType:THouseType);
     function IsValid:boolean;
+    procedure LoadFromStream(Stream:TMemoryStream);
     //Derived from KaM
     property StonePic:smallint read fHouseDat.StonePic;
     property WoodPic:smallint read fHouseDat.WoodPic;
@@ -85,11 +91,15 @@ type
     property Sight:smallint read fHouseDat.Sight;
     property OwnerType:TUnitType read GetOwnerType;
     //Additional properties added by Remake
+    property AcceptsGoods:boolean read GetAcceptsGoods;
     property BuildArea:THouseArea read GetArea;
     property DoesOrders:boolean read GetDoesOrders;
     property HouseName:string read GetHouseName;
     property HouseUnlock:THouseTypeSet read GetHouseUnlock;
     property GUIIcon:word read GetGUIIcon;
+    property ProducesGoods:boolean read GetProducesGoods;
+    property ResInput:THouseRes read GetResInput;
+    property ResOutput:THouseRes read GetResOutput;
   end;
 
   //Swine&Horses, 5 beasts in each house, 3 ages for each beast
@@ -112,7 +122,6 @@ type
     property HouseDat[aType:THouseType]:TKMHouseDatClass read GetHouseDat; default;
     property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeastAnim read GetBeastAnim;
 
-    function IsValid(aType:THouseType):boolean;
     procedure LoadHouseDat(aPath:string);
     procedure ExportCSV(aPath: string);
   end;
@@ -254,7 +263,7 @@ HousePlanYX:array[THouseType] of THouseArea = (
 
 
 //What does house produces
-HouseOutput:array[0..HouseDatCount,1..4] of TResourceType = (
+HouseOutput_:array[0..HouseDatCount] of THouseRes = (
 (rt_None,       rt_None,       rt_None,       rt_None), //None
 (rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill
 (rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy
@@ -289,7 +298,7 @@ HouseOutput:array[0..HouseDatCount,1..4] of TResourceType = (
 );
 
 //What house requires
-HouseInput:array[0..HouseDatCount,1..4] of TResourceType = (
+HouseInput_:array[0..HouseDatCount] of THouseRes = (
 (rt_None,       rt_None,       rt_None,       rt_None), //None
 (rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill
 (rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy
@@ -1046,7 +1055,7 @@ var
   TD:array of cardinal;
 begin
   for ID:=Low(THouseType) to High(THouseType) do
-    if HouseDat.IsValid(ID) and (HouseDAT[ID].StonePic <> -1) then //Exlude House27 which is unused
+    if HouseDat[ID].IsValid then
 
       for h:=1 to 2 do begin
         if h=1 then begin
@@ -1612,7 +1621,6 @@ end;
 
 function TKMHouseDatCollection.GetHouseDat(aType:THouseType): TKMHouseDatClass;
 begin
-  Assert(IsValid(aType));
   Result := fItems[aType];
 end;
 
@@ -1644,9 +1652,9 @@ begin
   //Read the records one by one because we need to reorder them and skip one in the middle
   for i:=0 to HouseDatCount-1 do
   if HouseKaMType[i] <> ht_None then
-    S.Read(fItems[HouseKaMType[i]], SizeOf(fItems[ht_None]){88+19*70+270})
+    fItems[HouseKaMType[i]].LoadFromStream(S)
   else
-    S.Seek(SizeOf(fItems[ht_None]){88+19*70+270}, soFromCurrent);
+    S.Seek(SizeOf(TKMHouseDat), soFromCurrent);
 
   S.Free;
 
@@ -1685,12 +1693,6 @@ begin
 end;
 
 
-function TKMHouseDatCollection.IsValid(aType: THouseType): boolean;
-begin
-  Result := (aType in [Low(THouseType)..High(THouseType)]-[ht_None, ht_Any]);
-end;
-
-
 { TKMHouseDatClass }
 constructor TKMHouseDatClass.Create(aHouseType: THouseType);
 begin
@@ -1698,20 +1700,29 @@ begin
   fHouseType := aHouseType;
 end;
 
+
+function TKMHouseDatClass.GetAcceptsGoods: boolean;
+begin
+  Result := not (ResInput[1] in [rt_None,rt_All,rt_Warfare]); //Exclude aggregate types
+end;
+
 function TKMHouseDatClass.GetArea: THouseArea;
 begin
   Result := HousePlanYX[fHouseType];
 end;
+
 
 function TKMHouseDatClass.GetDoesOrders: boolean;
 begin
   Result := HouseDoesOrders_[fHouseType];
 end;
 
+
 function TKMHouseDatClass.GetGUIIcon: word;
 begin
   Result := GUIBuildIcons_[HouseKaMOrder[fHouseType]];
 end;
+
 
 function TKMHouseDatClass.GetHouseName: string;
 begin
@@ -1721,10 +1732,12 @@ begin
     Result := 'N/A';
 end;
 
+
 function TKMHouseDatClass.GetHouseUnlock: THouseTypeSet;
 begin
   Result := HouseRelease[fHouseType];
 end;
+
 
 function TKMHouseDatClass.GetOwnerType: TUnitType;
 begin
@@ -1732,9 +1745,30 @@ begin
 end;
 
 
+function TKMHouseDatClass.GetProducesGoods: boolean;
+begin
+  Result := not (ResOutput[1] in [rt_None,rt_All,rt_Warfare]); //Exclude aggregate types
+end;
+
+function TKMHouseDatClass.GetResInput: THouseRes;
+begin
+  Result := HouseInput_[HouseKaMOrder[fHouseType]];
+end;
+
+function TKMHouseDatClass.GetResOutput: THouseRes;
+begin
+  Result := HouseOutput_[HouseKaMOrder[fHouseType]];
+end;
+
 function TKMHouseDatClass.IsValid: boolean;
 begin
   Result := (fHouseType in [Low(THouseType)..High(THouseType)]-[ht_None, ht_Any]);
+end;
+
+
+procedure TKMHouseDatClass.LoadFromStream(Stream: TMemoryStream);
+begin
+  Stream.Read(fHouseDat, SizeOf(TKMHouseDat));
 end;
 
 

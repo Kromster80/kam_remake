@@ -255,7 +255,7 @@ end;
 procedure TKMPlayerAI.CheckUnitCount;
 var
   i,k:integer;
-  h:THouseType;
+  H:THouseType;
   UT:TUnitType;
   HS:TKMHouseSchool;
   UnitReq:array[TUnitType]of integer;
@@ -279,9 +279,9 @@ begin
 
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
-  for h:=Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat.IsValid(h) and (fResource.HouseDat[h].OwnerType <> ut_None) and (h <> ht_Barracks) then
-      inc(UnitReq[fResource.HouseDat[h].OwnerType], fPlayers[PlayerIndex].Stats.GetHouseQty(h));
+  for H:=Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[H].IsValid and (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
+      inc(UnitReq[fResource.HouseDat[H].OwnerType], fPlayers[PlayerIndex].Stats.GetHouseQty(H));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq

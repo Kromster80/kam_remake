@@ -923,7 +923,7 @@ begin
     //Release/block houses
     ReleaseAllHouses := true;
     for H:=Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat.IsValid(H) then //Exclude ht_None / ht_Any
+    if fResource.HouseDat[H].IsValid then //Exclude ht_None / ht_Any
     begin
       if not fPlayers.Player[i].Stats.AllowToBuild[H] then
       begin

@@ -455,7 +455,7 @@ begin
     else exit; //Nothing found
   end;
 
-  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
+  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,fResource.HouseDat[fHome.GetHouseType].ResOutput[Res],KMPointY1(fHome.GetEntrance));
 
   if fWorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
