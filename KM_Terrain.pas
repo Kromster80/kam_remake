@@ -1918,7 +1918,7 @@ begin
   else
     SetHouseAreaOwner(Loc, aHouseType, aOwner);
 
-  HA := fResource.HouseDat.HouseArea(aHouseType);
+  HA := fResource.HouseDat[aHouseType].BuildArea;
 
   for i:=1 to 4 do for k:=1 to 4 do
     if HA[i,k]<>0 then
@@ -1960,7 +1960,7 @@ end;
 procedure TTerrain.SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerIndex);
 var i,k:integer; HA:THouseArea;
 begin
-  HA := fResource.HouseDat.HouseArea(aHouseType);
+  HA := fResource.HouseDat[aHouseType].BuildArea;
   case aHouseType of
     ht_None:    Land[Loc.Y,Loc.X].TileOwner := aOwner;
     ht_Any:     ; //Do nothing
@@ -1999,7 +1999,7 @@ function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TK
 var i,k:integer; HA:THouseArea;
 begin
   Result:=true;
-  HA := fResource.HouseDat.HouseArea(aHouseType);
+  HA := fResource.HouseDat[aHouseType].BuildArea;
   Loc.X:=Loc.X-fResource.HouseDat[aHouseType].EntranceOffsetX; //update offset
   for i:=1 to 4 do for k:=1 to 4 do
     if HA[i,k]<>0 then begin
@@ -2087,7 +2087,7 @@ end;
 procedure TTerrain.AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 var i,k:integer; HA:THouseArea;
 begin
-  HA := fResource.HouseDat.HouseArea(aHouseType);
+  HA := fResource.HouseDat[aHouseType].BuildArea;
 
   if aBuildState in [hbs_Stone, hbs_Done] then //only leave rubble if the construction was well underway (stone and above)
   begin

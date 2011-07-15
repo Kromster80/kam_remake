@@ -589,9 +589,9 @@ begin
       TKMLabel.Create(Panel_Build,100,65,100,30,'Houses',fnt_Outline,kaCenter);
       for i:=1 to GUI_HOUSE_COUNT do
         if GUIHouseOrder[i] <> ht_None then begin
-          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,fResource.HouseDat.HouseGUIIcon(GUIHouseOrder[i]));
+          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[i]].GUIIcon);
           Button_Build[i].OnClick:=Build_ButtonClick;
-          Button_Build[i].Hint := fResource.HouseDat.HouseName(GUIHouseOrder[i]);
+          Button_Build[i].Hint := fResource.HouseDat[GUIHouseOrder[i]].HouseName;
         end;
 
     Panel_Units := TKMPanel.Create(Panel_Village,0,28,196,400);
@@ -1117,14 +1117,14 @@ begin
   end;
 
   {Common data}
-  Label_House.Caption:=fResource.HouseDat.HouseName(Sender.GetHouseType);
+  Label_House.Caption:=fResource.HouseDat[Sender.GetHouseType].HouseName;
   Image_House_Logo.TexID:=300+byte(Sender.GetHouseType);
-  Image_House_Worker.TexID:=140+fResource.HouseDat[Sender.GetHouseType].OwnerType+1;
-  Image_House_Worker.Hint := TypeToString(TUnitType(fResource.HouseDat[Sender.GetHouseType].OwnerType+1));
+  //todo: Image_House_Worker.TexID:=140+fResource.HouseDat[Sender.GetHouseType].OwnerType+1;
+  //todo: Image_House_Worker.Hint := TypeToString(TUnitType(fResource.HouseDat[Sender.GetHouseType].OwnerType+1));
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
   KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
 
-  Image_House_Worker.Visible := TUnitType(fResource.HouseDat[Sender.GetHouseType].OwnerType+1) <> ut_None;
+  //todo: Image_House_Worker.Visible := TUnitType(fResource.HouseDat[Sender.GetHouseType].OwnerType+1) <> ut_None;
   
 
   case Sender.GetHouseType of

@@ -423,7 +423,7 @@ begin
                       Msg := fTextLibrary.GetRemakeString(51)
                     else
                       Msg := fTextLibrary.GetRemakeString(52);
-      else         begin Assert(false, fResource.HouseDat.HouseName(fHome.GetHouseType)+' resource cant possibly deplet'); Msg := ''; end;
+      else         begin Assert(false, fResource.HouseDat[fHome.GetHouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
     end;
     if Msg <> '' then fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
     fHome.ResourceDepletedMsgIssued := true;

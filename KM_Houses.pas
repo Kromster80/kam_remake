@@ -372,7 +372,7 @@ end;
 procedure TKMHouse.ReleaseHousePointer;
 begin
   if fPointerCount < 1 then
-    raise ELocError.Create('House remove pointer for '+fResource.HouseDat.HouseName(fHouseType), fPosition);
+    raise ELocError.Create('House remove pointer for '+fResource.HouseDat[fHouseType].HouseName, fPosition);
   dec(fPointerCount);
 end;
 
@@ -1007,7 +1007,7 @@ begin
     DisableRepair;
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (fResource.HouseDat[fHouseType].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
+  if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (fResource.HouseDat[fHouseType].OwnerType<> ut_None) and (fHouseType <> ht_Barracks) then
   begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
@@ -1061,14 +1061,15 @@ end;
 
 function TKMHouse.HouseArea: THouseArea;
 begin
-  Result := fResource.HouseDat.HouseArea(fHouseType);
+  Result := fResource.HouseDat[fHouseType].BuildArea;
 end;
 
 
 function TKMHouse.DoesOrders: boolean;
 begin
-  Result := fResource.HouseDat.HouseDoesOrders(fHouseType);
+  Result := fResource.HouseDat[fHouseType].DoesOrders;
 end;
+
 
 {TKMHouseSwineStable}
 constructor TKMHouseSwineStable.Load(LoadStream:TKMemoryStream);
@@ -1737,9 +1738,9 @@ begin
   Bid:=0;
 
   for i:=0 to Count-1 do
-    if (TUnitType(fResource.HouseDat[Houses[i].fHouseType].OwnerType+1)=aUnitType)and //If Unit can work in here
-       (not Houses[i].fHasOwner)and                              //If there's yet no owner
-       (not Houses[i].IsDestroyed)and
+    if (fResource.HouseDat[Houses[i].fHouseType].OwnerType = aUnitType) and //If Unit can work in here
+       (not Houses[i].fHasOwner) and                              //If there's yet no owner
+       (not Houses[i].IsDestroyed) and
        (Houses[i].IsComplete) then                               //If house is built
     begin
 

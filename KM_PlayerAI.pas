@@ -258,7 +258,7 @@ var
   h:THouseType;
   UT:TUnitType;
   HS:TKMHouseSchool;
-  UnitReq:array[TUnitType]of integer; //There are only ~10 unit types, but using HOUSE_COUNT is easier
+  UnitReq:array[TUnitType]of integer;
   Schools:array of TKMHouseSchool;
 
   function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
@@ -280,8 +280,8 @@ begin
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
   for h:=Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat.IsValid(h) and (fResource.HouseDat[h].OwnerType <> -1) and (h <> ht_Barracks) then
-      inc(UnitReq[TUnitType(fResource.HouseDat[h].OwnerType+1)], fPlayers[PlayerIndex].Stats.GetHouseQty(h));
+    if fResource.HouseDat.IsValid(h) and (fResource.HouseDat[h].OwnerType <> ut_None) and (h <> ht_Barracks) then
+      inc(UnitReq[fResource.HouseDat[h].OwnerType], fPlayers[PlayerIndex].Stats.GetHouseQty(h));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq

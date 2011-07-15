@@ -1333,7 +1333,7 @@ begin
   MarkCount := 0;
   FillChar(MarkedLocations, SizeOf(MarkedLocations), #0); //It's filled with garbage if not initialized
 
-  HA := fResource.HouseDat.HouseArea(aHouseType);
+  HA := fResource.HouseDat[aHouseType].BuildArea;
 
   for i:=1 to 4 do for k:=1 to 4 do
   if HA[i,k]<>0 then

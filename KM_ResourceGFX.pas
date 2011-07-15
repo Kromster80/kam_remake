@@ -16,22 +16,27 @@ type
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
 
 
-  TKMHouseDat = packed record
-    StonePic,WoodPic,WoodPal,StonePal:smallint;
-    SupplyIn:array[1..4,1..5]of smallint;
-    SupplyOut:array[1..4,1..5]of smallint;
-    Anim:array[1..19] of record
+  THouseAnim = array[1..19] of record
       Step:array[1..30]of smallint;
       Count:smallint;
       MoveX,MoveY:integer;
     end;
+
+  THouseBuildSupply = array[1..12] of record MoveX,MoveY:integer; end;
+  THouseSupply = array[1..4,1..5]of smallint;
+
+  TKMHouseDat = packed record
+    StonePic,WoodPic,WoodPal,StonePal:smallint;
+    SupplyIn:THouseSupply;
+    SupplyOut:THouseSupply;
+    Anim:THouseAnim;
     WoodPicSteps,StonePicSteps:word;
     a1:smallint;
     EntranceOffsetX,EntranceOffsetY:shortint;
     EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
     BuildArea:array[1..10,1..10]of shortint;
     WoodCost,StoneCost:byte;
-    BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
+    BuildSupply:THouseBuildSupply;
     a5,SizeArea:smallint;
     SizeX,SizeY,sx2,sy2:shortint;
     WorkerWork,WorkerRest:smallint;
@@ -43,33 +48,71 @@ type
     Foot2:array[1..12]of smallint; //vs sprite ID
   end;
 
+  THouseArea = array[1..4,1..4]of byte;
+
+  //This class wraps KaM House info and hides unused fields
+  TKMHouseDatClass = class
+  private
+    fHouseType:THouseType; //Our class
+    fHouseDat:TKMHouseDat;
+    function GetArea:THouseArea;
+    function GetDoesOrders:boolean;
+    function GetGUIIcon:word;
+    function GetHouseName:string;
+    function GetHouseUnlock:THouseTypeSet;
+    function GetOwnerType:TUnitType;
+  public
+    constructor Create(aHouseType:THouseType);
+    function IsValid:boolean;
+    //Derived from KaM
+    property StonePic:smallint read fHouseDat.StonePic;
+    property WoodPic:smallint read fHouseDat.WoodPic;
+    property WoodPal:smallint read fHouseDat.WoodPal;
+    property StonePal:smallint read fHouseDat.StonePal;
+    property SupplyIn:THouseSupply read fHouseDat.SupplyIn;
+    property SupplyOut:THouseSupply read fHouseDat.SupplyOut;
+    property Anim:THouseAnim read fHouseDat.Anim;
+    property WoodPicSteps:word read fHouseDat.WoodPicSteps;
+    property StonePicSteps:word read fHouseDat.StonePicSteps;
+    property EntranceOffsetX:shortint read fHouseDat.EntranceOffsetX;
+    property EntranceOffsetXpx:shortint read fHouseDat.EntranceOffsetXpx;
+    property WoodCost:byte read fHouseDat.WoodCost;
+    property StoneCost:byte read fHouseDat.StoneCost;
+    property BuildSupply:THouseBuildSupply read fHouseDat.BuildSupply;
+    property WorkerRest:smallint read fHouseDat.WorkerRest;
+    property ResProductionX:shortint read fHouseDat.ResProductionX;
+    property MaxHealth:smallint read fHouseDat.MaxHealth;
+    property Sight:smallint read fHouseDat.Sight;
+    property OwnerType:TUnitType read GetOwnerType;
+    //Additional properties added by Remake
+    property BuildArea:THouseArea read GetArea;
+    property DoesOrders:boolean read GetDoesOrders;
+    property HouseName:string read GetHouseName;
+    property HouseUnlock:THouseTypeSet read GetHouseUnlock;
+    property GUIIcon:word read GetGUIIcon;
+  end;
+
   //Swine&Horses, 5 beasts in each house, 3 ages for each beast
-  TKMHouseBeast = packed record
+  TKMHouseBeastAnim = packed record
     Step:array[1..30]of smallint;
     Count:smallint;
     MoveX,MoveY:integer;
   end;
 
-  THouseArea = array[1..4,1..4]of byte;
-
-//1-building area //2-entrance
-
-  //todo: Get rid of HOUSE_COUNT throughout the code and replace it with more flexible Low(THouseType)..High(THouseType)
   TKMHouseDatCollection = class
   private
-    fItems: array[THouseType] of TKMHouseDat;
-    fBeastAnim: array[1..2,1..5,1..3] of TKMHouseBeast; //Swine&Horses, 5 beasts in each house, 3 ages for each beast
-    function GetHouseDat(aType:THouseType):TKMHouseDat;
-    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer):TKMHouseBeast;
+    fItems: array[THouseType] of TKMHouseDatClass;
+    fBeastAnim: array[1..2,1..5,1..3] of TKMHouseBeastAnim;
+    function GetHouseDat(aType:THouseType):TKMHouseDatClass;
+    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer):TKMHouseBeastAnim;
   public
-    property HouseDat[aType:THouseType]:TKMHouseDat read GetHouseDat; default;
-    property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeast read GetBeastAnim;
+    constructor Create;
+    destructor Destroy; override;
+
+    property HouseDat[aType:THouseType]:TKMHouseDatClass read GetHouseDat; default;
+    property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeastAnim read GetBeastAnim;
+
     function IsValid(aType:THouseType):boolean;
-    function HouseArea(aType:THouseType):THouseArea;
-    function HouseName(aType:THouseType):string;
-    function HouseUnlock(aType:THouseType):THouseTypeSet;
-    function HouseDoesOrders(aType:THouseType):boolean;
-    function HouseGUIIcon(aType:THouseType):word;
     procedure LoadHouseDat(aPath:string);
     procedure ExportCSV(aPath: string);
   end;
@@ -129,6 +172,7 @@ type
   end;
 
 const
+//1-building area //2-entrance
 HousePlanYX:array[THouseType] of THouseArea = (
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //0
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //0
@@ -1302,8 +1346,8 @@ begin
   for ID:=ht_WatchTower to ht_WatchTower do begin
     for Ac:=1 to 5 do begin //Work1..Work5
       for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do begin
-        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\');
-        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\Work'+IntToStr(Ac)+'\');
+        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\');
+        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\Work'+IntToStr(Ac)+'\');
         if fResource.HouseDat[ID].Anim[Ac].Step[k]+1<>0 then
         ci:=fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
@@ -1317,7 +1361,7 @@ begin
           MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
         end;
         if sy>0 then MyBitMap.SaveToFile(
-        ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
+        ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
       end;
     end;
   end;
@@ -1326,7 +1370,7 @@ begin
   for Q:=1 to 2 do begin
     if Q=1 then ID:=ht_Swine
            else ID:=ht_Stables;
-    CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat.HouseName(ID)+'\');
+    CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\');
     for Beast:=1 to 5 do begin
       for Ac:=1 to 3 do begin //Age 1..3
         for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,Ac].Count do begin
@@ -1343,7 +1387,7 @@ begin
             t:=RXData[2].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
-          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat.HouseName(ID)+'\'+int2fix(Beast,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
     end;
@@ -1546,14 +1590,34 @@ end;
 
 
 { TKMHouseDatCollection }
-function TKMHouseDatCollection.GetHouseDat(aType:THouseType): TKMHouseDat;
+constructor TKMHouseDatCollection.Create;
+var H:THouseType;
+begin
+  Inherited;
+
+  for H := Low(THouseType) to High(THouseType) do
+    fItems[H] := TKMHouseDatClass.Create(H);
+end;
+
+
+destructor TKMHouseDatCollection.Destroy;
+var H:THouseType;
+begin
+  for H := Low(THouseType) to High(THouseType) do
+    FreeAndNil(fItems[H]);
+
+  Inherited;
+end;
+
+
+function TKMHouseDatCollection.GetHouseDat(aType:THouseType): TKMHouseDatClass;
 begin
   Assert(IsValid(aType));
   Result := fItems[aType];
 end;
 
 
-function TKMHouseDatCollection.GetBeastAnim(aType:THouseType; aBeast, aAge: integer): TKMHouseBeast;
+function TKMHouseDatCollection.GetBeastAnim(aType:THouseType; aBeast, aAge: integer): TKMHouseBeastAnim;
 begin
   Assert(aType in [ht_Swine, ht_Stables]);
   Assert(InRange(aBeast, 1, 5));
@@ -1602,7 +1666,7 @@ begin
 
   for i:=Low(THouseType) to High(THouseType) do begin
     Ap := '';
-    AddField(HouseName(i));
+    AddField(fItems[i].HouseName);
     S.Append(Ap);
     for j := 1 to 10 do
     begin
@@ -1627,36 +1691,50 @@ begin
 end;
 
 
-function TKMHouseDatCollection.HouseArea(aType: THouseType): THouseArea;
+{ TKMHouseDatClass }
+constructor TKMHouseDatClass.Create(aHouseType: THouseType);
 begin
-  Result := HousePlanYX[aType];
+  Inherited Create;
+  fHouseType := aHouseType;
 end;
 
-
-function TKMHouseDatCollection.HouseName(aType: THouseType): string;
+function TKMHouseDatClass.GetArea: THouseArea;
 begin
-  if IsValid(aType) then
-    Result := fTextLibrary.GetTextString(siHouseNames+HouseKaMOrder[aType])
+  Result := HousePlanYX[fHouseType];
+end;
+
+function TKMHouseDatClass.GetDoesOrders: boolean;
+begin
+  Result := HouseDoesOrders_[fHouseType];
+end;
+
+function TKMHouseDatClass.GetGUIIcon: word;
+begin
+  Result := GUIBuildIcons_[HouseKaMOrder[fHouseType]];
+end;
+
+function TKMHouseDatClass.GetHouseName: string;
+begin
+  if IsValid then
+    Result := fTextLibrary.GetTextString(siHouseNames+HouseKaMOrder[fHouseType])
   else
     Result := 'N/A';
 end;
 
-
-function TKMHouseDatCollection.HouseUnlock(aType: THouseType):THouseTypeSet;
+function TKMHouseDatClass.GetHouseUnlock: THouseTypeSet;
 begin
-  Result := HouseRelease[aType];
+  Result := HouseRelease[fHouseType];
+end;
+
+function TKMHouseDatClass.GetOwnerType: TUnitType;
+begin
+  Result := TUnitType(fHouseDat.OwnerType+1);
 end;
 
 
-function TKMHouseDatCollection.HouseDoesOrders(aType: THouseType): boolean;
+function TKMHouseDatClass.IsValid: boolean;
 begin
-  Result := HouseDoesOrders_[aType];
-end;
-
-
-function TKMHouseDatCollection.HouseGUIIcon(aType: THouseType): word;
-begin
-  Result := GUIBuildIcons_[HouseKaMOrder[aType]];
+  Result := (fHouseType in [Low(THouseType)..High(THouseType)]-[ht_None, ht_Any]);
 end;
 
 

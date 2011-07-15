@@ -95,7 +95,7 @@ end;
 procedure TKMPlayerStats.UpdateReqDone(aType:THouseType);
 var i:THouseType; HS:THouseTypeSet;
 begin
-  HS := fResource.HouseDat.HouseUnlock(aType);
+  HS := fResource.HouseDat[aType].HouseUnlock;
   for i:=Low(THouseType) to High(THouseType) do
     if i in HS then
       HouseReleased[i] := true;

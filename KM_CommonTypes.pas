@@ -200,8 +200,6 @@ type
     constructor Load(LoadStream:TKMemoryStream);
     procedure Clearup;
     procedure AddEntry(aLoc:TKMPointDir);
-    function RemoveEntry(aLoc:TKMPointDir):cardinal;
-    procedure InjectEntry(ID:integer; aLoc:TKMPointDir);
     function GetRandom:TKMPointDir;
     function GetNearest(aLoc:TKMPoint):TKMPointDir;
     procedure Save(SaveStream:TKMemoryStream);
@@ -762,36 +760,6 @@ begin
   inc(Count);
   if Count>length(List)-1 then setlength(List,Count+32);
   List[Count]:=aLoc;
-end;
-
-
-{Remove point from the list if is there. Return 'true' if succeded}
-function TKMPointDirList.RemoveEntry(aLoc:TKMPointDir):cardinal;
-var i: integer; Found: boolean;
-begin
-  Result:=0;
-  Found := false;
-  for i:=1 to Count do
-  begin
-    if (KMSamePointDir(List[i],aLoc) and (not Found)) then
-    begin
-      dec(Count);
-      Found := true;
-      Result:=i;
-    end;
-    if (Found) and (i < Count) then List[i] := List[i+1];
-  end;
-end;
-
-
-{Add an entry at given place an shift everything }
-procedure TKMPointDirList.InjectEntry(ID:integer; aLoc:TKMPointDir);
-var i:integer;
-begin
-  AddEntry(List[Count]);
-  for i:=Count downto ID+1 do
-    List[i]:=List[i-1];
-  List[ID]:=aLoc;
 end;
 
 

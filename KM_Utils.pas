@@ -59,6 +59,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function TypeToString(t:TKMPoint):string; overload;
   function TypeToString(t:TKMDirection):string; overload;
 
+  
 implementation
 uses KM_TextLibrary;
 

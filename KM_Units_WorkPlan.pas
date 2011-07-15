@@ -472,7 +472,7 @@ begin
   if (aUnitType=ut_Recruit)and(aHome=ht_WatchTower) then begin
     fIssued:=false; //Let him idle
   end else
-    Assert(false, 'No work plan for '+TypeToString(aUnitType)+' in '+fResource.HouseDat.HouseName(aHome));
+    Assert(false, 'No work plan for '+TypeToString(aUnitType)+' in '+fResource.HouseDat[aHome].HouseName);
 end;
 
 
