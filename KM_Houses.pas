@@ -4,7 +4,7 @@ interface
 uses
    {$IFDEF MSWindows} Windows, {$ENDIF}
    Classes, KromUtils, Math, SysUtils,
-   KM_CommonTypes, KM_Defaults, KM_Utils;
+   KM_CommonTypes, KM_Defaults, KM_Utils, KM_ResourceGFX, KM_ResourceHouse;
 
   {Everything related to houses is here}
 type
@@ -90,6 +90,8 @@ type
     procedure GetListOfCellsWithin(Cells:TKMPointList);
     function GetRandomCellWithin:TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
+    function HouseArea:THouseArea;
+    function DoesOrders:boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
@@ -255,7 +257,7 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player, KM_ResourceGFX;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player;
 
 
 { TKMHouse }
@@ -370,7 +372,7 @@ end;
 procedure TKMHouse.ReleaseHousePointer;
 begin
   if fPointerCount < 1 then
-    raise ELocError.Create('House remove pointer for '+fResource.HouseDat.HouseName(fHouseType), fPosition);
+    raise ELocError.Create('House remove pointer for '+fResource.HouseDat[fHouseType].HouseName, fPosition);
   dec(fPointerCount);
 end;
 
@@ -404,7 +406,7 @@ begin
 
   for i:=1 to 4 do
   begin
-    Res := HouseInput[byte(fHouseType),i];
+    Res := fResource.HouseDat[fHouseType].ResInput[i];
     with fPlayers.Player[fOwner].DeliverList do
     case Res of
       rt_None:    ;
@@ -499,14 +501,13 @@ begin
       Result := Math.min(Result, GetLength(C.List[i], aPos));
   finally
     C.Free;
-  end;  
+  end;
 end;
 
 
 procedure TKMHouse.GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
 var
   i,k:integer;
-  ht:byte;
   Loc:TKMPoint;
 
   procedure AddLoc(X,Y:word; Dir:TKMDirection);
@@ -519,19 +520,18 @@ var
 begin
 
   Cells.Clearup;
-  ht := byte(fHouseType); //array needs byte id
   Loc := fPosition;
 
   for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[ht,i,k]<>0 then
+  if HouseArea[i,k]<>0 then
   begin
-    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then
+    if (i=1)or(HouseArea[i-1,k]=0) then
       AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S); //Above
-    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then
+    if (i=4)or(HouseArea[i+1,k]=0) then
       AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N); //Below
-    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then
+    if (k=4)or(HouseArea[i,k+1]=0) then
       AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W); //FromRight
-    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then
+    if (k=1)or(HouseArea[i,k-1]=0) then
       AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E); //FromLeft
   end;
 end;
@@ -544,7 +544,7 @@ begin
   Loc := fPosition;
 
   for i:=max(Loc.Y-3,1) to Loc.Y do for k:=max(Loc.X-2,1) to min(Loc.X+1,fTerrain.MapX) do
-  if HousePlanYX[byte(fHouseType),i-Loc.Y+4,k-Loc.X+3]<>0 then
+  if HouseArea[i-Loc.Y+4,k-Loc.X+3]<>0 then
     Cells.AddEntry(KMPoint(k,i));
 end;
 
@@ -563,7 +563,7 @@ function TKMHouse.HitTest(X, Y: Integer): Boolean;
 begin
   Result:=false;
   if (X-fPosition.X+3 in [1..4])and(Y-fPosition.Y+4 in [1..4]) then
-  if HousePlanYX[byte(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
+  if HouseArea[Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
     Result:=true;
     exit;
   end;
@@ -736,9 +736,9 @@ end;
 function TKMHouse.CheckResIn(aResource:TResourceType):word;
 var i:integer;
 begin
-Result:=0;
+  Result:=0;
   for i:=1 to 4 do
-  if (aResource = HouseInput[byte(fHouseType),i])or(aResource=rt_All) then
+  if (aResource = fResource.HouseDat[fHouseType].ResInput[i])or(aResource=rt_All) then
     inc(Result,fResourceIn[i]);
 end;
 
@@ -747,9 +747,9 @@ end;
 function TKMHouse.CheckResOut(aResource:TResourceType):byte;
 var i:integer;
 begin
-Result:=0;
+  Result:=0;
   for i:=1 to 4 do
-  if (aResource = HouseOutput[byte(fHouseType),i])or(aResource=rt_All) then
+  if (aResource = fResource.HouseDat[fHouseType].ResOutput[i])or(aResource=rt_All) then
     inc(Result,fResourceOut[i]);
 end;
 
@@ -758,7 +758,7 @@ end;
 function TKMHouse.CheckResOrder(aID:byte):word;
 begin
   //AI always order production of everything. Could be changed later with a script command to only make certain things
-  if (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (HouseOutput[byte(fHouseType),aID] <> rt_None) then
+  if (fPlayers.Player[fOwner].PlayerType = pt_Computer) and (fResource.HouseDat[fHouseType].ResOutput[aID] <> rt_None) then
     Result := 1
   else
     Result := fResourceOrder[aID];
@@ -780,14 +780,14 @@ procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 var i:integer;
 begin
   if aResource=rt_None then exit;
-  if HouseInput[byte(fHouseType),1]=rt_All then
+  if fResource.HouseDat[fHouseType].ResInput[1] = rt_All then
     TKMHouseStore(Self).AddMultiResource(aResource, aCount)
   else
-  if HouseInput[byte(fHouseType),1]=rt_Warfare then
+  if fResource.HouseDat[fHouseType].ResInput[1] = rt_Warfare then
     TKMHouseBarracks(Self).AddMultiResource(aResource, aCount)
   else
     for i:=1 to 4 do
-    if aResource = HouseInput[byte(fHouseType),i] then
+    if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
       inc(fResourceIn[i],aCount);
 end;
 
@@ -797,7 +797,7 @@ var i:integer;
 begin
   if aResource=rt_None then exit;
   for i:=1 to 4 do
-  if aResource = HouseOutput[byte(fHouseType),i] then
+  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
     begin
       inc(fResourceOut[i],aCount);
       fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
@@ -823,7 +823,7 @@ begin
   Assert(aResource<>rt_None);
 
   for i:=1 to 4 do
-  if aResource = HouseInput[byte(fHouseType),i] then begin
+  if aResource = fResource.HouseDat[fHouseType].ResInput[i] then begin
     Assert(fResourceIn[i] >= aCount, 'fResourceIn[i]<0');
     dec(fResourceIn[i],aCount);
     dec(fResourceDeliveryCount[i],aCount);
@@ -845,7 +845,7 @@ begin
   Assert(aResource<>rt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks]));
   for i:=1 to 4 do
-  if aResource = HouseOutput[byte(fHouseType),i] then begin
+  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then begin
     Assert(aCount <= fResourceOut[i]);
     dec(fResourceOut[i], aCount);
     exit;
@@ -862,7 +862,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID:byte):byte;
 begin
-  Result := fPlayers.Player[fOwner].Stats.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
+  Result := fPlayers.Player[fOwner].Stats.GetRatio(fResource.HouseDat[fHouseType].ResInput[aID],fHouseType);
 end;
 
 
@@ -985,12 +985,12 @@ procedure TKMHouse.UpdateResRequest;
 var i:byte; Count:shortint;
 begin
   for i:=1 to 4 do
-    if not (HouseInput[byte(fHouseType),i] in [rt_All, rt_Warfare, rt_None]) then
+    if not (fResource.HouseDat[fHouseType].ResInput[i] in [rt_All, rt_Warfare, rt_None]) then
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
     begin
       Count := GetResDistribution(i)-fResourceDeliveryCount[i];
       fPlayers.Player[fOwner].DeliverList.AddNewDemand(
-        Self, nil, HouseInput[byte(fHouseType),i], Count, dt_Once, di_Norm);
+        Self, nil, fResource.HouseDat[fHouseType].ResInput[i], Count, dt_Once, di_Norm);
 
       inc(fResourceDeliveryCount[i], Count);
     end;
@@ -1007,7 +1007,7 @@ begin
     DisableRepair;
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (fResource.HouseDat[fHouseType].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
+  if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
   begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
@@ -1056,6 +1056,19 @@ end;
 procedure TKMHouse.SetWareDelivery(aVal:boolean);
 begin
   fWareDelivery := aVal;
+end;
+
+
+function TKMHouse.HouseArea: THouseArea;
+begin
+  Result := fResource.HouseDat[fHouseType].BuildArea;
+end;
+
+
+//@Lewin: I'm not sure if we should route some properties from ResourceHouseDat in following way instead of accessing them directly in-place
+function TKMHouse.DoesOrders: boolean;
+begin
+  Result := fResource.HouseDat[fHouseType].DoesOrders;
 end;
 
 
@@ -1726,9 +1739,9 @@ begin
   Bid:=0;
 
   for i:=0 to Count-1 do
-    if (TUnitType(fResource.HouseDat[Houses[i].fHouseType].OwnerType+1)=aUnitType)and //If Unit can work in here
-       (not Houses[i].fHasOwner)and                              //If there's yet no owner
-       (not Houses[i].IsDestroyed)and
+    if (fResource.HouseDat[Houses[i].fHouseType].OwnerType = aUnitType) and //If Unit can work in here
+       (not Houses[i].fHasOwner) and                              //If there's yet no owner
+       (not Houses[i].IsDestroyed) and
        (Houses[i].IsComplete) then                               //If house is built
     begin
 

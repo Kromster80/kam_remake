@@ -192,7 +192,7 @@ var
   fTerrain: TTerrain;
 
 implementation
-uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_ResourceGFX;
+uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse;
 
 
 { TTerrain }
@@ -1906,7 +1906,7 @@ end;
 
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerIndex; const aFlattenTerrain:boolean=false);
-var i,k,x,y:word; L,H:TKMPoint; ToFlatten:TKMPointList;
+var i,k,x,y:word; L,H:TKMPoint; ToFlatten:TKMPointList; HA:THouseArea;
 begin
   if aFlattenTerrain then //We will check aFlattenTerrain only once, otherwise there are compiler warnings
     ToFlatten := TKMPointList.Create
@@ -1918,14 +1918,16 @@ begin
   else
     SetHouseAreaOwner(Loc, aHouseType, aOwner);
 
+  HA := fResource.HouseDat[aHouseType].BuildArea;
+
   for i:=1 to 4 do for k:=1 to 4 do
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then
+    if HA[i,k]<>0 then
     begin
       x:=Loc.X+k-3; y:=Loc.Y+i-4;
       if TileInMapCoords(x,y) then
       begin
 
-        if (HousePlanYX[byte(aHouseType),i,k]=2)and(aHouseStage=hs_Built) then
+        if (HA[i,k]=2)and(aHouseStage=hs_Built) then
           Land[y,x].TileOverlay := to_Road;
 
         case aHouseStage of
@@ -1956,13 +1958,14 @@ end;
 
 {That is mainly used for minimap now}
 procedure TTerrain.SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerIndex);
-var i,k:integer;
+var i,k:integer; HA:THouseArea;
 begin
+  HA := fResource.HouseDat[aHouseType].BuildArea;
   case aHouseType of
     ht_None:    Land[Loc.Y,Loc.X].TileOwner := aOwner;
     ht_Any:     ; //Do nothing
     else        for i:=1 to 4 do for k:=1 to 4 do //If this is a house make change for whole place
-                  if HousePlanYX[byte(aHouseType),i,k]<>0 then
+                  if HA[i,k]<>0 then
                     if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
                       Land[Loc.Y+i-4,Loc.X+k-3].TileOwner := aOwner;
   end;
@@ -1993,12 +1996,13 @@ end;
 
 {Check if house can be placed in that place}
 function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
-var i,k:integer;
+var i,k:integer; HA:THouseArea;
 begin
-Result:=true;
+  Result:=true;
+  HA := fResource.HouseDat[aHouseType].BuildArea;
   Loc.X:=Loc.X-fResource.HouseDat[aHouseType].EntranceOffsetX; //update offset
   for i:=1 to 4 do for k:=1 to 4 do
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+    if HA[i,k]<>0 then begin
       Result := Result AND TileInMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
       Result := Result AND (Land[Loc.Y+i-4,Loc.X+k-3].Markup<>mu_UnderConstruction);
 
@@ -2081,19 +2085,21 @@ end;
 
 
 procedure TTerrain.AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
-var i,k:integer;
+var i,k:integer; HA:THouseArea;
 begin
+  HA := fResource.HouseDat[aHouseType].BuildArea;
+
   if aBuildState in [hbs_Stone, hbs_Done] then //only leave rubble if the construction was well underway (stone and above)
   begin
     //For houses that are at least partually built (leaves rubble)
     for i:=2 to 4 do for k:=2 to 4 do
-      if HousePlanYX[byte(aHouseType),i-1,k]<>0 then
-      if HousePlanYX[byte(aHouseType),i,k-1]<>0 then
-      if HousePlanYX[byte(aHouseType),i-1,k-1]<>0 then
-      if HousePlanYX[byte(aHouseType),i,k]<>0 then
+      if HA[i-1,k]<>0 then
+      if HA[i,k-1]<>0 then
+      if HA[i-1,k-1]<>0 then
+      if HA[i,k]<>0 then
         Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+Random(6);
     for i:=1 to 4 do for k:=1 to 4 do
-      if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then
+      if (HA[i,k] in [1,2]) then
       begin
         Land[Loc.Y+i-4,Loc.X+k-3].TileOverlay:=to_Dig3;
         Land[Loc.Y+i-4,Loc.X+k-3].Markup:=mu_None;
@@ -2102,9 +2108,9 @@ begin
   else begin
     //For glyphs
     for i:=1 to 4 do for k:=1 to 4 do
-      if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then begin
+      if (HA[i,k] in [1,2]) then
         Land[Loc.Y+i-4,Loc.X+k-3].Markup:=mu_None;
-      end;
+
   end;
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
   RebuildWalkConnect(wcWalk);

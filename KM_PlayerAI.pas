@@ -255,18 +255,18 @@ end;
 procedure TKMPlayerAI.CheckUnitCount;
 var
   i,k:integer;
-  h:THouseType;
-  UnitType:TUnitType;
+  H:THouseType;
+  UT:TUnitType;
   HS:TKMHouseSchool;
-  UnitReq:array[1..HOUSE_COUNT]of integer; //There are only ~10 unit types, but using HOUSE_COUNT is easier
+  UnitReq:array[TUnitType]of integer;
   Schools:array of TKMHouseSchool;
 
   function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
   begin
     //We summ up requirements for e.g. Recruits required at Towers and Barracks
-    if fPlayers[PlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[byte(aUnitType)]) then
+    if fPlayers[PlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[aUnitType]) then
     begin
-      dec(UnitReq[byte(aUnitType)]); //So other schools don't order same unit
+      dec(UnitReq[aUnitType]); //So other schools don't order same unit
       HS.AddUnitToQueue(aUnitType);
       Result := true;
     end
@@ -279,9 +279,9 @@ begin
 
   //Citizens
   //Count overall unit requirement (excluding Barracks and ownerless houses)
-  for h:=Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat.IsValid(h) and (fResource.HouseDat[h].OwnerType <> -1) and (h <> ht_Barracks) then
-      inc(UnitReq[fResource.HouseDat[h].OwnerType+1], fPlayers[PlayerIndex].Stats.GetHouseQty(h));
+  for H:=Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[H].IsValid and (fResource.HouseDat[H].OwnerType <> ut_None) and (H <> ht_Barracks) then
+      inc(UnitReq[fResource.HouseDat[H].OwnerType], fPlayers[PlayerIndex].Stats.GetHouseQty(H));
 
   //Schools
   //Count overall schools count and exclude already training units from UnitReq
@@ -293,7 +293,7 @@ begin
     Schools[k-1] := HS;
     for i:=1 to 6 do //Decrease requirement for each unit in training
       if HS.UnitQueue[i]<>ut_None then
-        dec(UnitReq[byte(HS.UnitQueue[i])]); //Can be negative and compensated by e.g. ReqRecruits
+        dec(UnitReq[HS.UnitQueue[i]]); //Can be negative and compensated by e.g. ReqRecruits
     inc(k);
     HS := TKMHouseSchool(fPlayers[PlayerIndex].FindHouse(ht_School,k));
   end;
@@ -305,17 +305,14 @@ begin
     if (HS<>nil)and(HS.UnitQueue[1]=ut_None) then
     begin
       //Order citizen training
-      for i:=1 to length(UnitReq) do
-        if (UnitReq[i] > 0) and
-           (UnitReq[i] > fPlayers[PlayerIndex].Stats.GetUnitQty(TUnitType(i))) then
+      for UT:=Low(UnitReq) to High(UnitReq) do
+        if (UnitReq[UT] > 0) and
+           (UnitReq[UT] > fPlayers[PlayerIndex].Stats.GetUnitQty(UT)) and
+           (UT <> ut_None) then
         begin
-          UnitType := TUnitType(i);
-          if UnitType <> ut_None then
-          begin
-            dec(UnitReq[i]); //So other schools don't order same unit
-            HS.AddUnitToQueue(UnitType);
-            break; //Don't need more UnitTypes yet
-          end;
+          dec(UnitReq[UT]); //So other schools don't order same unit
+          HS.AddUnitToQueue(UT);
+          break; //Don't need more UnitTypes yet
         end;
 
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)

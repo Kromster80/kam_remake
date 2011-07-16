@@ -7,7 +7,8 @@ uses Classes, KM_Defaults, KM_CommonTypes;
 type
   TKMPlayerStats = class
   private
-    Houses:array[1..HOUSE_COUNT]of packed record
+    fBuildReqDone:array[THouseType]of boolean; //If building requirements performed or assigned from script
+    Houses:array[THouseType]of packed record
       Started,      //Construction started
       Ended,        //Construction ended (either done or destroyed/cancelled)
       Initial,      //created by script on mission start
@@ -26,9 +27,10 @@ type
       Produced:word;
     end;
     ResourceRatios:array[1..4,1..4]of byte;
+    function GetHouseReleased(aType:THouseType):boolean;
+    procedure SetHouseReleased(aType:THouseType; aValue:boolean);
   public
-    AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
-    BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
+    AllowToBuild:array[THouseType]of boolean; //Allowance derived from mission script
     constructor Create;
 
     procedure HouseStarted(aType:THouseType);
@@ -37,6 +39,8 @@ type
     procedure HouseLost(aType:THouseType);
     procedure HouseSelfDestruct(aType:THouseType);
     procedure HouseDestroyed(aType:THouseType);
+
+    property HouseReleased[aType: THouseType]: boolean read GetHouseReleased write SetHouseReleased;
 
     procedure UnitCreated(aType:TUnitType; aWasTrained:boolean);
     procedure UnitLost(aType:TUnitType);
@@ -70,17 +74,18 @@ type
 
 
 implementation
+uses KM_ResourceGFX;
 
 
 { TKMPlayerStats }
 constructor TKMPlayerStats.Create;
-var i,k:integer;
+var H:THouseType; i,k:integer;
 begin
   Inherited;
-  for i:=1 to length(AllowToBuild) do
-    AllowToBuild[i] := true;
+  for H:=Low(THouseType) to High(THouseType) do
+    AllowToBuild[H] := true;
 
-  BuildReqDone[byte(ht_Store)] := true;
+  HouseReleased[ht_Store] := true;
 
   for i:=1 to 4 do for k:=1 to 4 do
     ResourceRatios[i,k] := DistributionDefaults[i,k];
@@ -88,25 +93,26 @@ end;
 
 
 procedure TKMPlayerStats.UpdateReqDone(aType:THouseType);
-var i:integer;
+var i:THouseType; HS:THouseTypeSet;
 begin
-  for i:=1 to length(BuildingAllowed[1]) do
-    if BuildingAllowed[byte(aType),i]<>ht_None then
-      BuildReqDone[byte(BuildingAllowed[byte(aType),i])] := true;
+  HS := fResource.HouseDat[aType].HouseUnlock;
+  for i:=Low(THouseType) to High(THouseType) do
+    if i in HS then
+      HouseReleased[i] := true;
 end;
 
 
 //New house in progress
 procedure TKMPlayerStats.HouseStarted(aType:THouseType);
 begin
-  inc(Houses[byte(aType)].Started);
+  inc(Houses[aType].Started);
 end;
 
 
 //Since we track only WIP houses, we don't care if it's done or canceled/destroyed, that could be separate stats
 procedure TKMPlayerStats.HouseEnded(aType:THouseType);
 begin
-  inc(Houses[byte(aType)].Ended);
+  inc(Houses[aType].Ended);
 end;
 
 
@@ -114,9 +120,9 @@ end;
 procedure TKMPlayerStats.HouseCreated(aType:THouseType; aWasBuilt:boolean);
 begin
   if aWasBuilt then
-    inc(Houses[byte(aType)].Built)
+    inc(Houses[aType].Built)
   else
-    inc(Houses[byte(aType)].Initial);
+    inc(Houses[aType].Initial);
   UpdateReqDone(aType);
 end;
 
@@ -124,20 +130,20 @@ end;
 //Destroyed by enemy
 procedure TKMPlayerStats.HouseLost(aType:THouseType);
 begin
-  inc(Houses[byte(aType)].Lost);
+  inc(Houses[aType].Lost);
 end;
 
 
 procedure TKMPlayerStats.HouseSelfDestruct(aType:THouseType);
 begin
-  inc(Houses[byte(aType)].SelfDestruct);
+  inc(Houses[aType].SelfDestruct);
 end;
 
 
 //Player has destroyed an enemy house
 procedure TKMPlayerStats.HouseDestroyed(aType:THouseType);
 begin
-  inc(Houses[byte(aType)].Destroyed);
+  inc(Houses[aType].Destroyed);
 end;
 
 
@@ -170,27 +176,29 @@ end;
 
 
 function TKMPlayerStats.GetHouseQty(aType:THouseType):integer;
-var i:integer;
+var H:THouseType;
 begin
   Result := 0;
   case aType of
     ht_None:    ;
-    ht_Any:     for i:=1 to HOUSE_COUNT do
-                  inc(Result, Houses[i].Initial + Houses[i].Built - Houses[i].SelfDestruct - Houses[i].Lost);
-    else        Result := Houses[byte(aType)].Initial + Houses[byte(aType)].Built - Houses[byte(aType)].SelfDestruct - Houses[byte(aType)].Lost;
+    ht_Any:     for H:=Low(THouseType) to High(THouseType) do
+                if fResource.HouseDat[H].IsValid then
+                  inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
+    else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
 end;
 
 
 function TKMPlayerStats.GetHouseWip(aType:THouseType):integer;
-var i:integer;
+var H:THouseType;
 begin
   Result := 0;
   case aType of
     ht_None:    ;
-    ht_Any:     for i:=1 to HOUSE_COUNT do
-                  inc(Result, Houses[i].Started - Houses[i].Ended);
-    else        Result := Houses[byte(aType)].Started - Houses[byte(aType)].Ended;
+    ht_Any:     for H:=Low(THouseType) to High(THouseType) do
+                if fResource.HouseDat[H].IsValid then
+                  inc(Result, Houses[H].Started - Houses[H].Ended);
+    else        Result := Houses[aType].Started - Houses[aType].Ended;
   end;
 end;
 
@@ -216,7 +224,7 @@ end;
 
 function TKMPlayerStats.GetCanBuild(aType:THouseType):boolean;
 begin
-  Result := BuildReqDone[byte(aType)] AND AllowToBuild[byte(aType)];
+  Result := HouseReleased[aType] AND AllowToBuild[aType];
 end;
 
 
@@ -277,29 +285,29 @@ end;
 
 
 function TKMPlayerStats.GetHousesLost:cardinal;
-var i:integer;
+var HT:THouseType;
 begin
   Result:=0;
-  for i:=low(Houses) to high(Houses) do
-    inc(Result,Houses[i].Lost);
+  for HT:=Low(THouseType) to High(THouseType) do
+    inc(Result,Houses[HT].Lost);
 end;
 
 
 function TKMPlayerStats.GetHousesDestroyed:cardinal;
-var i:integer;
+var HT:THouseType;
 begin
   Result:=0;
-  for i:=low(Houses) to high(Houses) do
-    inc(Result,Houses[i].Destroyed);
+  for HT:=Low(THouseType) to High(THouseType) do
+    inc(Result,Houses[HT].Destroyed);
 end;
 
 
 function TKMPlayerStats.GetHousesBuilt:cardinal;
-var i:integer;
+var HT:THouseType;
 begin
   Result:=0;
-  for i:=low(Houses) to high(Houses) do
-    inc(Result,Houses[i].Built);
+  for HT:=Low(THouseType) to High(THouseType) do
+    inc(Result,Houses[HT].Built);
 end;
 
 
@@ -341,7 +349,7 @@ begin
   SaveStream.Write(Goods, SizeOf(Goods));
   SaveStream.Write(ResourceRatios, SizeOf(ResourceRatios));
   SaveStream.Write(AllowToBuild, SizeOf(AllowToBuild));
-  SaveStream.Write(BuildReqDone, SizeOf(BuildReqDone));
+  SaveStream.Write(fBuildReqDone, SizeOf(fBuildReqDone));
 end;
 
 
@@ -355,8 +363,18 @@ begin
   LoadStream.Read(Goods, SizeOf(Goods));
   LoadStream.Read(ResourceRatios, SizeOf(ResourceRatios));
   LoadStream.Read(AllowToBuild, SizeOf(AllowToBuild));
-  LoadStream.Read(BuildReqDone, SizeOf(BuildReqDone));
+  LoadStream.Read(fBuildReqDone, SizeOf(fBuildReqDone));
 end;
 
+
+function TKMPlayerStats.GetHouseReleased(aType: THouseType): boolean;
+begin
+  Result := fBuildReqDone[aType];
+end;
+
+procedure TKMPlayerStats.SetHouseReleased(aType: THouseType; aValue: boolean);
+begin
+  fBuildReqDone[aType] := aValue;
+end;
 
 end.

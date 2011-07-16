@@ -493,8 +493,9 @@ begin
   HouseSet  := false;
   Step      := 0;
 
+  //todo: Replace with fHouse.GetListOfCellsWithin();
   for i := 1 to 4 do for k := 1 to 4 do
-  if HousePlanYX[byte(fHouse.GetHouseType),i,k] <> 0 then begin
+  if fHouse.HouseArea[i,k] <> 0 then begin
     inc(Step);
     Cells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
   end;

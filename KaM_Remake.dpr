@@ -43,6 +43,7 @@ uses
   KM_Render in 'KM_Render.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
+  KM_ResourceHouse in 'KM_ResourceHouse.pas',
   KM_Settings in 'KM_Settings.pas',
   KM_Sound in 'KM_Sound.pas',
   KM_Terrain in 'KM_Terrain.pas',

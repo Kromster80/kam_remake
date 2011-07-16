@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes, KM_CommonTypes
+  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_TextLibrary, Classes, KM_CommonTypes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, Zstream {$ENDIF};
 
@@ -14,58 +14,6 @@ type
   TCardinalArray2 = array of Cardinal;
   TexMode = (tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
-
-
-type
-  TKMHouseDat = packed record
-    StonePic,WoodPic,WoodPal,StonePal:smallint;
-    SupplyIn:array[1..4,1..5]of smallint;
-    SupplyOut:array[1..4,1..5]of smallint;
-    Anim:array[1..19] of record
-      Step:array[1..30]of smallint;
-      Count:smallint;
-      MoveX,MoveY:integer;
-    end;
-    WoodPicSteps,StonePicSteps:word;
-    a1:smallint;
-    EntranceOffsetX,EntranceOffsetY:shortint;
-    EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
-    BuildArea:array[1..10,1..10]of shortint;
-    WoodCost,StoneCost:byte;
-    BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
-    a5,SizeArea:smallint;
-    SizeX,SizeY,sx2,sy2:shortint;
-    WorkerWork,WorkerRest:smallint;
-    ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
-    ResProductionX:shortint;
-    MaxHealth,Sight:smallint;
-    OwnerType:shortint;
-    Foot1:array[1..12]of shortint; //Sound indices
-    Foot2:array[1..12]of smallint; //vs sprite ID
-  end;
-
-  //Swine&Horses, 5 beasts in each house, 3 ages for each beast
-  TKMHouseBeast = packed record
-    Step:array[1..30]of smallint;
-    Count:smallint;
-    MoveX,MoveY:integer;
-  end;
-
-  //todo: Get rid of HOUSE_COUNT throughout the code and replace it with more flexible Low(THouseType)..High(THouseType)
-  TKMHouseDatCollection = class
-  private
-    fItems: array[THouseType] of TKMHouseDat;
-    fBeastAnim: array[1..2,1..5,1..3] of TKMHouseBeast; //Swine&Horses, 5 beasts in each house, 3 ages for each beast
-    function GetHouseDat(aType:THouseType):TKMHouseDat;
-    function GetBeastAnim(aType:THouseType; aBeast, aAge:integer):TKMHouseBeast;
-  public
-    property HouseDat[aType:THouseType]:TKMHouseDat read GetHouseDat; default;
-    property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeast read GetBeastAnim;
-    function IsValid(aType:THouseType):boolean;
-    function HouseName(aType:THouseType):string;
-    procedure LoadHouseDat(aPath:string);
-    procedure ExportCSV(aPath: string);
-  end;
 
 
   TResource = class
@@ -844,7 +792,7 @@ var
   TD:array of cardinal;
 begin
   for ID:=Low(THouseType) to High(THouseType) do
-    if HouseDat.IsValid(ID) and (HouseDAT[ID].StonePic <> -1) then //Exlude House27 which is unused
+    if HouseDat[ID].IsValid then
 
       for h:=1 to 2 do begin
         if h=1 then begin
@@ -1144,8 +1092,8 @@ begin
   for ID:=ht_WatchTower to ht_WatchTower do begin
     for Ac:=1 to 5 do begin //Work1..Work5
       for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do begin
-        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\');
-        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\Work'+IntToStr(Ac)+'\');
+        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\');
+        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\Work'+IntToStr(Ac)+'\');
         if fResource.HouseDat[ID].Anim[Ac].Step[k]+1<>0 then
         ci:=fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
@@ -1159,7 +1107,7 @@ begin
           MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
         end;
         if sy>0 then MyBitMap.SaveToFile(
-        ExeDir+'Export\HouseAnim\'+fResource.HouseDat.HouseName(ID)+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
+        ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
       end;
     end;
   end;
@@ -1168,7 +1116,7 @@ begin
   for Q:=1 to 2 do begin
     if Q=1 then ID:=ht_Swine
            else ID:=ht_Stables;
-    CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat.HouseName(ID)+'\');
+    CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\');
     for Beast:=1 to 5 do begin
       for Ac:=1 to 3 do begin //Age 1..3
         for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,Ac].Count do begin
@@ -1185,7 +1133,7 @@ begin
             t:=RXData[2].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
-          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat.HouseName(ID)+'\'+int2fix(Beast,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
     end;
@@ -1386,79 +1334,5 @@ begin
   Screen.Cursor := c_Default;
 end;
 
-
-{ TKMHouseDatCollection }
-function TKMHouseDatCollection.GetHouseDat(aType:THouseType): TKMHouseDat;
-begin
-  Assert(IsValid(aType));
-  Result := fItems[aType];
-end;
-
-
-function TKMHouseDatCollection.GetBeastAnim(aType:THouseType; aBeast, aAge: integer): TKMHouseBeast;
-begin
-  Assert(aType in [ht_Swine, ht_Stables]);
-  Assert(InRange(aBeast, 1, 5));
-  Assert(InRange(aAge, 1, 3));
-  case aType of
-    ht_Swine:   Result := fBeastAnim[1, aBeast, aAge];
-    ht_Stables: Result := fBeastAnim[2, aBeast, aAge];
-  end;
-end;
-
-
-procedure TKMHouseDatCollection.LoadHouseDat(aPath: string);
-var f:file; i:THouseType;
-begin
-  Assert(FileExists(aPath));
-
-  assignfile(f,aPath); reset(f,1);
-  blockread(f,fBeastAnim,30*70); //Swine&Horses animations
-
-  //Set the range explicitely since that is how it's stored in Houses.dat
-  for i:=ht_Sawmill to ht_Wineyard do
-    blockread(f,fItems[i],88+19*70+270);
-  closefile(f);
-
-  //ExportCSV(ExeDir+'Houses.csv');
-end;
-
-
-procedure TKMHouseDatCollection.ExportCSV(aPath: string);
-var i:THouseType; Ap:string; S:TStringList;
-  procedure AddField(aField:string); overload; begin Ap := Ap + aField + ';'; end;
-  procedure AddField(aField:integer); overload; begin Ap := Ap + inttostr(aField) + ';'; end;
-begin
-  S := TStringList.Create;
-
-  Ap := 'House name;WoodCost;StoneCost';
-  S.Append(Ap);
-
-  for i:=Low(THouseType) to High(THouseType) do begin
-    Ap := '';
-    AddField(HouseName(i));
-    AddField(fItems[i].WoodCost);
-    AddField(fItems[i].StoneCost);
-    S.Append(Ap);
-  end;
-
-  S.SaveToFile(aPath);
-  S.Free;
-end;
-
-
-function TKMHouseDatCollection.IsValid(aType: THouseType): boolean;
-begin
-  Result := (aType in [Low(THouseType)..High(THouseType)]-[ht_None, ht_Any]);
-end;
-
-
-function TKMHouseDatCollection.HouseName(aType: THouseType): string;
-begin
-  if IsValid(aType) then
-    Result := fTextLibrary.GetTextString(siHouseNames+byte(aType))
-  else
-    Result := 'N/A';
-end;
 
 end.

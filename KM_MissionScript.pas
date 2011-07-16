@@ -134,7 +134,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
+uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX, KM_ResourceHouse;
 
 
 { TMissionParser }
@@ -444,6 +444,7 @@ var
   MyStr: string;
   i, MyInt: integer;
   Storehouse: TKMHouseStore;
+  H: THouseType;
   Barracks: TKMHouseBarracks;
   iPlayerAI: TKMPlayerAI;
 begin
@@ -507,8 +508,9 @@ begin
                          fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealCircle(KMPointX1Y1(ParamList[0],ParamList[1]), ParamList[2], 255);
                        end;
     ct_SetHouse:       begin
-                       if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                         fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), ParamList[1]+1, ParamList[2]+1, false);
+                       if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
+                         fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(
+                           HouseKaMType[ParamList[0]], ParamList[1]+1, ParamList[2]+1, false);
                        end;
     ct_SetHouseDamage: begin
                        if fLastHouse <> nil then
@@ -572,16 +574,16 @@ begin
                          if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                        end;
     ct_BlockHouse:     begin
-                         if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                           fPlayers.Player[fCurrentPlayerIndex].Stats.AllowToBuild[ParamList[0]+1]:=false;
+                         if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
+                           fPlayers.Player[fCurrentPlayerIndex].Stats.AllowToBuild[HouseKaMType[ParamList[0]]] := false;
                        end;
     ct_ReleaseHouse:   begin
-                         if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                           fPlayers.Player[fCurrentPlayerIndex].Stats.BuildReqDone[ParamList[0]+1]:=true;
+                         if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
+                           fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[HouseKaMType[ParamList[0]]] := true;
                        end;
    ct_ReleaseAllHouses:begin
-                         for i:=1 to HOUSE_COUNT do
-                           fPlayers.Player[fCurrentPlayerIndex].Stats.BuildReqDone[i]:=true;
+                         for H:=Low(THouseType) to High(THouseType) do
+                           fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[H] := true;
                        end;
     ct_SetGroup:       begin
                          if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
@@ -778,6 +780,7 @@ var
   Group: TGroupType;
   CurUnit: TKMUnit;
   CurHouse: TKMHouse;
+  H:THouseType;
   ReleaseAllHouses: boolean;
   SaveString: string;
 
@@ -916,21 +919,22 @@ begin
     //Alliances
     for k:=0 to fPlayers.Count-1 do
       if k<>i then
-        AddCommand(ct_SetAlliance, [k,byte(fPlayers.Player[i].Alliances[k])]); //0=enemy, 1=ally
+        AddCommand(ct_SetAlliance, [k, byte(fPlayers.Player[i].Alliances[k])]); //0=enemy, 1=ally
     AddData(''); //NL
-    
+
     //Release/block houses
     ReleaseAllHouses := true;
-    for k:=1 to HOUSE_COUNT do
+    for H:=Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[H].IsValid then //Exclude ht_None / ht_Any
     begin
-      if not fPlayers.Player[i].Stats.AllowToBuild[k] then
+      if not fPlayers.Player[i].Stats.AllowToBuild[H] then
       begin
-        AddCommand(ct_BlockHouse, [k-1]);
+        AddCommand(ct_BlockHouse, [HouseKaMOrder[H]]);
         ReleaseAllHouses := false;
       end
       else
-        if fPlayers.Player[i].Stats.BuildReqDone[k] then
-          AddCommand(ct_ReleaseHouse, [k-1])
+        if fPlayers.Player[i].Stats.HouseReleased[H] then
+          AddCommand(ct_ReleaseHouse, [HouseKaMOrder[H]])
         else
           ReleaseAllHouses := false;
     end;

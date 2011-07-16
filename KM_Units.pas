@@ -423,7 +423,7 @@ begin
                       Msg := fTextLibrary.GetRemakeString(51)
                     else
                       Msg := fTextLibrary.GetRemakeString(52);
-      else         begin Assert(false, fResource.HouseDat.HouseName(fHome.GetHouseType)+' resource cant possibly deplet'); Msg := ''; end;
+      else         begin Assert(false, fResource.HouseDat[fHome.GetHouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
     end;
     if Msg <> '' then fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
     fHome.ResourceDepletedMsgIssued := true;
@@ -442,7 +442,7 @@ begin
   Res := 1;
   //Check if House has production orders
   //Random pick from whole amount
-  if HousePlaceOrders[byte(fHome.GetHouseType)] then
+  if fHome.DoesOrders then
   begin
     Tmp := fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
     if Tmp=0 then exit; //No orders
@@ -455,7 +455,7 @@ begin
     else exit; //Nothing found
   end;
 
-  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
+  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,fResource.HouseDat[fHome.GetHouseType].ResOutput[Res],KMPointY1(fHome.GetEntrance));
 
   if fWorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
@@ -466,7 +466,7 @@ begin
   and (fHome.CheckResOut(fWorkPlan.Product1)<MAX_RES_IN_HOUSE)
   and (fHome.CheckResOut(fWorkPlan.Product2)<MAX_RES_IN_HOUSE) then
   begin
-    if HousePlaceOrders[byte(fHome.GetHouseType)] then
+    if fHome.DoesOrders then
       fHome.ResEditOrder(Res, -1); //Take order
     Result := TTaskMining.Create(fWorkPlan, Self);
   end;

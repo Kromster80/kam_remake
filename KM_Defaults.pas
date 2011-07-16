@@ -111,7 +111,7 @@ const
   RX7_SPRITE_COUNT = 22;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
-  HOUSE_COUNT       = 29;   //Number of KaM houses is 29
+  GUI_HOUSE_COUNT   = 28;   //Number of KaM houses to show in GUI
   MAX_PLAYERS       = 8;    //Maximum players per map
   SAVEGAME_COUNT    = 10;   //Savegame slots available in game menu
   AUTOSAVE_SLOT     = 10;   //Slot ID used for autosaving
@@ -554,13 +554,16 @@ type
 
 {Houses in game}
 type
-  THouseType = ( ht_None=0, ht_Any=30,
-    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
-    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutters=10,
-    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
-    ht_Metallurgists=16, ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
-    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
+  //I've removed values, enums don't need them by intent
+  THouseType = ( ht_None, ht_Any,
+    ht_ArmorSmithy,     ht_ArmorWorkshop, ht_Bakery,        ht_Barracks,    ht_Butchers,
+    ht_CoalMine,        ht_Farm,          ht_FisherHut,     ht_GoldMine,    ht_Inn,
+    ht_IronMine,        ht_IronSmithy,    ht_Metallurgists, ht_Mill,        ht_Quary,
+    ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,     ht_Store,
+    ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,  ht_WeaponSmithy,
+    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
+
+  THouseTypeSet = set of THouseType;
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = ( hst_Empty, hst_Idle, hst_Work );
@@ -612,42 +615,6 @@ const
   ut_Lamberjack,
   ut_Recruit,
   ut_Serf, ut_Worker );
-
-  //Building of certain house allows player to build following houses,
-  //unless they are blocked in mission script of course
-  //todo: Replace with Sets
-  BuildingAllowed:array[1..HOUSE_COUNT,1..8]of THouseType = (
-  (ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks, ht_FisherHut), //Sawmill
-  (ht_WeaponSmithy,ht_ArmorSmithy,ht_SiegeWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None), //IronSmithy
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //CoalMine
-  (ht_IronSmithy,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //IronMine
-  (ht_Metallurgists,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //GoldMine
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Mill,ht_Swine,ht_Stables,ht_None,ht_None,ht_None,ht_None,ht_None), //Farm
-  (ht_Sawmill,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Woodcutters
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Inn,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //School
-  (ht_Woodcutters,ht_WatchTower,ht_None{,ht_Wall},ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
-  (ht_TownHall,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Metallurgists
-  (ht_Butchers,ht_Tannery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Swine
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Bakery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Mill
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_ArmorWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Quary,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Inn
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
-  //,(ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
-  );
 
 const
   School_Order:array[1..14] of TUnitType = (
@@ -711,132 +678,15 @@ MapEdTileRemap:array[1..256]of integer = (
 // 247 - doesn't work in game, replaced with random road
 
 
-//1-building area //2-entrance
-HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut
-((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)), //Woodcutter
-((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)), //Armor smithy
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)), //Armor workshop
-((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Barracks
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butcher
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard
-//,((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,1,0))  //Wall
-);
-
-//Does house output needs to be ordered by Player or it keeps on producing by itself
-HousePlaceOrders:array[1..HOUSE_COUNT] of boolean = (
-false,false,true ,false,false,false,false,false,false,false,
-true ,false,false,false,false,false,false,false,false,true ,
-true ,false,false,true ,false,false,false,false,false{,false});
-
-//What does house produces
-HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
-(rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill
-(rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy
-(rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None), //Weapon smithy
-(rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine
-(rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine
-(rt_GoldOre,    rt_None,       rt_None,       rt_None), //Gold mine
-(rt_Fish,       rt_None,       rt_None,       rt_None), //Fisher hut
-(rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Farm
-(rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter
-(rt_MetalArmor, rt_MetalShield,rt_None,       rt_None), //Armor smithy
-(rt_All,        rt_None,       rt_None,       rt_None), //Store
-(rt_Horse,      rt_None,       rt_None,       rt_None), //Stables
-(rt_None,       rt_None,       rt_None,       rt_None), //School
-(rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry
-(rt_Gold,       rt_None,       rt_None,       rt_None), //Metallurgist
-(rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine
-(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower
-(rt_None,       rt_None,       rt_None,       rt_None), //Town hall
-(rt_Axe,        rt_Pike,       rt_Bow,        rt_None), //Weapon workshop
-(rt_Shield,     rt_Armor,      rt_None,       rt_None), //Armor workshop
-(rt_None,       rt_None,       rt_None,       rt_None), //Barracks
-(rt_Flour,      rt_None,       rt_None,       rt_None), //Mill
-(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop
-(rt_Sausages,   rt_None,       rt_None,       rt_None), //Butcher
-(rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery
-(rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_None,       rt_None,       rt_None,       rt_None), //Inn
-(rt_Wine,       rt_None,       rt_None,       rt_None){, //Wineyard
-(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
-);
-
-//What house requires
-HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
-(rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill
-(rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy
-(rt_Coal,       rt_Steel,      rt_None,       rt_None), //Weapon smithy
-(rt_None,       rt_None,       rt_None,       rt_None), //Coal mine
-(rt_None,       rt_None,       rt_None,       rt_None), //Iron mine
-(rt_None,       rt_None,       rt_None,       rt_None), //Gold mine
-(rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut
-(rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery
-(rt_None,       rt_None,       rt_None,       rt_None), //Farm
-(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter
-(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Armor smithy
-(rt_All,        rt_None,       rt_None,       rt_None), //Store
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Stables
-(rt_Gold,       rt_None,       rt_None,       rt_None), //School
-(rt_None,       rt_None,       rt_None,       rt_None), //Quarry
-(rt_GoldOre,    rt_Coal,       rt_None,       rt_None), //Metallurgist
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Swine
-(rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower
-(rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall
-(rt_Wood,       rt_None,       rt_None,       rt_None), //Weapon workshop
-(rt_Wood,       rt_Leather,    rt_None,       rt_None), //Armor workshop
-(rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Mill
-(rt_Wood,       rt_Steel,      rt_None,       rt_None), //Siege workshop
-(rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher
-(rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery
-(rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn
-(rt_None,       rt_None,       rt_None,       rt_None){, //Wineyard
-(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
-);
-
-
 {Houses UI}
 const
-  GUIBuildIcons:array[1..HOUSE_COUNT]of word = (
-  301, 302, 303, 304, 305,
-  306, 307, 308, 309, 310,
-  311, 312, 313, 314, 315,
-  316, 317, 318, 319, 320,
-  321, 322, 323, 324, 325,
-  326, 327, 328, 329{, 338});
-
-  GUIHouseOrder:array[1..HOUSE_COUNT]of THouseType = (
+  GUIHouseOrder:array[1..GUI_HOUSE_COUNT]of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
     ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
     ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_None{, ht_Wall});
+    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop);
 
 {Terrain}
 type
