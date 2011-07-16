@@ -112,12 +112,12 @@ begin
 
     //Choose smallest positive time
     if (Time1 > 0) and (Time2 > 0) then
-      TimeToHit := min(Time1, Time2)
+      TimeToHit := Math.min(Time1, Time2)
     else
     if (Time1 < 0) and (Time2 < 0) then
       TimeToHit := 0
     else
-      TimeToHit := max(Time1, Time2);
+      TimeToHit := Math.max(Time1, Time2);
   end
   else
     TimeToHit := 0;
@@ -214,7 +214,7 @@ begin
                             if fType = pt_Arrow then Damage := UnitStat[byte(ut_Bowman)].Attack;
                             if fType = pt_Bolt then Damage := UnitStat[byte(ut_Arbaletman)].Attack;
                             //Arrows are more likely to cause damage when the unit is closer
-                            Damage := Round(Damage * (1-min(GetLength(U.PositionF,fTarget),1)));
+                            Damage := Round(Damage * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
                             if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
                               if U.HitPointsDecrease(Damage) then
                                 fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);

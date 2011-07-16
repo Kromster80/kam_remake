@@ -16,7 +16,9 @@ unit SciZipFile;
 
 interface
 
-uses SysUtils, Classes, Types, zlib, Windows;
+uses SysUtils, Classes, Types, zlib,
+     {$IFDEF FPC} zstream, {$ENDIF}
+     Windows;
 
 type
 

@@ -213,7 +213,7 @@ begin
   for i:=aTick+MAX_SCHEDULE downto aTick+1 do
     if CommandsConfirmed(i, true) then
     begin
-      fMinimumReadyEarly := min(fMinimumReadyEarly, i-aTick);
+      fMinimumReadyEarly := Math.min(fMinimumReadyEarly, i-aTick);
       exit;
     end;
   fMinimumReadyEarly := 0; //No ticks were ready early

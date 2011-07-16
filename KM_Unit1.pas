@@ -505,8 +505,8 @@ begin
                           Panel5.Height,
                           aVSync,
                           FormLoading.LoadingStep,
-                          FormLoading.LoadingText,
-                          {$IFDEF WDC}MediaPlayer1 {$ENDIF}
+                          FormLoading.LoadingText
+                          {$IFDEF WDC},MediaPlayer1 {$ENDIF}
                           );
 
   fGame.ResizeGameArea(Panel5.Width, Panel5.Height);
@@ -662,7 +662,8 @@ end;
 
 
 {$IFDEF FPC}
-initialization
+
+initialization
 {$I KM_Unit1.lrs}
 {$ENDIF}
 

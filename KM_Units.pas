@@ -1140,7 +1140,7 @@ begin
   //When we are first hit reset the counter
   if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
   // Defence modifier
-  aAmount := aAmount div max(UnitStat[byte(fUnitType)].Defence,1); //Not needed, but animals have 0 defence
+  aAmount := aAmount div Math.max(UnitStat[byte(fUnitType)].Defence,1); //Not needed, but animals have 0 defence
   // Sign of aAmount does not affect
   fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, GetMaxHitPoints);
   if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
