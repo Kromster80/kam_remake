@@ -4,7 +4,7 @@ interface
 uses
    {$IFDEF MSWindows} Windows, {$ENDIF}
    Classes, KromUtils, Math, SysUtils,
-   KM_CommonTypes, KM_Defaults, KM_Utils, KM_ResourceGFX;
+   KM_CommonTypes, KM_Defaults, KM_Utils, KM_ResourceGFX, KM_ResourceHouse;
 
   {Everything related to houses is here}
 type
@@ -736,7 +736,7 @@ end;
 function TKMHouse.CheckResIn(aResource:TResourceType):word;
 var i:integer;
 begin
-Result:=0;
+  Result:=0;
   for i:=1 to 4 do
   if (aResource = fResource.HouseDat[fHouseType].ResInput[i])or(aResource=rt_All) then
     inc(Result,fResourceIn[i]);
@@ -747,7 +747,7 @@ end;
 function TKMHouse.CheckResOut(aResource:TResourceType):byte;
 var i:integer;
 begin
-Result:=0;
+  Result:=0;
   for i:=1 to 4 do
   if (aResource = fResource.HouseDat[fHouseType].ResOutput[i])or(aResource=rt_All) then
     inc(Result,fResourceOut[i]);
@@ -797,7 +797,7 @@ var i:integer;
 begin
   if aResource=rt_None then exit;
   for i:=1 to 4 do
-  if aResource = HouseOutput[byte(fHouseType),i] then
+  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
     begin
       inc(fResourceOut[i],aCount);
       fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
@@ -823,7 +823,7 @@ begin
   Assert(aResource<>rt_None);
 
   for i:=1 to 4 do
-  if aResource = HouseInput[byte(fHouseType),i] then begin
+  if aResource = fResource.HouseDat[fHouseType].ResInput[i] then begin
     Assert(fResourceIn[i] >= aCount, 'fResourceIn[i]<0');
     dec(fResourceIn[i],aCount);
     dec(fResourceDeliveryCount[i],aCount);
@@ -845,7 +845,7 @@ begin
   Assert(aResource<>rt_None);
   Assert(not(fHouseType in [ht_Store,ht_Barracks]));
   for i:=1 to 4 do
-  if aResource = HouseOutput[byte(fHouseType),i] then begin
+  if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then begin
     Assert(aCount <= fResourceOut[i]);
     dec(fResourceOut[i], aCount);
     exit;
@@ -862,7 +862,7 @@ end;
 
 function TKMHouse.GetResDistribution(aID:byte):byte;
 begin
-  Result := fPlayers.Player[fOwner].Stats.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
+  Result := fPlayers.Player[fOwner].Stats.GetRatio(fResource.HouseDat[fHouseType].ResInput[aID],fHouseType);
 end;
 
 
@@ -985,12 +985,12 @@ procedure TKMHouse.UpdateResRequest;
 var i:byte; Count:shortint;
 begin
   for i:=1 to 4 do
-    if not (HouseInput[byte(fHouseType),i] in [rt_All, rt_Warfare, rt_None]) then
+    if not (fResource.HouseDat[fHouseType].ResInput[i] in [rt_All, rt_Warfare, rt_None]) then
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
     begin
       Count := GetResDistribution(i)-fResourceDeliveryCount[i];
       fPlayers.Player[fOwner].DeliverList.AddNewDemand(
-        Self, nil, HouseInput[byte(fHouseType),i], Count, dt_Once, di_Norm);
+        Self, nil, fResource.HouseDat[fHouseType].ResInput[i], Count, dt_Once, di_Norm);
 
       inc(fResourceDeliveryCount[i], Count);
     end;

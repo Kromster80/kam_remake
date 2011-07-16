@@ -113,7 +113,7 @@ var
 
 
 implementation
-uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_Units;
+uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceHouse, KM_Units;
 
 
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
@@ -1335,6 +1335,7 @@ begin
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
+  //todo: Move this out from KM_Render
   for i:=1 to 4 do for k:=1 to 4 do
   if HA[i,k]<>0 then
   begin
