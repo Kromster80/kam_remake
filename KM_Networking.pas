@@ -67,6 +67,7 @@ type
     procedure Disconnect;
     function  Connected: boolean;
     procedure SendMapOrSave;
+    procedure MatchPlayersToSave(aPlayerID:integer=-1);
     procedure SelectNoMap;
     procedure SelectMap(aName:string);
     procedure SelectSave(aSlot:integer);
@@ -291,6 +292,24 @@ begin
 end;
 
 
+procedure TKMNetworking.MatchPlayersToSave(aPlayerID:integer=-1);
+var i,k: integer;
+begin
+  assert(fMapInfo.IsSave,'Only host can match players');
+  assert(fMapInfo.IsSave,'Not a save');
+  //If we are matching all then reset them all first so we don't get clashes
+  if aPlayerID = -1 then
+    for i:=1 to fNetPlayers.Count do
+      fNetPlayers[i].StartLocation := 0;
+
+  for i:=1 to fNetPlayers.Count do
+    for k:=1 to fMapInfo.PlayerCount do
+      if (i = aPlayerID) or (aPlayerID = -1) then //-1 means update all players
+        if (fNetPlayers[i].Nikname = fMapInfo.LocationName[k-1]) and fNetPlayers.LocAvailable(k) then
+          fNetPlayers[i].StartLocation := k;
+end;
+
+
 procedure TKMNetworking.SelectNoMap;
 begin
   Assert(IsHost, 'Only host can reset map');
@@ -336,6 +355,7 @@ begin
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
   SendMapOrSave;
+  MatchPlayersToSave;
 
   fNetPlayers[fMyIndex].ReadyToStart := true;
 
@@ -598,6 +618,7 @@ begin
                 fNetPlayers.AddPlayer(Msg, aSenderIndex);
                 PacketSend(aSenderIndex, mk_AllowToJoin, '', 0);
                 SendMapOrSave; //Send the map first so it doesn't override starting locs
+                if fMapInfo.IsSave then MatchPlayersToSave(fNetPlayers.ServerToLocal(aSenderIndex)); //Match only this player
                 SendPlayerListAndRefreshPlayersSetup;
                 PostMessage(Msg+' has joined');
               end

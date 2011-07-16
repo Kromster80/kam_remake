@@ -229,7 +229,8 @@ begin
       //Display message if set and not already shown and not a blank text
       if (Goals[i].MessageToShow <> 0) and (not Goals[i].MessageHasShown) and (fTextLibrary.GetTextString(Goals[i].MessageToShow) <> '') then
       begin
-        fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(Goals[i].MessageToShow),KMPoint(0,0));
+        if MyPlayer = fPlayers[PlayerIndex] then
+          fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(Goals[i].MessageToShow),KMPoint(0,0));
         Goals.SetMessageHasShown(i);
       end;
     end
@@ -243,6 +244,7 @@ begin
 
   if fGame.PlayOnState <> gr_Cancel then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
   if fGame.GameState = gsReplay then exit; //Don't check conditions in Replay
+  if MyPlayer <> fPlayers[PlayerIndex] then exit; //Don't show message if the player is not us
   if VictorySatisfied then
     fGame.RequestGameHold(gr_Win); //They win
 
@@ -634,12 +636,13 @@ end;
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
 begin
-  if (MyPlayer=fPlayers[PlayerIndex])and(fPlayers[PlayerIndex].PlayerType=pt_Human) then
+  if fPlayers[PlayerIndex].PlayerType = pt_Human then
   begin
     if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
     and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
     begin
-      //fSoundLib.PlayWarning(sp_BuildingsAttacked);
+      //if MyPlayer = fPlayers[PlayerIndex] then //Process anyway for multiplayer consistency, but don't play sound
+        //fSoundLib.PlayWarning(sp_BuildingsAttacked);
       fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
@@ -651,15 +654,18 @@ end;
 //aUnit is our unit that was attacked
 procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
 begin
-  if (MyPlayer=fPlayers[PlayerIndex])and(fPlayers[PlayerIndex].PlayerType=pt_Human) then
+  if fPlayers[PlayerIndex].PlayerType = pt_Human then
   begin
     if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
     and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
     begin
-      {if aUnit is TKMUnitWarrior then
-        fSoundLib.PlayWarning(sp_TroopsAttacked)
-      else
-        fSoundLib.PlayWarning(sp_CitizensAttacked);}
+      {if MyPlayer = fPlayers[PlayerIndex] then //Process anyway for multiplayer consistency, but don't play sound
+      begin
+        if aUnit is TKMUnitWarrior then
+          fSoundLib.PlayWarning(sp_TroopsAttacked)
+        else
+          fSoundLib.PlayWarning(sp_CitizensAttacked);
+      end;}
       fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
@@ -765,10 +771,9 @@ end;
 procedure TKMPlayerAI.UpdateState;
 begin
 
-  //Check goals only for MyPlayer
+  //Check goals for all players to maintain multiplayer consistency
   case fPlayers[PlayerIndex].PlayerType of
-    pt_Human: if (MyPlayer=fPlayers[PlayerIndex]) then
-      CheckGoals; //This procedure manages victory, loss and messages all in one
+    pt_Human:     CheckGoals; //This procedure manages victory, loss and messages all in one
     pt_Computer:  if (MyPlayer <> fPlayers[PlayerIndex]) then
                   begin
                     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed

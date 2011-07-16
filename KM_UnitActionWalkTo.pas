@@ -641,6 +641,7 @@ end;
 //If the blockage won't go away because it's busy (Locked by other unit) then try going around it
 //by re-routing our route and avoiding that tile and all other Locked tiles
 function TUnitActionWalkTo.IntSolutionAvoid(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+var MaxLength:integer;
 begin
   Result := false;
   if (HighestInteractionCount >= AVOID_TIMEOUT) or fDestBlocked then
@@ -650,8 +651,10 @@ begin
     //Can't go around our target position unless it's a house
     if (not KMSamePoint(fOpponent.GetPosition,fWalkTo)) or (fTargetHouse <> nil) then
     begin
+      //We will accept an alternative route up to 3 times greater than the amount we would have been walking anyway
+      MaxLength := Math.max(NodeList.Count-NodePos,15)*3; //Remainder of our route times 3. Always prepared to walk 15 tiles (e.g. around houses)
       if fDestBlocked or fOpponent.GetUnitAction.Locked then
-        if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList) then //Make sure the route can be made, if not, we must simply wait
+        if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList,MaxLength) then //Make sure the route can be made, if not, we must simply wait
         begin
           //NodeList has now been re-routed, so we need to re-init everything else and start walk again
           SetInitValues;

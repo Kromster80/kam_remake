@@ -122,7 +122,7 @@ TTerrain = class
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
-    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList):boolean;
+    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
     procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
@@ -1583,12 +1583,13 @@ end;
 
 
 //Tests weather route can be made
-function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList):boolean;
+function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
 var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse, true); //True means we are using Interaction Avoid mode (go around busy units)
   try
     Result := fPath.RouteSuccessfullyBuilt;
+    if fPath.GetRouteLength > aMaxRouteLen then Result := false; //Route is too long
     if not Result then exit;
     if NodeList <> nil then NodeList.Clearup;
     fPath.ReturnRoute(NodeList);

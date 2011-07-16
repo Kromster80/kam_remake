@@ -411,8 +411,7 @@ end;
 procedure TKMUnitCitizen.IssueResourceDepletedMessage;
 var Msg:string;
 begin
-  if (fOwner = MyPlayer.PlayerIndex) //Don't show for AI players
-  and not fHome.ResourceDepletedMsgIssued then
+  if not fHome.ResourceDepletedMsgIssued then
   begin
     case fHome.GetHouseType of
       ht_Quary:    Msg := fTextLibrary.GetTextString(290);
@@ -425,7 +424,8 @@ begin
                       Msg := fTextLibrary.GetRemakeString(52);
       else         begin Assert(false, fResource.HouseDat[fHome.GetHouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
     end;
-    if Msg <> '' then fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
+    if (Msg <> '') and (fOwner = MyPlayer.PlayerIndex) then //Don't show message for other players
+      fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
     fHome.ResourceDepletedMsgIssued := true;
   end;
 end;

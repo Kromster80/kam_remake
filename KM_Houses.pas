@@ -1007,12 +1007,13 @@ begin
     DisableRepair;
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
-  if (not fHasOwner) and (fOwner = MyPlayer.PlayerIndex) and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
+  if (not fHasOwner) and (fResource.HouseDat[fHouseType].OwnerType <> ut_None) and (fHouseType <> ht_Barracks) then
   begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetTextString(295),GetEntrance);
+      if fOwner = MyPlayer.PlayerIndex then
+        fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetTextString(295),GetEntrance);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end
@@ -1804,7 +1805,7 @@ procedure TKMHousesCollection.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('Houses');
-  if fSelectedHouse <> nil then
+  if (fSelectedHouse <> nil) and not fGame.MultiplayerMode then //Multiplayer saves must be identical
     SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);

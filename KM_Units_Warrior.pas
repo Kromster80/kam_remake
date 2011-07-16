@@ -848,7 +848,7 @@ end;
 procedure TKMUnitWarrior.UpdateHungerMessage;
 var i:integer; SomeoneHungry:boolean;
 begin
-  if (fOwner = MyPlayer.PlayerIndex) and (fCommander = nil) then
+  if (fCommander = nil) then
   begin
     SomeoneHungry := (fCondition < UNIT_MIN_CONDITION); //Check commander
     if (fMembers <> nil) and (not SomeoneHungry) then
@@ -863,7 +863,8 @@ begin
       dec(fTimeSinceHungryReminder);
       if fTimeSinceHungryReminder < 1 then
       begin
-        fGame.fGamePlayInterface.MessageIssue(msgUnit,fTextLibrary.GetTextString(296),GetPosition);
+        if (fOwner = MyPlayer.PlayerIndex) then
+          fGame.fGamePlayInterface.MessageIssue(msgUnit,fTextLibrary.GetTextString(296),GetPosition);
         fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
       end;
     end
