@@ -1271,9 +1271,12 @@ begin
     Label_LobbyPlayer[i].Hide;
     DropBox_LobbyPlayerSlot[i].Show;
     DropBox_LobbyPlayerSlot[i].Disable;
+    DropBox_LobbyLoc[i].ItemIndex := 0;
     DropBox_LobbyLoc[i].Disable;
     DropBox_LobbyTeam[i].Disable;
+    DropBox_LobbyTeam[i].ItemIndex := 0;
     DropColorBox_Lobby[i].Disable;
+    DropColorBox_Lobby[i].ColorIndex := 0;
     DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     Label_LobbyPing[i].Caption := '';
   end;
@@ -1286,10 +1289,11 @@ begin
   Label_LobbyMapMode.Caption := 'Mode: ';
   Label_LobbyMapCond.Caption := 'Conditions: ';
 
+  Lobby_OnMapName('');
   if Sender = Button_LAN_Host then begin
     Radio_LobbyMapType.Show;
     Radio_LobbyMapType.ItemIndex := 0;
-    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', 'map', true); //Refresh each time we go here
+    Lobby_MapTypeSelect(nil);
     FileList_Lobby.Show;
     Label_LobbyChooseMap.Show;
     Button_LobbyReady.Hide;
@@ -1445,7 +1449,8 @@ begin
     FileList_Lobby.DefaultCaption := 'Select a save...';
     FileList_Lobby.RefreshList(ExeDir+'SavesM\', 'sav', 'rpl', true);
   end;
-  fGame.Networking.SelectNoMap;
+  if Sender <> nil then //This is used in Reset_Lobby when we are not connected
+    fGame.Networking.SelectNoMap;
 end;
 
 
@@ -1455,6 +1460,8 @@ begin
     fGame.Networking.SelectMap(TruncateExt(ExtractFileName(FileList_Lobby.FileName)))
   else
     fGame.Networking.SelectSave(KMSaveNameToSlot(FileList_Lobby.FileName));
+  if not fGame.Networking.MapInfo.IsValid then
+    Lobby_MapTypeSelect(Radio_LobbyMapType); //Deselect the map
 end;
 
 
@@ -1487,6 +1494,7 @@ begin
     Radio_LobbyMapType.ItemIndex := 1
   else
     Radio_LobbyMapType.ItemIndex := 0;
+  Lobby_MapTypeSelect(nil);
   FileList_Lobby.SetByFileName(fGame.Networking.MapInfo.Folder); //Select the map
 end;
 

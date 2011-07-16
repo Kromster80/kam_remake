@@ -683,6 +683,8 @@ begin
             begin
               fMapInfo.Free;
               fMapInfo := TKMapInfo.Create;
+              fNetPlayers.ResetLocAndReady;
+              if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
             end;
 
     mk_MapSelect:

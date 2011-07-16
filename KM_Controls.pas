@@ -1594,7 +1594,7 @@ var NewIndex:integer;
 begin
   if (csDown in State) and (Button = mbLeft) then
   begin
-    NewIndex := (Y-Top) div round(Height/ItemCount);
+    NewIndex := EnsureRange((Y-Top) div round(Height/ItemCount), 0, ItemCount-1); //Clicking at wrong place can select invalid ID
     if NewIndex <> fItemIndex then
     begin
       fItemIndex := NewIndex;

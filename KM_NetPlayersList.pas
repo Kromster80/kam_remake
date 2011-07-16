@@ -1,7 +1,7 @@
 unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
+uses Classes, KromUtils, StrUtils, Math, SysUtils,
   KM_CommonTypes, KM_Defaults,
   KM_Player;
 
@@ -45,6 +45,7 @@ type
     procedure AddAIPlayer;
     procedure RemPlayer(aIndexOnServer:integer);
     procedure RemAIPlayer(ID:integer);
+    procedure UpdateAIPlayerNames;
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
     //Getters
@@ -234,6 +235,7 @@ begin
   fPlayers[fCount].ReadyToStart := true;
   fPlayers[fCount].ReadyToPlay := true;
   fPlayers[fCount].Alive := true;
+  UpdateAIPlayerNames;
 end;
 
 
@@ -260,6 +262,20 @@ begin
 
   fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but not used
   dec(fCount);
+  UpdateAIPlayerNames;
+end;
+
+
+procedure TKMPlayersList.UpdateAIPlayerNames;
+var i, AICount:integer;
+begin
+  AICount := 0;
+  for i:=1 to fCount do
+    if fPlayers[i].PlayerType = pt_Computer then
+    begin
+      inc(AICount);
+      fPlayers[i].fNikname := 'AI Player '+IntToStr(AICount);
+    end;
 end;
 
 
@@ -319,7 +335,7 @@ begin
   if NiknameToLocal(aNik) <> -1 then
     Result := 'Player with the same name already joined the game'
   else  
-  if aNik = 'Player AI' then
+  if LeftStr(aNik,length('Player AI')) = 'Player AI' then
     Result := 'Cannot have the same name as AI players'
   else
     Result := '';
