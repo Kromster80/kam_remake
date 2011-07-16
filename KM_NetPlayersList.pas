@@ -51,6 +51,7 @@ type
     function ServerToLocal(aIndexOnServer:integer):integer;
     function NiknameToLocal(aNikname:string):integer;
     function StartingLocToLocal(aLoc:integer):integer;
+    function PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
     function CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
     function LocAvailable(aIndex:integer):boolean;
     function ColorAvailable(aIndex:integer):boolean;
@@ -296,6 +297,16 @@ begin
 end;
 
 
+function TKMPlayersList.PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=1 to fCount do
+    if (fPlayers[i].PlayerIndex <> nil) and (fPlayers[i].PlayerIndex.PlayerIndex = aIndex) then
+      Result := i;
+end;
+
+
 //See if player can join our game
 function TKMPlayersList.CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
 begin
@@ -307,6 +318,9 @@ begin
   else
   if NiknameToLocal(aNik) <> -1 then
     Result := 'Player with the same name already joined the game'
+  else  
+  if aNik = 'Player AI' then
+    Result := 'Cannot have the same name as AI players'
   else
     Result := '';
 end;
@@ -373,7 +387,7 @@ procedure TKMPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
 var i:integer;
 begin
   for i:=1 to fCount do
-    if (not fPlayers[i].ReadyToPlay) or (fPlayers[i].PlayerType = pt_Computer) then
+    if (not fPlayers[i].ReadyToPlay) and (fPlayers[i].PlayerType <> pt_Computer) then
       aPlayerList.Add(fPlayers[i].Nikname);
 end;
 

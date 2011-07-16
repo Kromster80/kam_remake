@@ -1352,8 +1352,9 @@ end;
 //Players list has been updated
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
-var i:integer; MyNik, CanEdit:boolean;
+var i:integer; MyNik, CanEdit, IsSave:boolean;
 begin
+  IsSave := fGame.Networking.MapInfo.IsSave;
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
@@ -1382,8 +1383,8 @@ begin
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
     CanEdit := MyNik or (fGame.Networking.IsHost and (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer));
     DropBox_LobbyLoc[i].Enabled := CanEdit;
-    DropBox_LobbyTeam[i].Enabled := CanEdit;
-    DropColorBox_Lobby[i].Enabled := CanEdit;
+    DropBox_LobbyTeam[i].Enabled := CanEdit and not IsSave; //Can't change color or teams in a loaded save
+    DropColorBox_Lobby[i].Enabled := CanEdit and not IsSave;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
     if MyNik then
       Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[i+1].ReadyToStart;
@@ -1466,9 +1467,12 @@ begin
   Label_LobbyMapMode.Caption := 'Mode: ' + fGame.Networking.MapInfo.MissionModeText;
 
   //Update starting locations
-  DropText := 'Random' + eol;
+  if fGame.Networking.MapInfo.IsSave then
+    DropText := 'Select...' + eol
+  else
+    DropText := 'Random' + eol;
   for i:=1 to fGame.Networking.MapInfo.PlayerCount do
-    DropText := DropText + 'Location ' + inttostr(i) + eol;
+    DropText := DropText + fGame.Networking.MapInfo.LocationName[i-1] + eol;
 
   for i:=0 to MAX_PLAYERS-1 do
     DropBox_LobbyLoc[i].SetItems(DropText);
@@ -1479,6 +1483,10 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Lobby_Reset(Button_LAN_Host,true); //Will reset the lobby page into host mode, preserving messages
+  if fGame.Networking.MapInfo.IsSave then
+    Radio_LobbyMapType.ItemIndex := 1
+  else
+    Radio_LobbyMapType.ItemIndex := 0;
   FileList_Lobby.SetByFileName(fGame.Networking.MapInfo.Folder); //Select the map
 end;
 

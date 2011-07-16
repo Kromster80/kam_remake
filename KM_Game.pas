@@ -933,7 +933,7 @@ end;
 procedure TKMGame.Save(SlotID:shortint);
 var
   SaveStream:TKMemoryStream;
-  i:integer;
+  i,NetIndex:integer;
 begin
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
@@ -956,6 +956,22 @@ begin
     SaveStream.Write(fTerrain.MapX);
     SaveStream.Write(fTerrain.MapY);
     SaveStream.Write(fPlayers.Count);
+    for i:=0 to fPlayers.Count-1 do
+    begin
+      NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i);
+      if NetIndex = -1 then
+      begin
+        SaveStream.Write('Unknown');
+        SaveStream.Write(Integer(0));
+        SaveStream.Write(Integer(0));
+      end
+      else
+      begin
+        SaveStream.Write(fNetworking.NetPlayers[NetIndex].Nikname);
+        SaveStream.Write(fNetworking.NetPlayers[NetIndex].FlagColorID);
+        SaveStream.Write(fNetworking.NetPlayers[NetIndex].Team);
+      end
+    end;
   end;
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
@@ -965,7 +981,7 @@ begin
   fPlayers.Save(SaveStream); //Saves all players properties individually
   fProjectiles.Save(SaveStream);
 
-  if fMultiplayerMode then
+  if not fMultiplayerMode then
   begin
     fViewport.Save(SaveStream); //Saves viewed area settings
     //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
@@ -1045,6 +1061,7 @@ var
   LoadedSeed:Longint;
   TempInt:integer;
   TempByte:byte;
+  p:TPlayerIndex;
   IsSaveMultiplayer:boolean;
 begin
   fLog.AppendLog('Loading game');
@@ -1090,6 +1107,12 @@ begin
       LoadStream.Read(TempInt); //MapX
       LoadStream.Read(TempInt); //MapY
       LoadStream.Read(TempByte); //Player count
+      for p:=0 to TempByte-1 do
+      begin
+        LoadStream.Read(s);
+        LoadStream.Read(TempInt);
+        LoadStream.Read(TempInt);
+      end
     end;
 
     LoadStream.Read(ID_Tracker);
@@ -1103,7 +1126,7 @@ begin
     fPlayers.Load(LoadStream);
     fProjectiles.Load(LoadStream);
 
-    if IsSaveMultiplayer then
+    if not IsSaveMultiplayer then
     begin
       fViewport.Load(LoadStream);
       fGamePlayInterface.Load(LoadStream);

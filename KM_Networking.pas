@@ -74,7 +74,7 @@ type
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
     function ReadyToStart:boolean;
-    function  CanStart:boolean;
+    function CanStart:boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
 
@@ -299,8 +299,8 @@ begin
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
   fNetPlayers.ResetLocAndReady; //Reset start locations
   fNetPlayers[fMyIndex].ReadyToStart := true;
-  SendPlayerListAndRefreshPlayersSetup;
   if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+  SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
@@ -319,8 +319,8 @@ begin
 
   fNetPlayers[fMyIndex].ReadyToStart := true;
 
-  SendPlayerListAndRefreshPlayersSetup;
   if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+  SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
@@ -339,8 +339,8 @@ begin
 
   fNetPlayers[fMyIndex].ReadyToStart := true;
 
-  SendPlayerListAndRefreshPlayersSetup;
   if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
+  SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
@@ -415,8 +415,12 @@ end;
 
 
 function TKMNetworking.CanStart:boolean;
+var i:integer;
 begin
   Result := (fNetPlayers.Count > 1) and fNetPlayers.AllReady and fMapInfo.IsValid;
+  if fMapInfo.IsSave then
+    for i:=1 to fNetPlayers.Count do
+      Result := Result and (fNetPlayers[i].StartLocation <> 0); //In saves everyone must chose a location
 end;
 
 
@@ -460,8 +464,24 @@ end;
 
 
 procedure TKMNetworking.SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
+var i:integer;
 begin
   Assert(IsHost, 'Only host can send player list');
+
+  //In saves we should load team and color from the MapInfo
+  if MapInfo.IsSave then
+    for i:=1 to NetPlayers.Count do
+      if NetPlayers[i].StartLocation <> 0 then
+      begin
+        NetPlayers[i].FlagColorID := MapInfo.ColorID[NetPlayers[i].StartLocation-1];
+        NetPlayers[i].Team := MapInfo.Team[NetPlayers[i].StartLocation-1];
+      end
+      else
+      begin
+        NetPlayers[i].FlagColorID := 0;
+        NetPlayers[i].Team := 0;
+      end;
+
   PacketSend(aPlayerIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
 end;

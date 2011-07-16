@@ -11,6 +11,8 @@ type
     fIsSave:boolean; //Allow peaking at saves (for multiplayer lobby)
     fSaveSlot:integer;
     fSaveIsMultiplayer:boolean;
+    fSaveError:string;
+    fSaveFile:string;
 
     fFolder:string; //Map folder
     fStrict:boolean; //Use strict map checking, important for MP
@@ -28,6 +30,9 @@ type
     procedure LoadFromFile(const aPath:string);
     procedure SaveToFile(const aPath:string);
   public
+    LocationName:array[0..MAX_PLAYERS] of string;
+    ColorID:array[0..MAX_PLAYERS] of integer;
+    Team:array[0..MAX_PLAYERS] of integer;
     BigDesc, Title:string;
     procedure Load(const aFolder:string; aStrict:boolean);
     procedure LoadSavedGame(aSlot:integer; aIsMultiplayer, aStrict:boolean);
@@ -90,12 +95,20 @@ procedure TKMapInfo.ScanMap;
 var
   st,DatFile,MapFile:string;
   ft:textfile;
+  i:integer;
   MissionDetails: TKMMissionDetails;
   fMissionParser:TMissionParser;
 begin
   DatFile := KMMapNameToPath(fFolder, 'dat');
   MapFile := KMMapNameToPath(fFolder, 'map');
   LoadFromFile(KMMapNameToPath(fFolder, 'mi')); //Data will be empty if failed
+
+  for i:=low(LocationName) to high(LocationName) do
+  begin
+    LocationName[i] := 'Location '+IntToStr(i+1);
+    ColorID[i] := 0;
+    Team[i] := 0;
+  end;
 
   //We will scan map once again if anything has changed
   //In SP mode we check DAT size and version, that is enough
@@ -148,7 +161,7 @@ end;
 
 procedure TKMapInfo.ScanSave;
 var
-  FileName,s,ver:string;
+  s,ver:string;
   LoadStream:TKMemoryStream;
   i:cardinal;
   MapX,MapY:integer;
@@ -156,15 +169,15 @@ var
 begin
   fSmallDesc     := '';
   BigDesc        := '';
-  FileName := KMSlotToSaveName(fSaveSlot,'sav',fSaveIsMultiplayer); //Full path
-  if not FileExists(FileName) then begin
+  fSaveError     := '';
+  fSaveFile := KMSlotToSaveName(fSaveSlot,'sav',fSaveIsMultiplayer); //Full path
+  if not FileExists(fSaveFile) then
     exit;
-  end;
 
-  fMapCRC := Adler32CRC(FileName);
+  fMapCRC := Adler32CRC(fSaveFile);
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  LoadStream.LoadFromFile(FileName);
+  LoadStream.LoadFromFile(fSaveFile);
 
   LoadStream.Read(s);
   if s = 'KaM_Savegame' then begin
@@ -184,11 +197,17 @@ begin
         LoadStream.Read(MapY);
         fMapSize := MapSizeToString(MapX,MapY);
         LoadStream.Read(fPlayerCount);
+        for i:=0 to fPlayerCount-1 do
+        begin
+          LoadStream.Read(LocationName[i]);
+          LoadStream.Read(ColorID[i]);
+          LoadStream.Read(Team[i]);
+        end;
       end;
     end else
-      Title := 'Unsupported save ' + ver;
+      fSaveError := 'Unsupported save ' + ver;
   end else
-    Title := 'Unsupported format';
+    fSaveError := 'Unsupported format';
   LoadStream.Free;
 end;
 
@@ -246,11 +265,13 @@ end;
 
 function TKMapInfo.IsValid:boolean;
 begin
-  Result := (Folder <> '') and
-            FileExists(KMMapNameToPath(fFolder,'dat')) and
-            FileExists(KMMapNameToPath(fFolder,'map')) and
-            (fPlayerCount > 0);
-  Result := Result or fIsSave; //todo: check validity properly
+  if not fIsSave then
+    Result := (Folder <> '') and
+              FileExists(KMMapNameToPath(fFolder,'dat')) and
+              FileExists(KMMapNameToPath(fFolder,'map')) and
+              (fPlayerCount > 0)
+  else
+    Result := (fSaveError = '') and FileExists(fSaveFile) and (fPlayerCount > 0);
 end;
 
 
