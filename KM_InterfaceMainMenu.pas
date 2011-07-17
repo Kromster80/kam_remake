@@ -459,14 +459,14 @@ begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,40,100,670,240);
-      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 670, 240);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,40,100,685,240);
+      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 685, 240);
       TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 140, 20, 'Players list:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 160, 10, 150, 20, 'Start location:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 300, 10, 140, 20, 'Team:', fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 410, 10, 140, 20, 'Flag color:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 530, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 600, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 550, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 620, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft);
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
@@ -488,20 +488,20 @@ begin
         for k:=1 to 4 do DropBox_LobbyTeam[i].AddItem('Team '+IntToStr(k));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 410, top, 100, 20, MP_COLOR_COUNT);
+        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 410, top, 125, 20, MP_COLOR_COUNT);
         DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, true);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 550, top, 50, 20, '', fnt_Metal);
+        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 570, top, 50, 20, '', fnt_Metal);
 
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 620, top, 40, 20, '', fnt_Metal, kaCenter);
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 640, top, 40, 20, '', fnt_Metal, kaCenter);
       end;
 
     //Chat
                           TKMLabel.Create  (Panel_Lobby, 40, 350, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
-    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 40, 370, 670, 200);
+    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 40, 370, 685, 200);
                           TKMLabel.Create  (Panel_Lobby, 40, 580, 100, 20, 'Post message:', fnt_Outline, kaLeft);
-    Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 40, 600, 670, 20, fnt_Metal);
+    Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 40, 600, 685, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
 

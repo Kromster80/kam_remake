@@ -295,7 +295,7 @@ end;
 procedure TKMNetworking.MatchPlayersToSave(aPlayerID:integer=-1);
 var i,k: integer;
 begin
-  assert(fMapInfo.IsSave,'Only host can match players');
+  assert(IsHost,'Only host can match players');
   assert(fMapInfo.IsSave,'Not a save');
   //If we are matching all then reset them all first so we don't get clashes
   if aPlayerID = -1 then
@@ -355,7 +355,7 @@ begin
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
   SendMapOrSave;
-  MatchPlayersToSave;
+  if fMapInfo.IsSave then MatchPlayersToSave; //Don't match players if it's not a valid save
 
   fNetPlayers[fMyIndex].ReadyToStart := true;
 

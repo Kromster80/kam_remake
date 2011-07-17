@@ -39,7 +39,7 @@ end;
 
 destructor TTaskMining.Destroy;
 begin
-  if fUnit.GetHome.GetState = hst_Work then
+  if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
   Inherited;
 end;

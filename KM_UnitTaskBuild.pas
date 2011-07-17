@@ -657,8 +657,7 @@ end;
 
 destructor TTaskBuildHouse.Destroy;
 begin
-  if fHouse.IsComplete and (BuildID<>0) then //Allow others to finish incomplete house
-    fPlayers.Player[fUnit.GetOwner].BuildList.CloseHouse(BuildID);
+  fPlayers.Player[fUnit.GetOwner].BuildList.RemoveHousePointer(BuildID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -728,8 +727,7 @@ begin
            inc(fPhase2);
          end;
       4: begin
-           fPlayers.Player[GetOwner].BuildList.CloseHouse(BuildID);
-           BuildID := 0;
+           fPlayers.Player[GetOwner].BuildList.RemoveHouse(BuildID); //Pointer usage is not freed until destroy
            SetActionStay(1,ua_Walk);
            Thought := th_None;
          end;
@@ -793,6 +791,7 @@ end;
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
+  fPlayers.Player[fUnit.GetOwner].BuildList.RemoveHouseRepairPointer(BuildID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -842,9 +841,7 @@ begin
          end;
       4: begin
            Thought := th_None;
-           fPlayers.Player[GetOwner].BuildList.CloseHouseRepair(BuildID);
-           BuildID := 0;
-           fHouse.RepairID := 0;
+           fPlayers.Player[GetOwner].BuildList.RemoveHouseRepair(BuildID);
            SetActionStay(1,ua_Walk);
          end;
       else Result := TaskDone;

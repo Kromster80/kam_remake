@@ -43,7 +43,6 @@ type
 
     fHasOwner: boolean; //which is some TKMUnit
     fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
-    fRepairID:integer; //Switch to remember TaskID of asked repair
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fResourceIn:array[1..4] of byte; //Resource count in input
@@ -98,7 +97,6 @@ type
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property GetOwner:TPlayerIndex read fOwner;
     function GetHealth:word;
-    property RepairID: integer read fRepairID write fRepairID;
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
@@ -280,7 +278,6 @@ begin
   //Initially repair is [off]. But for AI it's controlled by a command in DAT script
   fBuildingRepair   := false; //Don't set it yet because we don't always know who are AIs yet (in multiplayer) It is set in first UpdateState
   DoorwayUse        := 0;
-  fRepairID         := 0;
   fWareDelivery     := true;
 
   for i:=1 to 4 do
@@ -324,7 +321,6 @@ begin
   LoadStream.Read(fDamage, SizeOf(fDamage));
   LoadStream.Read(fHasOwner);
   LoadStream.Read(fBuildingRepair);
-  LoadStream.Read(fRepairID, SizeOf(fRepairID));
   LoadStream.Read(fWareDelivery);
   for i:=1 to 4 do LoadStream.Read(fResourceIn[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[i]);
@@ -604,8 +600,8 @@ begin
     fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
     Activate(true);
     //House was damaged while under construction, so set the repair mode now it is complete
-    if (fDamage > 0) and BuildingRepair and (fRepairID = 0) then
-      fRepairID := fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
+    if (fDamage > 0) and BuildingRepair then
+      fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
   end;
 end;
 
@@ -631,8 +627,8 @@ begin
   end;
 
   fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
-  if (fBuildState = hbs_Done) and BuildingRepair and (fRepairID = 0) then
-    fRepairID := fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
+  if (fBuildState = hbs_Done) and BuildingRepair then
+    fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
 
   if fBuildState = hbs_Done then
     UpdateDamage; //Only update fire if the house is complete
@@ -652,10 +648,8 @@ end;
 procedure TKMHouse.AddRepair(aAmount:word=5);
 begin
   fDamage:= EnsureRange(fDamage - aAmount,0,High(Word));
-  if (fDamage=0)and(fRepairID<>0) then begin
-    fPlayers.Player[fOwner].BuildList.CloseHouseRepair(fRepairID);
-    fRepairID:=0;
-  end;
+  if (fDamage=0) then
+    fPlayers.Player[fOwner].BuildList.RemoveHouseRepair(Self);
   UpdateDamage;
 end;
 
@@ -948,7 +942,6 @@ begin
   SaveStream.Write(fDamage, SizeOf(fDamage));
   SaveStream.Write(fHasOwner);
   SaveStream.Write(fBuildingRepair);
-  SaveStream.Write(fRepairID, SizeOf(fRepairID));
   SaveStream.Write(fWareDelivery);
   for i:=1 to 4 do SaveStream.Write(fResourceIn[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[i]);

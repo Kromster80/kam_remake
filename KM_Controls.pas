@@ -2411,7 +2411,7 @@ var Col:TColor4;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width-fButton.Width, Height);
-  fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-4, Height-4, fSwatch.GetColor, $00);
+  fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-3, Height-2, fSwatch.GetColor, $00);
   if fInclRandom and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
