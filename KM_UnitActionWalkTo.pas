@@ -579,6 +579,7 @@ begin
 
       //Since only Idle units can be pushed, we don't need to carry on TargetUnit/TargetHouse/etc props
       fWalker.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability));
+      //This action has now been freed, so we must exit without changing anything
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;
@@ -836,6 +837,7 @@ function TUnitActionWalkTo.Execute(KMUnit: TKMUnit):TActionResult;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
+  PreviousAction:TUnitAction;
 begin
   Result := ActContinues;
   StepDone := false;
@@ -976,13 +978,13 @@ begin
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
-
+      PreviousAction := KMUnit.GetUnitAction; //We need to know whether DoUnitInteraction destroys Self (this action)
       if not DoUnitInteraction then
       begin
-        //todo: Crashes here during replay, but only sometimes
-        if (KMUnit.UnitType in [ut_Wolf..ut_Duck]) and  //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
-                  not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
-                  Result := ActDone;
+        //If PreviousAction <> KMUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
+        if (PreviousAction = KMUnit.GetUnitAction) and (KMUnit.UnitType in [ut_Wolf..ut_Duck]) and
+            not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
+                  Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
         exit; //Do no further walking until unit interaction is solved
       end else
         fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk

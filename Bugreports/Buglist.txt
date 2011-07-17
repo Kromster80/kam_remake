@@ -18,7 +18,8 @@ Since r1902:
  +	Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
  +	AI did not attack unbuilt houses
  +	Bowmen are smarter about shooting after walking
- ?	Replay mismatches caused by an unknown bug (can't reproduce anymore, presumed fixed)
+ +	Fixed another case of workers becoming stuck on a construction site
+ 	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
 

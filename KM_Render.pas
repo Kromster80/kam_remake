@@ -372,10 +372,10 @@ begin
 
     if fTerrain.Land[i,k].TileOverlay=to_Road then
       begin
-        rd:=byte(fTerrain.Land[max(i-1,1)           ,k                    ].TileOverlay=to_Road) shl 0 +
-            byte(fTerrain.Land[i                    ,min(k+1,MAX_MAP_SIZE)].TileOverlay=to_Road) shl 1 +
-            byte(fTerrain.Land[min(i+1,MAX_MAP_SIZE),k                    ].TileOverlay=to_Road) shl 2 +
-            byte(fTerrain.Land[i                    ,max(k-1,1)           ].TileOverlay=to_Road) shl 3;
+        if fTerrain.TileInMapCoords(k  ,i-1) then rd:=   byte(fTerrain.Land[i-1,k  ].TileOverlay=to_Road) shl 0;
+        if fTerrain.TileInMapCoords(k+1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k+1].TileOverlay=to_Road) shl 1;
+        if fTerrain.TileInMapCoords(k  ,i+1) then rd:=rd+byte(fTerrain.Land[i+1,k  ].TileOverlay=to_Road) shl 2;
+        if fTerrain.TileInMapCoords(k-1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k-1].TileOverlay=to_Road) shl 3;
         ID  := RoadsConnectivity[rd,1];
         Rot := RoadsConnectivity[rd,2];
         RenderTile(ID,k,i,Rot);

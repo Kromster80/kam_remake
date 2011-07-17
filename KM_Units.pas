@@ -717,6 +717,7 @@ end;
 function TKMUnitWorker.UpdateState:boolean;
 var
   H:TKMHouseInn;
+  OutOfWay: TKMPoint;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -730,10 +731,18 @@ begin
   if (fThought = th_Build)and(fUnitTask = nil) then
     fThought := th_None; //Remove build thought if we are no longer doing anything
 
+  //If we are still stuck on a house for some reason, get off it ASAP
+  if (mu_HouseFenceNoWalk = fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup) then
+  begin
+    assert(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y) <> nil);
+    OutOfWay := KMPointY1(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y).GetEntrance);
+    SetActionWalkToSpot(OutOfWay, 0, ua_Walk);
+  end;
+
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
     fUnitTask:=GetActionFromQueue;
 
-  if fUnitTask=nil then SetActionStay(20,ua_Walk);
+  if (fUnitTask=nil) and (fCurrentAction=nil) then SetActionStay(20,ua_Walk);
 
   if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
 end;

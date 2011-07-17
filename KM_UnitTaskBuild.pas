@@ -539,6 +539,7 @@ end;
 
 {Prepare building site - flatten terrain}
 function TTaskBuildHouseArea.Execute:TTaskResult;
+var OutOfWay: TKMPoint;
 begin
   Result := TaskContinues;
 
@@ -596,7 +597,9 @@ begin
         fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.GetHouseType].WoodCost, dt_Once, di_High);
         fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.GetHouseType].StoneCost, dt_Once, di_High);
         //Walk away from building site, before we get trapped when house becomes stoned
-        SetActionWalkToSpot(fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk), 0, ua_Walk);
+        OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk);
+        if KMSamePoint(OutOfWay,KMPoint(0,0)) then OutOfWay := KMPointY1(fHouse.GetEntrance); //Don't get stuck in corners
+        SetActionWalkToSpot(OutOfWay, 0, ua_Walk);
         HouseSet := false;
       end;
   else Result := TaskDone;
