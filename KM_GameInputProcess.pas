@@ -133,9 +133,8 @@ type
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:TPlayerIndex); overload;
 
-    function CommandsConfirmed(aTick:cardinal; aIgnoreRecieved:boolean=false):boolean; virtual;
+    function CommandsConfirmed(aTick:cardinal):boolean; virtual;
     procedure WaitingForConfirmation(aTick:cardinal); virtual;
-    function GetNetworkDelay:word; virtual;
     procedure ReplayTimer(aTick:cardinal); virtual;
     procedure RunningTimer(aTick:cardinal); virtual;
     procedure UpdateState(aTick:cardinal); virtual;
@@ -471,7 +470,7 @@ begin
 end;
 
 
-function TGameInputProcess.CommandsConfirmed(aTick:cardinal; aIgnoreRecieved:boolean=false):boolean;
+function TGameInputProcess.CommandsConfirmed(aTick:cardinal):boolean;
 begin
   Result := true;
 end;
@@ -479,12 +478,6 @@ end;
 
 procedure TGameInputProcess.WaitingForConfirmation(aTick:cardinal);
 begin
-end;
-
-
-function TGameInputProcess.GetNetworkDelay:word;
-begin
-  Result := 0;
 end;
 
 

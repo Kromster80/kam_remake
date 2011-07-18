@@ -22,6 +22,7 @@ Since r1902:
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+ 	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
 
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Save correct number of players from MapEd

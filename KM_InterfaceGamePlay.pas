@@ -262,7 +262,7 @@ type
 
 
 implementation
-uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess,
+uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
 KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX;
 
@@ -2590,8 +2590,8 @@ begin
   if SHOW_CMDQUEUE_COUNT then
     Label_CmdQueueCount.Caption := inttostr(fGame.fGameInputProcess.Count)+' commands stored';
 
-  if SHOW_NETWORK_DELAY then
-    Label_NetworkDelay.Caption := 'Network delay: '+inttostr(fGame.fGameInputProcess.GetNetworkDelay);
+  if SHOW_NETWORK_DELAY and fGame.MultiplayerMode then
+    Label_NetworkDelay.Caption := 'Network delay: '+inttostr(TGameInputProcess_Multi(fGame.fGameInputProcess).GetNetworkDelay);
 
   if DISPLAY_SOUNDS then
     Label_SoundsCount.Caption := inttostr(fSoundLib.ActiveCount)+' sounds playing';
