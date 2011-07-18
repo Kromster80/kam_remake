@@ -1412,8 +1412,8 @@ begin
     CheckBox_LobbyReady[i].Disable; //Read-only, just for info (perhaps we will replace it with an icon)
   end;
 
-  //todo: Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[fGame.Networking.NetPlayers.NiknameIndex(fGame.Networking.)].ReadyToStart;
   Button_LobbyStart.Enabled := fGame.Networking.CanStart;
+  //If the game can't be started the text message with explanation will appear in chat area
 end;
 
 

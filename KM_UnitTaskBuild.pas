@@ -493,7 +493,7 @@ begin
   HouseSet  := false;
   Step      := 0;
 
-  //todo: Replace with fHouse.GetListOfCellsWithin();
+  //Fill Cells left->right, top->bottom. Worker will start flattening from the end (reversed)
   for i := 1 to 4 do for k := 1 to 4 do
   if fHouse.HouseArea[i,k] <> 0 then begin
     inc(Step);
