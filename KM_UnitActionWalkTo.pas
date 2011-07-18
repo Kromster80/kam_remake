@@ -62,7 +62,7 @@ type
       procedure DecVertex;
       procedure SetInitValues;
       function CanAbandonInternal: boolean;
-      function GetNextNextPosition:TKMPoint;
+      function GetNextNextPosition(out NextNextPos:TKMPoint):boolean;
       function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
       procedure ExplanationLogCreate;
       procedure ExplanationLogAdd;
@@ -523,6 +523,7 @@ end;
 
 
 function TUnitActionWalkTo.IntSolutionExchange(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+var OpponentNextNextPos: TKMPoint;
 begin
   Result := false;
   //Do not initiate exchanges if we are in DestBlocked mode, as we are zero priority and other units will
@@ -539,29 +540,32 @@ begin
     if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].Passability) then
     begin
       //Check unit's future position is where we are now and exchange (use NodeList rather than direction as it's not always right)
-      if KMSamePoint(TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then
+      if TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
       begin
-        //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
-        TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
-
-        Explanation := 'Unit in the way is walking in the opposite direction. Performing an exchange';
-        ExplanationLogAdd;
-        fDoExchange := true;
-        //They both will exchange next tick
-        Result := true; //Means exit DoUnitInteraction
-      end
-      else //Otherwise try to force the unit to exchange IF they are in the waiting phase
-        if TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionStatus = kis_Waiting then
+        if KMSamePoint(OpponentNextNextPos, fWalker.GetPosition) then
         begin
-          //Because we are forcing this exchange we must inject into the other unit's nodelist by passing our current position
-          TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(fWalker.GetPosition);
+          //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
+          TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
 
-          Explanation := 'Unit in the way is in waiting phase. Forcing an exchange';
+          Explanation := 'Unit in the way is walking in the opposite direction. Performing an exchange';
           ExplanationLogAdd;
           fDoExchange := true;
           //They both will exchange next tick
           Result := true; //Means exit DoUnitInteraction
-        end;
+        end
+        else //Otherwise try to force the unit to exchange IF they are in the waiting phase
+          if TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionStatus = kis_Waiting then
+          begin
+            //Because we are forcing this exchange we must inject into the other unit's nodelist by passing our current position
+            TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(fWalker.GetPosition);
+
+            Explanation := 'Unit in the way is in waiting phase. Forcing an exchange';
+            ExplanationLogAdd;
+            fDoExchange := true;
+            //They both will exchange next tick
+            Result := true; //Means exit DoUnitInteraction
+          end;
+      end;
     end;
   end;
 end;
@@ -600,7 +604,7 @@ end;
 
 function TUnitActionWalkTo.IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
 var i:shortint;
-    TempPos: TKMPoint;
+    TempPos, OpponentNextNextPos: TKMPoint;
     fAltOpponent:TKMUnit;
 begin
   //If there is a unit on one of the tiles either side of target that wants to swap, do so
@@ -628,18 +632,19 @@ begin
           and ((not KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])) //Isn't diagonal
           or ((KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])       //...or is diagonal and...
           and not fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,TempPos))))) then //...vertex is free
-          if KMSamePoint(TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then //Now see if they want to exchange with us
-          begin
-            //Perform exchange from our position to TempPos
-            TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
+          if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
+            if KMSamePoint(OpponentNextNextPos, fWalker.GetPosition) then //Now see if they want to exchange with us
+            begin
+              //Perform exchange from our position to TempPos
+              TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
 
-            Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
-            ExplanationLogAdd;
-            fDoExchange := true;
-            ChangeStepTo(TempPos);
-            //They both will exchange next tick
-            Result := true; //Means exit DoUnitInteraction
-          end;
+              Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
+              ExplanationLogAdd;
+              fDoExchange := true;
+              ChangeStepTo(TempPos);
+              //They both will exchange next tick
+              Result := true; //Means exit DoUnitInteraction
+            end;
       end;
     end;
   end;
@@ -797,11 +802,21 @@ begin
 end;
 
 
-function TUnitActionWalkTo.GetNextNextPosition:TKMPoint;
+function TUnitActionWalkTo.GetNextNextPosition(out NextNextPos:TKMPoint):boolean;
 begin
-  // todo: find means to control range of NodePos
-  Assert(InRange(NodePos, 1, NodeList.Count));
-  Result:=NodeList.List[NodePos+1];
+  if InRange(NodePos, 1, NodeList.Count) then
+  begin
+    NextNextPos := NodeList.List[NodePos+1];
+    Result := true;
+  end
+  else
+  begin
+    NextNextPos := KMPoint(0,0);
+    Result := false; //Our route is not that long, so there is no "NextNext" position
+    //@Crow: This is not an error. That old comment "Error" was a mistake, I see why you thought it was that way.
+    //       I have changed it to return boolean and use "out" as you have been doing in other places.
+    //       Please check I did it right. Thanks for your great help, you're doing a good job :) From Lewin. To be deleted.
+  end;
 end;
 
 
