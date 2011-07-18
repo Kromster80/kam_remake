@@ -44,7 +44,7 @@ TTerrain = class
       HeightAdd:byte; //Fraction part of height, for smooth height editing
 
 
-      //DEDUCTED 
+      //DEDUCTED
       Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
       Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
@@ -156,7 +156,6 @@ TTerrain = class
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
-    //function FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
 
     procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     procedure FlattenTerrain(Loc:TKMPoint); overload;
@@ -609,46 +608,6 @@ begin
   if (A.X>B.X)and(A.Y<B.Y) then                                  //     A
     Result := not MapElem[Land[A.Y+1,A.X].Obj+1].DiagonalBlocked;//   B
 end;
-
-//todo: Do a full-text SVN search and check when this function was discounted
-{Find new node inbetween A and B}
-{function TTerrain.FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
-var Options:TKMPointList;
-  function CheckTile(aA,aB:smallint):TKMPoint;
-  begin
-    if CheckPassability(KMPoint(aA,aB),aPass) then
-      Result := KMPoint(aA,aB)
-    else
-      Result := KMPoint(0,0);
-  end;
-begin
-  Options := TKMPointList.Create;
-
-  if (abs(A.X-B.X)=1) and (abs(A.Y-B.Y)=1) then //Diagonal
-  begin
-    if CheckPassability(KMPoint(A.X,B.Y),aPass) then Options.AddEntry(KMPoint(A.X,B.Y));
-    if CheckPassability(KMPoint(B.X,A.Y),aPass) then Options.AddEntry(KMPoint(B.X,A.Y));
-  end;
-
-  if (A.X=B.X) and (abs(A.Y-B.Y)=1) then //Vertical
-  begin
-    if CheckPassability(KMPoint(A.X-1,A.Y),aPass) then Options.AddEntry(KMPoint(A.X-1,A.Y));
-    if CheckPassability(KMPoint(A.X-1,B.Y),aPass) then Options.AddEntry(KMPoint(A.X-1,B.Y));
-    if CheckPassability(KMPoint(A.X+1,A.Y),aPass) then Options.AddEntry(KMPoint(A.X+1,A.Y));
-    if CheckPassability(KMPoint(A.X+1,B.Y),aPass) then Options.AddEntry(KMPoint(A.X+1,B.Y));
-  end;
-
-  if (abs(A.X-B.X)=1) and (A.Y=B.Y) then //Horizontal
-  begin
-    if CheckPassability(KMPoint(A.X,A.Y-1),aPass) then Options.AddEntry(KMPoint(A.X,A.Y-1));
-    if CheckPassability(KMPoint(B.X,A.Y-1),aPass) then Options.AddEntry(KMPoint(B.X,A.Y-1));
-    if CheckPassability(KMPoint(A.X,A.Y+1),aPass) then Options.AddEntry(KMPoint(A.X,A.Y+1));
-    if CheckPassability(KMPoint(B.X,A.Y+1),aPass) then Options.AddEntry(KMPoint(B.X,A.Y+1));
-  end;
-
-  Result := Options.GetRandom;
-  Options.Free;
-end;}
 
 
 {Place markup on tile, any new markup replaces old one, thats okay}
