@@ -102,7 +102,7 @@ type
     end;
     procedure CloseHouse(aID:integer);
     procedure CloseHouseRepair(aID:integer);
-  public 
+  public
     procedure CloseRoad(aID:integer);
     procedure CloseHousePlan(aID:integer);
 
@@ -818,10 +818,10 @@ begin
   if i>HouseRepairsCount then begin
     inc(HouseRepairsCount, LENGTH_INC);
     SetLength(fHouseRepairsQueue, HouseRepairsCount+1);
-    for k:=i to HousesCount do FillChar(fHousesQueue[k],SizeOf(fHousesQueue[k]),#0);
+    for k:=i to HousesCount do FillChar(fHouseRepairsQueue[k],SizeOf(fHouseRepairsQueue[k]),#0);
   end;
 
-  assert((fHousesQueue[i].WorkerCount=0) and not fHousesQueue[i].IsDeleted);
+  assert((fHouseRepairsQueue[i].WorkerCount=0) and not fHouseRepairsQueue[i].IsDeleted);
   if aHouse <> nil then fHouseRepairsQueue[i].House:=aHouse.GetHousePointer;
   fHouseRepairsQueue[i].Importance:=1;
 end;
