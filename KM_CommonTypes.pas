@@ -180,7 +180,7 @@ type
     procedure AddEntry(aLoc:TKMPoint);
     function  RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
-    function  GetRandom:TKMPoint;
+    function  GetRandom(out Point: TKMPoint):Boolean;
     procedure Inverse;
     function  GetTopLeft:TKMPoint;
     function  GetBottomRight:TKMPoint;
@@ -628,10 +628,13 @@ begin
 end;
 
 
-function TKMPointList.GetRandom:TKMPoint;
+function TKMPointList.GetRandom(out Point: TKMPoint):Boolean;
 begin
-  if Count=0 then Result:=KMPoint(0,0)
-             else Result:=List[random(Count)+1];
+  if Count=0 then Result := False
+  else begin
+    Point := List[random(Count)+1];
+    Result := True;
+  end;
 end;
 
 

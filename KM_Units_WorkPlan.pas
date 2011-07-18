@@ -111,19 +111,20 @@ end;
 
 function TUnitWorkPlan.FindDifferentResource(aLoc, aAvoidLoc: TKMPoint): boolean;
 var NewLoc: TKMPointDir;
+    Finded: Boolean;
 begin
   NewLoc.Dir := 99; //Invalid
   with fTerrain do
   case GatheringScript of
-    gs_StoneCutter:     NewLoc.Loc := FindStone(aLoc,RANGE_STONECUTTER,aAvoidLoc);
-    gs_FarmerSow:       NewLoc.Loc := FindField(aLoc,RANGE_FARMER,ft_Corn,false,aAvoidLoc);
+    gs_StoneCutter:     Finded := FindStone(aLoc, RANGE_STONECUTTER, aAvoidLoc, NewLoc.Loc);
+    gs_FarmerSow:       Finded := FindField(aLoc,RANGE_FARMER,ft_Corn,false,aAvoidLoc, NewLoc.Loc);
     gs_FarmerCorn:      begin
-                          NewLoc.Loc := FindField(aLoc,RANGE_FARMER,ft_Corn,true,aAvoidLoc);
-                          if KMSamePoint(NewLoc.Loc, KMPoint(0,0)) then
+                          Finded := FindField(aLoc,RANGE_FARMER,ft_Corn,true,aAvoidLoc, NewLoc.Loc);
+                          if not(Finded) then
                           begin
                             //If we can't find any other corn to cut we can try sowing instead
-                            NewLoc.Loc := FindField(aLoc,RANGE_FARMER,ft_Corn,false,aAvoidLoc);
-                            if not KMSamePoint(NewLoc.Loc, KMPoint(0,0)) then
+                            Finded := FindField(aLoc,RANGE_FARMER,ft_Corn,false,aAvoidLoc, NewLoc.Loc);
+                            if Finded then
                             begin
                               GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
                               WalkFrom   := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
@@ -139,13 +140,13 @@ begin
                             end;
                           end;
                         end;
-    gs_FarmerWine:      NewLoc.Loc := FindField(aLoc,RANGE_FARMER,ft_Wine,true,aAvoidLoc);
-    gs_FisherCatch:     NewLoc     := FindFishWater(aLoc,RANGE_FISHERMAN,aAvoidLoc);
-    gs_WoodCutterCut:   NewLoc     := FindTree(aLoc,RANGE_WOODCUTTER,KMGetVertexTile(aAvoidLoc, TKMDirection(WorkDir+1)));
-    gs_WoodCutterPlant: NewLoc.Loc := FindPlaceForTree(aLoc,RANGE_WOODCUTTER,aAvoidLoc);
-    else                NewLoc.Loc := KMPoint(0,0); //Can find a new resource for an unknown gathering script, so return with false
+    gs_FarmerWine:      Finded := FindField(aLoc,RANGE_FARMER,ft_Wine,true,aAvoidLoc, NewLoc.Loc);
+    gs_FisherCatch:     Finded := FindFishWater(aLoc,RANGE_FISHERMAN,aAvoidLoc, NewLoc);
+    gs_WoodCutterCut:   Finded := FindTree(aLoc, RANGE_WOODCUTTER, KMGetVertexTile(aAvoidLoc, TKMDirection(WorkDir+1)), NewLoc);
+    gs_WoodCutterPlant: Finded := FindPlaceForTree(aLoc, RANGE_WOODCUTTER, aAvoidLoc, NewLoc.Loc);
+    else                Finded := false; //Can find a new resource for an unknown gathering script, so return with false
   end;
-  if not KMSamePoint(NewLoc.Loc, KMPoint(0,0)) then
+  if Finded then
   begin
     Loc := NewLoc.Loc;
     if NewLoc.Dir <> 99 then
@@ -158,7 +159,7 @@ end;
 
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-var i:integer; Tmp: TKMPointDir;
+var i:integer; Tmp: TKMPointDir; Finded: Boolean;
 begin
   fHome := aHome;
   FillDefaults;
@@ -173,8 +174,8 @@ begin
   end else
 
   if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
-    Tmp.Loc := fTerrain.FindOre(aLoc,rt_Coal);
-    if Tmp.Loc.X<>0 then begin
+    Finded := fTerrain.FindOre(aLoc, rt_Coal, Tmp.Loc);
+    if Finded then begin
       Loc:=Tmp.Loc;
       ResourcePlan(rt_None,0,rt_None,0,rt_Coal);
       GatheringScript:=gs_CoalMiner;
@@ -189,8 +190,8 @@ begin
   end else
 
   if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
-    Tmp.Loc := fTerrain.FindOre(aLoc,rt_IronOre);
-    if Tmp.Loc.X<>0 then begin
+    Finded := fTerrain.FindOre(aLoc, rt_IronOre, Tmp.Loc);
+    if Finded then begin
       Loc:=Tmp.Loc;
       ResourcePlan(rt_None,0,rt_None,0,rt_IronOre);
       GatheringScript:=gs_IronMiner;
@@ -205,8 +206,8 @@ begin
   end else
 
   if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
-    Tmp.Loc := fTerrain.FindOre(aLoc,rt_GoldOre);
-    if Tmp.Loc.X<>0 then begin
+    Finded := fTerrain.FindOre(aLoc, rt_GoldOre, Tmp.Loc);
+    if Finded then begin
       Loc:=Tmp.Loc;
       ResourcePlan(rt_None,0,rt_None,0,rt_GoldOre);
       GatheringScript:=gs_GoldMiner;
@@ -363,13 +364,13 @@ begin
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-    Tmp.Loc := fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,true,KMPoint(0,0));
-    if Tmp.Loc.X<>0 then begin
+    Finded := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, true, KMPoint(0,0), Tmp.Loc);
+    if Finded then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
       WalkStyle(Tmp.Loc,ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
     end else begin
-      Tmp.Loc := fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,false,KMPoint(0,0));
-      if Tmp.Loc.X<>0 then begin
+      Finded := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, false, KMPoint(0,0), Tmp.Loc);
+      if Finded then begin
         WalkStyle(Tmp.Loc,ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
       end else
         fIssued:=false;
@@ -377,8 +378,8 @@ begin
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
-    Tmp.Loc := fTerrain.FindField(aLoc,RANGE_FARMER,ft_Wine,true,KMPoint(0,0));
-    if Tmp.Loc.X<>0 then begin
+    Finded := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Wine, true, KMPoint(0,0), Tmp.Loc);
+    if Finded then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
       WalkStyle(Tmp.Loc,ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine,0); //Grapes must always be picked facing up
       SubActAdd(ha_Work1,1);
@@ -389,8 +390,8 @@ begin
   end else
 
   if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
-    Tmp.Loc := fTerrain.FindStone(aLoc,RANGE_STONECUTTER,KMPoint(0,0));
-    if Tmp.Loc.X<>0 then begin
+    Finded := fTerrain.FindStone(aLoc, RANGE_STONECUTTER, KMPoint(0,0), Tmp.Loc);
+    if Finded then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
       WalkStyle(Tmp.Loc,ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter,0);
       SubActAdd(ha_Work1,1);
@@ -404,13 +405,13 @@ begin
   end else
 
   if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
-    Tmp := fTerrain.FindTree(aLoc,RANGE_WOODCUTTER,KMPoint(0,0));
-    if Tmp.Loc.X<>0 then begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
+    Finded := fTerrain.FindTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp);
+    if Finded then begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
       ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
       WalkStyle(Tmp.Loc,ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,Tmp.Dir);
     end else begin
-      Tmp.Loc := fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER,KMPoint(0,0));
-      if Tmp.Loc.X<>0 then begin//Planting uses DirN (0) of ua_Work
+      Finded := fTerrain.FindPlaceForTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp.Loc);
+      if Finded then begin //Planting uses DirN (0) of ua_Work
         WalkStyle(Tmp.Loc,ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant,0);
       end else
         fIssued:=false;
@@ -454,8 +455,8 @@ begin
   end else
 
   if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
-    Tmp := fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN,KMPoint(0,0));
-    if Tmp.Loc.X<>0 then begin
+    Finded := fTerrain.FindFishWater(aLoc, RANGE_FISHERMAN, KMPoint(0,0), Tmp);
+    if Finded then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
       WalkStyle(Tmp.Loc,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch,Tmp.Dir);
     end else

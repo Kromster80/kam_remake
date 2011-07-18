@@ -684,7 +684,7 @@ end;
 
 {This solution tries to find an unoccupied tile where unit can side-step}
 function TUnitActionWalkTo.IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
-var SideStepTest:TKMPoint;
+var SideStepTest:TKMPoint; Finded: Boolean;
 begin
   Result := false; //Should only return true if a sidestep was taken (for use in CheckForObstacle)
   if (HighestInteractionCount < SIDESTEP_TIMEOUT) or fDoExchange then exit;
@@ -693,11 +693,11 @@ begin
 
   //Find a node
   if NodePos+2 > NodeList.Count then //Tell Terrain about our next position if we can
-    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,aPosition, KMPoint(0,0), GetEffectivePassability, NodePos-fLastSideStepNodePos < 2)
+    Finded := fTerrain.FindSideStepPosition(fWalker.GetPosition, aPosition, KMPoint(0,0), GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2)
   else
-    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,aPosition, NodeList.List[NodePos+2], GetEffectivePassability, NodePos-fLastSideStepNodePos < 2);
+    Finded := fTerrain.FindSideStepPosition(fWalker.GetPosition, aPosition, NodeList.List[NodePos+2], GetEffectivePassability, SideStepTest, NodePos-fLastSideStepNodePos < 2);
 
-  if KMSamePoint(SideStepTest, KMPoint(0,0)) then exit; //It could be 0,0 if all tiles were blocked (return false)
+  if not(Finded) then exit; //It could be 0,0 if all tiles were blocked (return false)
 
   //Otherwise the sidestep is valid so modify our route to go via this tile
   Explanation := 'Sidestepping to a tile next to target';

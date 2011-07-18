@@ -83,12 +83,12 @@ TTerrain = class
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
-    function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint):TKMPoint;
-    function FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
-    function FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
-    function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
-    function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
-    function FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
+    function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPoint):Boolean;
+    function FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
+    function FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPoint):Boolean;
+    function FindOre(aPosition:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
+    function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPoint):Boolean;
+    function FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
     function CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
     function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
@@ -118,7 +118,7 @@ TTerrain = class
 
     function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability; aCheckUnits:boolean=true):boolean;
     function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-    function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; OnlyTakeBest: boolean=false):TKMPoint;
+    function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false):Boolean;
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
@@ -156,7 +156,7 @@ TTerrain = class
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
-    function FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
+    //function FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
 
     procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     procedure FlattenTerrain(Loc:TKMPoint); overload;
@@ -610,9 +610,9 @@ begin
     Result := not MapElem[Land[A.Y+1,A.X].Obj+1].DiagonalBlocked;//   B
 end;
 
-
+//todo: Do a full-text SVN search and check when this function was discounted
 {Find new node inbetween A and B}
-function TTerrain.FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
+{function TTerrain.FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
 var Options:TKMPointList;
   function CheckTile(aA,aB:smallint):TKMPoint;
   begin
@@ -648,7 +648,7 @@ begin
 
   Result := Options.GetRandom;
   Options.Free;
-end;
+end;}
 
 
 {Place markup on tile, any new markup replaces old one, thats okay}
@@ -808,7 +808,7 @@ end;
 
 { Should find closest field around}
 {aAgeFull is used for ft_Corn. Incase Farmer is looking for empty or full field of corn}
-function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint):TKMPoint;
+function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPoint):Boolean;
 var i,k:integer; List:TKMPointList;
 begin
   List := TKMPointList.Create;
@@ -822,15 +822,15 @@ begin
           if Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,0,false) then
             List.AddEntry(KMPoint(k,i));
 
-  Result := List.GetRandom;
+  Result := List.GetRandom(FieldPoint);
   List.Free;
 end;
 
 
 {Find closest chopable Tree around}
-function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
+function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
 const Ins=2; //2..Map-2
-var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint;
+var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint; bTreeLoc: Boolean;
 begin
   //List1 is all trees within radius
   List:=TKMPointList.Create;
@@ -841,21 +841,22 @@ begin
         if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),CanWalk) then
           List.AddEntry(KMPoint(k,i));
 
-  TreeLoc := List.GetRandom; //Choose our tree
+  bTreeLoc := List.GetRandom(TreeLoc); //Choose our tree
   List.Free;
 
   //Now choose our direction of approch based on which one is the flatest (animation looks odd if not flat)
   Best := 255;
-  Result := KMPointDir(0,0,0);
+  Result := False;
 
   //Only bother choosing direction if tree is valid, otherwise just exit with invalid
-  if not KMSamePoint(TreeLoc,KMPoint(0,0)) then
+  if bTreeLoc then
   for i:=-1 to 0 do for k:=-1 to 0 do
     if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
       if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
         ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
       begin
-        Result := KMPointDir(TreeLoc.X+k,TreeLoc.Y+i,byte(KMGetVertexDir(k,i))-1);
+        TreePoint := KMPointDir(TreeLoc.X+k,TreeLoc.Y+i,byte(KMGetVertexDir(k,i))-1);
+        Result := True;
         Best := abs(Round(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
       end;
 end;
@@ -863,7 +864,7 @@ end;
 
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
-function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
+function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPoint):Boolean;
 const Ins=2; //2..Map-2
 var i,k:integer; List:TKMPointList;
 begin
@@ -876,12 +877,12 @@ begin
           if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,0,false) then
             List.AddEntry(KMPoint(k,i+1));
 
-  Result := List.GetRandom;
+  Result := List.GetRandom(StonePoint);
   List.Free;
 end;
 
 
-function TTerrain.FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
+function TTerrain.FindOre(aPosition:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
 var i,k,RadLeft,RadRight,RadTop,RadBottom,R1,R2,R3,R4:integer; L:array[1..4]of TKMPointList;
 begin
   if not (Rt in [rt_IronOre, rt_GoldOre, rt_Coal]) then
@@ -909,11 +910,12 @@ begin
     if Land[i,k].Terrain = R4 then L[4].AddEntry(KMPoint(k,i));     //Always mine richest ore
   end;
 
-  if L[4].Count<>0 then Result:=L[4].GetRandom else
-  if L[3].Count<>0 then Result:=L[3].GetRandom else
-  if L[2].Count<>0 then Result:=L[2].GetRandom else
-  if L[1].Count<>0 then Result:=L[1].GetRandom else
-  Result:=KMPoint(0,0);
+  Result := True;
+  if not L[4].GetRandom(OrePoint) then
+  if not L[3].GetRandom(OrePoint) then
+  if not L[2].GetRandom(OrePoint) then
+  if not L[1].GetRandom(OrePoint) then
+    Result := False;
 
   for i:=1 to 4 do L[i].Free;
 end;
@@ -921,7 +923,7 @@ end;
 
 {Find suitable place to plant a tree.
 Prefer ex-trees locations}
-function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPoint;
+function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPoint):Boolean;
 var i,k:integer; List1,List2:TKMPointList;
 begin
   List1:=TKMPointList.Create;
@@ -937,10 +939,8 @@ begin
             List2.AddEntry(KMPoint(k,i));
 
       end;
-if List1.Count>0 then
-  Result:=List1.GetRandom
-else
-  Result:=List2.GetRandom;
+Result := List1.GetRandom(TreePlacePoint);
+if not(Result) then Result := List2.GetRandom(TreePlacePoint);
 List1.Free;
 List2.Free;
 end;
@@ -948,7 +948,7 @@ end;
 
 {Find seaside}
 {Return walkable tile nearby}
-function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint):TKMPointDir;
+function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
 const Ins=2; //2..Map-2
 var i,k,j,l:integer; List:TKMPointDirList;
 begin
@@ -973,7 +973,8 @@ begin
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
                 List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
 
-  Result:=List.GetRandom;
+  FishPoint := List.GetRandom;
+  Result := not((FishPoint.Loc.X = 0) or (FishPoint.Loc.Y = 0));
   List.Free;
 end;
 
@@ -1439,19 +1440,13 @@ begin
           L3.AddEntry(L1.List[i]);
     end;
 
-  if L2.Count<>0 then
-    Result:=L2.GetRandom
-  else
+  if not(L2.GetRandom(Result)) then
   if Loc2IsOk then //If there are no free tiles then the unit that pushed us is a good option (exchange?)
-    Result:=Loc2
+    Result := Loc2
   else
-  if L3.Count<>0 then
-    Result:=L3.GetRandom
-  else
-  if L1.Count<>0 then
-    Result:=L1.GetRandom
-  else
-    Result:=Loc;
+  if not(L3.GetRandom(Result)) then
+  if not(L1.GetRandom(Result)) then
+    Result := Loc;
 
   L1.Free;
   L2.Free;
@@ -1459,7 +1454,7 @@ begin
 end;
 
 
-function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; OnlyTakeBest: boolean=false):TKMPoint;
+function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; aPass: TPassability; out SidePoint: TKMPoint; OnlyTakeBest: boolean=false):Boolean;
 var i,k:integer; L1,L2:TKMPointList;
 begin
   //List 1 holds all positions next to both Loc and Loc2
@@ -1481,12 +1476,10 @@ begin
     if KMLength(L1.List[i],Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
       L2.AddEntry(L1.List[i]);
 
-  if L2.Count<>0 then
-    Result:=L2.GetRandom
-  else if (not OnlyTakeBest) and (L1.Count<>0) then
-    Result:=L1.GetRandom
-  else
-    Result:=KMPoint(0,0); //No side step positions available
+  Result := True;
+  if not(L2.GetRandom(SidePoint)) then
+  if (OnlyTakeBest) or (not(L1.GetRandom(SidePoint))) then
+    Result := false; //No side step positions available
 
   L1.Free;
   L2.Free;

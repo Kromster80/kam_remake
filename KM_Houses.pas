@@ -550,7 +550,7 @@ var Cells:TKMPointList;
 begin
   Cells := TKMPointList.Create;
   GetListOfCellsWithin(Cells);
-  Result := Cells.GetRandom;
+  Assert(Cells.GetRandom(Result));
   Cells.Free;
 end;
 
