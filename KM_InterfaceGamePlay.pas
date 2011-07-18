@@ -1962,8 +1962,8 @@ begin
   for i:=low(Image_Message) to high(Image_Message) do
   begin
     Image_Message[i].TexID := fMessageList.GetMsgPic(i);
-    Image_Message[i].Enabled := i in [1..fMessageList.Count]; //Disable and hide at once for safety
-    Image_Message[i].Visible := i in [1..fMessageList.Count];
+    Image_Message[i].Enabled := InRange(i,1,fMessageList.Count); //Disable and hide at once for safety
+    Image_Message[i].Visible := InRange(i,1,fMessageList.Count);
   end;
 end;
 

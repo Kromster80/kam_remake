@@ -2,7 +2,7 @@ unit KM_CommonTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-Classes, SysUtils, KromUtils;
+Classes, Math, SysUtils, KromUtils;
 
 
 type
@@ -482,7 +482,7 @@ end;
 
 function TKMMessageList.GetMsgPic(aID:cardinal):cardinal;
 begin
-  if aID in [1..fCount] then
+  if InRange(aID,1,fCount) then
     Result := cardinal(fList[aID].msgType)
   else
     Result := 0;
@@ -491,7 +491,7 @@ end;
 
 function TKMMessageList.GetMsgType(aID:cardinal):TKMMessageType;
 begin
-  if aID in [1..fCount] then
+  if InRange(aID,1,fCount) then
     Result := fList[aID].msgType
   else
     Result := msgUnknown;
@@ -500,7 +500,7 @@ end;
 
 function TKMMessageList.GetMsgHasGoTo(aID:cardinal):boolean;
 begin
-  if aID in [1..fCount] then
+  if InRange(aID,1,fCount) then
     Result := (fList[aID].msgType = msgHouse) or (fList[aID].msgType = msgUnit)
   else
     Result := false;
@@ -509,7 +509,7 @@ end;
 
 function TKMMessageList.GetMsgHasSound(aID:cardinal):boolean;
 begin
-  if aID in [1..fCount] then
+  if InRange(aID,1,fCount) then
     Result := not ((fList[aID].msgType = msgHorn) or (fList[aID].msgType = msgScroll))
     //These are the two multiplayer options (one for sending text messages, one for alliances)
     //unlike other messages they are sticky and can't be possibly Issued
@@ -520,7 +520,7 @@ end;
 
 function TKMMessageList.GetText(aID:cardinal):string;
 begin
-  if aID in [1..fCount] then
+  if InRange(aID,1,fCount) then
     Result := fList[aID].msgText
   else
     Result := '';
@@ -530,7 +530,7 @@ end;
 //Todo: convert other functions to this pattern
 function TKMMessageList.GetLoc(aID:cardinal; out Point:TKMPoint):Boolean;
 begin
-  if (aID in [1..fCount]) then begin
+  if InRange(aID,1,fCount) then begin
     Point := fList[aID].msgLoc;
     Result := true;
   end else

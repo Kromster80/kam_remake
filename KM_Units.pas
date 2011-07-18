@@ -1168,7 +1168,7 @@ end;
 
 function TKMUnit.GetMaxHitPoints:byte;
 begin
-  if not (byte(UnitType) in [1..length(UnitStat)]) then
+  if not InRange(byte(UnitType),1,length(UnitStat)) then
     raise ELocError.Create('GetMaxHitPoints for wrong unit',fCurrPosition);
 
   Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints*40,0,255);
