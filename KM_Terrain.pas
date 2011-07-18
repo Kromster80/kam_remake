@@ -653,8 +653,8 @@ begin
     UpdateBorders(aList.List[i]);
   end;
   
-  TL := aList.GetTopLeft;
-  BR := aList.GetBottomRight;
+  aList.GetTopLeft(TL);
+  aList.GetBottomRight(BR);
   RebuildPassability(TL.X-1, BR.X+1, TL.Y-1, BR.Y+1);
   RebuildWalkConnect(wcRoad);
 end;
@@ -932,8 +932,7 @@ begin
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
                 List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
 
-  FishPoint := List.GetRandom;
-  Result := not((FishPoint.Loc.X = 0) or (FishPoint.Loc.Y = 0));
+  Result := List.GetRandom(FishPoint);
   List.Free;
 end;
 

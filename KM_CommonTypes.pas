@@ -182,8 +182,8 @@ type
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
     function  GetRandom(out Point: TKMPoint):Boolean;
     procedure Inverse;
-    function  GetTopLeft:TKMPoint;
-    function  GetBottomRight:TKMPoint;
+    function  GetTopLeft(out TL: TKMPoint):Boolean;
+    function  GetBottomRight(out RB: TKMPoint):Boolean;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
@@ -206,7 +206,7 @@ type
     constructor Load(LoadStream:TKMemoryStream);
     procedure Clearup;
     procedure AddEntry(aLoc:TKMPointDir);
-    function GetRandom:TKMPointDir;
+    function GetRandom(Point: TKMPointDir):Boolean;
     function GetNearest(aLoc:TKMPoint):TKMPointDir;
     procedure Save(SaveStream:TKMemoryStream);
   end;
@@ -647,29 +647,31 @@ begin
 end;
 
 
-function TKMPointList.GetTopLeft:TKMPoint;
+function TKMPointList.GetTopLeft(out TL: TKMPoint):Boolean;
 var i:integer;
 begin
-  Result := KMPoint(0,0);
+  Result := False;
   if Count=0 then exit;
-  Result := List[1]; //Something to start with
+  TL := List[1]; //Something to start with
   for i:=2 to Count do begin
-    if List[i].X < Result.X then Result.X := List[i].X;
-    if List[i].Y < Result.Y then Result.Y := List[i].Y;
+    if List[i].X < TL.X then TL.X := List[i].X;
+    if List[i].Y < TL.Y then TL.Y := List[i].Y;
   end;
+  Result := true;
 end;
 
 
-function TKMPointList.GetBottomRight:TKMPoint;
+function TKMPointList.GetBottomRight(out RB: TKMPoint):Boolean;
 var i:integer;
 begin
-  Result := KMPoint(0,0);
+  Result := False;
   if Count=0 then exit;
-  Result := List[1]; //Something to start with
+  RB := List[1]; //Something to start with
   for i:=2 to Count do begin
-    if List[i].X > Result.X then Result.X := List[i].X;
-    if List[i].Y > Result.Y then Result.Y := List[i].Y;
+    if List[i].X > RB.X then RB.X := List[i].X;
+    if List[i].Y > RB.Y then RB.Y := List[i].Y;
   end;
+  Result := True;
 end;
 
 
@@ -772,10 +774,13 @@ begin
 end;
 
 
-function TKMPointDirList.GetRandom:TKMPointDir;
+function TKMPointDirList.GetRandom(Point: TKMPointDir):Boolean;
 begin
-  if Count=0 then Result:=KMPointDir(0,0,0)
-             else Result:=List[random(Count)+1];
+  Result := False;
+  if Count > 0 then begin
+    Point := List[random(Count)+1];
+    Result := True;
+  end;
 end;
 
 
