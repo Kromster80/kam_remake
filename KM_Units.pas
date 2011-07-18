@@ -1483,7 +1483,7 @@ begin
     fThought := th_None;
 end;
 
-
+// todo: if units quantity in house is greater than free places around the house, then kill superfluous units
 procedure TKMUnit.UpdateVisibility;
 begin
   if fInHouse = nil then exit; //There's nothing to update, we are always visible
@@ -1495,10 +1495,10 @@ begin
     if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
     begin
       //Position in a spiral nearest to center of house, updating IsUnit.
-      fPosition := KMPointF(fPlayers.FindPlaceForUnit(fInHouse.GetPosition.X,fInHouse.GetPosition.Y,UnitType));
+      Assert(fPlayers.FindPlaceForUnit(fInHouse.GetPosition.X, fInHouse.GetPosition.Y, UnitType, fCurrPosition));
       //Make sure these are reset properly
       IsExchanging := false;
-      fCurrPosition := KMPointRound(fPosition);
+      fPosition := KMPointF(fCurrPosition);
       fPrevPosition := fCurrPosition;
       fNextPosition := fCurrPosition;
       fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
@@ -1804,8 +1804,9 @@ end;
 function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
 var U:Integer; P:TKMPoint;
 begin
+  P := KMPoint(0,0); // Will have 0:0 if no place found
   if AutoPlace then begin
-    P := fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType); //Will have 0:0 if no place found
+    fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType, P);
     PosX := P.X;
     PosY := P.Y;
   end;

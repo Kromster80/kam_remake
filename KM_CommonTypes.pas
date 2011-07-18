@@ -207,7 +207,6 @@ type
     procedure Clearup;
     procedure AddEntry(aLoc:TKMPointDir);
     function GetRandom(Point: TKMPointDir):Boolean;
-    function GetNearest(aLoc:TKMPoint):TKMPointDir;
     procedure Save(SaveStream:TKMemoryStream);
   end;
 
@@ -780,23 +779,6 @@ begin
   if Count > 0 then begin
     Point := List[random(Count)+1];
     Result := True;
-  end;
-end;
-
-
-{  Return closest position  }
-function TKMPointDirList.GetNearest(aLoc:TKMPoint):TKMPointDir;
-var
-  i:integer;
-  Test, Nearest:single;
-begin
-  Nearest := 0;
-  for i:=1 to Count do begin
-    Test := GetLength(List[i].Loc, aLoc);
-    if (i=1) or (Test < Nearest) then begin
-      Nearest := Test;
-      Result := List[i];
-    end;
   end;
 end;
 

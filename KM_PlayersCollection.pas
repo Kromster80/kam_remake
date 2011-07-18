@@ -36,7 +36,7 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y:Integer):boolean;
     function GetUnitCount:integer;
-    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint):Boolean;
     function CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
     procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
@@ -272,14 +272,14 @@ end;
 
 
 {Should return closest position where unit can be placed}
-function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint):Boolean;
 var
   i:integer;
   P:TKMPointI;
   T:TKMPoint;
   aPass:TPassability; //temp for required passability
 begin
-  Result := KMPoint(0,0); //if function fails to find valid position
+  Result := False; // if function fails to find valid position
 
   if aUnitType in [ut_Wolf..ut_Duck] then
     aPass := AnimalTerrain[byte(aUnitType)]
@@ -291,7 +291,8 @@ begin
     if fTerrain.TileInMapCoords(P.X,P.Y) then begin
       T := KMPoint(P);
       if fTerrain.CheckPassability(T, aPass) and not fTerrain.HasUnit(T) then begin
-        Result := T; //Assign if all test are passed
+        PlacePoint := T; // Assign if all test are passed
+        Result := True;
         exit;
       end;
     end;

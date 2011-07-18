@@ -264,6 +264,7 @@ var i: byte;
 begin
   Inherited Create;
   fPosition   := KMPoint (PosX, PosY);
+  Assert(not((PosX = 0) or (PosY = 0))); // Can create only on map
   fHouseType  := aHouseType;
   fBuildState := aBuildState;
   fOwner      := aOwner;
@@ -444,7 +445,7 @@ end;
 //Used by MapEditor
 procedure TKMHouse.SetPosition(aPos:TKMPoint);
 begin
-  Assert(fGame.GameState=gsEditor);
+  Assert(fGame.GameState = gsEditor);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
   fTerrain.RemRoad(GetEntrance);
@@ -463,24 +464,23 @@ function TKMHouse.GetEntrance:TKMPoint;
 begin
   Result.X := GetPosition.X + fResource.HouseDat[fHouseType].EntranceOffsetX;
   Result.Y := GetPosition.Y;
+  Assert((Result.X > 0) and (Result.Y > 0));
 end;
 
 
 {Returns the closest cell of the house to aPos}
+{todo: Move this method to the TKMPointList}
 function TKMHouse.GetClosestCell(aPos:TKMPoint):TKMPoint;
 var C:TKMPointList; i:integer;
 begin
   C := TKMPointList.Create;
-  try
-    GetListOfCellsWithin(C);
-
-    Result := C.List[1];
-    for i:=2 to C.Count do
-      if GetLength(C.List[i], aPos) < GetLength(Result, aPos) then
-        Result := C.List[i];
-  finally
-    C.Free;
-  end;
+  GetListOfCellsWithin(C);
+  Assert(C.Count > 0);
+  Result := C.List[1];
+  for i:=2 to C.Count do
+    if GetLength(C.List[i], aPos) < GetLength(Result, aPos) then
+      Result := C.List[i];
+  C.Free;
 end;
 
 
