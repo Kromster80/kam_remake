@@ -1399,10 +1399,10 @@ begin
     end;
 
   if not(L2.GetRandom(Result)) then
-  if Loc2IsOk then //If there are no free tiles then the unit that pushed us is a good option (exchange?)
+  if not(L3.GetRandom(Result)) then
+  if Loc2IsOk then //If there are no free or idle tiles then the unit that pushed us is a good option (exchange)
     Result := Loc2
   else
-  if not(L3.GetRandom(Result)) then
   if not(L1.GetRandom(Result)) then
     Result := Loc;
 

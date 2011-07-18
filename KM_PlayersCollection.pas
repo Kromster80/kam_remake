@@ -290,7 +290,8 @@ begin
     P := GetPositionFromIndex(KMPoint(PosX,PosY), i);
     if fTerrain.TileInMapCoords(P.X,P.Y) then begin
       T := KMPoint(P);
-      if fTerrain.CheckPassability(T, aPass) and not fTerrain.HasUnit(T) then begin
+      if fTerrain.CheckPassability(T, aPass) and (fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)) = fTerrain.GetWalkConnectID(T))
+      and not fTerrain.HasUnit(T) then begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;
         exit;

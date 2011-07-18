@@ -38,7 +38,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX;
+uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_UnitActionWalkTo;
 
 
 constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aUnit:TKMUnit; aDirection:TGoInDirection; aHouse:TKMHouse);
@@ -97,6 +97,7 @@ begin
     fTerrain.UnitRem(fUnit.NextPosition);
     if not KMSamePointF(fDoor, KMPointF(0,0)) then fUnit.PositionF := fDoor; //Put us back inside the house
   end;
+  if (fUnit <> nil) and (fDirection = gd_GoOutside) and (fUnit.Visible) then fUnit.SetInHouse(nil); //We are not in any house now
   fPlayers.CleanUpUnitPointer(fUnit);
   Inherited;
 end;
@@ -185,7 +186,7 @@ end;
 
 
 function TUnitActionGoInOut.Execute(KMUnit: TKMUnit):TActionResult;
-var Distance:single;
+var Distance:single; U:TKMUnit;
 begin
   Result := ActContinues;
 
@@ -227,15 +228,24 @@ begin
 
   if fWaitingForPush then
   begin
-    if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = nil) then
+    U := fTerrain.Land[fStreet.Y,fStreet.X].IsUnit;
+    if (U = nil) then
     begin
       fWaitingForPush := false;
       WalkOut(KMUnit);
       if fStreet.X = KMPointRound(fDoor).X then //We are walking straight
         IncDoorway;
     end
-    else 
-      exit; //Wait until our push request is dealt with before we move out
+    else
+      //Make sure they are still moving out of the way (it could be a different unit now)
+      if (U.GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(U.GetUnitAction).HasBeenPushed then
+        exit //Wait until our push request is dealt with before we move out
+      else
+      begin
+        fHasStarted := false; //This unit switched places with another or gave up, so we must start again
+        fWaitingForPush := false;
+        exit;
+      end;
   end;
 
   //IsExchanging can be updated while we have completed less than 20% of the move. If it is changed after that
@@ -266,12 +276,10 @@ begin
     begin
       KMUnit.PositionF := fDoor;
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) //Unit home is barracks
-      and(KMUnit.GetHome = fHouse) then //And is the house we are walking into
+      and(KMUnit.GetHome = fHouse)and(not KMUnit.GetHome.IsDestroyed) then //And is the house we are walking into and it's not destroyed
         TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Add(KMUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
-      if (fHouse<>nil) and not fHouse.IsDestroyed then
-        KMUnit.SetInHouse(fHouse);
-      if (fHouse<>nil) and (fHouse.IsDestroyed) then
-        fTerrain.UnitAdd(KMPointRound(KMUnit.PositionF), KMUnit); //Unit was not occupying a tile while walking in
+      //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
+      if fHouse<>nil then KMUnit.SetInHouse(fHouse);
     end
     else
     begin

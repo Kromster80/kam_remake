@@ -1,0 +1,8 @@
+Title
+No Space
+
+SmallDesc
+For testing bugs in tight spaces
+
+BigDesc
+Change middle click to place either recruits or serfs, then fill up the buildings and destroy them

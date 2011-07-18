@@ -79,6 +79,7 @@ type
       destructor Destroy; override;
 
       function  CanAbandonExternal: boolean;
+      function HasBeenPushed:boolean;
       property DoesWalking:boolean read fDoesWalking;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
       function  GetExplanation:string; override;
@@ -281,6 +282,12 @@ begin
 end;
 
 
+function TUnitActionWalkTo.HasBeenPushed:boolean;
+begin
+  Result := (fInteractionStatus = kis_Pushed);
+end;
+
+
 function TUnitActionWalkTo.GetExplanation:string;
 begin
   Result := TInteractionStatusNames[fInteractionStatus] + ': '+Explanation;
@@ -473,7 +480,7 @@ begin
   //If we are asking someone to move away then just wait until they are gone
   if (fInteractionStatus <> kis_Pushing) then exit;
     if (fOpponent.GetUnitAction is TUnitActionWalkTo) and //Make sure they are still moving out of the way
-      (TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionStatus = kis_Pushed) then
+      (TUnitActionWalkTo(fOpponent.GetUnitAction).HasBeenPushed) then
     begin
       Explanation := 'Unit is blocking the way and has been asked to move';
       ExplanationLogAdd;

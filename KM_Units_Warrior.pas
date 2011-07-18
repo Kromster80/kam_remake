@@ -37,7 +37,7 @@ type //Possibly melee warrior class? with Archer class separate?
     constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure CloseUnit; override;
+    procedure CloseUnit(aRemoveTileUsage:boolean=true); override;
     destructor Destroy; override;
 
     procedure KillUnit; override;

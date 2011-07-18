@@ -86,7 +86,7 @@ type TCheckAxis = (ax_X, ax_Y);
     procedure UpdateHunger;
     procedure UpdateFOW;
     procedure UpdateThoughts;
-    procedure UpdateVisibility;
+    function UpdateVisibility:boolean;
     procedure UpdateHitPoints;
   public
     AnimStep: integer;
@@ -102,7 +102,7 @@ type TCheckAxis = (ax_X, ax_Y);
     property GetPointerCount:integer read fPointerCount;
 
     procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
-    procedure CloseUnit; dynamic;
+    procedure CloseUnit(aRemoveTileUsage:boolean=true); dynamic;
 
     property ID:integer read fID;
     property PrevPosition: TKMPoint read fPrevPosition;
@@ -1014,7 +1014,7 @@ end;
 
 
 {Erase everything related to unit status to exclude it from being accessed by anything but the old pointers}
-procedure TKMUnit.CloseUnit;
+procedure TKMUnit.CloseUnit(aRemoveTileUsage:boolean=true);
 begin
   //if not KMSamePoint(fCurrPosition,NextPosition) then
   //  Assert(false, 'Not sure where to die?');
@@ -1025,7 +1025,7 @@ begin
     fPlayers.CleanUpHousePointer(fHome);
   end;
 
-  fTerrain.UnitRem(NextPosition); //Must happen before we nil NextPosition
+  if aRemoveTileUsage then fTerrain.UnitRem(fNextPosition); //Must happen before we nil NextPosition
 
   fIsDead       := true;
   fThought      := th_None;
@@ -1483,20 +1483,32 @@ begin
     fThought := th_None;
 end;
 
-// todo: if units quantity in house is greater than free places around the house, then kill superfluous units
-procedure TKMUnit.UpdateVisibility;
+//Return true if the unit has to be killed due to lack of space
+function TKMUnit.UpdateVisibility:boolean;
 begin
+  Result := false;
   if fInHouse = nil then exit; //There's nothing to update, we are always visible
 
   if fInHouse.IsDestroyed then //Someone has destroyed the house we were in
   begin
-    Visible := true;
+    fVisible := true;
     //If we are walking into/out of the house then don't set our position, ActionGoInOut will sort it out
     if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
     begin
-      //Position in a spiral nearest to center of house, updating IsUnit.
-      Assert(fPlayers.FindPlaceForUnit(fInHouse.GetPosition.X, fInHouse.GetPosition.Y, UnitType, fCurrPosition));
+      //Position in a spiral nearest to entrance of house, updating IsUnit.
+      if not fPlayers.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition) then
+      begin
+        //There is no space for this unit so it must be destroyed
+        if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
+          fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
+        FreeAndNil(fCurrentAction);
+        FreeAndNil(fUnitTask);
+        CloseUnit(false); //Close the unit without removing tile usage (because this unit was in a house it has none)
+        Result := true;
+        exit;
+      end;
       //Make sure these are reset properly
+      assert(not fTerrain.HasUnit(fCurrPosition));
       IsExchanging := false;
       fPosition := KMPointF(fCurrPosition);
       fPrevPosition := fCurrPosition;
@@ -1628,7 +1640,7 @@ begin
   UpdateFOW;
   UpdateThoughts;
   UpdateHitPoints;
-  UpdateVisibility; //incase units home was destroyed
+  if UpdateVisibility then exit; //incase units home was destroyed. Returns true if the unit was killed due to lack of space
 
   //Shortcut to freeze unit in place if it's on an unwalkable tile. We use fNextPosition rather than fCurrPosition
   //because once we have taken a step from a tile we no longer care about it. (fNextPosition matches up with IsUnit in terrain)
