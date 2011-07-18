@@ -929,12 +929,12 @@ begin
     begin
       if not fPlayers.Player[i].Stats.AllowToBuild[H] then
       begin
-        AddCommand(ct_BlockHouse, [HouseKaMOrder[H]]);
+        AddCommand(ct_BlockHouse, [HouseKaMOrder[H]-1]);
         ReleaseAllHouses := false;
       end
       else
         if fPlayers.Player[i].Stats.HouseReleased[H] then
-          AddCommand(ct_ReleaseHouse, [HouseKaMOrder[H]])
+          AddCommand(ct_ReleaseHouse, [HouseKaMOrder[H]-1])
         else
           ReleaseAllHouses := false;
     end;
@@ -947,7 +947,7 @@ begin
       CurHouse := TKMHouse(fPlayers.Player[i].Houses.Items[k]);
       if not CurHouse.IsDestroyed then
       begin
-        AddCommand(ct_SetHouse, [byte(CurHouse.GetHouseType)-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1]);
+        AddCommand(ct_SetHouse, [HouseKaMOrder[CurHouse.GetHouseType]-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1]);
         if CurHouse.IsDamaged then
           AddCommand(ct_SetHouseDamage, [CurHouse.GetDamage]);
       end;

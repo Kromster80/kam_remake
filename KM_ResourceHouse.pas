@@ -201,6 +201,7 @@ const
   ht_Tannery, ht_None, ht_Inn, ht_Wineyard);
 
   //THouseType corresponds to this index in KaM scripts and libs
+  //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
   HouseKaMOrder: array[THouseType] of byte = (0, 0,
   11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
   5, 2, 16, 23, 15, 1, 14, 24, 13, 12,

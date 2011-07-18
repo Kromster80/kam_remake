@@ -1118,7 +1118,7 @@ begin
 
   {Common data}
   Label_House.Caption:=fResource.HouseDat[Sender.GetHouseType].HouseName;
-  Image_House_Logo.TexID:=300+byte(Sender.GetHouseType);
+  Image_House_Logo.TexID:=fResource.HouseDat[Sender.GetHouseType].GUIIcon;
   Image_House_Worker.TexID:=140+byte(fResource.HouseDat[Sender.GetHouseType].OwnerType);
   Image_House_Worker.Hint := TypeToString(fResource.HouseDat[Sender.GetHouseType].OwnerType);
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);

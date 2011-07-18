@@ -1101,8 +1101,9 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
   procedure UpdateTransition(X,Y:integer);
   const TileID:array[0..15]of byte = (0,139,139,138,139,140,138,141,139,138,140,141,138,141,141,128);
          RotID:array[0..15]of byte = (0,  0,  1,  0,  2,  0,  1,  3,  3,  3,  1,  2,  2,  1,  0,  0);
-  var Bits:byte;
+  var Bits:byte; MustBeWalkable:boolean;
   begin
+    MustBeWalkable := HasUnit(KMPoint(X,Y)); //Don't make units become stuck
     if TileInMapCoords(X,Y) then
     if TileIsStone(KMPoint(X,Y))=0 then
     begin
@@ -1111,8 +1112,11 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
       if TileInMapCoords(X+1,Y) and (TileIsStone(KMPoint(X+1,Y))>0) then inc(Bits,2);    //   8 . 2
       if TileInMapCoords(X,Y-1) and (TileIsStone(KMPoint(X,Y+1))>0) then inc(Bits,4);    //     4
       if TileInMapCoords(X-1,Y) and (TileIsStone(KMPoint(X-1,Y))>0) then inc(Bits,8);    //
-      Land[Y,X].Terrain:=TileID[Bits];
-      Land[Y,X].Rotation:=RotID[Bits];
+      if (not MustBeWalkable) or (PatternDAT[TileID[Bits]+1].Walkable<>0) then
+      begin
+        Land[Y,X].Terrain:=TileID[Bits];
+        Land[Y,X].Rotation:=RotID[Bits];
+      end;
       if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation:=Random(4); //Randomise the direction of grass tiles
       RecalculatePassability(Loc);
     end;
@@ -1128,7 +1132,7 @@ begin
     else exit;
   end;
   Land[Loc.Y,Loc.X].Rotation:=Random(4);
-  UpdateTransition(Loc.X,Loc.Y);   //Update these 5 transitions
+  UpdateTransition(Loc.X,Loc.Y);   //Update these 5 transitions, but make sure that occupied tiles stay walkable
   UpdateTransition(Loc.X,Loc.Y-1); //    x
   UpdateTransition(Loc.X+1,Loc.Y); //  x X x
   UpdateTransition(Loc.X,Loc.Y+1); //    x
