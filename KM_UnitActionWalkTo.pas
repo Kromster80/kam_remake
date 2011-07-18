@@ -792,9 +792,9 @@ end;
 
 function TUnitActionWalkTo.GetNextNextPosition:TKMPoint;
 begin
-  if NodePos+1 > NodeList.Count then
-    Result:=KMPoint(0,0) //Error
-  else Result:=NodeList.List[NodePos+1];
+  // todo: find means to control range of NodePos
+  Assert(InRange(NodePos, 1, NodeList.Count));
+  Result:=NodeList.List[NodePos+1];
 end;
 
 
