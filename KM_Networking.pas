@@ -142,7 +142,7 @@ end;
 
 function TKMNetworking.IsHost:boolean;
 begin
-  Result := (fLANPlayerKind = lpk_Host)
+  Result := (fLANPlayerKind = lpk_Host);
 end;
 
 
@@ -295,8 +295,8 @@ end;
 procedure TKMNetworking.MatchPlayersToSave(aPlayerID:integer=-1);
 var i,k: integer;
 begin
-  assert(IsHost,'Only host can match players');
-  assert(fMapInfo.IsSave,'Not a save');
+  Assert(IsHost, 'Only host can match players');
+  Assert(fMapInfo.IsSave, 'Not a save');
   //If we are matching all then reset them all first so we don't get clashes
   if aPlayerID = -1 then
     for i:=1 to fNetPlayers.Count do
@@ -571,7 +571,6 @@ begin
   end;
   M.Free;
 
-
   case Kind of
     mk_GameVersion:
             begin
@@ -822,15 +821,11 @@ begin
               if Assigned(fOnPlay) then fOnPlay(Self);
 
     mk_Commands:
-            begin
-              if Assigned(fOnCommands) then fOnCommands(Msg);
-            end;
+            if Assigned(fOnCommands) then fOnCommands(Msg);
 
     mk_Text:
-            begin
-              if Assigned(fOnTextMessage) then
-                fOnTextMessage(Msg);
-            end;
+            if Assigned(fOnTextMessage) then
+              fOnTextMessage(Msg);
   end;
 end;
 
