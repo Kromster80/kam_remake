@@ -132,17 +132,17 @@ begin
 
   BuildFont(h_DC, 16, FW_BOLD);
 
-  setlength(RenderList,512);
+  SetLength(RenderList, 512);
   {$ENDIF}
   {$IFDEF Unix}
-    MessageBox(Form1.Handle,'Trender.Create not working', 'Error', MB_OK);
+    MessageBox(Form1.Handle,'TRender.Create not working', 'Error', MB_OK);
   {$ENDIF}
 end;
 
 
 destructor TRender.Destroy;
 begin
-  setlength(RenderList,0);
+  SetLength(RenderList, 0);
   {$IFDEF MSWindows}
   wglMakeCurrent(h_DC, 0);
   wglDeleteContext(h_RC);
@@ -183,19 +183,17 @@ end;
 
 procedure TRender.ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
 begin
-  if Height=0 then Height:=1;
-  if Width=0  then Width :=1;
-  glViewport(0, 0, Width, Height);
-  glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
-  glLoadIdentity;                   // Reset View
-  if aRenderMode=rm2D then
-    gluOrtho2D(0,Width,Height,0)
-  else
-    gluPerspective(80, -Width/Height, 0.1, 5000.0);
-  glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
-  glLoadIdentity;                   // Reset View
-  fRenderAreaSize.X := Width;
-  fRenderAreaSize.Y := Height;
+  fRenderAreaSize.X := max(Width, 1);
+  fRenderAreaSize.Y := max(Height, 1);
+  glViewport(0, 0, fRenderAreaSize.X, fRenderAreaSize.Y);
+  glMatrixMode(GL_PROJECTION); //Change Matrix Mode to Projection
+  glLoadIdentity; //Reset View
+  case aRenderMode of
+    rm2D: gluOrtho2D(0, fRenderAreaSize.X, fRenderAreaSize.Y, 0);
+    rm3D: gluPerspective(80, -fRenderAreaSize.X/fRenderAreaSize.Y, 0.1, 5000.0);
+  end;
+  glMatrixMode(GL_MODELVIEW); //Return to the modelview matrix
+  glLoadIdentity; //Reset View
 end;
 
 
@@ -212,8 +210,7 @@ begin
     glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y, 0);
     if RENDER_3D then
     begin
-      glLoadIdentity;
-      ResizeGameArea(fRenderAreaSize.X,fRenderAreaSize.Y,rm3D);
+      ResizeGameArea(fRenderAreaSize.X, fRenderAreaSize.Y, rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -221,9 +218,8 @@ begin
       glRotatef(rBank   ,0,0,1);
       glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y-8, 10);
       glkScale(fViewport.Zoom);
-      ResizeGameArea(fRenderAreaSize.X, fRenderAreaSize.Y, rm2D);
     end;
-
+    
     glLineWidth(fViewport.Zoom*2);
     glPointSize(fViewport.Zoom*5);
 
@@ -243,7 +239,7 @@ begin
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   end;
 
-  glLoadIdentity;             // Reset The View
+  ResizeGameArea(fRenderAreaSize.X, fRenderAreaSize.Y, rm2D);
   glLineWidth(1);
   glPointSize(1);
   glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
@@ -257,7 +253,7 @@ begin
   SwapBuffers(h_DC);
   {$ENDIF}
   {$IFDEF Unix}
-  glutswapbuffers;
+  glutSwapBuffers;
   {$ENDIF}
 end;
 
@@ -340,18 +336,18 @@ begin
           glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end else begin
-        if Lay2 then glColor4f(1,1,1,Land[i,k].Height/CELL_HEIGHT_DIV+0.5)
-        else glColor4f(1,1,1,1);
-          glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-        if Lay2 then glColor4f(1,1,1,Land[i+1,k].Height/CELL_HEIGHT_DIV+0.5)
-        else glColor4f(1,1,1,1);
-          glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-        if Lay2 then glColor4f(1,1,1,Land[i+1,k+1].Height/CELL_HEIGHT_DIV+0.5)
-        else glColor4f(1,1,1,1);
-          glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-        if Lay2 then glColor4f(1,1,1,Land[i,k+1].Height/CELL_HEIGHT_DIV+0.5)
-        else glColor4f(1,1,1,1);
-          glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+          if Lay2 then glColor4f(1,1,1,Land[i,k].Height/CELL_HEIGHT_DIV+0.5)
+          else glColor4f(1,1,1,1);
+            glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+          if Lay2 then glColor4f(1,1,1,Land[i+1,k].Height/CELL_HEIGHT_DIV+0.5)
+          else glColor4f(1,1,1,1);
+            glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+          if Lay2 then glColor4f(1,1,1,Land[i+1,k+1].Height/CELL_HEIGHT_DIV+0.5)
+          else glColor4f(1,1,1,1);
+            glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+          if Lay2 then glColor4f(1,1,1,Land[i,k+1].Height/CELL_HEIGHT_DIV+0.5)
+          else glColor4f(1,1,1,1);
+            glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end;
       end;
     glEnd;
