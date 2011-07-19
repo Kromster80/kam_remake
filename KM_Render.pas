@@ -307,7 +307,7 @@ begin
       3: glBindTexture(GL_TEXTURE_2D, TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
       4: glBindTexture(GL_TEXTURE_2D, TextF[AnimStep mod 5 + 1]);
     end;
-    glBegin (GL_QUADS);
+    glBegin(GL_QUADS);
       with fTerrain do
       for i:=y1 to y2 do for k:=x1 to x2 do
       if (iW=1) or (MyPlayer.FogOfWar.CheckTileRevelation(k,i) > FOG_OF_WAR_ACT) then //No animation in FOW
@@ -337,17 +337,17 @@ begin
           glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end else begin
           if Lay2 then glColor4f(1,1,1,Land[i,k].Height/CELL_HEIGHT_DIV+0.5)
-          else glColor4f(1,1,1,1);
-            glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+                  else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
           if Lay2 then glColor4f(1,1,1,Land[i+1,k].Height/CELL_HEIGHT_DIV+0.5)
-          else glColor4f(1,1,1,1);
-            glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+                  else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
           if Lay2 then glColor4f(1,1,1,Land[i+1,k+1].Height/CELL_HEIGHT_DIV+0.5)
-          else glColor4f(1,1,1,1);
-            glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+                  else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
           if Lay2 then glColor4f(1,1,1,Land[i,k+1].Height/CELL_HEIGHT_DIV+0.5)
-          else glColor4f(1,1,1,1);
-            glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+                  else glColor4f(1,1,1,1);
+          glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end;
       end;
     glEnd;
@@ -367,23 +367,23 @@ begin
     end;
 
     if fTerrain.Land[i,k].TileOverlay=to_Road then
-      begin
-        rd := 0;
-        if fTerrain.TileInMapCoords(k  ,i-1) then rd:=rd+byte(fTerrain.Land[i-1,k  ].TileOverlay=to_Road) shl 0;
-        if fTerrain.TileInMapCoords(k+1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k+1].TileOverlay=to_Road) shl 1;
-        if fTerrain.TileInMapCoords(k  ,i+1) then rd:=rd+byte(fTerrain.Land[i+1,k  ].TileOverlay=to_Road) shl 2;
-        if fTerrain.TileInMapCoords(k-1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k-1].TileOverlay=to_Road) shl 3;
-        ID  := RoadsConnectivity[rd,1];
-        Rot := RoadsConnectivity[rd,2];
-        RenderTile(ID,k,i,Rot);
-      end;
+    begin
+      rd := 0;
+      if fTerrain.TileInMapCoords(k  ,i-1) then rd:=rd+byte(fTerrain.Land[i-1,k  ].TileOverlay=to_Road) shl 0;
+      if fTerrain.TileInMapCoords(k+1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k+1].TileOverlay=to_Road) shl 1;
+      if fTerrain.TileInMapCoords(k  ,i+1) then rd:=rd+byte(fTerrain.Land[i+1,k  ].TileOverlay=to_Road) shl 2;
+      if fTerrain.TileInMapCoords(k-1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k-1].TileOverlay=to_Road) shl 3;
+      ID  := RoadsConnectivity[rd,1];
+      Rot := RoadsConnectivity[rd,2];
+      RenderTile(ID,k,i,Rot);
+    end;
   end;
 
   glColor4f(1,1,1,1);
   //Render highlights
   glBlendFunc(GL_DST_COLOR,GL_ONE);
   glBindTexture(GL_TEXTURE_2D, TextG);
-  glBegin (GL_QUADS);
+  glBegin(GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
@@ -402,7 +402,7 @@ begin
   //Render shadows and FOW at once
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, TextG);
-  glBegin (GL_QUADS);
+  glBegin(GL_QUADS);
     with fTerrain do
     for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
@@ -477,7 +477,7 @@ begin
   with fTerrain.FallingTrees do
   for i:=1 to Count do begin
     RenderObject(Tag[i]+1,AnimStep-Tag2[i],List[i].X,List[i].Y);
-    fLog.AssertToLog(AnimStep-Tag2[i] <= 100,'Falling tree overrun?');
+    Assert(AnimStep-Tag2[i] <= 100, 'Falling tree overrun?');
   end;
 end;
 
@@ -531,7 +531,7 @@ procedure TRender.RenderDebugWires(x1,x2,y1,y2:integer);
 var i,k:integer;
 begin
   for i:=y1 to y2 do begin
-    glBegin (GL_LINE_STRIP);
+    glBegin(GL_LINE_STRIP);
     for k:=x1 to x2 do begin
       glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-GameCursor.Cell.Y)+sqr(k-GameCursor.Cell.X))/10); //Smooth circle gradient blending
       glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
@@ -540,7 +540,7 @@ begin
   end;
 
   glPointSize(3);
-  glBegin (GL_POINTS);
+  glBegin(GL_POINTS);
   for i:=y1 to y2 do for k:=x1 to x2 do begin
     //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
     glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);
@@ -740,9 +740,8 @@ end;
 procedure TRender.RenderHouseBuild(Index:THouseType; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  Loc.X := Loc.X + fResource.HouseDat[Index].EntranceOffsetX;
   ID := fResource.HouseDat[Index].TabletIcon;
-  ShiftX := Loc.X + RXData[4].Pivot[ID].x/CELL_SIZE_PX + 0.5;
+  ShiftX := Loc.X + fResource.HouseDat[Index].EntranceOffsetX + RXData[4].Pivot[ID].x/CELL_SIZE_PX + 0.5;
   ShiftY := Loc.Y + (RXData[4].Pivot[ID].y + RXData[4].Size[ID].Y)/CELL_SIZE_PX + 0.5 - fTerrain.Land[Loc.Y+1, Loc.X].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(4,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true);
 end;
@@ -947,7 +946,7 @@ end;
 {Simple dot to know where it actualy is}
 procedure TRender.RenderDot(pX,pY:single; Size:single = 0.05);
 begin
-  glBegin (GL_QUADS);
+  glBegin(GL_QUADS);
     glkRect(pX-1-Size,pY-1+Size,pX-1+Size,pY-1-Size);
   glEnd;
 end;
@@ -956,7 +955,7 @@ end;
 procedure TRender.RenderDotOnTile(pX,pY:single);
 begin
   pY:=pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV;
-  glBegin (GL_QUADS);
+  glBegin(GL_QUADS);
     glkRect(pX-1,pY-1,pX-1+0.1,pY-1-0.1);
   glEnd;
 end;
@@ -964,7 +963,7 @@ end;
 
 procedure TRender.RenderLine(x1,y1,x2,y2:single);
 begin
-  glBegin (GL_LINES);
+  glBegin(GL_LINES);
     glVertex2f(x1-1, y1-1 - fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
     glVertex2f(x2-1, y2-1 - fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
   glEnd;
@@ -976,7 +975,7 @@ procedure TRender.RenderQuad(pX,pY:integer);
 begin
   if not fTerrain.TileInMapCoords(pX,pY) then exit;
 
-  glBegin (GL_QUADS);
+  glBegin(GL_QUADS);
     with fTerrain do
     glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
             pX  ,pY-1-Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV,
@@ -985,16 +984,14 @@ begin
   glEnd;
 end;
 
+
 {Render one terrian cell}
 procedure TRender.RenderTile(Index:byte; pX,pY,Rot:integer);
 var k,i,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
-  if (pX<1)or(pX>fTerrain.MapX) then exit;
-  if (pY<1)or(pY>fTerrain.MapY) then exit;
-
-  if not InRange(Index,0,255) then fLog.AssertToLog(false,'Wrong tile index, should be 0..255');
+  if not fTerrain.TileInMapCoords(pX,pY) then exit;
 
   glColor4f(1,1,1,1);
   glBindTexture(GL_TEXTURE_2D, TextT);
@@ -1009,7 +1006,7 @@ begin
   if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
   k:=pX; i:=pY;
-  glBegin (GL_QUADS);
+  glBegin(GL_QUADS);
   with fTerrain do
     if RENDER_3D then begin
       glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
@@ -1043,7 +1040,7 @@ begin
 
     if HighlightRed then glColor4f(1,0,0,1);
 
-    if (h=1)or( (h=2)and(RXData[RX].NeedTeamColors)and(AltID<>0)) then begin
+    if (h=1) or ((h=2)and(RXData[RX].NeedTeamColors)and(AltID<>0)) then begin
       glBegin(GL_QUADS);
         glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1                      );
         glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
@@ -1055,12 +1052,13 @@ begin
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  if not SHOW_SPRITES_RECT then exit;
-  glColor4f(1,1,1,0.5);
-  glBegin(GL_LINE_LOOP);
-    with GFXData[RX,ID] do
-    glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-  glEnd;
+  if SHOW_SPRITES_RECT then begin
+    glColor4f(1,1,1,0.5);
+    glBegin(GL_LINE_LOOP);
+      with GFXData[RX,ID] do
+      glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+    glEnd;
+  end;
 end;
 
 
@@ -1075,7 +1073,7 @@ begin
   with GFXData[RX,ID] do begin
     glColor3ub(aFOW,aFOW,aFOW);
     glBindTexture(GL_TEXTURE_2D, TexID);
-    glBegin (GL_QUADS);
+    glBegin(GL_QUADS);
       glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
       glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
       glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
@@ -1088,12 +1086,13 @@ begin
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   //glEnable(GL_BLEND);
 
-  if not SHOW_SPRITES_RECT then exit;
-  glColor3f(1,1,1);
-  glBegin (GL_LINE_LOOP);
-    with GFXData[RX,ID] do
-    glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-  glEnd;
+  if SHOW_SPRITES_RECT then begin
+    glColor3f(1,1,1);
+    glBegin(GL_LINE_LOOP);
+      with GFXData[RX,ID] do
+      glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+    glEnd;
+  end;
 end;
 
 
@@ -1119,7 +1118,7 @@ end;
 procedure TRender.ClipRenderList;
 var i:integer; P:TKMPoint;
 begin
-  setlength(RO,RenderCount+1);
+  SetLength(RO, RenderCount+1);
 
   for i:=1 to RenderCount do
   if RenderList[i].NewInst then begin
@@ -1141,7 +1140,6 @@ begin
     RO[i]:=0;
     RenderList[i].FOWvalue:=RenderList[i-1].FOWvalue; //Take from previous
   end;
-
 end;
 
 
