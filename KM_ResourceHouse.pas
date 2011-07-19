@@ -2,12 +2,7 @@ unit KM_ResourceHouse;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC} PNGImage, {$ENDIF}
-  {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes, KM_CommonTypes
-  {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, Zstream {$ENDIF};
+  Classes, Math, SysUtils, KM_CommonTypes, KM_Defaults;
 
 
 type
@@ -123,6 +118,49 @@ type
     procedure ExportCSV(aPath: string);
   end;
 
+type
+  THouseInfo = record
+    PlanYX:THouseArea;
+    DoesOrders:byte;
+    BuildIcon:word;
+    TabletIcon:word;
+    Input:THouseRes;
+    Output:THouseRes;
+  end;
+
+const
+  HouseInfo:array[THouseType] of THouseInfo = (
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //0
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //0
+    (PlanYX:((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)); DoesOrders:1; BuildIcon:0; TabletIcon:0), //Armor smithy
+    (PlanYX:((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)); DoesOrders:1; BuildIcon:0; TabletIcon:0), //Armor workshop
+    (PlanYX:((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Bakery
+    (PlanYX:((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Barracks
+    (PlanYX:((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Butchers
+    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Coal mine
+    (PlanYX:((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Farm
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Fisher hut
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Gold mine
+    (PlanYX:((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Inn
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Iron mine
+    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Iron smithy
+    (PlanYX:((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Metallurgist
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Mill
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Quarry
+    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Sawmill
+    (PlanYX:((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //School
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)); DoesOrders:1; BuildIcon:0; TabletIcon:0), //Siege workshop
+    (PlanYX:((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Stables
+    (PlanYX:((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Store
+    (PlanYX:((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Swine
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Tannery
+    (PlanYX:((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Town hall
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Watch tower
+    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)); DoesOrders:1; BuildIcon:0; TabletIcon:0), //Weapon smithy
+    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)); DoesOrders:1; BuildIcon:0; TabletIcon:0), //Weapon workshop
+    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)); DoesOrders:0; BuildIcon:0; TabletIcon:0), //Wineyard
+    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)); DoesOrders:0; BuildIcon:0; TabletIcon:0)  //Woodcutter
+    ); //0
 
 const
   //1-building area //2-entrance
@@ -155,15 +193,19 @@ const
     ((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
-    ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)),  //Wineyard
-    ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)) //Woodcutter
+    ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)), //Wineyard
+    ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0))  //Woodcutter
     );
 
   //Building of certain house allows player to build following houses,
   //unless they are blocked in mission script of course
   HouseRelease:array[THouseType]of THouseTypeSet = (
     [], [],
-    [], [], [], [], [],
+    [],
+    [],
+    [],
+    [],
+    [],
     [],
     [ht_Mill,ht_Swine,ht_Stables], //Farm
     [],
@@ -208,12 +250,13 @@ const
   17, 26, 19, 18, 3, 20, 29, 10);
 
 
-    //Does house output needs to be ordered by Player or it keeps on producing by itself
-  HouseDoesOrders_:array[THouseType] of boolean = (
-    false, false,
-    true, true, false,false,false,false,false,false,false,false,
-    false,false,false,false,false,false,false,true ,false,false,
-    false,false,false,false,true ,true ,false,false);
+  //Does house output needs to be ordered by Player or it keeps on producing by itself
+  //Keeping 0/1 instead of booleans is neater
+  HouseDoesOrders:array[THouseType] of byte = (
+    0, 0,
+    1,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,1,0,0,
+    0,0,0,0,1,1,0,0);
 
   GUIBuildIcons_:array[0..HouseDatCount]of word = (
     0, //ht_None
@@ -303,10 +346,8 @@ const
     );
 
 
-
-
 implementation
-uses KromUtils, KM_Utils;
+uses KM_TextLibrary;
 
 
 { TKMHouseDatClass }
@@ -330,7 +371,7 @@ end;
 
 function TKMHouseDatClass.GetDoesOrders: boolean;
 begin
-  Result := HouseDoesOrders_[fHouseType];
+  Result := HouseDoesOrders[fHouseType]<>0;
 end;
 
 
