@@ -1266,7 +1266,7 @@ begin
   begin
     //Render miniature copy of all available colors with '?' on top
     for i:=0 to Length(Colors)-1 do
-      fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+1, Top+(i div fColumnCount)*(fCellSize div fColumnCount), (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
+      fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+2, Top+(i div fColumnCount)*(fCellSize div fColumnCount)+2, (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
     fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, '?', fnt_Metal, kaCenter, $FFFFFFFF);
     Start := 1;
   end;

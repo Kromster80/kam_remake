@@ -984,6 +984,7 @@ end;
 procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
+  SaveStream.Write('BuildQueue');
   SaveStream.Write(FieldsCount);
   for i:=1 to FieldsCount do
   with fFieldsQueue[i] do
@@ -1027,8 +1028,10 @@ end;
 
 
 procedure TKMBuildingQueue.Load(LoadStream:TKMemoryStream);
-var i:integer;
+var i:integer; s:string;
 begin
+  LoadStream.Read(s);
+  Assert(s = 'BuildQueue');
   LoadStream.Read(FieldsCount);
   SetLength(fFieldsQueue, FieldsCount+1);
   for i:=1 to FieldsCount do

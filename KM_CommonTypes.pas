@@ -206,7 +206,7 @@ type
     constructor Load(LoadStream:TKMemoryStream);
     procedure Clearup;
     procedure AddEntry(aLoc:TKMPointDir);
-    function GetRandom(Point: TKMPointDir):Boolean;
+    function GetRandom(out Point: TKMPointDir):Boolean;
     procedure Save(SaveStream:TKMemoryStream);
   end;
 
@@ -773,7 +773,7 @@ begin
 end;
 
 
-function TKMPointDirList.GetRandom(Point: TKMPointDir):Boolean;
+function TKMPointDirList.GetRandom(out Point: TKMPointDir):Boolean;
 begin
   Result := False;
   if Count > 0 then begin

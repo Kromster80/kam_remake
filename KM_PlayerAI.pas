@@ -712,6 +712,7 @@ end;
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var i: integer;
 begin
+  SaveStream.Write('PlayerAI');
   SaveStream.Write(PlayerIndex);
   SaveStream.Write(fTimeOfLastAttackMessage);
   SaveStream.Write(ReqWorkers);
@@ -734,8 +735,10 @@ end;
 
 
 procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
-var i: integer;
+var i: integer; s: string;
 begin
+  LoadStream.Read(s);
+  Assert(s = 'PlayerAI');
   LoadStream.Read(PlayerIndex);
   LoadStream.Read(fTimeOfLastAttackMessage);
   LoadStream.Read(ReqWorkers);

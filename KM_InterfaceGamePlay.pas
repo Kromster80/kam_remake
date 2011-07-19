@@ -338,7 +338,7 @@ end;
 procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 var LoadError:string;
 begin
-  if fGame.MultiplayerMode then exit; //Saving/loading disabled in multiplayer for now
+  if fGame.MultiplayerMode then exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
   LoadError := fGame.Load(TKMControl(Sender).Tag);
   if LoadError <> '' then fGame.fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu
 end;
