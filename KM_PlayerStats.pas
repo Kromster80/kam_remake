@@ -85,6 +85,7 @@ begin
   for H:=Low(THouseType) to High(THouseType) do
     AllowToBuild[H] := true;
 
+  //Release Store at the start of the game by default
   HouseReleased[ht_Store] := true;
 
   for i:=1 to 4 do for k:=1 to 4 do
@@ -93,11 +94,10 @@ end;
 
 
 procedure TKMPlayerStats.UpdateReqDone(aType:THouseType);
-var i:THouseType; HS:THouseTypeSet;
+var i:THouseType;
 begin
-  HS := fResource.HouseDat[aType].HouseUnlock;
   for i:=Low(THouseType) to High(THouseType) do
-    if i in HS then
+    if fResource.HouseDat[i].ReleasedBy = aType then
       HouseReleased[i] := true;
 end;
 
@@ -222,6 +222,7 @@ begin
 end;
 
 
+//Houses might be blocked by mission script
 function TKMPlayerStats.GetCanBuild(aType:THouseType):boolean;
 begin
   Result := HouseReleased[aType] AND AllowToBuild[aType];
@@ -315,7 +316,7 @@ end;
 function TKMPlayerStats.GetUnitsTrained:cardinal;
 var i:TUnitType;
 begin
-  Result:=0;
+  Result := 0;
   for i:=ut_Serf to ut_Recruit do
     inc(Result,Units[i].Trained);
 end;
@@ -335,7 +336,7 @@ end;
 function TKMPlayerStats.GetSoldiersTrained:cardinal;
 var i:TUnitType;
 begin
-  Result:=0;
+  Result := 0;
   for i:=ut_Militia to ut_Barbarian do
     inc(Result,Units[i].Trained);
 end;
@@ -372,9 +373,11 @@ begin
   Result := fBuildReqDone[aType];
 end;
 
+
 procedure TKMPlayerStats.SetHouseReleased(aType: THouseType; aValue: boolean);
 begin
   fBuildReqDone[aType] := aValue;
 end;
+
 
 end.

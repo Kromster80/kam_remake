@@ -51,11 +51,11 @@ type
     function GetDoesOrders:boolean;
     function GetGUIIcon:word;
     function GetHouseName:string;
-    function GetHouseUnlock:THouseTypeSet;
     function GetResInput:THouseRes;
     function GetResOutput:THouseRes;
     function GetOwnerType:TUnitType;
     function GetProducesGoods:boolean;
+    function GetReleasedBy:THouseType;
     function GetTabletIcon:word;
   public
     constructor Create(aHouseType:THouseType);
@@ -86,9 +86,9 @@ type
     property BuildArea:THouseArea read GetArea;
     property DoesOrders:boolean read GetDoesOrders;
     property HouseName:string read GetHouseName;
-    property HouseUnlock:THouseTypeSet read GetHouseUnlock;
     property GUIIcon:word read GetGUIIcon;
     property ProducesGoods:boolean read GetProducesGoods;
+    property ReleasedBy:THouseType read GetReleasedBy;
     property ResInput:THouseRes read GetResInput;
     property ResOutput:THouseRes read GetResOutput;
     property TabletIcon:word read GetTabletIcon;
@@ -126,80 +126,271 @@ type
     TabletIcon:word; //House area WIP tablet
     Input:THouseRes;
     Output:THouseRes;
+    ReleasedBy:THouseType; //Which house type allows to build this house type
   end;
 
 const
-  HouseInfo:array[THouseType] of THouseInfo = (
-    (
-    PlanYX: ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)); DoesOrders:0; BuildIcon:  0; TabletIcon:  0), //0
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)); DoesOrders:0; BuildIcon:  0; TabletIcon:  0), //0
-    (PlanYX:((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)); DoesOrders:1; BuildIcon:311; TabletIcon:261), //Armor smithy
-    (PlanYX:((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)); DoesOrders:1; BuildIcon:321; TabletIcon:271), //Armor workshop
-    (PlanYX:((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)); DoesOrders:0; BuildIcon:325; TabletIcon:275), //Bakery
-    (PlanYX:((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:322; TabletIcon:272), //Barracks
-    (PlanYX:((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)); DoesOrders:0; BuildIcon:308; TabletIcon:258), //Butchers
-    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:304; TabletIcon:254), //Coal mine
-    (PlanYX:((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:309; TabletIcon:259), //Farm
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)); DoesOrders:0; BuildIcon:307; TabletIcon:257), //Fisher hut
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)); DoesOrders:0; BuildIcon:306; TabletIcon:256), //Gold mine
-    (PlanYX:((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:328; TabletIcon:278), //Inn
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)); DoesOrders:0; BuildIcon:305; TabletIcon:255), //Iron mine
-    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)); DoesOrders:0; BuildIcon:302; TabletIcon:252), //Iron smithy
-    (PlanYX:((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:316; TabletIcon:266), //Metallurgist
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)); DoesOrders:0; BuildIcon:323; TabletIcon:273), //Mill
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)); DoesOrders:0; BuildIcon:315; TabletIcon:265), //Quarry
-    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:301; TabletIcon:251), //Sawmill
-    (PlanYX:((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:314; TabletIcon:264), //School
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)); DoesOrders:1; BuildIcon:324; TabletIcon:274), //Siege workshop
-    (PlanYX:((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)); DoesOrders:0; BuildIcon:313; TabletIcon:263), //Stables
-    (PlanYX:((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)); DoesOrders:0; BuildIcon:312; TabletIcon:262), //Store
-    (PlanYX:((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)); DoesOrders:0; BuildIcon:317; TabletIcon:267), //Swine
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)); DoesOrders:0; BuildIcon:326; TabletIcon:276), //Tannery
-    (PlanYX:((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)); DoesOrders:0; BuildIcon:319; TabletIcon:269), //Town hall
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)); DoesOrders:0; BuildIcon:318; TabletIcon:268), //Watch tower
-    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)); DoesOrders:1; BuildIcon:303; TabletIcon:253), //Weapon smithy
-    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)); DoesOrders:1; BuildIcon:320; TabletIcon:270), //Weapon workshop
-    (PlanYX:((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)); DoesOrders:0; BuildIcon:329; TabletIcon:279), //Wineyard
-    (PlanYX:((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)); DoesOrders:0; BuildIcon:310; TabletIcon:260)  //Woodcutter
+  //Remake stores additional house properties here. This looks like House.Dat, but hardcoded.
+  //I listed all fields explicitely except for ht_None/ht_Any to be sure nothing is forgotten
+  HouseDatX:array[THouseType] of THouseInfo = (
+    (),//ht_None
+    (),//ht_Any
+    ( //Armor smithy
+    PlanYX:     ((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 1;
+    BuildIcon:  311;
+    TabletIcon: 261;
+    Input:      (rt_Steel,      rt_Coal,       rt_None,       rt_None);
+    Output:     (rt_MetalArmor, rt_MetalShield,rt_None,       rt_None);
+    ReleasedBy: ht_IronSmithy;
+    ),
+    ( //Armor workshop
+    PlanYX:     ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1));
+    DoesOrders: 1;
+    BuildIcon:  321;
+    TabletIcon: 271;
+    Input:      (rt_Wood,       rt_Leather,    rt_None,       rt_None);
+    Output:     (rt_Shield,     rt_Armor,      rt_None,       rt_None);
+    ReleasedBy: ht_Tannery;
+    ),
+    ( //Bakery
+    PlanYX:     ((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2));
+    DoesOrders: 0;
+    BuildIcon:  325;
+    TabletIcon: 275;
+    Input:      (rt_Flour,      rt_None,       rt_None,       rt_None);
+    Output:     (rt_Bread,      rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Mill;
+    ),
+    ( //Barracks
+    PlanYX:     ((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 0;
+    BuildIcon:  322;
+    TabletIcon: 272;
+    Input:      (rt_Warfare,    rt_None,       rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Butchers
+    PlanYX:     ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2));
+    DoesOrders: 0;
+    BuildIcon:  308;
+    TabletIcon: 258;
+    Input:      (rt_Pig,        rt_None,       rt_None,       rt_None);
+    Output:     (rt_Sausages,   rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Swine;
+    ),
+    ( //Coal mine
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0));
+    DoesOrders: 0;
+    BuildIcon:  304;
+    TabletIcon: 254;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Coal,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Farm
+    PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 0;
+    BuildIcon:  309;
+    TabletIcon: 259;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Corn,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Fisher hut
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1));
+    DoesOrders: 0;
+    BuildIcon:  307;
+    TabletIcon: 257;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Fish,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Gold mine
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0));
+    DoesOrders: 0;
+    BuildIcon:  306;
+    TabletIcon: 256;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_GoldOre,    rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Inn
+    PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 0;
+    BuildIcon:  328;
+    TabletIcon: 278;
+    Input:      (rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_School;
+    ),
+    ( //Iron mine
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1));
+    DoesOrders: 0;
+    BuildIcon:  305;
+    TabletIcon: 255;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_IronOre,    rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Iron smithy
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1));
+    DoesOrders: 0;
+    BuildIcon:  302;
+    TabletIcon: 252;
+    Input:      (rt_IronOre,    rt_Coal,       rt_None,       rt_None);
+    Output:     (rt_Steel,      rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_IronMine;
+    ),
+    ( //Metallurgist
+    PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
+    DoesOrders: 0;
+    BuildIcon:  316;
+    TabletIcon: 266;
+    Input:      (rt_GoldOre,    rt_Coal,       rt_None,       rt_None);
+    Output:     (rt_Gold,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_GoldMine;
+    ),
+    ( //Mill
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
+    DoesOrders: 0;
+    BuildIcon:  323;
+    TabletIcon: 273;
+    Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Flour,      rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Farm;
+    ),
+    ( //Quarry
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
+    DoesOrders: 0;
+    BuildIcon:  315;
+    TabletIcon: 265;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Stone,      rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Inn;
+    ),
+    ( //Sawmill
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 0;
+    BuildIcon:  301;
+    TabletIcon: 251;
+    Input:      (rt_Trunk,      rt_None,       rt_None,       rt_None);
+    Output:     (rt_Wood,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Woodcutters;
+    ),
+    ( //School
+    PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
+    DoesOrders: 0;
+    BuildIcon:  314;
+    TabletIcon: 264;
+    Input:      (rt_Gold,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Store;
+    ),
+    ( //Siege workshop
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1));
+    DoesOrders: 1;
+    BuildIcon:  324;
+    TabletIcon: 274;
+    Input:      (rt_Wood,       rt_Steel,      rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_IronSmithy;
+    ),
+    ( //Stables
+    PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1));
+    DoesOrders: 0;
+    BuildIcon:  313;
+    TabletIcon: 263;
+    Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Horse,      rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Farm;
+    ),
+    ( //Store
+    PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
+    DoesOrders: 0;
+    BuildIcon:  312;
+    TabletIcon: 262;
+    Input:      (rt_All,        rt_None,       rt_None,       rt_None);
+    Output:     (rt_All,        rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_None; //
+    ),
+    ( //Swine
+    PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2));
+    DoesOrders: 0;
+    BuildIcon:  317;
+    TabletIcon: 267;
+    Input:      (rt_Corn,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Pig,        rt_Skin,       rt_None,       rt_None);
+    ReleasedBy: ht_Farm;
+    ),
+    ( //Tannery
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1));
+    DoesOrders: 0;
+    BuildIcon:  326;
+    TabletIcon: 276;
+    Input:      (rt_Skin,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Leather,    rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Swine;
+    ),
+    ( //Town hall
+    PlanYX:     ((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 0;
+    BuildIcon:  319;
+    TabletIcon: 269;
+    Input:      (rt_Gold,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Metallurgists;
+    ),
+    ( //Watch tower
+    PlanYX:   ((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0));
+    DoesOrders: 0;
+    BuildIcon:  318;
+    TabletIcon: 268;
+    Input:      (rt_Stone,      rt_None,       rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Quary;
+    ),
+    ( //Weapon smithy
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 1;
+    BuildIcon:  303;
+    TabletIcon: 253;
+    Input:      (rt_Coal,       rt_Steel,      rt_None,       rt_None);
+    Output:     (rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None);
+    ReleasedBy: ht_IronSmithy;
+    ),
+    ( //Weapon workshop
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1));
+    DoesOrders: 1;
+    BuildIcon:  320;
+    TabletIcon: 270;
+    Input:      (rt_Wood,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Axe,        rt_Pike,       rt_Bow,        rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Wineyard
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2));
+    DoesOrders: 0;
+    BuildIcon:  329;
+    TabletIcon: 279;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Wine,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Sawmill;
+    ),
+    ( //Woodcutter
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0));
+    DoesOrders: 0;
+    BuildIcon:  310;
+    TabletIcon: 260;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_Trunk,      rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Quary;
+    )
     );
 
-
-  //Building of certain house allows player to build following houses,
-  //unless they are blocked in mission script of course
-  HouseRelease:array[THouseType]of THouseTypeSet = (
-    [], [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [ht_Mill,ht_Swine,ht_Stables], //Farm
-    [],
-    [ht_Metallurgists], //GoldMine
-    [ht_Quary], //Inn
-    [ht_IronSmithy], //IronMine
-    [ht_WeaponSmithy,ht_ArmorSmithy,ht_SiegeWorkshop], //IronSmithy
-    [ht_TownHall], //Metallurgists
-    [ht_Bakery], //Mill
-    [ht_Woodcutters,ht_WatchTower], //Quary
-    [ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks, ht_FisherHut], //Sawmill
-    [ht_Inn],  //School
-    [],
-    [],
-    [ht_School], //Store
-    [ht_Butchers,ht_Tannery], //Swine
-    [ht_ArmorWorkshop],  //Tannery
-    [],
-    [],
-    [],
-    [],
-    [],
-    [ht_Sawmill] //Woodcutters
-    );
-
-const
-  HouseDatCount = 29; 
+  //These tables are used to convert between KaM script IDs and Remake ebums
+  HouseDatCount = 29;
   //KaM scripts and HouseDat address houses in this order
   HouseKaMType: array[0..HouseDatCount-1] of THouseType = (
   ht_Sawmill, ht_IronSmithy, ht_WeaponSmithy, ht_CoalMine, ht_IronMine,
@@ -215,74 +406,6 @@ const
   11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
   5, 2, 16, 23, 15, 1, 14, 24, 13, 12,
   17, 26, 19, 18, 3, 20, 29, 10);
-
-  //What does house produces
-  HouseOutput_:array[0..HouseDatCount] of THouseRes = (
-    (rt_None,       rt_None,       rt_None,       rt_None), //None
-    (rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill
-    (rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy
-    (rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None), //Weapon smithy
-    (rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine
-    (rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine
-    (rt_GoldOre,    rt_None,       rt_None,       rt_None), //Gold mine
-    (rt_Fish,       rt_None,       rt_None,       rt_None), //Fisher hut
-    (rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery
-    (rt_Corn,       rt_None,       rt_None,       rt_None), //Farm
-    (rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter
-    (rt_MetalArmor, rt_MetalShield,rt_None,       rt_None), //Armor smithy
-    (rt_All,        rt_None,       rt_None,       rt_None), //Store
-    (rt_Horse,      rt_None,       rt_None,       rt_None), //Stables
-    (rt_None,       rt_None,       rt_None,       rt_None), //School
-    (rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry
-    (rt_Gold,       rt_None,       rt_None,       rt_None), //Metallurgist
-    (rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine
-    (rt_None,       rt_None,       rt_None,       rt_None), //Watch tower
-    (rt_None,       rt_None,       rt_None,       rt_None), //Town hall
-    (rt_Axe,        rt_Pike,       rt_Bow,        rt_None), //Weapon workshop
-    (rt_Shield,     rt_Armor,      rt_None,       rt_None), //Armor workshop
-    (rt_None,       rt_None,       rt_None,       rt_None), //Barracks
-    (rt_Flour,      rt_None,       rt_None,       rt_None), //Mill
-    (rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop
-    (rt_Sausages,   rt_None,       rt_None,       rt_None), //Butcher
-    (rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery
-    (rt_None,       rt_None,       rt_None,       rt_None), //N/A
-    (rt_None,       rt_None,       rt_None,       rt_None), //Inn
-    (rt_Wine,       rt_None,       rt_None,       rt_None) //Wineyard
-    );
-
-  //What house requires
-  HouseInput_:array[0..HouseDatCount] of THouseRes = (
-    (rt_None,       rt_None,       rt_None,       rt_None), //None
-    (rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill
-    (rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy
-    (rt_Coal,       rt_Steel,      rt_None,       rt_None), //Weapon smithy
-    (rt_None,       rt_None,       rt_None,       rt_None), //Coal mine
-    (rt_None,       rt_None,       rt_None,       rt_None), //Iron mine
-    (rt_None,       rt_None,       rt_None,       rt_None), //Gold mine
-    (rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut
-    (rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery
-    (rt_None,       rt_None,       rt_None,       rt_None), //Farm
-    (rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter
-    (rt_Steel,      rt_Coal,       rt_None,       rt_None), //Armor smithy
-    (rt_All,        rt_None,       rt_None,       rt_None), //Store
-    (rt_Corn,       rt_None,       rt_None,       rt_None), //Stables
-    (rt_Gold,       rt_None,       rt_None,       rt_None), //School
-    (rt_None,       rt_None,       rt_None,       rt_None), //Quarry
-    (rt_GoldOre,    rt_Coal,       rt_None,       rt_None), //Metallurgist
-    (rt_Corn,       rt_None,       rt_None,       rt_None), //Swine
-    (rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower
-    (rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall
-    (rt_Wood,       rt_None,       rt_None,       rt_None), //Weapon workshop
-    (rt_Wood,       rt_Leather,    rt_None,       rt_None), //Armor workshop
-    (rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks
-    (rt_Corn,       rt_None,       rt_None,       rt_None), //Mill
-    (rt_Wood,       rt_Steel,      rt_None,       rt_None), //Siege workshop
-    (rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher
-    (rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery
-    (rt_None,       rt_None,       rt_None,       rt_None), //N/A
-    (rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn
-    (rt_None,       rt_None,       rt_None,       rt_None) //Wineyard
-    );
 
 
 implementation
@@ -305,19 +428,19 @@ end;
 
 function TKMHouseDatClass.GetArea: THouseArea;
 begin
-  Result := HouseInfo[fHouseType].PlanYX;
+  Result := HouseDatX[fHouseType].PlanYX;
 end;
 
 
 function TKMHouseDatClass.GetDoesOrders: boolean;
 begin
-  Result := HouseInfo[fHouseType].DoesOrders<>0;
+  Result := HouseDatX[fHouseType].DoesOrders<>0;
 end;
 
 
 function TKMHouseDatClass.GetGUIIcon: word;
 begin
-  Result := HouseInfo[fHouseType].BuildIcon;
+  Result := HouseDatX[fHouseType].BuildIcon;
 end;
 
 
@@ -327,12 +450,6 @@ begin
     Result := fTextLibrary.GetTextString(siHouseNames+HouseKaMOrder[fHouseType])
   else
     Result := 'N/A';
-end;
-
-
-function TKMHouseDatClass.GetHouseUnlock: THouseTypeSet;
-begin
-  Result := HouseRelease[fHouseType];
 end;
 
 
@@ -348,21 +465,27 @@ begin
 end;
 
 
+function TKMHouseDatClass.GetReleasedBy: THouseType;
+begin
+  Result := HouseDatX[fHouseType].ReleasedBy;
+end;
+
+
 function TKMHouseDatClass.GetResInput: THouseRes;
 begin
-  Result := HouseInput_[HouseKaMOrder[fHouseType]];
+  Result := HouseDatX[fHouseType].Input;
 end;
 
 
 function TKMHouseDatClass.GetResOutput: THouseRes;
 begin
-  Result := HouseOutput_[HouseKaMOrder[fHouseType]];
+  Result := HouseDatX[fHouseType].Output;
 end;
 
 
 function TKMHouseDatClass.GetTabletIcon: word;
 begin
-  Result := HouseInfo[fHouseType].TabletIcon;
+  Result := HouseDatX[fHouseType].TabletIcon;
 end;
 
 

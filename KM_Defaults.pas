@@ -563,8 +563,6 @@ type
     ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,  ht_WeaponSmithy,
     ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
-  THouseTypeSet = set of THouseType;
-
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = ( hst_Empty, hst_Idle, hst_Work );
   //These are house building states
