@@ -1,29 +1,30 @@
 unit KM_DedicatedServer;
-
 interface
-
 uses
   SysUtils, Windows, KM_NetServer, KM_Defaults, KM_CommonTypes;
 
+
 type
   TKMDedicatedServer = class
-    private
-      fLastPing: cardinal;
-      fNetServer: TKMNetServer;
-      fOnMessage: TStringEvent;
-      procedure StatusMessage(const aData: string);
-    public
-      constructor Create;
-      destructor Destroy; override;
+  private
+    fLastPing: cardinal;
+    fNetServer: TKMNetServer;
+    fOnMessage: TStringEvent;
+    procedure StatusMessage(const aData: string);
+  public
+    constructor Create;
+    destructor Destroy; override;
 
-      procedure Start;
-      procedure Stop;
-      procedure UpdateState;
-      property OnMessage: TStringEvent write fOnMessage;
+    procedure Start;
+    procedure Stop;
+    procedure UpdateState;
+    property OnMessage: TStringEvent write fOnMessage;
   end;
 
+
 implementation
-        
+
+
 constructor TKMDedicatedServer.Create;
 begin
   Inherited;
@@ -31,12 +32,14 @@ begin
   fLastPing := 0;
 end;
 
+
 destructor TKMDedicatedServer.Destroy;
 begin
   fNetServer.Free;
   StatusMessage('Server destroyed');
   Inherited;
 end;
+
 
 procedure TKMDedicatedServer.Start;
 begin
@@ -53,12 +56,14 @@ begin
   end;
 end;
 
+
 procedure TKMDedicatedServer.Stop;
 begin
   fNetServer.StopListening;
   fNetServer.ClearClients;
   StatusMessage('Stopped listening');
 end;
+
 
 procedure TKMDedicatedServer.UpdateState;
 begin
@@ -69,9 +74,11 @@ begin
   end;
 end;
 
+
 procedure TKMDedicatedServer.StatusMessage(const aData: string);
 begin
   if Assigned(fOnMessage) then fOnMessage(aData);
 end;
+
 
 end.
