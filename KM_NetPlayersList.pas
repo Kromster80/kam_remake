@@ -4,12 +4,16 @@ interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Player, KM_Utils;
 
+const
+  PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
 
 type
   TKMPlayerInfo = class
   private
     fNikname:string;
     fIndexOnServer:integer;
+    fPings: array[0..PING_COUNT-1] of word; //Ring buffer
+    fPingPos:byte;
   public
     PlayerType:TPlayerType; //Human, Computer
     FlagColorID:integer;    //Flag color, 0 means random
@@ -19,7 +23,9 @@ type
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
     Alive:boolean;          //Player is still connected and not defeated
-    Ping:word;              //Last known ping
+    procedure SetPing(aPing:word);
+    function GetInstantPing:word;
+    function GetMaxPing:word;
     function IsHuman:boolean;
     property Nikname:string read fNikname;
     property IndexOnServer:integer read fIndexOnServer;
@@ -57,7 +63,7 @@ type
     function ColorAvailable(aIndex:integer):boolean;
     function AllReady:boolean;
     function AllReadyToPlay:boolean;
-    function GetHighestRoundTripLatency:word;
+    function GetMaxHighestRoundTripLatency:word;
     procedure GetNotReadyToPlayPlayers(aPlayerList:TStringList);
     function GetAICount:integer;
 
@@ -74,6 +80,28 @@ implementation
 
 
 { TKMPlayerInfo }
+procedure TKMPlayerInfo.SetPing(aPing:word);
+begin
+  fPingPos := (fPingPos+1) mod PING_COUNT;
+  fPings[fPingPos] := aPing;
+end;
+
+
+function TKMPlayerInfo.GetInstantPing:word;
+begin
+  Result := fPings[fPingPos];
+end;
+
+
+function TKMPlayerInfo.GetMaxPing:word;
+var i: integer;
+begin
+  Result := 0;
+  for i:= 0 to PING_COUNT-1 do
+    Result := Math.max(Result,fPings[i]);
+end;
+
+
 function TKMPlayerInfo.IsHuman:boolean;
 begin
   Result := PlayerType = pt_Human;
@@ -382,18 +410,18 @@ begin
 end;
 
 
-function TKMPlayersList.GetHighestRoundTripLatency:word;
+function TKMPlayersList.GetMaxHighestRoundTripLatency:word;
 var i:integer; Highest, Highest2: word;
 begin
   Highest := 0;
   Highest2 := 0;
   for i:=1 to fCount do
   begin
-    if fPlayers[i].Ping > Highest then
-      Highest := fPlayers[i].Ping
+    if fPlayers[i].GetMaxPing > Highest then
+      Highest := fPlayers[i].GetMaxPing
     else
-      if fPlayers[i].Ping > Highest2 then
-        Highest2 := fPlayers[i].Ping;
+      if fPlayers[i].GetMaxPing > Highest2 then
+        Highest2 := fPlayers[i].GetMaxPing;
   end;
   Result := min(Highest + Highest2, High(Word));
 end;

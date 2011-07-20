@@ -192,6 +192,7 @@ begin
   if fCommander <> nil then
   begin
     fCommander.fMembers.Remove((Self));
+    fCommander.SetUnitsPerRow(fCommander.UnitsPerRow); //Shortcut to ensure UnitsPerRow <= fMembers.Count
     //Now make the group reposition if they were idle (halt has IsDead check in case commander is dead too)
     if (fCommander.fState <> ws_Walking) and (not (fUnitTask is TTaskAttackHouse))
     and not fCommander.ArmyInFight then

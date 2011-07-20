@@ -7,6 +7,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Player,
   KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
 
+//todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
 
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
@@ -261,8 +262,6 @@ begin
   M.WriteAsText(aInfo);
   M.Position := 0;
   M.Read(PingCount);
-  for i:=1 to MAX_PLAYERS do
-    fNetPlayers[i].Ping := 0; //Reset them all so players dropped by the server are 0
   for i:=1 to PingCount do
   begin
     M.Read(PlayerHandle);
@@ -270,7 +269,7 @@ begin
     M.Read(PingValue);
     //This player might not be in the lobby yet, could still be asking to join. If so we do not care about their ping.
     if LocalHandle <> -1 then
-      fNetPlayers[LocalHandle].Ping := PingValue;
+      fNetPlayers[LocalHandle].SetPing(PingValue);
   end;
   M.Free;
 end;

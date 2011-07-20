@@ -1428,8 +1428,8 @@ begin
   if (fGame.Networking.Connected) and (i < fGame.Networking.NetPlayers.Count) and
      (fGame.Networking.NetPlayers[i+1].PlayerType <> pt_Computer) then
   begin
-    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].Ping);
-    case fGame.Networking.NetPlayers[i+1].Ping of
+    Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].GetInstantPing);
+    case fGame.Networking.NetPlayers[i+1].GetInstantPing of
       0..99   : Label_LobbyPing[i].FontColor := $FF00C000; //Green
       100..199: Label_LobbyPing[i].FontColor := $FF07FFFF; //Yellow
       200..399: Label_LobbyPing[i].FontColor := $FF0099FF; //Orange
