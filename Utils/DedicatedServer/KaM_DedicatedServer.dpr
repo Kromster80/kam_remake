@@ -14,6 +14,7 @@ var
   fEventHandler: TKMServerEventHandler;
   fDedicatedServer: TKMDedicatedServer;
 
+
 procedure MyProcessMessages;
 var Msg : TMsg;
 begin
@@ -32,15 +33,16 @@ begin
   Writeln('');
   Writeln('Log file: '+fLog.LogPath);
   Writeln('');
+
   fDedicatedServer := TKMDedicatedServer.Create;
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
   fDedicatedServer.Start;
 
-  while true do
+  while True do
   begin
     fDedicatedServer.UpdateState;
     MyProcessMessages; //This will process network (or other) events
-    sleep(1); //Don't hog CPU (this can also be used to create an artifical latency)
+    Sleep(1); //Don't hog CPU (this can also be used to create an artifical latency)
   end;
 
   fDedicatedServer.Stop;
