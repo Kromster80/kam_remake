@@ -74,7 +74,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_NetPlayersList, KM_Utils;
+uses KM_Game, KM_PlayersCollection, KM_Utils;
 
 
 { TCommandsPack }

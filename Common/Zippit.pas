@@ -26,7 +26,7 @@ unit Zippit;
 interface
 
 uses
-  Windows, Classes, SysUtils, SciZipFile;
+  Classes, SysUtils, SciZipFile;
 
 type
   TZippit = class(TZipFile)

@@ -15,10 +15,12 @@ unit SciZipFile;
 // Marcin Wojda <Marcin@sacer.com.pl> added exceptions and try finally blocks
 
 interface
-
-uses SysUtils, Classes, Types, zlib,
-     {$IFDEF FPC} zstream, {$ENDIF}
-     Windows;
+{$I KaM_Remake.inc}
+uses SysUtils, Classes
+     {$IFDEF MSWindows} ,Windows {$ENDIF}
+     {$IFDEF WDC} ,zlib {$ENDIF}
+     {$IFDEF FPC} ,zstream {$ENDIF}
+     ;
 
 type
 

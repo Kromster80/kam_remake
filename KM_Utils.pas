@@ -575,15 +575,11 @@ end;
 
 
 function KaMRandom(aMax:integer):integer;
-var FloatingMax:extended;
 begin
-  if not CUSTOM_RANDOM then
-  begin
+  if CUSTOM_RANDOM then
+    Result := trunc(KaMRandom*aMax)
+  else
     Result := Random(aMax);
-    exit;
-  end;
-  FloatingMax := aMax;
-  Result := trunc(KaMRandom*FloatingMax);
 end;
 
 

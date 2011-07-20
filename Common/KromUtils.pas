@@ -5,7 +5,7 @@ unit KromUtils;
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
 uses
-  Controls, Dialogs, ExtCtrls, Forms, Math, SysUtils, Classes
+  Controls, Dialogs, ExtCtrls, Forms, SysUtils, Classes
   {$IFDEF MSWindows} ,Windows, MMSystem, ShellApi {$ENDIF}
   {$IFDEF FPC} ,UTF8Process, LazHelpHTML {$ENDIF}
   {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}

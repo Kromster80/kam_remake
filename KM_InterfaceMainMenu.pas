@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Defaults, KM_CommonTypes, KM_Settings, KM_MapInfo, KM_Networking;
+  KM_Controls, KM_Defaults, KM_CommonTypes, KM_Settings, KM_MapInfo;
 
 
 type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);

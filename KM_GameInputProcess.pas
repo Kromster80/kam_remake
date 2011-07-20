@@ -150,7 +150,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Terrain, KM_InterfaceGameplay;
+uses KM_Game, KM_Terrain;
 
 
 constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);

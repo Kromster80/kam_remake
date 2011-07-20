@@ -2,10 +2,9 @@ unit KM_Networking;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Player,
+  KM_CommonTypes, KM_Defaults,
   KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
 
 

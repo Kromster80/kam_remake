@@ -78,7 +78,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Terrain, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_Viewport, KM_UnitTaskAttackHouse, KM_ResourceGFX;
+uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_Viewport, KM_UnitTaskAttackHouse, KM_ResourceGFX;
 
 
 

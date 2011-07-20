@@ -2,7 +2,7 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils,
-      KM_Defaults, KM_Utils;
+      KM_Defaults;
 
 
 type
@@ -15,7 +15,6 @@ type
 
 
 implementation
-uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
 
 
 { TKMMapEditor }
