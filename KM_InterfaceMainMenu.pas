@@ -433,17 +433,17 @@ begin
   Panel_LANLogin := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     Panel_LANLogin2 := TKMPanel.Create(Panel_LANLogin,312,240,400,400);
 
-      TKMLabel.Create(Panel_LANLogin2, 200, 0, 120, 20, 'Player Name:', fnt_Metal, kaCenter);
+      TKMLabel.Create(Panel_LANLogin2, 200, 0, 120, 20, fTextLibrary.GetRemakeString(59), fnt_Metal, kaCenter);
       Edit_LAN_Name := TKMEdit.Create(Panel_LANLogin2, 140, 25, 120, 20, fnt_Grey);
 
-      TKMLabel.Create(Panel_LANLogin2, 100, 80, 120, 20, 'Your IP address is:', fnt_Metal, kaCenter);
+      TKMLabel.Create(Panel_LANLogin2, 100, 80, 120, 20, fTextLibrary.GetRemakeString(60), fnt_Metal, kaCenter);
       Label_LAN_IP := TKMLabel.Create(Panel_LANLogin2, 100, 105, 120, 20, '0.0.0.0', fnt_Outline, kaCenter);
-      Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 40, 140, 120, 30, 'Host', fnt_Metal, bsMenu);
+      Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 30, 140, 160, 30, fTextLibrary.GetRemakeString(62), fnt_Metal, bsMenu);
       Button_LAN_Host.OnClick := LAN_HostClick;
 
-      TKMLabel.Create(Panel_LANLogin2, 300, 80, 120, 20, 'Hosts IP address:', fnt_Metal, kaCenter);
+      TKMLabel.Create(Panel_LANLogin2, 300, 80, 120, 20, fTextLibrary.GetRemakeString(61), fnt_Metal, kaCenter);
       Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 240, 105, 120, 20, fnt_Grey);
-      Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 240, 140, 120, 30, 'Join', fnt_Metal, bsMenu);
+      Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 240, 140, 120, 30, fTextLibrary.GetRemakeString(63), fnt_Metal, bsMenu);
       Button_LAN_Join.OnClick := LAN_JoinClick;
 
       Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 200, 120, 20, ' ... ', fnt_Outline, kaCenter);
@@ -461,12 +461,12 @@ begin
     //Players
     Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,40,100,685,240);
       TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 685, 240);
-      TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 140, 20, 'Players list:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 160, 10, 150, 20, 'Start location:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 300, 10, 140, 20, 'Team:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 410, 10, 140, 20, 'Flag color:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 550, 10,  50, 20, 'Ready:', fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 620, 10, 40, 20, 'Ping:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 140, 20, fTextLibrary.GetRemakeString(64), fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 160, 10, 150, 20, fTextLibrary.GetRemakeString(65), fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 300, 10, 140, 20, fTextLibrary.GetRemakeString(66), fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 410, 10, 140, 20, fTextLibrary.GetRemakeString(67), fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 550, 10,  50, 20, fTextLibrary.GetRemakeString(68), fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 620, 10, 40, 20, fTextLibrary.GetRemakeString(69), fnt_Outline, kaLeft);
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
@@ -474,18 +474,18 @@ begin
         Label_LobbyPlayer[i].Hide;
 
         DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 10, top, 140, 20, fnt_Metal);
-        DropBox_LobbyPlayerSlot[i].AddItem('Open'); //Player can join into this slot
-        DropBox_LobbyPlayerSlot[i].AddItem('AI Player'); //This slot is an AI player
+        DropBox_LobbyPlayerSlot[i].AddItem(fTextLibrary.GetRemakeString(70)); //Player can join into this slot
+        DropBox_LobbyPlayerSlot[i].AddItem(fTextLibrary.GetRemakeString(71)); //This slot is an AI player
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 130, 20, fnt_Metal);
-        DropBox_LobbyLoc[i].AddItem('Random');
+        DropBox_LobbyLoc[i].AddItem(fTextLibrary.GetRemakeString(72));
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 300, top, 100, 20, fnt_Metal);
-        DropBox_LobbyTeam[i].AddItem('None');
-        for k:=1 to 4 do DropBox_LobbyTeam[i].AddItem('Team '+IntToStr(k));
+        DropBox_LobbyTeam[i].AddItem(fTextLibrary.GetRemakeString(73));
+        for k:=1 to 4 do DropBox_LobbyTeam[i].AddItem(Format(fTextLibrary.GetRemakeString(74),[k]));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
 
         DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 410, top, 125, 20, MP_COLOR_COUNT);
@@ -498,9 +498,9 @@ begin
       end;
 
     //Chat
-                          TKMLabel.Create  (Panel_Lobby, 40, 350, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
+                          TKMLabel.Create  (Panel_Lobby, 40, 350, 100, 20, fTextLibrary.GetRemakeString(75), fnt_Outline, kaLeft);
     ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 40, 370, 685, 200);
-                          TKMLabel.Create  (Panel_Lobby, 40, 580, 100, 20, 'Post message:', fnt_Outline, kaLeft);
+                          TKMLabel.Create  (Panel_Lobby, 40, 580, 100, 20, fTextLibrary.GetRemakeString(76), fnt_Outline, kaLeft);
     Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 40, 600, 685, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
@@ -508,25 +508,25 @@ begin
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,740,100,240,400);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 520);
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, 'Choose map:', fnt_Outline, kaLeft);
+      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 100, 20, fTextLibrary.GetRemakeString(77), fnt_Outline, kaLeft);
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 220, 30, fnt_Metal);
       Radio_LobbyMapType.ItemIndex := 0;
-      Radio_LobbyMapType.Items.Add('Single Map');
-      Radio_LobbyMapType.Items.Add('Saved Game');
+      Radio_LobbyMapType.Items.Add(fTextLibrary.GetRemakeString(78));
+      Radio_LobbyMapType.Items.Add(fTextLibrary.GetRemakeString(79));
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
-      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, 'Select a map...');
+      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, fTextLibrary.GetRemakeString(80));
       FileList_Lobby.OnChange := Lobby_MapSelect;
-      TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, 'Map info:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, fTextLibrary.GetRemakeString(81), fnt_Outline, kaLeft);
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 400, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 420, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, '', fnt_Metal, kaLeft);
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 40, 650, 190, 30, 'Quit lobby', fnt_Metal, bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 40, 650, 190, 30, fTextLibrary.GetRemakeString(82), fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyReady := TKMButton.Create(Panel_Lobby, 740, 650, 115, 30, 'Ready', fnt_Metal, bsMenu);
+    Button_LobbyReady := TKMButton.Create(Panel_Lobby, 740, 650, 115, 30, fTextLibrary.GetRemakeString(83), fnt_Metal, bsMenu);
     Button_LobbyReady.OnClick := Lobby_ReadyClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 865, 650, 115, 30, 'Start!', fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 865, 650, 115, 30, fTextLibrary.GetRemakeString(84), fnt_Metal, bsMenu);
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
@@ -1445,7 +1445,7 @@ procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex = 0 then
   begin
-    FileList_Lobby.DefaultCaption := 'Select a map...';
+    FileList_Lobby.DefaultCaption := fTextLibrary.GetRemakeString(80);
     FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', 'map', true);
   end
   else

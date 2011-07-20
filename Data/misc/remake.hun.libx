@@ -1,5 +1,5 @@
 
-MaxID:58
+MaxID:84
 
 KM_InterfaceMainMenu
  1:Küldetés megszakítva
@@ -67,3 +67,33 @@ KM_InterfaceMapEditor
 56:Vizuális szkriptek
 57:Globális szkriptek
 58:Menü
+
+Create_LANLogin_Page
+59:Játékos neve:
+60:A te IP címed:
+61:Szerver IP címe:
+62:Szerver készítés
+63:Csatlakozás
+
+Create_Lobby_Page
+64:Játékosok:
+65:Kezdõhely:
+66:Csapat:
+67:Zászló szín:
+68:Kész:
+69:Ping:
+70:Nyitva
+71:Számítógép
+72:Véletlen
+73:Nincs
+74:Csapat %d
+75:Üzenetek:
+76:Üzenet írása:
+77:Térkép választása:
+78:Egy térkép
+79:Mentett játék
+80:Válassz egy térképet...
+81:Térkép infó:
+82:Kilépés
+83:Kész
+84:Indítás!

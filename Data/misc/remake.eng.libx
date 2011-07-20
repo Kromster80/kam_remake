@@ -1,5 +1,5 @@
 
-MaxID:58
+MaxID:84
 
 KM_InterfaceMainMenu
  1:Mission canceled
@@ -67,3 +67,33 @@ KM_InterfaceMapEditor
 56:Visual scripts
 57:Global scripting
 58:Menu
+
+Create_LANLogin_Page
+59:Player name:
+60:Your IP address:
+61:Host IP address:
+62:Create Server
+63:Join
+
+Create_Lobby_Page
+64:Players list:
+65:Start location:
+66:Team:
+67:Flag color:
+68:Ready:
+69:Ping:
+70:Open
+71:AI Player
+72:Random
+73:None
+74:Team %d
+75:Posts list:
+76:Post message:
+77:Choose map:
+78:Single Map
+79:Saved Game
+80:Select a map...
+81:Map info:
+82:Quit lobby
+83:Ready
+84:Start!
