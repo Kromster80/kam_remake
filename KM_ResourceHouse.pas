@@ -133,8 +133,24 @@ const
   //Remake stores additional house properties here. This looks like House.Dat, but hardcoded.
   //I listed all fields explicitely except for ht_None/ht_Any to be sure nothing is forgotten
   HouseDatX:array[THouseType] of THouseInfo = (
-    (),//ht_None
-    (),//ht_Any
+    ( //None
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0));
+    DoesOrders: 0;
+    BuildIcon:  0;
+    TabletIcon: 0;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_None;
+    ),
+    ( //Any
+    PlanYX:     ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0));
+    DoesOrders: 0;
+    BuildIcon:  0;
+    TabletIcon: 0;
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_None;
+    ),
     ( //Armor smithy
     PlanYX:     ((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1));
     DoesOrders: 1;
