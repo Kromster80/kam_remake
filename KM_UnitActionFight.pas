@@ -175,7 +175,8 @@ begin
     fPlayers.Player[fOpponent.GetOwner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
-    fPlayers.Player[KMUnit.GetOwner].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
+    if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(KMUnit).IsRanged then
+      fPlayers.Player[KMUnit.GetOwner].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(KMUnit).IsRanged then 

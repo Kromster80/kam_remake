@@ -936,6 +936,7 @@ var
   i,NetIndex:integer;
   TempPlayerType:TPlayerType;
 begin
+  //todo: In multiplayer show a message when saving, probably through the (yet to be implemented) in-game chat system
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
     Assert(false, 'Saving from wrong state?');

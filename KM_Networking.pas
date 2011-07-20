@@ -24,6 +24,7 @@ type
     fMyNikname:string;
     fMyIndexOnServer:integer;
     fMyIndex:integer; //In NetPlayers list
+    fIgnorePings: integer; //During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
     fNetPlayers:TKMPlayersList;
 
     fMapInfo:TKMapInfo; //Everything related to selected map
@@ -46,6 +47,7 @@ type
     procedure DecodePingInfo(aInfo:string);
     procedure ForcedDisconnect(const S: string);
     procedure StartGame;
+    procedure PlayGame;
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -258,6 +260,12 @@ var
   PingValue:word;
   LocalHandle:integer;
 begin
+  if fIgnorePings > 0 then
+  begin
+    dec(fIgnorePings);
+    exit;
+  end;
+  if fIgnorePings <> 0 then exit; //-1 means ignore all pings
   M := TKMemoryStream.Create;
   M.WriteAsText(aInfo);
   M.Position := 0;
@@ -546,7 +554,7 @@ begin
                   if fNetPlayers.AllReadyToPlay then
                   begin
                     PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0); //todo: Should include lag difference
-                    if Assigned(fOnPlay) then fOnPlay(Self);
+                    PlayGame;
                   end;
                 end;
     lpk_Joiner: begin
@@ -819,13 +827,12 @@ begin
               if IsHost and fNetPlayers.AllReadyToPlay then
               begin
                 PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0); //todo: Should include lag difference
-                if Assigned(fOnPlay) then fOnPlay(Self);
+                PlayGame;
               end;
             end;
 
     mk_Play:
-            if fLANPlayerKind = lpk_Joiner then
-              if Assigned(fOnPlay) then fOnPlay(Self);
+            if fLANPlayerKind = lpk_Joiner then PlayGame;
 
     mk_Commands:
             if Assigned(fOnCommands) then fOnCommands(Msg);
@@ -856,8 +863,16 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
+  fIgnorePings := -1; //Ignore all pings until we have finished loading
   if Assigned(fOnStartGame) then
     fOnStartGame(Self);
+end;
+
+
+procedure TKMNetworking.PlayGame;
+begin
+  fIgnorePings := 2; //Ignore the next two pings as they may have been measured during loading
+  if Assigned(fOnPlay) then fOnPlay(Self);
 end;
 
 
