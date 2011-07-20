@@ -3,14 +3,14 @@ unit KM_Idea_Groups;
 interface
 
 uses Classes,
-     KM_Units_Warrior;
+     KM_CommonTypes, KM_Terrain, KM_Units_Warrior;
 
 type    
 
   TKMGroup = class
   private
 
-    fCommander: integer; // Index of squad commander in fMembers
+    fCommander: TKMUnitWarrior; // Index of squad commander in fMembers
     fMembers: TList; // Warriors. List of TKMUnitWarrior.
     fUnitsPerRow: Integer;
 
@@ -23,7 +23,13 @@ type
   public
 
     constructor Create;
+    destructor Destroy; override;
 
+    function AddMember(Warrior: TKMUnitWarrior):Integer; 
+    function GetPosition(PosDir: TKMPointDir): Boolean;
+    //function GetPositionInGroup(Member:Integer; AllowOffMap:boolean=false): TKMPoint;
+
+    property Commander: TKMUnitWarrior read fCommander;
     property Count: integer read GetCount;
     property Members[Index: Integer]: TKMUnitWarrior read GetMember;
     property UnitsPerRow: Integer read fUnitsPerRow write SetUnitsPerRow;
@@ -32,15 +38,22 @@ type
 
 implementation
 
-uses Math;
+uses Math, SysUtils, KM_Units;
 
 { TKMGroup }
 
 constructor TKMGroup.Create;
 begin
+  inherited Create;
   fMembers := TList.Create;
   SetNewCommander; // Reset commander
   SetUnitsPerRow(1);
+end;
+
+
+destructor TKMGroup.Destroy;
+begin
+  inherited;
 end;
 
 
@@ -60,14 +73,33 @@ end;
 
 procedure TKMGroup.SetNewCommander;
 begin
-  fCommander := -1;
+  fCommander := nil;
   if fMembers.Count = 0 then exit;
   // Calculation of new Commander
 end;
 
+
 procedure TKMGroup.SetUnitsPerRow(Qty: Integer);
 begin
   fUnitsPerRow := EnsureRange(Qty, 1, fMembers.Count+1);
+end;
+
+
+function TKMGroup.AddMember(Warrior: TKMUnitWarrior):Integer;
+begin
+  Result := fMembers.Add(Warrior); // No check on Warrior in group
+  if (fCommander = nil) then SetNewCommander;
+  //todo: Set Self to Warrior;
+end;
+
+
+function TKMGroup.GetPosition(PosDir: TKMPointDir): Boolean;
+begin
+  Result := False;
+  if fCommander = nil then exit;
+  PosDir.Loc := fCommander.GetPosition;
+  PosDir.Dir := Word(fCommander.Direction);
+  Result := true;
 end;
 
 end.
