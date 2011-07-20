@@ -95,7 +95,7 @@ type
     Target: TKMPoint;
   end;
 
-type
+
   TMissionParser = class
   private
     fParsingMode:TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode

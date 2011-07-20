@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, 
+  SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 
@@ -22,6 +22,7 @@ type
     SelectedDirection: TKMDirection;
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
+    RatioTab:byte; //Active resource distribution tab
     //Saved
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
@@ -266,41 +267,51 @@ uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
 KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX;
 
+const
+  ResRatioCount = 4;
+  ResRatioType:array[1..ResRatioCount] of TResourceType = (rt_Steel, rt_Coal, rt_Wood, rt_Corn);
+  ResRatioHint:array[1..ResRatioCount] of word = (298, 300, 302, 304); //Distribution of rt_***
+  ResRatioHouseCount:array[1..ResRatioCount] of byte = (2, 4, 2, 3);
+  ResRatioHouse:array[1..ResRatioCount, 1..4] of THouseType = (
+      (ht_WeaponSmithy,   ht_ArmorSmithy,     ht_None,          ht_None),
+      (ht_IronSmithy,     ht_Metallurgists,   ht_WeaponSmithy,  ht_ArmorSmithy),
+      (ht_ArmorWorkshop,  ht_WeaponWorkshop,  ht_None,          ht_None),
+      (ht_Mill,           ht_Swine,           ht_Stables,       ht_None));
 
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage_Ratios(Sender: TObject);
-const ResPic:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
-      ResLab:array[1..4] of word = (298,300,302,304);
-      ResQty:array[1..4] of byte = (2,4,2,3);
-      ResHouse:array[1..4,1..4] of THouseType = ( //todo: replace with Sets
-      (ht_WeaponSmithy,ht_ArmorSmithy,ht_None,ht_None),
-      (ht_IronSmithy,ht_Metallurgists,ht_WeaponSmithy,ht_ArmorSmithy),
-      (ht_ArmorWorkshop,ht_WeaponWorkshop,ht_None,ht_None),
-      (ht_Mill,ht_Swine,ht_Stables,ht_None));
-var i:integer; ResID:TResourceType; HouseID:THouseType;
+var i:integer; HT:THouseType;
 begin
-
-  if (MyPlayer=nil)or(MyPlayer.Stats=nil) then exit; //We need to be able to access these
-
-  if not (Sender is TKMButton) then exit;
+  if (MyPlayer=nil) or (MyPlayer.Stats=nil) then Exit; //We need to be able to access these
 
   //Hide everything but the tab buttons
   for i:=1 to Panel_Ratios.ChildCount do
     if not (Panel_Ratios.Childs[i] is TKMButton) then
       Panel_Ratios.Childs[i].Hide;
 
-  ResID:=ResPic[TKMButton(Sender).Tag];
+  RatioTab := TKMButton(Sender).Tag;
 
-  Image_RatioPic0.TexID:=350+byte(ResID);
-  Label_RatioLab0.Caption:=fTextLibrary.GetTextString(ResLab[TKMButton(Sender).Tag]);
+  Image_RatioPic0.TexID := byte(ResRatioType[RatioTab]) + 350;//Show resource icon
+  Label_RatioLab0.Caption := fTextLibrary.GetTextString(ResRatioHint[RatioTab]);
   Image_RatioPic0.Show;
   Label_RatioLab0.Show;
 
-  for i:=1 to ResQty[TKMButton(Sender).Tag] do begin
-    HouseID:=ResHouse[TKMButton(Sender).Tag,i];
-    Image_RatioPic[i].TexID := fResource.HouseDat[HouseID].GUIIcon;
-    Label_RatioLab[i].Caption := fResource.HouseDat[HouseID].HouseName;
-    Ratio_RatioRat[i].Position := MyPlayer.Stats.GetRatio(ResID,HouseID);
+  for i:=1 to ResRatioHouseCount[RatioTab] do begin
+    HT := ResRatioHouse[RatioTab, i];
+    //Do not allow player to see yet unreleased houses. Though house may be prebuilt and unreleased
+    if MyPlayer.Stats.HouseReleased[HT] or (MyPlayer.Stats.GetHouseQty(HT)>0) then
+    begin
+      Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
+      Label_RatioLab[i].Caption := fResource.HouseDat[HT].HouseName;
+      Ratio_RatioRat[i].Position := MyPlayer.Stats.GetRatio(ResRatioType[RatioTab], HT);
+      Ratio_RatioRat[i].Enable;
+    end else begin
+      Image_RatioPic[i].TexID := 41; //Question mark
+      Label_RatioLab[i].Caption := fTextLibrary.GetTextString(251); //"Building not available" text
+      Ratio_RatioRat[i].Position := 0;
+      Ratio_RatioRat[i].Disable;
+    end;
+
     Image_RatioPic[i].Show;
     Label_RatioLab[i].Show;
     Ratio_RatioRat[i].Show;
@@ -308,17 +319,13 @@ begin
 end;
 
 
-//todo: Bug here, THouseType(Image_RatioPic[TKMRatioRow(Sender).Tag].TexID-300) is wrong
 procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
-var ResID:TResourceType; HouseID:THouseType;
+var RT:TResourceType; HT:THouseType;
 begin
-  if (MyPlayer=nil)or(MyPlayer.Stats=nil) then exit; //We need to be able to access these
-  if not (Sender is TKMRatioRow) then exit;
+  RT := ResRatioType[RatioTab];
+  HT := ResRatioHouse[RatioTab, TKMRatioRow(Sender).Tag];
 
-  ResID   := TResourceType(Image_RatioPic0.TexID-350);
-  HouseID := THouseType(Image_RatioPic[TKMRatioRow(Sender).Tag].TexID-300);
-
-  fGame.fGameInputProcess.CmdRatio(gic_RatioChange, ResID, HouseID, TKMRatioRow(Sender).Position);
+  fGame.fGameInputProcess.CmdRatio(gic_RatioChange, RT, HT, TKMRatioRow(Sender).Position);
 end;
 
 

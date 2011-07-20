@@ -20,6 +20,7 @@ Since r1902:
  +	Bowmen are smarter about shooting after walking
  +	Fixed another case of workers becoming stuck on a construction site
  +	Having more than 256 messages caused a crash
+ +	Unreleased/unbuilt houses are no longer displayed in resource distribution menu, question marks are used instead
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
