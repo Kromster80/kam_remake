@@ -934,6 +934,7 @@ procedure TKMGame.Save(SlotID:shortint);
 var
   SaveStream:TKMemoryStream;
   i,NetIndex:integer;
+  TempPlayerType:TPlayerType;
 begin
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
@@ -962,12 +963,15 @@ begin
       if NetIndex = -1 then
       begin
         SaveStream.Write('Unknown');
+        TempPlayerType := pt_Human;
+        SaveStream.Write(TempPlayerType,SizeOf(TempPlayerType));
         SaveStream.Write(Integer(0));
         SaveStream.Write(Integer(0));
       end
       else
       begin
         SaveStream.Write(fNetworking.NetPlayers[NetIndex].Nikname);
+        SaveStream.Write(fNetworking.NetPlayers[NetIndex].PlayerType,SizeOf(fNetworking.NetPlayers[NetIndex].PlayerType));
         SaveStream.Write(fNetworking.NetPlayers[NetIndex].FlagColorID);
         SaveStream.Write(fNetworking.NetPlayers[NetIndex].Team);
       end
@@ -1062,6 +1066,7 @@ var
   TempInt:integer;
   TempByte:byte;
   p:TPlayerIndex;
+  TempPlayerType:TPlayerType;
   IsSaveMultiplayer:boolean;
 begin
   fLog.AppendLog('Loading game');
@@ -1110,6 +1115,7 @@ begin
       for p:=0 to TempByte-1 do
       begin
         LoadStream.Read(s);
+        LoadStream.Read(TempPlayerType,SizeOf(TempPlayerType));
         LoadStream.Read(TempInt);
         LoadStream.Read(TempInt);
       end

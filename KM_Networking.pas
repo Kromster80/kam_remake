@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   Classes, SysUtils,
-  KM_CommonTypes, KM_Defaults,
+  KM_CommonTypes, KM_Defaults, KM_Player,
   KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
 
 
@@ -301,11 +301,20 @@ begin
     for i:=1 to fNetPlayers.Count do
       fNetPlayers[i].StartLocation := 0;
 
+  //Add enough AI players automatically (when we are matching all)
+  if aPlayerID = -1 then
+    for i:=fNetPlayers.GetAICount to fMapInfo.GetAICount-1 do
+      fNetPlayers.AddAIPlayer;
+
   for i:=1 to fNetPlayers.Count do
     for k:=1 to fMapInfo.PlayerCount do
       if (i = aPlayerID) or (aPlayerID = -1) then //-1 means update all players
-        if (fNetPlayers[i].Nikname = fMapInfo.LocationName[k-1]) and fNetPlayers.LocAvailable(k) then
-          fNetPlayers[i].StartLocation := k;
+        if fNetPlayers.LocAvailable(k) then
+        begin
+          if ((fNetPlayers[i].PlayerType = pt_Computer) and (fMapInfo.PlayerTypes[k-1] = pt_Computer))
+          or (fNetPlayers[i].Nikname = fMapInfo.LocationName[k-1]) then
+            fNetPlayers[i].StartLocation := k;
+        end;
 end;
 
 

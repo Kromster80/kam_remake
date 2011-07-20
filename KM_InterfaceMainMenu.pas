@@ -1346,7 +1346,11 @@ begin
       end
       else
         if DropBox_LobbyPlayerSlot[i].ItemIndex = 1 then
+        begin
           fGame.Networking.NetPlayers.AddAIPlayer;
+          if fGame.Networking.MapInfo.IsSave then
+            fGame.Networking.MatchPlayersToSave(fGame.Networking.NetPlayers.Count); //Match new AI player in save
+        end;
       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;

@@ -59,6 +59,7 @@ type
     function AllReadyToPlay:boolean;
     function GetHighestRoundTripLatency:word;
     procedure GetNotReadyToPlayPlayers(aPlayerList:TStringList);
+    function GetAICount:integer;
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
@@ -404,6 +405,16 @@ begin
   for i:=1 to fCount do
     if (not fPlayers[i].ReadyToPlay) and (fPlayers[i].PlayerType <> pt_Computer) then
       aPlayerList.Add(fPlayers[i].Nikname);
+end;
+
+
+function TKMPlayersList.GetAICount:integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=1 to fCount do
+    if fPlayers[i].PlayerType = pt_Computer then
+      inc(Result);
 end;
 
 

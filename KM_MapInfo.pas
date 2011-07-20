@@ -2,7 +2,7 @@ unit KM_MapInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, KM_Defaults;
+  Classes, KromUtils, SysUtils, KM_Defaults, KM_Player;
 
 
 type
@@ -30,9 +30,10 @@ type
     procedure LoadFromFile(const aPath:string);
     procedure SaveToFile(const aPath:string);
   public
-    LocationName:array[0..MAX_PLAYERS] of string;
-    ColorID:array[0..MAX_PLAYERS] of integer;
-    Team:array[0..MAX_PLAYERS] of integer;
+    LocationName:array[0..MAX_PLAYERS-1] of string;
+    PlayerTypes:array[0..MAX_PLAYERS-1] of TPlayerType;
+    ColorID:array[0..MAX_PLAYERS-1] of integer;
+    Team:array[0..MAX_PLAYERS-1] of integer;
     BigDesc, Title:string;
     procedure Load(const aFolder:string; aStrict:boolean);
     procedure LoadSavedGame(aSlot:integer; aIsMultiplayer, aStrict:boolean);
@@ -46,6 +47,7 @@ type
     property MapSize:string read fMapSize;
 
     function IsValid:boolean;
+    function GetAICount:integer;
     function SmallDesc:string;
     function MissionModeText:string;
     function VictoryCondition:string;
@@ -106,6 +108,7 @@ begin
   for i:=low(LocationName) to high(LocationName) do
   begin
     LocationName[i] := 'Location '+IntToStr(i+1);
+    PlayerTypes[i] := pt_Human; //This feature is only used for saves
     ColorID[i] := 0;
     Team[i] := 0;
   end;
@@ -200,6 +203,7 @@ begin
         for i:=0 to fPlayerCount-1 do
         begin
           LoadStream.Read(LocationName[i]);
+          LoadStream.Read(PlayerTypes[i],SizeOf(PlayerTypes[i]));
           LoadStream.Read(ColorID[i]);
           LoadStream.Read(Team[i]);
         end;
@@ -272,6 +276,16 @@ begin
               (fPlayerCount > 0)
   else
     Result := (fSaveError = '') and FileExists(fSaveFile) and (fPlayerCount > 0);
+end;
+
+
+function TKMapInfo.GetAICount:integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=0 to fPlayerCount-1 do
+    if PlayerTypes[i] = pt_Computer then
+      inc(Result);
 end;
 
 
