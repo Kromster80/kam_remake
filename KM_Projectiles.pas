@@ -97,7 +97,7 @@ begin
     B = 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y)
     C = sqr(TargetPosition.X) + sqr(TargetPosition.Y) }
 
-  Speed := ProjectileSpeeds[aProjType] + RandomS(0.05);
+  Speed := ProjectileSpeeds[aProjType] + KaMRandomS(0.05);
 
   A := sqr(TargetVector.X) + sqr(TargetVector.Y) - sqr(Speed);
   B := 2 * (TargetPosition.X * TargetVector.X + TargetPosition.Y * TargetVector.Y);
@@ -126,8 +126,8 @@ begin
   begin
     Jitter := GetLength(aStart, aTarget.PositionF) * ProjectileJitter[aProjType];
 
-    Target.X := aTarget.PositionF.X + TargetVector.X*TimeToHit + RandomS(Jitter);
-    Target.Y := aTarget.PositionF.Y + TargetVector.Y*TimeToHit + RandomS(Jitter);
+    Target.X := aTarget.PositionF.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);
+    Target.Y := aTarget.PositionF.Y + TargetVector.Y*TimeToHit + KaMRandomS(Jitter);
     Result := AddItem(aStart, aTarget.PositionF, Target, Speed, aProjType, aOwner);
   end else
     Result := 0;
@@ -139,11 +139,11 @@ var
   Speed: single;
   Aim, Target: TKMPointF;
 begin
-  Speed := ProjectileSpeeds[aProjType] + RandomS(0.05);
+  Speed := ProjectileSpeeds[aProjType] + KaMRandomS(0.05);
 
   Aim := KMPointF(aTarget.GetRandomCellWithin);
-  Target.X := Aim.X + Random; //So that arrows were within house area, without attitude to tile corners
-  Target.Y := Aim.Y + Random;
+  Target.X := Aim.X + KaMRandom; //So that arrows were within house area, without attitude to tile corners
+  Target.Y := Aim.Y + KaMRandom;
 
   Result := AddItem(aStart, Aim, Target, Speed, aProjType, aOwner);
 end;
@@ -167,7 +167,7 @@ begin
   //Fill in basic info
   fItems[i].fType   := aProjType;
   fItems[i].fSpeed  := aSpeed;
-  fItems[i].fArc    := ProjectileArcs[aProjType, 1] + RandomS(ProjectileArcs[aProjType, 2]);
+  fItems[i].fArc    := ProjectileArcs[aProjType, 1] + KaMRandomS(ProjectileArcs[aProjType, 2]);
   fItems[i].fOwner  := aOwner;
   fItems[i].fAim    := aAim;
   fItems[i].fTarget := aEnd;

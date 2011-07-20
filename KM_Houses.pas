@@ -1079,7 +1079,7 @@ function TKMHouseSwineStable.FeedBeasts:byte;
 var i:integer;
 begin
   Result:=0;
-  inc(BeastAge[Random(5)+1]); //Let's hope it never overflows MAX
+  inc(BeastAge[KaMRandom(5)+1]); //Let's hope it never overflows MAX
   for i:=1 to length(BeastAge) do
     if BeastAge[i]>3 then
       Result:=i;

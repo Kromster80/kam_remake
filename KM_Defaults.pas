@@ -55,6 +55,7 @@ var
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
+  CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
   //Not fully implemented yet
   ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support

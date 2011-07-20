@@ -2,8 +2,7 @@ unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, StrUtils, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults,
-  KM_Player;
+  KM_CommonTypes, KM_Defaults, KM_Player, KM_Utils;
 
 
 type
@@ -141,7 +140,7 @@ begin
 
   //Randomize
   for i:=1 to LocCount do
-    SwapInt(AvailableLoc[i], AvailableLoc[random(LocCount)+1]);
+    SwapInt(AvailableLoc[i], AvailableLoc[KaMRandom(LocCount)+1]);
 
   //Allocate available starting locations
   k := 0;
@@ -188,7 +187,7 @@ begin
 
   //Randomize
   for i:=1 to ColorCount do
-    SwapInt(AvailableColor[i], AvailableColor[random(ColorCount)+1]);
+    SwapInt(AvailableColor[i], AvailableColor[KaMRandom(ColorCount)+1]);
 
   //Allocate available colors
   k := 0;
@@ -214,7 +213,7 @@ begin
   fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].PlayerIndex := nil;
   fPlayers[fCount].Team := 0;
-  fPlayers[fCount].FlagColorID := 0; //todo: Color 0 should be "random color" option
+  fPlayers[fCount].FlagColorID := 0;
   fPlayers[fCount].StartLocation := 0;
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;

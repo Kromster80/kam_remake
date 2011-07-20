@@ -448,7 +448,7 @@ begin
     if Tmp=0 then exit; //No orders
     i := 0;
     repeat
-      Tmp := Random(4)+1; //Pick random from overall count
+      Tmp := KaMRandom(4)+1; //Pick random from overall count
       inc(i);
     until (fHome.CheckResOrder(Tmp) > 0) or (i > 9); //Limit number of attempts to guarantee it doesn't loop forever
     if fHome.CheckResOrder(Tmp) > 0 then Res := Tmp
@@ -663,7 +663,7 @@ begin
 
   //Only show quest thought if we are idle and not thinking anything else (e.g. death)
   if fUnitTask=nil then begin
-    if (random(2)=0)and(OldThought=th_None) then fThought:=th_Quest; //
+    if (KaMRandom(2)=0)and(OldThought=th_None) then fThought:=th_Quest; //
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
@@ -840,7 +840,7 @@ begin
   SpotJit:=16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
-    Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X+RandomS(SpotJit),fCurrPosition.Y+RandomS(SpotJit));
+    Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X+KaMRandomS(SpotJit),fCurrPosition.Y+KaMRandomS(SpotJit));
   until((SpotJit=0)or(fTerrain.Route_CanBeMade(fCurrPosition,Spot,AnimalTerrain[byte(UnitType)],0, false)));
 
   if KMSamePoint(fCurrPosition,Spot) then
@@ -891,7 +891,7 @@ begin
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if fGame.GameState <> gsEditor then
-    fCondition    := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4)
+    fCondition    := UNIT_MAX_CONDITION - KaMRandom(UNIT_MAX_CONDITION div 4)
   else
     fCondition    := UNIT_MAX_CONDITION div 2;
   fHitPoints    := GetMaxHitPoints;

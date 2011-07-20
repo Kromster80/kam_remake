@@ -349,7 +349,7 @@ begin
   fGamePlayInterface := TKMGamePlayInterface.Create;
 
   //Here comes terrain/mission init
-  RandSeed := 4; //Every time the game will be the same as previous. Good for debug.
+  SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
 
@@ -431,7 +431,7 @@ begin
   CopyFile(PChar(SlotToSaveName(99,'sav')), PChar(SlotToSaveName(99,'bas')), false);
 
   fLog.AppendLog('Gameplay recording initialized',true);
-  RandSeed := 4; //Random after StartGame and ViewReplay should match
+  SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 end;
 
 
@@ -562,8 +562,8 @@ begin
   //        because of the similar reason - to keep consistency in debug. We can start TownTutorial
   //        again and again and each time game will be created perfectly the same.
   //@Krom: Thanks, I understand now. To be deleted (or converted to a comment if you think it's necessary)
-  if not fNetworking.MapInfo.IsSave then //Load has already set RandSeed
-    RandSeed := 4; //Random after StartGameMP and ViewReplay should match
+  if not fNetworking.MapInfo.IsSave then //Load has already set KaMSeed
+    SetKaMSeed(4); //Random after StartGameMP and ViewReplay should match
 end;
 
 
@@ -766,7 +766,7 @@ begin
   fLog.AppendLog('Starting Map Editor');
   GameStop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
-  RandSeed := 4; //Every time MapEd will be the same as previous. Good for debug.
+  SetKaMSeed(4); //Every time MapEd will be the same as previous. Good for debug.
   fGameSpeed := 1; //In case it was set in last run mission
 
   if fResource.DataState<>dls_All then begin
@@ -872,7 +872,7 @@ begin
   fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
   fGameInputProcess.LoadFromFile(SlotToSaveName(99,'rpl'));
 
-  RandSeed := 4; //Random after StartGame and ViewReplay should match
+  SetKaMSeed(4); //Random after StartGame and ViewReplay should match
   fGameState := gsReplay;
 end;
 
@@ -975,7 +975,7 @@ begin
   end;
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
-  SaveStream.Write(RandSeed); //Include the random seed in the save file to ensure consistency in replays
+  SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
   fTerrain.Save(SaveStream); //Saves the map
   fPlayers.Save(SaveStream); //Saves all players properties individually
@@ -1159,7 +1159,7 @@ begin
     end;
   end;
 
-  RandSeed := LoadedSeed;
+  SetKaMSeed(LoadedSeed);
   if not aIsMultiplayer then
     fGameState := gsRunning;
   fLog.AppendLog('Loading game',true);

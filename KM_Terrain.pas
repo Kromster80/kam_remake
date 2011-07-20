@@ -219,12 +219,12 @@ begin
 
   for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
     Terrain      := 0;
-    Height       := random(7);    //variation in height
-    Rotation     := random(4);  //Make it random
+    Height       := KaMRandom(7);    //variation in height
+    Rotation     := KaMRandom(4);  //Make it random
     OldTerrain   := 0;
     OldRotation  := 0;
     Obj          := 255;             //none
-    if Random(16)=0 then Obj := ChopableTrees[Random(13)+1,4];
+    if KaMRandom(16)=0 then Obj := ChopableTrees[KaMRandom(13)+1,4];
     TileOverlay  := to_None;
     Markup       := mu_None;
     Passability  := []; //Gets recalculated later
@@ -957,10 +957,10 @@ function TTerrain.ChooseTreeToPlant(aPosition:TKMPoint):integer;
 begin
   //This function randomly chooses a tree object based on the terrain type. Values matched to KaM, using all soil tiles.
   case Land[aPosition.Y,aPosition.X].Terrain of
-    0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+Random(7),1]; //Grass (oaks, etc.)
-    26..28,75..80,182,190:                                                 Result := ChopableTrees[7+Random(2),1]; //Yellow dirt
-    16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+Random(5),1]; //Brown dirt (pine trees)
-    else Result := ChopableTrees[1+Random(length(ChopableTrees)),1]; //If it isn't one of those soil types then choose a random tree
+    0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+KaMRandom(7),1]; //Grass (oaks, etc.)
+    26..28,75..80,182,190:                                                 Result := ChopableTrees[7+KaMRandom(2),1]; //Yellow dirt
+    16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+KaMRandom(5),1]; //Brown dirt (pine trees)
+    else Result := ChopableTrees[1+KaMRandom(length(ChopableTrees)),1]; //If it isn't one of those soil types then choose a random tree
   end;
 end;
 
@@ -1076,21 +1076,21 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
         Land[Y,X].Terrain:=TileID[Bits];
         Land[Y,X].Rotation:=RotID[Bits];
       end;
-      if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation:=Random(4); //Randomise the direction of grass tiles
+      if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation:=KaMRandom(4); //Randomise the direction of grass tiles
       RecalculatePassability(Loc);
     end;
   end;
 
 begin
   case Land[Loc.Y,Loc.X].Terrain of
-    132,137: Land[Loc.Y,Loc.X].Terrain:=131+Random(2)*5;
-    131,136: Land[Loc.Y,Loc.X].Terrain:=130+Random(2)*5;
-    130,135: Land[Loc.Y,Loc.X].Terrain:=129+Random(2)*5;
-    129,134: Land[Loc.Y,Loc.X].Terrain:=128+Random(2)*5;
+    132,137: Land[Loc.Y,Loc.X].Terrain:=131+KaMRandom(2)*5;
+    131,136: Land[Loc.Y,Loc.X].Terrain:=130+KaMRandom(2)*5;
+    130,135: Land[Loc.Y,Loc.X].Terrain:=129+KaMRandom(2)*5;
+    129,134: Land[Loc.Y,Loc.X].Terrain:=128+KaMRandom(2)*5;
     128,133: Land[Loc.Y,Loc.X].Terrain:=0;
     else exit;
   end;
-  Land[Loc.Y,Loc.X].Rotation:=Random(4);
+  Land[Loc.Y,Loc.X].Rotation:=KaMRandom(4);
   UpdateTransition(Loc.X,Loc.Y);   //Update these 5 transitions, but make sure that occupied tiles stay walkable
   UpdateTransition(Loc.X,Loc.Y-1); //    x
   UpdateTransition(Loc.X+1,Loc.Y); //  x X x
@@ -1114,21 +1114,21 @@ begin
 
   Result := true;
   case Land[Loc.Y,Loc.X].Terrain of
-    144: Land[Loc.Y,Loc.X].Terrain:=157+random(3); //Gold
+    144: Land[Loc.Y,Loc.X].Terrain:=157+KaMRandom(3); //Gold
     145: Land[Loc.Y,Loc.X].Terrain:=144;
     146: Land[Loc.Y,Loc.X].Terrain:=145;
     147: Land[Loc.Y,Loc.X].Terrain:=146;
-    148: Land[Loc.Y,Loc.X].Terrain:=160+random(4); //Iron
+    148: Land[Loc.Y,Loc.X].Terrain:=160+KaMRandom(4); //Iron
     149: Land[Loc.Y,Loc.X].Terrain:=148;
     150: Land[Loc.Y,Loc.X].Terrain:=149;
     151: Land[Loc.Y,Loc.X].Terrain:=150;
-    152: Land[Loc.Y,Loc.X].Terrain:=35 +random(2); //Coal
+    152: Land[Loc.Y,Loc.X].Terrain:=35 +KaMRandom(2); //Coal
     153: Land[Loc.Y,Loc.X].Terrain:=152;
     154: Land[Loc.Y,Loc.X].Terrain:=153;
     155: Land[Loc.Y,Loc.X].Terrain:=154;
     else Result := false;
   end;
-  Land[Loc.Y,Loc.X].Rotation:=random(3);
+  Land[Loc.Y,Loc.X].Rotation:=KaMRandom(4);
   RecalculatePassability(Loc);
 end;
 
@@ -2053,7 +2053,7 @@ begin
       if HA[i,k-1]<>0 then
       if HA[i-1,k-1]<>0 then
       if HA[i,k]<>0 then
-        Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+Random(6);
+        Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+KaMRandom(6);
     for i:=1 to 4 do for k:=1 to 4 do
       if (HA[i,k] in [1,2]) then
       begin
@@ -2442,7 +2442,7 @@ begin
                 if GameCursor.Tag2 in [0..3] then //Defined direction
                   MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2)
                 else //Random direction
-                  MapEdTile(GameCursor.Cell, GameCursor.Tag1, Random(4));
+                  MapEdTile(GameCursor.Cell, GameCursor.Tag1, KaMRandom(4));
   end;
 end;
 

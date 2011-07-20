@@ -600,7 +600,7 @@ begin
       if Test < BestLength then
       begin
         BestLength := Test;
-        Result := TKMUnitWarrior(Foes.Items[Random(Foes.Count)]);
+        Result := TKMUnitWarrior(Foes.Items[KaMRandom(Foes.Count)]);
       end;
     end;
 
@@ -1145,7 +1145,7 @@ begin
   if fState = ws_Walking then
   begin
     fState := ws_RepositionPause; //Means we are in position and waiting until we turn
-    SetActionLockedStay(4+Random(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
+    SetActionLockedStay(4+KaMRandom(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
     //Do not check for enemy, let archers face right direction first (enemies could be behind = unattackable)
   end
   else

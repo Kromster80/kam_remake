@@ -12,7 +12,7 @@ uses
   dglOpenGL,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection,
-  KM_TextLibrary, KM_Sound;
+  KM_TextLibrary, KM_Sound, KM_Utils;
 
 type
   TForm1 = class(TForm)
@@ -167,6 +167,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   TempSettings:TGlobalSettings;
 begin
+  SetKaMSeed(4);
   if Sender<>nil then exit;
 
   FormLoading.Label5.Caption := GAME_VERSION;

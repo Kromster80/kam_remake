@@ -74,7 +74,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_NetPlayersList;
+uses KM_Game, KM_PlayersCollection, KM_NetPlayersList, KM_Utils;
 
 
 { TCommandsPack }
@@ -311,7 +311,7 @@ var i,k,Tick:Cardinal;
 begin
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
-  fRandomCheck[Tick].OurCheck := cardinal(Random(maxint)); //thats our CRC (must go before commands for replay compatibility)
+  fRandomCheck[Tick].OurCheck := cardinal(KaMRandom(maxint)); //thats our CRC (must go before commands for replay compatibility)
 
   //Execute commands, in order players go (1,2,3..)
   for i:=0 to fPlayers.Count-1 do

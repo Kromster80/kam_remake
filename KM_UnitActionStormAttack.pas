@@ -38,7 +38,7 @@ begin
   Locked          := true;
   fTileSteps      := -1; //-1 so the first initializing step makes it 0
   fDelay          := (aRow-1)*5; //No delay for the first row
-  fStamina        := MIN_STAMINA + random(MAX_STAMINA);
+  fStamina        := MIN_STAMINA + KaMRandom(MAX_STAMINA);
   fNextPos        := KMPoint(0,0);
   fVertexOccupied := KMPoint(0,0);
 end;

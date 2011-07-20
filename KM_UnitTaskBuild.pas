@@ -690,7 +690,7 @@ function TTaskBuildHouse.Execute:TTaskResult;
             Spots[MyCount] := i;
           end;
     if MyCount > 0 then
-      Result := Spots[Random(MyCount)+1]
+      Result := Spots[KaMRandom(MyCount)+1]
     else Result := 0;
   end;
 begin
@@ -819,7 +819,7 @@ begin
       //Pick random location and go there
       0: begin
            Thought := th_Build;
-           CurLoc := Random(Cells.Count)+1;
+           CurLoc := KaMRandom(Cells.Count)+1;
            SetActionWalkToSpot(Cells.List[CurLoc].Loc);
          end;
       1: begin

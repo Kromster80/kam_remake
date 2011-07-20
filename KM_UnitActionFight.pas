@@ -185,7 +185,7 @@ begin
       if AimingDelay=-1 then //Initialize
       begin
         MakeSound(KMUnit, false); //IsHit means IsShoot for bowmen (false means aiming)
-        AimingDelay := AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD);
+        AimingDelay := AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD);
       end;
 
       if AimingDelay>0 then begin
@@ -209,7 +209,7 @@ begin
       ut := byte(KMUnit.UnitType);
       ot := byte(fOpponent.UnitType);
       Damage := UnitStat[ut].Attack; //Base damage
-      Damage := Round(Damage*Random(101)/100);
+      Damage := Round(Damage*KaMRandom(101)/100);
       IsHit := (Damage >= UnitStat[ut].Attack*0.15); // IsHit = true if Damage >= 15% of Base damage
       if not(IsHit) then Damage := 0
       else begin // if IsHit
@@ -220,7 +220,7 @@ begin
         //Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
       end;
 
-      //IsHit := (Damage >= Random(101)); //0..100
+      //IsHit := (Damage >= KaMRandom(101)); //0..100
 
       if IsHit then
         if fOpponent.HitPointsDecrease(Damage) then

@@ -60,6 +60,16 @@ uses KromUtils, SysUtils, StrUtils, KM_CommonTypes, KM_Defaults, Math;
   function TypeToString(t:TKMPoint):string; overload;
   function TypeToString(t:TKMDirection):string; overload;
 
+  procedure SetKaMSeed(aSeed:integer);
+  function GetKaMSeed:integer;
+  function KaMRandom:extended; overload;
+  function KaMRandom(aMax:integer):integer; overload;
+  function KaMRandomS(Range_Both_Directions:integer):integer; overload;
+  function KaMRandomS(Range_Both_Directions:single):single; overload;
+
+var
+  fKaMSeed:integer;
+
 implementation
 uses KM_TextLibrary;
 
@@ -512,6 +522,80 @@ end;
 function TypeToString(t:TKMDirection):string;
 begin
   Result := TKMDirectionS[byte(t)];
+end;
+
+
+//Quote from page 5 of 'Random Number Generators': "We recommend the construction of an initialization procedure,
+//Randomize, which prompts for an initial value of seed and forces it to be an integer between 1 and 2^31 - 2."
+procedure SetKaMSeed(aSeed:integer);
+begin
+  assert(InRange(aSeed,1,2147483646),'KaMSeed initialised incorrectly: '+IntToStr(aSeed));
+  if CUSTOM_RANDOM then
+    fKaMSeed := aSeed
+  else
+    RandSeed := aSeed;
+end;
+
+
+function GetKaMSeed:integer;
+begin
+  if CUSTOM_RANDOM then
+    Result := fKaMSeed
+  else
+    Result := RandSeed;
+end;
+
+
+//Taken from "Random Number Generators" by Stephen K. Park and Keith W. Miller.
+(*  Integer  Version  2  *)
+function KaMRandom:extended;
+const
+  a = 16807;
+  m = 2147483647; //Prime number 2^31 - 1
+  q = 127773;  (*  m  div  a  *)
+  r = 2836;  (*  m  mod  a  *)
+var
+  lo, hi, test: integer;
+begin
+  if not CUSTOM_RANDOM then
+  begin
+    Result := Random;
+    exit;
+  end;
+  assert(InRange(fKaMSeed,1,m-1),'KaMSeed initialised incorrectly: '+IntToStr(fKaMSeed));
+  hi := fKaMSeed div q;
+  lo := fKaMSeed mod q;
+  test := a*lo - r*hi;
+  if test > 0 then
+    fKaMSeed := test
+  else
+    fKaMSeed := test + m;
+  Result := fKaMSeed / m;
+end;
+
+
+function KaMRandom(aMax:integer):integer;
+var FloatingMax:extended;
+begin
+  if not CUSTOM_RANDOM then
+  begin
+    Result := Random(aMax);
+    exit;
+  end;
+  FloatingMax := aMax;
+  Result := trunc(KaMRandom*FloatingMax);
+end;
+
+
+function KaMRandomS(Range_Both_Directions:integer):integer; overload;
+begin
+  Result := KaMRandom(Range_Both_Directions*2+1)-Range_Both_Directions;
+end;
+
+
+function KaMRandomS(Range_Both_Directions:single):single; overload;
+begin
+  Result := KaMRandom(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
 end;
 
 end.

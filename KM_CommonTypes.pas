@@ -631,7 +631,7 @@ function TKMPointList.GetRandom(out Point: TKMPoint):Boolean;
 begin
   if Count=0 then Result := False
   else begin
-    Point := List[random(Count)+1];
+    Point := List[KaMRandom(Count)+1];
     Result := True;
   end;
 end;
@@ -777,7 +777,7 @@ function TKMPointDirList.GetRandom(out Point: TKMPointDir):Boolean;
 begin
   Result := False;
   if Count > 0 then begin
-    Point := List[random(Count)+1];
+    Point := List[KaMRandom(Count)+1];
     Result := True;
   end;
 end;

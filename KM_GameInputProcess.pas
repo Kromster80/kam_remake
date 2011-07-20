@@ -466,7 +466,7 @@ begin
 
   fQueue[fCount].Tick    := fGame.GameTickCount;
   fQueue[fCount].Command := aCommand;
-  fQueue[fCount].Rand    := Cardinal(Random(maxint)); //This will be our check to ensure everything is consistent
+  fQueue[fCount].Rand    := Cardinal(KaMRandom(maxint)); //This will be our check to ensure everything is consistent
 end;
 
 
