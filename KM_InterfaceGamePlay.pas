@@ -828,12 +828,12 @@ begin
     TKMImage.Create(Panel_Chat,0,20,600,170,409);
     TKMImage.Create(Panel_Chat,0,0,600,20,551);
 
-    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,65,500,90);
+    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,65,600-85,90);
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 160, 500, 20, fnt_Antiqua);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 155, 600-85, 20, fnt_Antiqua);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
 
-    Button_ChatClose:=TKMButton.Create(Panel_Chat,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
+    Button_ChatClose:=TKMButton.Create(Panel_Chat,600-35,65,30,24,'[x]',fnt_Antiqua);
     Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
     Button_ChatClose.OnClick := Chat_Close;
     Button_ChatClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
@@ -1999,9 +1999,11 @@ end;
 
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
-  if (Key <> VK_RETURN) or (Trim(Edit_ChatMsg.Text) = '') then exit;
-  fGame.Networking.PostMessage(Edit_ChatMsg.Text);
-  Edit_ChatMsg.Text := '';
+  if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
+  begin
+    fGame.Networking.PostMessage(Edit_ChatMsg.Text);
+    Edit_ChatMsg.Text := '';
+  end;
 end;
 
 
