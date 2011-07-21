@@ -3,7 +3,10 @@ unit KM_ServerEventHandler;
 interface
 
 uses
-  SysUtils, Windows, KM_CommonTypes;
+  SysUtils, KM_CommonTypes
+  {$IFDEF MSWindows} ,Windows {$ENDIF}
+  {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
+  ;
 
 //We need a dummy event handler because Events can't be assigned to regular procedures (e.g. in a console application)
 type

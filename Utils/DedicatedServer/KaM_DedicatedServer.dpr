@@ -4,12 +4,14 @@ program KaM_DedicatedServer;
   {$Mode Delphi} {$H+}
 {$ENDIF}
 
-{$APPTYPE CONSOLE}
+{$IFDEF MSWindows}
+  {$APPTYPE CONSOLE}
+{$ENDIF}
 
 uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   SysUtils,
-  Windows,
+  {$IFDEF MSWindows}Windows,{$ENDIF}
   KM_Defaults,
   KM_CommonTypes,
   KM_DedicatedServer,
@@ -19,7 +21,7 @@ var
   fEventHandler: TKMServerEventHandler;
   fDedicatedServer: TKMDedicatedServer;
 
-
+{$IFDEF MSWindows}
 procedure MyProcessMessages;
 var Msg : TMsg;
 begin
@@ -30,6 +32,7 @@ begin
     DispatchMessage(Msg);
   end;
 end;
+{$ENDIF}
 
 
 begin
@@ -46,7 +49,9 @@ begin
   while True do
   begin
     fDedicatedServer.UpdateState;
+    {$IFDEF MSWindows}
     MyProcessMessages; //This will process network (or other) events
+    {$ENDIF}
     Sleep(1); //Don't hog CPU (this can also be used to create an artifical latency)
   end;
 

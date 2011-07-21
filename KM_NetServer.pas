@@ -1,7 +1,9 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Windows, Math, KM_CommonTypes, KM_Defaults
+uses Classes, SysUtils, Math, KM_CommonTypes, KM_Defaults
+     {$IFDEF MSWindows} ,Windows {$ENDIF}
+     {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
      {$IFDEF WDC} ,KM_NetServerOverbyte {$ENDIF}
      {$IFDEF FPC} ,KM_NetServerLNet {$ENDIF}
      ;
@@ -263,8 +265,8 @@ begin
       //If they don't respond within a reasonable time, kick them
       if GetTickCount-fClientList[i].fPingStarted > KICK_TIMEOUT then
       begin
-        fServer.Kick(fClientList[i].fHandle);
         Status('Client timed out '+inttostr(fClientList[i].fHandle));
+        fServer.Kick(fClientList[i].fHandle);
       end;
 
 end;
@@ -402,8 +404,8 @@ begin
   while fBufferSize >= 12 do
   begin
     PacketSender := PInteger(fBuffer)^;
-    PacketRecipient := PInteger(Cardinal(fBuffer)+4)^;
-    PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
+    PacketRecipient := PInteger(Cardinal(@fBuffer)+4)^;
+    PacketLength := PCardinal(Cardinal(@fBuffer)+8)^;
     if PacketLength <= fBufferSize-12 then
     begin
 

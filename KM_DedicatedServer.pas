@@ -1,7 +1,10 @@
 unit KM_DedicatedServer;
 interface
 uses
-  SysUtils, Windows, KM_NetServer, KM_Defaults, KM_CommonTypes;
+  SysUtils,
+  {$IFDEF MSWindows}Windows,{$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
+  KM_NetServer, KM_Defaults, KM_CommonTypes;
 
 
 type
