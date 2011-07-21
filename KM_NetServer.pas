@@ -1,7 +1,10 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Windows, Math, KM_CommonTypes, KM_NetServerOverbyte, KM_Defaults;
+uses Classes, SysUtils, Windows, Math, KM_CommonTypes, KM_Defaults
+     {$IFDEF WDC} ,KM_NetServerOverbyte {$ENDIF}
+     {$IFDEF FPC} ,KM_NetServerLNet {$ENDIF}
+     ;
 
 
 { Contains basic items we need for smooth Net experience:
@@ -40,7 +43,7 @@ uses Classes, SysUtils, Windows, Math, KM_CommonTypes, KM_NetServerOverbyte, KM_
 
 const
   //todo: This should be in config file for both game and dedicated server
-  KICK_TIMEOUT = 10000; //10 sec
+  KICK_TIMEOUT = 20000; //20 sec
 
 type
   TKMServerClient = class
@@ -72,7 +75,8 @@ type
 
   TKMNetServer = class
   private
-    fServer:TKMNetServerOverbyte;
+    {$IFDEF WDC} fServer:TKMNetServerOverbyte; {$ENDIF}
+    {$IFDEF FPC} fServer:TKMNetServerLNet;     {$ENDIF}
 
     fClientList:TKMClientsList;
     fHostHandle:integer;
@@ -96,6 +100,7 @@ type
     procedure StopListening;
     procedure ClearClients;
     procedure MeasurePings;
+    procedure UpdateStateIdle;
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
     property Listening: boolean read fListening;
   end;
@@ -173,7 +178,8 @@ constructor TKMNetServer.Create;
 begin
   Inherited;
   fClientList := TKMClientsList.Create;
-  fServer := TKMNetServerOverbyte.Create;
+  {$IFDEF WDC} fServer := TKMNetServerOverbyte.Create; {$ENDIF}
+  {$IFDEF FPC} fServer := TKMNetServerLNet.Create;     {$ENDIF}
   fListening := false;
   SetLength(fBuffer,0);
   fBufferSize := 0;
@@ -261,6 +267,12 @@ begin
         Status('Client timed out '+inttostr(fClientList[i].fHandle));
       end;
 
+end;
+
+
+procedure TKMNetServer.UpdateStateIdle;
+begin
+  {$IFDEF FPC} fServer.UpdateStateIdle; {$ENDIF}
 end;
 
 

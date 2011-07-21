@@ -2,7 +2,7 @@ unit KM_CommonTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils;
+  Classes, SysUtils, KromUtils;
 
 
 type

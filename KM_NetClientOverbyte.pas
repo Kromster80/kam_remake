@@ -65,6 +65,7 @@ end;
 
 procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:string);
 begin
+  FreeAndNil(fSocket);
   fSocket := TWSocket.Create(nil);
   fSocket.Proto     := 'tcp';
   fSocket.Addr      := aAddress;

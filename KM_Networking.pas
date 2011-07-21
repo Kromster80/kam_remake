@@ -109,6 +109,7 @@ type
     property OnTextMessage:TStringEvent write fOnTextMessage;   //Text message recieved
 
     procedure UpdateState(aTick: cardinal);
+    procedure UpdateStateIdle;
   end;
 
 
@@ -881,6 +882,14 @@ begin
   //Server should measure pings once per second
   if (fNetServer.Listening) and (aTick mod 10 = 0) then
     fNetServer.MeasurePings;
+end;
+
+
+procedure TKMNetworking.UpdateStateIdle;
+begin
+  //LNet requires network update calls unless it is being used as visual components
+  fNetServer.UpdateStateIdle;
+  fNetClient.UpdateStateIdle;
 end;
 
 

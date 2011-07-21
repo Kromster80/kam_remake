@@ -1291,6 +1291,8 @@ begin
                   fTerrain.UpdateStateIdle;
                 end;
   end;
+  if fNetworking <> nil then
+    fNetworking.UpdateStateIdle;
 end;
 
 

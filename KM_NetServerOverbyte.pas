@@ -61,6 +61,7 @@ end;
 
 procedure TKMNetServerOverbyte.StartListening(aPort:string);
 begin
+  FreeAndNil(fSocketServer);
   fSocketServer := TWSocketServer.Create(nil);
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range

@@ -1,8 +1,10 @@
 unit KM_NetClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_NetClientOverbyte;
-
+uses Classes, SysUtils
+  {$IFDEF WDC} ,KM_NetClientOverbyte {$ENDIF}
+  {$IFDEF FPC} ,KM_NetClientLNet {$ENDIF}
+  ;
 
 { Contains basic items we need for smooth Net experience:
 
@@ -24,7 +26,8 @@ type
 
   TKMNetClient = class
   private
-    fClient:TKMNetClientOverbyte;
+    {$IFDEF WDC} fClient:TKMNetClientOverbyte; {$ENDIF}
+    {$IFDEF FPC} fClient:TKMNetClientLNet;     {$ENDIF}
     fConnected:boolean;
 
     fBufferSize:cardinal;
@@ -56,6 +59,7 @@ type
 
     property OnRecieveData:TNotifySenderDataEvent write fOnRecieveData;
     procedure SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
+    procedure UpdateStateIdle;
 
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
   end;
@@ -67,7 +71,8 @@ implementation
 constructor TKMNetClient.Create;
 begin
   Inherited;
-  fClient := TKMNetClientOverbyte.Create;
+  {$IFDEF WDC} fClient := TKMNetClientOverbyte.Create; {$ENDIF}
+  {$IFDEF FPC} fClient := TKMNetClientLNet.Create;     {$ENDIF}
   fConnected := false;
   SetLength(fBuffer,0);
   fBufferSize := 0;
@@ -195,6 +200,12 @@ begin
     end else
       Exit;
   end;
+end;
+
+
+procedure TKMNetClient.UpdateStateIdle;
+begin
+  {$IFDEF FPC} fClient.UpdateStateIdle; {$ENDIF}
 end;
 
 

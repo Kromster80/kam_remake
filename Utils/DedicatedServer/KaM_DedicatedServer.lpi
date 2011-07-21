@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <Flags>
+        <MainUnitHasTitleStatement Value="False"/>
+      </Flags>
+      <MainUnit Value="0"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1" Active="Default">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="8">
+      <Unit0>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="KaM_DedicatedServer"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="KaM_DedicatedServer.dpr"/>
+        <UnitName Value="KaM_DedicatedServer"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="5" Y="56"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\KaM_Remake.lpr"/>
+        <UnitName Value="KaM_Remake"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="59"/>
+        <CursorPos X="15" Y="4"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\Common\KromUtils.pas"/>
+        <UnitName Value="KromUtils"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="69"/>
+        <CursorPos X="39" Y="74"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="C:\lazarus\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="15"/>
+        <CursorPos X="2" Y="30"/>
+        <UsageCount Value="10"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\KM_DedicatedServer.pas"/>
+        <UnitName Value="KM_DedicatedServer"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="29" Y="70"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\..\KM_CommonTypes.pas"/>
+        <UnitName Value="KM_CommonTypes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="385"/>
+        <CursorPos X="37" Y="400"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="..\..\Common\dglOpenGL.pas"/>
+        <UnitName Value="dglOpenGL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="460"/>
+        <CursorPos X="51" Y="478"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit7>
+    </Units>
+    <JumpHistory Count="11" HistoryIndex="10">
+      <Position1>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="4" Column="8" TopLine="1"/>
+      </Position1>
+      <Position2>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="7" Column="26" TopLine="1"/>
+      </Position2>
+      <Position3>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="55" Column="5" TopLine="26"/>
+      </Position3>
+      <Position4>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="10" Column="39" TopLine="1"/>
+      </Position4>
+      <Position5>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position5>
+      <Position6>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="11" Column="37" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position7>
+      <Position8>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="8" Column="28" TopLine="1"/>
+      </Position8>
+      <Position9>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="9" Column="40" TopLine="1"/>
+      </Position9>
+      <Position10>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="8" Column="22" TopLine="1"/>
+      </Position10>
+      <Position11>
+        <Filename Value="KaM_DedicatedServer.lpr"/>
+        <Caret Line="48" Column="27" TopLine="27"/>
+      </Position11>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\Overbyte ICS;..\..\Common\LNet;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\Overbyte ICS;..\..\Common\LNet"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+        <CStyleOperator Value="False"/>
+        <IncludeAssertionCode Value="True"/>
+        <AllowLabel Value="False"/>
+        <CPPInline Value="False"/>
+        <UseAnsiStrings Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <Checks>
+        <IOChecks Value="True"/>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+        <StackChecks Value="True"/>
+      </Checks>
+    </CodeGeneration>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <IgnoredMessages idx4035="True" idx4055="True" idx4056="True" idx4079="True" idx4080="True" idx4081="True"/>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

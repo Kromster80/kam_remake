@@ -67,6 +67,7 @@ end;
 
 procedure TKMDedicatedServer.UpdateState;
 begin
+  fNetServer.UpdateStateIdle;
   if GetTickCount-fLastPing >= 1000 then
   begin
     fNetServer.MeasurePings;
