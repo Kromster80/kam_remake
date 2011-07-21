@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
+  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils;
 
 
 type
@@ -123,7 +123,7 @@ type
     Panel_Allies:TKMPanel;
       Button_AlliesClose:TKMButton;
     Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
-      Label_ChatText:TKMLabel;
+      ListBox_ChatText:TKMListBox;
       Edit_ChatMsg:TKMEdit;
       Button_ChatClose:TKMButton;
     Panel_Message:TKMPanel;
@@ -255,6 +255,7 @@ type
     procedure ClearShownUnit;
     procedure ClearSelectedUnitOrHouse;
     procedure ReleaseDirectionSelector;
+    procedure ChatMessage(const aData: string);
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -827,8 +828,7 @@ begin
     TKMImage.Create(Panel_Chat,0,20,600,170,409);
     TKMImage.Create(Panel_Chat,0,0,600,20,551);
 
-    Label_ChatText:=TKMLabel.Create(Panel_Chat,45,67,500,122,'',fnt_Antiqua,kaLeft);
-    Label_ChatText.AutoWrap := true;
+    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,65,500,90);
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 160, 500, 20, fnt_Antiqua);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
@@ -2049,8 +2049,7 @@ procedure TKMGamePlayInterface.MessageIssue(MsgTyp:TKMMessageType; Text:string; 
 begin
   fMessageList.AddEntry(MsgTyp,Text,Loc);
   Message_UpdateStack;
-  if fMessageList.GetMsgHasSound(fMessageList.Count) then
-    fSoundLib.Play(sfx_MessageNotice,4); //Play horn sound on new message if it is the right type
+  fSoundLib.Play(sfx_MessageNotice, 4); //Play horn sound on new message if it is the right type
 end;
 
 
@@ -2277,6 +2276,14 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ChatMessage(const aData: string);
+begin
+  ListBox_ChatText.AddItem(aData);
+  //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
+  ListBox_ChatText.TopIndex := ListBox_ChatText.ItemCount;
+end;
+
+
 procedure TKMGamePlayInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
   if fGame.GameState in [gsRunning, gsReplay] then
@@ -2339,9 +2346,7 @@ begin
                   if Key=ord('5') then MessageIssue(msgText,'123',KMPoint(0,0));
                   if Key=ord('6') then MessageIssue(msgHouse,'123',KMPointRound(fViewport.GetCenter));
                   if Key=ord('7') then MessageIssue(msgUnit,'123',KMPoint(0,0));
-                  if Key=ord('8') then MessageIssue(msgHorn,'123',KMPoint(0,0));
-                  if Key=ord('9') then MessageIssue(msgQuill,'123',KMPoint(0,0));
-                  if Key=ord('0') then MessageIssue(msgScroll,'123',KMPoint(0,0));
+                  if Key=ord('8') then MessageIssue(msgQuill,'123',KMPoint(0,0));
 
                   {Temporary cheat codes}
                   if Key=ord('W') then fGame.fGameInputProcess.CmdTemp(gic_TempRevealMap);
@@ -2671,11 +2676,6 @@ begin
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
-
-  if Panel_Chat.Visible then begin
-    //todo: Change this to TKMMemo that will scroll and cut older messages automatically
-    //Label_ChatText.Caption := Label_ChatText.Caption + fGame.fChat.GetNewMessages;
-  end;
 
   if SHOW_SPRITE_COUNT then
   Label_Stat.Caption:=

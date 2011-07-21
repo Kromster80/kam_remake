@@ -2,7 +2,7 @@ unit KM_CommonTypes;
 {$I KaM_Remake.inc}
 interface
 uses
-Classes, Math, SysUtils, KromUtils;
+  Classes, Math, SysUtils, KromUtils;
 
 
 type
@@ -10,6 +10,11 @@ type
   TKMPointDir = record Loc:TKMPoint; Dir:word; end;
   TKMPointF = record X,Y:single; end;
   TKMPointI = record X,Y:integer; end; //Allows negative values
+
+  
+type //Used in UI messages
+  TKMMessageType = (msgText, msgHouse, msgUnit, msgQuill);
+
 
 const
   NET_ADDRESS_EMPTY = 0;    //Yet undefined
@@ -135,39 +140,6 @@ type
   TKMList = class(TList)
   public
     procedure Clear; override;
-  end;
-
-
-{Messages}
-//number matches pic index in gui.rx
-type
-  TKMMessageType = (msgUnknown=0, msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
-
-  TKMMessage = class
-  public
-    msgType:TKMMessageType;
-    msgText:string;
-    msgLoc:TKMPoint;
-  end;
-
-  TKMMessageList = class
-  private
-    fCount:cardinal;
-    fList:array of TKMMessage; //1..Count
-  public
-    destructor Destroy; override;
-    procedure AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
-    procedure RemoveEntry(aID:cardinal);
-    procedure InjectEntry(aID:cardinal; aMsgTyp:TKMMessageType; aText:string);
-    function GetMsgPic(aID:cardinal):cardinal;
-    function GetMsgType(aID:cardinal):TKMMessageType;
-    function GetMsgHasGoTo(aID:cardinal):boolean;
-    function GetMsgHasSound(aID:cardinal):boolean;
-    function GetText(aID:cardinal):string;
-    function GetLoc(aID:cardinal; out Point:TKMPoint):Boolean;
-    property Count:cardinal read fCount;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 
@@ -431,138 +403,6 @@ begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.ReadAsText:string;
 begin
   SetString(Result, PChar(Memory), Size div SizeOf(Char));
-end;
-
-
-{ TKMMessageList }
-destructor TKMMessageList.Destroy;
-var i:integer;
-begin
-  for i := 1 to fCount do
-    FreeAndNil(fList[i]);
-  Inherited;
-end;
-
-
-procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
-begin
-  inc(fCount);
-  setlength(fList, fCount+1);
-  fList[fCount] := TKMMessage.Create;
-  fList[fCount].msgType := aMsgTyp;
-  fList[fCount].msgText := aText;
-  fList[fCount].msgLoc := aLoc;
-end;
-
-
-procedure TKMMessageList.RemoveEntry(aID:cardinal);
-var i:cardinal;
-begin
-  dec(fCount);
-  FreeAndNil(fList[aID]); //First remove the deleted message
-  for i := aID to fCount do
-    fList[i] := fList[i+1]; //Then move the other message up to it
-  fList[fCount+1] := nil; //Set the last+1 message to be nil, because the last message already points to it. (don't want duplicate pointers)
-  setlength(fList, fCount+1); //to keep it neat
-end;
-
-
-//Might be of use with priority messages
-procedure TKMMessageList.InjectEntry(aID:cardinal; aMsgTyp:TKMMessageType; aText:string);
-var i:cardinal;
-begin
-  inc(fCount);
-  setlength(fList, fCount+1);
-  for i := aID + 1 to fCount do
-    fList[i] := fList[i-1];
-  fList[aID].msgType := aMsgTyp;
-  fList[aID].msgText := aText;
-end;
-
-function TKMMessageList.GetMsgPic(aID:cardinal):cardinal;
-begin
-  if InRange(aID,1,fCount) then
-    Result := cardinal(fList[aID].msgType)
-  else
-    Result := 0;
-end;
-
-
-function TKMMessageList.GetMsgType(aID:cardinal):TKMMessageType;
-begin
-  if InRange(aID,1,fCount) then
-    Result := fList[aID].msgType
-  else
-    Result := msgUnknown;
-end;
-
-
-function TKMMessageList.GetMsgHasGoTo(aID:cardinal):boolean;
-begin
-  if InRange(aID,1,fCount) then
-    Result := (fList[aID].msgType = msgHouse) or (fList[aID].msgType = msgUnit)
-  else
-    Result := false;
-end;
-
-
-function TKMMessageList.GetMsgHasSound(aID:cardinal):boolean;
-begin
-  if InRange(aID,1,fCount) then
-    Result := not ((fList[aID].msgType = msgHorn) or (fList[aID].msgType = msgScroll))
-    //These are the two multiplayer options (one for sending text messages, one for alliances)
-    //unlike other messages they are sticky and can't be possibly Issued
-  else
-    Result := false;
-end;
-
-
-function TKMMessageList.GetText(aID:cardinal):string;
-begin
-  if InRange(aID,1,fCount) then
-    Result := fList[aID].msgText
-  else
-    Result := '';
-end;
-
-
-//Todo: convert other functions to this pattern
-function TKMMessageList.GetLoc(aID:cardinal; out Point:TKMPoint):Boolean;
-begin
-  if InRange(aID,1,fCount) then begin
-    Point := fList[aID].msgLoc;
-    Result := true;
-  end else
-    Result := false;
-end;
-
-
-procedure TKMMessageList.Save(SaveStream:TKMemoryStream);
-var i:cardinal;
-begin
-  SaveStream.Write(fCount);
-  for i:=1 to fCount do
-  begin
-    SaveStream.Write(fList[i].msgType, SizeOf(fList[i].msgType));
-    SaveStream.Write(fList[i].msgText);
-    SaveStream.Write(fList[i].msgLoc);
-  end;
-end;
-
-
-procedure TKMMessageList.Load(LoadStream:TKMemoryStream);
-var i:cardinal;
-begin
-  LoadStream.Read(fCount);
-  setlength(fList, fCount+1);
-
-  for i:=1 to fCount do
-  begin
-    fList[i] := TKMMessage.Create;
-    LoadStream.Read(fList[i].msgType, SizeOf(fList[i].msgType));
-    LoadStream.Read(fList[i].msgText);
-    LoadStream.Read(fList[i].msgLoc);
-  end;
 end;
 
 

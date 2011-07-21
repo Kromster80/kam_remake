@@ -547,21 +547,12 @@ begin
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnReadyToPlay := GameMPReadyToPlay;
   fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
+  fNetworking.OnTextMessage := fGamePlayInterface.ChatMessage;
   fNetworking.GameCreated;
   if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
 
-  fLog.AppendLog('Gameplay recording initialized',true);
-  //@Krom: Thanks for that, you are right. Can we delete this line then? As I see it we should set the
-  //random seed once in the init, then not change it. If the random seeds to not match at this point,
-  //surely that means there is a flaw somewhere?
-  //@Lewin: 1. We need Seed to be the same after GameStart and ReplayLoad, before starting main game
-  //        loop. GameStart loads the mission and uses Random to e.g. set units health, while
-  //        Replay does not sets anything it just loads savegame. Thats why we need to reset Seed
-  //        AFTER everything is init here or replay is loaded.
-  //        2. We don't want to remove Seed from GameInit and MapEdStart (where they are meaningless)
-  //        because of the similar reason - to keep consistency in debug. We can start TownTutorial
-  //        again and again and each time game will be created perfectly the same.
-  //@Krom: Thanks, I understand now. To be deleted (or converted to a comment if you think it's necessary)
+  fLog.AppendLog('Gameplay recording initialized', True);
+
   if not fNetworking.MapInfo.IsSave then //Load has already set KaMSeed
     SetKaMSeed(4); //Random after StartGameMP and ViewReplay should match
 end;
