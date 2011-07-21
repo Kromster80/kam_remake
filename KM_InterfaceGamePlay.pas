@@ -7,6 +7,7 @@ uses
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils;
 
+//todo: @Krom: In-game chat won't stay visible
 
 type
   TKMGamePlayInterface = class

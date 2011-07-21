@@ -638,12 +638,11 @@ procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUni
 begin
   if fPlayers[PlayerIndex].PlayerType = pt_Human then
   begin
-    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
-    and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
     begin
-      //if MyPlayer = fPlayers[PlayerIndex] then //Process anyway for multiplayer consistency, but don't play sound
+      fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
+      //if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
         //fSoundLib.PlayWarning(sp_BuildingsAttacked);
-      fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
   if fPlayers[PlayerIndex].PlayerType = pt_Computer then
@@ -656,17 +655,16 @@ procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWa
 begin
   if fPlayers[PlayerIndex].PlayerType = pt_Human then
   begin
-    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS)
-    and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
     begin
-      {if MyPlayer = fPlayers[PlayerIndex] then //Process anyway for multiplayer consistency, but don't play sound
+      fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
+      {if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
       begin
         if aUnit is TKMUnitWarrior then
           fSoundLib.PlayWarning(sp_TroopsAttacked)
         else
           fSoundLib.PlayWarning(sp_CitizensAttacked);
       end;}
-      fTimeOfLastAttackMessage := fGame.GameTickCount;
     end;
   end;
   if fPlayers[PlayerIndex].PlayerType = pt_Computer then

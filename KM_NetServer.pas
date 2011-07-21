@@ -404,8 +404,8 @@ begin
   while fBufferSize >= 12 do
   begin
     PacketSender := PInteger(fBuffer)^;
-    PacketRecipient := PInteger(Cardinal(@fBuffer)+4)^;
-    PacketLength := PCardinal(Cardinal(@fBuffer)+8)^;
+    PacketRecipient := PInteger(Cardinal(fBuffer)+4)^;
+    PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
     if PacketLength <= fBufferSize-12 then
     begin
 

@@ -7,6 +7,7 @@ uses
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_CommonTypes, KM_Settings, KM_MapInfo;
 
+//todo: @Krom: In the lobby the chat edit should always stay focused
 
 type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
 
@@ -1366,7 +1367,7 @@ begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
-    if fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer then
+    if (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer) and fGame.Networking.IsHost then
     begin
       Label_LobbyPlayer[i].Hide;
       DropBox_LobbyPlayerSlot[i].Show;

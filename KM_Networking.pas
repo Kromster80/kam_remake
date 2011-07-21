@@ -152,6 +152,7 @@ end;
 //Startup a local server and connect to it as ordinary client
 procedure TKMNetworking.Host(aUserName:string);
 begin
+  fIgnorePings := 0; //Accept pings
   fNetServer.StopListening;
 
   fNetServer.OnStatusMessage := fOnTextMessage;
@@ -174,6 +175,7 @@ procedure TKMNetworking.Join(aServerAddress,aUserName:string);
 begin
   Assert(not fNetClient.Connected, 'We were not properly disconnected');
 
+  fIgnorePings := 0; //Accept pings
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
   fMyIndexOnServer := -1; //Assigned by Server
   fLANGameState := lgs_Lobby; //Game starts in the lobby
@@ -218,6 +220,7 @@ end;
 
 procedure TKMNetworking.Disconnect;
 begin
+  fIgnorePings := 0;
   fOnJoinSucc := nil;
   fOnJoinFail := nil;
   fOnJoinAssignedHost := nil;
