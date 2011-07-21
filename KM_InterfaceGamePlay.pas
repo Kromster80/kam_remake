@@ -29,8 +29,9 @@ type
     fMessageList:TKMMessageList;
 
     procedure Create_Replay_Page;
-    procedure Create_Message_Page;
+    procedure Create_Allies_Page;
     procedure Create_Chat_Page;
+    procedure Create_Message_Page;
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
     procedure Create_Build_Page;
@@ -64,6 +65,8 @@ type
     procedure Menu_QuitMission(Sender:TObject);
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
+    procedure MPChat_Show(Sender: TObject);
+    procedure MPAllies_Show(Sender: TObject);
     procedure Message_Close(Sender: TObject);
     procedure Message_Delete(Sender: TObject);
     procedure Message_Display(Sender: TObject);
@@ -84,17 +87,21 @@ type
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
     procedure Chat_Post(Sender:TObject; Key:word);
+    procedure Chat_Close(Sender: TObject);
+    procedure Allies_Close(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
     procedure SetPause(aValue:boolean);
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
+    procedure UpdatePositions;
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
+      Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Image_Message:array[1..32]of TKMImage; //Queue of messages covers 32*48=1536px height
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
@@ -113,6 +120,12 @@ type
       Button_ReplayStep:TKMButton;
       Button_ReplayResume:TKMButton;
       Button_ReplayExit:TKMButton;
+    Panel_Allies:TKMPanel;
+      Button_AlliesClose:TKMButton;
+    Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
+      Label_ChatText:TKMLabel;
+      Edit_ChatMsg:TKMEdit;
+      Button_ChatClose:TKMButton;
     Panel_Message:TKMPanel;
       Image_MessageBG:TKMImage;
       Image_MessageBGTop:TKMImage;
@@ -120,10 +133,6 @@ type
       Button_MessageGoTo: TKMButton;
       Button_MessageDelete: TKMButton;
       Button_MessageClose: TKMButton;
-    //For multiplayer: Send, reply, text area for typing, etc.
-    Panel_Chat:TKMPanel;
-      Label_ChatText:TKMLabel;
-      Edit_ChatMsg:TKMEdit;
     Panel_Pause:TKMPanel;
       Bevel_Pause:TKMBevel;
       Image_Pause:TKMImage;
@@ -268,6 +277,8 @@ KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Gam
 KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX;
 
 const
+  MESSAGE_AREA_HEIGHT = 190;
+
   ResRatioCount = 4;
   ResRatioType:array[1..ResRatioCount] of TResourceType = (rt_Steel, rt_Coal, rt_Wood, rt_Corn);
   ResRatioHint:array[1..ResRatioCount] of word = (298, 300, 302, 304); //Distribution of rt_***
@@ -558,8 +569,22 @@ begin
     Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
     Image_DirectionCursor.Hide;
 
-    Create_Message_Page; //Must go bellow message stack
+    Create_Allies_Page; //MessagePage sibling
     Create_Chat_Page; //MessagePage sibling
+    Create_Message_Page; //Must go bellow message stack
+
+    Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48,30,48,494);
+    Image_MPChat.HighlightOnMouseOver := true;
+    Image_MPChat.OnClick := MPChat_Show;
+    Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48*2,30,48,496);
+    Image_MPAllies.HighlightOnMouseOver := true;
+    Image_MPAllies.OnClick := MPAllies_Show;
+
+    //Chat and Allies setup should be accessible only in Multiplayer
+    if not fGame.MultiplayerMode then begin
+      Image_MPChat.Hide;
+      Image_MPAllies.Hide;
+    end;
 
     for i:=low(Image_Message) to high(Image_Message) do
     begin
@@ -619,6 +644,7 @@ begin
     with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
   SwitchPage(nil); //Update
+  UpdatePositions; //Reposition messages stack if we are in MP mode
 end;
 
 
@@ -632,28 +658,51 @@ end;
 
 
 procedure TKMGamePlayInterface.ResizeGameArea(X,Y:word);
-var S:TKMPoint; i: integer;
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
   fViewport.ResizeGameArea(X,Y);
   fViewport.SetZoom(fViewport.Zoom);
+
+  UpdatePositions;
+end;
+
+
+procedure TKMGamePlayInterface.UpdatePositions;
+var X,Y:word; i: integer; OffY:byte;
+begin
+  X := Panel_Main.Width;
+  Y := Panel_Main.Height;
+
+  //Hint should stick to lower edge
   Label_Hint.Top := Y-16;
+
   //Center pause controls when the screen is resized during gameplay
-  S := fRender.RenderAreaSize;
-  Image_Pause.Left := (S.X div 2);
-  Image_Pause.Top  := (S.Y div 2)-40;
-  Label_Pause1.Left  := (S.X div 2);
-  Label_Pause1.Top   := (S.Y div 2);
-  Label_Pause2.Left := (S.X div 2);
-  Label_Pause2.Top  := (S.Y div 2)+20;
+  Image_Pause.Left := (X div 2);
+  Image_Pause.Top  := (Y div 2)-40;
+  Label_Pause1.Left  := (X div 2);
+  Label_Pause1.Top   := (Y div 2);
+  Label_Pause2.Left := (X div 2);
+  Label_Pause2.Top  := (Y div 2)+20;
   Image_Pause.Center;
   Label_Pause1.Center;
   Label_Pause2.Center;
+
+  //Chat
+  if fGame.MultiplayerMode then
+  begin
+    Panel_Chat.Top := Y - MESSAGE_AREA_HEIGHT;
+    Panel_Allies.Top := Y - MESSAGE_AREA_HEIGHT;
+    Image_MPChat.Top := Y - 48;
+    Image_MPAllies.Top := Y - 48*2;
+    OffY := 48*2
+  end else
+    OffY := 0;
+
   //Messages
-  Panel_Message.Top := Y - 190;
-  for i := low(Image_Message) to high(Image_Message) do
-    Image_Message[i].Top := Y - i*48;
+  Panel_Message.Top := Y - MESSAGE_AREA_HEIGHT;
+  for i := Low(Image_Message) to High(Image_Message) do
+    Image_Message[i].Top := Y - i*48 - OffY;
 end;
 
 
@@ -740,7 +789,7 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  Panel_Message:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, 190);
+  Panel_Message:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
 
     Image_MessageBG:=TKMImage.Create(Panel_Message,0,20,600,170,409);
@@ -772,7 +821,7 @@ end;
 {Chat page}
 procedure TKMGamePlayInterface.Create_Chat_Page;
 begin
-  Panel_Chat:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - 190, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, 190);
+  Panel_Chat:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Chat.Anchors := [akLeft, akRight, akBottom];
 
     TKMImage.Create(Panel_Chat,0,20,600,170,409);
@@ -784,7 +833,26 @@ begin
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 160, 500, 20, fnt_Antiqua);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
 
-  Panel_Chat.Hide; //Hide it now because it doesn't get hidden by SwitchPage
+    Button_ChatClose:=TKMButton.Create(Panel_Chat,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
+    Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
+    Button_ChatClose.OnClick := Chat_Close;
+    Button_ChatClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
+end;
+
+
+{Allies page}
+procedure TKMGamePlayInterface.Create_Allies_Page;
+begin
+  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Allies.Anchors := [akLeft, akRight, akBottom];
+
+    TKMImage.Create(Panel_Allies,0,20,600,170,409);
+    TKMImage.Create(Panel_Allies,0,0,600,20,551);
+
+    Button_AlliesClose:=TKMButton.Create(Panel_Allies,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
+    Button_AlliesClose.Hint := fTextLibrary.GetTextString(283);
+    Button_AlliesClose.OnClick := Allies_Close;
+    Button_AlliesClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
 end;
 
 
@@ -1244,6 +1312,24 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.MPChat_Show(Sender: TObject);
+begin
+  //Label_ChatText.Caption := fGame.fChat.GetAllMessages;
+  MyControls.CtrlFocus := Edit_ChatMsg;
+  Panel_Allies.Hide;
+  Panel_Chat.Show;
+  Panel_Message.Hide;
+end;
+
+
+procedure TKMGamePlayInterface.MPAllies_Show(Sender: TObject);
+begin
+  Panel_Allies.Show;
+  Panel_Chat.Hide;
+  Panel_Message.Hide;
+end;
+
+
 procedure TKMGamePlayInterface.Message_Display(Sender: TObject);
 var i: integer;
 begin
@@ -1260,17 +1346,11 @@ begin
 
   Image_Message[ShownMessage].Highlight := true; //make it brighter
 
-  if fMessageList.GetMsgType(ShownMessage) <> msgScroll then begin
-    Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
-    Button_MessageGoTo.Enabled := fMessageList.GetMsgHasGoTo(ShownMessage);
-    Panel_Chat.Hide;
-    Panel_Message.Show;
-  end else begin
-    //Label_ChatText.Caption := fGame.fChat.GetAllMessages;
-    MyControls.CtrlFocus := Edit_ChatMsg;
-    Panel_Chat.Show;
-    Panel_Message.Hide;
-  end;
+  Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
+  Button_MessageGoTo.Enabled := fMessageList.GetMsgHasGoTo(ShownMessage);
+  Panel_Allies.Hide;
+  Panel_Chat.Hide;
+  Panel_Message.Show;
   fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
 end;
 
@@ -1911,11 +1991,23 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Allies_Close(Sender: TObject);
+begin
+  Panel_Allies.Hide;
+end;
+
+
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_ChatMsg.Text) = '') then exit;
   fGame.Networking.PostMessage(Edit_ChatMsg.Text);
   Edit_ChatMsg.Text := '';
+end;
+
+
+procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
+begin
+  Panel_Chat.Hide;
 end;
 
 
