@@ -15,6 +15,13 @@ const
   siCampTSKTexts = 250;
   siCampTPRTexts = 350;
 
+  TX_MENU_MULTIPLAYER = 1011;
+  TX_MENU_OPTIONS = 1012;
+  TX_MENU_CREDITS = 1013;
+  TX_MENU_QUIT = 1014;
+  TX_MENU_SINGLEPLAYER = 2004;
+  TX_MENU_MAP_EDITOR = 2005;
+
 type
   TTextLibrary = class
   private
@@ -24,11 +31,13 @@ type
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
     procedure LoadLIBXFile(FilePath:string; var aArray:TStringArray);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
+    function GetTexts(aIndex:word):string;
   public
     constructor Create(aLibPath, aLocale: string);
     function GetTextString(aIndex:word):string;
     function GetSetupString(aIndex:word):string;
     function GetRemakeString(aIndex:word):string;
+    property Texts[aIndex:word]:string read GetTexts; default;
     procedure ExportTextLibraries;
 end;
 
@@ -61,7 +70,7 @@ end;
 
 
 procedure TTextLibrary.LoadLIBFile(FilePath:string; var aArray:array of string);
-var             
+var
   f:file; NumRead:integer;
   i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
   FileData: array[0..100000] of byte;
@@ -172,6 +181,18 @@ begin
   end;
 
   aStringList.Free; //Must free at last to avoid memory-leaks
+end;
+
+
+function TTextLibrary.GetTexts(aIndex:word):string;
+begin
+  if aIndex < 1000 then
+    Result := GetTextString(aIndex)
+  else
+  if aIndex < 2000 then
+    Result := GetSetupString(aIndex-1000)
+  else
+    Result := GetRemakeString(aIndex-2000);
 end;
 
 
