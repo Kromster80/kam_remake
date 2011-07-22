@@ -656,8 +656,8 @@ begin
     Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 462-210, 200, 200, 300);
       TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 100, 30, fTextLibrary[TX_MENU_MAP_SIZE], fnt_Outline, kaLeft);
       TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 40 + MAPSIZES_COUNT*20);
-      TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 100, 30, fTextLibrary[TX_MENU_MAP_WIDTH=], fnt_Outline, kaLeft);
-      TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 100, 30, fTextLibrary[TX_MENU_MAP_HEIGHT=], fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 100, 30, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 100, 30, fTextLibrary[TX_MENU_MAP_HEIGHT], fnt_Outline, kaLeft);
 
       Radio_MapEd_SizeX := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 8, 52, 100, 200, fnt_Metal);
       Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 108, 52, 100, 200, fnt_Metal);
@@ -671,13 +671,13 @@ begin
         Radio_MapEd_SizeY.Items.Add(inttostr(MapSize[i]));
       end;
 
-      Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 285, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP=], fnt_Metal, bsMenu);
+      Button_MapEd_Create := TKMButton.Create(Panel_MapEd_SizeXY, 0, 285, 200, 30, fTextLibrary[TX_MENU_MAP_CREATE_NEW_MAP], fnt_Metal, bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
     Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 462+10, 200, 300, 300);
-      TKMLabel.Create(Panel_MapEd_Load, 6, 0, 100, 30, fTextLibrary[TX_MENU_MAP_AVAILABLE=], fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MapEd_Load, 6, 0, 100, 30, fTextLibrary[TX_MENU_MAP_AVAILABLE], fnt_Outline, kaLeft);
       FileList_MapEd := TKMFileList.Create(Panel_MapEd_Load, 0, 20, 300, 240);
-      Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 285, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING=], fnt_Metal, bsMenu);
+      Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 285, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -692,7 +692,7 @@ begin
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,200,80);
-      TKMLabel.Create(Panel_Options_Ctrl,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_CONTROLS=],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Ctrl,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Ctrl,0,20,200,60);
 
       Label_Options_MouseSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,27,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
@@ -701,14 +701,14 @@ begin
       Ratio_Options_Mouse.Disable;
 
     Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,200,50);
-      TKMLabel.Create(Panel_Options_Game,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY=],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Game,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,200,30);
 
       CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,200,150);
-      TKMLabel.Create(Panel_Options_Sound,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_SOUND=],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Sound,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,200,130);
 
       Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
@@ -717,13 +717,13 @@ begin
       Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
       Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Music.OnChange:=Options_Change;
-      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,100,30,'Disable', fnt_Metal);
+      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,100,30,fTextLibrary[TX_MENU_OPTIONS_SOUND_DISABLE], fnt_Metal);
       CheckBox_Options_MusicOn.OnClick := Options_Change;
 
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,340,130,200,80);
-      TKMLabel.Create(Panel_Options_GFX,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS=],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_GFX,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,200,60);
-      TKMLabel.Create(Panel_Options_GFX,18,27,100,30,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS=],fnt_Metal,kaLeft);
+      TKMLabel.Create(Panel_Options_GFX,18,27,100,30,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS],fnt_Metal,kaLeft);
       Ratio_Options_Brightness:=TKMRatioRow.Create(Panel_Options_GFX,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Brightness.OnChange:=Options_Change;
 
@@ -761,16 +761,16 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
-    TKMLabel.Create(Panel_Credits,232,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Credits,232,100,100,30,'KaM Remake '+fTextLibrary[TX_CREDITS],fnt_Outline,kaCenter);
     TKMLabel.Create(Panel_Credits,232,140,100,30,
     'PROGRAMMING:|Krom|Lewin||'+
     'ADDITIONAL PROGRAMMING:|Alex||'+
     'ADDITIONAL GRAPHICS:|StarGazer||'+
-    'ADDITIONAL TRANSLATIONS:|French - Sylvain Domange|Slovak - Robert Marko||'+
+    'ADDITIONAL TRANSLATIONS:|French - Sylvain Domange|Slovak - Robert Marko|Hungarian - Jecy||'+
     'SPECIAL THANKS TO:|KaM Community members'
     ,fnt_Grey,kaCenter);
 
-    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,'Original Knights & Merchants Credits',fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,fTextLibrary[TX_ORIGINAL]+' Knights & Merchants '+fTextLibrary[TX_CREDITS],fnt_Outline,kaCenter);
     Label_Credits:=TKMLabel.Create(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-160,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);

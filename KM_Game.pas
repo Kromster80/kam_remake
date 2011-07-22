@@ -614,7 +614,7 @@ begin
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
-    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary.GetRemakeString(49),[CrashFile])
+    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile])
     , mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
     GameStop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
