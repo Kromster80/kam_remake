@@ -2727,7 +2727,13 @@ end;
 procedure TKMMasterControl.SetCtrlUp(aCtrl:TKMControl);
 begin
   fCtrlUp := aCtrl;
-  if fCtrlDown = fCtrlUp then CtrlFocus := fCtrlUp else CtrlFocus := nil;
+  //Only TKMEdit can have focus so far,
+  //when we need more focusable controls we might invent a better solution than this
+  if fCtrlUp is TKMEdit then
+    if fCtrlDown = fCtrlUp then
+      CtrlFocus := fCtrlUp
+    else
+      CtrlFocus := nil;
 end;
 
 

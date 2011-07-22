@@ -7,12 +7,11 @@ uses
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_CommonTypes, KM_Settings, KM_MapInfo;
 
-//todo: @Krom: In the lobby the chat edit should always stay focused
-
-type TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
-
 
 type
+  TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
+
+
   TKMMainMenuInterface = class
   private
     MyControls: TKMMasterControl;

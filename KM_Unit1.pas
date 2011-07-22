@@ -408,6 +408,7 @@ begin
   fGame.GameStop(gr_Cancel);
 end;
 
+
 procedure TForm1.Button_CalcArmyClick(Sender: TObject);
 var
   Point : TKMPoint;
@@ -423,11 +424,11 @@ begin // For test Army evaluation
   fPlayers[1].AddGroup(ut_Bowman, Point, dir_W, 1, 1);}
 end;
 
+
 procedure TForm1.TB_Angle_Change(Sender: TObject);
 begin
   RENDER_3D:=TB_Angle.Position<>0;
   Label3.Caption:=inttostr(TB_Angle.Position)+' 3D';
-  //@Krom: The 3D angle slider just makes the screen go black, any idea why?
   fRender.SetRotation(-TB_Angle.Position,0,0);
   fRender.Render;
 end;
