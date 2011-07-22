@@ -1017,6 +1017,7 @@ begin
       begin
         //Archers - If foe is reachable then turn in that direction and CheckForEnemy
         Direction := KMGetDirection(GetPosition, ChosenFoe.GetPosition);
+        AnimStep := UnitStillFrames[Direction];
         CheckForEnemy;
       end;
     end
@@ -1151,16 +1152,19 @@ begin
   end
   else
   begin
-    if PositioningDone then
-      SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
-    else
-      SetActionStay(5,ua_Walk);
     if fState = ws_RepositionPause then
     begin
       Direction := TKMDirection(fOrderLoc.Dir+1); //Face the way we were told to after our walk (this creates a short pause before we fix direction)
       CheckForEnemy; //Important for archers, check for enemy once we are in position
       if PositioningDone then
         fState := ws_None;
+    end;
+    if (GetUnitAction = nil) then //CheckForEnemy could have assigned an action
+    begin
+      if PositioningDone then
+        SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
+      else
+        SetActionStay(5,ua_Walk);
     end;
   end;
 

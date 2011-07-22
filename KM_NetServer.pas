@@ -403,9 +403,9 @@ begin
   //Try to read data packet from buffer
   while fBufferSize >= 12 do
   begin
-    PacketSender := PInteger(fBuffer)^;
-    PacketRecipient := PInteger(Cardinal(fBuffer)+4)^;
-    PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
+    PacketSender := PInteger(@fBuffer[0])^;
+    PacketRecipient := PInteger(@fBuffer[4])^;
+    PacketLength := PCardinal(@fBuffer[8])^;
     if PacketLength <= fBufferSize-12 then
     begin
 
