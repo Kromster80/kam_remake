@@ -967,52 +967,47 @@ end;
 
 
 procedure TTerrain.GetHouseMarks(aPosition:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
-var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
-  MarkedLocations:array[1..64] of TKMPoint; //List of locations with special marks on them
-  MarkCount:integer;
+var
+  i,k,s,t:integer;
+  P2:TKMPoint;
+  AllowBuild:boolean;
   HA: THouseArea;
 
   procedure MarkPoint(aPoint:TKMPoint; aID:integer);
   var v: integer;
   begin
-    for v:=1 to MarkCount do
-      if KMSamePoint(MarkedLocations[v],aPoint) then
-        exit;
+    for v:=1 to aList.Count do //Skip wires from comparison
+      if (aList.Tag[v] <> 0) and KMSamePoint(aList.List[v],aPoint) then
+        Exit;
     aList.AddEntry(aPoint, aID, 0);
-    inc(MarkCount);
-    MarkedLocations[MarkCount] := aPoint;
   end;
 begin
-  MarkCount := 0;
-  FillChar(MarkedLocations, SizeOf(MarkedLocations), #0); //It's filled with garbage if not initialized
-
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
-  //todo: Move this out from KM_Render
   for i:=1 to 4 do for k:=1 to 4 do
   if HA[i,k]<>0 then
   begin
 
-    if fTerrain.TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,1) then
+    if TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,1) then
     begin
       //This can't be done earlier since values can be off-map
       P2 := KMPoint(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4);
 
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of
-        ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
-        ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
-        else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
+        ht_IronMine: AllowBuild := (CanBuildIron in Land[P2.Y,P2.X].Passability);
+        ht_GoldMine: AllowBuild := (CanBuildGold in Land[P2.Y,P2.X].Passability);
+        else         AllowBuild := (CanBuild     in Land[P2.Y,P2.X].Passability);
       end;
 
       //Forbid planning on unrevealed areas
       AllowBuild := AllowBuild and (MyPlayer.FogOfWar.CheckTileRevelation(P2.X,P2.Y) > 0);
 
       //Check surrounding tiles in +/- 1 range for other houses pressence
-      if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
+      if not (CanBuild in Land[P2.Y,P2.X].Passability) then
       for s:=-1 to 1 do for t:=-1 to 1 do
       if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-      if fTerrain.Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_House] then
+      if Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_House] then
       begin
         MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
         AllowBuild := false;
@@ -1036,7 +1031,7 @@ begin
       end;
 
     end else
-    if fTerrain.TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,0) then
+    if TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,0) then
       MarkPoint(KMPoint(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4),479);
   end;
 end;
@@ -1469,7 +1464,7 @@ begin
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit <> nil then
     begin
       if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
-      TempUnit := fTerrain.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
+      TempUnit := UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
         if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
           L3.AddEntry(L1.List[i]);
@@ -1501,7 +1496,7 @@ begin
   if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
   if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
   if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
-  if not fTerrain.HasUnit(KMPoint(Loc.X+k,Loc.Y+i)) then //Doesn't have a unit
+  if not HasUnit(KMPoint(Loc.X+k,Loc.Y+i)) then //Doesn't have a unit
     L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
@@ -1680,7 +1675,7 @@ begin
   WalkConnectID := Land[OriginLoc.Y,OriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
 
   //If target is accessable then use it
-  if fTerrain.CheckPassability(TargetLoc, aPass) and (WalkConnectID = Land[TargetLoc.Y,TargetLoc.X].WalkConnect[wcType]) then
+  if CheckPassability(TargetLoc, aPass) and (WalkConnectID = Land[TargetLoc.Y,TargetLoc.X].WalkConnect[wcType]) then
   begin
     Result := TargetLoc;
     exit;
@@ -1690,11 +1685,11 @@ begin
   //As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
   for i:=0 to TestDepth do begin
     P := GetPositionFromIndex(TargetLoc, i);
-    if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;
+    if not TileInMapCoords(P.X,P.Y) then continue;
     T := KMPoint(P.X,P.Y);
-    if fTerrain.CheckPassability(T, aPass)
+    if CheckPassability(T, aPass)
       and (WalkConnectID = Land[T.Y,T.X].WalkConnect[wcType])
-      and (not fTerrain.HasUnit(T) or KMSamePoint(T,OriginLoc)) //Allow position we are currently on, but not ones with other units
+      and (not HasUnit(T) or KMSamePoint(T,OriginLoc)) //Allow position we are currently on, but not ones with other units
     then begin
       Result := T; //Assign if all test are passed
       exit;
@@ -1880,7 +1875,7 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
   begin
     if (Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
      ((wcType <> wcAvoid)or
-     ( (wcType=wcAvoid) and not fTerrain.TileIsLocked(KMPoint(x,y)) )) then //Matches passability
+     ( (wcType=wcAvoid) and not TileIsLocked(KMPoint(x,y)) )) then //Matches passability
     begin
       Land[y,x].WalkConnect[wcType]:=ID;
       inc(Count);
@@ -1919,7 +1914,7 @@ begin
     for i:=1 to MapY do for k:=1 to MapX do
     if (Land[i,k].WalkConnect[wcType]=0) and (Pass in Land[i,k].Passability) and
      ((wcType <> wcAvoid)or
-     ( (wcType=wcAvoid) and not fTerrain.TileIsLocked(KMPoint(k,i)) )) then
+     ( (wcType=wcAvoid) and not TileIsLocked(KMPoint(k,i)) )) then
     begin
       inc(AreaID);
       Count := 0;
@@ -2217,10 +2212,10 @@ begin
     ViewCenter := fViewport.GetCenter; //Required for Linux compatibility
     Float.X := ViewCenter.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := ViewCenter.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := fTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
+    Float.Y := ConvertCursorToMapCoord(Float.X,Float.Y);
 
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, fTerrain.MapX); //Cell below cursor in map bounds
-    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fTerrain.MapY);
+    Cell.X := EnsureRange(round(Float.X+0.5), 1, MapX); //Cell below cursor in map bounds
+    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, MapY);
 
     SState := Shift;
   end;
@@ -2237,8 +2232,8 @@ begin
   for ii:=-2 to 4 do //make an array of tile heights above and below cursor (-2..4)
   begin
     Tmp := EnsureRange(Yc+ii,1,MapY);
-    Ycoef[ii] := (Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(inX))
-                           +fTerrain.Land[Tmp,Xc+1].Height*frac(inX))/CELL_HEIGHT_DIV;
+    Ycoef[ii] := (Yc-1)+ii-(Land[Tmp,Xc].Height*(1-frac(inX))
+                           +Land[Tmp,Xc+1].Height*frac(inX))/CELL_HEIGHT_DIV;
   end;
 
   Result := Yc; //Assign something incase following code returns nothing
@@ -2264,11 +2259,11 @@ begin
   Result := 0;
   if not VerticeInMapCoords(Xc,Yc) then exit;
 
-  Tmp1 := mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(inX));
+  Tmp1 := mix(Land[Yc  ,Xc+1].Height, Land[Yc  ,Xc].Height, frac(inX));
   if Yc >= MAX_MAP_SIZE then
     Tmp2 := 0
   else
-    Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(inX));
+    Tmp2 := mix(Land[Yc+1,Xc+1].Height, Land[Yc+1,Xc].Height, frac(inX));
   Result := mix(Tmp2, Tmp1, frac(inY));
 end;
 
@@ -2330,19 +2325,19 @@ end;
 procedure TTerrain.RefreshMinimapData;
 var i,k,ID:integer; Light:smallint; Loc:TKMPointList; FOW:byte;
 begin
-  for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
+  for i:=1 to MapY do for k:=1 to MapX do begin
     FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i);
     if FOW = 0 then
       MiniMapRGB[i,k] := 0
     else
-      if fTerrain.Land[i,k].TileOwner = -1 then begin
-        ID := fTerrain.Land[i,k].Terrain+1;
-        Light := round(fTerrain.Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
+      if Land[i,k].TileOwner = -1 then begin
+        ID := Land[i,k].Terrain+1;
+        Light := round(Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
         MiniMapRGB[i,k] :=  EnsureRange(TileMMColor[ID].R+Light,0,255) +
                             EnsureRange(TileMMColor[ID].G+Light,0,255) shl 8 +
                             EnsureRange(TileMMColor[ID].B+Light,0,255) shl 16;
       end else
-        MiniMapRGB[i,k] :=  fPlayers.Player[fTerrain.Land[i,k].TileOwner].FlagColor;
+        MiniMapRGB[i,k] :=  fPlayers.Player[Land[i,k].TileOwner].FlagColor;
   end;
 
   Loc := TKMPointList.Create;
@@ -2460,7 +2455,7 @@ begin
 
   for i:=FallingTrees.Count downto 1 do
   if fAnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then
-    fTerrain.ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
+    ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
 
   for i:=1 to MapY do
   for k:=1 to MapX do
