@@ -3,7 +3,6 @@ unit KM_NetServer;
 interface
 uses Classes, SysUtils, Math, KM_CommonTypes, KM_Defaults
      {$IFDEF MSWindows} ,Windows {$ENDIF}
-     {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
      {$IFDEF WDC} ,KM_NetServerOverbyte {$ENDIF}
      {$IFDEF FPC} ,KM_NetServerLNet {$ENDIF}
      ;
@@ -109,6 +108,7 @@ type
 
 
 implementation
+  uses KM_Utils; //Needed in Linux for FakeGetTickCount
 
 
 { TKMServerClient }
@@ -242,8 +242,10 @@ end;
 
 
 procedure TKMNetServer.MeasurePings;
-var M:TKMemoryStream; i: integer;
+var M:TKMemoryStream; i: integer; TickCount:DWord;
 begin
+  TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
+               {$IFDEF Unix} FakeGetTickCount{$ENDIF};
   //Sends current ping info to everyone
   M := TKMemoryStream.Create;
   M.Write(fClientList.Count);
@@ -258,12 +260,12 @@ begin
   for i:=0 to fClientList.Count-1 do
     if fClientList[i].fPingStarted = 0 then //We have recieved mk_Pong for our previous measurement, so start a new one
     begin
-      fClientList[i].fPingStarted := GetTickCount;
+      fClientList[i].fPingStarted := TickCount;
       SendMessage(fClientList[i].fHandle, mk_Ping, 0, '');
     end
     else
       //If they don't respond within a reasonable time, kick them
-      if GetTickCount-fClientList[i].fPingStarted > KICK_TIMEOUT then
+      if TickCount-fClientList[i].fPingStarted > KICK_TIMEOUT then
       begin
         Status('Client timed out '+inttostr(fClientList[i].fHandle));
         fServer.Kick(fClientList[i].fHandle);
@@ -381,7 +383,9 @@ begin
              //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
              if (fClientList.GetByHandle(aSenderHandle) <> nil) and (fClientList.GetByHandle(aSenderHandle).fPingStarted <> 0) then
              begin
-               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min(GetTickCount - fClientList.GetByHandle(aSenderHandle).fPingStarted, High(Word));
+               fClientList.GetByHandle(aSenderHandle).Ping := Math.Min({$IFDEF MSWindows}GetTickCount{$ENDIF}
+                                                                       {$IFDEF Unix} FakeGetTickCount{$ENDIF}
+                                                                       - fClientList.GetByHandle(aSenderHandle).fPingStarted, High(Word));
                fClientList.GetByHandle(aSenderHandle).fPingStarted := 0;
              end;
             end;

@@ -3,7 +3,6 @@ interface
 uses
   SysUtils,
   {$IFDEF MSWindows}Windows,{$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   KM_NetServer, KM_Defaults, KM_CommonTypes;
 
 
@@ -26,6 +25,7 @@ type
 
 
 implementation
+  uses KM_Utils; //Needed in Linux for FakeGetTickCount
 
 
 constructor TKMDedicatedServer.Create;
@@ -69,12 +69,15 @@ end;
 
 
 procedure TKMDedicatedServer.UpdateState;
+var TickCount:DWord;
 begin
+  TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
+               {$IFDEF Unix} FakeGetTickCount{$ENDIF};
   fNetServer.UpdateStateIdle;
-  if GetTickCount-fLastPing >= 1000 then
+  if TickCount-fLastPing >= 1000 then
   begin
     fNetServer.MeasurePings;
-    fLastPing := GetTickCount
+    fLastPing := TickCount;
   end;
 end;
 

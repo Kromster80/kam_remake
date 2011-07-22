@@ -1,7 +1,7 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, StrUtils, KM_CommonTypes, KM_Defaults, KM_Points, Math;
+uses SysUtils, StrUtils, KM_Defaults, KM_Points, Math;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
@@ -20,6 +20,9 @@ uses SysUtils, StrUtils, KM_CommonTypes, KM_Defaults, KM_Points, Math;
   function KaMRandom(aMax:integer):integer; overload;
   function KaMRandomS(Range_Both_Directions:integer):integer; overload;
   function KaMRandomS(Range_Both_Directions:single):single; overload;
+  {$IFDEF Unix}
+  function FakeGetTickCount: DWord;
+  {$ENDIF}
 
 var
   fKaMSeed:integer;
@@ -45,6 +48,14 @@ begin
   setlength(ss, Len);
   Result := ss;
 end;
+
+//This is a fake GetTickCount for Linux (Linux does not have one)
+{$IFDEF Unix}
+function FakeGetTickCount: DWord;
+begin
+  Result := DWord(Trunc(Now * 24 * 60 * 60 * 1000));
+end;
+{$ENDIF}
 
 
 //Look for last dot and truncate it
