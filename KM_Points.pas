@@ -222,12 +222,6 @@ begin
 end;
 
 
-function GetLength(ix,iy:single): single; overload;
-begin
-  Result:=sqrt(sqr(ix)+sqr(iy));
-end;
-
-
 function KMGetVertexDir(X,Y: integer):TKMDirection;
 const DirectionsBitfield:array[-1..0,-1..0]of TKMDirection =
         ((dir_SE,dir_NE),(dir_SW,dir_NW));

@@ -4,7 +4,7 @@ uses
   SysUtils,
   {$IFDEF MSWindows}Windows,{$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  KM_NetServer, KM_CommonTypes;
+  KM_NetServer, KM_Defaults, KM_CommonTypes;
 
 
 type
@@ -48,7 +48,7 @@ procedure TKMDedicatedServer.Start;
 begin
   fNetServer.OnStatusMessage := StatusMessage;
   try
-    fNetServer.StartListening('56789');
+    fNetServer.StartListening(KAM_PORT);
   except
     on E : Exception do
     begin
