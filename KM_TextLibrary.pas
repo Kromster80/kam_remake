@@ -2,7 +2,12 @@ unit KM_TextLibrary;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, StrUtils, KromUtils;
+  Classes, SysUtils, StrUtils, KromUtils, KM_Defaults;
+
+  //todo: These two functions need a better home (Make UnitDatCollection class and move it there)
+  function TypeToString(t:TResourceType):string; overload;
+  function TypeToString(t:TUnitType):string; overload;
+
 
 const
   MaxStrings = 610; //Text.lib has the most entries - 590, but Russian font file has StrCount=609
@@ -46,7 +51,34 @@ var
 
 
 implementation
-uses KM_Defaults, KM_Log;
+uses KM_Log;
+
+
+{TypeToString routines}
+function TypeToString(t:TUnitType):string;
+begin
+  case byte(t) of
+    1..30: Result := fTextLibrary.GetTextString(siUnitNames+byte(t));
+    31:    Result := 'Wolf';
+    32:    Result := 'Fish';
+    33:    Result := 'Watersnake';
+    34:    Result := 'Seastar';
+    35:    Result := 'Crab';
+    36:    Result := 'Waterflower';
+    37:    Result := 'Waterleaf';
+    38:    Result := 'Duck';
+    else   Result := 'N/A';
+  end;
+end;
+
+
+function TypeToString(t:TResourceType):string;
+begin
+  if byte(t) in [1..28] then
+    Result := fTextLibrary.GetTextString(siResourceNames+byte(t))
+  else
+    Result := 'N/A';
+end;
 
 
 constructor TTextLibrary.Create(aLibPath,aLocale: string);

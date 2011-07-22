@@ -106,7 +106,7 @@ var
 
 
 implementation
-uses KM_Render, KM_Game, KM_Log, Dialogs;
+uses KM_Render, KM_Game, KM_Log, KM_TextLibrary, Dialogs;
 
 
 constructor TSoundLib.Create(aLocale:string; aVolume:single);

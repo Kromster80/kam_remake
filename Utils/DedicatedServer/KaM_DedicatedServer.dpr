@@ -9,7 +9,6 @@ program KaM_DedicatedServer;
 {$ENDIF}
 
 uses
-  {$IFDEF FPC} Interfaces, {$ENDIF}
   SysUtils,
   {$IFDEF MSWindows}Windows,{$ENDIF}
   KM_Defaults,

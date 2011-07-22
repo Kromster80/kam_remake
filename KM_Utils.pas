@@ -1,7 +1,7 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils, SysUtils, StrUtils, KM_CommonTypes, KM_Defaults, KM_Points, Math;
+uses SysUtils, StrUtils, KM_CommonTypes, KM_Defaults, KM_Points, Math;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
@@ -14,11 +14,6 @@ uses KromUtils, SysUtils, StrUtils, KM_CommonTypes, KM_Defaults, KM_Points, Math
 
   function MapSizeToString(X,Y:integer):string;
 
-  function TypeToString(t:TResourceType):string; overload;
-  function TypeToString(t:TUnitType):string; overload;
-  function TypeToString(t:TKMPoint):string; overload;
-  function TypeToString(t:TKMDirection):string; overload;
-
   procedure SetKaMSeed(aSeed:integer);
   function GetKaMSeed:integer;
   function KaMRandom:extended; overload;
@@ -30,7 +25,40 @@ var
   fKaMSeed:integer;
 
 implementation
-uses KM_TextLibrary;
+
+
+//Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linu without using Controls)
+function GetLength(ix,iy:single): single; overload;
+begin
+  Result:=sqrt(sqr(ix)+sqr(iy));
+end;
+
+
+function int2fix(Number,Len:integer):string;
+var ss:string; x:byte;
+begin
+  ss := inttostr(Number);
+  for x:=length(ss) to Len-1 do
+    ss := '0' + ss;
+  if length(ss)>Len then
+    ss:='**********';//ss[99999999]:='0'; //generating an error in lame way
+  setlength(ss, Len);
+  Result := ss;
+end;
+
+
+//Look for last dot and truncate it
+function TruncateExt(FileName:string): string;
+var i:word; DotPlace:word;
+begin
+
+  DotPlace := length(FileName) + 1; //In case there's no Extension
+  for i:=1 to length(FileName) do
+    if FileName[i] = '.' then //FileExtension separator is always a .
+      DotPlace := i;
+
+  Result := Copy(FileName, 1, DotPlace - 1);
+end;
 
 
 function KMGetCursorDirection(X,Y: integer): TKMDirection;
@@ -167,45 +195,6 @@ begin
     256*256+1..320*320: Result := 'XXL';
     else                Result := '???';
   end;
-end;
-
-
-{TypeToString routines}
-function TypeToString(t:TUnitType):string;
-begin
-  case byte(t) of
-    1..30: Result := fTextLibrary.GetTextString(siUnitNames+byte(t));
-    31:    Result := 'Wolf';
-    32:    Result := 'Fish';
-    33:    Result := 'Watersnake';
-    34:    Result := 'Seastar';
-    35:    Result := 'Crab';
-    36:    Result := 'Waterflower';
-    37:    Result := 'Waterleaf';
-    38:    Result := 'Duck';
-    else   Result := 'N/A';
-  end;
-end;
-
-
-function TypeToString(t:TResourceType):string;
-begin
-  if byte(t) in [1..28] then
-    Result := fTextLibrary.GetTextString(siResourceNames+byte(t))
-  else
-    Result := 'N/A';
-end;
-
-
-function TypeToString(t:TKMPoint):string;
-begin
-  Result := '('+inttostr(t.x)+';'+inttostr(t.y)+')';
-end;
-
-
-function TypeToString(t:TKMDirection):string;
-begin
-  Result := TKMDirectionS[byte(t)];
 end;
 
 

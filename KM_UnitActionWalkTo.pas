@@ -93,7 +93,7 @@ type
 
 implementation
 uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
-     Controls, KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log;
+     Controls, KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log, KM_TextLibrary;
 
 
 { TUnitActionWalkTo }

@@ -642,7 +642,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_Sound, KM_Utils;
+uses KM_RenderUI, KM_Sound, KM_Utils, KM_TextLibrary;
 
 
 { TKMControl }

@@ -173,7 +173,7 @@ const
     PlanYX:     ((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2));
     DoesOrders: 0;
     BuildIcon:  308;
-    TabletIcon: 275;
+    TabletIcon: 258;
     Input:      (rt_Flour,      rt_None,       rt_None,       rt_None);
     Output:     (rt_Bread,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Mill;
@@ -191,7 +191,7 @@ const
     PlanYX:     ((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2));
     DoesOrders: 0;
     BuildIcon:  325;
-    TabletIcon: 258;
+    TabletIcon: 275;
     Input:      (rt_Pig,        rt_None,       rt_None,       rt_None);
     Output:     (rt_Sausages,   rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Swine;

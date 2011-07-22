@@ -136,7 +136,7 @@ type
   end;
 
 implementation
-uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log;
+uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log, KM_TextLibrary;
 
 
 { TKMDeliverQueue }
@@ -820,7 +820,7 @@ begin
   if i>HouseRepairsCount then begin
     inc(HouseRepairsCount, LENGTH_INC);
     SetLength(fHouseRepairsQueue, HouseRepairsCount+1);
-    for k:=i to HousesCount do FillChar(fHouseRepairsQueue[k],SizeOf(fHouseRepairsQueue[k]),#0);
+    for k:=i to HouseRepairsCount do FillChar(fHouseRepairsQueue[k],SizeOf(fHouseRepairsQueue[k]),#0);
   end;
 
   assert((fHouseRepairsQueue[i].WorkerCount=0) and not fHouseRepairsQueue[i].IsDeleted);
