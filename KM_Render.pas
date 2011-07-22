@@ -4,11 +4,10 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, glut, {$ENDIF}
-  Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, Menus, Buttons,
+  Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
-  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes, KM_Points;
+  KM_TGATexture, KM_Defaults, KM_CommonTypes, KM_Points;
 
 {$IFDEF Unix}
 type HDC = integer;
