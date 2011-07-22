@@ -1315,7 +1315,6 @@ end;
 
 procedure TKMGamePlayInterface.MPChat_Show(Sender: TObject);
 begin
-  //Label_ChatText.Caption := fGame.fChat.GetAllMessages;
   MyControls.CtrlFocus := Edit_ChatMsg;
   Panel_Allies.Hide;
   Panel_Chat.Show;
@@ -2680,8 +2679,9 @@ begin
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
 
+  //Debug info
   if SHOW_SPRITE_COUNT then
-  Label_Stat.Caption:=
+    Label_Stat.Caption:=
         inttostr(fPlayers.GetUnitCount)+' units on map'+#124+
         inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
         inttostr(CtrlPaintCount)+' controls rendered';
@@ -2703,7 +2703,7 @@ begin
     S := '';
     for i := 0 to fPlayers.Count-1 do
     if i <> MyPlayer.PlayerIndex then
-      S := S+'Enemy '+IntToStr(i)+': '+FloatToStr(RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)) + #124;
+      S := S+Format('Enemy %d: %f|', [i, RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)]);
     Label_VictoryChance.Caption := S;
   end;
 end;

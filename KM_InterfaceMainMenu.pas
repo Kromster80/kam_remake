@@ -431,19 +431,20 @@ end;
 procedure TKMMainMenuInterface.Create_LANLogin_Page;
 begin
   Panel_LANLogin := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    Panel_LANLogin2 := TKMPanel.Create(Panel_LANLogin,312,240,400,400);
+    //Allows us co align everything neatly
+    Panel_LANLogin2 := TKMPanel.Create(Panel_LANLogin, (Panel_Main.Width-400) div 2, 240, 400, 400);
 
       TKMLabel.Create(Panel_LANLogin2, 200, 0, 120, 20, fTextLibrary.GetRemakeString(59), fnt_Metal, kaCenter);
       Edit_LAN_Name := TKMEdit.Create(Panel_LANLogin2, 140, 25, 120, 20, fnt_Grey);
 
-      TKMLabel.Create(Panel_LANLogin2, 100, 80, 120, 20, fTextLibrary.GetRemakeString(60), fnt_Metal, kaCenter);
-      Label_LAN_IP := TKMLabel.Create(Panel_LANLogin2, 100, 105, 120, 20, '0.0.0.0', fnt_Outline, kaCenter);
-      Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 30, 140, 160, 30, fTextLibrary.GetRemakeString(62), fnt_Metal, bsMenu);
+      TKMLabel.Create(Panel_LANLogin2, 90, 80, 120, 20, fTextLibrary.GetRemakeString(60), fnt_Metal, kaCenter);
+      Label_LAN_IP := TKMLabel.Create(Panel_LANLogin2, 90, 105, 120, 20, '0.0.0.0', fnt_Outline, kaCenter);
+      Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 10, 140, 160, 30, fTextLibrary.GetRemakeString(62), fnt_Metal, bsMenu);
       Button_LAN_Host.OnClick := LAN_HostClick;
 
-      TKMLabel.Create(Panel_LANLogin2, 300, 80, 120, 20, fTextLibrary.GetRemakeString(61), fnt_Metal, kaCenter);
-      Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 240, 105, 120, 20, fnt_Grey);
-      Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 240, 140, 120, 30, fTextLibrary.GetRemakeString(63), fnt_Metal, bsMenu);
+      TKMLabel.Create(Panel_LANLogin2, 310, 80, 120, 20, fTextLibrary.GetRemakeString(61), fnt_Metal, kaCenter);
+      Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 230, 105, 160, 20, fnt_Grey);
+      Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 230, 140, 160, 30, fTextLibrary.GetRemakeString(63), fnt_Metal, bsMenu);
       Button_LAN_Join.OnClick := LAN_JoinClick;
 
       Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 200, 120, 20, ' ... ', fnt_Outline, kaCenter);
