@@ -199,7 +199,7 @@ begin
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
   begin
-    Application.MessageBox(PChar(fTextLibrary.GetRemakeString(53)),
+    Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]),
         'Warning', MB_OK or MB_ICONWARNING);
   end;
 

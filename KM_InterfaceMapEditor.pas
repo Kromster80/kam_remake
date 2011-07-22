@@ -436,11 +436,11 @@ begin
     Button_Main[3] := TKMButton.Create(Panel_Common,  88, 72, 36, 36,  41);
     Button_Main[4] := TKMButton.Create(Panel_Common, 128, 72, 36, 36, 441);
     Button_Main[5] := TKMButton.Create(Panel_Common, 168, 72, 36, 36, 389);
-    Button_Main[1].Hint := fTextLibrary.GetRemakeString(54);
-    Button_Main[2].Hint := fTextLibrary.GetRemakeString(55);
-    Button_Main[3].Hint := fTextLibrary.GetRemakeString(56);
-    Button_Main[4].Hint := fTextLibrary.GetRemakeString(57);
-    Button_Main[5].Hint := fTextLibrary.GetRemakeString(58);
+    Button_Main[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN];
+    Button_Main[2].Hint := fTextLibrary[TX_MAPEDITOR_VILLAGE];
+    Button_Main[3].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_VISUAL];
+    Button_Main[4].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_GLOBAL];
+    Button_Main[5].Hint := fTextLibrary[TX_MAPEDITOR_MENU];
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
     Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,138,36,'',fnt_Metal,kaLeft); //Should be one-line
@@ -877,7 +877,7 @@ procedure TKMapEdInterface.UpdateState;
 begin
   Minimap_Update(nil); //Even this Update could be excluded from MapEd interface
 end;
-                  
+
 
 procedure TKMapEdInterface.Player_UpdateColors;
 var i:integer;
@@ -889,7 +889,7 @@ begin
   if MyPlayer <> nil then
     Button_PlayerSelect[MyPlayer.PlayerIndex].Down := true;
 end;
-                  
+
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 var i:integer;
@@ -1126,7 +1126,7 @@ begin
   KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
 
   Image_House_Worker.Visible := fResource.HouseDat[Sender.GetHouseType].OwnerType <> ut_None;
-  
+
 
   case Sender.GetHouseType of
     ht_Store: begin

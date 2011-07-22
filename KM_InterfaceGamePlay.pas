@@ -107,7 +107,7 @@ type
       Label_Clock:TKMLabel;
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
-      
+
       // Temporary interface (By @Crow)
       Label_VictoryChance : TKMLabel;
 
@@ -472,7 +472,7 @@ begin
   if (Sender=Panel_Unit) or (Sender=Panel_House)
   or (Sender=Panel_House_Common) or (Sender=Panel_House_School)
   or (Sender=Panel_HouseBarracks) or (Sender=Panel_HouseStore) then
-    TKMPanel(Sender).Show;       
+    TKMPanel(Sender).Show;
 end;
 
 
@@ -1866,7 +1866,7 @@ begin
   Ratio_Settings_SFX.Position           := fGame.GlobalSettings.SoundFXVolume;
   Ratio_Settings_Music.Position         := fGame.GlobalSettings.MusicVolume;
   CheckBox_Settings_MusicOn.Checked     := not fGame.GlobalSettings.MusicOn;
-  
+
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
@@ -2188,19 +2188,19 @@ begin
   Button_PlayMore.Show; //Could be hidden if network lag screen was being shown (PlayMore should override it)
   case Msg of
     gr_Win:       begin
-                    Label_PlayMore.Caption := fTextLibrary.GetRemakeString(39);
-                    Button_PlayMore.Caption := fTextLibrary.GetRemakeString(40);
-                    Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(41);
+                    Label_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_WON];
+                    Button_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_CONTINUE_PLAYING];
+                    Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_VICTORY];
                   end;
     gr_Defeat:    begin
-                    Label_PlayMore.Caption := fTextLibrary.GetRemakeString(42);
-                    Button_PlayMore.Caption := fTextLibrary.GetRemakeString(43);
-                    Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(44);
+                    Label_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_LOST];
+                    Button_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
+                    Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT];
                   end;
     gr_ReplayEnd: begin
-                    Label_PlayMore.Caption := fTextLibrary.GetRemakeString(45);
-                    Button_PlayMore.Caption := fTextLibrary.GetRemakeString(46);
-                    Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(47);
+                    Label_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_REPLAY_ENDED];
+                    Button_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_REPLAY_CONTINUEWATCHING];
+                    Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU];
                   end;
     else if DoShow then Assert(false,'Wrong message in ShowPlayMore'); //Can become hidden with any message
   end;
@@ -2217,7 +2217,7 @@ begin
   if aPlayers.Count > 0 then
     Label_PlayMore.Caption := Label_PlayMore.Caption + aPlayers.Strings[aPlayers.Count-1];
 
-  Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(47);
+  Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU];
   Button_PlayMore.Visible := not DoShow; //Hide play more button, we only allow quit
   Panel_PlayMore.Visible := DoShow;
 end;
@@ -2392,7 +2392,7 @@ begin
   end;
 
   //See if we can show DirectionSelector
-  //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied 
+  //Can walk to ally units place, can't walk to house place anyway, unless it's a markup and allied
   if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and(fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
   begin

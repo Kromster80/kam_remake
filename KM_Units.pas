@@ -141,7 +141,7 @@ type TCheckAxis = (ax_X, ax_Y);
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
     procedure SetFullCondition;
-    function  HitPointsDecrease(aAmount:integer):boolean; 
+    function  HitPointsDecrease(aAmount:integer):boolean;
     procedure HitPointsIncrease(aAmount:integer);
     property GetHitPoints:byte read fHitPoints;
     function GetMaxHitPoints:byte;
@@ -418,9 +418,9 @@ begin
       ht_IronMine: Msg := fTextLibrary.GetTextString(292);
       ht_GoldMine: Msg := fTextLibrary.GetTextString(293);
       ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
-                      Msg := fTextLibrary.GetRemakeString(51)
+                      Msg := fTextLibrary[TX_UNITS_FISHERMAN_TOO_FAR]
                     else
-                      Msg := fTextLibrary.GetRemakeString(52);
+                      Msg := fTextLibrary[TX_UNITS_FISHERMAN_CANNOT_CATCH];
       else         begin Assert(false, fResource.HouseDat[fHome.GetHouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
     end;
     if (Msg <> '') and (fOwner = MyPlayer.PlayerIndex) then //Don't show message for other players
@@ -436,7 +436,7 @@ begin
   Result:=nil;
 
   if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
-    raise ELocError.Create(fTextLibrary.GetRemakeString(50),fCurrPosition);
+    raise ELocError.Create(fTextLibrary[TX_UNITS_MINING_WRONG_SPOT],fCurrPosition);
 
   Res := 1;
   //Check if House has production orders
@@ -825,7 +825,7 @@ begin
   if fUnitTask is TTaskDie then
   case fUnitTask.Execute of
     TaskContinues:  exit;
-    TaskDone:       Assert(false); //TTaskDie never returns TaskDone yet 
+    TaskDone:       Assert(false); //TTaskDie never returns TaskDone yet
   end;
 
 
@@ -1344,7 +1344,7 @@ end;
 procedure TKMUnit.SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 begin
   //1. Only idle units can be pushed, for they are low priority to busy units
-  //2. If unit can't get away it will re-push itself once again 
+  //2. If unit can't get away it will re-push itself once again
   Assert(((GetUnitAction is TUnitActionStay) and (not GetUnitAction.Locked)) or
          ((GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).CanAbandonExternal));
 
@@ -1453,7 +1453,7 @@ begin
     if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).Eating)) then
       dec(fCondition);
 
-  //Feed the unit automatically. Don't align it with dec(fCondition) cos FOW uses it as a timer 
+  //Feed the unit automatically. Don't align it with dec(fCondition) cos FOW uses it as a timer
   if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition := UNIT_MAX_CONDITION;
 
   //Unit killing could be postponed by few ticks, hence fCondition could be <0

@@ -614,7 +614,7 @@ begin
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
-    fTextLibrary.GetRemakeString(48)+eol+aText+eol+eol+Format(fTextLibrary.GetRemakeString(49),[CrashFile])
+    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary.GetRemakeString(49),[CrashFile])
     , mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
     GameStop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
@@ -669,7 +669,7 @@ begin
   fWaitingForNetwork := aWaiting;
 
   WaitingPlayers := TStringList.Create;
-  //todo: we need a better way to tell whether it is the initial load, as we will add pausing to multiplayer later 
+  //todo: we need a better way to tell whether it is the initial load, as we will add pausing to multiplayer later
   if fGameState = gsRunning then
     TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers) //GIP is waiting for next tick
   else
@@ -1271,7 +1271,7 @@ begin
         gsNoGame:            fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn); //Menu tune
       end;
 
-    //StatusBar  
+    //StatusBar
     if (fGameState in [gsRunning, gsReplay]) then
       Form1.StatusBar1.Panels[2].Text := 'Time: '+int2time(GetMissionTime);
   end;
