@@ -1,7 +1,7 @@
 unit KM_Defaults;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, dglOpenGL, KM_CommonTypes;
+uses Classes, SysUtils, dglOpenGL, KM_CommonTypes, KM_Points;
 
 
 //Global const
@@ -302,8 +302,6 @@ type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
 
     TAllianceType = (at_Enemy=0, at_Ally=1);
 
-type
-  TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 const
   TKMDirectionS: array[0..8]of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
   TKMCursorDirections: array[TKMDirection]of integer = (c_DirN,c_Dir0,c_Dir1,c_Dir2,c_Dir3,c_Dir4,c_Dir5,c_Dir6,c_Dir7);

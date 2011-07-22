@@ -1,7 +1,7 @@
 unit KM_FogOfWar;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, KM_Defaults, KM_CommonTypes;
+uses Classes, Math, KM_Defaults, KM_CommonTypes, KM_Points;
 
 {These are mission specific settings and stats for each player}
 type

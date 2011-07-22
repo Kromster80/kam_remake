@@ -8,7 +8,7 @@ uses
   ExtCtrls, Menus, Buttons,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
-  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
+  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes, KM_Points;
 
 {$IFDEF Unix}
 type HDC = integer;

@@ -5,7 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils, Forms,
-     KM_Controls, KM_Defaults, KM_Houses, KM_Units;
+     KM_Controls, KM_Defaults, KM_Houses, KM_Units, KM_Points;
 
 type
   TKMapEdInterface = class

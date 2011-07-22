@@ -1,7 +1,7 @@
 unit KM_UnitActionStormAttack;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Utils, KM_CommonTypes, KM_Defaults, KM_Units, Math;
+uses Classes, KM_Utils, KM_CommonTypes, KM_Defaults, KM_Units, Math, KM_Points;
 
 
 {Charge forwards until we are tired or hit an obstacle}

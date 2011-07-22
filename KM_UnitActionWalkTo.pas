@@ -1,7 +1,7 @@
 unit KM_UnitActionWalkTo;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Houses, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Houses, KM_Units, SysUtils, Math, KM_Points;
 
 type
   TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);

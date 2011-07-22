@@ -2,7 +2,7 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils
+  SysUtils
   {$IFDEF MSWindows}
   ,MMSystem
   {$ENDIF}

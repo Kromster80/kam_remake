@@ -2,7 +2,7 @@ unit KM_DeliverQueue;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,
-    KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery;
+    KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery, KM_Points;
 
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job

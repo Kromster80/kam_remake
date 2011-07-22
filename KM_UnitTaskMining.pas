@@ -2,7 +2,7 @@ unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
 uses Math, 
-    KM_CommonTypes, KM_Units, KM_Units_Workplan;
+    KM_CommonTypes, KM_Units, KM_Units_Workplan, KM_Points;
 
 
 {Perform resource mining}

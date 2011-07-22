@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils;
+  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils, KM_Points;
 
 
 type

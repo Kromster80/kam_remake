@@ -3,7 +3,7 @@ unit KM_Houses;
 interface
 uses
    Classes, KromUtils, Math, SysUtils,
-   KM_CommonTypes, KM_Defaults, KM_Utils, KM_ResourceGFX, KM_ResourceHouse;
+   KM_CommonTypes, KM_Defaults, KM_Utils, KM_ResourceGFX, KM_ResourceHouse, KM_Points;
 
   {Everything related to houses is here}
 type

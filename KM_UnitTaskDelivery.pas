@@ -1,7 +1,7 @@
 unit KM_UnitTaskDelivery;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, SysUtils, KM_Points;
 
 type
   TDeliverKind = (dk_ToHouse, dk_ToUnit);

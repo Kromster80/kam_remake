@@ -2,7 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-     KM_Defaults, KM_CommonTypes, KM_Player, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses;
+     KM_Defaults, KM_CommonTypes, KM_Player, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses, KM_Points;
 
 
 const MAX_MAP_SIZE = 192;

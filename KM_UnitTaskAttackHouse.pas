@@ -1,7 +1,7 @@
 unit KM_UnitTaskAttackHouse;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, SysUtils, KM_Points;
 
 {Attack a house}
 type
