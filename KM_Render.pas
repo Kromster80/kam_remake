@@ -938,7 +938,8 @@ end;
 procedure TRender.RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
   RenderUnit(UnitID,ActID,DirID,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
-  if (ua_WalkArm in UnitSupportedActions[TUnitType(UnitID)]) or (TUnitType(UnitID) = ut_Serf) then
+  if (TUnitType(UnitID) in [Low(UnitSupportedActions)..High(UnitSupportedActions)])
+  and ((ua_WalkArm in UnitSupportedActions[TUnitType(UnitID)]) or (TUnitType(UnitID) = ut_Serf)) then
     RenderUnit(UnitID,byte(ua_WalkArm),DirID,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
 end;
 
