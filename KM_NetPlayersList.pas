@@ -499,6 +499,7 @@ begin
     M.Write(fPlayers[i].StartLocation);
     M.Write(fPlayers[i].Team);
     M.Write(fPlayers[i].ReadyToStart);
+    M.Write(fPlayers[i].ReadyToPlay);
     M.Write(fPlayers[i].Alive);
   end;
 
@@ -523,6 +524,7 @@ begin
       M.Read(fPlayers[i].StartLocation);
       M.Read(fPlayers[i].Team);
       M.Read(fPlayers[i].ReadyToStart);
+      M.Read(fPlayers[i].ReadyToPlay);
       M.Read(fPlayers[i].Alive);
     end;
   finally

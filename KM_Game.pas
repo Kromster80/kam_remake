@@ -445,7 +445,6 @@ var
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
   fLog.AppendLog('GameStart Multiplayer');
-  fNetworking.LANGameState := lgs_Game; //The game has begun (no further players allowed to join)
 
   if fNetworking.MapInfo.IsSave then
   begin

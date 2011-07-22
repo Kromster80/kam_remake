@@ -438,7 +438,7 @@ end;
 
 function TKMHouseDatClass.GetAcceptsGoods: boolean;
 begin
-  Result := not (ResInput[1] in [rt_None,rt_All,rt_Warfare]); //Exclude aggregate types
+  Result := not (ResInput[1] in [rt_None]); //Exclude houses that do not receive resources
 end;
 
 

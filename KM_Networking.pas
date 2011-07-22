@@ -3,6 +3,7 @@ unit KM_Networking;
 interface
 uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
+  {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Player,
   KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
@@ -11,8 +12,23 @@ uses
 
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
-  TLANGameState = (lgs_Lobby, lgs_Game);
+  TLANGameState = (lgs_None, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game);
 
+const
+  NetAllowedPackets:array[TLANGameState] of set of TKMessageKind = (
+  [], //lgs_None
+  [mk_AllowToJoin,mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_Ping,mk_Pong,mk_PingInfo], //lgs_Query
+  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_Pong,mk_PingInfo,mk_PlayersList,
+   mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
+   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text], //lgs_Lobby
+  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_Pong,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text], //lgs_Loading
+  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_Pong,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text] //lgs_Game
+  );
+
+  JOIN_TIMEOUT = 5000; //5 sec. Timeout for join queries
+
+
+type
   //Should handle message exchange and routing, interacting with UI
   TKMNetworking = class
   private
@@ -25,6 +41,7 @@ type
     fMyIndexOnServer:integer;
     fMyIndex:integer; //In NetPlayers list
     fIgnorePings: integer; //During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
+    fJoinTimeout:cardinal;
     fNetPlayers:TKMPlayersList;
 
     fMapInfo:TKMapInfo; //Everything related to selected map
@@ -60,7 +77,6 @@ type
     property MyIndex:integer read fMyIndex;
     function MyIPString:string;
     function IsHost:boolean;
-    property LANGameState: TLANGameState read fLANGameState write fLANGameState;
 
     //Lobby
     procedure Host(aUserName:string);
@@ -120,6 +136,7 @@ implementation
 constructor TKMNetworking.Create;
 begin
   Inherited;
+  fLANGameState := lgs_None;
   fMapInfo := TKMapInfo.Create;
   fNetServer := TKMNetServer.Create;
   fNetClient := TKMNetClient.Create;
@@ -176,9 +193,10 @@ begin
   Assert(not fNetClient.Connected, 'We were not properly disconnected');
 
   fIgnorePings := 0; //Accept pings
+  fJoinTimeout := GetTickCount;
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
   fMyIndexOnServer := -1; //Assigned by Server
-  fLANGameState := lgs_Lobby; //Game starts in the lobby
+  fLANGameState := lgs_Query; //We are just querying until we have been accepted into the game
 
   fHostAddress := aServerAddress;
   fMyNikname := aUserName;
@@ -221,6 +239,7 @@ end;
 procedure TKMNetworking.Disconnect;
 begin
   fIgnorePings := 0;
+  fLANGameState := lgs_None;
   fOnJoinSucc := nil;
   fOnJoinFail := nil;
   fOnJoinAssignedHost := nil;
@@ -590,6 +609,15 @@ begin
   end;
   M.Free;
 
+  //Make sure we are allowed to receive this packet at this point
+  if not (Kind in NetAllowedPackets[fLANGameState]) then
+  begin
+    //When querying a server we may receive data such as commands, player setup, etc. These should be ignored.
+    if (fLANGameState <> lgs_Query) and Assigned(fOnTextMessage) then
+      fOnTextMessage('Error: Received an packet not intended for this state');
+    exit;
+  end;
+
   case Kind of
     mk_GameVersion:
             begin
@@ -620,9 +648,13 @@ begin
                       fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                       fNetPlayers[fMyIndex].ReadyToStart := true;
                       if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+                      fLANGameState := lgs_Lobby;
                     end;
                 lpk_Joiner:
+                begin
+                    fJoinTimeout := GetTickCount; //Wait another X seconds for host to reply before timing out
                     PacketSend(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname, 0);
+                end;
               end;
             end;
 
@@ -648,6 +680,7 @@ begin
             if fLANPlayerKind = lpk_Joiner then
             begin
               fOnJoinSucc(Self); //Enter lobby
+              fLANGameState := lgs_Lobby;
             end;
 
     mk_RefuseToJoin:
@@ -693,9 +726,24 @@ begin
                 fLANPlayerKind := lpk_Host;
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
-                fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
-                fNetPlayers.SetAIReady; //Set all AI players to ready
                 SendPlayerListAndRefreshPlayersSetup;
+
+                case fLANGameState of
+                  lgs_Lobby:   begin
+                                 fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
+                                 fNetPlayers.SetAIReady; //Set all AI players to ready
+                               end;
+                  lgs_Loading: begin
+                                 if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
+                                 if fNetPlayers.AllReadyToPlay then
+                                 begin
+                                   PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
+                                   PlayGame;
+                                 end;
+                               end;
+                end;
+
+
                 PostMessage('Hosting rights reassigned to '+fMyNikname);
               end;
             end;
@@ -867,6 +915,7 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
+  fLANGameState := lgs_Loading; //Loading has begun (no further players allowed to join)
   fIgnorePings := -1; //Ignore all pings until we have finished loading
   if Assigned(fOnStartGame) then
     fOnStartGame(Self);
@@ -876,6 +925,7 @@ end;
 procedure TKMNetworking.PlayGame;
 begin
   fIgnorePings := 2; //Ignore the next two pings as they may have been measured during loading
+  fLANGameState := lgs_Game; //The game has begun (no further players allowed to join)
   if Assigned(fOnPlay) then fOnPlay(Self);
 end;
 
@@ -885,6 +935,10 @@ begin
   //Server should measure pings once per second
   if (fNetServer.Listening) and (aTick mod 10 = 0) then
     fNetServer.MeasurePings;
+  //Joining timeout
+  if fLANGameState = lgs_Query then
+    if GetTickCount-fJoinTimeout > JOIN_TIMEOUT then
+      fOnJoinFail('Query timed out');
 end;
 
 

@@ -320,7 +320,7 @@ begin
       Ratio_RatioRat[i].Enable;
     end else begin
       Image_RatioPic[i].TexID := 41; //Question mark
-      Label_RatioLab[i].Caption := fTextLibrary.GetTextString(251); //"Building not available" text
+      Label_RatioLab[i].Caption := 'Not available'; //"Building not available" text doesn't fit
       Ratio_RatioRat[i].Position := 0;
       Ratio_RatioRat[i].Disable;
     end;
