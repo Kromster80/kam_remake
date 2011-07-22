@@ -74,6 +74,9 @@ uses
 {$IFDEF WDC}
   {$R *.RES}
 {$ENDIF}
+{$IFDEF FPC}
+  {$R KaM_Remake_Icon.rc}
+{$ENDIF}
 
 begin
   Application.Initialize;

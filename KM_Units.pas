@@ -2030,7 +2030,7 @@ begin
       ut_Worker:                TKMUnitWorker(Items[i]).SyncLoad;
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
                                 TKMUnitCitizen(Items[i]).SyncLoad;
-      ut_Recruit:               TKMUnitCitizen(Items[i]).SyncLoad;
+      ut_Recruit:               TKMUnitRecruit(Items[i]).SyncLoad;
       ut_Militia..ut_Barbarian: TKMUnitWarrior(Items[i]).SyncLoad;
       //ut_Bowman:              TKMUnitArcher(Items[i]).SyncLoad; //I guess it will be stand-alone
       ut_Wolf..ut_Duck:         TKMUnitAnimal(Items[i]).SyncLoad;

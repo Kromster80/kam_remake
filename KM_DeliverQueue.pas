@@ -200,6 +200,7 @@ end;
 procedure TKMDeliverQueue.RemoveDemand(aHouse:TKMHouse);
 var i:integer;
 begin
+  assert(aHouse <> nil);
   for i:=1 to DemandCount do
   if fDemand[i].Loc_House=aHouse then
   begin
@@ -218,6 +219,7 @@ end;
 procedure TKMDeliverQueue.RemoveDemand(aUnit:TKMUnit);
 var i:integer;
 begin
+  assert(aUnit <> nil);
   for i:=1 to DemandCount do
   if fDemand[i].Loc_Unit=aUnit then
   begin
@@ -244,7 +246,7 @@ begin
     if i>DemandCount then begin
       inc(DemandCount, LENGTH_INC);
       SetLength(fDemand, DemandCount+1);
-      for j:=i to DemandCount do FillChar(fDemand[k],SizeOf(fDemand[k]),#0); //Initialise the new queue space
+      for j:=i to DemandCount do FillChar(fDemand[j],SizeOf(fDemand[j]),#0); //Initialise the new queue space
     end;
 
     with fDemand[i] do begin

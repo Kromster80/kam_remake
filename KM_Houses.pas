@@ -1403,11 +1403,11 @@ begin
       AddMultiResource(rt_All, 10);
       exit;
     end;
-    if ApplyCheat and (aRes = rt_Horse) then begin
+    if ApplyCheat and (aRes = rt_Horse) and not fGame.MultiplayerMode then begin
       fGame.RequestGameHold(gr_Win);
       exit;
     end;
-    if ApplyCheat and (aRes = rt_Fish) then begin
+    if ApplyCheat and (aRes = rt_Fish) and not fGame.MultiplayerMode then begin
       fGame.RequestGameHold(gr_Defeat);
       exit;
     end;
