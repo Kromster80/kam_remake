@@ -1,7 +1,7 @@
 unit KM_Settings;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_Defaults, INIfiles, KM_CommonTypes;
+uses Classes, SysUtils, Math, KM_Defaults, INIfiles;
 
 {Global game settings}
 type
@@ -87,7 +87,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Sound, KM_Game;
+uses KM_TextLibrary, KM_Sound, KM_Game, KM_Log;
 
 
 constructor TGlobalSettings.Create;

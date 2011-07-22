@@ -79,7 +79,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Render, KM_Utils, KM_TGATexture;
+uses KromUtils, KM_Render, KM_Utils, KM_TGATexture, KM_Log;
 
 
 constructor TResource.Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);

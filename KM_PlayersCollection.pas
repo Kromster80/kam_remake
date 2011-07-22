@@ -60,7 +60,7 @@ var
 
 
 implementation
-uses KM_Terrain, KM_Game;
+uses KM_Terrain, KM_Game, KM_Log;
 
 
 {TKMAllPlayers}

@@ -127,7 +127,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes, KM_GameInputProcess, KM_InterfaceMainMenu;
+uses KM_Settings, KM_CommonTypes, KM_GameInputProcess, KM_InterfaceMainMenu, KM_Log;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);

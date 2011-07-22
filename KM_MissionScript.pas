@@ -134,7 +134,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_ResourceGFX, KM_ResourceHouse;
+uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
 
 
 { TMissionParser }

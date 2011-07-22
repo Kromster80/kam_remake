@@ -13,7 +13,7 @@ uses
   SysUtils,
   {$IFDEF MSWindows}Windows,{$ENDIF}
   KM_Defaults,
-  KM_CommonTypes,
+  KM_Log,
   KM_DedicatedServer,
   KM_ServerEventHandler in 'KM_ServerEventHandler.pas';
 

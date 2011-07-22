@@ -255,7 +255,7 @@ type TCheckAxis = (ax_X, ax_Y);
 implementation
 uses KM_Render, KM_TextLibrary, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitActionStormAttack,
-KM_Units_Warrior, KM_Terrain, KM_ResourceGFX,
+KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log,
 
 KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 

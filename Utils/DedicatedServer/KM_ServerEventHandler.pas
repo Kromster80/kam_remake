@@ -3,7 +3,7 @@ unit KM_ServerEventHandler;
 interface
 
 uses
-  SysUtils, KM_CommonTypes
+  SysUtils, KM_Log
   {$IFDEF MSWindows} ,Windows {$ENDIF}
   {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
   ;

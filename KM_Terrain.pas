@@ -191,7 +191,7 @@ var
   fTerrain: TTerrain;
 
 implementation
-uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse;
+uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
 
 
 { TTerrain }

@@ -3,7 +3,7 @@ unit KM_Music;
 interface
 uses Forms,
   {$IFDEF WDC}MMSystem, Windows, MPlayer, {$ENDIF}
-  Classes, SysUtils, KromUtils, Math, KM_Defaults, KM_CommonTypes;
+  Classes, SysUtils, KromUtils, Math, KM_Defaults;
 
 type
   TMusicLib = class
@@ -34,7 +34,7 @@ type
 
 implementation
 uses
-  KM_Game;
+  KM_Game, KM_Log;
 
 
 {Music Lib}

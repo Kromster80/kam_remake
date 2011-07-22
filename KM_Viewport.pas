@@ -33,7 +33,7 @@ var
   fViewport: TViewport;
 
 implementation
-uses KM_Defaults, KM_Terrain, KM_Sound, KM_Game, KM_Unit1;
+uses KM_Defaults, KM_Terrain, KM_Sound, KM_Game, KM_Unit1, KM_Log;
 
 
 constructor TViewport.Create;

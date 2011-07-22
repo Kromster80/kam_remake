@@ -128,7 +128,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Player, KM_GameInputProcess_Single, KM_GameInputProcess_Multi;
+  KM_Unit1, KM_Player, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }

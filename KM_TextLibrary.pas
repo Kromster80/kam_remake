@@ -46,7 +46,7 @@ var
 
 
 implementation
-uses KM_Defaults, KM_CommonTypes;
+uses KM_Defaults, KM_Log;
 
 
 constructor TTextLibrary.Create(aLibPath,aLocale: string);
