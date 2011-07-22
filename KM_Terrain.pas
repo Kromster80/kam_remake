@@ -91,6 +91,7 @@ TTerrain = class
     function FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
     function CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
     function ChooseTreeToPlant(aPosition:TKMPoint):integer;
+    procedure GetHouseMarks(aPosition:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
 
     function WaterHasFish(aPosition:TKMPoint):boolean;
     function CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
@@ -961,6 +962,82 @@ begin
     26..28,75..80,182,190:                                                 Result := ChopableTrees[7+KaMRandom(2),1]; //Yellow dirt
     16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+KaMRandom(5),1]; //Brown dirt (pine trees)
     else Result := ChopableTrees[1+KaMRandom(length(ChopableTrees)),1]; //If it isn't one of those soil types then choose a random tree
+  end;
+end;
+
+
+procedure TTerrain.GetHouseMarks(aPosition:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
+var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
+  MarkedLocations:array[1..64] of TKMPoint; //List of locations with special marks on them
+  MarkCount:integer;
+  HA: THouseArea;
+
+  procedure MarkPoint(aPoint:TKMPoint; aID:integer);
+  var v: integer;
+  begin
+    for v:=1 to MarkCount do
+      if KMSamePoint(MarkedLocations[v],aPoint) then
+        exit;
+    aList.AddEntry(aPoint, aID, 0);
+    inc(MarkCount);
+    MarkedLocations[MarkCount] := aPoint;
+  end;
+begin
+  MarkCount := 0;
+  FillChar(MarkedLocations, SizeOf(MarkedLocations), #0); //It's filled with garbage if not initialized
+
+  HA := fResource.HouseDat[aHouseType].BuildArea;
+
+  //todo: Move this out from KM_Render
+  for i:=1 to 4 do for k:=1 to 4 do
+  if HA[i,k]<>0 then
+  begin
+
+    if fTerrain.TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,1) then
+    begin
+      //This can't be done earlier since values can be off-map
+      P2 := KMPoint(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4);
+
+      //Check house-specific conditions, e.g. allow shipyards only near water and etc..
+      case aHouseType of
+        ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
+        ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
+        else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
+      end;
+
+      //Forbid planning on unrevealed areas
+      AllowBuild := AllowBuild and (MyPlayer.FogOfWar.CheckTileRevelation(P2.X,P2.Y) > 0);
+
+      //Check surrounding tiles in +/- 1 range for other houses pressence
+      if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
+      for s:=-1 to 1 do for t:=-1 to 1 do
+      if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
+      if fTerrain.Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_House] then
+      begin
+        MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
+        AllowBuild := false;
+      end;
+
+      //Mark the tile according to previous check results
+      if AllowBuild then
+      begin
+        aList.AddEntry(P2, 0, 0);
+        if HA[i,k]=2 then
+          MarkPoint(P2,481);
+      end else
+      begin
+        if HA[i,k]=2 then
+          MarkPoint(P2,482)
+        else
+          if aHouseType in [ht_GoldMine,ht_IronMine] then
+            MarkPoint(P2,480)
+          else
+            MarkPoint(P2,479);
+      end;
+
+    end else
+    if fTerrain.TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,0) then
+      MarkPoint(KMPoint(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4),479);
   end;
 end;
 

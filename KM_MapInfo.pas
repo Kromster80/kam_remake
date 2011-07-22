@@ -309,13 +309,13 @@ end;
 
 function TKMapInfo.VictoryCondition:string;
 begin
-  Result := 'Win'; //todo: scan Goals and make a text essence out of it
+  Result := 'Win'; //todo: scan Win/Lose Goals and make a text essence out of it
 end;
 
 
 function TKMapInfo.DefeatCondition:string;
 begin
-  Result := 'Lose'; //todo: scan Goals and make a text essence out of it
+  Result := 'Lose';
 end;
 
 
