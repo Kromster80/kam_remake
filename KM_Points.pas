@@ -47,10 +47,8 @@ type
 
   function GetLength(A,B:TKMPoint): single; overload;
   function GetLength(A,B:TKMPointF): single; overload;
-  function GetLength(A:TKMPointF): single; overload;
   function KMLength(A,B:TKMPoint): single;
 
-  function Normalize(var A:TKMPointF): TKMPointF;
   function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload;
 
   procedure KMSwapPoints(var A,B:TKMPoint);
@@ -93,11 +91,13 @@ begin
   Result.Dir := Dir;
 end;
 
+
 function KMPointDir(X, Y:word; Dir: TKMDirection): TKMPointDir;
 begin
   Result.Loc := KMPoint(X,Y);
   Result.Dir := byte(Dir)-1;
 end;
+
 
 function KMPointDir(P:TKMPoint; Dir: word): TKMPointDir;
 begin
@@ -105,11 +105,13 @@ begin
   Result.Dir := Dir;
 end;
 
+
 function KMPointDir(P:TKMPoint; Dir: TKMDirection): TKMPointDir;
 begin
   Result.Loc := P;
   Result.Dir := byte(Dir)-1;
 end;
+
 
 function KMPointX1Y1(X, Y: word): TKMPoint;
 begin
@@ -117,17 +119,20 @@ begin
   Result.Y := Y+1;
 end;
 
+
 function KMPointX1Y1(P:TKMPoint): TKMPoint;
 begin
   Result.X := P.X+1;
   Result.Y := P.Y+1;
 end;
 
+
 function KMPointX1(P:TKMPoint): TKMPoint;
 begin
   Result.X := P.X+1;
   Result.Y := P.Y;
 end;
+
 
 function KMPointY1(P:TKMPoint): TKMPoint; overload;
 begin
@@ -160,6 +165,7 @@ function KMSamePointF(P1,P2:TKMPointF): boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
+
 
 function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean;
 begin
@@ -276,8 +282,7 @@ end;
 
 function KMStepIsDiag(P1,P2:TKMPoint):boolean;
 begin
-  Result := ((sign(P2.X-P1.X) <> 0) and
-             (sign(P2.Y-P1.Y) <> 0));
+  Result := (sign(P2.X-P1.X) <> 0) and (sign(P2.Y-P1.Y) <> 0);
 end;
 
 
@@ -290,21 +295,6 @@ end;
 function GetLength(A,B:TKMPointF): single; overload;
 begin
   Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
-end;
-
-
-function GetLength(A:TKMPointF): single; overload;
-begin
-  Result := sqrt(sqr(A.x) + sqr(A.y));
-end;
-
-
-function Normalize(var A:TKMPointF): TKMPointF;
-var Len:single;
-begin
-  Len := GetLength(A);
-  Result.X := A.X /Len;
-  Result.Y := A.Y /Len;
 end;
 
 
@@ -331,5 +321,6 @@ begin
   w:=A.X; A.X:=B.X; B.X:=w;
   w:=A.Y; A.Y:=B.Y; B.Y:=w;
 end;
+
 
 end.
