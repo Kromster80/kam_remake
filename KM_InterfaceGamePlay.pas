@@ -7,7 +7,6 @@ uses
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils;
 
-//todo: @Krom: In-game chat won't stay visible
 
 type
   TKMGamePlayInterface = class
@@ -402,6 +401,8 @@ begin
   //First thing - hide all existing pages, except for message page
   for i:=1 to Panel_Main.ChildCount do
     if (Panel_Main.Childs[i] is TKMPanel)
+    and (Panel_Main.Childs[i] <> Panel_Allies)
+    and (Panel_Main.Childs[i] <> Panel_Chat)
     and (Panel_Main.Childs[i] <> Panel_Message)
     and (Panel_Main.Childs[i] <> Panel_Replay)
     and (Panel_Main.Childs[i] <> Panel_Pause)

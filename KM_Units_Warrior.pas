@@ -895,7 +895,7 @@ begin
   if IsRanged then
   begin
     //We are busy with an action (e.g. in a fight)
-    if GetUnitAction.Locked then Exit;
+    if (GetUnitAction <> nil) and GetUnitAction.Locked then Exit;
 
     //We are shooting at house
     if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) then Exit;

@@ -79,7 +79,6 @@ type
     procedure Lobby_OnMessage(const aData:string);
     procedure Lobby_OnDisconnect(const aData:string);
     procedure Lobby_BackClick(Sender: TObject);
-    procedure Lobby_ReadyClick(Sender: TObject);
     procedure Lobby_StartClick(Sender: TObject);
 
     procedure Load_Click(Sender: TObject);
@@ -146,7 +145,6 @@ type
         Label_LobbyMapCond:TKMLabel;
 
       Button_LobbyBack:TKMButton;
-      Button_LobbyReady:TKMButton;
       Button_LobbyStart:TKMButton;
       ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
@@ -525,9 +523,7 @@ begin
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 40, 650, 190, 30, fTextLibrary.GetRemakeString(82), fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyReady := TKMButton.Create(Panel_Lobby, 740, 650, 115, 30, fTextLibrary.GetRemakeString(83), fnt_Metal, bsMenu);
-    Button_LobbyReady.OnClick := Lobby_ReadyClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 865, 650, 115, 30, fTextLibrary.GetRemakeString(84), fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 740, 650, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
@@ -1297,16 +1293,14 @@ begin
     Lobby_MapTypeSelect(nil);
     FileList_Lobby.Show;
     Label_LobbyChooseMap.Show;
-    Button_LobbyReady.Hide;
-    Button_LobbyStart.Show;
+    Button_LobbyStart.Caption := fTextLibrary.GetRemakeString(84); //Start
     Button_LobbyStart.Disable;
   end else begin
     Radio_LobbyMapType.Hide;
     FileList_Lobby.Hide;
     Label_LobbyChooseMap.Hide;
-    Button_LobbyReady.Show;
-    Button_LobbyReady.Enable;
-    Button_LobbyStart.Hide;
+    Button_LobbyStart.Caption := fTextLibrary.GetRemakeString(83); //Ready
+    Button_LobbyStart.Enable;
   end;
 end;
 
@@ -1395,8 +1389,8 @@ begin
     DropBox_LobbyTeam[i].Enabled := CanEdit and not IsSave; //Can't change color or teams in a loaded save
     DropColorBox_Lobby[i].Enabled := CanEdit and not IsSave;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
-    if MyNik then
-      Button_LobbyReady.Enabled := not fGame.Networking.NetPlayers[i+1].ReadyToStart;
+    if MyNik and not fGame.Networking.IsHost then
+      Button_LobbyStart.Enabled := not fGame.Networking.NetPlayers[i+1].ReadyToStart;
   end;
 
   for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
@@ -1417,7 +1411,8 @@ begin
     CheckBox_LobbyReady[i].Disable; //Read-only, just for info (perhaps we will replace it with an icon)
   end;
 
-  Button_LobbyStart.Enabled := fGame.Networking.CanStart;
+  if fGame.Networking.IsHost then
+    Button_LobbyStart.Enabled := fGame.Networking.CanStart;
   //If the game can't be started the text message with explanation will appear in chat area
 end;
 
@@ -1542,15 +1537,12 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_ReadyClick(Sender: TObject);
-begin
-  Button_LobbyReady.Enabled := not fGame.Networking.ReadyToStart;
-end;
-
-
 procedure TKMMainMenuInterface.Lobby_StartClick(Sender: TObject);
 begin
-  fGame.Networking.StartClick;
+  if fGame.Networking.IsHost then
+    fGame.Networking.StartClick
+  else
+    Button_LobbyStart.Enabled := not fGame.Networking.ReadyToStart;
 end;
 
 
