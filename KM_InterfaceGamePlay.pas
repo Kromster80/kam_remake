@@ -839,6 +839,8 @@ begin
     Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
     Button_ChatClose.OnClick := Chat_Close;
     Button_ChatClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
+
+  Panel_Chat.Hide;
 end;
 
 
@@ -855,6 +857,8 @@ begin
     Button_AlliesClose.Hint := fTextLibrary.GetTextString(283);
     Button_AlliesClose.OnClick := Allies_Close;
     Button_AlliesClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
+
+  Panel_Allies.Hide;
 end;
 
 

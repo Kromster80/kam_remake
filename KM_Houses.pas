@@ -468,17 +468,13 @@ end;
 
 
 {Returns the closest cell of the house to aPos}
-{todo: Move this method to the TKMPointList}
 function TKMHouse.GetClosestCell(aPos:TKMPoint):TKMPoint;
-var C:TKMPointList; i:integer;
+var C:TKMPointList;
 begin
   C := TKMPointList.Create;
   GetListOfCellsWithin(C);
-  Assert(C.Count > 0);
-  Result := C.List[1];
-  for i:=2 to C.Count do
-    if GetLength(C.List[i], aPos) < GetLength(Result, aPos) then
-      Result := C.List[i];
+  if not C.GetClosest(aPos, Result) then
+    Assert(false, 'Could not find closest house cell');
   C.Free;
 end;
 
