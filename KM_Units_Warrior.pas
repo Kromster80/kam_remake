@@ -894,17 +894,17 @@ begin
 
   if IsRanged then
   begin
-    if (GetUnitTask is TTaskAttackHouse) or GetUnitAction.Locked then
-      Exit; //Never look for enemies when shooting at house or Locked in other fight
+    //We are busy with an action (e.g. in a fight)
+    if GetUnitAction.Locked then Exit;
+
+    //We are shooting at house
+    if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) then Exit;
 
     //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
     if (GetUnitAction is TUnitActionWalkTo)
     and ((GetOrderTarget = nil) or GetOrderTarget.IsDeadOrDying or not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange))
     then
-    begin
-      Result := nil;
       Exit;
-    end;
   end;
 
   if (aDir = dir_NA) and IsRanged then
@@ -912,8 +912,9 @@ begin
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
   Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
+
   //Only stop attacking a house if it's a warrior
-  if (GetUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then
+  if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then
     Result := nil;
 end;
 
