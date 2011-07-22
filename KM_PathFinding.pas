@@ -1,7 +1,7 @@
 unit KM_PathFinding;
 {$I KaM_Remake.inc}
 interface            
-uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes, KM_Houses, KM_Points;
+uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_CommonTypes, KM_Houses, KM_Points;
 
 type TDestinationPoint = (dp_Location, dp_Passability, dp_House);
 

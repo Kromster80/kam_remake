@@ -112,7 +112,7 @@ var
 
 
 implementation
-uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceHouse, KM_Units, KM_Log;
+uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_Units, KM_Log;
 
 
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);

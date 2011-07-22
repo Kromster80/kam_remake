@@ -191,7 +191,8 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_Render, KM_TextLibrary, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes, KM_ResourceGFX;
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_Render, KM_TextLibrary, KM_Terrain,
+     KM_Utils, KM_Viewport, KM_Game, KM_ResourceGFX;
 
 
 {Switch between pages}

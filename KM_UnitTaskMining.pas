@@ -24,7 +24,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain, KM_Utils;
+uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain;
 
 
 { TTaskMining }

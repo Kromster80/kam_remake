@@ -3,7 +3,7 @@ unit KM_RenderUI;
 interface
 uses dglOpenGL,
   {$IFDEF FPC} GL, {$ENDIF}
-  Math, KromOGLUtils, SysUtils, KM_CommonTypes, KM_Defaults, Graphics, KM_Points;
+  Math, KromOGLUtils, SysUtils, KM_Defaults, Graphics, KM_Points;
 
 type
   TRenderUI = class

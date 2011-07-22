@@ -43,7 +43,7 @@ type
   end;
 
 implementation
-uses KM_Terrain, KM_Utils, KM_ResourceGFX, KM_TextLibrary;
+uses KM_Terrain, KM_ResourceGFX, KM_TextLibrary;
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
 Everything should be issued by units

@@ -7,8 +7,7 @@ uses Classes, Forms, SysUtils,
     Windows,
   {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  OpenAL, KromUtils,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Points;
+  OpenAL, KromUtils, KM_Defaults, KM_Points;
 
 
 const

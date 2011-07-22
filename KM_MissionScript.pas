@@ -3,7 +3,7 @@ unit KM_MissionScript;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  Classes, KromUtils, SysUtils, Dialogs, Math, KM_CommonTypes, KM_Defaults, KM_Utils,
+  Classes, KromUtils, SysUtils, Dialogs, Math, KM_CommonTypes, KM_Defaults,
   KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
 
 
