@@ -16,6 +16,7 @@ type
 
 
 function TimeGet: Cardinal;
+function ExtractOpenedFileName(in_s: string):string;
 function GetFileExt (const FileName: string): string;
 function AssureFileExt(FileName,Ext:string): string;
 function TruncateExt(FileName:string): string;
@@ -100,6 +101,43 @@ begin if A > B then if A > C then Result := A else Result := C
 end;
 
 
+
+//I re add this it is required by KM_Editor.
+function ExtractOpenedFileName(in_s: string):string;
+var k:word; out_s:string; QMarks:boolean;
+begin
+k:=0; out_s:=''; QMarks:=false;
+
+repeat      //First of all skip exe path
+inc(k);
+  if in_s[k]='"' then
+  repeat inc(k);
+  until(in_s[k]='"');
+until((k>=length(in_s))or(in_s[k]=#32));  //in_s[k]=#32 now
+
+inc(k);     //in_s[k]=" or first char
+
+if (length(in_s)>k)and(in_s[k]=#32) then //Skip doublespace, WinXP bug ?
+    repeat
+    inc(k);
+    until((k>=length(in_s))or(in_s[k]<>#32));
+
+if (length(in_s)>k) then begin
+
+    if in_s[k]='"' then begin
+    inc(k); //Getting path from "...."
+    QMarks:=true;
+    end;
+
+    repeat
+    out_s:=out_s+in_s[k];
+    inc(k);
+    until((length(in_s)=k-1)or(in_s[k]='"')or((QMarks=false)and(in_s[k]=' ')));
+
+end else out_s:='';
+
+Result:=out_s;
+end;
 //Linux wants this instead of timegettime, it should work on Windows too
 //@Vytautas: WTF? ))))) You did it way too overcomplicated ))) No offense :)
 //           Just take a look at "Now" function and take SystemTime from it
