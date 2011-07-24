@@ -1,5 +1,5 @@
 
-MaxID:84
+MaxID:98
 
 KM_InterfaceMainMenu
  1:Küldetés megszakítva
@@ -38,8 +38,7 @@ KM_InterfaceMainMenu
 34:Betöltés... Kérem várjon
 35:Hiba történt!
 36:Letiltás
-37:Készítõk
-38:Eredeti
+37:Új nyelv betöltése
 
 KM_InterfaceGamePlay
 39:Megnyerted a játékot!
@@ -100,3 +99,21 @@ Create_Lobby_Page
 82:Kilépés
 83:Kész
 84:Indítás!
+93:Játékosok: %d
+94:Játékmód: 
+95:Feltételek: 
+96:Válassz egy mentést...
+97:Válassz...
+98:Hálózati hiba: 
+
+Credits
+85:KaM Remake Készítõk
+86:Eredeti Knights & Merchants Készítõk
+87:PROGRAMOZÁS:
+88:TOVÁBBI PROGRAMOZÁS:
+89:TOVÁBBI GRAFIKA:
+90:TOVÁBBI FORDÍTÓK:
+91:KÜLÖN KÖSZÖNET:
+
+Mission
+92:Küldetés %d

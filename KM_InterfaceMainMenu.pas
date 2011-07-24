@@ -761,16 +761,16 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
-    TKMLabel.Create(Panel_Credits,232,100,100,30,'KaM Remake '+fTextLibrary[TX_CREDITS],fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Credits,232,100,100,30,fTextLibrary[TX_CREDITS],fnt_Outline,kaCenter);
     TKMLabel.Create(Panel_Credits,232,140,100,30,
-    'PROGRAMMING:|Krom|Lewin||'+
-    'ADDITIONAL PROGRAMMING:|Alex||'+
-    'ADDITIONAL GRAPHICS:|StarGazer||'+
-    'ADDITIONAL TRANSLATIONS:|French - Sylvain Domange|Slovak - Robert Marko|Hungarian - Jecy||'+
-    'SPECIAL THANKS TO:|KaM Community members'
+    fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|French - Sylvain Domange|Slovak - Robert Marko|Hungarian - Jecy||'+
+    fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,kaCenter);
 
-    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,fTextLibrary[TX_ORIGINAL]+' Knights & Merchants '+fTextLibrary[TX_CREDITS],fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,fTextLibrary[TX_CREDITS_ORIGINAL],fnt_Outline,kaCenter);
     Label_Credits:=TKMLabel.Create(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-160,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
@@ -1026,7 +1026,7 @@ begin
 
   TKMImage(Sender).Highlight := true;
 
-  Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
+  Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION],[TKMImage(Sender).Tag]);
   Label_CampaignText.Caption := fGame.CampaignSettings.GetMapText(Campaign_Selected, TKMImage(Sender).Tag);
 
   Panel_CampScroll.Height := 50 + Label_CampaignText.TextHeight + 70; //Add offset from top and space on bottom
@@ -1282,9 +1282,9 @@ begin
   Edit_LobbyPost.Text := '';
 
   Label_LobbyMapName.Caption := '';
-  Label_LobbyMapCount.Caption := 'Players: ';
-  Label_LobbyMapMode.Caption := 'Mode: ';
-  Label_LobbyMapCond.Caption := 'Conditions: ';
+  Label_LobbyMapCount.Caption := fTextLibrary[TX_LOBBY_MAP_PLAYERS];
+  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
+  Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
 
   Lobby_OnMapName('');
   if Sender = Button_LAN_Host then begin
@@ -1446,7 +1446,7 @@ begin
   end
   else
   begin
-    FileList_Lobby.DefaultCaption := 'Select a save...';
+    FileList_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
     FileList_Lobby.RefreshList(ExeDir+'SavesM\', 'sav', 'rpl', true);
   end;
   if Sender <> nil then //This is used in Reset_Lobby when we are not connected
@@ -1470,14 +1470,14 @@ procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
   Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Title;
-  Label_LobbyMapCount.Caption := 'Players: ' + inttostr(fGame.Networking.MapInfo.PlayerCount);
-  Label_LobbyMapMode.Caption := 'Mode: ' + fGame.Networking.MapInfo.MissionModeText;
+  Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.MapInfo.PlayerCount]);
+  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+fGame.Networking.MapInfo.MissionModeText;
 
   //Update starting locations
   if fGame.Networking.MapInfo.IsSave then
-    DropText := 'Select...' + eol
+    DropText := fTextLibrary[TX_LOBBY_SELECT] + eol
   else
-    DropText := 'Random' + eol;
+    DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
   for i:=1 to fGame.Networking.MapInfo.PlayerCount do
     DropText := DropText + fGame.Networking.MapInfo.LocationName[i-1] + eol;
 
@@ -1522,7 +1522,7 @@ begin
   fGame.Networking.Disconnect;
   LAN_Update(aData);
   if fGame.GameState = gsRunning then
-    fGame.GameStop(gr_Disconnect, 'Network error: '+aData)
+    fGame.GameStop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+aData)
   else
     SwitchMenuPage(Button_LobbyBack);
 end;
@@ -1627,7 +1627,7 @@ begin
   Ratio_Options_Music.Enabled           := not CheckBox_Options_MusicOn.Checked;
 
   if Sender = Radio_Options_Lang then begin
-    ShowScreen(msLoading, 'Loading new locale');
+    ShowScreen(msLoading, fTextLibrary[TX_MENU_NEWLOCAL]);
     fRender.Render; //Force to repaint loading screen
     fGame.ToggleLocale(Locales[Radio_Options_Lang.ItemIndex+1,1]);
     exit; //Whole interface will be recreated

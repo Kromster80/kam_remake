@@ -1,5 +1,5 @@
 
-MaxID:84
+MaxID:98
 
 KM_InterfaceMainMenu
  1:Mission abgebrochen
@@ -37,6 +37,8 @@ KM_InterfaceMainMenu
 33:Sprache:
 34:Lade... Bitte warten
 35:Ein Fehler ist aufgetreten!
+36:Disable
+37:Loading new locale
 
 KM_InterfaceGamePlay
 39:Sie haben gewonnen!
@@ -97,3 +99,21 @@ Create_Lobby_Page
 82:Quit lobby
 83:Ready
 84:Start!
+93:Players: 
+94:Mode: 
+95:Conditions: 
+96:Select a save...
+97:Select...
+98:Network error: 
+
+Credits
+85:KaM Remake Credits
+86:Original Knights & Merchants Credits
+87:PROGRAMMING:
+88:ADDITIONAL PROGRAMMING:
+89:ADDITIONAL GRAPHICS:
+90:ADDITIONAL TRANSLATIONS:
+91:SPECIAL THANKS TO:
+
+Mission
+92:Mission %d
