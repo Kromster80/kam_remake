@@ -1949,6 +1949,7 @@ begin
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
   fScrollBar.fOnChange := ChangeScrollPosition;
+  UpdateScrollBar; //Initialise the scrollbar
 end;
 
 

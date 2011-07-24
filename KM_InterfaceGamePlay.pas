@@ -102,6 +102,7 @@ type
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
+      Label_MPChatUnread: TKMLabel;
       Image_Message:array[1..32]of TKMImage; //Queue of messages covers 32*48=1536px height
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
@@ -579,6 +580,10 @@ begin
     Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48,30,48,494);
     Image_MPChat.HighlightOnMouseOver := true;
     Image_MPChat.OnClick := MPChat_Show;
+    //todo: Find a way to make the number more readable (different font/color? Enlarged font?
+    Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,fRender.RenderAreaSize.Y-30,30,36,'',fnt_Grey,kaCenter,$FF1111FF);
+    Label_MPChatUnread.OnClick := MPChat_Show;
+
     Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48*2,30,48,496);
     Image_MPAllies.HighlightOnMouseOver := true;
     Image_MPAllies.OnClick := MPAllies_Show;
@@ -586,6 +591,7 @@ begin
     //Chat and Allies setup should be accessible only in Multiplayer
     if not fGame.MultiplayerMode then begin
       Image_MPChat.Hide;
+      Label_MPChatUnread.Hide;
       Image_MPAllies.Hide;
     end;
 
@@ -699,6 +705,7 @@ begin
     Panel_Chat.Top := Y - MESSAGE_AREA_HEIGHT;
     Panel_Allies.Top := Y - MESSAGE_AREA_HEIGHT;
     Image_MPChat.Top := Y - 48;
+    Label_MPChatUnread.Top := Y - 30;
     Image_MPAllies.Top := Y - 48*2;
     OffY := 48*2
   end else
@@ -1327,6 +1334,7 @@ begin
   Panel_Allies.Hide;
   Panel_Chat.Show;
   Panel_Message.Hide;
+  Label_MPChatUnread.Caption := ''; //No unread messages
 end;
 
 
@@ -2291,6 +2299,8 @@ begin
   ListBox_ChatText.AddItem(aData, true); //Word wrap true
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
   ListBox_ChatText.TopIndex := ListBox_ChatText.ItemCount;
+  if not Panel_Chat.Visible then
+    Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption,0) + 1); //New message
 end;
 
 
@@ -2439,7 +2449,9 @@ begin
   begin
     Screen.Cursor := c_Default;
     exit;
-  end;
+  end
+  else
+    DisplayHint(nil); //Clear shown hint
 
   if fGame.GameState = gsReplay then
     fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
@@ -2714,6 +2726,9 @@ begin
       S := S+Format('Enemy %d: %f|', [i, RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)]);
     Label_VictoryChance.Caption := S;
   end;
+
+  Label_MPChatUnread.Visible := not (fGame.GameTickCount mod 10 < 5); //Flash unread message display
+  Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
 end;
 
 
