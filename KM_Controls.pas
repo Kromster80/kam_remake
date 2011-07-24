@@ -2130,6 +2130,7 @@ begin
 
   fDropCount := 10;
   fFont := aFont;
+  fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
@@ -2245,6 +2246,7 @@ begin
   fDropCount := 10;
   fFont := aFont;
   fDefaultCaption := aDefaultCaption;
+  fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
@@ -2266,7 +2268,7 @@ begin
   if fFileList.Visible then
   begin
     ListHide(nil);
-    exit;
+    Exit;
   end;
 
   if fFileList.FileCount < 1 then exit;
@@ -2352,6 +2354,7 @@ begin
 
   fColorIndex := 0;
   fInclRandom := false;
+  fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
