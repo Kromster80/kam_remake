@@ -82,8 +82,7 @@ type
   TGameInputCommand = record
     CommandType:TGameInputCommandType;
     Params:array[1..MAX_PARAMS]of integer;
-    PlayerIndex: TPlayerIndex; //Player for which the command is to be issued.
-                         //Needed for multiplayer. Also removes need for gic_TempChangeMyPlayer
+    PlayerIndex: TPlayerIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
 

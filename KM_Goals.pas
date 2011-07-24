@@ -110,7 +110,7 @@ end;
 
 
 procedure TKMGoals.RemGoal(aIndex:integer);
-var i:cardinal;
+var i:integer; //Must be an integer so it doesn't crash when fCount=1
 begin
   for i := aIndex to fCount-2 do
     fGoals[i] := fGoals[i+1]; //shift remaining items

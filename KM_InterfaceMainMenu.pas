@@ -498,7 +498,7 @@ begin
 
     //Chat
                           TKMLabel.Create  (Panel_Lobby, 40, 350, 100, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, kaLeft);
-    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 40, 370, 685, 200);
+    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 40, 370, 685, 200, false);
                           TKMLabel.Create  (Panel_Lobby, 40, 580, 100, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, kaLeft);
     Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 40, 600, 685, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
@@ -1510,7 +1510,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
-  ListBox_LobbyPosts.AddItem(aData);
+  ListBox_LobbyPosts.AddItem(aData, true); //Word wrap true
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
   ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.ItemCount;
 end;

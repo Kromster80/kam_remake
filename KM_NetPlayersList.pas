@@ -48,6 +48,7 @@ type
 
     procedure AddPlayer(aNik:string; aIndexOnServer:integer);
     procedure AddAIPlayer;
+    procedure KillPlayer(aIndexOnServer:integer);
     procedure RemPlayer(aIndexOnServer:integer);
     procedure RemAIPlayer(ID:integer);
     procedure UpdateAIPlayerNames;
@@ -267,11 +268,21 @@ begin
 end;
 
 
+//Set player to no longer be alive, but do not remove them from the game
+procedure TKMPlayersList.KillPlayer(aIndexOnServer:integer);
+var ID,i:integer;
+begin
+  ID := ServerToLocal(aIndexOnServer);
+  Assert(ID <> -1, 'Cannot kill player');
+  fPlayers[ID].Alive := false;
+end;
+
+
 procedure TKMPlayersList.RemPlayer(aIndexOnServer:integer);
 var ID,i:integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
-  Assert(ID <> -1, 'Can not remove player');
+  Assert(ID <> -1, 'Cannot remove player');
   fPlayers[ID].Free;
   for i:=ID to fCount-1 do
     fPlayers[i] := fPlayers[i+1]; //Shift only pointers

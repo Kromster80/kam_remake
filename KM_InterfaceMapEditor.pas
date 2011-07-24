@@ -416,7 +416,7 @@ begin
 
     TKMLabel.Create(Panel_Main,8,270,100,30,'Player',fnt_Metal,kaLeft);
     for i:=0 to MAX_PLAYERS-1 do begin
-      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + i*23, 290, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
+      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + i*23, 290, 21, 32, inttostr(i+1), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[i].CapOffsetY := -3;
       Button_PlayerSelect[i].Tag     := i;
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
@@ -904,6 +904,8 @@ begin
 
   fShownHouse := nil; //Drop selection
   fShownUnit := nil;
+  fPlayers.Selected := nil;
+  SwitchPage(nil);
 end;
 
 
@@ -1622,7 +1624,6 @@ begin
     exit; //We could have caused fGame reinit, so exit at once
   end;
 
-  fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
   P := GameCursor.Cell; //Get cursor position tile-wise
   if Button = mbRight then
   begin
@@ -1692,10 +1693,22 @@ end;
 
 
 procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+var PrevCursor, ViewCenter: TKMPointF;
 begin
   MyControls.MouseWheel(X, Y, WheelDelta);
+  if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
   if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) then
+  begin
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
+    PrevCursor := GameCursor.Float;
     fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
+    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
+    ViewCenter := fViewport.GetCenter; //Required for Linux compatibility
+    fViewport.SetCenter(ViewCenter.X + PrevCursor.X-GameCursor.Float.X,
+                        ViewCenter.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
+  end;
 end;
 
 

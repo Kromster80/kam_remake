@@ -240,7 +240,7 @@ type
 
   public
     MyControls: TKMMasterControl;
-    constructor Create;
+    constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
@@ -521,10 +521,10 @@ begin
 end;
 
 
-constructor TKMGamePlayInterface.Create;
+constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
-  Inherited;
+  Inherited Create;
   Assert(fViewport<>nil, 'fViewport required to be init first');
 
   fShownUnit:=nil;
@@ -647,7 +647,9 @@ begin
     with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
   SwitchPage(nil); //Update
-  UpdatePositions; //Reposition messages stack if we are in MP mode
+  Panel_Main.Width := aScreenX;
+  Panel_Main.Height := aScreenY;
+  UpdatePositions; //Reposition messages stack etc.
 end;
 
 
@@ -830,10 +832,11 @@ begin
     TKMImage.Create(Panel_Chat,0,20,600,170,409);
     TKMImage.Create(Panel_Chat,0,0,600,20,551);
 
-    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,65,600-85,90);
+    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,60,600-85,101,false);
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 155, 600-85, 20, fnt_Antiqua);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 161, 600-85, 20, fnt_Antiqua);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
+    Edit_ChatMsg.Text := '';
 
     Button_ChatClose:=TKMButton.Create(Panel_Chat,600-35,65,30,24,'[x]',fnt_Antiqua);
     Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
@@ -2006,7 +2009,7 @@ procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
   begin
-    fGame.Networking.PostMessage(Edit_ChatMsg.Text);
+    fGame.Networking.PostMessage(Edit_ChatMsg.Text, true);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -2285,7 +2288,7 @@ end;
 
 procedure TKMGamePlayInterface.ChatMessage(const aData: string);
 begin
-  ListBox_ChatText.AddItem(aData);
+  ListBox_ChatText.AddItem(aData, true); //Word wrap true
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
   ListBox_ChatText.TopIndex := ListBox_ChatText.ItemCount;
 end;

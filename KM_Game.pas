@@ -346,7 +346,7 @@ begin
   fRender.Render;
 
   fViewport := TViewport.Create;
-  fGamePlayInterface := TKMGamePlayInterface.Create;
+  fGamePlayInterface := TKMGamePlayInterface.Create(ScreenX, ScreenY);
 
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.

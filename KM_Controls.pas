@@ -467,6 +467,7 @@ type
   TKMListBox = class(TKMControl)
   private
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
+    fCanSelect:boolean;
     fItemHeight:byte;
     fItemIndex:smallint;
     fItems:TStringList;
@@ -481,10 +482,10 @@ type
     procedure ChangeScrollPosition (Sender:TObject);
     procedure UpdateScrollBar;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCanSelect:boolean=true);
     destructor Destroy; override;
 
-    procedure AddItem(aItem:string);
+    procedure AddItem(aItem:string; aAutoWordWrap:boolean=false);
     procedure Clear;
     procedure SetItems(aText:string);
     procedure AutoHideScrollBar;
@@ -501,7 +502,7 @@ type
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     property OnChange: TNotifyEvent write fOnChange;
-    
+
     procedure Paint; override;
   end;
 
@@ -641,7 +642,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_Sound, KM_TextLibrary;
+uses KM_RenderUI, KM_Sound, KM_TextLibrary, KM_Utils;
 
 
 { TKMControl }
@@ -1027,28 +1028,7 @@ begin
   fText := fCaption; //Keep original intact incase we need to Reformat text again
   if not AutoWrap then exit;
 
-  AdvX := 0;
-  PrevX := 0;
-  LastSpace := -1;
-  CharSpacing := FontData[Font].CharSpacing; //Spacing between letters, this varies between fonts
-
-  for i:=1 to length(fText) do
-  begin
-    if (fText[i]=#32) or (fText[i]=#124) then begin
-      LastSpace := i;
-      PrevX := AdvX;
-    end;
-
-    if fText[i]=#32 then inc(AdvX, FontData[Font].WordSpacing)
-                    else inc(AdvX, FontData[Font].Letters[byte(fText[i])].Width + CharSpacing);
-
-    //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-    if ((AdvX>Width)and(LastSpace<>-1))or(fText[i]=#124) then
-    begin
-      fText[LastSpace] := #124; //Replace last whitespace with EOL
-      dec(AdvX, PrevX); //Subtract width since replaced whitespace
-    end;
-  end;
+  fText := KMWordWrap(fText, Font, Width);
 end;
 
 
@@ -1473,7 +1453,7 @@ end;
 
 procedure TKMEdit.KeyPress(Key: Char);
 begin
-  if ReadOnly or (Key < #32) then
+  if ReadOnly or (Key < #32) or (Key = #124) then //Not allowed to write EOL in edit field
     Exit;
 
   Insert(Key, fText, CursorPos+1);
@@ -1931,10 +1911,11 @@ end;
 
 
 { TKMListBox }
-constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCanSelect:boolean=true);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fBackAlpha := 0.5;
+  fCanSelect := aCanSelect;
   fItemHeight := 20;
   fTopIndex := 0;
   fItemIndex := -1;
@@ -2004,9 +1985,19 @@ begin
 end;
 
 
-procedure TKMListBox.AddItem(aItem:string);
+procedure TKMListBox.AddItem(aItem:string; aAutoWordWrap:boolean=false);
+var i: integer; MyItems: TStringList;
 begin
-  fItems.Add(aItem);
+  if not aAutoWordWrap then
+    fItems.Add(aItem)
+  else
+  begin
+    MyItems := TStringList.Create;
+    ParseDelimited(MyItems, KMWordWrap(aItem, fnt_Metal, Width-fScrollBar.Width-8), '|');
+    for i:=0 to MyItems.Count-1 do
+      fItems.Add(MyItems.Strings[i]);
+    MyItems.Free;
+  end;
   UpdateScrollBar;
 end;
 
@@ -2096,7 +2087,7 @@ begin
 
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
-  if (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-1) then
+  if fCanSelect and (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-1) then
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do

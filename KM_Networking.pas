@@ -461,8 +461,16 @@ function TKMNetworking.ReadyToStart:boolean;
 begin
   if fMapInfo.IsValid then
   begin
-    PacketSend(NET_ADDRESS_HOST, mk_ReadyToStart, '', 0);
-    Result := true;
+    if fMapInfo.IsSave and (fNetPlayers[fMyIndex].StartLocation = 0) then
+    begin
+      if Assigned(fOnTextMessage) then fOnTextMessage('Error: Please select a player from the save to play as');
+      Result := false;
+    end
+    else
+    begin
+      PacketSend(NET_ADDRESS_HOST, mk_ReadyToStart, '', 0);
+      Result := true;
+    end;
   end
   else
   begin
@@ -694,12 +702,20 @@ begin
             begin
               if fNetPlayers.ServerToLocal(Param) = -1 then exit; //Has already disconnected
               PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(Param)].Nikname+' lost connection');
-              fNetPlayers.RemPlayer(Param);
+              if fLANGameState in [lgs_Loading, lgs_Game] then
+                fNetPlayers.KillPlayer(Param)
+              else
+                fNetPlayers.RemPlayer(Param);
               SendPlayerListAndRefreshPlayersSetup;
             end
             else
               if fNetPlayers.ServerToLocal(Param) <> -1 then
-                fNetPlayers.RemPlayer(Param); //Remove the player anyway as it might be the host that was lost
+              begin
+                if fLANGameState in [lgs_Loading, lgs_Game] then
+                  fNetPlayers.KillPlayer(Param)
+                else
+                  fNetPlayers.RemPlayer(Param); //Remove the player anyway as it might be the host that was lost
+              end;
 
     mk_Disconnect:
             case fLANPlayerKind of
@@ -707,14 +723,20 @@ begin
                   begin
                     if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
                     PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
-                    fNetPlayers.RemPlayer(aSenderIndex);
+                    if fLANGameState in [lgs_Loading, lgs_Game] then
+                      fNetPlayers.KillPlayer(aSenderIndex)
+                    else
+                      fNetPlayers.RemPlayer(aSenderIndex);
                     SendPlayerListAndRefreshPlayersSetup;
                   end;
               lpk_Joiner:
                   begin
                     if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
                     if Assigned(fOnTextMessage) then fOnTextMessage('The host has disconnected');
-                    fNetPlayers.RemPlayer(aSenderIndex);
+                    if fLANGameState in [lgs_Loading, lgs_Game] then
+                      fNetPlayers.KillPlayer(aSenderIndex)
+                    else
+                      fNetPlayers.RemPlayer(aSenderIndex);
                   end;
             end;
 

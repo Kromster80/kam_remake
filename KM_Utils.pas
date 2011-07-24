@@ -1,7 +1,7 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, StrUtils, KM_Defaults, KM_Points, Math;
+uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
@@ -13,6 +13,9 @@ uses SysUtils, StrUtils, KM_Defaults, KM_Points, Math;
   function KMSaveNameToSlot(const aSaveName:string):integer;
 
   function MapSizeToString(X,Y:integer):string;
+
+  procedure ParseDelimited(const sl : TStringList; const value : string; const delimiter : string);
+  function KMWordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer):string;
 
   procedure SetKaMSeed(aSeed:integer);
   function GetKaMSeed:integer;
@@ -206,6 +209,60 @@ begin
     256*256+1..320*320: Result := 'XXL';
     else                Result := '???';
   end;
+end;
+
+//Taken from: http://delphi.about.com/od/adptips2005/qt/parsedelimited.htm
+procedure ParseDelimited(const sl : TStringList; const value : string; const delimiter : string);
+var
+   dx : integer;
+   ns : string;
+   txt : string;
+   delta : integer;
+begin
+   delta := Length(delimiter) ;
+   txt := value + delimiter;
+   sl.BeginUpdate;
+   sl.Clear;
+   try
+     while Length(txt) > 0 do
+     begin
+       dx := Pos(delimiter, txt) ;
+       ns := Copy(txt,0,dx-1) ;
+       sl.Add(ns) ;
+       txt := Copy(txt,dx+delta,MaxInt) ;
+     end;
+   finally
+     sl.EndUpdate;
+   end;
+end;
+
+
+function KMWordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer):string;
+var i,CharSpacing,AdvX,PrevX,LastSpace:integer;
+begin
+  AdvX := 0;
+  PrevX := 0;
+  LastSpace := -1;
+  CharSpacing := FontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
+
+  for i:=1 to length(aText) do
+  begin
+    if (aText[i]=#32) or (aText[i]=#124) then begin
+      LastSpace := i;
+      PrevX := AdvX;
+    end;
+
+    if aText[i]=#32 then inc(AdvX, FontData[aFont].WordSpacing)
+                    else inc(AdvX, FontData[aFont].Letters[byte(aText[i])].Width + CharSpacing);
+
+    //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
+    if ((AdvX > aMaxPxWidth)and(LastSpace<>-1))or(aText[i]=#124) then
+    begin
+      aText[LastSpace] := #124; //Replace last whitespace with EOL
+      dec(AdvX, PrevX); //Subtract width since replaced whitespace
+    end;
+  end;
+  Result := aText;
 end;
 
 
