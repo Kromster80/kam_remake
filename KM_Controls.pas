@@ -304,15 +304,18 @@ type
   TKMEdit = class(TKMControl)
   private
     fText:string;
+    fCursorPos:integer;
+    fLeftIndex:integer; //The position of the character shown left-most
     fOnChange:TNotifyEvent;
     fOnKeyDown:TNotifyEventKey;
+    procedure SetCursorPos(aPos: integer);
     procedure SetText(aText:string);
   public
     Font: TKMFont;
     Masked:boolean;
-    CursorPos:integer;
     ReadOnly:boolean;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false);
+    property CursorPos: integer read fCursorPos write SetCursorPos;
     property Text:string read fText write SetText;
     property OnChange: TNotifyEvent write fOnChange;
     property OnKeyDown: TNotifyEventKey write fOnKeyDown;
@@ -1023,12 +1026,13 @@ end;
 
 //Existing EOLs should be preserved, and new ones added where needed.
 procedure TKMLabel.ReformatText;
-var i,CharSpacing,AdvX,PrevX,LastSpace:integer;
 begin
   fText := fCaption; //Keep original intact incase we need to Reformat text again
   if not AutoWrap then exit;
 
-  fText := KMWordWrap(fText, Font, Width);
+  //@Krom: Should we always force EOLs in labels with a continuous word that is longer than the width?
+  //       I think yes because otherwise we end up with text overflowing from our labels...
+  fText := KMWordWrap(fText, Font, Width, true);
 end;
 
 
@@ -1406,7 +1410,7 @@ begin
   fText := '<<<LEER>>>';
   Font := aFont;
   Masked := aMasked;
-  CursorPos := length(fText);
+  CursorPos := 0;
 end;
 
 
@@ -1414,6 +1418,24 @@ function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean
 begin
   //When control is read-only we don't want to recieve Focus event
   Result := Inherited HitTest(X,Y) and not ReadOnly;
+end;
+
+
+procedure TKMEdit.SetCursorPos(aPos: integer);
+var RText: string;
+begin
+  fCursorPos := EnsureRange(aPos, 0, length(fText));
+  if fCursorPos < fLeftIndex then
+    fLeftIndex := fCursorPos
+  else
+  begin
+    RText := Copy(fText, fLeftIndex+1, length(fText)); //Remove characters to the left of fLeftIndex
+    while fCursorPos-fLeftIndex > KMCharsThatFit(RText,Font,Width-8) do
+    begin
+      inc(fLeftIndex);
+      RText := Copy(fText, fLeftIndex+1, length(fText)); //Remove characters to the left of fLeftIndex
+    end;
+  end;
 end;
 
 
@@ -1436,16 +1458,17 @@ begin
       Ord('C'):    Clipboard.AsText := fText;
       Ord('X'):    begin Clipboard.AsText := fText; fText := ''; end;
       Ord('V'):    begin Insert(Clipboard.AsText, fText, CursorPos+1);
-                         inc(CursorPos, Length(Clipboard.AsText)); end;
+                         CursorPos := CursorPos + Length(Clipboard.AsText); end;
     end;
   end;
   case Key of
-    VK_BACK:    begin Delete(fText, CursorPos, 1); dec(CursorPos); end;
+    VK_BACK:    begin Delete(fText, CursorPos, 1); CursorPos := CursorPos-1; end;
     VK_DELETE:  Delete(fText, CursorPos+1, 1);
-    VK_LEFT:    dec(CursorPos);
-    VK_RIGHT:   inc(CursorPos);
+    VK_LEFT:    CursorPos := CursorPos-1;
+    VK_RIGHT:   CursorPos := CursorPos+1;
+    VK_HOME:    CursorPos := 0;
+    VK_END:     CursorPos := length(fText);
   end;
-  CursorPos := EnsureRange(CursorPos, 0, length(fText));
 
   if Assigned(fOnKeyDown) then fOnKeyDown(Self, Key);
 end;
@@ -1457,7 +1480,7 @@ begin
     Exit;
 
   Insert(Key, fText, CursorPos+1);
-  inc(CursorPos);
+  CursorPos := CursorPos+1;
 end;
 
 
@@ -1484,18 +1507,21 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-  
+
   if Masked then
     RText := StringOfChar('*', Length(fText))
   else
     RText := fText;
+
+  RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
+  RText := Copy(RText, 1, KMCharsThatFit(RText, Font, Width-8)); //Remove characters that do not fit in the box
 
   fRenderUI.WriteText(Left+4, Top+3, RText, Font, kaLeft, Col);
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
-    SetLength(RText, CursorPos);
+    SetLength(RText, CursorPos-fLeftIndex);
     OffX := Left + 2 + fRenderUI.GetTextSize(RText, Font).X;
     fRenderUI.WriteLayer(OffX, Top+2, 3, Height-4, Col, $FF000000);
   end;
@@ -1993,7 +2019,7 @@ begin
   else
   begin
     MyItems := TStringList.Create;
-    ParseDelimited(MyItems, KMWordWrap(aItem, fnt_Metal, Width-fScrollBar.Width-8), '|');
+    ParseDelimited(MyItems, KMWordWrap(aItem, fnt_Metal, Width-fScrollBar.Width-6,true), '|');
     for i:=0 to MyItems.Count-1 do
       fItems.Add(MyItems.Strings[i]);
     MyItems.Free;
@@ -2091,7 +2117,7 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+8, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, $FFFFFFFF);
 end;
 
 
