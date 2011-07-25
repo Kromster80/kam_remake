@@ -1,0 +1,119 @@
+
+MaxID:98
+
+KM_InterfaceMainMenu
+ 1:Missie geannuleerd 
+ 2:Stad tutorial
+ 3:Strijd tutorial
+ 4:Alleen spelen	
+ 5:Map Editor
+ 6:Bekijken laatste spel
+ 7:Speel over LAN
+ 8:Speel over Internet
+ 9:Inloggen
+10:Wachtwoord
+11:Start missie
+12:titel
+13:Grote
+14:Missie type: 
+15:Overwinning conditie: 
+16:Nederlaag conditie: 
+17:Bondgenoten: 
+18:Vijanden: 
+19:Slot 
+20:Nieuwe map grote
+21:Breedte
+22:Hoogte
+23:Nieuwe map aanmaken
+24:Beschikbare mappen
+25:Bestaande map inladen
+26:Controls:
+27:Gameplay:
+28:Muziek:
+29:Grafisch:
+30:Helderheid
+31:Volledig scherm
+32:Toepassen
+33:Taal:
+34:Aan het laden... Een ogenblik
+35:Er is een fout opgetreden!
+36:Uitschakelen
+37:Laden nieuw lokaal
+
+KM_InterfaceGamePlay
+39:Je hebt gewonnen!
+40:Doorspelen
+41:Victorie!
+42:Je hebt verloren!
+43:Blijk kijken
+44:Nederlaag
+45:Terugkijken is gestopt
+46:Blijf kijken
+47:Afsluiten naar menu
+
+KM_Game
+48:Er is een fout opgetreden!
+49:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen? 
+
+KM_Units
+50:Delven van de verkeerde plek
+51: De vissershut is buiten het bereik van het water.
+52: De visser kan geen vis meer vangen rondom zijn vissershut
+
+KM_Unit1
+53: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
+
+KM_InterfaceMapEditor
+54:Terrein wijzigigen
+55:Stad planning
+56:Visuele scripts
+57:Globale scripts
+58:Menu
+
+Create_LANLogin_Page
+59:Speler naam:
+60:Jouwen IP adres:
+61:Host IP adres:
+62:Server aanmaken
+63:Meedoen
+
+Create_Lobby_Page
+64:Spelerslijst:
+65:Start locatie:
+66:Team:
+67:Vlag kleur:
+68:Klaar:
+69:Ping:
+70:Open
+71:AI Speler
+72:Willekeurig
+73:Geen
+74:Team %d
+75:Berichten list:
+76:Bericht:
+77:Kies map:
+78:Een map:
+79:Opgeslagen map:
+80:Selecteer een map…
+81:Map informatie:
+82:Afsluiten lobby
+83:Klaar
+84:Start!
+93:Spelers: 
+94:Mode: 
+95:Condities: 
+96:Selecteer een opgeslagen spel...
+97:Selecteer...
+98:Netwerk fout: 
+								
+Credits
+85:KaM Remake Credits
+86:Original Knights & Merchants Credits
+87:PROGRAMMING:
+88:ADDITIONAL PROGRAMMING:
+89:ADDITIONAL GRAPHICS:
+90:ADDITIONAL TRANSLATIONS:
+91:SPECIAL THANKS TO:
+
+Mission
+92:Missie %d
