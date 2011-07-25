@@ -6,7 +6,7 @@ KM_InterfaceMainMenu
  2:Aufbau Tutorial
  3:Kampf Tutorial
  4:Einzelspieler
- 5:Map Editor
+ 5:Karten-Editor
  6:Letzten Replay anzeigen
  7:Über Netzwerk spielen
  8:Über Internet spielen
@@ -15,7 +15,7 @@ KM_InterfaceMainMenu
 11:Mission starten
 12:Titel
 13:Größe
-14:Missions Typ: 
+14:Missionstyp: 
 15:Siegbedingung: 
 16:Niederlagebedingung: 
 17:Verbündete: 
@@ -37,7 +37,7 @@ KM_InterfaceMainMenu
 33:Sprache:
 34:Lade... Bitte warten
 35:Ein Fehler ist aufgetreten!
-36:Disable
+36:Ausschalten
 37:Loading new locale
 
 KM_InterfaceGamePlay
@@ -71,40 +71,40 @@ KM_InterfaceMapEditor
 58:Menü
 
 Create_LANLogin_Page
-59:Player name:
-60:Your IP address:
-61:Host IP address:
-62:Create Server
-63:Join
+59:Spielername:
+60:Ihre IP-Adresse:
+61:Host-IP-Adresse:
+62:Server erstellen
+63:Beitreten
 
 Create_Lobby_Page
-64:Players list:
+64:Spielerliste:
 65:Start location:
 66:Team:
-67:Flag color:
-68:Ready:
+67:Flaggenfarbe:
+68:Bereit:
 69:Ping:
 70:Open
-71:AI Player
+71:KI-Spieler
 72:Random
 73:None
 74:Team %d
-75:Posts list:
-76:Post message:
-77:Choose map:
-78:Single Map
-79:Saved Game
-80:Select a map...
-81:Map info:
-82:Quit lobby
-83:Ready
+75:Nachrichtenliste:
+76:Nachricht:
+77:Kartenwahl:
+78:Einzelkarte
+79:Gespeichertes Spiel
+80:Wähle eine Karte...
+81:Karteninfo:
+82:Lobby verlassen.
+83:Bereit!
 84:Start!
-93:Players: 
-94:Mode: 
-95:Conditions: 
-96:Select a save...
-97:Select...
-98:Network error: 
+93:Spieler: 
+94:Modus: 
+95:Bedingungen: 
+96:Wähle einen Speicherstand...
+97:Wähle...
+98:Netzwerkfehler: 
 
 Credits
 85:KaM Remake Credits
