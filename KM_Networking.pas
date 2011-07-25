@@ -98,7 +98,7 @@ type
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
 
     //Common
-    procedure PostMessage(aText:string; aShowName:boolean=false);
+    procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
@@ -555,10 +555,30 @@ end;
 
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
-procedure TKMNetworking.PostMessage(aText:string; aShowName:boolean=false);
+procedure TKMNetworking.PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
+var i: integer;
 begin
-  if aShowName then aText := fMyNikname+': '+aText;
-  PacketSend(NET_ADDRESS_ALL, mk_Text, aText, 0);
+  if aShowName then
+  begin
+    if fLANGameState <> lgs_Game then
+      aText := fMyNikname+': '+aText
+    else
+    begin
+      if aTeamOnly then
+        aText := fMyNikname+' (Team): '+aText
+      else
+        aText := fMyNikname+' (All): '+aText;
+    end;
+  end;
+  if not aTeamOnly then
+    PacketSend(NET_ADDRESS_ALL, mk_Text, aText, 0) //Send to all
+  else
+    if NetPlayers[fMyIndex].Team = 0 then
+      PacketSend(fMyIndexOnServer, mk_Text, aText, 0) //Send to self only if we have no team
+    else
+      for i:=1 to NetPlayers.Count do
+        if NetPlayers[i].Team = NetPlayers[fMyIndex].Team then
+          PacketSend(NetPlayers[i].IndexOnServer, mk_Text, aText, 0); //Send to each player on team (includes self)
 end;
 
 

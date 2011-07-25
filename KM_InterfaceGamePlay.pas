@@ -126,6 +126,7 @@ type
     Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       ListBox_ChatText:TKMListBox;
       Edit_ChatMsg:TKMEdit;
+      CheckBox_SendToAllies:TKMCheckBox;
       Button_ChatClose:TKMButton;
     Panel_Message:TKMPanel;
       Image_MessageBG:TKMImage;
@@ -839,11 +840,14 @@ begin
     TKMImage.Create(Panel_Chat,0,20,600,170,409);
     TKMImage.Create(Panel_Chat,0,0,600,20,551);
 
-    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,60,600-85,101,false);
+    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,600-85,101,false);
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 161, 600-85, 20, fnt_Antiqua);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 480-85, 20, fnt_Antiqua);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
+
+    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,445,154,200,20,'To team',fnt_Antiqua);
+    CheckBox_SendToAllies.Checked := true;
 
     Button_ChatClose:=TKMButton.Create(Panel_Chat,600-35,65,30,24,'[x]',fnt_Antiqua);
     Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
@@ -1334,6 +1338,16 @@ begin
   Panel_Allies.Hide;
   Panel_Chat.Show;
   Panel_Message.Hide;
+  if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team = 0 then
+  begin
+    CheckBox_SendToAllies.Checked := false;
+    CheckBox_SendToAllies.Enabled := false;
+  end
+  else
+  begin
+    CheckBox_SendToAllies.Checked := true;
+    CheckBox_SendToAllies.Enabled := true;
+  end;
   Label_MPChatUnread.Caption := ''; //No unread messages
 end;
 
@@ -2017,7 +2031,7 @@ procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
   begin
-    fGame.Networking.PostMessage(Edit_ChatMsg.Text, true);
+    fGame.Networking.PostMessage(Edit_ChatMsg.Text, true, CheckBox_SendToAllies.Checked);
     Edit_ChatMsg.Text := '';
   end;
 end;
@@ -2026,6 +2040,8 @@ end;
 procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
 begin
   Panel_Chat.Hide;
+  if MyControls.CtrlFocus = Edit_ChatMsg then
+    MyControls.CtrlFocus := nil; //Lose focus so you can't type messages with the panel hidden
 end;
 
 
@@ -2411,7 +2427,7 @@ begin
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
     H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if ((U = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
+    if ((U = nil) or U.IsDeadOrDying or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Ally)) and
        ((H = nil) or (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Ally)) and
       fTerrain.Route_CanBeMade(fShownUnit.GetPosition, GameCursor.Cell, CanWalk, 0, false) then
     begin
@@ -2477,7 +2493,7 @@ begin
   if fJoiningGroups and (fShownUnit is TKMUnitWarrior) then
   begin
     U := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Scan only teammates
-    if (U <> nil) and (U is TKMUnitWarrior) and
+    if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
        (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
        (UnitGroups[byte(U.UnitType)] = UnitGroups[byte(fShownUnit.UnitType)]) then
       Screen.Cursor := c_JoinYes
@@ -2498,8 +2514,8 @@ begin
     begin
       U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-      if ((U<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy)) or
-         ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
+      if ((U<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy)) or
+         ((H<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
         Screen.Cursor := c_Attack
       else
       if not fViewport.Scrolling then
@@ -2566,7 +2582,7 @@ begin
   if fJoiningGroups and (fShownUnit <> nil) and (fShownUnit is TKMUnitWarrior) then
   begin
     U  := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
-    if (U <> nil) and (U is TKMUnitWarrior) and
+    if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
        (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
        (UnitGroups[byte(U.UnitType)] = UnitGroups[byte(fShownUnit.UnitType)]) then
     begin
