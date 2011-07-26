@@ -93,6 +93,7 @@ type
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
+    property GlobalTickCount:cardinal read fGlobalTickCount;
     property GetMissionFile:string read fMissionFile;
     property GetGameName:string read fGameName;
     property GetCampaign:TCampaign read fActiveCampaign;

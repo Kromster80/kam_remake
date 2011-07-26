@@ -575,15 +575,7 @@ begin
     Image_DirectionCursor.Hide;
 
     Create_Allies_Page; //MessagePage sibling
-    Create_Chat_Page; //MessagePage sibling
     Create_Message_Page; //Must go bellow message stack
-
-    Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48,30,48,494);
-    Image_MPChat.HighlightOnMouseOver := true;
-    Image_MPChat.OnClick := MPChat_Show;
-    //todo: Find a way to make the number more readable (different font/color? Enlarged font?
-    Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,fRender.RenderAreaSize.Y-30,30,36,'',fnt_Grey,kaCenter,$FF1111FF);
-    Label_MPChatUnread.OnClick := MPChat_Show;
 
     Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48*2,30,48,496);
     Image_MPAllies.HighlightOnMouseOver := true;
@@ -646,6 +638,13 @@ begin
   Create_Pause_Page;
   Create_Replay_Page;
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
+
+  Create_Chat_Page; //MessagePage sibling
+  Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48,30,48,494);
+  Image_MPChat.HighlightOnMouseOver := true;
+  Image_MPChat.OnClick := MPChat_Show;
+  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,fRender.RenderAreaSize.Y-30,30,36,'',fnt_Antiqua,kaCenter);
+  Label_MPChatUnread.OnClick := MPChat_Show;
 
   //Controls without a hint will reset the Hint to ''
   MyControls.OnHint := DisplayHint;
@@ -840,13 +839,13 @@ begin
     TKMImage.Create(Panel_Chat,0,20,600,170,409);
     TKMImage.Create(Panel_Chat,0,0,600,20,551);
 
-    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,600-85,101,false);
+    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,600-85,101,fnt_Metal,false);
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 480-85, 20, fnt_Antiqua);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 480-85, 20, fnt_Metal);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
 
-    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,445,154,200,20,'To team',fnt_Antiqua);
+    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,445,154,200,20,'To team',fnt_Outline);
     CheckBox_SendToAllies.Checked := true;
 
     Button_ChatClose:=TKMButton.Create(Panel_Chat,600-35,65,30,24,'[x]',fnt_Antiqua);
@@ -2743,7 +2742,7 @@ begin
     Label_VictoryChance.Caption := S;
   end;
 
-  Label_MPChatUnread.Visible := not (fGame.GameTickCount mod 10 < 5); //Flash unread message display
+  Label_MPChatUnread.Visible := not (fGame.GlobalTickCount mod 10 < 5); //Flash unread message display
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
 end;
 

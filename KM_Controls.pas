@@ -469,6 +469,7 @@ type
 
   TKMListBox = class(TKMControl)
   private
+    fFont: TKMFont; //Can't be changed from inital value, it will mess up the word wrapping
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fCanSelect:boolean;
     fItemHeight:byte;
@@ -485,7 +486,7 @@ type
     procedure ChangeScrollPosition (Sender:TObject);
     procedure UpdateScrollBar;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCanSelect:boolean=true);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aCanSelect:boolean=true);
     destructor Destroy; override;
 
     procedure AddItem(aItem:string; aAutoWordWrap:boolean=false);
@@ -1937,7 +1938,7 @@ end;
 
 
 { TKMListBox }
-constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCanSelect:boolean=true);
+constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aCanSelect:boolean=true);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fBackAlpha := 0.5;
@@ -1946,6 +1947,7 @@ begin
   fTopIndex := 0;
   fItemIndex := -1;
   fItems := TStringList.Create;
+  fFont := aFont;
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
   fScrollBar.fOnChange := ChangeScrollPosition;
@@ -2020,7 +2022,7 @@ begin
   else
   begin
     MyItems := TStringList.Create;
-    ParseDelimited(MyItems, KMWordWrap(aItem, fnt_Metal, Width-fScrollBar.Width-6,true), '|');
+    ParseDelimited(MyItems, KMWordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
     for i:=0 to MyItems.Count-1 do
       fItems.Add(MyItems.Strings[i]);
     MyItems.Free;
@@ -2118,7 +2120,7 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
 end;
 
 
@@ -2140,7 +2142,7 @@ begin
   fShape.fOnClick := ListHide;
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0);
+  fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
   fList.BackAlpha := 0.85;
   fList.fOnClick := ListClick;
 
