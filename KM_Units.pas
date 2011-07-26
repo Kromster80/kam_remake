@@ -124,7 +124,7 @@ type TCheckAxis = (ax_X, ax_Y);
     procedure SetActionWalkToUnit(aUnit:TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk); overload;
     procedure SetActionWalkToSpot(aLocB:TKMPoint; aDistance:single=0; aActionType:TUnitActionType=ua_Walk); overload;
     procedure SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
-    procedure SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aTargetCanBeReached:boolean=true);
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -1355,10 +1355,10 @@ end;
 
 
 //Walk to spot neighbourhood
-procedure TKMUnit.SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aTargetCanBeReached:boolean=true);
 begin
   Assert(Self is TKMUnitWarrior, 'True warriors don''t care ''bout exact location on reposition');
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, true, nil, nil));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, true, nil, nil, aTargetCanBeReached));
 end;
 
 
@@ -1822,6 +1822,9 @@ begin
     PosY := P.Y;
   end;
 
+  if fTerrain.HasUnit(KMPoint(PosX,PosY)) then
+    raise ELocError.Create('No space for '+TypeToString(aUnitType)+', tile occupied by '+TypeToString(fTerrain.Land[PosY,PosX].IsUnit.UnitType),KMPoint(PosX,PosY));
+
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
     fLog.AppendLog('Unable to add unit to '+TypeToString(KMPoint(PosX,PosY)));
     Result := nil;
@@ -1849,14 +1852,14 @@ end;
 
 
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
-var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint;
+var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint; DoesFit: boolean;
 begin
   aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
   begin
     for i:=1 to aUnitCount do
     begin
-      UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY);
+      UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
       U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
       if U<>nil then
       begin
@@ -1888,7 +1891,7 @@ begin
   end;
 
   for i:=2 to aUnitCount do begin //Commander already placed
-    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY);
+    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
     W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y)); //W will be _nil_ if unit didn't fit on map
     if W<>nil then
     begin

@@ -127,7 +127,7 @@ TTerrain = class
     procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
-    function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
+    function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability; aAcceptTargetLoc:boolean=true):TKMPoint;
 
     procedure UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
     procedure UnitRem(LocFrom:TKMPoint);
@@ -1657,7 +1657,7 @@ end;
 
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
 //If no tile found - return Origin location
-function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
+function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability; aAcceptTargetLoc:boolean=true):TKMPoint;
 const TestDepth = 255;
 var
   i:integer;
@@ -1675,7 +1675,7 @@ begin
   WalkConnectID := Land[OriginLoc.Y,OriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
 
   //If target is accessable then use it
-  if CheckPassability(TargetLoc, aPass) and (WalkConnectID = Land[TargetLoc.Y,TargetLoc.X].WalkConnect[wcType]) then
+  if aAcceptTargetLoc and CheckPassability(TargetLoc, aPass) and (WalkConnectID = Land[TargetLoc.Y,TargetLoc.X].WalkConnect[wcType]) then
   begin
     Result := TargetLoc;
     exit;

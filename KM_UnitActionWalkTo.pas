@@ -28,7 +28,6 @@ type
     private
       fWalker:TKMUnit; //Who's walking
       fWalkFrom:TKMPoint; //Walking from this spot, used only in Create
-      fTargetLoc:TKMPoint; //Our best-case scenario target location (if WalkToNear=true)
       fWalkTo:TKMPoint; //Where are we going to with regard to WalkToNear
       fNewWalkTo:TKMPoint; //If we recieve a new TargetLoc it will be stored here
       fDistance:single; //How close we need to get to our aim
@@ -73,7 +72,7 @@ type
       ExplanationLog:TStringList;
     public
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
-      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
+      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse; aTargetCanBeReach:boolean=true);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure  SyncLoad; override;
       destructor Destroy; override;
@@ -83,7 +82,7 @@ type
       property DoesWalking:boolean read fDoesWalking;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
       function  GetExplanation:string; override;
-      procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
+      procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aTargetCanBeReach:boolean=true; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
 
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -97,18 +96,20 @@ uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut,
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
+constructor TUnitActionWalkTo.Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse; aTargetCanBeReach:boolean=true);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
+  if not fTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
+    raise ELocError.Create('Invalid Walk To for '+TypeToString(aUnit.UnitType),aLocB);
+
   fActionName   := uan_WalkTo;
   Locked        := false; //Equivalent to Can AbandonExternal?
 
   fWalker       := aUnit; //Does not require pointer tracking because action should always be destroyed before the unit that owns it
-  fTargetLoc    := aLocB; //Remember it incase we need to change our route around obstacle and WalkToNear=true
   //               aActionType Set in parent class
   fDistance     := aDistance;
-  //               aSetPushed Don't need to be rememberred
+  //               aSetPushed Dooesn't need to be rememberred
   fWalkToNear   := aWalkToNear;
   if aTargetUnit  <> nil then fTargetUnit  := aTargetUnit.GetUnitPointer;
   if aTargetHouse <> nil then fTargetHouse := aTargetHouse.GetHousePointer;
@@ -119,7 +120,7 @@ begin
   fPass         := fWalker.GetDesiredPassability;
 
   if fWalkToNear then
-    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass)
+    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass,aTargetCanBeReach)
   else
     fWalkTo     := aLocB;
 
@@ -211,7 +212,6 @@ begin
   Inherited;
   LoadStream.Read(fWalker, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fWalkFrom);
-  LoadStream.Read(fTargetLoc);
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fNewWalkTo);
   LoadStream.Read(fDistance);
@@ -428,7 +428,7 @@ begin
     if ((fTargetHouse = nil) and fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance, false))
     or ((fTargetHouse <> nil) and fTerrain.Route_CanBeMadeToHouse(fWalker.GetPosition,fTargetHouse,GetEffectivePassability,fDistance, false)) then
     begin
-      fWalker.SetActionWalk(fTargetLoc, fActionType, fDistance, fWalkToNear, fTargetUnit, fTargetHouse);
+      fWalker.SetActionWalk(fWalkTo, fActionType, fDistance, fWalkToNear, fTargetUnit, fTargetHouse);
       Result := oc_ReRouteMade;
     end else
       Result := oc_NoRoute;
@@ -821,19 +821,18 @@ end;
 
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aTargetCanBeReach:boolean=true; aNewTargetUnit:TKMUnit=nil);
 begin
-  if fWalkTo.X*fWalkTo.Y = 0 then
-    raise ELocError.Create('Change Walk To 0;0',fWalkTo);
+  if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
+    raise ELocError.Create('Invalid Change Walk To for '+TypeToString(fWalker.UnitType),aLoc);
 
   if fInteractionStatus = kis_Pushed then
     fInteractionStatus := kis_None; //We are no longer being pushed
 
-  fTargetLoc := aLoc;
   fDistance := aDistance;
 
   if aWalkToNear then
-    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass)
+    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass, aTargetCanBeReach)
   else
     fNewWalkTo := aLoc;
 
@@ -912,7 +911,7 @@ begin
       and (not fTargetUnit.IsDeadOrDying)
       and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
-      ChangeWalkTo(fTargetUnit.GetPosition,fDistance,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
+      ChangeWalkTo(fTargetUnit.GetPosition,fDistance,false,true,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
       if (fWalker is TKMUnitWarrior) and TKMUnitWarrior(fWalker).IsCommander then
       begin
@@ -1055,7 +1054,6 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fWalkFrom);
-  SaveStream.Write(fTargetLoc);
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fNewWalkTo);
   SaveStream.Write(fDistance);

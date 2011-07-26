@@ -13,6 +13,7 @@ type //Possibly melee warrior class? with Archer class separate?
     fTimeSinceHungryReminder:integer;
     fState:TWarriorState; //This property is individual to each unit, including commander
     fOrder:TWarriorOrder;
+    fTargetCanBeReached:boolean;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
@@ -58,7 +59,7 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure OrderSplit; //Split group in half and assign another commander
     procedure OrderStorm;
     procedure OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
-    procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false); reintroduce; overload;
+    procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true); reintroduce; overload;
     procedure OrderWalk(aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
@@ -128,6 +129,7 @@ begin
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
+  LoadStream.Read(fTargetCanBeReached);
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(aCount);
   if aCount <> 0 then
@@ -323,7 +325,7 @@ begin
     ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc, GetPosition, CanWalk);
 
   //See if we are in position already or if we can't reach the position, (closest tile differs from target tile) because we don't retry for that case.
-  if (fState = ws_None) and (KMSamePoint(GetPosition,fOrderLoc.Loc) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
+  if (fState = ws_None) and (KMSamePoint(GetPosition,fOrderLoc.Loc) or (not fTargetCanBeReached) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
     exit;
 
   //This means we are not in position, return false and move into position (unless we are currently walking)
@@ -735,14 +737,16 @@ end;
 
 
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
-procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false);
-var i:integer; NewLoc:TKMPoint;
+procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true);
+var i:integer; NewLoc:TKMPoint; NewLocCanBeReached: boolean;
 begin
+  if KMSamePoint(aLoc.Loc, KMPoint(0,0)) then exit;
   if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
     fOrder    := wo_Walk;
     fState    := ws_None; //Clear other states
     fOrderLoc := aLoc;
+    fTargetCanBeReached := aTargetCanBeReached;
     SetOrderTarget(nil);
     SetOrderHouseTarget(nil);
   end;
@@ -750,8 +754,8 @@ begin
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
   for i:=1 to fMembers.Count do begin
     NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1),
-                                  i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, true); //Allow off map positions so GetClosestTile works properly
-    TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir))
+                                  i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, NewLocCanBeReached); //Allow off map positions so GetClosestTile works properly
+    TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir),false,NewLocCanBeReached)
   end;
 end;
 
@@ -830,6 +834,7 @@ begin
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
+  SaveStream.Write(fTargetCanBeReached);
   SaveStream.Write(fUnitsPerRow);
   //Only save members if we are a commander
   if (fMembers <> nil) and (fCommander = nil) then
@@ -1044,7 +1049,7 @@ begin
     //Change WalkTo
     if (GetUnitAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then begin
       if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fCommander <> nil);
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fCommander <> nil, fTargetCanBeReached);
       fOrder := wo_None;
       fState := ws_Walking;
     end
@@ -1056,7 +1061,7 @@ begin
       if fCommander = nil then
         SetActionWalkToSpot(fOrderLoc.Loc)
       else
-        SetActionWalkToNear(fOrderLoc.Loc);
+        SetActionWalkToNear(fOrderLoc.Loc, ua_Walk, fTargetCanBeReached);
       fOrder := wo_None;
       fState := ws_Walking;
     end;
@@ -1073,7 +1078,7 @@ begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
     //todo: Do not WalkTo enemies location if we are archers, stay in place
-    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, fCommander <> nil, GetOrderTarget);
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, fCommander <> nil, true, GetOrderTarget);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking;
   end;
@@ -1201,6 +1206,7 @@ var
   XPaintPos, YPaintPos: single;
   i,k:integer;
   UnitPosition: TKMPoint;
+  DoesFit:boolean;
 begin
   Inherited;
   if not fVisible then exit;
@@ -1226,7 +1232,8 @@ begin
   //Paint members in MapEd mode
   if fMapEdMembersCount<>0 then
   for i:=1 to fMapEdMembersCount do begin
-    UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY);
+    UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    if not DoesFit then continue; //Don't render units that are off the map in the map editor
     XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
     YPaintPos := UnitPosition.Y + 1  ;
     fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
