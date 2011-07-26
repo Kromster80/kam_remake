@@ -381,7 +381,7 @@ begin
     fRender.Render;
 
     try //Catch exceptions
-      fMissionParser := TMissionParser.Create(mpm_Single);
+      fMissionParser := TMissionParser.Create(mpm_Single,false);
       if fMissionParser.LoadMission(fMissionFile) then
         fLog.AppendLog('DAT Loaded')
       else
@@ -464,7 +464,7 @@ begin
       fRender.Render;
 
       try //Catch exceptions
-        fMissionParser := TMissionParser.Create(mpm_Multi);
+        fMissionParser := TMissionParser.Create(mpm_Multi,false);
         if fMissionParser.LoadMission(fMissionFile) then
           fLog.AppendLog('DAT Loaded')
         else
@@ -781,7 +781,7 @@ begin
   fLog.AppendLog('Loading DAT file: '+aMissionPath);
   if FileExists(aMissionPath) then
   begin
-    fMissionParser := TMissionParser.Create(mpm_Editor);
+    fMissionParser := TMissionParser.Create(mpm_Editor,false);
 
     if fMissionParser.LoadMission(aMissionPath) then
       fLog.AppendLog('DAT Loaded')
@@ -836,7 +836,7 @@ begin
     CreateDir(ExeDir+'Maps');
     CreateDir(ExeDir+'Maps\'+aMissionName);
     fTerrain.SaveToMapFile(KMMapNameToPath(aMissionName, 'map'));
-    fMissionParser := TMissionParser.Create(mpm_Editor);
+    fMissionParser := TMissionParser.Create(mpm_Editor,false);
     fMissionParser.SaveDATFile(KMMapNameToPath(aMissionName, 'dat'));
     FreeAndNil(fMissionParser);
     fGameName := aMissionName;

@@ -270,7 +270,7 @@ end;
 
 //Set player to no longer be alive, but do not remove them from the game
 procedure TKMPlayersList.KillPlayer(aIndexOnServer:integer);
-var ID,i:integer;
+var ID:integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
   Assert(ID <> -1, 'Cannot kill player');

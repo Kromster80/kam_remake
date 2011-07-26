@@ -99,6 +99,7 @@ type
   TMissionParser = class
   private
     fParsingMode:TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
+    fStrictParsing:boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
     fErrorMessage:string; //Errors descriptions accumulate here
     fMissionFileName:string;
 
@@ -119,11 +120,11 @@ type
     function UnitTypeToScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:shortstring):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
-    procedure DebugScriptError(const ErrorMsg:string);
+    procedure DebugScriptError(const ErrorMsg:string; aFatal:boolean=false);
     procedure ProcessAttackPositions;
     function ReadMissionFile(const aFileName:string):string;
   public
-    constructor Create(aMode:TMissionParsingMode);
+    constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean);
     function LoadMission(const aFileName:string):boolean;
 
     property ErrorMessage:string read fErrorMessage;
@@ -139,10 +140,11 @@ uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_ResourceGFX, K
 
 { TMissionParser }
 //Mode affect how certain parameters are loaded a bit differently
-constructor TMissionParser.Create(aMode:TMissionParsingMode);
+constructor TMissionParser.Create(aMode:TMissionParsingMode; aStrictParsing:boolean);
 begin
   Inherited Create;
   fParsingMode := aMode;
+  fStrictParsing := aStrictParsing;
 end;
 
 
@@ -352,7 +354,7 @@ begin
 
   if (sx > MAX_MAP_SIZE) or (sy > MAX_MAP_SIZE) then
   begin
-    DebugScriptError('MissionParser can''t open the map because it''s too big.');
+    DebugScriptError('MissionParser can''t open the map because it''s too big.',true);
     Result := false;
     Exit;
   end;
@@ -431,7 +433,7 @@ begin
   //SinglePlayer needs a player
   if (fMissionInfo.HumanPlayerID = PLAYER_NONE) and (fParsingMode = mpm_Single) then
   begin
-    DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
+    DebugScriptError('No human player detected - ''ct_SetHumanPlayer''',true);
     Exit;
   end;
 
@@ -463,7 +465,7 @@ begin
                          else
                          begin
                            //Else abort loading and fail
-                           DebugScriptError('Map file couldn''t be found');
+                           DebugScriptError('Map file couldn''t be found',true);
                            Exit;
                          end;
                        end;
@@ -724,9 +726,10 @@ end;
 
 //A nice way of debugging script errors.
 //Shows the error to the user so they know exactly what they did wrong.
-procedure TMissionParser.DebugScriptError(const ErrorMsg:string);
+procedure TMissionParser.DebugScriptError(const ErrorMsg:string; aFatal:boolean=false);
 begin
-  fErrorMessage := fErrorMessage + ErrorMsg + '|';
+  if fStrictParsing or aFatal then
+    fErrorMessage := fErrorMessage + ErrorMsg + '|';
 end;
 
 

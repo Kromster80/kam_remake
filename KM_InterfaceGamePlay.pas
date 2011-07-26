@@ -2515,7 +2515,7 @@ begin
       U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       if ((U<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy)) or
-         ((H<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
+         ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
         Screen.Cursor := c_Attack
       else
       if not fViewport.Scrolling then

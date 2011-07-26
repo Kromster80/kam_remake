@@ -123,7 +123,7 @@ begin
   then
   begin
     fDatSize := GetFileSize(DatFile);
-    fMissionParser := TMissionParser.Create(mpm_Info);
+    fMissionParser := TMissionParser.Create(mpm_Info,false);
     try
       fMissionParser.LoadMission(DatFile);
       MissionDetails := fMissionParser.MissionDetails;

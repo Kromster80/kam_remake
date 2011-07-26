@@ -887,7 +887,10 @@ begin
   if Sender=Button_SP_Single then begin
     SingleMap_PopulateList;
     SingleMap_RefreshList;
-    SingleMap_SelectMap(Shape_SingleOverlay[0]); //Select first entry
+    SingleMap_Selected := EnsureRange(SingleMap_Selected, 0, SingleMapsInfo.Count-1);
+    ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, SingleMap_Selected-MENU_SP_MAPS_COUNT+1, SingleMap_Selected);
+    SingleMap_ScrollChange(ScrollBar_SingleMaps);
+    SingleMap_SelectMap(Shape_SingleOverlay[SingleMap_Selected-SingleMap_Top]);
     Panel_Single.Show;
   end;
 
@@ -1106,9 +1109,10 @@ begin
     Shape_SingleMap.Hide //Off visible list
   else
   begin
-    Shape_SingleMap.Show;
     i := TKMControl(Sender).Tag;
+    if not InRange(SingleMap_Top+i, 0, SingleMapsInfo.Count-1) then exit; //Less items than list space
 
+    Shape_SingleMap.Show;
     Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * (i+1); // Including header height
 
     SingleMap_Selected        := SingleMap_Top+i;
