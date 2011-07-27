@@ -1,5 +1,5 @@
 
-MaxID:109
+MaxID:107
 
 KM_InterfaceMainMenu
  1:Mission canceled
@@ -63,7 +63,7 @@ KM_Units
 50:Mining from wrong spot
 51:Your fisherman's hut is too far away from the water.
 52:Your fisherman cannot catch any further fish in the nearby water bodies.
-109:Die
+107:Die
 
 KM_Unit1
 53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
@@ -115,9 +115,6 @@ Create_Lobby_Page
 101:You have disconnected
 102:Connecting, please wait ...
 103:Waiting for players:
-107:Player
-108:Ping
-
 
 Credits
 85:KaM Remake Credits

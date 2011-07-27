@@ -914,13 +914,13 @@ begin
         TKMLabel.Create(Panel_Allies, 200+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, kaLeft);
         TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, kaCenter);
       end;
-      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, fTextLibrary[TX_LOBBY_PLAYER], fnt_Grey, kaLeft);
+      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, kaLeft);
       DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey);
       DropBox_AlliesTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
       for k:=1 to 4 do DropBox_AlliesTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
       DropBox_AlliesTeam[i].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[i].DropUp := true; //Doesn't fit if it drops down
-      Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 140, 20, fTextLibrary[TX_LOBBY_PING], fnt_Grey, kaCenter);
+      Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, kaCenter);
     end;
 
     Button_AlliesClose:=TKMButton.Create(Panel_Allies,800-35,50,30,24,'[x]',fnt_Antiqua);

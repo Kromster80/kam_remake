@@ -1,5 +1,5 @@
 
-MaxID:109
+MaxID:107
 
 KM_InterfaceMainMenu
  1:Küldetés megszakítva
@@ -63,7 +63,7 @@ KM_Units
 50:Rossz helyrõl bányászik
 51:A halászkunyhód túl messze van a víztõl.
 52:A halászod nem tud több halat fogni a közeli vízbõl.
-109:Meghal
+107:Meghal
 
 KM_Unit1
 53:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
@@ -115,8 +115,6 @@ Create_Lobby_Page
 101:Megszakadt a kapcsolat
 102:Kapcsolódás, kérem várjon ...
 103:Várakozás a játékosokra:
-107:Játékos
-108:Ping
 
 Credits
 85:KaM Remake Készítõk

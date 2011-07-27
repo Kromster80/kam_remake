@@ -1,5 +1,5 @@
 
-MaxID:109
+MaxID:107
 
 KM_InterfaceMainMenu
  1:Missie geannuleerd 
@@ -63,7 +63,7 @@ KM_Units
 50:Delven van de verkeerde plek
 51: De vissershut is buiten het bereik van het water.
 52: De visser kan geen vis meer vangen rondom zijn vissershut
-109:Die
+107:Die
 
 KM_Unit1
 53: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
@@ -115,9 +115,7 @@ Create_Lobby_Page
 101:You have disconnected
 102:Connecting, please wait ...
 103:Waiting for players:
-107:Player
-108:Ping
-								
+
 Credits
 85:KaM Remake Credits
 86:Original Knights & Merchants Credits

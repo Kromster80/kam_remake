@@ -1,5 +1,5 @@
 
-MaxID:109
+MaxID:107
 
 KM_InterfaceMainMenu
  1:Mission abgebrochen
@@ -63,7 +63,7 @@ KM_Units
 50:Abbau an der falschen Stelle
 51:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
 52:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
-109:Die
+107:Die
 
 KM_Unit1
 53:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
@@ -115,8 +115,6 @@ Create_Lobby_Page
 101:You have disconnected
 102:Connecting, please wait ...
 103:Waiting for players:
-107:Player
-108:Ping
 
 Credits
 85:KaM Remake Credits
