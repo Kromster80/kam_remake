@@ -1,5 +1,5 @@
 
-MaxID:98
+MaxID:109
 
 KM_InterfaceMainMenu
  1:Mission canceled
@@ -39,6 +39,7 @@ KM_InterfaceMainMenu
 35:An Error Has Occured!
 36:Disable
 37:Loading new locale
+38:Unknown
 
 KM_InterfaceGamePlay
 39:You've won!
@@ -50,6 +51,9 @@ KM_InterfaceGamePlay
 45:Replay has ended
 46:Continue watching
 47:Quit to menu
+104:Not available
+105:Press %s to resume the game
+106:To team
 
 KM_Game
 48:An error has occoured during gameplay.
@@ -59,6 +63,7 @@ KM_Units
 50:Mining from wrong spot
 51:Your fisherman's hut is too far away from the water.
 52:Your fisherman cannot catch any further fish in the nearby water bodies.
+109:Die
 
 KM_Unit1
 53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
@@ -105,6 +110,14 @@ Create_Lobby_Page
 96:Select a save...
 97:Select...
 98:Network error:
+99:Error: Player name must not be blank
+100:Connection failed: %s
+101:You have disconnected
+102:Connecting, please wait ...
+103:Waiting for players:
+107:Player
+108:Ping
+
 
 Credits
 85:KaM Remake Credits

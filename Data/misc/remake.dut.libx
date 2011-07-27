@@ -1,5 +1,5 @@
 
-MaxID:98
+MaxID:109
 
 KM_InterfaceMainMenu
  1:Missie geannuleerd 
@@ -39,6 +39,7 @@ KM_InterfaceMainMenu
 35:Er is een fout opgetreden!
 36:Uitschakelen
 37:Laden nieuw lokaal
+38:Unknown
 
 KM_InterfaceGamePlay
 39:Je hebt gewonnen!
@@ -50,6 +51,9 @@ KM_InterfaceGamePlay
 45:Terugkijken is gestopt
 46:Blijf kijken
 47:Afsluiten naar menu
+104:Not available
+105:Press %s to resume the game
+106:To team
 
 KM_Game
 48:Er is een fout opgetreden!
@@ -59,6 +63,7 @@ KM_Units
 50:Delven van de verkeerde plek
 51: De vissershut is buiten het bereik van het water.
 52: De visser kan geen vis meer vangen rondom zijn vissershut
+109:Die
 
 KM_Unit1
 53: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
@@ -105,6 +110,13 @@ Create_Lobby_Page
 96:Selecteer een opgeslagen spel...
 97:Selecteer...
 98:Netwerk fout:
+99:Error: Player name must not be blank
+100:Connection failed: %s
+101:You have disconnected
+102:Connecting, please wait ...
+103:Waiting for players:
+107:Player
+108:Ping
 								
 Credits
 85:KaM Remake Credits

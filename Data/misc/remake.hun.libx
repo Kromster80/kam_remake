@@ -1,5 +1,5 @@
 
-MaxID:98
+MaxID:109
 
 KM_InterfaceMainMenu
  1:Küldetés megszakítva
@@ -39,6 +39,7 @@ KM_InterfaceMainMenu
 35:Hiba történt!
 36:Letiltás
 37:Új nyelv betöltése
+38:Ismeretlen
 
 KM_InterfaceGamePlay
 39:Megnyerted a játékot!
@@ -50,6 +51,9 @@ KM_InterfaceGamePlay
 45:A visszajátszás végetért
 46:Játék megfigyelése
 47:Vissza a menübe
+104:Nem elérhetõ
+105:Nyomj %s billentyût a játék folytatásához
+106:Csapatnak
 
 KM_Game
 48:Egy hiba történt a játék során.
@@ -59,6 +63,7 @@ KM_Units
 50:Rossz helyrõl bányászik
 51:A halászkunyhód túl messze van a víztõl.
 52:A halászod nem tud több halat fogni a közeli vízbõl.
+109:Meghal
 
 KM_Unit1
 53:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
@@ -105,6 +110,13 @@ Create_Lobby_Page
 96:Válassz egy mentést...
 97:Válassz...
 98:Hálózati hiba:
+99:Hiba: A játékos neve nem lehet üres
+100:Kapcsolódási hiba: %s
+101:Megszakadt a kapcsolat
+102:Kapcsolódás, kérem várjon ...
+103:Várakozás a játékosokra:
+107:Játékos
+108:Ping
 
 Credits
 85:KaM Remake Készítõk

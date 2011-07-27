@@ -337,7 +337,7 @@ begin
       Ratio_RatioRat[i].Enable;
     end else begin
       Image_RatioPic[i].TexID := 41; //Question mark
-      Label_RatioLab[i].Caption := 'Not available'; //"Building not available" text doesn't fit
+      Label_RatioLab[i].Caption := fTextLibrary[TX_GAMEPLAY_NOT_AVAILABLE]; //"Building not available" text doesn't fit
       Ratio_RatioRat[i].Position := 0;
       Ratio_RatioRat[i].Disable;
     end;
@@ -715,7 +715,7 @@ begin
     Bevel_Pause:=TKMBevel.Create(Panel_Pause,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
     Image_Pause:=TKMImage.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)-40,0,0,556);
     Label_Pause1:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
-    Label_Pause2:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    Label_Pause2:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)+20,64,16,Format(fTextLibrary[TX_GAMEPLAY_PAUSE_INFO],['"P"']),fnt_Grey,kaCenter);
     Bevel_Pause.Stretch; //Anchor to all sides
     Image_Pause.ImageCenter;
     Label_Pause1.Center;
@@ -885,7 +885,7 @@ begin
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
 
-    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,200,20,'To team',fnt_Outline);
+    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,200,20,fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM],fnt_Outline);
     CheckBox_SendToAllies.Checked := true;
 
     Button_ChatClose:=TKMButton.Create(Panel_Chat,800-35,50,30,24,'[x]',fnt_Antiqua);
@@ -914,13 +914,13 @@ begin
         TKMLabel.Create(Panel_Allies, 200+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, kaLeft);
         TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, kaCenter);
       end;
-      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, 'Player', fnt_Grey, kaLeft);
+      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, fTextLibrary[TX_LOBBY_PLAYER], fnt_Grey, kaLeft);
       DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey);
       DropBox_AlliesTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
       for k:=1 to 4 do DropBox_AlliesTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
       DropBox_AlliesTeam[i].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[i].DropUp := true; //Doesn't fit if it drops down
-      Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 140, 20, 'Ping', fnt_Grey, kaCenter);
+      Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 140, 20, fTextLibrary[TX_LOBBY_PING], fnt_Grey, kaCenter);
     end;
 
     Button_AlliesClose:=TKMButton.Create(Panel_Allies,800-35,50,30,24,'[x]',fnt_Antiqua);
@@ -1147,7 +1147,7 @@ begin
     Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,246,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,30,'Disable',fnt_Metal);
+    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,30,fTextLibrary[TX_MENU_OPTIONS_SOUND_DISABLE],fnt_Metal);
     CheckBox_Settings_MusicOn.Hint:=fTextLibrary.GetTextString(198);
     CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
 end;
@@ -1173,7 +1173,7 @@ begin
   Panel_Unit:=TKMPanel.Create(Panel_Main,0,412,200,400);
     Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
-    Button_Die            := TKMButton.Create(Panel_Unit,8,120,54,20,'Die',fnt_Grey);
+    Button_Die            := TKMButton.Create(Panel_Unit,8,120,54,20,fTextLibrary[TX_UNITS_DIE],fnt_Grey);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
     ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,73,55,116,15,80);
     Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,74,130,30,'',fnt_Grey,kaLeft);
@@ -2308,7 +2308,7 @@ end;
 procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
 var i:integer; S:String;
 begin
-  S := 'Waiting for players: ';
+  S := fTextLibrary[TX_LANLOGIN_WAITING]+' ';
   for i:=0 to aPlayers.Count-1 do
     S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
 

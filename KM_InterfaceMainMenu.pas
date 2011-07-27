@@ -908,7 +908,7 @@ begin
   {Show LAN login}
   if Sender=Button_MP_LAN then begin
     fGame.NetworkInit;
-    LAN_Update('Ready');
+    LAN_Update(fTextLibrary[TX_LOBBY_READY]);
     Panel_LANLogin.Show;
   end;
 
@@ -1149,7 +1149,7 @@ begin
   Button_LAN_Join.Enable;
 
   if s <> '' then Label_LAN_IP.Caption := s
-             else Label_LAN_IP.Caption := 'Unknown';
+             else Label_LAN_IP.Caption := fTextLibrary[TX_UNKNOWN];
 
   Label_LAN_Status.Caption := aStatus;
 end;
@@ -1168,7 +1168,7 @@ begin
   LAN_Save_Settings; //Save the player and IP name so it is not lost if something fails
   if Trim(Edit_LAN_Name.Text) = '' then
   begin
-    LAN_Update('Error: Player name must not be blank');
+    LAN_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME]);
     exit;
   end;
   SwitchMenuPage(Sender); //Open lobby page
@@ -1184,13 +1184,13 @@ begin
   LAN_Save_Settings; //Save the player and IP name so it is not lost if the connection fails
   if Trim(Edit_LAN_Name.Text) = '' then
   begin
-    LAN_Update('Error: Player name must not be blank');
+    LAN_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME]);
     exit;
   end;
   //Disable buttons to prevent multiple clicks while connection process is in progress
   Button_LAN_Host.Disable;
   Button_LAN_Join.Disable;
-  Label_LAN_Status.Caption := 'Connecting, please wait ...';
+  Label_LAN_Status.Caption := fTextLibrary[TX_LANLOGIN_CONNECTING];
 
   //Send request to join
   fGame.Networking.OnJoinSucc := LAN_JoinSuccess;
@@ -1215,7 +1215,7 @@ end;
 procedure TKMMainMenuInterface.LAN_JoinFail(const aData:string);
 begin
   fGame.Networking.Disconnect;
-  LAN_Update('Connection failed: '+aData);
+  LAN_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]));
 end;
 
 
@@ -1532,7 +1532,7 @@ procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
   fGame.Networking.LeaveLobby;
   fGame.Networking.Disconnect;
-  LAN_Update('You have disconnected');
+  LAN_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT]);
   SwitchMenuPage(Button_LobbyBack);
 end;
 
