@@ -486,7 +486,7 @@ type
     procedure ChangeScrollPosition (Sender:TObject);
     procedure UpdateScrollBar;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aCanSelect:boolean=true);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     destructor Destroy; override;
 
     procedure AddItem(aItem:string; aAutoWordWrap:boolean=false);
@@ -495,6 +495,7 @@ type
     procedure AutoHideScrollBar;
 
     property BackAlpha:single write SetBackAlpha;
+    property CanSelect:boolean write fCanSelect;
     function ItemCount:integer;
     function ItemCaption:string;
     property ItemHeight:byte read fItemHeight;
@@ -1938,11 +1939,11 @@ end;
 
 
 { TKMListBox }
-constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aCanSelect:boolean=true);
+constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fBackAlpha := 0.5;
-  fCanSelect := aCanSelect;
+  fCanSelect := true;
   fItemHeight := 20;
   fTopIndex := 0;
   fItemIndex := -1;

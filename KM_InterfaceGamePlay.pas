@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils, KM_Points;
 
 
@@ -34,6 +34,8 @@ type
     procedure Create_Message_Page;
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
+    procedure Create_NetWait_Page;
+    procedure Create_SideStack;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
     procedure Create_Stats_Page;
@@ -65,8 +67,8 @@ type
     procedure Menu_QuitMission(Sender:TObject);
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
-    procedure MPChat_Show(Sender: TObject);
-    procedure MPAllies_Show(Sender: TObject);
+    procedure Chat_Show(Sender: TObject);
+    procedure Allies_Show(Sender: TObject);
     procedure Message_Close(Sender: TObject);
     procedure Message_Delete(Sender: TObject);
     procedure Message_Display(Sender: TObject);
@@ -83,6 +85,7 @@ type
     procedure RatiosChange(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender:TObject);
+    procedure NetWaitClick(Sender:TObject);
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
@@ -146,6 +149,12 @@ type
         Image_PlayMore:TKMImage;
         Label_PlayMore:TKMLabel;
         Button_PlayMore,Button_PlayQuit:TKMButton;
+    Panel_NetWait:TKMPanel;
+      Bevel_NetWait:TKMBevel;
+      Panel_NetWaitMsg:TKMPanel;
+        Image_NetWait:TKMImage;
+        Label_NetWait:TKMLabel;
+        Button_NetQuit:TKMButton;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -574,34 +583,9 @@ begin
     Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
     Image_DirectionCursor.Hide;
 
-    Create_Allies_Page; //MessagePage sibling
-    Create_Message_Page; //Must go bellow message stack
-
-    Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48*2,30,48,496);
-    Image_MPAllies.HighlightOnMouseOver := true;
-    Image_MPAllies.OnClick := MPAllies_Show;
-
-    //Chat and Allies setup should be accessible only in Multiplayer
-    if not fGame.MultiplayerMode then begin
-      Image_MPChat.Hide;
-      Label_MPChatUnread.Hide;
-      Image_MPAllies.Hide;
-    end;
-
-    for i:=low(Image_Message) to high(Image_Message) do
-    begin
-      Image_Message[i] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-i*48,30,48,495);
-      Image_Message[i].Tag := i;
-      Image_Message[i].HighlightOnMouseOver := true;
-      Image_Message[i].Disable;
-      Image_Message[i].Hide;
-      Image_Message[i].OnClick := Message_Display;
-      Image_Message[i].Anchors := [akLeft, akBottom];
-    end;
-
-    Label_Stat:=TKMLabel.Create(Panel_Main,224+80,16,0,0,'',fnt_Outline,kaLeft);
+    Label_Stat := TKMLabel.Create(Panel_Main,224+80,16,0,0,'',fnt_Outline,kaLeft);
     Label_Stat.Visible := SHOW_SPRITE_COUNT;
-    Label_PointerCount :=TKMLabel.Create(Panel_Main,224+80,80,0,0,'',fnt_Outline,kaLeft);
+    Label_PointerCount := TKMLabel.Create(Panel_Main,224+80,80,0,0,'',fnt_Outline,kaLeft);
     Label_PointerCount.Visible := SHOW_POINTER_COUNT;
     Label_CmdQueueCount := TKMLabel.Create(Panel_Main,224+80,110,0,0,'',fnt_Outline,kaLeft);
     Label_CmdQueueCount.Visible := SHOW_CMDQUEUE_COUNT;
@@ -609,11 +593,6 @@ begin
     Label_SoundsCount.Visible := DISPLAY_SOUNDS;
     Label_NetworkDelay := TKMLabel.Create(Panel_Main,224+80,140,0,0,'',fnt_Outline,kaLeft);
     Label_NetworkDelay.Visible := SHOW_NETWORK_DELAY;
-
-    Label_Hint:=TKMLabel.Create(Panel_Main,224+32,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint.Anchors := [akLeft, akBottom];
-
-    // Temporary interface (By @Crow)
     Label_VictoryChance := TKMLabel.Create(Panel_Main, fRender.RenderAreaSize.X - 150, 20, 0, 0, '', fnt_Outline, kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -635,16 +614,18 @@ begin
     Create_Barracks_Page;
     //Create_TownHall_Page; //I don't want to make it at all yet
 
+  Create_NetWait_Page; //Overlay blocking everyhitng but sidestack and messages
+  Create_Allies_Page; //MessagePage sibling
+  Create_Chat_Page; //On top of NetWait to allow players to chat while waiting for late opponents
+  Create_Message_Page; //Must go bellow message stack
+  Create_SideStack; //Messages, Allies, Chat icons
+
   Create_Pause_Page;
-  Create_Replay_Page;
+  Create_Replay_Page; //Replay controls
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
 
-  Create_Chat_Page; //MessagePage sibling
-  Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48,30,48,494);
-  Image_MPChat.HighlightOnMouseOver := true;
-  Image_MPChat.OnClick := MPChat_Show;
-  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,fRender.RenderAreaSize.Y-30,30,36,'',fnt_Antiqua,kaCenter);
-  Label_MPChatUnread.OnClick := MPChat_Show;
+  Label_Hint := TKMLabel.Create(Panel_Main,224+32,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+  Label_Hint.Anchors := [akLeft, akBottom];
 
   //Controls without a hint will reset the Hint to ''
   MyControls.OnHint := DisplayHint;
@@ -765,6 +746,63 @@ begin
 end;
 
 
+//Waiting for Net events page, it's similar to PlayMore, but is layered differentlybelow chat panel
+procedure TKMGamePlayInterface.Create_NetWait_Page;
+var s:TKMPoint;
+begin
+  s := fRender.RenderAreaSize;
+
+  Panel_NetWait := TKMPanel.Create(Panel_Main,0,0,s.X,s.Y);
+  Panel_NetWait.Stretch;
+    Bevel_NetWait := TKMBevel.Create(Panel_NetWait,-1,-1,s.X+2,s.Y+2);
+    Bevel_NetWait.Stretch;
+
+    Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,(s.X div 2)-100,(s.Y div 2)-100,200,200);
+    Panel_NetWaitMsg.Center;
+      Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,100,40,0,0,556);
+      Image_NetWait.ImageCenter;
+
+      //There's only Quit button, nothing else could be done but wait..
+      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,100,80,64,16,'<<<LEER>>>',fnt_Outline,kaCenter);
+      Button_NetQuit := TKMButton.Create(Panel_NetWaitMsg,0,140,200,30,fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU],fnt_Metal);
+      Button_NetQuit.OnClick := NetWaitClick;
+    Panel_NetWait.Hide; //Initially hidden
+end;
+
+
+procedure TKMGamePlayInterface.Create_SideStack;
+var i:integer;
+begin
+  Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48,30,48,494);
+  Image_MPChat.HighlightOnMouseOver := true;
+  Image_MPChat.OnClick := Chat_Show;
+  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,fRender.RenderAreaSize.Y-30,30,36,'',fnt_Antiqua,kaCenter);
+  Label_MPChatUnread.OnClick := Chat_Show;
+
+  Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48*2,30,48,496);
+  Image_MPAllies.HighlightOnMouseOver := true;
+  Image_MPAllies.OnClick := Allies_Show;
+
+  for i:=low(Image_Message) to high(Image_Message) do
+  begin
+    Image_Message[i] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-i*48,30,48,495);
+    Image_Message[i].Tag := i;
+    Image_Message[i].HighlightOnMouseOver := true;
+    Image_Message[i].Disable;
+    Image_Message[i].Hide;
+    Image_Message[i].OnClick := Message_Display;
+    Image_Message[i].Anchors := [akLeft, akBottom];
+  end;
+
+  //Chat and Allies setup should be accessible only in Multiplayer
+  if not fGame.MultiplayerMode then begin
+    Image_MPChat.Hide;
+    Label_MPChatUnread.Hide;
+    Image_MPAllies.Hide;
+  end;
+end;
+
+
 procedure TKMGamePlayInterface.Create_Replay_Page;
 var s:TKMPoint;
 begin
@@ -803,6 +841,7 @@ procedure TKMGamePlayInterface.Create_Message_Page;
 begin
   Panel_Message:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
+  Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
     Image_MessageBG:=TKMImage.Create(Panel_Message,0,20,600,170,409);
     Image_MessageBG.ImageAnchors := Image_MessageBG.ImageAnchors{ + [akRight]}; //When stretched to 1920 screen it looks very bad
@@ -825,8 +864,6 @@ begin
     Button_MessageClose.Hint := fTextLibrary.GetTextString(283);
     Button_MessageClose.OnClick := Message_Close;
     Button_MessageClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
-
-  Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 end;
 
 
@@ -835,11 +872,13 @@ procedure TKMGamePlayInterface.Create_Chat_Page;
 begin
   Panel_Chat:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Chat.Anchors := [akLeft, akRight, akBottom];
+  Panel_Chat.Hide;
 
     TKMImage.Create(Panel_Chat,0,20,600,170,409);
     TKMImage.Create(Panel_Chat,0,0,600,20,551);
 
-    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,600-85,101,fnt_Metal,false);
+    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,600-85,101,fnt_Metal);
+    ListBox_ChatText.CanSelect := false;
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 480-85, 20, fnt_Metal);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
@@ -852,8 +891,6 @@ begin
     Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
     Button_ChatClose.OnClick := Chat_Close;
     Button_ChatClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
-
-  Panel_Chat.Hide;
 end;
 
 
@@ -862,6 +899,7 @@ procedure TKMGamePlayInterface.Create_Allies_Page;
 begin
   Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Allies.Anchors := [akLeft, akRight, akBottom];
+  Panel_Allies.Hide;
 
     TKMImage.Create(Panel_Allies,0,20,600,170,409);
     TKMImage.Create(Panel_Allies,0,0,600,20,551);
@@ -870,8 +908,6 @@ begin
     Button_AlliesClose.Hint := fTextLibrary.GetTextString(283);
     Button_AlliesClose.OnClick := Allies_Close;
     Button_AlliesClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
-
-  Panel_Allies.Hide;
 end;
 
 
@@ -1331,12 +1367,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MPChat_Show(Sender: TObject);
+procedure TKMGamePlayInterface.Chat_Show(Sender: TObject);
 begin
   MyControls.CtrlFocus := Edit_ChatMsg;
-  Panel_Allies.Hide;
+  Allies_Close(nil);
   Panel_Chat.Show;
-  Panel_Message.Hide;
+  Message_Close(nil);
   if fGame.Networking.NetPlayers[fGame.Networking.MyIndex].Team = 0 then
   begin
     CheckBox_SendToAllies.Checked := false;
@@ -1351,11 +1387,11 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.MPAllies_Show(Sender: TObject);
+procedure TKMGamePlayInterface.Allies_Show(Sender: TObject);
 begin
   Panel_Allies.Show;
-  Panel_Chat.Hide;
-  Panel_Message.Hide;
+  Chat_Close(nil);
+  Message_Close(nil);
 end;
 
 
@@ -1377,8 +1413,8 @@ begin
 
   Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
   Button_MessageGoTo.Enabled := fMessageList.GetMsgHasGoTo(ShownMessage);
-  Panel_Allies.Hide;
-  Panel_Chat.Hide;
+  Allies_Close(nil);
+  Chat_Close(nil); //Removes focus from Edit_Text 
   Panel_Message.Show;
   fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
 end;
@@ -2211,7 +2247,6 @@ end;
 procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
 begin
   PlayMoreMsg := Msg;
-  Button_PlayMore.Show; //Could be hidden if network lag screen was being shown (PlayMore should override it)
   case Msg of
     gr_Win:       begin
                     Label_PlayMore.Caption := fTextLibrary[TX_GAMEPLAY_WON];
@@ -2234,24 +2269,9 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
-var i:integer;
-begin
-  Label_PlayMore.Caption := 'Waiting for players: ';
-  for i:=0 to aPlayers.Count-2 do
-    Label_PlayMore.Caption := Label_PlayMore.Caption + aPlayers.Strings[i] + ', ';
-  if aPlayers.Count > 0 then
-    Label_PlayMore.Caption := Label_PlayMore.Caption + aPlayers.Strings[aPlayers.Count-1];
-
-  Button_PlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU];
-  Button_PlayMore.Visible := not DoShow; //Hide play more button, we only allow quit
-  Panel_PlayMore.Visible := DoShow;
-end;
-
-
 procedure TKMGamePlayInterface.PlayMoreClick(Sender:TObject);
 begin
-  ShowPlayMore(false,PlayMoreMsg); //Hide anyways
+  Panel_PlayMore.Hide; //Hide anyways
 
   if Sender = Button_PlayQuit then
     case PlayMoreMsg of
@@ -2266,6 +2286,25 @@ begin
       gr_Defeat:    begin MyPlayer.SkipDefeatConditionCheck; fGame.GameHold(false, gr_Defeat); end;
       gr_ReplayEnd: begin fGame.SkipReplayEndCheck := true; fGame.GameHold(false, gr_ReplayEnd); end;
     end;
+end;
+
+
+procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
+var i:integer; S:String;
+begin
+  S := 'Waiting for players: ';
+  for i:=0 to aPlayers.Count-1 do
+    S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
+
+  Label_NetWait.Caption := S;
+  Panel_PlayMore.Visible := DoShow;
+end;
+
+
+procedure TKMGamePlayInterface.NetWaitClick(Sender:TObject);
+begin
+  Assert(Sender = Button_NetQuit, 'Wrong Sender in NetWaitClick');
+  fGame.GameStop(gr_Disconnect);
 end;
 
 
