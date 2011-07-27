@@ -971,13 +971,10 @@ begin
 end;
 
 
-{If Fill color alpha is transparent, then treat the thing as non-hitable}
+//Some debug shapes should not be hitable
 function TKMShape.HitTest(X,Y:Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
-  if Hitable then
-    Result := Inherited HitTest(X,Y)
-  else
-    Result := false;
+  Result := Hitable and (Inherited HitTest(X,Y));
 end;
 
 
