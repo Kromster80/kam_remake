@@ -28,6 +28,7 @@ type
 
     procedure RemovePlayer(aIndex:TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
+    procedure UpdateMultiplayerTeams;
     function HousesHitTest(X,Y:Integer):TKMHouse;
     function UnitsHitTestF(aLoc: TKMPointF; aIncludeAnimals:boolean): TKMUnit;
     function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
@@ -111,6 +112,18 @@ var i:integer;
 begin
   for i:=0 to fCount-1 do
     fPlayerList[i].AfterMissionInit(aFlattenRoads);
+end;
+
+
+procedure TKMPlayersCollection.UpdateMultiplayerTeams;
+var i,k:integer;
+begin
+  for i:=1 to fGame.Networking.NetPlayers.Count do
+    for k:=1 to fGame.Networking.NetPlayers.Count do
+      if (fGame.Networking.NetPlayers[i].Team = 0) or (fGame.Networking.NetPlayers[i].Team <> fGame.Networking.NetPlayers[k].Team) then
+        fGame.Networking.NetPlayers[i].PlayerIndex.Alliances[fGame.Networking.NetPlayers[k].PlayerIndex.PlayerIndex] := at_Enemy
+      else
+        fGame.Networking.NetPlayers[i].PlayerIndex.Alliances[fGame.Networking.NetPlayers[k].PlayerIndex.PlayerIndex] := at_Ally;
 end;
 
 

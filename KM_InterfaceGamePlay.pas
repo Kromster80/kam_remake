@@ -125,6 +125,9 @@ type
       Button_ReplayResume:TKMButton;
       Button_ReplayExit:TKMButton;
     Panel_Allies:TKMPanel;
+      Label_AlliesPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
+      DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
+      Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
       Button_AlliesClose:TKMButton;
     Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       ListBox_ChatText:TKMListBox;
@@ -267,6 +270,9 @@ type
     procedure ClearSelectedUnitOrHouse;
     procedure ReleaseDirectionSelector;
     procedure ChatMessage(const aData: string);
+    procedure AlliesOnPlayerSetup(Sender: TObject);
+    procedure AlliesOnPingInfo(Sender: TObject);
+    procedure AlliesTeamChange(Sender: TObject);
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -286,7 +292,8 @@ type
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX, KM_Log;
+KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX, KM_Log,
+  KM_NetPlayersList, KM_Networking;
 
 const
   MESSAGE_AREA_HEIGHT = 190;
@@ -770,7 +777,7 @@ begin
   Image_MPChat.Anchors := [akLeft, akBottom];
   Image_MPChat.HighlightOnMouseOver := true;
   Image_MPChat.OnClick := Chat_Show;
-  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Antiqua,kaCenter);
+  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Outline,kaCenter,$FF0000FF);
   Label_MPChatUnread.Anchors := [akLeft, akBottom];
   Label_MPChatUnread.OnClick := Chat_Show;
 
@@ -868,20 +875,20 @@ begin
   Panel_Chat.Anchors := [akLeft, akRight, akBottom];
   Panel_Chat.Hide;
 
-    TKMImage.Create(Panel_Chat,0,20,600,170,409);
-    TKMImage.Create(Panel_Chat,0,0,600,20,551);
+    TKMImage.Create(Panel_Chat,0,17,800,170,410);
+    TKMImage.Create(Panel_Chat,0,0,800,17,552);
 
-    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,600-85,101,fnt_Metal);
+    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,800-85,101,fnt_Metal);
     ListBox_ChatText.CanSelect := false;
 
-    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 480-85, 20, fnt_Metal);
+    Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 680-85, 20, fnt_Metal);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
 
-    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,445,154,200,20,'To team',fnt_Outline);
+    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,200,20,'To team',fnt_Outline);
     CheckBox_SendToAllies.Checked := true;
 
-    Button_ChatClose:=TKMButton.Create(Panel_Chat,600-35,65,30,24,'[x]',fnt_Antiqua);
+    Button_ChatClose:=TKMButton.Create(Panel_Chat,800-35,50,30,24,'[x]',fnt_Antiqua);
     Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
     Button_ChatClose.OnClick := Chat_Close;
     Button_ChatClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
@@ -890,15 +897,33 @@ end;
 
 {Allies page}
 procedure TKMGamePlayInterface.Create_Allies_Page;
+var i,k:integer;
 begin
   Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Allies.Anchors := [akLeft, akRight, akBottom];
   Panel_Allies.Hide;
 
-    TKMImage.Create(Panel_Allies,0,20,600,170,409);
-    TKMImage.Create(Panel_Allies,0,0,600,20,551);
+    TKMImage.Create(Panel_Allies,0,17,800,170,410);
+    TKMImage.Create(Panel_Allies,0,0,800,17,552);
 
-    Button_AlliesClose:=TKMButton.Create(Panel_Allies,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
+    for i:=0 to MAX_PLAYERS-1 do
+    begin
+      if (i mod 4) = 0 then //Header for each column
+      begin
+        TKMLabel.Create(Panel_Allies,  54+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, kaLeft);
+        TKMLabel.Create(Panel_Allies, 200+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, kaLeft);
+        TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, kaCenter);
+      end;
+      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, 'Player', fnt_Grey, kaLeft);
+      DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey);
+      DropBox_AlliesTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
+      for k:=1 to 4 do DropBox_AlliesTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
+      DropBox_AlliesTeam[i].OnChange := AlliesTeamChange;
+      DropBox_AlliesTeam[i].DropUp := true; //Doesn't fit if it drops down
+      Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 140, 20, 'Ping', fnt_Grey, kaCenter);
+    end;
+
+    Button_AlliesClose:=TKMButton.Create(Panel_Allies,800-35,50,30,24,'[x]',fnt_Antiqua);
     Button_AlliesClose.Hint := fTextLibrary.GetTextString(283);
     Button_AlliesClose.OnClick := Allies_Close;
     Button_AlliesClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
@@ -1373,10 +1398,7 @@ begin
     CheckBox_SendToAllies.Enabled := false;
   end
   else
-  begin
-    CheckBox_SendToAllies.Checked := true;
     CheckBox_SendToAllies.Enabled := true;
-  end;
   Label_MPChatUnread.Caption := ''; //No unread messages
 end;
 
@@ -2291,7 +2313,7 @@ begin
     S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
 
   Label_NetWait.Caption := S;
-  Panel_PlayMore.Visible := DoShow;
+  Panel_NetWait.Visible := DoShow;
 end;
 
 
@@ -2352,6 +2374,49 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.AlliesOnPlayerSetup(Sender: TObject);
+var i:integer;
+begin
+  for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
+  begin
+    Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
+    Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
+    DropBox_AlliesTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
+    DropBox_AlliesTeam[i].Enabled := (i+1 = fGame.Networking.MyIndex); //Our index
+  end;
+
+  for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
+  begin
+    Label_AlliesPlayer[i].Hide;
+    DropBox_AlliesTeam[i].Hide;
+    DropBox_AlliesTeam[i].Hide;
+  end;
+end;
+
+
+procedure TKMGamePlayInterface.AlliesOnPingInfo(Sender: TObject);
+var i:integer;
+begin
+  for i:=0 to MAX_PLAYERS-1 do
+  if (i < fGame.Networking.NetPlayers.Count) and (fGame.Networking.NetPlayers[i+1].IsHuman) then
+  begin
+    Label_AlliesPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].GetInstantPing);
+    Label_AlliesPing[i].FontColor := GetPingColor(fGame.Networking.NetPlayers[i+1].GetInstantPing);
+  end
+  else
+    Label_AlliesPing[i].Caption := '';
+end;
+
+
+procedure TKMGamePlayInterface.AlliesTeamChange(Sender: TObject);
+var i:integer;
+begin
+  for i:=0 to MAX_PLAYERS-1 do
+    if (Sender = DropBox_AlliesTeam[i]) and DropBox_AlliesTeam[i].Enabled then
+      fGame.fGameInputProcess.CmdGame(gic_GameTeamChange, i+1, DropBox_AlliesTeam[i].ItemIndex);
+end;
+
+
 procedure TKMGamePlayInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
   if fGame.GameState in [gsRunning, gsReplay] then
@@ -2381,6 +2446,7 @@ begin
     gsPaused:   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(false);
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
+                  if (Key=VK_ESCAPE) and (Button_ChatClose.DoClick or Button_AlliesClose.DoClick) then exit; //Escape from chat/allies page
                   if MyControls.KeyUp(Key, Shift) then Exit;
 
                   //Scrolling
@@ -2777,6 +2843,7 @@ begin
 
   Label_MPChatUnread.Visible := not (fGame.GlobalTickCount mod 10 < 5); //Flash unread message display
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
+  Image_MPAllies.Highlight := Panel_Allies.Visible;
 end;
 
 

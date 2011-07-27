@@ -62,6 +62,7 @@ type
     //V.      Game changes
     gic_GamePause,
     gic_GameSave,
+    gic_GameTeamChange,
 
     //VI.      Cheatcodes affecting gameplay (props)
 
@@ -126,6 +127,7 @@ type
 
     procedure CmdGame(aCommandType:TGameInputCommandType; aValue:integer); overload;
     procedure CmdGame(aCommandType:TGameInputCommandType; aValue:boolean); overload;
+    procedure CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam:integer); overload;
 
     procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
@@ -253,6 +255,11 @@ begin
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
       gic_GameSave:               if fReplayState = gipRecording then fGame.Save(Params[1]);
+      gic_GameTeamChange:         begin
+                                    fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
+                                    fPlayers.UpdateMultiplayerTeams;
+                                    if fGame.Networking.IsHost then fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
+                                  end;
       else                        Assert(false);
     end;
   end;
@@ -369,6 +376,13 @@ procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aValue:b
 begin
   Assert(aCommandType = gic_GamePause);
   TakeCommand( MakeCommand(aCommandType, [integer(aValue)]) );
+end;
+
+
+procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam:integer);
+begin
+  Assert(aCommandType = gic_GameTeamChange);
+  TakeCommand( MakeCommand(aCommandType, [aPlayer,aTeam]) );
 end;
 
 

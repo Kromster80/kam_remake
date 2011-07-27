@@ -15,12 +15,12 @@ KM_InterfaceMainMenu
 11:Küldetés indítása
 12:Cím
 13:Méret
-14:Küldetés Típusa: 
-15:Gyõzelmi feltétel: 
-16:Vereség feltétel: 
+14:Küldetés Típusa: %s
+15:Gyõzelmi feltétel: %s
+16:Vereség feltétel: %s
 17:Szövetségesek: 
 18:Elenségek: 
-19:Hely 
+19:Hely %d
 20:Térkép mérete
 21:Szélesség
 22:Magasság
@@ -52,8 +52,8 @@ KM_InterfaceGamePlay
 47:Vissza a menübe
 
 KM_Game
-48:Egy hiba történt a játék során. 
-49:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot?? 
+48:Egy hiba történt a játék során.
+49:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
 
 KM_Units
 50:Rossz helyrõl bányászik
@@ -100,11 +100,11 @@ Create_Lobby_Page
 83:Kész
 84:Indítás!
 93:Játékosok: %d
-94:Játékmód: 
-95:Feltételek: 
+94:Játékmód:
+95:Feltételek:
 96:Válassz egy mentést...
 97:Válassz...
-98:Hálózati hiba: 
+98:Hálózati hiba:
 
 Credits
 85:KaM Remake Készítõk

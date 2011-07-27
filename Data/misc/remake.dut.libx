@@ -15,12 +15,12 @@ KM_InterfaceMainMenu
 11:Start missie
 12:titel
 13:Grote
-14:Missie type: 
-15:Overwinning conditie: 
-16:Nederlaag conditie: 
+14:Missie type: %s
+15:Overwinning conditie %s
+16:Nederlaag conditie: %s
 17:Bondgenoten: 
 18:Vijanden: 
-19:Slot 
+19:Slot %d
 20:Nieuwe map grote
 21:Breedte
 22:Hoogte
@@ -53,7 +53,7 @@ KM_InterfaceGamePlay
 
 KM_Game
 48:Er is een fout opgetreden!
-49:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen? 
+49:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
 
 KM_Units
 50:Delven van de verkeerde plek
@@ -99,12 +99,12 @@ Create_Lobby_Page
 82:Afsluiten lobby
 83:Klaar
 84:Start!
-93:Spelers: 
-94:Mode: 
-95:Condities: 
+93:Spelers: %d
+94:Mode:
+95:Condities:
 96:Selecteer een opgeslagen spel...
 97:Selecteer...
-98:Netwerk fout: 
+98:Netwerk fout:
 								
 Credits
 85:KaM Remake Credits

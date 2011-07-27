@@ -535,7 +535,7 @@ begin
   Assert(IsHost, 'Only host can send player list');
 
   //In saves we should load team and color from the MapInfo
-  if MapInfo.IsSave then
+  if (fLANGameState = lgs_Lobby) and (MapInfo.IsSave) then
     for i:=1 to NetPlayers.Count do
       if NetPlayers[i].StartLocation <> 0 then
       begin
@@ -601,6 +601,7 @@ begin
     lpk_Host:   begin
                   fNetPlayers[fMyIndex].ReadyToPlay := true;
                   PacketSend(NET_ADDRESS_OTHERS, mk_ReadyToPlay, '', 0);
+                  SendPlayerListAndRefreshPlayersSetup; //Initialise the in-game player setup
                   //Check this here because it is possible to start a multiplayer game without other humans, just AI (at least for debugging)
                   if fNetPlayers.AllReadyToPlay then
                   begin

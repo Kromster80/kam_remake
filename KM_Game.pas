@@ -548,6 +548,8 @@ begin
   fNetworking.OnReadyToPlay := GameMPReadyToPlay;
   fNetworking.OnCommands := TGameInputProcess_Multi(fGameInputProcess).RecieveCommands;
   fNetworking.OnTextMessage := fGamePlayInterface.ChatMessage;
+  fNetworking.OnPlayersSetup := fGamePlayInterface.AlliesOnPlayerSetup;
+  fNetworking.OnPingInfo     := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.GameCreated;
   if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
 
@@ -636,6 +638,7 @@ procedure TKMGame.GameHold(DoHold:boolean; Msg:TGameResultMsg);
 begin
   DoGameHold := false;
   fGamePlayInterface.ReleaseDirectionSelector; //In case of victory/defeat while moving troops
+  Screen.Cursor := c_Default;
   fViewport.ReleaseScrollKeys;
   PlayOnState := Msg;
   case Msg of

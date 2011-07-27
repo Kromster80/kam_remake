@@ -15,12 +15,12 @@ KM_InterfaceMainMenu
 11:Mission starten
 12:Titel
 13:Größe
-14:Missionstyp: 
-15:Siegbedingung: 
-16:Niederlagebedingung: 
+14:Missionstyp: %s
+15:Siegbedingung: %s
+16:Niederlagebedingung: %s
 17:Verbündete: 
 18:Feinde: 
-19:Slot 
+19:Slot %d
 20:Neue Karte Größe
 21:Breite
 22:Höhe
@@ -52,7 +52,7 @@ KM_InterfaceGamePlay
 47:Zurück zum Menü
 
 KM_Game
-48:Ein Fehler ist während des Spiels aufgetreten. 
+48:Ein Fehler ist während des Spiels aufgetreten.
 49:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
 
 KM_Units
@@ -99,12 +99,12 @@ Create_Lobby_Page
 82:Lobby verlassen.
 83:Bereit!
 84:Start!
-93:Spieler: 
-94:Modus: 
-95:Bedingungen: 
+93:Spieler: %d
+94:Modus:
+95:Bedingungen:
 96:Wähle einen Speicherstand...
 97:Wähle...
-98:Netzwerkfehler: 
+98:Netzwerkfehler:
 
 Credits
 85:KaM Remake Credits

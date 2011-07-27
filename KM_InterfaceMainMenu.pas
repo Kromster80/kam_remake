@@ -639,7 +639,7 @@ begin
 
     for i:=1 to SAVEGAME_COUNT do
     begin
-      Button_Load[i] := TKMButton.Create(Panel_Load,337,110+i*40,350,30,fTextLibrary[TX_MENU_SLOT]+inttostr(i),fnt_Metal, bsMenu);
+      Button_Load[i] := TKMButton.Create(Panel_Load,337,110+i*40,350,30,Format(fTextLibrary[TX_MENU_SLOT],[i]),fnt_Metal, bsMenu);
       Button_Load[i].Tag := i; //To simplify usage
       Button_Load[i].OnClick := Load_Click;
     end;
@@ -1120,9 +1120,9 @@ begin
     Label_SingleTitle.Caption := SingleMapsInfo[SingleMap_Selected].Folder;
     Label_SingleDesc.Caption  := SingleMapsInfo[SingleMap_Selected].BigDesc;
 
-    Label_SingleCondTyp.Caption := fTextLibrary[TX_MENU_MISSION_TYPE]+SingleMapsInfo[SingleMap_Selected].MissionModeText;
-    Label_SingleCondWin.Caption := fTextLibrary[TX_MENU_WIN_CONDITION]+SingleMapsInfo[SingleMap_Selected].VictoryCondition;
-    Label_SingleCondDef.Caption := fTextLibrary[TX_MENU_DEFEAT_CONDITION]+SingleMapsInfo[SingleMap_Selected].DefeatCondition;
+    Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [SingleMapsInfo[SingleMap_Selected].MissionModeText]);
+    Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [SingleMapsInfo[SingleMap_Selected].VictoryCondition]);
+    Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [SingleMapsInfo[SingleMap_Selected].DefeatCondition]);
   end;
 end;
 
@@ -1430,12 +1430,7 @@ begin
      (fGame.Networking.NetPlayers[i+1].PlayerType <> pt_Computer) then
   begin
     Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].GetInstantPing);
-    case fGame.Networking.NetPlayers[i+1].GetInstantPing of
-      0..99   : Label_LobbyPing[i].FontColor := $FF00C000; //Green
-      100..199: Label_LobbyPing[i].FontColor := $FF07FFFF; //Yellow
-      200..399: Label_LobbyPing[i].FontColor := $FF0099FF; //Orange
-      else      Label_LobbyPing[i].FontColor := $FF0707FF; //Red
-    end;
+    Label_LobbyPing[i].FontColor := GetPingColor(fGame.Networking.NetPlayers[i+1].GetInstantPing);
   end
   else
     Label_LobbyPing[i].Caption := '';
@@ -1476,7 +1471,7 @@ var i:Integer; DropText:string;
 begin
   Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Title;
   Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.MapInfo.PlayerCount]);
-  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+fGame.Networking.MapInfo.MissionModeText;
+  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.MapInfo.MissionModeText;
 
   //Update starting locations
   if fGame.Networking.MapInfo.IsSave then
@@ -1527,7 +1522,7 @@ begin
   fGame.Networking.Disconnect;
   LAN_Update(aData);
   if fGame.GameState = gsRunning then
-    fGame.GameStop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+aData)
+    fGame.GameStop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+' '+aData)
   else
     SwitchMenuPage(Button_LobbyBack);
 end;

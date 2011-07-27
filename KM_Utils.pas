@@ -14,6 +14,8 @@ uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
 
   function MapSizeToString(X,Y:integer):string;
 
+  function GetPingColor(aPing:word):cardinal;
+
   procedure ParseDelimited(const sl : TStringList; const value : string; const delimiter : string);
   function KMWordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean):string;
   function KMCharsThatFit(aText: string; aFont: TKMFont; aMaxPxWidth:integer):integer;
@@ -204,6 +206,18 @@ begin
     else                Result := '???';
   end;
 end;
+
+
+function GetPingColor(aPing:word):cardinal;
+begin
+  case aPing of
+    0..99   : Result := $FF00C000; //Green
+    100..199: Result := $FF07FFFF; //Yellow
+    200..399: Result := $FF0099FF; //Orange
+    else      Result := $FF0707FF; //Red
+  end;
+end;
+
 
 //Taken from: http://delphi.about.com/od/adptips2005/qt/parsedelimited.htm
 procedure ParseDelimited(const sl : TStringList; const value : string; const delimiter : string);

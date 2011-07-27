@@ -516,6 +516,7 @@ type
   private
     fCaption:string;
     fDropCount:byte;
+    fDropUp:boolean;
     fFont: TKMFont;
     fButton:TKMButton;
     fList:TKMListBox;
@@ -533,6 +534,7 @@ type
     procedure AddItem(aItem:string);
     procedure SetItems(aText:string);
     property DropCount:byte write fDropCount;
+    property DropUp:boolean write fDropUp;
     property ItemIndex:smallint read GetItemIndex write SetItemIndex;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
@@ -2129,11 +2131,13 @@ begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   fDropCount := 10;
+  fDropUp := false;
   fFont := aFont;
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
+  fButton.MakesSound := false;
 
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
@@ -2159,6 +2163,10 @@ begin
   if fList.ItemCount < 1 then exit;
 
   fList.Height := Math.min(fDropCount, fList.ItemCount)*fList.ItemHeight;
+  if fDropUp then
+    fList.Top := Top-fList.Height-MasterParent.Top
+  else
+    fList.Top := Top+Height-MasterParent.Top;
   fList.TopIndex := ItemIndex - fDropCount div 2;
 
   fList.Show;
@@ -2250,6 +2258,7 @@ begin
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
+  fButton.MakesSound := false;
 
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
@@ -2358,6 +2367,7 @@ begin
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
   fButton.fOnClick := ListShow;
+  fButton.MakesSound := false;
 
   P := MasterParent;
   fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
