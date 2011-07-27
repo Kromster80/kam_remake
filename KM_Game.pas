@@ -774,7 +774,7 @@ begin
 
   fViewport := TViewport.Create;
   fMapEditor := TKMMapEditor.Create;
-  fMapEditorInterface := TKMapEdInterface.Create;
+  fMapEditorInterface := TKMapEdInterface.Create(ScreenX, ScreenY);
 
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;

@@ -168,7 +168,7 @@ type
       Button_BarracksDec100,Button_BarracksDec:TKMButton;
       Button_BarracksInc100,Button_BarracksInc:TKMButton;
   public
-    constructor Create;
+    constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Player_UpdateColors;
     procedure ResizeGameArea(X,Y:word);
@@ -191,7 +191,7 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_Render, KM_TextLibrary, KM_Terrain,
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
      KM_Utils, KM_Viewport, KM_Game, KM_ResourceGFX;
 
 
@@ -381,10 +381,10 @@ begin
 end;
 
 
-constructor TKMapEdInterface.Create;
+constructor TKMapEdInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
-  Inherited;
+  Inherited Create;
   Assert(fViewport<>nil, 'fViewport required to be init first');
 
   fShownUnit  := nil;
@@ -395,7 +395,7 @@ begin
 
 {Parent Page for whole toolbar in-game}
   MyControls := TKMMasterControl.Create;
-  Panel_Main := TKMPanel.Create(MyControls,0,0,224,768);
+  Panel_Main := TKMPanel.Create(MyControls, 0, 0, aScreenX, aScreenY);
 
     Image_Main1 := TKMImage.Create(Panel_Main,0,0,224,200,407); //Minimap place
 
@@ -425,7 +425,7 @@ begin
     Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 100, 10, '', fnt_Metal, kaLeft);
 
     Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
   Panel_Common := TKMPanel.Create(Panel_Main,0,300,224,768);
