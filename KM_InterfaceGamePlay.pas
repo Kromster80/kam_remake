@@ -97,7 +97,7 @@ type
     procedure Menu_Fill(Sender:TObject);
     procedure SetPause(aValue:boolean);
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
-    procedure UpdatePositions;
+    //procedure UpdatePositions;
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -551,7 +551,7 @@ begin
 
 {Parent Page for whole toolbar in-game}
   MyControls := TKMMasterControl.Create;
-  Panel_Main := TKMPanel.Create(MyControls,0,0,1024,768);
+  Panel_Main := TKMPanel.Create(MyControls,0,0,aScreenX,aScreenY);
 
     Image_Main1 := TKMImage.Create(Panel_Main,0,   0,224,200,407);
     Image_Main2 := TKMImage.Create(Panel_Main,0, 200,224,168,554);
@@ -593,7 +593,7 @@ begin
     Label_SoundsCount.Visible := DISPLAY_SOUNDS;
     Label_NetworkDelay := TKMLabel.Create(Panel_Main,224+80,140,0,0,'',fnt_Outline,kaLeft);
     Label_NetworkDelay.Visible := SHOW_NETWORK_DELAY;
-    Label_VictoryChance := TKMLabel.Create(Panel_Main, fRender.RenderAreaSize.X - 150, 20, 0, 0, '', fnt_Outline, kaLeft);
+    Label_VictoryChance := TKMLabel.Create(Panel_Main, Panel_Main.Width - 150, 20, 0, 0, '', fnt_Outline, kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -624,7 +624,7 @@ begin
   Create_Replay_Page; //Replay controls
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
 
-  Label_Hint := TKMLabel.Create(Panel_Main,224+32,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+  Label_Hint := TKMLabel.Create(Panel_Main,224+32,Panel_Main.Height-16,0,0,'',fnt_Outline,kaLeft);
   Label_Hint.Anchors := [akLeft, akBottom];
 
   //Controls without a hint will reset the Hint to ''
@@ -634,9 +634,9 @@ begin
     with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
   SwitchPage(nil); //Update
-  Panel_Main.Width := aScreenX;
-  Panel_Main.Height := aScreenY;
-  UpdatePositions; //Reposition messages stack etc.
+  //Panel_Main.Width := aScreenX;
+  //Panel_Main.Height := aScreenY;
+  //UpdatePositions; //Reposition messages stack etc.
 end;
 
 
@@ -656,10 +656,11 @@ begin
   fViewport.ResizeGameArea(X,Y);
   fViewport.SetZoom(fViewport.Zoom);
 
-  UpdatePositions;
+  //UpdatePositions;
 end;
 
 
+{ We have working Anchors and I was wondering if that method really has any use now
 procedure TKMGamePlayInterface.UpdatePositions;
 var X,Y:word; i: integer; OffY:byte;
 begin
@@ -696,20 +697,18 @@ begin
   Panel_Message.Top := Y - MESSAGE_AREA_HEIGHT;
   for i := Low(Image_Message) to High(Image_Message) do
     Image_Message[i].Top := Y - i*48 - OffY;
-end;
+end;}
 
 
 {Pause overlay page}
 procedure TKMGamePlayInterface.Create_Pause_Page;
-var S:TKMPoint;
 begin
-  S := fRender.RenderAreaSize;
-  Panel_Pause:=TKMPanel.Create(Panel_Main,0,0,S.X,S.Y);
+  Panel_Pause:=TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
   Panel_Pause.Stretch;
-    Bevel_Pause:=TKMBevel.Create(Panel_Pause,-1,-1,S.X+2,S.Y+2);
-    Image_Pause:=TKMImage.Create(Panel_Pause,(S.X div 2),(S.Y div 2)-40,0,0,556);
-    Label_Pause1:=TKMLabel.Create(Panel_Pause,(S.X div 2),(S.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
-    Label_Pause2:=TKMLabel.Create(Panel_Pause,(S.X div 2),(S.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    Bevel_Pause:=TKMBevel.Create(Panel_Pause,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
+    Image_Pause:=TKMImage.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)-40,0,0,556);
+    Label_Pause1:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    Label_Pause2:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
     Bevel_Pause.Stretch; //Anchor to all sides
     Image_Pause.ImageCenter;
     Label_Pause1.Center;
@@ -723,16 +722,13 @@ end;
   It's backgrounded with a full-screen bevel area which not only fades image a bit,
   but also blocks all mouse clicks - neat }
 procedure TKMGamePlayInterface.Create_PlayMore_Page;
-var s:TKMPoint;
 begin
-  s := fRender.RenderAreaSize;
-
-  Panel_PlayMore := TKMPanel.Create(Panel_Main,0,0,s.X,s.Y);
+  Panel_PlayMore := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
   Panel_PlayMore.Stretch;
-    Bevel_PlayMore := TKMBevel.Create(Panel_PlayMore,-1,-1,s.X+2,s.Y+2);
+    Bevel_PlayMore := TKMBevel.Create(Panel_PlayMore,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
     Bevel_PlayMore.Stretch;
 
-    Panel_PlayMoreMsg := TKMPanel.Create(Panel_PlayMore,(s.X div 2)-100,(s.Y div 2)-100,200,200);
+    Panel_PlayMoreMsg := TKMPanel.Create(Panel_PlayMore,(Panel_Main.Width div 2)-100,(Panel_Main.Height div 2)-100,200,200);
     Panel_PlayMoreMsg.Center;
       Image_PlayMore:=TKMImage.Create(Panel_PlayMoreMsg,100,40,0,0,556);
       Image_PlayMore.ImageCenter;
@@ -748,16 +744,13 @@ end;
 
 //Waiting for Net events page, it's similar to PlayMore, but is layered differentlybelow chat panel
 procedure TKMGamePlayInterface.Create_NetWait_Page;
-var s:TKMPoint;
 begin
-  s := fRender.RenderAreaSize;
-
-  Panel_NetWait := TKMPanel.Create(Panel_Main,0,0,s.X,s.Y);
+  Panel_NetWait := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
   Panel_NetWait.Stretch;
-    Bevel_NetWait := TKMBevel.Create(Panel_NetWait,-1,-1,s.X+2,s.Y+2);
+    Bevel_NetWait := TKMBevel.Create(Panel_NetWait,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
     Bevel_NetWait.Stretch;
 
-    Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,(s.X div 2)-100,(s.Y div 2)-100,200,200);
+    Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,(Panel_Main.Width div 2)-100,(Panel_Main.Height div 2)-100,200,200);
     Panel_NetWaitMsg.Center;
       Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,100,40,0,0,556);
       Image_NetWait.ImageCenter;
@@ -773,25 +766,29 @@ end;
 procedure TKMGamePlayInterface.Create_SideStack;
 var i:integer;
 begin
-  Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48,30,48,494);
+  Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
+  Image_MPChat.Anchors := [akLeft, akBottom];
   Image_MPChat.HighlightOnMouseOver := true;
   Image_MPChat.OnClick := Chat_Show;
-  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,fRender.RenderAreaSize.Y-30,30,36,'',fnt_Antiqua,kaCenter);
+  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Antiqua,kaCenter);
+  Label_MPChatUnread.Anchors := [akLeft, akBottom];
   Label_MPChatUnread.OnClick := Chat_Show;
 
-  Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-48*2,30,48,496);
+  Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
+  Image_MPAllies.Anchors := [akLeft, akBottom];
   Image_MPAllies.HighlightOnMouseOver := true;
   Image_MPAllies.OnClick := Allies_Show;
 
   for i:=low(Image_Message) to high(Image_Message) do
   begin
-    Image_Message[i] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,fRender.RenderAreaSize.Y-i*48,30,48,495);
-    Image_Message[i].Tag := i;
-    Image_Message[i].HighlightOnMouseOver := true;
+    Image_Message[i] := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,0,30,48,495);
+    Image_Message[i].Top := Panel_Main.Height - i*48 - IfThen(fGame.MultiplayerMode, 48*2);
+    Image_Message[i].Anchors := [akLeft, akBottom];
     Image_Message[i].Disable;
     Image_Message[i].Hide;
+    Image_Message[i].HighlightOnMouseOver := true;
+    Image_Message[i].Tag := i;
     Image_Message[i].OnClick := Message_Display;
-    Image_Message[i].Anchors := [akLeft, akBottom];
   end;
 
   //Chat and Allies setup should be accessible only in Multiplayer
@@ -804,17 +801,14 @@ end;
 
 
 procedure TKMGamePlayInterface.Create_Replay_Page;
-var s:TKMPoint;
 begin
-  s := fRender.RenderAreaSize;
-
   Panel_Replay := TKMPanel.Create(Panel_Main, 0, 0, 1024, 768);
   Panel_Replay.Stretch;
 
     //Block all clicks except MinimapArea
-    with TKMShape.Create(Panel_Replay,-1+196,-1-8,s.X+2-196,196+2, $00000000) do
+    with TKMShape.Create(Panel_Replay,-1+196,-1-8,Panel_Main.Width+2-196,196+2, $00000000) do
       Anchors := [akLeft, akTop, akRight];
-    with TKMShape.Create(Panel_Replay,-1,-1-8+196,s.X+2,s.Y+2-196, $00000000) do
+    with TKMShape.Create(Panel_Replay,-1,-1-8+196,Panel_Main.Width+2,Panel_Main.Height+2-196, $00000000) do
       Anchors := [akLeft, akTop, akRight, akBottom];
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
@@ -839,7 +833,7 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  Panel_Message:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Message:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
@@ -870,7 +864,7 @@ end;
 {Chat page}
 procedure TKMGamePlayInterface.Create_Chat_Page;
 begin
-  Panel_Chat:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Chat:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Chat.Anchors := [akLeft, akRight, akBottom];
   Panel_Chat.Hide;
 
@@ -897,7 +891,7 @@ end;
 {Allies page}
 procedure TKMGamePlayInterface.Create_Allies_Page;
 begin
-  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, fRender.RenderAreaSize.Y - MESSAGE_AREA_HEIGHT, fRender.RenderAreaSize.X - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Allies := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Allies.Anchors := [akLeft, akRight, akBottom];
   Panel_Allies.Hide;
 
