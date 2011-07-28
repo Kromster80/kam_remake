@@ -269,7 +269,7 @@ var
     if fPlayers[PlayerIndex].Stats.GetUnitQty(aUnitType) < (Req+UnitReq[aUnitType]) then
     begin
       dec(UnitReq[aUnitType]); //So other schools don't order same unit
-      HS.AddUnitToQueue(aUnitType);
+      HS.AddUnitToQueue(aUnitType, 1);
       Result := true;
     end
     else
@@ -313,7 +313,7 @@ begin
            (UT <> ut_None) then
         begin
           dec(UnitReq[UT]); //So other schools don't order same unit
-          HS.AddUnitToQueue(UT);
+          HS.AddUnitToQueue(UT, 1);
           break; //Don't need more UnitTypes yet
         end;
 
@@ -376,7 +376,7 @@ begin
       while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
             (fPlayers[PlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
       begin
-        HB.Equip(AITroopTrainOrder[GType,i]);
+        HB.Equip(AITroopTrainOrder[GType,i], 1);
         dec(GroupReq[GType]);
       end;
   end;

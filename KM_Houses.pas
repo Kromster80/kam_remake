@@ -178,7 +178,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
-    procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
+    procedure AddUnitToQueue(aUnit:TUnitType; aCount:byte); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
@@ -200,7 +200,7 @@ type
     function CheckResIn(aResource:TResourceType):word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
     function CanEquip(aUnitType: TUnitType):boolean;
-    procedure Equip(aUnitType: TUnitType);
+    procedure Equip(aUnitType: TUnitType; aCount:byte);
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -1254,9 +1254,10 @@ begin
 end;
 
 
-procedure TKMHouseSchool.AddUnitToQueue(aUnit:TUnitType);
-var i:integer;
+procedure TKMHouseSchool.AddUnitToQueue(aUnit:TUnitType; aCount:byte);
+var i,k:integer;
 begin
+  for k:=1 to aCount do
   for i:=1 to length(UnitQueue) do
   if UnitQueue[i]=ut_None then begin
     UnitQueue[i] := aUnit;
@@ -1500,37 +1501,42 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.Equip(aUnitType: TUnitType);
-var i:integer;
+//Equip a new soldier and make him walk out of the house
+procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount:byte);
+var i,k:integer;
     Soldier:TKMUnitWarrior;
     LinkUnit:TKMUnitWarrior;
 begin
-  //Equip a new soldier and make him walk out of the house
-  //First make sure unit is valid and we have resources to equip him
-  if (not (aUnitType in [ut_Militia..ut_Barbarian])) or (not CanEquip(aUnitType)) then exit;
+  Assert(aUnitType in [ut_Militia..ut_Barbarian]);
 
-  //Take resources
-  for i:=1 to 4 do
-    if TroopCost[aUnitType,i]<>0 then
-      dec(ResourceCount[TroopCost[aUnitType,i]]);
+  for k := 1 to aCount do
+  begin
+    //Make sure we have enough resources to equip a unit
+    if not CanEquip(aUnitType) then Exit;
 
-  TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks; //Special way to kill the unit because it is in a house
-  RecruitsList.Delete(0); //Delete first recruit in the list
+    //Take resources
+    for i:=1 to 4 do
+      if TroopCost[aUnitType,i]<>0 then
+        dec(ResourceCount[TroopCost[aUnitType,i]]);
 
-  //Make new unit
-  Soldier := TKMUnitWarrior(fPlayers.Player[fOwner].AddUnit(aUnitType,GetEntrance,false,true));
-  fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
-  Soldier.Visible := false; //Make him invisible as he is inside the barracks
-  Soldier.Condition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
-  Soldier.OrderLocDir := KMPointDir(KMPointY1(GetEntrance),0); //Position in front of the barracks facing north
-  Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+    TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks; //Special way to kill the unit because it is in a house
+    RecruitsList.Delete(0); //Delete first recruit in the list
 
-  //AI do not need auto linking, they manage linking themselves
-  if fPlayers.Player[fOwner].PlayerType = pt_Human then
-    LinkUnit := Soldier.FindLinkUnit(GetEntrance)
-  else LinkUnit := nil;
-  if LinkUnit <> nil then
-    Soldier.OrderLinkTo(LinkUnit);
+    //Make new unit
+    Soldier := TKMUnitWarrior(fPlayers.Player[fOwner].AddUnit(aUnitType,GetEntrance,false,true));
+    fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
+    Soldier.Visible := false; //Make him invisible as he is inside the barracks
+    Soldier.Condition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
+    Soldier.OrderLocDir := KMPointDir(KMPointY1(GetEntrance),0); //Position in front of the barracks facing north
+    Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+
+    //AI do not need auto linking, they manage linking themselves
+    if fPlayers.Player[fOwner].PlayerType = pt_Human then
+      LinkUnit := Soldier.FindLinkUnit(GetEntrance)
+    else LinkUnit := nil;
+    if LinkUnit <> nil then
+      Soldier.OrderLinkTo(LinkUnit);
+  end;
 end;
 
 

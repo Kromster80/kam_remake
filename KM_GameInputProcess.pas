@@ -120,7 +120,7 @@ type
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer); overload;
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType); overload;
-    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType; aCount:byte); overload;
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer); overload;
 
     procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
@@ -233,8 +233,8 @@ begin
       gic_HouseOrderProduct:      H.ResEditOrder(Params[2], Params[3]);
       gic_HouseStoreAcceptFlag:   TKMHouseStore(H).ToggleAcceptFlag(TResourceType(Params[2]));
       gic_HouseTrain:             case H.GetHouseType of
-                                    ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]));
-                                    ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]));
+                                    ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
+                                    ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
                                     else          Assert(false, 'Only Schools and Barracks supported yet');
                                   end;
       gic_HouseRemoveTrain:       TKMHouseSchool(H).RemUnitFromQueue(Params[2]);
@@ -343,10 +343,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType);
+procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType; aCount:byte);
 begin
   Assert(aCommandType = gic_HouseTrain);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aUnitType)]) );
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aUnitType), aCount]) );
 end;
 
 
