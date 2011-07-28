@@ -431,8 +431,16 @@ begin
       if 12+PacketLength < fBufferSize then //Check range
         Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
       fBufferSize := fBufferSize - PacketLength - 12;
-    end else
-      Exit;
+    end
+    else
+    begin
+      Status('Error: Corrupt data received! Clearing buffer');
+      fBufferSize := 0;
+      SetLength(fBuffer, 0);
+      //Tell all clients that the sever has died
+      SendMessage(NET_ADDRESS_ALL,mk_Disconnect,0,'');
+      exit;
+    end;
   end;
 end;
 
