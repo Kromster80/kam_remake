@@ -13,7 +13,7 @@
 <p align="center"><font face="Calibri">Inhalt der Readme: <br>
 <a href="#Description">Beschreibung</a> · <a href="#Source">Quelltext</a> · <a href="#System_Requirements">Systemanforderungen</a> · <a href="#Installing">Installation</a> 
           · <a href="#Gameplay">Gameplay</a> · <a href="#F_A_Q_">F.A.Q.</a> · 
-          <a href="#Known_bugs">Bekannte Fehler</a> · <a href="#Feedback">Feedback</a> 
+          <a href="#Known_bugs">Bekannte Fehler</a> · <a href="#Server">Dedicated Server</a> · <a href="#Feedback">Feedback</a> · <a href="#Feedback">Feedback</a> 
           · <a href="#Credits">Credits</a> · <a href="#Legal">Impressum</a></font></p>
         <hr> <blockquote> 
           <table border="0" cellspacing="0" cellpadding="0">
@@ -139,9 +139,8 @@
         <p><B>Fehler im Spiel:</B><br>
           Manchmal wenn etwas Unerwartetes passiert, bekommt ihr eine Fehlermeldung 
           &quot;An error has occoured during <br>
-          gameplay&quot;. Bitte lest die Details der Nachricht und sendet uns 
-          die aufgenommenen Replay-Dateien aus dem Ordner<br>
-          'Saves' (save99.bas, save99.sav, save99.rpl) per E-Mail (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a> 
+          gameplay&quot;. Please read the message details and send the crash report ZIP file from 
+		  the Crash Reports folder by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a> 
           oder <a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>). Teilt<br>
           uns mit was ihr gemacht habt bevor die Fehlermeldung kam und schreibt 
           m&ouml;glicherweise andere Informationen<br>
@@ -167,11 +166,27 @@
           </table>
         </blockquote>
         <p><font face="Calibri">
-          Nur Einzelspielermissionen werden unterst&uuml;tzt (welche mit !SET_HUMAN_PLAYER Befehl).<br>
           Es k&ouml;nnen noch keine Einheiten in Kriegswerkstatt und Rathaus ausgebildet werden.<br>
           TPR troops are not supported yet.<br>
           AI behavior is still limited.<br>
           &nbsp;</font></p>
+		<blockquote>
+			<table border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>
+			<img border="0" src="Readme/GUI_0324.gif"></td>
+					<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="Server">Dedicated Server</a></FONT></B></td>
+				</tr>
+			</table>
+		</blockquote>
+		<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on TCP port 56789 and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
+		To use in a LAN game, start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. You may then connect to it from the same computer and/or other computers. (for the same computer, connect to the address 127.0.0.1 or localhost)<br>
+		To use on the internet, you must forward the port 56789 from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
+
+		<br><br>
+		Note: The dedicated server is not required to play multiplayer. Clicking "Create Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service and tell other fans the address of your server we would be pleased. Future versions will include a "master server" which displays a listing of all running public servers and allow you to join them without having to type in IP addresses.<br><br>
+		The Linux builds have been tested on Fedora and Ubuntu. Any queries or comments regarding the Linux builds should be sent to Lewin. (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>)</font>
+		<br>&nbsp;
         <blockquote> 
           <table border="0" cellspacing="0" cellpadding="0">
             <tr> 
@@ -181,8 +196,7 @@
           </table>
         </blockquote>
         <p>Bitte benutzt <font face="Calibri"><A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">Forum</A></font> 
-          oder E-Mail um uns Feedback zu geben. Die meisten Fehler sind wahrscheinlich 
-          bereits bekannt, aber wir w&uuml;rden eure Kommentare, Vorschl&auml;ge 
+          oder E-Mail um uns Feedback zu geben. Wir w&uuml;rden eure Kommentare, Vorschl&auml;ge 
           und Komplimente lieben.<br>
           Wenn ihr etwas Hilfe in Sachen Delphi, Men&uuml;design, Dokumentation 
           oder &Uuml;bersetzung anbieten k&ouml;nnt oder Ideen f&uuml;r Verbesserungen 

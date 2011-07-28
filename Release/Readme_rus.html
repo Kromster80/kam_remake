@@ -13,7 +13,7 @@ Brought to you by Krom and Lewin</font></P>
 <p align="center"><font face="Calibri">Содержание документа: <br>
 <a href="#Description">Описание</a> · <a href="#System_Requirements">Системные требования</a> · <a href="#Installing">Установка</a> 
 · <a href="#Gameplay">Игра</a> · <a href="#F_A_Q_">F.A.Q.</a> ·
-<a href="#Known_bugs">Известные ошибки и неточности</a> · <a href="#Feedback">Отзывы</a> ·
+<a href="#Known_bugs">Известные ошибки и неточности</a> · <a href="#Server">Dedicated Server</a> · <a href="#Feedback">Feedback</a> · <a href="#Feedback">Отзывы</a> ·
 <a href="#Source">Исходные коды</a> · <a href="#Credits">Создатели</a> ·
 <a href="#Legal">Правовые обязательства</a></font></p><hr>
 <blockquote>
@@ -103,7 +103,7 @@ http://connect.creativelabs.com/openal/default.aspx</a> <br>
 KaM Remake вылетает без каких-либо сообщений загрузки или при смене саундтрека, если есть проблема со звуковой подсистемой Windows. Удаление папки &quot;Music&quot; из KaM Remake исправляет эту ошибку.<br></p>
 <p><B>Низкая частота смены кадров:</B><br>
 Если у Вас в игре низкая частота смены кадров, это может быть вызвано старыми или отсутствующими драйверами OpenGL. Проверьте Вашу версию OpenGL драйверов, посмотрев в главном меню в верхний левый угол, версия должна быть как минимум 1.4.x. Если она ниже то необходимо обновить драйвера вашей карты (драйвера можно скачать на сайте производителя).<br></p>
-<p><B>Ошибки:</B><br>Иногда, когда в игре случается что-то непредвиденное, вы увидите ошибку типа &quot;<i>An error has occoured during gameplay</i>&quot;. Пожалуйста прочтите подробности ошибки и отправьте записанные файлы с реплеем из папки Saves (save99.bas, save99.sav, save99.rpl) на е-мейл Крому (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) или Левину (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) с описанем того что Вы делали в игре, что могло привести к ошибке, а также любую другую информацию, которую сочтете относящейся к делу. Наличие этих файлов поможет нам исправить ошибку.<br></p>
+<p><B>Ошибки:</B><br>Иногда, когда в игре случается что-то непредвиденное, вы увидите ошибку типа &quot;<i>An error has occoured during gameplay</i>&quot;. Please read the message details and send the crash report ZIP file from the Crash Reports folder by email either to Крому (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) или Левину (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) с описанем того что Вы делали в игре, что могло привести к ошибке, а также любую другую информацию, которую сочтете относящейся к делу. Наличие этих файлов поможет нам исправить ошибку.<br></p>
 <p><B>Ошибки &quot;Assertion failed&quot;:</B><br>
 Иногда, когда в игре случается что-то непредвиденное, вы увидите ошибку типа &quot;Assertion failed&quot;. В этом случае Вам следует остановить процесс KaM Remake через менеджер задач (нажмите Ctrl+Alt+Del, выберете KaM Remake и нажмите кнопку "остановить процесс"). Далее, откройте папку в которую был установлен KaM Remake и найдите файл &quot;KaM.log&quot; - в нем содержится дополнительная информация об ошибке. Пожалуйста отправьте этот файл Крому (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) или Левину (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) с описанем того что Вы делали в игре, что могло привести к ошибке, а также любую другую информацию, которую сочтете относящейся к делу. По возможности приложите файлы с реплеем, как описано в предедущем пункте.</font><br>&nbsp;</P>
 <blockquote>
@@ -116,11 +116,27 @@ KaM Remake вылетает без каких-либо сообщений загрузки или при смене саундтрека, 
 	</table>
 </blockquote>
 <p><font face="Calibri">
-Поддерживаются только карты для одиночного игрока (в скрипте которых есть строка !SET_HUMAN_PLAYER).<br>
 Тренировка юнитов в Town Hall не работает.<br>
 Войска из дополнения TPR пока не поддерживаются.<br>
 Поведение ИИ сильно ограничено.<br>
 &nbsp;</font></p>
+<blockquote>
+	<table border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td>
+	<img border="0" src="Readme/GUI_0324.gif"></td>
+			<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="Server">Dedicated Server</a></FONT></B></td>
+		</tr>
+	</table>
+</blockquote>
+<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on TCP port 56789 and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
+To use in a LAN game, start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. You may then connect to it from the same computer and/or other computers. (for the same computer, connect to the address 127.0.0.1 or localhost)<br>
+To use on the internet, you must forward the port 56789 from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
+
+<br><br>
+Note: The dedicated server is not required to play multiplayer. Clicking "Create Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service and tell other fans the address of your server we would be pleased. Future versions will include a "master server" which displays a listing of all running public servers and allow you to join them without having to type in IP addresses.<br><br>
+The Linux builds have been tested on Fedora and Ubuntu. Any queries or comments regarding the Linux builds should be sent to Lewin. (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>)</font>
+<br>&nbsp;
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>

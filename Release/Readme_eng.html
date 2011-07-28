@@ -13,7 +13,7 @@ Brought to you by Krom and Lewin</font></P>
 <p align="center"><font face="Calibri">Readme contents: <br>
 <a href="#Description">Description</a> · <a href="#Source">Source Code</a> · <a href="#System_Requirements">System requirements</a> · <a href="#Installing">Installing</a> 
 · <a href="#Gameplay">Gameplay</a> · <a href="#F_A_Q_">F.A.Q.</a> ·
-<a href="#Known_bugs">Known bugs</a> · <a href="#Feedback">Feedback</a> ·
+<a href="#Known_bugs">Known bugs</a> · <a href="#Server">Dedicated Server</a> · <a href="#Feedback">Feedback</a> ·
 <a href="#Credits">Credits</a> ·
 <a href="#Legal">Legal notice</a></font></p><hr>
 <blockquote>
@@ -123,18 +123,15 @@ at least 1.4.x. If it is less you need to update your graphics card drivers
 (check your card manufacturers website).<br></p>
 <p><B>Game errors:</B><br>Sometimes when something unexpected happens you will get an &quot;<i>An 
 error has occurred during gameplay</i>&quot; 
-message. Please read the message details and send recorded replay files from 
-Saves folder (save99.bas, save99.sav, save99.rpl) by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
+message. Please read the message details and send the crash report ZIP file from 
+the Crash Reports folder by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
 along with details of what you did to make it crash and any other information 
-that might be of use. Having these replay files will help us to fix the bug.<br></p>
-<p><B>Assertion failed errors:</B><br>Sometimes when something unexpected happens you will get an &quot;<i>Assertion failed</i>&quot; 
-message. In this case you should terminate the KaM_Remake from the Task Manager (press 
+that might be of use. Having the crash report file will help us to fix the bug.<br></p>
+<p><B>Assertion failed and other error messages:</B><br>Sometimes when something unexpected happens you will get an &quot;<i>Assertion failed</i>&quot;, &quot;<i>Range check error</i>&quot; or a similar error message that does not automatically produce a crash report ZIP file. In this case you should terminate the KaM_Remake from the Task Manager (press 
 Ctrl+Alt+Del, choose KaM Remake and press End Task button).
-<BR>Then browse to the KaM Remake folder and find the file &quot;KaM.log&quot; containing details of the crash. Please send this 
-file by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
+<BR>Then browse to the KaM Remake folder and find the most recent file &quot;KaM.log&quot; containing details of the crash. (the highest number should be the most recent log file) Please send this file by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
 along with details of what you did to make it crash and any other information 
-that might be of use. If possible please also provide game replay files as 
-explained in previous case.</font><br>&nbsp;</P>
+that might be of use.</font><br>&nbsp;</P>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -146,11 +143,27 @@ limitations</a></FONT></B></td>
 	</table>
 </blockquote>
 <p><font face="Calibri">
-Only single-player maps are supported (ones with !SET_HUMAN_PLAYER line).<br>
 Unit training in Town Hall and Siege Workshop is not functioning.<br>
 TPR troops are not supported yet.<br>
 AI behavior is still limited.<br>
 &nbsp;</font></p>
+<blockquote>
+	<table border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td>
+	<img border="0" src="Readme/GUI_0324.gif"></td>
+			<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="Server">Dedicated Server</a></FONT></B></td>
+		</tr>
+	</table>
+</blockquote>
+<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on TCP port 56789 and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
+To use in a LAN game, start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. You may then connect to it from the same computer and/or other computers. (for the same computer, connect to the address 127.0.0.1 or localhost)<br>
+To use on the internet, you must forward the port 56789 from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
+
+<br><br>
+Note: The dedicated server is not required to play multiplayer. Clicking "Create Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service and tell other fans the address of your server we would be pleased. Future versions will include a "master server" which displays a listing of all running public servers and allow you to join them without having to type in IP addresses.<br><br>
+The Linux builds have been tested on Fedora and Ubuntu. Any queries or comments regarding the Linux builds should be sent to Lewin. (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>)</font>
+<br>&nbsp;
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -160,7 +173,7 @@ AI behavior is still limited.<br>
 		</tr>
 	</table>
 </blockquote>
-<font face="Calibri">Please use <A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">the forum</A> or email (see below) to give us feedback. Most of the bugs are probably known, but we would love your comments, suggestions, compliments, etc.
+<font face="Calibri">Please use <A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">the forum</A> or email (see below) to give us feedback. We would love your comments, suggestions, compliments, etc.
 <br>
 If you can offer some help in Delphi coding, menu design, documentation, 
 translation or ideas 
