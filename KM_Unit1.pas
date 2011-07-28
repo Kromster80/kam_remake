@@ -225,7 +225,7 @@ end;
 procedure TForm1.FormResize(Sender:TObject);
 begin
   if fGame<>nil then //Occurs on exit
-    fGame.ResizeGameArea(Panel5.Width, Panel5.Height);
+    fGame.Resize(Panel5.Width, Panel5.Height);
   if fLog<>nil then
     fLog.AppendLog('FormResize - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
   ApplyCursorRestriction;
@@ -467,7 +467,7 @@ begin
   Panel5.Width  := Form1.ClientWidth;
 
   if fGame<>nil then //Could happen on game start when Form gets resized and fGame is nil
-    fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+    fGame.Resize(Panel5.Width,Panel5.Height);
 end;
 
 
@@ -511,7 +511,7 @@ begin
                           {$IFDEF WDC},MediaPlayer1 {$ENDIF}
                           );
 
-  fGame.ResizeGameArea(Panel5.Width, Panel5.Height);
+  fGame.Resize(Panel5.Width, Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
   if aReturnToOptions then fGame.fMainMenuInterface.ShowScreen(msOptions); //Return to the options screen

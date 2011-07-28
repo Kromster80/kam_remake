@@ -215,7 +215,7 @@ type
   public
     constructor Create(X,Y:word; aGameSettings:TGlobalSettings);
     destructor Destroy; override;
-    procedure ResizeGameArea(X,Y:word);
+    procedure Resize(X,Y:word);
     procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
     procedure Fill_Results;
 
@@ -295,10 +295,11 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ResizeGameArea(X, Y:word);
+//Keep Panel_Main centered
+procedure TKMMainMenuInterface.Resize(X, Y:word);
 begin
-  ScreenX := min(X,MENU_DESIGN_X);
-  ScreenY := min(Y,MENU_DESIGN_Y);
+  ScreenX := min(X, MENU_DESIGN_X);
+  ScreenY := min(Y, MENU_DESIGN_Y);
   Panel_Main.Left := (X-MENU_DESIGN_X) div 2;
   Panel_Main.Top  := (Y-MENU_DESIGN_Y) div 2;
 end;

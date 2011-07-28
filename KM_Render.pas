@@ -68,7 +68,7 @@ type
       destructor Destroy; override;
       procedure LoadTileSet;
       procedure SetRotation(aH,aP,aB:integer);
-      procedure ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
+      procedure Resize(Width,Height:integer; aRenderMode:TRenderMode);
       procedure Render;
       {$IFDEF WDC}
       procedure DoPrintScreen(FileName:string);
@@ -180,7 +180,7 @@ begin
 end;
 
 
-procedure TRender.ResizeGameArea(Width,Height:integer; aRenderMode:TRenderMode);
+procedure TRender.Resize(Width,Height:integer; aRenderMode:TRenderMode);
 begin
   fRenderAreaSize.X := max(Width, 1);
   fRenderAreaSize.Y := max(Height, 1);
@@ -209,7 +209,7 @@ begin
     glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y, 0);
     if RENDER_3D then
     begin
-      ResizeGameArea(fRenderAreaSize.X, fRenderAreaSize.Y, rm3D);
+      Resize(fRenderAreaSize.X, fRenderAreaSize.Y, rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -238,7 +238,7 @@ begin
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   end;
 
-  ResizeGameArea(fRenderAreaSize.X, fRenderAreaSize.Y, rm2D);
+  Resize(fRenderAreaSize.X, fRenderAreaSize.Y, rm2D);
   glLineWidth(1);
   glPointSize(1);
   glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine

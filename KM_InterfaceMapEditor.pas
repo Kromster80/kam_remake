@@ -171,7 +171,7 @@ type
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Player_UpdateColors;
-    procedure ResizeGameArea(X,Y:word);
+    procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
@@ -478,12 +478,11 @@ end;
 
 
 //Update Hint position and etc..
-procedure TKMapEdInterface.ResizeGameArea(X,Y:word);
+procedure TKMapEdInterface.Resize(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-  fViewport.ResizeGameArea(X,Y);
-  fViewport.SetZoom(fViewport.Zoom);
+  fViewport.Resize(X,Y);
 end;
 
 
@@ -1560,7 +1559,7 @@ begin
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = VK_BACK  then fViewport.SetZoom(1);
+  if Key = VK_BACK  then fViewport.ResetZoom;
 end;
 
 
@@ -1702,7 +1701,7 @@ begin
   begin
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
-    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
+    fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
     ViewCenter := fViewport.GetCenter; //Required for Linux compatibility

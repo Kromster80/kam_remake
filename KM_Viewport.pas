@@ -10,15 +10,18 @@ TViewport = class
     XCoord,YCoord:single;
     PrevScrollAdv:array [1..24]of single;
     PrevScrollPos:byte;
+    fZoom:single;
+    procedure SetZoom(aZoom:single);
   public
-    Zoom:single;
     ViewRect:TRect;
     ViewWidth, ViewHeight:integer;
     ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown: boolean;
     Scrolling: boolean;
     constructor Create;
-    procedure SetZoom(aZoom:single);
-    procedure ResizeGameArea(NewWidth,NewHeight:integer);
+
+    property Zoom:single read fZoom write SetZoom;
+    procedure ResetZoom;
+    procedure Resize(NewWidth,NewHeight:integer);
     function GetCenter:TKMPointF;
     procedure SetCenter(NewX,NewY:single);
     function GetClip:TRect; //returns visible area dimensions in map space
@@ -41,7 +44,7 @@ begin
   Inherited;
   FillChar(PrevScrollAdv, SizeOf(PrevScrollAdv), #0);
   PrevScrollPos := 0;
-  Zoom := 1;
+  fZoom := 1;
   ReleaseScrollKeys;
   XCoord := 0;
   YCoord := 0;
@@ -51,16 +54,21 @@ end;
 
 procedure TViewport.SetZoom(aZoom:single);
 begin
-  aZoom := EnsureRange(aZoom, 0.1, 8);
+  fZoom := EnsureRange(aZoom, 0.1, 8);
   //Limit the zoom to within the map boundaries
-  if ViewWidth /CELL_SIZE_PX/aZoom > fTerrain.MapX then aZoom := ViewWidth /CELL_SIZE_PX/(fTerrain.MapX-1);
-  if ViewHeight/CELL_SIZE_PX/aZoom > fTerrain.MapY then aZoom := ViewHeight/CELL_SIZE_PX/ fTerrain.MapY;
-  Zoom := aZoom;
+  if ViewWidth /CELL_SIZE_PX/fZoom > fTerrain.MapX then fZoom := ViewWidth /CELL_SIZE_PX/(fTerrain.MapX-1);
+  if ViewHeight/CELL_SIZE_PX/fZoom > fTerrain.MapY then fZoom := ViewHeight/CELL_SIZE_PX/ fTerrain.MapY;
   SetCenter(XCoord, YCoord); //To ensure it sets the limits smoothly
 end;
 
 
-procedure TViewport.ResizeGameArea(NewWidth,NewHeight:integer);
+procedure TViewport.ResetZoom;
+begin
+  Zoom := 1;
+end;
+
+
+procedure TViewport.Resize(NewWidth,NewHeight:integer);
 begin
   ViewRect.Left   := TOOLBAR_WIDTH;
   ViewRect.Top    := 0;
@@ -69,6 +77,8 @@ begin
   
   ViewWidth       := ViewRect.Right-ViewRect.Left;
   ViewHeight      := ViewRect.Bottom-ViewRect.Top;
+
+  SetZoom(fZoom); //View size has changed and that affects Zoom restrictions
 end;
 
 
@@ -84,8 +94,8 @@ end;
 
 procedure TViewport.SetCenter(NewX,NewY:single);
 begin
-  XCoord := EnsureRange(NewX, 0 + ViewWidth/2/CELL_SIZE_PX/Zoom,  fTerrain.MapX - ViewWidth /2/CELL_SIZE_PX/Zoom - 1);
-  YCoord := EnsureRange(NewY,-1 + ViewHeight/2/CELL_SIZE_PX/Zoom, fTerrain.MapY - ViewHeight/2/CELL_SIZE_PX/Zoom); //Top row should be visible
+  XCoord := EnsureRange(NewX, 0 + ViewWidth/2/CELL_SIZE_PX/fZoom,  fTerrain.MapX - ViewWidth /2/CELL_SIZE_PX/fZoom - 1);
+  YCoord := EnsureRange(NewY,-1 + ViewHeight/2/CELL_SIZE_PX/fZoom, fTerrain.MapY - ViewHeight/2/CELL_SIZE_PX/fZoom); //Top row should be visible
   fSoundLib.UpdateListener(XCoord, YCoord);
 end;
 
@@ -94,10 +104,10 @@ end;
 //TestViewportClipInset is for debug, allows to see if all gets clipped well
 function TViewport.GetClip:TRect;
 begin
-  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom),1);
-  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
-  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
-  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
+  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom),1);
+  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX-1);
+  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/fZoom),1);
+  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/fZoom)+4,fTerrain.MapY-1);
   if not TEST_VIEW_CLIP_INSET then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);
@@ -109,10 +119,10 @@ end;
 //Same as above function but with some values changed to suit minimap
 function TViewport.GetMinimapClip:TRect;
 begin
-  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom)+1,1);
-  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
-  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
-  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
+  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,1);
+  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX);
+  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/fZoom)+2,1);
+  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/fZoom),fTerrain.MapY);
 end;
 
 
@@ -195,7 +205,7 @@ begin
   SaveStream.Write('Viewport');
   SaveStream.Write(XCoord);
   SaveStream.Write(YCoord);
-  SaveStream.Write(Zoom);
+  SaveStream.Write(fZoom);
 end;
 
 
@@ -206,7 +216,7 @@ begin
   Assert(s = 'Viewport');
   LoadStream.Read(XCoord);
   LoadStream.Read(YCoord);
-  LoadStream.Read(Zoom);
+  LoadStream.Read(fZoom);
   fSoundLib.UpdateListener(XCoord, YCoord);
   fLog.AppendLog('Viewport loaded');
 end;

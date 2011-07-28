@@ -97,7 +97,6 @@ type
     procedure Menu_Fill(Sender:TObject);
     procedure SetPause(aValue:boolean);
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
-    //procedure UpdatePositions;
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -112,7 +111,6 @@ type
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
 
-      // Temporary interface (By @Crow)
       Label_VictoryChance : TKMLabel;
 
     Panel_Replay:TKMPanel; //Bigger Panel to contain Shapes to block all interface below
@@ -256,7 +254,7 @@ type
     MyControls: TKMMasterControl;
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
-    procedure ResizeGameArea(X,Y:word);
+    procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
@@ -656,55 +654,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ResizeGameArea(X,Y:word);
+procedure TKMGamePlayInterface.Resize(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-  fViewport.ResizeGameArea(X,Y);
-  fViewport.SetZoom(fViewport.Zoom);
-
-  //UpdatePositions;
+  fViewport.Resize(X,Y);
 end;
-
-
-{ We have working Anchors and I was wondering if that method really has any use now
-procedure TKMGamePlayInterface.UpdatePositions;
-var X,Y:word; i: integer; OffY:byte;
-begin
-  X := Panel_Main.Width;
-  Y := Panel_Main.Height;
-
-  //Hint should stick to lower edge
-  Label_Hint.Top := Y-16;
-
-  //Center pause controls when the screen is resized during gameplay
-  Image_Pause.Left := (X div 2);
-  Image_Pause.Top  := (Y div 2)-40;
-  Label_Pause1.Left  := (X div 2);
-  Label_Pause1.Top   := (Y div 2);
-  Label_Pause2.Left := (X div 2);
-  Label_Pause2.Top  := (Y div 2)+20;
-  Image_Pause.Center;
-  Label_Pause1.Center;
-  Label_Pause2.Center;
-
-  //Chat
-  if fGame.MultiplayerMode then
-  begin
-    Panel_Chat.Top := Y - MESSAGE_AREA_HEIGHT;
-    Panel_Allies.Top := Y - MESSAGE_AREA_HEIGHT;
-    Image_MPChat.Top := Y - 48;
-    Label_MPChatUnread.Top := Y - 30;
-    Image_MPAllies.Top := Y - 48*2;
-    OffY := 48*2
-  end else
-    OffY := 0;
-
-  //Messages
-  Panel_Message.Top := Y - MESSAGE_AREA_HEIGHT;
-  for i := Low(Image_Message) to High(Image_Message) do
-    Image_Message[i].Top := Y - i*48 - OffY;
-end;}
 
 
 {Pause overlay page}
@@ -2455,7 +2410,7 @@ begin
                   if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
                   if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
 
-                  if Key = VK_BACK then  fViewport.SetZoom(1);
+                  if Key = VK_BACK then  fViewport.ResetZoom;
                   //Game speed
                   if (Key = VK_F8) and not fGame.MultiplayerMode then fGame.SetGameSpeed; //Speed will toggle automatically
                   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(true); //Display pause overlay
@@ -2496,7 +2451,7 @@ begin
                   if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
                   if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
 
-                  if Key = VK_BACK then fViewport.SetZoom(1);
+                  if Key = VK_BACK then fViewport.ResetZoom;
                   if Key = VK_F8 then   fGame.SetGameSpeed; //Speed will toggle automatically
                 end;
    end;
@@ -2755,7 +2710,7 @@ begin
   begin
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
-    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
+    fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
     ViewCenter := fViewport.GetCenter; //Required for Linux compatibility

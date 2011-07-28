@@ -61,7 +61,7 @@ type
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TNotifyEvent; aLT:TStringEvent; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale(aLocale:shortstring);
-    procedure ResizeGameArea(X,Y:integer);
+    procedure Resize(X,Y:integer);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     procedure KeyDown(Key: Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -193,17 +193,17 @@ begin
 end;
 
 
-procedure TKMGame.ResizeGameArea(X,Y:integer);
+procedure TKMGame.Resize(X,Y:integer);
 begin
   ScreenX := X;
   ScreenY := Y;
-  fRender.ResizeGameArea(X,Y,rm2D);
+  fRender.Resize(X,Y,rm2D);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
-  if fMainMenuInterface<>nil then fMainMenuInterface.ResizeGameArea(X,Y);
-  if fMapEditorInterface<>nil then fMapEditorInterface.ResizeGameArea(X,Y);
-  if fGamePlayInterface<>nil then fGamePlayInterface.ResizeGameArea(X,Y);
+  if fMainMenuInterface<>nil then fMainMenuInterface.Resize(X,Y);
+  if fMapEditorInterface<>nil then fMapEditorInterface.Resize(X,Y);
+  if fGamePlayInterface<>nil then fGamePlayInterface.Resize(X,Y);
 end;
 
 
@@ -354,8 +354,8 @@ begin
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
 
-  fRender.ResizeGameArea(ScreenX,ScreenY,rm2D);
-  fViewport.ResizeGameArea(ScreenX,ScreenY);
+  fRender.Resize(ScreenX,ScreenY,rm2D);
+  fViewport.Resize(ScreenX,ScreenY);
 
   fGameTickCount := 0; //Restart counter
 end;
@@ -414,7 +414,7 @@ begin
   fPlayers.AfterMissionInit(true);
 
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
-  fViewport.SetZoom(1); //This ensures the viewport is centered on the map
+  fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
@@ -524,7 +524,7 @@ begin
       fPlayers.RemovePlayer(i);
 
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
-  fViewport.SetZoom(1); //This ensures the viewport is centered on the map
+  fViewport.ResetZoom; //This ensures the viewport is centered on the map
   fRender.Render;
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
@@ -812,9 +812,8 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  fRender.ResizeGameArea(ScreenX,ScreenY,rm2D);
-  fViewport.ResizeGameArea(ScreenX,ScreenY);
-  fViewport.SetZoom(1);
+  fRender.Resize(ScreenX,ScreenY,rm2D);
+  fViewport.Resize(ScreenX,ScreenY);
 
   fGameTickCount := 0; //Restart counter
 
@@ -1139,7 +1138,7 @@ begin
     fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
-    fViewport.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
+    fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
     Result := ''; //Loading has now completed successfully :)
     Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   except
