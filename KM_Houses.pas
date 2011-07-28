@@ -1509,6 +1509,8 @@ var i,k:integer;
 begin
   Assert(aUnitType in [ut_Militia..ut_Barbarian]);
 
+  LinkUnit := nil;
+
   for k := 1 to aCount do
   begin
     //Make sure we have enough resources to equip a unit
@@ -1532,10 +1534,13 @@ begin
 
     //AI do not need auto linking, they manage linking themselves
     if fPlayers.Player[fOwner].PlayerType = pt_Human then
-      LinkUnit := Soldier.FindLinkUnit(GetEntrance)
-    else LinkUnit := nil;
-    if LinkUnit <> nil then
-      Soldier.OrderLinkTo(LinkUnit);
+    begin
+      if LinkUnit = nil then
+        LinkUnit := Soldier.FindLinkUnit(GetEntrance);
+      if LinkUnit <> nil then
+        Soldier.OrderLinkTo(LinkUnit);
+      LinkUnit := Soldier; //For future units if Count > 1
+    end;
   end;
 end;
 
