@@ -224,7 +224,7 @@ begin
       //IsHit := (Damage >= KaMRandom(101)); //0..100
 
       if IsHit then
-        if fOpponent.HitPointsDecrease(Damage) then
+        if fOpponent.HitPointsDecrease(Damage,false) then
           if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
             fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
 

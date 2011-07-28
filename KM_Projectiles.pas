@@ -205,31 +205,34 @@ begin
           fSoundLib.Play(ProjectileHitSounds[fType], KMPointRound(fTarget));
 
         if fPosition >= fLength then begin
-          U := fPlayers.UnitsHitTestF(fTarget, false);
-          case fType of
-            pt_Arrow,
-            pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
-                          begin
-                            Damage := 0;
-                            if fType = pt_Arrow then Damage := UnitStat[byte(ut_Bowman)].Attack;
-                            if fType = pt_Bolt then Damage := UnitStat[byte(ut_Arbaletman)].Attack;
-                            //Arrows are more likely to cause damage when the unit is closer
-                            Damage := Round(Damage * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
-                            if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
-                              if U.HitPointsDecrease(Damage) then
-                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
-                          end
-                          else
-                          begin
-                            H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
-                            if (H <> nil) and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.GetOwner)= at_Enemy)) then
-                              if H.AddDamage(1) then //House was destroyed
-                                fPlayers.Player[fOwner].Stats.HouseDestroyed(H.GetHouseType);
-                          end;
-            pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
-                            if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
-                              if U.HitPointsDecrease(U.GetMaxHitPoints) then //Instant death
-                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+          if KaMRandom >= ProjectileMissChance[fType] then
+          begin
+            U := fPlayers.UnitsHitTestF(fTarget, false);
+            case fType of
+              pt_Arrow,
+              pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
+                            begin
+                              Damage := 0;
+                              if fType = pt_Arrow then Damage := UnitStat[byte(ut_Bowman)].Attack;
+                              if fType = pt_Bolt then Damage := UnitStat[byte(ut_Arbaletman)].Attack;
+                              //Arrows are more likely to cause damage when the unit is closer
+                              Damage := Round(Damage * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
+                              if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
+                                if U.HitPointsDecrease(Damage,false) then
+                                  fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                            end
+                            else
+                            begin
+                              H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
+                              if (H <> nil) and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.GetOwner)= at_Enemy)) then
+                                if H.AddDamage(1) then //House was destroyed
+                                  fPlayers.Player[fOwner].Stats.HouseDestroyed(H.GetHouseType);
+                            end;
+              pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
+                              if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
+                                if U.HitPointsDecrease(U.GetMaxHitPoints,true) then //Instant death
+                                  fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+            end;
           end;
           RemItem(i);
         end;

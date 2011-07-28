@@ -141,7 +141,7 @@ type TCheckAxis = (ax_X, ax_Y);
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
     procedure SetFullCondition;
-    function  HitPointsDecrease(aAmount:integer):boolean;
+    function  HitPointsDecrease(aAmount:integer; aPenetratesDefence:boolean):boolean;
     procedure HitPointsIncrease(aAmount:integer);
     property GetHitPoints:byte read fHitPoints;
     function GetMaxHitPoints:byte;
@@ -1142,13 +1142,14 @@ end;
 
 
 //Return TRUE if unit was killed
-function TKMUnit.HitPointsDecrease(aAmount:integer):boolean;
+function TKMUnit.HitPointsDecrease(aAmount:integer; aPenetratesDefence:boolean):boolean;
 begin
   Result := false;
   //When we are first hit reset the counter
   if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
   // Defence modifier
-  aAmount := aAmount div Math.max(UnitStat[byte(fUnitType)].Defence,1); //Not needed, but animals have 0 defence
+  if not aPenetratesDefence then
+    aAmount := aAmount div Math.max(UnitStat[byte(fUnitType)].Defence,1); //Not needed, but animals have 0 defence
   // Sign of aAmount does not affect
   fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, GetMaxHitPoints);
   if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
