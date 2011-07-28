@@ -17,94 +17,105 @@ type FW_BOLD = integer;
 {$ENDIF}
 
 type
-  TRender = class
-    private
-      h_DC: HDC;
-      h_RC: HGLRC;
-      fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version:string;
-      TextG:GLuint; //Shading gradient
-      TextT:GLuint; //Tiles
-      TextW:array[1..8]of GLuint; //Water
-      TextS:array[1..3]of GLuint; //Swamps
-      TextF:array[1..5]of GLuint; //WaterFalls
-      fRenderAreaSize:TKMPoint;
-
-      rPitch,rHeading,rBank:integer;
-
-      RenderCount:word;
-      RO:array of word; //RenderOrder
-      RenderList:array of record
-        Loc,Obj:TKMPointF;
-        RX:byte;
-        ID:word;
-        NewInst,IsUnit:boolean;
-        Team:cardinal;
-        AlphaStep:single; //Only appliable to HouseBuild
-        FOWvalue:byte; // Fog of War thickness
-      end;
-
-      procedure RenderDot(pX,pY:single; Size:single = 0.05);
-      procedure RenderDotOnTile(pX,pY:single);
-      procedure RenderLine(x1,y1,x2,y2:single);
-      procedure RenderQuad(pX,pY:integer);
-      procedure RenderTile(Index:byte; pX,pY,Rot:integer);
-      procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
-      procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
-      procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
-      procedure ClipRenderList;
-      procedure SortRenderList;
-      procedure RenderRenderList;
-      procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
-      procedure RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
-      procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
-      procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
-      procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-      procedure RenderCursorHighlights;
-      procedure RenderBrightness(Value:byte);
-    public
-      Stat_Sprites:integer; //Total sprites in queue
-      Stat_Sprites2:integer;//Rendered sprites
-      constructor Create(RenderFrame:HWND; aVSync:boolean);
-      destructor Destroy; override;
-      procedure LoadTileSet;
-      procedure SetRotation(aH,aP,aB:integer);
-      procedure Resize(Width,Height:integer; aRenderMode:TRenderMode);
-      procedure Render;
-      {$IFDEF WDC}
-      procedure DoPrintScreen(FileName:string);
-      {$ENDIF}
-      procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
-      procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
-      procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
-      procedure RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
-      procedure RenderDebugLine(x1,y1,x2,y2:single);
-      procedure RenderDebugProjectile(x1,y1,x2,y2:single);
-      procedure RenderDebugWires(x1,x2,y1,y2:integer);
-      procedure RenderDebugPassability(x1,x2,y1,y2:integer);
-      procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
-      procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
-      procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
-      procedure RenderDebugQuad(pX,pY:integer);
-      procedure RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
-      procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection=dir_NA);
-      procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-      procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-      procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-      procedure RenderHouseBuild(Index:THouseType; Loc:TKMPoint);
-      procedure RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
-      procedure RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
-      procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
-      procedure RenderHouseWork(Index:THouseType; AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
-      procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
-      procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
-      procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-      procedure RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
-      procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-      procedure RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
-      procedure RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-      property RenderAreaSize:TKMPoint read fRenderAreaSize;
-      property RendererVersion:string read fOpenGL_Version;
+  TRenderList = class
+  private
+    RenderCount:word;
+    RO:array of word; //RenderOrder
+    RenderList:array of record
+      Loc,Obj:TKMPointF;
+      RX:byte;
+      ID:word;
+      NewInst,IsUnit:boolean;
+      Team:cardinal;
+      AlphaStep:single; //Only appliable to HouseBuild
+      FOWvalue:byte; // Fog of War thickness
     end;
+
+    fStat_Sprites:integer; //Total sprites in queue
+    fStat_Sprites2:integer;//Rendered sprites
+    procedure ClipRenderList;
+    procedure SortRenderList;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure AddSprite(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
+    property Stat_Sprites:integer read fStat_Sprites;
+    property Stat_Sprites2:integer read fStat_Sprites2;
+    procedure Render;
+  end;
+
+  TRender = class
+  private
+    h_DC: HDC;
+    h_RC: HGLRC;
+    fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version:string;
+    TextG:GLuint; //Shading gradient
+    TextT:GLuint; //Tiles
+    TextW:array[1..8]of GLuint; //Water
+    TextS:array[1..3]of GLuint; //Swamps
+    TextF:array[1..5]of GLuint; //WaterFalls
+    fScreenX, fScreenY:word;
+    rPitch,rHeading,rBank:integer;
+    fRenderList: TRenderList;
+
+    procedure RenderDot(pX,pY:single; Size:single = 0.05);
+    procedure RenderDotOnTile(pX,pY:single);
+    procedure RenderLine(x1,y1,x2,y2:single);
+    procedure RenderQuad(pX,pY:integer);
+    procedure RenderTile(Index:byte; pX,pY,Rot:integer);
+    procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
+    procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
+    procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
+    procedure RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
+    procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
+    procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
+    procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
+    procedure RenderCursorHighlights;
+    procedure RenderBrightness(Value:byte);
+  public
+    constructor Create(RenderFrame:HWND; aVSync:boolean);
+    destructor Destroy; override;
+
+    procedure LoadTileSet;
+    procedure SetRotation(aH,aP,aB:integer);
+    procedure Resize(Width,Height:integer; aRenderMode:TRenderMode);
+    function Stat_Sprites:integer;
+    function Stat_Sprites2:integer;
+    procedure Render;
+    {$IFDEF WDC}
+    procedure DoPrintScreen(FileName:string);
+    {$ENDIF}
+    procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
+    procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
+    procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
+    procedure RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
+    procedure RenderDebugLine(x1,y1,x2,y2:single);
+    procedure RenderDebugProjectile(x1,y1,x2,y2:single);
+    procedure RenderDebugWires(x1,x2,y1,y2:integer);
+    procedure RenderDebugPassability(x1,x2,y1,y2:integer);
+    procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
+    procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
+    procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
+    procedure RenderDebugQuad(pX,pY:integer);
+    procedure RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
+    procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection=dir_NA);
+    procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderHouseBuild(Index:THouseType; Loc:TKMPoint);
+    procedure RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+    procedure RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
+    procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
+    procedure RenderHouseWork(Index:THouseType; AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+    procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
+    procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
+    procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
+    procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
+    procedure RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+    procedure RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    property RendererVersion:string read fOpenGL_Version;
+  end;
 
     
 var
@@ -131,7 +142,7 @@ begin
 
   BuildFont(h_DC, 16, FW_BOLD);
 
-  SetLength(RenderList, 512);
+  fRenderList := TRenderList.Create;
   {$ENDIF}
   {$IFDEF Unix}
     MessageBox(Form1.Handle,'TRender.Create not working', 'Error', MB_OK);
@@ -141,7 +152,7 @@ end;
 
 destructor TRender.Destroy;
 begin
-  SetLength(RenderList, 0);
+  fRenderList.Free;
   {$IFDEF MSWindows}
   wglMakeCurrent(h_DC, 0);
   wglDeleteContext(h_RC);
@@ -182,17 +193,29 @@ end;
 
 procedure TRender.Resize(Width,Height:integer; aRenderMode:TRenderMode);
 begin
-  fRenderAreaSize.X := max(Width, 1);
-  fRenderAreaSize.Y := max(Height, 1);
-  glViewport(0, 0, fRenderAreaSize.X, fRenderAreaSize.Y);
+  fScreenX := max(Width, 1);
+  fScreenY := max(Height, 1);
+  glViewport(0, 0, fScreenX, fScreenY);
   glMatrixMode(GL_PROJECTION); //Change Matrix Mode to Projection
   glLoadIdentity; //Reset View
   case aRenderMode of
-    rm2D: gluOrtho2D(0, fRenderAreaSize.X, fRenderAreaSize.Y, 0);
-    rm3D: gluPerspective(80, -fRenderAreaSize.X/fRenderAreaSize.Y, 0.1, 5000.0);
+    rm2D: gluOrtho2D(0, fScreenX, fScreenY, 0);
+    rm3D: gluPerspective(80, -fScreenX/fScreenY, 0.1, 5000.0);
   end;
   glMatrixMode(GL_MODELVIEW); //Return to the modelview matrix
   glLoadIdentity; //Reset View
+end;
+
+
+function TRender.Stat_Sprites: integer;
+begin
+  Result := fRenderList.Stat_Sprites;
+end;
+
+
+function TRender.Stat_Sprites2: integer;
+begin
+  Result := fRenderList.Stat_Sprites2;
 end;
 
 
@@ -209,7 +232,7 @@ begin
     glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y, 0);
     if RENDER_3D then
     begin
-      Resize(fRenderAreaSize.X, fRenderAreaSize.Y, rm3D);
+      Resize(fScreenX, fScreenY, rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -222,23 +245,19 @@ begin
     glLineWidth(fViewport.Zoom*2);
     glPointSize(fViewport.Zoom*5);
 
-    RenderCount := 0; //Init RenderList
-
     fTerrain.Paint;
     fPlayers.Paint; //Quite slow           //Units and houses
     if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
       fGame.Projectiles.Paint; //Render all arrows and etc..
 
-    ClipRenderList; //drop items that are outside of viewport
-    SortRenderList; //sort items overlaying
-    RenderRenderList;
+    fRenderList.Render;
 
     RenderCursorHighlights; //Will be on-top of everything
 
     if DISPLAY_SOUNDS then fSoundLib.Paint;
   end;
 
-  Resize(fRenderAreaSize.X, fRenderAreaSize.Y, rm2D);
+  Resize(fScreenX, fScreenY, rm2D);
   glLineWidth(1);
   glPointSize(1);
   glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
@@ -261,10 +280,10 @@ end;
 procedure TRender.DoPrintScreen(FileName:string);
 var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
-  sw := fRenderAreaSize.X;
-  sh := fRenderAreaSize.Y;
+  sw := fScreenX;
+  sh := fScreenY;
 
-  setlength(bmp,sw*sh+1);
+  SetLength(bmp,sw*sh+1);
   glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
 
   //Mirror verticaly
@@ -272,7 +291,7 @@ begin
   SwapInt(bmp[i*sw+k],bmp[((sh-1)-i)*sw+k]);
 
   mkbmp := TBitmap.Create;
-  mkbmp.Handle:=CreateBitmap(sw,sh,1,32,@bmp[0]);
+  mkbmp.Handle := CreateBitmap(sw,sh,1,32,@bmp[0]);
 
   jpg := TJpegImage.Create;
   jpg.assign(mkbmp);
@@ -380,7 +399,7 @@ begin
 
   glColor4f(1,1,1,1);
   //Render highlights
-  glBlendFunc(GL_DST_COLOR,GL_ONE);
+  glBlendFunc(GL_DST_COLOR, GL_ONE);
   glBindTexture(GL_TEXTURE_2D, TextG);
   glBegin(GL_QUADS);
   with fTerrain do
@@ -426,7 +445,7 @@ begin
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBindTexture(GL_TEXTURE_2D,0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
   if SHOW_WALK_CONNECT then
   for i:=y1 to y2 do for k:=x1 to x2 do
@@ -666,7 +685,7 @@ begin
   ShiftX := RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := (RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
+  fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
 end;
 
 
@@ -700,7 +719,7 @@ begin
   end else begin
     ShiftX:=RXData[1].Pivot[ID].x/CELL_SIZE_PX;
     ShiftY:=(RXData[1].Pivot[ID].y+RXData[1].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
+    fRenderList.AddSprite(1,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
     {RenderDot(pX,pY);
     glRasterPos2f(pX-1+0.1,pY-1+0.1);
     glPrint(inttostr(Index)+':'+inttostr(ID));}
@@ -714,24 +733,24 @@ end;
 { 4 objects packed on 1 tile for Corn and Grapes }
 procedure TRender.RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var FOW:byte;
-  procedure AddSpriteToListBy(aID:integer; aAnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
+  procedure AddSpriteBy(aID:integer; aAnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   var ID:integer;
   begin
     ID := MapElem[aID].Step[aAnimStep mod MapElem[aID].Count +1 ] +1;
     ShiftY := ShiftY + (RXData[1].Size[ID].Y) / CELL_SIZE_PX;
     ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX+ShiftX, pY+ShiftY)/CELL_HEIGHT_DIV;
-    AddSpriteToList(1, ID, pX+ShiftX, pY+ShiftY, pX, pY, true);
+    fRenderList.AddSprite(1, ID, pX+ShiftX, pY+ShiftY, pX, pY, true);
     if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
   end;
 begin
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY);
   if FOW <=128 then AnimStep:=0; //Stop animation
 
-  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  , -0.4);
-  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0.5, -0.4);
+  AddSpriteBy(Index, AnimStep  , pX, pY, 0  , -0.4);
+  AddSpriteBy(Index, AnimStep+1, pX, pY, 0.5, -0.4);
   if IsDouble then exit;
-  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
-  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
+  AddSpriteBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
+  AddSpriteBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
 end;
 
 
@@ -742,7 +761,7 @@ begin
   ID := fResource.HouseDat[Index].TabletIcon;
   ShiftX := Loc.X + fResource.HouseDat[Index].EntranceOffsetX + RXData[4].Pivot[ID].x/CELL_SIZE_PX + 0.5;
   ShiftY := Loc.Y + (RXData[4].Pivot[ID].y + RXData[4].Size[ID].Y)/CELL_SIZE_PX + 0.5 - fTerrain.Land[Loc.Y+1, Loc.X].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(4,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true);
+  fRenderList.AddSprite(4,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true);
 end;
 
 
@@ -754,13 +773,13 @@ begin
     ID := 260+Wood-1;
     ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
     ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
+    fRenderList.AddSprite(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
   if Stone<>0 then begin
     ID := 267+Stone-1;
     ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
     ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
+    fRenderList.AddSprite(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
 end;
 
@@ -772,7 +791,7 @@ begin
   ID := fResource.HouseDat[Index].WoodPic+1;
   ShiftX := Loc.X + RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := Loc.Y + (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true,0,Step);
+  fRenderList.AddSprite(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true,0,Step);
 end;
 
 
@@ -784,7 +803,7 @@ begin
   ID := fResource.HouseDat[Index].StonePic+1;
   ShiftX := Loc.X + RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := Loc.Y + (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false,0,Step);
+  fRenderList.AddSprite(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false,0,Step);
 end;
 
 
@@ -804,7 +823,7 @@ begin
       ShiftY := (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
       ShiftX := ShiftX+fResource.HouseDat[Index].Anim[i].MoveX/CELL_SIZE_PX;
       ShiftY := ShiftY+fResource.HouseDat[Index].Anim[i].MoveY/CELL_SIZE_PX;
-      AddSpriteToList(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false,FlagColor);
+      fRenderList.AddSprite(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false,FlagColor);
     end;
   end;
 end;
@@ -820,7 +839,7 @@ var ID,i,k:integer;
     begin
       ShiftX := Loc.X + RXData[2].Pivot[aID].x/CELL_SIZE_PX;
       ShiftY := Loc.Y + (RXData[2].Pivot[aID].y+RXData[2].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      AddSpriteToList(2,aID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
+      fRenderList.AddSprite(2,aID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
     end;
   end;
 
@@ -861,7 +880,7 @@ begin
 
   ShiftX:=ShiftX+RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false);
+  fRenderList.AddSprite(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false);
 end;
 
 
@@ -876,7 +895,7 @@ begin
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor,-1,true);
+  fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor,-1,true);
   if DoImmediateRender then RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,FlagColor,255,Deleting);
 
   if SHOW_UNIT_MOVEMENT then begin
@@ -897,7 +916,7 @@ begin
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   ShiftX:=ShiftX+SerfCarry[CarryID].Dir[DirID].MoveX/CELL_SIZE_PX;
   ShiftY:=ShiftY+SerfCarry[CarryID].Dir[DirID].MoveY/CELL_SIZE_PX;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,0);
+  fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,0);
 end;
 
 
@@ -910,7 +929,7 @@ begin
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+  fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
 end;
 
 
@@ -925,7 +944,7 @@ begin
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV-0.4 -2.25;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor);
+  fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor);
 
   if SHOW_UNIT_MOVEMENT then begin
     glColor3ubv(@FlagColor);
@@ -1093,111 +1112,6 @@ begin
       glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
   end;
-end;
-
-
-{Collect all sprites into list}
-procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
-begin
-  inc(RenderCount);
-  if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
-
-  RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
-  RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object in tile-space, floating-point
-  RenderList[RenderCount].RX:=aRX;              //RX library
-  RenderList[RenderCount].ID:=aID;              //Texture ID
-  RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
-  RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
-  RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
-  RenderList[RenderCount].IsUnit:=aIsUnit;      //Because units use different FOW offsets
-
-  RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
-end;
-
-
-procedure TRender.ClipRenderList;
-var i:integer; P:TKMPoint;
-begin
-  SetLength(RO, RenderCount+1);
-
-  for i:=1 to RenderCount do
-  if RenderList[i].NewInst then begin
-    RO[i]:=i;
-    if RenderList[i].IsUnit then
-    begin
-      P.X:=round(RenderList[i].Obj.X-0.5);
-      P.Y:=round(RenderList[i].Obj.Y-1);
-    end else
-    begin
-      P.X:=round(RenderList[i].Obj.X);
-      P.Y:=round(RenderList[i].Obj.Y);
-    end;
-    //RenderQuad(P.X,P.Y);
-    RenderList[i].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(P.X,P.Y);
-    if (RenderList[i].FOWvalue <= 128) and RenderList[i].IsUnit then
-      RO[i] := 0;
-  end else begin
-    RO[i]:=0;
-    RenderList[i].FOWvalue:=RenderList[i-1].FOWvalue; //Take from previous
-  end;
-end;
-
-
-{Need to sort all items in list from top-right to bottom-left}
-procedure TRender.SortRenderList;
-var i,k:integer;
-begin
-  for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparison
-  for k:=i+1 to RenderCount do if RO[k]<>0 then
-    if (RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y)
-    or((RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y)
-    and(RenderList[RO[k]].Loc.X > RenderList[RO[i]].Loc.X))
-    then //TopMost Rightmost
-      SwapInt(RO[k],RO[i])
-end;
-
-
-{Now render all these items from list}
-procedure TRender.RenderRenderList;
-var i,h:integer;
-begin
-  Stat_Sprites:=RenderCount;
-  Stat_Sprites2:=0;
-
-  for i:=1 to RenderCount do
-  if RO[i]<>0 then begin
-
-    h:=RO[i];
-    //Incase no sprites were made
-    if (RenderList[h].RX=2) and not MAKE_HOUSE_SPRITES then
-      RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
-    else
-    if (RenderList[h].RX=3) and not MAKE_UNIT_SPRITES then
-      RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
-    else
-    begin
-
-      glPushMatrix;
-        glTranslatef(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
-        glRotatef(rHeading,-1,0,0);
-        glTranslatef(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
-
-        repeat //Render child sprites only after their parent
-          with RenderList[h] do begin
-            if AlphaStep=-1 then
-              RenderSprite(RX,ID,Loc.X,Loc.Y,Team,FOWvalue)
-            else
-              RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
-          end;
-          inc(h);
-          inc(Stat_Sprites2);
-        until((h>RenderCount)or(RenderList[h].NewInst));
-
-      glPopMatrix;
-    end;
-
-  end;
-
 end;
 
 
@@ -1408,10 +1322,133 @@ begin
   glBlendFunc(GL_DST_COLOR,GL_ONE);
   glColor4f(Value/20,Value/20,Value/20,Value/20);
   glBegin(GL_QUADS);
-    glkRect(0,0,fRenderAreaSize.X,fRenderAreaSize.Y);
+    glkRect(0,0,fScreenX,fScreenY);
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+end;
+
+
+{ TRenderList }
+constructor TRenderList.Create;
+begin
+  RenderCount := 0;
+  SetLength(RenderList, 512);
+end;
+
+
+destructor TRenderList.Destroy;
+begin
+  SetLength(RenderList, 0);
+  inherited;
+end;
+
+
+procedure TRenderList.ClipRenderList;
+var i:integer; P:TKMPoint;
+begin
+  SetLength(RO, RenderCount+1);
+
+  for i:=1 to RenderCount do
+  if RenderList[i].NewInst then begin
+    RO[i]:=i;
+    if RenderList[i].IsUnit then
+    begin
+      P.X:=round(RenderList[i].Obj.X-0.5);
+      P.Y:=round(RenderList[i].Obj.Y-1);
+    end else
+    begin
+      P.X:=round(RenderList[i].Obj.X);
+      P.Y:=round(RenderList[i].Obj.Y);
+    end;
+    //RenderQuad(P.X,P.Y);
+    RenderList[i].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(P.X,P.Y);
+    if (RenderList[i].FOWvalue <= 128) and RenderList[i].IsUnit then
+      RO[i] := 0;
+  end else begin
+    RO[i]:=0;
+    RenderList[i].FOWvalue:=RenderList[i-1].FOWvalue; //Take from previous
+  end;
+end;
+
+
+{Need to sort all items in list from top-right to bottom-left}
+procedure TRenderList.SortRenderList;
+var i,k:integer;
+begin
+  for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparison
+  for k:=i+1 to RenderCount do if RO[k]<>0 then
+    if (RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y)
+    or((RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y)
+    and(RenderList[RO[k]].Loc.X > RenderList[RO[i]].Loc.X))
+    then //TopMost Rightmost
+      SwapInt(RO[k],RO[i])
+end;
+
+
+procedure TRenderList.AddSprite(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
+begin
+  inc(RenderCount);
+  if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
+
+  RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
+  RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object in tile-space, floating-point
+  RenderList[RenderCount].RX:=aRX;              //RX library
+  RenderList[RenderCount].ID:=aID;              //Texture ID
+  RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
+  RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
+  RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
+  RenderList[RenderCount].IsUnit:=aIsUnit;      //Because units use different FOW offsets
+
+  RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
+end;
+
+
+{Now render all these items from list}
+procedure TRenderList.Render;
+var i,h:integer;
+begin
+  ClipRenderList; //drop items that are outside of viewport
+  SortRenderList; //sort items overlaying
+
+  fStat_Sprites := RenderCount;
+  fStat_Sprites2 := 0;
+
+  for i:=1 to RenderCount do
+  if RO[i]<>0 then begin
+
+    h:=RO[i];
+    //Incase no sprites were made
+    if (RenderList[h].RX=2) and not MAKE_HOUSE_SPRITES then
+      fRender.RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
+    else
+    if (RenderList[h].RX=3) and not MAKE_UNIT_SPRITES then
+      fRender.RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
+    else
+    begin
+
+      glPushMatrix;
+        glTranslatef(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
+        //glRotatef(rHeading,-1,0,0);
+        glTranslatef(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
+
+        repeat //Render child sprites only after their parent
+          with RenderList[h] do begin
+            if AlphaStep=-1 then
+              fRender.RenderSprite(RX,ID,Loc.X,Loc.Y,Team,FOWvalue)
+            else
+              fRender.RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
+          end;
+          inc(h);
+          inc(fStat_Sprites2);
+        until((h>RenderCount)or(RenderList[h].NewInst));
+
+      glPopMatrix;
+    end;
+
+  end;
+
+  RenderCount := 0;
 end;
 
 
