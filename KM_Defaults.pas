@@ -56,8 +56,8 @@ var
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
   CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
-  //Not fully implemented yet
   ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
+  //Not fully implemented yet
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
@@ -182,8 +182,7 @@ type
 
 {Cursors}
 type
-  TCursorMode = (
-                  cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
+  TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
                   cm_Height, cm_Tiles, cm_Objects, cm_Units); //MapEditor
 
 const
@@ -231,7 +230,7 @@ const
   ('rus', 'Russian'));
 
 
-type TGameResultMsg = (     //Game result
+type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
@@ -297,7 +296,7 @@ type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
 
     TKMissionMode = (mm_Normal, mm_Tactic);
 
-    TAllianceType = (at_Enemy=0, at_Ally=1);
+    TAllianceType = (at_Enemy, at_Ally);
 
 const
   TKMCursorDirections: array[TKMDirection]of integer = (c_DirN,c_Dir0,c_Dir1,c_Dir2,c_Dir3,c_Dir4,c_Dir5,c_Dir6,c_Dir7);
@@ -384,7 +383,7 @@ type
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)
-type TFightType = (ft_Melee=0, ft_Ranged);
+type TFightType = (ft_Melee, ft_Ranged);
 
 const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
     ft_Melee,ft_Melee,ft_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
@@ -402,7 +401,7 @@ const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
 
 
 //Used for AI defence and linking troops
-type TGroupType = (gt_None=0, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+type TGroupType = (gt_None, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
 
 const UnitGroups: array[15..24] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
@@ -449,7 +448,7 @@ const AnimalTerrain: array[31..38] of TPassability = (
 type TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
 
 type //Army_Flag=4962,
-  TUnitThought = (th_None=0, th_Eat=1, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
+  TUnitThought = (th_None, th_Eat, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
 
 const //Corresponding indices in units.rx
   ThoughtBounds:array[1..7,1..2] of word = (
@@ -457,14 +456,14 @@ const //Corresponding indices in units.rx
   );
 
 type
-  TUnitTaskName = ( utn_Unknown=0, //Uninitialized task to detect bugs
+  TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
         utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
         utn_BuildWall, utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,
         utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_AttackHouse,
         utn_ThrowRock);
 
 type
-  TUnitActionName = ( uan_Unknown=0, //Uninitialized action to detect bugs
+  TUnitActionName = ( uan_Unknown, //Uninitialized action to detect bugs
         uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
 
 type
@@ -539,7 +538,7 @@ const {Actions names}
 
 type
   TGatheringScript = (
-    gs_None=0,
+    gs_None,
     gs_WoodCutterCut, gs_WoodCutterPlant,
     gs_FarmerSow, gs_FarmerCorn, gs_FarmerWine,
     gs_FisherCatch,
@@ -559,7 +558,7 @@ type
     ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
-  THouseState = ( hst_Empty, hst_Idle, hst_Work );
+  THouseState = (hst_Empty, hst_Idle, hst_Work);
   //These are house building states
   THouseBuildState = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
 
