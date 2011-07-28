@@ -641,22 +641,15 @@ begin
   Screen.Cursor := c_Default;
   fViewport.ReleaseScrollKeys;
   PlayOnState := Msg;
-  case Msg of
-    gr_ReplayEnd:     begin
-                        if DoHold then begin
-                          SetGameState(gsOnHold);
-                          fGamePlayInterface.ShowPlayMore(true, Msg);
-                        end else
-                          SetGameState(gsReplay);
-                      end;
-    gr_Win,gr_Defeat: begin
-                        if DoHold then begin
-                          SetGameState(gsOnHold);
-                          fGamePlayInterface.ShowPlayMore(true, Msg);
-                        end else
-                          SetGameState(gsRunning);
-                      end;
-  end;
+
+  if DoHold then begin
+    SetGameState(gsOnHold);
+    fGamePlayInterface.ShowPlayMore(true, Msg);
+  end else
+    case Msg of
+      gr_ReplayEnd:     SetGameState(gsReplay);
+      gr_Win,gr_Defeat: SetGameState(gsRunning);
+    end;
 end;
 
 
