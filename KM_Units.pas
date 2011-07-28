@@ -1593,14 +1593,14 @@ begin
   if fInHouse <> nil then
     SaveStream.Write(fInHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
 
   SaveStream.Write(fOwner, SizeOf(fOwner));
 
   if fHome <> nil then
     SaveStream.Write(fHome.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
 
   SaveStream.Write(fPosition);
   SaveStream.Write(fVisible);
@@ -1749,7 +1749,7 @@ begin
   if fUnit <> nil then
     SaveStream.Write(fUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(fPhase);
   SaveStream.Write(fPhase2);
 end;

@@ -123,7 +123,7 @@ begin
   if fCurrentCommander <> nil then
     SaveStream.Write(fCurrentCommander.ID) //Store ID
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
 end;
 
 

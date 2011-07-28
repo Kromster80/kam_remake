@@ -1052,7 +1052,7 @@ begin
   if fWalker <> nil then
     SaveStream.Write(fWalker.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(fWalkFrom);
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fNewWalkTo);
@@ -1061,11 +1061,11 @@ begin
   if fTargetUnit <> nil then
     SaveStream.Write(fTargetUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   if fTargetHouse <> nil then
     SaveStream.Write(fTargetHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
 
   SaveStream.Write(fPass,SizeOf(fPass));
   SaveStream.Write(fDoesWalking);

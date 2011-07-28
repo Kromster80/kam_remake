@@ -242,15 +242,15 @@ begin
   if fFrom <> nil then
     SaveStream.Write(fFrom.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   if fToHouse <> nil then
     SaveStream.Write(fToHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   if fToUnit <> nil then
     SaveStream.Write(fToUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(fResourceType, SizeOf(fResourceType));
   SaveStream.Write(fDeliverID);
   SaveStream.Write(DeliverKind, SizeOf(DeliverKind));

@@ -616,7 +616,7 @@ begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
   SaveStream.Write(HouseSet);
   SaveStream.Write(Step);
@@ -751,7 +751,7 @@ begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);
@@ -861,7 +861,7 @@ begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);

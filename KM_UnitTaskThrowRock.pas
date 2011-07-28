@@ -97,7 +97,7 @@ begin
   if fTarget <> nil then
     SaveStream.Write(fTarget.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(fFlightTime);
 end;
 

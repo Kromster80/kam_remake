@@ -112,7 +112,7 @@ begin
   if fSchool <> nil then
     SaveStream.Write(fSchool.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
 end;
 
 

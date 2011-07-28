@@ -2389,7 +2389,7 @@ begin
     if Land[i,k].IsUnit <> nil then
       SaveStream.Write(Land[i,k].IsUnit.ID) //Store ID, then substitute it with reference on SyncLoad
     else
-      SaveStream.Write(Zero);
+      SaveStream.Write(Integer(0));
     SaveStream.Write(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
   end;
 end;

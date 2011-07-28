@@ -524,7 +524,10 @@ begin
   begin
     SaveStream.Write(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
     SaveStream.Write(fOffer[i].Count);
-    if fOffer[i].Loc_House <> nil then SaveStream.Write(fOffer[i].Loc_House.ID) else SaveStream.Write(Zero);
+    if fOffer[i].Loc_House <> nil then
+      SaveStream.Write(fOffer[i].Loc_House.ID)
+    else
+      SaveStream.Write(Integer(0));
     SaveStream.Write(fOffer[i].BeingPerformed);
     SaveStream.Write(fOffer[i].IsDeleted);
   end;
@@ -536,8 +539,8 @@ begin
     SaveStream.Write(Resource, SizeOf(Resource));
     SaveStream.Write(DemandType, SizeOf(DemandType));
     SaveStream.Write(Importance, SizeOf(Importance));
-    if Loc_House <> nil then SaveStream.Write(Loc_House.ID) else SaveStream.Write(Zero);
-    if Loc_Unit  <> nil then SaveStream.Write(Loc_Unit.ID ) else SaveStream.Write(Zero);
+    if Loc_House <> nil then SaveStream.Write(Loc_House.ID) else SaveStream.Write(Integer(0));
+    if Loc_Unit  <> nil then SaveStream.Write(Loc_Unit.ID ) else SaveStream.Write(Integer(0));
     SaveStream.Write(BeingPerformed);
     SaveStream.Write(IsDeleted);
   end;
@@ -995,13 +998,13 @@ begin
     SaveStream.Write(FieldType, SizeOf(FieldType));
     SaveStream.Write(Importance);
     SaveStream.Write(JobStatus, SizeOf(JobStatus));
-    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Zero);
+    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Integer(0));
   end;
 
   SaveStream.Write(HousesCount);
   for i:=1 to HousesCount do
   begin
-    if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID) else SaveStream.Write(Zero);
+    if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID) else SaveStream.Write(Integer(0));
     SaveStream.Write(fHousesQueue[i].Importance);
     SaveStream.Write(fHousesQueue[i].WorkerCount);
     SaveStream.Write(fHousesQueue[i].IsDeleted);
@@ -1011,17 +1014,17 @@ begin
   for i:=1 to HousePlansCount do
   with fHousePlansQueue[i] do
   begin
-    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Zero);
+    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Integer(0));
     SaveStream.Write(Importance);
     SaveStream.Write(JobStatus, SizeOf(JobStatus));
-    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Zero);
+    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Integer(0));
   end;
 
   SaveStream.Write(HouseRepairsCount);
   for i:=1 to HouseRepairsCount do
   with fHouseRepairsQueue[i] do
   begin
-    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Zero);
+    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Integer(0));
     SaveStream.Write(Importance);
     SaveStream.Write(WorkerCount);
     SaveStream.Write(IsDeleted);

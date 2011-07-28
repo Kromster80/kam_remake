@@ -29,8 +29,8 @@ const
 
   KAM_PORT              = '56789';      //Port used in TCP networking
 
-  GAME_REVISION         = 'r2012';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r2024';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '2nd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data\gfx\fonts\';
 
@@ -101,9 +101,6 @@ var
 
   //Statistic
   CtrlPaintCount:word; //How many Controls were painted in last frame
-
-  //Utility
-  Zero:integer=0; //used in SaveStream to represent NIL
 
 const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house

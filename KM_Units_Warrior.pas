@@ -819,15 +819,15 @@ begin
   if fCommander <> nil then
     SaveStream.Write(fCommander.ID) //Store ID
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   if fOrderTargetUnit <> nil then
     SaveStream.Write(fOrderTargetUnit.ID) //Store ID
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   if fOrderTargetHouse <> nil then
     SaveStream.Write(fOrderTargetHouse.ID) //Store ID
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fRequestedFood);
   SaveStream.Write(fTimeSinceHungryReminder);
@@ -844,9 +844,9 @@ begin
       if TKMUnitWarrior(fMembers.Items[i-1]) <> nil then
         SaveStream.Write(TKMUnitWarrior(fMembers.Items[i-1]).ID) //Store ID
       else
-        SaveStream.Write(Zero);
+        SaveStream.Write(Integer(0));
   end else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
 end;
 
 

@@ -250,7 +250,7 @@ begin
   if fOpponent <> nil then
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(AimingDelay);
   SaveStream.Write(fVertexOccupied);
 end;

@@ -1333,7 +1333,7 @@ begin
   if TKMUnit(UnitWIP) <> nil then
     SaveStream.Write(TKMUnit(UnitWIP).ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(HideOneGold);
   SaveStream.Write(UnitTrainProgress);
   SaveStream.Write(UnitQueue, SizeOf(UnitQueue));
@@ -1604,7 +1604,7 @@ begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID)
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(fHouseState, SizeOf(fHouseState));
   SaveStream.Write(fSubAction, SizeOf(fSubAction));
 end;
@@ -1796,7 +1796,7 @@ begin
   if (fSelectedHouse <> nil) and not fGame.MultiplayerMode then //Multiplayer saves must be identical
     SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(Count);
   for i := 0 to Count - 1 do
     Houses[i].Save(SaveStream);
