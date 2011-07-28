@@ -432,10 +432,10 @@ begin
 
     {5 big tabs}
     Button_Main[1] := TKMButton.Create(Panel_Common,   8, 72, 36, 36, 381);
-    Button_Main[2] := TKMButton.Create(Panel_Common,  48, 72, 36, 36, 368);
-    Button_Main[3] := TKMButton.Create(Panel_Common,  88, 72, 36, 36,  41);
-    Button_Main[4] := TKMButton.Create(Panel_Common, 128, 72, 36, 36, 441);
-    Button_Main[5] := TKMButton.Create(Panel_Common, 168, 72, 36, 36, 389);
+    Button_Main[2] := TKMButton.Create(Panel_Common,  46, 72, 36, 36, 368);
+    Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36,  41);
+    Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441);
+    Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389);
     Button_Main[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN];
     Button_Main[2].Hint := fTextLibrary[TX_MAPEDITOR_VILLAGE];
     Button_Main[3].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_VISUAL];
@@ -902,10 +902,11 @@ begin
     Button_PlayerSelect[TKMControl(Sender).Tag].Down := true;
   end;
 
+  if (fShownHouse <> nil) or (fShownUnit <> nil) then SwitchPage(nil);
+
   fShownHouse := nil; //Drop selection
   fShownUnit := nil;
   fPlayers.Selected := nil;
-  SwitchPage(nil);
 end;
 
 
@@ -1300,7 +1301,7 @@ begin
   Amt := 0;
   if AButton = mbLeft then Amt:=1;
   if AButton = mbRight then Amt:=50;
-  if Sender = Button_HouseHealthDec then fShownHouse.AddDamage(Amt);
+  if Sender = Button_HouseHealthDec then fShownHouse.AddDamage(Amt, true);
   if Sender = Button_HouseHealthInc then fShownHouse.AddRepair(Amt);
   if fShownHouse.IsDestroyed then
     ShowHouseInfo(nil)

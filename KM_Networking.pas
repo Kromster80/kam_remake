@@ -577,7 +577,7 @@ begin
       PacketSend(fMyIndexOnServer, mk_Text, aText, 0) //Send to self only if we have no team
     else
       for i:=1 to NetPlayers.Count do
-        if NetPlayers[i].Team = NetPlayers[fMyIndex].Team then
+        if (NetPlayers[i].Team = NetPlayers[fMyIndex].Team) and NetPlayers[i].IsHuman and (NetPlayers[i].IndexOnServer <> -1) then
           PacketSend(NetPlayers[i].IndexOnServer, mk_Text, aText, 0); //Send to each player on team (includes self)
 end;
 
@@ -769,7 +769,6 @@ begin
                 fLANPlayerKind := lpk_Host;
                 fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                 if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
-                SendPlayerListAndRefreshPlayersSetup;
 
                 case fLANGameState of
                   lgs_Lobby:   begin
@@ -786,7 +785,7 @@ begin
                                end;
                 end;
 
-
+                SendPlayerListAndRefreshPlayersSetup;
                 PostMessage('Hosting rights reassigned to '+fMyNikname);
               end;
             end;

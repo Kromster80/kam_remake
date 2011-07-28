@@ -516,7 +516,7 @@ begin
                        end;
     ct_SetHouseDamage: begin
                        if fLastHouse <> nil then
-                         fLastHouse.AddDamage(ParamList[0])
+                         fLastHouse.AddDamage(ParamList[0], fParsingMode = mpm_Editor)
                        else
                          DebugScriptError('ct_SetHouseDamage without prior declaration of House');
                        end;

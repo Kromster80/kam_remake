@@ -100,7 +100,7 @@ type
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
     function GetMaxHealth:word;
-    function  AddDamage(aAmount:word):boolean;
+    function  AddDamage(aAmount:word; aIsEditor:boolean=false):boolean;
     procedure AddRepair(aAmount:word=5);
     procedure UpdateDamage;
     procedure EnableRepair;
@@ -609,7 +609,7 @@ end;
 
 {Add damage to the house, positive number}
 //Return TRUE if house was destroyed
-function TKMHouse.AddDamage(aAmount:word):boolean;
+function TKMHouse.AddDamage(aAmount:word; aIsEditor:boolean=false):boolean;
 begin
   Result := false;
   if IsDestroyed then
@@ -628,7 +628,7 @@ begin
   if fBuildState = hbs_Done then
     UpdateDamage; //Only update fire if the house is complete
 
-  if GetHealth = 0 then
+  if (GetHealth = 0) and not aIsEditor then
   begin
     DemolishHouse(false); //Destroyed by Enemy
     if Assigned(fPlayers) and Assigned(fPlayers.Player[fOwner]) then
