@@ -1389,7 +1389,7 @@ var i:integer; ApplyCheat:boolean;
 begin
   Assert(aRes in [rt_Trunk .. rt_Fish]); //Dunno why thats happening sometimes..
 
-  if CHEATS_ENABLED then begin
+  if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then begin
     ApplyCheat := true;
 
     for i:=1 to length(ResourceCount) do

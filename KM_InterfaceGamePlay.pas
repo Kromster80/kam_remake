@@ -125,6 +125,7 @@ type
     Panel_Allies:TKMPanel;
       Label_AlliesPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
       DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
+      Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
       Button_AlliesClose:TKMButton;
     Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
@@ -870,7 +871,9 @@ begin
         TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, kaCenter);
       end;
       Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, kaLeft);
+      Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, kaLeft);
       DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey);
+      DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
       DropBox_AlliesTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
       for k:=1 to 4 do DropBox_AlliesTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
       DropBox_AlliesTeam[i].OnChange := AlliesTeamChange;
@@ -2337,14 +2340,19 @@ begin
     Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
     DropBox_AlliesTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
+    if fGame.Networking.NetPlayers[i+1].Team = 0 then
+      Label_AlliesTeam[i].Caption := fTextLibrary[TX_LOBBY_NONE]
+    else
+      Label_AlliesTeam[i].Caption := Format(fTextLibrary[TX_LOBBY_TEAM_X],[fGame.Networking.NetPlayers[i+1].Team]);
     DropBox_AlliesTeam[i].Enabled := (i+1 = fGame.Networking.MyIndex); //Our index
+    DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
   end;
 
   for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
   begin
     Label_AlliesPlayer[i].Hide;
     DropBox_AlliesTeam[i].Hide;
-    DropBox_AlliesTeam[i].Hide;
+    Label_AlliesTeam[i].Hide;
   end;
 end;
 
@@ -2438,7 +2446,7 @@ begin
                   if Key=ord('8') then MessageIssue(msgQuill,'123',KMPoint(0,0));
 
                   {Temporary cheat codes}
-                  if Key=ord('W') then fGame.fGameInputProcess.CmdTemp(gic_TempRevealMap);
+                  if (Key=ord('W')) and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then fGame.fGameInputProcess.CmdTemp(gic_TempRevealMap);
                   if (Key=ord('V')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
                   if (Key=ord('D')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
                   if (Key=ord('Q')) and not fGame.MultiplayerMode then fGame.fGameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
@@ -2594,7 +2602,7 @@ begin
 
   P := GameCursor.Cell; //It's used in many places here
 
-  if (Button = mbMiddle) then
+  if (Button = mbMiddle) and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
     fGame.fGameInputProcess.CmdTemp(gic_TempAddScout, P);
 
   //Select direction
