@@ -153,12 +153,12 @@ type
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
     procedure LoadLIBXFile(FilePath:string; var aArray:TStringArray);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
+    function GetRemakeString(aIndex:word):string;
     function GetTexts(aIndex:word):string;
   public
     constructor Create(aLibPath, aLocale: string);
     function GetTextString(aIndex:word):string;
     function GetSetupString(aIndex:word):string;
-    function GetRemakeString(aIndex:word):string;
     property Texts[aIndex:word]:string read GetTexts; default;
     procedure ExportTextLibraries;
 end;
