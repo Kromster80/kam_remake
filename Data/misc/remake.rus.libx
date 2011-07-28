@@ -38,7 +38,7 @@ KM_InterfaceMainMenu
 34:Загрузка... Пожалуйста подождите
 35:Произошла ошибка!
 36:Отключить
-37:Loading new locale
+37:Загрузка нового языка
 38:Unknown
 
 KM_InterfaceGamePlay
@@ -51,9 +51,11 @@ KM_InterfaceGamePlay
 45:Повтор закончился
 46:Продолжать просмотр
 47:Выйти в меню
-104:Not available
-105:Press %s to resume the game
-106:To team
+104:Не доступно
+105:Нажмите %s для продолжения игры
+106:Команде
+108:Игроки
+109:Чат
 
 KM_Game
 48:Во время игры произошла ошибка:
@@ -108,7 +110,7 @@ Create_Lobby_Page
 94:Mode:
 95:Conditions:
 96:Select a save...
-97:Select...
+97:Выбрать...
 98:Network error:
 99:Error: Player name must not be blank
 100:Connection failed: %s
@@ -119,11 +121,11 @@ Create_Lobby_Page
 Credits
 85:KaM Remake Авторы
 86:Оригинальные Knights & Merchants Авторы
-87:PROGRAMMING:
-88:ADDITIONAL PROGRAMMING:
-89:ADDITIONAL GRAPHICS:
-90:ADDITIONAL TRANSLATIONS:
-91:SPECIAL THANKS TO:
+87:ПРОГРАММИРОВАНИЕ:
+88:ДОПОЛНИТЕЛЬНОЕ ПРОГРАММИРОВАНИЕ:
+89:ДОПОЛНИТЕЛЬНАЯ ГРАФИКА:
+90:ДОПОЛНИТЕЛЬНЫЕ ПЕРЕВОДЫ:
+91:ОСОБЫЕ БЛАГОДАРНОСТИ:
 
 Mission
-92:Mission %d
+92:Миссия %d
