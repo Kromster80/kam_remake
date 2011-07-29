@@ -196,10 +196,16 @@ const
 var
   vi: PXvisualInfo;
   //hmm, more var..
-  Result, FCurScreen: Integer;
+  Result: QWord;
+  FCurScreen: Integer;
   FDisplay: PDisplay;
   FRC: GLXContext;
 begin
+  //some more...:
+  if not InitOpenGL then
+    RaiseLastOSError;
+  FDisplay := XOpenDisplay(nil);
+  FCurScreen := XDefaultScreen(FDisplay);
   // Lets create temporary window with glcontext
   Result := XCreateSimpleWindow(FDisplay, XRootWindow(FDisplay, FCurScreen),
     0, 0, 1, 1, 0, // need to define some realties dimensions,
