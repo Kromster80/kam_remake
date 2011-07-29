@@ -10,9 +10,9 @@ uses
   KM_TGATexture, KM_Defaults, KM_CommonTypes, KM_Points;
 
 {$IFDEF Unix}
-type HDC = integer;
-type HGLRC = integer;
-type HWND = integer;
+//type HDC = integer;
+//type HGLRC = integer;
+//type HWND = integer;
 type FW_BOLD = integer;
 {$ENDIF}
 
@@ -145,7 +145,7 @@ begin
   fRenderList := TRenderList.Create;
   {$ENDIF}
   {$IFDEF Unix}
-    MessageBox(Form1.Handle,'TRender.Create not working', 'Error', MB_OK);
+    MessageBox(HWND(nil),'TRender.Create not working', 'Error', MB_OK);
   {$ENDIF}
 end;
 
@@ -160,7 +160,7 @@ begin
   {$IFDEF Unix}
   //do not know how to fix them :(
   //just error for now
-  MessageBox(Form1.Handle,'glXMakeCurrent and glXDestroyContext not working', 'Error', MB_OK);
+  MessageBox(HWND(nil), 'glXMakeCurrent and glXDestroyContext not working', 'Error', MB_OK);
   //glXMakeCurrent(display, wid, util_glctx);
   //glXDestroyContext(h_RC);
   {$ENDIF}

@@ -75,9 +75,10 @@ uses
 {$IFDEF WDC}
   {$R *.RES}
 {$ENDIF}
+{$IFDEF MSWindows}
 {$IFDEF FPC}
   {$R KaM_Remake_Icon.rc}
-{$ENDIF}
+{$ENDIF}{$ENDIF}
 
 begin
   Application.Initialize;
@@ -89,4 +90,4 @@ begin
 
   Application.Run;
 
-end.
+end.
