@@ -47,7 +47,7 @@ begin
   ExeDir := ExtractFilePath(Application.ExeName);
 {$ENDIF}
 {$IFDEF Unix}
-ConfigFilePath := GetAppConfigFile(False);
+ExeDir := GetAppConfigFile(False);
 {$endif}
 
   Show;
