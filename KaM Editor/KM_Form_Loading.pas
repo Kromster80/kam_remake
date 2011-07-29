@@ -56,12 +56,7 @@ ExeDir := GetAppConfigFile(False);
   Bar1.Position:=0;
   Refresh;
 
-  {$IFDEF MSWindows}
   SetRenderFrame(Form1.Panel1.Handle, h_DC, h_RC);
-  {$ENDIF}
-  {$IFDEF Unix}
-  MessageBox(Form1.Handle,'wglMakeCurrent and wglCreateContext not ported', 'Error', MB_OK);
-  {$ENDIF}
   Form1.RenderInit;
 
   BuildFont(h_DC,16);
