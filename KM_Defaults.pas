@@ -29,8 +29,8 @@ const
 
   KAM_PORT              = '56789';      //Port used in TCP networking
 
-  GAME_REVISION         = 'r2024';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '2nd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r2038';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data\gfx\fonts\';
 
@@ -235,6 +235,7 @@ type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
+        gr_MultiplayerCancel, //Multiplayer game was canceled
         gr_Error,       //Some known error occured
         gr_Disconnect,  //Disconnected from multiplayer game
         gr_Silent,      //Used when loading savegame from running game (show no screens)

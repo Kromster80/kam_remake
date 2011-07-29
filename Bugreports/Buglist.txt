@@ -1,4 +1,27 @@
-Since r1902:
+Since r2038:
+<===================================================================================>
+ 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
+ 	Replay mismatches caused by an unknown bug (still occurs, though much less often)
+	Edges of messages and other scrolls should be transparent so they look smooth
+	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+ 	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
+
+	Make houses highlight red when about to erase them as trees/units do (in MapEd)
+	Save correct number of players from MapEd
+	Dots and lines displaying on tile edges [Krom]
+ 
+	Colored rectangle below cursor	
+	MediaPlayer won't play some mp3s and crash
+	Some texts don't fit in the left panel (e.g. "Preparing house area")
+	See-through hills (lighting flaw)
+	Many texts will not change if I change the language in options menu
+
+ -	The ingame briefing texture is too short, see attached picture
+ -	Serfs should take wares back or to suitable house if destination is destroyed
+ -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+
+
+Fixed in r2038:
 <===================================================================================>
  +	Attacking houses that were under construction caused crashes
  +	All types of projectiles used longbow release sounds
@@ -22,25 +45,6 @@ Since r1902:
  +	Fixed another case of workers becoming stuck on a construction site
  +	Having more than 256 messages caused a crash
  +	Unreleased/unbuilt houses are no longer displayed in resource distribution menu, question marks are used instead
- 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
- 	Replay mismatches caused by an unknown bug (still occurs, though much less often)
-	Edges of messages and other scrolls should be transparent so they look smooth
-	The story message on campaign map should fade between sides when you mouse over, rather than jumping
- 	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
-
-	Make houses highlight red when about to erase them as trees/units do (in MapEd)
-	Save correct number of players from MapEd
-	Dots and lines displaying on tile edges [Krom]
- 
-	Colored rectangle below cursor	
-	MediaPlayer won't play some mp3s and crash
-	Some texts don't fit in the left panel (e.g. "Preparing house area")
-	See-through hills (lighting flaw)
-	Many texts will not change if I change the language in options menu
-
- -	The ingame briefing texture is too short, see attached picture
- -	Serfs should take wares back or to suitable house if destination is destroyed
- -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
 
 
 

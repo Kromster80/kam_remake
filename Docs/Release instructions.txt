@@ -9,5 +9,5 @@ Make sure these are checked:	//Assigned to Krom
 	Update Features list (move implemented features down)
 	Pack EXE file
 	Include OpenAL distributive
-	Compile, pack and include dedicated server EXE
+	Compile, pack and include dedicated server EXE, plus the Linux builds
 	Test installer and Demo

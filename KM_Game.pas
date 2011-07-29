@@ -80,7 +80,7 @@ type
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
     procedure GameWaitingForNetwork(aWaiting:boolean);
-    procedure GameStop(const Msg:TGameResultMsg; TextMsg:string='');
+    procedure GameStop(Msg:TGameResultMsg; TextMsg:string='');
 
     procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
@@ -677,9 +677,10 @@ begin
 end;
 
 
-procedure TKMGame.GameStop(const Msg:TGameResultMsg; TextMsg:string='');
+procedure TKMGame.GameStop(Msg:TGameResultMsg; TextMsg:string='');
 begin
   fIsExiting := true;
+  if (Msg = gr_Cancel) and MultiplayerMode then Msg := gr_MultiplayerCancel;
   try
     fGameState := gsNoGame;
 
@@ -687,7 +688,7 @@ begin
       fNetworking.Disconnect;
 
     //Take results from MyPlayer before data is flushed
-    if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
+    if Msg in [gr_Win, gr_Defeat, gr_Cancel,gr_MultiplayerCancel] then
       fMainMenuInterface.Fill_Results;
 
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
@@ -718,6 +719,10 @@ begin
                      fLog.AppendLog('Gameplay canceled',true);
                      fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
                    end;
+      gr_MultiplayerCancel:begin
+                             fLog.AppendLog('Multiplayer gameplay canceled',true);
+                             fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
+                           end;
       gr_Error:    begin
                      fLog.AppendLog('Gameplay error',true);
                      fMainMenuInterface.ShowScreen(msError, TextMsg);
