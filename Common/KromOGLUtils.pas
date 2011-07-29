@@ -7,7 +7,7 @@ uses
   dglOpenGL,
   {$IFDEF FPC} GL, LCLIntf, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLType, glx, {$ENDIF}
+  {$IFDEF Unix} LCLType, glx, x, xlib, xutil, {$ENDIF}
   SysUtils, Forms, KromUtils;
 
 {$IFDEF Unix}
@@ -157,6 +157,7 @@ end;
 
 
 procedure SetContexts(RenderFrame:HWND; PixelFormat:integer; out h_DC: HDC; out h_RC: HGLRC);
+{$IFDEF MSWINDOWS}
 begin
   h_DC := GetDC(RenderFrame);
 
@@ -168,21 +169,54 @@ begin
 
   if not SetDCPixelFormat(h_DC, PixelFormat) then
     exit;
- {$IFDEF MSWINDOWS}
+
   h_RC := wglCreateContext(h_DC);
- {$ENDIF}
   if h_RC = 0 then
   begin
     MessageBox(HWND(nil), 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
- {$IFDEF MSWINDOWS}
+
   if not wglMakeCurrent(h_DC, h_RC) then
-  {$ENDIF}
+
   begin
     MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
+   {$ENDIF}{$IFDEF Unix}
+  //function from glsxene just need connect it well:
+  //function TGLGLXContext.CreateTempWnd: TWindow;
+const
+  Attribute: array[0..8] of Integer = (
+    GLX_RGBA, GL_TRUE,
+    GLX_RED_SIZE, 1,
+    GLX_GREEN_SIZE, 1,
+    GLX_BLUE_SIZE, 1,
+    0);
+var
+  vi: PXvisualInfo;
+  //hmm, more var..
+  Result, FCurScreen: Integer;
+  FDisplay: PDisplay;
+  FRC: GLXContext;
+begin
+  // Lets create temporary window with glcontext
+  Result := XCreateSimpleWindow(FDisplay, XRootWindow(FDisplay, FCurScreen),
+    0, 0, 1, 1, 0, // need to define some realties dimensions,
+    // otherwise the context will not work
+    XBlackPixel(FDisplay, FCurScreen),
+    XWhitePixel(FDisplay, FCurScreen));
+  // XMapWindow(FDisplay, win); // For the test, to see micro window
+  XFlush(FDisplay); // Makes XServer execute commands
+  vi := glXChooseVisual(FDisplay, FCurScreen, Attribute);
+  if vi <> nil then
+    FRC := glXCreateContext(FDisplay, vi, nil, true);
+  if FRC <> nil then
+    glXMakeCurrent(FDisplay, Result, FRC);
+  if vi <> nil then
+    Xfree(vi);
+//end;
+ {$ENDIF}
 end;
 
 
