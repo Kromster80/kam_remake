@@ -189,7 +189,8 @@ begin
   begin
     PacketSender := PInteger(fBuffer)^;
     //We skip PacketRecipient because thats us
-    PacketLength := PCardinal(Cardinal(fBuffer)+8)^;
+    //Error: Illegal type conversion: "Dynamic Array Of Byte" to "DWord"
+    {$IFDEF WDC}PacketLength := PCardinal(Cardinal(fBuffer)+8)^; {$ENDIF}
     if PacketLength <= fBufferSize-12 then
     begin
       fOnRecieveData(PacketSender, @fBuffer[12], PacketLength); //Skip packet header

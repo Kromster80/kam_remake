@@ -150,7 +150,7 @@ begin
 
   fGlobalSettings   := TGlobalSettings.Create;
   fRender           := TRender.Create(RenderHandle, aVSync);
-  fTextLibrary      := TTextLibrary.Create(ExeDir+'Data\misc\', fGlobalSettings.Locale);
+  fTextLibrary      := TTextLibrary.Create(ExeDir+'Data'+ DirectorySeparator + 'misc'+ DirectorySeparator, fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
   fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource         := TResource.Create(fGlobalSettings.Locale, aLS, aLT);
