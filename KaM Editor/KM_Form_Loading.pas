@@ -43,12 +43,7 @@ procedure TFormLoading.FormCreate(Sender: TObject);
 var InputParam:string;
 begin
   Form1.Hide;
-{$IFDEF MSWindows}
   ExeDir := ExtractFilePath(Application.ExeName);
-{$ENDIF}
-{$IFDEF Unix}
-ExeDir := GetAppConfigFile(False);
-{$endif}
 
   Show;
   Refresh;
