@@ -3,10 +3,10 @@ unit KM_Render;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, glut, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
+  {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library ye-> FPReadJPEG?t
   KM_TGATexture, KM_Defaults, KM_CommonTypes, KM_Points;
 
 type
@@ -258,7 +258,8 @@ begin
   SwapBuffers(h_DC);
   {$ENDIF}
   {$IFDEF Unix}
-  glutSwapBuffers;
+   // if (FDC <> 0) and (rcoDoubleBuffered in Options) then
+  glXSwapBuffers(FDisplay, FDC);
   {$ENDIF}
 end;
 
