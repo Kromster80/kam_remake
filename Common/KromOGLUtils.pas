@@ -40,15 +40,16 @@ type
 
 implementation
 
-
 function SetDCPixelFormat(h_DC:HDC; PixelFormat:Integer):boolean;
 var
   nPixelFormat: Integer;
   PixelDepth:integer;
+  {$IFDEF MSWINDOWS}
   pfd: TPixelFormatDescriptor;
+  {$ENDIF}
 begin
   PixelDepth := 32; //32bpp is common
-
+  {$IFDEF MSWINDOWS}
   with pfd do begin
     nSize           := SizeOf(TPIXELFORMATDESCRIPTOR); // Size Of This Pixel Format Descriptor
     nVersion        := 1;                    // The version of this data structure
@@ -99,6 +100,8 @@ begin
   end;
 
   Result := true;
+  {$ENDIF}
+  //glXChooseVisual() should be on Uni insted of ChoosePixelFormatx
 end;
 
 
@@ -110,10 +113,10 @@ var
   iAttributes: array of GLint;
 begin
   Result := 0;
-
+  {$IFDEF MSWINDOWS}
   if not WGL_ARB_multisample or not Assigned(wglChoosePixelFormatARB) then
     Exit;
-
+ {$ENDIF}
   SetLength(iAttributes,21);
   iAttributes[0] := WGL_DRAW_TO_WINDOW_ARB;
   iAttributes[1] := 1;
@@ -140,7 +143,9 @@ begin
   //Try to find mode with slightly worse AA before giving up
   repeat
     iAttributes[19] := AntiAliasing;
+    {$IFDEF MSWINDOWS}
     ValidFormat := wglChoosePixelFormatARB(h_dc, @iattributes[0], nil, 1, @pixelFormat, @NumFormats);
+    {$ENDIF}
     if ValidFormat and (NumFormats >= 1) then
     begin
       Result := pixelFormat;
@@ -163,16 +168,17 @@ begin
 
   if not SetDCPixelFormat(h_DC, PixelFormat) then
     exit;
-
+ {$IFDEF MSWINDOWS}
   h_RC := wglCreateContext(h_DC);
-
+ {$ENDIF}
   if h_RC = 0 then
   begin
     MessageBox(HWND(nil), 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
-
+ {$IFDEF MSWINDOWS}
   if not wglMakeCurrent(h_DC, h_RC) then
+  {$ENDIF}
   begin
     MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
@@ -206,9 +212,10 @@ begin
   ReadImplementationProperties;
 
   PixelFormat := GetMultisamplePixelFormat(h_DC, AntiAliasing);
+  {$IFDEF MSWINDOWS}
   wglMakeCurrent(h_DC, 0);
   wglDeleteContext(h_RC);
-
+  {$ENDIF}
   SetContexts(RenderFrame, PixelFormat, h_DC, h_RC);
   ReadExtensions;
   ReadImplementationProperties;
