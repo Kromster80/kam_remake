@@ -604,11 +604,11 @@ begin
 
   MyZip := TZippit.Create;
   //Include in the bug report:
-  MyZip.AddFiles(ExeDir+'Saves\save99.*','Replay'); //Replay files
+  MyZip.AddFiles(SlotToSaveName(99,'*'),'Replay'); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
   MyZip.AddFile(fMissionFile,'Mission'); //Mission script
   for i:=AUTOSAVE_SLOT to AUTOSAVE_SLOT+AUTOSAVE_COUNT-1 do
-    MyZip.AddFiles(ExeDir+'Saves\save'+IntToStr(i)+'.*','Autosaves'); //All autosaves
+    MyZip.AddFiles(SlotToSaveName(i,'*'),'Autosaves'); //All autosaves
 
   //Save it
   CrashFile := 'KaM Crash '+GAME_REVISION+' '+FormatDateTime('yyyy-mm-dd hh-nn-ss',Now)+'.zip'; //KaM Crash r1830 2007-12-23 15-24-33.zip

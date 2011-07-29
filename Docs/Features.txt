@@ -14,7 +14,7 @@
 	Add hotkeys for armies that player can assign (Ctrl+1,2,etc)
 
 
-1st Multiplayer Demo (r20##) - 2011-07-28:
+1st Multiplayer Demo (r2039) - 2011-07-29:
  +	LAN multiplayer
 
 

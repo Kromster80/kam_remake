@@ -1,4 +1,4 @@
-Since r2038:
+Since r2039:
 <===================================================================================>
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
@@ -21,7 +21,7 @@ Since r2038:
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
 
 
-Fixed in r2038:
+Fixed in r2039:
 <===================================================================================>
  +	Attacking houses that were under construction caused crashes
  +	All types of projectiles used longbow release sounds
