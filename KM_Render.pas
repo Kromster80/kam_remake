@@ -9,13 +9,6 @@ uses
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
   KM_TGATexture, KM_Defaults, KM_CommonTypes, KM_Points;
 
-{$IFDEF Unix}
-//type HDC = integer;
-//type HGLRC = integer;
-//type HWND = integer;
-type FW_BOLD = integer;
-{$ENDIF}
-
 type
   TRenderList = class
   private
@@ -129,7 +122,7 @@ uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resour
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
 begin
   Inherited Create;
-  {$IFDEF MSWindows}
+
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults;
   glDisable(GL_LIGHTING); //We don't need it
@@ -139,14 +132,8 @@ begin
   fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +fOpenGL_Version);
 
   SetupVSync(aVSync);
-
   BuildFont(h_DC, 16, FW_BOLD);
-
   fRenderList := TRenderList.Create;
-  {$ENDIF}
-  {$IFDEF Unix}
-    MessageBox(HWND(nil),'TRender.Create not working', 'Error', MB_OK);
-  {$ENDIF}
 end;
 
 
@@ -176,9 +163,9 @@ begin
   LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT);
   fResource.MakeTileGFXFromTexture(TextT);
   if MAKE_ANIM_TERRAIN then begin
-    for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i]);
-    for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i]);
-    for i:=1 to 5 do LoadTexture(ExeDir+'Resource\Falls'+inttostr(i)+'.tga', TextF[i]);
+    for i:=1 to 8 do LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'Water'+inttostr(i)+'.tga', TextW[i]);
+    for i:=1 to 3 do LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
+    for i:=1 to 5 do LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'Falls'+inttostr(i)+'.tga', TextF[i]);
   end;
 end;
 
