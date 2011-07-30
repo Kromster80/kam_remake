@@ -163,9 +163,9 @@ begin
   LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT);
   fResource.MakeTileGFXFromTexture(TextT);
   if MAKE_ANIM_TERRAIN then begin
-    for i:=1 to 8 do LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'Water'+inttostr(i)+'.tga', TextW[i]);
-    for i:=1 to 3 do LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
-    for i:=1 to 5 do LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'Falls'+inttostr(i)+'.tga', TextF[i]);
+    for i:=1 to 8 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Water'+inttostr(i)+'.tga', TextW[i]);
+    for i:=1 to 3 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
+    for i:=1 to 5 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Falls'+inttostr(i)+'.tga', TextF[i]);
   end;
 end;
 

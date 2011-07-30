@@ -233,8 +233,8 @@ var
   i,Tmp:integer;
 begin
   if not fIsSoundInitialized then exit;
-  if not CheckFileExists(ExeDir+'data'+ DirectorySeparator + 'sfx'+ DirectorySeparator + 'sounds.dat') then exit;
-  AssignFile(f, ExeDir+'data'+ DirectorySeparator + 'sfx'+ DirectorySeparator + 'sounds.dat');
+  if not CheckFileExists(ExeDir+'data'+ PathDelim + 'sfx'+ PathDelim + 'sounds.dat') then exit;
+  AssignFile(f, ExeDir+'data'+ PathDelim + 'sfx'+ PathDelim + 'sounds.dat');
   FileMode := 0;
   Reset(f,1);
   FileMode := 2;
@@ -272,10 +272,10 @@ procedure TSoundLib.ExportSounds;
 var f:file; i:integer;
 begin
   if not fIsSoundInitialized then exit;
-  CreateDir(ExeDir+'Export'+ DirectorySeparator);
-  CreateDir(ExeDir+'Export'+ DirectorySeparator + 'Sounds.dat'+ DirectorySeparator);
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim + 'Sounds.dat'+ PathDelim);
   for i:=1 to fWavesCount do if length(fWaves[i].Data)>0 then begin
-    assignfile(f,ExeDir+'Export'+ DirectorySeparator + 'Sounds.dat'+ DirectorySeparator + 'sound_'+int2fix(i,3)+'_'+SSoundFX[TSoundFX(i)]+'.wav'); rewrite(f,1);
+    assignfile(f,ExeDir+'Export'+ PathDelim + 'Sounds.dat'+ PathDelim + 'sound_'+int2fix(i,3)+'_'+SSoundFX[TSoundFX(i)]+'.wav'); rewrite(f,1);
     //Waves[i].Head.SampleRate := Waves[i].Head.SampleRate div 2; //Make it half speed?
     blockwrite(f,fWaves[i].Head,SizeOf(fWaves[i].Head));
     blockwrite(f,fWaves[i].Data[0],length(fWaves[i].Data));
@@ -396,7 +396,7 @@ begin
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
     Result := ''
   else
-    Result := ExeDir + 'data'+ DirectorySeparator + 'Sfx'+ DirectorySeparator + 'Speech.'+aLocale+ DirectorySeparator + WarriorSFXFolder[byte(aUnitType)] + DirectorySeparator + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
+    Result := ExeDir + 'data'+ PathDelim + 'Sfx'+ PathDelim + 'Speech.'+aLocale+ PathDelim + WarriorSFXFolder[byte(aUnitType)] + PathDelim + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
 end;
 
 

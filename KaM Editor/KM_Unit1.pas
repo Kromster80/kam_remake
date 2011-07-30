@@ -476,9 +476,9 @@ begin
   glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiff);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
-  LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'Tiles1.tga', Text1);    // Load the Textures
-  LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'gradient.tga', TextG); // Load the Textures
-  LoadTexture(ExeDir+'Resource'+ DirectorySeparator + 'arrow.tga', TextA);    // Load the Textures
+  LoadTexture(ExeDir+'Resource'+ PathDelim + 'Tiles1.tga', Text1);    // Load the Textures
+  LoadTexture(ExeDir+'Resource'+ PathDelim + 'gradient.tga', TextG); // Load the Textures
+  LoadTexture(ExeDir+'Resource'+ PathDelim + 'arrow.tga', TextA);    // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glPolygonMode(GL_FRONT,GL_FILL);
 end;

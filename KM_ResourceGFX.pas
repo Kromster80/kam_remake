@@ -134,7 +134,7 @@ begin
 
   for i:=4 to 6 do
   begin
-    LoadRX(ExeDir+'data'+ DirectorySeparator + 'gfx'+ DirectorySeparator + 'res'+ DirectorySeparator + ''+RXData[i].Title+'.rx',i);
+    LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim + ''+RXData[i].Title+'.rx',i);
     LoadRX7(i); //Load RX data overrides
 
     if i=4 then MakeCursors(4);
@@ -171,20 +171,20 @@ begin
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
-  LoadMapElemDAT(ExeDir+'data'+ DirectorySeparator + 'defines'+ DirectorySeparator + 'mapelem.dat'); StepRefresh;
-  LoadPatternDAT(ExeDir+'data'+ DirectorySeparator + 'defines'+ DirectorySeparator + 'pattern.dat'); StepRefresh;
+  LoadMapElemDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'mapelem.dat'); StepRefresh;
+  LoadPatternDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'pattern.dat'); StepRefresh;
 
   fHouseDat := TKMHouseDatCollection.Create;
-  fHouseDat.LoadHouseDat(ExeDir+'data'+ DirectorySeparator + 'defines'+ DirectorySeparator + 'houses.dat');
+  fHouseDat.LoadHouseDat(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'houses.dat');
   StepRefresh;
 
-  LoadUnitDAT(ExeDir+'data'+ DirectorySeparator + 'defines'+ DirectorySeparator + 'unit.dat');       StepRefresh;
+  LoadUnitDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'unit.dat');       StepRefresh;
 
   for i:=1 to 3 do
     if (i=1) or ((i=2) and MAKE_HOUSE_SPRITES) or ((i=3) and MAKE_UNIT_SPRITES) then
     begin
       StepCaption('Reading '+RXData[i].Title+' GFX ...');
-      fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data'+ DirectorySeparator + 'gfx'+ DirectorySeparator + 'res'+ DirectorySeparator + ''+RXData[i].Title+'.rx',i));
+      fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim + ''+RXData[i].Title+'.rx',i));
       LoadRX7(i); //Updated sprites
       MakeGFX(i);
       //Alpha_tested sprites for houses. They come after MakeGFX cos they will
@@ -195,7 +195,7 @@ begin
     end;
 
   StepCaption('Making minimap colors ...');
-  MakeMiniMapColors(ExeDir+'Resource'+ DirectorySeparator + 'Tiles1.tga');
+  MakeMiniMapColors(ExeDir+'Resource'+ PathDelim + 'Tiles1.tga');
   fLog.AppendLog('Prepared MiniMap colors...');
   StepRefresh;
   fDataState:=dls_All;
@@ -237,7 +237,7 @@ begin
 
   for i:=low(TKMPal) to high(TKMPal) do begin
 
-    FileName := ExeDir+'data'+ DirectorySeparator + 'gfx'+ DirectorySeparator + ''+PalFiles[i];
+    FileName := ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + ''+PalFiles[i];
     if FileExists(FileName) then begin
       AssignFile(f,FileName);
       FileMode := 0;
@@ -507,9 +507,9 @@ begin
       MyBitMap.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
     end;
 
-    CreateDir(ExeDir+'Export'+ DirectorySeparator);
-    CreateDir(ExeDir+'Export'+ DirectorySeparator + 'Fonts'+ DirectorySeparator);
-    MyBitMap.SaveToFile(ExeDir+'Export'+ DirectorySeparator + 'Fonts'+ DirectorySeparator +ExtractFileName(FileName)+PalFiles[FontPal[aFont]]+'.bmp');
+    CreateDir(ExeDir+'Export'+ PathDelim);
+    CreateDir(ExeDir+'Export'+ PathDelim + 'Fonts'+ PathDelim);
+    MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'Fonts'+ PathDelim +ExtractFileName(FileName)+PalFiles[FontPal[aFont]]+'.bmp');
     MyBitMap.Free;
   end;
 
@@ -531,10 +531,10 @@ var
   {$ENDIF}
 begin
   {$IFDEF WDC}
-  if not DirectoryExists(ExeDir + 'Sprites'+ DirectorySeparator) then exit;
+  if not DirectoryExists(ExeDir + 'Sprites'+ PathDelim) then exit;
 
   FileList := TStringList.Create;
-  ChDir(ExeDir + 'Sprites'+ DirectorySeparator);
+  ChDir(ExeDir + 'Sprites'+ PathDelim);
   FindFirst('*', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
@@ -557,7 +557,7 @@ begin
       else
         RXData[RX].HasMask[i] := false;
       po := TPNGObject.Create;
-      po.LoadFromFile(ExeDir + 'Sprites'+ DirectorySeparator + FileList.Strings[i]);
+      po.LoadFromFile(ExeDir + 'Sprites'+ PathDelim + FileList.Strings[i]);
 
       RXData[RX].Size[ID].X := po.Width;
       RXData[RX].Size[ID].Y := po.Height;
@@ -753,7 +753,7 @@ begin
   end;
 
   if WriteAllTexturesToBMP then begin
-    CreateDir(ExeDir+'Export'+ DirectorySeparator + 'GenTextures'+ DirectorySeparator);
+    CreateDir(ExeDir+'Export'+ PathDelim + 'GenTextures'+ PathDelim);
     MyBitMap:=TBitMap.Create;
     MyBitMap.PixelFormat:=pf24bit;
     MyBitMap.Width:=DestX;
@@ -761,12 +761,12 @@ begin
 
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do
       MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
-    MyBitMap.SaveToFile(ExeDir+'Export'+ DirectorySeparator + 'GenTextures'+ DirectorySeparator +int2fix(Result,4)+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'GenTextures'+ PathDelim +int2fix(Result,4)+'.bmp');
 
     if Mode=tm_AlphaTest then begin //these Alphas are worth looking at
       for i:=0 to DestY-1 do for k:=0 to DestX-1 do
         MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) SHR 24 *65793;
-      MyBitMap.SaveToFile(ExeDir+'Export'+ DirectorySeparator + 'GenTextures'+ DirectorySeparator +int2fix(Result,4)+'a.bmp');
+      MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'GenTextures'+ PathDelim +int2fix(Result,4)+'a.bmp');
     end;
 
     MyBitMap.Free;
@@ -966,12 +966,12 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     UsePal:TKMPal;
 begin
-  CreateDir(ExeDir+'Export'+ DirectorySeparator);
-  CreateDir(ExeDir+'Export'+ DirectorySeparator +RXData[RXid].Title+'.rx'+ DirectorySeparator);
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim +RXData[RXid].Title+'.rx'+ PathDelim);
   MyBitMap := TBitMap.Create;
   MyBitMap.PixelFormat := pf24bit;
 
-  fResource.LoadRX(ExeDir+'data'+ DirectorySeparator + 'gfx'+ DirectorySeparator + 'res'+ DirectorySeparator +RXData[RXid].Title+'.rx',RXid);
+  fResource.LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim +RXData[RXid].Title+'.rx',RXid);
 
   for id:=1 to RXData[RXid].Qty do begin
 
@@ -990,7 +990,7 @@ begin
       t := RXData[RXid].Data[id,y*sx+x];
       MyBitMap.Canvas.Pixels[x,y] := fResource.GetColor32(t,UsePal) AND $FFFFFF;
     end;
-    if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export'+ DirectorySeparator +RXData[RXid].Title+'.rx'+ DirectorySeparator + RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
+    if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim +RXData[RXid].Title+'.rx'+ PathDelim + RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 
     setlength(RXData[RXid].Data[id],0);
   end;
@@ -1005,21 +1005,21 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     Used:array of integer;
 begin
-  CreateDir(ExeDir+'Export'+ DirectorySeparator);
-  CreateDir(ExeDir+'Export'+ DirectorySeparator + 'UnitAnim'+ DirectorySeparator);
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim);
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
 
-  fResource.LoadUnitDAT(ExeDir+'data'+ DirectorySeparator + 'defines'+ DirectorySeparator + 'unit.dat');
-  fResource.LoadRX(ExeDir+'data'+ DirectorySeparator + 'gfx'+ DirectorySeparator + 'res'+ DirectorySeparator +RXData[3].Title+'.rx',3);
+  fResource.LoadUnitDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'unit.dat');
+  fResource.LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim +RXData[3].Title+'.rx',3);
 
   ci:=0;
   for iUnit:=byte(ut_Militia) to byte(ut_Militia) do begin
     for iAct:=1 to 14 do begin
       for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
         for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin
-          CreateDir(ExeDir+'Export'+ DirectorySeparator + 'UnitAnim'+ DirectorySeparator +TypeToString(TUnitType(iUnit))+'+ DirectorySeparator + ');
-          CreateDir(ExeDir+'Export'+ DirectorySeparator + 'UnitAnim'+ DirectorySeparator +TypeToString(TUnitType(iUnit))+'+ DirectorySeparator + '+UnitAct[iAct]+'+ DirectorySeparator + ');
+          CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim +TypeToString(TUnitType(iUnit))+'+ PathDelim + ');
+          CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim +TypeToString(TUnitType(iUnit))+'+ PathDelim + '+UnitAct[iAct]+'+ PathDelim + ');
           if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
             ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
 
@@ -1033,13 +1033,13 @@ begin
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
           if sy>0 then MyBitMap.SaveToFile(
-            ExeDir+'Export'+ DirectorySeparator + 'UnitAnim'+ DirectorySeparator +TypeToString(TUnitType(iUnit))+ DirectorySeparator +UnitAct[iAct]+ DirectorySeparator +inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
+            ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim +TypeToString(TUnitType(iUnit))+ PathDelim +UnitAct[iAct]+ PathDelim +inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
         end;
       end;
     end;
   end;
 
-  CreateDir(ExeDir+'Export'+ DirectorySeparator + 'UnitAnim'+ DirectorySeparator + '_TheRest');
+  CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim + '_TheRest');
   setlength(Used,length(RXData[3].Size));
   for iUnit:=1 to 41 do
   for iAct:=1 to 14 do
@@ -1066,7 +1066,7 @@ begin
       MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
     end;
     if sy>0 then MyBitMap.SaveToFile(
-      ExeDir+'Export'+ DirectorySeparator + 'UnitAnim'+ DirectorySeparator + '_TheRest'+ DirectorySeparator +'_'+int2fix(ci,4)+'.bmp');
+      ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim + '_TheRest'+ PathDelim +'_'+int2fix(ci,4)+'.bmp');
   end;
 
   MyBitMap.Free;
@@ -1081,8 +1081,8 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     s:string;
 begin
-  CreateDir(ExeDir+'Export'+ DirectorySeparator);
-  CreateDir(ExeDir+'Export'+ DirectorySeparator + 'HouseAnim'+ DirectorySeparator);
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim);
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
 
@@ -1092,8 +1092,8 @@ begin
   for ID:=ht_WatchTower to ht_WatchTower do begin
     for Ac:=1 to 5 do begin //Work1..Work5
       for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do begin
-        CreateDir(ExeDir+'Export'+ DirectorySeparator + 'HouseAnim'+ DirectorySeparator +fResource.HouseDat[ID].HouseName+ DirectorySeparator);
-        CreateDir(ExeDir+'Export'+ DirectorySeparator + 'HouseAnim'+ DirectorySeparator +fResource.HouseDat[ID].HouseName+ DirectorySeparator + 'Work'+IntToStr(Ac)+ DirectorySeparator);
+        CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +fResource.HouseDat[ID].HouseName+ PathDelim);
+        CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +fResource.HouseDat[ID].HouseName+ PathDelim + 'Work'+IntToStr(Ac)+ PathDelim);
         if fResource.HouseDat[ID].Anim[Ac].Step[k]+1<>0 then
         ci:=fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
@@ -1107,7 +1107,7 @@ begin
           MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
         end;
         if sy>0 then MyBitMap.SaveToFile(
-        ExeDir+'Export'+ DirectorySeparator + 'HouseAnim'+ DirectorySeparator +fResource.HouseDat[ID].HouseName+ DirectorySeparator + 'Work'+IntToStr(Ac)+ DirectorySeparator + '_'+int2fix(k,2)+'.bmp');
+        ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +fResource.HouseDat[ID].HouseName+ PathDelim + 'Work'+IntToStr(Ac)+ PathDelim + '_'+int2fix(k,2)+'.bmp');
       end;
     end;
   end;
@@ -1116,11 +1116,11 @@ begin
   for Q:=1 to 2 do begin
     if Q=1 then ID:=ht_Swine
            else ID:=ht_Stables;
-    CreateDir(ExeDir+'Export'+ DirectorySeparator + 'HouseAnim'+ DirectorySeparator + '_'+fResource.HouseDat[ID].HouseName+ DirectorySeparator);
+    CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim + '_'+fResource.HouseDat[ID].HouseName+ PathDelim);
     for Beast:=1 to 5 do begin
       for Ac:=1 to 3 do begin //Age 1..3
         for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,Ac].Count do begin
-          CreateDir(ExeDir+'Export'+ DirectorySeparator + 'HouseAnim'+ DirectorySeparator +s+ DirectorySeparator +int2fix(Beast,2)+ DirectorySeparator);
+          CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +s+ PathDelim +int2fix(Beast,2)+ PathDelim);
           if fResource.HouseDat.BeastAnim[ID,Beast,Ac].Step[k]+1<>0 then
           ci:=fResource.HouseDat.BeastAnim[ID,Beast,Ac].Step[k]+1;
 
@@ -1133,7 +1133,7 @@ begin
             t:=RXData[2].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
-          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export'+ DirectorySeparator + 'HouseAnim'+ DirectorySeparator + '_'+fResource.HouseDat[ID].HouseName+ DirectorySeparator +int2fix(Beast,2)+ DirectorySeparator + '_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim + '_'+fResource.HouseDat[ID].HouseName+ PathDelim +int2fix(Beast,2)+ PathDelim + '_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
     end;
@@ -1149,13 +1149,13 @@ var MyBitMap:TBitMap;
     ID,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
 begin
-  CreateDir(ExeDir+'Export'+ DirectorySeparator);
-  CreateDir(ExeDir+'Export'+ DirectorySeparator + 'TreeAnim'+ DirectorySeparator);
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim + 'TreeAnim'+ PathDelim);
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
 
-  fResource.LoadMapElemDAT(ExeDir+'data'+ DirectorySeparator + 'defines'+ DirectorySeparator + 'mapelem.dat');
-  fResource.LoadRX(ExeDir+'data'+ DirectorySeparator + 'gfx'+ DirectorySeparator + 'res'+ DirectorySeparator +RXData[1].Title+'.rx',1);
+  fResource.LoadMapElemDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'mapelem.dat');
+  fResource.LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim +RXData[1].Title+'.rx',1);
 
   ci:=0;
   for ID:=1 to MapElemQty do begin
@@ -1175,7 +1175,7 @@ begin
       if sy>0 then MyBitMap.SaveToFile(
       //@Lewin: insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
-      ExeDir+'Export'+ DirectorySeparator + 'TreeAnim'+ DirectorySeparator +{inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+}int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
+      ExeDir+'Export'+ PathDelim + 'TreeAnim'+ PathDelim +{inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+}int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
     end;
   end;
 
@@ -1335,4 +1335,4 @@ begin
 end;
 
 
-end.
+end.
