@@ -75,8 +75,10 @@ uses
 {$IFDEF WDC}
   {$R *.RES}
 {$ENDIF}
-{$IFDEF FPC}
-  {$R KaM_Remake_Icon.rc}
+{$IFDEF MSWindows}
+  {$IFDEF FPC}
+    {$R KaM_Remake_Icon.rc}
+  {$ENDIF}
 {$ENDIF}
 
 begin

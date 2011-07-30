@@ -76,9 +76,10 @@ uses
   {$R *.RES}
 {$ENDIF}
 {$IFDEF MSWindows}
-{$IFDEF FPC}
-  {$R KaM_Remake_Icon.rc}
-{$ENDIF}{$ENDIF}
+  {$IFDEF FPC}
+    {$R KaM_Remake_Icon.rc}
+  {$ENDIF}
+{$ENDIF}
 
 begin
   Application.Initialize;

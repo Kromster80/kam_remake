@@ -7,7 +7,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_TextLibrary, Classes, KM_CommonTypes, KM_Points
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, Zstream {$ENDIF};
+  {$IFDEF FPC}, Zstream, BGRABitmap {$ENDIF};
 
 
 type
@@ -521,16 +521,18 @@ end;
 { This function should parse all valid files in Sprites folder and load them
   additionaly to or replacing original sprites }
 procedure TResource.LoadRX7(RX:integer);
-{$IFDEF WDC}
 var
   FileList:TStringList;
   SearchRec:TSearchRec;
   i:integer; x,y:integer;
   ID:integer; p:cardinal;
+  {$IFDEF WDC}
   po:TPNGObject;
   {$ENDIF}
+  {$IFDEF FPC}
+  po:TBGRABitmap;
+  {$ENDIF}
 begin
-  {$IFDEF WDC}
   if not DirectoryExists(ExeDir + 'Sprites'+ PathDelim) then exit;
 
   FileList := TStringList.Create;
@@ -556,8 +558,13 @@ begin
         RXData[RX].HasMask[i] := true //todo: [Krom] Support alternative textures
       else
         RXData[RX].HasMask[i] := false;
+      {$IFDEF WDC}
       po := TPNGObject.Create;
       po.LoadFromFile(ExeDir + 'Sprites'+ PathDelim + FileList.Strings[i]);
+      {$ENDIF}
+      {$IFDEF FPC}
+      po := TBGRABitmap.Create(ExeDir + 'Sprites'+ PathDelim + FileList.Strings[i]);
+      {$ENDIF}
 
       RXData[RX].Size[ID].X := po.Width;
       RXData[RX].Size[ID].Y := po.Height;
@@ -565,6 +572,7 @@ begin
       setlength(RXData[RX].RGBA[ID], po.Width*po.Height);
       setlength(RXData[RX].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
 
+      {$IFDEF WDC}
       case po.TransparencyMode of //There are ways to process PNG transparency
         ptmNone:
           for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
@@ -582,6 +590,12 @@ begin
           end;
         else Assert(false, 'Unknown PNG transparency mode')
       end;
+      {$ENDIF}
+      {$IFDEF FPC}
+      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+        RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
+                                            (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
+      {$ENDIF}
 
       //todo: Apply team colour masks after loading
       //@Krom: I'm struggling a bit here... do you think you could implement alternative textures for
@@ -611,7 +625,6 @@ begin
   end;
 
   FileList.Free;
-  {$ENDIF}
 end;
 
 

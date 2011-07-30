@@ -157,8 +157,8 @@ end;
 
 
 procedure SetContexts(RenderFrame:HWND; PixelFormat:integer; out h_DC: HDC; out h_RC: HGLRC);
-{$IFDEF MSWINDOWS}
 begin
+  {$IFDEF MSWINDOWS}
   h_DC := GetDC(RenderFrame);
 
   if h_DC = 0 then
@@ -183,46 +183,7 @@ begin
     MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
-   {$ENDIF}{$IFDEF Unix}
-  //function from glsxene just need connect it well:
-  //function TGLGLXContext.CreateTempWnd: TWindow;
-const
-  Attribute: array[0..8] of Integer = (
-    GLX_RGBA, GL_TRUE,
-    GLX_RED_SIZE, 1,
-    GLX_GREEN_SIZE, 1,
-    GLX_BLUE_SIZE, 1,
-    0);
-var
-  vi: PXvisualInfo;
-  //hmm, more var..
-  Result: QWord;
-  FCurScreen: Integer;
-  FDisplay: PDisplay;
-  FRC: GLXContext;
-begin
-  //some more...:
-  if not InitOpenGL then
-    RaiseLastOSError;
-  FDisplay := XOpenDisplay(nil);
-  FCurScreen := XDefaultScreen(FDisplay);
-  // Lets create temporary window with glcontext
-  Result := XCreateSimpleWindow(FDisplay, XRootWindow(FDisplay, FCurScreen),
-    0, 0, 1, 1, 0, // need to define some realties dimensions,
-    // otherwise the context will not work
-    XBlackPixel(FDisplay, FCurScreen),
-    XWhitePixel(FDisplay, FCurScreen));
-  // XMapWindow(FDisplay, win); // For the test, to see micro window
-  XFlush(FDisplay); // Makes XServer execute commands
-  vi := glXChooseVisual(FDisplay, FCurScreen, Attribute);
-  if vi <> nil then
-    FRC := glXCreateContext(FDisplay, vi, nil, true);
-  if FRC <> nil then
-    glXMakeCurrent(FDisplay, Result, FRC);
-  if vi <> nil then
-    Xfree(vi);
-//end;
- {$ENDIF}
+  {$ENDIF}
 end;
 
 

@@ -885,8 +885,8 @@
     <Version Value="8"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="Common\;Common\zlib\;Common\pngimage\;Common\Overbyte ICS\;Common\LNet;$(ProjOutDir)\"/>
-      <OtherUnitFiles Value="Common\;Common\zlib\;Common\pngimage\;Common\Overbyte ICS\;Common\LNet"/>
+      <IncludeFiles Value="Common;Common\zlib;Common\pngimage;Common\BGRABitmap;Common\Overbyte ICS;Common\LNet;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="Common;Common\zlib;Common\pngimage;Common\BGRABitmap;Common\Overbyte ICS;Common\LNet"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
