@@ -32,7 +32,7 @@ const
   GAME_REVISION         = 'r2039';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
-  FONTS_FOLDER = 'data\gfx\fonts\';
+  FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 
 var
   //These should be TRUE

@@ -91,12 +91,12 @@ begin
   OnLoadingStep := aLS;
   OnLoadingText := aLT;
 
-  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
-  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
-  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
-  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and icons
-  RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
-  RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
+  RXData[1].Title:='trees';       RXData[1].NeedTeamColors:=false;
+  RXData[2].Title:='houses';      RXData[2].NeedTeamColors:=true;
+  RXData[3].Title:='units';       RXData[3].NeedTeamColors:=true;
+  RXData[4].Title:='gui';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and icons
+  RXData[5].Title:='guimain';     RXData[5].NeedTeamColors:=false;
+  RXData[6].Title:='guimainh';    RXData[6].NeedTeamColors:=false;
   RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=true;
 
   LoadMenuResources(aLocale);

@@ -1048,11 +1048,11 @@ begin
   fLog.AssertToLog(Sender=Button_CampaignStart,'not Button_CampaignStart');
   case Campaign_Selected of
     cmp_TSK: begin
-      MissString := ExeDir+'Data\mission\mission'+inttostr(Campaign_Mission_Choice)+'.dat';
+      MissString := ExeDir+'data\mission\mission'+inttostr(Campaign_Mission_Choice)+'.dat';
       NameString := 'TSK mission '+inttostr(Campaign_Mission_Choice);
     end;
     cmp_TPR: begin
-      MissString := ExeDir+'Data\mission\dmission'+inttostr(Campaign_Mission_Choice)+'.dat';
+      MissString := ExeDir+'data\mission\dmission'+inttostr(Campaign_Mission_Choice)+'.dat';
       NameString := 'TPR mission '+inttostr(Campaign_Mission_Choice);
     end;
     else Assert(false,'Unknown Campaign');
