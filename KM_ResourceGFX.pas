@@ -7,7 +7,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_TextLibrary, Classes, KM_CommonTypes, KM_Points
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, Zstream {$ENDIF};
+  {$IFDEF FPC}, Zstream, BGRABitmap {$ENDIF};
 
 
 type
