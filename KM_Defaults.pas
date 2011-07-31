@@ -225,7 +225,7 @@ const
   ('ger', 'German'),
   ('pol', 'Polish'),
   ('svk', 'Slovak'), //New one
-  ('fr',  'French'), //New one
+  ('fra', 'French'), //New one
   ('hun', 'Hungarian'),
   ('dut', 'Dutch'),
   ('rus', 'Russian'));
