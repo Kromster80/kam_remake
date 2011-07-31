@@ -79,7 +79,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Render, KM_TGATexture, KM_Log;
+uses KromUtils, KM_Render, KM_TGATexture, KM_Log, KM_Utils;
 
 
 constructor TResource.Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
@@ -207,10 +207,10 @@ procedure TResource.LoadFonts(DoExport:boolean; aLocale:string);
 var i:TKMFont;
 begin
   for i:=low(TKMFont) to high(TKMFont) do
-  if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt') then
-    LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt', i, DoExport)
-  else
-    LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', i, DoExport);
+    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt') then
+      LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt', i, DoExport)
+    else
+      LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', i, DoExport);
 end;
 
 

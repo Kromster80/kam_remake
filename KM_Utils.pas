@@ -11,6 +11,7 @@ uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
   function KMMapNameToPath(const aMapName, aExtension:string):string;
   function KMSlotToSaveName(aSlot:integer; const aExtension:string; aIsMultiplayer:boolean):string;
   function KMSaveNameToSlot(const aSaveName:string):integer;
+  function FixDelim(const aString:string):string;
 
   function MapSizeToString(X,Y:integer):string;
 
@@ -191,6 +192,13 @@ begin
     Result := StrToIntDef(RightStr(SaveFile,2),-1)
   else
     Result := -1;
+end;
+
+
+//Use this function to convert platform-specific path delimiters
+function FixDelim(const aString:string):string;
+begin
+  Result := StringReplace(aString, '\', PathDelim, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 

@@ -1,7 +1,5 @@
 unit KM_ServerEventHandler;
-
 interface
-
 uses
   SysUtils, KM_Log, KM_Utils
   {$IFDEF MSWindows} ,Windows {$ENDIF}
@@ -15,7 +13,9 @@ type
     procedure ServerStatusMessage(const aData: string);
   end;
 
+
 implementation
+
 
 constructor TKMServerEventHandler.Create;
 var ExeDir: String;
@@ -28,16 +28,19 @@ begin
   fLog.AppendLog('Dedicated server event handler created');
 end;
 
+
 destructor TKMServerEventHandler.Destroy;
 begin
   FreeAndNil(fLog);
 end;
+
 
 procedure TKMServerEventHandler.ServerStatusMessage(const aData: string);
 begin
   Writeln(FormatDateTime('yyyy-mm-dd hh-nn-ss ',Now)+aData);
   fLog.AppendLog(aData);
 end;
+
 
 end.
  
