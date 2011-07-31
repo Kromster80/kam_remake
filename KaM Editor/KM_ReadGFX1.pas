@@ -27,13 +27,13 @@ Result:=false;
 //=============================================
 FormLoading.Label1.Caption:='Reading pallete';
 FormLoading.Bar1.StepIt; FormLoading.Refresh;
-if fileexists(text+'data'+ PathDelim + 'gfx' + PathDelim +'pal0.bbm') then begin
-assignfile(f,text+text+'data'+ PathDelim + 'gfx' + PathDelim +'pal0.bbm'); reset(f,1);
+if fileexists(text+'data\gfx\pal0.bbm') then begin
+assignfile(f,text+'data\gfx\pal0.bbm'); reset(f,1);
 blockread(f,c,48);
 blockread(f,Pal0,768); //256*3
 closefile(f);
 end else begin
-ShowMessage('Unable to locate ' + text+'data'+ PathDelim + 'gfx' + PathDelim +'pal0.bbm'+ ' file');
+ShowMessage('Unable to locate ".\data\gfx\pal0.bbm" file');
 ShowMessage('Pallete loading error.'+eol+'Place KaM Editor into KaM folder');
 exit; end;
 
@@ -42,8 +42,8 @@ exit; end;
 //=============================================
 FormLoading.Label1.Caption:='Reading objects';
 FormLoading.Bar1.StepIt; FormLoading.Refresh;
-if fileexists(text+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim + 'trees.rx') then begin
-assignfile(f,text+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim + 'trees.rx'); reset(f,1);
+if fileexists(text+'data\gfx\res\trees.rx') then begin
+assignfile(f,text+'data\gfx\res\trees.rx'); reset(f,1);
 blockread(f,TreeQty,4);
 blockread(f,TreePal,TreeQty);
 for ii:=1 to TreeQty do
@@ -55,7 +55,7 @@ blockread(f,TreeData[ii,0],TreeSize[ii,1]*TreeSize[ii,2]);
 end;
 closefile(f);
 end else begin
-ShowMessage('Unable to locate '+text+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim + 'trees.rx'+' file');
+ShowMessage('Unable to locate ".\data\gfx\res\trees.rx" file');
 ShowMessage('Objects loading error.'+eol+'Place KaM Editor into KaM folder');
 exit; end;
 
@@ -64,13 +64,13 @@ exit; end;
 //=============================================
 FormLoading.Label1.Caption:='Reading map elements';
 FormLoading.Bar1.StepIt;  FormLoading.Refresh;
-if fileexists(text+'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat') then begin
-assignfile(f,text+'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat'); reset(f,1);
+if fileexists(text+'data\defines\mapelem.dat') then begin
+assignfile(f,text+'data\defines\mapelem.dat'); reset(f,1);
 //for ii:=1 to 254 do
 blockread(f,MapElem[1],MapElemQty*99); //256*3
 closefile(f);
 end else begin
-ShowMessage('Unable to locate '+text+'data' + PathDelim + 'defines' + PathDelim + 'mapelem.dat'+' file');
+ShowMessage('Unable to locate ".\data\defines\mapelem.dat" file');
 ShowMessage('Map Elements loading error.'+eol+'Place KaM Editor into KaM folder');
 exit; end;
 
@@ -133,8 +133,8 @@ Form1.ObjPallete.RowHeights[ii-1]:=ObjPalleteTable[ii,0]+4;
 //=============================================
 FormLoading.Label1.Caption:='Reading houses';
 FormLoading.Bar1.StepIt; FormLoading.Refresh;
-if fileexists(text+'data' + PathDelim + 'gfx' + PathDelim + 'res' + PathDelim + 'houses.rx') then begin
-assignfile(f,text+'data' + PathDelim + 'gfx' + PathDelim + 'res' + PathDelim + 'houses.rx'); reset(f,1);
+if fileexists(text+'data\gfx\res\houses.rx') then begin
+assignfile(f,text+'data\gfx\res\houses.rx'); reset(f,1);
 blockread(f,HouseQty,4);
 blockread(f,HousePal,HouseQty);
 for ii:=1 to HouseQty do
@@ -148,7 +148,7 @@ s:='0';
 end;
 closefile(f);
 end else begin
-ShowMessage('Unable to locate '+text+'data' + PathDelim + 'gfx' + PathDelim + 'res' + PathDelim + 'houses.rx'+' file');
+ShowMessage('Unable to locate ".\data\gfx\res\houses.rx" file');
 ShowMessage('Houses loading error.'+eol+'Place KaM Editor into KaM folder');
 exit;
 end;
@@ -269,4 +269,4 @@ end;
 
 
 
-end.
+end.
