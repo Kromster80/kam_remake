@@ -43,18 +43,21 @@ uses Classes, SysUtils, Math, KM_CommonTypes, KM_Defaults
 }
 
 const
-  //todo: This should be in config file for both game and dedicated server
+  //todo: These should be in config file for both game and dedicated server
   KICK_TIMEOUT = 20000; //20 sec
+  MAX_ROOMS = 32; //Only applies to the dedicated server
 
 type
   TKMServerClient = class
   private
     fHandle:integer;
+    fRoom:integer;
     fPingStarted:cardinal;
     fPing:word;
   public
-    constructor Create(aHandle:integer);
+    constructor Create(aHandle, aRoom:integer);
     property Handle:integer read fHandle; //ReadOnly
+    property Room:integer read fRoom; //ReadOnly
     property Ping:word read fPing write fPing;
   end;
 
@@ -66,7 +69,7 @@ type
     function GetItem(Index:integer):TKMServerClient;
   public
     property Count:integer read fCount;
-    procedure AddPlayer(aHandle:integer);
+    procedure AddPlayer(aHandle, aRoom:integer);
     procedure RemPlayer(aHandle:integer);
     procedure Clear;
     property Item[Index:integer]:TKMServerClient read GetItem; default;
@@ -80,8 +83,12 @@ type
     {$IFDEF FPC} fServer:TKMNetServerLNet;     {$ENDIF}
 
     fClientList:TKMClientsList;
-    fHostHandle:integer;
+    fHostHandle:array of integer;
     fListening:boolean;
+
+    fAllowRooms:boolean;
+    fRoomCount:integer;
+    fRoomJoinable:array of boolean;
 
     fBufferSize:cardinal;
     fBuffer:array of byte;
@@ -95,8 +102,11 @@ type
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
     function IsValidHandle(aHandle:integer):boolean;
+    function GetFirstAvailableRoom:integer;
+    function GetRoomPlayersCount(aRoom:integer):integer;
+    function GetFirstRoomClient(aRoom:integer):integer;
   public
-    constructor Create;
+    constructor Create(aAllowRooms:boolean);
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
@@ -113,10 +123,11 @@ implementation
 
 
 { TKMServerClient }
-constructor TKMServerClient.Create(aHandle: integer);
+constructor TKMServerClient.Create(aHandle, aRoom: integer);
 begin
   Inherited Create;
   fHandle := aHandle;
+  fRoom := aRoom;
 end;
 
 
@@ -127,11 +138,11 @@ begin
 end;
 
 
-procedure TKMClientsList.AddPlayer(aHandle: integer);
+procedure TKMClientsList.AddPlayer(aHandle, aRoom: integer);
 begin
   inc(fCount);
   SetLength(fItems, fCount);
-  fItems[fCount-1] := TKMServerClient.Create(aHandle);
+  fItems[fCount-1] := TKMServerClient.Create(aHandle, aRoom);
 end;
 
 
@@ -177,15 +188,17 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create;
+constructor TKMNetServer.Create(aAllowRooms:boolean);
 begin
-  Inherited;
+  Inherited Create;
+  fAllowRooms := aAllowRooms;
   fClientList := TKMClientsList.Create;
   {$IFDEF WDC} fServer := TKMNetServerOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fServer := TKMNetServerLNet.Create;     {$ENDIF}
   fListening := false;
   SetLength(fBuffer,0);
   fBufferSize := 0;
+  fRoomCount := 0;
 end;
 
 
@@ -215,7 +228,13 @@ procedure TKMNetServer.StartListening(aPort:string);
 begin
   SetLength(fBuffer,0);
   fBufferSize := 0;
-  fHostHandle := NET_ADDRESS_EMPTY;
+
+  fRoomCount := 0;
+  SetLength(fHostHandle,1);
+  fHostHandle[0] := NET_ADDRESS_EMPTY;
+  SetLength(fRoomJoinable,1);
+  fRoomJoinable[0] := true;
+
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
   fServer.OnClientDisconnect := ClientDisconnect;
@@ -283,18 +302,19 @@ end;
 
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
+var Room:integer;
 begin
-  Status('Client has connected '+inttostr(aHandle));
-
-  fClientList.AddPlayer(aHandle);
+  Room := GetFirstAvailableRoom;
+  Status('Client '+inttostr(aHandle)+' has connected to room '+inttostr(Room));
+  fClientList.AddPlayer(aHandle, Room);
   SendMessage(aHandle, mk_GameVersion, 0, GAME_REVISION); //First make sure they are using the right version
 
   //Let the first client be a Host
-  if fHostHandle = NET_ADDRESS_EMPTY then
+  if fHostHandle[Room] = NET_ADDRESS_EMPTY then
   begin
-    fHostHandle := aHandle;
+    fHostHandle[Room] := aHandle;
     SendMessage(aHandle, mk_HostingRights, 0, '');
-    Status('Host rights assigned to '+inttostr(fHostHandle));
+    Status('Host rights assigned to '+inttostr(fHostHandle[Room]));
   end;
 
   SendMessage(aHandle, mk_IndexOnServer, aHandle, '');
@@ -304,24 +324,25 @@ end;
 
 //Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
+var Room: integer;
 begin
-  Status('Client has disconnected '+inttostr(aHandle));
-
+  Status('Client '+inttostr(aHandle)+' has disconnected');
+  Room := fClientList.GetByHandle(aHandle).Room;
   fClientList.RemPlayer(aHandle);
 
   //Send message to all remaining clients that client has disconnected
   SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle, '');
 
   //Assign a new host
-  if fHostHandle = aHandle then
+  if fHostHandle[Room] = aHandle then
   begin
-    if fClientList.Count = 0 then
-      fHostHandle := NET_ADDRESS_EMPTY //Server is now empty so we don't need a new host
+    if GetRoomPlayersCount(Room) = 0 then
+      fHostHandle[Room] := NET_ADDRESS_EMPTY //Room is now empty so we don't need a new host
     else
     begin
-      fHostHandle := fClientList[0].fHandle; //Assign hosting rights to the first client
-      SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, fHostHandle, ''); //Tell everyone about the new host
-      Status('Reassigned hosting rights to '+inttostr(fHostHandle));
+      fHostHandle[Room] := GetFirstRoomClient(Room); //Assign hosting rights to the first client in the room
+      SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, fHostHandle[Room], ''); //Tell everyone about the new host
+      Status('Reassigned hosting rights for room '+inttostr(Room)+' to '+inttostr(fHostHandle[Room]));
     end;
   end;
 end;
@@ -385,6 +406,8 @@ begin
   M.Free;
 
   case Kind of
+    mk_RoomOpen:  fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := true;
+    mk_RoomClose: fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := false;
     mk_Pong:
             begin
              //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
@@ -404,7 +427,7 @@ end;
 //Someone has send us something
 //Send only complete messages to allow to add server messages inbetween
 procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
-var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i:integer;
+var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i,SenderRoom:integer;
 begin
   //Append new data to buffer
   SetLength(fBuffer, fBufferSize + aLength);
@@ -433,16 +456,19 @@ begin
     if PacketLength > fBufferSize-12 then
       exit; //This message was split, so we must wait for the remainder of the message to arrive
 
+    SenderRoom := fClientList.GetByHandle(aHandle).Room;
+
     case PacketRecipient of
       NET_ADDRESS_OTHERS: //Transmit to all except sender
           for i:=0 to fClientList.Count-1 do
-              if aHandle <> fClientList[i].Handle then
+              if (aHandle <> fClientList[i].Handle) and (SenderRoom = fClientList[i].Room) then
                 fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
       NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
               for i:=0 to fClientList.Count-1 do
-                fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
+                if SenderRoom = fClientList[i].Room then
+                  fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
       NET_ADDRESS_HOST:
-              fServer.SendData(fHostHandle, @fBuffer[0], PacketLength+12);
+              fServer.SendData(fHostHandle[SenderRoom], @fBuffer[0], PacketLength+12);
       NET_ADDRESS_SERVER:
               RecieveMessage(PacketSender, @fBuffer[12], PacketLength);
       else    fServer.SendData(PacketRecipient, @fBuffer[0], PacketLength+12);
@@ -460,6 +486,59 @@ begin
   //Can't use "in [...]" with negative numbers
   Result := (aHandle=NET_ADDRESS_OTHERS)or(aHandle=NET_ADDRESS_ALL)or(aHandle=NET_ADDRESS_HOST)or(aHandle=NET_ADDRESS_SERVER)or
             InRange(aHandle,FIRST_TAG,fServer.GetLatestHandle);
+end;
+
+
+function TKMNetServer.GetFirstAvailableRoom:integer;
+var i:integer;
+begin
+  if not fAllowRooms then
+  begin
+    Result := 0;
+    exit;
+  end;
+  for i:=0 to fRoomCount-1 do
+    if fRoomJoinable[i] or (GetRoomPlayersCount(i) = 0) then
+    begin
+      Result := i;
+      exit;
+    end;
+  //Add a new room
+  if fRoomCount = MAX_ROOMS then
+  begin
+    Result := fRoomCount;
+    Status('Cannot create a new room: limit reached');
+    exit;
+  end;
+  inc(fRoomCount);
+  SetLength(fRoomJoinable,fRoomCount);
+  SetLength(fHostHandle,fRoomCount);
+  fRoomJoinable[fRoomCount-1] := true;
+  Result := fRoomCount-1;
+end;
+
+
+function TKMNetServer.GetRoomPlayersCount(aRoom:integer):integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=0 to fClientList.Count-1 do
+    if fClientList[i].Room = aRoom then
+      inc(Result);
+end; 
+
+
+function TKMNetServer.GetFirstRoomClient(aRoom:integer):integer;
+var i:integer;
+begin
+  for i:=0 to fClientList.Count-1 do
+    if fClientList[i].Room = aRoom then
+    begin
+      Result := fClientList[i].fHandle;
+      exit;
+    end;
+  Result := -1;
+  Assert(false);
 end;
 
 

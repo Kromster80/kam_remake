@@ -31,7 +31,7 @@ implementation
 constructor TKMDedicatedServer.Create;
 begin
   Inherited;
-  fNetServer := TKMNetServer.Create;
+  fNetServer := TKMNetServer.Create(true); //Allow rooms in the dedicated server
   fLastPing := 0;
 end;
 

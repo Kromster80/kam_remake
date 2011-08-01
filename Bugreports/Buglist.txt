@@ -1,6 +1,7 @@
 Since r2039:
 <===================================================================================>
  +	Server data corruption errors
+ +	The dedicated server can now host multiple games at once. (capped at 32) If a game is in progress you are placed in a new game
  +	In multiplayer you should be able to see the same as your allies (sync fog of war for teams)
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)

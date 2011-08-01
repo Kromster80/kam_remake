@@ -42,6 +42,9 @@ type
     mk_Pong,            //Clients reply to Server with pong
     mk_PingInfo,        //Server sends list of ping times to Clients
 
+    mk_RoomOpen,        //Host tells server his room is now open
+    mk_RoomClose,       //Host tells server his room is now closed
+
     mk_PlayersList,     //Host keeps the players list and sends it to everyone on change
 
     mk_StartingLocQuery,//Joiner asks Host if he can take that starting location
@@ -80,6 +83,8 @@ const
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong
     pfText,     //mk_PingInfo
+    pfNoData,   //mk_RoomOpen
+    pfNoData,   //mk_RoomClose
     pfText,     //mk_PlayersList
     pfNumber,   //mk_StartingLocQuery
     pfNumber,   //mk_SetTeam

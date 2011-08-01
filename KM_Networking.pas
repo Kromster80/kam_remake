@@ -138,7 +138,7 @@ begin
   Inherited;
   fLANGameState := lgs_None;
   fMapInfo := TKMapInfo.Create;
-  fNetServer := TKMNetServer.Create;
+  fNetServer := TKMNetServer.Create(false); //Do not allow multiple rooms as we are just creating a single game
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
 end;
@@ -524,6 +524,7 @@ begin
   //todo: TKMNetServer should run in a seperate thread to make it update even while the client (player) is busy (see above)
 
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, fNetPlayers.GetAsText, 0);
+  PacketSend(NET_ADDRESS_SERVER, mk_RoomClose, '', 0); //Tell the server this room is now closed
 
   StartGame;
 end;
@@ -547,6 +548,14 @@ begin
         NetPlayers[i].FlagColorID := 0;
         NetPlayers[i].Team := 0;
       end;
+
+  if IsHost and (fLANGameState = lgs_Lobby) then
+  begin
+    if NetPlayers.Count >= MAX_PLAYERS then
+      PacketSend(NET_ADDRESS_SERVER, mk_RoomClose, '', 0) //Tell the server this room is now full
+    else
+      PacketSend(NET_ADDRESS_SERVER, mk_RoomOpen, '', 0); //Tell the server this room is now available
+  end;
 
   PacketSend(aPlayerIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
