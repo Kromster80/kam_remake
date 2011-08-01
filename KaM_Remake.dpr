@@ -12,6 +12,7 @@ uses
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
 
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',
+  KM_Campaigns in 'KM_Campaigns.pas',
   KM_CommonTypes in 'KM_CommonTypes.pas',
   KM_Controls in 'KM_Controls.pas',
   KM_Defaults in 'KM_Defaults.pas',

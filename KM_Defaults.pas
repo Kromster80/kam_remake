@@ -161,23 +161,6 @@ const
   PLAYER_NONE = -1; //No player
   PLAYER_ANIMAL = -2; //animals
 
-const
-  //Maps count in Campaigns
-  MAX_MAPS = 32;
-  TSK_MAPS = 20;
-  TPR_MAPS = 14;
-
-  //X/Y locations of battlefields on campaign map in menu
-  TSK_Campaign_Maps: array [1..TSK_MAPS,1..2] of word = (
-  (170,670),(160,455),(320,595),(442,625),(395,525),(350,420),( 95,345),(140,190),(550,520),(735,510),
-  (885,550),(305,290),(380,270),(475,290),(580,290),(820,175),(700,145),(595, 40),(720, 80),(820, 50));
-
-  TPR_Campaign_Maps: array [1..TPR_MAPS,1..2] of word = (
-  (175,525),(180,465),(110,435),(180,420),(230,440),(370,475),(130,205),(350,185),(515,355),(590,360),
-  (665,190),(760,285),(775,220),(730,160));
-
-  CampIntermediate = 20; //Place intermediate nodes every N pixels
-
 type
   TRenderMode = (rm2D, rm3D);
 

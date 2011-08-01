@@ -68,24 +68,6 @@ type
   end;
 
 
-{These are campaign settings }
-type
-  TCampaignSettings = class
-  private
-    fUnlockedMapsTSK:byte; //When player wins campaign mission this should be increased
-    fUnlockedMapsTPR:byte;
-    procedure LoadINI(FileName:string);
-    procedure SaveINI(FileName:string);
-  public
-    constructor Create;
-    destructor Destroy; override;
-    procedure RevealMap(aCamp:TCampaign; aMap:byte);
-    function GetMapsCount(aCamp:TCampaign):byte;
-    function GetUnlockedMaps(aCamp:TCampaign):byte;
-    function GetMapText(aCamp:TCampaign; MapID:byte):string;
-  end;
-
-
 implementation
 uses KM_TextLibrary, KM_Sound, KM_Game, KM_Log;
 
@@ -270,94 +252,6 @@ begin
       fGame.MusicLib.StopMusic;
   end;
   fNeedsSave := true;
-end;
-
-
-{ TCampaignSettings }
-constructor TCampaignSettings.Create;
-begin
-  Inherited;
-  LoadINI(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
-  fLog.AppendLog('Campaign.ini loaded');
-end;
-
-
-destructor TCampaignSettings.Destroy;
-begin
-  CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-  SaveINI(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
-  fLog.AppendLog('Campaign.ini saved');
-  Inherited;
-end;
-
-
-{When player completes one map we allow to reveal the next one, note that
-player may be replaying previous maps, in that case his progress remains the same}
-procedure TCampaignSettings.RevealMap(aCamp:TCampaign; aMap:byte);
-begin
-  case aCamp of
-    cmp_TSK: fUnlockedMapsTSK := EnsureRange(aMap, fUnlockedMapsTSK, TSK_MAPS);
-    cmp_TPR: fUnlockedMapsTPR := EnsureRange(aMap, fUnlockedMapsTPR, TPR_MAPS);
-  end;
-end;
-
-
-function TCampaignSettings.GetMapsCount(aCamp:TCampaign):byte;
-begin
-  Result := 1;
-  case aCamp of
-    cmp_Nil: Result := 0;
-    cmp_TSK: Result := TSK_MAPS;
-    cmp_TPR: Result := TPR_MAPS;
-    cmp_Custom: Result := 1; //Yet unknown
-    else Assert(false,'Unknown campaign');
-  end;
-end;
-
-
-function TCampaignSettings.GetUnlockedMaps(aCamp:TCampaign):byte;
-begin
-  Result := 1;
-  case aCamp of
-    cmp_Nil: Result := 0;
-    cmp_TSK: Result := fUnlockedMapsTSK;
-    cmp_TPR: Result := fUnlockedMapsTPR;
-    cmp_Custom: Result := 1; //Yet unknown
-    else Assert(false,'Unknown campaign');
-  end;
-end;
-
-
-{Get mission text description}
-function TCampaignSettings.GetMapText(aCamp:TCampaign; MapID:byte):string;
-begin
-  case aCamp of
-    cmp_Nil: Result := '';
-    cmp_TSK: Result := fTextLibrary.GetSetupString(siCampTSKTexts + MapID - 1);
-    cmp_TPR: Result := fTextLibrary.GetSetupString(siCampTPRTexts + MapID - 1);
-    cmp_Custom: Result := '';
-  end;
-end;
-
-
-procedure TCampaignSettings.SaveINI(FileName:string);
-var f:TMemIniFile; //Don't rewrite the file for each change, do it in one batch
-begin
-  f := TMemIniFile.Create(FileName);
-  f.WriteInteger('Campaign', 'TSK', fUnlockedMapsTSK);
-  f.WriteInteger('Campaign', 'TPR', fUnlockedMapsTPR);
-  f.UpdateFile; //Write changes to file
-  FreeAndNil(f);
-end;
-
-
-procedure TCampaignSettings.LoadINI(FileName:string);
-var f:TMemIniFile;
-begin
-  f := TMemIniFile.Create(FileName);
-  fUnlockedMapsTSK := f.ReadInteger('Campaign', 'TSK', 1);
-  fUnlockedMapsTPR := f.ReadInteger('Campaign', 'TPR', 1);
-  FreeAndNil(f);
 end;
 
 

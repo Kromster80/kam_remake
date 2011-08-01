@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo;
+  KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo, KM_Campaigns;
 
 
 type
@@ -17,8 +17,8 @@ type
     MyControls: TKMMasterControl;
     ScreenX,ScreenY:word;
 
-    Campaign_Selected:TCampaign;
-    Campaign_Mission_Choice:integer;
+    Campaign_Selected:string;
+    Campaign_MapIndex:byte;
 
     SingleMap_Top:integer; //Top map in list
     SingleMap_Selected:integer; //Selected map
@@ -46,7 +46,7 @@ type
     procedure MainMenu_PlayBattle(Sender: TObject);
     procedure MainMenu_ReplayView(Sender: TObject);
     procedure MainMenu_ReplayLastMap(Sender: TObject);
-    procedure Campaign_Set(aCampaign:TCampaign);
+    procedure Campaign_Set(aCampaign:string);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
 
@@ -152,7 +152,7 @@ type
 
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
-      Image_CampaignNodes:array[1..MAX_MAPS] of TKMImage;
+      Image_CampaignNodes:array[0..MAX_CMP_MAPS-1] of TKMImage;
       Panel_CampScroll:TKMPanel;
         Image_ScrollTop,Image_Scroll:TKMImage;
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
@@ -243,7 +243,7 @@ begin
 
   ScreenX := min(X,MENU_DESIGN_X);
   ScreenY := min(Y,MENU_DESIGN_Y);
-  Campaign_Mission_Choice := 1;
+  Campaign_MapIndex := 1;
   SingleMap_Top := 0;
   SingleMap_Selected := 0;
 
@@ -329,7 +329,7 @@ begin
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
 
                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-                  Button_ResultsContinue.Visible := fGame.GetCampaign in [cmp_TSK, cmp_TPR];
+                  Button_ResultsContinue.Visible := fGame.ActiveCampaign <> '';
                   Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
                   SwitchMenuPage(Panel_Results);
@@ -537,7 +537,7 @@ begin
     Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
     Image_CampaignBG.ImageStretch;
 
-    for i:=1 to length(Image_CampaignNodes) do begin
+    for i:=0 to High(Image_CampaignNodes) do begin
       Image_CampaignNodes[i] := TKMImage.Create(Panel_Campaign, ScreenX, ScreenY, 23, 29, 10, 5);
       Image_CampaignNodes[i].OnClick := Campaign_SelectMap;
       Image_CampaignNodes[i].Tag := i;
@@ -874,14 +874,12 @@ begin
   end;
 
   {Show TSK campaign menu}
-  if (Sender=Button_SP_TSK) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TSK)) then begin
-    Campaign_Set(cmp_TSK);
-    Panel_Campaign.Show;
-  end;
-
-  {Show TSK campaign menu}
-  if (Sender=Button_SP_TPR) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TPR)) then begin
-    Campaign_Set(cmp_TPR);
+  if (Sender=Button_SP_TSK) or (Sender=Button_SP_TPR) or (Sender=Button_ResultsContinue) then begin
+    if (Sender=Button_SP_TPR) then Campaign_Set('TPR')
+    else
+    if (Sender=Button_SP_TSK) then Campaign_Set('TSK')
+    else
+      Campaign_Set(fGame.ActiveCampaign);
     Panel_Campaign.Show;
   end;
 
@@ -979,85 +977,74 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Campaign_Set(aCampaign:TCampaign);
-var i,Top,Revealed:integer;
+procedure TKMMainMenuInterface.Campaign_Set(aCampaign:string);
+const MapPic:array[boolean]of byte = (10,11);
+var i:integer; C:TKMCampaign;
 begin
   Campaign_Selected := aCampaign;
-  Top := fGame.CampaignSettings.GetMapsCount(Campaign_Selected);
-  Revealed := min(fGame.CampaignSettings.GetUnlockedMaps(Campaign_Selected), Top); //INI could be wrong
+
+  C := fGame.Campaigns.CampaignByTitle(Campaign_Selected);
+  Assert(C<>nil, 'Opening non-existent campaign');
 
   //Choose background
-  case Campaign_Selected of
-    cmp_TSK: Image_CampaignBG.TexID := 12;
-    cmp_TPR: Image_CampaignBG.TexID := 20;
-  end;
+  Image_CampaignBG.RXid := C.BackGroundPicRX;
+  Image_CampaignBG.TexID := C.BackGroundPicID;
 
   //Setup sites
-  for i:=1 to length(Image_CampaignNodes) do begin
-    Image_CampaignNodes[i].Visible   := i <= Top;
-    Image_CampaignNodes[i].TexID     := 10 + byte(i<=Revealed);
-    Image_CampaignNodes[i].HighlightOnMouseOver := i <= Revealed;
+  for i:=0 to High(Image_CampaignNodes) do
+  begin
+    Image_CampaignNodes[i].Visible   := i < C.MapCount;
+    Image_CampaignNodes[i].TexID     := MapPic[i<C.UnlockedMaps];
+    Image_CampaignNodes[i].HighlightOnMouseOver := i<C.UnlockedMaps;
   end;
 
   //Place sites
-  for i:=1 to Top do
-  case Campaign_Selected of
-    cmp_TSK:  begin
-                Image_CampaignNodes[i].Left := TSK_Campaign_Maps[i,1];
-                Image_CampaignNodes[i].Top  := TSK_Campaign_Maps[i,2];
-              end;
-    cmp_TPR:  begin
-                Image_CampaignNodes[i].Left := TPR_Campaign_Maps[i,1];
-                Image_CampaignNodes[i].Top  := TPR_Campaign_Maps[i,2];
-              end;
+  for i:=0 to C.MapCount-1 do
+  begin
+    Image_CampaignNodes[i].Left := C.Maps[i].Node.X;
+    Image_CampaignNodes[i].Top  := C.Maps[i].Node.Y;
   end;
 
   //todo: Place intermediate nodes between previous and selected mission nodes
 
   //Select last map to play by 'clicking' last node
-  Campaign_SelectMap(Image_CampaignNodes[Revealed]);
+  Campaign_SelectMap(Image_CampaignNodes[C.UnlockedMaps-1]);
 end;
 
 
 procedure TKMMainMenuInterface.Campaign_SelectMap(Sender:TObject);
-var i:integer;
+var i:integer; C:TKMCampaign;
 begin
   if not (Sender is TKMImage) then exit;
   if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
 
+  C := fGame.Campaigns.CampaignByTitle(Campaign_Selected);
+  Assert(C<>nil, 'Opening non-existent campaign');
+
    //Place highlight
-  for i:=1 to length(Image_CampaignNodes) do
+  for i:=0 to High(Image_CampaignNodes) do
     Image_CampaignNodes[i].Highlight := false;
 
   TKMImage(Sender).Highlight := true;
 
-  Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION],[TKMImage(Sender).Tag]);
-  Label_CampaignText.Caption := fGame.CampaignSettings.GetMapText(Campaign_Selected, TKMImage(Sender).Tag);
+  Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [TKMImage(Sender).Tag+1]);
+  Label_CampaignText.Caption := C.MissionText(TKMImage(Sender).Tag);
 
   Panel_CampScroll.Height := 50 + Label_CampaignText.TextHeight + 70; //Add offset from top and space on bottom
   Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height;
   Image_Scroll.Height := Panel_CampScroll.Height;
 
-  Campaign_Mission_Choice := TKMImage(Sender).Tag;
+  Campaign_MapIndex := TKMImage(Sender).Tag;
 end;
 
 
 procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
-var MissString,NameString:string;
+var C:TKMCampaign;
 begin
-  fLog.AssertToLog(Sender=Button_CampaignStart,'not Button_CampaignStart');
-  case Campaign_Selected of
-    cmp_TSK: begin
-      MissString := ExeDir+'data\mission\mission'+inttostr(Campaign_Mission_Choice)+'.dat';
-      NameString := 'TSK mission '+inttostr(Campaign_Mission_Choice);
-    end;
-    cmp_TPR: begin
-      MissString := ExeDir+'data\mission\dmission'+inttostr(Campaign_Mission_Choice)+'.dat';
-      NameString := 'TPR mission '+inttostr(Campaign_Mission_Choice);
-    end;
-    else Assert(false,'Unknown Campaign');
-  end;
-  fGame.GameStart(MissString, NameString, Campaign_Selected, Campaign_Mission_Choice);
+  C := fGame.Campaigns.CampaignByTitle(Campaign_Selected);
+  Assert(C<>nil, 'Opening non-existent campaign');
+
+  fGame.GameStart(C.Maps[Campaign_MapIndex].ScriptPath, C.Maps[Campaign_MapIndex].MapName, Campaign_Selected, Campaign_MapIndex);
 end;
 
 

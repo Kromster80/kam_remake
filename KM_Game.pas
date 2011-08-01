@@ -8,7 +8,7 @@ uses
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, Zippit,
   KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
-  KM_MapEditor,
+  KM_MapEditor, KM_Campaigns,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation;
@@ -34,7 +34,7 @@ type
     fWaitingForNetwork:boolean;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     fGlobalSettings: TGlobalSettings;
-    fCampaignSettings: TCampaignSettings;
+    fCampaigns: TKMCampaignsCollection;
     fMusicLib: TMusicLib;
     fMapEditor: TKMMapEditor;
     fProjectiles:TKMProjectiles;
@@ -45,7 +45,7 @@ type
     fMissionFile:string; //Remember what we are playing incase we might want to replay
     fMissionMode: TKMissionMode;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
-    fActiveCampaign:TCampaign; //Campaign we are playing
+    fActiveCampaign:string; //Campaign we are playing
     fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
 
     procedure GameInit(aMultiplayerMode:boolean);
@@ -71,7 +71,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
+    procedure GameStart(aMissionFile, aGameName:string; aCamp:string=''; aCampMap:byte=1);
     procedure GameStartMP(Sender:TObject);
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
@@ -90,13 +90,14 @@ type
 
     procedure NetworkInit;
 
+    property ActiveCampaign:string read fActiveCampaign;
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
     property GlobalTickCount:cardinal read fGlobalTickCount;
     property GetMissionFile:string read fMissionFile;
     property GetGameName:string read fGameName;
-    property GetCampaign:TCampaign read fActiveCampaign;
+    property GetCampaign:string read fActiveCampaign;
     property GetCampaignMap:byte read fActiveCampaignMap;
     property MultiplayerMode:boolean read fMultiplayerMode;
     property FormPassability:integer read fFormPassability write fFormPassability;
@@ -108,7 +109,7 @@ type
     procedure StepOneFrame;
 
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
-    property CampaignSettings: TCampaignSettings read fCampaignSettings;
+    property Campaigns: TKMCampaignsCollection read fCampaigns;
     property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib:TMusicLib read fMusicLib;
     property Projectiles:TKMProjectiles read fProjectiles;
@@ -155,7 +156,7 @@ begin
   fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource         := TResource.Create(fGlobalSettings.Locale, aLS, aLT);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
-  fCampaignSettings := TCampaignSettings.Create;
+  fCampaigns        := TKMCampaignsCollection.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
 
@@ -168,7 +169,7 @@ destructor TKMGame.Destroy;
 begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
 
-  FreeThenNil(fCampaignSettings);
+  FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGlobalSettings);
   FreeThenNil(fMainMenuInterface);
@@ -361,7 +362,7 @@ begin
 end;
 
 
-procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
+procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:string=''; aCampMap:byte=1);
 var LoadError:string; fMissionParser: TMissionParser;
 begin
   fLog.AppendLog('GameStart');
@@ -709,7 +710,8 @@ begin
       gr_Win    :  begin
                      fLog.AppendLog('Gameplay ended - Win',true);
                      fMainMenuInterface.ShowScreen(msResults, '', Msg); //Mission results screen
-                     fCampaignSettings.RevealMap(fActiveCampaign, fActiveCampaignMap+1);
+                     if fActiveCampaign <> '' then
+                       fCampaigns.UnlockMap(fActiveCampaign, fActiveCampaignMap+1);
                    end;
       gr_Defeat:   begin
                      fLog.AppendLog('Gameplay ended - Defeat',true);
