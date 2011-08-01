@@ -17,6 +17,8 @@ const
   NET_ADDRESS_HOST = -3;    //Sender/Recipient
   NET_ADDRESS_SERVER = -4;  //Sender/Recipient
 
+  MAX_PACKET_SIZE = 10240; //10kb. Maximum length of a KM packet
+
   //Client-Server-Client exchange packets. Each packet is a certain type
 type
   TKMessageKind = (

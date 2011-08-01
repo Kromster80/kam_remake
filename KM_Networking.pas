@@ -25,7 +25,7 @@ const
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_Pong,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text] //lgs_Game
   );
 
-  JOIN_TIMEOUT = 5000; //5 sec. Timeout for join queries
+  JOIN_TIMEOUT = 8000; //8 sec. Timeout for join queries
 
 
 type

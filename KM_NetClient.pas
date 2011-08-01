@@ -1,7 +1,7 @@
 unit KM_NetClient;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils
+uses Classes, SysUtils, KM_CommonTypes
   {$IFDEF WDC} ,KM_NetClientOverbyte {$ENDIF}
   {$IFDEF FPC} ,KM_NetClientLNet {$ENDIF}
   ;
@@ -165,6 +165,7 @@ end;
 procedure TKMNetClient.SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
 var P:Pointer;
 begin
+  assert(aLength <= MAX_PACKET_SIZE,'Packet over size limit');
   GetMem(P, aLength+12);
   PInteger(P)^ := aSender;
   PInteger(cardinal(P)+4)^ := aRecepient;

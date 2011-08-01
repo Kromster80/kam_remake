@@ -732,7 +732,7 @@ begin
   Image_MPChat := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48,30,48,494);
   Image_MPChat.Anchors := [akLeft, akBottom];
   Image_MPChat.HighlightOnMouseOver := true;
-  Image_MPChat.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
+  Image_MPChat.Hint := fTextLibrary[TX_GAMEPLAY_CHAT_HINT];
   Image_MPChat.OnClick := Chat_Show;
   Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Outline,kaCenter,$FF0000FF);
   Label_MPChatUnread.Anchors := [akLeft, akBottom];
@@ -742,7 +742,7 @@ begin
   Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
   Image_MPAllies.Anchors := [akLeft, akBottom];
   Image_MPAllies.HighlightOnMouseOver := true;
-  Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_CHAT_HINT];
+  Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
   Image_MPAllies.OnClick := Allies_Show;
 
   for i:=low(Image_Message) to high(Image_Message) do

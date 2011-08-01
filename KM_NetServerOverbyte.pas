@@ -7,6 +7,11 @@ uses Classes, SysUtils, WSocket, WSocketS, WinSock;
 { This unit knows nothing about KaM, it's just a puppet in hands of KM_ServerControl,
 doing all the low level work on TCP. So we can replace this unit with other TCP client
 without KaM even noticing. }
+
+//Tagging starts with some number away from -2 -1 0 used as sender/recipient constants
+//and off from usual players indexes 1..8, so we could not confuse them by mistake
+const FIRST_TAG = 15;
+
 type
   THandleEvent = procedure (aHandle:integer) of object;
   TNotifyDataEvent = procedure(aHandle:integer; aData:pointer; aLength:cardinal)of object;
@@ -29,6 +34,7 @@ type
     procedure StopListening;
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure Kick(aHandle:integer);
+    property GetLatestHandle:integer read fLastTag;
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
@@ -39,14 +45,11 @@ type
 implementation
 
 
-//Tagging starts with some number away from -2 -1 0 used as sender/recipient constants
-//and off from usual players indexes 1..8, so we could not confuse them by mistake
 constructor TKMNetServerOverbyte.Create;
-const TAG = 14;
 var wsaData: TWSAData;
 begin
   Inherited Create;
-  fLastTag := TAG;
+  fLastTag := FIRST_TAG-1; //First client will be fLastTag+1
   if WSAStartup($101, wsaData) <> 0 then
     fOnError('Error in Network');
 end;

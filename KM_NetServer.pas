@@ -94,6 +94,7 @@ type
     procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
+    function IsValidHandle(aHandle:integer):boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -349,6 +350,12 @@ begin
     pfText:   M.Write(aText);
   end;
 
+  if M.Size > MAX_PACKET_SIZE then
+  begin
+    Status('Error: Packet over size limit');
+    exit;
+  end;
+
   if aRecipient = NET_ADDRESS_ALL then
     for i:=0 to fClientList.Count-1 do
       fServer.SendData(fClientList[i].Handle, M.Memory, M.Size)
@@ -410,30 +417,11 @@ begin
     PacketSender := PInteger(@fBuffer[0])^;
     PacketRecipient := PInteger(@fBuffer[4])^;
     PacketLength := PCardinal(@fBuffer[8])^;
-    if PacketLength <= fBufferSize-12 then
-    begin
 
-      case PacketRecipient of
-        NET_ADDRESS_OTHERS: //Transmit to all except sender
-            for i:=0 to fClientList.Count-1 do
-                if aHandle <> fClientList[i].Handle then
-                  fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
-        NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
-                for i:=0 to fClientList.Count-1 do
-                  fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
-        NET_ADDRESS_HOST:
-                fServer.SendData(fHostHandle, @fBuffer[0], PacketLength+12);
-        NET_ADDRESS_SERVER:
-                RecieveMessage(PacketSender, @fBuffer[12], PacketLength);
-        else    fServer.SendData(PacketRecipient, @fBuffer[0], PacketLength+12);
-      end;
-
-      if 12+PacketLength < fBufferSize then //Check range
-        Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
-      fBufferSize := fBufferSize - PacketLength - 12;
-    end
-    else
+    //Do some simple range checking to try to detect when there is a serious error or flaw in the code (i.e. Random data in the buffer)
+    if not (IsValidHandle(PacketRecipient) and IsValidHandle(PacketSender) and (PacketLength <= MAX_PACKET_SIZE)) then
     begin
+      //When we have a corrupt buffer attempt to keep the server alive by clearing it and disconnecting everyone
       Status('Error: Corrupt data received! Clearing buffer');
       fBufferSize := 0;
       SetLength(fBuffer, 0);
@@ -441,7 +429,37 @@ begin
       SendMessage(NET_ADDRESS_ALL,mk_Disconnect,0,'');
       exit;
     end;
+
+    if PacketLength > fBufferSize-12 then
+      exit; //This message was split, so we must wait for the remainder of the message to arrive
+
+    case PacketRecipient of
+      NET_ADDRESS_OTHERS: //Transmit to all except sender
+          for i:=0 to fClientList.Count-1 do
+              if aHandle <> fClientList[i].Handle then
+                fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
+      NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
+              for i:=0 to fClientList.Count-1 do
+                fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
+      NET_ADDRESS_HOST:
+              fServer.SendData(fHostHandle, @fBuffer[0], PacketLength+12);
+      NET_ADDRESS_SERVER:
+              RecieveMessage(PacketSender, @fBuffer[12], PacketLength);
+      else    fServer.SendData(PacketRecipient, @fBuffer[0], PacketLength+12);
+    end;
+
+    if 12+PacketLength < fBufferSize then //Check range
+      Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
+    fBufferSize := fBufferSize - PacketLength - 12;
   end;
+end;
+
+
+function TKMNetServer.IsValidHandle(aHandle:integer):boolean;
+begin
+  //Can't use "in [...]" with negative numbers
+  Result := (aHandle=NET_ADDRESS_OTHERS)or(aHandle=NET_ADDRESS_ALL)or(aHandle=NET_ADDRESS_HOST)or(aHandle=NET_ADDRESS_SERVER)or
+            InRange(aHandle,FIRST_TAG,fServer.GetLatestHandle);
 end;
 
 
