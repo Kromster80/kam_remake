@@ -209,7 +209,7 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   //Reset the resolution
   ResetResolution;
-  if fGame<>nil then fGame.GameStop(gr_Silent);
+  if fGame<>nil then fGame.Stop(gr_Silent);
   if fGame<>nil then FreeThenNil(fGame);
   if fLog<>nil then FreeThenNil(fLog);
   {$IFDEF MSWindows}
@@ -282,16 +282,16 @@ end;
 procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.GameStop(gr_Silent);
-  fGame.GameStart(OpenDialog1.FileName, 'OpenDialog1 game');
+  fGame.Stop(gr_Silent);
+  fGame.StartSingleMap(OpenDialog1.FileName, 'OpenDialog1 game');
 end;
 
 
 procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.GameStop(gr_Silent);
-  fGame.MapEditorStart(OpenDialog1.FileName, 0, 0);
+  fGame.Stop(gr_Silent);
+  fGame.StartMapEditor(OpenDialog1.FileName, 0, 0);
 end;
 
 
@@ -404,7 +404,7 @@ end;
 
 procedure TForm1.Button_StopClick(Sender: TObject);
 begin
-  fGame.GameStop(gr_Cancel);
+  fGame.Stop(gr_Cancel);
 end;
 
 
@@ -412,7 +412,7 @@ procedure TForm1.Button_CalcArmyClick(Sender: TObject);
 var
   Point : TKMPoint;
 begin // For test Army evaluation
-  fGame.GameStart('', 'TestCalcArmy');
+  fGame.StartSingleMap('', 'TestCalcArmy');
   {Point.X := 10; Point.Y := 10;
   MyPlayer.AddGroup(ut_Bowman, Point, dir_E, 3, 50);}
   Point.X := 12; Point.Y := 31;

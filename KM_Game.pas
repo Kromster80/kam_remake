@@ -45,10 +45,9 @@ type
     fMissionFile:string; //Remember what we are playing incase we might want to replay
     fMissionMode: TKMissionMode;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
-    fActiveCampaign:string; //Campaign we are playing
-    fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
 
     procedure GameInit(aMultiplayerMode:boolean);
+    procedure GameStart(aMissionFile, aGameName:string);
   public
     PlayOnState:TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
@@ -71,8 +70,13 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure GameStart(aMissionFile, aGameName:string; aCamp:string=''; aCampMap:byte=1);
-    procedure GameStartMP(Sender:TObject);
+    procedure StartCampaignMap(aCampaign:TKMCampaign; aMap:byte);
+    procedure StartSingleMap(aMissionFile, aGameName:string);
+    procedure RestartLastMap;
+    procedure StartMP(Sender:TObject);
+    procedure StartMapEditor(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure Stop(Msg:TGameResultMsg; TextMsg:string='');
+
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error
@@ -80,25 +84,20 @@ type
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
     procedure GameWaitingForNetwork(aWaiting:boolean);
-    procedure GameStop(Msg:TGameResultMsg; TextMsg:string='');
 
-    procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
-    procedure MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
+    procedure SaveMapEditor(const aMissionName:string; DoExpandPath:boolean);
 
     function  ReplayExists:boolean;
     procedure ReplayView;
 
     procedure NetworkInit;
 
-    property ActiveCampaign:string read fActiveCampaign;
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
     property GlobalTickCount:cardinal read fGlobalTickCount;
     property GetMissionFile:string read fMissionFile;
     property GetGameName:string read fGameName;
-    property GetCampaign:string read fActiveCampaign;
-    property GetCampaignMap:byte read fActiveCampaignMap;
     property MultiplayerMode:boolean read fMultiplayerMode;
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
@@ -362,19 +361,38 @@ begin
 end;
 
 
-procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:string=''; aCampMap:byte=1);
+procedure TKMGame.StartCampaignMap(aCampaign:TKMCampaign; aMap:byte);
+begin
+  fCampaigns.ActiveCampaign := aCampaign;
+  fCampaigns.ActiveCampaignMap := aMap;
+
+  GameStart(aCampaign.Maps[aMap].ScriptPath, aCampaign.Maps[aMap].MapName);
+end;
+
+
+procedure TKMGame.StartSingleMap(aMissionFile, aGameName:string);
+begin
+  fCampaigns.ActiveCampaign := nil;
+  fCampaigns.ActiveCampaignMap := 0;
+
+  GameStart(aMissionFile, aGameName);
+end;
+
+
+procedure TKMGame.RestartLastMap;
+begin
+  GameStart(fMissionFile, fGameName);
+end;
+
+
+procedure TKMGame.GameStart(aMissionFile, aGameName:string);
 var LoadError:string; fMissionParser: TMissionParser;
 begin
   fLog.AppendLog('GameStart');
   GameInit(false);
 
-  //If input is empty - replay last map
-  if aMissionFile <> '' then begin
-    fMissionFile := aMissionFile;
-    fGameName := aGameName;
-    fActiveCampaign := aCamp;
-    fActiveCampaignMap := aCampMap; //MapID is incremented in CampSettings and passed on to here from outside
-  end;
+  fMissionFile := aMissionFile;
+  fGameName := aGameName;
 
   fLog.AppendLog('Loading DAT file: '+fMissionFile);
   if CheckFileExists(fMissionFile,true) then
@@ -398,7 +416,7 @@ begin
         //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
         LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+
                       E.ClassName+': '+E.Message;
-        if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+        if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent); //Stop the game so that the main menu error can be shown
         fMainMenuInterface.ShowScreen(msError, LoadError);
         fLog.AppendLog('DAT Load Exception: '+LoadError);
         exit;
@@ -438,7 +456,7 @@ end;
 
 
 //All setup data gets taken from fNetworking class
-procedure TKMGame.GameStartMP(Sender:TObject);
+procedure TKMGame.StartMP(Sender:TObject);
 var
   LoadError:string;
   i,k:integer;
@@ -447,6 +465,9 @@ var
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
   fLog.AppendLog('GameStart Multiplayer');
+
+  fCampaigns.ActiveCampaign := nil;
+  fCampaigns.ActiveCampaignMap := 0;
 
   if fNetworking.MapInfo.IsSave then
   begin
@@ -479,7 +500,7 @@ begin
           //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
           LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+
                         E.ClassName+': '+E.Message;
-          if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+          if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent); //Stop the game so that the main menu error can be shown
           fMainMenuInterface.ShowScreen(msError, LoadError);
           fLog.AppendLog('DAT Load Exception: '+LoadError);
           exit;
@@ -622,7 +643,7 @@ begin
     fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile])
     , mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
-    GameStop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
+    Stop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
   else
     //If they choose to play on, start the game again because the player cannot tell that the game is paused
     SetGameState(PreviousState);
@@ -679,7 +700,7 @@ begin
 end;
 
 
-procedure TKMGame.GameStop(Msg:TGameResultMsg; TextMsg:string='');
+procedure TKMGame.Stop(Msg:TGameResultMsg; TextMsg:string='');
 begin
   fIsExiting := true;
   if (Msg = gr_Cancel) and MultiplayerMode then Msg := gr_MultiplayerCancel;
@@ -711,8 +732,8 @@ begin
       gr_Win    :  begin
                      fLog.AppendLog('Gameplay ended - Win',true);
                      fMainMenuInterface.ShowScreen(msResults, '', Msg); //Mission results screen
-                     if fActiveCampaign <> '' then
-                       fCampaigns.UnlockMap(fActiveCampaign, fActiveCampaignMap+1);
+                     if fCampaigns.ActiveCampaign <> nil then
+                       fCampaigns.UnlockNextMap;
                    end;
       gr_Defeat:   begin
                      fLog.AppendLog('Gameplay ended - Defeat',true);
@@ -753,13 +774,13 @@ end;
 {Mission name accepted in 2 formats:
 - absolute path, when opening a map from Form1.Menu
 - relative, from Maps folder}
-procedure TKMGame.MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+procedure TKMGame.StartMapEditor(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
 var fMissionParser:TMissionParser; i:integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
   fLog.AppendLog('Starting Map Editor');
-  GameStop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
+  Stop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
   SetKaMSeed(4); //Every time MapEd will be the same as previous. Good for debug.
   fGameSpeed := 1; //In case it was set in last run mission
@@ -793,7 +814,7 @@ begin
     else
     begin
       //Show all required error messages here
-      GameStop(gr_Error, fMissionParser.ErrorMessage);
+      Stop(gr_Error, fMissionParser.ErrorMessage);
       Exit;
     end;
     MyPlayer := fPlayers.Player[0];
@@ -832,7 +853,7 @@ end;
 //DoExpandPath means that input is a mission name which should be expanded into:
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.dat
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.map
-procedure TKMGame.MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
+procedure TKMGame.SaveMapEditor(const aMissionName:string; DoExpandPath:boolean);
 var fMissionParser: TMissionParser;
 begin
   if aMissionName = '' then exit;
@@ -972,6 +993,7 @@ begin
       end
     end;
   end;
+  fCampaigns.Save(SaveStream);
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
@@ -1075,7 +1097,7 @@ begin
     exit;
   end;
 
-  if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent);
+  if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent);
 
   //Load only from menu or stopped game
   if not (fGameState in [gsNoGame]) then begin
@@ -1116,6 +1138,7 @@ begin
       end
     end;
 
+    fCampaigns.Load(LoadStream);
     LoadStream.Read(ID_Tracker);
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
     LoadStream.Read(LoadedSeed);
@@ -1155,7 +1178,7 @@ begin
       //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
       Result := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
                     E.ClassName+' error raised with message: '+E.Message;
-      if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+      if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent); //Stop the game so that the main menu error can be shown
       exit;
     end;
   end;

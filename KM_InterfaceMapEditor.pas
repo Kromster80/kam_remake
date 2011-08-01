@@ -1195,7 +1195,7 @@ begin
 
   if Sender = Button_SaveSave then begin
     //Should we expand the path here?
-    fGame.MapEditorSave(Edit_SaveName.Text, true);
+    fGame.SaveMapEditor(Edit_SaveName.Text, true);
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
 end;
@@ -1204,14 +1204,14 @@ end;
 {Show mission loading dialogue}
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
-  fGame.MapEditorStart(FileList_Load.FileName, 0, 0);
+  fGame.StartMapEditor(FileList_Load.FileName, 0, 0);
 end;
 
 
 {Quit the mission and return to main menu}
 procedure TKMapEdInterface.Menu_QuitMission(Sender:TObject);
 begin
-  fGame.GameStop(gr_MapEdEnd);
+  fGame.Stop(gr_MapEdEnd);
 end;
 
 

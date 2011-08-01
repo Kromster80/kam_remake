@@ -1940,7 +1940,7 @@ end;
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
 begin
   //Show outcome depending on actual situation. By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  fGame.GameStop(fGame.PlayOnState);
+  fGame.Stop(fGame.PlayOnState);
 end;
 
 
@@ -2069,7 +2069,7 @@ procedure TKMGamePlayInterface.ReplayClick;
   end;
 begin
   if (Sender = Button_ReplayRestart) then begin
-    fGame.GameStop(gr_Silent);
+    fGame.Stop(gr_Silent);
     fGame.ReplayView; //reload it once again
   end;
 
@@ -2255,9 +2255,9 @@ begin
 
   if Sender = Button_PlayQuit then
     case PlayMoreMsg of
-      gr_Win:       fGame.GameStop(gr_Win);
-      gr_Defeat:    fGame.GameStop(gr_Defeat);
-      gr_ReplayEnd: fGame.GameStop(gr_ReplayEnd);
+      gr_Win:       fGame.Stop(gr_Win);
+      gr_Defeat:    fGame.Stop(gr_Defeat);
+      gr_ReplayEnd: fGame.Stop(gr_ReplayEnd);
     end
   else //GameStop has Destroyed our Sender by now
   if Sender = Button_PlayMore then
@@ -2284,7 +2284,7 @@ end;
 procedure TKMGamePlayInterface.NetWaitClick(Sender:TObject);
 begin
   Assert(Sender = Button_NetQuit, 'Wrong Sender in NetWaitClick');
-  fGame.GameStop(gr_Disconnect);
+  fGame.Stop(gr_Disconnect);
 end;
 
 

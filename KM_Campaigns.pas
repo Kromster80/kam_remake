@@ -40,6 +40,8 @@ type
 
   TKMCampaignsCollection = class
   private
+    fActiveCampaign:TKMCampaign; //Campaign we are playing
+    fActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
     fList:TList;
     procedure CreateTSK;
     procedure CreateTPR;
@@ -51,11 +53,16 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    property ActiveCampaign:TKMCampaign read fActiveCampaign write fActiveCampaign;
+    property ActiveCampaignMap:byte read fActiveCampaignMap write fActiveCampaignMap;
+
     function Count:integer;
     property Campaigns[aIndex:byte]:TKMCampaign read GetCampaign; default;
     function CampaignByTitle(const aShortTitle:string):TKMCampaign;
+    procedure UnlockNextMap;
 
-    procedure UnlockMap(const aShortTitle:string; aMapIndex:byte);
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 
@@ -207,18 +214,34 @@ var i:integer;
 begin
   Result := nil;
   for i:=0 to Count-1 do
-    if Campaigns[i].ShortTitle = aShortTitle then
+    if SameText(Campaigns[i].ShortTitle, aShortTitle) then
       Result := Campaigns[i];
 end;
 
 
-procedure TKMCampaignsCollection.UnlockMap(const aShortTitle: string; aMapIndex: byte);
-var C:TKMCampaign;
+procedure TKMCampaignsCollection.UnlockNextMap;
 begin
-  C := CampaignByTitle(aShortTitle);
-  Assert(C<>nil);
+  if ActiveCampaign <> nil then
+    ActiveCampaign.UnlockedMaps := ActiveCampaignMap + 1;
+end;
 
-  C.UnlockedMaps := aMapIndex;
+procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
+var s:string;
+begin
+  LoadStream.Read(s);
+  Assert(s = 'CampaignInfo', 'CampaignInfo not found');
+  LoadStream.Read(s);
+  fActiveCampaign := CampaignByTitle(s);
+  LoadStream.Read(fActiveCampaignMap);
+  //If loaded savegame references to missing campaign it will be treated as single-map
+end;
+
+
+procedure TKMCampaignsCollection.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write('CampaignInfo');
+  SaveStream.Write(fActiveCampaign.ShortTitle);
+  SaveStream.Write(fActiveCampaignMap);
 end;
 
 
