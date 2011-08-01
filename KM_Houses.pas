@@ -964,7 +964,7 @@ begin
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
   if FlagAnimStep mod 10 = 0 then
-    fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition,fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
+    fPlayers.RevealForTeam(fOwner, fPosition,fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 end;
 
 

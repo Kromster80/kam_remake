@@ -25,6 +25,7 @@ type
     procedure RevealEverything;
     function CheckVerticeRevelation(const X,Y:word):byte;
     function CheckTileRevelation(const X,Y:word):byte;
+    procedure SyncFOW(aFOW: TKMFogOfWar);
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -110,6 +111,15 @@ begin
   if (X+1 <= MapX-1) and (Y+1 <= MapY-1) then Result := max(Result, CheckVerticeRevelation(X+1,Y+1));
   if Result = 255 then exit;
   if Y+1 <= MapY-1 then Result := max(Result, CheckVerticeRevelation(X,Y+1));
+end;
+
+
+procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
+var i,k:cardinal;
+begin
+  for i:=1 to MapY do
+    for k:=1 to MapX do
+      Revelation[i,k].Visibility := Math.Max(Revelation[i,k].Visibility, aFOW.Revelation[i,k].Visibility);
 end;
 
 

@@ -1467,7 +1467,7 @@ end;
 procedure TKMUnit.UpdateFOW;
 begin
   if fCondition mod 10 = 0 then
-    fPlayers.Player[fOwner].FogOfWar.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC);
+    fPlayers.RevealForTeam(fOwner, fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC);
 end;
 
 

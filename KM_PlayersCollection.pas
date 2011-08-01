@@ -46,6 +46,8 @@ type
     procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
     function RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     function RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+    procedure RevealForTeam(aPlayer: TPlayerIndex; Pos:TKMPoint; Radius,Amount:word);
+    procedure SyncFogOfWar;
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -375,6 +377,27 @@ begin
   Result := false;
   for i:=0 to fCount-1 do
     Result := Result or fPlayerList[i].RemUnit(Position, Simulated);
+end;
+
+
+procedure TKMPlayersCollection.RevealForTeam(aPlayer: TPlayerIndex; Pos:TKMPoint; Radius,Amount:word);
+var i:integer;
+begin
+  fPlayerList[aPlayer].FogOfWar.RevealCircle(Pos,Radius,Amount);
+  if fGame.MultiplayerMode then
+    for i:=0 to fCount-1 do
+      if (i<>aPlayer) and (fPlayerList[aPlayer].Alliances[i] = at_Ally) then
+        fPlayerList[i].FogOfWar.RevealCircle(Pos,Radius,Amount);
+end;
+
+
+procedure TKMPlayersCollection.SyncFogOfWar;
+var i,k: integer;
+begin
+  for i:=0 to fCount-1 do
+    for k:=0 to fCount-1 do
+      if (i<>k) and (fPlayerList[i].Alliances[k] = at_Ally) then
+        fPlayerList[k].FogOfWar.SyncFOW(fPlayerList[i].FogOfWar);
 end;
 
 

@@ -515,6 +515,7 @@ begin
     fPlayers.Player[PlayerIndex].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
     PlayerUsed[PlayerIndex] := true;
   end;
+  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
