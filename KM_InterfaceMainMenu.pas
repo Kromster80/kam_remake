@@ -153,6 +153,7 @@ type
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
       Image_CampaignNodes:array[0..MAX_CMP_MAPS-1] of TKMImage;
+      Image_CampaignSubNode:array[0..MAX_CMP_SUBNODES-1] of TKMImage;
       Panel_CampScroll:TKMPanel;
         Image_ScrollTop,Image_Scroll:TKMImage;
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
@@ -543,7 +544,11 @@ begin
       Image_CampaignNodes[i].OnClick := Campaign_SelectMap;
       Image_CampaignNodes[i].Tag := i;
     end;
-
+    for i:=0 to High(Image_CampaignSubNode) do
+    begin
+      Image_CampaignSubNode[i] := TKMImage.Create(Panel_Campaign, ScreenX, ScreenY, 0, 0, 16, 5);
+      Image_CampaignSubNode[i].ImageCenter;
+    end;
   Panel_CampScroll:=TKMPanel.Create(Panel_Campaign,ScreenX-360,ScreenY-430,360,430);
 
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,6);
@@ -876,9 +881,11 @@ begin
 
   {Show TSK campaign menu}
   if (Sender=Button_SP_TSK) or (Sender=Button_SP_TPR) or (Sender=Button_ResultsContinue) then begin
-    if (Sender=Button_SP_TPR) then Campaign_Set(fGame.Campaigns.CampaignByTitle('TPR'))
+    if (Sender=Button_SP_TPR) then
+      Campaign_Set(fGame.Campaigns.CampaignByTitle('TPR'))
     else
-    if (Sender=Button_SP_TSK) then Campaign_Set(fGame.Campaigns.CampaignByTitle('TPR'))
+    if (Sender=Button_SP_TSK) then
+      Campaign_Set(fGame.Campaigns.CampaignByTitle('TSK'))
     else
       Campaign_Set(fGame.Campaigns.ActiveCampaign);
     Panel_Campaign.Show;
@@ -999,11 +1006,9 @@ begin
   //Place sites
   for i:=0 to Campaign_Selected.MapCount-1 do
   begin
-    Image_CampaignNodes[i].Left := Campaign_Selected.Maps[i].Node.X;
-    Image_CampaignNodes[i].Top  := Campaign_Selected.Maps[i].Node.Y;
+    Image_CampaignNodes[i].Left := Campaign_Selected.Maps[i].Node.X - Image_CampaignNodes[i].Width div 2;
+    Image_CampaignNodes[i].Top  := Campaign_Selected.Maps[i].Node.Y - Image_CampaignNodes[i].Height div 2;
   end;
-
-  //todo: Place intermediate nodes between previous and selected mission nodes
 
   //Select last map to play by 'clicking' last node
   Campaign_SelectMap(Image_CampaignNodes[Campaign_Selected.UnlockedMaps-1]);
@@ -1021,6 +1026,15 @@ begin
     Image_CampaignNodes[i].Highlight := false;
 
   TKMImage(Sender).Highlight := true;
+  Campaign_MapIndex := TKMImage(Sender).Tag;
+
+  //Connecting sub-nodes
+  for i:=0 to High(Image_CampaignSubNode) do
+  begin
+    Image_CampaignSubNode[i].Visible := i < Campaign_Selected.SubNodesCount(Campaign_MapIndex);
+    Image_CampaignSubNode[i].Left := Campaign_Selected.SubNodesPos(Campaign_MapIndex, i).X;
+    Image_CampaignSubNode[i].Top  := Campaign_Selected.SubNodesPos(Campaign_MapIndex, i).Y;
+  end;
 
   Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [TKMImage(Sender).Tag+1]);
   Label_CampaignText.Caption := Campaign_Selected.MissionText(TKMImage(Sender).Tag);
@@ -1028,8 +1042,6 @@ begin
   Panel_CampScroll.Height := 50 + Label_CampaignText.TextHeight + 70; //Add offset from top and space on bottom
   Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height;
   Image_Scroll.Height := Panel_CampScroll.Height;
-
-  Campaign_MapIndex := TKMImage(Sender).Tag;
 end;
 
 
