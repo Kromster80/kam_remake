@@ -7,6 +7,7 @@ Since r2039:
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
+	When warriors go out from Barracks sometimes they are not adjoined in groups
 
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Save correct number of players from MapEd
