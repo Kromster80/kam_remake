@@ -1,22 +1,28 @@
+Distant future
 	Single-player AI
+	Random map generator
 	Map Editor
 	WAN multiplayer (hosted master server in PHP and MYSQL) [Lewin]
 	File transfer in multiplayer for missions and saves [Lewin]
-	Networking in threads
+	Networking in separate thread to minimize lags
 
+Future
 	Marketplace
-	Random map generator
+	Fog of war
 	Support custom campaigns
 	Select units/houses by shape, instead of tiles they stand on
 	
+Close future
 	Tutorial missions and texts from KaM
 	Lookout tower [Krom]
 	Replays manager
+	Refactored units
 	Add hotkeys for armies that player can assign (Ctrl+1,2,etc)
 
 
 1st Multiplayer Demo (r2039) - 2011-07-29:
  +	LAN multiplayer
+ +	Multiplayer chat
 
 
 1st Multiplayer Demo (r1793) - 2011-06-13:

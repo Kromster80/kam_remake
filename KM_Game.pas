@@ -704,7 +704,8 @@ end;
 procedure TKMGame.Stop(Msg:TGameResultMsg; TextMsg:string='');
 begin
   fIsExiting := true;
-  if (Msg = gr_Cancel) and MultiplayerMode then Msg := gr_MultiplayerCancel;
+  //in MP mode you can't repeat last mission from Results screen
+  if (Msg = gr_Cancel) and MultiplayerMode then Msg := gr_MPCancel;
   try
     fGameState := gsNoGame;
 
@@ -712,7 +713,7 @@ begin
       fNetworking.Disconnect;
 
     //Take results from MyPlayer before data is flushed
-    if Msg in [gr_Win, gr_Defeat, gr_Cancel,gr_MultiplayerCancel] then
+    if Msg in [gr_Win, gr_Defeat, gr_Cancel,gr_MPCancel] then
       fMainMenuInterface.Fill_Results;
 
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
@@ -744,10 +745,10 @@ begin
                      fLog.AppendLog('Gameplay canceled',true);
                      fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
                    end;
-      gr_MultiplayerCancel:begin
-                             fLog.AppendLog('Multiplayer gameplay canceled',true);
-                             fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
-                           end;
+      gr_MPCancel: begin
+                     fLog.AppendLog('Multiplayer gameplay canceled',true);
+                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
+                   end;
       gr_Error:    begin
                      fLog.AppendLog('Gameplay error',true);
                      fMainMenuInterface.ShowScreen(msError, TextMsg);

@@ -225,6 +225,7 @@ begin
     ActiveCampaign.UnlockedMaps := ActiveCampaignMap + 1;
 end;
 
+
 procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
 var s:string;
 begin

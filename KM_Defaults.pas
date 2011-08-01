@@ -218,7 +218,7 @@ type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
-        gr_MultiplayerCancel, //Multiplayer game was canceled
+        gr_MPCancel,    //Multiplayer game was canceled
         gr_Error,       //Some known error occured
         gr_Disconnect,  //Disconnected from multiplayer game
         gr_Silent,      //Used when loading savegame from running game (show no screens)

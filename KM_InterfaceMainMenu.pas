@@ -320,10 +320,11 @@ begin
     msOptions:  SwitchMenuPage(Button_MM_Options);
     msResults:  begin
                   case aMsg of
-                    gr_Win:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
-                    gr_Defeat: Label_Results_Result.Caption := fTextLibrary.GetSetupString(112);
-                    gr_Cancel, gr_MultiplayerCancel: Label_Results_Result.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    else       Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+                    gr_Win:       Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
+                    gr_Defeat:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(112);
+                    gr_Cancel:    Label_Results_Result.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    gr_MPCancel:  Label_Results_Result.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    else          Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
 
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
