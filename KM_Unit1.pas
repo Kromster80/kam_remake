@@ -198,10 +198,7 @@ begin
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
-  begin
-    Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]),
-        'Warning', MB_OK or MB_ICONWARNING);
-  end;
+    Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]), 'Warning', MB_OK or MB_ICONWARNING);
 
   Timer100ms.Interval := fGame.GlobalSettings.SpeedPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
@@ -318,11 +315,13 @@ begin
   SHOW_TERRAIN_WIRES := Debug_ShowWires.Checked;
 end;
 
+
 procedure TForm1.Debug_ShowOverlayClick(Sender: TObject);
 begin
   Debug_ShowOverlay.Checked := not Debug_ShowOverlay.Checked;
   SHOW_CONTROLS_OVERLAY := Debug_ShowOverlay.Checked;
 end;
+
 
 procedure TForm1.Debug_ShowUnitClick(Sender: TObject);
 begin
