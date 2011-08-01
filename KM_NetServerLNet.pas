@@ -89,6 +89,7 @@ end;
 procedure TKMNetServerLNet.ClientConnect(aSocket: TLSocket);
 begin
   //Identify index of the Client, so we could address it
+  if fLastTag = MaxInt then fLastTag := FIRST_TAG-1; //I'll be surprised if this is ever necessary
   inc(fLastTag);
   aSocket.UserData := Pointer(fLastTag);
   fOnClientConnect(fLastTag);

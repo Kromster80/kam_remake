@@ -240,7 +240,10 @@ end;
 procedure TKMCampaignsCollection.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write('CampaignInfo');
-  SaveStream.Write(fActiveCampaign.ShortTitle);
+  if fActiveCampaign <> nil then
+    SaveStream.Write(fActiveCampaign.ShortTitle)
+  else
+    SaveStream.Write('');
   SaveStream.Write(fActiveCampaignMap);
 end;
 

@@ -94,6 +94,7 @@ begin
   end;
 
   //Identify index of the Client, so we could address it
+  if fLastTag = MaxInt then fLastTag := FIRST_TAG-1; //I'll be surprised if this is ever necessary
   inc(fLastTag);
   Client.Tag := fLastTag;
 

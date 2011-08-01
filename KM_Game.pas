@@ -536,7 +536,6 @@ begin
     fPlayers.Player[PlayerIndex].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
     PlayerUsed[PlayerIndex] := true;
   end;
-  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
@@ -545,6 +544,8 @@ begin
   for i:=fPlayers.Count-1 downto 0 do
     if not PlayerUsed[i] then
       fPlayers.RemovePlayer(i);
+
+  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players
 
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map

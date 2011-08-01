@@ -3,12 +3,15 @@ Since r2039:
  +	Server data corruption errors
  +	The dedicated server can now host multiple games at once. (capped at 32) If a game is in progress you are placed in a new game
  +	In multiplayer you should be able to see the same as your allies (sync fog of war for teams)
+ 	Server can crash if a non-KaM Remake client connects and sends data [Lewin]
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
 	When warriors go out from Barracks sometimes they are not adjoined in groups
+ 	Enemies begin to fight back when arows are shot, not when first arrow hits the unit
+ 	Warriors attacking enemy citizens don't listen to orders
 
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Save correct number of players from MapEd

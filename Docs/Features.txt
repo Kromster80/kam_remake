@@ -2,6 +2,7 @@
 	Map Editor
 	WAN multiplayer (hosted master server in PHP and MYSQL) [Lewin]
 	File transfer in multiplayer for missions and saves [Lewin]
+	Networking in threads
 
 	Marketplace
 	Random map generator

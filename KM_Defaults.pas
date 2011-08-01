@@ -920,8 +920,8 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_None);
   ProjectileSpeeds:array[TProjectileType] of single = (0.45, 0.5, 0.6);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.25, 0)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.1, 0.075, 0.05);
-  ProjectileMissChance:array[TProjectileType] of single = (0.3, 0.3, 0);
+  ProjectileJitter:array[TProjectileType] of single = (0.125, 0.1, 0.05);
+  ProjectileMissChance:array[TProjectileType] of single = (0.2, 0.2, 0);
 
   const STORM_SPEEDUP=1.5;
   
