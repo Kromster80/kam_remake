@@ -2306,9 +2306,9 @@ var
    FBind                  : TBind;
    FAccept                : TAccept;
 
-function WSocketGetProc(const ProcName : String) : Pointer;
+function WSocketGetProc(const ProcName : AnsiString) : Pointer;
 {$IFDEF COMPILER2_UP}
-function WSocket2GetProc(const ProcName : String) : Pointer;
+function WSocket2GetProc(const ProcName : AnsiString) : Pointer;
 {$ENDIF}
 function WSocket_WSAStartup(wVersionRequired: word;
                             var WSData: TWSAData): Integer;

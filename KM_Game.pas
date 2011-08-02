@@ -1044,7 +1044,6 @@ var
   LoadStream:TKMemoryStream;
   i:cardinal;
 begin
-  Result := '';
   FileName := SlotToSaveName(SlotID,'sav'); //Full path
   if not FileExists(FileName) then begin
     Result := fTextLibrary.GetTextString(202); //Empty

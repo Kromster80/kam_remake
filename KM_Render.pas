@@ -840,7 +840,7 @@ begin
   for i:=1 to 4 do if (R2[i-1])>0 then
   begin
     //Exception for some houses that render layered
-    if THouseType(Index) in [ht_WeaponSmithy, ht_ArmorSmithy, ht_WeaponWorkshop, ht_ArmorWorkshop] then
+    if Index in [ht_WeaponSmithy, ht_ArmorSmithy, ht_WeaponWorkshop, ht_ArmorWorkshop] then
     begin
       for k := 1 to min(R2[i-1],5) do
       begin

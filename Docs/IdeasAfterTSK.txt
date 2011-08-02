@@ -20,6 +20,8 @@ Support bigger maps (512x512)
 
 neverending resources
 
+forced peace for first 0/30min/1hour in MP games
+
 Walls building
 wooden and stone
 
