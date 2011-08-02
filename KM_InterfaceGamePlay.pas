@@ -2587,8 +2587,8 @@ begin
       else
       if not fViewport.Scrolling then
         Screen.Cursor := c_Default;
+      exit;
     end;
-    exit;
   end;
 
   if not fViewport.Scrolling then

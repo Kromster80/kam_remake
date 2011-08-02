@@ -12,6 +12,8 @@ Since r2039:
 	When warriors go out from Barracks sometimes they are not adjoined in groups (Can't reproduce. Does he know AI's do not autolink? Maybe he switched to an AI team)
  	Enemies begin to fight back when arows are shot, not when first arrow hits the unit
  	Warriors attacking enemy citizens don't listen to orders
+ 	Multiplayer needs goals and victory/defeat overlays same as singleplayer
+ 	Warriors should resume interrupted orders after a fight
 
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Save correct number of players from MapEd
