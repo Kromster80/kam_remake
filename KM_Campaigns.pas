@@ -181,19 +181,26 @@ var
   i,CampCount:integer;
   CampName:string;
 begin
+  if not FileExists(FileName) then Exit;
+
   M := TKMemoryStream.Create;
-  M.LoadFromFile(FileName);
+  try
+    M.LoadFromFile(FileName);
 
-  M.Read(CampCount);
-  for i:=0 to CampCount-1 do
-  begin
-    M.Read(CampName);
-    C := CampaignByTitle(CampName);
-    if C<>nil then
-      C.LoadProgress(M);
+    M.Read(i); //Check for wrong file format
+    if i<>$FEED then Exit;
+
+    M.Read(CampCount);
+    for i:=0 to CampCount-1 do
+    begin
+      M.Read(CampName);
+      C := CampaignByTitle(CampName);
+      if C<>nil then
+        C.LoadProgress(M);
+    end;
+  finally
+    M.Free;
   end;
-
-  M.Free;
 end;
 
 
@@ -204,6 +211,7 @@ var
 begin
   M := TKMemoryStream.Create;
 
+  M.Write(Integer($FEED)); //Identify our format
   M.Write(Count);
   for i:=0 to Count-1 do
   begin
