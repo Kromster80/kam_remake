@@ -271,8 +271,8 @@ begin
   end;
   SendMessage(NET_ADDRESS_ALL, mk_PingInfo, 0, M.ReadAsText);
   M.Free;
-  //Measure pings
-  for i:=0 to fClientList.Count-1 do
+  //Measure pings. Iterate backwards so the indexes are maintained after kicking clients
+  for i:=fClientList.Count-1 downto 0 do
     if fClientList[i].fPingStarted = 0 then //We have recieved mk_Pong for our previous measurement, so start a new one
     begin
       fClientList[i].fPingStarted := TickCount;
@@ -495,6 +495,7 @@ begin
     if fRoomJoinable[i] or (GetRoomPlayersCount(i) = 0) then
     begin
       Result := i;
+      fRoomJoinable[i] := true; //Empty rooms are reset to joinable
       exit;
     end;
   //Add a new room
