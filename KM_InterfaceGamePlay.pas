@@ -2810,7 +2810,7 @@ begin
     Label_VictoryChance.Caption := S;
   end;
 
-  Label_MPChatUnread.Visible := not (fGame.GlobalTickCount mod 10 < 5); //Flash unread message display
+  Label_MPChatUnread.Visible := fGame.MultiplayerMode and not (fGame.GlobalTickCount mod 10 < 5); //Flash unread message display
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
 end;

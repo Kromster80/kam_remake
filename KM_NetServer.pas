@@ -54,6 +54,9 @@ type
     fRoom:integer;
     fPingStarted:cardinal;
     fPing:word;
+    //Each client must have their own receive buffer, so partial messages don't get mixed
+    fBufferSize:cardinal;
+    fBuffer:array of byte;
   public
     constructor Create(aHandle, aRoom:integer);
     property Handle:integer read fHandle; //ReadOnly
@@ -90,9 +93,6 @@ type
     fRoomCount:integer;
     fRoomJoinable:array of boolean;
 
-    fBufferSize:cardinal;
-    fBuffer:array of byte;
-
     fOnStatusMessage:TGetStrProc;
     procedure Error(const S: string);
     procedure Status(const S: string);
@@ -128,6 +128,8 @@ begin
   Inherited Create;
   fHandle := aHandle;
   fRoom := aRoom;
+  SetLength(fBuffer,0);
+  fBufferSize := 0;
 end;
 
 
@@ -196,8 +198,6 @@ begin
   {$IFDEF WDC} fServer := TKMNetServerOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fServer := TKMNetServerLNet.Create;     {$ENDIF}
   fListening := false;
-  SetLength(fBuffer,0);
-  fBufferSize := 0;
   fRoomCount := 0;
 end;
 
@@ -226,9 +226,6 @@ end;
 
 procedure TKMNetServer.StartListening(aPort:string);
 begin
-  SetLength(fBuffer,0);
-  fBufferSize := 0;
-
   fRoomCount := 0;
   SetLength(fHostHandle,1);
   fHostHandle[0] := NET_ADDRESS_EMPTY;
@@ -247,8 +244,6 @@ end;
 
 procedure TKMNetServer.StopListening;
 begin
-  SetLength(fBuffer,0);
-  fBufferSize := 0;
   fOnStatusMessage := nil;
   fServer.StopListening;
   fListening := false;
@@ -427,33 +422,32 @@ end;
 //Someone has send us something
 //Send only complete messages to allow to add server messages inbetween
 procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
-var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i,SenderRoom:integer;
+var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i,SenderRoom:integer; SenderClient: TKMServerClient;
 begin
+  SenderClient := fClientList.GetByHandle(aHandle);
   //Append new data to buffer
-  SetLength(fBuffer, fBufferSize + aLength);
-  Move(aData^, fBuffer[fBufferSize], aLength);
-  fBufferSize := fBufferSize + aLength;
+  SetLength( SenderClient.fBuffer, SenderClient.fBufferSize + aLength);
+  Move(aData^, SenderClient.fBuffer[SenderClient.fBufferSize], aLength);
+  SenderClient.fBufferSize := SenderClient.fBufferSize + aLength;
 
   //Try to read data packet from buffer
-  while fBufferSize >= 12 do
+  while SenderClient.fBufferSize >= 12 do
   begin
-    PacketSender := PInteger(@fBuffer[0])^;
-    PacketRecipient := PInteger(@fBuffer[4])^;
-    PacketLength := PCardinal(@fBuffer[8])^;
+    PacketSender := PInteger(@SenderClient.fBuffer[0])^;
+    PacketRecipient := PInteger(@SenderClient.fBuffer[4])^;
+    PacketLength := PCardinal(@SenderClient.fBuffer[8])^;
 
     //Do some simple range checking to try to detect when there is a serious error or flaw in the code (i.e. Random data in the buffer)
     if not (IsValidHandle(PacketRecipient) and IsValidHandle(PacketSender) and (PacketLength <= MAX_PACKET_SIZE)) then
     begin
-      //When we have a corrupt buffer attempt to keep the server alive by clearing it and disconnecting everyone
-      Status('Error: Corrupt data received! Clearing buffer');
-      fBufferSize := 0;
-      SetLength(fBuffer, 0);
-      //Tell all clients that the sever has died
-      SendMessage(NET_ADDRESS_ALL,mk_Disconnect,0,'');
+      //When we have a corrupt buffer from a client clear it so the next packet can be processed
+      Status('Corrupt data received from client '+IntToStr(aHandle));
+      SenderClient.fBufferSize := 0;
+      SetLength(SenderClient.fBuffer, 0);
       exit;
     end;
 
-    if PacketLength > fBufferSize-12 then
+    if PacketLength > SenderClient.fBufferSize-12 then
       exit; //This message was split, so we must wait for the remainder of the message to arrive
 
     SenderRoom := fClientList.GetByHandle(aHandle).Room;
@@ -462,21 +456,21 @@ begin
       NET_ADDRESS_OTHERS: //Transmit to all except sender
           for i:=0 to fClientList.Count-1 do
               if (aHandle <> fClientList[i].Handle) and (SenderRoom = fClientList[i].Room) then
-                fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
+                fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_ALL: //Transmit to all including sender (used mainly by TextMessages)
               for i:=0 to fClientList.Count-1 do
                 if SenderRoom = fClientList[i].Room then
-                  fServer.SendData(fClientList[i].Handle, @fBuffer[0], PacketLength+12);
+                  fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_HOST:
-              fServer.SendData(fHostHandle[SenderRoom], @fBuffer[0], PacketLength+12);
+              fServer.SendData(fHostHandle[SenderRoom], @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_SERVER:
-              RecieveMessage(PacketSender, @fBuffer[12], PacketLength);
-      else    fServer.SendData(PacketRecipient, @fBuffer[0], PacketLength+12);
+              RecieveMessage(PacketSender, @SenderClient.fBuffer[12], PacketLength);
+      else    fServer.SendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);
     end;
 
-    if 12+PacketLength < fBufferSize then //Check range
-      Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
-    fBufferSize := fBufferSize - PacketLength - 12;
+    if 12+PacketLength < SenderClient.fBufferSize then //Check range
+      Move(SenderClient.fBuffer[12+PacketLength], SenderClient.fBuffer[0], SenderClient.fBufferSize-PacketLength-12);
+    SenderClient.fBufferSize := SenderClient.fBufferSize - PacketLength - 12;
   end;
 end;
 
