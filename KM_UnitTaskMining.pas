@@ -24,7 +24,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain;
+uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
 
 
 { TTaskMining }
@@ -162,13 +162,14 @@ begin
          else
          begin
            Dir := byte(WorkPlan.WorkDir+1);
-           if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
+
+           if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Dir].Count < 1 then
              for Dir:=1 to 8 do
-               if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
+               if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Dir].Count > 1 then break;
            Dir := Math.min(Dir,8);
            Direction := TKMDirection(Dir);
          end;
-         TimeToWork := WorkPlan.WorkCyc * Math.max(UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
+         TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Dir].Count, 1);
          SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else

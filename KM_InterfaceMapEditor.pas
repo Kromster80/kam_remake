@@ -100,9 +100,9 @@ type
         Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
       Panel_Units:TKMPanel;
         Button_UnitCancel:TKMButtonFlat;
-        Button_Citizen:array[1..14]of TKMButtonFlat;
-        Button_Warriors:array[1..10]of TKMButtonFlat;
-        Button_Animals:array[1..8]of TKMButtonFlat;
+        Button_Citizen:array[0..13]of TKMButtonFlat;
+        Button_Warriors:array[0..9]of TKMButtonFlat;
+        Button_Animals:array[0..7]of TKMButtonFlat;
       Panel_Script:TKMPanel;
 
     Panel_Player:TKMPanel;
@@ -192,7 +192,7 @@ type
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
-     KM_Utils, KM_Viewport, KM_Game, KM_ResourceGFX;
+     KM_Utils, KM_Viewport, KM_Game, KM_ResourceGFX, KM_ResourceUnit;
 
 
 {Switch between pages}
@@ -597,31 +597,31 @@ begin
     Panel_Units := TKMPanel.Create(Panel_Village,0,28,196,400);
 
       TKMLabel.Create(Panel_Units,100,10,100,30,'Citizens',fnt_Outline,kaCenter);
-      for i:=1 to length(Button_Citizen) do
+      for i:=0 to High(Button_Citizen) do
       begin
-        Button_Citizen[i] := TKMButtonFlat.Create(Panel_Units,8+((i-1) mod 5)*37,28+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 5x5
-        Button_Citizen[i].Hint := TypeToString(School_Order[i]);
+        Button_Citizen[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,28+(i div 5)*37,33,33,fResource.UnitDat[School_Order[i]].GUIIcon); //List of tiles 5x5
+        Button_Citizen[i].Hint := fResource.UnitDat[School_Order[i]].UnitName;
         Button_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
         Button_Citizen[i].OnClick := Unit_ButtonClick;
       end;
-      Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,8+(length(Button_Citizen) mod 5)*37,30+(length(Button_Citizen) div 5)*37,33,33,340);
+      Button_UnitCancel := TKMButtonFlat.Create(Panel_Units,8+((High(Button_Citizen)+1) mod 5)*37,30+(length(Button_Citizen) div 5)*37,33,33,340);
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
       TKMLabel.Create(Panel_Units,100,140,100,30,'Warriors',fnt_Outline,kaCenter);
-      for i:=1 to length(Button_Warriors) do
+      for i:=0 to High(Button_Warriors) do
       begin
-        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+((i-1) mod 5)*37,158+((i-1) div 5)*37,33,33, MapEd_Icon[i], 7);
-        Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
+        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,158+(i div 5)*37,33,33, MapEd_Icon[i], 7);
+        Button_Warriors[i].Hint := fResource.UnitDat[MapEd_Order[i]].UnitName;
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
       end;
 
       TKMLabel.Create(Panel_Units,100,230,100,30,'Animals',fnt_Outline,kaCenter);
-      for i:=1 to length(Button_Animals) do
+      for i:=0 to High(Button_Animals) do
       begin
-        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+((i-1) mod 5)*37,248+((i-1) div 5)*37,33,33, Animal_Icon[i], 7);
-        Button_Animals[i].Hint := TypeToString(Animal_Order[i]);
+        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,248+(i div 5)*37,33,33, Animal_Icon[i], 7);
+        Button_Animals[i].Hint := fResource.UnitDat[Animal_Order[i]].UnitName;
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
       end;
@@ -1122,8 +1122,8 @@ begin
   {Common data}
   Label_House.Caption:=fResource.HouseDat[Sender.GetHouseType].HouseName;
   Image_House_Logo.TexID:=fResource.HouseDat[Sender.GetHouseType].GUIIcon;
-  Image_House_Worker.TexID:=140+byte(fResource.HouseDat[Sender.GetHouseType].OwnerType);
-  Image_House_Worker.Hint := TypeToString(fResource.HouseDat[Sender.GetHouseType].OwnerType);
+  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].GUIIcon;
+  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].UnitName;
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
   KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
 
@@ -1160,8 +1160,8 @@ begin
     exit;
   end;
   SwitchPage(Panel_Unit);
-  Label_UnitName.Caption:=TypeToString(Sender.UnitType);
-  Image_UnitPic.TexID:=520+byte(Sender.UnitType);
+  Label_UnitName.Caption:=fResource.UnitDat[Sender.UnitType].UnitName;
+  Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
   KMConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
   if Sender is TKMUnitWarrior then
   begin
@@ -1175,7 +1175,7 @@ begin
   else
   begin
     //Citizen specific
-    Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.UnitType));
+    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].UnitDescription;
     Label_UnitDescription.Show;
   end;
 end;
@@ -1256,11 +1256,11 @@ function TKMapEdInterface.GetSelectedUnit: TObject;
 var i: byte;
 begin
   Result := nil;
-  for i:=1 to 14 do
+  for i:=0 to High(Button_Citizen) do
     if Button_Citizen[i].Down then Result := Button_Citizen[i];
-  for i:=1 to 10 do
+  for i:=0 to High(Button_Warriors) do
     if Button_Warriors[i].Down then Result := Button_Warriors[i];
-  for i:=1 to 8 do
+  for i:=0 to High(Button_Animals) do
     if Button_Animals[i].Down then Result := Button_Animals[i];
 end;
 

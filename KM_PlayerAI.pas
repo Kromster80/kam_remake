@@ -440,7 +440,7 @@ procedure TKMPlayerAI.CheckArmy;
   procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
   var Needed: integer;
   begin
-    Needed := TroopFormations[UnitGroups[byte(aDefenceGroup.UnitType)]].NumUnits - (aDefenceGroup.GetMemberCount+1);
+    Needed := TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
     if aCommander.GetMemberCount+1 <= Needed then
       aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
     else
@@ -454,7 +454,7 @@ var AttackTotalAvailable: integer; //Total number of warriors available to attac
   procedure AddToAvailableToAttack(aCommander: TKMUnitWarrior);
   var GT: TGroupType;
   begin
-    GT := UnitGroups[byte(aCommander.UnitType)];
+    GT := UnitGroups[aCommander.UnitType];
     if Length(AttackGroups[GT]) <= AttackGroupsCount[GT] then
       SetLength(AttackGroups[GT],AttackGroupsCount[GT]+10);
     AttackGroups[GT,AttackGroupsCount[GT]] := aCommander;
@@ -498,9 +498,9 @@ begin
             OrderFood;
 
           //Check formation. If the script has defined a group with more units per row than there should be, do not change it
-          if UnitGroups[byte(UnitType)] <> gt_None then
-            if UnitsPerRow < TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow then
-              UnitsPerRow := TroopFormations[UnitGroups[byte(UnitType)]].UnitsPerRow;
+          if UnitGroups[UnitType] <> gt_None then
+            if UnitsPerRow < TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
+              UnitsPerRow := TroopFormations[UnitGroups[UnitType]].UnitsPerRow;
           //Position this group to defend if they already belong to a defence position
           Positioned := false;
           for k:=0 to DefencePositionsCount-1 do
@@ -515,7 +515,7 @@ begin
 
               //If we are a less important position and there is a higher priority position not full we must step up
               for j:=0 to DefencePositionsCount-1 do
-                if (DefencePositions[j].GroupType = UnitGroups[byte(UnitType)]) and
+                if (DefencePositions[j].GroupType = UnitGroups[UnitType]) and
                    (j < k) and //Positions defined first are top priority, so keep them stocked
                    not DefencePositions[j].IsFullyStocked(TroopFormations[DefencePositions[j].GroupType].NumUnits) then
                    begin
@@ -536,7 +536,7 @@ begin
           Matched := -1;  Best := 9999;
           if not Positioned then
             for k:=0 to DefencePositionsCount-1 do
-              if (DefencePositions[k].GroupType = UnitGroups[byte(UnitType)]) and
+              if (DefencePositions[k].GroupType = UnitGroups[UnitType]) and
                  not DefencePositions[k].IsFullyStocked(TroopFormations[DefencePositions[k].GroupType].NumUnits) then
               begin
                 //Take closest position that is empty or requries restocking
@@ -564,14 +564,14 @@ begin
           begin
             AddToAvailableToAttack(GetCommander); //Idle groups may also attack
             //If this group doesn't have enough members
-            if (GetMemberCount+1 < TroopFormations[UnitGroups[byte(UnitType)]].NumUnits) then
-              if NeedsLinkingTo[UnitGroups[byte(UnitType)]] = nil then
-                NeedsLinkingTo[UnitGroups[byte(UnitType)]] := GetCommander //Flag us as needing to be added to
+            if (GetMemberCount+1 < TroopFormations[UnitGroups[UnitType]].NumUnits) then
+              if NeedsLinkingTo[UnitGroups[UnitType]] = nil then
+                NeedsLinkingTo[UnitGroups[UnitType]] := GetCommander //Flag us as needing to be added to
               else
               begin
-                RestockPositionWith(NeedsLinkingTo[UnitGroups[byte(UnitType)]],GetCommander);
-                if NeedsLinkingTo[UnitGroups[byte(UnitType)]].GetMemberCount+1 >= TroopFormations[UnitGroups[byte(UnitType)]].NumUnits then
-                  NeedsLinkingTo[UnitGroups[byte(UnitType)]] := nil; //Group is now full
+                RestockPositionWith(NeedsLinkingTo[UnitGroups[UnitType]],GetCommander);
+                if NeedsLinkingTo[UnitGroups[UnitType]].GetMemberCount+1 >= TroopFormations[UnitGroups[UnitType]].NumUnits then
+                  NeedsLinkingTo[UnitGroups[UnitType]] := nil; //Group is now full
               end;
           end;
 

@@ -156,6 +156,7 @@ type
       EatStep:cardinal;
     end;
   public
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     function EaterGetsInside(aUnitType:TUnitType):byte;
     procedure UpdateEater(aID:byte; aFoodKind:byte);
@@ -175,6 +176,7 @@ type
     procedure CloseHouse(IsEditor:boolean=false); override;
   public
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
@@ -1133,6 +1135,16 @@ end;
 
 
 { TKMHouseInn }
+constructor TKMHouseInn.Create(aHouseType: THouseType; PosX, PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+var i:integer;
+begin
+  Inherited;
+
+  for i:=Low(Eater) to High(Eater) do
+    Eater[i].UnitType := ut_None;
+end;
+
+
 constructor TKMHouseInn.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
@@ -1200,19 +1212,18 @@ procedure TKMHouseInn.Paint;
 const
   OffX:array[1..3]of single = (-0.5, 0.0, 0.5);
   OffY:array[1..3]of single = ( 0.35, 0.4, 0.45);
-var i:integer; UnitType,AnimDir:byte; AnimStep:cardinal;
+var i:integer; AnimDir:byte; AnimStep:cardinal;
 begin
   Inherited;
   if (fBuildState<>hbs_Done) then exit;
 
   for i:=low(Eater) to high(Eater) do
   if (Eater[i].UnitType<>ut_None) and (Eater[i].FoodKind<>0) then
-  begin
-    UnitType := byte(Eater[i].UnitType);
+  begin 
     AnimDir  := Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
     AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
 
-    fRender.RenderUnit(UnitType, byte(ua_Eat), AnimDir, AnimStep,
+    fRender.RenderUnit(Eater[i].UnitType, byte(ua_Eat), AnimDir, AnimStep,
       fPosition.X+OffX[(i-1) mod 3 +1],
       fPosition.Y+OffY[(i-1) mod 3 +1],
       fPlayers.Player[fOwner].FlagColor, false);
@@ -1221,6 +1232,16 @@ end;
 
 
 { TKMHouseSchool }
+constructor TKMHouseSchool.Create(aHouseType: THouseType; PosX, PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+var i:integer;
+begin
+  Inherited;
+
+  for i:=Low(UnitQueue) to High(UnitQueue) do
+    UnitQueue[i] := ut_None;
+end;
+
+
 constructor TKMHouseSchool.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;

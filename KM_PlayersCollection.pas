@@ -297,7 +297,7 @@ begin
   Result := False; // if function fails to find valid position
 
   if aUnitType in [ut_Wolf..ut_Duck] then
-    aPass := AnimalTerrain[byte(aUnitType)]
+    aPass := AnimalTerrain[aUnitType]
   else
     aPass := CanWalk;
 

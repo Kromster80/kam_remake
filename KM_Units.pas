@@ -130,7 +130,6 @@ type TCheckAxis = (ax_X, ax_Y);
     procedure AbandonWalk;
     function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
     property GetOwner:TPlayerIndex read fOwner;
-    function GetSpeed:single;
     function CanAccessHome: boolean;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
@@ -304,11 +303,10 @@ end;
 
 
 procedure TKMUnitCitizen.Paint;
-var UnitTyp:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
-  UnitTyp:=byte(fUnitType);
   AnimAct:=byte(fCurrentAction.fActionType);
   AnimDir:=byte(Direction);
 
@@ -318,16 +316,16 @@ begin
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+        fRender.RenderUnit(fUnitType,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   end;
 
@@ -403,7 +401,7 @@ begin
           SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
 end;
 
 
@@ -486,11 +484,10 @@ end;
 
 
 procedure TKMUnitRecruit.Paint;
-var UnitTyp:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
-  UnitTyp:=byte(fUnitType);
   AnimAct:=byte(fCurrentAction.fActionType);
   AnimDir:=byte(Direction);
 
@@ -500,16 +497,16 @@ begin
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+        fRender.RenderUnit(fUnitType,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   end;
 
@@ -577,7 +574,7 @@ begin
           SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
 end;
 
 
@@ -619,14 +616,14 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(byte(UnitType), AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> rt_None then
     fRender.RenderUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRender.RenderUnit(byte(UnitType), 9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+    fRender.RenderUnit(UnitType, 9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -666,7 +663,7 @@ begin
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
 end;
 
 
@@ -706,7 +703,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(byte(UnitType), byte(fCurrentAction.fActionType), byte(Direction), AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(UnitType, byte(fCurrentAction.fActionType), byte(Direction), AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -743,7 +740,7 @@ begin
 
   if (fUnitTask=nil) and (fCurrentAction=nil) then SetActionStay(20,ua_Walk);
 
-  if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
 end;
 
 
@@ -811,7 +808,7 @@ begin
   fCurrPosition := KMPointRound(fPosition);
 
   if fCurrentAction = nil then
-    raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition); //Someone has nilled our action!
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition); //Someone has nilled our action!
 
   case fCurrentAction.Execute(Self) of
     ActContinues: exit;
@@ -830,8 +827,8 @@ begin
 
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if (not fTerrain.CheckPassability(fCurrPosition,AnimalTerrain[byte(UnitType)]))
-  or fTerrain.CheckAnimalIsStuck(fCurrPosition,AnimalTerrain[byte(UnitType)],false) then begin
+  if (not fTerrain.CheckPassability(fCurrPosition,AnimalTerrain[UnitType]))
+  or fTerrain.CheckAnimalIsStuck(fCurrPosition,AnimalTerrain[UnitType],false) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -840,14 +837,14 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X+KaMRandomS(SpotJit),fCurrPosition.Y+KaMRandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.Route_CanBeMade(fCurrPosition,Spot,AnimalTerrain[byte(UnitType)],0, false)));
+  until((SpotJit=0)or(fTerrain.Route_CanBeMade(fCurrPosition,Spot,AnimalTerrain[UnitType],0, false)));
 
   if KMSamePoint(fCurrPosition,Spot) then
     SetActionStay(20, ua_Walk)
   else
     SetActionWalkToSpot(Spot);
 
-  if fCurrentAction=nil then raise ELocError.Create(TypeToString(UnitType)+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
 end;
 
 
@@ -861,7 +858,7 @@ begin
     AnimAct := byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(fUnitType), AnimAct, AnimDir, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
+  fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
 end;
 
 
@@ -1095,12 +1092,6 @@ begin
 end;
 
 
-function TKMUnit.GetSpeed:single;
-begin
-  Result := UnitStat[byte(fUnitType)].Speed/240;
-end;
-
-
 function TKMUnit.CanAccessHome:boolean;
 begin
   Result := (fHome = nil) or fTerrain.Route_CanBeMade(GetPosition, KMPointY1(fHome.GetEntrance), canWalk, 0, false);
@@ -1149,7 +1140,7 @@ begin
   if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
   // Defence modifier
   if not aPenetratesDefence then
-    aAmount := aAmount div Math.max(UnitStat[byte(fUnitType)].Defence,1); //Not needed, but animals have 0 defence
+    aAmount := aAmount div Math.max(fResource.UnitDat[fUnitType].Defence, 1); //Not needed, but animals have 0 defence
   // Sign of aAmount does not affect
   fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, GetMaxHitPoints);
   if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
@@ -1168,10 +1159,7 @@ end;
 
 function TKMUnit.GetMaxHitPoints:byte;
 begin
-  if not InRange(byte(UnitType),1,length(UnitStat)) then
-    raise ELocError.Create('GetMaxHitPoints for wrong unit',fCurrPosition);
-
-  Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints*40,0,255);
+  Result := EnsureRange(fResource.UnitDat[fUnitType].HitPoints*40,0,255);
   // *40 - [LifePoints/OneHitPoint] (MaxHitPoint in Units.dat - 4) 4*40 = 160
 end;
 
@@ -1230,7 +1218,7 @@ begin
   end;
   if not (aAction.GetActionType in GetSupportedActions) then
   begin
-    Assert(false, 'Unit '+TypeToString(UnitType)+' was asked to do unsupported action');
+    Assert(false, 'Unit '+fResource.UnitDat[UnitType].UnitName+' was asked to do unsupported action');
     FreeAndNil(aAction);
     exit;
   end;
@@ -1389,7 +1377,7 @@ function TKMUnit.GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
 begin
   case fUnitType of //Select desired passability depending on unit type
     ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := CanWalkRoad; //Citizens except Worker
-    ut_Wolf..ut_Duck:                              Result := AnimalTerrain[byte(fUnitType)] //Animals
+    ut_Wolf..ut_Duck:                              Result := AnimalTerrain[fUnitType] //Animals
     else                                           Result := CanWalk; //Worker, Warriors
   end;
 
@@ -1467,7 +1455,7 @@ end;
 procedure TKMUnit.UpdateFOW;
 begin
   if fCondition mod 10 = 0 then
-    fPlayers.RevealForTeam(fOwner, fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC);
+    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1561,10 +1549,10 @@ function TKMUnit.GetMovementVector: TKMPointF;
 var MovementSpeed:single;
 begin
   if (GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).DoesWalking then
-    MovementSpeed := GetSpeed
+    MovementSpeed := fResource.UnitDat[fUnitType].Speed
   else
   if (GetUnitAction is TUnitActionStormAttack) then
-    MovementSpeed := GetSpeed * STORM_SPEEDUP
+    MovementSpeed := fResource.UnitDat[fUnitType].Speed * STORM_SPEEDUP
   else
     MovementSpeed := 0;
 
@@ -1648,17 +1636,17 @@ begin
     if GetDesiredPassability = CanWalkRoad then
     begin
       if not fTerrain.CheckPassability(fNextPosition, CanWalk) then
-        raise ELocError.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fNextPosition)+' pass canWalk',fNextPosition);
+        raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass canWalk',fNextPosition);
     end else
     if not fTerrain.CheckPassability(fNextPosition, GetDesiredPassability) then
-      raise ELocError.Create(TypeToString(fUnitType)+' on unwalkable tile at '+TypeToString(fNextPosition)+' pass '+PassabilityStr[GetDesiredPassability],fNextPosition);
+      raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' on unwalkable tile at '+KM_Points.TypeToString(fNextPosition)+' pass '+PassabilityStr[GetDesiredPassability],fNextPosition);
 
 
   //
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
   if fCurrentAction=nil then
-    raise ELocError.Create(TypeToString(fUnitType)+' has no action in TKMUnit.UpdateState',fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action in TKMUnit.UpdateState',fCurrPosition);
 
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute(Self) of
@@ -1685,7 +1673,7 @@ end;
 procedure TKMUnit.Paint;
 begin
   if fCurrentAction=nil then
-    raise ELocError.Create(TypeToString(fUnitType)+' has no action!',fCurrPosition);
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
 
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
@@ -1824,10 +1812,10 @@ begin
   end;
 
   if fTerrain.HasUnit(KMPoint(PosX,PosY)) then
-    raise ELocError.Create('No space for '+TypeToString(aUnitType)+', tile occupied by '+TypeToString(fTerrain.Land[PosY,PosX].IsUnit.UnitType),KMPoint(PosX,PosY));
+    raise ELocError.Create('No space for '+fResource.UnitDat[aUnitType].UnitName+', tile occupied by '+fResource.UnitDat[fTerrain.Land[PosY,PosX].IsUnit.UnitType].UnitName,KMPoint(PosX,PosY));
 
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
-    fLog.AppendLog('Unable to add unit to '+TypeToString(KMPoint(PosX,PosY)));
+    fLog.AppendLog('Unable to add unit to '+KM_Points.TypeToString(KMPoint(PosX,PosY)));
     Result := nil;
     exit;
   end;
@@ -1845,7 +1833,7 @@ begin
 
     ut_Wolf..ut_Duck:           U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
-    else                        raise ELocError.Create('Add '+TypeToString(aUnitType),KMPoint(PosX, PosY));
+    else                        raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
   end;
 
   Result := Units[U];

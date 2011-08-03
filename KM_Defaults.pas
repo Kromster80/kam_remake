@@ -29,7 +29,7 @@ const
 
   KAM_PORT              = '56789';      //Port used in TCP networking
 
-  GAME_REVISION         = 'r2087';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2090';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
@@ -348,23 +348,21 @@ const PassabilityStr:array[TPassability] of string = (
 
 {Units}
 type
-  TUnitType = ( ut_None=0,
-    ut_Serf=1,          ut_Woodcutter=2,    ut_Miner=3,         ut_AnimalBreeder=4,
-    ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
-    ut_Fisher=9,        ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
-    ut_Metallurgist=13, ut_Recruit=14,
+  TUnitType = (ut_None=150 {For debug, remove later}, ut_Any,
+    ut_Serf,          ut_Woodcutter,    ut_Miner,         ut_AnimalBreeder,
+    ut_Farmer,        ut_Lamberjack,    ut_Baker,         ut_Butcher,
+    ut_Fisher,        ut_Worker,       ut_StoneCutter,  ut_Smith,
+    ut_Metallurgist, ut_Recruit,
 
-    ut_Militia=15,      ut_AxeFighter=16,   ut_Swordsman=17,    ut_Bowman=18,
-    ut_Arbaletman=19,   ut_Pikeman=20,      ut_Hallebardman=21, ut_HorseScout=22,
-    ut_Cavalry=23,      ut_Barbarian=24,
+    ut_Militia,      ut_AxeFighter,   ut_Swordsman,    ut_Bowman,
+    ut_Arbaletman,   ut_Pikeman,      ut_Hallebardman, ut_HorseScout,
+    ut_Cavalry,      ut_Barbarian,
 
-    //ut_Peasant=25,    ut_Slingshot=26,    ut_MetalBarbarian=27,ut_Horseman=28,
-    //ut_Catapult=29,   ut_Ballista=30,
+    //ut_Peasant,    ut_Slingshot,    ut_MetalBarbarian,ut_Horseman,
+    //ut_Catapult,   ut_Ballista,
 
-    ut_Wolf=31,         ut_Fish=32,         ut_Watersnake=33,   ut_Seastar=34,
-    ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38,
-
-    ut_Any=40);
+    ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
+    ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)
@@ -388,7 +386,7 @@ const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
 //Used for AI defence and linking troops
 type TGroupType = (gt_None, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
 
-const UnitGroups: array[15..24] of TGroupType = (
+const UnitGroups: array[ut_Militia..ut_Barbarian] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
@@ -427,7 +425,7 @@ const FlagYOffset: array[TGroupType, 1..8] of shortint = (
 
 
 //Defines which animal prefers which terrain
-const AnimalTerrain: array[31..38] of TPassability = (
+const AnimalTerrain: array[ut_Wolf .. ut_Duck] of TPassability = (
     CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
 
 type TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
@@ -591,31 +589,23 @@ const
   ut_Miner,
   ut_Lamberjack,
   ut_Recruit,
-  ut_Serf, ut_Worker );
+  ut_Serf, ut_Worker);
 
 const
-  School_Order:array[1..14] of TUnitType = (
-    ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
-    ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
-    ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
 
-  Barracks_Order:array[1..9] of TUnitType = (
-    ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
-    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
-
-  MapEd_Order:array[1..10] of TUnitType = (
+  MapEd_Order:array[0..9] of TUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian);
 
-  MapEd_Icon:array[1..10] of word = (
+  MapEd_Icon:array[0..9] of word = (
     5, 6, 7, 8, 9,
     10, 11, 12, 13, 14);
 
-  Animal_Order:array[1..8] of TUnitType = (
+  Animal_Order:array[0..7] of TUnitType = (
     ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
     ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
 
-  Animal_Icon:array[1..8] of word = (
+  Animal_Icon:array[0..7] of word = (
     15, 16, 17, 18,
     19, 20, 21, 22);
 
@@ -1112,24 +1102,6 @@ var
       u1,v1,u2,v2:single;
     end;
   end;
-
-  //
-  UnitStat:array[1..41]of record
-    HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,x7,Sight:smallint;
-    x9,x10:shortint;
-    CanWalkOut,x11:smallint;
-  end;
-
-  UnitSprite:array[1..41]of packed record
-    Act:array[1..14]of packed record
-      Dir:array[1..8]of packed record
-        Step:array[1..30]of smallint;
-        Count:smallint;
-        MoveX,MoveY:integer;
-      end;
-    end;
-  end;
-  UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
 
   //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty

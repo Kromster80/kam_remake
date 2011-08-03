@@ -4,9 +4,8 @@ interface
 uses
   Classes, SysUtils, StrUtils, KromUtils, KM_Defaults;
 
-  //todo: These two functions need a better home (Make UnitDatCollection class and move it there)
-  function TypeToString(t:TResourceType):string; overload;
-  function TypeToString(t:TUnitType):string; overload;
+  //todo: This function needs a better home (Make ResourceDatCollection class and move it there)
+  function TypeToString(t:TResourceType):string; 
 
 
 const
@@ -172,23 +171,6 @@ uses KM_Log;
 
 
 {TypeToString routines}
-function TypeToString(t:TUnitType):string;
-begin
-  case byte(t) of
-    1..30: Result := fTextLibrary.GetTextString(siUnitNames+byte(t));
-    31:    Result := 'Wolf';
-    32:    Result := 'Fish';
-    33:    Result := 'Watersnake';
-    34:    Result := 'Seastar';
-    35:    Result := 'Crab';
-    36:    Result := 'Waterflower';
-    37:    Result := 'Waterleaf';
-    38:    Result := 'Duck';
-    else   Result := 'N/A';
-  end;
-end;
-
-
 function TypeToString(t:TResourceType):string;
 begin
   if byte(t) in [1..28] then

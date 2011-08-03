@@ -382,4 +382,5 @@ begin
   Result := KaMRandom(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
 end;
 
+
 end.

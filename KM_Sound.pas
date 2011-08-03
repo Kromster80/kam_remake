@@ -82,7 +82,7 @@ type
     end;
 
     fSoundGain:single; //aka "Global volume"
-    fWarriorSoundCount: array[15..24, TSoundToPlay] of byte;
+    fWarriorSoundCount: array[ut_Militia..ut_Barbarian, TSoundToPlay] of byte;
     procedure LoadSoundsDAT;
     procedure CheckOpenALError;
     function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
@@ -105,14 +105,14 @@ var
 
 
 implementation
-uses KM_Render, KM_Game, KM_Log, KM_TextLibrary, Dialogs;
+uses KM_Render, KM_Game, KM_Log, KM_TextLibrary, Dialogs, KM_ResourceGFX, KM_ResourceUnit;
 
 
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
 var
   Context: PALCcontext;
-
   i,k:integer;
+  U:TUnitType;
   NumMono,NumStereo:TALCint;
   s:TSoundToPlay;
 begin
@@ -185,12 +185,12 @@ begin
   fLog.AppendLog('Load Sounds.dat',true);
 
   //Scan and count the number of warrior sounds
-  for i:=15 to 24 do
+  for U:=ut_Militia to ut_Barbarian do
     for s:=low(TSoundToPlay) to high(TSoundToPlay) do
       for k:=0 to 255 do
-        if not FileExists(GetWarriorSoundFile(TUnitType(i),s,k,aLocale)) then
+        if not FileExists(GetWarriorSoundFile(U, s, k, aLocale)) then
         begin
-          fWarriorSoundCount[i,s] := k;
+          fWarriorSoundCount[U,s] := k;
           break;
         end;
   fLog.AppendLog('Warrior sounds scanned',true);
@@ -396,7 +396,7 @@ begin
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
     Result := ''
   else
-    Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[byte(aUnitType)] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
+    Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[UnitKaMOrder[aUnitType]] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
 end;
 
 
@@ -409,12 +409,12 @@ begin
   if not fIsSoundInitialized then exit;
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then exit;
   //File extension must be .wav as well as the file contents itself
-  wave := GetWarriorSoundFile(aUnitType, aSound, PseudoRandom(fWarriorSoundCount[byte(aUnitType),aSound]));
+  wave := GetWarriorSoundFile(aUnitType, aSound, PseudoRandom(fWarriorSoundCount[aUnitType,aSound]));
   {$IFDEF WDC}
   if FileExists(wave) then
     sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC) //Override any previous voice playing
   else
-    fLog.AppendLog('Speech file not found for '+TypeToString(aUnitType)+' sound ID '+IntToStr(byte(aSound))+': '+wave);
+    fLog.AppendLog('Speech file not found for '+fResource.UnitDat[aUnitType].UnitName+' sound ID '+IntToStr(byte(aSound))+': '+wave);
   {$ENDIF}
 end;
 

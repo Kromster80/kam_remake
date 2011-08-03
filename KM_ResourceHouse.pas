@@ -427,7 +427,7 @@ const
 
 
 implementation
-uses KromUtils, KM_TextLibrary;
+uses KromUtils, KM_TextLibrary, KM_ResourceUnit;
 
 
 { TKMHouseDatClass }
@@ -471,9 +471,13 @@ begin
 end;
 
 
+//fHouseDat.OwnerType is read from DAT file and is shortint, it can be out of range (i.e. -1)
 function TKMHouseDatClass.GetOwnerType: TUnitType;
 begin
-  Result := TUnitType(fHouseDat.OwnerType+1);
+  if InRange(fHouseDat.OwnerType, Low(UnitKaMType), High(UnitKaMType)) then
+    Result := UnitKaMType[fHouseDat.OwnerType]
+  else
+    Result := ut_None;
 end;
 
 
@@ -509,7 +513,7 @@ end;
 
 function TKMHouseDatClass.IsValid: boolean;
 begin
-  Result := (fHouseType in [Low(THouseType)..High(THouseType)]-[ht_None, ht_Any]);
+  Result := not (fHouseType in [ht_None, ht_Any]);
 end;
 
 

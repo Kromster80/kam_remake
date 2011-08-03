@@ -92,7 +92,7 @@ type
 
 implementation
 uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
-     Controls, KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log, KM_TextLibrary;
+     Controls, KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log, KM_TextLibrary, KM_ResourceGFX;
 
 
 { TUnitActionWalkTo }
@@ -101,7 +101,7 @@ var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
   if not fTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
-    raise ELocError.Create('Invalid Walk To for '+TypeToString(aUnit.UnitType),aLocB);
+    raise ELocError.Create('Invalid Walk To for '+fResource.UnitDat[aUnit.UnitType].UnitName,aLocB);
 
   fActionName   := uan_WalkTo;
   Locked        := false; //Equivalent to Can AbandonExternal?
@@ -160,7 +160,7 @@ begin
 
   if not RouteBuilt then
   begin
-    fLog.AddToLog('Unable to make a route for '+TypeToString(aUnit.UnitType)+' from '+TypeToString(fWalkFrom)+' to '+TypeToString(fWalkTo)+' with default fPass');
+    fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with default fPass');
     exit; //NoList.Count = 0, means it will exit in Execute
   end;
 end;
@@ -824,7 +824,7 @@ end;
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aTargetCanBeReach:boolean=true; aNewTargetUnit:TKMUnit=nil);
 begin
   if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    raise ELocError.Create('Invalid Change Walk To for '+TypeToString(fWalker.UnitType),aLoc);
+    raise ELocError.Create('Invalid Change Walk To for '+fResource.UnitDat[fWalker.UnitType].UnitName,aLoc);
 
   if fInteractionStatus = kis_Pushed then
     fInteractionStatus := kis_None; //We are no longer being pushed
@@ -885,7 +885,7 @@ begin
   end;
 
   //Execute the route in series of moves
-  Distance := fWalker.GetSpeed;
+  Distance := fResource.UnitDat[fWalker.UnitType].Speed;
 
   //Check if unit has arrived on tile
   if KMSamePointF(fWalker.PositionF, KMPointF(NodeList.List[NodePos]), Distance/2) then

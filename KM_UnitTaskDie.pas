@@ -46,7 +46,7 @@ begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
         end;
     1:  begin
-          SequenceLength := fResource.GetUnitSequenceLength(UnitType,ua_Die,Direction);
+          SequenceLength := fResource.UnitDat[UnitType].UnitAnim[byte(ua_Die), byte(Direction)].Count;
           if fUnit is TKMUnitAnimal then //Animals don't have a dying sequence. Can be changed later.
             SetActionLockedStay(0,ua_Walk,false)
           else

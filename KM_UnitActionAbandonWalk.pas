@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_Terrain;
+uses KM_Terrain, KM_ResourceGFX;
 
 
 { TUnitActionAbandonWalk }
@@ -69,10 +69,9 @@ begin
   Result := ActContinues;
 
   //Execute the route in series of moves
-  Distance := KMUnit.GetSpeed;
+  Distance := fResource.UnitDat[KMUnit.UnitType].Speed;
 
   //Check if unit has arrived on tile
-
   if KMSamePointF(KMUnit.PositionF, KMPointF(fWalkTo), Distance/2) then
   begin
     KMUnit.PositionF := KMPointF(fWalkTo); //Set precise position to avoid rounding errors

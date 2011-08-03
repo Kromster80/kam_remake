@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound;
+uses KM_PlayersCollection, KM_Sound, KM_ResourceGFX;
 
 
 { TUnitActionStay }
@@ -89,7 +89,7 @@ var Cycle,Step:byte;
 begin
   if not StayStill then
   begin
-    Cycle := max(UnitSprite[byte(KMUnit.UnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+    Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[byte(GetActionType), byte(KMUnit.Direction)].Count, 1);
     Step  := KMUnit.AnimStep mod Cycle;
 
     StepDone := KMUnit.AnimStep mod Cycle = 0;

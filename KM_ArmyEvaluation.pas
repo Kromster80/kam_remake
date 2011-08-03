@@ -44,16 +44,17 @@ type
   end;
 
 
-
 procedure InitUnitStatEvals;
 
 
 implementation
-uses Math, KM_Player;
+uses Math, KM_Player, KM_ResourceGFX;
+
 
 var
   // Evals matrix. 1 - Power ratio, 2 - Chance
   UnitStatEvals : array [ut_Militia..ut_Barbarian, ut_Militia..ut_Barbarian, 1..2] of Single;
+
 
 { TKMArmyEvaluation assets}
 constructor TKMEvaluation.Create;
@@ -80,7 +81,9 @@ begin
   Assert(SelfPlayer is TKMPlayer);
   fSelfPlayer := SelfPlayer;
 
-  fEnemies := TObjectList.Create(false); // false - Container will not controls the memory. See TObjectList
+  //Container will not controls the memory.
+  //@Crow: Уточни, почему выбран такой подход? Можно ли заменить на TList?
+  fEnemies := TObjectList.Create(false); 
   for i := 0 to MAX_PLAYERS-1 do
   begin
     fEvals[i] := TKMEvaluation.Create;
@@ -129,6 +132,7 @@ begin
 end;
 
 
+//@Crow: Пиши пожалуйтс акомментарии по коду (какова цель метода, почему выбрано определенное решение?)
 procedure TKMArmyEvaluation.EvaluatePower(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
 var
   SelfStats : TKMPlayerStats;
@@ -180,8 +184,9 @@ end;
 
 
 procedure TKMArmyEvaluation.UpdateState;
-var i : Integer;
-    Player : TKMPlayer;
+var 
+  i : Integer;
+  Player : TKMPlayer;
 begin
   ResetEvaluation;
   for i := 0 to fEnemies.Count-1 do begin
@@ -195,23 +200,24 @@ begin
 end;
 
 
+//@Crow: Попробуй пожалуйста использовать более говорящие имена, чем АБЦ
 procedure InitUnitStatEvals;
 var
-  i,j : Integer;
+  i,j : TUnitType;
   a,b,c : Single;
 begin
-  for i := Byte(ut_Militia) to Byte(ut_Barbarian) do
-    for j := Byte(ut_Militia) to Byte(ut_Barbarian) do begin
-      a := UnitStat[i].HitPoints / UnitStat[j].HitPoints;
-      b := UnitStat[i].Attack;
-      if InRange(j, low(UnitGroups), high(UnitGroups)) then
-        b := b + UnitStat[i].AttackHorseBonus * byte(UnitGroups[j] = gt_Mounted);
-      b := b / max(UnitStat[j].Defence,1);
-      c := UnitStat[j].Attack;
-      if InRange(i, low(UnitGroups), high(UnitGroups)) then
-        c := c + UnitStat[j].AttackHorseBonus * byte(UnitGroups[i] = gt_Mounted);
-      c := c / max(UnitStat[i].Defence,1);
-      UnitStatEvals[TUnitType(i), TUnitType(j), 1] := b * a / c;
+  for i := ut_Militia to ut_Barbarian do
+    for j := ut_Militia to ut_Barbarian do begin
+      a := fResource.UnitDat[i].HitPoints / fResource.UnitDat[j].HitPoints;
+      b := fResource.UnitDat[i].Attack;
+      if j in [low(UnitGroups) .. high(UnitGroups)] then
+        b := b + fResource.UnitDat[i].AttackHorseBonus * byte(UnitGroups[j] = gt_Mounted);
+      b := b / max(fResource.UnitDat[j].Defence,1);
+      c := fResource.UnitDat[j].Attack;
+      if i in [low(UnitGroups) .. high(UnitGroups)] then
+        c := c + fResource.UnitDat[j].AttackHorseBonus * byte(UnitGroups[i] = gt_Mounted);
+      c := c / max(fResource.UnitDat[i].Defence,1);
+      UnitStatEvals[i, j, 1] := b * a / c;
     end;
 end;
 

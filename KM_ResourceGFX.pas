@@ -62,8 +62,6 @@ type
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
 
-    function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
-
     procedure LoadFonts(DoExport:boolean; aLocale:string);
     //procedure ExportRX2BMP(RXid:integer);
     //procedure ExportTreeAnim2BMP;
@@ -223,13 +221,6 @@ begin
 end;
 
 
-function TResource.GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
-begin
-  Result := UnitSprite[byte(aUnitType)].Act[byte(aAction)].Dir[byte(aDir)].Count;
-end;
-
-
-
 //=============================================
 //Reading Palette for trees/objects
 //=============================================
@@ -360,24 +351,25 @@ end;
 //Reading unit.dat data
 //=============================================
 function TResource.LoadUnitDAT(FileName:string):boolean;
-var ii,kk,jj,hh:integer; ft:textfile; f:file;
+var
+  //ii,kk,jj,hh:integer;
+  //ft:textfile;
+  f:file;
 begin
   Result := false;
 
   if not CheckFileExists(FileName) then exit;
   assignfile(f,FileName); reset(f,1);
 
-  seek(f, 28*8*70); //Skip SerfCarry
-
-  for ii:=1 to 41 do begin
+  {for ii:=1 to 41 do begin
     blockread(f,UnitStat[ii],22);
     blockread(f,UnitSprite[ii],112*70);
     blockread(f,UnitSprite2[ii],36);
-  end;
+  end;}
 
   closefile(f);
 
-  if WriteResourceInfoToTXT then begin
+  {if WriteResourceInfoToTXT then begin
     assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
     writeln(ft,'Name;HitPoints;Attack;AttackHorseBonus;x4;Defence;Speed;x7;Sight;x9;x10;CanWalkOut;x11;');
     for ii:=1 to 40 do begin
@@ -420,7 +412,7 @@ begin
         end;
     end;
     closefile(ft);
-  end;
+  end;}
 Result:=true;
 end;
 
@@ -1016,9 +1008,10 @@ end;
 {Export Units graphics categorized by Unit and Action}
 procedure ExportUnitAnim2BMP;
 var MyBitMap:TBitMap;
-    iUnit,iAct,iDir,iFrame,ci:integer; t:byte;
-    sy,sx,y,x:integer;
-    Used:array of integer;
+    //U:TUnitType;
+    //iAct,iDir,iFrame,ci:integer; t:byte;
+    //sy,sx,y,x:integer;
+    //Used:array of integer;
 begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\UnitAnim\');
@@ -1028,13 +1021,13 @@ begin
   fResource.LoadUnitDAT(ExeDir+'data\defines\unit.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
-  ci:=0;
-  for iUnit:=byte(ut_Militia) to byte(ut_Militia) do begin
+  {ci:=0;
+  for U:=ut_Militia to ut_Militia do begin
     for iAct:=1 to 14 do begin
-      for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
+      for iDir:=1 to 8 do if UnitDat[U].UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
         for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\');
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\');
+          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(iUnit)+'\');
+          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(iUnit)+'\'+UnitAct[iAct]+'\');
           if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
             ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
 
@@ -1048,7 +1041,7 @@ begin
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
           if sy>0 then MyBitMap.SaveToFile(
-            ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
+            ExeDir+'Export\UnitAnim\'+TypeToString(iUnit)+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
         end;
       end;
     end;
@@ -1076,7 +1069,7 @@ begin
     end;
     if sy>0 then MyBitMap.SaveToFile(
       ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
-  end;
+  end;}
 
   MyBitMap.Free;
 end;

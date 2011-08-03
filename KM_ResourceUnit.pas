@@ -12,12 +12,51 @@ type
     MoveX,MoveY:integer;
   end;
 
+  TKMUnitDat = packed record
+    HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,x7,Sight:smallint;
+    x9,x10:shortint;
+    CanWalkOut,x11:smallint;
+  end;
+
+  TKMUnitSprite = packed record
+    Act:array[1..14]of packed record
+      Dir:array[1..8]of TKMUnitsAnim;
+    end;
+  end;
+
+  TKMUnitSprite2 = array[1..18]of smallint; //Sound indices vs sprite ID
 
   TKMUnitDatClass = class
   private
     fUnitType: TUnitType;
+    fUnitDat: TKMUnitDat;
+    fUnitSprite:TKMUnitSprite;
+    fUnitSprite2:TKMUnitSprite2;
+    function GetGUIIcon:word;
+    function GetGUIScroll:word;
+    function GetSpeed:single;
+    function GetUnitAnim(aAction:byte; aDir:byte):TKMUnitsAnim;
+    function GetUnitDescription: string;
+    function GetUnitName: string;
   public
     constructor Create(aType:TUnitType);
+    function IsValid:boolean;
+    function IsAnimal: boolean;
+    procedure LoadFromStream(Stream:TMemoryStream);
+    //Derived from KaM
+    property HitPoints:smallint read fUnitDat.HitPoints;
+    property Attack:smallint read fUnitDat.Attack;
+    property AttackHorseBonus:smallint read fUnitDat.AttackHorseBonus;
+    property Defence:smallint read fUnitDat.Defence;
+    property Sight:smallint read fUnitDat.Sight;
+    //Additional properties added by Remake
+    property GUIIcon:word read GetGUIIcon;
+    property GUIScroll:word read GetGUIScroll;
+    property Speed:single read GetSpeed;
+    //todo: Replace Bytes with native Types
+    property UnitAnim[aAction:byte; aDir:byte]:TKMUnitsAnim read GetUnitAnim;
+    property UnitDescription:string read GetUnitDescription;
+    property UnitName:string read GetUnitName;
   end;
 
 
@@ -41,9 +80,44 @@ type
   end;
 
 
+const
+  School_Order:array[0..13] of TUnitType = (
+    ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
+    ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
+    ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
 
+  Barracks_Order:array[0..8] of TUnitType = (
+    ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
+    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
+
+  UnitDatCount = 41;
+  UnitKaMType: array[0..UnitDatCount-1] of TUnitType = (
+  {0..13}
+  ut_Serf, ut_Woodcutter, ut_Miner, ut_AnimalBreeder, ut_Farmer,
+  ut_Lamberjack, ut_Baker, ut_Butcher, ut_Fisher, ut_Worker,
+  ut_StoneCutter, ut_Smith, ut_Metallurgist, ut_Recruit,
+  {14..23}
+  ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
+  ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian,
+  {24..29}
+  ut_None, ut_None, ut_None, ut_None, ut_None,
+  ut_None,
+  //ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman, ut_Catapult, ut_Ballista,
+  {30..37}
+  ut_Wolf, ut_Fish, ut_Watersnake, ut_Seastar, ut_Crab,
+  ut_Waterflower, ut_Waterleaf, ut_Duck,
+  {38..40}
+  ut_None, ut_None, ut_None);
+
+  UnitKaMOrder: array[TUnitType] of byte = (0, 0,
+  1, 2, 3, 4, 5, 6, 7, 8, 9,
+  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+  20, 21, 22, 23, 24, {25, 26, 27, 28, 29,
+  30,} 31, 32, 33, 34, 35, 36, 37, 38);
+
+  
 implementation
-uses KromUtils, KM_Render, KM_TGATexture, KM_Log, KM_Utils;
+uses KromUtils, KM_Render, KM_TGATexture, KM_Log, KM_Utils, KM_TextLibrary;
 
 
 { TKMUnitsDatClass }
@@ -51,6 +125,84 @@ constructor TKMUnitDatClass.Create(aType: TUnitType);
 begin
   Inherited Create;
   fUnitType := aType;
+end;
+
+
+function TKMUnitDatClass.IsValid: boolean;
+begin
+  Result := not (fUnitType in [ut_None, ut_Any]);
+end;
+
+
+function TKMUnitDatClass.IsAnimal: boolean;
+begin
+  Result := fUnitType in [ut_Wolf..ut_Duck];
+end;
+
+
+procedure TKMUnitDatClass.LoadFromStream(Stream: TMemoryStream);
+begin
+  Stream.Read(fUnitDat, SizeOf(TKMUnitDat));
+  Stream.Read(fUnitSprite, SizeOf(TKMUnitSprite));
+  Stream.Read(fUnitSprite, SizeOf(TKMUnitSprite2));
+end;
+
+
+function TKMUnitDatClass.GetGUIIcon: word;
+begin
+  if IsValid then
+    Result := 140 + UnitKaMOrder[fUnitType]
+  else
+    Result := 0;
+end;
+
+
+function TKMUnitDatClass.GetGUIScroll: word;
+begin
+  if IsValid then
+    Result := 520 + UnitKaMOrder[fUnitType]
+  else
+    Result := 0;
+end;
+
+
+function TKMUnitDatClass.GetSpeed: single;
+begin
+  Result := fUnitDat.Speed / 240;
+end;
+
+
+function TKMUnitDatClass.GetUnitAnim(aAction, aDir: byte): TKMUnitsAnim;
+begin
+  Result := fUnitSprite.Act[aAction].Dir[aDir];
+end;
+
+
+function TKMUnitDatClass.GetUnitName: string;
+begin
+  if IsValid then
+    case fUnitType of
+      ut_Wolf:        Result := 'Wolf';
+      ut_Fish:        Result := 'Fish';
+      ut_Watersnake:  Result := 'Watersnake';
+      ut_Seastar:     Result := 'Seastar';
+      ut_Crab:        Result := 'Crab';
+      ut_Waterflower: Result := 'Waterflower';
+      ut_Waterleaf:   Result := 'Waterleaf';
+      ut_Duck:        Result := 'Duck';
+      else            Result := fTextLibrary.GetTextString(siUnitNames + UnitKaMOrder[fUnitType]);
+    end
+  else
+    Result := 'N/A';
+end;
+
+
+function TKMUnitDatClass.GetUnitDescription: string;
+begin
+  if IsValid and not IsAnimal then
+    Result := fTextLibrary.GetTextString(siUnitDescriptions + UnitKaMOrder[fUnitType])
+  else
+    Result := 'N/A';
 end;
 
 
@@ -109,6 +261,13 @@ begin
     S.LoadFromFile(aPath);
 
     S.Read(fSerfCarry, SizeOf(fSerfCarry){28*8*70});
+
+    for i:=0 to UnitDatCount-1 do
+    if UnitKaMType[i] <> ut_None then
+      fItems[UnitKaMType[i]].LoadFromStream(S)
+    else
+      S.Seek(SizeOf(TKMUnitDat) + SizeOf(TKMUnitSprite) + SizeOf(TKMUnitSprite2), soFromCurrent);
+
 
     Result := Adler32CRC(S);
   finally

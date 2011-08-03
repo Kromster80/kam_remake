@@ -2010,7 +2010,7 @@ begin
 
   case aUnitType of
     ut_Woodcutter..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := CanWalkRoad; //Citizens except Worker
-    ut_Wolf..ut_Duck:                              DesiredPass := AnimalTerrain[byte(aUnitType)] //Animals
+    ut_Wolf..ut_Duck:                              DesiredPass := AnimalTerrain[aUnitType] //Animals
     else                                           DesiredPass := CanWalk; //Serf, Worker, Warriors
   end;
 

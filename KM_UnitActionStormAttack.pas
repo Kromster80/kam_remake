@@ -26,7 +26,7 @@ type
   end;
 
 implementation
-uses KM_Terrain, KM_Units_Warrior;
+uses KM_Terrain, KM_Units_Warrior, KM_ResourceGFX;
 
 
 { TUnitActionStormAttack }
@@ -118,10 +118,10 @@ begin
 
   //First and last steps are walking, inbetween are running
   if (fTileSteps<=0) or (fTileSteps>=fStamina-1) then begin
-    Distance := KMUnit.GetSpeed;
+    Distance := fResource.UnitDat[KMUnit.UnitType].Speed;
     fActionType := ua_Walk;
   end else begin
-    Distance := KMUnit.GetSpeed * STORM_SPEEDUP;
+    Distance := fResource.UnitDat[KMUnit.UnitType].Speed * STORM_SPEEDUP;
     fActionType := ua_Spec;
   end;
 

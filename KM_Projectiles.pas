@@ -41,7 +41,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Terrain;
+uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
 
 
 { TKMProjectiles }
@@ -213,8 +213,8 @@ begin
               pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                             begin
                               Damage := 0;
-                              if fType = pt_Arrow then Damage := UnitStat[byte(ut_Bowman)].Attack;
-                              if fType = pt_Bolt then Damage := UnitStat[byte(ut_Arbaletman)].Attack;
+                              if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
+                              if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               //Arrows are more likely to cause damage when the unit is closer
                               Damage := Round(Damage * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
                               if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then

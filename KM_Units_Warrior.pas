@@ -94,7 +94,7 @@ type //Possibly melee warrior class? with Archer class separate?
 implementation
 uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_Terrain, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
-  KM_UnitActionStormAttack;
+  KM_UnitActionStormAttack, KM_ResourceGFX;
 
 
 { TKMUnitWarrior }
@@ -380,7 +380,7 @@ begin
   end;
 
   //Only link to same group type
-  if UnitGroups[byte(fUnitType)] <> UnitGroups[byte(aNewCommander.fUnitType)] then exit;
+  if UnitGroups[fUnitType] <> UnitGroups[aNewCommander.fUnitType] then exit;
 
   //Can't link to self for obvious reasons
   if aNewCommander = Self then exit;
@@ -691,7 +691,7 @@ begin
     FoundUnit := fTerrain.UnitsHitTest(aLoc.X+i, aLoc.Y+k); //off-map coords will be skipped
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit.GetOwner = fOwner) and
-       (UnitGroups[byte(FoundUnit.UnitType)] = UnitGroups[byte(fUnitType)]) then //They must be the same group type
+       (UnitGroups[FoundUnit.UnitType] = UnitGroups[fUnitType]) then //They must be the same group type
     begin
       Result := TKMUnitWarrior(FoundUnit);
       exit;
@@ -1175,13 +1175,13 @@ begin
   end;
 
   if fCurrentAction = nil then
-    raise ELocError.Create('Warrior '+TypeToString(UnitType)+' has no action',GetPosition);
+    raise ELocError.Create('Warrior '+fResource.UnitDat[UnitType].UnitName+' has no action',GetPosition);
 end;
 
 
 procedure TKMUnitWarrior.Paint;
 
-  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir, UnitTyp:byte);
+  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir:byte; UnitTyp:TUnitType);
   var
     TeamColor: cardinal;
     FlagXPaintPos, FlagYPaintPos: single;
@@ -1202,7 +1202,7 @@ procedure TKMUnitWarrior.Paint;
   end;
 
 var
-  UnitTyp, AnimAct, AnimDir:byte;
+  AnimAct, AnimDir:byte;
   XPaintPos, YPaintPos: single;
   i,k:integer;
   UnitPosition: TKMPoint;
@@ -1210,21 +1210,20 @@ var
 begin
   Inherited;
   if not fVisible then exit;
-  UnitTyp  := byte(fUnitType);
   AnimAct  := byte(fCurrentAction.GetActionType); //should correspond with UnitAction
   AnimDir  := byte(Direction);
 
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if IsCommander and not IsDeadOrDying then
-    PaintFlag(XPaintPos, YPaintPos, AnimDir, UnitTyp); //Paint flag over the top of the unit
+    PaintFlag(XPaintPos, YPaintPos, AnimDir, fUnitType); //Paint flag over the top of the unit
 
   //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
   if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+    fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -1236,7 +1235,7 @@ begin
     if not DoesFit then continue; //Don't render units that are off the map in the map editor
     XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
     YPaintPos := UnitPosition.Y + 1  ;
-    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+    fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   end;
 
   if SHOW_ATTACK_RADIUS then

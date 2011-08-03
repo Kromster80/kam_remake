@@ -24,8 +24,8 @@ type
     SelectingDirPosition: TPoint;
     RatioTab:byte; //Active resource distribution tab
     //Saved
-    LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
-    LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
+    LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
+    LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
 
     procedure Create_Replay_Page;
@@ -291,7 +291,7 @@ type
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX, KM_Log,
+KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit,
   KM_NetPlayersList, KM_Networking;
 
 const
@@ -551,8 +551,8 @@ begin
   SelectingDirPosition.X := 0;
   SelectingDirPosition.Y := 0;
 
-  LastSchoolUnit:=1;
-  LastBarracksUnit:=1;
+  LastSchoolUnit   := 0;
+  LastBarracksUnit := 0;
   fMessageList:=TKMMessageList.Create;
 
 {Parent Page for whole toolbar in-game}
@@ -1017,10 +1017,10 @@ begin
           inc(off,House_Width);
          end;
       2: begin
-          Stat_UnitPic[uc]:=TKMImage.Create(Panel_Stats,off,LineBase,Unit_Width,30,byte(StatUnit[uc])+140);
+          Stat_UnitPic[uc]:=TKMImage.Create(Panel_Stats,off,LineBase,Unit_Width,30, fResource.UnitDat[StatUnit[uc]].GUIIcon);
           Stat_UnitQty[uc]:=TKMLabel.Create(Panel_Stats,off+Unit_Width-2,LineBase+16,33,30,'-',fnt_Grey,kaRight);
-          Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
-          Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
+          Stat_UnitPic[uc].Hint:=fResource.UnitDat[StatUnit[uc]].UnitName;
+          Stat_UnitQty[uc].Hint:=fResource.UnitDat[StatUnit[uc]].UnitName;
           Stat_UnitPic[uc].ImageCenter;
           inc(uc);
           inc(off,Unit_Width);
@@ -1324,7 +1324,7 @@ begin
         Button_Barracks[i].Hint:=TypeToString(TResourceType(16+i));
       end;
       Button_Barracks[12].TexID:=154;
-      Button_Barracks[12].Hint:=TypeToString(ut_Recruit);
+      Button_Barracks[12].Hint:=fResource.UnitDat[ut_Recruit].UnitName;
 
       Label_Barracks_Unit:=TKMLabel.Create(Panel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
 
@@ -1506,8 +1506,8 @@ begin
   {Common data}
   Label_House.Caption:=fResource.HouseDat[Sender.GetHouseType].HouseName;
   Image_House_Logo.TexID:= fResource.HouseDat[Sender.GetHouseType].GUIIcon;
-  Image_House_Worker.TexID:=140+byte(fResource.HouseDat[Sender.GetHouseType].OwnerType);
-  Image_House_Worker.Hint := TypeToString(fResource.HouseDat[Sender.GetHouseType].OwnerType);
+  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].GUIIcon;
+  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].UnitName;
   HealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
   HealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
 
@@ -1664,8 +1664,8 @@ begin
   end;
 
   SwitchPage(Panel_Unit);
-  Label_UnitName.Caption:=TypeToString(Sender.UnitType);
-  Image_UnitPic.TexID:=520+byte(Sender.UnitType);
+  Label_UnitName.Caption:= fResource.UnitDat[Sender.UnitType].UnitName;
+  Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
   ConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
   Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   Label_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
@@ -1687,13 +1687,13 @@ begin
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
       Army_ActivateControls(Commander.ArmyCanTakeOrders);
-      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and Commander.ArmyCanTakeOrders;
+      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
     end;
-    Button_Army_Storm.Enabled := (UnitGroups[byte(Sender.UnitType)] = gt_Melee)and Commander.ArmyCanTakeOrders; //Only melee groups may charge
+    Button_Army_Storm.Enabled := (UnitGroups[Sender.UnitType] = gt_Melee) and Commander.ArmyCanTakeOrders; //Only melee groups may charge
   end
   else
   begin //Citizen specific
-    Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.UnitType));
+    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].UnitDescription;
     Label_UnitDescription.Show;
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Hide;
@@ -1776,17 +1776,17 @@ begin
 
   Barracks:=TKMHouseBarracks(fPlayers.Selected);
 
-  if (Sender=Button_Barracks_Left) and (AButton = mbRight) then LastBarracksUnit := 1;
-  if (Sender=Button_Barracks_Right) and (AButton = mbRight) then LastBarracksUnit := Length(Barracks_Order);
+  if (Sender=Button_Barracks_Left) and (AButton = mbRight) then LastBarracksUnit := 0;
+  if (Sender=Button_Barracks_Right) and (AButton = mbRight) then LastBarracksUnit := High(Barracks_Order);
 
-  if (Sender=Button_Barracks_Left)and(LastBarracksUnit > 1) then dec(LastBarracksUnit);
-  if (Sender=Button_Barracks_Right)and(LastBarracksUnit < length(Barracks_Order)) then inc(LastBarracksUnit);
+  if (Sender=Button_Barracks_Left)and(LastBarracksUnit > 0) then dec(LastBarracksUnit);
+  if (Sender=Button_Barracks_Right)and(LastBarracksUnit < High(Barracks_Order)) then inc(LastBarracksUnit);
 
   if Sender=Button_Barracks_Train then //Equip unit
     if AButton = mbLeft then
-      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, Barracks, TUnitType(14+LastBarracksUnit), 1)
+      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, Barracks, Barracks_Order[LastBarracksUnit], 1)
     else if AButton = mbRight then
-      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, Barracks, TUnitType(14+LastBarracksUnit), 10);
+      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, Barracks, Barracks_Order[LastBarracksUnit], 10);
 
   CanEquip:=true;
   for i:=1 to 12 do begin
@@ -1797,7 +1797,7 @@ begin
     //Set highlights
     Button_Barracks[i].Down:=false;
     for k:=1 to 4 do
-      if i = TroopCost[TUnitType(14+LastBarracksUnit),k] then
+      if i = TroopCost[Barracks_Order[LastBarracksUnit],k] then
       begin
         Button_Barracks[i].Down:=true;
         if Tmp=0 then CanEquip := false; //Can't equip if we don't have a required resource
@@ -1806,19 +1806,19 @@ begin
   Button_Barracks[12].Down:=true; //Recruit is always enabled, all troops require one
 
   Button_Barracks_Train.Enabled := CanEquip and (Barracks.RecruitsList.Count > 0);
-  Button_Barracks_Left.Enabled := LastBarracksUnit > 1;
-  Button_Barracks_Right.Enabled := LastBarracksUnit < length(Barracks_Order);
+  Button_Barracks_Left.Enabled := LastBarracksUnit > 0;
+  Button_Barracks_Right.Enabled := LastBarracksUnit < High(Barracks_Order);
   Image_Barracks_Left.Visible:= Button_Barracks_Left.Enabled;
   Image_Barracks_Right.Visible:= Button_Barracks_Right.Enabled;
 
-  if Button_Barracks_Left.Enabled then
-    Image_Barracks_Left.TexID:=520+byte(Barracks_Order[LastBarracksUnit-1]);
+  if LastBarracksUnit > 0 then
+    Image_Barracks_Left.TexID := fResource.UnitDat[Barracks_Order[LastBarracksUnit-1]].GUIScroll;
 
-  Label_Barracks_Unit.Caption:=TypeToString(TUnitType(Barracks_Order[LastBarracksUnit]));
-  Image_Barracks_Train.TexID:=520+byte(Barracks_Order[LastBarracksUnit]);
+  Label_Barracks_Unit.Caption := fResource.UnitDat[Barracks_Order[LastBarracksUnit]].UnitName;
+  Image_Barracks_Train.TexID := fResource.UnitDat[Barracks_Order[LastBarracksUnit]].GUIScroll;
 
-  if Button_Barracks_Right.Enabled then
-    Image_Barracks_Right.TexID:=520+byte(Barracks_Order[LastBarracksUnit+1]);
+  if LastBarracksUnit < High(Barracks_Order) then
+    Image_Barracks_Right.TexID := fResource.UnitDat[Barracks_Order[LastBarracksUnit+1]].GUIScroll;
 end;
 
 
@@ -1830,30 +1830,30 @@ begin
   if not (fPlayers.Selected is TKMHouseSchool) then exit;
   School:=TKMHouseSchool(fPlayers.Selected);
 
-  if (AButton = mbRight) and (Sender=Button_School_Left) then LastSchoolUnit := 1;
-  if (AButton = mbRight) and (Sender=Button_School_Right) then LastSchoolUnit := Length(School_Order);
+  if (AButton = mbRight) and (Sender=Button_School_Left) then LastSchoolUnit := 0;
+  if (AButton = mbRight) and (Sender=Button_School_Right) then LastSchoolUnit := High(School_Order);
 
-  if (Sender=Button_School_Left)and(LastSchoolUnit > 1) then dec(LastSchoolUnit);
-  if (Sender=Button_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
+  if (Sender=Button_School_Left)and(LastSchoolUnit > 0) then dec(LastSchoolUnit);
+  if (Sender=Button_School_Right)and(LastSchoolUnit < High(School_Order)) then inc(LastSchoolUnit);
 
   if Sender=Button_School_Train then //Add unit to training queue
     if AButton = mbLeft then
-      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, School, TUnitType(School_Order[LastSchoolUnit]), 1)
+      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, School, School_Order[LastSchoolUnit], 1)
     else if AButton = mbRight then
-      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, School, TUnitType(School_Order[LastSchoolUnit]), 6);
+      fGame.fGameInputProcess.CmdHouse(gic_HouseTrain, School, School_Order[LastSchoolUnit], 6);
 
   if School.UnitQueue[1]<>ut_None then
-    Button_School_UnitWIP.TexID :=140+byte(School.UnitQueue[1])
+    Button_School_UnitWIP.TexID := fResource.UnitDat[School.UnitQueue[1]].GUIIcon
   else
-    Button_School_UnitWIP.TexID :=41; //Question mark
+    Button_School_UnitWIP.TexID := 41; //Question mark
 
   Button_School_UnitWIPBar.Position:=School.GetTrainingProgress;
 
   for i:=1 to 5 do
     if School.UnitQueue[i+1]<>ut_None then
     begin
-      Button_School_UnitPlan[i].TexID:=140+byte(School.UnitQueue[i+1]);
-      Button_School_UnitPlan[i].Hint:=TypeToString(School.UnitQueue[i+1]);
+      Button_School_UnitPlan[i].TexID := fResource.UnitDat[School.UnitQueue[i+1]].GUIIcon;
+      Button_School_UnitPlan[i].Hint := fResource.UnitDat[School.UnitQueue[i+1]].UnitName;
     end
     else
     begin
@@ -1862,19 +1862,19 @@ begin
     end;
 
   Button_School_Train.Enabled := School.UnitQueue[length(School.UnitQueue)]=ut_None;
-  Button_School_Left.Enabled := LastSchoolUnit > 1;
-  Button_School_Right.Enabled := LastSchoolUnit < length(School_Order);
+  Button_School_Left.Enabled := LastSchoolUnit > 0;
+  Button_School_Right.Enabled := LastSchoolUnit < High(School_Order);
   Image_School_Left.Visible:= Button_School_Left.Enabled;
   Image_School_Right.Visible:= Button_School_Right.Enabled;
 
-  if Button_School_Left.Enabled then
-    Image_School_Left.TexID:=520+byte(School_Order[LastSchoolUnit-1]);
+  if LastSchoolUnit > 0 then
+    Image_School_Left.TexID:= fResource.UnitDat[School_Order[LastSchoolUnit-1]].GUIScroll;
 
-  Label_School_Unit.Caption:=TypeToString(School_Order[LastSchoolUnit]);
-  Image_School_Train.TexID:=520+byte(School_Order[LastSchoolUnit]);
+  Label_School_Unit.Caption:=fResource.UnitDat[School_Order[LastSchoolUnit]].UnitName;
+  Image_School_Train.TexID:=fResource.UnitDat[School_Order[LastSchoolUnit]].GUIScroll;
 
-  if Button_School_Right.Enabled then
-    Image_School_Right.TexID:=520+byte(School_Order[LastSchoolUnit+1]);
+  if LastSchoolUnit < High(School_Order) then
+    Image_School_Right.TexID:=fResource.UnitDat[School_Order[LastSchoolUnit+1]].GUIScroll;
 end;
 
 
@@ -2175,8 +2175,8 @@ begin
   begin
     Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[i]);
     if Tmp = 0 then Stat_UnitQty[i].Caption := '-' else Stat_UnitQty[i].Caption := inttostr(Tmp);
-    Stat_UnitPic[i].Hint := TypeToString(StatUnit[i]);
-    Stat_UnitQty[i].Hint := TypeToString(StatUnit[i]);
+    Stat_UnitPic[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
+    Stat_UnitQty[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
   end;
 end;
 
@@ -2562,7 +2562,7 @@ begin
     U := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Scan only teammates
     if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
        (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
-       (UnitGroups[byte(U.UnitType)] = UnitGroups[byte(fShownUnit.UnitType)]) then
+       (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
       Screen.Cursor := c_JoinYes
     else
       Screen.Cursor := c_JoinNo;
@@ -2651,7 +2651,7 @@ begin
     U  := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
     if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
        (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
-       (UnitGroups[byte(U.UnitType)] = UnitGroups[byte(fShownUnit.UnitType)]) then
+       (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
     begin
       fGame.fGameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fShownUnit), U);
       Army_HideJoinMenu(nil);

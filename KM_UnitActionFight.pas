@@ -26,7 +26,7 @@ TUnitActionFight = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior, KM_Game;
+uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior, KM_Game, KM_ResourceGFX;
 
 
 { TUnitActionFight }
@@ -114,7 +114,7 @@ end;
 
 
 function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
-var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
+var Cycle,Step:byte; IsHit: boolean; Damage: word;
 begin
   Result := ActContinues; //Continue action by default, if there is no one to fight then exit
   //See if Opponent has walked away (i.e. Serf) or died
@@ -147,7 +147,7 @@ begin
     end;
   end;
 
-  Cycle := max(UnitSprite[byte(KMUnit.UnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+  Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[byte(GetActionType), byte(KMUnit.Direction)].Count, 1);
   Step  := KMUnit.AnimStep mod Cycle;
 
   //Opponent can walk next to us, keep facing him
@@ -207,15 +207,13 @@ begin
     //Melee units place hit on step 5
     if Step = 5 then
     begin
-      ut := byte(KMUnit.UnitType);
-      ot := byte(fOpponent.UnitType);
-      Damage := UnitStat[ut].Attack; //Base damage
+      Damage := fResource.UnitDat[KMUnit.UnitType].Attack; //Base damage
       Damage := Round(Damage*KaMRandom(101)/100);
-      IsHit := (Damage >= UnitStat[ut].Attack*0.15); // IsHit = true if Damage >= 15% of Base damage
+      IsHit := (Damage >= fResource.UnitDat[KMUnit.UnitType].Attack*0.15); // IsHit = true if Damage >= 15% of Base damage
       if not(IsHit) then Damage := 0
       else begin // if IsHit
-        if InRange(ot, low(UnitGroups), high(UnitGroups)) then
-          Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
+        if fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)] then
+          Damage := Damage + fResource.UnitDat[KMUnit.UnitType].AttackHorseBonus * byte(UnitGroups[fOpponent.UnitType] = gt_Mounted); //Add Anti-horse bonus
         Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
         // Now, defence modifier in HitPointsDecrease
         //Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
