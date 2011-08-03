@@ -24,7 +24,7 @@ type
       fLoc:TKMPoint;
       BuildID:integer;
       DemandSet:boolean;
-      MarkupSet:boolean;
+      MarkupSet, InitialFieldSet:boolean;
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -223,6 +223,7 @@ begin
   BuildID   := aID;
   DemandSet := false;
   MarkupSet := false;
+  InitialFieldSet := false;
 end;
 
 
@@ -233,6 +234,7 @@ begin
   LoadStream.Read(BuildID);
   LoadStream.Read(DemandSet);
   LoadStream.Read(MarkupSet);
+  LoadStream.Read(InitialFieldSet);
 end;
 
 
@@ -241,6 +243,7 @@ begin
   if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
   if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
+  if InitialFieldSet  then fTerrain.RemField(fLoc);
   Inherited;
 end;
 
@@ -275,7 +278,8 @@ begin
       end;
    4: begin
         fTerrain.ResetDigState(fLoc);
-        fTerrain.SetField(fLoc,GetOwner,ft_InitWine); //Replace the terrain, but don't seed grapes yet 
+        fTerrain.SetField(fLoc,GetOwner,ft_InitWine); //Replace the terrain, but don't seed grapes yet
+        InitialFieldSet := true;
         SetActionLockedStay(30,ua_Work1);
         Thought:=th_Wood;
       end;
@@ -290,6 +294,7 @@ begin
       end;
    7: begin
         fTerrain.SetField(fLoc,GetOwner,ft_Wine);
+        InitialFieldSet := false;
         SetActionStay(5,ua_Walk);
         fTerrain.RemMarkup(fLoc);
         MarkupSet := false;
@@ -307,6 +312,7 @@ begin
   SaveStream.Write(BuildID);
   SaveStream.Write(DemandSet);
   SaveStream.Write(MarkupSet);
+  SaveStream.Write(InitialFieldSet);
 end;
 
 

@@ -438,7 +438,7 @@ end;
 function TTerrain.TileIsSoil(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
-  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..28, 34..39, 47, 49, 56,57,58, 64..69, 72..80, 84..87, 88,89, 93..98,180,182..183,188,190..191,220,247];
+  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..28, 34..39, 47, 49, 55..58, 64..69, 72..80, 84..87, 88,89, 93..98,180,182..183,188,190..191,220,247];
 end;
 
 
@@ -789,13 +789,13 @@ end;
 
 {Find closest chopable Tree around}
 function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
-const Ins=2; //2..Map-2
+const Ins=2; //2..Map-1
 var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint; bTreeLoc: Boolean;
 begin
   //List1 is all trees within radius
   List:=TKMPointList.Create;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins) do
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,1+MapY-Ins) do
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,1+MapX-Ins) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
         if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),CanWalk) then

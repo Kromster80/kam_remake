@@ -408,7 +408,8 @@ var i:integer;
 begin
   Result := true;
   for i:=1 to fCount do
-    Result := Result and fPlayers[i].ReadyToStart;
+    if fPlayers[i].Alive and fPlayers[i].IsHuman then
+      Result := Result and fPlayers[i].ReadyToStart;
 end;
 
 
@@ -417,7 +418,8 @@ var i:integer;
 begin
   Result := true;
   for i:=1 to fCount do
-    Result := Result and fPlayers[i].ReadyToPlay;
+    if fPlayers[i].Alive and fPlayers[i].IsHuman then
+      Result := Result and fPlayers[i].ReadyToPlay;
 end;
 
 
@@ -427,13 +429,14 @@ begin
   Highest := 0;
   Highest2 := 0;
   for i:=1 to fCount do
-  begin
-    if fPlayers[i].GetMaxPing > Highest then
-      Highest := fPlayers[i].GetMaxPing
-    else
-      if fPlayers[i].GetMaxPing > Highest2 then
-        Highest2 := fPlayers[i].GetMaxPing;
-  end;
+    if fPlayers[i].Alive and fPlayers[i].IsHuman then
+    begin
+      if fPlayers[i].GetMaxPing > Highest then
+        Highest := fPlayers[i].GetMaxPing
+      else
+        if fPlayers[i].GetMaxPing > Highest2 then
+          Highest2 := fPlayers[i].GetMaxPing;
+    end;
   Result := min(Highest + Highest2, High(Word));
 end;
 
@@ -442,7 +445,7 @@ procedure TKMPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
 var i:integer;
 begin
   for i:=1 to fCount do
-    if (not fPlayers[i].ReadyToPlay) and (fPlayers[i].PlayerType <> pt_Computer) then
+    if (not fPlayers[i].ReadyToPlay) and fPlayers[i].IsHuman and fPlayers[i].Alive then
       aPlayerList.Add(fPlayers[i].Nikname);
 end;
 
