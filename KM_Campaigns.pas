@@ -79,6 +79,7 @@ uses KM_Log, KM_TextLibrary;
 
 
 const
+  CAMP_HEADER = $FEED; //Just some header to separate right progress files from wrong
   TSK_MAPS = 20;
   TPR_MAPS = 14;
 
@@ -93,11 +94,11 @@ const
 
   CampTPRPrev:array [0..TPR_MAPS-1] of shortint =
   (-1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
-//todo: X+10 Y+15
+
   CampTPRNodes: array [0..TPR_MAPS-1] of TKMPoint = (
-  (X:175; Y:525), (X:180; Y:465), (X:110; Y:435), (X:180; Y:420), (X:230; Y:440),
-  (X:370; Y:475), (X:130; Y:205), (X:350; Y:185), (X:515; Y:355), (X:590; Y:360),
-  (X:665; Y:190), (X:760; Y:285), (X:775; Y:220), (X:730; Y:160));
+  (X:185; Y:540), (X:190; Y:480), (X:120; Y:440), (X:190; Y:435), (X:240; Y:455),
+  (X:380; Y:490), (X:140; Y:220), (X:360; Y:200), (X:525; Y:370), (X:600; Y:375),
+  (X:675; Y:205), (X:770; Y:300), (X:785; Y:235), (X:740; Y:175));
 
 
 { TCampaignCollection }
@@ -188,7 +189,7 @@ begin
     M.LoadFromFile(FileName);
 
     M.Read(i); //Check for wrong file format
-    if i<>$FEED then Exit;
+    if i<>CAMP_HEADER then Exit; //All campaigns will be kept in initial state
 
     M.Read(CampCount);
     for i:=0 to CampCount-1 do
@@ -211,7 +212,7 @@ var
 begin
   M := TKMemoryStream.Create;
 
-  M.Write(Integer($FEED)); //Identify our format
+  M.Write(Integer(CAMP_HEADER)); //Identify our format
   M.Write(Count);
   for i:=0 to Count-1 do
   begin

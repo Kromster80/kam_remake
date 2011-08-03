@@ -258,7 +258,7 @@ procedure TKMemoryStream.Read(out Value:string);
 var i:word;
 begin
   Read(i, SizeOf(i));
-  setlength(Value, i);
+  SetLength(Value, i);
   if i=0 then exit;
   Read(Value[1], i);
 end;
