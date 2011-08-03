@@ -61,7 +61,7 @@ function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 function MakePOT(num:integer): integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
 function Adler32CRC(const aPath:string):cardinal; overload;
-function Adler32CRC(S:TMemoryStream):cardinal; overload
+function Adler32CRC(S:TMemoryStream):cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function PseudoRandom(aMax:cardinal):cardinal;
