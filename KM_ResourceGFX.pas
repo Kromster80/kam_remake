@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_TextLibrary, Classes, KM_CommonTypes, KM_Points
+  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_ResourceUnit, KM_TextLibrary, Classes, KM_CommonTypes, KM_Points
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, Zstream, BGRABitmap {$ENDIF};
 
@@ -20,6 +20,7 @@ type
   private
     fDataState:TDataLoadingState;
     fHouseDat: TKMHouseDatCollection;
+    fUnitDat: TKMUnitDatCollection;
 
     procedure StepRefresh;
     procedure StepCaption(aCaption:string);
@@ -59,6 +60,7 @@ type
 
     property DataState: TDataLoadingState read fDataState;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
+    property UnitDat: TKMUnitDatCollection read fUnitDat;
 
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 
@@ -106,6 +108,7 @@ end;
 destructor TResource.Destroy;
 begin
   if fHouseDat <> nil then FreeAndNil(fHouseDat);
+  if fUnitDat <> nil then FreeAndNil(fUnitDat);
   Inherited;
 end;
 
@@ -175,6 +178,7 @@ begin
   LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh;
 
   fHouseDat := TKMHouseDatCollection.Create;
+  fUnitDat := TKMUnitDatCollection.Create;
   StepRefresh;
 
   LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh;
@@ -363,8 +367,7 @@ begin
   if not CheckFileExists(FileName) then exit;
   assignfile(f,FileName); reset(f,1);
 
-  for ii:=1 to 28 do
-    blockread(f,SerfCarry[ii],8*70);
+  seek(f, 28*8*70); //Skip SerfCarry
 
   for ii:=1 to 41 do begin
     blockread(f,UnitStat[ii],22);
@@ -1059,12 +1062,6 @@ begin
   for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do
   if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
   Used[UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1]:=1;
-
-  for iUnit:=1 to 28 do
-  for iDir:=1 to 8 do if SerfCarry[iUnit].Dir[iDir].Step[1]<>-1 then
-  for iFrame:=1 to SerfCarry[iUnit].Dir[iDir].Count do
-  if SerfCarry[iUnit].Dir[iDir].Step[iFrame]+1<>0 then
-  Used[SerfCarry[iUnit].Dir[iDir].Step[iFrame]+1]:=1;
 
   for ci:=1 to length(Used)-1 do
   if Used[ci]=0 then begin

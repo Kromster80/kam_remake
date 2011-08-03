@@ -103,7 +103,7 @@ type
     procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
     procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
     procedure RenderUnit(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
+    procedure RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
     procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
     procedure RenderUnitFlag(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
     procedure RenderUnitWithDefaultArm(UnitID,ActID,DirID,StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
@@ -116,7 +116,7 @@ var
 
 
 implementation
-uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_Units, KM_Log;
+uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_Units, KM_Log;
 
 
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
@@ -893,18 +893,19 @@ begin
 end;
 
 
-procedure TRender.RenderUnitCarry(CarryID,DirID,StepID:integer; pX,pY:single);
-var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
+procedure TRender.RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
+var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
-  AnimSteps:=SerfCarry[CarryID].Dir[DirID].Count;
-  ID:=SerfCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
-  if ID<=0 then exit;
-  ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
-  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
-  ShiftX:=ShiftX+SerfCarry[CarryID].Dir[DirID].MoveX/CELL_SIZE_PX;
-  ShiftY:=ShiftY+SerfCarry[CarryID].Dir[DirID].MoveY/CELL_SIZE_PX;
-  fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,0);
+  A := fResource.UnitDat.SerfCarry[aCarry, aDir];
+  ID := A.Step[StepID mod A.Count + 1] + 1;
+  if ID <= 0 then Exit;
+
+  ShiftX := RXData[3].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY := (RXData[3].Pivot[ID].y + RXData[3].Size[ID].Y)/CELL_SIZE_PX;
+  ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
+  ShiftX := ShiftX + A.MoveX/CELL_SIZE_PX;
+  ShiftY := ShiftY + A.MoveY/CELL_SIZE_PX;
+  fRenderList.AddSprite(3, ID, pX + ShiftX, pY + ShiftY, pX, pY, false, 0);
 end;
 
 

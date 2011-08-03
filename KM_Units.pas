@@ -609,7 +609,7 @@ end;
 
 
 procedure TKMUnitSerf.Paint;
-var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var AnimAct:integer; AnimDir:byte; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
@@ -623,12 +623,12 @@ begin
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
-  if Carry<>rt_None then
-    fRender.RenderUnitCarry(byte(Carry), AnimDir, AnimStep, XPaintPos, YPaintPos)
+  if Carry <> rt_None then
+    fRender.RenderUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
     fRender.RenderUnit(byte(UnitType), 9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
-  if fThought<>th_None then
+  if fThought <> th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 

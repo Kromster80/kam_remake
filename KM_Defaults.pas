@@ -1113,15 +1113,6 @@ var
     end;
   end;
 
-  //Resource types serf carries around
-  SerfCarry:array[1..28] of packed record
-    Dir:array[1..8]of packed record
-      Step:array[1..30]of smallint;
-      Count:smallint;
-      MoveX,MoveY:integer;
-    end;
-  end;
-
   //
   UnitStat:array[1..41]of record
     HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,x7,Sight:smallint;
