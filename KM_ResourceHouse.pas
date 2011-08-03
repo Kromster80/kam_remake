@@ -103,8 +103,10 @@ type
 
   TKMHouseDatCollection = class
   private
+    fCRC:cardinal;
     fItems: array[THouseType] of TKMHouseDatClass;
     fBeastAnim: array[1..2,1..5,1..3] of TKMHouseBeastAnim;
+    function LoadHouseDat(aPath: string):Cardinal;
     function GetHouseDat(aType:THouseType):TKMHouseDatClass;
     function GetBeastAnim(aType:THouseType; aBeast, aAge:integer):TKMHouseBeastAnim;
   public
@@ -113,8 +115,8 @@ type
 
     property HouseDat[aType:THouseType]:TKMHouseDatClass read GetHouseDat; default;
     property BeastAnim[aType:THouseType; aBeast, aAge:integer]:TKMHouseBeastAnim read GetBeastAnim;
+    property CRC:cardinal read fCRC; //Return hash of all values
 
-    procedure LoadHouseDat(aPath:string);
     procedure ExportCSV(aPath: string);
   end;
 
@@ -425,7 +427,7 @@ const
 
 
 implementation
-uses KM_TextLibrary;
+uses KromUtils, KM_TextLibrary;
 
 
 { TKMHouseDatClass }
@@ -525,6 +527,9 @@ begin
 
   for H := Low(THouseType) to High(THouseType) do
     fItems[H] := TKMHouseDatClass.Create(H);
+
+  fCRC := LoadHouseDat(ExeDir+'data\defines\houses.dat');
+  //ExportCSV(ExeDir+'Houses.csv');
 end;
 
 
@@ -556,7 +561,9 @@ begin
 end;
 
 
-procedure TKMHouseDatCollection.LoadHouseDat(aPath: string);
+//Return CRC of loaded file
+//CRC should be calculated right away, cos file may be swapped after loading
+function TKMHouseDatCollection.LoadHouseDat(aPath: string):Cardinal;
 var
   S:TKMemoryStream;
   i:integer;
@@ -564,20 +571,22 @@ begin
   Assert(FileExists(aPath));
 
   S := TKMemoryStream.Create;
-  S.LoadFromFile(aPath);
+  try
+    S.LoadFromFile(aPath);
 
-  S.Read(fBeastAnim, SizeOf(fBeastAnim){30*70}); //Swine&Horses animations
+    S.Read(fBeastAnim, SizeOf(fBeastAnim){30*70}); //Swine&Horses animations
 
-  //Read the records one by one because we need to reorder them and skip one in the middle
-  for i:=0 to HouseDatCount-1 do
-  if HouseKaMType[i] <> ht_None then
-    fItems[HouseKaMType[i]].LoadFromStream(S)
-  else
-    S.Seek(SizeOf(TKMHouseDat), soFromCurrent);
+    //Read the records one by one because we need to reorder them and skip one in the middle
+    for i:=0 to HouseDatCount-1 do
+    if HouseKaMType[i] <> ht_None then
+      fItems[HouseKaMType[i]].LoadFromStream(S)
+    else
+      S.Seek(SizeOf(TKMHouseDat), soFromCurrent);
 
-  S.Free;
-
-  //ExportCSV(ExeDir+'Houses.csv');
+    Result := Adler32CRC(S);
+  finally
+    S.Free;
+  end;
 end;
 
 

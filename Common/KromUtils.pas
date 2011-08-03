@@ -61,6 +61,7 @@ function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 function MakePOT(num:integer): integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
 function Adler32CRC(const aPath:string):cardinal; overload;
+function Adler32CRC(S:TMemoryStream):cardinal; overload
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function PseudoRandom(aMax:cardinal):cardinal;
@@ -412,28 +413,33 @@ end;
 
 
 function Adler32CRC(const aPath:string):cardinal;
-var S:TMemoryStream; i,A,B:cardinal;
+var S:TMemoryStream;
 begin
   Result := 0;
-
   if not FileExists(aPath) then exit;
 
   S := TMemoryStream.Create;
   try
     S.LoadFromFile(aPath);
-
-    A := 1;
-    B := 0; //A is initialized to 1, B to 0
-    //We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
-    for i:=0 to S.Size-1 do begin
-      inc(A,pbyte(cardinal(S.Memory)+i)^);
-      B := (B + A) mod 65521; //65521 (the largest prime number smaller than 2^16)
-    end;
-    A := A mod 65521;
-    Result := B + A shl 16; //reverse order for smaller numbers
+    Result := Adler32CRC(S);
   finally
     S.Free;
   end;
+end;
+
+
+function Adler32CRC(S:TMemoryStream):cardinal;
+var i,A,B:cardinal;
+begin
+  A := 1;
+  B := 0; //A is initialized to 1, B to 0
+  //We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
+  for i:=0 to S.Size-1 do begin
+    inc(A,pbyte(cardinal(S.Memory)+i)^);
+    B := (B + A) mod 65521; //65521 (the largest prime number smaller than 2^16)
+  end;
+  A := A mod 65521;
+  Result := B + A shl 16; //reverse order for smaller numbers
 end;
 
 

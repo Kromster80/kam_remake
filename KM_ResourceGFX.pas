@@ -175,7 +175,6 @@ begin
   LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh;
 
   fHouseDat := TKMHouseDatCollection.Create;
-  fHouseDat.LoadHouseDat(ExeDir+'data\defines\houses.dat');
   StepRefresh;
 
   LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh;
