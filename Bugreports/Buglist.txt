@@ -8,6 +8,10 @@ Since r2039:
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+	Maybe archers attacked by archers should not try to walk towards enemies
+	When building Wine field, tile dug by Worker, if worker dies before recieving wood, becomes unusable
+	Woodcutter can plant trees along map edges, but can't chop them there
+	Build wine field, road on top, house on top, demolish house, you can't build winefield again
  	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
 	When warriors go out from Barracks sometimes they are not adjoined in groups (Can't reproduce. Does he know AI's do not autolink? Maybe he switched to an AI team)
  	Enemies begin to fight back when arows are shot, not when first arrow hits the unit
