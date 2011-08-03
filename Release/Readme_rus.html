@@ -13,7 +13,7 @@ Brought to you by Krom and Lewin</font></P>
 <p align="center"><font face="Calibri">Содержание документа: <br>
 <a href="#Description">Описание</a> · <a href="#System_Requirements">Системные требования</a> · <a href="#Installing">Установка</a> 
 · <a href="#Gameplay">Игра</a> · <a href="#F_A_Q_">F.A.Q.</a> ·
-<a href="#Known_bugs">Известные ошибки и неточности</a> · <a href="#Server">Dedicated Server</a> · <a href="#Feedback">Feedback</a> · <a href="#Feedback">Отзывы</a> ·
+<a href="#Known_bugs">Известные ошибки и неточности</a> · <a href="#Server">Выделенный сервер</a> · <a href="#Feedback">Feedback</a> · <a href="#Feedback">Отзывы</a> ·
 <a href="#Source">Исходные коды</a> · <a href="#Credits">Создатели</a> ·
 <a href="#Legal">Правовые обязательства</a></font></p><hr>
 <blockquote>
@@ -125,13 +125,13 @@ KaM Remake вылетает без каких-либо сообщений загрузки или при смене саундтрека, 
 		<tr>
 			<td>
 	<img border="0" src="Readme/GUI_0324.gif"></td>
-			<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="Server">Dedicated Server</a></FONT></B></td>
+			<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="Server">Выделенный сервер</a></FONT></B></td>
 		</tr>
 	</table>
 </blockquote>
-<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on TCP port 56789 and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
-To use in a LAN game, start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. You may then connect to it from the same computer and/or other computers. (for the same computer, connect to the address 127.0.0.1 or localhost)<br>
-To use on the internet, you must forward the port 56789 from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
+<font face="Calibri">Включает исполняемые программы для мультиплеер выделенного сервера, которые работают на Windows и Linux x86 и x86_64. Для соединения сервер использует TCP порт 56789 и работает как концентратор, обеспечивая передачу данных между клиентами. Выделенный сервер не «понимает» геймплей, он просто передает пакеты данных между клиентами. Первому игроку, который соединится с сервером будут даны права хоста и он сможет менять настройки игры. Если первый игрок отключается, то права хоста автоматически передаются следующему игроку по порядку в списке.<br>
+Чтобы использовать игру в LAN, запустите выделенный сервер и убедитесь, что он запущен правильно (должно быть написано «Listening on port 56789»). Убедитесь, что ваш firewall не блокирует работу программы, открыть TCP порт 56789. Тогда вы можете присоединиться с того же самого компьютера и/или других компьютеров. (Для того же самого компьютера соединитесь с адресом 127.0.0.1 или localhost)<br>
+Чтобы использовать в интернете, вы должны перенаправить порт 56789 от Вашего маршрутизатора до Вашего PC, на котором запущен выделенный сервер. (для получения дополнительной информации о перенаправлении портов, посетите <a href="http://portforward.com/">http://portforward.com/</a>) Скажите свой внешний IP адрес друзьям, которые к вам присоединятся. IP адрес отображается на странице <a href="http://portforward.com/">http://portforward.com/</a>. Если вы играете на том же самом компьютере, на котором запущен выделенный сервер, или в той же самой LAN, то подключайтесь к этому IP-адресу, как вы бы сделали для игры по LAN.
 
 <br><br>
 Note: The dedicated server is not required to play multiplayer. Clicking "Create Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service and tell other fans the address of your server we would be pleased. Future versions will include a "master server" which displays a listing of all running public servers and allow you to join them without having to type in IP addresses.<br><br>
