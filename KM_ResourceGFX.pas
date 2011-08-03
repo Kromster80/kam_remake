@@ -538,10 +538,10 @@ begin
   ChDir(ExeDir + 'Sprites\');
   FindFirst('*', faAnyFile, SearchRec);
   repeat
-    if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
-    if SearchRec.Attr and faDirectory <> faDirectory then
-    if GetFileExt(SearchRec.Name) = 'PNG' then
-    if StrToIntDef(SearchRec.Name[1],0) = RX then
+    if (SearchRec.Name<>'.') and (SearchRec.Name<>'..') //Exclude parent folders
+    and (SearchRec.Attr and faDirectory <> faDirectory)
+    and (GetFileExt(SearchRec.Name) = 'PNG')
+    and (StrToIntDef(SearchRec.Name[1],0) = RX) then
       FileList.Add(SearchRec.Name);
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
