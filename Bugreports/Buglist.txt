@@ -1,5 +1,6 @@
 Since r2087:
 <===================================================================================>
+	When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Edges of messages and other scrolls should be transparent so they look smooth

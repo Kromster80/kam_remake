@@ -144,7 +144,7 @@ procedure TKMUnitDatClass.LoadFromStream(Stream: TMemoryStream);
 begin
   Stream.Read(fUnitDat, SizeOf(TKMUnitDat));
   Stream.Read(fUnitSprite, SizeOf(TKMUnitSprite));
-  Stream.Read(fUnitSprite, SizeOf(TKMUnitSprite2));
+  Stream.Read(fUnitSprite2, SizeOf(TKMUnitSprite2));
 end;
 
 
