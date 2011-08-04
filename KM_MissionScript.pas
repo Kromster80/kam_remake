@@ -501,13 +501,13 @@ begin
                            fPlayers.Player[fCurrentPlayerIndex].PlayerType:=pt_Computer;
                        end;
     ct_CenterScreen:   begin
-                         fPlayers.Player[fCurrentPlayerIndex].CenterScreen := KMPointX1Y1(ParamList[0],ParamList[1]);
+                         fPlayers.Player[fCurrentPlayerIndex].CenterScreen := KMPoint(ParamList[0]+1,ParamList[1]+1);
                        end;
     ct_ClearUp:        begin
                        if ParamList[0] = 255 then
                          fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealEverything
                        else
-                         fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealCircle(KMPointX1Y1(ParamList[0],ParamList[1]), ParamList[2], 255);
+                         fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealCircle(KMPoint(ParamList[0]+1,ParamList[1]+1), ParamList[2], 255);
                        end;
     ct_SetHouse:       begin
                        if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
@@ -522,30 +522,30 @@ begin
                        end;
     ct_SetUnit:        begin
                        if InRange(ParamList[0],0,31) then
-                         fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]));
+                         fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPoint(ParamList[1]+1,ParamList[2]+1));
                        end;
     ct_SetUnitByStock: begin
                        if InRange(ParamList[0],0,31) then
                        begin
                          Storehouse:=TKMHouseStore(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Store,1));
                          if Storehouse<>nil then
-                           fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointY1(Storehouse.GetEntrance));
+                           fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPoint(Storehouse.GetEntrance.X, Storehouse.GetEntrance.Y+1));
                        end;
                        end;
     ct_SetRoad:        begin
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0],ParamList[1]));
+                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]+1,ParamList[1]+1));
                        end;
     ct_SetField:       begin
-                         fPlayers.Player[fCurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Corn);
+                         fPlayers.Player[fCurrentPlayerIndex].AddField(KMPoint(ParamList[0]+1,ParamList[1]+1),ft_Corn);
                        end;
     ct_Set_Winefield:  begin
-                         fPlayers.Player[fCurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Wine);
+                         fPlayers.Player[fCurrentPlayerIndex].AddField(KMPoint(ParamList[0]+1,ParamList[1]+1),ft_Wine);
                        end;
     ct_SetStock:       begin //This command basically means: Put a storehouse here with road bellow it
                          fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(ht_Store, ParamList[0]+1,ParamList[1]+1, false);
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0],ParamList[1]+1));
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1));
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1));
+                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]+1,ParamList[1]+2));
+                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0],ParamList[1]+2));
+                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]-1,ParamList[1]+2));
                        end;
     ct_AddWare:        begin
                          MyInt:=ParamList[1];
@@ -594,7 +594,7 @@ begin
                                                              //and if we to add e.g. new unit we'll need to fix all those manualy
                            fLastTroop := TKMUnitWarrior(fPlayers.Player[fCurrentPlayerIndex].AddGroup(
                              TroopsRemap[ParamList[0]],
-                             KMPointX1Y1(ParamList[1],ParamList[2]),
+                             KMPoint(ParamList[1]+1, ParamList[2]+1),
                              TKMDirection(ParamList[3]+1),
                              ParamList[4],
                              ParamList[5],
@@ -603,7 +603,7 @@ begin
                        end;
     ct_SendGroup:      begin
                          if fLastTroop <> nil then
-                           fLastTroop.OrderWalk(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]))
+                           fLastTroop.OrderWalk(KMPointDir(KMPoint(ParamList[0]+1, ParamList[1]+1), TKMDirection(ParamList[2]+1)))
                          else
                            DebugScriptError('ct_SendGroup without prior declaration of Troop');
                        end;
@@ -633,7 +633,7 @@ begin
                          fPlayers.Player[fCurrentPlayerIndex].AI.Autobuild := false;
                        end;
     ct_AIStartPosition:begin
-                         fPlayers.Player[fCurrentPlayerIndex].AI.StartPosition := KMPointX1Y1(ParamList[0],ParamList[1]);
+                         fPlayers.Player[fCurrentPlayerIndex].AI.StartPosition := KMPoint(ParamList[0]+1,ParamList[1]+1);
                        end;
     ct_SetAlliance:    begin
                          if ParamList[1] = 1 then
@@ -651,7 +651,7 @@ begin
                            inc(fAttackPositionsCount);
                            SetLength(fAttackPositions, fAttackPositionsCount+1);
                            fAttackPositions[fAttackPositionsCount-1].Warrior := fLastTroop;
-                           fAttackPositions[fAttackPositionsCount-1].Target := KMPointX1Y1(ParamList[0],ParamList[1]);
+                           fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(ParamList[0]+1,ParamList[1]+1);
                          end
                          else
                            DebugScriptError('ct_AttackPosition without prior declaration of Troop');
@@ -681,7 +681,7 @@ begin
                          end;
                        end;
     ct_AIDefence:      begin
-                         fPlayers.Player[fCurrentPlayerIndex].AI.AddDefencePosition(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
+                         fPlayers.Player[fCurrentPlayerIndex].AI.AddDefencePosition(KMPointDir(KMPoint(ParamList[0]+1,ParamList[1]+1),TKMDirection(ParamList[2]+1)),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
                        end;
     ct_SetMapColor:    begin
                          //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
@@ -705,7 +705,7 @@ begin
                          if TextParam = PARAMVALUES[cpt_Target] then
                            fAIAttack.Target := TAIAttackTarget(ParamList[1]);
                          if TextParam = PARAMVALUES[cpt_Position] then
-                           fAIAttack.CustomPosition := KMPointX1Y1(ParamList[1],ParamList[2]);
+                           fAIAttack.CustomPosition := KMPoint(ParamList[1]+1,ParamList[2]+1);
                          if TextParam = PARAMVALUES[cpt_TakeAll] then
                            fAIAttack.TakeAll := true;
                        end;
@@ -887,7 +887,7 @@ begin
       AddData(''); //NL
       for k:=0 to fPlayers.Player[i].AI.DefencePositionsCount-1 do
         with fPlayers.Player[i].AI.DefencePositions[k] do
-          AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,Position.Dir,byte(GroupType)-1,DefenceRadius,byte(DefenceType)]);
+          AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,byte(GroupType)-1,DefenceRadius,byte(DefenceType)]);
       AddData(''); //NL
       AddData(''); //NL
       for k:=0 to fPlayers.Player[i].AI.ScriptedAttacksCount-1 do

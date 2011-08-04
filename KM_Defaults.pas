@@ -193,7 +193,7 @@ const
   CursorOffsetsY:array[1..24] of integer = (0,9,10,18,20,44, 0,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
 
 const DirCursorSqrSize  = 33; //Length of square sides
-      DirCursorNARadius = 14;  //Radius of centeral part that is dir_NA
+      DirCursorNARadius = 14;  //Radius of centeral part that has no direction
 
 {Controls}
 type
@@ -410,19 +410,19 @@ const AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
   (ut_Cavalry,      ut_HorseScout, ut_None));
 
 
-const FlagXOffset: array[TGroupType, 1..8] of shortint = (
-    ( 0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
-    (10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
-    ( 6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
-    ( 8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
-    ( 6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
+const FlagXOffset: array[TGroupType, TKMDirection] of shortint = (
+    ( 0,  0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
+    ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
+    ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
+    ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
+    ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
 
-const FlagYOffset: array[TGroupType, 1..8] of shortint = (
-    ( 0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
-    (28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
-    (23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
-    (28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
-    ( 4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
+const FlagYOffset: array[TGroupType, TKMDirection] of shortint = (
+    ( 0,  0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
+    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
+    ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
+    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
+    ( 0,  4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
 
 
 //Defines which animal prefers which terrain

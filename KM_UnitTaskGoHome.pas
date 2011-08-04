@@ -33,7 +33,7 @@ begin
   case fPhase of
     0: begin
          Thought := th_Home;
-         SetActionWalkToSpot(KMPointY1(GetHome.GetEntrance));
+         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance));
        end;
     1: SetActionGoIn(ua_Walk, gd_GoInside, GetHome);
     2: begin

@@ -532,7 +532,7 @@ begin
   if (fShownUnit is TKMUnitWarrior) and (not fJoiningGroups)
   and fTerrain.Route_CanBeMade(fShownUnit.GetPosition, KMP, CanWalk, 0, false) then
   begin
-    fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP);
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), KMP, TKMUnitWarrior(fShownUnit).Direction);
     fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
   end;
 end;
@@ -1148,9 +1148,9 @@ begin
     Button_Army_GoTo   := TKMButton.Create(Panel_Army,  8,  0, 56, 40, 27);
     Button_Army_Stop   := TKMButton.Create(Panel_Army, 70,  0, 56, 40, 26);
     Button_Army_Attack := TKMButton.Create(Panel_Army,132,  0, 56, 40, 25);
-    Button_Army_RotCW  := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 23);
+    Button_Army_RotCCW := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 23);
     Button_Army_Storm  := TKMButton.Create(Panel_Army, 70, 46, 56, 40, 28);
-    Button_Army_RotCCW := TKMButton.Create(Panel_Army,132, 46, 56, 40, 24);
+    Button_Army_RotCW  := TKMButton.Create(Panel_Army,132, 46, 56, 40, 24);
     Button_Army_ForUp  := TKMButton.Create(Panel_Army,  8, 92, 56, 40, 33);
     ImageStack_Army    := TKMImageStack.Create(Panel_Army, 70, 92, 56, 40, 43);
     Button_Army_ForDown:= TKMButton.Create(Panel_Army,132, 92, 56, 40, 32);
@@ -1959,13 +1959,13 @@ begin
   //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
   begin
-    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, 0, 0);
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 0);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Halt);
   end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
-    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, -1, 0);
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCW, 0);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_RotLeft);
   end;
   if Sender = Button_Army_Storm   then
@@ -1975,17 +1975,17 @@ begin
   end;
   if Sender = Button_Army_RotCCW  then
   begin
-    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, 1, 0);
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCCW, 0);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_RotRight);
   end;
   if Sender = Button_Army_ForDown then
   begin
-    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, 0, 1);
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, 1);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_ForUp   then
   begin
-    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, 0, -1);
+    fGame.fGameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdNone, -1);
     fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_Split   then

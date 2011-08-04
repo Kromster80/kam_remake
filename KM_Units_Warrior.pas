@@ -4,7 +4,10 @@ interface
 uses Classes, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units, KM_Houses, KM_Points;
 
-type //Possibly melee warrior class? with Archer class separate?
+type
+  TKMTurnDirection = (tdNone, tdCW, tdCCW);
+
+  //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
   {Individual properties}
@@ -53,14 +56,14 @@ type //Possibly melee warrior class? with Archer class separate?
     property GetWarriorState: TWarriorState read fState;
 
   //Commands from player
-    procedure OrderHalt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
+    procedure OrderHalt(aTurnAmount:TKMTurnDirection=tdNone; aLineAmount:shortint=0);
     procedure OrderLinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
     procedure OrderFood;
     procedure OrderSplit; //Split group in half and assign another commander
     procedure OrderStorm;
     procedure OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
     procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true); reintroduce; overload;
-    procedure OrderWalk(aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
+    procedure OrderWalk(aLoc:TKMPoint); reintroduce; overload;
     procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
 
@@ -81,8 +84,8 @@ type //Possibly melee warrior class? with Archer class separate?
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
 
-    function CheckForEnemy(aDir:TKMDirection=dir_NA):boolean;
-    function FindEnemy(aDir:TKMDirection=dir_NA):TKMUnit;
+    function CheckForEnemy:boolean;
+    function FindEnemy:TKMUnit;
     procedure FightEnemy(aEnemy:TKMUnit);
 
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -109,7 +112,7 @@ begin
   fTimeSinceHungryReminder := 0;
   fOrder             := wo_None;
   fState             := ws_None;
-  fOrderLoc          := KMPointDir(PosX,PosY,0);
+  fOrderLoc          := KMPointDir(KMPoint(PosX, PosY), dir_NA);
   fUnitsPerRow       := 1;
   fMembers           := nil; //Only commander units will have it initialized
   fMapEdMembersCount := 0; //Used only in MapEd
@@ -316,7 +319,7 @@ function TKMUnitWarrior.RePosition:boolean;
 var ClosestTile:TKMPoint;
 begin
   Result := true;
-  if (fState = ws_None) and (Direction <> TKMDirection(fOrderLoc.Dir+1)) then
+  if (fState = ws_None) and (Direction <> fOrderLoc.Dir) then
     fState := ws_RepositionPause; //Make sure we always face the right way if somehow state is gets to None without doing this
 
   if fOrderLoc.Loc.X = 0 then exit;
@@ -338,7 +341,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.OrderHalt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
+procedure TKMUnitWarrior.OrderHalt(aTurnAmount:TKMTurnDirection=tdNone; aLineAmount:shortint=0);
 var HaltPoint: TKMPointDir;
 begin
   if IsDead then exit; //Can happen e.g. when entire group dies at once due to hunger
@@ -350,20 +353,25 @@ begin
   end;
 
   if fOrderLoc.Loc.X = 0 then //If it is invalid, use commander's values
-    HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,Direction)
+    HaltPoint := KMPointDir(NextPosition, Direction)
   else
     if fState = ws_Walking then //If we are walking use commander's location, but order Direction
-      HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,fOrderLoc.Dir)
+      HaltPoint := KMPointDir(NextPosition, fOrderLoc.Dir)
     else
       HaltPoint := fOrderLoc;
 
-  HaltPoint.Dir := byte(KMLoopDirection(HaltPoint.Dir+aTurnAmount+1))-1; //Add the turn amount, using loop in case it goes over 7
+  case aTurnAmount of
+    tdCW:   HaltPoint.Dir := KMNextDirection(HaltPoint.Dir);
+    tdCCW:  HaltPoint.Dir := KMPrevDirection(HaltPoint.Dir);
+  end;
+
   fOrderLoc.Dir := HaltPoint.Dir;
+  Assert(fOrderLoc.Dir <> dir_NA);
 
   if fMembers <> nil then
     SetUnitsPerRow(fUnitsPerRow+aLineAmount);
 
-  if (aTurnAmount <> 0) or (aLineAmount <> 0) then
+  if (aTurnAmount <> tdNone) or (aLineAmount <> 0) then
     ReissueOrder //When changing formation/direction do not interupt walks/other orders
   else
     OrderWalk(HaltPoint);
@@ -753,24 +761,21 @@ begin
 
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
   for i:=1 to fMembers.Count do begin
-    NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1),
+    NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, aLoc.Dir,
                                   i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, NewLocCanBeReached); //Allow off map positions so GetClosestTile works properly
-    TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir),false,NewLocCanBeReached)
+    TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc,aLoc.Dir),false,NewLocCanBeReached)
   end;
 end;
 
 
-procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA);
+procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPoint);
 var NewP:TKMPointDir;
 begin
   //keep old direction if group had an order to walk somewhere
-  if aNewDir <> dir_NA then
-    NewP := KMPointDir(aLoc.X, aLoc.Y, byte(aNewDir)-1)
+  if (fOrderLoc.Loc.X <> 0) then
+    NewP := KMPointDir(aLoc, fOrderLoc.Dir)
   else
-  if (aNewDir=dir_NA) and (fOrderLoc.Loc.X <> 0) then
-    NewP := KMPointDir(aLoc.X, aLoc.Y, fOrderLoc.Dir)
-  else
-    NewP := KMPointDir(aLoc.X, aLoc.Y, Direction);
+    NewP := KMPointDir(aLoc, Direction);
 
   OrderWalk(NewP);
 end;
@@ -880,18 +885,19 @@ begin
 end;
 
 
-function TKMUnitWarrior.CheckForEnemy(aDir:TKMDirection=dir_NA):boolean;
+function TKMUnitWarrior.CheckForEnemy:boolean;
 var FoundEnemy: TKMUnit;
 begin
   Result := false; //Didn't find anyone to fight
-  FoundEnemy := FindEnemy(aDir);
+  FoundEnemy := FindEnemy;
   if FoundEnemy = nil then exit;
   FightEnemy(FoundEnemy);
   Result := true; //Found someone
 end;
 
 
-function TKMUnitWarrior.FindEnemy(aDir:TKMDirection=dir_NA):TKMUnit;
+function TKMUnitWarrior.FindEnemy:TKMUnit;
+var TestDir:TKMDirection;
 begin
   Result := nil; //No one to fight
   if not ENABLE_FIGHTING then exit;
@@ -912,11 +918,13 @@ begin
       Exit;
   end;
 
-  if (aDir = dir_NA) and IsRanged then
-    aDir := Direction; //Use direction for ranged attacks, if it was not already specified
+  if IsRanged then
+    TestDir := Direction //Use direction for ranged attacks, if it was not already specified
+  else
+    TestDir := dir_NA;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
+  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, TestDir);
 
   //Only stop attacking a house if it's a warrior
   if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then
@@ -1160,7 +1168,7 @@ begin
   begin
     if fState = ws_RepositionPause then
     begin
-      Direction := TKMDirection(fOrderLoc.Dir+1); //Face the way we were told to after our walk (this creates a short pause before we fix direction)
+      Direction := fOrderLoc.Dir; //Face the way we were told to after our walk (this creates a short pause before we fix direction)
       CheckForEnemy; //Important for archers, check for enemy once we are in position
       if PositioningDone then
         fState := ws_None;
@@ -1181,7 +1189,7 @@ end;
 
 procedure TKMUnitWarrior.Paint;
 
-  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir:byte; UnitTyp:TUnitType);
+  procedure PaintFlag(XPaintPos, YPaintPos:single; AnimDir:TKMDirection; UnitTyp:TUnitType);
   var
     TeamColor: cardinal;
     FlagXPaintPos, FlagYPaintPos: single;
@@ -1202,7 +1210,7 @@ procedure TKMUnitWarrior.Paint;
   end;
 
 var
-  AnimAct, AnimDir:byte;
+  AnimAct:byte;
   XPaintPos, YPaintPos: single;
   i,k:integer;
   UnitPosition: TKMPoint;
@@ -1211,19 +1219,18 @@ begin
   Inherited;
   if not fVisible then exit;
   AnimAct  := byte(fCurrentAction.GetActionType); //should correspond with UnitAction
-  AnimDir  := byte(Direction);
 
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
-  fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if IsCommander and not IsDeadOrDying then
-    PaintFlag(XPaintPos, YPaintPos, AnimDir, fUnitType); //Paint flag over the top of the unit
+    PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType); //Paint flag over the top of the unit
 
   //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
   if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
-    fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+    fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -1235,7 +1242,7 @@ begin
     if not DoesFit then continue; //Don't render units that are off the map in the map editor
     XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
     YPaintPos := UnitPosition.Y + 1  ;
-    fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+    fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   end;
 
   if SHOW_ATTACK_RADIUS then

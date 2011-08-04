@@ -604,7 +604,7 @@ begin
         fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.GetHouseType].StoneCost, dt_Once, di_High);
         //Walk away from building site, before we get trapped when house becomes stoned
         OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk);
-        if KMSamePoint(OutOfWay,KMPoint(0,0)) then OutOfWay := KMPointY1(fHouse.GetEntrance); //Don't get stuck in corners
+        if KMSamePoint(OutOfWay,KMPoint(0,0)) then OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
         SetActionWalkToSpot(OutOfWay, 0, ua_Walk);
         HouseSet := false;
       end;
@@ -717,12 +717,12 @@ begin
            SetActionWalkToSpot(Cells.List[CurLoc].Loc);
          end;
       1: begin
-           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
+           Direction := Cells.List[CurLoc].Dir;
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
-           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
+           Direction := Cells.List[CurLoc].Dir;
            //Remove house plan when we start the stone phase (it is still required for wood) But don't do it every time we hit if it's already done!
            if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y,fHouse.GetPosition.X].Markup <> mu_House) then
              fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, GetOwner);
@@ -829,12 +829,12 @@ begin
            SetActionWalkToSpot(Cells.List[CurLoc].Loc);
          end;
       1: begin
-           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
+           Direction := Cells.List[CurLoc].Dir;
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
-           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
+           Direction := Cells.List[CurLoc].Dir;
          end;
       3: begin
            if (Condition<UNIT_MIN_CONDITION) and CanGoEat then begin

@@ -72,7 +72,7 @@ begin
     Result := true;
     OldLoc := WorkPlan.Loc;
     //Tell the work plan to find a new resource of the same gathering script
-    if WorkPlan.FindDifferentResource(KMPointY1(fUnit.GetHome.GetEntrance), WorkPlan.Loc) then
+    if WorkPlan.FindDifferentResource(KMPointBelow(fUnit.GetHome.GetEntrance), WorkPlan.Loc) then
     begin
       if not KMSamePoint(OldLoc,WorkPlan.Loc) then
       begin
@@ -114,9 +114,9 @@ begin
                             end;
                         end;
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
-    gs_FisherCatch:     Result := CatchFish(KMPointDir(WorkPlan.Loc.X,WorkPlan.Loc.Y,WorkPlan.WorkDir),true);
+    gs_FisherCatch:     Result := CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir),true);
     gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
-    gs_WoodCutterCut:   Result := ObjectIsChopableTree(KMGetVertexTile(WorkPlan.Loc, TKMDirection(WorkPlan.WorkDir+1)), 4) and (Land[KMGetVertexTile(WorkPlan.Loc, TKMDirection(WorkPlan.WorkDir+1)).Y, KMGetVertexTile(WorkPlan.Loc, TKMDirection(WorkPlan.WorkDir+1)).X].TreeAge >= TreeAgeFull)
+    gs_WoodCutterCut:   Result := ObjectIsChopableTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir), 4) and (Land[KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).Y, KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir).X].TreeAge >= TreeAgeFull)
     else                Result := true;
   end;
 end;
@@ -125,7 +125,7 @@ end;
 {This is execution of Resource mining}
 function TTaskMining.Execute:TTaskResult;
 const SkipWalk=8; SkipWork=30; //Skip to certain Phases
-var Dir:integer; TimeToWork, StillFrame:integer; ResAcquired:boolean;
+var D:TKMDirection; TimeToWork, StillFrame:integer; ResAcquired:boolean;
 begin
   Result := TaskContinues;
 
@@ -150,26 +150,24 @@ begin
     1: SetActionWalkToSpot(WorkPlan.Loc, 0, WorkPlan.WalkTo);
     2: //Before work tasks for specific mining jobs
        if WorkPlan.GatheringScript = gs_FisherCatch then begin
-         Direction := TKMDirection(WorkPlan.WorkDir+1);
+         Direction := WorkPlan.WorkDir;
          SetActionLockedStay(13, ua_Work1, false); //Throw the line out
        end else
          SetActionLockedStay(0, WorkPlan.WalkTo);
     3: //IF resource still exists on location
        if ResourceExists then
        begin //Choose direction and time to work
-         if WorkPlan.WorkDir = -1 then
-           Dir := byte(Direction) //Keep direction from walk (i.e. it doesn't matter)
-         else
-         begin
-           Dir := byte(WorkPlan.WorkDir+1);
+         if WorkPlan.WorkDir <> dir_NA then
+           Direction := WorkPlan.WorkDir;
 
-           if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Dir].Count < 1 then
-             for Dir:=1 to 8 do
-               if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Dir].Count > 1 then break;
-           Dir := Math.min(Dir,8);
-           Direction := TKMDirection(Dir);
-         end;
-         TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Dir].Count, 1);
+           if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Direction].Count < 1 then
+             for D:=dir_N to dir_NW do
+               if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), D].Count > 1 then
+               begin
+                 Direction := D;
+                 Break;
+               end;
+         TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Direction].Count, 1);
          SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else
@@ -190,10 +188,10 @@ begin
            gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
            gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
            gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
-           gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc.X,WorkPlan.Loc.Y,WorkPlan.WorkDir)); WorkPlan.WorkType := ua_WalkTool; end;
+           gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir)); WorkPlan.WorkType := ua_WalkTool; end;
            gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
            gs_WoodCutterCut:   begin
-           fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, TKMDirection(WorkPlan.WorkDir+1))); StillFrame := 5;
+           fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir)); StillFrame := 5;
            end;
          end;
          SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
@@ -201,7 +199,7 @@ begin
     6: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetActionWalkToSpot(KMPointY1(GetHome.GetEntrance), 0, WorkPlan.WalkFrom); //Go home
+         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), 0, WorkPlan.WalkFrom); //Go home
          Thought := th_Home;
        end;
     7: SetActionGoIn(WorkPlan.WalkFrom, gd_GoInside, GetHome); //Go inside

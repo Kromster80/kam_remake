@@ -116,7 +116,7 @@ begin
   case fPhase of
     0:  begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going to take '+TypeToString(fResourceType)+' from '+KM_Points.TypeToString(GetPosition));
-          SetActionWalkToSpot(KMPointY1(fFrom.GetEntrance));
+          SetActionWalkToSpot(KMPointBelow(fFrom.GetEntrance));
         end;
     1:  begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+KM_Points.TypeToString(GetPosition));
@@ -141,7 +141,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalkToSpot(KMPointY1(fToHouse.GetEntrance));
+    5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  SetActionGoIn(ua_Walk,gd_GoInside,fToHouse);
     7:  SetActionStay(5,ua_Walk); //wait a bit inside
     8:  begin
@@ -225,7 +225,7 @@ begin
               Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
               exit;
             end else //No delivery found then just walk back to our from house
-              SetActionWalkToSpot(KMPointY1(fFrom.GetEntrance),5); //Don't walk to spot as it doesn't really matter
+              SetActionWalkToSpot(KMPointBelow(fFrom.GetEntrance),5); //Don't walk to spot as it doesn't really matter
           end else
             SetActionStay(0,ua_Walk); //If we're not feeding a warrior then ignore this step
         end;

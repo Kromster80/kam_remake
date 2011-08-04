@@ -303,12 +303,11 @@ end;
 
 
 procedure TKMUnitCitizen.Paint;
-var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var AnimAct:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
   AnimAct:=byte(fCurrentAction.fActionType);
-  AnimDir:=byte(Direction);
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
@@ -316,16 +315,16 @@ begin
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(fUnitType,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+        fRender.RenderUnit(fUnitType,     9, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   end;
 
@@ -415,7 +414,7 @@ begin
       ht_CoalMine: Msg := fTextLibrary.GetTextString(291);
       ht_IronMine: Msg := fTextLibrary.GetTextString(292);
       ht_GoldMine: Msg := fTextLibrary.GetTextString(293);
-      ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
+      ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance),RANGE_FISHERMAN) then
                       Msg := fTextLibrary[TX_UNITS_FISHERMAN_TOO_FAR]
                     else
                       Msg := fTextLibrary[TX_UNITS_FISHERMAN_CANNOT_CATCH];
@@ -452,7 +451,7 @@ begin
     else exit; //Nothing found
   end;
 
-  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,fResource.HouseDat[fHome.GetHouseType].ResOutput[Res],KMPointY1(fHome.GetEntrance));
+  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,fResource.HouseDat[fHome.GetHouseType].ResOutput[Res],KMPointBelow(fHome.GetEntrance));
 
   if fWorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
@@ -484,12 +483,11 @@ end;
 
 
 procedure TKMUnitRecruit.Paint;
-var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var AnimAct:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
   AnimAct:=byte(fCurrentAction.fActionType);
-  AnimDir:=byte(Direction);
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
@@ -497,16 +495,16 @@ begin
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(fUnitType,       9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+        fRender.RenderUnit(fUnitType,     9, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(fUnitType,       1, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   end;
 
@@ -606,24 +604,23 @@ end;
 
 
 procedure TKMUnitSerf.Paint;
-var AnimAct:integer; AnimDir:byte; XPaintPos, YPaintPos: single;
+var AnimAct:integer; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
   AnimAct := integer(fCurrentAction.fActionType); //should correspond with UnitAction
-  AnimDir := byte(Direction);
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(UnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> rt_None then
     fRender.RenderUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRender.RenderUnit(UnitType, 9, AnimDir, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+    fRender.RenderUnit(UnitType, 9, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -703,7 +700,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitType, byte(fCurrentAction.fActionType), byte(Direction), AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(UnitType, byte(fCurrentAction.fActionType), Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -731,7 +728,7 @@ begin
   if (mu_HouseFenceNoWalk = fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup) then
   begin
     assert(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y) <> nil);
-    OutOfWay := KMPointY1(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y).GetEntrance);
+    OutOfWay := KMPointBelow(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y).GetEntrance);
     SetActionWalkToSpot(OutOfWay, 0, ua_Walk);
   end;
 
@@ -849,7 +846,7 @@ end;
 
 
 procedure TKMUnitAnimal.Paint;
-var AnimAct,AnimDir:integer;
+var AnimAct:integer;
 begin
   Inherited;
   if fUnitType = ut_Fish then
@@ -857,8 +854,7 @@ begin
   else
     AnimAct := byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
-  AnimDir:=byte(Direction);
-  fRender.RenderUnit(fUnitType, AnimAct, AnimDir, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
+  fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
 end;
 
 
@@ -976,7 +972,7 @@ begin
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fID);
   LoadStream.Read(AnimStep);
-  LoadStream.Read(fDirection, SizeOf(fDirection));
+  LoadStream.Read(fDirection);
   LoadStream.Read(fCurrPosition);
   LoadStream.Read(fPrevPosition);
   LoadStream.Read(fNextPosition);
@@ -1032,7 +1028,7 @@ begin
   fOwner        := -1;
   //Do not reset the unit type when they die as we still need to know during Load
   //fUnitType     := ut_None;
-  fDirection     := dir_NA;
+  fDirection    := dir_NA;
   fVisible      := false;
   fCondition    := 0;
   AnimStep      := 0;
@@ -1094,7 +1090,7 @@ end;
 
 function TKMUnit.CanAccessHome:boolean;
 begin
-  Result := (fHome = nil) or fTerrain.Route_CanBeMade(GetPosition, KMPointY1(fHome.GetEntrance), canWalk, 0, false);
+  Result := (fHome = nil) or fTerrain.Route_CanBeMade(GetPosition, KMPointBelow(fHome.GetEntrance), canWalk, 0, false);
 end;
 
 
@@ -1600,7 +1596,7 @@ begin
 
   SaveStream.Write(fID);
   SaveStream.Write(AnimStep);
-  SaveStream.Write(fDirection, SizeOf(fDirection));
+  SaveStream.Write(fDirection);
   SaveStream.Write(fCurrPosition);
   SaveStream.Write(fPrevPosition);
   SaveStream.Write(fNextPosition);
@@ -1843,6 +1839,7 @@ end;
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint; DoesFit: boolean;
 begin
+  Assert(aDir <> dir_NA);
   aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
   begin
@@ -1870,7 +1867,7 @@ begin
 
   Commander.Direction := aDir;
   Commander.AnimStep  := UnitStillFrames[aDir];
-  Commander.OrderLocDir := KMPointDir(Commander.OrderLocDir.Loc,byte(aDir)-1); //So when they click Halt for the first time it knows where to place them
+  Commander.OrderLocDir := KMPointDir(Commander.OrderLocDir.Loc, aDir); //So when they click Halt for the first time it knows where to place them
 
   //In MapEditor we need only fMapEdMembersCount property, without actual members
   if aMapEditor then begin

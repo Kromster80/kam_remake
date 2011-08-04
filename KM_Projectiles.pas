@@ -285,7 +285,7 @@ begin
           P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
           P1.Y := P1.Y - fItems[i].fArc * MixArc;
           P2.X := 0; P2.Y := 0;
-          fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue);
+          fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, dir_N); //Direction will be ignored
         end;
         else
       end;

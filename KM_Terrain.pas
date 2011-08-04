@@ -815,7 +815,7 @@ begin
       if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
         ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
       begin
-        TreePoint := KMPointDir(TreeLoc.X+k,TreeLoc.Y+i,byte(KMGetVertexDir(k,i))-1);
+        TreePoint := KMPointDir(KMPoint(TreeLoc.X+k, TreeLoc.Y+i), KMGetVertexDir(k,i));
         Result := True;
         Best := abs(Round(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
       end;
@@ -931,7 +931,7 @@ begin
               // D) Final check: route can be made and isn't avoid loc
               if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, 0,false)
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
-                List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
+                List.AddEntry(KMPointDir(KMPoint(k+j, i+l), KMGetDirection(j,l)));
 
   Result := List.GetRandom(FishPoint);
   List.Free;
@@ -1047,7 +1047,7 @@ function TTerrain.CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boole
 var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
-  aPosition := KMGetPointInDir(aPosition.Loc, TKMDirection(aPosition.Dir+1));
+  aPosition := KMGetPointInDir(aPosition.Loc, aPosition.Dir);
   MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Loc.Y,aPosition.Loc.X].WalkConnect[wcFish],not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
@@ -1170,8 +1170,8 @@ begin
   UpdateTransition(Loc.X-1,Loc.Y);
   FlattenTerrain(Loc);
   //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
-  if not CheckHeightPass(KMPointY1(Loc),CanWalk) then
-    FlattenTerrain(KMPointY1(Loc));
+  if not CheckHeightPass(KMPointBelow(Loc),CanWalk) then
+    FlattenTerrain(KMPointBelow(Loc));
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(wcWalk);
 end;
@@ -1531,7 +1531,7 @@ begin
     aHouse := fPlayers.HousesHitTest(LocA.X,LocA.Y);
     if aHouse <> nil then
     begin
-      LocA := KMPointY1(aHouse.GetEntrance);
+      LocA := KMPointBelow(aHouse.GetEntrance);
       aPass := CanWalk;
     end;
   end;
@@ -2063,12 +2063,12 @@ end;
 
 
 function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
-  function GetHgtSafe(MyLoc:TKMPoint):byte;
+  function GetHgtSafe(X,Y:word):byte;
   begin
-    if TileInMapCoords(MyLoc.X,MyLoc.Y) then
-      Result := Land[MyLoc.Y,MyLoc.X].Height //Use requested tile
+    if TileInMapCoords(X,Y) then
+      Result := Land[Y,X].Height //Use requested tile
     else
-      Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
+      Result := Land[Y,X].Height; //Otherwise return height of original tile which will have no effect
   end;
   function TestHeight(aHeight:byte):boolean;
   var Points: array[1..4] of byte;
@@ -2076,10 +2076,10 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     //Put points into an array like this so it's easy to understand:
     // 1 2
     // 3 4
-    Points[1] := GetHgtSafe(aLoc);
-    Points[2] := GetHgtSafe(KMPointX1(aLoc));
-    Points[3] := GetHgtSafe(KMPointY1(aLoc));
-    Points[4] := GetHgtSafe(KMPointX1Y1(aLoc));
+    Points[1] := GetHgtSafe(aLoc.X,   aLoc.Y);
+    Points[2] := GetHgtSafe(aLoc.X+1, aLoc.Y);
+    Points[3] := GetHgtSafe(aLoc.X,   aLoc.Y+1);
+    Points[4] := GetHgtSafe(aLoc.X+1, aLoc.Y+1);
 
     {KaM method checks the differences between the 4 verticies around the tile.
     There is a special case that means it is more (twice) as tolerant to bottom-left to top right (2-3) and

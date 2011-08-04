@@ -110,8 +110,8 @@ type
     procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior); overload;
     procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit); overload;
     procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse); overload;
-    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint); overload;
-    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:TKMTurnDirection; aLineAmount:shortint); overload;
+    procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection); overload;
 
     procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
     procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aMarkupType:TMarkup); overload;
@@ -216,8 +216,8 @@ begin
       gic_ArmyLink:         TKMUnitWarrior(U).OrderLinkTo(TKMUnitWarrior(U2));
       gic_ArmyAttackUnit:   TKMUnitWarrior(U).GetCommander.OrderAttackUnit(U2);
       gic_ArmyAttackHouse:  TKMUnitWarrior(U).GetCommander.OrderAttackHouse(H2);
-      gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(Params[2],Params[3]);
-      gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+      gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
+      gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPointDir(KMPoint(Params[2],Params[3]),TKMDirection(Params[4])));
 
       gic_BuildPlan:        if fTerrain.Land[Params[2],Params[1]].Markup = TMarkup(Params[3]) then
                               P.RemPlan(KMPoint(Params[1],Params[2]), IsSilent) //Remove existing markup
@@ -288,14 +288,14 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:shortint; aLineAmount:shortint);
+procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:TKMTurnDirection; aLineAmount:shortint);
 begin
   Assert(aCommandType = gic_ArmyHalt);
-  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aTurnAmount, aLineAmount]) );
+  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, byte(aTurnAmount), aLineAmount]) );
 end;
 
 
-procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
+procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection);
 begin
   Assert(aCommandType = gic_ArmyWalk);
   TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aLoc.X, aLoc.Y, byte(aDirection)]) );

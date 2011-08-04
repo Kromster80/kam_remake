@@ -10,7 +10,7 @@ type
     fHome:THouseType;
     fIssued:boolean;
     procedure FillDefaults;
-    procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:shortint=-1); overload;
+    procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:TKMDirection=dir_NA); overload;
     procedure SubActAdd(aAct:THouseActionType; aCycles:single);
     procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod1:TResourceType; Prod2:TResourceType=rt_None);
   public
@@ -19,7 +19,7 @@ type
     WalkTo:TUnitActionType;
     WorkType:TUnitActionType;
     WorkCyc:integer;
-    WorkDir:shortint;
+    WorkDir:TKMDirection;
     GatheringScript:TGatheringScript;
     AfterWorkDelay:integer;
     WalkFrom:TUnitActionType;
@@ -65,7 +65,7 @@ begin
   WalkTo:=ua_Walk;
   WorkType:=ua_Work;
   WorkCyc:=0;
-  WorkDir:=0;
+  WorkDir:=dir_NA;
   GatheringScript:=gs_None;
   AfterWorkDelay:=0;
   WalkFrom:=ua_Walk;
@@ -79,7 +79,7 @@ begin
 end;
 
 
-procedure TUnitWorkPlan.WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:shortint=-1);
+procedure TUnitWorkPlan.WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:TKMDirection=dir_NA);
 begin
   Loc:=aLoc2;
   HasToWalk:=true;
@@ -114,7 +114,7 @@ function TUnitWorkPlan.FindDifferentResource(aLoc, aAvoidLoc: TKMPoint): boolean
 var NewLoc: TKMPointDir;
     Found: Boolean;
 begin
-  NewLoc.Dir := 99; //Invalid
+  WorkDir := dir_NA;
   with fTerrain do
   case GatheringScript of
     gs_StoneCutter:     Found := FindStone(aLoc, RANGE_STONECUTTER, aAvoidLoc, NewLoc.Loc);
@@ -143,15 +143,14 @@ begin
                         end;
     gs_FarmerWine:      Found := FindField(aLoc,RANGE_FARMER,ft_Wine,true,aAvoidLoc, NewLoc.Loc);
     gs_FisherCatch:     Found := FindFishWater(aLoc,RANGE_FISHERMAN,aAvoidLoc, NewLoc);
-    gs_WoodCutterCut:   Found := FindTree(aLoc, RANGE_WOODCUTTER, KMGetVertexTile(aAvoidLoc, TKMDirection(WorkDir+1)), NewLoc);
+    gs_WoodCutterCut:   Found := FindTree(aLoc, RANGE_WOODCUTTER, KMGetVertexTile(aAvoidLoc, WorkDir), NewLoc);
     gs_WoodCutterPlant: Found := FindPlaceForTree(aLoc, RANGE_WOODCUTTER, aAvoidLoc, NewLoc.Loc);
     else                Found := false; //Can find a new resource for an unknown gathering script, so return with false
   end;
   if Found then
   begin
     Loc := NewLoc.Loc;
-    if NewLoc.Dir <> 99 then
-      WorkDir := NewLoc.Dir;
+    WorkDir := NewLoc.Dir;
     Result := true;
   end
   else
@@ -382,7 +381,7 @@ begin
     Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Wine, true, KMPoint(0,0), Tmp.Loc);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
-      WalkStyle(Tmp.Loc,ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine,0); //Grapes must always be picked facing up
+      WalkStyle(Tmp.Loc,ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine, dir_N); //Grapes must always be picked facing up
       SubActAdd(ha_Work1,1);
       SubActAdd(ha_Work2,11);
       SubActAdd(ha_Work5,1);
@@ -394,7 +393,7 @@ begin
     Found := fTerrain.FindStone(aLoc, RANGE_STONECUTTER, KMPoint(0,0), Tmp.Loc);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
-      WalkStyle(Tmp.Loc,ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter,0);
+      WalkStyle(Tmp.Loc,ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter, dir_N);
       SubActAdd(ha_Work1,1);
       SubActAdd(ha_Work2,9);
       SubActAdd(ha_Work5,1);
@@ -413,7 +412,7 @@ begin
     end else begin
       Found := fTerrain.FindPlaceForTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp.Loc);
       if Found then begin //Planting uses DirN (0) of ua_Work
-        WalkStyle(Tmp.Loc,ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant,0);
+        WalkStyle(Tmp.Loc,ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant, dir_N);
       end else
         fIssued:=false;
     end;

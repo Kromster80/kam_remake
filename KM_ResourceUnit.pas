@@ -20,7 +20,7 @@ type
 
   TKMUnitSprite = packed record
     Act:array[1..14]of packed record
-      Dir:array[1..8]of TKMUnitsAnim;
+      Dir:array[dir_N..dir_NW]of TKMUnitsAnim;
     end;
   end;
 
@@ -35,7 +35,7 @@ type
     function GetGUIIcon:word;
     function GetGUIScroll:word;
     function GetSpeed:single;
-    function GetUnitAnim(aAction:byte; aDir:byte):TKMUnitsAnim;
+    function GetUnitAnim(aAction:byte; aDir:TKMDirection):TKMUnitsAnim;
     function GetUnitDescription: string;
     function GetUnitName: string;
   public
@@ -54,7 +54,7 @@ type
     property GUIScroll:word read GetGUIScroll;
     property Speed:single read GetSpeed;
     //todo: Replace Bytes with native Types
-    property UnitAnim[aAction:byte; aDir:byte]:TKMUnitsAnim read GetUnitAnim;
+    property UnitAnim[aAction:byte; aDir:TKMDirection]:TKMUnitsAnim read GetUnitAnim;
     property UnitDescription:string read GetUnitDescription;
     property UnitName:string read GetUnitName;
   end;
@@ -172,8 +172,9 @@ begin
 end;
 
 
-function TKMUnitDatClass.GetUnitAnim(aAction, aDir: byte): TKMUnitsAnim;
+function TKMUnitDatClass.GetUnitAnim(aAction: byte; aDir: TKMDirection): TKMUnitsAnim;
 begin
+  Assert(aDir<>dir_NA);
   Result := fUnitSprite.Act[aAction].Dir[aDir];
 end;
 

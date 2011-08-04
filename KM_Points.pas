@@ -12,7 +12,7 @@ const
 
 type
   TKMPoint = record X,Y:word; end;
-  TKMPointDir = record Loc:TKMPoint; Dir:word; end;
+  TKMPointDir = record Loc:TKMPoint; Dir:TKMDirection; end;
   TKMPointF = record X,Y:single; end;
   TKMPointI = record X,Y:integer; end; //Allows negative values
 
@@ -21,15 +21,9 @@ type
   function KMPoint(P:TKMPointI): TKMPoint; overload;
   function KMPointF(X,Y:single): TKMPointF; overload;
   function KMPointF(P:TKMPoint):  TKMPointF; overload;
-  function KMPointDir(X,Y,Dir:word): TKMPointDir; overload;
-  function KMPointDir(X, Y:word; Dir: TKMDirection): TKMPointDir; overload;
-  function KMPointDir(P:TKMPoint; Dir: word): TKMPointDir; overload;
   function KMPointDir(P:TKMPoint; Dir: TKMDirection): TKMPointDir; overload;
-  function KMPointX1(P:TKMPoint): TKMPoint;
-  function KMPointX1Y1(X,Y:word): TKMPoint; overload;
   function KMPointX1Y1(P:TKMPoint): TKMPoint; overload;
-  function KMPointY1(P:TKMPoint): TKMPoint; overload;
-  function KMPointY1(P:TKMPointF): TKMPoint; overload;
+  function KMPointBelow(P:TKMPoint): TKMPoint; overload;
 
   function KMPointRound(const P:TKMPointF): TKMPoint;
   function KMSamePoint(P1,P2:TKMPoint): boolean;
@@ -45,7 +39,10 @@ type
   function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
   function KMGetVertex(Dir: TKMDirection):TKMPointF;
   function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPointDir;
-  function KMLoopDirection(aDir: byte): TKMDirection;
+
+  function KMNextDirection(aDir: TKMDirection): TKMDirection;
+  function KMPrevDirection(aDir: TKMDirection): TKMDirection;
+
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
   function KMStepIsDiag(P1,P2:TKMPoint):boolean;
 
@@ -92,38 +89,10 @@ begin
 end;
 
 
-function KMPointDir(X, Y, Dir: word): TKMPointDir;
-begin
-  Result.Loc := KMPoint(X,Y);
-  Result.Dir := Dir;
-end;
-
-
-function KMPointDir(X, Y:word; Dir: TKMDirection): TKMPointDir;
-begin
-  Result.Loc := KMPoint(X,Y);
-  Result.Dir := byte(Dir)-1;
-end;
-
-
-function KMPointDir(P:TKMPoint; Dir: word): TKMPointDir;
-begin
-  Result.Loc := P;
-  Result.Dir := Dir;
-end;
-
-
 function KMPointDir(P:TKMPoint; Dir: TKMDirection): TKMPointDir;
 begin
   Result.Loc := P;
-  Result.Dir := byte(Dir)-1;
-end;
-
-
-function KMPointX1Y1(X, Y: word): TKMPoint;
-begin
-  Result.X := X+1;
-  Result.Y := Y+1;
+  Result.Dir := Dir;
 end;
 
 
@@ -134,24 +103,10 @@ begin
 end;
 
 
-function KMPointX1(P:TKMPoint): TKMPoint;
-begin
-  Result.X := P.X+1;
-  Result.Y := P.Y;
-end;
-
-
-function KMPointY1(P:TKMPoint): TKMPoint; overload;
+function KMPointBelow(P:TKMPoint): TKMPoint; overload;
 begin
   Result.X := P.X;
   Result.Y := P.Y+1;
-end;
-
-
-function KMPointY1(P:TKMPointF): TKMPoint; overload;
-begin
-  Result.X := round(P.X);
-  Result.Y := round(P.Y)+1;
 end;
 
 
@@ -266,16 +221,27 @@ const
   XBitField: array[TKMDirection] of smallint = (0, 0, 1,1,1,0,-1,-1,-1);
   YBitField: array[TKMDirection] of smallint = (0,-1,-1,0,1,1, 1, 0,-1);
 begin
-  Result.Dir := byte(aDir)-1;
+  Result.Dir := aDir;
   Result.Loc.X := aPoint.X+XBitField[aDir];
   Result.Loc.Y := aPoint.Y+YBitField[aDir];
 end;
 
 
-//Used after added or subtracting from direction so it is still 1..8
-function KMLoopDirection(aDir: byte): TKMDirection;
+function KMNextDirection(aDir: TKMDirection): TKMDirection;
 begin
-  Result := TKMDirection(((aDir+7) mod 8)+1);
+  if aDir < dir_NW then
+    Result := Succ(aDir)
+  else
+    Result := dir_N; //Rewind to start
+end;
+
+
+function KMPrevDirection(aDir: TKMDirection): TKMDirection;
+begin
+  if aDir > dir_N then
+    Result := Pred(aDir)
+  else
+    Result := dir_NW; //Rewind to end
 end;
 
 

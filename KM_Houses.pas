@@ -507,7 +507,7 @@ var
   begin
     //First check that the passabilty is correct, as the house may be placed against blocked terrain
     if not fTerrain.CheckPassability(KMPoint(X,Y),aPassability) then exit;
-    Cells.AddEntry(KMPointDir(KMPoint(X,Y),byte(Dir)));
+    Cells.AddEntry(KMPointDir(KMPoint(X,Y), Dir));
   end;
 
 begin
@@ -1212,7 +1212,7 @@ procedure TKMHouseInn.Paint;
 const
   OffX:array[1..3]of single = (-0.5, 0.0, 0.5);
   OffY:array[1..3]of single = ( 0.35, 0.4, 0.45);
-var i:integer; AnimDir:byte; AnimStep:cardinal;
+var i:integer; AnimDir:TKMDirection; AnimStep:cardinal;
 begin
   Inherited;
   if (fBuildState<>hbs_Done) then exit;
@@ -1220,7 +1220,7 @@ begin
   for i:=low(Eater) to high(Eater) do
   if (Eater[i].UnitType<>ut_None) and (Eater[i].FoodKind<>0) then
   begin 
-    AnimDir  := Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
+    AnimDir  := TKMDirection(Eater[i].FoodKind*2 - 1 + ((i-1) div 3));
     AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
 
     fRender.RenderUnit(Eater[i].UnitType, byte(ua_Eat), AnimDir, AnimStep,
@@ -1550,7 +1550,7 @@ begin
     fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
     Soldier.Visible := false; //Make him invisible as he is inside the barracks
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
-    Soldier.OrderLocDir := KMPointDir(KMPointY1(GetEntrance),0); //Position in front of the barracks facing north
+    Soldier.OrderLocDir := KMPointDir(KMPointBelow(GetEntrance),dir_N); //Position in front of the barracks facing north
     Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
 
     //AI do not need auto linking, they manage linking themselves

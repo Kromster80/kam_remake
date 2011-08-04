@@ -1320,8 +1320,8 @@ begin
   if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
   ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
 
-  if Sender = Button_Army_RotCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)-1);
-  if Sender = Button_Army_RotCCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)+1);
+  if Sender = Button_Army_RotCW then Commander.Direction := KMNextDirection(Commander.Direction);
+  if Sender = Button_Army_RotCCW then Commander.Direction := KMPrevDirection(Commander.Direction);
   Commander.AnimStep := UnitStillFrames[Commander.Direction];
 
   //Toggle between full and half condition

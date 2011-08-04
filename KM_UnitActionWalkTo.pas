@@ -603,7 +603,7 @@ end;
 
 
 function TUnitActionWalkTo.IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-var i:shortint;
+var i:byte; //Test 2 options really
     TempPos, OpponentNextNextPos: TKMPoint;
     fAltOpponent:TKMUnit;
 begin
@@ -614,10 +614,10 @@ begin
   if CheckInteractionFreq(HighestInteractionCount,DODGE_TIMEOUT,DODGE_FREQ) then
   begin
     //Tiles to the left (-1) and right (+1) (relative to unit) of the one we are walking to
-    for i := -1 to 1 do
-    if i <> 0 then
+    for i := 0 to 1 do
     begin
-      TempPos := KMGetPointInDir(fWalker.GetPosition,KMLoopDirection(byte(KMGetDirection(fWalker.GetPosition,NodeList.List[NodePos+1]))+i)).Loc;
+      if i = 0 then TempPos := KMGetPointInDir(fWalker.GetPosition,KMPrevDirection((KMGetDirection(fWalker.GetPosition,NodeList.List[NodePos+1])))).Loc;
+      if i = 1 then TempPos := KMGetPointInDir(fWalker.GetPosition,KMNextDirection((KMGetDirection(fWalker.GetPosition,NodeList.List[NodePos+1])))).Loc;
       if fTerrain.TileInMapCoords(TempPos.X,TempPos.Y) and fTerrain.CanWalkDiagonaly(fWalker.GetPosition,TempPos)
         and (GetEffectivePassability in fTerrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
       if fTerrain.HasUnit(TempPos) then //Now see if it has a unit
