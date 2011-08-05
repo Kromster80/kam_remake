@@ -127,7 +127,7 @@ type TCheckAxis = (ax_X, ax_Y);
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
-    function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
+    function GetDesiredPassability(aIgnoreRoads:boolean=false):TPassability;
     property GetOwner:TPlayerIndex read fOwner;
     function CanAccessHome: boolean;
     property GetHome:TKMHouse read fHome;
@@ -816,8 +816,8 @@ begin
 
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if (not fTerrain.CheckPassability(fCurrPosition,AnimalTerrain[UnitType]))
-  or fTerrain.CheckAnimalIsStuck(fCurrPosition,AnimalTerrain[UnitType],false) then begin
+  if (not fTerrain.CheckPassability(fCurrPosition,GetDesiredPassability))
+  or fTerrain.CheckAnimalIsStuck(fCurrPosition,GetDesiredPassability,false) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -826,7 +826,7 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X+KaMRandomS(SpotJit),fCurrPosition.Y+KaMRandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.Route_CanBeMade(fCurrPosition,Spot,AnimalTerrain[UnitType],0, false)));
+  until((SpotJit=0)or(fTerrain.Route_CanBeMade(fCurrPosition,Spot,GetDesiredPassability,0, false)));
 
   if KMSamePoint(fCurrPosition,Spot) then
     SetActionStay(20, ua_Walk)
@@ -1357,18 +1357,15 @@ begin
 end;
 
 
-function TKMUnit.GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
+//Specific unit desired passability may depend on several factors
+function TKMUnit.GetDesiredPassability(aIgnoreRoads:boolean=false):TPassability;
 begin
-  case fUnitType of //Select desired passability depending on unit type
-    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := CanWalkRoad; //Citizens except Worker
-    ut_Wolf..ut_Duck:                              Result := AnimalTerrain[fUnitType] //Animals
-    else                                           Result := CanWalk; //Worker, Warriors
-  end;
+  Result := fResource.UnitDat[fUnitType].DesiredPassability;
 
   //Delivery to unit
   if (fUnitType = ut_Serf)
-  and(fUnitTask is TTaskDeliver)
-  and(TTaskDeliver(fUnitTask).DeliverKind = dk_ToUnit)
+  and (fUnitTask is TTaskDeliver)
+  and (TTaskDeliver(fUnitTask).DeliverKind = dk_ToUnit)
   then
     Result := CanWalk;
 
@@ -1386,8 +1383,8 @@ begin
   then
     Result := CanWalk;
 
-  //aUseCanWalk means use CanWalk unless we are a worker on a building site
-  if aUseCanWalk and (Result <> CanWorker) then
+  //aIgnoreRoads means we are desperate enough to ignore roads (e.g. when looking for an Inn)
+  if aIgnoreRoads then
     Result := CanWalk;
 end;
 

@@ -407,10 +407,6 @@ const FlagYOffset: array[TGroupType, TKMDirection] of shortint = (
     ( 0,  4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
 
 
-//Defines which animal prefers which terrain
-const AnimalTerrain: array[ut_Wolf .. ut_Duck] of TPassability = (
-    CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
-
 type TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
 
 type //Army_Flag=4962,

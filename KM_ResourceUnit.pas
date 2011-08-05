@@ -37,13 +37,15 @@ type
     fUnitDat: TKMUnitDat;
     fUnitSprite:TKMUnitSprite;
     fUnitSprite2:TKMUnitSprite2;
+    function GetAllowedPassability: TPassability;
+    function GetDesiredPassability: TPassability;
+    function GetFightType: TFightType;
     function GetGUIIcon:word;
     function GetGUIScroll:word;
     function GetSpeed:single;
     function GetUnitAnim(aAction:TUnitActionType; aDir:TKMDirection):TKMUnitsAnim;
     function GetUnitDescription: string;
     function GetUnitName: string;
-    function GetFightType: TFightType;
   public
     constructor Create(aType:TUnitType);
     function IsValid:boolean;
@@ -56,6 +58,8 @@ type
     property Defence:smallint read fUnitDat.Defence;
     property Sight:smallint read fUnitDat.Sight;
     //Additional properties added by Remake
+    property AllowedPassability:TPassability read GetAllowedPassability;
+    property DesiredPassability:TPassability read GetDesiredPassability;
     property FightType:TFightType read GetFightType;
     property GUIIcon:word read GetGUIIcon;
     property GUIScroll:word read GetGUIScroll;
@@ -186,6 +190,28 @@ const UnitSupportedActions:array[TUnitType]of TUnitActionTypeSet = (
     );
 begin
   Result := aAct in UnitSupportedActions[fUnitType];
+end;
+
+
+function TKMUnitDatClass.GetAllowedPassability: TPassability;
+//Defines which animal prefers which terrain
+const AnimalTerrain: array[ut_Wolf .. ut_Duck] of TPassability = (
+    CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
+begin
+  case fUnitType of
+    ut_Wolf..ut_Duck:                              Result := AnimalTerrain[fUnitType]; //Animals
+    else                                           Result := CanWalk; //Worker, Warriors
+  end;
+end;
+
+
+//Where unit would like to be
+function TKMUnitDatClass.GetDesiredPassability: TPassability;
+begin
+  case fUnitType of
+    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := CanWalkRoad; //Citizens except Worker
+    else Result := GetAllowedPassability;
+  end;
 end;
 
 

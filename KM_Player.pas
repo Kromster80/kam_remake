@@ -373,30 +373,30 @@ var
   i: integer;
   Dist, BestMatch: single;
 begin
-   //This function will return the best inn for a unit at Loc, base on distance, food available and space available.
-   //Will return nil if no suitable inn is available
-   Result := nil;
-   i:=1;
-   BestMatch := 9999;
-   if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
-         
-   H := TKMHouseInn(FindHouse(ht_Inn));
-   repeat
-     //First make sure that it is valid
-     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointBelow(H.GetEntrance),aUnit.GetDesiredPassability(true),0, false)) then
-     begin
-        //Take the closest inn out of the ones that are suitable
-        Dist := GetLength(H.GetPosition,Loc);
-        if Dist < BestMatch then
-        begin
-          Result := H;
-          BestMatch := Dist;
-        end;
-     end;
+  //This function will return the best inn for a unit at Loc, base on distance, food available and space available.
+  //Will return nil if no suitable inn is available
+  Result := nil;
+  i:=1;
+  BestMatch := 9999;
+  if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
 
-     inc(i);
-     H:=TKMHouseInn(FindHouse(ht_Inn,i));
-   until(H = nil);
+  H := TKMHouseInn(FindHouse(ht_Inn));
+  repeat
+    //First make sure that it is valid
+    if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointBelow(H.GetEntrance),aUnit.GetDesiredPassability(true),0, false)) then
+    begin
+      //Take the closest inn out of the ones that are suitable
+      Dist := GetLength(H.GetPosition,Loc);
+      if Dist < BestMatch then
+      begin
+        Result := H;
+        BestMatch := Dist;
+      end;
+    end;
+
+    inc(i);
+    H:=TKMHouseInn(FindHouse(ht_Inn,i));
+  until(H = nil);
 end;
 
 

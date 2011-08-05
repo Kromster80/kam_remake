@@ -63,7 +63,7 @@ var
 
 
 implementation
-uses KM_Terrain, KM_Game, KM_Log;
+uses KM_Terrain, KM_Game, KM_Log, KM_ResourceGFX;
 
 
 {TKMAllPlayers}
@@ -292,20 +292,16 @@ var
   i:integer;
   P:TKMPointI;
   T:TKMPoint;
-  aPass:TPassability; //temp for required passability
+  Pass:TPassability; //temp for required passability
 begin
   Result := False; // if function fails to find valid position
-
-  if aUnitType in [ut_Wolf..ut_Duck] then
-    aPass := AnimalTerrain[aUnitType]
-  else
-    aPass := CanWalk;
+  Pass := fResource.UnitDat[aUnitType].AllowedPassability;
 
   for i:=0 to 255 do begin
     P := GetPositionFromIndex(KMPoint(PosX,PosY), i);
     if fTerrain.TileInMapCoords(P.X,P.Y) then begin
       T := KMPoint(P);
-      if fTerrain.CheckPassability(T, aPass) and (fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)) = fTerrain.GetWalkConnectID(T))
+      if fTerrain.CheckPassability(T, Pass) and (fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)) = fTerrain.GetWalkConnectID(T))
       and not fTerrain.HasUnit(T) then begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;

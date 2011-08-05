@@ -77,7 +77,7 @@ TTerrain = class
     procedure IncDigState(Loc:TKMPoint);
     procedure ResetDigState(Loc:TKMPoint);
 
-    function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
+    function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
     function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
     function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; aPlayer:TKMPlayer):boolean;
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
@@ -2001,24 +2001,12 @@ end;
 
 
 {Check if Unit can be placed here}
-//Serfs and Workers can be placed off-road since player might want to have a lot of them.
-function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
-var DesiredPass:TPassability;
+//Used by MapEd, so we use AllowedTerrain which lets us place citizens off-road
+function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
 begin
-  Result := TileInMapCoords(Loc.X, Loc.Y); //Only within map coords
-  Result := Result and (Land[Loc.Y, Loc.X].IsUnit = nil); //Check for no unit below
-
-  case aUnitType of
-    ut_Woodcutter..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := CanWalkRoad; //Citizens except Worker
-    ut_Wolf..ut_Duck:                              DesiredPass := AnimalTerrain[aUnitType] //Animals
-    else                                           DesiredPass := CanWalk; //Serf, Worker, Warriors
-  end;
-
-  //In e.g. map editor mode we are allowed to place citizens off roads
-  if aAllowCitizensOffRoad and (DesiredPass = CanWalkRoad) then
-    DesiredPass := CanWalk;
-
-  Result := Result and (DesiredPass in Land[Loc.Y, Loc.X].Passability);
+  Result := TileInMapCoords(Loc.X, Loc.Y)
+            and (Land[Loc.Y, Loc.X].IsUnit = nil) //Check for no unit below
+            and (fResource.UnitDat[aUnitType].AllowedPassability in Land[Loc.Y, Loc.X].Passability);
 end;
 
 
