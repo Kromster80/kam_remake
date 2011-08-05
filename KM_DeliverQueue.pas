@@ -321,10 +321,6 @@ begin
             (fDemand[iD].Loc_Unit<>nil)and
             (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,CanWalk,1, false))
             )
-            or
-            ( //Or maybe serfs can walk anywhere?
-            not DO_SERFS_WALK_ROADS
-            )
             );
 end;
 

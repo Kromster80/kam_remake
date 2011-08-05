@@ -1365,8 +1365,6 @@ begin
     else                                           Result := CanWalk; //Worker, Warriors
   end;
 
-  if (not DO_SERFS_WALK_ROADS) and (fUnitType in [ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit]) then Result := CanWalk; //Reset villagers to CanWalk for debug (not animals!)
-
   //Delivery to unit
   if (fUnitType = ut_Serf)
   and(fUnitTask is TTaskDeliver)
