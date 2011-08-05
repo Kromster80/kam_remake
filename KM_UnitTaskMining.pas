@@ -17,7 +17,7 @@ type
       destructor Destroy; override;
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
-      function WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean;
+      procedure FindAnotherWorkPlan;
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -60,34 +60,27 @@ begin
 end;
 
 
-//This procedure is run by the walk action when the walk target is blocked by a busy unit.
-//The unit might have taken our resource, if so we should find a new one.
-function TTaskMining.WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean;
+//Try to find alternative target for our WorkPlan
+//Happens when we discover that resource is gone or is occupied by another busy unit
+//Return false if new plan could not be found
+procedure TTaskMining.FindAnotherWorkPlan;
 var OldLoc: TKMPoint;
 begin
-  //Is the unit taking our resource? (are they are mining with the same gathering script)
-  if (aBlockingUnit.GetUnitTask is TTaskMining) and
-    (TTaskMining(aBlockingUnit.GetUnitTask).WorkPlan.GatheringScript = WorkPlan.GatheringScript) then
+  OldLoc := WorkPlan.Loc;
+  //Tell the work plan to find a new resource of the same gathering script
+  if WorkPlan.FindDifferentResource(KMPointBelow(fUnit.GetHome.GetEntrance), WorkPlan.Loc) then
   begin
-    Result := true;
-    OldLoc := WorkPlan.Loc;
-    //Tell the work plan to find a new resource of the same gathering script
-    if WorkPlan.FindDifferentResource(KMPointBelow(fUnit.GetHome.GetEntrance), WorkPlan.Loc) then
-    begin
-      if not KMSamePoint(OldLoc,WorkPlan.Loc) then
-      begin
-        fUnit.SetActionAbandonWalk(fUnit.NextPosition,WorkPlan.WalkTo); //Abandon the current walk
-        fPhase := 1 //Set the walk again
-      end;
-    end
-    else
+    if not KMSamePoint(OldLoc,WorkPlan.Loc) then
     begin
       fUnit.SetActionAbandonWalk(fUnit.NextPosition,WorkPlan.WalkTo); //Abandon the current walk
-      fPhase := 99; //Exit the task
+      fPhase := 1 //Set the walk again
     end;
   end
   else
-    Result := false;
+  begin
+    fUnit.SetActionAbandonWalk(fUnit.NextPosition,WorkPlan.WalkTo); //Abandon the current walk
+    fPhase := 99; //Exit the task on next update, since this function could be called externally (by WalkTo)
+  end;
 end;
 
 
@@ -143,8 +136,8 @@ begin
          SetActionGoIn(WorkPlan.WalkTo, gd_GoOutside, GetHome); //Walk outside the house
        end else begin
          fPhase := SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
-         SetActionLockedStay(0,ua_Walk);
-         exit;
+         SetActionLockedStay(0, ua_Walk);
+         Exit;
        end;
        //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
     1: SetActionWalkToSpot(WorkPlan.Loc, 0, WorkPlan.WalkTo);
@@ -154,26 +147,25 @@ begin
          SetActionLockedStay(13, ua_Work1, false); //Throw the line out
        end else
          SetActionLockedStay(0, WorkPlan.WalkTo);
-    3: //IF resource still exists on location
-       if ResourceExists then
+    3: if not ResourceExists then
+         FindAnotherWorkPlan
+       else
        begin //Choose direction and time to work
+         if not (WorkPlan.WorkDir in [dir_NA..dir_NW]) then
+           Assert(false);
+
          if WorkPlan.WorkDir <> dir_NA then
            Direction := WorkPlan.WorkDir;
 
-           if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, Direction].Count < 1 then
-             for D:=dir_N to dir_NW do
-               if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, D].Count > 1 then
-               begin
-                 Direction := D;
-                 Break;
-               end;
+         if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, Direction].Count < 1 then
+           for D:=dir_N to dir_NW do
+             if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, D].Count > 1 then
+             begin
+               Direction := D;
+               Break;
+             end;
          TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, Direction].Count, 1);
          SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
-       end
-       else
-       begin
-         Result := TaskDone;
-         exit;
        end;
     4: //After work tasks for specific mining jobs
        case WorkPlan.GatheringScript of
@@ -190,9 +182,7 @@ begin
            gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
            gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir)); WorkPlan.WorkType := ua_WalkTool; end;
            gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
-           gs_WoodCutterCut:   begin
-           fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir)); StillFrame := 5;
-           end;
+           gs_WoodCutterCut:   begin fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir)); StillFrame := 5; end;
          end;
          SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
        end;

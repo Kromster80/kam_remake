@@ -686,10 +686,12 @@ begin
         end;
     end
     else
+      //If there's a locked unit (mining our resource or just building a road) we better try to find a new mining location
       if fOpponent.GetUnitAction.Locked then
-        if fWalker.GetUnitTask is TTaskMining then //We might need to notify our task that there is a unit blocking our destination
-          if TTaskMining(fWalker.GetUnitTask).WalkTargetBlocked(fOpponent) then //If it returns true then this walk action has been destroyed so exit immediately
-            Result := true; //Means exit DoUnitInteraction
+      begin
+        TTaskMining(fWalker.GetUnitTask).FindAnotherWorkPlan;
+        Result := true; //Means exit DoUnitInteraction
+      end;
   end;
 end;
 

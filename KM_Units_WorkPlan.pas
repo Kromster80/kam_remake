@@ -118,13 +118,13 @@ begin
   with fTerrain do
   case GatheringScript of
     gs_StoneCutter:     Found := FindStone(aLoc, RANGE_STONECUTTER, aAvoidLoc, NewLoc.Loc);
-    gs_FarmerSow:       Found := FindField(aLoc,RANGE_FARMER,ft_Corn,false,aAvoidLoc, NewLoc.Loc);
+    gs_FarmerSow:       Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc.Loc);
     gs_FarmerCorn:      begin
-                          Found := FindField(aLoc,RANGE_FARMER,ft_Corn,true,aAvoidLoc, NewLoc.Loc);
+                          Found := FindField(aLoc, RANGE_FARMER, ft_Corn, true, aAvoidLoc, NewLoc.Loc);
                           if not Found then
                           begin
                             //If we can't find any other corn to cut we can try sowing instead
-                            Found := FindField(aLoc,RANGE_FARMER,ft_Corn,false,aAvoidLoc, NewLoc.Loc);
+                            Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc.Loc);
                             if Found then
                             begin
                               GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
@@ -141,8 +141,8 @@ begin
                             end;
                           end;
                         end;
-    gs_FarmerWine:      Found := FindField(aLoc,RANGE_FARMER,ft_Wine,true,aAvoidLoc, NewLoc.Loc);
-    gs_FisherCatch:     Found := FindFishWater(aLoc,RANGE_FISHERMAN,aAvoidLoc, NewLoc);
+    gs_FarmerWine:      Found := FindField(aLoc, RANGE_FARMER, ft_Wine, true, aAvoidLoc, NewLoc.Loc);
+    gs_FisherCatch:     Found := FindFishWater(aLoc, RANGE_FISHERMAN, aAvoidLoc, NewLoc);
     gs_WoodCutterCut:   Found := FindTree(aLoc, RANGE_WOODCUTTER, KMGetVertexTile(aAvoidLoc, WorkDir), NewLoc);
     gs_WoodCutterPlant: Found := FindPlaceForTree(aLoc, RANGE_WOODCUTTER, aAvoidLoc, NewLoc.Loc);
     else                Found := false; //Can find a new resource for an unknown gathering script, so return with false
