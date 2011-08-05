@@ -5,6 +5,11 @@ uses
   Classes, Math, SysUtils, KM_CommonTypes, KM_Points, KM_Defaults;
 
 
+//Used to separate close-combat units from archers (they use different fighting logic)
+type
+  TFightType = (ft_Melee, ft_Ranged);
+
+
 type
   TKMUnitsAnim = packed record
     Step:array[1..30]of smallint;
@@ -38,6 +43,7 @@ type
     function GetUnitAnim(aAction:TUnitActionType; aDir:TKMDirection):TKMUnitsAnim;
     function GetUnitDescription: string;
     function GetUnitName: string;
+    function GetFightType: TFightType;
   public
     constructor Create(aType:TUnitType);
     function IsValid:boolean;
@@ -50,6 +56,7 @@ type
     property Defence:smallint read fUnitDat.Defence;
     property Sight:smallint read fUnitDat.Sight;
     //Additional properties added by Remake
+    property FightType:TFightType read GetFightType;
     property GUIIcon:word read GetGUIIcon;
     property GUIScroll:word read GetGUIScroll;
     property Speed:single read GetSpeed;
@@ -275,6 +282,25 @@ begin
   finally
     S.Free;
   end;
+end;
+
+
+function TKMUnitDatClass.GetFightType: TFightType;
+const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
+    ft_Melee,ft_Melee,ft_Melee, //Militia, AxeFighter, Swordsman
+    ft_Ranged,ft_Ranged,        //Bowman, Arbaletman
+    ft_Melee,ft_Melee,          //Pikeman, Hallebardman,
+    ft_Melee,ft_Melee,          //HorseScout, Cavalry,
+    ft_Melee                    //Barbarian
+    {ft_Melee,           //Peasant
+    ft_Ranged,           //ut_Slingshot
+    ft_Melee,            //ut_MetalBarbarian
+    ft_Melee,            //ut_Horseman
+    ft_Ranged,ft_Ranged, //ut_Catapult, ut_Ballista,}
+    );
+begin
+  Assert(fUnitType in [Low(WarriorFightType)..High(WarriorFightType)]);
+  Result := WarriorFightType[fUnitType];
 end;
 
 

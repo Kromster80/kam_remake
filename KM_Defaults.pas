@@ -366,25 +366,8 @@ type
     ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
 
-//Used to separate close-combat units from archers (they use different fighting logic)
-type TFightType = (ft_Melee, ft_Ranged);
-
-const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
-    ft_Melee,ft_Melee,ft_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
-    ft_Ranged,ft_Ranged,        //ut_Bowman, ut_Arbaletman
-    ft_Melee,ft_Melee,  //ut_Pikeman, ut_Hallebardman,
-    ft_Melee,ft_Melee,      //ut_HorseScout, ut_Cavalry,
-    ft_Melee                    //ut_Barbarian
-    //TPR Army
-    {ft_Melee,        //ut_Peasant
-    ft_Ranged,           //ut_Slingshot
-    ft_Melee,            //ut_MetalBarbarian
-    ft_Melee,          //ut_Horseman
-    ft_Ranged,ft_Ranged, //ut_Catapult, ut_Ballista,}
-    );
-
-
 //Used for AI defence and linking troops
+//@Lewin: Can we remove gt_None? It appears it could be used only in legacy scripts. I guess we don't need it in code?
 type TGroupType = (gt_None, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
 
 const UnitGroups: array[ut_Militia..ut_Barbarian] of TGroupType = (

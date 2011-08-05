@@ -780,7 +780,7 @@ var
   i: longint; //longint because it is used for encoding entire output, which will limit the file size
   k,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
   Res:TResourceType;
-  Group: TGroupType;
+  G: TGroupType;
   CurUnit: TKMUnit;
   CurHouse: TKMHouse;
   H:THouseType;
@@ -881,9 +881,9 @@ begin
         AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers.Player[i].AI.MaxSoldiers]);
       AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers.Player[i].AI.Aggressiveness]);
       AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.Player[i].AI.RecruitTrainTimeout]);
-      for Group:=low(TGroupType) to high(TGroupType) do
-        if (Group <> gt_None) and (fPlayers.Player[i].AI.TroopFormations[Group].NumUnits <> 0) then //Must be valid and used
-          AddCommand(ct_AICharacter,cpt_TroopParam, [byte(Group)-1,fPlayers.Player[i].AI.TroopFormations[Group].NumUnits,fPlayers.Player[i].AI.TroopFormations[Group].UnitsPerRow]);
+      for G:=Low(TGroupType) to High(TGroupType) do
+        if (G <> gt_None) and (fPlayers.Player[i].AI.TroopFormations[G].NumUnits <> 0) then //Must be valid and used
+          AddCommand(ct_AICharacter,cpt_TroopParam, [byte(G)-1,fPlayers.Player[i].AI.TroopFormations[G].NumUnits,fPlayers.Player[i].AI.TroopFormations[G].UnitsPerRow]);
       AddData(''); //NL
       for k:=0 to fPlayers.Player[i].AI.DefencePositionsCount-1 do
         with fPlayers.Player[i].AI.DefencePositions[k] do
@@ -898,9 +898,9 @@ begin
           if TakeAll then
             AddCommand(ct_AIAttack,cpt_TakeAll, [])
           else
-            for Group:=low(TGroupType) to high(TGroupType) do
-              if Group <> gt_None then
-                AddCommand(ct_AIAttack,cpt_TroopAmount, [byte(Group)-1, GroupAmounts[Group]]);
+            for G:=Low(TGroupType) to High(TGroupType) do
+              if G <> gt_None then
+                AddCommand(ct_AIAttack,cpt_TroopAmount, [byte(G)-1, GroupAmounts[G]]);
 
           if (Delay > 0) or (AttackType = aat_Once) then //Type once must always have counter because it uses the delay
             AddCommand(ct_AIAttack,cpt_Counter, [Delay]);

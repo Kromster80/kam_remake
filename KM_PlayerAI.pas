@@ -463,15 +463,16 @@ var AttackTotalAvailable: integer; //Total number of warriors available to attac
   end;
 
 var i, k, j, Matched: integer;
+    G: TGroupType;
     Distance, Best: single;
     Positioned: boolean;
     NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
 begin
   AttackTotalAvailable := 0;
-  for i:=byte(low(TGroupType)) to byte(high(TGroupType)) do
+  for G:=Low(TGroupType) to High(TGroupType) do
   begin
-    NeedsLinkingTo[TGroupType(i)] := nil;
-    AttackGroupsCount[TGroupType(i)] := 0;
+    NeedsLinkingTo[G] := nil;
+    AttackGroupsCount[G] := 0;
   end;
 
   //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
@@ -499,8 +500,8 @@ begin
 
           //Check formation. If the script has defined a group with more units per row than there should be, do not change it
           if UnitGroups[UnitType] <> gt_None then
-            if UnitsPerRow < TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
-              UnitsPerRow := TroopFormations[UnitGroups[UnitType]].UnitsPerRow;
+          if UnitsPerRow < TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
+            UnitsPerRow := TroopFormations[UnitGroups[UnitType]].UnitsPerRow;
           //Position this group to defend if they already belong to a defence position
           Positioned := false;
           for k:=0 to DefencePositionsCount-1 do
@@ -591,9 +592,9 @@ begin
     end
     else
     begin
-      for k:=byte(low(TGroupType)) to byte(high(TGroupType)) do
-        for j:=1 to GroupAmounts[TGroupType(k)] do
-          OrderAttack(AttackGroups[TGroupType(k),integer(j)-1],Target,CustomPosition);
+      for G:=Low(TGroupType) to High(TGroupType) do
+        for j:=1 to GroupAmounts[G] do
+          OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
     end;
     HasOccured := true;
   end;

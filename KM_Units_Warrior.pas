@@ -97,7 +97,7 @@ type
 implementation
 uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_Terrain, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
-  KM_UnitActionStormAttack, KM_ResourceGFX;
+  KM_UnitActionStormAttack, KM_ResourceGFX, KM_ResourceUnit;
 
 
 { TKMUnitWarrior }
@@ -681,7 +681,7 @@ end;
 
 function TKMUnitWarrior.IsRanged:boolean;
 begin
-  Result := WarriorFightType[UnitType] = ft_Ranged;
+  Result := fResource.UnitDat[fUnitType].FightType = ft_Ranged;
 end;
 
 
