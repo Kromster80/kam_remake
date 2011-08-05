@@ -164,7 +164,7 @@ type TCheckAxis = (ax_X, ax_Y);
   //This is a common class for units going out of their homes for resources
   TKMUnitCitizen = class(TKMUnit)
   private
-    fWorkPlan:TUnitWorkPlan;
+    fWorkPlan:TUnitWorkPlan; //todo: Move into TKMTaskMining
     function FindHome:boolean;
     function InitiateMining:TUnitTask;
     procedure IssueResourceDepletedMessage;
