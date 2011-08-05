@@ -63,7 +63,7 @@ type
     procedure OrderStorm;
     procedure OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
     procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true); reintroduce; overload;
-    procedure OrderWalk(aLoc:TKMPoint); reintroduce; overload;
+    procedure OrderWalk(aLoc:TKMPoint; aDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
 
@@ -205,6 +205,7 @@ begin
   end;
 
   //Kill group commander
+  //todo: Move this to new procedure
   if fCommander = nil then
   begin
     NewCommander := nil;
@@ -253,7 +254,7 @@ begin
       else
         //If we were walking/attacking then it is handled above. Otherwise just reposition
         if (fState <> ws_Walking) and not NewCommander.ArmyInFight then
-          NewCommander.OrderWalk(KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir)); //Else use position of new commander and direction of group
+          NewCommander.OrderWalk(NewCommander.GetPosition, fOrderLoc.Dir); //Else use position of new commander and direction of group
 
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
       fCommander := NewCommander;
@@ -748,6 +749,7 @@ end;
 procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true);
 var i:integer; NewLoc:TKMPoint; NewLocCanBeReached: boolean;
 begin
+  Assert(aLoc.Dir <> dir_NA);
   if KMSamePoint(aLoc.Loc, KMPoint(0,0)) then exit;
   if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
@@ -768,14 +770,17 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPoint);
+procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPoint; aDir:TKMDirection=dir_NA);
 var NewP:TKMPointDir;
 begin
-  //keep old direction if group had an order to walk somewhere
-  if (fOrderLoc.Loc.X <> 0) then
-    NewP := KMPointDir(aLoc, fOrderLoc.Dir)
+  //Choose best direction
+  if aDir = dir_NA then
+    if (fOrderLoc.Loc.X <> 0) then
+      NewP := KMPointDir(aLoc, fOrderLoc.Dir) //keep old direction if group had an order to walk somewhere
+    else
+      NewP := KMPointDir(aLoc, Direction)
   else
-    NewP := KMPointDir(aLoc, Direction);
+    NewP := KMPointDir(aLoc, aDir);
 
   OrderWalk(NewP);
 end;

@@ -217,7 +217,7 @@ begin
       gic_ArmyAttackUnit:   TKMUnitWarrior(U).GetCommander.OrderAttackUnit(U2);
       gic_ArmyAttackHouse:  TKMUnitWarrior(U).GetCommander.OrderAttackHouse(H2);
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
-      gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPointDir(KMPoint(Params[2],Params[3]),TKMDirection(Params[4])));
+      gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
       gic_BuildPlan:        if fTerrain.Land[Params[2],Params[1]].Markup = TMarkup(Params[3]) then
                               P.RemPlan(KMPoint(Params[1],Params[2]), IsSilent) //Remove existing markup

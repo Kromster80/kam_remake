@@ -603,7 +603,7 @@ begin
                        end;
     ct_SendGroup:      begin
                          if fLastTroop <> nil then
-                           fLastTroop.OrderWalk(KMPointDir(KMPoint(ParamList[0]+1, ParamList[1]+1), TKMDirection(ParamList[2]+1)))
+                           fLastTroop.OrderWalk(KMPoint(ParamList[0]+1, ParamList[1]+1), TKMDirection(ParamList[2]+1))
                          else
                            DebugScriptError('ct_SendGroup without prior declaration of Troop');
                        end;
