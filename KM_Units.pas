@@ -303,29 +303,29 @@ end;
 
 
 procedure TKMUnitCitizen.Paint;
-var AnimAct:integer; XPaintPos, YPaintPos: single;
+var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
-  AnimAct:=byte(fCurrentAction.fActionType);
+  Act := fCurrentAction.fActionType;
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
   case fCurrentAction.fActionType of
-  ua_Walk:
-    begin
-      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(fUnitType,     9, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
-    end;
-  ua_Work..ua_Eat:
-      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-  ua_WalkArm .. ua_WalkBooty2:
-    begin
-      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
-    end;
+    ua_Walk:
+      begin
+        fRender.RenderUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        if ua_WalkArm in UnitSupportedActions[fUnitType] then
+          fRender.RenderUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      end;
+    ua_Work..ua_Eat:
+        fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+    ua_WalkArm .. ua_WalkBooty2:
+      begin
+        fRender.RenderUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      end;
   end;
 
   if fThought<>th_None then
@@ -483,11 +483,11 @@ end;
 
 
 procedure TKMUnitRecruit.Paint;
-var AnimAct:integer; XPaintPos, YPaintPos: single;
+var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
-  AnimAct:=byte(fCurrentAction.fActionType);
+  Act := fCurrentAction.fActionType;
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
@@ -495,16 +495,16 @@ begin
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(fUnitType,     9, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+        fRender.RenderUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(fUnitType,       1, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+      fRender.RenderUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+      fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   end;
 
@@ -604,23 +604,23 @@ end;
 
 
 procedure TKMUnitSerf.Paint;
-var AnimAct:integer; XPaintPos, YPaintPos: single;
+var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
-  AnimAct := integer(fCurrentAction.fActionType); //should correspond with UnitAction
+  Act := fCurrentAction.fActionType;
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitType, AnimAct, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(UnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> rt_None then
     fRender.RenderUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRender.RenderUnit(UnitType, 9, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
+    fRender.RenderUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -700,7 +700,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitType, byte(fCurrentAction.fActionType), Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+  fRender.RenderUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -845,16 +845,18 @@ begin
 end;
 
 
+//For fish the action is the number of fish in the group
 procedure TKMUnitAnimal.Paint;
-var AnimAct:integer;
+const FishCountAct:array[1..5]of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
+var Act:TUnitActionType;
 begin
   Inherited;
   if fUnitType = ut_Fish then
-    AnimAct := fFishCount //For fish the action is the number of fish in the group
+    Act := FishCountAct[fFishCount]
   else
-    AnimAct := byte(fCurrentAction.fActionType); //should correspond with UnitAction
+    Act := fCurrentAction.fActionType;
 
-  fRender.RenderUnit(fUnitType, AnimAct, Direction, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
+  fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
 end;
 
 

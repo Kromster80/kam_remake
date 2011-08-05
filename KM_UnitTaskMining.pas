@@ -160,14 +160,14 @@ begin
          if WorkPlan.WorkDir <> dir_NA then
            Direction := WorkPlan.WorkDir;
 
-           if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Direction].Count < 1 then
+           if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, Direction].Count < 1 then
              for D:=dir_N to dir_NW do
-               if fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), D].Count > 1 then
+               if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, D].Count > 1 then
                begin
                  Direction := D;
                  Break;
                end;
-         TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[byte(WorkPlan.WorkType), Direction].Count, 1);
+         TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, Direction].Count, 1);
          SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else

@@ -102,11 +102,11 @@ type
     procedure RenderHouseWork(Index:THouseType; AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
     procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
     procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
-    procedure RenderUnit(aUnit:TUnitType; ActID:byte; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
     procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-    procedure RenderUnitFlag(aUnit:TUnitType; ActID:byte; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
-    procedure RenderUnitWithDefaultArm(aUnit:TUnitType; ActID:byte; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+    procedure RenderUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
     property RendererVersion:string read fOpenGL_Version;
   end;
 
@@ -662,9 +662,9 @@ begin
   if FOW <= 128 then exit; //Don't render objects which are behind FOW
 
   case aProj of
-    pt_Arrow: with fResource.UnitDat[ut_Bowman].UnitAnim[byte(ua_Spec), Dir] do
+    pt_Arrow: with fResource.UnitDat[ut_Bowman].UnitAnim[ua_Spec, Dir] do
                 ID := Step[round(Flight*Count)+1]+1;
-    pt_Bolt:  with fResource.UnitDat[ut_Arbaletman].UnitAnim[byte(ua_Spec), Dir] do
+    pt_Bolt:  with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, Dir] do
                 ID := Step[round(Flight*Count)+1]+1;
     pt_TowerRock: ID := ProjectileBounds[aProj,1]+1;
     else ID := 1; //Nothing?
@@ -872,10 +872,10 @@ begin
 end;
 
 
-procedure TRender.RenderUnit(aUnit:TUnitType; ActID:byte; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
-  A := fResource.UnitDat[aUnit].UnitAnim[ActID, aDir];
+  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   ID := A.Step[StepID mod A.Count + 1] + 1;
   if ID <= 0 then exit;
 
@@ -922,10 +922,10 @@ begin
 end;
 
 
-procedure TRender.RenderUnitFlag(aUnit:TUnitType; ActID:byte; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+procedure TRender.RenderUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
-  A := fResource.UnitDat[aUnit].UnitAnim[ActID, aDir];
+  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
   ID := A.Step[StepID mod A.Count + 1] + 1;
   if ID <= 0 then exit;
 
@@ -942,12 +942,12 @@ begin
 end;
 
 
-procedure TRender.RenderUnitWithDefaultArm(aUnit:TUnitType; ActID:byte; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
-  RenderUnit(aUnit,ActID,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
+  RenderUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
   if (aUnit in [Low(UnitSupportedActions)..High(UnitSupportedActions)])
   and ((ua_WalkArm in UnitSupportedActions[aUnit]) or (aUnit = ut_Serf)) then
-    RenderUnit(aUnit,byte(ua_WalkArm),aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
+    RenderUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
 end;
 
 
@@ -1247,7 +1247,7 @@ begin
                    begin
                      UnitDelete := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                      if UnitDelete <> nil then
-                       RenderUnitWithDefaultArm(UnitDelete.UnitType,byte(ua_Walk),UnitDelete.Direction,UnitDelete.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,fPlayers[UnitDelete.GetOwner].FlagColor,true,true,true);
+                       RenderUnitWithDefaultArm(UnitDelete.UnitType,ua_Walk,UnitDelete.Direction,UnitDelete.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,fPlayers[UnitDelete.GetOwner].FlagColor,true,true,true);
                    end
                    else
                    if (
@@ -1298,7 +1298,7 @@ begin
                  RenderDotOnTile(GameCursor.Float.X+1,GameCursor.Float.Y+1);
                end;
     cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
-                 RenderUnitWithDefaultArm(TUnitType(GameCursor.Tag1),byte(ua_Walk),dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
+                 RenderUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   end;
 end;

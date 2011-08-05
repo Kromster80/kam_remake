@@ -451,9 +451,9 @@ type
         uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
 
 type
-  TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,
-                     ua_Work2=6, ua_WorkEnd=7, ua_Eat=8, ua_WalkArm=9, ua_WalkTool=10,
-                     ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
+  TUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,
+                     ua_Work2, ua_WorkEnd, ua_Eat, ua_WalkArm, ua_WalkTool,
+                     ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Empty);
   TUnitActionTypeSet = set of TUnitActionType;
 
   //What player has ordered us to do

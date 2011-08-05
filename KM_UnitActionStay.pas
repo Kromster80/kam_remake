@@ -89,7 +89,7 @@ var Cycle,Step:byte;
 begin
   if not StayStill then
   begin
-    Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[byte(GetActionType), KMUnit.Direction].Count, 1);
+    Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[GetActionType, KMUnit.Direction].Count, 1);
     Step  := KMUnit.AnimStep mod Cycle;
 
     StepDone := KMUnit.AnimStep mod Cycle = 0;

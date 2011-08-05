@@ -126,7 +126,7 @@ begin
              ut_Bowman:     fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Arrow, GetOwner);
              else Assert(false, 'Unknown shooter');
            end;
-           AnimLength := fResource.UnitDat[UnitType].UnitAnim[byte(ua_Work), Direction].Count;
+           AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;
            SetActionLockedStay(AnimLength-FIRING_DELAY-1,ua_Work,false,0,FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
          end else begin

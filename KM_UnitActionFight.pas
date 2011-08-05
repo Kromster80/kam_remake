@@ -147,7 +147,7 @@ begin
     end;
   end;
 
-  Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[byte(GetActionType), KMUnit.Direction].Count, 1);
+  Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[GetActionType, KMUnit.Direction].Count, 1);
   Step  := KMUnit.AnimStep mod Cycle;
 
   //Opponent can walk next to us, keep facing him
