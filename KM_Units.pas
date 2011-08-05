@@ -108,7 +108,6 @@ type TCheckAxis = (ax_X, ax_Y);
     property NextPosition: TKMPoint read fNextPosition;
     property Direction:TKMDirection read fDirection write SetDirection;
 
-    function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X,Y:integer; const UT:TUnitType = ut_Any): Boolean;
     procedure UpdateNextPosition(aLoc:TKMPoint);
 
@@ -220,7 +219,6 @@ type TCheckAxis = (ax_X, ax_Y);
     constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType); overload;
     constructor Load(LoadStream:TKMemoryStream); override;
     function ReduceFish:boolean;
-    function GetSupportedActions: TUnitActionTypeSet; override;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState:boolean; override;
     procedure Paint; override;
@@ -316,7 +314,7 @@ begin
     ua_Walk:
       begin
         fRender.RenderUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-        if ua_WalkArm in UnitSupportedActions[fUnitType] then
+        if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
           fRender.RenderUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
@@ -496,7 +494,7 @@ begin
   ua_Walk:
     begin
       fRender.RenderUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
-      if ua_WalkArm in UnitSupportedActions[fUnitType] then
+      if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
         fRender.RenderUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
     end;
   ua_Work..ua_Eat:
@@ -680,7 +678,7 @@ end;
 
 function TKMUnitSerf.GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
 begin
-  Result:=fPlayers.Player[fOwner].DeliverList.AskForDelivery(Self,aHouse);
+  Result := fPlayers.Player[fOwner].DeliverList.AskForDelivery(Self, aHouse);
 end;
 
 
@@ -779,12 +777,6 @@ begin
     KillUnit;
     Result := true;
   end;
-end;
-
-
-function TKMUnitAnimal.GetSupportedActions: TUnitActionTypeSet;
-begin
-  Result := [ua_Walk];
 end;
 
 
@@ -1072,12 +1064,6 @@ begin
 end;
 
 
-function TKMUnit.GetSupportedActions: TUnitActionTypeSet;
-begin
-  Result := UnitSupportedActions[fUnitType];
-end;
-
-
 procedure TKMUnit.SetPosition(aPos:TKMPoint);
 begin
   Assert(fGame.GameState=gsEditor); //This is only used by the map editor, set all positions to aPos
@@ -1214,7 +1200,7 @@ begin
     FreeAndNil(fCurrentAction);
     exit;
   end;
-  if not (aAction.GetActionType in GetSupportedActions) then
+  if not fResource.UnitDat[fUnitType].SupportsAction(aAction.GetActionType) then
   begin
     Assert(false, 'Unit '+fResource.UnitDat[UnitType].UnitName+' was asked to do unsupported action');
     FreeAndNil(aAction);

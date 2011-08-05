@@ -436,7 +436,7 @@ type
 type
   TUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,
                      ua_Work2, ua_WorkEnd, ua_Eat, ua_WalkArm, ua_WalkTool,
-                     ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Empty);
+                     ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Unknown);
   TUnitActionTypeSet = set of TUnitActionType;
 
   //What player has ordered us to do
@@ -472,36 +472,11 @@ const
   TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
 
 const {Actions names}
-  UnitAct:array[1..14]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
+  UnitAct:array[TUnitActionType]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
              'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
              'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
   //specifies what actions unit can perform, should be ajoined with speeds and other tables
-  UnitSupportedActions:array[ut_Serf .. ut_Barbarian]of TUnitActionTypeSet = (
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die..ua_WalkBooty2],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Work1..ua_WalkBooty],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat, ua_Work1, ua_Work2],
-    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Recruit
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Militia
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat]
-    );
+
 
 type
   TGatheringScript = (

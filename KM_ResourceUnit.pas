@@ -60,7 +60,7 @@ type
     property GUIIcon:word read GetGUIIcon;
     property GUIScroll:word read GetGUIScroll;
     property Speed:single read GetSpeed;
-    //todo: Replace Bytes with native Types
+    function SupportsAction(aAct: TUnitActionType):boolean;
     property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]:TKMUnitsAnim read GetUnitAnim;
     property UnitDescription:string read GetUnitDescription;
     property UnitName:string read GetUnitName;
@@ -152,6 +152,59 @@ begin
   Stream.Read(fUnitDat, SizeOf(TKMUnitDat));
   Stream.Read(fUnitSprite, SizeOf(TKMUnitSprite));
   Stream.Read(fUnitSprite2, SizeOf(TKMUnitSprite2));
+end;
+
+
+function TKMUnitDatClass.SupportsAction(aAct: TUnitActionType):boolean;
+const UnitSupportedActions:array[TUnitType]of TUnitActionTypeSet = (
+    [], [], //None, Any
+    [ua_Walk, ua_Die, ua_Eat], //Serf
+    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die..ua_WalkBooty2],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Work1..ua_WalkBooty],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat, ua_Work1, ua_Work2],
+    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Recruit
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Militia
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk] //Animals
+    );
+begin
+  Result := aAct in UnitSupportedActions[fUnitType];
+end;
+
+
+function TKMUnitDatClass.GetFightType: TFightType;
+const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
+    ft_Melee,ft_Melee,ft_Melee, //Militia, AxeFighter, Swordsman
+    ft_Ranged,ft_Ranged,        //Bowman, Arbaletman
+    ft_Melee,ft_Melee,          //Pikeman, Hallebardman,
+    ft_Melee,ft_Melee,          //HorseScout, Cavalry,
+    ft_Melee                    //Barbarian
+    {ft_Melee,           //Peasant
+    ft_Ranged,           //ut_Slingshot
+    ft_Melee,            //ut_MetalBarbarian
+    ft_Melee,            //ut_Horseman
+    ft_Ranged,ft_Ranged, //ut_Catapult, ut_Ballista,}
+    );
+begin
+  Assert(fUnitType in [Low(WarriorFightType)..High(WarriorFightType)]);
+  Result := WarriorFightType[fUnitType];
 end;
 
 
@@ -282,25 +335,6 @@ begin
   finally
     S.Free;
   end;
-end;
-
-
-function TKMUnitDatClass.GetFightType: TFightType;
-const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
-    ft_Melee,ft_Melee,ft_Melee, //Militia, AxeFighter, Swordsman
-    ft_Ranged,ft_Ranged,        //Bowman, Arbaletman
-    ft_Melee,ft_Melee,          //Pikeman, Hallebardman,
-    ft_Melee,ft_Melee,          //HorseScout, Cavalry,
-    ft_Melee                    //Barbarian
-    {ft_Melee,           //Peasant
-    ft_Ranged,           //ut_Slingshot
-    ft_Melee,            //ut_MetalBarbarian
-    ft_Melee,            //ut_Horseman
-    ft_Ranged,ft_Ranged, //ut_Catapult, ut_Ballista,}
-    );
-begin
-  Assert(fUnitType in [Low(WarriorFightType)..High(WarriorFightType)]);
-  Result := WarriorFightType[fUnitType];
 end;
 
 

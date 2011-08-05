@@ -945,8 +945,7 @@ end;
 procedure TRender.RenderUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
   RenderUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
-  if (aUnit in [Low(UnitSupportedActions)..High(UnitSupportedActions)])
-  and ((ua_WalkArm in UnitSupportedActions[aUnit]) or (aUnit = ut_Serf)) then
+  if fResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) or (aUnit = ut_Serf) then //todo: check if Serf should not have ua_WalkArm in supported actions
     RenderUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
 end;
 
