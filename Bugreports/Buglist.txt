@@ -3,6 +3,8 @@ Since r2087:
 Bugs:
  +	When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
 	Making a hill under a house in MapEd causes a crash
+ 	Setting the number of wares in a storehouse in the MapEd to a negative number will cause a crash
+ 	In multiplayer there are still roads on the map for players that were deleted because they are not playing
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Maybe archers attacked by archers should not try to walk towards enemies
  	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
