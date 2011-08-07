@@ -151,8 +151,6 @@ begin
          FindAnotherWorkPlan
        else
        begin //Choose direction and time to work
-         if not (WorkPlan.WorkDir in [dir_NA..dir_NW]) then
-           Assert(false);
 
          if WorkPlan.WorkDir <> dir_NA then
            Direction := WorkPlan.WorkDir;

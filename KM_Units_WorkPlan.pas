@@ -10,7 +10,7 @@ type
     fHome:THouseType;
     fIssued:boolean;
     procedure FillDefaults;
-    procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:TKMDirection=dir_NA); overload;
+    procedure WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript); overload;
     procedure SubActAdd(aAct:THouseActionType; aCycles:single);
     procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod1:TResourceType; Prod2:TResourceType=rt_None);
   public
@@ -79,9 +79,9 @@ begin
 end;
 
 
-procedure TUnitWorkPlan.WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:TKMDirection=dir_NA);
+procedure TUnitWorkPlan.WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript);
 begin
-  Loc:=aLoc2;
+  Loc:=aLoc2.Loc;
   HasToWalk:=true;
   WalkTo:=aTo;
   WorkType:=aWork;
@@ -89,7 +89,7 @@ begin
   AfterWorkDelay:=aDelay;
   GatheringScript:=aScript;
   WalkFrom:=aFrom;
-  WorkDir:=aWorkDir;
+  WorkDir:=aLoc2.Dir;
 end;
 
 
@@ -114,17 +114,16 @@ function TUnitWorkPlan.FindDifferentResource(aLoc, aAvoidLoc: TKMPoint): boolean
 var NewLoc: TKMPointDir;
     Found: Boolean;
 begin
-  WorkDir := dir_NA;
   with fTerrain do
   case GatheringScript of
-    gs_StoneCutter:     Found := FindStone(aLoc, RANGE_STONECUTTER, aAvoidLoc, NewLoc.Loc);
-    gs_FarmerSow:       Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc.Loc);
+    gs_StoneCutter:     Found := FindStone(aLoc, RANGE_STONECUTTER, aAvoidLoc, NewLoc);
+    gs_FarmerSow:       Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc);
     gs_FarmerCorn:      begin
-                          Found := FindField(aLoc, RANGE_FARMER, ft_Corn, true, aAvoidLoc, NewLoc.Loc);
+                          Found := FindField(aLoc, RANGE_FARMER, ft_Corn, true, aAvoidLoc, NewLoc);
                           if not Found then
                           begin
                             //If we can't find any other corn to cut we can try sowing instead
-                            Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc.Loc);
+                            Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc);
                             if Found then
                             begin
                               GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
@@ -141,10 +140,10 @@ begin
                             end;
                           end;
                         end;
-    gs_FarmerWine:      Found := FindField(aLoc, RANGE_FARMER, ft_Wine, true, aAvoidLoc, NewLoc.Loc);
+    gs_FarmerWine:      Found := FindField(aLoc, RANGE_FARMER, ft_Wine, true, aAvoidLoc, NewLoc);
     gs_FisherCatch:     Found := FindFishWater(aLoc, RANGE_FISHERMAN, aAvoidLoc, NewLoc);
     gs_WoodCutterCut:   Found := FindTree(aLoc, RANGE_WOODCUTTER, KMGetVertexTile(aAvoidLoc, WorkDir), NewLoc);
-    gs_WoodCutterPlant: Found := FindPlaceForTree(aLoc, RANGE_WOODCUTTER, aAvoidLoc, NewLoc.Loc);
+    gs_WoodCutterPlant: Found := FindPlaceForTree(aLoc, RANGE_WOODCUTTER, aAvoidLoc, NewLoc);
     else                Found := false; //Can find a new resource for an unknown gathering script, so return with false
   end;
   if Found then
@@ -364,24 +363,24 @@ begin
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-    Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, true, KMPoint(0,0), Tmp.Loc);
+    Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, true, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
-      WalkStyle(Tmp.Loc,ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
+      WalkStyle(Tmp, ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
     end else begin
-      Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, false, KMPoint(0,0), Tmp.Loc);
-      if Found then begin
-        WalkStyle(Tmp.Loc,ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
-      end else
+      Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, false, KMPoint(0,0), Tmp);
+      if Found then
+        WalkStyle(Tmp, ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
+      else
         fIssued:=false;
     end;
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
-    Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Wine, true, KMPoint(0,0), Tmp.Loc);
+    Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Wine, true, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
-      WalkStyle(Tmp.Loc,ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine, dir_N); //Grapes must always be picked facing up
+      WalkStyle(Tmp, ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine); //Grapes must always be picked facing up
       SubActAdd(ha_Work1,1);
       SubActAdd(ha_Work2,11);
       SubActAdd(ha_Work5,1);
@@ -390,10 +389,10 @@ begin
   end else
 
   if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
-    Found := fTerrain.FindStone(aLoc, RANGE_STONECUTTER, KMPoint(0,0), Tmp.Loc);
+    Found := fTerrain.FindStone(aLoc, RANGE_STONECUTTER, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
-      WalkStyle(Tmp.Loc,ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter, dir_N);
+      WalkStyle(Tmp, ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter);
       SubActAdd(ha_Work1,1);
       SubActAdd(ha_Work2,9);
       SubActAdd(ha_Work5,1);
@@ -408,11 +407,11 @@ begin
     Found := fTerrain.FindTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp);
     if Found then begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
       ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
-      WalkStyle(Tmp.Loc,ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,Tmp.Dir);
+      WalkStyle(Tmp, ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut);
     end else begin
-      Found := fTerrain.FindPlaceForTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp.Loc);
+      Found := fTerrain.FindPlaceForTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp);
       if Found then begin //Planting uses DirN (0) of ua_Work
-        WalkStyle(Tmp.Loc,ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant, dir_N);
+        WalkStyle(Tmp, ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant);
       end else
         fIssued:=false;
     end;
@@ -458,7 +457,7 @@ begin
     Found := fTerrain.FindFishWater(aLoc, RANGE_FISHERMAN, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
-      WalkStyle(Tmp.Loc,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch,Tmp.Dir);
+      WalkStyle(Tmp,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch);
     end else
     begin
       fIssued:=false;
@@ -490,7 +489,7 @@ begin
   LoadStream.Read(WalkTo, SizeOf(WalkTo));
   LoadStream.Read(WorkType, SizeOf(WorkType));
   LoadStream.Read(WorkCyc);
-  LoadStream.Read(WorkDir, SizeOf(WorkDir));
+  LoadStream.Read(WorkDir);
   LoadStream.Read(GatheringScript, SizeOf(GatheringScript));
   LoadStream.Read(AfterWorkDelay);
   LoadStream.Read(WalkFrom, SizeOf(WalkFrom));
@@ -502,7 +501,7 @@ begin
   for i:=1 to ActCount do //Write only assigned
   begin
     LoadStream.Read(HouseAct[i].Act, SizeOf(HouseAct[i].Act));
-    LoadStream.Read(HouseAct[i].TimeToWork, SizeOf(HouseAct[i].TimeToWork));
+    LoadStream.Read(HouseAct[i].TimeToWork);
   end;
   LoadStream.Read(Product1, SizeOf(Product1));
   LoadStream.Read(ProdCount1);
@@ -525,7 +524,7 @@ begin
   SaveStream.Write(WalkTo, SizeOf(WalkTo));
   SaveStream.Write(WorkType, SizeOf(WorkType));
   SaveStream.Write(WorkCyc);
-  SaveStream.Write(WorkDir, SizeOf(WorkDir));
+  SaveStream.Write(WorkDir);
   SaveStream.Write(GatheringScript, SizeOf(GatheringScript));
   SaveStream.Write(AfterWorkDelay);
   SaveStream.Write(WalkFrom, SizeOf(WalkFrom));
@@ -537,7 +536,7 @@ begin
   for i:=1 to ActCount do //Write only assigned
   begin
     SaveStream.Write(HouseAct[i].Act, SizeOf(HouseAct[i].Act));
-    SaveStream.Write(HouseAct[i].TimeToWork, SizeOf(HouseAct[i].TimeToWork));
+    SaveStream.Write(HouseAct[i].TimeToWork);
   end;
   SaveStream.Write(Product1, SizeOf(Product1));
   SaveStream.Write(ProdCount1);
