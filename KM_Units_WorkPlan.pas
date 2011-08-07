@@ -10,7 +10,7 @@ type
     fHome:THouseType;
     fIssued:boolean;
     procedure FillDefaults;
-    procedure WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript); overload;
+    procedure WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript);
     procedure SubActAdd(aAct:THouseActionType; aCycles:single);
     procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod1:TResourceType; Prod2:TResourceType=rt_None);
   public
@@ -95,8 +95,9 @@ end;
 
 procedure TUnitWorkPlan.SubActAdd(aAct:THouseActionType; aCycles:single);
 begin
-  inc(ActCount); HouseAct[ActCount].Act:=aAct;
-  HouseAct[ActCount].TimeToWork:=round(fResource.HouseDat[fHome].Anim[byte(aAct)].Count * aCycles);
+  inc(ActCount);
+  HouseAct[ActCount].Act := aAct;
+  HouseAct[ActCount].TimeToWork := Round(fResource.HouseDat[fHome].Anim[aAct].Count * aCycles);
 end;
 
 

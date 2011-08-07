@@ -115,10 +115,15 @@ end;
 
 
 destructor TKMCampaignsCollection.Destroy;
+var i:integer;
 begin
   CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
   SaveProgress(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
   fLog.AppendLog('Campaign.ini saved');
+
+  //Free list objects
+  for i:=0 to Count-1 do
+    Self[i].Free;
 
   fList.Free;
   inherited;
