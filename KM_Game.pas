@@ -38,6 +38,7 @@ type
     fMusicLib: TMusicLib;
     fMapEditor: TKMMapEditor;
     fProjectiles:TKMProjectiles;
+    fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
   //Should be saved
     fGameTickCount:cardinal;
@@ -53,7 +54,6 @@ type
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState:TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
     SkipReplayEndCheck:boolean;
-    fGameInputProcess:TGameInputProcess;
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
@@ -112,10 +112,12 @@ type
     property MapEditor: TKMMapEditor read fMapEditor;
     property MusicLib:TMusicLib read fMusicLib;
     property Projectiles:TKMProjectiles read fProjectiles;
+    property GameInputProcess:TGameInputProcess read fGameInputProcess;
     property Networking:TKMNetworking read fNetworking;
 
     procedure Save(SlotID:shortint);
-    function Load(SlotID:shortint; aIsMultiplayer:boolean=false):string;
+    procedure Load(SlotID:shortint; aIsMultiplayer:boolean=false);
+    function TestLoad(SlotID:shortint; aIsMultiplayer:boolean=false):boolean;
     function SavegameTitle(SlotID:shortint):string;
     function SlotToSaveName(aSlot:integer; const aExtension:string):string;
 
@@ -395,32 +397,32 @@ begin
   fGameName := aGameName;
 
   fLog.AppendLog('Loading DAT file: '+fMissionFile);
-  if CheckFileExists(fMissionFile,true) then
-  begin
-    fMainMenuInterface.ShowScreen(msLoading, 'script');
-    fRender.Render;
 
-    try //Catch exceptions
-      fMissionParser := TMissionParser.Create(mpm_Single,false);
-      if fMissionParser.LoadMission(fMissionFile) then
-        fLog.AppendLog('DAT Loaded')
-      else
-        Raise Exception.Create(fMissionParser.ErrorMessage);
-      MyPlayer := fPlayers.Player[fMissionParser.MissionDetails.HumanPlayerID];
-      Assert(MyPlayer.PlayerType = pt_Human);
-      fMissionMode := fMissionParser.MissionDetails.MissionMode;
-      FreeAndNil(fMissionParser);
-    except
-      on E : Exception do
-      begin
-        //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-        LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+
-                      E.ClassName+': '+E.Message;
-        if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent); //Stop the game so that the main menu error can be shown
-        fMainMenuInterface.ShowScreen(msError, LoadError);
-        fLog.AppendLog('DAT Load Exception: '+LoadError);
-        exit;
-      end;
+  fMainMenuInterface.ShowScreen(msLoading, 'script');
+  fRender.Render;
+
+  if aMissionFile <> '' then
+  try //Catch exceptions
+    fMissionParser := TMissionParser.Create(mpm_Single, false);
+    if fMissionParser.LoadMission(fMissionFile) then
+      fLog.AppendLog('DAT Loaded')
+    else
+      Raise Exception.Create(fMissionParser.ErrorMessage);
+    MyPlayer := fPlayers.Player[fMissionParser.MissionDetails.HumanPlayerID];
+    Assert(MyPlayer.PlayerType = pt_Human);
+    fMissionMode := fMissionParser.MissionDetails.MissionMode;
+    FreeAndNil(fMissionParser);
+  except
+    on E : Exception do
+    begin
+      //Trap the exception and show it to the user in nicer form.
+      //Note: While debugging, Delphi will still stop execution for the exception,
+      //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
+      //But to normal player the dialog won't show.
+      LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+E.ClassName+': '+E.Message;
+      fMainMenuInterface.ShowScreen(msError, LoadError);
+      fLog.AppendLog('DAT Load Exception: '+LoadError);
+      Exit;
     end;
   end
   else
@@ -430,6 +432,7 @@ begin
     fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[0];
   end;
+  
   fPlayers.AfterMissionInit(true);
 
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
@@ -481,33 +484,33 @@ begin
 
     fLog.AppendLog('Loading DAT file: '+fMissionFile);
 
-    if CheckFileExists(fMissionFile) then
-    begin
-      fMainMenuInterface.ShowScreen(msLoading, 'script');
-      fRender.Render;
+    fMainMenuInterface.ShowScreen(msLoading, 'script');
+    fRender.Render;
 
-      try //Catch exceptions
-        fMissionParser := TMissionParser.Create(mpm_Multi,false);
-        if fMissionParser.LoadMission(fMissionFile) then
-          fLog.AppendLog('DAT Loaded')
-        else
-          Raise Exception.Create(fMissionParser.ErrorMessage);
-        fMissionMode := fMissionParser.MissionDetails.MissionMode;
-        FreeAndNil(fMissionParser);
-      except
-        on E : Exception do
-        begin
-          //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-          LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+
-                        E.ClassName+': '+E.Message;
-          if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent); //Stop the game so that the main menu error can be shown
-          fMainMenuInterface.ShowScreen(msError, LoadError);
-          fLog.AppendLog('DAT Load Exception: '+LoadError);
-          exit;
-        end;
+    try //Catch exceptions
+      fMissionParser := TMissionParser.Create(mpm_Multi,false);
+      if fMissionParser.LoadMission(fMissionFile) then
+        fLog.AppendLog('DAT Loaded')
+      else
+        Raise Exception.Create(fMissionParser.ErrorMessage);
+      fMissionMode := fMissionParser.MissionDetails.MissionMode;
+      FreeAndNil(fMissionParser);
+    except
+      on E : Exception do
+      begin
+        //Trap the exception and show it to the user in nicer form.
+        //Note: While debugging, Delphi will still stop execution for the exception,
+        //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
+        //But to normal player the dialog won't show.
+        LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+E.ClassName+': '+E.Message;
+        fMainMenuInterface.ShowScreen(msError, LoadError);
+        fLog.AppendLog('DAT Load Exception: '+LoadError);
+        Exit;
       end;
-      fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
     end;
+    
+    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
+
     fPlayers.AfterMissionInit(true);
   end;
 
@@ -1076,10 +1079,27 @@ begin
 end;
 
 
-function TKMGame.Load(SlotID:shortint; aIsMultiplayer:boolean=false):string;
+function TKMGame.TestLoad(SlotID:shortint; aIsMultiplayer:boolean=false):boolean;
+var
+  FileName,s:string;
+  LoadStream:TKMemoryStream;
+begin
+  Result := False;
+  FileName := KMSlotToSaveName(SlotID,'sav',aIsMultiplayer); //Full path
+  if not FileExists(FileName) then Exit;
+  LoadStream := TKMemoryStream.Create;
+  LoadStream.LoadFromFile(FileName);
+  LoadStream.Read(s); if s <> 'KaM_Savegame' then Exit;
+  LoadStream.Read(s); if s <> GAME_REVISION then Exit;
+  LoadStream.Free;
+  Result := True;
+end;
+
+
+procedure TKMGame.Load(SlotID:shortint; aIsMultiplayer:boolean=false);
 var
   LoadStream:TKMemoryStream;
-  s,FileName:string;
+  s,FileName,LoadError:string;
   LoadedSeed:Longint;
   TempInt:integer;
   TempByte:byte;
@@ -1088,29 +1108,16 @@ var
   IsSaveMultiplayer:boolean;
 begin
   fLog.AppendLog('Loading game');
-  Result := '';
   FileName := KMSlotToSaveName(SlotID,'sav',aIsMultiplayer); //Full path
 
-  //Check if file exists early so that current game will not be lost if user tries to load an empty save
-  if not FileExists(FileName) then
-  begin
-    Result := 'Savegame file not found';
-    exit;
-  end;
-
   if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent);
-
-  //Load only from menu or stopped game
-  if not (fGameState in [gsNoGame]) then begin
-    Assert(false, 'Loading from wrong state?');
-    exit;
-  end;
+  Assert(fGameState = gsNoGame, 'Loading from wrong state');
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   try //Catch exceptions
-    LoadStream.LoadFromFile(FileName);
+    if not FileExists(FileName) then Raise Exception.Create('Savegame could not be found');
 
-    //Raise some exceptions if the file is invalid or the wrong save version
+    LoadStream.LoadFromFile(FileName);
     LoadStream.Read(s); if s <> 'KaM_Savegame' then Raise Exception.Create('Not a valid KaM Remake save file');
     LoadStream.Read(s); if s <> GAME_REVISION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
 
@@ -1171,16 +1178,15 @@ begin
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
     fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
-    Result := ''; //Loading has now completed successfully :)
     Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   except
     on E : Exception do
     begin
       //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-      Result := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
+      LoadError := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
                     E.ClassName+' error raised with message: '+E.Message;
-      if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent); //Stop the game so that the main menu error can be shown
-      exit;
+      fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu
+      Exit;
     end;
   end;
 

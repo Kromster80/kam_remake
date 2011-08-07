@@ -1536,10 +1536,8 @@ end;
 
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
-var LoadError: string;
 begin
-  LoadError := fGame.Load(TKMControl(Sender).Tag);
-  if LoadError <> '' then ShowScreen(msError, LoadError); //This will show an option to return back to menu
+  fGame.Load(TKMControl(Sender).Tag);
 end;
 
 

@@ -195,7 +195,12 @@ var
   i,Num:cardinal;
   F:TMemoryStream;
 begin
-  if not CheckFileExists(aFileName) then exit;
+  if not FileExists(aFileName) then
+  begin
+    DebugScriptError(Format('Mission file %s could not be found', [aFileName]), true);
+    Result := '';
+    Exit;
+  end;
 
   //Load and decode .DAT file into FileText
   F := TMemoryStream.Create;
@@ -380,7 +385,7 @@ begin
 
   //Read the mission file into FileText
   FileText := ReadMissionFile(aFileName);
-  if FileText = '' then exit;
+  if FileText = '' then Exit;
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
   k := 1;

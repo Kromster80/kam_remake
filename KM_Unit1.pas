@@ -391,7 +391,7 @@ procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
   if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
   if (fPlayers<>nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
-    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
+    fGame.GameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
 end;
 
 
@@ -409,16 +409,13 @@ end;
 
 
 procedure TForm1.Button_CalcArmyClick(Sender: TObject);
-var
-  Point : TKMPoint;
 begin // For test Army evaluation
   fGame.StartSingleMap('', 'TestCalcArmy');
+  Assert(MyPlayer<>nil);
   {Point.X := 10; Point.Y := 10;
   MyPlayer.AddGroup(ut_Bowman, Point, dir_E, 3, 50);}
-  Point.X := 12; Point.Y := 31;
-  MyPlayer.AddGroup(ut_Militia, Point, dir_E, 2, 20);
-  Point.X := 30; Point.Y := 31;
-  fPlayers[1].AddGroup(ut_AxeFighter, Point, dir_W, 2, 10);
+  MyPlayer.AddGroup(ut_Militia, KMPoint(12,31), dir_E, 2, 20);
+  fPlayers[1].AddGroup(ut_AxeFighter, KMPoint(30,31), dir_W, 2, 10);
   {Point.X := 32; Point.Y := 10;
   fPlayers[1].AddGroup(ut_Bowman, Point, dir_W, 1, 1);}
 end;
