@@ -179,7 +179,7 @@ begin
   aUnit.UpdateNextPosition(fStreet);
   fTerrain.UnitAdd(aUnit.NextPosition, aUnit); //Unit was not occupying tile while inside
   if (aUnit.GetHome <> nil)
-  and (aUnit.GetHome.GetHouseType = ht_Barracks) //Unit home is barracks
+  and (aUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
   and (aUnit.GetHome = fHouse) then //And is the house we are walking from
     TKMHouseBarracks(aUnit.GetHome).RecruitsList.Remove(aUnit);
 end;
@@ -196,7 +196,7 @@ begin
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
     if (fHouse<>nil) then
-      fDoor.X := fDoor.X + (fResource.HouseDat[fHouse.GetHouseType].EntranceOffsetXpx/4)/CELL_SIZE_PX;
+      fDoor.X := fDoor.X + (fResource.HouseDat[fHouse.HouseType].EntranceOffsetXpx/4)/CELL_SIZE_PX;
 
     case fDirection of
       gd_GoInside:  WalkIn(KMUnit);
@@ -275,7 +275,7 @@ begin
     if fDirection = gd_GoInside then
     begin
       KMUnit.PositionF := fDoor;
-      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) //Unit home is barracks
+      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.HouseType=ht_Barracks) //Unit home is barracks
       and(KMUnit.GetHome = fHouse)and(not KMUnit.GetHome.IsDestroyed) then //And is the house we are walking into and it's not destroyed
         TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Add(KMUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.

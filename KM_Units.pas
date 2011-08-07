@@ -395,7 +395,7 @@ begin
       end else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
+          SetActionStay(fResource.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
@@ -407,7 +407,7 @@ var Msg:string;
 begin
   if not fHome.ResourceDepletedMsgIssued then
   begin
-    case fHome.GetHouseType of
+    case fHome.HouseType of
       ht_Quary:    Msg := fTextLibrary.GetTextString(290);
       ht_CoalMine: Msg := fTextLibrary.GetTextString(291);
       ht_IronMine: Msg := fTextLibrary.GetTextString(292);
@@ -416,7 +416,7 @@ begin
                       Msg := fTextLibrary[TX_UNITS_FISHERMAN_TOO_FAR]
                     else
                       Msg := fTextLibrary[TX_UNITS_FISHERMAN_CANNOT_CATCH];
-      else         begin Assert(false, fResource.HouseDat[fHome.GetHouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
+      else         begin Assert(false, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet'); Msg := ''; end;
     end;
     if (Msg <> '') and (fOwner = MyPlayer.PlayerIndex) then //Don't show message for other players
       fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
@@ -449,7 +449,7 @@ begin
     else exit; //Nothing found
   end;
 
-  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,fResource.HouseDat[fHome.GetHouseType].ResOutput[Res],KMPointBelow(fHome.GetEntrance));
+  fWorkPlan.FindPlan(fUnitType,fHome.HouseType,fResource.HouseDat[fHome.HouseType].ResOutput[Res],KMPointBelow(fHome.GetEntrance));
 
   if fWorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
@@ -567,7 +567,7 @@ begin
       end else begin
         fUnitTask := InitiateActivity; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(fResource.HouseDat[fHome.GetHouseType].WorkerRest*10, ua_Walk);
+          SetActionStay(fResource.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;
 
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);

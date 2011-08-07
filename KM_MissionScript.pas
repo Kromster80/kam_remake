@@ -950,7 +950,7 @@ begin
       CurHouse := TKMHouse(fPlayers.Player[i].Houses.Items[k]);
       if not CurHouse.IsDestroyed then
       begin
-        AddCommand(ct_SetHouse, [HouseKaMOrder[CurHouse.GetHouseType]-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1]);
+        AddCommand(ct_SetHouse, [HouseKaMOrder[CurHouse.HouseType]-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1]);
         if CurHouse.IsDamaged then
           AddCommand(ct_SetHouseDamage, [CurHouse.GetDamage]);
       end;

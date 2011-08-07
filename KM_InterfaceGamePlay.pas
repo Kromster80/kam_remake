@@ -1504,12 +1504,12 @@ begin
   end;
 
   {Common data}
-  Label_House.Caption:=fResource.HouseDat[Sender.GetHouseType].HouseName;
-  Image_House_Logo.TexID:= fResource.HouseDat[Sender.GetHouseType].GUIIcon;
-  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].GUIIcon;
-  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].UnitName;
-  HealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
-  HealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
+  Label_House.Caption:=fResource.HouseDat[Sender.HouseType].HouseName;
+  Image_House_Logo.TexID:= fResource.HouseDat[Sender.HouseType].GUIIcon;
+  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
+  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
+  HealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
+  HealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
 
   if AskDemolish then
   begin
@@ -1548,8 +1548,8 @@ begin
     Panel_House.Childs[i].Show; //show all
 
   Image_House_Worker.Enabled := Sender.GetHasOwner;
-  Image_House_Worker.Visible := fResource.HouseDat[Sender.GetHouseType].OwnerType <> ut_None;
-  Button_House_Goods.Enabled := fResource.HouseDat[Sender.GetHouseType].AcceptsGoods;
+  Image_House_Worker.Visible := fResource.HouseDat[Sender.HouseType].OwnerType <> ut_None;
+  Button_House_Goods.Enabled := fResource.HouseDat[Sender.HouseType].AcceptsGoods;
   if Sender.BuildingRepair then Button_House_Repair.TexID:=39 else Button_House_Repair.TexID:=40;
   if Sender.WareDelivery then Button_House_Goods.TexID:=37 else Button_House_Goods.TexID:=38;
   Label_House_UnderConstruction.Hide;
@@ -1558,7 +1558,7 @@ begin
   Button_House_DemolishNo.Hide;
   SwitchPage(Panel_House);
 
-  case Sender.GetHouseType of
+  case Sender.HouseType of
     ht_Store: begin
           Store_Fill(nil);
           SwitchPage(Panel_HouseStore);
@@ -1585,14 +1585,14 @@ begin
       //Now show only what we need
       RowRes:=1; Line:=0; Base := 2;
       //Show Demand
-      if fResource.HouseDat[Sender.GetHouseType].AcceptsGoods then begin
+      if fResource.HouseDat[Sender.HouseType].AcceptsGoods then begin
         Label_Common_Demand.Show;
         Label_Common_Demand.Top:=Base+Line*LineAdv+6;
         inc(Line);
-        for i:=1 to 4 do if fResource.HouseDat[Sender.GetHouseType].ResInput[i] in [rt_Trunk..rt_Fish] then begin
-          ResRow_Common_Resource[RowRes].Resource := fResource.HouseDat[Sender.GetHouseType].ResInput[i];
-          ResRow_Common_Resource[RowRes].Hint     := TypeToString(fResource.HouseDat[Sender.GetHouseType].ResInput[i]);
-          ResRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(fResource.HouseDat[Sender.GetHouseType].ResInput[i]);
+        for i:=1 to 4 do if fResource.HouseDat[Sender.HouseType].ResInput[i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Common_Resource[RowRes].Resource := fResource.HouseDat[Sender.HouseType].ResInput[i];
+          ResRow_Common_Resource[RowRes].Hint     := TypeToString(fResource.HouseDat[Sender.HouseType].ResInput[i]);
+          ResRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(fResource.HouseDat[Sender.HouseType].ResInput[i]);
           ResRow_Common_Resource[RowRes].Show;
           ResRow_Common_Resource[RowRes].Top := Base+Line*LineAdv;
           inc(Line);
@@ -1600,38 +1600,38 @@ begin
         end;
       end;
       //Show Output
-      if not fResource.HouseDat[Sender.GetHouseType].DoesOrders then
-      if fResource.HouseDat[Sender.GetHouseType].ProducesGoods then begin
+      if not fResource.HouseDat[Sender.HouseType].DoesOrders then
+      if fResource.HouseDat[Sender.HouseType].ProducesGoods then begin
         Label_Common_Offer.Show;
-        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.GetHouseType].ResProductionX)+'):';
+        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
         Label_Common_Offer.Top:=Base+Line*LineAdv+6;
         inc(Line);
         for i:=1 to 4 do
-        if fResource.HouseDat[Sender.GetHouseType].ResOutput[i] in [rt_Trunk..rt_Fish] then begin
-          ResRow_Common_Resource[RowRes].Resource:=fResource.HouseDat[Sender.GetHouseType].ResOutput[i];
-          ResRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(fResource.HouseDat[Sender.GetHouseType].ResOutput[i]);
+        if fResource.HouseDat[Sender.HouseType].ResOutput[i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Common_Resource[RowRes].Resource:=fResource.HouseDat[Sender.HouseType].ResOutput[i];
+          ResRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
           ResRow_Common_Resource[RowRes].Show;
           ResRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
-          ResRow_Common_Resource[RowRes].Hint:=TypeToString(fResource.HouseDat[Sender.GetHouseType].ResOutput[i]);
+          ResRow_Common_Resource[RowRes].Hint:=TypeToString(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
           inc(Line);
           inc(RowRes);
         end;
       end;
       //Show Orders
-      if fResource.HouseDat[Sender.GetHouseType].DoesOrders then begin
+      if fResource.HouseDat[Sender.HouseType].DoesOrders then begin
         Label_Common_Offer.Show;
-        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.GetHouseType].ResProductionX)+'):';
+        Label_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
         Label_Common_Offer.Top:=Base+Line*LineAdv+6;
         inc(Line);
         for i:=1 to 4 do //Orders
-        if fResource.HouseDat[Sender.GetHouseType].ResOutput[i] in [rt_Trunk..rt_Fish] then begin
-          ResRow_Order[i].Resource:=fResource.HouseDat[Sender.GetHouseType].ResOutput[i];
-          ResRow_Order[i].ResourceCount:=Sender.CheckResOut(fResource.HouseDat[Sender.GetHouseType].ResOutput[i]);
+        if fResource.HouseDat[Sender.HouseType].ResOutput[i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Order[i].Resource:=fResource.HouseDat[Sender.HouseType].ResOutput[i];
+          ResRow_Order[i].ResourceCount:=Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
           ResRow_Order[i].OrderCount:=Sender.CheckResOrder(i);
           ResRow_Order[i].Show;
           ResRow_Order[i].OrderAdd.Show;
           ResRow_Order[i].OrderRem.Show;
-          ResRow_Order[i].Hint:=TypeToString(fResource.HouseDat[Sender.GetHouseType].ResOutput[i]);
+          ResRow_Order[i].Hint:=TypeToString(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
           ResRow_Order[i].Top:=Base+Line*LineAdv;
           inc(Line);
         end;
@@ -1639,8 +1639,8 @@ begin
         Label_Common_Costs.Top:=Base+Line*LineAdv+6;
         inc(Line);
         for i:=1 to 4 do //Costs
-        if fResource.HouseDat[Sender.GetHouseType].ResOutput[i] in [rt_Trunk..rt_Fish] then begin
-          ResRow_Costs[i].CostID:=byte(fResource.HouseDat[Sender.GetHouseType].ResOutput[i]);
+        if fResource.HouseDat[Sender.HouseType].ResOutput[i] in [rt_Trunk..rt_Fish] then begin
+          ResRow_Costs[i].CostID:=byte(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
           ResRow_Costs[i].Show;
           ResRow_Costs[i].Top:=Base+Line*LineAdv;
           inc(Line);

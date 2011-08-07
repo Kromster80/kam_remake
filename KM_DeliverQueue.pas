@@ -257,10 +257,10 @@ begin
       Importance:=aImp;
       assert((not IsDeleted) and (not BeingPerformed)); //Make sure this item has been closed properly, if not there is a flaw
       if GOLD_TO_SCHOOLS_IMPORTANT then
-        if (Resource=rt_Gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
+        if (Resource=rt_Gold)and(Loc_House<>nil)and(Loc_House.HouseType=ht_School) then Importance:=di_High;
       if FOOD_TO_INN_IMPORTANT then
         if (Resource in [rt_Bread,rt_Sausages,rt_Wine,rt_Fish])and
-        (Loc_House<>nil)and(Loc_House.GetHouseType=ht_Inn) then Importance:=di_High;
+        (Loc_House<>nil)and(Loc_House.HouseType=ht_Inn) then Importance:=di_High;
     end;
   end;
 end;
@@ -284,31 +284,31 @@ begin
   Result := Result and ((fDemand[iD].Loc_House=nil) or (fDemand[iD].Loc_House.WareDelivery));
 
   //If Demand is a Storehouse and it has WareDelivery toggled ON
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Store)or
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
                         (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]));
 
   //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //How do we know how many resource are on-route already?? We don't, but it's not that important.
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Barracks)or
                        (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<MAX_WARFARE_IN_BARRACKS));
 
   //If Demand is a Barracks, Offer is a store and barracks has resource count below MAX_WARFARE_IN_BARRACKS_FROM_STORE
   //Use < rather than <= as this delivery will be the last
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or
-                      (fOffer[iO].Loc_House=nil)or(fOffer[iO].Loc_House.GetHouseType<>ht_Store)or
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Barracks)or
+                      (fOffer[iO].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>ht_Store)or
                       (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<MAX_WARFARE_IN_BARRACKS_FROM_STORE));
 
   //NEVER deliver weapons to the storehouse when player has a barracks
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Store)or
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
                        (not (fOffer[iO].Resource in [rt_Shield..rt_Horse]))or(fPlayers.Player[fDemand[iD].Loc_House.GetOwner].Stats.GetHouseQty(ht_Barracks)=0));
 
   //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
-  //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
-  //   (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(fPlayers.Player[KMSerf.GetOwner].fPlayerStats.GetHouseQty(ht_Barracks)=0)))) then
+  //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.HouseType<>ht_Store)or(
+  //   (fDemand[iD].Loc_House.HouseType=ht_Store)and(fPlayers.Player[KMSerf.GetOwner].fPlayerStats.GetHouseQty(ht_Barracks)=0)))) then
   //Works wrong, besides we need to check ALL barracks player owns
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.GetHouseType<>fDemand[iD].Loc_House.GetHouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>fDemand[iD].Loc_House.HouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));
 
 
   Result := Result and (
@@ -374,7 +374,7 @@ for iO:=1 to OfferCount do
 
       //Modifications for bidding system
       if (fDemand[iD].Resource=rt_All) //Always prefer deliveries House>House instead of House>Store
-      or (fOffer[iO].Loc_House.GetHouseType = ht_Store) then //Prefer taking wares from House rather than Store
+      or (fOffer[iO].Loc_House.HouseType = ht_Store) then //Prefer taking wares from House rather than Store
         Bid:=Bid + 1000;
 
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
@@ -615,7 +615,7 @@ begin
   s:='Demand:'+eol+'---------------------------------'+eol;
   for i:=1 to DemandCount do if fDemand[i].Resource<>rt_None then begin
     s:=s+#9;
-    if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.GetHouseType].HouseName+#9+#9;
+    if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
     s:=s+TypeToString(fDemand[i].Resource);
     if fDemand[i].Importance=di_High then s:=s+'^';
@@ -624,7 +624,7 @@ begin
   s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;
   for i:=1 to OfferCount do if fOffer[i].Resource<>rt_None then begin
     s:=s+#9;
-    if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.GetHouseType].HouseName+#9+#9;
+    if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.HouseType].HouseName+#9+#9;
     s:=s+TypeToString(fOffer[i].Resource)+#9;
     s:=s+IntToStr(fOffer[i].Count);
     s:=s+eol;
@@ -639,12 +639,12 @@ begin
     if fOffer[fQueue[i].OfferID].Loc_House = nil then
       s:=s+'Destroyed'+' >>> '
     else
-      s:=s+fResource.HouseDat[fOffer[fQueue[i].OfferID].Loc_House.GetHouseType].HouseName+' >>> ';
+      s:=s+fResource.HouseDat[fOffer[fQueue[i].OfferID].Loc_House.HouseType].HouseName+' >>> ';
 
     if fDemand[fQueue[i].DemandID].Loc_House = nil then
       s:=s+'Destroyed'
     else
-      s:=s+fResource.HouseDat[fDemand[fQueue[i].DemandID].Loc_House.GetHouseType].HouseName;
+      s:=s+fResource.HouseDat[fDemand[fQueue[i].DemandID].Loc_House.HouseType].HouseName;
     s:=s+eol;
   end;
 

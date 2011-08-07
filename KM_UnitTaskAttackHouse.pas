@@ -133,7 +133,7 @@ begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
            if fHouse.AddDamage(2) then //All melee units do 2 damage per strike
              if (fPlayers <> nil) and (fPlayers.Player[GetOwner] <> nil) then
-               fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.GetHouseType);
+               fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.HouseType);
            //todo: Melee house hit sound
            fPhase := 1; //Go for another hit (will be 2 after inc below)
          end;

@@ -1120,17 +1120,17 @@ begin
   end;
 
   {Common data}
-  Label_House.Caption:=fResource.HouseDat[Sender.GetHouseType].HouseName;
-  Image_House_Logo.TexID:=fResource.HouseDat[Sender.GetHouseType].GUIIcon;
-  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].GUIIcon;
-  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.GetHouseType].OwnerType].UnitName;
-  KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
-  KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
+  Label_House.Caption:=fResource.HouseDat[Sender.HouseType].HouseName;
+  Image_House_Logo.TexID:=fResource.HouseDat[Sender.HouseType].GUIIcon;
+  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
+  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
+  KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
+  KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
 
-  Image_House_Worker.Visible := fResource.HouseDat[Sender.GetHouseType].OwnerType <> ut_None;
+  Image_House_Worker.Visible := fResource.HouseDat[Sender.HouseType].OwnerType <> ut_None;
 
 
-  case Sender.GetHouseType of
+  case Sender.HouseType of
     ht_Store: begin
           Store_Fill(nil);
           SwitchPage(Panel_HouseStore);

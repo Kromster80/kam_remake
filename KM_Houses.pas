@@ -29,6 +29,7 @@ type
 
   TKMHouse = class
   private
+    fID:integer; //unique ID, used for save/load to sync to
     fHouseType: THouseType; //House type
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
     fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
@@ -57,6 +58,7 @@ type
     fPointerCount:integer;
     fTimeSinceUnoccupiedReminder:integer;
 
+
     procedure Activate(aWasBuilt:boolean);
     procedure CloseHouse(IsEditor:boolean=false); virtual;
     procedure SetWareDelivery(aVal:boolean);
@@ -64,7 +66,6 @@ type
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID:byte):byte; //Will use GetRatio from mission settings to find distribution amount
   public
-    ID:integer; //unique ID, used for save/load to sync to
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
     ResourceDepletedMsgIssued: boolean;
     DoorwayUse: byte; //number of units using our door way. Used for sliding.
@@ -78,6 +79,7 @@ type
     property GetPointerCount:integer read fPointerCount;
 
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
+    property ID:integer read fID;
 
     property GetPosition:TKMPoint read fPosition;
     procedure SetPosition(aPos:TKMPoint); //Used only by map editor
@@ -90,7 +92,7 @@ type
     function HitTest(X, Y: Integer): Boolean;
     function HouseArea:THouseArea;
     function DoesOrders:boolean;
-    property GetHouseType:THouseType read fHouseType;
+    property HouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
@@ -295,7 +297,7 @@ begin
   fPointerCount     := 0;
   fTimeSinceUnoccupiedReminder   := TIME_BETWEEN_MESSAGES;
 
-  ID    := fGame.GetNewID;
+  fID := fGame.GetNewID;
   ResourceDepletedMsgIssued := false;
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
@@ -334,7 +336,7 @@ begin
   LoadStream.Read(RemoveRoadWhenDemolish);
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fTimeSinceUnoccupiedReminder);
-  LoadStream.Read(ID);
+  LoadStream.Read(fID);
   LoadStream.Read(HasAct);
   if HasAct then begin
     fCurrentAction := THouseAction.Create(nil, hst_Empty); //Create placeholder to fill
@@ -450,7 +452,7 @@ begin
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
   fTerrain.RemRoad(GetEntrance);
-  if fTerrain.CanPlaceHouse(aPos, GetHouseType, MyPlayer) then
+  if fTerrain.CanPlaceHouse(aPos, HouseType, MyPlayer) then
   begin
     fPosition.X := aPos.X - fResource.HouseDat[fHouseType].EntranceOffsetX;
     fPosition.Y := aPos.Y;
@@ -949,7 +951,7 @@ begin
   SaveStream.Write(RemoveRoadWhenDemolish);
   SaveStream.Write(fPointerCount);
   SaveStream.Write(fTimeSinceUnoccupiedReminder);
-  SaveStream.Write(ID);
+  SaveStream.Write(fID);
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct);
   if HasAct then fCurrentAction.Save(SaveStream);
@@ -1764,7 +1766,7 @@ begin
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
       //In case of multiple barracks, prefer the one with less recruits already
-      if Houses[i].GetHouseType = ht_Barracks then Dist:=(Dist*1000) + (TKMHouseBarracks(Houses[i]).RecruitsList.Count*10000);
+      if Houses[i].HouseType = ht_Barracks then Dist:=(Dist*1000) + (TKMHouseBarracks(Houses[i]).RecruitsList.Count*10000);
 
       if (Bid=0)or(Bid>Dist) then
       begin

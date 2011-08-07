@@ -565,7 +565,7 @@ begin
   1:  begin
         fPlayers.Player[GetOwner].BuildList.CloseHousePlan(BuildID);
         BuildID := 0;
-        fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, GetOwner);
+        fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Fence, GetOwner);
         HouseSet := true;
         fHouse.BuildingState := hbs_NoGlyph;
         SetActionLockedStay(5,ua_Walk);
@@ -600,8 +600,8 @@ begin
   7:  begin
         fHouse.BuildingState := hbs_Wood;
         fPlayers.Player[GetOwner].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
-        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.GetHouseType].WoodCost, dt_Once, di_High);
-        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.GetHouseType].StoneCost, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
         //Walk away from building site, before we get trapped when house becomes stoned
         OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk);
         if KMSamePoint(OutOfWay,KMPoint(0,0)) then OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
@@ -725,7 +725,7 @@ begin
            Direction := Cells.List[CurLoc].Dir;
            //Remove house plan when we start the stone phase (it is still required for wood) But don't do it every time we hit if it's already done!
            if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y,fHouse.GetPosition.X].Markup <> mu_House) then
-             fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, GetOwner);
+             fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Built, GetOwner);
          end;
       3: begin
            fHouse.IncBuildingProgress;

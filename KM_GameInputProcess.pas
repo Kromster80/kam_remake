@@ -232,7 +232,7 @@ begin
       gic_HouseDeliveryToggle:    H.WareDelivery := not H.WareDelivery;
       gic_HouseOrderProduct:      H.ResEditOrder(Params[2], Params[3]);
       gic_HouseStoreAcceptFlag:   TKMHouseStore(H).ToggleAcceptFlag(TResourceType(Params[2]));
-      gic_HouseTrain:             case H.GetHouseType of
+      gic_HouseTrain:             case H.HouseType of
                                     ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
                                     ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
                                     else          Assert(false, 'Only Schools and Barracks supported yet');
