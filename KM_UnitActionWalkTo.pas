@@ -687,7 +687,7 @@ begin
     end
     else
       //If there's a locked unit (mining our resource or just building a road) we better try to find a new mining location
-      if fOpponent.GetUnitAction.Locked then
+      if fOpponent.GetUnitAction.Locked and (fWalker.GetUnitTask is TTaskMining) then
       begin
         TTaskMining(fWalker.GetUnitTask).FindAnotherWorkPlan;
         Result := true; //Means exit DoUnitInteraction
