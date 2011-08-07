@@ -99,7 +99,7 @@ type
     procedure RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
     procedure RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
     procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
-    procedure RenderHouseWork(Index:THouseType; AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+    procedure RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
     procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
     procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
     procedure RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
@@ -795,22 +795,23 @@ begin
 end;
 
 
-procedure TRender.RenderHouseWork(Index:THouseType; AnimType,AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
-var AnimCount,ID:cardinal; i:byte; ShiftX,ShiftY:single;
+procedure TRender.RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+var AnimCount,ID:cardinal; AT:THouseActionType; ShiftX,ShiftY:single;
 begin
-  if AnimType = 0 then exit;
+  if aActSet = [] then Exit;
 
-  for i:=1 to Length(fResource.HouseDat[Index].Anim) do
-  if AnimType and (1 shl i) = (1 shl i) then
+  //See if action is in set and render it
+  for AT:=Low(THouseActionType) to High(THouseActionType) do
+  if AT in aActSet then
   begin
-    AnimCount := fResource.HouseDat[Index].Anim[i].Count;
+    AnimCount := fResource.HouseDat[aHouse].Anim[AT].Count;
     if AnimCount<>0 then
     begin
-      ID := fResource.HouseDat[Index].Anim[i].Step[AnimStep mod AnimCount + 1]+1;
+      ID := fResource.HouseDat[aHouse].Anim[AT].Step[AnimStep mod AnimCount + 1]+1;
       ShiftX := RXData[2].Pivot[ID].x/CELL_SIZE_PX;
       ShiftY := (RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      ShiftX := ShiftX+fResource.HouseDat[Index].Anim[i].MoveX/CELL_SIZE_PX;
-      ShiftY := ShiftY+fResource.HouseDat[Index].Anim[i].MoveY/CELL_SIZE_PX;
+      ShiftX := ShiftX+fResource.HouseDat[aHouse].Anim[AT].MoveX/CELL_SIZE_PX;
+      ShiftY := ShiftY+fResource.HouseDat[aHouse].Anim[AT].MoveY/CELL_SIZE_PX;
       fRenderList.AddSprite(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false,FlagColor);
     end;
   end;

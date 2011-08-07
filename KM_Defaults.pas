@@ -499,14 +499,14 @@ type
   THouseBuildState = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
 
   THouseActionType = (
-  ha_Work1=1, ha_Work2=2, ha_Work3=3, ha_Work4=4, ha_Work5=5, //Start, InProgress, .., .., Finish
-  ha_Smoke=6, ha_FlagShtok=7, ha_Idle=8,
-  ha_Flag1=9, ha_Flag2=10, ha_Flag3=11,
-  ha_Fire1=12, ha_Fire2=13, ha_Fire3=14, ha_Fire4=15, ha_Fire5=16, ha_Fire6=17, ha_Fire7=18, ha_Fire8=19);
+  ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5, //Start, InProgress, .., .., Finish
+  ha_Smoke, ha_FlagShtok, ha_Idle,
+  ha_Flag1, ha_Flag2, ha_Flag3,
+  ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8);
   THouseActionSet = set of THouseActionType;
 
 const
-  HouseAction:array[1..19] of string = (
+  HouseAction:array[THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
   'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',

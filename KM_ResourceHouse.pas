@@ -6,7 +6,7 @@ uses
 
 
 type
-  THouseAnim = array[1..19] of packed record
+  THouseAnim = array[THouseActionType] of packed record
       Step:array[1..30]of smallint;
       Count:smallint;
       MoveX,MoveY:integer;

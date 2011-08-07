@@ -14,14 +14,14 @@ type
     fHouse:TKMHouse;
     fHouseState: THouseState;
     fSubAction: THouseActionSet;
-    function GetWorkID:byte;
+    procedure SetHouseState(aHouseState: THouseState);
   public
     constructor Create(aHouse:TKMHouse; aHouseState: THouseState);
-    procedure SetState(aHouseState: THouseState);
     procedure SubActionWork(aActionSet: THouseActionType);
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
-    property ActionType: THouseState read fHouseState;
+    property State: THouseState read fHouseState write SetHouseState;
+    property SubAction:THouseActionSet read fSubAction;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
   end;
@@ -328,8 +328,8 @@ begin
   for i:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOut[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOrder[i], SizeOf(fResourceOrder[i]));
-  LoadStream.Read(FlagAnimStep, SizeOf(FlagAnimStep));
-  LoadStream.Read(WorkAnimStep, SizeOf(WorkAnimStep));
+  LoadStream.Read(FlagAnimStep);
+  LoadStream.Read(WorkAnimStep);
   LoadStream.Read(fIsDestroyed);
   LoadStream.Read(RemoveRoadWhenDemolish);
   LoadStream.Read(fPointerCount);
@@ -713,13 +713,13 @@ end;
 
 procedure TKMHouse.SetState(aState: THouseState);
 begin
-  fCurrentAction.SetState(aState);
+  fCurrentAction.State := aState;
 end;
 
 
 function TKMHouse.GetState:THouseState;
 begin
-  Result := fCurrentAction.fHouseState;
+  Result := fCurrentAction.State;
 end;
 
 
@@ -858,69 +858,68 @@ end;
 
 
 procedure TKMHouse.MakeSound;
-var WorkID,Step:byte;
+var Work:THouseActionType; Step:byte;
 begin
   //Do not play sounds if house is invisible to MyPlayer
   if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
   if fCurrentAction = nil then exit; //no action means no sound ;)
 
-  WorkID := fCurrentAction.GetWorkID;
-  if WorkID=0 then exit;
+  if ha_Work1 in fCurrentAction.SubAction then Work := ha_Work1 else
+  if ha_Work2 in fCurrentAction.SubAction then Work := ha_Work2 else
+  if ha_Work3 in fCurrentAction.SubAction then Work := ha_Work3 else
+  if ha_Work4 in fCurrentAction.SubAction then Work := ha_Work4 else
+  if ha_Work5 in fCurrentAction.SubAction then Work := ha_Work5 else
+    Exit; //No work is going on
 
-  Step := fResource.HouseDat[fHouseType].Anim[WorkID].Count;
+  Step := fResource.HouseDat[fHouseType].Anim[Work].Count;
   if Step=0 then exit;
-
-  //WatchTower has only 1 anim frame at Work2, hence it repeats the sound each frame
-  //any value MOD 1 = 0
-  //We override it by localy setting AnimCount to 100, so only first frame gets sound
-  if fHouseType = ht_WatchTower then Step := 100;
 
   Step := WorkAnimStep mod Step;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
-    ht_School:        if (WorkID = 5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
-    ht_Mill:          if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_mill,GetPosition);
-    ht_CoalMine:      if (WorkID = 1)and(Step = 5) then fSoundLib.Play(sfx_coalDown,GetPosition)
-                      else if (WorkID = 1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
-                      else if (WorkID = 2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
-                      else if (WorkID = 2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
-                      else if (WorkID = 5)and(Step = 1) then fSoundLib.Play(sfx_coalDown,GetPosition);
-    ht_IronMine:      if (WorkID = 2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
-                      else if (WorkID = 2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
-    ht_GoldMine:      if (WorkID = 2)and(Step = 5) then fSoundLib.Play(sfx_mine,GetPosition)
-                      else if (WorkID = 2)and(Step = 6) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
-    ht_Sawmill:       if (WorkID = 2)and(Step = 1) then fSoundLib.Play(sfx_saw,GetPosition);
-    ht_Wineyard:      if (WorkID = 2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
-                      else if (WorkID = 5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
-                      else if (WorkID = 1)and(Step = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
-    ht_Bakery:        if (WorkID = 3)and(Step in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
-    ht_Quary:         if (WorkID = 2)and(Step in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition)
-                      else if (WorkID = 5)and(Step in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);
-    ht_WeaponSmithy:  if (WorkID = 1)and(Step in [17,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                      else if (WorkID = 2)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (WorkID = 3)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (WorkID = 4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                      else if (WorkID = 5)and(Step = 12) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition);
-    ht_ArmorSmithy:   if (WorkID = 2)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (WorkID = 3)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (WorkID = 4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                      else if (WorkID = 5)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition);
-    ht_Metallurgists: if (WorkID = 3)and(Step = 6) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                      else if (WorkID = 4)and(Step in [16,20]) then fSoundLib.Play(sfx_wineDrain,GetPosition);
-    ht_IronSmithy:    if (WorkID = 2)and(Step in [1,16]) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                      else if (WorkID = 3)and(Step = 1) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                      else if (WorkID = 3)and(Step = 13) then fSoundLib.Play(sfx_wineDrain,GetPosition);
-    ht_WeaponWorkshop:if (WorkID = 2)and(Step in [1,10,19]) then fSoundLib.Play(sfx_saw,GetPosition)
-                      else if (WorkID = 3)and(Step in [10,21]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
-                      else if (WorkID = 4)and(Step in [2,13]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
-    ht_ArmorWorkshop: if (WorkID = 2)and(Step in [3,13,23]) then fSoundLib.Play(sfx_saw,GetPosition)
-                      else if (WorkID = 3)and(Step in [17,28]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
-                      else if (WorkID = 4)and(Step in [10,20]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
-    ht_Tannery:       if (WorkID = 2)and(Step = 5) then fSoundLib.Play(sfx_Leather,GetPosition,true,0.8);
-    ht_Butchers:      if (WorkID = 2)and(Step in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
-                      else if (WorkID = 3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
-    ht_Swine:         if ((WorkID = 2)and(Step in [10,20]))or((WorkID = 3)and(Step = 1)) then fSoundLib.Play(sfx_ButcherCut,GetPosition);
-    //ht_WatchTower:  Handled by projectile itself 
+    ht_School:        if (Work = ha_Work5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
+    ht_Mill:          if (Work = ha_Work2)and(Step = 0) then fSoundLib.Play(sfx_mill,GetPosition);
+    ht_CoalMine:      if (Work = ha_Work1)and(Step = 5) then fSoundLib.Play(sfx_coalDown,GetPosition)
+                      else if (Work = ha_Work1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
+                      else if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
+                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
+                      else if (Work = ha_Work5)and(Step = 1) then fSoundLib.Play(sfx_coalDown,GetPosition);
+    ht_IronMine:      if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
+                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
+    ht_GoldMine:      if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_mine,GetPosition)
+                      else if (Work = ha_Work2)and(Step = 6) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
+    ht_Sawmill:       if (Work = ha_Work2)and(Step = 1) then fSoundLib.Play(sfx_saw,GetPosition);
+    ht_Wineyard:      if (Work = ha_Work2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
+                      else if (Work = ha_Work5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
+                      else if (Work = ha_Work1)and(Step = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
+    ht_Bakery:        if (Work = ha_Work3)and(Step in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
+    ht_Quary:         if (Work = ha_Work2)and(Step in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition)
+                      else if (Work = ha_Work5)and(Step in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);
+    ht_WeaponSmithy:  if (Work = ha_Work1)and(Step in [17,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                      else if (Work = ha_Work2)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (Work = ha_Work3)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (Work = ha_Work4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                      else if (Work = ha_Work5)and(Step = 12) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition);
+    ht_ArmorSmithy:   if (Work = ha_Work2)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (Work = ha_Work3)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (Work = ha_Work4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                      else if (Work = ha_Work5)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition);
+    ht_Metallurgists: if (Work = ha_Work3)and(Step = 6) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                      else if (Work = ha_Work4)and(Step in [16,20]) then fSoundLib.Play(sfx_wineDrain,GetPosition);
+    ht_IronSmithy:    if (Work = ha_Work2)and(Step in [1,16]) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                      else if (Work = ha_Work3)and(Step = 1) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                      else if (Work = ha_Work3)and(Step = 13) then fSoundLib.Play(sfx_wineDrain,GetPosition);
+    ht_WeaponWorkshop:if (Work = ha_Work2)and(Step in [1,10,19]) then fSoundLib.Play(sfx_saw,GetPosition)
+                      else if (Work = ha_Work3)and(Step in [10,21]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
+                      else if (Work = ha_Work4)and(Step in [2,13]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
+    ht_ArmorWorkshop: if (Work = ha_Work2)and(Step in [3,13,23]) then fSoundLib.Play(sfx_saw,GetPosition)
+                      else if (Work = ha_Work3)and(Step in [17,28]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
+                      else if (Work = ha_Work4)and(Step in [10,20]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
+    ht_Tannery:       if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_Leather,GetPosition,true,0.8);
+    ht_Butchers:      if (Work = ha_Work2)and(Step in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
+                      else if (Work = ha_Work3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
+    ht_Swine:         if ((Work = ha_Work2)and(Step in [10,20]))or((Work = ha_Work3)and(Step = 1)) then fSoundLib.Play(sfx_ButcherCut,GetPosition);
+    //ht_WatchTower:  Sound handled by projectile itself
   end;
 end;
 
@@ -944,8 +943,8 @@ begin
   for i:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOut[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOrder[i], SizeOf(fResourceOrder[i]));
-  SaveStream.Write(FlagAnimStep, SizeOf(FlagAnimStep));
-  SaveStream.Write(WorkAnimStep, SizeOf(WorkAnimStep));
+  SaveStream.Write(FlagAnimStep);
+  SaveStream.Write(WorkAnimStep);
   SaveStream.Write(fIsDestroyed);
   SaveStream.Write(RemoveRoadWhenDemolish);
   SaveStream.Write(fPointerCount);
@@ -1039,7 +1038,7 @@ begin
       fRender.RenderHouseStone(fHouseType,1,fPosition);
       fRender.RenderHouseSupply(fHouseType,fResourceIn,fResourceOut,fPosition);
       if fCurrentAction<>nil then
-        fRender.RenderHouseWork(fHouseType,integer(fCurrentAction.fSubAction),WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
+        fRender.RenderHouseWork(fHouseType, fCurrentAction.SubAction, WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
     end;
   end;
 end;
@@ -1129,7 +1128,7 @@ begin
   //But Animal Breeders should be on top of beasts
   if fCurrentAction<>nil then
     fRender.RenderHouseWork(fHouseType,
-                            integer(fCurrentAction.fSubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5]),
+                            fCurrentAction.SubAction * [ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5],
                             WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
 end;
 
@@ -1319,6 +1318,7 @@ begin
   if CheckResIn(rt_Gold) = 0 then exit;
   HideOneGold := true;
   UnitWIP := fPlayers.Player[fOwner].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
+  WorkAnimStep := 0;
   fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   TKMUnit(UnitWIP).SetUnitTask := TTaskSelfTrain.Create(UnitWIP,Self);
 end;
@@ -1338,14 +1338,19 @@ begin
 end;
 
 
+//Return training progress as in 0..100% range
 function TKMHouseSchool.GetTrainingProgress:byte;
 begin
-  Result:=0;
-  if UnitWIP=nil then exit;
-  Result:=EnsureRange(round(
-  ((fCurrentAction.GetWorkID-1)*30+30-TUnitActionStay(TKMUnit(UnitWIP).GetUnitAction).HowLongLeftToStay)
-  /1.5),0,100); //150 steps into 0..100 range
-  //Substeps could be asked from Unit.ActionStay.TimeToStay, but it's a private field now
+  if UnitWIP = nil then
+    Result := 0
+  else
+    Result := EnsureRange(round((
+              byte(ha_Work2 in fCurrentAction.SubAction) * 30 +
+              byte(ha_Work3 in fCurrentAction.SubAction) * 60 +
+              byte(ha_Work4 in fCurrentAction.SubAction) * 90 +
+              byte(ha_Work5 in fCurrentAction.SubAction) * 120 +
+              byte(fCurrentAction.State = hst_Work) * WorkAnimStep
+              )/1.5), 0, 100);
 end;
 
 
@@ -1582,11 +1587,11 @@ constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState);
 begin
   Inherited Create;
   fHouse := aHouse;
-  SetState(aHouseState);
+  SetHouseState(aHouseState);
 end;
 
 
-procedure THouseAction.SetState(aHouseState: THouseState);
+procedure THouseAction.SetHouseState(aHouseState: THouseState);
 begin
   fHouseState := aHouseState;
   case fHouseState of
@@ -1605,17 +1610,6 @@ begin
   SubActionRem([ha_Work1..ha_Work5]); //Remove all work
   fSubAction := fSubAction + [aActionSet];
   if fHouse.fHouseType <> ht_Mill then fHouse.WorkAnimStep := 0; //Exception for mill so that the windmill doesn't jump frames
-end;
-
-
-function THouseAction.GetWorkID:byte;
-begin
-  if ha_Work1 in fSubAction then Result := 1 else
-  if ha_Work2 in fSubAction then Result := 2 else
-  if ha_Work3 in fSubAction then Result := 3 else
-  if ha_Work4 in fSubAction then Result := 4 else
-  if ha_Work5 in fSubAction then Result := 5 else
-    Result := 0;
 end;
 
 
