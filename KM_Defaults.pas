@@ -155,6 +155,7 @@ type
   TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
 
   TPlayerIndex = shortint;
+  TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex; 
 
 const
   PLAYER_NONE = -1; //No player

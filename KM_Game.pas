@@ -464,8 +464,8 @@ var
   LoadError:string;
   i,k:integer;
   fMissionParser:TMissionParser;
-  PlayerIndex:integer;
-  PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
+  PlayerIndex:TPlayerIndex;
+  PlayerRemap:TPlayerArray;
 begin
   fLog.AppendLog('GameStart Multiplayer');
 
@@ -487,8 +487,13 @@ begin
     fMainMenuInterface.ShowScreen(msLoading, 'script');
     fRender.Render;
 
+    for i:=0 to High(PlayerRemap) do
+      PlayerRemap[i] := PLAYER_NONE;
+    for i:=1 to fNetworking.NetPlayers.Count do
+      PlayerRemap[i] := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
+
     try //Catch exceptions
-      fMissionParser := TMissionParser.Create(mpm_Multi,false);
+      fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
       if fMissionParser.LoadMission(fMissionFile) then
         fLog.AppendLog('DAT Loaded')
       else
@@ -518,9 +523,6 @@ begin
 
   fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
-  //Initilise
-  FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);
-
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
   begin
@@ -528,6 +530,7 @@ begin
     fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
     fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].PlayerType;
 
+    //Setup alliances
     if not fNetworking.MapInfo.IsSave then
       for k:=0 to fPlayers.Count-1 do
         if (fNetworking.NetPlayers[i].Team = 0) or (fNetworking.NetPlayers.StartingLocToLocal(k+1) = -1) or
@@ -537,16 +540,15 @@ begin
           fPlayers.Player[PlayerIndex].Alliances[k] := at_Ally;
 
     fPlayers.Player[PlayerIndex].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
-    PlayerUsed[PlayerIndex] := true;
   end;
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
-  //Clear remaining players
+  {//Clear remaining players
   for i:=fPlayers.Count-1 downto 0 do
     if not PlayerUsed[i] then
-      fPlayers.RemovePlayer(i);
+      fPlayers.RemovePlayer(i);}
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players
 

@@ -100,6 +100,8 @@ type
   private
     fParsingMode:TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
     fStrictParsing:boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
+    fRemapCount:byte;
+    fRemap:TPlayerArray;
     fErrorMessage:string; //Errors descriptions accumulate here
     fMissionFileName:string;
 
@@ -124,7 +126,8 @@ type
     procedure ProcessAttackPositions;
     function ReadMissionFile(const aFileName:string):string;
   public
-    constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean);
+    constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
+    constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
     function LoadMission(const aFileName:string):boolean;
 
     property ErrorMessage:string read fErrorMessage;
@@ -144,6 +147,23 @@ constructor TMissionParser.Create(aMode:TMissionParsingMode; aStrictParsing:bool
 begin
   Inherited Create;
   fParsingMode := aMode;
+  fStrictParsing := aStrictParsing;
+end;
+
+
+constructor TMissionParser.Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean);
+var i:integer;
+begin
+  Inherited Create;
+  fParsingMode := aMode;
+
+  //PlayerRemap tells us which player should be used for which index
+  //and which players should be ignored
+  fRemap := aPlayersRemap;
+
+  for i:=0 to High(fRemap) do
+    inc(fRemapCount);
+
   fStrictParsing := aStrictParsing;
 end;
 
@@ -476,16 +496,22 @@ begin
                        end;
     ct_SetMaxPlayer:   begin
                          if fPlayers=nil then fPlayers := TKMPlayersCollection.Create;
-                         fPlayers.AddPlayers(ParamList[0]);
+                         if fParsingMode = mpm_Single then
+                           fPlayers.AddPlayers(ParamList[0])
+                         else
+                           fPlayers.AddPlayers(fRemapCount);
                        end;
     ct_SetTactic:      begin
                          if fPlayers=nil then fPlayers := TKMPlayersCollection.Create;
                          fMissionInfo.MissionMode := mm_Tactic;
                        end;
+
     ct_SetCurrPlayer:  begin
-                       if InRange(ParamList[0], 0, fPlayers.Count-1) then
-                       begin
-                         fCurrentPlayerIndex := ParamList[0];
+                         if (fParsingMode = mpm_Single) and
+                            InRange(ParamList[0], 0, fPlayers.Count-1) then
+                           fCurrentPlayerIndex := ParamList[0];
+                         if (fParsingMode = mpm_Multi)
+
                          fLastHouse := nil;
                          fLastTroop := nil;
                        end;
@@ -582,41 +608,41 @@ begin
                        end;
     ct_BlockHouse:     begin
                          if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
-                           fPlayers.Player[fCurrentPlayerIndex].Stats.AllowToBuild[HouseKaMType[ParamList[0]]] := false;
+                         fPlayers.Player[fCurrentPlayerIndex].Stats.AllowToBuild[HouseKaMType[ParamList[0]]] := false;
                        end;
     ct_ReleaseHouse:   begin
                          if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
-                           fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[HouseKaMType[ParamList[0]]] := true;
+                         fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[HouseKaMType[ParamList[0]]] := true;
                        end;
    ct_ReleaseAllHouses:begin
                          for H:=Low(THouseType) to High(THouseType) do
-                           fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[H] := true;
+                         fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[H] := true;
                        end;
     ct_SetGroup:       begin
                          if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
-                                                             //@Lewin: We need a sort of UnitIsArmy procedure somewhere
-                                                             //cos atm there are too many places where values input by hand
-                                                             //and if we to add e.g. new unit we'll need to fix all those manualy
-                           fLastTroop := TKMUnitWarrior(fPlayers.Player[fCurrentPlayerIndex].AddGroup(
-                             TroopsRemap[ParamList[0]],
-                             KMPoint(ParamList[1]+1, ParamList[2]+1),
-                             TKMDirection(ParamList[3]+1),
-                             ParamList[4],
-                             ParamList[5],
-                             fParsingMode=mpm_Editor //Editor mode = true
-                             ));
+                                                           //@Lewin: We need a sort of UnitIsArmy procedure somewhere
+                                                           //cos atm there are too many places where values input by hand
+                                                           //and if we to add e.g. new unit we'll need to fix all those manualy
+                         fLastTroop := TKMUnitWarrior(fPlayers.Player[fCurrentPlayerIndex].AddGroup(
+                           TroopsRemap[ParamList[0]],
+                           KMPoint(ParamList[1]+1, ParamList[2]+1),
+                           TKMDirection(ParamList[3]+1),
+                           ParamList[4],
+                           ParamList[5],
+                           fParsingMode=mpm_Editor //Editor mode = true
+                           ));
                        end;
     ct_SendGroup:      begin
                          if fLastTroop <> nil then
-                           fLastTroop.OrderWalk(KMPoint(ParamList[0]+1, ParamList[1]+1), TKMDirection(ParamList[2]+1))
-                         else
-                           DebugScriptError('ct_SendGroup without prior declaration of Troop');
+                         fLastTroop.OrderWalk(KMPoint(ParamList[0]+1, ParamList[1]+1), TKMDirection(ParamList[2]+1))
+                       else
+                         DebugScriptError('ct_SendGroup without prior declaration of Troop');
                        end;
     ct_SetGroupFood:   begin
                          if fLastTroop <> nil then
-                           fLastTroop.SetGroupFullCondition
-                         else
-                           DebugScriptError('ct_SetGroupFood without prior declaration of Troop');
+                         fLastTroop.SetGroupFullCondition
+                       else
+                         DebugScriptError('ct_SetGroupFood without prior declaration of Troop');
                        end;
     ct_AICharacter:    begin
                          if fPlayers.Player[fCurrentPlayerIndex].PlayerType <> pt_Computer then exit;
@@ -642,55 +668,55 @@ begin
                        end;
     ct_SetAlliance:    begin
                          if ParamList[1] = 1 then
-                           fPlayers.Player[fCurrentPlayerIndex].Alliances[ParamList[0]] := at_Ally
-                         else
-                           fPlayers.Player[fCurrentPlayerIndex].Alliances[ParamList[0]] := at_Enemy;
+                         fPlayers.Player[fCurrentPlayerIndex].Alliances[ParamList[0]] := at_Ally
+                       else
+                         fPlayers.Player[fCurrentPlayerIndex].Alliances[ParamList[0]] := at_Enemy;
                        end;
     ct_AttackPosition: begin
                          //If target is building: Attack building
-                         //If target is unit: Chase/attack unit
-                         //If target is nothing: move to position
-                         //However, because the unit/house target may not have been created yet, this must be processed after everything else
-                         if fLastTroop <> nil then
-                         begin
-                           inc(fAttackPositionsCount);
-                           SetLength(fAttackPositions, fAttackPositionsCount+1);
-                           fAttackPositions[fAttackPositionsCount-1].Warrior := fLastTroop;
-                           fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(ParamList[0]+1,ParamList[1]+1);
-                         end
-                         else
-                           DebugScriptError('ct_AttackPosition without prior declaration of Troop');
+                       //If target is unit: Chase/attack unit
+                       //If target is nothing: move to position
+                       //However, because the unit/house target may not have been created yet, this must be processed after everything else
+                       if fLastTroop <> nil then
+                       begin
+                         inc(fAttackPositionsCount);
+                         SetLength(fAttackPositions, fAttackPositionsCount+1);
+                         fAttackPositions[fAttackPositionsCount-1].Warrior := fLastTroop;
+                         fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(ParamList[0]+1,ParamList[1]+1);
+                       end
+                       else
+                         DebugScriptError('ct_AttackPosition without prior declaration of Troop');
                        end;
     ct_AddGoal:        begin
                          //If the condition is time then ParamList[3] is the time, else it is player ID
-                         if TGoalCondition(ParamList[0]) = gc_Time then
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
-                         else begin
-                           if ParamList[3] > fPlayers.Count-1 then begin
-                             DebugScriptError('Add_Goal for non existing player');
-                             exit;
-                           end;
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
+                       if TGoalCondition(ParamList[0]) = gc_Time then
+                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
+                       else begin
+                         if ParamList[3] > fPlayers.Count-1 then begin
+                           DebugScriptError('Add_Goal for non existing player');
+                           exit;
                          end;
+                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
+                       end;
                        end;
     ct_AddLostGoal:    begin
                          //If the condition is time then ParamList[3] is the time, else it is player ID
-                         if TGoalCondition(ParamList[0]) = gc_Time then
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
-                         else begin
-                           if ParamList[3] > fPlayers.Count-1 then begin
-                             DebugScriptError('Add_LostGoal for non existing player');
-                             exit;
-                           end;
-                           fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
+                       if TGoalCondition(ParamList[0]) = gc_Time then
+                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
+                       else begin
+                         if ParamList[3] > fPlayers.Count-1 then begin
+                           DebugScriptError('Add_LostGoal for non existing player');
+                           exit;
                          end;
+                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
+                       end;
                        end;
     ct_AIDefence:      begin
                          fPlayers.Player[fCurrentPlayerIndex].AI.AddDefencePosition(KMPointDir(KMPoint(ParamList[0]+1,ParamList[1]+1),TKMDirection(ParamList[2]+1)),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
                        end;
     ct_SetMapColor:    begin
                          //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                         fPlayers.Player[fCurrentPlayerIndex].FlagColor := fResource.GetColor32(ParamList[0], DEF_PAL);
+                       fPlayers.Player[fCurrentPlayerIndex].FlagColor := fResource.GetColor32(ParamList[0], DEF_PAL);
                        end;
     ct_AIAttack:       begin
                          //Set up the attack command
@@ -716,7 +742,7 @@ begin
                        end;
     ct_CopyAIAttack:   begin
                          //Save the attack to the AI assets
-                         fPlayers.Player[fCurrentPlayerIndex].AI.AddAttack(fAIAttack);
+                       fPlayers.Player[fCurrentPlayerIndex].AI.AddAttack(fAIAttack);
                        end;
     ct_EnablePlayer:   begin
                          //Serves no real purpose, all players have this command anyway
