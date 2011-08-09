@@ -533,18 +533,13 @@ begin
         else
           fPlayers.Player[PlayerIndex].Alliances[k] := at_Ally;
 
-    fPlayers.Player[PlayerIndex].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
+    fPlayers.Player[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
   end;
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
-  {//Clear remaining players
-  for i:=fPlayers.Count-1 downto 0 do
-    if not PlayerUsed[i] then
-      fPlayers.RemovePlayer(i);}
-
-  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players
+  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
 
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
