@@ -469,9 +469,11 @@ begin
   fCampaigns.ActiveCampaignMap := 0;
 
   if fNetworking.MapInfo.IsSave then
+    //Load savegame
     Load(fNetworking.MapInfo.SaveSlot, true)
   else
   begin
+    //Load mission file
     GameInit(true);
     fMissionFile := KMMapNameToPath(fNetworking.MapInfo.Folder, 'dat');
     fGameName := fNetworking.MapInfo.Folder + ' MP';
@@ -480,6 +482,7 @@ begin
 
     fMainMenuInterface.ShowScreen(msLoading, 'script');
 
+    //Reorder start locations and players for 1-1 2-2 result
     for i:=0 to High(PlayerRemap) do PlayerRemap[i] := PLAYER_NONE; //Init with empty values
     for i:=1 to fNetworking.NetPlayers.Count do
     begin
@@ -510,12 +513,11 @@ begin
     end;
 
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
+    fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
     fPlayers.AfterMissionInit(true);
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
-
-  fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
@@ -545,7 +547,7 @@ begin
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
   fRender.Render;
 
-  Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
+  Form1.StatusBar1.Panels[0].Text := 'Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
 
   fLog.AppendLog('Gameplay initialized', true);
@@ -555,10 +557,8 @@ begin
   if not fNetworking.MapInfo.IsSave then
   begin
     Save(99); //Thats our base for a game record
-
-    {$IFDEF Unix} //In Linux CopyFile does not overwrite
+    //In Linux CopyFile does not overwrite
     if FileExists(SlotToSaveName(99,'bas')) then DeleteFile(SlotToSaveName(99,'bas'));
-    {$ENDIF}
     CopyFile(PChar(SlotToSaveName(99,'sav')), PChar(SlotToSaveName(99,'bas')), false);
   end;
 
@@ -569,6 +569,7 @@ begin
   fNetworking.OnPlayersSetup := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo     := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.GameCreated;
+
   if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
 
   fLog.AppendLog('Gameplay recording initialized', True);
@@ -635,8 +636,8 @@ begin
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
-    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile])
-    , mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile]),
+    mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
     Stop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
   else
