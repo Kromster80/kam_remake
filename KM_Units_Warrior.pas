@@ -775,7 +775,7 @@ var NewP:TKMPointDir;
 begin
   //Choose best direction
   if aDir = dir_NA then
-    if (fOrderLoc.Loc.X <> 0) then
+    if (fOrderLoc.Dir <> dir_NA) then
       NewP := KMPointDir(aLoc, fOrderLoc.Dir) //keep old direction if group had an order to walk somewhere
     else
       NewP := KMPointDir(aLoc, Direction)
