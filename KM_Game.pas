@@ -337,16 +337,13 @@ begin
 
   if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
-    fRender.Render;
     fResource.LoadGameResources;
     InitUnitStatEvals;
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
-    fRender.Render;
     fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
-  fRender.Render;
 
   fViewport := TViewport.Create;
   fGamePlayInterface := TKMGamePlayInterface.Create(ScreenX, ScreenY);
@@ -399,7 +396,6 @@ begin
   fLog.AppendLog('Loading DAT file: '+fMissionFile);
 
   fMainMenuInterface.ShowScreen(msLoading, 'script');
-  fRender.Render;
 
   if aMissionFile <> '' then
   try //Catch exceptions
@@ -464,8 +460,8 @@ var
   LoadError:string;
   i,k:integer;
   fMissionParser:TMissionParser;
-  PlayerIndex:integer;
-  PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
+  PlayerIndex:TPlayerIndex;
+  PlayerRemap:TPlayerArray;
 begin
   fLog.AppendLog('GameStart Multiplayer');
 
@@ -473,11 +469,11 @@ begin
   fCampaigns.ActiveCampaignMap := 0;
 
   if fNetworking.MapInfo.IsSave then
-  begin
-    Load(fNetworking.MapInfo.SaveSlot, true);
-  end
+    //Load savegame
+    Load(fNetworking.MapInfo.SaveSlot, true)
   else
   begin
+    //Load mission file
     GameInit(true);
     fMissionFile := KMMapNameToPath(fNetworking.MapInfo.Folder, 'dat');
     fGameName := fNetworking.MapInfo.Folder + ' MP';
@@ -485,10 +481,17 @@ begin
     fLog.AppendLog('Loading DAT file: '+fMissionFile);
 
     fMainMenuInterface.ShowScreen(msLoading, 'script');
-    fRender.Render;
+
+    //Reorder start locations and players for 1-1 2-2 result
+    for i:=0 to High(PlayerRemap) do PlayerRemap[i] := PLAYER_NONE; //Init with empty values
+    for i:=1 to fNetworking.NetPlayers.Count do
+    begin
+      PlayerRemap[fNetworking.NetPlayers[i].StartLocation - 1] := i-1; //PlayerID is 0 based
+      fNetworking.NetPlayers[i].StartLocation := i;
+    end;
 
     try //Catch exceptions
-      fMissionParser := TMissionParser.Create(mpm_Multi,false);
+      fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
       if fMissionParser.LoadMission(fMissionFile) then
         fLog.AppendLog('DAT Loaded')
       else
@@ -508,18 +511,13 @@ begin
         Exit;
       end;
     end;
-    
-    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
 
+    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
+    fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
     fPlayers.AfterMissionInit(true);
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
-
-  fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
-
-  //Initilise
-  FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
@@ -528,6 +526,7 @@ begin
     fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
     fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].PlayerType;
 
+    //Setup alliances
     if not fNetworking.MapInfo.IsSave then
       for k:=0 to fPlayers.Count-1 do
         if (fNetworking.NetPlayers[i].Team = 0) or (fNetworking.NetPlayers.StartingLocToLocal(k+1) = -1) or
@@ -536,25 +535,19 @@ begin
         else
           fPlayers.Player[PlayerIndex].Alliances[k] := at_Ally;
 
-    fPlayers.Player[PlayerIndex].FlagColor := MP_TEAM_COLORS[fNetworking.NetPlayers[i].FlagColorID];
-    PlayerUsed[PlayerIndex] := true;
+    fPlayers.Player[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
   end;
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
-  //Clear remaining players
-  for i:=fPlayers.Count-1 downto 0 do
-    if not PlayerUsed[i] then
-      fPlayers.RemovePlayer(i);
-
-  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players
+  fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
 
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
   fRender.Render;
 
-  Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
+  Form1.StatusBar1.Panels[0].Text := 'Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
 
   fLog.AppendLog('Gameplay initialized', true);
@@ -564,10 +557,8 @@ begin
   if not fNetworking.MapInfo.IsSave then
   begin
     Save(99); //Thats our base for a game record
-
-    {$IFDEF Unix} //In Linux CopyFile does not overwrite
+    //In Linux CopyFile does not overwrite
     if FileExists(SlotToSaveName(99,'bas')) then DeleteFile(SlotToSaveName(99,'bas'));
-    {$ENDIF}
     CopyFile(PChar(SlotToSaveName(99,'sav')), PChar(SlotToSaveName(99,'bas')), false);
   end;
 
@@ -578,6 +569,7 @@ begin
   fNetworking.OnPlayersSetup := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo     := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.GameCreated;
+
   if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
 
   fLog.AppendLog('Gameplay recording initialized', True);
@@ -644,8 +636,8 @@ begin
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
-    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile])
-    , mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile]),
+    mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
     Stop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
   else
@@ -792,15 +784,12 @@ begin
 
   if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'units and houses');
-    fRender.Render;
     fResource.LoadGameResources;
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
-    fRender.Render;
     fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
-  fRender.Render;
 
   fViewport := TViewport.Create;
   fMapEditor := TKMMapEditor.Create;

@@ -300,7 +300,7 @@ begin
     M.Read(PingValue);
     //This player might not be in the lobby yet, could still be asking to join. If so we do not care about their ping.
     if LocalHandle <> -1 then
-      fNetPlayers[LocalHandle].SetPing(PingValue);
+      fNetPlayers[LocalHandle].AddPing(PingValue);
   end;
   M.Free;
 end;

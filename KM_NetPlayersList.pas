@@ -12,23 +12,29 @@ type
   private
     fNikname:string;
     fIndexOnServer:integer;
+    fFlagColorID:integer;    //Flag color, 0 means random
     fPings: array[0..PING_COUNT-1] of word; //Ring buffer
     fPingPos:byte;
+    function GetFlagColor:cardinal;
   public
     PlayerType:TPlayerType; //Human, Computer
-    FlagColorID:integer;    //Flag color, 0 means random
     StartLocation:integer;  //Start location, 0 means random
     Team:integer;
     PlayerIndex:TKMPlayer;
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
     Alive:boolean;          //Player is still connected and not defeated
-    procedure SetPing(aPing:word);
+    procedure AddPing(aPing:word);
     function GetInstantPing:word;
     function GetMaxPing:word;
     function IsHuman:boolean;
     property Nikname:string read fNikname;
     property IndexOnServer:integer read fIndexOnServer;
+    property FlagColor:cardinal read GetFlagColor;
+    property FlagColorID:integer read fFlagColorID write fFlagColorID;
+
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
   //Handles everything related to players list,
@@ -81,12 +87,17 @@ implementation
 
 
 { TKMPlayerInfo }
-procedure TKMPlayerInfo.SetPing(aPing:word);
+procedure TKMPlayerInfo.AddPing(aPing:word);
 begin
   fPingPos := (fPingPos+1) mod PING_COUNT;
   fPings[fPingPos] := aPing;
 end;
 
+
+function TKMPlayerInfo.GetFlagColor: cardinal;
+begin
+  Result := MP_TEAM_COLORS[fFlagColorID]
+end;
 
 function TKMPlayerInfo.GetInstantPing:word;
 begin
@@ -106,6 +117,34 @@ end;
 function TKMPlayerInfo.IsHuman:boolean;
 begin
   Result := PlayerType = pt_Human;
+end;
+
+
+procedure TKMPlayerInfo.Load(LoadStream: TKMemoryStream);
+begin
+  LoadStream.Read(fNikname);
+  LoadStream.Read(fIndexOnServer);
+  LoadStream.Read(PlayerType, SizeOf(PlayerType));
+  LoadStream.Read(fFlagColorID);
+  LoadStream.Read(StartLocation);
+  LoadStream.Read(Team);
+  LoadStream.Read(ReadyToStart);
+  LoadStream.Read(ReadyToPlay);
+  LoadStream.Read(Alive);
+end;
+
+
+procedure TKMPlayerInfo.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write(fNikname);
+  SaveStream.Write(fIndexOnServer);
+  SaveStream.Write(PlayerType, SizeOf(PlayerType));
+  SaveStream.Write(fFlagColorID);
+  SaveStream.Write(StartLocation);
+  SaveStream.Write(Team);
+  SaveStream.Write(ReadyToStart);
+  SaveStream.Write(ReadyToPlay);
+  SaveStream.Write(Alive);
 end;
 
 
@@ -505,17 +544,7 @@ begin
 
   M.Write(fCount);
   for i:=1 to fCount do
-  begin
-    M.Write(fPlayers[i].fNikname);
-    M.Write(fPlayers[i].fIndexOnServer);
-    M.Write(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
-    M.Write(fPlayers[i].FlagColorID);
-    M.Write(fPlayers[i].StartLocation);
-    M.Write(fPlayers[i].Team);
-    M.Write(fPlayers[i].ReadyToStart);
-    M.Write(fPlayers[i].ReadyToPlay);
-    M.Write(fPlayers[i].Alive);
-  end;
+    fPlayers[i].Save(M);
 
   Result := M.ReadAsText;
   M.Free;
@@ -530,17 +559,7 @@ begin
     M.WriteAsText(aText);
     M.Read(fCount);
     for i:=1 to fCount do
-    begin
-      M.Read(fPlayers[i].fNikname);
-      M.Read(fPlayers[i].fIndexOnServer);
-      M.Read(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
-      M.Read(fPlayers[i].FlagColorID);
-      M.Read(fPlayers[i].StartLocation);
-      M.Read(fPlayers[i].Team);
-      M.Read(fPlayers[i].ReadyToStart);
-      M.Read(fPlayers[i].ReadyToPlay);
-      M.Read(fPlayers[i].Alive);
-    end;
+      fPlayers[i].Load(M);
   finally
     M.Free;
   end;
