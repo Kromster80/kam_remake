@@ -492,28 +492,17 @@ end;
 
 //Tell other players we want to start
 procedure TKMNetworking.StartClick;
+var ErrorMessage: String;
 begin
   Assert(IsHost, 'Only host can start the game');
 
-  //Do not allow to start the game
-  if not fNetPlayers.AllReady then
-  begin
-    fOnTextMessage('Can not start: Not everyone is ready to start');
-    exit;
-  end;
-
-  //Host can not miss a starting location!
-  if fNetPlayers.Count > fMapInfo.PlayerCount then
-  begin
-    fOnTextMessage('Cannot start: Player count exceeds map limit');
-    exit;
-  end;
-
   //Define random parameters (start locations and flag colors)
   //This will also remove odd players from the List, they will lose Host in few seconds
-  fNetPlayers.DefineSetup(fMapInfo.PlayerCount);
-
-  //Let everyone start with final version of fNetPlayers
+  if not fNetPlayers.ValidateSetup(fMapInfo.PlayerCount, ErrorMessage) then
+  begin
+    fOnTextMessage('Can not start: ' + ErrorMessage);
+    Exit;
+  end;
 
   //@Krom: If the server is local then this message will not be recieved by the other players until we have finished this process
   //       because the server will not process and resend the message until then. Adding Application.ProcessMessage; here would fix
@@ -523,6 +512,7 @@ begin
   //@Lewin: Thats low priority, but yes, separate thread would be good solution AFAIK
   //todo: TKMNetServer should run in a seperate thread to make it update even while the client (player) is busy (see above)
 
+  //Let everyone start with final version of fNetPlayers
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, fNetPlayers.GetAsText, 0);
   PacketSend(NET_ADDRESS_SERVER, mk_RoomClose, '', 0); //Tell the server this room is now closed
 
@@ -640,7 +630,7 @@ begin
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
   M.Position := 0;
-  M.Read(Kind, SizeOf(TKMessageKind));
+  M.Read(Kind, SizeOf(TKMessageKind)); //Depending on kind message contains either Text or a Number
   case NetPacketType[Kind] of
     pfNumber: M.Read(Param);
     pfText:   M.Read(Msg);
@@ -653,19 +643,17 @@ begin
     //When querying a server we may receive data such as commands, player setup, etc. These should be ignored.
     if (fLANGameState <> lgs_Query) and Assigned(fOnTextMessage) then
       fOnTextMessage('Error: Received an packet not intended for this state');
-    exit;
+    Exit;
   end;
 
   case Kind of
     mk_GameVersion:
+            if Msg <> GAME_REVISION then
             begin
-              if Msg <> GAME_REVISION then
-              begin
-                Assert(not IsHost);
-                fOnJoinFail('Wrong game version: '+GAME_REVISION+'. Server uses: '+Msg);
-                fNetClient.Disconnect;
-                exit;
-              end;
+              Assert(not IsHost);
+              fOnJoinFail('Wrong game version: '+GAME_REVISION+'. Server uses: '+Msg);
+              fNetClient.Disconnect;
+              exit;
             end;
 
     mk_HostingRights:
@@ -748,9 +736,7 @@ begin
               end;
 
     mk_Disconnect:
-            if aSenderIndex = NET_ADDRESS_SERVER then
-              ForcedDisconnect('The server was forced to restart due to a data corruption error')
-            else
+            if aSenderIndex <> NET_ADDRESS_SERVER then
               case fLANPlayerKind of
                 lpk_Host:
                     begin
@@ -771,41 +757,39 @@ begin
                       else
                         fNetPlayers.RemPlayer(aSenderIndex);
                     end;
-              end;
+              end
+            else
+              ForcedDisconnect('The server was forced to restart due to a data corruption error');
 
     mk_ReassignHost:
+            if Param = fMyIndexOnServer then
             begin
-              if Param = fMyIndexOnServer then
-              begin
-                //We are now the host
-                fLANPlayerKind := lpk_Host;
-                fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
-                if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
+              //We are now the host
+              fLANPlayerKind := lpk_Host;
+              fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
+              if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
 
-                case fLANGameState of
-                  lgs_Lobby:   begin
-                                 fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
-                                 fNetPlayers.SetAIReady; //Set all AI players to ready
+              case fLANGameState of
+                lgs_Lobby:   begin
+                               fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
+                               fNetPlayers.SetAIReady; //Set all AI players to ready
+                             end;
+                lgs_Loading: begin
+                               if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
+                               if fNetPlayers.AllReadyToPlay then
+                               begin
+                                 PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
+                                 PlayGame;
                                end;
-                  lgs_Loading: begin
-                                 if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
-                                 if fNetPlayers.AllReadyToPlay then
-                                 begin
-                                   PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
-                                   PlayGame;
-                                 end;
-                               end;
-                end;
-
-                SendPlayerListAndRefreshPlayersSetup;
-                PostMessage('Hosting rights reassigned to '+fMyNikname);
+                             end;
               end;
+
+              SendPlayerListAndRefreshPlayersSetup;
+              PostMessage('Hosting rights reassigned to '+fMyNikname);
             end;
 
     mk_Ping:
-            begin
-              PacketSend(aSenderIndex, mk_Pong, '', 0); //Server will intercept this message
-            end;
+            PacketSend(aSenderIndex, mk_Pong, '', 0); //Server will intercept this message
 
     mk_PingInfo:
             begin
@@ -863,7 +847,6 @@ begin
 
     mk_SaveCRC:
             if fLANPlayerKind = lpk_Joiner then
-            begin
               if Integer(fMapInfo.CRC) <> Param then
               begin
                 if fMapInfo.IsValid then
@@ -873,10 +856,9 @@ begin
                 fMapInfo.Free;
                 fMapInfo := TKMapInfo.Create;
                 if fMyIndex <> -1 then //In the process of joining
-                  fNetPlayers[fMyIndex].ReadyToStart := false;
+                  fNetPlayers[fMyIndex].ReadyToStart := False;
                 if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
-              end
-            end;
+              end;
 
     mk_StartingLocQuery:
             if IsHost then begin

@@ -44,8 +44,9 @@ type
     fCount:integer;
     fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
     function GetPlayer(Index:integer):TKMPlayerInfo;
-    procedure AllocateLocations(aMaxLoc:byte);
-    procedure AllocateColors;
+    procedure ValidateLocations(aMaxLoc:byte);
+    procedure ValidateColors;
+    procedure UpdateAIPlayerNames;
   public
     constructor Create;
     destructor Destroy; override;
@@ -57,7 +58,6 @@ type
     procedure KillPlayer(aIndexOnServer:integer);
     procedure RemPlayer(aIndexOnServer:integer);
     procedure RemAIPlayer(ID:integer);
-    procedure UpdateAIPlayerNames;
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
     //Getters
@@ -76,7 +76,7 @@ type
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
-    procedure DefineSetup(aMaxLoc:byte);
+    function ValidateSetup(aMaxLoc:byte; out ErrorMsg:String):boolean;
 
     //Import/Export
     function GetAsText:string; //Gets all relevant information as text string
@@ -96,7 +96,10 @@ end;
 
 function TKMPlayerInfo.GetFlagColor: cardinal;
 begin
-  Result := MP_TEAM_COLORS[fFlagColorID]
+  if fFlagColorID <> 0 then
+    Result := MP_TEAM_COLORS[fFlagColorID]
+  else
+    Result := $FF000000; //Black
 end;
 
 function TKMPlayerInfo.GetInstantPing:word;
@@ -109,8 +112,8 @@ function TKMPlayerInfo.GetMaxPing:word;
 var i: integer;
 begin
   Result := 0;
-  for i:= 0 to PING_COUNT-1 do
-    Result := Math.max(Result,fPings[i]);
+  for i:=0 to PING_COUNT-1 do
+    Result := Math.max(Result, fPings[i]);
 end;
 
 
@@ -179,7 +182,8 @@ begin
 end;
 
 
-procedure TKMPlayersList.AllocateLocations(aMaxLoc:byte);
+//Make sure all starting locations are valid
+procedure TKMPlayersList.ValidateLocations(aMaxLoc:byte);
 var
   i,k,LocCount:integer;
   UsedLoc:array of boolean;
@@ -226,7 +230,7 @@ begin
 end;
 
 
-procedure TKMPlayersList.AllocateColors;
+procedure TKMPlayersList.ValidateColors;
 var
   i,k,ColorCount:integer;
   UsedColor:array[0..MP_COLOR_COUNT] of boolean; //0 means Random
@@ -525,12 +529,20 @@ end;
 
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
-procedure TKMPlayersList.DefineSetup(aMaxLoc:byte);
+function TKMPlayersList.ValidateSetup(aMaxLoc:byte; out ErrorMsg:String):boolean;
 begin
-  Assert(fCount <= aMaxLoc, 'Players count exceeds map limit');
-
-  AllocateLocations(aMaxLoc);
-  AllocateColors;
+  if not AllReady then begin
+    ErrorMsg := 'Not everyone is ready to start';
+    Result := False;
+  end else
+  if fCount > aMaxLoc then begin
+    ErrorMsg := 'Players count exceeds map limit';
+    Result := False;
+  end else begin
+    ValidateLocations(aMaxLoc);
+    ValidateColors;
+    Result := True;
+  end;
 end;
 
 
