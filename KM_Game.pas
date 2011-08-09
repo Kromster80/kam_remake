@@ -337,16 +337,13 @@ begin
 
   if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
-    fRender.Render;
     fResource.LoadGameResources;
     InitUnitStatEvals;
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
-    fRender.Render;
     fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
-  fRender.Render;
 
   fViewport := TViewport.Create;
   fGamePlayInterface := TKMGamePlayInterface.Create(ScreenX, ScreenY);
@@ -399,7 +396,6 @@ begin
   fLog.AppendLog('Loading DAT file: '+fMissionFile);
 
   fMainMenuInterface.ShowScreen(msLoading, 'script');
-  fRender.Render;
 
   if aMissionFile <> '' then
   try //Catch exceptions
@@ -473,9 +469,7 @@ begin
   fCampaigns.ActiveCampaignMap := 0;
 
   if fNetworking.MapInfo.IsSave then
-  begin
-    Load(fNetworking.MapInfo.SaveSlot, true);
-  end
+    Load(fNetworking.MapInfo.SaveSlot, true)
   else
   begin
     GameInit(true);
@@ -485,12 +479,13 @@ begin
     fLog.AppendLog('Loading DAT file: '+fMissionFile);
 
     fMainMenuInterface.ShowScreen(msLoading, 'script');
-    fRender.Render;
 
-    for i:=0 to High(PlayerRemap) do
-      PlayerRemap[i] := PLAYER_NONE;
+    for i:=0 to High(PlayerRemap) do PlayerRemap[i] := PLAYER_NONE; //Init with empty values
     for i:=1 to fNetworking.NetPlayers.Count do
-      PlayerRemap[i] := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
+    begin
+      PlayerRemap[fNetworking.NetPlayers[i].StartLocation - 1] := i-1; //PlayerID is 0 based
+      fNetworking.NetPlayers[i].StartLocation := i;
+    end;
 
     try //Catch exceptions
       fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
@@ -513,9 +508,8 @@ begin
         Exit;
       end;
     end;
-    
-    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
 
+    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
     fPlayers.AfterMissionInit(true);
   end;
 
@@ -794,15 +788,12 @@ begin
 
   if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'units and houses');
-    fRender.Render;
     fResource.LoadGameResources;
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
-    fRender.Render;
     fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
-  fRender.Render;
 
   fViewport := TViewport.Create;
   fMapEditor := TKMMapEditor.Create;

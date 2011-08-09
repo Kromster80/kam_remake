@@ -91,7 +91,7 @@ var
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :boolean=false; //Multiplayer cheats should be disabled for releases, but are useful for debug
+  MULTIPLAYER_CHEATS    :boolean=true; //Multiplayer cheats should be disabled for releases, but are useful for debug
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably

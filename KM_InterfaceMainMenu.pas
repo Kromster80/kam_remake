@@ -337,6 +337,8 @@ begin
                   SwitchMenuPage(Panel_Results);
                 end;
   end;
+  
+  fRender.Render;
 end;
 
 

@@ -144,10 +144,16 @@ uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_ResourceGFX, K
 { TMissionParser }
 //Mode affect how certain parameters are loaded a bit differently
 constructor TMissionParser.Create(aMode:TMissionParsingMode; aStrictParsing:boolean);
+var i:integer;
 begin
   Inherited Create;
   fParsingMode := aMode;
   fStrictParsing := aStrictParsing;
+
+  for i:=0 to High(fRemap) do
+    fRemap[i] := i;
+
+  fRemapCount := MAX_PLAYERS;
 end;
 
 
@@ -156,6 +162,7 @@ var i:integer;
 begin
   Inherited Create;
   fParsingMode := aMode;
+  fStrictParsing := aStrictParsing;
 
   //PlayerRemap tells us which player should be used for which index
   //and which players should be ignored
@@ -164,7 +171,6 @@ begin
   for i:=0 to High(fRemap) do
     inc(fRemapCount);
 
-  fStrictParsing := aStrictParsing;
 end;
 
 
@@ -468,8 +474,9 @@ end;
 
 function TMissionParser.ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:shortString):boolean;
 var
-  MyStr: string;
-  i, MyInt: integer;
+  MapFileName: string;
+  i: integer;
+  Qty:integer;
   Storehouse: TKMHouseStore;
   H: THouseType;
   Barracks: TKMHouseBarracks;
@@ -479,14 +486,14 @@ begin
 
   case CommandType of
     ct_SetMap:         begin
-                         MyStr := RemoveQuotes(TextParam);
+                         MapFileName := RemoveQuotes(TextParam);
                          //Check for same filename.map in same folder first - Remake format
                          if CheckFileExists(ChangeFileExt(fMissionFileName,'.map'),true) then
                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'))
                          else
                          //Check for KaM format map path
-                         if CheckFileExists(ExeDir+MyStr,true) then
-                           fTerrain.LoadFromFile(ExeDir+MyStr)
+                         if CheckFileExists(ExeDir+MapFileName,true) then
+                           fTerrain.LoadFromFile(ExeDir+MapFileName)
                          else
                          begin
                            //Else abort loading and fail
@@ -501,249 +508,240 @@ begin
                          else
                            fPlayers.AddPlayers(fRemapCount);
                        end;
-    ct_SetTactic:      begin
-                         if fPlayers=nil then fPlayers := TKMPlayersCollection.Create;
-                         fMissionInfo.MissionMode := mm_Tactic;
-                       end;
+    ct_SetTactic:       begin
+                          if fPlayers=nil then fPlayers := TKMPlayersCollection.Create;
+                          fMissionInfo.MissionMode := mm_Tactic;
+                        end;
+    ct_SetCurrPlayer:   if InRange(ParamList[0], 0, MAX_PLAYERS-1) then
+                        begin
+                          fCurrentPlayerIndex := fRemap[ParamList[0]]; //
+                          fLastHouse := nil;
+                          fLastTroop := nil;
+                        end;
+    ct_SetHumanPlayer:  if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
+                          if InRange(ParamList[0], 0, fPlayers.Count-1) then
+                          begin
+                            fMissionInfo.HumanPlayerID := ParamList[0];
+                            fPlayers.Player[ParamList[0]].PlayerType := pt_Human;
+                          end;
+                        //Multiplayer will set Human player itself after loading
+    ct_AIPlayer:        if (fParsingMode <> mpm_Multi) and (fPlayers <> nil) then
+                          if InRange(ParamList[0],0,fPlayers.Count-1) then
+                            fPlayers.Player[ParamList[0]].PlayerType:=pt_Computer
+                          else //This command doesn't require an ID, just use the current player
+                            fPlayers.Player[fCurrentPlayerIndex].PlayerType:=pt_Computer;
+                        //Multiplayer will set AI players itself after loading
+    ct_CenterScreen:    if fCurrentPlayerIndex >=0 then
+                          fPlayers.Player[fCurrentPlayerIndex].CenterScreen := KMPoint(ParamList[0]+1,ParamList[1]+1);
+    ct_ClearUp:         if fCurrentPlayerIndex >=0 then
+                          if ParamList[0] = 255 then
+                            fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealEverything
+                          else
+                            fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealCircle(KMPoint(ParamList[0]+1,ParamList[1]+1), ParamList[2], 255);
+    ct_SetHouse:        if fCurrentPlayerIndex >=0 then
+                          if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
+                            fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(
+                              HouseKaMType[ParamList[0]], ParamList[1]+1, ParamList[2]+1, false);
+    ct_SetHouseDamage:  if fCurrentPlayerIndex >=0 then //Skip false-positives for skipped players
+                          if fLastHouse <> nil then
+                            fLastHouse.AddDamage(ParamList[0], fParsingMode = mpm_Editor)
+                          else
+                            DebugScriptError('ct_SetHouseDamage without prior declaration of House');
+    ct_SetUnit:         if fCurrentPlayerIndex >=0 then
+                        if InRange(ParamList[0],0,31) then
+                          fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPoint(ParamList[1]+1,ParamList[2]+1));
 
-    ct_SetCurrPlayer:  begin
-                         if (fParsingMode = mpm_Single) and
-                            InRange(ParamList[0], 0, fPlayers.Count-1) then
-                           fCurrentPlayerIndex := ParamList[0];
-                         if (fParsingMode = mpm_Multi)
-
-                         fLastHouse := nil;
-                         fLastTroop := nil;
-                       end;
-                       end;
-    ct_SetHumanPlayer: begin
-                       if (fPlayers <> nil) and (fParsingMode <> mpm_Multi) then
-                         if InRange(ParamList[0],0,fPlayers.Count-1) then
-                         begin
-                           fMissionInfo.HumanPlayerID := ParamList[0];
-                           fPlayers.Player[ParamList[0]].PlayerType := pt_Human;
-                         end;
-                       end;
-    ct_AIPlayer:       begin
-                       if (fPlayers <> nil) and (fParsingMode <> mpm_Multi) then
-                         if InRange(ParamList[0],0,fPlayers.Count-1) then
-                           fPlayers.Player[ParamList[0]].PlayerType:=pt_Computer
-                         else //This command doesn't require an ID, just use the current player
-                           fPlayers.Player[fCurrentPlayerIndex].PlayerType:=pt_Computer;
-                       end;
-    ct_CenterScreen:   begin
-                         fPlayers.Player[fCurrentPlayerIndex].CenterScreen := KMPoint(ParamList[0]+1,ParamList[1]+1);
-                       end;
-    ct_ClearUp:        begin
-                       if ParamList[0] = 255 then
-                         fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealEverything
-                       else
-                         fPlayers.Player[fCurrentPlayerIndex].FogOfWar.RevealCircle(KMPoint(ParamList[0]+1,ParamList[1]+1), ParamList[2], 255);
-                       end;
-    ct_SetHouse:       begin
-                       if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
-                         fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(
-                           HouseKaMType[ParamList[0]], ParamList[1]+1, ParamList[2]+1, false);
-                       end;
-    ct_SetHouseDamage: begin
-                       if fLastHouse <> nil then
-                         fLastHouse.AddDamage(ParamList[0], fParsingMode = mpm_Editor)
-                       else
-                         DebugScriptError('ct_SetHouseDamage without prior declaration of House');
-                       end;
-    ct_SetUnit:        begin
-                       if InRange(ParamList[0],0,31) then
-                         fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPoint(ParamList[1]+1,ParamList[2]+1));
-                       end;
-    ct_SetUnitByStock: begin
-                       if InRange(ParamList[0],0,31) then
-                       begin
-                         Storehouse:=TKMHouseStore(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Store,1));
-                         if Storehouse<>nil then
-                           fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPoint(Storehouse.GetEntrance.X, Storehouse.GetEntrance.Y+1));
-                       end;
-                       end;
-    ct_SetRoad:        begin
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]+1,ParamList[1]+1));
-                       end;
-    ct_SetField:       begin
-                         fPlayers.Player[fCurrentPlayerIndex].AddField(KMPoint(ParamList[0]+1,ParamList[1]+1),ft_Corn);
-                       end;
-    ct_Set_Winefield:  begin
-                         fPlayers.Player[fCurrentPlayerIndex].AddField(KMPoint(ParamList[0]+1,ParamList[1]+1),ft_Wine);
-                       end;
-    ct_SetStock:       begin //This command basically means: Put a storehouse here with road bellow it
-                         fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(ht_Store, ParamList[0]+1,ParamList[1]+1, false);
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]+1,ParamList[1]+2));
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0],ParamList[1]+2));
-                         fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]-1,ParamList[1]+2));
-                       end;
-    ct_AddWare:        begin
-                         MyInt:=ParamList[1];
-                         if MyInt = -1 then MyInt:=High(Word); //-1 means maximum resources
-                         MyInt:=EnsureRange(MyInt,0,High(Word)); //Sometimes user can define it to be 999999
-                         Storehouse:=TKMHouseStore(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Store,1));
-                         if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
-                       end;
-    ct_AddWareToAll:   begin
-                         MyInt:=ParamList[1];
-                         if MyInt = -1 then MyInt:=High(Word); //-1 means maximum resources
-                         for i:=0 to fPlayers.Count-1 do
-                         begin
-                           Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
-                           if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
-                         end;
-                       end;
-    ct_AddWareToSecond:begin
-                         MyInt:=ParamList[1];
-                         if MyInt = -1 then MyInt:=High(Word); //-1 means maximum resources
-                         Storehouse:=TKMHouseStore(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Store,2));
-                         if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
-                       end;
-    ct_AddWeapon:      begin
-                         MyInt:=ParamList[1];
-                         if MyInt = -1 then MyInt:=High(Word); //-1 means maximum weapons
-                         Barracks:=TKMHouseBarracks(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Barracks,1));
-                         if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
-                       end;
-    ct_BlockHouse:     begin
-                         if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
-                         fPlayers.Player[fCurrentPlayerIndex].Stats.AllowToBuild[HouseKaMType[ParamList[0]]] := false;
-                       end;
-    ct_ReleaseHouse:   begin
-                         if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
-                         fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[HouseKaMType[ParamList[0]]] := true;
-                       end;
-   ct_ReleaseAllHouses:begin
-                         for H:=Low(THouseType) to High(THouseType) do
-                         fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[H] := true;
-                       end;
-    ct_SetGroup:       begin
-                         if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
-                                                           //@Lewin: We need a sort of UnitIsArmy procedure somewhere
-                                                           //cos atm there are too many places where values input by hand
-                                                           //and if we to add e.g. new unit we'll need to fix all those manualy
-                         fLastTroop := TKMUnitWarrior(fPlayers.Player[fCurrentPlayerIndex].AddGroup(
-                           TroopsRemap[ParamList[0]],
-                           KMPoint(ParamList[1]+1, ParamList[2]+1),
-                           TKMDirection(ParamList[3]+1),
-                           ParamList[4],
-                           ParamList[5],
-                           fParsingMode=mpm_Editor //Editor mode = true
-                           ));
-                       end;
-    ct_SendGroup:      begin
-                         if fLastTroop <> nil then
-                         fLastTroop.OrderWalk(KMPoint(ParamList[0]+1, ParamList[1]+1), TKMDirection(ParamList[2]+1))
-                       else
-                         DebugScriptError('ct_SendGroup without prior declaration of Troop');
-                       end;
-    ct_SetGroupFood:   begin
-                         if fLastTroop <> nil then
-                         fLastTroop.SetGroupFullCondition
-                       else
-                         DebugScriptError('ct_SetGroupFood without prior declaration of Troop');
-                       end;
-    ct_AICharacter:    begin
-                         if fPlayers.Player[fCurrentPlayerIndex].PlayerType <> pt_Computer then exit;
-                         iPlayerAI := fPlayers.Player[fCurrentPlayerIndex].AI; //Setup the AI's character
-                         if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.ReqRecruits         := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.ReqWorkers          := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.ReqSerfFactor       := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.RecruitTrainTimeout := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.TownDefence         := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.MaxSoldiers         := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Aggressiveness      := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_TroopParam]   then
-                         begin
-                           iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumUnits := ParamList[2];
-                           iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].UnitsPerRow  := ParamList[3];
-                         end;
-                       end;
-    ct_AINoBuild:      begin
-                         fPlayers.Player[fCurrentPlayerIndex].AI.Autobuild := false;
-                       end;
-    ct_AIStartPosition:begin
-                         fPlayers.Player[fCurrentPlayerIndex].AI.StartPosition := KMPoint(ParamList[0]+1,ParamList[1]+1);
-                       end;
-    ct_SetAlliance:    begin
-                         if ParamList[1] = 1 then
-                         fPlayers.Player[fCurrentPlayerIndex].Alliances[ParamList[0]] := at_Ally
-                       else
-                         fPlayers.Player[fCurrentPlayerIndex].Alliances[ParamList[0]] := at_Enemy;
-                       end;
-    ct_AttackPosition: begin
-                         //If target is building: Attack building
-                       //If target is unit: Chase/attack unit
-                       //If target is nothing: move to position
-                       //However, because the unit/house target may not have been created yet, this must be processed after everything else
-                       if fLastTroop <> nil then
-                       begin
-                         inc(fAttackPositionsCount);
-                         SetLength(fAttackPositions, fAttackPositionsCount+1);
-                         fAttackPositions[fAttackPositionsCount-1].Warrior := fLastTroop;
-                         fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(ParamList[0]+1,ParamList[1]+1);
-                       end
-                       else
-                         DebugScriptError('ct_AttackPosition without prior declaration of Troop');
-                       end;
-    ct_AddGoal:        begin
-                         //If the condition is time then ParamList[3] is the time, else it is player ID
-                       if TGoalCondition(ParamList[0]) = gc_Time then
-                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
-                       else begin
-                         if ParamList[3] > fPlayers.Count-1 then begin
-                           DebugScriptError('Add_Goal for non existing player');
-                           exit;
-                         end;
-                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
-                       end;
-                       end;
-    ct_AddLostGoal:    begin
-                         //If the condition is time then ParamList[3] is the time, else it is player ID
-                       if TGoalCondition(ParamList[0]) = gc_Time then
-                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
-                       else begin
-                         if ParamList[3] > fPlayers.Count-1 then begin
-                           DebugScriptError('Add_LostGoal for non existing player');
-                           exit;
-                         end;
-                         fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],ParamList[3]);
-                       end;
-                       end;
-    ct_AIDefence:      begin
-                         fPlayers.Player[fCurrentPlayerIndex].AI.AddDefencePosition(KMPointDir(KMPoint(ParamList[0]+1,ParamList[1]+1),TKMDirection(ParamList[2]+1)),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
-                       end;
-    ct_SetMapColor:    begin
-                         //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                       fPlayers.Player[fCurrentPlayerIndex].FlagColor := fResource.GetColor32(ParamList[0], DEF_PAL);
-                       end;
-    ct_AIAttack:       begin
-                         //Set up the attack command
-                         if TextParam = PARAMVALUES[cpt_Type] then
-                           if InRange(ParamList[1],0,2) then
-                             fAIAttack.AttackType := RemakeAttackType[ParamList[1]]
-                           else
-                             DebugScriptError('Unknown parameter '+inttostr(ParamList[1])+' at ct_AIAttack');
-                         if TextParam = PARAMVALUES[cpt_TotalAmount] then
-                           fAIAttack.TotalMen := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_Counter] then
-                           fAIAttack.Delay := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_Range] then
-                           fAIAttack.Range := ParamList[1];
-                         if TextParam = PARAMVALUES[cpt_TroopAmount] then
-                           fAIAttack.GroupAmounts[TGroupType(ParamList[1]+1)] := ParamList[2];
-                         if TextParam = PARAMVALUES[cpt_Target] then
-                           fAIAttack.Target := TAIAttackTarget(ParamList[1]);
-                         if TextParam = PARAMVALUES[cpt_Position] then
-                           fAIAttack.CustomPosition := KMPoint(ParamList[1]+1,ParamList[2]+1);
-                         if TextParam = PARAMVALUES[cpt_TakeAll] then
-                           fAIAttack.TakeAll := true;
-                       end;
-    ct_CopyAIAttack:   begin
-                         //Save the attack to the AI assets
-                       fPlayers.Player[fCurrentPlayerIndex].AI.AddAttack(fAIAttack);
-                       end;
+    ct_SetUnitByStock:  if fCurrentPlayerIndex >=0 then
+                          if InRange(ParamList[0],0,31) then
+                          begin
+                            Storehouse := TKMHouseStore(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Store,1));
+                            if Storehouse<>nil then
+                              fPlayers.Player[fCurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPoint(Storehouse.GetEntrance.X, Storehouse.GetEntrance.Y+1));
+                          end;
+    ct_SetRoad:         if fCurrentPlayerIndex >=0 then
+                          fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]+1,ParamList[1]+1));
+    ct_SetField:        if fCurrentPlayerIndex >=0 then
+                          fPlayers.Player[fCurrentPlayerIndex].AddField(KMPoint(ParamList[0]+1,ParamList[1]+1),ft_Corn);
+    ct_Set_Winefield:   if fCurrentPlayerIndex >=0 then
+                          fPlayers.Player[fCurrentPlayerIndex].AddField(KMPoint(ParamList[0]+1,ParamList[1]+1),ft_Wine);
+    ct_SetStock:        if fCurrentPlayerIndex >=0 then
+                        begin //This command basically means: Put a storehouse here with road bellow it
+                          fLastHouse := fPlayers.Player[fCurrentPlayerIndex].AddHouse(ht_Store, ParamList[0]+1,ParamList[1]+1, false);
+                          fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]+1,ParamList[1]+2));
+                          fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0],ParamList[1]+2));
+                          fPlayers.Player[fCurrentPlayerIndex].AddRoadsToList(KMPoint(ParamList[0]-1,ParamList[1]+2));
+                        end;
+    ct_AddWare:         if fCurrentPlayerIndex >=0 then
+                        begin
+                          Qty := ParamList[1];
+                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
+                          Storehouse := TKMHouseStore(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Store,1));
+                          if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then
+                            Storehouse.AddMultiResource(TResourceType(ParamList[0]+1), Qty);
+                        end;
+    ct_AddWareToAll:    begin
+                          Qty := ParamList[1];
+                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
+                          for i:=0 to fPlayers.Count-1 do
+                          begin
+                            Storehouse := TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
+                            if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then
+                              Storehouse.AddMultiResource(TResourceType(ParamList[0]+1), Qty);
+                          end;
+                        end;
+    ct_AddWareToSecond: if fCurrentPlayerIndex >=0 then
+                        begin
+                          Qty := ParamList[1];
+                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
+                          Storehouse:=TKMHouseStore(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Store,2));
+                          if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then
+                            Storehouse.AddMultiResource(TResourceType(ParamList[0]+1), Qty);
+                        end;
+    ct_AddWeapon:       if fCurrentPlayerIndex >=0 then
+                        begin
+                          Qty := ParamList[1];
+                          if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
+                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
+                          Barracks := TKMHouseBarracks(fPlayers.Player[fCurrentPlayerIndex].FindHouse(ht_Barracks,1));
+                          if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then
+                            Barracks.AddMultiResource(TResourceType(ParamList[0]+1), Qty);
+                        end;
+    ct_BlockHouse:      if fCurrentPlayerIndex >=0 then
+                        begin
+                          if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
+                            fPlayers.Player[fCurrentPlayerIndex].Stats.AllowToBuild[HouseKaMType[ParamList[0]]] := false;
+                        end;
+    ct_ReleaseHouse:    if fCurrentPlayerIndex >=0 then
+                        begin
+                          if InRange(ParamList[0], Low(HouseKaMType), High(HouseKaMType)) then
+                            fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[HouseKaMType[ParamList[0]]] := true;
+                        end;
+   ct_ReleaseAllHouses: if fCurrentPlayerIndex >=0 then
+                        begin
+                          for H:=Low(THouseType) to High(THouseType) do
+                            fPlayers.Player[fCurrentPlayerIndex].Stats.HouseReleased[H] := true;
+                        end;
+    ct_SetGroup:        if fCurrentPlayerIndex >=0 then
+                        begin
+                          if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
+                                                              //@Lewin: We need a sort of UnitIsArmy procedure somewhere
+                                                              //cos atm there are too many places where values input by hand
+                                                              //and if we to add e.g. new unit we'll need to fix all those manualy
+                            fLastTroop := TKMUnitWarrior(fPlayers.Player[fCurrentPlayerIndex].AddGroup(
+                              TroopsRemap[ParamList[0]],
+                              KMPoint(ParamList[1]+1, ParamList[2]+1),
+                              TKMDirection(ParamList[3]+1),
+                              ParamList[4],
+                              ParamList[5],
+                              fParsingMode=mpm_Editor //Editor mode = true
+                              ));
+                        end;
+    ct_SendGroup:       if fCurrentPlayerIndex >=0 then
+                        begin
+                          if fLastTroop <> nil then
+                            fLastTroop.OrderWalk(KMPoint(ParamList[0]+1, ParamList[1]+1), TKMDirection(ParamList[2]+1))
+                          else
+                            DebugScriptError('ct_SendGroup without prior declaration of Troop');
+                        end;
+    ct_SetGroupFood:    if fCurrentPlayerIndex >=0 then
+                        begin
+                          if fLastTroop <> nil then
+                            fLastTroop.SetGroupFullCondition
+                          else
+                            DebugScriptError('ct_SetGroupFood without prior declaration of Troop');
+                        end;
+    ct_AICharacter:     if fCurrentPlayerIndex >=0 then
+                        begin
+                          if fPlayers.Player[fCurrentPlayerIndex].PlayerType <> pt_Computer then Exit;
+                          iPlayerAI := fPlayers.Player[fCurrentPlayerIndex].AI; //Setup the AI's character
+                          if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.ReqRecruits         := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.ReqWorkers          := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.ReqSerfFactor       := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.RecruitTrainTimeout := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.TownDefence         := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.MaxSoldiers         := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Aggressiveness      := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_TroopParam]   then
+                          begin
+                            iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumUnits := ParamList[2];
+                            iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].UnitsPerRow  := ParamList[3];
+                          end;
+                        end;
+    ct_AINoBuild:       if fCurrentPlayerIndex >=0 then
+                          fPlayers.Player[fCurrentPlayerIndex].AI.Autobuild := false;
+    ct_AIStartPosition: if fCurrentPlayerIndex >=0 then
+                          fPlayers.Player[fCurrentPlayerIndex].AI.StartPosition := KMPoint(ParamList[0]+1,ParamList[1]+1);
+    ct_SetAlliance:     if (fCurrentPlayerIndex >=0) and (fRemap[ParamList[0]] >= 0) then
+                          if ParamList[1] = 1 then
+                            fPlayers.Player[fCurrentPlayerIndex].Alliances[fRemap[ParamList[0]]] := at_Ally
+                          else
+                            fPlayers.Player[fCurrentPlayerIndex].Alliances[fRemap[ParamList[0]]] := at_Enemy;
+    ct_AttackPosition:  if fCurrentPlayerIndex >=0 then
+                          //If target is building: Attack building
+                          //If target is unit: Chase/attack unit
+                          //If target is nothing: move to position
+                          //However, because the unit/house target may not have been created yet, this must be processed after everything else
+                          if fLastTroop <> nil then
+                          begin
+                            inc(fAttackPositionsCount);
+                            SetLength(fAttackPositions, fAttackPositionsCount+1);
+                            fAttackPositions[fAttackPositionsCount-1].Warrior := fLastTroop;
+                            fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(ParamList[0]+1,ParamList[1]+1);
+                          end
+                          else
+                            DebugScriptError('ct_AttackPosition without prior declaration of Troop');
+    ct_AddGoal:         if fCurrentPlayerIndex >=0 then
+                          //If the condition is time then ParamList[3] is the time, else it is player ID
+                          if TGoalCondition(ParamList[0]) = gc_Time then
+                            fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
+                          else
+                            if fRemap[ParamList[3]] >= 0 then
+                              if fRemap[ParamList[3]] <= fPlayers.Count-1 then
+                                fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],fRemap[ParamList[3]])
+                              else
+                                DebugScriptError('Add_Goal for non existing player');
+    ct_AddLostGoal:     if fCurrentPlayerIndex >=0 then
+                          //If the condition is time then ParamList[3] is the time, else it is player ID
+                          if TGoalCondition(ParamList[0]) = gc_Time then
+                            fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],-1)
+                          else
+                            if fRemap[ParamList[3]] >= 0 then
+                              fPlayers.Player[fCurrentPlayerIndex].Goals.AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],fRemap[ParamList[3]])
+                            else
+                              DebugScriptError('Add_LostGoal for non existing player');
+    ct_AIDefence:       if fCurrentPlayerIndex >=0 then
+                          fPlayers.Player[fCurrentPlayerIndex].AI.AddDefencePosition(KMPointDir(KMPoint(ParamList[0]+1,ParamList[1]+1),TKMDirection(ParamList[2]+1)),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
+    ct_SetMapColor:     if fCurrentPlayerIndex >=0 then
+                          //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
+                          fPlayers.Player[fCurrentPlayerIndex].FlagColor := fResource.GetColor32(ParamList[0], DEF_PAL);
+    ct_AIAttack:        begin
+                          //Set up the attack command
+                          if TextParam = PARAMVALUES[cpt_Type] then
+                            if InRange(ParamList[1],0,2) then
+                              fAIAttack.AttackType := RemakeAttackType[ParamList[1]]
+                            else
+                              DebugScriptError('Unknown parameter '+inttostr(ParamList[1])+' at ct_AIAttack');
+                          if TextParam = PARAMVALUES[cpt_TotalAmount] then
+                            fAIAttack.TotalMen := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_Counter] then
+                            fAIAttack.Delay := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_Range] then
+                            fAIAttack.Range := ParamList[1];
+                          if TextParam = PARAMVALUES[cpt_TroopAmount] then
+                            fAIAttack.GroupAmounts[TGroupType(ParamList[1]+1)] := ParamList[2];
+                          if TextParam = PARAMVALUES[cpt_Target] then
+                            fAIAttack.Target := TAIAttackTarget(ParamList[1]);
+                          if TextParam = PARAMVALUES[cpt_Position] then
+                            fAIAttack.CustomPosition := KMPoint(ParamList[1]+1,ParamList[2]+1);
+                          if TextParam = PARAMVALUES[cpt_TakeAll] then
+                            fAIAttack.TakeAll := true;
+                        end;
+    ct_CopyAIAttack:    if fCurrentPlayerIndex >=0 then
+                          //Save the attack to the AI assets
+                          fPlayers.Player[fCurrentPlayerIndex].AI.AddAttack(fAIAttack);
     ct_EnablePlayer:   begin
                          //Serves no real purpose, all players have this command anyway
                        end;
