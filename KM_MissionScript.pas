@@ -122,7 +122,7 @@ type
     function UnitTypeToScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam:shortstring):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
-    procedure DebugScriptError(const ErrorMsg:string; aFatal:boolean=false);
+    procedure AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
     procedure ProcessAttackPositions;
     function ReadMissionFile(const aFileName:string):string;
   public
@@ -223,7 +223,7 @@ var
 begin
   if not FileExists(aFileName) then
   begin
-    DebugScriptError(Format('Mission file %s could not be found', [aFileName]), true);
+    AddScriptError(Format('Mission file %s could not be found', [aFileName]), true);
     Result := '';
     Exit;
   end;
@@ -385,7 +385,7 @@ begin
 
   if (sx > MAX_MAP_SIZE) or (sy > MAX_MAP_SIZE) then
   begin
-    DebugScriptError('MissionParser can''t open the map because it''s too big.',true);
+    AddScriptError('MissionParser can''t open the map because it''s too big.',true);
     Result := false;
     Exit;
   end;
@@ -464,7 +464,7 @@ begin
   //SinglePlayer needs a player
   if (fMissionInfo.HumanPlayerID = PLAYER_NONE) and (fParsingMode = mpm_Single) then
   begin
-    DebugScriptError('No human player detected - ''ct_SetHumanPlayer''',true);
+    AddScriptError('No human player detected - ''ct_SetHumanPlayer''',true);
     Exit;
   end;
 
@@ -497,7 +497,7 @@ begin
                          else
                          begin
                            //Else abort loading and fail
-                           DebugScriptError('Map file couldn''t be found',true);
+                           AddScriptError('Map file couldn''t be found',true);
                            Exit;
                          end;
                        end;
@@ -546,7 +546,7 @@ begin
                           if fLastHouse <> nil then
                             fLastHouse.AddDamage(P[0], fParsingMode = mpm_Editor)
                           else
-                            DebugScriptError('ct_SetHouseDamage without prior declaration of House');
+                            AddScriptError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         if fLastPlayer >=0 then
                         if InRange(P[0],0,31) then
                           fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]],KMPoint(P[1]+1,P[2]+1));
@@ -637,14 +637,14 @@ begin
                           if fLastTroop <> nil then
                             fLastTroop.OrderWalk(KMPoint(P[0]+1, P[1]+1), TKMDirection(P[2]+1))
                           else
-                            DebugScriptError('ct_SendGroup without prior declaration of Troop');
+                            AddScriptError('ct_SendGroup without prior declaration of Troop');
                         end;
     ct_SetGroupFood:    if fLastPlayer >=0 then
                         begin
                           if fLastTroop <> nil then
                             fLastTroop.SetGroupFullCondition
                           else
-                            DebugScriptError('ct_SetGroupFood without prior declaration of Troop');
+                            AddScriptError('ct_SetGroupFood without prior declaration of Troop');
                         end;
     ct_AICharacter:     if fLastPlayer >=0 then
                         begin
@@ -685,7 +685,7 @@ begin
                             fAttackPositions[fAttackPositionsCount-1].Target := KMPoint(P[0]+1,P[1]+1);
                           end
                           else
-                            DebugScriptError('ct_AttackPosition without prior declaration of Troop');
+                            AddScriptError('ct_AttackPosition without prior declaration of Troop');
     ct_AddGoal:         if fLastPlayer >=0 then
                           //If the condition is time then P[3] is the time, else it is player ID
                           if TGoalCondition(P[0]) = gc_Time then
@@ -695,7 +695,7 @@ begin
                               if fRemap[P[3]] <= fPlayers.Count-1 then
                                 fPlayers.Player[fLastPlayer].Goals.AddGoal(glt_Victory,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
                               else
-                                DebugScriptError('Add_Goal for non existing player');
+                                AddScriptError('Add_Goal for non existing player');
     ct_AddLostGoal:     if fLastPlayer >=0 then
                           //If the condition is time then P[3] is the time, else it is player ID
                           if TGoalCondition(P[0]) = gc_Time then
@@ -704,7 +704,7 @@ begin
                             if fRemap[P[3]] >= 0 then
                               fPlayers.Player[fLastPlayer].Goals.AddGoal(glt_Survive,TGoalCondition(P[0]),TGoalStatus(P[1]),0,P[2],fRemap[P[3]])
                             else
-                              DebugScriptError('Add_LostGoal for non existing player');
+                              AddScriptError('Add_LostGoal for non existing player');
     ct_AIDefence:       if fLastPlayer >=0 then
                           fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(KMPoint(P[0]+1,P[1]+1),TKMDirection(P[2]+1)),TGroupType(P[3]+1),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
@@ -716,7 +716,7 @@ begin
                             if InRange(P[1],0,2) then
                               fAIAttack.AttackType := RemakeAttackType[P[1]]
                             else
-                              DebugScriptError('Unknown parameter '+inttostr(P[1])+' at ct_AIAttack');
+                              AddScriptError('Unknown parameter '+inttostr(P[1])+' at ct_AIAttack');
                           if TextParam = PARAMVALUES[cpt_TotalAmount] then
                             fAIAttack.TotalMen := P[1];
                           if TextParam = PARAMVALUES[cpt_Counter] then
@@ -748,7 +748,7 @@ end;
 
 //A nice way of debugging script errors.
 //Shows the error to the user so they know exactly what they did wrong.
-procedure TMissionParser.DebugScriptError(const ErrorMsg:string; aFatal:boolean=false);
+procedure TMissionParser.AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
 begin
   if fStrictParsing or aFatal then
     fErrorMessage := fErrorMessage + ErrorMsg + '|';
