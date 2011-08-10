@@ -88,7 +88,7 @@ function TTaskMining.ResourceExists:boolean;
 begin
   with fTerrain do
   case WorkPlan.GatheringScript of
-    gs_StoneCutter:     Result := TileIsStone(KMPoint(WorkPlan.Loc.X, WorkPlan.Loc.Y - 1)) > 0; //Check stone deposit above Loc, which is walkable tile
+    gs_StoneCutter:     Result := TileIsStone(WorkPlan.Loc.X, WorkPlan.Loc.Y-1) > 0; //Check stone deposit above Loc, which is walkable tile
     gs_FarmerSow:       Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 0);
     gs_FarmerCorn:      begin
                           Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);

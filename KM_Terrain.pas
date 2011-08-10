@@ -145,7 +145,7 @@ TTerrain = class
 
     function TileIsWater(Loc:TKMPoint):boolean;
     function TileIsSand(Loc:TKMPoint):boolean;
-    function TileIsStone(Loc:TKMPoint):byte;
+    function TileIsStone(X,Y:Word):byte;
     function TileIsSoil(Loc:TKMPoint):boolean;
     function TileIsWalkable(Loc:TKMPoint):boolean;
     function TileIsRoadable(Loc:TKMPoint):boolean;
@@ -420,16 +420,16 @@ end;
 
 
 {Check if requested tile is Stone and returns Stone deposit}
-function TTerrain.TileIsStone(Loc:TKMPoint):byte;
+function TTerrain.TileIsStone(X,Y:Word):byte;
 begin
   //Should be Tileset property, especially if we allow different tilesets
-  case Land[Loc.Y,Loc.X].Terrain of
-    132,137: Result:=5;
-    131,136: Result:=4;
-    130,135: Result:=3;
-    129,134: Result:=2;
-    128,133: Result:=1;
-    else     Result:=0;
+  case Land[Y, X].Terrain of
+    132,137: Result := 5;
+    131,136: Result := 4;
+    130,135: Result := 3;
+    129,134: Result := 2;
+    128,133: Result := 1;
+    else     Result := 0;
   end;
 end;
 
@@ -832,7 +832,7 @@ begin
   for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
   for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
-      if (TileIsStone(KMPoint(k,i))>0) then
+      if (TileIsStone(k,i)>0) then
         if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
           if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,0,false) then
             List.AddEntry(KMPointDir(KMPoint(k,i+1), dir_N));
@@ -1137,19 +1137,19 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
   begin
     MustBeWalkable := HasUnit(KMPoint(X,Y)); //Don't make units become stuck
     if TileInMapCoords(X,Y) then
-    if TileIsStone(KMPoint(X,Y))=0 then
+    if TileIsStone(X,Y)=0 then
     begin
       Bits:=0;
-      if TileInMapCoords(X,Y+1) and (TileIsStone(KMPoint(X,Y-1))>0) then inc(Bits,1);    //     1
-      if TileInMapCoords(X+1,Y) and (TileIsStone(KMPoint(X+1,Y))>0) then inc(Bits,2);    //   8 . 2
-      if TileInMapCoords(X,Y-1) and (TileIsStone(KMPoint(X,Y+1))>0) then inc(Bits,4);    //     4
-      if TileInMapCoords(X-1,Y) and (TileIsStone(KMPoint(X-1,Y))>0) then inc(Bits,8);    //
+      if TileInMapCoords(  X,Y-1) and (TileIsStone(  X,Y-1)>0) then inc(Bits, 1);    //     1
+      if TileInMapCoords(X+1,  Y) and (TileIsStone(X+1,  Y)>0) then inc(Bits, 2);    //   8 . 2
+      if TileInMapCoords(  X,Y+1) and (TileIsStone(  X,Y+1)>0) then inc(Bits, 4);    //     4
+      if TileInMapCoords(X-1,  Y) and (TileIsStone(X-1,  Y)>0) then inc(Bits, 8);    //
       if (not MustBeWalkable) or (PatternDAT[TileID[Bits]+1].Walkable<>0) then
       begin
-        Land[Y,X].Terrain:=TileID[Bits];
-        Land[Y,X].Rotation:=RotID[Bits];
+        Land[Y,X].Terrain  := TileID[Bits];
+        Land[Y,X].Rotation := RotID[Bits];
       end;
-      if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation:=KaMRandom(4); //Randomise the direction of grass tiles
+      if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation := KaMRandom(4); //Randomise the direction of grass tiles
       RecalculatePassability(Loc);
     end;
   end;
