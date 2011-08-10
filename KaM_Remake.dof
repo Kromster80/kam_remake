@@ -132,12 +132,3 @@ FileVersion=1.0.0.0
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlSearchPath]
-Count=7
-Item0=.\Common;.\Common\pngimage;.\Common\BGRABitmap;.\Common\Overbyte ICS;.\Common\zlib
-Item1=.\Common;.\Common\pngimage;.\Common\Overbyte ICS;.\Common\zlib
-Item2=.\Common;.\Common\pngimage;.\Common\Overbyte ICS;\Common\zlib
-Item3=.\Common;.\Common\pngimage;.\Common\Overbyte ICS
-Item4=.\Common;.\Common\pngimage
-Item5=.\Common; .\Common\pngimage
-Item6=.\Common
