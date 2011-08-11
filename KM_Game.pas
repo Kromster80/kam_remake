@@ -117,7 +117,7 @@ type
 
     procedure Save(SlotID:shortint);
     procedure Load(SlotID:shortint; aIsMultiplayer:boolean=false);
-    function TestLoad(SlotID:shortint; aIsMultiplayer:boolean=false):boolean;
+    function TestLoad(SlotID:shortint; aIsMultiplayer:boolean): String;
     function SavegameTitle(SlotID:shortint):string;
     function SlotToSaveName(aSlot:integer; const aExtension:string):string;
 
@@ -1070,20 +1070,37 @@ begin
 end;
 
 
-function TKMGame.TestLoad(SlotID:shortint; aIsMultiplayer:boolean=false):boolean;
+//Return description of an error
+function TKMGame.TestLoad(SlotID:shortint; aIsMultiplayer:boolean): String;
 var
   FileName,s:string;
   LoadStream:TKMemoryStream;
 begin
-  Result := False;
-  FileName := KMSlotToSaveName(SlotID,'sav',aIsMultiplayer); //Full path
-  if not FileExists(FileName) then Exit;
+  Result := '';
+  FileName := KMSlotToSaveName(SlotID, 'sav', aIsMultiplayer); //Full path
+  if not FileExists(FileName) then
+  begin
+    Result := 'Savegame file could not be found';
+    Exit;
+  end;
   LoadStream := TKMemoryStream.Create;
-  LoadStream.LoadFromFile(FileName);
-  LoadStream.Read(s); if s <> 'KaM_Savegame' then Exit;
-  LoadStream.Read(s); if s <> GAME_REVISION then Exit;
-  LoadStream.Free;
-  Result := True;
+  try
+    LoadStream.LoadFromFile(FileName);
+    LoadStream.Read(s);
+    if s <> 'KaM_Savegame' then
+    begin
+      Result := 'Savegame is corrupt or not a valid KaM Remake savegame';
+      Exit;
+    end;
+    LoadStream.Read(s);
+    if s <> GAME_REVISION then
+    begin
+      Result := Format('Incompatible savegame version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
+      Exit;
+    end;
+  finally
+    LoadStream.Free;
+  end;
 end;
 
 

@@ -35,6 +35,7 @@ type
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
     procedure Create_NetWait_Page;
+    procedure Create_LoadFail_Page;
     procedure Create_SideStack;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
@@ -86,6 +87,7 @@ type
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender:TObject);
     procedure NetWaitClick(Sender:TObject);
+    procedure LoadFailClick(Sender:TObject);
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
@@ -157,6 +159,9 @@ type
         Image_NetWait:TKMImage;
         Label_NetWait:TKMLabel;
         Button_NetQuit:TKMButton;
+    Panel_LoadFail:TKMPanel;
+      Panel_LoadFailMsg:TKMPanel;
+        Label_LoadFail:TKMLabel;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -372,12 +377,23 @@ end;
 
 
 procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
+var s:string;
 begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
-  if fGame.TestLoad(TKMControl(Sender).Tag) then
+
+  //Test if savegame can be loaded (different version, corrupt file)
+  //Show error message "Savegame could not be loaded" without interrupting gameplay
+  //We could just disable the button, but that could be more confusing to the player
+  s := fGame.TestLoad(TKMControl(Sender).Tag, fGame.MultiplayerMode);
+
+  if s = '' then
     fGame.Load(TKMControl(Sender).Tag)
   else
-    //todo: Show error message "Savegame could not be loaded" without interrupting gameplay 
+  begin
+    Label_LoadFail.Caption := s;
+    Panel_LoadFail.Show;
+    fGame.SetGameState(gsPaused);
+  end;
 end;
 
 
@@ -630,6 +646,7 @@ begin
   Create_Pause_Page;
   Create_Replay_Page; //Replay controls
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
+  Create_LoadFail_Page;
 
   Label_Hint := TKMLabel.Create(Panel_Main,224+32,Panel_Main.Height-16,0,0,'',fnt_Outline,kaLeft);
   Label_Hint.Anchors := [akLeft, akBottom];
@@ -835,8 +852,8 @@ begin
   Panel_Chat.Anchors := [akLeft, akRight, akBottom];
   Panel_Chat.Hide;
 
-    TKMImage.Create(Panel_Chat,0,17,800,170,410);
     TKMImage.Create(Panel_Chat,0,0,800,17,552);
+    TKMImage.Create(Panel_Chat,0,17,800,170,410);
 
     ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,800-85,101,fnt_Metal);
     ListBox_ChatText.CanSelect := false;
@@ -1081,6 +1098,24 @@ begin
       Button_Load[i].OnClick := Load_Click;
       Button_Load[i].Tag := i;
     end;
+end;
+
+
+procedure TKMGamePlayInterface.Create_LoadFail_Page;
+begin
+  Panel_LoadFail := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
+  Panel_LoadFail.Stretch;
+    with TKMBevel.Create(Panel_LoadFail,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2) do
+      Stretch;
+
+    Panel_LoadFailMsg := TKMPanel.Create(Panel_LoadFail,(Panel_Main.Width div 2)-100,(Panel_Main.Height div 2)-100,200,200);
+    Panel_LoadFailMsg.Center;
+
+      TKMLabel.Create(Panel_LoadFailMsg,100,30,64,16,'Savegame could not be loaded',fnt_Outline,kaCenter);
+      Label_LoadFail  := TKMLabel.Create(Panel_LoadFailMsg,100,60,64,16,'<<<LEER>>>',fnt_Metal,kaCenter);
+      with TKMButton.Create(Panel_LoadFailMsg,0,100,200,30,'Resume game',fnt_Metal) do
+        OnClick := LoadFailClick;
+    Panel_LoadFail.Hide; //Initially hidden
 end;
 
 
@@ -2286,6 +2321,13 @@ procedure TKMGamePlayInterface.NetWaitClick(Sender:TObject);
 begin
   Assert(Sender = Button_NetQuit, 'Wrong Sender in NetWaitClick');
   fGame.Stop(gr_Disconnect);
+end;
+
+
+procedure TKMGamePlayInterface.LoadFailClick(Sender:TObject);
+begin
+  Panel_LoadFail.Hide;
+  fGame.SetGameState(gsRunning)
 end;
 
 
