@@ -12,8 +12,8 @@ uses
 type
   TRenderList = class
   private
-    RenderCount:word;
-    RO:array of word; //RenderOrder
+    fCount:word;
+    RenderOrder:array of word; //RenderOrder
     RenderList:array of record
       Loc,Obj:TKMPointF;
       RX:byte;
@@ -1079,8 +1079,8 @@ end;
 { TRenderList }
 constructor TRenderList.Create;
 begin
-  RenderCount := 0;
-  SetLength(RenderList, 512);
+  fCount := 0;
+  SetLength(RenderList, 512); //Allocate some space
 end;
 
 
@@ -1092,29 +1092,30 @@ end;
 
 
 procedure TRenderList.ClipRenderList;
-var i:integer; P:TKMPoint;
+var i:integer; PX,PY:Word;
 begin
-  SetLength(RO, RenderCount+1);
+  SetLength(RenderOrder, fCount);
 
-  for i:=1 to RenderCount do
-  if RenderList[i].NewInst then begin
-    RO[i]:=i;
+  for i:=0 to fCount-1 do
+  if RenderList[i].NewInst then
+  begin
+    RenderOrder[i] := i;
     if RenderList[i].IsUnit then
     begin
-      P.X:=round(RenderList[i].Obj.X-0.5);
-      P.Y:=round(RenderList[i].Obj.Y-1);
+      PX := Round(RenderList[i].Obj.X-0.5);
+      PY := Round(RenderList[i].Obj.Y-1);
     end else
     begin
-      P.X:=round(RenderList[i].Obj.X);
-      P.Y:=round(RenderList[i].Obj.Y);
+      PX := Round(RenderList[i].Obj.X);
+      PY := Round(RenderList[i].Obj.Y);
     end;
     //RenderQuad(P.X,P.Y);
-    RenderList[i].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(P.X,P.Y);
+    RenderList[i].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(PX, PY);
     if (RenderList[i].FOWvalue <= 128) and RenderList[i].IsUnit then
-      RO[i] := 0;
+      RenderOrder[i] := 0;
   end else begin
-    RO[i]:=0;
-    RenderList[i].FOWvalue:=RenderList[i-1].FOWvalue; //Take from previous
+    RenderOrder[i] := 0;
+    RenderList[i].FOWvalue := RenderList[i-1].FOWvalue; //Take from previous
   end;
 end;
 
@@ -1123,31 +1124,31 @@ end;
 procedure TRenderList.SortRenderList;
 var i,k:integer;
 begin
-  for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparison
-  for k:=i+1 to RenderCount do if RO[k]<>0 then
-    if (RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y)
-    or((RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y)
-    and(RenderList[RO[k]].Loc.X > RenderList[RO[i]].Loc.X))
+  for i:=0 to fCount-1 do if RenderOrder[i]<>0 then //Exclude child sprites from comparison
+  for k:=i+1 to fCount-1 do if RenderOrder[k]<>0 then
+    if (RenderList[RenderOrder[k]].Loc.Y < RenderList[RenderOrder[i]].Loc.Y)
+    or((RenderList[RenderOrder[k]].Loc.Y = RenderList[RenderOrder[i]].Loc.Y)
+    and(RenderList[RenderOrder[k]].Loc.X > RenderList[RenderOrder[i]].Loc.X))
     then //TopMost Rightmost
-      SwapInt(RO[k],RO[i])
+      SwapInt(RenderOrder[k], RenderOrder[i])
 end;
 
 
 procedure TRenderList.AddSprite(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
 begin
-  inc(RenderCount);
-  if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
+  if fCount >= Length(RenderList)  then SetLength(RenderList, fCount + 256); //Book some space
 
-  RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
-  RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object in tile-space, floating-point
-  RenderList[RenderCount].RX:=aRX;              //RX library
-  RenderList[RenderCount].ID:=aID;              //Texture ID
-  RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
-  RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
-  RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
-  RenderList[RenderCount].IsUnit:=aIsUnit;      //Because units use different FOW offsets
+  RenderList[fCount].Loc        := KMPointF(pX,pY); //Position of sprite, floating-point
+  RenderList[fCount].Obj        := KMPointF(oX,oY); //Position of object in tile-space, floating-point
+  RenderList[fCount].RX         := aRX;             //RX library
+  RenderList[fCount].ID         := aID;             //Texture ID
+  RenderList[fCount].NewInst    := aNew;            //Is this a new item (can be occluded), or a child one (always on top of it's parent)
+  RenderList[fCount].Team       := aTeam;           //Team ID (determines color)
+  RenderList[fCount].AlphaStep  := Step;            //Alpha step for wip buildings
+  RenderList[fCount].IsUnit     := aIsUnit;         //Because units use different FOW offsets
+  RenderList[fCount].FOWvalue   := 255;             //Visibility recomputed in ClipRender anyway
 
-  RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
+  inc(fCount); //New item added
 end;
 
 
@@ -1155,47 +1156,42 @@ end;
 procedure TRenderList.Render;
 var i,h:integer;
 begin
-  ClipRenderList; //drop items that are outside of viewport
+  ClipRenderList; //Clip invisible items, Mark child items (RenderOrder[i] := 0), Apply FOW
   SortRenderList; //sort items overlaying
 
-  fStat_Sprites := RenderCount;
+  fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
 
-  for i:=1 to RenderCount do
-  if RO[i]<>0 then begin
+  for i:=0 to fCount-1 do
+  if RenderOrder[i] <> 0 then
+  begin
 
-    h := RO[i];
+    h := RenderOrder[i];
     //Incase no sprites were made
     if not MAKE_HOUSE_SPRITES and (RenderList[h].RX=2) then
       fRenderAux.Dot(RenderList[h].Loc.X,RenderList[h].Loc.Y, RenderList[h].Team)
     else
-    if not MAKE_HOUSE_SPRITES and (RenderList[h].RX=3) then
+    if not MAKE_UNIT_SPRITES and (RenderList[h].RX=3) then
       fRenderAux.Dot(RenderList[h].Loc.X,RenderList[h].Loc.Y, RenderList[h].Team)
     else
     begin
-
       glPushMatrix;
         glTranslatef(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
         //glRotatef(rHeading,-1,0,0);
         glTranslatef(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
-
         repeat //Render child sprites only after their parent
-          with RenderList[h] do begin
+          with RenderList[h] do
             if AlphaStep=-1 then
               fRender.RenderSprite(RX,ID,Loc.X,Loc.Y,Team,FOWvalue)
             else
-              fRender.RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
-          end;
+              fRender.RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue);
           inc(h);
           inc(fStat_Sprites2);
-        until((h>RenderCount)or(RenderList[h].NewInst));
-
+        until((h=fCount) or RenderList[h].NewInst);
       glPopMatrix;
     end;
-
   end;
-
-  RenderCount := 0;
+  fCount := 0;
 end;
 
 
