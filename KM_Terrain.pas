@@ -192,7 +192,7 @@ var
   fTerrain: TTerrain;
 
 implementation
-uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
+uses KM_Viewport, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
 
 
 { TTerrain }
@@ -2509,8 +2509,8 @@ end;
 
 
 procedure TTerrain.Paint;
-var x1,x2,y1,y2:integer;
-begin
+var x1,x2,y1,y2:integer; Passability:integer;
+begin  
   x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
   y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
@@ -2518,9 +2518,15 @@ begin
   fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);
   fRender.RenderTerrainObjects(x1,x2,y1,y2,fAnimStep);
 
-  if SHOW_TERRAIN_WIRES then fRender.RenderDebugWires(x1,x2,y1,y2);
-  if SHOW_TERRAIN_WIRES then fRender.RenderDebugPassability(x1,x2,y1,y2);
-  if SHOW_UNIT_MOVEMENT then fRender.RenderDebugUnitMoves(x1,x2,y1,y2);
+  if SHOW_TERRAIN_WIRES then fRenderAux.Wires(x1,x2,y1,y2);
+  if SHOW_TERRAIN_WIRES then
+  begin
+    Passability := fGame.FormPassability;
+    if fGame.fMapEditorInterface <> nil then
+      Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
+    fRenderAux.Passability(x1,x2,y1,y2, Passability);
+  end;
+  if SHOW_UNIT_MOVEMENT then fRenderAux.UnitMoves(x1,x2,y1,y2);
 end;
 
 

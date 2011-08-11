@@ -31,6 +31,7 @@ type TCheckAxis = (ax_X, ax_Y);
     function GetExplanation:string; virtual; abstract;
     function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
+    procedure Paint; virtual;
   end;
 
   TTaskResult = (TaskContinues, TaskDone); //There's no difference between Done and Aborted
@@ -250,7 +251,7 @@ type TCheckAxis = (ax_X, ax_Y);
 
 
 implementation
-uses KM_Render, KM_TextLibrary, KM_PlayersCollection, KM_Viewport, KM_Game,
+uses KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitActionStormAttack,
 KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log,
 
@@ -1657,12 +1658,10 @@ begin
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
 
-  if SHOW_UNIT_ROUTES then
-    if fCurrentAction is TUnitActionWalkTo then
-      TUnitActionWalkTo(fCurrentAction).Paint;
+  fCurrentAction.Paint;
 
   if SHOW_POINTER_DOTS then
-    fRender.RenderDebugUnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
+    fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
 end;
 
 
@@ -1755,6 +1754,12 @@ begin
   SaveStream.Write(fActionType, SizeOf(fActionType));
   SaveStream.Write(Locked);
   SaveStream.Write(StepDone);
+end;
+
+
+procedure TUnitAction.Paint;
+begin
+  //Used for debug, paint action properties here
 end;
 
 

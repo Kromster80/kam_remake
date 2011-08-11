@@ -258,7 +258,7 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_UnitActionStay, KM_Player;
 
 
 { TKMHouse }
@@ -1020,21 +1020,21 @@ end;
 procedure TKMHouse.Paint;
 begin
   case fBuildState of
-    hbs_Glyph: fRender.RenderHouseBuild(fHouseType, fPosition);
+    hbs_Glyph: fRender.AddHouseTablet(fHouseType, fPosition);
     hbs_NoGlyph:; //Nothing
     hbs_Wood:
       begin
         fRender.RenderHouseWood(fHouseType,
         fBuildingProgress/50/fResource.HouseDat[fHouseType].WoodCost, //0...1 range
         fPosition);
-        fRender.RenderHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+        fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
       end;
     hbs_Stone:
       begin
         fRender.RenderHouseStone(fHouseType,
         (fBuildingProgress/50-fResource.HouseDat[fHouseType].WoodCost)/fResource.HouseDat[fHouseType].StoneCost, //0...1 range
         fPosition);
-        fRender.RenderHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+        fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
       end;
     else begin
       fRender.RenderHouseStone(fHouseType,1,fPosition);
@@ -1656,7 +1656,7 @@ begin
     for k:=-round(RANGE_WATCHTOWER_MAX)-1 to round(RANGE_WATCHTOWER_MAX) do
     if InRange(GetLength(i,k),RANGE_WATCHTOWER_MIN,RANGE_WATCHTOWER_MAX) then
     if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
-      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i); 
+      fRenderAux.Quad(GetPosition.X+k,GetPosition.Y+i, $40FFFFFF);
 end;
 
 

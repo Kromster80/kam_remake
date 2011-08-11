@@ -43,6 +43,7 @@ uses
   KM_PlayerStats in 'KM_PlayerStats.pas',
   KM_Projectiles in 'KM_Projectiles.pas',
   KM_Render in 'KM_Render.pas',
+  KM_RenderAux in 'KM_RenderAux.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
   KM_ResourceHouse in 'KM_ResourceHouse.pas',

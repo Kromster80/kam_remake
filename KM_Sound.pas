@@ -105,7 +105,7 @@ var
 
 
 implementation
-uses KM_Render, KM_Game, KM_Log, KM_TextLibrary, Dialogs, KM_ResourceGFX, KM_ResourceUnit;
+uses KM_Render, KM_RenderAux, KM_Game, KM_Log, KM_TextLibrary, Dialogs, KM_ResourceGFX, KM_ResourceUnit;
 
 
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
@@ -434,12 +434,12 @@ end;
 procedure TSoundLib.Paint;
 var i:integer;
 begin
-  fRender.RenderDebugCircle(fListener.Pos[1], fListener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);
+  fRenderAux.Circle(fListener.Pos[1], fListener.Pos[2], MAX_DISTANCE, $00000000, $FFFFFFFF);
   for i:=1 to MAX_SOUNDS do
   if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
   begin
-    fRender.RenderDebugCircle(fSound[i].Position.X, fSound[i].Position.Y, 5, $4000FFFF, $FFFFFFFF);
-    fRender.RenderDebugText(fSound[i].Position.X, fSound[i].Position.Y, fSound[i].Name, $FFFFFFFF);
+    fRenderAux.Circle(fSound[i].Position.X, fSound[i].Position.Y, 5, $4000FFFF, $FFFFFFFF);
+    fRenderAux.Text(fSound[i].Position.X, fSound[i].Position.Y, fSound[i].Name, $FFFFFFFF);
   end else
     fSound[i].PlaySince := 0;
 end;

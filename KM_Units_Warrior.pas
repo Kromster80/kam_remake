@@ -95,7 +95,8 @@ type
 
 
 implementation
-uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_Terrain, KM_UnitTaskAttackHouse,
+uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_Terrain,
+  KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_ResourceGFX, KM_ResourceUnit;
 
@@ -1256,7 +1257,7 @@ begin
     for k:=-round(RANGE_BOWMAN_MAX)-1 to round(RANGE_BOWMAN_MAX) do
     if InRange(GetLength(i,k),RANGE_BOWMAN_MIN,RANGE_BOWMAN_MAX) then
     if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
-      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i);
+      fRenderAux.Quad(GetPosition.X+k,GetPosition.Y+i, $40FFFFFF);
 end;
 
 

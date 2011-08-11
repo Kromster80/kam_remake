@@ -41,7 +41,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
+uses KM_Sound, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
 
 
 { TKMProjectiles }
@@ -291,15 +291,15 @@ begin
       end;
 
       if SHOW_PROJECTILES then begin
-        fRender.RenderDebugProjectile(fItems[i].fScreenStart.X,
-                                      fItems[i].fScreenStart.Y,
-                                      fItems[i].fScreenEnd.X,
-                                      fItems[i].fScreenEnd.Y);
+        fRenderAux.Projectile(fItems[i].fScreenStart.X,
+                              fItems[i].fScreenStart.Y,
+                              fItems[i].fScreenEnd.X,
+                              fItems[i].fScreenEnd.Y);
 
-        fRender.RenderDebugProjectile(fItems[i].fAim.X,
-                                      fItems[i].fAim.Y,
-                                      fItems[i].fTarget.X,
-                                      fItems[i].fTarget.Y);
+        fRenderAux.Projectile(fItems[i].fAim.X,
+                              fItems[i].fAim.Y,
+                              fItems[i].fTarget.X,
+                              fItems[i].fTarget.Y);
       end;
     end;
 end;

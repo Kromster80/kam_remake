@@ -51,10 +51,6 @@ type
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
 
-    procedure RenderDot(pX,pY:single; Size:single = 0.05);
-    procedure RenderDotOnTile(pX,pY:single);
-    procedure RenderLine(x1,y1,x2,y2:single);
-    procedure RenderQuad(pX,pY:integer);
     procedure RenderTile(Index:byte; pX,pY,Rot:integer);
     procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
     procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
@@ -81,22 +77,12 @@ type
     procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
     procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
     procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
-    procedure RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
-    procedure RenderDebugLine(x1,y1,x2,y2:single);
-    procedure RenderDebugProjectile(x1,y1,x2,y2:single);
-    procedure RenderDebugWires(x1,x2,y1,y2:integer);
-    procedure RenderDebugPassability(x1,x2,y1,y2:integer);
-    procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
-    procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
-    procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
-    procedure RenderDebugQuad(pX,pY:integer);
-    procedure RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
     procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection);
     procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderHouseBuild(Index:THouseType; Loc:TKMPoint);
-    procedure RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+    procedure AddHouseTablet(Index:THouseType; Loc:TKMPoint);
+    procedure AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
     procedure RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
     procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
     procedure RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
@@ -110,13 +96,13 @@ type
     property RendererVersion:string read fOpenGL_Version;
   end;
 
-    
+
 var
   fRender: TRender;
 
 
 implementation
-uses KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_Units, KM_Log;
+uses KM_RenderAux, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_Units, KM_Log;
 
 
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
@@ -309,7 +295,7 @@ begin
   for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
     case iW of
       1: glBindTexture(GL_TEXTURE_2D, TextT);
-      2: glBindTexture(GL_TEXTURE_2D, TextW[AnimStep mod 8 + 1]); 
+      2: glBindTexture(GL_TEXTURE_2D, TextW[AnimStep mod 8 + 1]);
       3: glBindTexture(GL_TEXTURE_2D, TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
       4: glBindTexture(GL_TEXTURE_2D, TextF[AnimStep mod 5 + 1]);
     end;
@@ -318,7 +304,7 @@ begin
       for i:=y1 to y2 do for k:=x1 to x2 do
       if (iW=1) or (MyPlayer.FogOfWar.CheckTileRevelation(k,i) > FOG_OF_WAR_ACT) then //No animation in FOW
       begin
-        xt:=fTerrain.Land[i,k].Terrain; 
+        xt:=fTerrain.Land[i,k].Terrain;
 
         if KAM_WATER_DRAW and (iW=1) and (xt in [192,193,196]) then begin
           Lay2:=true;
@@ -366,10 +352,7 @@ begin
       to_Dig2: RenderTile(251,k,i,0);
       to_Dig3: RenderTile(253,k,i,0);
       to_Dig4: RenderTile(255,k,i,0);
-      to_Wall: begin
-                 glColor4f(0.5,0,0,0.5);
-                 RenderQuad(k,i);
-               end;
+      to_Wall: fRenderAux.Quad(k,i, $80000080); //We don't have graphics yet
     end;
 
     if fTerrain.Land[i,k].TileOverlay=to_Road then
@@ -437,21 +420,8 @@ begin
 
   if SHOW_WALK_CONNECT then
   for i:=y1 to y2 do for k:=x1 to x2 do
-  with fTerrain do
-  begin
-    glColor4f(Land[i,k].WalkConnect[wcWalk]/8,Land[i,k].WalkConnect[wcRoad]/8,0,0.5);
-    RenderQuad(k,i)
-  end;
-
-  //if SHOW_MAP_AREAS then
-  {for i:=y1 to y2 do for k:=x1 to x2 do
-  with fTerrain do
-  begin
-    glColor4f(byte(PatternDAT[Land[i,k].Terrain+1].u2 and 1 = 1),
-              byte(PatternDAT[Land[i,k].Terrain+1].u2 and 2 = 2),
-              byte(PatternDAT[Land[i,k].Terrain+1].u2 and 4 = 4),0.5);
-    RenderQuad(k,i)
-  end;}
+  with fTerrain,Land[i,k] do
+    fRenderAux.Quad(k, i, WalkConnect[wcWalk] *32 + (WalkConnect[wcRoad]*32) shl 8 or $80000000);
 end;
 
 
@@ -485,170 +455,6 @@ begin
     RenderObject(Tag[i]+1,AnimStep-Tag2[i],List[i].X,List[i].Y);
     Assert(AnimStep-Tag2[i] <= 100, 'Falling tree overrun?');
   end;
-end;
-
-
-procedure TRender.RenderDebugCircle(x,y,rad:single; Fill,Line:TColor4);
-const SEC_COUNT=20;
-var i:integer;
-begin
-  X := X - 0.5;
-  Y := Y - 1 - fTerrain.InterpolateLandHeight(X,Y)/CELL_HEIGHT_DIV;
-  glPushMatrix;
-    glTranslatef(x,y,0);
-    glColor4ubv(@Fill);
-    glBegin(GL_POLYGON);
-      for i:=-SEC_COUNT to SEC_COUNT do
-        glvertex3f(cos(i/SEC_COUNT*pi)*rad,sin(i/SEC_COUNT*pi)*rad,0);//-1..1
-    glEnd;
-    glBegin(GL_POLYGON);
-      for i:=-SEC_COUNT to SEC_COUNT do
-        glvertex3f(cos(i/SEC_COUNT*pi)*rad/3,sin(i/SEC_COUNT*pi)*rad/3,0);//-1..1
-    glEnd;
-    glColor4ubv(@Line);
-    glBegin(GL_LINE_STRIP);
-      for i:=-SEC_COUNT to SEC_COUNT do
-        glvertex3f(cos(i/SEC_COUNT*pi)*rad,sin(i/SEC_COUNT*pi)*rad,0);//-1..1
-    glEnd;
-  glPopMatrix;
-end;
-
-
-procedure TRender.RenderDebugLine(x1,y1,x2,y2:single);
-begin
-  glColor4f(1.0, 0.75, 1.0, 1.0);
-  RenderDot(x1,y1);
-  RenderDot(x2,y2);
-  RenderLine(x1,y1,x2,y2);
-end;
-
-
-procedure TRender.RenderDebugProjectile(x1,y1,x2,y2:single);
-begin
-  glColor4f(1, 1, 0, 1);
-  RenderDot(x1,y1);
-  glColor4f(1, 0, 0, 1);
-  RenderDot(x2,y2,0.1);
-  RenderLine(x1,y1,x2,y2);
-end;
-
-
-procedure TRender.RenderDebugWires(x1,x2,y1,y2:integer);
-var i,k:integer;
-begin
-  for i:=y1 to y2 do begin
-    glBegin(GL_LINE_STRIP);
-    for k:=x1 to x2 do begin
-      glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-GameCursor.Cell.Y)+sqr(k-GameCursor.Cell.X))/10); //Smooth circle gradient blending
-      glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
-    end;
-    glEnd;
-  end;
-
-  glPointSize(3);
-  glBegin(GL_POINTS);
-  for i:=y1 to y2 do for k:=x1 to x2 do begin
-    //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
-    glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);
-    glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
-  end;
-  glEnd;
-end;
-
-
-procedure TRender.RenderDebugPassability(x1,x2,y1,y2:integer);
-var i,k,Passability:integer;
-begin
-  Passability := fGame.FormPassability;
-  if fGame.fMapEditorInterface <> nil then
-    Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
-
-  if Passability <> 0 then
-  begin
-    glColor4f(0,1,0,0.25);
-    for i:=y1 to y2 do for k:=x1 to x2 do
-      {$IFDEF WDC}
-      if word(fTerrain.Land[i,k].Passability) AND (1 shl Passability) = (1 shl Passability) then
-      {$ENDIF}
-      {$IFDEF FPC} //Can't accept word
-      if integer(fTerrain.Land[i,k].Passability) AND (1 shl Passability) = (1 shl Passability) then
-      {$ENDIF}
-        RenderQuad(k,i);
-  end;
-end;
-
-
-procedure TRender.RenderDebugQuad(pX,pY:integer);
-begin
-  glColor4f(1,1,1,0.15);
-  RenderQuad(pX,pY);
-end;
-
-
-procedure TRender.RenderDebugText(pX,pY:integer; aText:string; aCol:TColor4);
-begin
-  glColor4ubv(@aCol);
-  glRasterPos2f(pX - 0.5,pY - 1 - fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
-  glPrint(aText);
-end;
-
-
-procedure TRender.RenderDebugUnitPointers(pX,pY:single; Count:integer);
-var i:integer;
-begin
-  for i:=1 to Count do
-    RenderDot(pX+i/5,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
-end;
-
-
-procedure TRender.RenderDebugUnitMoves(x1,x2,y1,y2:integer);
-var i,k:integer; VertexUsage: byte;
-begin
-  for i:=y1 to y2 do for k:=x1 to x2 do begin
-    if fTerrain.Land[i,k].IsVertexUnit<>vu_None then begin
-      VertexUsage := byte(fTerrain.Land[i,k].IsVertexUnit);
-      glColor4f(1-VertexUsage/3,VertexUsage/3,0.6,0.8);
-      RenderDot(k,i-fTerrain.InterpolateLandHeight(k,i)/CELL_HEIGHT_DIV,0.3);
-    end;
-    if fTerrain.Land[i,k].IsUnit<>nil then begin
-      glColor4f(0.17,0.83,0,0.8);
-      RenderQuad(k,i);
-    end;
-  end;
-end;
-
-
-procedure TRender.RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
-var i,k:integer; x,y:single;
-begin
-  if NodeList.Count = 0 then exit;
-
-  case aUnitType of
-    1: glColor3f(1,0,0); //Serf
-    10: glColor3f(1,0,1); //Worker
-    15..30: glColor3f(0,1,0); //Army
-    31..38: glColor3f(0,0.5,0); //Animals
-    else glColor3f(1,1,0); //Citizens
-  end;
-  
-  for i:=1 to NodeList.Count do
-    RenderDotOnTile(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5);
-
-  glBegin(GL_LINE_STRIP);
-  for i:=1 to NodeList.Count do
-    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5-fTerrain.InterpolateLandHeight(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5)/CELL_HEIGHT_DIV);
-  glEnd;
-
-  glColor4f(1,1,1,1); //Vector where unit is going to
-  i:=Pos;
-  k:=min(Pos+1,NodeList.Count);
-  x:=mix(NodeList.List[i].X-0.5,NodeList.List[k].X-0.5,0.4);
-  y:=mix(NodeList.List[i].Y-0.5,NodeList.List[k].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
-  RenderDotOnTile(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5+0.2);
-  glBegin(GL_LINES);
-    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5)/CELL_HEIGHT_DIV);
-    glVertex2f(x,y-fTerrain.InterpolateLandHeight(x+1,y+1)/CELL_HEIGHT_DIV);
-  glEnd;
 end;
 
 
@@ -701,8 +507,7 @@ begin
   if Index=61 then begin //Invisible wall
     ShiftX := 0; //Required if DoImmediateRender = true
     ShiftY := 0;
-    glColor4f(1,0,0,0.33);
-    RenderQuad(pX,pY);
+    fRenderAux.Quad(pX,pY,$800000FF);
     RenderCursorWireQuad(KMPoint(pX,pY),$FF0000FF);
   end else begin
     ShiftX:=RXData[1].Pivot[ID].x/CELL_SIZE_PX;
@@ -714,7 +519,6 @@ begin
   end;
 
   if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
-
 end;
 
 
@@ -743,7 +547,7 @@ end;
 
 
 {Render house WIP tablet}
-procedure TRender.RenderHouseBuild(Index:THouseType; Loc:TKMPoint);
+procedure TRender.AddHouseTablet(Index:THouseType; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   ID := fResource.HouseDat[Index].TabletIcon;
@@ -754,7 +558,7 @@ end;
 
 
 {Render house build supply}
-procedure TRender.RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+procedure TRender.AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if Wood<>0 then begin
@@ -887,10 +691,8 @@ begin
   fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor,-1,true);
   if DoImmediateRender then RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,FlagColor,255,Deleting);
 
-  if SHOW_UNIT_MOVEMENT then begin
-    glColor3ubv(@FlagColor);  //Render dot where unit is
-    RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
-  end;
+  if SHOW_UNIT_MOVEMENT then
+    fRenderAux.Dot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor);
 end;
 
 
@@ -936,10 +738,8 @@ begin
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV-0.4 -2.25;
   fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor);
 
-  if SHOW_UNIT_MOVEMENT then begin
-    glColor3ubv(@FlagColor);
-    RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV); //Render dot where unit is
-  end;
+  if SHOW_UNIT_MOVEMENT then
+    fRenderAux.Dot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor); //Render dot where unit is
 end;
 
 
@@ -948,48 +748,6 @@ begin
   RenderUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
   if fResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) or (aUnit = ut_Serf) then //todo: check if Serf should not have ua_WalkArm in supported actions
     RenderUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
-end;
-
-
-{Simple dot to know where it actualy is}
-procedure TRender.RenderDot(pX,pY:single; Size:single = 0.05);
-begin
-  glBegin(GL_QUADS);
-    glkRect(pX-1-Size,pY-1+Size,pX-1+Size,pY-1-Size);
-  glEnd;
-end;
-
-
-procedure TRender.RenderDotOnTile(pX,pY:single);
-begin
-  pY:=pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV;
-  glBegin(GL_QUADS);
-    glkRect(pX-1,pY-1,pX-1+0.1,pY-1-0.1);
-  glEnd;
-end;
-
-
-procedure TRender.RenderLine(x1,y1,x2,y2:single);
-begin
-  glBegin(GL_LINES);
-    glVertex2f(x1-1, y1-1 - fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
-    glVertex2f(x2-1, y2-1 - fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
-  glEnd;
-end;
-
-
-{Used for internal things like overlays, etc..}
-procedure TRender.RenderQuad(pX,pY:integer);
-begin
-  if not fTerrain.TileInMapCoords(pX,pY) then exit;
-
-  glBegin(GL_QUADS);
-    with fTerrain do
-    glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
-            pX  ,pY-1-Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV,
-            pX  ,pY-  Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV,
-            pX-1,pY-  Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
-  glEnd;
 end;
 
 
@@ -1295,7 +1053,7 @@ begin
                end;
     cm_Height: begin
                  //todo: Render dots on tiles with brightness showing how much they will be elevated
-                 RenderDotOnTile(GameCursor.Float.X+1,GameCursor.Float.Y+1);
+                 fRenderAux.Dot(GameCursor.Float.X+1,GameCursor.Float.Y+1 - fTerrain.InterpolateLandHeight(GameCursor.Float)/CELL_HEIGHT_DIV, $FFFFFFFF);
                end;
     cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
                  RenderUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
@@ -1406,13 +1164,13 @@ begin
   for i:=1 to RenderCount do
   if RO[i]<>0 then begin
 
-    h:=RO[i];
+    h := RO[i];
     //Incase no sprites were made
-    if (RenderList[h].RX=2) and not MAKE_HOUSE_SPRITES then
-      fRender.RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
+    if not MAKE_HOUSE_SPRITES and (RenderList[h].RX=2) then
+      fRenderAux.Dot(RenderList[h].Loc.X,RenderList[h].Loc.Y, RenderList[h].Team)
     else
-    if (RenderList[h].RX=3) and not MAKE_UNIT_SPRITES then
-      fRender.RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
+    if not MAKE_HOUSE_SPRITES and (RenderList[h].RX=3) then
+      fRenderAux.Dot(RenderList[h].Loc.X,RenderList[h].Loc.Y, RenderList[h].Team)
     else
     begin
 

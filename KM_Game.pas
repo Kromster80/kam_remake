@@ -9,7 +9,7 @@ uses
   KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns,
-  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation;
 
@@ -152,6 +152,7 @@ begin
 
   fGlobalSettings   := TGlobalSettings.Create;
   fRender           := TRender.Create(RenderHandle, aVSync);
+  fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
   fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
@@ -178,6 +179,7 @@ begin
   FreeThenNil(fSoundLib);
   FreeThenNil(fMusicLib);
   FreeThenNil(fTextLibrary);
+  FreeThenNil(fRenderAux);
   FreeThenNil(fRender);
   Inherited;
 end;
@@ -338,7 +340,7 @@ begin
   if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
     fResource.LoadGameResources;
-    InitUnitStatEvals;
+    InitUnitStatEvals; //Army
     fMainMenuInterface.ShowScreen(msLoading, 'tileset');
     fRender.LoadTileSet;
   end;

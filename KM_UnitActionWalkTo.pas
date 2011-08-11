@@ -86,12 +86,12 @@ type
 
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
-      procedure Paint; //Used only for debug so far
+      procedure Paint; override; //Used only for debug so far
     end;
 
 
 implementation
-uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
+uses KM_Render, KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
      Controls, KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log, KM_TextLibrary, KM_ResourceGFX;
 
 
@@ -1086,7 +1086,8 @@ end;
 
 procedure TUnitActionWalkTo.Paint;
 begin
-  fRender.RenderDebugUnitRoute(NodeList, NodePos, byte(fWalker.UnitType));
+  if SHOW_UNIT_ROUTES then
+    fRenderAux.UnitRoute(NodeList, NodePos, byte(fWalker.UnitType));
 end;
 
 
