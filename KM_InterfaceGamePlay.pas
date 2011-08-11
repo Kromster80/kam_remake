@@ -392,7 +392,7 @@ begin
   begin
     Label_LoadFail.Caption := s;
     Panel_LoadFail.Show;
-    fGame.SetGameState(gsPaused);
+    fGame.SetGameState(gsOnHold);
   end;
 end;
 

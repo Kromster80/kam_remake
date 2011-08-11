@@ -121,6 +121,7 @@ type
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
     function CheckResOrder(aID:byte):word;
+    function PickRandomOrder:byte;
     function CheckResToBuild:boolean;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
@@ -755,6 +756,25 @@ begin
     Result := 1
   else
     Result := fResourceOrder[aID];
+end;
+
+
+function TKMHouse.PickRandomOrder:byte;
+var i:byte; O:array[1..4]of byte; OCount:byte;
+begin
+  OCount := 0;
+  FillChar(O, SizeOf(O), #0);
+  for i:=1 to 4 do
+  if CheckResOrder(i) > 0 then
+  begin
+    inc(OCount);
+    O[OCount] := i;
+  end;
+
+  if OCount > 0 then
+    Result := O[KaMRandom(OCount)+1] //Pick random from available orders
+  else
+    Result := 0;
 end;
 
 

@@ -429,7 +429,7 @@ end;
 function TKMUnitCitizen.InitiateMining:TUnitTask;
 var i,Tmp,Res:integer;
 begin
-  Result:=nil;
+  Result := nil;
 
   if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
     raise ELocError.Create(fTextLibrary[TX_UNITS_MINING_WRONG_SPOT],fCurrPosition);
@@ -439,15 +439,8 @@ begin
   //Random pick from whole amount
   if fHome.DoesOrders then
   begin
-    Tmp := fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
-    if Tmp=0 then exit; //No orders
-    i := 0;
-    repeat
-      Tmp := KaMRandom(4)+1; //Pick random from overall count
-      inc(i);
-    until (fHome.CheckResOrder(Tmp) > 0) or (i > 9); //Limit number of attempts to guarantee it doesn't loop forever
-    if fHome.CheckResOrder(Tmp) > 0 then Res := Tmp
-    else exit; //Nothing found
+    Res := fHome.PickRandomOrder;
+    if Res = 0 then Exit;
   end;
 
   fWorkPlan.FindPlan(fUnitType,fHome.HouseType,fResource.HouseDat[fHome.HouseType].ResOutput[Res],KMPointBelow(fHome.GetEntrance));
