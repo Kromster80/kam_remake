@@ -1,6 +1,7 @@
 Since r2087:
 <===================================================================================>
 Bugs:
+ +	Mining stone from tiles close to map upper edge caused a crash
  +	When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
 	Making a hill under a house in MapEd causes a crash
