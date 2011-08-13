@@ -19,6 +19,7 @@ type
     destructor Destroy; override;
 
     procedure GetURL(aURL:string);
+    procedure UpdateStateIdle;
 
     property OnError:TGetStrProc write fOnError;
     property OnReceive:TGetStrProc write fOnReceive;
@@ -60,6 +61,13 @@ procedure TKMHTTPClient.Error(const S: string);
 begin
   if Assigned(fOnError) then fOnError(S);
 end;
+
+
+procedure TKMHTTPClient.UpdateStateIdle;
+begin
+  {$IFDEF FPC} fClient.UpdateStateIdle; {$ENDIF}
+end;
+
 
 end.
 

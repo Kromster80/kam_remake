@@ -1,0 +1,394 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <MainUnit Value="0"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1" Active="Default">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="17">
+      <Unit0>
+        <Filename Value="KaMHTTPTest.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="27" Y="5"/>
+        <UsageCount Value="23"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="HTTPTest.pas"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="HTTPTest"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="37"/>
+        <CursorPos X="43" Y="47"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\KM_HTTPClientLNet.pas"/>
+        <UnitName Value="KM_HTTPClientLNet"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="47" Y="4"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\Common\LNet\lhttp.pp"/>
+        <UnitName Value="lhttp"/>
+        <EditorIndex Value="11"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2283"/>
+        <CursorPos X="1" Y="2306"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\..\Common\LNet\lnetssl.pp"/>
+        <UnitName Value="lNetSSL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="483"/>
+        <CursorPos X="144" Y="508"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\KM_HTTPClient.pas"/>
+        <UnitName Value="KM_HTTPClient"/>
+        <EditorIndex Value="7"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="43"/>
+        <CursorPos X="56" Y="68"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="C:\Users\Lewin\Desktop\lnet\examples\visual\http\main.lfm"/>
+        <EditorIndex Value="10"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="82"/>
+        <CursorPos X="36" Y="107"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="C:\Users\Lewin\Desktop\lnet\examples\visual\http\main.pas"/>
+        <ComponentName Value="MainForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="main"/>
+        <EditorIndex Value="9"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="18" Y="40"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="C:\Users\Lewin\Desktop\lnet\examples\console\lhttp\fpget.pp"/>
+        <UnitName Value="fpget"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="93"/>
+        <CursorPos X="22" Y="120"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <UnitName Value="lNet"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1424"/>
+        <CursorPos X="18" Y="1433"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\..\Common\LNet\levents.pp"/>
+        <UnitName Value="lEvents"/>
+        <EditorIndex Value="6"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="529"/>
+        <CursorPos X="1" Y="544"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\..\Common\LNet\lcommon.pp"/>
+        <UnitName Value="lCommon"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="242"/>
+        <CursorPos X="17" Y="245"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\lazarus\fpc\2.4.2\source\rtl\win\winsock2.pp"/>
+        <UnitName Value="WinSock2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1193"/>
+        <CursorPos X="10" Y="1208"/>
+        <UsageCount Value="10"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\..\KM_NetClientLNet.pas"/>
+        <UnitName Value="KM_NetClientLNet"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="62"/>
+        <CursorPos X="3" Y="130"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="C:\lazarus\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1206"/>
+        <CursorPos X="12" Y="1221"/>
+        <UsageCount Value="10"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="..\..\KM_NetClient.pas"/>
+        <UnitName Value="KM_NetClient"/>
+        <EditorIndex Value="8"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="184"/>
+        <CursorPos X="8" Y="204"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="C:\lazarus\fpc\2.4.2\source\rtl\inc\objpash.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="165"/>
+        <CursorPos X="18" Y="180"/>
+        <UsageCount Value="10"/>
+      </Unit16>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="..\..\KM_HTTPClientLNet.pas"/>
+        <Caret Line="34" Column="48" TopLine="20"/>
+      </Position1>
+      <Position2>
+        <Filename Value="C:\Users\Lewin\Desktop\lnet\examples\console\lhttp\fpget.pp"/>
+        <Caret Line="115" Column="50" TopLine="93"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\..\KM_HTTPClientLNet.pas"/>
+        <Caret Line="56" Column="5" TopLine="55"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\..\KM_HTTPClientLNet.pas"/>
+        <Caret Line="61" Column="25" TopLine="55"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\..\Common\LNet\lhttp.pp"/>
+        <Caret Line="2305" Column="1" TopLine="2283"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\..\Common\LNet\lhttp.pp"/>
+        <Caret Line="2306" Column="1" TopLine="2283"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1319" Column="1" TopLine="1304"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1321" Column="1" TopLine="1310"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1324" Column="1" TopLine="1313"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1325" Column="1" TopLine="1313"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1327" Column="1" TopLine="1313"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1328" Column="1" TopLine="1313"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1329" Column="1" TopLine="1313"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1330" Column="1" TopLine="1313"/>
+      </Position14>
+      <Position15>
+        <Filename Value="C:\Users\Lewin\Desktop\lnet\examples\console\lhttp\fpget.pp"/>
+        <Caret Line="120" Column="22" TopLine="93"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\..\Common\LNet\lnet.pp"/>
+        <Caret Line="1433" Column="18" TopLine="1430"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\..\Common\LNet\levents.pp"/>
+        <Caret Line="136" Column="12" TopLine="132"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\..\Common\LNet\levents.pp"/>
+        <Caret Line="140" Column="24" TopLine="132"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\..\Common\LNet\levents.pp"/>
+        <Caret Line="175" Column="33" TopLine="160"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\..\Common\LNet\levents.pp"/>
+        <Caret Line="162" Column="24" TopLine="148"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\..\Common\LNet\levents.pp"/>
+        <Caret Line="575" Column="14" TopLine="551"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\..\KM_HTTPClientLNet.pas"/>
+        <Caret Line="91" Column="41" TopLine="70"/>
+      </Position22>
+      <Position23>
+        <Filename Value="HTTPTest.pas"/>
+        <Caret Line="37" Column="18" TopLine="16"/>
+      </Position23>
+      <Position24>
+        <Filename Value="HTTPTest.pas"/>
+        <Caret Line="37" Column="18" TopLine="16"/>
+      </Position24>
+      <Position25>
+        <Filename Value="HTTPTest.pas"/>
+        <Caret Line="61" Column="30" TopLine="36"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\..\Common\LNet\levents.pp"/>
+        <Caret Line="541" Column="40" TopLine="529"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\..\KM_HTTPClientLNet.pas"/>
+        <Caret Line="28" Column="45" TopLine="22"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\..\KM_HTTPClientLNet.pas"/>
+        <Caret Line="33" Column="11" TopLine="22"/>
+      </Position28>
+      <Position29>
+        <Filename Value="HTTPTest.pas"/>
+        <Caret Line="54" Column="20" TopLine="37"/>
+      </Position29>
+      <Position30>
+        <Filename Value="HTTPTest.pas"/>
+        <Caret Line="6" Column="20" TopLine="1"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <SearchPaths>
+      <IncludeFiles Value="..\..;..\..\Common\LNet;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\Common\LNet"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+        <CStyleOperator Value="False"/>
+        <IncludeAssertionCode Value="True"/>
+        <AllowLabel Value="False"/>
+        <CPPInline Value="False"/>
+        <UseAnsiStrings Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <Checks>
+        <IOChecks Value="True"/>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+        <StackChecks Value="True"/>
+      </Checks>
+    </CodeGeneration>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

@@ -15,6 +15,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
+    procedure ApplicationIdle(Sender: TObject; var Done: Boolean);
     procedure Error(const S: string);
     procedure Receive(const S: string);
   public
@@ -33,6 +34,7 @@ begin
   HTTPClient := TKMHTTPClient.Create;
   HTTPClient.OnError := Error;
   HTTPClient.OnReceive := Receive;
+  Application.OnIdle := ApplicationIdle;
 end;
 
 
@@ -51,6 +53,14 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 begin
   HTTPClient.GetURL(Edit1.Text);
+end;
+
+
+procedure TForm1.ApplicationIdle(Sender: TObject; var Done: Boolean);
+begin
+  HTTPClient.UpdateStateIdle;
+  Sleep(1);
+  Done := false;
 end;
 
 end.
