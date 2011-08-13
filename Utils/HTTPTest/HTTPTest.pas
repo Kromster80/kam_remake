@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, HttpProt, StdCtrls;
+  Dialogs, StdCtrls, KM_HTTPClient;
 
 type
   TForm1 = class(TForm)
@@ -13,13 +13,12 @@ type
     Memo1: TMemo;
     Edit1: TEdit;
     procedure FormCreate(Sender: TObject);
-    procedure RequestDone(Sender  : TObject; RqType  : THttpRequest; ErrCode : Word);
     procedure Button1Click(Sender: TObject);
   private
-    { Private declarations }
+    procedure Error(const S: string);
+    procedure Receive(const S: string);
   public
-    { Public declarations }
-    HTTPClient: THttpCli;
+    HTTPClient: TKMHTTPClient;
   end;
 
 var
@@ -31,26 +30,27 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  HTTPClient := THttpCli.Create(nil);
+  HTTPClient := TKMHTTPClient.Create;
+  HTTPClient.OnError := Error;
+  HTTPClient.OnReceive := Receive;
 end;
 
-procedure TForm1.RequestDone(Sender  : TObject; RqType  : THttpRequest; ErrCode : Word);
-var RcdText: string;
+
+procedure TForm1.Error(const S: string);
 begin
-  Label1.Caption := 'Size: '+IntToStr(HTTPClient.RcvdStream.Size);
-  SetLength(RcdText,HTTPClient.RcvdStream.Size);
-  Move(TMemoryStream(HTTPClient.RcvdStream).Memory^,RcdText[1],HTTPClient.RcvdStream.Size);
-  Memo1.Text := RcdText;
-  HTTPClient.RcvdStream.Destroy;
+  Memo1.Text := S;
 end;
+
+
+procedure TForm1.Receive(const S: string);
+begin
+  Memo1.Text := S;
+end;
+
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  if HTTPClient.State <> httpReady then exit;
-  HTTPClient.RcvdStream := TMemoryStream.Create;
-  HTTPClient.URL := Edit1.Text;
-  HTTPClient.OnRequestDone := RequestDone;
-  HTTPClient.GetASync; //Asynchronous means non-blocking
+  HTTPClient.GetURL(Edit1.Text);
 end;
 
 end.

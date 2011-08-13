@@ -27,6 +27,7 @@ uses
   KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',
   KM_Goals in 'KM_Goals.pas',
+  KM_HTTPClient in 'KM_HTTPClient.pas',
   KM_Log in 'KM_Log.pas',
   KM_MapEditor in 'KM_MapEditor.pas',
   KM_MapInfo in 'KM_MapInfo.pas',
