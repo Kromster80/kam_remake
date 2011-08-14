@@ -427,7 +427,7 @@ end;
 
 
 function TKMUnitCitizen.InitiateMining:TUnitTask;
-var i,Tmp,Res:integer;
+var Res:integer;
 begin
   Result := nil;
 

@@ -296,8 +296,7 @@ type
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, KM_InterfaceMainMenu, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit,
-  KM_NetPlayersList, KM_Networking;
+KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit;
 
 const
   MESSAGE_AREA_HEIGHT = 190;

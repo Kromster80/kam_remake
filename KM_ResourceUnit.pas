@@ -2,7 +2,7 @@ unit KM_ResourceUnit;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KM_CommonTypes, KM_Points, KM_Defaults;
+  Classes, SysUtils, KM_CommonTypes, KM_Points, KM_Defaults;
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)
@@ -128,7 +128,7 @@ const
 
   
 implementation
-uses KromUtils, KM_Render, KM_TGATexture, KM_Log, KM_Utils, KM_TextLibrary;
+uses KromUtils, KM_TextLibrary;
 
 
 { TKMUnitsDatClass }

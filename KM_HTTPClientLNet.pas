@@ -72,7 +72,7 @@ end;
 procedure TKMHTTPClientLNet.HTTPClientError(const msg: string; aSocket: TLSocket);
 begin
   if Assigned(fOnError) then
-    fOnError('Error: '+msg);
+    fOnError(msg);
 end;
 
 

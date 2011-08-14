@@ -56,7 +56,7 @@ begin
   if ErrCode <> 0 then
   begin
     if Assigned(fOnError) then
-      fOnError('Error: '+IntToStr(fHTTPClient.StatusCode)+' '+fHTTPClient.ReasonPhrase+' (#' + IntToStr(ErrCode)+')');
+      fOnError(IntToStr(fHTTPClient.StatusCode)+' '+fHTTPClient.ReasonPhrase+' (#' + IntToStr(ErrCode)+')');
     exit;
   end;
 

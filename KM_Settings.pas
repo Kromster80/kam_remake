@@ -69,7 +69,7 @@ type
 
 
 implementation
-uses KM_TextLibrary, KM_Sound, KM_Game, KM_Log;
+uses KM_Sound, KM_Game, KM_Log;
 
 
 constructor TGlobalSettings.Create;

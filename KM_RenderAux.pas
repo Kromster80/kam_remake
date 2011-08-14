@@ -31,7 +31,7 @@ var
 
 
 implementation
-uses KM_Terrain, KM_Render;
+uses KM_Terrain;
 
 
 {Simple dot to know where it actualy is}
