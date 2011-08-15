@@ -109,7 +109,7 @@ const
   RX7_SPRITE_COUNT = 22;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
-  GUI_HOUSE_COUNT   = 28;   //Number of KaM houses to show in GUI
+  GUI_HOUSE_COUNT   = 29;   //Number of KaM houses to show in GUI
   MAX_PLAYERS       = 8;    //Maximum players per map
   SAVEGAME_COUNT    = 10;   //Savegame slots available in game menu
   AUTOSAVE_SLOT     = 10;   //Slot ID used for autosaving
@@ -487,12 +487,12 @@ type
 type
   //I've removed values, enums don't need them by intent
   THouseType = ( ht_None, ht_Any,
-    ht_ArmorSmithy,     ht_ArmorWorkshop, ht_Bakery,        ht_Barracks,    ht_Butchers,
-    ht_CoalMine,        ht_Farm,          ht_FisherHut,     ht_GoldMine,    ht_Inn,
-    ht_IronMine,        ht_IronSmithy,    ht_Metallurgists, ht_Mill,        ht_Quary,
-    ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,     ht_Store,
-    ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,  ht_WeaponSmithy,
-    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
+    ht_ArmorSmithy,     ht_ArmorWorkshop,   ht_Bakery,        ht_Barracks,      ht_Butchers,
+    ht_CoalMine,        ht_Farm,            ht_FisherHut,     ht_GoldMine,      ht_Inn,
+    ht_IronMine,        ht_IronSmithy,      ht_Marketplace,   ht_Metallurgists, ht_Mill,
+    ht_Quary,           ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,
+    ht_Store,           ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,
+    ht_WeaponSmithy,    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = (hst_Empty, hst_Idle, hst_Work);
@@ -607,7 +607,7 @@ const
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
     ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop);
+    ht_FisherHut, ht_TownHall, ht_Marketplace, ht_SiegeWorkshop);
 
 {Terrain}
 type

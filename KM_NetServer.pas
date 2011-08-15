@@ -30,16 +30,8 @@ uses Classes, SysUtils, Math, KM_CommonTypes, KM_Defaults
       4. ...
 
       //Following commands will be added to TKMessageKind
-      mk_PlayerLost
-      mk_IndexOnServer
-      mk_Ping
-      mk_PlayersIP
-
-      mk_IAmHost
       mk_KickPlayer
       mk_WasKicked
-      mk_AskPing
-      mk_AskIPs
 }
 
 const

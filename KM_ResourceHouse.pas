@@ -51,6 +51,7 @@ type
     function GetDoesOrders:boolean;
     function GetGUIIcon:word;
     function GetHouseName:string;
+    function GetMaxHealth:word;
     function GetResInput:THouseRes;
     function GetResOutput:THouseRes;
     function GetOwnerType:TUnitType;
@@ -78,15 +79,15 @@ type
     property BuildSupply:THouseBuildSupply read fHouseDat.BuildSupply;
     property WorkerRest:smallint read fHouseDat.WorkerRest;
     property ResProductionX:shortint read fHouseDat.ResProductionX;
-    property MaxHealth:smallint read fHouseDat.MaxHealth;
     property Sight:smallint read fHouseDat.Sight;
     property OwnerType:TUnitType read GetOwnerType;
     //Additional properties added by Remake
     property AcceptsGoods:boolean read GetAcceptsGoods;
     property BuildArea:THouseArea read GetArea;
     property DoesOrders:boolean read GetDoesOrders;
-    property HouseName:string read GetHouseName;
     property GUIIcon:word read GetGUIIcon;
+    property HouseName:string read GetHouseName;
+    property MaxHealth:word read GetMaxHealth;
     property ProducesGoods:boolean read GetProducesGoods;
     property ReleasedBy:THouseType read GetReleasedBy;
     property ResInput:THouseRes read GetResInput;
@@ -261,6 +262,15 @@ const
     Output:     (rt_Steel,      rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_IronMine;
     ),
+    ( //Marketplace
+    PlanYX:     ((0,0,0,0), (0,0,1,1), (1,1,1,1), (1,1,2,1));
+    DoesOrders: 0;
+    BuildIcon:  327;
+    TabletIcon: 277;
+    Input:      (rt_All,        rt_None,       rt_None,       rt_None);
+    Output:     (rt_All,        rt_None,       rt_None,       rt_None);
+    ReleasedBy: ht_Store;//Metallurgists;
+    ),
     ( //Metallurgist
     PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));
     DoesOrders: 0;
@@ -422,7 +432,7 @@ const
   //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
   HouseKaMOrder: array[THouseType] of byte = (0, 0,
   11, 21, 8, 22, 25, 4, 9, 7, 6, 28,
-  5, 2, 16, 23, 15, 1, 14, 24, 13, 12,
+  5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
   17, 26, 19, 18, 3, 20, 29, 10);
 
 
@@ -468,6 +478,13 @@ begin
     Result := fTextLibrary.GetTextString(siHouseNames+HouseKaMOrder[fHouseType])
   else
     Result := 'N/A';
+end;
+
+
+//MaxHealth is always a cost of construction * 50
+function TKMHouseDatClass.GetMaxHealth: word;
+begin
+  Result := (fHouseDat.WoodCost + fHouseDat.StoneCost) * 50;
 end;
 
 
@@ -533,6 +550,31 @@ begin
     fItems[H] := TKMHouseDatClass.Create(H);
 
   fCRC := LoadHouseDat(ExeDir+'data\defines\houses.dat');
+
+  fItems[ht_Marketplace].fHouseType := ht_Marketplace;
+  fItems[ht_Marketplace].fHouseDat.StonePic := 150;
+  fItems[ht_Marketplace].fHouseDat.WoodPic := 151;
+  fItems[ht_Marketplace].fHouseDat.WoodPal := 152;
+  fItems[ht_Marketplace].fHouseDat.StonePal := 153;
+  fItems[ht_Marketplace].fHouseDat.SupplyIn[1,1] := 154;
+  fItems[ht_Marketplace].fHouseDat.SupplyIn[1,2] := 155;
+  fItems[ht_Marketplace].fHouseDat.SupplyIn[1,3] := 156;
+  fItems[ht_Marketplace].fHouseDat.SupplyIn[1,4] := 157;
+  fItems[ht_Marketplace].fHouseDat.SupplyIn[1,5] := 158;
+  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,1] := 159;
+  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,2] := 160;
+  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,3] := 161;
+  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,4] := 162;
+  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,5] := 163;
+  fItems[ht_Marketplace].fHouseDat.WoodPicSteps := 23;
+  fItems[ht_Marketplace].fHouseDat.StonePicSteps := 140;
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 0;
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := 0;
+  fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
+  fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
+  fItems[ht_Marketplace].fHouseDat.BuildSupply[1].MoveX := 0;
+  fItems[ht_Marketplace].fHouseDat.Sight := 9;
+
   //ExportCSV(ExeDir+'Houses.csv');
 end;
 

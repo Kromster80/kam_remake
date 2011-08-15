@@ -4,7 +4,6 @@ interface
 uses
   Classes, SysUtils, KM_Points;
 
-
   
 type //Used in UI messages
   TKMMessageType = (msgText, msgHouse, msgUnit, msgQuill);

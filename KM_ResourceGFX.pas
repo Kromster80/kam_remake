@@ -31,8 +31,6 @@ type
     function LoadUnitDAT(FileName:string):boolean;
     function LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
-    //procedure AddHouseDAT;
-
     procedure AllocateRX(ID:integer; Count:integer=0);
     function  LoadRX(FileName:string; ID:integer):boolean;
     procedure LoadRX7(RX:integer);
@@ -97,7 +95,7 @@ begin
   RXData[4].Title:='gui';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and icons
   RXData[5].Title:='guimain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='guimainh';    RXData[6].NeedTeamColors:=false;
-  RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=true;
+  RXData[7].Title:='remake';      RXData[7].NeedTeamColors:=true;
 
   LoadMenuResources(aLocale);
 end;
@@ -445,7 +443,7 @@ begin
         blockread(f,Add1,8);
         MaxHeight:=Math.max(MaxHeight,Height);
         fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Font01.fnt seems to be damaged..
-        setlength(Data, Width*Height);
+        SetLength(Data, Width*Height);
         blockread(f,Data[0],Width*Height);
       end;
   closefile(f);
@@ -461,7 +459,7 @@ begin
 
   //Compile texture
   AdvX:=0; AdvY:=0;
-  setlength(TD,TexWidth*TexWidth);
+  SetLength(TD,TexWidth*TexWidth);
 
   for i:=0 to 255 do
     if FontData[aFont].Pal[i]<>0 then
@@ -507,7 +505,7 @@ begin
     MyBitMap.Free;
   end;
 
-  setlength(TD,0);
+  SetLength(TD,0);
   Result := true;
 end;
 
@@ -520,6 +518,7 @@ var
   SearchRec:TSearchRec;
   i:integer; x,y:integer;
   ID:integer; p:cardinal;
+  ft:TextFile;
   {$IFDEF WDC}
   po:TPNGObject;
   {$ENDIF}
@@ -530,28 +529,22 @@ begin
   if not DirectoryExists(ExeDir + 'Sprites\') then exit;
 
   FileList := TStringList.Create;
-  ChDir(ExeDir + 'Sprites\');
-  FindFirst('*', faAnyFile, SearchRec);
+  FindFirst(ExeDir + 'Sprites\'+inttostr(RX)+'_????.png', faAnyFile AND NOT faDirectory, SearchRec);
   repeat
-    if (SearchRec.Name<>'.') and (SearchRec.Name<>'..') //Exclude parent folders
-    and (SearchRec.Attr and faDirectory <> faDirectory)
-    and (GetFileExt(SearchRec.Name) = 'PNG')
-    and (StrToIntDef(SearchRec.Name[1],0) = RX) then
-      FileList.Add(SearchRec.Name);
+    FileList.Add(SearchRec.Name);
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
 
-  //#-####.png - default texture
-  //#-####a.png - alternative texture
-  
+  //#_####.png - Default texture
+  //#_####a.png - Flag colors areas
+  //#_####.txt - Pivot info
+
   for i:=0 to FileList.Count-1 do begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
-    if InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
-      if Copy(FileList.Strings[i], 7, 1) = 'a' then
-        RXData[RX].HasMask[i] := true //todo: [Krom] Support alternative textures
-      else
-        RXData[RX].HasMask[i] := false;
+    if InRange(ID, 1, RXData[RX].Qty) then begin //Replace only certain sprites
+      RXData[RX].HasMask[ID] := FileExists(Copy(FileList.Strings[i], 1, 6)+'a.png');
+
       {$IFDEF WDC}
       po := TPNGObject.Create;
       po.LoadFromFile(ExeDir + 'Sprites\' + FileList.Strings[i]);
@@ -563,8 +556,8 @@ begin
       RXData[RX].Size[ID].X := po.Width;
       RXData[RX].Size[ID].Y := po.Height;
 
-      setlength(RXData[RX].RGBA[ID], po.Width*po.Height);
-      setlength(RXData[RX].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
+      SetLength(RXData[RX].RGBA[ID], po.Width*po.Height);
+      SetLength(RXData[RX].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
 
       {$IFDEF WDC}
       case po.TransparencyMode of //There are ways to process PNG transparency
@@ -590,6 +583,17 @@ begin
         RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
                                             (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
       {$ENDIF}
+      po.Free;
+
+      //Read pivots
+      if FileExists(ExeDir + 'Sprites\' + Copy(FileList.Strings[i], 1, 6)+'.txt') then begin
+        AssignFile(ft, ExeDir + 'Sprites\' + Copy(FileList.Strings[i], 1, 6)+'.txt');
+        Reset(ft);
+        ReadLn(ft, RXData[RX].Pivot[ID].X);
+        ReadLn(ft, RXData[RX].Pivot[ID].Y);
+        CloseFile(ft);
+      end;
+
 
       //todo: Apply team colour masks after loading
       //@Krom: I'm struggling a bit here... do you think you could implement alternative textures for
@@ -614,7 +618,6 @@ begin
           end;
       end;}
 
-      po.Free;
     end;
   end;
 
@@ -645,14 +648,14 @@ begin
     RXData[ID].Qty := Count;
 
   Count := RXData[ID].Qty+1;
-  setlength(GFXData[ID],        Count);
-  setlength(RXData[ID].Flag,    Count);
-  setlength(RXData[ID].Size,    Count);
-  setlength(RXData[ID].Pivot,   Count);
-  setlength(RXData[ID].Data,    Count);
-  setlength(RXData[ID].RGBA,    Count);
-  setlength(RXData[ID].Mask,    Count);
-  setlength(RXData[ID].HasMask, Count);
+  SetLength(GFXData[ID],        Count);
+  SetLength(RXData[ID].Flag,    Count);
+  SetLength(RXData[ID].Size,    Count);
+  SetLength(RXData[ID].Pivot,   Count);
+  SetLength(RXData[ID].Data,    Count);
+  SetLength(RXData[ID].RGBA,    Count);
+  SetLength(RXData[ID].Mask,    Count);
+  SetLength(RXData[ID].HasMask, Count);
 end;
 
 
@@ -677,7 +680,7 @@ begin
   begin
     blockread(f, RXData[ID].Size[i].X, 4);
     blockread(f, RXData[ID].Pivot[i].x, 8);
-    setlength(RXData[ID].Data[i], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
+    SetLength(RXData[ID].Data[i], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
     blockread(f, RXData[ID].Data[i,0], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
   end;
   closefile(f);
@@ -705,8 +708,8 @@ begin
     end;
 
     if Flag[i] = 1 then begin
-      setlength(RGBA[i], Size[i].X*Size[i].Y);
-      setlength(Mask[i], Size[i].X*Size[i].Y);
+      SetLength(RGBA[i], Size[i].X*Size[i].Y);
+      SetLength(Mask[i], Size[i].X*Size[i].Y);
 
       for y:=0 to Size[i].Y-1 do for x:=0 to Size[i].X-1 do
       begin
@@ -812,38 +815,48 @@ begin
           StepCount := HouseDAT[ID].StonePicSteps;
         end;
 
+        Assert(
+            (RXData[RXid].Size[ID1].X >= RXData[RXid].Size[ID2].X) and
+            (RXData[RXid].Size[ID1].Y >= RXData[RXid].Size[ID2].Y),
+            Format('Mismatched sprites %d:%d - %d:%d', [RXid, ID1, RXid, ID2]));
+
         WidthPOT  := MakePOT(RXData[RXid].Size[ID1].X);
         HeightPOT := MakePOT(RXData[RXid].Size[ID1].Y);
-        setlength(TD, WidthPOT*HeightPOT);
+        SetLength(TD, WidthPOT*HeightPOT);
 
         //Fill in colors data
         for i := 0 to RXData[RXid].Size[ID1].Y-1 do
-        for k := 0 to RXData[RXid].Size[ID1].X-1 do begin
-          ColorID := RXData[RXid].Data[ID1,i*RXData[RXid].Size[ID1].X+k]; //0..255
-          if ColorID<>0 then
-            TD[i*WidthPOT+k] := GetColor32(ColorID, DEF_PAL);
-        end;
+        for k := 0 to RXData[RXid].Size[ID1].X-1 do
+          TD[i*WidthPOT+k] := RXData[RXid].RGBA[ID1, i*RXData[RXid].Size[ID1].X+k];
 
-        //Apply mask to where colors are (yes, it needs to be done in 2 steps, since offsets mismatch)
-        tx := RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x;
-        ty := (RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT;
+        //Apply mask to where colors are (yes, it needs to be done in 2 steps, since offsets can mismatch)
+        tx := RXData[RXid].Pivot[ID2].x - RXData[RXid].Pivot[ID1].x;
+        ty := (RXData[RXid].Pivot[ID2].y - RXData[RXid].Pivot[ID1].y)*WidthPOT;
         for i := 0 to RXData[RXid].Size[ID2].Y-1 do
-        for k := 0 to RXData[RXid].Size[ID2].X-1 do begin
+        for k := 0 to RXData[RXid].Size[ID2].X-1 do
+        begin
           t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
-          ColorID := RXData[RXid].Data[ID2,i*RXData[RXid].Size[ID2].X+k];
-          if (ColorID<>0) and (TD[t]<>0) then
-            TD[t] := TD[t] AND ($FFFFFF OR (255-round(ColorID*(255/StepCount))) shl 24);
+          if RXData[RXid].Flag[ID2] = 1 then
+          begin
+            ColorID := RXData[RXid].Data[ID2,i*RXData[RXid].Size[ID2].X+k];
+            if (ColorID<>0) and (TD[t]<>0) then
+              TD[t] := TD[t] AND ($FFFFFF OR (255-round(ColorID*(255/StepCount))) shl 24);
+          end else begin
+            ColorID := RXData[RXid].RGBA[ID2,i*RXData[RXid].Size[ID2].X+k] AND $FF;
+            if (ColorID<>0) and (TD[t]<>0) then
+              TD[t] := TD[t] AND ($FFFFFF OR (255-round(ColorID*(255/StepCount))) shl 24);
+          end;
         end;
 
         GFXData[RXid,ID1].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
-        setlength(TD,0);
+        SetLength(TD, 0);
         GFXData[RXid,ID1].AltID := 0;
         GFXData[RXid,ID1].u1    := 0;
         GFXData[RXid,ID1].v1    := 0;
         GFXData[RXid,ID1].u2    := RXData[RXid].Size[ID1].X/WidthPOT;
         GFXData[RXid,ID1].v2    := RXData[RXid].Size[ID1].Y/HeightPOT;
-        GFXData[RXid,ID1].PxWidth:=RXData[RXid].Size[ID1].X;
-        GFXData[RXid,ID1].PxHeight:=RXData[RXid].Size[ID1].Y;
+        GFXData[RXid,ID1].PxWidth := RXData[RXid].Size[ID1].X;
+        GFXData[RXid,ID1].PxHeight:= RXData[RXid].Size[ID1].Y;
       end;
 end;
 
@@ -888,8 +901,8 @@ begin
 
     RightIndex := LeftIndex+SpanCount-1;
     WidthPOT := MakePOT(WidthPOT);
-    setlength(TD,WidthPOT*HeightPOT+1);
-    setlength(TA,WidthPOT*HeightPOT+1);
+    SetLength(TD,WidthPOT*HeightPOT+1);
+    SetLength(TA,WidthPOT*HeightPOT+1);
 
     for i:=0 to HeightPOT-1 do begin
       ci:=0;
@@ -921,8 +934,8 @@ begin
     else
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
 
-    setlength(TD,0);
-    setlength(TA,0);
+    SetLength(TD,0);
+    SetLength(TA,0);
 
     k:=0;
     for j:=LeftIndex to RightIndex do begin //Hack to test AlphaTest
@@ -956,9 +969,9 @@ procedure TResource.ClearUnusedGFX(RXid:integer);
 var i:integer;
 begin
   for i:=1 to RXData[RXid].Qty do begin
-    setlength(RXData[RXid].Data[i],0);
-    setlength(RXData[RXid].RGBA[i],0);
-    setlength(RXData[RXid].Mask[i],0);
+    SetLength(RXData[RXid].Data[i], 0);
+    SetLength(RXData[RXid].RGBA[i], 0);
+    SetLength(RXData[RXid].Mask[i], 0);
   end;
 end;
 
@@ -969,8 +982,8 @@ end;
 {That is when we want to export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes}
 procedure ExportRX2BMP(RXid:integer);
 var MyBitMap:TBitMap;
-    id:integer; t:byte;
-    sy,sx,y,x:integer;
+    id,i,k:integer; t:byte;
+    sy,sx:integer;
     UsePal:TKMPal;
 begin
   CreateDir(ExeDir+'Export\');
@@ -980,7 +993,7 @@ begin
 
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
 
-  for id:=1 to RXData[RXid].Qty do begin
+  for id:=1 to RXData[RXid].Qty div 100 do begin
 
     sx := RXData[RXid].Size[id].X;
     sy := RXData[RXid].Size[id].Y;
@@ -993,13 +1006,20 @@ begin
       else UsePal := DEF_PAL;
     end;
 
-    for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-      t := RXData[RXid].Data[id,y*sx+x];
-      MyBitMap.Canvas.Pixels[x,y] := fResource.GetColor32(t,UsePal) AND $FFFFFF;
+    for i:=0 to sy-1 do for k:=0 to sx-1 do begin
+      t := RXData[RXid].Data[id,i*sx+k];
+      MyBitMap.Canvas.Pixels[k,i] := fResource.GetColor32(t,UsePal) AND $FFFFFF;
     end;
+
+    //Mark pivot location with a dot
+    k := sx + RXData[RXid].Pivot[id].x;
+    i := sy + RXData[RXid].Pivot[id].y;
+    if InRange(i, 0, sy-1) and InRange(k, 0, sx-1) then
+      MyBitMap.Canvas.Pixels[k,i] := $FF00FF;
+
     if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 
-    setlength(RXData[RXid].Data[id],0);
+    SetLength(RXData[RXid].Data[id],0);
   end;
 
   MyBitMap.Free;
@@ -1048,7 +1068,7 @@ begin
   end;
 
   CreateDir(ExeDir+'Export\UnitAnim\_TheRest');
-  setlength(Used,length(RXData[3].Size));
+  SetLength(Used,length(RXData[3].Size));
   for iUnit:=1 to 41 do
   for iAct:=1 to 14 do
   for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then
@@ -1205,7 +1225,7 @@ begin
   assignfile(f,FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
-  setlength(c,18+1);
+  SetLength(c,18+1);
   blockread(f,c[1],18); //SizeOf(TGAHeader)
   SizeX := c[13]+c[14]*256;
   SizeY := c[15]+c[16]*256;
@@ -1230,7 +1250,7 @@ begin
     OutputStream.ReadBuffer(c[1], 18); //SizeOf(TGAHeader)
     SizeX := c[13]+c[14]*256;
     SizeY := c[15]+c[16]*256;
-    setlength(c,SizeX*SizeY*4+1);
+    SetLength(c,SizeX*SizeY*4+1);
     OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
     InputStream.Free;
     OutputStream.Free;
@@ -1238,7 +1258,7 @@ begin
   end
   else
   begin
-    setlength(c,SizeX*SizeY*4+1);
+    SetLength(c,SizeX*SizeY*4+1);
     blockread(f,c[1],SizeX*SizeY*4);
     closefile(f);
   end;

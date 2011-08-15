@@ -1539,12 +1539,12 @@ begin
   end;
 
   {Common data}
-  Label_House.Caption:=fResource.HouseDat[Sender.HouseType].HouseName;
-  Image_House_Logo.TexID:= fResource.HouseDat[Sender.HouseType].GUIIcon;
-  Image_House_Worker.TexID:=fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
-  Image_House_Worker.Hint := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
-  HealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
-  HealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
+  Label_House.Caption       := fResource.HouseDat[Sender.HouseType].HouseName;
+  Image_House_Logo.TexID    := fResource.HouseDat[Sender.HouseType].GUIIcon;
+  Image_House_Worker.TexID  := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].GUIIcon;
+  Image_House_Worker.Hint   := fResource.UnitDat[fResource.HouseDat[Sender.HouseType].OwnerType].UnitName;
+  HealthBar_House.Caption   := inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
+  HealthBar_House.Position  := round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
 
   if AskDemolish then
   begin
