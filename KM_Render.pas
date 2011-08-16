@@ -563,14 +563,14 @@ var ShiftX,ShiftY:single; ID:integer;
 begin
   if Wood<>0 then begin
     ID := 260+Wood-1;
-    ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
-    ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+    ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[1, Wood].MoveX/CELL_SIZE_PX;
+    ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[1, Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
     fRenderList.AddSprite(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
   if Stone<>0 then begin
     ID := 267+Stone-1;
-    ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
-    ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+    ShiftX := Loc.X + fResource.HouseDat[Index].BuildSupply[2, Stone].MoveX/CELL_SIZE_PX;
+    ShiftY := Loc.Y + (fResource.HouseDat[Index].BuildSupply[2, Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
     fRenderList.AddSprite(2,ID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
   end;
 end;

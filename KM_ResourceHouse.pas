@@ -12,7 +12,7 @@ type
       MoveX,MoveY:integer;
     end;
 
-  THouseBuildSupply = array[1..12] of packed record MoveX,MoveY:integer; end;
+  THouseBuildSupply = array[1..2,1..6] of packed record MoveX,MoveY:integer; end;
   THouseSupply = array[1..4,1..5]of smallint;
 
   TKMHouseDat = packed record
@@ -263,12 +263,12 @@ const
     ReleasedBy: ht_IronMine;
     ),
     ( //Marketplace
-    PlanYX:     ((0,0,0,0), (0,0,1,1), (1,1,1,1), (1,1,2,1));
+    PlanYX:     ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2));
     DoesOrders: 0;
     BuildIcon:  327;
     TabletIcon: 277;
-    Input:      (rt_All,        rt_None,       rt_None,       rt_None);
-    Output:     (rt_All,        rt_None,       rt_None,       rt_None);
+    Input:      (rt_None,       rt_None,       rt_None,       rt_None);
+    Output:     (rt_None,       rt_None,       rt_None,       rt_None);
     ReleasedBy: ht_Store;//Metallurgists;
     ),
     ( //Metallurgist
@@ -542,7 +542,7 @@ end;
 
 { TKMHouseDatCollection }
 constructor TKMHouseDatCollection.Create;
-var H:THouseType;
+var H:THouseType; i:integer;
 begin
   Inherited;
 
@@ -568,11 +568,16 @@ begin
   fItems[ht_Marketplace].fHouseDat.SupplyOut[1,5] := 163;
   fItems[ht_Marketplace].fHouseDat.WoodPicSteps := 23;
   fItems[ht_Marketplace].fHouseDat.StonePicSteps := 140;
-  fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 0;
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 1;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := 0;
   fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
   fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
-  fItems[ht_Marketplace].fHouseDat.BuildSupply[1].MoveX := 0;
+  for i:=1 to 6 do begin
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveX := -55;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveY := 15;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveX := 28;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveY := 15;
+  end;
   fItems[ht_Marketplace].fHouseDat.Sight := 9;
 
   //ExportCSV(ExeDir+'Houses.csv');
