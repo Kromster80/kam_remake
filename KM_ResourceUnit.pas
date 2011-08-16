@@ -319,8 +319,54 @@ end;
 
 
 procedure TKMUnitDatCollection.ExportCSV(aPath: string);
+var ft:textfile; ii:TUnitType;
 begin
-  //
+    AssignFile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
+    writeln(ft,'Name;HitPoints;Attack;AttackHorse;x4;Defence;Speed;x7;Sight;x9;x10;CanWalkOut;x11;');
+    for ii:=Low(TUnitType) to High(TUnitType) do
+    if UnitsDat[ii].IsValid then
+    begin
+      write(ft,UnitsDat[ii].UnitName+';');
+      write(ft,inttostr(UnitsDat[ii].HitPoints)+';');
+      write(ft,inttostr(UnitsDat[ii].Attack)+';');
+      write(ft,inttostr(UnitsDat[ii].AttackHorse)+';');
+      //write(ft,inttostr(UnitsDat[ii].x4)+';');
+      write(ft,inttostr(UnitsDat[ii].Defence)+';');
+      write(ft,floattostr(UnitsDat[ii].Speed)+';');
+      //write(ft,inttostr(UnitsDat[ii].x7)+';');
+      write(ft,inttostr(UnitsDat[ii].Sight)+';');
+      //write(ft,inttostr(UnitsDat[ii].x9)+';');
+      //write(ft,inttostr(UnitsDat[ii].x10)+';');
+      //write(ft,inttostr(UnitsDat[ii].CanWalkOut)+';');
+      //write(ft,inttostr(UnitsDat[ii].x11)+';');
+      //for kk:=1 to 18 do
+      //  write(ft,inttostr(UnitSprite2[ii,kk])+';');
+      writeln(ft);
+    end;
+    closefile(ft);
+
+    {AssignFile(ft,ExeDir+'Units.txt'); rewrite(ft);
+    for ii:=Low(TUnitType) to High(TUnitType) do
+    if UnitsDat[ii].IsValid then
+    begin
+      writeln(ft);
+      writeln(ft);
+      writeln(ft,'NewUnit'+inttostr(ii));
+      for kk:=1 to 14 do
+      for hh:=1 to 8 do
+      //  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
+          begin
+            write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
+            for jj:=1 to 30 do
+            if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then //write(ft,'#');
+            write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+'. ');
+            write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
+            write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
+            write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
+            writeln(ft);
+          end;
+    end;
+    closefile(ft);}
 end;
 
 

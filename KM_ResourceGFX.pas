@@ -5,7 +5,7 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_ResourceUnit, KM_TextLibrary, Classes, KM_CommonTypes, KM_Points
+  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_ResourceUnit,  Classes, KM_CommonTypes, KM_Points
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, Zstream, BGRABitmap {$ENDIF};
 
@@ -28,7 +28,6 @@ type
     function LoadPalettes:boolean;
     function LoadMapElemDAT(FileName:string):boolean;
     function LoadPatternDAT(FileName:string):boolean;
-    function LoadUnitDAT(FileName:string):boolean;
     function LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
     procedure AllocateRX(ID:integer; Count:integer=0);
@@ -124,7 +123,6 @@ end;
 procedure TResource.LoadMenuResources(aLocale:string);
 var i:integer;
 begin
-  Assert(fTextLibrary <> nil, 'fTextLibrary should be init before ReadGFX');
   Assert(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
@@ -166,7 +164,6 @@ var i:integer;
 begin
   if fDataState = dls_All then Exit;
 
-  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
@@ -176,8 +173,6 @@ begin
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
   StepRefresh;
-
-  LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh;
 
   for i:=1 to 3 do
     if (i=1) or ((i=2) and MAKE_HOUSE_SPRITES) or ((i=3) and MAKE_UNIT_SPRITES) then
@@ -342,76 +337,6 @@ begin
   end;
 
   Result:=true;
-end;
-
-
-//=============================================
-//Reading unit.dat data
-//=============================================
-function TResource.LoadUnitDAT(FileName:string):boolean;
-var
-  //ii,kk,jj,hh:integer;
-  //ft:textfile;
-  f:file;
-begin
-  Result := false;
-
-  if not CheckFileExists(FileName) then exit;
-  assignfile(f,FileName); reset(f,1);
-
-  {for ii:=1 to 41 do begin
-    blockread(f,UnitStat[ii],22);
-    blockread(f,UnitSprite[ii],112*70);
-    blockread(f,UnitSprite2[ii],36);
-  end;}
-
-  closefile(f);
-
-  {if WriteResourceInfoToTXT then begin
-    assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
-    writeln(ft,'Name;HitPoints;Attack;AttackHorseBonus;x4;Defence;Speed;x7;Sight;x9;x10;CanWalkOut;x11;');
-    for ii:=1 to 40 do begin
-      write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
-      write(ft,inttostr(UnitStat[ii].HitPoints)+';');
-      write(ft,inttostr(UnitStat[ii].Attack)+';');
-      write(ft,inttostr(UnitStat[ii].AttackHorseBonus)+';');
-      write(ft,inttostr(UnitStat[ii].x4)+';');
-      write(ft,inttostr(UnitStat[ii].Defence)+';');
-      write(ft,inttostr(UnitStat[ii].Speed)+';');
-      write(ft,inttostr(UnitStat[ii].x7)+';');
-      write(ft,inttostr(UnitStat[ii].Sight)+';');
-      write(ft,inttostr(UnitStat[ii].x9)+';');
-      write(ft,inttostr(UnitStat[ii].x10)+';');
-      write(ft,inttostr(UnitStat[ii].CanWalkOut)+';');
-      write(ft,inttostr(UnitStat[ii].x11)+';');
-      for kk:=1 to 18 do
-        write(ft,inttostr(UnitSprite2[ii,kk])+';');
-      writeln(ft);
-    end;
-    closefile(ft);
-
-    assignfile(ft,ExeDir+'Units.txt'); rewrite(ft);
-    for ii:=1 to 40 do begin
-    writeln(ft);
-    writeln(ft);
-    writeln(ft,'NewUnit'+inttostr(ii));
-    for kk:=1 to 14 do
-    for hh:=1 to 8 do
-    //  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
-        begin
-          write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
-          for jj:=1 to 30 do
-          if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then //write(ft,'#');
-          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+'. ');
-          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
-          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
-          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
-          writeln(ft);
-        end;
-    end;
-    closefile(ft);
-  end;}
-Result:=true;
 end;
 
 
@@ -1028,7 +953,6 @@ begin
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
 
-  fResource.LoadUnitDAT(ExeDir+'data\defines\unit.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
   {ci:=0;

@@ -54,7 +54,7 @@ begin
   PNG[1].LoadFromFile('2_0151.png');
   PNG[2].LoadFromFile('2_0152.png');
   PNG[3].LoadFromFile('2_0153.png');
-  PNG[4].LoadFromFile('2_01554.png');
+  PNG[4].LoadFromFile('2_0154.png');
 
   fWoodSteps := ShadesCount(PNG[3]);
   fStoneSteps := ShadesCount(PNG[4]);
