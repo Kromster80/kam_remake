@@ -991,7 +991,7 @@ begin
 
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
 
-  for id:=1 to RXData[RXid].Qty div 100 do begin
+  for id:=1 to RXData[RXid].Qty do begin
 
     sx := RXData[RXid].Size[id].X;
     sy := RXData[RXid].Size[id].Y;
@@ -1090,9 +1090,8 @@ procedure ExportHouseAnim2BMP;
 var MyBitMap:TBitMap;
     ID:THouseType;
     Ac:THouseActionType;
-    Q,Beast,i,k,ci:integer; t:byte;
+    Q,Beast,i,k,ci:integer;
     sy,sx,y,x:integer;
-    s:string;
 begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\HouseAnim\');
@@ -1100,56 +1099,54 @@ begin
   MyBitMap.PixelFormat:=pf24bit;
 
   fResource.LoadGameResources;
+  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx', 2);
 
   ci:=0;
-  for ID:=ht_WatchTower to ht_WatchTower do begin
-    for Ac:=ha_Work1 to ha_Work5 do begin //Work1..Work5
-      for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do begin
+  for ID:=ht_Butchers to ht_Wineyard do
+    for Ac:=ha_Work1 to ha_Flag3 do
+      for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do
+      begin
         CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\');
         CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\');
         if fResource.HouseDat[ID].Anim[Ac].Step[k]+1<>0 then
-        ci:=fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
+          ci := fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
-        sx:=RXData[2].Size[ci].X;
-        sy:=RXData[2].Size[ci].Y;
+        sx := RXData[2].Size[ci].X;
+        sy := RXData[2].Size[ci].Y;
         MyBitMap.Width:=sx;
         MyBitMap.Height:=sy;
 
-        for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-          t:=RXData[2].Data[ci,y*sx+x];
-          MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
-        end;
+        for y:=0 to sy-1 do for x:=0 to sx-1 do
+          MyBitMap.Canvas.Pixels[x,y] := RXData[2].RGBA[ci,y*sx+x] AND $FFFFFF;
+
         if sy>0 then MyBitMap.SaveToFile(
         ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
       end;
-    end;
-  end;
 
   ci:=0;
-  for Q:=1 to 2 do begin
+  for Q:=1 to 2 do
+  begin
     if Q=1 then ID:=ht_Swine
            else ID:=ht_Stables;
     CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\');
-    for Beast:=1 to 5 do begin
-      for i:=1 to 3 do begin //Age 1..3
-        for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,i].Count do begin
-          CreateDir(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(Beast,2)+'\');
+    for Beast:=1 to 5 do
+      for i:=1 to 3 do
+        for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,i].Count do
+        begin
+          CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\');
           if fResource.HouseDat.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
-          ci:=fResource.HouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
+            ci := fResource.HouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
 
           sx:=RXData[2].Size[ci].X;
           sy:=RXData[2].Size[ci].Y;
           MyBitMap.Width:=sx;
           MyBitMap.Height:=sy;
 
-          for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-            t:=RXData[2].Data[ci,y*sx+x];
-            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
-          end;
+          for y:=0 to sy-1 do for x:=0 to sx-1 do
+            MyBitMap.Canvas.Pixels[x,y] := RXData[2].RGBA[ci,y*sx+x] AND $FFFFFF;
+
           if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
-      end;
-    end;
   end;
 
   MyBitMap.Free;
