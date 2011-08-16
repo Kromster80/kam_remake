@@ -5,16 +5,14 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_ResourceUnit,  Classes, KM_CommonTypes, KM_Points
+  Classes, Forms, Graphics, Math, SysUtils,
+  KM_CommonTypes, KM_Defaults, KM_ResourceHouse, KM_ResourceUnit
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, Zstream, BGRABitmap {$ENDIF};
+  {$IFDEF FPC}, ZStream, BGRABitmap {$ENDIF};
 
 
 type
-  TCardinalArray2 = array of Cardinal;
-  TexMode = (tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
-
 
   TResource = class
   private
@@ -42,7 +40,7 @@ type
     procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
 
-    function GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint; //This should belong to TRender?
+    //function GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint; //This should belong to TRender?
   public
     OnLoadingStep:TNotifyEvent;
     OnLoadingText:TStringEvent;
@@ -51,7 +49,6 @@ type
     destructor Destroy; override;
     procedure LoadMenuResources(aLocale:string);
     procedure LoadGameResources;
-    procedure MakeTileGFXFromTexture(Texture:GLuint);
 
     function GetColor32(aIdx:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
@@ -76,7 +73,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Render, KM_TGATexture, KM_Log, KM_Utils;
+uses KromUtils, KM_Render, KM_Log, KM_Utils;
 
 
 constructor TResource.Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
@@ -411,7 +408,7 @@ begin
         inc(AdvX,1+Width+1);
       end;
 
-    FontData[aFont].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_TexID);
+    FontData[aFont].TexID := fRender.GenTexture(TexWidth,TexWidth,@TD[0],tf_Normal);
 
   //for i:=1 to 10 do
   if WriteFontToBMP then begin
@@ -550,23 +547,6 @@ begin
 end;
 
 
-procedure TResource.MakeTileGFXFromTexture(Texture:GLuint);
-var i: integer;
-begin
-  for i:=0 to 255 do
-    with GFXData[8,i+1] do
-    begin
-      TexID := Texture;
-      v1 := (i div 16  ) / 16; //There are 16 tiles across the line
-      u1 := (i mod 16  ) / 16;
-      v2 := (i div 16+1) / 16;
-      u2 := (i mod 16+1) / 16;
-      PxWidth := 32;
-      PxHeight := 32;
-    end;
-end;
-
-
 procedure TResource.AllocateRX(ID:integer; Count:integer=0);
 begin
   if Count>0 then
@@ -661,55 +641,6 @@ end;
 
 
 //=============================================
-//Make texture
-//=============================================
-function TResource.GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint;
-var
-  MyBitMap:TBitMap;
-  i,k:word;
-begin
-
-  Result := 0;
-
-  DestX := MakePOT(DestX);
-  DestY := MakePOT(DestY);
-  if DestX*DestY = 0 then exit; //Do not generate zeroed textures
-
-  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
-
-  case Mode of
-    //Houses under construction
-    tm_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-    //Base layer
-    tm_TexID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-    //Team color layer
-    tm_AltID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2,   DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-  end;
-
-  if WriteAllTexturesToBMP then begin
-    CreateDir(ExeDir+'Export\GenTextures\');
-    MyBitMap:=TBitMap.Create;
-    MyBitMap.PixelFormat:=pf24bit;
-    MyBitMap.Width:=DestX;
-    MyBitMap.Height:=DestY;
-
-    for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
-    MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
-
-    if Mode=tm_AlphaTest then begin //these Alphas are worth looking at
-      for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-        MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) SHR 24 *65793;
-      MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'a.bmp');
-    end;
-
-    MyBitMap.Free;
-  end;
-
-end;
-
-
-//=============================================
 //Making OpenGL textures
 //=============================================
 {Take RX data and make nice textures out of it.
@@ -772,7 +703,7 @@ begin
           end;
         end;
 
-        GFXData[RXid,ID1].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
+        GFXData[RXid,ID1].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_AlphaTest);
         SetLength(TD, 0);
         GFXData[RXid,ID1].AltID := 0;
         GFXData[RXid,ID1].u1    := 0;
@@ -848,15 +779,15 @@ begin
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
-      GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
+      GFXData[RXid,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
       //TeamColors are done through alternative plain colored texture
       if hm then begin
-        GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TA[0],tm_AltID);
+        GFXData[RXid,LeftIndex].AltID := fRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
         inc(ColorsRAM,WidthPOT*HeightPOT*4);
       end;
     end
     else
-      GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
+      GFXData[RXid,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
 
     SetLength(TD,0);
     SetLength(TA,0);

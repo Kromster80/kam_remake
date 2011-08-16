@@ -10,6 +10,9 @@ uses
   KM_TGATexture, KM_Defaults, KM_CommonTypes, KM_Points;
 
 type
+  TCardinalArray = array of Cardinal;
+  TTexFormat = (tf_Normal, tf_AltID, tf_AlphaTest);
+
   TRenderList = class
   private
     fCount:word;
@@ -65,9 +68,11 @@ type
     constructor Create(RenderFrame:HWND; aVSync:boolean);
     destructor Destroy; override;
 
+    function GenTexture(DestX, DestY:word; const Data:TCardinalArray; Mode:TTexFormat):GLUint;
     procedure LoadTileSet;
-    procedure SetRotation(aH,aP,aB:integer);
+    property RendererVersion:string read fOpenGL_Version;
     procedure Resize(Width,Height:integer; aRenderMode:TRenderMode);
+    procedure SetRotation(aH,aP,aB:integer);
     function Stat_Sprites:integer;
     function Stat_Sprites2:integer;
     procedure Render;
@@ -93,7 +98,6 @@ type
     procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
     procedure RenderUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
     procedure RenderUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    property RendererVersion:string read fOpenGL_Version;
   end;
 
 
@@ -141,13 +145,70 @@ begin
 end;
 
 
+//Generate texture out of TCardinalArray
+function TRender.GenTexture(DestX, DestY: word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
+var
+  MyBitMap:TBitMap;
+  i,k:word;
+begin
+  Result := 0;
+
+  DestX := MakePOT(DestX);
+  DestY := MakePOT(DestY);
+  if DestX*DestY = 0 then exit; //Do not generate zeroed textures
+
+  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
+
+  case Mode of
+    //Houses under construction
+    tf_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    //Base layer
+    tf_Normal:    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    //Team color layer
+    tf_AltID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2,   DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+  end;
+
+  if WriteAllTexturesToBMP then begin
+    CreateDir(ExeDir+'Export\GenTextures\');
+    MyBitMap:=TBitMap.Create;
+    MyBitMap.PixelFormat:=pf24bit;
+    MyBitMap.Width:=DestX;
+    MyBitMap.Height:=DestY;
+
+    for i:=0 to DestY-1 do for k:=0 to DestX-1 do
+      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
+    MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
+
+    if Mode=tf_AlphaTest then begin //these Alphas are worth looking at
+      for i:=0 to DestY-1 do for k:=0 to DestX-1 do
+        MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) SHR 24 *65793;
+      MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'a.bmp');
+    end;
+
+    MyBitMap.Free;
+  end;
+end;
+
+
 // Load the Textures
 procedure TRender.LoadTileSet;
 var i:integer;
 begin
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG);
   LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT);
-  fResource.MakeTileGFXFromTexture(TextT);
+
+  for i:=0 to 255 do
+    with GFXData[8,i+1] do
+    begin
+      TexID := TextT;
+      v1 := (i div 16  ) / 16; //There are 16 tiles across the line
+      u1 := (i mod 16  ) / 16;
+      v2 := (i div 16+1) / 16;
+      u2 := (i mod 16+1) / 16;
+      PxWidth := 32;
+      PxHeight := 32;
+    end;
+
   if MAKE_ANIM_TERRAIN then begin
     for i:=1 to 8 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Water'+inttostr(i)+'.tga', TextW[i]);
     for i:=1 to 3 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
