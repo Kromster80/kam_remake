@@ -54,7 +54,7 @@ type
     procedure LoadGameResources;
     procedure MakeTileGFXFromTexture(Texture:GLuint);
 
-    function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
+    function GetColor32(aIdx:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
     property DataState: TDataLoadingState read fDataState;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
@@ -213,9 +213,9 @@ begin
 end;
 
 
-function TResource.GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
+function TResource.GetColor32(aIdx:byte; aPal:TKMPal=DEF_PAL):cardinal;
 begin
-  Result := Pal[aPal,aIndex,1] + Pal[aPal,aIndex,2] shl 8 + Pal[aPal,aIndex,3] shl 16 OR $FF000000;
+  Result := Pal[aPal,aIdx,1] + Pal[aPal,aIdx,2] shl 8 + Pal[aPal,aIdx,3] shl 16 + (byte(aIdx<>0)*255 shl 24);
 end;
 
 
@@ -686,7 +686,7 @@ begin
   closefile(f);
   fLog.AppendLog(RXData[ID].Title+' -',RXData[ID].Qty);
 
-  ExpandRX(ID);   
+  ExpandRX(ID);
   Result:=true;
 end;
 
@@ -716,20 +716,19 @@ begin
         Pixel := y*Size[i].X + x;
         L := Data[i, Pixel]; //0..255
 
-        if L<>0 then
-          if NeedTeamColors and (L in[23..29]) //Only unit icons and scrolls in RX=4
-          and ((ID<>4) or InRange(i,141,154) or InRange(i,521,550)) then
-          begin
-            RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
-            case L of //Maybe it makes sense to convert to 8bit?
-              23,29:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
-              24,28:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
-              25,27:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
-              26:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
-            end;
-            HasMask[i] := true;
-          end else
-            RGBA[i,Pixel] := GetColor32(L, Palette);
+        if NeedTeamColors and (L in[23..29]) //Only unit icons and scrolls in RX=4
+        and ((ID<>4) or InRange(i,141,154) or InRange(i,521,550)) then
+        begin
+          RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
+          case L of //Maybe it makes sense to convert to 8bit?
+            23,29:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
+            24,28:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
+            25,27:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
+            26:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
+          end;
+          HasMask[i] := true;
+        end else
+          RGBA[i,Pixel] := GetColor32(L, Palette);
       end;
    end;
   end;
@@ -982,9 +981,8 @@ end;
 {That is when we want to export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes}
 procedure ExportRX2BMP(RXid:integer);
 var MyBitMap:TBitMap;
-    id,i,k:integer; t:byte;
+    id,i,k:integer;
     sy,sx:integer;
-    UsePal:TKMPal;
 begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\'+RXData[RXid].Title+'.rx\');
@@ -1000,16 +998,8 @@ begin
     MyBitMap.Width  := sx;
     MyBitMap.Height := sy;
 
-    case RXid of
-      5:   UsePal := RX5Pal[id];
-      6:   UsePal := RX6Pal[id];
-      else UsePal := DEF_PAL;
-    end;
-
-    for i:=0 to sy-1 do for k:=0 to sx-1 do begin
-      t := RXData[RXid].Data[id,i*sx+k];
-      MyBitMap.Canvas.Pixels[k,i] := fResource.GetColor32(t,UsePal) AND $FFFFFF;
-    end;
+    for i:=0 to sy-1 do for k:=0 to sx-1 do
+      MyBitMap.Canvas.Pixels[k,i] := RXData[RXid].RGBA[id,i*sx+k] AND $FFFFFF; //Drop Alpha value
 
     //Mark pivot location with a dot
     k := sx + RXData[RXid].Pivot[id].x;
