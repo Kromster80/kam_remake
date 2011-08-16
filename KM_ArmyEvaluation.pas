@@ -211,11 +211,11 @@ begin
       a := fResource.UnitDat[i].HitPoints / fResource.UnitDat[j].HitPoints;
       b := fResource.UnitDat[i].Attack;
       if j in [low(UnitGroups) .. high(UnitGroups)] then
-        b := b + fResource.UnitDat[i].AttackHorseBonus * byte(UnitGroups[j] = gt_Mounted);
+        b := b + fResource.UnitDat[i].AttackHorse * byte(UnitGroups[j] = gt_Mounted);
       b := b / max(fResource.UnitDat[j].Defence,1);
       c := fResource.UnitDat[j].Attack;
       if i in [low(UnitGroups) .. high(UnitGroups)] then
-        c := c + fResource.UnitDat[j].AttackHorseBonus * byte(UnitGroups[i] = gt_Mounted);
+        c := c + fResource.UnitDat[j].AttackHorse * byte(UnitGroups[i] = gt_Mounted);
       c := c / max(fResource.UnitDat[i].Defence,1);
       UnitStatEvals[i, j, 1] := b * a / c;
     end;

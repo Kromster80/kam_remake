@@ -207,29 +207,23 @@ begin
     //Melee units place hit on step 5
     if Step = 5 then
     begin
-      Damage := fResource.UnitDat[KMUnit.UnitType].Attack; //Base damage
-      Damage := Round(Damage*KaMRandom(101)/100);
-      IsHit := (Damage >= fResource.UnitDat[KMUnit.UnitType].Attack*0.15); // IsHit = true if Damage >= 15% of Base damage
-      if not(IsHit) then Damage := 0
-      else begin // if IsHit
-        if fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)] then
-          Damage := Damage + fResource.UnitDat[KMUnit.UnitType].AttackHorseBonus * byte(UnitGroups[fOpponent.UnitType] = gt_Mounted); //Add Anti-horse bonus
-        Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
-        // Now, defence modifier in HitPointsDecrease
-        //Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
-      end;
+      //Base damage is the unit attack strength, or AttackHorse if the enemy is mounted and we have an AttackHorse value <> 0
+      if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) and
+        (fResource.UnitDat[KMUnit.UnitType].AttackHorse <> 0) then
+        Damage := fResource.UnitDat[KMUnit.UnitType].AttackHorse
+      else
+        Damage := fResource.UnitDat[KMUnit.UnitType].Attack;
+                                                     
+      Damage := Damage * Round(GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
 
-      //IsHit := (Damage >= KaMRandom(101)); //0..100
-
+      IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
       if IsHit then
+      begin
+        // The defence modifier is now done in HitPointsDecrease
         if fOpponent.HitPointsDecrease(Damage,false) then
           if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
             fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
-
-      {if IsHit then
-        if fOpponent.HitPointsDecrease(1) then
-          if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
-            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);}
+      end;
 
       MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
     end;

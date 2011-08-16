@@ -18,7 +18,7 @@ type
   end;
 
   TKMUnitDat = packed record
-    HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,x7,Sight:smallint;
+    HitPoints,Attack,AttackHorse,x4,Defence,Speed,x7,Sight:smallint;
     x9,x10:shortint;
     CanWalkOut,x11:smallint;
   end;
@@ -54,7 +54,7 @@ type
     //Derived from KaM
     property HitPoints:smallint read fUnitDat.HitPoints;
     property Attack:smallint read fUnitDat.Attack;
-    property AttackHorseBonus:smallint read fUnitDat.AttackHorseBonus;
+    property AttackHorse:smallint read fUnitDat.AttackHorse;
     property Defence:smallint read fUnitDat.Defence;
     property Sight:smallint read fUnitDat.Sight;
     //Additional properties added by Remake
