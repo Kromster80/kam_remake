@@ -254,27 +254,13 @@ const
 
 {Fonts}
 type //Indexing should start from 1.
-  TKMFont = (fnt_Antiqua=1,fnt_Briefing, fnt_Game,     fnt_Grey,
+  TKMFont = (fnt_Antiqua,  fnt_Briefing, fnt_Game,     fnt_Grey,
              fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2, fnt_KMLobby3,
              fnt_KMLobby4, fnt_MainA,    fnt_MainB,    fnt_MainMapGold,
              fnt_Metal,    fnt_Mini,     fnt_Outline,  fnt_System,
              fnt_Won);
 
-const //Font01.fnt seems to be damaged..
-  FontFiles: array[TKMFont]of string = (
-  'antiqua','briefing','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3','kmlobby4','maina',
-  'mainb','mainmapgold','metal','mini','outline','system','won');
-
-  //adam - unused
-  //font01 - damaged
-  //minimum - unused (looks just like mini with even smaller digits)
-
-  //Note: Fonts with palette 0 are using custom coloring,
-  //since no existing palette matches them well and they are monochrome
-  FontPal:array[TKMFont]of TKMPal =
-  (pal_0, pal_map,pal_lin, pal_0,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_set,
-   pal_lin,pal2_mapgold, pal_0,pal_lin, pal_0,pal_lin, pal_set2);
-
+const
    FONT_INTERLINE = 5; //Spacing between lines of text
 
 //Which MapEditor page is being shown. Add more as they are needed.
@@ -1044,18 +1030,6 @@ var
     PxWidth,PxHeight:word;
   end;
 
-  FontData:array[TKMFont]of record
-    Title:TKMFont;
-    TexID:GLUint;
-    Unk1,WordSpacing,CharSpacing,Unk3:smallint; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
-    Pal:array[0..255]of byte;
-    Letters:array[0..255]of record
-      Width,Height:word;
-      Add1,Add2,YOffset,Add4:word; //Add1-4 always 0
-      Data:array of byte;
-      u1,v1,u2,v2:single;
-    end;
-  end;
 
   //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty

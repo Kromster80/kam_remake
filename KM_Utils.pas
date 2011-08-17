@@ -18,8 +18,6 @@ uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
   function GetPingColor(aPing:word):cardinal;
 
   procedure ParseDelimited(const sl : TStringList; const value : string; const delimiter : string);
-  function KMWordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean):string;
-  function KMCharsThatFit(aText: string; aFont: TKMFont; aMaxPxWidth:integer):integer;
 
   procedure SetKaMSeed(aSeed:integer);
   function GetKaMSeed:integer;
@@ -250,66 +248,6 @@ begin
    finally
      sl.EndUpdate;
    end;
-end;
-
-
-function KMWordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean):string;
-var i,CharSpacing,AdvX,PrevX,LastSpace:integer;
-begin
-  AdvX := 0;
-  PrevX := 0;
-  LastSpace := -1;
-  CharSpacing := FontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
-
-  i:=1;
-  while i <= length(aText) do
-  begin
-    if aText[i]=#32 then inc(AdvX, FontData[aFont].WordSpacing)
-                    else inc(AdvX, FontData[aFont].Letters[byte(aText[i])].Width + CharSpacing);
-
-    if (aText[i]=#32) or (aText[i]=#124) then begin
-      LastSpace := i;
-      PrevX := AdvX;
-    end;
-
-    //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-    if ((AdvX > aMaxPxWidth)and(LastSpace<>-1))or(aText[i]=#124) then
-    begin
-      aText[LastSpace] := #124; //Replace last whitespace with EOL
-      dec(AdvX, PrevX); //Subtract width since replaced whitespace
-      LastSpace := -1;
-    end;
-    //Force an EOL part way through a word
-    if aForced and (AdvX > aMaxPxWidth) and (LastSpace = -1) then
-    begin
-      Insert(#124,aText,i); //Insert an EOL before this character
-      AdvX := 0;
-      LastSpace := -1;
-    end;
-    inc(i);
-  end;
-  Result := aText;
-end;
-
-
-function KMCharsThatFit(aText: string; aFont: TKMFont; aMaxPxWidth:integer):integer;
-var i,CharSpacing,AdvX:integer;
-begin
-  AdvX := 0;
-  Result := Length(aText);
-  CharSpacing := FontData[aFont].CharSpacing; //Spacing between letters, this varies between fonts
-
-  for i:=1 to length(aText) do
-  begin
-    if aText[i]=#32 then inc(AdvX, FontData[aFont].WordSpacing)
-                    else inc(AdvX, FontData[aFont].Letters[byte(aText[i])].Width + CharSpacing);
-
-    if (AdvX > aMaxPxWidth) then
-    begin
-      Result := i-1; //Previous character fits, this one does not
-      exit;
-    end;
-  end;
 end;
 
 

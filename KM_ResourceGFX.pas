@@ -6,7 +6,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_ResourceHouse, KM_ResourceUnit
+  KM_CommonTypes, KM_Defaults, KM_ResourceFonts, KM_ResourceHouse, KM_ResourceUnit
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, ZStream, BGRABitmap {$ENDIF};
 
@@ -17,6 +17,7 @@ type
   TResource = class
   private
     fDataState:TDataLoadingState;
+    fResourceFont: TResourceFont;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
 
@@ -26,7 +27,6 @@ type
     function LoadPalettes:boolean;
     function LoadMapElemDAT(FileName:string):boolean;
     function LoadPatternDAT(FileName:string):boolean;
-    function LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
     procedure AllocateRX(ID:integer; Count:integer=0);
     function  LoadRX(FileName:string; ID:integer):boolean;
@@ -55,8 +55,8 @@ type
     property DataState: TDataLoadingState read fDataState;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
+    property ResourceFont: TResourceFont read fResourceFont;
 
-    procedure LoadFonts(DoExport:boolean; aLocale:string);
     //procedure ExportRX2BMP(RXid:integer);
     //procedure ExportTreeAnim2BMP;
     //procedure ExportHouseAnim2BMP;
@@ -101,6 +101,7 @@ destructor TResource.Destroy;
 begin
   if fHouseDat <> nil then FreeAndNil(fHouseDat);
   if fUnitDat <> nil then FreeAndNil(fUnitDat);
+  if fResourceFont <> nil then FreeAndNil(fResourceFont);
   Inherited;
 end;
 
@@ -128,6 +129,7 @@ begin
 
   for i:=4 to 6 do
   begin
+    StepCaption('Reading '+RXData[i].Title+' ...');
     LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i);
     LoadRX7(i); //Load RX data overrides
 
@@ -138,6 +140,7 @@ begin
     StepRefresh;
   end;
 
+  StepCaption('Reading additional resources ...');
   AllocateRX(7, RX7_SPRITE_COUNT);
   LoadRX7(7); //Load RX7 data (custom bitmaps)
   MakeGFX(7);
@@ -146,7 +149,8 @@ begin
   AllocateRX(8, 256); //Terrain tiles are loaded later as RX8
 
   StepCaption('Reading fonts ...');
-  LoadFonts(false, aLocale);
+  fResourceFont := TResourceFont.Create;
+  fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 
   StepRefresh;
@@ -191,17 +195,6 @@ begin
   StepRefresh;
   fDataState:=dls_All;
   fLog.AppendLog('Resource loading state - Game');
-end;
-
-
-procedure TResource.LoadFonts(DoExport:boolean; aLocale:string);
-var i:TKMFont;
-begin
-  for i:=low(TKMFont) to high(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt') then
-      LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt', i, DoExport)
-    else
-      LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', i, DoExport);
 end;
 
 
@@ -334,101 +327,6 @@ begin
   end;
 
   Result:=true;
-end;
-
-
-function TResource.LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
-const
-  TexWidth=256; //Connected to TexData, don't change
-var
-  f:file;
-  L:byte;
-  i,k,ci,ck:integer;
-  MaxHeight:integer;
-  AdvX,AdvY:integer;
-  TD:array of cardinal;
-  MyBitMap:TBitMap;
-begin
-  Result:=false;
-  MaxHeight:=0;
-  if not CheckFileExists(FileName, true) then exit;
-
-  assignfile(f,FileName); reset(f,1);
-  blockread(f,FontData[aFont].Unk1,8);
-  blockread(f,FontData[aFont].Pal[0],256);
-
-  //Read font data
-  for i:=0 to 255 do
-    if FontData[aFont].Pal[i]<>0 then
-      with FontData[aFont].Letters[i] do begin
-        blockread(f,Width,4);
-        blockread(f,Add1,8);
-        MaxHeight:=Math.max(MaxHeight,Height);
-        fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Font01.fnt seems to be damaged..
-        SetLength(Data, Width*Height);
-        blockread(f,Data[0],Width*Height);
-      end;
-  closefile(f);
-
-  //Special fixes: for monochrome fonts
-  if FontPal[aFont]=pal_lin then
-  for i:=0 to 255 do
-    if FontData[aFont].Pal[i]<>0 then //see if letterspace is used
-      for k:=0 to length(FontData[aFont].Letters[i].Data)-1 do
-        if FontData[aFont].Letters[i].Data[k]<>0 then
-          FontData[aFont].Letters[i].Data[k]:=255; //Full white
-
-
-  //Compile texture
-  AdvX:=0; AdvY:=0;
-  SetLength(TD,TexWidth*TexWidth);
-
-  for i:=0 to 255 do
-    if FontData[aFont].Pal[i]<>0 then
-      with FontData[aFont].Letters[i] do begin
-
-      fLog.AssertToLog(FontData[aFont].Pal[i]=1,'FontData palette <> 1');
-
-        if AdvX+Width+2>TexWidth then begin
-          AdvX:=0;
-          inc(AdvY,MaxHeight);
-        end;
-
-        for ci:=0 to Height-1 do for ck:=0 to Width-1 do begin
-          L := Data[ci*Width+ck]; //0..255
-          if L<>0 then //Transparent
-            TD[(AdvY+ci)*TexWidth+AdvX+1+ck] := GetColor32(L,FontPal[aFont]);
-        end;
-
-        u1 := (AdvX+1)/TexWidth;
-        v1 := AdvY/TexWidth;
-        u2 := (AdvX+1+Width)/TexWidth;
-        v2 := (AdvY+Height)/TexWidth;
-
-        inc(AdvX,1+Width+1);
-      end;
-
-    FontData[aFont].TexID := fRender.GenTexture(TexWidth,TexWidth,@TD[0],tf_Normal);
-
-  //for i:=1 to 10 do
-  if WriteFontToBMP then begin
-    MyBitMap:=TBitMap.Create;
-    MyBitMap.PixelFormat:=pf24bit;
-    MyBitMap.Width:=TexWidth;
-    MyBitMap.Height:=TexWidth;
-
-    for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-      MyBitMap.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
-    end;
-
-    CreateDir(ExeDir+'Export\');
-    CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(FileName)+PalFiles[FontPal[aFont]]+'.bmp');
-    MyBitMap.Free;
-  end;
-
-  SetLength(TD,0);
-  Result := true;
 end;
 
 
@@ -1064,7 +962,7 @@ var ii,kk,h,j,pX:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {f
   {$ENDIF}
 begin
   if not FileExists(FileName) then exit;
-  assignfile(f,FileName);
+  AssignFile(f, FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
   SetLength(c,18+1);

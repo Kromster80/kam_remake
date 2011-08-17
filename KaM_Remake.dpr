@@ -47,6 +47,7 @@ uses
   KM_Render in 'KM_Render.pas',
   KM_RenderAux in 'KM_RenderAux.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
+  KM_ResourceFonts in 'KM_ResourceFonts.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
   KM_ResourceHouse in 'KM_ResourceHouse.pas',
   KM_ResourceUnit in 'KM_ResourceUnit.pas',

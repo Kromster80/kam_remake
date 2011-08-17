@@ -191,7 +191,7 @@ begin
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fTextLibrary);
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
-  fResource.LoadFonts(false, fGlobalSettings.Locale);
+  fResource.ResourceFont.LoadFonts(fGlobalSettings.Locale);
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings);
   fMainMenuInterface.ShowScreen(msOptions);
 end;

@@ -19,7 +19,6 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-    function  GetTextSize       (Text:string; Fnt:TKMFont):TKMPoint;
     procedure WriteText         (PosX,PosY:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
@@ -28,7 +27,7 @@ var
   fRenderUI: TRenderUI;
 
 implementation
-uses KM_Terrain, KM_PlayersCollection;
+uses KM_Terrain, KM_PlayersCollection, KM_ResourceGFX, KM_ResourceFonts;
 
 
 constructor TRenderUI.Create;
@@ -409,51 +408,19 @@ begin
 end;
 
 
-function TRenderUI.GetTextSize(Text:string; Fnt:TKMFont):TKMPoint;
-var
-  i:integer;
-  CharSpacing,LineCount:integer;
-  LineWidth:array of integer; //Some fonts may have negative CharSpacing
-begin
-  Result.X := 0;
-  Result.Y := 0;
-
-  if Text='' then Exit;
-
-  LineCount := 1;
-  for i:=1 to length(Text) do
-    if Text[i]=#124 then inc(LineCount);
-
-  SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
-
-  LineCount := 1;
-  CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
-  for i:=1 to length(Text) do begin
-    if Text[i]<>#124 then
-      if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
-                     else inc(LineWidth[LineCount], FontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
-    if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
-      LineWidth[LineCount] := Math.max(0,LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
-      inc(LineCount);
-    end;
-  end;
-
-  dec(LineCount);
-  Result.Y := (FontData[Fnt].Unk1 + FONT_INTERLINE)*LineCount;
-  for i:=1 to LineCount do
-    Result.X := Math.max(Result.X, LineWidth[i]);
-end;
-
 
 {Renders a line of text and returns text width and height in px}
 {By default color must be non-transparent white}
 procedure TRenderUI.WriteText(PosX,PosY:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
 var
   i:integer;
-  CharSpacing,LineCount,AdvX,LineHeight,BlockWidth:integer;
+  LineCount,AdvX,LineHeight,BlockWidth:integer;
   LineWidth:array of integer; //Use signed format since some fonts may have negative CharSpacing
+  FD: TKMFontData;
 begin
   if (Text = '') or (Color = $00000000) then exit;
+
+  FD := fResource.ResourceFont.FontData[Fnt]; //Shortcut
 
   //Calculate line count and each lines width to be able to properly align them
   LineCount := 1;
@@ -463,18 +430,18 @@ begin
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
-  CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
+
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then
-      if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
-                     else inc(LineWidth[LineCount], FontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
+      if Text[i]=#32 then inc(LineWidth[LineCount], FD.WordSpacing)
+                     else inc(LineWidth[LineCount], FD.Letters[byte(Text[i])].Width + FD.CharSpacing);
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
-      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
+      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FD.CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
     end;
   end;
 
-  LineHeight := FontData[Fnt].Unk1 + FONT_INTERLINE;
+  LineHeight := FD.Unk1 + FONT_INTERLINE;
 
   dec(LineCount);
   BlockWidth := 0;
@@ -485,7 +452,7 @@ begin
   LineCount := 1;
 
   glPushMatrix;
-    glBindTexture(GL_TEXTURE_2D, FontData[Fnt].TexID);
+    glBindTexture(GL_TEXTURE_2D, FD.TexID);
     glColor4ubv(@Color);
     glkMoveAALines(false);
 
@@ -503,24 +470,26 @@ begin
       if Text[i]=#124 then begin
         glEnd;
         inc(LineCount);
-        if Align=kaLeft   then glTranslatef(0, LineHeight, 0); //Negate previous line length
-        if Align=kaCenter then glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
-        if Align=kaRight  then glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
+        case Align of
+          kaLeft:   glTranslatef(0, LineHeight, 0); //Negate previous line length
+          kaCenter: glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
+          kaRight:  glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
+        end;
         AdvX := 0;
         glBegin(GL_QUADS);
       end else
       if Text[i]=#32 then
-        inc(AdvX, FontData[Fnt].WordSpacing)
+        inc(AdvX, FD.WordSpacing)
       else
-      with FontData[Fnt].Letters[byte(Text[i])] do begin
+      with FD.Letters[byte(Text[i])] do begin
         glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
         glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
         glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
         glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
-        inc(AdvX, Width + CharSpacing);
+        inc(AdvX, Width + FD.CharSpacing);
       end;
     glEnd;
-    glBindTexture(GL_TEXTURE_2D,0);
+    glBindTexture(GL_TEXTURE_2D, 0);
   glPopMatrix;
 
   if SHOW_TEXT_OUTLINES then

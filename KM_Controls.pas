@@ -649,7 +649,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_Sound, KM_TextLibrary, KM_Utils;
+uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_TextLibrary, KM_Utils;
 
 
 { TKMControl }
@@ -1021,7 +1021,7 @@ end;
 function TKMLabel.TextHeight:integer;
 begin
   ReformatText;
-  Result := fRenderUI.GetTextSize(fText, Font).Y;
+  Result := fResource.ResourceFont.GetTextSize(fText, Font).Y;
 end;
 
 
@@ -1033,7 +1033,8 @@ begin
 
   //@Krom: Should we always force EOLs in labels with a continuous word that is longer than the width?
   //       I think yes because otherwise we end up with text overflowing from our labels...
-  fText := KMWordWrap(fText, Font, Width, true);
+  //@Lewin: That may be less desired in many places, best strategy could be cutting the word and fade out last 3-4 letters
+  fText := fResource.ResourceFont.WordWrap(fText, Font, Width, true);
 end;
 
 
@@ -1054,7 +1055,7 @@ begin
   if fEnabled then Col := FontColor
               else Col := $FF888888;
 
-  Tmp := fRenderUI.GetTextSize(fText, Font);
+  Tmp := fResource.ResourceFont.GetTextSize(fText, Font);
   fRenderUI.WriteText(Left, NewTop, fText, Font, TextAlign, Col);
 
   if not AutoWrap then 
@@ -1431,7 +1432,7 @@ begin
   else
   begin
     RText := Copy(fText, fLeftIndex+1, length(fText)); //Remove characters to the left of fLeftIndex
-    while fCursorPos-fLeftIndex > KMCharsThatFit(RText,Font,Width-8) do
+    while fCursorPos-fLeftIndex > fResource.ResourceFont.CharsThatFit(RText, Font, Width-8) do
     begin
       inc(fLeftIndex);
       RText := Copy(fText, fLeftIndex+1, length(fText)); //Remove characters to the left of fLeftIndex
@@ -1515,7 +1516,7 @@ begin
     RText := fText;
 
   RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
-  RText := Copy(RText, 1, KMCharsThatFit(RText, Font, Width-8)); //Remove characters that do not fit in the box
+  RText := Copy(RText, 1, fResource.ResourceFont.CharsThatFit(RText, Font, Width-8)); //Remove characters that do not fit in the box
 
   fRenderUI.WriteText(Left+4, Top+3, RText, Font, kaLeft, Col);
 
@@ -1523,7 +1524,7 @@ begin
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos-fLeftIndex);
-    OffX := Left + 2 + fRenderUI.GetTextSize(RText, Font).X;
+    OffX := Left + 2 + fResource.ResourceFont.GetTextSize(RText, Font).X;
     fRenderUI.WriteLayer(OffX, Top+2, 3, Height-4, Col, $FF000000);
   end;
 end;
@@ -1565,7 +1566,7 @@ begin
     if fChecked then
       fRenderUI.WriteText(Left+3, Top-1, 'x', fFont, kaLeft, Col);
 
-    Tmp := fRenderUI.GetTextSize('[ ] '+fCaption, fFont);
+    Tmp := fResource.ResourceFont.GetTextSize('[ ] '+fCaption, fFont);
     Width  := Tmp.X;
     Height := Tmp.Y;
   end;
@@ -2022,7 +2023,7 @@ begin
   else
   begin
     MyItems := TStringList.Create;
-    ParseDelimited(MyItems, KMWordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
+    ParseDelimited(MyItems, fResource.ResourceFont.WordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
     for i:=0 to MyItems.Count-1 do
       fItems.Add(MyItems.Strings[i]);
     MyItems.Free;

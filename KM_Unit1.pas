@@ -374,7 +374,7 @@ procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.Expo
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
 begin
   fLog.AssertToLog(fResource<>nil, 'Can''t export Fonts cos they aren''t loaded yet');
-  fResource.LoadFonts(true, fGame.GlobalSettings.Locale);
+  fResource.ResourceFont.ExportFonts(fGame.GlobalSettings.Locale);
 end;
 
 
