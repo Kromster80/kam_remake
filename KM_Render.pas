@@ -481,7 +481,7 @@ begin
 
   if SHOW_WALK_CONNECT then
   for i:=y1 to y2 do for k:=x1 to x2 do
-  with fTerrain,Land[i,k] do
+  with fTerrain.Land[i,k] do
     fRenderAux.Quad(k, i, WalkConnect[wcWalk] *32 + (WalkConnect[wcRoad]*32) shl 8 or $80000000);
 end;
 

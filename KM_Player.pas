@@ -417,7 +417,7 @@ var i:integer;
 begin
   Result := 3; //3 = Black which can be the default when a non-pallete 32 bit color value is used
   for i:=0 to 255 do
-    if fResource.GetColor32(i, DEF_PAL) = fFlagColor then
+    if fResource.Palettes[DEF_PAL].Color32(i) = fFlagColor then
       Result := i;
 end;
 

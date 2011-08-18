@@ -709,7 +709,7 @@ begin
                           fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(KMPoint(P[0]+1,P[1]+1),TKMDirection(P[2]+1)),TGroupType(P[3]+1),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                          fPlayers.Player[fLastPlayer].FlagColor := fResource.GetColor32(P[0], DEF_PAL);
+                          fPlayers.Player[fLastPlayer].FlagColor := fResource.Palettes[DEF_PAL].Color32(P[0]);
     ct_AIAttack:        begin
                           //Set up the attack command
                           if TextParam = PARAMVALUES[cpt_Type] then

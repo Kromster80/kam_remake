@@ -7,7 +7,7 @@ uses
 
 
 type
-  PicID = record
+  TPicID = record
     RX,ID:word;
   end;
 
@@ -20,7 +20,7 @@ type
       ScriptPath:string;
     end;
   private
-    fBackGroundPic:PicID;
+    fBackGroundPic:TPicID;
     fMapCount:byte;
     fShortTitle:string;
     fUnlockedMaps:byte;

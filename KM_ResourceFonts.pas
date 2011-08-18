@@ -2,7 +2,7 @@ unit KM_ResourceFonts;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Forms, Graphics, Math, SysUtils,
+  Graphics, Math, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Points;
 
 
@@ -42,7 +42,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Render, KM_Log, KM_Utils, KM_ResourceGFX;
+uses KromUtils, KM_Log, KM_Render, KM_ResourceGFX, KM_Utils;
 
 
 const //Font01.fnt seems to be damaged..
@@ -126,8 +126,7 @@ begin
 
         //Fill in colors
         for ci:=0 to Height-1 do for ck:=0 to Width-1 do
-          if Data[ci*Width+ck] <> 0 then //Transparent
-            TD[(AdvY+ci)*TexWidth+AdvX+1+ck] := fResource.GetColor32(Data[ci*Width+ck], FontPal[aFont]);
+          TD[(AdvY+ci)*TexWidth+AdvX+1+ck] := fResource.Palettes[FontPal[aFont]].Color32(Data[ci*Width+ck]);
 
         u1 := (AdvX+1)/TexWidth;
         v1 := AdvY/TexWidth;
@@ -151,7 +150,7 @@ begin
 
     CreateDir(ExeDir+'Export\');
     CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(FileName)+PalFiles[FontPal[aFont]]+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(FileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
     MyBitMap.Free;
   end;
 

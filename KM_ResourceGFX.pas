@@ -6,7 +6,8 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_ResourceFonts, KM_ResourceHouse, KM_ResourceUnit
+  KM_CommonTypes, KM_Defaults, 
+  KM_ResourceFonts, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceUnit
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, ZStream, BGRABitmap {$ENDIF};
 
@@ -20,11 +21,11 @@ type
     fResourceFont: TResourceFont;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
+    fPalettes: TKMPalettes;
 
     procedure StepRefresh;
     procedure StepCaption(aCaption:string);
 
-    function LoadPalettes:boolean;
     function LoadMapElemDAT(FileName:string):boolean;
     function LoadPatternDAT(FileName:string):boolean;
 
@@ -45,16 +46,15 @@ type
     OnLoadingStep:TNotifyEvent;
     OnLoadingText:TStringEvent;
 
-    constructor Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
+    constructor Create(aLS:TNotifyEvent; aLT:TStringEvent);
     destructor Destroy; override;
     procedure LoadMenuResources(aLocale:string);
     procedure LoadGameResources;
 
-    function GetColor32(aIdx:byte; aPal:TKMPal=DEF_PAL):cardinal;
-
     property DataState: TDataLoadingState read fDataState;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
+    property Palettes: TKMPalettes read fPalettes;
     property ResourceFont: TResourceFont read fResourceFont;
 
     //procedure ExportRX2BMP(RXid:integer);
@@ -76,7 +76,7 @@ implementation
 uses KromUtils, KM_Render, KM_Log, KM_Utils;
 
 
-constructor TResource.Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
+constructor TResource.Create(aLS:TNotifyEvent; aLT:TStringEvent);
 begin
   Inherited Create;
   fDataState := dls_None;
@@ -92,8 +92,6 @@ begin
   RXData[5].Title:='guimain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='guimainh';    RXData[6].NeedTeamColors:=false;
   RXData[7].Title:='remake';      RXData[7].NeedTeamColors:=true;
-
-  LoadMenuResources(aLocale);
 end;
 
 
@@ -101,6 +99,7 @@ destructor TResource.Destroy;
 begin
   if fHouseDat <> nil then FreeAndNil(fHouseDat);
   if fUnitDat <> nil then FreeAndNil(fUnitDat);
+  if fPalettes <> nil then FreeAndNil(fPalettes);
   if fResourceFont <> nil then FreeAndNil(fResourceFont);
   Inherited;
 end;
@@ -124,7 +123,8 @@ begin
   Assert(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
-  LoadPalettes;
+  fPalettes := TKMPalettes.Create;
+  fPalettes.LoadPalettes;
   fLog.AppendLog('Reading palettes',true);
 
   for i:=4 to 6 do
@@ -195,44 +195,6 @@ begin
   StepRefresh;
   fDataState:=dls_All;
   fLog.AppendLog('Resource loading state - Game');
-end;
-
-
-function TResource.GetColor32(aIdx:byte; aPal:TKMPal=DEF_PAL):cardinal;
-begin
-  Result := Pal[aPal,aIdx,1] + Pal[aPal,aIdx,2] shl 8 + Pal[aPal,aIdx,3] shl 16 + (byte(aIdx<>0)*255 shl 24);
-end;
-
-
-//=============================================
-//Reading Palette for trees/objects
-//=============================================
-function TResource.LoadPalettes:boolean;
-var f:file; i:TKMPal; k:integer; FileName:string;
-begin
-  Result := true;
-
-  for i:=low(TKMPal) to high(TKMPal) do begin
-
-    FileName := ExeDir+'data\gfx\'+PalFiles[i];
-    if FileExists(FileName) then begin
-      AssignFile(f,FileName);
-      FileMode := 0;
-      Reset(f,1);
-      FileMode := 2;
-      blockread(f,Pal[i],48); //Unknown and/or not important
-      blockread(f,Pal[i],768); //256*3
-      closefile(f);
-
-      if i = pal_lin then //Make greyscale linear Pal
-        for k:=0 to 255 do begin
-          Pal[pal_lin,k,1] := k;
-          Pal[pal_lin,k,2] := k;
-          Pal[pal_lin,k,3] := k;
-        end;
-    end else
-      Result := false;
-  end;
 end;
 
 
@@ -531,7 +493,7 @@ begin
           end;
           HasMask[i] := true;
         end else
-          RGBA[i,Pixel] := GetColor32(L, Palette);
+          RGBA[i,Pixel] := fPalettes[Palette].Color32(L);
       end;
    end;
   end;
@@ -773,7 +735,7 @@ end;
 procedure ExportUnitAnim2BMP;
 var MyBitMap:TBitMap;
     //U:TUnitType;
-    //iAct,iDir,iFrame,ci:integer; t:byte;
+    //iAct,iDir,iFrame,ci:integer;
     //sy,sx,y,x:integer;
     //Used:array of integer;
 begin
@@ -799,10 +761,9 @@ begin
           MyBitMap.Width:=sx;
           MyBitMap.Height:=sy;
 
-          for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-            t := RXData[3].Data[ci,y*sx+x];
-            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
-          end;
+          for y:=0 to sy-1 do for x:=0 to sx-1 do
+            MyBitMap.Canvas.Pixels[x,y] := RXData[3].RGBA[ci,y*sx+x] AND $FFFFFF;
+
           if sy>0 then MyBitMap.SaveToFile(
             ExeDir+'Export\UnitAnim\'+TypeToString(iUnit)+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
         end;
@@ -826,10 +787,9 @@ begin
     MyBitMap.Width:=sx;
     MyBitMap.Height:=sy;
 
-    for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-      t := RXData[3].Data[ci,y*sx+x];
-      MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
-    end;
+    for y:=0 to sy-1 do for x:=0 to sx-1 do
+      MyBitMap.Canvas.Pixels[x,y] := RXData[3].RGBA[ci,y*sx+x] AND $FFFFFF;
+
     if sy>0 then MyBitMap.SaveToFile(
       ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
   end;}
@@ -909,7 +869,7 @@ end;
 {Export Trees graphics categorized by ID}
 procedure ExportTreeAnim2BMP;
 var MyBitMap:TBitMap;
-    ID,k,ci:integer; t:byte;
+    ID,k,ci:integer;
     sy,sx,y,x:integer;
 begin
   CreateDir(ExeDir+'Export\');
@@ -931,10 +891,9 @@ begin
       MyBitMap.Width:=sx;
       MyBitMap.Height:=sy;
 
-      for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-        t:=RXData[1].Data[ci,y*sx+x];
-        MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
-      end;
+      for y:=0 to sy-1 do for x:=0 to sx-1 do
+        MyBitMap.Canvas.Pixels[x,y] := RXData[1].RGBA[ci,y*sx+x] AND $FFFFFF;
+
       if sy>0 then MyBitMap.SaveToFile(
       //@Lewin: insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting

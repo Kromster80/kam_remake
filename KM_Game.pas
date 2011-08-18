@@ -156,7 +156,8 @@ begin
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
   fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
-  fResource         := TResource.Create(fGlobalSettings.Locale, aLS, aLT);
+  fResource         := TResource.Create(aLS, aLT);
+  fResource.LoadMenuResources(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
   fCampaigns        := TKMCampaignsCollection.Create;
 

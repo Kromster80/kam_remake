@@ -50,6 +50,7 @@ uses
   KM_ResourceFonts in 'KM_ResourceFonts.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
   KM_ResourceHouse in 'KM_ResourceHouse.pas',
+  KM_ResourcePalettes in 'KM_ResourcePalettes.pas',
   KM_ResourceUnit in 'KM_ResourceUnit.pas',
   KM_Settings in 'KM_Settings.pas',
   KM_Sound in 'KM_Sound.pas',

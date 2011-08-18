@@ -228,19 +228,12 @@ type TGameResultMsg = ( //Game result
 
                
 {Palettes}
-type TKMPal = (pal_map=1, pal_0=2, pal_1=3, pal_2=4, pal_3=5, pal_4=6, pal_5=7, pal_set=8, pal_set2=9, pal_lin=10,
-               pal2_mapgold=11, pal2_setup=12);
+//There are 9 palette files: Map, Pal0-5, Setup, Setup2, gradient, 2lbm palettes
+type TKMPal = (pal_map, pal_0, pal_1, pal_2, pal_3, pal_4, pal_5, pal_set, pal_set2, pal_lin,
+               pal2_mapgold, pal2_setup);
 const
   DEF_PAL = pal_0;            //Default palette to use when generating full-color RGB textures
 
-var //There are 9 palette files Map, Pal0-5, Setup and Setup2 +1 linear +2lbm
-  Pal:array[TKMPal,0..255,1..3]of byte;
-
-const
- //Palette filename corresponds with pal_**** constant, except pal_lin which is generated proceduraly (filename doesn't matter for it)
- PalFiles:array[TKMPal]of string = (
- 'map.bbm', 'pal0.bbm', 'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', 'setup.bbm', 'setup2.bbm', 'map.bbm',
- 'mapgold.lbm', 'setup.lbm');
 
  RX5Pal:array[1..40]of TKMPal = (
  pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_set2, pal_set2, pal_set2, pal_map,

@@ -462,7 +462,7 @@ end;
 
 function TKMHouseDatClass.GetDoesOrders: boolean;
 begin
-  Result := HouseDatX[fHouseType].DoesOrders<>0;
+  Result := HouseDatX[fHouseType].DoesOrders <> 0;
 end;
 
 

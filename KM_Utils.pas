@@ -276,27 +276,29 @@ end;
 (*  Integer  Version  2  *)
 function KaMRandom:extended;
 const
-  a = 16807;
-  m = 2147483647; //Prime number 2^31 - 1
-  q = 127773;  (*  m  div  a  *)
-  r = 2836;  (*  m  mod  a  *)
+  A = 16807;
+  M = 2147483647; //Prime number 2^31 - 1
+  Q = 127773; // M div A
+  R = 2836; // M mod A
 var
-  lo, hi, test: integer;
+  C1, C2, NextSeed: integer;
 begin
-  if not CUSTOM_RANDOM then
-  begin
+  if not CUSTOM_RANDOM then begin
     Result := Random;
-    exit;
+    Exit;
   end;
-  assert(InRange(fKaMSeed,1,m-1),'KaMSeed initialised incorrectly: '+IntToStr(fKaMSeed));
-  hi := fKaMSeed div q;
-  lo := fKaMSeed mod q;
-  test := a*lo - r*hi;
-  if test > 0 then
-    fKaMSeed := test
+
+  Assert(InRange(fKaMSeed,1,M-1), 'KaMSeed initialised incorrectly: '+IntToStr(fKaMSeed));
+  C2 := fKaMSeed div Q;
+  C1 := fKaMSeed mod Q;
+  NextSeed := A*C1 - R*C2;
+
+  if NextSeed > 0 then
+    fKaMSeed := NextSeed
   else
-    fKaMSeed := test + m;
-  Result := fKaMSeed / m;
+    fKaMSeed := NextSeed + M;
+
+  Result := fKaMSeed / M;
 end;
 
 

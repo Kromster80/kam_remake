@@ -650,7 +650,7 @@ begin
       TKMLabel.Create(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
       TKMBevel.Create(Panel_Color,8,30,180,210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16, 11);
-      for i:=0 to 255 do Col[i] := fResource.GetColor32(i);
+      for i:=0 to 255 do Col[i] := fResource.Palettes[DEF_PAL].Color32(i);
       ColorSwatch_Color.SetColors(Col);
       ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
