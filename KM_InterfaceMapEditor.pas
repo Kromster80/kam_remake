@@ -837,11 +837,15 @@ begin
       Button_Store[i].Hint:=TypeToString(TResourceType(i));
       Button_Store[i].OnClick := Store_SelectWare;
     end;
-    Button_StoreDec100   := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
-    Button_StoreDec      := TKMButton.Create(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
+    Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
+    Button_StoreDec100.Tag  := 100;
+    Button_StoreDec       := TKMButton.Create(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
+    Button_StoreDec.Tag   := 1;
     Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,156,230,100,30,'',fnt_Metal,kaCenter);
-    Button_StoreInc100   := TKMButton.Create(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
-    Button_StoreInc      := TKMButton.Create(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
+    Button_StoreInc100      := TKMButton.Create(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
+    Button_StoreInc100.Tag  := 100;
+    Button_StoreInc       := TKMButton.Create(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
+    Button_StoreInc.Tag   := 1;
     Button_StoreDec100.OnClickEither := Store_EditWareCount;
     Button_StoreDec.OnClickEither    := Store_EditWareCount;
     Button_StoreInc100.OnClickEither := Store_EditWareCount;
@@ -865,11 +869,15 @@ begin
       Button_Barracks[i].Hint := TypeToString(BarracksResType[i]);
       Button_Barracks[i].OnClick := Barracks_SelectWare;
     end;
-    Button_BarracksDec100   := TKMButton.Create(Panel_HouseBarracks,116,218,20,20,'<', fnt_Metal);
+    Button_BarracksDec100     := TKMButton.Create(Panel_HouseBarracks,116,218,20,20,'<', fnt_Metal);
+    Button_BarracksDec100.Tag := 100;
     Button_BarracksDec      := TKMButton.Create(Panel_HouseBarracks,116,238,20,20,'-', fnt_Metal);
+    Button_BarracksDec.Tag  := 1;
     Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,156,230,100,30,'',fnt_Metal,kaCenter);
-    Button_BarracksInc100   := TKMButton.Create(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
+    Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
+    Button_BarracksInc100.Tag := 100;
     Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,176,238,20,20,'+', fnt_Metal);
+    Button_BarracksInc.Tag  := 1;
     Button_BarracksDec100.OnClickEither := Barracks_EditWareCount;
     Button_BarracksDec.OnClickEither    := Barracks_EditWareCount;
     Button_BarracksInc100.OnClickEither := Barracks_EditWareCount;
@@ -1389,21 +1397,23 @@ end;
 
 
 procedure TKMapEdInterface.Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
-var Res:TResourceType; Barracks:TKMHouseBarracks; Amt:byte;
+const Modif:array[TMouseButton]of word = (1,10,0);
+var Res:TResourceType; Barracks:TKMHouseBarracks; Amt:word;
 begin
   if not Panel_HouseBarracks.Visible then Exit;
 
   Res := BarracksResType[BarracksItem];
   Barracks := TKMHouseBarracks(fShownHouse);
 
-  Amt := 0;
-  if AButton = mbLeft then Amt := 1;
-  if AButton = mbRight then Amt := 10;
+  if (Sender = Button_BarracksDec100) or (Sender = Button_BarracksDec) then begin
+    Amt := Math.Min(Barracks.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
+    Barracks.ResTakeFromOut(Res, Amt);
+  end;
 
-  if Sender = Button_BarracksDec100 then Barracks.ResTakeFromOut(Res, Amt*100);
-  if Sender = Button_BarracksDec    then Barracks.ResTakeFromOut(Res, Amt*1);
-  if Sender = Button_BarracksInc    then Barracks.ResAddToIn(Res, Amt*1);
-  if Sender = Button_BarracksInc100 then Barracks.ResAddToIn(Res, Amt*100);
+  if (Sender = Button_BarracksInc100) or (Sender = Button_BarracksInc) then begin
+    Amt := Math.Min(High(Word) - Barracks.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
+    Barracks.ResAddToIn(Res, Amt);
+  end;
 
   Label_Barracks_WareCount.Caption := inttostr(Barracks.CheckResIn(Res));
   Barracks_Fill(nil);
@@ -1411,21 +1421,23 @@ end;
 
 
 procedure TKMapEdInterface.Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
-var Res:TResourceType; Store:TKMHouseStore; Amt:byte;
+const Modif:array[TMouseButton]of word = (1,10,0);
+var Res:TResourceType; Store:TKMHouseStore; Amt:word;
 begin
   if not Panel_HouseStore.Visible then Exit;
 
   Res := TResourceType(StorehouseItem);
   Store := TKMHouseStore(fShownHouse);
 
-  Amt := 0;
-  if AButton = mbLeft then Amt := 1;
-  if AButton = mbRight then Amt := 10;
+  if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin
+    Amt := Math.Min(Store.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
+    Store.ResTakeFromOut(Res, Amt);
+  end;
 
-  if Sender = Button_StoreDec100 then Store.ResTakeFromOut(Res, Amt*100);
-  if Sender = Button_StoreDec    then Store.ResTakeFromOut(Res, Amt*1);
-  if Sender = Button_StoreInc    then Store.ResAddToIn(Res, Amt*1);
-  if Sender = Button_StoreInc100 then Store.ResAddToIn(Res, Amt*100);
+  if (Sender = Button_StoreInc100) or (Sender = Button_StoreInc) then begin
+    Amt := Math.Min(High(Word) - Store.CheckResIn(Res), Modif[aButton]*TKMButton(Sender).Tag);
+    Store.ResAddToIn(Res, Amt);
+  end;
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
   Store_Fill(nil);

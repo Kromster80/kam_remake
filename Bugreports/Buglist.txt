@@ -3,17 +3,16 @@ Since r2087:
 Bugs:
  +	Mining stone from tiles close to map upper edge caused a crash
  +	When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
+ + 	In multiplayer there are still roads on the map for players that were deleted because they are not playing
+ + 	Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
 	KaM sould attempt to play eng unit sounds if local are missing
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
-	Making a hill under a house in MapEd causes a crash
- 	Setting the number of wares in a storehouse in the MapEd to a negative number will cause a crash
- 	In multiplayer there are still roads on the map for players that were deleted because they are not playing
+ ?	Making a hill under a house in MapEd causes a crash
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Maybe archers attacked by archers should not try to walk towards enemies
  	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
  ?	When warriors go out from Barracks sometimes they are not adjoined in groups (Can't reproduce. Does he know AI's do not autolink? Maybe he switched to an AI team)
  	Enemies begin to fight back when arows are shot, not when first arrow hits the unit
- 	Warriors attacking enemy citizens don't listen to orders
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  	Warriors should resume interrupted orders after a fight
 
@@ -35,6 +34,7 @@ Features:
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+ - 	Warriors attacking enemy citizens don't listen to orders
 
 
 
