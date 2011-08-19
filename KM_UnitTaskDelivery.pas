@@ -3,28 +3,31 @@ unit KM_UnitTaskDelivery;
 interface
 uses Classes, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, SysUtils, KM_Points;
 
+
 type
   TDeliverKind = (dk_ToHouse, dk_ToUnit);
 
-{Perform delivery}
-type
+
+  {Perform delivery}
   TTaskDeliver = class(TUnitTask)
-    private
-      fFrom:TKMHouse;
-      fToHouse:TKMHouse;
-      fToUnit:TKMUnit;
-      fResourceType:TResourceType;
-      fDeliverID:integer;
-    public
-      DeliverKind:TDeliverKind;
-      constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad; override;
-      destructor Destroy; override;
-      function WalkShouldAbandon:boolean; override;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
+  private
+    fFrom:TKMHouse;
+    fToHouse:TKMHouse;
+    fToUnit:TKMUnit;
+    fResourceType:TResourceType;
+    fDeliverID:integer;
+    fDeliverKind:TDeliverKind;
+  public
+    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad; override;
+    destructor Destroy; override;
+    function WalkShouldAbandon:boolean; override;
+    property DeliverKind: TDeliverKind read fDeliverKind;
+    function Execute:TTaskResult; override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+  end;
+
 
 implementation
 uses KM_PlayersCollection, KM_Units_Warrior, KM_Log, KM_TextLibrary;
@@ -42,8 +45,8 @@ begin
   if aFrom   <> nil then fFrom    := aFrom.GetHousePointer;
   if toHouse <> nil then fToHouse := toHouse.GetHousePointer;
   if toUnit  <> nil then fToUnit  := toUnit.GetUnitPointer;
-  if toHouse <> nil then DeliverKind := dk_ToHouse; //It's easier to check this than toHouse<>nil
-  if toUnit  <> nil then DeliverKind := dk_ToUnit;
+  if toHouse <> nil then fDeliverKind := dk_ToHouse; //It's easier to check this than toHouse<>nil
+  if toUnit  <> nil then fDeliverKind := dk_ToUnit;
 
   fResourceType := Res;
   fDeliverID    := aID;
@@ -58,7 +61,7 @@ begin
   LoadStream.Read(fToUnit, 4);
   LoadStream.Read(fResourceType, SizeOf(fResourceType));
   LoadStream.Read(fDeliverID);
-  LoadStream.Read(DeliverKind, SizeOf(DeliverKind));
+  LoadStream.Read(fDeliverKind, SizeOf(fDeliverKind));
 end;
 
 
@@ -76,7 +79,7 @@ begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID<>0 then fPlayers.Player[fUnit.GetOwner].DeliverList.AbandonDelivery(fDeliverID);
-  TKMUnitSerf(fUnit).CarryTake(false); //empty hands
+  if TKMUnitSerf(fUnit).Carry <> rt_None then TKMUnitSerf(fUnit).CarryTake; //empty hands
 
   fPlayers.CleanUpHousePointer(fFrom);
   fPlayers.CleanUpHousePointer(fToHouse);
@@ -109,7 +112,7 @@ begin
 
   if WalkShouldAbandon then begin
     Result := TaskDone;
-    exit;
+    Exit;
   end;
 
   with fUnit do
@@ -137,7 +140,7 @@ begin
   end;
 
   //Deliver into complete house
-  if (DeliverKind = dk_ToHouse) and fToHouse.IsComplete then
+  if (fDeliverKind = dk_ToHouse) and fToHouse.IsComplete then
   with fUnit do
   case fPhase of
     0..4:;
@@ -159,15 +162,15 @@ begin
             NewDelivery.Phase := 2; //Skip to resource-taking part of the new task
             TKMUnitSerf(fUnit).SetNewDelivery(NewDelivery);
             Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
-            exit;
+            Exit;
           end else //No delivery found then just step outside
-            SetActionGoIn(ua_Walk,gd_GoOutside,fToHouse);
+            SetActionGoIn(ua_Walk, gd_GoOutside, fToHouse);
         end;
     else Result := TaskDone;
   end;
 
   //Deliver into wip house
-  if (DeliverKind = dk_ToHouse) and not fToHouse.IsComplete then
+  if (fDeliverKind = dk_ToHouse) and not fToHouse.IsComplete then
   with fUnit do
   case fPhase of
     0..4:;
@@ -184,7 +187,7 @@ begin
   end;
 
   //Deliver to builder or soldier
-  if DeliverKind = dk_ToUnit then
+  if fDeliverKind = dk_ToUnit then
   with fUnit do
   case fPhase of
     0..4:;
@@ -253,7 +256,7 @@ begin
     SaveStream.Write(Integer(0));
   SaveStream.Write(fResourceType, SizeOf(fResourceType));
   SaveStream.Write(fDeliverID);
-  SaveStream.Write(DeliverKind, SizeOf(DeliverKind));
+  SaveStream.Write(fDeliverKind, SizeOf(fDeliverKind));
 end;
 
 

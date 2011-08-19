@@ -191,14 +191,18 @@ type TCheckAxis = (ax_X, ax_Y);
 
   //Serf class - transports all goods in game between houses
   TKMUnitSerf = class(TKMUnit)
+  private
+    fCarry: TResourceType;
   public
-    Carry: TResourceType;
     constructor Load(LoadStream:TKMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+
+    property Carry: TResourceType read fCarry;
     procedure CarryGive(Res:TResourceType);
-    procedure CarryTake(aAssertIfNoCarry:boolean=true);
+    procedure CarryTake;
     function GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
     procedure SetNewDelivery(aDelivery:TUnitTask);
-    procedure Save(SaveStream:TKMemoryStream); override;
+
     function UpdateState:boolean; override;
     procedure Paint; override;
   end;
@@ -591,7 +595,7 @@ end;
 constructor TKMUnitSerf.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(Carry, SizeOf(Carry));
+  LoadStream.Read(fCarry, SizeOf(fCarry));
 end;
 
 
@@ -622,7 +626,7 @@ end;
 procedure TKMUnitSerf.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
-  SaveStream.Write(Carry, SizeOf(Carry));
+  SaveStream.Write(fCarry, SizeOf(fCarry));
 end;
 
 
@@ -644,11 +648,11 @@ begin
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-    fUnitTask:=GetActionFromQueue;
+    fUnitTask := GetActionFromQueue;
 
   //Only show quest thought if we are idle and not thinking anything else (e.g. death)
   if fUnitTask=nil then begin
-    if (KaMRandom(2)=0)and(OldThought=th_None) then fThought:=th_Quest; //
+    if (KaMRandom(2)=0) and (OldThought=th_None) then fThought:=th_Quest; //
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
@@ -658,15 +662,15 @@ end;
 
 procedure TKMUnitSerf.CarryGive(Res:TResourceType);
 begin
-  Assert(Carry=rt_None, 'Giving Serf another Carry');
-  Carry := Res;
+  Assert(fCarry=rt_None, 'Giving Serf another Carry');
+  fCarry := Res;
 end;
 
 
-procedure TKMUnitSerf.CarryTake(aAssertIfNoCarry:boolean=true);
+procedure TKMUnitSerf.CarryTake;
 begin
-  if aAssertIfNoCarry then Assert(Carry <> rt_None, 'Taking wrong resource from Serf');
-  Carry := rt_None;
+  Assert(Carry <> rt_None, 'Taking wrong resource from Serf');
+  fCarry := rt_None;
 end;
 
 
