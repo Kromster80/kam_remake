@@ -419,7 +419,10 @@ for iO:=1 to OfferCount do
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Creating delivery ID', i);
 
   //Now we have best job and can perform it
-  Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
+  if fDemand[iD].Loc_House <> nil then
+    Result := TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fOffer[iO].Resource, i)
+  else
+    Result := TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i)
 end;
 
 
