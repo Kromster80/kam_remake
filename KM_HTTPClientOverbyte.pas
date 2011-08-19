@@ -60,10 +60,13 @@ begin
     exit;
   end;
 
-  if fHTTPClient.RcvdStream.Size = 0 then exit;
-  SetLength(RcvdText,fHTTPClient.RcvdStream.Size);
-  Move(TMemoryStream(fHTTPClient.RcvdStream).Memory^, RcvdText[1], fHTTPClient.RcvdStream.Size);
-  TMemoryStream(fHTTPClient.RcvdStream).Clear;
+  RcvdText := '';
+  if fHTTPClient.RcvdStream.Size > 0 then
+  begin
+    SetLength(RcvdText,fHTTPClient.RcvdStream.Size);
+    Move(TMemoryStream(fHTTPClient.RcvdStream).Memory^, RcvdText[1], fHTTPClient.RcvdStream.Size);
+    TMemoryStream(fHTTPClient.RcvdStream).Clear;
+  end;
 
   if Assigned(fOnGetCompleted) then
     fOnGetCompleted(RcvdText);

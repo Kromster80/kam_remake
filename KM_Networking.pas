@@ -6,7 +6,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Player,
-  KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient;
+  KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient, KM_ServerQuery;
 
 //todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
 
@@ -34,6 +34,7 @@ type
   private
     fNetServer:TKMNetServer;
     fNetClient:TKMNetClient;
+    fServerQuery:TKMServerQuery;
     fLANPlayerKind: TLANPlayerKind; //Our role (Host or Joiner)
     fLANGameState: TLANGameState;
     fHostAddress:string;
@@ -71,7 +72,7 @@ type
     procedure PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
   public
-    constructor Create;
+    constructor Create(aMasterServerAddress:string);
     destructor Destroy; override;
 
     property MyIndex:integer read fMyIndex;
@@ -79,6 +80,7 @@ type
     function IsHost:boolean;
 
     //Lobby
+    property ServerQuery:TKMServerQuery read fServerQuery;
     procedure Host(aUserName:string);
     procedure Join(aServerAddress,aUserName:string);
     procedure LeaveLobby;
@@ -133,14 +135,15 @@ implementation
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create;
+constructor TKMNetworking.Create(aMasterServerAddress:string);
 begin
-  Inherited;
+  Inherited Create;
   fLANGameState := lgs_None;
   fMapInfo := TKMapInfo.Create;
   fNetServer := TKMNetServer.Create(false); //Do not allow multiple rooms as we are just creating a single game
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
+  fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
 end;
 
 
@@ -150,6 +153,7 @@ begin
   fNetServer.Free;
   fNetClient.Free;
   fMapInfo.Free;
+  fServerQuery.Free;
   Inherited;
 end;
 
@@ -983,6 +987,7 @@ begin
   //LNet requires network update calls unless it is being used as visual components
   fNetServer.UpdateStateIdle;
   fNetClient.UpdateStateIdle;
+  fServerQuery.UpdateStateIdle;
 end;
 
 

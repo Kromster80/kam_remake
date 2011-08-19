@@ -33,6 +33,7 @@ type
     procedure Create_Single_Page;
     procedure Create_Load_Page;
     procedure Create_MultiPlayer_Page;
+    procedure Create_NewMultiPlayer_Page;
     procedure Create_LANLogin_Page;
     procedure Create_Lobby_Page;
     procedure Create_MapEditor_Page;
@@ -55,6 +56,9 @@ type
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
+
+    procedure MP_RefreshClick(Sender: TObject);
+    procedure MP_ListUpdated(Sender: TObject);
 
     procedure LAN_Update(const aStatus:string);
     procedure LAN_HostClick(Sender: TObject);
@@ -114,6 +118,16 @@ type
       Button_MP_LAN,
       Button_MP_WWW,
       Button_MP_Back:TKMButton;
+    Panel_NewMultiPlayer:TKMPanel;
+      Edit_MP_Name: TKMEdit;
+      Button_MP_Join,
+      Button_MP_Refresh,
+      Button_MP_BackNew:TKMButton;
+      Panel_MPCreateServer:TKMPanel;
+        Edit_MP_ServerName: TKMEdit;
+        Button_MP_CreateLAN,
+        Button_MP_CreateWAN: TKMButton;
+      Panel_MPServerList:TKMPanel;
 
       Panel_LANLogin:TKMPanel;
         Panel_LANLogin2:TKMPanel;
@@ -265,6 +279,7 @@ begin
     Create_Single_Page;
     Create_Load_Page;
   Create_MultiPlayer_Page;
+    Create_NewMultiPlayer_Page;
     Create_LANLogin_Page;
     Create_Lobby_Page;
   Create_MapEditor_Page;
@@ -424,10 +439,36 @@ begin
       Button_MP_WWW  := TKMButton.Create(Panel_MPButtons,0, 40,350,30,fTextLibrary[TX_MENU_INTERNET],fnt_Metal,bsMenu);
       Button_MP_LAN.OnClick := SwitchMenuPage;
       Button_MP_WWW.OnClick := SwitchMenuPage;
-      Button_MP_WWW.Disable;
 
     Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MP_Back.OnClick := SwitchMenuPage;
+end;
+
+
+procedure TKMMainMenuInterface.Create_NewMultiPlayer_Page;
+begin
+  Panel_NewMultiPlayer := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+
+      //Top area
+      TKMLabel.Create(Panel_NewMultiPlayer, 45, 80, 120, 10, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Metal, kaLeft);
+      Edit_MP_Name := TKMEdit.Create(Panel_NewMultiPlayer, 45, 100, 120, 20, fnt_Grey);
+
+      //Create server area
+      Panel_MPCreateServer := TKMPanel.Create(Panel_NewMultiPlayer, 700, 100, 400, 400);
+        TKMLabel.Create(Panel_MPCreateServer, 0, 0, 120, 10, 'Server Name', fnt_Metal, kaLeft);
+        Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 0, 40, 120, 20, fnt_Grey);
+        Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,0, 100,200,30,fTextLibrary[TX_MENU_LAN],fnt_Metal,bsMenu);
+        Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,0, 140,200,30,fTextLibrary[TX_MENU_INTERNET],fnt_Metal,bsMenu);
+
+      //Server list area
+      Button_MP_Join  := TKMButton.Create(Panel_NewMultiPlayer,400, 550,150,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
+      Button_MP_Refresh := TKMButton.Create(Panel_NewMultiPlayer,45, 550,150,30,'Refresh',fnt_Metal,bsMenu);
+      Button_MP_Refresh.OnClick := MP_RefreshClick;
+
+      //Server detail area
+
+    Button_MP_BackNew := TKMButton.Create(Panel_NewMultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MP_BackNew.OnClick := SwitchMenuPage;
 end;
 
 
@@ -858,7 +899,8 @@ begin
     Panel_LANLogin.Show;
 
   {Return to MultiPlayerMenu}
-  if Sender=Button_LAN_LoginBack then
+  if (Sender=Button_LAN_LoginBack) or
+     (Sender=Button_MP_BackNew) then
   begin
     Panel_MultiPlayer.Show;
   end;
@@ -919,6 +961,12 @@ begin
     fGame.NetworkInit;
     LAN_Update(fTextLibrary[TX_LOBBY_READY]);
     Panel_LANLogin.Show;
+  end;
+
+  {Show new multiplayer page}
+  if Sender=Button_MP_WWW then begin
+    fGame.NetworkInit;
+    Panel_NewMultiPlayer.Show;
   end;
 
   { Lobby }
@@ -1124,6 +1172,19 @@ procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   if not InRange(SingleMap_Selected, 0, SingleMapsInfo.Count-1) then exit; //Some odd index
   fGame.StartSingleMap(KMMapNameToPath(SingleMapsInfo[SingleMap_Selected].Folder,'dat'),SingleMapsInfo[SingleMap_Selected].Folder); //Provide mission filename mask and title here
+end;
+
+
+procedure TKMMainMenuInterface.MP_RefreshClick(Sender: TObject);
+begin
+  fGame.Networking.ServerQuery.RefreshList;
+  fGame.Networking.ServerQuery.OnListUpdated := MP_ListUpdated;
+end;
+
+
+procedure TKMMainMenuInterface.MP_ListUpdated(Sender: TObject);
+begin
+  //Refresh the display for the list of servers
 end;
 
 

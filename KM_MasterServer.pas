@@ -9,15 +9,18 @@ type
     fHTTPClient: TKMHTTPClient;
     fMasterServerAddress: string;
     fOnError:TGetStrProc;
+    fOnServerList:TGetStrProc;
 
-    //procedure Receive(const S: string);
+    procedure Receive(const S: string);
     procedure Error(const S: string);
   public
     constructor Create(aMasterServerAddress:string);
     destructor Destroy; override;
 
     property OnError:TGetStrProc write fOnError;
+    property OnServerList:TGetStrProc write fOnServerList;
     procedure AnnounceServer(aPort:string; aTTL:integer);
+    procedure QueryServer;
     procedure UpdateStateIdle;
   end;
 
@@ -47,10 +50,23 @@ begin
 end;
 
 
+procedure TKMMasterServer.Receive(const S: string);
+begin
+  if Assigned(fOnServerList) then fOnServerList(S);
+end;
+
+
 procedure TKMMasterServer.AnnounceServer(aPort:string; aTTL:integer);
 begin
   fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?port='+aPort+'&ttl='+IntToStr(aTTL));
   fHTTPClient.OnReceive := nil; //We don't care about the response
+end;
+
+
+procedure TKMMasterServer.QueryServer;
+begin
+  fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php');
+  fHTTPClient.OnReceive := Receive;
 end;
 
 

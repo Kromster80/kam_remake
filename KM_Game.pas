@@ -892,7 +892,7 @@ end;
 procedure TKMGame.NetworkInit;
 begin
   if fNetworking = nil then
-    fNetworking := TKMNetworking.Create;
+    fNetworking := TKMNetworking.Create(fGlobalSettings.MasterServerAddress);
 end;
 
 

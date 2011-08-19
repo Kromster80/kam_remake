@@ -26,6 +26,7 @@ type
     fVSync:boolean;
     fMultiplayerName:string;
     fMultiplayerIP:string;
+    fMasterServerAddress:string;
     function LoadSettingsFromFile(FileName:string):boolean;
     procedure SaveSettingsToFile(FileName:string);
 
@@ -40,6 +41,7 @@ type
     procedure SetSoundFXVolume(aValue:byte);
     procedure SetMultiplayerName(aValue:string);
     procedure SetMultiplayerIP(aValue:string);
+    procedure SetMasterServerAddress(aValue:string);
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
@@ -65,6 +67,7 @@ type
     property VSync:boolean read fVSync;
     property MultiplayerName:string read fMultiplayerName write SetMultiplayerName;
     property MultiplayerIP:string read fMultiplayerIP write SetMultiplayerIP;
+    property MasterServerAddress:string read fMasterServerAddress write SetMasterServerAddress;
   end;
 
 
@@ -126,6 +129,7 @@ begin
 
   fMultiplayerName := f.ReadString('Multiplayer','Name','NoName');
   fMultiplayerIP   := f.ReadString('Multiplayer','IP','127.0.0.1');
+  fMasterServerAddress := f.ReadString('Multiplayer','MasterServer','http://lewin.hodgman.id.au/kam_remake_master_server/');
 
   FreeAndNil(f);
   fNeedsSave := false;
@@ -158,6 +162,7 @@ begin
 
   f.WriteString('Multiplayer','Name',fMultiplayerName);
   f.WriteString('Multiplayer','IP',fMultiplayerIP);
+  f.WriteString('Multiplayer','MasterServer',fMasterServerAddress);
 
   f.UpdateFile; //Write changes to file
   FreeAndNil(f);
@@ -229,6 +234,13 @@ end;
 procedure TGlobalSettings.SetMultiplayerIP(aValue:string);
 begin
   fMultiplayerIP := aValue;
+  fNeedsSave := true;
+end;
+
+
+procedure TGlobalSettings.SetMasterServerAddress(aValue:string);
+begin
+  fMasterServerAddress := aValue;
   fNeedsSave := true;
 end;
 

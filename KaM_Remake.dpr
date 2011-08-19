@@ -52,6 +52,7 @@ uses
   KM_ResourceHouse in 'KM_ResourceHouse.pas',
   KM_ResourcePalettes in 'KM_ResourcePalettes.pas',
   KM_ResourceUnit in 'KM_ResourceUnit.pas',
+  KM_ServerQuery in 'KM_ServerQuery.pas',
   KM_Settings in 'KM_Settings.pas',
   KM_Sound in 'KM_Sound.pas',
   KM_Terrain in 'KM_Terrain.pas',
