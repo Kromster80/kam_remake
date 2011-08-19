@@ -788,6 +788,9 @@ begin
 end;
 
 
+//todo: Store/Barracks/Market don't really have an In/Out separation. The code enforcing it looks just confusing and behaves unexpected
+//Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
+//But.. if we add "Evacuate" button to all house the separation becomes artificial..
 procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 var i:integer;
 begin
