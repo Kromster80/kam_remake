@@ -8,6 +8,12 @@ uses
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils, KM_Points;
 
 
+const
+  BarracksResCount = 11;
+  BarracksResType: array[1..BarracksResCount] of TResourceType =
+    (rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe, rt_Sword,
+     rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet, rt_Horse);
+
 type
   TKMGamePlayInterface = class
   private
@@ -251,7 +257,7 @@ type
       Image_School_Right,Image_School_Train,Image_School_Left:TKMImage;
       Button_School_Right,Button_School_Train,Button_School_Left:TKMButton;
     Panel_HouseBarracks:TKMPanel;
-      Button_Barracks:array[1..12]of TKMButtonFlat;
+      Button_Barracks:array[1..BarracksResCount+1]of TKMButtonFlat;
       Label_Barracks_Unit:TKMLabel;
       Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
       Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
@@ -1349,17 +1355,21 @@ procedure TKMGamePlayInterface.Create_Barracks_Page;
 var i:integer;
 begin
     Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
-      for i:=1 to 12 do
+      for i:=Low(Button_Barracks) to High(Button_Barracks) do
       begin
-        Button_Barracks[i]:=TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,366+i);
-        Button_Barracks[i].TexOffsetX:=1;
-        Button_Barracks[i].TexOffsetY:=1;
-        Button_Barracks[i].CapOffsetY:=2;
-        Button_Barracks[i].HideHighlight:=true;
-        Button_Barracks[i].Hint:=TypeToString(TResourceType(16+i));
+        Button_Barracks[i] := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
+        Button_Barracks[i].TexOffsetX := 1;
+        Button_Barracks[i].TexOffsetY := 1;
+        Button_Barracks[i].CapOffsetY := 2;
+        Button_Barracks[i].HideHighlight := True;
       end;
-      Button_Barracks[12].TexID:=154;
-      Button_Barracks[12].Hint:=fResource.UnitDat[ut_Recruit].UnitName;
+      for i:=1 to BarracksResCount do
+      begin
+        Button_Barracks[i].TexID := 350 + Byte(BarracksResType[i]);
+        Button_Barracks[i].Hint := TypeToString(BarracksResType[i]);
+      end;
+      Button_Barracks[BarracksResCount+1].TexID := fResource.UnitDat[ut_Recruit].GUIIcon;
+      Button_Barracks[BarracksResCount+1].Hint := fResource.UnitDat[ut_Recruit].UnitName;
 
       Label_Barracks_Unit:=TKMLabel.Create(Panel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
 
@@ -1804,7 +1814,7 @@ end;
 
 
 procedure TKMGamePlayInterface.House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
-var i, k, Tmp: integer; Barracks:TKMHouseBarracks; CanEquip: boolean;
+var i, k, Tmp: integer; Barracks:TKMHouseBarracks;
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseBarracks) then exit;
@@ -1823,24 +1833,21 @@ begin
     else if AButton = mbRight then
       fGame.GameInputProcess.CmdHouse(gic_HouseTrain, Barracks, Barracks_Order[LastBarracksUnit], 10);
 
-  CanEquip:=true;
-  for i:=1 to 12 do begin
-    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.Selected).CheckResIn(TResourceType(i+16))
-                    else Tmp:=TKMHouseBarracks(fPlayers.Selected).RecruitsList.Count;
-    if Tmp=0 then Button_Barracks[i].Caption:='-'
-             else Button_Barracks[i].Caption:=inttostr(Tmp);
+  for i:=1 to BarracksResCount do begin
+    Tmp := Barracks.CheckResIn(BarracksResType[i]);
+    Button_Barracks[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
     //Set highlights
-    Button_Barracks[i].Down:=false;
+    Button_Barracks[i].Down := False;
     for k:=1 to 4 do
-      if i = TroopCost[Barracks_Order[LastBarracksUnit],k] then
-      begin
-        Button_Barracks[i].Down:=true;
-        if Tmp=0 then CanEquip := false; //Can't equip if we don't have a required resource
-      end;
+      if BarracksResType[i] = TroopCost[Barracks_Order[LastBarracksUnit],k] then
+        Button_Barracks[i].Down := True;
   end;
-  Button_Barracks[12].Down:=true; //Recruit is always enabled, all troops require one
+    
+  Tmp := Barracks.RecruitsList.Count;
+  Button_Barracks[12].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
+  Button_Barracks[12].Down := True; //Recruit is always enabled, all troops require one
 
-  Button_Barracks_Train.Enabled := CanEquip and (Barracks.RecruitsList.Count > 0);
+  Button_Barracks_Train.Enabled := Barracks.CanEquip(Barracks_Order[LastBarracksUnit]);
   Button_Barracks_Left.Enabled := LastBarracksUnit > 0;
   Button_Barracks_Right.Enabled := LastBarracksUnit < High(Barracks_Order);
   Image_Barracks_Left.Visible:= Button_Barracks_Left.Enabled;

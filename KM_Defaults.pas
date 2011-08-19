@@ -543,17 +543,18 @@ const
     19, 20, 21, 22);
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
-  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of byte = (
-  (5, 0, 0, 0), //Militia
-  (1, 3, 5, 0), //Axefighter
-  (2, 4, 6, 0), //Swordfighter
-  (3, 9, 0, 0), //Bowman
-  (4,10, 0, 0), //Crossbowman
-  (3, 7, 0, 0), //Lance Carrier
-  (4, 8, 0, 0), //Pikeman
-  (1, 3, 5,11), //Scout
-  (2, 4, 6,11)  //Knight
+  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of TResourceType = (
+  (rt_Axe,          rt_None,        rt_None,  rt_None ), //Militia
+  (rt_Shield,       rt_Armor,       rt_Axe,   rt_None ), //Axefighter
+  (rt_MetalShield,  rt_MetalArmor,  rt_Sword, rt_None ), //Swordfighter
+  (rt_Armor,        rt_Bow,         rt_None,  rt_None ), //Bowman
+  (rt_MetalArmor,   rt_Arbalet,     rt_None,  rt_None ), //Crossbowman
+  (rt_Armor,        rt_Pike,        rt_None,  rt_None ), //Lance Carrier
+  (rt_MetalArmor,   rt_Hallebard,   rt_None,  rt_None ), //Pikeman
+  (rt_Shield,       rt_Armor,       rt_Axe,   rt_Horse), //Scout
+  (rt_MetalShield,  rt_MetalArmor,  rt_Sword, rt_Horse)  //Knight
   );
+
 
   //For now it is the same as KaM
   //The number means how many items should be in houses input max

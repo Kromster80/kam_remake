@@ -193,7 +193,7 @@ type
   {Barracks has 11 resources and Recruits}
   TKMHouseBarracks = class(TKMHouse)
   private
-    ResourceCount:array[1..11]of word;
+    ResourceCount:array[rt_Shield..rt_Horse]of word;
   public
     RecruitsList: TList;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
@@ -646,8 +646,8 @@ end;
 {Add repair to the house}
 procedure TKMHouse.AddRepair(aAmount:word=5);
 begin
-  fDamage:= EnsureRange(fDamage - aAmount,0,High(Word));
-  if (fDamage=0) then
+  fDamage := EnsureRange(fDamage - aAmount,0,High(Word));
+  if fDamage = 0 then
     fPlayers.Player[fOwner].BuildList.RemoveHouseRepair(Self);
   UpdateDamage;
 end;
@@ -655,7 +655,7 @@ end;
 
 {Update house damage animation}
 procedure TKMHouse.UpdateDamage;
-var Dmg: integer;
+var Dmg: word;
 begin
   Dmg := MaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
   fCurrentAction.SubActionRem([ha_Fire1,ha_Fire2,ha_Fire3,ha_Fire4,ha_Fire5,ha_Fire6,ha_Fire7,ha_Fire8]);
@@ -1469,6 +1469,7 @@ begin
 end;
 
 
+{ TKMHouseBarracks }
 constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
 begin
   Inherited;
@@ -1508,13 +1509,13 @@ end;
 
 
 procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; const aCount:word=1);
-var i:integer;
+var i:TResourceType;
 begin
   case aResource of
-    rt_Warfare: for i:=1 to length(ResourceCount) do
-                ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,High(Word));
+    rt_Warfare: for i:=Low(ResourceCount) to High(ResourceCount) do
+                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
     rt_Shield..
-    rt_Horse:   ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,High(Word))
+    rt_Horse:   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
     else        raise ELocError.Create('Cant''t add '+TypeToString(aResource), GetPosition);
   end;
 end;
@@ -1522,18 +1523,14 @@ end;
 
 function TKMHouseBarracks.CheckResIn(aResource:TResourceType):word;
 begin
-  if aResource in [rt_Shield..rt_Horse] then
-    Result:=ResourceCount[byte(aResource)-16]
-  else
-    Result:=0;
+  Result := ResourceCount[aResource];
 end;
 
 
 procedure TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
 begin
-  Assert(aResource in [rt_Shield..rt_Horse]);
-  Assert(aCount <= ResourceCount[byte(aResource)-16]);
-  dec(ResourceCount[byte(aResource)-16], aCount);
+  Assert(aCount <= ResourceCount[aResource]);
+  dec(ResourceCount[aResource], aCount);
 end;
 
 
@@ -1543,7 +1540,7 @@ begin
   Result := RecruitsList.Count > 0; //Can't equip anything without recruits
 
   for i:=1 to 4 do
-  if TroopCost[aUnitType,i]<>0 then //Can't equip if we don't have a required resource
+  if TroopCost[aUnitType,i] <> rt_None then //Can't equip if we don't have a required resource
     Result := Result and (ResourceCount[TroopCost[aUnitType,i]] > 0);
 end;
 
@@ -1565,7 +1562,7 @@ begin
 
     //Take resources
     for i:=1 to 4 do
-      if TroopCost[aUnitType,i]<>0 then
+      if TroopCost[aUnitType,i] <> rt_None then
         dec(ResourceCount[TroopCost[aUnitType,i]]);
 
     TKMUnitRecruit(RecruitsList.Items[0]).DestroyInBarracks; //Special way to kill the unit because it is in a house

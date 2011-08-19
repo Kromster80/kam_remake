@@ -577,16 +577,17 @@ var
   Enemy:TKMUnit;
 begin
   Result := nil;
-  if (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
+  
+  if (fHome is TKMHouseTower) and (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone) <= 0) then
+    Exit; //Nothing to throw
 
   Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA);
 
-  //Note: In actual game there might be two Towers nearby, both throwing a stone into the same enemy.
-  //We should not negate that fact, thats real-life situation.
+  //Note: In actual game there might be two Towers nearby,
+  //both throwing a stone into the same enemy. We should not
+  //negate that fact, thats real-life situation.
 
-  if Enemy = nil then
-    Result := nil
-  else
+  if Enemy <> nil then
     Result := TTaskThrowRock.Create(Self, Enemy);
 end;
 
