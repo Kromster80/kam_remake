@@ -190,8 +190,10 @@ procedure TKMGame.ToggleLocale(aLocale:shortstring);
 begin
   fGlobalSettings.Locale := aLocale; //Wrong Locale will be ignored
   FreeAndNil(fMainMenuInterface);
+  FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
+  fSoundLib := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax);
   fResource.ResourceFont.LoadFonts(fGlobalSettings.Locale);
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings);
   fMainMenuInterface.ShowScreen(msOptions);

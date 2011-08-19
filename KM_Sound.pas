@@ -16,7 +16,7 @@ const
     MAX_SOURCES = 32; //depends on hardware as well
     MAX_DISTANCE = 32; //After this distance sounds are completely mute
 
-    WarriorSFXFolder: array[15..24] of string = (
+    WarriorSFXFolder: array[ut_Militia..ut_Barbarian] of string = (
         'MILITIA','AXEMAN','SWORDMAN',
         'BOWMAN','CROSSBOWMAN','LANCEMAN',
         'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN');
@@ -49,8 +49,8 @@ type
     fWavesCount:integer;
     fWaves: array of record
       Head: TWAVHeaderEx;
-      Data: array of char;
-      Foot: array of char;
+      Data: array of byte;
+      Foot: array of byte;
       IsLoaded:boolean;
     end;
     fListener:record
@@ -82,14 +82,17 @@ type
     end;
 
     fSoundGain:single; //aka "Global volume"
+    fLocale:string; //Locale used to access warrior sounds
     fWarriorSoundCount: array[ut_Militia..ut_Barbarian, TSoundToPlay] of byte;
-    procedure LoadSoundsDAT;
     procedure CheckOpenALError;
-    function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
+    procedure LoadSoundsDAT;
+    procedure ScanWarriorSounds;
+    function WarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte):string;
   public
     constructor Create(aLocale:string; aVolume:single);
     destructor Destroy; override;
     function ActiveCount:byte;
+    
     procedure ExportSounds;
     procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);
@@ -111,12 +114,12 @@ uses KM_RenderAux, KM_Game, KM_Log, Dialogs, KM_ResourceGFX, KM_ResourceUnit;
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
 var
   Context: PALCcontext;
-  i,k:integer;
-  U:TUnitType;
+  i:integer;
   NumMono,NumStereo:TALCint;
-  s:TSoundToPlay;
 begin
   Inherited Create;
+
+  fLocale := aLocale;
 
   fIsSoundInitialized := InitOpenAL;
   if not fIsSoundInitialized then begin
@@ -157,7 +160,7 @@ begin
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
-  fLog.AppendLog('Pre-LoadSFX init',true);
+  fLog.AppendLog('Pre-LoadSFX init', True);
 
   alcGetIntegerv(fALDevice, ALC_MONO_SOURCES, 4, @NumMono);
   alcGetIntegerv(fALDevice, ALC_STEREO_SOURCES, 4, @NumStereo);
@@ -184,15 +187,7 @@ begin
   LoadSoundsDAT;
   fLog.AppendLog('Load Sounds.dat',true);
 
-  //Scan and count the number of warrior sounds
-  for U:=ut_Militia to ut_Barbarian do
-    for s:=low(TSoundToPlay) to high(TSoundToPlay) do
-      for k:=0 to 255 do
-        if not FileExists(GetWarriorSoundFile(U, s, k, aLocale)) then
-        begin
-          fWarriorSoundCount[U,s] := k;
-          break;
-        end;
+  ScanWarriorSounds;
   fLog.AppendLog('Warrior sounds scanned',true);
 end;
 
@@ -226,7 +221,7 @@ end;
 
 procedure TSoundLib.LoadSoundsDAT;
 var
-  f:file;
+  S:TMemoryStream;
   Head:record Size,Count:word; end;
   Tab1:array[1..200]of integer;
   Tab2:array[1..200]of smallint;
@@ -234,28 +229,26 @@ var
 begin
   if not fIsSoundInitialized then exit;
   if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
-  AssignFile(f, ExeDir+'data\sfx\sounds.dat');
-  FileMode := 0;
-  Reset(f,1);
-  FileMode := 2;
 
-  BlockRead(f, Head, 4); //Read 4 bytes into Head record
-  BlockRead(f, Tab1, Head.Count*4); //Read Count*4bytes into Tab1(WaveSizes)
-  BlockRead(f, Tab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)
+  S := TMemoryStream.Create;
+  S.LoadFromFile(ExeDir + 'data\sfx\sounds.dat');
+  S.Read(Head, 4);
+  S.Read(Tab1, Head.Count*4); //Read Count*4bytes into Tab1(WaveSizes)
+  S.Read(Tab2, Head.Count*2); //Read Count*2bytes into Tab2(No idea what is it)
 
   fWavesCount := Head.Count;
-  setlength(fWaves, fWavesCount+1);
+  SetLength(fWaves, fWavesCount+1);
 
   for i:=1 to Head.Count do begin
-    BlockRead(f,Tmp,4); //Always '1' for existing waves
+    S.Read(Tmp, 4); //Always '1' for existing waves
     if Tab1[i]<>0 then begin
-      BlockRead(f,fWaves[i].Head,SizeOf(fWaves[i].Head));
-      setlength(fWaves[i].Data,fWaves[i].Head.DataSize);
-      BlockRead(f,fWaves[i].Data[0],fWaves[i].Head.DataSize);
-      setlength(fWaves[i].Foot,Tab1[i]-SizeOf(fWaves[i].Head)-fWaves[i].Head.DataSize);
-      BlockRead(f,fWaves[i].Foot[0],Tab1[i]-SizeOf(fWaves[i].Head)-fWaves[i].Head.DataSize);
+      S.Read(fWaves[i].Head, SizeOf(fWaves[i].Head));
+      SetLength(fWaves[i].Data, fWaves[i].Head.DataSize);
+      S.Read(fWaves[i].Data[0], fWaves[i].Head.DataSize);
+      SetLength(fWaves[i].Foot, Tab1[i]-SizeOf(fWaves[i].Head)-fWaves[i].Head.DataSize);
+      S.Read(fWaves[i].Foot[0], Tab1[i]-SizeOf(fWaves[i].Head)-fWaves[i].Head.DataSize);
     end;
-    fWaves[i].IsLoaded := true;
+    fWaves[i].IsLoaded := True;
   end;
 
   {BlockRead(f,c,20);
@@ -264,23 +257,27 @@ begin
   //i,j,k,l,Index:word;
   BlockRead(f,Props[1],26*Head.Count);}
 
-  CloseFile(f);
+  S.Free;
 end;
 
 
 procedure TSoundLib.ExportSounds;
-var f:file; i:integer;
+var i:integer; S:TMemoryStream;
 begin
   if not fIsSoundInitialized then exit;
+
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\Sounds.dat\');
-  for i:=1 to fWavesCount do if length(fWaves[i].Data)>0 then begin
-    assignfile(f,ExeDir+'Export\Sounds.dat\sound_'+int2fix(i,3)+'_'+SSoundFX[TSoundFX(i)]+'.wav'); rewrite(f,1);
-    //Waves[i].Head.SampleRate := Waves[i].Head.SampleRate div 2; //Make it half speed?
-    blockwrite(f,fWaves[i].Head,SizeOf(fWaves[i].Head));
-    blockwrite(f,fWaves[i].Data[0],length(fWaves[i].Data));
-    blockwrite(f,fWaves[i].Foot[0],length(fWaves[i].Foot));
-    closefile(f);
+
+  for i:=1 to fWavesCount do
+  if Length(fWaves[i].Data) > 0 then
+  begin
+    S := TMemoryStream.Create;
+    S.Write(fWaves[i].Head, SizeOf(fWaves[i].Head));
+    S.Write(fWaves[i].Data[0], SizeOf(fWaves[i].Data));
+    S.Write(fWaves[i].Foot[0], SizeOf(fWaves[i].Foot));
+    S.SaveToFile(ExeDir+'Export\Sounds.dat\sound_'+int2fix(i,3)+'_'+SSoundFX[TSoundFX(i)]+'.wav');
+    S.Free;
   end;
 end;
 
@@ -322,11 +319,11 @@ var Dif:array[1..3]of single;
   i,ID:integer;
   ALState:TALint;
 begin
-  if SoundID = sfx_None then exit; //No sound
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
+  if SoundID = sfx_None then Exit;
 
   //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being filled with sounds on the other side of the map.
-  if Attenuated and (GetLength(Loc,KMPoint(Round(fListener.Pos[1]),Round(fListener.Pos[2]))) > MAX_DISTANCE) then exit;
+  if Attenuated and (GetLength(Loc.X-fListener.Pos[1], Loc.Y-fListener.Pos[2]) > MAX_DISTANCE) then Exit;
 
   //Here should be some sort of RenderQueue/List/Clip
 
@@ -342,11 +339,11 @@ begin
   for i:=1 to MAX_SOUNDS do begin
     alGetSourcei(fSound[i].ALSource, AL_SOURCE_STATE, @ALState);
     if ALState<>AL_PLAYING then begin
-      FreeBuf:=i;
-      break;
+      FreeBuf := i;
+      Break;
     end;
   end;
-  if FreeBuf = 0 then exit;//Don't play if there's no room left
+  if FreeBuf = 0 then Exit;//Don't play if there's no room left
 
   ID := word(SoundID);
   Assert(fWaves[ID].IsLoaded);
@@ -388,15 +385,11 @@ begin
 end;
 
 
-function TSoundLib.GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
+function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte):string;
 begin
   if not fIsSoundInitialized then exit;
-  if (aLocale = '') and (fGame <> nil) and (fGame.GlobalSettings <> nil) then
-    aLocale := fGame.GlobalSettings.Locale;
-  if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
-    Result := ''
-  else
-    Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[UnitKaMOrder[aUnitType]] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
+
+  Result := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
 end;
 
 
@@ -407,9 +400,9 @@ procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 var wave:string;
 begin
   if not fIsSoundInitialized then exit;
-  if not (aUnitType in [ut_Militia .. ut_Barbarian]) then exit;
+
   //File extension must be .wav as well as the file contents itself
-  wave := GetWarriorSoundFile(aUnitType, aSound, PseudoRandom(fWarriorSoundCount[aUnitType,aSound]));
+  wave := WarriorSoundFile(aUnitType, aSound, PseudoRandom(fWarriorSoundCount[aUnitType, aSound]));
   {$IFDEF WDC}
   if FileExists(wave) then
     sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC) //Override any previous voice playing
@@ -425,9 +418,9 @@ begin
   Result := 0;
   for i:=1 to MAX_SOUNDS do
   if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
-      inc(Result)
-    else
-      fSound[i].PlaySince := 0;
+    inc(Result)
+  else
+    fSound[i].PlaySince := 0;
 end;
 
 
@@ -442,6 +435,30 @@ begin
     fRenderAux.Text(fSound[i].Position.X, fSound[i].Position.Y, fSound[i].Name, $FFFFFFFF);
   end else
     fSound[i].PlaySince := 0;
+end;
+
+
+//Scan and count the number of warrior sounds
+procedure TSoundLib.ScanWarriorSounds;
+var
+  i:integer;
+  U:TUnitType;
+  s:TSoundToPlay;
+begin
+  FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
+
+  if not DirectoryExists(ExeDir + 'data\sfx\speech.'+fLocale+'\') then Exit;
+
+  //If the folder exists it is likely all the sounds are there
+  for U:=ut_Militia to ut_Barbarian do
+    for S:=Low(TSoundToPlay) to High(TSoundToPlay) do
+      for i:=0 to 255 do
+        if not FileExists(WarriorSoundFile(U, S, i)) then
+        begin
+          fWarriorSoundCount[U,S] := i;
+          //fLog.AddToLog('Found sounds: '+fLocale+'\' + WarriorSFXFolder[U] + '\' + WarriorSFX[S] + IntToStr(i) + '.wav');
+          break;
+        end;
 end;
 
 
