@@ -3,7 +3,7 @@ unit KM_Houses;
 interface
 uses
    Classes, KromUtils, Math, SysUtils,
-   KM_CommonTypes, KM_Defaults, KM_Utils, KM_ResourceGFX, KM_ResourceHouse, KM_Points;
+   KM_CommonTypes, KM_Defaults, KM_ResourceGFX, KM_ResourceHouse, KM_Points, KM_Utils;
 
   {Everything related to houses is here}
 type
@@ -58,7 +58,6 @@ type
     fPointerCount:integer;
     fTimeSinceUnoccupiedReminder:integer;
 
-
     procedure Activate(aWasBuilt:boolean);
     procedure CloseHouse(IsEditor:boolean=false); virtual;
     procedure SetWareDelivery(aVal:boolean);
@@ -76,7 +75,7 @@ type
     destructor Destroy; override;
     function GetHousePointer:TKMHouse; //Returns self and adds one to the pointer counter
     procedure ReleaseHousePointer; //Decreases the pointer counter
-    property GetPointerCount:integer read fPointerCount;
+    property PointerCount:integer read fPointerCount;
 
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
     property ID:integer read fID;
@@ -101,7 +100,7 @@ type
 
     property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
-    function GetMaxHealth:word;
+    function MaxHealth:word;
     function  AddDamage(aAmount:word; aIsEditor:boolean=false):boolean;
     procedure AddRepair(aAmount:word=5);
     procedure UpdateDamage;
@@ -579,22 +578,22 @@ procedure TKMHouse.IncBuildingProgress;
 begin
   if IsComplete then exit;
 
-  if (fBuildState=hbs_Wood)and(fBuildReserve = 0) then begin
+  if (fBuildState=hbs_Wood) and (fBuildReserve = 0) then begin
     dec(fBuildSupplyWood);
     inc(fBuildReserve,50);
   end;
-  if (fBuildState=hbs_Stone)and(fBuildReserve = 0) then begin
+  if (fBuildState=hbs_Stone) and (fBuildReserve = 0) then begin
     dec(fBuildSupplyStone);
     inc(fBuildReserve,50);
   end;
 
-  inc(fBuildingProgress,5); //is how many effort was put into building nevermind applied damage
-  dec(fBuildReserve,5); //This is reserve we build from
+  inc(fBuildingProgress, 5); //is how many effort was put into building nevermind applied damage
+  dec(fBuildReserve, 5); //This is reserve we build from
 
-  if (fBuildState=hbs_Wood)and(fBuildingProgress = fResource.HouseDat[fHouseType].WoodCost*50) then
-    fBuildState:=hbs_Stone;
+  if (fBuildState=hbs_Wood) and (fBuildingProgress = fResource.HouseDat[fHouseType].WoodCost*50) then
+    fBuildState := hbs_Stone;
 
-  if (fBuildState=hbs_Stone)and(fBuildingProgress-fResource.HouseDat[fHouseType].WoodCost*50 = fResource.HouseDat[fHouseType].StoneCost*50) then
+  if (fBuildState=hbs_Stone) and (fBuildingProgress-fResource.HouseDat[fHouseType].WoodCost*50 = fResource.HouseDat[fHouseType].StoneCost*50) then
   begin
     fBuildState := hbs_Done;
     fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
@@ -606,9 +605,9 @@ begin
 end;
 
 
-function TKMHouse.GetMaxHealth:word;
+function TKMHouse.MaxHealth:word;
 begin
-  Result := fResource.HouseDat[fHouseType].WoodCost*50 + fResource.HouseDat[fHouseType].StoneCost*50;
+  Result := fResource.HouseDat[fHouseType].MaxHealth;
 end;
 
 
@@ -626,7 +625,7 @@ begin
     Exit;
   end;
 
-  fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
+  fDamage := Math.min(fDamage + aAmount, MaxHealth);
   if (fBuildState = hbs_Done) and BuildingRepair then
     fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
 
@@ -658,7 +657,7 @@ end;
 procedure TKMHouse.UpdateDamage;
 var Dmg: integer;
 begin
-  Dmg := GetMaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
+  Dmg := MaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
   fCurrentAction.SubActionRem([ha_Fire1,ha_Fire2,ha_Fire3,ha_Fire4,ha_Fire5,ha_Fire6,ha_Fire7,ha_Fire8]);
   if fDamage > 0*Dmg then fCurrentAction.SubActionAdd([ha_Fire1]);
   if fDamage > 1*Dmg then fCurrentAction.SubActionAdd([ha_Fire2]);
@@ -1909,7 +1908,7 @@ begin
   if not Houses[i].IsDestroyed then
     Houses[i].UpdateState
   else //Else try to destroy the house object if all pointers are freed
-    if FREE_POINTERS and (Houses[i].GetPointerCount = 0) then
+    if FREE_POINTERS and (Houses[i].PointerCount = 0) then
     begin
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := i;
@@ -1936,9 +1935,9 @@ end;
 function TKMHousesCollection.GetTotalPointers: integer;
 var i:integer;
 begin
-  Result:=0;
+  Result := 0;
   for i:=0 to Count-1 do
-    Result:=Result+Houses[i].GetPointerCount;
+    Result := Result + Houses[i].PointerCount;
 end;
 
 
