@@ -1224,6 +1224,10 @@ begin
   fStat_Sprites2 := 0;
 
   for i:=0 to fCount-1 do
+  //@Krom: This is causing bugs: Currently RenderOrder is stored as 0..n-1, (in ClipRenderList it sets the first sprite as 0)
+  //       but you have also made 0 mean not to be drawn. 1 sprite is not being drawn each update. (you can see it in game,
+  //       scrolling down makes it appear again) RenderOrder should use 1..n I think. I'd fix it myself but you understand
+  //       the code better :)
   if RenderOrder[i] <> 0 then
   begin
 
