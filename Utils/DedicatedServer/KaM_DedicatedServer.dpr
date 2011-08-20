@@ -13,12 +13,14 @@ uses
   {$IFDEF MSWindows}Windows,{$ENDIF}
   KM_Defaults,
   KM_Log,
+  KM_Settings,
   KM_DedicatedServer,
   KM_ServerEventHandler in 'KM_ServerEventHandler.pas';
 
 var
   fEventHandler: TKMServerEventHandler;
   fDedicatedServer: TKMDedicatedServer;
+  fSettings: TGlobalSettings;
 
 {$IFDEF MSWindows}
 procedure MyProcessMessages;
@@ -41,10 +43,15 @@ begin
   Writeln('Log file: '+fLog.LogPath);
   Writeln('');
 
-  //todo: Load these options from the config file
-  fDedicatedServer := TKMDedicatedServer.Create(2,20,1000,60,'http://lewin.hodgman.id.au/kam_remake_master_server/');
+  fSettings := TGlobalSettings.Create;
+
+  fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
+                                                fSettings.AutoKickTimeout,
+                                                fSettings.PingInterval,
+                                                fSettings.MasterAnnounceInterval,
+                                                fSettings.MasterServerAddress);
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
-  fDedicatedServer.Start(KAM_PORT,true);
+  fDedicatedServer.Start(fSettings.TCPPort, fSettings.AnnounceServer, true);
 
   while True do
   begin

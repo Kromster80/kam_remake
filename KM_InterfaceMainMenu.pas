@@ -1227,7 +1227,7 @@ begin
 
   LAN_BindEvents;
   fGame.Networking.OnHostFail := LAN_HostFail;
-  fGame.Networking.Host(Edit_LAN_Name.Text,KAM_PORT); //All events are nilled
+  fGame.Networking.Host(Edit_LAN_Name.Text, fGame.GlobalSettings.TCPPort, false); //All events are nilled
 end;
 
 
@@ -1248,7 +1248,7 @@ begin
   fGame.Networking.OnJoinSucc := LAN_JoinSuccess;
   fGame.Networking.OnJoinFail := LAN_JoinFail;
   fGame.Networking.OnJoinAssignedHost := LAN_JoinAssignedHost;
-  fGame.Networking.Join(Edit_LAN_IP.Text, KAM_PORT, Edit_LAN_Name.Text); //Init lobby
+  fGame.Networking.Join(Edit_LAN_IP.Text, fGame.GlobalSettings.TCPPort, Edit_LAN_Name.Text); //Init lobby
 end;
 
 

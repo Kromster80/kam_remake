@@ -12,16 +12,17 @@ type
     fNetServer: TKMNetServer;
     fMasterServer: TKMMasterServer;
     fOnMessage: TStringEvent;
-    fAnnounceInterval: integer;
-    fPingInterval: integer;
+    fPublishServer: boolean;
+    fAnnounceInterval: word;
+    fPingInterval: word;
     fPort:string;
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
   public
-    constructor Create(aMaxRooms, aKickTimeout:word; aPingInterval, aAnnounceInterval:integer; const aMasterServerAddress:string);
+    constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word; const aMasterServerAddress:string);
     destructor Destroy; override;
 
-    procedure Start(const aPort:string; aHandleException:boolean);
+    procedure Start(const aPort:string; aPublishServer:boolean; aHandleException:boolean);
     procedure Stop;
     procedure UpdateState;
     property OnMessage: TStringEvent write fOnMessage;
@@ -33,7 +34,7 @@ implementation
 
 
 //Announce interval of -1 means the server will not be published (LAN)
-constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout:word; aPingInterval, aAnnounceInterval:integer; const aMasterServerAddress:string);
+constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word; const aMasterServerAddress:string);
 begin
   Inherited Create;
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout);
@@ -54,9 +55,10 @@ begin
 end;
 
 
-procedure TKMDedicatedServer.Start(const aPort:string; aHandleException:boolean);
+procedure TKMDedicatedServer.Start(const aPort:string; aPublishServer:boolean; aHandleException:boolean);
 begin
   fPort := aPort;
+  fPublishServer := aPublishServer;
   fNetServer.OnStatusMessage := StatusMessage;
   try
     fNetServer.StartListening(fPort);
@@ -97,8 +99,7 @@ begin
     fLastPing := TickCount;
   end;
 
-  //If fAnnounceInterval = -1 it will not be published
-  if TickCount-fLastAnnounce >= fAnnounceInterval*1000 then
+  if fPublishServer and (TickCount-fLastAnnounce >= fAnnounceInterval*1000) then
   begin
     fMasterServer.AnnounceServer(fPort,fAnnounceInterval+10);
     fLastAnnounce := TickCount;
