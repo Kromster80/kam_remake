@@ -52,6 +52,7 @@ function RemoveQuotes(Input:string):string;
 procedure SwapStr(var A,B:string);
 procedure SwapInt(var A,B:byte); overload;
 procedure SwapInt(var A,B:shortint); overload;
+procedure SwapInt(var A,B:smallint); overload;
 procedure SwapInt(var A,B:word); overload;
 procedure SwapInt(var A,B:integer); overload;
 procedure SwapInt(var A,B:cardinal); overload;
@@ -359,8 +360,16 @@ begin
   s:=A; A:=B; B:=s;
 end;
 
+
 procedure SwapInt(var A,B:shortint);
 var s:shortint;
+begin
+  s:=A; A:=B; B:=s;
+end;
+
+
+procedure SwapInt(var A,B:smallint);
+var s:smallint;
 begin
   s:=A; A:=B; B:=s;
 end;

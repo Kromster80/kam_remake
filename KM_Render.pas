@@ -16,7 +16,7 @@ type
   TRenderList = class
   private
     fCount:word;
-    RenderOrder:array of word; //RenderOrder
+    RenderOrder:array of smallint; //Order in which sprites will be drawn ()
     RenderList:array of record
       Loc,Obj:TKMPointF;
       RX:byte;
@@ -1173,9 +1173,9 @@ begin
     //RenderQuad(P.X,P.Y);
     RenderList[i].FOWvalue := MyPlayer.FogOfWar.CheckTileRevelation(PX, PY);
     if (RenderList[i].FOWvalue <= 128) and RenderList[i].IsUnit then
-      RenderOrder[i] := 0;
+      RenderOrder[i] := -1;
   end else begin
-    RenderOrder[i] := 0;
+    RenderOrder[i] := -1;
     RenderList[i].FOWvalue := RenderList[i-1].FOWvalue; //Take from previous
   end;
 end;
@@ -1185,19 +1185,21 @@ end;
 procedure TRenderList.SortRenderList;
 var i,k:integer;
 begin
-  for i:=0 to fCount-1 do if RenderOrder[i]<>0 then //Exclude child sprites from comparison
-  for k:=i+1 to fCount-1 do if RenderOrder[k]<>0 then
-    if (RenderList[RenderOrder[k]].Loc.Y < RenderList[RenderOrder[i]].Loc.Y)
-    or((RenderList[RenderOrder[k]].Loc.Y = RenderList[RenderOrder[i]].Loc.Y)
-    and(RenderList[RenderOrder[k]].Loc.X > RenderList[RenderOrder[i]].Loc.X))
-    then //TopMost Rightmost
-      SwapInt(RenderOrder[k], RenderOrder[i])
+  for i:=0 to fCount-1 do
+    if RenderOrder[i]<>-1 then //Exclude child sprites from comparison
+      for k:=i+1 to fCount-1 do
+        if RenderOrder[k]<>-1 then
+          if (RenderList[RenderOrder[k]].Loc.Y < RenderList[RenderOrder[i]].Loc.Y)
+          or((RenderList[RenderOrder[k]].Loc.Y = RenderList[RenderOrder[i]].Loc.Y)
+          and(RenderList[RenderOrder[k]].Loc.X > RenderList[RenderOrder[i]].Loc.X))
+          then //TopMost Rightmost
+            SwapInt(RenderOrder[k], RenderOrder[i])
 end;
 
 
 procedure TRenderList.AddSprite(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:cardinal=$00000000; const Step:single=-1; aIsUnit:boolean=false);
 begin
-  if fCount >= Length(RenderList)  then SetLength(RenderList, fCount + 256); //Book some space
+  if fCount >= Length(RenderList) then SetLength(RenderList, fCount + 256); //Book some space
 
   RenderList[fCount].Loc        := KMPointF(pX,pY); //Position of sprite, floating-point
   RenderList[fCount].Obj        := KMPointF(oX,oY); //Position of object in tile-space, floating-point
@@ -1217,18 +1219,14 @@ end;
 procedure TRenderList.Render;
 var i,h:integer;
 begin
-  ClipRenderList; //Clip invisible items, Mark child items (RenderOrder[i] := 0), Apply FOW
-  SortRenderList; //sort items overlaying
+  ClipRenderList; //Clip invisible items, Mark child items (RenderOrder[i] := -1), Apply FOW
+  SortRenderList; //Sort items overlaying
 
   fStat_Sprites := fCount;
   fStat_Sprites2 := 0;
 
   for i:=0 to fCount-1 do
-  //@Krom: This is causing bugs: Currently RenderOrder is stored as 0..n-1, (in ClipRenderList it sets the first sprite as 0)
-  //       but you have also made 0 mean not to be drawn. 1 sprite is not being drawn each update. (you can see it in game,
-  //       scrolling down makes it appear again) RenderOrder should use 1..n I think. I'd fix it myself but you understand
-  //       the code better :)
-  if RenderOrder[i] <> 0 then
+  if RenderOrder[i] <> -1 then
   begin
 
     h := RenderOrder[i];
