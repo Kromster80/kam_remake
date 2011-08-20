@@ -68,7 +68,7 @@ var OldLoc: TKMPoint;
 begin
   OldLoc := WorkPlan.Loc;
   //Tell the work plan to find a new resource of the same gathering script
-  if WorkPlan.FindDifferentResource(KMPointBelow(fUnit.GetHome.GetEntrance), WorkPlan.Loc) then
+  if WorkPlan.FindDifferentResource(fUnit.UnitType, KMPointBelow(fUnit.GetHome.GetEntrance), WorkPlan.Loc) then
   begin
     if not KMSamePoint(OldLoc,WorkPlan.Loc) then
     begin
