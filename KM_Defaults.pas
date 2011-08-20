@@ -29,7 +29,7 @@ const
 
   KAM_PORT              = '56789';      //Port used in TCP networking
 
-  GAME_REVISION         = 'r2123';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2157';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
@@ -128,11 +128,6 @@ const //Here we store options that are hidden somewhere in code
   TROOPS_FEED_MAX = 0.75;                 //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
   TROOPS_TRAINED_CONDITION = 0.75;        //Condition troops start with when trained
 
-  //Unit mining ranges. (measured from KaM)
-  RANGE_WOODCUTTER  = 10;
-  RANGE_FARMER      = 8;
-  RANGE_STONECUTTER = 14;
-  RANGE_FISHERMAN   = 12;
 
   //Archer properties
   RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not

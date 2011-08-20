@@ -417,7 +417,7 @@ begin
       ht_CoalMine: Msg := fTextLibrary.GetTextString(291);
       ht_IronMine: Msg := fTextLibrary.GetTextString(292);
       ht_GoldMine: Msg := fTextLibrary.GetTextString(293);
-      ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance),RANGE_FISHERMAN) then
+      ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
                       Msg := fTextLibrary[TX_UNITS_FISHERMAN_TOO_FAR]
                     else
                       Msg := fTextLibrary[TX_UNITS_FISHERMAN_CANNOT_CATCH];

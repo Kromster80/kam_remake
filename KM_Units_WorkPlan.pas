@@ -36,7 +36,7 @@ type
     ResourceDepleted:boolean;
   public
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-    function FindDifferentResource(aLoc, aAvoidLoc: TKMPoint):boolean;
+    function FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint):boolean;
     property IsIssued:boolean read fIssued;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -111,20 +111,19 @@ begin
 end;
 
 
-function TUnitWorkPlan.FindDifferentResource(aLoc, aAvoidLoc: TKMPoint): boolean;
-var NewLoc: TKMPointDir;
-    Found: Boolean;
+function TUnitWorkPlan.FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint): boolean;
+var NewLoc: TKMPointDir; Found: Boolean;
 begin
   with fTerrain do
   case GatheringScript of
-    gs_StoneCutter:     Found := FindStone(aLoc, RANGE_STONECUTTER, aAvoidLoc, NewLoc);
-    gs_FarmerSow:       Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc);
+    gs_StoneCutter:     Found := FindStone(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
+    gs_FarmerSow:       Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, false, aAvoidLoc, NewLoc);
     gs_FarmerCorn:      begin
-                          Found := FindField(aLoc, RANGE_FARMER, ft_Corn, true, aAvoidLoc, NewLoc);
+                          Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, true, aAvoidLoc, NewLoc);
                           if not Found then
                           begin
                             //If we can't find any other corn to cut we can try sowing instead
-                            Found := FindField(aLoc, RANGE_FARMER, ft_Corn, false, aAvoidLoc, NewLoc);
+                            Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, false, aAvoidLoc, NewLoc);
                             if Found then
                             begin
                               GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
@@ -141,10 +140,10 @@ begin
                             end;
                           end;
                         end;
-    gs_FarmerWine:      Found := FindField(aLoc, RANGE_FARMER, ft_Wine, true, aAvoidLoc, NewLoc);
-    gs_FisherCatch:     Found := FindFishWater(aLoc, RANGE_FISHERMAN, aAvoidLoc, NewLoc);
-    gs_WoodCutterCut:   Found := FindTree(aLoc, RANGE_WOODCUTTER, KMGetVertexTile(aAvoidLoc, WorkDir), NewLoc);
-    gs_WoodCutterPlant: Found := FindPlaceForTree(aLoc, RANGE_WOODCUTTER, aAvoidLoc, NewLoc);
+    gs_FarmerWine:      Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Wine, true, aAvoidLoc, NewLoc);
+    gs_FisherCatch:     Found := FindFishWater(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
+    gs_WoodCutterCut:   Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMGetVertexTile(aAvoidLoc, WorkDir), NewLoc);
+    gs_WoodCutterPlant: Found := FindPlaceForTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
     else                Found := false; //Can find a new resource for an unknown gathering script, so return with false
   end;
   if Found then
@@ -364,12 +363,12 @@ begin
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-    Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, true, KMPoint(0,0), Tmp);
+    Found := fTerrain.FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, true, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
       WalkStyle(Tmp, ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
     end else begin
-      Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Corn, false, KMPoint(0,0), Tmp);
+      Found := fTerrain.FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, false, KMPoint(0,0), Tmp);
       if Found then
         WalkStyle(Tmp, ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
       else
@@ -378,7 +377,7 @@ begin
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
-    Found := fTerrain.FindField(aLoc, RANGE_FARMER, ft_Wine, true, KMPoint(0,0), Tmp);
+    Found := fTerrain.FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Wine, true, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
       WalkStyle(Tmp, ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine); //Grapes must always be picked facing up
@@ -390,7 +389,7 @@ begin
   end else
 
   if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
-    Found := fTerrain.FindStone(aLoc, RANGE_STONECUTTER, KMPoint(0,0), Tmp);
+    Found := fTerrain.FindStone(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
       WalkStyle(Tmp, ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter);
@@ -405,12 +404,12 @@ begin
   end else
 
   if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
-    Found := fTerrain.FindTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp);
+    Found := fTerrain.FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), Tmp);
     if Found then begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
       ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
       WalkStyle(Tmp, ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut);
     end else begin
-      Found := fTerrain.FindPlaceForTree(aLoc, RANGE_WOODCUTTER, KMPoint(0,0), Tmp);
+      Found := fTerrain.FindPlaceForTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), Tmp);
       if Found then begin //Planting uses DirN (0) of ua_Work
         WalkStyle(Tmp, ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant);
       end else
@@ -455,7 +454,7 @@ begin
   end else
 
   if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
-    Found := fTerrain.FindFishWater(aLoc, RANGE_FISHERMAN, KMPoint(0,0), Tmp);
+    Found := fTerrain.FindFishWater(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
       WalkStyle(Tmp,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch);

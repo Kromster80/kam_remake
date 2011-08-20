@@ -46,6 +46,7 @@ type
     function GetUnitAnim(aAction:TUnitActionType; aDir:TKMDirection):TKMUnitsAnim;
     function GetUnitDescription: string;
     function GetUnitName: string;
+    function GetMiningRange: byte;
   public
     constructor Create(aType:TUnitType);
     function IsValid:boolean;
@@ -63,6 +64,7 @@ type
     property FightType:TFightType read GetFightType;
     property GUIIcon:word read GetGUIIcon;
     property GUIScroll:word read GetGUIScroll;
+    property MiningRange:byte read GetMiningRange;
     property Speed:single read GetSpeed;
     function SupportsAction(aAct: TUnitActionType):boolean;
     property UnitAnim[aAction:TUnitActionType; aDir:TKMDirection]:TKMUnitsAnim read GetUnitAnim;
@@ -249,6 +251,22 @@ begin
     Result := 520 + UnitKaMOrder[fUnitType]
   else
     Result := 0;
+end;
+
+
+//Unit mining ranges. (measured from KaM)
+function TKMUnitDatClass.GetMiningRange: byte;
+begin
+  case fUnitType of
+    ut_Woodcutter:  Result := 10;
+    ut_Farmer:      Result := 8;
+    ut_Stonecutter: Result := 14;
+    ut_Fisher:      Result := 12;
+    else            begin
+                      Result := 0;
+                      Assert(false, UnitName + ' has no mining range');
+                    end;
+  end;
 end;
 
 
