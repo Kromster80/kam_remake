@@ -72,7 +72,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Game, KM_Log;
+uses KM_Log;
 
 
 constructor TGlobalSettings.Create;
@@ -82,7 +82,7 @@ begin
   fSlidersMax := 20;
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
   fNeedsSave := false;
-  fLog.AppendLog('Global settings init from '+SETTINGS_FILE);
+  fLog.AppendLog('Global settings loaded from '+SETTINGS_FILE);
 end;
 
 
@@ -219,7 +219,6 @@ end;
 procedure TGlobalSettings.SetSoundFXVolume(aValue:byte);
 begin
   fSoundFXVolume := EnsureRange(aValue,fSlidersMin,fSlidersMax);
-  fSoundLib.UpdateSoundVolume(fSoundFXVolume/fSlidersMax);
   fNeedsSave := true;
 end;
 
@@ -248,21 +247,13 @@ end;
 procedure TGlobalSettings.SetMusicVolume(aValue:byte);
 begin
   fMusicVolume := EnsureRange(aValue,fSlidersMin,fSlidersMax);
-  fGame.MusicLib.UpdateMusicVolume(fMusicVolume/fSlidersMax);
   fNeedsSave := true;
 end;
 
 
 procedure TGlobalSettings.SetMusicOn(aValue:boolean);
 begin
-  if fMusicOn <> aValue then
-  begin
-    fMusicOn:=aValue;
-    if aValue then
-      fGame.MusicLib.PlayMenuTrack(not MusicOn) //Start with the default track
-    else
-      fGame.MusicLib.StopMusic;
-  end;
+  fMusicOn := aValue;
   fNeedsSave := true;
 end;
 

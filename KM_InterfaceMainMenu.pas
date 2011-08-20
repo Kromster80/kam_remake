@@ -247,7 +247,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log;
+uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
@@ -1675,6 +1675,10 @@ begin
   fGame.GlobalSettings.MusicOn          := not CheckBox_Options_MusicOn.Checked;
   fGame.GlobalSettings.FullScreen       := CheckBox_Options_FullScreen.Checked;
   Ratio_Options_Music.Enabled           := not CheckBox_Options_MusicOn.Checked;
+
+  fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
+  fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
+  fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
 
   if Sender = Radio_Options_Lang then begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEWLOCAL]);

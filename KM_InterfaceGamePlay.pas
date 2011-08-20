@@ -1963,6 +1963,10 @@ begin
   fGame.GlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
   fGame.GlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
 
+  fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
+  fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
+  fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
+
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 

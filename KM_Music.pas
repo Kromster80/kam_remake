@@ -28,6 +28,7 @@ type
     procedure PlayPreviousTrack;
     function IsMusicEnded:boolean;
     procedure StopMusic;
+    procedure ToggleMusic(aOn:boolean);
     function GetTrackTitle:string;
   end;
 
@@ -214,6 +215,15 @@ begin
   //if CheckMusicError then exit;
   MusicIndex := 0;
   {$ENDIF}
+end;
+
+
+procedure TMusicLib.ToggleMusic(aOn:boolean);
+begin
+  if aOn then
+    PlayMenuTrack(false) //Start with the default track
+  else
+    StopMusic;
 end;
 
 
