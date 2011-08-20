@@ -5,9 +5,6 @@ uses
   {$IFDEF MSWindows}Windows,{$ENDIF}
   KM_NetServer, KM_MasterServer, KM_Defaults, KM_CommonTypes;
 
-const
-  AnnounceInterval = 60; //Should be an INI setting later
-
 type
   TKMDedicatedServer = class
   private
@@ -15,13 +12,16 @@ type
     fNetServer: TKMNetServer;
     fMasterServer: TKMMasterServer;
     fOnMessage: TStringEvent;
+    fAnnounceInterval: integer;
+    fPingInterval: integer;
+    fPort:string;
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
   public
-    constructor Create;
+    constructor Create(aMaxRooms, aKickTimeout:word; aPingInterval, aAnnounceInterval:integer; const aMasterServerAddress:string);
     destructor Destroy; override;
 
-    procedure Start;
+    procedure Start(const aPort:string; aHandleException:boolean);
     procedure Stop;
     procedure UpdateState;
     property OnMessage: TStringEvent write fOnMessage;
@@ -32,12 +32,15 @@ implementation
 {$IFDEF Unix} uses KM_Utils; {$ENDIF} //Needed in Linux for FakeGetTickCount
 
 
-constructor TKMDedicatedServer.Create;
+//Announce interval of -1 means the server will not be published (LAN)
+constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout:word; aPingInterval, aAnnounceInterval:integer; const aMasterServerAddress:string);
 begin
-  Inherited;
-  fNetServer := TKMNetServer.Create(true); //Allow rooms in the dedicated server
-  fMasterServer := TKMMasterServer.Create('http://lewin.hodgman.id.au/kam_remake_master_server/');
+  Inherited Create;
+  fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout);
+  fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnError := MasterServerError;
+  fAnnounceInterval := aAnnounceInterval;
+  fPingInterval := aPingInterval;
   fLastPing := 0;
   fLastAnnounce := 0;
 end;
@@ -51,17 +54,20 @@ begin
 end;
 
 
-procedure TKMDedicatedServer.Start;
+procedure TKMDedicatedServer.Start(const aPort:string; aHandleException:boolean);
 begin
+  fPort := aPort;
   fNetServer.OnStatusMessage := StatusMessage;
   try
-    fNetServer.StartListening(KAM_PORT);
+    fNetServer.StartListening(fPort);
   except
     on E : Exception do
     begin
       //Server failed to start
       StatusMessage('SERVER FAILED TO START! '+E.ClassName+': '+E.Message);
       Stop;
+      if not aHandleException then
+        raise Exception.Create(E.ClassName+': '+E.Message);
     end;
   end;
 end;
@@ -81,17 +87,20 @@ begin
   fNetServer.UpdateStateIdle;
   fMasterServer.UpdateStateIdle;
 
+  if not fNetServer.Listening then Exit; //Do not measure pings or announce the server if we are not listening
+
   TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
                {$IFDEF Unix} FakeGetTickCount{$ENDIF};
-  if TickCount-fLastPing >= 1000 then
+  if TickCount-fLastPing >= fPingInterval then
   begin
     fNetServer.MeasurePings;
     fLastPing := TickCount;
   end;
 
-  if TickCount-fLastAnnounce >= AnnounceInterval*1000 then
+  //If fAnnounceInterval = -1 it will not be published
+  if TickCount-fLastAnnounce >= fAnnounceInterval*1000 then
   begin
-    fMasterServer.AnnounceServer(KAM_PORT,AnnounceInterval+10);
+    fMasterServer.AnnounceServer(fPort,fAnnounceInterval+10);
     fLastAnnounce := TickCount;
   end;
 end;

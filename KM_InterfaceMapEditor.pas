@@ -1397,7 +1397,7 @@ end;
 
 
 procedure TKMapEdInterface.Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
-const Modif:array[TMouseButton]of word = (1,10,0);
+const Modif:array[TMouseButton]of word = (1,10,0 {$IFDEF FPC},0,0{$ENDIF} ); //In FPC there are 5 TMouseButtons
 var Res:TResourceType; Barracks:TKMHouseBarracks; Amt:word;
 begin
   if not Panel_HouseBarracks.Visible then Exit;
@@ -1421,7 +1421,7 @@ end;
 
 
 procedure TKMapEdInterface.Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
-const Modif:array[TMouseButton]of word = (1,10,0);
+const Modif:array[TMouseButton]of word = (1,10,0 {$IFDEF FPC},0,0{$ENDIF} ); //In FPC there are 5 TMouseButtons
 var Res:TResourceType; Store:TKMHouseStore; Amt:word;
 begin
   if not Panel_HouseStore.Visible then Exit;

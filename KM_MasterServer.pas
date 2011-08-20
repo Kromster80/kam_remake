@@ -14,7 +14,7 @@ type
     procedure Receive(const S: string);
     procedure Error(const S: string);
   public
-    constructor Create(aMasterServerAddress:string);
+    constructor Create(const aMasterServerAddress:string);
     destructor Destroy; override;
 
     property OnError:TGetStrProc write fOnError;
@@ -27,7 +27,7 @@ type
 implementation
 
 
-constructor TKMMasterServer.Create(aMasterServerAddress:string);
+constructor TKMMasterServer.Create(const aMasterServerAddress:string);
 begin
   Inherited Create;
   fHTTPClient := TKMHTTPClient.Create;

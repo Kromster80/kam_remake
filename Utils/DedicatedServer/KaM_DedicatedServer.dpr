@@ -41,9 +41,10 @@ begin
   Writeln('Log file: '+fLog.LogPath);
   Writeln('');
 
-  fDedicatedServer := TKMDedicatedServer.Create;
+  //todo: Load these options from the config file
+  fDedicatedServer := TKMDedicatedServer.Create(2,20,1000,60,'http://lewin.hodgman.id.au/kam_remake_master_server/');
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
-  fDedicatedServer.Start;
+  fDedicatedServer.Start(KAM_PORT,true);
 
   while True do
   begin

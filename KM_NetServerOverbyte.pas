@@ -81,6 +81,7 @@ procedure TKMNetServerOverbyte.StopListening;
 begin
   if fSocketServer <> nil then fSocketServer.Close;
   FreeAndNil(fSocketServer);
+  fLastTag := FIRST_TAG-1;
 end;
 
 

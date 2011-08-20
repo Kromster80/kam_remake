@@ -34,11 +34,6 @@ uses Classes, SysUtils, Math, KM_CommonTypes, KM_Defaults
       mk_WasKicked
 }
 
-const
-  //todo: These should be in config file for both game and dedicated server
-  KICK_TIMEOUT = 20000; //20 sec
-  MAX_ROOMS = 32; //Only applies to the dedicated server
-
 type
   TKMServerClient = class
   private
@@ -81,7 +76,8 @@ type
     fHostHandle:array of integer;
     fListening:boolean;
 
-    fAllowRooms:boolean;
+    fMaxRooms:word;
+    fKickTimeout:word;
     fRoomCount:integer;
     fRoomJoinable:array of boolean;
 
@@ -98,7 +94,7 @@ type
     function GetRoomPlayersCount(aRoom:integer):integer;
     function GetFirstRoomClient(aRoom:integer):integer;
   public
-    constructor Create(aAllowRooms:boolean);
+    constructor Create(aMaxRooms:word; aKickTimeout: word);
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
@@ -182,10 +178,11 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create(aAllowRooms:boolean);
+constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word);
 begin
   Inherited Create;
-  fAllowRooms := aAllowRooms;
+  fMaxRooms := aMaxRooms;
+  fKickTimeout := aKickTimeout;
   fClientList := TKMClientsList.Create;
   {$IFDEF WDC} fServer := TKMNetServerOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fServer := TKMNetServerLNet.Create;     {$ENDIF}
@@ -272,7 +269,7 @@ begin
     end
     else
       //If they don't respond within a reasonable time, kick them
-      if TickCount-fClientList[i].fPingStarted > KICK_TIMEOUT then
+      if TickCount-fClientList[i].fPingStarted > fKickTimeout*1000 then
       begin
         Status('Client timed out '+inttostr(fClientList[i].fHandle));
         fServer.Kick(fClientList[i].fHandle);
@@ -294,6 +291,13 @@ begin
   Room := GetFirstAvailableRoom;
   Status('Client '+inttostr(aHandle)+' has connected to room '+inttostr(Room));
   fClientList.AddPlayer(aHandle, Room);
+  if Room = -1 then
+  begin
+    //No rooms available, so send a polite message explaining why they can't join
+    SendMessage(aHandle, mk_RefuseToJoin, 0, 'No rooms available on this server');
+    fServer.Kick(aHandle);
+    Exit;
+  end;
   SendMessage(aHandle, mk_GameVersion, 0, GAME_REVISION); //First make sure they are using the right version
 
   //Let the first client be a Host
@@ -316,6 +320,8 @@ begin
   Status('Client '+inttostr(aHandle)+' has disconnected');
   Room := fClientList.GetByHandle(aHandle).Room;
   fClientList.RemPlayer(aHandle);
+
+  if Room = -1 then Exit; //The client was not assigned a room yet
 
   //Send message to all remaining clients that client has disconnected
   SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle, '');
@@ -478,11 +484,6 @@ end;
 function TKMNetServer.GetFirstAvailableRoom:integer;
 var i:integer;
 begin
-  if not fAllowRooms then
-  begin
-    Result := 0;
-    exit;
-  end;
   for i:=0 to fRoomCount-1 do
     if fRoomJoinable[i] or (GetRoomPlayersCount(i) = 0) then
     begin
@@ -491,11 +492,11 @@ begin
       exit;
     end;
   //Add a new room
-  if fRoomCount = MAX_ROOMS then
+  if fRoomCount = fMaxRooms then
   begin
-    Result := fRoomCount;
-    Status('Cannot create a new room: limit reached');
-    exit;
+    Result := -1;
+    //Status('Cannot create a new room: limit reached');
+    Exit;
   end;
   inc(fRoomCount);
   SetLength(fRoomJoinable,fRoomCount);

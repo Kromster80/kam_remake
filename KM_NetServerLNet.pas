@@ -82,6 +82,7 @@ procedure TKMNetServerLNet.StopListening;
 begin
   if fSocketServer <> nil then fSocketServer.Disconnect(true);
   FreeAndNil(fSocketServer);
+  fLastTag := FIRST_TAG-1;
 end;
 
 

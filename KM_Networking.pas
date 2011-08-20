@@ -6,7 +6,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Player,
-  KM_MapInfo, KM_NetPlayersList, KM_NetServer, KM_NetClient, KM_ServerQuery;
+  KM_MapInfo, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 
 //todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
 
@@ -32,7 +32,7 @@ type
   //Should handle message exchange and routing, interacting with UI
   TKMNetworking = class
   private
-    fNetServer:TKMNetServer;
+    fNetServer:TKMDedicatedServer;
     fNetClient:TKMNetClient;
     fServerQuery:TKMServerQuery;
     fLANPlayerKind: TLANPlayerKind; //Our role (Host or Joiner)
@@ -81,8 +81,8 @@ type
 
     //Lobby
     property ServerQuery:TKMServerQuery read fServerQuery;
-    procedure Host(aUserName:string);
-    procedure Join(aServerAddress,aUserName:string);
+    procedure Host(aUserName,aPort:string);
+    procedure Join(aServerAddress,aPort,aUserName:string);
     procedure LeaveLobby;
     procedure Disconnect;
     function  Connected: boolean;
@@ -140,7 +140,7 @@ begin
   Inherited Create;
   fLANGameState := lgs_None;
   fMapInfo := TKMapInfo.Create;
-  fNetServer := TKMNetServer.Create(false); //Do not allow multiple rooms as we are just creating a single game
+  fNetServer := TKMDedicatedServer.Create(1,20,1000,-1,aMasterServerAddress);
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
@@ -171,28 +171,27 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aUserName:string);
+procedure TKMNetworking.Host(aUserName,aPort:string);
 begin
   fIgnorePings := 0; //Accept pings
-  fNetServer.StopListening;
+  fNetServer.Stop;
 
-  fNetServer.OnStatusMessage := fOnTextMessage;
+  fNetServer.OnMessage := fOnTextMessage;
   try
-    fNetServer.StartListening(KAM_PORT);
+    fNetServer.Start(aPort,false);
   except
     on E : Exception do
     begin
       //Server failed to start
-      fOnHostFail(E.ClassName+': '+E.Message);
-      fNetServer.StopListening;
-      exit;
+      fOnHostFail(E.Message);
+      Exit;
     end;
   end;
-  Join('127.0.0.1', aUserName); //Server will assign hosting rights to us as we are the first joiner
+  Join('127.0.0.1', aPort, aUserName); //Server will assign hosting rights to us as we are the first joiner
 end;
 
 
-procedure TKMNetworking.Join(aServerAddress,aUserName:string);
+procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string);
 begin
   Assert(not fNetClient.Connected, 'We were not properly disconnected');
 
@@ -211,7 +210,7 @@ begin
   fNetClient.OnConnectFailed := ConnectFailed;
   fNetClient.OnForcedDisconnect := ForcedDisconnect;
   fNetClient.OnStatusMessage := fOnTextMessage;
-  fNetClient.ConnectTo(fHostAddress, KAM_PORT);
+  fNetClient.ConnectTo(fHostAddress, aPort);
 end;
 
 
@@ -258,8 +257,7 @@ begin
 
   fNetPlayers.Clear;
   fNetClient.Disconnect;
-  fNetServer.StopListening;
-  fNetServer.ClearClients;
+  fNetServer.Stop;
 
   fMapInfo.Free;
   fMapInfo := TKMapInfo.Create;
@@ -722,7 +720,7 @@ begin
     mk_ClientLost:
             if IsHost then
             begin
-              if fNetPlayers.ServerToLocal(Param) = -1 then exit; //Has already disconnected
+              if fNetPlayers.ServerToLocal(Param) = -1 then exit; //Has already disconnected or not from our room
               PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(Param)].Nikname+' lost connection');
               if fLANGameState in [lgs_Loading, lgs_Game] then
                 fNetPlayers.KillPlayer(Param)
@@ -972,9 +970,6 @@ end;
 
 procedure TKMNetworking.UpdateState(aTick: cardinal);
 begin
-  //Server should measure pings once per second
-  if (fNetServer.Listening) and (aTick mod 10 = 0) then
-    fNetServer.MeasurePings;
   //Joining timeout
   if fLANGameState = lgs_Query then
     if GetTickCount-fJoinTimeout > JOIN_TIMEOUT then
@@ -984,8 +979,8 @@ end;
 
 procedure TKMNetworking.UpdateStateIdle;
 begin
+  fNetServer.UpdateState; //Server measures pings etc.
   //LNet requires network update calls unless it is being used as visual components
-  fNetServer.UpdateStateIdle;
   fNetClient.UpdateStateIdle;
   fServerQuery.UpdateStateIdle;
 end;
