@@ -55,7 +55,7 @@ type
     fHitPointRestoreInFights:boolean;
     constructor Create;
     destructor Destroy; override;
-    procedure SaveSettings;
+    procedure SaveSettings(aForce:boolean=false);
 
     property Autosave:boolean read fAutosave write SetAutosave default true;
     property Brightness:byte read fBrightness write SetBrightness default 1;
@@ -107,9 +107,9 @@ end;
 
 
 //Save only when needed
-procedure TGlobalSettings.SaveSettings;
+procedure TGlobalSettings.SaveSettings(aForce:boolean=false);
 begin
-  if fNeedsSave then
+  if fNeedsSave or aForce then
     SaveSettingsToFile(ExeDir+SETTINGS_FILE);
 end;
 

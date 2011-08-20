@@ -44,6 +44,7 @@ begin
   Writeln('');
 
   fSettings := TGlobalSettings.Create;
+  fSettings.SaveSettings(true);
 
   fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
                                                 fSettings.AutoKickTimeout,
