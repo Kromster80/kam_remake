@@ -127,6 +127,7 @@ type
         Edit_MP_ServerName: TKMEdit;
         Button_MP_CreateLAN,
         Button_MP_CreateWAN: TKMButton;
+      ColList_Servers: TKMColumnListBox;
       Panel_MPServerList:TKMPanel;
 
       Panel_LANLogin:TKMPanel;
@@ -461,6 +462,9 @@ begin
         Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,0, 140,200,30,fTextLibrary[TX_MENU_INTERNET],fnt_Metal,bsMenu);
 
       //Server list area
+      ColList_Servers := TKMColumnListBox.Create(Panel_NewMultiPlayer,50,400,600,300,fnt_Metal,['Name','IP','Port','Ping']);
+      ColList_Servers.AddItem(['Lewin''s Server','127.0.0.1','56789','117']);
+      ColList_Servers.AddItem(['Krom''s Server','127.0.0.1','56789','117']);
       Button_MP_Join  := TKMButton.Create(Panel_NewMultiPlayer,400, 550,150,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
       Button_MP_Refresh := TKMButton.Create(Panel_NewMultiPlayer,45, 550,150,30,'Refresh',fnt_Metal,bsMenu);
       Button_MP_Refresh.OnClick := MP_RefreshClick;

@@ -512,6 +512,50 @@ type
   end;
 
 
+  TKMColumnListBox = class(TKMControl)
+  private
+    fFont: TKMFont;
+    fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
+    fCanSelect:boolean;
+    fItemHeight:byte;
+    fItemIndex:smallint;
+    fColumns: TStringList;
+    fItems:array of TStringList;
+    fTopIndex:smallint; //up to 32k files
+    fScrollBar:TKMScrollBar;
+    fOnChange:TNotifyEvent;
+    procedure SetHeight(aValue:Integer); override;
+    procedure SetVisible(aValue:boolean); override;
+    procedure SetTopIndex(aIndex:smallint);
+    procedure SetBackAlpha(aValue:single);
+    procedure SetEnabled(aValue:boolean); override;
+    procedure ChangeScrollPosition (Sender:TObject);
+    procedure UpdateScrollBar;
+  public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aColumns:array of string);
+    destructor Destroy; override;
+
+    procedure AddItem(aItem:array of string);
+    procedure Clear;
+    procedure AutoHideScrollBar;
+
+    property BackAlpha:single write SetBackAlpha;
+    property CanSelect:boolean write fCanSelect;
+    function ItemCount:integer;
+    property ItemHeight:byte read fItemHeight;
+    property ItemIndex:smallint read fItemIndex write fItemIndex;
+    //property Items:TStringList read fItems;
+    property TopIndex:smallint read fTopIndex write SetTopIndex;
+
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    property OnChange: TNotifyEvent write fOnChange;
+
+    procedure Paint; override;
+  end;
+
+
   TKMDropBox = class(TKMControl)
   private
     fCaption:string;
@@ -2122,6 +2166,188 @@ begin
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
     fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+end;
+
+
+{ TKMColumnListBox }
+constructor TKMColumnListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aColumns:array of string);
+var i:integer;
+begin
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  fBackAlpha := 0.5;
+  fCanSelect := true;
+  fItemHeight := 20;
+  fTopIndex := 0;
+  fItemIndex := -1;
+  fColumns := TStringList.Create;
+  SetLength(fItems,Length(aColumns));
+  for i:=0 to Length(aColumns)-1 do
+  begin
+    fItems[i] := TStringList.Create;
+    fColumns.Add(aColumns[i]);
+  end;
+  fFont := aFont;
+
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
+  fScrollBar.fOnChange := ChangeScrollPosition;
+  UpdateScrollBar; //Initialise the scrollbar
+end;
+
+
+destructor TKMColumnListBox.Destroy;
+var i:integer;
+begin
+  for i:=0 to Length(fItems)-1 do
+    fItems[i].Free;
+  fColumns.Free;
+  Inherited;
+end;
+
+
+procedure TKMColumnListBox.ChangeScrollPosition(Sender:TObject);
+begin
+  fTopIndex := fScrollBar.Position;
+end;
+
+
+procedure TKMColumnListBox.SetHeight(aValue:Integer);
+begin
+  Inherited;
+  fScrollBar.Height := fHeight;
+  UpdateScrollBar; //Since height has changed
+end;
+
+
+//Copy property to scrollbar. Otherwise it won't be rendered
+procedure TKMColumnListBox.SetVisible(aValue:boolean);
+begin
+  Inherited;
+  fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
+end;
+
+
+procedure TKMColumnListBox.SetTopIndex(aIndex:smallint);
+begin
+  fTopIndex := EnsureRange(aIndex, 0, fScrollBar.MaxValue);
+  fScrollBar.Position := fTopIndex;
+end;
+
+
+procedure TKMColumnListBox.SetBackAlpha(aValue:single);
+begin
+  fBackAlpha := aValue;
+  fScrollBar.BackAlpha := aValue;
+end;
+
+
+procedure TKMColumnListBox.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  fScrollBar.Enabled := aValue;
+end;
+
+
+//fItems.Count has changed
+procedure TKMColumnListBox.UpdateScrollBar;
+begin
+  fScrollBar.MaxValue := Math.max(fItems[0].Count - (fHeight div fItemHeight), 0);
+  fScrollBar.Position := fTopIndex;
+  fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
+end;
+
+
+procedure TKMColumnListBox.AddItem(aItem:array of string);
+var i: integer;
+begin
+  assert(Length(aItem) = Length(fItems));
+  for i:=0 to Length(fItems)-1 do
+    fItems[i].Add(aItem[i]);
+  UpdateScrollBar;
+end;
+
+
+procedure TKMColumnListBox.Clear;
+var i: integer;
+begin
+  for i:=0 to Length(fItems)-1 do
+    fItems[i].Clear;
+  fItemIndex := -1;
+  fTopIndex := 0;
+  UpdateScrollBar;
+end;
+
+
+//Hide the scrollbar if it is not required (disabled) This is used for drop boxes.
+procedure TKMColumnListBox.AutoHideScrollBar;
+begin
+   fScrollBar.Visible := Visible and fScrollBar.Enabled;
+end;
+
+
+function TKMColumnListBox.ItemCount:integer;
+begin
+  Result := fItems[0].Count;
+end;
+
+
+procedure TKMColumnListBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  MouseMove(X,Y,Shift); //Will change Position and call OnChange event
+end;
+
+
+procedure TKMColumnListBox.MouseMove(X,Y:integer; Shift:TShiftState);
+var NewIndex:integer;
+begin
+  Inherited;
+
+  if (ssLeft in Shift) and
+     (InRange(X, Left, Left+Width-( fScrollBar.Width*byte(fScrollBar.Visible) ))) and
+     (InRange(Y, Top, Top+Height div fItemHeight * fItemHeight))
+  then begin
+    NewIndex := TopIndex + (Y-Top) div fItemHeight;
+
+    if NewIndex > fItems[0].Count-1 then NewIndex := -1;
+
+    if (NewIndex<>fItemIndex) then begin
+      fItemIndex := NewIndex;
+      if Assigned(fOnChange) then
+        fOnChange(Self);
+    end;
+  end;
+end;
+
+
+procedure TKMColumnListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
+begin
+  Inherited;
+  SetTopIndex(TopIndex - sign(WheelDelta));
+  fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
+end;
+
+
+procedure TKMColumnListBox.Paint;
+var i,k,PaintWidth:integer;
+begin
+  Inherited;
+  if fScrollBar.Visible then
+    PaintWidth := Width-fScrollBar.Width //Leave space for scrollbar
+  else    
+    PaintWidth := Width; //List takes up the entire width
+
+  fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
+
+  if fCanSelect and (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-1) then
+    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
+
+  //todo: Do not position above top, move everything else down
+  for i:=0 to Length(fItems)-1 do
+    fRenderUI.WriteText(Left+4+(170*i), Top-20, fColumns[i] , fFont, kaLeft, $FFFFFFFF);
+
+  for i:=0 to Math.min(fItems[0].Count-1, (fHeight div fItemHeight)-1) do
+    for k:=0 to Length(fItems)-1 do
+      fRenderUI.WriteText(Left+4+(170*k), Top+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
 end;
 
 
