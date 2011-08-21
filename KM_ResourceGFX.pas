@@ -999,8 +999,8 @@ var
   IconInfo:TIconInfo;
   {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
 begin
-  bm:=TBitMap.Create;  bm.PixelFormat:=pf24bit;
-  bm2:=TBitMap.Create; bm2.PixelFormat:=pf24bit;
+  bm  := TBitMap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf24bit;
+  bm2 := TBitMap.Create; bm2.HandleType := bmDIB; bm2.PixelFormat := pf24bit;
 
   for i:=1 to length(Cursors) do begin
 
@@ -1036,18 +1036,23 @@ begin
       IconInfo.xHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i],0);
       IconInfo.yHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i],0);
     end;
+
+    //Release the Mask, otherwise there is black rect in Lazarus
+    //it works only from within the loop, means mask is recreated when we access canvas or something like that
+    bm2.ReleaseMaskHandle;
+
     IconInfo.fIcon := false; //true=Icon, false=Cursor
-    IconInfo.hbmColor:=bm.Handle;
-    IconInfo.hbmMask:=bm2.Handle;
+    IconInfo.hbmColor := bm.Handle;
+    IconInfo.hbmMask  := bm2.Handle;
 
     //I have a suspicion that maybe Windows could create icon delayed, at a time when bitmap data is
     //no longer valid (replaced by other bitmap or freed). Hence issues with transparency.
     {$IFDEF MSWindows}
-    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfo);
+    Screen.Cursors[Cursors[i]] := CreateIconIndirect(IconInfo);
     {$ENDIF}
     {$IFDEF Unix}
     IconInfoPointer := @IconInfo;
-    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfoPointer);
+    Screen.Cursors[Cursors[i]] := CreateIconIndirect(IconInfoPointer);
     {$ENDIF}
   end;
 
