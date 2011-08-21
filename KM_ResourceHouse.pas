@@ -569,7 +569,7 @@ begin
   fItems[ht_Marketplace].fHouseDat.WoodPicSteps := 23;
   fItems[ht_Marketplace].fHouseDat.StonePicSteps := 140;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 1;
-  fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := 0;
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := -15;
   fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
   fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
   for i:=1 to 6 do begin
@@ -579,6 +579,30 @@ begin
     fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveY := 15;
   end;
   fItems[ht_Marketplace].fHouseDat.Sight := 9;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Count := 5;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].MoveX := -80;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].MoveY := -33;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[1] := 1165;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[2] := 1166;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[3] := 1167;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[4] := 1163;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[5] := 1164;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Count := 5;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].MoveX := -73;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].MoveY := -7;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[1] := 1163;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[2] := 1164;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[3] := 1165;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[4] := 1166;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[5] := 1167;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Count := 5;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].MoveX := 73;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].MoveY := -80;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[1] := 1161;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[2] := 1162;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[3] := 1158;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[4] := 1159;
+  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[5] := 1160;
 
   //ExportCSV(ExeDir+'Houses.csv');
 end;
