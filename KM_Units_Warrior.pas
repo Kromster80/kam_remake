@@ -362,6 +362,9 @@ begin
     else
       HaltPoint := fOrderLoc;
 
+  //This happens for new units that have not yet been given an order
+  if HaltPoint.Dir = dir_NA then HaltPoint.Dir := Direction; //Use the unit's direction
+
   case aTurnAmount of
     tdCW:   HaltPoint.Dir := KMNextDirection(HaltPoint.Dir);
     tdCCW:  HaltPoint.Dir := KMPrevDirection(HaltPoint.Dir);
@@ -750,7 +753,15 @@ end;
 procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true);
 var i:integer; NewLoc:TKMPoint; NewLocCanBeReached: boolean;
 begin
-  Assert(aLoc.Dir <> dir_NA);
+  //If no direction was specified, choose the previous direction or failing that, the unit's direction
+  if aLoc.Dir = dir_NA then
+  begin
+    if (fOrderLoc.Dir <> dir_NA) then
+      aLoc := KMPointDir(aLoc.Loc, fOrderLoc.Dir) //keep old direction if group had an order to walk somewhere
+    else
+      aLoc := KMPointDir(aLoc.Loc, Direction);
+  end;
+
   if KMSamePoint(aLoc.Loc, KMPoint(0,0)) then exit;
   if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
@@ -772,18 +783,8 @@ end;
 
 
 procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPoint; aDir:TKMDirection=dir_NA);
-var NewP:TKMPointDir;
 begin
-  //Choose best direction
-  if aDir = dir_NA then
-    if (fOrderLoc.Dir <> dir_NA) then
-      NewP := KMPointDir(aLoc, fOrderLoc.Dir) //keep old direction if group had an order to walk somewhere
-    else
-      NewP := KMPointDir(aLoc, Direction)
-  else
-    NewP := KMPointDir(aLoc, aDir);
-
-  OrderWalk(NewP);
+  OrderWalk(KMPointDir(aLoc,aDir));
 end;
 
 

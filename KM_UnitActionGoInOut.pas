@@ -196,7 +196,7 @@ begin
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
     if (fHouse<>nil) then
-      fDoor.X := fDoor.X + (fResource.HouseDat[fHouse.HouseType].EntranceOffsetXpx/4)/CELL_SIZE_PX;
+      fDoor.X := fDoor.X + (fResource.HouseDat[fHouse.HouseType].EntranceOffsetXpx/4)/CELL_SIZE_PX; //todo: EntranceOffsetXpx should be a visual effect only, fDoor should not be changed
 
     case fDirection of
       gd_GoInside:  WalkIn(KMUnit);
