@@ -5,7 +5,7 @@ uses Classes, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, SysUtils, KM_Poi
 
 
 type
-  TDeliverKind = (dk_ToHouse, dk_ToUnit);
+  TDeliverKind = (dk_ToHouse, dk_ToConstruction, dk_ToUnit);
 
 
   {Perform delivery}
@@ -45,7 +45,12 @@ begin
 
   fFrom    := aFrom.GetHousePointer;
   fToHouse := toHouse.GetHousePointer;
-  fDeliverKind := dk_ToHouse;
+  //Check it once to begin with as the house could become complete before the task exits (in rare circumstances when the task
+  // does not exit until long after the ware has been delivered due to walk interactions)
+  if toHouse.IsComplete then
+    fDeliverKind := dk_ToHouse
+  else
+    fDeliverKind := dk_ToConstruction;
   fResourceType := Res;
   fDeliverID    := aID;
 end;
@@ -112,10 +117,10 @@ begin
     Result := Result or fFrom.IsDestroyed;
 
   //Until we implement "goods recycling" we just abandon the delivery if target is destroyed/dead
-  if (fDeliverKind = dk_ToHouse) and fToHouse.IsComplete and (fPhase <= 8) then
+  if (fDeliverKind = dk_ToHouse) and (fPhase <= 8) then
     Result := Result or fToHouse.IsDestroyed;
 
-  if (fDeliverKind = dk_ToHouse) and not fToHouse.IsComplete and (fPhase <= 6) then
+  if (fDeliverKind = dk_ToConstruction) and (fPhase <= 6) then
     Result := Result or fToHouse.IsDestroyed;
 
   if (fDeliverKind = dk_ToUnit) and (fPhase <= 6) then
@@ -158,7 +163,7 @@ begin
   end;
 
   //Deliver into complete house
-  if (fDeliverKind = dk_ToHouse) and fToHouse.IsComplete then
+  if (fDeliverKind = dk_ToHouse) then
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;
@@ -188,7 +193,7 @@ begin
   end;
 
   //Deliver into wip house
-  if (fDeliverKind = dk_ToHouse) and not fToHouse.IsComplete then
+  if (fDeliverKind = dk_ToConstruction) then
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;

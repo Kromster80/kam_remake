@@ -5,6 +5,7 @@ Bugs:
  +	When woodcutter goes to chop a tree and sees on spot that tree was just chopped he should look for different tree (no planting though!)
  + 	In multiplayer there are still roads on the map for players that were deleted because they are not playing
  + 	Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
+ +	"Taking wrong resource from Serf" crashes fixed
 	KaM sould attempt to play eng unit sounds if local are missing
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
  ?	Making a hill under a house in MapEd causes a crash
