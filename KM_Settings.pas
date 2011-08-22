@@ -26,8 +26,10 @@ type
     fVSync:boolean;
     fMultiplayerName:string;
     fMultiplayerIP:string;
-    fTCPPort:string;
+    fLastPort:string;
+    fServerPort:string;
     fMasterServerAddress:string;
+    fServerName:string;
     fMasterAnnounceInterval:integer;
     fMaxRooms:integer;
     fAutoKickTimeout:integer;
@@ -48,7 +50,9 @@ type
     procedure SetMultiplayerName(aValue:string);
     procedure SetMultiplayerIP(aValue:string);
     procedure SetMasterServerAddress(aValue:string);
-    procedure SetTCPPort(aValue:string);
+    procedure SetServerName(aValue:string);
+    procedure SetLastPort(aValue:string);
+    procedure SetServerPort(aValue:string);
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
@@ -74,8 +78,10 @@ type
     property VSync:boolean read fVSync;
     property MultiplayerName:string read fMultiplayerName write SetMultiplayerName;
     property MultiplayerIP:string read fMultiplayerIP write SetMultiplayerIP;
-    property TCPPort:string read fTCPPort write SetTCPPort;
+    property LastPort:string read fLastPort write SetLastPort;
+    property ServerPort:string read fServerPort write SetServerPort;
     property MasterServerAddress:string read fMasterServerAddress write SetMasterServerAddress;
+    property ServerName:string read fServerName write SetServerName;
     property MasterAnnounceInterval:integer read fMasterAnnounceInterval;
     property AnnounceServer:boolean read fAnnounceServer;
     property MaxRooms:integer read fMaxRooms;
@@ -140,15 +146,17 @@ begin
   fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);
   fHitPointRestoreInFights := f.ReadBool('Fights','HitPointRestoreInFights',true);
 
-  fMultiplayerName := f.ReadString('Multiplayer','Name','NoName');
-  fMultiplayerIP   := f.ReadString('Multiplayer','IP','127.0.0.1');
-  fTCPPort         := f.ReadString('Multiplayer','Port','56789');
-  fMasterServerAddress    := f.ReadString('Multiplayer','MasterServer','http://lewin.hodgman.id.au/kam_remake_master_server/');
-  fMasterAnnounceInterval := f.ReadInteger('Multiplayer','MasterServerAnnounceInterval',60);
-  fAnnounceServer         := f.ReadBool('Multiplayer','AnnounceDedicatedServer',true);
-  fMaxRooms               := f.ReadInteger('Multiplayer','MaxRooms',16);
-  fAutoKickTimeout        := f.ReadInteger('Multiplayer','AutoKickTimeout',20);
-  fPingInterval           := f.ReadInteger('Multiplayer','PingMeasurementInterval',1000);
+  fMultiplayerName        := f.ReadString('Multiplayer','Name','NoName');
+  fMultiplayerIP          := f.ReadString('Multiplayer','LastIP','127.0.0.1');
+  fLastPort               := f.ReadString('Multiplayer','LastPort','56789');
+  fServerPort             := f.ReadString('Server','ServerPort','56789');
+  fMasterServerAddress    := f.ReadString('Server','MasterServer','http://lewin.hodgman.id.au/kam_remake_master_server/');
+  fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',30);
+  fAnnounceServer         := f.ReadBool('Server','AnnounceDedicatedServer',true);
+  fServerName             := f.ReadString('Server','ServerName','KaM Remake Server');
+  fMaxRooms               := f.ReadInteger('Server','MaxRooms',16);
+  fAutoKickTimeout        := f.ReadInteger('Server','AutoKickTimeout',20);
+  fPingInterval           := f.ReadInteger('Server','PingMeasurementInterval',1000);
 
   FreeAndNil(f);
   fNeedsSave := false;
@@ -180,14 +188,16 @@ begin
   f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
 
   f.WriteString('Multiplayer','Name',fMultiplayerName);
-  f.WriteString('Multiplayer','IP',fMultiplayerIP);
-  f.WriteString('Multiplayer','Port',fTCPPort);
-  f.WriteString('Multiplayer','MasterServerAddress',fMasterServerAddress);
-  f.WriteInteger('Multiplayer','MasterServerAnnounceInterval',fMasterAnnounceInterval);
-  f.WriteBool('Multiplayer','AnnounceDedicatedServer',fAnnounceServer);
-  f.WriteInteger('Multiplayer','MaxRooms',fMaxRooms);
-  f.WriteInteger('Multiplayer','AutoKickTimeout',fAutoKickTimeout);
-  f.WriteInteger('Multiplayer','PingMeasurementInterval',fPingInterval);
+  f.WriteString('Multiplayer','LastIP',fMultiplayerIP);
+  f.WriteString('Multiplayer','LastPort',fLastPort);
+  f.WriteString('Server','ServerPort',fServerPort);
+  f.WriteString('Server','MasterServerAddress',fMasterServerAddress);
+  f.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
+  f.WriteBool('Server','AnnounceDedicatedServer',fAnnounceServer);
+  f.WriteString('Server','ServerName',fServerName);
+  f.WriteInteger('Server','MaxRooms',fMaxRooms);
+  f.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
+  f.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
 
   f.UpdateFile; //Write changes to file
   FreeAndNil(f);
@@ -269,9 +279,23 @@ begin
 end;
 
 
-procedure TGlobalSettings.SetTCPPort(aValue:string);
+procedure TGlobalSettings.SetServerName(aValue:string);
 begin
-  fTCPPort := aValue;
+  fServerName := aValue;
+  fNeedsSave := true;
+end;
+
+
+procedure TGlobalSettings.SetLastPort(aValue:string);
+begin
+  fLastPort := aValue;
+  fNeedsSave := true;
+end;
+
+
+procedure TGlobalSettings.SetServerPort(aValue:string);
+begin
+  fServerPort := aValue;
   fNeedsSave := true;
 end;
 

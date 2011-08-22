@@ -498,7 +498,7 @@ type
     property CanSelect:boolean write fCanSelect;
     function ItemCount:integer;
     function ItemCaption:string;
-    property ItemHeight:byte read fItemHeight;
+    property ItemHeight:byte read fItemHeight write fItemHeight;
     property ItemIndex:smallint read fItemIndex write fItemIndex;
     //property Items:TStringList read fItems;
     property TopIndex:smallint read fTopIndex write SetTopIndex;
@@ -515,12 +515,14 @@ type
   TKMColumnListBox = class(TKMControl)
   private
     fFont: TKMFont;
+    fHeaderFont: TKMFont;
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fCanSelect:boolean;
     fItemHeight:byte;
     fItemIndex:smallint;
     fColumns: TStringList;
     fItems:array of TStringList;
+    fItemOffsets:array of integer;
     fTopIndex:smallint; //up to 32k files
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
@@ -532,7 +534,7 @@ type
     procedure ChangeScrollPosition (Sender:TObject);
     procedure UpdateScrollBar;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aColumns:array of string);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aHeaderFont:TKMFont; aColumns:array of string; aItemOffsets:array of integer);
     destructor Destroy; override;
 
     procedure AddItem(aItem:array of string);
@@ -1994,7 +1996,7 @@ begin
   fItems := TStringList.Create;
   fFont := aFont;
 
-  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
+  fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
   fScrollBar.fOnChange := ChangeScrollPosition;
   UpdateScrollBar; //Initialise the scrollbar
 end;
@@ -2170,7 +2172,7 @@ end;
 
 
 { TKMColumnListBox }
-constructor TKMColumnListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aColumns:array of string);
+constructor TKMColumnListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aHeaderFont:TKMFont; aColumns:array of string; aItemOffsets:array of integer);
 var i:integer;
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
@@ -2181,12 +2183,16 @@ begin
   fItemIndex := -1;
   fColumns := TStringList.Create;
   SetLength(fItems,Length(aColumns));
+  SetLength(fItemOffsets,Length(aColumns));
+  assert(Length(aColumns) = Length(aItemOffsets));
   for i:=0 to Length(aColumns)-1 do
   begin
     fItems[i] := TStringList.Create;
     fColumns.Add(aColumns[i]);
+    fItemOffsets[i] := aItemOffsets[i];
   end;
   fFont := aFont;
+  fHeaderFont := aHeaderFont;
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
   fScrollBar.fOnChange := ChangeScrollPosition;
@@ -2343,11 +2349,11 @@ begin
 
   //todo: Do not position above top, move everything else down
   for i:=0 to Length(fItems)-1 do
-    fRenderUI.WriteText(Left+4+(170*i), Top-20, fColumns[i] , fFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4+fItemOffsets[i], Top-20, fColumns[i] , fHeaderFont, kaLeft, $FFFFFFFF);
 
   for i:=0 to Math.min(fItems[0].Count-1, (fHeight div fItemHeight)-1) do
     for k:=0 to Length(fItems)-1 do
-      fRenderUI.WriteText(Left+4+(170*k), Top+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
 end;
 
 

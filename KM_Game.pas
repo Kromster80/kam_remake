@@ -895,6 +895,7 @@ procedure TKMGame.NetworkInit;
 begin
   if fNetworking = nil then
     fNetworking := TKMNetworking.Create(fGlobalSettings.MasterServerAddress,
+                                        fGlobalSettings.ServerName,
                                         fGlobalSettings.AutoKickTimeout,
                                         fGlobalSettings.PingInterval,
                                         fGlobalSettings.MasterAnnounceInterval);

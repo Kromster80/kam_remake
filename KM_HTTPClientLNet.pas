@@ -1,7 +1,7 @@
 unit KM_HTTPClientLNet;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, lNet, lHTTP, lHTTPUtil;
+uses Classes, SysUtils, lNet, URLUtils, lHTTP;
 
 type
   TKMHTTPClientLNet = class
@@ -47,15 +47,14 @@ end;
 
 procedure TKMHTTPClientLNet.GetURL(aURL:string);
 var
-  aHost, aURI: string;
-  aPort: Word;
+  Proto, User, Pass, Host, Port, Path : String;
 begin
-  //fHTTPClient.Disconnect(true); //If we were doing something, stop it
+  fHTTPClient.Disconnect(true); //If we were doing something, stop it
   HTTPBuffer := '';
-  DecomposeURL(aURL, aHost, aURI, aPort);
-  fHTTPClient.Host := aHost;
-  fHTTPClient.URI  := aURI;
-  fHTTPClient.Port := aPort;
+  ParseURL(aURL, Proto, User, Pass, Host, Port, Path);
+  fHTTPClient.Host := Host;
+  fHTTPClient.URI := Path;
+  fHTTPClient.Port := StrToIntDef(Port,80);
   fHTTPClient.SendRequest;
 end;
 
@@ -80,9 +79,12 @@ function TKMHTTPClientLNet.HTTPClientInput(ASocket: TLHTTPClientSocket; ABuffer:
 var
   oldLength: dword;
 begin
-  oldLength := Length(HTTPBuffer);
-  setlength(HTTPBuffer,oldLength + ASize);
-  move(ABuffer^,HTTPBuffer[oldLength + 1], ASize);
+  if ASize > 0 then
+  begin
+    oldLength := Length(HTTPBuffer);
+    setlength(HTTPBuffer,oldLength + ASize);
+    move(ABuffer^,HTTPBuffer[oldLength + 1], ASize);
+  end;
   Result := aSize; // tell the http buffer we read it all
 end;
 

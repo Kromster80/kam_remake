@@ -343,8 +343,8 @@
     <Version Value="9"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="..\..;..\..\Common\LNet;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..;..\..\Common\LNet"/>
+      <IncludeFiles Value="..\..;..\..\Common;..\..\Common\LNet;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..;..\..\Common;..\..\Common\LNet"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>

@@ -5,9 +5,11 @@ uses Classes, SysUtils, KM_Utils, KM_MasterServer;
 
 type
   TKMServerInfo = record
+    Name: string;
     IP: string;
     Port: string;
-    Name: string;
+    GameState: string;
+    PlayerCount: integer;
     Ping: word;
   end;
 
@@ -21,6 +23,7 @@ type
       procedure LoadFromText(const aText: string);
     public
       property Servers[aIndex:integer]:TKMServerInfo read GetServer; default;
+      property Count:integer read fCount;
   end;
 
   TKMServerQuery = class
@@ -29,14 +32,21 @@ type
     fServerList: TKMServerList;
 
     fOnListUpdated: TNotifyEvent;
+    fOnAnnouncements: TGetStrProc;
 
     procedure ReceiveServerList(const S: string);
+    procedure ReceiveAnnouncements(const S: string);
+    function GetCount:integer;
   public
     constructor Create(aMasterServerAddress:string);
     destructor Destroy; override;
 
     property OnListUpdated:TNotifyEvent write fOnListUpdated;
+    property OnAnnouncements:TGetStrProc write fOnAnnouncements;
+    property Count: integer read GetCount;
+    function GetServer(aIndex:integer):TKMServerInfo;
     procedure RefreshList;
+    procedure FetchAnnouncements(const aLang: string);
     procedure UpdateStateIdle;
   end;
 
@@ -46,9 +56,11 @@ implementation
 procedure TKMServerList.AddServer(aIP, aPort, aName: string; aPing: word);
 begin
   if Length(fServers) <= fCount then SetLength(fServers,fCount+16);
+  fServers[fCount].Name := aName;
   fServers[fCount].IP := aIP;
   fServers[fCount].Port := aPort;
-  fServers[fCount].Name := aName;
+  fServers[fCount].GameState := 'Lobby';
+  fServers[fCount].PlayerCount := 6;
   fServers[fCount].Ping := aPing;
   inc(fCount);
 end;
@@ -79,8 +91,8 @@ begin
   for i:=0 to Strings.Count-1 do
   begin
     ParseDelimited(Items, Strings[i], ','); //Automatically clears Items and loads each value
-    if Items.Count = 2 then //Must have 2 parameters
-      AddServer(Items[0], Items[1], '', 0);
+    if Items.Count = 3 then //Must have 3 parameters
+      AddServer(Items[1], Items[2], Items[0], 0);
   end;
 
   Items.Free;
@@ -93,6 +105,7 @@ begin
   Inherited Create;
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnServerList := ReceiveServerList;
+  fMasterServer.OnAnnouncements := ReceiveAnnouncements;
   fServerList := TKMServerList.Create;
 end;
 
@@ -105,6 +118,12 @@ begin
 end;
 
 
+function TKMServerQuery.GetServer(aIndex:integer):TKMServerInfo;
+begin
+  Result := fServerList.Servers[aIndex];
+end;
+
+
 procedure TKMServerQuery.RefreshList;
 begin
   fMasterServer.QueryServer; //Start the query
@@ -113,9 +132,26 @@ end;
 
 procedure TKMServerQuery.ReceiveServerList(const S: string);
 begin
-  if S = '' then exit; //No servers running
   fServerList.LoadFromText(S);
   if Assigned(fOnListUpdated) then fOnListUpdated(Self);
+end;
+
+
+procedure TKMServerQuery.ReceiveAnnouncements(const S: string);
+begin
+  if Assigned(fOnAnnouncements) then fOnAnnouncements(S);
+end;
+
+
+function TKMServerQuery.GetCount:integer;
+begin
+  Result := fServerList.Count;
+end;
+
+
+procedure TKMServerQuery.FetchAnnouncements(const aLang: string);
+begin
+  fMasterServer.FetchAnnouncements(aLang);
 end;
 
 

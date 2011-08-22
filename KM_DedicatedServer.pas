@@ -16,10 +16,11 @@ type
     fAnnounceInterval: word;
     fPingInterval: word;
     fPort:string;
+    fServerName:string;
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
   public
-    constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word; const aMasterServerAddress:string);
+    constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word; const aServerName:string; const aMasterServerAddress:string);
     destructor Destroy; override;
 
     procedure Start(const aPort:string; aPublishServer:boolean; aHandleException:boolean);
@@ -34,7 +35,7 @@ implementation
 
 
 //Announce interval of -1 means the server will not be published (LAN)
-constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word; const aMasterServerAddress:string);
+constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word; const aServerName:string; const aMasterServerAddress:string);
 begin
   Inherited Create;
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout);
@@ -44,6 +45,7 @@ begin
   fPingInterval := aPingInterval;
   fLastPing := 0;
   fLastAnnounce := 0;
+  fServerName := aServerName;
 end;
 
 
@@ -101,7 +103,7 @@ begin
 
   if fPublishServer and (TickCount-fLastAnnounce >= fAnnounceInterval*1000) then
   begin
-    fMasterServer.AnnounceServer(fPort,fAnnounceInterval+10);
+    fMasterServer.AnnounceServer(fServerName,fPort,fAnnounceInterval+10);
     fLastAnnounce := TickCount;
   end;
 end;

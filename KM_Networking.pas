@@ -72,7 +72,7 @@ type
     procedure PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
   public
-    constructor Create(aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
+    constructor Create(const aMasterServerAddress:string; const aServerName:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
     destructor Destroy; override;
 
     property MyIndex:integer read fMyIndex;
@@ -135,12 +135,12 @@ implementation
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
+constructor TKMNetworking.Create(const aMasterServerAddress:string; const aServerName:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
 begin
   Inherited Create;
   fLANGameState := lgs_None;
   fMapInfo := TKMapInfo.Create;
-  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress);
+  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aServerName, aMasterServerAddress);
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);

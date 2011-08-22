@@ -57,8 +57,13 @@ type
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
 
+    procedure MP_Init(Sender: TObject);
+    procedure MP_Save_Settings;
     procedure MP_RefreshClick(Sender: TObject);
     procedure MP_ListUpdated(Sender: TObject);
+    procedure MP_AnnouncementsUpdated(const S: string);
+    procedure MP_SelectServer(Sender: TObject);
+    procedure MP_Back_Click(Sender: TObject);
 
     procedure LAN_Update(const aStatus:string);
     procedure LAN_HostClick(Sender: TObject);
@@ -119,16 +124,23 @@ type
       Button_MP_WWW,
       Button_MP_Back:TKMButton;
     Panel_NewMultiPlayer:TKMPanel;
-      Edit_MP_Name: TKMEdit;
-      Button_MP_Join,
-      Button_MP_Refresh,
-      Button_MP_BackNew:TKMButton;
+      Panel_MPPlayerName:TKMPanel;
+        Edit_MP_PlayerName: TKMEdit;
+      Panel_MPAnnouncement:TKMPanel;
+        ListBox_MP_Announcement:TKMListBox;
       Panel_MPCreateServer:TKMPanel;
-        Edit_MP_ServerName: TKMEdit;
+        Edit_MP_ServerName,
+        Edit_MP_ServerPort: TKMEdit;
         Button_MP_CreateLAN,
         Button_MP_CreateWAN: TKMButton;
+      Panel_MPJoinServer:TKMPanel;
+        Button_MP_Join: TKMButton;
+        Edit_MP_IP,
+        Edit_MP_Port: TKMEdit;
+      Panel_MPServerDetails:TKMPanel;
+      Button_MP_Refresh,
+      Button_MP_BackNew:TKMButton;
       ColList_Servers: TKMColumnListBox;
-      Panel_MPServerList:TKMPanel;
 
       Panel_LANLogin:TKMPanel;
         Panel_LANLogin2:TKMPanel;
@@ -248,7 +260,8 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound;
+uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound,
+  KM_ServerQuery;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
@@ -451,28 +464,49 @@ begin
   Panel_NewMultiPlayer := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
       //Top area
-      TKMLabel.Create(Panel_NewMultiPlayer, 45, 80, 120, 10, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Metal, kaLeft);
-      Edit_MP_Name := TKMEdit.Create(Panel_NewMultiPlayer, 45, 100, 120, 20, fnt_Grey);
+      Panel_MPPlayerName := TKMPanel.Create(Panel_NewMultiPlayer, 45, 50, 136, 60);
+        TKMBevel.Create(Panel_MPPlayerName,   0,  0, 136, 60);
+        TKMLabel.Create(Panel_MPPlayerName, 8, 6, 236, 10, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Outline, kaLeft);
+        Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 26, 120, 20, fnt_Grey);
+
+      Panel_MPAnnouncement := TKMPanel.Create(Panel_NewMultiPlayer, 190, 50, 475, 208);
+        ListBox_MP_Announcement := TKMListBox.Create(Panel_MPAnnouncement,0,0,475,208,fnt_Grey);
+        ListBox_MP_Announcement.ItemHeight := 16;
+        ListBox_MP_Announcement.CanSelect := false;
 
       //Create server area
-      Panel_MPCreateServer := TKMPanel.Create(Panel_NewMultiPlayer, 700, 100, 400, 400);
-        TKMLabel.Create(Panel_MPCreateServer, 0, 0, 120, 10, 'Server Name', fnt_Metal, kaLeft);
-        Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 0, 40, 120, 20, fnt_Grey);
-        Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,0, 100,200,30,fTextLibrary[TX_MENU_LAN],fnt_Metal,bsMenu);
-        Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,0, 140,200,30,fTextLibrary[TX_MENU_INTERNET],fnt_Metal,bsMenu);
+      Panel_MPCreateServer := TKMPanel.Create(Panel_NewMultiPlayer, 673, 50, 300, 208);
+        TKMBevel.Create(Panel_MPCreateServer,   0,  0, 300, 208);
+        TKMLabel.Create(Panel_MPCreateServer, 150, 6, 250, 10, 'CREATE SERVER', fnt_Outline, kaCenter);
+        TKMLabel.Create(Panel_MPCreateServer, 8, 32, 120, 10, 'Server Name', fnt_Outline, kaLeft);
+        Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 8, 48, 286, 20, fnt_Grey);
+        TKMLabel.Create(Panel_MPCreateServer, 8, 78, 120, 10, 'Server Port', fnt_Outline, kaLeft);
+        Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 8, 94, 100, 20, fnt_Grey);
+        Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 130,286,30,'Create Local Server',fnt_Metal,bsMenu);
+        Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 170,286,30,'Create Internet Server',fnt_Metal,bsMenu);
 
       //Server list area
-      ColList_Servers := TKMColumnListBox.Create(Panel_NewMultiPlayer,50,400,600,300,fnt_Metal,['Name','IP','Port','Ping']);
-      ColList_Servers.AddItem(['Lewin''s Server','127.0.0.1','56789','117']);
-      ColList_Servers.AddItem(['Krom''s Server','127.0.0.1','56789','117']);
-      Button_MP_Join  := TKMButton.Create(Panel_NewMultiPlayer,400, 550,150,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
-      Button_MP_Refresh := TKMButton.Create(Panel_NewMultiPlayer,45, 550,150,30,'Refresh',fnt_Metal,bsMenu);
+      ColList_Servers := TKMColumnListBox.Create(Panel_NewMultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Name','State','Players','Ping'],[0,300,430,525]);
+      ColList_Servers.OnChange := MP_SelectServer;
+      Button_MP_Refresh := TKMButton.Create(Panel_NewMultiPlayer,275,700,390,30,'Refresh Server List',fnt_Metal,bsMenu);
       Button_MP_Refresh.OnClick := MP_RefreshClick;
 
-      //Server detail area
+      //Server details area
+      Panel_MPServerDetails := TKMPanel.Create(Panel_NewMultiPlayer, 673, 300, 300, 292);
+        TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
+        TKMLabel.Create(Panel_MPServerDetails, 150, 6, 250, 10, 'SERVER DETAILS', fnt_Outline, kaCenter);
 
-    Button_MP_BackNew := TKMButton.Create(Panel_NewMultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_MP_BackNew.OnClick := SwitchMenuPage;
+      //Join server area
+      Panel_MPJoinServer := TKMPanel.Create(Panel_NewMultiPlayer, 673, 602, 300, 90);
+        TKMBevel.Create(Panel_MPJoinServer,   0,  0, 300, 90);
+        TKMLabel.Create(Panel_MPJoinServer, 8, 8, 120, 10, 'Address', fnt_Outline, kaLeft);
+        Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 216, 20, fnt_Grey);
+        TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, 'Port', fnt_Outline, kaLeft);
+        Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
+        Button_MP_Join  := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
+
+    Button_MP_BackNew := TKMButton.Create(Panel_NewMultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MP_BackNew.OnClick := MP_Back_Click;
 end;
 
 
@@ -970,6 +1004,7 @@ begin
   {Show new multiplayer page}
   if Sender=Button_MP_WWW then begin
     fGame.NetworkInit;
+    MP_Init(Sender);
     Panel_NewMultiPlayer.Show;
   end;
 
@@ -1179,16 +1214,76 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.MP_Init(Sender: TObject);
+begin
+  MP_RefreshClick(Sender); //Refresh the list when they first open the multiplayer page
+  Edit_MP_PlayerName.Text := fGame.GlobalSettings.MultiplayerName;
+  Edit_MP_IP.Text := fGame.GlobalSettings.MultiplayerIP;
+  Edit_MP_Port.Text := fGame.GlobalSettings.LastPort;
+  Edit_MP_ServerName.Text := fGame.GlobalSettings.ServerName;
+  Edit_MP_ServerPort.Text := fGame.GlobalSettings.ServerPort;
+
+  //Fetch the announcements display
+  fGame.Networking.ServerQuery.FetchAnnouncements(fGame.GlobalSettings.Locale);
+  fGame.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
+  ListBox_MP_Announcement.Clear;
+  ListBox_MP_Announcement.AddItem('Loading announcements...',true);
+end;
+
+
+procedure TKMMainMenuInterface.MP_Save_Settings;
+begin
+  fGame.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
+  fGame.GlobalSettings.LastPort := Edit_MP_Port.Text;
+  fGame.GlobalSettings.MultiplayerIP := Edit_MP_IP.Text;
+  fGame.GlobalSettings.MultiplayerName := Edit_MP_PlayerName.Text;
+  fGame.GlobalSettings.ServerPort := Edit_MP_ServerPort.Text;
+end;
+
+
 procedure TKMMainMenuInterface.MP_RefreshClick(Sender: TObject);
 begin
   fGame.Networking.ServerQuery.RefreshList;
   fGame.Networking.ServerQuery.OnListUpdated := MP_ListUpdated;
+  ColList_Servers.Clear;
+  ColList_Servers.AddItem(['Refreshing...','','','']);
 end;
 
 
 procedure TKMMainMenuInterface.MP_ListUpdated(Sender: TObject);
+var i:integer;
 begin
   //Refresh the display for the list of servers
+  ColList_Servers.Clear;
+  for i:=0 to fgame.Networking.ServerQuery.Count-1 do
+    with fGame.Networking.ServerQuery.GetServer(i) do
+      ColList_Servers.AddItem([Name,GameState,IntToStr(PlayerCount),IntToStr(Ping)]);
+end;
+
+
+procedure TKMMainMenuInterface.MP_AnnouncementsUpdated(const S: string);
+begin
+  ListBox_MP_Announcement.Clear;
+  ListBox_MP_Announcement.AddItem(S,true); //Word wrap
+end;
+
+
+procedure TKMMainMenuInterface.MP_SelectServer(Sender: TObject);
+begin
+  if not InRange(ColList_Servers.ItemIndex, 0, fGame.Networking.ServerQuery.Count-1) then exit;
+    with fGame.Networking.ServerQuery.GetServer(ColList_Servers.ItemIndex) do
+    begin
+      Edit_MP_IP.Text := IP;
+      Edit_MP_Port.Text := Port;
+    end;
+end;
+
+
+procedure TKMMainMenuInterface.MP_Back_Click(Sender: TObject);
+begin
+  fGame.Networking.Disconnect;
+  MP_Save_Settings;
+  SwitchMenuPage(Sender);
 end;
 
 
@@ -1231,7 +1326,7 @@ begin
 
   LAN_BindEvents;
   fGame.Networking.OnHostFail := LAN_HostFail;
-  fGame.Networking.Host(Edit_LAN_Name.Text, fGame.GlobalSettings.TCPPort, false); //All events are nilled
+  fGame.Networking.Host(Edit_LAN_Name.Text, fGame.GlobalSettings.LastPort, false); //All events are nilled
 end;
 
 
@@ -1252,7 +1347,7 @@ begin
   fGame.Networking.OnJoinSucc := LAN_JoinSuccess;
   fGame.Networking.OnJoinFail := LAN_JoinFail;
   fGame.Networking.OnJoinAssignedHost := LAN_JoinAssignedHost;
-  fGame.Networking.Join(Edit_LAN_IP.Text, fGame.GlobalSettings.TCPPort, Edit_LAN_Name.Text); //Init lobby
+  fGame.Networking.Join(Edit_LAN_IP.Text, fGame.GlobalSettings.LastPort, Edit_LAN_Name.Text); //Init lobby
 end;
 
 
