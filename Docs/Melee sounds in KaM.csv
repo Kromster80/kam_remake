@@ -1,0 +1,27 @@
+Name \ Usage;Type;Death strike;House attack
+sound_034_sfx_Melee34.wav;Miss/Voice;No;No
+sound_035_sfx_Melee35.wav;Miss/Voice;No;No
+sound_036_sfx_Melee36.wav;Miss/Voice;No;No
+sound_037_sfx_Melee37.wav;Miss;No;Yes
+sound_038_sfx_Melee38.wav;Miss;No;Yes
+sound_039_sfx_Melee39.wav;Miss;No;Yes
+sound_040_sfx_Melee40.wav;Miss;No;Yes
+sound_041_sfx_Melee41.wav;Hit;Yes;Yes
+sound_042_sfx_Melee42.wav;Hit;No;Yes
+sound_043_sfx_Melee43.wav;Miss;No;Yes
+sound_044_sfx_Melee44.wav;Hit/Voice;Yes;No
+sound_045_sfx_Melee45.wav;Hit/Voice;Yes;No
+sound_046_sfx_Melee46.wav;Hit/Voice;Yes;No
+sound_047_sfx_Melee47.wav;Hit;Yes;Yes
+sound_048_sfx_Melee48.wav;Hit/Voice;Yes;No
+sound_049_sfx_Melee49.wav;Hit/Voice;Yes;No
+sound_050_sfx_Melee50.wav;Hit/Voice;Yes;No
+sound_051_sfx_Melee51.wav;Hit/Metal;Yes;Yes
+sound_052_sfx_Melee52.wav;Hit/Metal;Yes;Yes
+sound_053_sfx_Melee53.wav;Hit/Metal;Yes;Yes
+sound_054_sfx_Melee54.wav;Hit/Metal;Yes;Yes
+sound_055_sfx_Melee55.wav;Hit/Voice;No;No
+sound_056_sfx_Melee56.wav;Hit/Voice;No;No
+sound_057_sfx_Melee57.wav;Hit;Yes;Yes
+
+Recorded by Malin (kamclub.ru);;;
