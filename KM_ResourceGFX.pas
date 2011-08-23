@@ -481,8 +481,9 @@ begin
         Pixel := y*Size[i].X + x;
         L := Data[i, Pixel]; //0..255
 
-        if NeedTeamColors and (L in[23..29]) //Only unit icons and scrolls in RX=4
-        and ((ID<>4) or InRange(i,141,154) or InRange(i,521,550)) then
+        if NeedTeamColors and (L in[23..29])
+        and ((ID<>2) or (i>400))  //Skip the Inn Weapon Smithy and the rest
+        and ((ID<>4) or InRange(i,141,154) or InRange(i,521,550)) then //Unit icons and scrolls
         begin
           RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
           case L of //Maybe it makes sense to convert to 8bit?
@@ -495,7 +496,7 @@ begin
         end else
           RGBA[i,Pixel] := fPalettes[Palette].Color32(L);
       end;
-   end;
+    end;
   end;
 end;
 
