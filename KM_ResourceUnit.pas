@@ -162,7 +162,7 @@ end;
 function TKMUnitDatClass.SupportsAction(aAct: TUnitActionType):boolean;
 const UnitSupportedActions:array[TUnitType]of TUnitActionTypeSet = (
     [], [], //None, Any
-    [ua_Walk, ua_Die, ua_Eat], //Serf
+    [ua_Walk, ua_Die, ua_Eat, ua_WalkArm], //Serf
     [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Die, ua_Eat],

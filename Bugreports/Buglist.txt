@@ -6,6 +6,8 @@ Bugs:
  + 	In multiplayer there are still roads on the map for players that were deleted because they are not playing
  + 	Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
  +	"Taking wrong resource from Serf" crashes fixed
+ +	Save correct number of players from MapEd
+
 	KaM sould attempt to play eng unit sounds if local are missing
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
  ?	Making a hill under a house in MapEd causes a crash
@@ -17,7 +19,6 @@ Bugs:
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  	Warriors should resume interrupted orders after a fight
 
-	Save correct number of players from MapEd
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
 	MediaPlayer won't play some mp3s and crash
