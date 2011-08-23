@@ -1,5 +1,5 @@
 
-MaxID:109
+MaxID:110
 
 KM_InterfaceMainMenu
  1:Uppdrag avbrutet
@@ -108,6 +108,7 @@ Create_Lobby_Page
 93:Spelare: 
 94:Läge: 
 95:Villkor: 
+110:Size:
 96:Välj ett sparat spel...
 97:Välj...
 98:Nätverksfel: 

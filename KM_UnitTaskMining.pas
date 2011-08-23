@@ -205,13 +205,13 @@ begin
           TKMHouseSwineStable(GetHome).TakeBeast(fBeastID);
         end;
         if WorkPlan.ActCount >= fPhase2 then begin
-           GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
-           //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
-           SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
+          GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
+          //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
+          SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
         end else begin
-           fPhase := SkipWork; //Skip to step 30
-           SetActionLockedStay(0,ua_Walk);
-           exit;
+          fPhase := SkipWork; //Skip to step 30
+          SetActionLockedStay(0,ua_Walk);
+          exit;
         end;
        end;
     9..29: begin //Allow for 20 different "house work" phases

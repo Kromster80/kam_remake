@@ -1,5 +1,5 @@
 
-MaxID:109
+MaxID:110
 
 KM_InterfaceMainMenu
  1:Миссия отменена
@@ -106,9 +106,10 @@ Create_Lobby_Page
 82:Выйти
 83:Готов
 84:Начать игру!
-93:Players: %d
-94:Mode:
-95:Conditions:
+93:Игроков: %d
+94:Режим:
+95:Условия:
+110:Размер:
 96:Select a save...
 97:Выбрать...
 98:Network error:
@@ -116,7 +117,7 @@ Create_Lobby_Page
 100:Connection failed: %s
 101:You have disconnected
 102:Connecting, please wait ...
-103:Waiting for players:
+103:Ожтдаем игроков:
 
 Credits
 85:KaM Remake Авторы

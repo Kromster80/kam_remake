@@ -152,6 +152,7 @@ type
         Label_LobbyMapCount:TKMLabel;
         Label_LobbyMapMode:TKMLabel;
         Label_LobbyMapCond:TKMLabel;
+        Label_LobbyMapSize:TKMLabel;
 
       Button_LobbyBack:TKMButton;
       Button_LobbyStart:TKMButton;
@@ -551,6 +552,7 @@ begin
       Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 400, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 420, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, '', fnt_Metal, kaLeft);
+      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 460, 220, 20, '', fnt_Metal, kaLeft);
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 40, 650, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
@@ -1349,6 +1351,7 @@ begin
   Label_LobbyMapCount.Caption := fTextLibrary[TX_LOBBY_MAP_PLAYERS];
   Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
   Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
+  Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
 
   Lobby_OnMapName('');
   if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then begin
@@ -1531,6 +1534,8 @@ begin
   Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Title;
   Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.MapInfo.PlayerCount]);
   Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.MapInfo.MissionModeText;
+  //Label_LobbyMapCond.Caption :=
+  Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE]+' '+fGame.Networking.MapInfo.MapSize;
 
   //Update starting locations
   if fGame.Networking.MapInfo.IsSave then

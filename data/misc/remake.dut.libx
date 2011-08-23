@@ -1,5 +1,5 @@
 
-MaxID:109
+MaxID:110
 
 KM_InterfaceMainMenu
  1:Missie geannuleerd 
@@ -109,6 +109,7 @@ Create_Lobby_Page
 93:Spelers: %d
 94:Mode:
 95:Condities:
+110:Size:
 96:Selecteer een opgeslagen spel...
 97:Selecteer...
 98:Netwerk fout:
