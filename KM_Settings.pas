@@ -27,6 +27,7 @@ type
     fMultiplayerName:string;
     fMultiplayerIP:string;
     fLastPort:string;
+    fLastRoom:string;
     fServerPort:string;
     fMasterServerAddress:string;
     fServerName:string;
@@ -52,6 +53,7 @@ type
     procedure SetMasterServerAddress(aValue:string);
     procedure SetServerName(aValue:string);
     procedure SetLastPort(aValue:string);
+    procedure SetLastRoom(aValue:string);
     procedure SetServerPort(aValue:string);
   public
     //Temp for fight simulator
@@ -79,6 +81,7 @@ type
     property MultiplayerName:string read fMultiplayerName write SetMultiplayerName;
     property MultiplayerIP:string read fMultiplayerIP write SetMultiplayerIP;
     property LastPort:string read fLastPort write SetLastPort;
+    property LastRoom:string read fLastRoom write SetLastRoom;
     property ServerPort:string read fServerPort write SetServerPort;
     property MasterServerAddress:string read fMasterServerAddress write SetMasterServerAddress;
     property ServerName:string read fServerName write SetServerName;
@@ -149,6 +152,7 @@ begin
   fMultiplayerName        := f.ReadString('Multiplayer','Name','NoName');
   fMultiplayerIP          := f.ReadString('Multiplayer','LastIP','127.0.0.1');
   fLastPort               := f.ReadString('Multiplayer','LastPort','56789');
+  fLastRoom               := f.ReadString('Multiplayer','LastRoom','0');
   fServerPort             := f.ReadString('Server','ServerPort','56789');
   fMasterServerAddress    := f.ReadString('Server','MasterServer','http://lewin.hodgman.id.au/kam_remake_master_server/');
   fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',30);
@@ -190,6 +194,7 @@ begin
   f.WriteString('Multiplayer','Name',fMultiplayerName);
   f.WriteString('Multiplayer','LastIP',fMultiplayerIP);
   f.WriteString('Multiplayer','LastPort',fLastPort);
+  f.WriteString('Multiplayer','LastRoom',fLastRoom);
   f.WriteString('Server','ServerPort',fServerPort);
   f.WriteString('Server','MasterServerAddress',fMasterServerAddress);
   f.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
@@ -289,6 +294,13 @@ end;
 procedure TGlobalSettings.SetLastPort(aValue:string);
 begin
   fLastPort := aValue;
+  fNeedsSave := true;
+end;
+
+
+procedure TGlobalSettings.SetLastRoom(aValue:string);
+begin
+  fLastRoom := aValue;
   fNeedsSave := true;
 end;
 

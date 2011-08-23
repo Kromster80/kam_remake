@@ -1,7 +1,7 @@
 unit KM_ServerEventHandler;
 interface
 uses
-  SysUtils, KM_Log, KM_Utils
+  SysUtils, KM_Log
   {$IFDEF MSWindows} ,Windows {$ENDIF}
   ;
 
@@ -22,9 +22,7 @@ var ExeDir: String;
 begin
   Inherited Create;
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
-  fLog := TKMLog.Create(ExeDir+'KaM_Server_'+
-          inttostr({$IFDEF MSWindows}GetTickCount{$ENDIF}
-                   {$IFDEF Unix} FakeGetTickCount{$ENDIF})+'.log');
+  fLog := TKMLog.Create(ExeDir+'KaM_Server_'+FormatDateTime('yyyy-mm-d_hh-nn-ss-zzz',Now)+'.log');
   fLog.AppendLog('Dedicated server event handler created');
 end;
 

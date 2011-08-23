@@ -136,7 +136,8 @@ type
       Panel_MPJoinServer:TKMPanel;
         Button_MP_Join: TKMButton;
         Edit_MP_IP,
-        Edit_MP_Port: TKMEdit;
+        Edit_MP_Port,
+        Edit_MP_Room: TKMEdit;
       Panel_MPServerDetails:TKMPanel;
       Button_MP_Refresh,
       Button_MP_BackNew:TKMButton;
@@ -500,9 +501,11 @@ begin
       Panel_MPJoinServer := TKMPanel.Create(Panel_NewMultiPlayer, 673, 602, 300, 90);
         TKMBevel.Create(Panel_MPJoinServer,   0,  0, 300, 90);
         TKMLabel.Create(Panel_MPJoinServer, 8, 8, 120, 10, 'Address', fnt_Outline, kaLeft);
-        Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 216, 20, fnt_Grey);
-        TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, 'Port', fnt_Outline, kaLeft);
-        Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
+        Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 162, 20, fnt_Grey);
+        TKMLabel.Create(Panel_MPJoinServer, 172, 8, 120, 10, 'Port', fnt_Outline, kaLeft);
+        Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 172, 24, 60, 20, fnt_Grey);
+        TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, 'Room', fnt_Outline, kaLeft);
+        Edit_MP_Room := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
         Button_MP_Join  := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
 
     Button_MP_BackNew := TKMButton.Create(Panel_NewMultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -1220,6 +1223,7 @@ begin
   Edit_MP_PlayerName.Text := fGame.GlobalSettings.MultiplayerName;
   Edit_MP_IP.Text := fGame.GlobalSettings.MultiplayerIP;
   Edit_MP_Port.Text := fGame.GlobalSettings.LastPort;
+  Edit_MP_Room.Text := fGame.GlobalSettings.LastRoom;
   Edit_MP_ServerName.Text := fGame.GlobalSettings.ServerName;
   Edit_MP_ServerPort.Text := fGame.GlobalSettings.ServerPort;
 
@@ -1235,6 +1239,7 @@ procedure TKMMainMenuInterface.MP_Save_Settings;
 begin
   fGame.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
   fGame.GlobalSettings.LastPort := Edit_MP_Port.Text;
+  fGame.GlobalSettings.LastRoom := Edit_MP_Room.Text;
   fGame.GlobalSettings.MultiplayerIP := Edit_MP_IP.Text;
   fGame.GlobalSettings.MultiplayerName := Edit_MP_PlayerName.Text;
   fGame.GlobalSettings.ServerPort := Edit_MP_ServerPort.Text;
@@ -1275,6 +1280,7 @@ begin
     begin
       Edit_MP_IP.Text := IP;
       Edit_MP_Port.Text := Port;
+      Edit_MP_Room.Text := IntToStr(Room);
     end;
 end;
 

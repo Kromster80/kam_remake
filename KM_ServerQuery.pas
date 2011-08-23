@@ -8,8 +8,9 @@ type
     Name: string;
     IP: string;
     Port: string;
+    Room:word;
     GameState: string;
-    PlayerCount: integer;
+    PlayerCount: word;
     Ping: word;
   end;
 
@@ -61,6 +62,7 @@ begin
   fServers[fCount].Port := aPort;
   fServers[fCount].GameState := 'Lobby';
   fServers[fCount].PlayerCount := 6;
+  fServers[fCount].Room := 0;
   fServers[fCount].Ping := aPing;
   inc(fCount);
 end;

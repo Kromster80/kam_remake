@@ -73,7 +73,8 @@ procedure TKMLog.AddLine(const aText:string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
-  WriteLn(fl,floattostr((TimeGet - fFirstTick)/1000)+'s'+#9+
+  WriteLn(fl,FormatDateTime('yyyy/mm/dd hh:nn:ss:zzz',Now)+#9+
+             floattostr((TimeGet - fFirstTick)/1000)+'s'+#9+
              floattostr((TimeGet - fPreviousTick)/1000)+'s'+#9+aText);
   CloseFile(fl);
   fPreviousTick := TimeGet;
