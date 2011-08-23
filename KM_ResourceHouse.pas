@@ -435,6 +435,13 @@ const
   5, 2, 30, 16, 23, 15, 1, 14, 24, 13, 12,
   17, 26, 19, 18, 3, 20, 29, 10);
 
+  //For some reason in KaM the piles of building supply are not aligned, each one has a different offset.
+  //These values were taking from the barracks offsets and are for use with new houses.
+  BuildSupplyOffsets: THouseBuildSupply = ( ((MoveX:0;   MoveY:0), (MoveX:-7;  MoveY:0),  (MoveX:-26; MoveY:0),   //Wood 1-3
+                                             (MoveX:-26; MoveY:0), (MoveX:-26; MoveY:-1), (MoveX:-26; MoveY:-4)), //Wood 4-6
+                                            ((MoveX:0;   MoveY:0), (MoveX:0;   MoveY:0),  (MoveX:-7;  MoveY:0),   //Stone 1-3
+                                             (MoveX:-7;  MoveY:-4),(MoveX:-16; MoveY:-4), (MoveX:-16; MoveY:-4)));//Stone 4-6
+
 
 implementation
 uses KromUtils, KM_TextLibrary, KM_ResourceUnit;
@@ -573,10 +580,10 @@ begin
   fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
   fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
   for i:=1 to 6 do begin
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveX := -55;
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveY := 15;
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveX := 28;
-    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveY := 15;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveX := -55+ BuildSupplyOffsets[1,i].MoveX;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[1,i].MoveY := 15 + BuildSupplyOffsets[1,i].MoveY;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveX := 28 + BuildSupplyOffsets[2,i].MoveX;
+    fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveY := 20 + BuildSupplyOffsets[2,i].MoveY;
   end;
   fItems[ht_Marketplace].fHouseDat.Sight := 9;
   fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Count := 5;
