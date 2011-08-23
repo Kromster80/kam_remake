@@ -374,7 +374,6 @@ begin
     //Tell everyone we are saving a game
     fGame.Networking.PostMessage('Saving game...');
     fGame.GameInputProcess.CmdGame(gic_GameSave, TKMControl(Sender).Tag);
-    fGame.Networking.PostMessage('Game has been saved');
   end
   else
     fGame.Save(TKMControl(Sender).Tag);
