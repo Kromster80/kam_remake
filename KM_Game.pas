@@ -953,11 +953,10 @@ var
   i,NetIndex:integer;
   TempPlayerType:TPlayerType;
 begin
-  //todo: In multiplayer show a message when saving, probably through the (yet to be implemented) in-game chat system
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
     Assert(false, 'Saving from wrong state?');
-    exit;
+    Exit;
   end;
 
   SaveStream := TKMemoryStream.Create;
@@ -1029,7 +1028,7 @@ begin
   SaveStream.SaveToFile(SlotToSaveName(SlotID,'sav')); //Some 70ms for TPR7 map
   SaveStream.Free;
 
-  fLog.AppendLog('Sav done');
+  fLog.AppendLog('Save done');
 
   CopyFile(PChar(SlotToSaveName(99,'bas')), PChar(SlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame
   fGameInputProcess.SaveToFile(SlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame

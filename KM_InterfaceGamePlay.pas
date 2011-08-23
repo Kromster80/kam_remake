@@ -370,11 +370,16 @@ end;
 
 procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
-  if not (Sender is TKMButton) then exit; //Just in case
   //Don't allow saving over autosave (AUTOSAVE_SLOT)
   if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) then exit;
+
   if fGame.MultiplayerMode then
-    fGame.GameInputProcess.CmdGame(gic_GameSave, TKMControl(Sender).Tag)
+  begin
+    //Tell everyone we are saving a game
+    fGame.Networking.PostMessage('Saving game...');
+    fGame.GameInputProcess.CmdGame(gic_GameSave, TKMControl(Sender).Tag);
+    fGame.Networking.PostMessage('Game has been saved');
+  end
   else
     fGame.Save(TKMControl(Sender).Tag);
   SwitchPage(nil); //Close save menu after saving
