@@ -894,22 +894,19 @@ begin
   //Set player colors
   for i:=0 to MAX_PLAYERS-1 do
     Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].FlagColor;
-
-  if MyPlayer <> nil then
-    Button_PlayerSelect[MyPlayer.PlayerIndex].Down := true;
 end;
 
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 var i:integer;
 begin
-  for i:=0 to MAX_PLAYERS-1 do
-    Button_PlayerSelect[i].Down := false;
+  if Sender <> nil then
+    MyPlayer := fPlayers.Player[TKMControl(Sender).Tag]
+  else
+    MyPlayer := fPlayers.Player[0];
 
-  if (TKMControl(Sender).Tag in [0..MAX_PLAYERS-1]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then begin
-    MyPlayer := fPlayers.Player[TKMControl(Sender).Tag];
-    Button_PlayerSelect[TKMControl(Sender).Tag].Down := true;
-  end;
+  for i:=0 to MAX_PLAYERS-1 do
+    Button_PlayerSelect[i].Down := (i = MyPlayer.PlayerIndex);
 
   if (fShownHouse <> nil) or (fShownUnit <> nil) then SwitchPage(nil);
 
@@ -1204,8 +1201,12 @@ begin
     Button_SaveSave.Enabled := CheckBox_SaveExists.Checked;
 
   if Sender = Button_SaveSave then begin
-    //Should we expand the path here?
-    fGame.SaveMapEditor(Edit_SaveName.Text, true);
+    //Should we expand the path here? It depends.. since we are passing mask for map/dat files/folder
+    fGame.SaveMapEditor(Edit_SaveName.Text);
+
+    Player_UpdateColors;
+    Player_ChangeActive(nil);
+
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
 end;
@@ -1693,7 +1694,7 @@ begin
                                     fPlayers.RemAnyUnit(P);
                                   end;
                   esp_Buildings:  begin
-                                    fPlayers.RemAnyHouse(P,true,false,true);
+                                    fPlayers.RemAnyHouse(P,true,false,true); //todo: Houses are not removed from fHouses list completely yet
                                     if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                       fTerrain.RemRoad(P);
                                     if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then

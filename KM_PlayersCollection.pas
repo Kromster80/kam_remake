@@ -14,6 +14,7 @@ type
     fPlayerList:array of TKMPlayer;
     fPlayerAnimals:TKMPlayerAnimals;
     function GetPlayer(Index:integer):TKMPlayer;
+    procedure RemovePlayer(aIndex:TPlayerIndex);
   public
     Selected: TObject; //Unit or House
 
@@ -26,7 +27,7 @@ type
 
     procedure AddPlayers(aCount:byte); //Batch add several players
 
-    procedure RemovePlayer(aIndex:TPlayerIndex);
+    procedure RemoveEmptyPlayers;
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure UpdateMultiplayerTeams;
     function HousesHitTest(X,Y:Integer):TKMHouse;
@@ -129,13 +130,27 @@ begin
 end;
 
 
-//Remove player aIndex
-//todo: Comment and refactor
+//We assume that if player has no assets it is unused and can be removed, so that remaining players
+//will be tightly packed and mission info will display correct player count
+//Accessed only by MapEditor when it needs to remove empty players before saving a map
+procedure TKMPlayersCollection.RemoveEmptyPlayers;
+var i:integer;
+begin
+  for i:=Count-1 downto 0 do
+    if fPlayerList[i].GetFieldsCount + fPlayerList[i].Houses.Count + fPlayerList[i].Units.Count = 0 then
+      RemovePlayer(i);
+end;
+
+
+//Remove player 'aIndex'
+//Accessed only by MapEditor when it needs to remove empty players before saving a map
 procedure TKMPlayersCollection.RemovePlayer(aIndex:TPlayerIndex);
 var i,k:integer;
 begin
-  Assert(MyPlayer <> fPlayerList[aIndex], 'Can not remove Player referenced by MyPlayer');
+  if MyPlayer = fPlayerList[aIndex] then
+    MyPlayer := nil;
 
+  //Remove other players goals using this player
   for i:=0 to fCount-1 do
     fPlayerList[i].Goals.RemoveReference(aIndex);
 

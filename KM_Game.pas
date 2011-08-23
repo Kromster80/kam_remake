@@ -85,7 +85,7 @@ type
     procedure RequestGameHold(Msg:TGameResultMsg);
     procedure GameWaitingForNetwork(aWaiting:boolean);
 
-    procedure SaveMapEditor(const aMissionName:string; DoExpandPath:boolean);
+    procedure SaveMapEditor(const aMissionName:string);
 
     function  ReplayExists:boolean;
     procedure ReplayView;
@@ -852,20 +852,25 @@ end;
 //DoExpandPath means that input is a mission name which should be expanded into:
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.dat
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.map
-procedure TKMGame.SaveMapEditor(const aMissionName:string; DoExpandPath:boolean);
-var fMissionParser: TMissionParser;
+procedure TKMGame.SaveMapEditor(const aMissionName:string);
+var i:integer; fMissionParser: TMissionParser;
 begin
   if aMissionName = '' then exit;
-  if DoExpandPath then begin
-    CreateDir(ExeDir+'Maps');
-    CreateDir(ExeDir+'Maps\'+aMissionName);
-    fTerrain.SaveToMapFile(KMMapNameToPath(aMissionName, 'map'));
-    fMissionParser := TMissionParser.Create(mpm_Editor,false);
-    fMissionParser.SaveDATFile(KMMapNameToPath(aMissionName, 'dat'));
-    FreeAndNil(fMissionParser);
-    fGameName := aMissionName;
-  end else
-    Assert(false,'SaveMapEditor call with DoExpandPath=false');
+
+  fPlayers.RemoveEmptyPlayers;
+
+  CreateDir(ExeDir+'Maps');
+  CreateDir(ExeDir+'Maps\'+aMissionName);
+  fTerrain.SaveToMapFile(KMMapNameToPath(aMissionName, 'map'));
+  fMissionParser := TMissionParser.Create(mpm_Editor,false);
+  fMissionParser.SaveDATFile(KMMapNameToPath(aMissionName, 'dat'));
+  FreeAndNil(fMissionParser);
+  fGameName := aMissionName;
+
+  fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
+  for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
+    fPlayers[i].FogOfWar.RevealEverything;
+  if MyPlayer = nil then MyPlayer := fPlayers[0];
 end;
 
 
