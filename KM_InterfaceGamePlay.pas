@@ -5,14 +5,9 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+  KM_InterfaceDefaults,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils, KM_Points;
 
-
-const
-  BarracksResCount = 11;
-  BarracksResType: array[1..BarracksResCount] of TResourceType =
-    (rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe, rt_Sword,
-     rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet, rt_Horse);
 
 type
   TKMGamePlayInterface = class
@@ -245,8 +240,8 @@ type
       ResRow_Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
       ResRow_Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
     Panel_HouseStore:TKMPanel;
-      Button_Store:array[1..28]of TKMButtonFlat;
-      Image_Store_Accept:array[1..28]of TKMImage;
+      Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
+      Image_Store_Accept:array[1..STORE_RES_COUNT]of TKMImage;
     Panel_House_School:TKMPanel;
       Label_School_Res:TKMLabel;
       ResRow_School_Resource:TKMResourceRow;
@@ -257,7 +252,8 @@ type
       Image_School_Right,Image_School_Train,Image_School_Left:TKMImage;
       Button_School_Right,Button_School_Train,Button_School_Left:TKMButton;
     Panel_HouseBarracks:TKMPanel;
-      Button_Barracks:array[1..BarracksResCount+1]of TKMButtonFlat;
+      Button_Barracks:array[1..BARRACKS_RES_COUNT]of TKMButtonFlat;
+      Button_BarracksRecruit: TKMButtonFlat;
       Label_Barracks_Unit:TKMLabel;
       Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
       Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
@@ -1305,16 +1301,18 @@ procedure TKMGamePlayInterface.Create_Store_Page;
 var i:integer;
 begin
     Panel_HouseStore:=TKMPanel.Create(Panel_House,0,76,200,400);
-      for i:=1 to 28 do begin
-        Button_Store[i]:=TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,350+i);
-        Button_Store[i].OnClick:=House_StoreAcceptFlag;
+      for i:=1 to STORE_RES_COUNT do begin
+        Button_Store[i]:=TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,0);
+        Button_Store[i].TexID := 350 + Byte(StoreResType[i]);
         Button_Store[i].Tag:=i;
-        Button_Store[i].Hint:=TypeToString(TResourceType(i));
+        Button_Store[i].Hint:=TypeToString(StoreResType[i]);
         Button_Store[i].FontColor := $FFE0E0E0;
+        Button_Store[i].OnClick:=House_StoreAcceptFlag;
+
         Image_Store_Accept[i]:=TKMImage.Create(Panel_HouseStore, 8+((i-1)mod 5)*36+20,18+((i-1)div 5)*42+1,12,12,49);
         Image_Store_Accept[i].Tag:=i;
+        Image_Store_Accept[i].Hint:=TypeToString(StoreResType[i]);
         Image_Store_Accept[i].OnClick:=House_StoreAcceptFlag;
-        Image_Store_Accept[i].Hint:=TypeToString(TResourceType(i));
       end;
 end;
 
@@ -1360,21 +1358,24 @@ procedure TKMGamePlayInterface.Create_Barracks_Page;
 var i:integer;
 begin
     Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
-      for i:=Low(Button_Barracks) to High(Button_Barracks) do
+      for i:=1 to BARRACKS_RES_COUNT do
       begin
         Button_Barracks[i] := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
         Button_Barracks[i].TexOffsetX := 1;
         Button_Barracks[i].TexOffsetY := 1;
         Button_Barracks[i].CapOffsetY := 2;
         Button_Barracks[i].HideHighlight := True;
-      end;
-      for i:=1 to BarracksResCount do
-      begin
         Button_Barracks[i].TexID := 350 + Byte(BarracksResType[i]);
         Button_Barracks[i].Hint := TypeToString(BarracksResType[i]);
       end;
-      Button_Barracks[BarracksResCount+1].TexID := fResource.UnitDat[ut_Recruit].GUIIcon;
-      Button_Barracks[BarracksResCount+1].Hint := fResource.UnitDat[ut_Recruit].UnitName;
+
+      Button_BarracksRecruit := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((BARRACKS_RES_COUNT)mod 6)*31,8+((BARRACKS_RES_COUNT)div 6)*42,28,38,0);
+      Button_BarracksRecruit.TexOffsetX := 1;
+      Button_BarracksRecruit.TexOffsetY := 1;
+      Button_BarracksRecruit.CapOffsetY := 2;
+      Button_BarracksRecruit.HideHighlight := True;
+      Button_BarracksRecruit.TexID := fResource.UnitDat[ut_Recruit].GUIIcon;
+      Button_BarracksRecruit.Hint := fResource.UnitDat[ut_Recruit].UnitName;
 
       Label_Barracks_Unit:=TKMLabel.Create(Panel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
 
@@ -1838,7 +1839,7 @@ begin
     else if AButton = mbRight then
       fGame.GameInputProcess.CmdHouse(gic_HouseTrain, Barracks, Barracks_Order[LastBarracksUnit], 10);
 
-  for i:=1 to BarracksResCount do begin
+  for i:=1 to BARRACKS_RES_COUNT do begin
     Tmp := Barracks.CheckResIn(BarracksResType[i]);
     Button_Barracks[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
     //Set highlights
@@ -1849,8 +1850,8 @@ begin
   end;
     
   Tmp := Barracks.RecruitsList.Count;
-  Button_Barracks[12].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
-  Button_Barracks[12].Down := True; //Recruit is always enabled, all troops require one
+  Button_BarracksRecruit.Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
+  Button_BarracksRecruit.Down := True; //Recruit is always enabled, all troops require one
 
   Button_Barracks_Train.Enabled := Barracks.CanEquip(Barracks_Order[LastBarracksUnit]);
   Button_Barracks_Left.Enabled := LastBarracksUnit > 0;
@@ -1940,7 +1941,7 @@ procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
-  fGame.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(fPlayers.Selected), TResourceType((Sender as TKMControl).Tag));
+  fGame.GameInputProcess.CmdHouse(gic_HouseStoreAcceptFlag, TKMHouse(fPlayers.Selected), StoreResType[(Sender as TKMControl).Tag]);
 end;
 
 
@@ -2172,11 +2173,9 @@ begin
   if fPlayers.Selected=nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
 
-  for i:=1 to 28 do begin
-    Tmp:=TKMHouseStore(fPlayers.Selected).CheckResIn(TResourceType(i));
-    if Tmp=0 then Button_Store[i].Caption:='-' else
-    //if Tmp>999 then Button_Store[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
-                  Button_Store[i].Caption:=inttostr(Tmp);
+  for i:=1 to STORE_RES_COUNT do begin
+    Tmp:=TKMHouseStore(fPlayers.Selected).CheckResIn(StoreResType[i]);
+    Button_Store[i].Caption := IfThen(Tmp=0, '-', inttostr(Tmp));
     Image_Store_Accept[i].Visible := TKMHouseStore(fPlayers.Selected).NotAcceptFlag[i];
   end;
 end;
@@ -2207,8 +2206,8 @@ begin
   begin
     Tmp := MyPlayer.Stats.GetHouseQty(StatHouse[i]);
     Tmp2 := MyPlayer.Stats.GetHouseWip(StatHouse[i]);
-    if Tmp  = 0 then Stat_HouseQty[i].Caption := '-' else Stat_HouseQty[i].Caption := inttostr(Tmp);
-    if Tmp2 = 0 then Stat_HouseWip[i].Caption := ''  else Stat_HouseWip[i].Caption := '+'+inttostr(Tmp2);
+    Stat_HouseQty[i].Caption := IfThen(Tmp =0, '-', inttostr(Tmp));
+    Stat_HouseWip[i].Caption := IfThen(Tmp2=0, '', '+'+inttostr(Tmp2));
     if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
       Stat_HousePic[i].TexID := fResource.HouseDat[StatHouse[i]].GUIIcon;
@@ -2225,7 +2224,7 @@ begin
   for i:=low(StatUnit) to high(StatUnit) do
   begin
     Tmp := MyPlayer.Stats.GetUnitQty(StatUnit[i]);
-    if Tmp = 0 then Stat_UnitQty[i].Caption := '-' else Stat_UnitQty[i].Caption := inttostr(Tmp);
+    Stat_UnitQty[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
     Stat_UnitPic[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
     Stat_UnitQty[i].Hint := fResource.UnitDat[StatUnit[i]].UnitName;
   end;

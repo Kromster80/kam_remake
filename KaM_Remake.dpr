@@ -19,6 +19,7 @@ uses
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
   KM_FogOfWar in 'KM_FogOfWar.pas',
   KM_Houses in 'KM_Houses.pas',
+  KM_InterfaceDefaults in 'KM_InterfaceDefaults.pas',
   KM_InterfaceGamePlay in 'KM_InterfaceGamePlay.pas',
   KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas',
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',

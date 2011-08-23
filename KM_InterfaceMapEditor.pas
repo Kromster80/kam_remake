@@ -5,13 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, Forms,
-     KM_Controls, KM_Defaults, KM_Houses, KM_Units, KM_Points;
-
-const //todo: to be adjoined with GameUI defaults
-  BarracksResCount = 11;
-  BarracksResType: array[1..BarracksResCount] of TResourceType =
-    (rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor, rt_Axe, rt_Sword,
-     rt_Pike, rt_Hallebard, rt_Bow, rt_Arbalet, rt_Horse);
+     KM_Controls, KM_Defaults, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
 
 type
   TKMapEdInterface = class
@@ -164,12 +158,12 @@ type
       Button_HouseHealthDec,Button_HouseHealthInc:TKMButton;
 
     Panel_HouseStore:TKMPanel;
-      Button_Store:array[1..28]of TKMButtonFlat;
+      Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
       Label_Store_WareCount:TKMLabel;
       Button_StoreDec100,Button_StoreDec:TKMButton;
       Button_StoreInc100,Button_StoreInc:TKMButton;
     Panel_HouseBarracks:TKMPanel;
-      Button_Barracks:array[1..BarracksResCount]of TKMButtonFlat;
+      Button_Barracks:array[1..BARRACKS_RES_COUNT]of TKMButtonFlat;
       Label_Barracks_WareCount:TKMLabel;
       Button_BarracksDec100,Button_BarracksDec:TKMButton;
       Button_BarracksInc100,Button_BarracksInc:TKMButton;
@@ -831,10 +825,11 @@ procedure TKMapEdInterface.Create_Store_Page;
 var i:integer;
 begin
     Panel_HouseStore:=TKMPanel.Create(Panel_House,0,76,200,400);
-    for i:=1 to 28 do begin
-      Button_Store[i]:=TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,350+i);
+    for i:=1 to STORE_RES_COUNT do begin
+      Button_Store[i]:=TKMButtonFlat.Create(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,0);
+      Button_Store[i].TexID := 350 + Byte(StoreResType[i]);
       Button_Store[i].Tag:=i;
-      Button_Store[i].Hint:=TypeToString(TResourceType(i));
+      Button_Store[i].Hint:=TypeToString(StoreResType[i]);
       Button_Store[i].OnClick := Store_SelectWare;
     end;
     Button_StoreDec100      := TKMButton.Create(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
@@ -858,7 +853,7 @@ procedure TKMapEdInterface.Create_Barracks_Page;
 var i:integer;
 begin
   Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
-    for i:=1 to BarracksResCount do
+    for i:=1 to BARRACKS_RES_COUNT do
     begin
       Button_Barracks[i]:=TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
       Button_Barracks[i].Tag := i;
@@ -1285,8 +1280,8 @@ var i,Tmp:integer;
 begin
   if fPlayers.Selected=nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
-  for i:=1 to 28 do begin
-    Tmp := TKMHouseStore(fPlayers.Selected).CheckResIn(TResourceType(i));
+  for i:=1 to STORE_RES_COUNT do begin
+    Tmp := TKMHouseStore(fPlayers.Selected).CheckResIn(StoreResType[i]);
     Button_Store[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
   end;
 end;
@@ -1298,7 +1293,7 @@ begin
   if fPlayers.Selected=nil then exit;
   if not (fPlayers.Selected is TKMHouseBarracks) then exit;
 
-  for i:=1 to BarracksResCount do begin
+  for i:=1 to BARRACKS_RES_COUNT do begin
     Tmp := TKMHouseBarracks(fPlayers.Selected).CheckResIn(BarracksResType[i]);
     Button_Barracks[i].Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
   end;
@@ -1374,7 +1369,7 @@ begin
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
   if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
 
-  for i:=1 to BarracksResCount do
+  for i:=1 to BARRACKS_RES_COUNT do
     Button_Barracks[i].Down := False;
   TKMButtonFlat(Sender).Down := True;
   BarracksItem := TKMButtonFlat(Sender).Tag;
@@ -1426,7 +1421,7 @@ var Res:TResourceType; Store:TKMHouseStore; Amt:word;
 begin
   if not Panel_HouseStore.Visible then Exit;
 
-  Res := TResourceType(StorehouseItem);
+  Res := StoreResType[StorehouseItem];
   Store := TKMHouseStore(fShownHouse);
 
   if (Sender = Button_StoreDec100) or (Sender = Button_StoreDec) then begin

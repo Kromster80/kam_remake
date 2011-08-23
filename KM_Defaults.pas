@@ -107,7 +107,6 @@ const
   RX7_SPRITE_COUNT = 22;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
-  GUI_HOUSE_COUNT   = 29;   //Number of KaM houses to show in GUI
   MAX_PLAYERS       = 8;    //Maximum players per map
   SAVEGAME_COUNT    = 10;   //Savegame slots available in game menu
   AUTOSAVE_SLOT     = 10;   //Slot ID used for autosaving
@@ -279,7 +278,7 @@ const //Using shortints instead of bools makes it look much neater in code-view
   1,0,0,0,1,
   1,0,0,0,1,
   1,1,1,1,1,
-  0,0,0); 
+  0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
   WarfareCosts:array[17..26,1..2]of TResourceType = (
@@ -321,7 +320,7 @@ const PassabilityStr:array[TPassability] of string = (
 
 {Units}
 type
-  TUnitType = (ut_None=150 {For debug, remove later}, ut_Any,
+  TUnitType = (ut_None, ut_Any,
     ut_Serf,          ut_Woodcutter,    ut_Miner,         ut_AnimalBreeder,
     ut_Farmer,        ut_Lamberjack,    ut_Baker,         ut_Butcher,
     ut_Fisher,        ut_Worker,       ut_StoneCutter,  ut_Smith,
@@ -485,55 +484,6 @@ const
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
 
-  //Statistics page in game menu
-  //0=space, 1=house, 2=unit
-  StatCount:array[1..8,1..8]of byte = (
-  (1,2,0,1,2,0,1,2),
-  (1,1,2,0,1,1,2,0),
-  (1,1,2,0,1,1,2,0),
-  (1,1,2,0,1,1,2,0),
-  (1,1,1,2,0,0,0,0),
-  (1,1,1,1,2,0,0,0),
-  (1,1,2,0,0,0,0,0),
-  (1,1,1,1,0,2,2,0));
-
-  StatHouse:array[1..28] of THouseType = (
-  ht_Quary, ht_Woodcutters, ht_FisherHut,
-  ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
-  ht_Swine, ht_Stables, ht_Butchers, ht_Tannery,
-  ht_Metallurgists, ht_IronSmithy, ht_ArmorSmithy, ht_WeaponSmithy,
-  ht_CoalMine, ht_IronMine, ht_GoldMine,
-  ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_SiegeWorkshop,
-  ht_Barracks, ht_WatchTower,
-  ht_TownHall, ht_Store, ht_School, ht_Inn );
-
-  StatUnit:array[1..14] of TUnitType = (
-  ut_StoneCutter, ut_Woodcutter, ut_Fisher,
-  ut_Farmer, ut_Baker,
-  ut_AnimalBreeder, ut_Butcher,
-  ut_Metallurgist, ut_Smith,
-  ut_Miner,
-  ut_Lamberjack,
-  ut_Recruit,
-  ut_Serf, ut_Worker);
-
-const
-
-  MapEd_Order:array[0..9] of TUnitType = (
-    ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
-    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian);
-
-  MapEd_Icon:array[0..9] of word = (
-    5, 6, 7, 8, 9,
-    10, 11, 12, 13, 14);
-
-  Animal_Order:array[0..7] of TUnitType = (
-    ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
-    ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
-
-  Animal_Icon:array[0..7] of word = (
-    15, 16, 17, 18,
-    19, 20, 21, 22);
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
   TroopCost:array[ut_Militia..ut_Cavalry,1..4] of TResourceType = (
@@ -570,17 +520,6 @@ MapEdTileRemap:array[1..256]of integer = (
 18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
 17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
 // 247 - doesn't work in game, replaced with random road
-
-
-{Houses UI}
-const
-  GUIHouseOrder:array[1..GUI_HOUSE_COUNT]of THouseType = (
-    ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
-    ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,
-    ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
-    ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
-    ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_Marketplace, ht_SiegeWorkshop);
 
 {Terrain}
 type

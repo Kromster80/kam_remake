@@ -9,8 +9,6 @@ uses
 type
   TFightType = (ft_Melee, ft_Ranged);
 
-
-type
   TKMUnitsAnim = packed record
     Step:array[1..30]of smallint;
     Count:smallint;
