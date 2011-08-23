@@ -175,17 +175,19 @@ type
   private
     fCaption: string;
     fText:string;
+    fAutoWrap:boolean;
     procedure SetCaption(aCaption:string);
+    procedure SetAutoWrap(aValue:boolean);
     procedure ReformatText;
   public
     Font: TKMFont;
     FontColor: TColor4;
     TextAlign: KAlign;
-    AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
     function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     property Caption:string read fCaption write SetCaption;
+    property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
     function TextHeight:integer;
     procedure Paint; override;
   end;
@@ -519,6 +521,7 @@ type
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fCanSelect:boolean;
     fItemHeight:byte;
+    fItemTop:smallint;
     fItemIndex:smallint;
     fColumns: TStringList;
     fItems:array of TStringList;
@@ -1050,6 +1053,13 @@ procedure TKMLabel.SetCaption(aCaption:string);
 begin
   fCaption := aCaption;
   ReformatText
+end;
+
+
+procedure TKMLabel.SetAutoWrap(aValue:boolean);
+begin
+  fAutoWrap := aValue;
+  ReformatText;
 end;
 
 
@@ -2181,6 +2191,7 @@ begin
   fItemHeight := 20;
   fTopIndex := 0;
   fItemIndex := -1;
+  fItemTop := 24; //Allow 20px for the header
   fColumns := TStringList.Create;
   SetLength(fItems,Length(aColumns));
   SetLength(fItemOffsets,Length(aColumns));
@@ -2256,7 +2267,7 @@ end;
 //fItems.Count has changed
 procedure TKMColumnListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := Math.max(fItems[0].Count - (fHeight div fItemHeight), 0);
+  fScrollBar.MaxValue := Math.max(fItems[0].Count - ((fHeight-fItemTop) div fItemHeight), 0);
   fScrollBar.Position := fTopIndex;
   fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
 end;
@@ -2310,9 +2321,9 @@ begin
 
   if (ssLeft in Shift) and
      (InRange(X, Left, Left+Width-( fScrollBar.Width*byte(fScrollBar.Visible) ))) and
-     (InRange(Y, Top, Top+Height div fItemHeight * fItemHeight))
+     (InRange(Y, Top+fItemTop, Top+Height div fItemHeight * fItemHeight))
   then begin
-    NewIndex := TopIndex + (Y-Top) div fItemHeight;
+    NewIndex := TopIndex + (Y-(Top+fItemTop)) div fItemHeight;
 
     if NewIndex > fItems[0].Count-1 then NewIndex := -1;
 
@@ -2344,16 +2355,15 @@ begin
 
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
-  if fCanSelect and (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
+  if fCanSelect and (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, ((fHeight-fItemTop) div ItemHeight)-1) then
+    fRenderUI.WriteLayer(Left, Top+fItemTop+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
-  //todo: Do not position above top, move everything else down
   for i:=0 to Length(fItems)-1 do
-    fRenderUI.WriteText(Left+4+fItemOffsets[i], Top-20, fColumns[i] , fHeaderFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4+fItemOffsets[i], 4+Top, fColumns[i] , fHeaderFont, kaLeft, $FFFFFFFF);
 
-  for i:=0 to Math.min(fItems[0].Count-1, (fHeight div fItemHeight)-1) do
+  for i:=0 to Math.min(fItems[0].Count-1, ((fHeight-fItemTop) div fItemHeight)-1) do
     for k:=0 to Length(fItems)-1 do
-      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
 end;
 
 

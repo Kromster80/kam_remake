@@ -72,7 +72,7 @@ type
     procedure PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
   public
-    constructor Create(const aMasterServerAddress:string; const aServerName:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
+    constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
     destructor Destroy; override;
 
     property MyIndex:integer read fMyIndex;
@@ -81,7 +81,7 @@ type
 
     //Lobby
     property ServerQuery:TKMServerQuery read fServerQuery;
-    procedure Host(aUserName,aPort:string; aAnnounceServer:boolean);
+    procedure Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
     procedure Join(aServerAddress,aPort,aUserName:string);
     procedure LeaveLobby;
     procedure Disconnect;
@@ -135,12 +135,12 @@ implementation
 
 
 { TKMNetworking }
-constructor TKMNetworking.Create(const aMasterServerAddress:string; const aServerName:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
+constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
 begin
   Inherited Create;
   fLANGameState := lgs_None;
   fMapInfo := TKMapInfo.Create;
-  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aServerName, aMasterServerAddress);
+  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress);
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
@@ -171,14 +171,14 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aUserName,aPort:string; aAnnounceServer:boolean);
+procedure TKMNetworking.Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
 begin
   fIgnorePings := 0; //Accept pings
   fNetServer.Stop;
 
   fNetServer.OnMessage := fOnTextMessage;
   try
-    fNetServer.Start(aPort,aAnnounceServer,false);
+    fNetServer.Start(aServerName,aPort,aAnnounceServer,false);
   except
     on E : Exception do
     begin

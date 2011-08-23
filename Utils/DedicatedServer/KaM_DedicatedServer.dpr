@@ -50,10 +50,9 @@ begin
                                                 fSettings.AutoKickTimeout,
                                                 fSettings.PingInterval,
                                                 fSettings.MasterAnnounceInterval,
-                                                fSettings.ServerName,
                                                 fSettings.MasterServerAddress);
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
-  fDedicatedServer.Start(fSettings.ServerPort, fSettings.AnnounceServer, true);
+  fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer, true);
 
   while True do
   begin

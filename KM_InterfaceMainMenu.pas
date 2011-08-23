@@ -33,8 +33,6 @@ type
     procedure Create_Single_Page;
     procedure Create_Load_Page;
     procedure Create_MultiPlayer_Page;
-    procedure Create_NewMultiPlayer_Page;
-    procedure Create_LANLogin_Page;
     procedure Create_Lobby_Page;
     procedure Create_MapEditor_Page;
     procedure Create_Options_Page(aGameSettings:TGlobalSettings);
@@ -58,23 +56,20 @@ type
     procedure SingleMap_Start(Sender: TObject);
 
     procedure MP_Init(Sender: TObject);
+    procedure MP_BindEvents;
     procedure MP_Save_Settings;
+    procedure MP_Update(const aStatus:string; aColor:TColor4);
     procedure MP_RefreshClick(Sender: TObject);
     procedure MP_ListUpdated(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
     procedure MP_SelectServer(Sender: TObject);
+    procedure MP_Host_Click(Sender: TObject);
+    procedure MP_JoinClick(Sender: TObject);
+    procedure MP_JoinSuccess(Sender: TObject);
+    procedure MP_JoinFail(const aData:string);
+    procedure MP_JoinAssignedHost(Sender: TObject);
+    procedure MP_HostFail(const aData:string);
     procedure MP_Back_Click(Sender: TObject);
-
-    procedure LAN_Update(const aStatus:string);
-    procedure LAN_HostClick(Sender: TObject);
-    procedure LAN_JoinClick(Sender: TObject);
-    procedure LAN_JoinSuccess(Sender: TObject);
-    procedure LAN_JoinFail(const aData:string);
-    procedure LAN_JoinAssignedHost(Sender: TObject);
-    procedure LAN_HostFail(const aData:string);
-    procedure LAN_BindEvents;
-    procedure LAN_Save_Settings;
-    procedure LAN_BackClick(Sender: TObject);
 
     procedure Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
@@ -119,13 +114,9 @@ type
       Button_SP_Replay:TKMButton;
       Button_SP_Back:TKMButton;
     Panel_MultiPlayer:TKMPanel;
-      Panel_MPButtons:TKMPanel;
-      Button_MP_LAN,
-      Button_MP_WWW,
-      Button_MP_Back:TKMButton;
-    Panel_NewMultiPlayer:TKMPanel;
       Panel_MPPlayerName:TKMPanel;
         Edit_MP_PlayerName: TKMEdit;
+        Label_MP_Status:TKMLabel;
       Panel_MPAnnouncement:TKMPanel;
         ListBox_MP_Announcement:TKMListBox;
       Panel_MPCreateServer:TKMPanel;
@@ -140,18 +131,8 @@ type
         Edit_MP_Room: TKMEdit;
       Panel_MPServerDetails:TKMPanel;
       Button_MP_Refresh,
-      Button_MP_BackNew:TKMButton;
+      Button_MP_Back:TKMButton;
       ColList_Servers: TKMColumnListBox;
-
-      Panel_LANLogin:TKMPanel;
-        Panel_LANLogin2:TKMPanel;
-          Edit_LAN_Name: TKMEdit;
-          Label_LAN_IP:TKMLabel;
-          Button_LAN_Host:TKMButton;
-          Edit_LAN_IP:TKMEdit;
-          Button_LAN_Join:TKMButton;
-          Label_LAN_Status:TKMLabel;
-          Button_LAN_LoginBack:TKMButton;
 
     Panel_Lobby:TKMPanel;
       Panel_LobbyPlayers:TKMPanel;
@@ -294,8 +275,6 @@ begin
     Create_Single_Page;
     Create_Load_Page;
   Create_MultiPlayer_Page;
-    Create_NewMultiPlayer_Page;
-    Create_LANLogin_Page;
     Create_Lobby_Page;
   Create_MapEditor_Page;
   Create_Options_Page(aGameSettings);
@@ -447,58 +426,47 @@ end;
 procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
 begin
   Panel_MultiPlayer := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    with TKMImage.Create(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
-
-    Panel_MPButtons:=TKMPanel.Create(Panel_MultiPlayer,155,280,350,400);
-      Button_MP_LAN  := TKMButton.Create(Panel_MPButtons,0,  0,350,30,fTextLibrary[TX_MENU_LAN],fnt_Metal,bsMenu);
-      Button_MP_WWW  := TKMButton.Create(Panel_MPButtons,0, 40,350,30,fTextLibrary[TX_MENU_INTERNET],fnt_Metal,bsMenu);
-      Button_MP_LAN.OnClick := SwitchMenuPage;
-      Button_MP_WWW.OnClick := SwitchMenuPage;
-
-    Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_MP_Back.OnClick := SwitchMenuPage;
-end;
-
-
-procedure TKMMainMenuInterface.Create_NewMultiPlayer_Page;
-begin
-  Panel_NewMultiPlayer := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
       //Top area
-      Panel_MPPlayerName := TKMPanel.Create(Panel_NewMultiPlayer, 45, 50, 136, 60);
-        TKMBevel.Create(Panel_MPPlayerName,   0,  0, 136, 60);
+      Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 45, 42, 620, 72);
+        TKMBevel.Create(Panel_MPPlayerName,   0,  0, 620, 72);
         TKMLabel.Create(Panel_MPPlayerName, 8, 6, 236, 10, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Outline, kaLeft);
         Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 26, 120, 20, fnt_Grey);
+        TKMLabel.Create(Panel_MPPlayerName, 150, 6, 236, 10, 'Status:', fnt_Outline, kaLeft);
+        Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 150, 26, 470, 30, '', fnt_Grey, kaLeft);
+        Label_MP_Status.AutoWrap := true;
 
-      Panel_MPAnnouncement := TKMPanel.Create(Panel_NewMultiPlayer, 190, 50, 475, 208);
-        ListBox_MP_Announcement := TKMListBox.Create(Panel_MPAnnouncement,0,0,475,208,fnt_Grey);
+      Panel_MPAnnouncement := TKMPanel.Create(Panel_MultiPlayer, 45, 120, 620, 158);
+        ListBox_MP_Announcement := TKMListBox.Create(Panel_MPAnnouncement,0,0,620,158,fnt_Grey);
         ListBox_MP_Announcement.ItemHeight := 16;
         ListBox_MP_Announcement.CanSelect := false;
 
       //Create server area
-      Panel_MPCreateServer := TKMPanel.Create(Panel_NewMultiPlayer, 673, 50, 300, 208);
-        TKMBevel.Create(Panel_MPCreateServer,   0,  0, 300, 208);
+      Panel_MPCreateServer := TKMPanel.Create(Panel_MultiPlayer, 673, 42, 300, 236);
+        TKMBevel.Create(Panel_MPCreateServer,   0,  0, 300, 236);
         TKMLabel.Create(Panel_MPCreateServer, 150, 6, 250, 10, 'CREATE SERVER', fnt_Outline, kaCenter);
-        TKMLabel.Create(Panel_MPCreateServer, 8, 32, 120, 10, 'Server Name', fnt_Outline, kaLeft);
-        Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 8, 48, 286, 20, fnt_Grey);
-        TKMLabel.Create(Panel_MPCreateServer, 8, 78, 120, 10, 'Server Port', fnt_Outline, kaLeft);
-        Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 8, 94, 100, 20, fnt_Grey);
-        Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 130,286,30,'Create Local Server',fnt_Metal,bsMenu);
-        Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 170,286,30,'Create Internet Server',fnt_Metal,bsMenu);
+        TKMLabel.Create(Panel_MPCreateServer, 8, 42, 120, 10, 'Server Name', fnt_Outline, kaLeft);
+        Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 8, 58, 286, 20, fnt_Grey);
+        TKMLabel.Create(Panel_MPCreateServer, 8, 88, 120, 10, 'Server Port', fnt_Outline, kaLeft);
+        Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 8, 104, 100, 20, fnt_Grey);
+        Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 155,286,30,'Create Local Server',fnt_Metal,bsMenu);
+        Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 195,286,30,'Create Internet Server',fnt_Metal,bsMenu);
+        Button_MP_CreateLAN.OnClick := MP_Host_Click;
+        Button_MP_CreateWAN.OnClick := MP_Host_Click;
 
       //Server list area
-      ColList_Servers := TKMColumnListBox.Create(Panel_NewMultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Name','State','Players','Ping'],[0,300,430,525]);
+      ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Name','State','Players','Ping'],[0,300,430,525]);
       ColList_Servers.OnChange := MP_SelectServer;
-      Button_MP_Refresh := TKMButton.Create(Panel_NewMultiPlayer,275,700,390,30,'Refresh Server List',fnt_Metal,bsMenu);
+      Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,'Refresh Server List',fnt_Metal,bsMenu);
       Button_MP_Refresh.OnClick := MP_RefreshClick;
 
       //Server details area
-      Panel_MPServerDetails := TKMPanel.Create(Panel_NewMultiPlayer, 673, 300, 300, 292);
+      Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
         TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
         TKMLabel.Create(Panel_MPServerDetails, 150, 6, 250, 10, 'SERVER DETAILS', fnt_Outline, kaCenter);
 
       //Join server area
-      Panel_MPJoinServer := TKMPanel.Create(Panel_NewMultiPlayer, 673, 602, 300, 90);
+      Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
         TKMBevel.Create(Panel_MPJoinServer,   0,  0, 300, 90);
         TKMLabel.Create(Panel_MPJoinServer, 8, 8, 120, 10, 'Address', fnt_Outline, kaLeft);
         Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 162, 20, fnt_Grey);
@@ -506,36 +474,11 @@ begin
         Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 172, 24, 60, 20, fnt_Grey);
         TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, 'Room', fnt_Outline, kaLeft);
         Edit_MP_Room := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
-        Button_MP_Join  := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
+        Button_MP_Join := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
+        Button_MP_Join.OnClick := MP_JoinClick;
 
-    Button_MP_BackNew := TKMButton.Create(Panel_NewMultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_MP_BackNew.OnClick := MP_Back_Click;
-end;
-
-
-procedure TKMMainMenuInterface.Create_LANLogin_Page;
-begin
-  Panel_LANLogin := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    //Allows us co align everything neatly
-    Panel_LANLogin2 := TKMPanel.Create(Panel_LANLogin, (Panel_Main.Width-400) div 2, 240, 400, 400);
-
-      TKMLabel.Create(Panel_LANLogin2, 200, 0, 120, 20, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Metal, kaCenter);
-      Edit_LAN_Name := TKMEdit.Create(Panel_LANLogin2, 140, 25, 120, 20, fnt_Grey);
-
-      TKMLabel.Create(Panel_LANLogin2, 90, 80, 120, 20, fTextLibrary[TX_LANLOGIN_IP_SELF], fnt_Metal, kaCenter);
-      Label_LAN_IP := TKMLabel.Create(Panel_LANLogin2, 90, 105, 120, 20, '0.0.0.0', fnt_Outline, kaCenter);
-      Button_LAN_Host := TKMButton.Create(Panel_LANLogin2, 10, 140, 160, 30, fTextLibrary[TX_LANLOGIN_SERVER_CREATE], fnt_Metal, bsMenu);
-      Button_LAN_Host.OnClick := LAN_HostClick;
-
-      TKMLabel.Create(Panel_LANLogin2, 310, 80, 120, 20, fTextLibrary[TX_LANLOGIN_IP_HOST], fnt_Metal, kaCenter);
-      Edit_LAN_IP := TKMEdit.Create(Panel_LANLogin2, 230, 105, 160, 20, fnt_Grey);
-      Button_LAN_Join := TKMButton.Create(Panel_LANLogin2, 230, 140, 160, 30, fTextLibrary[TX_LANLOGIN_SERVER_JOIN], fnt_Metal, bsMenu);
-      Button_LAN_Join.OnClick := LAN_JoinClick;
-
-      Label_LAN_Status := TKMLabel.Create(Panel_LANLogin2, 200, 200, 120, 20, ' ... ', fnt_Outline, kaCenter);
-
-    Button_LAN_LoginBack := TKMButton.Create(Panel_LANLogin2, 100, 300, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_LAN_LoginBack.OnClick := LAN_BackClick;
+    Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MP_Back.OnClick := MP_Back_Click;
 end;
 
 
@@ -937,13 +880,9 @@ begin
 
   {Player leaves lobby (LAN text is updated)}
   if Sender=Button_LobbyBack then
-    Panel_LANLogin.Show;
-
-  {Return to MultiPlayerMenu}
-  if (Sender=Button_LAN_LoginBack) or
-     (Sender=Button_MP_BackNew) then
   begin
     Panel_MultiPlayer.Show;
+    MP_RefreshClick(Sender);
   end;
 
   {Return to MainMenu and restore resolution changes}
@@ -992,28 +931,17 @@ begin
     Load_RefreshList;
     Panel_Load.Show;
   end;
-
   {Show MultiPlayer menu}
-  if Sender=Button_MM_MultiPlayer then
-    Panel_MultiPlayer.Show;
-
-  {Show LAN login}
-  if Sender=Button_MP_LAN then begin
-    fGame.NetworkInit;
-    LAN_Update(fTextLibrary[TX_LOBBY_READY]);
-    Panel_LANLogin.Show;
-  end;
-
-  {Show new multiplayer page}
-  if Sender=Button_MP_WWW then begin
+  if Sender=Button_MM_MultiPlayer then begin
     fGame.NetworkInit;
     MP_Init(Sender);
-    Panel_NewMultiPlayer.Show;
+    MP_Update(fTextLibrary[TX_LOBBY_READY],$FF00FF00);
+    Panel_MultiPlayer.Show;
   end;
 
   { Lobby }
-  if (Sender=Button_LAN_Host) or (Sender=Button_LAN_Join) then begin
-    LAN_Save_Settings;
+  if (Sender=Button_MP_Join) or (Sender=Button_MP_CreateLAN) or (Sender=Button_MP_CreateWAN) then begin
+    MP_Save_Settings;
     Lobby_Reset(Sender);
     MyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
@@ -1235,6 +1163,20 @@ begin
 end;
 
 
+//Events binding is the same for Host and Joiner because of stand-alone Server
+//E.g. If Server fails, Host can be disconnected from it as well as a Joiner
+procedure TKMMainMenuInterface.MP_BindEvents;
+begin
+  fGame.Networking.OnTextMessage  := Lobby_OnMessage;
+  fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
+  fGame.Networking.OnMapName      := Lobby_OnMapName;
+  fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
+  fGame.Networking.OnStartGame    := fGame.StartMP;
+  fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
+  fGame.Networking.OnReassignedHost := Lobby_OnReassignedToHost;
+end;
+
+
 procedure TKMMainMenuInterface.MP_Save_Settings;
 begin
   fGame.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
@@ -1243,6 +1185,16 @@ begin
   fGame.GlobalSettings.MultiplayerIP := Edit_MP_IP.Text;
   fGame.GlobalSettings.MultiplayerName := Edit_MP_PlayerName.Text;
   fGame.GlobalSettings.ServerPort := Edit_MP_ServerPort.Text;
+end;
+
+
+procedure TKMMainMenuInterface.MP_Update(const aStatus:string; aColor:TColor4);
+begin
+  Button_MP_CreateLAN.Enable;
+  Button_MP_CreateWAN.Enable;
+  Button_MP_Join.Enable;
+  Label_MP_Status.Caption := aStatus;
+  Label_MP_Status.FontColor := aColor;
 end;
 
 
@@ -1285,6 +1237,75 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.MP_Host_Click(Sender: TObject);
+begin
+  MP_Save_Settings; //Save the player and IP name so it is not lost if something fails
+  if Trim(Edit_MP_PlayerName.Text) = '' then
+  begin
+    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF);
+    exit;
+  end;
+  SwitchMenuPage(Sender); //Open lobby page
+
+  MP_BindEvents;
+  fGame.Networking.OnHostFail := MP_HostFail;
+  fGame.Networking.Host(Edit_MP_PlayerName.Text, Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
+end;
+
+procedure TKMMainMenuInterface.MP_JoinClick(Sender: TObject);
+begin
+  MP_Save_Settings; //Save the player and IP name so it is not lost if the connection fails
+  if Trim(Edit_MP_PlayerName.Text) = '' then
+  begin
+    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF);
+    exit;
+  end;
+  //Disable buttons to prevent multiple clicks while connection process is in progress
+  Button_MP_CreateLAN.Disable;
+  Button_MP_CreateWAN.Disable;
+  Button_MP_Join.Disable;
+  MP_Update(fTextLibrary[TX_LANLOGIN_CONNECTING],$FF00FF00);
+
+  //Send request to join
+  fGame.Networking.OnJoinSucc := MP_JoinSuccess;
+  fGame.Networking.OnJoinFail := MP_JoinFail;
+  fGame.Networking.OnJoinAssignedHost := MP_JoinAssignedHost;
+  fGame.Networking.Join(Edit_MP_IP.Text, Edit_MP_Port.Text, Edit_MP_PlayerName.Text); //Init lobby
+end;
+
+
+//We had recieved permission to join
+procedure TKMMainMenuInterface.MP_JoinSuccess(Sender: TObject);
+begin
+  SwitchMenuPage(Button_MP_Join); //Open lobby page
+
+  fGame.Networking.OnJoinSucc := nil;
+  fGame.Networking.OnJoinFail := nil;
+  fGame.Networking.OnJoinAssignedHost := nil;
+  MP_BindEvents;
+end;
+
+
+procedure TKMMainMenuInterface.MP_JoinFail(const aData:string);
+begin
+  fGame.Networking.Disconnect;
+  MP_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),$FF007FFF);
+end;
+
+
+procedure TKMMainMenuInterface.MP_JoinAssignedHost(Sender: TObject);
+begin
+  //We were joining a game and the server assigned hosting rights to us
+  SwitchMenuPage(Button_MP_CreateLAN); //Open lobby page in host mode
+
+  fGame.Networking.OnJoinSucc := nil;
+  fGame.Networking.OnJoinFail := nil;
+  fGame.Networking.OnJoinAssignedHost := nil;
+  fGame.Networking.OnHostFail := MP_HostFail;
+  MP_BindEvents;
+end;
+
+
 procedure TKMMainMenuInterface.MP_Back_Click(Sender: TObject);
 begin
   fGame.Networking.Disconnect;
@@ -1293,130 +1314,11 @@ begin
 end;
 
 
-//Update LAN connection settings and info (Nikname, server IP, own IP)
-procedure TKMMainMenuInterface.LAN_Update(const aStatus:string);
-var s:string;
-begin
-  //Load connection settings
-  Edit_LAN_Name.Text := fGame.GlobalSettings.MultiplayerName;
-  Edit_LAN_IP.Text := fGame.GlobalSettings.MultiplayerIP;
-
-  s := fGame.Networking.MyIPString;
-  Button_LAN_Host.Enabled := s<>'';
-  Button_LAN_Join.Enable;
-
-  if s <> '' then Label_LAN_IP.Caption := s
-             else Label_LAN_IP.Caption := fTextLibrary[TX_UNKNOWN];
-
-  Label_LAN_Status.Caption := aStatus;
-end;
-
-
-//Save connection settings when user leaves LAN_Login page
-procedure TKMMainMenuInterface.LAN_Save_Settings;
-begin
-  fGame.GlobalSettings.MultiplayerName := Edit_LAN_Name.Text;
-  fGame.GlobalSettings.MultiplayerIP := Edit_LAN_IP.Text;
-end;
-
-
-procedure TKMMainMenuInterface.LAN_HostClick(Sender: TObject);
-begin
-  LAN_Save_Settings; //Save the player and IP name so it is not lost if something fails
-  if Trim(Edit_LAN_Name.Text) = '' then
-  begin
-    LAN_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME]);
-    exit;
-  end;
-  SwitchMenuPage(Sender); //Open lobby page
-
-  LAN_BindEvents;
-  fGame.Networking.OnHostFail := LAN_HostFail;
-  fGame.Networking.Host(Edit_LAN_Name.Text, fGame.GlobalSettings.LastPort, false); //All events are nilled
-end;
-
-
-procedure TKMMainMenuInterface.LAN_JoinClick(Sender: TObject);
-begin
-  LAN_Save_Settings; //Save the player and IP name so it is not lost if the connection fails
-  if Trim(Edit_LAN_Name.Text) = '' then
-  begin
-    LAN_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME]);
-    exit;
-  end;
-  //Disable buttons to prevent multiple clicks while connection process is in progress
-  Button_LAN_Host.Disable;
-  Button_LAN_Join.Disable;
-  Label_LAN_Status.Caption := fTextLibrary[TX_LANLOGIN_CONNECTING];
-
-  //Send request to join
-  fGame.Networking.OnJoinSucc := LAN_JoinSuccess;
-  fGame.Networking.OnJoinFail := LAN_JoinFail;
-  fGame.Networking.OnJoinAssignedHost := LAN_JoinAssignedHost;
-  fGame.Networking.Join(Edit_LAN_IP.Text, fGame.GlobalSettings.LastPort, Edit_LAN_Name.Text); //Init lobby
-end;
-
-
-//We had recieved permission to join
-procedure TKMMainMenuInterface.LAN_JoinSuccess(Sender: TObject);
-begin
-  SwitchMenuPage(Button_LAN_Join); //Open lobby page
-
-  fGame.Networking.OnJoinSucc := nil;
-  fGame.Networking.OnJoinFail := nil;
-  fGame.Networking.OnJoinAssignedHost := nil;
-  LAN_BindEvents;
-end;
-
-
-procedure TKMMainMenuInterface.LAN_JoinFail(const aData:string);
-begin
-  fGame.Networking.Disconnect;
-  LAN_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]));
-end;
-
-
-procedure TKMMainMenuInterface.LAN_JoinAssignedHost(Sender: TObject);
-begin
-  //We were joining a game and the server assigned hosting rights to us
-  SwitchMenuPage(Button_LAN_Host); //Open lobby page in host mode
-
-  fGame.Networking.OnJoinSucc := nil;
-  fGame.Networking.OnJoinFail := nil;
-  fGame.Networking.OnJoinAssignedHost := nil;
-  fGame.Networking.OnHostFail := LAN_HostFail;
-  LAN_BindEvents;
-end;
-
-
-procedure TKMMainMenuInterface.LAN_HostFail(const aData:string);
+procedure TKMMainMenuInterface.MP_HostFail(const aData:string);
 begin
   fGame.Networking.Disconnect;
   SwitchMenuPage(Button_LobbyBack);
-  LAN_Update(aData);
-end;
-
-
-//Events binding is the same for Host and Joiner because of stand-alone Server
-//E.g. If Server fails, Host can be disconnected from it as well as a Joiner
-procedure TKMMainMenuInterface.LAN_BindEvents;
-begin
-  fGame.Networking.OnTextMessage  := Lobby_OnMessage;
-  fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
-  fGame.Networking.OnMapName      := Lobby_OnMapName;
-  fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
-  fGame.Networking.OnStartGame    := fGame.StartMP;
-  fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
-  fGame.Networking.OnReassignedHost := Lobby_OnReassignedToHost;
-end;
-
-
-//Disconnect in case NetClient is waiting for reply from server
-procedure TKMMainMenuInterface.LAN_BackClick(Sender: TObject);
-begin
-  fGame.Networking.Disconnect;
-  LAN_Save_Settings;
-  SwitchMenuPage(Sender);
+  MP_Update(aData,$FF007FFF);
 end;
 
 
@@ -1449,7 +1351,7 @@ begin
   Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
 
   Lobby_OnMapName('');
-  if Sender = Button_LAN_Host then begin
+  if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then begin
     Radio_LobbyMapType.Show;
     Radio_LobbyMapType.ItemIndex := 0;
     Lobby_MapTypeSelect(nil);
@@ -1646,7 +1548,7 @@ end;
 //We have been assigned to the host of the game because the host disconnected. Reopen lobby page in correct mode.
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
-  Lobby_Reset(Button_LAN_Host,true); //Will reset the lobby page into host mode, preserving messages
+  Lobby_Reset(Button_MP_CreateLAN,true); //Will reset the lobby page into host mode, preserving messages
   if fGame.Networking.MapInfo.IsSave then
     Radio_LobbyMapType.ItemIndex := 1
   else
@@ -1677,7 +1579,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
   fGame.Networking.Disconnect;
-  LAN_Update(aData);
+  MP_Update(aData,$FF00FFFF);
   if fGame.GameState = gsRunning then
     fGame.Stop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+' '+aData)
   else
@@ -1689,7 +1591,7 @@ procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
   fGame.Networking.LeaveLobby;
   fGame.Networking.Disconnect;
-  LAN_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT]);
+  MP_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT],$FF00FFFF);
   SwitchMenuPage(Button_LobbyBack);
 end;
 

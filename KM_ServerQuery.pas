@@ -61,7 +61,7 @@ begin
   fServers[fCount].IP := aIP;
   fServers[fCount].Port := aPort;
   fServers[fCount].GameState := 'Lobby';
-  fServers[fCount].PlayerCount := 6;
+  fServers[fCount].PlayerCount := 0;
   fServers[fCount].Room := 0;
   fServers[fCount].Ping := aPing;
   inc(fCount);
