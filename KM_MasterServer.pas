@@ -71,22 +71,22 @@ end;
 
 procedure TKMMasterServer.AnnounceServer(aName, aPort:string; aTTL:integer);
 begin
-  fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)+'&ttl='+UrlEncode(IntToStr(aTTL))+'&rev='+UrlEncode(GAME_REVISION));
   fHTTPClient.OnReceive := nil; //We don't care about the response
+  fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)+'&ttl='+UrlEncode(IntToStr(aTTL))+'&rev='+UrlEncode(GAME_REVISION));
 end;
 
 
 procedure TKMMasterServer.QueryServer;
 begin
-  fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(GAME_REVISION));
   fHTTPClient.OnReceive := Receive;
+  fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(GAME_REVISION));
 end;
 
 
 procedure TKMMasterServer.FetchAnnouncements(const aLang: string);
 begin
-  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(aLang)+'&rev='+UrlEncode(GAME_REVISION));
   fHTTPAnnouncementsClient.OnReceive := ReceiveAnnouncements;
+  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(aLang)+'&rev='+UrlEncode(GAME_REVISION));
 end;
 
 

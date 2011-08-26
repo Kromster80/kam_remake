@@ -1158,8 +1158,8 @@ begin
   Edit_MP_ServerPort.Text := fGame.GlobalSettings.ServerPort;
 
   //Fetch the announcements display
-  fGame.Networking.ServerQuery.FetchAnnouncements(fGame.GlobalSettings.Locale);
   fGame.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
+  fGame.Networking.ServerQuery.FetchAnnouncements(fGame.GlobalSettings.Locale);
   ListBox_MP_Announcement.Clear;
   ListBox_MP_Announcement.AddItem('Loading announcements...',true);
 end;
@@ -1202,8 +1202,8 @@ end;
 
 procedure TKMMainMenuInterface.MP_RefreshClick(Sender: TObject);
 begin
-  fGame.Networking.ServerQuery.RefreshList;
   fGame.Networking.ServerQuery.OnListUpdated := MP_ListUpdated;
+  fGame.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
   ColList_Servers.AddItem(['Refreshing...','','','']);
 end;
@@ -1214,7 +1214,7 @@ var i:integer;
 begin
   //Refresh the display for the list of servers
   ColList_Servers.Clear;
-  for i:=0 to fgame.Networking.ServerQuery.Count-1 do
+  for i:=0 to fGame.Networking.ServerQuery.Count-1 do
     with fGame.Networking.ServerQuery.GetServer(i) do
       ColList_Servers.AddItem([Name,GameState,IntToStr(PlayerCount),IntToStr(Ping)]);
 end;
@@ -1272,7 +1272,7 @@ begin
   fGame.Networking.OnJoinSucc := MP_JoinSuccess;
   fGame.Networking.OnJoinFail := MP_JoinFail;
   fGame.Networking.OnJoinAssignedHost := MP_JoinAssignedHost;
-  fGame.Networking.Join(Edit_MP_IP.Text, Edit_MP_Port.Text, Edit_MP_PlayerName.Text); //Init lobby
+  fGame.Networking.Join(Edit_MP_IP.Text, Edit_MP_Port.Text, Edit_MP_PlayerName.Text, StrToIntDef(Edit_MP_Room.Text,-1)); //Init lobby
 end;
 
 

@@ -47,7 +47,7 @@ type
   public
     constructor Create(aHandle, aRoom:integer);
     property Handle:integer read fHandle; //ReadOnly
-    property Room:integer read fRoom; //ReadOnly
+    property Room:integer read fRoom write fRoom;
     property Ping:word read fPing write fPing;
   end;
 
@@ -90,9 +90,11 @@ type
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
     function IsValidHandle(aHandle:integer):boolean;
+    procedure AddNewRoom;
     function GetFirstAvailableRoom:integer;
     function GetRoomPlayersCount(aRoom:integer):integer;
     function GetFirstRoomClient(aRoom:integer):integer;
+    procedure AddClientToRoom(aHandle, Room:integer);
   public
     constructor Create(aMaxRooms:word; aKickTimeout: word);
     destructor Destroy; override;
@@ -286,19 +288,34 @@ end;
 
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
-var Room:integer;
 begin
-  Room := GetFirstAvailableRoom;
-  Status('Client '+inttostr(aHandle)+' has connected to room '+inttostr(Room));
-  fClientList.AddPlayer(aHandle, Room);
-  if Room = -1 then
-  begin
-    //No rooms available, so send a polite message explaining why they can't join
-    SendMessage(aHandle, mk_RefuseToJoin, 0, 'No rooms available on this server');
-    fServer.Kick(aHandle);
-    Exit;
-  end;
+  fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they chose a room later
   SendMessage(aHandle, mk_GameVersion, 0, GAME_REVISION); //First make sure they are using the right version
+  SendMessage(aHandle, mk_IndexOnServer, aHandle, ''); //This is the signal that the client may now start sending
+end;
+
+
+procedure TKMNetServer.AddClientToRoom(aHandle, Room:integer);
+begin
+  if fClientList.GetByHandle(aHandle).Room <> -1 then exit; //Changing rooms is not allowed yet
+
+  if Room = fRoomCount then
+    AddNewRoom //Create a new room for this client
+  else
+    if Room = -1 then
+      Room := GetFirstAvailableRoom //Take the first one which has a space (or create a new one if none have spaces)
+    else
+      //If the room is outside the valid range
+      if not InRange(Room,0,fRoomCount-1) then //Means take the first available room
+      begin
+        //No rooms available, so send a polite message explaining why they can't join
+        SendMessage(aHandle, mk_RefuseToJoin, 0, 'Invalid room number');
+        fServer.Kick(aHandle);
+        Exit;
+      end;
+
+  Status('Client '+inttostr(aHandle)+' has connected to room '+inttostr(Room));
+  fClientList.GetByHandle(aHandle).Room := Room;
 
   //Let the first client be a Host
   if fHostHandle[Room] = NET_ADDRESS_EMPTY then
@@ -308,7 +325,7 @@ begin
     Status('Host rights assigned to '+inttostr(fHostHandle[Room]));
   end;
 
-  SendMessage(aHandle, mk_IndexOnServer, aHandle, '');
+  SendMessage(aHandle, mk_ConnectedToRoom, Room, '');
   MeasurePings;
 end;
 
@@ -399,6 +416,7 @@ begin
   M.Free;
 
   case Kind of
+    mk_JoinRoom:  AddClientToRoom(aSenderHandle,Param);
     mk_RoomOpen:  fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := true;
     mk_RoomClose: fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := false;
     mk_Pong:
@@ -481,6 +499,20 @@ begin
 end;
 
 
+procedure TKMNetServer.AddNewRoom;
+begin
+  if fRoomCount = fMaxRooms then
+  begin
+    //Status('Cannot create a new room: limit reached');
+    Exit;
+  end;
+  inc(fRoomCount);
+  SetLength(fRoomJoinable,fRoomCount);
+  SetLength(fHostHandle,fRoomCount);
+  fRoomJoinable[fRoomCount-1] := true;
+end;
+
+
 function TKMNetServer.GetFirstAvailableRoom:integer;
 var i:integer;
 begin
@@ -491,17 +523,7 @@ begin
       fRoomJoinable[i] := true; //Empty rooms are reset to joinable
       exit;
     end;
-  //Add a new room
-  if fRoomCount = fMaxRooms then
-  begin
-    Result := -1;
-    //Status('Cannot create a new room: limit reached');
-    Exit;
-  end;
-  inc(fRoomCount);
-  SetLength(fRoomJoinable,fRoomCount);
-  SetLength(fHostHandle,fRoomCount);
-  fRoomJoinable[fRoomCount-1] := true;
+  AddNewRoom; //Otherwise we must create a room
   Result := fRoomCount-1;
 end;
 

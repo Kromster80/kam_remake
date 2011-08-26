@@ -518,7 +518,7 @@ type
   private
     fFont: TKMFont;
     fHeaderFont: TKMFont;
-    fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
+    fBackAlpha:single; //Alpha of background
     fCanSelect:boolean;
     fItemHeight:byte;
     fItemTop:smallint;

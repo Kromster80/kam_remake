@@ -31,6 +31,8 @@ type
     mk_ReassignHost,    //Server tells clients who is the new host after the host disconnects
 
     mk_GameVersion,     //Server tells a new client which game version we are using
+    mk_JoinRoom,        //Client requests to be placed in a room
+    mk_ConnectedToRoom, //Server tells a client they have been successfully added to a room
 
     mk_Disconnect,      //Joiner tells Host that he is leaving the lobby/game deliberately
                         //Host tells Joiners that he is quitting
@@ -78,6 +80,8 @@ const
     pfNumber,   //mk_ClientLost
     pfNumber,   //mk_ReassignHost
     pfText,     //mk_GameVersion
+    pfNumber,   //mk_JoinRoom
+    pfNumber,   //mk_ConnectedToRoom
     pfNoData,   //mk_Disconnect
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong

@@ -12,12 +12,13 @@ uses
 
 type
   TLANPlayerKind = (lpk_Host, lpk_Joiner);
-  TLANGameState = (lgs_None, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game);
+  TLANGameState = (lgs_None, lgs_Connecting, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game);
 
 const
   NetAllowedPackets:array[TLANGameState] of set of TKMessageKind = (
   [], //lgs_None
-  [mk_AllowToJoin,mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_Ping,mk_Pong,mk_PingInfo], //lgs_Query
+  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_Ping,mk_Pong,mk_ConnectedToRoom], //lgs_Connecting
+  [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_Pong,mk_PingInfo], //lgs_Query
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_Pong,mk_PingInfo,mk_PlayersList,
    mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
    mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text], //lgs_Lobby
@@ -41,6 +42,7 @@ type
     fMyNikname:string;
     fMyIndexOnServer:integer;
     fMyIndex:integer; //In NetPlayers list
+    fRoomToJoin:integer; //The room we should join once we hear from the server
     fIgnorePings: integer; //During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
     fJoinTimeout:cardinal;
     fNetPlayers:TKMPlayersList;
@@ -82,7 +84,7 @@ type
     //Lobby
     property ServerQuery:TKMServerQuery read fServerQuery;
     procedure Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
-    procedure Join(aServerAddress,aPort,aUserName:string);
+    procedure Join(aServerAddress,aPort,aUserName:string; aRoom:integer);
     procedure LeaveLobby;
     procedure Disconnect;
     function  Connected: boolean;
@@ -187,11 +189,11 @@ begin
       Exit;
     end;
   end;
-  Join('127.0.0.1', aPort, aUserName); //Server will assign hosting rights to us as we are the first joiner
+  Join('127.0.0.1', aPort, aUserName, 0); //Server will assign hosting rights to us as we are the first joiner
 end;
 
 
-procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string);
+procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string; aRoom:integer);
 begin
   Assert(not fNetClient.Connected, 'We were not properly disconnected');
 
@@ -199,7 +201,8 @@ begin
   fJoinTimeout := GetTickCount;
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
   fMyIndexOnServer := -1; //Assigned by Server
-  fLANGameState := lgs_Query; //We are just querying until we have been accepted into the game
+  fRoomToJoin := aRoom;
+  fLANGameState := lgs_Connecting; //We are still connecting to the server
 
   fHostAddress := aServerAddress;
   fMyNikname := aUserName;
@@ -642,7 +645,7 @@ begin
   //Make sure we are allowed to receive this packet at this point
   if not (Kind in NetAllowedPackets[fLANGameState]) then
   begin
-    //When querying a server we may receive data such as commands, player setup, etc. These should be ignored.
+    //When querying a host we may receive data such as commands, player setup, etc. These should be ignored.
     if (fLANGameState <> lgs_Query) and Assigned(fOnTextMessage) then
       fOnTextMessage('Error: Received an packet not intended for this state');
     Exit;
@@ -669,6 +672,13 @@ begin
             begin
               fMyIndexOnServer := Param;
               if Assigned(fOnTextMessage) then fOnTextMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
+              //Now join the room we planned to
+              PacketSend(NET_ADDRESS_SERVER, mk_JoinRoom, '', fRoomToJoin);
+            end;
+
+    mk_ConnectedToRoom:
+            begin
+              //We are now clear to proceed with our business
               case fLANPlayerKind of
                 lpk_Host:
                     begin
@@ -680,6 +690,7 @@ begin
                     end;
                 lpk_Joiner:
                 begin
+                    fLANGameState := lgs_Query;
                     fJoinTimeout := GetTickCount; //Wait another X seconds for host to reply before timing out
                     PacketSend(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname, 0);
                 end;
@@ -971,7 +982,7 @@ end;
 procedure TKMNetworking.UpdateState(aTick: cardinal);
 begin
   //Joining timeout
-  if fLANGameState = lgs_Query then
+  if fLANGameState in [lgs_Connecting,lgs_Query] then
     if GetTickCount-fJoinTimeout > JOIN_TIMEOUT then
       fOnJoinFail('Query timed out');
 end;
