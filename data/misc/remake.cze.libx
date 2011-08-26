@@ -1,0 +1,131 @@
+
+MaxID:109
+
+KM_InterfaceMainMenu
+ 1:Mise zrušena
+ 2:Stavební Tutoriál
+ 3:Bojovı Tutoriál
+ 4:Hra Jednoho Hráèe
+ 5:Editor Map
+ 6:Shlédnout poslední záznam
+ 7:Hrát pøes LAN
+ 8:Hrát pøes Internet
+ 9:Login
+10:Heslo
+11:Spustit Misi
+12:Název
+13:Velikost
+14:Typ Mise: %s
+15:Podmínky vítìzství: %s
+16:Podmínky poráky: %s
+17:Spojenci: 
+18:Nepøátelé: 
+19:Slot %d
+20:Velikost nové mapy
+21:Šíøka
+22:Vıška
+23:Vytvoøit Novou Mapu
+24:Dostupné mapy
+25:Naèíst existující mapu
+26:Ovládání:
+27:Hra:
+28:Zvuk:
+29:Grafika:
+30:Jas
+31:Celá obrazovka
+32:Pouít
+33:Jazyk:
+34:Nahrávám... Prosím èekejte
+35:Došlo k Chybì!
+36:Vypnout
+37:Nahrávám novou lokalizaci
+38:Neznámá
+
+KM_InterfaceGamePlay
+39:Zvítìzil jste!
+40:Pokraèovat ve høe
+41:Vítìzství!
+42:Prohrál jste!
+43:Dále sledovat
+44:Prohra
+45:Pøehrávání skonèilo
+46:Dále sledovat
+47:Ukonèit
+104:Nedostupné
+105:Stisknìte %s pro pokraèování hry
+106:Tımu
+108:Informace o hráèích
+109:Chat
+
+KM_Game
+48:Bìhem hry došlo k chybì.
+49:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nPOZOR: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
+
+KM_Units
+50:Tìba ze špatného místa
+51:Váš rybáø je pøíliš daleko od vody.
+52:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
+107:Umøít
+
+KM_Unit1
+53:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickıma chybama\nProsím aktualizujte svoje ovladaèe pro dosaení lepších vısledkù.
+
+KM_InterfaceMapEditor
+54:Editace terénu
+55:Plánování vesnice
+56:Visualní skripty
+57:Globalní skriptování
+58:Menu
+
+Create_LANLogin_Page
+59:Jméno hráèe:
+60:Vaše IP adresa:
+61:IP adresa hostitele:
+62:Vytvoøit server
+63:Pøipojit
+
+Create_Lobby_Page
+64:Seznam hráèù:
+65:Starovací pozice:
+66:Tım:
+67:Barva:
+68:Hotov:
+69:Ping:
+70:Volno
+71:Poèítaè
+72:Náhodnì
+73:ádnı
+74:Tım %d
+75:Chat:
+76:Odeslat zprávu:
+77:Vıbìr mapy:
+78:Nová Hra
+79:Uloená Hra
+80:Vyberte mapu...
+81:Informace o mapì:
+82:Opustit lobby
+83:Pøipraven
+84:Start!
+93:Hráèi: %d
+94:Mód:
+95:Podmínky vítìzství:
+96:Vıbìr uloené hry...
+97:Vybrat...
+98:Síová chyba:
+99:Chyba: Musíte zadat svoje jméno
+100:Spojení se nezdaøilo: %s
+101:Byl jste odpojen
+102:Pøipojuji se, prosím èekejte...
+103:Èekám na ostatní hráèe:
+
+Credits
+85:KaM Remake Credits
+86:Original Knights & Merchants Credits
+87:PROGRAMOVÁNÍ:
+88:DALŠÍ PROGRAMOVÁNÍ:
+89:DALŠÍ GRAFIKA:
+90:DALŠÍ PØEKLAD:
+91:SPECIÁLNÍ PODÌKOVÁNÍ:
+
+Mission
+92:Mise %d
