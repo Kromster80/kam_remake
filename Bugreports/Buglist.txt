@@ -8,7 +8,7 @@ Bugs:
  +	"Taking wrong resource from Serf" crashes fixed
  +	Save correct number of players from MapEd
 
-	KaM sould attempt to play eng unit sounds if local are missing
+	Farmer will sow corn on tile that was just finished as a road
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
  ?	Making a hill under a house in MapEd causes a crash
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
@@ -36,7 +36,8 @@ Features:
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
- - 	Warriors attacking enemy citizens don't listen to orders
+ - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
+ -	KaM sould attempt to play eng unit sounds if local are missing (there's no favorit locale)
 
 
 
