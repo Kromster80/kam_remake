@@ -6,6 +6,7 @@ Folder contains all required map files. So far these are:
  - MAP_NAME.txt which contains map properties and description shown in menu
  - MAP_NAME.dat which is a script file of the map
  - MAP_NAME.map which is map terrain
+ - MAP_NAME.mi temporary file created by the game which stores the map/mission info so it is not necessary to scan the files each time. It can be safely deleted.
 other files may be included later
 
 ________________________________________________________________________________________

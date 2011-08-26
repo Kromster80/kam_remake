@@ -1,7 +1,8 @@
 <?
 
-global $DATA_FILE, $DISALLOWED_CHARS, $GAME_VERSION;
+global $DATA_FILE, $DISALLOWED_CHARS, $GAME_VERSION, $MAX_TTL;
 $GAME_VERSION = 'r2170';
+$MAX_TTL = 600; //10 minutes
 $DATA_FILE = "servers.txt";
 $DISALLOWED_CHARS  = array("|", ",","\n","\r");
 
@@ -33,12 +34,14 @@ function GetServers()
 
 function AddServer($aName,$aIP,$aPort,$aTTL)
 {
-	global $DATA_FILE, $DISALLOWED_CHARS;
+	global $DATA_FILE, $DISALLOWED_CHARS, $MAX_TTL;
 	//Remove characters that are not allowed (used for internal formatting)
 	$aName = str_replace($DISALLOWED_CHARS,"",$aName);
 	$aIP = str_replace($DISALLOWED_CHARS,"",$aIP);
 	$aPort = str_replace($DISALLOWED_CHARS,"",$aPort);
 	$aTTL = str_replace($DISALLOWED_CHARS,"",$aTTL);
+	//Enforce max TTL, so people can not add a server that lasts a thousand years!
+	$aTTL = min($aTTL,$MAX_TTL);
 	$Servers = "";
 	$Exists = false;
 	if(file_exists($DATA_FILE))

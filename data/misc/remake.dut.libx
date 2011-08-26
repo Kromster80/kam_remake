@@ -79,7 +79,7 @@ KM_InterfaceMapEditor
 
 Create_LANLogin_Page
 59:Speler naam:
-60:Jouwen IP adres:
+60:Jouw IP-adres:
 61:Host IP adres:
 62:Server aanmaken
 63:Meedoen
@@ -101,7 +101,7 @@ Create_Lobby_Page
 77:Kies map:
 78:Een map:
 79:Opgeslagen map:
-80:Selecteer een map…
+80:Selecteer een map...
 81:Map informatie:
 82:Afsluiten lobby
 83:Klaar

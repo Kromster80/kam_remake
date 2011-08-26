@@ -31,6 +31,7 @@ Features:
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
+	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
  
 
  -	The ingame briefing texture is too short, see attached picture
