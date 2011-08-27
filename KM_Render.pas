@@ -345,7 +345,6 @@ end;
 
 procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
 var
-  Coef: single;
   i,k,iW:integer; ID,Rot,rd:integer;
   xt,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
