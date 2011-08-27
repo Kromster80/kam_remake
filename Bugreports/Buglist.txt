@@ -27,6 +27,7 @@ Bugs:
 	Many texts will not change if I change the language in options menu
 
 Features:
+ +	Underwater sand
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.

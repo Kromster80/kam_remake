@@ -377,6 +377,7 @@ begin
   end
   else
     fGame.Save(TKMControl(Sender).Tag);
+
   SwitchPage(nil); //Close save menu after saving
 end;
 

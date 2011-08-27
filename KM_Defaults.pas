@@ -54,10 +54,10 @@ var
   CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
   CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
   ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
+  KAM_WATER_DRAW        :boolean=true; //Render underwater sand 
   //Not fully implemented yet
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
-  KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   AGGRESSIVE_REPLAYS    :boolean=true; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
 
   //These are debug things, should be FALSE
@@ -222,8 +222,16 @@ type TGameResultMsg = ( //Game result
                
 {Palettes}
 //There are 9 palette files: Map, Pal0-5, Setup, Setup2, gradient, 2lbm palettes
-type TKMPal = (pal_map, pal_0, pal_1, pal_2, pal_3, pal_4, pal_5, pal_set, pal_set2, pal_lin,
-               pal2_mapgold, pal2_setup);
+type
+  TKMPal = (
+    pal_map,
+    pal_0, //pal_1, pal_2, pal_3, pal_4, pal_5, unused since we change brightness with OpenGL overlay
+    pal_set,
+    pal_set2,
+    pal_lin,
+    pal2_mapgold,
+    pal2_setup);
+
 const
   DEF_PAL = pal_0;            //Default palette to use when generating full-color RGB textures
 

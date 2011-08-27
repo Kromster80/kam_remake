@@ -345,13 +345,12 @@ end;
 
 procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
 var
-  Lay2:boolean;
+  Coef: single;
   i,k,iW:integer; ID,Rot,rd:integer;
   xt,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
-  glColor4f(1,1,1,1);
 
   for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
     case iW of
@@ -367,12 +366,6 @@ begin
       begin
         xt:=fTerrain.Land[i,k].Terrain;
 
-        if KAM_WATER_DRAW and (iW=1) and (xt in [192,193,196]) then begin
-          Lay2:=true;
-          xt:=32;
-        end else
-          Lay2:=false;
-
         TexC[1,1]:=(xt mod 16  )/16; TexC[1,2]:=(xt div 16  )/16;
         TexC[2,1]:=(xt mod 16  )/16; TexC[2,2]:=(xt div 16+1)/16;
         TexC[3,1]:=(xt mod 16+1)/16; TexC[3,2]:=(xt div 16+1)/16;
@@ -383,28 +376,44 @@ begin
         if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
         if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
+        glColor4f(1,1,1,1);
         if RENDER_3D then begin
           glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end else begin
-          if Lay2 then glColor4f(1,1,1,Land[i,k].Height/CELL_HEIGHT_DIV+0.5)
-                  else glColor4f(1,1,1,1);
+          
           glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-          if Lay2 then glColor4f(1,1,1,Land[i+1,k].Height/CELL_HEIGHT_DIV+0.5)
-                  else glColor4f(1,1,1,1);
           glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-          if Lay2 then glColor4f(1,1,1,Land[i+1,k+1].Height/CELL_HEIGHT_DIV+0.5)
-                  else glColor4f(1,1,1,1);
           glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-          if Lay2 then glColor4f(1,1,1,Land[i,k+1].Height/CELL_HEIGHT_DIV+0.5)
-                  else glColor4f(1,1,1,1);
           glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+
+          if KAM_WATER_DRAW and (iW=1) and fTerrain.TileIsWater(KMPoint(k,i)) then begin
+            xt := 32;
+
+            TexC[1,1] := (xt mod 16  )/16; TexC[1,2] := (xt div 16  )/16;
+            TexC[2,1] := (xt mod 16  )/16; TexC[2,2] := (xt div 16+1)/16;
+            TexC[3,1] := (xt mod 16+1)/16; TexC[3,2] := (xt div 16+1)/16;
+            TexC[4,1] := (xt mod 16+1)/16; TexC[4,2] := (xt div 16  )/16;
+
+            TexO[1] := 1; TexO[2] := 2; TexO[3] := 3; TexO[4] := 4;
+
+            glColor4f(1,1,1,max(0,Land[i  ,k  ].Light*2));
+            glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+            glColor4f(1,1,1,max(0,Land[i+1,k  ].Light*2));
+            glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+            glColor4f(1,1,1,max(0,Land[i+1,k+1].Light*2));
+            glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+            glColor4f(1,1,1,max(0,Land[i  ,k+1].Light*2));
+            glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+          end;
         end;
       end;
     glEnd;
   end;
+
+  glColor4f(1,1,1,1);
 
   for i:=y1 to y2 do for k:=x1 to x2 do
   begin
