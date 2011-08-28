@@ -8,6 +8,7 @@ Bugs:
  +	"Taking wrong resource from Serf" crashes fixed
  +	Save correct number of players from MapEd
 
+	Woodcutters hut flagshtok should appear last in construction
 	Farmer will sow corn on tile that was just finished as a road
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
  ?	Making a hill under a house in MapEd causes a crash
