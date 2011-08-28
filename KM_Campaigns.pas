@@ -338,7 +338,7 @@ end;
 
 function TKMCampaign.SubNodesPos(aMapIndex: byte; aNodeIndex: byte): TKMPoint;
 begin
-  if (SubNodesCount(aMapIndex) > 0) then
+  if (SubNodesCount(aMapIndex) > 0) and (aNodeIndex < SubNodesCount(aMapIndex)) then
   begin
     Result.X := Mix(Maps[aMapIndex].Node.X, Maps[Maps[aMapIndex].PrevMap].Node.X, aNodeIndex/SubNodesCount(aMapIndex));
     Result.Y := Mix(Maps[aMapIndex].Node.Y, Maps[Maps[aMapIndex].PrevMap].Node.Y, aNodeIndex/SubNodesCount(aMapIndex));

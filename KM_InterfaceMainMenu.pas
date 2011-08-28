@@ -1043,23 +1043,22 @@ begin
   if not (Sender is TKMImage) then exit;
   if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
 
-   //Place highlight
-  for i:=0 to High(Image_CampaignNodes) do
-    Image_CampaignNodes[i].Highlight := false;
-
-  TKMImage(Sender).Highlight := true;
   Campaign_MapIndex := TKMImage(Sender).Tag;
 
-  //Connecting sub-nodes
+  //Place highlight
+  for i:=0 to High(Image_CampaignNodes) do
+    Image_CampaignNodes[i].Highlight := (Campaign_MapIndex = i);
+
+  //Connect by sub-nodes
   for i:=0 to High(Image_CampaignSubNode) do
   begin
-    Image_CampaignSubNode[i].Visible := i < Campaign_Selected.SubNodesCount(Campaign_MapIndex);
+    Image_CampaignSubNode[i].Visible := InRange(i, 1, Campaign_Selected.SubNodesCount(Campaign_MapIndex)-1);
     Image_CampaignSubNode[i].Left := Campaign_Selected.SubNodesPos(Campaign_MapIndex, i).X;
     Image_CampaignSubNode[i].Top  := Campaign_Selected.SubNodesPos(Campaign_MapIndex, i).Y;
   end;
 
-  Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [TKMImage(Sender).Tag+1]);
-  Label_CampaignText.Caption := Campaign_Selected.MissionText(TKMImage(Sender).Tag);
+  Label_CampaignTitle.Caption := Format(fTextLibrary[TX_GAME_MISSION], [Campaign_MapIndex+1]);
+  Label_CampaignText.Caption := Campaign_Selected.MissionText(Campaign_MapIndex);
 
   Panel_CampScroll.Height := 50 + Label_CampaignText.TextHeight + 70; //Add offset from top and space on bottom
   Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height;

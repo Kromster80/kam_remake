@@ -7,7 +7,11 @@ Bugs:
  + 	Setting the number of wares in a storehouse/barracks in the MapEd to a negative number will cause a crash
  +	"Taking wrong resource from Serf" crashes fixed
  +	Save correct number of players from MapEd
+ +	RangeCheckError in TSK campaign screen when selecting 7th mission
 
+	Replay timer should display in HH:MM:SS format
+	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
+	Music does not cycles while in pause mode
 	Woodcutters hut flagshtok should appear last in construction
 	Farmer will sow corn on tile that was just finished as a road
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
