@@ -71,7 +71,7 @@ type
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
-    procedure PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
+    procedure PacketRecieve(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal); //Process all commands
     procedure PacketSend(aRecipient:integer; aKind:TKMessageKind; const aText:string; aParam:integer);
   public
     constructor Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
@@ -621,7 +621,7 @@ begin
 end;
 
 
-procedure TKMNetworking.PacketRecieve(aSenderIndex:integer; aData:pointer; aLength:cardinal);
+procedure TKMNetworking.PacketRecieve(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal);
 var
   Kind:TKMessageKind;
   M:TKMemoryStream;

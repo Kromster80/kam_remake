@@ -1205,18 +1205,19 @@ begin
   fGame.Networking.ServerQuery.OnListUpdated := MP_ListUpdated;
   fGame.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
-  ColList_Servers.AddItem(['Refreshing...','','','']);
+  ColList_Servers.AddItem(['Refreshing...','','',''],-1,-1);
 end;
 
 
 procedure TKMMainMenuInterface.MP_ListUpdated(Sender: TObject);
-var i:integer;
+var i,k:integer;
 begin
   //Refresh the display for the list of servers
   ColList_Servers.Clear;
   for i:=0 to fGame.Networking.ServerQuery.Count-1 do
     with fGame.Networking.ServerQuery.GetServer(i) do
-      ColList_Servers.AddItem([Name,GameState,IntToStr(PlayerCount),IntToStr(Ping)]);
+      for k:=0 to RoomCount-1 do
+        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],i,Rooms[k].RoomID);
 end;
 
 
@@ -1229,12 +1230,12 @@ end;
 
 procedure TKMMainMenuInterface.MP_SelectServer(Sender: TObject);
 begin
-  if not InRange(ColList_Servers.ItemIndex, 0, fGame.Networking.ServerQuery.Count-1) then exit;
-    with fGame.Networking.ServerQuery.GetServer(ColList_Servers.ItemIndex) do
+  if not InRange(ColList_Servers.GetItemTag, 0, fGame.Networking.ServerQuery.Count-1) then exit;
+    with fGame.Networking.ServerQuery.GetServer(ColList_Servers.GetItemTag) do
     begin
       Edit_MP_IP.Text := IP;
       Edit_MP_Port.Text := Port;
-      Edit_MP_Room.Text := IntToStr(Room);
+      Edit_MP_Room.Text := IntToStr(ColList_Servers.GetItemTag2);
     end;
 end;
 

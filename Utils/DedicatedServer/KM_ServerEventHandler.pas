@@ -1,7 +1,7 @@
 unit KM_ServerEventHandler;
 interface
 uses
-  SysUtils, KM_Log
+  SysUtils, KM_Defaults, KM_Log
   {$IFDEF MSWindows} ,Windows {$ENDIF}
   ;
 
@@ -18,7 +18,6 @@ implementation
 
 
 constructor TKMServerEventHandler.Create;
-var ExeDir: String;
 begin
   Inherited Create;
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));

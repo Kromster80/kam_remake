@@ -526,6 +526,8 @@ type
     fColumns: TStringList;
     fItems:array of TStringList;
     fItemOffsets:array of integer;
+    fTags:array of integer;
+    fTags2:array of integer;
     fTopIndex:smallint; //up to 32k files
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
@@ -540,9 +542,11 @@ type
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aHeaderFont:TKMFont; aColumns:array of string; aItemOffsets:array of integer);
     destructor Destroy; override;
 
-    procedure AddItem(aItem:array of string);
+    procedure AddItem(aItem:array of string; aTag:integer=0; aTag2:integer=0);
     procedure Clear;
     procedure AutoHideScrollBar;
+    function GetItemTag:integer;
+    function GetItemTag2:integer;
 
     property BackAlpha:single write SetBackAlpha;
     property CanSelect:boolean write fCanSelect;
@@ -2195,6 +2199,8 @@ begin
   fColumns := TStringList.Create;
   SetLength(fItems,Length(aColumns));
   SetLength(fItemOffsets,Length(aColumns));
+  SetLength(fTags,Length(aColumns));
+  SetLength(fTags2,Length(aColumns));
   assert(Length(aColumns) = Length(aItemOffsets));
   for i:=0 to Length(aColumns)-1 do
   begin
@@ -2273,10 +2279,12 @@ begin
 end;
 
 
-procedure TKMColumnListBox.AddItem(aItem:array of string);
+procedure TKMColumnListBox.AddItem(aItem:array of string; aTag:integer=0; aTag2:integer=0);
 var i: integer;
 begin
   assert(Length(aItem) = Length(fItems));
+  fTags[fItems[0].Count] := aTag;
+  fTags2[fItems[0].Count] := aTag2;
   for i:=0 to Length(fItems)-1 do
     fItems[i].Add(aItem[i]);
   UpdateScrollBar;
@@ -2298,6 +2306,24 @@ end;
 procedure TKMColumnListBox.AutoHideScrollBar;
 begin
    fScrollBar.Visible := Visible and fScrollBar.Enabled;
+end;
+
+
+function TKMColumnListBox.GetItemTag:integer;
+begin
+  if InRange(ItemIndex,0,ItemCount-1) then
+    Result := fTags[ItemIndex]
+  else
+    Result := -1;
+end;
+
+
+function TKMColumnListBox.GetItemTag2:integer;
+begin
+  if InRange(ItemIndex,0,ItemCount-1) then
+    Result := fTags2[ItemIndex]
+  else
+    Result := -1;
 end;
 
 

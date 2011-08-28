@@ -34,6 +34,9 @@ type
     mk_JoinRoom,        //Client requests to be placed in a room
     mk_ConnectedToRoom, //Server tells a client they have been successfully added to a room
 
+    mk_GetServerInfo,   //Client askes for server for the server details (for querying)
+    mk_ServerInfo,      //Server sends client the server info on request
+
     mk_Disconnect,      //Joiner tells Host that he is leaving the lobby/game deliberately
                         //Host tells Joiners that he is quitting
                         //A. Server runs on the same machine and stops right after
@@ -82,6 +85,8 @@ const
     pfText,     //mk_GameVersion
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
+    pfNoData,   //mk_GetServerInfo
+    pfText,     //mk_ServerInfo
     pfNoData,   //mk_Disconnect
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong

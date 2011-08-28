@@ -89,8 +89,9 @@ type
     procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
+    procedure SaveServerInfo(var M:TKMemoryStream);
     function IsValidHandle(aHandle:integer):boolean;
-    procedure AddNewRoom;
+    function AddNewRoom:boolean;
     function GetFirstAvailableRoom:integer;
     function GetRoomPlayersCount(aRoom:integer):integer;
     function GetFirstRoomClient(aRoom:integer):integer;
@@ -300,15 +301,29 @@ begin
   if fClientList.GetByHandle(aHandle).Room <> -1 then exit; //Changing rooms is not allowed yet
 
   if Room = fRoomCount then
-    AddNewRoom //Create a new room for this client
+  begin
+    if not AddNewRoom then //Create a new room for this client
+    begin
+      SendMessage(aHandle, mk_RefuseToJoin, 0, 'Room limit reached');
+      fServer.Kick(aHandle);
+      Exit;
+    end;
+  end
   else
     if Room = -1 then
-      Room := GetFirstAvailableRoom //Take the first one which has a space (or create a new one if none have spaces)
+    begin
+      Room := GetFirstAvailableRoom; //Take the first one which has a space (or create a new one if none have spaces)
+      if Room = -1 then //No rooms available
+      begin
+        SendMessage(aHandle, mk_RefuseToJoin, 0, 'Server is full');
+        fServer.Kick(aHandle);
+        Exit;
+      end;
+    end
     else
       //If the room is outside the valid range
-      if not InRange(Room,0,fRoomCount-1) then //Means take the first available room
+      if not InRange(Room,0,fRoomCount-1) then
       begin
-        //No rooms available, so send a polite message explaining why they can't join
         SendMessage(aHandle, mk_RefuseToJoin, 0, 'Invalid room number');
         fServer.Kick(aHandle);
         Exit;
@@ -334,8 +349,9 @@ end;
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
 var Room: integer;
 begin
-  Status('Client '+inttostr(aHandle)+' has disconnected');
   Room := fClientList.GetByHandle(aHandle).Room;
+  if Room <> -1 then
+    Status('Client '+inttostr(aHandle)+' has disconnected'); //Only log messages for clients who entered a room
   fClientList.RemPlayer(aHandle);
 
   if Room = -1 then Exit; //The client was not assigned a room yet
@@ -419,6 +435,13 @@ begin
     mk_JoinRoom:  AddClientToRoom(aSenderHandle,Param);
     mk_RoomOpen:  fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := true;
     mk_RoomClose: fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := false;
+    mk_GetServerInfo:
+            begin
+              M := TKMemoryStream.Create;
+              SaveServerInfo(M);
+              SendMessage(aSenderHandle, mk_ServerInfo, 0, M.ReadAsText);
+              M.Free;
+            end;
     mk_Pong:
             begin
              //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
@@ -491,6 +514,49 @@ begin
 end;
 
 
+procedure TKMNetServer.SaveServerInfo(var M:TKMemoryStream);
+var i, RoomsNeeded, PlayerCount, EmptyRoomID: integer; NeedEmptyRoom: boolean;
+begin
+  RoomsNeeded := 0;
+  for i:=0 to fRoomCount-1 do
+    if GetRoomPlayersCount(i) > 0 then
+      inc(RoomsNeeded);
+
+  if RoomsNeeded < fMaxRooms then
+  begin
+    inc(RoomsNeeded); //Need 1 empty room at the end, if there is space
+    NeedEmptyRoom := true;
+  end
+  else
+    NeedEmptyRoom := false;
+
+  M.Write(RoomsNeeded);
+  EmptyRoomID := fRoomCount;
+  for i:=0 to fRoomCount-1 do
+  begin
+    PlayerCount := GetRoomPlayersCount(i);
+    if PlayerCount = 0 then
+    begin
+      if EmptyRoomID = fRoomCount then
+        EmptyRoomID := i;
+    end
+    else
+    begin
+      PlayerCount := GetRoomPlayersCount(i);
+      M.Write(i); //RoomID
+      M.Write(PlayerCount);
+    end;
+  end;
+  //Write out the empty room at the end
+  if NeedEmptyRoom then
+  begin
+    PlayerCount := 0;
+    M.Write(EmptyRoomID); //RoomID
+    M.Write(PlayerCount);
+  end;
+end;
+
+
 function TKMNetServer.IsValidHandle(aHandle:integer):boolean;
 begin
   //Can't use "in [...]" with negative numbers
@@ -499,13 +565,14 @@ begin
 end;
 
 
-procedure TKMNetServer.AddNewRoom;
+function TKMNetServer.AddNewRoom:boolean;
 begin
   if fRoomCount = fMaxRooms then
   begin
-    //Status('Cannot create a new room: limit reached');
+    Result := false;
     Exit;
   end;
+  Result := true;
   inc(fRoomCount);
   SetLength(fRoomJoinable,fRoomCount);
   SetLength(fHostHandle,fRoomCount);
@@ -523,8 +590,10 @@ begin
       fRoomJoinable[i] := true; //Empty rooms are reset to joinable
       exit;
     end;
-  AddNewRoom; //Otherwise we must create a room
-  Result := fRoomCount-1;
+  if AddNewRoom then //Otherwise we must create a room
+    Result := fRoomCount-1
+  else
+    Result := -1;
 end;
 
 

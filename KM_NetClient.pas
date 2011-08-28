@@ -22,7 +22,8 @@ uses Classes, SysUtils, KM_CommonTypes
 
 }
 type
-  TNotifySenderDataEvent = procedure(aSenderIndex:integer; aData:pointer; aLength:cardinal)of object;
+  TKMNetClient = class;
+  TNotifySenderDataEvent = procedure(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal)of object;
 
   TKMNetClient = class
   private
@@ -116,7 +117,7 @@ procedure TKMNetClient.ConnectSucceed(Sender: TObject);
 begin
   fConnected := true;
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Connected');
-  fOnConnectSucceed(Self);
+  if Assigned(fOnConnectSucceed) then fOnConnectSucceed(Self);
 end;
 
 
@@ -124,7 +125,7 @@ procedure TKMNetClient.ConnectFailed(const S: string);
 begin
   fConnected := false;
   if Assigned(fOnStatusMessage) then fOnStatusMessage('Client: Connection failed. '+S);
-  fOnConnectFailed(S);
+  if Assigned(fOnConnectFailed) then fOnConnectFailed(S);
 end;
 
 
@@ -154,7 +155,8 @@ begin
   begin
     if Assigned(fOnStatusMessage) then
       fOnStatusMessage('Client: Forced disconnect');
-    fOnForcedDisconnect('Server stopped responding');
+    if Assigned(fOnForcedDisconnect) then
+      fOnForcedDisconnect('Server stopped responding');
   end;
   fConnected := false;
 end;
@@ -193,7 +195,7 @@ begin
     PacketLength := PCardinal(@fBuffer[8])^;
     if PacketLength <= fBufferSize-12 then
     begin
-      fOnRecieveData(PacketSender, @fBuffer[12], PacketLength); //Skip packet header
+      fOnRecieveData(Self, PacketSender, @fBuffer[12], PacketLength); //Skip packet header
       if not Assigned(fOnRecieveData) then exit; //Network was stopped by processing above packet (e.g. version mismatch)
       if 12+PacketLength < fBufferSize then //Check range
         Move(fBuffer[12+PacketLength], fBuffer[0], fBufferSize-PacketLength-12);
