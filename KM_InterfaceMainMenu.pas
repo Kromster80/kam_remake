@@ -1207,7 +1207,8 @@ begin
   fGame.Networking.ServerQuery.OnListUpdated := MP_ListUpdated;
   fGame.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
-  ColList_Servers.AddItem(['Refreshing...','','',''],-1,-1);
+  Label_MP_Players.Caption := '';
+  ColList_Servers.AddItem(['Refreshing...','','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1,-1);
 end;
 
 
@@ -1219,7 +1220,8 @@ begin
   for i:=0 to fGame.Networking.ServerQuery.Count-1 do
     with fGame.Networking.ServerQuery.GetServer(i) do
       for k:=0 to RoomCount-1 do
-        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],i,k);
+        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)]
+                                [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i, k);
 end;
 
 

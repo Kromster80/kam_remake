@@ -525,6 +525,7 @@ type
     fItemIndex:smallint;
     fColumns: TStringList;
     fItems:array of TStringList;
+    fItemColors:array of array of TColor4;
     fItemOffsets:array of integer;
     fTags:array of integer;
     fTags2:array of integer;
@@ -542,7 +543,7 @@ type
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aHeaderFont:TKMFont; aColumns:array of string; aItemOffsets:array of integer);
     destructor Destroy; override;
 
-    procedure AddItem(aItem:array of string; aTag:integer=0; aTag2:integer=0);
+    procedure AddItem(aItem:array of string; aItemColor:array of TColor4; aTag:integer=0; aTag2:integer=0);
     procedure Clear;
     procedure AutoHideScrollBar;
     function GetItemTag:integer;
@@ -2199,8 +2200,9 @@ begin
   fColumns := TStringList.Create;
   SetLength(fItems,Length(aColumns));
   SetLength(fItemOffsets,Length(aColumns));
-  SetLength(fTags,Length(aColumns));
-  SetLength(fTags2,Length(aColumns));
+  SetLength(fTags,0);
+  SetLength(fTags2,0);
+  SetLength(fItemColors,Length(aColumns));
   assert(Length(aColumns) = Length(aItemOffsets));
   for i:=0 to Length(aColumns)-1 do
   begin
@@ -2279,14 +2281,22 @@ begin
 end;
 
 
-procedure TKMColumnListBox.AddItem(aItem:array of string; aTag:integer=0; aTag2:integer=0);
-var i: integer;
+procedure TKMColumnListBox.AddItem(aItem:array of string; aItemColor:array of TColor4; aTag:integer=0; aTag2:integer=0);
+var i, k, Count: integer;
 begin
   assert(Length(aItem) = Length(fItems));
-  fTags[fItems[0].Count] := aTag;
-  fTags2[fItems[0].Count] := aTag2;
+  assert(Length(aItemColor) = Length(fItems));
+  Count := fItems[0].Count+1;
+  SetLength(fTags,Count);
+  SetLength(fTags2,Count);
+  fTags[Count-1] := aTag;
+  fTags2[Count-1] := aTag2;
   for i:=0 to Length(fItems)-1 do
+  begin
     fItems[i].Add(aItem[i]);
+    SetLength(fItemColors[i],Count);
+    fItemColors[i,Count-1] := aItemColor[i];
+  end;
   UpdateScrollBar;
 end;
 
@@ -2389,7 +2399,7 @@ begin
 
   for i:=0 to Math.min(fItems[0].Count-1, ((fHeight-fItemTop) div fItemHeight)-1) do
     for k:=0 to Length(fItems)-1 do
-      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,i]);
 end;
 
 

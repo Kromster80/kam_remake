@@ -247,7 +247,7 @@ end;
 procedure TKMNetworking.Disconnect;
 begin
   fIgnorePings := 0;
-  SetGameState(fLANGameState);
+  SetGameState(lgs_None);
   fOnJoinSucc := nil;
   fOnJoinFail := nil;
   fOnJoinAssignedHost := nil;
