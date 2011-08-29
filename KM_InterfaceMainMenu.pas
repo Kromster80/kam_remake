@@ -130,6 +130,7 @@ type
         Edit_MP_Port,
         Edit_MP_Room: TKMEdit;
       Panel_MPServerDetails:TKMPanel;
+        Label_MP_Players:TKMLabel;
       Button_MP_Refresh,
       Button_MP_Back:TKMButton;
       ColList_Servers: TKMColumnListBox;
@@ -465,6 +466,8 @@ begin
       Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
         TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
         TKMLabel.Create(Panel_MPServerDetails, 150, 6, 250, 10, 'SERVER DETAILS', fnt_Outline, kaCenter);
+        TKMLabel.Create(Panel_MPServerDetails, 8, 30, 250, 10, 'Player list:', fnt_Outline, kaLeft);
+        Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 250, 10, '', fnt_Metal, kaLeft);
 
       //Join server area
       Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
@@ -1216,7 +1219,7 @@ begin
   for i:=0 to fGame.Networking.ServerQuery.Count-1 do
     with fGame.Networking.ServerQuery.GetServer(i) do
       for k:=0 to RoomCount-1 do
-        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],i,Rooms[k].RoomID);
+        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],i,k);
 end;
 
 
@@ -1234,7 +1237,8 @@ begin
     begin
       Edit_MP_IP.Text := IP;
       Edit_MP_Port.Text := Port;
-      Edit_MP_Room.Text := IntToStr(ColList_Servers.GetItemTag2);
+      Edit_MP_Room.Text := IntToStr(Rooms[ColList_Servers.GetItemTag2].RoomID);
+      Label_MP_Players.Caption := Rooms[ColList_Servers.GetItemTag2].Players;
     end;
 end;
 

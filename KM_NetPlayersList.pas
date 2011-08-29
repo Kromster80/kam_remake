@@ -81,6 +81,7 @@ type
     //Import/Export
     function GetAsText:string; //Gets all relevant information as text string
     procedure SetAsText(const aText:string); //Sets all relevant information from text string
+    function GetSimpleAsText:string; //Gets just names as a text string seperated by |
   end;
 
 implementation
@@ -575,6 +576,14 @@ begin
   finally
     M.Free;
   end;
+end;
+
+
+function TKMPlayersList.GetSimpleAsText:string;
+var i:integer;
+begin
+  for i:=1 to fCount do
+    Result := Result + StringReplace(fPlayers[i].Nikname,'|','',[rfReplaceAll]) + '|';
 end;
 
 

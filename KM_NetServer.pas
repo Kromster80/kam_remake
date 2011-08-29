@@ -73,13 +73,17 @@ type
     {$IFDEF FPC} fServer:TKMNetServerLNet;     {$ENDIF}
 
     fClientList:TKMClientsList;
-    fHostHandle:array of integer;
     fListening:boolean;
 
     fMaxRooms:word;
     fKickTimeout:word;
     fRoomCount:integer;
-    fRoomJoinable:array of boolean;
+    fRoomInfo:array of record
+                         HostHandle:integer;
+                         Joinable:boolean;
+                         GameState:string;
+                         Players:string;
+                       end;
 
     fOnStatusMessage:TGetStrProc;
     procedure Error(const S: string);
@@ -219,10 +223,7 @@ end;
 procedure TKMNetServer.StartListening(aPort:string);
 begin
   fRoomCount := 0;
-  SetLength(fHostHandle,1);
-  fHostHandle[0] := NET_ADDRESS_EMPTY;
-  SetLength(fRoomJoinable,1);
-  fRoomJoinable[0] := true;
+  assert(AddNewRoom); //Must succeed
 
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
@@ -239,6 +240,8 @@ begin
   fOnStatusMessage := nil;
   fServer.StopListening;
   fListening := false;
+  SetLength(fRoomInfo,0);
+  fRoomCount := 0;
 end;
 
 
@@ -333,11 +336,11 @@ begin
   fClientList.GetByHandle(aHandle).Room := Room;
 
   //Let the first client be a Host
-  if fHostHandle[Room] = NET_ADDRESS_EMPTY then
+  if fRoomInfo[Room].HostHandle = NET_ADDRESS_EMPTY then
   begin
-    fHostHandle[Room] := aHandle;
+    fRoomInfo[Room].HostHandle := aHandle;
     SendMessage(aHandle, mk_HostingRights, 0, '');
-    Status('Host rights assigned to '+inttostr(fHostHandle[Room]));
+    Status('Host rights assigned to '+inttostr(fRoomInfo[Room].HostHandle));
   end;
 
   SendMessage(aHandle, mk_ConnectedToRoom, Room, '');
@@ -360,15 +363,20 @@ begin
   SendMessage(NET_ADDRESS_ALL, mk_ClientLost, aHandle, '');
 
   //Assign a new host
-  if fHostHandle[Room] = aHandle then
+  if fRoomInfo[Room].HostHandle = aHandle then
   begin
     if GetRoomPlayersCount(Room) = 0 then
-      fHostHandle[Room] := NET_ADDRESS_EMPTY //Room is now empty so we don't need a new host
+    begin
+      fRoomInfo[Room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
+      fRoomInfo[Room].Joinable := true;
+      fRoomInfo[Room].GameState := 'None';
+      fRoomInfo[Room].Players := '';
+    end
     else
     begin
-      fHostHandle[Room] := GetFirstRoomClient(Room); //Assign hosting rights to the first client in the room
-      SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, fHostHandle[Room], ''); //Tell everyone about the new host
-      Status('Reassigned hosting rights for room '+inttostr(Room)+' to '+inttostr(fHostHandle[Room]));
+      fRoomInfo[Room].HostHandle := GetFirstRoomClient(Room); //Assign hosting rights to the first client in the room
+      SendMessage(NET_ADDRESS_ALL, mk_ReassignHost, fRoomInfo[Room].HostHandle, ''); //Tell everyone about the new host
+      Status('Reassigned hosting rights for room '+inttostr(Room)+' to '+inttostr(fRoomInfo[Room].HostHandle));
     end;
   end;
 end;
@@ -433,8 +441,10 @@ begin
 
   case Kind of
     mk_JoinRoom:  AddClientToRoom(aSenderHandle,Param);
-    mk_RoomOpen:  fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := true;
-    mk_RoomClose: fRoomJoinable[ fClientList.GetByHandle(aSenderHandle).Room ] := false;
+    mk_RoomOpen:  fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Joinable := true;
+    mk_RoomClose: fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Joinable := false;
+    mk_SetGameState: fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].GameState := Msg;
+    mk_SetPlayerList: fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Players := Msg;
     mk_GetServerInfo:
             begin
               M := TKMemoryStream.Create;
@@ -501,7 +511,7 @@ begin
                 if SenderRoom = fClientList[i].Room then
                   fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_HOST:
-              fServer.SendData(fHostHandle[SenderRoom], @SenderClient.fBuffer[0], PacketLength+12);
+              fServer.SendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_SERVER:
               RecieveMessage(PacketSender, @SenderClient.fBuffer[12], PacketLength);
       else    fServer.SendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);
@@ -545,6 +555,8 @@ begin
       PlayerCount := GetRoomPlayersCount(i);
       M.Write(i); //RoomID
       M.Write(PlayerCount);
+      M.Write(fRoomInfo[i].GameState);
+      M.Write(fRoomInfo[i].Players);
     end;
   end;
   //Write out the empty room at the end
@@ -553,6 +565,8 @@ begin
     PlayerCount := 0;
     M.Write(EmptyRoomID); //RoomID
     M.Write(PlayerCount);
+    M.Write('None'); //Gamestate
+    M.Write(''); //Players
   end;
 end;
 
@@ -574,9 +588,11 @@ begin
   end;
   Result := true;
   inc(fRoomCount);
-  SetLength(fRoomJoinable,fRoomCount);
-  SetLength(fHostHandle,fRoomCount);
-  fRoomJoinable[fRoomCount-1] := true;
+  SetLength(fRoomInfo,fRoomCount);
+  fRoomInfo[fRoomCount-1].Joinable := true;
+  fRoomInfo[fRoomCount-1].HostHandle := NET_ADDRESS_EMPTY;
+  fRoomInfo[fRoomCount-1].GameState := '';
+  fRoomInfo[fRoomCount-1].Players := '';
 end;
 
 
@@ -584,10 +600,10 @@ function TKMNetServer.GetFirstAvailableRoom:integer;
 var i:integer;
 begin
   for i:=0 to fRoomCount-1 do
-    if fRoomJoinable[i] or (GetRoomPlayersCount(i) = 0) then
+    if fRoomInfo[i].Joinable or (GetRoomPlayersCount(i) = 0) then
     begin
       Result := i;
-      fRoomJoinable[i] := true; //Empty rooms are reset to joinable
+      fRoomInfo[i].Joinable := true; //Empty rooms are reset to joinable
       exit;
     end;
   if AddNewRoom then //Otherwise we must create a room

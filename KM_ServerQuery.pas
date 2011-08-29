@@ -18,6 +18,7 @@ type
                       RoomID:integer;
                       PlayerCount:integer;
                       GameState: string;
+                      Players:string;
                     end;
   end;
 
@@ -165,7 +166,8 @@ begin
     begin
       M.Read(Rooms[i].RoomID);
       M.Read(Rooms[i].PlayerCount);
-      Rooms[i].GameState := 'Loaded'; //Debug
+      M.Read(Rooms[i].GameState);
+      M.Read(Rooms[i].Players);
     end;
   end;
 end;

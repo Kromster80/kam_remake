@@ -15,6 +15,7 @@ type
   TLANGameState = (lgs_None, lgs_Connecting, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game);
 
 const
+  LANGameStateText:array[TLANGameState] of string = ('None','Connecting','Query','Lobby','Loading','Game');
   NetAllowedPackets:array[TLANGameState] of set of TKMessageKind = (
   [], //lgs_None
   [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_Ping,mk_Pong,mk_ConnectedToRoom], //lgs_Connecting
@@ -68,6 +69,7 @@ type
     procedure ForcedDisconnect(const S: string);
     procedure StartGame;
     procedure PlayGame;
+    procedure SetGameState(aState:TLANGameState);
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -140,7 +142,7 @@ implementation
 constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout, aPingInterval, aAnnounceInterval:word);
 begin
   Inherited Create;
-  fLANGameState := lgs_None;
+  SetGameState(lgs_None);
   fMapInfo := TKMapInfo.Create;
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress);
   fNetClient := TKMNetClient.Create;
@@ -202,7 +204,7 @@ begin
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
   fMyIndexOnServer := -1; //Assigned by Server
   fRoomToJoin := aRoom;
-  fLANGameState := lgs_Connecting; //We are still connecting to the server
+  SetGameState(lgs_Connecting); //We are still connecting to the server
 
   fHostAddress := aServerAddress;
   fMyNikname := aUserName;
@@ -245,7 +247,7 @@ end;
 procedure TKMNetworking.Disconnect;
 begin
   fIgnorePings := 0;
-  fLANGameState := lgs_None;
+  SetGameState(fLANGameState);
   fOnJoinSucc := nil;
   fOnJoinFail := nil;
   fOnJoinAssignedHost := nil;
@@ -551,6 +553,8 @@ begin
     else
       PacketSend(NET_ADDRESS_SERVER, mk_RoomOpen, '', 0); //Tell the server this room is now available
   end;
+  if IsHost then
+    PacketSend(NET_ADDRESS_SERVER, mk_SetPlayerList, fNetPlayers.GetSimpleAsText, 0);
 
   PacketSend(aPlayerIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -686,11 +690,11 @@ begin
                       fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
                       fNetPlayers[fMyIndex].ReadyToStart := true;
                       if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
-                      fLANGameState := lgs_Lobby;
+                      SetGameState(lgs_Lobby);
                     end;
                 lpk_Joiner:
                 begin
-                    fLANGameState := lgs_Query;
+                    SetGameState(lgs_Query);
                     fJoinTimeout := GetTickCount; //Wait another X seconds for host to reply before timing out
                     PacketSend(NET_ADDRESS_HOST, mk_AskToJoin, fMyNikname, 0);
                 end;
@@ -719,7 +723,7 @@ begin
             if fLANPlayerKind = lpk_Joiner then
             begin
               fOnJoinSucc(Self); //Enter lobby
-              fLANGameState := lgs_Lobby;
+              SetGameState(lgs_Lobby);
             end;
 
     mk_RefuseToJoin:
@@ -964,7 +968,7 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
-  fLANGameState := lgs_Loading; //Loading has begun (no further players allowed to join)
+  SetGameState(lgs_Loading); //Loading has begun (no further players allowed to join)
   fIgnorePings := -1; //Ignore all pings until we have finished loading
   if Assigned(fOnStartGame) then
     fOnStartGame(Self);
@@ -974,8 +978,19 @@ end;
 procedure TKMNetworking.PlayGame;
 begin
   fIgnorePings := 2; //Ignore the next two pings as they may have been measured during loading
-  fLANGameState := lgs_Game; //The game has begun (no further players allowed to join)
+  SetGameState(lgs_Game); //The game has begun (no further players allowed to join)
   if Assigned(fOnPlay) then fOnPlay(Self);
+end;
+
+
+procedure TKMNetworking.SetGameState(aState:TLANGameState);
+begin
+  fLANGameState := aState;
+  if (fLANGameState in [lgs_Lobby,lgs_Loading,lgs_Game]) and IsHost and (fMyIndexOnServer <> -1) then
+  begin
+    PacketSend(NET_ADDRESS_SERVER,mk_SetGameState,LANGameStateText[fLANGameState],0);
+    PacketSend(NET_ADDRESS_SERVER, mk_SetPlayerList, fNetPlayers.GetSimpleAsText, 0);
+  end;
 end;
 
 
