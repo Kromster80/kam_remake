@@ -1220,7 +1220,7 @@ begin
   for i:=0 to fGame.Networking.ServerQuery.Count-1 do
     with fGame.Networking.ServerQuery.GetServer(i) do
       for k:=0 to RoomCount-1 do
-        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)]
+        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
                                 [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i, k);
 end;
 
