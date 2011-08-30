@@ -650,30 +650,30 @@ type
     sfx_MessageOpen,
     sfx_MessageClose,
     sfx_MessageNotice,
-    sfx_Melee34, //Killed by shot?
-    sfx_Melee35, //Killed by stone?
-    sfx_Melee36, //Killed by stone?
-    sfx_Melee37, //Smacked?
+    sfx_Melee34, //Usage of melee sounds can be found in Docs\Melee sounds in KaM.csv
+    sfx_Melee35,
+    sfx_Melee36,
+    sfx_Melee37,
     sfx_Melee38,
     sfx_Melee39,
     sfx_Melee40,
-    sfx_Melee41, //House hit
-    sfx_Melee42, //Clung?
+    sfx_Melee41,
+    sfx_Melee42,
     sfx_Melee43,
-    sfx_Melee44, //Killed
-    sfx_Melee45, //Killed
-    sfx_Melee46, //Killed
-    sfx_Melee47, //House hit
-    sfx_Melee48, //injured?
-    sfx_Melee49, //injured?
+    sfx_Melee44,
+    sfx_Melee45,
+    sfx_Melee46,
+    sfx_Melee47,
+    sfx_Melee48,
+    sfx_Melee49,
     sfx_Melee50,
-    sfx_Melee51, //Sword-sword, hit blocked?
-    sfx_Melee52, //Sword-sword, hit blocked?
-    sfx_Melee53, //Sword-sword, hit blocked?
-    sfx_Melee54, //Sword-sword, hit blocked?
-    sfx_Melee55, //Killed?
-    sfx_Melee56, //Barbarian Killed?
-    sfx_Melee57, //House hit?
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54,
+    sfx_Melee55,
+    sfx_Melee56,
+    sfx_Melee57,
     sfx_BowDraw,
     sfx_ArrowHit,
     sfx_CrossbowShoot,  //60
@@ -693,6 +693,52 @@ type
     sfx_unknown76,
     sfx_CatapultReload,
     sfx_SiegeBuildingSmash
+        );
+
+const MeleeSoundsHit:array[0..16] of TSoundFX = (
+    sfx_Melee41,
+    sfx_Melee42,
+    sfx_Melee43,
+    sfx_Melee44,
+    sfx_Melee45,
+    sfx_Melee46,
+    sfx_Melee47,
+    sfx_Melee48,
+    sfx_Melee49,
+    sfx_Melee50,
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54,
+    sfx_Melee55,
+    sfx_Melee56,
+    sfx_Melee57
+        );
+
+const MeleeSoundsMiss:array[0..6] of TSoundFX = (
+    sfx_Melee34,
+    sfx_Melee35,
+    sfx_Melee36,
+    sfx_Melee37,
+    sfx_Melee38,
+    sfx_Melee39,
+    sfx_Melee40
+        );
+
+const MeleeSoundsHouse:array[0..12] of TSoundFX = (
+    sfx_Melee37,
+    sfx_Melee38,
+    sfx_Melee39,
+    sfx_Melee40,
+    sfx_Melee41,
+    sfx_Melee42,
+    sfx_Melee43,
+    sfx_Melee47,
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54,
+    sfx_Melee57
         );
 
 const SSoundFX:array[TSoundFX] of string = (

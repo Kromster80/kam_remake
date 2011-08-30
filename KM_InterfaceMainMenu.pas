@@ -457,7 +457,7 @@ begin
         Button_MP_CreateWAN.OnClick := MP_Host_Click;
 
       //Server list area
-      ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Name','State','Players','Ping'],[0,300,430,525]);
+      ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Server Name','State','Players','Ping'],[0,300,430,525]);
       ColList_Servers.OnChange := MP_SelectServer;
       Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,'Refresh Server List',fnt_Metal,bsMenu);
       Button_MP_Refresh.OnClick := MP_RefreshClick;

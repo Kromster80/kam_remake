@@ -134,7 +134,11 @@ begin
            if fHouse.AddDamage(2) then //All melee units do 2 damage per strike
              if (fPlayers <> nil) and (fPlayers.Player[GetOwner] <> nil) then
                fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.HouseType);
-           //todo: Melee house hit sound
+
+           //Play a sound. Do not use KaMRandom here as it will be dependant on MyPlayer!
+           if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
+             fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))],fUnit.GetPosition);
+
            fPhase := 1; //Go for another hit (will be 2 after inc below)
          end;
        end;

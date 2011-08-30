@@ -8,6 +8,7 @@ Bugs:
  +	"Taking wrong resource from Serf" crashes fixed
  +	Save correct number of players from MapEd
  +	RangeCheckError in TSK campaign screen when selecting 7th mission
+ +	Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
 
 	Replay timer should display in HH:MM:SS format
 	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C

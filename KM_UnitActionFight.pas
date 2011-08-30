@@ -99,15 +99,17 @@ procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
   if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
+
+  //Do not use KaMRandom here as it will be dependant on MyPlayer!
   
   case KMUnit.UnitType of
     ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition); //Aiming
     ut_Bowman:     fSoundLib.Play(sfx_BowDraw,KMUnit.GetPosition); //Aiming
     else           begin
-                     {if IsHit then
-                       fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true)
+                     if IsHit then
+                       fSoundLib.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))],KMUnit.GetPosition)
                      else
-                       fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true);}
+                       fSoundLib.Play(MeleeSoundsMiss[Random(Length(MeleeSoundsMiss))],KMUnit.GetPosition);
                    end;
   end;
 end;
@@ -207,13 +209,11 @@ begin
     //Melee units place hit on step 5
     if Step = 5 then
     begin
-      //Base damage is the unit attack strength, or AttackHorse if the enemy is mounted and we have an AttackHorse value <> 0
-      if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) and
-        (fResource.UnitDat[KMUnit.UnitType].AttackHorse <> 0) then
-        Damage := fResource.UnitDat[KMUnit.UnitType].AttackHorse
-      else
-        Damage := fResource.UnitDat[KMUnit.UnitType].Attack;
-                                                     
+      //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
+      Damage := fResource.UnitDat[KMUnit.UnitType].Attack;
+      if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) then
+        Damage := Damage + fResource.UnitDat[KMUnit.UnitType].AttackHorse;
+
       Damage := Damage * Round(GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
 
       IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
@@ -226,6 +226,21 @@ begin
       end;
 
       MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
+    end;
+    //In KaM melee units pause for 1 tick on these frames. Made it random so troops are not striking in sync, and it adds randomness to battles
+    if Step in [0,3,6] then
+    begin
+      if AimingDelay=-1 then //Initialize
+      begin
+        AimingDelay := KaMRandom(2);
+      end;
+
+      if AimingDelay>0 then begin
+        dec(AimingDelay);
+        exit; //do not increment AnimStep, just exit
+      end;
+
+      AimingDelay := -1; //Reset
     end;
   end;
 
