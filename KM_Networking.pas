@@ -144,7 +144,7 @@ begin
   Inherited Create;
   SetGameState(lgs_None);
   fMapInfo := TKMapInfo.Create;
-  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress);
+  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '');
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);

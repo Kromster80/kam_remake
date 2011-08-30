@@ -50,7 +50,8 @@ begin
                                                 fSettings.AutoKickTimeout,
                                                 fSettings.PingInterval,
                                                 fSettings.MasterAnnounceInterval,
-                                                fSettings.MasterServerAddress);
+                                                fSettings.MasterServerAddress,
+                                                fSettings.HTMLStatusFile);
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
   fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer, true);
 

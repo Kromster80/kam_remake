@@ -76,6 +76,7 @@ type
     fListening:boolean;
 
     fMaxRooms:word;
+    fHTMLStatusFile:string;
     fKickTimeout:word;
     fRoomCount:integer;
     fRoomInfo:array of record
@@ -100,8 +101,9 @@ type
     function GetRoomPlayersCount(aRoom:integer):integer;
     function GetFirstRoomClient(aRoom:integer):integer;
     procedure AddClientToRoom(aHandle, Room:integer);
+    procedure SaveHTMLStatus;
   public
-    constructor Create(aMaxRooms:word; aKickTimeout: word);
+    constructor Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile:string);
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
@@ -185,11 +187,12 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word);
+constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile:string);
 begin
   Inherited Create;
   fMaxRooms := aMaxRooms;
   fKickTimeout := aKickTimeout;
+  fHTMLStatusFile := aHTMLStatusFile;
   fClientList := TKMClientsList.Create;
   {$IFDEF WDC} fServer := TKMNetServerOverbyte.Create; {$ENDIF}
   {$IFDEF FPC} fServer := TKMNetServerLNet.Create;     {$ENDIF}
@@ -232,6 +235,7 @@ begin
   fServer.StartListening(aPort);
   Status('Listening on port '+aPort);
   fListening := true;
+  SaveHTMLStatus;
 end;
 
 
@@ -345,6 +349,7 @@ begin
 
   SendMessage(aHandle, mk_ConnectedToRoom, Room, '');
   MeasurePings;
+  SaveHTMLStatus;
 end;
 
 
@@ -379,6 +384,7 @@ begin
       Status('Reassigned hosting rights for room '+inttostr(Room)+' to '+inttostr(fRoomInfo[Room].HostHandle));
     end;
   end;
+  SaveHTMLStatus;
 end;
 
 
@@ -443,8 +449,16 @@ begin
     mk_JoinRoom:  AddClientToRoom(aSenderHandle,Param);
     mk_RoomOpen:  fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Joinable := true;
     mk_RoomClose: fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Joinable := false;
-    mk_SetGameState: fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].GameState := Msg;
-    mk_SetPlayerList: fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Players := Msg;
+    mk_SetGameState:
+            begin
+              fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].GameState := Msg;
+              SaveHTMLStatus;
+            end;
+    mk_SetPlayerList:
+            begin
+              fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Players := Msg;
+              SaveHTMLStatus;
+            end;
     mk_GetServerInfo:
             begin
               M := TKMemoryStream.Create;
@@ -634,6 +648,31 @@ begin
     end;
   Result := -1;
   Assert(false);
+end;
+
+
+procedure TKMNetServer.SaveHTMLStatus;
+var
+  i:integer;
+  HTML:string;
+  HTMLFile:TextFile;
+begin
+  if fHTMLStatusFile = '' then exit; //Means do not write status
+
+  HTML := '<HTML><HEAD><TITLE>KaM Remake Server Status</TITLE></HEAD>'+#13;
+  HTML := HTML + '<BODY>'+#13;
+  HTML := HTML + '<TABLE border="1"><TR><TD><b>Room ID</b></TD><TD><b>State</b></TD><TD><b>Player Count</b></TD><TD><b>Player Names</b></TD></TR>'+#13;
+  for i:=0 to fRoomCount-1 do
+    if GetRoomPlayersCount(i) > 0 then
+      HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+fRoomInfo[i].GameState+
+                     '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+'</TD><TD>'+StringReplace(fRoomInfo[i].Players,'|',', ',[rfReplaceAll])+'</TD></TR>'+#13;
+
+  HTML := HTML + '</TABLE></BODY></HTML>';
+
+  AssignFile(HTMLFile, fHTMLStatusFile);
+  ReWrite(HTMLFile);
+  Write(HTMLFile,HTML);
+  CloseFile(HTMLFile);
 end;
 
 

@@ -36,6 +36,7 @@ type
     fAutoKickTimeout:integer;
     fPingInterval:integer;
     fAnnounceServer:boolean;
+    fHTMLStatusFile:string;
     function LoadSettingsFromFile(FileName:string):boolean;
     procedure SaveSettingsToFile(FileName:string);
 
@@ -90,6 +91,7 @@ type
     property MaxRooms:integer read fMaxRooms;
     property AutoKickTimeout:integer read fAutoKickTimeout;
     property PingInterval:integer read fPingInterval;
+    property HTMLStatusFile:string read fHTMLStatusFile;
   end;
 
 
@@ -161,6 +163,7 @@ begin
   fMaxRooms               := f.ReadInteger('Server','MaxRooms',16);
   fAutoKickTimeout        := f.ReadInteger('Server','AutoKickTimeout',20);
   fPingInterval           := f.ReadInteger('Server','PingMeasurementInterval',1000);
+  fHTMLStatusFile        := f.ReadString('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
 
   FreeAndNil(f);
   fNeedsSave := false;
@@ -203,6 +206,7 @@ begin
   f.WriteInteger('Server','MaxRooms',fMaxRooms);
   f.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
   f.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
+  f.WriteString('Server','HTMLStatusFile',fHTMLStatusFile);
 
   f.UpdateFile; //Write changes to file
   FreeAndNil(f);
