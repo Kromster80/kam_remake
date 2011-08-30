@@ -135,7 +135,7 @@ begin
              if (fPlayers <> nil) and (fPlayers.Player[GetOwner] <> nil) then
                fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.HouseType);
 
-           //Play a sound. Do not use KaMRandom here as it will be dependant on MyPlayer!
+           //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
            if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
              fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))],fUnit.GetPosition);
 

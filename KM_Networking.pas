@@ -11,12 +11,12 @@ uses
 //todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
 
 type
-  TLANPlayerKind = (lpk_Host, lpk_Joiner);
-  TLANGameState = (lgs_None, lgs_Connecting, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game);
+  TNetPlayerKind = (lpk_Host, lpk_Joiner);
+  TNetGameState = (lgs_None, lgs_Connecting, lgs_Query, lgs_Lobby, lgs_Loading, lgs_Game);
 
 const
-  LANGameStateText:array[TLANGameState] of string = ('None','Connecting','Query','Lobby','Loading','Game');
-  NetAllowedPackets:array[TLANGameState] of set of TKMessageKind = (
+  NetGameStateText:array[TNetGameState] of string = ('None','Connecting','Query','Lobby','Loading','Game');
+  NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
   [], //lgs_None
   [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_Ping,mk_Pong,mk_ConnectedToRoom], //lgs_Connecting
   [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_Pong,mk_PingInfo], //lgs_Query
@@ -37,8 +37,8 @@ type
     fNetServer:TKMDedicatedServer;
     fNetClient:TKMNetClient;
     fServerQuery:TKMServerQuery;
-    fLANPlayerKind: TLANPlayerKind; //Our role (Host or Joiner)
-    fLANGameState: TLANGameState;
+    fNetPlayerKind: TNetPlayerKind; //Our role (Host or Joiner)
+    fNetGameState: TNetGameState;
     fHostAddress:string;
     fMyNikname:string;
     fMyIndexOnServer:integer;
@@ -69,7 +69,7 @@ type
     procedure ForcedDisconnect(const S: string);
     procedure StartGame;
     procedure PlayGame;
-    procedure SetGameState(aState:TLANGameState);
+    procedure SetGameState(aState:TNetGameState);
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -80,6 +80,7 @@ type
     destructor Destroy; override;
 
     property MyIndex:integer read fMyIndex;
+    property NetGameState:TNetGameState read fNetGameState;
     function MyIPString:string;
     function IsHost:boolean;
 
@@ -170,7 +171,7 @@ end;
 
 function TKMNetworking.IsHost:boolean;
 begin
-  Result := (fLANPlayerKind = lpk_Host);
+  Result := (fNetPlayerKind = lpk_Host);
 end;
 
 
@@ -208,7 +209,7 @@ begin
 
   fHostAddress := aServerAddress;
   fMyNikname := aUserName;
-  fLANPlayerKind := lpk_Joiner;
+  fNetPlayerKind := lpk_Joiner;
 
   fNetClient.OnRecieveData := PacketRecieve;
   fNetClient.OnConnectSucceed := ConnectSucceed;
@@ -425,7 +426,7 @@ begin
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
 
-  case fLANPlayerKind of
+  case fNetPlayerKind of
     lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
     lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_StartingLocQuery, '', aIndex);
   end;
@@ -437,7 +438,7 @@ procedure TKMNetworking.SelectTeam(aIndex:integer; aPlayerIndex:integer);
 begin
   fNetPlayers[aPlayerIndex].Team := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
 
-  case fLANPlayerKind of
+  case fNetPlayerKind of
     lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
     lpk_Joiner: PacketSend(NET_ADDRESS_HOST, mk_SetTeam, '', aIndex);
   end;
@@ -453,7 +454,7 @@ begin
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].FlagColorID := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
 
-  case fLANPlayerKind of
+  case fNetPlayerKind of
     lpk_Host:   SendPlayerListAndRefreshPlayersSetup;
     lpk_Joiner: begin
                   PacketSend(NET_ADDRESS_HOST, mk_FlagColorQuery, '', aIndex);
@@ -533,7 +534,7 @@ begin
   Assert(IsHost, 'Only host can send player list');
 
   //In saves we should load team and color from the MapInfo
-  if (fLANGameState = lgs_Lobby) and (MapInfo.IsSave) then
+  if (fNetGameState = lgs_Lobby) and (MapInfo.IsSave) then
     for i:=1 to NetPlayers.Count do
       if NetPlayers[i].StartLocation <> 0 then
       begin
@@ -546,7 +547,7 @@ begin
         NetPlayers[i].Team := 0;
       end;
 
-  if IsHost and (fLANGameState = lgs_Lobby) then
+  if IsHost and (fNetGameState = lgs_Lobby) then
   begin
     if NetPlayers.Count >= MAX_PLAYERS then
       PacketSend(NET_ADDRESS_SERVER, mk_RoomClose, '', 0) //Tell the server this room is now full
@@ -568,7 +569,7 @@ var i: integer;
 begin
   if aShowName then
   begin
-    if fLANGameState <> lgs_Game then
+    if fNetGameState <> lgs_Game then
       aText := fMyNikname+': '+aText
     else
     begin
@@ -605,7 +606,7 @@ end;
 
 procedure TKMNetworking.GameCreated;
 begin
-  case fLANPlayerKind of
+  case fNetPlayerKind of
     lpk_Host:   begin
                   fNetPlayers[fMyIndex].ReadyToPlay := true;
                   PacketSend(NET_ADDRESS_OTHERS, mk_ReadyToPlay, '', 0);
@@ -613,7 +614,7 @@ begin
                   //Check this here because it is possible to start a multiplayer game without other humans, just AI (at least for debugging)
                   if fNetPlayers.AllReadyToPlay then
                   begin
-                    PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0); //todo: Should include lag difference
+                    PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
                     PlayGame;
                   end;
                 end;
@@ -647,10 +648,10 @@ begin
   M.Free;
 
   //Make sure we are allowed to receive this packet at this point
-  if not (Kind in NetAllowedPackets[fLANGameState]) then
+  if not (Kind in NetAllowedPackets[fNetGameState]) then
   begin
     //When querying a host we may receive data such as commands, player setup, etc. These should be ignored.
-    if (fLANGameState <> lgs_Query) and Assigned(fOnTextMessage) then
+    if (fNetGameState <> lgs_Query) and Assigned(fOnTextMessage) then
       fOnTextMessage('Error: Received an packet not intended for this state');
     Exit;
   end;
@@ -667,7 +668,7 @@ begin
 
     mk_HostingRights:
             begin
-              fLANPlayerKind := lpk_Host;
+              fNetPlayerKind := lpk_Host;
               if Assigned(fOnJoinAssignedHost) then fOnJoinAssignedHost(Self); //Enter the lobby if we had hosting rights assigned to us
               if Assigned(fOnTextMessage) then fOnTextMessage('Server has assigned hosting rights to us');
             end;
@@ -683,7 +684,7 @@ begin
     mk_ConnectedToRoom:
             begin
               //We are now clear to proceed with our business
-              case fLANPlayerKind of
+              case fNetPlayerKind of
                 lpk_Host:
                     begin
                       fNetPlayers.AddPlayer(fMyNikname, fMyIndexOnServer);
@@ -704,7 +705,7 @@ begin
     mk_AskToJoin:
             if IsHost then begin
               ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
-              if (ReMsg = '') and (fLANGameState = lgs_Game) then
+              if (ReMsg = '') and (fNetGameState = lgs_Game) then
                 ReMsg := 'Cannot join while the game is in progress';
               if ReMsg = '' then
               begin
@@ -720,14 +721,14 @@ begin
             end;
 
     mk_AllowToJoin:
-            if fLANPlayerKind = lpk_Joiner then
+            if fNetPlayerKind = lpk_Joiner then
             begin
               fOnJoinSucc(Self); //Enter lobby
               SetGameState(lgs_Lobby);
             end;
 
     mk_RefuseToJoin:
-            if fLANPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then begin
               fNetClient.Disconnect;
               fOnJoinFail(Msg);
             end;
@@ -737,7 +738,7 @@ begin
             begin
               if fNetPlayers.ServerToLocal(Param) = -1 then exit; //Has already disconnected or not from our room
               PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(Param)].Nikname+' lost connection');
-              if fLANGameState in [lgs_Loading, lgs_Game] then
+              if fNetGameState in [lgs_Loading, lgs_Game] then
                 fNetPlayers.KillPlayer(Param)
               else
                 fNetPlayers.RemPlayer(Param);
@@ -746,7 +747,7 @@ begin
             else
               if fNetPlayers.ServerToLocal(Param) <> -1 then
               begin
-                if fLANGameState in [lgs_Loading, lgs_Game] then
+                if fNetGameState in [lgs_Loading, lgs_Game] then
                   fNetPlayers.KillPlayer(Param)
                 else
                   fNetPlayers.RemPlayer(Param); //Remove the player anyway as it might be the host that was lost
@@ -754,12 +755,12 @@ begin
 
     mk_Disconnect:
             if aSenderIndex <> NET_ADDRESS_SERVER then
-              case fLANPlayerKind of
+              case fNetPlayerKind of
                 lpk_Host:
                     begin
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
                       PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
-                      if fLANGameState in [lgs_Loading, lgs_Game] then
+                      if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.KillPlayer(aSenderIndex)
                       else
                         fNetPlayers.RemPlayer(aSenderIndex);
@@ -769,7 +770,7 @@ begin
                     begin
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
                       if Assigned(fOnTextMessage) then fOnTextMessage('The host has disconnected');
-                      if fLANGameState in [lgs_Loading, lgs_Game] then
+                      if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.KillPlayer(aSenderIndex)
                       else
                         fNetPlayers.RemPlayer(aSenderIndex);
@@ -782,11 +783,11 @@ begin
             if Param = fMyIndexOnServer then
             begin
               //We are now the host
-              fLANPlayerKind := lpk_Host;
+              fNetPlayerKind := lpk_Host;
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               if Assigned(fOnReassignedHost) then fOnReassignedHost(Self); //Lobby/game might need to know that we are now hosting
 
-              case fLANGameState of
+              case fNetGameState of
                 lgs_Lobby:   begin
                                fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
                                fNetPlayers.SetAIReady; //Set all AI players to ready
@@ -815,7 +816,7 @@ begin
             end;
 
     mk_PlayersList:
-            if fLANPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then begin
               fNetPlayers.SetAsText(Msg); //Our index could have changed on players add/removal
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -830,7 +831,7 @@ begin
             end;
 
     mk_MapSelect:
-            if fLANPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then begin
               fMapInfo.Load(Msg, true);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
@@ -838,7 +839,7 @@ begin
             end;
 
     mk_MapCRC:
-            if fLANPlayerKind = lpk_Joiner then
+            if fNetPlayerKind = lpk_Joiner then
             begin
               if Integer(fMapInfo.CRC) <> Param then
               begin
@@ -855,7 +856,7 @@ begin
             end;
 
     mk_SaveSelect:
-            if fLANPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then begin
               fMapInfo.LoadSavedGame(Param, true, true);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Folder);
@@ -863,7 +864,7 @@ begin
             end;
 
     mk_SaveCRC:
-            if fLANPlayerKind = lpk_Joiner then
+            if fNetPlayerKind = lpk_Joiner then
               if Integer(fMapInfo.CRC) <> Param then
               begin
                 if fMapInfo.IsValid then
@@ -919,7 +920,7 @@ begin
             end;
 
     mk_Start:
-            if fLANPlayerKind = lpk_Joiner then begin
+            if fNetPlayerKind = lpk_Joiner then begin
               fNetPlayers.SetAsText(Msg);
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               StartGame;
@@ -931,13 +932,13 @@ begin
               if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
               if IsHost and fNetPlayers.AllReadyToPlay then
               begin
-                PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0); //todo: Should include lag difference
+                PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
                 PlayGame;
               end;
             end;
 
     mk_Play:
-            if fLANPlayerKind = lpk_Joiner then PlayGame;
+            if fNetPlayerKind = lpk_Joiner then PlayGame;
 
     mk_Commands:
             if Assigned(fOnCommands) then fOnCommands(Msg);
@@ -983,12 +984,12 @@ begin
 end;
 
 
-procedure TKMNetworking.SetGameState(aState:TLANGameState);
+procedure TKMNetworking.SetGameState(aState:TNetGameState);
 begin
-  fLANGameState := aState;
-  if (fLANGameState in [lgs_Lobby,lgs_Loading,lgs_Game]) and IsHost and (fMyIndexOnServer <> -1) then
+  fNetGameState := aState;
+  if (fNetGameState in [lgs_Lobby,lgs_Loading,lgs_Game]) and IsHost and (fMyIndexOnServer <> -1) then
   begin
-    PacketSend(NET_ADDRESS_SERVER,mk_SetGameState,LANGameStateText[fLANGameState],0);
+    PacketSend(NET_ADDRESS_SERVER,mk_SetGameState,NetGameStateText[fNetGameState],0);
     PacketSend(NET_ADDRESS_SERVER, mk_SetPlayerList, fNetPlayers.GetSimpleAsText, 0);
   end;
 end;
@@ -997,7 +998,7 @@ end;
 procedure TKMNetworking.UpdateState(aTick: cardinal);
 begin
   //Joining timeout
-  if fLANGameState in [lgs_Connecting,lgs_Query] then
+  if fNetGameState in [lgs_Connecting,lgs_Query] then
     if GetTickCount-fJoinTimeout > JOIN_TIMEOUT then
       fOnJoinFail('Query timed out');
 end;

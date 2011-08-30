@@ -395,7 +395,7 @@ begin
     if not TakeAll then
       for i:=low(TGroupType) to high(TGroupType) do
         Result := Result AND (GroupAmounts[i] <= GroupsAvailableCount[byte(i)]);
-    //todo: Range
+    //todo: Add support for the AI attack feature Range
   end;
 end;
 

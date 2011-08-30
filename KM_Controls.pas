@@ -2282,7 +2282,7 @@ end;
 
 
 procedure TKMColumnListBox.AddItem(aItem:array of string; aItemColor:array of TColor4; aTag:integer=0; aTag2:integer=0);
-var i, k, Count: integer;
+var i, Count: integer;
 begin
   assert(Length(aItem) = Length(fItems));
   assert(Length(aItemColor) = Length(fItems));

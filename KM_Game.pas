@@ -690,11 +690,11 @@ begin
   fWaitingForNetwork := aWaiting;
 
   WaitingPlayers := TStringList.Create;
-  //todo: we need a better way to tell whether it is the initial load, as we will add pausing to multiplayer later
-  if fGameState = gsRunning then
-    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers) //GIP is waiting for next tick
-  else
-    fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
+  case fNetworking.NetGameState of
+    lgs_Game:    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
+    lgs_Loading: fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
+    else assert(false); //Should not be waiting for players from any other GameState
+  end;
 
   fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers);
   WaitingPlayers.Free;

@@ -7,7 +7,7 @@ uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, 
 type
 TUnitActionFight = class(TUnitAction)
   private
-    AimingDelay:integer;
+    FightDelay:integer; //Pause for this many ticks before going onto the next Step
     fOpponent:TKMUnit; //Who we are fighting with
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
   public
@@ -35,7 +35,7 @@ begin
   Inherited Create(aActionType);
   fActionName     := uan_Fight;
   Locked          := true;
-  AimingDelay     := -1;
+  FightDelay      := -1;
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
   fVertexOccupied := KMPoint(0,0);
@@ -57,7 +57,7 @@ constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
-  LoadStream.Read(AimingDelay);
+  LoadStream.Read(FightDelay);
   LoadStream.Read(fVertexOccupied);
 end;
 
@@ -98,9 +98,8 @@ end;
 procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
+  //We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
   if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
-
-  //Do not use KaMRandom here as it will be dependant on MyPlayer!
   
   case KMUnit.UnitType of
     ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition); //Aiming
@@ -134,7 +133,7 @@ begin
       //Start fighting this opponent by resetting the action
       fOpponent.GetUnitPointer; //Add to pointer count
       Locked := true;
-      AimingDelay := -1;
+      FightDelay := -1;
       //Do not face the new opponent or reset the animation step, wait until this strike is over
     end
     else
@@ -185,14 +184,14 @@ begin
   begin
     if Step = FIRING_DELAY then
     begin
-      if AimingDelay=-1 then //Initialize
+      if FightDelay=-1 then //Initialize
       begin
         MakeSound(KMUnit, false); //IsHit means IsShoot for bowmen (false means aiming)
-        AimingDelay := AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD);
+        FightDelay := AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD);
       end;
 
-      if AimingDelay>0 then begin
-        dec(AimingDelay);
+      if FightDelay>0 then begin
+        dec(FightDelay);
         exit; //do not increment AnimStep, just exit;
       end;
 
@@ -202,7 +201,7 @@ begin
         else Assert(false, 'Unknown shooter');
       end;
 
-      AimingDelay := -1; //Reset
+      FightDelay := -1; //Reset
 
     end;
   end else begin
@@ -230,17 +229,17 @@ begin
     //In KaM melee units pause for 1 tick on these frames. Made it random so troops are not striking in sync, and it adds randomness to battles
     if Step in [0,3,6] then
     begin
-      if AimingDelay=-1 then //Initialize
+      if FightDelay=-1 then //Initialize
       begin
-        AimingDelay := KaMRandom(2);
+        FightDelay := KaMRandom(2);
       end;
 
-      if AimingDelay>0 then begin
-        dec(AimingDelay);
+      if FightDelay>0 then begin
+        dec(FightDelay);
         exit; //do not increment AnimStep, just exit
       end;
 
-      AimingDelay := -1; //Reset
+      FightDelay := -1; //Reset
     end;
   end;
 
@@ -258,7 +257,7 @@ begin
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(AimingDelay);
+  SaveStream.Write(FightDelay);
   SaveStream.Write(fVertexOccupied);
 end;
 
