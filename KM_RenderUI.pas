@@ -377,16 +377,15 @@ begin
 end;
 
 
-//todo: it looks a bit wrong on corners and with AA turned On
 procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
 begin
   if LineWidth=0 then exit;
   glPushAttrib(GL_LINE_BIT);
-  glLineWidth(LineWidth);
-  glColor4ubv(@Col);
-  glBegin(GL_LINE_LOOP);
-    glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
-  glEnd;
+    glLineWidth(LineWidth);
+    glColor4ubv(@Col);
+    glBegin(GL_LINE_LOOP);
+      glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
+    glEnd;
   glPopAttrib;
 end;
 

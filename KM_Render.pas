@@ -1121,8 +1121,7 @@ begin
                  RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
                end;
     cm_Height: begin
-                 //todo: Render dots on tiles with brightness showing how much they will be elevated
-                 fRenderAux.Dot(GameCursor.Float.X+1,GameCursor.Float.Y+1 - fTerrain.InterpolateLandHeight(GameCursor.Float)/CELL_HEIGHT_DIV, $FFFFFFFF);
+                 fRenderAux.Circle(GameCursor.Float.X,GameCursor.Float.Y - fTerrain.InterpolateLandHeight(GameCursor.Float)/CELL_HEIGHT_DIV, (GameCursor.Tag1 and $F) div 2, $00000000,  $FFFFFFFF);
                end;
     cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
                  RenderUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
