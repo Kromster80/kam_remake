@@ -45,11 +45,6 @@ type
     h_DC: HDC;
     h_RC: HGLRC;
     fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version:string;
-    TextG:GLuint; //Shading gradient
-    TextT:GLuint; //Tiles
-    TextW:array[1..8]of GLuint; //Water
-    TextS:array[1..3]of GLuint; //Swamps
-    TextF:array[1..5]of GLuint; //WaterFalls
     fScreenX, fScreenY:word;
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
@@ -69,7 +64,6 @@ type
     destructor Destroy; override;
 
     function GenTexture(DestX, DestY:word; const Data:TCardinalArray; Mode:TTexFormat):GLUint;
-    procedure LoadTileSet;
     property RendererVersion:string read fOpenGL_Version;
     procedure Resize(Width,Height:integer; aRenderMode:TRenderMode);
     procedure SetRotation(aH,aP,aB:integer);
@@ -186,33 +180,6 @@ begin
     end;
 
     MyBitMap.Free;
-  end;
-end;
-
-
-// Load the Textures
-procedure TRender.LoadTileSet;
-var i:integer;
-begin
-  LoadTexture(ExeDir+'Resource\gradient.tga', TextG);
-  LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT);
-
-  for i:=0 to 255 do
-    with GFXData[8,i+1] do
-    begin
-      TexID := TextT;
-      v1 := (i div 16  ) / 16; //There are 16 tiles across the line
-      u1 := (i mod 16  ) / 16;
-      v2 := (i div 16+1) / 16;
-      u2 := (i mod 16+1) / 16;
-      PxWidth := 32;
-      PxHeight := 32;
-    end;
-
-  if MAKE_ANIM_TERRAIN then begin
-    for i:=1 to 8 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Water'+inttostr(i)+'.tga', TextW[i]);
-    for i:=1 to 3 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Swamp'+inttostr(i)+'.tga', TextS[i]);
-    for i:=1 to 5 do LoadTexture(ExeDir+'Resource'+ PathDelim + 'Falls'+inttostr(i)+'.tga', TextF[i]);
   end;
 end;
 
@@ -343,6 +310,11 @@ end;
 
 
 procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
+  procedure LandLight(a:single);
+  begin
+    glColor4f(a/1.5+0.5,a/1.5+0.5,a/1.5+0.5,Abs(a*2)); //Balanced looks
+    //glColor4f(a*2,a*2,a*2,Abs(a*2)); //Deeper shadows
+  end;
 var
   i,k,iW:integer; ID,Rot,rd:integer;
   xt,a:integer;
@@ -352,17 +324,17 @@ begin
 
   for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
     case iW of
-      1: glBindTexture(GL_TEXTURE_2D, TextT);
-      2: glBindTexture(GL_TEXTURE_2D, TextW[AnimStep mod 8 + 1]);
-      3: glBindTexture(GL_TEXTURE_2D, TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
-      4: glBindTexture(GL_TEXTURE_2D, TextF[AnimStep mod 5 + 1]);
+      1: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextT);
+      2: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextW[AnimStep mod 8 + 1]);
+      3: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
+      4: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextF[AnimStep mod 5 + 1]);
     end;
     glBegin(GL_QUADS);
       with fTerrain do
       for i:=y1 to y2 do for k:=x1 to x2 do
       if (iW=1) or (MyPlayer.FogOfWar.CheckTileRevelation(k,i) > FOG_OF_WAR_ACT) then //No animation in FOW
       begin
-        xt:=fTerrain.Land[i,k].Terrain;
+        xt := fTerrain.Land[i,k].Terrain;
 
         TexC[1,1]:=(xt mod 16  )/16; TexC[1,2]:=(xt div 16  )/16;
         TexC[2,1]:=(xt mod 16  )/16; TexC[2,2]:=(xt div 16+1)/16;
@@ -381,29 +353,28 @@ begin
           glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end else begin
-          
+
           glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
           glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
 
-          if KAM_WATER_DRAW and (iW=1) and fTerrain.TileIsWater(KMPoint(k,i)) then begin
+          if KAM_WATER_DRAW and (iW=1) and fTerrain.TileIsWater(KMPoint(k,i)) then
+          begin
             xt := 32;
-
             TexC[1,1] := (xt mod 16  )/16; TexC[1,2] := (xt div 16  )/16;
             TexC[2,1] := (xt mod 16  )/16; TexC[2,2] := (xt div 16+1)/16;
             TexC[3,1] := (xt mod 16+1)/16; TexC[3,2] := (xt div 16+1)/16;
             TexC[4,1] := (xt mod 16+1)/16; TexC[4,2] := (xt div 16  )/16;
-
             TexO[1] := 1; TexO[2] := 2; TexO[3] := 3; TexO[4] := 4;
 
-            glColor4f(1,1,1,max(0,Land[i  ,k  ].Light*2));
+            LandLight(Land[i  ,k  ].Light);
             glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-            glColor4f(1,1,1,max(0,Land[i+1,k  ].Light*2));
+            LandLight(Land[i+1,k  ].Light);
             glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-            glColor4f(1,1,1,max(0,Land[i+1,k+1].Light*2));
+            LandLight(Land[i+1,k+1].Light);
             glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-            glColor4f(1,1,1,max(0,Land[i  ,k+1].Light*2));
+            LandLight(Land[i  ,k+1].Light);
             glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
           end;
         end;
@@ -439,7 +410,7 @@ begin
   glColor4f(1,1,1,1);
   //Render highlights
   glBlendFunc(GL_DST_COLOR, GL_ONE);
-  glBindTexture(GL_TEXTURE_2D, TextG);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
   glBegin(GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
@@ -458,7 +429,7 @@ begin
 
   //Render shadows and FOW at once
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-  glBindTexture(GL_TEXTURE_2D, TextG);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
   glBegin(GL_QUADS);
     with fTerrain do
     for i:=y1 to y2 do for k:=x1 to x2 do
@@ -828,7 +799,7 @@ begin
   if not fTerrain.TileInMapCoords(pX,pY) then exit;
 
   glColor4f(1,1,1,1);
-  glBindTexture(GL_TEXTURE_2D, TextT);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextT);
 
   TexC[1,1] := (Index mod 16  )/16; TexC[1,2]:=(Index div 16  )/16;
   TexC[2,1] := (Index mod 16  )/16; TexC[2,2]:=(Index div 16+1)/16;

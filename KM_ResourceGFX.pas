@@ -6,8 +6,8 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, 
-  KM_ResourceFonts, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceUnit
+  KM_CommonTypes, KM_Defaults,
+  KM_ResourceFonts, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceTileset, KM_ResourceUnit
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, ZStream, BGRABitmap {$ENDIF};
 
@@ -22,6 +22,7 @@ type
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMPalettes;
+    fTileset: TKMTileset;
 
     procedure StepRefresh;
     procedure StepCaption(aCaption:string);
@@ -38,10 +39,7 @@ type
 
     procedure ClearUnusedGFX(RXid:integer);
 
-    procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
-
-    //function GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint; //This should belong to TRender?
   public
     OnLoadingStep:TNotifyEvent;
     OnLoadingText:TStringEvent;
@@ -56,6 +54,7 @@ type
     property UnitDat: TKMUnitDatCollection read fUnitDat;
     property Palettes: TKMPalettes read fPalettes;
     property ResourceFont: TResourceFont read fResourceFont;
+    property Tileset: TKMTileset read fTileset;
 
     //procedure ExportRX2BMP(RXid:integer);
     //procedure ExportTreeAnim2BMP;
@@ -101,6 +100,7 @@ begin
   if fUnitDat <> nil then FreeAndNil(fUnitDat);
   if fPalettes <> nil then FreeAndNil(fPalettes);
   if fResourceFont <> nil then FreeAndNil(fResourceFont);
+  if fTileset <> nil then FreeAndNil(fTileset);
   Inherited;
 end;
 
@@ -190,7 +190,8 @@ begin
     end;
 
   StepCaption('Making minimap colors ...');
-  MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
+
+  fTileset := TKMTileset.Create(ExeDir+'Resource\');//Tiles1.tga');
   fLog.AppendLog('Prepared MiniMap colors...');
   StepRefresh;
   fDataState:=dls_All;
@@ -918,93 +919,6 @@ begin
   end;
 
   MyBitMap.Free;
-end;
-
-
-{Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
-thus it's better to spend few ms and generate minimap colors from actual data}
-procedure TResource.MakeMiniMapColors(FileName:string);
-var ii,kk,h,j,pX:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {ft:textfile;}
-  InputStream: TFileStream;
-  OutputStream: TMemoryStream;
-  {$IFDEF WDC}
-  DecompressionStream: TZDecompressionStream;
-  {$ENDIF}
-  {$IFDEF FPC}
-  DecompressionStream: TDecompressionStream;
-  i: Integer;
-  Buf: array[0..1023]of Byte;
-  {$ENDIF}
-begin
-  if not FileExists(FileName) then exit;
-  AssignFile(f, FileName);
-  FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
-
-  SetLength(c,18+1);
-  blockread(f,c[1],18); //SizeOf(TGAHeader)
-  SizeX := c[13]+c[14]*256;
-  SizeY := c[15]+c[16]*256;
-
-  if c[1]=120 then
-  begin
-    closefile(f);
-    InputStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
-    OutputStream := TMemoryStream.Create;
-    {$IFDEF WDC}
-     DecompressionStream := TZDecompressionStream.Create(InputStream);
-     OutputStream.CopyFrom(DecompressionStream, 0);
-    {$ENDIF}
-    {$IFDEF FPC}
-     DecompressionStream := TDecompressionStream.Create(InputStream);
-     repeat
-       i:=DecompressionStream.Read(Buf, SizeOf(Buf));
-       if i <> 0 then OutputStream.Write(Buf, i);
-     until i <= 0;
-    {$ENDIF}
-    OutputStream.Position := 0; 
-    OutputStream.ReadBuffer(c[1], 18); //SizeOf(TGAHeader)
-    SizeX := c[13]+c[14]*256;
-    SizeY := c[15]+c[16]*256;
-    SetLength(c,SizeX*SizeY*4+1);
-    OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
-    InputStream.Free;
-    OutputStream.Free;
-    DecompressionStream.Free;
-  end
-  else
-  begin
-    SetLength(c,SizeX*SizeY*4+1);
-    blockread(f,c[1],SizeX*SizeY*4);
-    closefile(f);
-  end;
-
-  for ii:=0 to 15 do for kk:=0 to 15 do begin
-
-    R:=0; G:=0; B:=0;
-
-    for j:=0 to (SizeY div 16 - 1) do
-    for h:=0 to (SizeX div 16 - 1) do
-    begin
-      pX := (((SizeX-1)-(ii*(SizeY div 16)+j))*SizeX+kk*(SizeX div 16)+h)*4; //TGA comes flipped upside down
-      inc(B, c[pX+1]);
-      inc(G, c[pX+2]);
-      inc(R, c[pX+3]);
-    end;
-
-    pX := ii*16+kk+1;
-
-    TileMMColor[pX].R := round(R / (SizeX*SizeY div 256)); //each tile is 32x32 px
-    TileMMColor[pX].G := round(G / (SizeX*SizeY div 256));
-    TileMMColor[pX].B := round(B / (SizeX*SizeY div 256));
-
-  end;
-
-  {assignfile(ft,ExeDir+'mm.txt'); rewrite(ft);
-  for ii:=1 to 256 do begin
-    write(ft, '$'+inttohex(TileMMColor[ii].B,2)+inttohex(TileMMColor[ii].G,2)+inttohex(TileMMColor[ii].R,2)+',');
-    if ii mod 8 = 0 then writeln(ft);
-  end;
-  closefile(ft);}
 end;
 
 

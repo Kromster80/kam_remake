@@ -1045,9 +1045,6 @@ var
     b1,b2,b3,b4,b5,b6,b7:boolean;
   end;
 
-  //Minimap tile colors, computed on tileset loading
-  TileMMColor:array[1..256]of record R,G,B:byte; end;
-
 
 implementation
 

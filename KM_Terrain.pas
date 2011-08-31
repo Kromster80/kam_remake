@@ -2319,12 +2319,12 @@ begin
     if FOW = 0 then
       MiniMapRGB[i,k] := 0
     else
-      if Land[i,k].TileOwner = -1 then begin
+      if Land[i,k].TileOwner = -1 then begin //todo: We can handle IsUnit here as well
         ID := Land[i,k].Terrain+1;
         Light := round(Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
-        MiniMapRGB[i,k] :=  EnsureRange(TileMMColor[ID].R+Light,0,255) +
-                            EnsureRange(TileMMColor[ID].G+Light,0,255) shl 8 +
-                            EnsureRange(TileMMColor[ID].B+Light,0,255) shl 16;
+        MiniMapRGB[i,k] :=  EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
+                            EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
+                            EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
       end else
         MiniMapRGB[i,k] :=  fPlayers.Player[Land[i,k].TileOwner].FlagColor;
   end;

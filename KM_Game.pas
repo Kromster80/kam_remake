@@ -344,8 +344,6 @@ begin
     fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
     fResource.LoadGameResources;
     InitUnitStatEvals; //Army
-    fMainMenuInterface.ShowScreen(msLoading, 'tileset');
-    fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
@@ -790,8 +788,6 @@ begin
   if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, 'units and houses');
     fResource.LoadGameResources;
-    fMainMenuInterface.ShowScreen(msLoading, 'tileset');
-    fRender.LoadTileSet;
   end;
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');

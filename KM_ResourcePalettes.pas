@@ -32,15 +32,15 @@ implementation
 
 
 const
- //Palette filenames, except pal_lin which is generated proceduraly
- PalFiles:array[TKMPal]of string = (
-  'map.bbm',
-  'pal0.bbm', //'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', unused
-  'setup.bbm',
-  'setup2.bbm',
-  'linear',
-  'mapgold.lbm',
-  'setup.lbm');
+  //Palette filenames, except pal_lin which is generated proceduraly
+  PalFiles:array[TKMPal]of string = (
+    'map.bbm',
+    'pal0.bbm', //'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', unused
+    'setup.bbm',
+    'setup2.bbm',
+    'linear',
+    'mapgold.lbm',
+    'setup.lbm');
 
 
 { TKMPalData }
