@@ -305,7 +305,6 @@ begin
   SwapBuffers(h_DC);
   {$ENDIF}
   {$IFDEF Unix}
-   // if (FDC <> 0) and (rcoDoubleBuffered in Options) then
   glXSwapBuffers(FDisplay, FDC);
   {$ENDIF}
 end;

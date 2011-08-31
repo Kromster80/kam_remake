@@ -300,6 +300,7 @@ var
   SearchRec:TSearchRec;
   i:integer; x,y:integer;
   ID:integer; p:cardinal;
+  T:Byte;
   ft:TextFile;
   {$IFDEF WDC}
   po:TPNGObject;
@@ -325,7 +326,8 @@ begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
     if InRange(ID, 1, RXData[RX].Qty) then begin //Replace only certain sprites
-      RXData[RX].HasMask[ID] := FileExists(Copy(FileList.Strings[i], 1, 6)+'a.png');
+
+      RXData[RX].HasMask[ID] := FileExists(ExeDir + 'Sprites\' + Copy(FileList.Strings[i], 1, 6)+'a.png');
 
       {$IFDEF WDC}
       po := TPNGObject.Create;
@@ -367,6 +369,43 @@ begin
       {$ENDIF}
       po.Free;
 
+      //Load and process the mask if it exists 
+      if RXData[RX].HasMask[ID] then
+      begin
+        {$IFDEF WDC}
+        po := TPNGObject.Create;
+        po.LoadFromFile(ExeDir + 'Sprites\' + StringReplace(FileList.Strings[i], '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]));
+        {$ENDIF}
+        {$IFDEF FPC}
+        po := TBGRABitmap.Create(ExeDir + 'Sprites\' + StringReplace(FileList.Strings[i], '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]));
+        {$ENDIF}
+
+        if (RXData[RX].Size[ID].X = po.Width) and (RXData[RX].Size[ID].Y = po.Height) then
+        begin
+          //We don't handle transparency in Masks
+          {$IFDEF WDC}
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+          if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
+          begin
+            T := RXData[RX].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
+            RXData[RX].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2)) SHL 24 OR $FFFFFF;
+            RXData[RX].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
+          end;
+          {$ENDIF}
+          {$IFDEF FPC}
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+          if cardinal(po.GetPixel[x,y].red) <> 0 then
+          begin
+            T := RXData[RX].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
+            RXData[RX].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2)) SHL 24 OR $FFFFFF;
+            RXData[RX].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
+          end;
+          {$ENDIF}
+        end;
+        po.Free;
+      end;
+
+
       //Read pivots
       if FileExists(ExeDir + 'Sprites\' + Copy(FileList.Strings[i], 1, 6)+'.txt') then begin
         AssignFile(ft, ExeDir + 'Sprites\' + Copy(FileList.Strings[i], 1, 6)+'.txt');
@@ -375,26 +414,6 @@ begin
         ReadLn(ft, RXData[RX].Pivot[ID].Y);
         CloseFile(ft);
       end;
-
-
-      //todo: Apply team colour masks after loading
-      //Use grey masks for team-colors and fill that area in base layer image with right shades of grey too
-
-      {for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
-          L := RXData[RX].RGBA[ID,y*po.Width+x];
-          if RXData[RX].HasMask[i] and (L in[GetColor32(23),GetColor32(24),GetColor32(25),GetColor32(26),
-                                             GetColor32(27),GetColor32(28),GetColor32(29)]) then
-          begin
-            RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
-            case L of
-              GetColor32(23),GetColor32(29):  RXData[RX].Mask[i,Pixel] := $60FFFFFF;   //7  //6
-              GetColor32(24),GetColor32(28):  RXData[RX].Mask[i,Pixel] := $90FFFFFF;   //11 //9
-              GetColor32(25),GetColor32(27):  RXData[RX].Mask[i,Pixel] := $C0FFFFFF;   //14 //12
-              GetColor32(26):                 RXData[RX].Mask[i,Pixel] := $FFFFFFFF;   //16 //16
-            end;
-            HasMask[i] := true;
-          end;
-      end;}
 
     end;
   end;
