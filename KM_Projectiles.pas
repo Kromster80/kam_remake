@@ -216,10 +216,12 @@ begin
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               //Arrows are more likely to cause damage when the unit is closer
-                              Damage := Round(Damage * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
+                              Damage := Round(Damage * 2 * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
+                              Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].Defence, 1); //Not needed, but animals have 0 defence
                               if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
-                                if U.HitPointsDecrease(Damage,false) then
-                                  fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                                if (Damage >= KaMRandom(101)) then
+                                  if U.HitPointsDecrease(1) then
+                                    fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
                             end
                             else
                             begin
@@ -230,7 +232,7 @@ begin
                             end;
               pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                               if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
-                                if U.HitPointsDecrease(U.GetMaxHitPoints,true) then //Instant death
+                                if U.HitPointsDecrease(U.GetMaxHitPoints) then //Instant death
                                   fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
             end;
           end;

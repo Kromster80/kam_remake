@@ -140,7 +140,7 @@ type TCheckAxis = (ax_X, ax_Y);
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
     procedure SetFullCondition;
-    function  HitPointsDecrease(aAmount:integer; aPenetratesDefence:boolean):boolean;
+    function  HitPointsDecrease(aAmount:integer):boolean;
     procedure HitPointsIncrease(aAmount:integer);
     property GetHitPoints:byte read fHitPoints;
     function GetMaxHitPoints:byte;
@@ -1116,14 +1116,11 @@ end;
 
 
 //Return TRUE if unit was killed
-function TKMUnit.HitPointsDecrease(aAmount:integer; aPenetratesDefence:boolean):boolean;
+function TKMUnit.HitPointsDecrease(aAmount:integer):boolean;
 begin
   Result := false;
   //When we are first hit reset the counter
   if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
-  // Defence modifier
-  if not aPenetratesDefence then
-    aAmount := aAmount div Math.max(fResource.UnitDat[fUnitType].Defence, 1); //Not needed, but animals have 0 defence
   // Sign of aAmount does not affect
   fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, GetMaxHitPoints);
   if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
@@ -1142,8 +1139,7 @@ end;
 
 function TKMUnit.GetMaxHitPoints:byte;
 begin
-  Result := EnsureRange(fResource.UnitDat[fUnitType].HitPoints*40,0,255);
-  // *40 - [LifePoints/OneHitPoint] (MaxHitPoint in Units.dat - 4) 4*40 = 160
+  Result := fResource.UnitDat[fUnitType].HitPoints;
 end;
 
 
@@ -1490,10 +1486,11 @@ end;
 procedure TKMUnit.UpdateHitPoints;
 begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks
-  if (GetUnitAction is TUnitActionFight) and not fGame.GlobalSettings.fHitPointRestoreInFights then exit;
+  //todo: Move this to TGroup and add additional options like only restore when not InFight and not walking
+  if (GetUnitAction is TUnitActionFight) then exit;
   if fGame.GlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
   if fHitPointCounter mod fGame.GlobalSettings.fHitPointRestorePace = 0 then
-    HitPointsIncrease(Round(0.3*GetMaxHitPoints)); //Add 30% of MaxHitPoints
+    HitPointsIncrease(1);
   inc(fHitPointCounter);
 end;
 

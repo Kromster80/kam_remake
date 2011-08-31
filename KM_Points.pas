@@ -34,7 +34,7 @@ type
   function KMGetDirection(X,Y: integer): TKMDirection; overload;
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
   function KMGetDirection(FromPos,ToPos: TKMPointF):TKMDirection; overload;
-  function GetDirModifier(Dir1,Dir2:TKMDirection): single;
+  function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
   function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
   function KMGetVertex(Dir: TKMDirection):TKMPointF;
@@ -181,15 +181,12 @@ end;
 //  1 0 1
 //  2   2
 //  3 4 3
-function GetDirModifier(Dir1,Dir2:TKMDirection): single;
+function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
 begin
   Result := abs(byte(Dir1) - ((byte(Dir2)+4) mod 8));
 
   if Result > 4 then
     Result := 8 - Result; //Mirror it, as the difference must always be 0..4
-
-  //Return value from 0..1
-  Result := Result / 4;
 end;
 
 

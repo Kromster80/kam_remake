@@ -68,7 +68,7 @@ type
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
 
     function GetFightMinRange:single;
-    function GetFightMaxRange:single;
+    function GetFightMaxRange(aTileBased:boolean=false):single;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
@@ -655,12 +655,15 @@ end;
 
 
 //At which range we can fight
-function TKMUnitWarrior.GetFightMaxRange:single;
+function TKMUnitWarrior.GetFightMaxRange(aTileBased:boolean=false):single;
 begin
   case fUnitType of
     ut_Bowman:      Result := RANGE_BOWMAN_MAX;
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MAX;
-    else            Result := 1.42; //slightly bigger than sqrt(2) for diagonal fights
+    else            if aTileBased then
+                      Result := 1 //Enemy must maximum be 1 tile away
+                    else
+                      Result := 1.42; //slightly bigger than sqrt(2) for diagonal fights
   end;
 end;
 
@@ -931,7 +934,7 @@ begin
     TestDir := dir_NA;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
-  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, TestDir);
+  Result := fTerrain.UnitsHitTestWithinRad(GetPosition, GetFightMinRange, GetFightMaxRange(true), GetOwner, at_Enemy, TestDir);
 
   //Only stop attacking a house if it's a warrior
   if (fUnitTask <> nil) and (fUnitTask is TTaskAttackHouse) and (GetUnitAction is TUnitActionStay) and not (Result is TKMUnitWarrior) then

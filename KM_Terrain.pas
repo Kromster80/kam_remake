@@ -518,6 +518,7 @@ var
   i,k:integer; //Counters
   lx,ly,hx,hy:integer; //Ranges
   dX,dY:integer;
+  RequiredMaxRad: single;
   U,C,W:TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
 begin
   W := nil;
@@ -530,8 +531,7 @@ begin
   hy := min(round(aLoc.Y+(MaxRad+1)),MapY); //1.42 gets rounded to 1
 
   for i:=ly to hy do for k:=lx to hx do
-  if InRange(GetLength(aLoc, KMPoint(k,i)), MinRad, MaxRad)
-    and (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i) = 255)
+  if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i) = 255)
     and (Land[i,k].IsUnit <> nil)
     and (Land[i,k].IsUnit.HitTest(k,i)) then //Unit is actually on the tile
   begin
@@ -554,11 +554,16 @@ begin
 
     U := Land[i,k].IsUnit;
 
+    RequiredMaxRad := MaxRad;
+    if (MaxRad = 1) and KMStepIsDiag(aLoc, KMPoint(k,i)) then
+      RequiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
+
     if (U <> nil) and
        U.Visible and //Inside of house
        CanWalkDiagonaly(aLoc,KMPoint(k,i)) and
        (fPlayers.CheckAlliance(aPlayer, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
        ((abs(aLoc.X - k) <> 1) or (abs(aLoc.Y - i) <> 1) or VertexUsageCompatible(aLoc,KMPoint(k,i))) and
+       (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) and
        (not U.IsDeadOrDying)
     then
       if U is TKMUnitWarrior then

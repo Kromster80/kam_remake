@@ -213,18 +213,16 @@ begin
       if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) then
         Damage := Damage + fResource.UnitDat[KMUnit.UnitType].AttackHorse;
 
-      Damage := Damage * Round(GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
+      Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
+      //Defence modifier
+      Damage := Damage div Math.max(fResource.UnitDat[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
 
       IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
       if IsHit then
-      begin
-        // The defence modifier is now done in HitPointsDecrease
-        if fOpponent.HitPointsDecrease(Damage,false) then
-          if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
-            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
-      end;
+        if fOpponent.HitPointsDecrease(1) then
+          fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
 
-      MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
+      MakeSound(KMUnit, IsHit); //Different sounds for hit and for miss
     end;
     //In KaM melee units pause for 1 tick on these frames. Made it random so troops are not striking in sync, and it adds randomness to battles
     if Step in [0,3,6] then

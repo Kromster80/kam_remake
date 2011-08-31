@@ -59,7 +59,6 @@ type
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
-    fHitPointRestoreInFights:boolean;
     constructor Create;
     destructor Destroy; override;
     procedure SaveSettings(aForce:boolean=false);
@@ -149,7 +148,6 @@ begin
   fMusicOn       := f.ReadBool   ('SFX','MusicEnabled',true);
 
   fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);
-  fHitPointRestoreInFights := f.ReadBool('Fights','HitPointRestoreInFights',true);
 
   fMultiplayerName        := f.ReadString('Multiplayer','Name','NoName');
   fMultiplayerIP          := f.ReadString('Multiplayer','LastIP','127.0.0.1');
@@ -192,7 +190,6 @@ begin
   f.WriteBool   ('SFX','MusicEnabled',fMusicOn);
 
   f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
-  f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
 
   f.WriteString('Multiplayer','Name',fMultiplayerName);
   f.WriteString('Multiplayer','LastIP',fMultiplayerIP);
