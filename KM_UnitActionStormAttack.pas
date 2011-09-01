@@ -20,6 +20,7 @@ type
     function GetExplanation:string; override;
     procedure IncVertex(aFrom, aTo: TKMPoint);
     procedure DecVertex;
+    function GetSpeed(KMUnit: TKMUnit):single;
     function CheckForObstacle(KMUnit: TKMUnit; NextPos: TKMPoint):boolean;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -87,6 +88,15 @@ begin
 
   fTerrain.UnitVertexRem(fVertexOccupied);
   fVertexOccupied := KMPoint(0,0);
+end;
+
+
+function TUnitActionStormAttack.GetSpeed(KMUnit: TKMUnit):single;
+begin
+  if (fTileSteps<=0) or (fTileSteps>=fStamina-1) then
+    Result := fResource.UnitDat[KMUnit.UnitType].Speed
+  else
+    Result := fResource.UnitDat[KMUnit.UnitType].Speed * STORM_SPEEDUP;
 end;
 
 

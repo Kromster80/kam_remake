@@ -1527,7 +1527,7 @@ begin
     MovementSpeed := fResource.UnitDat[fUnitType].Speed
   else
   if (GetUnitAction is TUnitActionStormAttack) then
-    MovementSpeed := fResource.UnitDat[fUnitType].Speed * STORM_SPEEDUP
+    MovementSpeed := TUnitActionStormAttack(GetUnitAction).GetSpeed(Self)
   else
     MovementSpeed := 0;
 

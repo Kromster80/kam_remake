@@ -532,8 +532,7 @@ begin
 
   for i:=ly to hy do for k:=lx to hx do
   if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i) = 255)
-    and (Land[i,k].IsUnit <> nil)
-    and (Land[i,k].IsUnit.HitTest(k,i)) then //Unit is actually on the tile
+    and (Land[i,k].IsUnit <> nil) then
   begin
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
     dX := k-aLoc.X;
@@ -563,7 +562,7 @@ begin
        CanWalkDiagonaly(aLoc,KMPoint(k,i)) and
        (fPlayers.CheckAlliance(aPlayer, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
        ((abs(aLoc.X - k) <> 1) or (abs(aLoc.Y - i) <> 1) or VertexUsageCompatible(aLoc,KMPoint(k,i))) and
-       (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) and
+       (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) and //Unit's exact position must be close enough
        (not U.IsDeadOrDying)
     then
       if U is TKMUnitWarrior then
