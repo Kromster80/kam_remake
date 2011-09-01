@@ -347,9 +347,8 @@ type
 
 
 //Used for AI defence and linking troops
-//@Lewin: Can we remove gt_None? It appears it could be used only in legacy scripts. I guess we don't need it in code?
-//todo: @Krom: Correct, it can be removed
-type TGroupType = (gt_None, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+type  TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+const KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
 
 type TCheckAxis = (ax_X, ax_Y);
 
@@ -369,7 +368,6 @@ const UnitGroups: array[ut_Militia..ut_Barbarian] of TGroupType = (
 
 //AI's prefences for training troops
 const AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
-  (ut_None,         ut_None,       ut_None),
   (ut_Swordsman,    ut_AxeFighter, ut_Militia),
   (ut_Hallebardman, ut_Pikeman,    ut_None),
   (ut_Arbaletman,   ut_Bowman,     ut_None),
@@ -377,14 +375,12 @@ const AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
 
 
 const FlagXOffset: array[TGroupType, TKMDirection] of shortint = (
-    ( 0,  0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
     ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
     ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
     ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
     ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
 
 const FlagYOffset: array[TGroupType, TKMDirection] of shortint = (
-    ( 0,  0,  0,  0,  0,  0,  0,  0,  0),  //gt_None
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
     ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged

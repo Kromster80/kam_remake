@@ -499,7 +499,6 @@ begin
             OrderFood;
 
           //Check formation. If the script has defined a group with more units per row than there should be, do not change it
-          if UnitGroups[UnitType] <> gt_None then
           if UnitsPerRow < TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
             UnitsPerRow := TroopFormations[UnitGroups[UnitType]].UnitsPerRow;
           //Position this group to defend if they already belong to a defence position

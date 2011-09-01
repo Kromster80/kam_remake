@@ -904,8 +904,8 @@ begin
       AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers.Player[i].AI.Aggressiveness]);
       AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.Player[i].AI.RecruitTrainTimeout]);
       for G:=Low(TGroupType) to High(TGroupType) do
-        if (G <> gt_None) and (fPlayers.Player[i].AI.TroopFormations[G].NumUnits <> 0) then //Must be valid and used
-          AddCommand(ct_AICharacter,cpt_TroopParam, [byte(G)-1,fPlayers.Player[i].AI.TroopFormations[G].NumUnits,fPlayers.Player[i].AI.TroopFormations[G].UnitsPerRow]);
+        if fPlayers.Player[i].AI.TroopFormations[G].NumUnits <> 0 then //Must be valid and used
+          AddCommand(ct_AICharacter, cpt_TroopParam, [KaMGroupType[G], fPlayers.Player[i].AI.TroopFormations[G].NumUnits, fPlayers.Player[i].AI.TroopFormations[G].UnitsPerRow]);
       AddData(''); //NL
       for k:=0 to fPlayers.Player[i].AI.DefencePositionsCount-1 do
         with fPlayers.Player[i].AI.DefencePositions[k] do
@@ -915,14 +915,13 @@ begin
       for k:=0 to fPlayers.Player[i].AI.ScriptedAttacksCount-1 do
         with fPlayers.Player[i].AI.ScriptedAttacks[k] do
         begin
-          AddCommand(ct_AIAttack,cpt_Type, [byte(AttackType)]);
-          AddCommand(ct_AIAttack,cpt_TotalAmount, [TotalMen]);
+          AddCommand(ct_AIAttack, cpt_Type, [byte(AttackType)]);
+          AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);
           if TakeAll then
-            AddCommand(ct_AIAttack,cpt_TakeAll, [])
+            AddCommand(ct_AIAttack, cpt_TakeAll, [])
           else
             for G:=Low(TGroupType) to High(TGroupType) do
-              if G <> gt_None then
-                AddCommand(ct_AIAttack,cpt_TroopAmount, [byte(G)-1, GroupAmounts[G]]);
+              AddCommand(ct_AIAttack, cpt_TroopAmount, [KaMGroupType[G], GroupAmounts[G]]);
 
           if (Delay > 0) or (AttackType = aat_Once) then //Type once must always have counter because it uses the delay
             AddCommand(ct_AIAttack,cpt_Counter, [Delay]);
