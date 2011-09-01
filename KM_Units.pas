@@ -10,7 +10,7 @@ uses
 //Virtual - declared and used (overriden) always
 //Abstract - declared but used only in child classes
 
-type TCheckAxis = (ax_X, ax_Y);
+type
 
   TKMUnit = class;
   TKMUnitWorker = class;
@@ -1499,6 +1499,11 @@ function TKMUnit.GetSlide(aCheck:TCheckAxis): single;
 var DY,DX, PixelPos, LookupDiagonal: shortint;
 begin
   Result := 0;
+
+  //When going into a house, units "slide" towards the door when it is not on center
+  if GetUnitAction is TUnitActionGoInOut then
+    Result := Result+TUnitActionGoInOut(GetUnitAction).GetDoorwaySlide(aCheck);
+
   if (not IsExchanging) or not (GetUnitAction.fActionName in [uan_WalkTo,uan_GoInOut]) then exit;
 
   //Uses Y because a walk in the Y means a slide in the X
@@ -1511,11 +1516,11 @@ begin
 
   if aCheck = ax_X then begin
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
-    Result := (DY*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
+    Result := Result+(DY*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;
   if aCheck = ax_Y then begin
     PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
-    Result := -(DX*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
+    Result := Result-(DX*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;
 end;
 

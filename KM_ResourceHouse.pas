@@ -74,6 +74,7 @@ type
     property StonePicSteps:word read fHouseDat.StonePicSteps;
     property EntranceOffsetX:shortint read fHouseDat.EntranceOffsetX;
     property EntranceOffsetXpx:shortint read fHouseDat.EntranceOffsetXpx;
+    property EntranceOffsetYpx:shortint read fHouseDat.EntranceOffsetYpx;
     property WoodCost:byte read fHouseDat.WoodCost;
     property StoneCost:byte read fHouseDat.StoneCost;
     property BuildSupply:THouseBuildSupply read fHouseDat.BuildSupply;

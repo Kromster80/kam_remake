@@ -348,7 +348,10 @@ type
 
 //Used for AI defence and linking troops
 //@Lewin: Can we remove gt_None? It appears it could be used only in legacy scripts. I guess we don't need it in code?
+//todo: @Krom: Correct, it can be removed
 type TGroupType = (gt_None, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+
+type TCheckAxis = (ax_X, ax_Y);
 
 const UnitGroups: array[ut_Militia..ut_Barbarian] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
