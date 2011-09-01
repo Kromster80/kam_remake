@@ -91,7 +91,7 @@ end;
 
 function TKMPlayersCollection.GetPlayer(Index:integer):TKMPlayer;
 begin
-  Assert(InRange(Index, 0, fCount));
+  Assert(InRange(Index, 0, fCount-1));
   Result := fPlayerList[Index];
 end;
 

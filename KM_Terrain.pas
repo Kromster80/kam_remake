@@ -2316,38 +2316,35 @@ end;
 
 
 procedure TTerrain.RefreshMinimapData;
-var i,k,ID:integer; Light:smallint; Loc:TKMPointList; FOW:byte;
+var
+  FOW,ID:byte;
+  i,k:integer;
+  Light:smallint;
 begin
-  for i:=1 to MapY do for k:=1 to MapX do begin
+  for i:=1 to MapY do
+  for k:=1 to MapX do
+  begin
     FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i);
     if FOW = 0 then
       MiniMapRGB[i,k] := 0
     else
-      if Land[i,k].TileOwner = -1 then begin //todo: We can handle IsUnit here as well
-        ID := Land[i,k].Terrain+1;
-        Light := round(Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
-        MiniMapRGB[i,k] :=  EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
-                            EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
-                            EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
-      end else
-        MiniMapRGB[i,k] :=  fPlayers.Player[Land[i,k].TileOwner].FlagColor;
+      if Land[i,k].TileOwner <> -1 then
+        MiniMapRGB[i,k] := fPlayers.Player[Land[i,k].TileOwner].FlagColor
+      else
+        if Land[i,k].IsUnit <> nil then
+          if Land[i,k].IsUnit.GetOwner <> PLAYER_ANIMAL then
+            MiniMapRGB[i,k] := fPlayers.Player[Land[i,k].IsUnit.GetOwner].FlagColor
+          else
+            MiniMapRGB[i,k] := $FF4444 //todo: Crabs and Wolfs are not blue actualy
+        else
+        begin
+          ID := Land[i,k].Terrain;
+          Light := round(Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
+          MiniMapRGB[i,k] := EnsureRange(fResource.Tileset.TileColor[ID].R+Light,0,255) +
+                             EnsureRange(fResource.Tileset.TileColor[ID].G+Light,0,255) shl 8 +
+                             EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
+        end;
   end;
-
-  Loc := TKMPointList.Create;
-  for i:=0 to fPlayers.Count-1 do
-  if fPlayers.Player[i]<>nil then begin
-    fPlayers.Player[i].Units.GetLocations(Loc);
-    for k:=1 to Loc.Count do
-    if (MyPlayer.FogOfWar.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y)=255) then
-      MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := fPlayers.Player[i].FlagColor;
-  end;
-
-  fPlayers.PlayerAnimals.Units.GetLocations(Loc, ut_Fish);
-  for k:=1 to Loc.Count do
-  if (MyPlayer.FogOfWar.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y)=255) then
-    MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := $FF4444;
-
-  Loc.Free;
 end;
 
 
