@@ -778,11 +778,11 @@ end;
 {Check if house has enough resource supply to be built depending on it's state}
 function TKMHouse.CheckResToBuild:boolean;
 begin
-  Result:=false;
-  if fBuildState=hbs_Wood then
-    Result:=(fBuildSupplyWood>0)or(fBuildReserve>0);
-  if fBuildState=hbs_Stone then
-    Result:=(fBuildSupplyStone>0)or(fBuildReserve>0);
+  case fBuildState of
+    hbs_Wood:   Result := (fBuildSupplyWood > 0) or (fBuildReserve > 0);
+    hbs_Stone:  Result := (fBuildSupplyStone > 0) or (fBuildReserve > 0);
+    else        Result := False;
+  end;
 end;
 
 
