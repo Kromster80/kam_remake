@@ -659,8 +659,8 @@ begin
                           if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Aggressiveness      := P[1];
                           if TextParam = PARAMVALUES[cpt_TroopParam]   then
                           begin
-                            iPlayerAI.TroopFormations[TGroupType(P[1]+1)].NumUnits := P[2];
-                            iPlayerAI.TroopFormations[TGroupType(P[1]+1)].UnitsPerRow  := P[3];
+                            iPlayerAI.TroopFormations[TGroupType(P[1])].NumUnits := P[2];
+                            iPlayerAI.TroopFormations[TGroupType(P[1])].UnitsPerRow  := P[3];
                           end;
                         end;
     ct_AINoBuild:       if fLastPlayer >=0 then
@@ -706,7 +706,7 @@ begin
                             else
                               AddScriptError('Add_LostGoal for non existing player');
     ct_AIDefence:       if fLastPlayer >=0 then
-                          fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(KMPoint(P[0]+1,P[1]+1),TKMDirection(P[2]+1)),TGroupType(P[3]+1),P[4],TAIDefencePosType(P[5]));
+                          fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(KMPoint(P[0]+1,P[1]+1),TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fPlayers.Player[fLastPlayer].FlagColor := fResource.Palettes[DEF_PAL].Color32(P[0]);
@@ -724,7 +724,7 @@ begin
                           if TextParam = PARAMVALUES[cpt_Range] then
                             fAIAttack.Range := P[1];
                           if TextParam = PARAMVALUES[cpt_TroopAmount] then
-                            fAIAttack.GroupAmounts[TGroupType(P[1]+1)] := P[2];
+                            fAIAttack.GroupAmounts[TGroupType(P[1])] := P[2];
                           if TextParam = PARAMVALUES[cpt_Target] then
                             fAIAttack.Target := TAIAttackTarget(P[1]);
                           if TextParam = PARAMVALUES[cpt_Position] then

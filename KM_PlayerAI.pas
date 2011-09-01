@@ -367,7 +367,7 @@ begin
     //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
     i := 0;
     repeat
-      GType := TGroupType(KaMRandom(4)+1); //Pick random from overall count
+      GType := TGroupType(KaMRandom(4)); //Pick random from overall count
       inc(i);
     until (GroupReq[GType] > 0) or (i > 9); //Limit number of attempts to guarantee it doesn't loop forever
 
