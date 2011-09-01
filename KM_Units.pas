@@ -441,7 +441,7 @@ begin
   Res := 1;
   //Check if House has production orders
   //Random pick from whole amount
-  if fHome.DoesOrders then
+  if fResource.HouseDat[fHome.HouseType].DoesOrders then
   begin
     Res := fHome.PickRandomOrder;
     if Res = 0 then Exit;
@@ -458,7 +458,7 @@ begin
   and (fHome.CheckResOut(fWorkPlan.Product1)<MAX_RES_IN_HOUSE)
   and (fHome.CheckResOut(fWorkPlan.Product2)<MAX_RES_IN_HOUSE) then
   begin
-    if fHome.DoesOrders then
+    if fResource.HouseDat[fHome.HouseType].DoesOrders then
       fHome.ResEditOrder(Res, -1); //Take order
     Result := TTaskMining.Create(fWorkPlan, Self);
   end;

@@ -109,7 +109,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
+uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX, KM_ResourceHouse;
 
 
 { TTaskBuildRoad }
@@ -490,7 +490,9 @@ end;
 
 { TTaskBuildHouseArea }
 constructor TTaskBuildHouseArea.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-var i,k:integer;
+var
+  i,k:integer;
+  HA:THouseArea;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseArea;
@@ -499,9 +501,10 @@ begin
   HouseSet  := false;
   Step      := 0;
 
+  HA := fResource.HouseDat[fHouse.HouseType].BuildArea;
   //Fill Cells left->right, top->bottom. Worker will start flattening from the end (reversed)
   for i := 1 to 4 do for k := 1 to 4 do
-  if fHouse.HouseArea[i,k] <> 0 then begin
+  if HA[i,k] <> 0 then begin
     inc(Step);
     Cells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
   end;

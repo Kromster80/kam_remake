@@ -89,8 +89,6 @@ type
     procedure GetListOfCellsWithin(Cells:TKMPointList);
     function GetRandomCellWithin:TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
-    function HouseArea:THouseArea;
-    function DoesOrders:boolean;
     property HouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
@@ -504,6 +502,7 @@ procedure TKMHouse.GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPas
 var
   i,k:integer;
   Loc:TKMPoint;
+  HouseArea:THouseArea;
 
   procedure AddLoc(X,Y:word; Dir:TKMDirection);
   begin
@@ -516,6 +515,7 @@ begin
 
   Cells.Clearup;
   Loc := fPosition;
+  HouseArea := fResource.HouseDat[fHouseType].BuildArea;
 
   for i:=1 to 4 do for k:=1 to 4 do
   if HouseArea[i,k]<>0 then
@@ -533,10 +533,11 @@ end;
 
 
 procedure TKMHouse.GetListOfCellsWithin(Cells:TKMPointList);
-var i,k:integer; Loc:TKMPoint;
+var i,k:integer; Loc:TKMPoint; HouseArea:THouseArea;
 begin
   Cells.Clearup;
   Loc := fPosition;
+  HouseArea := fResource.HouseDat[fHouseType].BuildArea;
 
   for i:=max(Loc.Y-3,1) to Loc.Y do for k:=max(Loc.X-2,1) to min(Loc.X+1,fTerrain.MapX) do
   if HouseArea[i-Loc.Y+4,k-Loc.X+3]<>0 then
@@ -556,18 +557,15 @@ end;
 
 function TKMHouse.HitTest(X, Y: Integer): Boolean;
 begin
-  Result:=false;
-  if (X-fPosition.X+3 in [1..4])and(Y-fPosition.Y+4 in [1..4]) then
-  if HouseArea[Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
-    Result:=true;
-    exit;
-  end;
+  Result := (X-fPosition.X+3 in [1..4]) and
+            (Y-fPosition.Y+4 in [1..4]) and
+            (fResource.HouseDat[fHouseType].BuildArea[Y-fPosition.Y+4, X-fPosition.X+3] <> 0);
 end;
 
 
 function TKMHouse.GetHealth:word;
 begin
-  Result := max(fBuildingProgress-fDamage, 0);
+  Result := max(fBuildingProgress - fDamage, 0);
 end;
 
 
@@ -1070,19 +1068,6 @@ end;
 procedure TKMHouse.SetWareDelivery(aVal:boolean);
 begin
   fWareDelivery := aVal;
-end;
-
-
-function TKMHouse.HouseArea: THouseArea;
-begin
-  Result := fResource.HouseDat[fHouseType].BuildArea;
-end;
-
-
-//@Lewin: I'm not sure if we should route some properties from ResourceHouseDat in following way instead of accessing them directly in-place
-function TKMHouse.DoesOrders: boolean;
-begin
-  Result := fResource.HouseDat[fHouseType].DoesOrders;
 end;
 
 
