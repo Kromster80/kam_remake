@@ -265,7 +265,7 @@ begin
   end;
 end;
 
-
+//todo: Gets called 4mln times per AskForDelivery and is major slowdown with 40% game time
 function TKMDeliverQueue.PermitDelivery(iO,iD:integer):boolean;
 begin
   //If Offer Resource matches Demand
@@ -325,6 +325,7 @@ begin
 end;
 
 
+//todo: Calls 4mln times AskForDelivery per call and is major slowdown with 30% game time
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
 var i,iD,iO:integer; Bid,BestBid:single; BidIsPriority: boolean;
