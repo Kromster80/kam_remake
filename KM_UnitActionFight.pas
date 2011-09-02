@@ -264,7 +264,7 @@ begin
 
   //If the vertex usage has changed we should update it
   if not TKMUnitWarrior(KMUnit).IsRanged then //Ranged units do not use verticies
-    if UpdateVertexUsage(KMUnit.GetPosition, fOpponent.GetPosition) then
+    if not UpdateVertexUsage(KMUnit.GetPosition, fOpponent.GetPosition) then
     begin
       //The vertex is being used so we can't fight
       Result := ActDone;

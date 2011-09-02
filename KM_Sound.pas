@@ -177,8 +177,8 @@ begin
   if not fIsSoundInitialized then exit;
 
   //Set default Listener orientation
-  fListener.Ori[1]:=0; fListener.Ori[2]:=1; fListener.Ori[3]:=0; //Look-at vector
-  fListener.Ori[4]:=0; fListener.Ori[5]:=0; fListener.Ori[6]:=1; //Up vector
+  fListener.Ori[1]:=0; fListener.Ori[2]:=0; fListener.Ori[3]:=-1; //Look-at vector
+  fListener.Ori[4]:=0; fListener.Ori[5]:=1; fListener.Ori[6]:=0; //Up vector
   AlListenerfv(AL_ORIENTATION, @fListener.Ori);
   fSoundGain := aVolume;
 
@@ -288,7 +288,7 @@ begin
   if not fIsSoundInitialized then exit;
   fListener.Pos[1] := X;
   fListener.Pos[2] := Y;
-  fListener.Pos[3] := 12; //Place Listener above the surface
+  fListener.Pos[3] := 24; //Place Listener above the surface
   AlListenerfv(AL_POSITION, @fListener.Pos);
 end;
 
