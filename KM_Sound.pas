@@ -21,6 +21,7 @@ const
         'BOWMAN','CROSSBOW','LANCEMAN',
         'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN');
 
+    //@Lewin: I don't think it is right to adjoin these with town notifications
     WarriorSFX: array[TWarriorSpeech] of string = (
         'SELECT','EAT','LEFT','RIGHT','HALVE','JOIN','HALT','SEND', 'ATTACK',
         'FORMAT','DEATH','BATTLE','STORM','CITIZ0','TOWN0','UNITS0');
@@ -445,12 +446,18 @@ end;
 
 
 function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
+var S:string;
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
+  
   if aUnitType = ut_None then
-    Result := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd'
+    S := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd'
   else
-    Result := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd';
+    S := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber);
+
+  Result := '';
+  if FileExists(S+'.snd') then Result := S+'.snd';
+  if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
 end;
 
 
