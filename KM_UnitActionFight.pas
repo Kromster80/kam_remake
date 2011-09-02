@@ -7,19 +7,26 @@ uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, 
 type
 TUnitActionFight = class(TUnitAction)
   private
-    FightDelay:integer; //Pause for this many ticks before going onto the next Step
+    fFightDelay:integer; //Pause for this many ticks before going onto the next Step
     fOpponent:TKMUnit; //Who we are fighting with
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
+
+    //Execute is broken up into multiple methods
+      function ExecuteValidateOpponent(KMUnit: TKMUnit):TActionResult;
+      function ExecuteProcessRanged(KMUnit: TKMUnit; Step:byte):boolean;
+      function ExecuteProcessMelee(KMUnit: TKMUnit; Step:byte):boolean;
+
+    function UpdateVertexUsage(aFrom, aTo: TKMPoint):boolean;
+    procedure IncVertex(aFrom, aTo: TKMPoint);
+    procedure DecVertex;
+    procedure MakeSound(KMUnit: TKMUnit; IsHit:boolean);
   public
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     function GetExplanation:string; override;
     procedure SyncLoad; override;
-    procedure IncVertex(aFrom, aTo: TKMPoint);
-    procedure DecVertex;
     property GetOpponent: TKMUnit read fOpponent;
-    procedure MakeSound(KMUnit: TKMUnit; IsHit:boolean);
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -35,7 +42,7 @@ begin
   Inherited Create(aActionType);
   fActionName     := uan_Fight;
   Locked          := true;
-  FightDelay      := -1;
+  fFightDelay      := -1;
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
   fVertexOccupied := KMPoint(0,0);
@@ -57,7 +64,7 @@ constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
-  LoadStream.Read(FightDelay);
+  LoadStream.Read(fFightDelay);
   LoadStream.Read(fVertexOccupied);
 end;
 
@@ -72,6 +79,25 @@ end;
 function TUnitActionFight.GetExplanation: string;
 begin
   Result := 'Fighting';
+end;
+
+
+function TUnitActionFight.UpdateVertexUsage(aFrom, aTo: TKMPoint):boolean;
+begin
+  Result := true;
+  //If the vertex usage has changed we should update it
+  if not KMSamePoint(KMGetDiagVertex(aFrom, aTo), fVertexOccupied) then
+  begin
+    DecVertex;
+    if KMStepIsDiag(aFrom, aTo) then
+    begin
+      if fTerrain.VertexUsageCompatible(aFrom, aTo) then
+        IncVertex(aFrom, aTo)
+      else
+        //This vertex is being used so we can't fight
+        Result := false;
+    end;
+  end;
 end;
 
 
@@ -114,10 +140,9 @@ begin
 end;
 
 
-function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
-var Cycle,Step:byte; IsHit: boolean; Damage: word;
+function TUnitActionFight.ExecuteValidateOpponent(KMUnit: TKMUnit):TActionResult;
 begin
-  Result := ActContinues; //Continue action by default, if there is no one to fight then exit
+  Result := ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
   if (fOpponent.IsDeadOrDying) or (not fOpponent.Visible) //Don't continue to fight dead units in units that have gone into a house
   or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange)
@@ -133,7 +158,7 @@ begin
       //Start fighting this opponent by resetting the action
       fOpponent.GetUnitPointer; //Add to pointer count
       Locked := true;
-      FightDelay := -1;
+      fFightDelay := -1;
       //Do not face the new opponent or reset the animation step, wait until this strike is over
     end
     else
@@ -144,9 +169,91 @@ begin
         TKMUnitWarrior(KMUnit).OrderWalk(KMUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
       //No one else to fight, so we exit
       Result := ActDone;
-      exit;
     end;
   end;
+end;
+
+
+//A result of true means exit from Execute
+function TUnitActionFight.ExecuteProcessRanged(KMUnit: TKMUnit; Step:byte):boolean;
+begin
+  Result := false;
+  if Step = FIRING_DELAY then
+  begin
+    if fFightDelay=-1 then //Initialize
+    begin
+      MakeSound(KMUnit, false); //IsHit means IsShoot for bowmen (false means aiming)
+      fFightDelay := AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD);
+    end;
+
+    if fFightDelay>0 then begin
+      dec(fFightDelay);
+      Result := true; //do not increment AnimStep, just exit;
+      exit;
+    end;
+
+    //Fire the arrow
+    case KMUnit.UnitType of
+      ut_Arbaletman: fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Bolt, KMUnit.GetOwner);
+      ut_Bowman:     fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Arrow, KMUnit.GetOwner);
+      else Assert(false, 'Unknown shooter');
+    end;
+
+    fFightDelay := -1; //Reset
+  end;
+end;
+
+
+//A result of true means exit from Execute
+function TUnitActionFight.ExecuteProcessMelee(KMUnit: TKMUnit; Step:byte):boolean;
+var IsHit: boolean; Damage: word;
+begin
+  Result := false;
+  //Melee units place hit on step 5
+  if Step = 5 then
+  begin
+    //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
+    Damage := fResource.UnitDat[KMUnit.UnitType].Attack;
+    if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) then
+      Damage := Damage + fResource.UnitDat[KMUnit.UnitType].AttackHorse;
+
+    Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
+    //Defence modifier
+    Damage := Damage div Math.max(fResource.UnitDat[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
+
+    IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
+    if IsHit then
+      if fOpponent.HitPointsDecrease(1) then
+        fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
+
+    MakeSound(KMUnit, IsHit); //Different sounds for hit and for miss
+  end;
+
+  //In KaM melee units pause for 1 tick on Steps [0,3,6]. Made it random so troops are not striking in sync,
+  //plus it adds randomness to battles
+  if Step in [0,3,6] then
+  begin
+    if fFightDelay=-1 then //Initialize
+    begin
+      fFightDelay := KaMRandom(2);
+    end;
+
+    if fFightDelay>0 then begin
+      dec(fFightDelay);
+      Result := true; //Means exit from Execute
+      exit;
+    end;
+
+    fFightDelay := -1; //Reset
+  end;
+end;
+
+
+function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
+var Cycle,Step:byte;
+begin
+  Result := ExecuteValidateOpponent(KMUnit);
+  if Result = ActDone then exit;
 
   Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[GetActionType, KMUnit.Direction].Count, 1);
   Step  := KMUnit.AnimStep mod Cycle;
@@ -154,21 +261,15 @@ begin
   //Opponent can walk next to us, keep facing him
   if Step = 0 then //Only change direction between strikes, otherwise it looks odd
     KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
-  //If the vertex usage has changed we should update it
-  if not KMSamePoint(KMGetDiagVertex(KMUnit.GetPosition, fOpponent.GetPosition), fVertexOccupied) then
-  begin
-    DecVertex;
-    if KMStepIsDiag(KMUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(KMUnit).IsRanged then
-      if fTerrain.VertexUsageCompatible(KMUnit.GetPosition, fOpponent.GetPosition) then
-        IncVertex(KMUnit.GetPosition, fOpponent.GetPosition)
-      else
-      begin
-        //This vertex is being used so we can't fight
-        Result := ActDone;
-        exit;
-      end;
-  end;
 
+  //If the vertex usage has changed we should update it
+  if not TKMUnitWarrior(KMUnit).IsRanged then //Ranged units do not use verticies
+    if UpdateVertexUsage(KMUnit.GetPosition, fOpponent.GetPosition) then
+    begin
+      //The vertex is being used so we can't fight
+      Result := ActDone;
+      exit;
+    end;
 
   if Step = 1 then
   begin
@@ -180,68 +281,16 @@ begin
       fPlayers.Player[KMUnit.GetOwner].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
   end;
 
-  if TKMUnitWarrior(KMUnit).IsRanged then 
+  if TKMUnitWarrior(KMUnit).IsRanged then
   begin
-    if Step = FIRING_DELAY then
-    begin
-      if FightDelay=-1 then //Initialize
-      begin
-        MakeSound(KMUnit, false); //IsHit means IsShoot for bowmen (false means aiming)
-        FightDelay := AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD);
-      end;
+    if ExecuteProcessRanged(KMUnit, Step) then
+      exit;
+  end
+  else
+    if ExecuteProcessMelee(KMUnit, Step) then
+      exit;
 
-      if FightDelay>0 then begin
-        dec(FightDelay);
-        exit; //do not increment AnimStep, just exit;
-      end;
-
-      case KMUnit.UnitType of
-        ut_Arbaletman: fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Bolt, KMUnit.GetOwner);
-        ut_Bowman:     fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Arrow, KMUnit.GetOwner);
-        else Assert(false, 'Unknown shooter');
-      end;
-
-      FightDelay := -1; //Reset
-
-    end;
-  end else begin
-    //Melee units place hit on step 5
-    if Step = 5 then
-    begin
-      //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
-      Damage := fResource.UnitDat[KMUnit.UnitType].Attack;
-      if (fOpponent.UnitType in [low(UnitGroups) .. high(UnitGroups)]) and (UnitGroups[fOpponent.UnitType] = gt_Mounted) then
-        Damage := Damage + fResource.UnitDat[KMUnit.UnitType].AttackHorse;
-
-      Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
-      //Defence modifier
-      Damage := Damage div Math.max(fResource.UnitDat[fOpponent.UnitType].Defence, 1); //Not needed, but animals have 0 defence
-
-      IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
-      if IsHit then
-        if fOpponent.HitPointsDecrease(1) then
-          fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
-
-      MakeSound(KMUnit, IsHit); //Different sounds for hit and for miss
-    end;
-    //In KaM melee units pause for 1 tick on these frames. Made it random so troops are not striking in sync, and it adds randomness to battles
-    if Step in [0,3,6] then
-    begin
-      if FightDelay=-1 then //Initialize
-      begin
-        FightDelay := KaMRandom(2);
-      end;
-
-      if FightDelay>0 then begin
-        dec(FightDelay);
-        exit; //do not increment AnimStep, just exit
-      end;
-
-      FightDelay := -1; //Reset
-    end;
-  end;
-
-  //Aiming Archers may miss few ticks, so don't put anything critical below!
+  //Aiming Archers and pausing melee may miss a few ticks, (exited above) so don't put anything critical below!
 
   StepDone := (KMUnit.AnimStep mod Cycle = 0) or TKMUnitWarrior(KMUnit).IsRanged; //Archers may abandon at any time as they need to walk off imediantly
   inc(KMUnit.AnimStep);
@@ -255,7 +304,7 @@ begin
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(FightDelay);
+  SaveStream.Write(fFightDelay);
   SaveStream.Write(fVertexOccupied);
 end;
 

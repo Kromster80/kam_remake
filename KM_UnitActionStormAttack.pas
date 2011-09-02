@@ -13,15 +13,15 @@ type
     fStamina: integer; //How much stamina to run do we have
     fNextPos: TKMPoint; //The tile we are currently walking to
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
+    procedure IncVertex(aFrom, aTo: TKMPoint);
+    procedure DecVertex;
+    function CheckForObstacle(KMUnit: TKMUnit; NextPos: TKMPoint):boolean;
   public
     constructor Create(aActionType:TUnitActionType; aRow:integer);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     function GetExplanation:string; override;
-    procedure IncVertex(aFrom, aTo: TKMPoint);
-    procedure DecVertex;
     function GetSpeed(KMUnit: TKMUnit):single;
-    function CheckForObstacle(KMUnit: TKMUnit; NextPos: TKMPoint):boolean;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
