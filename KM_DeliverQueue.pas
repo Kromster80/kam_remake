@@ -285,7 +285,7 @@ begin
 
   //If Demand is a Storehouse and it has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
-                        (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]));
+                        (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Resource]));
 
   //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //How do we know how many resource are on-route already?? We don't, but it's not that important.
@@ -620,7 +620,7 @@ begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+fResource.HouseDat[fDemand[i].Loc_House.HouseType].HouseName+#9+#9;
     if fDemand[i].Loc_Unit<>nil then s:=s+fResource.UnitDat[fDemand[i].Loc_Unit.UnitType].UnitName+#9+#9;
-    s:=s+TypeToString(fDemand[i].Resource);
+    s:=s+fResource.Resources[fDemand[i].Resource].Name;
     if fDemand[i].Importance=di_High then s:=s+'^';
     s:=s+eol;
   end;
@@ -628,7 +628,7 @@ begin
   for i:=1 to OfferCount do if fOffer[i].Resource<>rt_None then begin
     s:=s+#9;
     if fOffer[i].Loc_House<>nil then s:=s+fResource.HouseDat[fOffer[i].Loc_House.HouseType].HouseName+#9+#9;
-    s:=s+TypeToString(fOffer[i].Resource)+#9;
+    s:=s+fResource.Resources[fOffer[i].Resource].Name+#9;
     s:=s+IntToStr(fOffer[i].Count);
     s:=s+eol;
   end;
@@ -637,7 +637,7 @@ begin
   for i:=1 to QueueCount do if fQueue[i].OfferID<>0 then begin
 
     s:=s+'id '+inttostr(i)+'.'+#9;
-    s:=s+TypeToString(fOffer[fQueue[i].OfferID].Resource)+#9;
+    s:=s+fResource.Resources[fOffer[fQueue[i].OfferID].Resource].Name+#9;
 
     if fOffer[fQueue[i].OfferID].Loc_House = nil then
       s:=s+'Destroyed'+' >>> '

@@ -141,15 +141,12 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0:  begin
-          if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going for '+TypeToString(fResourceType)+' from '+KM_Points.TypeToString(GetPosition));
           SetActionWalkToSpot(KMPointBelow(fFrom.GetEntrance));
         end;
     1:  begin
-          if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going inside for '+TypeToString(fResourceType)+' from '+KM_Points.TypeToString(GetPosition));
           SetActionGoIn(ua_Walk,gd_GoInside,fFrom);
         end;
     2:  begin
-          if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+KM_Points.TypeToString(GetPosition));
           SetActionStay(5,ua_Walk); //Wait a moment inside
           fFrom.ResTakeFromOut(fResourceType);
           CarryGive(fResourceType);

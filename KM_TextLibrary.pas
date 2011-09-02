@@ -4,9 +4,6 @@ interface
 uses
   Classes, SysUtils, StrUtils, KromUtils, KM_Defaults;
 
-  //todo: This function needs a better home (Make ResourceDatCollection class and move it there)
-  function TypeToString(t:TResourceType):string; 
-
 
 const
   MaxStrings = 610; //Text.lib has the most entries - 590, but Russian font file has StrCount=609
@@ -171,16 +168,7 @@ implementation
 uses KM_Log;
 
 
-{TypeToString routines}
-function TypeToString(t:TResourceType):string;
-begin
-  if byte(t) in [1..28] then
-    Result := fTextLibrary.GetTextString(siResourceNames+byte(t))
-  else
-    Result := 'N/A';
-end;
-
-
+{ TTextLibrary }
 constructor TTextLibrary.Create(aLibPath,aLocale: string);
 begin
   Inherited Create;

@@ -138,7 +138,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
+uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_ResourceGFX, KM_ResourceHouse, KM_ResourceResource, KM_Log;
 
 
 { TMissionParser }
@@ -577,8 +577,8 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
                           SH := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1));
-                          if (SH<>nil) and (InRange(P[0]+1,1,28)) then
-                            SH.AddMultiResource(TResourceType(P[0]+1), Qty);
+                          if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
+                            SH.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_AddWareToAll:    begin
                           Qty := P[1];
@@ -587,8 +587,8 @@ begin
                           for i:=0 to fPlayers.Count-1 do
                           begin
                             SH := TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
-                            if (SH<>nil) and (InRange(P[0]+1,1,28)) then
-                              SH.AddMultiResource(TResourceType(P[0]+1), Qty);
+                            if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
+                              SH.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
                           end;
                         end;
     ct_AddWareToSecond: if fLastPlayer >=0 then
@@ -596,18 +596,18 @@ begin
                           Qty := P[1];
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
-                          SH:=TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store,2));
-                          if (SH<>nil) and (InRange(P[0]+1,1,28)) then
-                            SH.AddMultiResource(TResourceType(P[0]+1), Qty);
+                          SH:=TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 2));
+                          if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
+                            SH.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_AddWeapon:       if fLastPlayer >=0 then
                         begin
                           Qty := P[1];
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
                           Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
-                          B := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks,1));
-                          if (B<>nil) and (InRange(P[0]+1,17,27)) then
-                            B.AddMultiResource(TResourceType(P[0]+1), Qty);
+                          B := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks, 1));
+                          if (B<>nil) and (ResourceKaMIndex[P[0]] in [rt_Shield..rt_Horse]) then
+                            B.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_BlockHouse:      if fLastPlayer >=0 then
                         begin
@@ -993,9 +993,9 @@ begin
             for Res:=rt_Trunk to rt_Fish do
               if TKMHouseStore(CurHouse).CheckResIn(Res) > 0 then
                 if StoreCount = 1 then
-                  AddCommand(ct_AddWare, [byte(Res)-1,TKMHouseStore(CurHouse).CheckResIn(Res)]) //Ware, Count
+                  AddCommand(ct_AddWare, [ResourceKaMOrder[Res],TKMHouseStore(CurHouse).CheckResIn(Res)]) //Ware, Count
                 else
-                  AddCommand(ct_AddWareToSecond, [byte(Res)-1,TKMHouseStore(CurHouse).CheckResIn(Res)]); //Ware, Count
+                  AddCommand(ct_AddWareToSecond, [ResourceKaMOrder[Res],TKMHouseStore(CurHouse).CheckResIn(Res)]); //Ware, Count
         end;
         if CurHouse is TKMHouseBarracks then
         begin
@@ -1003,7 +1003,7 @@ begin
           if BarracksCount <= 1 then //For now only handle 1 barracks, we can add a new command later
             for Res:=rt_Shield to rt_Horse do
               if TKMHouseBarracks(CurHouse).CheckResIn(Res) > 0 then
-                AddCommand(ct_AddWeapon, [byte(Res)-1,TKMHouseBarracks(CurHouse).CheckResIn(Res)]); //Ware, Count
+                AddCommand(ct_AddWeapon, [ResourceKaMOrder[Res],TKMHouseBarracks(CurHouse).CheckResIn(Res)]); //Ware, Count
         end;
       end;
     end;

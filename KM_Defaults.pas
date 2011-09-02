@@ -270,18 +270,17 @@ const
 {Resources}
 type
   TResourceType = (
-    rt_None      =0 ,  //Special resource types
-    rt_Trunk     =1 , rt_Stone      =2 , rt_Wood       =3 , rt_IronOre     =4 ,
-    rt_GoldOre   =5 , rt_Coal       =6 , rt_Steel      =7 , rt_Gold        =8 ,
-    rt_Wine      =9 , rt_Corn       =10, rt_Bread      =11, rt_Flour       =12,
-    rt_Leather   =13, rt_Sausages   =14, rt_Pig        =15, rt_Skin        =16,
-    rt_Shield    =17, rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
-    rt_Axe       =21, rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
-    rt_Bow       =25, rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28,
-    rt_All       =30, rt_Warfare    =31, rt_Food       =32);
+    rt_None=50,  //Special resource types
+    rt_Trunk, rt_Stone, rt_Wood, rt_IronOre, rt_GoldOre,
+    rt_Coal, rt_Steel, rt_Gold, rt_Wine, rt_Corn,
+    rt_Bread, rt_Flour, rt_Leather, rt_Sausages, rt_Pig,
+    rt_Skin, rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor,
+    rt_Axe, rt_Sword, rt_Pike, rt_Hallebard, rt_Bow,
+    rt_Arbalet, rt_Horse, rt_Fish,
+    rt_All, rt_Warfare, rt_Food);
 
 const //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern:array[1..28]of byte = (
+  CheatStorePattern:array[rt_Trunk..rt_Fish]of byte = (
   0,0,1,0,0,
   0,1,0,1,0,
   1,0,0,0,1,
@@ -290,7 +289,7 @@ const //Using shortints instead of bools makes it look much neater in code-view
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts:array[17..26,1..2]of TResourceType = (
+  WarfareCosts:array[rt_Shield..rt_Arbalet,1..2]of TResourceType = (
     (rt_None,rt_Wood),    //rt_Shield
     (rt_Coal,rt_Steel),   //rt_MetalShield
     (rt_None,rt_Leather), //rt_Armor

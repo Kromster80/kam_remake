@@ -383,9 +383,10 @@ type
   {Resource bar}
   TKMResourceRow = class(TKMControl)
   public
-    Resource: TResourceType;
+    RxID: Byte;
+    TexID: Word;
+    Caption: String;
     ResourceCount: integer;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
     procedure Paint; override;
   end;
 
@@ -398,15 +399,14 @@ type
     fOrderRem:TKMButton;
     procedure SetVisible(aValue:boolean); override;
   public
-    Resource: TResourceType;
+    RxID: Byte;
+    TexID: Word;
+    Caption: String;
     ResourceCount: integer;
     OrderCount:word;
-  public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
-
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     property OrderAdd:TKMButton read fOrderAdd;
     property OrderRem:TKMButton read fOrderRem;
-
     procedure Paint; override;
   end;
 
@@ -414,8 +414,9 @@ type
   {Production cost bar}
   TKMCostsRow = class(TKMControl)
   public
-    CostID:byte;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte);
+    RxID: Byte;
+    TexID1,TexID2: Word;
+    Caption: String;
     procedure Paint; override;
   end;
 
@@ -703,7 +704,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_TextLibrary, KM_Utils;
+uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
 
 
 { TKMControl }
@@ -1720,31 +1721,21 @@ end;
 
 
 { TKMResourceRow }
-constructor TKMResourceRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
-begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  Resource := aRes;
-  ResourceCount := aCount;
-end;
-
-
 procedure TKMResourceRow.Paint;
 var i:integer;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, TypeToString(Resource), fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top, 4,350+byte(Resource));
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top, RxID, TexID);
 end;
 
 
-constructor TKMResourceOrderRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+{ TKMResourceOrderRow }
+constructor TKMResourceOrderRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
-  Resource := aRes;
-  ResourceCount := aCount;
-  OrderCount := 0;
 
   fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
   fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,0,0,'',fnt_Grey,kaCenter);
@@ -1773,33 +1764,19 @@ begin
   fOrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, TypeToString(Resource), fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 4,350+byte(Resource));
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxId, TexID);
 end;
 
 
 { TKMCostsRow }
-constructor TKMCostsRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte);
-begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  CostID:=aProductionCostID;
-end;
-
-
 procedure TKMCostsRow.Paint;
-var TexID:byte;
 begin
   Inherited;
-  fRenderUI.WriteText(Left, Top + 4, TypeToString(TResourceType(CostID)), fnt_Grey, kaLeft, $FFFFFFFF);
-  if WarfareCosts[CostID,1] in [rt_Trunk..rt_Fish] then begin
-    TexID:=byte(WarfareCosts[CostID,1]);
-    fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[4,TexID].PxHeight) div 2, 4,350+TexID);
-  end;
-  if WarfareCosts[CostID,2] in [rt_Trunk..rt_Fish] then begin
-    TexID:=byte(WarfareCosts[CostID,2]);
-    fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[4,TexID].PxHeight) div 2, 4,350+TexID);
-  end;
+  fRenderUI.WriteText(Left, Top + 4, Caption, fnt_Grey, kaLeft, $FFFFFFFF);
+  if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RxId,TexID1].PxHeight) div 2, RxId, TexID1);
+  if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RxId,TexID2].PxHeight) div 2, RxId, TexID2);
 end;
 
 
@@ -1807,9 +1784,9 @@ end;
 constructor TKMRatioRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  MinValue:=aMin;
-  MaxValue:=aMax;
-  Position:=(MinValue+MaxValue) div 2;
+  MinValue := aMin;
+  MaxValue := aMax;
+  Position := (MinValue + MaxValue) div 2;
 end;
 
 

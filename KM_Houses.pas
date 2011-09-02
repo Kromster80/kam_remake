@@ -209,9 +209,9 @@ type
   {Storehouse keeps all the resources and flags for them}
   TKMHouseStore = class(TKMHouse)
   private
-    ResourceCount:array[1..28]of word;
+    ResourceCount:array[rt_Trunk..rt_Fish]of word;
   public
-    NotAcceptFlag:array[1..28]of boolean;
+    NotAcceptFlag:array[rt_Trunk..rt_Fish]of boolean;
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
@@ -824,7 +824,7 @@ begin
   case aResource of
     rt_Wood: inc(fBuildSupplyWood);
     rt_Stone: inc(fBuildSupplyStone);
-  else raise ELocError.Create('WIP house is not supposed to recieve '+TypeToString(aResource)+', right?', fPosition);
+  else raise ELocError.Create('WIP house is not supposed to recieve '+fResource.Resources[aResource].Name+', right?', fPosition);
   end;
 end;
 
@@ -1386,19 +1386,19 @@ end;
 
 
 procedure TKMHouseStore.AddMultiResource(aResource:TResourceType; const aCount:word=1);
-var i:integer;
+var i:TResourceType;
 begin
   case aResource of
-    rt_All:     for i:=1 to length(ResourceCount) do begin
-                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,High(Word));
-                  fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
+    rt_All:     for i:=Low(ResourceCount) to High(ResourceCount) do begin
+                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
+                  fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, i, aCount);
                 end;
     rt_Trunk..
     rt_Fish:    begin
-                  ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,High(Word));
+                  ResourceCount[aResource]:=EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
                   fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
                 end;
-    else        raise ELocError.Create('Cant''t add '+TypeToString(aResource), GetPosition);
+    else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Name, GetPosition);
   end;
 end;
 
@@ -1406,7 +1406,7 @@ end;
 function TKMHouseStore.CheckResIn(aResource:TResourceType):word;
 begin
   if aResource in [rt_Trunk..rt_Fish] then
-    Result := ResourceCount[byte(aResource)]
+    Result := ResourceCount[aResource]
   else
     Result := 0;
 end;
@@ -1414,21 +1414,21 @@ end;
 
 procedure TKMHouseStore.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
 begin
-  Assert(aCount <= ResourceCount[byte(aResource)]);
+  Assert(aCount <= ResourceCount[aResource]);
 
-  dec(ResourceCount[byte(aResource)], aCount);
+  dec(ResourceCount[aResource], aCount);
 end;
 
 
 procedure TKMHouseStore.ToggleAcceptFlag(aRes:TResourceType);
-var i:integer; ApplyCheat:boolean;
+var i:TResourceType; ApplyCheat:boolean;
 begin
   Assert(aRes in [rt_Trunk .. rt_Fish]); //Dunno why thats happening sometimes..
 
   if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then begin
     ApplyCheat := true;
 
-    for i:=1 to length(ResourceCount) do
+    for i:=Low(ResourceCount) to High(ResourceCount) do
       ApplyCheat := ApplyCheat and (NotAcceptFlag[i] = boolean(CheatStorePattern[i]));
 
     if ApplyCheat and (aRes = rt_Arbalet) then begin
@@ -1445,7 +1445,7 @@ begin
     end;
   end;
 
-  NotAcceptFlag[byte(aRes)] := not NotAcceptFlag[byte(aRes)];
+  NotAcceptFlag[aRes] := not NotAcceptFlag[aRes];
 end;
 
 
@@ -1504,7 +1504,7 @@ begin
                   ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
     rt_Shield..
     rt_Horse:   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-    else        raise ELocError.Create('Cant''t add '+TypeToString(aResource), GetPosition);
+    else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Name, GetPosition);
   end;
 end;
 

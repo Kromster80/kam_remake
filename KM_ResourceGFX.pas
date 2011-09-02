@@ -7,7 +7,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
   KM_CommonTypes, KM_Defaults,
-  KM_ResourceFonts, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceTileset, KM_ResourceUnit
+  KM_ResourceFonts, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceResource, KM_ResourceTileset, KM_ResourceUnit
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, ZStream, BGRABitmap {$ENDIF};
 
@@ -22,6 +22,7 @@ type
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
     fPalettes: TKMPalettes;
+    fResources: TKMResourceCollection;
     fTileset: TKMTileset;
 
     procedure StepRefresh;
@@ -54,6 +55,7 @@ type
     property UnitDat: TKMUnitDatCollection read fUnitDat;
     property Palettes: TKMPalettes read fPalettes;
     property ResourceFont: TResourceFont read fResourceFont;
+    property Resources: TKMResourceCollection read fResources;
     property Tileset: TKMTileset read fTileset;
 
     //procedure ExportRX2BMP(RXid:integer);
@@ -100,6 +102,7 @@ begin
   if fUnitDat <> nil then FreeAndNil(fUnitDat);
   if fPalettes <> nil then FreeAndNil(fPalettes);
   if fResourceFont <> nil then FreeAndNil(fResourceFont);
+  if fResources <> nil then FreeAndNil(fResources);
   if fTileset <> nil then FreeAndNil(fTileset);
   Inherited;
 end;
@@ -171,6 +174,7 @@ begin
   LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh;
   LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh;
 
+  fResources := TKMResourceCollection.Create;
   fHouseDat := TKMHouseDatCollection.Create;
   fUnitDat := TKMUnitDatCollection.Create;
   StepRefresh;

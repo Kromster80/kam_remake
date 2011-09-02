@@ -194,6 +194,7 @@ type
   private
     fCarry: TResourceType;
   public
+    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure Save(SaveStream:TKMemoryStream); override;
 
@@ -593,6 +594,13 @@ end;
 
 
 { TKMSerf }
+constructor TKMUnitSerf.Create(aOwner: shortint; PosX, PosY: integer; aUnitType: TUnitType);
+begin
+  Inherited;
+  fCarry := rt_None;
+end;
+
+
 constructor TKMUnitSerf.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;

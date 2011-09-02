@@ -53,6 +53,7 @@ uses
   KM_ResourceHouse in 'KM_ResourceHouse.pas',
   KM_ResourcePalettes in 'KM_ResourcePalettes.pas',
   KM_ResourceTileset in 'KM_ResourceTileset.pas',
+  KM_ResourceResource in 'KM_ResourceResource.pas',
   KM_ResourceUnit in 'KM_ResourceUnit.pas',
   KM_ServerQuery in 'KM_ServerQuery.pas',
   KM_Settings in 'KM_Settings.pas',
