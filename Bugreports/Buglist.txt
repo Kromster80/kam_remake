@@ -9,10 +9,11 @@ Bugs:
  +	Save correct number of players from MapEd
  +	RangeCheckError in TSK campaign screen when selecting 7th mission
  +	Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
+ +	Warriors/citizens have fully working voices!
 
 	Replay timer should display in HH:MM:SS format
 	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
-	Music does not cycles while in pause mode
+	Music does not cycle while in pause mode
 	Woodcutters hut flagshtok should appear last in construction
 	Farmer will sow corn on tile that was just finished as a road
 	Woodcutters and others should plant/chop more evenly (not in waves like now)

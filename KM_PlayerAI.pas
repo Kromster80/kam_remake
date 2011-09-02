@@ -78,7 +78,8 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse, KM_ResourceGFX;
+uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
+     KM_ResourceGFX, KM_ViewPort, KM_Sound;
 
 
 
@@ -641,8 +642,8 @@ begin
     if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
     begin
       fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-      //if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
-        //fSoundLib.PlayWarning(sp_BuildingsAttacked);
+      if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+        fSoundLib.PlayWarrior(ut_None, sp_AttackedTown);
     end;
   end;
   if fPlayers[PlayerIndex].PlayerType = pt_Computer then
@@ -658,13 +659,13 @@ begin
     if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
     begin
       fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-      {if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+      if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
       begin
         if aUnit is TKMUnitWarrior then
-          fSoundLib.PlayWarning(sp_TroopsAttacked)
+          fSoundLib.PlayWarrior(ut_None, sp_AttackedTroops)
         else
-          fSoundLib.PlayWarning(sp_CitizensAttacked);
-      end;}
+          fSoundLib.PlayWarrior(ut_None, sp_AttackedCitizens);
+      end;
     end;
   end;
   if fPlayers[PlayerIndex].PlayerType = pt_Computer then

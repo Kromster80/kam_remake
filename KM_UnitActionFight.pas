@@ -123,8 +123,12 @@ end;
 
 procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
+  //Randomly make a battle cry
+  if KaMRandom(16) = 0 then
+    fSoundLib.PlayWarrior(KMUnit.UnitType, sp_BattleCry, KMUnit.GetPosition);
+
   //Do not play sounds if unit is invisible to MyPlayer
-  //We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
+  //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
   if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
   
   case KMUnit.UnitType of

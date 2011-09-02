@@ -2018,7 +2018,7 @@ begin
   if Sender = Button_Army_RotCW   then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCW, 0);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotLeft);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotRight);
   end;
   if Sender = Button_Army_Storm   then
   begin
@@ -2028,7 +2028,7 @@ begin
   if Sender = Button_Army_RotCCW  then
   begin
     fGame.GameInputProcess.CmdArmy(gic_ArmyHalt, Commander, tdCCW, 0);
-    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotRight);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotLeft);
   end;
   if Sender = Button_Army_ForDown then
   begin
@@ -2681,16 +2681,25 @@ begin
     U := fTerrain.UnitsHitTest(P.X, P.Y);
     if (U <> nil) and (not U.IsDeadOrDying) and
     (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
-      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U)
+    begin
+      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U);
+      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
+    end
     else
     begin //If there's no unit - try to Attack house
       H := fPlayers.HousesHitTest(P.X, P.Y);
       if (H <> nil) and (not H.IsDestroyed) and
       (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
-        fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H)
+      begin
+        fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H);
+        fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
+      end
       else //If there's no house - Walk to spot
         if fTerrain.Route_CanBeMade(fShownUnit.GetPosition, P, CanWalk, 0, false) then
+        begin
           fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
+          fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
+        end;
     end;
   end;
 
@@ -2711,6 +2720,7 @@ begin
        (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
     begin
       fGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fShownUnit), U);
+      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Join);
       Army_HideJoinMenu(nil);
     end;
     exit;
@@ -2729,10 +2739,16 @@ begin
                 if (fPlayers.Selected is TKMHouse) then
                   ShowHouseInfo(TKMHouse(fPlayers.Selected));
 
-                if (fPlayers.Selected is TKMUnit) then begin
+                if (fPlayers.Selected is TKMUnit) then
+                begin
                   ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                  if (fPlayers.Selected is TKMUnitWarrior) and (OldSelected <> fPlayers.Selected) then
-                    fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
+                  if OldSelected <> fPlayers.Selected then
+                  begin
+                    if fPlayers.Selected is TKMUnitWarrior then
+                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
+                    else
+                      fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
+                  end;
                 end;
               end;
     cm_Road:  fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_RoadPlan);

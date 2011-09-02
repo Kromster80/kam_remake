@@ -18,12 +18,33 @@ const
 
     WarriorSFXFolder: array[ut_Militia..ut_Barbarian] of string = (
         'MILITIA','AXEMAN','SWORDMAN',
-        'BOWMAN','CROSSBOWMAN','LANCEMAN',
+        'BOWMAN','CROSSBOW','LANCEMAN',
         'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN');
 
-    WarriorSFX: array[TSoundToPlay] of string = (
+    WarriorSFX: array[TWarriorSpeech] of string = (
         'SELECT','EAT','LEFT','RIGHT','HALVE','JOIN','HALT','SEND', 'ATTACK',
-        'FORMAT','DEATH','BATTLE','STORM');
+        'FORMAT','DEATH','BATTLE','STORM','CITIZ0','TOWN0','UNITS0');
+
+    CitizenSFX: array[ut_Serf..ut_Recruit] of record
+                                                WarriorVoice: TUnitType;
+                                                SelectID, DeathID: byte;
+                                              end = (
+                                                (WarriorVoice: ut_Militia;      SelectID:3; DeathID:1), //ut_Serf
+                                                (WarriorVoice: ut_AxeFighter;   SelectID:0; DeathID:0), //ut_Woodcutter
+                                                (WarriorVoice: ut_Bowman;       SelectID:2; DeathID:1), //ut_Miner
+                                                (WarriorVoice: ut_Swordsman;    SelectID:0; DeathID:2), //ut_AnimalBreeder
+                                                (WarriorVoice: ut_Militia;      SelectID:1; DeathID:2), //ut_Farmer
+                                                (WarriorVoice: ut_Arbaletman;   SelectID:1; DeathID:0), //ut_Lamberjack
+                                                (WarriorVoice: ut_Pikeman;      SelectID:1; DeathID:0), //ut_Baker
+                                                (WarriorVoice: ut_HorseScout;   SelectID:0; DeathID:2), //ut_Butcher
+                                                //todo: Use vagabond voice: (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
+                                                (WarriorVoice: ut_HorseScout;   SelectID:2; DeathID:0), //ut_Fisher
+                                                (WarriorVoice: ut_Cavalry;      SelectID:1; DeathID:1), //ut_Worker
+                                                (WarriorVoice: ut_Hallebardman; SelectID:1; DeathID:1), //ut_StoneCutter
+                                                (WarriorVoice: ut_Cavalry;      SelectID:3; DeathID:4), //ut_Smith
+                                                (WarriorVoice: ut_Hallebardman; SelectID:3; DeathID:2), //ut_Metallurgist
+                                                (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
+                                              );
 
 type
   TWAVHeaderEx = record
@@ -83,22 +104,28 @@ type
 
     fSoundGain:single; //aka "Global volume"
     fLocale:string; //Locale used to access warrior sounds
-    fWarriorSoundCount: array[ut_Militia..ut_Barbarian, TSoundToPlay] of byte;
+    fWarningSoundCount: array[TWarriorSpeech] of byte;
+    fWarriorSoundCount: array[ut_Militia..ut_Barbarian, TWarriorSpeech] of byte;
     procedure CheckOpenALError;
     procedure LoadSoundsDAT;
     procedure ScanWarriorSounds;
-    function WarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte):string;
+    function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
+    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
   public
     constructor Create(aLocale:string; aVolume:single);
     destructor Destroy; override;
     function ActiveCount:byte;
-    
+
     procedure ExportSounds;
     procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);
-    procedure PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
+    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
+    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint); overload;
+    procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
+    procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint); overload;
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
+    procedure Play(const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
     procedure Paint;
 end;
 
@@ -310,17 +337,38 @@ begin
 end;
 
 
+{Wrapper for TSoundFX}
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+begin
+  if not fIsSoundInitialized then exit;
+  PlaySound(SoundID, '', Loc, Attenuated, Volume); //Redirect
+end;
+
+
+{Wrapper WAV files}
+procedure TSoundLib.Play(const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+begin
+  if not fIsSoundInitialized then exit;
+  PlaySound(sfx_None, aFile, Loc, Attenuated, Volume); //Redirect
+end;
+
+
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
   ALState:TALint;
+  WAVformat: TALenum;
+  WAVdata: TALvoid;
+  WAVsize: TALsizei;
+  WAVfreq: TALsizei;
+  WAVloop: TALint;
 begin
   if not fIsSoundInitialized then Exit;
-  if SoundID = sfx_None then Exit;
+  if (SoundID = sfx_None) and (aFile = '') then exit;
 
   //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being filled with sounds on the other side of the map.
   if Attenuated and (GetLength(Loc.X-fListener.Pos[1], Loc.Y-fListener.Pos[2]) > MAX_DISTANCE) then Exit;
@@ -345,15 +393,26 @@ begin
   end;
   if FreeBuf = 0 then Exit;//Don't play if there's no room left
 
-  ID := word(SoundID);
-  Assert(fWaves[ID].IsLoaded);
 
   //Stop previously playing sound and release buffer
   AlSourceStop(fSound[FreeBuf].ALSource);
   AlSourcei(fSound[FreeBuf].ALSource, AL_BUFFER, 0);
 
   //Assign new data to buffer and assign it to source
-  AlBufferData(fSound[FreeBuf].ALBuffer, AL_FORMAT_MONO8, @fWaves[ID].Data[0], fWaves[ID].Head.DataSize, fWaves[ID].Head.SampleRate);
+  if SoundID = sfx_None then
+  begin
+    alutLoadWAVFile(aFile,WAVformat,WAVdata,WAVsize,WAVfreq,WAVloop);
+    AlBufferData(fSound[FreeBuf].ALBuffer,WAVformat,WAVdata,WAVsize,WAVfreq);
+    alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
+  end
+  else
+  begin
+    ID := word(SoundID);
+    Assert(fWaves[ID].IsLoaded);
+    AlBufferData(fSound[FreeBuf].ALBuffer, AL_FORMAT_MONO8, @fWaves[ID].Data[0], fWaves[ID].Head.DataSize, fWaves[ID].Head.SampleRate);
+    WAVsize := fWaves[ID].Head.FileSize;
+    WAVfreq := fWaves[ID].Head.BytesPerSecond;
+  end;
 
   //Set source properties
   AlSourcei(fSound[FreeBuf].ALSource, AL_BUFFER, fSound[FreeBuf].ALBuffer);
@@ -380,35 +439,66 @@ begin
   AlSourcePlay(fSound[FreeBuf].ALSource);
   fSound[FreeBuf].Name := SSoundFX[SoundID];
   fSound[FreeBuf].Position := Loc;
-  fSound[FreeBuf].Duration := round(fWaves[ID].Head.FileSize / fWaves[ID].Head.BytesPerSecond * 1000);
+  fSound[FreeBuf].Duration := round(WAVsize / WAVfreq * 1000);
   fSound[FreeBuf].PlaySince := GetTickCount;
 end;
 
 
-function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte):string;
+function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
 begin
   if not fIsSoundInitialized then exit;
-
-  Result := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
+  if aUnitType = ut_None then
+    Result := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd'
+  else
+    Result := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd';
 end;
 
 
-//todo: Use sound playing system that allows for multiple sounds at once and a listener position (e.g. deaths and cries in a battle)
-//@Krom: Why can't we simply use OpenAL? Because it needs a listener position so you don't hear battles from the other side of the map. Do the sounds need to be stored in memory? Can we buffer them or something?
-//@Lewin: I think we will do this eventually. I'll be working on it
-procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
-var wave:string;
+procedure TSoundLib.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech);
+begin
+  PlayCitizen(aUnitType, aSound, KMPoint(0,0));
+end;
+
+
+procedure TSoundLib.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint);
+var Wave:string; HasLoc:boolean; SoundID: byte;
 begin
   if not fIsSoundInitialized then exit;
+  if not (aUnitType in [ut_Serf..ut_Recruit]) then exit;
 
-  //File extension must be .wav as well as the file contents itself
-  wave := WarriorSoundFile(aUnitType, aSound, PseudoRandom(fWarriorSoundCount[aUnitType, aSound]));
-  {$IFDEF WDC}
-  if FileExists(wave) then
-    sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC) //Override any previous voice playing
+  if aSound = sp_Death then
+    SoundID := CitizenSFX[aUnitType].DeathID
   else
-    fLog.AppendLog('Speech file not found for '+fResource.UnitDat[aUnitType].UnitName+' sound ID '+IntToStr(byte(aSound))+': '+wave);
-  {$ENDIF}
+    SoundID := CitizenSFX[aUnitType].SelectID;
+
+  HasLoc := not KMSamePoint(aLoc, KMPoint(0,0));
+  Wave := WarriorSoundFile(CitizenSFX[aUnitType].WarriorVoice, aSound, SoundID);
+  if FileExists(Wave) then
+    Play(Wave, aLoc, HasLoc, 1.0 +3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
+end;
+
+
+procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech);
+begin
+  PlayWarrior(aUnitType, aSound, KMPoint(0,0));
+end;
+
+
+procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint);
+var Wave:string; HasLoc:boolean; Count:byte;
+begin
+  if not fIsSoundInitialized then exit;
+  if not (aUnitType in [ut_Militia..ut_Barbarian]) then exit;
+
+  if aUnitType = ut_None then
+    Count := fWarningSoundCount[aSound]
+  else
+    Count := fWarriorSoundCount[aUnitType, aSound];
+
+  HasLoc := not KMSamePoint(aLoc, KMPoint(0,0));
+  Wave := WarriorSoundFile(aUnitType, aSound, Random(Count));
+  if FileExists(Wave) then
+    Play(Wave, aLoc, HasLoc, 1.0 +3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
 end;
 
 
@@ -443,22 +533,31 @@ procedure TSoundLib.ScanWarriorSounds;
 var
   i:integer;
   U:TUnitType;
-  s:TSoundToPlay;
+  s:TWarriorSpeech;
 begin
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
+  FillChar(fWarningSoundCount, SizeOf(fWarningSoundCount), #0);
 
   if not DirectoryExists(ExeDir + 'data\sfx\speech.'+fLocale+'\') then Exit;
 
   //If the folder exists it is likely all the sounds are there
   for U:=ut_Militia to ut_Barbarian do
-    for S:=Low(TSoundToPlay) to High(TSoundToPlay) do
+    for S:=Low(TWarriorSpeech) to High(TWarriorSpeech) do
       for i:=0 to 255 do
         if not FileExists(WarriorSoundFile(U, S, i)) then
         begin
           fWarriorSoundCount[U,S] := i;
-          //fLog.AddToLog('Found sounds: '+fLocale+'\' + WarriorSFXFolder[U] + '\' + WarriorSFX[S] + IntToStr(i) + '.wav');
           break;
         end;
+
+  U := ut_None; //Scan warning messages (e.g. under attack)
+  for S:=Low(TWarriorSpeech) to High(TWarriorSpeech) do
+    for i:=0 to 255 do
+      if not FileExists(WarriorSoundFile(U, S, i)) then
+      begin
+        fWarningSoundCount[S] := i;
+        break;
+      end;
 end;
 
 

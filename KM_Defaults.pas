@@ -694,10 +694,12 @@ type
     sfx_SiegeBuildingSmash
         );
 
-const MeleeSoundsHit:array[0..16] of TSoundFX = (
+const MeleeSoundsHit:array[0..14] of TSoundFX = (
+    sfx_Melee34,
+    sfx_Melee35,
+    sfx_Melee36,
     sfx_Melee41,
     sfx_Melee42,
-    sfx_Melee43,
     sfx_Melee44,
     sfx_Melee45,
     sfx_Melee46,
@@ -705,23 +707,21 @@ const MeleeSoundsHit:array[0..16] of TSoundFX = (
     sfx_Melee48,
     sfx_Melee49,
     sfx_Melee50,
-    sfx_Melee51,
-    sfx_Melee52,
-    sfx_Melee53,
-    sfx_Melee54,
     sfx_Melee55,
     sfx_Melee56,
     sfx_Melee57
         );
 
-const MeleeSoundsMiss:array[0..6] of TSoundFX = (
-    sfx_Melee34,
-    sfx_Melee35,
-    sfx_Melee36,
+const MeleeSoundsMiss:array[0..8] of TSoundFX = (
     sfx_Melee37,
     sfx_Melee38,
     sfx_Melee39,
-    sfx_Melee40
+    sfx_Melee40,
+    sfx_Melee43,
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54
         );
 
 const MeleeSoundsHouse:array[0..12] of TSoundFX = (
@@ -819,8 +819,8 @@ const SSoundFX:array[TSoundFX] of string = (
 
 //Sounds to play on different warrior orders
 type
-  TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
-                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
+  TWarriorSpeech = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
+                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack, sp_AttackedCitizens, sp_AttackedTown, sp_AttackedTroops);
 
   TProjectileType = (pt_Arrow, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
 
