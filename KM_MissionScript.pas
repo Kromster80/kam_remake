@@ -73,11 +73,25 @@ const
     ut_HorseScout,ut_Cavalry,ut_Barbarian, //Troops
     ut_Wolf,ut_Fish,ut_Watersnake,ut_Seastar,ut_Crab,ut_Waterflower,ut_Waterleaf,ut_Duck); //Animals
 
+  UnitReverseRemap: array[TUnitType] of integer = (
+  -1, -1, //ut_None, ut_Any
+  0,1,2,3,4,5,6,7,8,9,10,11,12,13, //Citizens
+  14,15,16,17,18,19,20,21,22,23, //Warriors
+  -1,-1,-1,-1, {-1,-1,} //TPR warriors (can't be placed with SET_UNIT)
+  24,25,26,27,28,29,30,31); //Animals
+
   //This is a map of the valid values for !SET_GROUP, and the corrisponing unit that will be created (matches KaM behavior)
   TroopsRemap: array[14..29] of TUnitType = (ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
   ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
   ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,{ut_Catapult,ut_Ballista);} //Seige, which are not yet enabled
   ut_None,ut_None); //Temp replacement for seige
+
+  TroopsReverseRemap: array[TUnitType] of integer = (
+  -1, -1, //ut_None, ut_Any
+  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, //Citizens
+  14,15,16,17,18,19,20,21,22,23, //Warriors
+  25,24,26,27, {28,29,} //TPR warriors
+  -1,-1,-1,-1,-1,-1,-1,-1); //Animals
 
 type
   TKMMissionDetails = record
@@ -119,8 +133,6 @@ type
     function LoadMapInfo(const aFileName:string):boolean;
 
     function TextToCommandType(const ACommandText: shortstring): TKMCommandType;
-    function UnitTypeToScriptID(aUnitType:TUnitType):integer;
-    function WarriorTypeToScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam:shortstring):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
     procedure AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
@@ -549,11 +561,11 @@ begin
                           else
                             AddScriptError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         if fLastPlayer >=0 then
-                        if InRange(P[0],0,31) then
+                        if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then
                           fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]],KMPoint(P[1]+1,P[2]+1));
 
     ct_SetUnitByStock:  if fLastPlayer >=0 then
-                          if InRange(P[0],0,31) then
+                          if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then
                           begin
                             SH := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1));
                             if SH<>nil then
@@ -777,32 +789,6 @@ begin
         else
           Warrior.OrderWalk(Target); //Just move to position
       end;
-    end;
-end;
-
-
-function TMissionParser.UnitTypeToScriptID(aUnitType:TUnitType):integer;
-var i:integer;
-begin
-  Result := -1;
-  for i:=low(UnitsRemap) to high(UnitsRemap) do
-    if UnitsRemap[i] = aUnitType then
-    begin
-      Result := i;
-      exit;
-    end;
-end;
-
-
-function TMissionParser.WarriorTypeToScriptID(aUnitType:TUnitType):integer;
-var i:integer;
-begin
-  Result := -1;
-  for i:=low(TroopsRemap) to high(TroopsRemap) do
-    if TroopsRemap[i] = aUnitType then
-    begin
-      Result := i;
-      exit;
     end;
 end;
 
@@ -1049,13 +1035,13 @@ begin
       begin
         if TKMUnitWarrior(CurUnit).IsCommander then //Parse only Commanders
         begin
-          AddCommand(ct_SetGroup, [WarriorTypeToScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1]);
+          AddCommand(ct_SetGroup, [TroopsReverseRemap[CurUnit.UnitType],CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1]);
           if CurUnit.Condition = UNIT_MAX_CONDITION then
             AddCommand(ct_SetGroupFood, []);
         end;
       end
       else
-        AddCommand(ct_SetUnit, [UnitTypeToScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1]);
+        AddCommand(ct_SetUnit, [UnitReverseRemap[CurUnit.UnitType],CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1]);
     end;
 
     AddData(''); //NL
@@ -1069,7 +1055,7 @@ begin
   for i:=0 to fPlayers.PlayerAnimals.Units.Count-1 do
   begin
     CurUnit := fPlayers.PlayerAnimals.Units.Items[i];
-    AddCommand(ct_SetUnit, [UnitTypeToScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1]);
+    AddCommand(ct_SetUnit, [UnitReverseRemap[CurUnit.UnitType],CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1]);
   end;
   AddData(''); //NL
 

@@ -453,6 +453,8 @@ type
     ws_Engage //One or more of our group members are in combat and we are on our way to help them.
   );
 
+const FishCountAct:array[1..5]of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
+
 {Walk to somewhere}
 type
   //Status of interaction

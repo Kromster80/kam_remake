@@ -786,6 +786,7 @@ end;
 
 procedure TRender.RenderUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
+  if aUnit = ut_Fish then aAct := FishCountAct[5]; //In map editor always render 5 fish
   RenderUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
   if fResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
     RenderUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
@@ -1046,7 +1047,7 @@ begin
                    begin
                      UnitDelete := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                      if UnitDelete <> nil then
-                       RenderUnitWithDefaultArm(UnitDelete.UnitType,ua_Walk,UnitDelete.Direction,UnitDelete.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,fPlayers[UnitDelete.GetOwner].FlagColor,true,true,true);
+                       RenderUnitWithDefaultArm(UnitDelete.UnitType,ua_Walk,UnitDelete.Direction,UnitDelete.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true,true);
                    end
                    else
                    if (

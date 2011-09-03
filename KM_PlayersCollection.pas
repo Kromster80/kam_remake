@@ -388,6 +388,7 @@ begin
   Result := false;
   for i:=0 to fCount-1 do
     Result := Result or fPlayerList[i].RemUnit(Position, Simulated);
+  Result := Result or fPlayerAnimals.RemUnit(Position, Simulated);
 end;
 
 

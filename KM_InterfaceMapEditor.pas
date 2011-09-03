@@ -611,7 +611,7 @@ begin
       //TKMLabel.Create(Panel_Units,100,140,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=0 to High(Button_Warriors) do
       begin
-        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,128+(i div 5)*37,33,33, MapEd_Icon[i], 7);
+        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,124+(i div 5)*37,33,33, MapEd_Icon[i], 7);
         Button_Warriors[i].Hint := fResource.UnitDat[MapEd_Order[i]].UnitName;
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
@@ -620,7 +620,7 @@ begin
       //TKMLabel.Create(Panel_Units,100,230,100,30,'Animals',fnt_Outline,kaCenter);
       for i:=0 to High(Button_Animals) do
       begin
-        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,248+(i div 5)*37,33,33, Animal_Icon[i], 7);
+        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,240+(i div 5)*37,33,33, Animal_Icon[i], 7);
         Button_Animals[i].Hint := fResource.UnitDat[Animal_Order[i]].UnitName;
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;

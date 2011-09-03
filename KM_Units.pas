@@ -846,9 +846,9 @@ end;
 
 //For fish the action is the number of fish in the group
 procedure TKMUnitAnimal.Paint;
-const FishCountAct:array[1..5]of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
 var Act:TUnitActionType;
 begin
+  //todo: We need a way for fish/watersnakes to be more visible in the map editor. When they are not moving they look like water.
   Inherited;
   if fUnitType = ut_Fish then
     Act := FishCountAct[fFishCount]
