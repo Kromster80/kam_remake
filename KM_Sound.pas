@@ -24,7 +24,9 @@ const
     //@Lewin: I don't think it is right to adjoin these with town notifications
     WarriorSFX: array[TWarriorSpeech] of string = (
         'SELECT','EAT','LEFT','RIGHT','HALVE','JOIN','HALT','SEND', 'ATTACK',
-        'FORMAT','DEATH','BATTLE','STORM','CITIZ0','TOWN0','UNITS0');
+        'FORMAT','DEATH','BATTLE','STORM');
+
+    AttackNotifications: array[TAttackNotification] of string = ('CITIZ0','TOWN0','UNITS0');
 
     CitizenSFX: array[ut_Serf..ut_Recruit] of record
                                                 WarriorVoice: TUnitType;
@@ -105,12 +107,13 @@ type
 
     fSoundGain:single; //aka "Global volume"
     fLocale:string; //Locale used to access warrior sounds
-    fWarningSoundCount: array[TWarriorSpeech] of byte;
+    fNotificationSoundCount: array[TAttackNotification] of byte;
     fWarriorSoundCount: array[ut_Militia..ut_Barbarian, TWarriorSpeech] of byte;
     procedure CheckOpenALError;
     procedure LoadSoundsDAT;
     procedure ScanWarriorSounds;
     function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
+    function NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
     procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
   public
     constructor Create(aLocale:string; aVolume:single);
@@ -122,6 +125,7 @@ type
     procedure UpdateSoundVolume(Value:single);
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
     procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint); overload;
+    procedure PlayNotification(aSound:TAttackNotification);
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint); overload;
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
@@ -449,12 +453,18 @@ function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; 
 var S:string;
 begin
   if not fIsSoundInitialized then Exit;
-  
-  if aUnitType = ut_None then
-    S := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd'
-  else
-    S := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber);
+  S := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber);
+  Result := '';
+  if FileExists(S+'.snd') then Result := S+'.snd';
+  if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
+end;
 
+
+function TSoundLib.NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
+var S:string;
+begin
+  if not fIsSoundInitialized then Exit;
+  S := ExeDir + 'data\sfx\speech.'+fLocale+ '\' + AttackNotifications[aSound] + IntToStr(aNumber);
   Result := '';
   if FileExists(S+'.snd') then Result := S+'.snd';
   if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
@@ -485,6 +495,19 @@ begin
 end;
 
 
+procedure TSoundLib.PlayNotification(aSound:TAttackNotification);
+var Wave:string; Count:byte;
+begin
+  if not fIsSoundInitialized then exit;
+
+  Count := fNotificationSoundCount[aSound];
+
+  Wave := NotificationSoundFile(aSound, Random(Count));
+  if FileExists(Wave) then
+    Play(Wave, KMPoint(0,0), false, 1.0);
+end;
+
+
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech);
 begin
   PlayWarrior(aUnitType, aSound, KMPoint(0,0));
@@ -497,10 +520,7 @@ begin
   if not fIsSoundInitialized then exit;
   if not (aUnitType in [ut_Militia..ut_Barbarian]) then exit;
 
-  if aUnitType = ut_None then
-    Count := fWarningSoundCount[aSound]
-  else
-    Count := fWarriorSoundCount[aUnitType, aSound];
+  Count := fWarriorSoundCount[aUnitType, aSound];
 
   HasLoc := not KMSamePoint(aLoc, KMPoint(0,0));
   Wave := WarriorSoundFile(aUnitType, aSound, Random(Count));
@@ -540,10 +560,11 @@ procedure TSoundLib.ScanWarriorSounds;
 var
   i:integer;
   U:TUnitType;
-  s:TWarriorSpeech;
+  S:TWarriorSpeech;
+  N:TAttackNotification;
 begin
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
-  FillChar(fWarningSoundCount, SizeOf(fWarningSoundCount), #0);
+  FillChar(fNotificationSoundCount, SizeOf(fNotificationSoundCount), #0);
 
   if not DirectoryExists(ExeDir + 'data\sfx\speech.'+fLocale+'\') then Exit;
 
@@ -557,12 +578,12 @@ begin
           break;
         end;
 
-  U := ut_None; //Scan warning messages (e.g. under attack)
-  for S:=Low(TWarriorSpeech) to High(TWarriorSpeech) do
+  //Scan warning messages (e.g. under attack)
+  for N:=Low(TAttackNotification) to High(TAttackNotification) do
     for i:=0 to 255 do
-      if not FileExists(WarriorSoundFile(U, S, i)) then
+      if not FileExists(NotificationSoundFile(N, i)) then
       begin
-        fWarningSoundCount[S] := i;
+        fNotificationSoundCount[N] := i;
         break;
       end;
 end;

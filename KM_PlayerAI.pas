@@ -643,7 +643,7 @@ begin
     begin
       fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
       if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
-        fSoundLib.PlayWarrior(ut_None, sp_AttackedTown);
+        fSoundLib.PlayNotification(an_Town);
     end;
   end;
   if fPlayers[PlayerIndex].PlayerType = pt_Computer then
@@ -662,9 +662,9 @@ begin
       if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.GetCenter, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
       begin
         if aUnit is TKMUnitWarrior then
-          fSoundLib.PlayWarrior(ut_None, sp_AttackedTroops)
+          fSoundLib.PlayNotification(an_Troops)
         else
-          fSoundLib.PlayWarrior(ut_None, sp_AttackedCitizens);
+          fSoundLib.PlayNotification(an_Citizens);
       end;
     end;
   end;

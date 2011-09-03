@@ -819,7 +819,9 @@ const SSoundFX:array[TSoundFX] of string = (
 //Sounds to play on different warrior orders
 type
   TWarriorSpeech = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
-                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack, sp_AttackedCitizens, sp_AttackedTown, sp_AttackedTroops);
+                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
+
+  TAttackNotification = (an_Citizens, an_Town, an_Troops);
 
   TProjectileType = (pt_Arrow, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
 
