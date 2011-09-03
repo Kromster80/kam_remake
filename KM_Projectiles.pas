@@ -153,8 +153,8 @@ end;
 { Return flight time (archers like to know when they hit target before firing again) }
 function TKMProjectiles.AddItem(aStart,aAim,aEnd:TKMPointF; aSpeed:single; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
 const //TowerRock position is a bit different for reasons said below
-  OffsetX:array[TProjectileType] of single = (0.5,0.5,-0.25); //Recruit stands in entrance, Tower middleline is X-0.75
-  OffsetY:array[TProjectileType] of single = (0.2,0.2,-0.5); //Add towers height
+  OffsetX:array[TProjectileType] of single = (0.5,0.5,0.5,-0.25); //Recruit stands in entrance, Tower middleline is X-0.75
+  OffsetY:array[TProjectileType] of single = (0.2,0.2,0.2,-0.5); //Add towers height
 var
   i:integer;
 begin
@@ -211,11 +211,13 @@ begin
             U := fPlayers.UnitsHitTestF(fTarget, false);
             case fType of
               pt_Arrow,
+              pt_SlingRock,
               pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
                             begin
                               Damage := 0;
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
+                              if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
                               //Arrows are more likely to cause damage when the unit is closer
                               Damage := Round(Damage * 2 * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].Defence, 1); //Not needed, but animals have 0 defence
@@ -249,6 +251,7 @@ begin
   case fItems[aIndex].fType of
     pt_Arrow:      Result := true;
     pt_Bolt:       Result := true;
+    pt_SlingRock:  Result := true;
     pt_TowerRock:  if (fItems[aIndex].fScreenEnd.Y - fItems[aIndex].fScreenStart.Y) < 0 then
                      Result := fItems[aIndex].fPosition >= 0.2 //fly behind a Tower
                    else
@@ -272,7 +275,7 @@ begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       case fItems[i].fType of
-        pt_Arrow, pt_Bolt:
+        pt_Arrow, pt_SlingRock, pt_Bolt:
         begin
           MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
           P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);

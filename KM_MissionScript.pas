@@ -76,8 +76,8 @@ const
   //This is a map of the valid values for !SET_GROUP, and the corrisponing unit that will be created (matches KaM behavior)
   TroopsRemap: array[14..29] of TUnitType = (ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
   ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
-  {ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,ut_Catapult,ut_Ballista);} //TPR Troops, which are not yet enabled
-  ut_None,ut_None,ut_None,ut_None,ut_None,ut_None); //Temp replacement for TPR Troops
+  ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,{ut_Catapult,ut_Ballista);} //Seige, which are not yet enabled
+  ut_None,ut_None); //Temp replacement for seige
 
 type
   TKMMissionDetails = record
@@ -120,6 +120,7 @@ type
 
     function TextToCommandType(const ACommandText: shortstring): TKMCommandType;
     function UnitTypeToScriptID(aUnitType:TUnitType):integer;
+    function WarriorTypeToScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam:shortstring):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
     procedure AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
@@ -793,6 +794,19 @@ begin
 end;
 
 
+function TMissionParser.WarriorTypeToScriptID(aUnitType:TUnitType):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=low(TroopsRemap) to high(TroopsRemap) do
+    if TroopsRemap[i] = aUnitType then
+    begin
+      Result := i;
+      exit;
+    end;
+end;
+
+
 //Write out a KaM format mission file to aFileName
 function TMissionParser.SaveDATFile(const aFileName:string):boolean;
 const
@@ -1035,7 +1049,7 @@ begin
       begin
         if TKMUnitWarrior(CurUnit).IsCommander then //Parse only Commanders
         begin
-          AddCommand(ct_SetGroup, [UnitTypeToScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1]);
+          AddCommand(ct_SetGroup, [WarriorTypeToScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1]);
           if CurUnit.Condition = UNIT_MAX_CONDITION then
             AddCommand(ct_SetGroupFood, []);
         end;

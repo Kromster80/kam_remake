@@ -124,7 +124,7 @@ end;
 procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Randomly make a battle cry
-  if KaMRandom(16) = 0 then
+  if KaMRandom(20) = 0 then
     fSoundLib.PlayWarrior(KMUnit.UnitType, sp_BattleCry, KMUnit.GetPosition);
 
   //Do not play sounds if unit is invisible to MyPlayer
@@ -133,7 +133,8 @@ begin
   
   case KMUnit.UnitType of
     ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition); //Aiming
-    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,KMUnit.GetPosition); //Aiming
+    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,     KMUnit.GetPosition); //Aiming
+    ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot,KMUnit.GetPosition);
     else           begin
                      if IsHit then
                        fSoundLib.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))],KMUnit.GetPosition)
@@ -186,7 +187,7 @@ begin
   begin
     if fFightDelay=-1 then //Initialize
     begin
-      MakeSound(KMUnit, false); //IsHit means IsShoot for bowmen (false means aiming)
+      if KMUnit.UnitType <> ut_Slingshot then MakeSound(KMUnit, false);
       fFightDelay := AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD);
     end;
 
@@ -195,16 +196,21 @@ begin
       Result := true; //do not increment AnimStep, just exit;
       exit;
     end;
+    if KMUnit.UnitType = ut_Slingshot then MakeSound(KMUnit, false);
 
     //Fire the arrow
     case KMUnit.UnitType of
       ut_Arbaletman: fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Bolt, KMUnit.GetOwner);
       ut_Bowman:     fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Arrow, KMUnit.GetOwner);
+      ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
 
     fFightDelay := -1; //Reset
   end;
+  if Step = SLINGSHOT_FIRING_DELAY then
+    if KMUnit.UnitType = ut_Slingshot then
+      fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_SlingRock, KMUnit.GetOwner);
 end;
 
 

@@ -111,9 +111,8 @@ const
   ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
   ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian,
   {24..29}
-  ut_None, ut_None, ut_None, ut_None, ut_None,
-  ut_None,
-  //ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman, ut_Catapult, ut_Ballista,
+  ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman, //ut_Catapult, ut_Ballista,
+  ut_None, ut_None,
   {30..37}
   ut_Wolf, ut_Fish, ut_Watersnake, ut_Seastar, ut_Crab,
   ut_Waterflower, ut_Waterleaf, ut_Duck,
@@ -123,7 +122,7 @@ const
   UnitKaMOrder: array[TUnitType] of byte = (0, 0,
   1, 2, 3, 4, 5, 6, 7, 8, 9,
   10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-  20, 21, 22, 23, 24, {25, 26, 27, 28, 29,
+  20, 21, 22, 23, 24, 25, 26, 27, 28, {29,
   30,} 31, 32, 33, 34, 35, 36, 37, 38);
 
   
@@ -177,14 +176,18 @@ const UnitSupportedActions:array[TUnitType]of TUnitActionTypeSet = (
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Recruit
     [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Militia
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Axeman
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Swordsman
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Bowman
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Crossbowman
     [ua_Walk, ua_Work, ua_Die, ua_Eat],
     [ua_Walk, ua_Work, ua_Die, ua_Eat],
     [ua_Walk, ua_Work, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat], //Cavalry
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Barbarian
+    [ua_Walk, ua_Work, ua_Die, ua_Eat], //Rebel
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Slingshot
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Warrior
     [ua_Walk, ua_Work, ua_Die, ua_Eat],
     [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk], [ua_Walk] //Animals
     );
@@ -221,12 +224,12 @@ const WarriorFightType: array[WARRIOR_MIN..WARRIOR_MAX] of TFightType = (
     ft_Ranged,ft_Ranged,        //Bowman, Arbaletman
     ft_Melee,ft_Melee,          //Pikeman, Hallebardman,
     ft_Melee,ft_Melee,          //HorseScout, Cavalry,
-    ft_Melee                    //Barbarian
-    {ft_Melee,           //Peasant
-    ft_Ranged,           //ut_Slingshot
-    ft_Melee,            //ut_MetalBarbarian
-    ft_Melee,            //ut_Horseman
-    ft_Ranged,ft_Ranged, //ut_Catapult, ut_Ballista,}
+    ft_Melee,                   //Barbarian
+    ft_Melee,                   //Peasant
+    ft_Ranged,                  //ut_Slingshot
+    ft_Melee,                   //ut_MetalBarbarian
+    ft_Melee                    //ut_Horseman
+    {ft_Ranged,ft_Ranged,       //ut_Catapult, ut_Ballista,}
     );
 begin
   Assert(fUnitType in [Low(WarriorFightType)..High(WarriorFightType)]);

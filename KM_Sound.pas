@@ -19,9 +19,9 @@ const
     WarriorSFXFolder: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
         'MILITIA','AXEMAN','SWORDMAN',
         'BOWMAN','CROSSBOW','LANCEMAN',
-        'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN');
+        'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN',
+        'REBEL','ROGUE','WARRIOR','VAGABOND');
 
-    //@Lewin: I don't think it is right to adjoin these with town notifications
     WarriorSFX: array[TWarriorSpeech] of string = (
         'SELECT','EAT','LEFT','RIGHT','HALVE','JOIN','HALT','SEND', 'ATTACK',
         'FORMAT','DEATH','BATTLE','STORM');

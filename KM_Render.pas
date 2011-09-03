@@ -511,6 +511,8 @@ begin
                 ID := Step[round(Flight*Count)+1]+1;
     pt_Bolt:  with fResource.UnitDat[ut_Arbaletman].UnitAnim[ua_Spec, Dir] do
                 ID := Step[round(Flight*Count)+1]+1;
+    pt_SlingRock:  with fResource.UnitDat[ut_Slingshot].UnitAnim[ua_Spec, Dir] do
+                ID := Step[round(Flight*Count)+1]+1;
     pt_TowerRock: ID := ProjectileBounds[aProj,1]+1;
     else ID := 1; //Nothing?
   end;

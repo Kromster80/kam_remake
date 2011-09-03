@@ -98,8 +98,9 @@ begin
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
            case UnitType of
-             ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,GetPosition,true); //Aiming
-             ut_Bowman:     fSoundLib.Play(sfx_BowDraw,GetPosition,true); //Aiming
+             ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,GetPosition); //Aiming
+             ut_Bowman:     fSoundLib.Play(sfx_BowDraw,     GetPosition); //Aiming
+             ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot,GetPosition); //Aiming
              else Assert(false, 'Unknown shooter');
            end;
          end else begin
@@ -124,6 +125,7 @@ begin
            case UnitType of
              ut_Arbaletman: fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Bolt, GetOwner);
              ut_Bowman:     fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Arrow, GetOwner);
+             ut_Slingshot:  fGame.Projectiles.AimTarget(PositionF, fHouse, pt_SlingRock, GetOwner);
              else Assert(false, 'Unknown shooter');
            end;
            AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;

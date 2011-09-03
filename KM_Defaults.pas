@@ -104,7 +104,7 @@ const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
-  RX7_SPRITE_COUNT = 22;  //Number of sprites to load for RX7 from the folder \Sprites\
+  RX7_SPRITE_COUNT = 26;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
@@ -129,6 +129,7 @@ const //Here we store options that are hidden somewhere in code
   //Archer properties
   RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not
   RANGE_BOWMAN_MAX      = 10.99;
+  RANGE_SLINGSHOT_MAX   = 10.99;
   RANGE_WATCHTOWER_MAX  = 6.99; //Measured in KaM. Distance from the doorway of tower
 
   RANGE_ARBALETMAN_MIN  = 4; //KaM: We will shoot a unit standing 4 tiles away, but not one standing 3 tiles away
@@ -138,6 +139,7 @@ const //Here we store options that are hidden somewhere in code
   LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
 
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
+  SLINGSHOT_FIRING_DELAY = 12; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
   FRIENDLY_FIRE = true; //Whenever archers could kill fellow men with their arrows
@@ -331,14 +333,14 @@ type
   TUnitType = (ut_None, ut_Any,
     ut_Serf,          ut_Woodcutter,    ut_Miner,         ut_AnimalBreeder,
     ut_Farmer,        ut_Lamberjack,    ut_Baker,         ut_Butcher,
-    ut_Fisher,        ut_Worker,       ut_StoneCutter,  ut_Smith,
-    ut_Metallurgist, ut_Recruit,
+    ut_Fisher,        ut_Worker,        ut_StoneCutter,   ut_Smith,
+    ut_Metallurgist,  ut_Recruit,
 
-    ut_Militia,      ut_AxeFighter,   ut_Swordsman,    ut_Bowman,
-    ut_Arbaletman,   ut_Pikeman,      ut_Hallebardman, ut_HorseScout,
+    ut_Militia,      ut_AxeFighter,   ut_Swordsman,     ut_Bowman,
+    ut_Arbaletman,   ut_Pikeman,      ut_Hallebardman,  ut_HorseScout,
     ut_Cavalry,      ut_Barbarian,
 
-    //ut_Peasant,    ut_Slingshot,    ut_MetalBarbarian,ut_Horseman,
+    ut_Peasant,      ut_Slingshot,    ut_MetalBarbarian,ut_Horseman,
     //ut_Catapult,   ut_Ballista,
 
     ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
@@ -349,11 +351,11 @@ const UNIT_MIN = ut_Serf;
       CITIZEN_MIN = ut_Serf;
       CITIZEN_MAX = ut_Recruit;
       WARRIOR_MIN = ut_Militia;
-      WARRIOR_MAX = ut_Barbarian;
+      WARRIOR_MAX = ut_Horseman;
       WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
       WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
       HUMANS_MIN = ut_Serf;
-      HUMANS_MAX = ut_Barbarian;
+      HUMANS_MAX = ut_Horseman;
       ANIMAL_MIN = ut_Wolf;
       ANIMAL_MAX = ut_Duck;
 
@@ -368,13 +370,13 @@ const UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
     gt_Mounted,gt_Mounted,      //ut_HorseScout, ut_Cavalry,
-    gt_Melee                    //ut_Barbarian
+    gt_Melee,                   //ut_Barbarian
     //TPR Army
-    {gt_AntiHorse,        //ut_Peasant
+    gt_AntiHorse,        //ut_Peasant
     gt_Ranged,           //ut_Slingshot
     gt_Melee,            //ut_MetalBarbarian
-    gt_Mounted,          //ut_Horseman
-    gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
+    gt_Mounted           //ut_Horseman
+    {gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
     );
 
 //AI's prefences for training troops
@@ -835,17 +837,17 @@ type
 
   TAttackNotification = (an_Citizens, an_Town, an_Troops);
 
-  TProjectileType = (pt_Arrow, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
+  TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
 
 const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
-  ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(4186,4190) );
-  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_RockThrow);
-  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_None);
-  ProjectileSpeeds:array[TProjectileType] of single = (0.5, 0.55, 0.6);
-  ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.25, 0)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.06, 0.05, 0.025); //Jitter added according to distance
-  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2); //Jitter added according to target's speed (moving target harder to hit)
-  ProjectileMissChance:array[TProjectileType] of single = (0.2, 0.2, 0.2);
+  ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(0,0),(4186,4190) );
+  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
+  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
+  ProjectileSpeeds:array[TProjectileType] of single = (0.5, 0.55, 0.5, 0.6);
+  ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.6, 0.3), (1.25, 0)); //Arc curve and random fraction
+  ProjectileJitter:array[TProjectileType] of single = (0.06, 0.05, 0.07, 0.025); //Jitter added according to distance
+  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 2); //Jitter added according to target's speed (moving target harder to hit)
+  ProjectileMissChance:array[TProjectileType] of single = (0.2, 0.2, 0.2, 0.2);
 
   const STORM_SPEEDUP=1.5;
   

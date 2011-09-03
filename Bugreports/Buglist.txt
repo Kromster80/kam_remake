@@ -10,6 +10,7 @@ Bugs:
  +	RangeCheckError in TSK campaign screen when selecting 7th mission
  +	Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
  +	Warriors/citizens have fully working voices!
+ +	Warriors from The Peasents Rebelion are now supported
 
 	Replay timer should display in HH:MM:SS format
 	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C

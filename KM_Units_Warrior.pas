@@ -660,6 +660,7 @@ begin
   case fUnitType of
     ut_Bowman:      Result := RANGE_BOWMAN_MAX;
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MAX;
+    ut_Slingshot:   Result := RANGE_SLINGSHOT_MAX;
     else            if aTileBased then
                       Result := 1 //Enemy must maximum be 1 tile away
                     else

@@ -61,13 +61,15 @@ const
   ut_Recruit,
   ut_Serf, ut_Worker);
 
-  MapEd_Order:array[0..9] of TUnitType = (
+  MapEd_Order:array[0..13] of TUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
-    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian);
+    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian,
+    ut_Peasant, ut_Slingshot, ut_MetalBarbarian, ut_Horseman);
 
-  MapEd_Icon:array[0..9] of word = (
+  MapEd_Icon:array[0..13] of word = (
     5, 6, 7, 8, 9,
-    10, 11, 12, 13, 14);
+    10, 11, 12, 13, 14,
+    23, 24, 25, 26);
 
   Animal_Order:array[0..7] of TUnitType = (
     ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
