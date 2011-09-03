@@ -197,17 +197,17 @@ type
 
 const
   LOCALES_COUNT = 10;
-  Locales:array[1..LOCALES_COUNT, 1..2]of shortstring = (
-  ('eng', 'English'),
-  ('ger', 'German'),
-  ('pol', 'Polish'),
-  ('svk', 'Slovak'), //New one
-  ('cze', 'Czech'), //New one
-  ('swe', 'Swedish'),//New one
-  ('fra', 'French'), //New one
-  ('hun', 'Hungarian'),
-  ('dut', 'Dutch'),
-  ('rus', 'Russian'));
+  Locales:array[1..LOCALES_COUNT, 1..3]of shortstring = (
+  ('eng', '1252', 'English'),
+  ('ger', '1252', 'German'),
+  ('pol', '1250', 'Polish'),
+  ('svk', '1250', 'Slovak'), //New one
+  ('cze', '1250', 'Czech'),  //New one
+  ('swe', '1252', 'Swedish'),//New one
+  ('fra', '1252', 'French'), //New one
+  ('hun', '1250', 'Hungarian'),
+  ('dut', '1252', 'Dutch'),
+  ('rus', '1251', 'Russian'));
 
 
 type TGameResultMsg = ( //Game result
@@ -250,11 +250,19 @@ const
 
 {Fonts}
 type //Indexing should start from 1.
-  TKMFont = (fnt_Antiqua,  fnt_Briefing, fnt_Game,     fnt_Grey,
-             fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2, fnt_KMLobby3,
-             fnt_KMLobby4, fnt_MainA,    fnt_MainB,    fnt_MainMapGold,
-             fnt_Metal,    fnt_Mini,     fnt_Outline,  fnt_System,
-             fnt_Won);
+  TKMFont = (fnt_Antiqua,  fnt_Briefing,    fnt_Game,     fnt_Grey,
+             fnt_MainB,    fnt_MainMapGold, fnt_Metal,    fnt_Mini,
+             fnt_Outline,  fnt_Won);
+
+{Removed fonts that were in KaM:
+  Adam (unused)
+  Font01 (damaged)
+  KMLobby (used for internet lobby in TPR)
+  MainA (identical to MainMapGold in all game versions)
+  MainA.old (probably never meant to be included in the release anyway)
+  Minimum (same as mini but with less characters)
+  System (unused)
+}
 
 const
    FONT_INTERLINE = 5; //Spacing between lines of text

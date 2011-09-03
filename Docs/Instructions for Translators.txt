@@ -1,11 +1,26 @@
 Would you like to make a translation? Or improve one of the existing translations? If so thank you and read on...
 
+===========
+   FONT    
+===========
+The first thing you need to make a translation is the right font to write the characters for your language. Please note we do not support Unicode yet, so some languages can't be translated because they have too many characters. We currently have 3 standard fonts that cover most European languages:
+Windows-1250 (Eastern European: Polish, Hungarian, Czech, Slovakian etc.)
+Windows-1251 (Cyrillic: Russian, Bulgarian, Serbian etc.)
+Windows-1252 (Western European: German, English, Dutch, Spanish, French, Italian, Finnish etc.)
+If your language uses one of these fonts then just let me know which one and you're done with the Font section. If not, you'll have to create the font, so keep reading.
 
-The first thing you need to make a translation is the right font to write the characters for your language. Please note we do not support Unicode yet, so some languages can't be translated because they have too many characters. You can look at the available fonts by downloading the FontEditor from the Remake's Google Code site:
+You can look at the available fonts by downloading the FontEditor from the Remake's Google Code site:
 http://code.google.com/p/castlesand/downloads/list
 
-Install it in your KaM Remake folder and find the language font that has the most characters that you need. The available fonts are in "KaM Remake\data\gfx\fonts" The characters you need might not be in any of them, so you can either edit the language's fonts that are is closest to add the extra characters, (warning: this is a LOT of work) or simply ignore the ones that are not there and use the closest alternative (e.g. u for ü)
+Install it in your KaM Remake folder and find the existing font that has the most characters that you need. The available fonts are in "KaM Remake\data\gfx\fonts" You can either edit the existing font that is closest to add the extra characters, (warning: this is a fair bit of work) or simply ignore the ones that are not there and use the closest alternative (e.g. u for ü)
+Please let me know when you are making a new font, because I'd like you to make it according to the Windows codepages if that's possible.
+For more information on the standard Windows font codepages look here:
+http://www.science.co.il/language/Locale-Codes.asp?s=codepage
 
+
+===========
+   TEXT    
+===========
 The next thing to do is edit the LIB files. Download Lewin's LIB Decoder from here:
 http://lewin.namsys.com.au/kam/downloads/LIBDecoder-0.8.2.zip
 
@@ -13,6 +28,10 @@ Use it to open the files "setup.eng.lib" and "text.eng.lib" in "KaM Remake\data\
 
 The last step is to translate the LIBX file for your language. (e.g. for German it is "Data\Misc\remake.ger.libx") It is plain text and can be edited in Notepad or another text editor. This file contains some of the new messages used in the Remake, but not all of them. We will be updating this file as development progresses. Take a copy of the English file and translate it to your language.
 
+
+===========
+  SENDING  
+===========
 Please let us know when you are doing a translation so we don't end up with multiple people doing the same language. When you are done, send us the following files:
 setup.###.lib
 text.###.lib

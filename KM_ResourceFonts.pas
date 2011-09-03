@@ -25,6 +25,7 @@ type
   TResourceFont = class
   private
     fFontData:array [TKMFont] of TKMFontData;
+    function GetCodePage(aLocale:string):string;
     function GetFontData(aIndex: TKMFont): TKMFontData;
   public
     constructor Create;
@@ -47,18 +48,12 @@ uses KromUtils, KM_Log, KM_Render, KM_ResourceGFX, KM_Utils;
 
 const //Font01.fnt seems to be damaged..
   FontFiles: array[TKMFont]of string = (
-  'antiqua','briefing','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3','kmlobby4','maina',
-  'mainb','mainmapgold','metal','mini','outline','system','won');
-
-  //adam - unused
-  //font01 - damaged
-  //minimum - unused (looks just like mini with even smaller digits)
+  'antiqua','briefing','game','grey','mainb','mainmapgold','metal','mini','outline','won');
 
   //Note: Fonts with palette 0 are using custom coloring,
   //since no existing palette matches them well and they are monochrome
   FontPal:array[TKMFont]of TKMPal =
-  (pal_0, pal_map, pal_lin, pal_0, pal2_setup, pal2_setup, pal2_setup, pal2_setup, pal2_setup, pal_set,
-   pal_lin, pal2_mapgold, pal_0, pal_lin, pal_0, pal_lin, pal_set2);
+  (pal_0, pal_map, pal_lin, pal_0, pal_lin, pal2_mapgold, pal_0, pal_lin, pal_0, pal_set2);
 
 
 { TKMFontData }
@@ -186,12 +181,26 @@ begin
 end;
 
 
-procedure TResourceFont.LoadFonts(aLocale:string);
-var i:TKMFont;
+function TResourceFont.GetCodePage(aLocale:string):string;
+var k:integer;
 begin
+  Result := '';
+  for k:=1 to LOCALES_COUNT do
+    if Locales[k,1] = aLocale then
+    begin
+      Result := Locales[k,2];
+      Exit;
+    end;
+end;
+
+
+procedure TResourceFont.LoadFonts(aLocale:string);
+var i:TKMFont; CodePage:string;
+begin
+  CodePage := GetCodePage(aLocale);
   for i:=low(TKMFont) to high(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt') then
-      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt', i, false)
+    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt') then
+      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt', i, false)
     else
       fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', i, false);
 end;
