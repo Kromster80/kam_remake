@@ -11,7 +11,7 @@ type
     fEnemyIndex : TPlayerIndex; // to make sure on get
     fVictoryChance : Single;
     fPower : Single;
-    fUnitTypesPower : array [ut_Militia..ut_Barbarian] of Single;
+    fUnitTypesPower : array [WARRIOR_MIN..WARRIOR_MAX] of Single;
     constructor Create;
     procedure Reset;
   end;
@@ -53,7 +53,7 @@ uses Math, KM_Player, KM_ResourceGFX;
 
 var
   // Evals matrix. 1 - Power ratio, 2 - Chance
-  UnitStatEvals : array [ut_Militia..ut_Barbarian, ut_Militia..ut_Barbarian, 1..2] of Single;
+  UnitStatEvals : array [WARRIOR_MIN..WARRIOR_MAX, WARRIOR_MIN..WARRIOR_MAX, 1..2] of Single;
 
 
 { TKMArmyEvaluation assets}
@@ -144,14 +144,14 @@ begin
   SelfStats := (fSelfPlayer as TKMPlayer).Stats;
   Eval := fEvals[PlayerIndex];
   Eval.fPower := 0.0;
-  for i := ut_Militia to ut_Barbarian do begin
+  for i := WARRIOR_MIN to WARRIOR_MAX do begin
     SelfQty := SelfStats.GetUnitQty(i);
     if SelfQty = 0 then begin
       Eval.fUnitTypesPower[i] := 0.0;
       continue;
     end;
     PowerSum := 0.0;
-    for j := ut_Militia to ut_Barbarian do begin
+    for j := WARRIOR_MIN to WARRIOR_MAX do begin
       EnemyQty := Stats.GetUnitQty(j);
       PowerSum := PowerSum + UnitStatEvals[i,j,1] * EnemyQty;
     end;
@@ -206,8 +206,8 @@ var
   i,j : TUnitType;
   a,b,c : Single;
 begin
-  for i := ut_Militia to ut_Barbarian do
-    for j := ut_Militia to ut_Barbarian do begin
+  for i := WARRIOR_MIN to WARRIOR_MAX do
+    for j := WARRIOR_MIN to WARRIOR_MAX do begin
       a := fResource.UnitDat[i].HitPoints / fResource.UnitDat[j].HitPoints;
       b := fResource.UnitDat[i].Attack;
       if j in [low(UnitGroups) .. high(UnitGroups)] then

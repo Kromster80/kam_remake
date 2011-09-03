@@ -1408,7 +1408,7 @@ end;
 {Check wherever this unit is armed}
 function TKMUnit.IsArmyUnit:boolean;
 begin
-  Result := fUnitType in [ut_Militia .. ut_Barbarian];
+  Result := fUnitType in [WARRIOR_MIN..WARRIOR_MAX];
 end;
 
 
@@ -1821,11 +1821,11 @@ begin
 
     ut_Recruit: U := Inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Militia..ut_Barbarian:   U := Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
+    WARRIOR_MIN..WARRIOR_MAX: U := Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Wolf..ut_Duck:           U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
+    ANIMAL_MIN..ANIMAL_MAX:   U := Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
-    else                        raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
+    else                      raise ELocError.Create('Add '+fResource.UnitDat[aUnitType].UnitName,KMPoint(PosX, PosY));
   end;
 
   Result := Units[U];
@@ -1837,7 +1837,7 @@ var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint; Doe
 begin
   Assert(aDir <> dir_NA);
   aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
-  if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
+  if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then
   begin
     for i:=1 to aUnitCount do
     begin
@@ -1996,9 +1996,8 @@ begin
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
                                 Inherited Add(TKMUnitCitizen.Load(LoadStream));
       ut_Recruit:               Inherited Add(TKMUnitRecruit.Load(LoadStream));
-      ut_Militia..ut_Barbarian: Inherited Add(TKMUnitWarrior.Load(LoadStream));
-      //ut_Bowman:   Inherited Add(TKMUnitArcher.Load(LoadStream)); //I guess it will be stand-alone
-      ut_Wolf..ut_Duck:         Inherited Add(TKMUnitAnimal.Load(LoadStream));
+      WARRIOR_MIN..WARRIOR_MAX: Inherited Add(TKMUnitWarrior.Load(LoadStream));
+      ANIMAL_MIN..ANIMAL_MAX:   Inherited Add(TKMUnitAnimal.Load(LoadStream));
       else fLog.AssertToLog(false, 'Unknown unit type in Savegame')
     end;
   end;
@@ -2016,9 +2015,8 @@ begin
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
                                 TKMUnitCitizen(Items[i]).SyncLoad;
       ut_Recruit:               TKMUnitRecruit(Items[i]).SyncLoad;
-      ut_Militia..ut_Barbarian: TKMUnitWarrior(Items[i]).SyncLoad;
-      //ut_Bowman:              TKMUnitArcher(Items[i]).SyncLoad; //I guess it will be stand-alone
-      ut_Wolf..ut_Duck:         TKMUnitAnimal(Items[i]).SyncLoad;
+      WARRIOR_MIN..WARRIOR_MAX: TKMUnitWarrior(Items[i]).SyncLoad;
+      ANIMAL_MIN..ANIMAL_MAX:   TKMUnitAnimal(Items[i]).SyncLoad;
     end;
   end;
 end;

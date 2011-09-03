@@ -16,7 +16,7 @@ const
     MAX_SOURCES = 32; //depends on hardware as well
     MAX_DISTANCE = 32; //After this distance sounds are completely mute
 
-    WarriorSFXFolder: array[ut_Militia..ut_Barbarian] of string = (
+    WarriorSFXFolder: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
         'MILITIA','AXEMAN','SWORDMAN',
         'BOWMAN','CROSSBOW','LANCEMAN',
         'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN');
@@ -28,26 +28,26 @@ const
 
     AttackNotifications: array[TAttackNotification] of string = ('CITIZ0','TOWN0','UNITS0');
 
-    CitizenSFX: array[ut_Serf..ut_Recruit] of record
-                                                WarriorVoice: TUnitType;
-                                                SelectID, DeathID: byte;
-                                              end = (
-                                                (WarriorVoice: ut_Militia;      SelectID:3; DeathID:1), //ut_Serf
-                                                (WarriorVoice: ut_AxeFighter;   SelectID:0; DeathID:0), //ut_Woodcutter
-                                                (WarriorVoice: ut_Bowman;       SelectID:2; DeathID:1), //ut_Miner
-                                                (WarriorVoice: ut_Swordsman;    SelectID:0; DeathID:2), //ut_AnimalBreeder
-                                                (WarriorVoice: ut_Militia;      SelectID:1; DeathID:2), //ut_Farmer
-                                                (WarriorVoice: ut_Arbaletman;   SelectID:1; DeathID:0), //ut_Lamberjack
-                                                (WarriorVoice: ut_Pikeman;      SelectID:1; DeathID:0), //ut_Baker
-                                                (WarriorVoice: ut_HorseScout;   SelectID:0; DeathID:2), //ut_Butcher
-                                                //todo: Use vagabond voice: (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
-                                                (WarriorVoice: ut_HorseScout;   SelectID:2; DeathID:0), //ut_Fisher
-                                                (WarriorVoice: ut_Cavalry;      SelectID:1; DeathID:1), //ut_Worker
-                                                (WarriorVoice: ut_Hallebardman; SelectID:1; DeathID:1), //ut_StoneCutter
-                                                (WarriorVoice: ut_Cavalry;      SelectID:3; DeathID:4), //ut_Smith
-                                                (WarriorVoice: ut_Hallebardman; SelectID:3; DeathID:2), //ut_Metallurgist
-                                                (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
-                                              );
+    CitizenSFX: array[CITIZEN_MIN..CITIZEN_MAX] of record
+                                                     WarriorVoice: TUnitType;
+                                                     SelectID, DeathID: byte;
+                                                   end = (
+                                                     (WarriorVoice: ut_Militia;      SelectID:3; DeathID:1), //ut_Serf
+                                                     (WarriorVoice: ut_AxeFighter;   SelectID:0; DeathID:0), //ut_Woodcutter
+                                                     (WarriorVoice: ut_Bowman;       SelectID:2; DeathID:1), //ut_Miner
+                                                     (WarriorVoice: ut_Swordsman;    SelectID:0; DeathID:2), //ut_AnimalBreeder
+                                                     (WarriorVoice: ut_Militia;      SelectID:1; DeathID:2), //ut_Farmer
+                                                     (WarriorVoice: ut_Arbaletman;   SelectID:1; DeathID:0), //ut_Lamberjack
+                                                     (WarriorVoice: ut_Pikeman;      SelectID:1; DeathID:0), //ut_Baker
+                                                     (WarriorVoice: ut_HorseScout;   SelectID:0; DeathID:2), //ut_Butcher
+                                                     //todo: Use vagabond voice: (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
+                                                     (WarriorVoice: ut_HorseScout;   SelectID:2; DeathID:0), //ut_Fisher
+                                                     (WarriorVoice: ut_Cavalry;      SelectID:1; DeathID:1), //ut_Worker
+                                                     (WarriorVoice: ut_Hallebardman; SelectID:1; DeathID:1), //ut_StoneCutter
+                                                     (WarriorVoice: ut_Cavalry;      SelectID:3; DeathID:4), //ut_Smith
+                                                     (WarriorVoice: ut_Hallebardman; SelectID:3; DeathID:2), //ut_Metallurgist
+                                                     (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
+                                                   );
 
 type
   TWAVHeaderEx = record
@@ -108,7 +108,7 @@ type
     fSoundGain:single; //aka "Global volume"
     fLocale:string; //Locale used to access warrior sounds
     fNotificationSoundCount: array[TAttackNotification] of byte;
-    fWarriorSoundCount: array[ut_Militia..ut_Barbarian, TWarriorSpeech] of byte;
+    fWarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
     procedure CheckOpenALError;
     procedure LoadSoundsDAT;
     procedure ScanWarriorSounds;
@@ -481,7 +481,7 @@ procedure TSoundLib.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc
 var Wave:string; HasLoc:boolean; SoundID: byte;
 begin
   if not fIsSoundInitialized then exit;
-  if not (aUnitType in [ut_Serf..ut_Recruit]) then exit;
+  if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then exit;
 
   if aSound = sp_Death then
     SoundID := CitizenSFX[aUnitType].DeathID
@@ -518,7 +518,7 @@ procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc
 var Wave:string; HasLoc:boolean; Count:byte;
 begin
   if not fIsSoundInitialized then exit;
-  if not (aUnitType in [ut_Militia..ut_Barbarian]) then exit;
+  if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then exit;
 
   Count := fWarriorSoundCount[aUnitType, aSound];
 
@@ -569,7 +569,7 @@ begin
   if not DirectoryExists(ExeDir + 'data\sfx\speech.'+fLocale+'\') then Exit;
 
   //If the folder exists it is likely all the sounds are there
-  for U:=ut_Militia to ut_Barbarian do
+  for U:=WARRIOR_MIN to WARRIOR_MAX do
     for S:=Low(TWarriorSpeech) to High(TWarriorSpeech) do
       for i:=0 to 255 do
         if not FileExists(WarriorSoundFile(U, S, i)) then

@@ -344,6 +344,18 @@ type
     ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
     ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
+const UNIT_MIN = ut_Serf;
+      UNIT_MAX = ut_Duck;
+      CITIZEN_MIN = ut_Serf;
+      CITIZEN_MAX = ut_Recruit;
+      WARRIOR_MIN = ut_Militia;
+      WARRIOR_MAX = ut_Barbarian;
+      WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
+      WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
+      HUMANS_MIN = ut_Serf;
+      HUMANS_MAX = ut_Barbarian;
+      ANIMAL_MIN = ut_Wolf;
+      ANIMAL_MAX = ut_Duck;
 
 //Used for AI defence and linking troops
 type  TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
@@ -351,7 +363,7 @@ const KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
 
 type TCheckAxis = (ax_X, ax_Y);
 
-const UnitGroups: array[ut_Militia..ut_Barbarian] of TGroupType = (
+const UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,

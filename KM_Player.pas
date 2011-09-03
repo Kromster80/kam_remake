@@ -178,7 +178,7 @@ end;
 function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false):TKMUnit;
 begin
   //Animals must get redirected to animal player
-  if aUnitType in [ut_Wolf..ut_Duck] then
+  if aUnitType in [ANIMAL_MIN..ANIMAL_MAX] then
   begin
     Result := fPlayers.PlayerAnimals.AddUnit(aUnitType,Position,AutoPlace);
     exit;

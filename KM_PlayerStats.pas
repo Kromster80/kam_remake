@@ -17,7 +17,7 @@ type
       Lost,         //lost from attacks and self-demolished
       Destroyed:word; //damage to other players
     end;
-    Units:array[ut_Serf..ut_Barbarian]of packed record
+    Units:array[HUMANS_MIN..HUMANS_MAX]of packed record
       Initial,
       Trained,
       Lost,
@@ -208,7 +208,7 @@ var i:TUnitType;
 begin
   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
   if aType = ut_Recruit then
-    for i:= ut_Militia to ut_Barbarian do
+    for i:= WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
       dec(Result,Units[i].Trained); //Trained soldiers use a recruit
 end;
 
@@ -217,7 +217,7 @@ function TKMPlayerStats.GetArmyCount:integer;
 var ut:TUnitType;
 begin
   Result := 0;
-  for ut:=ut_Militia to ut_Barbarian do
+  for ut:=WARRIOR_MIN to WARRIOR_MAX do
     Result := Result + GetUnitQty(ut);
 end;
 
@@ -317,7 +317,7 @@ function TKMPlayerStats.GetUnitsTrained:cardinal;
 var i:TUnitType;
 begin
   Result := 0;
-  for i:=ut_Serf to ut_Recruit do
+  for i:=CITIZEN_MIN to CITIZEN_MAX do
     inc(Result,Units[i].Trained);
 end;
 
@@ -337,7 +337,7 @@ function TKMPlayerStats.GetSoldiersTrained:cardinal;
 var i:TUnitType;
 begin
   Result := 0;
-  for i:=ut_Militia to ut_Barbarian do
+  for i:=WARRIOR_MIN to WARRIOR_MAX do
     inc(Result,Units[i].Trained);
 end;
 

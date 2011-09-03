@@ -768,7 +768,7 @@ begin
   else HighestInteractionCount := fInteractionCount;
 
   //Animals are low priority compared to other units, unless they are stuck (surrounded by units)
-  if (fWalker.UnitType in [ut_Wolf..ut_Duck])
+  if (fWalker.UnitType in [ANIMAL_MIN..ANIMAL_MAX])
     and not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
   begin
     Explanation:='Unit is animal and therefore has no priority in movement';
@@ -1005,7 +1005,7 @@ begin
       if not DoUnitInteraction then
       begin
         //If PreviousAction <> KMUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
-        if (PreviousAction = KMUnit.GetUnitAction) and (KMUnit.UnitType in [ut_Wolf..ut_Duck]) and
+        if (PreviousAction = KMUnit.GetUnitAction) and (KMUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) and
             not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
                   Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
         exit; //Do no further walking until unit interaction is solved

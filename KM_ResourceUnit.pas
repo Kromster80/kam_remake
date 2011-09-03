@@ -147,7 +147,7 @@ end;
 
 function TKMUnitDatClass.IsAnimal: boolean;
 begin
-  Result := fUnitType in [ut_Wolf..ut_Duck];
+  Result := fUnitType in [ANIMAL_MIN..ANIMAL_MAX];
 end;
 
 
@@ -195,12 +195,12 @@ end;
 
 function TKMUnitDatClass.GetAllowedPassability: TPassability;
 //Defines which animal prefers which terrain
-const AnimalTerrain: array[ut_Wolf .. ut_Duck] of TPassability = (
+const AnimalTerrain: array[ANIMAL_MIN .. ANIMAL_MAX] of TPassability = (
     CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
 begin
   case fUnitType of
-    ut_Wolf..ut_Duck:                              Result := AnimalTerrain[fUnitType]; //Animals
-    else                                           Result := CanWalk; //Worker, Warriors
+    ANIMAL_MIN..ANIMAL_MAX:  Result := AnimalTerrain[fUnitType]; //Animals
+    else                     Result := CanWalk; //Worker, Warriors
   end;
 end;
 
@@ -208,15 +208,15 @@ end;
 //Where unit would like to be
 function TKMUnitDatClass.GetDesiredPassability: TPassability;
 begin
-  case fUnitType of
-    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := CanWalkRoad; //Citizens except Worker
-    else Result := GetAllowedPassability;
-  end;
+  if fUnitType in [CITIZEN_MIN..CITIZEN_MAX] - [ut_Worker] then
+    Result := CanWalkRoad //Citizens except Worker
+  else
+    Result := GetAllowedPassability; //Workers, warriors, animals
 end;
 
 
 function TKMUnitDatClass.GetFightType: TFightType;
-const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
+const WarriorFightType: array[WARRIOR_MIN..WARRIOR_MAX] of TFightType = (
     ft_Melee,ft_Melee,ft_Melee, //Militia, AxeFighter, Swordsman
     ft_Ranged,ft_Ranged,        //Bowman, Arbaletman
     ft_Melee,ft_Melee,          //Pikeman, Hallebardman,

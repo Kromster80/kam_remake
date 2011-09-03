@@ -1098,7 +1098,7 @@ begin
     //Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
 
-  if (TKMButtonFlat(Sender).Tag in [byte(ut_Serf)..byte(ut_Duck)]) then
+  if (TKMButtonFlat(Sender).Tag in [byte(UNIT_MIN)..byte(UNIT_MAX)]) then
   begin
     GameCursor.Mode := cm_Units;
     GameCursor.Tag1 := byte(TKMButtonFlat(Sender).Tag);
@@ -1684,7 +1684,7 @@ begin
       cm_Objects: fTerrain.SetTree(P, GameCursor.Tag1);
       cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                 begin //Check if we can really add a unit
-                  if TUnitType(GameCursor.Tag1) in [ut_Serf..ut_Barbarian] then
+                  if TUnitType(GameCursor.Tag1) in [HUMANS_MIN..HUMANS_MAX] then
                     MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, false)
                   else
                     fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);

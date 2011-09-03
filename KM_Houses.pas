@@ -1539,7 +1539,7 @@ var i,k:integer;
     Soldier:TKMUnitWarrior;
     LinkUnit:TKMUnitWarrior;
 begin
-  Assert(aUnitType in [ut_Militia..ut_Barbarian]);
+  Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
 
   LinkUnit := nil;
 
