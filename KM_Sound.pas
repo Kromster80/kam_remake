@@ -1,7 +1,7 @@
 unit KM_Sound;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Forms, SysUtils,
+uses Classes, Dialogs, Forms, SysUtils,
   {$IFDEF MSWindows}
     {$IFDEF WDC} MMSystem, {$ENDIF}
     Windows,
@@ -11,43 +11,8 @@ uses Classes, Forms, SysUtils,
 
 
 const
-    MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
-    MAX_BUFFERS = 16; //16/24/32 looks like the limit, depends on hardware
-    MAX_SOURCES = 32; //depends on hardware as well
-    MAX_DISTANCE = 32; //After this distance sounds are completely mute
+  MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
 
-    WarriorSFXFolder: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
-        'MILITIA','AXEMAN','SWORDMAN',
-        'BOWMAN','CROSSBOW','LANCEMAN',
-        'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN',
-        'REBEL','ROGUE','WARRIOR','VAGABOND');
-
-    WarriorSFX: array[TWarriorSpeech] of string = (
-        'SELECT','EAT','LEFT','RIGHT','HALVE','JOIN','HALT','SEND', 'ATTACK',
-        'FORMAT','DEATH','BATTLE','STORM');
-
-    AttackNotifications: array[TAttackNotification] of string = ('CITIZ0','TOWN0','UNITS0');
-
-    CitizenSFX: array[CITIZEN_MIN..CITIZEN_MAX] of record
-                                                     WarriorVoice: TUnitType;
-                                                     SelectID, DeathID: byte;
-                                                   end = (
-                                                     (WarriorVoice: ut_Militia;      SelectID:3; DeathID:1), //ut_Serf
-                                                     (WarriorVoice: ut_AxeFighter;   SelectID:0; DeathID:0), //ut_Woodcutter
-                                                     (WarriorVoice: ut_Bowman;       SelectID:2; DeathID:1), //ut_Miner
-                                                     (WarriorVoice: ut_Swordsman;    SelectID:0; DeathID:2), //ut_AnimalBreeder
-                                                     (WarriorVoice: ut_Militia;      SelectID:1; DeathID:2), //ut_Farmer
-                                                     (WarriorVoice: ut_Arbaletman;   SelectID:1; DeathID:0), //ut_Lamberjack
-                                                     (WarriorVoice: ut_Pikeman;      SelectID:1; DeathID:0), //ut_Baker
-                                                     (WarriorVoice: ut_HorseScout;   SelectID:0; DeathID:2), //ut_Butcher
-                                                     //todo: Use vagabond voice: (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
-                                                     (WarriorVoice: ut_HorseScout;   SelectID:2; DeathID:0), //ut_Fisher
-                                                     (WarriorVoice: ut_Cavalry;      SelectID:1; DeathID:1), //ut_Worker
-                                                     (WarriorVoice: ut_Hallebardman; SelectID:1; DeathID:1), //ut_StoneCutter
-                                                     (WarriorVoice: ut_Cavalry;      SelectID:3; DeathID:4), //ut_Smith
-                                                     (WarriorVoice: ut_Hallebardman; SelectID:3; DeathID:2), //ut_Metallurgist
-                                                     (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
-                                                   );
 
 type
   TWAVHeaderEx = record
@@ -112,6 +77,8 @@ type
     procedure CheckOpenALError;
     procedure LoadSoundsDAT;
     procedure ScanWarriorSounds;
+    function LoadWarriorSoundsFromFile(const aFile: String): Boolean;
+    procedure SaveWarriorSoundsToFile(const aFile: String);
     function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
     function NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
     procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
@@ -132,7 +99,7 @@ type
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
     procedure Play(const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
     procedure Paint;
-end;
+  end;
 
 
 var
@@ -140,9 +107,51 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_Game, KM_Log, Dialogs, KM_ResourceGFX, KM_ResourceUnit;
+uses KM_CommonTypes, KM_RenderAux, KM_Log;
 
 
+//Krom: I moved everything that is used internally down to implementation,
+//so these things are not visible from global scope
+const
+  MAX_BUFFERS = 16; //16/24/32 looks like the limit, depends on hardware
+  MAX_SOURCES = 32; //depends on hardware as well
+  MAX_DISTANCE = 32; //After this distance sounds are completely mute
+
+  WarriorSFXFolder: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
+    'MILITIA', 'AXEMAN', 'SWORDMAN', 'BOWMAN', 'CROSSBOW',
+    'LANCEMAN', 'PIKEMAN', 'CAVALRY', 'KNIGHTS', 'BARBARIAN',
+    'REBEL', 'ROGUE', 'WARRIOR', 'VAGABOND');
+
+  WarriorSFX: array[TWarriorSpeech] of string = (
+    'SELECT', 'EAT', 'LEFT', 'RIGHT', 'HALVE',
+    'JOIN', 'HALT', 'SEND', 'ATTACK', 'FORMAT',
+    'DEATH', 'BATTLE', 'STORM');
+
+  AttackNotifications: array[TAttackNotification] of string = ('CITIZ0', 'TOWN0', 'UNITS0');
+
+  CitizenSFX: array[CITIZEN_MIN..CITIZEN_MAX] of record
+    WarriorVoice: TUnitType;
+    SelectID, DeathID: byte;
+  end = (
+    (WarriorVoice: ut_Militia;      SelectID:3; DeathID:1), //ut_Serf
+    (WarriorVoice: ut_AxeFighter;   SelectID:0; DeathID:0), //ut_Woodcutter
+    (WarriorVoice: ut_Bowman;       SelectID:2; DeathID:1), //ut_Miner
+    (WarriorVoice: ut_Swordsman;    SelectID:0; DeathID:2), //ut_AnimalBreeder
+    (WarriorVoice: ut_Militia;      SelectID:1; DeathID:2), //ut_Farmer
+    (WarriorVoice: ut_Arbaletman;   SelectID:1; DeathID:0), //ut_Lamberjack
+    (WarriorVoice: ut_Pikeman;      SelectID:1; DeathID:0), //ut_Baker
+    (WarriorVoice: ut_HorseScout;   SelectID:0; DeathID:2), //ut_Butcher
+    //todo: Use vagabond voice: (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
+    (WarriorVoice: ut_HorseScout;   SelectID:2; DeathID:0), //ut_Fisher
+    (WarriorVoice: ut_Cavalry;      SelectID:1; DeathID:1), //ut_Worker
+    (WarriorVoice: ut_Hallebardman; SelectID:1; DeathID:1), //ut_StoneCutter
+    (WarriorVoice: ut_Cavalry;      SelectID:3; DeathID:4), //ut_Smith
+    (WarriorVoice: ut_Hallebardman; SelectID:3; DeathID:2), //ut_Metallurgist
+    (WarriorVoice: ut_Bowman;       SelectID:3; DeathID:0)  //ut_Recruit
+    );
+
+
+{ TSoundLib }    
 constructor TSoundLib.Create(aLocale:string; aVolume:single);
 var
   Context: PALCcontext;
@@ -158,7 +167,7 @@ begin
     fLog.AddToLog('OpenAL warning. OpenAL could not be initialized.');
     Application.MessageBox('OpenAL could not be initialized. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     fIsSoundInitialized := false;
-    exit;
+    Exit;
   end;
 
   //Open device
@@ -167,7 +176,7 @@ begin
     fLog.AddToLog('OpenAL warning. Device could not be opened.');
     Application.MessageBox('Device could not be opened. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     fIsSoundInitialized := false;
-    exit;
+    Exit;
   end;
 
   //Create context(s)
@@ -176,7 +185,7 @@ begin
     fLog.AddToLog('OpenAL warning. Context could not be created.');
     Application.MessageBox('Context could not be created. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     fIsSoundInitialized := false;
-    exit;
+    Exit;
   end;
 
   //Set active context
@@ -184,11 +193,11 @@ begin
     fLog.AddToLog('OpenAL warning. Context could not be made current.');
     Application.MessageBox('Context could not be made current. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     fIsSoundInitialized := false;
-    exit;
+    Exit;
   end;
 
   CheckOpenALError;
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
@@ -206,7 +215,7 @@ begin
   end;
 
   CheckOpenALError;
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
 
   //Set default Listener orientation
   fListener.Ori[1]:=0; fListener.Ori[2]:=0; fListener.Ori[3]:=-1; //Look-at vector
@@ -259,8 +268,8 @@ var
   Tab2:array[1..200]of smallint;
   i,Tmp:integer;
 begin
-  if not fIsSoundInitialized then exit;
-  if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
+  if not fIsSoundInitialized then Exit;
+  if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then Exit;
 
   S := TMemoryStream.Create;
   S.LoadFromFile(ExeDir + 'data\sfx\sounds.dat');
@@ -296,7 +305,7 @@ end;
 procedure TSoundLib.ExportSounds;
 var i:integer; S:TMemoryStream;
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
 
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\Sounds.dat\');
@@ -317,7 +326,7 @@ end;
 {Update listener position in 3D space}
 procedure TSoundLib.UpdateListener(X,Y:single);
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
   fListener.Pos[1] := X;
   fListener.Pos[2] := Y;
   fListener.Pos[3] := 24; //Place Listener above the surface
@@ -328,7 +337,7 @@ end;
 { Update sound gain (global volume for all sounds) }
 procedure TSoundLib.UpdateSoundVolume(Value:single);
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
   fSoundGain := Value;
   //alListenerf(AL_GAIN, fSoundGain); //Set in source property
 end;
@@ -337,7 +346,7 @@ end;
 {Wrapper with fewer options for non-attenuated sounds}
 procedure TSoundLib.Play(SoundID:TSoundFX; const Volume:single=1.0);
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
   Play(SoundID, KMPoint(0,0), false, Volume); //Redirect
 end;
 
@@ -345,7 +354,7 @@ end;
 {Wrapper for TSoundFX}
 procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
   PlaySound(SoundID, '', Loc, Attenuated, Volume); //Redirect
 end;
 
@@ -353,7 +362,7 @@ end;
 {Wrapper WAV files}
 procedure TSoundLib.Play(const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
   PlaySound(sfx_None, aFile, Loc, Attenuated, Volume); //Redirect
 end;
 
@@ -373,7 +382,7 @@ var Dif:array[1..3]of single;
   WAVloop: TALint;
 begin
   if not fIsSoundInitialized then Exit;
-  if (SoundID = sfx_None) and (aFile = '') then exit;
+  if (SoundID = sfx_None) and (aFile = '') then Exit;
 
   //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being filled with sounds on the other side of the map.
   if Attenuated and (GetLength(Loc.X-fListener.Pos[1], Loc.Y-fListener.Pos[2]) > MAX_DISTANCE) then Exit;
@@ -480,8 +489,8 @@ end;
 procedure TSoundLib.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint);
 var Wave:string; HasLoc:boolean; SoundID: byte;
 begin
-  if not fIsSoundInitialized then exit;
-  if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then exit;
+  if not fIsSoundInitialized then Exit;
+  if not (aUnitType in [CITIZEN_MIN..CITIZEN_MAX]) then Exit;
 
   if aSound = sp_Death then
     SoundID := CitizenSFX[aUnitType].DeathID
@@ -498,7 +507,7 @@ end;
 procedure TSoundLib.PlayNotification(aSound:TAttackNotification);
 var Wave:string; Count:byte;
 begin
-  if not fIsSoundInitialized then exit;
+  if not fIsSoundInitialized then Exit;
 
   Count := fNotificationSoundCount[aSound];
 
@@ -517,8 +526,8 @@ end;
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint);
 var Wave:string; HasLoc:boolean; Count:byte;
 begin
-  if not fIsSoundInitialized then exit;
-  if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then exit;
+  if not fIsSoundInitialized then Exit;
+  if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then Exit;
 
   Count := fWarriorSoundCount[aUnitType, aSound];
 
@@ -560,9 +569,14 @@ procedure TSoundLib.ScanWarriorSounds;
 var
   i:integer;
   U:TUnitType;
-  S:TWarriorSpeech;
-  N:TAttackNotification;
+  WS:TWarriorSpeech;
+  AN:TAttackNotification;
 begin
+  //Try to load counts from file
+  if LoadWarriorSoundsFromFile(ExeDir + 'data\sfx\speech.'+fLocale+'\count.dat') then
+    Exit;
+
+  //Reset counts from previous locale/unsuccessful load
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
   FillChar(fNotificationSoundCount, SizeOf(fNotificationSoundCount), #0);
 
@@ -570,22 +584,62 @@ begin
 
   //If the folder exists it is likely all the sounds are there
   for U:=WARRIOR_MIN to WARRIOR_MAX do
-    for S:=Low(TWarriorSpeech) to High(TWarriorSpeech) do
+    for WS:=Low(TWarriorSpeech) to High(TWarriorSpeech) do
       for i:=0 to 255 do
-        if not FileExists(WarriorSoundFile(U, S, i)) then
+        if not FileExists(WarriorSoundFile(U, WS, i)) then
         begin
-          fWarriorSoundCount[U,S] := i;
+          fWarriorSoundCount[U,WS] := i;
           break;
         end;
 
   //Scan warning messages (e.g. under attack)
-  for N:=Low(TAttackNotification) to High(TAttackNotification) do
+  for AN:=Low(TAttackNotification) to High(TAttackNotification) do
     for i:=0 to 255 do
-      if not FileExists(NotificationSoundFile(N, i)) then
+      if not FileExists(NotificationSoundFile(AN, i)) then
       begin
-        fNotificationSoundCount[N] := i;
+        fNotificationSoundCount[AN] := i;
         break;
       end;
+
+  //Save counts to file for faster access next time
+  SaveWarriorSoundsToFile(ExeDir + 'data\sfx\speech.'+fLocale+'\count.dat');
+end;
+
+
+function TSoundLib.LoadWarriorSoundsFromFile(const aFile: String): Boolean;
+var
+  S:String;
+  MS:TKMemoryStream;
+begin
+  Result := False;
+  if not FileExists(aFile) then Exit;
+
+  MS := TKMemoryStream.Create;
+  try
+    MS.LoadFromFile(aFile);
+    MS.Read(S);
+    if S = GAME_VERSION then
+    begin
+      MS.Read(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
+      MS.Read(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
+      Result := True;
+    end;
+  finally
+    MS.Free;
+  end;
+end;
+
+
+procedure TSoundLib.SaveWarriorSoundsToFile(const aFile: String);
+var
+  MS:TKMemoryStream;
+begin
+  MS := TKMemoryStream.Create;
+  MS.Write(GAME_VERSION);
+  MS.Write(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
+  MS.Write(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
+  MS.SaveToFile(aFile);
+  MS.Free;
 end;
 
 
