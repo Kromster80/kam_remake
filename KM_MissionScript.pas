@@ -81,9 +81,11 @@ const
   24,25,26,27,28,29,30,31); //Animals
 
   //This is a map of the valid values for !SET_GROUP, and the corrisponing unit that will be created (matches KaM behavior)
-  TroopsRemap: array[14..29] of TUnitType = (ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
+  TroopsRemap: array[14..29] of TUnitType = (
+  ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
   ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
-  ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,{ut_Catapult,ut_Ballista);} //Seige, which are not yet enabled
+  ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,
+  {ut_Catapult,ut_Ballista);} //Seige, which are not yet enabled
   ut_None,ut_None); //Temp replacement for seige
 
   TroopsReverseRemap: array[TUnitType] of integer = (
