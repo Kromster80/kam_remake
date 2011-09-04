@@ -76,7 +76,7 @@ object Form1: TForm1
     Top = 48
     Width = 121
     Height = 25
-    Caption = 'Insert Blank'
+    Caption = 'Insert New'
     TabOrder = 5
     OnClick = btnInsertClick
   end

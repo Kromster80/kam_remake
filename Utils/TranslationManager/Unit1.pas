@@ -91,6 +91,7 @@ var i:integer;
 begin
   TextsCount := 0;
   TranslationCount := 0;
+  MaxID := 0;
   SetLength(Texts,0);
   SetLength(TranslationCodes,0);
   SetLength(IDLookup,0);
@@ -125,7 +126,7 @@ procedure TForm1.ScanAvailableTranslations(aMiscFolder:string);
 
   function GetCharset(aLang:string):TFontCharset;
   begin
-    Result := ANSI_CHARSET;
+    Result := DEFAULT_CHARSET;
     if aLang = 'rus' then Result := RUSSIAN_CHARSET;
     if aLang = 'pol' then Result := EASTEUROPE_CHARSET;
     if aLang = 'hun' then Result := EASTEUROPE_CHARSET;
@@ -313,7 +314,7 @@ begin
   if Texts[ID].ID <> -1 then
     for i:=1 to TranslationCount do
       if Texts[ID].ID <> -1 then
-        TransMemos[i].Text := Texts[ID].Translations[i]
+        TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(Texts[ID].Translations[i])
       else
         TransMemos[i].Text := '';
 end;
@@ -329,6 +330,7 @@ begin
     else
       Texts[i].ID := i-BlanksCount;
   end;
+  MaxID := TextsCount-BlanksCount;
   RefreshList;
 end;
 
@@ -349,7 +351,7 @@ var i,t:integer;
 begin
   i := ListBox1.ItemIndex+1;
   t := TMemo(Sender).Tag;
-  Texts[i].Translations[t] := TMemo(Sender).Text;
+  Texts[i].Translations[t] := {$IFDEF FPC}Utf8ToAnsi{$ENDIF}(TMemo(Sender).Text);
 end;
 
 
@@ -370,6 +372,7 @@ procedure TForm1.btnInsertClick(Sender: TObject);
 var i,ID: integer;
 begin
   ID := ListBox1.ItemIndex+2; //Item place we are adding
+  inc(TextsCount);
   SetLength(Texts,Length(Texts)+1);
   //Move others down
   for i:=TextsCount downto ID do
@@ -385,12 +388,14 @@ begin
 
   ListBox1.Items.Insert(ID-1, IntToStr(Texts[ID].ID)+': '+Texts[ID].ConstName);
   ListBox1.ItemIndex := ListBox1.ItemIndex+1;
+  ListBox1Click(Listbox1); //Force select the new item
 end;
 
 procedure TForm1.btnDeleteClick(Sender: TObject);
 var i,ID: integer;
 begin
   ID := ListBox1.ItemIndex+1; //Item place we are deleting
+  if Texts[ID].ID = MaxID then dec(MaxID);
   //Move items up
   for i:=ID to TextsCount do
   begin
@@ -406,12 +411,12 @@ var i,ID: integer;
 begin
   ID := ListBox1.ItemIndex+2; //Item place we are adding
   SetLength(Texts,Length(Texts)+1);
+  inc(TextsCount);
   //Move others down
   for i:=TextsCount downto ID do
   begin
     Texts[i+1] := Texts[i];
   end;
-  inc(MaxID);
   Texts[ID].ID := -1;
   Texts[ID].ConstName := '';
   SetLength(Texts[ID].Translations,TranslationCount+1);

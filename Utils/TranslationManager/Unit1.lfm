@@ -8,7 +8,6 @@ object Form1: TForm1
   ClientWidth = 1275
   Color = clBtnFace
   Font.Color = clWindowText
-  Font.Height = -13
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   Position = poDesktopCenter
@@ -71,7 +70,7 @@ object Form1: TForm1
     Height = 25
     Top = 48
     Width = 121
-    Caption = 'Insert Blank'
+    Caption = 'Insert New'
     OnClick = btnInsertClick
     TabOrder = 5
   end

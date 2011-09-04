@@ -34,7 +34,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="15">
+    <Units Count="19">
       <Unit0>
         <Filename Value="TranslationManager.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -42,7 +42,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="20"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="23"/>
       </Unit0>
       <Unit1>
         <Filename Value="Unit1.pas"/>
@@ -53,8 +53,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="184"/>
-        <CursorPos X="15" Y="187"/>
+        <TopLine Value="344"/>
+        <CursorPos X="29" Y="349"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -155,8 +155,37 @@
         <CursorPos X="10" Y="2299"/>
         <UsageCount Value="10"/>
       </Unit14>
+      <Unit15>
+        <Filename Value="C:\lazarus\fpc\2.4.2\source\rtl\win\wininc\defines.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="520"/>
+        <CursorPos X="6" Y="538"/>
+        <UsageCount Value="10"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="C:\lazarus\lcl\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="171"/>
+        <CursorPos X="10" Y="186"/>
+        <UsageCount Value="10"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="C:\lazarus\lcl\include\fileutil.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="47"/>
+        <CursorPos X="10" Y="49"/>
+        <UsageCount Value="10"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="C:\lazarus\lcl\include\winfileutil.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="119"/>
+        <CursorPos X="3" Y="126"/>
+        <UsageCount Value="10"/>
+      </Unit18>
     </Units>
-    <JumpHistory Count="13" HistoryIndex="12">
+    <JumpHistory Count="18" HistoryIndex="17">
       <Position1>
         <Filename Value="Unit1.pas"/>
         <Caret Line="310" Column="1" TopLine="299"/>
@@ -183,32 +212,52 @@
       </Position6>
       <Position7>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="312" Column="34" TopLine="332"/>
+        <Caret Line="336" Column="55" TopLine="332"/>
       </Position7>
       <Position8>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="336" Column="55" TopLine="332"/>
+        <Caret Line="339" Column="64" TopLine="332"/>
       </Position8>
       <Position9>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="339" Column="64" TopLine="332"/>
+        <Caret Line="309" Column="28" TopLine="303"/>
       </Position9>
       <Position10>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="309" Column="28" TopLine="303"/>
+        <Caret Line="336" Column="30" TopLine="314"/>
       </Position10>
       <Position11>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="336" Column="30" TopLine="314"/>
+        <Caret Line="337" Column="27" TopLine="314"/>
       </Position11>
       <Position12>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="337" Column="27" TopLine="314"/>
+        <Caret Line="335" Column="36" TopLine="314"/>
       </Position12>
       <Position13>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="335" Column="36" TopLine="314"/>
+        <Caret Line="316" Column="57" TopLine="299"/>
       </Position13>
+      <Position14>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="126" Column="22" TopLine="125"/>
+      </Position14>
+      <Position15>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="140" Column="16" TopLine="125"/>
+      </Position15>
+      <Position16>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="141" Column="37" TopLine="125"/>
+      </Position16>
+      <Position17>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="130" Column="42" TopLine="124"/>
+      </Position17>
+      <Position18>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="317" Column="34" TopLine="306"/>
+      </Position18>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -221,6 +270,13 @@
       <IncludeFiles Value="$(ProjOutDir)"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <CodeGeneration>
+      <Checks>
+        <IOChecks Value="True"/>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+      </Checks>
+    </CodeGeneration>
     <Linking>
       <Options>
         <Win32>
@@ -229,6 +285,9 @@
       </Options>
     </Linking>
     <Other>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
       <CompilerPath Value="$(CompPath)"/>
     </Other>
   </CompilerOptions>
