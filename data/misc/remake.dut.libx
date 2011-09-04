@@ -1,16 +1,15 @@
 
 MaxID:110
 
-KM_InterfaceMainMenu
- 1:Missie geannuleerd 
- 2:Stad tutorial
- 3:Strijd tutorial
- 4:Alleen spelen	
- 5:Map Editor
- 6:Bekijken laatste spel
- 7:Speel over LAN
- 8:Speel over Internet
- 9:Inloggen
+1:Missie geannuleerd 
+2:Stad tutorial
+3:Strijd tutorial
+4:Alleen spelen	
+5:Map Editor
+6:Bekijken laatste spel
+7:Speel over LAN
+8:Speel over Internet
+9:Inloggen
 10:Wachtwoord
 11:Start missie
 12:titel
@@ -30,6 +29,7 @@ KM_InterfaceMainMenu
 26:Controls:
 27:Gameplay:
 28:Muziek:
+36:Uitschakelen
 29:Grafisch:
 30:Helderheid
 31:Volledig scherm
@@ -37,11 +37,9 @@ KM_InterfaceMainMenu
 33:Taal:
 34:Aan het laden... Een ogenblik
 35:Er is een fout opgetreden!
-36:Uitschakelen
 37:Laden nieuw lokaal
 38:Unknown
 
-KM_InterfaceGamePlay
 39:Je hebt gewonnen!
 40:Doorspelen
 41:Victorie!
@@ -57,34 +55,35 @@ KM_InterfaceGamePlay
 108:Players info
 109:Chat
 
-KM_Game
 48:Er is een fout opgetreden!
 49:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
+53: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
+98:Netwerk fout:
+99:Error: Player name must not be blank
+100:Connection failed: %s
+101:You have disconnected
 
-KM_Units
+92:Missie %d
+
 50:Delven van de verkeerde plek
 51: De vissershut is buiten het bereik van het water.
 52: De visser kan geen vis meer vangen rondom zijn vissershut
 107:Die
 
-KM_Unit1
-53: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
-
-KM_InterfaceMapEditor
 54:Terrein wijzigigen
 55:Stad planning
 56:Visuele scripts
 57:Globale scripts
 58:Menu
 
-Create_LANLogin_Page
 59:Speler naam:
 60:Jouw IP-adres:
 61:Host IP adres:
 62:Server aanmaken
 63:Meedoen
+102:Connecting, please wait ...
+103:Waiting for players:
 
-Create_Lobby_Page
 64:Spelerslijst:
 65:Start locatie:
 66:Team:
@@ -93,6 +92,7 @@ Create_Lobby_Page
 69:Ping:
 70:Open
 71:AI Speler
+97:Selecteer...
 72:Willekeurig
 73:Geen
 74:Team %d
@@ -102,24 +102,16 @@ Create_Lobby_Page
 78:Een map:
 79:Opgeslagen map:
 80:Selecteer een map...
+96:Selecteer een opgeslagen spel...
 81:Map informatie:
-82:Afsluiten lobby
-83:Klaar
-84:Start!
 93:Spelers: %d
 94:Mode:
 95:Condities:
 110:Size:
-96:Selecteer een opgeslagen spel...
-97:Selecteer...
-98:Netwerk fout:
-99:Error: Player name must not be blank
-100:Connection failed: %s
-101:You have disconnected
-102:Connecting, please wait ...
-103:Waiting for players:
+82:Afsluiten lobby
+83:Klaar
+84:Start!
 
-Credits
 85:KaM Remake Credits
 86:Original Knights & Merchants Credits
 87:PROGRAMMING:
@@ -127,6 +119,3 @@ Credits
 89:ADDITIONAL GRAPHICS:
 90:ADDITIONAL TRANSLATIONS:
 91:SPECIAL THANKS TO:
-
-Mission
-92:Missie %d

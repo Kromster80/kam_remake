@@ -20,8 +20,8 @@ object Form1: TForm1
   PixelsPerInch = 120
   TextHeight = 16
   object Label1: TLabel
-    Left = 344
-    Top = 160
+    Left = 472
+    Top = 8
     Width = 89
     Height = 16
     Caption = 'Constant name'
@@ -37,8 +37,8 @@ object Form1: TForm1
     OnClick = ListBox1Click
   end
   object EditConstName: TEdit
-    Left = 344
-    Top = 176
+    Left = 472
+    Top = 24
     Width = 297
     Height = 24
     TabOrder = 1
@@ -46,10 +46,9 @@ object Form1: TForm1
   end
   object btnReorderList: TButton
     Left = 344
-    Top = 748
-    Width = 129
+    Top = 240
+    Width = 121
     Height = 25
-    Anchors = [akLeft, akBottom]
     Caption = 'Reorder IDs'
     TabOrder = 2
     OnClick = btnReorderListClick
@@ -75,20 +74,56 @@ object Form1: TForm1
   object btnInsert: TButton
     Left = 344
     Top = 48
-    Width = 113
+    Width = 121
     Height = 25
     Caption = 'Insert Blank'
     TabOrder = 5
     OnClick = btnInsertClick
   end
   object ScrollBox1: TScrollBox
-    Left = 656
+    Left = 472
     Top = 48
-    Width = 593
+    Width = 777
     Height = 729
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 6
+  end
+  object btnDelete: TButton
+    Left = 344
+    Top = 112
+    Width = 121
+    Height = 25
+    Caption = 'Delete'
+    TabOrder = 7
+    OnClick = btnDeleteClick
+  end
+  object btnInsertSeparator: TButton
+    Left = 344
+    Top = 80
+    Width = 121
+    Height = 25
+    Caption = 'Insert Separator'
+    TabOrder = 8
+    OnClick = btnInsertSeparatorClick
+  end
+  object btnMoveUp: TButton
+    Left = 344
+    Top = 176
+    Width = 121
+    Height = 25
+    Caption = 'Move Up'
+    TabOrder = 9
+    OnClick = btnMoveUpClick
+  end
+  object btnMoveDown: TButton
+    Left = 344
+    Top = 208
+    Width = 121
+    Height = 25
+    Caption = 'Move Down'
+    TabOrder = 10
+    OnClick = btnMoveDownClick
   end
 end

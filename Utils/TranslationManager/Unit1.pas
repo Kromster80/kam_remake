@@ -27,6 +27,10 @@ type
     btnSave: TButton;
     btnInsert: TButton;
     ScrollBox1: TScrollBox;
+    btnDelete: TButton;
+    btnInsertSeparator: TButton;
+    btnMoveUp: TButton;
+    btnMoveDown: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnReorderListClick(Sender: TObject);
@@ -34,6 +38,10 @@ type
     procedure btnLoadClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnInsertClick(Sender: TObject);
+    procedure btnDeleteClick(Sender: TObject);
+    procedure btnInsertSeparatorClick(Sender: TObject);
+    procedure btnMoveUpClick(Sender: TObject);
+    procedure btnMoveDownClick(Sender: TObject);
   private
     { Private declarations }
     TransMemos: array of TMemo;
@@ -46,6 +54,8 @@ type
     IDLookup:array of integer;
     MaxID:integer;
     LastSelected:integer;
+    procedure MemoChange(Sender: TObject);
+
     procedure Load(aMiscFolder:string; aTextLibraryFile:string);
     procedure ScanAvailableTranslations(aMiscFolder:string);
     procedure LoadTextLibraryConsts(aFileName:string);
@@ -139,7 +149,7 @@ begin
       end;
   until (FindNext(SearchRec)<>0);
 
-  for i:=1 to Length(TransLabels) do
+  for i:=1 to Length(TransLabels)-1 do
   begin
     FreeAndNil(TransLabels[i]);
     FreeAndNil(TransMemos[i]);
@@ -158,6 +168,8 @@ begin
     TransMemos[i].SetBounds(8,24+(i-1)*80,ScrollBox1.Width-16,60);
     TransMemos[i].Anchors := [akLeft,akRight,akTop];
     TransMemos[i].Font.Charset := GetCharset(TranslationCodes[i]);
+    TransMemos[i].Tag := i;
+    TransMemos[i].OnChange := MemoChange;
   end;
 end;
 
@@ -289,11 +301,12 @@ begin
   if TextsCount = 0 then exit;
   EditConstName.Text := Texts[ListBox1.ItemIndex+1].ConstName;
   LastSelected := ListBox1.ItemIndex;
-  for i:=1 to TranslationCount do
-    if Texts[ListBox1.ItemIndex+1].ID <> -1 then
-      TransMemos[i].Text := Texts[ListBox1.ItemIndex+1].Translations[i]
-    else
-      TransMemos[i].Text := ''; 
+  if Texts[ListBox1.ItemIndex+1].ID <> -1 then
+    for i:=1 to TranslationCount do
+      if Texts[ListBox1.ItemIndex+1].ID <> -1 then
+        TransMemos[i].Text := Texts[ListBox1.ItemIndex+1].Translations[i]
+      else
+        TransMemos[i].Text := '';
 end;
 
 procedure TForm1.btnReorderListClick(Sender: TObject);
@@ -319,6 +332,16 @@ begin
     ID := '' else ID := IntToStr(Texts[i].ID)+': ';
   ListBox1.Items[ListBox1.ItemIndex] := ID+Texts[i].ConstName;
 end;
+
+
+procedure TForm1.MemoChange(Sender: TObject);
+var i,t:integer;
+begin
+  i := ListBox1.ItemIndex+1;
+  t := TMemo(Sender).Tag;
+  Texts[i].Translations[t] := TMemo(Sender).Text;
+end;
+
 
 procedure TForm1.btnLoadClick(Sender: TObject);
 begin
@@ -352,6 +375,65 @@ begin
 
   ListBox1.Items.Insert(ID-1, IntToStr(Texts[ID].ID)+': '+Texts[ID].ConstName);
   ListBox1.ItemIndex := ListBox1.ItemIndex+1;
+end;
+
+procedure TForm1.btnDeleteClick(Sender: TObject);
+var i,ID: integer;
+begin
+  ID := ListBox1.ItemIndex+1; //Item place we are deleting
+  //Move items up
+  for i:=ID to TextsCount do
+  begin
+    Texts[i] := Texts[i+1];
+  end;
+  dec(TextsCount);
+  ListBox1.DeleteSelected;
+  ListBox1.ItemIndex := max(0,ID-2);
+end;
+
+procedure TForm1.btnInsertSeparatorClick(Sender: TObject);
+var i,ID: integer;
+begin
+  ID := ListBox1.ItemIndex+2; //Item place we are adding
+  SetLength(Texts,Length(Texts)+1);
+  //Move others down
+  for i:=TextsCount downto ID do
+  begin
+    Texts[i+1] := Texts[i];
+  end;
+  inc(MaxID);
+  Texts[ID].ID := -1;
+  Texts[ID].ConstName := '';
+  SetLength(Texts[ID].Translations,TranslationCount+1);
+  for i:=1 to TranslationCount do
+    Texts[ID].Translations[i] := '';
+
+  ListBox1.Items.Insert(ID-1, '');
+  ListBox1.ItemIndex := ListBox1.ItemIndex+1;
+end;
+
+procedure TForm1.btnMoveUpClick(Sender: TObject);
+var ID: integer; Temp: TTextInfo;
+begin
+  ID := ListBox1.ItemIndex+1;
+  if ID = 1 then exit; //Can't move the top item up
+  Temp := Texts[ID];
+  Texts[ID] := Texts[ID-1];
+  Texts[ID-1] := Temp;
+  ListBox1.Items.Move(ID-1,ID-2);
+  ListBox1.ItemIndex := ID-2;
+end;
+
+procedure TForm1.btnMoveDownClick(Sender: TObject);
+var ID: integer; Temp: TTextInfo;
+begin
+  ID := ListBox1.ItemIndex+1;
+  if ID = TextsCount then exit; //Can't move the bottom item down
+  Temp := Texts[ID];
+  Texts[ID] := Texts[ID+1];
+  Texts[ID+1] := Temp;
+  ListBox1.Items.Move(ID-1,ID);
+  ListBox1.ItemIndex := ID;
 end;
 
 end.

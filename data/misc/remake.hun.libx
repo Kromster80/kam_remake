@@ -1,16 +1,15 @@
 
 MaxID:110
 
-KM_InterfaceMainMenu
- 1:Küldetés megszakítva
- 2:Oktató Küldetés (Város)
- 3:Oktató Küldetés (Csata)
- 4:Egyjátékos mód
- 5:Pálya Szerkesztõ
- 6:Utolsó visszajátszás megtekintése
- 7:Helyi hálózati játék
- 8:Internetes játék
- 9:Felhasználónév
+1:Küldetés megszakítva
+2:Oktató Küldetés (Város)
+3:Oktató Küldetés (Csata)
+4:Egyjátékos mód
+5:Pálya Szerkesztõ
+6:Utolsó visszajátszás megtekintése
+7:Helyi hálózati játék
+8:Internetes játék
+9:Felhasználónév
 10:Jelszó
 11:Küldetés indítása
 12:Cím
@@ -30,6 +29,7 @@ KM_InterfaceMainMenu
 26:Vezérlõk:
 27:Játékmenet:
 28:Hangok:
+36:Letiltás
 29:Grafika:
 30:Fényerõsség
 31:Teljes képernyõ
@@ -37,11 +37,9 @@ KM_InterfaceMainMenu
 33:Nyelv:
 34:Betöltés... Kérem várjon
 35:Hiba történt!
-36:Letiltás
 37:Új nyelv betöltése
 38:Ismeretlen
 
-KM_InterfaceGamePlay
 39:Megnyerted a játékot!
 40:Játék folytatása
 41:Gyõzelem!
@@ -57,34 +55,35 @@ KM_InterfaceGamePlay
 108:Players info
 109:Chat
 
-KM_Game
 48:Egy hiba történt a játék során.
 49:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
+53:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
+98:Hálózati hiba:
+99:Hiba: A játékos neve nem lehet üres
+100:Kapcsolódási hiba: %s
+101:Megszakadt a kapcsolat
 
-KM_Units
+92:Küldetés %d
+
 50:Rossz helyrõl bányászik
 51:A halászkunyhód túl messze van a víztõl.
 52:A halászod nem tud több halat fogni a közeli vízbõl.
 107:Meghal
 
-KM_Unit1
-53:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
-
-KM_InterfaceMapEditor
 54:Tereprendezés
 55:Település tervezés
 56:Vizuális szkriptek
 57:Globális szkriptek
 58:Menü
 
-Create_LANLogin_Page
 59:Játékos neve:
 60:A te IP címed:
 61:Szerver IP címe:
 62:Szerver készítés
 63:Csatlakozás
+102:Kapcsolódás, kérem várjon ...
+103:Várakozás a játékosokra:
 
-Create_Lobby_Page
 64:Játékosok:
 65:Kezdõhely:
 66:Csapat:
@@ -93,6 +92,7 @@ Create_Lobby_Page
 69:Ping:
 70:Nyitva
 71:Számítógép
+97:Válassz...
 72:Véletlen
 73:Nincs
 74:Csapat %d
@@ -102,24 +102,16 @@ Create_Lobby_Page
 78:Egy térkép
 79:Mentett játék
 80:Válassz egy térképet...
+96:Válassz egy mentést...
 81:Térkép infó:
-82:Kilépés
-83:Kész
-84:Indítás!
 93:Játékosok: %d
 94:Játékmód:
 95:Feltételek:
 110:Size:
-96:Válassz egy mentést...
-97:Válassz...
-98:Hálózati hiba:
-99:Hiba: A játékos neve nem lehet üres
-100:Kapcsolódási hiba: %s
-101:Megszakadt a kapcsolat
-102:Kapcsolódás, kérem várjon ...
-103:Várakozás a játékosokra:
+82:Kilépés
+83:Kész
+84:Indítás!
 
-Credits
 85:KaM Remake Készítõk
 86:Eredeti Knights & Merchants Készítõk
 87:PROGRAMOZÁS:
@@ -127,6 +119,3 @@ Credits
 89:TOVÁBBI GRAFIKA:
 90:TOVÁBBI FORDÍTÓK:
 91:KÜLÖN KÖSZÖNET:
-
-Mission
-92:Küldetés %d

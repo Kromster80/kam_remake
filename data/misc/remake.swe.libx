@@ -1,16 +1,15 @@
 
 MaxID:110
 
-KM_InterfaceMainMenu
- 1:Uppdrag avbrutet
- 2:Stadshandledning
- 3:Stridshandledning
- 4:En spelare
- 5:Kartredigerare
- 6:Spela upp senaste spelet
- 7:Spela över LAN
- 8:Spela över Internet
- 9:Logga in
+1:Uppdrag avbrutet
+2:Stadshandledning
+3:Stridshandledning
+4:En spelare
+5:Kartredigerare
+6:Spela upp senaste spelet
+7:Spela över LAN
+8:Spela över Internet
+9:Logga in
 10:Lösenord
 11:Starta uppdraget
 12:Titel
@@ -30,6 +29,7 @@ KM_InterfaceMainMenu
 26:Kontroller:
 27:Spelinställningar:
 28:Ljud:
+36:Stäng av
 29:Grafik:
 30:Ljusstyrka
 31:Helskärm
@@ -37,10 +37,9 @@ KM_InterfaceMainMenu
 33:Språk:
 34:Laddar... Var god vänta
 35:Ett problem uppstod!
-36:Stäng av
 37:Laddar ny lokal
+38:
 
-KM_InterfaceGamePlay
 39:Du vann!
 40:Fortsätt spela
 41:Seger!
@@ -56,34 +55,35 @@ KM_InterfaceGamePlay
 108:Spelarinfo
 109:Chat
 
-KM_Game
 48:Ett fel har uppstått under spelets gång. 
 49:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
+53:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
+98:Nätverksfel: 
+99:Error: Spelarnamnet får inte vara ingenting
+100:Uppkoppling misslyckades: %s
+101:Du har kopplats ner
 
-KM_Units
+92:Uppdrag %d
+
 50:Felplacerad gruva.
 51:Din fiskares stuga är för långt från vattnet.
 52:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 107:Dö
 
-KM_Unit1
-53:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
-
-KM_InterfaceMapEditor
 54:Terrängeditering
 55:Byplanering
 56:Visuella script
 57:Globala script
 58:Meny
 
-Create_LANLogin_Page
 59:Spelarnamn:
 60:Din IP-adress:
 61:Värds IP-adress:
 62:Skapa server
 63:Anslut
+102:Kopplar upp, var god vänta...
+103:Väntar på spelare:
 
-Create_Lobby_Page
 64:Spelarlista:
 65:Startplats:
 66:Lag:
@@ -92,6 +92,7 @@ Create_Lobby_Page
 69:Ping:
 70:Öppen
 71:AI-spelare
+97:Välj...
 72:Slumpad
 73:Inget
 74:Lag %d
@@ -101,24 +102,16 @@ Create_Lobby_Page
 78:Enskild karta
 79:Sparat spel
 80:Välj en karta...
+96:Välj ett sparat spel...
 81:Kartinfo:
-82:Avsluta sessionen
-83:Redo
-84:Börja!
 93:Spelare: 
 94:Läge: 
 95:Villkor: 
 110:Size:
-96:Välj ett sparat spel...
-97:Välj...
-98:Nätverksfel: 
-99:Error: Spelarnamnet får inte vara ingenting
-100:Uppkoppling misslyckades: %s
-101:Du har kopplats ner
-102:Kopplar upp, var god vänta...
-103:Väntar på spelare:
+82:Avsluta sessionen
+83:Redo
+84:Börja!
 
-Credits
 85:KaM Remakes skapare
 86:Original Knights & Merchants skapare
 87:PROGRAMMERIG:
@@ -126,6 +119,3 @@ Credits
 89:YTTERLIGARE GRAFIK:
 90:YTTERLIGARE ÖVERSÄTTNING:
 91:SPECIELLT TACK TILL:
-
-Mission
-92:Uppdrag %d

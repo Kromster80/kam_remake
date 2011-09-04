@@ -1,16 +1,15 @@
 
 MaxID:110
 
-KM_InterfaceMainMenu
- 1:Mission canceled
- 2:Town Tutorial
- 3:Battle Tutorial
- 4:Single Player
- 5:Map Editor
- 6:View last replay
- 7:Play over LAN
- 8:Play over Internet
- 9:Login
+1:Mission canceled
+2:Town Tutorial
+3:Battle Tutorial
+4:Single Player
+5:Map Editor
+6:View last replay
+7:Play over LAN
+8:Play over Internet
+9:Login
 10:Password
 11:Start Mission
 12:Title
@@ -30,6 +29,7 @@ KM_InterfaceMainMenu
 26:Controls:
 27:Gameplay:
 28:Sound:
+36:Disable
 29:Graphics:
 30:Brightness
 31:Fullscreen
@@ -37,11 +37,9 @@ KM_InterfaceMainMenu
 33:Language:
 34:Loading... Please wait
 35:An Error Has Occured!
-36:Disable
 37:Loading new locale
 38:Unknown
 
-KM_InterfaceGamePlay
 39:You've won!
 40:Continue playing
 41:Victory!
@@ -57,34 +55,35 @@ KM_InterfaceGamePlay
 108:Players info
 109:Chat
 
-KM_Game
 48:An error has occoured during gameplay.
 49:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
+53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
+98:Network error:
+99:Error: Player name must not be blank
+100:Connection failed: %s
+101:You have disconnected
 
-KM_Units
+92:Mission %d
+
 50:Mining from wrong spot
 51:Your fisherman's hut is too far away from the water.
 52:Your fisherman cannot catch any further fish in the nearby water bodies.
 107:Die
 
-KM_Unit1
-53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
-
-KM_InterfaceMapEditor
 54:Terrain editing
 55:Village planning
 56:Visual scripts
 57:Global scripting
 58:Menu
 
-Create_LANLogin_Page
 59:Player name:
 60:Your IP address:
 61:Host IP address:
 62:Create Server
 63:Join
+102:Connecting, please wait ...
+103:Waiting for players:
 
-Create_Lobby_Page
 64:Players list:
 65:Start location:
 66:Team:
@@ -93,6 +92,7 @@ Create_Lobby_Page
 69:Ping:
 70:Open
 71:AI Player
+97:Select...
 72:Random
 73:None
 74:Team %d
@@ -102,24 +102,16 @@ Create_Lobby_Page
 78:Single Map
 79:Saved Game
 80:Select a map...
+96:Select a save...
 81:Map info:
-82:Quit lobby
-83:Ready
-84:Start!
 93:Players: %d
 94:Mode:
 95:Conditions:
 110:Size:
-96:Select a save...
-97:Select...
-98:Network error:
-99:Error: Player name must not be blank
-100:Connection failed: %s
-101:You have disconnected
-102:Connecting, please wait ...
-103:Waiting for players:
+82:Quit lobby
+83:Ready
+84:Start!
 
-Credits
 85:KaM Remake Credits
 86:Original Knights & Merchants Credits
 87:PROGRAMMING:
@@ -127,6 +119,3 @@ Credits
 89:ADDITIONAL GRAPHICS:
 90:ADDITIONAL TRANSLATIONS:
 91:SPECIAL THANKS TO:
-
-Mission
-92:Mission %d

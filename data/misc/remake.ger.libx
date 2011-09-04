@@ -1,16 +1,15 @@
 
 MaxID:110
 
-KM_InterfaceMainMenu
- 1:Mission abgebrochen
- 2:Aufbau Tutorial
- 3:Kampf Tutorial
- 4:Einzelspieler
- 5:Karten-Editor
- 6:Letzten Replay anzeigen
- 7:Über Netzwerk spielen
- 8:Über Internet spielen
- 9:Login
+1:Mission abgebrochen
+2:Aufbau Tutorial
+3:Kampf Tutorial
+4:Einzelspieler
+5:Karten-Editor
+6:Letzten Replay anzeigen
+7:Über Netzwerk spielen
+8:Über Internet spielen
+9:Login
 10:Passwort
 11:Mission starten
 12:Titel
@@ -30,6 +29,7 @@ KM_InterfaceMainMenu
 26:Eingabe:
 27:Gameplay:
 28:Sound:
+36:Ausschalten
 29:Grafik:
 30:Helligkeit
 31:Vollbild
@@ -37,11 +37,9 @@ KM_InterfaceMainMenu
 33:Sprache:
 34:Lade... Bitte warten
 35:Ein Fehler ist aufgetreten!
-36:Ausschalten
 37:Loading new locale
 38:Unknown
 
-KM_InterfaceGamePlay
 39:Sie haben gewonnen!
 40:Weiterspielen
 41:Sieg!
@@ -57,34 +55,35 @@ KM_InterfaceGamePlay
 108:Players info
 109:Chat
 
-KM_Game
 48:Ein Fehler ist während des Spiels aufgetreten.
 49:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+53:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
+98:Netzwerkfehler:
+99:Error: Player name must not be blank
+100:Connection failed: %s
+101:You have disconnected
 
-KM_Units
+92:Mission %d
+
 50:Abbau an der falschen Stelle
 51:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
 52:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
 107:Die
 
-KM_Unit1
-53:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
-
-KM_InterfaceMapEditor
 54:Terrain berarbeiten
 55:Häuser bearbeiten
 56:Optische Skripts
 57:Globale Skripts
 58:Menü
 
-Create_LANLogin_Page
 59:Spielername:
 60:Ihre IP-Adresse:
 61:Host-IP-Adresse:
 62:Server erstellen
 63:Beitreten
+102:Connecting, please wait ...
+103:Waiting for players:
 
-Create_Lobby_Page
 64:Spielerliste:
 65:Start location:
 66:Team:
@@ -93,6 +92,7 @@ Create_Lobby_Page
 69:Ping:
 70:Open
 71:KI-Spieler
+97:Wähle...
 72:Random
 73:None
 74:Team %d
@@ -102,24 +102,16 @@ Create_Lobby_Page
 78:Einzelkarte
 79:Gespeichertes Spiel
 80:Wähle eine Karte...
+96:Wähle einen Speicherstand...
 81:Karteninfo:
-82:Lobby verlassen.
-83:Bereit!
-84:Start!
 93:Spieler: %d
 94:Modus:
 95:Bedingungen:
 110:Size:
-96:Wähle einen Speicherstand...
-97:Wähle...
-98:Netzwerkfehler:
-99:Error: Player name must not be blank
-100:Connection failed: %s
-101:You have disconnected
-102:Connecting, please wait ...
-103:Waiting for players:
+82:Lobby verlassen.
+83:Bereit!
+84:Start!
 
-Credits
 85:KaM Remake Credits
 86:Original Knights & Merchants Credits
 87:PROGRAMMING:
@@ -127,6 +119,3 @@ Credits
 89:ADDITIONAL GRAPHICS:
 90:ADDITIONAL TRANSLATIONS:
 91:SPECIAL THANKS TO:
-
-Mission
-92:Mission %d
