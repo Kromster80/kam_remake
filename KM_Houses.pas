@@ -117,7 +117,7 @@ type
 
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
-    function CheckResOrder(aID:byte):word;
+    function CheckResOrder(aID:byte):word; virtual;
     function PickRandomOrder:byte;
     function CheckResToBuild:boolean;
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); virtual; //override for School and etc..
@@ -125,7 +125,7 @@ type
     procedure ResAddToBuild(aResource:TResourceType);
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); virtual;
-    procedure ResEditOrder(aID:byte; Amount:integer);
+    procedure ResEditOrder(aID:byte; Amount:integer); virtual;
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
@@ -167,22 +167,31 @@ type
     procedure Paint; override; //Render all eaters
   end;
 
+
   { Marketplace }
   TKMHouseMarket = class(TKMHouse)
-  private
+  protected
     fResFrom, fResTo: TResourceType;
-    fCount: Word;
+    fResources:array[rt_Trunk..rt_Fish] of Word;
+    procedure AttemptExchange;
+    procedure SetResFrom(const Value: TResourceType);
+    procedure SetResTo(const Value: TResourceType);
   public
     //constructor Load(LoadStream:TKMemoryStream); override;
     //procedure Save(SaveStream:TKMemoryStream); override;
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
+
+    property ResFrom:TResourceType read fResFrom write SetResFrom;
+    property ResTo:TResourceType read fResTo write SetResTo;
+    function ExchangeRate(aResFrom, aResTo: TResourceType): Byte;
+
+    function CheckResIn(aResource:TResourceType):word; override;
+    function CheckResOrder(aID:byte):word; override;
     procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
-
-    property ResFrom:TResourceType read fResFrom;
-    property ResTo:TResourceType read fResTo;
-
-    procedure PlaceOrder(aResFrom, aResTo: TResourceType; aCount: Word);
-    function ExchangeRate(aResFrom, aResTo: TResourceType): Single;
+    procedure ResEditOrder(aID:byte; Amount:integer); override;
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
   end;
+
 
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
@@ -824,8 +833,8 @@ begin
   for i:=1 to 4 do
   if aResource = fResource.HouseDat[fHouseType].ResOutput[i] then
     begin
-      inc(fResourceOut[i],aCount);
-      fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
+      inc(fResourceOut[i], aCount);
+      fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, aResource, aCount);
     end;
 end;
 
@@ -881,7 +890,7 @@ end;
 { Edit production order as + / - }
 procedure TKMHouse.ResEditOrder(aID:byte; Amount:integer);
 begin
-  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID]+Amount,0,MAX_ORDER);
+  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID] + Amount, 0, MAX_ORDER);
 end;
 
 
@@ -1252,24 +1261,103 @@ end;
 
 
 { TKMHouseMarket }
-function TKMHouseMarket.ExchangeRate(aResFrom, aResTo: TResourceType): Single;
+function TKMHouseMarket.CheckResIn(aResource:TResourceType):word;
 begin
-  Result := 1; //We can use this for now
+  if aResource in [rt_Trunk..rt_Fish] then
+    Result := fResources[aResource]
+  else
+    Result := 0;
 end;
 
 
-//
+function TKMHouseMarket.CheckResOrder(aID: byte): word;
+begin
+  Result := fResourceOrder[aID];
+end;
+
+
+constructor TKMHouseMarket.Create(aHouseType: THouseType; PosX,PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+begin
+  inherited;
+
+  fResFrom := rt_None;
+  fResTo := rt_None;
+end;
+
+
+function TKMHouseMarket.ExchangeRate(aResFrom, aResTo: TResourceType): Byte;
+begin
+  Result := 2; //We can use this for now
+end;
+
+
 procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1);
 begin
-
+  inc(fResources[aResource], aCount);
+  AttemptExchange;
 end;
 
 
-procedure TKMHouseMarket.PlaceOrder(aResFrom, aResTo: TResourceType; aCount: Word);
+procedure TKMHouseMarket.AttemptExchange;
+var CountFrom, CountTo: Word;
 begin
-  fResFrom := aResFrom;
-  fResTo := aResTo;
-  fCount := aCount;
+  if (fResourceOrder[1] > 0) and (fResFrom <> rt_None) and (fResTo <> rt_None)
+  and (fResources[fResFrom] >= ExchangeRate(fResFrom, fResTo)) then
+  begin
+    //How much do we get
+    CountTo := (fResources[fResFrom] div Round(ExchangeRate(fResFrom, fResTo)));
+    //How much it will cost us
+    CountFrom := CountTo * ExchangeRate(fResFrom, fResTo);
+    
+    dec(fResources[fResFrom], CountFrom);
+    dec(fResourceOrder[1], CountFrom);
+
+    inc(fResources[fResTo], CountTo);
+    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, CountTo);
+  end;
+end;
+
+
+procedure TKMHouseMarket.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
+begin
+  Assert(aCount <= fResources[aResource]);
+
+  dec(fResources[aResource], aCount);
+end;
+
+
+procedure TKMHouseMarket.SetResFrom(const Value: TResourceType);
+begin
+  fResFrom := Value;
+  fResTo := rt_None;
+  fResourceOrder[1] := 0;
+end;
+
+
+procedure TKMHouseMarket.SetResTo(const Value: TResourceType);
+begin
+  fResTo := Value;
+  fResourceOrder[1] := 0;
+end;
+
+
+procedure TKMHouseMarket.ResEditOrder(aID:byte; Amount:integer);
+var Count: integer;
+begin
+  Inherited;
+
+  Count := fResourceOrder[1] - fResourceDeliveryCount[1];
+
+  if Count > 0 then
+    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Count, dt_Once, di_Norm)
+  else begin
+    fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
+    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, fResourceOrder[1], dt_Once, di_Norm)
+  end;
+
+  fResourceDeliveryCount[1] := fResourceOrder[1];
+
+  AttemptExchange;
 end;
 
 
@@ -1709,6 +1797,7 @@ begin
     ht_Swine:    T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_Stables:  T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_Inn:      T := Inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Marketplace:T := Inherited Add(TKMHouseMarket.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_School:   T := Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_Barracks: T := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_Store:    T := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
@@ -1887,6 +1976,7 @@ begin
       ht_Swine:    Inherited Add(TKMHouseSwineStable.Load(LoadStream));
       ht_Stables:  Inherited Add(TKMHouseSwineStable.Load(LoadStream));
       ht_Inn:      Inherited Add(TKMHouseInn.Load(LoadStream));
+      ht_Marketplace:Inherited Add(TKMHouseMarket.Load(LoadStream));
       ht_School:   Inherited Add(TKMHouseSchool.Load(LoadStream));
       ht_Barracks: Inherited Add(TKMHouseBarracks.Load(LoadStream));
       ht_Store:    Inherited Add(TKMHouseStore.Load(LoadStream));

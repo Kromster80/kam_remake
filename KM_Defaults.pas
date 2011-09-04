@@ -104,7 +104,7 @@ const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
-  RX7_SPRITE_COUNT = 26;  //Number of sprites to load for RX7 from the folder \Sprites\
+  RX7_SPRITE_COUNT = 27;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
@@ -280,7 +280,7 @@ const
 {Resources}
 type
   TResourceType = (
-    rt_None=50,  //Special resource types
+    rt_None,  //Special resource types
     rt_Trunk, rt_Stone, rt_Wood, rt_IronOre, rt_GoldOre,
     rt_Coal, rt_Steel, rt_Gold, rt_Wine, rt_Corn,
     rt_Bread, rt_Flour, rt_Leather, rt_Sausages, rt_Pig,
