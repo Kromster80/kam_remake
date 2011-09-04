@@ -1330,14 +1330,14 @@ procedure TKMHouseMarket.SetResFrom(const Value: TResourceType);
 begin
   fResFrom := Value;
   fResTo := rt_None;
-  fResourceOrder[1] := 0;
+  ResEditOrder(1, 0);
 end;
 
 
 procedure TKMHouseMarket.SetResTo(const Value: TResourceType);
 begin
   fResTo := Value;
-  fResourceOrder[1] := 0;
+  ResEditOrder(1, 0);
 end;
 
 
