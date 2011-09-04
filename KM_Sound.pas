@@ -141,8 +141,7 @@ const
     (WarriorVoice: ut_Arbaletman;   SelectID:1; DeathID:0), //ut_Lamberjack
     (WarriorVoice: ut_Pikeman;      SelectID:1; DeathID:0), //ut_Baker
     (WarriorVoice: ut_HorseScout;   SelectID:0; DeathID:2), //ut_Butcher
-    //todo: Use vagabond voice: (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
-    (WarriorVoice: ut_HorseScout;   SelectID:2; DeathID:0), //ut_Fisher
+    (WarriorVoice: ut_Horseman;     SelectID:2; DeathID:0), //ut_Fisher
     (WarriorVoice: ut_Cavalry;      SelectID:1; DeathID:1), //ut_Worker
     (WarriorVoice: ut_Hallebardman; SelectID:1; DeathID:1), //ut_StoneCutter
     (WarriorVoice: ut_Cavalry;      SelectID:3; DeathID:4), //ut_Smith

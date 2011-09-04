@@ -72,12 +72,12 @@ begin
                end;
     ut_Farmer: case GetActionType of
                  ua_Work:  if Step = 8 then fSoundLib.Play(sfx_CornCut,KMUnit.GetPosition,true);
-                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_CornSow,KMUnit.GetPosition,true,0.8);
+                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_CornSow,KMUnit.GetPosition,true,0.6);
                end;
     ut_StoneCutter: if GetActionType = ua_Work then
                            if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
     ut_WoodCutter: case GetActionType of
-                     ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_ChopTree,KMUnit.GetPosition,true)
+                     ua_Work: if (KMUnit.AnimStep mod Cycle = 3) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_ChopTree,KMUnit.GetPosition,true)
                      else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
                    end;
   end;
