@@ -1,9 +1,12 @@
 unit Unit1;
+{$IFDEF FPC}
+  {$Mode Delphi} {$H+}
+{$ENDIF}
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StrUtils, StdCtrls, Math, ExtCtrls;
 
 const
@@ -54,6 +57,7 @@ type
     IDLookup:array of integer;
     MaxID:integer;
     LastSelected:integer;
+    IgnoreChanges:boolean;
     procedure MemoChange(Sender: TObject);
 
     procedure Load(aMiscFolder:string; aTextLibraryFile:string);
@@ -199,7 +203,7 @@ const Size_Inc = 100;
 var
   myFile : TextFile;
   Line: string;
-  CenterPos:integer;
+  i,CenterPos:integer;
 begin
   AssignFile(myFile, aFileName);
   Reset(myFile);
@@ -223,6 +227,8 @@ begin
       MaxID := Math.Max(MaxID, Texts[TextsCount].ID);
       Texts[TextsCount].ConstName := Copy(Line,1,CenterPos-1);
       SetLength(Texts[TextsCount].Translations,TranslationCount+1);
+      for i:=1 to TranslationCount do
+        Texts[TextsCount].Translations[i] := '';
       //Reverse lookup for loading translations
       if Length(IDLookup) <= Texts[TextsCount].ID then
         SetLength(IDLookup,Texts[TextsCount].ID+Size_Inc);
@@ -296,15 +302,18 @@ end;
 
 
 procedure TForm1.ListBox1Click(Sender: TObject);
-var i:integer;
+var i,ID:integer;
 begin
+  IgnoreChanges := true;
   if TextsCount = 0 then exit;
-  EditConstName.Text := Texts[ListBox1.ItemIndex+1].ConstName;
-  LastSelected := ListBox1.ItemIndex;
-  if Texts[ListBox1.ItemIndex+1].ID <> -1 then
+  ID := ListBox1.ItemIndex+1;
+  EditConstName.Text := Texts[ID].ConstName;
+  LastSelected := ID-1;
+  IgnoreChanges := false;
+  if Texts[ID].ID <> -1 then
     for i:=1 to TranslationCount do
-      if Texts[ListBox1.ItemIndex+1].ID <> -1 then
-        TransMemos[i].Text := Texts[ListBox1.ItemIndex+1].Translations[i]
+      if Texts[ID].ID <> -1 then
+        TransMemos[i].Text := Texts[ID].Translations[i]
       else
         TransMemos[i].Text := '';
 end;
@@ -326,6 +335,7 @@ end;
 procedure TForm1.EditConstNameChange(Sender: TObject);
 var i:integer; ID:string;
 begin
+  if IgnoreChanges then exit;
   i := ListBox1.ItemIndex+1;
   Texts[i].ConstName := EditConstName.Text;
   if Texts[i].ID = -1 then
@@ -387,7 +397,7 @@ begin
     Texts[i] := Texts[i+1];
   end;
   dec(TextsCount);
-  ListBox1.DeleteSelected;
+  ListBox1.Items.Delete(ListBox1.ItemIndex);
   ListBox1.ItemIndex := max(0,ID-2);
 end;
 

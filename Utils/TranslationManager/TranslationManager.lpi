@@ -1,0 +1,248 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <MainUnit Value="0"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1" Active="Default">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="15">
+      <Unit0>
+        <Filename Value="TranslationManager.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TranslationManager"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="20"/>
+        <UsageCount Value="22"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="Unit1.pas"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="184"/>
+        <CursorPos X="15" Y="187"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="C:\lazarus\lcl\include\customedit.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="453"/>
+        <CursorPos X="1" Y="470"/>
+        <UsageCount Value="10"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="C:\lazarus\lcl\include\wincontrol.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3045"/>
+        <CursorPos X="1" Y="3060"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="C:\lazarus\lcl\include\control.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="4171"/>
+        <CursorPos X="1" Y="4188"/>
+        <UsageCount Value="10"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="C:\lazarus\lcl\include\customlistbox.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="602"/>
+        <CursorPos X="1" Y="602"/>
+        <UsageCount Value="10"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="C:\lazarus\lcl\stdctrls.pp"/>
+        <UnitName Value="StdCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="561"/>
+        <CursorPos X="14" Y="576"/>
+        <UsageCount Value="10"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32proc.pp"/>
+        <UnitName Value="win32proc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1105"/>
+        <CursorPos X="1" Y="1120"/>
+        <UsageCount Value="10"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32winapi.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1893"/>
+        <CursorPos X="9" Y="1917"/>
+        <UsageCount Value="10"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="C:\lazarus\lcl\include\promptdialog.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="477"/>
+        <CursorPos X="1" Y="492"/>
+        <UsageCount Value="10"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wsstdctrls.pp"/>
+        <UnitName Value="Win32WSStdCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1211"/>
+        <CursorPos X="1" Y="1231"/>
+        <UsageCount Value="10"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wscontrols.pp"/>
+        <UnitName Value="Win32WSControls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="491"/>
+        <CursorPos X="1" Y="515"/>
+        <UsageCount Value="10"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\lazarus\lcl\lclproc.pas"/>
+        <UnitName Value="LCLProc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="4432"/>
+        <CursorPos X="1" Y="4456"/>
+        <UsageCount Value="10"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="C:\lazarus\fpc\2.4.2\source\rtl\inc\ustringh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="90"/>
+        <CursorPos X="10" Y="105"/>
+        <UsageCount Value="10"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="C:\lazarus\fpc\2.4.2\source\rtl\inc\ustrings.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2290"/>
+        <CursorPos X="10" Y="2299"/>
+        <UsageCount Value="10"/>
+      </Unit14>
+    </Units>
+    <JumpHistory Count="13" HistoryIndex="12">
+      <Position1>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="310" Column="1" TopLine="299"/>
+      </Position1>
+      <Position2>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="320" Column="1" TopLine="299"/>
+      </Position2>
+      <Position3>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="308" Column="1" TopLine="299"/>
+      </Position3>
+      <Position4>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="399" Column="54" TopLine="389"/>
+      </Position4>
+      <Position5>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="339" Column="8" TopLine="336"/>
+      </Position5>
+      <Position6>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="309" Column="25" TopLine="293"/>
+      </Position6>
+      <Position7>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="312" Column="34" TopLine="332"/>
+      </Position7>
+      <Position8>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="336" Column="55" TopLine="332"/>
+      </Position8>
+      <Position9>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="339" Column="64" TopLine="332"/>
+      </Position9>
+      <Position10>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="309" Column="28" TopLine="303"/>
+      </Position10>
+      <Position11>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="336" Column="30" TopLine="314"/>
+      </Position11>
+      <Position12>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="337" Column="27" TopLine="314"/>
+      </Position12>
+      <Position13>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="335" Column="36" TopLine="314"/>
+      </Position13>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="TranslationManager"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
