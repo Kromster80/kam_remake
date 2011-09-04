@@ -1894,10 +1894,7 @@ begin
     if M.ResTo = rt_None then
       M.ResTo := TResourceType(TKMButtonFlat(Sender).Tag)
     else
-    begin
       M.ResFrom := TResourceType(TKMButtonFlat(Sender).Tag);
-      M.ResTo := rt_None;
-    end;
 end;
 
 
@@ -2286,15 +2283,17 @@ end;
 
 
 procedure TKMGamePlayInterface.Market_Fill(Sender:TObject);
-var M: TKMHouseMarket; i:integer;
+var M: TKMHouseMarket; i,Tmp:integer;
 begin
   if (fShownHouse = nil) or not (fShownHouse is TKMHouseMarket) then Exit;
 
   M := TKMHouseMarket(fShownHouse);
 
-
   for i:=0 to STORE_RES_COUNT-1 do
-    Button_Market[i].Caption := IntToStr(M.CheckResIn(TResourceType(Button_Market[i].Tag)));
+  begin
+    Tmp := M.CheckResIn(TResourceType(Button_Market[i].Tag));
+    Button_Market[i].Caption := IfThen(Tmp=0, '-', IntToStr(Tmp));
+  end;
 
   Image_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 30;
   Image_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 30 + 8;

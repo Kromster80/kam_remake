@@ -1308,10 +1308,9 @@ begin
     CountTo := (fResources[fResFrom] div Round(ExchangeRate(fResFrom, fResTo)));
     //How much it will cost us
     CountFrom := CountTo * ExchangeRate(fResFrom, fResTo);
-    
-    dec(fResources[fResFrom], CountFrom);
-    dec(fResourceOrder[1], CountFrom);
 
+    dec(fResources[fResFrom], CountFrom);
+    dec(fResourceOrder[1], CountTo);
     inc(fResources[fResTo], CountTo);
     fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, CountTo);
   end;
@@ -1344,6 +1343,10 @@ end;
 procedure TKMHouseMarket.ResEditOrder(aID:byte; Amount:integer);
 var Count: integer;
 begin
+  //Clear order if there's nothing selected
+  if (fResFrom = rt_None) or (fResTo = rt_None) then 
+    Amount := 0;
+  
   Inherited;
 
   Count := fResourceOrder[1] - fResourceDeliveryCount[1];
