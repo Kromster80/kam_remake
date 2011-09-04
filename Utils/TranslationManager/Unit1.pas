@@ -310,13 +310,12 @@ begin
   ID := ListBox1.ItemIndex+1;
   EditConstName.Text := Texts[ID].ConstName;
   LastSelected := ID-1;
+  for i:=1 to TranslationCount do
+    if Texts[ID].ID <> -1 then
+      TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(Texts[ID].Translations[i])
+    else
+      TransMemos[i].Text := '';
   IgnoreChanges := false;
-  if Texts[ID].ID <> -1 then
-    for i:=1 to TranslationCount do
-      if Texts[ID].ID <> -1 then
-        TransMemos[i].Text := {$IFDEF FPC}AnsiToUTF8{$ENDIF}(Texts[ID].Translations[i])
-      else
-        TransMemos[i].Text := '';
 end;
 
 procedure TForm1.btnReorderListClick(Sender: TObject);
@@ -335,21 +334,22 @@ begin
 end;
 
 procedure TForm1.EditConstNameChange(Sender: TObject);
-var i:integer; ID:string;
+var i:integer;
 begin
   if IgnoreChanges then exit;
   i := ListBox1.ItemIndex+1;
+  if Texts[i].ID = -1 then exit;
   Texts[i].ConstName := EditConstName.Text;
-  if Texts[i].ID = -1 then
-    ID := '' else ID := IntToStr(Texts[i].ID)+': ';
-  ListBox1.Items[ListBox1.ItemIndex] := ID+Texts[i].ConstName;
+  ListBox1.Items[ListBox1.ItemIndex] := IntToStr(Texts[i].ID)+': '+Texts[i].ConstName;
 end;
 
 
 procedure TForm1.MemoChange(Sender: TObject);
 var i,t:integer;
 begin
+  if IgnoreChanges then exit;
   i := ListBox1.ItemIndex+1;
+  if Texts[i].ID = -1 then exit;
   t := TMemo(Sender).Tag;
   Texts[i].Translations[t] := {$IFDEF FPC}Utf8ToAnsi{$ENDIF}(TMemo(Sender).Text);
 end;
@@ -404,6 +404,7 @@ begin
   dec(TextsCount);
   ListBox1.Items.Delete(ListBox1.ItemIndex);
   ListBox1.ItemIndex := max(0,ID-2);
+  ListBox1Click(Listbox1); //Force select the new item
 end;
 
 procedure TForm1.btnInsertSeparatorClick(Sender: TObject);
@@ -425,6 +426,7 @@ begin
 
   ListBox1.Items.Insert(ID-1, '');
   ListBox1.ItemIndex := ListBox1.ItemIndex+1;
+  ListBox1Click(Listbox1); //Force select the new item
 end;
 
 procedure TForm1.btnMoveUpClick(Sender: TObject);
