@@ -418,8 +418,8 @@ const
     )
     );
 
-  //These tables are used to convert between KaM script IDs and Remake ebums
-  HouseDatCount = 29;
+  //These tables are used to convert between KaM script IDs and Remake enums
+  HouseDatCount = 30;
   //KaM scripts and HouseDat address houses in this order
   HouseKaMType: array[0..HouseDatCount-1] of THouseType = (
   ht_Sawmill, ht_IronSmithy, ht_WeaponSmithy, ht_CoalMine, ht_IronMine,
@@ -427,7 +427,7 @@ const
   ht_ArmorSmithy, ht_Store, ht_Stables, ht_School, ht_Quary,
   ht_Metallurgists, ht_Swine, ht_WatchTower, ht_TownHall, ht_WeaponWorkshop,
   ht_ArmorWorkshop, ht_Barracks, ht_Mill, ht_SiegeWorkshop, ht_Butchers,
-  ht_Tannery, ht_None, ht_Inn, ht_Wineyard);
+  ht_Tannery, ht_None, ht_Inn, ht_Wineyard, ht_Marketplace);
 
   //THouseType corresponds to this index in KaM scripts and libs
   //KaM scripts are 0 based, so we must use HouseKaMOrder[H]-1 in script usage. Other cases are 1 based.
@@ -661,7 +661,7 @@ begin
     S.Read(fBeastAnim, SizeOf(fBeastAnim){30*70}); //Swine&Horses animations
 
     //Read the records one by one because we need to reorder them and skip one in the middle
-    for i:=0 to HouseDatCount-1 do
+    for i:=0 to 28 do //KaM has only 28 houses
     if HouseKaMType[i] <> ht_None then
       fItems[HouseKaMType[i]].LoadFromStream(S)
     else

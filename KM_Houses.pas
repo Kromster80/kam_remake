@@ -120,7 +120,7 @@ type
     function CheckResOrder(aID:byte):word;
     function PickRandomOrder:byte;
     function CheckResToBuild:boolean;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
@@ -167,6 +167,23 @@ type
     procedure Paint; override; //Render all eaters
   end;
 
+  { Marketplace }
+  TKMHouseMarket = class(TKMHouse)
+  private
+    fResFrom, fResTo: TResourceType;
+    fCount: Word;
+  public
+    //constructor Load(LoadStream:TKMemoryStream); override;
+    //procedure Save(SaveStream:TKMemoryStream); override;
+    procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
+
+    property ResFrom:TResourceType read fResFrom;
+    property ResTo:TResourceType read fResTo;
+
+    procedure PlaceOrder(aResFrom, aResTo: TResourceType; aCount: Word);
+    function ExchangeRate(aResFrom, aResTo: TResourceType): Single;
+  end;
+
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
   private
@@ -179,7 +196,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType; aCount:byte); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
@@ -198,7 +215,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
     function CheckResIn(aResource:TResourceType):word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
     function CanEquip(aUnitType: TUnitType):boolean;
@@ -214,7 +231,7 @@ type
     NotAcceptFlag:array[rt_Trunk..rt_Fish]of boolean;
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
-    procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
     function CheckResIn(aResource:TResourceType):word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -727,10 +744,10 @@ end;
 function TKMHouse.CheckResIn(aResource:TResourceType):word;
 var i:integer;
 begin
-  Result:=0;
+  Result := 0;
   for i:=1 to 4 do
-  if (aResource = fResource.HouseDat[fHouseType].ResInput[i])or(aResource=rt_All) then
-    inc(Result,fResourceIn[i]);
+  if (aResource = fResource.HouseDat[fHouseType].ResInput[i]) or (aResource = rt_All) then
+    inc(Result, fResourceIn[i]);
 end;
 
 
@@ -738,10 +755,10 @@ end;
 function TKMHouse.CheckResOut(aResource:TResourceType):byte;
 var i:integer;
 begin
-  Result:=0;
+  Result := 0;
   for i:=1 to 4 do
-  if (aResource = fResource.HouseDat[fHouseType].ResOutput[i])or(aResource=rt_All) then
-    inc(Result,fResourceOut[i]);
+  if (aResource = fResource.HouseDat[fHouseType].ResOutput[i]) or (aResource = rt_All) then
+    inc(Result, fResourceOut[i]);
 end;
 
 
@@ -789,19 +806,14 @@ end;
 //todo: Store/Barracks/Market don't really have an In/Out separation. The code enforcing it looks just confusing and behaves unexpected
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
-procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
+procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:word=1);
 var i:integer;
 begin
-  if aResource=rt_None then exit;
-  if fResource.HouseDat[fHouseType].ResInput[1] = rt_All then
-    TKMHouseStore(Self).AddMultiResource(aResource, aCount)
-  else
-  if fResource.HouseDat[fHouseType].ResInput[1] = rt_Warfare then
-    TKMHouseBarracks(Self).AddMultiResource(aResource, aCount)
-  else
-    for i:=1 to 4 do
+  Assert(aResource <> rt_None);
+
+  for i:=1 to 4 do
     if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
-      inc(fResourceIn[i],aCount);
+      inc(fResourceIn[i], aCount);
 end;
 
 
@@ -1239,6 +1251,28 @@ begin
 end;
 
 
+{ TKMHouseMarket }
+function TKMHouseMarket.ExchangeRate(aResFrom, aResTo: TResourceType): Single;
+begin
+  Result := 1; //We can use this for now
+end;
+
+
+//
+procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1);
+begin
+
+end;
+
+
+procedure TKMHouseMarket.PlaceOrder(aResFrom, aResTo: TResourceType; aCount: Word);
+begin
+  fResFrom := aResFrom;
+  fResTo := aResTo;
+  fCount := aCount;
+end;
+
+
 { TKMHouseSchool }
 constructor TKMHouseSchool.Create(aHouseType: THouseType; PosX, PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 var i:integer;
@@ -1276,10 +1310,13 @@ begin
 end;
 
 
-procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
+//Add resource as usual and initiate unit training
+procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:word=1);
 begin
   Inherited;
-  if UnitWIP=nil then StartTrainingUnit;
+
+  if UnitWIP = nil then
+    StartTrainingUnit;
 end;
 
 
@@ -1385,7 +1422,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.AddMultiResource(aResource:TResourceType; const aCount:word=1);
+procedure TKMHouseStore.ResAddToIn(aResource:TResourceType; const aCount:word=1);
 var i:TResourceType;
 begin
   case aResource of
@@ -1432,7 +1469,7 @@ begin
       ApplyCheat := ApplyCheat and (NotAcceptFlag[i] = boolean(CheatStorePattern[i]));
 
     if ApplyCheat and (aRes = rt_Arbalet) then begin
-      AddMultiResource(rt_All, 10);
+      ResAddToIn(rt_All, 10);
       exit;
     end;
     if ApplyCheat and (aRes = rt_Horse) and not fGame.MultiplayerMode then begin
@@ -1496,7 +1533,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; const aCount:word=1);
+procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word=1);
 var i:TResourceType;
 begin
   case aResource of
@@ -1504,7 +1541,7 @@ begin
                   ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
     rt_Shield..
     rt_Horse:   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-    else        raise ELocError.Create('Cant''t add '+fResource.Resources[aResource].Name, GetPosition);
+    else        raise ELocError.Create('Cant''t add ' + fResource.Resources[aResource].Name, GetPosition);
   end;
 end;
 

@@ -48,6 +48,7 @@ type
     procedure Create_Quit_Page;
     procedure Create_Unit_Page;
     procedure Create_House_Page;
+    procedure Create_Market_Page;
     procedure Create_Store_Page;
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
@@ -60,6 +61,8 @@ type
     procedure House_RepairToggle(Sender:TObject);
     procedure House_WareDeliveryToggle(Sender:TObject);
     procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
+    procedure House_MarketCount(Sender:TObject);
+    procedure House_MarketSelect(Sender:TObject);
     procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
     procedure House_SchoolUnitRemove(Sender:TObject);
     procedure House_StoreAcceptFlag(Sender:TObject);
@@ -95,6 +98,7 @@ type
     procedure Chat_Post(Sender:TObject; Key:word);
     procedure Chat_Close(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
+    procedure Market_Fill(Sender:TObject);
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
@@ -239,6 +243,11 @@ type
       ResRow_Common_Resource:array[1..4]of TKMResourceRow; //4 bars is the maximum
       ResRow_Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
       ResRow_Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
+    Panel_HouseMarket:TKMPanel;
+      Button_Market:array[0..STORE_RES_COUNT-1]of TKMButtonFlat;
+      Image_Market_From, Image_Market_To: TKMImage;
+      ResRow_Market_In: TKMResourceRow;
+      ResRow_Market_Out: TKMResourceOrderRow;
     Panel_HouseStore:TKMPanel;
       Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
       Image_Store_Accept:array[1..STORE_RES_COUNT]of TKMImage;
@@ -511,7 +520,8 @@ begin
   //Now process all other kinds of pages
   if (Sender=Panel_Unit) or (Sender=Panel_House)
   or (Sender=Panel_House_Common) or (Sender=Panel_House_School)
-  or (Sender=Panel_HouseBarracks) or (Sender=Panel_HouseStore) then
+  or (Sender=Panel_HouseMarket) or (Sender=Panel_HouseBarracks)
+  or (Sender=Panel_HouseStore) then
     TKMPanel(Sender).Show;
 end;
 
@@ -638,6 +648,7 @@ begin
   Create_Unit_Page;
 
   Create_House_Page;
+    Create_Market_Page;
     Create_Store_Page;
     Create_School_Page;
     Create_Barracks_Page;
@@ -1252,10 +1263,10 @@ begin
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House:=TKMLabel.Create(Panel_House,100,14,100,30,'',fnt_Outline,kaCenter);
-    Button_House_Goods:=TKMButton.Create(Panel_House,9,42,30,30,37);
+    Button_House_Goods:=TKMButton.Create(Panel_House,8,42,30,30,37);
     Button_House_Goods.OnClick := House_WareDeliveryToggle;
     Button_House_Goods.Hint := fTextLibrary.GetTextString(249);
-    Button_House_Repair:=TKMButton.Create(Panel_House,39,42,30,30,40);
+    Button_House_Repair:=TKMButton.Create(Panel_House,38,42,30,30,40);
     Button_House_Repair.OnClick := House_RepairToggle;
     Button_House_Repair.Hint := fTextLibrary.GetTextString(250);
     Image_House_Logo:=TKMImage.Create(Panel_House,68,41,32,32,338);
@@ -1294,6 +1305,33 @@ begin
         ResRow_Costs[i] := TKMCostsRow.Create(Panel_House_Common, 8,22,180,20);
         ResRow_Costs[i].RxID := 4;
       end;
+end;
+
+
+{Market page}
+procedure TKMGamePlayInterface.Create_Market_Page;
+var i:integer;
+begin
+  Panel_HouseMarket := TKMPanel.Create(Panel_House,0,76,200,400);
+    for i:=0 to STORE_RES_COUNT-1 do
+    begin
+      Button_Market[i] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(i mod 6)*30,19+(i div 6)*30,26,26,0);
+      Button_Market[i].TexID := fResource.Resources[StoreResType[i+1]].GUIIcon;
+      Button_Market[i].Hint := fResource.Resources[StoreResType[i+1]].Name;
+      Button_Market[i].Tag := Byte(StoreResType[i+1]);
+      Button_Market[i].OnClick := House_MarketSelect;
+
+      Image_Market_From := TKMImage.Create(Panel_HouseMarket, 0, 0, 12, 12, 49);
+      Image_Market_To := TKMImage.Create(Panel_HouseMarket, 0, 0, 12, 12, 49);
+
+      TKMLabel.Create(Panel_HouseMarket,100,165+6,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
+      TKMLabel.Create(Panel_HouseMarket,100,215+6,100,30,fTextLibrary.GetTextString(229)+' (x1):',fnt_Grey,kaCenter);
+
+      ResRow_Market_In := TKMResourceRow.Create(Panel_HouseMarket, 8,190,180,20);
+      ResRow_Market_In.RxID := 4;
+      ResRow_Market_Out := TKMResourceOrderRow.Create(Panel_HouseMarket, 8,240,180,20);
+      ResRow_Market_Out.RxID := 4;
+    end;
 end;
 
 
@@ -1362,44 +1400,44 @@ end;
 procedure TKMGamePlayInterface.Create_Barracks_Page;
 var i:integer;
 begin
-    Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
-      for i:=1 to BARRACKS_RES_COUNT do
-      begin
-        Button_Barracks[i] := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
-        Button_Barracks[i].TexOffsetX := 1;
-        Button_Barracks[i].TexOffsetY := 1;
-        Button_Barracks[i].CapOffsetY := 2;
-        Button_Barracks[i].HideHighlight := True;
-        Button_Barracks[i].TexID := fResource.Resources[BarracksResType[i]].GUIIcon;
-        Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Name;
-      end;
+  Panel_HouseBarracks:=TKMPanel.Create(Panel_House,0,76,200,400);
+    for i:=1 to BARRACKS_RES_COUNT do
+    begin
+      Button_Barracks[i] := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,0);
+      Button_Barracks[i].TexOffsetX := 1;
+      Button_Barracks[i].TexOffsetY := 1;
+      Button_Barracks[i].CapOffsetY := 2;
+      Button_Barracks[i].HideHighlight := True;
+      Button_Barracks[i].TexID := fResource.Resources[BarracksResType[i]].GUIIcon;
+      Button_Barracks[i].Hint := fResource.Resources[BarracksResType[i]].Name;
+    end;
 
-      Button_BarracksRecruit := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((BARRACKS_RES_COUNT)mod 6)*31,8+((BARRACKS_RES_COUNT)div 6)*42,28,38,0);
-      Button_BarracksRecruit.TexOffsetX := 1;
-      Button_BarracksRecruit.TexOffsetY := 1;
-      Button_BarracksRecruit.CapOffsetY := 2;
-      Button_BarracksRecruit.HideHighlight := True;
-      Button_BarracksRecruit.TexID := fResource.UnitDat[ut_Recruit].GUIIcon;
-      Button_BarracksRecruit.Hint := fResource.UnitDat[ut_Recruit].UnitName;
+    Button_BarracksRecruit := TKMButtonFlat.Create(Panel_HouseBarracks, 8+((BARRACKS_RES_COUNT)mod 6)*31,8+((BARRACKS_RES_COUNT)div 6)*42,28,38,0);
+    Button_BarracksRecruit.TexOffsetX := 1;
+    Button_BarracksRecruit.TexOffsetY := 1;
+    Button_BarracksRecruit.CapOffsetY := 2;
+    Button_BarracksRecruit.HideHighlight := True;
+    Button_BarracksRecruit.TexID := fResource.UnitDat[ut_Recruit].GUIIcon;
+    Button_BarracksRecruit.Hint := fResource.UnitDat[ut_Recruit].UnitName;
 
-      Label_Barracks_Unit:=TKMLabel.Create(Panel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
+    Label_Barracks_Unit:=TKMLabel.Create(Panel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
 
-      Image_Barracks_Left :=TKMImage.Create(Panel_HouseBarracks,  8,116,54,80,535);
-      Image_Barracks_Left.Disable;
-      Image_Barracks_Train:=TKMImage.Create(Panel_HouseBarracks, 70,116,54,80,536);
-      Image_Barracks_Right:=TKMImage.Create(Panel_HouseBarracks,132,116,54,80,537);
-      Image_Barracks_Right.Disable;
+    Image_Barracks_Left :=TKMImage.Create(Panel_HouseBarracks,  8,116,54,80,535);
+    Image_Barracks_Left.Disable;
+    Image_Barracks_Train:=TKMImage.Create(Panel_HouseBarracks, 70,116,54,80,536);
+    Image_Barracks_Right:=TKMImage.Create(Panel_HouseBarracks,132,116,54,80,537);
+    Image_Barracks_Right.Disable;
 
-      Button_Barracks_Left :=TKMButton.Create(Panel_HouseBarracks,  8,226,54,40,35);
-      Button_Barracks_Train:=TKMButton.Create(Panel_HouseBarracks, 70,226,54,40,42);
-      Button_Barracks_Right:=TKMButton.Create(Panel_HouseBarracks,132,226,54,40,36);
-      Button_Barracks_Left.OnClickEither:=House_BarracksUnitChange;
-      Button_Barracks_Train.OnClickEither:=House_BarracksUnitChange;
-      Button_Barracks_Right.OnClickEither:=House_BarracksUnitChange;
-      Button_Barracks_Left.Hint :=fTextLibrary.GetTextString(237);
-      Button_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
-      Button_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
-      Button_Barracks_Train.Disable; //Unimplemented yet
+    Button_Barracks_Left :=TKMButton.Create(Panel_HouseBarracks,  8,226,54,40,35);
+    Button_Barracks_Train:=TKMButton.Create(Panel_HouseBarracks, 70,226,54,40,42);
+    Button_Barracks_Right:=TKMButton.Create(Panel_HouseBarracks,132,226,54,40,36);
+    Button_Barracks_Left.OnClickEither:=House_BarracksUnitChange;
+    Button_Barracks_Train.OnClickEither:=House_BarracksUnitChange;
+    Button_Barracks_Right.OnClickEither:=House_BarracksUnitChange;
+    Button_Barracks_Left.Hint :=fTextLibrary.GetTextString(237);
+    Button_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
+    Button_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
+    Button_Barracks_Train.Disable; //Unimplemented yet
 end;
 
 
@@ -1615,6 +1653,12 @@ begin
   SwitchPage(Panel_House);
 
   case Sender.HouseType of
+    ht_Marketplace:
+        begin
+          Market_Fill(nil);
+          SwitchPage(Panel_HouseMarket);
+        end;
+
     ht_Store:
         begin
           Store_Fill(nil);
@@ -1826,6 +1870,43 @@ begin
     true:   Button_House_Goods.TexID := 37;
     false:  Button_House_Goods.TexID := 38;
   end;
+end;
+
+
+procedure TKMGamePlayInterface.House_MarketCount(Sender: TObject);
+var Rate: Single;
+begin
+  if (fPlayers.Selected = nil) then Exit;
+  if not (fPlayers.Selected is TKMHouseMarket) then Exit;
+
+  Rate := TKMHouseMarket(fPlayers.Selected).ExchangeRate(TResourceType(Image_Market_From.Tag), TResourceType(Image_Market_To.Tag));
+
+  //if Sender = TradeRow_Market.OrderRem then
+  //if Sender = TradeRow_Market.OrderAdd then
+
+//  if Sender = Button_Market_Add then
+//    Label_Market_Count.Tag := Main(Label_Market_Count.Tag + 1*Rate, );
+//  if Sender = Button_Market_Rem then
+//    Label_Market_Count.Tag := Label_Market_Count.Tag - 1;
+
+
+//    Label_Market_Count.Caption :=
+end;
+
+
+procedure TKMGamePlayInterface.House_MarketSelect(Sender: TObject);
+var Res: TResourceType;
+begin
+  Image_Market_From.Left := TKMButtonFlat(Sender).Left;
+  Image_Market_From.Top := TKMButtonFlat(Sender).Top;
+
+  Res := TResourceType(TKMButtonFlat(Sender).Tag);
+
+  ResRow_Market_In.TexID := fResource.Resources[Res].GUIIcon;
+  ResRow_Market_In.Caption := fResource.Resources[Res].Name;
+
+  ResRow_Market_Out.TexID := fResource.Resources[Res].GUIIcon;
+  ResRow_Market_Out.Caption := fResource.Resources[Res].Name;
 end;
 
 
@@ -2193,6 +2274,23 @@ begin
     Image_Message[i].Enabled := InRange(i,1,fMessageList.Count); //Disable and hide at once for safety
     Image_Message[i].Visible := InRange(i,1,fMessageList.Count);
   end;
+end;
+
+
+procedure TKMGamePlayInterface.Market_Fill(Sender:TObject);
+var M: TKMHouseMarket;
+begin
+  if fPlayers.Selected=nil then Exit;
+  if not (fPlayers.Selected is TKMHouseMarket) then Exit;
+
+  M := TKMHouseMarket(fPlayers.Selected);
+
+  
+
+  ResRow_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
+  ResRow_Market_In.Caption := fResource.Resources[M.ResFrom].Name;
+  ResRow_Market_Out.TexID := fResource.Resources[M.ResTo].GUIIcon;
+  ResRow_Market_Out.Caption := fResource.Resources[M.ResTo].Name;
 end;
 
 
@@ -2922,6 +3020,8 @@ procedure TKMGamePlayInterface.Paint;
 begin
   MyControls.Paint;
 end;
+
+
 
 
 end.

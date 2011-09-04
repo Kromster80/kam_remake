@@ -411,6 +411,27 @@ type
   end;
 
 
+  {Resource trade bar}
+  TKMResourceTradeRow = class(TKMControl)
+  private
+    fBevel1,fBevel2:TKMBevel;
+    fOrderAdd:TKMButton;
+    fOrderLab:TKMLabel;
+    fOrderRem:TKMButton;
+    procedure SetVisible(aValue:boolean); override;
+  public
+    RxID: Byte;
+    TexID1, TexID2: Word;
+    Caption1, Caption2: String;
+    ResCount1, ResCount2: integer;
+    OrderCount:word;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    property OrderAdd:TKMButton read fOrderAdd;
+    property OrderRem:TKMButton read fOrderRem;
+    procedure Paint; override;
+  end;
+
+
   {Production cost bar}
   TKMCostsRow = class(TKMControl)
   public
@@ -1767,6 +1788,51 @@ begin
   fRenderUI.WriteText(Left + 4, Top + 3, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxId, TexID);
+end;
+
+
+{ TKMResourceTradeRow }
+constructor TKMResourceTradeRow.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: integer);
+var Center: Word;
+begin
+  Center := (aWidth - 68) div 2;
+  fBevel1 := TKMBevel.Create(aParent, aLeft, aTop, Center - 2, aHeight);
+  fBevel2 := TKMBevel.Create(aParent, Center + 68, aTop, Center - 2, aHeight);
+
+  Inherited;
+
+  fOrderRem := TKMButton.Create(aParent, Center + aLeft, aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
+  fOrderLab := TKMLabel.Create(aParent, Center + aLeft+33, aTop+4,0,0,'',fnt_Grey,kaCenter);
+  fOrderAdd := TKMButton.Create(aParent, Center + aLeft+46, aTop+2,20,aHeight,'+',fnt_Metal, bsGame);
+end;
+
+
+procedure TKMResourceTradeRow.SetVisible(aValue: boolean);
+begin
+  Inherited;
+  fOrderRem.Visible := fVisible;
+  fOrderLab.Visible := fVisible;
+  fOrderAdd.Visible := fVisible;
+end;
+
+
+procedure TKMResourceTradeRow.Paint;
+var i:integer;
+begin
+  Inherited;
+  fOrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
+  fOrderLab.Top := fTop + 4;
+  fOrderAdd.Top := fTop;
+
+  fRenderUI.WritePicture(fBevel1.Left, Top+1, RxId, TexID1);
+  fRenderUI.WritePicture(fBevel2.Left, Top+1, RxId, TexID2);
+
+  fOrderLab.Caption := inttostr(OrderCount);
+  fRenderUI.WriteText(fBevel1.Left + 4, Top + 3, Caption1, fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(fBevel2.Left + 4, Top + 3, Caption2, fnt_Game, kaLeft, $FFE0E0E0);
+
+//  for i:=1 to ResourceCount do
+//    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxId, TexID);
 end;
 
 

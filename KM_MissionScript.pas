@@ -593,7 +593,7 @@ begin
                           Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
                           SH := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1));
                           if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
-                            SH.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
+                            SH.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_AddWareToAll:    begin
                           Qty := P[1];
@@ -603,7 +603,7 @@ begin
                           begin
                             SH := TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
                             if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
-                              SH.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
+                              SH.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                           end;
                         end;
     ct_AddWareToSecond: if fLastPlayer >=0 then
@@ -613,7 +613,7 @@ begin
                           Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
                           SH:=TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 2));
                           if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
-                            SH.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
+                            SH.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_AddWeapon:       if fLastPlayer >=0 then
                         begin
@@ -622,7 +622,7 @@ begin
                           Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
                           B := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks, 1));
                           if (B<>nil) and (ResourceKaMIndex[P[0]] in [rt_Shield..rt_Horse]) then
-                            B.AddMultiResource(ResourceKaMIndex[P[0]], Qty);
+                            B.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_BlockHouse:      if fLastPlayer >=0 then
                         begin
