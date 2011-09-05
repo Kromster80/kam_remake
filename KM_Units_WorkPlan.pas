@@ -16,13 +16,13 @@ type
   public
     HasToWalk:boolean;
     Loc:TKMPoint;
-    WalkTo:TUnitActionType;
-    WorkType:TUnitActionType;
+    ActionWalkTo:TUnitActionType;
+    ActionWorkType:TUnitActionType;
     WorkCyc:integer;
     WorkDir:TKMDirection;
     GatheringScript:TGatheringScript;
     AfterWorkDelay:integer;
-    WalkFrom:TUnitActionType;
+    ActionWalkFrom:TUnitActionType;
     Resource1:TResourceType; Count1:byte;
     Resource2:TResourceType; Count2:byte;
     ActCount:byte;
@@ -62,13 +62,13 @@ begin
   fIssued:=true;
   HasToWalk:=false;
   Loc:=KMPoint(0,0);
-  WalkTo:=ua_Walk;
-  WorkType:=ua_Work;
+  ActionWalkTo:=ua_Walk;
+  ActionWorkType:=ua_Work;
   WorkCyc:=0;
   WorkDir:=dir_NA;
   GatheringScript:=gs_None;
   AfterWorkDelay:=0;
-  WalkFrom:=ua_Walk;
+  ActionWalkFrom:=ua_Walk;
   Resource1:=rt_None; Count1:=0;
   Resource2:=rt_None; Count2:=0;
   ActCount:=0;
@@ -83,12 +83,12 @@ procedure TUnitWorkPlan.WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; 
 begin
   Loc:=aLoc2.Loc;
   HasToWalk:=true;
-  WalkTo:=aTo;
-  WorkType:=aWork;
+  ActionWalkTo:=aTo;
+  ActionWorkType:=aWork;
   WorkCyc:=aCycles;
   AfterWorkDelay:=aDelay;
   GatheringScript:=aScript;
-  WalkFrom:=aFrom;
+  ActionWalkFrom:=aFrom;
   WorkDir:=aLoc2.Dir;
 end;
 
@@ -127,8 +127,8 @@ begin
                             if Found then
                             begin
                               GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
-                              WalkFrom   := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
-                              WorkType   := ua_Work1;
+                              ActionWalkFrom  := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
+                              ActionWorkType  := ua_Work1;
                               WorkCyc    := 10;
                               Product1   := rt_None; //Don't produce corn
                               ProdCount1 := 0;
@@ -486,13 +486,13 @@ begin
 //public
   LoadStream.Read(HasToWalk);
   LoadStream.Read(Loc);
-  LoadStream.Read(WalkTo, SizeOf(WalkTo));
-  LoadStream.Read(WorkType, SizeOf(WorkType));
+  LoadStream.Read(ActionWalkTo, SizeOf(ActionWalkTo));
+  LoadStream.Read(ActionWorkType, SizeOf(ActionWorkType));
   LoadStream.Read(WorkCyc);
   LoadStream.Read(WorkDir);
   LoadStream.Read(GatheringScript, SizeOf(GatheringScript));
   LoadStream.Read(AfterWorkDelay);
-  LoadStream.Read(WalkFrom, SizeOf(WalkFrom));
+  LoadStream.Read(ActionWalkFrom, SizeOf(ActionWalkFrom));
   LoadStream.Read(Resource1, SizeOf(Resource1));
   LoadStream.Read(Count1);
   LoadStream.Read(Resource2, SizeOf(Resource2));
@@ -521,13 +521,13 @@ begin
 //public
   SaveStream.Write(HasToWalk);
   SaveStream.Write(Loc);
-  SaveStream.Write(WalkTo, SizeOf(WalkTo));
-  SaveStream.Write(WorkType, SizeOf(WorkType));
+  SaveStream.Write(ActionWalkTo, SizeOf(ActionWalkTo));
+  SaveStream.Write(ActionWorkType, SizeOf(ActionWorkType));
   SaveStream.Write(WorkCyc);
   SaveStream.Write(WorkDir);
   SaveStream.Write(GatheringScript, SizeOf(GatheringScript));
   SaveStream.Write(AfterWorkDelay);
-  SaveStream.Write(WalkFrom, SizeOf(WalkFrom));
+  SaveStream.Write(ActionWalkFrom, SizeOf(ActionWalkFrom));
   SaveStream.Write(Resource1, SizeOf(Resource1));
   SaveStream.Write(Count1);
   SaveStream.Write(Resource2, SizeOf(Resource2));

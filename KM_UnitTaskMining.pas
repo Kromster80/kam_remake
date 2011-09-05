@@ -72,13 +72,13 @@ begin
   begin
     if not KMSamePoint(OldLoc,WorkPlan.Loc) then
     begin
-      fUnit.SetActionAbandonWalk(fUnit.NextPosition,WorkPlan.WalkTo); //Abandon the current walk
+      fUnit.SetActionAbandonWalk(fUnit.NextPosition, WorkPlan.ActionWalkTo); //Abandon the current walk
       fPhase := 1 //Set the walk again
     end;
   end
   else
   begin
-    fUnit.SetActionAbandonWalk(fUnit.NextPosition,WorkPlan.WalkTo); //Abandon the current walk
+    fUnit.SetActionAbandonWalk(fUnit.NextPosition, WorkPlan.ActionWalkTo); //Abandon the current walk
     fPhase := 99; //Exit the task on next update, since this function could be called externally (by WalkTo)
   end;
 end;
@@ -99,8 +99,8 @@ begin
                             with WorkPlan do
                             begin
                               GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
-                              WalkFrom   := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
-                              WorkType   := ua_Work1;
+                              ActionWalkFrom  := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
+                              ActionWorkType  := ua_Work1;
                               WorkCyc    := 10;
                               Product1   := rt_None; //Don't produce corn
                               ProdCount1 := 0;
@@ -133,20 +133,20 @@ begin
   case fPhase of
     0: if WorkPlan.HasToWalk then begin
          GetHome.SetState(hst_Empty);
-         SetActionGoIn(WorkPlan.WalkTo, gd_GoOutside, GetHome); //Walk outside the house
+         SetActionGoIn(WorkPlan.ActionWalkTo, gd_GoOutside, GetHome); //Walk outside the house
        end else begin
          fPhase := SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
          SetActionLockedStay(0, ua_Walk);
          Exit;
        end;
        //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
-    1: SetActionWalkToSpot(WorkPlan.Loc, 0, WorkPlan.WalkTo);
+    1: SetActionWalkToSpot(WorkPlan.Loc, 0, WorkPlan.ActionWalkTo);
     2: //Before work tasks for specific mining jobs
        if WorkPlan.GatheringScript = gs_FisherCatch then begin
          Direction := WorkPlan.WorkDir;
          SetActionLockedStay(13, ua_Work1, false); //Throw the line out
        end else
-         SetActionLockedStay(0, WorkPlan.WalkTo);
+         SetActionLockedStay(0, WorkPlan.ActionWalkTo);
     3: if not ResourceExists then
          FindAnotherWorkPlan
        else
@@ -155,21 +155,21 @@ begin
          if WorkPlan.WorkDir <> dir_NA then
            Direction := WorkPlan.WorkDir;
 
-         if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, Direction].Count < 1 then
+         if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.ActionWorkType, Direction].Count < 1 then
            for D:=dir_N to dir_NW do
-             if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, D].Count > 1 then
+             if fResource.UnitDat[UnitType].UnitAnim[WorkPlan.ActionWorkType, D].Count > 1 then
              begin
                Direction := D;
                Break;
              end;
-         TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[WorkPlan.WorkType, Direction].Count, 1);
-         SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
+         TimeToWork := WorkPlan.WorkCyc * Math.max(fResource.UnitDat[UnitType].UnitAnim[WorkPlan.ActionWorkType, Direction].Count, 1);
+         SetActionLockedStay(TimeToWork, WorkPlan.ActionWorkType, false);
        end;
     4: //After work tasks for specific mining jobs
        case WorkPlan.GatheringScript of
-         gs_WoodCutterCut:  SetActionLockedStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
+         gs_WoodCutterCut:  SetActionLockedStay(10, WorkPlan.ActionWorkType, true, 5, 5); //Wait for the tree to start falling down
          gs_FisherCatch:    SetActionLockedStay(15, ua_Work, false); //Pull the line in
-         else               SetActionLockedStay(0, WorkPlan.WorkType);
+         else               SetActionLockedStay(0, WorkPlan.ActionWorkType);
        end;
     5: begin
          StillFrame := 0;
@@ -178,19 +178,19 @@ begin
            gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
            gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
            gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
-           gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir)); WorkPlan.WorkType := ua_WalkTool; end;
+           gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir)); WorkPlan.ActionWorkType := ua_WalkTool; end;
            gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
            gs_WoodCutterCut:   begin fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir)); StillFrame := 5; end;
          end;
-         SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
+         SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.ActionWorkType, true, StillFrame, StillFrame);
        end;
     6: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), 0, WorkPlan.WalkFrom); //Go home
+         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), 0, WorkPlan.ActionWalkFrom); //Go home
          Thought := th_Home;
        end;
-    7: SetActionGoIn(WorkPlan.WalkFrom, gd_GoInside, GetHome); //Go inside
+    7: SetActionGoIn(WorkPlan.ActionWalkFrom, gd_GoInside, GetHome); //Go inside
 
     {Unit back at home and can process its booty now}
     8: begin
