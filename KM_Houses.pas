@@ -174,8 +174,8 @@ type
     fResFrom, fResTo: TResourceType;
     fResources:array[rt_Trunk..rt_Fish] of Word;
     procedure AttemptExchange;
-    procedure SetResFrom(const Value: TResourceType);
-    procedure SetResTo(const Value: TResourceType);
+    procedure SetResFrom(Value: TResourceType);
+    procedure SetResTo(Value: TResourceType);
   public
     //constructor Load(LoadStream:TKMemoryStream); override;
     //procedure Save(SaveStream:TKMemoryStream); override;
@@ -183,7 +183,8 @@ type
 
     property ResFrom:TResourceType read fResFrom write SetResFrom;
     property ResTo:TResourceType read fResTo write SetResTo;
-    function ExchangeRate(aResFrom, aResTo: TResourceType): Byte;
+    function RatioIn: Byte;
+    function RatioOut: Byte;
 
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
@@ -1285,9 +1286,15 @@ begin
 end;
 
 
-function TKMHouseMarket.ExchangeRate(aResFrom, aResTo: TResourceType): Byte;
+function TKMHouseMarket.RatioIn: Byte;
 begin
-  Result := 2; //We can use this for now
+  Result := 1; //We can use this for now
+end;
+
+
+function TKMHouseMarket.RatioOut: Byte;
+begin
+  Result := 1; //We can use this for now
 end;
 
 
@@ -1299,20 +1306,18 @@ end;
 
 
 procedure TKMHouseMarket.AttemptExchange;
-var CountFrom, CountTo: Word;
+var TradeCount: Word;
 begin
   if (fResourceOrder[1] > 0) and (fResFrom <> rt_None) and (fResTo <> rt_None)
-  and (fResources[fResFrom] >= ExchangeRate(fResFrom, fResTo)) then
+  and (fResources[fResFrom] >= RatioIn) then
   begin
-    //How much do we get
-    CountTo := (fResources[fResFrom] div Round(ExchangeRate(fResFrom, fResTo)));
-    //How much it will cost us
-    CountFrom := CountTo * ExchangeRate(fResFrom, fResTo);
+    //How much can we trade
+    TradeCount := Min((fResources[fResFrom] div RatioIn), fResourceOrder[1]);
 
-    dec(fResources[fResFrom], CountFrom);
-    dec(fResourceOrder[1], CountTo);
-    inc(fResources[fResTo], CountTo);
-    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, CountTo);
+    dec(fResources[fResFrom], TradeCount * RatioIn);
+    dec(fResourceOrder[1], TradeCount);
+    inc(fResources[fResTo], TradeCount * RatioOut);
+    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, TradeCount * RatioOut);
   end;
 end;
 
@@ -1325,7 +1330,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.SetResFrom(const Value: TResourceType);
+procedure TKMHouseMarket.SetResFrom(Value: TResourceType);
 begin
   fResFrom := Value;
   fResTo := rt_None;
@@ -1333,7 +1338,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.SetResTo(const Value: TResourceType);
+procedure TKMHouseMarket.SetResTo(Value: TResourceType);
 begin
   fResTo := Value;
   ResEditOrder(1, 0);
@@ -1346,9 +1351,13 @@ begin
   //Clear order if there's nothing selected
   if (fResFrom = rt_None) or (fResTo = rt_None) then 
     Amount := 0;
-  
+
+  Amount := Amount * RatioIn;
+
   Inherited;
 
+  //Try to make an exchange from existing resources
+  AttemptExchange;
   Count := fResourceOrder[1] - fResourceDeliveryCount[1];
 
   if Count > 0 then
@@ -1359,8 +1368,6 @@ begin
   end;
 
   fResourceDeliveryCount[1] := fResourceOrder[1];
-
-  AttemptExchange;
 end;
 
 

@@ -246,9 +246,9 @@ type
     Panel_HouseMarket:TKMPanel;
       Button_Market:array[0..STORE_RES_COUNT-1]of TKMButtonFlat;
       Image_Market_From, Image_Market_To: TKMImage;
+      Label_Market_In, Label_Market_Out: TKMLabel;
       ResRow_Market_In: TKMResourceRow;
       ResRow_Market_Out: TKMResourceOrderRow;
-      ResRow_Market_Cost: TKMCostsRow;
     Panel_HouseStore:TKMPanel;
       Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
       Image_Store_Accept:array[1..STORE_RES_COUNT]of TKMImage;
@@ -1327,8 +1327,8 @@ begin
   Image_Market_To := TKMImage.Create(Panel_HouseMarket, 0, 0, 12, 12, 27);
   Image_Market_To.RXid := 7;
 
-  TKMLabel.Create(Panel_HouseMarket,100,155+6,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
-  TKMLabel.Create(Panel_HouseMarket,100,200+6,100,30,fTextLibrary.GetTextString(229)+' (x1):',fnt_Grey,kaCenter);
+  Label_Market_In := TKMLabel.Create(Panel_HouseMarket,100,155+6,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
+  Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,100,200+6,100,30,fTextLibrary.GetTextString(229)+' (x1):',fnt_Grey,kaCenter);
 
   ResRow_Market_In := TKMResourceRow.Create(Panel_HouseMarket, 8,180,180,20);
   ResRow_Market_In.RxID := 4;
@@ -1336,8 +1336,6 @@ begin
   ResRow_Market_Out.RxID := 4;
   ResRow_Market_Out.OrderAdd.OnClickEither := House_MarketOrderClick;
   ResRow_Market_Out.OrderRem.OnClickEither := House_MarketOrderClick;
-  ResRow_Market_Cost := TKMCostsRow.Create(Panel_HouseMarket, 8, 250, 180, 20);
-  ResRow_Market_Cost.RxID := 4;
 end;
 
 
@@ -2301,6 +2299,9 @@ begin
   Image_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 30 + 15;
   Image_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 30 + 8;
 
+  Label_Market_In.Caption := fTextLibrary.GetTextString(227) + ' x' + IntToStr(M.RatioIn) + ':';
+  Label_Market_Out.Caption := fTextLibrary.GetTextString(229) + ' x' + IntToStr(M.RatioOut) + ':';
+
   ResRow_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
   ResRow_Market_In.Caption := fResource.Resources[M.ResFrom].Name;
 
@@ -2308,10 +2309,6 @@ begin
   ResRow_Market_Out.Caption := fResource.Resources[M.ResTo].Name;
   ResRow_Market_Out.OrderCount := M.CheckResOrder(1);
   ResRow_Market_Out.ResourceCount := M.CheckResOut(M.ResTo);
-
-
-  ResRow_Market_Cost.Caption := fResource.Resources[M.ResFrom].Name;
-  ResRow_Market_Cost.TexID2 := fResource.Resources[M.ResFrom].GUIIcon;
 end;
 
 
