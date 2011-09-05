@@ -5,7 +5,7 @@ uses
   Classes, SysUtils,
   {$IFDEF WDC} ZLibEx, {$ENDIF}
   {$IFDEF FPC} ZStream, {$ENDIF}
-  KM_CommonTypes, KM_Defaults;
+  KM_Defaults;
 
 
 type
@@ -25,7 +25,7 @@ type
 
 
 implementation
-uses KM_Render, KM_TGATexture;
+uses KM_TGATexture;
 
 
 { TKMTileset }

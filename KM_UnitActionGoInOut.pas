@@ -39,8 +39,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_UnitActionWalkTo,
-  KM_ResourceHouse;
+uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_UnitActionWalkTo;
 
 
 constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aUnit:TKMUnit; aDirection:TGoInDirection; aHouse:TKMHouse);

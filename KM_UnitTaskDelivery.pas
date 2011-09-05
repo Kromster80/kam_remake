@@ -31,7 +31,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Units_Warrior, KM_Log, KM_TextLibrary;
+uses KM_PlayersCollection, KM_Units_Warrior, KM_Log;
 
 
 { TTaskDeliver }

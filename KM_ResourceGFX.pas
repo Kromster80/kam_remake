@@ -9,7 +9,7 @@ uses
   KM_CommonTypes, KM_Defaults,
   KM_ResourceFonts, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceResource, KM_ResourceTileset, KM_ResourceUnit
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, ZStream, BGRABitmap {$ENDIF};
+  {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
 
 type
@@ -74,7 +74,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Render, KM_Log, KM_Utils;
+uses KromUtils, KM_Render, KM_Log;
 
 
 constructor TResource.Create(aLS:TNotifyEvent; aLT:TStringEvent);
@@ -399,7 +399,7 @@ begin
           {$ENDIF}
           {$IFDEF FPC}
           for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          if cardinal(po.GetPixel[x,y].red) <> 0 then
+          if cardinal(po.GetPixel(x,y).red) <> 0 then
           begin
             T := RXData[RX].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
             RXData[RX].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2)) SHL 24 OR $FFFFFF;

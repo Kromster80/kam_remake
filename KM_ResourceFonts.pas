@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Log, KM_Render, KM_ResourceGFX, KM_Utils;
+uses KromUtils, KM_Log, KM_Render, KM_ResourceGFX;
 
 
 const //Font01.fnt seems to be damaged..
