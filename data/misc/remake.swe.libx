@@ -29,14 +29,14 @@ MaxID:110
 26:Kontroller:
 27:Spelinställningar:
 28:Ljud:
-36:Stäng av
-29:Grafik:
-30:Ljusstyrka
-31:Helskärm
-32:Bekräfta
-33:Språk:
-34:Laddar... Var god vänta
-35:Ett problem uppstod!
+29:Stäng av
+30:Grafik:
+31:Ljusstyrka
+32:Helskärm
+33:Bekräfta
+34:Språk:
+35:Laddar... Var god vänta
+36:Ett problem uppstod!
 37:Laddar ny lokal
 38:
 
@@ -49,73 +49,73 @@ MaxID:110
 45:Återspelningen har avslutats
 46:Fortsätt titta
 47:Avsluta
-104:Ej tillgänglig
-105:Tryck %s för att åter börja spela
-106:Till lag
-108:Spelarinfo
-109:Chat
+48:Ej tillgänglig
+49:Tryck %s för att åter börja spela
+50:Till lag
+51:Spelarinfo
+52:Chat
 
-48:Ett fel har uppstått under spelets gång. 
-49:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
-53:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
-98:Nätverksfel: 
-99:Error: Spelarnamnet får inte vara ingenting
-100:Uppkoppling misslyckades: %s
-101:Du har kopplats ner
+53:Ett fel har uppstått under spelets gång. 
+54:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
+55:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
+56:Nätverksfel: 
+57:Error: Spelarnamnet får inte vara ingenting
+58:Uppkoppling misslyckades: %s
+59:Du har kopplats ner
 
-92:Uppdrag %d
+60:Uppdrag %d
 
-50:Felplacerad gruva.
-51:Din fiskares stuga är för långt från vattnet.
-52:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
-107:Dö
+61:Felplacerad gruva.
+62:Din fiskares stuga är för långt från vattnet.
+63:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
+64:Dö
 
-54:Terrängeditering
-55:Byplanering
-56:Visuella script
-57:Globala script
-58:Meny
+65:Terrängeditering
+66:Byplanering
+67:Visuella script
+68:Globala script
+69:Meny
 
-59:Spelarnamn:
-60:Din IP-adress:
-61:Värds IP-adress:
-62:Skapa server
-63:Anslut
-102:Kopplar upp, var god vänta...
-103:Väntar på spelare:
+70:Spelarnamn:
+71:Din IP-adress:
+72:Värds IP-adress:
+73:Skapa server
+74:Anslut
+75:Kopplar upp, var god vänta...
+76:Väntar på spelare:
 
-64:Spelarlista:
-65:Startplats:
-66:Lag:
-67:Flaggfärg:
-68:Redo:
-69:Ping:
-70:Öppen
-71:AI-spelare
-97:Välj...
-72:Slumpad
-73:Inget
-74:Lag %d
-75:Chat:
-76:Skicka meddelande:
-77:Välj karta:
-78:Enskild karta
-79:Sparat spel
-80:Välj en karta...
-96:Välj ett sparat spel...
-81:Kartinfo:
-93:Spelare: 
-94:Läge: 
-95:Villkor: 
-110:Size:
-82:Avsluta sessionen
-83:Redo
-84:Börja!
+77:Spelarlista:
+78:Startplats:
+79:Lag:
+80:Flaggfärg:
+81:Redo:
+82:Ping:
+83:Öppen
+84:AI-spelare
+85:Välj...
+86:Slumpad
+87:Inget
+88:Lag %d
+89:Chat:
+90:Skicka meddelande:
+91:Välj karta:
+92:Enskild karta
+93:Sparat spel
+94:Välj en karta...
+95:Välj ett sparat spel...
+96:Kartinfo:
+97:Spelare: 
+98:Läge: 
+99:Villkor: 
+100:Size:
+101:Avsluta sessionen
+102:Redo
+103:Börja!
 
-85:KaM Remakes skapare
-86:Original Knights & Merchants skapare
-87:PROGRAMMERIG:
-88:YTTERLIGARE PROGRAMMERING:
-89:YTTERLIGARE GRAFIK:
-90:YTTERLIGARE ÖVERSÄTTNING:
-91:SPECIELLT TACK TILL:
+104:KaM Remakes skapare
+105:Original Knights & Merchants skapare
+106:PROGRAMMERIG:
+107:YTTERLIGARE PROGRAMMERING:
+108:YTTERLIGARE GRAFIK:
+109:YTTERLIGARE ÖVERSÄTTNING:
+110:SPECIELLT TACK TILL:

@@ -29,14 +29,14 @@ MaxID:110
 26:Contrôles :
 27:Gameplay :
 28:Effets Sonores :
-36:Désactiver
-29:Graphisme :
-30:Luminosité
-31:Plein Ecran
-32:Appliquer
-33:Language :
-34:Chargement... Veuillez patienter
-35:Une Erreur s'est Produite!
+29:Désactiver
+30:Graphisme :
+31:Luminosité
+32:Plein Ecran
+33:Appliquer
+34:Language :
+35:Chargement... Veuillez patienter
+36:Une Erreur s'est Produite!
 37:Chargement du nouveau local
 38:Inconnue
 
@@ -49,73 +49,73 @@ MaxID:110
 45:Le replay est terminé
 46:Continuer
 47:Retour au Menu
-104:Non disponible
-105:Appuyer sur %s pour reprendre le jeu
-106:A l'Equipe
-108:Info sur les Joueurs
-109:Chat
+48:Non disponible
+49:Appuyer sur %s pour reprendre le jeu
+50:A l'Equipe
+51:Info sur les Joueurs
+52:Chat
 
-48:Une erreur s'est produite durant le gameplay.
-49:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
-53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
-98:Erreur Réseau:
-99:Erreur: Le nom du joueur ne doit pas être blanc
-100:La connexion a échoué: %s
-101:Vous avez déconnecté
+53:Une erreur s'est produite durant le gameplay.
+54:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
+55:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
+56:Erreur Réseau:
+57:Erreur: Le nom du joueur ne doit pas être blanc
+58:La connexion a échoué: %s
+59:Vous avez déconnecté
 
-92:Mission %d
+60:Mission %d
 
-50:Mining from wrong spot
-51:Your fisherman's hut is too far away from the water.
-52:Your fisherman cannot catch any further fish in the nearby water bodies.
-107:Mourir
+61:Mining from wrong spot
+62:Your fisherman's hut is too far away from the water.
+63:Your fisherman cannot catch any further fish in the nearby water bodies.
+64:Mourir
 
-54:Edition du Terrain
-55:Planification du Village
-56:Scripts Visuel
-57:Scripts Global
-58:Menu
+65:Edition du Terrain
+66:Planification du Village
+67:Scripts Visuel
+68:Scripts Global
+69:Menu
 
-59:Nom du Joueur:
-60:Votre adresse IP:
-61:Adresse IP de l'Hôte:
-62:Créer un Serveur
-63:Joindre
-102:Connexion, Veuillez patienter...
-103:Attente des joueurs:
+70:Nom du Joueur:
+71:Votre adresse IP:
+72:Adresse IP de l'Hôte:
+73:Créer un Serveur
+74:Joindre
+75:Connexion, Veuillez patienter...
+76:Attente des joueurs:
 
-64:Joueurs:
-65:Position:
-66:Equipe:
-67:Couleur:
-68:Prêt:
-69:Ping:
-70:Libre
-71:Joueur IA
-97:Sélectionnez...
-72:Aléatoire
-73:Aucune
-74:Equipe %d
-75:List des Messages:
-76:Envoyer un Message:
-77:Sélectionnez une Mission:
-78:Mission
-79:Sauvegarde
-80:Sélect. une mission...
-96:Sélect. un fichier...
-81:Info sur la Mission:
-93:Joueurs: %d
-94:Mode:
-95:Conditions:
-110:Size:
-82:Quitter Lobby
-83:Prêt
-84:Débuter !
+77:Joueurs:
+78:Position:
+79:Equipe:
+80:Couleur:
+81:Prêt:
+82:Ping:
+83:Libre
+84:Joueur IA
+85:Sélectionnez...
+86:Aléatoire
+87:Aucune
+88:Equipe %d
+89:List des Messages:
+90:Envoyer un Message:
+91:Sélectionnez une Mission:
+92:Mission
+93:Sauvegarde
+94:Sélect. une mission...
+95:Sélect. un fichier...
+96:Info sur la Mission:
+97:Joueurs: %d
+98:Mode:
+99:Conditions:
+100:Size:
+101:Quitter Lobby
+102:Prêt
+103:Débuter !
 
-85:Crédits de KaM Remake
-86:Crédits Orginal de Knights and Merchants
-87:PROGRAMMATION:
-88:PROGRAMMATION ADDITIONNEL:
-89:GRAPHISMES ADDITIONNEL:
-90:TRADUCTIONS ADDITIONNEL:
-91:REMERCIMENTS PARTICULIERS A:
+104:Crédits de KaM Remake
+105:Crédits Orginal de Knights and Merchants
+106:PROGRAMMATION:
+107:PROGRAMMATION ADDITIONNEL:
+108:GRAPHISMES ADDITIONNEL:
+109:TRADUCTIONS ADDITIONNEL:
+110:REMERCIMENTS PARTICULIERS A:

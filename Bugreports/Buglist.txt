@@ -11,6 +11,8 @@ Bugs:
  +	Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
  +	Warriors/citizens have fully working voices!
  +	Warriors from The Peasents Rebelion are now supported
+ +	Multiplayer has a master server to show all of the servers/games running around the world
+ +	Should attempt to play eng unit sounds if locale are missing (there's no favorite locale)
 
 	Replay timer should display in HH:MM:SS format
 	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
@@ -47,7 +49,6 @@ Features:
  -	Serfs should take wares back or to suitable house if destination is destroyed
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
- -	KaM sould attempt to play eng unit sounds if local are missing (there's no favorit locale)
 
 
 

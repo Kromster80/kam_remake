@@ -29,14 +29,14 @@ MaxID:110
 26:Eingabe:
 27:Gameplay:
 28:Sound:
-36:Ausschalten
-29:Grafik:
-30:Helligkeit
-31:Vollbild
-32:Übernehmen
-33:Sprache:
-34:Lade... Bitte warten
-35:Ein Fehler ist aufgetreten!
+29:Ausschalten
+30:Grafik:
+31:Helligkeit
+32:Vollbild
+33:Übernehmen
+34:Sprache:
+35:Lade... Bitte warten
+36:Ein Fehler ist aufgetreten!
 37:Loading new locale
 38:Unknown
 
@@ -49,73 +49,73 @@ MaxID:110
 45:Replay zuende
 46:Weiter betrachten
 47:Zurück zum Menü
-104:Not available
-105:Press %s to resume the game
-106:To team
-108:Players info
-109:Chat
+48:Not available
+49:Press %s to resume the game
+50:To team
+51:Players info
+52:Chat
 
-48:Ein Fehler ist während des Spiels aufgetreten.
-49:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
-53:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
-98:Netzwerkfehler:
-99:Error: Player name must not be blank
-100:Connection failed: %s
-101:You have disconnected
+53:Ein Fehler ist während des Spiels aufgetreten.
+54:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+55:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
+56:Netzwerkfehler:
+57:Error: Player name must not be blank
+58:Connection failed: %s
+59:You have disconnected
 
-92:Mission %d
+60:Mission %d
 
-50:Abbau an der falschen Stelle
-51:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
-52:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
-107:Die
+61:Abbau an der falschen Stelle
+62:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
+63:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
+64:Die
 
-54:Terrain berarbeiten
-55:Häuser bearbeiten
-56:Optische Skripts
-57:Globale Skripts
-58:Menü
+65:Terrain berarbeiten
+66:Häuser bearbeiten
+67:Optische Skripts
+68:Globale Skripts
+69:Menü
 
-59:Spielername:
-60:Ihre IP-Adresse:
-61:Host-IP-Adresse:
-62:Server erstellen
-63:Beitreten
-102:Connecting, please wait ...
-103:Waiting for players:
+70:Spielername:
+71:Ihre IP-Adresse:
+72:Host-IP-Adresse:
+73:Server erstellen
+74:Beitreten
+75:Connecting, please wait ...
+76:Waiting for players:
 
-64:Spielerliste:
-65:Start location:
-66:Team:
-67:Flaggenfarbe:
-68:Bereit:
-69:Ping:
-70:Open
-71:KI-Spieler
-97:Wähle...
-72:Random
-73:None
-74:Team %d
-75:Nachrichtenliste:
-76:Nachricht:
-77:Kartenwahl:
-78:Einzelkarte
-79:Gespeichertes Spiel
-80:Wähle eine Karte...
-96:Wähle einen Speicherstand...
-81:Karteninfo:
-93:Spieler: %d
-94:Modus:
-95:Bedingungen:
-110:Size:
-82:Lobby verlassen.
-83:Bereit!
-84:Start!
+77:Spielerliste:
+78:Start location:
+79:Team:
+80:Flaggenfarbe:
+81:Bereit:
+82:Ping:
+83:Open
+84:KI-Spieler
+85:Wähle...
+86:Random
+87:None
+88:Team %d
+89:Nachrichtenliste:
+90:Nachricht:
+91:Kartenwahl:
+92:Einzelkarte
+93:Gespeichertes Spiel
+94:Wähle eine Karte...
+95:Wähle einen Speicherstand...
+96:Karteninfo:
+97:Spieler: %d
+98:Modus:
+99:Bedingungen:
+100:Size:
+101:Lobby verlassen.
+102:Bereit!
+103:Start!
 
-85:KaM Remake Credits
-86:Original Knights & Merchants Credits
-87:PROGRAMMING:
-88:ADDITIONAL PROGRAMMING:
-89:ADDITIONAL GRAPHICS:
-90:ADDITIONAL TRANSLATIONS:
-91:SPECIAL THANKS TO:
+104:KaM Remake Credits
+105:Original Knights & Merchants Credits
+106:PROGRAMMING:
+107:ADDITIONAL PROGRAMMING:
+108:ADDITIONAL GRAPHICS:
+109:ADDITIONAL TRANSLATIONS:
+110:SPECIAL THANKS TO:

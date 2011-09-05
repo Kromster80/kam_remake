@@ -29,14 +29,14 @@ MaxID:110
 26:Controls:
 27:Gameplay:
 28:Sound:
-36:Disable
-29:Graphics:
-30:Brightness
-31:Fullscreen
-32:Apply
-33:Language:
-34:Loading... Please wait
-35:An Error Has Occured!
+29:Disable
+30:Graphics:
+31:Brightness
+32:Fullscreen
+33:Apply
+34:Language:
+35:Loading... Please wait
+36:An Error Has Occured!
 37:Loading new locale
 38:Unknown
 
@@ -49,73 +49,73 @@ MaxID:110
 45:Replay has ended
 46:Continue watching
 47:Quit to menu
-104:Not available
-105:Press %s to resume the game
-106:To team
-108:Players info
-109:Chat
+48:Not available
+49:Press %s to resume the game
+50:To team
+51:Players info
+52:Chat
 
-48:An error has occoured during gameplay.
-49:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
-53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
-98:Network error:
-99:Error: Player name must not be blank
-100:Connection failed: %s
-101:You have disconnected
+53:An error has occoured during gameplay.
+54:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
+55:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
+56:Network error:
+57:Error: Player name must not be blank
+58:Connection failed: %s
+59:You have disconnected
 
-92:Mission %d
+60:Mission %d
 
-50:Mining from wrong spot
-51:Your fisherman's hut is too far away from the water.
-52:Your fisherman cannot catch any further fish in the nearby water bodies.
-107:Die
+61:Mining from wrong spot
+62:Your fisherman's hut is too far away from the water.
+63:Your fisherman cannot catch any further fish in the nearby water bodies.
+64:Die
 
-54:Terrain editing
-55:Village planning
-56:Visual scripts
-57:Global scripting
-58:Menu
+65:Terrain editing
+66:Village planning
+67:Visual scripts
+68:Global scripting
+69:Menu
 
-59:Player name:
-60:Your IP address:
-61:Host IP address:
-62:Create Server
-63:Join
-102:Connecting, please wait ...
-103:Waiting for players:
+70:Player name:
+71:Your IP address:
+72:Host IP address:
+73:Create Server
+74:Join
+75:Connecting, please wait ...
+76:Waiting for players:
 
-64:Players list:
-65:Start location:
-66:Team:
-67:Flag color:
-68:Ready:
-69:Ping:
-70:Open
-71:AI Player
-97:Select...
-72:Random
-73:None
-74:Team %d
-75:Posts list:
-76:Post message:
-77:Choose map:
-78:Single Map
-79:Saved Game
-80:Select a map...
-96:Select a save...
-81:Map info:
-93:Players: %d
-94:Mode:
-95:Conditions:
-110:Size:
-82:Quit lobby
-83:Ready
-84:Start!
+77:Players list:
+78:Start location:
+79:Team:
+80:Flag color:
+81:Ready:
+82:Ping:
+83:Open
+84:AI Player
+85:Select...
+86:Random
+87:None
+88:Team %d
+89:Posts list:
+90:Post message:
+91:Choose map:
+92:Single Map
+93:Saved Game
+94:Select a map...
+95:Select a save...
+96:Map info:
+97:Players: %d
+98:Mode:
+99:Conditions:
+100:Size:
+101:Quit lobby
+102:Ready
+103:Start!
 
-85:KaM Remake Credits
-86:Original Knights & Merchants Credits
-87:PROGRAMMING:
-88:ADDITIONAL PROGRAMMING:
-89:ADDITIONAL GRAPHICS:
-90:ADDITIONAL TRANSLATIONS:
-91:SPECIAL THANKS TO:
+104:KaM Remake Credits
+105:Original Knights & Merchants Credits
+106:PROGRAMMING:
+107:ADDITIONAL PROGRAMMING:
+108:ADDITIONAL GRAPHICS:
+109:ADDITIONAL TRANSLATIONS:
+110:SPECIAL THANKS TO:

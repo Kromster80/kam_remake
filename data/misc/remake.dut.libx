@@ -29,14 +29,14 @@ MaxID:110
 26:Controls:
 27:Gameplay:
 28:Muziek:
-36:Uitschakelen
-29:Grafisch:
-30:Helderheid
-31:Volledig scherm
-32:Toepassen
-33:Taal:
-34:Aan het laden... Een ogenblik
-35:Er is een fout opgetreden!
+29:Uitschakelen
+30:Grafisch:
+31:Helderheid
+32:Volledig scherm
+33:Toepassen
+34:Taal:
+35:Aan het laden... Een ogenblik
+36:Er is een fout opgetreden!
 37:Laden nieuw lokaal
 38:Unknown
 
@@ -49,73 +49,73 @@ MaxID:110
 45:Terugkijken is gestopt
 46:Blijf kijken
 47:Afsluiten naar menu
-104:Not available
-105:Press %s to resume the game
-106:To team
-108:Players info
-109:Chat
+48:Not available
+49:Press %s to resume the game
+50:To team
+51:Players info
+52:Chat
 
-48:Er is een fout opgetreden!
-49:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
-53: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
-98:Netwerk fout:
-99:Error: Player name must not be blank
-100:Connection failed: %s
-101:You have disconnected
+53:Er is een fout opgetreden!
+54:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
+55: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
+56:Netwerk fout:
+57:Error: Player name must not be blank
+58:Connection failed: %s
+59:You have disconnected
 
-92:Missie %d
+60:Missie %d
 
-50:Delven van de verkeerde plek
-51: De vissershut is buiten het bereik van het water.
-52: De visser kan geen vis meer vangen rondom zijn vissershut
-107:Die
+61:Delven van de verkeerde plek
+62: De vissershut is buiten het bereik van het water.
+63: De visser kan geen vis meer vangen rondom zijn vissershut
+64:Die
 
-54:Terrein wijzigigen
-55:Stad planning
-56:Visuele scripts
-57:Globale scripts
-58:Menu
+65:Terrein wijzigigen
+66:Stad planning
+67:Visuele scripts
+68:Globale scripts
+69:Menu
 
-59:Speler naam:
-60:Jouw IP-adres:
-61:Host IP adres:
-62:Server aanmaken
-63:Meedoen
-102:Connecting, please wait ...
-103:Waiting for players:
+70:Speler naam:
+71:Jouw IP-adres:
+72:Host IP adres:
+73:Server aanmaken
+74:Meedoen
+75:Connecting, please wait ...
+76:Waiting for players:
 
-64:Spelerslijst:
-65:Start locatie:
-66:Team:
-67:Vlag kleur:
-68:Klaar:
-69:Ping:
-70:Open
-71:AI Speler
-97:Selecteer...
-72:Willekeurig
-73:Geen
-74:Team %d
-75:Berichten list:
-76:Bericht:
-77:Kies map:
-78:Een map:
-79:Opgeslagen map:
-80:Selecteer een map...
-96:Selecteer een opgeslagen spel...
-81:Map informatie:
-93:Spelers: %d
-94:Mode:
-95:Condities:
-110:Size:
-82:Afsluiten lobby
-83:Klaar
-84:Start!
+77:Spelerslijst:
+78:Start locatie:
+79:Team:
+80:Vlag kleur:
+81:Klaar:
+82:Ping:
+83:Open
+84:AI Speler
+85:Selecteer...
+86:Willekeurig
+87:Geen
+88:Team %d
+89:Berichten list:
+90:Bericht:
+91:Kies map:
+92:Een map:
+93:Opgeslagen map:
+94:Selecteer een map...
+95:Selecteer een opgeslagen spel...
+96:Map informatie:
+97:Spelers: %d
+98:Mode:
+99:Condities:
+100:Size:
+101:Afsluiten lobby
+102:Klaar
+103:Start!
 
-85:KaM Remake Credits
-86:Original Knights & Merchants Credits
-87:PROGRAMMING:
-88:ADDITIONAL PROGRAMMING:
-89:ADDITIONAL GRAPHICS:
-90:ADDITIONAL TRANSLATIONS:
-91:SPECIAL THANKS TO:
+104:KaM Remake Credits
+105:Original Knights & Merchants Credits
+106:PROGRAMMING:
+107:ADDITIONAL PROGRAMMING:
+108:ADDITIONAL GRAPHICS:
+109:ADDITIONAL TRANSLATIONS:
+110:SPECIAL THANKS TO:

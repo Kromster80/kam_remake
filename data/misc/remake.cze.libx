@@ -29,14 +29,14 @@ MaxID:110
 26:Ovládání:
 27:Hra:
 28:Zvuk:
-36:Vypnout
-29:Grafika:
-30:Jas
-31:Celá obrazovka
-32:Pouít
-33:Jazyk:
-34:Nahrávám... Prosím èekejte
-35:Došlo k Chybì!
+29:Vypnout
+30:Grafika:
+31:Jas
+32:Celá obrazovka
+33:Pouít
+34:Jazyk:
+35:Nahrávám... Prosím èekejte
+36:Došlo k Chybì!
 37:Nahrávám novou lokalizaci
 38:Neznámá
 
@@ -49,73 +49,73 @@ MaxID:110
 45:Pøehrávání skonèilo
 46:Dále sledovat
 47:Ukonèit
-104:Nedostupné
-105:Stisknìte %s pro pokraèování hry
-106:Tımu
-108:Informace o hráèích
-109:Chat
+48:Nedostupné
+49:Stisknìte %s pro pokraèování hry
+50:Tımu
+51:Informace o hráèích
+52:Chat
 
-48:Bìhem hry došlo k chybì.
-49:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nPOZOR: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
-53:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickıma chybama\nProsím aktualizujte svoje ovladaèe pro dosaení lepších vısledkù.
-98:Síová chyba:
-99:Chyba: Musíte zadat svoje jméno
-100:Spojení se nezdaøilo: %s
-101:Byl jste odpojen
+53:Bìhem hry došlo k chybì.
+54:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nPOZOR: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
+55:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickıma chybama\nProsím aktualizujte svoje ovladaèe pro dosaení lepších vısledkù.
+56:Síová chyba:
+57:Chyba: Musíte zadat svoje jméno
+58:Spojení se nezdaøilo: %s
+59:Byl jste odpojen
 
-92:Mise %d
+60:Mise %d
 
-50:Tìba ze špatného místa
-51:Váš rybáø je pøíliš daleko od vody.
-52:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
-107:Umøít
+61:Tìba ze špatného místa
+62:Váš rybáø je pøíliš daleko od vody.
+63:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
+64:Umøít
 
-54:Editace terénu
-55:Plánování vesnice
-56:Visualní skripty
-57:Globalní skriptování
-58:Menu
+65:Editace terénu
+66:Plánování vesnice
+67:Visualní skripty
+68:Globalní skriptování
+69:Menu
 
-59:Jméno hráèe:
-60:Vaše IP adresa:
-61:IP adresa hostitele:
-62:Vytvoøit server
-63:Pøipojit
-102:Pøipojuji se, prosím èekejte...
-103:Èekám na ostatní hráèe:
+70:Jméno hráèe:
+71:Vaše IP adresa:
+72:IP adresa hostitele:
+73:Vytvoøit server
+74:Pøipojit
+75:Pøipojuji se, prosím èekejte...
+76:Èekám na ostatní hráèe:
 
-64:Seznam hráèù:
-65:Starovací pozice:
-66:Tım:
-67:Barva:
-68:Hotov:
-69:Ping:
-70:Volno
-71:Poèítaè
-97:Vybrat...
-72:Náhodnì
-73:ádnı
-74:Tım %d
-75:Chat:
-76:Odeslat zprávu:
-77:Vıbìr mapy:
-78:Nová Hra
-79:Uloená Hra
-80:Vyberte mapu...
-96:Vıbìr uloené hry...
-81:Informace o mapì:
-93:Hráèi: %d
-94:Mód:
-95:Podmínky vítìzství:
-110:
-82:Opustit lobby
-83:Pøipraven
-84:Start!
+77:Seznam hráèù:
+78:Starovací pozice:
+79:Tım:
+80:Barva:
+81:Hotov:
+82:Ping:
+83:Volno
+84:Poèítaè
+85:Vybrat...
+86:Náhodnì
+87:ádnı
+88:Tım %d
+89:Chat:
+90:Odeslat zprávu:
+91:Vıbìr mapy:
+92:Nová Hra
+93:Uloená Hra
+94:Vyberte mapu...
+95:Vıbìr uloené hry...
+96:Informace o mapì:
+97:Hráèi: %d
+98:Mód:
+99:Podmínky vítìzství:
+100:
+101:Opustit lobby
+102:Pøipraven
+103:Start!
 
-85:KaM Remake Credits
-86:Original Knights & Merchants Credits
-87:PROGRAMOVÁNÍ:
-88:DALŠÍ PROGRAMOVÁNÍ:
-89:DALŠÍ GRAFIKA:
-90:DALŠÍ PØEKLAD:
-91:SPECIÁLNÍ PODÌKOVÁNÍ:
+104:KaM Remake Credits
+105:Original Knights & Merchants Credits
+106:PROGRAMOVÁNÍ:
+107:DALŠÍ PROGRAMOVÁNÍ:
+108:DALŠÍ GRAFIKA:
+109:DALŠÍ PØEKLAD:
+110:SPECIÁLNÍ PODÌKOVÁNÍ:
