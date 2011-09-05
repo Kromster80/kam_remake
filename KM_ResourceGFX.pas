@@ -542,13 +542,13 @@ begin
 
       for h:=1 to 2 do begin
         if h=1 then begin
-          ID1 := HouseDAT[ID].WoodPic+1;
-          ID2 := HouseDAT[ID].WoodPal+1;
-          StepCount := HouseDAT[ID].WoodPicSteps;
+          ID1 := HouseDat[ID].WoodPic+1;
+          ID2 := HouseDat[ID].WoodPal+1;
+          StepCount := HouseDat[ID].WoodPicSteps;
         end else begin
-          ID1 := HouseDAT[ID].StonePic+1;
-          ID2 := HouseDAT[ID].StonePal+1;
-          StepCount := HouseDAT[ID].StonePicSteps;
+          ID1 := HouseDat[ID].StonePic+1;
+          ID2 := HouseDat[ID].StonePal+1;
+          StepCount := HouseDat[ID].StonePicSteps;
         end;
 
         Assert(

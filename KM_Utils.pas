@@ -17,7 +17,7 @@ uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
 
   function GetPingColor(aPing:word):cardinal;
 
-  procedure ParseDelimited(const sl : TStringList; const value : string; const delimiter : string);
+  procedure ParseDelimited(const SL: TStringList; const Value: string; const Delimiter: string);
 
   procedure SetKaMSeed(aSeed:integer);
   function GetKaMSeed:integer;
@@ -226,28 +226,28 @@ end;
 
 
 //Taken from: http://delphi.about.com/od/adptips2005/qt/parsedelimited.htm
-procedure ParseDelimited(const sl : TStringList; const value : string; const delimiter : string);
+procedure ParseDelimited(const SL: TStringList; const Value: string; const Delimiter: string);
 var
-   dx : integer;
-   ns : string;
-   txt : string;
-   delta : integer;
+  dx: integer;
+  ns: string;
+  txt: string;
+  Delta: integer;
 begin
-   delta := Length(delimiter) ;
-   txt := value + delimiter;
-   sl.BeginUpdate;
-   sl.Clear;
-   try
-     while Length(txt) > 0 do
-     begin
-       dx := Pos(delimiter, txt) ;
-       ns := Copy(txt,0,dx-1) ;
-       sl.Add(ns) ;
-       txt := Copy(txt,dx+delta,MaxInt) ;
-     end;
-   finally
-     sl.EndUpdate;
-   end;
+  Delta := Length(Delimiter);
+  txt := Value + Delimiter;
+  SL.BeginUpdate;
+  SL.Clear;
+  try
+    while Length(txt) > 0 do
+    begin
+      dx := Pos(Delimiter, txt);
+      ns := Copy(txt, 0, dx-1);
+      SL.Add(ns);
+      txt := Copy(txt, dx+Delta, MaxInt);
+    end;
+  finally
+    SL.EndUpdate;
+  end;
 end;
 
 
