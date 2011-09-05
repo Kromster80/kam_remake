@@ -469,6 +469,7 @@ procedure TKMPlayer.Save(SaveStream:TKMemoryStream);
 begin
   fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
+  fRepairList.Save(SaveStream);
   fDeliverList.Save(SaveStream);
   fFogOfWar.Save(SaveStream);
   fGoals.Save(SaveStream);
@@ -490,6 +491,7 @@ procedure TKMPlayer.Load(LoadStream:TKMemoryStream);
 begin
   fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
+  fRepairList.Load(LoadStream);
   fDeliverList.Load(LoadStream);
   fFogOfWar.Load(LoadStream);
   fGoals.Load(LoadStream);
@@ -513,6 +515,7 @@ begin
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
   fBuildList.SyncLoad;
+  fRepairList.SyncLoad;
   fAI.SyncLoad;
 end;
 
