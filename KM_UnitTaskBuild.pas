@@ -94,7 +94,7 @@ type
   TTaskBuildHouseRepair = class(TUnitTask)
     private
       fHouse:TKMHouse;
-      BuildID:integer;
+      RepairID:integer;
       CurLoc:byte; //Current WIP location
       Cells:TKMPointDirList; //List of surrounding cells and directions
     public
@@ -772,9 +772,9 @@ constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseRepair;
-  fHouse:=aHouse.GetHousePointer;
-  BuildID:=aID;
-  CurLoc:=0;
+  fHouse    := aHouse.GetHousePointer;
+  RepairID  := aID;
+  CurLoc    := 0;
 
   Cells := TKMPointDirList.Create;
   fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
@@ -785,7 +785,7 @@ constructor TTaskBuildHouseRepair.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(BuildID);
+  LoadStream.Read(RepairID);
   LoadStream.Read(CurLoc);
   Cells := TKMPointDirList.Load(LoadStream);
 end;
@@ -800,7 +800,7 @@ end;
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
-  fPlayers.Player[fUnit.GetOwner].BuildList.RemoveHouseRepairPointer(BuildID);
+  fPlayers.Player[fUnit.GetOwner].RepairList.RemoveHousePointer(RepairID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -809,7 +809,7 @@ end;
 
 function TTaskBuildHouseRepair.WalkShouldAbandon:boolean;
 begin
-  Result := (fHouse.IsDestroyed)or(not fHouse.IsDamaged)or(not fHouse.BuildingRepair);
+  Result := (fHouse.IsDestroyed) or (not fHouse.IsDamaged) or (not fHouse.BuildingRepair);
 end;
 
 
@@ -850,8 +850,8 @@ begin
          end;
       4: begin
            Thought := th_None;
-           fPlayers.Player[GetOwner].BuildList.RemoveHouseRepair(BuildID);
-           SetActionStay(1,ua_Walk);
+           fPlayers.Player[GetOwner].RepairList.RemoveHouse(RepairID);
+           SetActionStay(1, ua_Walk);
          end;
       else Result := TaskDone;
     end;
@@ -871,7 +871,7 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(BuildID);
+  SaveStream.Write(RepairID);
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);
 end;

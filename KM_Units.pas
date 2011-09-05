@@ -748,7 +748,7 @@ end;
 
 function TKMUnitWorker.GetActionFromQueue:TUnitTask;
 begin
-                     Result:=fPlayers.Player[fOwner].BuildList.AskForHouseRepair(Self);
+                     Result:=fPlayers.Player[fOwner].RepairList.AskForTask(Self);
   if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForHousePlan(Self);
   if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForRoad(Self);
   if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForHouse(Self);

@@ -60,7 +60,7 @@ type
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
-    procedure SaveToFile(aFileName:string);
+    procedure ExportToFile(aFileName:string);
   end;
 
   TKMBuildingQueue = class
@@ -91,28 +91,15 @@ type
       JobStatus:TJobStatus;
       Worker:TKMUnit;
     end;
-    HouseRepairsCount:integer;
-    fHouseRepairsQueue:array of
-    record
-      House:TKMHouse;
-      Importance:byte;
-      WorkerCount:integer; //So we don't get pointer issues
-      IsDeleted:boolean;
-      //No need to have JobStatus since many workers can repair same house
-    end;
     procedure CloseHouse(aID:integer);
-    procedure CloseHouseRepair(aID:integer);
   public
     procedure CloseRoad(aID:integer);
     procedure CloseHousePlan(aID:integer);
 
     procedure RemoveHouse(aID: integer); overload;
     procedure RemoveHouse(aHouse: TKMHouse); overload;
-    procedure RemoveHouseRepair(aID: integer); overload;
-    procedure RemoveHouseRepair(aHouse: TKMHouse); overload;
 
     procedure RemoveHousePointer(aID:integer);
-    procedure RemoveHouseRepairPointer(aID:integer);
 
     procedure ReOpenRoad(aID:integer);
     procedure ReOpenHousePlan(aID:integer);
@@ -120,7 +107,6 @@ type
     procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
     procedure AddNewHouse(aHouse: TKMHouse);
     procedure AddNewHousePlan(aHouse: TKMHouse);
-    procedure AddHouseRepair(aHouse: TKMHouse);
 
     function CancelRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
     function CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false):boolean;
@@ -128,12 +114,36 @@ type
     function AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
     function AskForHousePlan(aWorker:TKMUnitWorker):TUnitTask;
     function AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
-    function AskForHouseRepair(aWorker:TKMUnitWorker):TUnitTask;
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
   end;
+
+
+  TKMRepairQueue = class
+  private
+    fCount:integer;
+    fQueue:array of
+    record
+      House:TKMHouse;
+      Importance:byte;
+      WorkerCount:integer; //So we don't get pointer issues
+      IsDeleted:boolean;
+    end;
+    procedure CloseHouseRepair(aID:integer);
+  public
+    procedure RemoveHouse(aID: integer); overload;
+    procedure RemoveHouse(aHouse: TKMHouse); overload;
+    procedure RemoveHousePointer(aID:integer);
+    procedure AddHouse(aHouse: TKMHouse);
+    function AskForTask(aWorker:TKMUnitWorker):TUnitTask;
+
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad;
+  end;
+
 
 implementation
 uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log, KM_TextLibrary;
@@ -340,18 +350,6 @@ begin
   end;
 
 
-  //if WRITE_DETAILED_LOG then fLog.AppendLog('Reserved delivery ID', i);
-
-//Cleanup for destroyed houses
-{for iD:=1 to DemandCount do
-  if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.IsDestroyed) then fDemand[iD].Resource:=rt_None
-  else
-  if (fDemand[iD].Loc_Unit<>nil)and(fDemand[iD].Loc_Unit.IsDestroyed) then fDemand[iD].Resource:=rt_None;
-
-for iO:=1 to OfferCount do
-  if (fOffer[iO].Loc_House<>nil)and(fOffer[iO].Loc_House.IsDestroyed) then fOffer[iO].Resource:=rt_None;
-}
-
   //Find Offer matching Demand
   //TravelRoute Asker>Offer>Demand should be shortest
   BestBid:=0;
@@ -472,12 +470,14 @@ begin
     if fOffer[fQueue[aID].OfferID].IsDeleted and (fOffer[fQueue[aID].OfferID].BeingPerformed = 0) then
       CloseOffer(fQueue[aID].OfferID);
   end;
+
   if fQueue[aID].DemandID <> 0 then
   begin
     fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
     if fDemand[fQueue[aID].DemandID].IsDeleted then
       CloseDemand(fQueue[aID].DemandID);
   end;
+  
   CloseDelivery(aID);
 end;
 
@@ -611,7 +611,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.SaveToFile(aFileName:string);
+procedure TKMDeliverQueue.ExportToFile(aFileName:string);
 var i:integer; f:textfile; s:string;
 begin
   assignfile(f,aFileName); Rewrite(f);
@@ -713,15 +713,6 @@ begin
 end;
 
 
-procedure TKMBuildingQueue.CloseHouseRepair(aID:integer);
-begin
-  assert(fHouseRepairsQueue[aID].WorkerCount=0);
-  fPlayers.CleanUpHousePointer(fHouseRepairsQueue[aID].House);
-  fHouseRepairsQueue[aID].Importance:=0;
-  fHouseRepairsQueue[aID].IsDeleted := false;
-end;
-
-
 //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
 procedure TKMBuildingQueue.ReOpenRoad(aID:integer);
 begin
@@ -735,32 +726,6 @@ procedure TKMBuildingQueue.ReOpenHousePlan(aID:integer);
 begin
   fHousePlansQueue[aID].JobStatus := js_Open;
   fPlayers.CleanUpUnitPointer(fHousePlansQueue[aID].Worker);
-end;
-
-
-procedure TKMBuildingQueue.RemoveHouseRepair(aID: integer);
-begin
-  if fHouseRepairsQueue[aID].WorkerCount = 0 then
-    CloseHouseRepair(aID)
-  else
-    fHouseRepairsQueue[aID].IsDeleted := true; //Can't delete it until all workers have finished with it
-end;
-
-
-procedure TKMBuildingQueue.RemoveHouseRepair(aHouse: TKMHouse);
-var i:integer;
-begin
-  for i:=1 to HouseRepairsCount do
-    if fHouseRepairsQueue[i].House=aHouse then
-      RemoveHouseRepair(i);
-end;
-
-
-procedure TKMBuildingQueue.RemoveHouseRepairPointer(aID:integer);
-begin
-  dec(fHouseRepairsQueue[aID].WorkerCount);
-  if (fHouseRepairsQueue[aID].IsDeleted) and (fHouseRepairsQueue[aID].WorkerCount = 0) then
-    CloseHouseRepair(aID);
 end;
 
 
@@ -809,26 +774,6 @@ begin
   if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetHousePointer;
   fHousePlansQueue[i].Importance:=1;
   fHousePlansQueue[i].JobStatus:=js_Open;
-end;
-
-
-procedure TKMBuildingQueue.AddHouseRepair(aHouse: TKMHouse);
-var i,k:integer;
-begin
-  for i:=1 to HouseRepairsCount do
-    if (fHouseRepairsQueue[i].House=aHouse) and not fHouseRepairsQueue[i].IsDeleted then
-      exit; //House is already in repair list
-
-  i:=1; while (i<=HouseRepairsCount)and(fHouseRepairsQueue[i].House<>nil) do inc(i);
-  if i>HouseRepairsCount then begin
-    inc(HouseRepairsCount, LENGTH_INC);
-    SetLength(fHouseRepairsQueue, HouseRepairsCount+1);
-    for k:=i to HouseRepairsCount do FillChar(fHouseRepairsQueue[k],SizeOf(fHouseRepairsQueue[k]),#0);
-  end;
-
-  assert((fHouseRepairsQueue[i].WorkerCount=0) and not fHouseRepairsQueue[i].IsDeleted);
-  if aHouse <> nil then fHouseRepairsQueue[i].House:=aHouse.GetHousePointer;
-  fHouseRepairsQueue[i].Importance:=1;
 end;
 
 
@@ -961,31 +906,6 @@ begin
 end;
 
 
-function  TKMBuildingQueue.AskForHouseRepair(aWorker:TKMUnitWorker):TUnitTask;
-var i, Best: integer; BestDist: single;
-begin
-  Result := nil;
-  Best := -1;
-  BestDist := MaxSingle;
-
-  for i:=1 to HouseRepairsCount do
-    if (fHouseRepairsQueue[i].House<>nil) and (not fHouseRepairsQueue[i].IsDeleted) and
-      fHouseRepairsQueue[i].House.IsDamaged and
-      fHouseRepairsQueue[i].House.BuildingRepair
-    and((Best = -1)or(GetLength(aWorker.GetPosition, fHouseRepairsQueue[i].House.GetPosition) < BestDist))then
-    begin
-      Best := i;
-      BestDist := GetLength(aWorker.GetPosition, fHouseRepairsQueue[i].House.GetPosition);
-    end;
-    
-  if Best <> -1 then
-  begin
-    Result := TTaskBuildHouseRepair.Create(aWorker, fHouseRepairsQueue[Best].House, Best);
-    inc(fHouseRepairsQueue[Best].WorkerCount);
-  end;
-end;
-
-
 procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
@@ -1018,16 +938,6 @@ begin
     SaveStream.Write(Importance);
     SaveStream.Write(JobStatus, SizeOf(JobStatus));
     if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Integer(0));
-  end;
-
-  SaveStream.Write(HouseRepairsCount);
-  for i:=1 to HouseRepairsCount do
-  with fHouseRepairsQueue[i] do
-  begin
-    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Integer(0));
-    SaveStream.Write(Importance);
-    SaveStream.Write(WorkerCount);
-    SaveStream.Write(IsDeleted);
   end;
 end;
 
@@ -1069,17 +979,6 @@ begin
     LoadStream.Read(JobStatus, SizeOf(JobStatus));
     LoadStream.Read(Worker, 4);
   end;
-
-  LoadStream.Read(HouseRepairsCount);
-  SetLength(fHouseRepairsQueue, HouseRepairsCount+1);
-  for i:=1 to HouseRepairsCount do
-  with fHouseRepairsQueue[i] do
-  begin
-    LoadStream.Read(House, 4);
-    LoadStream.Read(Importance);
-    LoadStream.Read(WorkerCount);
-    LoadStream.Read(IsDeleted);
-  end;
 end;
 
 
@@ -1097,9 +996,131 @@ begin
     fHousePlansQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousePlansQueue[i].House));
     fHousePlansQueue[i].Worker := fPlayers.GetUnitByID(cardinal(fHousePlansQueue[i].Worker));
   end;
+end;
 
-  for i:=1 to HouseRepairsCount do
-    fHouseRepairsQueue[i].House := fPlayers.GetHouseByID(cardinal(fHouseRepairsQueue[i].House));
+
+{ TKMRepairQueue }
+procedure TKMRepairQueue.CloseHouseRepair(aID:integer);
+begin
+  Assert(fQueue[aID].WorkerCount = 0);
+  fPlayers.CleanUpHousePointer(fQueue[aID].House);
+  fQueue[aID].Importance:=0;
+  fQueue[aID].IsDeleted := false;
+end;
+
+
+procedure TKMRepairQueue.RemoveHouse(aID: integer);
+begin
+  if fQueue[aID].WorkerCount = 0 then
+    CloseHouseRepair(aID)
+  else
+    fQueue[aID].IsDeleted := true; //Can't delete it until all workers have finished with it
+end;
+
+
+procedure TKMRepairQueue.RemoveHouse(aHouse: TKMHouse);
+var i:integer;
+begin
+  for i:=1 to fCount do
+    if fQueue[i].House=aHouse then
+      RemoveHouse(i);
+end;
+
+
+procedure TKMRepairQueue.RemoveHousePointer(aID:integer);
+begin
+  dec(fQueue[aID].WorkerCount);
+  if (fQueue[aID].IsDeleted) and (fQueue[aID].WorkerCount = 0) then
+    CloseHouseRepair(aID);
+end;
+
+
+procedure TKMRepairQueue.AddHouse(aHouse: TKMHouse);
+var i,k:integer;
+begin
+  for i:=1 to fCount do
+    if (fQueue[i].House=aHouse) and not fQueue[i].IsDeleted then
+      Exit; //House is already in repair list
+
+  i:=1; while (i<=fCount)and(fQueue[i].House<>nil) do inc(i);
+  if i>fCount then begin
+    inc(fCount, LENGTH_INC);
+    SetLength(fQueue, fCount+1);
+    for k:=i to fCount do FillChar(fQueue[k],SizeOf(fQueue[k]),#0);
+  end;
+
+  Assert((fQueue[i].WorkerCount=0) and not fQueue[i].IsDeleted);
+  if aHouse <> nil then fQueue[i].House:=aHouse.GetHousePointer;
+  fQueue[i].Importance:=1;
+end;
+
+
+function TKMRepairQueue.AskForTask(aWorker:TKMUnitWorker):TUnitTask;
+var i, Best: integer; BestDist: single;
+begin
+  Result := nil;
+  Best := -1;
+  BestDist := MaxSingle;
+
+  for i:=1 to fCount do
+    if (fQueue[i].House<>nil) and (not fQueue[i].IsDeleted) and
+      fQueue[i].House.IsDamaged and
+      fQueue[i].House.BuildingRepair
+    and((Best = -1)or(GetLength(aWorker.GetPosition, fQueue[i].House.GetPosition) < BestDist))then
+    begin
+      Best := i;
+      BestDist := GetLength(aWorker.GetPosition, fQueue[i].House.GetPosition);
+    end;
+    
+  if Best <> -1 then
+  begin
+    Result := TTaskBuildHouseRepair.Create(aWorker, fQueue[Best].House, Best);
+    inc(fQueue[Best].WorkerCount);
+  end;
+end;
+
+
+procedure TKMRepairQueue.Save(SaveStream:TKMemoryStream);
+var i:integer;
+begin
+  SaveStream.Write('RepairQueue');
+
+  SaveStream.Write(fCount);
+  for i:=1 to fCount do
+  with fQueue[i] do
+  begin
+    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Integer(0));
+    SaveStream.Write(Importance);
+    SaveStream.Write(WorkerCount);
+    SaveStream.Write(IsDeleted);
+  end;
+end;
+
+
+procedure TKMRepairQueue.Load(LoadStream:TKMemoryStream);
+var i:integer; s:string;
+begin
+  LoadStream.Read(s);
+  Assert(s = 'RepairQueue');
+
+  LoadStream.Read(fCount);
+  SetLength(fQueue, fCount+1);
+  for i:=1 to fCount do
+  with fQueue[i] do
+  begin
+    LoadStream.Read(House, 4);
+    LoadStream.Read(Importance);
+    LoadStream.Read(WorkerCount);
+    LoadStream.Read(IsDeleted);
+  end;
+end;
+
+
+procedure TKMRepairQueue.SyncLoad;
+var i:integer;
+begin
+  for i:=1 to fCount do
+    fQueue[i].House := fPlayers.GetHouseByID(cardinal(fQueue[i].House));
 end;
 
 

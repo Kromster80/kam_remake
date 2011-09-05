@@ -120,7 +120,7 @@ end;
 
 
 //We don't want anyones goal to use deleted player
-//Used when we delete certain player from the network game right after init
+//Used when we delete certain player from MapEd
 procedure TKMGoals.RemoveReference(aPlayerIndex:TPlayerIndex);
 var i:integer;
 begin

@@ -460,7 +460,7 @@ begin
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].DeliverList.RemoveOffer(Self);
   fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
-  fPlayers.Player[fOwner].BuildList.RemoveHouseRepair(Self);
+  fPlayers.Player[fOwner].RepairList.RemoveHouse(Self);
   fPlayers.Player[fOwner].BuildList.RemoveHouse(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
   //Road is removed in CloseHouse
@@ -625,7 +625,7 @@ begin
     Activate(true);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
-      fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
+      fPlayers.Player[fOwner].RepairList.AddHouse(Self);
   end;
 end;
 
@@ -652,7 +652,7 @@ begin
 
   fDamage := Math.min(fDamage + aAmount, MaxHealth);
   if (fBuildState = hbs_Done) and BuildingRepair then
-    fPlayers.Player[fOwner].BuildList.AddHouseRepair(Self);
+    fPlayers.Player[fOwner].RepairList.AddHouse(Self);
 
   if fBuildState = hbs_Done then
     UpdateDamage; //Only update fire if the house is complete
@@ -671,9 +671,9 @@ end;
 {Add repair to the house}
 procedure TKMHouse.AddRepair(aAmount:word=5);
 begin
-  fDamage := EnsureRange(fDamage - aAmount,0,High(Word));
+  fDamage := EnsureRange(fDamage - aAmount, 0, High(Word));
   if fDamage = 0 then
-    fPlayers.Player[fOwner].BuildList.RemoveHouseRepair(Self);
+    fPlayers.Player[fOwner].RepairList.RemoveHouse(Self);
   UpdateDamage;
 end;
 

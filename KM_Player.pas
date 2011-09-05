@@ -24,6 +24,7 @@ type
   private
     fAI:TKMPlayerAI;
     fBuildList:TKMBuildingQueue;
+    fRepairList: TKMRepairQueue;
     fDeliverList:TKMDeliverQueue;
     fHouses:TKMHousesCollection;
     fUnits:TKMUnitsCollection;
@@ -51,6 +52,7 @@ type
 
     property AI:TKMPlayerAI read fAI;
     property BuildList:TKMBuildingQueue read fBuildList;
+    property RepairList:TKMRepairQueue read fRepairList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
     property Units:TKMUnitsCollection read fUnits;
@@ -147,6 +149,7 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
+  fRepairList   := TKMRepairQueue.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
   fPlayerType   := pt_Computer;
@@ -170,6 +173,7 @@ begin
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
+  FreeThenNil(fRepairList);
   FreeThenNil(fAI);
   Inherited;
 end;

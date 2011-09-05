@@ -383,7 +383,7 @@ var i:integer;
 begin
   if fPlayers=nil then exit;
   for i:=0 to fPlayers.Count-1 do
-    fPlayers[i].DeliverList.SaveToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
+    fPlayers[i].DeliverList.ExportToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
 end;
 
 
