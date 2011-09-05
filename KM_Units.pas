@@ -1493,13 +1493,12 @@ end;
 
 procedure TKMUnit.UpdateHitPoints;
 begin
-  //Use fHitPointCounter as a counter to restore hit points every X ticks
-  //todo: Move this to TGroup and add additional options like only restore when not InFight and not walking
-  if (GetUnitAction is TUnitActionFight) then exit;
+  //Use fHitPointCounter as a counter to restore hit points every X ticks (Humbelum says even when in fights)
   if fGame.GlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
   if fHitPointCounter mod fGame.GlobalSettings.fHitPointRestorePace = 0 then
     HitPointsIncrease(1);
   inc(fHitPointCounter);
+  if fHitPointCounter = high(Cardinal)-1 then fHitPointCounter := 1;
 end;
 
 

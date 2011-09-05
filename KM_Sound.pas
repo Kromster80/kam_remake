@@ -74,6 +74,7 @@ type
     fLocale:string; //Locale used to access warrior sounds
     fNotificationSoundCount: array[TAttackNotification] of byte;
     fWarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
+    fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
     procedure CheckOpenALError;
     procedure LoadSoundsDAT;
     procedure ScanWarriorSounds;
@@ -110,24 +111,28 @@ implementation
 uses KM_CommonTypes, KM_RenderAux, KM_Log;
 
 
-//Krom: I moved everything that is used internally down to implementation,
-//so these things are not visible from global scope
 const
   MAX_BUFFERS = 16; //16/24/32 looks like the limit, depends on hardware
   MAX_SOURCES = 32; //depends on hardware as well
   MAX_DISTANCE = 32; //After this distance sounds are completely mute
 
   WarriorSFXFolder: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
-    'MILITIA', 'AXEMAN', 'SWORDMAN', 'BOWMAN', 'CROSSBOW',
-    'LANCEMAN', 'PIKEMAN', 'CAVALRY', 'KNIGHTS', 'BARBARIAN',
-    'REBEL', 'ROGUE', 'WARRIOR', 'VAGABOND');
+    'militia', 'axeman', 'swordman', 'bowman', 'crossbowman',
+    'lanceman', 'pikeman', 'cavalry', 'knights', 'barbarian',
+    'rebel', 'rogue', 'warrior', 'vagabond');
+
+  //TPR warriors reuse TSK voices in some languages, so if the specific ones don't exist use these
+  WarriorSFXFolderBackup: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
+    '', '', '', '', '',
+    '', '', '', '', '',
+    'bowman', 'lanceman', 'barbarian', 'cavalry');
 
   WarriorSFX: array[TWarriorSpeech] of string = (
-    'SELECT', 'EAT', 'LEFT', 'RIGHT', 'HALVE',
-    'JOIN', 'HALT', 'SEND', 'ATTACK', 'FORMAT',
-    'DEATH', 'BATTLE', 'STORM');
+    'select', 'eat', 'left', 'right', 'halve',
+    'join', 'halt', 'send', 'attack', 'format',
+    'death', 'battle', 'storm');
 
-  AttackNotifications: array[TAttackNotification] of string = ('CITIZ0', 'TOWN0', 'UNITS0');
+  AttackNotifications: array[TAttackNotification] of string = ('citiz', 'town', 'units');
 
   CitizenSFX: array[CITIZEN_MIN..CITIZEN_MAX] of record
     WarriorVoice: TUnitType;
@@ -159,7 +164,10 @@ var
 begin
   Inherited Create;
 
-  fLocale := aLocale;
+  if DirectoryExists(ExeDir+'data\sfx\speech.'+aLocale+'\') then
+    fLocale := aLocale
+  else
+    fLocale := 'eng'; //Use English voices when no language specific voices exist
 
   fIsSoundInitialized := InitOpenAL;
   if not fIsSoundInitialized then begin
@@ -461,10 +469,15 @@ function TSoundLib.WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; 
 var S:string;
 begin
   if not fIsSoundInitialized then Exit;
-  S := ExeDir + 'data\sfx\speech.'+fLocale+'\' + WarriorSFXFolder[aUnitType] + '\' + WarriorSFX[aSound] + IntToStr(aNumber);
+  S := ExeDir + 'data\sfx\speech.'+fLocale+'\';
+  if fWarriorUseBackup[aUnitType] then
+    S := S + WarriorSFXFolderBackup[aUnitType]
+  else
+    S := S + WarriorSFXFolder[aUnitType];
+  S := S + '\' + WarriorSFX[aSound] + IntToStr(aNumber);
   Result := '';
-  if FileExists(S+'.snd') then Result := S+'.snd';
-  if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
+  if FileExists(S+'.snd') then Result := S+'.snd'; //Some languages use .snd files, but inside they are just WAVs renamed
+  if FileExists(S+'.wav') then Result := S+'.wav';
 end;
 
 
@@ -472,7 +485,7 @@ function TSoundLib.NotificationSoundFile(aSound:TAttackNotification; aNumber:byt
 var S:string;
 begin
   if not fIsSoundInitialized then Exit;
-  S := ExeDir + 'data\sfx\speech.'+fLocale+ '\' + AttackNotifications[aSound] + IntToStr(aNumber);
+  S := ExeDir + 'data\sfx\speech.'+fLocale+ '\' + AttackNotifications[aSound] + int2fix(aNumber,2);
   Result := '';
   if FileExists(S+'.snd') then Result := S+'.snd';
   if FileExists(S+'.wav') then Result := S+'.wav'; //In Russian version there are WAVs
@@ -578,8 +591,14 @@ begin
   //Reset counts from previous locale/unsuccessful load
   FillChar(fWarriorSoundCount, SizeOf(fWarriorSoundCount), #0);
   FillChar(fNotificationSoundCount, SizeOf(fNotificationSoundCount), #0);
+  FillChar(fWarriorUseBackup, SizeOf(fWarriorUseBackup), #0);
 
   if not DirectoryExists(ExeDir + 'data\sfx\speech.'+fLocale+'\') then Exit;
+
+  //First inspect folders, if the prefered ones don't exist use the backups
+  for U:=WARRIOR_MIN to WARRIOR_MAX do
+    if not DirectoryExists(ExeDir+'data\sfx\speech.'+fLocale+'\'+WarriorSFXFolder[U]+'\') then
+      fWarriorUseBackup[U] := true;
 
   //If the folder exists it is likely all the sounds are there
   for U:=WARRIOR_MIN to WARRIOR_MAX do
@@ -620,6 +639,7 @@ begin
     if S = GAME_VERSION then
     begin
       MS.Read(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
+      MS.Read(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
       MS.Read(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
       Result := True;
     end;
@@ -636,6 +656,7 @@ begin
   MS := TKMemoryStream.Create;
   MS.Write(GAME_VERSION);
   MS.Write(fWarriorSoundCount, SizeOf(fWarriorSoundCount));
+  MS.Write(fWarriorUseBackup, SizeOf(fWarriorUseBackup));
   MS.Write(fNotificationSoundCount, SizeOf(fNotificationSoundCount));
   MS.SaveToFile(aFile);
   MS.Free;
