@@ -364,7 +364,7 @@ begin
   Label_Stat[6].Caption := inttostr(MyPlayer.Stats.GetUnitsTrained);
   Label_Stat[7].Caption := inttostr(MyPlayer.Stats.GetWeaponsProduced);
   Label_Stat[8].Caption := inttostr(MyPlayer.Stats.GetSoldiersTrained);
-  Label_Stat[9].Caption := int2time(fGame.GetMissionTime);
+  Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
 end;
 
 

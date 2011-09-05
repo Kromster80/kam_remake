@@ -92,7 +92,7 @@ type
 
     procedure NetworkInit;
 
-    function GetMissionTime:cardinal;
+    function GetMissionTime:TDateTime;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
     property GlobalTickCount:cardinal read fGlobalTickCount;
@@ -902,10 +902,12 @@ begin
 end;
 
 
+//TDateTime stores days/months/years as 1 and hours/minutes/seconds as fractions of a 1
 //Treat 10 ticks as 1 sec irregardless of user-set pace
-function TKMGame.GetMissionTime:cardinal;
+function TKMGame.GetMissionTime:TDateTime;
 begin
-  Result := fGameTickCount div 10;
+  //Convert cardinal into TDateTime, where 1hour = 1/24 and so on..
+  Result := (fGameTickCount/24/60/60/10);
 end;
 
 
@@ -1060,7 +1062,7 @@ begin
       LoadStream.Read(s); //Savegame mission file
       LoadStream.Read(s); //GameName
       LoadStream.Read(i);
-      Result := s + ' ' + int2time(i div 10);
+      Result := FormatDateTime(s + ' hh:nn:ss', i/24/60/60/10);
       if SlotID = AUTOSAVE_SLOT then Result := fTextLibrary.GetTextString(203) + ' ' + Result;
     end else
       Result := 'Unsupported save ' + ver;
@@ -1321,7 +1323,7 @@ begin
 
     //StatusBar
     if (fGameState in [gsRunning, gsReplay]) then
-      Form1.StatusBar1.Panels[2].Text := 'Time: '+int2time(GetMissionTime);
+      Form1.StatusBar1.Panels[2].Text := 'Time: ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
   end;
   if DoGameHold then GameHold(true,DoGameHoldState);
 end;

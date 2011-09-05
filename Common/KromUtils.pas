@@ -28,9 +28,6 @@ procedure FreeThenNil(var Obj);
 function ReverseString(s1:string):string;
 
 function int2fix(Number,Len:integer):string;
-function float2fix(Number:single; Digits:integer):string;
-function int2time(Time:integer):string;
-procedure Color2RGB(Col:integer; out R,G,B:byte);
 
 function Min(const A,B,C: integer):integer; overload;
 function Min(const A,B,C: single):single; overload;
@@ -240,28 +237,6 @@ begin
     ss:='**********';//ss[99999999]:='0'; //generating an error in lame way
   setlength(ss, Len);
   Result := ss;
-end;
-
-
-function float2fix(Number:single; Digits:integer):string;
-begin
-  Result := FloatToStrF(Number, ffGeneral, Digits+1, Digits);
-end;
-
-
-function int2time(Time:integer):string;
-begin
-  Result := int2fix(Time div 3600 mod 24,2)+':'+
-            int2fix(Time div 60 mod 60,2)+':'+
-            int2fix(Time mod 60,2);
-end;
-
-
-procedure Color2RGB(Col:integer; out R,G,B:byte);
-begin
-  R := Col AND $FF;
-  G := Col AND $FF00 SHR 8;
-  B := Col AND $FF0000 SHR 16;
 end;
 
 

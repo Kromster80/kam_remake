@@ -2404,8 +2404,11 @@ procedure TKMGamePlayInterface.ShowClock(DoShow:boolean);
 begin
   Image_Clock.Visible := DoShow;
   Label_Clock.Visible := DoShow;
-  if DoShow then //With slow GPUs it will keep old values till next frame, that can take some seconds
-    Label_Clock.Caption := int2time(fGame.GetMissionTime);
+
+  //With slow GPUs it will keep old values till next frame, that can take some seconds
+  //Thats why we refresh Clock.Caption here 
+  if DoShow then 
+    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
 end;
 
 
@@ -2983,17 +2986,19 @@ begin
 
   if fShownUnit=nil then fJoiningGroups := false;
 
-  if fGame.GameInputProcess.ReplayState = gipReplaying then begin
+  if fGame.GameInputProcess.ReplayState = gipReplaying then
+  begin
     Panel_Replay.Show;
-    PercentBar_Replay.Position := EnsureRange(round(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick * 100), 0, 100);
-    Label_Replay.Caption := Format('%d / %d', [fGame.GameTickCount div 10, fGame.GameInputProcess.GetLastTick div 10]);
+    PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick * 100), 0, 100);
+    Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime) + ' / ' +
+                            FormatDateTime('hh:nn:ss', fGame.GameInputProcess.GetLastTick/24/60/60/10);
   end else
     Panel_Replay.Hide;
 
   Minimap_Update(nil);
   if Image_Clock.Visible then begin
-    Image_Clock.TexID := ((Image_Clock.TexID-556)+1)mod 16 +556;
-    Label_Clock.Caption := int2time(fGame.GetMissionTime);
+    Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
+    Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
   end;
 
   if Panel_Build.Visible then Build_Fill(nil);

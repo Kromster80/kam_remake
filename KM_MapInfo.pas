@@ -6,6 +6,7 @@ uses
 
 
 type
+  //@Lewin: It is not very good idea to mix savegames into MapInfo class. There should be separate SaveInfo and SavesCollection classes. I can make it if you like. There's a lot of duplicate code across Saves functions
   TKMapInfo = class
   private
     fIsSave:boolean; //Allow peaking at saves (for multiplayer lobby)
@@ -189,7 +190,7 @@ begin
       LoadStream.Read(s); //Savegame mission file
       LoadStream.Read(s); //GameName
       LoadStream.Read(i);
-      Title := s + ' ' + int2time(i div 10);
+      Title := FormatDateTime(s + ' hh:nn:ss', i/24/60/60/10);
       if fSaveSlot = AUTOSAVE_SLOT then Title := fTextLibrary.GetTextString(203) + ' ' + Title;
       LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
       LoadStream.Read(IsSaveMultiplayer);
