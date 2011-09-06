@@ -1,0 +1,21 @@
+There are two InnoSetup scripts:
+
+InstallerFull.iss:
+ - Used for making complete installers.
+ - Data files are taken from the folder BuildFull.
+
+
+InstallerUpdate.iss:
+ - Used for making complete installers.
+ - Data files are taken from the folder BuildFull.
+
+
+There are instructions at the top of each file explaining what you need to change before compiling. (e.g. revision number)
+
+
+List of steps:
+
+ 1. Place all files to be installed in the build folder (update or complete)
+ 2. Open up the InstallerFull or InstallerUpdate script with InnoSetup
+ 3. Update the items described in comments in that file (revision, updatable versions)
+ 4. Compile!
