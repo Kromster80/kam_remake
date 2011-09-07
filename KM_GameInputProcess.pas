@@ -83,6 +83,7 @@ type
   TGameInputCommand = record
     CommandType:TGameInputCommandType;
     Params:array[1..MAX_PARAMS]of integer;
+    TextParam: string;
     PlayerIndex: TPlayerIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
@@ -99,7 +100,8 @@ type
       Rand:cardinal; //acts as CRC check
     end;
 
-    function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
+    function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer): TGameInputCommand; overload;
+    function MakeCommand(aGIC:TGameInputCommandType; const aTextParam: string): TGameInputCommand; overload;
     procedure TakeCommand(aCommand:TGameInputCommand); virtual; abstract;
     procedure ExecCommand(aCommand: TGameInputCommand);
     procedure StoreCommand(aCommand: TGameInputCommand);
@@ -125,8 +127,8 @@ type
 
     procedure CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 
-    procedure CmdGame(aCommandType:TGameInputCommandType; aValue:integer); overload;
     procedure CmdGame(aCommandType:TGameInputCommandType; aValue:boolean); overload;
+    procedure CmdGame(aCommandType:TGameInputCommandType; aValue:string); overload;
     procedure CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam:integer); overload;
 
     procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
@@ -175,10 +177,26 @@ var i:integer;
 begin
   Result.CommandType := aGIC;
   Result.PlayerIndex := MyPlayer.PlayerIndex;
+
   for i:=Low(aParam) to High(aParam) do
     Result.Params[i+1] := aParam[i];
   for i:=High(aParam)+1 to High(Result.Params)-1 do
     Result.Params[i+1] := maxint;
+
+  Result.TextParam := '';
+end;
+
+
+function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; const aTextParam: string):TGameInputCommand;
+var i:integer;
+begin
+  Result.CommandType := aGIC;
+  Result.PlayerIndex := MyPlayer.PlayerIndex;
+  
+  for i:=Low(Result.Params) to High(Result.Params) do
+    Result.Params[i] := maxint;
+
+  Result.TextParam := aTextParam;
 end;
 
 
@@ -254,7 +272,7 @@ begin
       gic_TempDoNothing:          ;
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
-      gic_GameSave:               if fReplayState = gipRecording then fGame.Save(Params[1]);
+      gic_GameSave:               if fReplayState = gipRecording then fGame.Save(TextParam);
       gic_GameTeamChange:         begin
                                     fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
                                     fPlayers.UpdateMultiplayerTeams;
@@ -366,17 +384,17 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aValue:integer);
-begin
-  Assert(aCommandType = gic_GameSave);
-  TakeCommand( MakeCommand(aCommandType, [aValue]) );
-end;
-
-
 procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aValue:boolean);
 begin
   Assert(aCommandType = gic_GamePause);
   TakeCommand( MakeCommand(aCommandType, [integer(aValue)]) );
+end;
+
+
+procedure TGameInputProcess.CmdGame(aCommandType: TGameInputCommandType; aValue: string);
+begin
+  Assert(aCommandType = gic_GameSave);
+  TakeCommand(MakeCommand(aCommandType, aValue));
 end;
 
 

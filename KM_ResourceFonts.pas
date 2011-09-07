@@ -207,11 +207,12 @@ end;
 
 
 procedure TResourceFont.ExportFonts(aLocale:string);
-var i:TKMFont;
+var i:TKMFont;CodePage:string;
 begin
+  CodePage := GetCodePage(aLocale);
   for i:=low(TKMFont) to high(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt') then
-      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt', i, true)
+    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt') then
+      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt', i, true)
     else
       fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', i, true);
 end;

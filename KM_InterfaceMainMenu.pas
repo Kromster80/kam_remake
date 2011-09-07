@@ -20,9 +20,9 @@ type
     Campaign_Selected:TKMCampaign;
     Campaign_MapIndex:byte;
 
-    SingleMap_Top:integer; //Top map in list
-    SingleMap_Selected:integer; //Selected map
-    SingleMapsInfo:TKMapsCollection;
+    fMaps_Top:integer; //Top map in list
+    fMap_Selected:integer; //Selected map
+    fMaps: TKMapsCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
     OldResolution:word;
@@ -49,7 +49,6 @@ type
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
 
-    procedure SingleMap_PopulateList;
     procedure SingleMap_RefreshList;
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
@@ -86,6 +85,7 @@ type
     procedure Lobby_StartClick(Sender: TObject);
 
     procedure Load_Click(Sender: TObject);
+    procedure Load_ListClick(Sender: TObject);
     procedure Load_RefreshList;
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_Change(Sender: TObject);
@@ -148,7 +148,7 @@ type
       Panel_LobbySetup:TKMPanel;
         Label_LobbyChooseMap: TKMLabel;
         Radio_LobbyMapType:TKMRadioGroup;
-        FileList_Lobby:TKMDropFileBox;
+        List_Lobby:TKMDropBox;
         Label_LobbyMapName:TKMLabel;
         Label_LobbyMapCount:TKMLabel;
         Label_LobbyMapMode:TKMLabel;
@@ -184,7 +184,8 @@ type
       Label_SingleAllies,Label_SingleEnemies:TKMLabel;
       Button_SingleBack,Button_SingleStart:TKMButton;
     Panel_Load:TKMPanel;
-      Button_Load:array[1..SAVEGAME_COUNT] of TKMButton;
+      List_Load: TKMColumnListBox;
+      Button_Load: TKMButton;
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
@@ -244,7 +245,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound;
+uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
@@ -256,8 +257,10 @@ begin
   ScreenX := min(X,MENU_DESIGN_X);
   ScreenY := min(Y,MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
-  SingleMap_Top := 0;
-  SingleMap_Selected := 0;
+
+  fMaps := TKMapsCollection.Create;
+  fMaps_Top := 0;
+  fMap_Selected := 0;
 
   MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, (X-MENU_DESIGN_X) div 2,
@@ -300,7 +303,7 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
-  SingleMapsInfo.Free;
+  fMaps.Free;
   MyControls.Free;
   Inherited;
 end;
@@ -505,17 +508,17 @@ begin
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top+2, 140, 20, '. ', fnt_Metal, kaLeft);
         Label_LobbyPlayer[i].Hide;
 
-        DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 10, top, 140, 20, fnt_Metal);
+        DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 10, top, 140, 20, fnt_Metal, '');
         DropBox_LobbyPlayerSlot[i].AddItem(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
         DropBox_LobbyPlayerSlot[i].AddItem(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 130, 20, fnt_Metal);
+        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 130, 20, fnt_Metal, '');
         DropBox_LobbyLoc[i].AddItem(fTextLibrary[TX_LOBBY_RANDOM]);
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 300, top, 100, 20, fnt_Metal);
+        DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 300, top, 100, 20, fnt_Metal, '');
         DropBox_LobbyTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
         for k:=1 to 4 do DropBox_LobbyTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
@@ -547,8 +550,8 @@ begin
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SINGLE]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
-      FileList_Lobby := TKMDropFileBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
-      FileList_Lobby.OnChange := Lobby_MapSelect;
+      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby.OnChange := Lobby_MapSelect;
       TKMLabel.Create(Panel_LobbySetup, 10, 360, 100, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, kaLeft);
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 400, 220, 20, '', fnt_Metal, kaLeft);
@@ -600,8 +603,6 @@ end;
 procedure TKMMainMenuInterface.Create_Single_Page;
 var i:integer;
 begin
-  SingleMapsInfo := TKMapsCollection.Create;
-
   Panel_Single:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     Panel_SingleList:=TKMPanel.Create(Panel_Single,512+22,84,445,600);
 
@@ -669,18 +670,18 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Load_Page;
-var i:integer;
 begin
   Panel_Load:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     with TKMImage.Create(Panel_Load,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_Load,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    for i:=1 to SAVEGAME_COUNT do
-    begin
-      Button_Load[i] := TKMButton.Create(Panel_Load,337,110+i*40,350,30,Format(fTextLibrary[TX_MENU_SLOT],[i]),fnt_Metal, bsMenu);
-      Button_Load[i].Tag := i; //To simplify usage
-      Button_Load[i].OnClick := Load_Click;
-    end;
+    TKMLabel.Create(Panel_Load, ScreenX div 2, 120, 0, 0, 'List of savegames', fnt_Metal, kaCenter);
+
+    List_Load := TKMColumnListBox.Create(Panel_Load, 337, 150, 350, 400, fnt_Metal, fnt_Metal, ['File name', 'Description'], [0, 150]);
+    List_Load.OnClick := Load_ListClick;
+
+    Button_Load := TKMButton.Create(Panel_Load,337,560,350,30,'Load',fnt_Metal, bsMenu);
+    Button_Load.OnClick := Load_Click;
 
     Button_LoadBack := TKMButton.Create(Panel_Load, 337, 650, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LoadBack.OnClick := SwitchMenuPage;
@@ -920,13 +921,14 @@ begin
   end;
 
   {Show SingleMap menu}
-  if Sender=Button_SP_Single then begin
-    SingleMap_PopulateList;
+  if Sender=Button_SP_Single then
+  begin
+    fMaps.ScanMapsFolder;
     SingleMap_RefreshList;
-    SingleMap_Selected := EnsureRange(SingleMap_Selected, 0, SingleMapsInfo.Count-1);
-    ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, SingleMap_Selected-MENU_SP_MAPS_COUNT+1, SingleMap_Selected);
+    fMap_Selected := EnsureRange(fMap_Selected, 0, fMaps.Count-1);
+    ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, fMap_Selected-MENU_SP_MAPS_COUNT+1, fMap_Selected);
     SingleMap_ScrollChange(ScrollBar_SingleMaps);
-    SingleMap_SelectMap(Shape_SingleOverlay[SingleMap_Selected-SingleMap_Top]);
+    SingleMap_SelectMap(Shape_SingleOverlay[fMap_Selected-fMaps_Top]);
     Panel_Single.Show;
   end;
 
@@ -1074,43 +1076,39 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_PopulateList;
-begin
-  SingleMapsInfo.ScanMapsFolder;
-end;
-
-
 procedure TKMMainMenuInterface.SingleMap_RefreshList;
 var i,MapID:integer;
 begin
+
+
   for i:=0 to MENU_SP_MAPS_COUNT-1 do
   begin
-    MapID := SingleMap_Top + i;
-    if MapID > SingleMapsInfo.Count-1 then begin
+    MapID := fMaps_Top + i;
+    if MapID > fMaps.Count-1 then begin
       Image_SingleMode[i].TexID       := 0;
       Label_SinglePlayers[i].Caption  := '';
       Label_SingleTitle1[i].Caption   := '';
       Label_SingleTitle2[i].Caption   := '';
       Label_SingleSize[i].Caption     := '';
     end else begin
-      Image_SingleMode[i].TexID       := 28+byte(SingleMapsInfo[MapID].MissionMode <> mm_Tactic)*14;  //28 or 42
-      Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo[MapID].PlayerCount);
-      Label_SingleTitle1[i].Caption   := SingleMapsInfo[MapID].Folder;
-      Label_SingleTitle2[i].Caption   := SingleMapsInfo[MapID].SmallDesc;
-      Label_SingleSize[i].Caption     := SingleMapsInfo[MapID].MapSize;
+      Image_SingleMode[i].TexID       := 28+byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
+      Label_SinglePlayers[i].Caption  := inttostr(fMaps[MapID].Info.PlayerCount);
+      Label_SingleTitle1[i].Caption   := fMaps[MapID].Filename;
+      Label_SingleTitle2[i].Caption   := fMaps[MapID].SmallDesc;
+      Label_SingleSize[i].Caption     := fMaps[MapID].Info.MapSizeText;
     end;
   end;
 
-  ScrollBar_SingleMaps.MaxValue := max(0, SingleMapsInfo.Count - MENU_SP_MAPS_COUNT);
+  ScrollBar_SingleMaps.MaxValue := max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
 end;
 
 
 procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
 begin
-  SingleMap_Top := ScrollBar_SingleMaps.Position;
-  if InRange(SingleMap_Selected-SingleMap_Top,0,MENU_SP_MAPS_COUNT-1) then
-    SingleMap_SelectMap(Shape_SingleOverlay[SingleMap_Selected-SingleMap_Top])
+  fMaps_Top := ScrollBar_SingleMaps.Position;
+  if InRange(fMap_Selected-fMaps_Top,0,MENU_SP_MAPS_COUNT-1) then
+    SingleMap_SelectMap(Shape_SingleOverlay[fMap_Selected-fMaps_Top])
   else
     SingleMap_SelectMap(nil); //Means it is off visible area
   SingleMap_RefreshList;
@@ -1125,26 +1123,26 @@ begin
   else
   begin
     i := TKMControl(Sender).Tag;
-    if not InRange(SingleMap_Top+i, 0, SingleMapsInfo.Count-1) then exit; //Less items than list space
+    if not InRange(fMaps_Top+i, 0, fMaps.Count-1) then exit; //Less items than list space
 
     Shape_SingleMap.Show;
     Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * (i+1); // Including header height
 
-    SingleMap_Selected        := SingleMap_Top+i;
-    Label_SingleTitle.Caption := SingleMapsInfo[SingleMap_Selected].Folder;
-    Label_SingleDesc.Caption  := SingleMapsInfo[SingleMap_Selected].BigDesc;
+    fMap_Selected        := fMaps_Top+i;
+    Label_SingleTitle.Caption := fMaps[fMap_Selected].Filename;
+    Label_SingleDesc.Caption  := fMaps[fMap_Selected].BigDesc;
 
-    Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [SingleMapsInfo[SingleMap_Selected].MissionModeText]);
-    Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [SingleMapsInfo[SingleMap_Selected].VictoryCondition]);
-    Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [SingleMapsInfo[SingleMap_Selected].DefeatCondition]);
+    Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[fMap_Selected].Info.MissionModeText]);
+    Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[fMap_Selected].Info.VictoryCondition]);
+    Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
   end;
 end;
 
 
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
-  if not InRange(SingleMap_Selected, 0, SingleMapsInfo.Count-1) then exit; //Some odd index
-  fGame.StartSingleMap(KMMapNameToPath(SingleMapsInfo[SingleMap_Selected].Folder,'dat'),SingleMapsInfo[SingleMap_Selected].Folder); //Provide mission filename mask and title here
+  if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
+    fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat'),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
 end;
 
 
@@ -1363,13 +1361,13 @@ begin
     Radio_LobbyMapType.Show;
     Radio_LobbyMapType.ItemIndex := 0;
     Lobby_MapTypeSelect(nil);
-    FileList_Lobby.Show;
+    List_Lobby.Show;
     Label_LobbyChooseMap.Show;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
     Button_LobbyStart.Disable;
   end else begin
     Radio_LobbyMapType.Hide;
-    FileList_Lobby.Hide;
+    List_Lobby.Hide;
     Label_LobbyChooseMap.Hide;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
@@ -1415,7 +1413,7 @@ begin
         if DropBox_LobbyPlayerSlot[i].ItemIndex = 1 then
         begin
           fGame.Networking.NetPlayers.AddAIPlayer;
-          if fGame.Networking.MapInfo.IsSave then
+          if fGame.Networking.SelectGameKind = ngk_Save then
             fGame.Networking.MatchPlayersToSave(fGame.Networking.NetPlayers.Count); //Match new AI player in save
         end;
       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
@@ -1429,7 +1427,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
 var i:integer; MyNik, CanEdit, IsSave:boolean;
 begin
-  IsSave := fGame.Networking.MapInfo.IsSave;
+  IsSave := fGame.Networking.SelectGameKind = ngk_Save;
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
@@ -1508,13 +1506,15 @@ procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex = 0 then
   begin
-    FileList_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-    FileList_Lobby.RefreshList(ExeDir+'Maps\', 'dat', 'map', true);
+    fMaps.ScanMapsFolder;
+    List_Lobby.SetItems(fMaps.MapList);
+    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
   end
   else
   begin
-    FileList_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
-    FileList_Lobby.RefreshList(ExeDir+'SavesM\', 'sav', 'rpl', true);
+    fGame.Saves.ScanSavesFolder(true);
+    List_Lobby.SetItems(fGame.Saves.SavesList);
+    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
   end;
   if Sender <> nil then //This is used in Reset_Lobby when we are not connected
     fGame.Networking.SelectNoMap;
@@ -1522,13 +1522,18 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
+var Valid: Boolean;
 begin
   if Radio_LobbyMapType.ItemIndex = 0 then
-    fGame.Networking.SelectMap(TruncateExt(ExtractFileName(FileList_Lobby.FileName)))
-  else
-    fGame.Networking.SelectSave(KMSaveNameToSlot(FileList_Lobby.FileName));
-  if not fGame.Networking.MapInfo.IsValid then
-    Lobby_MapTypeSelect(Radio_LobbyMapType); //Deselect the map
+  begin
+    fGame.Networking.SelectMap(List_Lobby.ItemCaption);
+    Valid := fGame.Networking.MapInfo.IsValid;
+  end else begin
+    fGame.Networking.SelectSave(List_Lobby.ItemCaption);
+    Valid := fGame.Networking.SaveInfo.IsValid;
+  end;
+
+  if not Valid then Lobby_MapTypeSelect(Radio_LobbyMapType); //Deselect the map
 end;
 
 
@@ -1536,19 +1541,20 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
-  Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Title;
-  Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.MapInfo.PlayerCount]);
-  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.MapInfo.MissionModeText;
+  Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Info.Title;
+  Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.MapInfo.Info.PlayerCount]);
+  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.MapInfo.Info.MissionModeText;
   //Label_LobbyMapCond.Caption :=
-  Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE]+' '+fGame.Networking.MapInfo.MapSize;
+  Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE]+' '+fGame.Networking.MapInfo.Info.MapSizeText;
 
   //Update starting locations
-  if fGame.Networking.MapInfo.IsSave then
+  if fGame.Networking.SelectGameKind = ngk_Save then
     DropText := fTextLibrary[TX_LOBBY_SELECT] + eol
   else
     DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
-  for i:=1 to fGame.Networking.MapInfo.PlayerCount do
-    DropText := DropText + fGame.Networking.MapInfo.LocationName[i-1] + eol;
+
+  for i:=1 to fGame.Networking.MapInfo.Info.PlayerCount do
+    DropText := DropText + fGame.Networking.MapInfo.Info.LocationName[i-1] + eol;
 
   for i:=0 to MAX_PLAYERS-1 do
     DropBox_LobbyLoc[i].SetItems(DropText);
@@ -1559,12 +1565,13 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Lobby_Reset(Button_MP_CreateLAN,true); //Will reset the lobby page into host mode, preserving messages
-  if fGame.Networking.MapInfo.IsSave then
+  if fGame.Networking.SelectGameKind = ngk_Save then
     Radio_LobbyMapType.ItemIndex := 1
   else
     Radio_LobbyMapType.ItemIndex := 0;
+
   Lobby_MapTypeSelect(nil);
-  FileList_Lobby.SetByFileName(fGame.Networking.MapInfo.Folder); //Select the map
+  List_Lobby.FindByName(fGame.Networking.MapInfo.Filename); //Select the map
 end;
 
 
@@ -1615,17 +1622,33 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Load_ListClick(Sender: TObject);
+begin
+  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fGame.Saves.Count-1)
+                         and fGame.Saves[List_Load.ItemIndex].IsValid;
+end;
+
+
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
-  fGame.Load(TKMControl(Sender).Tag);
+  fGame.Load(fGame.Saves[List_Load.ItemIndex].Filename);
 end;
 
 
 procedure TKMMainMenuInterface.Load_RefreshList;
 var i:integer;
 begin
-  for i:=1 to SAVEGAME_COUNT do
-    Button_Load[i].Caption := fGame.SavegameTitle(i);
+  fGame.Saves.ScanSavesFolder(false);
+  List_Load.Clear;
+
+  for i:=0 to fGame.Saves.Count-1 do
+    List_Load.AddItem([fGame.Saves[i].Filename, fGame.Saves[i].Info.Title], [$FFFFFFFF, $FFFFFFFF]);
+
+  //Select first Save by default
+  if List_Load.ItemCount > 0 then
+    List_Load.ItemIndex := 0;
+
+  Load_ListClick(List_Load);
 end;
 
 

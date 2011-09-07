@@ -11,7 +11,7 @@ uses
   KM_MapEditor, KM_Campaigns,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
-  KM_ArmyEvaluation;
+  KM_ArmyEvaluation, KM_Saves;
 
 type TGameState = ( gsNoGame,  //No game running at all, MainMenu
                     gsPaused,  //Game is paused and responds to 'P' key only
@@ -40,10 +40,11 @@ type
     fProjectiles:TKMProjectiles;
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
+    fSaves: TKMSavesCollection; //todo: Move to UI
+
   //Should be saved
     fGameTickCount:cardinal;
     fGameName:string;
-    fMissionFile:string; //Remember what we are playing incase we might want to replay
     fMissionMode: TKMissionMode;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
 
@@ -96,7 +97,6 @@ type
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
     property GlobalTickCount:cardinal read fGlobalTickCount;
-    property GetMissionFile:string read fMissionFile;
     property GetGameName:string read fGameName;
     property MultiplayerMode:boolean read fMultiplayerMode;
     property FormPassability:integer read fFormPassability write fFormPassability;
@@ -106,6 +106,7 @@ type
     property GameState:TGameState read fGameState;
     procedure SetGameSpeed(aSpeed:byte=0);
     procedure StepOneFrame;
+    function SaveName(const aName, aExt:string):string;
 
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -114,12 +115,10 @@ type
     property Projectiles:TKMProjectiles read fProjectiles;
     property GameInputProcess:TGameInputProcess read fGameInputProcess;
     property Networking:TKMNetworking read fNetworking;
+    property Saves: TKMSavesCollection read fSaves;
 
-    procedure Save(SlotID:shortint);
-    procedure Load(SlotID:shortint; aIsMultiplayer:boolean=false);
-    function TestLoad(SlotID:shortint; aIsMultiplayer:boolean): String;
-    function SavegameTitle(SlotID:shortint):string;
-    function SlotToSaveName(aSlot:integer; const aExtension:string):string;
+    procedure Save(const aFilename: string);
+    procedure Load(const aFilename: string; aIsMultiplayer:boolean=false);
 
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime:cardinal);
@@ -159,6 +158,7 @@ begin
   fResource         := TResource.Create(aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
+  fSaves            := TKMSavesCollection.Create;
   fCampaigns        := TKMCampaignsCollection.Create;
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
@@ -172,6 +172,7 @@ destructor TKMGame.Destroy;
 begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
 
+  FreeThenNil(fSaves);
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGlobalSettings);
@@ -383,7 +384,7 @@ end;
 
 procedure TKMGame.RestartLastMap;
 begin
-  GameStart(fMissionFile, fGameName);
+  Load('basesave');
 end;
 
 
@@ -393,23 +394,22 @@ begin
   fLog.AppendLog('GameStart');
   GameInit(false);
 
-  fMissionFile := aMissionFile;
   fGameName := aGameName;
 
-  fLog.AppendLog('Loading DAT file: '+fMissionFile);
+  fLog.AppendLog('Loading DAT file: '+aMissionFile);
 
   fMainMenuInterface.ShowScreen(msLoading, 'script');
 
   if aMissionFile <> '' then
   try //Catch exceptions
     fMissionParser := TMissionParser.Create(mpm_Single, false);
-    if fMissionParser.LoadMission(fMissionFile) then
+    if fMissionParser.LoadMission(aMissionFile) then
       fLog.AppendLog('DAT Loaded')
     else
       Raise Exception.Create(fMissionParser.ErrorMessage);
-    MyPlayer := fPlayers.Player[fMissionParser.MissionDetails.HumanPlayerID];
+    MyPlayer := fPlayers.Player[fMissionParser.MissionInfo.HumanPlayerID];
     Assert(MyPlayer.PlayerType = pt_Human);
-    fMissionMode := fMissionParser.MissionDetails.MissionMode;
+    fMissionMode := fMissionParser.MissionInfo.MissionMode;
     FreeAndNil(fMissionParser);
   except
     on E : Exception do
@@ -418,7 +418,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+E.ClassName+': '+E.Message;
+      LoadError := 'An error has occured while parsing the file '+aMissionFile+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       Exit;
@@ -431,7 +431,7 @@ begin
     fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[0];
   end;
-  
+
   fPlayers.AfterMissionInit(true);
 
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
@@ -445,12 +445,7 @@ begin
   fGameState := gsRunning;
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-  Save(99); //Thats our base for a game record
-
-  {$IFDEF Unix} //In Linux CopyFile does not overwrite
-  if FileExists(SlotToSaveName(99,'bas')) then DeleteFile(SlotToSaveName(99,'bas'));
-  {$ENDIF}
-  CopyFile(PChar(SlotToSaveName(99,'sav')), PChar(SlotToSaveName(99,'bas')), false);
+  fSaves.BaseSave;
 
   fLog.AppendLog('Gameplay recording initialized',true);
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
@@ -471,17 +466,17 @@ begin
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
-  if fNetworking.MapInfo.IsSave then
+  if fNetworking.SelectGameKind = ngk_Save then
     //Load savegame
-    Load(fNetworking.MapInfo.SaveSlot, true)
+    Load(fNetworking.SaveInfo.Filename, true)
   else
   begin
     //Load mission file
     GameInit(true);
-    fMissionFile := KMMapNameToPath(fNetworking.MapInfo.Folder, 'dat');
-    fGameName := fNetworking.MapInfo.Folder + ' MP';
 
-    fLog.AppendLog('Loading DAT file: '+fMissionFile);
+    fGameName := fNetworking.MapInfo.Filename + ' MP';
+
+    fLog.AppendLog('Loading DAT file: '+fNetworking.MapInfo.Filename);
 
     fMainMenuInterface.ShowScreen(msLoading, 'script');
 
@@ -495,11 +490,11 @@ begin
 
     try //Catch exceptions
       fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
-      if fMissionParser.LoadMission(fMissionFile) then
+      if fMissionParser.LoadMission(MapNameToPath(fNetworking.MapInfo.Filename, 'dat')) then
         fLog.AppendLog('DAT Loaded')
       else
         Raise Exception.Create(fMissionParser.ErrorMessage);
-      fMissionMode := fMissionParser.MissionDetails.MissionMode;
+      fMissionMode := fMissionParser.MissionInfo.MissionMode;
       FreeAndNil(fMissionParser);
     except
       on E : Exception do
@@ -508,7 +503,7 @@ begin
         //Note: While debugging, Delphi will still stop execution for the exception,
         //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
         //But to normal player the dialog won't show.
-        LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+E.ClassName+': '+E.Message;
+        LoadError := 'An error has occured while parsing the file '+fNetworking.MapInfo.Filename+'||'+E.ClassName+': '+E.Message;
         fMainMenuInterface.ShowScreen(msError, LoadError);
         fLog.AppendLog('DAT Load Exception: '+LoadError);
         Exit;
@@ -516,7 +511,7 @@ begin
     end;
 
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
-    fMissionMode := fNetworking.MapInfo.MissionMode; //Tactic or normal
+    fMissionMode := fNetworking.MapInfo.Info.MissionMode; //Tactic or normal
     fPlayers.AfterMissionInit(true);
   end;
 
@@ -530,7 +525,7 @@ begin
     fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].PlayerType;
 
     //Setup alliances
-    if not fNetworking.MapInfo.IsSave then
+    if fNetworking.SelectGameKind = ngk_Map then
       for k:=0 to fPlayers.Count-1 do
         if (fNetworking.NetPlayers[i].Team = 0) or (fNetworking.NetPlayers.StartingLocToLocal(k+1) = -1) or
           (fNetworking.NetPlayers[i].Team <> fNetworking.NetPlayers[fNetworking.NetPlayers.StartingLocToLocal(k+1)].Team) then
@@ -557,13 +552,8 @@ begin
 
   fGameState := gsPaused;
 
-  if not fNetworking.MapInfo.IsSave then
-  begin
-    Save(99); //Thats our base for a game record
-    //In Linux CopyFile does not overwrite
-    if FileExists(SlotToSaveName(99,'bas')) then DeleteFile(SlotToSaveName(99,'bas'));
-    CopyFile(PChar(SlotToSaveName(99,'sav')), PChar(SlotToSaveName(99,'bas')), false);
-  end;
+  if fNetworking.SelectGameKind = ngk_Map then
+    fSaves.BaseSave; //Thats our base for a game record
 
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnReadyToPlay := GameMPReadyToPlay;
@@ -577,7 +567,7 @@ begin
 
   fLog.AppendLog('Gameplay recording initialized', True);
 
-  if not fNetworking.MapInfo.IsSave then //Load has already set KaMSeed
+  if fNetworking.SelectGameKind = ngk_Map then //Load has already set KaMSeed
     SetKaMSeed(4); //Random after StartGameMP and ViewReplay should match
 end;
 
@@ -622,15 +612,15 @@ begin
   fLog.AppendLog('Gameplay Error: "'+aText+'" at location '+TypeToString(aLoc));
 
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-    fGameInputProcess.SaveToFile(SlotToSaveName(99,'rpl')); //Save replay data ourselves
+    fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl')); //Save replay data ourselves
 
   MyZip := TZippit.Create;
   //Include in the bug report:
-  MyZip.AddFiles(SlotToSaveName(99,'*'),'Replay'); //Replay files
+  MyZip.AddFiles(SaveName('basesave', '*'), 'Replay'); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
-  MyZip.AddFile(fMissionFile,'Mission'); //Mission script
-  for i:=AUTOSAVE_SLOT to AUTOSAVE_SLOT+AUTOSAVE_COUNT-1 do
-    MyZip.AddFiles(SlotToSaveName(i,'*'),'Autosaves'); //All autosaves
+//  MyZip.AddFile(fMissionFile,'Mission'); //Mission script
+  for i:=1 to AUTOSAVE_COUNT do
+    MyZip.AddFiles(SaveName('autosave'+int2fix(i,2), '*'), 'Autosaves'); //All autosaves
 
   //Save it
   CrashFile := 'KaM Crash '+GAME_REVISION+' '+FormatDateTime('yyyy-mm-dd hh-nn-ss',Now)+'.zip'; //KaM Crash r1830 2007-12-23 15-24-33.zip
@@ -715,7 +705,7 @@ begin
       fMainMenuInterface.Fill_Results;
 
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
-      fGameInputProcess.SaveToFile(SlotToSaveName(99,'rpl'));
+      fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl'));
 
     FreeThenNil(fGameInputProcess);
     FreeThenNil(fPlayers);
@@ -857,9 +847,9 @@ begin
 
   CreateDir(ExeDir+'Maps');
   CreateDir(ExeDir+'Maps\'+aMissionName);
-  fTerrain.SaveToMapFile(KMMapNameToPath(aMissionName, 'map'));
+  fTerrain.SaveToMapFile(MapNameToPath(aMissionName, 'map'));
   fMissionParser := TMissionParser.Create(mpm_Editor,false);
-  fMissionParser.SaveDATFile(KMMapNameToPath(aMissionName, 'dat'));
+  fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat'));
   FreeAndNil(fMissionParser);
   fGameName := aMissionName;
 
@@ -873,19 +863,20 @@ end;
 { Check if replay files exist at location }
 function TKMGame.ReplayExists:boolean;
 begin
-  Result := FileExists(SlotToSaveName(99,'bas')) and
-            FileExists(SlotToSaveName(99,'rpl'));
+  Result := FileExists(SaveName('basesave', 'bas')) and
+            FileExists(SaveName('basesave', 'rpl'));
 end;
 
 
 procedure TKMGame.ReplayView;
 begin
-  CopyFile(PChar(SlotToSaveName(99,'bas')), PChar(SlotToSaveName(99,'sav')), false);
-  Load(99); //We load what was saved right before starting Recording
-  FreeAndNil(fGameInputProcess); //Override GIP from savegame
+  CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName('basesave','sav')), false);
+  Load('basesave'); //We load what was saved right before starting Recording
+  DeleteFile(SaveName('basesave','sav')); //Cleanup after use
 
+  FreeAndNil(fGameInputProcess); //Override GIP from savegame
   fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
-  fGameInputProcess.LoadFromFile(SlotToSaveName(99,'rpl'));
+  fGameInputProcess.LoadFromFile(SaveName('basesave','rpl'));
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
   fGameState := gsReplay;
@@ -950,7 +941,7 @@ end;
 //Saves the game in all its glory
 //Base savegame gets copied from save99.bas
 //Saves command log to RPL file
-procedure TKMGame.Save(SlotID:shortint);
+procedure TKMGame.Save(const aFilename: string);
 var
   SaveStream:TKMemoryStream;
   i,NetIndex:integer;
@@ -963,40 +954,40 @@ begin
   end;
 
   SaveStream := TKMemoryStream.Create;
-  SaveStream.Write('KaM_Savegame');
+
+  //We store a short header for multiplayer so the lobby can peak at the map size, number of players, etc.
+  SaveStream.Write('KaM_GameInfo');
   SaveStream.Write(GAME_REVISION); //This is savegame version
-  if fMultiplayerMode then SaveStream.Write('') //Multiplayer saves must be identical between computers
-                      else SaveStream.Write(fMissionFile); //Save game mission file
   SaveStream.Write(fGameName); //Save game title
   SaveStream.Write(fGameTickCount); //Required to be saved, e.g. messages being shown after a time
   SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
-  SaveStream.Write(fMultiplayerMode);
-  if fMultiplayerMode then
+  SaveStream.Write(fTerrain.MapX);
+  SaveStream.Write(fTerrain.MapY);
+  SaveStream.Write(fPlayers.Count);
+  for i:=0 to fPlayers.Count-1 do
   begin
-    //We store a short header for multiplayer so the lobby can peak at the map size, number of players, etc.
-    SaveStream.Write(fTerrain.MapX);
-    SaveStream.Write(fTerrain.MapY);
-    SaveStream.Write(fPlayers.Count);
-    for i:=0 to fPlayers.Count-1 do
+    if fNetworking <> nil then
+      NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i)
+    else
+      NetIndex := -1;
+
+    if NetIndex = -1 then
     begin
-      NetIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i);
-      if NetIndex = -1 then
-      begin
-        SaveStream.Write('Unknown');
-        TempPlayerType := pt_Human;
-        SaveStream.Write(TempPlayerType,SizeOf(TempPlayerType));
-        SaveStream.Write(Integer(0));
-        SaveStream.Write(Integer(0));
-      end
-      else
-      begin
-        SaveStream.Write(fNetworking.NetPlayers[NetIndex].Nikname);
-        SaveStream.Write(fNetworking.NetPlayers[NetIndex].PlayerType,SizeOf(fNetworking.NetPlayers[NetIndex].PlayerType));
-        SaveStream.Write(fNetworking.NetPlayers[NetIndex].FlagColorID);
-        SaveStream.Write(fNetworking.NetPlayers[NetIndex].Team);
-      end
-    end;
+      SaveStream.Write('Unknown');
+      TempPlayerType := pt_Human;
+      SaveStream.Write(TempPlayerType,SizeOf(TempPlayerType));
+      SaveStream.Write(Integer(0));
+      SaveStream.Write(Integer(0));
+    end
+    else
+    begin
+      SaveStream.Write(fNetworking.NetPlayers[NetIndex].Nikname);
+      SaveStream.Write(fNetworking.NetPlayers[NetIndex].PlayerType,SizeOf(fNetworking.NetPlayers[NetIndex].PlayerType));
+      SaveStream.Write(fNetworking.NetPlayers[NetIndex].FlagColorID);
+      SaveStream.Write(fNetworking.NetPlayers[NetIndex].Team);
+    end
   end;
+
   fCampaigns.Save(SaveStream);
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
@@ -1009,157 +1000,67 @@ begin
   if not fMultiplayerMode then
   begin
     fViewport.Save(SaveStream); //Saves viewed area settings
-    //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
     fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+    //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
   end;
 
   CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
   CreateDir(ExeDir+'SavesM\');
 
-  if SlotID = AUTOSAVE_SLOT then begin //Backup earlier autosaves
-    DeleteFile(SlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'sav'));
-    DeleteFile(SlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'rpl'));
-    DeleteFile(SlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'bas'));
-    for i:=AUTOSAVE_SLOT+AUTOSAVE_COUNT downto AUTOSAVE_SLOT+1 do //13 to 11
-    begin
-      RenameFile(SlotToSaveName(i-1,'sav'), SlotToSaveName(i,'sav'));
-      RenameFile(SlotToSaveName(i-1,'rpl'), SlotToSaveName(i,'rpl'));
-      RenameFile(SlotToSaveName(i-1,'bas'), SlotToSaveName(i,'bas'));
-    end;
-  end;
-
-  SaveStream.SaveToFile(SlotToSaveName(SlotID,'sav')); //Some 70ms for TPR7 map
+  SaveStream.SaveToFile(SaveName(aFilename,'sav')); //Some 70ms for TPR7 map
   SaveStream.Free;
 
   fLog.AppendLog('Save done');
 
-  CopyFile(PChar(SlotToSaveName(99,'bas')), PChar(SlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame
-  fGameInputProcess.SaveToFile(SlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
+  CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName(aFilename,'bas')), false); //replace Replay base savegame
+  fGameInputProcess.SaveToFile(SaveName(aFilename,'rpl')); //Adds command queue to savegame
 
   fLog.AppendLog('Saving game', true);
 end;
 
 
-function TKMGame.SavegameTitle(SlotID:shortint):string;
-var
-  FileName,s,ver:string;
-  LoadStream:TKMemoryStream;
-  i:cardinal;
-begin
-  FileName := SlotToSaveName(SlotID,'sav'); //Full path
-  if not FileExists(FileName) then begin
-    Result := fTextLibrary.GetTextString(202); //Empty
-    exit;
-  end;
-
-  LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  LoadStream.LoadFromFile(FileName);
-
-  LoadStream.Read(s);
-  if s = 'KaM_Savegame' then begin
-    LoadStream.Read(ver);
-    if ver = GAME_REVISION then begin
-      LoadStream.Read(s); //Savegame mission file
-      LoadStream.Read(s); //GameName
-      LoadStream.Read(i);
-      Result := FormatDateTime(s + ' hh:nn:ss', i/24/60/60/10);
-      if SlotID = AUTOSAVE_SLOT then Result := fTextLibrary.GetTextString(203) + ' ' + Result;
-    end else
-      Result := 'Unsupported save ' + ver;
-  end else
-    Result := 'Unsupported format';
-  LoadStream.Free;
-end;
-
-
-function TKMGame.SlotToSaveName(aSlot:integer; const aExtension:string):string;
-begin
-  Result := KMSlotToSaveName(aSlot,aExtension,MultiplayerMode);
-end;
-
-
-//Return description of an error
-function TKMGame.TestLoad(SlotID:shortint; aIsMultiplayer:boolean): String;
-var
-  FileName,s:string;
-  LoadStream:TKMemoryStream;
-begin
-  Result := '';
-  FileName := KMSlotToSaveName(SlotID, 'sav', aIsMultiplayer); //Full path
-  if not FileExists(FileName) then
-  begin
-    Result := 'Savegame file could not be found';
-    Exit;
-  end;
-  LoadStream := TKMemoryStream.Create;
-  try
-    LoadStream.LoadFromFile(FileName);
-    LoadStream.Read(s);
-    if s <> 'KaM_Savegame' then
-    begin
-      Result := 'Savegame is corrupt or not a valid KaM Remake savegame';
-      Exit;
-    end;
-    LoadStream.Read(s);
-    if s <> GAME_REVISION then
-    begin
-      Result := Format('Incompatible savegame version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
-      Exit;
-    end;
-  finally
-    LoadStream.Free;
-  end;
-end;
-
-
-procedure TKMGame.Load(SlotID:shortint; aIsMultiplayer:boolean=false);
+procedure TKMGame.Load(const aFilename: string; aIsMultiplayer:boolean=false);
 var
   LoadStream:TKMemoryStream;
-  s,FileName,LoadError:string;
+  s,LoadError:string;
   LoadedSeed:Longint;
   TempInt:integer;
   TempByte:byte;
   p:TPlayerIndex;
   TempPlayerType:TPlayerType;
-  IsSaveMultiplayer:boolean;
 begin
   fLog.AppendLog('Loading game');
-  FileName := KMSlotToSaveName(SlotID,'sav',aIsMultiplayer); //Full path
 
   if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent);
   Assert(fGameState = gsNoGame, 'Loading from wrong state');
 
+  //Create empty environment
+  GameInit(aIsMultiplayer); //This will set MultiplayerMode, which allows multiplayer saves to be played in singleplayer
+
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   try //Catch exceptions
-    if not FileExists(FileName) then Raise Exception.Create('Savegame could not be found');
+    if not FileExists(SaveName(aFileName, 'sav')) then Raise Exception.Create('Savegame could not be found');
 
-    LoadStream.LoadFromFile(FileName);
-    LoadStream.Read(s); if s <> 'KaM_Savegame' then Raise Exception.Create('Not a valid KaM Remake save file');
+    LoadStream.LoadFromFile(SaveName(aFileName, 'sav'));
+    LoadStream.Read(s); if s <> 'KaM_GameInfo' then Raise Exception.Create('Not a valid KaM Remake save file');
     LoadStream.Read(s); if s <> GAME_REVISION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
 
-    //Create empty environment
-    GameInit(aIsMultiplayer); //This will set MultiplayerMode, which allows multiplayer saves to be played in singleplayer
-
     //Substitute tick counter and id tracker
-    LoadStream.Read(fMissionFile); //Savegame mission file
     LoadStream.Read(fGameName); //Savegame title
     LoadStream.Read(fGameTickCount);
     LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
 
-    LoadStream.Read(IsSaveMultiplayer);
-    if IsSaveMultiplayer then
+    //We store a short header for multiplayer so the lobby can peak at the map size, number of players, etc.
+    //Just skip it this time
+    LoadStream.Read(TempInt); //MapX
+    LoadStream.Read(TempInt); //MapY
+    LoadStream.Read(TempByte); //Player count
+    for p:=0 to TempByte-1 do
     begin
-      //We store a short header for multiplayer so the lobby can peak at the map size, number of players, etc.
-      LoadStream.Read(TempInt); //MapX
-      LoadStream.Read(TempInt); //MapY
-      LoadStream.Read(TempByte); //Player count
-      for p:=0 to TempByte-1 do
-      begin
-        LoadStream.Read(s);
-        LoadStream.Read(TempPlayerType,SizeOf(TempPlayerType));
-        LoadStream.Read(TempInt);
-        LoadStream.Read(TempInt);
-      end
+      LoadStream.Read(s);
+      LoadStream.Read(TempPlayerType,SizeOf(TempPlayerType));
+      LoadStream.Read(TempInt);
+      LoadStream.Read(TempInt);
     end;
 
     fCampaigns.Load(LoadStream);
@@ -1174,7 +1075,9 @@ begin
     fPlayers.Load(LoadStream);
     fProjectiles.Load(LoadStream);
 
-    if not IsSaveMultiplayer then
+    //Multiplayer saves don't have this piece of information due to each player has his own version
+    //@Lewin: Does this means that MessageList in UI is lost?
+    if not fMultiplayerMode then
     begin
       fViewport.Load(LoadStream);
       fGamePlayInterface.Load(LoadStream);
@@ -1182,13 +1085,13 @@ begin
 
     LoadStream.Free;
 
-    if aIsMultiplayer then
+    if fMultiplayerMode then
       fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
     else
       fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-    fGameInputProcess.LoadFromFile(SlotToSaveName(SlotID,'rpl'));
+    fGameInputProcess.LoadFromFile(SaveName(aFileName,'rpl'));
 
-    CopyFile(PChar(SlotToSaveName(SlotID,'bas')), PChar(SlotToSaveName(99,'bas')), false); //replace Replay base savegame
+    CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
 
     fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
@@ -1199,7 +1102,7 @@ begin
     on E : Exception do
     begin
       //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-      LoadError := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
+      LoadError := 'An error was encountered while parsing the file '+aFileName+'.|Details of the error:|'+
                     E.ClassName+' error raised with message: '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu
       Exit;
@@ -1207,7 +1110,7 @@ begin
   end;
 
   SetKaMSeed(LoadedSeed);
-  if not aIsMultiplayer then
+  if not fMultiplayerMode then
     fGameState := gsRunning;
   fLog.AppendLog('Loading game',true);
 end;
@@ -1244,9 +1147,11 @@ begin
                         if AGGRESSIVE_REPLAYS then
                           fGameInputProcess.CmdTemp(gic_TempDoNothing);
 
-                        if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave
-                          and not (GameState = gsOnHold) then //Don't autosave if the game was put on hold during this tick
-                          Save(AUTOSAVE_SLOT); //Each 1min of gameplay time
+                        //Each 1min of gameplay time
+                        //Don't autosave if the game was put on hold during this tick
+                        if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave and not (GameState = gsOnHold) then
+                          fSaves.AutoSave;
+
                         //During this tick we were requested to GameHold
                         if DoGameHold then break; //Break the for loop (if we are using speed up)
                       end
@@ -1355,6 +1260,15 @@ begin
     gsReplay:  fGamePlayInterface.Paint;
     gsEditor:  fMapEditorInterface.Paint;
   end;
+end;
+
+
+function TKMGame.SaveName(const aName, aExt: string): string;
+begin
+  if fMultiplayerMode then
+    Result := ExeDir + 'SavesM\' + aName + '.' + aExt
+  else
+    Result := ExeDir + 'Saves\' + aName + '.' + aExt;
 end;
 
 

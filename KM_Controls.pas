@@ -499,6 +499,9 @@ type
 
     property BackAlpha:single write SetBackAlpha;
     property CanSelect:boolean write fCanSelect;
+
+    property Items:TStringList read fItems; //todo: Remove other Item## methods
+
     function ItemCount:integer;
     function ItemCaption:string;
     property ItemHeight:byte read fItemHeight write fItemHeight;
@@ -570,6 +573,7 @@ type
   TKMDropBox = class(TKMControl)
   private
     fCaption:string;
+    fDefaultCaption:string;
     fDropCount:byte;
     fDropUp:boolean;
     fFont: TKMFont;
@@ -585,43 +589,20 @@ type
     procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
     procedure AddItem(aItem:string);
     procedure SetItems(aText:string);
     property DropCount:byte write fDropCount;
+    property DefaultCaption:string read fDefaultCaption write fDefaultCaption;
     property DropUp:boolean write fDropUp;
     property ItemIndex:smallint read GetItemIndex write SetItemIndex;
+    function ItemCaption:string;
+    procedure FindByName(aText:string);
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
 
   TKMFileList = class;
-
-  TKMDropFileBox = class(TKMControl)
-  private
-    fCaption:string;
-    fDefaultCaption:string;
-    fDropCount:byte;
-    fFont: TKMFont;
-    fButton:TKMButton;
-    fFileList:TKMFileList;
-    fShape:TKMShape;
-    fOnChange:TNotifyEvent;
-    procedure ListShow(Sender:TObject);
-    procedure ListClick(Sender:TObject);
-    procedure ListHide(Sender:TObject);
-    procedure SetEnabled(aValue:boolean); override;
-    procedure SetVisible(aValue:boolean); override;
-  public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
-    property DropCount:byte write fDropCount;
-    property DefaultCaption:string read fDefaultCaption write fDefaultCaption;
-    property OnChange: TNotifyEvent write fOnChange;
-    function FileName:string;
-    procedure SetByFileName(aFile:string);
-    procedure RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
-    procedure Paint; override;
-  end;
 
 
   TKMDropColorBox = class(TKMControl)
@@ -2381,7 +2362,7 @@ end;
 
 
 { TKMDropBox }
-constructor TKMDropBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+constructor TKMDropBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
 var P:TKMPanel;
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
@@ -2389,6 +2370,7 @@ begin
   fDropCount := 10;
   fDropUp := false;
   fFont := aFont;
+  fDefaultCaption := aDefaultCaption;
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
@@ -2490,117 +2472,23 @@ begin
 end;
 
 
+procedure TKMDropBox.FindByName(aText:string);
+begin
+  fList.ItemIndex := fList.Items.IndexOf(aText);
+  if fList.ItemIndex <> -1 then
+    fCaption := fList.Items[fList.ItemIndex]
+  else
+    fCaption := fDefaultCaption;
+end;
+
+
+function TKMDropBox.ItemCaption:string;
+begin
+  Result := fList.ItemCaption;
+end;
+
+
 procedure TKMDropBox.Paint;
-var Col:TColor4;
-begin
-  Inherited;
-  fRenderUI.WriteBevel(Left, Top, Width, Height);
-  if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-
-  fRenderUI.WriteText(Left+4, Top+4, fCaption, fFont, kaLeft, Col);
-end;
-
-
-{ TKMDropFileBox }
-constructor TKMDropFileBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
-var P:TKMPanel;
-begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-
-  fDropCount := 10;
-  fFont := aFont;
-  fDefaultCaption := aDefaultCaption;
-  fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
-
-  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
-  fButton.fOnClick := ListShow;
-  fButton.MakesSound := false;
-
-  P := MasterParent;
-  fShape := TKMShape.Create(P, 0, 0, P.Width, P.Height, $00000000);
-  fShape.fOnClick := ListHide;
-
-  //In FullScreen mode P initialized already with offset (P.Top <> 0)
-  fFileList := TKMFileList.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0);
-  fFileList.fOnClick := ListClick;
-
-  ListHide(nil);
-end;
-
-
-procedure TKMDropFileBox.ListShow(Sender:TObject);
-begin
-  if fFileList.Visible then
-  begin
-    ListHide(nil);
-    Exit;
-  end;
-
-  if fFileList.FileCount < 1 then exit;
-
-  fFileList.Height := fDropCount * fFileList.ItemHeight;
-  fFileList.TopIndex := fFileList.ItemIndex - fDropCount div 2;
-
-  fFileList.Show;
-  fShape.Show;
-end;
-
-
-procedure TKMDropFileBox.ListClick(Sender:TObject);
-begin
-  if (fFileList.ItemIndex <> -1) then
-  begin
-    fCaption := TruncateExt(ExtractFileName(fFileList.FileName));
-    if Assigned(fOnChange) then fOnChange(Self);
-  end;
-  ListHide(nil);
-end;
-
-
-procedure TKMDropFileBox.ListHide(Sender:TObject);
-begin
-  fFileList.Hide;
-  fShape.Hide;
-end;
-
-
-procedure TKMDropFileBox.SetEnabled(aValue:boolean);
-begin
-  Inherited;
-  fButton.Enabled := aValue;
-  fFileList.Enabled := aValue;
-end;
-
-
-procedure TKMDropFileBox.SetVisible(aValue:boolean);
-begin
-  Inherited;
-  fButton.Visible := aValue;
-end;
-
-
-function TKMDropFileBox.FileName:string;
-begin
-  Result := fFileList.FileName;
-end;
-
-
-procedure TKMDropFileBox.SetByFileName(aFile:string);
-begin
-  fFileList.SetByFileName(aFile);
-  fCaption := TruncateExt(ExtractFileName(fFileList.FileName));
-  if fCaption = '' then fCaption := fDefaultCaption;
-end;
-
-
-procedure TKMDropFileBox.RefreshList(aPath,aExt1,aExt2:string; ScanSubFolders:boolean);
-begin
-  fFileList.RefreshList(aPath, aExt1, aExt2, ScanSubFolders);
-  fCaption := fDefaultCaption;
-end;
-
-
-procedure TKMDropFileBox.Paint;
 var Col:TColor4;
 begin
   Inherited;

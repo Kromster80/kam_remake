@@ -96,9 +96,9 @@ const
   -1,-1,-1,-1,-1,-1,-1,-1); //Animals
 
 type
-  TKMMissionDetails = record
+  TKMMissionInfo = record
     MapPath: string;
-    MapSize: TKMPoint;
+    MapSizeX, MapSizeY: Integer;
     MissionMode: TKMissionMode;
     PlayerCount: shortint;
     HumanPlayerID: TPlayerIndex;
@@ -128,7 +128,7 @@ type
     fAttackPositions: array of TKMAttackPosition;
     fAttackPositionsCount: integer;
 
-    fMissionInfo:TKMMissionDetails;
+    fMissionInfo:TKMMissionInfo;
 
     function LoadSimple(const aFileName:string):boolean;
     function LoadStandard(const aFileName:string):boolean;
@@ -146,7 +146,7 @@ type
     function LoadMission(const aFileName:string):boolean;
 
     property ErrorMessage:string read fErrorMessage;
-    property MissionDetails:TKMMissionDetails read fMissionInfo;
+    property MissionInfo:TKMMissionInfo read fMissionInfo;
 
     function SaveDATFile(const aFileName:string):boolean;
   end;
@@ -195,8 +195,8 @@ begin
 
   //Set default values
   fMissionInfo.MapPath := '';
-  fMissionInfo.MapSize.X := 0;
-  fMissionInfo.MapSize.Y := 0;
+  fMissionInfo.MapSizeX := 0;
+  fMissionInfo.MapSizeY := 0;
   fMissionInfo.MissionMode := mm_Normal;
   fMissionInfo.PlayerCount := 0;
   fMissionInfo.HumanPlayerID := PLAYER_NONE;
@@ -405,8 +405,8 @@ begin
     Exit;
   end;
   
-  fMissionInfo.MapSize.X := sx;
-  fMissionInfo.MapSize.Y := sy;
+  fMissionInfo.MapSizeX := sx;
+  fMissionInfo.MapSizeY := sy;
   Result := true;
 end;
 

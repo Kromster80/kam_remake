@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2243';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2250';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
@@ -109,7 +109,6 @@ const
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
   SAVEGAME_COUNT    = 10;   //Savegame slots available in game menu
-  AUTOSAVE_SLOT     = 10;   //Slot ID used for autosaving
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 const //Here we store options that are hidden somewhere in code

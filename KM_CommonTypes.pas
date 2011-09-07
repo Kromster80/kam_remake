@@ -104,7 +104,7 @@ const
     pfNoData,   //mk_ResetMap
     pfText,     //mk_MapSelect
     pfNumber,   //mk_MapCRC
-    pfNumber,   //mk_SaveSelect
+    pfText,     //mk_SaveSelect
     pfNumber,   //mk_SaveCRC
     pfNoData,   //mk_ReadyToStart
     pfText,     //mk_Start

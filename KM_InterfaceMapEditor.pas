@@ -1193,7 +1193,7 @@ end;
 procedure TKMapEdInterface.Menu_Save(Sender:TObject);
 begin
   if Sender = Edit_SaveName then begin
-    CheckBox_SaveExists.Enabled := CheckFileExists(KMMapNameToPath(Edit_SaveName.Text,'dat'), true);
+    CheckBox_SaveExists.Enabled := FileExists(MapNameToPath(Edit_SaveName.Text, 'dat'));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := false;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;

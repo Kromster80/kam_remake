@@ -8,12 +8,8 @@ uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
   function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; out aTargetCanBeReached:boolean):TKMPoint;
   function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
 
-  function KMMapNameToPath(const aMapName, aExtension:string):string;
-  function KMSlotToSaveName(aSlot:integer; const aExtension:string; aIsMultiplayer:boolean):string;
-  function KMSaveNameToSlot(const aSaveName:string):integer;
+  function MapNameToPath(const aMapName, aExtension:string):string;
   function FixDelim(const aString:string):string;
-
-  function MapSizeToString(X,Y:integer):string;
 
   function GetPingColor(aPing:word):cardinal;
 
@@ -166,30 +162,9 @@ begin
 end;
 
 
-function KMMapNameToPath(const aMapName, aExtension:string):string;
+function MapNameToPath(const aMapName, aExtension:string):string;
 begin
   Result := ExeDir+'Maps\'+aMapName+'\'+aMapName+'.'+aExtension;
-end;
-
-
-function KMSlotToSaveName(aSlot:integer; const aExtension:string; aIsMultiplayer:boolean):string;
-begin
-  if aIsMultiplayer then
-    Result := ExeDir+'SavesM' //Multiplayer saves go in a different folder
-  else
-    Result := ExeDir+'Saves';
-  Result := Result+'\save'+int2fix(aSlot,2)+'.'+aExtension;
-end;
-
-
-function KMSaveNameToSlot(const aSaveName:string):integer;
-var SaveFile: string;
-begin
-  SaveFile := TruncateExt(ExtractFileName(aSaveName));
-  if LeftStr(SaveFile,4) = 'save' then
-    Result := StrToIntDef(RightStr(SaveFile,2),-1)
-  else
-    Result := -1;
 end;
 
 
@@ -197,20 +172,6 @@ end;
 function FixDelim(const aString:string):string;
 begin
   Result := StringReplace(aString, '\', PathDelim, [rfReplaceAll, rfIgnoreCase]);
-end;
-
-
-function MapSizeToString(X,Y:integer):string;
-begin
-  case X*Y of
-            1.. 48* 48: Result := 'XS';
-     48* 48+1.. 72* 72: Result := 'S';
-     72* 72+1..112*112: Result := 'M';
-    112*112+1..176*176: Result := 'L';
-    176*176+1..256*256: Result := 'XL';
-    256*256+1..320*320: Result := 'XXL';
-    else                Result := '???';
-  end;
 end;
 
 

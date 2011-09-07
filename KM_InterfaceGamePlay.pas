@@ -36,7 +36,6 @@ type
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
     procedure Create_NetWait_Page;
-    procedure Create_LoadFail_Page;
     procedure Create_SideStack;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
@@ -68,7 +67,6 @@ type
     procedure House_StoreAcceptFlag(Sender:TObject);
     procedure Menu_Settings_Fill;
     procedure Menu_Settings_Change(Sender:TObject);
-    procedure Menu_ShowLoad(Sender: TObject);
     procedure Menu_QuitMission(Sender:TObject);
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
@@ -83,7 +81,11 @@ type
     procedure Minimap_RightClick(Sender: TObject);
     procedure Unit_Die(Sender:TObject);
 
+    procedure Save_RefreshList;
+    procedure Save_ListClick(Sender: TObject);
     procedure Save_Click(Sender: TObject);
+    procedure Load_RefreshList;
+    procedure Load_ListClick(Sender: TObject);
     procedure Load_Click(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPage_Ratios(Sender: TObject);
@@ -91,7 +93,6 @@ type
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender:TObject);
     procedure NetWaitClick(Sender:TObject);
-    procedure LoadFailClick(Sender:TObject);
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
@@ -164,9 +165,6 @@ type
         Image_NetWait:TKMImage;
         Label_NetWait:TKMLabel;
         Button_NetQuit:TKMButton;
-    Panel_LoadFail:TKMPanel;
-      Panel_LoadFailMsg:TKMPanel;
-        Label_LoadFail:TKMLabel;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -193,10 +191,13 @@ type
       Label_Menu_Music, Label_Menu_Track: TKMLabel;
 
       Panel_Save:TKMPanel;
-        Button_Save:array[1..SAVEGAME_COUNT]of TKMButton;
+        List_Save: TKMListBox;
+        Edit_Save: TKMEdit;
+        Button_Save: TKMButton;
 
       Panel_Load:TKMPanel;
-        Button_Load:array[1..SAVEGAME_COUNT]of TKMButton;
+        List_Load: TKMListBox;
+        Button_Load: TKMButton;
 
       Panel_Settings:TKMPanel;
         Ratio_Settings_Brightness:TKMRatioRow;
@@ -374,42 +375,68 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Save_ListClick(Sender: TObject);
+begin
+  if InRange(TKMListBox(Sender).ItemIndex, 0, fGame.Saves.Count-1) then
+    Edit_Save.Text := fGame.Saves[List_Save.ItemIndex].Filename;
+end;
+
+
+procedure TKMGamePlayInterface.Save_RefreshList;
+var i:integer;
+begin
+  fGame.Saves.ScanSavesFolder(false);
+  List_Save.Clear;
+
+  for i:=0 to fGame.Saves.Count-1 do
+    List_Save.AddItem(fGame.Saves[i].Filename);
+end;
+
+
 procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
-  //Don't allow saving over autosave (AUTOSAVE_SLOT)
-  if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) then exit;
-
   if fGame.MultiplayerMode then
   begin
     //Tell everyone we are saving a game
     fGame.Networking.PostMessage('Saving game...');
-    fGame.GameInputProcess.CmdGame(gic_GameSave, TKMControl(Sender).Tag);
+    fGame.GameInputProcess.CmdGame(gic_GameSave, Edit_Save.Text);
   end
   else
-    fGame.Save(TKMControl(Sender).Tag);
+    fGame.Save(Edit_Save.Text);
 
   SwitchPage(nil); //Close save menu after saving
 end;
 
 
+procedure TKMGamePlayInterface.Load_ListClick(Sender: TObject);
+begin
+  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fGame.Saves.Count-1)
+                         and fGame.Saves[List_Load.ItemIndex].IsValid;
+end;
+
+
 procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
-var s:string;
 begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
 
-  //Test if savegame can be loaded (different version, corrupt file)
-  //Show error message "Savegame could not be loaded" without interrupting gameplay
-  //We could just disable the button, but that could be more confusing to the player
-  s := fGame.TestLoad(TKMControl(Sender).Tag, fGame.MultiplayerMode);
+  fGame.Load(fGame.Saves[List_Load.ItemIndex].Filename);
+end;
 
-  if s = '' then
-    fGame.Load(TKMControl(Sender).Tag)
-  else
-  begin
-    Label_LoadFail.Caption := s;
-    Panel_LoadFail.Show;
-    fGame.SetGameState(gsOnHold);
-  end;
+
+procedure TKMGamePlayInterface.Load_RefreshList;
+var i:integer;
+begin
+  fGame.Saves.ScanSavesFolder(false);
+  List_Load.Clear;
+
+  for i:=0 to fGame.Saves.Count-1 do
+    List_Load.AddItem(fGame.Saves[i].Filename);
+
+  //Select first Save by default
+  if List_Load.ItemCount > 0 then
+    List_Load.ItemIndex := 0;
+
+  Load_ListClick(List_Load);
 end;
 
 
@@ -496,13 +523,13 @@ begin
   end else
 
   if Sender=Button_Menu_Save then begin
-    Menu_ShowLoad(Sender); //Update savegames names
+    Save_RefreshList; //Update savegames names
     Panel_Save.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
   end else
 
   if Sender=Button_Menu_Load then begin
-    Menu_ShowLoad(Sender); //Update savegames names
+    Load_RefreshList; //Update savegames names
     Panel_Load.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(172);
   end else
@@ -664,7 +691,6 @@ begin
   Create_Pause_Page;
   Create_Replay_Page; //Replay controls
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
-  Create_LoadFail_Page;
 
   Label_Hint := TKMLabel.Create(Panel_Main,224+32,Panel_Main.Height-16,0,0,'',fnt_Outline,kaLeft);
   Label_Hint.Anchors := [akLeft, akBottom];
@@ -911,7 +937,7 @@ begin
       end;
       Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, kaLeft);
       Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, kaLeft);
-      DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey);
+      DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
       DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
       DropBox_AlliesTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
       for k:=1 to 4 do DropBox_AlliesTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
@@ -1095,45 +1121,29 @@ end;
 
 {Save page}
 procedure TKMGamePlayInterface.Create_Save_Page;
-var i:integer;
 begin
-  Panel_Save:=TKMPanel.Create(Panel_Main,0,412,200,400);
-    for i:=1 to SAVEGAME_COUNT do begin
-      Button_Save[i]:=TKMButton.Create(Panel_Save,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
-      Button_Save[i].OnClick:=Save_Click;
-      Button_Save[i].Tag:=i; //Simplify usage
-    end;
+  Panel_Save := TKMPanel.Create(Panel_Main,0,412,200,400);
+
+    List_Save := TKMListBox.Create(Panel_Save, 12, 10, 170, 280, fnt_Metal);
+    List_Save.OnClick := Save_ListClick;
+
+    Edit_Save := TKMEdit.Create(Panel_Save, 12, 300, 170, 20, fnt_Metal);
+
+    Button_Save := TKMButton.Create(Panel_Save,12,330,170,30,'Save',fnt_Metal, bsMenu);
+    Button_Save.OnClick := Save_Click;
 end;
 
 
 {Load page}
 procedure TKMGamePlayInterface.Create_Load_Page;
-var i:integer;
 begin
   Panel_Load := TKMPanel.Create(Panel_Main,0,412,200,400);
-    for i:=1 to SAVEGAME_COUNT do begin
-      Button_Load[i] := TKMButton.Create(Panel_Load,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
-      Button_Load[i].OnClick := Load_Click;
-      Button_Load[i].Tag := i;
-    end;
-end;
 
+    List_Load := TKMListBox.Create(Panel_Load, 12, 10, 170, 280, fnt_Metal);
+    List_Load.OnClick := Load_ListClick;
 
-procedure TKMGamePlayInterface.Create_LoadFail_Page;
-begin
-  Panel_LoadFail := TKMPanel.Create(Panel_Main,0,0,Panel_Main.Width,Panel_Main.Height);
-  Panel_LoadFail.Stretch;
-    with TKMBevel.Create(Panel_LoadFail,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2) do
-      Stretch;
-
-    Panel_LoadFailMsg := TKMPanel.Create(Panel_LoadFail,(Panel_Main.Width div 2)-100,(Panel_Main.Height div 2)-100,200,200);
-    Panel_LoadFailMsg.Center;
-
-      TKMLabel.Create(Panel_LoadFailMsg,100,30,64,16,'Savegame could not be loaded',fnt_Outline,kaCenter);
-      Label_LoadFail  := TKMLabel.Create(Panel_LoadFailMsg,100,60,64,16,'<<<LEER>>>',fnt_Metal,kaCenter);
-      with TKMButton.Create(Panel_LoadFailMsg,0,100,200,30,'Resume game',fnt_Metal) do
-        OnClick := LoadFailClick;
-    Panel_LoadFail.Hide; //Initially hidden
+    Button_Load := TKMButton.Create(Panel_Load,12,300,170,30,'Load',fnt_Metal, bsMenu);
+    Button_Load.OnClick := Load_Click;
 end;
 
 
@@ -2090,17 +2100,6 @@ begin
 end;
 
 
-{Show list of savegames and act depending on Sender (Save or Load)}
-procedure TKMGamePlayInterface.Menu_ShowLoad(Sender: TObject);
-var i:integer;
-begin
-  for i:=1 to SAVEGAME_COUNT do begin //We can update both for simplicity
-    Button_Save[i].Caption := fGame.SavegameTitle(i);
-    Button_Load[i].Caption := Button_Save[i].Caption;
-  end;
-end;
-
-
 {Quit the mission and return to main menu}
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
 begin
@@ -2483,13 +2482,6 @@ procedure TKMGamePlayInterface.NetWaitClick(Sender:TObject);
 begin
   Assert(Sender = Button_NetQuit, 'Wrong Sender in NetWaitClick');
   fGame.Stop(gr_Disconnect);
-end;
-
-
-procedure TKMGamePlayInterface.LoadFailClick(Sender:TObject);
-begin
-  Panel_LoadFail.Hide;
-  fGame.SetGameState(gsRunning)
 end;
 
 
@@ -3043,6 +3035,7 @@ procedure TKMGamePlayInterface.Paint;
 begin
   MyControls.Paint;
 end;
+
 
 
 
