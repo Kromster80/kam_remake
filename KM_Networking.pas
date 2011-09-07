@@ -335,6 +335,9 @@ begin
                 PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.Info.CRC));
               end;
     else      //@Lewin: What do we send in this case?
+              //@Krom: This procedure is used when a new client joins the server to make them initialise the map
+              //       selection. Before it would have sent mk_MapSelect with an empty string, meaning nothing would have been
+              //       loaded by the initialisations would have still run. I guess that's a bad way to do it though. It should probably only send it to that new client as well.
   end;
 end;
 
@@ -381,6 +384,7 @@ begin
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
   fNetPlayers.ResetLocAndReady; //Reset start locations
   fNetPlayers[fMyIndex].ReadyToStart := true; //@Lewin: Should it be False here?
+  //@Krom: Doesn't really matter, you cannot start a game without a valid map selected, but it would be less confusing as false (as long as select map/save always sets it to true)
 
   if Assigned(fOnMapName) then fOnMapName('');
   SendPlayerListAndRefreshPlayersSetup;
@@ -575,13 +579,13 @@ var i:integer;
 begin
   Assert(IsHost, 'Only host can send player list');
 
-  //In saves we should load team and color from the MapInfo
+  //In saves we should load team and color from the SaveInfo
   if (fNetGameState = lgs_Lobby) and (fSelectGameKind = ngk_Save) then
     for i:=1 to NetPlayers.Count do
       if NetPlayers[i].StartLocation <> 0 then
       begin
-        NetPlayers[i].FlagColorID := MapInfo.Info.ColorID[NetPlayers[i].StartLocation-1];
-        NetPlayers[i].Team := MapInfo.Info.Team[NetPlayers[i].StartLocation-1];
+        NetPlayers[i].FlagColorID := SaveInfo.Info.ColorID[NetPlayers[i].StartLocation-1];
+        NetPlayers[i].Team := SaveInfo.Info.Team[NetPlayers[i].StartLocation-1];
       end
       else
       begin
@@ -921,6 +925,7 @@ begin
                 if Assigned(fOnMapName) then fOnMapName('');
               end;
 
+    //@Krom: This is used for saves too, so it should not always use fMapInfo (to select the player from the save you will play as)
     mk_StartingLocQuery:
             if IsHost then begin
               LocID := Param;

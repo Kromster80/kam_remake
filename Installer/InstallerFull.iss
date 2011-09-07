@@ -5,7 +5,7 @@
              
 ; These don't need to change
 #define InstallType 'Full'
-#define BuildFolder 'BuildComplete'
+#define BuildFolder 'BuildFull'
 #define OutputEXE 'kam_remake_full'
 
 [Code]

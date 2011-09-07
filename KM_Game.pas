@@ -1077,6 +1077,8 @@ begin
 
     //Multiplayer saves don't have this piece of information due to each player has his own version
     //@Lewin: Does this means that MessageList in UI is lost?
+    //@Krom: Yes, it's lost for now. Multiplayer saves must be identical so I guess we'll have to send all message commands through
+    //       the GIC (add, delete) even though they won't show to other players.
     if not fMultiplayerMode then
     begin
       fViewport.Load(LoadStream);
