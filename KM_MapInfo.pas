@@ -22,6 +22,7 @@ type
 
     fStrictParsing:boolean; //Use strict map checking, important for MP
     fDatSize:integer;
+    fCRC: Cardinal;
 
     procedure ScanMap;
     procedure LoadFromFile(const aPath:string);
@@ -37,6 +38,7 @@ type
     property Info: TKMGameInfo read fInfo;
     property Path: string read fPath;
     property Filename: string read fFilename;
+    property CRC: Cardinal read fCRC;
 
     function IsValid:boolean;
   end;
@@ -90,7 +92,7 @@ begin
   if FileExists(DatFile) then
   if (fDatSize <> GetFileSize(DatFile)) or
      (fInfo.Version <> GAME_REVISION) or
-     (fStrictParsing and (fInfo.CRC <> Adler32CRC(DatFile) xor Adler32CRC(MapFile)))
+     (fStrictParsing and (fCRC <> Adler32CRC(DatFile) xor Adler32CRC(MapFile)))
   then
   begin
     fDatSize := GetFileSize(DatFile);
@@ -99,18 +101,19 @@ begin
     try
       fMissionParser.LoadMission(DatFile);
 
-      fInfo.Title := Filename;
+      //Single maps Titles are the same as filename for now.
+      //Campaign maps are in different folder
+      fInfo.Title             := Filename;
       fInfo.Version           := GAME_REVISION;
       fInfo.TickCount         := 0;
       fInfo.MissionMode       := fMissionParser.MissionInfo.MissionMode;
-      fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
       fInfo.MapSizeX          := fMissionParser.MissionInfo.MapSizeX;
       fInfo.MapSizeY          := fMissionParser.MissionInfo.MapSizeY;
       fInfo.VictoryCondition  := fMissionParser.MissionInfo.VictoryCond;
       fInfo.DefeatCondition   := fMissionParser.MissionInfo.DefeatCond;
-      fInfo.CRC               := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
 
       //This feature is only used for saves yet
+      fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
       for i:=Low(fInfo.LocationName) to High(fInfo.LocationName) do
       begin
         fInfo.LocationName[i] := 'Location '+IntToStr(i+1);
@@ -119,6 +122,7 @@ begin
         fInfo.Team[i] := 0;
       end;
 
+      fCRC := Adler32CRC(DatFile) xor Adler32CRC(MapFile);
       SaveToFile(fPath + fFilename + '.mi'); //Save new TMP file
     finally
       fMissionParser.Free;
@@ -150,6 +154,7 @@ begin
   S := TKMemoryStream.Create;
   S.LoadFromFile(aPath);
   fInfo.Load(S);
+  S.Read(fCRC);
   S.Read(fDatSize);
   S.Free;
 end;
@@ -161,6 +166,7 @@ begin
   S := TKMemoryStream.Create;
   try
     fInfo.Save(S);
+    S.Write(fCRC);
     S.Write(fDatSize);
     S.SaveToFile(aPath);
   finally

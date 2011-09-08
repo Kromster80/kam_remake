@@ -325,11 +325,11 @@ begin
   case fSelectGameKind of
     ngk_Save: begin
                 PacketSend(NET_ADDRESS_OTHERS, mk_SaveSelect, fSaveInfo.Filename, 0);
-                PacketSend(NET_ADDRESS_OTHERS, mk_SaveCRC, '', Integer(fSaveInfo.Info.CRC));
+                PacketSend(NET_ADDRESS_OTHERS, mk_SaveCRC, '', Integer(fSaveInfo.CRC));
               end;
     ngk_Map:  begin
                 PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Filename, 0);
-                PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.Info.CRC));
+                PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.CRC));
               end;
     else      //@Lewin: What do we send in this case?
               //@Krom: This procedure is used when a new client joins the server to make them initialise the map
@@ -884,7 +884,7 @@ begin
     mk_MapCRC:
             if fNetPlayerKind = lpk_Joiner then
             begin
-              if Integer(fMapInfo.Info.CRC) <> Param then
+              if Integer(fMapInfo.CRC) <> Param then
               begin
                 if fMapInfo.IsValid then
                   PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.Filename)
@@ -909,7 +909,7 @@ begin
 
     mk_SaveCRC:
             if fNetPlayerKind = lpk_Joiner then
-              if Integer(fSaveInfo.Info.CRC) <> Param then
+              if Integer(fSaveInfo.CRC) <> Param then
               begin
                 if fMapInfo.IsValid then
                   PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.Filename)

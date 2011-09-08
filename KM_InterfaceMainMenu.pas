@@ -191,7 +191,7 @@ type
       Panel_MapEd_SizeXY:TKMPanel;
       Radio_MapEd_SizeX,Radio_MapEd_SizeY:TKMRadioGroup;
       Panel_MapEd_Load:TKMPanel;
-      FileList_MapEd:TKMFileList;
+      List_MapEd:TKMListBox;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
     Panel_Options:TKMPanel;
       Panel_Options_GFX:TKMPanel;
@@ -716,7 +716,7 @@ begin
 
     Panel_MapEd_Load := TKMPanel.Create(Panel_MapEd, 462+10, 200, 300, 300);
       TKMLabel.Create(Panel_MapEd_Load, 6, 0, 100, 30, fTextLibrary[TX_MENU_MAP_AVAILABLE], fnt_Outline, kaLeft);
-      FileList_MapEd := TKMFileList.Create(Panel_MapEd_Load, 0, 20, 300, 240);
+      List_MapEd := TKMListBox.Create(Panel_MapEd_Load, 0, 20, 300, 240, fnt_Metal);
       Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 285, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
 
@@ -1079,8 +1079,6 @@ end;
 procedure TKMMainMenuInterface.SingleMap_RefreshList;
 var i,MapID:integer;
 begin
-
-
   for i:=0 to MENU_SP_MAPS_COUNT-1 do
   begin
     MapID := fMaps_Top + i;
@@ -1651,8 +1649,8 @@ procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 begin
   if Sender = Button_MapEd_Create then
     fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
-  if Sender = Button_MapEd_Load then
-    fGame.StartMapEditor(FileList_MapEd.FileName, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
+  if (Sender = Button_MapEd_Load) and (List_MapEd.ItemIndex <> -1) then
+    fGame.StartMapEditor(List_MapEd.ItemCaption, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 
 
@@ -1666,8 +1664,9 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_UpdateList;
 begin
-  FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', 'map', true); //Refresh each time we go here
-  FileList_MapEd.ItemIndex := 0; //Try to select first map by default
+  fMaps.ScanMapsFolder;
+  List_MapEd.Items.Text := fMaps.MapList;
+  List_MapEd.ItemIndex := 0; //Try to select first map by default
 end;
 
 

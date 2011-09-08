@@ -81,7 +81,7 @@ type
     procedure StartLastMap;
     procedure StartMultiplayerSave(const aFilename: string);
     procedure StartMultiplayerMap(const aFilename: string);
-    procedure StartMapEditor(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure StartMapEditor(const aFilename: string; aSizeX:integer=64; aSizeY:integer=64);
     procedure Stop(Msg:TGameResultMsg; TextMsg:string='');
 
     procedure GameMPPlay(Sender:TObject);
@@ -135,7 +135,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Player, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log;
+  KM_Unit1, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -780,13 +780,11 @@ begin
 end;
 
 
-{Mission name accepted in 2 formats:
-- absolute path, when opening a map from Form1.Menu
-- relative, from Maps folder}
-procedure TKMGame.StartMapEditor(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+{Mission name is relative, from Maps folder}
+procedure TKMGame.StartMapEditor(const aFilename: string; aSizeX:integer=64; aSizeY:integer=64);
 var fMissionParser:TMissionParser; i:integer;
 begin
-  if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
+  if not FileExists(SaveName(aFilename, 'dat')) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
   fLog.AppendLog('Starting Map Editor');
 
@@ -806,11 +804,11 @@ begin
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
 
-  if FileExists(aMissionPath) then
+  if FileExists(SaveName(aFilename, 'dat')) then
   begin
     fMissionParser := TMissionParser.Create(mpm_Editor,false);
 
-    if not fMissionParser.LoadMission(aMissionPath) then
+    if not fMissionParser.LoadMission(SaveName(aFilename, 'dat')) then
     begin
       //Show all required error messages here
       Stop(gr_Error, fMissionParser.ErrorMessage);
@@ -819,7 +817,7 @@ begin
     MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
     FreeAndNil(fMissionParser);
-    fGameName := TruncateExt(ExtractFileName(aMissionPath));
+    fGameName := aFilename;
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
     fPlayers := TKMPlayersCollection.Create;
@@ -836,7 +834,7 @@ begin
   for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
     fPlayers[i].FogOfWar.RevealEverything;
 
-  fLog.AppendLog('Gameplay initialized',true);
+  fLog.AppendLog('Gameplay initialized', True);
 
   fRender.Resize(ScreenX, ScreenY, rm2D);
   fViewport.Resize(ScreenX, ScreenY);
@@ -954,9 +952,9 @@ end;
 //Saves command log to RPL file
 procedure TKMGame.Save(const aFilename: string);
 var
-  SaveStream:TKMemoryStream;
-  i,NetIndex:integer;
-  TempPlayerType:TPlayerType;
+  SaveStream: TKMemoryStream;
+  fGameInfo: TKMGameInfo;
+  i, NetIndex: integer;
 begin
   fLog.AppendLog('Saving game');
   if not (fGameState in [gsPaused, gsRunning]) then begin
@@ -966,15 +964,15 @@ begin
 
   SaveStream := TKMemoryStream.Create;
 
-  //We store a short header for multiplayer so the lobby can peak at the map size, number of players, etc.
-  SaveStream.Write('KaM_GameInfo');
-  SaveStream.Write(GAME_REVISION); //This is savegame version
-  SaveStream.Write(fGameName); //Save game title
-  SaveStream.Write(fGameTickCount); //Required to be saved, e.g. messages being shown after a time
-  SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
-  SaveStream.Write(fTerrain.MapX);
-  SaveStream.Write(fTerrain.MapY);
-  SaveStream.Write(fPlayers.Count);
+  fGameInfo := TKMGameInfo.Create;
+  fGameInfo.Title := fGameName;
+  fGameInfo.TickCount := fGameTickCount;
+  fGameInfo.MissionMode := fMissionMode;
+  fGameInfo.MapSizeX := fTerrain.MapX;
+  fGameInfo.MapSizeY := fTerrain.MapY;
+  fGameInfo.VictoryCondition := 'Win';
+  fGameInfo.DefeatCondition := 'Lose';
+  fGameInfo.PlayerCount := fPlayers.Count;
   for i:=0 to fPlayers.Count-1 do
   begin
     if fNetworking <> nil then
@@ -982,22 +980,21 @@ begin
     else
       NetIndex := -1;
 
-    if NetIndex = -1 then
-    begin
-      SaveStream.Write('Unknown');
-      TempPlayerType := pt_Human;
-      SaveStream.Write(TempPlayerType,SizeOf(TempPlayerType));
-      SaveStream.Write(Integer(0));
-      SaveStream.Write(Integer(0));
-    end
-    else
-    begin
-      SaveStream.Write(fNetworking.NetPlayers[NetIndex].Nikname);
-      SaveStream.Write(fNetworking.NetPlayers[NetIndex].PlayerType,SizeOf(fNetworking.NetPlayers[NetIndex].PlayerType));
-      SaveStream.Write(fNetworking.NetPlayers[NetIndex].FlagColorID);
-      SaveStream.Write(fNetworking.NetPlayers[NetIndex].Team);
+    if NetIndex = -1 then begin
+      fGameInfo.LocationName[i] := 'Unknown';
+      fGameInfo.PlayerTypes[i] := pt_Human;
+      fGameInfo.ColorID[i] := 0;
+      fGameInfo.Team[i] := 0;
+    end else begin
+      fGameInfo.LocationName[i] := fNetworking.NetPlayers[NetIndex].Nikname;
+      fGameInfo.PlayerTypes[i] := fNetworking.NetPlayers[NetIndex].PlayerType;
+      fGameInfo.ColorID[i] := fNetworking.NetPlayers[NetIndex].FlagColorID;
+      fGameInfo.Team[i] := fNetworking.NetPlayers[NetIndex].Team;
     end
   end;
+
+  fGameInfo.Save(SaveStream);
+  fGameInfo.Free;
 
   fCampaigns.Save(SaveStream);
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
@@ -1033,12 +1030,9 @@ end;
 procedure TKMGame.Load(const aFilename: string);
 var
   LoadStream:TKMemoryStream;
-  s,LoadError:string;
+  fGameInfo: TKMGameInfo;
+  LoadError:string;
   LoadedSeed:Longint;
-  TempInt:integer;
-  TempByte:byte;
-  p:TPlayerIndex;
-  TempPlayerType:TPlayerType;
 begin
   fLog.AppendLog('Loading game');
 
@@ -1048,30 +1042,15 @@ begin
 
     LoadStream.LoadFromFile(SaveName(aFileName, 'sav'));
 
-    LoadStream.Read(s);
-    if s <> 'KaM_GameInfo' then
-      Raise Exception.Create('Not a valid KaM Remake save file');
-
-    LoadStream.Read(s);
-    if s <> GAME_REVISION then
-      Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
-
-    //Substitute tick counter and id tracker
-    LoadStream.Read(fGameName); //Savegame title
-    LoadStream.Read(fGameTickCount);
-    LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
-
-    //We store a short header for multiplayer so the lobby can peak at the map size, number of players, etc.
-    //Just skip it this time
-    LoadStream.Read(TempInt); //MapX
-    LoadStream.Read(TempInt); //MapY
-    LoadStream.Read(TempByte); //Player count
-    for p:=0 to TempByte-1 do
-    begin
-      LoadStream.Read(s);
-      LoadStream.Read(TempPlayerType,SizeOf(TempPlayerType));
-      LoadStream.Read(TempInt);
-      LoadStream.Read(TempInt);
+    //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
+    fGameInfo := TKMGameInfo.Create;
+    try
+      fGameInfo.Load(LoadStream);
+      fGameName := fGameInfo.Title;
+      fGameTickCount := fGameInfo.TickCount;
+      fMissionMode := fGameInfo.MissionMode;
+    finally //@Lewin: I'm not sure if exceptions from GameInfo will be caught here later on
+      fGameInfo.Free;
     end;
 
     fCampaigns.Load(LoadStream);

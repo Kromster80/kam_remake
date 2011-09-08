@@ -12,7 +12,8 @@ type
   private
     fPath: string; //TKMGameInfo does not stores paths, it would make no sense
     fFilename: string; //without extension
-    fSaveError:string;
+    fCRC: Cardinal;
+    fSaveError: string;
     fInfo: TKMGameInfo;
     procedure ScanSave;
   public
@@ -22,6 +23,7 @@ type
     property Info: TKMGameInfo read fInfo;
     property Path: string read fPath;
     property Filename: string read fFilename;
+    property CRC: Cardinal read fCRC;
 
     function IsValid:boolean;
   end;
@@ -80,7 +82,7 @@ begin
     Exit;
   end;
 
-  fInfo.CRC := Adler32CRC(fPath + fFilename + '.sav');
+  fCRC := Adler32CRC(fPath + fFilename + '.sav');
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   LoadStream.LoadFromFile(fPath + fFilename + '.sav');
