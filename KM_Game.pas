@@ -52,7 +52,7 @@ type
     procedure GameStart(aMissionFile, aGameName:string);
     procedure MultiplayerRig;
 
-    procedure Load(const aFilename: string; aIsMultiplayer:boolean=false);
+    procedure Load(const aFilename: string);
   public
     PlayOnState:TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
@@ -365,8 +365,8 @@ begin
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
 
-  fRender.Resize(ScreenX,ScreenY,rm2D);
-  fViewport.Resize(ScreenX,ScreenY);
+  fRender.Resize(ScreenX, ScreenY, rm2D);
+  fViewport.Resize(ScreenX, ScreenY);
 
   fGameTickCount := 0; //Restart counter
 end;
@@ -378,7 +378,7 @@ begin
   fCampaigns.ActiveCampaignMap := aMap;
 
   GameInit(false);
-  StartSingleMap(aCampaign.Maps[aMap].ScriptPath, aCampaign.Maps[aMap].MapName);
+  GameStart(aCampaign.Maps[aMap].ScriptPath, aCampaign.Maps[aMap].MapName);
 end;
 
 
@@ -398,9 +398,7 @@ begin
   fCampaigns.ActiveCampaignMap := 0;
 
   GameInit(false);
-
   Load(aFilename);
-
   fGameState := gsRunning;
 end;
 
@@ -530,10 +528,8 @@ begin
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
-  Assert(fGameState = gsNoGame, 'Loading from wrong state');
-
   GameInit(true);
-  Load(aFilename, true);
+  Load(aFilename);
 
   MultiplayerRig;
 end;
@@ -793,7 +789,6 @@ begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
   fLog.AppendLog('Starting Map Editor');
-  Stop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
   SetKaMSeed(4); //Every time MapEd will be the same as previous. Good for debug.
   fGameSpeed := 1; //In case it was set in last run mission
@@ -843,8 +838,8 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  fRender.Resize(ScreenX,ScreenY,rm2D);
-  fViewport.Resize(ScreenX,ScreenY);
+  fRender.Resize(ScreenX, ScreenY, rm2D);
+  fViewport.Resize(ScreenX, ScreenY);
 
   fGameTickCount := 0; //Restart counter
 
@@ -1035,7 +1030,7 @@ begin
 end;
 
 
-procedure TKMGame.Load(const aFilename: string; aIsMultiplayer:boolean=false);
+procedure TKMGame.Load(const aFilename: string);
 var
   LoadStream:TKMemoryStream;
   s,LoadError:string;
@@ -1052,8 +1047,14 @@ begin
     if not FileExists(SaveName(aFileName, 'sav')) then Raise Exception.Create('Savegame could not be found');
 
     LoadStream.LoadFromFile(SaveName(aFileName, 'sav'));
-    LoadStream.Read(s); if s <> 'KaM_GameInfo' then Raise Exception.Create('Not a valid KaM Remake save file');
-    LoadStream.Read(s); if s <> GAME_REVISION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
+
+    LoadStream.Read(s);
+    if s <> 'KaM_GameInfo' then
+      Raise Exception.Create('Not a valid KaM Remake save file');
+
+    LoadStream.Read(s);
+    if s <> GAME_REVISION then
+      Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s, GAME_REVISION]);
 
     //Substitute tick counter and id tracker
     LoadStream.Read(fGameName); //Savegame title

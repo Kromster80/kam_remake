@@ -8,9 +8,9 @@ uses Classes, KromUtils, SysUtils,
 type
   { Designed to store MapEd specific data }
   TKMMapEditor = class
-  private
   public
     constructor Create;
+    //Dummy
   end;
 
 
