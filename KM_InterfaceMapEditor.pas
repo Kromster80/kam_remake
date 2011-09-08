@@ -321,7 +321,7 @@ begin
   end;
 
   if Sender = Button_Menu_Save then begin
-    Edit_SaveName.Text := fGame.GetGameName;
+    Edit_SaveName.Text := fGame.GameName;
     Menu_Save(Edit_SaveName);
     Panel_Save.Show;
   end;
@@ -376,8 +376,6 @@ begin
 
   KMMinimap.BoundRectAt := KMPointRound(fViewport.GetCenter);
   KMMinimap.ViewArea   := fViewport.GetMinimapClip;
-
-  Label_MissionName.Caption := fGame.GetGameName;
 end;
 
 
@@ -422,7 +420,7 @@ begin
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
     end;
 
-    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 100, 10, '', fnt_Metal, kaLeft);
+    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 100, 10, fGame.GameName, fnt_Metal, kaLeft);
 
     Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,kaLeft);
@@ -1208,6 +1206,7 @@ begin
 
     Player_UpdateColors;
     Player_ChangeActive(nil);
+    Label_MissionName.Caption := fGame.GameName;
 
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;

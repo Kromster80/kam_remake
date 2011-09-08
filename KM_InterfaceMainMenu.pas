@@ -1626,7 +1626,7 @@ end;
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
-  fGame.Load(fGame.Saves[List_Load.ItemIndex].Filename);
+  fGame.StartSingleSave(fGame.Saves[List_Load.ItemIndex].Filename);
 end;
 
 

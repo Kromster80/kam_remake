@@ -281,7 +281,8 @@ procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
   fGame.Stop(gr_Silent);
-  fGame.StartSingleMap(OpenDialog1.FileName, 'OpenDialog1 game');
+  //todo: Restore this taking into account File path
+  //fGame.StartSingleMap(OpenDialog1.FileName, 'OpenDialog1 game');
 end;
 
 
@@ -289,7 +290,8 @@ procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
   fGame.Stop(gr_Silent);
-  fGame.StartMapEditor(OpenDialog1.FileName, 0, 0);
+  //todo: Restore this taking into account File path
+  //fGame.StartMapEditor(OpenDialog1.FileName, 0, 0);
 end;
 
 

@@ -51,6 +51,8 @@ type
     procedure GameInit(aMultiplayerMode:boolean);
     procedure GameStart(aMissionFile, aGameName:string);
     procedure MultiplayerRig;
+
+    procedure Load(const aFilename: string; aIsMultiplayer:boolean=false);
   public
     PlayOnState:TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
@@ -101,7 +103,7 @@ type
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GameTickCount:cardinal read fGameTickCount;
     property GlobalTickCount:cardinal read fGlobalTickCount;
-    property GetGameName:string read fGameName;
+    property GameName:string read fGameName;
     property MultiplayerMode:boolean read fMultiplayerMode;
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
@@ -122,7 +124,6 @@ type
     property Saves: TKMSavesCollection read fSaves;
 
     procedure Save(const aFilename: string);
-    procedure Load(const aFilename: string; aIsMultiplayer:boolean=false);
 
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime:cardinal);
@@ -377,7 +378,7 @@ begin
   fCampaigns.ActiveCampaignMap := aMap;
 
   GameInit(false);
-  GameStart(aCampaign.Maps[aMap].ScriptPath, aCampaign.Maps[aMap].MapName);
+  StartSingleMap(aCampaign.Maps[aMap].ScriptPath, aCampaign.Maps[aMap].MapName);
 end;
 
 
@@ -395,9 +396,6 @@ procedure TKMGame.StartSingleSave(aFilename:string);
 begin
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
-
-  if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent);
-  Assert(fGameState = gsNoGame, 'Loading from wrong state');
 
   GameInit(false);
 
@@ -809,7 +807,6 @@ begin
 
   fViewport := TViewport.Create;
   fMapEditor := TKMMapEditor.Create;
-  fMapEditorInterface := TKMapEdInterface.Create(ScreenX, ScreenY);
 
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
@@ -837,6 +834,7 @@ begin
     fGameName := 'New Mission';
   end;
 
+  fMapEditorInterface := TKMapEdInterface.Create(ScreenX, ScreenY);
   fMapEditorInterface.Player_UpdateColors;
   fPlayers.AfterMissionInit(false);
 
@@ -886,6 +884,8 @@ end;
 
 procedure TKMGame.ReplayView;
 begin
+  GameInit(false);
+  
   CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName('basesave','sav')), false);
   Load('basesave'); //We load what was saved right before starting Recording
   DeleteFile(SaveName('basesave','sav')); //Cleanup after use

@@ -419,7 +419,8 @@ procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
 
-  fGame.Load(fGame.Saves[List_Load.ItemIndex].Filename);
+  fGame.Stop(gr_Silent); //Stop everything silently
+  fGame.StartSingleSave(fGame.Saves[List_Load.ItemIndex].Filename);
 end;
 
 
