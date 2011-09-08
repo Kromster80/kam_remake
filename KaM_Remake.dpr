@@ -100,7 +100,8 @@ begin
   Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
-  Form1.OnCreate(nil);
+
+  Form1.StartTheGame;
 
   Application.Run;
 

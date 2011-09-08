@@ -10,19 +10,14 @@ type
   //Savegame info, most of which is stored in TKMGameInfo structure
   TKMSaveInfo = class
   private
-    fPath: string;
+    fPath: string; //TKMGameInfo does not stores paths, it would make no sense
     fFilename: string; //without extension
-
     fSaveError:string;
-
     fInfo: TKMGameInfo;
-
     procedure ScanSave;
   public
-    constructor Create;
+    constructor Create(const aPath, aFilename: String);
     destructor Destroy; override;
-
-    procedure Scan(const aPath, aFilename: String);
 
     property Info: TKMGameInfo read fInfo;
     property Path: string read fPath;
@@ -55,10 +50,16 @@ uses KM_Utils, KM_Game, KM_MissionScript, KM_CommonTypes, KM_TextLibrary;
 
 
 { TKMSaveInfo }
-constructor TKMSaveInfo.Create;
+constructor TKMSaveInfo.Create(const aPath, aFilename: String);
 begin
-  inherited;
+  inherited Create;
+  fPath := aPath;
+  fFilename := aFilename;
   fInfo := TKMGameInfo.Create;
+
+  //We could postpone this step till info is actually required
+  //but we do need title and TickCount right away, so it's better just to scna it ASAP
+  ScanSave;
 end;
 
 
@@ -66,15 +67,6 @@ destructor TKMSaveInfo.Destroy;
 begin
   fInfo.Free;
   inherited;
-end;
-
-
-procedure TKMSaveInfo.Scan(const aPath, aFilename: String);
-begin
-  fPath := aPath;
-  fFilename := aFilename;
-
-  ScanSave;
 end;
 
 
@@ -105,7 +97,7 @@ end;
 
 function TKMSaveInfo.IsValid:boolean;
 begin
-  Result := fInfo.IsValid and (fSaveError = '');
+  Result := FileExists(fPath + fFilename + '.sav') and (fSaveError = '') and fInfo.IsValid;
 end;
 
 
@@ -187,8 +179,7 @@ begin
     begin
       inc(fCount);
       SetLength(fSaves, fCount);
-      fSaves[fCount-1] := TKMSaveInfo.Create;
-      fSaves[fCount-1].Scan(PathToSaves, TruncateExt(SearchRec.Name));
+      fSaves[fCount-1] := TKMSaveInfo.Create(PathToSaves, TruncateExt(SearchRec.Name));
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);

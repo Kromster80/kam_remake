@@ -191,6 +191,7 @@ end;
 
 function TMissionParser.LoadMission(const aFileName:string):boolean;
 begin
+  fLog.AppendLog('Loading DAT file: '+aFileName);
   fMissionFileName := aFileName;
 
   //Set default values
@@ -210,6 +211,9 @@ begin
 
   //We double-check against success of every loading step and no errors
   Result := Result and (fErrorMessage='');
+
+  if Result then
+    fLog.AppendLog('DAT Loaded');
 end;
 
 

@@ -16,7 +16,6 @@ object Form1: TForm1
   OldCreateOrder = False
   Position = poScreenCenter
   OnCanResize = FormCanResize
-  OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress

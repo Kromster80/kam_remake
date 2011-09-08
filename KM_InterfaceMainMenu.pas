@@ -1007,7 +1007,7 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_ReplayLastMap(Sender: TObject);
 begin
-  fGame.RestartLastMap; //Means replay last map
+  fGame.StartLastMap; //Means replay last map
 end;
 
 
@@ -1172,7 +1172,8 @@ begin
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
   fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
-  fGame.Networking.OnStartGame    := fGame.StartMP;
+  fGame.Networking.OnStartMap     := fGame.StartMultiplayerMap;
+  fGame.Networking.OnStartSave    := fGame.StartMultiplayerSave;
   fGame.Networking.OnDisconnect   := Lobby_OnDisconnect;
   fGame.Networking.OnReassignedHost := Lobby_OnReassignedToHost;
 end;
@@ -1521,19 +1522,13 @@ begin
 end;
 
 
+//Just pass Filename to Networking, it will check validity itself
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
-var Valid: Boolean;
 begin
   if Radio_LobbyMapType.ItemIndex = 0 then
-  begin
-    fGame.Networking.SelectMap(List_Lobby.ItemCaption);
-    Valid := fGame.Networking.MapInfo.IsValid;
-  end else begin
+    fGame.Networking.SelectMap(List_Lobby.ItemCaption)
+  else
     fGame.Networking.SelectSave(List_Lobby.ItemCaption);
-    Valid := fGame.Networking.SaveInfo.IsValid;
-  end;
-
-  if not Valid then Lobby_MapTypeSelect(Radio_LobbyMapType); //Deselect the map
 end;
 
 
@@ -1561,7 +1556,7 @@ begin
 end;
 
 
-//We have been assigned to the host of the game because the host disconnected. Reopen lobby page in correct mode.
+//We have been assigned to be the host of the game because the host disconnected. Reopen lobby page in correct mode.
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Lobby_Reset(Button_MP_CreateLAN,true); //Will reset the lobby page into host mode, preserving messages

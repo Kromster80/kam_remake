@@ -50,7 +50,7 @@ type
     fNetPlayers:TKMPlayersList;
 
     fMapInfo:TKMapInfo; //Everything related to selected map
-    fSaveInfo:TKMSaveInfo; //Everything related to selected map
+    fSaveInfo: TKMSaveInfo;
     fSelectGameKind: TNetGameKind;
 
     fOnJoinSucc:TNotifyEvent;
@@ -61,7 +61,8 @@ type
     fOnTextMessage:TStringEvent;
     fOnPlayersSetup:TNotifyEvent;
     fOnMapName:TStringEvent;
-    fOnStartGame:TNotifyEvent;
+    fOnStartMap:TStringEvent;
+    fOnStartSave:TStringEvent;
     fOnPlay:TNotifyEvent;
     fOnReadyToPlay:TNotifyEvent;
     fOnDisconnect:TStringEvent;
@@ -112,7 +113,6 @@ type
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
-    property SaveInfo:TKMSaveInfo read fSaveInfo;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     procedure GameCreated;
@@ -126,7 +126,8 @@ type
 
     property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
     property OnMapName:TStringEvent write fOnMapName;           //Map name updated
-    property OnStartGame:TNotifyEvent write fOnStartGame;       //Start the game loading
+    property OnStartMap:TStringEvent write fOnStartMap;       //Start the game
+    property OnStartSave:TStringEvent write fOnStartSave;       //Load the game
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
@@ -150,7 +151,6 @@ begin
   Inherited Create;
   SetGameState(lgs_None);
   fMapInfo := TKMapInfo.Create;
-  fSaveInfo := TKMSaveInfo.Create;
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '');
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
@@ -164,7 +164,6 @@ begin
   fNetServer.Free;
   fNetClient.Free;
   fMapInfo.Free;
-  fSaveInfo.Free;
   fServerQuery.Free;
   Inherited;
 end;
@@ -273,9 +272,7 @@ begin
   fNetServer.Stop;
 
   fMapInfo.Free;
-  fSaveInfo.Free;
   fMapInfo := TKMapInfo.Create;
-  fSaveInfo := TKMSaveInfo.Create;
 end;
 
 
@@ -378,8 +375,6 @@ begin
 
   fMapInfo.Free;
   fSaveInfo.Free;
-  fMapInfo := TKMapInfo.Create;
-  fSaveInfo := TKMSaveInfo.Create;
 
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
   fNetPlayers.ResetLocAndReady; //Reset start locations
@@ -423,7 +418,8 @@ procedure TKMNetworking.SelectSave(const aName:string);
 begin
   Assert(IsHost, 'Only host can select saves');
 
-  fSaveInfo.Scan(ExeDir + 'SavesM\', aName);
+  fSaveInfo.Free;
+  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesM\', aName);
 
   if not fSaveInfo.IsValid then
   begin
@@ -584,8 +580,8 @@ begin
     for i:=1 to NetPlayers.Count do
       if NetPlayers[i].StartLocation <> 0 then
       begin
-        NetPlayers[i].FlagColorID := SaveInfo.Info.ColorID[NetPlayers[i].StartLocation-1];
-        NetPlayers[i].Team := SaveInfo.Info.Team[NetPlayers[i].StartLocation-1];
+        NetPlayers[i].FlagColorID := fSaveInfo.Info.ColorID[NetPlayers[i].StartLocation-1];
+        NetPlayers[i].Team := fSaveInfo.Info.Team[NetPlayers[i].StartLocation-1];
       end
       else
       begin
@@ -904,7 +900,8 @@ begin
 
     mk_SaveSelect:
             if fNetPlayerKind = lpk_Joiner then begin
-              fSaveInfo.Scan(ExeDir + 'SavesM\', Msg);
+              fSaveInfo.Free;
+              fSaveInfo.Create(ExeDir + 'SavesM\', Msg);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fSaveInfo.Filename);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -918,8 +915,6 @@ begin
                   PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.Filename)
                 else
                   PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.Filename);
-                fSaveInfo.Free;
-                fSaveInfo := TKMSaveInfo.Create;
                 if fMyIndex <> -1 then //In the process of joining
                   fNetPlayers[fMyIndex].ReadyToStart := False;
                 if Assigned(fOnMapName) then fOnMapName('');
@@ -1019,8 +1014,12 @@ procedure TKMNetworking.StartGame;
 begin
   SetGameState(lgs_Loading); //Loading has begun (no further players allowed to join)
   fIgnorePings := -1; //Ignore all pings until we have finished loading
-  if Assigned(fOnStartGame) then
-    fOnStartGame(Self);
+
+  case fSelectGameKind of
+    ngk_Map:  fOnStartMap(fMapInfo.Filename);
+    ngk_Save: fOnStartSave(fSaveInfo.Filename);
+    else      Assert(False);
+  end;
 end;
 
 

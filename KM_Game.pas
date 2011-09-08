@@ -50,6 +50,7 @@ type
 
     procedure GameInit(aMultiplayerMode:boolean);
     procedure GameStart(aMissionFile, aGameName:string);
+    procedure MultiplayerRig;
   public
     PlayOnState:TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
@@ -58,11 +59,12 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TNotifyEvent; aLT:TStringEvent; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale(aLocale:shortstring);
     procedure Resize(X,Y:integer);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
+    function MapSizeText: string;
     procedure KeyDown(Key: Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
     procedure KeyUp(Key: Word; Shift: TShiftState);
@@ -73,8 +75,10 @@ type
 
     procedure StartCampaignMap(aCampaign:TKMCampaign; aMap:byte);
     procedure StartSingleMap(aMissionFile, aGameName:string);
-    procedure RestartLastMap;
-    procedure StartMP(Sender:TObject);
+    procedure StartSingleSave(aFilename:string);
+    procedure StartLastMap;
+    procedure StartMultiplayerSave(const aFilename: string);
+    procedure StartMultiplayerMap(const aFilename: string);
     procedure StartMapEditor(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure Stop(Msg:TGameResultMsg; TextMsg:string='');
 
@@ -134,7 +138,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TNotifyEvent; aLT:TStringEvent; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
 begin
   Inherited Create;
   ScreenX := aScreenX;
@@ -161,6 +165,9 @@ begin
   fSaves            := TKMSavesCollection.Create;
   fCampaigns        := TKMCampaignsCollection.Create;
 
+  //If game was reinitialized fomr options menu then we should return there
+  if aReturnToOption then fMainMenuInterface.ShowScreen(msOptions);
+  
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
 
   fLog.AppendLog('<== Game creation is done ==>');
@@ -369,6 +376,7 @@ begin
   fCampaigns.ActiveCampaign := aCampaign;
   fCampaigns.ActiveCampaignMap := aMap;
 
+  GameInit(false);
   GameStart(aCampaign.Maps[aMap].ScriptPath, aCampaign.Maps[aMap].MapName);
 end;
 
@@ -378,13 +386,30 @@ begin
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
+  GameInit(false);
   GameStart(aMissionFile, aGameName);
 end;
 
 
-procedure TKMGame.RestartLastMap;
+procedure TKMGame.StartSingleSave(aFilename:string);
 begin
-  Load('basesave');
+  fCampaigns.ActiveCampaign := nil;
+  fCampaigns.ActiveCampaignMap := 0;
+
+  if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent);
+  Assert(fGameState = gsNoGame, 'Loading from wrong state');
+
+  GameInit(false);
+
+  Load(aFilename);
+
+  fGameState := gsRunning;
+end;
+
+
+procedure TKMGame.StartLastMap;
+begin
+  StartSingleSave('basesave');
 end;
 
 
@@ -392,20 +417,15 @@ procedure TKMGame.GameStart(aMissionFile, aGameName:string);
 var LoadError:string; fMissionParser: TMissionParser;
 begin
   fLog.AppendLog('GameStart');
-  GameInit(false);
 
   fGameName := aGameName;
-
-  fLog.AppendLog('Loading DAT file: '+aMissionFile);
 
   fMainMenuInterface.ShowScreen(msLoading, 'script');
 
   if aMissionFile <> '' then
   try //Catch exceptions
     fMissionParser := TMissionParser.Create(mpm_Single, false);
-    if fMissionParser.LoadMission(aMissionFile) then
-      fLog.AppendLog('DAT Loaded')
-    else
+    if not fMissionParser.LoadMission(aMissionFile) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[fMissionParser.MissionInfo.HumanPlayerID];
     Assert(MyPlayer.PlayerType = pt_Human);
@@ -437,7 +457,6 @@ begin
   fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
-  Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
 
   fLog.AppendLog('Gameplay initialized', true);
@@ -452,69 +471,82 @@ begin
 end;
 
 
-//All setup data gets taken from fNetworking class
-procedure TKMGame.StartMP(Sender:TObject);
+procedure TKMGame.StartMultiplayerMap(const aFilename: string);
 var
-  LoadError:string;
-  i,k:integer;
-  fMissionParser:TMissionParser;
-  PlayerIndex:TPlayerIndex;
+  i: integer;
   PlayerRemap:TPlayerArray;
+  fMissionParser:TMissionParser;
+  LoadError:string;
 begin
-  fLog.AppendLog('GameStart Multiplayer');
-
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
-  if fNetworking.SelectGameKind = ngk_Save then
-    //Load savegame
-    Load(fNetworking.SaveInfo.Filename, true)
-  else
+  GameInit(true);
+
+  //Load mission file
+  fGameName := aFilename + ' MP';
+
+  fMainMenuInterface.ShowScreen(msLoading, 'script');
+
+  //Reorder start locations and players for 1-1 2-2 result
+  for i:=0 to High(PlayerRemap) do PlayerRemap[i] := PLAYER_NONE; //Init with empty values
+  for i:=1 to fNetworking.NetPlayers.Count do
   begin
-    //Load mission file
-    GameInit(true);
-
-    fGameName := fNetworking.MapInfo.Filename + ' MP';
-
-    fLog.AppendLog('Loading DAT file: '+fNetworking.MapInfo.Filename);
-
-    fMainMenuInterface.ShowScreen(msLoading, 'script');
-
-    //Reorder start locations and players for 1-1 2-2 result
-    for i:=0 to High(PlayerRemap) do PlayerRemap[i] := PLAYER_NONE; //Init with empty values
-    for i:=1 to fNetworking.NetPlayers.Count do
-    begin
-      PlayerRemap[fNetworking.NetPlayers[i].StartLocation - 1] := i-1; //PlayerID is 0 based
-      fNetworking.NetPlayers[i].StartLocation := i;
-    end;
-
-    try //Catch exceptions
-      fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
-      if fMissionParser.LoadMission(MapNameToPath(fNetworking.MapInfo.Filename, 'dat')) then
-        fLog.AppendLog('DAT Loaded')
-      else
-        Raise Exception.Create(fMissionParser.ErrorMessage);
-      fMissionMode := fMissionParser.MissionInfo.MissionMode;
-      FreeAndNil(fMissionParser);
-    except
-      on E : Exception do
-      begin
-        //Trap the exception and show it to the user in nicer form.
-        //Note: While debugging, Delphi will still stop execution for the exception,
-        //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
-        //But to normal player the dialog won't show.
-        LoadError := 'An error has occured while parsing the file '+fNetworking.MapInfo.Filename+'||'+E.ClassName+': '+E.Message;
-        fMainMenuInterface.ShowScreen(msError, LoadError);
-        fLog.AppendLog('DAT Load Exception: '+LoadError);
-        Exit;
-      end;
-    end;
-
-    fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
-    fMissionMode := fNetworking.MapInfo.Info.MissionMode; //Tactic or normal
-    fPlayers.AfterMissionInit(true);
+    PlayerRemap[fNetworking.NetPlayers[i].StartLocation - 1] := i-1; //PlayerID is 0 based
+    fNetworking.NetPlayers[i].StartLocation := i;
   end;
 
+  try //Catch exceptions
+    fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
+    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat')) then
+      Raise Exception.Create(fMissionParser.ErrorMessage);
+    fMissionMode := fMissionParser.MissionInfo.MissionMode;
+    FreeAndNil(fMissionParser);
+  except
+    on E : Exception do
+    begin
+      //Trap the exception and show it to the user in nicer form.
+      //Note: While debugging, Delphi will still stop execution for the exception,
+      //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
+      //But to normal player the dialog won't show.
+      LoadError := 'An error has occured while parsing the file '+fNetworking.MapInfo.Filename+'||'+E.ClassName+': '+E.Message;
+      fMainMenuInterface.ShowScreen(msError, LoadError);
+      fLog.AppendLog('DAT Load Exception: '+LoadError);
+      Exit;
+    end;
+  end;
+
+  fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
+  fMissionMode := fNetworking.MapInfo.Info.MissionMode; //Tactic or normal
+  fPlayers.AfterMissionInit(true);
+
+  MultiplayerRig;
+
+  fSaves.BaseSave; //Thats our base for a game record
+  SetKaMSeed(4); //Random after StartGameMP and ViewReplay should match
+end;
+
+
+procedure TKMGame.StartMultiplayerSave(const aFilename: string);
+begin
+  fCampaigns.ActiveCampaign := nil;
+  fCampaigns.ActiveCampaignMap := 0;
+
+  Assert(fGameState = gsNoGame, 'Loading from wrong state');
+
+  GameInit(true);
+  Load(aFilename, true);
+
+  MultiplayerRig;
+end;
+
+
+//All setup data gets taken from fNetworking class
+procedure TKMGame.MultiplayerRig;
+var
+  i,k:integer;
+  PlayerIndex:TPlayerIndex;
+begin
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
 
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
@@ -545,15 +577,11 @@ begin
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
   fRender.Render;
 
-  Form1.StatusBar1.Panels[0].Text := 'Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
 
   fLog.AppendLog('Gameplay initialized', true);
 
   fGameState := gsPaused;
-
-  if fNetworking.SelectGameKind = ngk_Map then
-    fSaves.BaseSave; //Thats our base for a game record
 
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnReadyToPlay := GameMPReadyToPlay;
@@ -566,9 +594,6 @@ begin
   if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
 
   fLog.AppendLog('Gameplay recording initialized', True);
-
-  if fNetworking.SelectGameKind = ngk_Map then //Load has already set KaMSeed
-    SetKaMSeed(4); //Random after StartGameMP and ViewReplay should match
 end;
 
 
@@ -789,14 +814,11 @@ begin
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
 
-  fLog.AppendLog('Loading DAT file: '+aMissionPath);
   if FileExists(aMissionPath) then
   begin
     fMissionParser := TMissionParser.Create(mpm_Editor,false);
 
-    if fMissionParser.LoadMission(aMissionPath) then
-      fLog.AppendLog('DAT Loaded')
-    else
+    if not fMissionParser.LoadMission(aMissionPath) then
     begin
       //Show all required error messages here
       Stop(gr_Error, fMissionParser.ErrorMessage);
@@ -805,7 +827,6 @@ begin
     MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
     FreeAndNil(fMissionParser);
-    fLog.AppendLog('DAT Loaded');
     fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
@@ -822,8 +843,6 @@ begin
   for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
     fPlayers[i].FogOfWar.RevealEverything;
 
-  Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
-
   fLog.AppendLog('Gameplay initialized',true);
 
   fRender.Resize(ScreenX,ScreenY,rm2D);
@@ -835,9 +854,6 @@ begin
 end;
 
 
-//DoExpandPath means that input is a mission name which should be expanded into:
-//ExeDir+'Maps\'+MissionName+'\'+MissionName.dat
-//ExeDir+'Maps\'+MissionName+'\'+MissionName.map
 procedure TKMGame.SaveMapEditor(const aMissionName:string);
 var i:integer; fMissionParser: TMissionParser;
 begin
@@ -1031,12 +1047,6 @@ var
 begin
   fLog.AppendLog('Loading game');
 
-  if fGameState in [gsRunning, gsPaused] then Stop(gr_Silent);
-  Assert(fGameState = gsNoGame, 'Loading from wrong state');
-
-  //Create empty environment
-  GameInit(aIsMultiplayer); //This will set MultiplayerMode, which allows multiplayer saves to be played in singleplayer
-
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   try //Catch exceptions
     if not FileExists(SaveName(aFileName, 'sav')) then Raise Exception.Create('Savegame could not be found');
@@ -1099,7 +1109,6 @@ begin
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
     fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
-    Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   except
     on E : Exception do
     begin
@@ -1112,9 +1121,8 @@ begin
   end;
 
   SetKaMSeed(LoadedSeed);
-  if not fMultiplayerMode then
-    fGameState := gsRunning;
-  fLog.AppendLog('Loading game',true);
+
+  fLog.AppendLog('Loading game', True);
 end;
 
 
@@ -1271,6 +1279,15 @@ begin
     Result := ExeDir + 'SavesM\' + aName + '.' + aExt
   else
     Result := ExeDir + 'Saves\' + aName + '.' + aExt;
+end;
+
+
+function TKMGame.MapSizeText: string;
+begin
+  if fTerrain <> nil then
+    Result := 'Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY)
+  else
+    Result := 'No map';
 end;
 
 

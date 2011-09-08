@@ -8,7 +8,7 @@ uses
   ExtCtrls, ComCtrls, Menus, Buttons,
   Math, SysUtils, KromUtils,
   {$IFDEF WDC} MPlayer, {$ENDIF}
-  {$IFDEF FPC} GL, LResources, {$ENDIF}
+  {$IFDEF FPC} LResources, {$ENDIF}
   dglOpenGL,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection,
@@ -71,7 +71,7 @@ type
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure Button_CalcArmyClick(Sender: TObject);
   published
-    procedure FormCreate(Sender: TObject);
+    procedure StartTheGame;
     procedure FormResize(Sender:TObject);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -127,7 +127,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_GameInputProcess, KM_InterfaceMainMenu, KM_Log;
+uses KM_Settings, KM_GameInputProcess,  KM_Log;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
@@ -163,12 +163,11 @@ begin
 end;
 
 
-procedure TForm1.FormCreate(Sender: TObject);
+procedure TForm1.StartTheGame;
 var
   TempSettings:TGlobalSettings;
 begin
   SetKaMSeed(4);
-  if Sender<>nil then exit;
 
   FormLoading.Label5.Caption := GAME_VERSION;
   FormLoading.Show; //This is our splash screen
@@ -186,12 +185,11 @@ begin
 
   ReadAvailableResolutions;
 
-  TempSettings := TGlobalSettings.Create; //Read settings (fullscreen property and resolutions)
-  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false); //Now we can decide whether we should make it full screen or not
+  //Only after we read settings (fullscreen property and resolutions)
+  //we can decide whenever we want to create Game fullscreen or not (OpenGL init depends on that)
+  TempSettings := TGlobalSettings.Create;
+  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false);
   TempSettings.Free;
-
-  //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
-  //fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
 
   Application.OnIdle := Form1.OnIdle;
   fLog.AppendLog('Form1 create is done');
@@ -201,7 +199,7 @@ begin
     Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]), 'Warning', MB_OK or MB_ICONWARNING);
 
   Timer100ms.Interval := fGame.GlobalSettings.SpeedPace; //FormLoading gets hidden OnTimer event
-  Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
+  Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
 
 
@@ -463,7 +461,10 @@ begin
   Panel5.Width  := Form1.ClientWidth;
 
   if fGame<>nil then //Could happen on game start when Form gets resized and fGame is nil
+  begin
     fGame.Resize(Panel5.Width,Panel5.Height);
+    StatusBar1.Panels[0].Text := fGame.MapSizeText;
+  end;
 end;
 
 
@@ -502,6 +503,7 @@ begin
                           Panel5.Width,
                           Panel5.Height,
                           aVSync,
+                          aReturnToOptions,
                           FormLoading.LoadingStep,
                           FormLoading.LoadingText
                           {$IFDEF WDC},MediaPlayer1 {$ENDIF}
@@ -510,7 +512,6 @@ begin
   fGame.Resize(Panel5.Width, Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
-  if aReturnToOptions then fGame.fMainMenuInterface.ShowScreen(msOptions); //Return to the options screen
   ApplyCursorRestriction;
 end;
 
