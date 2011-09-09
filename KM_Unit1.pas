@@ -279,19 +279,15 @@ end;
 //Open
 procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
-  if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.Stop(gr_Silent);
-  //todo: Restore this taking into account File path
-  //fGame.StartSingleMap(OpenDialog1.FileName, 'OpenDialog1 game');
+  if RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then
+    fGame.StartSingleMap(OpenDialog1.FileName, TruncateExt(ExtractFileName(OpenDialog1.FileName)));
 end;
 
 
 procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
-  if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.Stop(gr_Silent);
-  //todo: Restore this taking into account File path
-  //fGame.StartMapEditor(OpenDialog1.FileName, 0, 0);
+  if RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then
+    fGame.StartMapEditor(OpenDialog1.FileName, 0, 0);
 end;
 
 

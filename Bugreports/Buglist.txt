@@ -38,6 +38,7 @@ Bugs:
 
 Features:
  +	Underwater sand
+ +	Savegames are now accessible as a list (not limited to 10 slots)
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.

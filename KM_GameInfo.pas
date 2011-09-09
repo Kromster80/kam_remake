@@ -39,7 +39,6 @@ type
 
 
 implementation
-uses KM_Utils, KM_Game, KM_MissionScript, KM_TextLibrary;
 
 
 { TKMSaveInfo }

@@ -1216,7 +1216,6 @@ end;
 {Show mission loading dialogue}
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
-  fGame.Stop(gr_Silent); //Stop MapEd as we are loading from existing MapEd session
   fGame.StartMapEditor(FileList_Load.FileName, 0, 0);
 end;
 

@@ -419,7 +419,6 @@ procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
 
-  fGame.Stop(gr_Silent); //Stop everything silently
   fGame.StartSingleSave(fGame.Saves[List_Load.ItemIndex].Filename);
 end;
 
@@ -2233,10 +2232,8 @@ procedure TKMGamePlayInterface.ReplayClick;
     Button_ReplayResume.Enabled := not aPaused;
   end;
 begin
-  if (Sender = Button_ReplayRestart) then begin
-    fGame.Stop(gr_Silent);
-    fGame.ReplayView; //reload it once again
-  end;
+  if (Sender = Button_ReplayRestart) then
+    fGame.StartReplay; //reload it once again
 
   if (Sender = Button_ReplayPause) then begin
     fGame.SetGameState(gsPaused);

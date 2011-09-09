@@ -43,7 +43,7 @@ type
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
-    procedure MainMenu_ReplayView(Sender: TObject);
+    procedure MainMenu_StartReplay(Sender: TObject);
     procedure MainMenu_ReplayLastMap(Sender: TObject);
     procedure Campaign_Set(aCampaign:TKMCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
@@ -88,8 +88,8 @@ type
     procedure Load_ListClick(Sender: TObject);
     procedure Load_RefreshList;
     procedure MapEditor_Start(Sender: TObject);
-    procedure MapEditor_Change(Sender: TObject);
-    procedure MapEditor_UpdateList;
+    procedure MapEditor_SizeChange(Sender: TObject);
+    procedure MapEditor_ListUpdate;
     procedure Options_Fill;
     procedure Options_Change(Sender: TObject);
   protected
@@ -422,7 +422,7 @@ begin
       Button_SP_TPR.OnClick      := SwitchMenuPage;
       Button_SP_Single.OnClick   := SwitchMenuPage;
       Button_SP_Load.OnClick     := SwitchMenuPage;
-      Button_SP_Replay.OnClick   := MainMenu_ReplayView; //Reroute since fGame is not initialized yet
+      Button_SP_Replay.OnClick   := MainMenu_StartReplay; //Reroute since fGame is not initialized yet
       Button_SP_Back.OnClick     := SwitchMenuPage;
 end;
 
@@ -703,8 +703,8 @@ begin
       Radio_MapEd_SizeY := TKMRadioGroup.Create(Panel_MapEd_SizeXY, 108, 52, 100, 200, fnt_Metal);
       Radio_MapEd_SizeX.ItemIndex := 2; //64
       Radio_MapEd_SizeY.ItemIndex := 2; //64
-      Radio_MapEd_SizeX.OnChange := MapEditor_Change;
-      Radio_MapEd_SizeY.OnChange := MapEditor_Change;
+      Radio_MapEd_SizeX.OnChange := MapEditor_SizeChange;
+      Radio_MapEd_SizeY.OnChange := MapEditor_SizeChange;
 
       for i:=1 to MAPSIZES_COUNT do begin
         Radio_MapEd_SizeX.Items.Add(inttostr(MapSize[i]));
@@ -955,8 +955,8 @@ begin
 
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin
-    MapEditor_UpdateList;
-    MapEditor_Change(nil);
+    MapEditor_ListUpdate;
+    MapEditor_SizeChange(nil);
     Panel_MapEd.Show;
   end;
 
@@ -999,9 +999,9 @@ end;
 
 
 //Should be done this way since fGame is NIL on UI creation
-procedure TKMMainMenuInterface.MainMenu_ReplayView(Sender: TObject);
+procedure TKMMainMenuInterface.MainMenu_StartReplay(Sender: TObject);
 begin
-  fGame.ReplayView;
+  fGame.StartReplay;
 end;
 
 
@@ -1650,11 +1650,11 @@ begin
   if Sender = Button_MapEd_Create then
     fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
   if (Sender = Button_MapEd_Load) and (List_MapEd.ItemIndex <> -1) then
-    fGame.StartMapEditor(List_MapEd.ItemCaption, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
+    fGame.StartMapEditor(MapNameToPath(List_MapEd.ItemCaption, 'dat'), 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 
 
-procedure TKMMainMenuInterface.MapEditor_Change(Sender: TObject);
+procedure TKMMainMenuInterface.MapEditor_SizeChange(Sender: TObject);
 begin
   //Find out new map dimensions
   MapEdSizeX := MapSize[Radio_MapEd_SizeX.ItemIndex+1];
@@ -1662,7 +1662,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MapEditor_UpdateList;
+procedure TKMMainMenuInterface.MapEditor_ListUpdate;
 begin
   fMaps.ScanMapsFolder;
   List_MapEd.Items.Text := fMaps.MapList;

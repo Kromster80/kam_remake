@@ -95,7 +95,7 @@ type
     procedure SaveMapEditor(const aMissionName:string);
 
     function  ReplayExists:boolean;
-    procedure ReplayView;
+    procedure StartReplay;
 
     procedure NetworkInit;
 
@@ -374,6 +374,8 @@ end;
 
 procedure TKMGame.StartCampaignMap(aCampaign:TKMCampaign; aMap:byte);
 begin
+  fGame.Stop(gr_Silent); //Stop everything silently
+
   fCampaigns.ActiveCampaign := aCampaign;
   fCampaigns.ActiveCampaignMap := aMap;
 
@@ -384,6 +386,8 @@ end;
 
 procedure TKMGame.StartSingleMap(aMissionFile, aGameName:string);
 begin
+  fGame.Stop(gr_Silent); //Stop everything silently
+
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
@@ -394,6 +398,8 @@ end;
 
 procedure TKMGame.StartSingleSave(aFilename:string);
 begin
+  fGame.Stop(gr_Silent); //Stop everything silently
+
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
@@ -474,6 +480,8 @@ var
   fMissionParser:TMissionParser;
   LoadError:string;
 begin
+  fGame.Stop(gr_Silent); //Stop everything silently
+
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
@@ -525,6 +533,8 @@ end;
 
 procedure TKMGame.StartMultiplayerSave(const aFilename: string);
 begin
+  fGame.Stop(gr_Silent); //Stop everything silently
+
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
 
@@ -710,6 +720,8 @@ end;
 
 procedure TKMGame.Stop(Msg:TGameResultMsg; TextMsg:string='');
 begin
+  if fGameState = gsNoGame then Exit;
+
   fIsExiting := true;
   //in MP mode you can't repeat last mission from Results screen
   if (Msg = gr_Cancel) and MultiplayerMode then Msg := gr_MPCancel;
@@ -780,11 +792,13 @@ begin
 end;
 
 
-{Mission name is relative, from Maps folder}
+{Mission name is absolute}
 procedure TKMGame.StartMapEditor(const aFilename: string; aSizeX:integer=64; aSizeY:integer=64);
 var fMissionParser:TMissionParser; i:integer;
 begin
-  if not FileExists(SaveName(aFilename, 'dat')) and (aSizeX*aSizeY=0) then exit; //Erroneous call
+  if not FileExists(aFilename) and (aSizeX*aSizeY=0) then exit; //Erroneous call
+
+  fGame.Stop(gr_Silent); //Stop MapEd as we are loading from existing MapEd session
 
   fLog.AppendLog('Starting Map Editor');
 
@@ -804,11 +818,11 @@ begin
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
 
-  if FileExists(SaveName(aFilename, 'dat')) then
+  if FileExists(aFilename) then
   begin
     fMissionParser := TMissionParser.Create(mpm_Editor,false);
 
-    if not fMissionParser.LoadMission(SaveName(aFilename, 'dat')) then
+    if not fMissionParser.LoadMission(aFilename) then
     begin
       //Show all required error messages here
       Stop(gr_Error, fMissionParser.ErrorMessage);
@@ -817,7 +831,7 @@ begin
     MyPlayer := fPlayers.Player[0];
     fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
     FreeAndNil(fMissionParser);
-    fGameName := aFilename;
+    fGameName := TruncateExt(ExtractFileName(aFilename));
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
     fPlayers := TKMPlayersCollection.Create;
@@ -875,8 +889,10 @@ begin
 end;
 
 
-procedure TKMGame.ReplayView;
+procedure TKMGame.StartReplay;
 begin
+  fGame.Stop(gr_Silent);
+
   GameInit(false);
   
   CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName('basesave','sav')), false);
