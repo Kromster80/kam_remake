@@ -508,7 +508,7 @@ begin
     end;
 
     DataOut[Count] := $0;
-    Result         := StrPas(@DataOut[0]);
+    Result         := StrPas(PAnsiChar(@DataOut[0]));
     More           := (ByteCount = 3);
 end;
 

@@ -3267,7 +3267,7 @@ begin
         if Length(ProcName) = 0 then
             Result := nil
         else begin
-            Result := GetProcAddress(FDllHandle, @ProcName[1]);
+            Result := GetProcAddress(FDllHandle, PAnsiChar(ProcName));
             if Result = nil then
                 raise ESocketException.Create('Procedure ' + ProcName +
                                               ' not found in ' + winsocket +
@@ -3303,7 +3303,7 @@ begin
         if Length(ProcName) = 0 then
             Result := nil
         else begin
-            Result := GetProcAddress(FDll2Handle, @ProcName[1]);
+            Result := GetProcAddress(FDll2Handle, PAnsiChar(ProcName));
             if Result = nil then
                 raise ESocketException.Create('Procedure ' + ProcName +
                                               ' not found in ' + winsocket2 +

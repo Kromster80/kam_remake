@@ -513,7 +513,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := 'An error has occured while parsing the file '+fNetworking.MapInfo.Filename+'||'+E.ClassName+': '+E.Message;
+      LoadError := 'An error has occured while parsing the file '+aFilename+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       Exit;
@@ -521,7 +521,6 @@ begin
   end;
 
   fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking);
-  fMissionMode := fNetworking.MapInfo.Info.MissionMode; //Tactic or normal
   fPlayers.AfterMissionInit(true);
 
   MultiplayerRig;

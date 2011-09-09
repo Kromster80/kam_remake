@@ -74,6 +74,7 @@ type
     procedure StartGame;
     procedure PlayGame;
     procedure SetGameState(aState:TNetGameState);
+    procedure SendMapOrSave;
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -95,7 +96,6 @@ type
     procedure LeaveLobby;
     procedure Disconnect;
     function  Connected: boolean;
-    procedure SendMapOrSave;
     procedure MatchPlayersToSave(aPlayerID:integer=-1);
     procedure SelectNoMap;
     procedure SelectMap(const aName:string);
