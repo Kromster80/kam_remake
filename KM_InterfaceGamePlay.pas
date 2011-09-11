@@ -25,6 +25,7 @@ type
     SelectingDirPosition: TPoint;
     RatioTab:byte; //Active resource distribution tab
     //Saved
+    LastSaveName:string; //The file name we last used to save this file (used as default in Save menu)
     LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
@@ -192,11 +193,13 @@ type
 
       Panel_Save:TKMPanel;
         List_Save: TKMListBox;
+        //todo: Override checkbox like in MapEd
         Edit_Save: TKMEdit;
         Button_Save: TKMButton;
 
       Panel_Load:TKMPanel;
         List_Load: TKMListBox;
+        Label_Load_Description: TKMLabel;
         Button_Load: TKMButton;
 
       Panel_Settings:TKMPanel;
@@ -309,7 +312,7 @@ type
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
-KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit;
+KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit, KM_Saves, KM_GameInfo;
 
 const
   MESSAGE_AREA_HEIGHT = 190;
@@ -388,6 +391,11 @@ begin
   fGame.Saves.ScanSavesFolder(false);
   List_Save.Clear;
 
+  if LastSaveName = '' then
+    Edit_Save.Text := fGame.GameName
+  else
+    Edit_Save.Text := LastSaveName;
+
   for i:=0 to fGame.Saves.Count-1 do
     List_Save.AddItem(fGame.Saves[i].Filename);
 end;
@@ -395,6 +403,7 @@ end;
 
 procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
+  LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
   if fGame.MultiplayerMode then
   begin
     //Tell everyone we are saving a game
@@ -412,6 +421,8 @@ procedure TKMGamePlayInterface.Load_ListClick(Sender: TObject);
 begin
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fGame.Saves.Count-1)
                          and fGame.Saves[List_Load.ItemIndex].IsValid;
+  if InRange(List_Load.ItemIndex,0,fGame.Saves.Count-1) then
+    Label_Load_Description.Caption := fGame.Saves[List_Load.ItemIndex].Info.GetTitleWithTime;
 end;
 
 
@@ -419,6 +430,7 @@ procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
 
+  if not InRange(List_Load.ItemIndex,0,fGame.Saves.Count-1) then exit;
   fGame.StartSingleSave(fGame.Saves[List_Load.ItemIndex].Filename);
 end;
 
@@ -453,6 +465,7 @@ var i:integer; LastVisiblePage: TKMPanel;
   end;
 
 begin
+  MyControls.CtrlFocus := nil; //Panels that require control focus should set it themselves
 
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
@@ -525,6 +538,8 @@ begin
   if Sender=Button_Menu_Save then begin
     Save_RefreshList; //Update savegames names
     Panel_Save.Show;
+    Edit_Save.CursorPos := Length(Edit_Save.Text); //Place the cursor at the end of the text
+    MyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
   end else
 
@@ -1124,12 +1139,12 @@ procedure TKMGamePlayInterface.Create_Save_Page;
 begin
   Panel_Save := TKMPanel.Create(Panel_Main,0,412,200,400);
 
-    List_Save := TKMListBox.Create(Panel_Save, 12, 10, 170, 280, fnt_Metal);
-    List_Save.OnClick := Save_ListClick;
+    List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 280, fnt_Metal);
+    List_Save.OnChange := Save_ListClick;
 
-    Edit_Save := TKMEdit.Create(Panel_Save, 12, 300, 170, 20, fnt_Metal);
+    Edit_Save := TKMEdit.Create(Panel_Save, 12, 295, 170, 20, fnt_Metal);
 
-    Button_Save := TKMButton.Create(Panel_Save,12,330,170,30,'Save',fnt_Metal, bsMenu);
+    Button_Save := TKMButton.Create(Panel_Save,12,320,170,30,'Save',fnt_Metal, bsMenu);
     Button_Save.OnClick := Save_Click;
 end;
 
@@ -1139,10 +1154,13 @@ procedure TKMGamePlayInterface.Create_Load_Page;
 begin
   Panel_Load := TKMPanel.Create(Panel_Main,0,412,200,400);
 
-    List_Load := TKMListBox.Create(Panel_Load, 12, 10, 170, 280, fnt_Metal);
-    List_Load.OnClick := Load_ListClick;
+    List_Load := TKMListBox.Create(Panel_Load, 12, 2, 170, 280, fnt_Metal);
+    List_Load.OnChange := Load_ListClick;
 
-    Button_Load := TKMButton.Create(Panel_Load,12,300,170,30,'Load',fnt_Metal, bsMenu);
+    Label_Load_Description := TKMLabel.Create(Panel_Load,12,285,170,40,'',fnt_Grey,kaLeft);
+    Label_Load_Description.AutoWrap := true;
+
+    Button_Load := TKMButton.Create(Panel_Load,12,320,170,30,'Load',fnt_Metal, bsMenu);
     Button_Load.OnClick := Load_Click;
 end;
 
@@ -2948,6 +2966,7 @@ end;
 
 procedure TKMGamePlayInterface.Save(SaveStream:TKMemoryStream);
 begin
+  SaveStream.Write(LastSaveName);
   SaveStream.Write(LastSchoolUnit);
   SaveStream.Write(LastBarracksUnit);
   fMessageList.Save(SaveStream);
@@ -2957,6 +2976,7 @@ end;
 
 procedure TKMGamePlayInterface.Load(LoadStream:TKMemoryStream);
 begin
+  LoadStream.Read(LastSaveName);
   LoadStream.Read(LastSchoolUnit);
   LoadStream.Read(LastBarracksUnit);
   fMessageList.Load(LoadStream);

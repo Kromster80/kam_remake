@@ -35,6 +35,7 @@ type
     function AICount:integer;
     function MapSizeText:string;
     function MissionModeText:string;
+    function GetTitleWithTime:string;
   end;
 
 
@@ -142,6 +143,15 @@ begin
     mm_Tactic: Result := 'Fighting'
     else       Result := 'Unknown';
   end;
+end;
+
+
+function TKMGameInfo.GetTitleWithTime:string;
+begin
+  if IsValid then
+    Result := Title + ' ' + FormatDateTime('hh:nn:ss', TickCount/24/60/60/10)
+  else
+    Result := Title;
 end;
 
 

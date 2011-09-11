@@ -39,6 +39,7 @@ type
     property Count: Word read fCount;
     property SavegameInfo[Index:integer]:TKMSaveInfo read GetSave; default;
     procedure ScanSavesFolder(IsMultiplayer: Boolean);
+    procedure DeleteSave(Index:integer);
 
     function SavesList: string;
 
@@ -148,6 +149,21 @@ function TKMSavesCollection.GetSave(Index:integer):TKMSaveInfo;
 begin
   Assert(InRange(Index, 0, fCount-1));
   Result := fSaves[Index];
+end;
+
+
+procedure TKMSavesCollection.DeleteSave(Index:integer);
+var i:integer;
+begin
+  Assert(InRange(Index, 0, fCount-1));
+  DeleteFile(fSaves[Index].Path + fSaves[Index].fFilename + '.sav');
+  DeleteFile(fSaves[Index].Path + fSaves[Index].fFilename + '.rpl');
+  DeleteFile(fSaves[Index].Path + fSaves[Index].fFilename + '.bas');
+  fSaves[Index].Free;
+  for i:=Index to fCount-2 do
+    fSaves[i] := fSaves[i+1]; //Move them down
+  dec(fCount);
+  SetLength(fSaves,fCount);
 end;
 
 

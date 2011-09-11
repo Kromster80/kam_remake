@@ -1065,6 +1065,7 @@ begin
       fGameTickCount := fGameInfo.TickCount;
       fMissionMode := fGameInfo.MissionMode;
     finally //@Lewin: I'm not sure if exceptions from GameInfo will be caught here later on
+            //@Krom: They won't be caught, which is bad. (try adding a raise to the line above)
       fGameInfo.Free;
     end;
 

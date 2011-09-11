@@ -85,6 +85,7 @@ type
     procedure Lobby_StartClick(Sender: TObject);
 
     procedure Load_Click(Sender: TObject);
+    procedure Load_Delete_Click(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
     procedure Load_RefreshList;
     procedure MapEditor_Start(Sender: TObject);
@@ -186,6 +187,7 @@ type
     Panel_Load:TKMPanel;
       List_Load: TKMColumnListBox;
       Button_Load: TKMButton;
+      Button_Delete: TKMButton; //todo: Add some sort of confirmation to deleting, so the button is not pressed by mistake
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
@@ -677,11 +679,14 @@ begin
 
     TKMLabel.Create(Panel_Load, ScreenX div 2, 120, 0, 0, 'List of savegames', fnt_Metal, kaCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 337, 150, 350, 400, fnt_Metal, fnt_Metal, ['File name', 'Description'], [0, 150]);
-    List_Load.OnClick := Load_ListClick;
+    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 145, 900, 408, fnt_Metal, fnt_Outline, ['File name', 'Description'], [0, 300]);
+    List_Load.OnChange := Load_ListClick;
 
     Button_Load := TKMButton.Create(Panel_Load,337,560,350,30,'Load',fnt_Metal, bsMenu);
     Button_Load.OnClick := Load_Click;
+
+    Button_Delete := TKMButton.Create(Panel_Load, 337, 594, 350, 30, 'Delete', fnt_Metal, bsMenu);
+    Button_Delete.OnClick := Load_Delete_Click;
 
     Button_LoadBack := TKMButton.Create(Panel_Load, 337, 650, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LoadBack.OnClick := SwitchMenuPage;
@@ -1624,7 +1629,21 @@ end;
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
+  if not InRange(List_Load.ItemIndex,0,fGame.Saves.Count-1) then exit;
   fGame.StartSingleSave(fGame.Saves[List_Load.ItemIndex].Filename);
+end;
+
+
+procedure TKMMainMenuInterface.Load_Delete_Click(Sender: TObject);
+var PreviouslySelected:integer;
+begin
+  if not InRange(List_Load.ItemIndex,0,List_Load.ItemCount-1) then exit;
+  PreviouslySelected := List_Load.ItemIndex;
+  fGame.Saves.DeleteSave(List_Load.ItemIndex);
+  Load_RefreshList;
+  if List_Load.ItemCount > 0 then
+    List_Load.ItemIndex := EnsureRange(PreviouslySelected,0,List_Load.ItemCount-1);
+  Load_ListClick(List_Load);
 end;
 
 
@@ -1635,7 +1654,7 @@ begin
   List_Load.Clear;
 
   for i:=0 to fGame.Saves.Count-1 do
-    List_Load.AddItem([fGame.Saves[i].Filename, fGame.Saves[i].Info.Title], [$FFFFFFFF, $FFFFFFFF]);
+    List_Load.AddItem([fGame.Saves[i].Filename, fGame.Saves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
   //Select first Save by default
   if List_Load.ItemCount > 0 then

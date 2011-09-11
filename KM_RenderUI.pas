@@ -417,6 +417,7 @@ var
   LineWidth:array of integer; //Use signed format since some fonts may have negative CharSpacing
   FD: TKMFontData;
 begin
+  //todo: We need a way to only print a certain width of text, so extra long strings are cut rather than running over other controls
   if (Text = '') or (Color = $00000000) then exit;
 
   FD := fResource.ResourceFont.FontData[Fnt]; //Shortcut
