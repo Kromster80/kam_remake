@@ -112,6 +112,7 @@ type
     procedure UpdateStateIdle;
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
     property Listening: boolean read fListening;
+    function GetPlayerCount:integer;
   end;
 
 
@@ -291,6 +292,16 @@ end;
 procedure TKMNetServer.UpdateStateIdle;
 begin
   {$IFDEF FPC} fServer.UpdateStateIdle; {$ENDIF}
+end;
+
+
+function TKMNetServer.GetPlayerCount:integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=0 to fClientList.fCount-1 do
+    if fClientList.Item[i].fRoom <> -1 then
+      inc(Result);
 end;
 
 

@@ -106,7 +106,7 @@ begin
 
   if fPublishServer and (TickCount-fLastAnnounce >= fAnnounceInterval*1000) then
   begin
-    fMasterServer.AnnounceServer(fServerName,fPort,fAnnounceInterval+10);
+    fMasterServer.AnnounceServer(fServerName,fPort,fNetServer.GetPlayerCount,fAnnounceInterval+10);
     fLastAnnounce := TickCount;
   end;
 end;

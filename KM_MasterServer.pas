@@ -23,7 +23,7 @@ type
     property OnError:TGetStrProc write fOnError;
     property OnServerList:TGetStrProc write fOnServerList;
     property OnAnnouncements:TGetStrProc write fOnAnnouncements;
-    procedure AnnounceServer(aName, aPort:string; aTTL:integer);
+    procedure AnnounceServer(aName, aPort:string; aPlayerCount, aTTL:integer);
     procedure QueryServer;
     procedure FetchAnnouncements(const aLang: string);
     procedure UpdateStateIdle;
@@ -69,10 +69,12 @@ begin
 end;
 
 
-procedure TKMMasterServer.AnnounceServer(aName, aPort:string; aTTL:integer);
+procedure TKMMasterServer.AnnounceServer(aName, aPort:string; aPlayerCount, aTTL:integer);
 begin
   fHTTPClient.OnReceive := nil; //We don't care about the response
-  fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)+'&ttl='+UrlEncode(IntToStr(aTTL))+'&rev='+UrlEncode(GAME_REVISION));
+  fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
+                     +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
+                     +'&rev='+UrlEncode(GAME_REVISION));
 end;
 
 
