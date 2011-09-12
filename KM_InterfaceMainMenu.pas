@@ -247,7 +247,8 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking;
+uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking,
+  KM_GameInfo;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
@@ -1429,7 +1430,7 @@ end;
 //Players list has been updated
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
-var i:integer; MyNik, CanEdit, IsSave:boolean;
+var i:integer; MyNik, CanEdit, IsSave, IsValid:boolean;
 begin
   IsSave := fGame.Networking.SelectGameKind = ngk_Save;
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
@@ -1449,8 +1450,12 @@ begin
       DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     end;
     //If we can't load the map, don't attempt to show starting locations
-    if ((fGame.Networking.SelectGameKind = ngk_Map)  and fGame.Networking.MapInfo.IsValid)
-    or ((fGame.Networking.SelectGameKind = ngk_Save) and fGame.Networking.SaveInfo.IsValid) then
+    IsValid := false;
+    if fGame.Networking.SelectGameKind = ngk_Save then
+      IsValid := fGame.Networking.SaveInfo.IsValid;
+    if fGame.Networking.SelectGameKind = ngk_Map then
+      IsValid := fGame.Networking.MapInfo.IsValid;
+    if IsValid then
       DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation
     else
       DropBox_LobbyLoc[i].ItemIndex := 0;
@@ -1542,7 +1547,11 @@ var i:Integer; DropText:string;
 begin
   if fGame.Networking.GameInfo <> nil then
   begin
-    Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
+    if fGame.Networking.SelectGameKind = ngk_Save then
+      Label_LobbyMapName.Caption := fGame.Networking.GameInfo.GetTitleWithTime
+    else
+      Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
+
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.GameInfo.MissionModeText;
     //Label_LobbyMapCond.Caption :=

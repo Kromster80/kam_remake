@@ -114,7 +114,7 @@ type
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
-    property SaveInfo:TKMapInfo read fMapInfo;
+    property SaveInfo:TKMSaveInfo read fSaveInfo;
     property GameInfo:TKMGameInfo read GetGameInfo;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
     property NetPlayers:TKMPlayersList read fNetPlayers;
@@ -390,8 +390,7 @@ begin
 
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
   fNetPlayers.ResetLocAndReady; //Reset start locations
-  fNetPlayers[fMyIndex].ReadyToStart := true; //@Lewin: Should it be False here?
-  //@Krom: Doesn't really matter, you cannot start a game without a valid map selected, but it would be less confusing as false (as long as select map/save always sets it to true)
+  fNetPlayers[fMyIndex].ReadyToStart := true;
 
   if Assigned(fOnMapName) then fOnMapName('');
   SendPlayerListAndRefreshPlayersSetup;
@@ -435,6 +434,8 @@ begin
   
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
+
+  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP\', aName);
 
   if not fSaveInfo.IsValid then
   begin
@@ -892,6 +893,7 @@ begin
     mk_MapSelect:
             if fNetPlayerKind = lpk_Joiner then begin
               fSelectGameKind := ngk_Map;
+              FreeAndNil(fMapInfo);
               fMapInfo := TKMapInfo.Create;
               fMapInfo.Load(Msg, true);
               fNetPlayers.ResetLocAndReady;
@@ -918,8 +920,9 @@ begin
 
     mk_SaveSelect:
             if fNetPlayerKind = lpk_Joiner then begin
-              fSaveInfo.Free;
-              fSaveInfo.Create(ExeDir + 'SavesM\', Msg);
+              fSelectGameKind := ngk_Save;
+              FreeAndNil(fSaveInfo);
+              fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesMP\', Msg);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fSaveInfo.Filename);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);

@@ -388,7 +388,7 @@ end;
 procedure TKMGamePlayInterface.Save_RefreshList;
 var i:integer;
 begin
-  fGame.Saves.ScanSavesFolder(false);
+  fGame.Saves.ScanSavesFolder(fGame.MultiplayerMode);
   List_Save.Clear;
 
   if LastSaveName = '' then
@@ -438,7 +438,7 @@ end;
 procedure TKMGamePlayInterface.Load_RefreshList;
 var i:integer;
 begin
-  fGame.Saves.ScanSavesFolder(false);
+  fGame.Saves.ScanSavesFolder(fGame.MultiplayerMode);
   List_Load.Clear;
 
   for i:=0 to fGame.Saves.Count-1 do

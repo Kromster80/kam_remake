@@ -58,7 +58,7 @@ var
   //Not fully implemented yet
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
-  AGGRESSIVE_REPLAYS    :boolean=true; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
+  AGGRESSIVE_REPLAYS    :boolean=false; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
 
   //These are debug things, should be FALSE
   {User interface options}

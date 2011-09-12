@@ -1028,7 +1028,7 @@ begin
   end;
 
   CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-  CreateDir(ExeDir+'SavesM\');
+  CreateDir(ExeDir+'SavesMP\');
 
   SaveStream.SaveToFile(SaveName(aFilename,'sav')); //Some 70ms for TPR7 map
   SaveStream.Free;
@@ -1272,7 +1272,7 @@ end;
 function TKMGame.SaveName(const aName, aExt: string): string;
 begin
   if fMultiplayerMode then
-    Result := ExeDir + 'SavesM\' + aName + '.' + aExt
+    Result := ExeDir + 'SavesMP\' + aName + '.' + aExt
   else
     Result := ExeDir + 'Saves\' + aName + '.' + aExt;
 end;
