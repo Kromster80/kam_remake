@@ -1449,7 +1449,8 @@ begin
       DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
     end;
     //If we can't load the map, don't attempt to show starting locations
-    if fGame.Networking.MapInfo.IsValid then
+    if ((fGame.Networking.SelectGameKind = ngk_Map)  and fGame.Networking.MapInfo.IsValid)
+    or ((fGame.Networking.SelectGameKind = ngk_Save) and fGame.Networking.SaveInfo.IsValid) then
       DropBox_LobbyLoc[i].ItemIndex := fGame.Networking.NetPlayers[i+1].StartLocation
     else
       DropBox_LobbyLoc[i].ItemIndex := 0;
@@ -1511,14 +1512,14 @@ begin
   if Radio_LobbyMapType.ItemIndex = 0 then
   begin
     fMaps.ScanMapsFolder;
-    List_Lobby.SetItems(fMaps.MapList);
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+    List_Lobby.SetItems(fMaps.MapList);
   end
   else
   begin
     fGame.Saves.ScanSavesFolder(true);
-    List_Lobby.SetItems(fGame.Saves.SavesList);
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
+    List_Lobby.SetItems(fGame.Saves.SavesList);
   end;
   if Sender <> nil then //This is used in Reset_Lobby when we are not connected
     fGame.Networking.SelectNoMap;
@@ -1539,23 +1540,43 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
-  Label_LobbyMapName.Caption := fGame.Networking.MapInfo.Info.Title;
-  Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.MapInfo.Info.PlayerCount]);
-  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.MapInfo.Info.MissionModeText;
-  //Label_LobbyMapCond.Caption :=
-  Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE]+' '+fGame.Networking.MapInfo.Info.MapSizeText;
+  if fGame.Networking.GameInfo <> nil then
+  begin
+    Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
+    Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);
+    Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.GameInfo.MissionModeText;
+    //Label_LobbyMapCond.Caption :=
+    Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE]+' '+fGame.Networking.GameInfo.MapSizeText;
 
-  //Update starting locations
-  if fGame.Networking.SelectGameKind = ngk_Save then
-    DropText := fTextLibrary[TX_LOBBY_SELECT] + eol
+    //Update starting locations
+    if fGame.Networking.SelectGameKind = ngk_Save then
+      DropText := fTextLibrary[TX_LOBBY_SELECT] + eol
+    else
+      DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+
+    for i:=1 to fGame.Networking.GameInfo.PlayerCount do
+      DropText := DropText + fGame.Networking.GameInfo.LocationName[i-1] + eol;
+
+    for i:=0 to MAX_PLAYERS-1 do
+      DropBox_LobbyLoc[i].SetItems(DropText);
+  end
   else
-    DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+  begin
+    Label_LobbyMapName.Caption := 'Invalid';
+    Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[0]);
+    Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
+    //Label_LobbyMapCond.Caption :=
+    Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
 
-  for i:=1 to fGame.Networking.MapInfo.Info.PlayerCount do
-    DropText := DropText + fGame.Networking.MapInfo.Info.LocationName[i-1] + eol;
+    //Update starting locations
+    if fGame.Networking.SelectGameKind = ngk_Save then
+      DropText := fTextLibrary[TX_LOBBY_SELECT] + eol
+    else
+      DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
 
-  for i:=0 to MAX_PLAYERS-1 do
-    DropBox_LobbyLoc[i].SetItems(DropText);
+    for i:=0 to MAX_PLAYERS-1 do
+      DropBox_LobbyLoc[i].SetItems(DropText);
+  end;
 end;
 
 
@@ -1569,7 +1590,11 @@ begin
     Radio_LobbyMapType.ItemIndex := 0;
 
   Lobby_MapTypeSelect(nil);
-  List_Lobby.FindByName(fGame.Networking.MapInfo.Filename); //Select the map
+  if fGame.Networking.SelectGameKind = ngk_Save then
+    List_Lobby.FindByName(fGame.Networking.SaveInfo.Filename) //Select the map
+  else
+    if fGame.Networking.SelectGameKind = ngk_Map then
+      List_Lobby.FindByName(fGame.Networking.MapInfo.Filename); //Select the map
 end;
 
 

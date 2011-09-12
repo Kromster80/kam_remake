@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Player, KM_Saves,
+  KM_CommonTypes, KM_Defaults, KM_Player, KM_Saves, KM_GameInfo,
   KM_MapInfo, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 
 //todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
@@ -75,6 +75,7 @@ type
     procedure PlayGame;
     procedure SetGameState(aState:TNetGameState);
     procedure SendMapOrSave;
+    function GetGameInfo:TKMGameInfo;
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -113,6 +114,8 @@ type
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
+    property SaveInfo:TKMapInfo read fMapInfo;
+    property GameInfo:TKMGameInfo read GetGameInfo;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     procedure GameCreated;
@@ -150,7 +153,6 @@ constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout
 begin
   Inherited Create;
   SetGameState(lgs_None);
-  fMapInfo := TKMapInfo.Create;
   fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '');
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
@@ -163,7 +165,8 @@ begin
   fNetPlayers.Free;
   fNetServer.Free;
   fNetClient.Free;
-  fMapInfo.Free;
+  FreeAndNil(fMapInfo);
+  FreeAndNil(fSaveInfo);
   fServerQuery.Free;
   Inherited;
 end;
@@ -271,8 +274,10 @@ begin
   fNetClient.Disconnect;
   fNetServer.Stop;
 
-  fMapInfo.Free;
-  fMapInfo := TKMapInfo.Create;
+  FreeAndNil(fMapInfo);
+  FreeAndNil(fSaveInfo);
+
+  fSelectGameKind := ngk_None;
 end;
 
 
@@ -331,10 +336,17 @@ begin
                 PacketSend(NET_ADDRESS_OTHERS, mk_MapSelect, fMapInfo.Filename, 0);
                 PacketSend(NET_ADDRESS_OTHERS, mk_MapCRC, '', Integer(fMapInfo.CRC));
               end;
-    else      //@Lewin: What do we send in this case?
-              //@Krom: This procedure is used when a new client joins the server to make them initialise the map
-              //       selection. Before it would have sent mk_MapSelect with an empty string, meaning nothing would have been
-              //       loaded by the initialisations would have still run. I guess that's a bad way to do it though. It should probably only send it to that new client as well.
+    else      PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
+  end;
+end;
+
+
+function TKMNetworking.GetGameInfo:TKMGameInfo;
+begin
+  case fSelectGameKind of
+    ngk_Save: Result := fSaveInfo.Info;
+    ngk_Map:  Result := fMapInfo.Info;
+    else      Result := nil;
   end;
 end;
 
@@ -373,8 +385,8 @@ begin
 
   fSelectGameKind := ngk_None;
 
-  fMapInfo.Free;
-  fSaveInfo.Free;
+  FreeAndNil(fMapInfo);
+  FreeAndNil(fSaveInfo);
 
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
   fNetPlayers.ResetLocAndReady; //Reset start locations
@@ -391,6 +403,9 @@ end;
 procedure TKMNetworking.SelectMap(const aName:string);
 begin
   Assert(IsHost, 'Only host can select maps');
+  FreeAndNil(fMapInfo);
+  FreeAndNil(fSaveInfo);
+  fMapInfo := TKMapInfo.Create;
 
   fMapInfo.Load(aName, true);
 
@@ -402,10 +417,10 @@ begin
 
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
-  SendMapOrSave;
-
   fSelectGameKind := ngk_Map;
   fNetPlayers[fMyIndex].ReadyToStart := True;
+
+  SendMapOrSave;
 
   if Assigned(fOnMapName) then fOnMapName(fMapInfo.Filename);
   SendPlayerListAndRefreshPlayersSetup;
@@ -417,9 +432,9 @@ end;
 procedure TKMNetworking.SelectSave(const aName:string);
 begin
   Assert(IsHost, 'Only host can select saves');
-
-  fSaveInfo.Free;
-  fSaveInfo := TKMSaveInfo.Create(ExeDir + 'SavesM\', aName);
+  
+  FreeAndNil(fMapInfo);
+  FreeAndNil(fSaveInfo);
 
   if not fSaveInfo.IsValid then
   begin
@@ -429,11 +444,11 @@ begin
 
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
-  SendMapOrSave;
-  MatchPlayersToSave; //Don't match players if it's not a valid save
-
   fSelectGameKind := ngk_Save;
   fNetPlayers[fMyIndex].ReadyToStart := True;
+
+  SendMapOrSave;
+  MatchPlayersToSave; //Don't match players if it's not a valid save
 
   if Assigned(fOnMapName) then fOnMapName(fSaveInfo.Filename);
   SendPlayerListAndRefreshPlayersSetup;
@@ -445,8 +460,8 @@ end;
 procedure TKMNetworking.SelectLoc(aIndex:integer; aPlayerIndex:integer);
 begin
   //Check if position can be taken before sending
-  if ((fSelectGameKind = ngk_Map) and (not fMapInfo.IsValid) or (aIndex > fMapInfo.Info.PlayerCount)) or
-     ((fSelectGameKind = ngk_Save) and (not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount)) or
+  if ((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.Info.PlayerCount))) or
+     ((fSelectGameKind = ngk_Save) and ((not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount))) or
      (fSelectGameKind = ngk_None) or
      (not fNetPlayers.LocAvailable(aIndex)) then
   begin
@@ -498,7 +513,7 @@ end;
 //Joiner indicates that he is ready to start
 function TKMNetworking.ReadyToStart:boolean;
 begin
-  if fNetPlayers[fMyIndex].StartLocation = 0 then
+  if (fSelectGameKind = ngk_Save) and (fNetPlayers[fMyIndex].StartLocation = 0) then
   begin
     if Assigned(fOnTextMessage) then fOnTextMessage('Error: Please select a player to play as');
     Result := false;
@@ -867,14 +882,17 @@ begin
 
     mk_ResetMap:
             begin
-              fMapInfo.Free;
-              fMapInfo := TKMapInfo.Create;
+              fSelectGameKind := ngk_None;
+              FreeAndNil(fMapInfo);
+              FreeAndNil(fSaveInfo);
               fNetPlayers.ResetLocAndReady;
-              if Assigned(fOnMapName) then fOnMapName(fMapInfo.Filename);
+              if Assigned(fOnMapName) then fOnMapName('');
             end;
 
     mk_MapSelect:
             if fNetPlayerKind = lpk_Joiner then begin
+              fSelectGameKind := ngk_Map;
+              fMapInfo := TKMapInfo.Create;
               fMapInfo.Load(Msg, true);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Filename);
@@ -891,10 +909,10 @@ begin
                 else
                   PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.Filename);
                 fMapInfo.Free;
-                fMapInfo := TKMapInfo.Create;
+                fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
                   fNetPlayers[fMyIndex].ReadyToStart := false;
-                if Assigned(fOnMapName) then fOnMapName(fMapInfo.Filename);
+                if Assigned(fOnMapName) then fOnMapName('');
               end
             end;
 
@@ -911,21 +929,22 @@ begin
             if fNetPlayerKind = lpk_Joiner then
               if Integer(fSaveInfo.CRC) <> Param then
               begin
-                if fMapInfo.IsValid then
+                if fSaveInfo.IsValid then
                   PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.Filename)
                 else
                   PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.Filename);
+                fSaveInfo.Free;
+                fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
                   fNetPlayers[fMyIndex].ReadyToStart := False;
                 if Assigned(fOnMapName) then fOnMapName('');
               end;
 
-    //@Krom: This is used for saves too, so it should not always use fMapInfo (to select the player from the save you will play as)
     mk_StartingLocQuery:
             if IsHost then begin
               LocID := Param;
-              if fMapInfo.IsValid and
-                 (LocID <= fMapInfo.Info.PlayerCount) and
+              if (GameInfo <> nil) and GameInfo.IsValid and
+                 (LocID <= GameInfo.PlayerCount) and
                  fNetPlayers.LocAvailable(LocID) then
               begin //Update Players setup
                 fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].StartLocation := LocID;

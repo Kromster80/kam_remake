@@ -2469,6 +2469,7 @@ end;
 procedure TKMDropBox.SetItems(aText:string);
 begin
   fList.SetItems(aText);
+  fCaption := fDefaultCaption;
 end;
 
 
