@@ -13,7 +13,7 @@ Future
 Close future
  +	Marketplace [Krom]
  +	TPR units [Lewin]
-	WAN multiplayer (hosted master server in PHP and MYSQL) [Lewin]
+	WAN multiplayer (hosted master server in PHP) [Lewin]
 	File transfer in multiplayer for missions and saves [Lewin]
 	Tutorial missions and texts from KaM
 	Lookout tower [Krom]

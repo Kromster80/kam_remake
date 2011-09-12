@@ -203,7 +203,7 @@ const
   ('svk', '1250', 'Slovak'), //New one
   ('cze', '1250', 'Czech'),  //New one
   ('swe', '1252', 'Swedish'),//New one
-  ('fra', '1252', 'French'), //New one
+  ('fre', '1252', 'French'), //New one
   ('spa', '1252', 'Spanish'),
   ('hun', '1250', 'Hungarian'),
   ('dut', '1252', 'Dutch'),

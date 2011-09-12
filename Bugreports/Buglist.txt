@@ -14,6 +14,7 @@ Bugs:
  +	Multiplayer has a master server to show all of the servers/games running around the world
  +	Should attempt to play eng unit sounds if locale are missing (there's no favorite locale)
  +	Replay timer should display in HH:MM:SS format
+ +	Saves are created with names, rather than 10 fixed slots
 
 	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
 	Music does not cycle while in pause mode

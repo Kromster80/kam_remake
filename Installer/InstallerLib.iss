@@ -36,7 +36,8 @@ Name: "hun"; MessagesFile: "compiler:Languages\Hungarian.isl";
 Name: "pol"; MessagesFile: "compiler:Languages\Polish.isl";
 Name: "rus"; MessagesFile: "compiler:Languages\Russian.isl";
 Name: "svk"; MessagesFile: "compiler:Languages\Slovak.isl";
-Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl";       
+Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl";
+Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl";
 
 [CustomMessages]  
 #include "Translations.iss"
