@@ -217,7 +217,7 @@ procedure TKMapsCollection.ScanMapsFolder;
 var SearchRec:TSearchRec; i:integer;
 begin
   for i:=0 to fCount-1 do
-    FreeAndNil(fMaps[fCount-1]);
+    FreeAndNil(fMaps[i]);
 
   fCount := 0;
   if not DirectoryExists(ExeDir+'Maps\') then exit;

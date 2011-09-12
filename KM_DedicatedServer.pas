@@ -53,6 +53,7 @@ end;
 destructor TKMDedicatedServer.Destroy;
 begin
   fNetServer.Free;
+  fMasterServer.Free;
   StatusMessage('Server destroyed');
   Inherited;
 end;

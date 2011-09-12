@@ -165,9 +165,9 @@ begin
   fNetPlayers.Free;
   fNetServer.Free;
   fNetClient.Free;
+  fServerQuery.Free;
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
-  fServerQuery.Free;
   Inherited;
 end;
 

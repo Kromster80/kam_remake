@@ -61,7 +61,7 @@ begin
   fInfo := TKMGameInfo.Create;
 
   //We could postpone this step till info is actually required
-  //but we do need title and TickCount right away, so it's better just to scna it ASAP
+  //but we do need title and TickCount right away, so it's better just to scan it ASAP
   ScanSave;
 end;
 

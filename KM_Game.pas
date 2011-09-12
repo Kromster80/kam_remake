@@ -191,6 +191,7 @@ begin
   FreeThenNil(fTextLibrary);
   FreeThenNil(fRenderAux);
   FreeThenNil(fRender);
+  FreeAndNil(fGameInputProcess);
   Inherited;
 end;
 
@@ -549,9 +550,11 @@ procedure TKMGame.MultiplayerRig;
 var
   i,k:integer;
   PlayerIndex:TPlayerIndex;
+  PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
 
+  FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
   for i:=1 to fNetworking.NetPlayers.Count do
   begin
@@ -569,10 +572,16 @@ begin
           fPlayers.Player[PlayerIndex].Alliances[k] := at_Ally;
 
     fPlayers.Player[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
+    PlayerUsed[PlayerIndex] := true;
   end;
 
   //MyPlayer is a pointer to TKMPlayer
   MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
+
+  //Clear remaining players
+  for i:=fPlayers.Count-1 downto 0 do
+    if not PlayerUsed[i] then
+      fPlayers.RemovePlayer(i);
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
 
@@ -1065,7 +1074,7 @@ begin
       fGameTickCount := fGameInfo.TickCount;
       fMissionMode := fGameInfo.MissionMode;
     finally //@Lewin: I'm not sure if exceptions from GameInfo will be caught here later on
-            //@Krom: They won't be caught, which is bad. (try adding a raise to the line above)
+            //@Krom: They won't be caught, which is bad. (try adding a raise to the line above to test)
       fGameInfo.Free;
     end;
 

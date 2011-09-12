@@ -87,7 +87,11 @@ type
     PlayerIndex: TPlayerIndex; //Player for which the command is to be issued. (Needed for multiplayer and other reasons)
   end;
 
+  //As TGameInputCommand is no longer fixed size (due to the string) we cannot simply read/write it as a block
+  procedure SaveCommandToMemoryStream(aCommand:TGameInputCommand; aMemoryStream: TKMemoryStream);
+  procedure LoadCommandFromMemoryStream(out aCommand:TGameInputCommand; aMemoryStream: TKMemoryStream);
 
+type
   TGameInputProcess = class
   private
     fCount:integer;
@@ -154,6 +158,30 @@ type
 
 implementation
 uses KM_Game, KM_Terrain;
+
+
+procedure SaveCommandToMemoryStream(aCommand:TGameInputCommand; aMemoryStream: TKMemoryStream);
+begin
+  with aCommand do
+  begin
+    aMemoryStream.Write(CommandType, SizeOf(CommandType));
+    aMemoryStream.Write(Params, SizeOf(Params));
+    aMemoryStream.Write(TextParam);
+    aMemoryStream.Write(PlayerIndex);
+  end;
+end;
+
+
+procedure LoadCommandFromMemoryStream(out aCommand:TGameInputCommand; aMemoryStream: TKMemoryStream);
+begin
+  with aCommand do
+  begin
+    aMemoryStream.Read(CommandType, SizeOf(CommandType));
+    aMemoryStream.Read(Params, SizeOf(Params));
+    aMemoryStream.Read(TextParam);
+    aMemoryStream.Read(PlayerIndex);
+  end;
+end;
 
 
 constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);
@@ -440,7 +468,11 @@ begin
   S.Write(GAME_VERSION); //
   S.Write(fCount);
   for i:=1 to fCount do
-    S.Write(fQueue[i].Tick, SizeOf(fQueue[i]));
+  begin
+    S.Write(fQueue[i].Tick);
+    SaveCommandToMemoryStream(fQueue[i].Command, S);
+    S.Write(fQueue[i].Rand);
+  end;
 
   S.SaveToFile(aFileName);
   S.Free;
@@ -458,7 +490,12 @@ begin
   S.Read(fCount);
   setlength(fQueue, fCount+1);
   for i:=1 to fCount do
-    S.Read(fQueue[i].Tick, SizeOf(fQueue[i]));
+  begin
+    S.Read(fQueue[i].Tick);
+    LoadCommandFromMemoryStream(fQueue[i].Command, S);
+    S.Read(fQueue[i].Rand);
+  end;
+
   S.Free;
 end;
 

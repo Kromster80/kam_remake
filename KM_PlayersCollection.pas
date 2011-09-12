@@ -14,7 +14,6 @@ type
     fPlayerList:array of TKMPlayer;
     fPlayerAnimals:TKMPlayerAnimals;
     function GetPlayer(Index:integer):TKMPlayer;
-    procedure RemovePlayer(aIndex:TPlayerIndex);
   public
     Selected: TObject; //Unit or House
 
@@ -28,6 +27,7 @@ type
     procedure AddPlayers(aCount:byte); //Batch add several players
 
     procedure RemoveEmptyPlayers;
+    procedure RemovePlayer(aIndex:TPlayerIndex);
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure UpdateMultiplayerTeams;
     function HousesHitTest(X,Y:Integer):TKMHouse;

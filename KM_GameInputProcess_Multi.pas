@@ -115,7 +115,7 @@ var i:integer;
 begin
   aStream.Write(fCount);
   for i:=1 to fCount do
-    aStream.Write(fItems[i], SizeOf(fItems[i]));
+    SaveCommandToMemoryStream(fItems[i], aStream);
 end;
 
 
@@ -126,7 +126,7 @@ begin
   SetLength(fItems, fCount+1);
 
   for i:=1 to fCount do
-    aStream.Read(fItems[i], SizeOf(fItems[i]));
+    LoadCommandFromMemoryStream(fItems[i], aStream);
 end;
 
 
