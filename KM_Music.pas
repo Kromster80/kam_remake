@@ -5,6 +5,22 @@ uses Forms,
   {$IFDEF WDC}MMSystem, Windows, MPlayer, {$ENDIF}
   Classes, SysUtils, KromUtils, Math, KM_Defaults;
 
+//todo: Discuss using the Bass audio library rather than TMediaPlayer. It doesn't have to be Bass, but it looks like a good one.
+//      We could play Ogg music through OpenAL but that requires lots of DLLs and libraries, and I'd rather keep the two systems separate.
+{Advantages: - Also works on Lazarus/Linux/Mac (I tested it with Lazarus on Windows, apparently it works on the others)
+             - No annoying clicks when starting/stopping playback (like TMediaPlayer has)
+             - Very efficient: does not lock the application when loading a new track. (TMediaPlayer locks my computer for 500-1000ms)
+               I tested Bass while scrolling across the map and the change was only just noticable if you looked closely.
+             - Lots of advanced features we probably won't ever need: 3D sound, recording, surround sound, effects (like chorus / echo / parametric eq / reverb)
+             - Supports MP1, MP2, MP3, OGG, WAV, MOD, and more
+             - Just 1 .pas file to go in Common\
+ Disadvantages:
+             - Requires a DLL file to be included with our distribution (bass.dll, ~100kb) Our installer can place this in their install folder.
+             - Non-comerical use only without paying for it
+
+ More info: http://www.un4seen.com/bass.html
+ }
+
 type
   TMusicLib = class
   private
