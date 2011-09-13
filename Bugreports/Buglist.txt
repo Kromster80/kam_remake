@@ -8,16 +8,11 @@ Bugs:
  +	"Taking wrong resource from Serf" crashes fixed
  +	Save correct number of players from MapEd
  +	RangeCheckError in TSK campaign screen when selecting 7th mission
- +	Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
- +	Warriors/citizens have fully working voices!
- +	Warriors from The Peasents Rebelion are now supported
- +	Multiplayer has a master server to show all of the servers/games running around the world
  +	Should attempt to play eng unit sounds if locale are missing (there's no favorite locale)
  +	Replay timer should display in HH:MM:SS format
- +	Saves are created with names, rather than 10 fixed slots
  +	Music does not cycle while in pause mode
+ +	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
 
-	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
 	Woodcutters hut flagshtok should appear last in construction
 	Farmer will sow corn on tile that was just finished as a road
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
@@ -32,7 +27,7 @@ Bugs:
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
-	MediaPlayer won't play some mp3s and crash
+	MediaPlayer won't play some mp3s and crash (we should use a better library for music playback, e.g. Bass)
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	See-through hills (lighting flaw)
 	Many texts will not change if I change the language in options menu
@@ -40,6 +35,10 @@ Bugs:
 Features:
  +	Underwater sand
  +	Savegames are now accessible as a list (not limited to 10 slots)
+ +	Melee fighting now has sound effects! (clash of weapons) Thanks to Malin from kamclub.ru for sorting the files for us.
+ +	Warriors/citizens have fully working voices!
+ +	Warriors from The Peasents Rebelion are now supported
+ +	Multiplayer has a master server to show all of the servers/games running around the world
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.

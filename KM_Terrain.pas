@@ -890,7 +890,7 @@ Prefer ex-trees locations}
 function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPointDir):Boolean;
 var i,k:integer; List1,List2:TKMPointList;
 begin
-  TreePlacePoint.Dir := dir_NA;
+  TreePlacePoint.Dir := dir_N; //Trees must always be planted facing north as that is the unit DAT animation that is used
   List1:=TKMPointList.Create;
   List2:=TKMPointList.Create;
   for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do

@@ -17,7 +17,7 @@ type
       destructor Destroy; override;
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
-      procedure FindAnotherWorkPlan;
+      procedure FindAnotherWorkPlan(aCalledInternally:boolean=false);
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -63,7 +63,7 @@ end;
 //Try to find alternative target for our WorkPlan
 //Happens when we discover that resource is gone or is occupied by another busy unit
 //Return false if new plan could not be found
-procedure TTaskMining.FindAnotherWorkPlan;
+procedure TTaskMining.FindAnotherWorkPlan(aCalledInternally:boolean=false);
 var OldLoc: TKMPoint;
 begin
   OldLoc := WorkPlan.Loc;
@@ -73,14 +73,17 @@ begin
     if not KMSamePoint(OldLoc,WorkPlan.Loc) then
     begin
       fUnit.SetActionAbandonWalk(fUnit.NextPosition, WorkPlan.ActionWalkTo); //Abandon the current walk
-      fPhase := 1 //Set the walk again
+      //Set the walk again (by setting fPhase to 1)
+      if aCalledInternally then
+        fPhase := 0 //Will become 1 after this loop
+      else
+        fPhase := 1;
+      exit;
     end;
-  end
-  else
-  begin
-    fUnit.SetActionAbandonWalk(fUnit.NextPosition, WorkPlan.ActionWalkTo); //Abandon the current walk
-    fPhase := 99; //Exit the task on next update, since this function could be called externally (by WalkTo)
   end;
+  //Otherwise abandon as there is no other work plan available
+  fUnit.SetActionAbandonWalk(fUnit.NextPosition, WorkPlan.ActionWalkTo); //Abandon the current walk
+  fPhase := 99; //Exit the task on next update, since this function could be called externally (by WalkTo)
 end;
 
 
@@ -148,7 +151,7 @@ begin
        end else
          SetActionLockedStay(0, WorkPlan.ActionWalkTo);
     3: if not ResourceExists then
-         FindAnotherWorkPlan
+         FindAnotherWorkPlan(true)
        else
        begin //Choose direction and time to work
 

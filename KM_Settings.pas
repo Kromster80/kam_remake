@@ -149,7 +149,7 @@ begin
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
   fMusicOn       := f.ReadBool   ('SFX','MusicEnabled',true);
 
-  fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);
+  fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',41);
 
   fMultiplayerName        := f.ReadString('Multiplayer','Name','NoName');
   fMultiplayerIP          := f.ReadString('Multiplayer','LastIP','127.0.0.1');

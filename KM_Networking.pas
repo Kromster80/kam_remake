@@ -188,6 +188,7 @@ end;
 //Startup a local server and connect to it as ordinary client
 procedure TKMNetworking.Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
 begin
+  fWelcomeMessage := '';
   fIgnorePings := 0; //Accept pings
   fNetServer.Stop;
 
@@ -210,6 +211,7 @@ procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string; aRoom:intege
 begin
   Assert(not fNetClient.Connected, 'We were not properly disconnected');
 
+  fWelcomeMessage := '';
   fIgnorePings := 0; //Accept pings
   fJoinTimeout := GetTickCount;
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
@@ -1056,7 +1058,7 @@ end;
 
 procedure TKMNetworking.PlayGame;
 begin
-  fIgnorePings := 2; //Ignore the next two pings as they may have been measured during loading
+  fIgnorePings := 5; //Ignore the next few pings as they will have been measured during loading
   SetGameState(lgs_Game); //The game has begun (no further players allowed to join)
   if Assigned(fOnPlay) then fOnPlay(Self);
 end;
