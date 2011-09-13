@@ -59,7 +59,7 @@ type
 
 
 implementation
-uses KM_Utils, KM_MissionScript, KM_CommonTypes, KM_TextLibrary;
+uses KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
 { TKMapInfo }

@@ -3,7 +3,7 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, Windows, SysUtils,
-  KM_Defaults, KM_Player, KM_GameInfo;
+  KM_Defaults, KM_GameInfo;
 
 
 type
@@ -51,7 +51,7 @@ type
 
 
 implementation
-uses KM_Utils, KM_Game, KM_MissionScript, KM_CommonTypes, KM_TextLibrary;
+uses KM_Game, KM_CommonTypes;
 
 
 { TKMSaveInfo }
