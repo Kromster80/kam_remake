@@ -588,7 +588,9 @@ begin
     //Order groups to attack
     if TakeAll then
     begin
-      //while ()
+      for G:=Low(TGroupType) to High(TGroupType) do
+        for j:=1 to AttackGroupsCount[G] do
+          OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
     end
     else
     begin
