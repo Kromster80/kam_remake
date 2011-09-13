@@ -578,8 +578,8 @@ var
   Enemy:TKMUnit;
 begin
   Result := nil;
-  
-  if (fHome is TKMHouseTower) and (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone) <= 0) then
+
+  if (not (fHome is TKMHouseTower)) or ((not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone) <= 0)) then
     Exit; //Nothing to throw
 
   Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA);

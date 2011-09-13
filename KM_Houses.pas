@@ -1990,6 +1990,7 @@ begin
       ht_School:   Inherited Add(TKMHouseSchool.Load(LoadStream));
       ht_Barracks: Inherited Add(TKMHouseBarracks.Load(LoadStream));
       ht_Store:    Inherited Add(TKMHouseStore.Load(LoadStream));
+      ht_WatchTower:Inherited Add(TKMHouseTower.Load(LoadStream));
       else         Inherited Add(TKMHouse.Load(LoadStream));
 //    else Assert(false, 'Uknown house type in Savegame')
     end;

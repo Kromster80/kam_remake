@@ -12,9 +12,10 @@ Bugs:
  +	Replay timer should display in HH:MM:SS format
  +	Music does not cycle while in pause mode
  +	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
+ +	Farmer will sow corn on tile that was just finished as a road
+ +	Fixed a crash that occured when a tower with no rocks tried to throw a rock at an enemy after loading the game from a save
 
 	Woodcutters hut flagshtok should appear last in construction
-	Farmer will sow corn on tile that was just finished as a road
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
  ?	Making a hill under a house in MapEd causes a crash
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)

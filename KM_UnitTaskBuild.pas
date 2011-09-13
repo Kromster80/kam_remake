@@ -193,6 +193,8 @@ begin
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
+         if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
+           fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove the object again, in case it grew while we were building (I saw this in-game)
          fTerrain.SetRoad(fLoc,GetOwner);
          SetActionStay(5,ua_Walk);
          fTerrain.RemMarkup(fLoc);
