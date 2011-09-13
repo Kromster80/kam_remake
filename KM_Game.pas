@@ -1136,8 +1136,8 @@ var i:integer;
 begin
   inc(fGlobalTickCount);
   case fGameState of
-    gsPaused:   exit;
-    gsOnHold:   exit;
+    gsPaused:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
+    gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsNoGame:   begin
                   if fNetworking <> nil then fNetworking.UpdateState(fGlobalTickCount); //Measures pings
                   fMainMenuInterface.UpdateState;
@@ -1236,10 +1236,11 @@ begin
 
     //Music
     if fMusicLib.IsMusicEnded then
-      case fGameState of
-        gsRunning, gsReplay: fMusicLib.PlayNextTrack; //Feed new music track
-        gsNoGame:            fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn); //Menu tune
-      end;
+      //@Krom: I disagree with looping the menu music. Then if you leave it on the menu, you will get the same
+      //       1:30 minutes of tune over and over again. I think it should certainly start on the menu track, but
+      //       it should not return to it until it reaches the end of the tracks. This is the way it is in TPR,
+      //       and I believe it is also the case in TSK. I have written if like that, if you disagree please say so.
+      fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
     if (fGameState in [gsRunning, gsReplay]) then

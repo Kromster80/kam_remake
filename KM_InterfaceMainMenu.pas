@@ -188,6 +188,8 @@ type
       List_Load: TKMColumnListBox;
       Button_Load: TKMButton;
       Button_Delete: TKMButton; //todo: Add some sort of confirmation to deleting, so the button is not pressed by mistake
+      Label_DeleteConfirm: TKMLabel;
+      Button_DeleteYes, Button_DeleteNo: TKMButton;
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
@@ -678,9 +680,9 @@ begin
     with TKMImage.Create(Panel_Load,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_Load,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    TKMLabel.Create(Panel_Load, ScreenX div 2, 120, 0, 0, 'List of savegames', fnt_Metal, kaCenter);
+    TKMLabel.Create(Panel_Load, ScreenX div 2, 60, 0, 0, 'List of savegames', fnt_Metal, kaCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 145, 900, 408, fnt_Metal, fnt_Outline, ['File name', 'Description'], [0, 300]);
+    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal, fnt_Outline, ['File name', 'Description'], [0, 300]);
     List_Load.OnChange := Load_ListClick;
 
     Button_Load := TKMButton.Create(Panel_Load,337,560,350,30,'Load',fnt_Metal, bsMenu);
@@ -689,7 +691,13 @@ begin
     Button_Delete := TKMButton.Create(Panel_Load, 337, 594, 350, 30, 'Delete', fnt_Metal, bsMenu);
     Button_Delete.OnClick := Load_Delete_Click;
 
-    Button_LoadBack := TKMButton.Create(Panel_Load, 337, 650, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, ScreenX div 2, 604, 0, 0, 'Are you sure you want to delete this save?', fnt_Outline, kaCenter);
+    Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 630, 170, 30, 'Delete', fnt_Metal, bsMenu);
+    Button_DeleteYes.OnClick := Load_Delete_Click;
+    Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 630, 170, 30, 'Cancel', fnt_Metal, bsMenu);
+    Button_DeleteNo.OnClick := Load_Delete_Click;
+
+    Button_LoadBack := TKMButton.Create(Panel_Load, 337, 670, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LoadBack.OnClick := SwitchMenuPage;
 end;
 
@@ -763,7 +771,7 @@ begin
       Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
       Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Music.OnChange:=Options_Change;
-      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,100,30,fTextLibrary[TX_MENU_OPTIONS_SOUND_DISABLE], fnt_Metal);
+      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,100,30,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
       CheckBox_Options_MusicOn.OnClick := Options_Change;
 
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,340,130,200,80);
@@ -1672,12 +1680,31 @@ procedure TKMMainMenuInterface.Load_Delete_Click(Sender: TObject);
 var PreviouslySelected:integer;
 begin
   if not InRange(List_Load.ItemIndex,0,List_Load.ItemCount-1) then exit;
-  PreviouslySelected := List_Load.ItemIndex;
-  fGame.Saves.DeleteSave(List_Load.ItemIndex);
-  Load_RefreshList;
-  if List_Load.ItemCount > 0 then
-    List_Load.ItemIndex := EnsureRange(PreviouslySelected,0,List_Load.ItemCount-1);
-  Load_ListClick(List_Load);
+  if Sender = Button_Delete then
+  begin
+    Label_DeleteConfirm.Show;
+    Button_DeleteYes.Show;
+    Button_DeleteNo.Show;
+    Button_Delete.Hide;
+  end;
+
+  if (Sender = Button_DeleteYes) or (Sender = Button_DeleteNo) then
+  begin
+    Label_DeleteConfirm.Hide;
+    Button_DeleteYes.Hide;
+    Button_DeleteNo.Hide;
+    Button_Delete.Show;
+  end;
+
+  if Sender = Button_DeleteYes then
+  begin
+    PreviouslySelected := List_Load.ItemIndex;
+    fGame.Saves.DeleteSave(List_Load.ItemIndex);
+    Load_RefreshList;
+    if List_Load.ItemCount > 0 then
+      List_Load.ItemIndex := EnsureRange(PreviouslySelected,0,List_Load.ItemCount-1);
+    Load_ListClick(List_Load);
+  end;
 end;
 
 
@@ -1695,6 +1722,11 @@ begin
     List_Load.ItemIndex := 0;
 
   Load_ListClick(List_Load);
+
+  Label_DeleteConfirm.Hide;
+  Button_DeleteYes.Hide;
+  Button_DeleteNo.Hide;
+  Button_Delete.Show;
 end;
 
 
@@ -1752,8 +1784,10 @@ end;
 
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
-var i:cardinal;
+var i:cardinal; MusicToggled: boolean;
 begin
+  MusicToggled := (fGame.GlobalSettings.MusicOn = CheckBox_Options_MusicOn.Checked);
+
   fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
   fGame.GlobalSettings.Brightness       := Ratio_Options_Brightness.Position;
   fGame.GlobalSettings.MouseSpeed       := Ratio_Options_Mouse.Position;
@@ -1765,7 +1799,8 @@ begin
 
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
   fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
-  fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
+  if MusicToggled then
+    fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
 
   if Sender = Radio_Options_Lang then begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEWLOCAL]);

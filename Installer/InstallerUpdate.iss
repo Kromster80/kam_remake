@@ -13,10 +13,10 @@
 function CheckRemakeVersion(aVersion:string):boolean;
 begin
   //Place all Remake versions that are allowed to be upgraded here
-  Result := (RemakeVersion = 'r1234') 
-        {or (RemakeVersion = 'r1234') 
-         or (RemakeVersion = 'r1234') 
-         or (RemakeVersion = 'r1234')}
+  Result := (aVersion = 'r1234') 
+        {or (aVersion = 'r1234') 
+         or (aVersion = 'r1234') 
+         or (aVersion = 'r1234')}
          ; 
 end;
 

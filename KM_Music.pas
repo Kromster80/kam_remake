@@ -234,7 +234,7 @@ begin
   //May not display the correct title as not all LIBs are correct. Should also do range checking
   //Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex);
 
-  Result := ExtractFileName(MusicTracks[MusicIndex]); //@Lewin: I think we should do it this way eventually
+  Result := TruncateExt(ExtractFileName(MusicTracks[MusicIndex])); //@Lewin: I think we should do it this way eventually
 end;
 
 (*

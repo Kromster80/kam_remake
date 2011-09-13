@@ -35,6 +35,8 @@ type
     fSaves: array of TKMSaveInfo;
     function GetSave(Index:integer):TKMSaveInfo;
   public
+    destructor Destroy; override;
+
     procedure Clear;
     property Count: Word read fCount;
     property SavegameInfo[Index:integer]:TKMSaveInfo read GetSave; default;
@@ -105,6 +107,13 @@ end;
 
 
 { TKMapsCollection }
+destructor TKMSavesCollection.Destroy;
+begin
+  Clear;
+  inherited;
+end;
+
+
 procedure TKMSavesCollection.AutoSave;
 var i: integer;
 begin

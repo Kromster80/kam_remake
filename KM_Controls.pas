@@ -317,6 +317,7 @@ type
     Masked:boolean;
     ReadOnly:boolean;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false);
+    procedure PlaceCursorAtEnd;
     property CursorPos: integer read fCursorPos write SetCursorPos;
     property Text:string read fText write SetText;
     property OnChange: TNotifyEvent write fOnChange;
@@ -1419,7 +1420,7 @@ begin
   Inherited;
   StateSet:=[];
   if (csOver in State) and fEnabled and not HideHighlight then StateSet:=StateSet+[fbs_Highlight];
-  if (csDown in State) or Down then StateSet:=StateSet+[fbs_Selected];
+  if Down then StateSet:=StateSet+[fbs_Selected];
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
   fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
@@ -1456,6 +1457,13 @@ begin
   Font := aFont;
   Masked := aMasked;
   CursorPos := 0;
+end;
+
+
+procedure TKMEdit.PlaceCursorAtEnd;
+begin
+  fLeftIndex := 0;
+  SetCursorPos(Length(Text));
 end;
 
 

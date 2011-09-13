@@ -55,7 +55,6 @@ Filename: "{app}\{#MyAppExeName}"; Description: {cm:LaunchProgram,{#MyAppName}};
 
 //Executed before the wizard appears, allows us to check that they have KaM installed
 function InitializeSetup(): Boolean;
-var Dir:string;
 begin
   if CheckKaM() then
   begin
@@ -105,5 +104,6 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; Flags:Unchecked
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: programgroup
-Name: "{commonprograms}\{#MyAppName}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"; Tasks: programgroup
+Name: "{commonprograms}\{#MyAppName}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"; Tasks: programgroup; Flags: excludefromshowinnewinstall
+Name: "{commonprograms}\{#MyAppName}\{cm:ViewReadme}"; Filename: "{code:GetReadmeLang}"; Tasks: programgroup; Flags: excludefromshowinnewinstall
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon

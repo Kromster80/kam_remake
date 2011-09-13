@@ -83,7 +83,9 @@ type
     procedure Unit_Die(Sender:TObject);
 
     procedure Save_RefreshList;
-    procedure Save_ListClick(Sender: TObject);
+    procedure Save_ListChange(Sender: TObject);
+    procedure Save_EditChange(Sender: TObject);
+    procedure Save_CheckboxChange(Sender: TObject);
     procedure Save_Click(Sender: TObject);
     procedure Load_RefreshList;
     procedure Load_ListClick(Sender: TObject);
@@ -193,8 +195,9 @@ type
 
       Panel_Save:TKMPanel;
         List_Save: TKMListBox;
-        //todo: Override checkbox like in MapEd
         Edit_Save: TKMEdit;
+        Label_SaveExists: TKMLabel;
+        CheckBox_SaveExists: TKMCheckBox;
         Button_Save: TKMButton;
 
       Panel_Load:TKMPanel;
@@ -378,10 +381,28 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Save_ListClick(Sender: TObject);
+procedure TKMGamePlayInterface.Save_ListChange(Sender: TObject);
 begin
   if InRange(TKMListBox(Sender).ItemIndex, 0, fGame.Saves.Count-1) then
+  begin
     Edit_Save.Text := fGame.Saves[List_Save.ItemIndex].Filename;
+    Edit_Save.PlaceCursorAtEnd;
+  end;
+end;
+
+
+procedure TKMGamePlayInterface.Save_EditChange(Sender: TObject);
+begin
+  CheckBox_SaveExists.Enabled := FileExists(fGame.SaveName(Edit_Save.Text,'sav'));
+  Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
+  CheckBox_SaveExists.Checked := false;
+  Button_Save.Enabled := not CheckBox_SaveExists.Enabled;
+end;
+
+
+procedure TKMGamePlayInterface.Save_CheckboxChange(Sender: TObject);
+begin
+  Button_Save.Enabled := CheckBox_SaveExists.Checked;
 end;
 
 
@@ -395,6 +416,8 @@ begin
     Edit_Save.Text := fGame.GameName
   else
     Edit_Save.Text := LastSaveName;
+
+  Save_EditChange(nil);
 
   for i:=0 to fGame.Saves.Count-1 do
     List_Save.AddItem(fGame.Saves[i].Filename);
@@ -538,7 +561,7 @@ begin
   if Sender=Button_Menu_Save then begin
     Save_RefreshList; //Update savegames names
     Panel_Save.Show;
-    Edit_Save.CursorPos := Length(Edit_Save.Text); //Place the cursor at the end of the text
+    Edit_Save.PlaceCursorAtEnd; //Place the cursor at the end of the text
     MyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
   end else
@@ -1129,8 +1152,8 @@ begin
     Button_Menu_TrackDown.Hint:=fTextLibrary.GetTextString(208);
     Button_Menu_TrackUp.OnClick  :=Menu_NextTrack;
     Button_Menu_TrackDown.OnClick:=Menu_PreviousTrack;
-    Label_Menu_Music:=TKMLabel.Create(Panel_Menu,100,298,100,30,fTextLibrary.GetTextString(207),fnt_Metal,kaCenter);
-    Label_Menu_Track:=TKMLabel.Create(Panel_Menu,100,326,100,30,'Spirit',fnt_Grey,kaCenter);
+    Label_Menu_Music:=TKMLabel.Create(Panel_Menu,100,268,100,30,fTextLibrary.GetTextString(207),fnt_Metal,kaCenter);
+    Label_Menu_Track:=TKMLabel.Create(Panel_Menu,100,296,100,30,'',fnt_Grey,kaCenter);
 end;
 
 
@@ -1139,10 +1162,14 @@ procedure TKMGamePlayInterface.Create_Save_Page;
 begin
   Panel_Save := TKMPanel.Create(Panel_Main,0,412,200,400);
 
-    List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 280, fnt_Metal);
-    List_Save.OnChange := Save_ListClick;
+    List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 240, fnt_Metal);
+    List_Save.OnChange := Save_ListChange;
 
-    Edit_Save := TKMEdit.Create(Panel_Save, 12, 295, 170, 20, fnt_Metal);
+    Edit_Save := TKMEdit.Create(Panel_Save, 12, 255, 170, 20, fnt_Metal);
+    Edit_Save.OnChange := Save_EditChange;
+    Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,100,30,'Save already exists',fnt_Outline,kaLeft);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,100,20,'Overwrite', fnt_Metal);
+    CheckBox_SaveExists.OnClick := Save_CheckboxChange;
 
     Button_Save := TKMButton.Create(Panel_Save,12,320,170,30,'Save',fnt_Metal, bsMenu);
     Button_Save.OnClick := Save_Click;
@@ -1190,7 +1217,7 @@ begin
     Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,246,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,30,fTextLibrary[TX_MENU_OPTIONS_SOUND_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,30,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
     CheckBox_Settings_MusicOn.Hint:=fTextLibrary.GetTextString(198);
     CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
 end;
@@ -2101,7 +2128,10 @@ end;
 
 
 procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
+var MusicToggled: boolean;
 begin
+  MusicToggled := (fGame.GlobalSettings.MusicOn = CheckBox_Settings_MusicOn.Checked);
+
   fGame.GlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
   fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
   fGame.GlobalSettings.FastScroll    := CheckBox_Settings_FastScroll.Checked;
@@ -2112,7 +2142,8 @@ begin
 
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
   fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
-  fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
+  if MusicToggled then
+    fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
 
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;

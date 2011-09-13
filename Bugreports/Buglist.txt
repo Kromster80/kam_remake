@@ -15,9 +15,9 @@ Bugs:
  +	Should attempt to play eng unit sounds if locale are missing (there's no favorite locale)
  +	Replay timer should display in HH:MM:SS format
  +	Saves are created with names, rather than 10 fixed slots
+ +	Music does not cycle while in pause mode
 
 	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
-	Music does not cycle while in pause mode
 	Woodcutters hut flagshtok should appear last in construction
 	Farmer will sow corn on tile that was just finished as a road
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
@@ -25,7 +25,7 @@ Bugs:
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Maybe archers attacked by archers should not try to walk towards enemies
  	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
- ?	When warriors go out from Barracks sometimes they are not adjoined in groups (Can't reproduce. Does he know AI's do not autolink? Maybe he switched to an AI team)
+ ?	When warriors go out from Barracks sometimes they are not adjoined in groups (Lewin: reproduced, not sure why it happens yet)
  	Enemies begin to fight back when arows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  	Warriors should resume interrupted orders after a fight
