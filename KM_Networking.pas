@@ -19,7 +19,7 @@ const
   NetGameStateText:array[TNetGameState] of string = ('None','Connecting','Query','Lobby','Loading','Game');
   NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
   [], //lgs_None
-  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_Ping,mk_Pong,mk_ConnectedToRoom], //lgs_Connecting
+  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_Pong,mk_ConnectedToRoom], //lgs_Connecting
   [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_Pong,mk_PingInfo], //lgs_Query
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_Pong,mk_PingInfo,mk_PlayersList,
    mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
@@ -42,6 +42,7 @@ type
     fNetGameState: TNetGameState;
     fHostAddress:string;
     fMyNikname:string;
+    fWelcomeMessage:string;
     fMyIndexOnServer:integer;
     fMyIndex:integer; //In NetPlayers list
     fRoomToJoin:integer; //The room we should join once we hear from the server
@@ -153,7 +154,7 @@ constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout
 begin
   Inherited Create;
   SetGameState(lgs_None);
-  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '');
+  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '');
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
@@ -269,6 +270,7 @@ begin
   fOnDisconnect := nil;
   fOnPingInfo := nil;
   fOnReassignedHost := nil;
+  fWelcomeMessage := '';
 
   fNetPlayers.Clear;
   fNetClient.Disconnect;
@@ -724,6 +726,11 @@ begin
               exit;
             end;
 
+    mk_WelcomeMessage:
+            begin
+              fWelcomeMessage := Msg;
+            end;
+
     mk_HostingRights:
             begin
               fNetPlayerKind := lpk_Host;
@@ -750,6 +757,7 @@ begin
                       fNetPlayers[fMyIndex].ReadyToStart := true;
                       if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                       SetGameState(lgs_Lobby);
+                      if Assigned(fOnTextMessage) and (fWelcomeMessage <> '') then fOnTextMessage(fWelcomeMessage);
                     end;
                 lpk_Joiner:
                 begin
@@ -784,6 +792,7 @@ begin
             begin
               fOnJoinSucc(Self); //Enter lobby
               SetGameState(lgs_Lobby);
+              if Assigned(fOnTextMessage) and (fWelcomeMessage <> '') then fOnTextMessage(fWelcomeMessage);
             end;
 
     mk_RefuseToJoin:

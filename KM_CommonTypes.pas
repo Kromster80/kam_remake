@@ -31,6 +31,7 @@ type
     mk_ReassignHost,    //Server tells clients who is the new host after the host disconnects
 
     mk_GameVersion,     //Server tells a new client which game version we are using
+    mk_WelcomeMessage,  //Server sends a welcome message to the client
     mk_JoinRoom,        //Client requests to be placed in a room
     mk_ConnectedToRoom, //Server tells a client they have been successfully added to a room
     mk_SetGameState,    //Host tells the server the game state to be reported to queries
@@ -85,6 +86,7 @@ const
     pfNumber,   //mk_ClientLost
     pfNumber,   //mk_ReassignHost
     pfText,     //mk_GameVersion
+    pfText,     //mk_WelcomeMessage
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
     pfText,     //mk_SetGameState

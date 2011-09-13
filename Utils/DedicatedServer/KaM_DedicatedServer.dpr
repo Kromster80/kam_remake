@@ -51,7 +51,8 @@ begin
                                                 fSettings.PingInterval,
                                                 fSettings.MasterAnnounceInterval,
                                                 fSettings.MasterServerAddress,
-                                                fSettings.HTMLStatusFile);
+                                                fSettings.HTMLStatusFile,
+                                                fSettings.ServerWelcomeMessage);
   fDedicatedServer.OnMessage := fEventHandler.ServerStatusMessage;
   fDedicatedServer.Start(fSettings.ServerName, fSettings.ServerPort, fSettings.AnnounceServer, true);
 

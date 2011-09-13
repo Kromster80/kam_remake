@@ -37,6 +37,7 @@ type
     fPingInterval:integer;
     fAnnounceServer:boolean;
     fHTMLStatusFile:string;
+    fServerWelcomeMessage:string;
     function LoadSettingsFromFile(FileName:string):boolean;
     procedure SaveSettingsToFile(FileName:string);
 
@@ -91,6 +92,7 @@ type
     property AutoKickTimeout:integer read fAutoKickTimeout;
     property PingInterval:integer read fPingInterval;
     property HTMLStatusFile:string read fHTMLStatusFile;
+    property ServerWelcomeMessage:string read fServerWelcomeMessage;
   end;
 
 
@@ -161,7 +163,8 @@ begin
   fMaxRooms               := f.ReadInteger('Server','MaxRooms',16);
   fAutoKickTimeout        := f.ReadInteger('Server','AutoKickTimeout',20);
   fPingInterval           := f.ReadInteger('Server','PingMeasurementInterval',1000);
-  fHTMLStatusFile        := f.ReadString('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
+  fHTMLStatusFile         := f.ReadString('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
+  fServerWelcomeMessage   := f.ReadString('Server','WelcomeMessage','');
 
   FreeAndNil(f);
   fNeedsSave := false;
@@ -195,15 +198,17 @@ begin
   f.WriteString('Multiplayer','LastIP',fMultiplayerIP);
   f.WriteString('Multiplayer','LastPort',fLastPort);
   f.WriteString('Multiplayer','LastRoom',fLastRoom);
-  f.WriteString('Server','ServerPort',fServerPort);
-  f.WriteString('Server','MasterServerAddress',fMasterServerAddress);
-  f.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
-  f.WriteBool('Server','AnnounceDedicatedServer',fAnnounceServer);
+
   f.WriteString('Server','ServerName',fServerName);
+  f.WriteString('Server','WelcomeMessage',fServerWelcomeMessage);
+  f.WriteString('Server','ServerPort',fServerPort);
+  f.WriteBool('Server','AnnounceDedicatedServer',fAnnounceServer);
   f.WriteInteger('Server','MaxRooms',fMaxRooms);
+  f.WriteString('Server','HTMLStatusFile',fHTMLStatusFile);
+  f.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
+  f.WriteString('Server','MasterServerAddress',fMasterServerAddress);
   f.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
   f.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
-  f.WriteString('Server','HTMLStatusFile',fHTMLStatusFile);
 
   f.UpdateFile; //Write changes to file
   FreeAndNil(f);
