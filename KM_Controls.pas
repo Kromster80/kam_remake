@@ -488,7 +488,6 @@ type
     procedure SetBackAlpha(aValue:single);
     procedure SetEnabled(aValue:boolean); override;
     procedure ChangeScrollPosition (Sender:TObject);
-    procedure UpdateScrollBar;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     destructor Destroy; override;
@@ -500,9 +499,13 @@ type
 
     property BackAlpha:single write SetBackAlpha;
     property CanSelect:boolean write fCanSelect;
+    procedure UpdateScrollBar;
 
     property Items:TStringList read fItems; //todo: Remove other Item## methods
-
+                                            //@Krom: Keep in mind that we'll need to call UpdateScrollbar in many cases (e.g. Items.Text := Str) otherwise the scrollbar remains disabled.
+                                            //       Similarly we also have to set the item index to 0 (otherwise there could be an invalid ID selected) and set the top index to something valid.
+                                            //       It seems kind of ugly to do that, see TKMMainMenuInterface.MapEditor_ListUpdate for an example.
+                                            //       That is just a copy of TKMListBox.SetText, so I don't see any advantage to calling Items.Text := Str directly.
     function ItemCount:integer;
     function ItemCaption:string;
     property ItemHeight:byte read fItemHeight write fItemHeight;

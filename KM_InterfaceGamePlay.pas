@@ -25,7 +25,7 @@ type
     SelectingDirPosition: TPoint;
     RatioTab:byte; //Active resource distribution tab
     //Saved
-    LastSaveName:string; //The file name we last used to save this file (used as default in Save menu)
+    fLastSaveName:string; //The file name we last used to save this file (used as default in Save menu)
     LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
@@ -289,6 +289,7 @@ type
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
+    property LastSaveName:string read fLastSaveName write fLastSaveName;
     procedure ClearShownUnit;
     procedure ClearSelectedUnitOrHouse;
     procedure ReleaseDirectionSelector;
@@ -2997,7 +2998,7 @@ end;
 
 procedure TKMGamePlayInterface.Save(SaveStream:TKMemoryStream);
 begin
-  SaveStream.Write(LastSaveName);
+  SaveStream.Write(fLastSaveName);
   SaveStream.Write(LastSchoolUnit);
   SaveStream.Write(LastBarracksUnit);
   fMessageList.Save(SaveStream);
@@ -3007,7 +3008,7 @@ end;
 
 procedure TKMGamePlayInterface.Load(LoadStream:TKMemoryStream);
 begin
-  LoadStream.Read(LastSaveName);
+  LoadStream.Read(fLastSaveName);
   LoadStream.Read(LastSchoolUnit);
   LoadStream.Read(LastBarracksUnit);
   fMessageList.Load(LoadStream);

@@ -117,7 +117,7 @@ end;
 
 procedure TAIDefencePosition.Save(SaveStream:TKMemoryStream);
 begin
-  SaveStream.Write(Position, SizeOf(Position));
+  SaveStream.Write(Position);
   SaveStream.Write(GroupType, SizeOf(GroupType));
   SaveStream.Write(DefenceRadius);
   SaveStream.Write(DefenceType, SizeOf(DefenceType));
@@ -131,7 +131,7 @@ end;
 constructor TAIDefencePosition.Load(LoadStream:TKMemoryStream);
 begin
   Inherited Create;
-  LoadStream.Read(Position, SizeOf(Position));
+  LoadStream.Read(Position);
   LoadStream.Read(GroupType, SizeOf(GroupType));
   LoadStream.Read(DefenceRadius);
   LoadStream.Read(DefenceType, SizeOf(DefenceType));

@@ -489,7 +489,7 @@ begin
   GameInit(true);
 
   //Load mission file
-  fGameName := aFilename + ' MP';
+  fGameName := aFilename;
 
   fMainMenuInterface.ShowScreen(msLoading, 'script');
 
@@ -540,6 +540,7 @@ begin
 
   GameInit(true);
   Load(aFilename);
+  fGamePlayInterface.LastSaveName := aFilename; //Next time they go to save it will have this name entered
 
   MultiplayerRig;
 end;

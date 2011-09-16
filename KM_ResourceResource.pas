@@ -32,10 +32,11 @@ type
 
 
 const
-  ResourceKaMOrder: array[TResourceType] of byte = (0,
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+  ResourceKaMOrder: array[TResourceType] of byte = (0, //rt_None
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
     11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    22, 23, 24, 25, 26, 27, 28, 0, 0, 0);
+    22, 23, 24, 25, 26, 27,
+    0, 0, 0); //rt_All, rt_Warfare, rt_Food
 
   RES_COUNT = 28;
   ResourceKaMIndex: array [0..RES_COUNT-1] of TResourceType = (
@@ -86,7 +87,7 @@ end;
 function TKMResourceDat.GetGUIIcon: Word;
 begin
   if IsValid then
-    Result := 350 + ResourceKaMOrder[fType]
+    Result := 351 + ResourceKaMOrder[fType]
   else
     Result := 0;
 end;

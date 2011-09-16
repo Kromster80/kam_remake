@@ -132,7 +132,7 @@ begin
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
-  LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
+  LoadStream.Read(fOrderLoc);
   LoadStream.Read(fTargetCanBeReached);
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(aCount);
@@ -849,7 +849,7 @@ begin
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
-  SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
+  SaveStream.Write(fOrderLoc);
   SaveStream.Write(fTargetCanBeReached);
   SaveStream.Write(fUnitsPerRow);
   //Only save members if we are a commander

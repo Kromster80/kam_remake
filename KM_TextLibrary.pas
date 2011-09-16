@@ -9,7 +9,7 @@ const
   MaxStrings = 610; //Text.lib has the most entries - 590, but Russian font file has StrCount=609
   //Here are some indexes into the files for different items. (e.g. unit names) si is for "String Index"
   siHouseNames = 0;
-  siResourceNames = 39;
+  siResourceNames = 40;
   siUnitNames = 69;
   siUnitDescriptions = 99;
   siTrackNames = 570;

@@ -121,6 +121,7 @@ type
   TKMemoryStream = class(TMemoryStream)
   public
     procedure Write(const Value:string); reintroduce; overload;
+    procedure Write(const Value:TKMPointDir ); reintroduce; overload;
     function Write(const Value:TKMDirection): Longint; reintroduce; overload;
     function Write(const Value:TKMPoint ): Longint; reintroduce; overload;
     function Write(const Value:TKMPointF): Longint; reintroduce; overload;
@@ -134,6 +135,7 @@ type
     procedure WriteAsText(aText:string);
 
     procedure Read(out Value:string); reintroduce; overload;
+    procedure Read(out Value:TKMPointDir); reintroduce; overload;
     function Read(out Value:TKMDirection): Longint; reintroduce; overload;
     function Read(out Value:TKMPoint    ): Longint; reintroduce; overload;
     function Read(out Value:TKMPointF   ): Longint; reintroduce; overload;
@@ -241,6 +243,12 @@ begin
   Inherited Write(Value[1], i);
 end;
 
+procedure TKMemoryStream.Write(const Value:TKMPointDir);
+begin
+  Write(Value.Loc);
+  Inherited Write(Value.Dir, SizeOf(Value.Dir));
+end;
+
 
 function TKMemoryStream.Write(const Value:TKMDirection): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
@@ -279,6 +287,12 @@ begin
   SetLength(Value, i);
   if i=0 then exit;
   Read(Value[1], i);
+end;
+
+procedure TKMemoryStream.Read(out Value:TKMPointDir);
+begin
+  Read(Value.Loc);
+  Read(Value.Dir, SizeOf(Value.Dir));
 end;
 
 function TKMemoryStream.Read(out Value:TKMDirection): Longint;

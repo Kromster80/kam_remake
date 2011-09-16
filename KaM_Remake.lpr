@@ -46,6 +46,7 @@ uses
   KM_PlayersCollection in 'KM_PlayersCollection.pas',
   KM_PlayerStats in 'KM_PlayerStats.pas',
   KM_Projectiles in 'KM_Projectiles.pas',
+  KM_Points in 'KM_Points.pas',
   KM_Render in 'KM_Render.pas',
   KM_RenderAux in 'KM_RenderAux.pas',
   KM_RenderUI in 'KM_RenderUI.pas',

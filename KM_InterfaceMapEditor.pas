@@ -1631,7 +1631,7 @@ end;
 
 
 procedure TKMapEdInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint;
+var P:TKMPoint; OldSelected: TObject;
 begin
   if MyControls.CtrlOver <> nil then begin
     MyControls.MouseUp(X,Y,Shift,Button);
@@ -1664,7 +1664,10 @@ begin
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
     case GameCursor.Mode of
       cm_None:  begin
-                  fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                  OldSelected := fPlayers.Selected;
+                  if not fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y) then
+                    fPlayers.Selected := OldSelected; //Reselect the previous item, so left clicking on the map does not select nil
+
                   if fPlayers.Selected is TKMHouse then
                     ShowHouseInfo(TKMHouse(fPlayers.Selected));
                   if fPlayers.Selected is TKMUnit then

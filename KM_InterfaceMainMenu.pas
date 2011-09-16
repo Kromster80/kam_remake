@@ -1750,7 +1750,9 @@ procedure TKMMainMenuInterface.MapEditor_ListUpdate;
 begin
   fMaps.ScanMapsFolder;
   List_MapEd.Items.Text := fMaps.MapList;
-  List_MapEd.ItemIndex := 0; //Try to select first map by default
+  List_MapEd.UpdateScrollBar; //Must update the scrollbar, otherwise it might not be enabled as the control does not know when we set items
+  List_MapEd.ItemIndex := 0; //Select first map by default, otherwise there could be an invalid map selected (if items have been removed since we last updated)
+  List_MapEd.TopIndex := 0; //Same goes for top index, we cannot assume the previous position is still valid
 end;
 
 

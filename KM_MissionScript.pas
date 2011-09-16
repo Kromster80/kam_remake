@@ -915,7 +915,7 @@ begin
       AddData(''); //NL
       for k:=0 to fPlayers.Player[i].AI.DefencePositionsCount-1 do
         with fPlayers.Player[i].AI.DefencePositions[k] do
-          AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,byte(GroupType)-1,DefenceRadius,byte(DefenceType)]);
+          AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],DefenceRadius,byte(DefenceType)]);
       AddData(''); //NL
       AddData(''); //NL
       for k:=0 to fPlayers.Player[i].AI.ScriptedAttacksCount-1 do
