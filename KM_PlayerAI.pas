@@ -4,9 +4,9 @@ interface
 uses Classes, KromUtils,
     KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
 
-type
-  TAIDefencePosType = (adt_FrontLine, //Front line troops may not go on attacks, they are for defence
-                       adt_BackLine); //Back line troops may attack
+type //For now IDs must match with KaM
+  TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
+                       adt_BackLine=1); //Back line troops may attack
 
   TAIDefencePosition = class
   private
@@ -167,7 +167,7 @@ begin
   ReqSerfFactor := 10; //Means 1 serf per building
   RecruitTrainTimeout := 0; //Can train at start
   fAutobuild := true; //In KaM it is on by default, and most missions turn it off
-  StartPosition := KMPoint(0,0);
+  StartPosition := KMPoint(1,1);
   MaxSoldiers := high(MaxSoldiers); //No limit by default
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
   Aggressiveness := 100; //No idea what the default for this is, it's barely used

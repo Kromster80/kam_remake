@@ -897,7 +897,7 @@ begin
     //Computer specific, e.g. AI commands
     if fPlayers.Player[i].PlayerType = pt_Computer then
     begin
-      AddCommand(ct_AIStartPosition, [fPlayers.Player[i].AI.StartPosition.X,fPlayers.Player[i].AI.StartPosition.Y]);
+      AddCommand(ct_AIStartPosition, [fPlayers.Player[i].AI.StartPosition.X-1,fPlayers.Player[i].AI.StartPosition.Y-1]);
       if not fPlayers.Player[i].AI.Autobuild then
         AddCommand(ct_AINoBuild, []);
       AddCommand(ct_AICharacter,cpt_Recruits, [fPlayers.Player[i].AI.ReqRecruits]);
@@ -921,7 +921,7 @@ begin
       for k:=0 to fPlayers.Player[i].AI.ScriptedAttacksCount-1 do
         with fPlayers.Player[i].AI.ScriptedAttacks[k] do
         begin
-          AddCommand(ct_AIAttack, cpt_Type, [byte(AttackType)]);
+          AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
           AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);
           if TakeAll then
             AddCommand(ct_AIAttack, cpt_TakeAll, [])

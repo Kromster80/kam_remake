@@ -1026,6 +1026,10 @@ begin
   SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
+  //Because the viewport is only saved in singleplayer we need to know whether it is included in this save,
+  //so we can load multiplayer saves in single player and vice versa.
+  SaveStream.Write(fMultiplayerMode);
+
   fTerrain.Save(SaveStream); //Saves the map
   fPlayers.Save(SaveStream); //Saves all players properties individually
   fProjectiles.Save(SaveStream);
@@ -1058,6 +1062,7 @@ var
   fGameInfo: TKMGameInfo;
   LoadError:string;
   LoadedSeed:Longint;
+  SaveIsMultiplayer:boolean;
 begin
   fLog.AppendLog('Loading game');
 
@@ -1084,6 +1089,9 @@ begin
     LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
     LoadStream.Read(LoadedSeed);
 
+    //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
+    LoadStream.Read(SaveIsMultiplayer);
+
     fPlayers := TKMPlayersCollection.Create;
 
     //Load the data into the game
@@ -1095,7 +1103,7 @@ begin
     //@Lewin: Does this means that MessageList in UI is lost?
     //@Krom: Yes, it's lost for now. Multiplayer saves must be identical so I guess we'll have to send all message commands through
     //       the GIC (add, delete) even though they won't show to other players.
-    if not fMultiplayerMode then
+    if not SaveIsMultiplayer then
     begin
       fViewport.Load(LoadStream);
       fGamePlayInterface.Load(LoadStream);

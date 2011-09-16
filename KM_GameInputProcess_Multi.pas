@@ -6,6 +6,7 @@ uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_
 const
   MAX_SCHEDULE = 100; //Size of ring buffers (10 sec) Make them large so overruns do not occur
   DELAY_ADJUST = 40; //How often to adjust fDelay (every 4 seconds) This must be higher than MAX_DELAY
+  MIN_DELAY = 2; //A delay of 1 is not possible because that means the command shall be processed on the next tick after it was issued, but that could be 0.0001ms after the player clicks, meaning there is no way the command would have been sent. Therefore the delay must be 2 at minimum.
   MAX_DELAY = 32; //Maximum number of ticks (3.2 sec) to plan ahead (highest value fDelay can take)
 
 type
@@ -193,7 +194,7 @@ end;
 
 procedure TGameInputProcess_Multi.SetDelay(aNewDelay:integer);
 begin
-  fDelay := EnsureRange(aNewDelay,1,MAX_DELAY);
+  fDelay := EnsureRange(aNewDelay,MIN_DELAY,MAX_DELAY);
 end;
 
 

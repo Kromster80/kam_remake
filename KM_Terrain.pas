@@ -299,7 +299,7 @@ end;
 
 //Save (export) map in KaM .map format with additional tile information on the end?
 procedure TTerrain.SaveToMapFile(aFile:string);
-var f:file; i,k,t,u:integer;
+var f:file; i,k:integer; c0,cF:cardinal; light,b205:byte;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
 begin
@@ -312,8 +312,9 @@ begin
   blockwrite(f,MapX,4);
   blockwrite(f,MapY,4);
 
-  t := 0;
-  u := 255;
+  c0 := 0;
+  cF := $FFFFFFFF;
+  b205 := 205;
   for i:=1 to MapY do for k:=1 to MapX do
   begin
     if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
@@ -321,7 +322,8 @@ begin
     else
       blockwrite(f,Land[i,k].Terrain,1);
 
-    blockwrite(f,t,1); //Light
+    light := round((Land[i,k].Light+1)*16);
+    blockwrite(f,light,1); //Light
     blockwrite(f,Land[i,k].Height,1);
 
     if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
@@ -329,20 +331,26 @@ begin
     else
       blockwrite(f,Land[i,k].Rotation,1);
 
-    blockwrite(f,t,1); //unknown
+    blockwrite(f,c0,1); //unknown
 
     //Don't save winefield objects as they are part of the DAT not map
     if TileIsWineField(KMPoint(k,i)) then
-      blockwrite(f,u,1)
+      blockwrite(f,cF,1)
     else
       blockwrite(f,Land[i,k].Obj,1);
 
-    blockwrite(f,t,1); //Passability?
+    blockwrite(f,cF,1); //Passability?
 
-    blockwrite(f,t,4); //unknown
-    blockwrite(f,t,4); //unknown
-    blockwrite(f,t,4); //unknown
-    blockwrite(f,t,4); //unknown
+    blockwrite(f,cF,4); //unknown
+    blockwrite(f,c0,3); //unknown
+    //Border
+      if (i=MapY) or (k=MapX) then blockwrite(f,b205,1) //Bottom/right = 205
+      else if (i=1) or (k=1) then blockwrite(f,c0,1) //Top/left = 0
+      else blockwrite(f,cF,1); //Rest of the screen = 255
+    blockwrite(f,cF,1); //unknown - always 255
+    blockwrite(f,b205,1); //unknown - always 205
+    blockwrite(f,c0,2); //unknown - always 0
+    blockwrite(f,c0,4); //unknown - always 0
   end;
 
   //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers

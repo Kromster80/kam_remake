@@ -272,7 +272,7 @@ type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
 
     TKMissionMode = (mm_Normal, mm_Tactic);
 
-    TAllianceType = (at_Enemy, at_Ally);
+    TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
 
 const
   TKMCursorDirections: array[TKMDirection]of integer = (c_DirN,c_Dir0,c_Dir1,c_Dir2,c_Dir3,c_Dir4,c_Dir5,c_Dir6,c_Dir7);
@@ -855,21 +855,22 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
   ProjectileSpeeds:array[TProjectileType] of single = (0.5, 0.55, 0.5, 0.6);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.6, 0.3), (1.25, 0)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.06, 0.05, 0.07, 0.025); //Jitter added according to distance
+  ProjectileJitter:array[TProjectileType] of single = (0.05, 0.04, 0.06, 0.025); //Jitter added according to distance
   ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 2); //Jitter added according to target's speed (moving target harder to hit)
-  ProjectileMissChance:array[TProjectileType] of single = (0.2, 0.2, 0.2, 0.2);
+  ProjectileMissChance:array[TProjectileType] of single = (0.33, 0.33, 0.33, 0.33);
 
   const STORM_SPEEDUP=1.5;
   
 type
-  TAIAttackType = (aat_Once=0,       //Attack will occur once (after the set time has passed and if they have enough troops
-                   aat_Repeating=1); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+  TAIAttackType = (aat_Once,       //Attack will occur once (after the set time has passed and if they have enough troops
+                   aat_Repeating); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
 
 const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
   RemakeAttackType:array[0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
+  KaMAttackType:array[TAIAttackType] of byte = (1,0);
 
 
-type
+type //Indexes must match with KaM script values (for now)
   TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
                      att_ClosestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
                      att_ClosestBuildingFromStartPos=2, //Closest building from the AI's start position

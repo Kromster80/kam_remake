@@ -1720,7 +1720,7 @@ begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top, RxID, TexID);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxID, TexID);
 end;
 
 
