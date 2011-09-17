@@ -1534,7 +1534,7 @@ begin
     List_Lobby.SetItems(fGame.Saves.SavesList);
   end;
   if Sender <> nil then //This is used in Reset_Lobby when we are not connected
-    fGame.Networking.SelectNoMap;
+    fGame.Networking.SelectNoMap('None');
 end;
 
 
@@ -1552,7 +1552,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnMapName(const aData:string);
 var i:Integer; DropText:string;
 begin
-  if fGame.Networking.GameInfo <> nil then
+  if fGame.Networking.SelectGameKind <> ngk_None then
   begin
     if fGame.Networking.SelectGameKind = ngk_Save then
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.GetTitleWithTime
@@ -1578,7 +1578,7 @@ begin
   end
   else
   begin
-    Label_LobbyMapName.Caption := 'Invalid';
+    Label_LobbyMapName.Caption := aData; //aData is some error message
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[0]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
     //Label_LobbyMapCond.Caption :=

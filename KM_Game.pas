@@ -582,7 +582,11 @@ begin
   //Clear remaining players
   for i:=fPlayers.Count-1 downto 0 do
     if not PlayerUsed[i] then
-      fPlayers.RemovePlayer(i);
+      if fNetworking.SelectGameKind = ngk_Map then
+        fPlayers.RemovePlayer(i)
+      else
+        //We cannot remove a player from a save (as they might be interacting with other players) so make them inactive (uncontrolled human)
+        fPlayers[i].PlayerType := pt_Human;
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
 

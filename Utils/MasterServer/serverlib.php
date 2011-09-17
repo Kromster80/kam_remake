@@ -1,7 +1,7 @@
 <?
 
 global $DATA_FILE, $DISALLOWED_CHARS, $GAME_VERSION, $MAX_TTL;
-$GAME_VERSION = 'r2265';
+$GAME_VERSION = 'r2281';
 $MAX_TTL = 600; //10 minutes
 $DATA_FILE = "servers.txt";
 $DISALLOWED_CHARS  = array("|", ",","\n","\r");

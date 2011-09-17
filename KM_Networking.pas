@@ -99,7 +99,7 @@ type
     procedure Disconnect;
     function  Connected: boolean;
     procedure MatchPlayersToSave(aPlayerID:integer=-1);
-    procedure SelectNoMap;
+    procedure SelectNoMap(aMessage:string);
     procedure SelectMap(const aName:string);
     procedure SelectSave(const aName:string);
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
@@ -383,7 +383,7 @@ end;
 
 
 //Clear selection from any map/save
-procedure TKMNetworking.SelectNoMap;
+procedure TKMNetworking.SelectNoMap(aMessage:string);
 begin
   Assert(IsHost, 'Only host can reset map');
 
@@ -396,7 +396,7 @@ begin
   fNetPlayers.ResetLocAndReady; //Reset start locations
   fNetPlayers[fMyIndex].ReadyToStart := true;
 
-  if Assigned(fOnMapName) then fOnMapName('');
+  if Assigned(fOnMapName) then fOnMapName(aMessage);
   SendPlayerListAndRefreshPlayersSetup;
 end;
 
@@ -414,7 +414,7 @@ begin
 
   if not fMapInfo.IsValid then
   begin
-    SelectNoMap;
+    SelectNoMap('Invalid');
     Exit;
   end;
 
@@ -435,7 +435,7 @@ end;
 procedure TKMNetworking.SelectSave(const aName:string);
 begin
   Assert(IsHost, 'Only host can select saves');
-  
+
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
 
@@ -443,7 +443,7 @@ begin
 
   if not fSaveInfo.IsValid then
   begin
-    SelectNoMap;
+    SelectNoMap(fSaveInfo.Info.Title); //State the error, e.g. wrong version
     Exit;
   end;
 
@@ -898,7 +898,7 @@ begin
               FreeAndNil(fMapInfo);
               FreeAndNil(fSaveInfo);
               fNetPlayers.ResetLocAndReady;
-              if Assigned(fOnMapName) then fOnMapName('');
+              if Assigned(fOnMapName) then fOnMapName('None');
             end;
 
     mk_MapSelect:
@@ -921,11 +921,11 @@ begin
                   PostMessage('Error: '+fMyNikname+' has a different version of the map '+fMapInfo.Filename)
                 else
                   PostMessage('Error: '+fMyNikname+' does not have the map '+fMapInfo.Filename);
-                fMapInfo.Free;
+                FreeAndNil(fMapInfo);
                 fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
                   fNetPlayers[fMyIndex].ReadyToStart := false;
-                if Assigned(fOnMapName) then fOnMapName('');
+                if Assigned(fOnMapName) then fOnMapName('None');
               end
             end;
 
@@ -947,11 +947,11 @@ begin
                   PostMessage('Error: '+fMyNikname+' has a different version of the save '+fSaveInfo.Filename)
                 else
                   PostMessage('Error: '+fMyNikname+' does not have the save '+fSaveInfo.Filename);
-                fSaveInfo.Free;
+                FreeAndNil(fSaveInfo);
                 fSelectGameKind := ngk_None;
                 if fMyIndex <> -1 then //In the process of joining
                   fNetPlayers[fMyIndex].ReadyToStart := False;
-                if Assigned(fOnMapName) then fOnMapName('');
+                if Assigned(fOnMapName) then fOnMapName('None');
               end;
 
     mk_StartingLocQuery:
