@@ -130,9 +130,9 @@ begin
   end;
 
   //Load additional text info
-  if FileExists(fPath + fFilename + 'txt') then
+  if FileExists(fPath + fFilename + '.txt') then
   begin
-    AssignFile(ft, fPath + fFilename + 'txt');
+    AssignFile(ft, fPath + fFilename + '.txt');
     FileMode := 0;
     Reset(ft);
     FileMode := 2;

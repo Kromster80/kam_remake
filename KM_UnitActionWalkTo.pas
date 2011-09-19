@@ -168,7 +168,7 @@ end;
 
 procedure TUnitActionWalkTo.ExplanationLogCreate;
 begin
-  if not WRITE_WALKTO_LOG then exit;
+  if not WRITE_WALKTO_LOG then Exit;
 
   ExplanationLog := TStringList.Create;
   if FileExists(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt') then
@@ -978,14 +978,14 @@ begin
 
     //Perform exchange
     //Both exchanging units have fDoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
-    if fDoExchange then begin
+    if fDoExchange then
+    begin
+    
        //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
       if KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1])
       and (not fTerrain.VertexUsageCompatible(fWalker.GetPosition,NodeList.List[NodePos+1])) then
-      begin
-        fLog.AppendLog(Explanation);
-        exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
-      end;
+        Exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
+
       inc(NodePos);
 
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);

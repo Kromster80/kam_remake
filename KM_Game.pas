@@ -28,7 +28,7 @@ type
     fFormPassability:integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
-    fGameSpeed:integer;
+    fGameSpeed:integer; //todo: Make it word
     fGameState:TGameState;
     fMultiplayerMode:boolean;
     fWaitingForNetwork:boolean;
@@ -40,7 +40,7 @@ type
     fProjectiles:TKMProjectiles;
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
-    fSaves: TKMSavesCollection; //todo: Move to UI
+    fSaves: TKMSavesCollection; //todo: Move to UI ?
 
   //Should be saved
     fGameTickCount:cardinal;
@@ -110,7 +110,7 @@ type
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;
     property GameState:TGameState read fGameState;
-    procedure SetGameSpeed(aSpeed:byte=0);
+    procedure SetGameSpeed(aSpeed:word=0);
     procedure StepOneFrame;
     function SaveName(const aName, aExt:string):string;
 
@@ -954,7 +954,7 @@ begin
 end;
 
 
-procedure TKMGame.SetGameSpeed(aSpeed:byte=0);
+procedure TKMGame.SetGameSpeed(aSpeed:word=0);
 begin
   if aSpeed=0 then //Make sure it's either 1 or Max, not something inbetween
     if fGameSpeed = 1 then

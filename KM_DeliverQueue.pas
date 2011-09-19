@@ -146,7 +146,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log;
+uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log;
 
 
 { TKMDeliverQueue }
@@ -381,8 +381,7 @@ begin
         Bid:=Bid + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource);
 
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
-      if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Loc_Unit is TKMUnitWarrior) then
-      if (fDemand[iD].Resource = rt_Food) then
+      if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Resource = rt_Food) then
         Bid:=Bid + KaMRandom(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
