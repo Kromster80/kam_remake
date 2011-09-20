@@ -21,7 +21,7 @@ Bugs:
  	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Maybe archers attacked by archers should not try to walk towards enemies
  	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
- ?	When warriors go out from Barracks sometimes they are not adjoined in groups (Lewin: reproduced, not sure why it happens yet)
+	When warriors go out from Barracks sometimes they are not adjoined in groups (Lewin: reproduced, not sure why it happens yet)
  	Enemies begin to fight back when arows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  	Warriors should resume interrupted orders after a fight

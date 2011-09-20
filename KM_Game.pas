@@ -61,7 +61,7 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale(aLocale:shortstring);
     procedure Resize(X,Y:integer);
@@ -139,7 +139,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
   Inherited Create;
   ScreenX := aScreenX;
@@ -159,7 +159,7 @@ begin
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
-  fMusicLib         := TMusicLib.Create({$IFDEF WDC} aMediaPlayer, {$ENDIF} fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
+  fMusicLib         := TMusicLib.Create(fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource         := TResource.Create(aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
@@ -168,8 +168,8 @@ begin
 
   //If game was reinitialized fomr options menu then we should return there
   if aReturnToOption then fMainMenuInterface.ShowScreen(msOptions);
-  
-  if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.MusicOn);
+
+  if (not NoMusic) and fGlobalSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
 
   fLog.AppendLog('<== Game creation is done ==>');
 end;

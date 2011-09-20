@@ -7,7 +7,6 @@ uses
   Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, Menus, Buttons,
   Math, SysUtils, KromUtils,
-  {$IFDEF WDC} MPlayer, {$ENDIF}
   {$IFDEF FPC} LResources, {$ENDIF}
   dglOpenGL,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
@@ -58,7 +57,6 @@ type
     Export_GUIMainHRX: TMenuItem;
     TB_Angle: TTrackBar;
     Label3: TLabel;
-    {$IFDEF WDC} MediaPlayer1: TMediaPlayer; {$ENDIF}
     ExportMainMenu1: TMenuItem;
     Button_CalcArmy: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
@@ -504,7 +502,6 @@ begin
                           aReturnToOptions,
                           FormLoading.LoadingStep,
                           FormLoading.LoadingText
-                          {$IFDEF WDC},MediaPlayer1 {$ENDIF}
                           );
 
   fGame.Resize(Panel5.Width, Panel5.Height);

@@ -1,30 +1,13 @@
 unit KM_Music;
 {$I KaM_Remake.inc}
 interface
-uses Forms,
-  {$IFDEF WDC}MMSystem, Windows, MPlayer, {$ENDIF}
-  Classes, SysUtils, KromUtils, Math, KM_Defaults;
+uses Forms, Bass, Classes, SysUtils, KromUtils, Math, KM_Defaults;
 
-//todo: Discuss using the Bass audio library rather than TMediaPlayer. It doesn't have to be Bass, but it looks like a good one.
-//      We could play Ogg music through OpenAL but that requires lots of DLLs and libraries, and I'd rather keep the two systems separate.
-{Advantages: - Also works on Lazarus/Linux/Mac (I tested it with Lazarus on Windows, apparently it works on the others)
-             - No annoying clicks when starting/stopping playback (like TMediaPlayer has)
-             - Very efficient: does not lock the application when loading a new track. (TMediaPlayer locks my computer for 500-1000ms)
-               I tested Bass while scrolling across the map and the change was only just noticable if you looked closely.
-             - Lots of advanced features we probably won't ever need: 3D sound, recording, surround sound, effects (like chorus / echo / parametric eq / reverb)
-             - Supports MP1, MP2, MP3, OGG, WAV, MOD, and more
-             - Just 1 .pas file to go in Common\
- Disadvantages:
-             - Requires a DLL file to be included with our distribution (bass.dll, ~100kb) Our installer can place this in their install folder.
-             - Non-comerical use only without paying for it
-
- More info: http://www.un4seen.com/bass.html
- }
+//We use the Bass library for music playback. It requires bass.dll to be distributed with our releases.
 
 type
   TMusicLib = class
   private
-    {$IFDEF WDC} fMediaPlayer: TMediaPlayer; {$ENDIF}
     MusicCount:integer;
     MusicIndex:integer;
     MusicTracks:array[1..256]of string;
@@ -32,14 +15,15 @@ type
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
     MusicGain:single;
+    fBassStream:cardinal;
     function  CheckMusicError:boolean;
     function  PlayMusicFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
   public
-    constructor Create({$IFDEF WDC}aMediaPlayer:TMediaPlayer;{$ENDIF} aVolume:single);
+    constructor Create(aVolume:single);
     destructor Destroy; override;
     procedure UpdateMusicVolume(Value:single);
-    procedure PlayMenuTrack(JustInit:boolean);
+    procedure PlayMenuTrack;
     procedure PlayNextTrack;
     procedure PlayPreviousTrack;
     function IsMusicEnded:boolean;
@@ -55,96 +39,66 @@ uses
 
 
 {Music Lib}
-constructor TMusicLib.Create({$IFDEF WDC}aMediaPlayer:TMediaPlayer;{$ENDIF} aVolume:single);
+constructor TMusicLib.Create(aVolume:single);
 begin
   Inherited Create;
   IsMusicInitialized := true;
   ScanMusicTracks(ExeDir + 'Music\');
-  {$IFDEF WDC} fMediaPlayer := aMediaPlayer; {$ENDIF}
+
+  // Setup output - default device, 44100hz, stereo, 16 bits
+  if not BASS_Init(-1, 44100, 0, 0, nil) then
+  begin
+    fLog.AppendLog('Failed to initialize the music playback device');
+    IsMusicInitialized := false;
+  end;
+
   UpdateMusicVolume(aVolume);
-  //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
-  fLog.AppendLog('Music init done, '+inttostr(MusicCount)+' mp3 tracks found');
+
+  fLog.AppendLog('Music init done, '+inttostr(MusicCount)+' tracks found');
 end;
 
 
 destructor TMusicLib.Destroy;
 begin
-  //MediaPlayer.Close;
-  //FreeAndNil(MediaPlayer);
+  BASS_Stop(); //Stop all Bass output
+  BASS_StreamFree(fBassStream); //Free the stream we may have used (will just return false if the stream is invalid)
   Inherited;
 end;
 
 
 
 function TMusicLib.CheckMusicError:boolean;
+var ErrorCode: integer;
 begin
-  Result := false;
-  {$IFDEF WDC}
-  if fMediaPlayer.Error<>0 then begin
-    fLog.AddToLog(fMediaPlayer.errormessage);
-   // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
-   // IsMusicInitialized := false;
-   // Result:=true; //Error is there
-  end;
-  {$ENDIF}
+  ErrorCode := BASS_ErrorGetCode();
+  Result := ErrorCode <> BASS_OK;
 end;
 
 
 function TMusicLib.PlayMusicFile(FileName:string):boolean;
 begin
   Result:=false;
-  {$IFDEF WDC}
   if not IsMusicInitialized then exit;
 
-  if fMediaPlayer.FileName<>'' then
-    fMediaPlayer.Close; //Cancel previous sound
-  if CheckMusicError then exit;
+  BASS_ChannelStop(fBassStream); //Cancel previous sound
   if not FileExists(FileName) then exit; //Make it silent
-  if GetFileExt(FileName)<>'MP3' then exit;
-  fMediaPlayer.FileName:=FileName;
-  fMediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
-  //Application.MessageBox(@FileName[1],'Now playing',MB_OK);
-  fMediaPlayer.Open; //Needs to be done for every new file
-  if CheckMusicError then exit;
-  UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
-  if CheckMusicError then exit;
-  fMediaPlayer.Play; //Start actual playback
+
+  BASS_StreamFree(fBassStream); //Free the existing stream (will just return false if the stream is invalid)
+  fBassStream := BASS_StreamCreateFile(FALSE, PChar(FileName), 0, 0, BASS_STREAM_AUTOFREE);
+
+  BASS_ChannelPlay(fBassStream,true); //Start playback from the beggining
+  UpdateMusicVolume(MusicGain); //Need to reset music volume after starting playback
   if CheckMusicError then exit;
   Result:=true;
-  {$ENDIF}
 end;
 
 
 {Update music gain (global volume for all sounds/music)}
 procedure TMusicLib.UpdateMusicVolume(Value:single);
-{$IFDEF WDC}
-const
-  MCI_SETAUDIO = $0873;
-  MCI_DGV_SETAUDIO_VOLUME = $4002;
-  MCI_DGV_SETAUDIO_ITEM = $00800000;
-  MCI_DGV_SETAUDIO_VALUE = $01000000;
-var
-  P:record
-    dwCallback: DWORD;
-    dwItem: DWORD;
-    dwValue: DWORD;
-    dwOver: DWORD;
-    lpstrAlgorithm: PChar;
-    lpstrQuality: PChar;
-  end;
-{$ENDIF}
 begin
-  {$IFDEF WDC}
   if not IsMusicInitialized then exit; //Keep silent
-  MusicGain:=Value;
-  P.dwCallback := 0;
-  P.dwItem := MCI_DGV_SETAUDIO_VOLUME;
-  P.dwValue := round(Value*1000);
-  P.dwOver := 0;
-  P.lpstrAlgorithm := nil;
-  P.lpstrQuality := nil;
-  mciSendCommand(fMediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
-  {$ENDIF}
+  MusicGain := Value;
+  BASS_ChannelSetAttribute(fBassStream, BASS_ATTRIB_VOL, Value); //0=silent, 1=max
 end;
 
 
@@ -159,7 +113,12 @@ begin
   FindFirst('*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-    if GetFileExt(SearchRec.Name)='MP3' then begin
+    if (GetFileExt(SearchRec.Name) = 'MP3') or //Allow all formats supported by Bass
+       (GetFileExt(SearchRec.Name) = 'MP2') or
+       (GetFileExt(SearchRec.Name) = 'MP1') or
+       (GetFileExt(SearchRec.Name) = 'WAV') or
+       (GetFileExt(SearchRec.Name) = 'OGG') or
+       (GetFileExt(SearchRec.Name) = 'AIFF') then begin
       inc(MusicCount);
       MusicTracks[MusicCount] := Path + SearchRec.Name;
     end;
@@ -173,16 +132,12 @@ begin
 end;
 
 
-procedure TMusicLib.PlayMenuTrack(JustInit:boolean);
+procedure TMusicLib.PlayMenuTrack;
 begin
   if not IsMusicInitialized then exit;
   if MusicIndex = 1 then exit; //It's already playing
   MusicIndex := 1; //First track (Spirit) is always menu music
   PlayMusicFile(MusicTracks[MusicIndex]);
-  if JustInit then StopMusic; //This way music gets initialized irregardless of On/Off
-                              //switch state on game launch. This means there's no 2sec
-                              //lag when enabling music that was set to Off.
-  //BUG: Attempt to play MPEG 1.0 Layer 3 silently crashes Remake on some PCs
 end;
 
 
@@ -210,34 +165,22 @@ end;
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TMusicLib.IsMusicEnded:boolean;
 begin
-  Result:=false;
-  {$IFDEF WDC}
-  if not IsMusicInitialized then exit;
-  if fGame.GlobalSettings.MusicOn then begin
-    Result := ((fMediaPlayer.Mode=mpStopped)or(fMediaPlayer.FileName=''));
-    if CheckMusicError then exit;
-  end;
-  {$ENDIF}
+  Result := (not IsMusicInitialized) or (BASS_ChannelIsActive(fBassStream) = BASS_ACTIVE_STOPPED);
 end;
 
 
 procedure TMusicLib.StopMusic;
 begin
-  {$IFDEF WDC}
   if not IsMusicInitialized then exit;
-  fMediaPlayer.Close;
-  //if CheckMusicError then exit;
-  fMediaPlayer.FileName:='';
-  //if CheckMusicError then exit;
+  BASS_ChannelStop(fBassStream);
   MusicIndex := 0;
-  {$ENDIF}
 end;
 
 
 procedure TMusicLib.ToggleMusic(aOn:boolean);
 begin
   if aOn then
-    PlayMenuTrack(false) //Start with the default track
+    PlayMenuTrack //Start with the default track
   else
     StopMusic;
 end;
