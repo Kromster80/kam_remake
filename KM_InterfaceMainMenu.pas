@@ -1357,7 +1357,7 @@ begin
     Label_LobbyPing[i].Caption := '';
   end;
 
-  if not aPreserveMessage then ListBox_LobbyPosts.Clear;
+  if not aPreserveMessage then Memo_LobbyPosts.Clear;
   Edit_LobbyPost.Text := '';
 
   Label_LobbyMapName.Caption := '';
