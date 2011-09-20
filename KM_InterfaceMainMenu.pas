@@ -88,6 +88,7 @@ type
     procedure Load_Delete_Click(Sender: TObject);
     procedure Load_ListClick(Sender: TObject);
     procedure Load_RefreshList;
+    procedure Load_DeleteConfirmation(aVisible:boolean);
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_SizeChange(Sender: TObject);
     procedure MapEditor_ListUpdate;
@@ -1660,11 +1661,7 @@ end;
 
 procedure TKMMainMenuInterface.Load_ListClick(Sender: TObject);
 begin
-  //If they clicked Delete, hide the yes no buttons again if they select a different item
-  Label_DeleteConfirm.Hide;
-  Button_DeleteYes.Hide;
-  Button_DeleteNo.Hide;
-  Button_Delete.Show;
+  Load_DeleteConfirmation(false); //If they clicked Delete, hide the yes no buttons again if they select a different item
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fGame.Saves.Count-1)
                          and fGame.Saves[List_Load.ItemIndex].IsValid;
 end;
@@ -1682,20 +1679,10 @@ var PreviouslySelected:integer;
 begin
   if not InRange(List_Load.ItemIndex, 0, List_Load.Count-1) then exit;
   if Sender = Button_Delete then
-  begin
-    Label_DeleteConfirm.Show;
-    Button_DeleteYes.Show;
-    Button_DeleteNo.Show;
-    Button_Delete.Hide;
-  end;
+    Load_DeleteConfirmation(true);
 
   if (Sender = Button_DeleteYes) or (Sender = Button_DeleteNo) then
-  begin
-    Label_DeleteConfirm.Hide;
-    Button_DeleteYes.Hide;
-    Button_DeleteNo.Hide;
-    Button_Delete.Show;
-  end;
+    Load_DeleteConfirmation(false);
 
   if Sender = Button_DeleteYes then
   begin
@@ -1724,10 +1711,16 @@ begin
 
   Load_ListClick(List_Load);
 
-  Label_DeleteConfirm.Hide;
-  Button_DeleteYes.Hide;
-  Button_DeleteNo.Hide;
-  Button_Delete.Show;
+  Load_DeleteConfirmation(false);
+end;
+
+
+procedure TKMMainMenuInterface.Load_DeleteConfirmation(aVisible:boolean);
+begin
+  Label_DeleteConfirm.Visible := aVisible;
+  Button_DeleteYes.Visible := aVisible;
+  Button_DeleteNo.Visible := aVisible;
+  Button_Delete.Visible := not aVisible;
 end;
 
 
