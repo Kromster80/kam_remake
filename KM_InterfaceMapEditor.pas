@@ -5,7 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, Forms,
-     KM_Controls, KM_Defaults, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
+     KM_Controls, KM_Defaults, KM_MapInfo, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
 
 type
   TKMapEdInterface = class
@@ -19,6 +19,7 @@ type
     StorehouseItem:byte; //Selected ware in storehouse
     BarracksItem:byte; //Selected ware in barracks
     TileDirection: byte;
+    fMaps: TKMapsCollection;
 
     procedure Create_Terrain_Page;
     procedure Create_Village_Page;
@@ -130,7 +131,7 @@ type
         Button_SaveCancel:TKMButton;
 
       Panel_Load:TKMPanel;
-        FileList_Load:TKMFileList;
+        ListBox_Load:TKMListBox;
         Button_LoadLoad:TKMButton;
         Button_LoadCancel:TKMButton;
 
@@ -327,8 +328,9 @@ begin
   end;
 
   if Sender = Button_Menu_Load then begin
-    FileList_Load.RefreshList(ExeDir+'Maps\', 'dat', 'map', true);
-    FileList_Load.ItemIndex := 0; //Try to select first map by default
+    fMaps.ScanMapsFolder;
+    ListBox_Load.SetItems(fMaps.MapList);
+    ListBox_Load.ItemIndex := 0; //Try to select first map by default
     Panel_Load.Show;
   end;
 
@@ -390,6 +392,7 @@ begin
   BarracksItem   := 1; //First ware selected by default
   StorehouseItem := 1; //First ware selected by default
   TileDirection := 0;
+  fMaps := TKMapsCollection.Create;
 
 {Parent Page for whole toolbar in-game}
   MyControls := TKMMasterControl.Create;
@@ -470,6 +473,7 @@ end;
 
 destructor TKMapEdInterface.Destroy;
 begin
+  fMaps.Free;
   MyControls.Free;
   Inherited;
 end;
@@ -747,7 +751,7 @@ procedure TKMapEdInterface.Create_MenuLoad_Page;
 begin
   Panel_Load := TKMPanel.Create(Panel_Common,0,128,196,400);
     TKMLabel.Create(Panel_Load, 16, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
-    FileList_Load := TKMFileList.Create(Panel_Load, 8, 20, 200, 200);
+    ListBox_Load := TKMListBox.Create(Panel_Load, 8, 20, 200, 200, fnt_Grey);
     Button_LoadLoad     := TKMButton.Create(Panel_Load,8,250,180,30,'Load',fnt_Metal);
     Button_LoadCancel   := TKMButton.Create(Panel_Load,8,290,180,30,'Cancel',fnt_Metal);
     Button_LoadLoad.OnClick     := Menu_Load;
@@ -1216,7 +1220,8 @@ end;
 {Show mission loading dialogue}
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
-  fGame.StartMapEditor(FileList_Load.FileName, 0, 0);
+  if ListBox_Load.ItemIndex <> -1 then
+    fGame.StartMapEditor(MapNameToPath(ListBox_Load.Item[ListBox_Load.ItemIndex], 'dat'), 0, 0);
 end;
 
 

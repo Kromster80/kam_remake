@@ -140,7 +140,7 @@ type
       Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
       Button_AlliesClose:TKMButton;
     Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
-      ListBox_ChatText:TKMListBox;
+      Memo_ChatText:TKMMemo;
       Edit_ChatMsg:TKMEdit;
       CheckBox_SendToAllies:TKMCheckBox;
       Button_ChatClose:TKMButton;
@@ -421,7 +421,7 @@ begin
   Save_EditChange(nil);
 
   for i:=0 to fGame.Saves.Count-1 do
-    List_Save.AddItem(fGame.Saves[i].Filename);
+    List_Save.Add(fGame.Saves[i].Filename);
 end;
 
 
@@ -466,10 +466,10 @@ begin
   List_Load.Clear;
 
   for i:=0 to fGame.Saves.Count-1 do
-    List_Load.AddItem(fGame.Saves[i].Filename);
+    List_Load.Add(fGame.Saves[i].Filename);
 
   //Select first Save by default
-  if List_Load.ItemCount > 0 then
+  if List_Load.Count > 0 then
     List_Load.ItemIndex := 0;
 
   Load_ListClick(List_Load);
@@ -938,8 +938,7 @@ begin
     TKMImage.Create(Panel_Chat,0,0,800,17,552);
     TKMImage.Create(Panel_Chat,0,17,800,170,410);
 
-    ListBox_ChatText := TKMListBox.Create(Panel_Chat,45,50,800-85,101,fnt_Metal);
-    ListBox_ChatText.CanSelect := false;
+    Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,800-85,101,fnt_Metal);
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 680-85, 20, fnt_Metal);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
@@ -978,8 +977,8 @@ begin
       Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, kaLeft);
       DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
       DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
-      DropBox_AlliesTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
-      for k:=1 to 4 do DropBox_AlliesTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
+      DropBox_AlliesTeam[i].Add(fTextLibrary[TX_LOBBY_NONE]);
+      for k:=1 to 4 do DropBox_AlliesTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
       DropBox_AlliesTeam[i].OnChange := AlliesTeamChange;
       DropBox_AlliesTeam[i].DropUp := true; //Doesn't fit if it drops down
       Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, kaCenter);
@@ -2575,9 +2574,9 @@ end;
 
 procedure TKMGamePlayInterface.ChatMessage(const aData: string);
 begin
-  ListBox_ChatText.AddItem(aData, true); //Word wrap true
+  Memo_ChatText.Add(aData, true); //Word wrap true
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
-  ListBox_ChatText.TopIndex := ListBox_ChatText.ItemCount;
+  Memo_ChatText.TopIndex := 32767; //todo: Remove
   if not Panel_Chat.Visible then
     Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption,0) + 1); //New message
 end;

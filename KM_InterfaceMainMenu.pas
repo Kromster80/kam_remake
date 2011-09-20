@@ -119,7 +119,7 @@ type
         Edit_MP_PlayerName: TKMEdit;
         Label_MP_Status:TKMLabel;
       Panel_MPAnnouncement:TKMPanel;
-        ListBox_MP_Announcement:TKMListBox;
+        Memo_MP_Announcement:TKMMemo;
       Panel_MPCreateServer:TKMPanel;
         Edit_MP_ServerName,
         Edit_MP_ServerPort: TKMEdit;
@@ -158,7 +158,7 @@ type
 
       Button_LobbyBack:TKMButton;
       Button_LobbyStart:TKMButton;
-      ListBox_LobbyPosts:TKMListBox;
+      Memo_LobbyPosts:TKMMemo;
       Edit_LobbyPost:TKMEdit;
 
 
@@ -445,9 +445,8 @@ begin
         Label_MP_Status.AutoWrap := true;
 
       Panel_MPAnnouncement := TKMPanel.Create(Panel_MultiPlayer, 45, 120, 620, 158);
-        ListBox_MP_Announcement := TKMListBox.Create(Panel_MPAnnouncement,0,0,620,158,fnt_Grey);
-        ListBox_MP_Announcement.ItemHeight := 16;
-        ListBox_MP_Announcement.CanSelect := false;
+        Memo_MP_Announcement := TKMMemo.Create(Panel_MPAnnouncement,0,0,620,158,fnt_Grey);
+        Memo_MP_Announcement.ItemHeight := 16;
 
       //Create server area
       Panel_MPCreateServer := TKMPanel.Create(Panel_MultiPlayer, 673, 42, 300, 236);
@@ -513,18 +512,18 @@ begin
         Label_LobbyPlayer[i].Hide;
 
         DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 10, top, 140, 20, fnt_Metal, '');
-        DropBox_LobbyPlayerSlot[i].AddItem(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
-        DropBox_LobbyPlayerSlot[i].AddItem(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
+        DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
+        DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 160, top, 130, 20, fnt_Metal, '');
-        DropBox_LobbyLoc[i].AddItem(fTextLibrary[TX_LOBBY_RANDOM]);
+        DropBox_LobbyLoc[i].Add(fTextLibrary[TX_LOBBY_RANDOM]);
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
         DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 300, top, 100, 20, fnt_Metal, '');
-        DropBox_LobbyTeam[i].AddItem(fTextLibrary[TX_LOBBY_NONE]);
-        for k:=1 to 4 do DropBox_LobbyTeam[i].AddItem(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
+        DropBox_LobbyTeam[i].Add(fTextLibrary[TX_LOBBY_NONE]);
+        for k:=1 to 4 do DropBox_LobbyTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
 
         DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 410, top, 125, 20, MP_COLOR_COUNT);
@@ -538,8 +537,7 @@ begin
 
     //Chat
                           TKMLabel.Create  (Panel_Lobby, 40, 350, 100, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, kaLeft);
-    ListBox_LobbyPosts := TKMListBox.Create(Panel_Lobby, 40, 370, 685, 200, fnt_Metal);
-    ListBox_LobbyPosts.CanSelect := false;
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 40, 370, 685, 200, fnt_Metal);
                           TKMLabel.Create  (Panel_Lobby, 40, 580, 100, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, kaLeft);
     Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 40, 600, 685, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
@@ -1170,8 +1168,8 @@ begin
   //Fetch the announcements display
   fGame.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
   fGame.Networking.ServerQuery.FetchAnnouncements(fGame.GlobalSettings.Locale);
-  ListBox_MP_Announcement.Clear;
-  ListBox_MP_Announcement.AddItem('Loading announcements...',true);
+  Memo_MP_Announcement.Clear;
+  Memo_MP_Announcement.Add('Loading announcements...',true);
 end;
 
 
@@ -1236,8 +1234,8 @@ end;
 
 procedure TKMMainMenuInterface.MP_AnnouncementsUpdated(const S: string);
 begin
-  ListBox_MP_Announcement.Clear;
-  ListBox_MP_Announcement.AddItem(S,true); //Word wrap
+  Memo_MP_Announcement.Clear;
+  Memo_MP_Announcement.Add(S, true); //Word wrap
 end;
 
 
@@ -1542,9 +1540,9 @@ end;
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex = 0 then
-    fGame.Networking.SelectMap(List_Lobby.ItemCaption)
+    fGame.Networking.SelectMap(List_Lobby.Item[List_Lobby.ItemIndex])
   else
-    fGame.Networking.SelectSave(List_Lobby.ItemCaption);
+    fGame.Networking.SelectSave(List_Lobby.Item[List_Lobby.ItemIndex]);
 end;
 
 
@@ -1625,9 +1623,9 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
-  ListBox_LobbyPosts.AddItem(aData, true); //Word wrap true
+  Memo_LobbyPosts.Add(aData, true); //Word wrap true
   //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
-  ListBox_LobbyPosts.TopIndex := ListBox_LobbyPosts.ItemCount;
+  Memo_LobbyPosts.TopIndex := 32767; //todo: Remove
 end;
 
 
@@ -1678,7 +1676,7 @@ end;
 procedure TKMMainMenuInterface.Load_Delete_Click(Sender: TObject);
 var PreviouslySelected:integer;
 begin
-  if not InRange(List_Load.ItemIndex,0,List_Load.ItemCount-1) then exit;
+  if not InRange(List_Load.ItemIndex, 0, List_Load.Count-1) then exit;
   if Sender = Button_Delete then
   begin
     Label_DeleteConfirm.Show;
@@ -1700,8 +1698,8 @@ begin
     PreviouslySelected := List_Load.ItemIndex;
     fGame.Saves.DeleteSave(List_Load.ItemIndex);
     Load_RefreshList;
-    if List_Load.ItemCount > 0 then
-      List_Load.ItemIndex := EnsureRange(PreviouslySelected,0,List_Load.ItemCount-1);
+    if List_Load.Count > 0 then
+      List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.Count-1);
     Load_ListClick(List_Load);
   end;
 end;
@@ -1717,7 +1715,7 @@ begin
     List_Load.AddItem([fGame.Saves[i].Filename, fGame.Saves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
   //Select first Save by default
-  if List_Load.ItemCount > 0 then
+  if List_Load.Count > 0 then
     List_Load.ItemIndex := 0;
 
   Load_ListClick(List_Load);
@@ -1734,7 +1732,7 @@ begin
   if Sender = Button_MapEd_Create then
     fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
   if (Sender = Button_MapEd_Load) and (List_MapEd.ItemIndex <> -1) then
-    fGame.StartMapEditor(MapNameToPath(List_MapEd.ItemCaption, 'dat'), 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
+    fGame.StartMapEditor(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat'), 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 
 
@@ -1749,10 +1747,8 @@ end;
 procedure TKMMainMenuInterface.MapEditor_ListUpdate;
 begin
   fMaps.ScanMapsFolder;
-  List_MapEd.Items.Text := fMaps.MapList;
-  List_MapEd.UpdateScrollBar; //Must update the scrollbar, otherwise it might not be enabled as the control does not know when we set items
+  List_MapEd.SetItems(fMaps.MapList);
   List_MapEd.ItemIndex := 0; //Select first map by default, otherwise there could be an invalid map selected (if items have been removed since we last updated)
-  List_MapEd.TopIndex := 0; //Same goes for top index, we cannot assume the previous position is still valid
 end;
 
 
