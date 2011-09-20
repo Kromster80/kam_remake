@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 226
-  Top = 154
-  Width = 1275
-  Height = 829
+  Left = 40
+  Top = 87
+  Width = 1273
+  Height = 828
   Caption = 'KaM Remake Translation Manager'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -10,14 +10,13 @@ object Form1: TForm1
   Font.Height = -13
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
+  OldCreateOrder = True
   Position = poDesktopCenter
-  Scaled = False
   OnCreate = FormCreate
   DesignSize = (
-    1257
-    782)
-  PixelsPerInch = 120
+    1265
+    801)
+  PixelsPerInch = 96
   TextHeight = 16
   object Label1: TLabel
     Left = 472
@@ -30,7 +29,7 @@ object Form1: TForm1
     Left = 8
     Top = 48
     Width = 329
-    Height = 727
+    Height = 745
     Anchors = [akLeft, akTop, akBottom]
     ItemHeight = 16
     TabOrder = 0
@@ -57,7 +56,7 @@ object Form1: TForm1
     Left = 8
     Top = 8
     Width = 75
-    Height = 25
+    Height = 33
     Caption = 'Load'
     TabOrder = 3
     OnClick = btnLoadClick
@@ -66,7 +65,7 @@ object Form1: TForm1
     Left = 96
     Top = 8
     Width = 75
-    Height = 25
+    Height = 33
     Caption = 'Save'
     TabOrder = 4
     OnClick = btnSaveClick
@@ -83,8 +82,8 @@ object Form1: TForm1
   object ScrollBox1: TScrollBox
     Left = 472
     Top = 48
-    Width = 777
-    Height = 729
+    Width = 785
+    Height = 745
     HorzScrollBar.Visible = False
     VertScrollBar.Smooth = True
     Anchors = [akLeft, akTop, akRight, akBottom]

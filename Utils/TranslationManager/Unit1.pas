@@ -2,17 +2,11 @@ unit Unit1;
 {$IFDEF FPC}
   {$Mode Delphi} {$H+}
 {$ENDIF}
-
 interface
-
 uses
   Windows, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StrUtils, StdCtrls, Math, ExtCtrls;
 
-const
-  eol:string=#13+#10; //EndOfLine
-  MiscFolder = '..\..\data\misc\';
-  TextLibraryFile = '..\..\KM_TextIDs.inc';
 
 type
   TTextInfo = record
@@ -20,6 +14,8 @@ type
                ConstName:string; //Name used in KM_TextLibrary.pas
                Translations:array of string;
              end;
+
+
 type
   TForm1 = class(TForm)
     ListBox1: TListBox;
@@ -46,7 +42,6 @@ type
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
   private
-    { Private declarations }
     TransMemos: array of TMemo;
     TransLabels: array of TLabel;
 
@@ -68,16 +63,21 @@ type
     procedure SaveTextLibraryConsts(aFileName:string);
     procedure SaveTranslation(aFileName:string; TranslationID:integer);
     procedure RefreshList;
-  public
-    { Public declarations }
   end;
+
 
 var
   Form1: TForm1;
 
+
 implementation
 
 {$R *.dfm}
+
+const
+  eol:string=#13#10; //EndOfLine
+  MiscFolder = '..\..\data\misc\';
+  TextLibraryFile = '..\..\KM_TextIDs.inc';
 
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -159,8 +159,10 @@ begin
     FreeAndNil(TransLabels[i]);
     FreeAndNil(TransMemos[i]);
   end;
+
   SetLength(TransMemos,TranslationCount+1);
   SetLength(TransLabels,TranslationCount+1);
+
   for i:=1 to TranslationCount do
   begin
     TransLabels[i] := TLabel.Create(Form1);
@@ -170,7 +172,7 @@ begin
 
     TransMemos[i] := TMemo.Create(Form1);
     TransMemos[i].Parent := ScrollBox1;
-    TransMemos[i].SetBounds(8,24+(i-1)*80,ScrollBox1.Width-16,60);
+    TransMemos[i].SetBounds(8,22+(i-1)*80,ScrollBox1.Width-16,60);
     TransMemos[i].Anchors := [akLeft,akRight,akTop];
     TransMemos[i].Font.Charset := GetCharset(TranslationCodes[i]);
     TransMemos[i].Tag := i;
@@ -357,7 +359,7 @@ end;
 
 procedure TForm1.btnLoadClick(Sender: TObject);
 begin
-  Load(MiscFolder,TextLibraryFile);
+  Load(MiscFolder, TextLibraryFile);
 end;
 
 procedure TForm1.btnSaveClick(Sender: TObject);
