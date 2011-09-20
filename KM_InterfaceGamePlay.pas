@@ -939,6 +939,7 @@ begin
     TKMImage.Create(Panel_Chat,0,17,800,170,410);
 
     Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,800-85,101,fnt_Metal);
+    Memo_ChatText.ScrollDown := True;
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 680-85, 20, fnt_Metal);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
@@ -2574,9 +2575,8 @@ end;
 
 procedure TKMGamePlayInterface.ChatMessage(const aData: string);
 begin
-  Memo_ChatText.Add(aData, true); //Word wrap true
-  //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
-  Memo_ChatText.TopIndex := 32767; //todo: Remove
+  Memo_ChatText.Add(aData);
+
   if not Panel_Chat.Visible then
     Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption,0) + 1); //New message
 end;

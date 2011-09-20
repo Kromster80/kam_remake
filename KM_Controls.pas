@@ -630,7 +630,8 @@ type
     fFont: TKMFont; //Can't be changed from inital value, it will mess up the word wrapping
     fItemHeight:byte;
     fItems:TStringList;
-    fTopIndex:smallint; //up to 32k files
+    fTopIndex:smallint; //up to 32k
+    fScrollDown: boolean;
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
@@ -643,10 +644,11 @@ type
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     destructor Destroy; override;
 
-    procedure Add(aItem:string; aAutoWordWrap:boolean=false);
+    procedure Add(aItem:string);
     procedure Clear;
     property ItemHeight:byte read fItemHeight write fItemHeight;
     property TopIndex:smallint read fTopIndex write SetTopIndex;
+    property ScrollDown:boolean read fScrollDown write fScrollDown;
 
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     property OnChange: TNotifyEvent write fOnChange;
@@ -2026,19 +2028,19 @@ begin
 end;
 
 
-procedure TKMMemo.Add(aItem:string; aAutoWordWrap:boolean=false);
+procedure TKMMemo.Add(aItem:string);
 var i: integer; MyItems: TStringList;
 begin
-  if not aAutoWordWrap then
-    fItems.Add(aItem)
-  else
-  begin
-    MyItems := TStringList.Create;
-    ParseDelimited(MyItems, fResource.ResourceFont.WordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
-    for i:=0 to MyItems.Count-1 do
-      fItems.Add(MyItems.Strings[i]);
-    MyItems.Free;
-  end;
+  MyItems := TStringList.Create;
+  ParseDelimited(MyItems, fResource.ResourceFont.WordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
+  for i:=0 to MyItems.Count-1 do
+    fItems.Add(MyItems.Strings[i]);
+  MyItems.Free;
+
+  //Scroll down with each item that is added.
+  //This puts it at the bottom because of the EnsureRange in SetTopIndex
+  if fScrollDown then SetTopIndex(fItems.Count);
+
   UpdateScrollBar;
 end;
 

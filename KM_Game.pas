@@ -28,7 +28,7 @@ type
     fFormPassability:integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
-    fGameSpeed:integer; //todo: Make it word
+    fGameSpeed:word;
     fGameState:TGameState;
     fMultiplayerMode:boolean;
     fWaitingForNetwork:boolean;

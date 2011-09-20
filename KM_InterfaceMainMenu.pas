@@ -538,6 +538,7 @@ begin
     //Chat
                           TKMLabel.Create  (Panel_Lobby, 40, 350, 100, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, kaLeft);
     Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 40, 370, 685, 200, fnt_Metal);
+    Memo_LobbyPosts.ScrollDown := True;
                           TKMLabel.Create  (Panel_Lobby, 40, 580, 100, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, kaLeft);
     Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 40, 600, 685, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
@@ -1169,7 +1170,7 @@ begin
   fGame.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
   fGame.Networking.ServerQuery.FetchAnnouncements(fGame.GlobalSettings.Locale);
   Memo_MP_Announcement.Clear;
-  Memo_MP_Announcement.Add('Loading announcements...',true);
+  Memo_MP_Announcement.Add('Loading announcements...');
 end;
 
 
@@ -1235,7 +1236,7 @@ end;
 procedure TKMMainMenuInterface.MP_AnnouncementsUpdated(const S: string);
 begin
   Memo_MP_Announcement.Clear;
-  Memo_MP_Announcement.Add(S, true); //Word wrap
+  Memo_MP_Announcement.Add(S);
 end;
 
 
@@ -1623,9 +1624,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnMessage(const aData:string);
 begin
-  Memo_LobbyPosts.Add(aData, true); //Word wrap true
-  //Scroll down with each item that is added. This puts it at the bottom because of the EnsureRange in SetTopIndex
-  Memo_LobbyPosts.TopIndex := 32767; //todo: Remove
+  Memo_LobbyPosts.Add(aData);
 end;
 
 
