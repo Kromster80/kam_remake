@@ -1660,6 +1660,11 @@ end;
 
 procedure TKMMainMenuInterface.Load_ListClick(Sender: TObject);
 begin
+  //If they clicked Delete, hide the yes no buttons again if they select a different item
+  Label_DeleteConfirm.Hide;
+  Button_DeleteYes.Hide;
+  Button_DeleteNo.Hide;
+  Button_Delete.Show;
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fGame.Saves.Count-1)
                          and fGame.Saves[List_Load.ItemIndex].IsValid;
 end;
@@ -1694,8 +1699,6 @@ begin
 
   if Sender = Button_DeleteYes then
   begin
-    //todo: if I select different item before pressing Yes it will be deleted instead of old item
-    //      it should hide Yes/No on item change  
     PreviouslySelected := List_Load.ItemIndex;
     fGame.Saves.DeleteSave(List_Load.ItemIndex);
     Load_RefreshList;
