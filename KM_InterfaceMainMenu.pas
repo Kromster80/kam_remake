@@ -187,7 +187,7 @@ type
     Panel_Load:TKMPanel;
       List_Load: TKMColumnListBox;
       Button_Load: TKMButton;
-      Button_Delete: TKMButton; //todo: Add some sort of confirmation to deleting, so the button is not pressed by mistake
+      Button_Delete: TKMButton;
       Label_DeleteConfirm: TKMLabel;
       Button_DeleteYes, Button_DeleteNo: TKMButton;
       Button_LoadBack:TKMButton;
@@ -1694,6 +1694,8 @@ begin
 
   if Sender = Button_DeleteYes then
   begin
+    //todo: if I select different item before pressing Yes it will be deleted instead of old item
+    //      it should hide Yes/No on item change  
     PreviouslySelected := List_Load.ItemIndex;
     fGame.Saves.DeleteSave(List_Load.ItemIndex);
     Load_RefreshList;
