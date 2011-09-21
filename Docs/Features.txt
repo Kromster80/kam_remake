@@ -5,20 +5,25 @@ Distant future
 	Networking in separate thread to minimize lags
 
 Future
+	Bugfixes
 	Fog of war
+	Lookout tower [Krom]
 	Support custom campaigns
 	Replays manager
-	Select units/houses by shape, instead of tiles they stand on
+	Select units/houses by shape
+	Refactor warriors into TGroups
+	Hotkeys for armies (Ctrl+1,2,etc)
+	Tutorial missions texts [Krom]
+	File transfer in multiplayer for missions and saves [Lewin]
+	Auto reconnect for networking
 	
-Close future
+Next demo
+ ?	Bugfixes
  +	Marketplace [Krom]
  +	TPR units [Lewin]
-	WAN multiplayer (hosted master server in PHP) [Lewin]
-	File transfer in multiplayer for missions and saves [Lewin]
-	Tutorial missions and texts from KaM
-	Lookout tower [Krom]
-	Refactored units
-	Add hotkeys for armies that player can assign (Ctrl+1,2,etc)
+ +	WAN multiplayer (hosted master server in PHP) [Lewin]
+ +	Underwater sand
+ +	Unlimited savegames
 
 
 1st Multiplayer Demo (r2039) - 2011-07-29:

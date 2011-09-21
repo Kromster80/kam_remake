@@ -566,7 +566,7 @@ begin
       end else begin
         fUnitTask := InitiateActivity; //Unit is at home, so go get a job
         if fUnitTask=nil then //We didn't find any job to do - rest at home
-          SetActionStay(fResource.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
+          SetActionStay(Max(fResource.HouseDat[fHome.HouseType].WorkerRest,1)*10, ua_Walk); //By default it's 0, don't scan that often
       end;
 
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
@@ -579,8 +579,9 @@ var
 begin
   Result := nil;
 
+  //See if we are in a tower and have something to throw
   if (not (fHome is TKMHouseTower)) or ((not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone) <= 0)) then
-    Exit; //Nothing to throw
+    Exit;
 
   Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA);
 

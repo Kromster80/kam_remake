@@ -14,21 +14,21 @@ Bugs:
  +	Woodcutter whose treecutting place A has been taken cuts the other tree B from totaly wrong spot C
  +	Farmer will sow corn on tile that was just finished as a road
  +	Fixed a crash that occured when a tower with no rocks tried to throw a rock at an enemy after loading the game from a save
+ +	Replay mismatches caused by WatchTowers
+ +	MediaPlayer won't play some mp3s and crash (we should use a better library for music playback, e.g. Bass)
 
 	Woodcutters hut flagshtok should appear last in construction
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
  ?	Making a hill under a house in MapEd causes a crash
- 	Replay mismatches caused by an unknown bug (still occurs, though much less often)
 	Maybe archers attacked by archers should not try to walk towards enemies
- 	Stone hills become cannot be completely mined because the slopes become too great after mining for a while
-	When warriors go out from Barracks sometimes they are not adjoined in groups (Lewin: reproduced, not sure why it happens yet)
- 	Enemies begin to fight back when arows are shot, not when first arrow hits the unit
+ 	Stone hills become locked because the slopes become too great after mining for a while
+	Warriors going out from Barracks sometimes not join in groups (Lewin: reproduced, not sure why it happens yet)
+ 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
- 	Warriors should resume interrupted orders after a fight
+ ?	Warriors should resume interrupted orders after a fight
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
-	MediaPlayer won't play some mp3s and crash (we should use a better library for music playback, e.g. Bass)
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	See-through hills (lighting flaw)
 	Many texts will not change if I change the language in options menu

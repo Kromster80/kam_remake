@@ -555,6 +555,7 @@ begin
       dir_W:  if not((dX<0)and(abs(dY)<=-dX)) then continue;
       dir_NW: if not((dX<0)        and(dY<0)) then continue;
     end;
+
     //Don't check tiles farther than closest Warrior
     if (W<>nil) and (GetLength(KMPoint(aLoc.X,aLoc.Y),KMPoint(k,i)) >= GetLength(KMPoint(aLoc.X,aLoc.Y),W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
