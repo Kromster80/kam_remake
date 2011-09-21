@@ -400,7 +400,6 @@ begin
 
     Image_Main1 := TKMImage.Create(Panel_Main,0,0,224,200,407); //Minimap place
 
-    //todo: player selection and other "universal" stuff (i.e. which player are we placing for)
     Image_Main3 := TKMImage.Create(Panel_Main,0, 200,224,400,404);
     Image_Main4 := TKMImage.Create(Panel_Main,0, 600,224,400,404);
     Image_Main5 := TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed

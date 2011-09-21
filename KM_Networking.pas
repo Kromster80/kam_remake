@@ -574,14 +574,6 @@ begin
     Exit;
   end;
 
-  //@Krom: If the server is local then this message will not be recieved by the other players until we have finished this process
-  //       because the server will not process and resend the message until then. Adding Application.ProcessMessage; here would fix
-  //       it, but possibly cause other problems. (using ProcessMessages is frowned upon because it can create recursive calls)
-  //       This is the reason why the server loads the map first. Maybe the NetServer should run on a seperate thread to prevent
-  //       the host from locking it up under any circumstances?
-  //@Lewin: Thats low priority, but yes, separate thread would be good solution AFAIK
-  //todo: TKMNetServer should run in a seperate thread to make it update even while the client (player) is busy (see above)
-
   //Let everyone start with final version of fNetPlayers
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, fNetPlayers.GetAsText, 0);
   PacketSend(NET_ADDRESS_SERVER, mk_RoomClose, '', 0); //Tell the server this room is now closed

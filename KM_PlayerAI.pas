@@ -625,7 +625,7 @@ end;
 procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 var i: integer;
 begin
-  //todo: Idle troops should also retaliate
+  //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
   if fPlayers[PlayerIndex].PlayerType = pt_Human then exit;
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for i := 0 to DefencePositionsCount-1 do

@@ -63,7 +63,7 @@ begin
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
-  AddLine('Log is up and running. Game version: '+GAME_VERSION);
+  AddLine('Log is up and running. Game version: '+GAME_VERSION+'. Date: '+FormatDateTime('yyyy/mm/dd',Now));
 end;
 
 
@@ -72,8 +72,8 @@ meaning no lines will be lost if Remake crashes}
 procedure TKMLog.AddLine(const aText:string);
 begin
   AssignFile(fl, fLogPath);
-  Append(fl); //todo: Move Date to first log entry instead, to save space
-  WriteLn(fl,FormatDateTime('yyyy/mm/dd hh:nn:ss:zzz',Now)+#9+
+  Append(fl);
+  WriteLn(fl,FormatDateTime('hh:nn:ss:zzz',Now)+#9+
              floattostr((TimeGet - fFirstTick)/1000)+'s'+#9+
              floattostr((TimeGet - fPreviousTick)/1000)+'s'+#9+aText);
   CloseFile(fl);

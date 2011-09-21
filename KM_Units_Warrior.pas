@@ -206,7 +206,6 @@ begin
   end;
 
   //Kill group commander
-  //todo: Move this to new procedure
   if fCommander = nil then
   begin
     NewCommander := nil;
