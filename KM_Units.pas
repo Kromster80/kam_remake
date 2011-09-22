@@ -856,7 +856,7 @@ begin
   else
     Act := fCurrentAction.fActionType;
 
-  fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
+  fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+0.5, fPosition.Y+1, $FFFFFFFF, true);
 end;
 
 
