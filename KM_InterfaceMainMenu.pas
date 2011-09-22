@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo, KM_Campaigns;
+  KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo, KM_Campaigns, KM_Saves;
 
 
 type
@@ -23,6 +23,7 @@ type
     fMaps_Top:integer; //Top map in list
     fMap_Selected:integer; //Selected map
     fMaps: TKMapsCollection;
+    fSaves: TKMSavesCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
     OldResolution:word;
@@ -266,6 +267,7 @@ begin
   fMaps := TKMapsCollection.Create;
   fMaps_Top := 0;
   fMap_Selected := 0;
+  fSaves := TKMSavesCollection.Create;
 
   MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, (X-MENU_DESIGN_X) div 2,
@@ -309,6 +311,7 @@ end;
 destructor TKMMainMenuInterface.Destroy;
 begin
   fMaps.Free;
+  fSaves.Free;
   MyControls.Free;
   Inherited;
 end;
@@ -1529,9 +1532,9 @@ begin
   end
   else
   begin
-    fGame.Saves.ScanSavesFolder(true);
+    fSaves.ScanSavesFolder(true);
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
-    List_Lobby.SetItems(fGame.Saves.SavesList);
+    List_Lobby.SetItems(fSaves.SavesList);
   end;
   if Sender <> nil then //This is used in Reset_Lobby when we are not connected
     fGame.Networking.SelectNoMap('None');
@@ -1662,15 +1665,15 @@ end;
 procedure TKMMainMenuInterface.Load_ListClick(Sender: TObject);
 begin
   Load_DeleteConfirmation(false); //If they clicked Delete, hide the yes no buttons again if they select a different item
-  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fGame.Saves.Count-1)
-                         and fGame.Saves[List_Load.ItemIndex].IsValid;
+  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
+                         and fSaves[List_Load.ItemIndex].IsValid;
 end;
 
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
-  if not InRange(List_Load.ItemIndex,0,fGame.Saves.Count-1) then exit;
-  fGame.StartSingleSave(fGame.Saves[List_Load.ItemIndex].Filename);
+  if not InRange(List_Load.ItemIndex,0,fSaves.Count-1) then exit;
+  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].Filename);
 end;
 
 
@@ -1687,7 +1690,7 @@ begin
   if Sender = Button_DeleteYes then
   begin
     PreviouslySelected := List_Load.ItemIndex;
-    fGame.Saves.DeleteSave(List_Load.ItemIndex);
+    fSaves.DeleteSave(List_Load.ItemIndex);
     Load_RefreshList;
     if List_Load.Count > 0 then
       List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.Count-1);
@@ -1699,11 +1702,11 @@ end;
 procedure TKMMainMenuInterface.Load_RefreshList;
 var i:integer;
 begin
-  fGame.Saves.ScanSavesFolder(false);
+  fSaves.ScanSavesFolder(false);
   List_Load.Clear;
 
-  for i:=0 to fGame.Saves.Count-1 do
-    List_Load.AddItem([fGame.Saves[i].Filename, fGame.Saves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+  for i:=0 to fSaves.Count-1 do
+    List_Load.AddItem([fSaves[i].Filename, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
   //Select first Save by default
   if List_Load.Count > 0 then

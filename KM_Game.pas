@@ -40,7 +40,6 @@ type
     fProjectiles:TKMProjectiles;
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
-    fSaves: TKMSavesCollection; //todo: Move to UI ?
 
   //Should be saved
     fGameTickCount:cardinal;
@@ -123,7 +122,6 @@ type
     property Projectiles:TKMProjectiles read fProjectiles;
     property GameInputProcess:TGameInputProcess read fGameInputProcess;
     property Networking:TKMNetworking read fNetworking;
-    property Saves: TKMSavesCollection read fSaves;
 
     procedure Save(const aFilename: string);
 
@@ -165,7 +163,6 @@ begin
   fResource         := TResource.Create(aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
-  fSaves            := TKMSavesCollection.Create;
   fCampaigns        := TKMCampaignsCollection.Create;
 
   //If game was reinitialized fomr options menu then we should return there
@@ -182,7 +179,6 @@ destructor TKMGame.Destroy;
 begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
 
-  FreeThenNil(fSaves);
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeThenNil(fGlobalSettings);

@@ -6,13 +6,13 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_InterfaceDefaults,
-  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils, KM_Points;
+  KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils, KM_Points;
 
 
 type
   TKMGamePlayInterface = class
   private
-    //not saved
+    //Not saved
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
     PrevHint:TObject;
@@ -24,6 +24,8 @@ type
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
     RatioTab:byte; //Active resource distribution tab
+    fSaves: TKMSavesCollection;
+
     //Saved
     fLastSaveName:string; //The file name we last used to save this file (used as default in Save menu)
     LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
@@ -384,9 +386,9 @@ end;
 
 procedure TKMGamePlayInterface.Save_ListChange(Sender: TObject);
 begin
-  if InRange(TKMListBox(Sender).ItemIndex, 0, fGame.Saves.Count-1) then
+  if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
   begin
-    Edit_Save.Text := fGame.Saves[List_Save.ItemIndex].Filename;
+    Edit_Save.Text := fSaves[List_Save.ItemIndex].Filename;
     Edit_Save.PlaceCursorAtEnd;
   end;
 end;
@@ -410,7 +412,7 @@ end;
 procedure TKMGamePlayInterface.Save_RefreshList;
 var i:integer;
 begin
-  fGame.Saves.ScanSavesFolder(fGame.MultiplayerMode);
+  fSaves.ScanSavesFolder(fGame.MultiplayerMode);
   List_Save.Clear;
 
   if LastSaveName = '' then
@@ -420,8 +422,8 @@ begin
 
   Save_EditChange(nil);
 
-  for i:=0 to fGame.Saves.Count-1 do
-    List_Save.Add(fGame.Saves[i].Filename);
+  for i:=0 to fSaves.Count-1 do
+    List_Save.Add(fSaves[i].Filename);
 end;
 
 
@@ -443,10 +445,10 @@ end;
 
 procedure TKMGamePlayInterface.Load_ListClick(Sender: TObject);
 begin
-  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fGame.Saves.Count-1)
-                         and fGame.Saves[List_Load.ItemIndex].IsValid;
-  if InRange(List_Load.ItemIndex,0,fGame.Saves.Count-1) then
-    Label_Load_Description.Caption := fGame.Saves[List_Load.ItemIndex].Info.GetTitleWithTime;
+  Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
+                         and fSaves[List_Load.ItemIndex].IsValid;
+  if InRange(List_Load.ItemIndex,0,fSaves.Count-1) then
+    Label_Load_Description.Caption := fSaves[List_Load.ItemIndex].Info.GetTitleWithTime;
 end;
 
 
@@ -454,19 +456,19 @@ procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 begin
   if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
 
-  if not InRange(List_Load.ItemIndex,0,fGame.Saves.Count-1) then exit;
-  fGame.StartSingleSave(fGame.Saves[List_Load.ItemIndex].Filename);
+  if not InRange(List_Load.ItemIndex,0,fSaves.Count-1) then exit;
+  fGame.StartSingleSave(fSaves[List_Load.ItemIndex].Filename);
 end;
 
 
 procedure TKMGamePlayInterface.Load_RefreshList;
 var i:integer;
 begin
-  fGame.Saves.ScanSavesFolder(fGame.MultiplayerMode);
+  fSaves.ScanSavesFolder(fGame.MultiplayerMode);
   List_Load.Clear;
 
-  for i:=0 to fGame.Saves.Count-1 do
-    List_Load.Add(fGame.Saves[i].Filename);
+  for i:=0 to fSaves.Count-1 do
+    List_Load.Add(fSaves[i].Filename);
 
   //Select first Save by default
   if List_Load.Count > 0 then
@@ -653,7 +655,8 @@ begin
 
   LastSchoolUnit   := 0;
   LastBarracksUnit := 0;
-  fMessageList:=TKMMessageList.Create;
+  fMessageList := TKMMessageList.Create;
+  fSaves := TKMSavesCollection.Create;
 
 {Parent Page for whole toolbar in-game}
   MyControls := TKMMasterControl.Create;
@@ -751,6 +754,7 @@ destructor TKMGamePlayInterface.Destroy;
 begin
   ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
   fMessageList.Free;
+  fSaves.Free;
   MyControls.Free;
   Inherited;
 end;
