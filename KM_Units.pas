@@ -45,7 +45,7 @@ type
   public
     constructor Create(aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); virtual;
-    procedure SyncLoad; dynamic;
+    procedure SyncLoad; virtual;
     destructor Destroy; override;
 
     function WalkShouldAbandon:boolean; dynamic;
@@ -165,15 +165,10 @@ type
   //This is a common class for units going out of their homes for resources
   TKMUnitCitizen = class(TKMUnit)
   private
-    fWorkPlan:TUnitWorkPlan; //todo: Move into TKMTaskMining
     function FindHome:boolean;
     function InitiateMining:TUnitTask;
     procedure IssueResourceDepletedMessage;
   public
-    constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType);
-    constructor Load(LoadStream:TKMemoryStream); override;
-    destructor Destroy; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState:boolean; override;
     procedure Paint; override;
   end;
@@ -264,36 +259,7 @@ KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome,
 
 
 { TKMUnitCitizen }
-constructor TKMUnitCitizen.Create(aOwner:TPlayerIndex; PosX, PosY:integer; aUnitType:TUnitType);
-begin
-  Inherited;
-  fWorkPlan := TUnitWorkPlan.Create;
-end;
-
-
-constructor TKMUnitCitizen.Load(LoadStream:TKMemoryStream);
-var HasPlan:boolean;
-begin
-  Inherited;
-  fWorkPlan := TUnitWorkPlan.Create;
-  LoadStream.Read(HasPlan);
-  if HasPlan then
-  begin
-    fWorkPlan.Load(LoadStream);
-    if fUnitTask is TTaskMining then
-      TTaskMining(fUnitTask).WorkPlan := fWorkPlan; //restore reference
-  end;
-end;
-
-
-destructor TKMUnitCitizen.Destroy;
-begin
-  FreeAndNil(fWorkPlan);
-  Inherited;
-end;
-
-
-{ Find home for unit }
+//Find home for unit
 function TKMUnitCitizen.FindHome:boolean;
 var H:TKMHouse;
 begin
@@ -334,16 +300,6 @@ begin
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, fPosition.Y+1);
-end;
-
-
-procedure TKMUnitCitizen.Save(SaveStream:TKMemoryStream);
-var HasPlan:boolean;
-begin
-  Inherited;
-  HasPlan := fWorkPlan<>nil;
-  SaveStream.Write(HasPlan);
-  if HasPlan then fWorkPlan.Save(SaveStream);
 end;
 
 
@@ -432,7 +388,7 @@ end;
 
 
 function TKMUnitCitizen.InitiateMining:TUnitTask;
-var Res:integer;
+var Res:integer; T: TTaskMining;
 begin
   Result := nil;
 
@@ -448,20 +404,24 @@ begin
     if Res = 0 then Exit;
   end;
 
-  fWorkPlan.FindPlan(fUnitType,fHome.HouseType,fResource.HouseDat[fHome.HouseType].ResOutput[Res],KMPointBelow(fHome.GetEntrance));
+  T := TTaskMining.Create(Self, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
 
-  if fWorkPlan.ResourceDepleted then
+  if T.WorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
 
-  if fWorkPlan.IsIssued
-  and ((fWorkPlan.Resource1=rt_None)or(fHome.CheckResIn(fWorkPlan.Resource1)>=fWorkPlan.Count1))
-  and ((fWorkPlan.Resource2=rt_None)or(fHome.CheckResIn(fWorkPlan.Resource2)>=fWorkPlan.Count2))
-  and (fHome.CheckResOut(fWorkPlan.Product1)<MAX_RES_IN_HOUSE)
-  and (fHome.CheckResOut(fWorkPlan.Product2)<MAX_RES_IN_HOUSE) then
+  if T.WorkPlan.IsIssued
+  and ((T.WorkPlan.Resource1=rt_None)or(fHome.CheckResIn(T.WorkPlan.Resource1)>=T.WorkPlan.Count1))
+  and ((T.WorkPlan.Resource2=rt_None)or(fHome.CheckResIn(T.WorkPlan.Resource2)>=T.WorkPlan.Count2))
+  and (fHome.CheckResOut(T.WorkPlan.Product1)<MAX_RES_IN_HOUSE)
+  and (fHome.CheckResOut(T.WorkPlan.Product2)<MAX_RES_IN_HOUSE) then
   begin
     if fResource.HouseDat[fHome.HouseType].DoesOrders then
       fHome.ResEditOrder(Res, -1); //Take order
-    Result := TTaskMining.Create(fWorkPlan, Self);
+    Result := T;
+  end else
+  begin
+    T.Free;
+    Result := nil;
   end;
 end;
 

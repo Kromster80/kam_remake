@@ -1,39 +1,41 @@
 unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
-uses Math, 
-    KM_CommonTypes, KM_Units, KM_Units_Workplan, KM_Points;
+uses Math, SysUtils,
+    KM_CommonTypes, KM_Units, KM_Units_Workplan, KM_Points, KM_Defaults;
 
 
 {Perform resource mining}
 type
   TTaskMining = class(TUnitTask)
-    private
-      fBeastID:byte;
-      function ResourceExists:boolean;
-    public
-      WorkPlan:TUnitWorkPlan;
-      constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
-      destructor Destroy; override;
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad; override;
-      procedure FindAnotherWorkPlan(aCalledInternally:boolean=false);
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
+  private
+    fBeastID:byte;
+    fWorkPlan:TUnitWorkPlan;
+    function ResourceExists:boolean;
+  public
+    constructor Create(aUnit:TKMUnit; aRes:TResourceType);
+    destructor Destroy; override;
+    constructor Load(LoadStream:TKMemoryStream); override;
+    property WorkPlan:TUnitWorkPlan read fWorkPlan;
+    procedure FindAnotherWorkPlan(aCalledInternally:boolean=false);
+    function Execute:TTaskResult; override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+  end;
 
 
 implementation
-uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
+uses KM_Houses, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
 
 
 { TTaskMining }
-constructor TTaskMining.Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
+constructor TTaskMining.Create(aUnit:TKMUnit; aRes:TResourceType);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_Mining;
-  WorkPlan  := aWorkPlan;
-  fBeastID   := 0;
+  fWorkPlan := TUnitWorkPlan.Create;
+  fBeastID  := 0;
+
+  fWorkPlan.FindPlan(aUnit.UnitType, aUnit.GetHome.HouseType, aRes, KMPointBelow(aUnit.GetHome.GetEntrance));
 end;
 
 
@@ -41,6 +43,7 @@ destructor TTaskMining.Destroy;
 begin
   if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
+  FreeAndNil(fWorkPlan);
   Inherited;
 end;
 
@@ -48,15 +51,9 @@ end;
 constructor TTaskMining.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
+  fWorkPlan := TUnitWorkPlan.Create;
+  fWorkPlan.Load(LoadStream);
   LoadStream.Read(fBeastID);
-  //Don't load WorkPlan, it's linked by TKMUnitCitizen
-end;
-
-
-procedure TTaskMining.SyncLoad;
-begin
-  Inherited;
-  //nothing to sync, Workplan is assigned by unit
 end;
 
 
@@ -266,8 +263,8 @@ end;
 procedure TTaskMining.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
+  fWorkPlan.Save(SaveStream);
   SaveStream.Write(fBeastID);
-  //Don't save WorkPlan, we'll use link to TKMUnitCitizen.WorkPlan.
 end;
 
 
