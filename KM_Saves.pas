@@ -3,14 +3,14 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, Windows, SysUtils,
-  KM_Defaults, KM_GameInfo;
+  KM_CommonTypes, KM_Defaults, KM_GameInfo;
 
 
 type
   //Savegame info, most of which is stored in TKMGameInfo structure
   TKMSaveInfo = class
   private
-    fPath: string; //TKMGameInfo does not stores paths, it would make no sense
+    fPath: string; //TKMGameInfo does not stores paths, because they mean different things for Maps and Saves
     fFilename: string; //without extension
     fCRC: Cardinal;
     fSaveError: string;
@@ -44,14 +44,10 @@ type
     procedure DeleteSave(Index:integer);
 
     function SavesList: string;
-
-    procedure AutoSave;
-    procedure BaseSave;
   end;
 
 
 implementation
-uses KM_Game, KM_CommonTypes;
 
 
 { TKMSaveInfo }
@@ -111,37 +107,6 @@ destructor TKMSavesCollection.Destroy;
 begin
   Clear;
   inherited;
-end;
-
-
-procedure TKMSavesCollection.AutoSave;
-var i: integer;
-begin
-  fGame.Save('autosave'); //Temp file
-
-  DeleteFile(fGame.SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'sav'));
-  DeleteFile(fGame.SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'rpl'));
-  DeleteFile(fGame.SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'bas'));
-  for i:=AUTOSAVE_COUNT downto 2 do //03 to 01
-  begin
-    RenameFile(fGame.SaveName('autosave'+int2fix(i-1,2), 'sav'), fGame.SaveName('autosave'+int2fix(i,2), 'sav'));
-    RenameFile(fGame.SaveName('autosave'+int2fix(i-1,2), 'rpl'), fGame.SaveName('autosave'+int2fix(i,2), 'rpl'));
-    RenameFile(fGame.SaveName('autosave'+int2fix(i-1,2), 'bas'), fGame.SaveName('autosave'+int2fix(i,2), 'bas'));
-  end;
-
-  RenameFile(fGame.SaveName('autosave', 'sav'), fGame.SaveName('autosave01', 'sav'));
-  RenameFile(fGame.SaveName('autosave', 'rpl'), fGame.SaveName('autosave01', 'rpl'));
-  RenameFile(fGame.SaveName('autosave', 'bas'), fGame.SaveName('autosave01', 'bas'));
-end;
-
-
-procedure TKMSavesCollection.BaseSave;
-begin
-  fGame.Save('basesave'); //Temp file
-
-  //In Linux CopyFile does not overwrite
-  if FileExists(fGame.SaveName('basesave', 'bas')) then DeleteFile(fGame.SaveName('basesave','bas'));
-  CopyFile(PChar(fGame.SaveName('basesave','sav')), PChar(fGame.SaveName('basesave','bas')), false);
 end;
 
 

@@ -92,6 +92,8 @@ type
     procedure RequestGameHold(Msg:TGameResultMsg);
     procedure GameWaitingForNetwork(aWaiting:boolean);
 
+    procedure AutoSave;
+    procedure BaseSave;
     procedure SaveMapEditor(const aMissionName:string);
 
     function  ReplayExists:boolean;
@@ -375,7 +377,7 @@ end;
 
 procedure TKMGame.StartCampaignMap(aCampaign:TKMCampaign; aMap:byte);
 begin
-  fGame.Stop(gr_Silent); //Stop everything silently
+  Stop(gr_Silent); //Stop everything silently
 
   fCampaigns.ActiveCampaign := aCampaign;
   fCampaigns.ActiveCampaignMap := aMap;
@@ -387,7 +389,7 @@ end;
 
 procedure TKMGame.StartSingleMap(aMissionFile, aGameName:string);
 begin
-  fGame.Stop(gr_Silent); //Stop everything silently
+  Stop(gr_Silent); //Stop everything silently
 
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
@@ -399,7 +401,7 @@ end;
 
 procedure TKMGame.StartSingleSave(aFilename:string);
 begin
-  fGame.Stop(gr_Silent); //Stop everything silently
+  Stop(gr_Silent); //Stop everything silently
 
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
@@ -467,7 +469,7 @@ begin
   fGameState := gsRunning;
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
-  fSaves.BaseSave;
+  BaseSave;
 
   fLog.AppendLog('Gameplay recording initialized',true);
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
@@ -481,7 +483,7 @@ var
   fMissionParser:TMissionParser;
   LoadError:string;
 begin
-  fGame.Stop(gr_Silent); //Stop everything silently
+  Stop(gr_Silent); //Stop everything silently
 
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
@@ -526,14 +528,14 @@ begin
 
   MultiplayerRig;
 
-  fSaves.BaseSave; //Thats our base for a game record
+  BaseSave; //Thats our base for a game record
   SetKaMSeed(4); //Random after StartGameMP and ViewReplay should match
 end;
 
 
 procedure TKMGame.StartMultiplayerSave(const aFilename: string);
 begin
-  fGame.Stop(gr_Silent); //Stop everything silently
+  Stop(gr_Silent); //Stop everything silently
 
   fCampaigns.ActiveCampaign := nil;
   fCampaigns.ActiveCampaignMap := 0;
@@ -811,7 +813,7 @@ var fMissionParser:TMissionParser; i:integer;
 begin
   if not FileExists(aFilename) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
-  fGame.Stop(gr_Silent); //Stop MapEd as we are loading from existing MapEd session
+  Stop(gr_Silent); //Stop MapEd as we are loading from existing MapEd session
 
   fLog.AppendLog('Starting Map Editor');
 
@@ -872,6 +874,37 @@ begin
 end;
 
 
+procedure TKMGame.AutoSave;
+var i: integer;
+begin
+  Save('autosave'); //Temp file
+
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'sav'));
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'rpl'));
+  DeleteFile(SaveName('autosave'+int2fix(AUTOSAVE_COUNT,2), 'bas'));
+  for i:=AUTOSAVE_COUNT downto 2 do //03 to 01
+  begin
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'sav'), SaveName('autosave'+int2fix(i,2), 'sav'));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'rpl'), SaveName('autosave'+int2fix(i,2), 'rpl'));
+    RenameFile(SaveName('autosave'+int2fix(i-1,2), 'bas'), SaveName('autosave'+int2fix(i,2), 'bas'));
+  end;
+
+  RenameFile(SaveName('autosave', 'sav'), SaveName('autosave01', 'sav'));
+  RenameFile(SaveName('autosave', 'rpl'), SaveName('autosave01', 'rpl'));
+  RenameFile(SaveName('autosave', 'bas'), SaveName('autosave01', 'bas'));
+end;
+
+
+procedure TKMGame.BaseSave;
+begin
+  Save('basesave'); //Temp file
+
+  //In Linux CopyFile does not overwrite
+  if FileExists(SaveName('basesave', 'bas')) then DeleteFile(SaveName('basesave','bas'));
+  CopyFile(PChar(SaveName('basesave','sav')), PChar(SaveName('basesave','bas')), false);
+end;
+
+
 procedure TKMGame.SaveMapEditor(const aMissionName:string);
 var i:integer; fMissionParser: TMissionParser;
 begin
@@ -904,7 +937,7 @@ end;
 
 procedure TKMGame.StartReplay;
 begin
-  fGame.Stop(gr_Silent);
+  Stop(gr_Silent);
 
   GameInit(false);
   
@@ -936,7 +969,7 @@ end;
 function TKMGame.GetMissionTime:TDateTime;
 begin
   //Convert cardinal into TDateTime, where 1hour = 1/24 and so on..
-  Result := (fGameTickCount/24/60/60/10);
+  Result := fGameTickCount/24/60/60/10;
 end;
 
 
@@ -971,7 +1004,7 @@ end;
 procedure TKMGame.StepOneFrame;
 begin
   Assert(fGameState in [gsPaused,gsReplay], 'We can work step-by-step only in Replay');
-  SetGameSpeed(1); //Do not allow multiple updates in fGame.UpdateState loop
+  SetGameSpeed(1); //Do not allow multiple updates in UpdateState loop
   fAdvanceFrame := true;
 end;
 
@@ -1178,7 +1211,7 @@ begin
                         //Each 1min of gameplay time
                         //Don't autosave if the game was put on hold during this tick
                         if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave and not (GameState = gsOnHold) then
-                          fSaves.AutoSave;
+                          AutoSave;
 
                         //During this tick we were requested to GameHold
                         if DoGameHold then break; //Break the for loop (if we are using speed up)
@@ -1257,7 +1290,7 @@ begin
 
     //StatusBar
     if (fGameState in [gsRunning, gsReplay]) then
-      Form1.StatusBar1.Panels[2].Text := 'Time: ' + FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+      Form1.StatusBar1.Panels[2].Text := 'Time: ' + FormatDateTime('hh:nn:ss', GetMissionTime);
   end;
   if DoGameHold then GameHold(true,DoGameHoldState);
 end;
