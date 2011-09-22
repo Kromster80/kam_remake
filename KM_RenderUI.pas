@@ -9,7 +9,8 @@ type
   TRenderUI = class
   public
     constructor Create;
-    procedure SetupClip         (Y1,Y2:smallint);
+    procedure SetupClipX        (X1,X2:smallint);
+    procedure SetupClipY        (Y1,Y2:smallint);
     procedure ReleaseClip;
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
@@ -19,7 +20,7 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-    procedure WriteText         (PosX,PosY:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
+    procedure WriteText         (X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
@@ -36,16 +37,31 @@ begin
 end;
 
 
-procedure TRenderUI.SetupClip(Y1,Y2:smallint);
-var cp:array[0..3]of real; //Function uses 8byte floats
+//X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
+//clipped from both sides
+procedure TRenderUI.SetupClipX(X1,X2:smallint);
+var cp:array[0..3]of real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
 begin
   glEnable(GL_CLIP_PLANE0);
   glEnable(GL_CLIP_PLANE1);
   FillChar(cp, SizeOf(cp), 0);
-  cp[1] := 1; cp[3] := -Y1; //Upper edge
+  cp[0] := 1; cp[3] := -X1; //Upper edge
   glClipPlane(GL_CLIP_PLANE0, @cp);
-  cp[1] := -1; cp[3] := Y2; //Lower edge
+  cp[0] := -1; cp[3] := X2; //Lower edge
   glClipPlane(GL_CLIP_PLANE1, @cp);
+end;
+
+
+procedure TRenderUI.SetupClipY(Y1,Y2:smallint);
+var cp:array[0..3]of real; //Function uses 8byte floats //ClipPlane X+Y+Z=-D
+begin
+  glEnable(GL_CLIP_PLANE2);
+  glEnable(GL_CLIP_PLANE3);
+  FillChar(cp, SizeOf(cp), 0);
+  cp[1] := 1; cp[3] := -Y1; //Upper edge
+  glClipPlane(GL_CLIP_PLANE2, @cp);
+  cp[1] := -1; cp[3] := Y2; //Lower edge
+  glClipPlane(GL_CLIP_PLANE3, @cp);
 end;
 
 
@@ -185,9 +201,9 @@ begin
     end;
 
     if fbs_Disabled in State then
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, Caption, fnt_Game, kaCenter, $FF808080)
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, kaCenter, $FF808080)
     else
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, Caption, fnt_Game, kaCenter, $FFE0E0E0);
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, kaCenter, $FFE0E0E0);
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);
@@ -407,18 +423,23 @@ begin
 end;
 
 
-
-{Renders a line of text and returns text width and height in px}
+{Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(PosX,PosY:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
+procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
 var
   i:integer;
   LineCount,AdvX,LineHeight,BlockWidth:integer;
   LineWidth:array of integer; //Use signed format since some fonts may have negative CharSpacing
   FD: TKMFontData;
 begin
-  //todo: We need a way to only print a certain width of text, so extra long strings are cut rather than running over other controls
-  if (Text = '') or (Color = $00000000) then exit;
+  if (Text = '') or (Color = $00000000) then Exit;
+
+  if W <> 0 then
+    case Align of
+      kaLeft:   SetupClipX(X, X+W);
+      kaCenter: SetupClipX(X-W div 2, X+W);
+      kaRight:  SetupClipX(X-W, X+W);
+    end;
 
   FD := fResource.ResourceFont.FontData[Fnt]; //Shortcut
 
@@ -457,9 +478,9 @@ begin
     glkMoveAALines(false);
 
     case Align of
-      kaLeft:   glTranslatef(PosX,                      PosY, 0);
-      kaCenter: glTranslatef(PosX - LineWidth[1] div 2, PosY, 0);
-      kaRight:  glTranslatef(PosX - LineWidth[1],       PosY, 0);
+      kaLeft:   glTranslatef(X,                      Y, 0);
+      kaCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
+      kaRight:  glTranslatef(X - LineWidth[1],       Y, 0);
     end;
 
     glBegin(GL_QUADS);
@@ -496,9 +517,9 @@ begin
   begin
     glPushMatrix;
       case Align of
-        kaLeft:   glTranslatef(PosX,                      PosY, 0);
-        kaCenter: glTranslatef(PosX - LineWidth[1] div 2, PosY, 0);
-        kaRight:  glTranslatef(PosX - LineWidth[1],       PosY, 0);
+        kaLeft:   glTranslatef(X,                      Y, 0);
+        kaCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
+        kaRight:  glTranslatef(X - LineWidth[1],       Y, 0);
       end;
 
       glColor4f(1,0,0,0.5);
@@ -517,6 +538,8 @@ begin
       glEnd;
     glPopMatrix;
   end;
+
+  ReleaseClip;
 end;
 
 
@@ -539,5 +562,6 @@ begin
 
   glPopMatrix;
 end;
+
 
 end.

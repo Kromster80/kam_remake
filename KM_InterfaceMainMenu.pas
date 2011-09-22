@@ -219,7 +219,7 @@ type
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
-      Label_Credits:TKMLabel;
+      Label_Credits:TKMLabelScroll;
       Button_CreditsBack:TKMButton;
     Panel_Loading:TKMPanel;
       Label_Loading:TKMLabel;
@@ -298,7 +298,7 @@ begin
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
 
   //Show version info on every page
-  Label_Version := TKMLabel.Create(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.RendererVersion,fnt_Antiqua,kaLeft);
+  Label_Version := TKMLabel.Create(Panel_Main,8,8,0,0,GAME_VERSION+' / OpenGL '+fRender.RendererVersion,fnt_Antiqua,kaLeft);
 
   if SHOW_1024_768_OVERLAY then with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
@@ -383,7 +383,7 @@ procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     TKMImage.Create(Panel_MainMenu,300,60,423,164,4,5);
-    TKMLabel.Create(Panel_MainMenu, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
+    TKMLabel.Create(Panel_MainMenu, 512, 240, 0, 0, 'Remake', fnt_Metal, kaCenter);
     with TKMImage.Create(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
@@ -410,7 +410,7 @@ procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
   Panel_SinglePlayer:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     TKMImage.Create(Panel_SinglePlayer,300,60,423,164,4,5);
-    TKMLabel.Create(Panel_SinglePlayer, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
+    TKMLabel.Create(Panel_SinglePlayer, 512, 240, 0, 0, 'Remake', fnt_Metal, kaCenter);
     with TKMImage.Create(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
@@ -439,56 +439,56 @@ procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
 begin
   Panel_MultiPlayer := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
-      //Top area
-      Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 45, 42, 620, 72);
-        TKMBevel.Create(Panel_MPPlayerName,   0,  0, 620, 72);
-        TKMLabel.Create(Panel_MPPlayerName, 8, 6, 236, 10, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Outline, kaLeft);
-        Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 26, 120, 20, fnt_Grey);
-        TKMLabel.Create(Panel_MPPlayerName, 150, 6, 236, 10, 'Status:', fnt_Outline, kaLeft);
-        Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 150, 26, 470, 30, '', fnt_Grey, kaLeft);
-        Label_MP_Status.AutoWrap := true;
+    //Top area
+    Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 45, 42, 620, 72);
+      TKMBevel.Create(Panel_MPPlayerName,   0,  0, 620, 72);
+      TKMLabel.Create(Panel_MPPlayerName, 8, 6, 236, 10, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Outline, kaLeft);
+      Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 26, 120, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPPlayerName, 150, 6, 236, 10, 'Status:', fnt_Outline, kaLeft);
+      Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 150, 26, 470, 30, '', fnt_Grey, kaLeft);
+      Label_MP_Status.AutoWrap := true;
 
-      Panel_MPAnnouncement := TKMPanel.Create(Panel_MultiPlayer, 45, 120, 620, 158);
-        Memo_MP_Announcement := TKMMemo.Create(Panel_MPAnnouncement,0,0,620,158,fnt_Grey);
-        Memo_MP_Announcement.ItemHeight := 16;
+    Panel_MPAnnouncement := TKMPanel.Create(Panel_MultiPlayer, 45, 120, 620, 158);
+      Memo_MP_Announcement := TKMMemo.Create(Panel_MPAnnouncement,0,0,620,158,fnt_Grey);
+      Memo_MP_Announcement.ItemHeight := 16;
 
-      //Create server area
-      Panel_MPCreateServer := TKMPanel.Create(Panel_MultiPlayer, 673, 42, 300, 236);
-        TKMBevel.Create(Panel_MPCreateServer,   0,  0, 300, 236);
-        TKMLabel.Create(Panel_MPCreateServer, 150, 6, 250, 10, 'CREATE SERVER', fnt_Outline, kaCenter);
-        TKMLabel.Create(Panel_MPCreateServer, 8, 42, 120, 10, 'Server Name', fnt_Outline, kaLeft);
-        Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 8, 58, 286, 20, fnt_Grey);
-        TKMLabel.Create(Panel_MPCreateServer, 8, 88, 120, 10, 'Server Port', fnt_Outline, kaLeft);
-        Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 8, 104, 100, 20, fnt_Grey);
-        Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 155,286,30,'Create Local Server',fnt_Metal,bsMenu);
-        Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 195,286,30,'Create Internet Server',fnt_Metal,bsMenu);
-        Button_MP_CreateLAN.OnClick := MP_Host_Click;
-        Button_MP_CreateWAN.OnClick := MP_Host_Click;
+    //Create server area
+    Panel_MPCreateServer := TKMPanel.Create(Panel_MultiPlayer, 673, 42, 300, 236);
+      TKMBevel.Create(Panel_MPCreateServer,   0,  0, 300, 236);
+      TKMLabel.Create(Panel_MPCreateServer, 150, 6, 250, 10, 'CREATE SERVER', fnt_Outline, kaCenter);
+      TKMLabel.Create(Panel_MPCreateServer, 8, 42, 120, 10, 'Server Name', fnt_Outline, kaLeft);
+      Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 8, 58, 286, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPCreateServer, 8, 88, 120, 10, 'Server Port', fnt_Outline, kaLeft);
+      Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 8, 104, 100, 20, fnt_Grey);
+      Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 155,286,30,'Create Local Server',fnt_Metal,bsMenu);
+      Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 195,286,30,'Create Internet Server',fnt_Metal,bsMenu);
+      Button_MP_CreateLAN.OnClick := MP_Host_Click;
+      Button_MP_CreateWAN.OnClick := MP_Host_Click;
 
-      //Server list area
-      ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Server Name','State','Players','Ping'],[0,300,430,525]);
-      ColList_Servers.OnChange := MP_SelectServer;
-      Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,'Refresh Server List',fnt_Metal,bsMenu);
-      Button_MP_Refresh.OnClick := MP_RefreshClick;
+    //Server list area
+    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Server Name','State','Players','Ping'],[0,300,430,525]);
+    ColList_Servers.OnChange := MP_SelectServer;
+    Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,'Refresh Server List',fnt_Metal,bsMenu);
+    Button_MP_Refresh.OnClick := MP_RefreshClick;
 
-      //Server details area
-      Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
-        TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
-        TKMLabel.Create(Panel_MPServerDetails, 150, 6, 250, 10, 'SERVER DETAILS', fnt_Outline, kaCenter);
-        TKMLabel.Create(Panel_MPServerDetails, 8, 30, 250, 10, 'Player list:', fnt_Outline, kaLeft);
-        Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 250, 10, '', fnt_Metal, kaLeft);
+    //Server details area
+    Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
+      TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
+      TKMLabel.Create(Panel_MPServerDetails, 150, 6, 250, 10, 'SERVER DETAILS', fnt_Outline, kaCenter);
+      TKMLabel.Create(Panel_MPServerDetails, 8, 30, 250, 10, 'Player list:', fnt_Outline, kaLeft);
+      Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 250, 10, '', fnt_Metal, kaLeft);
 
-      //Join server area
-      Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
-        TKMBevel.Create(Panel_MPJoinServer,   0,  0, 300, 90);
-        TKMLabel.Create(Panel_MPJoinServer, 8, 8, 120, 10, 'Address', fnt_Outline, kaLeft);
-        Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 162, 20, fnt_Grey);
-        TKMLabel.Create(Panel_MPJoinServer, 172, 8, 120, 10, 'Port', fnt_Outline, kaLeft);
-        Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 172, 24, 60, 20, fnt_Grey);
-        TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, 'Room', fnt_Outline, kaLeft);
-        Edit_MP_Room := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
-        Button_MP_Join := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
-        Button_MP_Join.OnClick := MP_JoinClick;
+    //Join server area
+    Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
+      TKMBevel.Create(Panel_MPJoinServer,   0,  0, 300, 90);
+      TKMLabel.Create(Panel_MPJoinServer, 8, 8, 120, 10, 'Address', fnt_Outline, kaLeft);
+      Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 162, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPJoinServer, 172, 8, 120, 10, 'Port', fnt_Outline, kaLeft);
+      Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 172, 24, 60, 20, fnt_Grey);
+      TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, 'Room', fnt_Outline, kaLeft);
+      Edit_MP_Room := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
+      Button_MP_Join := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
+      Button_MP_Join.OnClick := MP_JoinClick;
 
     Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MP_Back.OnClick := MP_Back_Click;
@@ -631,10 +631,10 @@ begin
 
         Image_SingleMode[i]    := TKMImage.Create(Panel_SingleList,  0   ,40+i*40,40,40,28);
         Image_SingleMode[i].ImageCenter;
-        Label_SinglePlayers[i] := TKMLabel.Create(Panel_SingleList, 40+20, 40+i*40+14, 40,40,'0',fnt_Metal, kaCenter);
-        Label_SingleTitle1[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+ 5, 40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
-        Label_SingleTitle2[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+22, 40,40,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
-        Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,380+20, 40+i*40+14, 40,40,'0',fnt_Metal, kaCenter);
+        Label_SinglePlayers[i] := TKMLabel.Create(Panel_SingleList, 40+20, 40+i*40+14, 0,0,'0',fnt_Metal, kaCenter);
+        Label_SingleTitle1[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+ 5, 288,0,'<<<LEER>>>',fnt_Metal, kaLeft);
+        Label_SingleTitle2[i]  := TKMLabel.Create(Panel_SingleList, 80+ 6, 40+i*40+22, 288,0,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
+        Label_SingleSize[i]    := TKMLabel.Create(Panel_SingleList,380+20, 40+i*40+14, 0,0,'0',fnt_Metal, kaCenter);
 
         Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, 420, 40, $00000000);
         Shape_SingleOverlay[i].LineWidth := 0;
@@ -650,10 +650,8 @@ begin
 
       TKMBevel.Create(Panel_SingleDesc,0,0,445,220);
 
-      Label_SingleTitle:=TKMLabel.Create(Panel_SingleDesc,445 div 2,35,420,180,'',fnt_Outline, kaCenter);
-      Label_SingleTitle.AutoWrap:=true;
-
-      Label_SingleDesc:=TKMLabel.Create(Panel_SingleDesc,15,60,420,160,'',fnt_Metal, kaLeft);
+      Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc,445 div 2,35,0,0,'',fnt_Outline, kaCenter);
+      Label_SingleDesc  := TKMLabel.Create(Panel_SingleDesc,15,60,415,160,'',fnt_Metal, kaLeft);
       Label_SingleDesc.AutoWrap:=true;
 
       TKMBevel.Create(Panel_SingleDesc,125,230,192,192);
@@ -748,63 +746,63 @@ begin
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,200,80);
-      TKMLabel.Create(Panel_Options_Ctrl,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Ctrl,6,0,0,0,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Ctrl,0,20,200,60);
 
-      Label_Options_MouseSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,27,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
+      Label_Options_MouseSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,27,0,0,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
       Label_Options_MouseSpeed.Disable;
       Ratio_Options_Mouse:=TKMRatioRow.Create(Panel_Options_Ctrl,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Mouse.Disable;
 
     Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,200,50);
-      TKMLabel.Create(Panel_Options_Game,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Game,6,0,0,0,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,200,30);
 
-      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
+      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,0,0,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,200,150);
-      TKMLabel.Create(Panel_Options_Sound,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Sound,6,0,0,0,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,200,130);
 
-      Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
+      Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,0,0,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
       Ratio_Options_SFX:=TKMRatioRow.Create(Panel_Options_Sound,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_SFX.OnChange:=Options_Change;
-      Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
+      Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,0,0,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
       Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Music.OnChange:=Options_Change;
-      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,100,30,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
+      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,0,0,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
       CheckBox_Options_MusicOn.OnClick := Options_Change;
 
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,340,130,200,80);
-      TKMLabel.Create(Panel_Options_GFX,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_GFX,6,0,0,0,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,200,60);
-      TKMLabel.Create(Panel_Options_GFX,18,27,100,30,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS],fnt_Metal,kaLeft);
+      TKMLabel.Create(Panel_Options_GFX,18,27,0,0,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS],fnt_Metal,kaLeft);
       Ratio_Options_Brightness:=TKMRatioRow.Create(Panel_Options_GFX,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Brightness.OnChange:=Options_Change;
 
     Panel_Options_Res:=TKMPanel.Create(Panel_Options,340,230,200,30+RESOLUTION_COUNT*20);
       //Resolution selector
-      TKMLabel.Create(Panel_Options_Res,6,0,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Res,6,0,0,0,fTextLibrary.GetSetupString(20),fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Res,0,20,200,10+RESOLUTION_COUNT*20);
       for i:=1 to RESOLUTION_COUNT do
       begin
-        CheckBox_Options_Resolution[i]:=TKMCheckBox.Create(Panel_Options_Res,12,27+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
+        CheckBox_Options_Resolution[i]:=TKMCheckBox.Create(Panel_Options_Res,12,27+(i-1)*20,176,0,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
         CheckBox_Options_Resolution[i].Enabled:=(SupportedRefreshRates[i] > 0);
         CheckBox_Options_Resolution[i].OnClick:=Options_Change;
       end;
 
-      CheckBox_Options_FullScreen:=TKMCheckBox.Create(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,100,30,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
+      CheckBox_Options_FullScreen:=TKMCheckBox.Create(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,0,0,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
       CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
       Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
 
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,560,130,200,30+LOCALES_COUNT*20);
-      TKMLabel.Create(Panel_Options_Lang,6,0,100,30,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,kaLeft);
+      TKMLabel.Create(Panel_Options_Lang,6,0,0,0,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,200,10+LOCALES_COUNT*20);
 
-      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 100, 20*LOCALES_COUNT, fnt_Metal);
+      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 176, 20*LOCALES_COUNT, fnt_Metal);
       for i:=1 to LOCALES_COUNT do Radio_Options_Lang.Items.Add(Locales[i,3]);
       Radio_Options_Lang.OnChange := Options_Change;
 
@@ -817,8 +815,8 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
-    TKMLabel.Create(Panel_Credits,232,100,100,30,fTextLibrary[TX_CREDITS],fnt_Outline,kaCenter);
-    TKMLabel.Create(Panel_Credits,232,140,100,30,
+    TKMLabel.Create(Panel_Credits,232,100,0,0,fTextLibrary[TX_CREDITS],fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Credits,232,140,0,0,
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
@@ -826,8 +824,8 @@ begin
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,kaCenter);
 
-    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,100,30,fTextLibrary[TX_CREDITS_ORIGINAL],fnt_Outline,kaCenter);
-    Label_Credits:=TKMLabel.Create(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-160,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
+    TKMLabel.Create(Panel_Credits,ScreenX div 2+150,100,0,0,fTextLibrary[TX_CREDITS_ORIGINAL],fnt_Outline,kaCenter);
+    Label_Credits:=TKMLabelScroll.Create(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-160,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
@@ -837,8 +835,8 @@ end;
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    TKMLabel.Create(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,fTextLibrary[TX_MENU_LOADING],fnt_Outline,kaCenter);
-    Label_Loading:=TKMLabel.Create(Panel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
+    TKMLabel.Create(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,0,0,fTextLibrary[TX_MENU_LOADING],fnt_Outline,kaCenter);
+    Label_Loading:=TKMLabel.Create(Panel_Loading,ScreenX div 2,ScreenY div 2+10,0,0,'...',fnt_Grey,kaCenter);
 end;
 
 
@@ -846,7 +844,7 @@ procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   Panel_Error := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     TKMLabel.Create(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,fTextLibrary[TX_MENU_ERROR],fnt_Antiqua,kaCenter);
-    Label_Error := TKMLabel.Create(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
+    Label_Error := TKMLabel.Create(Panel_Error,ScreenX div 2,ScreenY div 2+10,0,0,'...',fnt_Grey,kaCenter);
     Button_ErrorBack := TKMButton.Create(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ErrorBack.OnClick := SwitchMenuPage;
 end;

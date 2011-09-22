@@ -173,8 +173,8 @@ type
   {Text Label}
   TKMLabel = class(TKMControl)
   private
-    fCaption: string;
-    fText:string;
+    fCaption: string; //Original text
+    fText:string; //Reformatted text
     fAutoWrap:boolean;
     procedure SetCaption(aCaption:string);
     procedure SetAutoWrap(aValue:boolean);
@@ -183,12 +183,21 @@ type
     Font: TKMFont;
     FontColor: TColor4;
     TextAlign: KAlign;
-    SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
     function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     property Caption:string read fCaption write SetCaption;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
+    function AreaLeft: Integer;
+    function TextLeft: Integer;
     function TextHeight:integer;
+    procedure Paint; override;
+  end;
+
+
+  TKMLabelScroll = class(TKMLabel)
+  public
+    SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
     procedure Paint; override;
   end;
 
@@ -772,32 +781,29 @@ end;
 
 {One common thing - draw childs for self}
 procedure TKMControl.Paint;
-var sColor:TColor4;
+var sColor:TColor4; Tmp: TKMPoint;
 begin
   inc(CtrlPaintCount);
   if not SHOW_CONTROLS_OVERLAY then exit;
 
-  sColor := $FFFFFFFF;
+  sColor := $00000000;
 
   if Self is TKMPanel then sColor := $200000FF;
-  if Self is TKMBevel then sColor := $20FFFFFF;
-  if Self is TKMShape then sColor := $20FFFFFF;
 
   if Self is TKMLabel then begin //Special case for aligned text
-    case TKMLabel(Self).TextAlign of
-      kaLeft:   fRenderUI.WriteLayer(Left, Top, fWidth, fHeight, $2000FFFF);
-      kaCenter: fRenderUI.WriteLayer(Left - fWidth div 2, Top, fWidth, fHeight, $2000FFFF);
-      kaRight:  fRenderUI.WriteLayer(Left - fWidth, Top, fWidth, fHeight, $2000FFFF);
-    end;
+    Tmp := fResource.ResourceFont.GetTextSize(TKMLabel(Self).fText, TKMLabel(Self).Font);
+    fRenderUI.WriteLayer(TKMLabel(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
+    fRenderUI.WriteRect(TKMLabel(Self).AreaLeft, Top, fWidth, fHeight, 1, $FFFFFFFF);
     fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
-    exit;
+    Exit;
   end;
 
   if Self is TKMImage      then sColor := $2000FF00;
   if Self is TKMImageStack then sColor := $2080FF00;
   if Self is TKMCheckBox   then sColor := $20FF00FF;
   if Self is TKMRatioRow   then sColor := $2000FF00;
-  if Self is TKMScrollBar  then sColor := $20FFFF00;
+  if Self is TKMCostsRow   then sColor := $2000FFFF;
+  if Self is TKMRadioGroup then sColor := $20FFFF00;
 
   if csOver in State then sColor := sColor OR $30000000; //Highlight on mouse over
 
@@ -1014,22 +1020,42 @@ begin
 end;
 
 
+{ TKMLabel }
 constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  Font:=aFont;
-  FontColor:=aColor;
-  TextAlign:=aTextAlign;
-  AutoWrap:=false;
-  SmoothScrollToTop:=0; //means disabled
+  Font := aFont;
+  FontColor := aColor;
+  TextAlign := aTextAlign;
+  AutoWrap := false;
   SetCaption(aCaption);
+end;
+
+
+function TKMLabel.AreaLeft: Integer;
+begin
+  case TextAlign of
+    kaCenter: Result := Left - Width div 2;
+    kaRight:  Result := Left - Width;
+    else      Result := Left;
+  end;
+end;
+
+
+function TKMLabel.TextLeft: Integer;
+begin
+  case TextAlign of
+    kaCenter: Result := Left - fResource.ResourceFont.GetTextSize(fText, Font).X div 2;
+    kaRight:  Result := Left - fResource.ResourceFont.GetTextSize(fText, Font).X;
+    else      Result := Left;
+  end;
 end;
 
 
 procedure TKMLabel.SetCaption(aCaption:string);
 begin
   fCaption := aCaption;
-  ReformatText
+  ReformatText;
 end;
 
 
@@ -1042,65 +1068,63 @@ end;
 
 function TKMLabel.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
-  case TextAlign of
-    kaLeft: Result := InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
-    kaCenter: Result := InRange(X, Left - Width div 2, Left + Width div 2) and InRange(Y, Top, Top + Height);
-    kaRight: Result := InRange(X, Left - Width, Left) and InRange(Y, Top, Top + Height);
-    else Result := false;
-  end;
+  Result := InRange(X, AreaLeft, AreaLeft + Width) and InRange(Y, Top, Top + Height);
 end;
 
 
 function TKMLabel.TextHeight:integer;
 begin
-  ReformatText;
   Result := fResource.ResourceFont.GetTextSize(fText, Font).Y;
 end;
 
 
-//Existing EOLs should be preserved, and new ones added where needed.
+//Existing EOLs should be preserved, and new ones added where needed
+//Keep original intact incase we need to Reformat text once again
 procedure TKMLabel.ReformatText;
 begin
-  fText := fCaption; //Keep original intact incase we need to Reformat text again
-  if not AutoWrap then exit;
-
-  //@Krom: Should we always force EOLs in labels with a continuous word that is longer than the width?
-  //       I think yes because otherwise we end up with text overflowing from our labels...
-  //@Lewin: That may be less desired in many places, best strategy could be cutting the word and fade out last 3-4 letters
-  fText := fResource.ResourceFont.WordWrap(fText, Font, Width, true);
+  if AutoWrap then
+    fText := fResource.ResourceFont.WordWrap(fCaption, Font, Width, true)
+  else
+    fText := fCaption;
 end;
 
 
-{Send caption to render and recieve in result how much space did it took on screen}
+{Send caption to render}
 procedure TKMLabel.Paint;
-var Tmp:TKMPoint; NewTop:integer; Col:cardinal;
+var Col:cardinal;
 begin
   Inherited;
-
-  if SmoothScrollToTop = 0 then
-    NewTop := Top
-  else
-  begin //Setup clipping planes
-    fRenderUI.SetupClip(Top, Top+Height);
-    NewTop := Top + Height - integer(TimeGet - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
-  end;
 
   if fEnabled then Col := FontColor
               else Col := $FF888888;
 
-  Tmp := fResource.ResourceFont.GetTextSize(fText, Font);
-  fRenderUI.WriteText(Left, NewTop, fText, Font, TextAlign, Col);
-
-  if not AutoWrap then 
-    Width := Tmp.X;
-
-  if SmoothScrollToTop = 0 then
-    Height := Tmp.Y
-  else
-    fRenderUI.ReleaseClip;
+  fRenderUI.WriteText(Left, Top, Width, Height, fText, Font, TextAlign, Col);
 end;
 
 
+{ TKMLabelScroll }
+constructor TKMLabelScroll.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
+begin
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aCaption, aFont, aTextAlign, aColor);
+  SmoothScrollToTop := 0; //Disabled by default
+end;
+
+
+procedure TKMLabelScroll.Paint;
+var NewTop:integer; Col:cardinal;
+begin
+  fRenderUI.SetupClipY(Top, Top+Height);
+  NewTop := Top + Height - integer(TimeGet - SmoothScrollToTop) div 50; //Compute delta and shift by it upwards (Credits page)
+
+  if fEnabled then Col := FontColor
+              else Col := $FF888888;
+
+  fRenderUI.WriteText(Left, NewTop, Width, Height, fCaption, Font, TextAlign, Col);
+  fRenderUI.ReleaseClip;
+end;
+
+
+{ TKMImage }
 constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRXid:integer=4);
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
@@ -1285,7 +1309,7 @@ begin
     //Render miniature copy of all available colors with '?' on top
     for i:=0 to Length(Colors)-1 do
       fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+2, Top+(i div fColumnCount)*(fCellSize div fColumnCount)+2, (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
-    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, '?', fnt_Metal, kaCenter, $FFFFFFFF);
+    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, 0, '?', fnt_Metal, kaCenter, $FFFFFFFF);
     Start := 1;
   end;
 
@@ -1373,9 +1397,9 @@ begin
   fRenderUI.Write3DButton(Left,Top,Width,Height,fRXid,fTexID,StateSet,fStyle);
   if fTexID=0 then
     if fEnabled then //If disabled then text should be faded
-      fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), fCaption, fFont, fTextAlign, $FFFFFFFF)
+      fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, 0, fCaption, fFont, fTextAlign, $FFFFFFFF)
     else
-      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, fCaption, fFont, fTextAlign, $FF888888);
+      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, 0, fCaption, fFont, fTextAlign, $FF888888);
 end;
 
 
@@ -1432,7 +1456,7 @@ begin
   Inherited;  
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
-  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY,Caption, Font, kaCenter, $FFFFFFFF);
+  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, 0, Caption, Font, kaCenter, $FFFFFFFF);
   if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00);
   if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
 end;
@@ -1558,7 +1582,7 @@ begin
   RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
   RText := Copy(RText, 1, fResource.ResourceFont.CharsThatFit(RText, Font, Width-8)); //Remove characters that do not fit in the box
 
-  fRenderUI.WriteText(Left+4, Top+3, RText, Font, kaLeft, Col);
+  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, Font, kaLeft, Col);
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
@@ -1591,7 +1615,7 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMCheckBox.Paint;
-var Tmp:TKMPoint; Col:TColor4;
+var Col:TColor4;
 begin
   Inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
@@ -1602,13 +1626,9 @@ begin
       fRenderUI.WriteLayer(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
   end else
   begin
-    fRenderUI.WriteText(Left, Top, '[ ] '+fCaption, fFont, kaLeft, Col);
+    fRenderUI.WriteText(Left, Top, Width, 0, '[ ] '+fCaption, fFont, kaLeft, Col);
     if fChecked then
-      fRenderUI.WriteText(Left+3, Top-1, 'x', fFont, kaLeft, Col);
-
-    Tmp := fResource.ResourceFont.GetTextSize('[ ] '+fCaption, fFont);
-    Width  := Tmp.X;
-    Height := Tmp.Y;
+      fRenderUI.WriteText(Left+3, Top-1, 0, 0, 'x', fFont, kaLeft, Col);
   end;
 end;
 
@@ -1668,9 +1688,9 @@ begin
   LineHeight := round(fHeight / ItemCount);
   for i:=0 to ItemCount-1 do
   begin
-    fRenderUI.WriteText(Left, Top + i*LineHeight, '[ ] '+fItems.Strings[i], fFont, kaLeft, Col);
+    fRenderUI.WriteText(Left, Top + i*LineHeight, Width, 0, '[ ] '+fItems.Strings[i], fFont, kaLeft, Col);
     if fItemIndex = i then
-      fRenderUI.WriteText(Left+3, Top + i*LineHeight - 1, 'x', fFont, kaLeft, Col);
+      fRenderUI.WriteText(Left+3, Top + i*LineHeight - 1, 0, 0, 'x', fFont, kaLeft, Col);
   end;
 end;
 
@@ -1692,8 +1712,8 @@ begin
   Inherited;
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then begin //Now draw text over bar, if required
-    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Caption, Font, TextAlign, $FF000000);
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Caption, Font, TextAlign, FontColor);
+    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Width-4, 0, Caption, Font, TextAlign, $FF000000);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Width-4, 0, Caption, Font, TextAlign, FontColor);
   end;
 end;
 
@@ -1704,7 +1724,7 @@ var i:integer;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Caption, fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width-22, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxID, TexID);
 end;
@@ -1742,7 +1762,7 @@ begin
   fOrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Caption, fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width - 22, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxId, TexID);
 end;
@@ -1752,7 +1772,7 @@ end;
 procedure TKMCostsRow.Paint;
 begin
   Inherited;
-  fRenderUI.WriteText(Left, Top + 4, Caption, fnt_Grey, kaLeft, $FFFFFFFF);
+  fRenderUI.WriteText(Left, Top + 4, Width-20, 0, Caption, fnt_Grey, kaLeft, $FFFFFFFF);
   if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RxId,TexID1].PxHeight) div 2, RxId, TexID1);
   if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RxId,TexID2].PxHeight) div 2, RxId, TexID2);
 end;
@@ -1795,9 +1815,9 @@ begin
   ThumbPos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
   fRenderUI.WritePicture(Left+ThumbPos+2, Top, 4,132);
   if fEnabled then
-    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, inttostr(Position), fnt_Metal, kaCenter, $FFFFFFFF)
+    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, kaCenter, $FFFFFFFF)
   else
-    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, inttostr(Position), fnt_Metal, kaCenter, $FF888888);
+    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, kaCenter, $FF888888);
 end;
 
 
@@ -2073,7 +2093,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, 0.5);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
 end;
 
 
@@ -2242,7 +2262,7 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
 end;
 
 
@@ -2447,11 +2467,11 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemTop+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Length(fItems)-1 do
-    fRenderUI.WriteText(Left+4+fItemOffsets[i], 4+Top, fColumns[i] , fHeaderFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4+fItemOffsets[i], 4+Top, 0, 0, fColumns[i] , fHeaderFont, kaLeft, $FFFFFFFF);
 
   for i:=0 to Math.min(fItems[0].Count-1, ((fHeight-fItemTop) div fItemHeight)-1) do
     for k:=0 to Length(fItems)-1 do
-      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,i]);
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, 0, 0, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,i]);
 end;
 
 
@@ -2592,7 +2612,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  fRenderUI.WriteText(Left+4, Top+4, fCaption, fFont, kaLeft, Col);
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, fCaption, fFont, kaLeft, Col);
 end;
 
 
@@ -2686,7 +2706,7 @@ begin
   if fInclRandom and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-    fRenderUI.WriteText(Left+4, Top+3, 'Random', fnt_Metal, kaLeft, Col);
+    fRenderUI.WriteText(Left+4, Top+3, 0, 0, 'Random', fnt_Metal, kaLeft, Col);
   end;
 end;
 
@@ -2904,14 +2924,14 @@ begin
   fCtrl.Paint;
 
   if MODE_DESIGN_CONTORLS and (CtrlFocus <> nil) then
-    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, 0, 0, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, kaLeft, $FFFFFFFF);
 end;
 
 
 procedure TKMMasterControl.SaveToFile(aFileName:string);
 var ft:textfile;
 begin
-  AssignFile(ft,aFileName); 
+  AssignFile(ft,aFileName);
   Rewrite(ft);
 
   //fCtrl.SaveToFile; //Will save all the childs as well, recursively alike Paint or HitControl
