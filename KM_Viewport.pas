@@ -7,29 +7,36 @@ type
   { Here should be viewport routines }
   TViewport = class
   private
-    XCoord,YCoord:single;
+    fPosition:TKMPointF;
+    fScrolling: boolean;
     PrevScrollAdv:array [1..24]of single;
     PrevScrollPos:byte;
+    fViewportClip:TPoint;
+    fViewRect:TRect;
     fZoom:single;
+    function GetPosition:TKMPointF;
+    procedure SetPosition(Value: TKMPointF);
     procedure SetZoom(aZoom:single);
   public
-    ViewRect:TRect;
-    ViewWidth, ViewHeight:integer;
     ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown: boolean;
-    Scrolling: boolean;
     constructor Create;
 
+    property Position:TKMPointF read GetPosition write SetPosition;
+    property Scrolling:boolean read fScrolling;
+    property ViewportClip:TPoint read fViewportClip;
+    property ViewRect:TRect read fViewRect;
     property Zoom:single read fZoom write SetZoom;
+
     procedure ResetZoom;
     procedure Resize(NewWidth,NewHeight:integer);
-    function GetCenter:TKMPointF;
-    procedure SetCenter(NewX,NewY:single);
     function GetClip:TRect; //returns visible area dimensions in map space
     function GetMinimapClip:TRect;
     procedure ReleaseScrollKeys;
-    procedure DoScrolling(aFrameTime:cardinal);
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
+
+    procedure UpdateStateIdle(aFrameTime:cardinal);
   end;
 
 var
@@ -46,9 +53,7 @@ begin
   PrevScrollPos := 0;
   fZoom := 1;
   ReleaseScrollKeys;
-  XCoord := 0;
-  YCoord := 0;
-  fSoundLib.UpdateListener(XCoord, YCoord);
+  fSoundLib.UpdateListener(fPosition.X, fPosition.Y);
 end;
 
 
@@ -56,9 +61,9 @@ procedure TViewport.SetZoom(aZoom:single);
 begin
   fZoom := EnsureRange(aZoom, 0.1, 8);
   //Limit the zoom to within the map boundaries
-  if ViewWidth /CELL_SIZE_PX/fZoom > fTerrain.MapX then fZoom := ViewWidth /CELL_SIZE_PX/(fTerrain.MapX-1);
-  if ViewHeight/CELL_SIZE_PX/fZoom > fTerrain.MapY then fZoom := ViewHeight/CELL_SIZE_PX/ fTerrain.MapY;
-  SetCenter(XCoord, YCoord); //To ensure it sets the limits smoothly
+  if fViewportClip.X/CELL_SIZE_PX/fZoom > fTerrain.MapX then fZoom := fViewportClip.X/CELL_SIZE_PX/(fTerrain.MapX-1);
+  if fViewportClip.Y/CELL_SIZE_PX/fZoom > fTerrain.MapY then fZoom := fViewportClip.Y/CELL_SIZE_PX/ fTerrain.MapY;
+  SetPosition(fPosition); //To ensure it sets the limits smoothly
 end;
 
 
@@ -70,33 +75,33 @@ end;
 
 procedure TViewport.Resize(NewWidth,NewHeight:integer);
 begin
-  ViewRect.Left   := TOOLBAR_WIDTH;
-  ViewRect.Top    := 0;
-  ViewRect.Right  := NewWidth;
-  ViewRect.Bottom := NewHeight;
+  fViewRect.Left   := TOOLBAR_WIDTH;
+  fViewRect.Top    := 0;
+  fViewRect.Right  := NewWidth;
+  fViewRect.Bottom := NewHeight;
   
-  ViewWidth       := ViewRect.Right-ViewRect.Left;
-  ViewHeight      := ViewRect.Bottom-ViewRect.Top;
+  fViewportClip.X := fViewRect.Right-fViewRect.Left;
+  fViewportClip.Y := fViewRect.Bottom-fViewRect.Top;
 
   SetZoom(fZoom); //View size has changed and that affects Zoom restrictions
 end;
 
 
-function TViewport.GetCenter:TKMPointF;
+function TViewport.GetPosition:TKMPointF;
 begin
-  Result.X := EnsureRange(XCoord, 1, fTerrain.MapX);
-  Result.Y := EnsureRange(YCoord, 1, fTerrain.MapY);
+  Result.X := EnsureRange(fPosition.X, 1, fTerrain.MapX);
+  Result.Y := EnsureRange(fPosition.Y, 1, fTerrain.MapY);
   if not SMOOTH_SCROLLING then Result.X := round(Result.X);
   if not SMOOTH_SCROLLING then Result.Y := round(Result.Y);
   fSoundLib.UpdateListener(Result.X, Result.Y);
 end;
 
 
-procedure TViewport.SetCenter(NewX,NewY:single);
+procedure TViewport.SetPosition(Value: TKMPointF);
 begin
-  XCoord := EnsureRange(NewX, 0 + ViewWidth/2/CELL_SIZE_PX/fZoom,  fTerrain.MapX - ViewWidth /2/CELL_SIZE_PX/fZoom - 1);
-  YCoord := EnsureRange(NewY,-1 + ViewHeight/2/CELL_SIZE_PX/fZoom, fTerrain.MapY - ViewHeight/2/CELL_SIZE_PX/fZoom); //Top row should be visible
-  fSoundLib.UpdateListener(XCoord, YCoord);
+  fPosition.X := EnsureRange(Value.X, 0 + fViewportClip.X/2/CELL_SIZE_PX/fZoom, fTerrain.MapX - fViewportClip.X/2/CELL_SIZE_PX/fZoom - 1);
+  fPosition.Y := EnsureRange(Value.Y,-1 + fViewportClip.Y/2/CELL_SIZE_PX/fZoom, fTerrain.MapY - fViewportClip.Y/2/CELL_SIZE_PX/fZoom); //Top row should be visible
+  fSoundLib.UpdateListener(fPosition.X, fPosition.Y);
 end;
 
 
@@ -104,10 +109,10 @@ end;
 //TestViewportClipInset is for debug, allows to see if all gets clipped well
 function TViewport.GetClip:TRect;
 begin
-  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom),1);
-  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX-1);
-  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/fZoom),1);
-  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/fZoom)+4,fTerrain.MapY-1);
+  Result.Left  :=Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom),1);
+  Result.Right :=Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX-1);
+  Result.Top   :=Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom),1);
+  Result.Bottom:=Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+4,fTerrain.MapY-1);
   if not TEST_VIEW_CLIP_INSET then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);
@@ -119,10 +124,10 @@ end;
 //Same as above function but with some values changed to suit minimap
 function TViewport.GetMinimapClip:TRect;
 begin
-  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,1);
-  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX);
-  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/fZoom)+2,1);
-  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/fZoom),fTerrain.MapY);
+  Result.Left  :=Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,1);
+  Result.Right :=Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX);
+  Result.Top   :=Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+2,1);
+  Result.Bottom:=Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom),fTerrain.MapY);
 end;
 
 
@@ -137,7 +142,7 @@ end;
 
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
-procedure TViewport.DoScrolling(aFrameTime:cardinal);
+procedure TViewport.UpdateStateIdle(aFrameTime:cardinal);
 const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
 var
   ScrollAdv:single;
@@ -158,7 +163,7 @@ begin
      not (CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX) and
      not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX) then
   begin
-    Scrolling := false;
+    fScrolling := false;
     if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
       Screen.Cursor := c_Default;
     exit;
@@ -178,33 +183,32 @@ begin
   //    9 8 12
 
   //Keys
-  if ScrollKeyLeft  then XCoord := XCoord - ScrollAdv;
-  if ScrollKeyUp    then YCoord := YCoord - ScrollAdv;
-  if ScrollKeyRight then XCoord := XCoord + ScrollAdv;
-  if ScrollKeyDown  then YCoord := YCoord + ScrollAdv;
+  if ScrollKeyLeft  then fPosition.X := fPosition.X - ScrollAdv;
+  if ScrollKeyUp    then fPosition.Y := fPosition.Y - ScrollAdv;
+  if ScrollKeyRight then fPosition.X := fPosition.X + ScrollAdv;
+  if ScrollKeyDown  then fPosition.Y := fPosition.Y + ScrollAdv;
   //Mouse
-  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(Temp,1); XCoord := XCoord - ScrollAdv*(1-(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
-  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(Temp,2); YCoord := YCoord - ScrollAdv*(1-(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
-  if CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX then begin inc(Temp,4); XCoord := XCoord + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLLFLEX); end;
-  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
+  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(Temp,1); fPosition.X := fPosition.X - ScrollAdv*(1-(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
+  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(Temp,2); fPosition.Y := fPosition.Y - ScrollAdv*(1-(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
+  if CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX then begin inc(Temp,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLLFLEX); end;
+  if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(Temp,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
 
   //Now do actual the scrolling, if needed
-  Scrolling := Temp<>0;
-  if Scrolling then
-    Screen.Cursor :=DirectionsBitfield[Temp] //Sample cursor type from bitfield value
+  fScrolling := Temp<>0;
+  if fScrolling then
+    Screen.Cursor := DirectionsBitfield[Temp] //Sample cursor type from bitfield value
   else
     if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
       Screen.Cursor := c_Default;
 
-  SetCenter(XCoord,YCoord); //EnsureRanges
+  SetPosition(fPosition); //EnsureRanges
 end;
 
 
 procedure TViewport.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write('Viewport');
-  SaveStream.Write(XCoord);
-  SaveStream.Write(YCoord);
+  SaveStream.Write(fPosition);
   SaveStream.Write(fZoom);
 end;
 
@@ -214,10 +218,9 @@ var s:string;
 begin
   LoadStream.Read(s);
   Assert(s = 'Viewport');
-  LoadStream.Read(XCoord);
-  LoadStream.Read(YCoord);
+  LoadStream.Read(fPosition);
   LoadStream.Read(fZoom);
-  fSoundLib.UpdateListener(XCoord, YCoord);
+  fSoundLib.UpdateListener(fPosition.X, fPosition.Y);
   fLog.AppendLog('Viewport loaded');
 end;
 

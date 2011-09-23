@@ -2208,12 +2208,11 @@ end;
 
 {Compute cursor position and store it in global variables}
 procedure TTerrain.ComputeCursorPosition(X,Y:word; Shift: TShiftState);
-var ViewCenter: TKMPointF;
 begin
-  with GameCursor do begin
-    ViewCenter := fViewport.GetCenter; //Required for Linux compatibility
-    Float.X := ViewCenter.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := ViewCenter.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
+  with GameCursor do
+  begin
+    Float.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
+    Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := ConvertCursorToMapCoord(Float.X,Float.Y);
 
     Cell.X := EnsureRange(round(Float.X+0.5), 1, MapX); //Cell below cursor in map bounds

@@ -610,7 +610,7 @@ end;
 {Update minimap data}
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y:integer);
 begin
-  fViewport.SetCenter(X, Y);
+  fViewport.Position := KMPointF(X,Y);
   KMMinimap.ViewArea := fViewport.GetMinimapClip;
 end;
 
@@ -1573,7 +1573,7 @@ procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
 var Point: TKMPoint;
 begin
   if fMessageList.GetLoc(ShownMessage, Point) then
-    fViewport.SetCenter(Point.X, Point.Y);
+    fViewport.Position := KMPointF(Point);
 end;
 
 
@@ -2687,7 +2687,7 @@ begin
 
                   {Thats my debug example}
                   if Key=ord('5') then MessageIssue(msgText,'123',KMPoint(0,0));
-                  if Key=ord('6') then MessageIssue(msgHouse,'123',KMPointRound(fViewport.GetCenter));
+                  if Key=ord('6') then MessageIssue(msgHouse,'123',KMPointRound(fViewport.Position));
                   if Key=ord('7') then MessageIssue(msgUnit,'123',KMPoint(0,0));
                   if Key=ord('8') then MessageIssue(msgQuill,'123',KMPoint(0,0));
 
@@ -2972,7 +2972,7 @@ end;
 //e.g. if we're over a scrollbar it shouldn't zoom map,
 //but this can apply for all controls (i.e. only zoom when over the map not controls)
 procedure TKMGamePlayInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-var PrevCursor, ViewCenter: TKMPointF;
+var PrevCursor: TKMPointF;
 begin
   MyControls.MouseWheel(X, Y, WheelDelta);
   if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
@@ -2983,9 +2983,8 @@ begin
     fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    ViewCenter := fViewport.GetCenter; //Required for Linux compatibility
-    fViewport.SetCenter(ViewCenter.X + PrevCursor.X-GameCursor.Float.X,
-                        ViewCenter.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
+                                   fViewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
   end;
 end;

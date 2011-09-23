@@ -455,7 +455,7 @@ begin
 
   fPlayers.AfterMissionInit(true);
 
-  fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
+  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
@@ -589,7 +589,7 @@ begin
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
 
-  fViewport.SetCenter(MyPlayer.CenterScreen.X, MyPlayer.CenterScreen.Y);
+  fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
   fRender.Render;
 
@@ -646,7 +646,7 @@ begin
   SetGameState(gsPaused);
   if not KMSamePoint(aLoc, KMPoint(0,0)) then
   begin
-    fViewport.SetCenter(aLoc.X, aLoc.Y);
+    fViewport.Position := KMPointF(aLoc);
     SHOW_UNIT_ROUTES := true;
     SHOW_UNIT_MOVEMENT := true;
   end;
@@ -1302,9 +1302,9 @@ procedure TKMGame.UpdateStateIdle(aFrameTime:cardinal);
 begin
   case fGameState of
     gsRunning,
-    gsReplay:   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
+    gsReplay:   fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
     gsEditor:   begin
-                  fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
+                  fViewport.UpdateStateIdle(aFrameTime); //Check to see if we need to scroll
                   fTerrain.UpdateStateIdle;
                 end;
   end;

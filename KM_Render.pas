@@ -228,9 +228,9 @@ begin
   begin //If game is running
     glLoadIdentity; // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
-    glTranslatef(fViewport.ViewWidth/2, fViewport.ViewHeight/2, 0);
+    glTranslatef(fViewport.ViewportClip.X/2, fViewport.ViewportClip.Y/2, 0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
-    glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y, 0);
+    glTranslatef(-fViewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y, 0);
     if RENDER_3D then
     begin
       Resize(fScreenX, fScreenY, rm3D);
@@ -239,7 +239,7 @@ begin
       glRotatef(rHeading,1,0,0);
       glRotatef(rPitch  ,0,1,0);
       glRotatef(rBank   ,0,0,1);
-      glTranslatef(-fViewport.GetCenter.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.GetCenter.Y-8, 10);
+      glTranslatef(-fViewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y-8, 10);
       glkScale(fViewport.Zoom);
     end;
     
