@@ -889,6 +889,7 @@ end;
 procedure TKMapEdInterface.UpdateMapSize(X,Y:integer);
 begin
   KMMinimap.MapSize := KMPoint(X, Y);
+  KMMinimap.ViewArea := fViewport.GetMinimapClip;  
 end;
 
 

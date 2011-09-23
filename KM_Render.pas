@@ -860,12 +860,16 @@ begin
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  if SHOW_SPRITES_RECT then begin
+  if SHOW_SPRITES_RECT then
+  begin
+    glPushAttrib(GL_LINE_BIT);
+    glLineWidth(1);
     glColor4f(1,1,1,0.5);
     glBegin(GL_LINE_LOOP);
       with GFXData[RX,ID] do
       glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
+    glPopAttrib;
   end;
 end;
 
@@ -895,11 +899,14 @@ begin
   //glEnable(GL_BLEND);
 
   if SHOW_SPRITES_RECT then begin
+    glPushAttrib(GL_LINE_BIT);
+    glLineWidth(1);
     glColor3f(1,1,1);
     glBegin(GL_LINE_LOOP);
       with GFXData[RX,ID] do
       glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
+    glPopAttrib;
   end;
 end;
 
