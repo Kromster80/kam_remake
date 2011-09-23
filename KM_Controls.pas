@@ -485,6 +485,7 @@ type
   TKMListBox = class(TKMControl)
   private
     fFont: TKMFont; //Can't be changed from inital value, it will mess up the word wrapping
+    fAutoHideScrollBar: boolean;
     fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
     fItemHeight:byte;
     fItemIndex:smallint;
@@ -498,6 +499,7 @@ type
     procedure SetBackAlpha(aValue:single);
     procedure SetItemHeight(const Value: byte);
     procedure SetEnabled(aValue:boolean); override;
+    procedure SetAutoHideScrollBar(Value: boolean);
     procedure ChangeScrollPosition(Sender:TObject);
     procedure UpdateScrollBar;
     function GetItem(aIndex:integer):string;
@@ -509,7 +511,7 @@ type
     procedure Clear;
     function Count:integer;
     procedure SetItems(aText:string);
-    procedure AutoHideScrollBar;
+    property AutoHideScrollBar: boolean read fAutoHideScrollBar write SetAutoHideScrollBar;
 
     property BackAlpha:single write SetBackAlpha;
 
@@ -2149,7 +2151,7 @@ end;
 procedure TKMListBox.SetVisible(aValue:boolean);
 begin
   Inherited;
-  fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
+  fScrollBar.Visible := fVisible and (not fAutoHideScrollBar or fScrollBar.Enabled); //Hide scrollbar and its buttons
 end;
 
 
@@ -2180,6 +2182,7 @@ begin
   fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div fItemHeight), 0);
   fScrollBar.Position := fTopIndex;
   fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
+  fScrollBar.Visible := fScrollBar.Visible and (not fAutoHideScrollBar or fScrollBar.Enabled);
 end;
 
 
@@ -2209,9 +2212,10 @@ end;
 
 
 //Hide the scrollbar if it is not required (disabled) This is used for drop boxes.
-procedure TKMListBox.AutoHideScrollBar;
+procedure TKMListBox.SetAutoHideScrollBar(Value: boolean);
 begin
-   fScrollBar.Visible := Visible and fScrollBar.Enabled;
+  fAutoHideScrollBar := Value;
+  UpdateScrollBar;
 end;
 
 
@@ -2514,6 +2518,7 @@ begin
 
   //In FullScreen mode P initialized already with offset (P.Top <> 0)
   fList := TKMListBox.Create(P, Left-P.Left, Top+aHeight-P.Top, aWidth, 0, fFont);
+  fList.AutoHideScrollBar := True; //A drop box should only have a scrollbar if required
   fList.BackAlpha := 0.85;
   fList.fOnClick := ListClick;
 
@@ -2539,9 +2544,6 @@ begin
   fList.TopIndex := ItemIndex - fDropCount div 2;
 
   fList.Show;
-  //A drop box should only have a scrollbar if required, otherwise we might have only two items in
-  //our dropbox and a useless disabled scrollbar taking up space
-  fList.AutoHideScrollBar;
   fShape.Show;
 end;
 
