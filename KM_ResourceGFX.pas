@@ -501,16 +501,16 @@ begin
         Pixel := y*Size[i].X + x;
         L := Data[i, Pixel]; //0..255
 
-        if NeedTeamColors and (L in[23..29])
+        if NeedTeamColors and (L in[24..30])
         and ((ID<>2) or (i>400))  //Skip the Inn Weapon Smithy and the rest
         and ((ID<>4) or InRange(i,141,154) or InRange(i,521,550)) then //Unit icons and scrolls
         begin
-          RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
+          RGBA[i,Pixel] := cardinal(((L-27)*42+128)*65793) OR $FF000000;
           case L of //Maybe it makes sense to convert to 8bit?
-            23,29:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
-            24,28:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
-            25,27:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
-            26:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
+            24,30:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
+            25,29:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
+            26,28:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
+            27:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
           end;
           HasMask[i] := true;
         end else
@@ -836,13 +836,13 @@ begin
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx', 2);
 
   ci:=0;
-  for ID:=ht_Butchers to ht_Wineyard do
+  for ID:=Low(THouseType) to High(THouseType) do
     for Ac:=ha_Work1 to ha_Flag3 do
       for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do
       begin
         CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\');
         CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\');
-        if fResource.HouseDat[ID].Anim[Ac].Step[k]+1<>0 then
+        if fResource.HouseDat[ID].Anim[Ac].Step[k] <> -1 then
           ci := fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
         sx := RXData[2].Size[ci].X;
