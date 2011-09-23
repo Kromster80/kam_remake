@@ -50,6 +50,7 @@ type
     fMaps:array of TKMapInfo;
     function GetMap(Index:integer):TKMapInfo;
   public
+    destructor Destroy; override;
     procedure ScanMapsFolder;
     property Count:byte read fCount;
     property Map[Index:integer]:TKMapInfo read GetMap; default;
@@ -198,6 +199,14 @@ end;
 
 
 { TKMapsCollection }
+destructor TKMapsCollection.Destroy;
+var i:integer;
+begin
+  for i:=0 to fCount-1 do
+    fMaps[i].Free;
+end;
+
+
 function TKMapsCollection.GetMap(Index:integer):TKMapInfo;
 begin
   Result := fMaps[Index];

@@ -152,7 +152,7 @@ end;
 destructor TGameInputProcess_Multi.Destroy;
 var i:integer; k:TPlayerIndex;
 begin
-  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to fPlayers.Count do
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
     fSchedule[i,k].Free;
   Inherited;
 end;

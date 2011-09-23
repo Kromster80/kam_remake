@@ -183,7 +183,8 @@ type
     Font: TKMFont;
     FontColor: TColor4;
     TextAlign: KAlign;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF); overload;
     function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     property Caption:string read fCaption write SetCaption;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
@@ -348,7 +349,8 @@ type
     fFlatStyle:boolean; //Render the check as a rectangle (modern style)
     fFont:TKMFont;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont); overload;
     property Caption:string read fCaption;
     property Checked:boolean read fChecked write fChecked;
     property FlatStyle:boolean read fFlatStyle write fFlatStyle;
@@ -507,16 +509,11 @@ type
     procedure Clear;
     function Count:integer;
     procedure SetItems(aText:string);
+    procedure AutoHideScrollBar;
 
     property BackAlpha:single write SetBackAlpha;
 
     property Item[aIndex:integer]:string read GetItem;
-    //@Krom: Keep in mind that we'll need to call UpdateScrollbar in many cases (e.g. Items.Text := Str)
-    //       otherwise the scrollbar remains disabled.
-    //       Similarly we also have to set the item index to 0 (otherwise there could be an invalid ID selected) and set the top index to something valid.
-    //       It seems kind of ugly to do that, see TKMMainMenuInterface.MapEditor_ListUpdate for an example.
-    //       That is just a copy of TKMListBox.SetText, so I don't see any advantage to calling Items.Text := Str directly.
-    //@Lewin: I agree with your argumentation and better solution is to refactor it a little (done). To be deleted ..
     property ItemHeight:byte read fItemHeight write SetItemHeight;
     property ItemIndex:smallint read fItemIndex write fItemIndex;
     property TopIndex:smallint read fTopIndex write SetTopIndex;
@@ -1031,6 +1028,12 @@ begin
   TextAlign := aTextAlign;
   AutoWrap := false;
   SetCaption(aCaption);
+end;
+
+//Same as above but with width/height ommitted, as in most cases we don't know/don't care
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
+begin
+  Create(aParent,aLeft,aTop,0,0,aCaption,aFont,aTextAlign,aColor);
 end;
 
 
@@ -1582,9 +1585,8 @@ begin
     RText := fText;
 
   RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
-  RText := Copy(RText, 1, fResource.ResourceFont.CharsThatFit(RText, Font, Width-8)); //Remove characters that do not fit in the box
 
-  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, Font, kaLeft, Col);
+  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, Font, kaLeft, Col); //Characters that do not fit are trimmed
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
@@ -1602,6 +1604,12 @@ begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont     := aFont;
   fCaption  := aCaption;
+end;
+
+
+constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont);
+begin
+  Create(aParent,aLeft,aTop,0,0,aCaption,aFont);
 end;
 
 
@@ -1738,7 +1746,7 @@ begin
   Inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
 
   fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
-  fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,0,0,'',fnt_Grey,kaCenter);
+  fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,'',fnt_Grey,kaCenter);
   fOrderAdd := TKMButton.Create(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal, bsGame);
 end;
 
@@ -2200,6 +2208,13 @@ begin
 end;
 
 
+//Hide the scrollbar if it is not required (disabled) This is used for drop boxes.
+procedure TKMListBox.AutoHideScrollBar;
+begin
+   fScrollBar.Visible := Visible and fScrollBar.Enabled;
+end;
+
+
 function TKMListBox.Count:integer;
 begin
   Result := fItems.Count;
@@ -2264,7 +2279,7 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, 0, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
 end;
 
 
@@ -2524,6 +2539,9 @@ begin
   fList.TopIndex := ItemIndex - fDropCount div 2;
 
   fList.Show;
+  //A drop box should only have a scrollbar if required, otherwise we might have only two items in
+  //our dropbox and a useless disabled scrollbar taking up space
+  fList.AutoHideScrollBar;
   fShape.Show;
 end;
 
