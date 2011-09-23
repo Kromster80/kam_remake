@@ -1226,9 +1226,9 @@ begin
     else
     begin
       glPushMatrix;
-        glTranslatef(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
-        //glRotatef(rHeading,-1,0,0);
-        glTranslatef(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
+        glTranslatef(RenderList[h].Obj.X, RenderList[h].Obj.Y, 0);
+        glRotatef(fRender.rHeading, -1, 0, 0);
+        glTranslatef(-RenderList[h].Obj.X, -RenderList[h].Obj.Y, 0);
         repeat //Render child sprites only after their parent
           with RenderList[h] do
             if AlphaStep=-1 then

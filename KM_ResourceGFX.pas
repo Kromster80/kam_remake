@@ -575,6 +575,8 @@ begin
           if RXData[RXid].Flag[ID2] = 1 then
           begin
             ColorID := RXData[RXid].Data[ID2,i*RXData[RXid].Size[ID2].X+k];
+            //todo: Farm flagshtok pixels have Alpha=0 and thus are rendered always, which is wrong,
+            //they should have Alpha 0 to be rendered last (that is for construction order)
             if (ColorID<>0) and (TD[t]<>0) then
               TD[t] := TD[t] AND ($FFFFFF OR (255-round(ColorID*(255/StepCount))) shl 24);
           end else begin
