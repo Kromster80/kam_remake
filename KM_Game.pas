@@ -459,6 +459,7 @@ begin
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
+  fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized', true);
 
@@ -593,6 +594,7 @@ begin
   fRender.Render;
 
   fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
+  fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized', true);
 
@@ -854,6 +856,7 @@ begin
 
   fMapEditorInterface := TKMapEdInterface.Create(ScreenX, ScreenY);
   fMapEditorInterface.Player_UpdateColors;
+  fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
   fPlayers.AfterMissionInit(false);
 
   for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
@@ -1153,6 +1156,8 @@ begin
     CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
 
     fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
+    fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
     fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)

@@ -36,7 +36,7 @@ type
 
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
-    procedure Minimap_Update(Sender: TObject);
+    procedure Minimap_Update(Sender: TObject; const X,Y: integer);
 
     procedure Menu_Save(Sender:TObject);
     procedure Menu_Load(Sender:TObject);
@@ -176,6 +176,7 @@ type
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
+    procedure UpdateMapSize(X,Y:integer);
     procedure RightClick_Cancel;
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -368,16 +369,10 @@ end;
 
 
 {Update minimap data}
-procedure TKMapEdInterface.Minimap_Update(Sender: TObject);
+procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
 begin
-  if Sender=nil then begin //UpdateState loop
-    KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
-  end else
-    if KMMinimap.BoundRectAt.X*KMMinimap.BoundRectAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
-      fViewport.SetCenter(KMMinimap.BoundRectAt.X,KMMinimap.BoundRectAt.Y);
-
-  KMMinimap.BoundRectAt := KMPointRound(fViewport.GetCenter);
-  KMMinimap.ViewArea   := fViewport.GetMinimapClip;
+  fViewport.SetCenter(X, Y);
+  KMMinimap.ViewArea := fViewport.GetMinimapClip;
 end;
 
 
@@ -887,7 +882,13 @@ end;
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMapEdInterface.UpdateState;
 begin
-  Minimap_Update(nil); //Even this Update could be excluded from MapEd interface
+  //
+end;
+
+
+procedure TKMapEdInterface.UpdateMapSize(X,Y:integer);
+begin
+  KMMinimap.MapSize := KMPoint(X, Y);
 end;
 
 

@@ -80,8 +80,8 @@ type
     procedure Message_Display(Sender: TObject);
     procedure Message_GoTo(Sender: TObject);
     procedure Message_UpdateStack;
-    procedure Minimap_Update(Sender: TObject);
-    procedure Minimap_RightClick(Sender: TObject);
+    procedure Minimap_Update(Sender: TObject; const X,Y:integer);
+    procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
     procedure Unit_Die(Sender:TObject);
 
     procedure Save_RefreshList;
@@ -286,6 +286,7 @@ type
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
     procedure MenuIconsEnabled(NewValue:boolean);
+    procedure UpdateMapSize(X,Y:integer);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
@@ -607,28 +608,19 @@ end;
 
 
 {Update minimap data}
-procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject);
+procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y:integer);
 begin
-  if Sender=nil then begin //UpdateState loop
-    KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
-  end else
-    if KMMinimap.BoundRectAt.X*KMMinimap.BoundRectAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
-      fViewport.SetCenter(KMMinimap.BoundRectAt.X,KMMinimap.BoundRectAt.Y);
-
-  KMMinimap.BoundRectAt := KMPointRound(fViewport.GetCenter);
-  KMMinimap.ViewArea    := fViewport.GetMinimapClip;
+  fViewport.SetCenter(X, Y);
+  KMMinimap.ViewArea := fViewport.GetMinimapClip;
 end;
 
 
-procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject);
+procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject; const X,Y:integer);
 var
-  P: TPoint;
   KMP: TKMPoint;
 begin
-  GetCursorPos(P); //Convert cursor position to KMPoint within Game render area
-  P := Form1.Panel5.ScreenToClient(P);
-  KMP := KMMinimap.GetMapCoords(P.X, P.Y, -1); //Outset by 1 pixel to catch cases "outside of map"
-  if not KMMinimap.InMapCoords(KMP.X,KMP.Y) then exit; //Must be inside map
+  KMP := KMMinimap.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
+  if not fTerrain.TileInMapCoords(KMP.X, KMP.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
   if (fShownUnit is TKMUnitWarrior) and (not fJoiningGroups)
@@ -3021,6 +3013,12 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.UpdateMapSize(X,Y:integer);
+begin
+  KMMinimap.MapSize := KMPoint(X, Y);
+end;
+
+
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState;
@@ -3040,7 +3038,6 @@ begin
   end else
     Panel_Replay.Hide;
 
-  Minimap_Update(nil);
   if Image_Clock.Visible then begin
     Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
     Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);

@@ -5,7 +5,7 @@ uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls, Graphics, Math, SysUtils, Clipbrd,
-    KromUtils, KromOGLUtils, KM_Defaults, KM_Points;
+    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
@@ -75,7 +75,7 @@ type
 
     fOnClick:TNotifyEvent;
     fOnClickEither:TNotifyEventMB;
-    fOnClickRight:TNotifyEvent;
+    fOnClickRight:TPointEvent;
     fOnMouseWheel:TNotifyEventMW;
     //fOnMouseOver:TNotifyEvent;
 
@@ -123,7 +123,7 @@ type
 
     property OnClick: TNotifyEvent write fOnClick;
     property OnClickEither: TNotifyEventMB write fOnClickEither;
-    property OnClickRight: TNotifyEvent write fOnClickRight;
+    property OnClickRight: TPointEvent write fOnClickRight;
     property OnMouseWheel: TNotifyEventMW write fOnMouseWheel;
     //property OnMouseOver: TNotifyEvent write fOnMouseOver;
 
@@ -669,17 +669,19 @@ type
   { Minimap as stand-alone control }
   TKMMinimap = class(TKMControl)
   private
-    fOnChange:TNotifyEvent;
+    fMapSize:TKMPoint;
+    fViewArea:TRect;
+    fOnChange:TPointEvent;
   public
-    MapSize:TKMPoint;
-    BoundRectAt:TKMPoint;
-    ViewArea:TRect;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    function GetMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
-    function InMapCoords(X,Y:integer):boolean;
+
+    function LocalToMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
+    property MapSize: TKMPoint read fMapSize write fMapSize;
+    property ViewArea: TRect read fViewArea write fViewArea;
+    property OnChange: TPointEvent write fOnChange;
+
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
 
@@ -762,7 +764,7 @@ begin
     else
     if (Button = mbLeft) and Assigned(fOnClick) then fOnClick(Self)
     else
-    if (Button = mbRight) and Assigned(fOnClickRight) then fOnClickRight(Self)
+    if (Button = mbRight) and Assigned(fOnClickRight) then fOnClickRight(Self, X, Y);
   end;
 end;
 
@@ -2715,7 +2717,14 @@ end;
 constructor TKMMinimap.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  BoundRectAt := KMPoint(0,0);
+end;
+
+
+function TKMMinimap.LocalToMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
+begin
+  Assert(Inset>=-1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
+  Result.X := EnsureRange(X - (Left+(Width -fMapSize.X) div 2), 1+Inset, fMapSize.X-Inset);
+  Result.Y := EnsureRange(Y - (Top +(Height-fMapSize.Y) div 2), 1+Inset, fMapSize.Y-Inset);
 end;
 
 
@@ -2727,27 +2736,16 @@ end;
 
 
 procedure TKMMinimap.MouseMove(X,Y:integer; Shift:TShiftState);
+var ViewPos:TKMPoint;
 begin
   Inherited;
-  if ssLeft in Shift then begin
-    BoundRectAt := GetMapCoords(X,Y);
+
+  if ssLeft in Shift then 
+  begin
+    ViewPos := LocalToMapCoords(X,Y);
     if Assigned(fOnChange) then
-      fOnChange(Self);
+      fOnChange(Self, ViewPos.X, ViewPos.Y);
   end;
-end;
-
-
-function TKMMinimap.GetMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
-begin
-  Assert(Inset>=-1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
-  Result.X := EnsureRange(X - (Left+(Width -MapSize.X) div 2), 1-Inset, MapSize.X+Inset);
-  Result.Y := EnsureRange(Y - (Top +(Height-MapSize.Y) div 2), 1-Inset, MapSize.Y+Inset);
-end;
-
-
-function TKMMinimap.InMapCoords(X,Y:integer):boolean;
-begin
-  Result := InRange(X, 1, MapSize.X) and InRange(Y, 1, MapSize.Y);
 end;
 
 
@@ -2756,10 +2754,10 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.RenderMinimap(Left,Top,Width,Height);
-  fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,
-                      Top  + (Height-MapSize.Y) div 2 + ViewArea.Top,
-                      ViewArea.Right-ViewArea.Left,
-                      ViewArea.Bottom-ViewArea.Top, 1, $FFFFFFFF);
+  fRenderUI.WriteRect(Left + (Width-fMapSize.X) div 2 + fViewArea.Left,
+                      Top  + (Height-fMapSize.Y) div 2 + fViewArea.Top,
+                      fViewArea.Right-fViewArea.Left,
+                      fViewArea.Bottom-fViewArea.Top, 1, $FFFFFFFF);
 end;
 
 

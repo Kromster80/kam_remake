@@ -150,8 +150,9 @@ type
   end;
 
 
-  TStringEvent = procedure (const aData: string) of object;
+  TPointEvent = procedure (Sender:TObject; const X,Y: integer) of object;
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
+  TStringEvent = procedure (const aData: string) of object;
 
 
 type
