@@ -621,7 +621,7 @@ begin
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
       end;
-      Unit_ButtonClick(Button_Citizen[1]); //Select serf as default
+      Unit_ButtonClick(Button_Citizen[0]); //Select serf as default
 
     Panel_Script := TKMPanel.Create(Panel_Village,0,28,196,400);
       TKMLabel.Create(Panel_Script,100,10,0,0,'Scripts',fnt_Outline,kaCenter);

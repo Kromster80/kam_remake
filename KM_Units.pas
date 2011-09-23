@@ -301,7 +301,7 @@ begin
   end;
 
   if fThought<>th_None then
-    fRender.RenderUnitThought(fThought, XPaintPos, fPosition.Y+1);
+    fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -468,7 +468,7 @@ begin
   end;
 
   if fThought<>th_None then
-    fRender.RenderUnitThought(fThought, XPaintPos, fPosition.Y+1);
+    fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
 

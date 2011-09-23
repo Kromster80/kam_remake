@@ -612,6 +612,7 @@ begin
   fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[3] := 1158;
   fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[4] := 1159;
   fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[5] := 1160;
+  //todo: Add flame animations for the marketplace
 
   //ExportCSV(ExeDir+'Houses.csv');
 end;

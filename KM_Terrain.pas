@@ -1258,7 +1258,8 @@ begin
   //Check if tile occupied by Unit was walkable in previous state and now is unwalkable due to Height change
   //We should try restore walkability at least by flattening terrain, otherwise it's different and more serious error
   WasWalkable := (Land[Loc.Y,Loc.X].IsUnit <> nil) and CheckPassability(Loc,CanWalk) and not CheckHeightPass(Loc,CanWalk);
-  if WasWalkable then FlattenTerrain(Loc);
+  if WasWalkable and (fGame.GameState <> gsEditor) then //Allow units to become "stuck" in the map editor, as height changing is allowed anywhere
+    FlattenTerrain(Loc);
 
   Land[Loc.Y,Loc.X].Passability := [];
 
@@ -2070,7 +2071,7 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     if TileInMapCoords(X,Y) then
       Result := Land[Y,X].Height //Use requested tile
     else
-      Result := Land[Y,X].Height; //Otherwise return height of original tile which will have no effect
+      Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
   end;
   function TestHeight(aHeight:byte):boolean;
   var Points: array[1..4] of byte;
