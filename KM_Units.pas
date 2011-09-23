@@ -215,10 +215,12 @@ type
 
   //Animals
   TKMUnitAnimal = class(TKMUnit)
+  private
     fFishCount:byte; //1-5
   public
     constructor Create(aOwner: shortint; PosX, PosY:integer; aUnitType:TUnitType); overload;
     constructor Load(LoadStream:TKMemoryStream); override;
+    property FishCount: byte read fFishCount;
     function ReduceFish:boolean;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState:boolean; override;
@@ -816,7 +818,8 @@ begin
   else
     Act := fCurrentAction.fActionType;
 
-  fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+0.5, fPosition.Y+1, $FFFFFFFF, true);
+  //Animals share the same walkTo logic as other units and they exchange places if necessary
+  fRender.RenderUnit(fUnitType, Act, Direction, AnimStep, fPosition.X+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y), $FFFFFFFF, true);
 end;
 
 

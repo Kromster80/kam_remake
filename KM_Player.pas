@@ -634,11 +634,11 @@ begin
     if (fUnits.Items[i] <> nil) and (TKMUnit(fUnits.Items[i]).UnitType = ut_Fish) then
     begin
       if fTerrain.Land[TKMUnit(fUnits.Items[i]).GetPosition.Y,TKMUnit(fUnits.Items[i]).GetPosition.X].WalkConnect[wcFish] = aWaterID then
-        if TKMUnitAnimal(fUnits.Items[i]).fFishCount > HighestGroupCount then
+        if TKMUnitAnimal(fUnits.Items[i]).FishCount > HighestGroupCount then
         begin
           Result := TKMUnitAnimal(fUnits.Items[i]);
           if not FindHighestCount then exit; //This is for time saving when we don't actually care which group is returned
-          HighestGroupCount := TKMUnitAnimal(fUnits.Items[i]).fFishCount;
+          HighestGroupCount := TKMUnitAnimal(fUnits.Items[i]).FishCount;
         end;
     end;
   end;
