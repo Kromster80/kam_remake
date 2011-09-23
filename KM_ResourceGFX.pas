@@ -533,7 +533,7 @@ var
   ID1,ID2:integer; //RGB and A index
   i,k,h,StepCount:integer;
   t,tx,ty:integer;
-  ColorID:byte;
+  Alpha:byte;
   WidthPOT,HeightPOT:integer;
   TD:array of cardinal;
 begin
@@ -572,18 +572,20 @@ begin
         for k := 0 to RXData[RXid].Size[ID2].X-1 do
         begin
           t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
+
+          //Flag 1 means that we can use Data array
+          //Otherwise, for addon sprites, we need to resort to RGBA data they provide
           if RXData[RXid].Flag[ID2] = 1 then
-          begin
-            ColorID := RXData[RXid].Data[ID2,i*RXData[RXid].Size[ID2].X+k];
-            //todo: Farm flagshtok pixels have Alpha=0 and thus are rendered always, which is wrong,
-            //they should have Alpha 0 to be rendered last (that is for construction order)
-            if (ColorID<>0) and (TD[t]<>0) then
-              TD[t] := TD[t] AND ($FFFFFF OR (255-round(ColorID*(255/StepCount))) shl 24);
-          end else begin
-            ColorID := RXData[RXid].RGBA[ID2,i*RXData[RXid].Size[ID2].X+k] AND $FF;
-            if (ColorID<>0) and (TD[t]<>0) then
-              TD[t] := TD[t] AND ($FFFFFF OR (255-round(ColorID*(255/StepCount))) shl 24);
-          end;
+            Alpha := RXData[RXid].Data[ID2,i*RXData[RXid].Size[ID2].X+k]
+          else
+            Alpha := RXData[RXid].RGBA[ID2,i*RXData[RXid].Size[ID2].X+k] AND $FF;
+
+          //Steps are going in normal order 1..n, but that last step has Alpha=0
+          if TD[t] <> 0 then
+            if Alpha <> 0 then //Default case
+              TD[t] := TD[t] AND ($FFFFFF OR (255-round(Alpha*(255/StepCount))) shl 24)
+            else
+              TD[t] := TD[t] AND $01FFFFFF; //Place it as last step
         end;
 
         GFXData[RXid,ID1].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_AlphaTest);

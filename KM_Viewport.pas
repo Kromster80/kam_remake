@@ -4,8 +4,8 @@ interface
 uses Math, Types, Controls, Forms, KM_CommonTypes, KM_Points;
 
 type
-{ Here should be viewport routines }
-TViewport = class
+  { Here should be viewport routines }
+  TViewport = class
   private
     XCoord,YCoord:single;
     PrevScrollAdv:array [1..24]of single;
@@ -30,7 +30,7 @@ TViewport = class
     procedure DoScrolling(aFrameTime:cardinal);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-end;
+  end;
 
 var
   fViewport: TViewport;
