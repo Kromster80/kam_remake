@@ -109,10 +109,10 @@ end;
 //TestViewportClipInset is for debug, allows to see if all gets clipped well
 function TViewport.GetClip:TRect;
 begin
-  Result.Left  :=Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom),1);
-  Result.Right :=Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX-1);
-  Result.Top   :=Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom),1);
-  Result.Bottom:=Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+4,fTerrain.MapY-1);
+  Result.Left   := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom),1);
+  Result.Right  := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX-1);
+  Result.Top    := Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom),1);
+  Result.Bottom := Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+4,fTerrain.MapY-1);
   if not TEST_VIEW_CLIP_INSET then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);
@@ -124,10 +124,10 @@ end;
 //Same as above function but with some values changed to suit minimap
 function TViewport.GetMinimapClip:TRect;
 begin
-  Result.Left  :=Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,1);
-  Result.Right :=Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX);
-  Result.Top   :=Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+2,1);
-  Result.Bottom:=Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom),fTerrain.MapY);
+  Result.Left   := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,1);
+  Result.Right  := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fTerrain.MapX);
+  Result.Top    := Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+2,1);
+  Result.Bottom := Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom),fTerrain.MapY);
 end;
 
 

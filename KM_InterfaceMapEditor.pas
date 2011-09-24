@@ -67,7 +67,7 @@ type
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
-      KMMinimap:TKMMinimap;
+      Minimap:TKMMinimap;
       RatioRow_Passability:TKMRatioRow;
       Label_Passability:TKMLabel;
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
@@ -372,7 +372,7 @@ end;
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
 begin
   fViewport.Position := KMPointF(X,Y);
-  KMMinimap.ViewArea := fViewport.GetMinimapClip;
+  Minimap.ViewArea := fViewport.GetMinimapClip;
 end;
 
 
@@ -399,8 +399,8 @@ begin
     Image_Main4 := TKMImage.Create(Panel_Main,0, 600,224,400,404);
     Image_Main5 := TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
 
-    KMMinimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
-    KMMinimap.OnChange := Minimap_Update;
+    Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
+    Minimap.OnChange := Minimap_Update;
 
     TKMLabel.Create(Panel_Main,8,200,0,0,'View passsability',fnt_Metal,kaLeft);
     RatioRow_Passability := TKMRatioRow.Create(Panel_Main, 8, 220, 192, 20, 0, 13);
@@ -882,14 +882,14 @@ end;
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMapEdInterface.UpdateState;
 begin
-  //
+  Minimap.ViewArea := fViewport.GetMinimapClip;
 end;
 
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y:integer);
 begin
-  KMMinimap.MapSize := KMPoint(X, Y);
-  KMMinimap.ViewArea := fViewport.GetMinimapClip;  
+  Minimap.MapSize := KMPoint(X, Y);
+  Minimap.ViewArea := fViewport.GetMinimapClip;  
 end;
 
 

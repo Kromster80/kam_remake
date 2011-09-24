@@ -113,7 +113,7 @@ type
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
-      KMMinimap:TKMMinimap;
+      Minimap:TKMMinimap;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
@@ -611,7 +611,7 @@ end;
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y:integer);
 begin
   fViewport.Position := KMPointF(X,Y);
-  KMMinimap.ViewArea := fViewport.GetMinimapClip;
+  Minimap.ViewArea := fViewport.GetMinimapClip;
 end;
 
 
@@ -619,7 +619,7 @@ procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject; const X,Y:int
 var
   KMP: TKMPoint;
 begin
-  KMP := KMMinimap.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
+  KMP := Minimap.LocalToMapCoords(X, Y, -1); //Inset by 1 pixel to catch cases "outside of map"
   if not fTerrain.TileInMapCoords(KMP.X, KMP.Y) then Exit; //Must be inside map
 
   //Send move order, if applicable
@@ -660,9 +660,9 @@ begin
     Image_Main4 := TKMImage.Create(Panel_Main,0, 768,224,400,404);
     Image_Main5 := TKMImage.Create(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
 
-    KMMinimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
-    KMMinimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
-    KMMinimap.OnClickRight := Minimap_RightClick;
+    Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
+    Minimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
+    Minimap.OnClickRight := Minimap_RightClick;
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
@@ -3014,8 +3014,8 @@ end;
 
 procedure TKMGamePlayInterface.UpdateMapSize(X,Y:integer);
 begin
-  KMMinimap.MapSize := KMPoint(X, Y);
-  KMMinimap.ViewArea := fViewport.GetMinimapClip;
+  Minimap.MapSize := KMPoint(X, Y);
+  Minimap.ViewArea := fViewport.GetMinimapClip;
 end;
 
 
@@ -3046,6 +3046,8 @@ begin
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
+
+  Minimap.ViewArea := fViewport.GetMinimapClip;
 
   //Debug info
   if SHOW_SPRITE_COUNT then
