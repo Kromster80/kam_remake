@@ -913,7 +913,7 @@ begin
 
   CreateDir(ExeDir+'Maps');
   CreateDir(ExeDir+'Maps\'+aMissionName);
-  fTerrain.SaveToMapFile(MapNameToPath(aMissionName, 'map'));
+  fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map'));
   fMissionParser := TMissionParser.Create(mpm_Editor,false);
   fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat'));
   FreeAndNil(fMissionParser);

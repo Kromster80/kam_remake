@@ -60,7 +60,6 @@ TTerrain = class
     constructor Create;
     destructor Destroy; override;
     procedure MakeNewMap(Width,Height:integer);
-    function LoadFromFile(FileName:string):boolean;
 
     procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
@@ -179,7 +178,10 @@ TTerrain = class
 
     procedure IncAnimStep; //Lite-weight UpdaState for MapEd
     property AnimStep: integer read fAnimStep;
-    procedure SaveToMapFile(aFile:string);
+
+    procedure LoadFromFile(FileName:string);
+    procedure SaveToFile(aFile:string);
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
@@ -249,14 +251,14 @@ begin
 end;
 
 
-function TTerrain.LoadFromFile(FileName:string):boolean;
+procedure TTerrain.LoadFromFile(FileName:string);
 var
   i,k:integer;
   S:TKMemoryStream;
   NewX,NewY:integer;
 begin
-  Result := false;
-  if not CheckFileExists(FileName) then exit;
+  if not CheckFileExists(FileName) then Exit;
+
   fLog.AppendLog('Loading map file: '+FileName);
 
   S := TKMemoryStream.Create;
@@ -292,13 +294,11 @@ begin
   RebuildWalkConnect(wcWalk);
   RebuildWalkConnect(wcFish);
   fLog.AppendLog('Map file loaded');
-
-  Result := true;
 end;
 
 
 //Save (export) map in KaM .map format with additional tile information on the end?
-procedure TTerrain.SaveToMapFile(aFile:string);
+procedure TTerrain.SaveToFile(aFile:string);
 var f:file; i,k:integer; c0,cF:cardinal; light,b205:byte;
     ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
     Res:array[1..MAX_MAP_SIZE*2]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
@@ -1958,7 +1958,7 @@ end;
 
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerIndex; const aFlattenTerrain:boolean=false);
-var i,k,x,y:word; L,H:TKMPoint; ToFlatten:TKMPointList; HA:THouseArea;
+var i,k,x,y:word; ToFlatten:TKMPointList; HA:THouseArea;
 begin
   if aFlattenTerrain then //We will check aFlattenTerrain only once, otherwise there are compiler warnings
     ToFlatten := TKMPointList.Create
@@ -2000,10 +2000,9 @@ begin
 
   if ToFlatten<>nil then FlattenTerrain(ToFlatten);
   if ToFlatten<>nil then FreeAndNil(ToFlatten);
+
   //Recalculate Passability for tiles around the house so that they can't be built on too
-  L:=EnsureTileInMapCoords(Loc.X-3,Loc.Y-4);
-  H:=EnsureTileInMapCoords(Loc.X+2,Loc.Y+1);
-  RebuildPassability(L.X,H.X,L.Y,H.Y);
+  RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
   RebuildWalkConnect(wcRoad);
 end;
 
