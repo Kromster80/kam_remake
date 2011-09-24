@@ -767,8 +767,8 @@ begin
   Panel_Pause.Stretch;
     Bevel_Pause:=TKMBevel.Create(Panel_Pause,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
     Image_Pause:=TKMImage.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)-40,0,0,556);
-    Label_Pause1:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
-    Label_Pause2:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)+20,64,16,Format(fTextLibrary[TX_GAMEPLAY_PAUSE_INFO],['"P"']),fnt_Grey,kaCenter);
+    Label_Pause1:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2),fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    Label_Pause2:=TKMLabel.Create(Panel_Pause,(Panel_Main.Width div 2),(Panel_Main.Height div 2)+20,Format(fTextLibrary[TX_GAMEPLAY_PAUSE_INFO],['"P"']),fnt_Grey,kaCenter);
     Bevel_Pause.Stretch; //Anchor to all sides
     Image_Pause.ImageCenter;
     Label_Pause1.Center;
@@ -793,7 +793,7 @@ begin
       Image_PlayMore:=TKMImage.Create(Panel_PlayMoreMsg,100,40,0,0,556);
       Image_PlayMore.ImageCenter;
 
-      Label_PlayMore  := TKMLabel.Create(Panel_PlayMoreMsg,100,80,64,16,'<<<LEER>>>',fnt_Outline,kaCenter);
+      Label_PlayMore  := TKMLabel.Create(Panel_PlayMoreMsg,100,80,'<<<LEER>>>',fnt_Outline,kaCenter);
       Button_PlayMore := TKMButton.Create(Panel_PlayMoreMsg,0,100,200,30,'<<<LEER>>>',fnt_Metal);
       Button_PlayQuit := TKMButton.Create(Panel_PlayMoreMsg,0,140,200,30,'<<<LEER>>>',fnt_Metal);
       Button_PlayMore.OnClick := PlayMoreClick;
@@ -876,7 +876,7 @@ begin
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20, 0);
-      Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl, 80, 2, 125, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
+      Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl, 80, 2, 160, 0, '<<<LEER>>>', fnt_Grey, kaCenter);
       Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl, 0, 24, 24, 24, 'I<', fnt_Metal);
       Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl,25, 24, 24, 24, 'II', fnt_Metal);
       Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl,50, 24, 24, 24, '\\', fnt_Metal);
@@ -1224,7 +1224,7 @@ end;
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   Panel_Quit:=TKMPanel.Create(Panel_Main,0,412,200,400);
-    TKMLabel.Create(Panel_Quit,100,30,100,30,fTextLibrary.GetTextString(176),fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Quit,100,30,180,0,fTextLibrary.GetTextString(176),fnt_Outline,kaCenter);
     Button_Quit_Yes := TKMButton.Create(Panel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
     Button_Quit_No  := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     Button_Quit_Yes.Hint := fTextLibrary.GetTextString(177);
