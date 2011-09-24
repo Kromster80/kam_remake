@@ -1157,6 +1157,9 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
             Byte(TileInMapCoords(X-1,  Y) and (TileIsStone(X-1,  Y)>0))*8;
 
     //Don't make units become stuck
+    //@Lewin: I can't remember why do we check it here?
+    //Tile can't possibly become unwalkable if it was walkable before, Stone deposit always becomes less, not more
+    //Any idea why it is here?
     if not HasUnit(KMPoint(X,Y)) or (PatternDAT[TileID[Bits]+1].Walkable<>0) then
     begin
       Land[Y,X].Terrain  := TileID[Bits];
@@ -1169,29 +1172,28 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
 begin
   //Replace with smaller ore deposit tile (there are 2 sets of tiles, we can choose random)
   case Land[Loc.Y,Loc.X].Terrain of
-    132,137: Land[Loc.Y,Loc.X].Terrain := 131 + KaMRandom(2)*5;
-    131,136: Land[Loc.Y,Loc.X].Terrain := 130 + KaMRandom(2)*5;
-    130,135: Land[Loc.Y,Loc.X].Terrain := 129 + KaMRandom(2)*5;
-    129,134: Land[Loc.Y,Loc.X].Terrain := 128 + KaMRandom(2)*5;
-    128,133: Land[Loc.Y,Loc.X].Terrain := 0;
-    else     Exit;
+    132, 137: Land[Loc.Y,Loc.X].Terrain := 131 + KaMRandom(2)*5;
+    131, 136: Land[Loc.Y,Loc.X].Terrain := 130 + KaMRandom(2)*5;
+    130, 135: Land[Loc.Y,Loc.X].Terrain := 129 + KaMRandom(2)*5;
+    129, 134: Land[Loc.Y,Loc.X].Terrain := 128 + KaMRandom(2)*5;
+    128, 133: begin
+                Land[Loc.Y,Loc.X].Terrain  := 0;
+                Land[Loc.Y,Loc.X].Rotation := KaMRandom(4);
+
+                //Update these 5 transitions, but make sure that occupied tiles stay walkable
+                UpdateTransition(Loc.X,Loc.Y);
+                UpdateTransition(Loc.X,Loc.Y-1); //    x
+                UpdateTransition(Loc.X+1,Loc.Y); //  x X x
+                UpdateTransition(Loc.X,Loc.Y+1); //    x
+                UpdateTransition(Loc.X-1,Loc.Y);
+              end;
+    else      Exit;
   end;
-
-  Land[Loc.Y,Loc.X].Rotation := KaMRandom(4);
-
-  UpdateTransition(Loc.X,Loc.Y);   //Update these 5 transitions, but make sure that occupied tiles stay walkable
-  UpdateTransition(Loc.X,Loc.Y-1); //    x
-  UpdateTransition(Loc.X+1,Loc.Y); //  x X x
-  UpdateTransition(Loc.X,Loc.Y+1); //    x
-  UpdateTransition(Loc.X-1,Loc.Y);
 
   FlattenTerrain(Loc);
   //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
   if not CheckHeightPass(KMPointBelow(Loc),CanWalk) then
     FlattenTerrain(KMPointBelow(Loc));
-
-  RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcWalk);
 end;
 
 
@@ -1805,6 +1807,9 @@ end;
 
 
 {Take 4 neighbour heights and approach it}
+//@Lewin: I don't like approach we use - flatten the tile without note of neighbour tiles
+//Instead we might want to interpolate between surrounding 8 vertices (X and Y, no diagonals)
+//Also it should be FlattenTerrain duty to preserve walkability if there are units standing
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint);
 var TempH:byte;
 begin
