@@ -1736,7 +1736,7 @@ var i:integer;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width-22, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width-8, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxID, TexID);
 end;
@@ -1774,7 +1774,7 @@ begin
   fOrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width - 22, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxId, TexID);
 end;
@@ -2119,6 +2119,7 @@ begin
   fItemIndex := -1;
   fItems := TStringList.Create;
   fFont := aFont;
+  fAutoHideScrollBar := false; //Always show the scrollbar by default, then it can be turned off if required
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
   fScrollBar.fOnChange := ChangeScrollPosition;
@@ -2182,7 +2183,7 @@ begin
   fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div fItemHeight), 0);
   fScrollBar.Position := fTopIndex;
   fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
-  fScrollBar.Visible := fScrollBar.Visible and (not fAutoHideScrollBar or fScrollBar.Enabled);
+  fScrollBar.Visible := fVisible and (not fAutoHideScrollBar or fScrollBar.Enabled);
 end;
 
 

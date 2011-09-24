@@ -1,7 +1,7 @@
 unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
-uses Math, Types, Controls, Forms, KM_CommonTypes, KM_Points;
+uses Math, Controls, Forms, Windows, KM_CommonTypes, KM_Points;
 
 type
   { Here should be viewport routines }
@@ -154,17 +154,19 @@ begin
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
   CursorPoint.X := EnsureRange(Mouse.CursorPos.X, ScreenBounds.Left, ScreenBounds.Right );
   CursorPoint.Y := EnsureRange(Mouse.CursorPos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
-  if not ScrollKeyLeft  and
+  if(Form1.Handle <> GetForegroundWindow) or //Do not do scrolling when the form is not focused (player has switched to another application)
+    (not ScrollKeyLeft  and
      not ScrollKeyUp    and
      not ScrollKeyRight and
      not ScrollKeyDown  and
      not (CursorPoint.X <= ScreenBounds.Left + SCROLLFLEX) and
      not (CursorPoint.Y <= ScreenBounds.Top + SCROLLFLEX) and
      not (CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX) and
-     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX) then
+     not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX)) then
   begin
+    ReleaseScrollKeys; //Release scroll keys when we are no longer scrolling (required if the form loses focus)
     fScrolling := false;
-    if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
+    if (Screen.Cursor in [c_Scroll6..c_Scroll3]) then //Which is 2..9, since directions are not incremental
       Screen.Cursor := c_Default;
     exit;
   end;
@@ -198,7 +200,7 @@ begin
   if fScrolling then
     Screen.Cursor := DirectionsBitfield[Temp] //Sample cursor type from bitfield value
   else
-    if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
+    if (Screen.Cursor in [c_Scroll6..c_Scroll3]) then //Which is 2..9, since directions are not incremental
       Screen.Cursor := c_Default;
 
   SetPosition(fPosition); //EnsureRanges

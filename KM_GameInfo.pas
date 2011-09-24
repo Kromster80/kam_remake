@@ -2,7 +2,7 @@ unit KM_GameInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, Math, Windows, SysUtils,
+  Classes, KromUtils, SysUtils,
   KM_CommonTypes, KM_Defaults, KM_Player, KM_Points;
 
 

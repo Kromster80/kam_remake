@@ -437,7 +437,7 @@ begin
   if W <> 0 then
     case Align of
       kaLeft:   SetupClipX(X, X+W);
-      kaCenter: SetupClipX(X-W div 2, X+W);
+      kaCenter: SetupClipX(X-W div 2, X+W div 2);
       kaRight:  SetupClipX(X-W, X+W);
     end;
 

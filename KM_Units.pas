@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units_WorkPlan, KM_Points;
+  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Points;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
