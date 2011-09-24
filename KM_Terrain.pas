@@ -461,8 +461,9 @@ begin
   //                                        197, 203..205,207, 212..215, 220..223, 242,243,247];
   //+1 converts terrain type from 0..255 to 1..256
   //Values can be 1 or 2, What 2 does is unknown
-  Result:=PatternDAT[Land[Loc.Y,Loc.X].Terrain+1].Walkable <> 0;
+  Result := PatternDAT[Land[Loc.Y,Loc.X].Terrain+1].Walkable <> 0;
 end;
+
 
 {Check if requested tile is generally suitable for road building}
 function TTerrain.TileIsRoadable(Loc:TKMPoint):boolean;
@@ -1146,46 +1147,49 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
   procedure UpdateTransition(X,Y:integer);
   const TileID:array[0..15]of byte = (0,139,139,138,139,140,138,141,139,138,140,141,138,141,141,128);
          RotID:array[0..15]of byte = (0,  0,  1,  0,  2,  0,  1,  3,  3,  3,  1,  2,  2,  1,  0,  0);
-  var Bits:byte; MustBeWalkable:boolean;
+  var Bits:byte;
   begin
-    MustBeWalkable := HasUnit(KMPoint(X,Y)); //Don't make units become stuck
-    if TileInMapCoords(X,Y) then
-    if TileIsStone(X,Y)=0 then
+    if not TileInMapCoords(X,Y) or (TileIsStone(X,Y) > 0) then Exit;
+
+    Bits := Byte(TileInMapCoords(  X,Y-1) and (TileIsStone(  X,Y-1)>0))*1 +
+            Byte(TileInMapCoords(X+1,  Y) and (TileIsStone(X+1,  Y)>0))*2 +
+            Byte(TileInMapCoords(  X,Y+1) and (TileIsStone(  X,Y+1)>0))*4 +
+            Byte(TileInMapCoords(X-1,  Y) and (TileIsStone(X-1,  Y)>0))*8;
+
+    //Don't make units become stuck
+    if not HasUnit(KMPoint(X,Y)) or (PatternDAT[TileID[Bits]+1].Walkable<>0) then
     begin
-      Bits:=0;
-      if TileInMapCoords(  X,Y-1) and (TileIsStone(  X,Y-1)>0) then inc(Bits, 1);    //     1
-      if TileInMapCoords(X+1,  Y) and (TileIsStone(X+1,  Y)>0) then inc(Bits, 2);    //   8 . 2
-      if TileInMapCoords(  X,Y+1) and (TileIsStone(  X,Y+1)>0) then inc(Bits, 4);    //     4
-      if TileInMapCoords(X-1,  Y) and (TileIsStone(X-1,  Y)>0) then inc(Bits, 8);    //
-      if (not MustBeWalkable) or (PatternDAT[TileID[Bits]+1].Walkable<>0) then
-      begin
-        Land[Y,X].Terrain  := TileID[Bits];
-        Land[Y,X].Rotation := RotID[Bits];
-      end;
-      if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation := KaMRandom(4); //Randomise the direction of grass tiles
-      RecalculatePassability(Loc);
+      Land[Y,X].Terrain  := TileID[Bits];
+      Land[Y,X].Rotation := RotID[Bits];
     end;
+    if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation := KaMRandom(4); //Randomise the direction of grass tiles
+    RecalculatePassability(Loc);
   end;
 
 begin
+  //Replace with smaller ore deposit tile (there are 2 sets of tiles, we can choose random)
   case Land[Loc.Y,Loc.X].Terrain of
-    132,137: Land[Loc.Y,Loc.X].Terrain:=131+KaMRandom(2)*5;
-    131,136: Land[Loc.Y,Loc.X].Terrain:=130+KaMRandom(2)*5;
-    130,135: Land[Loc.Y,Loc.X].Terrain:=129+KaMRandom(2)*5;
-    129,134: Land[Loc.Y,Loc.X].Terrain:=128+KaMRandom(2)*5;
-    128,133: Land[Loc.Y,Loc.X].Terrain:=0;
-    else exit;
+    132,137: Land[Loc.Y,Loc.X].Terrain := 131 + KaMRandom(2)*5;
+    131,136: Land[Loc.Y,Loc.X].Terrain := 130 + KaMRandom(2)*5;
+    130,135: Land[Loc.Y,Loc.X].Terrain := 129 + KaMRandom(2)*5;
+    129,134: Land[Loc.Y,Loc.X].Terrain := 128 + KaMRandom(2)*5;
+    128,133: Land[Loc.Y,Loc.X].Terrain := 0;
+    else     Exit;
   end;
-  Land[Loc.Y,Loc.X].Rotation:=KaMRandom(4);
+
+  Land[Loc.Y,Loc.X].Rotation := KaMRandom(4);
+
   UpdateTransition(Loc.X,Loc.Y);   //Update these 5 transitions, but make sure that occupied tiles stay walkable
   UpdateTransition(Loc.X,Loc.Y-1); //    x
   UpdateTransition(Loc.X+1,Loc.Y); //  x X x
   UpdateTransition(Loc.X,Loc.Y+1); //    x
   UpdateTransition(Loc.X-1,Loc.Y);
+
   FlattenTerrain(Loc);
   //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
   if not CheckHeightPass(KMPointBelow(Loc),CanWalk) then
     FlattenTerrain(KMPointBelow(Loc));
+
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(wcWalk);
 end;
