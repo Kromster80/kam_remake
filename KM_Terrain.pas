@@ -158,7 +158,7 @@ TTerrain = class
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
 
     procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
-    procedure FlattenTerrain(Loc:TKMPoint); overload;
+    procedure FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true); overload;
     procedure FlattenTerrain(LocList:TKMPointList); overload;
     procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
     procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
@@ -1160,11 +1160,12 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
     //@Lewin: I can't remember why do we check it here?
     //Tile can't possibly become unwalkable if it was walkable before, Stone deposit always becomes less, not more
     //Any idea why it is here?
-    if not HasUnit(KMPoint(X,Y)) or (PatternDAT[TileID[Bits]+1].Walkable<>0) then
-    begin
-      Land[Y,X].Terrain  := TileID[Bits];
-      Land[Y,X].Rotation := RotID[Bits];
-    end;
+    //@Krom: It used to be possible, because in the past UpdateTransition was run everytime we reduced the stone.
+    //       Take a look at the case shown in the map StoneStuck. However, as we now only UpdateTransition when
+    //       the stone becomes grass, it is not needed, as Bits can never = 15 (that is the case when it becomes unwalkable)
+    //       As the original tile is always grass, Bits will be 14 at most. Maybe we should add Assert(Bits < 15)?
+    Land[Y,X].Terrain  := TileID[Bits];
+    Land[Y,X].Rotation := RotID[Bits];
     if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation := KaMRandom(4); //Randomise the direction of grass tiles
     RecalculatePassability(Loc);
   end;
@@ -1180,7 +1181,7 @@ begin
                 Land[Loc.Y,Loc.X].Terrain  := 0;
                 Land[Loc.Y,Loc.X].Rotation := KaMRandom(4);
 
-                //Update these 5 transitions, but make sure that occupied tiles stay walkable
+                //Update these 5 transitions
                 UpdateTransition(Loc.X,Loc.Y);
                 UpdateTransition(Loc.X,Loc.Y-1); //    x
                 UpdateTransition(Loc.X+1,Loc.Y); //  x X x
@@ -1234,7 +1235,7 @@ end;
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 var
   i,k:integer;
-  HousesNearBy,WasWalkable:boolean;
+  HousesNearBy:boolean;
 
   procedure AddPassability(aLoc:TKMPoint; aPass:TPassabilitySet);
   begin
@@ -1260,12 +1261,6 @@ var
   end;
 begin
   Assert(TileInMapCoords(Loc.X,Loc.Y)); //First of all exclude all tiles outside of actual map
-
-  //Check if tile occupied by Unit was walkable in previous state and now is unwalkable due to Height change
-  //We should try restore walkability at least by flattening terrain, otherwise it's different and more serious error
-  WasWalkable := (Land[Loc.Y,Loc.X].IsUnit <> nil) and CheckPassability(Loc,CanWalk) and not CheckHeightPass(Loc,CanWalk);
-  if WasWalkable and (fGame.GameState <> gsEditor) then //Allow units to become "stuck" in the map editor, as height changing is allowed anywhere
-    FlattenTerrain(Loc);
 
   Land[Loc.Y,Loc.X].Passability := [];
 
@@ -1810,8 +1805,21 @@ end;
 //@Lewin: I don't like approach we use - flatten the tile without note of neighbour tiles
 //Instead we might want to interpolate between surrounding 8 vertices (X and Y, no diagonals)
 //Also it should be FlattenTerrain duty to preserve walkability if there are units standing
-procedure TTerrain.FlattenTerrain(Loc:TKMPoint);
-var TempH:byte;
+//@Krom: I agree with both of those. I've done the second one, maybe you can do the first? :) (I'm not 100% sure what you meant)
+procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true);
+
+  procedure EnsureWalkable(aX,aY:integer);
+  var WasWalkable:boolean;
+  begin
+    //Check if tile occupied by Unit was walkable in previous state and now is unwalkable due to Height change
+    //We should try restore walkability at least by flattening terrain, otherwise it's different and more serious error
+    WasWalkable := (Land[aY,aX].IsUnit <> nil) and CheckPassability(KMPoint(aX,aY),CanWalk) and not CheckHeightPass(KMPoint(aX,aY),CanWalk);
+    if WasWalkable and (fGame.GameState <> gsEditor) then //Allow units to become "stuck" in the map editor, as height changing is allowed anywhere
+      //This recursive call should be garanteed to exit, as eventually the terrain will be flat enough.
+      FlattenTerrain(KMPoint(aX,aY),false); //No need to rebuild the walk connect each time, it will be done at the end
+  end;
+
+var TempH:byte; i,k: integer;
 begin
   TempH:=(
     Land[Loc.Y,Loc.X].Height+
@@ -1828,36 +1836,28 @@ begin
   if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),CanElevate) then
   Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
 
+  //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
+  for i:=-1 to 1 do
+    for k:=-1 to 1 do
+      EnsureWalkable(Loc.X+i,Loc.Y+k);
+
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
   RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcRoad);
+
+  if aRebuildWalkConnects then
+  begin
+    RebuildWalkConnect(wcWalk);
+    RebuildWalkConnect(wcRoad);
+  end;
 end;
 
 
 {Flatten a list of points in the mission init}
 procedure TTerrain.FlattenTerrain(LocList:TKMPointList);
-var TempH:byte; i:integer; Loc:TKMPoint;
+var i:integer;
 begin
-  for i:=1 to LocList.Count do begin
-    Loc := LocList.List[i];
-    TempH:=(
-      Land[Loc.Y,Loc.X].Height+
-      Land[Loc.Y+1,Loc.X].Height+
-      Land[Loc.Y,Loc.X+1].Height+
-      Land[Loc.Y+1,Loc.X+1].Height
-    )div 4;
-    if CheckPassability(KMPoint(Loc.X,Loc.Y),CanElevate) then
-    Land[Loc.Y,Loc.X].Height:=mix(Land[Loc.Y,Loc.X].Height,TempH,0.5);
-    if CheckPassability(KMPoint(Loc.X,Loc.Y+1),CanElevate) then
-    Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
-    if CheckPassability(KMPoint(Loc.X+1,Loc.Y),CanElevate) then
-    Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
-    if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),CanElevate) then
-    Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
-    RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
-    RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
-  end;
+  for i:=1 to LocList.Count do
+    FlattenTerrain(LocList.List[i], false); //Rebuild the Walk Connect at the end, rather than every time
 
   RebuildWalkConnect(wcWalk);
   RebuildWalkConnect(wcRoad);

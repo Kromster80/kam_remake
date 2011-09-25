@@ -2120,7 +2120,6 @@ begin
   fItems := TStringList.Create;
   fFont := aFont;
   fAutoHideScrollBar := False; //Always show the scrollbar by default, then it can be turned off if required
-  //@Lewin: Just a sidenote - all fields in Constructor are 0 or False by default. To be deleted ..
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
   fScrollBar.fOnChange := ChangeScrollPosition;
