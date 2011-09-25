@@ -839,7 +839,7 @@ end;
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
-const Ins=2; //2..Map-2
+const Ins=2; //2..Map-2, so that map edges keep the Stone? Could be 1 if we want to
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
@@ -1149,7 +1149,7 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
          RotID:array[0..15]of byte = (0,  0,  1,  0,  2,  0,  1,  3,  3,  3,  1,  2,  2,  1,  0,  0);
   var Bits:byte;
   begin
-    if not TileInMapCoords(X,Y) then Exit;
+    if not TileInMapCoords(X,Y) or (TileIsStone(X,Y) > 0) then Exit;
 
     Bits := Byte(TileInMapCoords(  X,Y-1) and (TileIsStone(  X,Y-1)>0))*1 +
             Byte(TileInMapCoords(X+1,  Y) and (TileIsStone(X+1,  Y)>0))*2 +
@@ -1158,7 +1158,7 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
 
     //We UpdateTransition when the stone becomes grass, Bits can never = 15
     //The tile in center is fully mined and one below has Stoncutter on it,
-    //hence there cant be any tile surrounded by stones frmo all sides
+    //hence there cant be any tile surrounded by stones from all sides
     Assert(Bits < 15);
     Land[Y,X].Terrain  := TileID[Bits];
     Land[Y,X].Rotation := RotID[Bits];
@@ -1188,9 +1188,6 @@ begin
   end;
 
   FlattenTerrain(Loc);
-  //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
-  if not CheckHeightPass(KMPointBelow(Loc),CanWalk) then
-    FlattenTerrain(KMPointBelow(Loc));
 end;
 
 
@@ -1797,45 +1794,46 @@ begin
 end;
 
 
-{Take 4 neighbour heights and approach it}
-//@Lewin: I don't like approach we use - flatten the tile without note of neighbour tiles
-//Instead we might want to interpolate between surrounding 8 vertices (X and Y, no diagonals)
-//Also it should be FlattenTerrain duty to preserve walkability if there are units standing
-//@Krom: I agree with both of those. I've done the second one, maybe you can do the first? :) (I'm not 100% sure what you meant)
+//Interpolate between surrounding 8 vertices (X and Y, no diagonals)
+//Also it is FlattenTerrain duty to preserve walkability if there are units standing
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true);
 
-  procedure EnsureWalkable(aX,aY:integer);
-  var WasWalkable:boolean;
+  //If tiles with units standing on them become unwalkable we should try to fix them
+  procedure EnsureWalkable(aX,aY:word);
   begin
-    //Check if tile occupied by Unit was walkable in previous state and now is unwalkable due to Height change
-    //We should try restore walkability at least by flattening terrain, otherwise it's different and more serious error
-    WasWalkable := (Land[aY,aX].IsUnit <> nil) and CheckPassability(KMPoint(aX,aY),CanWalk) and not CheckHeightPass(KMPoint(aX,aY),CanWalk);
-    if WasWalkable and (fGame.GameState <> gsEditor) then //Allow units to become "stuck" in the map editor, as height changing is allowed anywhere
-      //This recursive call should be garanteed to exit, as eventually the terrain will be flat enough.
-      FlattenTerrain(KMPoint(aX,aY),false); //No need to rebuild the walk connect each time, it will be done at the end
+    //We did not recalculated passability yet, hence tile has CanWalk but CheckHeightPass=False already
+    if (Land[aY,aX].IsUnit <> nil)
+    and CheckPassability(KMPoint(aX,aY),CanWalk)
+    and not CheckHeightPass(KMPoint(aX,aY),CanWalk)
+    and (fGame.GameState <> gsEditor) //Allow units to become "stuck" in MapEd, as height changing is allowed anywhere
+    then
+      //This recursive call should be garanteed to exit, as eventually the terrain will be flat enough
+      FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
   end;
 
-var TempH:byte; i,k: integer;
+  function GetAverage(X,Y:word):byte;
+  begin
+    Result := Round(Mix(Land[Y,X].Height, (Land[Max(Y-1,1),X].Height + Land[Min(Y+1,MapY),X].Height + Land[Y,Max(X-1,1)].Height + Land[Loc.Y,Min(Loc.X+1,MapX)].Height) / 4, 0.5));
+  end;
+
+var i,k: word; V1,V2,V3,V4:byte;
 begin
-  TempH:=(
-    Land[Loc.Y,Loc.X].Height+
-    Land[Loc.Y+1,Loc.X].Height+
-    Land[Loc.Y,Loc.X+1].Height+
-    Land[Loc.Y+1,Loc.X+1].Height
-  )div 4;
-  if CheckPassability(KMPoint(Loc.X,Loc.Y),CanElevate) then
-  Land[Loc.Y,Loc.X].Height:=mix(Land[Loc.Y,Loc.X].Height,TempH,0.5);
-  if CheckPassability(KMPoint(Loc.X,Loc.Y+1),CanElevate) then
-  Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
-  if CheckPassability(KMPoint(Loc.X+1,Loc.Y),CanElevate) then
-  Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
-  if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),CanElevate) then
-  Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
+  Assert(TileInMapCoords(Loc.X, Loc.Y));
+
+  V1 := GetAverage(Loc.X,Loc.Y);
+  V2 := GetAverage(Loc.X+1,Loc.Y);
+  V3 := GetAverage(Loc.X,Loc.Y+1);
+  V4 := GetAverage(Loc.X+1,Loc.Y+1);
+
+  if CanElevate in Land[Loc.Y,Loc.X].Passability then     Land[Loc.Y,Loc.X].Height := V1;
+  if CanElevate in Land[Loc.Y,Loc.X+1].Passability then   Land[Loc.Y,Loc.X+1].Height := V2;
+  if CanElevate in Land[Loc.Y+1,Loc.X].Passability then   Land[Loc.Y+1,Loc.X].Height := V3;
+  if CanElevate in Land[Loc.Y+1,Loc.X+1].Passability then Land[Loc.Y+1,Loc.X+1].Height := V4;
 
   //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
-  for i:=-1 to 1 do
-    for k:=-1 to 1 do
-      EnsureWalkable(Loc.X+i,Loc.Y+k);
+  for i:=Max(Loc.Y-1,1) to Min(Loc.Y+1,MapY-1) do
+    for k:=Max(Loc.X-1,1) to Min(Loc.X+1,MapX-1) do
+      EnsureWalkable(k,i);
 
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
   RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
