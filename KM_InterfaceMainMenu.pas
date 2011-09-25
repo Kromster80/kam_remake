@@ -758,7 +758,7 @@ begin
       TKMLabel.Create(Panel_Options_Game,6,0,0,0,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,kaLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,200,30);
 
-      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,0,0,fTextLibrary.GetTextString(203), fnt_Metal);
+      CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,176,20,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
     Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,200,150);
@@ -771,7 +771,7 @@ begin
       Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,0,0,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
       Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Music.OnChange:=Options_Change;
-      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,0,0,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
+      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
       CheckBox_Options_MusicOn.OnClick := Options_Change;
 
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,340,130,200,80);
@@ -792,7 +792,7 @@ begin
         CheckBox_Options_Resolution[i].OnClick:=Options_Change;
       end;
 
-      CheckBox_Options_FullScreen:=TKMCheckBox.Create(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,0,0,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
+      CheckBox_Options_FullScreen:=TKMCheckBox.Create(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,176,20,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
       CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
       Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
