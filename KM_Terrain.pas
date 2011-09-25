@@ -1149,21 +1149,17 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
          RotID:array[0..15]of byte = (0,  0,  1,  0,  2,  0,  1,  3,  3,  3,  1,  2,  2,  1,  0,  0);
   var Bits:byte;
   begin
-    if not TileInMapCoords(X,Y) or (TileIsStone(X,Y) > 0) then Exit;
+    if not TileInMapCoords(X,Y) then Exit;
 
     Bits := Byte(TileInMapCoords(  X,Y-1) and (TileIsStone(  X,Y-1)>0))*1 +
             Byte(TileInMapCoords(X+1,  Y) and (TileIsStone(X+1,  Y)>0))*2 +
             Byte(TileInMapCoords(  X,Y+1) and (TileIsStone(  X,Y+1)>0))*4 +
             Byte(TileInMapCoords(X-1,  Y) and (TileIsStone(X-1,  Y)>0))*8;
 
-    //Don't make units become stuck
-    //@Lewin: I can't remember why do we check it here?
-    //Tile can't possibly become unwalkable if it was walkable before, Stone deposit always becomes less, not more
-    //Any idea why it is here?
-    //@Krom: It used to be possible, because in the past UpdateTransition was run everytime we reduced the stone.
-    //       Take a look at the case shown in the map StoneStuck. However, as we now only UpdateTransition when
-    //       the stone becomes grass, it is not needed, as Bits can never = 15 (that is the case when it becomes unwalkable)
-    //       As the original tile is always grass, Bits will be 14 at most. Maybe we should add Assert(Bits < 15)?
+    //We UpdateTransition when the stone becomes grass, Bits can never = 15
+    //The tile in center is fully mined and one below has Stoncutter on it,
+    //hence there cant be any tile surrounded by stones frmo all sides
+    Assert(Bits < 15);
     Land[Y,X].Terrain  := TileID[Bits];
     Land[Y,X].Rotation := RotID[Bits];
     if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation := KaMRandom(4); //Randomise the direction of grass tiles
@@ -1181,7 +1177,7 @@ begin
                 Land[Loc.Y,Loc.X].Terrain  := 0;
                 Land[Loc.Y,Loc.X].Rotation := KaMRandom(4);
 
-                //Update these 5 transitions
+                //Tile type has changed and we need to update these 5 tiles transitions:
                 UpdateTransition(Loc.X,Loc.Y);
                 UpdateTransition(Loc.X,Loc.Y-1); //    x
                 UpdateTransition(Loc.X+1,Loc.Y); //  x X x
