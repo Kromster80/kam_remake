@@ -1,0 +1,5 @@
+Title
+Three Continents
+
+SmallDesc
+An 8 player version of a multiplayer mission from Knights and Merchants

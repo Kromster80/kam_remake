@@ -2070,6 +2070,7 @@ begin
   MyItems.Free;
 
   //Scroll down with each item that is added.
+  UpdateScrollBar; //Must update it first so MaxValue is correct (used by SetTopIndex)
   //This puts it at the bottom because of the EnsureRange in SetTopIndex
   if fScrollDown then SetTopIndex(fItems.Count);
 

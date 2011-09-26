@@ -839,7 +839,7 @@ end;
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
-const Ins=2; //2..Map-2, so that map edges keep the Stone? Could be 1 if we want to
+const Ins=1; //1..Map-1
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
@@ -1794,7 +1794,7 @@ begin
 end;
 
 
-//Interpolate between surrounding 8 vertices (X and Y, no diagonals)
+//Interpolate between 12 vertices surrounding this tile (X and Y, no diagonals)
 //Also it is FlattenTerrain duty to preserve walkability if there are units standing
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true);
 
@@ -1811,24 +1811,24 @@ procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=tru
       FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
   end;
 
-  function GetAverage(X,Y:word):byte;
+  function GetHeight(X,Y:word):byte;
   begin
-    Result := Round(Mix(Land[Y,X].Height, (Land[Max(Y-1,1),X].Height + Land[Min(Y+1,MapY),X].Height + Land[Y,Max(X-1,1)].Height + Land[Loc.Y,Min(Loc.X+1,MapX)].Height) / 4, 0.5));
+    Result := Land[EnsureRange(Y,1,MapY), EnsureRange(X,1,MapX)].Height;
   end;
 
-var i,k: word; V1,V2,V3,V4:byte;
+var i,k: word; Avg:byte;
 begin
   Assert(TileInMapCoords(Loc.X, Loc.Y));
 
-  V1 := GetAverage(Loc.X,Loc.Y);
-  V2 := GetAverage(Loc.X+1,Loc.Y);
-  V3 := GetAverage(Loc.X,Loc.Y+1);
-  V4 := GetAverage(Loc.X+1,Loc.Y+1);
+  Avg := Round((                      GetHeight(Loc.X,Loc.Y-1) + GetHeight(Loc.X+1,Loc.Y-1) +
+         GetHeight(Loc.X-1,Loc.Y)   + GetHeight(Loc.X,Loc.Y)   + GetHeight(Loc.X+1,Loc.Y)   + GetHeight(Loc.X+2,Loc.Y) +
+         GetHeight(Loc.X-1,Loc.Y+1) + GetHeight(Loc.X,Loc.Y+1) + GetHeight(Loc.X+1,Loc.Y+1) + GetHeight(Loc.X+2,Loc.Y+1) +
+                                      GetHeight(Loc.X,Loc.Y+2) + GetHeight(Loc.X+1,Loc.Y+2) ) / 12);
 
-  if CanElevate in Land[Loc.Y,Loc.X].Passability then     Land[Loc.Y,Loc.X].Height := V1;
-  if CanElevate in Land[Loc.Y,Loc.X+1].Passability then   Land[Loc.Y,Loc.X+1].Height := V2;
-  if CanElevate in Land[Loc.Y+1,Loc.X].Passability then   Land[Loc.Y+1,Loc.X].Height := V3;
-  if CanElevate in Land[Loc.Y+1,Loc.X+1].Passability then Land[Loc.Y+1,Loc.X+1].Height := V4;
+  if CanElevate in Land[Loc.Y,Loc.X].Passability then     Land[Loc.Y,Loc.X].Height := Mix(Avg, Land[Loc.Y,Loc.X].Height, 0.5);
+  if CanElevate in Land[Loc.Y,Loc.X+1].Passability then   Land[Loc.Y,Loc.X+1].Height := Mix(Avg, Land[Loc.Y,Loc.X+1].Height, 0.5);
+  if CanElevate in Land[Loc.Y+1,Loc.X].Passability then   Land[Loc.Y+1,Loc.X].Height := Mix(Avg, Land[Loc.Y+1,Loc.X].Height, 0.5);
+  if CanElevate in Land[Loc.Y+1,Loc.X+1].Passability then Land[Loc.Y+1,Loc.X+1].Height := Mix(Avg, Land[Loc.Y+1,Loc.X+1].Height, 0.5);
 
   //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
   for i:=Max(Loc.Y-1,1) to Min(Loc.Y+1,MapY-1) do

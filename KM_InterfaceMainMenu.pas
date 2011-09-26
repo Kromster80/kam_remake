@@ -1223,15 +1223,18 @@ end;
 
 
 procedure TKMMainMenuInterface.MP_ListUpdated(Sender: TObject);
-var i,k:integer;
+var i,k:integer; DisplayName:string;
 begin
   //Refresh the display for the list of servers
   ColList_Servers.Clear;
   for i:=0 to fGame.Networking.ServerQuery.Count-1 do
     with fGame.Networking.ServerQuery.GetServer(i) do
       for k:=0 to RoomCount-1 do
-        ColList_Servers.AddItem([Name+' #'+IntToStr(k+1),Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
+      begin
+        if RoomCount > 1 then DisplayName := Name+' #'+IntToStr(k+1) else DisplayName := Name; //Only show # when needed
+        ColList_Servers.AddItem([DisplayName,Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
                                 [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i, k);
+      end;
 end;
 
 
