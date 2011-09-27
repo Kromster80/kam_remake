@@ -9,8 +9,8 @@ type
   TKMFogOfWar = class
   private
     fAnimStep:cardinal;
-    MapX: integer;
-    MapY: integer;
+    MapX: word;
+    MapY: word;
     Revelation:array of array of record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
       Visibility:byte;
