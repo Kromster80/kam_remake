@@ -116,7 +116,7 @@ end;
 
 
 procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
-var i,k:cardinal;
+var i,k:integer;
 begin
   for i:=1 to MapY do
     for k:=1 to MapX do
@@ -153,7 +153,7 @@ end;
 
 
 procedure TKMFogOfWar.UpdateState;
-var i,k:cardinal;
+var i,k:word;
 begin
   inc(fAnimStep);
 

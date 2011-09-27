@@ -4269,6 +4269,9 @@ var
     TempClass       : TWndClass;
     ClassRegistered : Boolean;
 begin
+    { Prevents compiler warning "Return value might be undefined"  }
+    Result := 0;
+
     EnterCriticalSection(GClassCritSect);
     try
         { Check if the window class is already registered                   }
