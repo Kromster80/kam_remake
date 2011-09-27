@@ -9,8 +9,8 @@ const MAX_MAP_SIZE = 192;
 
 
 type
-{Class to store all terrain data, aswell terrain routines}
-TTerrain = class
+  {Class to store all terrain data, aswell terrain routines}
+  TTerrain = class
   private
     fAnimStep:integer;
     fMapX,fMapY:integer; //Terrain width and height

@@ -3,13 +3,14 @@ unit KM_FogOfWar;
 interface
 uses Classes, Math, KM_Defaults, KM_CommonTypes, KM_Points;
 
+
 {These are mission specific settings and stats for each player}
 type
   TKMFogOfWar = class
   private
     fAnimStep:cardinal;
-    MapX:byte;
-    MapY:byte;
+    MapX: integer;
+    MapY: integer;
     Revelation:array of array of record
       //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
       Visibility:byte;
