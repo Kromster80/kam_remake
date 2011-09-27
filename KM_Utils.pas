@@ -8,7 +8,7 @@ uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
   function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; out aTargetCanBeReached:boolean):TKMPoint;
   function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
 
-  function MapNameToPath(const aMapName, aExtension:string):string;
+  function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
   function FixDelim(const aString:string):string;
 
   function GetPingColor(aPing:word):cardinal;
@@ -162,9 +162,11 @@ begin
 end;
 
 
-function MapNameToPath(const aMapName, aExtension:string):string;
+function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
 begin
-  Result := ExeDir+'Maps\'+aMapName+'\'+aMapName+'.'+aExtension;
+  if aIsMultiplayer then Result := ExeDir+'MapsMP\'
+                    else Result := ExeDir+'Maps\';
+  Result := Result+aMapName+'\'+aMapName+'.'+aExtension;
 end;
 
 

@@ -329,7 +329,7 @@ begin
   end;
 
   if Sender = Button_Menu_Load then begin
-    fMaps.ScanMapsFolder;
+    fMaps.ScanMapsFolder(false);
     ListBox_Load.SetItems(fMaps.MapList);
     ListBox_Load.ItemIndex := 0; //Try to select first map by default
     Panel_Load.Show;
@@ -1196,7 +1196,7 @@ end;
 procedure TKMapEdInterface.Menu_Save(Sender:TObject);
 begin
   if Sender = Edit_SaveName then begin
-    CheckBox_SaveExists.Enabled := FileExists(MapNameToPath(Edit_SaveName.Text, 'dat'));
+    CheckBox_SaveExists.Enabled := FileExists(MapNameToPath(Edit_SaveName.Text, 'dat', false));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := false;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
@@ -1222,7 +1222,7 @@ end;
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
   if ListBox_Load.ItemIndex <> -1 then
-    fGame.StartMapEditor(MapNameToPath(ListBox_Load.Item[ListBox_Load.ItemIndex], 'dat'), 0, 0);
+    fGame.StartMapEditor(MapNameToPath(ListBox_Load.Item[ListBox_Load.ItemIndex], 'dat', false), 0, 0);
 end;
 
 

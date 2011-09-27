@@ -502,7 +502,7 @@ begin
 
   try //Catch exceptions
     fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
-    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat')) then
+    if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true)) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
     fMissionMode := fMissionParser.MissionInfo.MissionMode;
     FreeAndNil(fMissionParser);
@@ -913,9 +913,9 @@ begin
 
   CreateDir(ExeDir+'Maps');
   CreateDir(ExeDir+'Maps\'+aMissionName);
-  fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map'));
+  fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', false));
   fMissionParser := TMissionParser.Create(mpm_Editor,false);
-  fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat'));
+  fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', false));
   FreeAndNil(fMissionParser);
   fGameName := aMissionName;
 

@@ -410,7 +410,7 @@ begin
   FreeAndNil(fSaveInfo);
   fMapInfo := TKMapInfo.Create;
 
-  fMapInfo.Load(aName, true);
+  fMapInfo.Load(aName, true, true);
 
   if not fMapInfo.IsValid then
   begin
@@ -898,7 +898,7 @@ begin
               fSelectGameKind := ngk_Map;
               FreeAndNil(fMapInfo);
               fMapInfo := TKMapInfo.Create;
-              fMapInfo.Load(Msg, true);
+              fMapInfo.Load(Msg, true, true);
               fNetPlayers.ResetLocAndReady;
               if Assigned(fOnMapName) then fOnMapName(fMapInfo.Filename);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);

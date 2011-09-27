@@ -23,7 +23,9 @@ type
     fMaps_Top:integer; //Top map in list
     fMap_Selected:integer; //Selected map
     fMaps: TKMapsCollection;
+    fMapsMP: TKMapsCollection;
     fSaves: TKMSavesCollection;
+    fSavesMP: TKMSavesCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
     OldResolution:word;
@@ -265,9 +267,11 @@ begin
   Campaign_MapIndex := 1;
 
   fMaps := TKMapsCollection.Create;
+  fMapsMP := TKMapsCollection.Create;
   fMaps_Top := 0;
   fMap_Selected := 0;
   fSaves := TKMSavesCollection.Create;
+  fSavesMP := TKMSavesCollection.Create;
 
   MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, (X-MENU_DESIGN_X) div 2,
@@ -311,7 +315,9 @@ end;
 destructor TKMMainMenuInterface.Destroy;
 begin
   fMaps.Free;
+  fMapsMP.Free;
   fSaves.Free;
+  fSavesMP.Free;
   MyControls.Free;
   Inherited;
 end;
@@ -937,7 +943,7 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
-    fMaps.ScanMapsFolder;
+    fMaps.ScanMapsFolder(false);
     SingleMap_RefreshList;
     fMap_Selected := EnsureRange(fMap_Selected, 0, fMaps.Count-1);
     ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, fMap_Selected-MENU_SP_MAPS_COUNT+1, fMap_Selected);
@@ -1154,7 +1160,7 @@ end;
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
-    fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat'),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
+    fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat',false),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
 end;
 
 
@@ -1527,15 +1533,15 @@ procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex = 0 then
   begin
-    fMaps.ScanMapsFolder;
+    fMapsMP.ScanMapsFolder(true);
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-    List_Lobby.SetItems(fMaps.MapList);
+    List_Lobby.SetItems(fMapsMP.MapList);
   end
   else
   begin
-    fSaves.ScanSavesFolder(true);
+    fSavesMP.ScanSavesFolder(true);
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
-    List_Lobby.SetItems(fSaves.SavesList);
+    List_Lobby.SetItems(fSavesMP.SavesList);
   end;
   if Sender <> nil then //This is used in Reset_Lobby when we are not connected
     fGame.Networking.SelectNoMap('None');
@@ -1733,7 +1739,7 @@ begin
   if Sender = Button_MapEd_Create then
     fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
   if (Sender = Button_MapEd_Load) and (List_MapEd.ItemIndex <> -1) then
-    fGame.StartMapEditor(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat'), 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
+    fGame.StartMapEditor(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat',false), 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 
 
@@ -1747,7 +1753,7 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_ListUpdate;
 begin
-  fMaps.ScanMapsFolder;
+  fMaps.ScanMapsFolder(false);
   List_MapEd.SetItems(fMaps.MapList);
   List_MapEd.ItemIndex := 0; //Select first map by default, otherwise there could be an invalid map selected (if items have been removed since we last updated)
 end;
