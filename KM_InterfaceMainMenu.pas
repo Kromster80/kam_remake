@@ -266,8 +266,8 @@ begin
   ScreenY := min(Y,MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
 
-  fMaps := TKMapsCollection.Create;
-  fMapsMP := TKMapsCollection.Create;
+  fMaps := TKMapsCollection.Create(false);
+  fMapsMP := TKMapsCollection.Create(true);
   fMaps_Top := 0;
   fMap_Selected := 0;
   fSaves := TKMSavesCollection.Create;
@@ -943,7 +943,7 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
-    fMaps.ScanMapsFolder(false);
+    fMaps.ScanMapsFolder;
     SingleMap_RefreshList;
     fMap_Selected := EnsureRange(fMap_Selected, 0, fMaps.Count-1);
     ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, fMap_Selected-MENU_SP_MAPS_COUNT+1, fMap_Selected);
@@ -1533,7 +1533,7 @@ procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
   if Radio_LobbyMapType.ItemIndex = 0 then
   begin
-    fMapsMP.ScanMapsFolder(true);
+    fMapsMP.ScanMapsFolder;
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
     List_Lobby.SetItems(fMapsMP.MapList);
   end
@@ -1753,7 +1753,7 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_ListUpdate;
 begin
-  fMaps.ScanMapsFolder(false);
+  fMaps.ScanMapsFolder;
   List_MapEd.SetItems(fMaps.MapList);
   List_MapEd.ItemIndex := 0; //Select first map by default, otherwise there could be an invalid map selected (if items have been removed since we last updated)
 end;

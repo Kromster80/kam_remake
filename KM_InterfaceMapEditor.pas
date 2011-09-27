@@ -329,7 +329,7 @@ begin
   end;
 
   if Sender = Button_Menu_Load then begin
-    fMaps.ScanMapsFolder(false);
+    fMaps.ScanMapsFolder;
     ListBox_Load.SetItems(fMaps.MapList);
     ListBox_Load.ItemIndex := 0; //Try to select first map by default
     Panel_Load.Show;
@@ -387,7 +387,7 @@ begin
   BarracksItem   := 1; //First ware selected by default
   StorehouseItem := 1; //First ware selected by default
   TileDirection := 0;
-  fMaps := TKMapsCollection.Create;
+  fMaps := TKMapsCollection.Create(False);
 
 {Parent Page for whole toolbar in-game}
   MyControls := TKMMasterControl.Create;

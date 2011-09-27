@@ -48,10 +48,12 @@ type
   private
     fCount:byte;
     fMaps:array of TKMapInfo;
+    fMultiplayerPath: Boolean;
     function GetMap(Index:integer):TKMapInfo;
   public
+    constructor Create(aMultiplayerPath: Boolean);
     destructor Destroy; override;
-    procedure ScanMapsFolder(IsMultiplayer: Boolean);
+    procedure ScanMapsFolder;
     property Count:byte read fCount;
     property Map[Index:integer]:TKMapInfo read GetMap; default;
 
@@ -201,11 +203,19 @@ end;
 
 
 { TKMapsCollection }
+constructor TKMapsCollection.Create(aMultiplayerPath: Boolean);
+begin
+  Inherited Create;
+  fMultiplayerPath := aMultiplayerPath;
+end;
+
+
 destructor TKMapsCollection.Destroy;
 var i:integer;
 begin
   for i:=0 to fCount-1 do
     fMaps[i].Free;
+  Inherited;
 end;
 
 
@@ -224,7 +234,7 @@ begin
 end;
 
 
-procedure TKMapsCollection.ScanMapsFolder(IsMultiplayer: Boolean);
+procedure TKMapsCollection.ScanMapsFolder;
 var
   SearchRec:TSearchRec;
   i:integer;
@@ -235,21 +245,21 @@ begin
 
   fCount := 0;
 
-  if IsMultiplayer then PathToMaps := ExeDir+'MapsMP\'
-                   else PathToMaps := ExeDir+'Maps\';
+  if fMultiplayerPath then PathToMaps := ExeDir+'MapsMP\'
+                      else PathToMaps := ExeDir+'Maps\';
 
   if not DirectoryExists(PathToMaps) then exit;
 
   FindFirst(PathToMaps+'*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Name<>'.') and (SearchRec.Name<>'..')
-    and FileExists(MapNameToPath(SearchRec.Name,'dat',IsMultiplayer))
-    and FileExists(MapNameToPath(SearchRec.Name,'map',IsMultiplayer)) then
+    and FileExists(MapNameToPath(SearchRec.Name, 'dat', fMultiplayerPath))
+    and FileExists(MapNameToPath(SearchRec.Name, 'map', fMultiplayerPath)) then
     begin
       inc(fCount);
       SetLength(fMaps, fCount);
       fMaps[fCount-1] := TKMapInfo.Create;
-      fMaps[fCount-1].Load(SearchRec.Name, false, IsMultiplayer);
+      fMaps[fCount-1].Load(SearchRec.Name, false, fMultiplayerPath);
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
