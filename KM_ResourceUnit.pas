@@ -40,11 +40,12 @@ type
     function GetFightType: TFightType;
     function GetGUIIcon:word;
     function GetGUIScroll:word;
+    function GetMinimapColor: Cardinal;
+    function GetMiningRange: byte;
     function GetSpeed:single;
     function GetUnitAnim(aAction:TUnitActionType; aDir:TKMDirection):TKMUnitsAnim;
     function GetUnitDescription: string;
     function GetUnitName: string;
-    function GetMiningRange: byte;
   public
     constructor Create(aType:TUnitType);
     function IsValid:boolean;
@@ -62,6 +63,7 @@ type
     property FightType:TFightType read GetFightType;
     property GUIIcon:word read GetGUIIcon;
     property GUIScroll:word read GetGUIScroll;
+    property MinimapColor: Cardinal read GetMinimapColor;
     property MiningRange:byte read GetMiningRange;
     property Speed:single read GetSpeed;
     function SupportsAction(aAct: TUnitActionType):boolean;
@@ -255,6 +257,20 @@ begin
 end;
 
 
+//Units are rendered on minimap with their team color
+//Animals don't have team and thus are rendered in their own prefered clors
+function TKMUnitDatClass.GetMinimapColor: Cardinal;
+const
+  MMColor:array[TUnitType] of Cardinal = (
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    $B0B0B0,$B08000,$B08000,$80B0B0,$00B0B0,$B080B0,$00B000,$80B0B0); //Exact colors can be tweaked
+begin
+  Result := MMColor[fUnitType];
+end;
+
+
 //Unit mining ranges. (measured from KaM)
 function TKMUnitDatClass.GetMiningRange: byte;
 begin
@@ -427,6 +443,7 @@ begin
     S.Free;
   end;
 end;
+
 
 
 end.

@@ -208,7 +208,7 @@ begin
         if fPosition >= fLength then begin
           if KaMRandom >= ProjectileMissChance[fType] then
           begin
-            U := fPlayers.UnitsHitTestF(fTarget, false);
+            U := fPlayers.UnitsHitTestF(fTarget);
             case fType of
               pt_Arrow,
               pt_SlingRock,

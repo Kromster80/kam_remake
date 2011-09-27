@@ -2353,7 +2353,7 @@ begin
           if Land[i,k].IsUnit.GetOwner <> PLAYER_ANIMAL then
             MiniMapRGB[i,k] := fPlayers.Player[Land[i,k].IsUnit.GetOwner].FlagColor
           else
-            MiniMapRGB[i,k] := $FF4444 //todo: Make animals blend with minimap color, be not so contrast
+            MiniMapRGB[i,k] := fResource.UnitDat[Land[i,k].IsUnit.UnitType].MinimapColor
         else
         begin
           ID := Land[i,k].Terrain;

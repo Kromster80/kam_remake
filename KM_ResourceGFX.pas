@@ -350,7 +350,7 @@ begin
 
       {$IFDEF WDC}
       case po.TransparencyMode of //There are ways to process PNG transparency
-        ptmNone: //todo: Use .Scanline instead of .Pixels
+        ptmNone:
           for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
             RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
         ptmBit:

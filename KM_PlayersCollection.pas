@@ -31,7 +31,7 @@ type
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure UpdateMultiplayerTeams;
     function HousesHitTest(X,Y:Integer):TKMHouse;
-    function UnitsHitTestF(aLoc: TKMPointF; aIncludeAnimals:boolean): TKMUnit;
+    function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
     function GetClosestUnit(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType): TKMUnit;
     function GetClosestHouse(aLoc:TKMPoint; aIndex:TPlayerIndex; aAlliance:TAllianceType; aOnlyCompleted:boolean=true): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
@@ -188,7 +188,7 @@ end;
 //Floating-point hit test version, required for Projectiles
 //Return unit within range of 1 from aLoc
 //TODO: Remove in favor of UnitHitTest on Terrain
-function TKMPlayersCollection.UnitsHitTestF(aLoc: TKMPointF; aIncludeAnimals:boolean): TKMUnit;
+function TKMPlayersCollection.UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
 var i,X,Y:integer; U:TKMUnit;
 begin
   Result := nil;
@@ -201,11 +201,6 @@ begin
       if (Result=nil) or (GetLength(U.PositionF,aLoc)<GetLength(Result.PositionF,aLoc)) then
         Result := U;
   end;
-
-  if (Result = nil) and (aIncludeAnimals) then
-  for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
-  for X:=trunc(aLoc.X) to ceil(aLoc.X) do
-    Result := PlayerAnimals.UnitsHitTest(X,Y);
 end;
 
 

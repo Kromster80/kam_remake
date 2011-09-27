@@ -79,7 +79,7 @@ type //For now IDs must match with KaM
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_ResourceGFX, KM_ViewPort, KM_Sound;
+     KM_Terrain, KM_ResourceGFX, KM_ViewPort, KM_Sound;
 
 
 
@@ -411,17 +411,17 @@ begin
 
   //Find target
   case aTarget of
-    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, aCommander.GetOwner, at_Enemy);
-    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, aCommander.GetOwner, at_Enemy, false);
-    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, aCommander.GetOwner, at_Enemy, false);
+    att_ClosestUnit:                  TargetUnit := fPlayers.GetClosestUnit(aCommander.GetPosition, PlayerIndex, at_Enemy);
+    att_ClosestBuildingFromArmy:      TargetHouse := fPlayers.GetClosestHouse(aCommander.GetPosition, PlayerIndex, at_Enemy, false);
+    att_ClosestBuildingFromStartPos:  TargetHouse := fPlayers.GetClosestHouse(StartPosition, PlayerIndex, at_Enemy, false);
     att_CustomPosition:               begin
                                         TargetHouse := fPlayers.HousesHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetHouse <> nil) and
-                                           (fPlayers.CheckAlliance(aCommander.GetOwner, TargetHouse.GetOwner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(PlayerIndex, TargetHouse.GetOwner) = at_Ally) then
                                           TargetHouse := nil;
-                                        TargetUnit := fPlayers.UnitsHitTestF(KMPointF(aCommander.GetPosition), false);
+                                        TargetUnit := fTerrain.UnitsHitTest(aCustomPos.X, aCustomPos.Y);
                                         if (TargetUnit <> nil) and
-                                           (fPlayers.CheckAlliance(aCommander.GetOwner, TargetUnit.GetOwner) = at_Ally) then
+                                           (fPlayers.CheckAlliance(PlayerIndex, TargetUnit.GetOwner) = at_Ally) then
                                           TargetUnit := nil;
                                       end;
   end;
