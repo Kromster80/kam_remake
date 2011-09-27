@@ -13,8 +13,8 @@ type
 TTerrain = class
   private
     fAnimStep:integer;
+    fMapX,fMapY:integer; //Terrain width and height
   public
-    MapX,MapY:integer; //Terrain width and height
 
     Land:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of record
       Terrain:byte;
@@ -60,6 +60,9 @@ TTerrain = class
     constructor Create;
     destructor Destroy; override;
     procedure MakeNewMap(Width,Height:integer);
+
+    property MapX: integer read fMapX;
+    property MapY: integer read fMapY;
 
     procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
@@ -217,10 +220,10 @@ end;
 procedure TTerrain.MakeNewMap(Width,Height:integer);
 var i,k:integer;
 begin
-  MapX := min(Width, MAX_MAP_SIZE);
-  MapY := min(Height,MAX_MAP_SIZE);
+  fMapX := Min(Width, MAX_MAP_SIZE);
+  fMapY := Min(Height,MAX_MAP_SIZE);
 
-  for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
+  for i:=1 to fMapY do for k:=1 to fMapX do with Land[i,k] do begin
     Terrain      := 0;
     Height       := KaMRandom(7);    //variation in height
     Rotation     := KaMRandom(4);  //Make it random
@@ -244,8 +247,8 @@ begin
     BorderRight  := false;
   end;
 
-  RebuildLighting(1,MapX,1,MapY);
-  RebuildPassability(1,MapX,1,MapY);
+  RebuildLighting(1,fMapX,1,fMapY);
+  RebuildPassability(1,fMapX,1,fMapY);
   RebuildWalkConnect(wcWalk);
   RebuildWalkConnect(wcFish);
 end;
@@ -267,10 +270,10 @@ begin
     S.Read(NewX); //We read header to new variables to avoid damage to existing map if header is wrong
     S.Read(NewY);
     Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
-    MapX := NewX;
-    MapY := NewY;
-    MakeNewMap(MapX, MapY); //Reset whole map to default
-    for i:=1 to MapY do for k:=1 to MapX do
+    fMapX := NewX;
+    fMapY := NewY;
+    MakeNewMap(fMapX, fMapY); //Reset whole map to default
+    for i:=1 to fMapY do for k:=1 to fMapX do
     begin
       S.Read(Land[i,k].Terrain); //1
       S.Seek(1, soFromCurrent);
@@ -289,8 +292,8 @@ begin
     S.Free;
   end;
 
-  RebuildLighting(1,MapX,1,MapY);
-  RebuildPassability(1,MapX,1,MapY);
+  RebuildLighting(1,fMapX,1,fMapY);
+  RebuildPassability(1,fMapX,1,fMapY);
   RebuildWalkConnect(wcWalk);
   RebuildWalkConnect(wcFish);
   fLog.AppendLog('Map file loaded');
@@ -309,13 +312,13 @@ begin
 
   assignfile(f,aFile); rewrite(f,1);
 
-  blockwrite(f,MapX,4);
-  blockwrite(f,MapY,4);
+  blockwrite(f,fMapX,4);
+  blockwrite(f,fMapY,4);
 
   c0 := 0;
   cF := $FFFFFFFF;
   b205 := 205;
-  for i:=1 to MapY do for k:=1 to MapX do
+  for i:=1 to fMapY do for k:=1 to fMapX do
   begin
     if TileIsCornField(KMPoint(k,i)) or TileIsWineField(KMPoint(k,i)) then
       blockwrite(f,Land[i,k].OldTerrain,1) //Map file stores terrain, not the fields placed over it, so save OldTerrain rather than Terrain
@@ -344,9 +347,13 @@ begin
     blockwrite(f,cF,4); //unknown
     blockwrite(f,c0,3); //unknown
     //Border
-      if (i=MapY) or (k=MapX) then blockwrite(f,b205,1) //Bottom/right = 205
-      else if (i=1) or (k=1) then blockwrite(f,c0,1) //Top/left = 0
-      else blockwrite(f,cF,1); //Rest of the screen = 255
+    if (i=fMapY) or (k=fMapX) then
+      blockwrite(f,b205,1) //Bottom/right = 205
+    else
+      if (i=1) or (k=1) then
+        blockwrite(f,c0,1) //Top/left = 0
+      else
+        blockwrite(f,cF,1); //Rest of the screen = 255
     blockwrite(f,cF,1); //unknown - always 255
     blockwrite(f,b205,1); //unknown - always 205
     blockwrite(f,c0,2); //unknown - always 0
@@ -356,7 +363,7 @@ begin
   //Resource footer: Temporary hack to make the maps compatible with KaM. If we learn how resource footers
   //are formatted we can implement it, but for now it appears to work fine like this.
   ResHead.x1:=0;
-  ResHead.Allocated:=MapX+MapY;
+  ResHead.Allocated := fMapX+fMapY;
   ResHead.Qty1:=0;
   ResHead.Qty2:=ResHead.Qty1;
   if ResHead.Qty1>0 then
@@ -376,7 +383,7 @@ begin
 
   {blockwrite(f,'ADDN',4);
   blockwrite(f,'TILE',4); //Chunk name
-  i := 4 + MapY*MapX;
+  i := 4 + fMapY*fMapX;
   blockwrite(f,i,4); //Chunk size
   i := 0; //contained lock in older version
   blockwrite(f,i,4);
@@ -390,7 +397,7 @@ end;
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
-  Result := InRange(X,1+Inset,MapX-1-Inset) and InRange(Y,1+Inset,MapY-1-Inset);
+  Result := InRange(X,1+Inset,fMapX-1-Inset) and InRange(Y,1+Inset,fMapY-1-Inset);
 end;
 
 
@@ -398,7 +405,7 @@ end;
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
-  Result := InRange(X,1+Inset,MapX-Inset) and InRange(Y,1+Inset,MapY-Inset);
+  Result := InRange(X,1+Inset,fMapX-Inset) and InRange(Y,1+Inset,fMapY-Inset);
 end;
 
 
@@ -406,8 +413,8 @@ end;
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.EnsureTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
 begin
-  Result.X := EnsureRange(X,1+Inset,MapX-1-Inset);
-  Result.Y := EnsureRange(Y,1+Inset,MapY-1-Inset);
+  Result.X := EnsureRange(X,1+Inset,fMapX-1-Inset);
+  Result.Y := EnsureRange(Y,1+Inset,fMapY-1-Inset);
 end;
 
 
@@ -512,7 +519,7 @@ function TTerrain.UnitsHitTest(X,Y:word):TKMUnit;
 var i,k:integer;
 begin
   Result := nil;
-  for i:=max(Y-1,1) to min(Y+1,MapY) do for k:=max(X-1,1) to min(X+1,MapX) do
+  for i:=max(Y-1,1) to min(Y+1,fMapY) do for k:=max(X-1,1) to min(X+1,fMapX) do
   if (Land[i,k].IsUnit <> nil) and (Land[i,k].IsUnit.HitTest(X,Y)) then
     Result := Land[i,k].IsUnit;
 end;
@@ -536,8 +543,8 @@ begin
   //Scan one tile further than the maximum radius due to rounding
   lx := max(round(aLoc.X-(MaxRad+1)),1); //1.42 gets rounded to 1
   ly := max(round(aLoc.Y-(MaxRad+1)),1); //1.42 gets rounded to 1
-  hx := min(round(aLoc.X+(MaxRad+1)),MapX); //1.42 gets rounded to 1
-  hy := min(round(aLoc.Y+(MaxRad+1)),MapY); //1.42 gets rounded to 1
+  hx := min(round(aLoc.X+(MaxRad+1)),fMapX); //1.42 gets rounded to 1
+  hy := min(round(aLoc.Y+(MaxRad+1)),fMapY); //1.42 gets rounded to 1
 
   for i:=ly to hy do for k:=lx to hx do
   if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i) = 255)
@@ -704,7 +711,7 @@ end;
 procedure TTerrain.RemovePlayer(aPlayer:TPlayerIndex);
 var i,k:word;
 begin
-  for i:=1 to MapY do for k:=1 to MapX do
+  for i:=1 to fMapY do for k:=1 to fMapX do
     if Land[i,k].TileOwner > aPlayer then
       Land[i,k].TileOwner := pred(Land[i,k].TileOwner)
     else
@@ -786,8 +793,8 @@ function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFie
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
-  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
-  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
+  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,fMapY-1) do
+  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,fMapX-1) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
          ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
@@ -808,8 +815,8 @@ var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint; bTreeLoc: Boolean;
 begin
   //List1 is all trees within radius
   List:=TKMPointList.Create;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,1+MapY-Ins) do
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,1+MapX-Ins) do
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,1+fMapY-Ins) do
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,1+fMapX-Ins) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
         if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),CanWalk) then
@@ -843,8 +850,8 @@ const Ins=1; //1..Map-1
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,fMapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,fMapX-Ins) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
       if (TileIsStone(k,i)>0) then
         if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
@@ -871,8 +878,8 @@ begin
     else        begin RadLeft:=0; RadRight:=0; RadTop:= 0; RadBottom:=0; R1:=  0; R2:=  0; R3:=  0; R4:=  0; end;
   end;
 
-  for i:=max(aPosition.Y-RadTop,1) to min(aPosition.Y+RadBottom,MapY-1) do
-  for k:=max(aPosition.X-RadLeft,1) to min(aPosition.X+RadRight,MapX-1) do
+  for i:=max(aPosition.Y-RadTop,1) to min(aPosition.Y+RadBottom,fMapY-1) do
+  for k:=max(aPosition.X-RadLeft,1) to min(aPosition.X+RadRight,fMapX-1) do
   begin
     if Land[i,k].Terrain = R1 then begin if InRange(i,aPosition.Y-RadTop +2,aPosition.Y+RadBottom-2) then
                                          if InRange(k,aPosition.X-RadLeft+2,aPosition.X+RadRight -2) then
@@ -903,8 +910,8 @@ begin
   TreePlacePoint.Dir := dir_N; //Trees must always be planted facing north as that is the unit DAT animation that is used
   List1:=TKMPointList.Create;
   List2:=TKMPointList.Create;
-  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
-  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
+  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,fMapY-1) do
+  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,fMapX-1) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,0,false) then begin
 
@@ -934,8 +941,8 @@ begin
   // D) Final checks, route can be made, etc.
 
   List:=TKMPointDirList.Create;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins) do
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,fMapY-Ins) do
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,fMapX-Ins) do
     // A) Inital checks, inside map and radius, etc.
     if (KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
       if TileIsWater(KMPoint(k,i)) and WaterHasFish(KMPoint(k,i)) then //Limit to only tiles which are water and have fish
@@ -958,8 +965,8 @@ const Ins=2; //2..Map-2
 var i,k:integer;
 begin
   Result := false;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins) do
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,fMapY-Ins) do
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,fMapX-Ins) do
     if (KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
       if TileIsWater(KMPoint(k,i)) then
       begin
@@ -1548,8 +1555,8 @@ begin
   //target point has to be walkable
   Result := Result and CheckPassability(LocA,aPass);
   TestRadius := false;
-  for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
-  for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+  for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
+  for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
   if GetLength(LocB,KMPoint(k,i))<=aDistance then
     TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
   Result := Result and TestRadius;
@@ -1558,8 +1565,8 @@ begin
   if aPass=CanWalk then
   begin
     TestRadius := false;
-    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
-    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
+    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
     if GetLength(LocB,KMPoint(k,i))<=aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcWalk] = Land[i,k].WalkConnect[wcWalk]);
     Result := Result and TestRadius;
@@ -1568,8 +1575,8 @@ begin
   if aPass=CanWalkRoad then
   begin
     TestRadius := false;
-    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
-    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
+    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
     if GetLength(LocB,KMPoint(k,i))<=aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcRoad] = Land[i,k].WalkConnect[wcRoad]);
     Result := Result and TestRadius;
@@ -1581,8 +1588,8 @@ begin
   if aInteractionAvoid then
   begin
     TestRadius := false;
-    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
-    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
+    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
     if GetLength(LocB,KMPoint(k,i))<=aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcAvoid] = Land[i,k].WalkConnect[wcAvoid]);
     Result := Result and TestRadius;
@@ -1813,7 +1820,7 @@ procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=tru
 
   function GetHeight(X,Y:word):byte;
   begin
-    Result := Land[EnsureRange(Y,1,MapY), EnsureRange(X,1,MapX)].Height;
+    Result := Land[EnsureRange(Y,1,fMapY), EnsureRange(X,1,fMapX)].Height;
   end;
 
 var i,k: word; Avg:byte;
@@ -1821,18 +1828,18 @@ begin
   Assert(TileInMapCoords(Loc.X, Loc.Y));
 
   Avg := Round((                      GetHeight(Loc.X,Loc.Y-1) + GetHeight(Loc.X+1,Loc.Y-1) +
-         GetHeight(Loc.X-1,Loc.Y)   + GetHeight(Loc.X,Loc.Y)   + GetHeight(Loc.X+1,Loc.Y)   + GetHeight(Loc.X+2,Loc.Y) +
+         GetHeight(Loc.X-1,Loc.Y  ) + GetHeight(Loc.X,Loc.Y  ) + GetHeight(Loc.X+1,Loc.Y  ) + GetHeight(Loc.X+2,Loc.Y  ) +
          GetHeight(Loc.X-1,Loc.Y+1) + GetHeight(Loc.X,Loc.Y+1) + GetHeight(Loc.X+1,Loc.Y+1) + GetHeight(Loc.X+2,Loc.Y+1) +
                                       GetHeight(Loc.X,Loc.Y+2) + GetHeight(Loc.X+1,Loc.Y+2) ) / 12);
 
-  if CanElevate in Land[Loc.Y,Loc.X].Passability then     Land[Loc.Y,Loc.X].Height := Mix(Avg, Land[Loc.Y,Loc.X].Height, 0.5);
-  if CanElevate in Land[Loc.Y,Loc.X+1].Passability then   Land[Loc.Y,Loc.X+1].Height := Mix(Avg, Land[Loc.Y,Loc.X+1].Height, 0.5);
-  if CanElevate in Land[Loc.Y+1,Loc.X].Passability then   Land[Loc.Y+1,Loc.X].Height := Mix(Avg, Land[Loc.Y+1,Loc.X].Height, 0.5);
+  if CanElevate in Land[Loc.Y  ,Loc.X  ].Passability then Land[Loc.Y  ,Loc.X  ].Height := Mix(Avg, Land[Loc.Y  ,Loc.X  ].Height, 0.5);
+  if CanElevate in Land[Loc.Y  ,Loc.X+1].Passability then Land[Loc.Y  ,Loc.X+1].Height := Mix(Avg, Land[Loc.Y  ,Loc.X+1].Height, 0.5);
+  if CanElevate in Land[Loc.Y+1,Loc.X  ].Passability then Land[Loc.Y+1,Loc.X  ].Height := Mix(Avg, Land[Loc.Y+1,Loc.X  ].Height, 0.5);
   if CanElevate in Land[Loc.Y+1,Loc.X+1].Passability then Land[Loc.Y+1,Loc.X+1].Height := Mix(Avg, Land[Loc.Y+1,Loc.X+1].Height, 0.5);
 
   //All 9 tiles around and including this one could have become unwalkable and made a unit stuck, so check them all
-  for i:=Max(Loc.Y-1,1) to Min(Loc.Y+1,MapY-1) do
-    for k:=Max(Loc.X-1,1) to Min(Loc.X+1,MapX-1) do
+  for i:=Max(Loc.Y-1,1) to Min(Loc.Y+1,fMapY-1) do
+    for k:=Max(Loc.X-1,1) to Min(Loc.X+1,fMapX-1) do
       EnsureWalkable(k,i);
 
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
@@ -1865,12 +1872,12 @@ var i,k:integer; x0,y2:integer;
 begin
   for i:=LowY to HighY do for k:=LowX to HighX do
     if VerticeInMapCoords(k,i) then begin
-      x0:=EnsureRange(k-1,1,MapX);
-      y2:=EnsureRange(i+1,1,MapY);
+      x0:=EnsureRange(k-1,1,fMapX);
+      y2:=EnsureRange(i+1,1,fMapY);
       if VerticeInMapCoords(x0,y2) then
         Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1); //  1.33*16 ~=22
-    if (i=1)or(i=MapY)or(k=1)or(k=MapX) then //Map borders fade to black
-      Land[i,k].Light:=-1;
+    if (i=1) or (i=fMapY) or (k=1) or (k=fMapX) then //Map borders fade to black
+      Land[i,k].Light := -1;
     end;
 end;
 
@@ -1879,7 +1886,7 @@ end;
 procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:integer);
 var i,k:integer;
 begin
-  for i:=max(LowY,1) to min(HighY,MapY-1) do for k:=max(LowX,1) to min(HighX,MapX-1) do
+  for i:=max(LowY,1) to min(HighY,fMapY-1) do for k:=max(LowX,1) to min(HighX,fMapX-1) do
     RecalculatePassability(KMPoint(k,i));
 end;
 
@@ -1901,16 +1908,16 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
       if x-1>=1 then begin
         if y-1>=1 then    FillArea(x-1,y-1,ID,Count);
                           FillArea(x-1,y  ,ID,Count);
-        if y+1<=MapY then FillArea(x-1,y+1,ID,Count);
+        if y+1<=fMapY then FillArea(x-1,y+1,ID,Count);
       end;
 
       if y-1>=1 then    FillArea(x,y-1,ID,Count);
-      if y+1<=MapY then FillArea(x,y+1,ID,Count);
+      if y+1<=fMapY then FillArea(x,y+1,ID,Count);
 
-      if x+1<=MapX then begin
+      if x+1<=fMapX then begin
         if y-1>=1 then    FillArea(x+1,y-1,ID,Count);
                           FillArea(x+1,y  ,ID,Count);
-        if y+1<=MapY then FillArea(x+1,y+1,ID,Count);
+        if y+1<=fMapY then FillArea(x+1,y+1,ID,Count);
       end;
     end;
   end;
@@ -1925,11 +1932,11 @@ begin
     end;
 
     //Reset everything
-    for i:=1 to MapY do for k:=1 to MapX do
+    for i:=1 to fMapY do for k:=1 to fMapX do
       Land[i,k].WalkConnect[wcType] := 0;
 
     AreaID := 0;
-    for i:=1 to MapY do for k:=1 to MapX do
+    for i:=1 to fMapY do for k:=1 to fMapX do
     if (Land[i,k].WalkConnect[wcType]=0) and (Pass in Land[i,k].Passability) and
      ((wcType <> wcAvoid)or
      ( (wcType=wcAvoid) and not TileIsLocked(KMPoint(k,i)) )) then
@@ -2204,8 +2211,8 @@ end;
 { Returns a rounded vertex based cursor position, maybe we'll need it later. }
 function TTerrain.GetVertexCursorPosition:TKMPoint;
 begin
-  Result.X := EnsureRange(round(GameCursor.Float.X+1),1,MapX);
-  Result.Y := EnsureRange(round(GameCursor.Float.Y+1),1,MapY);
+  Result.X := EnsureRange(round(GameCursor.Float.X+1),1,fMapX);
+  Result.Y := EnsureRange(round(GameCursor.Float.Y+1),1,fMapY);
 end;
 
 
@@ -2218,8 +2225,8 @@ begin
     Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
     Float.Y := ConvertCursorToMapCoord(Float.X,Float.Y);
 
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, MapX); //Cell below cursor in map bounds
-    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, MapY);
+    Cell.X := EnsureRange(round(Float.X+0.5), 1, fMapX); //Cell below cursor in map bounds
+    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fMapY);
 
     SState := Shift;
   end;
@@ -2230,12 +2237,12 @@ end;
 function TTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
 var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
 begin
-  Xc := EnsureRange(round(inX+0.5),1,MapX-1); //Cell below cursor without height check
-  Yc := EnsureRange(round(inY+0.5),1,MapY-1);
+  Xc := EnsureRange(round(inX+0.5),1,fMapX-1); //Cell below cursor without height check
+  Yc := EnsureRange(round(inY+0.5),1,fMapY-1);
 
   for ii:=-2 to 4 do //make an array of tile heights above and below cursor (-2..4)
   begin
-    Tmp := EnsureRange(Yc+ii,1,MapY);
+    Tmp := EnsureRange(Yc+ii,1,fMapY);
     Ycoef[ii] := (Yc-1)+ii-(Land[Tmp,Xc].Height*(1-frac(inX))
                            +Land[Tmp,Xc+1].Height*frac(inX))/CELL_HEIGHT_DIV;
   end;
@@ -2332,8 +2339,8 @@ var
   i,k:integer;
   Light:smallint;
 begin
-  for i:=1 to MapY do
-  for k:=1 to MapX do
+  for i:=1 to fMapY do
+  for k:=1 to fMapX do
   begin
     FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i);
     if FOW = 0 then
@@ -2369,13 +2376,13 @@ procedure TTerrain.Save(SaveStream:TKMemoryStream);
 var i,k:integer;
 begin
   SaveStream.Write('Terrain');
-  SaveStream.Write(MapX);
-  SaveStream.Write(MapY);
+  SaveStream.Write(fMapX);
+  SaveStream.Write(fMapY);
 
   SaveStream.Write(fAnimStep);
   FallingTrees.Save(SaveStream);
 
-  for i:=1 to MapY do for k:=1 to MapX do
+  for i:=1 to fMapY do for k:=1 to fMapX do
   begin
     //Only save fields that cannot be recalculated after loading
     SaveStream.Write(Land[i,k].Terrain);
@@ -2401,13 +2408,13 @@ var i,k:integer; s:string;
 begin
   LoadStream.Read(s);
   Assert(s = 'Terrain', 'Terrain not found');
-  LoadStream.Read(MapX);
-  LoadStream.Read(MapY);
+  LoadStream.Read(fMapX);
+  LoadStream.Read(fMapY);
 
   LoadStream.Read(fAnimStep);
   FallingTrees.Load(LoadStream);
 
-  for i:=1 to MapY do for k:=1 to MapX do
+  for i:=1 to fMapY do for k:=1 to fMapX do
   begin
     LoadStream.Read(Land[i,k].Terrain);
     LoadStream.Read(Land[i,k].Height);
@@ -2422,11 +2429,11 @@ begin
     LoadStream.Read(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
   end;
 
-  for i:=1 to MapY do for k:=1 to MapX do
+  for i:=1 to fMapY do for k:=1 to fMapX do
     UpdateBorders(KMPoint(k,i),false);
 
-  RebuildLighting(1, MapX, 1, MapY);
-  RebuildPassability(1, MapX, 1, MapY);
+  RebuildLighting(1, fMapX, 1, fMapY);
+  RebuildPassability(1, fMapX, 1, fMapY);
   RebuildWalkConnect(wcWalk);
   RebuildWalkConnect(wcRoad);
   RebuildWalkConnect(wcFish);
@@ -2437,7 +2444,7 @@ end;
 procedure TTerrain.SyncLoad;
 var i,k:integer;
 begin
-  for i:=1 to MapY do for k:=1 to MapX do
+  for i:=1 to fMapY do for k:=1 to fMapX do
     Land[i,k].IsUnit := fPlayers.GetUnitByID(cardinal(Land[i,k].IsUnit));
 end;
 
@@ -2458,10 +2465,10 @@ begin
   if fAnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then
     ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
 
-  for i:=1 to MapY do
-  for k:=1 to MapX do
+  for i:=1 to fMapY do
+  for k:=1 to fMapX do
   //All those global things can be performed once a sec, or even less frequent
-  if (i*MapX+k+fAnimStep) mod TERRAIN_PACE = 0 then
+  if (i*fMapX+k+fAnimStep) mod TERRAIN_PACE = 0 then
   begin
 
     if InRange(Land[i,k].FieldAge,1,65534) then
