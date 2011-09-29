@@ -25,10 +25,12 @@ uses SysUtils, StrUtils, Classes, KM_Defaults, KM_Points, Math;
   function FakeGetTickCount: DWord;
   {$ENDIF}
 
-var
-  fKaMSeed:integer;
 
 implementation
+
+
+var
+  fKaMSeed:integer;
 
 
 //Taken from KromUtils to reduce dependancies (required so the dedicated server compiles on Linu without using Controls)

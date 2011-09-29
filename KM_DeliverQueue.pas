@@ -4,12 +4,14 @@ interface
 uses Classes, SysUtils, KromUtils, Math,
     KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery, KM_Points;
 
-  type TJobStatus = (js_Empty, js_Open, js_Taken);
-  //Empty - empty spot for a new job
-  //Open - job is free to take by anyone
-  //Taken - job is taken by some worker
-  type TDemandImportance = (di_Norm, di_High);
-  const LENGTH_INC = 32; //Increment array lengths by this value
+
+type
+  TJobStatus = (
+        js_Empty,   //Empty - empty spot for a new job
+        js_Open,    //Open - job is free to take by anyone
+        js_Taken);  //Taken - job is taken by some worker
+
+  TDemandImportance = (di_Norm, di_High);
 
 type
   TKMDeliverQueue = class
@@ -46,7 +48,6 @@ type
     procedure CloseDemand(aID:integer);
     procedure CloseOffer(aID:integer);
   public
-    constructor Create;
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemoveOffer(aHouse:TKMHouse);
     procedure RemoveDemand(aHouse:TKMHouse); overload;
@@ -149,13 +150,11 @@ implementation
 uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log;
 
 
+const
+  LENGTH_INC = 32; //Increment array lengths by this value
+
+
 { TKMDeliverQueue }
-constructor TKMDeliverQueue.Create;
-begin
-  Inherited;
-end;
-
-
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.

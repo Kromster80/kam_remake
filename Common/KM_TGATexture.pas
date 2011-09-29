@@ -35,13 +35,10 @@ const
 {$ENDIF}
 
 function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
-function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
 function GenerateTextureCommon:GLuint;
 
 implementation
 
-//procedure glGenTextures(n: GLsizei; var Textures: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
-//procedure glBindTexture(Target: GLenum; Texture: GLuint); {$IFDEF MSWINDOWS} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF} external opengl32;
 
 function GenerateTextureCommon:GLuint;
 var Texture : GLuint;
