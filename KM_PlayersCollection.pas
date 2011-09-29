@@ -180,7 +180,7 @@ begin
   for i:=0 to fCount-1 do
   begin
     Result := fPlayerList[i].HousesHitTest(X,Y);
-    if Result<>nil then exit; //Assuming that there can't be 2 houses on one tile
+    if Result<>nil then Exit; //There can't be 2 houses on one tile
   end;
 end;
 

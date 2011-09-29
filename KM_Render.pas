@@ -1040,7 +1040,7 @@ procedure TRender.RenderCursorHighlights;
     Result := MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y) > 0;
   end;
 var
-  UnitDelete: TKMUnit;
+  U: TKMUnit;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
   with fTerrain do
@@ -1052,9 +1052,9 @@ begin
                    //With Units tab see if there's a unit below cursor
                    if (fGame.fMapEditorInterface.GetShownPage = esp_Units) then
                    begin
-                     UnitDelete := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                     if UnitDelete <> nil then
-                       RenderUnitWithDefaultArm(UnitDelete.UnitType,ua_Walk,UnitDelete.Direction,UnitDelete.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true,true);
+                     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                     if U <> nil then
+                       RenderUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true,true);
                    end
                    else
                    if (
