@@ -683,8 +683,6 @@ end;
 procedure TKMMainMenuInterface.Create_Load_Page;
 begin
   Panel_Load:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    with TKMImage.Create(Panel_Load,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
-    with TKMImage.Create(Panel_Load,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     TKMLabel.Create(Panel_Load, ScreenX div 2, 60, 0, 0, 'List of savegames', fnt_Metal, kaCenter);
 
