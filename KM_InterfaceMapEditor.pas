@@ -1624,7 +1624,7 @@ begin
                       esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
                       esp_Units:      fPlayers.RemAnyUnit(P);
                       esp_Buildings:  begin
-                                        fPlayers.RemAnyHouse(P,true,false,true);
+                                        fPlayers.RemAnyHouse(P);
                                         if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                           fTerrain.RemRoad(P);
                                         if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
@@ -1704,7 +1704,7 @@ begin
                                     fPlayers.RemAnyUnit(P);
                                   end;
                   esp_Buildings:  begin
-                                    fPlayers.RemAnyHouse(P,true,false,true); //todo: Houses are not removed from fHouses list completely yet
+                                    fPlayers.RemAnyHouse(P);
                                     if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                       fTerrain.RemRoad(P);
                                     if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then

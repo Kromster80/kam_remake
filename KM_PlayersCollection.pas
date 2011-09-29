@@ -45,8 +45,8 @@ type
     procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
     procedure CleanUpHousePointer(var aHouse: TKMHouseInn); overload;
     procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
-    function RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    function RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+    procedure RemAnyHouse(Position: TKMPoint);
+    procedure RemAnyUnit(Position: TKMPoint);
     procedure RevealForTeam(aPlayer: TPlayerIndex; Pos:TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
 
@@ -367,23 +367,22 @@ begin
   CleanUpHousePointer(TKMHouse(aHouse));
 end;
 
-
-function TKMPlayersCollection.RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+//MapEd procedure to remove any house below
+procedure TKMPlayersCollection.RemAnyHouse(Position: TKMPoint);
 var i:integer;
 begin
-  Result := false;
   for i:=0 to fCount-1 do
-    Result := Result or fPlayerList[i].RemHouse(Position, DoSilent, Simulated, IsEditor);
+    fPlayerList[i].RemHouse(Position, true, false, true);
 end;
 
 
-function TKMPlayersCollection.RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+//MapEd procedure to remove any unit below
+procedure TKMPlayersCollection.RemAnyUnit(Position: TKMPoint);
 var i:integer;
 begin
-  Result := false;
   for i:=0 to fCount-1 do
-    Result := Result or fPlayerList[i].RemUnit(Position, Simulated);
-  Result := Result or fPlayerAnimals.RemUnit(Position, Simulated);
+    fPlayerList[i].RemUnit(Position);
+  fPlayerAnimals.RemUnit(Position);
 end;
 
 

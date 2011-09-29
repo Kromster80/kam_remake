@@ -1049,8 +1049,8 @@ begin
     cm_Erase:  begin
                  if fGame.GameState = gsEditor then
                  begin
-                   if (fGame.fMapEditorInterface.GetShownPage = esp_Units) //With Units tab see if there's a unit below cursor
-                   and fPlayers.RemAnyUnit(GameCursor.Cell,true) and TileVisible then
+                   //With Units tab see if there's a unit below cursor
+                   if (fGame.fMapEditorInterface.GetShownPage = esp_Units) then
                    begin
                      UnitDelete := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                      if UnitDelete <> nil then
@@ -1063,7 +1063,7 @@ begin
                           and (    TileIsCornField(GameCursor.Cell)
                                 or TileIsWineField(GameCursor.Cell)
                                 or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road)
-                                or fPlayers.RemAnyHouse(GameCursor.Cell, true, true))
+                                or (fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
                       )
                    //And of course it is visible
                    and TileVisible then

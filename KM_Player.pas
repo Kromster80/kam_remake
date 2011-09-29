@@ -83,7 +83,7 @@ type
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+    procedure RemUnit(Position: TKMPoint);
     function RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
@@ -334,17 +334,12 @@ begin
 end;
 
 
-function TKMPlayer.RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
-var FoundUnit:TKMUnit;
+procedure TKMPlayer.RemUnit(Position: TKMPoint);
+var U:TKMUnit;
 begin
-  Result := false;
-  FoundUnit := fUnits.HitTest(Position.X, Position.Y);
-  if FoundUnit<>nil then
-  begin
-    if not Simulated then
-      fUnits.RemoveUnit(FoundUnit);
-    Result := true;
-  end;
+  U := fUnits.HitTest(Position.X, Position.Y);
+  if U<>nil then
+    fUnits.RemoveUnit(U);
 end;
 
 

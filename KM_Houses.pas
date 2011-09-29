@@ -264,7 +264,7 @@ type
   public
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; RelativeEntrance:boolean):TKMHouse;
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
-    function Rem(aHouse:TKMHouse):boolean;
+    procedure RemoveHouse(aHouse:TKMHouse);
     procedure OwnerUpdate(aOwner:TPlayerIndex);
     function HitTest(X, Y: Integer): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
@@ -1846,10 +1846,11 @@ begin
 end;
 
 
-function TKMHousesCollection.Rem(aHouse:TKMHouse):boolean;
+procedure TKMHousesCollection.RemoveHouse(aHouse:TKMHouse);
 begin
+  aHouse.CloseHouse(True); //Should free up the house properly (freeing terrain usage and memory)
+  aHouse.Free;
   Remove(aHouse);
-  Result := true;
 end;
 
 
