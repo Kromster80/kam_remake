@@ -1,5 +1,5 @@
 
-MaxID:111
+MaxID:134
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -7,116 +7,141 @@ MaxID:111
 4:Einzelspieler
 5:Karten-Editor
 6:Letzten Replay anzeigen
-7:Über Netzwerk spielen
-8:Über Internet spielen
-9:Login
-10:Passwort
-11:Mission starten
-12:Titel
-13:Größe
-14:Missionstyp: %s
-15:Siegbedingung: %s
-16:Niederlagebedingung: %s
-17:Verbündete: 
-18:Feinde: 
-19:
-20:Neue Karte Größe
-21:Breite
-22:Höhe
-23:Neue Karte erstellen
-24:Verfügbare Karten
-25:Vorhandene Karte laden
-26:Eingabe:
-27:
-28:Sound:
-29:
-30:Grafik:
-31:Helligkeit
-32:Vollbild
-33:Übernehmen
-34:Sprache:
-35:Lade... Bitte warten
-36:Ein Fehler ist aufgetreten!
+7:Mission starten
+8:Titel
+9:Größe
+10:Missionstyp: %s
+11:Siegbedingung: %s
+12:Niederlagebedingung: %s
+13:Verbündete: 
+14:Feinde: 
+15:
+16:Neue Karte Größe
+17:Breite
+18:Höhe
+19:Neue Karte erstellen
+20:Verfügbare Karten
+21:Vorhandene Karte laden
+22:Eingabe:
+23:
+24:Sound:
+25:
+26:Grafik:
+27:Helligkeit
+28:Vollbild
+29:Übernehmen
+30:Sprache:
+31:Lade... Bitte warten
+32:Ein Fehler ist aufgetreten!
+33:
+34:
+35:
+36:
 37:
 38:
+39:
+40:
+41:
 
-39:Sie haben gewonnen!
-40:Weiterspielen
-41:Sieg!
-42:Sie haben Verloren!
-43:Weiter betrachten
-44:Niederlage!
-45:Replay zuende
-46:Weiter betrachten
-47:Zurück zum Menü
-48:
-49:
-50:
-51:
+42:
+
+43:Sie haben gewonnen!
+44:Weiterspielen
+45:Sieg!
+46:Sie haben Verloren!
+47:Weiter betrachten
+48:Niederlage!
+49:Replay zuende
+50:Weiter betrachten
+51:Zurück zum Menü
 52:
-
-53:Ein Fehler ist während des Spiels aufgetreten.
-54:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
-55:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
-56:Netzwerkfehler:
+53:
+54:
+55:
+56:
 57:
 58:
 59:
+60:
 
-60:Mission %d
+61:Ein Fehler ist während des Spiels aufgetreten.
+62:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+63:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
+64:Netzwerkfehler:
+65:
+66:
+67:
+68:Mission %d
 
-62:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
-63:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
-64:
+69:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
+70:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
+71:
 
-65:Marktplatz
+72:Marktplatz
 
-66:Terrain berarbeiten
-67:Häuser bearbeiten
-68:Optische Skripts
-69:Globale Skripts
-70:Menü
+73:Terrain berarbeiten
+74:Häuser bearbeiten
+75:Optische Skripts
+76:Globale Skripts
+77:Menü
 
-71:Spielername:
-72:Ihre IP-Adresse:
-73:Host-IP-Adresse:
-74:Server erstellen
-75:Beitreten
-76:
-77:
-
-78:Spielerliste:
-79:
-80:Team:
-81:Flaggenfarbe:
-82:Bereit:
-83:Ping:
+78:
+79:Spielername:
+80:
+81:
+82:
+83:
 84:
-85:KI-Spieler
-86:Wähle...
+85:
+86:
 87:
 88:
-89:Team %d
-90:Nachrichtenliste:
-91:Nachricht:
-92:Kartenwahl:
-93:Einzelkarte
-94:Gespeichertes Spiel
-95:Wähle eine Karte...
-96:Wähle einen Speicherstand...
-97:Karteninfo:
-98:Spieler: %d
-99:Modus:
-100:Bedingungen:
-101:
-102:Lobby verlassen.
-103:Bereit!
-104:
+89:
+90:
+91:
+92:
+93:
+94:
+95:Beitreten
+96:
+97:
+98:
 
+99:Spielerliste:
+100:
+101:Team:
+102:Flaggenfarbe:
+103:Bereit:
+104:Ping:
 105:
-106:
-107:
+106:KI-Spieler
+107:Wähle...
 108:
 109:
 110:
-111:
+111:Team %d
+112:Nachrichtenliste:
+113:Nachricht:
+114:Kartenwahl:
+115:Einzelkarte
+116:Gespeichertes Spiel
+117:Wähle eine Karte...
+118:Wähle einen Speicherstand...
+119:Karteninfo:
+120:Spieler: %d
+121:Modus:
+122:Bedingungen:
+123:
+124:Lobby verlassen.
+125:Bereit!
+126:
+
+127:
+
+128:
+129:
+130:
+131:
+132:
+133:
+134:

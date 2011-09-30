@@ -1,5 +1,5 @@
 
-MaxID:111
+MaxID:134
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -7,116 +7,141 @@ MaxID:111
 4:En spelare
 5:Kartredigerare
 6:Spela upp senaste spelet
-7:Spela över LAN
-8:Spela över Internet
-9:Logga in
-10:Lösenord
-11:Starta uppdraget
-12:Titel
-13:
-14:Uppdragstyp: 
-15:Vinstvillkor: 
-16:Förlustvillkor: 
-17:Allierade: 
-18:Fiender: 
-19:Plats
-20:Ny kartstorlek
-21:Bredd
-22:Höjd
-23:Skapa ny karta
-24:Tillgängliga kartor
-25:Ladda existerande karta
-26:Kontroller:
-27:Spelinställningar:
-28:Ljud:
-29:
-30:Grafik:
-31:Ljusstyrka
-32:Helskärm
-33:Bekräfta
-34:Språk:
-35:Laddar... Var god vänta
-36:Ett problem uppstod!
-37:Laddar ny lokal
+7:Starta uppdraget
+8:Titel
+9:
+10:Uppdragstyp: 
+11:Vinstvillkor: 
+12:Förlustvillkor: 
+13:Allierade: 
+14:Fiender: 
+15:Plats
+16:Ny kartstorlek
+17:Bredd
+18:Höjd
+19:Skapa ny karta
+20:Tillgängliga kartor
+21:Ladda existerande karta
+22:Kontroller:
+23:Spelinställningar:
+24:Ljud:
+25:
+26:Grafik:
+27:Ljusstyrka
+28:Helskärm
+29:Bekräfta
+30:Språk:
+31:Laddar... Var god vänta
+32:Ett problem uppstod!
+33:Laddar ny lokal
+34:
+35:
+36:
+37:
 38:
+39:
+40:
+41:
 
-39:Du vann!
-40:Fortsätt spela
-41:Seger!
-42:Du förlorade!
-43:Fortsätt titta
-44:Förlust
-45:Återspelningen har avslutats
-46:Fortsätt titta
-47:Avsluta
-48:Ej tillgänglig
-49:Tryck %s för att åter börja spela
-50:Till lag
-51:Spelarinfo
-52:
+42:
 
-53:Ett fel har uppstått under spelets gång. 
-54:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
-55:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
-56:Nätverksfel: 
-57:Error: Spelarnamnet får inte vara ingenting
-58:Uppkoppling misslyckades: %s
-59:Du har kopplats ner
+43:Du vann!
+44:Fortsätt spela
+45:Seger!
+46:Du förlorade!
+47:Fortsätt titta
+48:Förlust
+49:Återspelningen har avslutats
+50:Fortsätt titta
+51:Avsluta
+52:Ej tillgänglig
+53:Tryck %s för att åter börja spela
+54:Till lag
+55:Spelarinfo
+56:
+57:
+58:
+59:
+60:
 
-60:Uppdrag %d
+61:Ett fel har uppstått under spelets gång. 
+62:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
+63:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
+64:Nätverksfel: 
+65:Error: Spelarnamnet får inte vara ingenting
+66:Uppkoppling misslyckades: %s
+67:Du har kopplats ner
+68:Uppdrag %d
 
-62:Din fiskares stuga är för långt från vattnet.
-63:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
-64:Dö
+69:Din fiskares stuga är för långt från vattnet.
+70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
+71:Dö
 
-65:
+72:
 
-66:Terrängeditering
-67:Byplanering
-68:Visuella script
-69:Globala script
-70:Meny
+73:Terrängeditering
+74:Byplanering
+75:Visuella script
+76:Globala script
+77:Meny
 
-71:Spelarnamn:
-72:Din IP-adress:
-73:Värds IP-adress:
-74:Skapa server
-75:Anslut
-76:Kopplar upp, var god vänta...
-77:Väntar på spelare:
-
-78:Spelarlista:
-79:Startplats:
-80:Lag:
-81:Flaggfärg:
-82:Redo:
+78:
+79:Spelarnamn:
+80:
+81:
+82:
 83:
-84:Öppen
-85:AI-spelare
-86:Välj...
-87:Slumpad
-88:Inget
-89:Lag %d
-90:Chat:
-91:Skicka meddelande:
-92:Välj karta:
-93:Enskild karta
-94:Sparat spel
-95:Välj en karta...
-96:Välj ett sparat spel...
-97:Kartinfo:
-98:Spelare: 
-99:Läge: 
-100:Villkor: 
-101:
-102:Avsluta sessionen
-103:Redo
-104:Börja!
+84:
+85:
+86:
+87:
+88:
+89:
+90:
+91:
+92:
+93:
+94:
+95:Anslut
+96:Kopplar upp, var god vänta...
+97:
+98:
 
-105:KaM Remakes skapare
-106:Original Knights & Merchants skapare
-107:PROGRAMMERIG:
-108:YTTERLIGARE PROGRAMMERING:
-109:YTTERLIGARE GRAFIK:
-110:YTTERLIGARE ÖVERSÄTTNING:
-111:SPECIELLT TACK TILL:
+99:Spelarlista:
+100:Startplats:
+101:Lag:
+102:Flaggfärg:
+103:Redo:
+104:
+105:Öppen
+106:AI-spelare
+107:Välj...
+108:Slumpad
+109:Inget
+110:
+111:Lag %d
+112:Chat:
+113:Skicka meddelande:
+114:Välj karta:
+115:Enskild karta
+116:Sparat spel
+117:Välj en karta...
+118:Välj ett sparat spel...
+119:Kartinfo:
+120:Spelare: 
+121:Läge: 
+122:Villkor: 
+123:
+124:Avsluta sessionen
+125:Redo
+126:Börja!
+
+127:Väntar på spelare:
+
+128:KaM Remakes skapare
+129:Original Knights & Merchants skapare
+130:PROGRAMMERIG:
+131:YTTERLIGARE PROGRAMMERING:
+132:YTTERLIGARE GRAFIK:
+133:YTTERLIGARE ÖVERSÄTTNING:
+134:SPECIELLT TACK TILL:

@@ -1,5 +1,5 @@
 
-MaxID:111
+MaxID:134
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -7,116 +7,141 @@ MaxID:111
 4:Egyjátékos mód
 5:Pálya Szerkesztõ
 6:Utolsó visszajátszás megtekintése
-7:Helyi hálózati játék
-8:Internetes játék
-9:Felhasználónév
-10:Jelszó
-11:Küldetés indítása
-12:Cím
-13:Méret
-14:Küldetés Típusa: %s
-15:Gyõzelmi feltétel: %s
-16:Vereség feltétel: %s
-17:Szövetségesek: 
-18:Elenségek: 
-19:Hely %d
-20:Térkép mérete
-21:Szélesség
-22:Magasság
-23:Új Térkép Készítése
-24:Elérhetõ térképek
-25:Térkép Betöltése
-26:Vezérlõk:
-27:Játékmenet:
-28:Hangok:
-29:
-30:Grafika:
-31:Fényerõsség
-32:Teljes képernyõ
-33:Alkalmaz
-34:Nyelv:
-35:Betöltés... Kérem várjon
-36:Hiba történt!
-37:Új nyelv betöltése
-38:Ismeretlen
+7:Küldetés indítása
+8:Cím
+9:Méret
+10:Küldetés Típusa: %s
+11:Gyõzelmi feltétel: %s
+12:Vereség feltétel: %s
+13:Szövetségesek: 
+14:Elenségek: 
+15:Hely %d
+16:Térkép mérete
+17:Szélesség
+18:Magasság
+19:Új Térkép Készítése
+20:Elérhetõ térképek
+21:Térkép Betöltése
+22:Vezérlõk:
+23:Játékmenet:
+24:Hangok:
+25:
+26:Grafika:
+27:Fényerõsség
+28:Teljes képernyõ
+29:Alkalmaz
+30:Nyelv:
+31:Betöltés... Kérem várjon
+32:Hiba történt!
+33:Új nyelv betöltése
+34:
+35:
+36:
+37:
+38:
+39:
+40:
+41:
 
-39:Megnyerted a játékot!
-40:Játék folytatása
-41:Gyõzelem!
-42:Elvesztetted a játékot!
-43:Játék megfigyelése
-44:Vereség
-45:A visszajátszás végetért
-46:Játék megfigyelése
-47:Vissza a menübe
-48:Nem elérhetõ
-49:Nyomj %s billentyût a játék folytatásához
-50:Csapatnak
-51:
-52:
+42:Ismeretlen
 
-53:Egy hiba történt a játék során.
-54:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
-55:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
-56:Hálózati hiba:
-57:Hiba: A játékos neve nem lehet üres
-58:Kapcsolódási hiba: %s
-59:Megszakadt a kapcsolat
+43:Megnyerted a játékot!
+44:Játék folytatása
+45:Gyõzelem!
+46:Elvesztetted a játékot!
+47:Játék megfigyelése
+48:Vereség
+49:A visszajátszás végetért
+50:Játék megfigyelése
+51:Vissza a menübe
+52:Nem elérhetõ
+53:Nyomj %s billentyût a játék folytatásához
+54:Csapatnak
+55:
+56:
+57:
+58:
+59:
+60:
 
-60:Küldetés %d
+61:Egy hiba történt a játék során.
+62:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
+63:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
+64:Hálózati hiba:
+65:Hiba: A játékos neve nem lehet üres
+66:Kapcsolódási hiba: %s
+67:Megszakadt a kapcsolat
+68:Küldetés %d
 
-62:A halászkunyhód túl messze van a víztõl.
-63:A halászod nem tud több halat fogni a közeli vízbõl.
-64:Meghal
+69:A halászkunyhód túl messze van a víztõl.
+70:A halászod nem tud több halat fogni a közeli vízbõl.
+71:Meghal
 
-65:Piactér
+72:Piactér
 
-66:Tereprendezés
-67:Település tervezés
-68:Vizuális szkriptek
-69:Globális szkriptek
-70:Menü
+73:Tereprendezés
+74:Település tervezés
+75:Vizuális szkriptek
+76:Globális szkriptek
+77:Menü
 
-71:Játékos neve:
-72:A te IP címed:
-73:Szerver IP címe:
-74:Szerver készítés
-75:Csatlakozás
-76:Kapcsolódás, kérem várjon ...
-77:Várakozás a játékosokra:
-
-78:Játékosok:
-79:Kezdõhely:
-80:Csapat:
-81:Zászló szín:
-82:Kész:
+78:
+79:Játékos neve:
+80:
+81:
+82:
 83:
-84:Nyitva
-85:Számítógép
-86:Válassz...
-87:Véletlen
-88:Nincs
-89:Csapat %d
-90:Üzenetek:
-91:Üzenet írása:
-92:Térkép választása:
-93:Egy térkép
-94:Mentett játék
-95:Válassz egy térképet...
-96:Válassz egy mentést...
-97:Térkép infó:
-98:Játékosok: %d
-99:Játékmód:
-100:Feltételek:
-101:
-102:Kilépés
-103:Kész
-104:Indítás!
+84:
+85:
+86:
+87:
+88:
+89:
+90:
+91:
+92:
+93:
+94:
+95:Csatlakozás
+96:Kapcsolódás, kérem várjon ...
+97:
+98:
 
-105:KaM Remake Készítõk
-106:Eredeti Knights & Merchants Készítõk
-107:PROGRAMOZÁS:
-108:TOVÁBBI PROGRAMOZÁS:
-109:TOVÁBBI GRAFIKA:
-110:TOVÁBBI FORDÍTÓK:
-111:KÜLÖN KÖSZÖNET:
+99:Játékosok:
+100:Kezdõhely:
+101:Csapat:
+102:Zászló szín:
+103:Kész:
+104:
+105:Nyitva
+106:Számítógép
+107:Válassz...
+108:Véletlen
+109:Nincs
+110:
+111:Csapat %d
+112:Üzenetek:
+113:Üzenet írása:
+114:Térkép választása:
+115:Egy térkép
+116:Mentett játék
+117:Válassz egy térképet...
+118:Válassz egy mentést...
+119:Térkép infó:
+120:Játékosok: %d
+121:Játékmód:
+122:Feltételek:
+123:
+124:Kilépés
+125:Kész
+126:Indítás!
+
+127:Várakozás a játékosokra:
+
+128:KaM Remake Készítõk
+129:Eredeti Knights & Merchants Készítõk
+130:PROGRAMOZÁS:
+131:TOVÁBBI PROGRAMOZÁS:
+132:TOVÁBBI GRAFIKA:
+133:TOVÁBBI FORDÍTÓK:
+134:KÜLÖN KÖSZÖNET:

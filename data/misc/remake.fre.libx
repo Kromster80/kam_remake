@@ -1,5 +1,5 @@
 
-MaxID:111
+MaxID:134
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -7,116 +7,141 @@ MaxID:111
 4:Joueur Solo
 5:Editeur de Missions
 6:Voir le Dernier Replay
-7:Jouer en LAN
-8:Jouer sur Internet
-9:Nom d'Utilisateur
-10:Mot de Passe
-11:Continuer
-12:Titre
-13:Taille
-14:Type de Mission: 
-15:Condition de Victoire: 
-16:Condition de Défaite: 
-17:Alliés: 
-18:Ennemis: 
-19:
-20:Taille de la Carte :
-21:Largeur
-22:Hauteur
-23:Créer une Mission
-24:Missions Disponible :
-25:Charger une Mission Existante
-26:Contrôles :
-27:
-28:Effets Sonores :
-29:
-30:Graphisme :
-31:Luminosité
-32:Plein Ecran
-33:Appliquer
-34:Language :
-35:Chargement... Veuillez patienter
-36:Une Erreur s'est Produite!
-37:Chargement du nouveau local
-38:Inconnue
+7:Continuer
+8:Titre
+9:Taille
+10:Type de Mission: 
+11:Condition de Victoire: 
+12:Condition de Défaite: 
+13:Alliés: 
+14:Ennemis: 
+15:
+16:Taille de la Carte :
+17:Largeur
+18:Hauteur
+19:Créer une Mission
+20:Missions Disponible :
+21:Charger une Mission Existante
+22:Contrôles :
+23:
+24:Effets Sonores :
+25:
+26:Graphisme :
+27:Luminosité
+28:Plein Ecran
+29:Appliquer
+30:Language :
+31:Chargement... Veuillez patienter
+32:Une Erreur s'est Produite!
+33:Chargement du nouveau local
+34:
+35:
+36:
+37:
+38:
+39:
+40:
+41:
 
-39:Vous avez gagné!
-40:Continuer
-41:Victoire!
-42:Vous avez perdu!
-43:Continuer
-44:Défaite!
-45:Le replay est terminé
-46:Continuer
-47:Retour au Menu
-48:Non disponible
-49:Appuyer sur %s pour reprendre le jeu
-50:A l'Equipe
-51:Info sur les Joueurs
-52:
+42:Inconnue
 
-53:Une erreur s'est produite durant le gameplay.
-54:
-55:
-56:Erreur Réseau:
-57:Erreur: Le nom du joueur ne doit pas être blanc
-58:La connexion a échoué: %s
-59:Vous avez déconnecté
-
+43:Vous avez gagné!
+44:Continuer
+45:Victoire!
+46:Vous avez perdu!
+47:Continuer
+48:Défaite!
+49:Le replay est terminé
+50:Continuer
+51:Retour au Menu
+52:Non disponible
+53:Appuyer sur %s pour reprendre le jeu
+54:A l'Equipe
+55:Info sur les Joueurs
+56:
+57:
+58:
+59:
 60:
 
+61:Une erreur s'est produite durant le gameplay.
 62:
 63:
-64:Mourir
+64:Erreur Réseau:
+65:Erreur: Le nom du joueur ne doit pas être blanc
+66:La connexion a échoué: %s
+67:Vous avez déconnecté
+68:
 
-65:
-
-66:Edition du Terrain
-67:Planification du Village
-68:Scripts Visuel
-69:Scripts Global
+69:
 70:
+71:Mourir
 
-71:Nom du Joueur:
-72:Votre adresse IP:
-73:Adresse IP de l'Hôte:
-74:Créer un Serveur
-75:Joindre
-76:Connexion, Veuillez patienter...
-77:Attente des joueurs:
+72:
 
-78:Joueurs:
-79:Position:
-80:Equipe:
-81:Couleur:
-82:Prêt:
+73:Edition du Terrain
+74:Planification du Village
+75:Scripts Visuel
+76:Scripts Global
+77:
+
+78:
+79:Nom du Joueur:
+80:
+81:
+82:
 83:
-84:Libre
-85:Joueur IA
-86:Sélectionnez...
-87:Aléatoire
-88:Aucune
-89:Equipe %d
-90:List des Messages:
-91:Envoyer un Message:
-92:Sélectionnez une Mission:
-93:Mission
-94:Sauvegarde
-95:Sélect. une mission...
-96:Sélect. un fichier...
-97:Info sur la Mission:
-98:Joueurs: %d
-99:
-100:
-101:
-102:Quitter Lobby
-103:Prêt
-104:Débuter !
+84:
+85:
+86:
+87:
+88:
+89:
+90:
+91:
+92:
+93:
+94:
+95:Joindre
+96:Connexion, Veuillez patienter...
+97:
+98:
 
-105:Crédits de KaM Remake
-106:Crédits Orginal de Knights and Merchants
-107:PROGRAMMATION:
-108:PROGRAMMATION ADDITIONNEL:
-109:GRAPHISMES ADDITIONNEL:
-110:TRADUCTIONS ADDITIONNEL:
-111:REMERCIMENTS PARTICULIERS A:
+99:Joueurs:
+100:Position:
+101:Equipe:
+102:Couleur:
+103:Prêt:
+104:
+105:Libre
+106:Joueur IA
+107:Sélectionnez...
+108:Aléatoire
+109:Aucune
+110:
+111:Equipe %d
+112:List des Messages:
+113:Envoyer un Message:
+114:Sélectionnez une Mission:
+115:Mission
+116:Sauvegarde
+117:Sélect. une mission...
+118:Sélect. un fichier...
+119:Info sur la Mission:
+120:Joueurs: %d
+121:
+122:
+123:
+124:Quitter Lobby
+125:Prêt
+126:Débuter !
+
+127:Attente des joueurs:
+
+128:Crédits de KaM Remake
+129:Crédits Orginal de Knights and Merchants
+130:PROGRAMMATION:
+131:PROGRAMMATION ADDITIONNEL:
+132:GRAPHISMES ADDITIONNEL:
+133:TRADUCTIONS ADDITIONNEL:
+134:REMERCIMENTS PARTICULIERS A:

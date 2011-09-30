@@ -1,5 +1,5 @@
 
-MaxID:111
+MaxID:134
 
 1:Mission canceled
 2:Town Tutorial
@@ -7,116 +7,141 @@ MaxID:111
 4:Single Player
 5:Map Editor
 6:View last replay
-7:Play over LAN
-8:Play over Internet
-9:Login
-10:Password
-11:Start Mission
-12:Title
-13:Size
-14:Mission Type: %s
-15:Win condition: %s
-16:Defeat condition: %s
-17:Allies: 
-18:Enemies: 
-19:Slot %d
-20:New map size
-21:Width
-22:Height
-23:Create New Map
-24:Available maps
-25:Load Existing Map
-26:Controls:
-27:Gameplay:
-28:Sound:
-29:Disable Music
-30:Graphics:
-31:Brightness
-32:Fullscreen
-33:Apply
-34:Language:
-35:Loading... Please wait
-36:An Error Has Occured!
-37:Loading new locale
-38:Unknown
+7:Start Mission
+8:Title
+9:Size
+10:Mission Type: %s
+11:Win condition: %s
+12:Defeat condition: %s
+13:Allies: 
+14:Enemies: 
+15:Slot %d
+16:New map size
+17:Width
+18:Height
+19:Create New Map
+20:Available maps
+21:Load Existing Map
+22:Controls:
+23:Gameplay:
+24:Sound:
+25:Disable Music
+26:Graphics:
+27:Brightness
+28:Fullscreen
+29:Apply
+30:Language:
+31:Loading... Please wait
+32:An Error Has Occured!
+33:Loading new locale
+34:List of savegames
+35:File name
+36:Description
+37:Load
+38:Delete
+39:Are you sure you want to delete this save?
+40:Delete
+41:Cancel
 
-39:You've won!
-40:Continue playing
-41:Victory!
-42:You've lost!
-43:Continue watching
-44:Defeat
-45:Replay has ended
-46:Continue watching
-47:Quit to menu
-48:Not available
-49:Press %s to resume the game
-50:To team
-51:Players info
-52:Chat
+42:Unknown
 
-53:An error has occoured during gameplay.
-54:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
-55:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
-56:Network error:
-57:Error: Player name must not be blank
-58:Connection failed: %s
-59:You have disconnected
+43:You've won!
+44:Continue playing
+45:Victory!
+46:You've lost!
+47:Continue watching
+48:Defeat
+49:Replay has ended
+50:Continue watching
+51:Quit to menu
+52:Not available
+53:Press %s to resume the game
+54:To team
+55:Players info
+56:Chat
+57:Save already exists
+58:Overwrite
+59:Save
+60:Load
 
-60:Mission %d
+61:An error has occoured during gameplay.
+62:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
+63:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
+64:Network error:
+65:Error: Player name must not be blank
+66:Connection failed: %s
+67:You have disconnected
+68:Mission %d
 
-62:Your fisherman's hut is too far away from the water.
-63:Your fisherman cannot catch any further fish in the nearby water bodies.
-64:Die
+69:Your fisherman's hut is too far away from the water.
+70:Your fisherman cannot catch any further fish in the nearby water bodies.
+71:Die
 
-65:Marketplace
+72:Marketplace
 
-66:Terrain editing
-67:Village planning
-68:Visual scripts
-69:Global scripting
-70:Menu
+73:Terrain editing
+74:Village planning
+75:Visual scripts
+76:Global scripting
+77:Menu
 
-71:Player name:
-72:Your IP address:
-73:Host IP address:
-74:Create Server
-75:Join
-76:Connecting, please wait ...
-77:Waiting for players:
+78:Status:
+79:Player name:
+80:CREATE SERVER
+81:Server Name
+82:Server Port
+83:Create Local Server
+84:Create Internet Server
+85:Server Name
+86:State
+87:Players
+88:Ping
+89:Refresh Server List
+90:SERVER DETAILS
+91:Player list:
+92:Address
+93:Port
+94:Room
+95:Join
+96:Connecting, please wait ...
+97:Loading announcements...
+98:Refreshing...
 
-78:Players list:
-79:Start location:
-80:Team:
-81:Flag color:
-82:Ready:
-83:Ping:
-84:Open
-85:AI Player
-86:Select...
-87:Random
-88:None
-89:Team %d
-90:Posts list:
-91:Post message:
-92:Choose map:
-93:Single Map
-94:Saved Game
-95:Select a map...
-96:Select a save...
-97:Map info:
-98:Players: %d
-99:Mode:
-100:Conditions:
-101:Size:
-102:Quit lobby
-103:Ready
-104:Start!
+99:Players list:
+100:Start location:
+101:Team:
+102:Flag color:
+103:Ready:
+104:Ping:
+105:Open
+106:AI Player
+107:Select...
+108:Random
+109:None
+110:None
+111:Team %d
+112:Posts list:
+113:Post message:
+114:Choose map:
+115:Single Map
+116:Saved Game
+117:Select a map...
+118:Select a save...
+119:Map info:
+120:Players: %d
+121:Mode:
+122:Conditions:
+123:Size:
+124:Quit lobby
+125:Ready
+126:Start!
 
-105:KaM Remake Credits
-106:Original Knights & Merchants Credits
-107:PROGRAMMING:
-108:ADDITIONAL PROGRAMMING:
-109:ADDITIONAL GRAPHICS:
-110:ADDITIONAL TRANSLATIONS:
-111:SPECIAL THANKS TO:
+127:Waiting for players:
+
+128:KaM Remake Credits
+129:Original Knights & Merchants Credits
+130:PROGRAMMING:
+131:ADDITIONAL PROGRAMMING:
+132:ADDITIONAL GRAPHICS:
+133:ADDITIONAL TRANSLATIONS:
+134:SPECIAL THANKS TO:

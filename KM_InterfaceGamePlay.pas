@@ -1167,11 +1167,11 @@ begin
 
     Edit_Save := TKMEdit.Create(Panel_Save, 12, 255, 170, 20, fnt_Metal);
     Edit_Save.OnChange := Save_EditChange;
-    Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,100,30,'Save already exists',fnt_Outline,kaLeft);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,100,20,'Overwrite', fnt_Metal);
+    Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,100,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,kaLeft);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,100,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
     CheckBox_SaveExists.OnClick := Save_CheckboxChange;
 
-    Button_Save := TKMButton.Create(Panel_Save,12,320,170,30,'Save',fnt_Metal, bsMenu);
+    Button_Save := TKMButton.Create(Panel_Save,12,320,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_SAVE],fnt_Metal, bsMenu);
     Button_Save.OnClick := Save_Click;
 end;
 
@@ -1187,7 +1187,7 @@ begin
     Label_Load_Description := TKMLabel.Create(Panel_Load,12,285,170,40,'',fnt_Grey,kaLeft);
     Label_Load_Description.AutoWrap := true;
 
-    Button_Load := TKMButton.Create(Panel_Load,12,320,170,30,'Load',fnt_Metal, bsMenu);
+    Button_Load := TKMButton.Create(Panel_Load,12,320,170,30,fTextLibrary[TX_GAMEPLAY_LOAD],fnt_Metal, bsMenu);
     Button_Load.OnClick := Load_Click;
 end;
 
@@ -2516,7 +2516,7 @@ end;
 procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
 var i:integer; S:String;
 begin
-  S := fTextLibrary[TX_LANLOGIN_WAITING]+' ';
+  S := fTextLibrary[TX_MULTIPLAYER_WAITING]+' ';
   for i:=0 to aPlayers.Count-1 do
     S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
 

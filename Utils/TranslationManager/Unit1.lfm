@@ -20,6 +20,26 @@ object Form1: TForm1
     Caption = 'Constant name'
     ParentColor = False
   end
+  object Label2: TLabel
+    Left = 344
+    Height = 17
+    Top = 336
+    Width = 86
+    Caption = 'Show Missing:'
+    ParentColor = False
+  end
+  object LabelIncludeSameAsEnglish: TLabel
+    Left = 365
+    Height = 81
+    Top = 384
+    Width = 97
+    AutoSize = False
+    Caption = 'Include strings that are the same in English'
+    Enabled = False
+    ParentColor = False
+    WordWrap = True
+    OnClick = LabelIncludeSameAsEnglishClick
+  end
   object ListBox1: TListBox
     Left = 8
     Height = 727
@@ -117,5 +137,25 @@ object Form1: TForm1
     Caption = 'Move Down'
     OnClick = btnMoveDownClick
     TabOrder = 10
+  end
+  object cbShowMissing: TComboBox
+    Left = 344
+    Height = 24
+    Top = 352
+    Width = 121
+    DropDownCount = 16
+    ItemHeight = 16
+    OnChange = cbShowMissingChange
+    Style = csDropDownList
+    TabOrder = 11
+  end
+  object cbIncludeSameAsEnglish: TCheckBox
+    Left = 344
+    Height = 23
+    Top = 384
+    Width = 24
+    Enabled = False
+    OnClick = cbIncludeSameAsEnglishClick
+    TabOrder = 12
   end
 end

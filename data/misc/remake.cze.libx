@@ -1,5 +1,5 @@
 
-MaxID:111
+MaxID:134
 
 1:Mise zrušena
 2:Stavební Tutoriál
@@ -7,116 +7,141 @@ MaxID:111
 4:Hra Jednoho Hráèe
 5:Editor Map
 6:Shlédnout poslední záznam
-7:Hrát pøes LAN
-8:Hrát pøes Internet
-9:
-10:Heslo
-11:Spustit Misi
-12:Název
-13:Velikost
-14:Typ Mise: %s
-15:Podmínky vítìzství: %s
-16:Podmínky poráky: %s
-17:Spojenci: 
-18:Nepøátelé: 
-19:
-20:Velikost nové mapy
-21:Šíøka
-22:Vıška
-23:Vytvoøit Novou Mapu
-24:Dostupné mapy
-25:Naèíst existující mapu
-26:Ovládání:
-27:Hra:
-28:Zvuk:
-29:
-30:Grafika:
-31:Jas
-32:Celá obrazovka
-33:Pouít
-34:Jazyk:
-35:Nahrávám... Prosím èekejte
-36:Došlo k Chybì!
-37:Nahrávám novou lokalizaci
-38:Neznámá
+7:Spustit Misi
+8:Název
+9:Velikost
+10:Typ Mise: %s
+11:Podmínky vítìzství: %s
+12:Podmínky poráky: %s
+13:Spojenci: 
+14:Nepøátelé: 
+15:
+16:Velikost nové mapy
+17:Šíøka
+18:Vıška
+19:Vytvoøit Novou Mapu
+20:Dostupné mapy
+21:Naèíst existující mapu
+22:Ovládání:
+23:Hra:
+24:Zvuk:
+25:
+26:Grafika:
+27:Jas
+28:Celá obrazovka
+29:Pouít
+30:Jazyk:
+31:Nahrávám... Prosím èekejte
+32:Došlo k Chybì!
+33:Nahrávám novou lokalizaci
+34:
+35:
+36:
+37:
+38:
+39:
+40:
+41:
 
-39:Zvítìzil jste!
-40:Pokraèovat ve høe
-41:Vítìzství!
-42:Prohrál jste!
-43:Dále sledovat
-44:Prohra
-45:Pøehrávání skonèilo
-46:Dále sledovat
-47:Ukonèit
-48:Nedostupné
-49:Stisknìte %s pro pokraèování hry
-50:Tımu
-51:Informace o hráèích
-52:
+42:Neznámá
 
-53:Bìhem hry došlo k chybì.
-54:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nPOZOR: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
-55:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickıma chybama\nProsím aktualizujte svoje ovladaèe pro dosaení lepších vısledkù.
-56:Síová chyba:
-57:Chyba: Musíte zadat svoje jméno
-58:Spojení se nezdaøilo: %s
-59:Byl jste odpojen
+43:Zvítìzil jste!
+44:Pokraèovat ve høe
+45:Vítìzství!
+46:Prohrál jste!
+47:Dále sledovat
+48:Prohra
+49:Pøehrávání skonèilo
+50:Dále sledovat
+51:Ukonèit
+52:Nedostupné
+53:Stisknìte %s pro pokraèování hry
+54:Tımu
+55:Informace o hráèích
+56:
+57:
+58:
+59:
+60:
 
-60:Mise %d
+61:Bìhem hry došlo k chybì.
+62:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nPOZOR: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
+63:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickıma chybama\nProsím aktualizujte svoje ovladaèe pro dosaení lepších vısledkù.
+64:Síová chyba:
+65:Chyba: Musíte zadat svoje jméno
+66:Spojení se nezdaøilo: %s
+67:Byl jste odpojen
+68:Mise %d
 
-62:Váš rybáø je pøíliš daleko od vody.
-63:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
-64:Umøít
+69:Váš rybáø je pøíliš daleko od vody.
+70:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
+71:Umøít
 
-65:
+72:
 
-66:Editace terénu
-67:Plánování vesnice
-68:Visualní skripty
-69:Globalní skriptování
-70:
+73:Editace terénu
+74:Plánování vesnice
+75:Visualní skripty
+76:Globalní skriptování
+77:
 
-71:Jméno hráèe:
-72:Vaše IP adresa:
-73:IP adresa hostitele:
-74:Vytvoøit server
-75:Pøipojit
-76:Pøipojuji se, prosím èekejte...
-77:Èekám na ostatní hráèe:
-
-78:Seznam hráèù:
-79:Starovací pozice:
-80:Tım:
-81:Barva:
-82:Hotov:
+78:
+79:Jméno hráèe:
+80:
+81:
+82:
 83:
-84:Volno
-85:Poèítaè
-86:Vybrat...
-87:Náhodnì
-88:ádnı
-89:Tım %d
-90:Chat:
-91:Odeslat zprávu:
-92:Vıbìr mapy:
-93:Nová Hra
-94:Uloená Hra
-95:Vyberte mapu...
-96:Vıbìr uloené hry...
-97:Informace o mapì:
-98:Hráèi: %d
-99:Mód:
-100:Podmínky vítìzství:
-101:
-102:Opustit lobby
-103:Pøipraven
-104:
+84:
+85:
+86:
+87:
+88:
+89:
+90:
+91:
+92:
+93:
+94:
+95:Pøipojit
+96:Pøipojuji se, prosím èekejte...
+97:
+98:
 
-105:
-106:
-107:PROGRAMOVÁNÍ:
-108:DALŠÍ PROGRAMOVÁNÍ:
-109:DALŠÍ GRAFIKA:
-110:DALŠÍ PØEKLAD:
-111:SPECIÁLNÍ PODÌKOVÁNÍ:
+99:Seznam hráèù:
+100:Starovací pozice:
+101:Tım:
+102:Barva:
+103:Hotov:
+104:
+105:Volno
+106:Poèítaè
+107:Vybrat...
+108:Náhodnì
+109:ádnı
+110:
+111:Tım %d
+112:Chat:
+113:Odeslat zprávu:
+114:Vıbìr mapy:
+115:Nová Hra
+116:Uloená Hra
+117:Vyberte mapu...
+118:Vıbìr uloené hry...
+119:Informace o mapì:
+120:Hráèi: %d
+121:Mód:
+122:Podmínky vítìzství:
+123:
+124:Opustit lobby
+125:Pøipraven
+126:
+
+127:Èekám na ostatní hráèe:
+
+128:
+129:
+130:PROGRAMOVÁNÍ:
+131:DALŠÍ PROGRAMOVÁNÍ:
+132:DALŠÍ GRAFIKA:
+133:DALŠÍ PØEKLAD:
+134:SPECIÁLNÍ PODÌKOVÁNÍ:

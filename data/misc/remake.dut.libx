@@ -1,5 +1,5 @@
 
-MaxID:111
+MaxID:134
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -7,116 +7,141 @@ MaxID:111
 4:Alleen spelen	
 5:
 6:Bekijken laatste spel
-7:Speel over LAN
-8:Speel over Internet
-9:Inloggen
-10:Wachtwoord
-11:Start missie
-12:titel
-13:Grote
-14:Missie type: %s
-15:Overwinning conditie %s
-16:Nederlaag conditie: %s
-17:Bondgenoten: 
-18:Vijanden: 
-19:
-20:Nieuwe map grote
-21:Breedte
-22:Hoogte
-23:Nieuwe map aanmaken
-24:Beschikbare mappen
-25:Bestaande map inladen
-26:
-27:
-28:Muziek:
-29:
-30:Grafisch:
-31:Helderheid
-32:Volledig scherm
-33:Toepassen
-34:Taal:
-35:Aan het laden... Een ogenblik
-36:Er is een fout opgetreden!
-37:Laden nieuw lokaal
+7:Start missie
+8:titel
+9:Grote
+10:Missie type: %s
+11:Overwinning conditie %s
+12:Nederlaag conditie: %s
+13:Bondgenoten: 
+14:Vijanden: 
+15:
+16:Nieuwe map grote
+17:Breedte
+18:Hoogte
+19:Nieuwe map aanmaken
+20:Beschikbare mappen
+21:Bestaande map inladen
+22:
+23:
+24:Muziek:
+25:
+26:Grafisch:
+27:Helderheid
+28:Volledig scherm
+29:Toepassen
+30:Taal:
+31:Aan het laden... Een ogenblik
+32:Er is een fout opgetreden!
+33:Laden nieuw lokaal
+34:
+35:
+36:
+37:
 38:
+39:
+40:
+41:
 
-39:Je hebt gewonnen!
-40:Doorspelen
-41:Victorie!
-42:Je hebt verloren!
-43:Blijk kijken
-44:Nederlaag
-45:Terugkijken is gestopt
-46:Blijf kijken
-47:Afsluiten naar menu
-48:
-49:
-50:
-51:
+42:
+
+43:Je hebt gewonnen!
+44:Doorspelen
+45:Victorie!
+46:Je hebt verloren!
+47:Blijk kijken
+48:Nederlaag
+49:Terugkijken is gestopt
+50:Blijf kijken
+51:Afsluiten naar menu
 52:
-
-53:Er is een fout opgetreden!
-54:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
-55: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
-56:Netwerk fout:
+53:
+54:
+55:
+56:
 57:
 58:
 59:
+60:
 
-60:Missie %d
-
-62: De vissershut is buiten het bereik van het water.
-63: De visser kan geen vis meer vangen rondom zijn vissershut
-64:
-
+61:Er is een fout opgetreden!
+62:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
+63: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
+64:Netwerk fout:
 65:
+66:
+67:
+68:Missie %d
 
-66:Terrein wijzigigen
-67:Stad planning
-68:Visuele scripts
-69:Globale scripts
-70:
+69: De vissershut is buiten het bereik van het water.
+70: De visser kan geen vis meer vangen rondom zijn vissershut
+71:
 
-71:Speler naam:
-72:Jouw IP-adres:
-73:Host IP adres:
-74:Server aanmaken
-75:Meedoen
-76:
+72:
+
+73:Terrein wijzigigen
+74:Stad planning
+75:Visuele scripts
+76:Globale scripts
 77:
 
-78:Spelerslijst:
-79:Start locatie:
+78:
+79:Speler naam:
 80:
-81:Vlag kleur:
-82:Klaar:
-83:Ping:
+81:
+82:
+83:
 84:
-85:AI Speler
-86:Selecteer...
-87:Willekeurig
-88:Geen
-89:Team %d
-90:Berichten list:
-91:Bericht:
-92:Kies map:
-93:Een map:
-94:Opgeslagen map:
-95:Selecteer een map...
-96:Selecteer een opgeslagen spel...
-97:Map informatie:
-98:Spelers: %d
-99:
-100:Condities:
-101:
-102:Afsluiten lobby
-103:Klaar
-104:
+85:
+86:
+87:
+88:
+89:
+90:
+91:
+92:
+93:
+94:
+95:Meedoen
+96:
+97:
+98:
 
+99:Spelerslijst:
+100:Start locatie:
+101:
+102:Vlag kleur:
+103:Klaar:
+104:Ping:
 105:
-106:
-107:
-108:
-109:
+106:AI Speler
+107:Selecteer...
+108:Willekeurig
+109:Geen
 110:
-111:
+111:Team %d
+112:Berichten list:
+113:Bericht:
+114:Kies map:
+115:Een map:
+116:Opgeslagen map:
+117:Selecteer een map...
+118:Selecteer een opgeslagen spel...
+119:Map informatie:
+120:Spelers: %d
+121:
+122:Condities:
+123:
+124:Afsluiten lobby
+125:Klaar
+126:
+
+127:
+
+128:
+129:
+130:
+131:
+132:
+133:
+134:

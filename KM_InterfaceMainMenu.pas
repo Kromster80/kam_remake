@@ -448,9 +448,9 @@ begin
     //Top area
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 45, 42, 620, 72);
       TKMBevel.Create(Panel_MPPlayerName,   0,  0, 620, 72);
-      TKMLabel.Create(Panel_MPPlayerName, 8, 6, 236, 10, fTextLibrary[TX_LANLOGIN_PLAYERNAME], fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPPlayerName, 8, 6, 236, 10, fTextLibrary[TX_MP_MENU_PLAYERNAME], fnt_Outline, kaLeft);
       Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 26, 120, 20, fnt_Grey);
-      TKMLabel.Create(Panel_MPPlayerName, 150, 6, 236, 10, 'Status:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPPlayerName, 150, 6, 236, 10, fTextLibrary[TX_MP_MENU_STATUS], fnt_Outline, kaLeft);
       Label_MP_Status := TKMLabel.Create(Panel_MPPlayerName, 150, 26, 470, 30, '', fnt_Grey, kaLeft);
       Label_MP_Status.AutoWrap := true;
 
@@ -461,39 +461,39 @@ begin
     //Create server area
     Panel_MPCreateServer := TKMPanel.Create(Panel_MultiPlayer, 673, 42, 300, 236);
       TKMBevel.Create(Panel_MPCreateServer,   0,  0, 300, 236);
-      TKMLabel.Create(Panel_MPCreateServer, 150, 6, 250, 10, 'CREATE SERVER', fnt_Outline, kaCenter);
-      TKMLabel.Create(Panel_MPCreateServer, 8, 42, 120, 10, 'Server Name', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPCreateServer, 150, 6, 250, 10, fTextLibrary[TX_MP_MENU_HEADER_CREATE_SERVER], fnt_Outline, kaCenter);
+      TKMLabel.Create(Panel_MPCreateServer, 8, 42, 120, 10, fTextLibrary[TX_MP_MENU_CREATE_SERVER_NAME], fnt_Outline, kaLeft);
       Edit_MP_ServerName := TKMEdit.Create(Panel_MPCreateServer, 8, 58, 286, 20, fnt_Grey);
-      TKMLabel.Create(Panel_MPCreateServer, 8, 88, 120, 10, 'Server Port', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPCreateServer, 8, 88, 120, 10, fTextLibrary[TX_MP_MENU_SERVER_PORT], fnt_Outline, kaLeft);
       Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 8, 104, 100, 20, fnt_Grey);
-      Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 155,286,30,'Create Local Server',fnt_Metal,bsMenu);
-      Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 195,286,30,'Create Internet Server',fnt_Metal,bsMenu);
+      Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 155,286,30,fTextLibrary[TX_MP_MENU_CREATE_LOCAL],fnt_Metal,bsMenu);
+      Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 195,286,30,fTextLibrary[TX_MP_MENU_CREATE_INTERNET],fnt_Metal,bsMenu);
       Button_MP_CreateLAN.OnClick := MP_Host_Click;
       Button_MP_CreateWAN.OnClick := MP_Host_Click;
 
     //Server list area
-    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,['Server Name','State','Players','Ping'],[0,300,430,525]);
+    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,[fTextLibrary[TX_MP_MENU_SERVER_NAME],fTextLibrary[TX_MP_MENU_SERVER_STATE],fTextLibrary[TX_MP_MENU_SERVER_PLAYERS],fTextLibrary[TX_MP_MENU_SERVER_PING]],[0,300,430,525]);
     ColList_Servers.OnChange := MP_SelectServer;
-    Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,'Refresh Server List',fnt_Metal,bsMenu);
+    Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,fTextLibrary[TX_MP_MENU_REFRESH_LIST],fnt_Metal,bsMenu);
     Button_MP_Refresh.OnClick := MP_RefreshClick;
 
     //Server details area
     Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
       TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
-      TKMLabel.Create(Panel_MPServerDetails, 150, 6, 250, 10, 'SERVER DETAILS', fnt_Outline, kaCenter);
-      TKMLabel.Create(Panel_MPServerDetails, 8, 30, 250, 10, 'Player list:', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPServerDetails, 150, 6, 250, 10, fTextLibrary[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, kaCenter);
+      TKMLabel.Create(Panel_MPServerDetails, 8, 30, 250, 10, fTextLibrary[TX_MP_MENU_PLAYER_LIST], fnt_Outline, kaLeft);
       Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 250, 10, '', fnt_Metal, kaLeft);
 
     //Join server area
     Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
       TKMBevel.Create(Panel_MPJoinServer,   0,  0, 300, 90);
-      TKMLabel.Create(Panel_MPJoinServer, 8, 8, 120, 10, 'Address', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPJoinServer, 8, 8, 120, 10, fTextLibrary[TX_MP_MENU_JOIN_ADDRESS], fnt_Outline, kaLeft);
       Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 162, 20, fnt_Grey);
-      TKMLabel.Create(Panel_MPJoinServer, 172, 8, 120, 10, 'Port', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPJoinServer, 172, 8, 120, 10, fTextLibrary[TX_MP_MENU_JOIN_PORT], fnt_Outline, kaLeft);
       Edit_MP_Port := TKMEdit.Create(Panel_MPJoinServer, 172, 24, 60, 20, fnt_Grey);
-      TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, 'Room', fnt_Outline, kaLeft);
+      TKMLabel.Create(Panel_MPJoinServer, 232, 8, 120, 10, fTextLibrary[TX_MP_MENU_JOIN_ROOM], fnt_Outline, kaLeft);
       Edit_MP_Room := TKMEdit.Create(Panel_MPJoinServer, 232, 24, 60, 20, fnt_Grey);
-      Button_MP_Join := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_LANLOGIN_SERVER_JOIN],fnt_Metal,bsMenu);
+      Button_MP_Join := TKMButton.Create(Panel_MPJoinServer,8, 52,284,30,fTextLibrary[TX_MP_MENU_SERVER_JOIN],fnt_Metal,bsMenu);
       Button_MP_Join.OnClick := MP_JoinClick;
 
     Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -518,7 +518,7 @@ begin
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
-        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top+2, 140, 20, '. ', fnt_Metal, kaLeft);
+        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top+2, 140, 20, '', fnt_Metal, kaLeft);
         Label_LobbyPlayer[i].Hide;
 
         DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 10, top, 140, 20, fnt_Metal, '');
@@ -684,21 +684,21 @@ procedure TKMMainMenuInterface.Create_Load_Page;
 begin
   Panel_Load:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
-    TKMLabel.Create(Panel_Load, ScreenX div 2, 60, 0, 0, 'List of savegames', fnt_Metal, kaCenter);
+    TKMLabel.Create(Panel_Load, ScreenX div 2, 60, 0, 0, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Metal, kaCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal, fnt_Outline, ['File name', 'Description'], [0, 300]);
+    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal, fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Load.OnChange := Load_ListClick;
 
-    Button_Load := TKMButton.Create(Panel_Load,337,560,350,30,'Load',fnt_Metal, bsMenu);
+    Button_Load := TKMButton.Create(Panel_Load,337,560,350,30,fTextLibrary[TX_MENU_LOAD_LOAD],fnt_Metal, bsMenu);
     Button_Load.OnClick := Load_Click;
 
-    Button_Delete := TKMButton.Create(Panel_Load, 337, 594, 350, 30, 'Delete', fnt_Metal, bsMenu);
+    Button_Delete := TKMButton.Create(Panel_Load, 337, 594, 350, 30, fTextLibrary[TX_MENU_LOAD_DELETE], fnt_Metal, bsMenu);
     Button_Delete.OnClick := Load_Delete_Click;
 
-    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, ScreenX div 2, 604, 0, 0, 'Are you sure you want to delete this save?', fnt_Outline, kaCenter);
-    Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 630, 170, 30, 'Delete', fnt_Metal, bsMenu);
+    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, ScreenX div 2, 604, 0, 0, fTextLibrary[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, kaCenter);
+    Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 630, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_DELETE], fnt_Metal, bsMenu);
     Button_DeleteYes.OnClick := Load_Delete_Click;
-    Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 630, 170, 30, 'Cancel', fnt_Metal, bsMenu);
+    Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 630, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CANCEL], fnt_Metal, bsMenu);
     Button_DeleteNo.OnClick := Load_Delete_Click;
 
     Button_LoadBack := TKMButton.Create(Panel_Load, 337, 670, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -1006,13 +1006,13 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
-  fGame.StartSingleMap(ExeDir+'data\mission\mission0.dat', 'Town Tutorial');
+  fGame.StartSingleMap(ExeDir+'data\mission\mission0.dat', fTextLibrary[TX_MENU_TUTORIAL_TOWN]);
 end;
 
 
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
-  fGame.StartSingleMap(ExeDir+'data\mission\mission99.dat', 'Battle Tutorial');
+  fGame.StartSingleMap(ExeDir+'data\mission\mission99.dat', fTextLibrary[TX_MENU_TUTORIAL_BATTLE]);
 end;
 
 
@@ -1176,7 +1176,7 @@ begin
   fGame.Networking.ServerQuery.OnAnnouncements := MP_AnnouncementsUpdated;
   fGame.Networking.ServerQuery.FetchAnnouncements(fGame.GlobalSettings.Locale);
   Memo_MP_Announcement.Clear;
-  Memo_MP_Announcement.Add('Loading announcements...');
+  Memo_MP_Announcement.Add(fTextLibrary[TX_MP_MENU_LOADING_ANNOUNCEMENTS]);
 end;
 
 
@@ -1222,7 +1222,7 @@ begin
   fGame.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
   Label_MP_Players.Caption := '';
-  ColList_Servers.AddItem(['Refreshing...','','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1,-1);
+  ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_REFRESHING],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1,-1);
 end;
 
 
@@ -1289,7 +1289,7 @@ begin
   Button_MP_CreateLAN.Disable;
   Button_MP_CreateWAN.Disable;
   Button_MP_Join.Disable;
-  MP_Update(fTextLibrary[TX_LANLOGIN_CONNECTING],$FF00FF00);
+  MP_Update(fTextLibrary[TX_MP_MENU_CONNECTING],$FF00FF00);
 
   //Send request to join
   fGame.Networking.OnJoinSucc := MP_JoinSuccess;
@@ -1542,7 +1542,7 @@ begin
     List_Lobby.SetItems(fSavesMP.SavesList);
   end;
   if Sender <> nil then //This is used in Reset_Lobby when we are not connected
-    fGame.Networking.SelectNoMap('None');
+    fGame.Networking.SelectNoMap(fTextLibrary[TX_LOBBY_MAP_NONE]);
 end;
 
 
