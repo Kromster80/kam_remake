@@ -9,7 +9,7 @@ MaxID:111
 6:Shlédnout poslední záznam
 7:Hrát pøes LAN
 8:Hrát pøes Internet
-9:Login
+9:
 10:Heslo
 11:Spustit Misi
 12:Název
@@ -19,7 +19,7 @@ MaxID:111
 16:Podmínky porážky: %s
 17:Spojenci: 
 18:Nepøátelé: 
-19:Slot %d
+19:
 20:Velikost nové mapy
 21:Šíøka
 22:Výška
@@ -29,7 +29,7 @@ MaxID:111
 26:Ovládání:
 27:Hra:
 28:Zvuk:
-29:Disable Music
+29:
 30:Grafika:
 31:Jas
 32:Celá obrazovka
@@ -53,7 +53,7 @@ MaxID:111
 49:Stisknìte %s pro pokraèování hry
 50:Týmu
 51:Informace o hráèích
-52:Chat
+52:
 
 53:Bìhem hry došlo k chybì.
 54:Prosím pošlete soubor %s z vašecho adresáže KaM Remake\\Crash Reports vývojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nPOZOR: Pokraèování ve høe mùže zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
@@ -65,18 +65,17 @@ MaxID:111
 
 60:Mise %d
 
-61:Tìžba ze špatného místa
 62:Váš rybáø je pøíliš daleko od vody.
 63:Váš rybáø nemùže chytit žádné další ryby ve vodì, kterou má poblíž.
 64:Umøít
 
-65:Marketplace
+65:
 
 66:Editace terénu
 67:Plánování vesnice
 68:Visualní skripty
 69:Globalní skriptování
-70:Menu
+70:
 
 71:Jméno hráèe:
 72:Vaše IP adresa:
@@ -91,7 +90,7 @@ MaxID:111
 80:Tým:
 81:Barva:
 82:Hotov:
-83:Ping:
+83:
 84:Volno
 85:Poèítaè
 86:Vybrat...
@@ -112,10 +111,10 @@ MaxID:111
 101:
 102:Opustit lobby
 103:Pøipraven
-104:Start!
+104:
 
-105:KaM Remake Credits
-106:Original Knights & Merchants Credits
+105:
+106:
 107:PROGRAMOVÁNÍ:
 108:DALŠÍ PROGRAMOVÁNÍ:
 109:DALŠÍ GRAFIKA:

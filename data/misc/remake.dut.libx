@@ -5,7 +5,7 @@ MaxID:111
 2:Stad tutorial
 3:Strijd tutorial
 4:Alleen spelen	
-5:Map Editor
+5:
 6:Bekijken laatste spel
 7:Speel over LAN
 8:Speel over Internet
@@ -19,17 +19,17 @@ MaxID:111
 16:Nederlaag conditie: %s
 17:Bondgenoten: 
 18:Vijanden: 
-19:Slot %d
+19:
 20:Nieuwe map grote
 21:Breedte
 22:Hoogte
 23:Nieuwe map aanmaken
 24:Beschikbare mappen
 25:Bestaande map inladen
-26:Controls:
-27:Gameplay:
+26:
+27:
 28:Muziek:
-29:Disable Music
+29:
 30:Grafisch:
 31:Helderheid
 32:Volledig scherm
@@ -38,7 +38,7 @@ MaxID:111
 35:Aan het laden... Een ogenblik
 36:Er is een fout opgetreden!
 37:Laden nieuw lokaal
-38:Unknown
+38:
 
 39:Je hebt gewonnen!
 40:Doorspelen
@@ -49,50 +49,49 @@ MaxID:111
 45:Terugkijken is gestopt
 46:Blijf kijken
 47:Afsluiten naar menu
-48:Not available
-49:Press %s to resume the game
-50:To team
-51:Players info
-52:Chat
+48:
+49:
+50:
+51:
+52:
 
 53:Er is een fout opgetreden!
 54:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
 55: Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
 56:Netwerk fout:
-57:Error: Player name must not be blank
-58:Connection failed: %s
-59:You have disconnected
+57:
+58:
+59:
 
 60:Missie %d
 
-61:Delven van de verkeerde plek
 62: De vissershut is buiten het bereik van het water.
 63: De visser kan geen vis meer vangen rondom zijn vissershut
-64:Die
+64:
 
-65:Marketplace
+65:
 
 66:Terrein wijzigigen
 67:Stad planning
 68:Visuele scripts
 69:Globale scripts
-70:Menu
+70:
 
 71:Speler naam:
 72:Jouw IP-adres:
 73:Host IP adres:
 74:Server aanmaken
 75:Meedoen
-76:Connecting, please wait ...
-77:Waiting for players:
+76:
+77:
 
 78:Spelerslijst:
 79:Start locatie:
-80:Team:
+80:
 81:Vlag kleur:
 82:Klaar:
 83:Ping:
-84:Open
+84:
 85:AI Speler
 86:Selecteer...
 87:Willekeurig
@@ -107,17 +106,17 @@ MaxID:111
 96:Selecteer een opgeslagen spel...
 97:Map informatie:
 98:Spelers: %d
-99:Mode:
+99:
 100:Condities:
-101:Size:
+101:
 102:Afsluiten lobby
 103:Klaar
-104:Start!
+104:
 
-105:KaM Remake Credits
-106:Original Knights & Merchants Credits
-107:PROGRAMMING:
-108:ADDITIONAL PROGRAMMING:
-109:ADDITIONAL GRAPHICS:
-110:ADDITIONAL TRANSLATIONS:
-111:SPECIAL THANKS TO:
+105:
+106:
+107:
+108:
+109:
+110:
+111:

@@ -1,123 +1,122 @@
 
 MaxID:111
 
-1:Mission canceled
-2:Town Tutorial
-3:Battle Tutorial
-4:Single Player
-5:Map Editor
-6:View last replay
-7:Play over LAN
-8:Play over Internet
-9:Login
-10:Password
-11:Start Mission
-12:Title
-13:Size
-14:Mission Type: %s
-15:Win condition: %s
-16:Defeat condition: %s
-17:Allies: 
-18:Enemies: 
-19:Slot %d
-20:New map size
-21:Width
-22:Height
-23:Create New Map
-24:Available maps
-25:Load Existing Map
-26:Controls:
-27:Gameplay:
-28:Sound:
-29:Disable Music
-30:Graphics:
-31:Brightness
-32:Fullscreen
-33:Apply
-34:Language:
-35:Loading... Please wait
-36:An Error Has Occured!
-37:Loading new locale
-38:Unknown
+1:
+2:
+3:
+4:
+5:
+6:
+7:
+8:
+9:
+10:
+11:
+12:
+13:
+14:
+15:
+16:
+17:
+18:
+19:
+20:
+21:
+22:
+23:
+24:
+25:
+26:
+27:
+28:
+29:
+30:
+31:
+32:
+33:
+34:
+35:
+36:
+37:
+38:
 
-39:You've won!
-40:Continue playing
-41:Victory!
-42:You've lost!
-43:Continue watching
-44:Defeat
-45:Replay has ended
-46:Continue watching
-47:Quit to menu
-48:Not available
-49:Press %s to resume the game
-50:To team
-51:Players info
-52:Chat
+39:
+40:
+41:
+42:
+43:
+44:
+45:
+46:
+47:
+48:
+49:
+50:
+51:
+52:
 
-53:An error has occoured during gameplay.
-54:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
-55:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
-56:Network error:
-57:Error: Player name must not be blank
-58:Connection failed: %s
-59:You have disconnected
+53:
+54:
+55:
+56:
+57:
+58:
+59:
 
-60:Mission %d
+60:
 
-61:Mining from wrong spot
-62:Your fisherman's hut is too far away from the water.
-63:Your fisherman cannot catch any further fish in the nearby water bodies.
-64:Die
+62:
+63:
+64:
 
-65:Marketplace
+65:
 
-66:Terrain editing
-67:Village planning
-68:Visual scripts
-69:Global scripting
-70:Menu
+66:
+67:
+68:
+69:
+70:
 
-71:Player name:
-72:Your IP address:
-73:Host IP address:
-74:Create Server
-75:Join
-76:Connecting, please wait ...
-77:Waiting for players:
+71:
+72:
+73:
+74:
+75:
+76:
+77:
 
-78:Players list:
-79:Start location:
-80:Team:
-81:Flag color:
-82:Ready:
-83:Ping:
-84:Open
-85:AI Player
-86:Select...
-87:Random
-88:None
-89:Team %d
-90:Posts list:
-91:Post message:
-92:Choose map:
-93:Single Map
-94:Saved Game
-95:Select a map...
-96:Select a save...
-97:Map info:
-98:Players: %d
-99:Mode:
-100:Conditions:
-101:Size:
-102:Quit lobby
-103:Ready
-104:Start!
+78:
+79:
+80:
+81:
+82:
+83:
+84:
+85:
+86:
+87:
+88:
+89:
+90:
+91:
+92:
+93:
+94:
+95:
+96:
+97:
+98:
+99:
+100:
+101:
+102:
+103:
+104:
 
-105:KaM Remake Credits
-106:Original Knights & Merchants Credits
-107:PROGRAMMING:
-108:ADDITIONAL PROGRAMMING:
-109:ADDITIONAL GRAPHICS:
-110:ADDITIONAL TRANSLATIONS:
-111:SPECIAL THANKS TO:
+105:
+106:
+107:
+108:
+109:
+110:
+111:

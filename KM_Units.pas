@@ -395,7 +395,7 @@ begin
   Result := nil;
 
   if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
-    raise ELocError.Create(fTextLibrary[TX_UNITS_MINING_WRONG_SPOT],fCurrPosition);
+    raise ELocError.Create('Mining from wrong spot',fCurrPosition);
 
   Res := 1;
   //Check if House has production orders

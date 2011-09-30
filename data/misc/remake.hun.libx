@@ -29,7 +29,7 @@ MaxID:111
 26:Vezérlõk:
 27:Játékmenet:
 28:Hangok:
-29:Disable Music
+29:
 30:Grafika:
 31:Fényerõsség
 32:Teljes képernyõ
@@ -52,8 +52,8 @@ MaxID:111
 48:Nem elérhetõ
 49:Nyomj %s billentyût a játék folytatásához
 50:Csapatnak
-51:Players info
-52:Chat
+51:
+52:
 
 53:Egy hiba történt a játék során.
 54:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
@@ -65,7 +65,6 @@ MaxID:111
 
 60:Küldetés %d
 
-61:Rossz helyrõl bányászik
 62:A halászkunyhód túl messze van a víztõl.
 63:A halászod nem tud több halat fogni a közeli vízbõl.
 64:Meghal
@@ -91,7 +90,7 @@ MaxID:111
 80:Csapat:
 81:Zászló szín:
 82:Kész:
-83:Ping:
+83:
 84:Nyitva
 85:Számítógép
 86:Válassz...
@@ -109,7 +108,7 @@ MaxID:111
 98:Játékosok: %d
 99:Játékmód:
 100:Feltételek:
-101:Size:
+101:
 102:Kilépés
 103:Kész
 104:Indítás!

@@ -2,7 +2,7 @@ unit KM_TextLibrary;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, StrUtils, KromUtils, KM_Defaults;
+  Classes, SysUtils, Math, StrUtils, KromUtils, KM_Defaults;
 
 
 const
@@ -32,7 +32,7 @@ type
     SetupStrings: array[0..MaxStrings] of string;
     RemakeStrings: TStringArray;
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
-    procedure LoadLIBXFile(FilePath:string; var aArray:TStringArray);
+    procedure LoadLIBXFile(FilePath:string; var aArray:TStringArray; aInitializeValues:boolean);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
     function GetRemakeString(aIndex:word):string;
     function GetTexts(aIndex:word):string;
@@ -65,9 +65,10 @@ begin
   then LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib', SetupStrings)
   else LoadLIBFile(aLibPath+'setup.lib', SetupStrings);
 
-  if FileExists(aLibPath+'remake.'+aLocale+'.libx')
-  then LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', RemakeStrings)
-  else LoadLIBXFile(aLibPath+'remake.eng.libx', RemakeStrings);
+  //We load the English LIBX by default, then overwrite it with the selected language (this way missing strings are in English)
+  LoadLIBXFile(aLibPath+'remake.eng.libx', RemakeStrings, true); //Initialize with English strings
+  if (aLocale <> 'eng') and FileExists(aLibPath+'remake.'+aLocale+'.libx') then
+    LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', RemakeStrings, false); //Overwrite with selected locale
 
   fLog.AppendLog('TextLib init done');
 end;
@@ -143,7 +144,7 @@ end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TTextLibrary.LoadLIBXFile(FilePath:string; var aArray:TStringArray);
+procedure TTextLibrary.LoadLIBXFile(FilePath:string; var aArray:TStringArray; aInitializeValues:boolean);
 var
   aStringList:TStringList;
   i:integer;
@@ -163,7 +164,7 @@ begin
   firstDelimiter := Pos(':', s);
   if not TryStrToInt(RightStr(s, Length(s)-firstDelimiter), MaxID) then exit;
 
-  SetLength(aArray, MaxID+1);
+  SetLength(aArray, Math.Max(Length(aArray), MaxID+1));
 
   for i:=0 to aStringList.Count-1 do
   begin
@@ -180,7 +181,7 @@ begin
       //Required characters that can't be stored in plain text
       s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
       s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      aArray[ID] := s;
+      if aInitializeValues or (s <> '') then aArray[ID] := s;
     end;
   end;
 

@@ -30,6 +30,10 @@ type
     btnInsertSeparator: TButton;
     btnMoveUp: TButton;
     btnMoveDown: TButton;
+    cbShowMissing: TComboBox;
+    Label2: TLabel;
+    cbIncludeSameAsEnglish: TCheckBox;
+    LabelIncludeSameAsEnglish: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnReorderListClick(Sender: TObject);
@@ -41,15 +45,20 @@ type
     procedure btnInsertSeparatorClick(Sender: TObject);
     procedure btnMoveUpClick(Sender: TObject);
     procedure btnMoveDownClick(Sender: TObject);
+    procedure cbShowMissingChange(Sender: TObject);
+    procedure cbIncludeSameAsEnglishClick(Sender: TObject);
+    procedure LabelIncludeSameAsEnglishClick(Sender: TObject);
   private
     TransMemos: array of TMemo;
     TransLabels: array of TLabel;
 
     TranslationCount:integer;
     TranslationCodes:array of string;
+    DefaultTranslation:integer;
     TextsCount:integer;
     Texts:array of TTextInfo;
     IDLookup:array of integer;
+    ListboxLookup:array of integer;
     MaxID:integer;
     LastSelected:integer;
     IgnoreChanges:boolean;
@@ -108,11 +117,13 @@ procedure TForm1.RefreshList;
 var i:integer; ID:string;
 begin
   ListBox1.Clear;
+  SetLength(ListboxLookup, TextsCount);
   for i:=1 to TextsCount do
   begin
     if Texts[i].ID = -1 then
       ID := '' else ID := IntToStr(Texts[i].ID)+': ';
     ListBox1.Items.Add(ID+Texts[i].ConstName);
+    ListboxLookup[i-1] := i; //Listbox items are 0 indexed
   end;
   if InRange(LastSelected,0,ListBox1.Count-1) then
     ListBox1.ItemIndex := LastSelected
@@ -163,8 +174,12 @@ begin
   SetLength(TransMemos,TranslationCount+1);
   SetLength(TransLabels,TranslationCount+1);
 
+  cbShowMissing.Items.Clear;
+  cbShowMissing.Items.Add('None');
+  DefaultTranslation := 1; //Default in case there is no eng
   for i:=1 to TranslationCount do
   begin
+    if TranslationCodes[i] = 'eng' then DefaultTranslation := i;
     TransLabels[i] := TLabel.Create(Form1);
     TransLabels[i].Parent := ScrollBox1;
     TransLabels[i].SetBounds(8,4+(i-1)*80,30,30);
@@ -177,7 +192,10 @@ begin
     TransMemos[i].Font.Charset := GetCharset(TranslationCodes[i]);
     TransMemos[i].Tag := i;
     TransMemos[i].OnChange := MemoChange;
+
+    cbShowMissing.Items.Add(TranslationCodes[i]);
   end;
+  cbShowMissing.ItemIndex := 0;
 end;
 
 
@@ -307,9 +325,9 @@ end;
 procedure TForm1.ListBox1Click(Sender: TObject);
 var i,ID:integer;
 begin
+  if (TextsCount = 0) or (ListBox1.ItemIndex = -1) then exit;
   IgnoreChanges := true;
-  if TextsCount = 0 then exit;
-  ID := ListBox1.ItemIndex+1;
+  ID := ListboxLookup[ListBox1.ItemIndex];
   EditConstName.Text := Texts[ID].ConstName;
   LastSelected := ID-1;
   for i:=1 to TranslationCount do
@@ -339,7 +357,7 @@ procedure TForm1.EditConstNameChange(Sender: TObject);
 var i:integer;
 begin
   if IgnoreChanges then exit;
-  i := ListBox1.ItemIndex+1;
+  i := ListboxLookup[ListBox1.ItemIndex];
   if Texts[i].ID = -1 then exit;
   Texts[i].ConstName := EditConstName.Text;
   ListBox1.Items[ListBox1.ItemIndex] := IntToStr(Texts[i].ID)+': '+Texts[i].ConstName;
@@ -350,7 +368,7 @@ procedure TForm1.MemoChange(Sender: TObject);
 var i,t:integer;
 begin
   if IgnoreChanges then exit;
-  i := ListBox1.ItemIndex+1;
+  i := ListboxLookup[ListBox1.ItemIndex];
   if Texts[i].ID = -1 then exit;
   t := TMemo(Sender).Tag;
   Texts[i].Translations[t] := {$IFDEF FPC}Utf8ToAnsi{$ENDIF}(TMemo(Sender).Text);
@@ -453,6 +471,52 @@ begin
   Texts[ID+1] := Temp;
   ListBox1.Items.Move(ID-1,ID);
   ListBox1.ItemIndex := ID;
+end;
+
+procedure TForm1.cbShowMissingChange(Sender: TObject);
+var
+  NoneSelected:boolean;
+  i,ValidCount:integer;
+begin
+  RefreshList;
+  NoneSelected := cbShowMissing.ItemIndex < 1;
+  //Disable buttons
+  btnReorderList.Enabled := NoneSelected;
+  btnInsert.Enabled := NoneSelected;
+  btnDelete.Enabled := NoneSelected;
+  btnInsertSeparator.Enabled := NoneSelected;
+  btnMoveUp.Enabled := NoneSelected;
+  btnMoveDown.Enabled := NoneSelected;
+  cbIncludeSameAsEnglish.Enabled := not NoneSelected;
+  LabelIncludeSameAsEnglish.Enabled := not NoneSelected;
+
+  if not InRange(cbShowMissing.ItemIndex, 1, TranslationCount) then exit;
+
+  //Display only strings which lack translations
+  ListBox1.Clear;
+  ValidCount := 0;
+  for i:=1 to TextsCount do
+    if (Texts[i].ID <> -1) and ((Texts[i].Translations[cbShowMissing.ItemIndex] = '') or (cbIncludeSameAsEnglish.Checked and
+        (Texts[i].Translations[cbShowMissing.ItemIndex] = Texts[i].Translations[DefaultTranslation]))) then
+    begin
+      ListboxLookup[ValidCount] := i;
+      inc(ValidCount);
+      ListBox1.Items.Add(IntToStr(Texts[i].ID)+': '+Texts[i].ConstName);
+    end;
+  //Select the first item
+  ListBox1.ItemIndex := 0;
+  ListBox1Click(ListBox1);
+end;
+
+procedure TForm1.cbIncludeSameAsEnglishClick(Sender: TObject);
+begin
+  cbShowMissingChange(cbIncludeSameAsEnglish);
+end;
+
+procedure TForm1.LabelIncludeSameAsEnglishClick(Sender: TObject);
+begin
+  cbIncludeSameAsEnglish.Checked := not cbIncludeSameAsEnglish.Checked;
+  cbIncludeSameAsEnglishClick(LabelIncludeSameAsEnglish);
 end;
 
 end.

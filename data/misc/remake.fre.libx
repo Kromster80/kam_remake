@@ -19,7 +19,7 @@ MaxID:111
 16:Condition de Défaite: 
 17:Alliés: 
 18:Ennemis: 
-19:Slot 
+19:
 20:Taille de la Carte :
 21:Largeur
 22:Hauteur
@@ -27,9 +27,9 @@ MaxID:111
 24:Missions Disponible :
 25:Charger une Mission Existante
 26:Contrôles :
-27:Gameplay :
+27:
 28:Effets Sonores :
-29:Disable Music
+29:
 30:Graphisme :
 31:Luminosité
 32:Plein Ecran
@@ -53,30 +53,29 @@ MaxID:111
 49:Appuyer sur %s pour reprendre le jeu
 50:A l'Equipe
 51:Info sur les Joueurs
-52:Chat
+52:
 
 53:Une erreur s'est produite durant le gameplay.
-54:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
-55:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
+54:
+55:
 56:Erreur Réseau:
 57:Erreur: Le nom du joueur ne doit pas être blanc
 58:La connexion a échoué: %s
 59:Vous avez déconnecté
 
-60:Mission %d
+60:
 
-61:Mining from wrong spot
-62:Your fisherman's hut is too far away from the water.
-63:Your fisherman cannot catch any further fish in the nearby water bodies.
+62:
+63:
 64:Mourir
 
-65:Marketplace
+65:
 
 66:Edition du Terrain
 67:Planification du Village
 68:Scripts Visuel
 69:Scripts Global
-70:Menu
+70:
 
 71:Nom du Joueur:
 72:Votre adresse IP:
@@ -91,7 +90,7 @@ MaxID:111
 80:Equipe:
 81:Couleur:
 82:Prêt:
-83:Ping:
+83:
 84:Libre
 85:Joueur IA
 86:Sélectionnez...
@@ -107,9 +106,9 @@ MaxID:111
 96:Sélect. un fichier...
 97:Info sur la Mission:
 98:Joueurs: %d
-99:Mode:
-100:Conditions:
-101:Size:
+99:
+100:
+101:
 102:Quitter Lobby
 103:Prêt
 104:Débuter !

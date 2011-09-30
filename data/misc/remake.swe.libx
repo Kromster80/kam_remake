@@ -29,7 +29,7 @@ MaxID:111
 26:Kontroller:
 27:Spelinställningar:
 28:Ljud:
-29:Disable Music
+29:
 30:Grafik:
 31:Ljusstyrka
 32:Helskärm
@@ -53,7 +53,7 @@ MaxID:111
 49:Tryck %s för att åter börja spela
 50:Till lag
 51:Spelarinfo
-52:Chat
+52:
 
 53:Ett fel har uppstått under spelets gång. 
 54:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
@@ -65,12 +65,11 @@ MaxID:111
 
 60:Uppdrag %d
 
-61:Felplacerad gruva.
 62:Din fiskares stuga är för långt från vattnet.
 63:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 64:Dö
 
-65:Marketplace
+65:
 
 66:Terrängeditering
 67:Byplanering
@@ -91,7 +90,7 @@ MaxID:111
 80:Lag:
 81:Flaggfärg:
 82:Redo:
-83:Ping:
+83:
 84:Öppen
 85:AI-spelare
 86:Välj...
@@ -109,7 +108,7 @@ MaxID:111
 98:Spelare: 
 99:Läge: 
 100:Villkor: 
-101:Size:
+101:
 102:Avsluta sessionen
 103:Redo
 104:Börja!

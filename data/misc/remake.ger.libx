@@ -19,7 +19,7 @@ MaxID:111
 16:Niederlagebedingung: %s
 17:Verbündete: 
 18:Feinde: 
-19:Slot %d
+19:
 20:Neue Karte Größe
 21:Breite
 22:Höhe
@@ -27,9 +27,9 @@ MaxID:111
 24:Verfügbare Karten
 25:Vorhandene Karte laden
 26:Eingabe:
-27:Gameplay:
+27:
 28:Sound:
-29:Disable Music
+29:
 30:Grafik:
 31:Helligkeit
 32:Vollbild
@@ -37,8 +37,8 @@ MaxID:111
 34:Sprache:
 35:Lade... Bitte warten
 36:Ein Fehler ist aufgetreten!
-37:Loading new locale
-38:Unknown
+37:
+38:
 
 39:Sie haben gewonnen!
 40:Weiterspielen
@@ -49,26 +49,25 @@ MaxID:111
 45:Replay zuende
 46:Weiter betrachten
 47:Zurück zum Menü
-48:Not available
-49:Press %s to resume the game
-50:To team
-51:Players info
-52:Chat
+48:
+49:
+50:
+51:
+52:
 
 53:Ein Fehler ist während des Spiels aufgetreten.
 54:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
 55:Alte OpenGL Version entdeckt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
 56:Netzwerkfehler:
-57:Error: Player name must not be blank
-58:Connection failed: %s
-59:You have disconnected
+57:
+58:
+59:
 
 60:Mission %d
 
-61:Abbau an der falschen Stelle
 62:Ihre Fischerhütte ist zu weit vom Wasser entfernt!
 63:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
-64:Die
+64:
 
 65:Marktplatz
 
@@ -83,20 +82,20 @@ MaxID:111
 73:Host-IP-Adresse:
 74:Server erstellen
 75:Beitreten
-76:Connecting, please wait ...
-77:Waiting for players:
+76:
+77:
 
 78:Spielerliste:
-79:Start location:
+79:
 80:Team:
 81:Flaggenfarbe:
 82:Bereit:
 83:Ping:
-84:Open
+84:
 85:KI-Spieler
 86:Wähle...
-87:Random
-88:None
+87:
+88:
 89:Team %d
 90:Nachrichtenliste:
 91:Nachricht:
@@ -109,15 +108,15 @@ MaxID:111
 98:Spieler: %d
 99:Modus:
 100:Bedingungen:
-101:Size:
+101:
 102:Lobby verlassen.
 103:Bereit!
-104:Start!
+104:
 
-105:KaM Remake Credits
-106:Original Knights & Merchants Credits
-107:PROGRAMMING:
-108:ADDITIONAL PROGRAMMING:
-109:ADDITIONAL GRAPHICS:
-110:ADDITIONAL TRANSLATIONS:
-111:SPECIAL THANKS TO:
+105:
+106:
+107:
+108:
+109:
+110:
+111:
