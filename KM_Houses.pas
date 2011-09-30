@@ -172,7 +172,7 @@ type
   TKMHouseMarket = class(TKMHouse)
   protected
     fResFrom, fResTo: TResourceType;
-    fResources:array[rt_Trunk..rt_Fish] of Word;
+    fResources:array[WARE_MIN..WARE_MAX] of Word;
     procedure AttemptExchange;
     procedure SetResFrom(Value: TResourceType);
     procedure SetResTo(Value: TResourceType);
@@ -218,7 +218,7 @@ type
   {Barracks has 11 resources and Recruits}
   TKMHouseBarracks = class(TKMHouse)
   private
-    ResourceCount:array[rt_Shield..rt_Horse]of word;
+    ResourceCount:array[WARFARE_MIN..WARFARE_MAX]of word;
   public
     RecruitsList: TList;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
@@ -236,9 +236,9 @@ type
   {Storehouse keeps all the resources and flags for them}
   TKMHouseStore = class(TKMHouse)
   private
-    ResourceCount:array[rt_Trunk..rt_Fish]of word;
+    ResourceCount:array[WARE_MIN..WARE_MAX]of word;
   public
-    NotAcceptFlag:array[rt_Trunk..rt_Fish]of boolean;
+    NotAcceptFlag:array[WARE_MIN..WARE_MAX]of boolean;
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
@@ -1264,7 +1264,7 @@ end;
 { TKMHouseMarket }
 function TKMHouseMarket.CheckResIn(aResource:TResourceType):word;
 begin
-  if aResource in [rt_Trunk..rt_Fish] then
+  if aResource in [WARE_MIN..WARE_MAX] then
     Result := fResources[aResource]
   else
     Result := 0;
@@ -1528,8 +1528,8 @@ begin
                   ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
                   fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, i, aCount);
                 end;
-    rt_Trunk..
-    rt_Fish:    begin
+    WARE_MIN..
+    WARE_MAX:   begin
                   ResourceCount[aResource]:=EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
                   fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self,aResource,aCount);
                 end;
@@ -1540,7 +1540,7 @@ end;
 
 function TKMHouseStore.CheckResIn(aResource:TResourceType):word;
 begin
-  if aResource in [rt_Trunk..rt_Fish] then
+  if aResource in [WARE_MIN..WARE_MAX] then
     Result := ResourceCount[aResource]
   else
     Result := 0;
@@ -1558,7 +1558,7 @@ end;
 procedure TKMHouseStore.ToggleAcceptFlag(aRes:TResourceType);
 var i:TResourceType; ApplyCheat:boolean;
 begin
-  Assert(aRes in [rt_Trunk .. rt_Fish]); //Dunno why thats happening sometimes..
+  Assert(aRes in [WARE_MIN .. WARE_MAX]); //Dunno why thats happening sometimes..
 
   if CHEATS_ENABLED and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then begin
     ApplyCheat := true;
@@ -1574,7 +1574,7 @@ begin
       fGame.RequestGameHold(gr_Win);
       exit;
     end;
-    if ApplyCheat and (aRes = rt_Fish) and not fGame.MultiplayerMode then begin
+    if ApplyCheat and (aRes = WARE_MAX) and not fGame.MultiplayerMode then begin
       fGame.RequestGameHold(gr_Defeat);
       exit;
     end;
@@ -1637,8 +1637,8 @@ begin
   case aResource of
     rt_Warfare: for i:=Low(ResourceCount) to High(ResourceCount) do
                   ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
-    rt_Shield..
-    rt_Horse:   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
+    WARFARE_MIN..
+    WARFARE_MAX:   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
     else        raise ELocError.Create('Cant''t add ' + fResource.Resources[aResource].Name, GetPosition);
   end;
 end;
@@ -1646,7 +1646,10 @@ end;
 
 function TKMHouseBarracks.CheckResIn(aResource:TResourceType):word;
 begin
-  Result := ResourceCount[aResource];
+  if aResource in [WARFARE_MIN..WARFARE_MAX] then
+    Result := ResourceCount[aResource]
+  else
+    Result := 0;
 end;
 
 

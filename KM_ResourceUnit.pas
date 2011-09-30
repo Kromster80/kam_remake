@@ -77,7 +77,7 @@ type
   private
     fCRC:cardinal;
     fItems: array[TUnitType] of TKMUnitDatClass;
-    fSerfCarry: array[rt_Trunk..rt_Fish, dir_N..dir_NW] of TKMUnitsAnim;
+    fSerfCarry: array[WARE_MIN..WARE_MAX, dir_N..dir_NW] of TKMUnitsAnim;
     function LoadUnitsDat(aPath: string):Cardinal;
     function GetUnitDat(aType:TUnitType):TKMUnitDatClass;
     function GetSerfCarry(aType:TResourceType; aDir:TKMDirection):TKMUnitsAnim;

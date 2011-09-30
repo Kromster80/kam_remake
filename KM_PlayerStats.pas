@@ -23,7 +23,7 @@ type
       Lost,
       Killed:word;
     end;
-    Goods:array[rt_Trunk..rt_Fish]of packed record
+    Goods:array[WARE_MIN..WARE_MAX]of packed record
       Produced:word;
     end;
     ResourceRatios:array[1..4,1..4]of byte;
@@ -327,7 +327,7 @@ function TKMPlayerStats.GetWeaponsProduced:cardinal;
 var i:TResourceType;
 begin
   Result := 0;
-  for i:=rt_Shield to rt_Arbalet do
+  for i:=WEAPON_MIN to WEAPON_MAX do
     inc(Result, Goods[i].Produced);
 end;
 

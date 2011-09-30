@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2327';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2337';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
@@ -290,8 +290,15 @@ type
     rt_Arbalet, rt_Horse, rt_Fish,
     rt_All, rt_Warfare, rt_Food);
 
+const WARE_MIN = rt_Trunk;
+      WARE_MAX = rt_Fish;
+      WARFARE_MIN = rt_Shield;
+      WEAPON_MIN = rt_Shield;
+      WEAPON_MAX = rt_Arbalet;
+      WARFARE_MAX = rt_Horse;
+
 const //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern:array[rt_Trunk..rt_Fish]of byte = (
+  CheatStorePattern:array[WARE_MIN..WARE_MAX]of byte = (
   0,0,1,0,0,
   0,1,0,1,0,
   1,0,0,0,1,
@@ -300,7 +307,7 @@ const //Using shortints instead of bools makes it look much neater in code-view
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts:array[rt_Shield..rt_Arbalet,1..2]of TResourceType = (
+  WarfareCosts:array[WEAPON_MIN..WEAPON_MAX,1..2]of TResourceType = (
     (rt_None,rt_Wood),    //rt_Shield
     (rt_Coal,rt_Steel),   //rt_MetalShield
     (rt_None,rt_Leather), //rt_Armor

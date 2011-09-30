@@ -280,7 +280,7 @@ begin
   //If Offer Resource matches Demand
   Result := (fDemand[iD].Resource = fOffer[iO].Resource)or
             (fDemand[iD].Resource = rt_All)or
-            ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [rt_Shield..rt_Horse]))or
+            ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX]))or
             ((fDemand[iD].Resource = rt_Food)and(fOffer[iO].Resource in [rt_Bread,rt_Sausages,rt_Wine,rt_Fish]));
 
   //If Demand and Offer aren't reserved already
@@ -309,7 +309,7 @@ begin
 
   //NEVER deliver weapons to the storehouse when player has a barracks
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
-                       (not (fOffer[iO].Resource in [rt_Shield..rt_Horse]))or(fPlayers.Player[fDemand[iD].Loc_House.GetOwner].Stats.GetHouseQty(ht_Barracks)=0));
+                       (not (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX]))or(fPlayers.Player[fDemand[iD].Loc_House.GetOwner].Stats.GetHouseQty(ht_Barracks)=0));
 
   //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.HouseType<>ht_Store)or(

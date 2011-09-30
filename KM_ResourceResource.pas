@@ -111,7 +111,7 @@ end;
 function TKMResourceDat.IsValid: boolean;
 begin
   //@Krom: Crash here when exporting the delivery queues
-  Result := fType in [rt_Trunk..rt_Fish];
+  Result := fType in [WARE_MIN..WARE_MAX];
 end;
 
 

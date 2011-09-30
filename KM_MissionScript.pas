@@ -625,7 +625,7 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
                           Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
                           B := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks, 1));
-                          if (B<>nil) and (ResourceKaMIndex[P[0]] in [rt_Shield..rt_Horse]) then
+                          if (B<>nil) and (ResourceKaMIndex[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
                             B.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_BlockHouse:      if fLastPlayer >=0 then
@@ -996,7 +996,7 @@ begin
         begin
           inc(StoreCount);
           if StoreCount <= 2 then //For now only handle 2 storehouses, we can add a new command later
-            for Res:=rt_Trunk to rt_Fish do
+            for Res:=WARE_MIN to WARE_MAX do
               if TKMHouseStore(CurHouse).CheckResIn(Res) > 0 then
                 if StoreCount = 1 then
                   AddCommand(ct_AddWare, [ResourceKaMOrder[Res],TKMHouseStore(CurHouse).CheckResIn(Res)]) //Ware, Count
@@ -1007,7 +1007,7 @@ begin
         begin
           inc(BarracksCount);
           if BarracksCount <= 1 then //For now only handle 1 barracks, we can add a new command later
-            for Res:=rt_Shield to rt_Horse do
+            for Res:=WARFARE_MIN to WARFARE_MAX do
               if TKMHouseBarracks(CurHouse).CheckResIn(Res) > 0 then
                 AddCommand(ct_AddWeapon, [ResourceKaMOrder[Res],TKMHouseBarracks(CurHouse).CheckResIn(Res)]); //Ware, Count
         end;
