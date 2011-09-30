@@ -2695,10 +2695,12 @@ begin
                   if Key=ord('8') then MessageIssue(msgQuill,'123',KMPoint(0,0));
 
                   {Temporary cheat codes}
-                  if (Key=ord('W')) and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
+                  if (Key=ord('W')) and DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+                    fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
                   if (Key=ord('V')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
                   if (Key=ord('D')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
-                  if (Key=ord('Q')) and not fGame.MultiplayerMode then fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
+                  if (Key=ord('Q')) and DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+                    fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
 
                 end;
     gsReplay:   begin
@@ -2851,7 +2853,7 @@ begin
 
   P := GameCursor.Cell; //It's used in many places here
 
-  if (Button = mbMiddle) and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+  if (Button = mbMiddle) and DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
     fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);
 
   //Select direction

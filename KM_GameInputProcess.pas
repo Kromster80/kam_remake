@@ -290,9 +290,11 @@ begin
                                     P.Houses.UpdateResRequest
                                   end;
 
-      gic_TempAddScout:           P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
+      gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+                                    P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
       gic_TempKillUnit:           U.KillUnit;
-      gic_TempRevealMap:          P.FogOfWar.RevealEverything;
+      gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+                                    P.FogOfWar.RevealEverything;
       gic_TempChangeMyPlayer:     begin
                                     fGame.fGamePlayInterface.ClearSelectedUnitOrHouse;
                                     MyPlayer := fPlayers.Player[Params[1]];

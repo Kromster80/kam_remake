@@ -59,6 +59,7 @@ type
     Label3: TLabel;
     ExportMainMenu1: TMenuItem;
     Button_CalcArmy: TButton;
+    Debug_EnableCheats: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -68,6 +69,7 @@ type
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure Button_CalcArmyClick(Sender: TObject);
+    procedure Debug_EnableCheatsClick(Sender: TObject);
   published
     procedure StartTheGame;
     procedure FormResize(Sender:TObject);
@@ -322,6 +324,13 @@ begin
   Debug_ShowUnits.Checked := not Debug_ShowUnits.Checked;
   SHOW_UNIT_MOVEMENT := Debug_ShowUnits.Checked;
   SHOW_UNIT_ROUTES   := Debug_ShowUnits.Checked;
+end;
+
+
+procedure TForm1.Debug_EnableCheatsClick(Sender: TObject);
+begin
+  Debug_EnableCheats.Checked := not Debug_EnableCheats.Checked;
+  DEBUG_CHEATS := Debug_EnableCheats.Checked;
 end;
 
 
