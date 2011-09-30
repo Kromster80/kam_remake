@@ -1,5 +1,5 @@
 
-MaxID:110
+MaxID:111
 
 1:Mise zrušena
 2:Stavební Tutoriál
@@ -70,52 +70,54 @@ MaxID:110
 63:Váš rybáø nemùže chytit žádné další ryby ve vodì, kterou má poblíž.
 64:Umøít
 
-65:Editace terénu
-66:Plánování vesnice
-67:Visualní skripty
-68:Globalní skriptování
-69:Menu
+65:Marketplace
 
-70:Jméno hráèe:
-71:Vaše IP adresa:
-72:IP adresa hostitele:
-73:Vytvoøit server
-74:Pøipojit
-75:Pøipojuji se, prosím èekejte...
-76:Èekám na ostatní hráèe:
+66:Editace terénu
+67:Plánování vesnice
+68:Visualní skripty
+69:Globalní skriptování
+70:Menu
 
-77:Seznam hráèù:
-78:Starovací pozice:
-79:Tým:
-80:Barva:
-81:Hotov:
-82:Ping:
-83:Volno
-84:Poèítaè
-85:Vybrat...
-86:Náhodnì
-87:Žádný
-88:Tým %d
-89:Chat:
-90:Odeslat zprávu:
-91:Výbìr mapy:
-92:Nová Hra
-93:Uložená Hra
-94:Vyberte mapu...
-95:Výbìr uložené hry...
-96:Informace o mapì:
-97:Hráèi: %d
-98:Mód:
-99:Podmínky vítìzství:
-100:
-101:Opustit lobby
-102:Pøipraven
-103:Start!
+71:Jméno hráèe:
+72:Vaše IP adresa:
+73:IP adresa hostitele:
+74:Vytvoøit server
+75:Pøipojit
+76:Pøipojuji se, prosím èekejte...
+77:Èekám na ostatní hráèe:
 
-104:KaM Remake Credits
-105:Original Knights & Merchants Credits
-106:PROGRAMOVÁNÍ:
-107:DALŠÍ PROGRAMOVÁNÍ:
-108:DALŠÍ GRAFIKA:
-109:DALŠÍ PØEKLAD:
-110:SPECIÁLNÍ PODÌKOVÁNÍ:
+78:Seznam hráèù:
+79:Starovací pozice:
+80:Tým:
+81:Barva:
+82:Hotov:
+83:Ping:
+84:Volno
+85:Poèítaè
+86:Vybrat...
+87:Náhodnì
+88:Žádný
+89:Tým %d
+90:Chat:
+91:Odeslat zprávu:
+92:Výbìr mapy:
+93:Nová Hra
+94:Uložená Hra
+95:Vyberte mapu...
+96:Výbìr uložené hry...
+97:Informace o mapì:
+98:Hráèi: %d
+99:Mód:
+100:Podmínky vítìzství:
+101:
+102:Opustit lobby
+103:Pøipraven
+104:Start!
+
+105:KaM Remake Credits
+106:Original Knights & Merchants Credits
+107:PROGRAMOVÁNÍ:
+108:DALŠÍ PROGRAMOVÁNÍ:
+109:DALŠÍ GRAFIKA:
+110:DALŠÍ PØEKLAD:
+111:SPECIÁLNÍ PODÌKOVÁNÍ:

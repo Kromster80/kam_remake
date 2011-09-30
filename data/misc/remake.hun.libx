@@ -1,5 +1,5 @@
 
-MaxID:110
+MaxID:111
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -70,52 +70,54 @@ MaxID:110
 63:A halászod nem tud több halat fogni a közeli vízbõl.
 64:Meghal
 
-65:Tereprendezés
-66:Település tervezés
-67:Vizuális szkriptek
-68:Globális szkriptek
-69:Menü
+65:Piactér
 
-70:Játékos neve:
-71:A te IP címed:
-72:Szerver IP címe:
-73:Szerver készítés
-74:Csatlakozás
-75:Kapcsolódás, kérem várjon ...
-76:Várakozás a játékosokra:
+66:Tereprendezés
+67:Település tervezés
+68:Vizuális szkriptek
+69:Globális szkriptek
+70:Menü
 
-77:Játékosok:
-78:Kezdõhely:
-79:Csapat:
-80:Zászló szín:
-81:Kész:
-82:Ping:
-83:Nyitva
-84:Számítógép
-85:Válassz...
-86:Véletlen
-87:Nincs
-88:Csapat %d
-89:Üzenetek:
-90:Üzenet írása:
-91:Térkép választása:
-92:Egy térkép
-93:Mentett játék
-94:Válassz egy térképet...
-95:Válassz egy mentést...
-96:Térkép infó:
-97:Játékosok: %d
-98:Játékmód:
-99:Feltételek:
-100:Size:
-101:Kilépés
-102:Kész
-103:Indítás!
+71:Játékos neve:
+72:A te IP címed:
+73:Szerver IP címe:
+74:Szerver készítés
+75:Csatlakozás
+76:Kapcsolódás, kérem várjon ...
+77:Várakozás a játékosokra:
 
-104:KaM Remake Készítõk
-105:Eredeti Knights & Merchants Készítõk
-106:PROGRAMOZÁS:
-107:TOVÁBBI PROGRAMOZÁS:
-108:TOVÁBBI GRAFIKA:
-109:TOVÁBBI FORDÍTÓK:
-110:KÜLÖN KÖSZÖNET:
+78:Játékosok:
+79:Kezdõhely:
+80:Csapat:
+81:Zászló szín:
+82:Kész:
+83:Ping:
+84:Nyitva
+85:Számítógép
+86:Válassz...
+87:Véletlen
+88:Nincs
+89:Csapat %d
+90:Üzenetek:
+91:Üzenet írása:
+92:Térkép választása:
+93:Egy térkép
+94:Mentett játék
+95:Válassz egy térképet...
+96:Válassz egy mentést...
+97:Térkép infó:
+98:Játékosok: %d
+99:Játékmód:
+100:Feltételek:
+101:Size:
+102:Kilépés
+103:Kész
+104:Indítás!
+
+105:KaM Remake Készítõk
+106:Eredeti Knights & Merchants Készítõk
+107:PROGRAMOZÁS:
+108:TOVÁBBI PROGRAMOZÁS:
+109:TOVÁBBI GRAFIKA:
+110:TOVÁBBI FORDÍTÓK:
+111:KÜLÖN KÖSZÖNET:

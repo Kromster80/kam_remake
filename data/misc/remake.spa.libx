@@ -1,5 +1,5 @@
 
-MaxID:110
+MaxID:111
 
 1:Mission canceled
 2:Town Tutorial
@@ -70,52 +70,54 @@ MaxID:110
 63:Your fisherman cannot catch any further fish in the nearby water bodies.
 64:Die
 
-65:Terrain editing
-66:Village planning
-67:Visual scripts
-68:Global scripting
-69:Menu
+65:Marketplace
 
-70:Player name:
-71:Your IP address:
-72:Host IP address:
-73:Create Server
-74:Join
-75:Connecting, please wait ...
-76:Waiting for players:
+66:Terrain editing
+67:Village planning
+68:Visual scripts
+69:Global scripting
+70:Menu
 
-77:Players list:
-78:Start location:
-79:Team:
-80:Flag color:
-81:Ready:
-82:Ping:
-83:Open
-84:AI Player
-85:Select...
-86:Random
-87:None
-88:Team %d
-89:Posts list:
-90:Post message:
-91:Choose map:
-92:Single Map
-93:Saved Game
-94:Select a map...
-95:Select a save...
-96:Map info:
-97:Players: %d
-98:Mode:
-99:Conditions:
-100:Size:
-101:Quit lobby
-102:Ready
-103:Start!
+71:Player name:
+72:Your IP address:
+73:Host IP address:
+74:Create Server
+75:Join
+76:Connecting, please wait ...
+77:Waiting for players:
 
-104:KaM Remake Credits
-105:Original Knights & Merchants Credits
-106:PROGRAMMING:
-107:ADDITIONAL PROGRAMMING:
-108:ADDITIONAL GRAPHICS:
-109:ADDITIONAL TRANSLATIONS:
-110:SPECIAL THANKS TO:
+78:Players list:
+79:Start location:
+80:Team:
+81:Flag color:
+82:Ready:
+83:Ping:
+84:Open
+85:AI Player
+86:Select...
+87:Random
+88:None
+89:Team %d
+90:Posts list:
+91:Post message:
+92:Choose map:
+93:Single Map
+94:Saved Game
+95:Select a map...
+96:Select a save...
+97:Map info:
+98:Players: %d
+99:Mode:
+100:Conditions:
+101:Size:
+102:Quit lobby
+103:Ready
+104:Start!
+
+105:KaM Remake Credits
+106:Original Knights & Merchants Credits
+107:PROGRAMMING:
+108:ADDITIONAL PROGRAMMING:
+109:ADDITIONAL GRAPHICS:
+110:ADDITIONAL TRANSLATIONS:
+111:SPECIAL THANKS TO:

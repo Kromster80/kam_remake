@@ -1,5 +1,5 @@
 
-MaxID:110
+MaxID:111
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -70,52 +70,54 @@ MaxID:110
 63:Ihre Fischerhütte kann keine Fische im nahegelegenen Wasser fangen!
 64:Die
 
-65:Terrain berarbeiten
-66:Häuser bearbeiten
-67:Optische Skripts
-68:Globale Skripts
-69:Menü
+65:Marktplatz
 
-70:Spielername:
-71:Ihre IP-Adresse:
-72:Host-IP-Adresse:
-73:Server erstellen
-74:Beitreten
-75:Connecting, please wait ...
-76:Waiting for players:
+66:Terrain berarbeiten
+67:Häuser bearbeiten
+68:Optische Skripts
+69:Globale Skripts
+70:Menü
 
-77:Spielerliste:
-78:Start location:
-79:Team:
-80:Flaggenfarbe:
-81:Bereit:
-82:Ping:
-83:Open
-84:KI-Spieler
-85:Wähle...
-86:Random
-87:None
-88:Team %d
-89:Nachrichtenliste:
-90:Nachricht:
-91:Kartenwahl:
-92:Einzelkarte
-93:Gespeichertes Spiel
-94:Wähle eine Karte...
-95:Wähle einen Speicherstand...
-96:Karteninfo:
-97:Spieler: %d
-98:Modus:
-99:Bedingungen:
-100:Size:
-101:Lobby verlassen.
-102:Bereit!
-103:Start!
+71:Spielername:
+72:Ihre IP-Adresse:
+73:Host-IP-Adresse:
+74:Server erstellen
+75:Beitreten
+76:Connecting, please wait ...
+77:Waiting for players:
 
-104:KaM Remake Credits
-105:Original Knights & Merchants Credits
-106:PROGRAMMING:
-107:ADDITIONAL PROGRAMMING:
-108:ADDITIONAL GRAPHICS:
-109:ADDITIONAL TRANSLATIONS:
-110:SPECIAL THANKS TO:
+78:Spielerliste:
+79:Start location:
+80:Team:
+81:Flaggenfarbe:
+82:Bereit:
+83:Ping:
+84:Open
+85:KI-Spieler
+86:Wähle...
+87:Random
+88:None
+89:Team %d
+90:Nachrichtenliste:
+91:Nachricht:
+92:Kartenwahl:
+93:Einzelkarte
+94:Gespeichertes Spiel
+95:Wähle eine Karte...
+96:Wähle einen Speicherstand...
+97:Karteninfo:
+98:Spieler: %d
+99:Modus:
+100:Bedingungen:
+101:Size:
+102:Lobby verlassen.
+103:Bereit!
+104:Start!
+
+105:KaM Remake Credits
+106:Original Knights & Merchants Credits
+107:PROGRAMMING:
+108:ADDITIONAL PROGRAMMING:
+109:ADDITIONAL GRAPHICS:
+110:ADDITIONAL TRANSLATIONS:
+111:SPECIAL THANKS TO:

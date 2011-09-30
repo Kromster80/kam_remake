@@ -1,5 +1,5 @@
 
-MaxID:110
+MaxID:111
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -70,52 +70,54 @@ MaxID:110
 63:Your fisherman cannot catch any further fish in the nearby water bodies.
 64:Mourir
 
-65:Edition du Terrain
-66:Planification du Village
-67:Scripts Visuel
-68:Scripts Global
-69:Menu
+65:Marketplace
 
-70:Nom du Joueur:
-71:Votre adresse IP:
-72:Adresse IP de l'Hôte:
-73:Créer un Serveur
-74:Joindre
-75:Connexion, Veuillez patienter...
-76:Attente des joueurs:
+66:Edition du Terrain
+67:Planification du Village
+68:Scripts Visuel
+69:Scripts Global
+70:Menu
 
-77:Joueurs:
-78:Position:
-79:Equipe:
-80:Couleur:
-81:Prêt:
-82:Ping:
-83:Libre
-84:Joueur IA
-85:Sélectionnez...
-86:Aléatoire
-87:Aucune
-88:Equipe %d
-89:List des Messages:
-90:Envoyer un Message:
-91:Sélectionnez une Mission:
-92:Mission
-93:Sauvegarde
-94:Sélect. une mission...
-95:Sélect. un fichier...
-96:Info sur la Mission:
-97:Joueurs: %d
-98:Mode:
-99:Conditions:
-100:Size:
-101:Quitter Lobby
-102:Prêt
-103:Débuter !
+71:Nom du Joueur:
+72:Votre adresse IP:
+73:Adresse IP de l'Hôte:
+74:Créer un Serveur
+75:Joindre
+76:Connexion, Veuillez patienter...
+77:Attente des joueurs:
 
-104:Crédits de KaM Remake
-105:Crédits Orginal de Knights and Merchants
-106:PROGRAMMATION:
-107:PROGRAMMATION ADDITIONNEL:
-108:GRAPHISMES ADDITIONNEL:
-109:TRADUCTIONS ADDITIONNEL:
-110:REMERCIMENTS PARTICULIERS A:
+78:Joueurs:
+79:Position:
+80:Equipe:
+81:Couleur:
+82:Prêt:
+83:Ping:
+84:Libre
+85:Joueur IA
+86:Sélectionnez...
+87:Aléatoire
+88:Aucune
+89:Equipe %d
+90:List des Messages:
+91:Envoyer un Message:
+92:Sélectionnez une Mission:
+93:Mission
+94:Sauvegarde
+95:Sélect. une mission...
+96:Sélect. un fichier...
+97:Info sur la Mission:
+98:Joueurs: %d
+99:Mode:
+100:Conditions:
+101:Size:
+102:Quitter Lobby
+103:Prêt
+104:Débuter !
+
+105:Crédits de KaM Remake
+106:Crédits Orginal de Knights and Merchants
+107:PROGRAMMATION:
+108:PROGRAMMATION ADDITIONNEL:
+109:GRAPHISMES ADDITIONNEL:
+110:TRADUCTIONS ADDITIONNEL:
+111:REMERCIMENTS PARTICULIERS A:

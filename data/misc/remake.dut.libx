@@ -1,5 +1,5 @@
 
-MaxID:110
+MaxID:111
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -70,52 +70,54 @@ MaxID:110
 63: De visser kan geen vis meer vangen rondom zijn vissershut
 64:Die
 
-65:Terrein wijzigigen
-66:Stad planning
-67:Visuele scripts
-68:Globale scripts
-69:Menu
+65:Marketplace
 
-70:Speler naam:
-71:Jouw IP-adres:
-72:Host IP adres:
-73:Server aanmaken
-74:Meedoen
-75:Connecting, please wait ...
-76:Waiting for players:
+66:Terrein wijzigigen
+67:Stad planning
+68:Visuele scripts
+69:Globale scripts
+70:Menu
 
-77:Spelerslijst:
-78:Start locatie:
-79:Team:
-80:Vlag kleur:
-81:Klaar:
-82:Ping:
-83:Open
-84:AI Speler
-85:Selecteer...
-86:Willekeurig
-87:Geen
-88:Team %d
-89:Berichten list:
-90:Bericht:
-91:Kies map:
-92:Een map:
-93:Opgeslagen map:
-94:Selecteer een map...
-95:Selecteer een opgeslagen spel...
-96:Map informatie:
-97:Spelers: %d
-98:Mode:
-99:Condities:
-100:Size:
-101:Afsluiten lobby
-102:Klaar
-103:Start!
+71:Speler naam:
+72:Jouw IP-adres:
+73:Host IP adres:
+74:Server aanmaken
+75:Meedoen
+76:Connecting, please wait ...
+77:Waiting for players:
 
-104:KaM Remake Credits
-105:Original Knights & Merchants Credits
-106:PROGRAMMING:
-107:ADDITIONAL PROGRAMMING:
-108:ADDITIONAL GRAPHICS:
-109:ADDITIONAL TRANSLATIONS:
-110:SPECIAL THANKS TO:
+78:Spelerslijst:
+79:Start locatie:
+80:Team:
+81:Vlag kleur:
+82:Klaar:
+83:Ping:
+84:Open
+85:AI Speler
+86:Selecteer...
+87:Willekeurig
+88:Geen
+89:Team %d
+90:Berichten list:
+91:Bericht:
+92:Kies map:
+93:Een map:
+94:Opgeslagen map:
+95:Selecteer een map...
+96:Selecteer een opgeslagen spel...
+97:Map informatie:
+98:Spelers: %d
+99:Mode:
+100:Condities:
+101:Size:
+102:Afsluiten lobby
+103:Klaar
+104:Start!
+
+105:KaM Remake Credits
+106:Original Knights & Merchants Credits
+107:PROGRAMMING:
+108:ADDITIONAL PROGRAMMING:
+109:ADDITIONAL GRAPHICS:
+110:ADDITIONAL TRANSLATIONS:
+111:SPECIAL THANKS TO:

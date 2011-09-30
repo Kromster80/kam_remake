@@ -1,5 +1,5 @@
 
-MaxID:110
+MaxID:111
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -70,52 +70,54 @@ MaxID:110
 63:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 64:Dö
 
-65:Terrängeditering
-66:Byplanering
-67:Visuella script
-68:Globala script
-69:Meny
+65:Marketplace
 
-70:Spelarnamn:
-71:Din IP-adress:
-72:Värds IP-adress:
-73:Skapa server
-74:Anslut
-75:Kopplar upp, var god vänta...
-76:Väntar på spelare:
+66:Terrängeditering
+67:Byplanering
+68:Visuella script
+69:Globala script
+70:Meny
 
-77:Spelarlista:
-78:Startplats:
-79:Lag:
-80:Flaggfärg:
-81:Redo:
-82:Ping:
-83:Öppen
-84:AI-spelare
-85:Välj...
-86:Slumpad
-87:Inget
-88:Lag %d
-89:Chat:
-90:Skicka meddelande:
-91:Välj karta:
-92:Enskild karta
-93:Sparat spel
-94:Välj en karta...
-95:Välj ett sparat spel...
-96:Kartinfo:
-97:Spelare: 
-98:Läge: 
-99:Villkor: 
-100:Size:
-101:Avsluta sessionen
-102:Redo
-103:Börja!
+71:Spelarnamn:
+72:Din IP-adress:
+73:Värds IP-adress:
+74:Skapa server
+75:Anslut
+76:Kopplar upp, var god vänta...
+77:Väntar på spelare:
 
-104:KaM Remakes skapare
-105:Original Knights & Merchants skapare
-106:PROGRAMMERIG:
-107:YTTERLIGARE PROGRAMMERING:
-108:YTTERLIGARE GRAFIK:
-109:YTTERLIGARE ÖVERSÄTTNING:
-110:SPECIELLT TACK TILL:
+78:Spelarlista:
+79:Startplats:
+80:Lag:
+81:Flaggfärg:
+82:Redo:
+83:Ping:
+84:Öppen
+85:AI-spelare
+86:Välj...
+87:Slumpad
+88:Inget
+89:Lag %d
+90:Chat:
+91:Skicka meddelande:
+92:Välj karta:
+93:Enskild karta
+94:Sparat spel
+95:Välj en karta...
+96:Välj ett sparat spel...
+97:Kartinfo:
+98:Spelare: 
+99:Läge: 
+100:Villkor: 
+101:Size:
+102:Avsluta sessionen
+103:Redo
+104:Börja!
+
+105:KaM Remakes skapare
+106:Original Knights & Merchants skapare
+107:PROGRAMMERIG:
+108:YTTERLIGARE PROGRAMMERING:
+109:YTTERLIGARE GRAFIK:
+110:YTTERLIGARE ÖVERSÄTTNING:
+111:SPECIELLT TACK TILL:

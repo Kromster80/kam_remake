@@ -45,6 +45,7 @@ type
   TKMHouseDatClass = class
   private
     fHouseType:THouseType; //Our class
+    fNameTextID:integer;
     fHouseDat:TKMHouseDat;
     function GetArea:THouseArea;
     function GetAcceptsGoods:boolean;
@@ -453,6 +454,7 @@ constructor TKMHouseDatClass.Create(aHouseType: THouseType);
 begin
   Inherited Create;
   fHouseType := aHouseType;
+  fNameTextID := siHouseNames + HouseKaMOrder[fHouseType]; //May be overridden for new houses
 end;
 
 
@@ -483,7 +485,7 @@ end;
 function TKMHouseDatClass.GetHouseName: string;
 begin
   if IsValid then
-    Result := fTextLibrary.GetTextString(siHouseNames+HouseKaMOrder[fHouseType])
+    Result := fTextLibrary[fNameTextID]
   else
     Result := 'N/A';
 end;
@@ -550,6 +552,20 @@ end;
 
 { TKMHouseDatCollection }
 constructor TKMHouseDatCollection.Create;
+
+  procedure AddAnimation(aHouse:THouseType; aAnim:THouseActionType; aMoveX, aMoveY:integer; aSteps:array of smallint);
+  var i:integer;
+  begin
+    with fItems[aHouse].fHouseDat.Anim[aAnim] do
+    begin
+      MoveX := aMoveX;
+      MoveY := aMoveY;
+      Count := length(aSteps);
+      for i:=1 to Count do
+        Step[i] := aSteps[i-1];
+    end;
+  end;
+
 var H:THouseType; i:integer;
 begin
   Inherited;
@@ -560,6 +576,8 @@ begin
   fCRC := LoadHouseDat(ExeDir+'data\defines\houses.dat');
 
   fItems[ht_Marketplace].fHouseType := ht_Marketplace;
+  fItems[ht_Marketplace].fNameTextID := TX_HOUSES_MARKETPLACE;
+  fItems[ht_Marketplace].fHouseDat.OwnerType := -1; //No unit works here (yet anyway)
   fItems[ht_Marketplace].fHouseDat.StonePic := 150;
   fItems[ht_Marketplace].fHouseDat.WoodPic := 151;
   fItems[ht_Marketplace].fHouseDat.WoodPal := 152;
@@ -588,31 +606,17 @@ begin
     fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveY := 20 + BuildSupplyOffsets[2,i].MoveY;
   end;
   fItems[ht_Marketplace].fHouseDat.Sight := 9;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Count := 5;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].MoveX := -80;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].MoveY := -33;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[1] := 1165;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[2] := 1166;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[3] := 1167;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[4] := 1163;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag1].Step[5] := 1164;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Count := 5;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].MoveX := -73;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].MoveY := -7;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[1] := 1163;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[2] := 1164;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[3] := 1165;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[4] := 1166;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag2].Step[5] := 1167;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Count := 5;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].MoveX := 73;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].MoveY := -80;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[1] := 1161;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[2] := 1162;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[3] := 1158;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[4] := 1159;
-  fItems[ht_Marketplace].fHouseDat.Anim[ha_Flag3].Step[5] := 1160;
-  //todo: Add flame animations for the marketplace
+  AddAnimation(ht_Marketplace, ha_Flag1, -80, -33, [1165,1166,1167,1163,1164]);
+  AddAnimation(ht_Marketplace, ha_Flag2, -73, -7, [1163,1164,1165,1166,1167]);
+  AddAnimation(ht_Marketplace, ha_Flag3, 73, -80, [1161,1162,1158,1159,1160]);
+  AddAnimation(ht_Marketplace, ha_Fire1, 18, -83, [1623,1624,1625,1620,1621,1622]);
+  AddAnimation(ht_Marketplace, ha_Fire2, 78, -67, [1637,1632,1633,1634,1635,1636]);
+  AddAnimation(ht_Marketplace, ha_Fire3, -30, -103, [1620,1621,1622,1623,1624,1625]);
+  AddAnimation(ht_Marketplace, ha_Fire4, -3, -54, [1617,1618,1619,1614,1615,1616]);
+  AddAnimation(ht_Marketplace, ha_Fire5, -12, -38, [1632,1633,1634,1635,1636,1637]);
+  AddAnimation(ht_Marketplace, ha_Fire6, 39, -47, [1629,1630,1631,1626,1627,1628]);
+  AddAnimation(ht_Marketplace, ha_Fire7, 25, 13, [1635,1636,1637,1632,1633,1634]);
+  AddAnimation(ht_Marketplace, ha_Fire8, -82, -40, [1621,1622,1623,1624,1625,1620]);
 
   //ExportCSV(ExeDir+'Houses.csv');
 end;
