@@ -595,8 +595,8 @@ begin
   fItems[ht_Marketplace].fHouseDat.WoodPicSteps := 23;
   fItems[ht_Marketplace].fHouseDat.StonePicSteps := 140;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 1;
-  fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := -4; //Enterance is slightly to the left
-  fItems[ht_Marketplace].fHouseDat.EntranceOffsetYpx := 0;
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := 4; //Enterance is slightly to the left
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetYpx := 10;
   fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
   fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
   for i:=1 to 6 do begin

@@ -100,7 +100,7 @@ begin
 
   TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
                {$IFDEF Unix} FakeGetTickCount{$ENDIF};
-  if TickCount-fLastPing >= fPingInterval then
+  if abs(TickCount-fLastPing) >= fPingInterval then
   begin
     fNetServer.MeasurePings;
     fLastPing := TickCount;

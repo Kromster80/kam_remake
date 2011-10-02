@@ -424,7 +424,7 @@ procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[fOwner].Stats.HouseCreated(fHouseType,aWasBuilt); //Only activated houses count
-  fPlayers.Player[fOwner].FogOfWar.RevealCircle(fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
+  fPlayers.RevealForTeam(fOwner,fPosition, fResource.HouseDat[fHouseType].Sight, FOG_OF_WAR_INC);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);

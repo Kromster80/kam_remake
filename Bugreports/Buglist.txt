@@ -19,6 +19,8 @@ Bugs:
  +	Woodcutters/Farm flagshtok should appear last in construction
  +	Making a hill under a unit with a nearby house in MapEd causes a crash
 
+ 	Changing resolution now causes a crash due to refactoring that was done some time ago
+
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
 	Maybe archers attacked by archers should not try to walk towards enemies
  	Stone hills become locked because the slopes become too great after mining for a while

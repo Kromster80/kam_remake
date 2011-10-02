@@ -791,7 +791,7 @@ begin
       TKMBevel.Create(Panel_Options_Res,0,20,200,10+RESOLUTION_COUNT*20);
       for i:=1 to RESOLUTION_COUNT do
       begin
-        CheckBox_Options_Resolution[i]:=TKMCheckBox.Create(Panel_Options_Res,12,27+(i-1)*20,176,0,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
+        CheckBox_Options_Resolution[i]:=TKMCheckBox.Create(Panel_Options_Res,12,27+(i-1)*20,176,20,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
         CheckBox_Options_Resolution[i].Enabled:=(SupportedRefreshRates[i] > 0);
         CheckBox_Options_Resolution[i].OnClick:=Options_Change;
       end;

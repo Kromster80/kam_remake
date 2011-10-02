@@ -1,7 +1,7 @@
-<?
+﻿<?
 
 global $DATA_FILE, $DISALLOWED_CHARS, $GAME_VERSION, $MAX_TTL;
-$GAME_VERSION = 'r2298';
+$GAME_VERSION = 'r2337';
 $MAX_TTL = 600; //10 minutes
 $DATA_FILE = "servers.txt";
 $DISALLOWED_CHARS  = array("|", ",","\n","\r");
@@ -17,6 +17,13 @@ function plural($count, $singular, $plural = 's') {
         $plural = $singular . $plural;
     }
     return ($count == 1 ? $singular : $plural);
+}
+
+function RussianPlural($count, $singular, $smallplural, $bigplural) {
+	$count = $count % 10;
+    if ($count == 1) return $singular;
+    if (($count >= 2) && ($count <= 4)) return $smallplural;
+    if (($count == 0) || ($count >= 5)) return $bigplural;
 }
 
 function GetStats($Format)
@@ -38,13 +45,26 @@ function GetStats($Format)
 			$TotalPlayerCount = $TotalPlayerCount + $PlayerCount;
 		}
 	}
-	if($Format == "csv")
+	if($Format == "kamclub")
 	{
-		return $ServerCount.",".$TotalPlayerCount;
+		/*
+		return RussianPlural($ServerCount,"Запущен","Запущено","Запущено")." ".$ServerCount." ".
+		       RussianPlural($ServerCount,'сервер','сервера','серверов').", на ".
+		       RussianPlural($ServerCount,'нем','них','них')." играет ".$TotalPlayerCount." ".
+			   RussianPlural($TotalPlayerCount,'человек','человека','человек');
+		*/
+		return "Кол-во серверов: $ServerCount<BR>Кол-во игроков: $TotalPlayerCount";
 	}
 	else
 	{
-		return "There ".plural($ServerCount,"is","are",true)." ".$ServerCount." ".plural($ServerCount,"server")." running and ".$TotalPlayerCount." ".plural($TotalPlayerCount,"player")." online";
+		if($Format == "csv")
+		{
+			return $ServerCount.",".$TotalPlayerCount;
+		}
+		else
+		{
+			return "There ".plural($ServerCount,"is","are",true)." ".$ServerCount." ".plural($ServerCount,"server")." running and ".$TotalPlayerCount." ".plural($TotalPlayerCount,"player")." online";
+		}
 	}
 }
 
