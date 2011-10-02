@@ -16,6 +16,7 @@ unit KM_TGATexture;
 {$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
 {$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
 {$IFDEF VER220} {$DEFINE WDC} {$ENDIF}  // Delphi XE
+{$IFDEF VER230} {$DEFINE WDC} {$ENDIF}  // Delphi XE2
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
 uses
