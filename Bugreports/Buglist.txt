@@ -27,6 +27,7 @@ Bugs:
 	Warriors going out from Barracks sometimes not join in groups (Lewin: reproduced, not sure why it happens yet)
  	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
+	Ability to see the scrore screen for other players after a multiplayer game (maybe only after victory/defeat to prevent cheating)
  ?	Warriors should resume interrupted orders after a fight
 
 	Dots and lines displaying on tile edges [Krom]

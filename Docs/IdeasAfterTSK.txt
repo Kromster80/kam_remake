@@ -36,6 +36,8 @@ On/Off switch for unit (citizen) interaction
 Roadsigns objects, buildable?
 They will feature some short texts on them
 
+A food camp for feeding soldiers on big maps. You build a food camp like a warehouse but with only food. You don't need to build a road to it to build and supply it. It would be a fairly simple building so only wood would be required. It also is destroyed very easy. 
+
 Add new house: Lookout tower
 Sight range = 20+
 Owner=recruit

@@ -16,6 +16,7 @@ type
     fLogPath:string;
     fFirstTick:cardinal;
     fPreviousTick:cardinal;
+    fPreviousDate:TDateTime;
     procedure AddLine(const aText:string);
     procedure AddLineNoTime(const aText:string);
   public
@@ -63,7 +64,7 @@ begin
   AssignFile(fl, fLogPath);
   Rewrite(fl);
   CloseFile(fl);
-  AddLine('Log is up and running. Game version: '+GAME_VERSION+'. Date: '+FormatDateTime('yyyy/mm/dd',Now));
+  AddLine('Log is up and running. Game version: '+GAME_VERSION);
 end;
 
 
@@ -73,11 +74,19 @@ procedure TKMLog.AddLine(const aText:string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
+  //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
+  if abs(Round(fPreviousDate) - Round(Now)) >= 1 then
+  begin
+    WriteLn(fl,'================');
+    WriteLn(fl,'Date: '+FormatDateTime('yyyy/mm/dd',Now));
+    WriteLn(fl,'================');
+  end;
   WriteLn(fl,FormatDateTime('hh:nn:ss:zzz',Now)+#9+
              floattostr((TimeGet - fFirstTick)/1000)+'s'+#9+
              floattostr((TimeGet - fPreviousTick)/1000)+'s'+#9+aText);
   CloseFile(fl);
   fPreviousTick := TimeGet;
+  fPreviousDate := Now;
 end;
 
 

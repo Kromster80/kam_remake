@@ -1333,6 +1333,8 @@ begin
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
+      (not TileIsWineField(Loc))and
+      (not TileIsCornField(Loc))and
       CheckHeightPass(Loc,CanMakeFields) then
      AddPassability(Loc, [CanMakeFields]);
 
