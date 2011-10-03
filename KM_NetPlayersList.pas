@@ -410,7 +410,7 @@ end;
 function TKMPlayersList.CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
 begin
   if fCount >= MAX_PLAYERS then
-    Result := 'Server is full. No more players can join the game'
+    Result := 'Room is full. No more players can join the game'
   else
   if ServerToLocal(aIndexOnServer) <> -1 then
     Result := 'Player with said index already joined the game'
@@ -418,7 +418,7 @@ begin
   if NiknameToLocal(aNik) <> -1 then
     Result := 'Player with the same name already joined the game'
   else  
-  if LeftStr(aNik,length('Player AI')) = 'Player AI' then
+  if LeftStr(aNik,length('AI Player')) = 'AI Player' then
     Result := 'Cannot have the same name as AI players'
   else
     Result := '';

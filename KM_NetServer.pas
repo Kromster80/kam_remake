@@ -473,6 +473,10 @@ begin
               fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Players := Msg;
               SaveHTMLStatus;
             end;
+    mk_KickPlayer:
+            begin
+              fServer.Kick(Param);
+            end;
     mk_GetServerInfo:
             begin
               M := TKMemoryStream.Create;

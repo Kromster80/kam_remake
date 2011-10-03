@@ -1,5 +1,5 @@
 
-MaxID:134
+MaxID:135
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -113,6 +113,7 @@ MaxID:134
 102:Flaggenfarbe:
 103:Bereit:
 104:Ping:
+135:
 105:
 106:KI-Spieler
 107:Wähle...

@@ -105,6 +105,7 @@ type
     procedure SelectLoc(aIndex:integer; aPlayerIndex:integer);
     procedure SelectTeam(aIndex:integer; aPlayerIndex:integer);
     procedure SelectColor(aIndex:integer; aPlayerIndex:integer);
+    procedure KickPlayer(aPlayerIndex:integer);
     function ReadyToStart:boolean;
     function CanStart:boolean;
     procedure StartClick; //All required arguments are in our class
@@ -512,6 +513,14 @@ begin
                   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                 end;
   end;
+end;
+
+
+procedure TKMNetworking.KickPlayer(aPlayerIndex:integer);
+begin
+  assert(IsHost);
+  PacketSend(NET_ADDRESS_SERVER, mk_KickPlayer, '', fNetPlayers[aPlayerIndex].IndexOnServer);
+  PostMessage(fNetPlayers[aPlayerIndex].Nikname+' was kicked by the host');
 end;
 
 
