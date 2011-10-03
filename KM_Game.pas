@@ -60,7 +60,7 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale(aLocale:shortstring);
     procedure Resize(X,Y:integer);
@@ -139,7 +139,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOption:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
   Inherited Create;
   ScreenX := aScreenX;
@@ -162,11 +162,10 @@ begin
   fMusicLib         := TMusicLib.Create(fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fResource         := TResource.Create(aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
-  fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
   fCampaigns        := TKMCampaignsCollection.Create;
 
-  //If game was reinitialized fomr options menu then we should return there
-  if aReturnToOption then fMainMenuInterface.ShowScreen(msOptions);
+  //If game was reinitialized from options menu then we should return there
+  fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings, aReturnToOptions);
 
   if (not NoMusic) and fGlobalSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
 
@@ -203,8 +202,7 @@ begin
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax);
   fResource.ResourceFont.LoadFonts(fGlobalSettings.Locale);
-  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings);
-  fMainMenuInterface.ShowScreen(msOptions);
+  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings, True);
 end;
 
 

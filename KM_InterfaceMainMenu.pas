@@ -95,7 +95,7 @@ type
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_SizeChange(Sender: TObject);
     procedure MapEditor_ListUpdate;
-    procedure Options_Fill;
+    procedure Options_Fill(aGlobalSettings:TGlobalSettings);
     procedure Options_Change(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
@@ -235,7 +235,7 @@ type
       Label_Stat:array[1..9]of TKMLabel;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue:TKMButton;
   public
-    constructor Create(X,Y:word; aGameSettings:TGlobalSettings);
+    constructor Create(X,Y:word; aGameSettings:TGlobalSettings; aReturnToOptions: Boolean);
     destructor Destroy; override;
     procedure Resize(X,Y:word);
     procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
@@ -257,7 +257,7 @@ implementation
 uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking;
 
 
-constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
+constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings; aReturnToOptions: Boolean);
 begin
   Inherited Create;
 
@@ -307,7 +307,14 @@ begin
 
   if SHOW_1024_768_OVERLAY then with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
-  SwitchMenuPage(nil);
+  if aReturnToOptions then
+  begin
+    Options_Fill(aGameSettings); //Use these settings link since fGame is not initialized yet
+    SwitchMenuPage(Button_MM_Options); //Don't call Render afterwards for same reason
+  end
+  else
+    SwitchMenuPage(nil);
+
   //ShowScreen_Results; //Put here page you would like to debug
   fLog.AppendLog('Main menu init done');
 end;
@@ -985,7 +992,8 @@ begin
 
   {Show Options menu}
   if Sender=Button_MM_Options then begin
-    Options_Fill;
+    if fGame <> nil then
+      Options_Fill(fGame.GlobalSettings);
     Panel_Options.Show;
   end;
 
@@ -1773,29 +1781,30 @@ end;
 
 
 //This is called when the options page is shown, so update all the values
-procedure TKMMainMenuInterface.Options_Fill;
+//Note: Options can be required to fill before fGame is completely initialized, hence we need to pass either fGame.Settings or a direct Settings link
+procedure TKMMainMenuInterface.Options_Fill(aGlobalSettings:TGlobalSettings);
 var i:cardinal;
 begin
-  CheckBox_Options_Autosave.Checked := fGame.GlobalSettings.Autosave;
-  Ratio_Options_Brightness.Position := fGame.GlobalSettings.Brightness;
-  Ratio_Options_Mouse.Position      := fGame.GlobalSettings.MouseSpeed;
-  Ratio_Options_SFX.Position        := fGame.GlobalSettings.SoundFXVolume;
-  Ratio_Options_Music.Position      := fGame.GlobalSettings.MusicVolume;
-  CheckBox_Options_MusicOn.Checked  := not fGame.GlobalSettings.MusicOn;
+  CheckBox_Options_Autosave.Checked := aGlobalSettings.Autosave;
+  Ratio_Options_Brightness.Position := aGlobalSettings.Brightness;
+  Ratio_Options_Mouse.Position      := aGlobalSettings.MouseSpeed;
+  Ratio_Options_SFX.Position        := aGlobalSettings.SoundFXVolume;
+  Ratio_Options_Music.Position      := aGlobalSettings.MusicVolume;
+  CheckBox_Options_MusicOn.Checked  := not aGlobalSettings.MusicOn;
   Ratio_Options_Music.Enabled       := not CheckBox_Options_MusicOn.Checked;
 
   for i:=1 to LOCALES_COUNT do
-    if SameText(fGame.GlobalSettings.Locale, Locales[i,1]) then
+    if SameText(aGlobalSettings.Locale, Locales[i,1]) then
       Radio_Options_Lang.ItemIndex := i-1;
 
-  CheckBox_Options_FullScreen.Checked := fGame.GlobalSettings.FullScreen;
+  CheckBox_Options_FullScreen.Checked := aGlobalSettings.FullScreen;
   for i:=1 to RESOLUTION_COUNT do begin
-    CheckBox_Options_Resolution[i].Checked := (i = fGame.GlobalSettings.ResolutionID);
-    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.GlobalSettings.FullScreen;
+    CheckBox_Options_Resolution[i].Checked := (i = aGlobalSettings.ResolutionID);
+    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND aGlobalSettings.FullScreen;
   end;
 
-  OldFullScreen := fGame.GlobalSettings.FullScreen;
-  OldResolution := fGame.GlobalSettings.ResolutionID;
+  OldFullScreen := aGlobalSettings.FullScreen;
+  OldResolution := aGlobalSettings.ResolutionID;
   Button_Options_ResApply.Disable;
 end;
 
