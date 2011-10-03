@@ -941,7 +941,7 @@ begin
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
 
-    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,200,20,fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM],fnt_Outline);
+    CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,155,20,fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM],fnt_Outline);
     CheckBox_SendToAllies.Checked := true;
 
     Button_ChatClose:=TKMButton.Create(Panel_Chat,800-35,50,30,24,'[x]',fnt_Antiqua);
@@ -1167,8 +1167,8 @@ begin
 
     Edit_Save := TKMEdit.Create(Panel_Save, 12, 255, 170, 20, fnt_Metal);
     Edit_Save.OnChange := Save_EditChange;
-    Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,100,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,kaLeft);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,100,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
+    Label_SaveExists := TKMLabel.Create(Panel_Save,12,280,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,kaLeft);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,300,170,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
     CheckBox_SaveExists.OnClick := Save_CheckboxChange;
 
     Button_Save := TKMButton.Create(Panel_Save,12,320,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_SAVE],fnt_Metal, bsMenu);
@@ -1199,11 +1199,11 @@ begin
     TKMLabel.Create(Panel_Settings,24,10,100,30,fTextLibrary.GetTextString(181),fnt_Metal,kaLeft);
     Ratio_Settings_Brightness:=TKMRatioRow.Create(Panel_Settings,18,30,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Brightness.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_Autosave:=TKMCheckBox.Create(Panel_Settings,18,70,100,30,fTextLibrary.GetTextString(203),fnt_Metal);
+    CheckBox_Settings_Autosave:=TKMCheckBox.Create(Panel_Settings,18,70,180,20,fTextLibrary.GetTextString(203),fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_FastScroll:=TKMCheckBox.Create(Panel_Settings,18,95,100,30,fTextLibrary.GetTextString(204),fnt_Metal);
+    CheckBox_Settings_FastScroll:=TKMCheckBox.Create(Panel_Settings,18,95,180,20,fTextLibrary.GetTextString(204),fnt_Metal);
     CheckBox_Settings_FastScroll.OnClick := Menu_Settings_Change;
-    Label_Settings_MouseSpeed:=TKMLabel.Create(Panel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
+    Label_Settings_MouseSpeed:=TKMLabel.Create(Panel_Settings,24,130,100,20,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Settings_MouseSpeed.Disable;
     Ratio_Settings_Mouse:=TKMRatioRow.Create(Panel_Settings,18,150,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Mouse.Disable;
@@ -1217,7 +1217,7 @@ begin
     Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,246,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,30,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
     CheckBox_Settings_MusicOn.Hint:=fTextLibrary.GetTextString(198);
     CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
 end;

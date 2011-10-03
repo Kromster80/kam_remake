@@ -516,7 +516,7 @@ begin
       HeightSquare.OnClick  := Terrain_HeightChange;
 
     Panel_Tiles := TKMPanel.Create(Panel_Terrain,0,28,196,400);
-      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 8, 4, 100, 20, 'Random Direction', fnt_Metal);
+      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 8, 4, 188, 20, 'Random Direction', fnt_Metal);
       TilesRandom.Checked := true;
       TilesRandom.OnClick := Terrain_TilesChange;
       TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal, bsGame);
@@ -676,7 +676,7 @@ begin
 
       //It does not have OnClick event for a reason:
       // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 176, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
       CheckBox_AlliancesSym.Disable;
 
@@ -696,9 +696,10 @@ begin
         end;
       end;
 
+      //@Krom: This is duplicate, it is already created a few lines above. Can we remove it? To be deleted.
       //It does not have OnClick event for a reason:
       // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 176, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
       CheckBox_AlliancesSym.Disable;
 end;
@@ -730,7 +731,7 @@ begin
     TKMLabel.Create(Panel_Save,100,30,0,0,'Save map',fnt_Outline,kaCenter);
     Edit_SaveName       := TKMEdit.Create(Panel_Save,8,50,180,20, fnt_Grey);
     Label_SaveExists    := TKMLabel.Create(Panel_Save,100,80,0,0,'Map already exists',fnt_Outline,kaCenter);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,100,100,20,'Overwrite', fnt_Metal);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,8,100,180,20,'Overwrite', fnt_Metal);
     Button_SaveSave     := TKMButton.Create(Panel_Save,8,120,180,30,'Save',fnt_Metal);
     Button_SaveCancel   := TKMButton.Create(Panel_Save,8,160,180,30,'Cancel',fnt_Metal);
     Edit_SaveName.OnChange      := Menu_Save;
