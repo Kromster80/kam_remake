@@ -304,7 +304,7 @@ begin
   //If Demand is a Barracks, Offer is a store and barracks has resource count below MAX_WARFARE_IN_BARRACKS_FROM_STORE
   //Use < rather than <= as this delivery will be the last
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Barracks)or
-                      (fOffer[iO].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>ht_Store)or
+                      (fOffer[iO].Loc_House.HouseType<>ht_Store)or
                       (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<MAX_WARFARE_IN_BARRACKS_FROM_STORE));
 
   //NEVER deliver weapons to the storehouse when player has a barracks

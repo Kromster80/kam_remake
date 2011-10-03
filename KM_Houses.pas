@@ -1267,7 +1267,10 @@ begin
   if aResource in [WARE_MIN..WARE_MAX] then
     Result := fResources[aResource]
   else
+  begin
     Result := 0;
+    Assert(False);
+  end;
 end;
 
 
@@ -1543,7 +1546,10 @@ begin
   if aResource in [WARE_MIN..WARE_MAX] then
     Result := ResourceCount[aResource]
   else
+  begin
     Result := 0;
+    Assert(False);
+  end;
 end;
 
 
@@ -1649,7 +1655,13 @@ begin
   if aResource in [WARFARE_MIN..WARFARE_MAX] then
     Result := ResourceCount[aResource]
   else
+  if aResource in [rt_Wood, rt_Stone] then
+    Result := 0 //Wood/stone in building stage
+  else
+  begin
     Result := 0;
+    Assert(False);
+  end;
 end;
 
 
