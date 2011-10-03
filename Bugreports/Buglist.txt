@@ -52,6 +52,7 @@ Features:
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
 	Scrolling around the map using middle mouse click, as in TPR
+	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  
 
  -	The ingame briefing texture is too short, see attached picture

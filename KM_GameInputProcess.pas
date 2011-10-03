@@ -68,7 +68,6 @@ type
 
     //VII. Temporary and debug commands
     gic_TempAddScout,
-    gic_TempKillUnit,
     gic_TempRevealMap, //Revealing the map can have an impact on the game. Events happen based on tiles being revealed
     gic_TempChangeMyPlayer, //Make debugging easier
     gic_TempDoNothing //Used for "aggressive" replays that store a command every tick
@@ -135,7 +134,6 @@ type
     procedure CmdGame(aCommandType:TGameInputCommandType; aValue:string); overload;
     procedure CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam:integer); overload;
 
-    procedure CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType); overload;
     procedure CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:TPlayerIndex); overload;
@@ -238,7 +236,7 @@ begin
   with aCommand do
   begin
     //It is possible that units/houses have died by now
-    if CommandType in [gic_ArmyFeed,gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm,gic_TempKillUnit] then begin
+    if CommandType in [gic_ArmyFeed,gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm] then begin
       U := fPlayers.GetUnitByID(Params[1]);
       if (U = nil) or U.IsDeadOrDying then exit; //Unit has died before command could be executed
     end;
@@ -292,7 +290,6 @@ begin
 
       gic_TempAddScout:           if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
                                     P.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
-      gic_TempKillUnit:           U.KillUnit;
       gic_TempRevealMap:          if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
                                     P.FogOfWar.RevealEverything;
       gic_TempChangeMyPlayer:     begin
@@ -432,13 +429,6 @@ procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aPlayer,
 begin
   Assert(aCommandType = gic_GameTeamChange);
   TakeCommand( MakeCommand(aCommandType, [aPlayer,aTeam]) );
-end;
-
-
-procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aUnit:TKMUnit);
-begin
-  Assert(aCommandType = gic_TempKillUnit);
-  TakeCommand( MakeCommand(aCommandType, [aUnit.ID]) );
 end;
 
 
