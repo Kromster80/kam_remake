@@ -810,17 +810,19 @@ end;
 
 {Find closest chopable Tree around}
 function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
-const Ins=2; //2..Map-1
+const Ins=1; //1..Map => 2..Map-1 (Ignore shaded Map borders)
 var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint; bTreeLoc: Boolean;
 begin
-  //List1 is all trees within radius
-  List:=TKMPointList.Create;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,1+fMapY-Ins) do
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,1+fMapX-Ins) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
-      if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
-        if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),CanWalk) then
-          List.AddEntry(KMPoint(k,i));
+  //List will have all trees within radius
+  List := TKMPointList.Create;
+  for i:=Max(aPosition.Y-aRadius, 1+Ins) to Min(aPosition.Y+aRadius, fMapY-Ins) do
+  for k:=Max(aPosition.X-aRadius, 1+Ins) to Min(aPosition.X+aRadius, fMapX-Ins) do
+    if (KMLength(aPosition,KMPoint(k,i)) <= aRadius)
+    and not KMSamePoint(aAvoidLoc, KMPoint(k,i))
+    and ObjectIsChopableTree(KMPoint(k,i), 4)
+    and (Land[i,k].TreeAge >= TreeAgeFull) //Grownup tree
+    and Route_CanBeMadeToVertex(aPosition, KMPoint(k,i), CanWalk) then
+      List.AddEntry(KMPoint(k,i));
 
   bTreeLoc := List.GetRandom(TreeLoc); //Choose our tree
   List.Free;
@@ -1599,15 +1601,15 @@ begin
 end;
 
 
+//Check if a route can be made to this vertex, from any direction (used for woodcutter cutting trees)
 function TTerrain.Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
 var i,k:integer;
 begin
-  //Check if a route can be made to this vertex, from any direction (used for woodcutter cutting trees)
   Result := false;
   //Check from top-left of vertex to vertex tile itself
-  for i := -1 to 0 do
-    for k := -1 to 0 do
-      Result := Result or Route_CanBeMade(LocA,KMPoint(LocB.X+i,LocB.Y+k),aPass,0,false);
+  for i := Max(LocB.Y-1,1) to LocB.Y do
+    for k := Max(LocB.X-1,1) to LocB.X do
+      Result := Result or Route_CanBeMade(LocA,KMPoint(k,i),aPass,0,false);
 end;
 
 
