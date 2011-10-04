@@ -9,7 +9,7 @@ MaxID:135
 6:Spela upp senaste spelet
 7:Starta uppdraget
 8:Titel
-9:
+9:Storlek
 10:Uppdragstyp: 
 11:Vinstvillkor: 
 12:Förlustvillkor: 
@@ -25,7 +25,7 @@ MaxID:135
 22:Kontroller:
 23:Spelinställningar:
 24:Ljud:
-25:
+25:Ingen musik
 26:Grafik:
 27:Ljusstyrka
 28:Helskärm
@@ -34,16 +34,16 @@ MaxID:135
 31:Laddar... Var god vänta
 32:Ett problem uppstod!
 33:Laddar ny lokal
-34:
-35:
-36:
-37:
-38:
-39:
-40:
-41:
+34:Lista över sparade spel
+35:Filnamn
+36:Beskrivning
+37:Ladda
+38:Ta bort
+39:Är du säker på att du vill ta bort det här sparade spelet?
+40:Ta bort
+41:Avbryt
 
-42:
+42:Okänd
 
 43:Du vann!
 44:Fortsätt spela
@@ -58,11 +58,11 @@ MaxID:135
 53:Tryck %s för att åter börja spela
 54:Till lag
 55:Spelarinfo
-56:
-57:
-58:
-59:
-60:
+56:Chat
+57:Spelet finns redan
+58:Skriv över
+59:Spara
+60:Ladda
 
 61:Ett fel har uppstått under spelets gång. 
 62:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
@@ -76,7 +76,7 @@ MaxID:135
 69:Din fiskares stuga är för långt från vattnet.
 70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 
-72:
+72:Marknad
 
 73:Terrängeditering
 74:Byplanering
@@ -84,41 +84,41 @@ MaxID:135
 76:Globala script
 77:Meny
 
-78:
+78:Status:
 79:Spelarnamn:
-80:
-81:
-82:
-83:
-84:
-85:
-86:
-87:
-88:
-89:
-90:
-91:
-92:
-93:
-94:
+80:SKAPA SERVER
+81:Servernamn
+82:Serverport
+83:Skapa lokalt spel
+84:Skapa internetspel
+85:Servernamn
+86:Status
+87:Spelare
+88:Ping
+89:Uppdatera serverlistan
+90:SERVERDETALJER
+91:Spelarlista:
+92:Adress
+93:Port
+94:Rum
 95:Anslut
 96:Kopplar upp, var god vänta...
-97:
-98:
+97:Laddar meddelanden...
+98:Uppdaterar...
 
 99:Spelarlista:
 100:Startplats:
 101:Lag:
 102:Flaggfärg:
 103:Redo:
-104:
-135:
+104:Ping:
+135:Kicka
 105:Öppen
 106:AI-spelare
 107:Välj...
 108:Slumpad
 109:Inget
-110:
+110:Ingen
 111:Lag %d
 112:Chat:
 113:Skicka meddelande:
@@ -131,7 +131,7 @@ MaxID:135
 120:Spelare: 
 121:Läge: 
 122:Villkor: 
-123:
+123:Storlek:
 124:Avsluta sessionen
 125:Redo
 126:Börja!
