@@ -85,18 +85,18 @@ type
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
-    function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
-    function FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
-    function FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
-    function FindOre(aPosition:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
-    function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPointDir):Boolean;
-    function FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
-    function CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
-    function ChooseTreeToPlant(aPosition:TKMPoint):integer;
-    procedure GetHouseMarks(aPosition:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
+    function FindField(aLoc:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
+    function FindTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
+    function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
+    function FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
+    function FindPlaceForTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPointDir):Boolean;
+    function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
+    function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer):boolean;
+    function ChooseTreeToPlant(aLoc:TKMPoint):integer;
+    procedure GetHouseMarks(aLoc:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
 
-    function WaterHasFish(aPosition:TKMPoint):boolean;
-    function CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
+    function WaterHasFish(aLoc:TKMPoint):boolean;
+    function CatchFish(aLoc:TKMPointDir; TestOnly:boolean=false):boolean;
 
     procedure SetTree(Loc:TKMPoint; ID:integer);
     procedure FallTree(Loc:TKMPoint);
@@ -789,18 +789,18 @@ end;
 
 { Should find closest field around}
 {aAgeFull is used for ft_Corn. Incase Farmer is looking for empty or full field of corn}
-function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
+function TTerrain.FindField(aLoc:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
-  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,fMapY-1) do
-  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,fMapX-1) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
+  for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
+  for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
+    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
          ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
         if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
            ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-          if Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,0,false) then
+          if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
             List.AddEntry(KMPointDir(KMPoint(k,i), dir_NA));
 
   Result := List.GetRandom(FieldPoint);
@@ -809,19 +809,19 @@ end;
 
 
 {Find closest chopable Tree around}
-function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
+function TTerrain.FindTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
 const Ins=1; //1..Map => 2..Map-1 (Ignore shaded Map borders)
 var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint; bTreeLoc: Boolean;
 begin
   //List will have all trees within radius
   List := TKMPointList.Create;
-  for i:=Max(aPosition.Y-aRadius, 1+Ins) to Min(aPosition.Y+aRadius, fMapY-Ins) do
-  for k:=Max(aPosition.X-aRadius, 1+Ins) to Min(aPosition.X+aRadius, fMapX-Ins) do
-    if (KMLength(aPosition,KMPoint(k,i)) <= aRadius)
+  for i:=Max(aLoc.Y-aRadius, 1+Ins) to Min(aLoc.Y+aRadius, fMapY-Ins) do
+  for k:=Max(aLoc.X-aRadius, 1+Ins) to Min(aLoc.X+aRadius, fMapX-Ins) do
+    if (KMLength(aLoc,KMPoint(k,i)) <= aRadius)
     and not KMSamePoint(aAvoidLoc, KMPoint(k,i))
     and ObjectIsChopableTree(KMPoint(k,i), 4)
     and (Land[i,k].TreeAge >= TreeAgeFull) //Grownup tree
-    and Route_CanBeMadeToVertex(aPosition, KMPoint(k,i), CanWalk) then
+    and Route_CanBeMadeToVertex(aLoc, KMPoint(k,i), CanWalk) then
       List.AddEntry(KMPoint(k,i));
 
   bTreeLoc := List.GetRandom(TreeLoc); //Choose our tree
@@ -834,7 +834,7 @@ begin
   //Only bother choosing direction if tree is valid, otherwise just exit with invalid
   if bTreeLoc then
   for i:=-1 to 0 do for k:=-1 to 0 do
-    if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
+    if ((i=0)and(k=0)) or Route_CanBeMade(aLoc,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
       if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
         ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
       begin
@@ -847,17 +847,17 @@ end;
 
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
-function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
+function TTerrain.FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
 const Ins=1; //1..Map-1
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,fMapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,fMapX-Ins) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
+  for i:=max(aLoc.Y-aRadius,Ins) to min(aLoc.Y+aRadius,fMapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
+  for k:=max(aLoc.X-aRadius,Ins) to min(aLoc.X+aRadius,fMapX-Ins) do
+    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
       if (TileIsStone(k,i)>0) then
         if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
-          if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,0,false) then
+          if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0,false) then
             List.AddEntry(KMPointDir(KMPoint(k,i+1), dir_N));
 
   Result := List.GetRandom(StonePoint);
@@ -865,11 +865,11 @@ begin
 end;
 
 
-function TTerrain.FindOre(aPosition:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
+function TTerrain.FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
 var i,k,RadLeft,RadRight,RadTop,RadBottom,R1,R2,R3,R4:integer; L:array[1..4]of TKMPointList;
 begin
   if not (Rt in [rt_IronOre, rt_GoldOre, rt_Coal]) then
-    raise ELocError.Create('Wrong resource as Ore',aPosition);
+    raise ELocError.Create('Wrong resource as Ore',aLoc);
 
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
@@ -880,14 +880,14 @@ begin
     else        begin RadLeft:=0; RadRight:=0; RadTop:= 0; RadBottom:=0; R1:=  0; R2:=  0; R3:=  0; R4:=  0; end;
   end;
 
-  for i:=max(aPosition.Y-RadTop,1) to min(aPosition.Y+RadBottom,fMapY-1) do
-  for k:=max(aPosition.X-RadLeft,1) to min(aPosition.X+RadRight,fMapX-1) do
+  for i:=max(aLoc.Y-RadTop,1) to min(aLoc.Y+RadBottom,fMapY-1) do
+  for k:=max(aLoc.X-RadLeft,1) to min(aLoc.X+RadRight,fMapX-1) do
   begin
-    if Land[i,k].Terrain = R1 then begin if InRange(i,aPosition.Y-RadTop +2,aPosition.Y+RadBottom-2) then
-                                         if InRange(k,aPosition.X-RadLeft+2,aPosition.X+RadRight -2) then
+    if Land[i,k].Terrain = R1 then begin if InRange(i,aLoc.Y-RadTop +2,aLoc.Y+RadBottom-2) then
+                                         if InRange(k,aLoc.X-RadLeft+2,aLoc.X+RadRight -2) then
                                          L[1].AddEntry(KMPoint(k,i)) end else
-    if Land[i,k].Terrain = R2 then begin if InRange(i,aPosition.Y-RadTop +1,aPosition.Y+RadBottom-1) then
-                                         if InRange(k,aPosition.X-RadLeft+1,aPosition.X+RadRight -1) then
+    if Land[i,k].Terrain = R2 then begin if InRange(i,aLoc.Y-RadTop +1,aLoc.Y+RadBottom-1) then
+                                         if InRange(k,aLoc.X-RadLeft+1,aLoc.X+RadRight -1) then
                                          L[2].AddEntry(KMPoint(k,i)) end else
     if Land[i,k].Terrain = R3 then L[3].AddEntry(KMPoint(k,i)) else //Always mine second richest ore, it is never left in KaM
     if Land[i,k].Terrain = R4 then L[4].AddEntry(KMPoint(k,i));     //Always mine richest ore
@@ -906,16 +906,16 @@ end;
 
 {Find suitable place to plant a tree.
 Prefer ex-trees locations}
-function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPointDir):Boolean;
+function TTerrain.FindPlaceForTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPointDir):Boolean;
 var i,k:integer; List1,List2:TKMPointList;
 begin
   TreePlacePoint.Dir := dir_N; //Trees must always be planted facing north as that is the unit DAT animation that is used
   List1:=TKMPointList.Create;
   List2:=TKMPointList.Create;
-  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,fMapY-1) do
-  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,fMapX-1) do
-    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
-      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,0,false) then begin
+  for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
+  for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
+    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
+      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then begin
 
         if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
             List1.AddEntry(KMPoint(k,i))
@@ -932,7 +932,7 @@ end;
 
 {Find seaside}
 {Return walkable tile nearby}
-function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
+function TTerrain.FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
 const Ins=2; //2..Map-2
 var i,k,j,l:integer; List:TKMPointDirList;
 begin
@@ -943,17 +943,17 @@ begin
   // D) Final checks, route can be made, etc.
 
   List:=TKMPointDirList.Create;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,fMapY-Ins) do
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,fMapX-Ins) do
+  for i:=max(aLoc.Y-aRadius,Ins) to min(aLoc.Y+aRadius,fMapY-Ins) do
+  for k:=max(aLoc.X-aRadius,Ins) to min(aLoc.X+aRadius,fMapX-Ins) do
     // A) Inital checks, inside map and radius, etc.
-    if (KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
+    if (KMLength(aLoc,KMPoint(k,i)) <= aRadius) then
       if TileIsWater(KMPoint(k,i)) and WaterHasFish(KMPoint(k,i)) then //Limit to only tiles which are water and have fish
         //Now find a tile around this one that can be fished from
         for j:=-1 to 1 do
           for l:=-1 to 1 do
             if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
               // D) Final check: route can be made and isn't avoid loc
-              if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, 0,false)
+              if Route_CanBeMade(aLoc, KMPoint(k+j, i+l), CanWalk, 0,false)
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
                 List.AddEntry(KMPointDir(KMPoint(k+j, i+l), KMGetDirection(j,l)));
 
@@ -962,14 +962,14 @@ begin
 end;
 
 
-function TTerrain.CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
+function TTerrain.CanFindFishingWater(aLoc:TKMPoint; aRadius:integer):boolean;
 const Ins=2; //2..Map-2
 var i,k:integer;
 begin
   Result := false;
-  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,fMapY-Ins) do
-  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,fMapX-Ins) do
-    if (KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
+  for i:=max(aLoc.Y-aRadius,Ins) to min(aLoc.Y+aRadius,fMapY-Ins) do
+  for k:=max(aLoc.X-aRadius,Ins) to min(aLoc.X+aRadius,fMapX-Ins) do
+    if (KMLength(aLoc,KMPoint(k,i)) <= aRadius) then
       if TileIsWater(KMPoint(k,i)) then
       begin
         Result := true;
@@ -978,10 +978,10 @@ begin
 end;
 
 
-function TTerrain.ChooseTreeToPlant(aPosition:TKMPoint):integer;
+function TTerrain.ChooseTreeToPlant(aLoc:TKMPoint):integer;
 begin
   //This function randomly chooses a tree object based on the terrain type. Values matched to KaM, using all soil tiles.
-  case Land[aPosition.Y,aPosition.X].Terrain of
+  case Land[aLoc.Y,aLoc.X].Terrain of
     0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+KaMRandom(7),1]; //Grass (oaks, etc.)
     26..28,75..80,182,190:                                                 Result := ChopableTrees[7+KaMRandom(2),1]; //Yellow dirt
     16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+KaMRandom(5),1]; //Brown dirt (pine trees)
@@ -990,7 +990,7 @@ begin
 end;
 
 
-procedure TTerrain.GetHouseMarks(aPosition:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
+procedure TTerrain.GetHouseMarks(aLoc:TKMPoint; aHouseType:THouseType; aList:TKMPointTagList);
 var
   i,k,s,t:integer;
   P2:TKMPoint;
@@ -1012,10 +1012,10 @@ begin
   if HA[i,k]<>0 then
   begin
 
-    if TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,1) then
+    if TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4,1) then
     begin
       //This can't be done earlier since values can be off-map
-      P2 := KMPoint(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4);
+      P2 := KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4);
 
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of
@@ -1055,24 +1055,24 @@ begin
       end;
 
     end else
-    if TileInMapCoords(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4,0) then
-      MarkPoint(KMPoint(aPosition.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aPosition.Y+i-4),479);
+    if TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4,0) then
+      MarkPoint(KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4),479);
   end;
 end;
 
 
-function TTerrain.WaterHasFish(aPosition:TKMPoint):boolean;
+function TTerrain.WaterHasFish(aLoc:TKMPoint):boolean;
 begin
-  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[wcFish],false) <> nil);
+  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Y,aLoc.X].WalkConnect[wcFish],false) <> nil);
 end;
 
 
-function TTerrain.CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
+function TTerrain.CatchFish(aLoc:TKMPointDir; TestOnly:boolean=false):boolean;
 var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
-  aPosition := KMGetPointInDir(aPosition.Loc, aPosition.Dir);
-  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Loc.Y,aPosition.Loc.X].WalkConnect[wcFish],not TestOnly);
+  aLoc := KMGetPointInDir(aLoc.Loc, aLoc.Dir);
+  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y,aLoc.Loc.X].WalkConnect[wcFish],not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
