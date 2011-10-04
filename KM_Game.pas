@@ -196,6 +196,7 @@ end;
 procedure TKMGame.ToggleLocale(aLocale:shortstring);
 begin
   fGlobalSettings.Locale := aLocale; //Wrong Locale will be ignored
+  if fNetworking <> nil then FreeAndNil(fNetworking);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
