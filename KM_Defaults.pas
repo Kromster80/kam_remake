@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2347';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2353';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;

@@ -615,6 +615,7 @@ type
   private
     fColorIndex:integer;
     fInclRandom:boolean;
+    fRandomCaption:string;
     fButton:TKMButton;
     fSwatch:TKMColorSwatch;
     fShape:TKMShape;
@@ -627,7 +628,7 @@ type
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
     property ColorIndex:integer read fColorIndex write SetColorIndex;
-    procedure SetColors(aColors:array of TColor4; aInclRandom:boolean=false);
+    procedure SetColors(aColors:array of TColor4; aInclRandom:boolean=false; aRandomCaption:string='');
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -2648,6 +2649,7 @@ begin
 
   fColorIndex := 0;
   fInclRandom := false;
+  fRandomCaption := '';
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
@@ -2713,10 +2715,11 @@ begin
 end;
 
 
-procedure TKMDropColorBox.SetColors(aColors:array of TColor4; aInclRandom:boolean=false);
+procedure TKMDropColorBox.SetColors(aColors:array of TColor4; aInclRandom:boolean=false; aRandomCaption:string='');
 begin
   //Store local copy of flag to substitute 0 color with "Random" text
-  fInclRandom := aInclRandom; 
+  fInclRandom := aInclRandom;
+  fRandomCaption := aRandomCaption;
   fSwatch.SetColors(aColors, fInclRandom);
 end;
 
@@ -2730,7 +2733,7 @@ begin
   if fInclRandom and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-    fRenderUI.WriteText(Left+4, Top+3, 0, 0, 'Random', fnt_Metal, kaLeft, Col);
+    fRenderUI.WriteText(Left+4, Top+3, 0, 0, fRandomCaption, fnt_Metal, kaLeft, Col);
   end;
 end;
 

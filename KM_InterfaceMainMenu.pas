@@ -546,7 +546,7 @@ begin
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
 
         DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 410, top, 125, 20, MP_COLOR_COUNT);
-        DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, true);
+        DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, true, fTextLibrary[TX_LOBBY_RANDOM]);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
         CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 565, top, 20, 20, '', fnt_Metal);
