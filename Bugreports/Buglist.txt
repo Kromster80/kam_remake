@@ -20,6 +20,7 @@ Bugs:
  +	Making a hill under a unit with a nearby house in MapEd causes a crash
 
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
+	Resource harvesting of all types should not occur when the actual walking route is too long (e.g. on the other side of a river) rather than just checking the line of sight distance
 	Maybe archers attacked by archers should not try to walk towards enemies
  	Stone hills become locked because the slopes become too great after mining for a while
 	Warriors going out from Barracks sometimes not join in groups (Lewin: reproduced, not sure why it happens yet)
@@ -51,6 +52,7 @@ Features:
 	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
 	Scrolling around the map using middle mouse click, as in TPR
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
+	Improved delivery queue system (take closest jobs, take wares out after going in, etc.)
  
 
  -	The ingame briefing texture is too short, see attached picture
