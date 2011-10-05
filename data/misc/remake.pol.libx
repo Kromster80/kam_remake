@@ -1,0 +1,147 @@
+
+MaxID:135
+
+1:Misja anulowana
+2:Samouczek zarz¹dzania miastem
+3:Samouczek dowodzenia podczas bitwy
+4:Jeden Gracz
+5:Edytor Map
+6:Zobacz ostatni¹ powtórke
+7:Rozpocznij Misje
+8:Tytu³
+9:Rozmiar
+10:Typ Misji: %s
+11:Warunki wygranej: %s
+12:Warunki przegranej: %s
+13:Sojusznicy:
+14:Wrogowie:
+15:Slot %d
+16:Rozmiar nowej mapy
+17:Szerokoœæ
+18:Wysokoœæ
+19:Stwórz Now¹ Mapê
+20:Dostêpne mapy
+21:Za³aduj Istniej¹c¹ Mapê
+22:Kontrola:
+23:Rozgrywka:
+24:DŸwiêk
+25:Wy³¹cz muzykê
+26:Grafika:
+27:Jasnoœæ:
+28:Pe³ny Ekran:
+29:Zastosuj
+30:Jêzyk:
+31:£adowanie... Proszê czekaæ
+32:Wyst¹pi³ B³¹d!
+33:£adowanie nowej lokalizacji
+34:Lista zapisanych gier
+35:Nazwa pliku
+36:Opis
+37:Za³aduj
+38:Usuñ
+39:Jesteœ pewny ¿e chcesz usun¹æ ten zapis?
+40:Usuñ
+41:Anuluj
+
+42:Nieznany
+
+43:Wygra³eœ!
+44:Kontynuuj grê
+45:Zwyciêstwo!
+46:Przegra³eœ!
+47:Kontynuuj ogl¹danie
+48:Pora¿ka
+49:Powtórka siê zakoñczy³a
+50:Kontynuuj ogl¹danie
+51:WyjdŸ do menu
+52:Niedostêpne
+53:Naciœnij &s aby wznowiæ grê
+54:Do dru¿yny
+55:Informacje gracza
+56:Czat
+57:Zapis ju¿ istnieje
+58:Zast¹p
+59:Zapisz
+60:Za³aduj
+
+61:Wyst¹pi³ b³¹d w trakcie gry.
+62:Proszê wyœlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistów. Dane kontaktowe mo¿esz znaleŸæ w pliku Readme. Bardzo dziêkujemy za twoj¹ ¿yczliw¹ pomoc!
+63:Wykryto star¹ wersjê OpenGL, gra mo¿e dzia³aæ wolno i/lub z b³êdami grafiki.\nProszê zaktualizuj sterowniki karty graficznej aby uzyskaæ wiêksz¹ wydajnoœæ.
+64:B³¹d sieci:
+65:B³¹d: Nie wpisa³eœ imienia
+66:Po³¹czenie nie powiod³o siê: %s
+67:Zosta³eœ roz³¹czony
+68:Misja %d
+
+69:Twoja Chata rybaka jest zbyt daleko od wody.
+70:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
+
+72:Rynek
+
+73:Edycja terenu
+74:Planowanie osady
+75:Skrypty wizualne
+76:Skryptowanie globalne
+77:Menu
+
+78:Status:
+79:Imiê gracza:
+80:STWÓRZ SERWER
+81:Nazwa Serwera
+82:Port Serwera
+83:Stwórz serwer lokalny
+84:Œtwórz serwer internetowy
+85:Nazwa Serwera
+86:Stan
+87:Gracze
+88:Ping
+89:Odœwie¿ Listê Serwerów
+90:SZCZEGÓ£Y SERWERA
+91:Lista graczy:
+92:Adres
+93:Port
+94:Pokój
+95:Do³¹cz
+96:£¹czenie, proszê czekaæ...
+97:£adowanie og³oszeñ...
+98:Odœwie¿anie...
+
+99:Lista graczy:
+100:Lokalizacja pocz¹tkowa:
+101:Dru¿yna:
+102:Kolor flagi:
+103:Gotowy:
+104:Ping:
+135:Wyrzuæ
+105:Wolne
+106:Komputer
+107:Wybierz...
+108:Przypadkowe
+109:¯adna
+110:¯adna
+111:Dru¿yna %d
+112:Umieœæ listê:
+113:Umieœæ wiadomoœæ:
+114:Wybrana mapa:
+115:Pojedyncza mapa
+116:Zapisane Gry
+117:Wybierz mapê...
+118:Wybierz zapis...
+119:Informacje o mapie:
+120:Gracze: %d
+121:Tryb:
+122:Warunki:
+123:Rozmiar:
+124:WyjdŸ
+125:Gotowy
+126:Start!
+
+127:Oczekiwanie na graczy:
+
+128:Autorzy KaM Remake
+129:Autorzy Oryginalnego Knights & Merchants
+130:PROGRAMOWANIE:
+131:DODATKOWE PROGRAMOWANIE:
+132:DODATKOWE GRAFIKI;
+133:DODATKOWE T£UMACZENIE:
+134:SPECJALNE PODZIÊKOWANIA DLA:

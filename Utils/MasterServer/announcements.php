@@ -13,6 +13,9 @@ if($Rev != $GAME_VERSION)
 		/*case 'ger':
 			echo "";
 			break;*/
+		case 'dut':
+			echo "Uw KaM Remake versie is niet de nieuwste. U draait ".$Rev." maar de meest recente versie is ".$GAME_VERSION.".|U kunt niet online spelen totdat u de nieuwste versie heeft geïnstalleerd.||U kunt de nieuwste versie downloaden van: www.kamremake.com";
+			break;
 		case 'swe':
 			echo "Du har inte den senaste versionen av KaM Remake! Du kör ".$Rev.", medan den senaste versionen är ".$GAME_VERSION.".|Du kan inte spela online förrän du har uppdaterat.||Ladda ner uppdateringen här: www.kamremake.com";
 			break;

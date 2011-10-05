@@ -143,6 +143,7 @@ procedure TForm1.ScanAvailableTranslations(aMiscFolder:string);
     if aLang = 'hun' then Result := EASTEUROPE_CHARSET;
     if aLang = 'cze' then Result := EASTEUROPE_CHARSET;
     if aLang = 'svk' then Result := EASTEUROPE_CHARSET;
+    if aLang = 'pol' then Result := EASTEUROPE_CHARSET;
     if aLang = 'cze' then Result := EASTEUROPE_CHARSET;
   end;
 
