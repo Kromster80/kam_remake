@@ -614,7 +614,6 @@ type
   TKMDropColorBox = class(TKMControl)
   private
     fColorIndex:integer;
-    fInclRandom:boolean;
     fRandomCaption:string;
     fButton:TKMButton;
     fSwatch:TKMColorSwatch;
@@ -628,7 +627,7 @@ type
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
     property ColorIndex:integer read fColorIndex write SetColorIndex;
-    procedure SetColors(aColors:array of TColor4; aInclRandom:boolean=false; aRandomCaption:string='');
+    procedure SetColors(aColors:array of TColor4; aRandomCaption:string='');
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -2648,8 +2647,7 @@ begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   fColorIndex := 0;
-  fInclRandom := false;
-  fRandomCaption := '';
+  fRandomCaption := ''; //Disable random by default
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
   fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
@@ -2715,12 +2713,11 @@ begin
 end;
 
 
-procedure TKMDropColorBox.SetColors(aColors:array of TColor4; aInclRandom:boolean=false; aRandomCaption:string='');
+procedure TKMDropColorBox.SetColors(aColors:array of TColor4; aRandomCaption:string='');
 begin
   //Store local copy of flag to substitute 0 color with "Random" text
-  fInclRandom := aInclRandom;
   fRandomCaption := aRandomCaption;
-  fSwatch.SetColors(aColors, fInclRandom);
+  fSwatch.SetColors(aColors, (fRandomCaption <> ''));
 end;
 
 
@@ -2730,7 +2727,7 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width-fButton.Width, Height);
   fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-3, Height-2, fSwatch.GetColor, $00);
-  if fInclRandom and (fSwatch.ColorIndex = 0) then
+  if (fRandomCaption <> '') and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
     fRenderUI.WriteText(Left+4, Top+3, 0, 0, fRandomCaption, fnt_Metal, kaLeft, Col);
