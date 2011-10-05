@@ -63,11 +63,13 @@ type
     procedure House_RepairToggle(Sender:TObject);
     procedure House_WareDeliveryToggle(Sender:TObject);
     procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
-    procedure House_MarketSelect(Sender:TObject; AButton:TMouseButton);
+    procedure House_MarketFill;
     procedure House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
+    procedure House_MarketSelect(Sender:TObject; AButton:TMouseButton);
     procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
     procedure House_SchoolUnitRemove(Sender:TObject);
     procedure House_StoreAcceptFlag(Sender:TObject);
+    procedure House_StoreFill;
     procedure Menu_Settings_Fill;
     procedure Menu_Settings_Change(Sender:TObject);
     procedure Menu_QuitMission(Sender:TObject);
@@ -103,8 +105,6 @@ type
     procedure Chat_Post(Sender:TObject; Key:word);
     procedure Chat_Close(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
-    procedure Market_Fill(Sender:TObject);
-    procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
     procedure SetPause(aValue:boolean);
@@ -1372,10 +1372,14 @@ begin
       Button_Market[i].Tag := Byte(StoreResType[i+1]);
       Button_Market[i].OnClickEither := House_MarketSelect;
     end;
-  Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 12, 12, 27);
+  Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 26, 27);
+  Shape_Market_From.LineColor := $FF00B000;
+  Shape_Market_From.LineWidth := 2;
   Shape_Market_From.Hitable := False;
   Shape_Market_From.Hide;
-  Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 12, 12, 27);
+  Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 26, 27);
+  Shape_Market_To.LineColor := $FF0000B0;
+  Shape_Market_To.LineWidth := 2;
   Shape_Market_To.Hitable := False;
   Shape_Market_To.Hide;
 
@@ -1385,7 +1389,7 @@ begin
   Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  12, 180, 36, 40, 0);
   Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 144, 180, 36, 40, 0);
 
-  ResRow_Market_Out := TKMResourceOrderRow.Create(Panel_HouseMarket, 60,190,55,20);
+  ResRow_Market_Out := TKMResourceOrderRow.Create(Panel_HouseMarket, 60,190,64,20);
   ResRow_Market_Out.RxID := 4;
   ResRow_Market_Out.OrderAdd.OnClickEither := House_MarketOrderClick;
   ResRow_Market_Out.OrderRem.OnClickEither := House_MarketOrderClick;
@@ -1713,13 +1717,13 @@ begin
   case Sender.HouseType of
     ht_Marketplace:
         begin
-          Market_Fill(nil);
+          House_MarketFill;
           SwitchPage(Panel_HouseMarket);
         end;
 
     ht_Store:
         begin
-          Store_Fill(nil);
+          House_StoreFill;
           SwitchPage(Panel_HouseStore);
         end;
 
@@ -1931,12 +1935,15 @@ begin
 
   M := TKMHouseMarket(fPlayers.Selected);
 
+  //@Lewin: We need to tell player that he must cancel previous order first
+  if M.CheckResOrder(1) <> 0 then Exit;
+
   if aButton = mbLeft then
     M.ResFrom := TResourceType(TKMButtonFlat(Sender).Tag);
   if aButton = mbRight then
     M.ResTo := TResourceType(TKMButtonFlat(Sender).Tag);
 
-  Market_Fill(nil); //Update costs and order count
+  House_MarketFill; //Update costs and order count
 end;
 
 
@@ -2319,7 +2326,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Market_Fill(Sender:TObject);
+procedure TKMGamePlayInterface.House_MarketFill;
 var M: TKMHouseMarket; i,Tmp:integer;
 begin
   if (fShownHouse = nil) or not (fShownHouse is TKMHouseMarket) then Exit;
@@ -2332,34 +2339,31 @@ begin
     Button_Market[i].Caption := IfThen(Tmp=0, '-', IntToStr(Tmp));
   end;
 
-
+  Shape_Market_From.Visible := M.ResFrom <> rt_None;
   if M.ResFrom <> rt_None then
   begin
     Shape_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 30;
-    Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 30 + 8;
-    Shape_Market_From.Show;
-    Label_Market_In.Caption := 'From x' + IntToStr(M.RatioIn) + ':';
+    Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 30;
+    Label_Market_In.Caption := 'From x' + IntToStr(M.RatioFrom) + ':';
     Button_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(M.CheckResIn(M.ResFrom));
   end else begin
-    Shape_Market_From.Hide;
     Label_Market_In.Caption := 'From x';
-    Button_Market_In.TexID := 0;
+    Button_Market_In.TexID := fResource.Resources[rt_None].GUIIcon;
     Button_Market_In.Caption := '-';
   end;
 
+  Shape_Market_To.Visible := M.ResTo <> rt_None;
   if M.ResTo <> rt_None then
   begin
     Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 30;
     Shape_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 30;
-    Shape_Market_To.Show;
-    Label_Market_Out.Caption := 'To x' + IntToStr(M.RatioOut) + ':';
+    Label_Market_Out.Caption := 'To x' + IntToStr(M.RatioTo) + ':';
     Button_Market_Out.Caption := IntToStr(M.CheckResOut(M.ResTo));
     Button_Market_Out.TexID := fResource.Resources[M.ResTo].GUIIcon;
   end else begin
-    Shape_Market_To.Hide;
     Label_Market_Out.Caption := 'To x';
-    Button_Market_Out.TexID := 0;
+    Button_Market_Out.TexID := fResource.Resources[rt_None].GUIIcon;
     Button_Market_Out.Caption := '-';
   end;
 
@@ -2369,7 +2373,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Store_Fill(Sender:TObject);
+procedure TKMGamePlayInterface.House_StoreFill;
 var i,Tmp:integer;
 begin
   if fPlayers.Selected=nil then exit;

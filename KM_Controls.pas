@@ -409,6 +409,7 @@ type
     fOrderAdd:TKMButton;
     fOrderLab:TKMLabel;
     fOrderRem:TKMButton;
+    procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
   public
     RxID: Byte;
@@ -1750,6 +1751,16 @@ begin
   fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
   fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,'',fnt_Grey,kaCenter);
   fOrderAdd := TKMButton.Create(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal, bsGame);
+end;
+
+
+//Copy property to buttons
+procedure TKMResourceOrderRow.SetEnabled(aValue:boolean);
+begin
+  Inherited;
+  fOrderRem.Enabled := fEnabled;
+  fOrderLab.Enabled := fEnabled;
+  fOrderAdd.Enabled := fEnabled;
 end;
 
 

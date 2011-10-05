@@ -232,6 +232,7 @@ end;
 
 procedure TRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
 begin
+  if (SizeX < 0) or (SizeY < 0) then Exit;
   glPushMatrix;
     glTranslatef(PosX,PosY,0);
 

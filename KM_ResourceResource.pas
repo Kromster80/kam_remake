@@ -89,7 +89,7 @@ begin
   if IsValid then
     Result := 351 + ResourceKaMOrder[fType]
   else
-    Result := 0;
+    Result := 41; //Show "Question mark"
 end;
 
 

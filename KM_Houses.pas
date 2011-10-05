@@ -46,7 +46,7 @@ type
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fResourceIn:array[1..4] of byte; //Resource count in input
-    fResourceDeliveryCount:array[1..4] of byte; //Count of the resources we have ordered for the input (used for ware distribution)
+    fResourceDeliveryCount:array[1..4] of word; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut:array[1..4]of byte; //Resource count in output
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
 
@@ -125,7 +125,7 @@ type
     procedure ResAddToBuild(aResource:TResourceType);
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); virtual;
-    procedure ResEditOrder(aID:byte; Amount:integer); virtual;
+    procedure ResEditOrder(aID:byte; aAmount:integer); virtual;
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
@@ -183,13 +183,13 @@ type
 
     property ResFrom:TResourceType read fResFrom write SetResFrom;
     property ResTo:TResourceType read fResTo write SetResTo;
-    function RatioIn: Byte;
-    function RatioOut: Byte;
+    function RatioFrom: Byte;
+    function RatioTo: Byte;
 
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
     procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
-    procedure ResEditOrder(aID:byte; Amount:integer); override;
+    procedure ResEditOrder(aID:byte; aAmount:integer); override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
   end;
 
@@ -889,9 +889,9 @@ end;
 
 
 { Edit production order as + / - }
-procedure TKMHouse.ResEditOrder(aID:byte; Amount:integer);
+procedure TKMHouse.ResEditOrder(aID:byte; aAmount:integer);
 begin
-  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID] + Amount, 0, MAX_ORDER);
+  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID] + aAmount, 0, MAX_ORDER);
 end;
 
 
@@ -1262,6 +1262,15 @@ end;
 
 
 { TKMHouseMarket }
+constructor TKMHouseMarket.Create(aHouseType: THouseType; PosX,PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+begin
+  inherited;
+
+  fResFrom := rt_None;
+  fResTo := rt_None;
+end;
+
+
 function TKMHouseMarket.CheckResIn(aResource:TResourceType):word;
 begin
   if aResource in [WARE_MIN..WARE_MAX] then
@@ -1276,27 +1285,21 @@ end;
 
 function TKMHouseMarket.CheckResOrder(aID: byte): word;
 begin
-  Result := fResourceOrder[aID];
+  Result := fResourceOrder[1];
 end;
 
 
-constructor TKMHouseMarket.Create(aHouseType: THouseType; PosX,PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+function TKMHouseMarket.RatioFrom: Byte;
 begin
-  inherited;
-
-  fResFrom := rt_None;
-  fResTo := rt_None;
+  Result := 15; //We can use this for now
 end;
 
 
-function TKMHouseMarket.RatioIn: Byte;
+function TKMHouseMarket.RatioTo: Byte;
 begin
-  Result := 1; //We can use this for now
-end;
-
-
-function TKMHouseMarket.RatioOut: Byte;
-begin
+  //@Lewin: I think it's possible that we allow rates different from 1>N,
+  //depending on wares values and even with penalty applied we can get
+  //e.g. 1Sword > 3 Stone
   Result := 1; //We can use this for now
 end;
 
@@ -1311,16 +1314,17 @@ end;
 procedure TKMHouseMarket.AttemptExchange;
 var TradeCount: Word;
 begin
-  if (fResourceOrder[1] > 0) and (fResFrom <> rt_None) and (fResTo <> rt_None)
-  and (fResources[fResFrom] >= RatioIn) then
+  Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo));
+
+  if (fResourceOrder[1] > 0) and (fResources[fResFrom] >= RatioFrom) then
   begin
     //How much can we trade
-    TradeCount := Min((fResources[fResFrom] div RatioIn), fResourceOrder[1]);
+    TradeCount := Min((fResources[fResFrom] div RatioFrom), fResourceOrder[1]);
 
-    dec(fResources[fResFrom], TradeCount * RatioIn);
+    dec(fResources[fResFrom], TradeCount * RatioFrom);
     dec(fResourceOrder[1], TradeCount);
-    inc(fResources[fResTo], TradeCount * RatioOut);
-    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, TradeCount * RatioOut);
+    inc(fResources[fResTo], TradeCount * RatioTo);
+    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, TradeCount * RatioTo);
   end;
 end;
 
@@ -1336,28 +1340,25 @@ end;
 procedure TKMHouseMarket.SetResFrom(Value: TResourceType);
 begin
   fResFrom := Value;
-  fResTo := rt_None;
-  ResEditOrder(1, 0);
+  if fResTo = fResFrom then
+    fResTo := rt_None;
 end;
 
 
 procedure TKMHouseMarket.SetResTo(Value: TResourceType);
 begin
   fResTo := Value;
-  ResEditOrder(1, 0);
+  if fResFrom = fResTo then
+    fResFrom := rt_None;
 end;
 
 
-procedure TKMHouseMarket.ResEditOrder(aID:byte; Amount:integer);
+procedure TKMHouseMarket.ResEditOrder(aID:byte; aAmount:integer);
 var Count: integer;
 begin
-  //Clear order if there's nothing selected
-  if (fResFrom = rt_None) or (fResTo = rt_None) then 
-    Amount := 0;
+  Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo));
 
-  Amount := Amount * RatioIn;
-
-  Inherited;
+  fResourceOrder[1] := EnsureRange(fResourceOrder[1] + aAmount * RatioFrom, 0, MAX_ORDER);
 
   //Try to make an exchange from existing resources
   AttemptExchange;
@@ -1370,6 +1371,10 @@ begin
     fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, fResourceOrder[1], dt_Once, di_Norm)
   end;
 
+  //@Lewin: There's a flaw, if we order to exchange From=1500 resources they all will be
+  //immediately added to delivery list. Maybe we should add 5-10 and add new demands to list upon
+  //recieving resources instead? Or we let than be handled by delivery list which will be smart
+  //enough to handicap such massive deliveries (to allow other deliveries run as well)
   fResourceDeliveryCount[1] := fResourceOrder[1];
 end;
 
