@@ -1306,6 +1306,8 @@ end;
 
 procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1);
 begin
+  //todo: If user cancelled exchange (or began new one with different resources already)
+  //then incoming resourced should be moved to Out and added to Offer list
   inc(fResources[aResource], aCount);
   AttemptExchange;
 end;
@@ -1363,6 +1365,9 @@ begin
   //Try to make an exchange from existing resources
   AttemptExchange;
   Count := fResourceOrder[1] - fResourceDeliveryCount[1];
+
+  //todo: If fResourceOrder[1] = 0 then all remainders of From resource should be moved to Out
+  //and added to Offer list
 
   if Count > 0 then
     fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Count, dt_Once, di_Norm)
