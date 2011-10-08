@@ -2,4 +2,7 @@ Title
 Cross
 
 SmallDesc
-A multiplayer mission by Kirelareus
+A multiplayer battle mission by Kirelareus.
+
+BigDesc
+A multiplayer battle mission by Kirelareus.

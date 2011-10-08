@@ -1,0 +1,8 @@
+Title
+Cross_update
+
+SmallDesc
+A multiplayer battle mission by Kirelareus, modified by ZOLTAN.
+
+BigDesc
+A multiplayer battle mission by Kirelareus, modified by ZOLTAN so that each player has buildings to train more troops.

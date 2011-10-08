@@ -1,0 +1,8 @@
+Title
+Mountainous Region
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. Players are in enclosed areas which meet at the center of the map.

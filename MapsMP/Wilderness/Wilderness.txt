@@ -1,0 +1,8 @@
+Title
+Wilderness
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. A large and wild map with varied terrain.

@@ -1,0 +1,8 @@
+Title
+Coastal Encounter
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. A small battle by the coast.

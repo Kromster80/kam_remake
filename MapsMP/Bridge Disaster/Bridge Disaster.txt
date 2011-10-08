@@ -1,0 +1,8 @@
+Title
+Bridge Disaster
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. This map is full of chaosms, bridges and narrow spaces.

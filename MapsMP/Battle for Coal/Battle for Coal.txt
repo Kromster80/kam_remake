@@ -1,0 +1,8 @@
+Title
+Battle for Coal
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. All of the coal on this map is in the middle and must be fought for. Suggested teams: 1+3+5 vs 2+4+6

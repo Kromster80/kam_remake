@@ -1,0 +1,8 @@
+Title
+Ambushed
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. A massive battle in an open valley.

@@ -1,0 +1,8 @@
+Title
+Castle Slaughter
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. Each player begins in a castle and must fight for the remaining space on the map. Suggested teams: 1+3+5 vs 2+4+6

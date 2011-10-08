@@ -1,0 +1,8 @@
+Title
+Land of Hills
+
+SmallDesc
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. A hilly map with an open area in the middle. Suggested teams: 1+6 vs 2+3 vs 4+5 OR 1+5+6 vs 2+3+4

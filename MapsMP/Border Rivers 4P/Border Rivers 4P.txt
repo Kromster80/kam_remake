@@ -1,5 +1,8 @@
 Title
-Land of the Quick River
+Border Rivers 4P
 
 SmallDesc
-A multiplayer mission from Knights and Merchants
+A multiplayer map from Knights and Merchants
+
+BigDesc
+A multiplayer map from Knights and Merchants. Each player has a large area to build in surrounded by river.

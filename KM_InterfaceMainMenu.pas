@@ -156,6 +156,7 @@ type
         Radio_LobbyMapType:TKMRadioGroup;
         List_Lobby:TKMDropBox;
         Label_LobbyMapName:TKMLabel;
+        Label_LobbyMapDesc:TKMLabel;
         Label_LobbyMapCount:TKMLabel;
         Label_LobbyMapMode:TKMLabel;
         Label_LobbyMapCond:TKMLabel;
@@ -568,7 +569,8 @@ begin
 
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,760,100,240,400);
-      TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 520);
+      TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 300);
+      TKMBevel.Create(Panel_LobbySetup,  0,  320, 240, 200);
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 220, 20, fTextLibrary[TX_LOBBY_MAP_CHOOSE], fnt_Outline, kaLeft);
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 220, 30, fnt_Metal);
       Radio_LobbyMapType.ItemIndex := 0;
@@ -577,8 +579,10 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
       List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
-      TKMLabel.Create(Panel_LobbySetup, 10, 360, 220, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, kaLeft);
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 380, 220, 20, '', fnt_Metal, kaLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 80, 220, 20, '', fnt_Metal, kaLeft);
+      TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, kaLeft);
+      Label_LobbyMapDesc := TKMLabel.Create(Panel_LobbySetup, 10, 110, 220, 180, '', fnt_Game, kaLeft);
+      Label_LobbyMapDesc.AutoWrap := true;
       Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 400, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 420, 220, 20, '', fnt_Metal, kaLeft);
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, '', fnt_Metal, kaLeft);
@@ -837,7 +841,7 @@ begin
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras (ZoZoN)||'+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,kaCenter);
 
@@ -1387,6 +1391,7 @@ begin
   Edit_LobbyPost.Text := '';
 
   Label_LobbyMapName.Caption := '';
+  Label_LobbyMapDesc.Caption := '';
   Label_LobbyMapCount.Caption := fTextLibrary[TX_LOBBY_MAP_PLAYERS];
   Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
   Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
@@ -1398,12 +1403,14 @@ begin
     Radio_LobbyMapType.ItemIndex := 0;
     Lobby_MapTypeSelect(nil);
     List_Lobby.Show;
+    Label_LobbyMapName.Hide;
     Label_LobbyChooseMap.Show;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
     Button_LobbyStart.Disable;
   end else begin
     Radio_LobbyMapType.Hide;
     List_Lobby.Hide;
+    Label_LobbyMapName.Show;
     Label_LobbyChooseMap.Hide;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
@@ -1588,9 +1595,15 @@ begin
   if fGame.Networking.SelectGameKind <> ngk_None then
   begin
     if fGame.Networking.SelectGameKind = ngk_Save then
-      Label_LobbyMapName.Caption := fGame.Networking.GameInfo.GetTitleWithTime
+    begin
+      Label_LobbyMapName.Caption := fGame.Networking.GameInfo.GetTitleWithTime;
+      Label_LobbyMapDesc.Caption := '';
+    end
     else
+    begin
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
+      Label_LobbyMapDesc.Caption := fGame.Networking.MapInfo.BigDesc;
+    end;
 
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE]+' '+fGame.Networking.GameInfo.MissionModeText;
@@ -1612,6 +1625,7 @@ begin
   else
   begin
     Label_LobbyMapName.Caption := aData; //aData is some error message
+    Label_LobbyMapDesc.Caption := '';
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[0]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
     //Label_LobbyMapCond.Caption :=

@@ -590,6 +590,10 @@ begin
   or (Sender=Panel_HouseMarket) or (Sender=Panel_HouseBarracks)
   or (Sender=Panel_HouseStore) then
     TKMPanel(Sender).Show;
+
+  //Place the cursor in the chatbox if it is open and nothing else has taken focus
+  if (Panel_Chat.Visible) and (MyControls.CtrlFocus = nil) then
+    MyControls.CtrlFocus := Edit_ChatMsg;
 end;
 
 

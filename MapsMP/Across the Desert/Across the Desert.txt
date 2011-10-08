@@ -2,7 +2,7 @@ Title
 Across the Desert
 
 SmallDesc
-Fight your way across the desert!
+A multiplayer map from Knights and Merchants
 
 BigDesc
-This is a remade version of the single map shipped with TPR
+A multiplayer map from Knights and Merchants. A wide open map with lots of space. Suggested teams: 1+6 vs 2+3 vs 4+5.
