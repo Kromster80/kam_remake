@@ -730,7 +730,7 @@ begin
   Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 462-210, 200, 200, 300);
       TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_MAP_SIZE], fnt_Outline, kaLeft);
-      TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 40 + MAPSIZES_COUNT*20);
+      TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 20 + MAPSIZES_COUNT*20);
       TKMLabel.Create(Panel_MapEd_SizeXY, 8, 27, 88, 20, fTextLibrary[TX_MENU_MAP_WIDTH], fnt_Outline, kaLeft);
       TKMLabel.Create(Panel_MapEd_SizeXY, 108, 27, 88, 20, fTextLibrary[TX_MENU_MAP_HEIGHT], fnt_Outline, kaLeft);
 
@@ -1708,7 +1708,9 @@ end;
 
 procedure TKMMainMenuInterface.Load_ListClick(Sender: TObject);
 begin
-  Load_DeleteConfirmation(false); //If they clicked Delete, hide the yes no buttons again if they select a different item
+  //Hide delete confirmation if player has selected a different savegame item
+  Load_DeleteConfirmation(false);
+  Button_Delete.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1);
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
                          and fSaves[List_Load.ItemIndex].IsValid;
 end;
@@ -1716,7 +1718,7 @@ end;
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
-  if not InRange(List_Load.ItemIndex,0,fSaves.Count-1) then exit;
+  if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
   fGame.StartSingleSave(fSaves[List_Load.ItemIndex].Filename);
 end;
 
@@ -1724,13 +1726,15 @@ end;
 procedure TKMMainMenuInterface.Load_Delete_Click(Sender: TObject);
 var PreviouslySelected:integer;
 begin
-  if not InRange(List_Load.ItemIndex, 0, List_Load.Count-1) then exit;
+  if not InRange(List_Load.ItemIndex, 0, List_Load.Count-1) then Exit;
+  
   if Sender = Button_Delete then
     Load_DeleteConfirmation(true);
 
   if (Sender = Button_DeleteYes) or (Sender = Button_DeleteNo) then
-    Load_DeleteConfirmation(false);
+    Load_DeleteConfirmation(false); //Hide confirmation anyways
 
+  //Delete the savegame
   if Sender = Button_DeleteYes then
   begin
     PreviouslySelected := List_Load.ItemIndex;
@@ -1762,6 +1766,7 @@ begin
 end;
 
 
+//Shortcut to choose if DeleteConfirmation should be displayed or hid
 procedure TKMMainMenuInterface.Load_DeleteConfirmation(aVisible:boolean);
 begin
   Label_DeleteConfirm.Visible := aVisible;

@@ -763,7 +763,6 @@ begin
 end;
 
 
-//So far this whole procedure is a placeholder
 procedure TKMPlayerAI.SyncLoad;
 var i: integer;
 begin

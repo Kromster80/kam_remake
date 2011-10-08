@@ -64,19 +64,20 @@ begin
   //Do not play sounds if unit is invisible to MyPlayer
   if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
 
-  case KMUnit.UnitType of //Various UnitTypes and ActionTypes
-    ut_Worker: case GetActionType of
+  //Various UnitTypes and ActionTypes produce all the sounds
+  case KMUnit.UnitType of 
+    ut_Worker: case ActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
                  ua_Work2: if Step = 8 then fSoundLib.Play(sfx_Pave,KMUnit.GetPosition,true);
                end;
-    ut_Farmer: case GetActionType of
+    ut_Farmer: case ActionType of
                  ua_Work:  if Step = 8 then fSoundLib.Play(sfx_CornCut,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_CornSow,KMUnit.GetPosition,true,0.6);
                end;
-    ut_StoneCutter: if GetActionType = ua_Work then
+    ut_StoneCutter: if ActionType = ua_Work then
                            if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
-    ut_WoodCutter: case GetActionType of
+    ut_WoodCutter: case ActionType of
                      ua_Work: if (KMUnit.AnimStep mod Cycle = 3) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_ChopTree,KMUnit.GetPosition,true)
                      else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
                    end;
@@ -89,7 +90,7 @@ var Cycle,Step:byte;
 begin
   if not StayStill then
   begin
-    Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[GetActionType, KMUnit.Direction].Count, 1);
+    Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[ActionType, KMUnit.Direction].Count, 1);
     Step  := KMUnit.AnimStep mod Cycle;
 
     StepDone := KMUnit.AnimStep mod Cycle = 0;

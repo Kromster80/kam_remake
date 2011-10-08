@@ -265,7 +265,7 @@ begin
   Result := ExecuteValidateOpponent(KMUnit);
   if Result = ActDone then exit;
 
-  Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[GetActionType, KMUnit.Direction].Count, 1);
+  Cycle := max(fResource.UnitDat[KMUnit.UnitType].UnitAnim[ActionType, KMUnit.Direction].Count, 1);
   Step  := KMUnit.AnimStep mod Cycle;
 
   //Opponent can walk next to us, keep facing him

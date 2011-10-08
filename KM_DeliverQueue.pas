@@ -47,13 +47,13 @@ type
     procedure CloseDelivery(aID:integer);
     procedure CloseDemand(aID:integer);
     procedure CloseOffer(aID:integer);
+    function PermitDelivery(iO,iD:integer):boolean;
   public
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemoveOffer(aHouse:TKMHouse);
     procedure RemoveDemand(aHouse:TKMHouse); overload;
     procedure RemoveDemand(aUnit:TKMUnit); overload;
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
-    function PermitDelivery(iO,iD:integer):boolean;
     function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
@@ -335,6 +335,7 @@ end;
 
 
 //Should issue a job based on requesters location and job importance
+//Serf may ask for a job from within a house after completing previous delivery
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
 var i,iD,iO:integer; Bid,BestBid:single; BidIsPriority: boolean;
 begin

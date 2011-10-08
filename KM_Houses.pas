@@ -177,9 +177,8 @@ type
     procedure SetResFrom(Value: TResourceType);
     procedure SetResTo(Value: TResourceType);
   public
-    //constructor Load(LoadStream:TKMemoryStream); override;
-    //procedure Save(SaveStream:TKMemoryStream); override;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
+    constructor Load(LoadStream:TKMemoryStream); override;
 
     property ResFrom:TResourceType read fResFrom write SetResFrom;
     property ResTo:TResourceType read fResTo write SetResTo;
@@ -191,6 +190,8 @@ type
     procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
     procedure ResEditOrder(aID:byte; aAmount:integer); override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
+
+    procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
 
@@ -363,9 +364,10 @@ begin
   LoadStream.Read(fTimeSinceUnoccupiedReminder);
   LoadStream.Read(fID);
   LoadStream.Read(HasAct);
-  if HasAct then begin
-    fCurrentAction := THouseAction.Create(nil, hst_Empty); //Create placeholder to fill
-    fCurrentAction.Load(LoadStream);
+  if HasAct then
+  begin
+    fCurrentAction := THouseAction.Create(nil, hst_Empty); //Create action object
+    fCurrentAction.Load(LoadStream); //Load actual data into object
   end;
   LoadStream.Read(ResourceDepletedMsgIssued);
   LoadStream.Read(DoorwayUse);
@@ -1306,10 +1308,15 @@ end;
 
 procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1);
 begin
-  //todo: If user cancelled exchange (or began new one with different resources already)
-  //then incoming resourced should be moved to Out and added to Offer list
   inc(fResources[aResource], aCount);
-  AttemptExchange;
+
+  //If user cancelled the exchange (or began new one with different resources already)
+  //then incoming resourced should be added to Offer list immediately
+  //We don't want Marketplace to act like a Store
+  if (aResource = fResFrom) and (fResourceOrder[1] > 0) then
+    AttemptExchange
+  else
+    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, aResource, aCount);
 end;
 
 
@@ -1355,6 +1362,7 @@ begin
 end;
 
 
+//Player has changed the amount of order
 procedure TKMHouseMarket.ResEditOrder(aID:byte; aAmount:integer);
 var Count: integer;
 begin
@@ -1364,10 +1372,16 @@ begin
 
   //Try to make an exchange from existing resources
   AttemptExchange;
-  Count := fResourceOrder[1] - fResourceDeliveryCount[1];
 
-  //todo: If fResourceOrder[1] = 0 then all remainders of From resource should be moved to Out
-  //and added to Offer list
+  //If player cancelled exchange then move all remainders of From resource to Offers list
+  if fResourceOrder[1] = 0 then
+    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResFrom, fResources[fResFrom]);
+
+  //@Lewin: If player has cancelled the exchange and then started it again resources will not be
+  //removed from offers list and perhaps serf will carry them off the marketplace
+
+  //How much do we need to ask to add to delivery system
+  Count := fResourceOrder[1] - fResourceDeliveryCount[1];
 
   if Count > 0 then
     fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Count, dt_Once, di_Norm)
@@ -1381,6 +1395,24 @@ begin
   //recieving resources instead? Or we let than be handled by delivery list which will be smart
   //enough to handicap such massive deliveries (to allow other deliveries run as well)
   fResourceDeliveryCount[1] := fResourceOrder[1];
+end;
+
+
+constructor TKMHouseMarket.Load(LoadStream: TKMemoryStream);
+begin
+  inherited;
+  LoadStream.Read(fResFrom, SizeOf(fResFrom));
+  LoadStream.Read(fResTo, SizeOf(fResTo));
+  LoadStream.Read(fResources, SizeOf(fResources));
+end;
+
+
+procedure TKMHouseMarket.Save(SaveStream: TKMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fResFrom, SizeOf(fResFrom));
+  SaveStream.Write(fResTo, SizeOf(fResTo));
+  SaveStream.Write(fResources, SizeOf(fResources));
 end;
 
 
@@ -1829,17 +1861,21 @@ function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY:i
 var T:integer;
 begin
   case aHouseType of
-    ht_Swine:    T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Stables:  T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Inn:      T := Inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Marketplace:T := Inherited Add(TKMHouseMarket.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_School:   T := Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Barracks: T := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Store:    T := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_WatchTower: T := Inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    else         T := Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Swine:       T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Stables:     T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Inn:         T := Inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Marketplace: T := Inherited Add(TKMHouseMarket.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_School:      T := Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Barracks:    T := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Store:       T := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_WatchTower:  T := Inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    else            T := Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   end;
-    if T=-1 then Result := nil else Result := Items[T];
+
+  if T=-1 then
+    Result := nil
+  else
+    Result := Items[T];
 end;
 
 
@@ -1987,13 +2023,19 @@ procedure TKMHousesCollection.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('Houses');
-  if (fSelectedHouse <> nil) and not fGame.MultiplayerMode then //Multiplayer saves must be identical
+  //Multiplayer saves must be identical, thus we force that no house is selected
+  if (fSelectedHouse <> nil) and not fGame.MultiplayerMode then
     SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
+
   SaveStream.Write(Count);
   for i := 0 to Count - 1 do
+  begin
+    //We save house type to know which house class to load
+    SaveStream.Write(Houses[i].HouseType, SizeOf(Houses[i].HouseType));
     Houses[i].Save(SaveStream);
+  end;
 end;
 
 
@@ -2007,18 +2049,16 @@ begin
   for i := 0 to HouseCount - 1 do
   begin
     LoadStream.Read(HouseType, SizeOf(HouseType));
-    LoadStream.Seek(-SizeOf(HouseType), soFromCurrent); //rewind
-    case HouseType of //Create some placeholder unit
-      ht_Swine:    Inherited Add(TKMHouseSwineStable.Load(LoadStream));
-      ht_Stables:  Inherited Add(TKMHouseSwineStable.Load(LoadStream));
-      ht_Inn:      Inherited Add(TKMHouseInn.Load(LoadStream));
-      ht_Marketplace:Inherited Add(TKMHouseMarket.Load(LoadStream));
-      ht_School:   Inherited Add(TKMHouseSchool.Load(LoadStream));
-      ht_Barracks: Inherited Add(TKMHouseBarracks.Load(LoadStream));
-      ht_Store:    Inherited Add(TKMHouseStore.Load(LoadStream));
-      ht_WatchTower:Inherited Add(TKMHouseTower.Load(LoadStream));
-      else         Inherited Add(TKMHouse.Load(LoadStream));
-//    else Assert(false, 'Uknown house type in Savegame')
+    case HouseType of
+      ht_Swine:       Inherited Add(TKMHouseSwineStable.Load(LoadStream));
+      ht_Stables:     Inherited Add(TKMHouseSwineStable.Load(LoadStream));
+      ht_Inn:         Inherited Add(TKMHouseInn.Load(LoadStream));
+      ht_Marketplace: Inherited Add(TKMHouseMarket.Load(LoadStream));
+      ht_School:      Inherited Add(TKMHouseSchool.Load(LoadStream));
+      ht_Barracks:    Inherited Add(TKMHouseBarracks.Load(LoadStream));
+      ht_Store:       Inherited Add(TKMHouseStore.Load(LoadStream));
+      ht_WatchTower:  Inherited Add(TKMHouseTower.Load(LoadStream));
+      else            Inherited Add(TKMHouse.Load(LoadStream));
     end;
   end;
 end;

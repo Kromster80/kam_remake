@@ -1228,7 +1228,7 @@ var
 begin
   Inherited;
   if not fVisible then exit;
-  Act  := fCurrentAction.GetActionType;
+  Act  := fCurrentAction.ActionType;
 
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);

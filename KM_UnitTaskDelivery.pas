@@ -156,7 +156,7 @@ begin
           SetActionLockedStay(0, ua_Walk)
         else
           SetActionGoIn(ua_Walk, gd_GoOutside, fFrom);
-    4:  SetActionLockedStay(0, ua_Walk); //Thats a placeholder
+    4:  SetActionLockedStay(0, ua_Walk); //Thats a placeholder left for no obvious reason
   end;
 
   //Deliver into complete house

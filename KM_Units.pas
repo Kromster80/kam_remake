@@ -27,7 +27,9 @@ type
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
-    property GetActionType: TUnitActionType read fActionType;
+
+    property ActName: TUnitActionName read fActionName;
+    property ActionType: TUnitActionType read fActionType;
     function GetExplanation:string; virtual; abstract;
     function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -48,8 +50,9 @@ type
     procedure SyncLoad; virtual;
     destructor Destroy; override;
 
-    function WalkShouldAbandon:boolean; dynamic;
     property Phase:byte read fPhase write fPhase;
+    property TaskName:TUnitTaskName read fTaskName;
+    function WalkShouldAbandon:boolean; dynamic;
 
     function Execute:TTaskResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -877,8 +880,7 @@ begin
   LoadStream.Read(HasTask);
   if HasTask then
   begin
-    LoadStream.Read(TaskName, SizeOf(TaskName)); //Save task type before anything else for it will be used on loading to create specific task type
-    LoadStream.Seek(-SizeOf(TaskName), soFromCurrent); //rewind
+    LoadStream.Read(TaskName, SizeOf(TaskName));
     case TaskName of
       utn_Unknown:         Assert(false, 'TaskName can''t be handled');
       utn_SelfTrain:       fUnitTask := TTaskSelfTrain.Load(LoadStream);
@@ -907,7 +909,6 @@ begin
   if HasAct then
   begin
     LoadStream.Read(ActName, SizeOf(ActName));
-    LoadStream.Seek(-SizeOf(ActName), soFromCurrent); //rewind
     case ActName of
       uan_Unknown:     Assert(false, 'ActName can''t be handled');
       uan_Stay:        fCurrentAction := TUnitActionStay.Load(LoadStream);
@@ -1167,7 +1168,7 @@ begin
     FreeAndNil(fCurrentAction);
     exit;
   end;
-  if not fResource.UnitDat[fUnitType].SupportsAction(aAction.GetActionType) then
+  if not fResource.UnitDat[fUnitType].SupportsAction(aAction.ActionType) then
   begin
     Assert(false, 'Unit '+fResource.UnitDat[UnitType].UnitName+' was asked to do unsupported action');
     FreeAndNil(aAction);
@@ -1519,11 +1520,21 @@ begin
 
   HasTask := fUnitTask <> nil; //Thats our switch to know if unit should write down his task.
   SaveStream.Write(HasTask);
-  if HasTask then fUnitTask.Save(SaveStream); //TaskType gets written first in fUnitTask.Save
+  if HasTask then
+  begin
+    //We save TaskName to know which Task class to load
+    SaveStream.Write(fUnitTask.TaskName, SizeOf(fUnitTask.TaskName));
+    fUnitTask.Save(SaveStream);
+  end;
 
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct);
-  if HasAct then fCurrentAction.Save(SaveStream);
+  if HasAct then
+  begin
+    //We save ActName to know which Task class to load
+    SaveStream.Write(fCurrentAction.ActName, SizeOf(fCurrentAction.ActName));
+    fCurrentAction.Save(SaveStream);
+  end;
 
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
@@ -1939,7 +1950,11 @@ begin
   SaveStream.Write('Units');
   SaveStream.Write(Count);
   for i := 0 to Count - 1 do
+  begin
+    //We save unit type to know which unit class to load
+    SaveStream.Write(Units[i].UnitType, SizeOf(Units[i].UnitType));
     Units[i].Save(SaveStream);
+  end;
 end;
 
 
@@ -1952,7 +1967,6 @@ begin
   for i := 0 to UnitCount - 1 do
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
-    LoadStream.Seek(-SizeOf(UnitType), soFromCurrent); //rewind
     case UnitType of
       ut_Serf:                  Inherited Add(TKMUnitSerf.Load(LoadStream));
       ut_Worker:                Inherited Add(TKMUnitWorker.Load(LoadStream));
