@@ -1858,24 +1858,24 @@ end;
 
 { TKMHousesCollection }
 function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; aHBS:THouseBuildState):TKMHouse;
-var T:integer;
+var I:integer;
 begin
   case aHouseType of
-    ht_Swine:       T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Stables:     T := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Inn:         T := Inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Marketplace: T := Inherited Add(TKMHouseMarket.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_School:      T := Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Barracks:    T := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Store:       T := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_WatchTower:  T := Inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    else            T := Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Swine:       I := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Stables:     I := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Inn:         I := Inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Marketplace: I := Inherited Add(TKMHouseMarket.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_School:      I := Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Barracks:    I := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Store:       I := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_WatchTower:  I := Inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    else            I := Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   end;
 
-  if T=-1 then
+  if I = -1 then
     Result := nil
   else
-    Result := Items[T];
+    Result := Items[I];
 end;
 
 

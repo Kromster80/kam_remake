@@ -12,13 +12,6 @@ type
   end;
 
   TKMCampaign = class
-    Maps:array of record
-      MapName:string;
-      MissionText:string;
-      Node:TKMPoint;
-      PrevMap:shortint; //Should be used to draw connecting dots in Campaign screen
-      ScriptPath:string;
-    end;
   private
     fBackGroundPic:TPicID;
     fMapCount:byte;
@@ -26,6 +19,13 @@ type
     fUnlockedMaps:byte;
     procedure SetUnlockedMaps(Value:byte);
   public
+    Maps:array of record
+      MapName:string;
+      MissionText:string;
+      Node:TKMPoint;
+      PrevMap:shortint; //Should be used to draw connecting dots in Campaign screen
+      ScriptPath:string;
+    end;
     constructor Create(const aShortTitle:string; aMapCount:byte; aBackRX,aBackID:word);
     procedure LoadProgress(M:TKMemoryStream);
     procedure SaveProgress(M:TKMemoryStream);

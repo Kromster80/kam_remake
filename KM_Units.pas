@@ -393,7 +393,7 @@ end;
 
 
 function TKMUnitCitizen.InitiateMining:TUnitTask;
-var Res:integer; T: TTaskMining;
+var Res:integer; TM: TTaskMining;
 begin
   Result := nil;
 
@@ -409,23 +409,23 @@ begin
     if Res = 0 then Exit;
   end;
 
-  T := TTaskMining.Create(Self, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
+  TM := TTaskMining.Create(Self, fResource.HouseDat[fHome.HouseType].ResOutput[Res]);
 
-  if T.WorkPlan.ResourceDepleted then
+  if TM.WorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
 
-  if T.WorkPlan.IsIssued
-  and ((T.WorkPlan.Resource1=rt_None)or(fHome.CheckResIn(T.WorkPlan.Resource1)>=T.WorkPlan.Count1))
-  and ((T.WorkPlan.Resource2=rt_None)or(fHome.CheckResIn(T.WorkPlan.Resource2)>=T.WorkPlan.Count2))
-  and (fHome.CheckResOut(T.WorkPlan.Product1)<MAX_RES_IN_HOUSE)
-  and (fHome.CheckResOut(T.WorkPlan.Product2)<MAX_RES_IN_HOUSE) then
+  if TM.WorkPlan.IsIssued
+  and ((TM.WorkPlan.Resource1 = rt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource1) >= TM.WorkPlan.Count1))
+  and ((TM.WorkPlan.Resource2 = rt_None) or (fHome.CheckResIn(TM.WorkPlan.Resource2) >= TM.WorkPlan.Count2))
+  and (fHome.CheckResOut(TM.WorkPlan.Product1) < MAX_RES_IN_HOUSE)
+  and (fHome.CheckResOut(TM.WorkPlan.Product2) < MAX_RES_IN_HOUSE) then
   begin
     if fResource.HouseDat[fHome.HouseType].DoesOrders then
       fHome.ResEditOrder(Res, -1); //Take order
-    Result := T;
+    Result := TM;
   end else
   begin
-    T.Free;
+    TM.Free;
     Result := nil;
   end;
 end;

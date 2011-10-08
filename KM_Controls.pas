@@ -2395,20 +2395,20 @@ end;
 
 
 procedure TKMColumnListBox.AddItem(aItem:array of string; aItemColor:array of TColor4; aTag:integer=0; aTag2:integer=0);
-var i, Count: integer;
+var i, NewCount: integer;
 begin
-  assert(Length(aItem) = Length(fItems));
-  assert(Length(aItemColor) = Length(fItems));
-  Count := fItems[0].Count+1;
-  SetLength(fTags,Count);
-  SetLength(fTags2,Count);
-  fTags[Count-1] := aTag;
-  fTags2[Count-1] := aTag2;
+  Assert(Length(aItem) = Length(fItems));
+  Assert(Length(aItemColor) = Length(fItems));
+  NewCount := fItems[0].Count + 1;
+  SetLength(fTags, NewCount);
+  SetLength(fTags2, NewCount);
+  fTags[NewCount-1] := aTag;
+  fTags2[NewCount-1] := aTag2;
   for i:=0 to Length(fItems)-1 do
   begin
     fItems[i].Add(aItem[i]);
-    SetLength(fItemColors[i],Count);
-    fItemColors[i,Count-1] := aItemColor[i];
+    SetLength(fItemColors[i],NewCount);
+    fItemColors[i, NewCount-1] := aItemColor[i];
   end;
   UpdateScrollBar;
 end;
