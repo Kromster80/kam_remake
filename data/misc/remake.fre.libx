@@ -5,143 +5,143 @@ MaxID:135
 2:Tutoriel de Construction
 3:Tutoriel de Bataille
 4:Joueur Solo
-5:Editeur de Missions
+5:Editeur de Maps
 6:Voir le Dernier Replay
 7:Continuer
 8:Titre
 9:Taille
-10:Type de Mission: 
-11:Condition de Victoire: 
-12:Condition de Défaite: 
-13:Alliés: 
-14:Ennemis: 
-15:
+10:Type de Mission: %s
+11:Condition de Victoire: %s
+12:Condition de Défaite: %s
+13:Alliés:
+14:Ennemis:
+15:Slot %d
 16:Taille de la Carte :
 17:Largeur
 18:Hauteur
 19:Créer une Mission
-20:Missions Disponible :
+20:Missions Existantes :
 21:Charger une Mission Existante
 22:Contrôles :
-23:
+23:Gameplay :
 24:Effets Sonores :
-25:
+25:Désactiver
 26:Graphisme :
 27:Luminosité
 28:Plein Ecran
 29:Appliquer
-30:Language :
+30:Langage :
 31:Chargement... Veuillez patienter
-32:Une Erreur s'est Produite!
+32:Une Erreur s'est Produite !
 33:Chargement du nouveau local
-34:
-35:
-36:
-37:
-38:
-39:
-40:
-41:
+34:Liste des Sauvegardes
+35:Nom du Fichier
+36:Description
+37:Charger
+38:Supprimer
+39:Etes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
+40:Supprimer
+41:Annulé
 
 42:Inconnue
 
-43:Vous avez gagné!
-44:Continuer
-45:Victoire!
-46:Vous avez perdu!
-47:Continuer
-48:Défaite!
-49:Le replay est terminé
-50:Continuer
-51:Retour au Menu
+43:Vous avez Gagné !
+44:Continuer à Jouer
+45:Victoire !
+46:Vous avez Perdu !
+47:Continuer à Regarder
+48:Défaite !
+49:Le Replay est Terminé
+50:Continuer à Regarder
+51:Quitter au Menu
 52:Non disponible
-53:Appuyer sur %s pour reprendre le jeu
-54:A l'Equipe
-55:Info sur les Joueurs
-56:
-57:
-58:
-59:
-60:
+53:Appuyer sur %s pour reprendre
+54:Pour l'alliance
+55:Info sur les joueurs
+56:Chat
+57:Fichier déjà existant
+58:Ecraser
+59:Enregistrer
+60:Charger
 
-61:Une erreur s'est produite durant le gameplay.
-62:
-63:
-64:Erreur Réseau:
-65:Erreur: Le nom du joueur ne doit pas être blanc
-66:La connexion a échoué: %s
-67:Vous avez déconnecté
-68:
+61:Une erreur s'est produite durant la partie.
+62:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent être trouvés dans le fichier Readme. Merci beaucoup de votre aide !\n\nATTENTION: Continuer à jouer après cette erreur peut causer de future crashs et instabilités. Voulez-vous prendre ce risque et continuer à jouer ?
+63:Une ancienne version d'OpenGL à été détecté, le jeu peut être lent et/ou avec des défauts graphiques.\nVeuillez mettre à jour vos pilotes graphiques pour obtenir une meilleure performance.
+64:Erreur réseau:
+65:Erreur: Le nom du joueur doit contenir au moins un caractère
+66:Connexion échoué: %s
+67:Vous vous êtes déconnecté
+68:Mission %d
 
-69:
-70:
+69:La hutte de votre pêcheur est trop éloignée de l'eau.
+70:Votre pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa hutte.
 
-72:
+72:Place du Marché
 
-73:Edition du Terrain
-74:Planification du Village
-75:Scripts Visuel
-76:Scripts Global
-77:
+73:Edition du terrain
+74:Planification du village
+75:Scripts visuel
+76:Scripts global
+77:Menu
 
-78:
+78:Status:
 79:Nom du Joueur:
-80:
-81:
-82:
-83:
-84:
-85:
-86:
-87:
-88:
-89:
-90:
-91:
-92:
-93:
-94:
+80:CREER UN SERVEUR
+81:Nom du Serveur
+82:Port du Serveur
+83:Créer un Serveur Local
+84:Créer un Serveur Internet
+85:Nom du Serveur
+86:Etat
+87:Joueurs
+88:Ping
+89:Rafraichir la Liste des Serveurs
+90:DETAILS DU SERVEUR
+91:Liste des Joueurs :
+92:Adresse
+93:Port
+94:Salle
 95:Joindre
-96:Connexion, Veuillez patienter...
-97:
-98:
+96:Connexion, veuillez patienter...
+97:Chargement des annonces...
+98:Rafraichissement...
 
-99:Joueurs:
+99:Nom des Joueurs:
 100:Position:
-101:Equipe:
+101:Alliance:
 102:Couleur:
 103:Prêt:
-104:
-135:
+104:Ping:
+135:Bannir
 105:Libre
 106:Joueur IA
-107:Sélectionnez...
+107:Sélect...
 108:Aléatoire
 109:Aucune
-110:
-111:Equipe %d
-112:List des Messages:
-113:Envoyer un Message:
-114:Sélectionnez une Mission:
+110:Aucune
+111:Alliance %d
+112:Liste des Messages :
+113:Envoyer un Message :
+114:Sélectionner une Mission :
 115:Mission
 116:Sauvegarde
 117:Sélect. une mission...
 118:Sélect. un fichier...
-119:Info sur la Mission:
+119:Info sur la Mission :
 120:Joueurs: %d
-121:
-122:
-123:
-124:Quitter Lobby
+121:Mode:
+122:Conditions:
+123:Taille:
+124:Quitter le Lobby
 125:Prêt
 126:Débuter !
 
-127:Attente des joueurs:
+127:Attente de Joueurs:
 
 128:Crédits de KaM Remake
-129:Crédits Orginal de Knights and Merchants
-130:PROGRAMMATION:
-131:PROGRAMMATION ADDITIONNEL:
-132:GRAPHISMES ADDITIONNEL:
-133:TRADUCTIONS ADDITIONNEL:
-134:REMERCIMENTS PARTICULIERS A:
+129:Crédits Original de Knights & Merchants
+130:PROGRAMMATION :
+131:PROGRAMMATION ADDITIONNEL :
+132:GRAPHISMES ADDITIONNEL :
+133:TRADUCTIONS ADDITIONNEL :
+134:REMERCIMENTS PARTICULIERS :
