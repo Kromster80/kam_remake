@@ -1845,8 +1845,12 @@ begin
               begin
                 ResRow_Costs[i].Caption := fResource.Resources[Res].Name;
                 ResRow_Costs[i].RXid := 4;
-                ResRow_Costs[i].TexID1 := fResource.Resources[WarfareCosts[Res, 1]].GUIIcon;
-                ResRow_Costs[i].TexID2 := fResource.Resources[WarfareCosts[Res, 2]].GUIIcon;
+                //Hide the icons when they are not used
+                if WarfareCosts[Res, 1] = rt_None then ResRow_Costs[i].TexID1 := 0
+                else ResRow_Costs[i].TexID1 := fResource.Resources[WarfareCosts[Res, 1]].GUIIcon;
+                if WarfareCosts[Res, 2] = rt_None then ResRow_Costs[i].TexID2 := 0
+                else ResRow_Costs[i].TexID2 := fResource.Resources[WarfareCosts[Res, 2]].GUIIcon;
+
                 ResRow_Costs[i].Show;
                 ResRow_Costs[i].Top := Base + Line * LineAdv;
                 inc(Line);
