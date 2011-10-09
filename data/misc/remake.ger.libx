@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -76,76 +76,76 @@ MaxID:139
 69:Diese Fischerhütte ist zu weit vom Wasser entfernt!
 70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
 
-72:Markthalle
-136:
-137:
-138:
-139:
+71:Markthalle
+72:
+73:
+74:
+75:
 
-73:Terrain bearbeiten
-74:Häuser bearbeiten
-75:Optische Skripte
-76:Globale Skripte
-77:Menü
+76:Terrain bearbeiten
+77:Häuser bearbeiten
+78:Optische Skripte
+79:Globale Skripte
+80:Menü
 
-78:Status:
-79:Spielername:
-80:ERSTELLE SERVER
-81:Server Name
-82:Server Port
-83:Erstelle lokalen Server
-84:Erstelle Internet Server
-85:Server Name
-86:Status
-87:Spieler
-88:Ping
-89:Aktualisiere Server Liste
-90:SERVER DETAILS
-91:Spielerliste:
-92:Adresse
-93:Port
-94:Raum
-95:Beitreten
-96:Verbinde, bitte warten...
-97:Lade Ankündigung...
-98:Aktualisiere...
+81:Status:
+82:Spielername:
+83:ERSTELLE SERVER
+84:Server Name
+85:Server Port
+86:Erstelle lokalen Server
+87:Erstelle Internet Server
+88:Server Name
+89:Status
+90:Spieler
+91:Ping
+92:Aktualisiere Server Liste
+93:SERVER DETAILS
+94:Spielerliste:
+95:Adresse
+96:Port
+97:Raum
+98:Beitreten
+99:Verbinde, bitte warten...
+100:Lade Ankündigung...
+101:Aktualisiere...
 
-99:Spielerliste:
-100:Startposition:
-101:Team:
-102:Flaggenfarbe:
-103:Bereit:
-104:Ping:
-135:Kick
-105:Öffnen
-106:KI-Spieler
-107:Wähle...
-108:Zufällig
-109:Kein Team
-110:Keine Info vorhanden.
-111:Team %d
-112:Nachrichtenliste:
-113:Nachricht:
-114:Wähle Karte:
-115:Einzelkarte
-116:Gespeichertes Spiel
-117:Wähle eine Karte...
-118:Spielstand wählen...
-119:Karteninfo:
-120:Spieler: %d
-121:Modus:
-122:Bedingungen:
-123:Größe:
-124:Lobby verlassen
-125:Bereit!
-126:Start!
+102:Spielerliste:
+103:Startposition:
+104:Team:
+105:Flaggenfarbe:
+106:Bereit:
+107:Ping:
+108:Kick
+109:Öffnen
+110:KI-Spieler
+111:Wähle...
+112:Zufällig
+113:Kein Team
+114:Keine Info vorhanden.
+115:Team %d
+116:Nachrichtenliste:
+117:Nachricht:
+118:Wähle Karte:
+119:Einzelkarte
+120:Gespeichertes Spiel
+121:Wähle eine Karte...
+122:Spielstand wählen...
+123:Karteninfo:
+124:Spieler: %d
+125:Modus:
+126:Bedingungen:
+127:Größe:
+128:Lobby verlassen
+129:Bereit!
+130:Start!
 
-127:Warte auf Spieler:
+131:Warte auf Spieler:
 
-128:KaM Remake Credits
-129:Original Knights & Merchants Credits
-130:PROGRAMMIERUNG:
-131:WEITERE PROGRAMMIERUNG:
-132:ZUSÄTZLICHE GRAFIKEN:
-133:ZUSÄTZLICHE ÜBERSETZUNGEN:
-134:SPEZIELLES DANKESCHÖN AN:
+132:KaM Remake Credits
+133:Original Knights & Merchants Credits
+134:PROGRAMMIERUNG:
+135:WEITERE PROGRAMMIERUNG:
+136:ZUSÄTZLICHE GRAFIKEN:
+137:ZUSÄTZLICHE ÜBERSETZUNGEN:
+138:SPEZIELLES DANKESCHÖN AN:

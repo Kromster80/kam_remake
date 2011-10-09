@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Mise zrušena
 2:Stavební Tutoriál
@@ -76,23 +76,20 @@ MaxID:139
 69:Váš rybáø je pøíliš daleko od vody.
 70:Váš rybáø nemùže chytit žádné další ryby ve vodì, kterou má poblíž.
 
+71:
 72:
-136:
-137:
-138:
-139:
+73:
+74:
+75:
 
-73:Editace terénu
-74:Plánování vesnice
-75:Visualní skripty
-76:Globalní skriptování
-77:
-
-78:
-79:Jméno hráèe:
+76:Editace terénu
+77:Plánování vesnice
+78:Visualní skripty
+79:Globalní skriptování
 80:
+
 81:
-82:
+82:Jméno hráèe:
 83:
 84:
 85:
@@ -105,47 +102,50 @@ MaxID:139
 92:
 93:
 94:
-95:Pøipojit
-96:Pøipojuji se, prosím èekejte...
+95:
+96:
 97:
-98:
+98:Pøipojit
+99:Pøipojuji se, prosím èekejte...
+100:
+101:
 
-99:Seznam hráèù:
-100:Starovací pozice:
-101:Tým:
-102:Barva:
-103:Hotov:
-104:
-135:
-105:Volno
-106:Poèítaè
-107:Vybrat...
-108:Náhodnì
-109:Žádný
-110:
-111:Tým %d
-112:Chat:
-113:Odeslat zprávu:
-114:Výbìr mapy:
-115:Nová Hra
-116:Uložená Hra
-117:Vyberte mapu...
-118:Výbìr uložené hry...
-119:Informace o mapì:
-120:Hráèi: %d
-121:Mód:
-122:Podmínky vítìzství:
-123:
-124:Opustit lobby
-125:Pøipraven
-126:
+102:Seznam hráèù:
+103:Starovací pozice:
+104:Tým:
+105:Barva:
+106:Hotov:
+107:
+108:
+109:Volno
+110:Poèítaè
+111:Vybrat...
+112:Náhodnì
+113:Žádný
+114:
+115:Tým %d
+116:Chat:
+117:Odeslat zprávu:
+118:Výbìr mapy:
+119:Nová Hra
+120:Uložená Hra
+121:Vyberte mapu...
+122:Výbìr uložené hry...
+123:Informace o mapì:
+124:Hráèi: %d
+125:Mód:
+126:Podmínky vítìzství:
+127:
+128:Opustit lobby
+129:Pøipraven
+130:
 
-127:Èekám na ostatní hráèe:
+131:Èekám na ostatní hráèe:
 
-128:
-129:
-130:PROGRAMOVÁNÍ:
-131:DALŠÍ PROGRAMOVÁNÍ:
-132:DALŠÍ GRAFIKA:
-133:DALŠÍ PØEKLAD:
-134:SPECIÁLNÍ PODÌKOVÁNÍ:
+132:
+133:
+134:PROGRAMOVÁNÍ:
+135:DALŠÍ PROGRAMOVÁNÍ:
+136:DALŠÍ GRAFIKA:
+137:DALŠÍ PØEKLAD:
+138:SPECIÁLNÍ PODÌKOVÁNÍ:

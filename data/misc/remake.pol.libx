@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -76,76 +76,76 @@ MaxID:139
 69:Twoja Chata rybaka jest zbyt daleko od wody.
 70:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
 
-72:Rynek
-136:
-137:
-138:
-139:
+71:Rynek
+72:
+73:
+74:
+75:
 
-73:Edycja terenu
-74:Planowanie osady
-75:Skrypty wizualne
-76:Skryptowanie globalne
-77:Menu
+76:Edycja terenu
+77:Planowanie osady
+78:Skrypty wizualne
+79:Skryptowanie globalne
+80:Menu
 
-78:Status:
-79:Imiê gracza:
-80:STWÓRZ SERWER
-81:Nazwa Serwera
-82:Port Serwera
-83:Stwórz serwer lokalny
-84:Œtwórz serwer internetowy
-85:Nazwa Serwera
-86:Stan
-87:Gracze
-88:Ping
-89:Odœwie¿ Listê Serwerów
-90:SZCZEGÓ£Y SERWERA
-91:Lista graczy:
-92:Adres
-93:Port
-94:Pokój
-95:Do³¹cz
-96:£¹czenie, proszê czekaæ...
-97:£adowanie og³oszeñ...
-98:Odœwie¿anie...
+81:Status:
+82:Imiê gracza:
+83:STWÓRZ SERWER
+84:Nazwa Serwera
+85:Port Serwera
+86:Stwórz serwer lokalny
+87:Œtwórz serwer internetowy
+88:Nazwa Serwera
+89:Stan
+90:Gracze
+91:Ping
+92:Odœwie¿ Listê Serwerów
+93:SZCZEGÓ£Y SERWERA
+94:Lista graczy:
+95:Adres
+96:Port
+97:Pokój
+98:Do³¹cz
+99:£¹czenie, proszê czekaæ...
+100:£adowanie og³oszeñ...
+101:Odœwie¿anie...
 
-99:Lista graczy:
-100:Lokalizacja pocz¹tkowa:
-101:Dru¿yna:
-102:Kolor flagi:
-103:Gotowy:
-104:Ping:
-135:Wyrzuæ
-105:Wolne
-106:Komputer
-107:Wybierz...
-108:Przypadkowe
-109:¯adna
-110:¯adna
-111:Dru¿yna %d
-112:Umieœæ listê:
-113:Umieœæ wiadomoœæ:
-114:Wybrana mapa:
-115:Pojedyncza mapa
-116:Zapisane Gry
-117:Wybierz mapê...
-118:Wybierz zapis...
-119:Informacje o mapie:
-120:Gracze: %d
-121:Tryb:
-122:Warunki:
-123:Rozmiar:
-124:WyjdŸ
-125:Gotowy
-126:Start!
+102:Lista graczy:
+103:Lokalizacja pocz¹tkowa:
+104:Dru¿yna:
+105:Kolor flagi:
+106:Gotowy:
+107:Ping:
+108:Wyrzuæ
+109:Wolne
+110:Komputer
+111:Wybierz...
+112:Przypadkowe
+113:¯adna
+114:¯adna
+115:Dru¿yna %d
+116:Umieœæ listê:
+117:Umieœæ wiadomoœæ:
+118:Wybrana mapa:
+119:Pojedyncza mapa
+120:Zapisane Gry
+121:Wybierz mapê...
+122:Wybierz zapis...
+123:Informacje o mapie:
+124:Gracze: %d
+125:Tryb:
+126:Warunki:
+127:Rozmiar:
+128:WyjdŸ
+129:Gotowy
+130:Start!
 
-127:Oczekiwanie na graczy:
+131:Oczekiwanie na graczy:
 
-128:Autorzy KaM Remake
-129:Autorzy Oryginalnego Knights & Merchants
-130:PROGRAMOWANIE:
-131:DODATKOWE PROGRAMOWANIE:
-132:DODATKOWE GRAFIKI;
-133:DODATKOWE T£UMACZENIE:
-134:SPECJALNE PODZIÊKOWANIA DLA:
+132:Autorzy KaM Remake
+133:Autorzy Oryginalnego Knights & Merchants
+134:PROGRAMOWANIE:
+135:DODATKOWE PROGRAMOWANIE:
+136:DODATKOWE GRAFIKI;
+137:DODATKOWE T£UMACZENIE:
+138:SPECJALNE PODZIÊKOWANIA DLA:

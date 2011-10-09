@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -76,76 +76,76 @@ MaxID:139
 69:Din fiskares stuga är för långt från vattnet.
 70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 
-72:Marknad
-136:
-137:
-138:
-139:
+71:Marknad
+72:
+73:
+74:
+75:
 
-73:Terrängeditering
-74:Byplanering
-75:Visuella script
-76:Globala script
-77:Meny
+76:Terrängeditering
+77:Byplanering
+78:Visuella script
+79:Globala script
+80:Meny
 
-78:Status:
-79:Spelarnamn:
-80:SKAPA SERVER
-81:Servernamn
-82:Serverport
-83:Skapa lokalt spel
-84:Skapa internetspel
-85:Servernamn
-86:Status
-87:Spelare
-88:Ping
-89:Uppdatera serverlistan
-90:SERVERDETALJER
-91:Spelarlista:
-92:Adress
-93:Port
-94:Rum
-95:Anslut
-96:Kopplar upp, var god vänta...
-97:Laddar meddelanden...
-98:Uppdaterar...
+81:Status:
+82:Spelarnamn:
+83:SKAPA SERVER
+84:Servernamn
+85:Serverport
+86:Skapa lokalt spel
+87:Skapa internetspel
+88:Servernamn
+89:Status
+90:Spelare
+91:Ping
+92:Uppdatera serverlistan
+93:SERVERDETALJER
+94:Spelarlista:
+95:Adress
+96:Port
+97:Rum
+98:Anslut
+99:Kopplar upp, var god vänta...
+100:Laddar meddelanden...
+101:Uppdaterar...
 
-99:Spelarlista:
-100:Startplats:
-101:Lag:
-102:Flaggfärg:
-103:Redo:
-104:Ping:
-135:Kicka
-105:Öppen
-106:AI-spelare
-107:Välj...
-108:Slumpad
-109:Inget
-110:Ingen
-111:Lag %d
-112:Chat:
-113:Skicka meddelande:
-114:Välj karta:
-115:Enskild karta
-116:Sparat spel
-117:Välj en karta...
-118:Välj ett sparat spel...
-119:Kartinfo:
-120:Spelare: 
-121:Läge: 
-122:Villkor: 
-123:Storlek:
-124:Avsluta sessionen
-125:Redo
-126:Börja!
+102:Spelarlista:
+103:Startplats:
+104:Lag:
+105:Flaggfärg:
+106:Redo:
+107:Ping:
+108:Kicka
+109:Öppen
+110:AI-spelare
+111:Välj...
+112:Slumpad
+113:Inget
+114:Ingen
+115:Lag %d
+116:Chat:
+117:Skicka meddelande:
+118:Välj karta:
+119:Enskild karta
+120:Sparat spel
+121:Välj en karta...
+122:Välj ett sparat spel...
+123:Kartinfo:
+124:Spelare: 
+125:Läge: 
+126:Villkor: 
+127:Storlek:
+128:Avsluta sessionen
+129:Redo
+130:Börja!
 
-127:Väntar på spelare:
+131:Väntar på spelare:
 
-128:KaM Remakes skapare
-129:Original Knights & Merchants skapare
-130:PROGRAMMERIG:
-131:YTTERLIGARE PROGRAMMERING:
-132:YTTERLIGARE GRAFIK:
-133:YTTERLIGARE ÖVERSÄTTNING:
-134:SPECIELLT TACK TILL:
+132:KaM Remakes skapare
+133:Original Knights & Merchants skapare
+134:PROGRAMMERIG:
+135:YTTERLIGARE PROGRAMMERING:
+136:YTTERLIGARE GRAFIK:
+137:YTTERLIGARE ÖVERSÄTTNING:
+138:SPECIELLT TACK TILL:

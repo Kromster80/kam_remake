@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -76,76 +76,76 @@ MaxID:139
 69:La hutte de votre pêcheur est trop éloignée de l'eau.
 70:Votre pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa hutte.
 
-72:Place du Marché
-136:
-137:
-138:
-139:
+71:Place du Marché
+72:
+73:
+74:
+75:
 
-73:Edition du terrain
-74:Planification du village
-75:Scripts visuel
-76:Scripts global
-77:Menu
+76:Edition du terrain
+77:Planification du village
+78:Scripts visuel
+79:Scripts global
+80:Menu
 
-78:Status:
-79:Nom du Joueur:
-80:CREER UN SERVEUR
-81:Nom du Serveur
-82:Port du Serveur
-83:Créer un Serveur Local
-84:Créer un Serveur Internet
-85:Nom du Serveur
-86:Etat
-87:Joueurs
-88:Ping
-89:Rafraichir la Liste des Serveurs
-90:DETAILS DU SERVEUR
-91:Liste des Joueurs :
-92:Adresse
-93:Port
-94:Salle
-95:Joindre
-96:Connexion, veuillez patienter...
-97:Chargement des annonces...
-98:Rafraichissement...
+81:Status:
+82:Nom du Joueur:
+83:CREER UN SERVEUR
+84:Nom du Serveur
+85:Port du Serveur
+86:Créer un Serveur Local
+87:Créer un Serveur Internet
+88:Nom du Serveur
+89:Etat
+90:Joueurs
+91:Ping
+92:Rafraichir la Liste des Serveurs
+93:DETAILS DU SERVEUR
+94:Liste des Joueurs :
+95:Adresse
+96:Port
+97:Salle
+98:Joindre
+99:Connexion, veuillez patienter...
+100:Chargement des annonces...
+101:Rafraichissement...
 
-99:Nom des Joueurs:
-100:Position:
-101:Alliance:
-102:Couleur:
-103:Prêt:
-104:Ping:
-135:Bannir
-105:Libre
-106:Joueur IA
-107:Sélect...
-108:Aléatoire
-109:Aucune
-110:Aucune
-111:Alliance %d
-112:Liste des Messages :
-113:Envoyer un Message :
-114:Sélectionner une Mission :
-115:Mission
-116:Sauvegarde
-117:Sélect. une mission...
-118:Sélect. un fichier...
-119:Info sur la Mission :
-120:Joueurs: %d
-121:Mode:
-122:Conditions:
-123:Taille:
-124:Quitter le Lobby
-125:Prêt
-126:Débuter !
+102:Nom des Joueurs:
+103:Position:
+104:Alliance:
+105:Couleur:
+106:Prêt:
+107:Ping:
+108:Bannir
+109:Libre
+110:Joueur IA
+111:Sélect...
+112:Aléatoire
+113:Aucune
+114:Aucune
+115:Alliance %d
+116:Liste des Messages :
+117:Envoyer un Message :
+118:Sélectionner une Mission :
+119:Mission
+120:Sauvegarde
+121:Sélect. une mission...
+122:Sélect. un fichier...
+123:Info sur la Mission :
+124:Joueurs: %d
+125:Mode:
+126:Conditions:
+127:Taille:
+128:Quitter le Lobby
+129:Prêt
+130:Débuter !
 
-127:Attente de Joueurs:
+131:Attente de Joueurs:
 
-128:Crédits de KaM Remake
-129:Crédits Original de Knights & Merchants
-130:PROGRAMMATION :
-131:PROGRAMMATION ADDITIONNEL :
-132:GRAPHISMES ADDITIONNEL :
-133:TRADUCTIONS ADDITIONNEL :
-134:REMERCIMENTS PARTICULIERS :
+132:Crédits de KaM Remake
+133:Crédits Original de Knights & Merchants
+134:PROGRAMMATION :
+135:PROGRAMMATION ADDITIONNEL :
+136:GRAPHISMES ADDITIONNEL :
+137:TRADUCTIONS ADDITIONNEL :
+138:REMERCIMENTS PARTICULIERS :

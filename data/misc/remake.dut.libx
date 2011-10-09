@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -76,76 +76,76 @@ MaxID:139
 69: De vissershut is buiten het bereik van het water.
 70: De visser kan geen vis meer vangen rondom zijn vissershut
 
+71:
 72:
-136:
-137:
-138:
-139:
+73:
+74:
+75:
 
-73:Terrein wijzigigen
-74:Stad planning
-75:Visuele scripts
-76:Globale scripts
-77:Menu
+76:Terrein wijzigigen
+77:Stad planning
+78:Visuele scripts
+79:Globale scripts
+80:Menu
 
-78:Status:
-79:Speler naam:
-80:AANMAKEN SERVER
-81:Server Naam
-82:Server poort
-83:Aanmaken lokale server
-84:Aanmaken internet server
-85:Server naam
-86:Status
-87:Spelers
-88:Ping
-89:Vernieuwen server lijst
-90:SERVER DETAILS
-91:Spelers lijst:
-92:Adres
-93:Port
-94:Room
-95:Meedoen
-96:Verbinding maken, een ogenblik geduld ...
-97:Laden van bekendmakingen
-98:Ververzen..
+81:Status:
+82:Speler naam:
+83:AANMAKEN SERVER
+84:Server Naam
+85:Server poort
+86:Aanmaken lokale server
+87:Aanmaken internet server
+88:Server naam
+89:Status
+90:Spelers
+91:Ping
+92:Vernieuwen server lijst
+93:SERVER DETAILS
+94:Spelers lijst:
+95:Adres
+96:Port
+97:Room
+98:Meedoen
+99:Verbinding maken, een ogenblik geduld ...
+100:Laden van bekendmakingen
+101:Ververzen..
 
-99:Spelerslijst:
-100:Start locatie:
-101:Team:
-102:Vlag kleur:
-103:Klaar:
-104:Ping:
-135:Kick
-105:Open
-106:AI Speler
-107:Selecteer...
-108:Willekeurig
-109:Geen
-110:Geen
-111:Team %d
-112:Berichten list:
-113:Bericht:
-114:Kies map:
-115:Een map:
-116:Opgeslagen map:
-117:Selecteer een map...
-118:Selecteer een opgeslagen spel...
-119:Map informatie:
-120:Spelers: %d
-121:Modus:
-122:Condities:
-123:Grootte:
-124:Afsluiten lobby
-125:Klaar
-126:Start!
+102:Spelerslijst:
+103:Start locatie:
+104:Team:
+105:Vlag kleur:
+106:Klaar:
+107:Ping:
+108:Kick
+109:Open
+110:AI Speler
+111:Selecteer...
+112:Willekeurig
+113:Geen
+114:Geen
+115:Team %d
+116:Berichten list:
+117:Bericht:
+118:Kies map:
+119:Een map:
+120:Opgeslagen map:
+121:Selecteer een map...
+122:Selecteer een opgeslagen spel...
+123:Map informatie:
+124:Spelers: %d
+125:Modus:
+126:Condities:
+127:Grootte:
+128:Afsluiten lobby
+129:Klaar
+130:Start!
 
-127:Wachten for spelers:
+131:Wachten for spelers:
 
-128:KaM Remake Credits
-129:Orginele Knights & Merchants Credits
-130:PROGRAMMING:
-131:ADDITIONAL PROGRAMMING:
-132:ADDITIONAL GRAPHICS:
-133:ADDITIONAL TRANSLATIONS:
-134:Speciale dank aan:
+132:KaM Remake Credits
+133:Orginele Knights & Merchants Credits
+134:PROGRAMMING:
+135:ADDITIONAL PROGRAMMING:
+136:ADDITIONAL GRAPHICS:
+137:ADDITIONAL TRANSLATIONS:
+138:Speciale dank aan:

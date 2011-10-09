@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Mission canceled
 2:Town Tutorial
@@ -76,76 +76,76 @@ MaxID:139
 69:Your fisherman's hut is too far away from the water.
 70:Your fisherman cannot catch any further fish in the nearby water bodies.
 
-72:Marketplace
-136:Use the left mouse button to select the ware to trade
-137:Use the right mouse button to select the ware to trade
-138:From x%d
-139:To x%d
+71:Marketplace
+72:Use the left mouse button to select the ware to trade
+73:Use the right mouse button to select the ware to trade
+74:From x%d
+75:To x%d
 
-73:Terrain editing
-74:Village planning
-75:Visual scripts
-76:Global scripting
-77:Menu
+76:Terrain editing
+77:Village planning
+78:Visual scripts
+79:Global scripting
+80:Menu
 
-78:Status:
-79:Player name:
-80:CREATE SERVER
-81:Server Name
-82:Server Port
-83:Create Local Server
-84:Create Internet Server
-85:Server Name
-86:State
-87:Players
-88:Ping
-89:Refresh Server List
-90:SERVER DETAILS
-91:Player list:
-92:Address
-93:Port
-94:Room
-95:Join
-96:Connecting, please wait ...
-97:Loading announcements...
-98:Refreshing...
+81:Status:
+82:Player name:
+83:CREATE SERVER
+84:Server Name
+85:Server Port
+86:Create Local Server
+87:Create Internet Server
+88:Server Name
+89:State
+90:Players
+91:Ping
+92:Refresh Server List
+93:SERVER DETAILS
+94:Player list:
+95:Address
+96:Port
+97:Room
+98:Join
+99:Connecting, please wait ...
+100:Loading announcements...
+101:Refreshing...
 
-99:Players list:
-100:Start location:
-101:Team:
-102:Flag color:
-103:Ready:
-104:Ping:
-135:Kick
-105:Open
-106:AI Player
-107:Select...
-108:Random
-109:None
-110:None
-111:Team %d
-112:Posts list:
-113:Post message:
-114:Choose map:
-115:Single Map
-116:Saved Game
-117:Select a map...
-118:Select a save...
-119:Map info:
-120:Players: %d
-121:Mode:
-122:Conditions:
-123:Size:
-124:Quit lobby
-125:Ready
-126:Start!
+102:Players list:
+103:Start location:
+104:Team:
+105:Flag color:
+106:Ready:
+107:Ping:
+108:Kick
+109:Open
+110:AI Player
+111:Select...
+112:Random
+113:None
+114:None
+115:Team %d
+116:Posts list:
+117:Post message:
+118:Choose map:
+119:Single Map
+120:Saved Game
+121:Select a map...
+122:Select a save...
+123:Map info:
+124:Players: %d
+125:Mode:
+126:Conditions:
+127:Size:
+128:Quit lobby
+129:Ready
+130:Start!
 
-127:Waiting for players:
+131:Waiting for players:
 
-128:KaM Remake Credits
-129:Original Knights & Merchants Credits
-130:PROGRAMMING:
-131:ADDITIONAL PROGRAMMING:
-132:ADDITIONAL GRAPHICS:
-133:ADDITIONAL TRANSLATIONS:
-134:SPECIAL THANKS TO:
+132:KaM Remake Credits
+133:Original Knights & Merchants Credits
+134:PROGRAMMING:
+135:ADDITIONAL PROGRAMMING:
+136:ADDITIONAL GRAPHICS:
+137:ADDITIONAL TRANSLATIONS:
+138:SPECIAL THANKS TO:

@@ -1,5 +1,5 @@
 
-MaxID:139
+MaxID:138
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -76,76 +76,76 @@ MaxID:139
 69:A halászkunyhód túl messze van a víztõl.
 70:A halászod nem tud több halat fogni a közeli vízbõl.
 
-72:Piactér
-136:
-137:
-138:
-139:
+71:Piactér
+72:
+73:
+74:
+75:
 
-73:Tereprendezés
-74:Település tervezés
-75:Vizuális szkriptek
-76:Globális szkriptek
-77:Menü
+76:Tereprendezés
+77:Település tervezés
+78:Vizuális szkriptek
+79:Globális szkriptek
+80:Menü
 
-78:Állapot:
-79:Játékos neve:
-80:SZERVER LÉTREHOZÁSA
-81:Szerver név
-82:Szerver Port
-83:Lokális Szerver Létrehozása
-84:Internet Szerver Létrehozás
-85:Szerver név
-86:Állapot
-87:Játékosok
-88:Ping
-89:Szerver Lista Frissítése
-90:Szerver Részletek
-91:Játékos lisa:
-92:Cím
-93:Port
-94:Szoba
-95:Csatlakozás
-96:Kapcsolódás, kérem várjon ...
-97:Események töltése...
-98:Frissítés...
+81:Állapot:
+82:Játékos neve:
+83:SZERVER LÉTREHOZÁSA
+84:Szerver név
+85:Szerver Port
+86:Lokális Szerver Létrehozása
+87:Internet Szerver Létrehozás
+88:Szerver név
+89:Állapot
+90:Játékosok
+91:Ping
+92:Szerver Lista Frissítése
+93:Szerver Részletek
+94:Játékos lisa:
+95:Cím
+96:Port
+97:Szoba
+98:Csatlakozás
+99:Kapcsolódás, kérem várjon ...
+100:Események töltése...
+101:Frissítés...
 
-99:Játékosok:
-100:Kezdõhely:
-101:Csapat:
-102:Zászló szín:
-103:Kész:
-104:Ping:
-135:Kirúg
-105:Nyitva
-106:Számítógép
-107:Válassz...
-108:Véletlen
-109:Nincs
-110:Nincs
-111:Csapat %d
-112:Üzenetek:
-113:Üzenet írása:
-114:Térkép választása:
-115:Egy térkép
-116:Mentett játék
-117:Válassz egy térképet...
-118:Válassz egy mentést...
-119:Térkép infó:
-120:Játékosok: %d
-121:Játékmód:
-122:Feltételek:
-123:Méret:
-124:Kilépés
-125:Kész
-126:Indítás!
+102:Játékosok:
+103:Kezdõhely:
+104:Csapat:
+105:Zászló szín:
+106:Kész:
+107:Ping:
+108:Kirúg
+109:Nyitva
+110:Számítógép
+111:Válassz...
+112:Véletlen
+113:Nincs
+114:Nincs
+115:Csapat %d
+116:Üzenetek:
+117:Üzenet írása:
+118:Térkép választása:
+119:Egy térkép
+120:Mentett játék
+121:Válassz egy térképet...
+122:Válassz egy mentést...
+123:Térkép infó:
+124:Játékosok: %d
+125:Játékmód:
+126:Feltételek:
+127:Méret:
+128:Kilépés
+129:Kész
+130:Indítás!
 
-127:Várakozás a játékosokra:
+131:Várakozás a játékosokra:
 
-128:KaM Remake Készítõk
-129:Eredeti Knights & Merchants Készítõk
-130:PROGRAMOZÁS:
-131:TOVÁBBI PROGRAMOZÁS:
-132:TOVÁBBI GRAFIKA:
-133:TOVÁBBI FORDÍTÓK:
-134:KÜLÖN KÖSZÖNET:
+132:KaM Remake Készítõk
+133:Eredeti Knights & Merchants Készítõk
+134:PROGRAMOZÁS:
+135:TOVÁBBI PROGRAMOZÁS:
+136:TOVÁBBI GRAFIKA:
+137:TOVÁBBI FORDÍTÓK:
+138:KÜLÖN KÖSZÖNET:
