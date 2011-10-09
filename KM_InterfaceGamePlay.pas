@@ -2321,7 +2321,7 @@ begin
   Shape_Market_From.Visible := M.ResFrom <> rt_None;
   if M.ResFrom <> rt_None then
   begin
-    Shape_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 34;
+    Shape_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 30;
     Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 34;
     Label_Market_In.Caption := 'From x' + IntToStr(M.RatioFrom) + ':';
     Button_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
@@ -2335,7 +2335,7 @@ begin
   Shape_Market_To.Visible := M.ResTo <> rt_None;
   if M.ResTo <> rt_None then
   begin
-    Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 34;
+    Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 30;
     Shape_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 34;
     Label_Market_Out.Caption := 'To x' + IntToStr(M.RatioTo) + ':';
     Button_Market_Out.Caption := IntToStr(M.CheckResOut(M.ResTo));
