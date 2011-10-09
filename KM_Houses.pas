@@ -1349,6 +1349,7 @@ end;
 
 procedure TKMHouseMarket.SetResFrom(Value: TResourceType);
 begin
+  if fResourceOrder[1] > 0 then Exit;
   fResFrom := Value;
   if fResTo = fResFrom then
     fResTo := rt_None;
@@ -1357,6 +1358,7 @@ end;
 
 procedure TKMHouseMarket.SetResTo(Value: TResourceType);
 begin
+  if fResourceOrder[1] > 0 then Exit;
   fResTo := Value;
   if fResFrom = fResTo then
     fResFrom := rt_None;
@@ -1367,7 +1369,7 @@ end;
 procedure TKMHouseMarket.ResEditOrder(aID:byte; aAmount:integer);
 var Count: integer;
 begin
-  Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo));
+  if (fResFrom = rt_None) or (fResTo = rt_None) or (fResFrom = fResTo) then Exit;
 
   fResourceOrder[1] := EnsureRange(fResourceOrder[1] + aAmount, 0, MAX_ORDER);
 

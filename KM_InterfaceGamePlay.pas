@@ -2344,8 +2344,6 @@ begin
 
   M := TKMHouseMarket(fPlayers.Selected);
 
-  Assert((M.ResFrom <> rt_None) and (M.ResTo <> rt_None));
-
   Amt := 0;
   if AButton = mbLeft then Amt := 1;
   if AButton = mbRight then Amt := 10;
@@ -2366,7 +2364,6 @@ begin
   M := TKMHouseMarket(fPlayers.Selected);
 
   //@Lewin: We need to tell player that he must cancel previous order first
-  if M.CheckResOrder(1) <> 0 then Exit;
 
   if aButton = mbLeft then
     fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TResourceType(TKMButtonFlat(Sender).Tag));

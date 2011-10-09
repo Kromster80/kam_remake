@@ -429,7 +429,7 @@ begin
   else
   begin
     ID := word(SoundID);
-    Assert(fWaves[ID].IsLoaded);
+    Assert(fWaves[ID].IsLoaded and (ID <= fWavesCount), 'Sounds.dat seems to be short');
     AlBufferData(fSound[FreeBuf].ALBuffer, AL_FORMAT_MONO8, @fWaves[ID].Data[0], fWaves[ID].Head.DataSize, fWaves[ID].Head.SampleRate);
     WAVsize := fWaves[ID].Head.FileSize;
     WAVfreq := fWaves[ID].Head.BytesPerSecond;
