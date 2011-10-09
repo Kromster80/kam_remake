@@ -1931,26 +1931,6 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.House_MarketSelect(Sender: TObject; AButton:TMouseButton);
-var M: TKMHouseMarket;
-begin
-  if (fPlayers.Selected = nil) then Exit;
-  if not (fPlayers.Selected is TKMHouseMarket) then Exit;
-
-  M := TKMHouseMarket(fPlayers.Selected);
-
-  //@Lewin: We need to tell player that he must cancel previous order first
-  if M.CheckResOrder(1) <> 0 then Exit;
-
-  if aButton = mbLeft then
-    M.ResFrom := TResourceType(TKMButtonFlat(Sender).Tag);
-  if aButton = mbRight then
-    M.ResTo := TResourceType(TKMButtonFlat(Sender).Tag);
-
-  House_MarketFill; //Update costs and order count
-end;
-
-
 procedure TKMGamePlayInterface.House_OrderClick(Sender:TObject; AButton:TMouseButton);
 var i:integer; Amt:byte;
 begin
@@ -2074,27 +2054,6 @@ begin
 
   if LastSchoolUnit < High(School_Order) then
     Image_School_Right.TexID:=fResource.UnitDat[School_Order[LastSchoolUnit+1]].GUIScroll;
-end;
-
-
-procedure TKMGamePlayInterface.House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
-var Amt:byte; M: TKMHouseMarket;
-begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouseMarket) then exit;
-
-  M := TKMHouseMarket(fPlayers.Selected);
-
-  Assert((M.ResFrom <> rt_None) and (M.ResTo <> rt_None));
-
-  Amt := 0;
-  if AButton = mbLeft then Amt := 1;
-  if AButton = mbRight then Amt := 10;
-
-  if Sender = ResRow_Market_Out.OrderRem then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -Amt);
-  if Sender = ResRow_Market_Out.OrderAdd then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);
 end;
 
 
@@ -2374,6 +2333,47 @@ begin
   ResRow_Market_Out.Enabled := (M.ResFrom <> rt_None) and (M.ResTo <> rt_None);
   ResRow_Market_Out.OrderCount := M.CheckResOrder(1);
   ResRow_Market_Out.ResourceCount := M.CheckResOut(M.ResTo);
+end;
+
+
+procedure TKMGamePlayInterface.House_MarketOrderClick(Sender:TObject; AButton:TMouseButton);
+var Amt:byte; M: TKMHouseMarket;
+begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouseMarket) then exit;
+
+  M := TKMHouseMarket(fPlayers.Selected);
+
+  Assert((M.ResFrom <> rt_None) and (M.ResTo <> rt_None));
+
+  Amt := 0;
+  if AButton = mbLeft then Amt := 1;
+  if AButton = mbRight then Amt := 10;
+
+  if Sender = ResRow_Market_Out.OrderRem then
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -Amt);
+  if Sender = ResRow_Market_Out.OrderAdd then
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);
+end;
+
+
+procedure TKMGamePlayInterface.House_MarketSelect(Sender: TObject; AButton:TMouseButton);
+var M: TKMHouseMarket;
+begin
+  if (fPlayers.Selected = nil) then Exit;
+  if not (fPlayers.Selected is TKMHouseMarket) then Exit;
+
+  M := TKMHouseMarket(fPlayers.Selected);
+
+  //@Lewin: We need to tell player that he must cancel previous order first
+  if M.CheckResOrder(1) <> 0 then Exit;
+
+  if aButton = mbLeft then
+    fGame.GameInputProcess.CmdHouse(gic_HouseMarketFrom, M, TResourceType(TKMButtonFlat(Sender).Tag));
+  if aButton = mbRight then
+    fGame.GameInputProcess.CmdHouse(gic_HouseMarketTo, M, TResourceType(TKMButtonFlat(Sender).Tag));
+
+  House_MarketFill; //Update costs and order count
 end;
 
 

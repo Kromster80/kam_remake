@@ -1369,7 +1369,7 @@ var Count: integer;
 begin
   Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo));
 
-  fResourceOrder[1] := EnsureRange(fResourceOrder[1] + aAmount * RatioFrom, 0, MAX_ORDER);
+  fResourceOrder[1] := EnsureRange(fResourceOrder[1] + aAmount, 0, MAX_ORDER);
 
   //Try to make an exchange from existing resources
   AttemptExchange;
@@ -1382,20 +1382,20 @@ begin
   //removed from offers list and perhaps serf will carry them off the marketplace
 
   //How much do we need to ask to add to delivery system
-  Count := fResourceOrder[1] - fResourceDeliveryCount[1];
+  Count := (fResourceOrder[1] * RatioFrom - fResourceDeliveryCount[1]);
 
   if Count > 0 then
     fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Count, dt_Once, di_Norm)
   else begin
     fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
-    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, fResourceOrder[1], dt_Once, di_Norm)
+    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, fResourceOrder[1] * RatioFrom, dt_Once, di_Norm)
   end;
 
   //@Lewin: There's a flaw, if we order to exchange From=1500 resources they all will be
   //immediately added to delivery list. Maybe we should add 5-10 and add new demands to list upon
   //recieving resources instead? Or we let than be handled by delivery list which will be smart
   //enough to handicap such massive deliveries (to allow other deliveries run as well)
-  fResourceDeliveryCount[1] := fResourceOrder[1];
+  fResourceDeliveryCount[1] := fResourceOrder[1] * RatioFrom;
 end;
 
 

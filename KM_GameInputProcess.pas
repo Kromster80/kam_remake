@@ -52,7 +52,9 @@ type
     gic_HouseRepairToggle,
     gic_HouseDeliveryToggle,  //Including storehouse. (On/Off, ResourceType)
     gic_HouseOrderProduct,    //Place an order to manufacture warfare
-    gic_HouseStoreAcceptFlag,
+    gic_HouseMarketFrom,      //Select wares to trade in marketplace
+    gic_HouseMarketTo,        //Select wares to trade in marketplace
+    gic_HouseStoreAcceptFlag, //Control wares delivery to store
     gic_HouseTrain,           //Place an order to train citizen/warrior
     gic_HouseRemoveTrain,     //Remove unit being trained from School
 
@@ -244,7 +246,7 @@ begin
       U2 := fPlayers.GetUnitByID(Params[2]);
       if (U2 = nil) or U2.IsDeadOrDying then exit; //Unit has died before command could be executed
     end;
-    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseStoreAcceptFlag,gic_HouseTrain,gic_HouseRemoveTrain] then begin
+    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseTrain,gic_HouseRemoveTrain] then begin
       H := fPlayers.GetHouseByID(Params[1]);
       if (H = nil) or H.IsDestroyed then exit; //House has been destroyed before command could be executed
     end;
@@ -275,6 +277,8 @@ begin
       gic_HouseRepairToggle:      H.RepairToggle;
       gic_HouseDeliveryToggle:    H.WareDelivery := not H.WareDelivery;
       gic_HouseOrderProduct:      H.ResEditOrder(Params[2], Params[3]);
+      gic_HouseMarketFrom:        TKMHouseMarket(H).ResFrom := TResourceType(Params[2]);
+      gic_HouseMarketTo:          TKMHouseMarket(H).ResTo := TResourceType(Params[2]);
       gic_HouseStoreAcceptFlag:   TKMHouseStore(H).ToggleAcceptFlag(TResourceType(Params[2]));
       gic_HouseTrain:             case H.HouseType of
                                     ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
@@ -384,7 +388,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType);
 begin
-  Assert(aCommandType = gic_HouseStoreAcceptFlag);
+  Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
   TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aItem)]) );
 end;
 
