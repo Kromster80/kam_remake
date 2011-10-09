@@ -1,0 +1,8 @@
+Title
+River of Gold
+
+SmallDesc
+A multiplayer mission by GreatWhiteBear
+
+BigDesc
+A multiplayer mission by GreatWhiteBear. Suggested teams: 1+2 vs 3+4.
