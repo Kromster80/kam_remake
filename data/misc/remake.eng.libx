@@ -6,16 +6,15 @@ MaxID:138
 3:Battle Tutorial
 4:Single Player
 5:Map Editor
-6:View last replay
+6:View Last Replay
 7:Start Mission
 8:Title
 9:Size
-10:Mission Type: %s
+10:Mission type: %s
 11:Win condition: %s
 12:Defeat condition: %s
 13:Allies: 
 14:Enemies: 
-15:Slot %d
 16:New map size
 17:Width
 18:Height
@@ -43,8 +42,6 @@ MaxID:138
 40:Delete
 41:Cancel
 
-42:Unknown
-
 43:You've won!
 44:Continue playing
 45:Victory!
@@ -52,8 +49,8 @@ MaxID:138
 47:Continue watching
 48:Defeat
 49:Replay has ended
-50:Continue watching
-51:Quit to menu
+50:Continue Watching
+51:Quit to Menu
 52:Not available
 53:Press %s to resume the game
 54:To team
@@ -88,14 +85,14 @@ MaxID:138
 79:Global scripting
 80:Menu
 
+82:Player name
 81:Status:
-82:Player name:
 83:CREATE SERVER
-84:Server Name
-85:Server Port
+84:Name
+85:Port
 86:Create Local Server
 87:Create Internet Server
-88:Server Name
+88:Server name
 89:State
 90:Players
 91:Ping
@@ -110,12 +107,12 @@ MaxID:138
 100:Loading announcements...
 101:Refreshing...
 
-102:Players list:
-103:Start location:
-104:Team:
-105:Flag color:
-106:Ready:
-107:Ping:
+102:Players list
+103:Start location
+104:Team
+105:Flag color
+106:Ready
+107:Ping
 108:Kick
 109:Open
 110:AI Player

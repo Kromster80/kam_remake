@@ -15,7 +15,6 @@ MaxID:138
 12:Förlustvillkor: 
 13:Allierade: 
 14:Fiender: 
-15:Plats
 16:Ny kartstorlek
 17:Bredd
 18:Höjd
@@ -42,8 +41,6 @@ MaxID:138
 39:Är du säker på att du vill ta bort det här sparade spelet?
 40:Ta bort
 41:Avbryt
-
-42:Okänd
 
 43:Du vann!
 44:Fortsätt spela
@@ -88,8 +85,8 @@ MaxID:138
 79:Globala script
 80:Meny
 
-81:Status:
 82:Spelarnamn:
+81:Status:
 83:SKAPA SERVER
 84:Servernamn
 85:Serverport

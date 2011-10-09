@@ -15,7 +15,6 @@ MaxID:138
 12:Warunki przegranej: %s
 13:Sojusznicy:
 14:Wrogowie:
-15:Slot %d
 16:Rozmiar nowej mapy
 17:Szerokoœæ
 18:Wysokoœæ
@@ -42,8 +41,6 @@ MaxID:138
 39:Jesteœ pewny ¿e chcesz usun¹æ ten zapis?
 40:Usuñ
 41:Anuluj
-
-42:Nieznany
 
 43:Wygra³eœ!
 44:Kontynuuj grê
@@ -88,11 +85,11 @@ MaxID:138
 79:Skryptowanie globalne
 80:Menu
 
+82:Imiê gracza
 81:Status:
-82:Imiê gracza:
 83:STWÓRZ SERWER
-84:Nazwa Serwera
-85:Port Serwera
+84:Nazwa
+85:Port
 86:Stwórz serwer lokalny
 87:Œtwórz serwer internetowy
 88:Nazwa Serwera
@@ -110,12 +107,12 @@ MaxID:138
 100:£adowanie og³oszeñ...
 101:Odœwie¿anie...
 
-102:Lista graczy:
-103:Lokalizacja pocz¹tkowa:
-104:Dru¿yna:
-105:Kolor flagi:
-106:Gotowy:
-107:Ping:
+102:Lista graczy
+103:Lokalizacja pocz¹tkowa
+104:Dru¿yna
+105:Kolor flagi
+106:Gotowy
+107:Ping
 108:Wyrzuæ
 109:Wolne
 110:Komputer

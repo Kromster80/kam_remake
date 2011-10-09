@@ -7,7 +7,7 @@ MaxID:138
 4:Egyjátékos mód
 5:Pálya Szerkesztõ
 6:Utolsó visszajátszás megtekintése
-7:Küldetés indítása
+7:Küldetés Indítása
 8:Cím
 9:Méret
 10:Küldetés Típusa: %s
@@ -15,7 +15,6 @@ MaxID:138
 12:Vereség feltétel: %s
 13:Szövetségesek: 
 14:Elenségek: 
-15:Hely %d
 16:Térkép mérete
 17:Szélesség
 18:Magasság
@@ -42,8 +41,6 @@ MaxID:138
 39:Biztosan akarod törölni ezt a mentett állást?
 40:Törlés
 41:Mégse
-
-42:Ismeretlen
 
 43:Megnyerted a játékot!
 44:Játék folytatása
@@ -88,11 +85,11 @@ MaxID:138
 79:Globális szkriptek
 80:Menü
 
+82:Játékos neve
 81:Állapot:
-82:Játékos neve:
 83:SZERVER LÉTREHOZÁSA
 84:Szerver név
-85:Szerver Port
+85:Port
 86:Lokális Szerver Létrehozása
 87:Internet Szerver Létrehozás
 88:Szerver név
@@ -110,12 +107,12 @@ MaxID:138
 100:Események töltése...
 101:Frissítés...
 
-102:Játékosok:
-103:Kezdõhely:
-104:Csapat:
-105:Zászló szín:
-106:Kész:
-107:Ping:
+102:Játékosok
+103:Kezdõhely
+104:Csapat
+105:Zászló szín
+106:Kész
+107:Ping
 108:Kirúg
 109:Nyitva
 110:Számítógép

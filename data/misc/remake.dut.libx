@@ -7,7 +7,7 @@ MaxID:138
 4:Alleen spelen	
 5:Map Editor
 6:Bekijken van het laatste spel
-7:Start missie
+7:Start Missie
 8:Titel
 9:Grote
 10:Missie type: %s
@@ -15,7 +15,6 @@ MaxID:138
 12:Nederlaag conditie: %s
 13:Bondgenoten: 
 14:Vijanden: 
-15:Slot %d
 16:Nieuwe map grote
 17:Breedte
 18:Hoogte
@@ -42,8 +41,6 @@ MaxID:138
 39:Weet je het zeker dat je dit deze save wilt verwijderen?
 40:Verwijder
 41:Annuleren
-
-42:Niet bekend
 
 43:Je hebt gewonnen!
 44:Doorspelen
@@ -88,11 +85,11 @@ MaxID:138
 79:Globale scripts
 80:Menu
 
+82:Speler naam
 81:Status:
-82:Speler naam:
 83:AANMAKEN SERVER
-84:Server Naam
-85:Server poort
+84:Naam
+85:Poort
 86:Aanmaken lokale server
 87:Aanmaken internet server
 88:Server naam
@@ -110,12 +107,12 @@ MaxID:138
 100:Laden van bekendmakingen
 101:Ververzen..
 
-102:Spelerslijst:
-103:Start locatie:
-104:Team:
-105:Vlag kleur:
-106:Klaar:
-107:Ping:
+102:Spelerslijst
+103:Start locatie
+104:Team
+105:Vlag kleur
+106:Klaar
+107:Ping
 108:Kick
 109:Open
 110:AI Speler

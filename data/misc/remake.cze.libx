@@ -15,7 +15,6 @@ MaxID:138
 12:Podmínky porážky: %s
 13:Spojenci: 
 14:Nepøátelé: 
-15:
 16:Velikost nové mapy
 17:Šíøka
 18:Výška
@@ -42,8 +41,6 @@ MaxID:138
 39:
 40:
 41:
-
-42:Neznámá
 
 43:Zvítìzil jste!
 44:Pokraèovat ve høe
@@ -88,8 +85,8 @@ MaxID:138
 79:Globalní skriptování
 80:
 
+82:Jméno hráèe
 81:
-82:Jméno hráèe:
 83:
 84:
 85:
@@ -110,11 +107,11 @@ MaxID:138
 100:
 101:
 
-102:Seznam hráèù:
-103:Starovací pozice:
-104:Tým:
-105:Barva:
-106:Hotov:
+102:Seznam hráèù
+103:Starovací pozice
+104:Tým
+105:Barva
+106:Hotov
 107:
 108:
 109:Volno

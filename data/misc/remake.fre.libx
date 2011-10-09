@@ -15,7 +15,6 @@ MaxID:138
 12:Condition de Défaite: %s
 13:Alliés:
 14:Ennemis:
-15:Slot %d
 16:Taille de la Carte :
 17:Largeur
 18:Hauteur
@@ -42,8 +41,6 @@ MaxID:138
 39:Etes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
 40:Supprimer
 41:Annulé
-
-42:Inconnue
 
 43:Vous avez Gagné !
 44:Continuer à Jouer
@@ -88,11 +85,11 @@ MaxID:138
 79:Scripts global
 80:Menu
 
+82:Nom du Joueur
 81:Status:
-82:Nom du Joueur:
 83:CREER UN SERVEUR
 84:Nom du Serveur
-85:Port du Serveur
+85:Port
 86:Créer un Serveur Local
 87:Créer un Serveur Internet
 88:Nom du Serveur
@@ -110,12 +107,12 @@ MaxID:138
 100:Chargement des annonces...
 101:Rafraichissement...
 
-102:Nom des Joueurs:
-103:Position:
-104:Alliance:
-105:Couleur:
-106:Prêt:
-107:Ping:
+102:Nom des Joueurs
+103:Position
+104:Alliance
+105:Couleur
+106:Prêt
+107:Ping
 108:Bannir
 109:Libre
 110:Joueur IA

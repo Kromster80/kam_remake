@@ -7,7 +7,7 @@ MaxID:138
 4:Einzelspieler
 5:Karten Editor
 6:Letzten Replay anzeigen
-7:Mission starten
+7:Mission Starten
 8:Titel
 9:Größe
 10:Missionstyp: %s
@@ -15,7 +15,6 @@ MaxID:138
 12:Niederlagebedingung: %s
 13:Verbündete: 
 14:Gegner: 
-15:Slot %d
 16:Neue Kartengröße
 17:Breite
 18:Höhe
@@ -42,8 +41,6 @@ MaxID:138
 39:Spielstand wirklich löschen?
 40:Löschen
 41:Abbrechen
-
-42:Unbekannt
 
 43:Spiel gewonnen!
 44:Weiterspielen
@@ -88,11 +85,11 @@ MaxID:138
 79:Globale Skripte
 80:Menü
 
+82:Spielername
 81:Status:
-82:Spielername:
 83:ERSTELLE SERVER
-84:Server Name
-85:Server Port
+84:Name
+85:Port
 86:Erstelle lokalen Server
 87:Erstelle Internet Server
 88:Server Name
@@ -110,12 +107,12 @@ MaxID:138
 100:Lade Ankündigung...
 101:Aktualisiere...
 
-102:Spielerliste:
-103:Startposition:
-104:Team:
-105:Flaggenfarbe:
-106:Bereit:
-107:Ping:
+102:Spielerliste
+103:Startposition
+104:Team
+105:Flaggenfarbe
+106:Bereit
+107:Ping
 108:Kick
 109:Öffnen
 110:KI-Spieler
