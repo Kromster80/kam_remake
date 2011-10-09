@@ -134,6 +134,7 @@ const //Here we store options that are hidden somewhere in code
 
   RANGE_ARBALETMAN_MIN  = 4; //KaM: We will shoot a unit standing 4 tiles away, but not one standing 3 tiles away
   RANGE_BOWMAN_MIN      = 4;
+  RANGE_SLINGSHOT_MIN      = 4;
   RANGE_WATCHTOWER_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
 
   LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)

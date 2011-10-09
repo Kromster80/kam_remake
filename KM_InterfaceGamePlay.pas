@@ -1392,10 +1392,11 @@ begin
   inc(LineH, 20);
   Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  12, LineH, 36, 40, 0);
   Button_Market_In.HideHighlight := True;
-  Button_Market_In.Hint := 'Use left mouse button to select ware to trade';
+  Button_Market_In.Disable;
+  Button_Market_In.Hint := 'Use the left mouse button to select the ware to trade';
   Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 144, LineH, 36, 40, 0);
-  Button_Market_Out.HideHighlight := True;
-  Button_Market_Out.Hint := 'Use right mouse button to select ware to trade';
+  Button_Market_Out.Disable;
+  Button_Market_Out.Hint := 'Use the right mouse button to select the ware to trade';
 
   with TKMShape.Create(Panel_HouseMarket,  12, LineH, 36, 40, $FF00B000) do
   begin

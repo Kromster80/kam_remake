@@ -43,6 +43,7 @@ Features:
  +	Warriors from The Peasents Rebelion are now supported
  +	Multiplayer has a master server to show all of the servers/games running around the world
  +	Kick button added to the multiplayer lobby
+	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.

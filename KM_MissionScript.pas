@@ -377,11 +377,11 @@ begin
                          fPlayers.Player[fLastPlayer].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]));
 }
     ct_AddGoal:        VictoryCond   := VictoryCond
-                                        + GoalConditionStr[TGoalCondition(ParamList[0])]
-                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+'|';
+                                        + GoalConditionStr[TGoalCondition(ParamList[0])] + ' '
+                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+', ';
     ct_AddLostGoal:    DefeatCond    := DefeatCond
-                                        + GoalConditionStr[TGoalCondition(ParamList[0])]
-                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+'|';
+                                        + GoalConditionStr[TGoalCondition(ParamList[0])] + ' '
+                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+', ';
   end;
 end;
 

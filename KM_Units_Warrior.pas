@@ -674,6 +674,7 @@ begin
   case fUnitType of
     ut_Bowman:      Result := RANGE_BOWMAN_MIN;
     ut_Arbaletman:  Result := RANGE_ARBALETMAN_MIN;
+    ut_Slingshot:   Result := RANGE_SLINGSHOT_MIN;
     else            Result := 1; //Any tile that is not our own
   end;
 end;

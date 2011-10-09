@@ -25,7 +25,7 @@ MaxID:135
 22:Vezérlõk:
 23:Játékmenet:
 24:Hangok:
-25:
+25:Zene kikapcsolása
 26:Grafika:
 27:Fényerõsség
 28:Teljes képernyõ
@@ -34,14 +34,14 @@ MaxID:135
 31:Betöltés... Kérem várjon
 32:Hiba történt!
 33:Új nyelv betöltése
-34:
-35:
-36:
-37:
-38:
-39:
-40:
-41:
+34:Mentett állások
+35:Fájlnév
+36:Leírás
+37:Töltés
+38:Törlés
+39:Biztosan akarod törölni ezt a mentett állást?
+40:Törlés
+41:Mégse
 
 42:Ismeretlen
 
@@ -57,12 +57,12 @@ MaxID:135
 52:Nem elérhetõ
 53:Nyomj %s billentyût a játék folytatásához
 54:Csapatnak
-55:
-56:
-57:
-58:
-59:
-60:
+55:Játékos információk
+56:Chat
+57:A mentett állás már létezik
+58:Felülír
+59:Mentés
+60:Töltés
 
 61:Egy hiba történt a játék során.
 62:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
@@ -84,41 +84,41 @@ MaxID:135
 76:Globális szkriptek
 77:Menü
 
-78:
+78:Állapot:
 79:Játékos neve:
-80:
-81:
-82:
-83:
-84:
-85:
-86:
-87:
-88:
-89:
-90:
-91:
-92:
-93:
-94:
+80:SZERVER LÉTREHOZÁSA
+81:Szerver név
+82:Szerver Port
+83:Lokális Szerver Létrehozása
+84:Internet Szerver Létrehozás
+85:Szerver név
+86:Állapot
+87:Játékosok
+88:Ping
+89:Szerver Lista Frissítése
+90:Szerver Részletek
+91:Játékos lisa:
+92:Cím
+93:Port
+94:Szoba
 95:Csatlakozás
 96:Kapcsolódás, kérem várjon ...
-97:
-98:
+97:Események töltése...
+98:Frissítés...
 
 99:Játékosok:
 100:Kezdõhely:
 101:Csapat:
 102:Zászló szín:
 103:Kész:
-104:
-135:
+104:Ping:
+135:Kirúg
 105:Nyitva
 106:Számítógép
 107:Válassz...
 108:Véletlen
 109:Nincs
-110:
+110:Nincs
 111:Csapat %d
 112:Üzenetek:
 113:Üzenet írása:
@@ -131,7 +131,7 @@ MaxID:135
 120:Játékosok: %d
 121:Játékmód:
 122:Feltételek:
-123:
+123:Méret:
 124:Kilépés
 125:Kész
 126:Indítás!

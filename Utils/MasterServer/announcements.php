@@ -17,7 +17,7 @@ if($Rev != $GAME_VERSION)
 			echo "Votre version de KaM Remake n'est pas mise à jour ! Vous avez la version ".$Rev." mais la version la plus récente est la ".$GAME_VERSION.".|Vous ne pouvez pas jouer en ligne tant que vous n'avez pas mis à jour votre version.||Veuillez télécharger la mise à jour sur: www.kamremake.com";
 			break;
 		case 'pol':
-			echo "Twoja wersja KaM Remake jest nieaktualna! U¿ywasz ".$Rev." ale najnowsz¹ jest ".$GAME_VERSION.".|Nie mo¿esz graæ online zanim nie zaktualizujesz swojej wersji gry.||Proszê pobraæ aktualizacjê w: www.kamremake.com";
+			echo "Twoja wersja KaM Remake jest nieaktualna! U¿ywasz ".$Rev." ale najnowsz¹ jest ".$GAME_VERSION.".|Nie mo¿esz graæ online zanim nie zaktualizujesz swojej wersji gry.||Proszê pobraæ aktualizacjê ze strony: www.kamremake.com";
 			break;
 		case 'dut':
 			echo "Uw KaM Remake versie is niet de nieuwste. U draait ".$Rev." maar de meest recente versie is ".$GAME_VERSION.".|U kunt niet online spelen totdat u de nieuwste versie heeft geïnstalleerd.||U kunt de nieuwste versie downloaden van: www.kamremake.com";
