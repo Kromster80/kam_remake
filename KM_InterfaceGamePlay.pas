@@ -1386,24 +1386,24 @@ begin
   Shape_Market_To.Hide;
 
   LineH := 12+((STORE_RES_COUNT-1) div 6 + 1)*34;
-  Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 12,LineH,90,30,'From:',fnt_Grey,kaLeft);
-  Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,144,LineH,90,30,'To:',fnt_Grey,kaLeft);
+  Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 8,LineH,85,30,'',fnt_Grey,kaLeft);
+  Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,184,LineH,85,30,'',fnt_Grey,kaRight);
 
   inc(LineH, 20);
-  Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  12, LineH, 36, 40, 0);
+  Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  8, LineH, 36, 40, 0);
   Button_Market_In.HideHighlight := True;
   Button_Market_In.Disable;
-  Button_Market_In.Hint := 'Use the left mouse button to select the ware to trade';
-  Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 144, LineH, 36, 40, 0);
+  Button_Market_In.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_LEFT];
+  Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 148, LineH, 36, 40, 0);
   Button_Market_Out.Disable;
-  Button_Market_Out.Hint := 'Use the right mouse button to select the ware to trade';
+  Button_Market_Out.Hint := fTextLibrary[TX_HOUSES_MARKET_SELECT_RIGHT];
 
-  with TKMShape.Create(Panel_HouseMarket,  12, LineH, 36, 40, $FF00B000) do
+  with TKMShape.Create(Panel_HouseMarket,  8, LineH, 36, 40, $FF00B000) do
   begin
     LineWidth := 2;
     Hitable := False;
   end;
-  with TKMShape.Create(Panel_HouseMarket, 144, LineH, 36, 40, $FF0000B0) do
+  with TKMShape.Create(Panel_HouseMarket, 148, LineH, 36, 40, $FF0000B0) do
   begin
     LineWidth := 2;
     Hitable := False;
@@ -1414,8 +1414,8 @@ begin
   ResRow_Market_Out.RxID := 4;
   ResRow_Market_Out.OrderAdd.OnClickEither := House_MarketOrderClick;
   ResRow_Market_Out.OrderRem.OnClickEither := House_MarketOrderClick;
-  ResRow_Market_Out.OrderAdd.Hint := fTextLibrary.GetTextString(234);
-  ResRow_Market_Out.OrderRem.Hint := fTextLibrary.GetTextString(235);
+  ResRow_Market_Out.OrderAdd.Hint := fTextLibrary.GetTextString(235);
+  ResRow_Market_Out.OrderRem.Hint := fTextLibrary.GetTextString(234);
   ResRow_Market_Out.Disable;
 end;
 
@@ -2324,11 +2324,11 @@ begin
   begin
     Shape_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 30;
     Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 34;
-    Label_Market_In.Caption := 'From x' + IntToStr(M.RatioFrom) + ':';
+    Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[M.RatioFrom]) + ':';
     Button_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(M.CheckResIn(M.ResFrom));
   end else begin
-    Label_Market_In.Caption := 'From x';
+    Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[0]) + ':';
     Button_Market_In.TexID := fResource.Resources[rt_None].GUIIcon;
     Button_Market_In.Caption := '-';
   end;
@@ -2338,11 +2338,11 @@ begin
   begin
     Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 30;
     Shape_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 34;
-    Label_Market_Out.Caption := 'To x' + IntToStr(M.RatioTo) + ':';
+    Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[M.RatioTo]) + ':';
     Button_Market_Out.Caption := IntToStr(M.CheckResOut(M.ResTo));
     Button_Market_Out.TexID := fResource.Resources[M.ResTo].GUIIcon;
   end else begin
-    Label_Market_Out.Caption := 'To x';
+    Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[0]) + ':';
     Button_Market_Out.TexID := fResource.Resources[rt_None].GUIIcon;
     Button_Market_Out.Caption := '-';
   end;

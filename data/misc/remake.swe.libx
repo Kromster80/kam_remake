@@ -1,5 +1,5 @@
 
-MaxID:135
+MaxID:139
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -77,6 +77,10 @@ MaxID:135
 70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 
 72:Marknad
+136:
+137:
+138:
+139:
 
 73:Terrängeditering
 74:Byplanering

@@ -1,5 +1,5 @@
 
-MaxID:135
+MaxID:139
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -77,6 +77,10 @@ MaxID:135
 70:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
 
 72:Rynek
+136:
+137:
+138:
+139:
 
 73:Edycja terenu
 74:Planowanie osady

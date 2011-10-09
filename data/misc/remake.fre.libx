@@ -1,5 +1,5 @@
 
-MaxID:135
+MaxID:139
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -77,6 +77,10 @@ MaxID:135
 70:Votre pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa hutte.
 
 72:Place du Marché
+136:
+137:
+138:
+139:
 
 73:Edition du terrain
 74:Planification du village

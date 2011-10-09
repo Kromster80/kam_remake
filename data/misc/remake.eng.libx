@@ -1,5 +1,5 @@
 
-MaxID:135
+MaxID:139
 
 1:Mission canceled
 2:Town Tutorial
@@ -77,6 +77,10 @@ MaxID:135
 70:Your fisherman cannot catch any further fish in the nearby water bodies.
 
 72:Marketplace
+136:Use the left mouse button to select the ware to trade
+137:Use the right mouse button to select the ware to trade
+138:From x%d
+139:To x%d
 
 73:Terrain editing
 74:Village planning

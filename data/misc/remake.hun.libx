@@ -1,5 +1,5 @@
 
-MaxID:135
+MaxID:139
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -77,6 +77,10 @@ MaxID:135
 70:A halászod nem tud több halat fogni a közeli vízbõl.
 
 72:Piactér
+136:
+137:
+138:
+139:
 
 73:Tereprendezés
 74:Település tervezés
