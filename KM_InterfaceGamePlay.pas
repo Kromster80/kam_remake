@@ -1365,38 +1365,56 @@ end;
 
 {Market page}
 procedure TKMGamePlayInterface.Create_Market_Page;
-var i:integer;
+var i:integer; LineH:integer;
 begin
   Panel_HouseMarket := TKMPanel.Create(Panel_House,0,76,200,400);
     for i:=0 to STORE_RES_COUNT-1 do
     begin
-      Button_Market[i] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(i mod 6)*30,12+(i div 6)*30,26,26,0);
+      Button_Market[i] := TKMButtonFlat.Create(Panel_HouseMarket, 8+(i mod 6)*30,12+(i div 6)*34,26,30,0);
       Button_Market[i].TexID := fResource.Resources[StoreResType[i+1]].GUIIcon;
       Button_Market[i].Hint := fResource.Resources[StoreResType[i+1]].Name;
       Button_Market[i].Tag := Byte(StoreResType[i+1]);
       Button_Market[i].OnClickEither := House_MarketSelect;
     end;
-  Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 26, 27);
-  Shape_Market_From.LineColor := $FF00B000;
+  Shape_Market_From := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF00B000);
   Shape_Market_From.LineWidth := 2;
   Shape_Market_From.Hitable := False;
   Shape_Market_From.Hide;
-  Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 26, 27);
-  Shape_Market_To.LineColor := $FF0000B0;
+  Shape_Market_To := TKMShape.Create(Panel_HouseMarket, 0, 0, 26, 30, $FF0000B0);
   Shape_Market_To.LineWidth := 2;
   Shape_Market_To.Hitable := False;
   Shape_Market_To.Hide;
 
-  Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 12,155+6,90,30,'From:',fnt_Grey,kaLeft);
-  Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,144,155+6,90,30,'To:',fnt_Grey,kaLeft);
+  LineH := 12+((STORE_RES_COUNT-1) div 6 + 1)*34;
+  Label_Market_In  := TKMLabel.Create(Panel_HouseMarket, 12,LineH,90,30,'From:',fnt_Grey,kaLeft);
+  Label_Market_Out := TKMLabel.Create(Panel_HouseMarket,144,LineH,90,30,'To:',fnt_Grey,kaLeft);
 
-  Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  12, 180, 36, 40, 0);
-  Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 144, 180, 36, 40, 0);
+  inc(LineH, 20);
+  Button_Market_In  := TKMButtonFlat.Create(Panel_HouseMarket,  12, LineH, 36, 40, 0);
+  Button_Market_In.HideHighlight := True;
+  Button_Market_In.Hint := 'Use left mouse button to select ware to trade';
+  Button_Market_Out := TKMButtonFlat.Create(Panel_HouseMarket, 144, LineH, 36, 40, 0);
+  Button_Market_Out.HideHighlight := True;
+  Button_Market_Out.Hint := 'Use right mouse button to select ware to trade';
 
-  ResRow_Market_Out := TKMResourceOrderRow.Create(Panel_HouseMarket, 60,190,64,20);
+  with TKMShape.Create(Panel_HouseMarket,  12, LineH, 36, 40, $FF00B000) do
+  begin
+    LineWidth := 2;
+    Hitable := False;
+  end;
+  with TKMShape.Create(Panel_HouseMarket, 144, LineH, 36, 40, $FF0000B0) do
+  begin
+    LineWidth := 2;
+    Hitable := False;
+  end;
+
+  inc(LineH, 10);
+  ResRow_Market_Out := TKMResourceOrderRow.Create(Panel_HouseMarket, 62,LineH,64,20);
   ResRow_Market_Out.RxID := 4;
   ResRow_Market_Out.OrderAdd.OnClickEither := House_MarketOrderClick;
   ResRow_Market_Out.OrderRem.OnClickEither := House_MarketOrderClick;
+  ResRow_Market_Out.OrderAdd.Hint := fTextLibrary.GetTextString(234);
+  ResRow_Market_Out.OrderRem.Hint := fTextLibrary.GetTextString(235);
   ResRow_Market_Out.Disable;
 end;
 
@@ -1813,8 +1831,6 @@ begin
               ResRow_Order[i].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[i]);
               ResRow_Order[i].OrderCount := Sender.CheckResOrder(i);
               ResRow_Order[i].Show;
-              ResRow_Order[i].OrderAdd.Show;
-              ResRow_Order[i].OrderRem.Show;
               ResRow_Order[i].Top := Base+Line*LineAdv;
               inc(Line);
             end;
@@ -2305,8 +2321,8 @@ begin
   Shape_Market_From.Visible := M.ResFrom <> rt_None;
   if M.ResFrom <> rt_None then
   begin
-    Shape_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 30;
-    Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 30;
+    Shape_Market_From.Left := 8 + ((Byte(M.ResFrom)-1) mod 6) * 34;
+    Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 34;
     Label_Market_In.Caption := 'From x' + IntToStr(M.RatioFrom) + ':';
     Button_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
     Button_Market_In.Caption := IntToStr(M.CheckResIn(M.ResFrom));
@@ -2319,8 +2335,8 @@ begin
   Shape_Market_To.Visible := M.ResTo <> rt_None;
   if M.ResTo <> rt_None then
   begin
-    Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 30;
-    Shape_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 30;
+    Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 34;
+    Shape_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 34;
     Label_Market_Out.Caption := 'To x' + IntToStr(M.RatioTo) + ':';
     Button_Market_Out.Caption := IntToStr(M.CheckResOut(M.ResTo));
     Button_Market_Out.TexID := fResource.Resources[M.ResTo].GUIIcon;
