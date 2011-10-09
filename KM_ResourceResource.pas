@@ -34,7 +34,7 @@ type
 
 
 const
-  MarketTradeOffFactor = 4; //X resources buys 1 resource of equal value
+  MARKET_TRADEOFF_FACTOR = 3; //X resources buys 1 resource of equal value
 
 
   ResourceKaMOrder: array[TResourceType] of byte = (0, //rt_None
@@ -81,34 +81,34 @@ const
   NonRenewableFactor = 2;
   ProcessingCost = 1;
 begin
-  Resources[rt_Trunk].SetMarketPrice := 1;
-  Resources[rt_Stone].SetMarketPrice := (1/3)*NonRenewableFactor;
-  Resources[rt_Wood].SetMarketPrice := ProcessingCost + 0.5*Resources[rt_Trunk].MarketPrice;
-  Resources[rt_IronOre].SetMarketPrice := 1*NonRenewableFactor;
-  Resources[rt_GoldOre].SetMarketPrice := 1*NonRenewableFactor;
-  Resources[rt_Coal].SetMarketPrice := 1*NonRenewableFactor;
-  Resources[rt_Steel].SetMarketPrice := ProcessingCost + Resources[rt_IronOre].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Gold].SetMarketPrice := 0.5*(ProcessingCost + Resources[rt_GoldOre].MarketPrice + Resources[rt_Coal].MarketPrice);
-  Resources[rt_Wine].SetMarketPrice := 1;
-  Resources[rt_Corn].SetMarketPrice := 1;
-  Resources[rt_Flour].SetMarketPrice := ProcessingCost + Resources[rt_Corn].MarketPrice;
-  Resources[rt_Bread].SetMarketPrice := ProcessingCost + 0.5*Resources[rt_Flour].MarketPrice;
-  Resources[rt_Pig].SetMarketPrice := 0.5*(ProcessingCost + 5*Resources[rt_Corn].MarketPrice);
-  Resources[rt_Skin].SetMarketPrice := 0.5*(ProcessingCost + 5*Resources[rt_Corn].MarketPrice);
-  Resources[rt_Leather].SetMarketPrice := ProcessingCost + 0.5*Resources[rt_Skin].MarketPrice;
-  Resources[rt_Sausages].SetMarketPrice := (1/3)*(ProcessingCost + Resources[rt_Pig].MarketPrice);
-  Resources[rt_Shield].SetMarketPrice := ProcessingCost + Resources[rt_Wood].MarketPrice;
+  Resources[rt_Trunk      ].SetMarketPrice := 1;
+  Resources[rt_Stone      ].SetMarketPrice := (1/3)*NonRenewableFactor;
+  Resources[rt_Wood       ].SetMarketPrice := ProcessingCost + (1/2)*Resources[rt_Trunk].MarketPrice;
+  Resources[rt_IronOre    ].SetMarketPrice := 1*NonRenewableFactor;
+  Resources[rt_GoldOre    ].SetMarketPrice := 1*NonRenewableFactor;
+  Resources[rt_Coal       ].SetMarketPrice := 1*NonRenewableFactor;
+  Resources[rt_Steel      ].SetMarketPrice := ProcessingCost + Resources[rt_IronOre].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Gold       ].SetMarketPrice := (1/2)*(ProcessingCost + Resources[rt_GoldOre].MarketPrice + Resources[rt_Coal].MarketPrice);
+  Resources[rt_Wine       ].SetMarketPrice := 1;
+  Resources[rt_Corn       ].SetMarketPrice := 1;
+  Resources[rt_Flour      ].SetMarketPrice := ProcessingCost + Resources[rt_Corn].MarketPrice;
+  Resources[rt_Bread      ].SetMarketPrice := ProcessingCost + (1/2)*Resources[rt_Flour].MarketPrice;
+  Resources[rt_Pig        ].SetMarketPrice := (1/2)*(ProcessingCost + 5*Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
+  Resources[rt_Skin       ].SetMarketPrice := (1/2)*(ProcessingCost + 5*Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
+  Resources[rt_Leather    ].SetMarketPrice := ProcessingCost + (1/2)*Resources[rt_Skin].MarketPrice;
+  Resources[rt_Sausages   ].SetMarketPrice := (1/3)*(ProcessingCost + Resources[rt_Pig].MarketPrice);
+  Resources[rt_Shield     ].SetMarketPrice := ProcessingCost + Resources[rt_Wood].MarketPrice;
   Resources[rt_MetalShield].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Armor].SetMarketPrice := ProcessingCost + Resources[rt_Leather].MarketPrice;
-  Resources[rt_MetalArmor].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Axe].SetMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
-  Resources[rt_Sword].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Pike].SetMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
-  Resources[rt_Hallebard].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Bow].SetMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
-  Resources[rt_Arbalet].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Horse].SetMarketPrice := ProcessingCost + 5*Resources[rt_Corn].MarketPrice;
-  Resources[rt_Fish].SetMarketPrice := 0.5*NonRenewableFactor;
+  Resources[rt_Armor      ].SetMarketPrice := ProcessingCost + Resources[rt_Leather].MarketPrice;
+  Resources[rt_MetalArmor ].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Axe        ].SetMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
+  Resources[rt_Sword      ].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Pike       ].SetMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
+  Resources[rt_Hallebard  ].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Bow        ].SetMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
+  Resources[rt_Arbalet    ].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
+  Resources[rt_Horse      ].SetMarketPrice := ProcessingCost + 5*Resources[rt_Corn].MarketPrice;
+  Resources[rt_Fish       ].SetMarketPrice := (1/2)*NonRenewableFactor;
 end;
 
 

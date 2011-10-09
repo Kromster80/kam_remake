@@ -285,7 +285,7 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_Player;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_Player, KM_ResourceResource;
 
 
 { TKMHouse }
@@ -1293,17 +1293,30 @@ end;
 
 
 function TKMHouseMarket.RatioFrom: Byte;
+var CostFrom, CostTo: Single;
 begin
-  Result := 15; //We can use this for now
+  if (fResFrom <> rt_None) and (fResTo <> rt_None) then
+  begin
+    //When trading target ware is priced higher
+    CostFrom := fResource.Resources[fResFrom].MarketPrice;
+    CostTo := fResource.Resources[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
+    Result := Round(CostTo/Min(CostFrom, CostTo));
+  end else
+    Result := 1;
 end;
 
 
 function TKMHouseMarket.RatioTo: Byte;
+var CostFrom, CostTo: Single;
 begin
-  //@Lewin: I think it's possible that we allow rates different from 1>N,
-  //depending on wares values and even with penalty applied we can get
-  //e.g. 1Sword > 3 Stone
-  Result := 1; //We can use this for now
+  if (fResFrom <> rt_None) and (fResTo <> rt_None) then
+  begin
+    //When trading target ware is priced higher
+    CostFrom := fResource.Resources[fResFrom].MarketPrice;
+    CostTo := fResource.Resources[fResTo].MarketPrice * MARKET_TRADEOFF_FACTOR;
+    Result := Round(CostFrom/Min(CostFrom, CostTo));
+  end else
+    Result := 1;
 end;
 
 
