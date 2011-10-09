@@ -240,6 +240,7 @@ type
     ResourceCount:array[WARE_MIN..WARE_MAX]of word;
   public
     NotAcceptFlag:array[WARE_MIN..WARE_MAX]of boolean;
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
@@ -1557,6 +1558,19 @@ end;
 
 
 { TKMHouseStore }
+constructor TKMHouseStore.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
+var FirstStore: TKMHouseStore; w:TResourceType;
+begin
+  Inherited;
+  //A new storehouse should inherrit the accept properies of the first storehouse of that player,
+  //which stops a sudden flow of unwanted resources to it as soon as it is create.
+  FirstStore := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store,1));
+  if (FirstStore <> nil) and not FirstStore.IsDestroyed then
+    for w:=WARE_MIN to WARE_MAX do
+      NotAcceptFlag[w] := FirstStore.NotAcceptFlag[w];
+end;
+
+
 constructor TKMHouseStore.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
