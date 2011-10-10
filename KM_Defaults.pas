@@ -86,6 +86,7 @@ var
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
   SHOW_NETWORK_DELAY    :boolean=false; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :boolean=false; //Show result of enemy armies evaluation
+  INI_HITPOINT_RESTORE  :boolean=false; //Use the hitpoint restore rate from the INI file to compare with KaM
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
@@ -124,6 +125,7 @@ const //Here we store options that are hidden somewhere in code
   DISTANCE_FOR_WARNINGS = 30;            //The distance you must be from an event to recieve a warning about it
   TROOPS_FEED_MAX = 0.75;                 //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
   TROOPS_TRAINED_CONDITION = 0.75;        //Condition troops start with when trained
+  DEFAULT_HITPOINT_RESTORE = 41;          //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
 
 
   //Archer properties

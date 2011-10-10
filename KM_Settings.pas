@@ -149,7 +149,10 @@ begin
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
   fMusicOn       := f.ReadBool   ('SFX','MusicEnabled',true);
 
-  fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',41);
+  if INI_HITPOINT_RESTORE then
+    fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',DEFAULT_HITPOINT_RESTORE)
+  else
+    fHitPointRestorePace := DEFAULT_HITPOINT_RESTORE;
 
   fMultiplayerName        := f.ReadString('Multiplayer','Name','NoName');
   fMultiplayerIP          := f.ReadString('Multiplayer','LastIP','127.0.0.1');
@@ -192,7 +195,8 @@ begin
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);
   f.WriteBool   ('SFX','MusicEnabled',fMusicOn);
 
-  f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
+  if INI_HITPOINT_RESTORE then
+    f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
 
   f.WriteString('Multiplayer','Name',fMultiplayerName);
   f.WriteString('Multiplayer','LastIP',fMultiplayerIP);
