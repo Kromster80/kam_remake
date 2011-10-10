@@ -1,5 +1,5 @@
 
-MaxID:138
+MaxID:140
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -41,6 +41,8 @@ MaxID:138
 39:Jesteœ pewny ¿e chcesz usun¹æ ten zapis?
 40:Usuñ
 41:Anuluj
+139:
+140:
 
 43:Wygra³eœ!
 44:Kontynuuj grê

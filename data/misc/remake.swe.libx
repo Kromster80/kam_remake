@@ -1,5 +1,5 @@
 
-MaxID:138
+MaxID:140
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -41,6 +41,8 @@ MaxID:138
 39:Är du säker på att du vill ta bort det här sparade spelet?
 40:Ta bort
 41:Avbryt
+139:
+140:
 
 43:Du vann!
 44:Fortsätt spela

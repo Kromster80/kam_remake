@@ -1,5 +1,5 @@
 
-MaxID:138
+MaxID:140
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -41,6 +41,8 @@ MaxID:138
 39:Etes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
 40:Supprimer
 41:Annulé
+139:
+140:
 
 43:Vous avez Gagné !
 44:Continuer à Jouer

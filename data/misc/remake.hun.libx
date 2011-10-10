@@ -1,5 +1,5 @@
 
-MaxID:138
+MaxID:140
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -41,6 +41,8 @@ MaxID:138
 39:Biztosan akarod törölni ezt a mentett állást?
 40:Törlés
 41:Mégse
+139:
+140:
 
 43:Megnyerted a játékot!
 44:Játék folytatása

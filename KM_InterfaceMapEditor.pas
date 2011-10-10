@@ -20,6 +20,7 @@ type
     BarracksItem:byte; //Selected ware in barracks
     TileDirection: byte;
     fMaps: TKMapsCollection;
+    fMapsMP: TKMapsCollection;
 
     procedure Create_Terrain_Page;
     procedure Create_Village_Page;
@@ -41,6 +42,8 @@ type
     procedure Menu_Save(Sender:TObject);
     procedure Menu_Load(Sender:TObject);
     procedure Menu_QuitMission(Sender:TObject);
+    procedure Load_MapTypeChange(Sender:TObject);
+    procedure Load_RefreshMapsList;
     procedure Terrain_HeightChange(Sender: TObject);
     procedure Terrain_TilesChange(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
@@ -124,6 +127,7 @@ type
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
 
       Panel_Save:TKMPanel;
+        Radio_Save_MapType:TKMRadioGroup;
         Edit_SaveName:TKMEdit;
         Label_SaveExists:TKMLabel;
         CheckBox_SaveExists:TKMCheckBox;
@@ -131,6 +135,7 @@ type
         Button_SaveCancel:TKMButton;
 
       Panel_Load:TKMPanel;
+        Radio_Load_MapType:TKMRadioGroup;
         ListBox_Load:TKMListBox;
         Button_LoadLoad:TKMButton;
         Button_LoadCancel:TKMButton;
@@ -187,6 +192,7 @@ type
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     function GetShownPage:TKMMapEdShownPage;
     procedure SetTileDirection(aTileDirection: byte);
+    procedure SetLoadMode(aMultiplayer:boolean);
     procedure UpdateState;
     procedure Paint;
   end;
@@ -329,9 +335,7 @@ begin
   end;
 
   if Sender = Button_Menu_Load then begin
-    fMaps.ScanMapsFolder;
-    ListBox_Load.SetItems(fMaps.MapList);
-    ListBox_Load.ItemIndex := 0; //Try to select first map by default
+    Load_RefreshMapsList;
     Panel_Load.Show;
   end;
 
@@ -388,6 +392,7 @@ begin
   StorehouseItem := 1; //First ware selected by default
   TileDirection := 0;
   fMaps := TKMapsCollection.Create(False);
+  fMapsMP := TKMapsCollection.Create(True);
 
 {Parent Page for whole toolbar in-game}
   MyControls := TKMMasterControl.Create;
@@ -468,6 +473,7 @@ end;
 destructor TKMapEdInterface.Destroy;
 begin
   fMaps.Free;
+  fMapsMP.Free;
   MyControls.Free;
   Inherited;
 end;
@@ -721,12 +727,18 @@ end;
 procedure TKMapEdInterface.Create_MenuSave_Page;
 begin
   Panel_Save := TKMPanel.Create(Panel_Common,0,128,196,400);
-    TKMLabel.Create(Panel_Save,100,30,184,20,'Save map',fnt_Outline,kaCenter);
-    Edit_SaveName       := TKMEdit.Create(Panel_Save,8,50,180,20, fnt_Grey);
-    Label_SaveExists    := TKMLabel.Create(Panel_Save,100,80,184,0,'Map already exists',fnt_Outline,kaCenter);
-    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,8,100,180,20,'Overwrite', fnt_Metal);
-    Button_SaveSave     := TKMButton.Create(Panel_Save,8,120,180,30,'Save',fnt_Metal);
-    Button_SaveCancel   := TKMButton.Create(Panel_Save,8,160,180,30,'Cancel',fnt_Metal);
+    TKMBevel.Create(Panel_Save, 8, 30, 180, 37);
+    Radio_Save_MapType  := TKMRadioGroup.Create(Panel_Save,12,32,176,35,fnt_Grey);
+    Radio_Save_MapType.ItemIndex := 0;
+    Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
+    Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
+    Radio_Save_MapType.OnChange := Menu_Save;
+    TKMLabel.Create(Panel_Save,100,90,184,20,'Save map',fnt_Outline,kaCenter);
+    Edit_SaveName       := TKMEdit.Create(Panel_Save,8,110,180,20, fnt_Grey);
+    Label_SaveExists    := TKMLabel.Create(Panel_Save,100,140,184,0,'Map already exists',fnt_Outline,kaCenter);
+    CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,8,160,180,20,'Overwrite', fnt_Metal);
+    Button_SaveSave     := TKMButton.Create(Panel_Save,8,180,180,30,'Save',fnt_Metal);
+    Button_SaveCancel   := TKMButton.Create(Panel_Save,8,220,180,30,'Cancel',fnt_Metal);
     Edit_SaveName.OnChange      := Menu_Save;
     CheckBox_SaveExists.OnClick := Menu_Save;
     Button_SaveSave.OnClick     := Menu_Save;
@@ -737,11 +749,17 @@ end;
 {Load page}
 procedure TKMapEdInterface.Create_MenuLoad_Page;
 begin
-  Panel_Load := TKMPanel.Create(Panel_Common,0,128,196,400);
-    TKMLabel.Create(Panel_Load, 8, 0, 184, 30, 'Available maps', fnt_Outline, kaLeft);
-    ListBox_Load := TKMListBox.Create(Panel_Load, 8, 20, 184, 220, fnt_Grey);
-    Button_LoadLoad     := TKMButton.Create(Panel_Load,8,250,184,30,'Load',fnt_Metal);
-    Button_LoadCancel   := TKMButton.Create(Panel_Load,8,290,184,30,'Cancel',fnt_Metal);
+  Panel_Load := TKMPanel.Create(Panel_Common,0,108,196,400);
+    TKMLabel.Create(Panel_Load, 8, 2, 184, 30, 'Available maps', fnt_Outline, kaLeft);
+    TKMBevel.Create(Panel_Load, 8, 20, 184, 38);
+    Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,12,22,176,35,fnt_Grey);
+    Radio_Load_MapType.ItemIndex := 0;
+    Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
+    Radio_Load_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
+    Radio_Load_MapType.OnChange := Load_MapTypeChange;
+    ListBox_Load := TKMListBox.Create(Panel_Load, 8, 75, 184, 205, fnt_Grey);
+    Button_LoadLoad     := TKMButton.Create(Panel_Load,8,290,184,30,'Load',fnt_Metal);
+    Button_LoadCancel   := TKMButton.Create(Panel_Load,8,325,184,30,'Cancel',fnt_Metal);
     Button_LoadLoad.OnClick     := Menu_Load;
     Button_LoadCancel.OnClick   := SwitchPage;
 end;
@@ -1189,8 +1207,8 @@ end;
 
 procedure TKMapEdInterface.Menu_Save(Sender:TObject);
 begin
-  if Sender = Edit_SaveName then begin
-    CheckBox_SaveExists.Enabled := FileExists(MapNameToPath(Edit_SaveName.Text, 'dat', false));
+  if (Sender = Edit_SaveName) or (Sender = Radio_Save_MapType) then begin
+    CheckBox_SaveExists.Enabled := FileExists(MapNameToPath(Edit_SaveName.Text, 'dat', Radio_Save_MapType.ItemIndex = 1));
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := false;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
@@ -1201,7 +1219,7 @@ begin
 
   if Sender = Button_SaveSave then begin
     //Should we expand the path here? It depends.. since we are passing mask for map/dat files/folder
-    fGame.SaveMapEditor(Edit_SaveName.Text);
+    fGame.SaveMapEditor(Edit_SaveName.Text, Radio_Save_MapType.ItemIndex = 1);
 
     Player_UpdateColors;
     Player_ChangeActive(nil);
@@ -1216,7 +1234,7 @@ end;
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
   if ListBox_Load.ItemIndex <> -1 then
-    fGame.StartMapEditor(MapNameToPath(ListBox_Load.Item[ListBox_Load.ItemIndex], 'dat', false), 0, 0);
+    fGame.StartMapEditor(MapNameToPath(ListBox_Load.Item[ListBox_Load.ItemIndex], 'dat', Radio_Load_MapType.ItemIndex = 1), Radio_Load_MapType.ItemIndex = 1, 0, 0);
 end;
 
 
@@ -1224,6 +1242,28 @@ end;
 procedure TKMapEdInterface.Menu_QuitMission(Sender:TObject);
 begin
   fGame.Stop(gr_MapEdEnd);
+end;
+
+
+procedure TKMapEdInterface.Load_MapTypeChange(Sender:TObject);
+begin
+  Load_RefreshMapsList;
+end;
+
+
+procedure TKMapEdInterface.Load_RefreshMapsList;
+begin
+  if Radio_Load_MapType.ItemIndex = 1 then
+  begin
+    fMapsMP.ScanMapsFolder;
+    ListBox_Load.SetItems(fMapsMP.MapList);
+  end
+  else
+  begin
+    fMaps.ScanMapsFolder;
+    ListBox_Load.SetItems(fMaps.MapList);
+  end;
+  ListBox_Load.ItemIndex := 0; //Try to select first map by default
 end;
 
 
@@ -1243,6 +1283,21 @@ procedure TKMapEdInterface.SetTileDirection(aTileDirection: byte);
 begin
   TileDirection := aTileDirection mod 4; //0..3
   GameCursor.Tag2 := TileDirection;
+end;
+
+
+procedure TKMapEdInterface.SetLoadMode(aMultiplayer:boolean);
+begin
+  if aMultiplayer then
+  begin
+    Radio_Load_MapType.ItemIndex := 1;
+    Radio_Save_MapType.ItemIndex := 1;
+  end
+  else
+  begin
+    Radio_Load_MapType.ItemIndex := 0;
+    Radio_Save_MapType.ItemIndex := 0;
+  end;
 end;
 
 

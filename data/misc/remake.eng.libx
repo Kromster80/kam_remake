@@ -1,5 +1,5 @@
 
-MaxID:138
+MaxID:140
 
 1:Mission canceled
 2:Town Tutorial
@@ -41,6 +41,8 @@ MaxID:138
 39:Are you sure you want to delete this save?
 40:Delete
 41:Cancel
+139:Multiplayer maps
+140:Singleplayer maps
 
 43:You've won!
 44:Continue playing

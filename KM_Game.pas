@@ -80,7 +80,7 @@ type
     procedure StartLastMap;
     procedure StartMultiplayerSave(const aFilename: string);
     procedure StartMultiplayerMap(const aFilename: string);
-    procedure StartMapEditor(const aFilename: string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure StartMapEditor(const aFilename: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
     procedure Stop(Msg:TGameResultMsg; TextMsg:string='');
 
     procedure GameMPPlay(Sender:TObject);
@@ -93,7 +93,7 @@ type
 
     procedure AutoSave;
     procedure BaseSave;
-    procedure SaveMapEditor(const aMissionName:string);
+    procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
 
     function  ReplayExists:boolean;
     procedure StartReplay;
@@ -805,7 +805,7 @@ end;
 
 
 {Mission name is absolute}
-procedure TKMGame.StartMapEditor(const aFilename: string; aSizeX:integer=64; aSizeY:integer=64);
+procedure TKMGame.StartMapEditor(const aFilename: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
 var fMissionParser:TMissionParser; i:integer;
 begin
   if not FileExists(aFilename) and (aSizeX*aSizeY=0) then exit; //Erroneous call
@@ -856,6 +856,7 @@ begin
   fMapEditorInterface := TKMapEdInterface.Create(ScreenX, ScreenY);
   fMapEditorInterface.Player_UpdateColors;
   fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
+  if FileExists(aFilename) then fMapEditorInterface.SetLoadMode(aMultiplayer);
   fPlayers.AfterMissionInit(false);
 
   for i:=0 to fPlayers.Count-1 do //Reveal all players since we'll swap between them in MapEd
@@ -903,7 +904,7 @@ begin
 end;
 
 
-procedure TKMGame.SaveMapEditor(const aMissionName:string);
+procedure TKMGame.SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
 var i:integer; fMissionParser: TMissionParser;
 begin
   if aMissionName = '' then exit;
@@ -912,9 +913,9 @@ begin
 
   CreateDir(ExeDir+'Maps');
   CreateDir(ExeDir+'Maps\'+aMissionName);
-  fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', false));
+  fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', aMultiplayer));
   fMissionParser := TMissionParser.Create(mpm_Editor,false);
-  fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', false));
+  fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', aMultiplayer));
   FreeAndNil(fMissionParser);
   fGameName := aMissionName;
 

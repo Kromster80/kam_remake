@@ -287,7 +287,7 @@ end;
 procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
   if RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then
-    fGame.StartMapEditor(OpenDialog1.FileName, 0, 0);
+    fGame.StartMapEditor(OpenDialog1.FileName, false, 0, 0);
 end;
 
 

@@ -2,7 +2,7 @@
 ; Installer Script
 #define MyAppName 'KaM Remake'
 #define MyAppExeName 'KaM_Remake.exe';
-#define Website 'http://krom.reveur.de/index.php?t=kam_remake'
+#define Website 'http://www.kamremake.com/'
 
 ;http://stfx-wow.googlecode.com/svn-history/r418/trunk/NetFxIS/setup.iss
 ;http://tdmaker.googlecode.com/svn/trunk/Setup/tdmaker-anycpu.iss
