@@ -834,7 +834,7 @@ begin
   //Only bother choosing direction if tree is valid, otherwise just exit with invalid
   if bTreeLoc then
   for i:=-1 to 0 do for k:=-1 to 0 do
-    if ((i=0)and(k=0)) or Route_CanBeMade(aLoc,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
+    if Route_CanBeMade(aLoc,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
       if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
         ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
       begin
