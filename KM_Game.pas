@@ -1279,7 +1279,7 @@ begin
   begin
     //Minimap
     if (fGameState in [gsRunning, gsReplay, gsEditor]) then
-      fTerrain.RefreshMinimapData;
+      fTerrain.UpdateMinimapData(fGameState = gsEditor);
 
     //Music
     if fMusicLib.IsMusicEnded then

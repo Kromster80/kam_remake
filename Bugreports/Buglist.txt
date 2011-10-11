@@ -19,6 +19,7 @@ Bugs:
  +	Woodcutters/Farm flagshtok should appear last in construction
  +	Making a hill under a unit with a nearby house in MapEd causes a crash
  +	Stone hills become locked because the slopes become too great after mining for a while (except for initially unwalkable hills)
+ +	Groups are not properly displayed on minimap in MapEd
 
 	Projectiles near the top of the map cause issues as they can scatter to off map tiles or the arc places them off the map
 	Woodcutters and others should plant/chop more evenly (not in waves like now)

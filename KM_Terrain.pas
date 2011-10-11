@@ -177,9 +177,7 @@ type
     procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
     procedure MapEdTile(aLoc:TKMPoint; aTile,aRotation:byte);
 
-    procedure RefreshMinimapData;
-
-    procedure IncAnimStep; //Lite-weight UpdaState for MapEd
+    procedure IncAnimStep; //Lite-weight UpdateState for MapEd
     property AnimStep: integer read fAnimStep;
 
     procedure LoadFromFile(FileName:string);
@@ -190,6 +188,7 @@ type
     procedure SyncLoad;
     procedure UpdateState;
     procedure UpdateStateIdle;
+    procedure UpdateMinimapData(aMapEditor:Boolean);
     procedure Paint;
   end;
 
@@ -2337,10 +2336,14 @@ begin
 end;
 
 
-procedure TTerrain.RefreshMinimapData;
+//MapEditor stores only commanders instead of all groups members
+procedure TTerrain.UpdateMinimapData(aMapEditor:Boolean);
 var
   FOW,ID:byte;
-  i,k:integer;
+  i,j,k:integer;
+  W: TKMUnitWarrior;
+  P: TKMPoint;
+  DoesFit: Boolean;
   Light:smallint;
 begin
   for i:=1 to fMapY do
@@ -2367,6 +2370,21 @@ begin
                              EnsureRange(fResource.Tileset.TileColor[ID].B+Light,0,255) shl 16;
         end;
   end;
+
+  //Scan all players units and paint all virtual group members
+  if aMapEditor then
+    for i:=0 to fPlayers.Count-1 do
+      for k:=0 to fPlayers[i].Units.Count-1 do
+        if fPlayers[i].Units[k] is TKMUnitWarrior then
+        begin
+          W := TKMUnitWarrior(fPlayers[i].Units[k]);
+          for j:=1 to W.fMapEdMembersCount do
+          begin
+            P := GetPositionInGroup2(W.GetPosition.X, W.GetPosition.Y, W.Direction, j+1, W.UnitsPerRow, MapX, MapY, DoesFit);
+            if not DoesFit then Continue; //Don't render units that are off the map in the map editor
+            MiniMapRGB[P.Y,P.X] := fPlayers[i].FlagColor;
+          end;
+        end;
 end;
 
 

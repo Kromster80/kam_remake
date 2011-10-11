@@ -235,11 +235,11 @@ type
   private
     function GetUnit(Index: Integer): TKMUnit;
     procedure SetUnit(Index: Integer; Item: TKMUnit);
-    property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; //Use instead of Items[.]
   public
     destructor Destroy; override;
     function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
     function AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+    property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit:TKMUnit);
     procedure OwnerUpdate(aOwner:TPlayerIndex);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
