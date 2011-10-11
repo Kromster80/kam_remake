@@ -31,13 +31,8 @@ Brought to you by Krom and Lewin</font></P>
 		</tr>
 	</table>
 </blockquote>
-<p><font face="Calibri">KaM Remake (we don't have a fancy title yet) is an attempt to reinvigorate the original &quot;Knights and Merchants: The Shattered Kingdom&quot; strategy game. Our goals are to make it work on today's computers and operating systems, as well as to fix the many bugs in the game engine. To do this we have started from scratch, writing our own code for the game engine but still relying on many original resource files.
-This is our public limited technology preview (demo) featuring the economic and 
-fighting side of the game; referred as &quot;mod&quot; or &quot;Remake&quot; from now on. Our aim is to demonstrate the 
-potential and get feedback on functionality. All included &quot;assets&quot; borrowed from 
-KaM (graphics, music, sounds, etc.) are there for testing purposes only, and the final release will not include any of the 
-copyrighted &quot;assets&quot;.<br>
-We assume that you own the original KaM game, otherwise you should buy it - 
+<p><font face="Calibri">The KaM Remake mod is an attempt to reinvigorate the original &quot;Knights and Merchants: The Shattered Kingdom&quot; strategy game. Our goals are to make it work on today's computers and operating systems, implement a fully featured online multiplayer system, as well as to fix the many bugs in the game engine. To do this we have started from scratch, writing our own code for the game engine but still relying on many original resource files.
+We assume that you own the original KaM game, (the installer checks for it) otherwise you should buy it - 
 it's available in a number of online gaming stores.<br>
 The KaM Remake executable is freeware and is 
 built by enthusiasts. Applications used: Delphi 6, Delphi 7, FastMM4, Lazarus, OpenGL, OpenAL, zLib, PNGImage.</font><BR>&nbsp;</p>
@@ -66,15 +61,14 @@ built by enthusiasts. Applications used: Delphi 6, Delphi 7, FastMM4, Lazarus, O
 		</tr>
 	</table>
 </blockquote>
-<p><font face="Calibri"><B>1.</B> Unpack all files contained in the package into a new 
-folder on your PC.<br>
-<B>2.</B> The package includes the OpenAL audio drivers (<b>oalinst.exe</b>), which you should install in order to play the KaM Remake. The latest version can be found on the official OpenAL page:
+<p><font face="Calibri"><B>1.</B> Run the installer and follow the installation instructions.<BR>
+<B>2.</B> The installer will also install the OpenAL audio drivers (<b>oalinst.exe</b>) if they are not detected. The latest version can be found on the official OpenAL page:
 <a href="http://connect.creativelabs.com/openal/default.aspx">
 http://connect.creativelabs.com/openal/default.aspx</a> <br>
 <B>3.</B> The KaM Remake uses the OpenGL rendering engine, so you need to have OpenGL drivers 
 installed as well. Visit your graphics card manufacturer site to get the latest 
 drivers available.
-<br><B>4.</B> Launch the mod - KaM_Remake.exe.<br>&nbsp;</font></p>
+<br><B>4.</B> Launch the mod - KaM_Remake.exe or from the Desktop/Start Menu if you chose to create shortcuts.<br>&nbsp;</font></p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -97,8 +91,6 @@ drivers available.
 <b>&#8592;&#8593;&#8594;&#8595;</b> cursor keys will move you around the map<br>
 Scrolling the <b>Mouse wheel</b> will zoom in and out<br>
 <b>&#8592;</b> backspace will reset zoom back to 100%<br>
-<b>Middle mouse click</b> will place a horseman (scout) at the cursor position to allow you to explore 
-the map<br>
 </font></p>
 <p><font face="Calibri"><B>Installing add-on maps:</B><br><B>1.</B> Create a sub-folder in the Maps folder of the KaM Remake and name it, for example, &quot;My New Map&quot;.<br>
 <B>2.</B> Put inside .dat and .map files of the map and rename them accordingly &quot;My New Map.dat&quot; and &quot;My New Map.map&quot;. 
@@ -120,8 +112,7 @@ included into the playlist automatically.<br>&nbsp;</font></p>
 </blockquote>
 <P>
 <font face="Calibri"><B>Silent crashes:</B><br>
-KaM Remake silently crashes on loading or music track change if there are any 
-problems with the Windows sound system. Removing the &quot;Music&quot; folder from the KaM Remake should fix this.<br></p>
+If the KaM Remake crashes silently during startup please send the log file to <a href="mailto:contact@kamremake.com">contact@kamremake.com</a> along with any other information that might be of use.<br></p>
 <p><B>Low framerate:</B><br>If you have ridiculously low framerate in game it 
 might be because your OpenGL drivers are 
 out of date. See the OpenGL version information in the top-left corner of the main menu, it should be 
@@ -130,14 +121,12 @@ at least 1.4.x. If it is less you need to update your graphics card drivers
 <p><B>Game errors:</B><br>Sometimes when something unexpected happens you will get an &quot;<i>An 
 error has occurred during gameplay</i>&quot; 
 message. Please read the message details and send the crash report ZIP file from 
-the Crash Reports folder by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
+the Crash Reports folder by email to <a href="mailto:contact@kamremake.com">contact@kamremake.com</a>
 along with details of what you did to make it crash and any other information 
 that might be of use. Having the crash report file will help us to fix the bug.<br></p>
 <p><B>Assertion failed and other error messages:</B><br>Sometimes when something unexpected happens you will get an &quot;<i>Assertion failed</i>&quot;, &quot;<i>Range check error</i>&quot; or a similar error message that does not automatically produce a crash report ZIP file. In this case you should terminate the KaM_Remake from the Task Manager (press 
 Ctrl+Alt+Del, choose KaM Remake and press End Task button).
-<BR>Then browse to the KaM Remake folder and find the most recent file &quot;KaM.log&quot; containing details of the crash. (the highest number should be the most recent log file) Please send this file by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
-along with details of what you did to make it crash and any other information 
-that might be of use.</font><br>&nbsp;</P>
+<BR>Then browse to the KaM Remake folder and find the most recent file &quot;KaM.log&quot; containing details of the crash. (the highest number should be the most recent log file) Please send this file by email to <a href="mailto:contact@kamremake.com">contact@kamremake.com</a> along with details of what you did to make it crash and any other information that might be of use.</font><br>&nbsp;</P>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -150,7 +139,6 @@ limitations</a></FONT></B></td>
 </blockquote>
 <p><font face="Calibri">
 Unit training in Town Hall and Siege Workshop is not functioning.<br>
-TPR troops are not supported yet.<br>
 AI behavior is still limited.<br>
 &nbsp;</font></p>
 <blockquote>
@@ -162,12 +150,13 @@ AI behavior is still limited.<br>
 		</tr>
 	</table>
 </blockquote>
-<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on TCP port 56789 and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
-To use in a LAN game, start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. You may then connect to it from the same computer and/or other computers. (For the same computer, connect to the address 127.0.0.1 or localhost)<br>
-To use on the internet, you must forward the port 56789 from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
+<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on a TCP port (56789 by default) and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join a room will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
+The server can be configured from the file KaM_Remake_Settings.ini. (created on the first of the game or server) Options for the dedicated server are in the section [Server].<br>
+To use in a LAN game, first make sure the server will not be published to the master server by setting "AnnounceDedicatedServer=0" in the INI file. (see above) Then start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. (or whichever you chose) You may then connect to it from the same computer and/or other computers. (For the same computer, connect to the address 127.0.0.1 or localhost)<br>
+To use on the internet, you must forward the port 56789 (or whichever you chose) from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
 
 <br><br>
-Note: The dedicated server is not required to play multiplayer. Clicking "Create Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service and tell other fans the address of your server we would be pleased. Future versions will include a "master server" which displays a listing of all running public servers and allow you to join them without having to type in IP addresses.<br><br>
+Note: The dedicated server is not required to play multiplayer. Clicking "Start Local Server" or "Start Internet Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service we would be pleased.<br><br>
 The Linux builds have been tested on Fedora and Ubuntu. Any queries or comments regarding the Linux builds should be sent to Lewin. (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>)</font>
 <br>&nbsp;
 <blockquote>
@@ -179,9 +168,9 @@ The Linux builds have been tested on Fedora and Ubuntu. Any queries or comments 
 		</tr>
 	</table>
 </blockquote>
-<font face="Calibri">Please use <A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">the forum</A> or email (see below) to give us feedback. We would love your comments, suggestions, compliments, etc.
+<font face="Calibri">Please use <A href="http://www.atfreeforum.com/knights/viewforum.php?f=16">the forum</A> or email (see below) to give us feedback. We would love your comments, suggestions, compliments, etc.
 <br>
-If you can offer some help in Delphi coding, menu design, documentation, 
+If you can offer some help in Delphi coding, menu design, documentation, graphics, sounds, 
 translation or ideas 
 for improvement - please drop us an email or write on the forum.</font>
 <br>&nbsp;

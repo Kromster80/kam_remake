@@ -174,7 +174,6 @@
         </blockquote>
         <p><font face="Calibri">
           Es k&ouml;nnen noch keine Einheiten in Kriegswerkstatt und Rathaus ausgebildet werden.<br>
-          TPR troops are not supported yet.<br>
           AI behavior is still limited.<br>
           &nbsp;</font></p>
 		<blockquote>
@@ -186,12 +185,13 @@
 				</tr>
 			</table>
 		</blockquote>
-		<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on TCP port 56789 and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
-		To use in a LAN game, start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. You may then connect to it from the same computer and/or other computers. (for the same computer, connect to the address 127.0.0.1 or localhost)<br>
-		To use on the internet, you must forward the port 56789 from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
+		<font face="Calibri">Executables for the multiplayer dedicated server are included, available for Windows and Linux x86 and x86_64. The server listens for connections on a TCP port (56789 by default) and acts as a hub to trasfer the data between clients. The dedicated server does not understand gameplay, it simply moves packets around. The first client to join a room will be assigned hosting rights allowing them to setup the game. If that client disconnects, the next one in the list will be assigned hosting rights.<br>
+		The server can be configured from the file KaM_Remake_Settings.ini. (created on the first of the game or server) Options for the dedicated server are in the section [Server].<br>
+		To use in a LAN game, first make sure the server will not be published to the master server by setting "AnnounceDedicatedServer=0" in the INI file. (see above) Then start the dedicated server and ensure it is running properly (it should say "Listening on port 56789") Please ensure your firewall is allowing clients to connect to the server, by allowing TCP port 56789. (or whichever you chose) You may then connect to it from the same computer and/or other computers. (For the same computer, connect to the address 127.0.0.1 or localhost)<br>
+		To use on the internet, you must forward the port 56789 (or whichever you chose) from your router to your PC running the dedicated server. (for more information on port forwarding visit <a href="http://portforward.com/">http://portforward.com/</a>) Tell your friends to connect to your external IP address, is displayed to you on the homepage of <a href="http://portforward.com/">http://portforward.com/</a>. If you are playing on the same computer that is running the dedicated server, or on the same LAN, connect to its IP address as you would for a LAN game.
 
 		<br><br>
-		Note: The dedicated server is not required to play multiplayer. Clicking "Create Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service and tell other fans the address of your server we would be pleased. Future versions will include a "master server" which displays a listing of all running public servers and allow you to join them without having to type in IP addresses.<br><br>
+		Note: The dedicated server is not required to play multiplayer. Clicking "Start Local Server" or "Start Internet Server" from the network menu has the same effect, except you must participate in the game and the server cannot be left to maintain itself. The dedicated server is only necessary if you want to provide a server without playing. The main purpose of the dedicated server is to allow servers to be hosted 24/7, which players can join and participate in any time they like. If you are able to provide this service we would be pleased.<br><br>
 		The Linux builds have been tested on Fedora and Ubuntu. Any queries or comments regarding the Linux builds should be sent to Lewin. (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>)</font>
 		<br>&nbsp;
         <blockquote> 
@@ -202,13 +202,13 @@
             </tr>
           </table>
         </blockquote>
-        <p>Bitte benutzt <font face="Calibri"><A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">Forum</A></font> 
+        <p><font face="Calibri">Bitte benutzt <A href="http://www.atfreeforum.com/knights/viewforum.php?f=16">Forum</A>
           oder E-Mail um uns Feedback zu geben. Wir w&uuml;rden eure Kommentare, Vorschl&auml;ge 
           und Komplimente lieben.<br>
           Wenn ihr etwas Hilfe in Sachen Delphi, Men&uuml;design, Dokumentation 
           oder &Uuml;bersetzung anbieten k&ouml;nnt oder Ideen f&uuml;r Verbesserungen 
           habt, sende uns bitte eine E-Mail oder schreibe im Forum.<br>
-          &nbsp; </p>
+          &nbsp; </font> </p>
         <blockquote> 
           <table border="0" cellspacing="0" cellpadding="0">
             <tr> 
