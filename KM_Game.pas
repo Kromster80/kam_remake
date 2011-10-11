@@ -1287,6 +1287,9 @@ begin
       //       1:30 minutes of tune over and over again. I think it should certainly start on the menu track, but
       //       it should not return to it until it reaches the end of the tracks. This is the way it is in TPR,
       //       and I believe it is also the case in TSK. I have written if like that, if you disagree please say so.
+      //@Lewin: I disagree. In most of the games I know there's a clear separation between menu and game music.
+      //       (HoMM, NFS, DeusEx, Alice, Settlers4) Menu music is usually loop-friendly, which it is not in case of KaM
+      //       hence the problem IMHO.
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar
