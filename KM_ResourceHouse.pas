@@ -460,7 +460,8 @@ end;
 
 function TKMHouseDatClass.GetAcceptsGoods: boolean;
 begin
-  Result := ResInput[1] <> rt_None; //Exclude houses that do not receive resources
+  Result := (ResInput[1] <> rt_None) or //Exclude houses that do not receive resources
+            (fHouseType = ht_Marketplace); //Marketplace also accepts goods
 end;
 
 

@@ -1345,6 +1345,7 @@ begin
     TradeCount := Min((fResources[fResFrom] div RatioFrom), fResourceOrder[1]);
 
     dec(fResources[fResFrom], TradeCount * RatioFrom);
+    dec(fResourceDeliveryCount[1], TradeCount * RatioFrom);
     dec(fResourceOrder[1], TradeCount);
     inc(fResources[fResTo], TradeCount * RatioTo);
     fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, TradeCount * RatioTo);
