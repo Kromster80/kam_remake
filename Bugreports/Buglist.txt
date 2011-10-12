@@ -56,6 +56,7 @@ Features:
 	Scrolling around the map using middle mouse click, as in TPR
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	Improved delivery queue system (take closest jobs, take wares out after going in, etc.)
+	256x256 icons for EXE (for vista/7/8 users)
  
 
  -	The ingame briefing texture is too short, see attached picture
