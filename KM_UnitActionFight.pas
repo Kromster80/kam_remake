@@ -125,21 +125,21 @@ procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Randomly make a battle cry
   if KaMRandom(20) = 0 then
-    fSoundLib.PlayWarrior(KMUnit.UnitType, sp_BattleCry, KMUnit.GetPosition);
+    fSoundLib.PlayWarrior(KMUnit.UnitType, sp_BattleCry, KMUnit.PositionF);
 
   //Do not play sounds if unit is invisible to MyPlayer
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
   if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
   
   case KMUnit.UnitType of
-    ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition); //Aiming
-    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,     KMUnit.GetPosition); //Aiming
-    ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot,KMUnit.GetPosition);
+    ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, KMUnit.PositionF); //Aiming
+    ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      KMUnit.PositionF); //Aiming
+    ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot, KMUnit.PositionF);
     else           begin
                      if IsHit then
-                       fSoundLib.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))],KMUnit.GetPosition)
+                       fSoundLib.Play(MeleeSoundsHit[Random(Length(MeleeSoundsHit))], KMUnit.PositionF)
                      else
-                       fSoundLib.Play(MeleeSoundsMiss[Random(Length(MeleeSoundsMiss))],KMUnit.GetPosition);
+                       fSoundLib.Play(MeleeSoundsMiss[Random(Length(MeleeSoundsMiss))], KMUnit.PositionF);
                    end;
   end;
 end;

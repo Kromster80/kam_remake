@@ -81,26 +81,26 @@ begin
     exit;
   end;
 
-  with fUnit do
+  with TKMUnitWarrior(fUnit) do
   case fPhase of
-    0: if TKMUnitWarrior(fUnit).IsRanged then
+    0: if IsRanged then
          //todo: Sort out cases when archers are too close, either step back to the minimum range or don't participate in the attack
          SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX / (byte(REDUCE_SHOOTING_RANGE)+1))
        else
          SetActionWalkToHouse(fHouse, 1);
     1: begin
          //Once we've reached the house, if the player clicks halt we reposition here
-         if TKMUnitWarrior(fUnit).IsCommander then
-           TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(GetPosition,TKMUnitWarrior(fUnit).OrderLocDir.Dir);
+         if IsCommander then
+           OrderLocDir := KMPointDir(GetPosition, OrderLocDir.Dir);
 
-         if TKMUnitWarrior(fUnit).IsRanged then begin
+         if IsRanged then begin
            SetActionLockedStay(AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
            if not KMSamePoint(GetPosition, fHouse.GetClosestCell(GetPosition)) then //Unbuilt houses can be attacked from within
              Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
            case UnitType of
-             ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,GetPosition); //Aiming
-             ut_Bowman:     fSoundLib.Play(sfx_BowDraw,     GetPosition); //Aiming
-             ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot,GetPosition); //Aiming
+             ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, PositionF); //Aiming
+             ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      PositionF); //Aiming
+             ut_Slingshot:  fSoundLib.Play(sfx_SlingerShoot, PositionF); //Aiming
              else Assert(false, 'Unknown shooter');
            end;
          end else begin
@@ -113,13 +113,13 @@ begin
          //Let the house know it is being attacked
          fPlayers.Player[fHouse.GetOwner].AI.HouseAttackNotification(fHouse, TKMUnitWarrior(fUnit));
          fDestroyingHouse := true;
-         if TKMUnitWarrior(fUnit).IsRanged then
+         if IsRanged then
            SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0) //Start shooting
          else
            SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
        end;
     3: begin
-         if TKMUnitWarrior(fUnit).IsRanged then
+         if IsRanged then
          begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
@@ -138,8 +138,8 @@ begin
                fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.HouseType);
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
-           if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) >= 255 then
-             fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))],fUnit.GetPosition);
+           if MyPlayer.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y) >= 255 then
+             fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
 
            fPhase := 1; //Go for another hit (will be 2 after inc below)
          end;

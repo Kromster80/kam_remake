@@ -67,19 +67,19 @@ begin
   //Various UnitTypes and ActionTypes produce all the sounds
   case KMUnit.UnitType of 
     ut_Worker: case ActionType of
-                 ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
-                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
-                 ua_Work2: if Step = 8 then fSoundLib.Play(sfx_Pave,KMUnit.GetPosition,true);
+                 ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.PositionF);
+                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.PositionF);
+                 ua_Work2: if Step = 8 then fSoundLib.Play(sfx_Pave,KMUnit.PositionF);
                end;
     ut_Farmer: case ActionType of
-                 ua_Work:  if Step = 8 then fSoundLib.Play(sfx_CornCut,KMUnit.GetPosition,true);
-                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_CornSow,KMUnit.GetPosition,true,0.6);
+                 ua_Work:  if Step = 8 then fSoundLib.Play(sfx_CornCut,KMUnit.PositionF);
+                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_CornSow,KMUnit.PositionF,true,0.6);
                end;
     ut_StoneCutter: if ActionType = ua_Work then
-                           if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
+                           if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.PositionF,true,1.4);
     ut_WoodCutter: case ActionType of
-                     ua_Work: if (KMUnit.AnimStep mod Cycle = 3) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_ChopTree,KMUnit.GetPosition,true)
-                     else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
+                     ua_Work: if (KMUnit.AnimStep mod Cycle = 3) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_ChopTree, KMUnit.PositionF,true)
+                     else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig, KMUnit.PositionF,true);
                    end;
   end;
 end;

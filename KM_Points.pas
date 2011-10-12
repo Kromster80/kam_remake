@@ -112,8 +112,8 @@ end;
 
 function KMPointRound(const P:TKMPointF):TKMPoint;
 begin
-  Result.X := round(P.X);
-  Result.Y := round(P.Y);
+  Result.X := Round(P.X);
+  Result.Y := Round(P.Y);
 end;
 
 

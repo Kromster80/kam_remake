@@ -65,7 +65,7 @@ type
       ALBuffer:TALuint;
       ALSource:TALuint;
       Name:string;
-      Position:TKMPoint;
+      Position:TKMPointF;
       Duration:word; //MSec
       PlaySince:cardinal;
     end;
@@ -82,7 +82,8 @@ type
     procedure SaveWarriorSoundsToFile(const aFile: String);
     function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
     function NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
-    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0); overload;
+    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
   public
     constructor Create(aLocale:string; aVolume:single);
     destructor Destroy; override;
@@ -91,14 +92,17 @@ type
     procedure ExportSounds;
     procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);
-    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
-    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint); overload;
+
     procedure PlayNotification(aSound:TAttackNotification);
+
+    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
+    procedure PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech); overload;
-    procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint); overload;
-    procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
-    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
-    procedure Play(const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
+    procedure PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF); overload;
+    procedure Play(SoundID:TSoundFX; Volume:single=1.0); overload;
+    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0); overload;
+    procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0); overload;
+
     procedure Paint;
   end;
 
@@ -351,23 +355,30 @@ end;
 
 
 {Wrapper with fewer options for non-attenuated sounds}
-procedure TSoundLib.Play(SoundID:TSoundFX; const Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Volume:single=1.0);
 begin
   if not fIsSoundInitialized then Exit;
-  Play(SoundID, KMPoint(0,0), false, Volume); //Redirect
+  Play(SoundID, KMPointF(0,0), false, Volume); //Redirect
 end;
 
 
 {Wrapper for TSoundFX}
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0);
 begin
   if not fIsSoundInitialized then Exit;
-  PlaySound(SoundID, '', Loc, Attenuated, Volume); //Redirect
+  PlaySound(SoundID, '', KMPointF(Loc), Attenuated, Volume); //Redirect
+end;
+
+
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
+begin
+  if not fIsSoundInitialized then Exit;
+  PlaySound(SoundID, '', Loc, true, 1); //Redirect
 end;
 
 
 {Wrapper WAV files}
-procedure TSoundLib.Play(const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
 begin
   if not fIsSoundInitialized then Exit;
   PlaySound(sfx_None, aFile, Loc, Attenuated, Volume); //Redirect
@@ -377,7 +388,7 @@ end;
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
@@ -494,11 +505,11 @@ end;
 
 procedure TSoundLib.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech);
 begin
-  PlayCitizen(aUnitType, aSound, KMPoint(0,0));
+  PlayCitizen(aUnitType, aSound, KMPointF(0,0));
 end;
 
 
-procedure TSoundLib.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint);
+procedure TSoundLib.PlayCitizen(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF);
 var Wave:string; HasLoc:boolean; SoundID: byte;
 begin
   if not fIsSoundInitialized then Exit;
@@ -509,10 +520,10 @@ begin
   else
     SoundID := CitizenSFX[aUnitType].SelectID;
 
-  HasLoc := not KMSamePoint(aLoc, KMPoint(0,0));
+  HasLoc := not KMSamePointF(aLoc, KMPointF(0,0));
   Wave := WarriorSoundFile(CitizenSFX[aUnitType].WarriorVoice, aSound, SoundID);
   if FileExists(Wave) then
-    Play(Wave, aLoc, HasLoc, 1.0 +3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
+    PlayWave(Wave, aLoc, HasLoc, 1 + 3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
 end;
 
 
@@ -525,17 +536,17 @@ begin
 
   Wave := NotificationSoundFile(aSound, Random(Count));
   if FileExists(Wave) then
-    Play(Wave, KMPoint(0,0), false, 1.0);
+    PlayWave(Wave, KMPointF(0,0), false, 1.0);
 end;
 
 
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech);
 begin
-  PlayWarrior(aUnitType, aSound, KMPoint(0,0));
+  PlayWarrior(aUnitType, aSound, KMPointF(0,0));
 end;
 
 
-procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPoint);
+procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TWarriorSpeech; aLoc:TKMPointF);
 var Wave:string; HasLoc:boolean; Count:byte;
 begin
   if not fIsSoundInitialized then Exit;
@@ -543,10 +554,10 @@ begin
 
   Count := fWarriorSoundCount[aUnitType, aSound];
 
-  HasLoc := not KMSamePoint(aLoc, KMPoint(0,0));
+  HasLoc := not KMSamePointF(aLoc, KMPointF(0,0));
   Wave := WarriorSoundFile(aUnitType, aSound, Random(Count));
   if FileExists(Wave) then
-    Play(Wave, aLoc, HasLoc, 1.0 +3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
+    PlayWave(Wave, aLoc, HasLoc, 1 + 3*byte(HasLoc)); //Attenuate sounds when aLoc is valid
 end;
 
 
@@ -570,7 +581,7 @@ begin
   if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
   begin
     fRenderAux.Circle(fSound[i].Position.X, fSound[i].Position.Y, 5, $4000FFFF, $FFFFFFFF);
-    fRenderAux.Text(fSound[i].Position.X, fSound[i].Position.Y, fSound[i].Name, $FFFFFFFF);
+    fRenderAux.Text(Round(fSound[i].Position.X), Round(fSound[i].Position.Y), fSound[i].Name, $FFFFFFFF);
   end else
     fSound[i].PlaySince := 0;
 end;

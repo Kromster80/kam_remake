@@ -52,9 +52,9 @@ begin
           else
             SetActionLockedStay(SequenceLength,ua_Die,false);
           if fUnit is TKMUnitWarrior then
-            fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.GetPosition)
+            fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
           else
-            fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.GetPosition);
+            fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
         end;
     else begin
           fUnit.CloseUnit;          //This will FreeAndNil the Task and mark unit as "closed"

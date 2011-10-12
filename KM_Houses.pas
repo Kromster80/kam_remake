@@ -458,7 +458,7 @@ begin
 
   if not DoSilent then
     if (BuildingState <> hbs_Glyph) and not NoRubble then
-      fSoundLib.Play(sfx_HouseDestroy,GetPosition);
+      fSoundLib.Play(sfx_HouseDestroy, fPosition);
       
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].DeliverList.RemoveOffer(Self);
@@ -924,48 +924,48 @@ begin
   Step := WorkAnimStep mod Step;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
-    ht_School:        if (Work = ha_Work5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
-    ht_Mill:          if (Work = ha_Work2)and(Step = 0) then fSoundLib.Play(sfx_mill,GetPosition);
-    ht_CoalMine:      if (Work = ha_Work1)and(Step = 5) then fSoundLib.Play(sfx_coalDown,GetPosition)
-                      else if (Work = ha_Work1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
-                      else if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
-                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
-                      else if (Work = ha_Work5)and(Step = 1) then fSoundLib.Play(sfx_coalDown,GetPosition);
-    ht_IronMine:      if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
-                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
-    ht_GoldMine:      if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_mine,GetPosition)
-                      else if (Work = ha_Work2)and(Step = 6) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
-    ht_Sawmill:       if (Work = ha_Work2)and(Step = 1) then fSoundLib.Play(sfx_saw,GetPosition);
-    ht_Wineyard:      if (Work = ha_Work2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
-                      else if (Work = ha_Work5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
-                      else if (Work = ha_Work1)and(Step = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
-    ht_Bakery:        if (Work = ha_Work3)and(Step in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
-    ht_Quary:         if (Work = ha_Work2)and(Step in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition)
-                      else if (Work = ha_Work5)and(Step in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);
-    ht_WeaponSmithy:  if (Work = ha_Work1)and(Step in [17,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                      else if (Work = ha_Work2)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (Work = ha_Work3)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (Work = ha_Work4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                      else if (Work = ha_Work5)and(Step = 12) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition);
-    ht_ArmorSmithy:   if (Work = ha_Work2)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (Work = ha_Work3)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                      else if (Work = ha_Work4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                      else if (Work = ha_Work5)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition);
-    ht_Metallurgists: if (Work = ha_Work3)and(Step = 6) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                      else if (Work = ha_Work4)and(Step in [16,20]) then fSoundLib.Play(sfx_wineDrain,GetPosition);
-    ht_IronSmithy:    if (Work = ha_Work2)and(Step in [1,16]) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                      else if (Work = ha_Work3)and(Step = 1) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                      else if (Work = ha_Work3)and(Step = 13) then fSoundLib.Play(sfx_wineDrain,GetPosition);
-    ht_WeaponWorkshop:if (Work = ha_Work2)and(Step in [1,10,19]) then fSoundLib.Play(sfx_saw,GetPosition)
-                      else if (Work = ha_Work3)and(Step in [10,21]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
-                      else if (Work = ha_Work4)and(Step in [2,13]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
-    ht_ArmorWorkshop: if (Work = ha_Work2)and(Step in [3,13,23]) then fSoundLib.Play(sfx_saw,GetPosition)
-                      else if (Work = ha_Work3)and(Step in [17,28]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
-                      else if (Work = ha_Work4)and(Step in [10,20]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
-    ht_Tannery:       if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_Leather,GetPosition,true,0.8);
-    ht_Butchers:      if (Work = ha_Work2)and(Step in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
-                      else if (Work = ha_Work3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
-    ht_Swine:         if ((Work = ha_Work2)and(Step in [10,20]))or((Work = ha_Work3)and(Step = 1)) then fSoundLib.Play(sfx_ButcherCut,GetPosition);
+    ht_School:        if (Work = ha_Work5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing, fPosition); //Ding as the clock strikes 12
+    ht_Mill:          if (Work = ha_Work2)and(Step = 0) then fSoundLib.Play(sfx_mill, fPosition);
+    ht_CoalMine:      if (Work = ha_Work1)and(Step = 5) then fSoundLib.Play(sfx_coalDown, fPosition)
+                      else if (Work = ha_Work1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud, fPosition,true,0.8)
+                      else if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine, fPosition)
+                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine, fPosition,true,0.4) //echo
+                      else if (Work = ha_Work5)and(Step = 1) then fSoundLib.Play(sfx_coalDown, fPosition);
+    ht_IronMine:      if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine, fPosition)
+                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine, fPosition,true,0.4); //echo
+    ht_GoldMine:      if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_mine, fPosition)
+                      else if (Work = ha_Work2)and(Step = 6) then fSoundLib.Play(sfx_mine, fPosition,true,0.4); //echo
+    ht_Sawmill:       if (Work = ha_Work2)and(Step = 1) then fSoundLib.Play(sfx_saw, fPosition);
+    ht_Wineyard:      if (Work = ha_Work2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep, fPosition)
+                      else if (Work = ha_Work5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain, fPosition,true,1.5)
+                      else if (Work = ha_Work1)and(Step = 10) then fSoundLib.Play(sfx_wineDrain, fPosition,true,1.5);
+    ht_Bakery:        if (Work = ha_Work3)and(Step in [6,25]) then fSoundLib.Play(sfx_BakerSlap, fPosition);
+    ht_Quary:         if (Work = ha_Work2)and(Step in [4,13]) then fSoundLib.Play(sfx_QuarryClink, fPosition)
+                      else if (Work = ha_Work5)and(Step in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink, fPosition);
+    ht_WeaponSmithy:  if (Work = ha_Work1)and(Step in [17,22]) then fSoundLib.Play(sfx_BlacksmithFire, fPosition)
+                      else if (Work = ha_Work2)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work3)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire, fPosition)
+                      else if (Work = ha_Work5)and(Step = 12) then fSoundLib.Play(sfx_BlacksmithBang, fPosition);
+    ht_ArmorSmithy:   if (Work = ha_Work2)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work3)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang, fPosition)
+                      else if (Work = ha_Work4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire, fPosition)
+                      else if (Work = ha_Work5)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire, fPosition);
+    ht_Metallurgists: if (Work = ha_Work3)and(Step = 6) then fSoundLib.Play(sfx_metallurgists, fPosition)
+                      else if (Work = ha_Work4)and(Step in [16,20]) then fSoundLib.Play(sfx_wineDrain, fPosition);
+    ht_IronSmithy:    if (Work = ha_Work2)and(Step in [1,16]) then fSoundLib.Play(sfx_metallurgists, fPosition)
+                      else if (Work = ha_Work3)and(Step = 1) then fSoundLib.Play(sfx_metallurgists, fPosition)
+                      else if (Work = ha_Work3)and(Step = 13) then fSoundLib.Play(sfx_wineDrain, fPosition);
+    ht_WeaponWorkshop:if (Work = ha_Work2)and(Step in [1,10,19]) then fSoundLib.Play(sfx_saw, fPosition)
+                      else if (Work = ha_Work3)and(Step in [10,21]) then fSoundLib.Play(sfx_CarpenterHammer, fPosition)
+                      else if (Work = ha_Work4)and(Step in [2,13]) then fSoundLib.Play(sfx_CarpenterHammer, fPosition);
+    ht_ArmorWorkshop: if (Work = ha_Work2)and(Step in [3,13,23]) then fSoundLib.Play(sfx_saw, fPosition)
+                      else if (Work = ha_Work3)and(Step in [17,28]) then fSoundLib.Play(sfx_CarpenterHammer, fPosition)
+                      else if (Work = ha_Work4)and(Step in [10,20]) then fSoundLib.Play(sfx_CarpenterHammer, fPosition);
+    ht_Tannery:       if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_Leather, fPosition,true,0.8);
+    ht_Butchers:      if (Work = ha_Work2)and(Step in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut, fPosition)
+                      else if (Work = ha_Work3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString, fPosition);
+    ht_Swine:         if ((Work = ha_Work2)and(Step in [10,20]))or((Work = ha_Work3)and(Step = 1)) then fSoundLib.Play(sfx_ButcherCut, fPosition);
     //ht_WatchTower:  Sound handled by projectile itself
   end;
 end;

@@ -503,7 +503,9 @@ var
   ID:integer;
   ShiftX,ShiftY:single;
 begin
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(round(pX),round(pY));
+  if not fTerrain.TileInMapCoords(Round(pX), Round(pY)) then Exit; //Arrows may fly off map
+
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(Round(pX), Round(pY));
   if FOW <= 128 then exit; //Don't render objects which are behind FOW
 
   case aProj of
