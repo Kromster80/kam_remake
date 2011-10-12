@@ -33,6 +33,8 @@ Way to automatically feed troops when they become hungry if the player has been 
 
 On/Off switch for unit (citizen) interaction
 
+Worker "teams" to be assigned to jobs, so you can be building in two places without workers running between
+
 Roadsigns objects, buildable?
 They will feature some short texts on them
 

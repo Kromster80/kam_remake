@@ -373,7 +373,7 @@ end;
 procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
 begin
   if not fIsSoundInitialized then Exit;
-  PlaySound(SoundID, '', Loc, true, 1); //Redirect
+  PlaySound(SoundID, '', Loc, Attenuated, Volume); //Redirect
 end;
 
 

@@ -1345,7 +1345,6 @@ begin
     TradeCount := Min((fResources[fResFrom] div RatioFrom), fResourceOrder[1]);
 
     dec(fResources[fResFrom], TradeCount * RatioFrom);
-    dec(fResourceDeliveryCount[1], TradeCount * RatioFrom);
     dec(fResourceOrder[1], TradeCount);
     inc(fResources[fResTo], TradeCount * RatioTo);
     fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, TradeCount * RatioTo);
@@ -1397,21 +1396,21 @@ begin
   //@Lewin: If player has cancelled the exchange and then started it again resources will not be
   //removed from offers list and perhaps serf will carry them off the marketplace
 
-  //How much do we need to ask to add to delivery system
-  Count := (fResourceOrder[1] * RatioFrom - fResourceDeliveryCount[1]);
+  //How many new orders do we need to ask to add to delivery system?
+  Count := (aAmount * RatioFrom);
 
+  //If the player asked for more wares, then order more to be delivered
   if Count > 0 then
-    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Count, dt_Once, di_Norm)
-  else begin
+    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Count, dt_Once, di_Norm);
+
+  //If the player has removed ALL orders then clear up the deliveries
+  if fResourceOrder[1] = 0 then
     fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
-    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, fResourceOrder[1] * RatioFrom, dt_Once, di_Norm)
-  end;
 
   //@Lewin: There's a flaw, if we order to exchange From=1500 resources they all will be
   //immediately added to delivery list. Maybe we should add 5-10 and add new demands to list upon
   //recieving resources instead? Or we let than be handled by delivery list which will be smart
   //enough to handicap such massive deliveries (to allow other deliveries run as well)
-  fResourceDeliveryCount[1] := fResourceOrder[1] * RatioFrom;
 end;
 
 
