@@ -53,6 +53,7 @@ type
     procedure RemoveOffer(aHouse:TKMHouse);
     procedure RemoveDemand(aHouse:TKMHouse); overload;
     procedure RemoveDemand(aUnit:TKMUnit); overload;
+    function TryRemoveDemand(aHouse:TKMHouse; aResource:TResourceType; aCount:word):word;
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
     function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
     procedure TakenOffer(aID:integer);
@@ -239,6 +240,24 @@ begin
       CloseDemand(i); //Clear up demand
       //Keep on scanning cos Unit can have multiple demands entries (foreseeing Walls building)
   end;
+end;
+
+
+//Attempt to remove aCount demands from this house and report the number (only ones that are not yet being performed)
+function TKMDeliverQueue.TryRemoveDemand(aHouse:TKMHouse; aResource:TResourceType; aCount:word):word;
+var i:integer;
+begin
+  Result := 0;
+  if aCount = 0 then exit;
+  assert(aHouse <> nil);
+  for i:=1 to DemandCount do
+    if (fDemand[i].Loc_House = aHouse) and (fDemand[i].Resource = aResource) then
+      if not fDemand[i].BeingPerformed then
+      begin
+        CloseDemand(i); //Clear up demand
+        inc(Result);
+        if Result = aCount then exit; //We have removed enough demands
+      end;
 end;
 
 

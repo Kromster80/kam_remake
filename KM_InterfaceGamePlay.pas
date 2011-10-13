@@ -2319,7 +2319,7 @@ begin
 
   for i:=0 to STORE_RES_COUNT-1 do
   begin
-    Tmp := M.CheckResIn(TResourceType(Button_Market[i].Tag));
+    Tmp := M.GetResTotal(TResourceType(Button_Market[i].Tag));
     Button_Market[i].Caption := IfThen(Tmp=0, '-', IntToStr(Tmp));
   end;
 
@@ -2330,7 +2330,7 @@ begin
     Shape_Market_From.Top := 12 + ((Byte(M.ResFrom)-1) div 6) * 34;
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[M.RatioFrom]) + ':';
     Button_Market_In.TexID := fResource.Resources[M.ResFrom].GUIIcon;
-    Button_Market_In.Caption := IntToStr(M.CheckResIn(M.ResFrom));
+    Button_Market_In.Caption := IntToStr(M.GetResTotal(M.ResFrom));
   end else begin
     Label_Market_In.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_FROM],[0]) + ':';
     Button_Market_In.TexID := fResource.Resources[rt_None].GUIIcon;
@@ -2343,7 +2343,7 @@ begin
     Shape_Market_To.Left := 8 + ((Byte(M.ResTo)-1) mod 6) * 30;
     Shape_Market_To.Top := 12 + ((Byte(M.ResTo)-1) div 6) * 34;
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[M.RatioTo]) + ':';
-    Button_Market_Out.Caption := IntToStr(M.CheckResOut(M.ResTo));
+    Button_Market_Out.Caption := IntToStr(M.GetResTotal(M.ResTo));
     Button_Market_Out.TexID := fResource.Resources[M.ResTo].GUIIcon;
   end else begin
     Label_Market_Out.Caption := Format(fTextLibrary[TX_HOUSES_MARKET_TO],[0]) + ':';

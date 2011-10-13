@@ -172,7 +172,8 @@ type
   TKMHouseMarket = class(TKMHouse)
   protected
     fResFrom, fResTo: TResourceType;
-    fResources:array[WARE_MIN..WARE_MAX] of Word;
+    fMarketResIn, fMarketResOut, fMarketDeliveryCount:array[WARE_MIN..WARE_MAX] of Word;
+    fTradeAmount:word;
     procedure AttemptExchange;
     procedure SetResFrom(Value: TResourceType);
     procedure SetResTo(Value: TResourceType);
@@ -185,6 +186,7 @@ type
     function RatioFrom: Byte;
     function RatioTo: Byte;
 
+    function GetResTotal(aResource:TResourceType):word;
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
     procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
@@ -1274,10 +1276,22 @@ begin
 end;
 
 
+function TKMHouseMarket.GetResTotal(aResource:TResourceType):word;
+begin
+  if aResource in [WARE_MIN..WARE_MAX] then
+    Result := fMarketResIn[aResource] + fMarketResOut[aResource]
+  else
+  begin
+    Result := 0;
+    Assert(False);
+  end;
+end;
+
+
 function TKMHouseMarket.CheckResIn(aResource:TResourceType):word;
 begin
   if aResource in [WARE_MIN..WARE_MAX] then
-    Result := fResources[aResource]
+    Result := fMarketResIn[aResource]
   else
   begin
     Result := 0;
@@ -1288,7 +1302,7 @@ end;
 
 function TKMHouseMarket.CheckResOrder(aID: byte): word;
 begin
-  Result := fResourceOrder[1];
+  Result := fTradeAmount;
 end;
 
 
@@ -1321,16 +1335,29 @@ end;
 
 
 procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1);
+var ResRequired:integer;
 begin
-  inc(fResources[aResource], aCount);
-
   //If user cancelled the exchange (or began new one with different resources already)
   //then incoming resourced should be added to Offer list immediately
   //We don't want Marketplace to act like a Store
-  if (aResource = fResFrom) and (fResourceOrder[1] > 0) then
-    AttemptExchange
+  dec(fMarketDeliveryCount[aResource], aCount); //We must keep track of the number ordered, which is less now because this has arrived
+  if (aResource = fResFrom) and (fTradeAmount > 0) then
+  begin
+    inc(fMarketResIn[aResource], aCount); //Place the new resource in the IN list
+    //As we only order 10 resources at one time, we might need to order another now to fill the gap made by the one delivered
+    ResRequired := fTradeAmount*RatioFrom - (fMarketResIn[aResource]+fMarketDeliveryCount[aResource]);
+    if ResRequired > 0 then
+    begin
+      inc(fMarketDeliveryCount[aResource], Min(aCount, ResRequired));
+      fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Min(aCount, ResRequired), dt_Once, di_Norm);
+    end;
+    AttemptExchange;
+  end
   else
+  begin
+    inc(fMarketResOut[aResource], aCount); //Place the new resource in the OUT list
     fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, aResource, aCount);
+  end;
 end;
 
 
@@ -1339,14 +1366,14 @@ var TradeCount: Word;
 begin
   Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo));
 
-  if (fResourceOrder[1] > 0) and (fResources[fResFrom] >= RatioFrom) then
+  if (fTradeAmount > 0) and (fMarketResIn[fResFrom] >= RatioFrom) then
   begin
     //How much can we trade
-    TradeCount := Min((fResources[fResFrom] div RatioFrom), fResourceOrder[1]);
+    TradeCount := Min((fMarketResIn[fResFrom] div RatioFrom), fTradeAmount);
 
-    dec(fResources[fResFrom], TradeCount * RatioFrom);
-    dec(fResourceOrder[1], TradeCount);
-    inc(fResources[fResTo], TradeCount * RatioTo);
+    dec(fMarketResIn[fResFrom], TradeCount * RatioFrom);
+    dec(fTradeAmount, TradeCount);
+    inc(fMarketResOut[fResTo], TradeCount * RatioTo);
     fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, TradeCount * RatioTo);
   end;
 end;
@@ -1354,15 +1381,15 @@ end;
 
 procedure TKMHouseMarket.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
 begin
-  Assert(aCount <= fResources[aResource]);
+  Assert(aCount <= fMarketResOut[aResource]);
 
-  dec(fResources[aResource], aCount);
+  dec(fMarketResOut[aResource], aCount);
 end;
 
 
 procedure TKMHouseMarket.SetResFrom(Value: TResourceType);
 begin
-  if fResourceOrder[1] > 0 then Exit;
+  if fTradeAmount > 0 then Exit;
   fResFrom := Value;
   if fResTo = fResFrom then
     fResTo := rt_None;
@@ -1371,7 +1398,7 @@ end;
 
 procedure TKMHouseMarket.SetResTo(Value: TResourceType);
 begin
-  if fResourceOrder[1] > 0 then Exit;
+  if fTradeAmount > 0 then Exit;
   fResTo := Value;
   if fResFrom = fResTo then
     fResFrom := rt_None;
@@ -1380,55 +1407,70 @@ end;
 
 //Player has changed the amount of order
 procedure TKMHouseMarket.ResEditOrder(aID:byte; aAmount:integer);
-var Count: integer;
+var ResRequired, OrdersAllowed, OrdersRemoved:integer;
+const MAX_RES_ORDERED = 10; //Maximum number of Demands we can place at once (stops the delivery queue from becoming clogged with 1500 items)
 begin
   if (fResFrom = rt_None) or (fResTo = rt_None) or (fResFrom = fResTo) then Exit;
 
-  fResourceOrder[1] := EnsureRange(fResourceOrder[1] + aAmount, 0, MAX_ORDER);
+  fTradeAmount := EnsureRange(fTradeAmount + aAmount, 0, MAX_ORDER);
 
   //Try to make an exchange from existing resources
   AttemptExchange;
 
   //If player cancelled exchange then move all remainders of From resource to Offers list
-  if fResourceOrder[1] = 0 then
-    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResFrom, fResources[fResFrom]);
+  if (fTradeAmount = 0) and (fMarketResIn[fResFrom] > 0) then
+  begin
+    inc(fMarketResOut[fResFrom], fMarketResIn[fResFrom]);
+    fMarketResIn[fResFrom] := 0;
+    fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResFrom, fMarketResIn[fResFrom]);
+  end;
 
   //@Lewin: If player has cancelled the exchange and then started it again resources will not be
   //removed from offers list and perhaps serf will carry them off the marketplace
 
-  //How much do we need to ask to add to delivery system
-  Count := (fResourceOrder[1] * RatioFrom - fResourceDeliveryCount[1]);
+  //How much do we need to ask to add to delivery system = Needed - (Ordered + Arrived)
+  ResRequired := (fTradeAmount * RatioFrom - (fMarketDeliveryCount[fResFrom]+fMarketResIn[fResFrom]));
+  OrdersAllowed := MAX_RES_ORDERED - fMarketDeliveryCount[fResFrom];
 
-  if Count > 0 then
-    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Count, dt_Once, di_Norm)
-  else begin
-    fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
-    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, fResourceOrder[1] * RatioFrom, dt_Once, di_Norm)
-  end;
+  Assert(OrdersAllowed >= 0); //We must never have ordered more than we are allowed
 
-  //@Lewin: There's a flaw, if we order to exchange From=1500 resources they all will be
-  //immediately added to delivery list. Maybe we should add 5-10 and add new demands to list upon
-  //recieving resources instead? Or we let than be handled by delivery list which will be smart
-  //enough to handicap such massive deliveries (to allow other deliveries run as well)
-  fResourceDeliveryCount[1] := fResourceOrder[1] * RatioFrom;
+  //Order as many as we can within our limit
+  if (ResRequired > 0) and (OrdersAllowed > 0) then
+  begin
+    inc(fMarketDeliveryCount[fResFrom], Min(ResRequired,OrdersAllowed));
+    fPlayers.Player[fOwner].DeliverList.AddNewDemand(Self, nil, fResFrom, Min(ResRequired,OrdersAllowed), dt_Once, di_Norm)
+  end
+  else
+    //There are too many resources ordered, so remove as many as we can from the delivery list (some will be being performed)
+    if (ResRequired < 0) then
+    begin
+      OrdersRemoved := fPlayers.Player[fOwner].DeliverList.TryRemoveDemand(Self, fResFrom, -ResRequired);
+      dec(fMarketDeliveryCount[fResFrom], OrdersRemoved);
+    end;
 end;
 
 
 constructor TKMHouseMarket.Load(LoadStream: TKMemoryStream);
 begin
   inherited;
+  LoadStream.Read(fTradeAmount);
   LoadStream.Read(fResFrom, SizeOf(fResFrom));
   LoadStream.Read(fResTo, SizeOf(fResTo));
-  LoadStream.Read(fResources, SizeOf(fResources));
+  LoadStream.Read(fMarketResIn, SizeOf(fMarketResIn));
+  LoadStream.Read(fMarketResOut, SizeOf(fMarketResOut));
+  LoadStream.Read(fMarketDeliveryCount, SizeOf(fMarketDeliveryCount));
 end;
 
 
 procedure TKMHouseMarket.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
+  SaveStream.Write(fTradeAmount);
   SaveStream.Write(fResFrom, SizeOf(fResFrom));
   SaveStream.Write(fResTo, SizeOf(fResTo));
-  SaveStream.Write(fResources, SizeOf(fResources));
+  SaveStream.Write(fMarketResIn, SizeOf(fMarketResIn));
+  SaveStream.Write(fMarketResOut, SizeOf(fMarketResOut));
+  SaveStream.Write(fMarketDeliveryCount, SizeOf(fMarketDeliveryCount));
 end;
 
 
