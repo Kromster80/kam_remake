@@ -20,6 +20,18 @@ swe.OpenAL=Vill du även installera OpenAL? (Rekommenderas starkt) Det krävs för 
 swe.ViewReadme=Visa Readme-filen
 
 ;German
+ger.CreateStartShortcut=Verknüpfung im Startmenü erstellen
+ger.NoKaM=Setup hat ermittelt, dass Knights and Merchants: The Peasants Rebellion nicht installiert ist.
+ger.CantUpdate=Setup war nicht in der Lage eine installierte Version von KaM Remake zu aktualisieren. Bitte lade die Vollversion von KaM Remake herunter und führe das Setup erneut aus.
+ger.OpenAL=Soll Setup auch OpenAl installieren (empfohlen)? Es wird für die Soundwiedergabe von KaM Remake benötigt.
+ger.ViewReadme=Readme anzeigen
+
+;Polish
+pol.CreateStartShortcut=Stwórz skrót w Menu Start
+pol.NoKaM=Kreator instalacji wykry³ ¿e nie masz zainstalowanego Knights and Merchants: The Peasants Rebellion. Instalacja zostanie przerwana.
+pol.CantUpdate=Kreator instalacji nie by³ w stanie znaleŸæ istniej¹cej wersji KaM Remake do zaktualizowania. Proszê pobraæ i zainstalowaæ kompletny instalator. Instalacja zostanie przerwana.
+pol.OpenAL=Czy chcesz aby kreator instalacji zainstalowa³ OpenAL? (Zalecane) Jest on wymagany by dzia³a³y dŸwiêki w KaM Remake.
+pol.ViewReadme=Zobacz plik Readme
 
 
 ;Russian

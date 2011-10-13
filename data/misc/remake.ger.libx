@@ -41,8 +41,8 @@ MaxID:140
 39:Spielstand wirklich löschen?
 40:Löschen
 41:Abbrechen
-139:
-140:
+139:Multiplayer Karten
+140:Singleplayer Karten
 
 43:Spiel gewonnen!
 44:Weiterspielen
@@ -76,10 +76,10 @@ MaxID:140
 70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
 
 71:Markthalle
-72:
-73:
-74:
-75:
+72:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll
+73:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll
+74:Von x%d
+75:Zu x%d
 
 76:Terrain bearbeiten
 77:Häuser bearbeiten

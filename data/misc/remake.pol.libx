@@ -41,8 +41,8 @@ MaxID:140
 39:Jesteœ pewny ¿e chcesz usun¹æ ten zapis?
 40:Usuñ
 41:Anuluj
-139:
-140:
+139:Mapy dla wielu graczy
+140:Mapy dla jednego gracza
 
 43:Wygra³eœ!
 44:Kontynuuj grê
@@ -76,10 +76,10 @@ MaxID:140
 70:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
 
 71:Rynek
-72:
-73:
-74:
-75:
+72:U¿yj lewego przycisku myszy, aby wybraæ towar do handlu
+73:U¿yj prawego przycisku myszy, aby wybraæ towar do handlu
+74:Z x%d
+75:Na x%d
 
 76:Edycja terenu
 77:Planowanie osady
