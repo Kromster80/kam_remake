@@ -41,8 +41,8 @@ MaxID:140
 39:Biztosan akarod törölni ezt a mentett állást?
 40:Törlés
 41:Mégse
-139:
-140:
+139:Többjátékos pályák
+140:Egyjátékos pályák
 
 43:Megnyerted a játékot!
 44:Játék folytatása
@@ -76,10 +76,10 @@ MaxID:140
 70:A halászod nem tud több halat fogni a közeli vízbõl.
 
 71:Piactér
-72:
-73:
-74:
-75:
+72:Eladni kívánt áru kiválasztása a bal egér gombal
+73:Eladni kívánt áru kiválasztása a jobb egér gombal
+74:Ból x%d
+75:Ig x%d
 
 76:Tereprendezés
 77:Település tervezés
