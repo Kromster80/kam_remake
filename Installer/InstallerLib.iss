@@ -16,7 +16,7 @@ AppPublisherURL={#Website}
 AppSupportURL={#Website}
 AppUpdatesURL={#Website}
 DefaultDirName={pf}\{#MyAppName}
-LicenseFile=License.en.txt
+LicenseFile=License.eng.txt
 DisableProgramGroupPage=yes
 OutputDir=Output
 OutputBaseFilename={#OutputEXE}_{#Revision}
@@ -29,15 +29,15 @@ Uninstallable=yes
 [Languages]  
 Name: "eng"; MessagesFile: "compiler:Default.isl";
 Name: "cze"; MessagesFile: "compiler:Languages\Czech.isl";
-Name: "dut"; MessagesFile: "compiler:Languages\Dutch.isl";
+Name: "dut"; MessagesFile: "compiler:Languages\Dutch.isl"; LicenseFile: "License.dut.txt"
 Name: "fre"; MessagesFile: "compiler:Languages\French.isl";
-Name: "ger"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "License.de.txt"
+Name: "ger"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "License.ger.txt"
 Name: "hun"; MessagesFile: "compiler:Languages\Hungarian.isl";
 Name: "pol"; MessagesFile: "compiler:Languages\Polish.isl";
 Name: "rus"; MessagesFile: "compiler:Languages\Russian.isl";
 Name: "svk"; MessagesFile: "compiler:Languages\Slovak.isl";
 Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl";
-Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl";
+Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl"; LicenseFile: "License.swe.txt"
 
 [CustomMessages]  
 #include "Translations.iss"

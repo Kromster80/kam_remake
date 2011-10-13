@@ -41,8 +41,8 @@ MaxID:140
 39:Är du säker på att du vill ta bort det här sparade spelet?
 40:Ta bort
 41:Avbryt
-139:
-140:
+139:Flerspelarkartor
+140:Enkelspelarkartor
 
 43:Du vann!
 44:Fortsätt spela
@@ -76,10 +76,10 @@ MaxID:140
 70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
 
 71:Marknad
-72:
-73:
-74:
-75:
+72:Använd vänster musknapp för att välja en vara att handla med
+73:Använd höger musknapp för att välja en vara att handla med
+74:Från x%d
+75:Till x%d
 
 76:Terrängeditering
 77:Byplanering

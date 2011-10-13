@@ -41,8 +41,8 @@ MaxID:140
 39:Weet je het zeker dat je dit deze save wilt verwijderen?
 40:Verwijder
 41:Annuleren
-139:
-140:
+139:Multiplayer maps
+140:Singleplayer maps
 
 43:Je hebt gewonnen!
 44:Doorspelen
@@ -76,10 +76,10 @@ MaxID:140
 70: De visser kan geen vis meer vangen rondom zijn vissershut
 
 71:Markt
-72:
-73:
-74:
-75:
+72:Gebruik de linkermuisknop om de goederen te selecteren
+73:Gebruik de rechtermuisknop om de goederen te selecteren
+74:Van x%d
+75:Naar x%d
 
 76:Terrein wijzigigen
 77:Stad planning
