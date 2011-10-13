@@ -186,7 +186,8 @@ type
     function RatioFrom: Byte;
     function RatioTo: Byte;
 
-    function GetResTotal(aResource:TResourceType):word;
+    function GetResTotal(aResource:TResourceType):word; overload;
+    function GetResTotal:word; overload;
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
     procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
@@ -194,6 +195,7 @@ type
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
 
     procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Paint; override;
   end;
 
 
@@ -1254,7 +1256,7 @@ begin
 
   for i:=low(Eater) to high(Eater) do
   if (Eater[i].UnitType<>ut_None) and (Eater[i].FoodKind<>0) then
-  begin 
+  begin
     AnimDir  := TKMDirection(Eater[i].FoodKind*2 - 1 + ((i-1) div 3));
     AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
 
@@ -1273,6 +1275,15 @@ begin
 
   fResFrom := rt_None;
   fResTo := rt_None;
+end;
+
+
+function TKMHouseMarket.GetResTotal:word;
+var i:TResourceType;
+begin
+  Result := 0;
+  for i:=WARE_MIN to WARE_MAX do
+    inc(Result, fMarketResIn[i] + fMarketResOut[i]);
 end;
 
 
@@ -1471,6 +1482,15 @@ begin
   SaveStream.Write(fMarketResIn, SizeOf(fMarketResIn));
   SaveStream.Write(fMarketResOut, SizeOf(fMarketResOut));
   SaveStream.Write(fMarketDeliveryCount, SizeOf(fMarketDeliveryCount));
+end;
+
+
+procedure TKMHouseMarket.Paint;
+begin
+  Inherited;
+  //Render special market wares display. Each 2 wares of any type shows up as 1 extra overlay sprite
+  if fBuildState = hbs_Done then
+    fRender.RenderHouseSupply(fHouseType,[min(GetResTotal div 2,5),0,0,0],[0,0,0,0],fPosition);
 end;
 
 

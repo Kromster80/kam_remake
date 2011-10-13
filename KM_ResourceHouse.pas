@@ -588,11 +588,6 @@ begin
   fItems[ht_Marketplace].fHouseDat.SupplyIn[1,3] := 156;
   fItems[ht_Marketplace].fHouseDat.SupplyIn[1,4] := 157;
   fItems[ht_Marketplace].fHouseDat.SupplyIn[1,5] := 158;
-  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,1] := 159;
-  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,2] := 160;
-  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,3] := 161;
-  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,4] := 162;
-  fItems[ht_Marketplace].fHouseDat.SupplyOut[1,5] := 163;
   fItems[ht_Marketplace].fHouseDat.WoodPicSteps := 23;
   fItems[ht_Marketplace].fHouseDat.StonePicSteps := 140;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 1;
