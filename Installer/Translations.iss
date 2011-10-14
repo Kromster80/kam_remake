@@ -33,5 +33,12 @@ pol.CantUpdate=Kreator instalacji nie by³ w stanie znaleŸæ istniej¹cej wersji Ka
 pol.OpenAL=Czy chcesz aby kreator instalacji zainstalowa³ OpenAL? (Zalecane) Jest on wymagany by dzia³a³y dŸwiêki w KaM Remake.
 pol.ViewReadme=Zobacz plik Readme
 
+;Hungarian
+hun.CreateStartShortcut=Start Menü ikon létrehozása
+hun.NoKaM=A telepítõ nem észlelte a Knights and Merchants: A Parasztfelkelést telepítve. A telepítés megszakításra kerül.
+hun.CantUpdate=A telepítõ nem talált KaM Remake verziót a számítógépen, hogy frissítse. Kérem töltse le és használja a teljes telepítõt. A telepítés megszakításra kerül.
+hun.OpenAL=Szeretnéd, hogy a telepítõ telepítse az OpenAL-t? (Erõsen ajánlott) A hangok mûködéséhez szükséges a KaM Remake-ben
+hun.ViewReadme=Olvass el fájl megtekintése
+
 
 ;Russian
