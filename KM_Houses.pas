@@ -1432,8 +1432,8 @@ begin
   if (fTradeAmount = 0) and (fMarketResIn[fResFrom] > 0) then
   begin
     inc(fMarketResOut[fResFrom], fMarketResIn[fResFrom]);
-    fMarketResIn[fResFrom] := 0;
     fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResFrom, fMarketResIn[fResFrom]);
+    fMarketResIn[fResFrom] := 0;
   end;
 
   //@Lewin: If player has cancelled the exchange and then started it again resources will not be
