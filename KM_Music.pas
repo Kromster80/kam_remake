@@ -62,6 +62,7 @@ destructor TMusicLib.Destroy;
 begin
   BASS_Stop(); //Stop all Bass output
   BASS_StreamFree(fBassStream); //Free the stream we may have used (will just return false if the stream is invalid)
+  BASS_Free(); //Frees this usage of BASS, allowing it to be recreated successfully
   Inherited;
 end;
 

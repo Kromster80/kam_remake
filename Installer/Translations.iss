@@ -47,5 +47,9 @@ fre.CantUpdate=L’assistant d’installation n’a pas pu trouver de version existant
 fre.OpenAL=Voulez-vous que l’assistant d’installation installe OpenAL ? (Fortement recommandée) Il est nécessaire pour le fonctionnement du son dans KaM Remake.
 fre.ViewReadme=Voir le Readme
 
-
 ;Russian
+rus.CreateStartShortcut=Create a Start Menu shortcut
+rus.NoKaM=The installation wizard detected that you do not have Knights and Merchants: The Peasants Rebellion installed. The installation will be aborted.
+rus.CantUpdate=The installation wizard was unable to find an existing version of the KaM Remake to be updated. Please download and install the complete installer instead. The installation will be aborted.
+rus.OpenAL=Do you want the installation wizard to install OpenAL? (Strongly recommended) It is required for sounds to work in the KaM Remake
+rus.ViewReadme=View the Readme
