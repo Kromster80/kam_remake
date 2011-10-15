@@ -40,5 +40,12 @@ hun.CantUpdate=A telepítõ nem talált KaM Remake verziót a számítógépen, hogy fri
 hun.OpenAL=Szeretnéd, hogy a telepítõ telepítse az OpenAL-t? (Erõsen ajánlott) A hangok mûködéséhez szükséges a KaM Remake-ben
 hun.ViewReadme=Olvass el fájl megtekintése
 
+;French
+fre.CreateStartShortcut=Créer un raccourci dans le Menu Démarrer
+fre.NoKaM=L’assistant d’installation à détecter que vous n’avez pas installé Knights and Merchants : The Peasants Rebellion. L’installation va être interrompue.
+fre.CantUpdate=L’assistant d’installation n’a pas pu trouver de version existante de KaM Remake afin de la mettre à jour. Veuillez télécharger et installer l’installateur complet. L’installation va être interrompue.
+fre.OpenAL=Voulez-vous que l’assistant d’installation installe OpenAL ? (Fortement recommandée) Il est nécessaire pour le fonctionnement du son dans KaM Remake.
+fre.ViewReadme=Voir le Readme
+
 
 ;Russian
