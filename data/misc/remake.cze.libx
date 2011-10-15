@@ -2,15 +2,15 @@
 MaxID:140
 
 1:Mise zrušena
-2:Stavební Tutoriál
-3:Bojovı Tutoriál
-4:Hra Jednoho Hráèe
-5:Editor Map
-6:Shlédnout poslední záznam
-7:Spustit Misi
+2:Vıuka stavby
+3:Vıuka boje
+4:Hra pro jednoho hráèe
+5:Editor mapy
+6:Zhlédnout poslední záznam
+7:Zaèít misi
 8:Název
 9:Velikost
-10:Typ Mise: %s
+10:Typ mise: %s
 11:Podmínky vítìzství: %s
 12:Podmínky poráky: %s
 13:Spojenci: 
@@ -18,54 +18,54 @@ MaxID:140
 16:Velikost nové mapy
 17:Šíøka
 18:Vıška
-19:Vytvoøit Novou Mapu
+19:Vytvoøit novou mapu
 20:Dostupné mapy
 21:Naèíst existující mapu
 22:Ovládání:
 23:Hra:
 24:Zvuk:
-25:
+25:Zakázat hudbu
 26:Grafika:
 27:Jas
 28:Celá obrazovka
 29:Pouít
 30:Jazyk:
 31:Nahrávám... Prosím èekejte
-32:Došlo k Chybì!
-33:Nahrávám novou lokalizaci
-34:
-35:
-36:
-37:
-38:
-39:
-40:
-41:
-139:
-140:
+32:Došlo k chybì!
+33:Nahrávám novou lokaci
+34:Seznam uloenıch her
+35:Jméno souboru
+36:Popis
+37:Naèíst
+38:Odstranit
+39:Opravdu chcete odstranit tuto uloenou hru?
+40:Odstranit
+41:Storno
+139:Multiplayerové mapy
+140:Singelplayerové mapy
 
 43:Zvítìzil jste!
 44:Pokraèovat ve høe
 45:Vítìzství!
 46:Prohrál jste!
-47:Dále sledovat
-48:Prohra
+47:Pokraèovat 
+48:Konec
 49:Pøehrávání skonèilo
-50:Dále sledovat
-51:Ukonèit
+50:Pokraèovat 
+51:Zpìt do menu
 52:Nedostupné
-53:Stisknìte %s pro pokraèování hry
+53:Stisknìte %s pro pokraèování ve høe
 54:Tımu
 55:Informace o hráèích
-56:
-57:
-58:
-59:
-60:
+56:Chat
+57:Uloená hra ji existuje
+58:Pøepsat
+59:Uloit
+60:Naèíst
 
 61:Bìhem hry došlo k chybì.
-62:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nPOZOR: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
-63:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickıma chybama\nProsím aktualizujte svoje ovladaèe pro dosaení lepších vısledkù.
+62:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nVAROVÁNÍ: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
+63:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickımi chybami\nProsím aktualizujte svoje ovladaèe pro dosaení lepšího vıkonu.
 64:Síová chyba:
 65:Chyba: Musíte zadat svoje jméno
 66:Spojení se nezdaøilo: %s
@@ -75,74 +75,74 @@ MaxID:140
 69:Váš rybáø je pøíliš daleko od vody.
 70:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
 
-71:
-72:
-73:
-74:
-75:
+71:Trištì
+72:Pouijte levé tlaèítko myši pro vıbìr zboí
+73:Pouijte pravé tlaèítko myši k vıbìru zboí
+74:Dám x%d
+75:Chci x%d
 
 76:Editace terénu
 77:Plánování vesnice
-78:Visualní skripty
-79:Globalní skriptování
-80:
+78:Vizualní skripty
+79:Všeobecné skriptování
+80:Menu
 
 82:Jméno hráèe
-81:
-83:
-84:
-85:
-86:
-87:
-88:
-89:
-90:
-91:
-92:
-93:
-94:
-95:
-96:
-97:
+81:Status:
+83:VYTVOØIT SERVER
+84:Jméno
+85:Port
+86:Vytvoøit lokální server
+87:Vytvoøit internetovı server
+88:Jméno serveru
+89:Stav
+90:Hráèi
+91:Ping
+92:Obnovit seznam serverù
+93:DETAILY SERVERU
+94:Seznam hráèù:
+95:IP Adresa
+96:Port
+97:Místo:
 98:Pøipojit
 99:Pøipojuji se, prosím èekejte...
-100:
-101:
+100:Naèítám...
+101:Obnovuji...
 
 102:Seznam hráèù
-103:Starovací pozice
+103:Pozice
 104:Tım
 105:Barva
-106:Hotov
-107:
-108:
-109:Volno
+106:Pøipraven
+107:Ping
+108:Pryè
+109:Otevøeno
 110:Poèítaè
 111:Vybrat...
-112:Náhodnì
-113:ádnı
-114:
+112:Náhodné
+113:Prázdné
+114:Prázdné
 115:Tım %d
-116:Chat:
+116:Seznam chatu::
 117:Odeslat zprávu:
 118:Vıbìr mapy:
-119:Nová Hra
-120:Uloená Hra
+119:Samostatná mapa
+120:Uloená hra
 121:Vyberte mapu...
-122:Vıbìr uloené hry...
-123:Informace o mapì:
+122:Vıberte uloenou hru...
+123:Info o mapì:
 124:Hráèi: %d
 125:Mód:
 126:Podmínky vítìzství:
-127:
-128:Opustit lobby
+127:Velikost:
+128:Opustit nabídku
 129:Pøipraven
-130:
+130:Zaèít!
 
 131:Èekám na ostatní hráèe:
 
-132:
-133:
+132:Seznam autorù Kam Remake
+133:Seznam autorù Knights and Merchants
 134:PROGRAMOVÁNÍ:
 135:DALŠÍ PROGRAMOVÁNÍ:
 136:DALŠÍ GRAFIKA:

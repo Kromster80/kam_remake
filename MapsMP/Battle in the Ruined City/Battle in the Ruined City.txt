@@ -1,8 +1,0 @@
-Title
-Battle in the Ruined City
-
-SmallDesc
-A multiplayer battle mission by War_Its_Life
-
-BigDesc
-A multiplayer battle mission by War_Its_Life. Suggested teams: 1+3 vs 2+4
