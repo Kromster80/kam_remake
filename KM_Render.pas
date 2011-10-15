@@ -594,8 +594,9 @@ procedure TRender.AddHouseTablet(Index:THouseType; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   ID := fResource.HouseDat[Index].TabletIcon;
-  ShiftX := Loc.X + fResource.HouseDat[Index].EntranceOffsetX + RXData[4].Pivot[ID].x/CELL_SIZE_PX + 0.5;
-  ShiftY := Loc.Y + (RXData[4].Pivot[ID].y + RXData[4].Size[ID].Y)/CELL_SIZE_PX + 0.5 - fTerrain.Land[Loc.Y+1, Loc.X].Height/CELL_HEIGHT_DIV;
+  ShiftX := Loc.X +  RXData[4].Pivot[ID].x/CELL_SIZE_PX + 0.6;
+  ShiftY := Loc.Y + (RXData[4].Pivot[ID].y + RXData[4].Size[ID].Y)/CELL_SIZE_PX + 0.5 -
+                    ((fTerrain.Land[Loc.Y+1, Loc.X].Height+fTerrain.Land[Loc.Y+1, Loc.X+1].Height) div 2)/CELL_HEIGHT_DIV;
   fRenderList.AddSprite(4,ID,ShiftX,ShiftY,Loc.X,Loc.Y,true);
 end;
 

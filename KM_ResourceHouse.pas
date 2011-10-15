@@ -592,7 +592,7 @@ begin
   fItems[ht_Marketplace].fHouseDat.StonePicSteps := 140;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetX := 1;
   fItems[ht_Marketplace].fHouseDat.EntranceOffsetXpx := 4; //Enterance is slightly to the left
-  fItems[ht_Marketplace].fHouseDat.EntranceOffsetYpx := 10;
+  fItems[ht_Marketplace].fHouseDat.EntranceOffsetYpx := 15; //todo: When we've fixed the render order bugs, move the enterance up to "10". It's temporarily moved down now so serfs don't go under the market sprite while walking inside.
   fItems[ht_Marketplace].fHouseDat.WoodCost := 5;
   fItems[ht_Marketplace].fHouseDat.StoneCost := 6;
   for i:=1 to 6 do begin
@@ -601,7 +601,11 @@ begin
     fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveX := 28 + BuildSupplyOffsets[2,i].MoveX;
     fItems[ht_Marketplace].fHouseDat.BuildSupply[2,i].MoveY := 20 + BuildSupplyOffsets[2,i].MoveY;
   end;
-  fItems[ht_Marketplace].fHouseDat.Sight := 9;
+  fItems[ht_Marketplace].fHouseDat.Sight := 10;
+  fItems[ht_Marketplace].fHouseDat.SizeArea := 11;
+  fItems[ht_Marketplace].fHouseDat.SizeX := 4;
+  fItems[ht_Marketplace].fHouseDat.SizeY := 3;
+  fItems[ht_Marketplace].fHouseDat.MaxHealth := 550;
   AddAnimation(ht_Marketplace, ha_Flag1, -80, -33, [1165,1166,1167,1163,1164]);
   AddAnimation(ht_Marketplace, ha_Flag2, -73, -7, [1163,1164,1165,1166,1167]);
   AddAnimation(ht_Marketplace, ha_Flag3, 73, -80, [1161,1162,1158,1159,1160]);

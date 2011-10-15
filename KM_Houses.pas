@@ -1069,7 +1069,7 @@ end;
 procedure TKMHouse.Paint;
 begin
   case fBuildState of
-    hbs_Glyph: fRender.AddHouseTablet(fHouseType, fPosition);
+    hbs_Glyph: fRender.AddHouseTablet(fHouseType, GetEntrance);
     hbs_NoGlyph:; //Nothing
     hbs_Wood:
       begin
