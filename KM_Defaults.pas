@@ -27,8 +27,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2398';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r2400';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '1st Merchants Demo RC1 ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 
@@ -90,8 +90,8 @@ var
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :boolean=true; //Multiplayer cheats should be disabled for releases, but are useful for debug
-  DEBUG_CHEATS          :boolean=true; //Cheats for debugging (place scout and reveal map) which should be disabled for releases
+  MULTIPLAYER_CHEATS    :boolean=false; //Multiplayer cheats should be disabled for releases, but are useful for debug
+  DEBUG_CHEATS          :boolean=false; //Cheats for debugging (place scout and reveal map) which should be disabled for releases
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably

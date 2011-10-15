@@ -1,0 +1,8 @@
+Title
+The Crusade
+
+SmallDesc
+A mission by Skilldragon
+
+BigDesc
+A battle in the desert

@@ -1,0 +1,8 @@
+Title
+Revenge
+
+SmallDesc
+A mission by Ben
+
+BigDesc
+Seek Revenge upon your Father's death

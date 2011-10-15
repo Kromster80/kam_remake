@@ -40,9 +40,9 @@ MaxID:140
 38:Supprimer
 39:Etes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
 40:Supprimer
-41:Annulé
-139:
-140:
+41:Annulée
+139:Missions Multijoueur
+140:Missions Solo
 
 43:Vous avez Gagné !
 44:Continuer à Jouer
@@ -72,14 +72,14 @@ MaxID:140
 67:Vous vous êtes déconnecté
 68:Mission %d
 
-69:La hutte de votre pêcheur est trop éloignée de l'eau.
-70:Votre pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa hutte.
+69:La Hutte de votre Pêcheur est trop éloignée de l'eau.
+70:Votre Pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa Hutte.
 
 71:Place du Marché
-72:
-73:
-74:
-75:
+72:Utilisez le bouton gauche de la sourie pour sélectionner une marchandise à échanger
+73:Utilisez le bouton droit de la sourie pour sélectionner une marchandise à échanger
+74:De x%d
+75:Pour x%d
 
 76:Edition du terrain
 77:Planification du village
@@ -88,9 +88,9 @@ MaxID:140
 80:Menu
 
 82:Nom du Joueur
-81:Status:
+81:Status :
 83:CREER UN SERVEUR
-84:Nom du Serveur
+84:Nom
 85:Port
 86:Créer un Serveur Local
 87:Créer un Serveur Internet
@@ -109,7 +109,7 @@ MaxID:140
 100:Chargement des annonces...
 101:Rafraichissement...
 
-102:Nom des Joueurs
+102:Liste des Joueurs
 103:Position
 104:Alliance
 105:Couleur

@@ -1,4 +1,45 @@
-Since r2087:
+Since r2400:
+<===================================================================================>
+	Woodcutters and others should plant/chop more evenly (not in waves like now)
+	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
+	Maybe archers attacked by archers should not try to walk towards enemies
+	Warriors going out from Barracks sometimes not join in groups (Lewin: reproduced, not sure why it happens yet)
+	AI does not feed warriors unless it is the commander that is hungry
+ 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
+ 	Multiplayer needs goals and victory/defeat overlays same as singleplayer
+	Ability to see the score screen for other players after a multiplayer game (maybe only after victory/defeat to prevent cheating)
+ ?	Warriors should resume interrupted orders after a fight
+
+	Dots and lines displaying on tile edges [Krom]
+	Colored rectangle below cursor	
+	Some texts don't fit in the left panel (e.g. "Preparing house area")
+	See-through hills (lighting flaw)
+	Many texts will not change if I change the language in options menu
+
+Features:
+	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
+	Edges of messages and other scrolls should be transparent so they look smooth
+	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+ 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
+	Multiplayer mode could show the player's name above each group (flag holder)
+	Mutltiplayer spectator mode
+	Make houses highlight red when about to erase them as trees/units do (in MapEd)
+	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
+	Scrolling around the map using middle mouse click, as in TPR
+	Dismiss button to make units walk into the school and disappear (gold is not refunded)
+	Improved delivery queue system (take closest jobs, take wares out after going in, etc.)
+	256x256 icons for EXE (for vista/7/8 users)
+	Shuffle option for music
+	Fade music during campaign story screens (and other places?)
+ 
+
+ -	The ingame briefing texture is too short, see attached picture
+ -	Serfs should take wares back or to suitable house if destination is destroyed
+ -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+ - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
+
+
+Fixed in r2400:
 <===================================================================================>
 Bugs:
  +	Mining stone from tiles close to map upper edge caused a crash
@@ -22,20 +63,6 @@ Bugs:
  +	Groups are not properly displayed on minimap in MapEd
  +	Projectiles near the top of the map cause issues as they can scatter to off map tiles or the arc places them off the map
 
-	Woodcutters and others should plant/chop more evenly (not in waves like now)
-	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
-	Maybe archers attacked by archers should not try to walk towards enemies
-	Warriors going out from Barracks sometimes not join in groups (Lewin: reproduced, not sure why it happens yet)
- 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
- 	Multiplayer needs goals and victory/defeat overlays same as singleplayer
-	Ability to see the score screen for other players after a multiplayer game (maybe only after victory/defeat to prevent cheating)
- ?	Warriors should resume interrupted orders after a fight
-
-	Dots and lines displaying on tile edges [Krom]
-	Colored rectangle below cursor	
-	Some texts don't fit in the left panel (e.g. "Preparing house area")
-	See-through hills (lighting flaw)
-	Many texts will not change if I change the language in options menu
 
 Features:
  +	Underwater sand
@@ -45,26 +72,6 @@ Features:
  +	Warriors from The Peasents Rebelion are now supported
  +	Multiplayer has a master server to show all of the servers/games running around the world
  +	Kick button added to the multiplayer lobby
-	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
-	Edges of messages and other scrolls should be transparent so they look smooth
-	The story message on campaign map should fade between sides when you mouse over, rather than jumping
- 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
-	Multiplayer mode could show the player's name above each group (flag holder)
-	Mutltiplayer spectator mode
-	Make houses highlight red when about to erase them as trees/units do (in MapEd)
-	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
-	Scrolling around the map using middle mouse click, as in TPR
-	Dismiss button to make units walk into the school and disappear (gold is not refunded)
-	Improved delivery queue system (take closest jobs, take wares out after going in, etc.)
-	256x256 icons for EXE (for vista/7/8 users)
-	Shuffle option for music
-	Fade music during campaign story screens (and other places?)
- 
-
- -	The ingame briefing texture is too short, see attached picture
- -	Serfs should take wares back or to suitable house if destination is destroyed
- -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
- - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
 
 
 

@@ -1,0 +1,7 @@
+Title
+Island of Bandits
+
+SmallDesc
+A mission by Merchator
+
+BigDesc

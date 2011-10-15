@@ -1,0 +1,8 @@
+Title
+Intermediary
+
+SmallDesc
+A mission by The Dark Lord
+
+BigDesc
+Every place in Farler's kingdom is peaceful, except one region. The border between two provinces. Baron Grullheimer (brown) and Count Yata (green) have been in war for years. They dispose of each other. King Farler wants to put an end to this bloody war, and that's why he has sent you to the cold and icy border.

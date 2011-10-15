@@ -4,5 +4,5 @@ Tundra
 SmallDesc
 A multiplayer battle mission by Kirelareus
 
-SmallDesc
+BigDesc
 A multiplayer battle mission by Kirelareus. Suggested teams: 1+3 vs 2+4.
