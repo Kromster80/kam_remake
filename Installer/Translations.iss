@@ -1,6 +1,6 @@
 ;Defaults (English)
 CreateStartShortcut=Create a Start Menu shortcut
-NoKaM=The installation wizard detected that you do not have Knights and Merchants: The Peasants Rebellion installed. The installation will be aborted.
+NoKaM=The installation wizard detected that you do not have Knights and Merchants: The Peasants Rebellion installed. You must have the original game installed in order to play the KaM Remake. The installation will be aborted.
 CantUpdate=The installation wizard was unable to find an existing version of the KaM Remake to be updated. Please download and install the complete installer instead. The installation will be aborted.
 OpenAL=Do you want the installation wizard to install OpenAL? (Strongly recommended) It is required for sounds to work in the KaM Remake
 ViewReadme=View the Readme
@@ -55,8 +55,8 @@ cze.OpenAL=Pшejete si aby instalaиnн program nynн nainstaloval OpenAL? (Silnм do
 cze.ViewReadme=Prohlйdnout Readme
 
 ;Russian
-rus.CreateStartShortcut=Create a Start Menu shortcut
-rus.NoKaM=The installation wizard detected that you do not have Knights and Merchants: The Peasants Rebellion installed. The installation will be aborted.
-rus.CantUpdate=The installation wizard was unable to find an existing version of the KaM Remake to be updated. Please download and install the complete installer instead. The installation will be aborted.
-rus.OpenAL=Do you want the installation wizard to install OpenAL? (Strongly recommended) It is required for sounds to work in the KaM Remake
-rus.ViewReadme=View the Readme
+rus.CreateStartShortcut=Создать ярлык в меню Пуск
+rus.NoKaM=Мастер установки не обнаружил установленной игры Knights and Merchants: The Peasants Rebellion. Оригинальная игра необходима для установки КаМ Ремейк. Установка будет отменена.
+rus.CantUpdate=Мастер установки не смог обнаружить версию КаМ Ремейк для обновления. Пожалуйста скачайте и запустите полную версию установщика. Установка будет отменена.
+rus.OpenAL=Установить OpenAL? (рекоммендуется) Необходимо для работы звука в КаМ Ремейк
+rus.ViewReadme=Показать Readme
