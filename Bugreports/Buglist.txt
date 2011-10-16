@@ -1,4 +1,4 @@
-Since r2400:
+Since r2411:
 <===================================================================================>
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
@@ -45,7 +45,7 @@ Features:
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
 
 
-Fixed in r2400:
+Fixed in r2411:
 <===================================================================================>
 Bugs:
  +	Mining stone from tiles close to map upper edge caused a crash
