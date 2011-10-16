@@ -149,8 +149,7 @@ begin
     begin
       if fSocketServer.Socks[i].Connected then //Sometimes this occurs just before ClientDisconnect
       begin
-        fSocketServer.Socks[i].Disconnect(true);
-        fOnClientDisconnect(aHandle); //Client was disconnected
+        fSocketServer.Socks[i].Disconnect(true); //This will trigger fOnClientDisconnect so there's no need to do it manually
       end;
     end;
 end;

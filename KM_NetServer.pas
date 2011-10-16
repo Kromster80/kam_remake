@@ -135,6 +135,7 @@ end;
 { TKMClientsList }
 function TKMClientsList.GetItem(Index: integer): TKMServerClient;
 begin
+  Assert(InRange(Index,0,fCount-1),'Tried to access invalid client index');
   Result := fItems[Index];
 end;
 
@@ -369,9 +370,11 @@ end;
 
 //Someone has disconnected from us.
 procedure TKMNetServer.ClientDisconnect(aHandle:integer);
-var Room: integer;
+var Room: integer; Client:TKMServerClient;
 begin
-  Room := fClientList.GetByHandle(aHandle).Room;
+  Client := fClientList.GetByHandle(aHandle);
+  Assert(Client <> nil, 'Tried to disconnect nil client');
+  Room := Client.Room;
   if Room <> -1 then
     Status('Client '+inttostr(aHandle)+' has disconnected'); //Only log messages for clients who entered a room
   fClientList.RemPlayer(aHandle);
@@ -459,6 +462,13 @@ begin
   end;
   M.Free;
 
+  //Sometimes client disconnects then we recieve a late packet (e.g. mk_Pong), in which case ignore it
+  if fClientList.GetByHandle(aSenderHandle) = nil then
+  begin
+    Status('Warning: Received data from an unassigned client');
+    exit;
+  end;
+
   case Kind of
     mk_JoinRoom:  AddClientToRoom(aSenderHandle,Param);
     mk_RoomOpen:  fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Joinable := true;
@@ -486,8 +496,7 @@ begin
             end;
     mk_Pong:
             begin
-             //Sometimes client disconnects then we recieve a late mk_Pong, in which case ignore it
-             if (fClientList.GetByHandle(aSenderHandle) <> nil) and (fClientList.GetByHandle(aSenderHandle).fPingStarted <> 0) then
+             if (fClientList.GetByHandle(aSenderHandle).fPingStarted <> 0) then
              begin
                fClientList.GetByHandle(aSenderHandle).Ping := Math.Min({$IFDEF MSWindows}GetTickCount{$ENDIF}
                                                                        {$IFDEF Unix} FakeGetTickCount{$ENDIF}

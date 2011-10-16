@@ -35,6 +35,8 @@ Features:
 	Shuffle option for music
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
+	Server details should show the map name and the time they have been playing for, so you can estimate how much longer they will be etc.
+	Dynamic welcome message for the server, so it can be changed without restarting
  
 
  -	The ingame briefing texture is too short, see attached picture
