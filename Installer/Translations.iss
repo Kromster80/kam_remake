@@ -47,6 +47,13 @@ fre.CantUpdate=L’assistant d’installation n’a pas pu trouver de version existant
 fre.OpenAL=Voulez-vous que l’assistant d’installation installe OpenAL ? (Fortement recommandée) Il est nécessaire pour le fonctionnement du son dans KaM Remake.
 fre.ViewReadme=Voir le Readme
 
+;Czech
+cze.CreateStartShortcut=Vytvoøit zástupce v nabídce Start
+cze.NoKaM=Instalaèní program zjistil, že nemáte Knights and Mechants: The Pesants Rebelion nainstalováno. Instalace bude ukonèena.
+cze.CantUpdate=Instalaèní program nebyl schopen nalézt existující verzi KaM Remake pro aktualizaci. Prosím stáhnìte si kompletní instalaèní balík a ten nainstalujte. Tato instalace bude nyní ukonèena.
+cze.OpenAL=Pøejete si aby instalaèní program nyní nainstaloval OpenAL? (Silnì doporuèeno). Je vyžadováno pro korektní pøehrávání zvukù a hudby v KaM Remake.
+cze.ViewReadme=Prohlédnout Readme
+
 ;Russian
 rus.CreateStartShortcut=Create a Start Menu shortcut
 rus.NoKaM=The installation wizard detected that you do not have Knights and Merchants: The Peasants Rebellion installed. The installation will be aborted.

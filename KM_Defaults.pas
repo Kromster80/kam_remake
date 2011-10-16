@@ -976,20 +976,20 @@ const
   MP_COLOR_COUNT = 15;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
-  $FFE3BB5B, //Cyan
+  $FF0061FF, //Orange
   $FF07FFFF, //Yellow
-  $FFFF67FF, //Magenta
-  $FF008000, //Green
-  $FF808080, //Grey
-  $FF008080, //Olive
-  $FF800080, //Purple
-  $FF000080, //Maroon
   $FF00FF00, //Lime green
-  $FF808000, //Teal
+  $FF008000, //Dark green
+  $FFE3BB5B, //Cyan
   $FFFF0000, //Blue
-  $FF800000, //Navy
-  $FF000000, //Black
-  $FFFFFFFF  //White
+  $FF800080, //Purple
+  $FFFF67FF, //Pink
+  $FF000080, //Maroon
+  $FF004F7D, //Brown
+  $FF00B8A8, //Olive green
+  $FFFFFFFF, //White
+  $FF808080, //Grey
+  $FF000000  //Black
   );
 
   //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.

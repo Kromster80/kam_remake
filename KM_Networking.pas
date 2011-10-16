@@ -210,7 +210,7 @@ end;
 
 procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string; aRoom:integer);
 begin
-  Assert(not fNetClient.Connected, 'We were not properly disconnected');
+  Assert(not fNetClient.Connected, 'Cannot connect: We are already connected');
 
   fWelcomeMessage := '';
   fIgnorePings := 0; //Accept pings

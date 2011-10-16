@@ -60,7 +60,7 @@ type
     procedure MP_Init(Sender: TObject);
     procedure MP_BindEvents;
     procedure MP_Save_Settings;
-    procedure MP_Update(const aStatus:string; aColor:TColor4);
+    procedure MP_Update(const aStatus:string; aColor:TColor4; aBusy:boolean);
     procedure MP_RefreshClick(Sender: TObject);
     procedure MP_ListUpdated(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
@@ -985,7 +985,7 @@ begin
   if Sender=Button_MM_MultiPlayer then begin
     fGame.NetworkInit;
     MP_Init(Sender);
-    MP_Update(fTextLibrary[TX_LOBBY_READY],$FF00FF00);
+    MP_Update(fTextLibrary[TX_LOBBY_READY],$FF00FF00,false);
     Panel_MultiPlayer.Show;
   end;
 
@@ -1233,11 +1233,11 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_Update(const aStatus:string; aColor:TColor4);
+procedure TKMMainMenuInterface.MP_Update(const aStatus:string; aColor:TColor4; aBusy:boolean);
 begin
-  Button_MP_CreateLAN.Enable;
-  Button_MP_CreateWAN.Enable;
-  Button_MP_Join.Enable;
+  Button_MP_CreateLAN.Enabled := not aBusy;
+  Button_MP_CreateWAN.Enabled := not aBusy;
+  Button_MP_Join.Enabled := not aBusy;
   Label_MP_Status.Caption := aStatus;
   Label_MP_Status.FontColor := aColor;
 end;
@@ -1294,7 +1294,7 @@ begin
   MP_Save_Settings; //Save the player and IP name so it is not lost if something fails
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
-    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF);
+    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
     exit;
   end;
   SwitchMenuPage(Sender); //Open lobby page
@@ -1309,14 +1309,14 @@ begin
   MP_Save_Settings; //Save the player and IP name so it is not lost if the connection fails
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
-    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF);
+    MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
     exit;
   end;
   //Disable buttons to prevent multiple clicks while connection process is in progress
   Button_MP_CreateLAN.Disable;
   Button_MP_CreateWAN.Disable;
   Button_MP_Join.Disable;
-  MP_Update(fTextLibrary[TX_MP_MENU_CONNECTING],$FF00FF00);
+  MP_Update(fTextLibrary[TX_MP_MENU_CONNECTING],$FF00FF00,true);
 
   //Send request to join
   fGame.Networking.OnJoinSucc := MP_JoinSuccess;
@@ -1341,7 +1341,7 @@ end;
 procedure TKMMainMenuInterface.MP_JoinFail(const aData:string);
 begin
   fGame.Networking.Disconnect;
-  MP_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),$FF007FFF);
+  MP_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),$FF007FFF,false);
 end;
 
 
@@ -1370,7 +1370,7 @@ procedure TKMMainMenuInterface.MP_HostFail(const aData:string);
 begin
   fGame.Networking.Disconnect;
   SwitchMenuPage(Button_LobbyBack);
-  MP_Update(aData,$FF007FFF);
+  MP_Update(aData,$FF007FFF,false);
 end;
 
 
@@ -1688,7 +1688,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
   fGame.Networking.Disconnect;
-  MP_Update(aData,$FF00FFFF);
+  MP_Update(aData,$FF00FFFF,false);
   if fGame.GameState = gsRunning then
     fGame.Stop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+' '+aData)
   else
@@ -1700,7 +1700,7 @@ procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
   fGame.Networking.LeaveLobby;
   fGame.Networking.Disconnect;
-  MP_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT],$FF00FFFF);
+  MP_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT],$FF00FFFF,false);
   SwitchMenuPage(Button_LobbyBack);
 end;
 

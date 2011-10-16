@@ -5,10 +5,13 @@ Since r2400:
 	Maybe archers attacked by archers should not try to walk towards enemies
 	Warriors going out from Barracks sometimes not join in groups (Lewin: reproduced, not sure why it happens yet)
 	AI does not feed warriors unless it is the commander that is hungry
+	The ready button should change to "not ready" when clicked, and changing your settings should be disabled while set to ready.
  	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
 	Ability to see the score screen for other players after a multiplayer game (maybe only after victory/defeat to prevent cheating)
  ?	Warriors should resume interrupted orders after a fight
+	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
+	Double clicking a server should join it
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
@@ -22,7 +25,7 @@ Features:
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Multiplayer mode could show the player's name above each group (flag holder)
-	Mutltiplayer spectator mode
+	Mutltiplayer spectator mode, and ability for the host to close slots
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
 	Scrolling around the map using middle mouse click, as in TPR

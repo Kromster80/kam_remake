@@ -28,7 +28,7 @@ Uninstallable=yes
   
 [Languages]  
 Name: "eng"; MessagesFile: "compiler:Default.isl";
-Name: "cze"; MessagesFile: "compiler:Languages\Czech.isl";
+Name: "cze"; MessagesFile: "compiler:Languages\Czech.isl"; LicenseFile: "License.cze.txt"
 Name: "dut"; MessagesFile: "compiler:Languages\Dutch.isl"; LicenseFile: "License.dut.txt"
 Name: "fre"; MessagesFile: "compiler:Languages\French.isl"; LicenseFile: "License.fre.txt"
 Name: "ger"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "License.ger.txt"
