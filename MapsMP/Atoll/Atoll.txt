@@ -1,0 +1,8 @@
+Title
+Atoll
+
+SmallDesc
+A multiplayer map by Kirill
+
+BigDesc
+A multiplayer map by Kirill. A 3 player fight around a hill on an island.

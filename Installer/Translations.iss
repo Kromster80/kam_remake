@@ -49,10 +49,10 @@ fre.ViewReadme=Voir le Readme
 
 ;Czech
 cze.CreateStartShortcut=Vytvoøit zástupce v nabídce Start
-cze.NoKaM=Instalaèní program zjistil, že nemáte Knights and Mechants: The Pesants Rebelion nainstalováno. Instalace bude ukonèena.
-cze.CantUpdate=Instalaèní program nebyl schopen nalézt existující verzi KaM Remake pro aktualizaci. Prosím stáhnìte si kompletní instalaèní balík a ten nainstalujte. Tato instalace bude nyní ukonèena.
-cze.OpenAL=Pøejete si aby instalaèní program nyní nainstaloval OpenAL? (Silnì doporuèeno). Je vyžadováno pro korektní pøehrávání zvukù a hudby v KaM Remake.
-cze.ViewReadme=Prohlédnout Readme
+cze.NoKaM=Instalátor zjistil, že hra Knights and Merchants: The Peasants Rebellion není nainstalována. Instalace bude nyní ukonèena.
+cze.CantUpdate=Instalátor nenalezl na vašem poèítaèi KaM Remake. Nejprve si stáhnìte kompletní KaM Remake, poté mùžete aktualizovat. Instalace bude nyní ukonèena.
+cze.OpenAL=Chcete nainstalovat OpenAL? (Doporuèeno) OpenAL je vyžadováno pro správnou funkci zvuku v KaM Remake
+cze.ViewReadme=Otevøít Readme
 
 ;Russian
 rus.CreateStartShortcut=Ñîçäàòü ÿðëûê â ìåíþ Ïóñê
