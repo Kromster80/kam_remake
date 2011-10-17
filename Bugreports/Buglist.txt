@@ -22,6 +22,8 @@ Since r2411:
 
 Features:
 	Resizeable chat frame ingame
+	Remove "KaM Server" from default dedicated server name - it takes too much space when its obvious its KaM Server
+	Indicate that INI loaded in log of dedicated server
 	Shorted "teamname %s" in lobby for PL locale
   Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake)
   Adjoin map desciption and map selection in lobby - they are the same origin
