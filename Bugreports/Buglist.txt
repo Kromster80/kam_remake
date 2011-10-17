@@ -12,6 +12,7 @@ Since r2411:
  ?	Warriors should resume interrupted orders after a fight
 	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
 	Double clicking a server should join it
+	Replace the "Fast Scrolling" checkbox with a slider
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	

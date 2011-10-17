@@ -19,13 +19,6 @@ function plural($count, $singular, $plural = 's') {
     return ($count == 1 ? $singular : $plural);
 }
 
-function RussianPlural($count, $singular, $smallplural, $bigplural) {
-	$count = $count % 10;
-    if ($count == 1) return $singular;
-    if (($count >= 2) && ($count <= 4)) return $smallplural;
-    if (($count == 0) || ($count >= 5)) return $bigplural;
-}
-
 function GetStats($Format)
 {
 	global $DATA_FILE;
@@ -47,13 +40,7 @@ function GetStats($Format)
 	}
 	if($Format == "kamclub")
 	{
-		/*
-		return RussianPlural($ServerCount,"Запущен","Запущено","Запущено")." ".$ServerCount." ".
-		       RussianPlural($ServerCount,'сервер','сервера','серверов').", на ".
-		       RussianPlural($ServerCount,'нем','них','них')." играет ".$TotalPlayerCount." ".
-			   RussianPlural($TotalPlayerCount,'человек','человека','человек');
-		*/
-		return "Кол-во серверов: $ServerCount<BR>Кол-во игроков: $TotalPlayerCount";
+		return "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"></head><body><div style=\"font-size:11px; font-family:Arial,Tahoma\"><b>Кол-во серверов:</b> $ServerCount<BR><b>Кол-во игроков:</b> $TotalPlayerCount</font></div></body></html>";
 	}
 	else
 	{
