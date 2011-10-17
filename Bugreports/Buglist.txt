@@ -21,6 +21,10 @@ Since r2411:
 	Many texts will not change if I change the language in options menu
 
 Features:
+	Resizeable chat frame ingame
+	Shorted "teamname %s" in lobby for PL locale
+  Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake)
+  Adjoin map desciption and map selection in lobby - they are the same origin
 	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
