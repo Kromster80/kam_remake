@@ -39,6 +39,7 @@ Features:
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	Improved delivery queue system (take closest jobs, take wares out after going in, etc.)
 	256x256 icons for EXE (for vista/7/8 users)
+	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	Shuffle option for music
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
