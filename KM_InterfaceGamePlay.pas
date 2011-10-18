@@ -102,8 +102,9 @@ type
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
-    procedure Chat_Post(Sender:TObject; Key:word);
     procedure Chat_Close(Sender: TObject);
+    procedure Chat_Post(Sender:TObject; Key:word);
+    procedure Chat_Resize(Sender: TObject);
     procedure Allies_Close(Sender: TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
@@ -141,6 +142,7 @@ type
       Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
       Button_AlliesClose:TKMButton;
     Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
+      Dragger_Chat: TKMDragger;
       Memo_ChatText:TKMMemo;
       Edit_ChatMsg:TKMEdit;
       CheckBox_SendToAllies:TKMCheckBox;
@@ -929,12 +931,17 @@ end;
 {Chat page}
 procedure TKMGamePlayInterface.Create_Chat_Page;
 begin
-  Panel_Chat:=TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
+  Panel_Chat := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
   Panel_Chat.Anchors := [akLeft, akRight, akBottom];
   Panel_Chat.Hide;
 
     TKMImage.Create(Panel_Chat,0,0,800,17,552);
     TKMImage.Create(Panel_Chat,0,17,800,170,410);
+
+    //Allow to resize chat area height
+    Dragger_Chat := TKMDragger.Create(Panel_Chat, 350, 25, 100, 12);
+    Dragger_Chat.SetBounds(0, -100, 0, 0);
+    Dragger_Chat.OnMove := Chat_Resize;
 
     Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,800-85,101,fnt_Metal);
     Memo_ChatText.ScrollDown := True;
@@ -2239,6 +2246,14 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
+begin
+  Panel_Chat.Hide;
+  if MyControls.CtrlFocus = Edit_ChatMsg then
+    MyControls.CtrlFocus := nil; //Lose focus so you can't type messages with the panel hidden
+end;
+
+
 procedure TKMGamePlayInterface.Chat_Post(Sender:TObject; Key:word);
 begin
   if (Key = VK_RETURN) and (Trim(Edit_ChatMsg.Text) <> '') and (fGame.Networking <> nil) then
@@ -2249,11 +2264,9 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
+procedure TKMGamePlayInterface.Chat_Resize(Sender: TObject);
 begin
-  Panel_Chat.Hide;
-  if MyControls.CtrlFocus = Edit_ChatMsg then
-    MyControls.CtrlFocus := nil; //Lose focus so you can't type messages with the panel hidden
+  //todo: Panel_Chat.Top := Dragger_Chat.
 end;
 
 

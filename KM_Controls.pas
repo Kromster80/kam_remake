@@ -666,6 +666,29 @@ type
   end;
 
 
+  TDragAxis = (daHoriz, daVertic, daAll);
+
+  TKMDragger = class(TKMControl)
+  private
+    fAxis: TDragAxis;
+    fMinusX, fMinusY, fPlusX, fPlusY: Word;
+    fOriginX: Integer;
+    fOriginY: Integer;
+    fPrevX: Integer;
+    fPrevY: Integer;
+  public
+    OnMove: TNotifyEvent;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+
+    procedure SetBounds(aMinusX, aMinusY, aPlusX, aPlusY: Integer);
+
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
+    procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+
+    procedure Paint; override;
+  end;
+
   { Minimap as stand-alone control }
   TKMMinimap = class(TKMControl)
   private
@@ -2791,6 +2814,77 @@ begin
                       Top  + (Height-fMapSize.Y) div 2 + fViewArea.Top,
                       fViewArea.Right-fViewArea.Left,
                       fViewArea.Bottom-fViewArea.Top, 1, $FFFFFFFF);
+end;
+
+
+{ TKMDragger }
+constructor TKMDragger.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+
+  //Original position is used to resrict movement
+  fOriginX := aLeft;
+  fOriginY := aTop;
+end;
+
+
+procedure TKMDragger.SetBounds(aMinusX, aMinusY, aPlusX, aPlusY: Integer);
+begin
+  fMinusX := aMinusX;
+  fMinusY := aMinusY;
+  fPlusX  := aPlusX;
+  fPlusY  := aPlusY;
+end;
+
+
+procedure TKMDragger.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  fPrevX := X;
+  fPrevY := Y;
+
+  MouseMove(X,Y,Shift);
+end;
+
+
+procedure TKMDragger.MouseMove(X,Y:integer; Shift:TShiftState);
+begin
+  Inherited;
+
+  if csDown in State then
+  begin
+    //Bounds are signed numbers, set them properly
+    if fAxis in [daHoriz, daAll] then
+      fLeft := EnsureRange(fLeft + X - fPrevX, fOriginX + fMinusX, fOriginX + fPlusX);
+
+    if fAxis in [daVertic, daAll] then
+      fTop := EnsureRange(fTop + Y - fPrevY, fOriginY + fMinusY, fOriginY + fPlusY);
+
+    if Assigned(OnMove) then OnMove(Self);
+
+    fPrevX := X;
+    fPrevY := Y;
+  end;
+end;
+
+
+procedure TKMDragger.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  MouseMove(X,Y,Shift);
+end;
+
+
+procedure TKMDragger.Paint;
+var StateSet:T3DButtonStateSet;
+begin
+  Inherited;
+  StateSet:=[];
+  if (csOver in State) and fEnabled then StateSet:=StateSet+[bs_Highlight];
+  if (csDown in State) then StateSet:=StateSet+[bs_Down];
+  if not fEnabled then StateSet:=StateSet+[bs_Disabled];
+
+  fRenderUI.Write3DButton(Left,Top, Width, Height, 7, 28, StateSet, bsGame);
 end;
 
 
