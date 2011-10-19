@@ -365,19 +365,24 @@ end;
 {Stretched pic}
 procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false);
 begin
-  if ID<>0 then with GFXData[RXid,ID] do begin
-    glBindTexture(GL_TEXTURE_2D,TexID);
+  if ID <> 0 then
+  with GFXData[RXid,ID] do
+  begin
+    glBindTexture(GL_TEXTURE_2D, TexID);
     glPushMatrix;
-      glkMoveAALines(false);
-      glTranslatef(PosX,PosY,0);
+      glkMoveAALines(False);
+      glTranslatef(PosX, PosY, 0);
       if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
+
       glBegin(GL_QUADS);
         glTexCoord2f(u1,v1); glVertex2f(0       ,0      );
         glTexCoord2f(u2,v1); glVertex2f(0+SizeX ,0      );
         glTexCoord2f(u2,v2); glVertex2f(0+SizeX ,0+SizeY);
         glTexCoord2f(u1,v2); glVertex2f(0       ,0+SizeY);
       glEnd;
-      if Highlight then begin
+
+      if Highlight then
+      begin
         glBlendFunc(GL_DST_COLOR,GL_ONE);
         glColor4f(0.5, 0.5, 0.5, 0.5);
         glBegin(GL_QUADS);
@@ -390,7 +395,7 @@ begin
       end;
     glPopMatrix;
   end;
-  glBindTexture(GL_TEXTURE_2D,0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 

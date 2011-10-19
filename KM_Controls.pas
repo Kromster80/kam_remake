@@ -11,6 +11,7 @@ type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; WheelDelta:integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
+  TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
   TKMControlState = (csDown, csFocus, csOver);
   TKMControlStateSet = set of TKMControlState;
@@ -454,9 +455,9 @@ type
   { Scroll bar }
   TKMScrollBar = class(TKMControl)
   private
-    fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
-    fScrollAxis:TScrollAxis;
-    fOnChange:TNotifyEvent;
+    fBackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
+    fScrollAxis: TScrollAxis;
+    fOnChange: TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
     procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
@@ -464,21 +465,19 @@ type
     procedure DecPosition(Sender:TObject);
     procedure UpdateThumbSize;
   public
-    Position:byte;
-    MinValue:byte;
-    MaxValue:byte;
-    Thumb:word;
-    ScrollDec:TKMButton;
-    ScrollInc:TKMButton;
-    Style:TButtonStyle;
+    Position: Word; //Up to 32k positions
+    MinValue: Word;
+    MaxValue: Word;
+    Thumb: Word;
+    ScrollDec: TKMButton;
+    ScrollInc: TKMButton;
+    Style: TButtonStyle;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
-
-    property BackAlpha:single write fBackAlpha;
-
-    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    property BackAlpha: Single read fBackAlpha write fBackAlpha;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    property OnChange: TNotifyEvent write fOnChange;
+    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure Paint; override;
   end;
 
@@ -637,13 +636,14 @@ type
   TKMMemo = class(TKMControl)
   private
     fFont: TKMFont; //Can't be changed from inital value, it will mess up the word wrapping
-    fItemHeight:byte;
-    fItems:TStringList;
-    fTopIndex:smallint; //up to 32k
-    fScrollDown: boolean;
-    fScrollBar:TKMScrollBar;
-    fOnChange:TNotifyEvent;
+    fItemHeight: Byte;
+    fItems: TStringList;
+    fTopIndex: smallint; //up to 32k
+    fScrollDown: Boolean;
+    fScrollBar: TKMScrollBar;
+    fOnChange: TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
+    procedure SetWidth(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
     procedure SetTopIndex(aIndex:smallint);
     procedure SetEnabled(aValue:boolean); override;
@@ -670,14 +670,13 @@ type
 
   TKMDragger = class(TKMControl)
   private
-    fAxis: TDragAxis;
-    fMinusX, fMinusY, fPlusX, fPlusY: Word;
-    fOriginX: Integer;
-    fOriginY: Integer;
+    fMinusX, fMinusY, fPlusX, fPlusY: Integer; //Restrictions
+    fPositionX: Integer;
+    fPositionY: Integer;
     fPrevX: Integer;
     fPrevY: Integer;
   public
-    OnMove: TNotifyEvent;
+    OnMove: TNotifyEventXY;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 
     procedure SetBounds(aMinusX, aMinusY, aPlusX, aPlusY: Integer);
@@ -966,14 +965,16 @@ procedure TKMPanel.SetHeight(aValue:Integer);
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if (akTop in Childs[i].Anchors)and(akBottom in Childs[i].Anchors) then
-      Childs[i].Height := Childs[i].Height + (aValue-fHeight)
+    if (akTop in Childs[i].Anchors) and (akBottom in Childs[i].Anchors) then
+      Childs[i].Height := Childs[i].Height + (aValue - fHeight)
+    else
+    if akTop in Childs[i].Anchors then
+      //Do nothing
     else
     if akBottom in Childs[i].Anchors then
-      Childs[i].Top := Childs[i].Top + (aValue-fHeight)
+      Childs[i].fTop := Childs[i].fTop + (aValue - fHeight)
     else
-    if not (akTop in Childs[i].Anchors)and not(akBottom in Childs[i].Anchors) then
-      Childs[i].Top := Childs[i].Top + (aValue-fHeight) div 2;
+      Childs[i].fTop := Childs[i].fTop + (aValue - fHeight) div 2;
 
   Inherited;
 end;
@@ -982,14 +983,17 @@ procedure TKMPanel.SetWidth(aValue:Integer);
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if (akLeft in Childs[i].Anchors)and(akRight in Childs[i].Anchors) then
-      Childs[i].Width := Childs[i].Width + (aValue-fWidth)
+    if (akLeft in Childs[i].Anchors) and (akRight in Childs[i].Anchors) then
+      Childs[i].Width := Childs[i].Width + (aValue - fWidth)
+    else
+    if akLeft in Childs[i].Anchors then
+      //Do nothing
     else
     if akRight in Childs[i].Anchors then
-      Childs[i].Left := Childs[i].Left + (aValue-fWidth)
+      Childs[i].fLeft := Childs[i].fLeft + (aValue - fWidth)
     else
-    if not (akLeft in Childs[i].Anchors)and not(akRight in Childs[i].Anchors) then
-      Childs[i].Left := Childs[i].Left + (aValue-fWidth) div 2;
+      Childs[i].fLeft := Childs[i].fLeft + (aValue - fWidth) div 2;
+
   Inherited;
 end;
 
@@ -1182,37 +1186,40 @@ end;
 {If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint;
 var
-  OffsetX, OffsetY, DrawWidth, DrawHeight:smallint; //variable parameters
-  StretchDraw:boolean; //Check if the picture should be stretched
+  OffsetX, OffsetY, DrawWidth, DrawHeight: SmallInt; //variable parameters
+  StretchDraw: Boolean; //Check if the picture should be stretched
 begin
   Inherited;
-  if (TexID=0)or(RXid=0) then exit; //No picture to draw
+  if (TexID = 0) or (RXid = 0) then exit; //No picture to draw
 
-  StretchDraw := false; 
-  DrawWidth   := Width;
-  DrawHeight  := Height;
+  StretchDraw := False;
+  DrawWidth   := fWidth;
+  DrawHeight  := fHeight;
   OffsetX     := 0;
   OffsetY     := 0;
 
-  if akRight in ImageAnchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both ImageAnchors are set
-  if akLeft in ImageAnchors then OffsetX := 0;
-  if (akLeft in ImageAnchors) and (akRight in ImageAnchors) then //Both ImageAnchors means: stretch the image
-  begin
-    StretchDraw := true;
-    DrawWidth := Width;
-  end;
-  if not ((akLeft in ImageAnchors) or (akRight in ImageAnchors)) then //No ImageAnchors means: draw the image in center
-    OffsetX := (Width - GFXData[RXid, TexID].PxWidth) div 2;
+  //Both ImageAnchors means that we will need to stretch the image
+  if (akLeft in ImageAnchors) and (akRight in ImageAnchors) then
+    StretchDraw := True
+  else
+  if akLeft in ImageAnchors then
+    //Use defaults
+  else
+  if akRight in ImageAnchors then
+    OffsetX := fWidth - GFXData[RXid, TexID].PxWidth
+  else
+    //No ImageAnchors means: draw the image in center
+    OffsetX := (fWidth - GFXData[RXid, TexID].PxWidth) div 2;
 
-  if akBottom in ImageAnchors then OffsetY := Width - GFXData[RXid, TexID].PxHeight;
-  if akTop in ImageAnchors then OffsetY := 0;
   if (akTop in ImageAnchors) and (akBottom in ImageAnchors) then
-  begin
-    StretchDraw := true;
-    DrawHeight := Height;
-  end;
-  if not ((akTop in ImageAnchors) or (akBottom in ImageAnchors)) then
-    OffsetY := (Height - GFXData[RXid, TexID].PxHeight) div 2;
+    StretchDraw := True
+  else
+  if akTop in ImageAnchors then
+    //Use defaults
+  if akBottom in ImageAnchors then
+    OffsetY := fHeight - GFXData[RXid, TexID].PxHeight
+  else
+    OffsetY := (fHeight - GFXData[RXid, TexID].PxHeight) div 2;
 
   if StretchDraw then
     fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
@@ -2056,6 +2063,14 @@ begin
 end;
 
 
+procedure TKMMemo.SetWidth(aValue:Integer);
+begin
+  Inherited;
+  fScrollBar.Left := fLeft + fWidth - 20;
+  UpdateScrollBar; //Reposition the scroll bar
+end;
+
+
 //Copy property to scrollbar. Otherwise it won't be rendered
 procedure TKMMemo.SetVisible(aValue:boolean);
 begin
@@ -2089,6 +2104,7 @@ end;
 procedure TKMMemo.UpdateScrollBar;
 begin
   fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div fItemHeight), 0);
+  fTopIndex := EnsureRange(fTopIndex, 0, fScrollBar.MaxValue);
   fScrollBar.Position := fTopIndex;
   fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
 end;
@@ -2823,8 +2839,8 @@ begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   //Original position is used to resrict movement
-  fOriginX := aLeft;
-  fOriginY := aTop;
+  fPositionX := 0;
+  fPositionY := 0;
 end;
 
 
@@ -2854,13 +2870,10 @@ begin
   if csDown in State then
   begin
     //Bounds are signed numbers, set them properly
-    if fAxis in [daHoriz, daAll] then
-      fLeft := EnsureRange(fLeft + X - fPrevX, fOriginX + fMinusX, fOriginX + fPlusX);
+    fPositionX := EnsureRange(fPositionX + (X - fPrevX), fMinusX, fPlusX);
+    fPositionY := EnsureRange(fPositionY + (Y - fPrevY), fMinusY, fPlusY);
 
-    if fAxis in [daVertic, daAll] then
-      fTop := EnsureRange(fTop + Y - fPrevY, fOriginY + fMinusY, fOriginY + fPlusY);
-
-    if Assigned(OnMove) then OnMove(Self);
+    if Assigned(OnMove) then OnMove(Self, fPositionX, fPositionY);
 
     fPrevX := X;
     fPrevY := Y;

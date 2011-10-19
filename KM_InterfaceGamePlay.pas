@@ -104,7 +104,7 @@ type
     procedure Build_Fill(Sender:TObject);
     procedure Chat_Close(Sender: TObject);
     procedure Chat_Post(Sender:TObject; Key:word);
-    procedure Chat_Resize(Sender: TObject);
+    procedure Chat_Resize(Sender: TObject; X,Y: Integer);
     procedure Allies_Close(Sender: TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
@@ -141,12 +141,13 @@ type
       Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
       Button_AlliesClose:TKMButton;
-    Panel_Chat:TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
+    Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
-      Memo_ChatText:TKMMemo;
-      Edit_ChatMsg:TKMEdit;
-      CheckBox_SendToAllies:TKMCheckBox;
-      Button_ChatClose:TKMButton;
+      Image_ChatHead, Image_ChatBody: TKMImage;
+      Memo_ChatText: TKMMemo;
+      Edit_ChatMsg: TKMEdit;
+      CheckBox_SendToAllies: TKMCheckBox;
+      Button_ChatClose: TKMButton;
     Panel_Message:TKMPanel;
       Image_MessageBG:TKMImage;
       Image_MessageBGTop:TKMImage;
@@ -321,7 +322,8 @@ KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Gam
 KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit;
 
 const
-  MESSAGE_AREA_HEIGHT = 190;
+  MESSAGE_AREA_HEIGHT = 170+17; //Image_ChatHead + Image_ChatBody
+  MESSAGE_AREA_RESIZE_Y = 120; //How much can we resize it
 
   ResRatioCount = 4;
   ResRatioType:array[1..ResRatioCount] of TResourceType = (rt_Steel, rt_Coal, rt_Wood, rt_Corn);
@@ -905,9 +907,7 @@ begin
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
     Image_MessageBG:=TKMImage.Create(Panel_Message,0,20,600,170,409);
-    Image_MessageBG.ImageAnchors := Image_MessageBG.ImageAnchors{ + [akRight]}; //When stretched to 1920 screen it looks very bad
     Image_MessageBGTop:=TKMImage.Create(Panel_Message,0,0,600,20,551);
-    Image_MessageBGTop.ImageAnchors := Image_MessageBGTop.ImageAnchors{ + [akRight]};
 
     Label_MessageText:=TKMLabel.Create(Panel_Message,47,67,432,122,'',fnt_Antiqua,kaLeft);
     Label_MessageText.AutoWrap := true;
@@ -932,28 +932,37 @@ end;
 procedure TKMGamePlayInterface.Create_Chat_Page;
 begin
   Panel_Chat := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - MESSAGE_AREA_HEIGHT, Panel_Main.Width - TOOLBAR_WIDTH, MESSAGE_AREA_HEIGHT);
-  Panel_Chat.Anchors := [akLeft, akRight, akBottom];
+  Panel_Chat.Anchors := [akLeft, akBottom];
   Panel_Chat.Hide;
 
-    TKMImage.Create(Panel_Chat,0,0,800,17,552);
-    TKMImage.Create(Panel_Chat,0,17,800,170,410);
+    Image_ChatHead := TKMImage.Create(Panel_Chat,0,0,800,17,552);
+    Image_ChatHead.Anchors := [akLeft, akTop, akRight];
+    Image_ChatHead.ImageStretch;
+    Image_ChatBody := TKMImage.Create(Panel_Chat,0,17,800,170,410);
+    Image_ChatBody.Anchors := [akLeft, akTop, akRight, akBottom];
+    Image_ChatBody.ImageStretch;
 
     //Allow to resize chat area height
     Dragger_Chat := TKMDragger.Create(Panel_Chat, 350, 25, 100, 12);
-    Dragger_Chat.SetBounds(0, -100, 0, 0);
+    Dragger_Chat.Anchors := [akTop];
+    Dragger_Chat.SetBounds(0, -MESSAGE_AREA_RESIZE_Y, 0, 0);
     Dragger_Chat.OnMove := Chat_Resize;
 
     Memo_ChatText := TKMMemo.Create(Panel_Chat,45,50,800-85,101,fnt_Metal);
     Memo_ChatText.ScrollDown := True;
+    Memo_ChatText.Anchors := [akLeft, akTop, akRight, akBottom];
 
     Edit_ChatMsg := TKMEdit.Create(Panel_Chat, 45, 151, 680-85, 20, fnt_Metal);
     Edit_ChatMsg.OnKeyDown := Chat_Post;
     Edit_ChatMsg.Text := '';
+    Edit_ChatMsg.Anchors := [akLeft, akRight, akBottom];
 
     CheckBox_SendToAllies := TKMCheckBox.Create(Panel_Chat,645,154,155,20,fTextLibrary[TX_GAMEPLAY_CHAT_TOTEAM],fnt_Outline);
     CheckBox_SendToAllies.Checked := true;
+    CheckBox_SendToAllies.Anchors := [akRight, akBottom];
 
     Button_ChatClose:=TKMButton.Create(Panel_Chat,800-35,30,30,24,'[X]',fnt_Antiqua);
+    Button_ChatClose.Anchors := [akTop, akRight];
     Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
     Button_ChatClose.OnClick := Chat_Close;
     Button_ChatClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
@@ -2264,9 +2273,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Chat_Resize(Sender: TObject);
+procedure TKMGamePlayInterface.Chat_Resize(Sender: TObject; X,Y: Integer);
+var H: Integer;
 begin
-  //todo: Panel_Chat.Top := Dragger_Chat.
+  H := EnsureRange(-Y, 0, MESSAGE_AREA_RESIZE_Y);
+  Panel_Chat.Top := Panel_Main.Height - (MESSAGE_AREA_HEIGHT + H);
+  Panel_Chat.Height := MESSAGE_AREA_HEIGHT + H;
 end;
 
 
