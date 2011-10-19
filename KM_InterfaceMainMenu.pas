@@ -458,7 +458,7 @@ begin
 
     //Top area
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 45, 42, 620, 72);
-      TKMBevel.Create(Panel_MPPlayerName,   0,  0, 620, 72);
+      TKMBevel.Create(Panel_MPPlayerName, 0, 0, 620, 72);
       TKMLabel.Create(Panel_MPPlayerName, 8, 6, 136, 20, fTextLibrary[TX_MP_MENU_PLAYERNAME], fnt_Outline, kaLeft);
       Edit_MP_PlayerName := TKMEdit.Create(Panel_MPPlayerName, 8, 26, 120, 20, fnt_Grey);
       TKMLabel.Create(Panel_MPPlayerName, 150, 6, 460, 10, fTextLibrary[TX_MP_MENU_STATUS], fnt_Outline, kaLeft);
@@ -497,7 +497,7 @@ begin
 
     //Join server area
     Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
-      TKMBevel.Create(Panel_MPJoinServer,   0,  0, 300, 90);
+      TKMBevel.Create(Panel_MPJoinServer, 0, 0, 300, 90);
       TKMLabel.Create(Panel_MPJoinServer, 8, 8, 156, 20, fTextLibrary[TX_MP_MENU_JOIN_ADDRESS], fnt_Outline, kaLeft);
       Edit_MP_IP := TKMEdit.Create(Panel_MPJoinServer, 8, 24, 162, 20, fnt_Grey);
       TKMLabel.Create(Panel_MPJoinServer, 172, 8, 60, 20, fTextLibrary[TX_MP_MENU_JOIN_PORT], fnt_Outline, kaLeft);

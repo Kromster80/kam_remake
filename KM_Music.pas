@@ -144,10 +144,13 @@ end;
 
 procedure TMusicLib.PlayNextTrack;
 begin
-  if not IsMusicInitialized then exit;
-  if not fGame.GlobalSettings.MusicOn then exit;
-  if MusicCount=0 then exit; //no music files found
-  MusicIndex := MusicIndex mod MusicCount + 1; //Set next index, looped
+  if not IsMusicInitialized
+  or not fGame.GlobalSettings.MusicOn
+  or (MusicCount = 0) then //no music files found
+    Exit;
+
+  //Set next index, looped or random
+  MusicIndex := MusicIndex mod MusicCount + 1;
   PlayMusicFile(MusicTracks[MusicIndex]);
 end;
 

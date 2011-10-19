@@ -6,13 +6,6 @@ uses
 
 
 type
-  //@Lewin: It is not very good idea to mix savegames into MapInfo class. There should be separate SaveInfo and SavesCollection classes. I can make it if you like. There's a lot of duplicate code across Saves functions
-  //@Krom: I agree 100%, it would be great if you could do it. It would be nice if SaveInfo and MapInfo inherit from a parent class with
-  //       all the common values, (e.g. both a map and a save have a MapSize, PlayerCount, CRC, etc.) so fNetworking can have
-  //       a TSaveOrMapInfo (need a better name) property that is created as either a TSaveInfo or a TMapInfo when the player selects one,
-  //       but we don't end up with "if IsSave then Text := fSave.GetMapSize else Text := fMap.GetMapSize" at every case we want to extract a value,
-  //       we can simply use "Text := fMapOrSave.GetMapSize" and it will load either. (similar to how the GIC works) We can discuss it if you like.
-
   TKMapInfo = class
   private
     fInfo: TKMGameInfo;
