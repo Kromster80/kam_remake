@@ -157,7 +157,7 @@ type
         Radio_LobbyMapType:TKMRadioGroup;
         List_Lobby:TKMDropBox;
         Label_LobbyMapName:TKMLabel;
-        Label_LobbyMapDesc:TKMLabel;
+        Memo_LobbyMapDesc: TKMMemo;
         Label_LobbyMapCount:TKMLabel;
         Label_LobbyMapMode:TKMLabel;
         Label_LobbyMapCond:TKMLabel;
@@ -561,34 +561,34 @@ begin
       end;
 
     //Chat
-                          TKMLabel.Create  (Panel_Lobby, 20, 350, 725, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, kaLeft);
+    TKMLabel.Create(Panel_Lobby, 20, 350, 725, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, kaLeft);
     Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 370, 725, 200, fnt_Metal);
     Memo_LobbyPosts.ScrollDown := True;
-                          TKMLabel.Create  (Panel_Lobby, 20, 580, 725, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, kaLeft);
-    Edit_LobbyPost :=     TKMEdit.Create   (Panel_Lobby, 20, 600, 725, 20, fnt_Metal);
+    TKMLabel.Create(Panel_Lobby, 20, 580, 725, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, kaLeft);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 600, 725, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
-
 
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,760,100,240,400);
-      TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 300);
-      TKMBevel.Create(Panel_LobbySetup,  0,  320, 240, 200);
+      TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 400);
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 220, 20, fTextLibrary[TX_LOBBY_MAP_CHOOSE], fnt_Outline, kaLeft);
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 220, 30, fnt_Metal);
-      Radio_LobbyMapType.ItemIndex := 0;
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SINGLE]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
+      Radio_LobbyMapType.ItemIndex := 0;
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
       List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
       Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 80, 220, 20, '', fnt_Metal, kaLeft);
-      TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, kaLeft);
-      Label_LobbyMapDesc := TKMLabel.Create(Panel_LobbySetup, 10, 110, 220, 180, '', fnt_Game, kaLeft);
-      Label_LobbyMapDesc.AutoWrap := true;
-      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 400, 220, 20, '', fnt_Metal, kaLeft);
-      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 420, 220, 20, '', fnt_Metal, kaLeft);
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 440, 220, 20, '', fnt_Metal, kaLeft);
-      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 460, 220, 20, '', fnt_Metal, kaLeft);
+
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 110, 220, 180, fnt_Game);
+      Memo_LobbyMapDesc.AutoWrap := True;
+
+      //TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, kaLeft);
+      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 300, 220, 20, '', fnt_Metal, kaLeft);
+      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 320, 220, 20, '', fnt_Metal, kaLeft);
+      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, '', fnt_Metal, kaLeft);
+      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 360, 220, 20, '', fnt_Metal, kaLeft);
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 20, 650, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
@@ -1399,7 +1399,7 @@ begin
   Edit_LobbyPost.Text := '';
 
   Label_LobbyMapName.Caption := '';
-  Label_LobbyMapDesc.Caption := '';
+  Memo_LobbyMapDesc.Clear;
   Label_LobbyMapCount.Caption := fTextLibrary[TX_LOBBY_MAP_PLAYERS];
   Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
   Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
@@ -1605,12 +1605,12 @@ begin
     if fGame.Networking.SelectGameKind = ngk_Save then
     begin
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.GetTitleWithTime;
-      Label_LobbyMapDesc.Caption := '';
+      Memo_LobbyMapDesc.Clear;
     end
     else
     begin
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
-      Label_LobbyMapDesc.Caption := fGame.Networking.MapInfo.BigDesc;
+      Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
     end;
 
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);
@@ -1633,7 +1633,7 @@ begin
   else
   begin
     Label_LobbyMapName.Caption := aData; //aData is some error message
-    Label_LobbyMapDesc.Caption := '';
+    Memo_LobbyMapDesc.Clear;
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[0]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
     //Label_LobbyMapCond.Caption :=

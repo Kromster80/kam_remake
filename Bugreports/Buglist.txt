@@ -22,11 +22,10 @@ Since r2411:
 
 Features:
  +	Resizeable chat frame ingame
-	Remove "KaM Server" from default dedicated server name - it takes too much space when its obvious its KaM Server
+ +	Adjoin map desciption and map selection in lobby - they server the same purpose
 	Indicate that INI loaded in log of dedicated server
 	Shorted "teamname %s" in lobby for PL locale
   Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake)
-  Adjoin map desciption and map selection in lobby - they are the same origin
 	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping

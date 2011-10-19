@@ -455,25 +455,31 @@ type
   { Scroll bar }
   TKMScrollBar = class(TKMControl)
   private
+    fMinValue: Integer;
+    fMaxValue: Integer;
+    fPosition: Integer;
     fBackAlpha: Single; //Alpha of background (usually 0.5, dropbox 1)
     fScrollAxis: TScrollAxis;
     fOnChange: TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
     procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
+    procedure SetMinValue(Value: Integer);
+    procedure SetMaxValue(Value: Integer);
+    procedure SetPosition(Value: Integer);
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
     procedure UpdateThumbSize;
   public
-    Position: Word; //Up to 32k positions
-    MinValue: Word;
-    MaxValue: Word;
     Thumb: Word;
     ScrollDec: TKMButton;
     ScrollInc: TKMButton;
     Style: TButtonStyle;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
     property BackAlpha: Single read fBackAlpha write fBackAlpha;
+    property MinValue: Integer read fPosition write SetMinValue;
+    property MaxValue: Integer read fPosition write SetMaxValue;
+    property Position: Integer read fPosition write SetPosition;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
@@ -490,17 +496,16 @@ type
     fItemHeight:byte;
     fItemIndex:smallint;
     fItems:TStringList;
-    fTopIndex:smallint; //up to 32k files
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
-    procedure SetTopIndex(aIndex:smallint);
+    function GetTopIndex: Integer;
+    procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue:single);
     procedure SetItemHeight(const Value: byte);
     procedure SetEnabled(aValue:boolean); override;
     procedure SetAutoHideScrollBar(Value: boolean);
-    procedure ChangeScrollPosition(Sender:TObject);
     procedure UpdateScrollBar;
     function GetItem(aIndex:integer):string;
   public
@@ -518,12 +523,12 @@ type
     property Item[aIndex:integer]:string read GetItem;
     property ItemHeight:byte read fItemHeight write SetItemHeight;
     property ItemIndex:smallint read fItemIndex write fItemIndex;
-    property TopIndex:smallint read fTopIndex write SetTopIndex;
+    property TopIndex: Integer read GetTopIndex write SetTopIndex;
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
-    property OnChange: TNotifyEvent write fOnChange;
+    property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
   end;
@@ -543,15 +548,14 @@ type
     fItemOffsets:array of integer;
     fTags:array of integer;
     fTags2:array of integer;
-    fTopIndex:smallint; //up to 32k files
     fScrollBar:TKMScrollBar;
     fOnChange:TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
-    procedure SetTopIndex(aIndex:smallint);
+    function GetTopIndex: Integer;
+    procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue:single);
     procedure SetEnabled(aValue:boolean); override;
-    procedure ChangeScrollPosition (Sender:TObject);
     procedure UpdateScrollBar;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aHeaderFont:TKMFont; aColumns:array of string; aItemOffsets:array of integer);
@@ -566,12 +570,12 @@ type
     function Count:integer;
     property ItemHeight:byte read fItemHeight;
     property ItemIndex:smallint read fItemIndex write fItemIndex;
-    property TopIndex:smallint read fTopIndex write SetTopIndex;
+    property TopIndex: Integer read GetTopIndex write SetTopIndex;
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
-    property OnChange: TNotifyEvent write fOnChange;
+    property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
   end;
@@ -638,29 +642,37 @@ type
     fFont: TKMFont; //Can't be changed from inital value, it will mess up the word wrapping
     fItemHeight: Byte;
     fItems: TStringList;
-    fTopIndex: smallint; //up to 32k
+    fAutoWrap: Boolean;
+    fText: string;
     fScrollDown: Boolean;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
     procedure SetWidth(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
-    procedure SetTopIndex(aIndex:smallint);
     procedure SetEnabled(aValue:boolean); override;
-    procedure ChangeScrollPosition(Sender:TObject);
+
+    procedure SetAutoWrap(const Value: boolean);
+    function GetText: string;
+    procedure SetText(const aText: string);
+    function GetTopIndex: smallint;
+    procedure SetTopIndex(aIndex:smallint);
+    procedure ReformatText;
     procedure UpdateScrollBar;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     destructor Destroy; override;
 
-    procedure Add(aItem:string);
+    procedure Add(const aItem:string);
     procedure Clear;
+    property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
+    property Text: string read GetText write SetText;
     property ItemHeight:byte read fItemHeight write fItemHeight;
-    property TopIndex:smallint read fTopIndex write SetTopIndex;
+    property TopIndex:smallint read GetTopIndex write SetTopIndex;
     property ScrollDown:boolean read fScrollDown write fScrollDown;
 
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
-    property OnChange: TNotifyEvent write fOnChange;
+    property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
   end;
@@ -1117,7 +1129,7 @@ end;
 //Keep original intact incase we need to Reformat text once again
 procedure TKMLabel.ReformatText;
 begin
-  if AutoWrap then
+  if fAutoWrap then
     fText := fResource.ResourceFont.WordWrap(fCaption, Font, Width, true)
   else
     fText := fCaption;
@@ -1880,9 +1892,9 @@ begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fBackAlpha := 0.5;
   fScrollAxis := aScrollAxis;
-  Position := 0;
-  MinValue := 0;
-  MaxValue := 10;
+  fMinValue := 0;
+  fMaxValue := 10;
+  fPosition := 0;
   Thumb    := 10;
   Style    := aStyle;
 
@@ -1927,16 +1939,38 @@ begin
 end;
 
 
+procedure TKMScrollBar.SetMinValue(Value: Integer);
+begin
+  fMinValue := Max(0, Value);
+  SetEnabled(fMaxValue > fMinValue);
+  SetPosition(fPosition);
+end;
+
+
+procedure TKMScrollBar.SetMaxValue(Value: Integer);
+begin
+  fMaxValue := Max(0, Value);
+  SetEnabled(fMaxValue > fMinValue);
+  SetPosition(fPosition);
+end;
+
+
+procedure TKMScrollBar.SetPosition(Value: Integer);
+begin
+  fPosition := EnsureRange(Value, fMinValue, fMaxValue);
+end;
+
+
 procedure TKMScrollBar.IncPosition(Sender:TObject);
 begin
-  Position := EnsureRange(Position+1, MinValue, MaxValue);
+  SetPosition(fPosition + 1);
   if Assigned(fOnChange) then fOnChange(Self);
 end;
 
 
 procedure TKMScrollBar.DecPosition(Sender:TObject);
 begin
-  Position := EnsureRange(Position-1, MinValue, MaxValue);
+  SetPosition(fPosition - 1);
   if Assigned(fOnChange) then fOnChange(Self);
 end;
 
@@ -1962,19 +1996,20 @@ var NewPos: integer;
 begin
   Inherited;
 
-  NewPos := Position;
-  if (ssLeft in Shift) then begin
+  NewPos := fPosition;
+  if (ssLeft in Shift) then
+  begin
 
     if fScrollAxis = sa_Vertical then
       if InRange(Y,Top+Width,Top+Height-Width) then
-        NewPos := round( MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue) );
+        NewPos := Round(fMinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb)) * (fMaxValue - fMinValue) );
 
     if fScrollAxis = sa_Horizontal then
       if InRange(X,Left+Height,Left+Width-Height) then
-        NewPos := round( MinValue+((X-Left-Height-Thumb/2)/(Width-Height*2-Thumb))*(MaxValue-MinValue) );
+        NewPos := Round(fMinValue+((X-Left-Height-Thumb/2)/(Width-Height*2-Thumb)) * (fMaxValue - fMinValue) );
 
-    if NewPos <> Position then begin
-      Position := EnsureRange(NewPos, MinValue, MaxValue);
+    if NewPos <> fPosition then begin
+      SetPosition(NewPos);
       if Assigned(fOnChange) then
         fOnChange(Self);
     end;
@@ -2002,22 +2037,18 @@ begin
     sa_Horizontal: fRenderUI.WriteBevel(Left+Height, Top, Width - Height*2, Height, false, fBackAlpha);
   end;
 
-  if MinValue = MaxValue then begin
+  if fMaxValue > fMinValue then begin
+    case fScrollAxis of
+      sa_Vertical:   ThumbPos := (fPosition-fMinValue)*(Height-Width*2-Thumb) div (fMaxValue-fMinValue);
+      sa_Horizontal: ThumbPos := (fPosition-fMinValue)*(Width-Height*2-Thumb) div (fMaxValue-fMinValue);
+    end;
+    State := [];
+  end else begin
     case fScrollAxis of
       sa_Vertical:   ThumbPos := Math.max((Height-Width*2-Thumb),0) div 2;
       sa_Horizontal: ThumbPos := Math.max((Width-Height*2-Thumb),0) div 2;
     end;
     State := [bs_Disabled];
-    ScrollDec.Disable;
-    ScrollInc.Disable;
-  end else begin
-    case fScrollAxis of
-      sa_Vertical:   ThumbPos := (Position-MinValue)*(Height-Width*2-Thumb) div (MaxValue-MinValue);
-      sa_Horizontal: ThumbPos := (Position-MinValue)*(Width-Height*2-Thumb) div (MaxValue-MinValue);
-    end;
-    State := [];
-    ScrollDec.Enable;
-    ScrollInc.Enable;
   end;
 
   case fScrollAxis of
@@ -2032,12 +2063,10 @@ constructor TKMMemo.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; 
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fItemHeight := 20;
-  fTopIndex := 0;
   fItems := TStringList.Create;
   fFont := aFont;
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
-  fScrollBar.fOnChange := ChangeScrollPosition;
   UpdateScrollBar; //Initialise the scrollbar
 end;
 
@@ -2046,12 +2075,6 @@ destructor TKMMemo.Destroy;
 begin
   fItems.Free;
   Inherited;
-end;
-
-
-procedure TKMMemo.ChangeScrollPosition(Sender:TObject);
-begin
-  fTopIndex := fScrollBar.Position;
 end;
 
 
@@ -2067,7 +2090,7 @@ procedure TKMMemo.SetWidth(aValue:Integer);
 begin
   Inherited;
   fScrollBar.Left := fLeft + fWidth - 20;
-  UpdateScrollBar; //Reposition the scroll bar
+  ReformatText; //Repositions the scroll bar as well
 end;
 
 
@@ -2079,10 +2102,15 @@ begin
 end;
 
 
-procedure TKMMemo.SetTopIndex(aIndex:smallint);
+function TKMMemo.GetTopIndex: smallint;
 begin
-  fTopIndex := EnsureRange(aIndex, 0, fScrollBar.MaxValue);
-  fScrollBar.Position := fTopIndex;
+  Result := fScrollBar.Position;
+end;
+
+
+procedure TKMMemo.SetTopIndex(aIndex: smallint);
+begin
+  fScrollBar.Position := aIndex;
 end;
 
 
@@ -2093,6 +2121,13 @@ begin
 end;
 
 
+procedure TKMMemo.SetAutoWrap(const Value: boolean);
+begin
+  fAutoWrap := Value;
+  ReformatText;
+end;
+
+
 procedure TKMListBox.SetItemHeight(const Value: byte);
 begin
   fItemHeight := Value;
@@ -2100,38 +2135,66 @@ begin
 end;
 
 
-//fItems.Count has changed
-procedure TKMMemo.UpdateScrollBar;
+function TKMMemo.GetText: string;
 begin
-  fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div fItemHeight), 0);
-  fTopIndex := EnsureRange(fTopIndex, 0, fScrollBar.MaxValue);
-  fScrollBar.Position := fTopIndex;
-  fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
+  Result := fText;
 end;
 
 
-procedure TKMMemo.Add(aItem:string);
-var i: integer; MyItems: TStringList;
+procedure TKMMemo.SetText(const aText: string);
 begin
-  MyItems := TStringList.Create;
-  ParseDelimited(MyItems, fResource.ResourceFont.WordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
-  for i:=0 to MyItems.Count-1 do
-    fItems.Add(MyItems.Strings[i]);
-  MyItems.Free;
+  fText := aText;
+  ReformatText;
+end;
 
-  //Scroll down with each item that is added.
-  UpdateScrollBar; //Must update it first so MaxValue is correct (used by SetTopIndex)
-  //This puts it at the bottom because of the EnsureRange in SetTopIndex
-  if fScrollDown then SetTopIndex(fItems.Count);
+
+procedure TKMMemo.ReformatText;
+begin
+  if fAutoWrap then
+    fItems.Text := fResource.ResourceFont.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True)
+  else
+    fItems.Text := fText;
 
   UpdateScrollBar;
 end;
 
 
+//fItems.Count or Height has changed
+procedure TKMMemo.UpdateScrollBar;
+begin
+  fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
+
+  if fScrollDown then
+    SetTopIndex(fItems.Count) //This puts it at the bottom because of the EnsureRange in SetTopIndex
+  else
+    SetTopIndex(0);
+end;
+
+
+procedure TKMMemo.Add(const aItem:string);
+var i: integer; MyItems: TStringList;
+begin
+  fText := fText + aItem; //Keep the original version just in case
+
+  if fAutoWrap then
+    SetText(fText)
+  else
+  begin
+    MyItems := TStringList.Create;
+    ParseDelimited(MyItems, fResource.ResourceFont.WordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
+    for i:=0 to MyItems.Count-1 do
+      fItems.Add(MyItems.Strings[i]);
+    MyItems.Free;
+
+    UpdateScrollBar; //Scroll down with each item that is added.
+  end;
+end;
+
+
 procedure TKMMemo.Clear;
 begin
+  fText := '';
   fItems.Clear;
-  fTopIndex := 0;
   UpdateScrollBar;
 end;
 
@@ -2140,7 +2203,6 @@ procedure TKMMemo.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
   SetTopIndex(TopIndex - sign(WheelDelta));
-  fScrollBar.Position := fTopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 
@@ -2166,14 +2228,12 @@ begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fBackAlpha := 0.5;
   fItemHeight := 20;
-  fTopIndex := 0;
   fItemIndex := -1;
   fItems := TStringList.Create;
   fFont := aFont;
   fAutoHideScrollBar := False; //Always show the scrollbar by default, then it can be turned off if required
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-20, aTop, 20, aHeight, sa_Vertical, bsGame);
-  fScrollBar.fOnChange := ChangeScrollPosition;
   UpdateScrollBar; //Initialise the scrollbar
 end;
 
@@ -2182,12 +2242,6 @@ destructor TKMListBox.Destroy;
 begin
   fItems.Free;
   Inherited;
-end;
-
-
-procedure TKMListBox.ChangeScrollPosition(Sender:TObject);
-begin
-  fTopIndex := fScrollBar.Position;
 end;
 
 
@@ -2207,10 +2261,15 @@ begin
 end;
 
 
-procedure TKMListBox.SetTopIndex(aIndex:smallint);
+function TKMListBox.GetTopIndex: Integer;
 begin
-  fTopIndex := EnsureRange(aIndex, 0, fScrollBar.MaxValue);
-  fScrollBar.Position := fTopIndex;
+  Result := fScrollBar.Position;
+end;
+
+
+procedure TKMListBox.SetTopIndex(aIndex: Integer);
+begin
+  fScrollBar.Position := aIndex;
 end;
 
 
@@ -2231,9 +2290,7 @@ end;
 //fItems.Count has changed
 procedure TKMListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := Math.max(fItems.Count - (fHeight div fItemHeight), 0);
-  fScrollBar.Position := fTopIndex;
-  fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
+  fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
   fScrollBar.Visible := fVisible and (not fAutoHideScrollBar or fScrollBar.Enabled);
 end;
 
@@ -2249,7 +2306,6 @@ procedure TKMListBox.Clear;
 begin
   fItems.Clear;
   fItemIndex := -1;
-  fTopIndex := 0;
   UpdateScrollBar;
 end;
 
@@ -2258,7 +2314,6 @@ procedure TKMListBox.SetItems(aText:string);
 begin
   fItems.Text := aText;
   fItemIndex := -1;
-  fTopIndex := 0;
   UpdateScrollBar;
 end;
 
@@ -2331,8 +2386,8 @@ begin
 
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
-  if (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, (fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
+  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, (fHeight div ItemHeight)-1) then
+    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
     fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, 0, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
@@ -2346,7 +2401,6 @@ begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fBackAlpha := 0.5;
   fItemHeight := 20;
-  fTopIndex := 0;
   fItemIndex := -1;
   fItemTop := 24; //Allow 20px for the header
   fColumns := TStringList.Create;
@@ -2366,7 +2420,6 @@ begin
   fHeaderFont := aHeaderFont;
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
-  fScrollBar.fOnChange := ChangeScrollPosition;
   UpdateScrollBar; //Initialise the scrollbar
 end;
 
@@ -2378,12 +2431,6 @@ begin
     fItems[i].Free;
   fColumns.Free;
   Inherited;
-end;
-
-
-procedure TKMColumnListBox.ChangeScrollPosition(Sender:TObject);
-begin
-  fTopIndex := fScrollBar.Position;
 end;
 
 
@@ -2403,10 +2450,15 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetTopIndex(aIndex:smallint);
+function TKMColumnListBox.GetTopIndex: Integer;
 begin
-  fTopIndex := EnsureRange(aIndex, 0, fScrollBar.MaxValue);
-  fScrollBar.Position := fTopIndex;
+  Result := fScrollBar.Position;
+end;
+
+
+procedure TKMColumnListBox.SetTopIndex(aIndex: Integer);
+begin
+  fScrollBar.Position := aIndex;
 end;
 
 
@@ -2424,12 +2476,10 @@ begin
 end;
 
 
-//fItems.Count has changed
+//fItems.Count or Height has changed
 procedure TKMColumnListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := Math.max(fItems[0].Count - ((fHeight-fItemTop) div fItemHeight), 0);
-  fScrollBar.Position := fTopIndex;
-  fScrollBar.Enabled := fScrollBar.MaxValue > fScrollBar.MinValue;
+  fScrollBar.MaxValue := fItems[0].Count - ((fHeight - fItemTop) div fItemHeight);
 end;
 
 
@@ -2459,7 +2509,6 @@ begin
   for i:=0 to Length(fItems)-1 do
     fItems[i].Clear;
   fItemIndex := -1;
-  fTopIndex := 0;
   UpdateScrollBar;
 end;
 
@@ -2536,8 +2585,8 @@ begin
 
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
-  if (fItemIndex <> -1) and InRange(ItemIndex-fTopIndex, 0, ((fHeight-fItemTop) div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemTop+fItemHeight*(fItemIndex-fTopIndex), PaintWidth, fItemHeight, $88888888);
+  if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, ((fHeight-fItemTop) div ItemHeight)-1) then
+    fRenderUI.WriteLayer(Left, Top+fItemTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Length(fItems)-1 do
     fRenderUI.WriteText(Left+4+fItemOffsets[i], 4+Top, 0, 0, fColumns[i] , fHeaderFont, kaLeft, $FFFFFFFF);
