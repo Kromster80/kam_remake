@@ -1,4 +1,4 @@
-<?
+<?php
 include("serverlib.php");
 global $GAME_VERSION;
 

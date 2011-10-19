@@ -1572,7 +1572,7 @@ begin
   begin
     case Key of
       Ord('C'):    Clipboard.AsText := fText;
-      Ord('X'):    begin Clipboard.AsText := fText; fText := ''; end;
+      Ord('X'):    begin Clipboard.AsText := fText; Text := ''; end;
       Ord('V'):    begin Insert(Clipboard.AsText, fText, CursorPos+1);
                          CursorPos := CursorPos + Length(Clipboard.AsText); end;
     end;

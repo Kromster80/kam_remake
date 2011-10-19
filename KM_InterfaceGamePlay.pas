@@ -1303,9 +1303,9 @@ begin
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
     Button_Army_Stop.Hint   := fTextLibrary.GetTextString(258);
     Button_Army_Attack.Hint := fTextLibrary.GetTextString(257);
-    //Button_Army_RotCW.Hint  := fTextLibrary.GetTextString; //KaM has no hint, I guess the icon is enough...
+    Button_Army_RotCW.Hint  := fTextLibrary.GetTextString(256);
     Button_Army_Storm.Hint  := fTextLibrary.GetTextString(263);
-    //Button_Army_RotCCW.Hint := fTextLibrary.GetTextString; //KaM has no hint, I guess the icon is enough...
+    Button_Army_RotCCW.Hint := fTextLibrary.GetTextString(255);
     Button_Army_ForDown.Hint:= fTextLibrary.GetTextString(264);
     Button_Army_ForUp.Hint  := fTextLibrary.GetTextString(265);
     Button_Army_Split.Hint  := fTextLibrary.GetTextString(261);

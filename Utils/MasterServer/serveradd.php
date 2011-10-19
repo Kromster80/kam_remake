@@ -1,4 +1,4 @@
-<?
+<?php
 include("serverlib.php");
 if(!CheckVersion($_REQUEST["rev"]))
 {

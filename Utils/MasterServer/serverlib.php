@@ -1,10 +1,13 @@
-﻿<?
+﻿<?php
 
-global $DATA_FILE, $DISALLOWED_CHARS, $GAME_VERSION, $MAX_TTL;
+global $DATA_FILE, $DISALLOWED_CHARS, $GAME_VERSION, $MAX_TTL, $DO_STATS;
+$DO_STATS = true;
 $GAME_VERSION = 'r2411';
 $MAX_TTL = 600; //10 minutes
 $DATA_FILE = "servers.txt";
 $DISALLOWED_CHARS  = array("|", ",","\n","\r");
+
+if ($DO_STATS) include("statistics.php");
 
 function CheckVersion($aRev)
 {
@@ -77,7 +80,7 @@ function GetServers()
 
 function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL)
 {
-	global $DATA_FILE, $DISALLOWED_CHARS, $MAX_TTL;
+	global $DATA_FILE, $DISALLOWED_CHARS, $MAX_TTL, $DO_STATS;
 	//Remove characters that are not allowed (used for internal formatting)
 	$aName = str_replace($DISALLOWED_CHARS,"",$aName);
 	$aIP = str_replace($DISALLOWED_CHARS,"",$aIP);
@@ -88,6 +91,9 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL)
 	$aTTL = min($aTTL,$MAX_TTL);
 	$Servers = "";
 	$Exists = false;
+	
+	if ($DO_STATS) StatsUpdate($aName,$aPlayerCount);
+	
 	if(file_exists($DATA_FILE))
 	{
 		$Lines = file($DATA_FILE);
