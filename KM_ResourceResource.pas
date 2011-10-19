@@ -146,8 +146,6 @@ end;
 
 function TKMResourceDat.IsValid: boolean;
 begin
-  //@Krom: Crash here when exporting the delivery queues
-  //@Lewin: Can't reproduce it. To be deleted..? 
   Result := fType in [WARE_MIN..WARE_MAX];
 end;
 

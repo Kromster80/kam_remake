@@ -563,7 +563,7 @@ begin
                               HouseKaMType[P[0]], P[1]+1, P[2]+1, false);
     ct_SetHouseDamage:  if fLastPlayer >=0 then //Skip false-positives for skipped players
                           if fLastHouse <> nil then
-                            fLastHouse.AddDamage(P[0], fParsingMode = mpm_Editor)
+                            fLastHouse.AddDamage(min(P[0],high(word)), fParsingMode = mpm_Editor)
                           else
                             AddScriptError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         if fLastPlayer >=0 then

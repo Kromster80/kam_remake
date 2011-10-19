@@ -22,6 +22,7 @@ function plural($count, $singular, $plural = 's') {
     return ($count == 1 ? $singular : $plural);
 }
 
+
 function GetStats($Format)
 {
 	global $DATA_FILE;
@@ -41,20 +42,31 @@ function GetStats($Format)
 			$TotalPlayerCount = $TotalPlayerCount + $PlayerCount;
 		}
 	}
-	if($Format == "kamclub")
+	switch ($Format)
 	{
-		return "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"></head><body><div style=\"font-size:11px; font-family:Arial,Tahoma\"><b>Кол-во серверов:</b> $ServerCount<BR><b>Кол-во игроков:</b> $TotalPlayerCount</font></div></body></html>";
-	}
-	else
-	{
-		if($Format == "csv")
-		{
-			return $ServerCount.",".$TotalPlayerCount;
-		}
-		else
-		{
+		case "kamclub":
+			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
+			break;
+		case "ajaxupdate":
+			return '<script type="text/javascript">
+//<![CDATA[
+var pct="'.$TotalPlayerCount.'";'."\n".'var sct="'.$ServerCount.'";
+//]]>
+</script>';
+			break;
+		case "csv":
+			return $ServerCount.','.$TotalPlayerCount;
+			break;
+		case "refresh":
+			$startscript = '<script type="text/javascript">
+//<![CDATA[
+			function updnr(){setTimeout(function(){jQuery.get("http://lewin.hodgman.id.au/kam_remake_master_server/serverstats.php?format=ajaxupdate",function(data){jQuery("#ajaxplayers").empty().append(data);jQuery("#scount").empty().append(sct);jQuery("#pcount").empty().append(pct);updnr();});},30000);}jQuery(document).ready(function(){updnr();});
+//]]>
+			</script>';
+			return $startscript.'There '.plural($ServerCount,'is','are',true).' <span id="scount">'.$ServerCount.'</span> '.plural($ServerCount,'server').' running and <span id="pcount">'.$TotalPlayerCount.'</span> '.plural($TotalPlayerCount,'player').' online<span id="ajaxplayers" />';
+			break;
+		default:
 			return "There ".plural($ServerCount,"is","are",true)." ".$ServerCount." ".plural($ServerCount,"server")." running and ".$TotalPlayerCount." ".plural($TotalPlayerCount,"player")." online";
-		}
 	}
 }
 
@@ -123,7 +135,7 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL)
 	$fh = fopen($DATA_FILE, 'w') or die("can't open file");
 	fwrite($fh, $Servers);
 	fclose($fh);
-	return "Success";
+	return 'Success';
 }
 
 function stripslashes_if_gpc_magic_quotes( $string ) {
