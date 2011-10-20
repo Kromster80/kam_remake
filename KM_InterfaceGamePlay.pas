@@ -2750,19 +2750,19 @@ begin
                   if (Key = ord('L')) and (Panel_Army.Visible) then Button_Army_Join.DoClick;
                   if (Key = ord('S')) and (Panel_Army.Visible) then Button_Army_Split.DoClick;
 
-                  {Thats my debug example}
-                  if Key=ord('5') then MessageIssue(msgText,'123',KMPoint(0,0));
-                  if Key=ord('6') then MessageIssue(msgHouse,'123',KMPointRound(fViewport.Position));
-                  if Key=ord('7') then MessageIssue(msgUnit,'123',KMPoint(0,0));
-                  if Key=ord('8') then MessageIssue(msgQuill,'123',KMPoint(0,0));
-
                   {Temporary cheat codes}
-                  if (Key=ord('W')) and DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
-                    fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
-                  if (Key=ord('V')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
-                  if (Key=ord('D')) and not fGame.MultiplayerMode then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
-                  if (Key=ord('Q')) and DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
-                    fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
+                  if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+                  begin
+                    if Key=ord('5') then MessageIssue(msgText, '123', KMPoint(0,0));
+                    if Key=ord('6') then MessageIssue(msgHouse,'123', KMPointRound(fViewport.Position));
+                    if Key=ord('7') then MessageIssue(msgUnit, '123', KMPoint(0,0));
+                    if Key=ord('8') then MessageIssue(msgQuill,'123', KMPoint(0,0));
+
+                    if Key=ord('W') then fGame.GameInputProcess.CmdTemp(gic_TempRevealMap);
+                    if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
+                    if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
+                    if Key=ord('Q') then fGame.GameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell); //Usefull when mouse has no middle-button
+                  end;
 
                 end;
     gsReplay:   begin

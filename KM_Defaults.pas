@@ -58,7 +58,6 @@ var
   //Not fully implemented yet
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
-  AGGRESSIVE_REPLAYS    :boolean=false; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
 
   //These are debug things, should be FALSE
   {User interface options}
@@ -66,9 +65,10 @@ var
   SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
   SHOW_TEXT_OUTLINES    :boolean=false; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
-   MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+  MODE_DESIGN_CONTORLS  :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   {Gameplay display}
+  AGGRESSIVE_REPLAYS    :boolean=false; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
@@ -90,8 +90,8 @@ var
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :boolean=false; //Multiplayer cheats should be disabled for releases, but are useful for debug
-  DEBUG_CHEATS          :boolean=false; //Cheats for debugging (place scout and reveal map) which should be disabled for releases
+  MULTIPLAYER_CHEATS    :boolean=false; //Allow cheats in Multiplayer, useful for debug
+  DEBUG_CHEATS          :boolean=false; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
