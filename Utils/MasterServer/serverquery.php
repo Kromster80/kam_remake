@@ -1,8 +1,16 @@
 <?php
 include("serverlib.php");
-if(!CheckVersion($_REQUEST["rev"]))
+if((!CheckVersion($_REQUEST["rev"])) && (!isset($_REQUEST["format"])))
 {
 	die("Please update");
 }
-echo GetServers();
+if(isset($_REQUEST["format"]))
+{
+	$Format = $_REQUEST["format"];
+}
+else
+{
+	$Format = "";
+}
+echo GetServers($Format);
 ?>

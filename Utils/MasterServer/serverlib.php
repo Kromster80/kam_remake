@@ -70,7 +70,7 @@ var pct="'.$TotalPlayerCount.'";'."\n".'var sct="'.$ServerCount.'";
 	}
 }
 
-function GetServers()
+function GetServers($aFormat)
 {
 	global $DATA_FILE;
 	$Result = "";
@@ -84,7 +84,14 @@ function GetServers()
 		list($Name,$IP,$Port,$PlayerCount,$Expiry) = explode("|",$Line);
 		if(time() < $Expiry)
 		{
-			$Result .= "$Name,$IP,$Port\n";
+			switch($aFormat)
+			{
+				case "table":
+					$Result .= "<TR><TD><IMG src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flag.php?ip=$IP\"> $Name</TD><TD>$IP: $Port</TD><TD>$PlayerCount</TD></TR>\n";
+					break;
+				default:
+					$Result .= "$Name,$IP,$Port\n";
+			}
 		}
 	}
 	return $Result;
