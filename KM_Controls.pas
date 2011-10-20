@@ -1228,6 +1228,7 @@ begin
   else
   if akTop in ImageAnchors then
     //Use defaults
+  else
   if akBottom in ImageAnchors then
     OffsetY := fHeight - GFXData[RXid, TexID].PxHeight
   else

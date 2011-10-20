@@ -1330,23 +1330,23 @@ end;
 procedure TKMGamePlayInterface.Create_House_Page;
 var i:integer;
 begin
-  Panel_House:=TKMPanel.Create(Panel_Main,0,412,200,400);
+  Panel_House := TKMPanel.Create(Panel_Main,0,412,200,400);
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
-    Label_House:=TKMLabel.Create(Panel_House,100,14,184,30,'',fnt_Outline,kaCenter);
-    Button_House_Goods:=TKMButton.Create(Panel_House,8,42,30,30,37);
+    Label_House := TKMLabel.Create(Panel_House,100,14,184,20,'',fnt_Outline,kaCenter);
+    Button_House_Goods := TKMButton.Create(Panel_House,8,42,30,30,37);
     Button_House_Goods.OnClick := House_WareDeliveryToggle;
     Button_House_Goods.Hint := fTextLibrary.GetTextString(249);
-    Button_House_Repair:=TKMButton.Create(Panel_House,38,42,30,30,40);
+    Button_House_Repair := TKMButton.Create(Panel_House,38,42,30,30,40);
     Button_House_Repair.OnClick := House_RepairToggle;
     Button_House_Repair.Hint := fTextLibrary.GetTextString(250);
-    Image_House_Logo:=TKMImage.Create(Panel_House,68,41,32,32,338);
+    Image_House_Logo := TKMImage.Create(Panel_House,68,41,32,32,338);
     Image_House_Logo.ImageCenter;
-    Image_House_Worker:=TKMImage.Create(Panel_House,98,41,32,32,141);
+    Image_House_Worker := TKMImage.Create(Panel_House,98,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth:=TKMLabel.Create(Panel_House,156,45,55,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFE0E0E0);
-    HealthBar_House:=TKMPercentBar.Create(Panel_House,129,57,55,15,50);
-    Label_House_UnderConstruction:=TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);
+    Label_HouseHealth := TKMLabel.Create(Panel_House,156,45,55,15,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFE0E0E0);
+    HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15,50);
+    Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary.GetTextString(232),fnt_Grey,kaCenter);
     Button_House_DemolishYes := TKMButton.Create(Panel_House,8,185,180,30,fTextLibrary.GetTextString(231),fnt_Metal);
@@ -2639,7 +2639,7 @@ begin
   Memo_ChatText.Add(aData);
 
   if not Panel_Chat.Visible then
-    Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption,0) + 1); //New message
+    Label_MPChatUnread.Caption := IntToStr(StrToIntDef(Label_MPChatUnread.Caption, 0) + 1); //New message
 end;
 
 
@@ -3144,7 +3144,8 @@ begin
     Label_VictoryChance.Caption := S;
   end;
 
-  Label_MPChatUnread.Visible := fGame.MultiplayerMode and not (fGame.GlobalTickCount mod 10 < 5); //Flash unread message display
+  //Flash unread message display
+  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (fGame.GlobalTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
 end;
@@ -3154,9 +3155,6 @@ procedure TKMGamePlayInterface.Paint;
 begin
   MyControls.Paint;
 end;
-
-
-
 
 
 end.
