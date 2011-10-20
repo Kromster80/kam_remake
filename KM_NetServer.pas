@@ -485,7 +485,8 @@ begin
             end;
     mk_KickPlayer:
             begin
-              fServer.Kick(Param);
+              if fClientList.GetByHandle(Param) <> nil then
+                fServer.Kick(Param);
             end;
     mk_GetServerInfo:
             begin

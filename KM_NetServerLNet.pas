@@ -142,16 +142,20 @@ end;
 
 
 procedure TKMNetServerLNet.Kick(aHandle:integer);
-var i:integer;
+var i:integer; Found:boolean;
 begin
+  Found := false;
   for i:=0 to fSocketServer.Count-1 do
     if integer(fSocketServer.Socks[i].UserData) = aHandle then
     begin
       if fSocketServer.Socks[i].Connected then //Sometimes this occurs just before ClientDisconnect
       begin
+        Found := true;
         fSocketServer.Socks[i].Disconnect; //This will trigger fOnClientDisconnect so there's no need to do it manually
       end;
     end;
+  if not Found then
+    fOnClientDisconnect(aHandle); //Client has already disconnected somehow, so send the event to ensure they are removed
 end;
 
 
