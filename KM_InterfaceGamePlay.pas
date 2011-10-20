@@ -109,7 +109,8 @@ type
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
     procedure SetPause(aValue:boolean);
-    procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
+    procedure DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
+    procedure DirectionCursorHide;
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -2594,13 +2595,18 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
+procedure TKMGamePlayInterface.DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
 begin
-  Image_DirectionCursor.Visible := Show;
-  if not Show then exit;
-  Image_DirectionCursor.Left := aX+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].x;
-  Image_DirectionCursor.Top  := aY+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].y;
-  Image_DirectionCursor.TexID := TKMCursorDirections[Dir];
+  Image_DirectionCursor.Visible := True;
+  Image_DirectionCursor.Left    := X + RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].x;
+  Image_DirectionCursor.Top     := Y + RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].y;
+  Image_DirectionCursor.TexID   := TKMCursorDirections[Dir];
+end;
+
+
+procedure TKMGamePlayInterface.DirectionCursorHide;
+begin
+  Image_DirectionCursor.Visible := False;
 end;
 
 
@@ -2629,7 +2635,7 @@ begin
     Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false;
     Screen.Cursor := c_Default; //Reset direction selection cursor when mouse released
-    ShowDirectionCursor(false);
+    DirectionCursorHide;
   end;
 end;
 
@@ -2791,7 +2797,7 @@ begin
   begin
     Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false;
-    ShowDirectionCursor(false);
+    DirectionCursorHide;
   end;
 
   //See if we can show DirectionSelector
@@ -2820,7 +2826,7 @@ begin
       SelectingDirPosition.X := X;
       SelectingDirPosition.Y := Y;
       SelectedDirection := dir_NA;
-      ShowDirectionCursor(true,X,Y,SelectedDirection);
+      DirectionCursorShow(X, Y, SelectedDirection);
       Screen.Cursor := c_Invisible;
     end;
   end;
@@ -2855,7 +2861,7 @@ begin
     //Compare cursor position and decide which direction it is
     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
     //Update the cursor based on this direction and negate the offset
-    ShowDirectionCursor(true,X+DeltaX,Y+DeltaY,SelectedDirection);
+    DirectionCursorShow(X + DeltaX, Y + DeltaY, SelectedDirection);
     Screen.Cursor := c_Invisible; //Keep it invisible, just in case
     exit;
   end;
@@ -2866,8 +2872,9 @@ begin
 
   if fJoiningGroups and (fShownUnit is TKMUnitWarrior) then
   begin
-    U := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Scan only teammates
-    if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
+    U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+    if (U.GetOwner = MyPlayer.PlayerIndex) and
+       (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
        (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
        (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
       Screen.Cursor := c_JoinYes
