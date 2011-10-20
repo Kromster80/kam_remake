@@ -1,5 +1,5 @@
 <?php
-function iptocountry($ip) {   
+function IPToCountry($ip) {   
     $numbers = preg_split( "/\./", $ip);   
     include("ip_files/".$numbers[0].".php");
     $code=($numbers[0] * 16777216) + ($numbers[1] * 65536) + ($numbers[2] * 256) + ($numbers[3]);   
@@ -12,7 +12,15 @@ function iptocountry($ip) {
     return $country;
 }
 
-$Image = "http://lewin.hodgman.id.au/kam_remake_master_server/flags/".strtolower(iptocountry($_REQUEST["ip"]).".gif");
-header("Location: ".$Image);
+function GetCountryCode($ip)
+{
+	return strtolower(iptocountry($ip));
+}
+
+function GetCountryName($Country)
+{
+	include("ip_files/countries.php");
+	return $countries[$Country][1];
+}
 
 ?>

@@ -46,33 +46,24 @@ function GetStats($Format)
 	{
 		case "kamclub":
 			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
-			break;
 		case "ajaxupdate":
-			return '<script type="text/javascript">
-//<![CDATA[
-var pct="'.$TotalPlayerCount.'";'."\n".'var sct="'.$ServerCount.'";
-//]]>
-</script>';
-			break;
+			return '{'."\n".'"pct": "'.$TotalPlayerCount.'",'."\n".'"sct": "'.$ServerCount.'"'."\n".'}';
 		case "csv":
 			return $ServerCount.','.$TotalPlayerCount;
-			break;
 		case "refresh":
-			$startscript = '<script type="text/javascript">
-//<![CDATA[
-			function updnr(){setTimeout(function(){jQuery.get("http://lewin.hodgman.id.au/kam_remake_master_server/serverstats.php?format=ajaxupdate",function(data){jQuery("#ajaxplayers").empty().append(data);jQuery("#scount").empty().append(sct);jQuery("#pcount").empty().append(pct);updnr();});},30000);}jQuery(document).ready(function(){updnr();});
-//]]>
-			</script>';
-			return $startscript.'There '.plural($ServerCount,'is','are',true).' <span id="scount">'.$ServerCount.'</span> '.plural($ServerCount,'server').' running and <span id="pcount">'.$TotalPlayerCount.'</span> '.plural($TotalPlayerCount,'player').' online<span id="ajaxplayers" />';
-			break;
+			$startscript = '<script type="text/javascript">'."\n".
+			'function updnr(){setTimeout(function(){jQuery.getJSON("http://lewin.hodgman.id.au/kam_remake_master_server/serverstats.php?format=ajaxupdate",function(data){jQuery("#scount").empty().append(data.sct);jQuery("#pcount").empty().append(data.pct);updnr();});},30000);}'."\n".
+			'jQuery(document).ready(function($){updnr();});'."\n".'</script><span id="ajaxplayers"></span>';
+			return $startscript.'There '.plural($ServerCount,'is','are',true).' <span id="scount">'.$ServerCount.'</span> '.plural($ServerCount,'server').' running and <span id="pcount">'.$TotalPlayerCount.'</span> '.plural($TotalPlayerCount,'player').' online';
 		default:
-			return "There ".plural($ServerCount,"is","are",true)." ".$ServerCount." ".plural($ServerCount,"server")." running and ".$TotalPlayerCount." ".plural($TotalPlayerCount,"player")." online";
+			return 'There '.plural($ServerCount,'is','are',true).' '.$ServerCount.' '.plural($ServerCount,'server').' running and '.$TotalPlayerCount.' '.plural($TotalPlayerCount,'player').' online';
 	}
 }
 
 function GetServers($aFormat)
 {
 	global $DATA_FILE;
+	include("flag.php");
 	$Result = "";
 	if(!file_exists($DATA_FILE))
 		return "";
@@ -87,7 +78,8 @@ function GetServers($aFormat)
 			switch($aFormat)
 			{
 				case "table":
-					$Result .= "<TR><TD><IMG src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flag.php?ip=$IP\"> $Name</TD><TD>$IP: $Port</TD><TD>$PlayerCount</TD></TR>\n";
+					$Country = IPToCountry($IP);
+					$Result .= "<TR><TD><IMG src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$IP: $Port</TD><TD>$PlayerCount</TD></TR>\n";
 					break;
 				default:
 					$Result .= "$Name,$IP,$Port\n";

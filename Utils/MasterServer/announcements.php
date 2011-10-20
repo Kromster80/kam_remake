@@ -10,9 +10,9 @@ if($Rev != $GAME_VERSION)
 {
 	switch($Lang)
 	{
-		/*case 'ger':
-			echo "";
-			break;*/
+		case 'rus':
+			echo "Ваша версия игры устарела! Вы используете версию ".$Rev." тогда как последняя доступная версия - ".$GAME_VERSION.".|Вы не можете играть онлайн пока не обновите свою версию.||Пожалуйста скачайте ее с сайта: www.kamremake.com";
+			break;
 		case 'cze':
 			echo "Mбte zastaralou verzi KaM Remake! Pouћнvбte verzi ".$Rev.", ale nejnovмjљн verze je ".$GAME_VERSION.".|Nemщћete hrбt online dokud neaktualizujete.||Prosнm, stбhnмte si aktualizaci na: www.kamremake.com";
 			break;
@@ -39,9 +39,9 @@ else
 {
 	switch($Lang)
 	{
-		/*case 'ger':
-			echo "";
-			break;*/
+		case 'ger':
+			echo "Willkommen bei Knights and Merchants Remake Online!||Jeden Samstag um 21Uhr CET finden Wettkдmpfe statt. Seid dabei! Danke fьr Eure Unterstьtzung!";
+			break;
 		default:
 			echo "Welcome to the Knights and Merchants Remake online!||Weekly matches are currently run every Saturday at 9pm Central European Time. Please join us if you can!|Thank you for your support!";
 	}
