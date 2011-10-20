@@ -2873,14 +2873,16 @@ begin
   if fJoiningGroups and (fShownUnit is TKMUnitWarrior) then
   begin
     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-    if (U.GetOwner = MyPlayer.PlayerIndex) and
-       (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
-       (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
-       (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
+    if (U <> nil)
+    and (U.GetOwner = MyPlayer.PlayerIndex)
+    and (U is TKMUnitWarrior)
+    and (not U.IsDeadOrDying)
+    and (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit)))
+    and (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
       Screen.Cursor := c_JoinYes
     else
       Screen.Cursor := c_JoinNo;
-    exit;
+    Exit;
   end;
 
   if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
