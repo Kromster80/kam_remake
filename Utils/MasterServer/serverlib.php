@@ -9,6 +9,55 @@ $DISALLOWED_CHARS  = array("|", ",","\n","\r");
 
 if ($DO_STATS) include("statistics.php");
 
+/*
+* json_encode provider for the case that the webserver has PHP < 5.2.0
+*/
+if (!function_exists('json_encode'))
+{
+  function json_encode($a=false)
+  {
+    if (is_null($a)) return 'null';
+    if ($a === false) return 'false';
+    if ($a === true) return 'true';
+    if (is_scalar($a))
+    {
+      if (is_float($a))
+      {
+        // Always use "." for floats.
+        return floatval(str_replace(",", ".", strval($a)));
+      }
+
+      if (is_string($a))
+      {
+        static $jsonReplaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
+        return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $a) . '"';
+      }
+      else
+        return $a;
+    }
+    $isList = true;
+    for ($i = 0, reset($a); $i < count($a); $i++, next($a))
+    {
+      if (key($a) !== $i)
+      {
+        $isList = false;
+        break;
+      }
+    }
+    $result = array();
+    if ($isList)
+    {
+      foreach ($a as $v) $result[] = json_encode($v);
+      return '[' . join(',', $result) . ']';
+    }
+    else
+    {
+      foreach ($a as $k => $v) $result[] = json_encode($k).':'.json_encode($v);
+      return '{' . join(',', $result) . '}';
+    }
+  }
+}
+
 function CheckVersion($aRev)
 {
 	global $GAME_VERSION;
@@ -47,7 +96,9 @@ function GetStats($Format)
 		case "kamclub":
 			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
 		case "ajaxupdate":
-			return '{'."\n\t".'"pct": "'.$TotalPlayerCount.'",'."\n\t".'"sct": "'.$ServerCount.'"'."\n".'}';
+			$data = json_encode(Array("pct"=>$TotalPlayerCount,"sct"=>$ServerCount));
+			return $_GET['jsonp_callback']."(".$data.")";
+			//return '{'."\n\t".'"pct": "'.$TotalPlayerCount.'",'."\n\t".'"sct": "'.$ServerCount.'"'."\n".'}';
 		case "csv":
 			return $ServerCount.','.$TotalPlayerCount;
 		case "refresh":
@@ -55,7 +106,7 @@ function GetStats($Format)
 			* user-side request after 30s with parameter ?format=ajaxupdate which then updates the numbers
 			*/
 			$startscript = '<script type="text/javascript">'."\n".
-			'function updnr(){setTimeout(function(){jQuery.getJSON("http://lewin.hodgman.id.au/kam_remake_master_server/serverstats.php?format=ajaxupdate",function(data){jQuery("#scount").empty().append(data.sct);jQuery("#pcount").empty().append(data.pct);updnr();});},30000);}'."\n".
+			'function updnr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://lewin.hodgman.id.au/kam_remake_master_server/serverstats.php?format=ajaxupdate",success: function (data){jQuery("#scount").empty().append(data.sct);jQuery("#pcount").empty().append(data.pct);updnr();}});}, 30000);}'."\n".
 			'jQuery(document).ready(function($){updnr();});</script>'."\n";
 			return $startscript.'There '.plural($ServerCount,'is','are',true).' <span id="scount">'.$ServerCount.'</span> '.plural($ServerCount,'server').' running and <span id="pcount">'.$TotalPlayerCount.'</span> '.plural($TotalPlayerCount,'player').' online';
 		default:
