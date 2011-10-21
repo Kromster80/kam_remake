@@ -76,23 +76,19 @@ end;
 
 
 function KMGetCursorDirection(X,Y: integer): TKMDirection;
+var Ang, Dist: Single;
 begin
-  Result := dir_NA;
-  if GetLength(X,Y) <= DirCursorNARadius then exit; //Use default value dir_NA for the middle
+  Dist := GetLength(X, Y);
+  if Dist > DirCursorNARadius then
+  begin
+    //Convert XY to angle value
+    Ang := ArcTan2(Y/Dist, X/Dist) / Pi * 180;
 
-  if abs(X) > abs(Y) then
-    if X > 0 then Result := dir_W
-             else Result := dir_E;
-  if abs(Y) > abs(X) then
-    if Y > 0 then Result := dir_N
-             else Result := dir_S;
-  //Only way to select diagonals is by having X=Y (i.e. the corners), that natural way works best
-  if X = Y then
-    if X > 0 then Result := dir_NW
-             else Result := dir_SE;
-  if X = -Y then
-    if X > 0 then Result := dir_SW
-             else Result := dir_NE;
+    //Convert angle value to direction
+    Result := TKMDirection((Round(Ang + 270 + 22.5) mod 360) div 45 + 1);
+  end
+  else
+    Result := dir_NA;
 end;
 
 

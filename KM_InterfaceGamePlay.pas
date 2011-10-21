@@ -2861,7 +2861,7 @@ begin
     //Compare cursor position and decide which direction it is
     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
     //Update the cursor based on this direction and negate the offset
-    DirectionCursorShow(X + DeltaX, Y + DeltaY, SelectedDirection);
+    DirectionCursorShow(SelectingDirPosition.X, SelectingDirPosition.Y, SelectedDirection);
     Screen.Cursor := c_Invisible; //Keep it invisible, just in case
     exit;
   end;
