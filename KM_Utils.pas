@@ -96,25 +96,27 @@ function KMGetCursorDirection(X,Y: integer): TKMDirection;
 begin
   //@Krom: I think you must have reverted it wrong, there's a warning now:
   //       [Warning] KM_Utils.pas(115): Return value of function 'KMGetCursorDirection' might be undefined
+  //@Lewin: That is because IF conditions were not connected. Compiler did not recognized that
+  //        there's no other conditions left. I have fixed everything with ELSEs, now every leaf has a result.
+  //To be deleted ..
 
-  if GetLength(X,Y) <= DirCursorNARadius then 
+  if GetLength(X,Y) <= DirCursorNARadius then
     Result := dir_NA
   else
-  begin
     if abs(X) > abs(Y) then
       if X > 0 then Result := dir_W
-               else Result := dir_E;
+               else Result := dir_E
+    else
     if abs(Y) > abs(X) then
       if Y > 0 then Result := dir_N
-               else Result := dir_S;
-    //Only way to select diagonals is by having X=Y (i.e. the corners), that natural way works best
+               else Result := dir_S
+    else //Only way to select diagonals is by having X=Y (i.e. the corners), that natural way works best
     if X = Y then
       if X > 0 then Result := dir_NW
-               else Result := dir_SE;
-    if X = -Y then
+               else Result := dir_SE
+    else //The last remaining branch is X = -Y
       if X > 0 then Result := dir_SW
                else Result := dir_NE;
-  end;
 end;
 
 
