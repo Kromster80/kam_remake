@@ -212,9 +212,9 @@ type
 
       Panel_Settings:TKMPanel;
         Ratio_Settings_Brightness:TKMRatioRow;
-        CheckBox_Settings_Autosave,CheckBox_Settings_FastScroll:TKMCheckBox;
-        Label_Settings_MouseSpeed,Label_Settings_SFX,Label_Settings_Music,Label_Settings_Music2:TKMLabel;
-        Ratio_Settings_Mouse,Ratio_Settings_SFX,Ratio_Settings_Music:TKMRatioRow;
+        CheckBox_Settings_Autosave:TKMCheckBox;
+        Label_Settings_MouseSpeed,Label_Settings_ScrollSpeed,Label_Settings_SFX,Label_Settings_Music,Label_Settings_Music2:TKMLabel;
+        Ratio_Settings_Mouse,Ratio_Settings_SFX,Ratio_Settings_Music,Ratio_Settings_ScrollSpeed:TKMRatioRow;
         CheckBox_Settings_MusicOn:TKMCheckBox;
 
       Panel_Quit:TKMPanel;
@@ -1220,23 +1220,24 @@ begin
     Ratio_Settings_Brightness.OnChange := Menu_Settings_Change;
     CheckBox_Settings_Autosave:=TKMCheckBox.Create(Panel_Settings,18,70,180,20,fTextLibrary.GetTextString(203),fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_FastScroll:=TKMCheckBox.Create(Panel_Settings,18,95,180,20,fTextLibrary.GetTextString(204),fnt_Metal);
-    CheckBox_Settings_FastScroll.OnClick := Menu_Settings_Change;
-    Label_Settings_MouseSpeed:=TKMLabel.Create(Panel_Settings,18,132,160,20,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
+    Label_Settings_ScrollSpeed:=TKMLabel.Create(Panel_Settings,18,95,160,30,fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED],fnt_Metal,kaLeft);
+    Ratio_Settings_ScrollSpeed:=TKMRatioRow.Create(Panel_Settings,18,113,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    Ratio_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
+    Label_Settings_MouseSpeed:=TKMLabel.Create(Panel_Settings,18,143,160,20,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Settings_MouseSpeed.Disable;
-    Ratio_Settings_Mouse:=TKMRatioRow.Create(Panel_Settings,18,150,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    Ratio_Settings_Mouse:=TKMRatioRow.Create(Panel_Settings,18,161,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Mouse.Disable;
     Ratio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
     Ratio_Settings_Mouse.OnChange := Menu_Settings_Change;
-    Label_Settings_SFX:=TKMLabel.Create(Panel_Settings,18,180,160,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-    Ratio_Settings_SFX:=TKMRatioRow.Create(Panel_Settings,18,198,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    Label_Settings_SFX:=TKMLabel.Create(Panel_Settings,18,191,160,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
+    Ratio_Settings_SFX:=TKMRatioRow.Create(Panel_Settings,18,209,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_SFX.OnChange := Menu_Settings_Change;
-    Label_Settings_Music:=TKMLabel.Create(Panel_Settings,18,228,160,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,246,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    Label_Settings_Music:=TKMLabel.Create(Panel_Settings,18,239,160,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
+    Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,257,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
     Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     Ratio_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,276,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,287,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
     CheckBox_Settings_MusicOn.Hint:=fTextLibrary.GetTextString(198);
     CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
 end;
@@ -2118,7 +2119,7 @@ procedure TKMGamePlayInterface.Menu_Settings_Fill;
 begin
   Ratio_Settings_Brightness.Position    := fGame.GlobalSettings.Brightness;
   CheckBox_Settings_Autosave.Checked    := fGame.GlobalSettings.Autosave;
-  CheckBox_Settings_FastScroll.Checked  := fGame.GlobalSettings.FastScroll;
+  Ratio_Settings_ScrollSpeed.Position   := fGame.GlobalSettings.ScrollSpeed;
   Ratio_Settings_Mouse.Position         := fGame.GlobalSettings.MouseSpeed;
   Ratio_Settings_SFX.Position           := fGame.GlobalSettings.SoundFXVolume;
   Ratio_Settings_Music.Position         := fGame.GlobalSettings.MusicVolume;
@@ -2135,7 +2136,7 @@ begin
 
   fGame.GlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
   fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
-  fGame.GlobalSettings.FastScroll    := CheckBox_Settings_FastScroll.Checked;
+  fGame.GlobalSettings.ScrollSpeed   := Ratio_Settings_ScrollSpeed.Position;
   fGame.GlobalSettings.MouseSpeed    := Ratio_Settings_Mouse.Position;
   fGame.GlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
   fGame.GlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;

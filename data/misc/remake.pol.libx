@@ -1,5 +1,5 @@
 
-MaxID:140
+MaxID:141
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -24,6 +24,7 @@ MaxID:140
 22:Kontrola:
 23:Rozgrywka:
 24:DŸwiêk
+141:
 25:Wy³¹cz muzykê
 26:Grafika:
 27:Jasnoœæ:
@@ -122,7 +123,7 @@ MaxID:140
 112:Przypadkowe
 113:¯adna
 114:¯adna
-115:%d Dru¿yna
+115:Dru¿yna %d
 116:Umieœæ listê:
 117:Umieœæ wiadomoœæ:
 118:Wybrana mapa:

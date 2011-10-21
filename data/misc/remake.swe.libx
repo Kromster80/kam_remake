@@ -1,5 +1,5 @@
 
-MaxID:140
+MaxID:141
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -24,6 +24,7 @@ MaxID:140
 22:Kontroller:
 23:Spelinställningar:
 24:Ljud:
+141:
 25:Ingen musik
 26:Grafik:
 27:Ljusstyrka

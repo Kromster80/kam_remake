@@ -11,7 +11,7 @@ type
 
     fAutosave:boolean;
     fBrightness:byte;
-    fFastScroll:boolean;
+    fScrollSpeed:integer;
     fFullScreen:boolean;
     fLocale:shortstring;
     fMouseSpeed:byte;
@@ -43,7 +43,7 @@ type
 
     procedure SetAutosave(aValue:boolean);
     procedure SetBrightness(aValue:byte);
-    procedure SetFastScroll(aValue:boolean);
+    procedure SetScrollSpeed(aValue:integer);
     procedure SetFullScreen(aValue:boolean);
     procedure SetLocale(aLocale:shortstring);
     procedure SetMouseSpeed(aValue:byte);
@@ -66,7 +66,7 @@ type
 
     property Autosave:boolean read fAutosave write SetAutosave default true;
     property Brightness:byte read fBrightness write SetBrightness default 1;
-    property FastScroll:boolean read fFastScroll write SetFastScroll default false;
+    property ScrollSpeed:integer read fScrollSpeed write SetScrollSpeed default 10;
     property FullScreen:boolean read fFullScreen write SetFullScreen default true;
     property Locale:shortstring read fLocale write SetLocale;
     property MouseSpeed:byte read fMouseSpeed write SetMouseSpeed;
@@ -139,7 +139,7 @@ begin
   fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
 
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
-  fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
+  fScrollSpeed   := f.ReadInteger('Game','ScrollSpeed',10);
   fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
   Locale         := f.ReadString ('Game','Locale','eng'); //Wrong name will become ENG too
   fSpeedPace     := f.ReadInteger('Game','SpeedPace',100);
@@ -185,7 +185,7 @@ begin
   f.WriteInteger('GFX','ResolutionID',fResolutionID);
 
   f.WriteBool   ('Game','Autosave',   fAutosave);
-  f.WriteBool   ('Game','FastScroll', fFastScroll);
+  f.WriteInteger('Game','ScrollSpeed',fScrollSpeed);
   f.WriteInteger('Game','MouseSpeed', fMouseSpeed);
   f.WriteString ('Game','Locale',     fLocale);
   f.WriteInteger('Game','SpeedPace',  fSpeedPace);
@@ -245,9 +245,9 @@ begin
 end;
 
 
-procedure TGlobalSettings.SetFastScroll(aValue:boolean);
+procedure TGlobalSettings.SetScrollSpeed(aValue:integer);
 begin
-  fFastScroll := aValue;
+  fScrollSpeed := aValue;
   fNeedsSave  := true;
 end;
 

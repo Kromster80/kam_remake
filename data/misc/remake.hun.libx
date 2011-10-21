@@ -1,5 +1,5 @@
 
-MaxID:140
+MaxID:141
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -24,6 +24,7 @@ MaxID:140
 22:Vezérlõk:
 23:Játékmenet:
 24:Hangok:
+141:
 25:Zene kikapcsolása
 26:Grafika:
 27:Fényerõsség

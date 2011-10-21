@@ -1,5 +1,5 @@
 
-MaxID:140
+MaxID:141
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -24,6 +24,7 @@ MaxID:140
 22:Controls:
 23:Gameplay:
 24:Muziek:
+141:
 25:Muziek uitschakelen
 26:Grafisch:
 27:Helderheid

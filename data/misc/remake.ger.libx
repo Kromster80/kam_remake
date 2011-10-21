@@ -1,5 +1,5 @@
 
-MaxID:140
+MaxID:141
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -24,6 +24,7 @@ MaxID:140
 22:Eingabe:
 23:Gameplay:
 24:Sound:
+141:
 25:Musik ausschalten
 26:Grafik:
 27:Helligkeit

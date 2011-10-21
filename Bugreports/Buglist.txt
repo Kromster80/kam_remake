@@ -1,6 +1,7 @@
 Since r2411:
 <===================================================================================>
  +	Shorted "teamname %s" in lobby for PL locale
+ +	Replace the "Fast Scrolling" checkbox with a slider
 	Woodcutters and others should plant/chop more evenly (not in waves like now)
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -13,7 +14,6 @@ Since r2411:
  ?	Warriors should resume interrupted orders after a fight
 	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
 	Double clicking a server should join it
-	Replace the "Fast Scrolling" checkbox with a slider
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
