@@ -190,8 +190,8 @@ begin
   if ScrollKeyRight then fPosition.X := fPosition.X + ScrollAdv;
   if ScrollKeyDown  then fPosition.Y := fPosition.Y + ScrollAdv;
   //Mouse
-  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(Temp,1); fPosition.X := fPosition.X - ScrollAdv*(1-(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
-  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(Temp,2); fPosition.Y := fPosition.Y - ScrollAdv*(1-(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
+  if CursorPoint.X <= ScreenBounds.Left   + SCROLLFLEX then begin inc(Temp,1); fPosition.X := fPosition.X - ScrollAdv*(1+(ScreenBounds.Left   - CursorPoint.X)/SCROLLFLEX); end;
+  if CursorPoint.Y <= ScreenBounds.Top    + SCROLLFLEX then begin inc(Temp,2); fPosition.Y := fPosition.Y - ScrollAdv*(1+(ScreenBounds.Top    - CursorPoint.Y)/SCROLLFLEX); end;
   if CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX then begin inc(Temp,4); fPosition.X := fPosition.X + ScrollAdv*(1-(ScreenBounds.Right -1-CursorPoint.X)/SCROLLFLEX); end;
   if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(Temp,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
 

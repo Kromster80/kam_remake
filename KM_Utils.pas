@@ -94,6 +94,9 @@ end;}
 
 function KMGetCursorDirection(X,Y: integer): TKMDirection;
 begin
+  //@Krom: I think you must have reverted it wrong, there's a warning now:
+  //       [Warning] KM_Utils.pas(115): Return value of function 'KMGetCursorDirection' might be undefined
+
   if GetLength(X,Y) <= DirCursorNARadius then 
     Result := dir_NA
   else
