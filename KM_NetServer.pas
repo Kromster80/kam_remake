@@ -373,7 +373,11 @@ procedure TKMNetServer.ClientDisconnect(aHandle:integer);
 var Room: integer; Client:TKMServerClient;
 begin
   Client := fClientList.GetByHandle(aHandle);
-  Assert(Client <> nil, 'Tried to disconnect nil client');
+  if Client = nil then
+  begin
+    Status('Warning: Client '+inttostr(aHandle)+' was already disconnected');
+    exit;
+  end;
   Room := Client.Room;
   if Room <> -1 then
     Status('Client '+inttostr(aHandle)+' has disconnected'); //Only log messages for clients who entered a room
