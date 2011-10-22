@@ -27,6 +27,8 @@ type
     procedure QueryServer;
     procedure FetchAnnouncements(const aLang: string);
     procedure UpdateStateIdle;
+
+    property MasterServerAddress: string write fMasterServerAddress;
   end;
 
 implementation

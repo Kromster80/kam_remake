@@ -21,6 +21,7 @@ var
   fEventHandler: TKMServerEventHandler;
   fDedicatedServer: TKMDedicatedServer;
   fSettings: TGlobalSettings;
+  fSettingsLastModified: integer;
 
 {$IFDEF MSWindows}
 procedure MyProcessMessages;
@@ -41,10 +42,12 @@ begin
   Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
   Writeln('');
   Writeln('Log file: '+fLog.LogPath);
+  Writeln('Settings file: '+ExeDir+SETTINGS_FILE);
   Writeln('');
 
   fSettings := TGlobalSettings.Create;
   fSettings.SaveSettings(true);
+  fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
 
   fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
                                                 fSettings.AutoKickTimeout,
@@ -59,6 +62,21 @@ begin
   while True do
   begin
     fDedicatedServer.UpdateState;
+    //Reload the INI file if it has changed
+    if (FileAge(ExeDir+SETTINGS_FILE) <> fSettingsLastModified) then
+    begin
+      Writeln('Reloading updated settings from '+ExeDir+SETTINGS_FILE);
+      fSettings.ReloadSettings;
+      fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
+      fDedicatedServer.UpdateSettings(fSettings.ServerName,
+                                      fSettings.AnnounceServer,
+                                      fSettings.AutoKickTimeout,
+                                      fSettings.PingInterval,
+                                      fSettings.MasterAnnounceInterval,
+                                      fSettings.MasterServerAddress,
+                                      fSettings.HTMLStatusFile,
+                                      fSettings.ServerWelcomeMessage);
+    end;
     {$IFDEF MSWindows}
     MyProcessMessages; //This will process network (or other) events
     {$ENDIF}

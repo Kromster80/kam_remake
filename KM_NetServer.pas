@@ -114,6 +114,7 @@ type
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
     property Listening: boolean read fListening;
     function GetPlayerCount:integer;
+    procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
   end;
 
 
@@ -305,6 +306,14 @@ begin
   for i:=0 to fClientList.fCount-1 do
     if fClientList.Item[i].fRoom <> -1 then
       inc(Result);
+end;
+
+
+procedure TKMNetServer.UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+begin
+  fKickTimeout := aKickTimeout;
+  fHTMLStatusFile := aHTMLStatusFile;
+  fWelcomeMessage := aWelcomeMessage;
 end;
 
 

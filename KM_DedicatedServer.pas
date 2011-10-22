@@ -28,6 +28,8 @@ type
     procedure Start(const aServerName:string; const aPort:string; aPublishServer:boolean; aHandleException:boolean);
     procedure Stop;
     procedure UpdateState;
+    procedure UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
+                             const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
     property OnMessage: TStringEvent write fOnMessage;
   end;
 
@@ -100,17 +102,34 @@ begin
 
   TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
                {$IFDEF Unix} FakeGetTickCount{$ENDIF};
-  if abs(TickCount-fLastPing) >= fPingInterval then
+  //They must be cast as Int64 otherwise it crashes when TickCount > fLastPing with "Integer Overflow"
+  if abs(Int64(TickCount)-Int64(fLastPing)) >= fPingInterval then
   begin
     fNetServer.MeasurePings;
     fLastPing := TickCount;
   end;
 
-  if fPublishServer and (TickCount-fLastAnnounce >= fAnnounceInterval*1000) then
+  //They must be cast as Int64 otherwise it crashes when TickCount > fLastPing with "Integer Overflow"
+  if fPublishServer and (abs(Int64(TickCount)-Int64(fLastAnnounce)) >= fAnnounceInterval*1000) then
   begin
     fMasterServer.AnnounceServer(fServerName,fPort,fNetServer.GetPlayerCount,fAnnounceInterval+10);
     fLastAnnounce := TickCount;
   end;
+end;
+
+
+procedure TKMDedicatedServer.UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
+                                            const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
+begin
+  fAnnounceInterval := aAnnounceInterval;
+  fPingInterval := aPingInterval;
+  fMasterServer.MasterServerAddress := aMasterServerAddress;
+  fServerName := aServerName;
+  fPublishServer := aPublishServer;
+
+  fNetServer.UpdateSettings(aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
+
+  fLastAnnounce := 0; //Make the server announce itself next update so the changes are sent to the master server ASAP
 end;
 
 

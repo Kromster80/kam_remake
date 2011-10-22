@@ -63,6 +63,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure SaveSettings(aForce:boolean=false);
+    procedure ReloadSettings;
 
     property Autosave:boolean read fAutosave write SetAutosave default true;
     property Brightness:byte read fBrightness write SetBrightness default 1;
@@ -123,6 +124,12 @@ procedure TGlobalSettings.SaveSettings(aForce:boolean=false);
 begin
   if fNeedsSave or aForce then
     SaveSettingsToFile(ExeDir+SETTINGS_FILE);
+end;
+
+
+procedure TGlobalSettings.ReloadSettings;
+begin
+  LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
 end;
 
 
