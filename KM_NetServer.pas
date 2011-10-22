@@ -217,7 +217,7 @@ end;
 //There's an error in fServer, perhaps fatal for multiplayer.
 procedure TKMNetServer.Error(const S: string);
 begin
-  Status('Error '+S);
+  Status(S);
 end;
 
 

@@ -24,6 +24,7 @@ Since r2411:
 Features:
  +	Resizeable chat frame ingame
  +	Adjoin map desciption and map selection in lobby - they serve the same purpose
+ +	Dynamic settings for the server, so it can be changed without restarting
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
 	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in 	English troops link with 'L', in German it is 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth
@@ -42,10 +43,10 @@ Features:
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
 	Server details should show the map name and the time they have been playing for, so you can estimate how much longer they will be etc.
-	Dynamic welcome message for the server, so it can be changed without restarting
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one
 	Make player info take the full width of the multiplayer lobby and move map info below
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it (for people with an X server on *nix or a Windows server)
+	Better full screen support (right now you can't minimize the game while it's full screen)
  
 
  -	The ingame briefing texture is too short, see attached picture

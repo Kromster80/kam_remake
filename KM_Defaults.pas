@@ -28,7 +28,7 @@ const
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
   GAME_REVISION         = 'r2411';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '1st Merchants Demo Server Fix 1 ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_VERSION          = '1st Merchants Demo Server Fix (r2443) for ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 

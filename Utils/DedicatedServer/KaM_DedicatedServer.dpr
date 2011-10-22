@@ -65,7 +65,7 @@ begin
     //Reload the INI file if it has changed
     if (FileAge(ExeDir+SETTINGS_FILE) <> fSettingsLastModified) then
     begin
-      Writeln('Reloading updated settings from '+ExeDir+SETTINGS_FILE);
+      fEventHandler.ServerStatusMessage('Reloading updated settings from '+ExeDir+SETTINGS_FILE);
       fSettings.ReloadSettings;
       fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
       fDedicatedServer.UpdateSettings(fSettings.ServerName,

@@ -123,7 +123,7 @@ end;
 
 procedure TKMNetServerLNet.Error(const msg: string; aSocket: TLSocket);
 begin
-  fOnError('LNet Server Error: '+msg);
+  fOnError('LNet: '+msg);
 end;
 
 
