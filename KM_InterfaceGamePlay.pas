@@ -390,10 +390,7 @@ end;
 procedure TKMGamePlayInterface.Save_ListChange(Sender: TObject);
 begin
   if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
-  begin
     Edit_Save.Text := fSaves[List_Save.ItemIndex].Filename;
-    Edit_Save.PlaceCursorAtEnd;
-  end;
 end;
 
 
@@ -567,7 +564,6 @@ begin
   if Sender=Button_Menu_Save then begin
     Save_RefreshList; //Update savegames names
     Panel_Save.Show;
-    Edit_Save.PlaceCursorAtEnd; //Place the cursor at the end of the text
     MyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
   end else

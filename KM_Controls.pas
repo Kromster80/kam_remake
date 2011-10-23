@@ -316,23 +316,21 @@ type
   {EditField}
   TKMEdit = class(TKMControl)
   private
-    fText:string;
-    fCursorPos:integer;
-    fLeftIndex:integer; //The position of the character shown left-most
-    fOnChange:TNotifyEvent;
-    fOnKeyDown:TNotifyEventKey;
+    fFont: TKMFont;
+    fText: string;
+    fCursorPos: Integer;
+    fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure SetCursorPos(aPos: integer);
     procedure SetText(aText:string);
   public
-    Font: TKMFont;
-    Masked:boolean;
-    ReadOnly:boolean;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false);
-    procedure PlaceCursorAtEnd;
+    Masked: Boolean;
+    ReadOnly: Boolean;
+    OnChange: TNotifyEvent;
+    OnKeyDown: TNotifyEventKey;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     property CursorPos: integer read fCursorPos write SetCursorPos;
     property Text:string read fText write SetText;
-    property OnChange: TNotifyEvent write fOnChange;
-    property OnKeyDown: TNotifyEventKey write fOnKeyDown;
+    
     function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
     procedure KeyPress(Key: Char); override;
@@ -1513,21 +1511,13 @@ begin
 end;
 
 
-{TKMEdit}
-constructor TKMEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false);
+{ TKMEdit }
+constructor TKMEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fText := '<<<LEER>>>';
-  Font := aFont;
-  Masked := aMasked;
+  fFont := aFont;
   CursorPos := 0;
-end;
-
-
-procedure TKMEdit.PlaceCursorAtEnd;
-begin
-  fLeftIndex := 0;
-  SetCursorPos(Length(Text));
 end;
 
 
@@ -1538,19 +1528,22 @@ begin
 end;
 
 
-procedure TKMEdit.SetCursorPos(aPos: integer);
+//
+procedure TKMEdit.SetCursorPos(aPos: Integer);
 var RText: string;
 begin
-  fCursorPos := EnsureRange(aPos, 0, length(fText));
+  fCursorPos := EnsureRange(aPos, 0, Length(fText));
   if fCursorPos < fLeftIndex then
     fLeftIndex := fCursorPos
   else
   begin
-    RText := Copy(fText, fLeftIndex+1, length(fText)); //Remove characters to the left of fLeftIndex
-    while fCursorPos-fLeftIndex > fResource.ResourceFont.CharsThatFit(RText, Font, Width-8) do
+    //Remove characters to the left of fLeftIndex
+    RText := Copy(fText, fLeftIndex+1, length(fText));
+    while fCursorPos-fLeftIndex > fResource.ResourceFont.CharsThatFit(RText, fFont, Width-8) do
     begin
       inc(fLeftIndex);
-      RText := Copy(fText, fLeftIndex+1, length(fText)); //Remove characters to the left of fLeftIndex
+      //Remove characters to the left of fLeftIndex
+      RText := Copy(fText, fLeftIndex+1, length(fText));
     end;
   end;
 end;
@@ -1559,7 +1552,10 @@ end;
 procedure TKMEdit.SetText(aText:string);
 begin
   fText := aText;
-  CursorPos := math.min(CursorPos, length(fText));
+  CursorPos := math.min(CursorPos, Length(fText));
+  //Setting the text should place cursor to the end
+  fLeftIndex := 0;
+  SetCursorPos(Length(Text));
 end;
 
 
@@ -1568,7 +1564,7 @@ begin
   Result := true;
   if Inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
-  //Clipboard opperations
+  //Clipboard operations
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
   begin
     case Key of
@@ -1578,6 +1574,7 @@ begin
                          CursorPos := CursorPos + Length(Clipboard.AsText); end;
     end;
   end;
+
   case Key of
     VK_BACK:    begin Delete(fText, CursorPos, 1); CursorPos := CursorPos-1; end;
     VK_DELETE:  Delete(fText, CursorPos+1, 1);
@@ -1587,7 +1584,7 @@ begin
     VK_END:     CursorPos := length(fText);
   end;
 
-  if Assigned(fOnKeyDown) then fOnKeyDown(Self, Key);
+  if Assigned(OnKeyDown) then OnKeyDown(Self, Key);
 end;
 
 
@@ -1606,7 +1603,7 @@ begin
   Result := true;
   if Inherited KeyUp(Key, Shift) or ReadOnly then exit;
 
-  if Assigned(fOnChange) then fOnChange(Self);
+  if Assigned(OnChange) then OnChange(Self);
 end;
 
 
@@ -1632,13 +1629,13 @@ begin
 
   RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
 
-  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, Font, kaLeft, Col); //Characters that do not fit are trimmed
+  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, fFont, kaLeft, Col); //Characters that do not fit are trimmed
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
   begin
     SetLength(RText, CursorPos-fLeftIndex);
-    OffX := Left + 2 + fResource.ResourceFont.GetTextSize(RText, Font).X;
+    OffX := Left + 2 + fResource.ResourceFont.GetTextSize(RText, fFont).X;
     fRenderUI.WriteLayer(OffX, Top+2, 3, Height-4, Col, $FF000000);
   end;
 end;
