@@ -14,26 +14,25 @@ Since r2411:
 	Ability to see the score screen for other players after a multiplayer game (maybe only after victory/defeat to prevent cheating)
  ?	Warriors should resume interrupted orders after a fight
 	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
-	Double clicking a server should join it
+	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	See-through hills (lighting flaw)
-	Many texts will not change if I change the language in options menu
 
 Features:
  +	Resizeable chat frame ingame
  +	Adjoin map desciption and map selection in lobby - they serve the same purpose
  +	Dynamic settings for the server, so it can be changed without restarting
+	Double clicking a server should join it
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
-	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in 	English troops link with 'L', in German it is 'V')
+	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Multiplayer mode could show the player's name above each group (flag holder)
 	Mutltiplayer spectator mode, and ability for the host to close slots
-	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
 	Scrolling around the map using middle mouse click, as in TPR
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
@@ -54,6 +53,7 @@ Features:
  -	Serfs should take wares back or to suitable house if destination is destroyed
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
+ -	Many texts will not change if I change the language in options menu (we are always working on it)
 
 
 Fixed in r2411:
