@@ -155,7 +155,7 @@ constructor TKMNetworking.Create(const aMasterServerAddress:string; aKickTimeout
 begin
   Inherited Create;
   SetGameState(lgs_None);
-  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '');
+  fNetServer := TKMDedicatedServer.Create(GAME_REVISION, 1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '');
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);

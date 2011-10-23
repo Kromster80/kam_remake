@@ -124,6 +124,8 @@ end;
 procedure TKMNetServerLNet.Error(const msg: string; aSocket: TLSocket);
 begin
   fOnError('LNet: '+msg);
+  if not aSocket.Connected then
+    ClientDisconnect(aSocket); //Sometimes this is the only event we get when a client disconnects
 end;
 
 
@@ -151,11 +153,15 @@ begin
       if fSocketServer.Socks[i].Connected then //Sometimes this occurs just before ClientDisconnect
       begin
         Found := true;
-        fSocketServer.Socks[i].Disconnect; //This will trigger fOnClientDisconnect so there's no need to do it manually
+        fSocketServer.Socks[i].Disconnect(true);
+        fOnClientDisconnect(aHandle); //A forceful disconnect does not always trigger the disconnect event so we need to do it manually
       end;
     end;
   if not Found then
+  begin
+    fOnError('Warning: Attempted to kick a client that has already disconnected');
     fOnClientDisconnect(aHandle); //Client has already disconnected somehow, so send the event to ensure they are removed
+  end;
 end;
 
 

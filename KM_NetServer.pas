@@ -74,6 +74,7 @@ type
 
     fClientList:TKMClientsList;
     fListening:boolean;
+    fVersion:string;
 
     fMaxRooms:word;
     fHTMLStatusFile:string;
@@ -104,7 +105,7 @@ type
     procedure AddClientToRoom(aHandle, Room:integer);
     procedure SaveHTMLStatus;
   public
-    constructor Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+    constructor Create(const aVersion:string; aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
@@ -191,9 +192,10 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+constructor TKMNetServer.Create(const aVersion:string; aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
 begin
   Inherited Create;
+  fVersion := aVersion;
   fMaxRooms := aMaxRooms;
   fKickTimeout := aKickTimeout;
   fHTMLStatusFile := aHTMLStatusFile;
@@ -321,7 +323,7 @@ end;
 procedure TKMNetServer.ClientConnect(aHandle:integer);
 begin
   fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they chose a room later
-  SendMessage(aHandle, mk_GameVersion, 0, GAME_REVISION); //First make sure they are using the right version
+  SendMessage(aHandle, mk_GameVersion, 0, fVersion); //First make sure they are using the right version
   if fWelcomeMessage <> '' then SendMessage(aHandle, mk_WelcomeMessage, 0, fWelcomeMessage); //Welcome them to the server
   SendMessage(aHandle, mk_IndexOnServer, aHandle, ''); //This is the signal that the client may now start sending
 end;
@@ -529,6 +531,12 @@ procedure TKMNetServer.DataAvailable(aHandle:integer; aData:pointer; aLength:car
 var PacketSender,PacketRecipient:integer; PacketLength:Cardinal; i,SenderRoom:integer; SenderClient: TKMServerClient;
 begin
   SenderClient := fClientList.GetByHandle(aHandle);
+  if SenderClient = nil then
+  begin
+    Status('Warning: Data Available from an unassigned client');
+    exit;
+  end;
+
   //Append new data to buffer
   SetLength( SenderClient.fBuffer, SenderClient.fBufferSize + aLength);
   Move(aData^, SenderClient.fBuffer[SenderClient.fBufferSize], aLength);
@@ -545,7 +553,7 @@ begin
     if not (IsValidHandle(PacketRecipient) and IsValidHandle(PacketSender) and (PacketLength <= MAX_PACKET_SIZE)) then
     begin
       //When we have a corrupt buffer from a client clear it so the next packet can be processed
-      Status('Corrupt data received from client '+IntToStr(aHandle));
+      Status('Warning: Corrupt data received from client '+IntToStr(aHandle));
       SenderClient.fBufferSize := 0;
       SetLength(SenderClient.fBuffer, 0);
       exit;
