@@ -12,7 +12,8 @@ uses Classes, Dialogs, Forms, SysUtils,
 
 const
   MAX_SOUNDS = 16; //64 looks like the limit, depends on hardware
-
+  MAX_ATTENUATED_SOUNDS = (3/4)*MAX_SOUNDS; //Attenuated sounds are less important, always save space for others
+  MAX_FAR_SOUNDS = (1/2)*MAX_SOUNDS; //Sounds that are too far away can only access this many slots
 
 type
   TWAVHeaderEx = record
@@ -119,6 +120,8 @@ const
   MAX_BUFFERS = 16; //16/24/32 looks like the limit, depends on hardware
   MAX_SOURCES = 32; //depends on hardware as well
   MAX_DISTANCE = 32; //After this distance sounds are completely mute
+  MAX_PLAY_DISTANCE = (3/4)*MAX_DISTANCE; //In all my tests sounds are not audible at past this distance, OpenAL makes them too quiet
+  MAX_PRIORITY_DISTANCE = (1/2)*MAX_DISTANCE; //Sounds past this distance will not play if there are few slots left (gives close sounds priority)
 
   WarriorSFXFolder: array[WARRIOR_MIN..WARRIOR_MAX] of string = (
     'militia', 'axeman', 'swordman', 'bowman', 'crossbowman',
@@ -392,6 +395,7 @@ procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPoint
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
+  Distance:single;
   ALState:TALint;
   WAVformat: TALenum;
   WAVdata: TALvoid;
@@ -402,8 +406,14 @@ begin
   if not fIsSoundInitialized then Exit;
   if (SoundID = sfx_None) and (aFile = '') then Exit;
 
+  Distance := GetLength(Loc.X-fListener.Pos[1], Loc.Y-fListener.Pos[2]);
   //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being filled with sounds on the other side of the map.
-  if Attenuated and (GetLength(Loc.X-fListener.Pos[1], Loc.Y-fListener.Pos[2]) > MAX_DISTANCE) then Exit;
+  if Attenuated and (Distance >= MAX_PLAY_DISTANCE) then Exit;
+  //If the sounds is a fairly long way away it should not play when we are short of slots
+  if Attenuated and (Distance >= MAX_PRIORITY_DISTANCE) and (ActiveCount >= MAX_FAR_SOUNDS) then Exit;
+  //Attenuated sounds are always lower priority, so save a few slots for non-attenuated so that troops
+  //and menus always make sounds
+  if Attenuated and (ActiveCount >= MAX_ATTENUATED_SOUNDS) then exit;
 
   //Here should be some sort of RenderQueue/List/Clip
 
