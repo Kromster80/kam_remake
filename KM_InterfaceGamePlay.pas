@@ -735,8 +735,11 @@ begin
   //Controls without a hint will reset the Hint to ''
   MyControls.OnHint := DisplayHint;
 
-  if SHOW_1024_768_OVERLAY then
-    with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
+  if OVERLAY_RESOLUTIONS then
+  begin
+    with TKMShape.Create(Panel_Main, 0, 0, 800, 600, $FF00FFFF) do Hitable := False;
+    with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable := False;
+  end;
 
   SwitchPage(nil); //Update
   //Panel_Main.Width := aScreenX;

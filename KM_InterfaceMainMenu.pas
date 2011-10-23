@@ -308,7 +308,11 @@ begin
   //Show version info on every page
   Label_Version := TKMLabel.Create(Panel_Main,8,8,0,0,GAME_VERSION+' / OpenGL '+fRender.RendererVersion,fnt_Antiqua,kaLeft);
 
-  if SHOW_1024_768_OVERLAY then with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
+  if OVERLAY_RESOLUTIONS then
+  begin
+    with TKMShape.Create(Panel_Main, 112, 84, 800, 600, $FF00FFFF) do Hitable := False;
+    with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable := False;
+  end;
 
   if aReturnToOptions then
   begin
@@ -398,13 +402,14 @@ end;
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
-  Panel_MainMenu:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    TKMImage.Create(Panel_MainMenu,300,60,423,164,4,5);
-    TKMLabel.Create(Panel_MainMenu, 512, 240, 0, 0, 'Remake', fnt_Metal, kaCenter);
-    with TKMImage.Create(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
+  Panel_MainMenu := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+    TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, 5);
+    TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, kaCenter);
+    with TKMImage.Create(Panel_MainMenu, 50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    Panel_MMButtons:=TKMPanel.Create(Panel_MainMenu,337,290,350,400);
+    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu,337,290,350,400);
+
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary[TX_MENU_SINGLEPLAYER],fnt_Metal,bsMenu);
       Button_MM_MultiPlayer  := TKMButton.Create(Panel_MMButtons,0, 40,350,30,fTextLibrary[TX_MENU_MULTIPLAYER],fnt_Metal,bsMenu);
       Button_MM_MapEd        := TKMButton.Create(Panel_MMButtons,0, 80,350,30,fTextLibrary[TX_MENU_MAP_EDITOR],fnt_Metal,bsMenu);
@@ -417,9 +422,6 @@ begin
       Button_MM_Options.OnClick      := SwitchMenuPage;
       Button_MM_Credits.OnClick      := SwitchMenuPage;
       Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
-
-      Button_MM_MapEd.Visible        := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
-      Button_MM_MultiPlayer.Enabled  :=  ENABLE_MP_IN_MENU;
 end;
 
 

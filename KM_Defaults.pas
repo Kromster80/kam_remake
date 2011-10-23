@@ -50,12 +50,10 @@ var
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
   SMOOTH_SCROLLING      :boolean=true; //Smooth viewport scrolling
   ENABLE_FIGHTING       :boolean=true; //Allow fighting
-  SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
   CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
-  ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
-  KAM_WATER_DRAW        :boolean=true; //Render underwater sand 
+  KAM_WATER_DRAW        :boolean=true; //Render underwater sand
   //Not fully implemented yet
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
@@ -67,7 +65,7 @@ var
   SHOW_TEXT_OUTLINES    :boolean=false; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTORLS  :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
+  OVERLAY_RESOLUTIONS   :boolean=true; //Render constraining frame
   {Gameplay display}
   AGGRESSIVE_REPLAYS    :boolean=false; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
