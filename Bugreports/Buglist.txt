@@ -27,7 +27,7 @@ Features:
  +	Resizeable chat frame ingame
  +	Adjoin map desciption and map selection in lobby - they serve the same purpose
  +	Dynamic settings for the server, so it can be changed without restarting
-  +  Shuffle option for music
+ +	Shuffle option for music
 	Double clicking a server should join it
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
 	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
