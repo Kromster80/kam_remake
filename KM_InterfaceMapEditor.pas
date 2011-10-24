@@ -1591,7 +1591,11 @@ end;
 
 procedure TKMapEdInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyDown(Key, Shift) then exit; //Handled by Controls
+  if MyControls.KeyDown(Key, Shift) then
+  begin
+    fViewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    exit; //Handled by Controls
+  end;
 
   //1-5 game menu shortcuts
   if Key in [49..53] then

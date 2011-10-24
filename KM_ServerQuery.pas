@@ -27,6 +27,7 @@ type
   TKMQuery = class
   private
     fNetClient: TKMNetClient;
+    fQueryActive:boolean;
     fQueryIsDone: boolean;
     fPingStarted:cardinal;
     fQueryStarted:cardinal;
@@ -67,6 +68,7 @@ type
     fMasterServer: TKMMasterServer;
     fServerList: TKMServerList;
     fQuery: array[0..MAX_QUERIES-1] of TKMQuery;
+    fQueriesCompleted:integer;
 
     fOnListUpdated: TNotifyEvent;
     fOnAnnouncements: TGetStrProc;
@@ -178,6 +180,7 @@ begin
   Inherited;
   fNetClient := TKMNetClient.Create;
   fQueryIsDone := false;
+  fQueryActive := false;
 end;
 
 
@@ -190,6 +193,7 @@ end;
 
 procedure TKMQuery.PerformQuery(aAddress, aPort:string; aServerID:integer);
 begin
+  fQueryActive := true;
   fServerID := aServerID;
   fQueryStarted := GetTickCount;
   fNetClient.Disconnect;
@@ -207,6 +211,7 @@ end;
 
 procedure TKMQuery.UpdateStateIdle;
 begin
+  if not fQueryActive then exit;
   fNetClient.UpdateStateIdle;
   if GetTickCount-fQueryStarted > QUERY_TIMEOUT then
     fQueryIsDone := true; //Give up
@@ -214,6 +219,7 @@ begin
   begin
     fOnQueryDone(Self);
     fQueryIsDone := false;
+    fQueryActive := false;
   end;
 end;
 
@@ -317,10 +323,12 @@ end;
 procedure TKMServerQuery.ReceiveServerList(const S: string);
 var i: integer;
 begin
+  fQueriesCompleted := 0;
   fServerList.LoadFromText(S);
   for i:=0 to MAX_QUERIES-1 do
     fServerList.TakeNewQuery(fQuery[i]);
-  if Assigned(fOnListUpdated) then fOnListUpdated(Self);
+  //If there are no servers we should update the list now, otherwise wait for the first server
+  if (fServerList.fCount = 0) and Assigned(fOnListUpdated) then fOnListUpdated(Self);
 end;
 
 
@@ -343,7 +351,10 @@ end;
 
 procedure TKMServerQuery.QueryDone(Sender:TObject);
 begin
+  inc(fQueriesCompleted);
   fServerList.TakeNewQuery(TKMQuery(Sender));
+  //When we receive the last query we should update the list (this removes 'Refreshing...' when no servers respond)
+  if (fQueriesCompleted = fServerList.Count) and Assigned(fOnListUpdated) then fOnListUpdated(Self);
 end;
 
 

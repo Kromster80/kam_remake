@@ -2591,7 +2591,7 @@ begin
 
   for i:=0 to Math.min(fItems[0].Count-1, ((fHeight-fItemTop) div fItemHeight)-1) do
     for k:=0 to Length(fItems)-1 do
-      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, 0, 0, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,i]);
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, 0, 0, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,TopIndex+i]);
 end;
 
 

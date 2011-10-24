@@ -55,3 +55,4 @@ well (no idea),
 tavern (shows gossip info on enemies),
 training grounds for army (promote soldiers to veterans without combat),
 marketplace (converts resources at rediculously high ratios, e.g. 10wood=1gold), 
+church (ring the bell and your citizens/serfs hide inside while your village is being attacked, each church fits 20 units)

@@ -1,5 +1,5 @@
 
-MaxID:141
+MaxID:142
 
 1:Mission canceled
 2:Town Tutorial
@@ -109,6 +109,7 @@ MaxID:141
 99:Connecting, please wait ...
 100:Loading announcements...
 101:Refreshing...
+142:No servers found
 
 102:Players list
 103:Start location

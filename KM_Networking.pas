@@ -542,7 +542,7 @@ begin
   end
   else
   begin
-    if Assigned(fOnTextMessage) then fOnTextMessage('Error: Map failed to load');
+    if Assigned(fOnTextMessage) then fOnTextMessage('Error: Map failed to load or no map selected');
     Result := false;
   end;
 end;

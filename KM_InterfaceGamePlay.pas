@@ -522,6 +522,7 @@ begin
     and (Panel_Main.Childs[i] <> Panel_Message)
     and (Panel_Main.Childs[i] <> Panel_Replay)
     and (Panel_Main.Childs[i] <> Panel_Pause)
+    and (Panel_Main.Childs[i] <> Panel_NetWait)
     and (Panel_Main.Childs[i] <> Panel_PlayMore) then
       Panel_Main.Childs[i].Hide;
 
@@ -2702,7 +2703,10 @@ begin
   if fGame.GameState in [gsRunning, gsReplay] then
   begin
     if (fGame.GameState = gsRunning) and MyControls.KeyDown(Key, Shift) then
+    begin
+      fViewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
       Exit;
+    end;
     if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := true;
     if Key = VK_RIGHT then fViewport.ScrollKeyRight := true;
     if Key = VK_UP    then fViewport.ScrollKeyUp    := true;
