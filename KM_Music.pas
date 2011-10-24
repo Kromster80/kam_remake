@@ -9,8 +9,10 @@ type
   TMusicLib = class
   private
     MusicCount:integer;
-    MusicIndex:integer;
+    MusicIndex:integer; //Points to the index in TrackOrder of the current track
     MusicTracks:array[1..256]of string;
+    TrackOrder:array[1..256]of byte; //Each index points to an index of MusicTracks
+    SpiritIndex:byte;                //Index of the track "Spirit" (or Track 1)
     //MIDICount,MIDIIndex:integer;
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
@@ -29,6 +31,9 @@ type
     function IsMusicEnded:boolean;
     procedure StopMusic;
     procedure ToggleMusic(aOn:boolean);
+    procedure ToggleShuffle(aOn:boolean);
+    procedure ShuffleSongs;
+    procedure UnshuffleSongs;
     function GetTrackTitle:string;
   end;
 
@@ -42,6 +47,7 @@ uses
 constructor TMusicLib.Create(aVolume:single);
 begin
   Inherited Create;
+  SpiritIndex := 1;
   IsMusicInitialized := true;
   ScanMusicTracks(ExeDir + 'Music\');
 
@@ -136,8 +142,8 @@ end;
 procedure TMusicLib.PlayMenuTrack;
 begin
   if not IsMusicInitialized then exit;
-  if MusicIndex = 1 then exit; //It's already playing
-  MusicIndex := 1; //First track (Spirit) is always menu music
+  if MusicIndex = SpiritIndex then exit; //It's already playing
+  MusicIndex := SpiritIndex; //First track (Spirit) is always menu music
   PlayMusicFile(MusicTracks[MusicIndex]);
 end;
 
@@ -151,7 +157,7 @@ begin
 
   //Set next index, looped or random
   MusicIndex := MusicIndex mod MusicCount + 1;
-  PlayMusicFile(MusicTracks[MusicIndex]);
+  PlayMusicFile(MusicTracks[TrackOrder[MusicIndex]]);
 end;
 
 
@@ -162,7 +168,7 @@ begin
   if MusicCount=0 then exit; //no music files found
   MusicIndex := MusicIndex - 1; //Set to previous
   if MusicIndex = 0 then MusicIndex := MusicCount; //Loop to the top
-  PlayMusicFile(MusicTracks[MusicIndex]);
+  PlayMusicFile(MusicTracks[TrackOrder[MusicIndex]]);
 end;
 
 
@@ -189,6 +195,58 @@ begin
     StopMusic;
 end;
 
+procedure TMusicLib.ToggleShuffle(aOn:boolean);
+begin
+  if aOn then
+    ShuffleSongs
+  else
+    UnshuffleSongs;
+end;
+
+procedure TMusicLib.ShuffleSongs();
+var i, r, NewIndex, NewSpirit : Byte; TracksToChooseFrom:array[1..256]of Byte;
+begin
+  //Make an ordered array of track numbers
+  for i := 1 to MusicCount do
+    TracksToChooseFrom[i] := i;
+  //Place random numbers in the indices of TrackOrder array
+  for i := 1 to MusicCount do
+    begin
+      //Generate random number from 1 to (number of tracks)
+      r := RandomRange(1, MusicCount);
+      //Find the next unused track
+      while TracksToChooseFrom[r] = 0 do
+        r := r mod MusicCount + 1;
+      //Remember the track number if it is the current track or "Spirit"
+      if r = MusicIndex then
+        NewIndex := i;
+      if r = SpiritIndex then
+        NewSpirit := i;
+      //Place next track into TrackOrder array
+      TrackOrder[i] := TracksToChooseFrom[r];
+      //Mark track as "used" by setting the index to zero
+      TracksToChooseFrom[r] := 0;
+    end;
+    //Update indices of current track and "Spirit"
+    MusicIndex := NewIndex;
+    SpiritIndex := NewSpirit;
+end;
+
+procedure TMusicLib.UnshuffleSongs();
+var i, NewIndex : Byte;
+begin
+  //Reset every index of the TrackOrder array
+  for i := 1 to MusicCount do
+    begin
+      //Remember index of current track
+      if i = MusicIndex then
+        NewIndex := i;
+      TrackOrder[i] := i;
+    end;
+  //Update indices of current track and "Spirit"
+  MusicIndex := NewIndex;
+  SpiritIndex := 1;
+end;
 
 function TMusicLib.GetTrackTitle:string;
 begin
@@ -197,7 +255,7 @@ begin
   //May not display the correct title as not all LIBs are correct. Should also do range checking
   //Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex);
 
-  Result := TruncateExt(ExtractFileName(MusicTracks[MusicIndex])); //@Lewin: I think we should do it this way eventually
+  Result := TruncateExt(ExtractFileName(MusicTracks[TrackOrder[MusicIndex]])); //@Lewin: I think we should do it this way eventually
 end;
 
 (*

@@ -212,7 +212,7 @@ type
 
       Panel_Settings:TKMPanel;
         Ratio_Settings_Brightness:TKMRatioRow;
-        CheckBox_Settings_Autosave:TKMCheckBox;
+        CheckBox_Settings_Autosave, CheckBox_Settings_ShuffleOn:TKMCheckBox;
         Label_Settings_MouseSpeed,Label_Settings_ScrollSpeed,Label_Settings_SFX,Label_Settings_Music,Label_Settings_Music2:TKMLabel;
         Ratio_Settings_Mouse,Ratio_Settings_SFX,Ratio_Settings_Music,Ratio_Settings_ScrollSpeed:TKMRatioRow;
         CheckBox_Settings_MusicOn:TKMCheckBox;
@@ -1240,6 +1240,8 @@ begin
     CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,287,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
     CheckBox_Settings_MusicOn.Hint:=fTextLibrary.GetTextString(198);
     CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
+    CheckBox_Settings_ShuffleOn:=TKMCheckBox.Create(Panel_Settings,18,312,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
+    CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
 
 
@@ -2124,15 +2126,17 @@ begin
   Ratio_Settings_SFX.Position           := fGame.GlobalSettings.SoundFXVolume;
   Ratio_Settings_Music.Position         := fGame.GlobalSettings.MusicVolume;
   CheckBox_Settings_MusicOn.Checked     := not fGame.GlobalSettings.MusicOn;
+  CheckBox_Settings_ShuffleOn.Checked   := fGame.GlobalSettings.ShuffleOn;
 
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
 
 procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
-var MusicToggled: boolean;
+var MusicToggled, ShuffleToggled: boolean;
 begin
-  MusicToggled := (fGame.GlobalSettings.MusicOn = CheckBox_Settings_MusicOn.Checked);
+  MusicToggled   := (fGame.GlobalSettings.MusicOn = CheckBox_Settings_MusicOn.Checked);
+  ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Settings_ShuffleOn.Checked);
 
   fGame.GlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
   fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
@@ -2141,11 +2145,14 @@ begin
   fGame.GlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
   fGame.GlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
   fGame.GlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
+  fGame.GlobalSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
 
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
   fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
   if MusicToggled then
     fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
+  if ShuffleToggled then
+    fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
 
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;

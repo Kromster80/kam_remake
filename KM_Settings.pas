@@ -11,11 +11,12 @@ type
 
     fAutosave:boolean;
     fBrightness:byte;
-    fScrollSpeed:integer;
+    fScrollSpeed:byte;
     fFullScreen:boolean;
     fLocale:shortstring;
     fMouseSpeed:byte;
     fMusicOn:boolean;
+    fShuffleOn:boolean;
     fMusicVolume:byte;
     fResolutionID:word; //Relates to index in SupportedResolution
     fSlidersMin:byte;
@@ -43,11 +44,12 @@ type
 
     procedure SetAutosave(aValue:boolean);
     procedure SetBrightness(aValue:byte);
-    procedure SetScrollSpeed(aValue:integer);
+    procedure SetScrollSpeed(aValue:byte);
     procedure SetFullScreen(aValue:boolean);
     procedure SetLocale(aLocale:shortstring);
     procedure SetMouseSpeed(aValue:byte);
     procedure SetMusicOn(aValue:boolean);
+    procedure SetShuffleOn(aValue:boolean);
     procedure SetMusicVolume(aValue:byte);
     procedure SetSoundFXVolume(aValue:byte);
     procedure SetMultiplayerName(aValue:string);
@@ -67,11 +69,12 @@ type
 
     property Autosave:boolean read fAutosave write SetAutosave default true;
     property Brightness:byte read fBrightness write SetBrightness default 1;
-    property ScrollSpeed:integer read fScrollSpeed write SetScrollSpeed default 10;
+    property ScrollSpeed:byte read fScrollSpeed write SetScrollSpeed default 10;
     property FullScreen:boolean read fFullScreen write SetFullScreen default true;
     property Locale:shortstring read fLocale write SetLocale;
     property MouseSpeed:byte read fMouseSpeed write SetMouseSpeed;
     property MusicOn:boolean read fMusicOn write SetMusicOn default true;
+    property ShuffleOn:boolean read fShuffleOn write SetShuffleOn default false;
     property MusicVolume:byte read fMusicVolume write SetMusicVolume;
     property ResolutionID:word read fResolutionID write fResolutionID;
     property SlidersMin:byte read fSlidersMin;
@@ -155,6 +158,7 @@ begin
   fSoundFXVolume := f.ReadInteger('SFX','SFXVolume',10);
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
   fMusicOn       := f.ReadBool   ('SFX','MusicEnabled',true);
+  fShuffleOn     := f.ReadBool   ('SFX','ShuffleEnabled',false);
 
   if INI_HITPOINT_RESTORE then
     fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',DEFAULT_HITPOINT_RESTORE)
@@ -201,6 +205,7 @@ begin
   f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);
   f.WriteBool   ('SFX','MusicEnabled',fMusicOn);
+  f.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
 
   if INI_HITPOINT_RESTORE then
     f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
@@ -252,7 +257,7 @@ begin
 end;
 
 
-procedure TGlobalSettings.SetScrollSpeed(aValue:integer);
+procedure TGlobalSettings.SetScrollSpeed(aValue:byte);
 begin
   fScrollSpeed := aValue;
   fNeedsSave  := true;
@@ -339,6 +344,12 @@ end;
 procedure TGlobalSettings.SetMusicOn(aValue:boolean);
 begin
   fMusicOn := aValue;
+  fNeedsSave := true;
+end;
+
+procedure TGlobalSettings.SetShuffleOn(aValue:boolean);
+begin
+  fShuffleOn := aValue;
   fNeedsSave := true;
 end;
 

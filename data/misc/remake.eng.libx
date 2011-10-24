@@ -1,5 +1,5 @@
 
-MaxID:142
+MaxID:143
 
 1:Mission canceled
 2:Town Tutorial
@@ -26,6 +26,7 @@ MaxID:142
 24:Sound:
 141:Scroll speed
 25:Disable music
+143:Shuffle songs
 26:Graphics:
 27:Brightness
 28:Fullscreen

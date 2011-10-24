@@ -168,6 +168,7 @@ begin
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings, aReturnToOptions);
 
   if (not NoMusic) and fGlobalSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
+  fMusicLib.ToggleShuffle(fGlobalSettings.ShuffleOn); //Determine track order
 
   fLog.AppendLog('<== Game creation is done ==>');
 end;

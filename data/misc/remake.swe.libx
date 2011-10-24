@@ -1,5 +1,5 @@
 
-MaxID:142
+MaxID:143
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -26,6 +26,7 @@ MaxID:142
 24:Ljud:
 141:
 25:Ingen musik
+143:
 26:Grafik:
 27:Ljusstyrka
 28:Helskärm
