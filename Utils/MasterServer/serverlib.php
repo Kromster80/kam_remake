@@ -98,7 +98,6 @@ function GetStats($Format)
 		case "ajaxupdate":
 			$data = json_encode(Array("pct"=>$TotalPlayerCount,"sct"=>$ServerCount));
 			return $_GET['jsonp_callback']."(".$data.")";
-			//return '{'."\n\t".'"pct": "'.$TotalPlayerCount.'",'."\n\t".'"sct": "'.$ServerCount.'"'."\n".'}';
 		case "csv":
 			return $ServerCount.','.$TotalPlayerCount;
 		case "refresh":
@@ -119,8 +118,23 @@ function GetServers($aFormat)
 	global $DATA_FILE;
 	include("flag.php");
 	$Result = "";
+	$cnts = 0;
 	if(!file_exists($DATA_FILE))
 		return "";
+	switch($aFormat)
+	{
+		case "ajaxupdate":
+			$Result = array();
+		break;
+		case "refresh":
+			$Result = '<script type="text/javascript">'."\n".
+			'function srvlsttim(dat){var x="<tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style=\"text-align: center\"><strong>Players</strong></td></tr>";for(var n=0;n<dat.cnt;n++){x+="<tr><td><img src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flags/"+dat.srvs[n].c+".gif\" alt=\""+dat.srvs[n].c+"\" />&nbsp;"+dat.srvs[n].n+"</td><td>"+(dat.srvs[n].a=="0"?" <img src=\"http://lewin.hodgman.id.au/kam_remake_master_server/error.png\" alt=\"Server unreachable\" style=\"vertical-align:middle\" />":"")+dat.srvs[n].i+"</td><td>"+dat.srvs[n].p+"</td></tr>";jQuery("#ajxtbl").empty().append(x);}}'."\n".
+			'function updsr(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://lewin.hodgman.id.au/kam_remake_master_server/serverquery.php?format=ajaxupdate",success: function (data){srvlsttim(data);updsr();}});}, 30000);}'."\n".
+			'jQuery(document).ready(function($){updsr();});</script>'."\n";
+		case "table":
+			$Result .= '<table border="1" width="100%" id="ajxtbl"><tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style="text-align: center"><strong>Players</strong></td></tr>';
+		default:
+	}
 	$Lines = file($DATA_FILE);
 	foreach($Lines as $Line)
 	{
@@ -129,18 +143,42 @@ function GetServers($aFormat)
 		list($Name,$IP,$Port,$PlayerCount,$Alive,$Expiry) = explode("|",$Line);
 		if(time() < $Expiry)
 		{
+			$cnts++;
 			switch($aFormat)
 			{
+				case "refresh":
 				case "table":
 					$Country = IPToCountry($IP);
 					$Warning = '';
 					if(!$Alive) $Warning = ' <IMG src="http://lewin.hodgman.id.au/kam_remake_master_server/error.png" alt="Server unreachable" style="vertical-align:middle">';
-					$Result .= "<TR><TD><IMG src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD><div style=\"text-align:center\">$PlayerCount</div></TD></TR>\n";
+					$Result .= "<TR><TD><IMG src=\"http://lewin.hodgman.id.au/kam_remake_master_server/flags/".strtolower($Country).".gif\" alt=\"".GetCountryName($Country)."\">&nbsp;$Name</TD><TD>$Warning$IP</TD><TD style=\"text-align: center\">$PlayerCount</TD></TR>\n";
+					break;
+				case "ajaxupdate":
+					$srvsgl = array();
+					$srvsgl['c'] = strtolower(IPToCountry($IP));
+					$srvsgl['n'] = $Name;
+					if(!$Alive) { $srvsgl['a'] = "0"; } //$Alive could be '' to mean false
+					else        { $srvsgl['a'] = "1"; }
+					$srvsgl['i'] = $IP;
+					//$Result['o'] = $Port; // not used yet
+					$srvsgl['p'] = $PlayerCount;
+					$Result[] = $srvsgl;
 					break;
 				default:
 					$Result .= "$Name,$IP,$Port\n";
 			}
 		}
+	}
+	switch($aFormat)
+	{
+		case "ajaxupdate":
+			$Result = json_encode(Array("cnt"=>$cnts,"srvs"=>$Result));
+			$Result = $_GET['jsonp_callback']."(".$Result.")";
+			break;
+		case "refresh":
+		case "table":
+			$Result .= '</table>';
+		default:
 	}
 	return $Result;
 }
