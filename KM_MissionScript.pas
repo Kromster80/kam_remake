@@ -725,7 +725,7 @@ begin
                             else
                               AddScriptError('Add_LostGoal for non existing player');
     ct_AIDefence:       if fLastPlayer >=0 then
-                          fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(KMPoint(P[0]+1,P[1]+1),TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
+                          fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
                           fPlayers.Player[fLastPlayer].FlagColor := fResource.Palettes[DEF_PAL].Color32(P[0]);

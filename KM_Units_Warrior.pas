@@ -113,7 +113,7 @@ begin
   fTimeSinceHungryReminder := 0;
   fOrder             := wo_None;
   fState             := ws_None;
-  fOrderLoc          := KMPointDir(KMPoint(PosX, PosY), dir_NA);
+  fOrderLoc          := KMPointDir(PosX, PosY, dir_NA);
   fUnitsPerRow       := 1;
   fMembers           := nil; //Only commander units will have it initialized
   fMapEdMembersCount := 0; //Used only in MapEd

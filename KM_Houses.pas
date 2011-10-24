@@ -542,7 +542,7 @@ var
   begin
     //First check that the passabilty is correct, as the house may be placed against blocked terrain
     if not fTerrain.CheckPassability(KMPoint(X,Y),aPassability) then exit;
-    Cells.AddEntry(KMPointDir(KMPoint(X,Y), Dir));
+    Cells.AddEntry(KMPointDir(X, Y, Dir));
   end;
 
 begin

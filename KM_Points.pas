@@ -21,6 +21,7 @@ type
   function KMPoint(P:TKMPointI): TKMPoint; overload;
   function KMPointF(X,Y:single): TKMPointF; overload;
   function KMPointF(P:TKMPoint):  TKMPointF; overload;
+  function KMPointDir(X,Y: Word; Dir: TKMDirection): TKMPointDir; overload;
   function KMPointDir(P:TKMPoint; Dir: TKMDirection): TKMPointDir; overload;
   function KMPointX1Y1(P:TKMPoint): TKMPoint; overload;
   function KMPointBelow(P:TKMPoint): TKMPoint; overload;
@@ -86,6 +87,14 @@ function KMPointF(X, Y: single): TKMPointF;
 begin
   Result.X := X;
   Result.Y := Y;
+end;
+
+
+function KMPointDir(X,Y: Word; Dir: TKMDirection): TKMPointDir;
+begin
+  Result.Loc.X := X;
+  Result.Loc.Y := Y;
+  Result.Dir := Dir;
 end;
 
 

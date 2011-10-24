@@ -9,6 +9,8 @@ const MAX_MAP_SIZE = 192;
 
 
 type
+  TTreeAct = (taChop, taPlant, taAny);
+
   {Class to store all terrain data, aswell terrain routines}
   TTerrain = class
   private
@@ -86,10 +88,9 @@ type
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
     function FindField(aLoc:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
-    function FindTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
     function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
     function FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
-    function FindPlaceForTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPointDir):Boolean;
+    function FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aTreeAct: TTreeAct; out Tree: TKMPointDir; out TreeAct: TTreeAct): Boolean;
     function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
     function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer):boolean;
     function ChooseTreeToPlant(aLoc:TKMPoint):integer;
@@ -800,47 +801,10 @@ begin
         if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
            ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
           if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
-            List.AddEntry(KMPointDir(KMPoint(k,i), dir_NA));
+            List.AddEntry(KMPointDir(k, i, dir_NA));
 
   Result := List.GetRandom(FieldPoint);
   List.Free;
-end;
-
-
-{Find closest chopable Tree around}
-function TTerrain.FindTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePoint: TKMPointDir):Boolean;
-const Ins=1; //1..Map => 2..Map-1 (Ignore shaded Map borders)
-var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint; bTreeLoc: Boolean;
-begin
-  //List will have all trees within radius
-  List := TKMPointList.Create;
-  for i:=Max(aLoc.Y-aRadius, 1+Ins) to Min(aLoc.Y+aRadius, fMapY-Ins) do
-  for k:=Max(aLoc.X-aRadius, 1+Ins) to Min(aLoc.X+aRadius, fMapX-Ins) do
-    if (KMLength(aLoc,KMPoint(k,i)) <= aRadius)
-    and not KMSamePoint(aAvoidLoc, KMPoint(k,i))
-    and ObjectIsChopableTree(KMPoint(k,i), 4)
-    and (Land[i,k].TreeAge >= TreeAgeFull) //Grownup tree
-    and Route_CanBeMadeToVertex(aLoc, KMPoint(k,i), CanWalk) then
-      List.AddEntry(KMPoint(k,i));
-
-  bTreeLoc := List.GetRandom(TreeLoc); //Choose our tree
-  List.Free;
-
-  //Now choose our direction of approch based on which one is the flatest (animation looks odd if not flat)
-  Best := 255;
-  Result := False;
-
-  //Only bother choosing direction if tree is valid, otherwise just exit with invalid
-  if bTreeLoc then
-  for i:=-1 to 0 do for k:=-1 to 0 do
-    if Route_CanBeMade(aLoc,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
-      if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
-        ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
-      begin
-        TreePoint := KMPointDir(KMPoint(TreeLoc.X+k, TreeLoc.Y+i), KMGetVertexDir(k,i));
-        Result := True;
-        Best := abs(Round(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
-      end;
 end;
 
 
@@ -857,7 +821,7 @@ begin
       if (TileIsStone(k,i)>0) then
         if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
           if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0,false) then
-            List.AddEntry(KMPointDir(KMPoint(k,i+1), dir_N));
+            List.AddEntry(KMPointDir(k, i+1, dir_N));
 
   Result := List.GetRandom(StonePoint);
   List.Free;
@@ -903,29 +867,91 @@ begin
 end;
 
 
-{Find suitable place to plant a tree.
-Prefer ex-trees locations}
-function TTerrain.FindPlaceForTree(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out TreePlacePoint: TKMPointDir):Boolean;
-var i,k:integer; List1,List2:TKMPointList;
+//Return location of a Tree or a place to plant a tree depending on TreeAct
+//taChop - Woodcutter wants to get a Tree because he went from home with an axe
+//        (maybe his first target was already chopped down, so he either needs a tree or will go home)
+//taPlant - Woodcutter specifically wants to get an empty place to plant a Tree
+//taAny - Anything will do since Woodcutter is querying from home
+//Result indicates if desired TreeAct place was found successfully
+function TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aTreeAct: TTreeAct; out Tree: TKMPointDir; out TreeAct: TTreeAct): Boolean;
+var
+  List1, List2, List3: TKMPointList;
+  i,k: Integer;
+  T: TKMPoint;
+  BestSlope, Slope: Integer;
 begin
-  TreePlacePoint.Dir := dir_N; //Trees must always be planted facing north as that is the unit DAT animation that is used
-  List1:=TKMPointList.Create;
-  List2:=TKMPointList.Create;
+  List1 := TKMPointList.Create; //Trees
+  List2 := TKMPointList.Create; //Stumps (preferred when planting a new tree)
+  List3 := TKMPointList.Create; //Clear places
+
+  //Scan terrain and add all trees/spots into lists
   for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
   for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
-    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
-      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then begin
+  begin
+    T := KMPoint(k,i);
 
-        if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
-            List1.AddEntry(KMPoint(k,i))
-          else
-            List2.AddEntry(KMPoint(k,i));
+    if (KMLength(aLoc, T) <= aRadius)
+    and not KMSamePoint(aAvoidLoc, T) then
+    begin
 
-      end;
-  Result := List1.GetRandom(TreePlacePoint.Loc);
-  if not(Result) then Result := List2.GetRandom(TreePlacePoint.Loc);
+      //Grownup tree
+      if (aTreeAct in [taChop, taAny])
+      and ObjectIsChopableTree(T, 4)
+      and (Land[i,k].TreeAge >= TreeAgeFull)
+      and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
+        List1.AddEntry(T);
+
+      if (aTreeAct in [taPlant, taAny])
+      and (CanPlantTrees in Land[i,k].Passability)
+      and Route_CanBeMade(aLoc, T, CanWalk, 0, False) then
+        if ObjectIsChopableTree(T, 6) then
+          List2.AddEntry(T) //Stump
+        else
+          List3.AddEntry(T); //Empty place
+    end;
+  end;
+
+  //Convert taAny to either a Tree or a Spot
+  //Average tree uses ~9 tiles, hence we correct Places weight by some amount (15 fits good) to make choice between Plant and Chop more even. Feel free to fine-tune it
+  if (List1.Count > 8) //Always chop the tree if there are many
+  or (List2.Count + List3.Count = 0)
+  or ((List1.Count > 0) and (KaMRandom < List1.Count / (List1.Count + (List2.Count + List3.Count)/15))) then
+  begin
+    Result := List1.GetRandom(T);
+    TreeAct := taChop;
+  end else begin
+    Result := List2.GetRandom(T);
+    if not Result then
+      Result := List3.GetRandom(T);
+    TreeAct := taPlant;
+  end;
+
+  //Note: Result can still be False
   List1.Free;
   List2.Free;
+  List3.Free;
+
+  //Choose direction of approach based on which one is the flatest (animation looks odd if not flat)
+  if (TreeAct = taChop) and Result then
+  begin
+    BestSlope := 255;
+    Result := False; //It is already tested that we can walk to the tree, but double-check
+
+    for i:=-1 to 0 do for k:=-1 to 0 do
+    if Route_CanBeMade(aLoc, KMPoint(T.X+k, T.Y+i), CanWalk, 0, False) then
+    begin
+      Slope := MixLandHeight(T.X+k, T.Y+i) - Land[T.Y, T.X].Height;
+      if (Abs(Slope) < BestSlope) and ((i <> 0) or (Slope >= 0)) then
+      begin
+        Tree := KMPointDir(T.X+k, T.Y+i, KMGetVertexDir(k, i));
+        Result := True;
+        BestSlope := Abs(Slope);
+      end;
+    end;  
+  end;
+
+  if (TreeAct = taPlant) and Result then
+    Tree := KMPointDir(T, dir_N); //Trees must always be planted facing north as that is the unit DAT animation that is used
 end;
 
 
@@ -954,7 +980,7 @@ begin
               // D) Final check: route can be made and isn't avoid loc
               if Route_CanBeMade(aLoc, KMPoint(k+j, i+l), CanWalk, 0,false)
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
-                List.AddEntry(KMPointDir(KMPoint(k+j, i+l), KMGetDirection(j,l)));
+                List.AddEntry(KMPointDir(k+j, i+l, KMGetDirection(j,l)));
 
   Result := List.GetRandom(FishPoint);
   List.Free;
