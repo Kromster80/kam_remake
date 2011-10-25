@@ -11,6 +11,7 @@ program KaM_DedicatedServer;
 uses
   SysUtils,
   {$IFDEF MSWindows}Windows,{$ENDIF}
+  {$IFDEF Unix} KM_Utils, {$ENDIF} //Needed in Linux for FakeGetTickCount
   KM_Defaults,
   KM_Log,
   KM_Settings,
