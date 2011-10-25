@@ -477,10 +477,11 @@ function TTerrain.TileIsRoadable(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   //Do not include 1/2 and 1/4 walkable as roadable
-  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..31, 32..39, 45..47, 49, 52, 55, 56..63,
-                                          64..71, 72..79, 80..87, 88..95, 96..103, 104,108,111, 112,113,
-                                          152..155,180..183,188..191,
-                                          203..205, 212,213,215, 220, 247];
+  //Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..31, 32..39, 45..47, 49, 52, 55, 56..63,
+  //                                        64..71, 72..79, 80..87, 88..95, 96..103, 104,108,111, 112,113,
+  //                                        152..155,180..183,188..191,
+  //                                        203..205, 212,213,215, 220, 247]; }
+  Result := PatternDAT[Land[Loc.Y,Loc.X].Terrain+1].Buildable <> 0;
 end;
 
 

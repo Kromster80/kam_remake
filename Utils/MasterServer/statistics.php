@@ -74,6 +74,8 @@ function GetServerGraph($size = array(500, 200), $timespan = array(0, 0), $perio
 
 	//date_default_timezone_set("UTC");
 	
+	$CountMax = 0;
+
 	$p = $period;
 	foreach ($Stats as $Line) {
 		$Line = explode(',', rtrim($Line, "\n"));
@@ -87,6 +89,9 @@ function GetServerGraph($size = array(500, 200), $timespan = array(0, 0), $perio
 
 		$ServerLine .= "'".$Line[1]."',";
 		$PlayerLine .= "'".$Line[2]."',";
+
+		$CountMax = ($Line[2] > $CountMax) ? $Line[2] : $CountMax;
+		$CountMax = ($Line[1] > $CountMax) ? $Line[1] : $CountMax;
 	}
 	
 	$ServerLine = rtrim($ServerLine, ",");
@@ -117,6 +122,9 @@ function GetServerGraph($size = array(500, 200), $timespan = array(0, 0), $perio
 			line.Set("chart.gutter.top", 10);
 			line.Set("chart.gutter.right", 10);
 			line.Set("chart.xticks", '.$xticks.');
+			line.Set("chart.key.position.y", 15);
+			line.Set("chart.key.position.x", '.($width - 82).');
+			line.Set("chart.ymax", '.(($CountMax + 5) * 1.2).');
 			line.Set("chart.text.font", "Calibri, MS Sans Serif, Arial, sans-serif");
             line.Draw();
             //document.write((new Date()).toLocaleString());
