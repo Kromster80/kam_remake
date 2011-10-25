@@ -21,6 +21,8 @@ type
     function  CheckMusicError:boolean;
     function  PlayMusicFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
+    procedure ShuffleSongs; //should not be seen outside of this class
+    procedure UnshuffleSongs;
   public
     constructor Create(aVolume:single);
     destructor Destroy; override;
@@ -32,8 +34,6 @@ type
     procedure StopMusic;
     procedure ToggleMusic(aOn:boolean);
     procedure ToggleShuffle(aOn:boolean);
-    procedure ShuffleSongs;
-    procedure UnshuffleSongs;
     function GetTrackTitle:string;
   end;
 
@@ -203,46 +203,62 @@ begin
     UnshuffleSongs;
 end;
 
-procedure TMusicLib.ShuffleSongs();
-var i, r, NewIndex, NewSpirit : Byte; TracksToChooseFrom:array[1..256]of Byte;
+procedure TMusicLib.ShuffleSongs;
+var i, r, NewIndex, NewSpirit: Byte;
+  TracksToChooseFrom:array[1..256]of Byte; //Can be replaced with TrackOrder
 begin
   //Make an ordered array of track numbers
   for i := 1 to MusicCount do
     TracksToChooseFrom[i] := i;
+
   //Place random numbers in the indices of TrackOrder array
+  //@DanJB: Here's the nice QA about randomly shuffling an array:
+  //http://stackoverflow.com/questions/5131341/what-distribution-do-you-get-from-this-broken-random-shuffle
+  //you can use SwapInt(A,B) from KromUtils to swap numbers
+  //Also I would simplify this a little bit and kept Spirit #1 always (i.e. Randomizing [2..256] range)
   for i := 1 to MusicCount do
-    begin
-      //Generate random number from 1 to (number of tracks)
-      r := RandomRange(1, MusicCount);
-      //Find the next unused track
-      while TracksToChooseFrom[r] = 0 do
-        r := r mod MusicCount + 1;
-      //Remember the track number if it is the current track or "Spirit"
-      if r = MusicIndex then
-        NewIndex := i;
-      if r = SpiritIndex then
-        NewSpirit := i;
-      //Place next track into TrackOrder array
-      TrackOrder[i] := TracksToChooseFrom[r];
-      //Mark track as "used" by setting the index to zero
-      TracksToChooseFrom[r] := 0;
-    end;
-    //Update indices of current track and "Spirit"
-    MusicIndex := NewIndex;
-    SpiritIndex := NewSpirit;
+  begin
+    //Generate random number from 1 to (number of tracks)
+    r := RandomRange(1, MusicCount);
+    //Find the next unused track
+    while TracksToChooseFrom[r] = 0 do
+      r := r mod MusicCount + 1;
+    //Remember the track number if it is the current track or "Spirit"
+    if r = MusicIndex then
+      NewIndex := i;
+    if r = SpiritIndex then
+      NewSpirit := i;
+    //Place next track into TrackOrder array
+    TrackOrder[i] := TracksToChooseFrom[r];
+    //Mark track as "used" by setting the index to zero
+    TracksToChooseFrom[r] := 0;
+  end;
+
+  //Update indices of current track and "Spirit"
+  MusicIndex := NewIndex;
+  SpiritIndex := NewSpirit;
+  //@DanJB: Delphi shows a warning here, NewIndex and NewSpirit might not have been initialized,
+  //Indeed, if for some reason MusicIndex or SpiritIndex are not equal to R the new values will be off as well
+  //Please try to fix all compiler warnings before commit :)
 end;
 
-procedure TMusicLib.UnshuffleSongs();
+//@DanJB: It's not a big deal at all, I understand you have good skills in C, where {} are usually indented
+//In Delphi begin/end block is usually aligned with previous statements. I'm just being picky, please ignore it
+//if it is any trouble to you.
+procedure TMusicLib.UnshuffleSongs;
 var i, NewIndex : Byte;
 begin
   //Reset every index of the TrackOrder array
   for i := 1 to MusicCount do
-    begin
-      //Remember index of current track
-      if i = MusicIndex then
-        NewIndex := i;
-      TrackOrder[i] := i;
-    end;
+  begin
+    //Remember index of current track
+    //@DanJB: I don't quite get this part, if i = MusicIndex then NewIndex = i, why can't we just
+    //set NewIndex := MusicIndex ? Perhaps something is missing here
+    if i = MusicIndex then
+      NewIndex := i;
+    TrackOrder[i] := i;
+  end;
+
   //Update indices of current track and "Spirit"
   MusicIndex := NewIndex;
   SpiritIndex := 1;
