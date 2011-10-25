@@ -1,4 +1,4 @@
-Since r2411:
+﻿Since r2411:
 <===================================================================================>
  +	Shorted "teamname %s" in lobby for PL locale
  +	Replace the "Fast Scrolling" checkbox with a slider
@@ -49,6 +49,7 @@ Features:
 	Make player info take the full width of the multiplayer lobby and move map info below
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it (for people with an X server on *nix or a Windows server)
 	Better full screen support (right now you can't minimize the game while it's full screen)
+	Archers on a hill get slighty longer range (calculated from height of archer tile relative to target tile)
  
 
  -	The ingame briefing texture is too short, see attached picture

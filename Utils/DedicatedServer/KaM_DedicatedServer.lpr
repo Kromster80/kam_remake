@@ -22,6 +22,7 @@ var
   fDedicatedServer: TKMDedicatedServer;
   fSettings: TGlobalSettings;
   fSettingsLastModified: integer;
+  TickCount, fLastSettingsFileCheck:cardinal;
 
 {$IFDEF MSWindows}
 procedure MyProcessMessages;
@@ -50,6 +51,7 @@ begin
   fSettings := TGlobalSettings.Create;
   fSettings.SaveSettings(true);
   fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
+  fLastSettingsFileCheck := 0;
 
   fDedicatedServer := TKMDedicatedServer.Create(SERVER_PROTOCOL_REVISON,
                                                 fSettings.MaxRooms,
@@ -65,20 +67,26 @@ begin
   while True do
   begin
     fDedicatedServer.UpdateState;
-    //Reload the INI file if it has changed
-    if (FileAge(ExeDir+SETTINGS_FILE) <> fSettingsLastModified) then
+    TickCount := {$IFDEF MSWindows}GetTickCount{$ENDIF}
+                 {$IFDEF Unix} FakeGetTickCount{$ENDIF};
+    //Reload the INI file if it has changed, by checking the file age every 5 seconds
+    if (abs(Int64(TickCount)-Int64(fLastSettingsFileCheck)) >= 5000) then
     begin
-      fEventHandler.ServerStatusMessage('Reloading updated settings from '+ExeDir+SETTINGS_FILE);
-      fSettings.ReloadSettings;
-      fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
-      fDedicatedServer.UpdateSettings(fSettings.ServerName,
-                                      fSettings.AnnounceServer,
-                                      fSettings.AutoKickTimeout,
-                                      fSettings.PingInterval,
-                                      fSettings.MasterAnnounceInterval,
-                                      fSettings.MasterServerAddress,
-                                      fSettings.HTMLStatusFile,
-                                      fSettings.ServerWelcomeMessage);
+      fLastSettingsFileCheck := TickCount;
+      if FileAge(ExeDir+SETTINGS_FILE) <> fSettingsLastModified then
+      begin
+        fEventHandler.ServerStatusMessage('Reloading updated settings from '+ExeDir+SETTINGS_FILE);
+        fSettings.ReloadSettings;
+        fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
+        fDedicatedServer.UpdateSettings(fSettings.ServerName,
+                                        fSettings.AnnounceServer,
+                                        fSettings.AutoKickTimeout,
+                                        fSettings.PingInterval,
+                                        fSettings.MasterAnnounceInterval,
+                                        fSettings.MasterServerAddress,
+                                        fSettings.HTMLStatusFile,
+                                        fSettings.ServerWelcomeMessage);
+      end;
     end;
     {$IFDEF MSWindows}
     MyProcessMessages; //This will process network (or other) events
