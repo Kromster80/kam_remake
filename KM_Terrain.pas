@@ -2,7 +2,8 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-     KM_Defaults, KM_CommonTypes, KM_Player, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses, KM_Points;
+     KM_Defaults, KM_CommonTypes, KM_Player, KM_Units, KM_Units_Warrior, KM_Utils, KM_Houses,
+     KM_PathFinding, KM_Points;
 
 
 const MAX_MAP_SIZE = 192;
@@ -56,6 +57,7 @@ type
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
     end;
 
+    Pathfinding: TPathFinding;
     FallingTrees: TKMPointTagList;
     MiniMapRGB:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of cardinal;
 
@@ -126,7 +128,7 @@ type
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
-    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
+    function Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
     procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
@@ -193,24 +195,28 @@ type
     procedure Paint;
   end;
 
+
 var
   fTerrain: TTerrain;
 
+
 implementation
-uses KM_Viewport, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
+uses KM_Viewport, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Sound, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
 
 
 { TTerrain }
 constructor TTerrain.Create;
 begin
   Inherited;
-  fAnimStep:=0;
+  fAnimStep := 0;
   FallingTrees := TKMPointTagList.Create;
+  Pathfinding := TPathFinding.Create;
 end;
 
 
 destructor TTerrain.Destroy;
 begin
+  FreeAndNil(Pathfinding);
   FreeAndNil(FallingTrees);
   Inherited;
 end;
@@ -246,6 +252,8 @@ begin
     BorderBottom := false;
     BorderRight  := false;
   end;
+
+  PathFinding.UpdateMapSize(fMapX, fMapY);
 
   RebuildLighting(1,fMapX,1,fMapY);
   RebuildPassability(1,fMapX,1,fMapY);
@@ -291,6 +299,8 @@ begin
   finally
     S.Free;
   end;
+
+  PathFinding.UpdateMapSize(fMapX, fMapY);
 
   RebuildLighting(1,fMapX,1,fMapY);
   RebuildPassability(1,fMapX,1,fMapY);
@@ -1656,19 +1666,10 @@ end;
 
 
 //Tests weather route can be made
-function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
-var fPath:TPathFinding;
+function TTerrain.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse, true); //True means we are using Interaction Avoid mode (go around busy units)
-  try
-    Result := fPath.RouteSuccessfullyBuilt;
-    if fPath.GetRouteLength > aMaxRouteLen then Result := false; //Route is too long
-    if not Result then exit;
-    if NodeList <> nil then NodeList.Clearup;
-    fPath.ReturnRoute(NodeList);
-  finally
-    fPath.Free;
-  end;
+  //True means we are using Interaction Avoid mode (go around busy units)
+  Result := PathFinding.Route_MakeAvoid(aLocA, aLocB, aPass, aDistance, aHouse, true, NodeList, aMaxRouteLen);
 end;
 
 
@@ -2480,6 +2481,8 @@ begin
 
   for i:=1 to fMapY do for k:=1 to fMapX do
     UpdateBorders(KMPoint(k,i),false);
+
+  PathFinding.UpdateMapSize(fMapX, fMapY);
 
   RebuildLighting(1, fMapX, 1, fMapY);
   RebuildPassability(1, fMapX, 1, fMapY);

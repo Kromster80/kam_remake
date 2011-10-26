@@ -1,21 +1,33 @@
 unit KM_PathFinding;
 {$I KaM_Remake.inc}
-interface            
-uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_CommonTypes, KM_Houses, KM_Points;
-
-type TDestinationPoint = (dp_Location, dp_Passability, dp_House);
+interface
+uses SysUtils, Math, KromUtils,
+  KM_Defaults, KM_CommonTypes, KM_Houses, KM_Points;
 
 type
-  { Here should be pathfinding and all associated stuff }
+  TDestinationPoint = (
+    dp_Location, //Walk to location
+    dp_Passability, //Walk to desired passability
+    dp_House //Approach house from any side (workers and warriors)
+    );
+
+
+  // This is a helper class for TTerrain
+  // Here should be pathfinding and all associated stuff
+
+  //I think we should refactor this unit and move some TTerrain methods here
+
   TPathFinding = class
   private
+    fMapX: Word;
+    fMapY: Word;
     NewCost:integer;
     MinCost:record
       Cost:integer;
       ID:word;
       Pos:TKMPoint;
     end;
-    ORef:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE] of word; //Ref to OpenList
+    ORef:array of array of word; //References to OpenList, Sized as map
     OCount:word;
     OList:array of record //List of checked cells
       Pos:TKMPoint;
@@ -39,19 +51,62 @@ type
     function IsDestinationReached:boolean;
     function MakeRoute:boolean;
   public
+    function Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
     constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint); overload;
+    procedure UpdateMapSize(X,Y: Word);
     function GetRouteLength:integer;
     procedure ReturnRoute(var NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
 
+
 implementation
+uses KM_Terrain;
+
+
+{ TPathFinding }
+function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
+begin
+  LocA := aLocA;
+  LocB := aLocB;
+  Pass := aPass;
+  TargetNetwork := 0; //erase just in case
+  TargetWalkConnect := wcWalk; //erase just in case
+  fDistance := aDistance;
+  IsInteractionAvoid := aIsInteractionAvoid;
+  fRouteSuccessfullyBuilt := false;
+  fTargetHouse := aTargetHouse;
+  if fTargetHouse = nil then
+    fDestination := dp_Location
+  else
+    fDestination := dp_House;
+
+  Result := False;
+  if CheckRouteCanExist then
+  begin
+    InitRoute;
+    if MakeRoute then
+    begin
+      if GetRouteLength <= aMaxRouteLen then
+      begin
+        if NodeList <> nil then
+          NodeList.Clearup;
+        ReturnRoute(NodeList);
+        Result := True;
+      end;
+    end;
+  end;
+
+end;
 
 
 constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false);
 begin
   Inherited Create;
+
+  UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Temp
+
   LocA := aLocA;
   LocB := aLocB;
   Pass := aPass;
@@ -76,6 +131,9 @@ end;
 constructor TPathFinding.Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint);
 begin
   Inherited Create;
+
+  UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Temp
+
   LocA := aLocA;
   LocB := aLocB; //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
   Pass := fPass; //Should be unused here
@@ -87,6 +145,14 @@ begin
 
   InitRoute;
   fRouteSuccessfullyBuilt := MakeRoute; //
+end;
+
+
+procedure TPathFinding.UpdateMapSize(X,Y: Word);
+begin
+  fMapX := X;
+  fMapY := Y;
+  //Keep the ORef array the size of a map for more efficient cache usage
 end;
 
 
@@ -103,7 +169,9 @@ end;
 
 procedure TPathFinding.InitRoute;
 begin
-  FillChar(ORef,SizeOf(ORef),#0);
+  SetLength(ORef, 0); //Cleanup before use
+  SetLength(ORef, fMapX+1, fMapY+1);
+  
   setlength(OList,0); //reset length
   OCount:=1;
   ORef[LocA.Y,LocA.X]:=OCount;
@@ -150,8 +218,8 @@ begin
       OList[MinCost.ID].Estim:=c_closed;
 
       //Check all surrounding cells and issue costs to them
-      for y:=Math.max(MinCost.Pos.Y-1,1) to Math.min(MinCost.Pos.Y+1, fTerrain.MapY-1) do
-      for x:=Math.max(MinCost.Pos.X-1,1) to Math.min(MinCost.Pos.X+1, fTerrain.MapX-1) do
+      for y:=Math.max(MinCost.Pos.Y-1,1) to Math.min(MinCost.Pos.Y+1, fMapY-1) do
+      for x:=Math.max(MinCost.Pos.X-1,1) to Math.min(MinCost.Pos.X+1, fMapX-1) do
         if ORef[y,x]=0 then //Cell is new
         if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
         //If we are in InteractionAvoid mode then don't use tiles with workers on them
