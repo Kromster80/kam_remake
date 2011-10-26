@@ -112,7 +112,7 @@ begin
   //They must be cast as Int64 otherwise it crashes when TickCount > fLastPing with "Integer Overflow"
   if fPublishServer and (abs(Int64(TickCount)-Int64(fLastAnnounce)) >= fAnnounceInterval*1000) then
   begin
-    fMasterServer.AnnounceServer(fServerName,fPort,fNetServer.GetPlayerCount,fAnnounceInterval+10);
+    fMasterServer.AnnounceServer(fServerName,fPort,fNetServer.GetPlayerCount,fAnnounceInterval+20);
     fLastAnnounce := TickCount;
   end;
 end;

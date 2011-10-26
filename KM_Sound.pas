@@ -329,8 +329,8 @@ begin
   begin
     S := TMemoryStream.Create;
     S.Write(fWaves[i].Head, SizeOf(fWaves[i].Head));
-    S.Write(fWaves[i].Data[0], SizeOf(fWaves[i].Data));
-    S.Write(fWaves[i].Foot[0], SizeOf(fWaves[i].Foot));
+    S.Write(fWaves[i].Data[0], Length(fWaves[i].Data));
+    S.Write(fWaves[i].Foot[0], Length(fWaves[i].Foot));
     S.SaveToFile(ExeDir+'Export\Sounds.dat\sound_'+int2fix(i,3)+'_'+SSoundFX[TSoundFX(i)]+'.wav');
     S.Free;
   end;

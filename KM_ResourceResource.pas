@@ -34,7 +34,7 @@ type
 
 
 const
-  MARKET_TRADEOFF_FACTOR = 3; //X resources buys 1 resource of equal value
+  MARKET_TRADEOFF_FACTOR = 2.5; //X resources buys 1 resource of equal value
 
 
   ResourceKaMOrder: array[TResourceType] of byte = (0, //rt_None

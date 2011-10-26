@@ -6,6 +6,7 @@
  +	The "waiting for players" message would often not appear, the game would just freeze with no message
  +	Using the arrow keys to scroll while bringing up a menu with a TKMEditBox (e.g. chat) would cause you to lose control of scrolling until you close the menu
  +	Woodcutters and others(?) should plant/chop more evenly (not in waves like now)
+ +	Exporting the Sounds produced corrupt files rather than the correct sounds
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
 	Warriors going out from Barracks sometimes not join in groups (Lewin: reproduced, not sure why it happens yet)
@@ -50,6 +51,7 @@ Features:
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it (for people with an X server on *nix or a Windows server)
 	Better full screen support (right now you can't minimize the game while it's full screen)
 	Archers on a hill get slighty longer range (calculated from height of archer tile relative to target tile)
+	Show the mining radius of the selected house or house that you are placing
  
 
  -	The ingame briefing texture is too short, see attached picture

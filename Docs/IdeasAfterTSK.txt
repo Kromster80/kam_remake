@@ -27,7 +27,7 @@ wooden and stone
 
 Trophies. Award player with trophies for certain actions (won TSK, won TPR, killed 10000 enemies, made 10000 wine barrels, Explored every tile, etc.)
 
-Orders to plant/chop trees
+Orders to plant/chop trees, or checkboxes to toggle planting and chopping in the woodcutter's hut
 
 Way to automatically feed troops when they become hungry if the player has been idle
 
