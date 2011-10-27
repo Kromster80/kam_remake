@@ -1,0 +1,151 @@
+
+MaxID:141
+
+1:Missão cancelada
+2:Tutorial da cidade
+3:Tutorial de batalha
+4:Único jogador
+5:Editor de Mapas
+6:Ver o último Replay
+7:Iniciar Missão
+8:Título
+9:Tamanho
+10:Tipo de missão: %s
+11:Condição para ganhar: %s
+12:Condição para a derrota: %s
+13:Aliados:
+14:Inimigos:
+16:Tamanho do mapa
+17:Largura
+18:Altura
+19:Criar novo mapa
+20:Mapas disponíveis
+21:Carregar um mapa existente
+22:Controles:
+23:Em jogo:
+24:Som:
+141:Velocidade do Scroll
+25:Desativar musica
+26:Gráficos:
+27:Brilho
+28:Tela Cheia
+29:Aplicar
+30:Idioma:
+31:Carregando... Por favor aguarde
+32:Ocorreu um erro!
+33:Carregando novo local
+34:Lista de jogos salvos
+35:Nome de arquivo
+36:Descrição
+37:Carregar
+38:Deletar
+39:Você quer mesmo deletar este jogo salvo?
+40:Deletar
+41:Cancelar
+139:Mapas multiplayer
+140:Mapas singleplayer
+
+43:Você venceu!
+44:Continuar jogando
+45:Vitória!
+46:Você perdeu!
+47:Continuar assistindo
+48:Derrotado
+49:Replay acabou
+50:Continuar assistindo
+51:Sair para o Menu
+52:Indisponível
+53:Pressione %s para continuar o jogo
+54:Para o time
+55:Informações dos jogadores
+56:Chat
+57:Já existe um jogo salvo
+58:Sobrescrever
+59:Salvar
+60:Carregar
+
+61:Ocorreu um erro durante o jogo.
+62:Por favor, envie o arquivo %s do seu KaM Remake\\Crash na pasta Reports para os desenvolvedores. Maiores informações para contato você encontra no arquivo Readme. Muito obrigado pela sua ajuda!\n\nAVISO: Continuar a jogar depois desse erro pode causar várias falhas e instabilidades. Gostaria de correr esse risco e continuar jogando?
+63:Uma versão antiga do OpenGL foi detectada, o jogo poderá apresentar falhas grafícas\nPor favor atualize os seus drivers gráficos para ter um melhor desempenho
+64:Erro de rede
+65:Erro: Nome do jogador não pode ficar em branco
+66:Conexão falhou: %s
+67:Você foi desconectado
+68:Missão %d
+
+69:A cabana do seu pescador está muito longe da água.
+70:Seu pescador não pode pegar nenhum peixe nas aguas próximas.
+
+71:Mercado
+72:Use o botão esquerdo do mouse para selecionar o artigo de comércio
+73:Use o botão direito do mouse para selecionar o artigo de comércio
+74:De x%d
+75:Para x%d
+
+76:Editar terreno
+77:Planejamento de Aldeia
+78:Visual scripts
+79:Global scripting
+80:Menu
+
+82:Nome do jogador
+81:Status:
+83:CRIAR SERVIDOR
+84:Nome
+85:Porta
+86:Criar um servidor local
+87:Criar um Servidor na Internet
+88:Nome do Servidor
+89:Estado
+90:Jogadores
+91:Ping
+92:Recarregar lista de servidores
+93:DETALHES DO SERVIDOR
+94:Lista de jogadores:
+95:Endereço
+96:Porta
+97:Sala
+98:Entrar
+99:Conectando, por favor aguarde...
+100:Carregando anunciamentos...
+101:Recarregando...
+
+102:Lista de Jogadores
+103:Iniciar local
+104:Time
+105:Cor da bandeira
+106:Pronto
+107:Ping
+108:Kick
+109:Aberto
+110:Jogador AI
+111:Selecionar..
+112:Aleatório
+113:Nenhum
+114:Nenhum
+115:Time %d
+116:Lista de mensagens:
+117:Correio de mensagens:
+118:Selecionar mapa:
+119:Mapa Único
+120:Jogo Salvo
+121:Selecionar um mapa...
+122:Selecionar um jogo salvo...
+123:Informações do mapa:
+124:Jogadores: %d
+125:Modo:
+126:Condições:
+127:Tamanho:
+128:Sair da sala
+129:Pronto
+130:Iniciar!
+
+131:Aguardando por jogadores:
+
+132:Créditos do KaM Remake
+133:Créditos Originais do Knights & Merchants
+134:PROGRAMADORES:
+135:PROGRAMADORES ADICIONAIS:
+136:GRÁFICOS ADICIONAIS:
+137:TRADUÇÕES ADICIONAIS:
+138:AGRADECIMENTOS ESPECIAIS:

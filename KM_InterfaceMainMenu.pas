@@ -830,10 +830,10 @@ begin
       Button_Options_ResApply.OnClick:=Options_Change;
 
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,560,130,200,30+LOCALES_COUNT*20);
-      TKMLabel.Create(Panel_Options_Lang,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,kaLeft);
-      TKMBevel.Create(Panel_Options_Lang,0,20,200,10+LOCALES_COUNT*20);
+      TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,kaLeft);
+      TKMBevel.Create(Panel_Options_Lang,0,20,242,10+LOCALES_COUNT*20);
 
-      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 176, 20*LOCALES_COUNT, fnt_Metal);
+      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 230, 20*LOCALES_COUNT, fnt_Metal);
       for i:=1 to LOCALES_COUNT do Radio_Options_Lang.Items.Add(Locales[i,3]);
       Radio_Options_Lang.OnChange := Options_Change;
 
@@ -851,7 +851,7 @@ begin
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras|Brasillian Portuguese - Vinycius Maia||'+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,kaCenter);
 
