@@ -207,7 +207,7 @@ const
   ('cze', '1250', 'Czech'),  //New one
   ('swe', '1252', 'Swedish'),//New one
   ('fre', '1252', 'French'), //New one
-  ('ptb', '1252', 'Brasillian Portuguese'),
+  ('ptb', '1252', 'Brazilian Portuguese'),
   ('spa', '1252', 'Spanish'),
   ('hun', '1250', 'Hungarian'),
   ('dut', '1252', 'Dutch'),

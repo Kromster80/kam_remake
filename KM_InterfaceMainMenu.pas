@@ -851,7 +851,7 @@ begin
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras|Brasillian Portuguese - Vinycius Maia||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+'|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras|Brazilian Portuguese - Vinycius Maia||'+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,kaCenter);
 
