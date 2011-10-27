@@ -140,7 +140,10 @@ begin
                             end;
                           end;
                         end;
-    gs_FarmerWine:      Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Wine, true, aAvoidLoc, NewLoc);
+    gs_FarmerWine:      begin
+                          Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Wine, true, aAvoidLoc, NewLoc);
+                          NewLoc.Dir := dir_N; //The animation for picking grapes is only defined for facing north
+                        end;
     gs_FisherCatch:     Found := FindFishWater(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
     gs_WoodCutterCut:   Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMGetVertexTile(aAvoidLoc, WorkDir), taChop, NewLoc, TreeAct);
     gs_WoodCutterPlant: Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taPlant, NewLoc, TreeAct);
@@ -380,7 +383,7 @@ begin
     Found := fTerrain.FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Wine, true, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
-      WalkStyle(Tmp, ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine); //Grapes must always be picked facing up
+      WalkStyle(KMPointDir(Tmp.Loc,dir_N), ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine); //The animation for picking grapes is only defined for facing north
       SubActAdd(ha_Work1,1);
       SubActAdd(ha_Work2,11);
       SubActAdd(ha_Work5,1);

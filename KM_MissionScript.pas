@@ -566,9 +566,16 @@ begin
                             fLastHouse.AddDamage(min(P[0],high(word)), fParsingMode = mpm_Editor)
                           else
                             AddScriptError('ct_SetHouseDamage without prior declaration of House');
-    ct_SetUnit:         if fLastPlayer >=0 then
-                        if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then
-                          fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]],KMPoint(P[1]+1,P[2]+1));
+    ct_SetUnit:         begin
+                          if (fLastPlayer >=0) then
+                          begin
+                            if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then
+                              fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]],KMPoint(P[1]+1,P[2]+1));
+                          end
+                          else //Animals should be added regardless of whether the current player is valid
+                            if UnitsRemap[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
+                              fPlayers.PlayerAnimals.AddUnit(UnitsRemap[P[0]],KMPoint(P[1]+1,P[2]+1));
+                        end;
 
     ct_SetUnitByStock:  if fLastPlayer >=0 then
                           if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then

@@ -151,7 +151,7 @@ end;
 procedure TKMCampaignsCollection.CreateTSK;
 var i:integer; C:TKMCampaign;
 begin
-  C := TKMCampaign.Create('TSK', TSK_MAPS, 5, 12);
+  C := TKMCampaign.Create('TSK', TSK_MAPS, 6, 12); //Use the map from the TSK rx, as it is 1024x768 (TPR only has 800x600)
 
   for i:=0 to C.MapCount-1 do
   begin

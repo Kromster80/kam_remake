@@ -200,9 +200,9 @@ end;
 function GetPingColor(aPing:word):cardinal;
 begin
   case aPing of
-    0..99   : Result := $FF00C000; //Green
-    100..199: Result := $FF07FFFF; //Yellow
-    200..399: Result := $FF0099FF; //Orange
+    0..299   : Result := $FF00C000; //Green
+    300..599: Result := $FF07FFFF; //Yellow
+    600..999: Result := $FF0099FF; //Orange
     else      Result := $FF0707FF; //Red
   end;
 end;

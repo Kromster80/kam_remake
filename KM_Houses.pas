@@ -58,7 +58,7 @@ type
     fPointerCount:integer;
     fTimeSinceUnoccupiedReminder:integer;
 
-    procedure Activate(aWasBuilt:boolean);
+    procedure Activate(aWasBuilt:boolean); virtual;
     procedure CloseHouse(IsEditor:boolean=false); virtual;
     procedure SetWareDelivery(aVal:boolean);
 
@@ -242,9 +242,9 @@ type
   TKMHouseStore = class(TKMHouse)
   private
     ResourceCount:array[WARE_MIN..WARE_MAX]of word;
+    procedure Activate(aWasBuilt:boolean); override;
   public
     NotAcceptFlag:array[WARE_MIN..WARE_MAX]of boolean;
-    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
@@ -1635,7 +1635,7 @@ end;
 
 
 { TKMHouseStore }
-constructor TKMHouseStore.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
+procedure TKMHouseStore.Activate(aWasBuilt:boolean);
 var FirstStore: TKMHouseStore; w:TResourceType;
 begin
   Inherited;
