@@ -52,7 +52,7 @@ type
   public
     function Route_Make(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList):boolean;
     function Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
-    function Route_ReturnToWalkable(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; aLocB:TKMPoint; var NodeList:TKMPointList): Boolean;
+    function Route_ReturnToWalkable(aLocA, aLocB:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; var NodeList:TKMPointList): Boolean;
     procedure UpdateMapSize(X,Y: Word);
   end;
 
@@ -62,6 +62,8 @@ uses KM_Terrain;
 
 
 { TPathFinding }
+//Find a route from A to B which meets aPass Passability
+//Results should be written as NodeCount of waypoint nodes to Nodes
 function TPathFinding.Route_Make(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList): Boolean;
 begin
   Result := False;
@@ -89,7 +91,8 @@ begin
 end;
 
 
-function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
+//We are using Interaction Avoid mode (go around busy units)
+function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
 begin
   Result := False;
 
@@ -116,8 +119,9 @@ end;
 
 
 //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-function TPathFinding.Route_ReturnToWalkable(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; aLocB:TKMPoint; var NodeList:TKMPointList): Boolean;
-begin  Result := False;
+function TPathFinding.Route_ReturnToWalkable(aLocA, aLocB: TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; var NodeList:TKMPointList): Boolean;
+begin
+  Result := False;
 
   LocA := aLocA;
   LocB := aLocB;

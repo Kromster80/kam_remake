@@ -341,23 +341,23 @@ begin
   if (fPass = CanWalkRoad) and (fDistance=0) then //That is Citizens walking to spot
     if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
       (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
-      fTerrain.Route_ReturnToRoad(fWalkFrom, fWalkTo, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
+      fTerrain.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcRoad, fTerrain.GetRoadConnectID(fWalkTo), CanWalk, NodeList);
 
   //If we are a worker on a construction site, build a piece of route to return to nearest walkable tile on the
   if fPass = CanWorker then //That is Workers on a construction site
     if (fTerrain.GetWalkConnectID(fWalkFrom) <> fTerrain.GetWalkConnectID(fWalkTo)) and  //Not walkable returns 0
       (fTerrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
     begin
-      fTerrain.Route_ReturnToWalkable(fWalkFrom, fWalkTo, fTerrain.GetWalkConnectID(fWalkTo), NodeList);
+      fTerrain.Pathfinding.Route_ReturnToWalkable(fWalkFrom, fWalkTo, wcWalk, fTerrain.GetWalkConnectID(fWalkTo), CanWorker, NodeList);
       TmpPass := CanWalk; //After this piece of route we are in walk mode
     end;
 
   //Build a route A*
   if NodeList.Count=0 then //Build a route from scratch
-    fTerrain.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
+    fTerrain.Pathfinding.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, fTargetHouse, NodeList) //Try to make the route with fPass
   else begin //Append route to existing part
     NodeList2 := TKMPointList.Create;
-    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
+    fTerrain.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
     //If this part of the route fails, the whole route has failed. At minimum Route_Make returns count=1 (fWalkTo)
     if NodeList2.Count = 0 then NodeList.Clearup; //Clear NodeList so we return false
     for i:=2 to NodeList2.Count do
@@ -667,7 +667,7 @@ begin
       //We will accept an alternative route up to 3 times greater than the amount we would have been walking anyway
       MaxLength := Math.max(NodeList.Count-NodePos,15)*3; //Remainder of our route times 3. Always prepared to walk 15 tiles (e.g. around houses)
       if fDestBlocked or fOpponent.GetUnitAction.Locked then
-        if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList,MaxLength) then //Make sure the route can be made, if not, we must simply wait
+        if fTerrain.Pathfinding.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList,MaxLength) then //Make sure the route can be made, if not, we must simply wait
         begin
           //NodeList has now been re-routed, so we need to re-init everything else and start walk again
           SetInitValues;

@@ -128,10 +128,6 @@ type
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
-    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
-    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
-    procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
-    procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
     function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability; aAcceptTargetLoc:boolean=true):TKMPoint;
 
     procedure UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
@@ -1662,34 +1658,6 @@ begin
   finally
     Cells.Free;
   end;
-end;
-
-
-//Tests weather route can be made
-function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
-begin
-  //we are using Interaction Avoid mode (go around busy units)
-  Result := PathFinding.Route_MakeAvoid(LocA, LocB, aPass, aDistance, aHouse, NodeList, aMaxRouteLen);
-end;
-
-
-{Find a route from A to B which meets aPass Passability}
-{Results should be written as NodeCount of waypoint nodes to Nodes}
-procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
-begin
-  PathFinding.Route_Make(LocA, LocB, aPass, aDistance, aHouse, NodeList);
-end;
-
-
-procedure TTerrain.Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
-begin
-  PathFinding.Route_ReturnToWalkable(LocA, wcRoad, TargetRoadNetworkID, CanWalk, LocB, NodeList);
-end;
-
-
-procedure TTerrain.Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
-begin
-  PathFinding.Route_ReturnToWalkable(LocA, wcWalk, TargetWalkNetworkID, CanWorker, LocB, NodeList);
 end;
 
 
