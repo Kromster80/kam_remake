@@ -39,7 +39,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_UnitActionWalkTo;
+uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_UnitActionWalkTo, KM_Units_Warrior, KM_Player;
 
 
 constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aUnit:TKMUnit; aDirection:TGoInDirection; aHouse:TKMHouse);
@@ -175,6 +175,7 @@ end;
 
 
 procedure TUnitActionGoInOut.WalkOut(aUnit:TKMUnit);
+var LinkUnit:TKMUnitWarrior;
 begin
   aUnit.Direction := KMGetDirection(fDoor, fStreet);
   aUnit.UpdateNextPosition(fStreet);
@@ -183,6 +184,15 @@ begin
   and (aUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
   and (aUnit.GetHome = fHouse) then //And is the house we are walking from
     TKMHouseBarracks(aUnit.GetHome).RecruitsList.Remove(aUnit);
+
+  //Warriors attempt to link as they leave the house
+  if (aUnit is TKMUnitWarrior) and (fPlayers.Player[aUnit.GetOwner].PlayerType = pt_Human)
+  and (fHouse is TKMHouseBarracks) then
+  begin
+    LinkUnit := TKMUnitWarrior(aUnit).FindLinkUnit(fStreet);
+    if LinkUnit <> nil then
+      TKMUnitWarrior(aUnit).OrderLinkTo(LinkUnit);
+  end;
 end;
 
 

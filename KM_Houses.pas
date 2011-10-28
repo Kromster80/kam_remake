@@ -1820,11 +1820,8 @@ end;
 procedure TKMHouseBarracks.Equip(aUnitType: TUnitType; aCount:byte);
 var i,k:integer;
     Soldier:TKMUnitWarrior;
-    LinkUnit:TKMUnitWarrior;
 begin
   Assert(aUnitType in [WARRIOR_EQUIPABLE_MIN..WARRIOR_EQUIPABLE_MAX]);
-
-  LinkUnit := nil;
 
   for k := 1 to aCount do
   begin
@@ -1846,16 +1843,6 @@ begin
     Soldier.Condition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
     Soldier.OrderLocDir := KMPointDir(KMPointBelow(GetEntrance),dir_N); //Position in front of the barracks facing north
     Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
-
-    //AI do not need auto linking, they manage linking themselves
-    if fPlayers.Player[fOwner].PlayerType = pt_Human then
-    begin
-      if LinkUnit = nil then
-        LinkUnit := Soldier.FindLinkUnit(GetEntrance);
-      if LinkUnit <> nil then
-        Soldier.OrderLinkTo(LinkUnit);
-      LinkUnit := Soldier; //For future units if Count > 1
-    end;
   end;
 end;
 

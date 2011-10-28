@@ -707,6 +707,7 @@ begin
   begin
     FoundUnit := fTerrain.UnitsHitTest(aLoc.X+i, aLoc.Y+k); //off-map coords will be skipped
     if (FoundUnit is TKMUnitWarrior) and
+       (FoundUnit <> Self) and
        (FoundUnit.GetOwner = fOwner) and
        (UnitGroups[FoundUnit.UnitType] = UnitGroups[fUnitType]) then //They must be the same group type
     begin
