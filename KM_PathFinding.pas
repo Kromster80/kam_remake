@@ -1,8 +1,7 @@
 unit KM_PathFinding;
 {$I KaM_Remake.inc}
-interface
-uses SysUtils, Math, KromUtils,
-  KM_Defaults, KM_CommonTypes, KM_Houses, KM_Points;
+interface            
+uses SysUtils, Math, KromUtils, KM_Defaults, KM_CommonTypes, KM_Houses, KM_Points;
 
 type
   TDestinationPoint = (
@@ -17,6 +16,8 @@ type
 
   //I think we should refactor this unit and move some TTerrain methods here
 
+type
+  { Here should be pathfinding and all associated stuff }
   TPathFinding = class
   private
     fMapX: Word;
@@ -51,7 +52,6 @@ type
     function IsDestinationReached:boolean;
     function MakeRoute:boolean;
   public
-    function Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
     constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint); overload;
     procedure UpdateMapSize(X,Y: Word);
@@ -63,42 +63,6 @@ type
 
 implementation
 uses KM_Terrain;
-
-
-{ TPathFinding }
-function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
-begin
-  LocA := aLocA;
-  LocB := aLocB;
-  Pass := aPass;
-  TargetNetwork := 0; //erase just in case
-  TargetWalkConnect := wcWalk; //erase just in case
-  fDistance := aDistance;
-  IsInteractionAvoid := aIsInteractionAvoid;
-  fRouteSuccessfullyBuilt := false;
-  fTargetHouse := aTargetHouse;
-  if fTargetHouse = nil then
-    fDestination := dp_Location
-  else
-    fDestination := dp_House;
-
-  Result := False;
-  if CheckRouteCanExist then
-  begin
-    InitRoute;
-    if MakeRoute then
-    begin
-      if GetRouteLength <= aMaxRouteLen then
-      begin
-        if NodeList <> nil then
-          NodeList.Clearup;
-        ReturnRoute(NodeList);
-        Result := True;
-      end;
-    end;
-  end;
-
-end;
 
 
 constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false);
