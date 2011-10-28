@@ -208,7 +208,7 @@ uses KM_Viewport, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Sound, KM_Un
 constructor TTerrain.Create;
 begin
   Inherited;
-  fAnimStep:=0;
+  fAnimStep := 0;
   FallingTrees := TKMPointTagList.Create;
   Pathfinding := TPathFinding.Create;
 end;
@@ -1667,46 +1667,29 @@ end;
 
 //Tests weather route can be made
 function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
-var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse, true); //True means we are using Interaction Avoid mode (go around busy units)
-  try
-    Result := fPath.RouteSuccessfullyBuilt and (fPath.GetRouteLength <= aMaxRouteLen);
-    if not Result then
-      Exit; //Do not change the existing route!
-    fPath.ReturnRoute(NodeList);
-  finally
-    fPath.Free;
-  end;
+  //we are using Interaction Avoid mode (go around busy units)
+  Result := PathFinding.Route_MakeAvoid(LocA, LocB, aPass, aDistance, aHouse, NodeList, aMaxRouteLen);
 end;
 
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
 procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aHouse:TKMHouse; var NodeList:TKMPointList);
-var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse);
-  fPath.ReturnRoute(NodeList);
-  FreeAndNil(fPath);
+  PathFinding.Route_Make(LocA, LocB, aPass, aDistance, aHouse, NodeList);
 end;
 
 
 procedure TTerrain.Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; var NodeList:TKMPointList);
-var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, wcRoad, TargetRoadNetworkID, CanWalk, LocB);
-  fPath.ReturnRoute(NodeList);
-  FreeAndNil(fPath);
+  PathFinding.Route_ReturnToWalkable(LocA, wcRoad, TargetRoadNetworkID, CanWalk, LocB, NodeList);
 end;
 
 
 procedure TTerrain.Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; var NodeList:TKMPointList);
-var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, wcWalk, TargetWalkNetworkID, CanWorker, LocB);
-  fPath.ReturnRoute(NodeList);
-  FreeAndNil(fPath);
+  PathFinding.Route_ReturnToWalkable(LocA, wcWalk, TargetWalkNetworkID, CanWorker, LocB, NodeList);
 end;
 
 

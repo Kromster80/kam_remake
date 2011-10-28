@@ -286,17 +286,21 @@ end;
 
 //Used mainly for testing purposes
 procedure TKMPlayer.AddRoadConnect(LocA,LocB:TKMPoint);
-var fPath:TPathFinding; i:integer; NodeList:TKMPointList;
+var
+  NodeList: TKMPointList;
+  RoadExists: Boolean;
+  i: integer;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, CanMakeRoads, 0, nil);
-  NodeList:=TKMPointList.Create;
-  fPath.ReturnRoute(NodeList);
-  fPath.Free;
+  NodeList := TKMPointList.Create;
+  try
+    RoadExists := fTerrain.PathFinding.Route_Make(LocA, LocB, CanMakeRoads, 0, nil, NodeList);
 
-  for i:=1 to NodeList.Count do
-    AddRoad(NodeList.List[i]);
-
-  FreeAndNil(NodeList);
+    if RoadExists then
+      for i:=1 to NodeList.Count do
+        AddRoad(NodeList.List[i]);
+  finally
+    FreeAndNil(NodeList);
+  end;
 end;
 
 

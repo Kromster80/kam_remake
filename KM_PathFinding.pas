@@ -1,7 +1,9 @@
 unit KM_PathFinding;
 {$I KaM_Remake.inc}
-interface            
-uses SysUtils, Math, KromUtils, KM_Defaults, KM_CommonTypes, KM_Houses, KM_Points;
+interface
+uses SysUtils, Math, KromUtils,
+  KM_Defaults, KM_CommonTypes, KM_Houses, KM_Points;
+
 
 type
   TDestinationPoint = (
@@ -10,14 +12,9 @@ type
     dp_House //Approach house from any side (workers and warriors)
     );
 
-
-  // This is a helper class for TTerrain
-  // Here should be pathfinding and all associated stuff
-
+  //This is a helper class for TTerrain
+  //Here should be pathfinding and all associated stuff
   //I think we should refactor this unit and move some TTerrain methods here
-
-type
-  { Here should be pathfinding and all associated stuff }
   TPathFinding = class
   private
     fMapX: Word;
@@ -46,18 +43,17 @@ type
     IsInteractionAvoid:boolean;
     fDestination:TDestinationPoint;
     fTargetHouse: TKMHouse;
-    fRouteSuccessfullyBuilt:boolean;
     function CheckRouteCanExist:boolean;
     procedure InitRoute;
     function IsDestinationReached:boolean;
     function MakeRoute:boolean;
-  public
-    constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
-    constructor Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint); overload;
-    procedure UpdateMapSize(X,Y: Word);
-    function GetRouteLength:integer;
     procedure ReturnRoute(var NodeList:TKMPointList);
-    property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
+    function GetRouteLength:integer;
+  public
+    function Route_Make(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList):boolean;
+    function Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
+    function Route_ReturnToWalkable(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; aLocB:TKMPoint; var NodeList:TKMPointList): Boolean;
+    procedure UpdateMapSize(X,Y: Word);
   end;
 
 
@@ -65,50 +61,81 @@ implementation
 uses KM_Terrain;
 
 
-constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false);
+{ TPathFinding }
+function TPathFinding.Route_Make(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList): Boolean;
 begin
-  Inherited Create;
-
-  UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Temp
+  Result := False;
 
   LocA := aLocA;
   LocB := aLocB;
   Pass := aPass;
-  TargetNetwork := 0; //erase just in case
-  TargetWalkConnect := wcWalk; //erase just in case
+  TargetNetwork := 0;
+  TargetWalkConnect := wcWalk;
   fDistance := aDistance;
-  IsInteractionAvoid := aIsInteractionAvoid;
-  fRouteSuccessfullyBuilt := false;
+  IsInteractionAvoid := False;
   fTargetHouse := aTargetHouse;
   if fTargetHouse = nil then
     fDestination := dp_Location
   else
     fDestination := dp_House;
 
-  if not CheckRouteCanExist then exit;
-
   InitRoute;
-  fRouteSuccessfullyBuilt := MakeRoute; //
+  if CheckRouteCanExist and MakeRoute then
+  begin
+    ReturnRoute(NodeList);
+    Result := True;
+  end else
+    NodeList.Clearup;
 end;
 
 
-constructor TPathFinding.Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint);
+function TPathFinding.Route_MakeAvoid(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; var NodeList:TKMPointList; aMaxRouteLen:integer):boolean;
 begin
-  Inherited Create;
-
-  UpdateMapSize(fTerrain.MapX, fTerrain.MapY); //Temp
+  Result := False;
 
   LocA := aLocA;
-  LocB := aLocB; //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-  Pass := fPass; //Should be unused here
-  TargetWalkConnect := aTargetWalkConnect;
+  LocB := aLocB;
+  Pass := aPass;
+  TargetNetwork := 0;
+  TargetWalkConnect := wcWalk;
+  fDistance := aDistance;
+  IsInteractionAvoid := True;
+  fTargetHouse := aTargetHouse;
+  if fTargetHouse = nil then
+    fDestination := dp_Location
+  else
+    fDestination := dp_House;
+
+  InitRoute;
+  if CheckRouteCanExist and MakeRoute and (GetRouteLength <= aMaxRouteLen) then
+  begin
+    ReturnRoute(NodeList);
+    Result := True;
+  end;
+end;
+
+
+//Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
+function TPathFinding.Route_ReturnToWalkable(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; aPass:TPassability; aLocB:TKMPoint; var NodeList:TKMPointList): Boolean;
+begin  Result := False;
+
+  LocA := aLocA;
+  LocB := aLocB;
+  Pass := aPass; //Should be unused here
   TargetNetwork := aTargetNetwork;
+  TargetWalkConnect := aTargetWalkConnect;
   fDistance := 0;
-  fRouteSuccessfullyBuilt := false;
+  IsInteractionAvoid := False;
+  fTargetHouse := nil;
   fDestination := dp_Passability;
 
   InitRoute;
-  fRouteSuccessfullyBuilt := MakeRoute; //
+  if MakeRoute then
+  begin
+    ReturnRoute(NodeList);
+    Result := True;
+  end else
+    NodeList.Clearup;
 end;
 
 
@@ -138,7 +165,7 @@ begin
   
   SetLength(OList, 0); //reset length
   OCount := 1;
-  ORef[LocA.Y,LocA.X] := OCount;
+  ORef[LocA.Y, LocA.X] := OCount;
   SetLength(OList, OCount+1);
   OList[OCount].Pos     := LocA;
   OList[OCount].CostTo  := 0;
@@ -236,7 +263,6 @@ function TPathFinding.GetRouteLength:integer;
 var k:integer;
 begin
   Result := 0;
-  if not fRouteSuccessfullyBuilt then Exit;
   k := MinCost.ID;
   repeat
     inc(Result);
@@ -250,17 +276,14 @@ var i,k:integer; NodesCount:integer;
 begin
   NodeList.Clearup;
 
-  if not fRouteSuccessfullyBuilt then
-    Exit;
-
   //Calculate NodeCount
   NodesCount := GetRouteLength;
 
   //Assemble the route
-  k:=MinCost.ID;
+  k := MinCost.ID;
   for i:=1 to NodesCount do begin
     NodeList.AddEntry(OList[k].Pos);
-    k:=OList[k].Parent;
+    k := OList[k].Parent;
   end;
 
   //Reverse the list, since path is LocB>LocA in fact
@@ -269,4 +292,3 @@ end;
 
 
 end.
-
