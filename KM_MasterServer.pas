@@ -78,7 +78,7 @@ begin
   fHTTPClient.OnReceive := nil; //We don't care about the response
   fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
                      +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
-                     +'&rev='+UrlEncode(fVersion));
+                     +'&rev='+UrlEncode(fVersion)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 
 

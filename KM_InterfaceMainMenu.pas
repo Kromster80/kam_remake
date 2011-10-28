@@ -470,6 +470,7 @@ begin
     Panel_MPAnnouncement := TKMPanel.Create(Panel_MultiPlayer, 45, 120, 620, 158);
       Memo_MP_Announcement := TKMMemo.Create(Panel_MPAnnouncement,0,0,620,158,fnt_Grey);
       Memo_MP_Announcement.ItemHeight := 16;
+      Memo_MP_Announcement.AutoWrap := true;
 
     //Create server area
     Panel_MPCreateServer := TKMPanel.Create(Panel_MultiPlayer, 673, 42, 300, 236);
@@ -565,6 +566,7 @@ begin
     //Chat
     TKMLabel.Create(Panel_Lobby, 20, 350, 725, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, kaLeft);
     Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 370, 725, 200, fnt_Metal);
+    Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
     TKMLabel.Create(Panel_Lobby, 20, 580, 725, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, kaLeft);
     Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 600, 725, 20, fnt_Metal);

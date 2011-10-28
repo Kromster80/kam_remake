@@ -2147,12 +2147,15 @@ end;
 
 
 procedure TKMMemo.ReformatText;
+var NewText:string;
 begin
   if fAutoWrap then
-    fItems.Text := fResource.ResourceFont.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True)
+    NewText := fResource.ResourceFont.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True)
   else
-    fItems.Text := fText;
+    NewText := fText;
 
+  //KaM uses | for new line, fItems.Text:= uses standard eol to parse each item from the string
+  fItems.Text := StringReplace(NewText,'|',eol,[rfReplaceAll]);
   UpdateScrollBar;
 end;
 
@@ -2170,22 +2173,14 @@ end;
 
 
 procedure TKMMemo.Add(const aItem:string);
-var i: integer; MyItems: TStringList;
 begin
-  fText := fText + aItem; //Keep the original version just in case
+  if fText <> '' then
+    fText := fText + '|';
 
-  if fAutoWrap then
-    SetText(fText)
-  else
-  begin
-    MyItems := TStringList.Create;
-    ParseDelimited(MyItems, fResource.ResourceFont.WordWrap(aItem, fFont, Width-fScrollBar.Width-6,true), '|');
-    for i:=0 to MyItems.Count-1 do
-      fItems.Add(MyItems.Strings[i]);
-    MyItems.Free;
+  fText := fText + aItem; //Append the new string
 
-    UpdateScrollBar; //Scroll down with each item that is added.
-  end;
+  SetText(fText); //Updates the text in fItems
+  UpdateScrollBar; //Scroll down with each item that is added.
 end;
 
 

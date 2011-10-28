@@ -34,7 +34,7 @@ type
     procedure StopListening;
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure Kick(aHandle:integer);
-    property GetLatestHandle:integer read fLastTag;
+    function GetMaxHandle:integer;
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
@@ -94,8 +94,8 @@ begin
     exit;
   end;
 
-  //Identify index of the Client, so we could address it
-  if fLastTag = MaxInt then fLastTag := FIRST_TAG-1; //I'll be surprised if this is ever necessary
+  //Identify index of the Client, so we can address it
+  if fLastTag = GetMaxHandle then fLastTag := FIRST_TAG-1; //I'll be surprised if this is ever necessary
   inc(fLastTag);
   Client.Tag := fLastTag;
 
@@ -150,6 +150,11 @@ begin
       if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
         fSocketServer.Client[i].Send(aData, aLength);
     end;
+end;
+
+function TKMNetServerOverbyte.GetMaxHandle:integer;
+begin
+  Result := MaxInt;
 end;
 
 

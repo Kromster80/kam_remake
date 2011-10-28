@@ -36,7 +36,7 @@ type
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
     procedure Kick(aHandle:integer);
     procedure UpdateStateIdle;
-    property GetLatestHandle:integer read fLastTag;
+    function GetMaxHandle:integer;
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
@@ -89,8 +89,8 @@ end;
 //Someone has connected to us
 procedure TKMNetServerLNet.ClientConnect(aSocket: TLSocket);
 begin
-  //Identify index of the Client, so we could address it
-  if fLastTag = MaxInt then fLastTag := FIRST_TAG-1; //I'll be surprised if this is ever necessary
+  //Identify index of the Client, so we can address it
+  if fLastTag = GetMaxHandle then fLastTag := FIRST_TAG-1; //I'll be surprised if this is ever necessary
   inc(fLastTag);
   aSocket.UserData := Pointer(fLastTag);
   fOnClientConnect(fLastTag);
@@ -162,6 +162,12 @@ begin
     fOnError('Warning: Attempted to kick a client that has already disconnected');
     fOnClientDisconnect(aHandle); //Client has already disconnected somehow, so send the event to ensure they are removed
   end;
+end;
+
+
+function TKMNetServerLNet.GetMaxHandle:integer;
+begin
+  Result := MaxInt;
 end;
 
 

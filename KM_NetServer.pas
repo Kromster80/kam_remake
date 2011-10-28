@@ -322,7 +322,7 @@ end;
 //Someone has connected to us. We can use supplied Handle to negotiate
 procedure TKMNetServer.ClientConnect(aHandle:integer);
 begin
-  fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they chose a room later
+  fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they choose a room later
   SendMessage(aHandle, mk_GameVersion, 0, fVersion); //First make sure they are using the right version
   if fWelcomeMessage <> '' then SendMessage(aHandle, mk_WelcomeMessage, 0, fWelcomeMessage); //Welcome them to the server
   SendMessage(aHandle, mk_IndexOnServer, aHandle, ''); //This is the signal that the client may now start sending
@@ -638,7 +638,7 @@ function TKMNetServer.IsValidHandle(aHandle:integer):boolean;
 begin
   //Can't use "in [...]" with negative numbers
   Result := (aHandle=NET_ADDRESS_OTHERS)or(aHandle=NET_ADDRESS_ALL)or(aHandle=NET_ADDRESS_HOST)or(aHandle=NET_ADDRESS_SERVER)or
-            InRange(aHandle,FIRST_TAG,fServer.GetLatestHandle);
+            InRange(aHandle,FIRST_TAG,fServer.GetMaxHandle);
 end;
 
 
