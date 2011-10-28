@@ -1671,11 +1671,9 @@ var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, aHouse, true); //True means we are using Interaction Avoid mode (go around busy units)
   try
-    Result := fPath.RouteSuccessfullyBuilt;
-    if fPath.GetRouteLength > aMaxRouteLen then Result := false; //Route is too long
+    Result := fPath.RouteSuccessfullyBuilt and (fPath.GetRouteLength <= aMaxRouteLen);
     if not Result then
-      exit;
-    if NodeList <> nil then NodeList.Clearup;
+      Exit; //Do not change the existing route!
     fPath.ReturnRoute(NodeList);
   finally
     fPath.Free;

@@ -136,10 +136,10 @@ begin
   SetLength(ORef, 0); //Cleanup before use
   SetLength(ORef, fMapX+1, fMapY+1);
   
-  setlength(OList,0); //reset length
-  OCount:=1;
-  ORef[LocA.Y,LocA.X]:=OCount;
-  setlength(OList,OCount+1);
+  SetLength(OList, 0); //reset length
+  OCount := 1;
+  ORef[LocA.Y,LocA.X] := OCount;
+  SetLength(OList, OCount+1);
   OList[OCount].Pos     := LocA;
   OList[OCount].CostTo  := 0;
   OList[OCount].Estim   := (abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y)) * 10;
@@ -235,13 +235,13 @@ end;
 function TPathFinding.GetRouteLength:integer;
 var k:integer;
 begin
-  Result:=0;
-  if not fRouteSuccessfullyBuilt then exit;
-  k:=MinCost.ID;
+  Result := 0;
+  if not fRouteSuccessfullyBuilt then Exit;
+  k := MinCost.ID;
   repeat
     inc(Result);
-    k:=OList[k].Parent;
-  until(k=0);
+    k := OList[k].Parent;
+  until(k = 0);
 end;
 
 
@@ -251,28 +251,19 @@ begin
   NodeList.Clearup;
 
   if not fRouteSuccessfullyBuilt then
-  begin
-    NodeList.Clearup; //Something went wrong
-    exit;
-  end;
+    Exit;
 
   //Calculate NodeCount
   NodesCount := GetRouteLength;
 
-  {if NodeCount > length(Nodes) then begin
-    NodeCount:=0; //Something went wrong
-    Nodes[0]:=LocA;
-    exit;
-  end;}
-
-  //Assemble the route reversing the list, since path is LocB>LocA in fact
+  //Assemble the route
   k:=MinCost.ID;
   for i:=1 to NodesCount do begin
     NodeList.AddEntry(OList[k].Pos);
-    //Nodes[NodeCount-i]:=OList[k].Pos;
     k:=OList[k].Parent;
   end;
 
+  //Reverse the list, since path is LocB>LocA in fact
   NodeList.Inverse;
 end;
 
