@@ -465,6 +465,10 @@ end;
 procedure TKMPlayersCollection.UpdateState(Tick:cardinal);
 var i:byte;
 begin
+  //Game r2411 crashes here with IsleOfBandits map,
+  //after updating Player3 AI on Tick 17 (i=3),
+  //I could not trace it any better - everything looked normal
+
   for i:=0 to fCount-1 do
     if fGame.GameState in [gsRunning, gsReplay] then
       fPlayerList[i].UpdateState(Tick, i)
