@@ -339,10 +339,10 @@ var
   i,k:integer;
   GroupReq: array[TGroupType] of integer;
 begin
-  if fPlayers[PlayerIndex].Stats.GetArmyCount >= MaxSoldiers then exit; //Don't train if we have reached our limit
+  if fPlayers[PlayerIndex].Stats.GetArmyCount >= MaxSoldiers then Exit; //Don't train if we have reached our limit
 
   //Create a list of troops that need to be trained based on defence position requirements
-  FillChar(GroupReq,SizeOf(GroupReq),#0); //Clear up
+  FillChar(GroupReq, SizeOf(GroupReq), #0); //Clear up
   for k:=0 to DefencePositionsCount-1 do
     with DefencePositions[k] do
     if CurrentCommander = nil then
@@ -385,17 +385,18 @@ end;
 
 
 function TKMPlayerAI.CheckAttackMayOccur(aAttack: TAIAttack; MenAvailable:integer; GroupsAvailableCount: array of integer):boolean;
-var i: TGroupType;
+var GT: TGroupType;
 begin
-  Result := true;
   with aAttack do
   begin
-    Result := Result AND ((AttackType <> aat_Once) or not HasOccured);
-    Result := Result AND fGame.CheckTime(Delay);
-    Result := Result AND (TotalMen <= MenAvailable);
+    Result := ((AttackType = aat_Repeating) or not HasOccured)
+              and fGame.CheckTime(Delay)
+              and (TotalMen <= MenAvailable);
+
     if not TakeAll then
-      for i:=low(TGroupType) to high(TGroupType) do
-        Result := Result AND (GroupAmounts[i] <= GroupsAvailableCount[byte(i)]);
+      for GT := Low(TGroupType) to High(TGroupType) do
+        Result := Result AND (GroupAmounts[GT] <= GroupsAvailableCount[byte(GT)]);
+
     //todo: Add support for the AI attack feature Range
   end;
 end;
@@ -625,62 +626,67 @@ end;
 procedure TKMPlayerAI.RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 var i: integer;
 begin
+  if fPlayers[PlayerIndex].PlayerType = pt_Human then Exit;
+
   //todo: Right now "idle" troops (without an assigned defence position) will do nothing (no attacking, defending, etc.)
-  if fPlayers[PlayerIndex].PlayerType = pt_Human then exit;
   //Any defence position that is within their defence radius of this threat will retaliate against it
   for i := 0 to DefencePositionsCount-1 do
     with DefencePositions[i] do
       if (CurrentCommander <> nil) and (not CurrentCommander.ArmyInFight)
-      and (CurrentCommander.OrderTarget = nil) then
-        if KMLength(CurrentCommander.GetPosition,aAttacker.GetPosition) <= DefenceRadius then
-          CurrentCommander.OrderAttackUnit(aAttacker);
+      and (CurrentCommander.OrderTarget = nil)
+      and (KMLength(CurrentCommander.GetPosition, aAttacker.GetPosition) <= DefenceRadius) then
+        CurrentCommander.OrderAttackUnit(aAttacker);
 end;
+
 
 //aHouse is our house that was attacked
 procedure TKMPlayerAI.HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
 begin
-  if fPlayers[PlayerIndex].PlayerType = pt_Human then
-  begin
-    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
-    begin
-      fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-      if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
-        fSoundLib.PlayNotification(an_Town);
-    end;
+  case fPlayers[PlayerIndex].PlayerType of
+    pt_Human:
+      begin
+        if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
+        begin
+          //Process anyway for multiplayer consistency
+          //(and it is desired behaviour: if player saw attack,
+          //don't notify him as soon as he looks away)
+          fTimeOfLastAttackMessage := fGame.GameTickCount;
+          if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+            fSoundLib.PlayNotification(an_Town);
+        end;
+      end;
+    pt_Computer:
+      RetaliateAgainstThreat(aAttacker);
   end;
-  if fPlayers[PlayerIndex].PlayerType = pt_Computer then
-    RetaliateAgainstThreat(aAttacker);
 end;
 
 
 //aUnit is our unit that was attacked
 procedure TKMPlayerAI.UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
 begin
-  if fPlayers[PlayerIndex].PlayerType = pt_Human then
-  begin
-    if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
-    begin
-      fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-      if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+  case fPlayers[PlayerIndex].PlayerType of
+    pt_Human:
+      if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
       begin
-        if aUnit is TKMUnitWarrior then
-          fSoundLib.PlayNotification(an_Troops)
-        else
-          fSoundLib.PlayNotification(an_Citizens);
+        fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
+        if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+        begin
+          if aUnit is TKMUnitWarrior then
+            fSoundLib.PlayNotification(an_Troops)
+          else
+            fSoundLib.PlayNotification(an_Citizens);
+        end;
       end;
-    end;
-  end;
-  if fPlayers[PlayerIndex].PlayerType = pt_Computer then
-  begin
-    if aUnit is TKMUnitWarrior then
-    begin
-      //If we are attacked, then we should counter attack the attacker!
-      with TKMUnitWarrior(aUnit).GetCommander do
-        if not ArmyInFight then
-          OrderAttackUnit(aAttacker);
-    end
-    else
-      RetaliateAgainstThreat(aAttacker); //Come to the defence of our citizens
+    pt_Computer:
+      if aUnit is TKMUnitWarrior then
+      begin
+        //If we are attacked, then we should counter attack the attacker!
+        with TKMUnitWarrior(aUnit).GetCommander do
+          if not ArmyInFight then
+            OrderAttackUnit(aAttacker);
+      end
+      else
+        RetaliateAgainstThreat(aAttacker); //Come to the defence of our citizens
   end;
 end;
 
@@ -696,7 +702,7 @@ end;
 
 procedure TKMPlayerAI.AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
 begin
-  setlength(DefencePositions,DefencePositionsCount+1);
+  SetLength(DefencePositions, DefencePositionsCount+1);
   DefencePositions[DefencePositionsCount] := TAIDefencePosition.Create(aPos,aGroupType,aDefenceRadius,aDefenceType);
   inc(DefencePositionsCount);
 end;
@@ -704,7 +710,7 @@ end;
 
 procedure TKMPlayerAI.AddAttack(aAttack: TAIAttack);
 begin
-  setlength(ScriptedAttacks,ScriptedAttacksCount+1);
+  SetLength(ScriptedAttacks, ScriptedAttacksCount+1);
   ScriptedAttacks[ScriptedAttacksCount] := aAttack;
   inc(ScriptedAttacksCount);
 end;
@@ -725,7 +731,7 @@ begin
   SaveStream.Write(Aggressiveness);
   SaveStream.Write(StartPosition);
   SaveStream.Write(fAutobuild);
-  SaveStream.Write(TroopFormations,SizeOf(TroopFormations));
+  SaveStream.Write(TroopFormations, SizeOf(TroopFormations));
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
     DefencePositions[i].Save(SaveStream);
@@ -751,7 +757,7 @@ begin
   LoadStream.Read(Aggressiveness);
   LoadStream.Read(StartPosition);
   LoadStream.Read(fAutobuild);
-  LoadStream.Read(TroopFormations,SizeOf(TroopFormations));
+  LoadStream.Read(TroopFormations, SizeOf(TroopFormations));
   LoadStream.Read(DefencePositionsCount);
   SetLength(DefencePositions, DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
