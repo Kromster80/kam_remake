@@ -165,7 +165,7 @@ end;
 procedure TPathFinding.InitRoute;
 begin
   SetLength(ORef, 0); //Cleanup before use
-  SetLength(ORef, fMapX+1, fMapY+1);
+  SetLength(ORef, fMapY+1, fMapX+1);
   
   SetLength(OList, 0); //reset length
   OCount := 1;

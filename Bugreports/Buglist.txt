@@ -16,6 +16,7 @@
  +	Multiplayer chat only scrolls down when you are at the bottom, making it possible to read old messages without it jumping back
  +	Members of a group of warriors would not appear if there was a rock or something under them. They now appear on the closest walkable tile.
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
+	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
 	AI does not feed warriors unless it is the commander that is hungry
 	The ready button should change to "not ready" when clicked, and changing your settings should be disabled while set to ready.
@@ -38,6 +39,8 @@ Features:
  +	Dynamic settings for the server, so it can be changed without restarting
  +	Shuffle option for music
  +	Map name and game time displayed in the Server Details
+	Allow to hide ingame chat by clicking on chat button again
+	Highlight commander in groups formation in UI
 	Double clicking a server should join it
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
 	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
