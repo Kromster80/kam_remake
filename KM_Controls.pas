@@ -2166,7 +2166,10 @@ begin
   fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
 
   if fScrollDown then
-    SetTopIndex(fItems.Count) //This puts it at the bottom because of the EnsureRange in SetTopIndex
+  begin
+    if fScrollBar.fMaxValue-fScrollBar.Position <= 2 then
+      SetTopIndex(fItems.Count) //This puts it at the bottom because of the EnsureRange in SetTopIndex
+  end
   else
     SetTopIndex(0);
 end;

@@ -12,6 +12,9 @@
  +	The animation for the farmer picking grapes did not show because the anim direction used was invalid
  +	The color range on the pings now more accurately reflect the amount they will effect the quality of the game. I'm tired of people kicking me from European servers because I have 900 ping, when 900 is still very playable in KaM.
  +	Warriors going out from Barracks sometimes not joined in groups
+ +	Range check erorrs when using multiple monitors
+ +	Multiplayer chat only scrolls down when you are at the bottom, making it possible to read old messages without it jumping back
+ +	Members of a group of warriors would not appear if there was a rock or something under them. They now appear on the closest walkable tile.
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
 	AI does not feed warriors unless it is the commander that is hungry

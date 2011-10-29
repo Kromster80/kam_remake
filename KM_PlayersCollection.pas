@@ -38,7 +38,7 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y:Integer):boolean;
     function GetUnitCount:integer;
-    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint):Boolean;
+    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte=0):Boolean;
     function CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
     procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
@@ -297,7 +297,7 @@ end;
 
 
 {Should return closest position where unit can be placed}
-function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint):Boolean;
+function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte=0):Boolean;
 var
   i:integer;
   P:TKMPointI;
@@ -311,7 +311,7 @@ begin
     P := GetPositionFromIndex(KMPoint(PosX,PosY), i);
     if fTerrain.TileInMapCoords(P.X,P.Y) then begin
       T := KMPoint(P);
-      if fTerrain.CheckPassability(T, Pass) and (fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)) = fTerrain.GetWalkConnectID(T))
+      if fTerrain.CheckPassability(T, Pass) and (fTerrain.GetWalkConnectID(T) = RequiredWalkConnect)
       and not fTerrain.HasUnit(T) then begin
         PlacePoint := T; // Assign if all test are passed
         Result := True;

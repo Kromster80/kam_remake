@@ -551,6 +551,7 @@ var i: integer;
     FirstTime: boolean;
 begin
   Result := Rect(-1,-1,-1,-1);
+  Monitor; //This forces Delphi to reload Screen.Monitors (only if necessary) and so fixes crashes when using multiple monitors
   FirstTime := true;
   //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
   if WindowState = wsMaximized then

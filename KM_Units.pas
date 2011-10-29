@@ -237,7 +237,7 @@ type
     procedure SetUnit(Index: Integer; Item: TKMUnit);
   public
     destructor Destroy; override;
-    function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
+    function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0):TKMUnit;
     function AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit:TKMUnit);
@@ -1767,12 +1767,14 @@ end;
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
-function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
+function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0):TKMUnit;
 var U:Integer; P:TKMPoint;
 begin
   P := KMPoint(0,0); // Will have 0:0 if no place found
   if AutoPlace then begin
-    fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType, P);
+    if RequiredWalkConnect = 0 then
+      RequiredWalkConnect := fTerrain.GetWalkConnectID(KMPoint(PosX,PosY));
+    fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType, P, RequiredWalkConnect);
     PosX := P.X;
     PosY := P.Y;
   end;
@@ -1848,7 +1850,7 @@ begin
 
   for i:=2 to aUnitCount do begin //Commander already placed
     UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
-    W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y)); //W will be _nil_ if unit didn't fit on map
+    W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y, true, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)))); //W will be _nil_ if unit didn't fit on map
     if W<>nil then
     begin
       fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);

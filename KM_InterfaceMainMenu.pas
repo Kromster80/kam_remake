@@ -587,6 +587,7 @@ begin
 
       Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 110, 220, 180, fnt_Game);
       Memo_LobbyMapDesc.AutoWrap := True;
+      Memo_LobbyMapDesc.ItemHeight := 16;
 
       //TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, kaLeft);
       Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 300, 220, 20, '', fnt_Metal, kaLeft);
@@ -1612,8 +1613,9 @@ begin
   begin
     if fGame.Networking.SelectGameKind = ngk_Save then
     begin
-      Label_LobbyMapName.Caption := fGame.Networking.GameInfo.GetTitleWithTime;
+      Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.Filename;
       Memo_LobbyMapDesc.Clear;
+      Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
     end
     else
     begin
@@ -1642,6 +1644,8 @@ begin
   begin
     Label_LobbyMapName.Caption := aData; //aData is some error message
     Memo_LobbyMapDesc.Clear;
+    if aData <> fTextLibrary[TX_LOBBY_MAP_NONE] then
+      Memo_LobbyMapDesc.Text := aData;
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[0]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
     //Label_LobbyMapCond.Caption :=
