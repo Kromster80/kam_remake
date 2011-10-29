@@ -1,5 +1,5 @@
 
-MaxID:143
+MaxID:144
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -103,6 +103,7 @@ MaxID:143
 92:Szerver Lista Frissítése
 93:Szerver Részletek
 94:Játékos lisa:
+144:
 95:Cím
 96:Port
 97:Szoba

@@ -1,5 +1,5 @@
 
-MaxID:141
+MaxID:144
 
 1:Missão cancelada
 2:Tutorial da cidade
@@ -26,6 +26,7 @@ MaxID:141
 24:Som:
 141:Velocidade do Scroll
 25:Desativar musica
+143:
 26:Gráficos:
 27:Brilho
 28:Tela Cheia
@@ -102,6 +103,7 @@ MaxID:141
 92:Recarregar lista de servidores
 93:DETALHES DO SERVIDOR
 94:Lista de jogadores:
+144:
 95:Endereço
 96:Porta
 97:Sala
@@ -109,6 +111,7 @@ MaxID:141
 99:Conectando, por favor aguarde...
 100:Carregando anunciamentos...
 101:Recarregando...
+142:
 
 102:Lista de Jogadores
 103:Iniciar local

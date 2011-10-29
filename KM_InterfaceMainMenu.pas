@@ -137,6 +137,8 @@ type
         Edit_MP_Room: TKMEdit;
       Panel_MPServerDetails:TKMPanel;
         Label_MP_Players:TKMLabel;
+        Label_MP_Map:TKMLabel;
+        Label_MP_GameTime:TKMLabel;
       Button_MP_Refresh,
       Button_MP_Back:TKMButton;
       ColList_Servers: TKMColumnListBox;
@@ -257,7 +259,8 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking;
+uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking, KM_CommonTypes,
+  KM_ServerQuery;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings; aReturnToOptions: Boolean);
@@ -495,8 +498,11 @@ begin
     Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
       TKMBevel.Create(Panel_MPServerDetails, 0, 0, 300, 300);
       TKMLabel.Create(Panel_MPServerDetails, 150, 6, 284, 20, fTextLibrary[TX_MP_MENU_HEADER_SERVER_DETAILS], fnt_Outline, kaCenter);
-      TKMLabel.Create(Panel_MPServerDetails, 8, 30, 284, 20, fTextLibrary[TX_MP_MENU_PLAYER_LIST], fnt_Outline, kaLeft);
-      Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 284, 242, '', fnt_Metal, kaLeft);
+      TKMLabel.Create(Panel_MPServerDetails, 8, 30, 284, 20, fTextLibrary[TX_MP_MENU_GAME_INFORMATION], fnt_Outline, kaLeft);
+      Label_MP_Map := TKMLabel.Create(Panel_MPServerDetails, 8, 50, 284, 242, '', fnt_Metal, kaLeft);
+      Label_MP_GameTime := TKMLabel.Create(Panel_MPServerDetails, 8, 70, 284, 242, '', fnt_Metal, kaLeft);
+      TKMLabel.Create(Panel_MPServerDetails, 8, 130, 284, 20, fTextLibrary[TX_MP_MENU_PLAYER_LIST], fnt_Outline, kaLeft);
+      Label_MP_Players := TKMLabel.Create(Panel_MPServerDetails, 8, 150, 284, 242, '', fnt_Metal, kaLeft);
 
     //Join server area
     Panel_MPJoinServer := TKMPanel.Create(Panel_MultiPlayer, 673, 602, 300, 90);
@@ -1254,6 +1260,8 @@ begin
   fGame.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
   Label_MP_Players.Caption := '';
+  Label_MP_GameTime.Caption := '';
+  Label_MP_Map.Caption := '';
   ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_REFRESHING],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1,-1);
 end;
 
@@ -1270,7 +1278,7 @@ begin
       begin
         ServerFound := true;
         if RoomCount > 1 then DisplayName := Name+' #'+IntToStr(k+1) else DisplayName := Name; //Only show # when needed
-        ColList_Servers.AddItem([DisplayName,Rooms[k].GameState,IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
+        ColList_Servers.AddItem([DisplayName,GameStateText[Rooms[k].GameInfo.GameState],IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
                                 [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i, k);
       end;
   if not ServerFound then
@@ -1293,7 +1301,9 @@ begin
       Edit_MP_IP.Text := IP;
       Edit_MP_Port.Text := Port;
       Edit_MP_Room.Text := IntToStr(Rooms[ColList_Servers.GetItemTag2].RoomID);
-      Label_MP_Players.Caption := Rooms[ColList_Servers.GetItemTag2].Players;
+      Label_MP_Players.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Players;
+      Label_MP_GameTime.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.GetFormattedTime;
+      Label_MP_Map.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Map;
     end;
 end;
 

@@ -1,5 +1,5 @@
 
-MaxID:143
+MaxID:144
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -103,6 +103,7 @@ MaxID:143
 92:Uppdatera serverlistan
 93:SERVERDETALJER
 94:Spelarlista:
+144:
 95:Adress
 96:Port
 97:Rum

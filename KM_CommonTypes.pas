@@ -34,8 +34,7 @@ type
     mk_WelcomeMessage,  //Server sends a welcome message to the client
     mk_JoinRoom,        //Client requests to be placed in a room
     mk_ConnectedToRoom, //Server tells a client they have been successfully added to a room
-    mk_SetGameState,    //Host tells the server the game state to be reported to queries
-    mk_SetPlayerList,   //Host tells the server the player list to be reported to queries
+    mk_SetGameInfo,     //Host tells the server the player list, map, etc to be reported to queries
     mk_KickPlayer,      //Host askes the server to kick someone
 
     mk_GetServerInfo,   //Client askes for server for the server details (for querying)
@@ -49,9 +48,6 @@ type
     mk_Ping,            //Server pings Clients
     mk_Pong,            //Clients reply to Server with pong
     mk_PingInfo,        //Server sends list of ping times to Clients
-
-    mk_RoomOpen,        //Host tells server his room is now open
-    mk_RoomClose,       //Host tells server his room is now closed
 
     mk_PlayersList,     //Host keeps the players list and sends it to everyone on change
 
@@ -90,8 +86,7 @@ const
     pfText,     //mk_WelcomeMessage
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
-    pfText,     //mk_SetGameState
-    pfText,     //mk_SetPlayerList
+    pfText,     //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
     pfNoData,   //mk_GetServerInfo
     pfText,     //mk_ServerInfo
@@ -99,8 +94,6 @@ const
     pfNoData,   //mk_Ping
     pfNoData,   //mk_Pong
     pfText,     //mk_PingInfo
-    pfNoData,   //mk_RoomOpen
-    pfNoData,   //mk_RoomClose
     pfText,     //mk_PlayersList
     pfNumber,   //mk_StartingLocQuery
     pfNumber,   //mk_SetTeam
@@ -149,6 +142,25 @@ type
     function Read(out Value:word        ): Longint; reintroduce; overload;
     function Read(out Value:shortint    ): Longint; reintroduce; overload;
     function ReadAsText:string;
+  end;
+
+type
+  TMPGameState = (mgs_None, mgs_Lobby, mgs_Loading, mgs_Game);
+const
+  GameStateText:array[TMPGameState] of string = ('None','Lobby','Loading','Game');
+type
+  //Stores information about a multiplayer game to be sent: host -> server -> queriers
+  TMPGameInfo = class
+  public
+    GameState:TMPGameState;
+    Players:string;
+    Map:string;
+    GameTime:TDateTime;
+    Joinable:boolean;
+    function GetFormattedTime:string;
+    procedure LoadFromText(aText:string);
+    function GetAsText:string;
+    function GetAsHTML:string;
   end;
 
 
@@ -221,6 +233,56 @@ constructor ELocError.Create(const Msg: string; aLoc:TKMPoint);
 begin
   Inherited Create(Msg);
   Loc := aLoc;
+end;
+
+
+{ TMPGameInfo }
+procedure TMPGameInfo.LoadFromText(aText:string);
+var M:TKMemoryStream;
+begin
+  M := TKMemoryStream.Create;
+  try
+    M.WriteAsText(aText);
+    M.Read(GameState, SizeOf(GameState));
+    M.Read(Players);
+    M.Read(Map);
+    M.Read(GameTime, SizeOf(GameTime));
+  finally
+    M.Free;
+  end;
+end;
+
+
+function TMPGameInfo.GetFormattedTime:string;
+begin
+  if GameTime >= 0 then
+    Result := FormatDateTime('hh:nn:ss', GameTime)
+  else
+    Result := '';
+end;
+
+
+function TMPGameInfo.GetAsText:string;
+var M:TKMemoryStream;
+begin
+  M := TKMemoryStream.Create;
+
+  M.Write(GameState, SizeOf(GameState));
+  M.Write(Players);
+  M.Write(Map);
+  M.Write(GameTime, SizeOf(GameTime));
+
+  Result := M.ReadAsText;
+  M.Free;
+end;
+
+
+function TMPGameInfo.GetAsHTML:string;
+begin
+  Result := '';
+  Result := Result + Map;
+  Result := Result +'<BR>'+ GetFormattedTime;
+  Result := Result +'<BR>'+ Players;
 end;
 
 

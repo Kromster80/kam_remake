@@ -1,5 +1,5 @@
 
-MaxID:143
+MaxID:144
 
 1:Mission canceled
 2:Town Tutorial
@@ -103,6 +103,7 @@ MaxID:143
 92:Refresh Server List
 93:SERVER DETAILS
 94:Player list:
+144:Game information:
 95:Address
 96:Port
 97:Room

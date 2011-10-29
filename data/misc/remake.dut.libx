@@ -1,5 +1,5 @@
 
-MaxID:143
+MaxID:144
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -103,6 +103,7 @@ MaxID:143
 92:Vernieuwen server lijst
 93:SERVER DETAILS
 94:Spelers lijst:
+144:
 95:Adres
 96:Port
 97:Room

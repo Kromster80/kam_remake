@@ -1,5 +1,5 @@
 
-MaxID:143
+MaxID:144
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -103,6 +103,7 @@ MaxID:143
 92:Rafraichir la Liste des Serveurs
 93:DETAILS DU SERVEUR
 94:Liste des Joueurs :
+144:
 95:Adresse
 96:Port
 97:Salle

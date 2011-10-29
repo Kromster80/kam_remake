@@ -90,6 +90,7 @@ type
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
     procedure GameWaitingForNetwork(aWaiting:boolean);
+    procedure SendMPGameInfo(Sender:TObject);
 
     procedure AutoSave;
     procedure BaseSave;
@@ -620,6 +621,7 @@ procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
   GameWaitingForNetwork(false); //Finished waiting for players
   fGameState := gsRunning;
+  fNetworking.SendMPGameInfo(GetMissionTime,GameName);
   fLog.AppendLog('Net game began');
 end;
 
@@ -728,6 +730,12 @@ begin
 
   fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers);
   WaitingPlayers.Free;
+end;
+
+
+procedure TKMGame.SendMPGameInfo(Sender:TObject);
+begin
+  fNetworking.SendMPGameInfo(GetMissionTime,GameName);
 end;
 
 
@@ -961,6 +969,7 @@ begin
                                         fGlobalSettings.AutoKickTimeout,
                                         fGlobalSettings.PingInterval,
                                         fGlobalSettings.MasterAnnounceInterval);
+  fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 
 
@@ -1192,6 +1201,8 @@ begin
                 end;
     gsRunning:  begin
                   if fMultiplayerMode then  fNetworking.UpdateState(fGlobalTickCount); //Measures pings
+                  if fMultiplayerMode and (fGameTickCount mod 100 = 0) then
+                    SendMPGameInfo(Self); //Send status to the server every 10 seconds
                   try //Catch exceptions during update state
 
                     for i:=1 to fGameSpeed do

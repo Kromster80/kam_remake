@@ -1,5 +1,5 @@
 
-MaxID:143
+MaxID:144
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -103,6 +103,7 @@ MaxID:143
 92:Odœwie¿ Listê Serwerów
 93:SZCZEGÓ£Y SERWERA
 94:Lista graczy:
+144:
 95:Adres
 96:Port
 97:Pokój

@@ -27,8 +27,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  SERVER_PROTOCOL_REVISON = 'r2411';     //Clients of this version may connect to the dedicated server
-  GAME_REVISION         = 'r2460';       //Should be updated for every release (each time save format is changed)
+  SERVER_PROTOCOL_REVISON = 'r2475';     //Clients of this version may connect to the dedicated server
+  GAME_REVISION         = 'r2475';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;

@@ -17,8 +17,7 @@ type
     Rooms: array of record
                       RoomID:integer;
                       PlayerCount:integer;
-                      GameState: string;
-                      Players:string;
+                      GameInfo:TMPGameInfo;
                     end;
   end;
 
@@ -115,7 +114,11 @@ end;
 
 
 procedure TKMServerList.Clear;
+var i,k:integer;
 begin
+  for i:=0 to fCount-1 do
+    for k:=0 to fServers[i].RoomCount-1 do
+      fServers[i].Rooms[k].GameInfo.Free;
   fCount := 0;
   SetLength(fServers,0);
 end;
@@ -156,7 +159,7 @@ end;
 
 
 procedure TKMServerList.LoadData(aServerID:integer; M:TKMemoryStream; aPing:integer);
-var i: integer;
+var i: integer; GameInfoText:string;
 begin
   with fServers[aServerID] do
   begin
@@ -168,8 +171,9 @@ begin
     begin
       M.Read(Rooms[i].RoomID);
       M.Read(Rooms[i].PlayerCount);
-      M.Read(Rooms[i].GameState);
-      M.Read(Rooms[i].Players);
+      Rooms[i].GameInfo := TMPGameInfo.Create;
+      M.Read(GameInfoText);
+      Rooms[i].GameInfo.LoadFromText(GameInfoText);
     end;
   end;
 end;

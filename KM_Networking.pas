@@ -16,7 +16,7 @@ type
   TNetGameKind = (ngk_None, ngk_Map, ngk_Save);
 
 const
-  NetGameStateText:array[TNetGameState] of string = ('None','Connecting','Query','Lobby','Loading','Game');
+  NetMPGameState:array[TNetGameState] of TMPGameState = (mgs_None, mgs_None, mgs_None, mgs_Lobby, mgs_Loading, mgs_Game);
   NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
   [], //lgs_None
   [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_Pong,mk_ConnectedToRoom], //lgs_Connecting
@@ -68,6 +68,7 @@ type
     fOnReadyToPlay:TNotifyEvent;
     fOnDisconnect:TStringEvent;
     fOnPingInfo:TNotifyEvent;
+    fOnMPGameInfoChanged:TNotifyEvent;
     fOnCommands:TStringEvent;
 
     procedure DecodePingInfo(aInfo:string);
@@ -113,6 +114,7 @@ type
 
     //Common
     procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
+    procedure SendMPGameInfo(aGameTime:TDateTime; aMap:string);
 
     //Gameplay
     property MapInfo:TKMapInfo read fMapInfo;
@@ -136,6 +138,7 @@ type
     property OnPlay:TNotifyEvent write fOnPlay;                 //Start the gameplay
     property OnReadyToPlay:TNotifyEvent write fOnReadyToPlay;   //Update the list of players ready to play
     property OnPingInfo:TNotifyEvent write fOnPingInfo;         //Ping info updated
+    property OnMPGameInfoChanged:TNotifyEvent write fOnMPGameInfoChanged;
 
     property OnDisconnect:TStringEvent write fOnDisconnect;     //Lost connection, was kicked
     property OnCommands:TStringEvent write fOnCommands;         //Recieved GIP commands
@@ -585,7 +588,6 @@ begin
 
   //Let everyone start with final version of fNetPlayers
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, fNetPlayers.GetAsText, 0);
-  PacketSend(NET_ADDRESS_SERVER, mk_RoomClose, '', 0); //Tell the server this room is now closed
 
   StartGame;
 end;
@@ -610,15 +612,7 @@ begin
         NetPlayers[i].Team := 0;
       end;
 
-  if IsHost and (fNetGameState = lgs_Lobby) then
-  begin
-    if NetPlayers.Count >= MAX_PLAYERS then
-      PacketSend(NET_ADDRESS_SERVER, mk_RoomClose, '', 0) //Tell the server this room is now full
-    else
-      PacketSend(NET_ADDRESS_SERVER, mk_RoomOpen, '', 0); //Tell the server this room is now available
-  end;
-  if IsHost then
-    PacketSend(NET_ADDRESS_SERVER, mk_SetPlayerList, fNetPlayers.GetSimpleAsText, 0);
+  fOnMPGameInfoChanged(Self); //Tell the server about the changes
 
   PacketSend(aPlayerIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);
   if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
@@ -715,7 +709,7 @@ begin
   begin
     //When querying a host we may receive data such as commands, player setup, etc. These should be ignored.
     if (fNetGameState <> lgs_Query) and Assigned(fOnTextMessage) then
-      fOnTextMessage('Error: Received an packet not intended for this state');
+      fOnTextMessage('Error: Received a packet not intended for this state');
     Exit;
   end;
 
@@ -1069,10 +1063,24 @@ procedure TKMNetworking.SetGameState(aState:TNetGameState);
 begin
   fNetGameState := aState;
   if (fNetGameState in [lgs_Lobby,lgs_Loading,lgs_Game]) and IsHost and (fMyIndexOnServer <> -1) then
-  begin
-    PacketSend(NET_ADDRESS_SERVER,mk_SetGameState,NetGameStateText[fNetGameState],0);
-    PacketSend(NET_ADDRESS_SERVER, mk_SetPlayerList, fNetPlayers.GetSimpleAsText, 0);
-  end;
+    fOnMPGameInfoChanged(Self);
+end;
+
+
+procedure TKMNetworking.SendMPGameInfo(aGameTime:TDateTime; aMap:string);
+var MPGameInfo: TMPGameInfo;
+begin
+  if not IsHost then exit;
+  MPGameInfo := TMPGameInfo.Create;
+  if (fNetGameState = lgs_Lobby) and (GameInfo <> nil) then aMap := GameInfo.Title;
+  if (fNetGameState = lgs_Lobby) then aGameTime := -1;
+  MPGameInfo.Map := aMap;
+  MPGameInfo.GameTime := aGameTime;
+  MPGameInfo.GameState := NetMPGameState[fNetGameState];
+  MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
+  MPGameInfo.Joinable := (NetPlayers.Count < MAX_PLAYERS) and (fNetGameState = lgs_Lobby);
+  PacketSend(NET_ADDRESS_SERVER,mk_SetGameInfo,MPGameInfo.GetAsText,0);
+  MPGameInfo.Free;
 end;
 
 

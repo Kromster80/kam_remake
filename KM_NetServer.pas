@@ -81,11 +81,10 @@ type
     fWelcomeMessage:string;
     fKickTimeout:word;
     fRoomCount:integer;
+    fEmptyGameInfo:TMPGameInfo;
     fRoomInfo:array of record
                          HostHandle:integer;
-                         Joinable:boolean;
-                         GameState:string;
-                         Players:string;
+                         GameInfo:TMPGameInfo;
                        end;
 
     fOnStatusMessage:TGetStrProc;
@@ -195,6 +194,9 @@ end;
 constructor TKMNetServer.Create(const aVersion:string; aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
 begin
   Inherited Create;
+  fEmptyGameInfo := TMPGameInfo.Create;
+  fEmptyGameInfo.Joinable := true;
+  fEmptyGameInfo.GameTime := -1;
   fVersion := aVersion;
   fMaxRooms := aMaxRooms;
   fKickTimeout := aKickTimeout;
@@ -405,9 +407,9 @@ begin
     if GetRoomPlayersCount(Room) = 0 then
     begin
       fRoomInfo[Room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
-      fRoomInfo[Room].Joinable := true;
-      fRoomInfo[Room].GameState := 'None';
-      fRoomInfo[Room].Players := '';
+      fRoomInfo[Room].GameInfo.Free;
+      fRoomInfo[Room].GameInfo := TMPGameInfo.Create;
+      fRoomInfo[Room].GameInfo.Joinable := true;
     end
     else
     begin
@@ -486,16 +488,9 @@ begin
 
   case Kind of
     mk_JoinRoom:  AddClientToRoom(aSenderHandle,Param);
-    mk_RoomOpen:  fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Joinable := true;
-    mk_RoomClose: fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Joinable := false;
-    mk_SetGameState:
+    mk_SetGameInfo:
             begin
-              fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].GameState := Msg;
-              SaveHTMLStatus;
-            end;
-    mk_SetPlayerList:
-            begin
-              fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].Players := Msg;
+              fRoomInfo[ fClientList.GetByHandle(aSenderHandle).Room ].GameInfo.LoadFromText(Msg);
               SaveHTMLStatus;
             end;
     mk_KickPlayer:
@@ -618,8 +613,7 @@ begin
       PlayerCount := GetRoomPlayersCount(i);
       M.Write(i); //RoomID
       M.Write(PlayerCount);
-      M.Write(fRoomInfo[i].GameState);
-      M.Write(fRoomInfo[i].Players);
+      M.Write(fRoomInfo[i].GameInfo.GetAsText);
     end;
   end;
   //Write out the empty room at the end
@@ -628,8 +622,7 @@ begin
     PlayerCount := 0;
     M.Write(EmptyRoomID); //RoomID
     M.Write(PlayerCount);
-    M.Write('None'); //Gamestate
-    M.Write(''); //Players
+    M.Write(fEmptyGameInfo.GetAsText);
   end;
 end;
 
@@ -652,10 +645,9 @@ begin
   Result := true;
   inc(fRoomCount);
   SetLength(fRoomInfo,fRoomCount);
-  fRoomInfo[fRoomCount-1].Joinable := true;
   fRoomInfo[fRoomCount-1].HostHandle := NET_ADDRESS_EMPTY;
-  fRoomInfo[fRoomCount-1].GameState := '';
-  fRoomInfo[fRoomCount-1].Players := '';
+  fRoomInfo[fRoomCount-1].GameInfo := TMPGameInfo.Create;
+  fRoomInfo[fRoomCount-1].GameInfo.Joinable := true;
 end;
 
 
@@ -663,10 +655,10 @@ function TKMNetServer.GetFirstAvailableRoom:integer;
 var i:integer;
 begin
   for i:=0 to fRoomCount-1 do
-    if fRoomInfo[i].Joinable or (GetRoomPlayersCount(i) = 0) then
+    if fRoomInfo[i].GameInfo.Joinable or (GetRoomPlayersCount(i) = 0) then
     begin
       Result := i;
-      fRoomInfo[i].Joinable := true; //Empty rooms are reset to joinable
+      fRoomInfo[i].GameInfo.Joinable := true; //Empty rooms are reset to joinable
       exit;
     end;
   if AddNewRoom then //Otherwise we must create a room
@@ -713,8 +705,8 @@ begin
   HTML := HTML + '<TABLE border="1"><TR><TD><b>Room ID</b></TD><TD><b>State</b></TD><TD><b>Player Count</b></TD><TD><b>Player Names</b></TD></TR>'+#13;
   for i:=0 to fRoomCount-1 do
     if GetRoomPlayersCount(i) > 0 then
-      HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+fRoomInfo[i].GameState+
-                     '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+'</TD><TD>'+StringReplace(fRoomInfo[i].Players,'|',', ',[rfReplaceAll])+'</TD></TR>'+#13;
+      HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+GameStateText[fRoomInfo[i].GameInfo.GameState]+
+                     '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+'</TD><TD>'+fRoomInfo[i].GameInfo.GetAsHTML+'</TD></TR>'+#13;
 
   HTML := HTML + '</TABLE></BODY></HTML>';
 
