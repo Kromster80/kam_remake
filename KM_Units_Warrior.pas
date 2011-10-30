@@ -703,9 +703,10 @@ begin
   //I think thats just not worth it
   for i:=-LINK_RADIUS to LINK_RADIUS do
   for k:=-LINK_RADIUS to LINK_RADIUS do
-  if GetLength(i,k) < LINK_RADIUS then //Check within circle area
+  if (GetLength(i,k) < LINK_RADIUS) //Check within circle area
+  and fTerrain.TileInMapCoords(aLoc.X+i,aLoc.Y+k) then //Do not pass negative coordinates to fTerrain.UnitsHitTest
   begin
-    FoundUnit := fTerrain.UnitsHitTest(aLoc.X+i, aLoc.Y+k); //off-map coords will be skipped
+    FoundUnit := fTerrain.UnitsHitTest(aLoc.X+i, aLoc.Y+k); //off-map coords can give an error as they can be < 0 (input parameters are word)
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit <> Self) and
        (FoundUnit.GetOwner = fOwner) and
