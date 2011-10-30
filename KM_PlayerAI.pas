@@ -477,6 +477,11 @@ begin
     AttackGroupsCount[G] := 0;
   end;
 
+  //Hotfix until we refactor AI: Make sure no defence position commander is dead
+  for k:=0 to DefencePositionsCount-1 do
+    if (DefencePositions[k].CurrentCommander <> nil) and DefencePositions[k].CurrentCommander.IsDeadOrDying then
+      DefencePositions[k].CurrentCommander := nil;
+
   //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
   for i:=0 to fPlayers[PlayerIndex].Units.Count-1 do
   begin
