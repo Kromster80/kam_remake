@@ -40,6 +40,7 @@ type
 
 
 implementation
+  uses KM_TextLibrary;
 
 
 { TKMSaveInfo }
@@ -139,8 +140,8 @@ end;
 function TKMGameInfo.MissionModeText:string;
 begin
   case MissionMode of
-    mm_Normal: Result := 'Building and Fighting';
-    mm_Tactic: Result := 'Fighting'
+    mm_Normal: Result := fTextLibrary[TX_MODE_BUILD_FIGHT];
+    mm_Tactic: Result := fTextLibrary[TX_MODE_FIGHTING]
     else       Result := 'Unknown';
   end;
 end;

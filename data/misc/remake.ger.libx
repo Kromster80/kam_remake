@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -73,6 +73,8 @@ MaxID:148
 66:Verbindung fehlgeschlagen: %s
 67:Du bist nicht verbunden.
 68:Mission %d
+150:
+151:
 
 69:Diese Fischerhütte ist zu weit vom Wasser entfernt!
 70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
@@ -146,6 +148,7 @@ MaxID:148
 128:Lobby verlassen
 129:Bereit!
 130:Start!
+149:
 
 131:Warte auf Spieler:
 

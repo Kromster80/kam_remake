@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -73,6 +73,8 @@ MaxID:148
 66:Uppkoppling misslyckades: %s
 67:Du har kopplats ner
 68:Uppdrag %d
+150:
+151:
 
 69:Din fiskares stuga är för långt från vattnet.
 70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
@@ -146,6 +148,7 @@ MaxID:148
 128:Avsluta sessionen
 129:Redo
 130:Börja!
+149:
 
 131:Väntar på spelare:
 

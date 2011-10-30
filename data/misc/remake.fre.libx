@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -73,6 +73,8 @@ MaxID:148
 66:Connexion échoué: %s
 67:Vous vous êtes déconnecté
 68:Mission %d
+150:
+151:
 
 69:La Hutte de votre Pêcheur est trop éloignée de l'eau.
 70:Votre Pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa Hutte.
@@ -146,6 +148,7 @@ MaxID:148
 128:Quitter le Lobby
 129:Prêt
 130:Débuter !
+149:
 
 131:Attente de Joueurs:
 

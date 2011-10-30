@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -73,6 +73,8 @@ MaxID:148
 66:Kapcsolódási hiba: %s
 67:Megszakadt a kapcsolat
 68:Küldetés %d
+150:
+151:
 
 69:A halászkunyhód túl messze van a víztõl.
 70:A halászod nem tud több halat fogni a közeli vízbõl.
@@ -146,6 +148,7 @@ MaxID:148
 128:Kilépés
 129:Kész
 130:Indítás!
+149:
 
 131:Várakozás a játékosokra:
 

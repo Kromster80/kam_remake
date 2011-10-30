@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Missão cancelada
 2:Tutorial da cidade
@@ -73,6 +73,8 @@ MaxID:148
 66:Conexão falhou: %s
 67:Você foi desconectado
 68:Missão %d
+150:
+151:
 
 69:A cabana do seu pescador está muito longe da água.
 70:Seu pescador não pode pegar nenhum peixe nas aguas próximas.
@@ -146,6 +148,7 @@ MaxID:148
 128:Sair da sala
 129:Pronto
 130:Iniciar!
+149:
 
 131:Aguardando por jogadores:
 

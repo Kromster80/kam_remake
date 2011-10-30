@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Mission canceled
 2:Town Tutorial
@@ -73,6 +73,8 @@ MaxID:148
 66:Connection failed: %s
 67:You have disconnected
 68:Mission %d
+150:Building and Fighting
+151:Fighting
 
 69:Your fisherman's hut is too far away from the water.
 70:Your fisherman cannot catch any further fish in the nearby water bodies.
@@ -146,6 +148,7 @@ MaxID:148
 128:Quit lobby
 129:Ready
 130:Start!
+149:Location %d
 
 131:Waiting for players:
 

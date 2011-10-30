@@ -55,7 +55,7 @@ type
 
 
 implementation
-uses KM_Utils, KM_MissionScript, KM_CommonTypes;
+uses KM_Utils, KM_MissionScript, KM_CommonTypes, KM_TextLibrary;
 
 
 { TKMapInfo }
@@ -114,7 +114,7 @@ begin
       fInfo.PlayerCount       := fMissionParser.MissionInfo.PlayerCount;
       for i:=Low(fInfo.LocationName) to High(fInfo.LocationName) do
       begin
-        fInfo.LocationName[i] := 'Location '+IntToStr(i+1);
+        fInfo.LocationName[i] := Format(fTextLibrary[TX_LOBBY_LOCATION_X],[i+1]);;
         fInfo.PlayerTypes[i] := pt_Human;
         fInfo.ColorID[i] := 0;
         fInfo.Team[i] := 0;

@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Mise zrušena
 2:Výuka stavby
@@ -73,6 +73,8 @@ MaxID:148
 66:Spojení se nezdaøilo: %s
 67:Byl jste odpojen
 68:Mise %d
+150:
+151:
 
 69:Váš rybáø je pøíliš daleko od vody.
 70:Váš rybáø nemùže chytit žádné další ryby ve vodì, kterou má poblíž.
@@ -146,6 +148,7 @@ MaxID:148
 128:Opustit nabídku
 129:Pøipraven
 130:Zaèít!
+149:
 
 131:Èekám na ostatní hráèe:
 

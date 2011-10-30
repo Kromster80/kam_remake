@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -73,6 +73,8 @@ MaxID:148
 66:Connectie fout: %s
 67:Je bent verbroken met het spel
 68:Missie %d
+150:
+151:
 
 69: De vissershut is buiten het bereik van het water.
 70: De visser kan geen vis meer vangen rondom zijn vissershut
@@ -146,6 +148,7 @@ MaxID:148
 128:Afsluiten lobby
 129:Klaar
 130:Start!
+149:
 
 131:Wachten for spelers:
 

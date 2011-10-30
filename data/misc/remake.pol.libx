@@ -1,5 +1,5 @@
 
-MaxID:148
+MaxID:151
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -73,6 +73,8 @@ MaxID:148
 66:Po³¹czenie nie powiod³o siê: %s
 67:Zosta³eœ roz³¹czony
 68:Misja %d
+150:
+151:
 
 69:Twoja Chata rybaka jest zbyt daleko od wody.
 70:Twój rybak nie mo¿e z³owiæ wiêcej ryb w pobliskich zbiornikach wodnych.
@@ -146,6 +148,7 @@ MaxID:148
 128:WyjdŸ
 129:Gotowy
 130:Start!
+149:
 
 131:Oczekiwanie na graczy:
 
