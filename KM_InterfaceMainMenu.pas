@@ -1278,7 +1278,7 @@ begin
       begin
         ServerFound := true;
         if RoomCount > 1 then DisplayName := Name+' #'+IntToStr(k+1) else DisplayName := Name; //Only show # when needed
-        ColList_Servers.AddItem([DisplayName,GameStateText[Rooms[k].GameInfo.GameState],IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
+        ColList_Servers.AddItem([DisplayName,fTextLibrary[GameStateTextIDs[Rooms[k].GameInfo.GameState]],IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
                                 [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i, k);
       end;
   if not ServerFound then

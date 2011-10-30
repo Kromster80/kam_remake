@@ -147,6 +147,7 @@ type
 type
   TMPGameState = (mgs_None, mgs_Lobby, mgs_Loading, mgs_Game);
 const
+  //Used in the dedicated server display as it does not care about translations (translated ones are in KM_TextLibrary)
   GameStateText:array[TMPGameState] of string = ('None','Lobby','Loading','Game');
 type
   //Stores information about a multiplayer game to be sent: host -> server -> queriers

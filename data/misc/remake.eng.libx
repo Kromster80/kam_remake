@@ -1,5 +1,5 @@
 
-MaxID:144
+MaxID:148
 
 1:Mission canceled
 2:Town Tutorial
@@ -112,6 +112,10 @@ MaxID:144
 100:Loading announcements...
 101:Refreshing...
 142:No servers found
+145:None
+146:Lobby
+147:Loading
+148:Game
 
 102:Players list
 103:Start location

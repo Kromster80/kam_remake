@@ -2,7 +2,7 @@ unit KM_TextLibrary;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, StrUtils, KromUtils, KM_Defaults;
+  Classes, SysUtils, Math, StrUtils, KromUtils, KM_Defaults, KM_CommonTypes;
 
 
 const
@@ -23,6 +23,8 @@ const
 
   //Load text IDs from this include file that is managed by the Translation Manager
   {$I KM_TextIDs.inc}
+
+  GameStateTextIDs:array[TMPGameState] of integer = (TX_MP_STATE_NONE,TX_MP_STATE_LOBBY,TX_MP_STATE_LOADING,TX_MP_STATE_GAME);
 
 
 type

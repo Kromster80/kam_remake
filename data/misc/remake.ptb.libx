@@ -1,5 +1,5 @@
 
-MaxID:144
+MaxID:148
 
 1:Missão cancelada
 2:Tutorial da cidade
@@ -112,6 +112,10 @@ MaxID:144
 100:Carregando anunciamentos...
 101:Recarregando...
 142:
+145:
+146:
+147:
+148:
 
 102:Lista de Jogadores
 103:Iniciar local

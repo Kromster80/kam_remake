@@ -1,5 +1,5 @@
 
-MaxID:144
+MaxID:148
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -112,6 +112,10 @@ MaxID:144
 100:Laddar meddelanden...
 101:Uppdaterar...
 142:
+145:
+146:
+147:
+148:
 
 102:Spelarlista:
 103:Startplats:

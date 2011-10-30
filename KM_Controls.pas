@@ -2571,7 +2571,7 @@ end;
 
 
 procedure TKMColumnListBox.Paint;
-var i,k,PaintWidth:integer;
+var i,k,PaintWidth,ItemWidth:integer;
 begin
   Inherited;
   if fScrollBar.Visible then
@@ -2589,7 +2589,11 @@ begin
 
   for i:=0 to Math.min(fItems[0].Count-1, ((fHeight-fItemTop) div fItemHeight)-1) do
     for k:=0 to Length(fItems)-1 do
-      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, 0, 0, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,TopIndex+i]);
+    begin
+      if k = Length(fItems)-1 then ItemWidth := (PaintWidth-4) else ItemWidth := fItemOffsets[k+1];
+      ItemWidth := ItemWidth-fItemOffsets[k]-4;
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, ItemWidth, 0, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,i]);
+    end;
 end;
 
 
