@@ -204,7 +204,7 @@ procedure TKMPlayerAI.CheckGoals;
       gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
       gc_Buildings:         Result := (MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Barracks)>0);
       gc_Troops:            Result := (MS.GetArmyCount>0);
-      gc_MilitaryAssets:    Result := (MS.GetArmyCount>0);
+      gc_MilitaryAssets:    Result := (MS.GetArmyCount>0)or(MS.GetHouseQty(ht_Barracks)>0);
       gc_SerfsAndSchools:   Result := (MS.GetHouseQty(ht_School)>0)or(MS.GetUnitQty(ut_Serf)>0);
       gc_EconomyBuildings:  Result := ((MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Inn)>0));
       else                  Assert(false, 'Unknown goal');

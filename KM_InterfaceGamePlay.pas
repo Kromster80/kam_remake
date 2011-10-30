@@ -75,8 +75,11 @@ type
     procedure Menu_QuitMission(Sender:TObject);
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
+    procedure Chat_Click(Sender: TObject);
     procedure Chat_Show(Sender: TObject);
+    procedure Allies_Click(Sender: TObject);
     procedure Allies_Show(Sender: TObject);
+    procedure Message_Click(Sender: TObject);
     procedure Message_Close(Sender: TObject);
     procedure Message_Delete(Sender: TObject);
     procedure Message_Display(Sender: TObject);
@@ -837,17 +840,17 @@ begin
   Image_MPChat.Anchors := [akLeft, akBottom];
   Image_MPChat.HighlightOnMouseOver := true;
   Image_MPChat.Hint := fTextLibrary[TX_GAMEPLAY_CHAT_HINT];
-  Image_MPChat.OnClick := Chat_Show;
+  Image_MPChat.OnClick := Chat_Click;
   Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Outline,kaCenter,$FF0000FF);
   Label_MPChatUnread.Anchors := [akLeft, akBottom];
   Label_MPChatUnread.AutoWrap := true;
-  Label_MPChatUnread.OnClick := Chat_Show;
+  Label_MPChatUnread.OnClick := Chat_Click;
 
   Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
   Image_MPAllies.Anchors := [akLeft, akBottom];
   Image_MPAllies.HighlightOnMouseOver := true;
   Image_MPAllies.Hint := fTextLibrary[TX_GAMEPLAY_PLAYERS_HINT];
-  Image_MPAllies.OnClick := Allies_Show;
+  Image_MPAllies.OnClick := Allies_Click;
 
   for i:=low(Image_Message) to high(Image_Message) do
   begin
@@ -858,7 +861,7 @@ begin
     Image_Message[i].Hide;
     Image_Message[i].HighlightOnMouseOver := true;
     Image_Message[i].Tag := i;
-    Image_Message[i].OnClick := Message_Display;
+    Image_Message[i].OnClick := Message_Click;
   end;
 
   //Chat and Allies setup should be accessible only in Multiplayer
@@ -1547,6 +1550,15 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Chat_Click(Sender: TObject);
+begin
+  if Panel_Chat.Visible then
+    Chat_Close(Sender)
+  else
+    Chat_Show(Sender);
+end;
+
+
 procedure TKMGamePlayInterface.Chat_Show(Sender: TObject);
 begin
   MyControls.CtrlFocus := Edit_ChatMsg;
@@ -1564,11 +1576,29 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Allies_Click(Sender: TObject);
+begin
+  if Panel_Allies.Visible then
+    Allies_Close(Sender)
+  else
+    Allies_Show(Sender);
+end;
+
+
 procedure TKMGamePlayInterface.Allies_Show(Sender: TObject);
 begin
   Panel_Allies.Show;
   Chat_Close(nil);
   Message_Close(nil);
+end;
+
+
+procedure TKMGamePlayInterface.Message_Click(Sender: TObject);
+begin
+  if ShownMessage = 0 then
+    Message_Display(Sender)
+  else
+    Message_Close(Sender);
 end;
 
 
@@ -2756,10 +2786,14 @@ begin
                   if Key in [ord('1')..ord('4')] then Button_Main[Key-48].DoClick;
                   if Key=VK_ESCAPE then if Button_Army_Join_Cancel.DoClick then exit
                                         else if Button_MessageClose.DoClick then exit
+                                        else if Button_ChatClose.DoClick then exit
+                                        else if Button_AlliesClose.DoClick then exit
                                         else if Button_Main[5].DoClick then exit;
                   //Messages
                   if Key=VK_SPACE  then Button_MessageGoTo.DoClick; //In KaM spacebar centers you on the message
                   if Key=VK_DELETE then Button_MessageDelete.DoClick;
+                  if (Key=VK_RETURN) and fGame.MultiplayerMode and not Panel_Chat.Visible then
+                    Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
 
                   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
                   if (Key = ord('A')) and (Panel_Army.Visible) then Button_Army_Attack.DoClick;

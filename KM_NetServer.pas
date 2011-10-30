@@ -195,7 +195,6 @@ constructor TKMNetServer.Create(const aVersion:string; aMaxRooms:word; aKickTime
 begin
   Inherited Create;
   fEmptyGameInfo := TMPGameInfo.Create;
-  fEmptyGameInfo.Joinable := true;
   fEmptyGameInfo.GameTime := -1;
   fVersion := aVersion;
   fMaxRooms := aMaxRooms;
@@ -409,7 +408,6 @@ begin
       fRoomInfo[Room].HostHandle := NET_ADDRESS_EMPTY; //Room is now empty so we don't need a new host
       fRoomInfo[Room].GameInfo.Free;
       fRoomInfo[Room].GameInfo := TMPGameInfo.Create;
-      fRoomInfo[Room].GameInfo.Joinable := true;
     end
     else
     begin
@@ -647,7 +645,6 @@ begin
   SetLength(fRoomInfo,fRoomCount);
   fRoomInfo[fRoomCount-1].HostHandle := NET_ADDRESS_EMPTY;
   fRoomInfo[fRoomCount-1].GameInfo := TMPGameInfo.Create;
-  fRoomInfo[fRoomCount-1].GameInfo.Joinable := true;
 end;
 
 
@@ -655,10 +652,9 @@ function TKMNetServer.GetFirstAvailableRoom:integer;
 var i:integer;
 begin
   for i:=0 to fRoomCount-1 do
-    if fRoomInfo[i].GameInfo.Joinable or (GetRoomPlayersCount(i) = 0) then
+    if GetRoomPlayersCount(i) = 0 then
     begin
       Result := i;
-      fRoomInfo[i].GameInfo.Joinable := true; //Empty rooms are reset to joinable
       exit;
     end;
   if AddNewRoom then //Otherwise we must create a room

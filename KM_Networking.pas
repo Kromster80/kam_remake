@@ -19,7 +19,7 @@ const
   NetMPGameState:array[TNetGameState] of TMPGameState = (mgs_None, mgs_None, mgs_None, mgs_Lobby, mgs_Loading, mgs_Game);
   NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
   [], //lgs_None
-  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_Pong,mk_ConnectedToRoom], //lgs_Connecting
+  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_Pong,mk_ConnectedToRoom,mk_PingInfo], //lgs_Connecting
   [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_Pong,mk_PingInfo], //lgs_Query
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_Pong,mk_PingInfo,mk_PlayersList,
    mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
@@ -1078,7 +1078,6 @@ begin
   MPGameInfo.GameTime := aGameTime;
   MPGameInfo.GameState := NetMPGameState[fNetGameState];
   MPGameInfo.Players := fNetPlayers.GetSimpleAsText;
-  MPGameInfo.Joinable := (NetPlayers.Count < MAX_PLAYERS) and (fNetGameState = lgs_Lobby);
   PacketSend(NET_ADDRESS_SERVER,mk_SetGameInfo,MPGameInfo.GetAsText,0);
   MPGameInfo.Free;
 end;

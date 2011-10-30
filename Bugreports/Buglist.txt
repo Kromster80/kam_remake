@@ -27,6 +27,7 @@
 	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays almost always end up with a mismatch while watching them
+	AI attacks make the game lag by consuming a massive amount of CPU in pathfinding (I think that's the cause) Vortamic is especially bad.
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
@@ -39,7 +40,7 @@ Features:
  +	Dynamic settings for the server, so it can be changed without restarting
  +	Shuffle option for music
  +	Map name and game time displayed in the Server Details
-	Allow to hide ingame chat by clicking on chat button again
+ +	Allow to hide ingame chat/messages by clicking on chat/message button again or pressing escape, and show chat by pressing enter (now chatting can be done without using the mouse)
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]

@@ -156,7 +156,6 @@ type
     Players:string;
     Map:string;
     GameTime:TDateTime;
-    Joinable:boolean;
     function GetFormattedTime:string;
     procedure LoadFromText(aText:string);
     function GetAsText:string;
