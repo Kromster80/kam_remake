@@ -325,7 +325,7 @@ begin
   else
     SwitchMenuPage(nil);
 
-  //ShowScreen_Results; //Put here page you would like to debug
+  //SwitchMenuPage(Panel_Results); //Put here page you would like to debug
   fLog.AppendLog('Main menu init done');
 end;
 
@@ -382,7 +382,7 @@ begin
                   SwitchMenuPage(Panel_Results);
                 end;
   end;
-  
+
   fRender.Render;
 end;
 
@@ -891,30 +891,61 @@ begin
 end;
 
 
+//Citizens   TLD
+//Soldiers   TLD
+//Houses     TLD
+//Goods      T
+//Warfare    T
+//Trained-Lost-Defeated
 procedure TKMMainMenuInterface.Create_Results_Page;
-var i:integer; Adv:integer;
+const
+  BarStep = 84;
+  BarWidth = BarStep-4;
+  BarHalf = BarWidth div 2;
+  Columns: array[0..9] of string = ('Citizens|trained', 'Citizens|lost',
+                                    'Soldiers|trained', 'Soldiers|lost',
+                                    'Houses|built', 'Houses|lost',
+                                    'Enemies|killed', 'Houses|destroyed',
+                                    'Goods|produced', 'Weapons|produced');
+var i,k, Adv: Integer;
 begin
-  Panel_Results:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Results := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     with TKMImage.Create(Panel_Results,0,0,ScreenX,ScreenY,7,5) do ImageStretch;
 
-    Label_Results_Result:=TKMLabel.Create(Panel_Results,512,200,300,20,'<<<LEER>>>',fnt_Metal,kaCenter);
+    Label_Results_Result := TKMLabel.Create(Panel_Results,512,200,300,20,'<<<LEER>>>',fnt_Metal,kaCenter);
 
-    Panel_Stats:=TKMPanel.Create(Panel_Results,80,240,400,400);
-    Adv:=0;
+    Panel_Stats := TKMPanel.Create(Panel_Results,80,240,400,400);
+    Adv := 0;
     for i:=1 to 9 do
     begin
-      inc(Adv,25);
-      if i in [3,6,7,9] then inc(Adv,15);
+      inc(Adv, 25);
+      if i in [3,6,7,9] then inc(Adv, 15);
       TKMLabel.Create(Panel_Stats,0,Adv,232,20,fTextLibrary.GetSetupString(112+i),fnt_Metal,kaLeft);
-      Label_Stat[i]:=TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,kaRight);
+      Label_Stat[i] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,kaRight);
     end;
 
-    Button_ResultsBack:=TKMButton.Create(Panel_Results,100,640,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
-    Button_ResultsBack.OnClick:=SwitchMenuPage;
-    Button_ResultsRepeat:=TKMButton.Create(Panel_Results,340,640,220,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
-    Button_ResultsRepeat.OnClick:=MainMenu_ReplayLastMap;
-    Button_ResultsContinue:=TKMButton.Create(Panel_Results,580,640,220,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
-    Button_ResultsContinue.OnClick:=SwitchMenuPage;
+    (*Panel_Stats := TKMPanel.Create(Panel_Results,50,240,900,400);
+    {}for i:=1 to 9 do
+    {}  Label_Stat[i] := TKMLabel.Create(Panel_Stats,-100,0,0,0,'0',fnt_Metal,kaRight);
+
+
+    for k:=0 to 9 do
+      TKMLabel.Create(Panel_Stats, 90 + BarHalf+BarStep*k, 0, BarWidth, 20, Columns[k], fnt_Metal, kaCenter);
+
+    for i:=0 to 7 do
+      TKMLabel.Create(Panel_Stats, 0, 40+i*25, 80, 20, 'Player '+IntToStr(i+1), fnt_Metal, kaLeft);
+
+    for k:=0 to 9 do
+      for i:=0 to 7 do
+        TKMPercentBar.Create(Panel_Stats, 90 + k*BarStep, 40+i*25, BarWidth, 20, Random(101), '40', fnt_Metal);*)
+
+
+    Button_ResultsBack := TKMButton.Create(Panel_Results,100,640,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ResultsBack.OnClick := SwitchMenuPage;
+    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,640,220,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
+    Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
+    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,640,220,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
+    Button_ResultsContinue.OnClick := SwitchMenuPage;
 end;
 
 
