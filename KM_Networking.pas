@@ -151,6 +151,7 @@ type
 
 
 implementation
+  uses KM_TextLibrary;
 
 
 { TKMNetworking }
@@ -532,7 +533,7 @@ function TKMNetworking.ReadyToStart:boolean;
 begin
   if (fSelectGameKind = ngk_Save) and (fNetPlayers[fMyIndex].StartLocation = 0) then
   begin
-    if Assigned(fOnTextMessage) then fOnTextMessage('Error: Please select a player to play as');
+    if Assigned(fOnTextMessage) then fOnTextMessage(fTextLibrary[TX_LOBBY_ERROR_SELECT_PLAYER]);
     Result := false;
     Exit;
   end;
@@ -540,12 +541,13 @@ begin
   if ((fSelectGameKind = ngk_Map) and fMapInfo.IsValid) or
      ((fSelectGameKind = ngk_Save) and fSaveInfo.IsValid) then
   begin
+    //Toggle it
     PacketSend(NET_ADDRESS_HOST, mk_ReadyToStart, '', 0);
-    Result := true;
+    Result := not fNetPlayers[fMyIndex].ReadyToStart;
   end
   else
   begin
-    if Assigned(fOnTextMessage) then fOnTextMessage('Error: Map failed to load or no map selected');
+    if Assigned(fOnTextMessage) then fOnTextMessage(fTextLibrary[TX_LOBBY_ERROR_NO_MAP]);
     Result := false;
   end;
 end;
@@ -582,7 +584,7 @@ begin
 
   if not fNetPlayers.ValidateSetup(PlayerCount, ErrorMessage) then
   begin
-    fOnTextMessage('Can not start: ' + ErrorMessage);
+    fOnTextMessage(Format(fTextLibrary[TX_LOBBY_CANNOT_START], [ErrorMessage]));
     Exit;
   end;
 
@@ -718,7 +720,7 @@ begin
             if Msg <> GAME_REVISION then
             begin
               Assert(not IsHost);
-              fOnJoinFail('Wrong game version: '+GAME_REVISION+'. Server uses: '+Msg);
+              fOnJoinFail(Format(fTextLibrary[TX_MP_MENU_WRONG_VERSION],[GAME_REVISION,Msg]));
               fNetClient.Disconnect;
               exit;
             end;
@@ -732,7 +734,7 @@ begin
             begin
               fNetPlayerKind := lpk_Host;
               if Assigned(fOnJoinAssignedHost) then fOnJoinAssignedHost(Self); //Enter the lobby if we had hosting rights assigned to us
-              if Assigned(fOnTextMessage) then fOnTextMessage('Server has assigned hosting rights to us');
+              if Assigned(fOnTextMessage) then fOnTextMessage(fTextLibrary[TX_LOBBY_HOST_RIGHTS]);
             end;
 
     mk_IndexOnServer:
@@ -986,7 +988,7 @@ begin
 
     mk_ReadyToStart:
             if IsHost then begin
-              fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart := true;
+              fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart := not fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToStart;
               SendPlayerListAndRefreshPlayersSetup;
             end;
 

@@ -85,6 +85,7 @@ type
   end;
 
 implementation
+  uses KM_TextLibrary;
 
 
 { TKMPlayerInfo }
@@ -533,11 +534,11 @@ end;
 function TKMPlayersList.ValidateSetup(aMaxLoc:byte; out ErrorMsg:String):boolean;
 begin
   if not AllReady then begin
-    ErrorMsg := 'Not everyone is ready to start';
+    ErrorMsg := fTextLibrary[TX_LOBBY_EVERYONE_NOT_READY];
     Result := False;
   end else
   if fCount > aMaxLoc then begin
-    ErrorMsg := 'Players count exceeds map limit';
+    ErrorMsg := fTextLibrary[TX_LOBBY_PLAYER_LIMIT];
     Result := False;
   end else begin
     ValidateLocations(aMaxLoc);

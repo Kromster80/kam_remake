@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Mise zrušena
 2:Výuka stavby
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Místo:
 98:Pøipojit
+153:
 99:Pøipojuji se, prosím èekejte...
+159:
 100:Naèítám...
 101:Obnovuji...
 142:
@@ -147,8 +149,15 @@ MaxID:151
 127:Velikost:
 128:Opustit nabídku
 129:Pøipraven
+152:
 130:Zaèít!
 149:
+154:
+155:
+156:
+157:
+158:
+160:
 
 131:Èekám na ostatní hráèe:
 

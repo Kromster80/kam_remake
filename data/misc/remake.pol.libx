@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Pokój
 98:Do³¹cz
+153:
 99:£¹czenie, proszê czekaæ...
+159:
 100:£adowanie og³oszeñ...
 101:Odœwie¿anie...
 142:
@@ -147,8 +149,15 @@ MaxID:151
 127:Rozmiar:
 128:WyjdŸ
 129:Gotowy
+152:
 130:Start!
 149:
+154:
+155:
+156:
+157:
+158:
+160:
 
 131:Oczekiwanie na graczy:
 

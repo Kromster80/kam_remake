@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Mission canceled
 2:Town Tutorial
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Room
 98:Join
+153:Ready
 99:Connecting, please wait ...
+159:Wrong game version: %s. Server uses: %s
 100:Loading announcements...
 101:Refreshing...
 142:No servers found
@@ -147,8 +149,15 @@ MaxID:151
 127:Size:
 128:Quit lobby
 129:Ready
+152:Not ready
 130:Start!
 149:Location %d
+154:Error: Please select a player from the save to control
+155:Error: Map failed to load or no map selected
+156:Cannot start: %s
+157:Not everyone is ready to start
+158:Players count exceeds map limit
+160:Server has assigned hosting rights to us
 
 131:Waiting for players:
 

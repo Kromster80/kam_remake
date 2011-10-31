@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Salle
 98:Joindre
+153:
 99:Connexion, veuillez patienter...
+159:
 100:Chargement des annonces...
 101:Rafraichissement...
 142:
@@ -147,8 +149,15 @@ MaxID:151
 127:Taille:
 128:Quitter le Lobby
 129:Prêt
+152:
 130:Débuter !
 149:
+154:
+155:
+156:
+157:
+158:
+160:
 
 131:Attente de Joueurs:
 

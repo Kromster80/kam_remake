@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Raum
 98:Beitreten
+153:
 99:Verbinde, bitte warten...
+159:
 100:Lade Ankündigung...
 101:Aktualisiere...
 142:
@@ -147,8 +149,15 @@ MaxID:151
 127:Größe:
 128:Lobby verlassen
 129:Bereit!
+152:
 130:Start!
 149:
+154:
+155:
+156:
+157:
+158:
+160:
 
 131:Warte auf Spieler:
 

@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Rum
 98:Anslut
+153:
 99:Kopplar upp, var god vänta...
+159:
 100:Laddar meddelanden...
 101:Uppdaterar...
 142:
@@ -147,8 +149,15 @@ MaxID:151
 127:Storlek:
 128:Avsluta sessionen
 129:Redo
+152:
 130:Börja!
 149:
+154:
+155:
+156:
+157:
+158:
+160:
 
 131:Väntar på spelare:
 

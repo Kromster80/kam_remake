@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Room
 98:Meedoen
+153:
 99:Verbinding maken, een ogenblik geduld ...
+159:
 100:Laden van bekendmakingen
 101:Ververzen..
 142:
@@ -147,8 +149,15 @@ MaxID:151
 127:Grootte:
 128:Afsluiten lobby
 129:Klaar
+152:
 130:Start!
 149:
+154:
+155:
+156:
+157:
+158:
+160:
 
 131:Wachten for spelers:
 

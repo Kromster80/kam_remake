@@ -996,7 +996,7 @@ begin
   if Sender=Button_MM_MultiPlayer then begin
     fGame.NetworkInit;
     MP_Init(Sender);
-    MP_Update(fTextLibrary[TX_LOBBY_READY],$FF00FF00,false);
+    MP_Update(fTextLibrary[TX_MP_MENU_STATUS_READY],$FF00FF00,false);
     Panel_MultiPlayer.Show;
   end;
 
@@ -1335,7 +1335,7 @@ begin
   Button_MP_CreateLAN.Disable;
   Button_MP_CreateWAN.Disable;
   Button_MP_Join.Disable;
-  MP_Update(fTextLibrary[TX_MP_MENU_CONNECTING],$FF00FF00,true);
+  MP_Update(fTextLibrary[TX_MP_MENU_STATUS_CONNECTING],$FF00FF00,true);
 
   //Send request to join
   fGame.Networking.OnJoinSucc := MP_JoinSuccess;
@@ -1535,7 +1535,10 @@ begin
     CheckBox_LobbyReady[i].Checked := fGame.Networking.NetPlayers[i+1].ReadyToStart;
 
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
-    CanEdit := MyNik or (fGame.Networking.IsHost and (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer));
+    //We are allowed to edit if it is our nickname and we are set as NOT ready,
+    //or we are the host and this player is an AI
+    CanEdit := (MyNik and (fGame.Networking.IsHost or not fGame.Networking.NetPlayers[i+1].ReadyToStart)) or
+               (fGame.Networking.IsHost and (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer));
     DropBox_LobbyLoc[i].Enabled := CanEdit;
     DropBox_LobbyTeam[i].Enabled := CanEdit and not IsSave; //Can't change color or teams in a loaded save
     DropColorBox_Lobby[i].Enabled := CanEdit and not IsSave;
@@ -1543,7 +1546,12 @@ begin
     Button_LobbyKick[i].Enabled := (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Human) and
                                     fGame.Networking.IsHost and not MyNik; //Can't kick self
     if MyNik and not fGame.Networking.IsHost then
-      Button_LobbyStart.Enabled := not fGame.Networking.NetPlayers[i+1].ReadyToStart;
+    begin
+      if fGame.Networking.NetPlayers[i+1].ReadyToStart then
+        Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
+      else
+        Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];
+    end
   end;
 
   for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
@@ -1732,7 +1740,12 @@ begin
   if fGame.Networking.IsHost then
     fGame.Networking.StartClick
   else
-    Button_LobbyStart.Enabled := not fGame.Networking.ReadyToStart;
+  begin
+    if fGame.Networking.ReadyToStart then
+      Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_NOT_READY]
+    else
+      Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY];
+  end;
 end;
 
 

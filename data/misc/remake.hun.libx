@@ -1,5 +1,5 @@
 
-MaxID:151
+MaxID:160
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -110,7 +110,9 @@ MaxID:151
 96:Port
 97:Szoba
 98:Csatlakozás
+153:
 99:Kapcsolódás, kérem várjon ...
+159:
 100:Események töltése...
 101:Frissítés...
 142:
@@ -147,8 +149,15 @@ MaxID:151
 127:Méret:
 128:Kilépés
 129:Kész
+152:
 130:Indítás!
 149:
+154:
+155:
+156:
+157:
+158:
+160:
 
 131:Várakozás a játékosokra:
 

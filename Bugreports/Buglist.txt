@@ -42,6 +42,7 @@ Features:
  +	Shuffle option for music
  +	Map name and game time displayed in the Server Details
  +	Allow to hide ingame chat/messages by clicking on chat/message button again or pressing escape, and show chat by pressing enter (now chatting can be done without using the mouse)
+ +	In the lobby the Ready button now toggles between "ready" and "not ready", and you are not allowed to modify your settings while set to ready
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
