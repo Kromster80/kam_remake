@@ -8,7 +8,6 @@ uses dglOpenGL,
 type
   TRenderUI = class
   public
-    constructor Create;
     procedure SetupClipX        (X1,X2:smallint);
     procedure SetupClipY        (Y1,Y2:smallint);
     procedure ReleaseClip;
@@ -29,12 +28,6 @@ var
 
 implementation
 uses KM_Terrain, KM_PlayersCollection, KM_ResourceGFX, KM_ResourceFonts;
-
-
-constructor TRenderUI.Create;
-begin
-  Inherited;
-end;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
@@ -96,30 +89,17 @@ begin
     a.y := EnsureRange(a.y,v1,v2); b.y := EnsureRange(b.y,v1,v2);
   end;
 
-  InsetX := 3/SizeX; //3px
-  InsetY := 3/SizeY; //3px
-
   glPushMatrix;
-    glTranslatef(PosX,PosY,0);
-
-    {//Thin black outline outside the button
-    //I know, but it's the first thing I'll do when we reach TSK status - add this thin outline, it make buttons look much nicer ;-)
-    glColor4f(0,0,0,0.5);
-    glBegin (GL_LINE_LOOP);
-      glkRect(-1,-1,SizeX,SizeY);
-    glEnd;}
-
-    glPushMatrix;
-      glkMoveAALines(false);
+    glTranslatef(PosX, PosY, 0);
 
       //Background
       glColor4f(1,1,1,1);
       glBindTexture(GL_TEXTURE_2D, GFXData[BackRX,BackID].TexID);
-      glBegin (GL_QUADS);
-        glTexCoord2f(a.x,a.y); glvertex2f(0,0);
-        glTexCoord2f(b.x,a.y); glvertex2f(SizeX,0);
-        glTexCoord2f(b.x,b.y); glvertex2f(SizeX,SizeY);
-        glTexCoord2f(a.x,b.y); glvertex2f(0,SizeY);
+      glBegin(GL_QUADS);
+        glTexCoord2f(a.x,a.y); glVertex2f(0,0);
+        glTexCoord2f(b.x,a.y); glVertex2f(SizeX,0);
+        glTexCoord2f(b.x,b.y); glVertex2f(SizeX,SizeY);
+        glTexCoord2f(a.x,b.y); glVertex2f(0,SizeY);
       glEnd;
 
       //Render beveled edges
@@ -129,14 +109,18 @@ begin
       end else begin
         c1:=1; c2:=0;
       end;
-      glScalef(SizeX,SizeY,0);
-      glBegin (GL_QUADS);
-        glColor4f(c1,c1,c1,0.7); glkQuad(0, 0, 1,        0,        1-InsetX, 0+InsetY, 0+InsetX, 0+InsetY);
-        glColor4f(c1,c1,c1,0.6); glkQuad(0, 0, 0+InsetX, 0+InsetY, 0+InsetX, 1-InsetY, 0,        1       );
-        glColor4f(c2,c2,c2,0.5); glkQuad(1, 0, 1,        1,        1-InsetX, 1-InsetY, 1-InsetX, 0+InsetY);
-        glColor4f(c2,c2,c2,0.4); glkQuad(0, 1, 0+InsetX, 1-InsetY, 1-InsetX, 1-InsetY, 1,        1       );
-      glEnd;
-    glPopMatrix;
+      glPushMatrix;
+        //Scale to save on XY+/-Inset coordinates calculations
+        glScalef(SizeX,SizeY,0);
+        InsetX := 3/SizeX; //3px
+        InsetY := 3/SizeY; //3px
+        glBegin(GL_QUADS);
+          glColor4f(c1,c1,c1,0.7); glkQuad(0, 0, 1,        0,        1-InsetX, 0+InsetY, 0+InsetX, 0+InsetY);
+          glColor4f(c1,c1,c1,0.6); glkQuad(0, 0, 0+InsetX, 0+InsetY, 0+InsetX, 1-InsetY, 0,        1       );
+          glColor4f(c2,c2,c2,0.5); glkQuad(1, 0, 1,        1,        1-InsetX, 1-InsetY, 1-InsetX, 0+InsetY);
+          glColor4f(c2,c2,c2,0.4); glkQuad(0, 1, 0+InsetX, 1-InsetY, 1-InsetX, 1-InsetY, 1,        1       );
+        glEnd;
+      glPopMatrix;
 
     //Render a pic ontop
     if ID<>0 then begin
@@ -146,10 +130,9 @@ begin
     end;
 
     //Render highlight
-    glkMoveAALines(false);
     if bs_Highlight in State then begin
       glColor4f(1,1,1,0.15);
-      glBegin (GL_QUADS);
+      glBegin(GL_QUADS);
         glkRect(0,0,SizeX,SizeY);
       glEnd;
     end;
@@ -157,11 +140,10 @@ begin
     //Render darklight
     if bs_Disabled in State then begin
       glColor4f(0,0,0,0.5);
-      glBegin (GL_QUADS);
+      glBegin(GL_QUADS);
         glkRect(0,0,SizeX,SizeY);
       glEnd;
     end;
-    glkMoveAALines(true);
 
   glPopMatrix;
 end;
@@ -169,30 +151,10 @@ end;
 
 procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
 begin
+  WriteBevel(PosX,PosY,SizeX,SizeY);
+
   glPushMatrix;
     glTranslatef(PosX,PosY,0);
-
-    //Background
-    glColor4f(0,0,0,0.5);
-    glBegin (GL_QUADS);
-      glkRect(0,0,SizeX-1,SizeY-1);
-    glEnd;
-
-    //Thin outline rendered on top of background to avoid inset calculations
-    glBlendFunc(GL_DST_COLOR,GL_ONE);
-    glColor4f(1,1,1,1);
-    glBegin (GL_LINE_STRIP);
-      glvertex2f(SizeX-1,0);
-      glvertex2f(SizeX-1,SizeY-1);
-      glvertex2f(0,SizeY-1);
-    glEnd;
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0,0,0.75);
-    glBegin (GL_LINE_STRIP);
-      glvertex2f(0,SizeY-1);
-      glvertex2f(0,0);
-      glvertex2f(SizeX-1,0);
-    glEnd;
 
     if ID<>0 then begin
       TexOffsetY:=TexOffsetY-6*byte(Caption<>'');
@@ -207,7 +169,7 @@ begin
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);
-      glBegin (GL_QUADS);
+      glBegin(GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;
@@ -221,8 +183,8 @@ begin
 
     if fbs_Selected in State then begin
       glColor4f(1,1,1,1);
-      glBegin (GL_LINE_LOOP);
-        glkRect(0,0,SizeX-1,SizeY-1);
+      glBegin(GL_LINE_LOOP);
+        glkRect(0.5,0.5,SizeX-0.5,SizeY-0.5);
       glEnd;
     end;
 
@@ -234,103 +196,84 @@ procedure TRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolea
 begin
   if (SizeX < 0) or (SizeY < 0) then Exit;
   glPushMatrix;
-    glTranslatef(PosX,PosY,0);
+    glTranslatef(PosX, PosY, 0);
 
     //Background
     glColor4f(0,0,0,BackAlpha);
     glBegin(GL_QUADS);
-      glkRect(0,0,SizeX-1,SizeY-1);
+      glkRect(1,1,SizeX-1,SizeY-1);
     glEnd;
 
     //Thin outline rendered on top of background to avoid inset calculations
-    glBlendFunc(GL_DST_COLOR,GL_ONE);
+    glBlendFunc(GL_DST_COLOR, GL_ONE);
     glColor4f(1-byte(HalfBright)/2,1-byte(HalfBright)/2,1-byte(HalfBright)/2,1);
     glBegin(GL_LINE_STRIP);
-      glvertex2f(SizeX-1,0);
-      glvertex2f(SizeX-1,SizeY-1);
-      glvertex2f(0,SizeY-1);
+      glVertex2f(SizeX-0.5,0.5);
+      glVertex2f(SizeX-0.5,SizeY-0.5);
+      glVertex2f(0.5,SizeY-0.5);
     glEnd;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(0,0,0,0.75-byte(HalfBright)/2);
     glBegin(GL_LINE_STRIP);
-      glvertex2f(0,SizeY-1);
-      glvertex2f(0,0);
-      glvertex2f(SizeX-1,0);
+      glVertex2f(0.5,SizeY-0.5);
+      glVertex2f(0.5,0.5);
+      glVertex2f(SizeX-0.5,0.5);
     glEnd;
   glPopMatrix;
 end;
 
 
 procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:smallint);
-const BarColor:TColor4=$FF00AA26;
-var BarWidth:word;
+const BarColor: TColor4=$FF00AA26;
+var BarWidth: Word;
 begin
+  WriteBevel(PosX,PosY,SizeX,SizeY);
+
   glPushMatrix;
-    glTranslatef(PosX,PosY,0);
+    glTranslatef(PosX, PosY, 0);
 
-    //Background
-    glColor4f(0,0,0,0.5);
-    glBegin (GL_QUADS);
-      glkRect(1,1,SizeX-1,SizeY-1);
-    glEnd;
-
-    //Thin outline rendered on top of background to avoid inset calculations
-    glBlendFunc(GL_DST_COLOR,GL_ONE); //Switch BlendFunc, that allows us to make nice beveled edge
-    glColor4f(1,1,1,0.5);
-    glBegin (GL_LINE_STRIP);
-      glvertex2f(SizeX-1,0);
-      glvertex2f(SizeX-1,SizeY-1);
-      glvertex2f(0,SizeY-1);
-    glEnd;
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Restore default BlendFunc
-    glColor4f(0,0,0,0.5);
-    glBegin (GL_LINE_STRIP);
-      glvertex2f(0,SizeY-1);
-      glvertex2f(0,0);
-      glvertex2f(SizeX-1,0);
-    glEnd;
-
-    //Draw the bar itself, so long as it is above 0 position
+    //Draw the bar itself, as long as it is wider than 0
     if Pos > 0 then
     begin
-      BarWidth:=round((SizeX-4)*Pos/100);
+      BarWidth := Round((SizeX - 2) * Pos / 100) + 2; //At least 2px wide to show up from under the shadow
       glColor4ubv(@BarColor);
-      glBegin (GL_QUADS);
-        glkRect(1,1,BarWidth+3,SizeY-1);
+      glBegin(GL_QUADS);
+        glkRect(1, 1, BarWidth-1, SizeY-1);
       glEnd;
       //Draw shadow on top and left of the bar, just like real one
       glColor4f(0,0,0,0.5); //Set semi-transparent black
-      glBegin (GL_LINE_STRIP); //List vertices, order is important
-        glvertex2f(1,SizeY-2);
-        glvertex2f(1,1);
-        glvertex2f(BarWidth+3,1);
-        glvertex2f(BarWidth+3,2);
-        glvertex2f(2,2);
-        glvertex2f(2,SizeY-2);
+      glBegin(GL_LINE_STRIP); //List vertices, order is important
+        glVertex2f(1.5,SizeY-1.5);
+        glVertex2f(1.5,1.5);
+        glVertex2f(BarWidth-0.5,1.5);
+        glVertex2f(BarWidth-0.5,2.5);
+        glVertex2f(2.5,2.5);
+        glVertex2f(2.5,SizeY-1.5);
       glEnd;
     end;
-    
-  glPopMatrix;
 
+  glPopMatrix;
 end;
 
 
 procedure TRenderUI.WritePicture(PosX,PosY,RXid,ID:smallint;Enabled:boolean=true; Highlight:boolean=false);
 var Col:TColor4;
 begin
-  if ID<>0 then with GFXData[RXid,ID] do begin
-    glBindTexture(GL_TEXTURE_2D,TexID);
+  if ID<>0 then
+  with GFXData[RXid,ID] do
+  begin
+    glBindTexture(GL_TEXTURE_2D, TexID);
     glPushMatrix;
-      glkMoveAALines(false);
-      glTranslatef(PosX,PosY,0);
+      glTranslatef(PosX, PosY, 0);
       if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
       glBegin(GL_QUADS);
-        glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
-        glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
-        glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
-        glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
+        glTexCoord2f(u1,v1); glVertex2f(0        , 0         );
+        glTexCoord2f(u2,v1); glVertex2f(0+PxWidth, 0         );
+        glTexCoord2f(u2,v2); glVertex2f(0+PxWidth, 0+PxHeight);
+        glTexCoord2f(u1,v2); glVertex2f(0        , 0+PxHeight);
       glEnd;
-      if (AltID<>0)and(MyPlayer<>nil) then begin
+      if (AltID<>0) and (MyPlayer<>nil) then
+      begin
         glBindTexture(GL_TEXTURE_2D, AltID);
         Col := MyPlayer.FlagColor;
         if Enabled then
@@ -338,15 +281,16 @@ begin
         else
           glColor3f(Col AND $FF / 768, Col SHR 8 AND $FF / 768, Col SHR 16 AND $FF / 768);
         glBegin(GL_QUADS);
-          glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
-          glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
-          glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
-          glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
+          glTexCoord2f(u1,v1); glVertex2f(0        , 0         );
+          glTexCoord2f(u2,v1); glVertex2f(0+PxWidth, 0         );
+          glTexCoord2f(u2,v2); glVertex2f(0+PxWidth, 0+PxHeight);
+          glTexCoord2f(u1,v2); glVertex2f(0        , 0+PxHeight);
         glEnd;
       end;
-      if Highlight then begin
+      if Highlight then
+      begin
         glBindTexture(GL_TEXTURE_2D, TexID); //Replace AltID if it was used
-        glBlendFunc(GL_DST_COLOR,GL_ONE);
+        glBlendFunc(GL_DST_COLOR, GL_ONE);
         glColor4f(0.5, 0.5, 0.5, 0.5);
         glBegin(GL_QUADS);
           glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
@@ -370,15 +314,14 @@ begin
   begin
     glBindTexture(GL_TEXTURE_2D, TexID);
     glPushMatrix;
-      glkMoveAALines(False);
       glTranslatef(PosX, PosY, 0);
       if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
 
       glBegin(GL_QUADS);
-        glTexCoord2f(u1,v1); glVertex2f(0       ,0      );
-        glTexCoord2f(u2,v1); glVertex2f(0+SizeX ,0      );
-        glTexCoord2f(u2,v2); glVertex2f(0+SizeX ,0+SizeY);
-        glTexCoord2f(u1,v2); glVertex2f(0       ,0+SizeY);
+        glTexCoord2f(u1,v1); glVertex2f(0      , 0      );
+        glTexCoord2f(u2,v1); glVertex2f(0+SizeX, 0      );
+        glTexCoord2f(u2,v2); glVertex2f(0+SizeX, 0+SizeY);
+        glTexCoord2f(u1,v2); glVertex2f(0      , 0+SizeY);
       glEnd;
 
       if Highlight then
@@ -386,10 +329,10 @@ begin
         glBlendFunc(GL_DST_COLOR,GL_ONE);
         glColor4f(0.5, 0.5, 0.5, 0.5);
         glBegin(GL_QUADS);
-          glTexCoord2f(u1,v1); glVertex2f(0       ,0      );
-          glTexCoord2f(u2,v1); glVertex2f(0+SizeX ,0      );
-          glTexCoord2f(u2,v2); glVertex2f(0+SizeX ,0+SizeY);
-          glTexCoord2f(u1,v2); glVertex2f(0       ,0+SizeY);
+          glTexCoord2f(u1,v1); glVertex2f(0      , 0      );
+          glTexCoord2f(u2,v1); glVertex2f(0+SizeX, 0      );
+          glTexCoord2f(u2,v2); glVertex2f(0+SizeX, 0+SizeY);
+          glTexCoord2f(u1,v2); glVertex2f(0      , 0+SizeY);
         glEnd;
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       end;
@@ -406,7 +349,7 @@ begin
     glLineWidth(LineWidth);
     glColor4ubv(@Col);
     glBegin(GL_LINE_LOOP);
-      glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
+      glkRect(PosX+0.5, PosY+0.5, PosX+SizeX-0.5, PosY+SizeY-0.5);
     glEnd;
   glPopAttrib;
 end;
@@ -423,7 +366,7 @@ begin
   glEnd;
   glColor4ubv(@Outline);
   glBegin(GL_LINE_LOOP);
-    glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
+    glkRect(PosX+0.5,PosY+0.5,PosX+SizeX-0.5,PosY+SizeY-0.5);
   glEnd;
   glPopAttrib;
 end;
@@ -481,7 +424,6 @@ begin
   glPushMatrix;
     glBindTexture(GL_TEXTURE_2D, FD.TexID);
     glColor4ubv(@Color);
-    glkMoveAALines(false);
 
     case Align of
       kaLeft:   glTranslatef(X,                      Y, 0);
@@ -530,17 +472,17 @@ begin
 
       glColor4f(1,0,0,0.5);
       glBegin(GL_LINE_LOOP);
-        glVertex2f(0         , 0       );
-        glVertex2f(BlockWidth, 0       );
-        glVertex2f(BlockWidth, LineHeight*LineCount);
-        glVertex2f(0         , LineHeight*LineCount);
+        glVertex2f(0.5           , 0.5       );
+        glVertex2f(BlockWidth+0.5, 0.5       );
+        glVertex2f(BlockWidth+0.5, LineHeight*LineCount+0.5);
+        glVertex2f(0.5           , LineHeight*LineCount+0.5);
       glEnd;
 
       glBegin(GL_LINE_LOOP);
-        glVertex2f(0         , 0       );
-        glVertex2f(BlockWidth, 0       );
-        glVertex2f(BlockWidth, LineHeight);
-        glVertex2f(0         , LineHeight);
+        glVertex2f(0.5           , 0.5       );
+        glVertex2f(BlockWidth+0.5, 0.5       );
+        glVertex2f(BlockWidth+0.5, LineHeight+0.5);
+        glVertex2f(0.5           , LineHeight+0.5);
       glEnd;
     glPopMatrix;
   end;

@@ -261,7 +261,6 @@ begin
   Resize(fScreenX, fScreenY, rm2D);
   glLineWidth(1);
   glPointSize(1);
-  glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
   fGame.PaintInterface;
 
   glLoadIdentity;
