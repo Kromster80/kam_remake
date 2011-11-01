@@ -288,7 +288,7 @@ begin
       gic_HouseRemoveTrain:       TKMHouseSchool(H).RemUnitFromQueue(Params[2]);
 
       gic_RatioChange:            begin
-                                    P.Stats.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
+                                    P.Stats.Ratio[TResourceType(Params[1]), THouseType(Params[2])] := Params[3];
                                     P.Houses.UpdateResRequest
                                   end;
 

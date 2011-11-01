@@ -24,11 +24,14 @@ type
       Killed:word;
     end;
     Goods:array[WARE_MIN..WARE_MAX]of packed record
-      Produced:word;
+      Produced: Word;
     end;
-    ResourceRatios:array[1..4,1..4]of byte;
-    function GetHouseReleased(aType:THouseType):boolean;
-    procedure SetHouseReleased(aType:THouseType; aValue:boolean);
+    fResourceRatios: array[1..4, 1..4]of byte;
+    function GetHouseReleased(aType: THouseType): Boolean;
+    procedure SetHouseReleased(aType: THouseType; aValue: Boolean);
+    function GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
+    procedure SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
+    procedure UpdateReqDone(aType: THouseType);
   public
     AllowToBuild:array[THouseType]of boolean; //Allowance derived from mission script
     constructor Create;
@@ -48,16 +51,13 @@ type
 
     procedure GoodProduced(aRes:TResourceType; aCount:integer);
 
-    procedure UpdateReqDone(aType:THouseType);
-
     function GetHouseQty(aType:THouseType):integer;
     function GetHouseWip(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetArmyCount:integer;
     function GetCanBuild(aType:THouseType):boolean;
 
-    function GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
-    procedure SetRatio(aRes:TResourceType; aHouse:THouseType; aValue:byte);
+    property Ratio[aRes: TResourceType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
 
     function GetCitizensTrained:cardinal;
     function GetCitizensLost:cardinal;
@@ -92,7 +92,7 @@ begin
   HouseReleased[ht_Store] := true;
 
   for i:=1 to 4 do for k:=1 to 4 do
-    ResourceRatios[i,k] := DistributionDefaults[i,k];
+    fResourceRatios[i,k] := DistributionDefaults[i,k];
 end;
 
 
@@ -232,39 +232,39 @@ begin
 end;
 
 
-function TKMPlayerStats.GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
+function TKMPlayerStats.GetRatio(aRes: TResourceType; aHouse: THouseType): Byte;
 begin
   Result:=5; //Default should be 5, for house/resource combinations that don't have a setting (on a side note this should be the only place the resourse limit is defined)
   case aRes of
-    rt_Steel: if aHouse=ht_WeaponSmithy   then Result:=ResourceRatios[1,1] else
-              if aHouse=ht_ArmorSmithy    then Result:=ResourceRatios[1,2];
-    rt_Coal:  if aHouse=ht_IronSmithy     then Result:=ResourceRatios[2,1] else
-              if aHouse=ht_Metallurgists  then Result:=ResourceRatios[2,2] else
-              if aHouse=ht_WeaponSmithy   then Result:=ResourceRatios[2,3] else
-              if aHouse=ht_ArmorSmithy    then Result:=ResourceRatios[2,4];
-    rt_Wood:  if aHouse=ht_ArmorWorkshop  then Result:=ResourceRatios[3,1] else
-              if aHouse=ht_WeaponWorkshop then Result:=ResourceRatios[3,2];
-    rt_Corn:  if aHouse=ht_Mill           then Result:=ResourceRatios[4,1] else
-              if aHouse=ht_Swine          then Result:=ResourceRatios[4,2] else
-              if aHouse=ht_Stables        then Result:=ResourceRatios[4,3];
+    rt_Steel: if aHouse=ht_WeaponSmithy   then Result:=fResourceRatios[1,1] else
+              if aHouse=ht_ArmorSmithy    then Result:=fResourceRatios[1,2];
+    rt_Coal:  if aHouse=ht_IronSmithy     then Result:=fResourceRatios[2,1] else
+              if aHouse=ht_Metallurgists  then Result:=fResourceRatios[2,2] else
+              if aHouse=ht_WeaponSmithy   then Result:=fResourceRatios[2,3] else
+              if aHouse=ht_ArmorSmithy    then Result:=fResourceRatios[2,4];
+    rt_Wood:  if aHouse=ht_ArmorWorkshop  then Result:=fResourceRatios[3,1] else
+              if aHouse=ht_WeaponWorkshop then Result:=fResourceRatios[3,2];
+    rt_Corn:  if aHouse=ht_Mill           then Result:=fResourceRatios[4,1] else
+              if aHouse=ht_Swine          then Result:=fResourceRatios[4,2] else
+              if aHouse=ht_Stables        then Result:=fResourceRatios[4,3];
   end;
 end;
 
 
-procedure TKMPlayerStats.SetRatio(aRes:TResourceType; aHouse:THouseType; aValue:byte);
+procedure TKMPlayerStats.SetRatio(aRes: TResourceType; aHouse: THouseType; aValue: Byte);
 begin
   case aRes of
-    rt_Steel: if aHouse=ht_WeaponSmithy   then ResourceRatios[1,1]:=aValue else
-              if aHouse=ht_ArmorSmithy    then ResourceRatios[1,2]:=aValue;
-    rt_Coal:  if aHouse=ht_IronSmithy     then ResourceRatios[2,1]:=aValue else
-              if aHouse=ht_Metallurgists  then ResourceRatios[2,2]:=aValue else
-              if aHouse=ht_WeaponSmithy   then ResourceRatios[2,3]:=aValue else
-              if aHouse=ht_ArmorSmithy    then ResourceRatios[2,4]:=aValue;
-    rt_Wood:  if aHouse=ht_ArmorWorkshop  then ResourceRatios[3,1]:=aValue else
-              if aHouse=ht_WeaponWorkshop then ResourceRatios[3,2]:=aValue;
-    rt_Corn:  if aHouse=ht_Mill           then ResourceRatios[4,1]:=aValue else
-              if aHouse=ht_Swine          then ResourceRatios[4,2]:=aValue else
-              if aHouse=ht_Stables        then ResourceRatios[4,3]:=aValue;
+    rt_Steel: if aHouse=ht_WeaponSmithy   then fResourceRatios[1,1]:=aValue else
+              if aHouse=ht_ArmorSmithy    then fResourceRatios[1,2]:=aValue;
+    rt_Coal:  if aHouse=ht_IronSmithy     then fResourceRatios[2,1]:=aValue else
+              if aHouse=ht_Metallurgists  then fResourceRatios[2,2]:=aValue else
+              if aHouse=ht_WeaponSmithy   then fResourceRatios[2,3]:=aValue else
+              if aHouse=ht_ArmorSmithy    then fResourceRatios[2,4]:=aValue;
+    rt_Wood:  if aHouse=ht_ArmorWorkshop  then fResourceRatios[3,1]:=aValue else
+              if aHouse=ht_WeaponWorkshop then fResourceRatios[3,2]:=aValue;
+    rt_Corn:  if aHouse=ht_Mill           then fResourceRatios[4,1]:=aValue else
+              if aHouse=ht_Swine          then fResourceRatios[4,2]:=aValue else
+              if aHouse=ht_Stables        then fResourceRatios[4,3]:=aValue;
     else Assert(false,'Unexpected resource at SetRatio');
   end;
 end;
@@ -381,7 +381,7 @@ begin
   SaveStream.Write(Houses, SizeOf(Houses));
   SaveStream.Write(Units, SizeOf(Units));
   SaveStream.Write(Goods, SizeOf(Goods));
-  SaveStream.Write(ResourceRatios, SizeOf(ResourceRatios));
+  SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
   SaveStream.Write(AllowToBuild, SizeOf(AllowToBuild));
   SaveStream.Write(fBuildReqDone, SizeOf(fBuildReqDone));
 end;
@@ -395,7 +395,7 @@ begin
   LoadStream.Read(Houses, SizeOf(Houses));
   LoadStream.Read(Units, SizeOf(Units));
   LoadStream.Read(Goods, SizeOf(Goods));
-  LoadStream.Read(ResourceRatios, SizeOf(ResourceRatios));
+  LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
   LoadStream.Read(AllowToBuild, SizeOf(AllowToBuild));
   LoadStream.Read(fBuildReqDone, SizeOf(fBuildReqDone));
 end;

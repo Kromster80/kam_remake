@@ -364,7 +364,7 @@ begin
     begin
       Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
       Label_RatioLab[i].Caption := fResource.HouseDat[HT].HouseName;
-      Ratio_RatioRat[i].Position := MyPlayer.Stats.GetRatio(ResRatioType[RatioTab], HT);
+      Ratio_RatioRat[i].Position := MyPlayer.Stats.Ratio[ResRatioType[RatioTab], HT];
       Ratio_RatioRat[i].Enable;
     end else begin
       Image_RatioPic[i].TexID := 41; //Question mark
