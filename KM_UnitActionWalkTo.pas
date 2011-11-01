@@ -40,7 +40,7 @@ type
       fInteractionCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute:boolean;
-      function CheckForNewDestination:TDestinationCheck;
+      function CheckForNewDestination: TDestinationCheck;
       function CheckTargetHasDied:TTargetDiedCheck;
       function CheckForObstacle:TObstacleCheck;
       function CheckWalkComplete:boolean;
@@ -96,7 +96,15 @@ uses KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInO
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse; aTargetCanBeReach:boolean=true);
+constructor TUnitActionWalkTo.Create( aUnit: TKMUnit;
+                                      aLocB:TKMPoint;
+                                      aActionType:TUnitActionType;
+                                      aDistance:single;
+                                      aSetPushed:boolean;
+                                      aWalkToNear:boolean;
+                                      aTargetUnit:TKMUnit;
+                                      aTargetHouse:TKMHouse;
+                                      aTargetCanBeReach:boolean=true);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
@@ -369,7 +377,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.CheckForNewDestination:TDestinationCheck;
+function TUnitActionWalkTo.CheckForNewDestination: TDestinationCheck;
 begin
   if KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
     Result := dc_NoChanges

@@ -1298,7 +1298,7 @@ end;
 //Walk to spot neighbourhood
 procedure TKMUnit.SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aTargetCanBeReached:boolean=true);
 begin
-  Assert(Self is TKMUnitWarrior, 'True warriors don''t care ''bout exact location on reposition');
+  Assert(Self is TKMUnitWarrior, 'Only true warriors don''t care ''bout exact location on reposition');
   SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, true, nil, nil, aTargetCanBeReached));
 end;
 

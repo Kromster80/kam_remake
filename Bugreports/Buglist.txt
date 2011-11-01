@@ -4,17 +4,17 @@
  +	Replace the "Fast Scrolling" checkbox with a slider
  +	Often warrior voices and other sounds don't play due to poor prioritizing of the available soundcard slots
  +	The "waiting for players" message would often not appear, the game would just freeze with no message
- +	Using the arrow keys to scroll while bringing up a menu with a TKMEditBox (e.g. chat) would cause you to lose control of scrolling until you close the menu
+ +	Arrow keys would not scroll the map when opening menu with a TKMEditBox (e.g. chat) until you close the menu
  +	Woodcutters and others(?) should plant/chop more evenly (not in waves like now)
  +	Exporting the Sounds produced corrupt files rather than the correct sounds
  +	Wood and/or stone would not be delivered to a storehouse under construction if you had blocked them in your first storehouse
- +	Animals would often not appear in multiplayer games because they were set for a player which was unused, now animals will always be added regardless of the current player in the script
+ +	Animals would often not appear in multiplayer games because they were set for a player which was unused
  +	The animation for the farmer picking grapes did not show because the anim direction used was invalid
- +	The color range on the pings now more accurately reflect the amount they will effect the quality of the game. I'm tired of people kicking me from European servers because I have 900 ping, when 900 is still very playable in KaM.
+ +	The color range on the pings now more accurately reflect the amount they will effect the quality of the game.
  +	Warriors going out from Barracks sometimes not joined in groups
  +	Range check erorrs when using multiple monitors
  +	Multiplayer chat only scrolls down when you are at the bottom, making it possible to read old messages without it jumping back
- +	Members of a group of warriors would not appear if there was a rock or something under them. They now appear on the closest walkable tile.
+ +	Warriors group memberswould not appear if there was a rock or something under them. They now appear on the closest walkable tile.
  +	Using a barracks near the left or top edges of the map caused an error (thanks Jecy)
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
@@ -23,7 +23,6 @@
 	The ready button should change to "not ready" when clicked, and changing your settings should be disabled while set to ready.
  	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
-	Ability to see the score screen for other players after a multiplayer game (maybe only after victory/defeat to prevent cheating)
  ?	Warriors should resume interrupted orders after a fight
 	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
@@ -41,18 +40,20 @@ Features:
  +	Dynamic settings for the server, so it can be changed without restarting
  +	Shuffle option for music
  +	Map name and game time displayed in the Server Details
- +	Allow to hide ingame chat/messages by clicking on chat/message button again or pressing escape, and show chat by pressing enter (now chatting can be done without using the mouse)
- +	In the lobby the Ready button now toggles between "ready" and "not ready", and you are not allowed to modify your settings while set to ready
+ +	Allow to hide ingame chat/messages by clicking on chat/message button again or pressing Esc, show chat by pressing Enter
+ +	In the lobby the Ready button now toggles "ready"/"not ready", you are not allowed to modify your settings while set to ready
+ +	Ability to see the score screen for other players after a multiplayer game
 	Highlight commander in groups formation in UI
+	Show formation count in MapEd UI
 	Double clicking a server should join it
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
-	Shortcut keys such as troop control should be different in each language, each one can be one of the LIBX strings (in English troops link with 'L', in German it is 'V')
+	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
  	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Multiplayer mode could show the player's name above each group (flag holder)
 	Mutltiplayer spectator mode, and ability for the host to close slots
-	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once (allows time for rendering between each tick)
+	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
 	Scrolling around the map using middle mouse click, as in TPR
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	Improved delivery queue system (take closest jobs, take wares out after going in, etc.)
@@ -60,10 +61,10 @@ Features:
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
-	Server details should show the map name and the time they have been playing for, so you can estimate how much longer they will be etc.
-	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one
+	Server details should show the map name and the time they have been playing for
+	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
 	Make player info take the full width of the multiplayer lobby and move map info below
-	Simple dedicated server form which lets you set the properties of the INI for the server and start it (for people with an X server on *nix or a Windows server)
+	Simple dedicated server form which lets you set the properties of the INI for the server and start it
 	Better full screen support (right now you can't minimize the game while it's full screen)
 	Archers on a hill get slighty longer range (calculated from height of archer tile relative to target tile)
 	Show the mining radius of the selected house or house that you are placing
@@ -143,7 +144,7 @@ Fixed in r2039:
  +	When the host disconnected from a dedicated server, the next client is automatically assigned hosting rights
  +	Added in-game chat for multiplayer with an option to send only to your team
  +	Archers now have friendly fire, stray arrows can hit your own units/buildings
- +	The German LIBX (translation file) was encoded in Unicode, (which is not supported by KaM Remake yet) meaning that special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = Ã, ö = Ã¶, etc.)
+ +	The German LIBX (translation file) special characters like Ü,ö,ß,ü,ä, etc. appeared incorrectly in the game (Ü = Ã, ö = Ã¶, etc.)
  +	Arrow keys for scrolling could become "stuck" when using a victory/defeat screen appears or the game is paused
  +	AI did not attack unbuilt houses
  +	Bowmen are smarter about shooting after walking
@@ -166,9 +167,9 @@ Fixed in r1902:
  +	Fixed a bug that occurs occasionally when destroying a school: "Unexpected error. Destoyed school erases the task"
  +	Fixed "saving from wrong state" error
  +	Fixed some causes of "unit on unwalkable tile" errors
- +	Sometimes workers would step off the tile they were building a road on at the moment the stone was delivered, then hammer the ground at the wrong location
+ +	Sometimes workers would step off the tile they build a road when the stone is delivered, then hammer the ground at the wrong location
  +	The first item in the Single Maps list could not be played
- +	Crashes now create a nice timestamped ZIP file with everything we need to have in the Crash Reports folder. Now you can simply email this file to us.
+ +	Crashes now create a nice timestamped ZIP file with everything we need to have in the Crash Reports folder.
  +	Ping is measured and shown in multiplayer games
  +	You can no longer join a multiplayer game that is in progress (caused a crash)
  +	Dedicated server added
@@ -177,7 +178,7 @@ Fixed in r1902:
  +	Loading a saved game caused the replay to mismatch (random seed was not stored)
  +	Crabs are stuck between roads building on them is buggy
  +	Fixed terrain flattening bug that made tiles underneath units unwalkable
- +	When opponent reached my town in MP he saw we have same color and i dont have any peasant except for the ones that i had at the start. He saw my buildings but just fence. (Bug happens when either side uses super speedup from F11 panel)
+ +	In MP opponents would see different town progress. (Bug happens when either side uses super speedup from F11 panel)
  +	Archers do not compensate for moving targets, they should try to predict enemy position when shooting
  ?	When choosing color for multiplayer it affects only minimap, flags color remains default
 
