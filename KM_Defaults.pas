@@ -198,7 +198,7 @@ type
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
 const
-  LOCALES_COUNT = 12;
+  LOCALES_COUNT = 13;
   Locales:array[1..LOCALES_COUNT, 1..3]of shortstring = (
   ('eng', '1252', 'English'),
   ('ger', '1252', 'German'),
@@ -207,12 +207,16 @@ const
   ('cze', '1250', 'Czech'),  //New one
   ('swe', '1252', 'Swedish'),//New one
   ('fre', '1252', 'French'), //New one
+  ('ita', '1252', 'Italian'),
   ('ptb', '1252', 'Brazilian Portuguese'),
   ('spa', '1252', 'Spanish'),
   ('hun', '1250', 'Hungarian'),
   ('dut', '1252', 'Dutch'),
   ('rus', '1251', 'Russian'));
 
+  TRANSLATOR_CREDITS = '|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|'+
+  'Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras|'+
+  'Brazilian Portuguese - Vinycius Maia|Italian - Paolo Castelvetere||';
 
 type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game

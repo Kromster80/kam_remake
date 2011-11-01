@@ -1,0 +1,170 @@
+
+MaxID:160
+
+1:Missione annullata
+2:Tutorial di gestione del villaggio
+3:Tutorial di combattimento
+4:Giocatore Singolo
+5:Editor di missione
+6:Guarda l'ultimo Replay
+7:Inizia Missione
+8:Titolo
+9:Tipo
+10:Missione: %s
+11:Vittoria: %s
+12:Sconfitta: %s
+13:Alleati: 
+14:Nemici: 
+16:Dimensioni della nuova mappa
+17:Larghezza
+18:Altezza
+19:Crea nuova mappa
+20:Mappe disponibili
+21:Carica mappa esistente
+22:Controlli:
+23:Impostazioni di gioco:
+24:Opzioni Audio:
+141:Velocità di scorrimento
+25:Disattiva musica
+143:Riproduzione casuale
+26:Opzioni Grafiche:
+27:Luminosità
+28:Schermo intero
+29:Applica
+30:Lingua:
+31:In caricamento...
+32:Si è verificato un errore!
+33:Nuova localizzazione in caricamento
+34:Partite salvate
+35:Nome del file
+36:Descrizione
+37:Carica
+38:Elimina
+39:Sei sicuro di voler eliminare definitivamente questo salvataggio?
+40:Elimina
+41:Annulla
+139:Multigiocatore
+140:Giocatore singolo
+
+43:Hai vinto!
+44:Continua a giocare
+45:Vittoria!
+46:Hai perso!
+47:Guarda la partita
+48:Sconfitta
+49:Replay terminato
+50:Continua a guardare
+51:Torna al Menu
+52:Non disponibile
+53:Premi %s per riprendere il gioco
+54:Alla squadra
+55:Info giocatori
+56:Chat
+57:Esiste già
+58:Sovrascrivi
+59:Salva
+60:Carica
+
+61:Si è verificato un errore durante il gioco.
+62:Per favore, invia il file %s dalla cartella KaM Remake\\Crash Reports agli sviluppatori. Nel file Readme è possibile trovare le informazioni per contattarci. Grazie per il tuo cortese aiuto!\n\nATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
+63:Rilevata una versione di OpenGL non aggiornata, il gioco potrebbe funzionare a rilento e/o con errori della grafica.\nPer favore, aggiorna i tuoi driver video per migliorare le prestazioni.
+64:Errore di rete:
+65:Errore: Il nome del giocatore non può essere vuoto
+66:Connessione fallita: %s
+67:Sei stato disconnesso
+68:Missione %d
+150:
+151:
+
+69:La tua capanna del pescatore è troppo lontana dalla riva.
+70:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
+
+71:Mercato
+72:Usa il tasto sinistro del mouse per scegliere il prodotto da scambiare
+73:Usa il tasto destro del mouse per scegliere il prodotto da scambiare
+74:Da  x%d
+75:A x%d
+
+76:Editor del terreno
+77:Pianificazione del villaggio
+78:Impostazioni giocatore
+79:Impostazioni globali
+80:Menu
+
+82:Nome giocatore
+81:Stato:
+83:CRA SERVER
+84:Nome
+85:Porta
+86:Crea Partita Locale
+87:Crea Partita Internet
+88:Nome del Server
+89:Stato
+90:Giocatori
+91:Ping
+92:Aggiorna lista dei Server
+93:DETTAGLI DEL SERVER
+94:Giocatori:
+144:Informazioni di gioco:
+95:Indirizzo
+96:Porta
+97:Spazio
+98:Entra
+153:
+99:Connessione in corso...
+159:
+100:Caricamento degli annunci in corso...
+101:Aggiornamento...
+142:Nessun server trovato
+145:
+146:
+147:
+148:
+
+102:Giocatori
+103:Posizione
+104:Squadra
+105:Colore
+106:Pronto
+107:Ping
+108:Caccia
+109:Aperto
+110:Giocatore IA
+111:Seleziona...
+112:Casuale
+113:Nessuna
+114:Nessuna
+115:Squadra %d
+116:Messaggi:
+117:Invia messaggio:
+118:Scegli mappa:
+119:Giocatore singolo
+120:Partita salvata
+121:Mappa...
+122:Partita salvata...
+123:Informazioni sulla mappa:
+124:Giocatori: %d
+125:Tipo:
+126:Condizioni:
+127:Dimensioni:
+128:Esci
+129:Pronto
+152:
+130:Inizia!
+149:
+154:
+155:
+156:
+157:
+158:
+160:
+
+131:In attesa dei giocatori:
+
+132:Crediti di KaM Remake
+133:Crediti del Knights & Merchants originale
+134:PROGRAMMAZIONE:
+135:PROGRAMMAZIONE AGGIUNTIVA:
+136:GRAFICA AGGIUNTIVA:
+137:TRADUZIONE AGGIUNTIVA:
+138:RINGRAZIAMENTI SPECIALI:

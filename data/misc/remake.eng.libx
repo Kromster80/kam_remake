@@ -156,7 +156,7 @@ MaxID:160
 155:Error: Map failed to load or no map selected
 156:Cannot start: %s
 157:Not everyone is ready to start
-158:Players count exceeds map limit
+158:Player count exceeds map limit
 160:Server has assigned hosting rights to us
 
 131:Waiting for players:

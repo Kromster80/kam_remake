@@ -35,9 +35,11 @@ Name: "ger"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "Licens
 Name: "hun"; MessagesFile: "compiler:Languages\Hungarian.isl"; LicenseFile: "License.hun.txt"
 Name: "pol"; MessagesFile: "compiler:Languages\Polish.isl"; LicenseFile: "License.pol.txt"
 Name: "rus"; MessagesFile: "compiler:Languages\Russian.isl"; LicenseFile: "License.rus.txt"
+Name: "ita"; MessagesFile: "compiler:Languages\Italian.isl";
 Name: "svk"; MessagesFile: "compiler:Languages\Slovak.isl";
 Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl";
 Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl"; LicenseFile: "License.swe.txt"
+Name: "ptb"; MessagesFile: "ExtraLanguages\BrazilianPortuguese.isl";
 
 [CustomMessages]  
 #include "Translations.iss"
