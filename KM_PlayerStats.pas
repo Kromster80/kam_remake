@@ -59,14 +59,17 @@ type
     function GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
     procedure SetRatio(aRes:TResourceType; aHouse:THouseType; aValue:byte);
 
-    function GetUnitsLost:cardinal;
-    function GetUnitsKilled:cardinal;
+    function GetCitizensTrained:cardinal;
+    function GetCitizensLost:cardinal;
+    function GetCitizensKilled:cardinal;
+    function GetHousesBuilt:cardinal;
     function GetHousesLost:cardinal;
     function GetHousesDestroyed:cardinal;
-    function GetHousesBuilt:cardinal;
-    function GetUnitsTrained:cardinal;
+    function GetWarriorsTrained:cardinal;
+    function GetWarriorsKilled:cardinal;
+    function GetWarriorsLost:cardinal;
+    function GetGoodsProduced:cardinal;
     function GetWeaponsProduced:cardinal;
-    function GetSoldiersTrained:cardinal;
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -267,22 +270,42 @@ begin
 end;
 
 
-function TKMPlayerStats.GetUnitsLost:cardinal;
+//The value includes only citizens, Warriors are counted separately
+function TKMPlayerStats.GetCitizensTrained:cardinal;
+var i:TUnitType;
+begin
+  Result := 0;
+  for i:=CITIZEN_MIN to CITIZEN_MAX do
+    inc(Result, Units[i].Trained);
+end;
+
+
+function TKMPlayerStats.GetCitizensLost:cardinal;
 var i:TUnitType;
 begin
   Result:=0;
-  for i:=low(Units) to high(Units) do
+  for i:=CITIZEN_MIN to CITIZEN_MAX do
     inc(Result,Units[i].Lost);
 end;
 
 
-function TKMPlayerStats.GetUnitsKilled:cardinal;
+function TKMPlayerStats.GetCitizensKilled:cardinal;
 var i:TUnitType;
 begin
   Result:=0;
-  for i:=low(Units) to high(Units) do
+  for i:=CITIZEN_MIN to CITIZEN_MAX do
     inc(Result,Units[i].Killed);
 end;
+
+
+function TKMPlayerStats.GetHousesBuilt:cardinal;
+var HT:THouseType;
+begin
+  Result:=0;
+  for HT:=Low(THouseType) to High(THouseType) do
+    inc(Result,Houses[HT].Built);
+end;
+
 
 
 function TKMPlayerStats.GetHousesLost:cardinal;
@@ -303,22 +326,42 @@ begin
 end;
 
 
-function TKMPlayerStats.GetHousesBuilt:cardinal;
-var HT:THouseType;
-begin
-  Result:=0;
-  for HT:=Low(THouseType) to High(THouseType) do
-    inc(Result,Houses[HT].Built);
-end;
-
-
-//The value includes all citizens, Warriors are counted separately
-function TKMPlayerStats.GetUnitsTrained:cardinal;
+//The value includes all Warriors
+function TKMPlayerStats.GetWarriorsTrained:cardinal;
 var i:TUnitType;
 begin
   Result := 0;
-  for i:=CITIZEN_MIN to CITIZEN_MAX do
-    inc(Result,Units[i].Trained);
+  for i:=WARRIOR_MIN to WARRIOR_MAX do
+    inc(Result, Units[i].Trained);
+end;
+
+
+function TKMPlayerStats.GetWarriorsLost:cardinal;
+var i:TUnitType;
+begin
+  Result:=0;
+  for i:=WARRIOR_MIN to WARRIOR_MAX do
+    inc(Result, Units[i].Lost);
+end;
+
+
+function TKMPlayerStats.GetWarriorsKilled:cardinal;
+var i:TUnitType;
+begin
+  Result:=0;
+  for i:=WARRIOR_MIN to WARRIOR_MAX do
+    inc(Result, Units[i].Killed);
+end;
+
+
+//Everything except weapons
+function TKMPlayerStats.GetGoodsProduced:cardinal;
+var i:TResourceType;
+begin
+  Result := 0;
+  for i:=WARE_MIN to WARE_MAX do
+  if (i < WEAPON_MIN) or (i > WEAPON_MAX) then
+    inc(Result, Goods[i].Produced);
 end;
 
 
@@ -329,16 +372,6 @@ begin
   Result := 0;
   for i:=WEAPON_MIN to WEAPON_MAX do
     inc(Result, Goods[i].Produced);
-end;
-
-
-//The value includes all Warriors
-function TKMPlayerStats.GetSoldiersTrained:cardinal;
-var i:TUnitType;
-begin
-  Result := 0;
-  for i:=WARRIOR_MIN to WARRIOR_MAX do
-    inc(Result,Units[i].Trained);
 end;
 
 

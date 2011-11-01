@@ -4,12 +4,12 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo, KM_Campaigns, KM_Saves;
 
 
 type
-  TMenuScreen = (msError, msLoading, msMain, msOptions, msResults);
+  TMenuScreen = (msError, msLoading, msMain, msOptions, msResults, msResultsMP);
 
 
   TKMMainMenuInterface = class
@@ -43,6 +43,7 @@ type
     procedure Create_Loading_Page;
     procedure Create_Error_Page;
     procedure Create_Results_Page;
+    procedure Create_ResultsMP_Page;
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
@@ -235,16 +236,23 @@ type
       Label_Error:TKMLabel;
       Button_ErrorBack:TKMButton;
     Panel_Results:TKMPanel;
-      Label_Results_Result:TKMLabel;
-      Panel_Stats:TKMPanel;
+      Label_Results:TKMLabel;
+      Panel_Stats: TKMPanel;
       Label_Stat:array[1..9]of TKMLabel;
       Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue:TKMButton;
+    Panel_ResultsMP:TKMPanel;
+      Label_ResultsMP, Label_ResultsMPTime: TKMLabel;
+      Panel_StatsMP1, Panel_StatsMP2: TKMPanel;
+      Label_ResultsPlayerName1, Label_ResultsPlayerName2:array[0..MAX_PLAYERS-1] of TKMLabel;
+      Bar_Results:array[0..MAX_PLAYERS-1, 0..9] of TKMPercentBar;
+      Button_ResultsMPBack:TKMButton;
   public
     constructor Create(X,Y:word; aGameSettings:TGlobalSettings; aReturnToOptions: Boolean);
     destructor Destroy; override;
     procedure Resize(X,Y:word);
     procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
     procedure Fill_Results;
+    procedure Fill_ResultsMP;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -304,6 +312,7 @@ begin
   Create_Loading_Page;
   Create_Error_Page;
   Create_Results_Page;
+  Create_ResultsMP_Page;
 
     {for i:=1 to length(FontFiles) do L[i]:=TKMLabel.Create(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);//}
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
@@ -325,7 +334,7 @@ begin
   else
     SwitchMenuPage(nil);
 
-  //SwitchMenuPage(Panel_Results); //Put here page you would like to debug
+  //SwitchMenuPage(Panel_ResultsMP); //Put here page you would like to debug
   fLog.AppendLog('Main menu init done');
 end;
 
@@ -366,11 +375,10 @@ begin
     msOptions:  SwitchMenuPage(Button_MM_Options);
     msResults:  begin
                   case aMsg of
-                    gr_Win:       Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
-                    gr_Defeat:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(112);
-                    gr_Cancel:    Label_Results_Result.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    gr_MPCancel:  Label_Results_Result.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    else          Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+                    gr_Win:       Label_Results.Caption := fTextLibrary.GetSetupString(111);
+                    gr_Defeat:    Label_Results.Caption := fTextLibrary.GetSetupString(112);
+                    gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
 
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
@@ -380,6 +388,15 @@ begin
                   Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
                   SwitchMenuPage(Panel_Results);
+                end;
+    msResultsMP:begin
+                  case aMsg of
+                    gr_Win:       Label_Results.Caption := fTextLibrary.GetSetupString(111);
+                    gr_Defeat:    Label_Results.Caption := fTextLibrary.GetSetupString(112);
+                    gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+                  end;
+                  SwitchMenuPage(Panel_ResultsMP);
                 end;
   end;
 
@@ -391,15 +408,101 @@ procedure TKMMainMenuInterface.Fill_Results;
 begin
   if (MyPlayer=nil) or (MyPlayer.Stats=nil) then exit;
 
-  Label_Stat[1].Caption := inttostr(MyPlayer.Stats.GetUnitsLost);
-  Label_Stat[2].Caption := inttostr(MyPlayer.Stats.GetUnitsKilled);
-  Label_Stat[3].Caption := inttostr(MyPlayer.Stats.GetHousesLost);
-  Label_Stat[4].Caption := inttostr(MyPlayer.Stats.GetHousesDestroyed);
-  Label_Stat[5].Caption := inttostr(MyPlayer.Stats.GetHousesBuilt);
-  Label_Stat[6].Caption := inttostr(MyPlayer.Stats.GetUnitsTrained);
-  Label_Stat[7].Caption := inttostr(MyPlayer.Stats.GetWeaponsProduced);
-  Label_Stat[8].Caption := inttostr(MyPlayer.Stats.GetSoldiersTrained);
-  Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+  with MyPlayer.Stats do
+  begin
+    Label_Stat[1].Caption := inttostr(GetCitizensLost);
+    Label_Stat[2].Caption := inttostr(GetCitizensKilled + GetWarriorsKilled);
+    Label_Stat[3].Caption := inttostr(GetHousesLost);
+    Label_Stat[4].Caption := inttostr(GetHousesDestroyed);
+    Label_Stat[5].Caption := inttostr(GetHousesBuilt);
+    Label_Stat[6].Caption := inttostr(GetCitizensTrained);
+    Label_Stat[7].Caption := inttostr(GetWeaponsProduced);
+    Label_Stat[8].Caption := inttostr(GetWarriorsTrained);
+    Label_Stat[9].Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+  end;
+end;
+
+
+procedure TKMMainMenuInterface.Fill_ResultsMP;
+var
+  i,k: Integer;
+  UnitsMax, HousesMax, GoodsMax, WeaponsMax, MaxValue: Integer;
+begin
+  Label_ResultsMPTime.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
+
+  //Update visibility depending on players count
+  for i:=0 to MAX_PLAYERS-1 do
+  begin
+    Label_ResultsPlayerName1[i].Visible := (i <= fPlayers.Count-1);
+    Label_ResultsPlayerName2[i].Visible := (i <= fPlayers.Count-1);
+    for k:=0 to 9 do
+      Bar_Results[i,k].Visible := (i <= fPlayers.Count-1);
+  end;
+
+  //Update positioning
+  Panel_StatsMP1.Height := 40 + fPlayers.Count * 25 + 20;
+  Panel_StatsMP2.Height := 40 + fPlayers.Count * 25 + 20;
+
+  Panel_StatsMP1.Top := 140 + (520 - Panel_StatsMP1.Height * 2) div 2;
+  Panel_StatsMP2.Top := Panel_StatsMP1.Top + Panel_StatsMP1.Height;
+
+  //Fill in raw values
+  for i:=0 to fPlayers.Count-1 do
+  begin
+    Label_ResultsPlayerName1[i].Caption := fPlayers[i].PlayerName;
+    Label_ResultsPlayerName2[i].Caption := fPlayers[i].PlayerName;
+
+    with fPlayers[i].Stats do
+    begin
+      //Living things
+      Bar_Results[i,0].Tag := GetCitizensTrained;
+      Bar_Results[i,1].Tag := GetCitizensLost;
+      Bar_Results[i,2].Tag := GetWarriorsTrained;
+      Bar_Results[i,3].Tag := GetWarriorsLost;
+      Bar_Results[i,4].Tag := GetCitizensKilled + GetWarriorsKilled;
+      //Objects
+      Bar_Results[i,5].Tag := GetHousesBuilt;
+      Bar_Results[i,6].Tag := GetHousesLost;
+      Bar_Results[i,7].Tag := GetHousesDestroyed;
+      Bar_Results[i,8].Tag := GetGoodsProduced;
+      Bar_Results[i,9].Tag := GetWeaponsProduced;
+    end;
+  end;
+
+  //Update percent bars
+  UnitsMax := 0;
+  for k:=0 to 4 do for i:=0 to fPlayers.Count-1 do
+    UnitsMax := Max(Bar_Results[i,k].Tag, UnitsMax);
+
+  HousesMax := 0;
+  for k:=5 to 7 do for i:=0 to fPlayers.Count-1 do
+    HousesMax := Max(Bar_Results[i,k].Tag, HousesMax);
+
+  GoodsMax := 0;
+  for i:=0 to fPlayers.Count-1 do
+    GoodsMax := Max(Bar_Results[i,8].Tag, GoodsMax);
+
+  WeaponsMax := 0;
+  for i:=0 to fPlayers.Count-1 do
+    WeaponsMax := Max(Bar_Results[i,9].Tag, WeaponsMax);
+
+  for k:=0 to 9 do
+  begin
+    case k of
+      0..4: MaxValue := UnitsMax;
+      5..7: MaxValue := HousesMax;
+      8:    MaxValue := GoodsMax;
+      else  MaxValue := WeaponsMax;
+    end;
+    for i:=0 to fPlayers.Count-1 do
+    begin
+      if MaxValue <> 0 then
+        Bar_Results[i,k].Position := Round(Bar_Results[i,k].Tag / MaxValue * 100)
+      else
+        Bar_Results[i,k].Position := 0;
+      Bar_Results[i,k].Caption := IfThen(Bar_Results[i,k].Tag <> 0, IntToStr(Bar_Results[i,k].Tag), '-');
+    end;
+  end;
 end;
 
 
@@ -891,28 +994,13 @@ begin
 end;
 
 
-//Citizens   TLD
-//Soldiers   TLD
-//Houses     TLD
-//Goods      T
-//Warfare    T
-//Trained-Lost-Defeated
 procedure TKMMainMenuInterface.Create_Results_Page;
-const
-  BarStep = 84;
-  BarWidth = BarStep-4;
-  BarHalf = BarWidth div 2;
-  Columns: array[0..9] of string = ('Citizens|trained', 'Citizens|lost',
-                                    'Soldiers|trained', 'Soldiers|lost',
-                                    'Houses|built', 'Houses|lost',
-                                    'Enemies|killed', 'Houses|destroyed',
-                                    'Goods|produced', 'Weapons|produced');
-var i,k, Adv: Integer;
+var i, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     with TKMImage.Create(Panel_Results,0,0,ScreenX,ScreenY,7,5) do ImageStretch;
 
-    Label_Results_Result := TKMLabel.Create(Panel_Results,512,200,300,20,'<<<LEER>>>',fnt_Metal,kaCenter);
+    Label_Results := TKMLabel.Create(Panel_Results,512,200,300,20,'<<<LEER>>>',fnt_Metal,kaCenter);
 
     Panel_Stats := TKMPanel.Create(Panel_Results,80,240,400,400);
     Adv := 0;
@@ -924,28 +1012,60 @@ begin
       Label_Stat[i] := TKMLabel.Create(Panel_Stats,340,Adv,100,20,'00',fnt_Metal,kaRight);
     end;
 
-    (*Panel_Stats := TKMPanel.Create(Panel_Results,50,240,900,400);
-    {}for i:=1 to 9 do
-    {}  Label_Stat[i] := TKMLabel.Create(Panel_Stats,-100,0,0,0,'0',fnt_Metal,kaRight);
-
-
-    for k:=0 to 9 do
-      TKMLabel.Create(Panel_Stats, 90 + BarHalf+BarStep*k, 0, BarWidth, 20, Columns[k], fnt_Metal, kaCenter);
-
-    for i:=0 to 7 do
-      TKMLabel.Create(Panel_Stats, 0, 40+i*25, 80, 20, 'Player '+IntToStr(i+1), fnt_Metal, kaLeft);
-
-    for k:=0 to 9 do
-      for i:=0 to 7 do
-        TKMPercentBar.Create(Panel_Stats, 90 + k*BarStep, 40+i*25, BarWidth, 20, Random(101), '40', fnt_Metal);*)
-
-
-    Button_ResultsBack := TKMButton.Create(Panel_Results,100,640,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ResultsBack := TKMButton.Create(Panel_Results,100,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ResultsBack.OnClick := SwitchMenuPage;
-    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,640,220,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
+    Button_ResultsRepeat := TKMButton.Create(Panel_Results,340,650,220,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
     Button_ResultsRepeat.OnClick := MainMenu_ReplayLastMap;
-    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,640,220,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
+    Button_ResultsContinue := TKMButton.Create(Panel_Results,580,650,220,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
     Button_ResultsContinue.OnClick := SwitchMenuPage;
+end;
+
+
+procedure TKMMainMenuInterface.Create_ResultsMP_Page;
+const
+  BarStep = 130;
+  BarWidth = BarStep - 10;
+  BarHalf = BarWidth div 2;
+  Columns1: array[0..4] of string = ('Citizens|trained', 'Citizens|lost',
+                                     'Soldiers|trained', 'Soldiers|lost',
+                                     'Enemies|killed');
+  Columns2: array[0..4] of string = ('Houses|built', 'Houses|lost',
+                                     'Houses|destroyed',
+                                     'Goods|produced', 'Weapons|produced');
+var i,k: Integer;
+begin
+  Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+    with TKMImage.Create(Panel_ResultsMP,0,0,ScreenX,ScreenY,7,5) do ImageStretch;
+
+    Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,90,300,20,'<<<LEER>>>',fnt_Metal,kaCenter);
+    Label_ResultsMPTime := TKMLabel.Create(Panel_ResultsMP,512,120,300,20,'<<<LEER>>>',fnt_Metal,kaCenter);
+
+    Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 112, 140, 800, 260);
+
+      for i:=0 to 7 do
+        Label_ResultsPlayerName1[i] := TKMLabel.Create(Panel_StatsMP1, 0, 43+i*25, 140, 20, 'Player '+IntToStr(i+1), fnt_Metal, kaLeft);
+
+      for k:=0 to 4 do
+      begin
+        TKMLabel.Create(Panel_StatsMP1, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, Columns1[k], fnt_Metal, kaCenter);
+        for i:=0 to 7 do
+          Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 150 + k*BarStep, 40+i*25, BarWidth, 20, 0, '-', fnt_Metal);
+      end;
+
+    Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 112, 400, 800, 260);
+
+      for i:=0 to 7 do
+        Label_ResultsPlayerName2[i] := TKMLabel.Create(Panel_StatsMP2, 0, 43+i*25, 140, 20, 'Player '+IntToStr(i+1), fnt_Metal, kaLeft);
+
+      for k:=0 to 4 do
+      begin
+        TKMLabel.Create(Panel_StatsMP2, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, Columns2[k], fnt_Metal, kaCenter);
+        for i:=0 to 7 do
+          Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 150 + k*BarStep, 40+i*25, BarWidth, 20, 0, '-', fnt_Metal);
+      end;
+
+    Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ResultsMPBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -1023,8 +1143,10 @@ begin
     Load_RefreshList;
     Panel_Load.Show;
   end;
+
   {Show MultiPlayer menu}
-  if Sender=Button_MM_MultiPlayer then begin
+  if (Sender=Button_MM_MultiPlayer) or (Sender=Button_ResultsMPBack) then
+  begin
     fGame.NetworkInit;
     MP_Init(Sender);
     MP_Update(fTextLibrary[TX_MP_MENU_STATUS_READY],$FF00FF00,false);
@@ -1070,6 +1192,10 @@ begin
   {Show Results screen}
   if Sender=Panel_Results then //This page can be accessed only by itself
     Panel_Results.Show;
+  
+  {Show ResultsMP screen}
+  if Sender=Panel_ResultsMP then //This page can be accessed only by itself
+    Panel_ResultsMP.Show;
 end;
 
 

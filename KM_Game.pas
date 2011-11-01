@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, Zippit,
+  Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, TypInfo, Zippit,
   KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns,
@@ -743,18 +743,19 @@ procedure TKMGame.Stop(Msg:TGameResultMsg; TextMsg:string='');
 begin
   if fGameState = gsNoGame then Exit;
 
-  fIsExiting := true;
-  //in MP mode you can't repeat last mission from Results screen
-  if (Msg = gr_Cancel) and MultiplayerMode then Msg := gr_MPCancel;
+  fIsExiting := True;
   try
     fGameState := gsNoGame;
 
-    if MultiplayerMode then
+    if fMultiplayerMode then
       fNetworking.Disconnect;
 
     //Take results from MyPlayer before data is flushed
-    if Msg in [gr_Win, gr_Defeat, gr_Cancel,gr_MPCancel] then
-      fMainMenuInterface.Fill_Results;
+    if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
+      if fMultiplayerMode then
+        fMainMenuInterface.Fill_ResultsMP
+      else
+        fMainMenuInterface.Fill_Results;
 
     if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
       fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl'));
@@ -770,42 +771,27 @@ begin
     FreeThenNil(fViewport);
     ID_Tracker := 0; //Reset ID tracker
 
+    fLog.AppendLog('Gameplay ended - ' + GetEnumName(TypeInfo(TGameResultMsg), Integer(Msg)) + ' /' + TextMsg);
+
     case Msg of
-      gr_Win    :  begin
-                     fLog.AppendLog('Gameplay ended - Win',true);
-                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //Mission results screen
-                     if fCampaigns.ActiveCampaign <> nil then
-                       fCampaigns.UnlockNextMap;
-                   end;
-      gr_Defeat:   begin
-                     fLog.AppendLog('Gameplay ended - Defeat',true);
-                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //Mission results screen
-                   end;
-      gr_Cancel:   begin
-                     fLog.AppendLog('Gameplay canceled',true);
-                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
-                   end;
-      gr_MPCancel: begin
-                     fLog.AppendLog('Multiplayer gameplay canceled',true);
-                     fMainMenuInterface.ShowScreen(msResults, '', Msg); //show the results so the user can see how they are going so far
-                   end;
-      gr_Error:    begin
-                     fLog.AppendLog('Gameplay error',true);
-                     fMainMenuInterface.ShowScreen(msError, TextMsg);
-                   end;
-      gr_Disconnect:begin
-                     fLog.AppendLog('Network error',true);
-                     fMainMenuInterface.ShowScreen(msError, TextMsg);
-                   end;
-      gr_Silent:   fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
-      gr_ReplayEnd:begin
-                     fLog.AppendLog('Replay canceled',true);
-                     fMainMenuInterface.ShowScreen(msMain);
-                   end;
-      gr_MapEdEnd: begin
-                     fLog.AppendLog('MapEditor closed',true);
-                     fMainMenuInterface.ShowScreen(msMain);
-                   end;
+      gr_Win:       if fMultiplayerMode then
+                      fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
+                    else
+                    begin
+                      fMainMenuInterface.ShowScreen(msResults, '', Msg);
+                      if fCampaigns.ActiveCampaign <> nil then
+                        fCampaigns.UnlockNextMap;
+                    end;
+      gr_Defeat,
+      gr_Cancel:    if fMultiplayerMode then
+                      fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
+                    else
+                      fMainMenuInterface.ShowScreen(msResults, '', Msg);
+      gr_Error:     fMainMenuInterface.ShowScreen(msError, TextMsg);
+      gr_Disconnect:fMainMenuInterface.ShowScreen(msError, TextMsg);
+      gr_Silent:    ;//Used when loading new savegame from gameplay UI
+      gr_ReplayEnd: fMainMenuInterface.ShowScreen(msMain);
+      gr_MapEdEnd:  fMainMenuInterface.ShowScreen(msMain);
     end;
   finally
     fIsExiting := false;

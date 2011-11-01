@@ -34,6 +34,7 @@ type
     fFogOfWar:TKMFogOfWar; //Stores FOW info for current player, which includes
     fArmyEval:TKMArmyEvaluation; // Can used by all players 
 
+    fPlayerName: string;
     fPlayerType:TPlayerType;
     fFlagColor:cardinal;
     fCenterScreen:TKMPoint;
@@ -62,6 +63,7 @@ type
     property ArmyEval:TKMArmyEvaluation read fArmyEval;
 
     procedure SetPlayerID(aNewIndex:TPlayerIndex);
+    property PlayerName: string read fPlayerName;
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor:cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex:byte read GetColorIndex;
@@ -152,6 +154,7 @@ begin
   fRepairList   := TKMRepairQueue.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
+  fPlayerName   := 'Player ' + IntToStr(aPlayerIndex);
   fPlayerType   := pt_Computer;
   for i:=0 to MAX_PLAYERS-1 do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default

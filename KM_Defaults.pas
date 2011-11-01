@@ -65,7 +65,7 @@ var
   SHOW_TEXT_OUTLINES    :boolean=false; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
   MODE_DESIGN_CONTORLS  :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  OVERLAY_RESOLUTIONS   :boolean=true; //Render constraining frame
+  OVERLAY_RESOLUTIONS   :boolean=false; //Render constraining frame
   {Gameplay display}
   AGGRESSIVE_REPLAYS    :boolean=false; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
@@ -222,7 +222,6 @@ type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
-        gr_MPCancel,    //Multiplayer game was canceled
         gr_Error,       //Some known error occured
         gr_Disconnect,  //Disconnected from multiplayer game
         gr_Silent,      //Used when loading savegame from running game (show no screens)
