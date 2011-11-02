@@ -1,0 +1,22 @@
+
+	Flaws of existing systems: Player sees that deliveries are not optimal
+
+	1. Serfs bring "demand" and walk out with empty hands because other serf already "booked" the "offer",
+	   in worse case he will just stand idling in front. 
+	2. If serfs bring "demand" and take "offer" they need to cancel other serfs "booking" on the "offer", 
+	   other serf will halt and saty idle en-route or even worse - go in reverse direction
+
+
+	There's a new idea by Rayzel:
+
+	Let the house know how many sefs are bringing goods to it and approximate time it will take each of them to arrive.
+	Then new serfs asking for delivery could check that count and ETA versus existing resources in house (and maybe production ETA).
+	Depending on that check they may or may not take the delivery.
+	This way serfs won't go to a house that has already "booked" output and serfs that bring "demand" are safe to take "offer" immediately.
+	Voila! - Optimized deliveries where serfs always try to take resources from the house they went into and 
+	player sees no serfs aborting their walks.
+
+
+	Of course there are recurring issues:
+	"offer" may be already booked by some serf coming from the other end of the town, then don't take it
+	But generally serfs will work more efficiently
