@@ -174,7 +174,7 @@ begin
   fItems[i].fTarget := aEnd;
 
   fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
-  fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart)/CELL_HEIGHT_DIV + OffsetX[aProjType];
+  fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart)/CELL_HEIGHT_DIV + OffsetY[aProjType];
   fItems[i].fScreenEnd.X := fItems[i].fTarget.X + 0.5; //projectile hits on Unit's chest height
   fItems[i].fScreenEnd.Y := fItems[i].fTarget.Y + 0.5 - fTerrain.InterpolateLandHeight(aEnd)/CELL_HEIGHT_DIV;
 
@@ -245,19 +245,14 @@ begin
 end;
 
 
-//Test wherever projectile is visible (used by rocks thrown from Towers mostly)
+//Test wherever projectile is visible (used by rocks thrown from Towers)
 function TKMProjectiles.ProjectileVisible(aIndex:integer):boolean;
 begin
-  case fItems[aIndex].fType of
-    pt_Arrow:      Result := true;
-    pt_Bolt:       Result := true;
-    pt_SlingRock:  Result := true;
-    pt_TowerRock:  if (fItems[aIndex].fScreenEnd.Y - fItems[aIndex].fScreenStart.Y) < 0 then
-                     Result := fItems[aIndex].fPosition >= 0.2 //fly behind a Tower
-                   else
-                     Result := true;
-    else           Result := true;
-  end;
+  if (fItems[aIndex].fType = pt_TowerRock) 
+  and ((fItems[aIndex].fScreenEnd.Y - fItems[aIndex].fScreenStart.Y) < 0) then
+    Result := fItems[aIndex].fPosition >= 0.2 //fly behind a Tower
+  else
+    Result := True;
 end;
 
 

@@ -232,13 +232,13 @@ type
 
   TKMUnitsCollection = class(TKMList)
   private
-    function GetUnit(Index: Integer): TKMUnit;
-    procedure SetUnit(Index: Integer; Item: TKMUnit);
+    function GetUnit(aIndex: Integer): TKMUnit;
+    procedure SetUnit(aIndex: Integer; aItem: TKMUnit);
   public
     destructor Destroy; override;
     function Add(aOwner:TPlayerIndex; aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0):TKMUnit;
     function AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
-    property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
+    property Units[aIndex: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit:TKMUnit);
     procedure OwnerUpdate(aOwner:TPlayerIndex);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
@@ -1749,15 +1749,15 @@ begin
 end;
 
 
-function TKMUnitsCollection.GetUnit(Index: Integer): TKMUnit;
+function TKMUnitsCollection.GetUnit(aIndex: Integer): TKMUnit;
 begin
-  Result := TKMUnit(Items[Index]);
+  Result := TKMUnit(Items[aIndex]);
 end;
 
 
-procedure TKMUnitsCollection.SetUnit(Index: Integer; Item: TKMUnit);
+procedure TKMUnitsCollection.SetUnit(aIndex: Integer; aItem: TKMUnit);
 begin
-  Items[Index] := Item;
+  Items[aIndex] := aItem;
 end;
 
 

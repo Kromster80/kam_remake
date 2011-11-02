@@ -115,7 +115,7 @@ type
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
-    function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
+    function GetFishInWaterBody(WaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -624,24 +624,28 @@ begin
 end;
 
 
-function TKMPlayerAnimals.GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
-var i, HighestGroupCount: integer;
+function TKMPlayerAnimals.GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
+var 
+  i, HighestGroupCount: Integer;
+  U: TKMUnit;
 begin
   Result := nil;
-  if aWaterID = 0 then exit; //Fish should always be in valid water
+  if aWaterID = 0 then Exit; //Fish should always be in valid water
   HighestGroupCount := 0;
-  with fUnits do
+
+  for i:=0 to fUnits.Count-1 do
   begin
-    for i:=0 to Count-1 do
-    if (fUnits.Items[i] <> nil) and (TKMUnit(fUnits.Items[i]).UnitType = ut_Fish) then
+    U := fUnits[i]; //Store locally
+
+    if (U <> nil)
+    and (U.UnitType = ut_Fish)
+    and (fTerrain.Land[U.GetPosition.Y, U.GetPosition.X].WalkConnect[wcFish] = aWaterID)
+    and (TKMUnitAnimal(U).FishCount > HighestGroupCount) then
     begin
-      if fTerrain.Land[TKMUnit(fUnits.Items[i]).GetPosition.Y,TKMUnit(fUnits.Items[i]).GetPosition.X].WalkConnect[wcFish] = aWaterID then
-        if TKMUnitAnimal(fUnits.Items[i]).FishCount > HighestGroupCount then
-        begin
-          Result := TKMUnitAnimal(fUnits.Items[i]);
-          if not FindHighestCount then exit; //This is for time saving when we don't actually care which group is returned
-          HighestGroupCount := TKMUnitAnimal(fUnits.Items[i]).FishCount;
-        end;
+      Result := TKMUnitAnimal(U);
+      //This is for time saving when we don't actually care which group is returned
+      if not FindHighestCount then Exit;
+      HighestGroupCount := Result.FishCount;
     end;
   end;
 end;
