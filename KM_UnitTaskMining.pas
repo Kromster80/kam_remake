@@ -140,7 +140,7 @@ begin
          Exit;
        end;
        //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
-    1: SetActionWalkToSpot(WorkPlan.Loc, 0, WorkPlan.ActionWalkTo);
+    1: SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo);
     2: //Before work tasks for specific mining jobs
        if WorkPlan.GatheringScript = gs_FisherCatch then begin
          Direction := WorkPlan.WorkDir;
@@ -187,7 +187,7 @@ begin
     6: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), 0, WorkPlan.ActionWalkFrom); //Go home
+         SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), WorkPlan.ActionWalkFrom); //Go home
          Thought := th_Home;
        end;
     7: SetActionGoIn(WorkPlan.ActionWalkFrom, gd_GoInside, GetHome); //Go inside

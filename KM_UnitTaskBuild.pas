@@ -63,7 +63,8 @@ type
     private
       fHouse:TKMHouse;
       BuildID:integer;
-      HouseSet:boolean;
+      HouseNeedsWorker: Boolean;
+      HouseReadyToBuild: Boolean;
       Step:byte;
       Cells:array[1..4*4]of TKMPoint;
     public
@@ -500,7 +501,8 @@ begin
   fTaskName := utn_BuildHouseArea;
   fHouse    := aHouse.GetHousePointer;
   BuildID   := aID;
-  HouseSet  := false;
+  HouseNeedsWorker := False; //House needs this worker to complete
+  HouseReadyToBuild := False; //House is ready to be built
   Step      := 0;
 
   HA := fResource.HouseDat[fHouse.HouseType].BuildArea;
@@ -519,7 +521,8 @@ begin
   Inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(BuildID);
-  LoadStream.Read(HouseSet);
+  LoadStream.Read(HouseNeedsWorker);
+  LoadStream.Read(HouseReadyToBuild);
   LoadStream.Read(Step);
   for i:=1 to length(Cells) do
   LoadStream.Read(Cells[i]);
@@ -537,11 +540,22 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   //Allow other workers to take this task
-  if BuildID<>0 then
-    fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenHousePlan(BuildID);
+  if (BuildID <> 0) and not HouseNeedsWorker and not fHouse.IsDestroyed then
+    fPlayers.Player[fHouse.GetOwner].BuildList.ReOpenHousePlan(BuildID);
 
-  if HouseSet and (fHouse<>nil) then
-    fPlayers.Player[fUnit.GetOwner].RemHouse(fHouse.GetPosition,true);
+  //Destroy the house if worker was killed (e.g. by archer or hunger)
+  //as we don't have mechanics to resume the building process yet
+  if HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
+    fPlayers.Player[fHouse.GetOwner].RemHouse(fHouse.GetPosition, True);
+
+  //Complete the task in the end (Worker could have died while trying to exit building area)
+  if HouseReadyToBuild and not HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
+  begin
+    fHouse.BuildingState := hbs_Wood;
+    fPlayers.Player[fHouse.GetOwner].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
+    fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
+    fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
+  end;
 
   fPlayers.CleanUpHousePointer(fHouse);
   Inherited;
@@ -558,65 +572,67 @@ begin
   begin
     Result := TaskDone;
     fUnit.Thought := th_None;
-    exit;
+    Exit;
   end;
 
   with fUnit do
   case fPhase of
-  0:  begin
-        SetActionWalkToSpot(fHouse.GetEntrance);
-        Thought := th_Build;
-      end;
-  1:  begin
-        fPlayers.Player[GetOwner].BuildList.CloseHousePlan(BuildID);
-        BuildID := 0;
-        fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Fence, GetOwner);
-        HouseSet := true;
-        fHouse.BuildingState := hbs_NoGlyph;
-        SetActionLockedStay(5,ua_Walk);
-        Thought := th_None;
-      end;
-  2:  SetActionWalkToSpot(Cells[Step]);
-  3:  begin
-        SetActionLockedStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
-      end;
-  4:  begin
-        SetActionLockedStay(11,ua_Work1,false);
-        fTerrain.FlattenTerrain(Cells[Step]);
-      end;
-  5:  begin
-        SetActionLockedStay(11,ua_Work1,false);
-        fTerrain.FlattenTerrain(Cells[Step]);
-      end;
-  6:  begin
-        SetActionLockedStay(11,ua_Work1,false);
-        fTerrain.FlattenTerrain(Cells[Step]);
-        fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
-        if not fHouse.IsDestroyed then
-        if KMSamePoint(fHouse.GetEntrance,Cells[Step]) then
-          fTerrain.SetRoad(fHouse.GetEntrance, GetOwner);
-        fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj:=255; //All objects are removed
-        fTerrain.SetMarkup(Cells[Step],mu_HouseFenceNoWalk); //Block passability on tile
-        fTerrain.RecalculatePassability(Cells[Step]);
-        fTerrain.RebuildWalkConnect(wcWalk);
-        fTerrain.RebuildWalkConnect(wcRoad);
-        dec(Step);
-      end;
-  7:  begin
-        fHouse.BuildingState := hbs_Wood;
-        fPlayers.Player[GetOwner].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
-        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
-        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
-        //Walk away from building site, before we get trapped when house becomes stoned
-        OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk);
-        if KMSamePoint(OutOfWay,KMPoint(0,0)) then OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
-        SetActionWalkToSpot(OutOfWay, 0, ua_Walk);
-        HouseSet := false;
-      end;
-  else Result := TaskDone;
+    0:  begin
+          SetActionWalkToSpot(fHouse.GetEntrance);
+          Thought := th_Build;
+        end;
+    1:  begin
+          fPlayers.Player[GetOwner].BuildList.CloseHousePlan(BuildID);
+          BuildID := 0; //Other workers can't take this task from now on
+          fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Fence, GetOwner);
+          HouseNeedsWorker := True; //The house placed on the map, if something happens with Worker the house will be removed
+          fHouse.BuildingState := hbs_NoGlyph;
+          SetActionLockedStay(5,ua_Walk);
+          Thought := th_None;
+        end;
+    2:  SetActionWalkToSpot(Cells[Step]);
+    3:  begin
+          SetActionLockedStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
+        end;
+    4:  begin
+          SetActionLockedStay(11,ua_Work1,false);
+          fTerrain.FlattenTerrain(Cells[Step]);
+        end;
+    5:  begin
+          SetActionLockedStay(11,ua_Work1,false);
+          fTerrain.FlattenTerrain(Cells[Step]);
+        end;
+    6:  begin
+          SetActionLockedStay(11,ua_Work1,false);
+          fTerrain.FlattenTerrain(Cells[Step]);
+          fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
+          if not fHouse.IsDestroyed then
+          if KMSamePoint(fHouse.GetEntrance,Cells[Step]) then
+            fTerrain.SetRoad(fHouse.GetEntrance, GetOwner);
+          fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj := 255; //All objects are removed
+          fTerrain.SetMarkup(Cells[Step],mu_HouseFenceNoWalk); //Block passability on tile
+          fTerrain.RecalculatePassability(Cells[Step]);
+          fTerrain.RebuildWalkConnect(wcWalk);
+          fTerrain.RebuildWalkConnect(wcRoad);
+          dec(Step);
+        end;
+    7:  begin
+          //Walk away from building site, before we get trapped when house becomes stoned
+          OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk);
+          if KMSamePoint(OutOfWay, KMPoint(0,0)) then
+            OutOfWay := KMPointBelow(fHouse.GetEntrance); //Don't get stuck in corners
+          SetActionWalkToSpot(OutOfWay);
+          HouseNeedsWorker := False; //House construction no longer needs the worker to continue
+          HouseReadyToBuild := True; //If worker gets killed while walking house will be finished without him
+        end;
+    else
+        Result := TaskDone;
   end;
+
   inc(fPhase);
-  if (fPhase=7)and(Step>0) then fPhase:=2; //Repeat with next cell
+
+  if (fPhase = 7) and (Step > 0) then
+    fPhase := 2; //Repeat with next cell
 end;
 
 
@@ -629,7 +645,8 @@ begin
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
-  SaveStream.Write(HouseSet);
+  SaveStream.Write(HouseNeedsWorker);
+  SaveStream.Write(HouseReadyToBuild);
   SaveStream.Write(Step);
   for i:=1 to length(Cells) do
   SaveStream.Write(Cells[i]);

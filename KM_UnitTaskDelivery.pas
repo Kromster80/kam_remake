@@ -194,7 +194,13 @@ begin
   with TKMUnitSerf(fUnit) do
   case fPhase of
     0..4:;
-    5:  SetActionWalkToSpot(fToHouse.GetEntrance, 1);
+    //@Lewin: It's the only place in KaM that used to access houses entrance from diagonals, right?
+    //        I suspect it was made similar to workers - tile was declared  "Under construction" and
+    //        could accept goods from any side, or something alike. 
+    //        I have removed this Distance=1 from here because it simplifies our WalkToSpot method.
+    //        Please give me your thoughts on this case - maybe we need to use Distance=n
+    //        in some other occasions of WalkToSpot too?
+    5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  begin
           fToHouse.ResAddToBuild(Carry);
           CarryTake;
@@ -252,7 +258,7 @@ begin
               //No delivery found then just walk back to our From house
               //even if it's destroyed, its location is still valid
               //Don't walk to spot as it doesn't really matter
-              SetActionWalkToSpot(KMPointBelow(fFrom.GetEntrance), 5);
+              SetActionWalkToHouse(fFrom, 5);
           end else
             SetActionStay(0, ua_Walk); //If we're not feeding a warrior then ignore this step
         end;

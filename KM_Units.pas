@@ -125,7 +125,7 @@ type
     procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
     procedure SetActionWalkToHouse(aHouse:TKMHouse; aDistance:single; aActionType:TUnitActionType=ua_Walk); overload;
     procedure SetActionWalkToUnit(aUnit:TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk); overload;
-    procedure SetActionWalkToSpot(aLocB:TKMPoint; aDistance:single=0; aActionType:TUnitActionType=ua_Walk); overload;
+    procedure SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk); overload;
     procedure SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aTargetCanBeReached:boolean=true);
 
@@ -698,17 +698,18 @@ begin
   //If we are still stuck on a house for some reason, get off it ASAP
   if (mu_HouseFenceNoWalk = fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup) then
   begin
-    assert(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y) <> nil);
+    Assert(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y) <> nil);
     OutOfWay := KMPointBelow(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y).GetEntrance);
-    SetActionWalkToSpot(OutOfWay, 0, ua_Walk);
+    SetActionWalkToSpot(OutOfWay);
   end;
 
-  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-    fUnitTask:=GetActionFromQueue;
+  if fUnitTask = nil then //If Unit still got nothing to do, nevermind hunger
+    fUnitTask := GetActionFromQueue;
 
-  if (fUnitTask=nil) and (fCurrentAction=nil) then SetActionStay(20,ua_Walk);
+  if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
+  if fCurrentAction = nil then
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName + ' has no action!', fCurrPosition);
 end;
 
 
@@ -1261,7 +1262,7 @@ begin
 
   Assert(aDistance>=1,'Should not walk to units place');
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
-                                      aUnit.fCurrPosition,  //Target position
+                                      aUnit.fCurrPosition,//Target position
                                       aActionType,        //
                                       aDistance,          //Proximity
                                       false,              //If we were pushed
@@ -1273,11 +1274,11 @@ end;
 
 
 //Walk to spot
-procedure TKMUnit.SetActionWalkToSpot(aLocB:TKMPoint; aDistance:single=0; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, false, false, nil, nil));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, false, nil, nil));
 end;
 
 
