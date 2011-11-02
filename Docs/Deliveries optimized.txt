@@ -20,3 +20,16 @@
 	Of course there are recurring issues:
 	"offer" may be already booked by some serf coming from the other end of the town, then don't take it
 	But generally serfs will work more efficiently
+
+
+	Lewin:
+
+	   The biggest problem with our delivery system is that we match serfs to a delivery, not the other way around. 
+	Serfs will randomly check for a new delivery and take the closest one, even though there might be a much closer 
+	serf who checked too late. It would be MUCH better if the delivery queue maintained a list of idle serfs and 
+	matched the closest delivery to the closest serf every time.
+	   Because right now the only way to have efficient deliveries is to have too few serfs so none are idle, 
+	meaning that when a serf finishes a delivery they will be assigned the next closest delivery. If you have idle 
+	serfs, then deliveries are pretty much assigned at random which is really inefficient in big cities. In reality, 
+	a village with an idle serf on every corner should be the most efficient because there will always be a serf 
+	very close to the delivery.
