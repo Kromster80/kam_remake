@@ -123,11 +123,10 @@ type
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 
     procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
-    procedure SetActionWalkToHouse(aHouse:TKMHouse; aDistance:single; aActionType:TUnitActionType=ua_Walk); overload;
-    procedure SetActionWalkToUnit(aUnit:TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk); overload;
-    procedure SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk); overload;
+    procedure SetActionWalkToHouse(aHouse:TKMHouse; aDistance:single; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionWalkToUnit(aUnit:TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aUseExactTarget:boolean=true);
     procedure SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
-    procedure SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aTargetCanBeReached:boolean=true);
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -1273,12 +1272,16 @@ begin
 end;
 
 
-//Walk to spot
-procedure TKMUnit.SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+//Walk to spot or its neighbourhood
+procedure TKMUnit.SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aUseExactTarget:boolean=true);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, false, nil, nil));
+    Assert(False, 'Interrupting unabandonable Walk action');
+
+  if not aUseExactTarget and not (Self is TKMUnitWarrior) then
+    Assert(False, 'Only true warriors don''t care ''bout exact location on reposition');
+
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, false, nil, nil, aUseExactTarget));
 end;
 
 
@@ -1293,14 +1296,6 @@ begin
   SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, true, false, nil, nil));
   //Once pushed, unit will try to walk away, if he bumps into more units he will
   //
-end;
-
-
-//Walk to spot neighbourhood
-procedure TKMUnit.SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aTargetCanBeReached:boolean=true);
-begin
-  Assert(Self is TKMUnitWarrior, 'Only true warriors don''t care ''bout exact location on reposition');
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, true, nil, nil, aTargetCanBeReached));
 end;
 
 

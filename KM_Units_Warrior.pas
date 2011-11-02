@@ -1082,7 +1082,7 @@ begin
       if fCommander = nil then
         SetActionWalkToSpot(fOrderLoc.Loc)
       else
-        SetActionWalkToNear(fOrderLoc.Loc, ua_Walk, fTargetCanBeReached);
+        SetActionWalkToSpot(fOrderLoc.Loc, ua_Walk, fTargetCanBeReached);
       fOrder := wo_None;
       fState := ws_Walking;
     end;

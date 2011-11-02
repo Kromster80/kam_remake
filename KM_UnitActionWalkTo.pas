@@ -419,7 +419,7 @@ end;
 
 { There's unexpected immovable obstacle on our way (suddenly grown up tree, wall, house)
 1. go around the obstacle and keep on walking
-2. rebuild the route}
+2. rebuild the route from current position from scratch}
 function TUnitActionWalkTo.CheckForObstacle:TObstacleCheck;
 begin
   Result := oc_NoObstacle;
@@ -521,7 +521,7 @@ begin
     if not CanAbandonInternal then
       raise ELocError.Create('Unit walk IntSolutionPush',fWalker.GetPosition);
 
-    fOpponent.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
+    fOpponent.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition, OpponentPassability));
 
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     ExplanationLogAdd; //Next frame tile will be free and we will walk there
