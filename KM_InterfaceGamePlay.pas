@@ -261,7 +261,9 @@ type
       Shape_Market_From, Shape_Market_To: TKMShape;
       Label_Market_In, Label_Market_Out: TKMLabel;
       Button_Market_In, Button_Market_Out: TKMButtonFlat;
-      ResRow_Market_Out: TKMResourceOrderRow;
+      Button_Market_Add,Button_Market_Remove: TKMButton;
+      Label_Market_FromAmount,Label_Market_ToAmount:TKMLabel;
+      //ResRow_Market_Out: TKMResourceOrderRow;
     Panel_HouseStore:TKMPanel;
       Button_Store:array[1..STORE_RES_COUNT]of TKMButtonFlat;
       Image_Store_Accept:array[1..STORE_RES_COUNT]of TKMImage;
@@ -1434,13 +1436,21 @@ begin
   end;
 
   inc(LineH, 10);
-  ResRow_Market_Out := TKMResourceOrderRow.Create(Panel_HouseMarket, 62,LineH,64,20);
+
+  Label_Market_FromAmount := TKMLabel.Create(Panel_HouseMarket,60,LineH,31,30,'',fnt_Grey,kaCenter);
+  Button_Market_Remove := TKMButton.Create(Panel_HouseMarket,76,LineH,20,20,'-',fnt_Metal,bsGame);
+  Button_Market_Add    := TKMButton.Create(Panel_HouseMarket,97,LineH,20,20,'+',fnt_Metal,bsGame);
+  Button_Market_Remove.OnClickEither := House_MarketOrderClick;
+  Button_Market_Add.OnClickEither := House_MarketOrderClick;
+  Label_Market_ToAmount := TKMLabel.Create(Panel_HouseMarket, 132,LineH,31,30,'',fnt_Grey,kaCenter);
+
+  {ResRow_Market_Out := TKMResourceOrderRow.Create(Panel_HouseMarket, 62,LineH,64,20);
   ResRow_Market_Out.RxID := 4;
   ResRow_Market_Out.OrderAdd.OnClickEither := House_MarketOrderClick;
   ResRow_Market_Out.OrderRem.OnClickEither := House_MarketOrderClick;
   ResRow_Market_Out.OrderAdd.Hint := fTextLibrary.GetTextString(235);
   ResRow_Market_Out.OrderRem.Hint := fTextLibrary.GetTextString(234);
-  ResRow_Market_Out.Disable;
+  ResRow_Market_Out.Disable;}
 end;
 
 
@@ -2416,9 +2426,13 @@ begin
     Button_Market_Out.Caption := '-';
   end;
 
-  ResRow_Market_Out.Enabled := (M.ResFrom <> rt_None) and (M.ResTo <> rt_None);
+  Button_Market_Remove.Enabled := (M.ResFrom <> rt_None) and (M.ResTo <> rt_None);
+  Button_Market_Add.Enabled := Button_Market_Remove.Enabled;
+  Label_Market_FromAmount.Caption := IntToStr(M.RatioFrom * M.CheckResOrder(1));
+  Label_Market_ToAmount.Caption := IntToStr(M.RatioTo * M.CheckResOrder(1));
+  {ResRow_Market_Out.Enabled := (M.ResFrom <> rt_None) and (M.ResTo <> rt_None);
   ResRow_Market_Out.OrderCount := M.CheckResOrder(1);
-  ResRow_Market_Out.ResourceCount := M.CheckResOut(M.ResTo);
+  ResRow_Market_Out.ResourceCount := M.CheckResOut(M.ResTo);}
 end;
 
 
@@ -2434,10 +2448,15 @@ begin
   if AButton = mbLeft then Amt := 1;
   if AButton = mbRight then Amt := 10;
 
-  if Sender = ResRow_Market_Out.OrderRem then
+  if Sender = Button_Market_Remove then
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -Amt);
+  if Sender = Button_Market_Add then
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);
+
+  {if Sender = ResRow_Market_Out.OrderRem then
     fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, -Amt);
   if Sender = ResRow_Market_Out.OrderAdd then
-    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);
+    fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, M, 1, Amt);}
 end;
 
 
