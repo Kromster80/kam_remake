@@ -26,8 +26,18 @@
  ?	Warriors should resume interrupted orders after a fight
 	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
-	Replays almost always end up with a mismatch while watching them
+	Replays almost always end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag by consuming a massive amount of CPU in pathfinding (I think that's the cause) Vortamic is especially bad.
+	Up the ware limit in the barracks from 255
+	Due to predicting a target's position archers can shoot way beyond their range
+	Someone joining your lobby as you click start gets an invalid state and server times out
+	Campaign flags have a colored square around them when selected
+	Make market interface less confusing by showing number of wares that will be taken/given
+	Multiplayer replays do not sync FOW so get mismatches
+	Lobby with player 1, AI, player 2. Player 1 quits, player 2 becomes host and removes AI. Player 2 can now kick himself and other strange bugs
+	Workers can become stuck and cause a crash on a building site that becomes too sloped during construction (bottom left iron mine in The Northern Province)
+	Confirmation for quitting multiplayer while waiting for players instead of a giant button in the middle of the screen that can be pressed by mistake
+	Players that have disconnected from the game should have a line drawn through them on the in-game player list
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
@@ -61,14 +71,15 @@ Features:
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
-	Server details should show the map name and the time they have been playing for
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
 	Make player info take the full width of the multiplayer lobby and move map info below
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it
 	Better full screen support (right now you can't minimize the game while it's full screen)
 	Archers on a hill get slighty longer range (calculated from height of archer tile relative to target tile)
 	Show the mining radius of the selected house or house that you are placing
- 
+	Master server in MySQL and support multiple revisions at once
+	Colors for chat to highlight player names and whether it is team/all channel
+	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
 
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
