@@ -122,7 +122,7 @@ type
     procedure SetActionStorm(aRow:integer);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 
-    procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
+    procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
     procedure SetActionWalkToHouse(aHouse:TKMHouse; aDistance:single; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionWalkToUnit(aUnit:TKMUnit; aDistance:single; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aUseExactTarget:boolean=true);
@@ -1228,10 +1228,10 @@ end;
 
 
 //WalkTo action with exact options (retranslated from WalkTo if Obstcale met)
-procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
+procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, false, aWalkToNear, aTargetUnit, aTargetHouse));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aDistance, false, aTargetUnit, aTargetHouse));
 end;
 
 
@@ -1247,7 +1247,6 @@ begin
                                       aActionType,        //
                                       aDistance,          //Proximity
                                       false,              //If we were pushed
-                                      false,              //WalkToNear
                                       nil,                //Unit
                                       aHouse              //House
                                       ));
@@ -1265,7 +1264,6 @@ begin
                                       aActionType,        //
                                       aDistance,          //Proximity
                                       false,              //If we were pushed
-                                      false,              //WalkToNear
                                       aUnit,              //Unit
                                       nil                 //House
                                       ));
@@ -1281,7 +1279,7 @@ begin
   if not aUseExactTarget and not (Self is TKMUnitWarrior) then
     Assert(False, 'Only true warriors don''t care ''bout exact location on reposition');
 
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, false, nil, nil, aUseExactTarget));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil, aUseExactTarget));
 end;
 
 
@@ -1293,7 +1291,7 @@ begin
   Assert(((GetUnitAction is TUnitActionStay) and (not GetUnitAction.Locked)) or
          ((GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).CanAbandonExternal));
 
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, true, false, nil, nil));
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, true, nil, nil));
   //Once pushed, unit will try to walk away, if he bumps into more units he will
   //
 end;

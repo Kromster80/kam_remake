@@ -28,10 +28,10 @@ type
     private
       fWalker:TKMUnit; //Who's walking
       fWalkFrom:TKMPoint; //Walking from this spot, used only in Create
-      fWalkTo:TKMPoint; //Where are we going to with regard to WalkToNear
+      fWalkTo:TKMPoint; //Where are we going to
       fNewWalkTo:TKMPoint; //If we recieve a new TargetLoc it will be stored here
       fDistance:single; //How close we need to get to our aim
-      fWalkToNear:boolean; //If we don't care about exact position
+      fUseExactTarget: boolean; //If we don't care about exact position
       fTargetUnit:TKMUnit; //Folow this unit
       fTargetHouse:TKMHouse; //Go to this House
       fPass:TPassability; //Desired passability set once on Create
@@ -72,7 +72,7 @@ type
       ExplanationLog:TStringList;
     public
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
-      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse; aUseExactTarget:boolean=true);
+      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse; aUseExactTarget: boolean=true);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure  SyncLoad; override;
       destructor Destroy; override;
@@ -82,7 +82,7 @@ type
       property DoesWalking:boolean read fDoesWalking;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
       function  GetExplanation:string; override;
-      procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aUseExactTarget:boolean=true; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
+      procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True; aNewTargetUnit: TKMUnit = nil); //Modify route to go to this destination instead
 
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -101,10 +101,9 @@ constructor TUnitActionWalkTo.Create( aUnit: TKMUnit;
                                       aActionType:TUnitActionType;
                                       aDistance:single;
                                       aSetPushed:boolean;
-                                      aWalkToNear:boolean;
-                                      aTargetUnit:TKMUnit;
-                                      aTargetHouse:TKMHouse;
-                                      aUseExactTarget:boolean=true);
+                                      aTargetUnit: TKMUnit;
+                                      aTargetHouse: TKMHouse;
+                                      aUseExactTarget: boolean=true);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
@@ -118,19 +117,19 @@ begin
   //               aActionType Set in parent class
   fDistance     := aDistance;
   //               aSetPushed Dooesn't need to be rememberred
-  fWalkToNear   := aWalkToNear;
+
   if aTargetUnit  <> nil then fTargetUnit  := aTargetUnit.GetUnitPointer;
   if aTargetHouse <> nil then fTargetHouse := aTargetHouse.GetHousePointer;
-
 
   fWalkFrom     := fWalker.GetPosition;
   fNewWalkTo    := KMPoint(0,0);
   fPass         := fWalker.GetDesiredPassability;
+  fUseExactTarget := aUseExactTarget;
 
-  if fWalkToNear then
-    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass,aUseExactTarget)
+  if fUseExactTarget then
+    fWalkTo := aLocB
   else
-    fWalkTo     := aLocB;
+    fWalkTo := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass,aUseExactTarget);
 
 
   ExplanationLogCreate;
@@ -223,7 +222,7 @@ begin
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fNewWalkTo);
   LoadStream.Read(fDistance);
-  LoadStream.Read(fWalkToNear);
+  LoadStream.Read(fUseExactTarget);
   LoadStream.Read(fTargetUnit, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fTargetHouse, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fPass, SizeOf(fPass));
@@ -436,7 +435,7 @@ begin
     if ((fTargetHouse = nil) and fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance, false))
     or ((fTargetHouse <> nil) and fTerrain.Route_CanBeMadeToHouse(fWalker.GetPosition,fTargetHouse,GetEffectivePassability,fDistance, false)) then
     begin
-      fWalker.SetActionWalk(fWalkTo, fActionType, fDistance, fWalkToNear, fTargetUnit, fTargetHouse);
+      fWalker.SetActionWalk(fWalkTo, fActionType, fDistance, fTargetUnit, fTargetHouse);
       Result := oc_ReRouteMade;
     end else
       Result := oc_NoRoute;
@@ -831,7 +830,7 @@ end;
 
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aUseExactTarget:boolean=true; aNewTargetUnit:TKMUnit=nil);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True; aNewTargetUnit: TKMUnit = nil);
 begin
   if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     raise ELocError.Create('Invalid Change Walk To for '+fResource.UnitDat[fWalker.UnitType].UnitName,aLoc);
@@ -839,12 +838,14 @@ begin
   if fInteractionStatus = kis_Pushed then
     fInteractionStatus := kis_None; //We are no longer being pushed
 
-  fDistance := aDistance;
+  fDistance   := aDistance;
+  //fNewWalkTo  := aLoc;
+  fUseExactTarget := aUseExactTarget;
 
-  if aWalkToNear then
-    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass, aUseExactTarget)
+  if fUseExactTarget then
+    fNewWalkTo := aLoc
   else
-    fNewWalkTo := aLoc;
+    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass, fUseExactTarget);
 
   //Change target if we need to
   fPlayers.CleanUpHousePointer(fTargetHouse);
@@ -921,7 +922,7 @@ begin
       and (not fTargetUnit.IsDeadOrDying)
       and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
-      ChangeWalkTo(fTargetUnit.GetPosition,fDistance,false,true,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
+      ChangeWalkTo(fTargetUnit.GetPosition, fDistance, True, fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
       if (fWalker is TKMUnitWarrior) and TKMUnitWarrior(fWalker).IsCommander then
       begin
@@ -1067,7 +1068,7 @@ begin
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fNewWalkTo);
   SaveStream.Write(fDistance);
-  SaveStream.Write(fWalkToNear);
+  SaveStream.Write(fUseExactTarget);
   if fTargetUnit <> nil then
     SaveStream.Write(fTargetUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else

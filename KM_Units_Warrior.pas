@@ -16,7 +16,7 @@ type
     fTimeSinceHungryReminder:integer;
     fState:TWarriorState; //This property is individual to each unit, including commander
     fOrder:TWarriorOrder;
-    fUseExactTarget:boolean;
+    fUseExactTarget:boolean; //Do we try to reach exact position or is it e.g. unwalkable
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
@@ -329,7 +329,8 @@ begin
     ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc, GetPosition, CanWalk);
 
   //See if we are in position already or if we can't reach the position, (closest tile differs from target tile) because we don't retry for that case.
-  if (fState = ws_None) and (KMSamePoint(GetPosition,fOrderLoc.Loc) or (not fUseExactTarget) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
+  if (fState = ws_None)
+  and (KMSamePoint(GetPosition, fOrderLoc.Loc) or not fUseExactTarget or not KMSamePoint(ClosestTile, fOrderLoc.Loc)) then
     exit;
 
   //This means we are not in position, return false and move into position (unless we are currently walking)
@@ -783,6 +784,7 @@ begin
   for i:=1 to fMembers.Count do begin
     NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, aLoc.Dir,
                                   i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY, NewLocCanBeReached); //Allow off map positions so GetClosestTile works properly
+    NewLocCanBeReached := NewLocCanBeReached and fTerrain.TileIsWalkable(NewLoc);
     TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc,aLoc.Dir),false,NewLocCanBeReached)
   end;
 end;
@@ -1073,7 +1075,7 @@ begin
     begin
       if GetUnitTask <> nil then
         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fCommander <> nil, fUseExactTarget);
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fUseExactTarget);
       fOrder := wo_None;
       fState := ws_Walking;
     end
@@ -1105,7 +1107,7 @@ begin
       FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
     //todo: Do not WalkTo enemies location if we are archers, stay in place
-    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, fCommander <> nil, true, GetOrderTarget);
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, true, GetOrderTarget);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking;
   end;
