@@ -24,8 +24,8 @@ type
     procedure SetMapSize(X,Y:integer);
     procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word);
     procedure RevealEverything;
-    function CheckVerticeRevelation(const X,Y:word):byte;
-    function CheckTileRevelation(const X,Y:word):byte;
+    function CheckVerticeRevelation(const X,Y: Word):byte;
+    function CheckTileRevelation(const X,Y: Word):byte;
     procedure SyncFOW(aFOW: TKMFogOfWar);
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -47,13 +47,10 @@ end;
 
 
 procedure TKMFogOfWar.SetMapSize(X,Y:integer);
-var i:integer;
 begin
   MapX := X;
   MapY := Y;
-  SetLength(Revelation, Y+1);
-  for i:=1 to Y do
-    SetLength(Revelation[i], X+1);
+  SetLength(Revelation, Y+1, X+1);
 end;
 
 
@@ -83,7 +80,7 @@ end;
 {Check if requested vertice is revealed for given player}
 {Return value of revelation is 0..255}
 //0 unrevealed, 255 revealed completely
-function TKMFogOfWar.CheckVerticeRevelation(const X,Y:word):byte;
+function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word):byte;
 begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
@@ -103,7 +100,7 @@ end;
 {Check if requested tile is revealed for given player}
 {Return value of revelation is 0..255}
 //0 unrevealed, 255 revealed completely
-function TKMFogOfWar.CheckTileRevelation(const X,Y:word):byte;
+function TKMFogOfWar.CheckTileRevelation(const X,Y: Word):byte;
 begin
   //Check all four corners and choose max
   Result := CheckVerticeRevelation(X,Y);
@@ -125,7 +122,7 @@ begin
 end;
 
 
-procedure TKMFogOfWar.Save(SaveStream:TKMemoryStream);
+procedure TKMFogOfWar.Save(SaveStream: TKMemoryStream);
 var i,k:integer;
 begin
   SaveStream.Write('FOW');
@@ -138,7 +135,7 @@ begin
 end;
 
 
-procedure TKMFogOfWar.Load(LoadStream:TKMemoryStream);
+procedure TKMFogOfWar.Load(LoadStream: TKMemoryStream);
 var i,k:integer; s:string;
 begin
   LoadStream.Read(s);

@@ -73,7 +73,7 @@ procedure MailTo(Address,Subject,Body:string);
 procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
 
 const
-  eol:string=#13+#10; //EndOfLine
+  eol: AnsiString = #13#10; //EndOfLine
 
 
 implementation

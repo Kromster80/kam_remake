@@ -242,7 +242,7 @@ begin
             case fType of
               pt_Arrow,
               pt_SlingRock,
-              pt_Bolt:      if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
+              pt_Bolt:      if (U <> nil) and not U.IsDeadOrDying and U.Visible and not (U is TKMUnitAnimal) then
                             begin
                               Damage := 0;
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
@@ -251,22 +251,24 @@ begin
                               //Arrows are more likely to cause damage when the unit is closer
                               Damage := Round(Damage * 2 * (1-Math.min(GetLength(U.PositionF,fTarget),1)));
                               Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].Defence, 1); //Not needed, but animals have 0 defence
-                              if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
-                                if (Damage >= KaMRandom(101)) then
-                                  if U.HitPointsDecrease(1) then
-                                    fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+                              if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy))
+                              and (Damage >= KaMRandom(101))
+                              and U.HitPointsDecrease(1) then
+                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
                             end
                             else
                             begin
-                              H := fPlayers.HousesHitTest(round(fTarget.X), round(fTarget.Y));
-                              if (H <> nil) and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.GetOwner)= at_Enemy)) then
-                                if H.AddDamage(1) then //House was destroyed
-                                  fPlayers.Player[fOwner].Stats.HouseDestroyed(H.HouseType);
+                              H := fPlayers.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
+                              if (H <> nil)
+                              and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.GetOwner)= at_Enemy))
+                              and H.AddDamage(1) then //House was destroyed
+                                fPlayers.Player[fOwner].Stats.HouseDestroyed(H.HouseType);
                             end;
-              pt_TowerRock: if (U <> nil)and(not U.IsDeadOrDying)and(U.Visible)and(not (U is TKMUnitAnimal)) then
-                              if FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy) then
-                                if U.HitPointsDecrease(U.GetMaxHitPoints) then //Instant death
-                                  fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
+              pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
+                            and not (U is TKMUnitAnimal)
+                            and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy))
+                            and U.HitPointsDecrease(U.GetMaxHitPoints) then //Instant death
+                              fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
             end;
           end;
           RemItem(i);
@@ -301,28 +303,26 @@ begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       MixValueMax := fItems[i].fPosition / fItems[i].fMaxLength; // 0 >> 1
+      P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
       case fItems[i].fType of
         pt_Arrow, pt_SlingRock, pt_Bolt:
-        begin
-          MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
-          P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
-          P1.Y := P1.Y - fItems[i].fArc * MixArc;
-          P1.Y := P1.Y - 0.4; //Looks better moved up, launches from the bow not feet and lands in target's body
-          P2.X := P1.X+3; P2.Y := P2.Y+1;
-          Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
-          fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValueMax, Dir);
-        end;
+          begin
+            MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
+            //Looks better moved up, launches from the bow not feet and lands in target's body
+            P1.Y := P1.Y - fItems[i].fArc * MixArc - 0.4;
+            P2.X := P1.X+3; P2.Y := P2.Y+1;
+            Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
+            fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValueMax, Dir);
+          end;
 
         pt_TowerRock:
-        begin
-          MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
-          P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
-          P1.Y := P1.Y - fItems[i].fArc * MixArc;
-          P1.Y := P1.Y - 0.4; //Looks better moved up, lands on the target's body not at his feet
-          P2.X := 0; P2.Y := 0;
-          fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, dir_N); //Direction will be ignored
-        end;
-        else
+          begin
+            MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
+            //Looks better moved up, lands on the target's body not at his feet
+            P1.Y := P1.Y - fItems[i].fArc * MixArc - 0.4;
+            P2.X := 0; P2.Y := 0;
+            fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, dir_N); //Direction will be ignored
+          end;
       end;
 
       if SHOW_PROJECTILES then begin

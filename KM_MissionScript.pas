@@ -48,7 +48,7 @@ type
                          cpt_TroopAmount,cpt_Target,cpt_Position,cpt_TakeAll);
 
 const
-  COMMANDVALUES: array[TKMCommandType] of shortstring = (
+  COMMANDVALUES: array[TKMCommandType] of AnsiString = (
     '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
     'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
     'CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
@@ -59,7 +59,7 @@ const
     'SET_AI_NO_BUILD','SET_AI_START_POSITION','SET_AI_DEFENSE','SET_AI_ATTACK',
     'COPY_AI_ATTACK');
 
-  PARAMVALUES: array[TKMCommandParamType] of shortstring = (
+  PARAMVALUES: array[TKMCommandParamType] of AnsiString = (
     '','RECRUTS','CONSTRUCTORS','WORKER_FACTOR','RECRUT_COUNT','TOWN_DEFENSE',
     'MAX_SOLDIER','ATTACK_FACTOR','TROUP_PARAM','TYPE','TOTAL_AMOUNT','COUNTER','RANGE',
     'TROUP_AMOUNT','TARGET','POSITION','TAKEALL');
@@ -135,21 +135,21 @@ type
     function LoadStandard(const aFileName:string):boolean;
     function LoadMapInfo(const aFileName:string):boolean;
 
-    function TextToCommandType(const ACommandText: shortstring): TKMCommandType;
-    function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam:shortstring):boolean;
-    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
+    function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
+    function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
+    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
     procedure AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
     procedure ProcessAttackPositions;
-    function ReadMissionFile(const aFileName:string):string;
+    function ReadMissionFile(const aFileName:string): AnsiString;
   public
     constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
     constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
-    function LoadMission(const aFileName:string):boolean;
+    function LoadMission(const aFileName: string):boolean;
 
     property ErrorMessage:string read fErrorMessage;
     property MissionInfo:TKMMissionInfo read fMissionInfo;
 
-    function SaveDATFile(const aFileName:string):boolean;
+    function SaveDATFile(const aFileName: string):boolean;
   end;
 
 
@@ -186,7 +186,6 @@ begin
 
   for i:=0 to High(fRemap) do
     inc(fRemapCount);
-
 end;
 
 
@@ -218,25 +217,25 @@ begin
 end;
 
 
-function TMissionParser.TextToCommandType(const ACommandText: shortstring): TKMCommandType;
+function TMissionParser.TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
 var
   i: TKMCommandType;
 begin
   Result := ct_Unknown;
   for i:=low(TKMCommandType) to high(TKMCommandType) do
   begin
-    if ACommandText = '!'+COMMANDVALUES[i] then
+    if ACommandText = '!' + COMMANDVALUES[i] then
     begin
       Result := i;
       break;
     end;
   end;
-  if Result = ct_Unknown then fLog.AddToLog(ACommandText);
+  if Result = ct_Unknown then fLog.AddToLog(String(ACommandText));
 end;
 
 
 //Read mission file to a string and if necessary - decode it
-function TMissionParser.ReadMissionFile(const aFileName:string):string;
+function TMissionParser.ReadMissionFile(const aFileName: string): AnsiString;
 var
   i,Num:cardinal;
   F:TMemoryStream;
@@ -297,9 +296,9 @@ const
   Max_Cmd=2;
 var
   FileText: AnsiString;
-  CommandText, Param, TextParam: shortstring;
+  CommandText, Param, TextParam: AnsiString;
   ParamList: array[1..Max_Cmd] of integer;
-  k, l: integer;
+  k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
   Result := false;
@@ -339,12 +338,16 @@ begin
           begin
             Param := '';
             repeat
-              Param:=Param+FileText[k];
+              Param := Param + FileText[k];
               inc(k);
-            until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
+            until((k >= Length(FileText)) or (FileText[k]='!') or (FileText[k]=#32)); //Until we find another ! OR we run out of data
+
             //Convert to an integer, if possible
-            if StrToIntDef(Param,-999) <> -999 then ParamList[l] := StrToInt(Param)
-            else if l=1 then TextParam:=Param; //Accept text for first parameter
+            if TryStrToInt(String(Param), IntParam) then
+              ParamList[l] := IntParam
+            else
+              if l = 1 then
+                TextParam := Param; //Accept text for first parameter
 
             if FileText[k]=#32 then inc(k);
           end;
@@ -364,11 +367,11 @@ begin
 end;
 
 
-procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:shortstring);
+procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
 begin
   with fMissionInfo do
   case CommandType of
-    ct_SetMap:         MapPath       := RemoveQuotes(TextParam);
+    ct_SetMap:         MapPath       := RemoveQuotes(String(TextParam));
     ct_SetMaxPlayer:   PlayerCount   := ParamList[0];
     ct_SetTactic:      MissionMode   := mm_Tactic;
     ct_SetHumanPlayer: HumanPlayerID := ParamList[0];
@@ -420,7 +423,7 @@ function TMissionParser.LoadStandard(const aFileName:string):boolean;
 var
   FileText, CommandText, Param, TextParam: AnsiString;
   ParamList: array[1..8] of integer;
-  k, l: integer;
+  k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
   Result := false; //Set it right from the start
@@ -461,8 +464,11 @@ begin
           until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
 
           //Convert to an integer, if possible
-          if StrToIntDef(Param,-999) <> -999 then ParamList[l] := StrToInt(Param)
-          else if l=1 then TextParam:=Param; //Accept text for first parameter
+          if TryStrToInt(String(Param), IntParam) then
+            ParamList[l] := IntParam
+          else
+            if l = 1 then
+              TextParam := Param; //Accept text for first parameter
 
           if (k<=length(FileText)) and (FileText[k]=#32) then inc(k);
         end;
@@ -492,7 +498,7 @@ begin
 end;
 
 
-function TMissionParser.ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam:shortString):boolean;
+function TMissionParser.ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
 var
   MapFileName: string;
   i: integer;
@@ -505,7 +511,7 @@ begin
 
   case CommandType of
     ct_SetMap:         begin
-                         MapFileName := RemoveQuotes(TextParam);
+                         MapFileName := RemoveQuotes(String(TextParam));
                          //Check for same filename.map in same folder first - Remake format
                          if CheckFileExists(ChangeFileExt(fMissionFileName,'.map'),true) then
                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'))
@@ -827,9 +833,9 @@ var
   H: TKMHouse;
   HT: THouseType;
   ReleaseAllHouses: boolean;
-  SaveString: string;
+  SaveString: AnsiString;
 
-  procedure AddData(aText:shortstring);
+  procedure AddData(aText: AnsiString);
   begin
     if CommandLayerCount = -1 then //No layering
       SaveString := SaveString + aText + eol //Add to the string normally
@@ -844,7 +850,7 @@ var
   end;
 
   procedure AddCommand(aCommand:TKMCommandType; aComParam:TKMCommandParamType; aParams:array of integer); overload;
-  var OutData: string; i:integer;
+  var OutData: AnsiString; i:integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand];
 
@@ -852,7 +858,7 @@ var
       OutData := OutData + ' ' + PARAMVALUES[aComParam];
 
     for i:=Low(aParams) to High(aParams) do
-      OutData := OutData + ' ' + IntToStr(aParams[i]);
+      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[i]));
 
     AddData(OutData);
   end;
@@ -869,7 +875,7 @@ begin
   CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
 
   //Main header, use same filename for MAP
-  AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + ExtractFileName(TruncateExt(aFileName)) + '.map"');
+  AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + AnsiString(ExtractFileName(TruncateExt(aFileName))) + '.map"');
   AddCommand(ct_SetMaxPlayer, [fPlayers.Count]);
   AddData(''); //NL
 
@@ -1084,7 +1090,7 @@ begin
   AddData(''); //NL
 
   //Similar footer to one in Lewin's Editor, useful so ppl know what mission was made with.
-  AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+ShortString(DateTimeToStr(Now)));
+  AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+AnsiString(DateTimeToStr(Now)));
 
   //Write uncoded file for debug
   assignfile(f, aFileName+'.txt'); rewrite(f);
@@ -1092,8 +1098,9 @@ begin
   closefile(f);
 
   //Encode it
-  for i:=1 to length(SaveString) do
-    SaveString[i]:=chr(byte(SaveString[i]) xor 239);
+  for i:=1 to Length(SaveString) do
+    SaveString[i] := AnsiChar(Byte(SaveString[i]) xor 239);
+
   //Write it
   assignfile(f, aFileName); rewrite(f);
   write(f, SaveString);
@@ -1104,5 +1111,3 @@ end;
 
 
 end.
-
-
