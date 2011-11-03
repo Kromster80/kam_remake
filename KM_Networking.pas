@@ -114,6 +114,7 @@ type
 
     //Common
     procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
+    procedure PostLocalMessage(aText:string);
     procedure SendMPGameInfo(aGameTime:TDateTime; aMap:string);
 
     //Gameplay
@@ -240,8 +241,7 @@ end;
 //Connection was successful, but we still need mk_IndexOnServer to be able to do anything
 procedure TKMNetworking.ConnectSucceed(Sender:TObject);
 begin
-  if Assigned(fOnTextMessage) then
-    fOnTextMessage('Connection successful');
+  PostLocalMessage('Connection successful');
 end;
 
 
@@ -533,7 +533,7 @@ function TKMNetworking.ReadyToStart:boolean;
 begin
   if (fSelectGameKind = ngk_Save) and (fNetPlayers[fMyIndex].StartLocation = 0) then
   begin
-    if Assigned(fOnTextMessage) then fOnTextMessage(fTextLibrary[TX_LOBBY_ERROR_SELECT_PLAYER]);
+    PostLocalMessage(fTextLibrary[TX_LOBBY_ERROR_SELECT_PLAYER]);
     Result := false;
     Exit;
   end;
@@ -547,7 +547,7 @@ begin
   end
   else
   begin
-    if Assigned(fOnTextMessage) then fOnTextMessage(fTextLibrary[TX_LOBBY_ERROR_NO_MAP]);
+    PostLocalMessage(fTextLibrary[TX_LOBBY_ERROR_NO_MAP]);
     Result := false;
   end;
 end;
@@ -584,7 +584,7 @@ begin
 
   if not fNetPlayers.ValidateSetup(PlayerCount, ErrorMessage) then
   begin
-    fOnTextMessage(Format(fTextLibrary[TX_LOBBY_CANNOT_START], [ErrorMessage]));
+    PostLocalMessage(Format(fTextLibrary[TX_LOBBY_CANNOT_START], [ErrorMessage]));
     Exit;
   end;
 
@@ -650,6 +650,12 @@ begin
 end;
 
 
+procedure TKMNetworking.PostLocalMessage(aText:string);
+begin
+  if Assigned(fOnTextMessage) then fOnTextMessage(aText);
+end;
+
+
 //Send our commands to either to all players, or to specified one
 procedure TKMNetworking.SendCommands(aStream:TKMemoryStream; aPlayerIndex:TPlayerIndex=-1);
 var i:integer;
@@ -710,8 +716,8 @@ begin
   if not (Kind in NetAllowedPackets[fNetGameState]) then
   begin
     //When querying a host we may receive data such as commands, player setup, etc. These should be ignored.
-    if (fNetGameState <> lgs_Query) and Assigned(fOnTextMessage) then
-      fOnTextMessage('Error: Received a packet not intended for this state');
+    if fNetGameState <> lgs_Query then
+      PostLocalMessage('Error: Received a packet not intended for this state');
     Exit;
   end;
 
@@ -734,13 +740,13 @@ begin
             begin
               fNetPlayerKind := lpk_Host;
               if Assigned(fOnJoinAssignedHost) then fOnJoinAssignedHost(Self); //Enter the lobby if we had hosting rights assigned to us
-              if Assigned(fOnTextMessage) then fOnTextMessage(fTextLibrary[TX_LOBBY_HOST_RIGHTS]);
+              PostLocalMessage(fTextLibrary[TX_LOBBY_HOST_RIGHTS]);
             end;
 
     mk_IndexOnServer:
             begin
               fMyIndexOnServer := Param;
-              if Assigned(fOnTextMessage) then fOnTextMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
+              PostLocalMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
               //Now join the room we planned to
               PacketSend(NET_ADDRESS_SERVER, mk_JoinRoom, '', fRoomToJoin);
             end;
@@ -756,7 +762,7 @@ begin
                       fNetPlayers[fMyIndex].ReadyToStart := true;
                       if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                       SetGameState(lgs_Lobby);
-                      if Assigned(fOnTextMessage) and (fWelcomeMessage <> '') then fOnTextMessage(fWelcomeMessage);
+                      if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage);
                     end;
                 lpk_Joiner:
                 begin
@@ -791,7 +797,7 @@ begin
             begin
               fOnJoinSucc(Self); //Enter lobby
               SetGameState(lgs_Lobby);
-              if Assigned(fOnTextMessage) and (fWelcomeMessage <> '') then fOnTextMessage(fWelcomeMessage);
+              if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage);
             end;
 
     mk_RefuseToJoin:
@@ -836,7 +842,7 @@ begin
                 lpk_Joiner:
                     begin
                       if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      if Assigned(fOnTextMessage) then fOnTextMessage('The host has disconnected');
+                      PostLocalMessage('The host has disconnected');
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.KillPlayer(aSenderIndex)
                       else
@@ -1017,8 +1023,7 @@ begin
             if Assigned(fOnCommands) then fOnCommands(Msg);
 
     mk_Text:
-            if Assigned(fOnTextMessage) then
-              fOnTextMessage(Msg);
+            PostLocalMessage(Msg);
   end;
 end;
 

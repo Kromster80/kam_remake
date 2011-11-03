@@ -1,5 +1,5 @@
 
-MaxID:162
+MaxID:163
 
 1:Mission canceled
 2:Town Tutorial
@@ -33,7 +33,7 @@ MaxID:162
 29:Apply
 30:Language:
 31:Loading... Please wait
-32:An Error Has Occured!
+32:An Error Has Occurred!
 33:Loading new locale
 34:List of savegames
 35:File name
@@ -65,7 +65,7 @@ MaxID:162
 59:Save
 60:Load
 
-61:An error has occoured during gameplay.
+61:An error has occurred during gameplay.
 62:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
 63:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
 64:Network error:
@@ -162,6 +162,7 @@ MaxID:162
 160:Server has assigned hosting rights to us
 
 131:Waiting for players:
+163:Saving game...
 
 132:KaM Remake Credits
 133:Original Knights & Merchants Credits

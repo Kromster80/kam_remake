@@ -157,7 +157,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Terrain;
+uses KM_Game, KM_Terrain, KM_TextLibrary;
 
 
 procedure SaveCommandToMemoryStream(aCommand:TGameInputCommand; aMemoryStream: TKMemoryStream);
@@ -303,7 +303,13 @@ begin
       gic_TempDoNothing:          ;
 
       gic_GamePause:              ;//if fReplayState = gipRecording then fGame.fGamePlayInterface.SetPause(boolean(Params[1]));
-      gic_GameSave:               if fReplayState = gipRecording then fGame.Save(TextParam);
+      gic_GameSave:               if fReplayState = gipRecording then
+                                  begin
+                                    fGame.Save(TextParam);
+                                    if fGame.MultiplayerMode then
+                                      //Tell the player we have saved the game
+                                      fGame.Networking.PostLocalMessage(fTextLibrary[TX_MULTIPLAYER_SAVING_GAME]);
+                                  end;
       gic_GameTeamChange:         begin
                                     fGame.Networking.NetPlayers[Params[1]].Team := Params[2];
                                     fPlayers.UpdateMultiplayerTeams;

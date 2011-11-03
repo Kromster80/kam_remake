@@ -64,6 +64,7 @@ var
   A,B,C,D:single;
   TimeToHit, Time1, Time2, DistanceToHit, DistanceInRange: single;
   Jitter, Speed:single;
+  U:TKMUnit;
 begin
   //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
 
@@ -137,6 +138,11 @@ begin
     DistanceInRange := EnsureRange(DistanceToHit, aMinRange, aMaxRange);
     Target.X := aStart.X + Target.X / DistanceToHit * DistanceInRange;
     Target.Y := aStart.Y + Target.Y / DistanceToHit * DistanceInRange;
+
+    //Check whether this predicted target will hit one of our own warriors
+    U := fTerrain.UnitsHitTest(KMPointRound(Target).X, KMPointRound(Target).Y);
+    if (U <> nil) and (U.GetOwner = aOwner) then
+      Target := aTarget.PositionF; //Shoot at the target's current position instead
 
     Result := AddItem(aStart, aTarget.PositionF, Target, Speed, aProjType, aOwner);
   end else

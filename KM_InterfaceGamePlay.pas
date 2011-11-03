@@ -435,11 +435,8 @@ procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
   LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
   if fGame.MultiplayerMode then
-  begin
-    //Tell everyone we are saving a game
-    fGame.Networking.PostMessage('Saving game...');
-    fGame.GameInputProcess.CmdGame(gic_GameSave, Edit_Save.Text);
-  end
+    //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
+    fGame.GameInputProcess.CmdGame(gic_GameSave, Edit_Save.Text)
   else
     fGame.Save(Edit_Save.Text);
 
