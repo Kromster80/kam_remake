@@ -28,7 +28,7 @@ const
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
   SERVER_PROTOCOL_REVISON = 'r2475';     //Clients of this version may connect to the dedicated server
-  GAME_REVISION         = 'r2475';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2502';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
@@ -92,7 +92,7 @@ var
   MULTIPLAYER_CHEATS    :boolean=false; //Allow cheats in Multiplayer, useful for debug
   DEBUG_CHEATS          :boolean=false; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   {Data output}
-  WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file
+  WRITE_DECODED_MISSION :boolean=true; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :boolean=false; //Write even more output into log + slows down game noticably
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading

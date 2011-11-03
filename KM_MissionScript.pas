@@ -40,7 +40,7 @@ type
                     ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_Set_Winefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
-                    ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
+                    ct_AttackPosition,ct_AddWareToSecond,ct_AddWareTo,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
                     ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
 
   TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
@@ -55,8 +55,9 @@ const
     'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
     'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
-    'ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER','SET_AI_NO_BUILD','SET_AI_START_POSITION',
-    'SET_AI_DEFENSE','SET_AI_ATTACK','COPY_AI_ATTACK');
+    'ADD_WARE_TO','ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER',
+    'SET_AI_NO_BUILD','SET_AI_START_POSITION','SET_AI_DEFENSE','SET_AI_ATTACK',
+    'COPY_AI_ATTACK');
 
   PARAMVALUES: array[TKMCommandParamType] of shortstring = (
     '','RECRUTS','CONSTRUCTORS','WORKER_FACTOR','RECRUT_COUNT','TOWN_DEFENSE',
@@ -496,9 +497,8 @@ var
   MapFileName: string;
   i: integer;
   Qty:integer;
-  SH: TKMHouseStore;
+  H: TKMHouse;
   HT: THouseType;
-  B: TKMHouseBarracks;
   iPlayerAI: TKMPlayerAI;
 begin
   Result := false; //Set it right from the start. There are several Exit points below
@@ -580,9 +580,9 @@ begin
     ct_SetUnitByStock:  if fLastPlayer >=0 then
                           if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then
                           begin
-                            SH := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1));
-                            if SH<>nil then
-                              fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]],KMPoint(SH.GetEntrance.X, SH.GetEntrance.Y+1));
+                            H := fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 1);
+                            if H <> nil then
+                              fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
                           end;
     ct_SetRoad:         if fLastPlayer >=0 then
                           fPlayers.Player[fLastPlayer].AddRoadsToList(KMPoint(P[0]+1,P[1]+1));
@@ -599,41 +599,47 @@ begin
                         end;
     ct_AddWare:         if fLastPlayer >=0 then
                         begin
-                          Qty := P[1];
+                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
-                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
-                          SH := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1));
-                          if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
-                            SH.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                          H := fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1);
+                          if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_AddWareToAll:    begin
-                          Qty := P[1];
+                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
-                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
                           for i:=0 to fPlayers.Count-1 do
                           begin
-                            SH := TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
-                            if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
-                              SH.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                            H := fPlayers.Player[i].FindHouse(ht_Store,1);
+                            if (H<>nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                              H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                           end;
                         end;
     ct_AddWareToSecond: if fLastPlayer >=0 then
                         begin
-                          Qty := P[1];
+                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
-                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
-                          SH:=TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 2));
-                          if (SH<>nil) and (InRange(P[0], 0, RES_COUNT-1)) then
-                            SH.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+
+                          H := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 2));
+                          if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
+                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                        end;
+    ct_AddWareTo:       if fLastPlayer >=0 then
+                        begin //HouseType, House Order, Ware Type, Count
+                          Qty := EnsureRange(P[3], -1, High(Word)); //Sometimes user can define it to be 999999
+                          if Qty = -1 then Qty := High(Word); //-1 means maximum resources
+
+                          H := fPlayers.Player[fLastPlayer].FindHouse(HouseKaMType[P[0]], P[1]);
+                          if (H <> nil) and (ResourceKaMIndex[P[2]] in [WARE_MIN..WARE_MAX]) then
+                            H.ResAddToIn(ResourceKaMIndex[P[2]], Qty);
                         end;
     ct_AddWeapon:       if fLastPlayer >=0 then
                         begin
-                          Qty := P[1];
+                          Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
-                          Qty := EnsureRange(Qty, 0, High(Word)); //Sometimes user can define it to be 999999
-                          B := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks, 1));
-                          if (B<>nil) and (ResourceKaMIndex[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
-                            B.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                          H := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks, 1));
+                          if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
+                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
                         end;
     ct_BlockHouse:      if fLastPlayer >=0 then
                         begin
@@ -813,12 +819,13 @@ const
 var
   f:textfile;
   i: longint; //longint because it is used for encoding entire output, which will limit the file size
-  k,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
-  Res:TResourceType;
+  k,iX,iY,CommandLayerCount: Integer;
+  HouseCount: array[THouseType] of Integer;
+  Res: TResourceType;
   G: TGroupType;
-  CurUnit: TKMUnit;
-  CurHouse: TKMHouse;
-  H:THouseType;
+  U: TKMUnit;
+  H: TKMHouse;
+  HT: THouseType;
   ReleaseAllHouses: boolean;
   SaveString: string;
 
@@ -961,17 +968,17 @@ begin
 
     //Release/block houses
     ReleaseAllHouses := true;
-    for H:=Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[H].IsValid then //Exclude ht_None / ht_Any
+    for HT := Low(THouseType) to High(THouseType) do
+    if fResource.HouseDat[HT].IsValid then //Exclude ht_None / ht_Any
     begin
-      if not fPlayers.Player[i].Stats.AllowToBuild[H] then
+      if not fPlayers.Player[i].Stats.AllowToBuild[HT] then
       begin
-        AddCommand(ct_BlockHouse, [HouseKaMOrder[H]-1]);
+        AddCommand(ct_BlockHouse, [HouseKaMOrder[HT]-1]);
         ReleaseAllHouses := false;
       end
       else
-        if fPlayers.Player[i].Stats.HouseReleased[H] then
-          AddCommand(ct_ReleaseHouse, [HouseKaMOrder[H]-1])
+        if fPlayers.Player[i].Stats.HouseReleased[HT] then
+          AddCommand(ct_ReleaseHouse, [HouseKaMOrder[HT]-1])
         else
           ReleaseAllHouses := false;
     end;
@@ -981,44 +988,48 @@ begin
     //Houses
     for k:=0 to fPlayers.Player[i].Houses.Count-1 do
     begin
-      CurHouse := TKMHouse(fPlayers.Player[i].Houses.Items[k]);
-      if not CurHouse.IsDestroyed then
+      H := fPlayers.Player[i].Houses[k];
+      if not H.IsDestroyed then
       begin
-        AddCommand(ct_SetHouse, [HouseKaMOrder[CurHouse.HouseType]-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1]);
-        if CurHouse.IsDamaged then
-          AddCommand(ct_SetHouseDamage, [CurHouse.GetDamage]);
+        AddCommand(ct_SetHouse, [HouseKaMOrder[H.HouseType]-1, H.GetPosition.X-1, H.GetPosition.Y-1]);
+        if H.IsDamaged then
+          AddCommand(ct_SetHouseDamage, [H.GetDamage]);
       end;
     end;
     AddData(''); //NL
 
-    //Wares. Check every house to see if it's a store or barracks
-    StoreCount := 0;
-    BarracksCount := 0;
+    //Wares. Check every house to see if it has any wares in it
+    FillChar(HouseCount, SizeOf(HouseCount), #0);
     for k:=0 to fPlayers.Player[i].Houses.Count-1 do
     begin
-      CurHouse := TKMHouse(fPlayers.Player[i].Houses.Items[k]);
-      if not CurHouse.IsDestroyed then
+      H := fPlayers.Player[i].Houses[k];
+      inc(HouseCount[H.HouseType]);
+
+      if H.IsDestroyed then Continue;
+
+      //First two Stores use special KaM commands
+      if (H.HouseType = ht_Store) and (HouseCount[ht_Store] <= 2) then
       begin
-        if CurHouse is TKMHouseStore then
-        begin
-          inc(StoreCount);
-          if StoreCount <= 2 then //For now only handle 2 storehouses, we can add a new command later
-            for Res:=WARE_MIN to WARE_MAX do
-              if TKMHouseStore(CurHouse).CheckResIn(Res) > 0 then
-                if StoreCount = 1 then
-                  AddCommand(ct_AddWare, [ResourceKaMOrder[Res],TKMHouseStore(CurHouse).CheckResIn(Res)]) //Ware, Count
-                else
-                  AddCommand(ct_AddWareToSecond, [ResourceKaMOrder[Res],TKMHouseStore(CurHouse).CheckResIn(Res)]); //Ware, Count
-        end;
-        if CurHouse is TKMHouseBarracks then
-        begin
-          inc(BarracksCount);
-          if BarracksCount <= 1 then //For now only handle 1 barracks, we can add a new command later
-            for Res:=WARFARE_MIN to WARFARE_MAX do
-              if TKMHouseBarracks(CurHouse).CheckResIn(Res) > 0 then
-                AddCommand(ct_AddWeapon, [ResourceKaMOrder[Res],TKMHouseBarracks(CurHouse).CheckResIn(Res)]); //Ware, Count
-        end;
-      end;
+        for Res := WARE_MIN to WARE_MAX do
+          if H.CheckResIn(Res) > 0 then
+            case HouseCount[ht_Store] of
+              1:  AddCommand(ct_AddWare, [ResourceKaMOrder[Res], H.CheckResIn(Res)]);
+              2:  AddCommand(ct_AddWareToSecond, [ResourceKaMOrder[Res], H.CheckResIn(Res)]);
+            end;
+      end
+      else
+      //First Barracks uses special KaM command
+      if (H.HouseType = ht_Barracks) and (HouseCount[ht_Barracks] <= 1) then
+      begin
+        for Res := WARFARE_MIN to WARFARE_MAX do
+          if H.CheckResIn(Res) > 0 then
+            AddCommand(ct_AddWeapon, [ResourceKaMOrder[Res], H.CheckResIn(Res)]); //Ware, Count
+      end
+      else
+        for Res := WARE_MIN to WARE_MAX do
+          if H.CheckResIn(Res) > 0 then
+            AddCommand(ct_AddWareTo, [HouseKaMOrder[H.HouseType]-1, HouseCount[H.HouseType], ResourceKaMOrder[Res], H.CheckResIn(Res)]);
+
     end;
     AddData(''); //NL
 
@@ -1043,18 +1054,18 @@ begin
     //Units
     for k:=0 to fPlayers.Player[i].Units.Count-1 do
     begin
-      CurUnit := TKMUnit(fPlayers.Player[i].Units.Items[k]);
-      if CurUnit is TKMUnitWarrior then
+      U := fPlayers.Player[i].Units[k];
+      if U is TKMUnitWarrior then
       begin
-        if TKMUnitWarrior(CurUnit).IsCommander then //Parse only Commanders
+        if TKMUnitWarrior(U).IsCommander then //Parse only Commanders
         begin
-          AddCommand(ct_SetGroup, [TroopsReverseRemap[CurUnit.UnitType],CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1]);
-          if CurUnit.Condition = UNIT_MAX_CONDITION then
+          AddCommand(ct_SetGroup, [TroopsReverseRemap[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1, Byte(U.Direction)-1, TKMUnitWarrior(U).UnitsPerRow, TKMUnitWarrior(U).fMapEdMembersCount+1]);
+          if U.Condition = UNIT_MAX_CONDITION then
             AddCommand(ct_SetGroupFood, []);
         end;
       end
       else
-        AddCommand(ct_SetUnit, [UnitReverseRemap[CurUnit.UnitType],CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1]);
+        AddCommand(ct_SetUnit, [UnitReverseRemap[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
     end;
 
     AddData(''); //NL
@@ -1067,8 +1078,8 @@ begin
   AddData('//Animals');
   for i:=0 to fPlayers.PlayerAnimals.Units.Count-1 do
   begin
-    CurUnit := fPlayers.PlayerAnimals.Units.Items[i];
-    AddCommand(ct_SetUnit, [UnitReverseRemap[CurUnit.UnitType],CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1]);
+    U := fPlayers.PlayerAnimals.Units[i];
+    AddCommand(ct_SetUnit, [UnitReverseRemap[U.UnitType], U.GetPosition.X-1, U.GetPosition.Y-1]);
   end;
   AddData(''); //NL
 

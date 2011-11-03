@@ -248,7 +248,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
-    function CheckResIn(aResource:TResourceType):word; override;
+    function CheckResIn(aResource: TResourceType): Word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -256,7 +256,7 @@ type
 
   TKMHouseTower = class(TKMHouse)
   public
-    procedure Paint; override;
+    procedure Paint; override; //Render debug radius overlay
   end;
 
 
@@ -758,7 +758,7 @@ end;
 
 
 {How much resources house has in Input}
-function TKMHouse.CheckResIn(aResource:TResourceType):word;
+function TKMHouse.CheckResIn(aResource: TResourceType): Word;
 var i:integer;
 begin
   Result := 0;
@@ -769,7 +769,7 @@ end;
 
 
 {How much resources house has in Output}
-function TKMHouse.CheckResOut(aResource:TResourceType):byte;
+function TKMHouse.CheckResOut(aResource: TResourceType): Byte;
 var i:integer;
 begin
   Result := 0;
@@ -1674,7 +1674,7 @@ begin
 end;
 
 
-function TKMHouseStore.CheckResIn(aResource:TResourceType):word;
+function TKMHouseStore.CheckResIn(aResource: TResourceType): Word;
 begin
   if aResource in [WARE_MIN..WARE_MAX] then
     Result := ResourceCount[aResource]
