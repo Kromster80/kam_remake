@@ -1,5 +1,5 @@
 
-MaxID:160
+MaxID:162
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -84,6 +84,8 @@ MaxID:160
 73:Använd höger musknapp för att välja en vara att handla med
 74:Från x%d
 75:Till x%d
+162:
+161:
 
 76:Terrängeditering
 77:Byplanering

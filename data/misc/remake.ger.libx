@@ -1,5 +1,5 @@
 
-MaxID:160
+MaxID:162
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -84,6 +84,8 @@ MaxID:160
 73:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll
 74:Von x%d
 75:Zu x%d
+162:
+161:
 
 76:Terrain bearbeiten
 77:Häuser bearbeiten

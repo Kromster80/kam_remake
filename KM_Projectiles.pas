@@ -29,7 +29,7 @@ type
     function ProjectileVisible(aIndex:integer):boolean;
   public
     constructor Create;
-    function AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word; overload;
+    function AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex; aMaxRange,aMinRange:single):word; overload;
     function AimTarget(aStart:TKMPointF; aTarget:TKMHouse; aProjType:TProjectileType; aOwner:TPlayerIndex):word; overload;
 
     procedure UpdateState;
@@ -58,11 +58,11 @@ begin
 end;
 
 
-function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
+function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:TProjectileType; aOwner:TPlayerIndex; aMaxRange,aMinRange:single):word;
 var
   TargetVector,Target,TargetPosition:TKMPointF;
   A,B,C,D:single;
-  TimeToHit, Time1, Time2: single;
+  TimeToHit, Time1, Time2, Distance: single;
   Jitter, Speed:single;
 begin
   //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
@@ -126,9 +126,17 @@ begin
   begin
     Jitter := GetLength(aStart, aTarget.PositionF) * ProjectileJitter[aProjType]
             + GetLength(KMPointF(0,0),TargetVector) * ProjectilePredictJitter[aProjType];
+    //Set the target relative to the 0;0 (as the start position)
+    Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);
+    Target.Y := TargetPosition.Y + TargetVector.Y*TimeToHit + KaMRandomS(Jitter);
+    //Force the target position to be within our max/min range
+    Distance := sqrt(sqr(Target.X) + sqr(Target.Y));
+    Target.X := sign(Target.X)*EnsureRange(abs(Target.X), aMinRange*(abs(Target.X)/Distance), aMaxRange*(abs(Target.X)/Distance));
+    Target.Y := sign(Target.Y)*EnsureRange(abs(Target.Y), aMinRange*(abs(Target.Y)/Distance), aMaxRange*(abs(Target.Y)/Distance));
+    //Now add the start position
+    Target.X := aStart.X + Target.X;
+    Target.Y := aStart.Y + Target.Y;
 
-    Target.X := aTarget.PositionF.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);
-    Target.Y := aTarget.PositionF.Y + TargetVector.Y*TimeToHit + KaMRandomS(Jitter);
     Result := AddItem(aStart, aTarget.PositionF, Target, Speed, aProjType, aOwner);
   end else
     Result := 0;

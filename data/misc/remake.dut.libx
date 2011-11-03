@@ -1,5 +1,5 @@
 
-MaxID:160
+MaxID:162
 
 1:Missie geannuleerd 
 2:Stad tutorial
@@ -84,6 +84,8 @@ MaxID:160
 73:Gebruik de rechtermuisknop om de goederen te selecteren
 74:Van x%d
 75:Naar x%d
+162:
+161:
 
 76:Terrein wijzigigen
 77:Stad planning

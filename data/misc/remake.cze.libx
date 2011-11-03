@@ -1,5 +1,5 @@
 
-MaxID:160
+MaxID:162
 
 1:Mise zrušena
 2:Výuka stavby
@@ -84,6 +84,8 @@ MaxID:160
 73:Použijte pravé tlaèítko myši k výbìru zboží
 74:Dám x%d
 75:Chci x%d
+162:
+161:
 
 76:Editace terénu
 77:Plánování vesnice

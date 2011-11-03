@@ -1,5 +1,5 @@
 
-MaxID:160
+MaxID:162
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -84,6 +84,8 @@ MaxID:160
 73:Utilisez le bouton droit de la sourie pour sélectionner une marchandise à échanger
 74:De x%d
 75:Pour x%d
+162:
+161:
 
 76:Edition du terrain
 77:Planification du village

@@ -200,8 +200,8 @@ begin
 
     //Fire the arrow
     case KMUnit.UnitType of
-      ut_Arbaletman: fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Bolt, KMUnit.GetOwner);
-      ut_Bowman:     fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Arrow, KMUnit.GetOwner);
+      ut_Arbaletman: fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Bolt, KMUnit.GetOwner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:     fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Arrow, KMUnit.GetOwner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
@@ -210,7 +210,7 @@ begin
   end;
   if Step = SLINGSHOT_FIRING_DELAY then
     if KMUnit.UnitType = ut_Slingshot then
-      fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_SlingRock, KMUnit.GetOwner);
+      fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_SlingRock, KMUnit.GetOwner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
 end;
 
 

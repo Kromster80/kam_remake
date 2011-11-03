@@ -115,7 +115,7 @@ type
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
-    function GetFishInWaterBody(WaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
+    function GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
 
     procedure Save(SaveStream:TKMemoryStream);

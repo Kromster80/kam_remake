@@ -1,5 +1,5 @@
 
-MaxID:160
+MaxID:162
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -84,6 +84,8 @@ MaxID:160
 73:U¿yj prawego przycisku myszy, aby wybraæ towar do handlu
 74:Z x%d
 75:Na x%d
+162:
+161:
 
 76:Edycja terenu
 77:Planowanie osady

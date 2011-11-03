@@ -16,6 +16,7 @@
  +	Multiplayer chat only scrolls down when you are at the bottom, making it possible to read old messages without it jumping back
  +	Warriors group memberswould not appear if there was a rock or something under them. They now appear on the closest walkable tile.
  +	Using a barracks near the left or top edges of the map caused an error (thanks Jecy)
+ +	Due to predicting a target's position archers can shoot way beyond their range
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -29,7 +30,6 @@
 	Replays almost always end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag by consuming a massive amount of CPU in pathfinding (I think that's the cause) Vortamic is especially bad.
 	Up the ware limit in the barracks from 255
-	Due to predicting a target's position archers can shoot way beyond their range
 	Someone joining your lobby as you click start gets an invalid state and server times out
 	Campaign flags have a colored square around them when selected
 	Make market interface less confusing by showing number of wares that will be taken/given
