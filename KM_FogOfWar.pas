@@ -62,9 +62,10 @@ end;
 procedure TKMFogOfWar.RevealCircle(Pos:TKMPoint; Radius,Amount:word);
 var i,k:integer;
 begin
+  //We inline maths here to gain performance
   for i:=max(Pos.Y-Radius,2) to min(Pos.Y+Radius,MapY-1) do //Keep map edges unrevealed
   for k:=max(Pos.X-Radius,2) to min(Pos.X+Radius,MapX-1) do
-  if sqrt(sqr(Pos.x-k) + sqr(Pos.y-i)) <= Radius then
+  if (sqr(Pos.x-k) + sqr(Pos.y-i)) <= sqr(Radius) then
     Revelation[i,k].Visibility := min(Revelation[i,k].Visibility + Amount, FOG_OF_WAR_MAX);
 end;
 
