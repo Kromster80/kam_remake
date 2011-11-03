@@ -62,7 +62,7 @@ function TKMProjectiles.AimTarget(aStart:TKMPointF; aTarget:TKMUnit; aProjType:T
 var
   TargetVector,Target,TargetPosition:TKMPointF;
   A,B,C,D:single;
-  TimeToHit, Time1, Time2, Distance: single;
+  TimeToHit, Time1, Time2, DistanceToHit, DistanceInRange: single;
   Jitter, Speed:single;
 begin
   //Now we know projectiles speed and aim, we can predict where target will be at the time projectile hits it
@@ -126,16 +126,17 @@ begin
   begin
     Jitter := GetLength(aStart, aTarget.PositionF) * ProjectileJitter[aProjType]
             + GetLength(KMPointF(0,0),TargetVector) * ProjectilePredictJitter[aProjType];
-    //Set the target relative to the 0;0 (as the start position)
+
+    //Calculate the target position relative to start position (the 0;0)
     Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);
     Target.Y := TargetPosition.Y + TargetVector.Y*TimeToHit + KaMRandomS(Jitter);
-    //Force the target position to be within our max/min range
-    Distance := sqrt(sqr(Target.X) + sqr(Target.Y));
-    Target.X := sign(Target.X)*EnsureRange(abs(Target.X), aMinRange*(abs(Target.X)/Distance), aMaxRange*(abs(Target.X)/Distance));
-    Target.Y := sign(Target.Y)*EnsureRange(abs(Target.Y), aMinRange*(abs(Target.Y)/Distance), aMaxRange*(abs(Target.Y)/Distance));
-    //Now add the start position
-    Target.X := aStart.X + Target.X;
-    Target.Y := aStart.Y + Target.Y;
+
+    //We can try and shoot at a target that is moving away,
+    //but the arrows can't flight any further than their max_range
+    DistanceToHit := GetLength(Target.X, Target.Y);
+    DistanceInRange := EnsureRange(DistanceToHit, aMinRange, aMaxRange);
+    Target.X := aStart.X + Target.X / DistanceToHit * DistanceInRange;
+    Target.Y := aStart.Y + Target.Y / DistanceToHit * DistanceInRange;
 
     Result := AddItem(aStart, aTarget.PositionF, Target, Speed, aProjType, aOwner);
   end else
