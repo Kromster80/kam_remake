@@ -2,45 +2,45 @@
 MaxID:163
 
 1:Missie geannuleerd 
-2:Stad tutorial
-3:Strijd tutorial
+2:Stad oefenscenario
+3:Strijd oefenscenario
 4:Alleen spelen	
-5:Map Editor
-6:Bekijken van het laatste spel
-7:Start Missie
+5:Map Bewerker
+6:Laatste herhaling bekijken
+7:Missie starten
 8:Titel
-9:Grote
-10:Missie type: %s
-11:Overwinning conditie %s
-12:Nederlaag conditie: %s
+9:Grootte
+10:Missietype: %s
+11:Overwinningsconditie: %s
+12:Nederlaagconditie: %s
 13:Bondgenoten: 
 14:Vijanden: 
-16:Nieuwe map grote
+16:Nieuwe mapgrootte
 17:Breedte
 18:Hoogte
 19:Nieuwe map aanmaken
 20:Beschikbare mappen
 21:Bestaande map inladen
-22:Controls:
-23:Gameplay:
-24:Muziek:
-141:
+22:Besturing:
+23:Spelinstellingen:
+24:Geluid:
+141:Scrollsnelheid
 25:Muziek uitschakelen
-143:
-26:Grafisch:
+143:Willekeurig
+26:Weergave:
 27:Helderheid
 28:Volledig scherm
 29:Toepassen
 30:Taal:
 31:Aan het laden... Een ogenblik geduld
 32:Er is een fout opgetreden!
-33:Laden nieuw lokaal
-34:Lijst van savegames
+33:Nieuwe taalinstellingen laden
+34:Lijst van opgeslagen spellen
 35:Bestandsnaam
 36:Omschrijving
 37:Laden
 38:Verwijderen
-39:Weet je het zeker dat je dit deze save wilt verwijderen?
+39:Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
 40:Verwijder
 41:Annuleren
 139:Multiplayer maps
@@ -50,124 +50,124 @@ MaxID:163
 44:Doorspelen
 45:Victorie!
 46:Je hebt verloren!
-47:Blijk kijken
+47:Blijven kijken
 48:Nederlaag
-49:Terugkijken is gestopt
-50:Blijf kijken
+49:Herhaling is geëindigd
+50:Blijven kijken
 51:Afsluiten naar menu
 52:Niet beschikbaar
-53:Druk op %s om verder te gaan
+53:Druk op %s om verder te spelen
 54:Naar team
-55:Spelers informatie
+55:Spelersinformatie
 56:Chat
-57:Save bestaad al
+57:Opgeslagen spel bestaat al
 58:Overschrijven
 59:Opslaan
 60:Laden
 
-61:Er is een fout opgetreden!
-62:Verstuur het bestand %s van jouwn KaM Remake \\Crash Reports map naar de ontwikkelaars. Contact informatie staat in de readme file. Bedankt voor uw hulp! WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico’s wilt nemen?
-63:Verouderde OpenGL versie gedetecteerd, het spel kan langzaam draaien en kan grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
-64:Netwerk fout:
-65:Fout: Speler kan niet blank zijn
-66:Connectie fout: %s
+61:Er is een fout opgetreden tijdens het spelen.
+62:Verstuur het bestand %s van jouw KaM Remake \\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp! \n\nWAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
+63:Verouderde OpenGL versie gedetecteerd. Het spel kan langzaam draaien en/of grafisch niet optimaal werken.\nUpdate A.U.B de drivers voor betere prestaties. 
+64:Netwerkfout:
+65:Fout: Spelernaam moet ingevuld zijn
+66:Verbindingsfout: %s
 67:Je bent verbroken met het spel
 68:Missie %d
-150:
-151:
+150:Bouwen en Vechten
+151:Vechten
 
-69: De vissershut is buiten het bereik van het water.
-70: De visser kan geen vis meer vangen rondom zijn vissershut
+69:Je vissershut is te ver weg van het water.
+70:De visser kan geen vis meer vangen rondom zijn vissershut.
 
 71:Markt
 72:Gebruik de linkermuisknop om de goederen te selecteren
 73:Gebruik de rechtermuisknop om de goederen te selecteren
 74:Van x%d
 75:Naar x%d
-162:
-161:
+162:Aantal verlagen
+161:Aantal verhogen
 
-76:Terrein wijzigigen
-77:Stad planning
+76:Terrein bewerken
+77:Stadsplan
 78:Visuele scripts
 79:Globale scripts
 80:Menu
 
-82:Speler naam
+82:Spelernaam
 81:Status:
-83:AANMAKEN SERVER
+83:SERVER AANMAKEN
 84:Naam
 85:Poort
-86:Aanmaken lokale server
-87:Aanmaken internet server
-88:Server naam
+86:Lokale server aanmaken
+87:Internetserver aanmaken
+88:Servernaam
 89:Status
 90:Spelers
 91:Ping
-92:Vernieuwen server lijst
-93:SERVER DETAILS
-94:Spelers lijst:
-144:
+92:Serverlijst vernieuwen
+93:SERVERINFORMATIE
+94:Spelerslijst:
+144:Spelinformatie:
 95:Adres
-96:Port
-97:Room
+96:Poort
+97:Kamer
 98:Meedoen
-153:
+153:Klaar
 99:Verbinding maken, een ogenblik geduld ...
-159:
-100:Laden van bekendmakingen
-101:Ververzen..
-142:
-145:
-146:
-147:
-148:
+159:Verkeerde spelversie: %s. De server gebruikt: %s
+100:Mededelingen laden...
+101:Vernieuwen...
+142:Geen servers gevonden
+145:Geen
+146:Lobby
+147:Laden
+148:Spel
 
 102:Spelerslijst
-103:Start locatie
+103:Startlocatie
 104:Team
-105:Vlag kleur
-106:Klaar
+105:Vlagkleur
+106:Gereed
 107:Ping
 108:Kick
 109:Open
-110:AI Speler
+110:Computer
 111:Selecteer...
 112:Willekeurig
 113:Geen
 114:Geen
 115:Team %d
-116:Berichten list:
+116:Berichtenlijst:
 117:Bericht:
 118:Kies map:
 119:Een map:
-120:Opgeslagen map:
+120:Opgeslagen spel:
 121:Selecteer een map...
 122:Selecteer een opgeslagen spel...
-123:Map informatie:
+123:Mapinformatie:
 124:Spelers: %d
 125:Modus:
 126:Condities:
 127:Grootte:
-128:Afsluiten lobby
-129:Klaar
-152:
+128:Lobby verlaten
+129:Gereed
+152:Niet gereed
 130:Start!
-149:
-154:
-155:
-156:
-157:
-158:
-160:
+149:Locatie %d
+154:Fout: Kies aub een speler uit het opgeslagen spel om te besturen
+155:Fout: Laden van de map mislukt of er is geen map geselecteerd.
+156:Kan niet starten: %s
+157:Niet iedereen is gereed om te starten
+158:Aantal spelers overschrijdt maplimiet
+160:Server heeft ons hostingrechten toegewezen
 
-131:Wachten for spelers:
+131:Wachten op spelers:
 163:
 
 132:KaM Remake Credits
 133:Orginele Knights & Merchants Credits
-134:PROGRAMMING:
-135:ADDITIONAL PROGRAMMING:
-136:ADDITIONAL GRAPHICS:
-137:ADDITIONAL TRANSLATIONS:
-138:Speciale dank aan:
+134:PROGRAMMERING:
+135:AANVULLENDE PROGRAMMERING:
+136:AANVULLENDE GRAFISCHE WERKEN:
+137:AANVULLENDE VERTALINGEN:
+138:SPECIALE DANK AAN:

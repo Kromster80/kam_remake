@@ -123,9 +123,9 @@ begin
          begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            case UnitType of
-             ut_Arbaletman: fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Bolt, GetOwner);
-             ut_Bowman:     fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Arrow, GetOwner);
-             ut_Slingshot:  fGame.Projectiles.AimTarget(PositionF, fHouse, pt_SlingRock, GetOwner);
+             ut_Arbaletman: fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Bolt, GetOwner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+             ut_Bowman:     fGame.Projectiles.AimTarget(PositionF, fHouse, pt_Arrow, GetOwner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+             ut_Slingshot:  fGame.Projectiles.AimTarget(PositionF, fHouse, pt_SlingRock, GetOwner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
              else Assert(false, 'Unknown shooter');
            end;
            AnimLength := fResource.UnitDat[UnitType].UnitAnim[ua_Work, Direction].Count;

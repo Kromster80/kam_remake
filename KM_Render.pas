@@ -519,7 +519,7 @@ begin
   end;
 
   ShiftX := RXData[3].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY := (RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
+  ShiftY := (RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX - 0.4; //Looks better moved up
 
   fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
 end;
