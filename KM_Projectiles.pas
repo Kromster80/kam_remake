@@ -307,6 +307,7 @@ begin
           MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
           P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
           P1.Y := P1.Y - fItems[i].fArc * MixArc;
+          P1.Y := P1.Y - 0.4; //Looks better moved up, launches from the bow not feet and lands in target's body
           P2.X := P1.X+3; P2.Y := P2.Y+1;
           Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
           fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValueMax, Dir);
@@ -317,6 +318,7 @@ begin
           MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
           P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
           P1.Y := P1.Y - fItems[i].fArc * MixArc;
+          P1.Y := P1.Y - 0.4; //Looks better moved up, lands on the target's body not at his feet
           P2.X := 0; P2.Y := 0;
           fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, dir_N); //Direction will be ignored
         end;
