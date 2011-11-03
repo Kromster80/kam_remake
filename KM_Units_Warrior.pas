@@ -16,7 +16,7 @@ type
     fTimeSinceHungryReminder:integer;
     fState:TWarriorState; //This property is individual to each unit, including commander
     fOrder:TWarriorOrder;
-    fTargetCanBeReached:boolean;
+    fUseExactTarget:boolean;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
@@ -62,7 +62,7 @@ type
     procedure OrderSplit; //Split group in half and assign another commander
     procedure OrderStorm;
     procedure OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
-    procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true); reintroduce; overload;
+    procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aUseExactTarget:boolean=true); reintroduce; overload;
     procedure OrderWalk(aLoc:TKMPoint; aDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
@@ -133,7 +133,7 @@ begin
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
   LoadStream.Read(fOrderLoc);
-  LoadStream.Read(fTargetCanBeReached);
+  LoadStream.Read(fUseExactTarget);
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(aCount);
   if aCount <> 0 then
@@ -329,7 +329,7 @@ begin
     ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc, GetPosition, CanWalk);
 
   //See if we are in position already or if we can't reach the position, (closest tile differs from target tile) because we don't retry for that case.
-  if (fState = ws_None) and (KMSamePoint(GetPosition,fOrderLoc.Loc) or (not fTargetCanBeReached) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
+  if (fState = ws_None) and (KMSamePoint(GetPosition,fOrderLoc.Loc) or (not fUseExactTarget) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
     exit;
 
   //This means we are not in position, return false and move into position (unless we are currently walking)
@@ -756,7 +756,7 @@ end;
 
 
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
-procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aTargetCanBeReached:boolean=true);
+procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false; aUseExactTarget:boolean=true);
 var i:integer; NewLoc:TKMPoint; NewLocCanBeReached: boolean;
 begin
   //If no direction was specified, choose the previous direction or failing that, the unit's direction
@@ -774,7 +774,7 @@ begin
     fOrder    := wo_Walk;
     fState    := ws_None; //Clear other states
     fOrderLoc := aLoc;
-    fTargetCanBeReached := aTargetCanBeReached;
+    fUseExactTarget := aUseExactTarget;
     SetOrderTarget(nil);
     SetOrderHouseTarget(nil);
   end;
@@ -852,7 +852,7 @@ begin
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fOrderLoc);
-  SaveStream.Write(fTargetCanBeReached);
+  SaveStream.Write(fUseExactTarget);
   SaveStream.Write(fUnitsPerRow);
   //Only save members if we are a commander
   if (fMembers <> nil) and (fCommander = nil) then
@@ -1066,11 +1066,14 @@ begin
 
 
   //New walking order
-  if (fOrder=wo_Walk) then begin
+  if (fOrder = wo_Walk) then
+  begin
     //Change WalkTo
-    if (GetUnitAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then begin
-      if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fCommander <> nil, fTargetCanBeReached);
+    if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+    begin
+      if GetUnitTask <> nil then
+        FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, 0, fCommander <> nil, fUseExactTarget);
       fOrder := wo_None;
       fState := ws_Walking;
     end
@@ -1082,7 +1085,7 @@ begin
       if fCommander = nil then
         SetActionWalkToSpot(fOrderLoc.Loc)
       else
-        SetActionWalkToSpot(fOrderLoc.Loc, ua_Walk, fTargetCanBeReached);
+        SetActionWalkToSpot(fOrderLoc.Loc, ua_Walk, fUseExactTarget);
       fOrder := wo_None;
       fState := ws_Walking;
     end;
@@ -1094,9 +1097,12 @@ begin
   if (fOrder=wo_AttackHouse) and (GetOrderHouseTarget = nil) then fOrder := wo_None;
 
   //Change walk in order to attack
-  if (fOrder=wo_AttackUnit) and (GetUnitAction is TUnitActionWalkTo) //If we are already walking then change the walk to the new location
-  and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then begin
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+  if (fOrder = wo_AttackUnit)
+  and (GetUnitAction is TUnitActionWalkTo) //If we are already walking then change the walk to the new location
+  and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+  begin
+    if GetUnitTask <> nil then
+      FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
     //todo: Do not WalkTo enemies location if we are archers, stay in place
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, fCommander <> nil, true, GetOrderTarget);

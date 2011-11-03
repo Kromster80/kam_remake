@@ -72,7 +72,7 @@ type
       ExplanationLog:TStringList;
     public
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
-      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse; aTargetCanBeReach:boolean=true);
+      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse; aUseExactTarget:boolean=true);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure  SyncLoad; override;
       destructor Destroy; override;
@@ -82,7 +82,7 @@ type
       property DoesWalking:boolean read fDoesWalking;
       property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
       function  GetExplanation:string; override;
-      procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aTargetCanBeReach:boolean=true; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
+      procedure ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aUseExactTarget:boolean=true; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
 
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -104,7 +104,7 @@ constructor TUnitActionWalkTo.Create( aUnit: TKMUnit;
                                       aWalkToNear:boolean;
                                       aTargetUnit:TKMUnit;
                                       aTargetHouse:TKMHouse;
-                                      aTargetCanBeReach:boolean=true);
+                                      aUseExactTarget:boolean=true);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
@@ -128,7 +128,7 @@ begin
   fPass         := fWalker.GetDesiredPassability;
 
   if fWalkToNear then
-    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass,aTargetCanBeReach)
+    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass,aUseExactTarget)
   else
     fWalkTo     := aLocB;
 
@@ -831,7 +831,7 @@ end;
 
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aTargetCanBeReach:boolean=true; aNewTargetUnit:TKMUnit=nil);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; aDistance:single; aWalkToNear:boolean=false; aUseExactTarget:boolean=true; aNewTargetUnit:TKMUnit=nil);
 begin
   if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     raise ELocError.Create('Invalid Change Walk To for '+fResource.UnitDat[fWalker.UnitType].UnitName,aLoc);
@@ -842,7 +842,7 @@ begin
   fDistance := aDistance;
 
   if aWalkToNear then
-    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass, aTargetCanBeReach)
+    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass, aUseExactTarget)
   else
     fNewWalkTo := aLoc;
 
