@@ -1,0 +1,8 @@
+Title
+Snow Cross
+
+SmallDesc
+A multiplayer mission by andreus
+
+BigDesc
+A multiplayer battle mission by andreus. Suggested teams: 1+2 vs 3+4.
