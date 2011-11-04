@@ -39,6 +39,8 @@
 	Multiplayer replays do not sync FOW so get mismatches
 	Confirmation for quitting multiplayer while waiting for players instead of a giant button in the middle of the screen that can be pressed by mistake
 	Players that have disconnected from the game should have a line drawn through them on the in-game player list
+	Render order is wrong, just using the X/Y values of the sprite gives bad results in a lot of cases.
+	Unbuilt buildings are not removed from player stats when destroyed (+1 still shown)
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
