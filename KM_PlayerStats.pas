@@ -80,16 +80,27 @@ implementation
 uses KM_ResourceGFX;
 
 
+const
+  //For now it is the same as KaM
+  //The number means how many items should be in houses input max
+  DistributionDefaults: array[1..4,1..4]of byte = (
+    (5,4,0,0),
+    (5,3,4,5),
+    (5,3,0,0),
+    (5,3,2,0)
+    );
+
+
 { TKMPlayerStats }
 constructor TKMPlayerStats.Create;
 var H:THouseType; i,k:integer;
 begin
   Inherited;
   for H:=Low(THouseType) to High(THouseType) do
-    AllowToBuild[H] := true;
+    AllowToBuild[H] := True;
 
   //Release Store at the start of the game by default
-  HouseReleased[ht_Store] := true;
+  HouseReleased[ht_Store] := True;
 
   for i:=1 to 4 do for k:=1 to 4 do
     fResourceRatios[i,k] := DistributionDefaults[i,k];
