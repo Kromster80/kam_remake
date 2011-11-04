@@ -144,11 +144,11 @@ begin
     DistanceToHit := GetLength(Target.X, Target.Y);
     Arc := (DistanceInRange/DistanceToHit)*(ProjectileArcs[aProjType, 1] + KaMRandomS(ProjectileArcs[aProjType, 2]));
 
-    //Check whether this predicted target will hit one of our own warriors
+    //Check whether this predicted target will hit a friendly unit
     if fTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
     begin
       U := fTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
-      if (U <> nil) and (U.GetOwner = aOwner) then
+      if (U <> nil) and (fPlayers.CheckAlliance(aOwner,U.GetOwner) = at_Ally) then
         Target := aTarget.PositionF; //Shoot at the target's current position instead
     end;
 

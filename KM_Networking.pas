@@ -614,6 +614,8 @@ begin
         NetPlayers[i].Team := 0;
       end;
 
+  fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname); //The host's index can change when players are removed
+
   fOnMPGameInfoChanged(Self); //Tell the server about the changes
 
   PacketSend(aPlayerIndex, mk_PlayersList, fNetPlayers.GetAsText, 0);

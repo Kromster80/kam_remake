@@ -885,6 +885,7 @@ begin
 
   for i:=1 to HousesCount do
     if (fHousesQueue[i].House<>nil) and (not fHousesQueue[i].IsDeleted) and fHousesQueue[i].House.CheckResToBuild
+    and fTerrain.Route_CanBeMade(aWorker.GetPosition, KMPointBelow(fHousesQueue[i].House.GetEntrance), aWorker.GetDesiredPassability, 0, false)
     and((Best = -1)or(GetLength(aWorker.GetPosition, fHousesQueue[i].House.GetPosition) < BestDist))then
     begin
       Best := i;
@@ -908,6 +909,7 @@ begin
 
   for i:=1 to HousePlansCount do
     if (fHousePlansQueue[i].JobStatus = js_Open)
+    and fTerrain.Route_CanBeMade(aWorker.GetPosition, fHousePlansQueue[i].House.GetPosition, aWorker.GetDesiredPassability, 0, false)
     and((Best = -1)or(GetLength(aWorker.GetPosition, fHousePlansQueue[i].House.GetPosition) < BestDist))then
     begin
       Best := i;
@@ -1083,6 +1085,7 @@ begin
     if (fQueue[i].House<>nil) and (not fQueue[i].IsDeleted) and
       fQueue[i].House.IsDamaged and
       fQueue[i].House.BuildingRepair
+    and fTerrain.Route_CanBeMade(aWorker.GetPosition, KMPointBelow(fQueue[i].House.GetEntrance), aWorker.GetDesiredPassability, 0, false)
     and((Best = -1)or(GetLength(aWorker.GetPosition, fQueue[i].House.GetPosition) < BestDist))then
     begin
       Best := i;
