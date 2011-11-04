@@ -124,7 +124,7 @@ type
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
-    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); virtual;
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); virtual;
     procedure ResEditOrder(aID:byte; aAmount:integer); virtual;
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -192,7 +192,7 @@ type
     function CheckResOrder(aID:byte):word; override;
     procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
     procedure ResEditOrder(aID:byte; aAmount:integer); override;
-    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
 
     procedure Save(SaveStream:TKMemoryStream); override;
     procedure Paint; override;
@@ -223,7 +223,7 @@ type
   {Barracks has 11 resources and Recruits}
   TKMHouseBarracks = class(TKMHouse)
   private
-    ResourceCount:array[WARFARE_MIN..WARFARE_MAX]of word;
+    ResourceCount: array [WARFARE_MIN..WARFARE_MAX] of Word;
   public
     RecruitsList: TList;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
@@ -232,7 +232,7 @@ type
     destructor Destroy; override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
     function CheckResIn(aResource:TResourceType):word; override;
-    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
     function CanEquip(aUnitType: TUnitType):boolean;
     procedure Equip(aUnitType: TUnitType; aCount:byte);
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -249,7 +249,7 @@ type
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
     function CheckResIn(aResource: TResourceType): Word; override;
-    procedure ResTakeFromOut(aResource:TResourceType; const aCount:integer=1); override;
+    procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -881,7 +881,7 @@ begin
 end;
 
 
-procedure TKMHouse.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
+procedure TKMHouse.ResTakeFromOut(aResource:TResourceType; const aCount: Word=1);
 var i:integer;
 begin
   Assert(aResource<>rt_None);
@@ -1390,7 +1390,7 @@ begin
 end;
 
 
-procedure TKMHouseMarket.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
+procedure TKMHouseMarket.ResTakeFromOut(aResource:TResourceType; const aCount: Word=1);
 begin
   Assert(aCount <= fMarketResOut[aResource]);
 
@@ -1686,7 +1686,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
+procedure TKMHouseStore.ResTakeFromOut(aResource:TResourceType; const aCount: Word=1);
 begin
   Assert(aCount <= ResourceCount[aResource]);
 
@@ -1798,7 +1798,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1);
+procedure TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount: Word=1);
 begin
   Assert(aCount <= ResourceCount[aResource]);
   dec(ResourceCount[aResource], aCount);

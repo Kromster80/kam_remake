@@ -315,25 +315,9 @@ begin
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
                         (not TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[fOffer[iO].Resource]));
 
-  //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
-  //How do we know how many resource are on-route already?? We don't, but it's not that important.
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Barracks)or
-                       (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<MAX_WARFARE_IN_BARRACKS));
-
-  //If Demand is a Barracks, Offer is a store and barracks has resource count below MAX_WARFARE_IN_BARRACKS_FROM_STORE
-  //Use < rather than <= as this delivery will be the last
-  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Barracks)or
-                      (fOffer[iO].Loc_House.HouseType<>ht_Store)or
-                      (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<MAX_WARFARE_IN_BARRACKS_FROM_STORE));
-
   //NEVER deliver weapons to the storehouse when player has a barracks
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.HouseType<>ht_Store)or
                        (not (fOffer[iO].Resource in [WARFARE_MIN..WARFARE_MAX]))or(fPlayers.Player[fDemand[iD].Loc_House.GetOwner].Stats.GetHouseQty(ht_Barracks)=0));
-
-  //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
-  //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.HouseType<>ht_Store)or(
-  //   (fDemand[iD].Loc_House.HouseType=ht_Store)and(fPlayers.Player[KMSerf.GetOwner].fPlayerStats.GetHouseQty(ht_Barracks)=0)))) then
-  //Works wrong, besides we need to check ALL barracks player owns
 
   //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries except the case where 2nd store is being built and requires building materials
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.HouseType<>fDemand[iD].Loc_House.HouseType)or(fOffer[iO].Loc_House.IsComplete<>fDemand[iD].Loc_House.IsComplete));

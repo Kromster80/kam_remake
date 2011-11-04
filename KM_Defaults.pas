@@ -113,8 +113,6 @@ const
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 const //Here we store options that are hidden somewhere in code
-  MAX_WARFARE_IN_BARRACKS = 255;          //Maximum number of weapons in the barracks from producers. Not a big problem as they are not from the store.
-  MAX_WARFARE_IN_BARRACKS_FROM_STORE = 32;//Maximum number of weapons in the barracks from storehouse. e.g. AI starts with 999 axes, don't spend entire game filling up the barracks.
   GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
   FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
   UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min

@@ -20,20 +20,19 @@
  +	Make market interface less confusing by showing number of wares that will be taken/given
  +	Archers would often shoot into your own troops when the enemy charged you, due to predicting the enemy's position
  +	Lobby with player 1, AI, player 2. Player 1 quits, player 2 becomes host and removes AI. Player 2 can now kick himself and other strange bugs
- +	Workers can become stuck and cause a crash on a building site that becomes too sloped during construction (bottom left iron mine in The Northern Province)
+ +	Workers stuck and cause a crash on a building sites that become too sloped during construction (e.g. bottom left iron mine in The Northern Province)
+ +	Up the ware limit in the barracks from 255
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
 	AI does not feed warriors unless it is the commander that is hungry
-	The ready button should change to "not ready" when clicked, and changing your settings should be disabled while set to ready.
  	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  ?	Warriors should resume interrupted orders after a fight
-	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (Bannockburn is a good example)
+	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn)
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays almost always end up with a mismatch while watching them, cause unknown
-	AI attacks make the game lag by consuming a massive amount of CPU in pathfinding (I think that's the cause) Vortamic is especially bad.
-	Up the ware limit in the barracks from 255
+	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
 	Someone joining your lobby as you click start gets an invalid state and server times out
 	Campaign flags have a colored square around them when selected
 	Multiplayer replays do not sync FOW so get mismatches
