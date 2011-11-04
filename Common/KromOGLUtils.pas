@@ -20,8 +20,6 @@ type PFD_MAIN_PLANE = integer;
 {$ENDIF}
 
 type
-    KAlign = (kaLeft, kaCenter, kaRight);
-
     TColor4 = cardinal;
 
     procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);

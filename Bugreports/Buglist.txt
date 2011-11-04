@@ -22,6 +22,7 @@
  +	Lobby with player 1, AI, player 2. Player 1 quits, player 2 becomes host and removes AI. Player 2 can now kick himself and other strange bugs
  +	Workers stuck and cause a crash on a building sites that become too sloped during construction (e.g. bottom left iron mine in The Northern Province)
  +	Up the ware limit in the barracks from 255
+	Disconnected players names should be striked through in in-game player list [Added Strikethrough property to TKMLabel]
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -36,9 +37,8 @@
 	Someone joining your lobby as you click start gets an invalid state and server times out
 	Campaign flags have a colored square around them when selected
 	Multiplayer replays do not sync FOW so get mismatches
-	Confirmation for quitting multiplayer while waiting for players instead of a giant button in the middle of the screen that can be pressed by mistake
-	Players that have disconnected from the game should have a line drawn through them on the in-game player list
-	Render order is wrong, just using the X/Y values of the sprite gives bad results in a lot of cases.
+	Confirmation for quitting multiplayer while waiting for players should be harder to hit by accident
+	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Unbuilt buildings are not removed from player stats when destroyed (+1 still shown)
 
 	Dots and lines displaying on tile edges [Krom]

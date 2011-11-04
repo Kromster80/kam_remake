@@ -407,14 +407,14 @@ begin
     Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     Minimap.OnChange := Minimap_Update;
 
-    TKMLabel.Create(Panel_Main,8,200,184,0,'View passsability',fnt_Metal,kaLeft);
+    TKMLabel.Create(Panel_Main,8,200,184,0,'View passsability',fnt_Metal,taLeft);
     RatioRow_Passability := TKMRatioRow.Create(Panel_Main, 8, 220, 184, 20, 0, 13);
     RatioRow_Passability.Position := 0;
     RatioRow_Passability.MaxValue := length(PassabilityStr);
     RatioRow_Passability.OnChange := View_Passability;
-    Label_Passability := TKMLabel.Create(Panel_Main,8,240,184,0,'Off',fnt_Metal,kaLeft);
+    Label_Passability := TKMLabel.Create(Panel_Main,8,240,184,0,'Off',fnt_Metal,taLeft);
 
-    TKMLabel.Create(Panel_Main,8,270,184,0,'Player',fnt_Metal,kaLeft);
+    TKMLabel.Create(Panel_Main,8,270,184,0,'Player',fnt_Metal,taLeft);
     for i:=0 to MAX_PLAYERS-1 do begin
       Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + i*23, 290, 21, 32, inttostr(i+1), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[i].CapOffsetY := -3;
@@ -422,10 +422,10 @@ begin
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
     end;
 
-    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, fGame.GameName, fnt_Metal, kaLeft);
+    Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, fGame.GameName, fnt_Metal, taLeft);
 
-    Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,taLeft);
+    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
   Panel_Common := TKMPanel.Create(Panel_Main,0,300,224,768);
@@ -443,7 +443,7 @@ begin
     Button_Main[5].Hint := fTextLibrary[TX_MAPEDITOR_MENU];
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
-    Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,184,36,'',fnt_Metal,kaLeft); //Should be one-line
+    Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,184,36,'',fnt_Metal,taLeft); //Should be one-line
 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -571,7 +571,7 @@ begin
     for i:=1 to 3 do Button_Village[i].OnClick := SwitchPage;
 
     Panel_Build := TKMPanel.Create(Panel_Village,0,28,196,400);
-      TKMLabel.Create(Panel_Build,100,10,184,0,'Roadworks',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Build,100,10,184,0,'Roadworks',fnt_Outline,taCenter);
       Button_BuildRoad   := TKMButtonFlat.Create(Panel_Build,  8,28,33,33,335);
       Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 45,28,33,33,337);
       Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 82,28,33,33,336);
@@ -588,7 +588,7 @@ begin
       Button_BuildWall.Hint     := 'Build a wall';
       Button_BuildCancel.Hint   := fTextLibrary.GetTextString(211);
 
-      TKMLabel.Create(Panel_Build,100,65,184,0,'Houses',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Build,100,65,184,0,'Houses',fnt_Outline,taCenter);
       for i:=1 to GUI_HOUSE_COUNT do
         if GUIHouseOrder[i] <> ht_None then begin
           Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[i]].GUIIcon);
@@ -598,7 +598,7 @@ begin
 
     Panel_Units := TKMPanel.Create(Panel_Village,0,28,196,400);
 
-      //TKMLabel.Create(Panel_Units,100,10,0,0,'Citizens',fnt_Outline,kaCenter);
+      //TKMLabel.Create(Panel_Units,100,10,0,0,'Citizens',fnt_Outline,taCenter);
       for i:=0 to High(Button_Citizen) do
       begin
         Button_Citizen[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,8+(i div 5)*37,33,33,fResource.UnitDat[School_Order[i]].GUIIcon); //List of tiles 5x5
@@ -610,7 +610,7 @@ begin
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
-      //TKMLabel.Create(Panel_Units,100,140,0,0,'Warriors',fnt_Outline,kaCenter);
+      //TKMLabel.Create(Panel_Units,100,140,0,0,'Warriors',fnt_Outline,taCenter);
       for i:=0 to High(Button_Warriors) do
       begin
         Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,124+(i div 5)*37,33,33, MapEd_Icon[i], 7);
@@ -619,7 +619,7 @@ begin
         Button_Warriors[i].OnClick := Unit_ButtonClick;
       end;
 
-      //TKMLabel.Create(Panel_Units,100,230,0,0,'Animals',fnt_Outline,kaCenter);
+      //TKMLabel.Create(Panel_Units,100,230,0,0,'Animals',fnt_Outline,taCenter);
       for i:=0 to High(Button_Animals) do
       begin
         Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,240+(i div 5)*37,33,33, Animal_Icon[i], 7);
@@ -630,7 +630,7 @@ begin
       Unit_ButtonClick(Button_Citizen[0]); //Select serf as default
 
     Panel_Script := TKMPanel.Create(Panel_Village,0,28,196,400);
-      TKMLabel.Create(Panel_Script,100,10,184,0,'Scripts',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Script,100,10,184,0,'Scripts',fnt_Outline,taCenter);
       {Button_ScriptReveal         := TKMButtonFlat.Create(Panel_Script,  8,28,33,33,335);
       Button_ScriptReveal.OnClick := Script_ButtonClick;
       Button_ScriptReveal.Hint    := 'Reveal a portion of map';}
@@ -646,10 +646,10 @@ begin
     for i:=1 to 2 do Button_Player[i].OnClick := SwitchPage;
 
     Panel_Goals := TKMPanel.Create(Panel_Player,0,28,196,400);
-      TKMLabel.Create(Panel_Goals,100,10,184,0,'Goals',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Goals,100,10,184,0,'Goals',fnt_Outline,taCenter);
 
     Panel_Color := TKMPanel.Create(Panel_Player,0,28,196,400);
-      TKMLabel.Create(Panel_Color,100,10,184,0,'Colors',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Color,100,10,184,0,'Colors',fnt_Outline,taCenter);
       TKMBevel.Create(Panel_Color,8,30,180,210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16, 11);
       for i:=0 to 255 do Col[i] := fResource.Palettes[DEF_PAL].Color32(i);
@@ -667,10 +667,10 @@ begin
     for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
-      TKMLabel.Create(Panel_Alliances,100,10,184,0,'Alliances',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_Alliances,100,10,184,0,'Alliances',fnt_Outline,taCenter);
       for i:=0 to MAX_PLAYERS-1 do begin
-        TKMLabel.Create(Panel_Alliances,32+i*20+2,30,20,20,inttostr(i+1),fnt_Outline,kaLeft);
-        TKMLabel.Create(Panel_Alliances,12,50+i*25,20,20,inttostr(i+1),fnt_Outline,kaLeft);
+        TKMLabel.Create(Panel_Alliances,32+i*20+2,30,20,20,inttostr(i+1),fnt_Outline,taLeft);
+        TKMLabel.Create(Panel_Alliances,12,50+i*25,20,20,inttostr(i+1),fnt_Outline,taLeft);
         for k:=0 to MAX_PLAYERS-1 do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
           CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 28+k*20, 46+i*25, 20, 20, '', fnt_Metal);
@@ -687,12 +687,12 @@ begin
       CheckBox_AlliancesSym.Disable;
 
     Panel_PlayerTypes := TKMPanel.Create(Panel_Mission,0,28,196,400);
-      TKMLabel.Create(Panel_PlayerTypes,100,10,184,0,'Player types',fnt_Outline,kaCenter);
+      TKMLabel.Create(Panel_PlayerTypes,100,10,184,0,'Player types',fnt_Outline,taCenter);
       for i:=0 to MAX_PLAYERS-1 do begin
-        TKMLabel.Create(Panel_PlayerTypes,12,30,20,20,'#',fnt_Grey,kaLeft);
-        TKMLabel.Create(Panel_PlayerTypes,32,30,100,20,'Human',fnt_Grey,kaLeft);
-        TKMLabel.Create(Panel_PlayerTypes,102,30,100,20,'Computer',fnt_Grey,kaLeft);
-        TKMLabel.Create(Panel_PlayerTypes,12,50+i*25,20,20,inttostr(i+1),fnt_Outline,kaLeft);
+        TKMLabel.Create(Panel_PlayerTypes,12,30,20,20,'#',fnt_Grey,taLeft);
+        TKMLabel.Create(Panel_PlayerTypes,32,30,100,20,'Human',fnt_Grey,taLeft);
+        TKMLabel.Create(Panel_PlayerTypes,102,30,100,20,'Computer',fnt_Grey,taLeft);
+        TKMLabel.Create(Panel_PlayerTypes,12,50+i*25,20,20,inttostr(i+1),fnt_Outline,taLeft);
         for k:=0 to 1 do
         begin
           CheckBox_PlayerTypes[i,k] := TKMCheckBox.Create(Panel_PlayerTypes, 52+k*70, 48+i*25, 20, 20, '', fnt_Metal);
@@ -733,9 +733,9 @@ begin
     Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
     Radio_Save_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Save_MapType.OnChange := Menu_Save;
-    TKMLabel.Create(Panel_Save,100,90,184,20,'Save map',fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Save,100,90,184,20,'Save map',fnt_Outline,taCenter);
     Edit_SaveName       := TKMEdit.Create(Panel_Save,8,110,180,20, fnt_Grey);
-    Label_SaveExists    := TKMLabel.Create(Panel_Save,100,140,184,0,'Map already exists',fnt_Outline,kaCenter);
+    Label_SaveExists    := TKMLabel.Create(Panel_Save,100,140,184,0,'Map already exists',fnt_Outline,taCenter);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,8,160,180,20,'Overwrite', fnt_Metal);
     Button_SaveSave     := TKMButton.Create(Panel_Save,8,180,180,30,'Save',fnt_Metal);
     Button_SaveCancel   := TKMButton.Create(Panel_Save,8,220,180,30,'Cancel',fnt_Metal);
@@ -750,7 +750,7 @@ end;
 procedure TKMapEdInterface.Create_MenuLoad_Page;
 begin
   Panel_Load := TKMPanel.Create(Panel_Common,0,108,196,400);
-    TKMLabel.Create(Panel_Load, 8, 2, 184, 30, 'Available maps', fnt_Outline, kaLeft);
+    TKMLabel.Create(Panel_Load, 8, 2, 184, 30, 'Available maps', fnt_Outline, taLeft);
     TKMBevel.Create(Panel_Load, 8, 20, 184, 38);
     Radio_Load_MapType := TKMRadioGroup.Create(Panel_Load,12,22,176,35,fnt_Grey);
     Radio_Load_MapType.ItemIndex := 0;
@@ -769,7 +769,7 @@ end;
 procedure TKMapEdInterface.Create_MenuQuit_Page;
 begin
   Panel_Quit:=TKMPanel.Create(Panel_Common,0,128,200,400);
-    TKMLabel.Create(Panel_Quit,100,40,184,60,'Any unsaved|changes will be lost',fnt_Outline,kaCenter);
+    TKMLabel.Create(Panel_Quit,100,40,184,60,'Any unsaved|changes will be lost',fnt_Outline,taCenter);
     Button_Quit_Yes   := TKMButton.Create(Panel_Quit,8,100,180,30,'Quit',fnt_Metal);
     Button_Quit_No    := TKMButton.Create(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     Button_Quit_Yes.Hint      := fTextLibrary.GetTextString(177);
@@ -783,11 +783,11 @@ end;
 procedure TKMapEdInterface.Create_Unit_Page;
 begin
   Panel_Unit:=TKMPanel.Create(Panel_Common,0,112,200,400);
-    Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,0,'',fnt_Outline,kaCenter);
+    Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,0,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
-    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,0,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
+    Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,0,fTextLibrary.GetTextString(254),fnt_Grey,taCenter);
     KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,73,55,116,15,80);
-    Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+    Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
 
   Panel_Army:=TKMPanel.Create(Panel_Unit,0,160,200,400);
     Button_Army_RotCCW   := TKMButton.Create(Panel_Army,  8, 0, 56, 40, 23);
@@ -814,12 +814,12 @@ procedure TKMapEdInterface.Create_House_Page;
 begin
   Panel_House:=TKMPanel.Create(Panel_Common,0,112,200,400);
     //Thats common things
-    Label_House:=TKMLabel.Create(Panel_House,100,14,184,0,'',fnt_Outline,kaCenter);
+    Label_House:=TKMLabel.Create(Panel_House,100,14,184,0,'',fnt_Outline,taCenter);
     Image_House_Logo:=TKMImage.Create(Panel_House,8,41,32,32,338);
     Image_House_Logo.ImageCenter;
     Image_House_Worker:=TKMImage.Create(Panel_House,38,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth:=TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
+    Label_HouseHealth:=TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary.GetTextString(228),fnt_Mini,taCenter,$FFFFFFFF);
     KMHealthBar_House:=TKMPercentBar.Create(Panel_House,100,53,60,20,50);
     Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', fnt_Metal);
     Button_HouseHealthInc := TKMButton.Create(Panel_House,160,53,20,20,'+', fnt_Metal);
@@ -846,7 +846,7 @@ begin
     Button_StoreDec100.Tag  := 100;
     Button_StoreDec       := TKMButton.Create(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
     Button_StoreDec.Tag   := 1;
-    Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,156,230,20,20,'',fnt_Metal,kaCenter);
+    Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,156,230,20,20,'',fnt_Metal,taCenter);
     Button_StoreInc100      := TKMButton.Create(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
     Button_StoreInc100.Tag  := 100;
     Button_StoreInc       := TKMButton.Create(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
@@ -878,7 +878,7 @@ begin
     Button_BarracksDec100.Tag := 100;
     Button_BarracksDec      := TKMButton.Create(Panel_HouseBarracks,116,238,20,20,'-', fnt_Metal);
     Button_BarracksDec.Tag  := 1;
-    Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,156,230,20,20,'',fnt_Metal,kaCenter);
+    Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,156,230,20,20,'',fnt_Metal,taCenter);
     Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
     Button_BarracksInc100.Tag := 100;
     Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,176,238,20,20,'+', fnt_Metal);

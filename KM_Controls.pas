@@ -13,6 +13,7 @@ type
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
+  TTextAlign = (taLeft, taCenter, taRight);
   TKMControlState = (csDown, csFocus, csOver);
   TKMControlStateSet = set of TKMControlState;
 
@@ -174,24 +175,28 @@ type
   {Text Label}
   TKMLabel = class(TKMControl)
   private
+    fAutoWrap: Boolean;
+    fFont: TKMFont;
+    fFontColor: TColor4;
     fCaption: string; //Original text
-    fText:string; //Reformatted text
-    fAutoWrap:boolean;
-    procedure SetCaption(aCaption:string);
-    procedure SetAutoWrap(aValue:boolean);
-    procedure ReformatText;
-  public
-    Font: TKMFont;
-    FontColor: TColor4;
-    TextAlign: KAlign;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF); overload;
-    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF); overload;
-    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
-    property Caption:string read fCaption write SetCaption;
-    property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
+    fText: string; //Reformatted text
+    fTextAlign: TTextAlign;
+    fTextSize: TKMPoint;
+    fStrikethrough: Boolean;
     function AreaLeft: Integer;
     function TextLeft: Integer;
-    function TextHeight:integer;
+    procedure SetCaption(aCaption: string);
+    procedure SetAutoWrap(aValue: boolean);
+    procedure ReformatText;
+  public
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF); overload;
+    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
+    property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
+    property Caption: string read fCaption write SetCaption;
+    property FontColor: TColor4 read fFontColor write fFontColor;
+    property Strikethrough: Boolean read fStrikethrough write fStrikethrough;
+    property TextSize: TKMPoint read fTextSize;
     procedure Paint; override;
   end;
 
@@ -199,7 +204,7 @@ type
   TKMLabelScroll = class(TKMLabel)
   public
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
     procedure Paint; override;
   end;
 
@@ -263,7 +268,7 @@ type
   private
     fCaption: string;
     fFont: TKMFont;
-    fTextAlign: KAlign;
+    fTextAlign: TTextAlign;
     fStyle: TButtonStyle;
     fMakesSound: boolean;
     fRXid: integer; //RX library
@@ -283,14 +288,14 @@ type
 
   {FlatButton}
   TKMButtonFlat = class(TKMControl)
-  public
+  private
     RXid: integer; //RX library
+    fFont: TKMFont;
+    TextAlign: TTextAlign;
+  public
     TexID: integer;
     TexOffsetX,TexOffsetY,CapOffsetY:shortint;
     Caption: string;
-    Font: TKMFont;
-    FontColor:TColor4;
-    TextAlign: KAlign;
     Down:boolean;
     HideHighlight:boolean;
   public
@@ -385,7 +390,7 @@ type
     Caption: string;
     Font: TKMFont;
     FontColor:TColor4;
-    TextAlign: KAlign;
+    TextAlign: TTextAlign;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini; aColor:TColor4=$FFFFFFFF);
     procedure Paint; override;
   end;
@@ -825,7 +830,7 @@ begin
   if Self is TKMPanel then sColor := $200000FF;
 
   if Self is TKMLabel then begin //Special case for aligned text
-    Tmp := fResource.ResourceFont.GetTextSize(TKMLabel(Self).fText, TKMLabel(Self).Font);
+    Tmp := TKMLabel(Self).TextSize;
     fRenderUI.WriteLayer(TKMLabel(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
     fRenderUI.WriteRect(TKMLabel(Self).AreaLeft, Top, fWidth, fHeight, 1, $FFFFFFFF);
     fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
@@ -1060,18 +1065,18 @@ end;
 
 
 { TKMLabel }
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  Font := aFont;
-  FontColor := aColor;
-  TextAlign := aTextAlign;
-  AutoWrap := false;
+  fFont := aFont;
+  fFontColor := aColor;
+  fTextAlign := aTextAlign;
+  fAutoWrap := false;
   SetCaption(aCaption);
 end;
 
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
 begin
   Create(aParent,aLeft,aTop,0,0,aCaption,aFont,aTextAlign,aColor);
 end;
@@ -1079,9 +1084,9 @@ end;
 
 function TKMLabel.AreaLeft: Integer;
 begin
-  case TextAlign of
-    kaCenter: Result := Left - Width div 2;
-    kaRight:  Result := Left - Width;
+  case fTextAlign of
+    taCenter: Result := Left - Width div 2;
+    taRight:  Result := Left - Width;
     else      Result := Left;
   end;
 end;
@@ -1089,9 +1094,9 @@ end;
 
 function TKMLabel.TextLeft: Integer;
 begin
-  case TextAlign of
-    kaCenter: Result := Left - fResource.ResourceFont.GetTextSize(fText, Font).X div 2;
-    kaRight:  Result := Left - fResource.ResourceFont.GetTextSize(fText, Font).X;
+  case fTextAlign of
+    taCenter: Result := Left - fTextSize.X div 2;
+    taRight:  Result := Left - fTextSize.X;
     else      Result := Left;
   end;
 end;
@@ -1117,20 +1122,16 @@ begin
 end;
 
 
-function TKMLabel.TextHeight:integer;
-begin
-  Result := fResource.ResourceFont.GetTextSize(fText, Font).Y;
-end;
-
-
 //Existing EOLs should be preserved, and new ones added where needed
 //Keep original intact incase we need to Reformat text once again
 procedure TKMLabel.ReformatText;
 begin
   if fAutoWrap then
-    fText := fResource.ResourceFont.WordWrap(fCaption, Font, Width, true)
+    fText := fResource.ResourceFont.WordWrap(fCaption, fFont, Width, true)
   else
     fText := fCaption;
+
+  fTextSize := fResource.ResourceFont.GetTextSize(fText, fFont);
 end;
 
 
@@ -1143,12 +1144,15 @@ begin
   if fEnabled then Col := FontColor
               else Col := $FF888888;
 
-  fRenderUI.WriteText(Left, Top, Width, Height, fText, Font, TextAlign, Col);
+  fRenderUI.WriteText(Left, Top, Width, Height, fText, fFont, fTextAlign, Col);
+
+  if fStrikethrough then
+    fRenderUI.WriteLayer(TextLeft, Top + fTextSize.Y div 2 - 2, fTextSize.X, 3, Col, $FF000000);
 end;
 
 
 { TKMLabelScroll }
-constructor TKMLabelScroll.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; aColor:TColor4=$FFFFFFFF);
+constructor TKMLabelScroll.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aCaption, aFont, aTextAlign, aColor);
   SmoothScrollToTop := 0; //Disabled by default
@@ -1164,7 +1168,7 @@ begin
   if fEnabled then Col := FontColor
               else Col := $FF888888;
 
-  fRenderUI.WriteText(Left, NewTop, Width, Height, fCaption, Font, TextAlign, Col);
+  fRenderUI.WriteText(Left, NewTop, Width, Height, fCaption, fFont, fTextAlign, Col);
   fRenderUI.ReleaseClip;
 end;
 
@@ -1358,7 +1362,7 @@ begin
     //Render miniature copy of all available colors with '?' on top
     for i:=0 to Length(Colors)-1 do
       fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+2, Top+(i div fColumnCount)*(fCellSize div fColumnCount)+2, (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
-    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, 0, '?', fnt_Metal, kaCenter, $FFFFFFFF);
+    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, 0, '?', fnt_Metal, taCenter, $FFFFFFFF);
     Start := 1;
   end;
 
@@ -1390,7 +1394,7 @@ begin
   fTexID      := 0;
   fCaption    := aCaption;
   fFont       := aFont;
-  fTextAlign  := kaCenter; //Thats default everywhere in KaM
+  fTextAlign  := taCenter; //Thats default everywhere in KaM
   fStyle      := aStyle;
   fMakesSound := true;
 end;
@@ -1462,8 +1466,8 @@ begin
   TexOffsetY:=0;
   CapOffsetY:=0;
   Caption:='';
-  Font:=fnt_Grey;
-  TextAlign:=kaLeft;
+  fFont := fnt_Grey;
+  TextAlign:=taLeft;
   Down:=false;
   HideHighlight:=false;
 end;
@@ -1505,7 +1509,7 @@ begin
   Inherited;  
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
-  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, 0, Caption, Font, kaCenter, $FFFFFFFF);
+  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, 0, Caption, Font, taCenter, $FFFFFFFF);
   if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00);
   if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
 end;
@@ -1629,7 +1633,7 @@ begin
 
   RText := Copy(RText, fLeftIndex+1, length(RText)); //Remove characters to the left of fLeftIndex
 
-  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, fFont, kaLeft, Col); //Characters that do not fit are trimmed
+  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, fFont, taLeft, Col); //Characters that do not fit are trimmed
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
@@ -1679,9 +1683,9 @@ begin
       fRenderUI.WriteLayer(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
   end else
   begin
-    fRenderUI.WriteText(Left, Top, Width, 0, '[ ] '+fCaption, fFont, kaLeft, Col);
+    fRenderUI.WriteText(Left, Top, Width, 0, '[ ] '+fCaption, fFont, taLeft, Col);
     if fChecked then
-      fRenderUI.WriteText(Left+3, Top-1, 0, 0, 'x', fFont, kaLeft, Col);
+      fRenderUI.WriteText(Left+3, Top-1, 0, 0, 'x', fFont, taLeft, Col);
   end;
 end;
 
@@ -1741,9 +1745,9 @@ begin
   LineHeight := round(fHeight / ItemCount);
   for i:=0 to ItemCount-1 do
   begin
-    fRenderUI.WriteText(Left, Top + i*LineHeight, Width, 0, '[ ] '+fItems.Strings[i], fFont, kaLeft, Col);
+    fRenderUI.WriteText(Left, Top + i*LineHeight, Width, 0, '[ ] '+fItems.Strings[i], fFont, taLeft, Col);
     if fItemIndex = i then
-      fRenderUI.WriteText(Left+3, Top + i*LineHeight - 1, 0, 0, 'x', fFont, kaLeft, Col);
+      fRenderUI.WriteText(Left+3, Top + i*LineHeight - 1, 0, 0, 'x', fFont, taLeft, Col);
   end;
 end;
 
@@ -1755,7 +1759,7 @@ begin
   Position:=EnsureRange(aPos,0,100);
   Font:=aFont;
   FontColor:=aColor;
-  TextAlign:=kaCenter;
+  TextAlign:=taCenter;
   Caption:=aCaption;
 end;
 
@@ -1777,7 +1781,7 @@ var i:integer;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width-8, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width-8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxID, TexID);
 end;
@@ -1789,7 +1793,7 @@ begin
   Inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
 
   fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
-  fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,'',fnt_Grey,kaCenter);
+  fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,'',fnt_Grey,taCenter);
   fOrderAdd := TKMButton.Create(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal, bsGame);
 end;
 
@@ -1825,7 +1829,7 @@ begin
   fOrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, 0, Caption, fnt_Game, kaLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxId, TexID);
 end;
@@ -1835,7 +1839,7 @@ end;
 procedure TKMCostsRow.Paint;
 begin
   Inherited;
-  fRenderUI.WriteText(Left, Top + 4, Width-20, 0, Caption, fnt_Grey, kaLeft, $FFFFFFFF);
+  fRenderUI.WriteText(Left, Top + 4, Width-20, 0, Caption, fnt_Grey, taLeft, $FFFFFFFF);
   if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RxId,TexID1].PxHeight) div 2, RxId, TexID1);
   if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RxId,TexID2].PxHeight) div 2, RxId, TexID2);
 end;
@@ -1878,9 +1882,9 @@ begin
   ThumbPos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
   fRenderUI.WritePicture(Left+ThumbPos+2, Top, 4,132);
   if fEnabled then
-    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, kaCenter, $FFFFFFFF)
+    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, taCenter, $FFFFFFFF)
   else
-    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, kaCenter, $FF888888);
+    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, taCenter, $FF888888);
 end;
 
 
@@ -2214,7 +2218,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, 0.5);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft, $FFFFFFFF);
 end;
 
 
@@ -2386,7 +2390,7 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, 0, fItems.Strings[TopIndex+i] , fFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft, $FFFFFFFF);
 end;
 
 
@@ -2585,14 +2589,14 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemTop+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
 
   for i:=0 to Length(fItems)-1 do
-    fRenderUI.WriteText(Left+4+fItemOffsets[i], 4+Top, 0, 0, fColumns[i] , fHeaderFont, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4+fItemOffsets[i], 4+Top, 0, 0, fColumns[i] , fHeaderFont, taLeft, $FFFFFFFF);
 
   for i:=0 to Math.min(fItems[0].Count-1, ((fHeight-fItemTop) div fItemHeight)-1) do
     for k:=0 to Length(fItems)-1 do
     begin
       if k = Length(fItems)-1 then ItemWidth := (PaintWidth-4) else ItemWidth := fItemOffsets[k+1];
       ItemWidth := ItemWidth-fItemOffsets[k]-4;
-      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, ItemWidth, 0, fItems[k].Strings[TopIndex+i] , fFont, kaLeft, fItemColors[k,i]);
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, ItemWidth, 0, fItems[k].Strings[TopIndex+i] , fFont, taLeft, fItemColors[k,i]);
     end;
 end;
 
@@ -2735,7 +2739,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, fCaption, fFont, kaLeft, Col);
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, fCaption, fFont, taLeft, Col);
 end;
 
 
@@ -2829,7 +2833,7 @@ begin
   if (fRandomCaption <> '') and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-    fRenderUI.WriteText(Left+4, Top+3, 0, 0, fRandomCaption, fnt_Metal, kaLeft, Col);
+    fRenderUI.WriteText(Left+4, Top+3, 0, 0, fRandomCaption, fnt_Metal, taLeft, Col);
   end;
 end;
 
@@ -3111,7 +3115,7 @@ begin
   fCtrl.Paint;
 
   if MODE_DESIGN_CONTORLS and (CtrlFocus <> nil) then
-    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, 0, 0, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, kaLeft, $FFFFFFFF);
+    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, 0, 0, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, taLeft, $FFFFFFFF);
 end;
 
 

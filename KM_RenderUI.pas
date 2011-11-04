@@ -3,7 +3,7 @@ unit KM_RenderUI;
 interface
 uses dglOpenGL,
   {$IFDEF FPC} GL, {$ENDIF}
-  Math, KromOGLUtils, SysUtils, KM_Defaults, Graphics, KM_Points;
+  Math, KromOGLUtils, SysUtils, KM_Defaults, KM_Controls, Graphics, KM_Points;
 
 type
   TRenderUI = class
@@ -19,7 +19,7 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-    procedure WriteText         (X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
+    procedure WriteText         (X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
@@ -163,9 +163,9 @@ begin
     end;
 
     if fbs_Disabled in State then
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, kaCenter, $FF808080)
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FF808080)
     else
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, kaCenter, $FFE0E0E0);
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FFE0E0E0);
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);
@@ -374,7 +374,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Color:TColor4);
+procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
 var
   i:integer;
   LineCount,AdvX,LineHeight,BlockWidth:integer;
@@ -385,9 +385,9 @@ begin
 
   if W <> 0 then
     case Align of
-      kaLeft:   SetupClipX(X, X+W);
-      kaCenter: SetupClipX(X-W div 2, X+W div 2);
-      kaRight:  SetupClipX(X-W, X+W);
+      taLeft:   SetupClipX(X, X+W);
+      taCenter: SetupClipX(X-W div 2, X+W div 2);
+      taRight:  SetupClipX(X-W, X+W);
     end;
 
   FD := fResource.ResourceFont.FontData[Fnt]; //Shortcut
@@ -426,9 +426,9 @@ begin
     glColor4ubv(@Color);
 
     case Align of
-      kaLeft:   glTranslatef(X,                      Y, 0);
-      kaCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
-      kaRight:  glTranslatef(X - LineWidth[1],       Y, 0);
+      taLeft:   glTranslatef(X,                      Y, 0);
+      taCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
+      taRight:  glTranslatef(X - LineWidth[1],       Y, 0);
     end;
 
     glBegin(GL_QUADS);
@@ -440,9 +440,9 @@ begin
         glEnd;
         inc(LineCount);
         case Align of
-          kaLeft:   glTranslatef(0, LineHeight, 0); //Negate previous line length
-          kaCenter: glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
-          kaRight:  glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
+          taLeft:   glTranslatef(0, LineHeight, 0); //Negate previous line length
+          taCenter: glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
+          taRight:  glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
         end;
         AdvX := 0;
         glBegin(GL_QUADS);
@@ -465,9 +465,9 @@ begin
   begin
     glPushMatrix;
       case Align of
-        kaLeft:   glTranslatef(X,                      Y, 0);
-        kaCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
-        kaRight:  glTranslatef(X - LineWidth[1],       Y, 0);
+        taLeft:   glTranslatef(X,                      Y, 0);
+        taCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
+        taRight:  glTranslatef(X - LineWidth[1],       Y, 0);
       end;
 
       glColor4f(1,0,0,0.5);
