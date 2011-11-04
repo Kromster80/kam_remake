@@ -151,10 +151,11 @@ type
       Image_UnitPic:TKMImage;
 
       Panel_Army:TKMPanel;
-        Button_Army_RotCW,Button_Army_RotCCW:TKMButton;
-        Button_Army_ForUp,Button_Army_ForDown:TKMButton;
-        ImageStack_Army:TKMImageStack;
-        Button_ArmyDec,Button_ArmyFood,Button_ArmyInc:TKMButton;
+        Button_Army_RotCW,Button_Army_RotCCW: TKMButton;
+        Button_Army_ForUp,Button_Army_ForDown: TKMButton;
+        ImageStack_Army: TKMImageStack;
+        Label_ArmyCount: TKMLabel;
+        Button_ArmyDec,Button_ArmyFood,Button_ArmyInc: TKMButton;
 
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
@@ -794,6 +795,7 @@ begin
     Button_Army_RotCW  := TKMButton.Create(Panel_Army,132, 0, 56, 40, 24);
     Button_Army_ForUp   := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 33);
     ImageStack_Army     := TKMImageStack.Create(Panel_Army, 70, 46, 56, 40, 43);
+    Label_ArmyCount     := TKMLabel.Create(Panel_Army, 98, 60, 0, 0, '-', fnt_Metal, taCenter);
     Button_Army_ForDown := TKMButton.Create(Panel_Army,132, 46, 56, 40, 32);
     Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
     Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
@@ -846,7 +848,7 @@ begin
     Button_StoreDec100.Tag  := 100;
     Button_StoreDec       := TKMButton.Create(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
     Button_StoreDec.Tag   := 1;
-    Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,156,230,20,20,'',fnt_Metal,taCenter);
+    Label_Store_WareCount:= TKMLabel.Create (Panel_HouseStore,156,230,40,20,'',fnt_Metal,taCenter);
     Button_StoreInc100      := TKMButton.Create(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
     Button_StoreInc100.Tag  := 100;
     Button_StoreInc       := TKMButton.Create(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
@@ -1193,7 +1195,10 @@ begin
     Label_UnitDescription.Hide;
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if Commander<>nil then
+    begin
       ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
+      Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
+    end;
     Panel_Army.Show;
   end
   else
@@ -1383,6 +1388,7 @@ begin
   if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
   if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
   ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
+  Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
 
   if Sender = Button_Army_RotCW then Commander.Direction := KMNextDirection(Commander.Direction);
   if Sender = Button_Army_RotCCW then Commander.Direction := KMPrevDirection(Commander.Direction);
@@ -1416,6 +1422,7 @@ begin
   Commander.fMapEdMembersCount := EnsureRange(Commander.fMapEdMembersCount + Amt, 0, 200); //max members
   Commander.UnitsPerRow := min(Commander.UnitsPerRow,Commander.fMapEdMembersCount+1); //Ensure units per row is <= unit count
   ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
+  Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
 end;
 
 

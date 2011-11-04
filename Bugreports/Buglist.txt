@@ -56,8 +56,8 @@ Features:
  +	In the lobby the Ready button now toggles "ready"/"not ready", you are not allowed to modify your settings while set to ready
  +	Ability to see the score screen for other players after a multiplayer game
  +	Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
+ +	Show formation count in MapEd UI
 	Highlight commander in groups formation in UI
-	Show formation count in MapEd UI
 	Double clicking a server should join it
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
 	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
@@ -77,7 +77,6 @@ Features:
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
 	Make player info take the full width of the multiplayer lobby and move map info below
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it
-	Better full screen support (right now you can't minimize the game while it's full screen)
 	Archers on a hill get slighty longer range (calculated from height of archer tile relative to target tile)
 	Show the mining radius of the selected house or house that you are placing
 	Master server in MySQL and support multiple revisions at once
@@ -89,6 +88,7 @@ Features:
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
+ -	Better full screen support (right now you can't minimize the game while it's full screen, which is correct)
 
 
 Fixed in r2411:
