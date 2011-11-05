@@ -639,6 +639,7 @@ begin
 
     if (U <> nil)
     and (U.UnitType = ut_Fish)
+    and (not U.IsDeadOrDying) //Fish are killed when they are caught or become stuck
     and (fTerrain.Land[U.GetPosition.Y, U.GetPosition.X].WalkConnect[wcFish] = aWaterID)
     and (TKMUnitAnimal(U).FishCount > HighestGroupCount) then
     begin
