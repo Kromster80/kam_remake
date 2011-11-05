@@ -60,3 +60,10 @@ rus.NoKaM=Мастер установки не обнаружил установленной игры Knights and Merchants
 rus.CantUpdate=Мастер установки не смог обнаружить версию КаМ Ремейк для обновления. Пожалуйста скачайте и запустите полную версию установщика. Установка будет отменена.
 rus.OpenAL=Установить OpenAL? (рекоммендуется) Необходимо для работы звука в КаМ Ремейк
 rus.ViewReadme=Показать Readme
+
+;Brazilian Portuguese 
+ptb.CreateStartShortcut=Criar um atalho no menu Iniciar
+ptb.NoKaM=O assistente de instalaзгo detectou que vocк nгo tem Knights and Merchants: The Peasants Rebellion instalado. A instalaзгo serб abortada.
+ptb.CantUpdate=O assistente de instalaзгo foi incapaz de encontrar uma versгo existente do KaM Remake para atualizar. Por favor, baixe e instale atravйs do instalador completo. A instalaзгo serб abortada.
+ptb.OpenAL=Vocк deseja que o assistente de instalaзгo instale o OpenAL? (Altamente recomendado) Й necessбrio para o funcionamento dos sons no KaM Remake
+ptb.ViewReadme=Ver o Readme

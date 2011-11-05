@@ -39,7 +39,7 @@ Name: "ita"; MessagesFile: "compiler:Languages\Italian.isl";
 Name: "svk"; MessagesFile: "compiler:Languages\Slovak.isl";
 Name: "spa"; MessagesFile: "compiler:Languages\Spanish.isl";
 Name: "swe"; MessagesFile: "ExtraLanguages\Swedish.isl"; LicenseFile: "License.swe.txt"
-Name: "ptb"; MessagesFile: "ExtraLanguages\BrazilianPortuguese.isl";
+Name: "ptb"; MessagesFile: "ExtraLanguages\BrazilianPortuguese.isl"; LicenseFile: "License.ptb.txt"
 
 [CustomMessages]  
 #include "Translations.iss"

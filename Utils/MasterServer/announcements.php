@@ -10,6 +10,9 @@ if($Rev != $GAME_VERSION)
 {
 	switch($Lang)
 	{
+		case 'ptb':
+			echo "Sua versão do KaM Remake está desatualizada! Você está executando ".$Rev." mas a versão mais recente é ".$GAME_VERSION.".|Você não pode jogar online até que atualize seu jogo.|| Por favor, baixe a atualização em: www.kamremake.com";
+			break;
 		case 'hun':
 			echo "A KaM Remake verziód túl régi! Te a ".$Rev." verziót futtatod, miközben a ".$GAME_VERSION." verzió a legújabb.|Nem játszhatsz interneten, amíg nem frissíted a játékodat.||Kérlek töltsd le a játék frissítését a hivatalos oldalon: www.kamremake.com";
 			break;
