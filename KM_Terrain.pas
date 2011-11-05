@@ -577,15 +577,25 @@ begin
 
     U := Land[i,k].IsUnit;
 
+    //@Krom: Please let me know if this makes any sense. I want to comment it so we remember why
+    //       we use U.GetPosition instead of KMPoint(k,i) in checks. Rewrite my comments if you like.
+
+    //This unit could be on a different tile next to KMPoint(k,i), so we cannot use that anymore.
+    //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.
+    //In that case aLoc = (37,54) and k,i = (39;52) but U.GetPosition = (38;53).
+    //This shows why you can't use (k,i) in checks because it is distance >2 from aLoc! (in melee fight)
+    if U = nil then Continue;
+    P := U.GetPosition;
+
     RequiredMaxRad := MaxRad;
-    if (MaxRad = 1) and KMStepIsDiag(aLoc, KMPoint(k,i)) then
+    if (MaxRad = 1) and KMStepIsDiag(aLoc, P) then
       RequiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
 
     if (U <> nil) and
        U.Visible and //Inside of house
-       CanWalkDiagonaly(aLoc,KMPoint(k,i)) and
+       CanWalkDiagonaly(aLoc,P) and
        (fPlayers.CheckAlliance(aPlayer, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
-       ((abs(aLoc.X - k) <> 1) or (abs(aLoc.Y - i) <> 1) or VertexUsageCompatible(aLoc,KMPoint(k,i))) and
+       ((abs(aLoc.X - P.X) <> 1) or (abs(aLoc.Y - P.Y) <> 1) or VertexUsageCompatible(aLoc,P)) and
        (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) and //Unit's exact position must be close enough
        (not U.IsDeadOrDying)
     then

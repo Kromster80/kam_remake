@@ -75,7 +75,7 @@ begin
   AssignFile(fl, fLogPath);
   Append(fl);
   //Write a line when the day changed since last time (useful for dedicated server logs that could be over months)
-  if abs(Round(fPreviousDate) - Round(Now)) >= 1 then
+  if abs(Trunc(fPreviousDate) - Trunc(Now)) >= 1 then
   begin
     WriteLn(fl,'================');
     WriteLn(fl,'Date: '+FormatDateTime('yyyy/mm/dd',Now));
