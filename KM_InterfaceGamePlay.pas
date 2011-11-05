@@ -2696,6 +2696,10 @@ begin
     Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
     DropBox_AlliesTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
+    //Strikethrough for disconnected players
+    Label_AlliesPlayer[i].Strikethrough := not fGame.Networking.NetPlayers[i+1].Alive;
+    Label_AlliesTeam[i].Strikethrough := not fGame.Networking.NetPlayers[i+1].Alive;
+    Label_AlliesPing[i].Strikethrough := not fGame.Networking.NetPlayers[i+1].Alive;
     if fGame.Networking.NetPlayers[i+1].Team = 0 then
       Label_AlliesTeam[i].Caption := fTextLibrary[TX_LOBBY_NONE]
     else

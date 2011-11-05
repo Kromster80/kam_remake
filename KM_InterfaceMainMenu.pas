@@ -510,8 +510,7 @@ procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, 5);
-    with TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter)
-    do Strikethrough := true;
+    TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
     with TKMImage.Create(Panel_MainMenu, 50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 

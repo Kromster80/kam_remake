@@ -22,7 +22,8 @@
  +	Lobby with player 1, AI, player 2. Player 1 quits, player 2 becomes host and removes AI. Player 2 can now kick himself and other strange bugs
  +	Workers stuck and cause a crash on a building sites that become too sloped during construction (e.g. bottom left iron mine in The Northern Province)
  +	Up the ware limit in the barracks from 255
-	Disconnected players names should be striked through in in-game player list [Added Strikethrough property to TKMLabel]
+ +	Disconnected players names should be striked through in in-game player list [Added Strikethrough property to TKMLabel]
+ +	+# in house stats would not disappear when the plan was destroyed by an enemy
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -30,7 +31,7 @@
  	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
  	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  ?	Warriors should resume interrupted orders after a fight
-	The bottom row of the map always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn)
+	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn)
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays almost always end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.

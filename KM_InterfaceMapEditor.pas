@@ -476,6 +476,7 @@ begin
   fMaps.Free;
   fMapsMP.Free;
   MyControls.Free;
+  SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
   Inherited;
 end;
 
@@ -795,7 +796,7 @@ begin
     Button_Army_RotCW  := TKMButton.Create(Panel_Army,132, 0, 56, 40, 24);
     Button_Army_ForUp   := TKMButton.Create(Panel_Army,  8, 46, 56, 40, 33);
     ImageStack_Army     := TKMImageStack.Create(Panel_Army, 70, 46, 56, 40, 43);
-    Label_ArmyCount     := TKMLabel.Create(Panel_Army, 98, 60, 0, 0, '-', fnt_Metal, taCenter);
+    Label_ArmyCount     := TKMLabel.Create(Panel_Army, 98, 60, 0, 0, '-', fnt_Outline, taCenter);
     Button_Army_ForDown := TKMButton.Create(Panel_Army,132, 46, 56, 40, 32);
     Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
     Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;

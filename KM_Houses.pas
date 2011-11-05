@@ -669,7 +669,9 @@ begin
     DemolishHouse(false); //Destroyed by Enemy
     if Assigned(fPlayers) and Assigned(fPlayers.Player[fOwner]) then
       if (fBuildState = hbs_Done) then
-        fPlayers.Player[fOwner].Stats.HouseLost(fHouseType);
+        fPlayers.Player[fOwner].Stats.HouseLost(fHouseType)
+      else
+        fPlayers.Player[fOwner].Stats.HouseEnded(fHouseType);
     Result := true;
   end;
 end;
