@@ -26,6 +26,7 @@
  +	+# in house stats would not disappear when the plan was destroyed by an enemy
  +	Rare crashes with the message "Opposite vertex in use at (X,Y)" during battles have been fixed
  +	Rare "Range check error" caused by trying to catch a dead or dying fish
+ +	The game will start with the language you used in the installer
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -87,6 +88,7 @@ Features:
 	Master server in MySQL and support multiple revisions at once
 	Colors for chat to highlight player names and whether it is team/all channel
 	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
+	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
 
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed

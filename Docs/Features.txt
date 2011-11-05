@@ -16,6 +16,7 @@ Future
 	Tutorial missions texts [Krom]
 	File transfer in multiplayer for missions and saves [Lewin]
 	Auto reconnect for networking
+	Multiplayer trading (from a new building "Trading Post"?)
 	
 Next demo
  ?	Bugfixes
