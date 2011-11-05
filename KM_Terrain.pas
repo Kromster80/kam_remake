@@ -543,6 +543,7 @@ var
   dX,dY:integer;
   RequiredMaxRad: single;
   U,C,W:TKMUnit; //CurrentUnit, BestWarrior, BestCitizen
+  P: TKMPoint;
 begin
   W := nil;
   C := nil;
@@ -577,6 +578,11 @@ begin
 
     U := Land[i,k].IsUnit;
 
+    if (U = nil)
+    or U.IsDeadOrDying
+    or not U.Visible then //Inside of house
+      Continue;
+
     //@Krom: Please let me know if this makes any sense. I want to comment it so we remember why
     //       we use U.GetPosition instead of KMPoint(k,i) in checks. Rewrite my comments if you like.
 
@@ -584,20 +590,16 @@ begin
     //There was a crash caused by VertexUsageCompatible checking (k,i) instead of U.GetPosition.
     //In that case aLoc = (37,54) and k,i = (39;52) but U.GetPosition = (38;53).
     //This shows why you can't use (k,i) in checks because it is distance >2 from aLoc! (in melee fight)
-    if U = nil then Continue;
     P := U.GetPosition;
 
     RequiredMaxRad := MaxRad;
     if (MaxRad = 1) and KMStepIsDiag(aLoc, P) then
       RequiredMaxRad := 1.42; //Use diagonal radius sqrt(2) instead
 
-    if (U <> nil) and
-       U.Visible and //Inside of house
-       CanWalkDiagonaly(aLoc,P) and
+    if CanWalkDiagonaly(aLoc, P) and
        (fPlayers.CheckAlliance(aPlayer, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
        ((abs(aLoc.X - P.X) <> 1) or (abs(aLoc.Y - P.Y) <> 1) or VertexUsageCompatible(aLoc,P)) and
-       (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) and //Unit's exact position must be close enough
-       (not U.IsDeadOrDying)
+       (InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad)) //Unit's exact position must be close enough
     then
       if U is TKMUnitWarrior then
         W := U

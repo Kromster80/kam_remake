@@ -59,8 +59,10 @@ Features:
  +	Ability to see the score screen for other players after a multiplayer game
  +	Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
  +	Show formation count in MapEd UI
+	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it
+	Add player flags in lobby, to see who uses which KaM locale (and which language he can talk)
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
 	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth

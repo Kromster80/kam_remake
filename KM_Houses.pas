@@ -1776,11 +1776,11 @@ procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word
 var i:TResourceType;
 begin
   case aResource of
-    rt_Warfare: for i:=Low(ResourceCount) to High(ResourceCount) do
-                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
+    rt_Warfare:   for i:=Low(ResourceCount) to High(ResourceCount) do
+                    ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount, 0, High(Word));
     WARFARE_MIN..
-    WARFARE_MAX:   ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
-    else        raise ELocError.Create('Cant''t add ' + fResource.Resources[aResource].Name, GetPosition);
+    WARFARE_MAX:  ResourceCount[aResource] := EnsureRange(ResourceCount[aResource]+aCount, 0, High(Word));
+    else          raise ELocError.Create('Cant''t add ' + fResource.Resources[aResource].Name, GetPosition);
   end;
 end;
 
@@ -1790,13 +1790,7 @@ begin
   if aResource in [WARFARE_MIN..WARFARE_MAX] then
     Result := ResourceCount[aResource]
   else
-  if aResource in [rt_Wood, rt_Stone] then
-    Result := 0 //Wood/stone in building stage
-  else
-  begin
-    Result := 0;
-    Assert(False);
-  end;
+    Result := 0; //Including Wood/stone in building stage
 end;
 
 
