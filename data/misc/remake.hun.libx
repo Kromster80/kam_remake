@@ -24,9 +24,9 @@ MaxID:163
 22:Vezérlõk:
 23:Játékmenet:
 24:Hangok:
-141:
+141:Görgetési sebesség
 25:Zene kikapcsolása
-143:
+143:Véletlenszerû zenelejátszás
 26:Grafika:
 27:Fényerõsség
 28:Teljes képernyõ
@@ -73,8 +73,8 @@ MaxID:163
 66:Kapcsolódási hiba: %s
 67:Megszakadt a kapcsolat
 68:Küldetés %d
-150:
-151:
+150:Építkezés és Csata
+151:Csata
 
 69:A halászkunyhód túl messze van a víztõl.
 70:A halászod nem tud több halat fogni a közeli vízbõl.
@@ -84,8 +84,8 @@ MaxID:163
 73:Vásárolni kívánt áru kiválasztása a jobb egér gombal
 74:Elad x%d
 75:Vesz x%d
-162:
-161:
+162:Mennyiség csökkentése
+161:Mennyiség növelése
 
 76:Tereprendezés
 77:Település tervezés
@@ -107,21 +107,21 @@ MaxID:163
 92:Szerver Lista Frissítése
 93:Szerver Részletek
 94:Játékos lisa:
-144:
+144:Játék információ
 95:Cím
 96:Port
 97:Szoba
 98:Csatlakozás
-153:
+153:Kész
 99:Kapcsolódás, kérem várjon ...
-159:
+159:Hibás játék verzió: %s. Szerver verziója: %s
 100:Események töltése...
 101:Frissítés...
-142:
-145:
-146:
-147:
-148:
+142:Nem található szerver
+145:Nincs
+146:Lobby
+147:Betöltés
+148:Játék
 
 102:Játékosok
 103:Kezdõhely
@@ -151,18 +151,18 @@ MaxID:163
 127:Méret:
 128:Kilépés
 129:Kész
-152:
+152:Nincs kész
 130:Indítás!
-149:
-154:
-155:
-156:
-157:
-158:
-160:
+149:Kezdõhely %d
+154:Hiba: Kérem válasszon egy játékost a mentésbõl, hogy irányíthassa
+155:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
+156:Nem lehet indítani: %s
+157:Nem áll mindenki készen a kezdésre
+158:A játékosok száma meghaladja a térkép korlátait
+160:A szerver átadta a házigazda szerepét nekünk
 
 131:Várakozás a játékosokra:
-163:
+163:Játék mentése...
 
 132:KaM Remake Készítõk
 133:Eredeti Knights & Merchants Készítõk
