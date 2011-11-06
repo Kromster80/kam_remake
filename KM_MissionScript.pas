@@ -66,7 +66,7 @@ const
 
   MAXPARAMS = 8;
 
-  //This is a map of the valid values for !SET_UNIT, and the corrisponing unit that will be created (matches KaM behavior)
+  //This is a map of the valid values for !SET_UNIT, and the corresponing unit that will be created (matches KaM behavior)
   UnitsRemap: array[0..31] of TUnitType = (ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,
     ut_Farmer,ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,ut_StoneCutter,
     ut_Smith,ut_Metallurgist,ut_Recruit, //Units
@@ -81,7 +81,7 @@ const
   -1,-1,-1,-1, {-1,-1,} //TPR warriors (can't be placed with SET_UNIT)
   24,25,26,27,28,29,30,31); //Animals
 
-  //This is a map of the valid values for !SET_GROUP, and the corrisponing unit that will be created (matches KaM behavior)
+  //This is a map of the valid values for !SET_GROUP, and the corresponing unit that will be created (matches KaM behavior)
   TroopsRemap: array[14..29] of TUnitType = (
   ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
   ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
@@ -573,18 +573,16 @@ begin
                           else
                             AddScriptError('ct_SetHouseDamage without prior declaration of House');
     ct_SetUnit:         begin
-                          if (fLastPlayer >=0) then
-                          begin
-                            if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then
-                              fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]],KMPoint(P[1]+1,P[2]+1));
-                          end
-                          else //Animals should be added regardless of whether the current player is valid
-                            if UnitsRemap[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
-                              fPlayers.PlayerAnimals.AddUnit(UnitsRemap[P[0]],KMPoint(P[1]+1,P[2]+1));
+                          //Animals should be added regardless of current player
+                          if UnitsRemap[P[0]] in [ANIMAL_MIN..ANIMAL_MAX] then
+                            fPlayers.PlayerAnimals.AddUnit(UnitsRemap[P[0]], KMPoint(P[1]+1, P[2]+1))
+                          else
+                          if (fLastPlayer >= 0) and (UnitsRemap[P[0]] in [HUMANS_MIN..HUMANS_MAX]) then
+                            fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]], KMPoint(P[1]+1, P[2]+1));
                         end;
 
     ct_SetUnitByStock:  if fLastPlayer >=0 then
-                          if InRange(P[0],low(UnitsRemap),high(UnitsRemap)) then
+                          if UnitsRemap[P[0]] in [HUMANS_MIN..HUMANS_MAX] then
                           begin
                             H := fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 1);
                             if H <> nil then

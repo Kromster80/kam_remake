@@ -562,6 +562,7 @@ begin
     PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
     fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
     fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].PlayerType;
+    fPlayers.Player[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
 
     //Setup alliances
     if fNetworking.SelectGameKind = ngk_Map then

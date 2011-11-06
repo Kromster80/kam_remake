@@ -467,7 +467,7 @@ begin
 
   if fGame<>nil then //Could happen on game start when Form gets resized and fGame is nil
   begin
-    fGame.Resize(Panel5.Width,Panel5.Height);
+    fGame.Resize(Panel5.Width, Panel5.Height);
     StatusBar1.Panels[0].Text := fGame.MapSizeText;
   end;
 end;

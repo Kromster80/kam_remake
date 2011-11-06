@@ -13,10 +13,24 @@ type
 
   TKMPlayerCommon = class
   private
-    fPlayerIndex:TPlayerIndex; //Which ID this player is
+    fPlayerIndex: TPlayerIndex; //Which ID this player is
+    fUnits: TKMUnitsCollection;
   public
-    constructor Create(aPlayerIndex:TPlayerIndex);
-    property PlayerIndex:TPlayerIndex read fPlayerIndex;
+    constructor Create(aPlayerIndex: TPlayerIndex);
+    destructor Destroy; override;
+    property PlayerIndex: TPlayerIndex read fPlayerIndex;
+    property Units: TKMUnitsCollection read fUnits;
+
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit; virtual;
+    procedure RemUnit(Position: TKMPoint);
+    function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+
+    procedure Save(SaveStream: TKMemoryStream); virtual;
+    procedure Load(LoadStream: TKMemoryStream); virtual;
+    procedure SyncLoad; virtual;
+
+    procedure UpdateState(aUpdateAI: Boolean); virtual;
+    procedure Paint; virtual;
   end;
 
 
@@ -27,7 +41,6 @@ type
     fRepairList: TKMRepairQueue;
     fDeliverList:TKMDeliverQueue;
     fHouses:TKMHousesCollection;
-    fUnits:TKMUnitsCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
     fStats:TKMPlayerStats;
     fGoals:TKMGoals;
@@ -56,14 +69,13 @@ type
     property RepairList:TKMRepairQueue read fRepairList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
-    property Units:TKMUnitsCollection read fUnits;
     property Stats:TKMPlayerStats read fStats;
     property Goals:TKMGoals read fGoals;
     property FogOfWar:TKMFogOfWar read fFogOfWar;
     property ArmyEval:TKMArmyEvaluation read fArmyEval;
 
     procedure SetPlayerID(aNewIndex:TPlayerIndex);
-    property PlayerName: string read fPlayerName;
+    property PlayerName: string read fPlayerName write fPlayerName;
     property PlayerType:TPlayerType read fPlayerType write fPlayerType; //Is it Human or AI
     property FlagColor:cardinal read fFlagColor write fFlagColor;
     property FlagColorIndex:byte read GetColorIndex;
@@ -74,7 +86,7 @@ type
     procedure SkipWinConditionCheck;
     procedure SkipDefeatConditionCheck;
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit; reintroduce;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace:boolean):TKMHouse;
@@ -85,44 +97,26 @@ type
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    procedure RemUnit(Position: TKMPoint);
     function RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
     function HousesHitTest(X, Y: Integer): TKMHouse;
-    function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 
     function GetFieldsCount:integer;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad;
+    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Load(LoadStream:TKMemoryStream); override;
+    procedure SyncLoad; override;
     procedure IncAnimStep;
-    procedure UpdateState(Tick,PlayerIndex:cardinal);
-    procedure Paint;
+    procedure UpdateState(aUpdateAI: Boolean); override;
+    procedure Paint; override;
   end;
 
 
   TKMPlayerAnimals = class (TKMPlayerCommon)
-  private
-    fUnits: TKMUnitsCollection;
   public
-    constructor Create(aPlayerIndex:TPlayerIndex);
-    destructor Destroy; override;
-
-    property Units:TKMUnitsCollection read fUnits;
-
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
-    function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
-    function UnitsHitTest(X, Y: Integer): TKMUnit;
-
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad;
-    procedure UpdateState;
-    procedure Paint;
   end;
 
 
@@ -130,10 +124,74 @@ implementation
 uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
 
 
+{ TKMPlayerCommon }
 constructor TKMPlayerCommon.Create(aPlayerIndex:TPlayerIndex);
 begin
   Inherited Create;
   fPlayerIndex  := aPlayerIndex;
+  fUnits        := TKMUnitsCollection.Create;
+end;
+
+
+destructor TKMPlayerCommon.Destroy;
+begin
+  FreeThenNil(fUnits);
+  Inherited;
+end;
+
+
+function TKMPlayerCommon.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
+begin
+  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
+end;
+
+
+procedure TKMPlayerCommon.Paint;
+begin
+  fUnits.Paint;
+end;
+
+
+procedure TKMPlayerCommon.RemUnit(Position: TKMPoint);
+var U: TKMUnit;
+begin
+  U := fUnits.HitTest(Position.X, Position.Y);
+  if U <> nil then
+    fUnits.RemoveUnit(U);
+end;
+
+
+procedure TKMPlayerCommon.Save(SaveStream: TKMemoryStream);
+begin
+  SaveStream.Write('PlayerCommon');
+  fUnits.Save(SaveStream);
+end;
+
+
+procedure TKMPlayerCommon.Load(LoadStream: TKMemoryStream);
+var s: string;
+begin
+  LoadStream.Read(s);
+  Assert(s = 'PlayerCommon');
+  fUnits.Load(LoadStream);
+end;
+
+
+procedure TKMPlayerCommon.SyncLoad;
+begin
+  fUnits.SyncLoad;
+end;
+
+
+function TKMPlayerCommon.UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
+begin
+  Result:= fUnits.HitTest(X, Y, UT);
+end;
+
+
+procedure TKMPlayerCommon.UpdateState;
+begin
+  fUnits.UpdateState;
 end;
 
 
@@ -147,7 +205,6 @@ begin
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
-  fUnits        := TKMUnitsCollection.Create;
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
@@ -165,33 +222,32 @@ begin
 end;
 
 
+//Destruction order is important as Houses and Units need to access 
+//Stats/Deliveries and other collection in their Destroy/Abandon/Demolish methods
 destructor TKMPlayer.Destroy;
 begin
+  Inherited;
   FreeThenNil(fArmyEval);
   FreeThenNil(fRoadsList);
-  FreeThenNil(fUnits);
   FreeThenNil(fHouses);
-  FreeThenNil(fStats); //Used by Houses and Units
+
+  //Should be freed after Houses and Units, as they write to it on Destroy  FreeThenNil(fStats);
   FreeThenNil(fGoals);
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
   FreeThenNil(fRepairList);
   FreeThenNil(fAI);
-  Inherited;
 end;
 
 
+//Add unit of aUnitType to Position
+//AutoPlace - add unit to nearest available spot if Position is already taken (or unwalkable)
+//WasTrained - the uniot was trained by player and therefor counted by Stats
 function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false):TKMUnit;
 begin
-  //Animals must get redirected to animal player
-  if aUnitType in [ANIMAL_MIN..ANIMAL_MAX] then
-  begin
-    Result := fPlayers.PlayerAnimals.AddUnit(aUnitType,Position,AutoPlace);
-    exit;
-  end;
+  Result := Inherited AddUnit(aUnitType, Position, AutoPlace);
 
-  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
   if Result <> nil then
     fStats.UnitCreated(aUnitType, WasTrained);
 end;
@@ -341,15 +397,6 @@ begin
 end;
 
 
-procedure TKMPlayer.RemUnit(Position: TKMPoint);
-var U:TKMUnit;
-begin
-  U := fUnits.HitTest(Position.X, Position.Y);
-  if U<>nil then
-    fUnits.RemoveUnit(U);
-end;
-
-
 function TKMPlayer.RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
 begin
   Result := BuildList.CancelRoad(Position,Simulated);
@@ -406,10 +453,6 @@ begin
 end;
 
 
-function TKMPlayer.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
-begin
-  Result:= fUnits.HitTest(X, Y, UT);
-end;
 
 
 function TKMPlayer.HousesHitTest(X, Y: Integer): TKMHouse;
@@ -469,6 +512,7 @@ end;
 
 procedure TKMPlayer.Save(SaveStream:TKMemoryStream);
 begin
+  Inherited;
   fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
   fRepairList.Save(SaveStream);
@@ -477,7 +521,6 @@ begin
   fGoals.Save(SaveStream);
   fHouses.Save(SaveStream);
   fStats.Save(SaveStream);
-  fUnits.Save(SaveStream);
 
   SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fPlayerType, SizeOf(fPlayerType));
@@ -491,6 +534,7 @@ end;
 
 procedure TKMPlayer.Load(LoadStream:TKMemoryStream);
 begin
+  Inherited;
   fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
   fRepairList.Load(LoadStream);
@@ -499,7 +543,6 @@ begin
   fGoals.Load(LoadStream);
   fHouses.Load(LoadStream);
   fStats.Load(LoadStream);
-  fUnits.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
   LoadStream.Read(fPlayerType, SizeOf(fPlayerType));
@@ -513,7 +556,7 @@ end;
 
 procedure TKMPlayer.SyncLoad;
 begin
-  fUnits.SyncLoad;
+  Inherited;
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
   fBuildList.SyncLoad;
@@ -528,14 +571,15 @@ begin
 end;
 
 
-procedure TKMPlayer.UpdateState(Tick,PlayerIndex:cardinal);
+//aUpdateAI flag means we can perform CPU intensive AI update
+procedure TKMPlayer.UpdateState(aUpdateAI: Boolean);
 begin
-  fUnits.UpdateState;
+  Inherited;
   fHouses.UpdateState;
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
-  //Do only one players AI per Tick
-  if (Tick+PlayerIndex) mod 20 = 0 then begin
+  if aUpdateAI then
+  begin
     fAI.UpdateState;
     //fArmyEval.UpdateState;
   end;
@@ -544,86 +588,12 @@ end;
 
 procedure TKMPlayer.Paint;
 begin
-  fUnits.Paint;
+  Inherited;
   fHouses.Paint;
 end;
 
 
 { TKMPlayerAnimals }
-procedure TKMPlayerAnimals.Save(SaveStream:TKMemoryStream);
-begin
-  SaveStream.Write('Animals');
-  fUnits.Save(SaveStream);
-end;
-
-
-procedure TKMPlayerAnimals.Load(LoadStream:TKMemoryStream);
-var s:string;
-begin
-  LoadStream.Read(s);
-  Assert(s = 'Animals');
-  fUnits.Load(LoadStream);
-end;
-
-
-procedure TKMPlayerAnimals.SyncLoad;
-begin
-  fUnits.SyncLoad;
-end;
-
-
-function TKMPlayerAnimals.UnitsHitTest(X, Y: Integer): TKMUnit;
-begin
-  Result := fUnits.HitTest(X,Y);
-end;
-
-
-procedure TKMPlayerAnimals.UpdateState;
-begin
-  fUnits.UpdateState;
-end;
-
-
-procedure TKMPlayerAnimals.Paint;
-begin
-  fUnits.Paint;
-end;
-
-
-constructor TKMPlayerAnimals.Create(aPlayerIndex:TPlayerIndex);
-begin
-  Inherited Create(aPlayerIndex);
-  fUnits := TKMUnitsCollection.Create;
-end;
-
-
-destructor TKMPlayerAnimals.Destroy;
-begin
-  FreeThenNil(fUnits);
-  Inherited;
-end;
-
-
-function TKMPlayerAnimals.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
-begin
-  Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, AutoPlace);
-end;
-
-
-function TKMPlayerAnimals.RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
-var FoundUnit:TKMUnit;
-begin
-  Result := false;
-  FoundUnit := fUnits.HitTest(Position.X, Position.Y);
-  if FoundUnit<>nil then
-  begin
-    if not Simulated then
-      fUnits.RemoveUnit(FoundUnit);
-    Result := true;
-  end;
-end;
-
-
 function TKMPlayerAnimals.GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
 var 
   i, HighestGroupCount: Integer;

@@ -378,7 +378,7 @@ end;
 
 //MapEd procedure to remove any unit below
 procedure TKMPlayersCollection.RemAnyUnit(Position: TKMPoint);
-var i:integer;
+var i: Integer;
 begin
   for i:=0 to fCount-1 do
     fPlayerList[i].RemUnit(Position);
@@ -471,11 +471,13 @@ begin
 
   for i:=0 to fCount-1 do
     if fGame.GameState in [gsRunning, gsReplay] then
-      fPlayerList[i].UpdateState(Tick, i)
+      //Update AI every 2sec for different player to even the CPU load
+      fPlayerList[i].UpdateState((Tick + i) mod 20 = 0)
     else
-      Exit; //PlayerAI can stop the game and clear everything
+      //PlayerAI can stop the game and clear everything
+      Exit;
 
-  PlayerAnimals.UpdateState;
+  PlayerAnimals.UpdateState(False); //Animals don't have any AI yet
 end;
 
 
