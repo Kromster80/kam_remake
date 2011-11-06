@@ -152,7 +152,7 @@ type
 
 
 implementation
-  uses KM_TextLibrary;
+  uses KM_TextLibrary, KM_Sound;
 
 
 { TKMNetworking }
@@ -654,7 +654,11 @@ end;
 
 procedure TKMNetworking.PostLocalMessage(aText:string);
 begin
-  if Assigned(fOnTextMessage) then fOnTextMessage(aText);
+  if Assigned(fOnTextMessage) then
+  begin
+    fOnTextMessage(aText);
+    fSoundLib.Play(sfxn_MPChat);
+  end;
 end;
 
 

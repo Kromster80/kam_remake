@@ -1434,7 +1434,7 @@ end;
 
 procedure TKMButton.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  if fEnabled and fMakesSound and (csDown in State) then fSoundLib.Play(sfx_Click);
+  if fEnabled and fMakesSound and (csDown in State) then fSoundLib.Play(sfxn_ButtonClick);
   Inherited;
 end;
 

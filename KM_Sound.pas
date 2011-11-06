@@ -104,6 +104,9 @@ type
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0); overload;
 
+    procedure Play(SoundID:TSoundFXNew; Volume:single=1.0); overload;
+    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0); overload;
+
     procedure Paint;
   end;
 
@@ -362,6 +365,18 @@ procedure TSoundLib.Play(SoundID:TSoundFX; Volume:single=1.0);
 begin
   if not fIsSoundInitialized then Exit;
   Play(SoundID, KMPointF(0,0), false, Volume); //Redirect
+end;
+
+
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Volume:single=1.0);
+begin
+  Play(SoundID, KMPoint(0,0), false, Volume);
+end;
+
+
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0);
+begin
+  PlayWave(ExeDir+NewSFXFolder+NewSFXFile[SoundID], KMPointF(Loc), Attenuated, Volume);
 end;
 
 

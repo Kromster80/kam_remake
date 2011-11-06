@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2520';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2524';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   SERVER_PROTOCOL_REVISON = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -719,6 +719,21 @@ type
     sfx_CatapultReload,
     sfx_SiegeBuildingSmash
         );
+
+  TSoundFXNew = (
+    sfxn_ButtonClick,
+    sfxn_Trade,
+    sfxn_MPChat
+
+  );
+
+const
+  NewSFXFolder = 'Sounds\';
+  NewSFXFile:array[TSoundFXNew] of string = (
+    'ButtonClick002.wav',
+    'Trade002.wav',
+    'Chat001.wav'
+    );
 
 const MeleeSoundsHit:array[0..14] of TSoundFX = (
     sfx_Melee34,

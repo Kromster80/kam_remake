@@ -1388,6 +1388,8 @@ begin
     dec(fTradeAmount, TradeCount);
     inc(fMarketResOut[fResTo], TradeCount * RatioTo);
     fPlayers.Player[fOwner].DeliverList.AddNewOffer(Self, fResTo, TradeCount * RatioTo);
+
+    fSoundLib.Play(sfxn_Trade,GetEntrance);
   end;
 end;
 
