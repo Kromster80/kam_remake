@@ -242,7 +242,7 @@ var
 begin
   if not FileExists(aFileName) then
   begin
-    AddScriptError(Format('Mission file %s could not be found', [aFileName]), true);
+    AddScriptError(Format('Mission file %s could not be found', [aFileName]), True);
     Result := '';
     Exit;
   end;
@@ -251,6 +251,13 @@ begin
   F := TMemoryStream.Create;
   try
     F.LoadFromFile(aFileName);
+
+    if F.Size = 0 then
+    begin
+      AddScriptError(Format('Mission file %s is empty', [aFileName]), True);
+      Result := '';
+      Exit;
+    end;
 
     //Detect whether mission is encoded so we can support decoded/encoded .DAT files
     //We can't test 1st char, it can be any. Instead see how often common chracters meet

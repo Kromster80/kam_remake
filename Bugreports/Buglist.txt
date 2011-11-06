@@ -27,6 +27,7 @@
  +	Rare crashes with the message "Opposite vertex in use at (X,Y)" during battles have been fixed
  +	Rare "Range check error" caused by trying to catch a dead or dying fish
  +	The game will start with the language you used in the installer
+ +	Map with empty DAT file would crash the game upon opening in MapEd or Game
 	Resource harvesting of all types should not occur when the actual walking route is too long (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies

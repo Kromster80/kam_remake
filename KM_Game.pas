@@ -440,7 +440,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := 'An error has occured while parsing the file '+aMissionFile+'||'+E.ClassName+': '+E.Message;
+      LoadError := 'An error has occured while parsing the file:| '+aMissionFile+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       Exit;
@@ -802,7 +802,10 @@ end;
 
 {Mission name is absolute}
 procedure TKMGame.StartMapEditor(const aFilename: string; aMultiplayer:boolean; aSizeX:integer=64; aSizeY:integer=64);
-var fMissionParser:TMissionParser; i:integer;
+var
+  i: Integer;
+  LoadError: string;
+  fMissionParser: TMissionParser;
 begin
   if not FileExists(aFilename) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
@@ -826,21 +829,30 @@ begin
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
 
-  if FileExists(aFilename) then
-  begin
-    fMissionParser := TMissionParser.Create(mpm_Editor,false);
-
+  if aFilename <> '' then
+  try //Catch exceptions
+    fMissionParser := TMissionParser.Create(mpm_Editor, False);
     if not fMissionParser.LoadMission(aFilename) then
-    begin
-      //Show all required error messages here
-      Stop(gr_Error, fMissionParser.ErrorMessage);
-      Exit;
-    end;
+      Raise Exception.Create(fMissionParser.ErrorMessage);
     MyPlayer := fPlayers.Player[0];
-    fPlayers.AddPlayers(MAX_PLAYERS-fPlayers.Count); //Activate all players
+    fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
     FreeAndNil(fMissionParser);
     fGameName := TruncateExt(ExtractFileName(aFilename));
-  end else begin
+  except
+    on E : Exception do
+    begin
+      //Trap the exception and show it to the user in nicer form.
+      //Note: While debugging, Delphi will still stop execution for the exception,
+      //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
+      //But to normal player the dialog won't show.
+      LoadError := 'An error has occured while parsing the file:| '+aFilename+'||'+E.ClassName+': '+E.Message;
+      fMainMenuInterface.ShowScreen(msError, LoadError);
+      fLog.AppendLog('DAT Load Exception: '+LoadError);
+      Exit;
+    end;
+  end
+  else
+  begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
     fPlayers := TKMPlayersCollection.Create;
     fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players

@@ -417,11 +417,13 @@ var i,A,B:cardinal;
 begin
   A := 1;
   B := 0; //A is initialized to 1, B to 0
+
   //We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
-  for i:=0 to S.Size-1 do begin
-    inc(A,pbyte(cardinal(S.Memory)+i)^);
-    B := (B + A) mod 65521; //65521 (the largest prime number smaller than 2^16)
-  end;
+  if S.Size <> 0 then
+    for i:=0 to S.Size-1 do begin
+      inc(A, pbyte(cardinal(S.Memory) + i)^);
+      B := (B + A) mod 65521; //65521 (the largest prime number smaller than 2^16)
+    end;
   A := A mod 65521;
   Result := B + A shl 16; //reverse order for smaller numbers
 end;
