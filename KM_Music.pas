@@ -12,7 +12,6 @@ type
     MusicIndex:integer; //Points to the index in TrackOrder of the current track
     MusicTracks:array[1..256]of string;
     TrackOrder:array[1..256]of byte; //Each index points to an index of MusicTracks
-    SpiritIndex:byte;                //Index of the track "Spirit" (or Track 1)
     //MIDICount,MIDIIndex:integer;
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
@@ -45,9 +44,9 @@ uses
 
 {Music Lib}
 constructor TMusicLib.Create(aVolume:single);
+var i: byte;
 begin
   Inherited Create;
-  SpiritIndex := 1;
   IsMusicInitialized := true;
   ScanMusicTracks(ExeDir + 'Music\');
 
@@ -59,6 +58,12 @@ begin
   end;
 
   UpdateMusicVolume(aVolume);
+
+  // Initialise TrackOrder
+  for i := 1 to MusicCount do
+  begin
+    TrackOrder[i] := i;
+  end;
 
   fLog.AppendLog('Music init done, '+inttostr(MusicCount)+' tracks found');
 end;
@@ -142,9 +147,9 @@ end;
 procedure TMusicLib.PlayMenuTrack;
 begin
   if not IsMusicInitialized then exit;
-  if MusicIndex = SpiritIndex then exit; //It's already playing
-  MusicIndex := SpiritIndex; //First track (Spirit) is always menu music
-  PlayMusicFile(MusicTracks[MusicIndex]);
+  if MusicIndex = 1 then exit; //It's already playing
+  MusicIndex := 1;
+  PlayMusicFile(MusicTracks[1]);
 end;
 
 
@@ -204,64 +209,31 @@ begin
 end;
 
 procedure TMusicLib.ShuffleSongs;
-var i, r, NewIndex, NewSpirit: Byte;
-  TracksToChooseFrom:array[1..256]of Byte; //Can be replaced with TrackOrder
+var i, r, NewIndex: Byte;
 begin
-  //Make an ordered array of track numbers
-  for i := 1 to MusicCount do
-    TracksToChooseFrom[i] := i;
-
-  //Place random numbers in the indices of TrackOrder array
-  //@DanJB: Here's the nice QA about randomly shuffling an array:
-  //http://stackoverflow.com/questions/5131341/what-distribution-do-you-get-from-this-broken-random-shuffle
-  //you can use SwapInt(A,B) from KromUtils to swap numbers
-  //Also I would simplify this a little bit and kept Spirit #1 always (i.e. Randomizing [2..256] range)
-  for i := 1 to MusicCount do
+  if MusicIndex = 0 then exit; // Music is disabled
+  NewIndex := MusicIndex;
+  for i := MusicCount downto 2 do
   begin
-    //Generate random number from 1 to (number of tracks)
-    r := RandomRange(1, MusicCount);
-    //Find the next unused track
-    while TracksToChooseFrom[r] = 0 do
-      r := r mod MusicCount + 1;
-    //Remember the track number if it is the current track or "Spirit"
-    if r = MusicIndex then
+    r := RandomRange(2, i);
+    //Remember the track number of the current track
+    if TrackOrder[r] = MusicIndex then
       NewIndex := i;
-    if r = SpiritIndex then
-      NewSpirit := i;
-    //Place next track into TrackOrder array
-    TrackOrder[i] := TracksToChooseFrom[r];
-    //Mark track as "used" by setting the index to zero
-    TracksToChooseFrom[r] := 0;
+    KromUtils.SwapInt(TrackOrder[r], TrackOrder[i]);
   end;
-
-  //Update indices of current track and "Spirit"
   MusicIndex := NewIndex;
-  SpiritIndex := NewSpirit;
-  //@DanJB: Delphi shows a warning here, NewIndex and NewSpirit might not have been initialized,
-  //Indeed, if for some reason MusicIndex or SpiritIndex are not equal to R the new values will be off as well
-  //Please try to fix all compiler warnings before commit :)
 end;
 
-//@DanJB: It's not a big deal at all, I understand you have good skills in C, where {} are usually indented
-//In Delphi begin/end block is usually aligned with previous statements. I'm just being picky, please ignore it
-//if it is any trouble to you.
 procedure TMusicLib.UnshuffleSongs;
-var i, NewIndex : Byte;
+var i: Byte;
 begin
+  if MusicIndex = 0 then exit; // Music is disabled
+  MusicIndex := TrackOrder[MusicIndex];
   //Reset every index of the TrackOrder array
   for i := 1 to MusicCount do
   begin
-    //Remember index of current track
-    //@DanJB: I don't quite get this part, if i = MusicIndex then NewIndex = i, why can't we just
-    //set NewIndex := MusicIndex ? Perhaps something is missing here
-    if i = MusicIndex then
-      NewIndex := i;
     TrackOrder[i] := i;
   end;
-
-  //Update indices of current track and "Spirit"
-  MusicIndex := NewIndex;
-  SpiritIndex := 1;
 end;
 
 function TMusicLib.GetTrackTitle:string;
