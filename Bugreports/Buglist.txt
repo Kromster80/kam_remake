@@ -44,7 +44,8 @@
 	Multiplayer replays do not sync FOW so get mismatches
 	Confirmation for quitting multiplayer while waiting for players should be harder to hit by accident
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
-	Unbuilt buildings are not removed from player stats when destroyed (+1 still shown)
+	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
+	Iron/gold mines should not raise the construction site because of the mountain when "flattening" it
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	

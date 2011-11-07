@@ -1,0 +1,8 @@
+Title
+The Tyrant
+
+SmallDesc
+A 1v2 multiplayer mission by Ben
+
+BigDesc
+A 1v2 multiplayer map by Ben inspired by Nick's single map, "Smart," that offers an opurtunity for an excellent game when no more than three people are in a lobby. The Tyrant (location 1) rests behind a wall and starts with enough resources to quickly field a strong army. The farmers (locations 2 and 3) have numbers but are restircted to primitave weapons. Teams must be 1 vs. 1+2
