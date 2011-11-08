@@ -1,0 +1,8 @@
+Title
+Enter the Heat
+
+SmallDesc
+A fighting map for eight players.
+
+BigDesc
+The rivers have dried up and the only water in the region is a small oasis. You need the water to save your city, but others lurk to take the oasis for themselves. Unfortunately there is not enough for everyone...||Suggested teams: 1+2+3+4; 5+6+7+8.

@@ -1560,6 +1560,7 @@ end;
 
 procedure TKMGamePlayInterface.Chat_Show(Sender: TObject);
 begin
+  fSoundLib.Play(sfxn_MPChatOpen);
   MyControls.CtrlFocus := Edit_ChatMsg;
   Allies_Close(nil);
   Panel_Chat.Show;
@@ -1586,6 +1587,7 @@ end;
 
 procedure TKMGamePlayInterface.Allies_Show(Sender: TObject);
 begin
+  fSoundLib.Play(sfxn_MPChatOpen);
   Panel_Allies.Show;
   Chat_Close(nil);
   Message_Close(nil);
@@ -2290,12 +2292,14 @@ end;
 
 procedure TKMGamePlayInterface.Allies_Close(Sender: TObject);
 begin
+  if Panel_Allies.Visible then fSoundLib.Play(sfxn_MPChatClose);
   Panel_Allies.Hide;
 end;
 
 
 procedure TKMGamePlayInterface.Chat_Close(Sender: TObject);
 begin
+  if Panel_Chat.Visible then fSoundLib.Play(sfxn_MPChatClose);
   Panel_Chat.Hide;
   if MyControls.CtrlFocus = Edit_ChatMsg then
     MyControls.CtrlFocus := nil; //Lose focus so you can't type messages with the panel hidden
@@ -2918,7 +2922,12 @@ begin
 
   fTerrain.ComputeCursorPosition(X,Y,Shift);
 
-  if GameCursor.Mode<>cm_None then exit;
+  if GameCursor.Mode<>cm_None then
+  begin
+    //Use the default cursor while placing roads, don't become stuck on c_Info or others
+    if not fViewport.Scrolling then Screen.Cursor := c_Default;
+    exit;
+  end;
 
   if fJoiningGroups and (fShownUnit is TKMUnitWarrior) then
   begin

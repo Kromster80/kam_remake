@@ -657,7 +657,7 @@ begin
   if Assigned(fOnTextMessage) then
   begin
     fOnTextMessage(aText);
-    fSoundLib.Play(sfxn_MPChat);
+    fSoundLib.Play(sfxn_MPChatMessage);
   end;
 end;
 

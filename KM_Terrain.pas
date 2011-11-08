@@ -819,8 +819,9 @@ begin
          ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
         if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
            ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-          if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
-            List.AddEntry(KMPointDir(k, i, dir_NA));
+          if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
+            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
+              List.AddEntry(KMPointDir(k, i, dir_NA));
 
   Result := List.GetRandom(FieldPoint);
   List.Free;
@@ -838,7 +839,8 @@ begin
   for k:=max(aLoc.X-aRadius,Ins) to min(aLoc.X+aRadius,fMapX-Ins) do
     if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
       if (TileIsStone(k,i)>0) then
-        if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
+        if (CanWalk in Land[i+1,k].Passability) //Now check the tile right below
+        and not TileIsLocked(KMPoint(i+1,k)) then //Taken by another stonemason
           if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0,false) then
             List.AddEntry(KMPointDir(k, i+1, dir_N));
 
@@ -922,7 +924,8 @@ begin
 
       if (aTreeAct in [taPlant, taAny])
       and (CanPlantTrees in Land[i,k].Passability)
-      and Route_CanBeMade(aLoc, T, CanWalk, 0, False) then
+      and Route_CanBeMade(aLoc, T, CanWalk, 0, False)
+      and not TileIsLocked(T) then //Taken by another woodcutter
         if ObjectIsChopableTree(T, 6) then
           List2.AddEntry(T) //Stump
         else
@@ -995,7 +998,8 @@ begin
         //Now find a tile around this one that can be fished from
         for j:=-1 to 1 do
           for l:=-1 to 1 do
-            if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
+            if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) and
+            not TileIsLocked(KMPoint(k+j, i+l)) then //Taken by another fisherman
               // D) Final check: route can be made and isn't avoid loc
               if Route_CanBeMade(aLoc, KMPoint(k+j, i+l), CanWalk, 0,false)
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then

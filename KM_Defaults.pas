@@ -723,7 +723,9 @@ type
   TSoundFXNew = (
     sfxn_ButtonClick,
     sfxn_Trade,
-    sfxn_MPChat
+    sfxn_MPChatMessage,
+    sfxn_MPChatOpen,
+    sfxn_MPChatClose
 
   );
 
@@ -732,7 +734,9 @@ const
   NewSFXFile:array[TSoundFXNew] of string = (
     'ButtonClick002.wav',
     'Trade002.wav',
-    'Chat001.wav'
+    'Chat001.wav',
+    'ChatOpen001.wav',
+    'ChatClose001.wav'
     );
 
 const MeleeSoundsHit:array[0..14] of TSoundFX = (
