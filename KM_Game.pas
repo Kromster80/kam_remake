@@ -89,6 +89,8 @@ type
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
+    procedure PlayerVictory(aPlayerIndex:TPlayerIndex);
+    procedure PlayerDefeat(aPlayerIndex:TPlayerIndex);
     procedure GameWaitingForNetwork(aWaiting:boolean);
     procedure SendMPGameInfo(Sender:TObject);
 
@@ -590,6 +592,7 @@ begin
         fPlayers[i].PlayerType := pt_Human;
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
+  fPlayers.AddDefaultMPGoals; //Multiplayer missions don't have goals yet, so add the defaults
 
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
@@ -714,6 +717,39 @@ procedure TKMGame.RequestGameHold(Msg:TGameResultMsg);
 begin
   DoGameHold := true;
   DoGameHoldState := Msg;
+end;
+
+
+procedure TKMGame.PlayerVictory(aPlayerIndex:TPlayerIndex);
+begin
+  if MultiplayerMode then
+  begin
+    if aPlayerIndex = MyPlayer.PlayerIndex then
+    begin
+      PlayOnState := gr_Win;
+      fGamePlayInterface.ShowMPPlayMore(gr_Win);
+    end;
+  end
+  else
+    RequestGameHold(gr_Win);
+end;
+
+
+procedure TKMGame.PlayerDefeat(aPlayerIndex:TPlayerIndex);
+begin
+  if MultiplayerMode then
+  begin
+    if aPlayerIndex = MyPlayer.PlayerIndex then
+    begin
+      PlayOnState := gr_Defeat;
+      fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
+    end
+    else
+      fNetworking.PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                                          [fPlayers[aPlayerIndex].PlayerName]));
+  end
+  else
+    RequestGameHold(gr_Defeat);
 end;
 
 
@@ -1068,7 +1104,8 @@ begin
 
   fCampaigns.Save(SaveStream);
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
-  SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
+  if not fMultiplayerMode then
+    SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
   //Because the viewport is only saved in singleplayer we need to know whether it is included in this save,
@@ -1131,7 +1168,8 @@ begin
 
     fCampaigns.Load(LoadStream);
     LoadStream.Read(ID_Tracker);
-    LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
+    if not SaveIsMultiplayer then
+      LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
     LoadStream.Read(LoadedSeed);
 
     //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is

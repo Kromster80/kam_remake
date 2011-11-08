@@ -66,6 +66,7 @@ type
     procedure RemGoal(aIndex:integer);
     procedure RemoveReference(aPlayerIndex:TPlayerIndex);
     procedure SetMessageHasShown(aIndex:integer);
+    procedure AddDefaultMPGoals(aBuildings:boolean; aOurPlayerIndex:TPlayerIndex; aEnemyIndexes:array of TPlayerIndex);
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -136,6 +137,21 @@ end;
 procedure TKMGoals.SetMessageHasShown(aIndex:integer);
 begin
   fGoals[aIndex].MessageHasShown := true;
+end;
+
+
+procedure TKMGoals.AddDefaultMPGoals(aBuildings:boolean; aOurPlayerIndex:TPlayerIndex; aEnemyIndexes:array of TPlayerIndex);
+var i:integer; GoalCondition:TGoalCondition;
+begin
+  if aBuildings then
+    GoalCondition := gc_Buildings
+  else
+    GoalCondition := gc_Troops;
+  //Defeat condition
+  AddGoal(glt_Survive,GoalCondition,gs_True,0,0,aOurPlayerIndex);
+  //Victory conditions
+  for i:=0 to Length(aEnemyIndexes)-1 do
+    AddGoal(glt_Victory,GoalCondition,gs_False,0,0,aEnemyIndexes[i]);
 end;
 
 

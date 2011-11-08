@@ -31,6 +31,7 @@ type //For now IDs must match with KaM
   private
     PlayerIndex:integer;
     fTimeOfLastAttackMessage: cardinal;
+    fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
 
     fAutobuild:boolean;
 
@@ -158,6 +159,7 @@ begin
   Inherited Create;
 
   PlayerIndex := aPlayerIndex;
+  fHasWonOrLost := false;
   fTimeOfLastAttackMessage := 0;
   DefencePositionsCount := 0;
   ScriptedAttacksCount := 0;
@@ -216,9 +218,7 @@ procedure TKMPlayerAI.CheckGoals;
 var i: integer; VictorySatisfied, SurvivalSatisfied: boolean;
 begin
   if not CHECK_WIN_CONDITIONS then exit; //Debug switch
-
-  if fGame.PlayOnState <> gr_Cancel then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
-  if fGame.MultiplayerMode then exit; //Don't check goals in multiplayer (yet)
+  if fHasWonOrLost then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
 
   VictorySatisfied  := true; //Assume they will win/survive, then prove it with goals
   SurvivalSatisfied := true;
@@ -243,14 +243,21 @@ begin
         SurvivalSatisfied := false;
     end;
 
-  if fGame.PlayOnState <> gr_Cancel then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
   if fGame.GameState = gsReplay then exit; //Don't check conditions in Replay
-  if MyPlayer <> fPlayers[PlayerIndex] then exit; //Don't show message if the player is not us
+  if (not fGame.MultiplayerMode) and (MyPlayer <> fPlayers[PlayerIndex]) then
+    exit; //Don't show message if the player is not us, except in multiplayer mode
+
   if VictorySatisfied then
-    fGame.RequestGameHold(gr_Win); //They win
+  begin
+    fGame.PlayerVictory(PlayerIndex);
+    fHasWonOrLost := true;
+  end;
 
   if not SurvivalSatisfied then
-    fGame.RequestGameHold(gr_Defeat); //They lose
+  begin
+    fGame.PlayerDefeat(PlayerIndex);
+    fHasWonOrLost := true;
+  end;
 end;
 
 
@@ -726,6 +733,7 @@ var i: integer;
 begin
   SaveStream.Write('PlayerAI');
   SaveStream.Write(PlayerIndex);
+  SaveStream.Write(fHasWonOrLost);
   SaveStream.Write(fTimeOfLastAttackMessage);
   SaveStream.Write(ReqWorkers);
   SaveStream.Write(ReqSerfFactor);
@@ -752,6 +760,7 @@ begin
   LoadStream.Read(s);
   Assert(s = 'PlayerAI');
   LoadStream.Read(PlayerIndex);
+  LoadStream.Read(fHasWonOrLost);
   LoadStream.Read(fTimeOfLastAttackMessage);
   LoadStream.Read(ReqWorkers);
   LoadStream.Read(ReqSerfFactor);

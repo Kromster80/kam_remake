@@ -49,6 +49,7 @@ type
     procedure RemAnyUnit(Position: TKMPoint);
     procedure RevealForTeam(aPlayer: TPlayerIndex; Pos:TKMPoint; Radius,Amount:word);
     procedure SyncFogOfWar;
+    procedure AddDefaultMPGoals;
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -404,6 +405,26 @@ begin
     for k:=0 to fCount-1 do
       if (i<>k) and (fPlayerList[i].Alliances[k] = at_Ally) then
         fPlayerList[k].FogOfWar.SyncFOW(fPlayerList[i].FogOfWar);
+end;
+
+
+procedure TKMPlayersCollection.AddDefaultMPGoals;
+var
+  i,k: integer;
+  HasBuildings:boolean;
+  Enemies:array[TPlayerIndex] of array of TPlayerIndex;
+begin
+  for i:=0 to fCount-1 do
+  begin
+    for k:=0 to fCount-1 do
+      if (i<>k) and (fPlayerList[i].Alliances[k] = at_Enemy) then
+      begin
+        SetLength(Enemies[i],Length(Enemies[i])+1);
+        Enemies[i,Length(Enemies[i])-1] := k;
+      end;
+    HasBuildings := fPlayerList[i].Stats.GetHouseQty(ht_Store) > 0;
+    fPlayerList[i].Goals.AddDefaultMPGoals(HasBuildings,i,Enemies[i]);
+  end;
 end;
 
 

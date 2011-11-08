@@ -38,6 +38,7 @@ type
     procedure Create_Message_Page;
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
+    procedure Create_MPPlayMore_Page;
     procedure Create_NetWait_Page;
     procedure Create_SideStack;
     procedure Create_Build_Page;
@@ -101,6 +102,7 @@ type
     procedure RatiosChange(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure PlayMoreClick(Sender:TObject);
+    procedure MPPlayMoreClick(Sender:TObject);
     procedure NetWaitClick(Sender:TObject);
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
@@ -170,6 +172,11 @@ type
         Image_PlayMore:TKMImage;
         Label_PlayMore:TKMLabel;
         Button_PlayMore,Button_PlayQuit:TKMButton;
+    Panel_MPPlayMore:TKMPanel;
+      Bevel_MPPlayMore:TKMBevel;
+      Image_MPPlayMore:TKMImage;
+      Label_MPPlayMore:TKMLabel;
+      Button_MPPlayMore,Button_MPPlayQuit:TKMButton;
     Panel_NetWait:TKMPanel;
       Bevel_NetWait:TKMBevel;
       Panel_NetWaitMsg:TKMPanel;
@@ -294,6 +301,7 @@ type
     procedure UpdateMapSize(X,Y:integer);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
+    procedure ShowMPPlayMore(Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
@@ -524,7 +532,8 @@ begin
     and (Panel_Main.Childs[i] <> Panel_Replay)
     and (Panel_Main.Childs[i] <> Panel_Pause)
     and (Panel_Main.Childs[i] <> Panel_NetWait)
-    and (Panel_Main.Childs[i] <> Panel_PlayMore) then
+    and (Panel_Main.Childs[i] <> Panel_PlayMore)
+    and (Panel_Main.Childs[i] <> Panel_MPPlayMore) then
       Panel_Main.Childs[i].Hide;
 
   //First thing - hide all existing pages
@@ -730,6 +739,7 @@ begin
   Create_Pause_Page;
   Create_Replay_Page; //Replay controls
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
+  Create_MPPlayMore_Page;
 
   Label_Hint := TKMLabel.Create(Panel_Main,224+32,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
   Label_Hint.Anchors := [akLeft, akBottom];
@@ -807,6 +817,25 @@ begin
       Button_PlayMore.OnClick := PlayMoreClick;
       Button_PlayQuit.OnClick := PlayMoreClick;
     Panel_PlayMore.Hide; //Initially hidden
+end;
+
+
+procedure TKMGamePlayInterface.Create_MPPlayMore_Page;
+begin
+  Panel_MPPlayMore := TKMPanel.Create(Panel_Main,(Panel_Main.Width div 2)-200,(Panel_Main.Height div 2)-100,400,200);
+  Panel_MPPlayMore.Center;
+    Bevel_MPPlayMore := TKMBevel.Create(Panel_MPPlayMore,-1,-1,Panel_MPPlayMore.Width+2,Panel_MPPlayMore.Height+2);
+    Bevel_MPPlayMore.Stretch;
+
+      Image_MPPlayMore:=TKMImage.Create(Panel_MPPlayMore,200,40,0,0,556);
+      Image_MPPlayMore.ImageCenter;
+
+      Label_MPPlayMore  := TKMLabel.Create(Panel_MPPlayMore,200,80,'<<<LEER>>>',fnt_Outline,taCenter);
+      Button_MPPlayMore := TKMButton.Create(Panel_MPPlayMore,100,100,200,30,'<<<LEER>>>',fnt_Metal);
+      Button_MPPlayQuit := TKMButton.Create(Panel_MPPlayMore,100,140,200,30,'<<<LEER>>>',fnt_Metal);
+      Button_MPPlayMore.OnClick := MPPlayMoreClick;
+      Button_MPPlayQuit.OnClick := MPPlayMoreClick;
+    Panel_MPPlayMore.Hide; //Initially hidden
 end;
 
 
@@ -2599,6 +2628,25 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ShowMPPlayMore(Msg:TGameResultMsg);
+begin
+  case Msg of
+    gr_Win:       begin
+                    Label_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_WON];
+                    Button_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_CONTINUE_PLAYING];
+                    Button_MPPlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_VICTORY];
+                  end;
+    gr_Defeat:    begin
+                    Label_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_LOST];
+                    Button_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT_CONTINUEWATCHING];
+                    Button_MPPlayQuit.Caption := fTextLibrary[TX_GAMEPLAY_DEFEAT];
+                  end;
+    else Assert(false,'Wrong message in ShowMPPlayMore');
+  end;
+  Panel_MPPlayMore.Visible := true;
+end;
+
+
 procedure TKMGamePlayInterface.PlayMoreClick(Sender:TObject);
 begin
   Panel_PlayMore.Hide; //Hide anyways
@@ -2616,6 +2664,20 @@ begin
       gr_Defeat:    begin MyPlayer.SkipDefeatConditionCheck; fGame.GameHold(false, gr_Defeat); end;
       gr_ReplayEnd: begin fGame.SkipReplayEndCheck := true; fGame.GameHold(false, gr_ReplayEnd); end;
     end;
+end;
+
+
+procedure TKMGamePlayInterface.MPPlayMoreClick(Sender:TObject);
+begin
+  Panel_MPPlayMore.Hide;
+
+  if Sender = Button_MPPlayQuit then
+    case PlayMoreMsg of
+      gr_Win:       fGame.Stop(gr_Win);
+      gr_Defeat:    fGame.Stop(gr_Defeat);
+      gr_ReplayEnd: fGame.Stop(gr_ReplayEnd);
+    end
+  //If they click continue no other action is necessary, the game is still running
 end;
 
 

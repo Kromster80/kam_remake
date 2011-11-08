@@ -1,5 +1,5 @@
 
-MaxID:163
+MaxID:164
 
 1:Mission canceled
 2:Town Tutorial
@@ -163,6 +163,7 @@ MaxID:163
 
 131:Waiting for players:
 163:Saving game...
+164:%s was defeated!
 
 132:KaM Remake Credits
 133:Original Knights & Merchants Credits

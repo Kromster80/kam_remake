@@ -782,7 +782,7 @@ begin
     mk_AskToJoin:
             if IsHost then begin
               ReMsg := fNetPlayers.CheckCanJoin(Msg, aSenderIndex);
-              if (ReMsg = '') and (fNetGameState = lgs_Game) then
+              if (ReMsg = '') and (fNetGameState <> lgs_Lobby) then
                 ReMsg := 'Cannot join while the game is in progress';
               if ReMsg = '' then
               begin
