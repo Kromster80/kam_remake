@@ -1902,7 +1902,7 @@ procedure TTerrain.RebuildWalkConnect(wcType:TWalkConnect);
 //const MinSize=9; //Minimum size that is treated as new area
 var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
 
-  procedure FillArea(x,y:word; ID:byte; var Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
+  procedure FillArea(x,y:word; ID:byte; var Count:integer; AllowDiag:boolean); //Mode = 1CanWalk or 2CanWalkRoad
   begin
     if (Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
      ((wcType <> wcAvoid)or
@@ -1912,18 +1912,18 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
       inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       if x-1>=1 then begin
-        if y-1>=1 then    FillArea(x-1,y-1,ID,Count);
-                          FillArea(x-1,y  ,ID,Count);
-        if y+1<=fMapY then FillArea(x-1,y+1,ID,Count);
+        if AllowDiag and (y-1>=1) then     FillArea(x-1,y-1,ID,Count,AllowDiag);
+                                           FillArea(x-1,y  ,ID,Count,AllowDiag);
+        if AllowDiag and (y+1<=fMapY) then FillArea(x-1,y+1,ID,Count,AllowDiag);
       end;
 
-      if y-1>=1 then    FillArea(x,y-1,ID,Count);
-      if y+1<=fMapY then FillArea(x,y+1,ID,Count);
+      if y-1>=1 then    FillArea(x,y-1,ID,Count,AllowDiag);
+      if y+1<=fMapY then FillArea(x,y+1,ID,Count,AllowDiag);
 
       if x+1<=fMapX then begin
-        if y-1>=1 then    FillArea(x+1,y-1,ID,Count);
-                          FillArea(x+1,y  ,ID,Count);
-        if y+1<=fMapY then FillArea(x+1,y+1,ID,Count);
+        if AllowDiag and (y-1>=1) then     FillArea(x+1,y-1,ID,Count,AllowDiag);
+                                           FillArea(x+1,y  ,ID,Count,AllowDiag);
+        if AllowDiag and (y+1<=fMapY) then FillArea(x+1,y+1,ID,Count,AllowDiag);
       end;
     end;
   end;
@@ -1949,7 +1949,7 @@ begin
     begin
       inc(AreaID);
       Count := 0;
-      FillArea(k,i,AreaID,Count);
+      FillArea(k,i,AreaID,Count,(wcType <> wcRoad)); //Do not consider diagonals "connected" for roads
 
       if Count=1 {<MinSize} then //Revert
       begin

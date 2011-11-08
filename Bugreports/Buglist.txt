@@ -32,6 +32,7 @@
  +	Entering more than 255 messages in the chat window would cause a "range check error"
  +	Someone joining your lobby as you click start (while loading) gets an invalid state and server times out
  +	Multiplayer needs goals and victory/defeat overlays same as singleplayer
+ +	The ugly diagonal roads cheat no longer works, you have to connect them properly
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
