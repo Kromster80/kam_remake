@@ -484,31 +484,33 @@ begin
 end;
 
 
-function TKMPointList.GetTopLeft(out TL: TKMPoint):Boolean;
+function TKMPointList.GetTopLeft(out TL: TKMPoint): Boolean;
 var i:integer;
 begin
-  Result := False;
-  if Count=0 then exit;
-  TL := List[1]; //Something to start with
-  for i:=2 to Count do begin
-    if List[i].X < TL.X then TL.X := List[i].X;
-    if List[i].Y < TL.Y then TL.Y := List[i].Y;
+  Result := Count > 0;
+  if Result then
+  begin
+    TL := List[1]; //Something to start with
+    for i:=2 to Count do begin
+      if List[i].X < TL.X then TL.X := List[i].X;
+      if List[i].Y < TL.Y then TL.Y := List[i].Y;
+    end;
   end;
-  Result := true;
 end;
 
 
-function TKMPointList.GetBottomRight(out RB: TKMPoint):Boolean;
+function TKMPointList.GetBottomRight(out RB: TKMPoint): Boolean;
 var i:integer;
 begin
-  Result := False;
-  if Count=0 then exit;
-  RB := List[1]; //Something to start with
-  for i:=2 to Count do begin
-    if List[i].X > RB.X then RB.X := List[i].X;
-    if List[i].Y > RB.Y then RB.Y := List[i].Y;
+  Result := Count > 0;
+  if Result then
+  begin
+    RB := List[1]; //Something to start with
+    for i:=2 to Count do begin
+      if List[i].X > RB.X then RB.X := List[i].X;
+      if List[i].Y > RB.Y then RB.Y := List[i].Y;
+    end;
   end;
-  Result := True;
 end;
 
 
