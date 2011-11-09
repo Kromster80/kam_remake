@@ -1904,6 +1904,7 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
 
   procedure FillArea(x,y:word; ID:byte; var Count:integer; AllowDiag:boolean); //Mode = 1CanWalk or 2CanWalkRoad
   begin
+    //todo: This algorithm seems to use too my stack, AllowDiag overflows it even when it's true and has no effect
     if (Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
      ((wcType <> wcAvoid)or
      ( (wcType=wcAvoid) and not TileIsLocked(KMPoint(x,y)) )) then //Matches passability
@@ -1917,7 +1918,7 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
         if AllowDiag and (y+1<=fMapY) then FillArea(x-1,y+1,ID,Count,AllowDiag);
       end;
 
-      if y-1>=1 then    FillArea(x,y-1,ID,Count,AllowDiag);
+      if y-1>=1 then     FillArea(x,y-1,ID,Count,AllowDiag);
       if y+1<=fMapY then FillArea(x,y+1,ID,Count,AllowDiag);
 
       if x+1<=fMapX then begin

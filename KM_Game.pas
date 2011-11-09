@@ -85,6 +85,7 @@ type
 
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
+    procedure GameMPDisconnect(const aData:string);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
@@ -611,6 +612,7 @@ begin
   fNetworking.OnTextMessage := fGamePlayInterface.ChatMessage;
   fNetworking.OnPlayersSetup := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo     := fGamePlayInterface.AlliesOnPingInfo;
+  fNetworking.OnDisconnect   := GameMPDisconnect; //For auto reconnecting
   fNetworking.GameCreated;
 
   if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
@@ -634,6 +636,17 @@ procedure TKMGame.GameMPReadyToPlay(Sender:TObject);
 begin
   //Update the list of players that are ready to play
   GameWaitingForNetwork(true);
+end;
+
+
+procedure TKMGame.GameMPDisconnect(const aData:string);
+begin
+  fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
+  fNetworking.AttemptReconnection;
+  //todo: Should also handle OnAssignedHostingRights for cases when the server crashed and everyone was disconnected
+  //todo: Show the player info about what is happening, and give host the option to continue without the player
+  //todo: What happens if someone is dropped while loading? That should be different.
+  //todo: Don't show all of those connecting, connected, etc. messages in chat, make it neater
 end;
 
 
@@ -760,7 +773,7 @@ begin
 
   WaitingPlayers := TStringList.Create;
   case fNetworking.NetGameState of
-    lgs_Game:    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
+    lgs_Game,lgs_Reconnecting:    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
     lgs_Loading: fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
     else assert(false); //Should not be waiting for players from any other GameState
   end;
@@ -1248,6 +1261,7 @@ begin
                       begin
                         if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                         inc(fGameTickCount); //Thats our tick counter for gameplay events
+                        if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
                         fTerrain.UpdateState;
                         fPlayers.UpdateState(fGameTickCount); //Quite slow
                         if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat

@@ -23,13 +23,15 @@ type
     PlayerIndex:TKMPlayer;
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
-    Alive:boolean;          //Player is still connected and not defeated
+    Connected:boolean;      //Player is still connected
+    Dropped:boolean;        //Host elected to continue play without this player
     procedure AddPing(aPing:word);
     function GetInstantPing:word;
     function GetMaxPing:word;
     function IsHuman:boolean;
     property Nikname:string read fNikname;
     property IndexOnServer:integer read fIndexOnServer;
+    property SetIndexOnServer:integer write fIndexOnServer;
     property FlagColor:cardinal read GetFlagColor;
     property FlagColorID:integer read fFlagColorID write fFlagColorID;
 
@@ -55,7 +57,8 @@ type
 
     procedure AddPlayer(aNik:string; aIndexOnServer:integer);
     procedure AddAIPlayer;
-    procedure KillPlayer(aIndexOnServer:integer);
+    procedure DisconnectPlayer(aIndexOnServer:integer);
+    procedure DropPlayer(aIndexOnServer:integer);
     procedure RemPlayer(aIndexOnServer:integer);
     procedure RemAIPlayer(ID:integer);
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
@@ -66,6 +69,7 @@ type
     function StartingLocToLocal(aLoc:integer):integer;
     function PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
     function CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
+    function CheckCanReconnect(aLocalIndex:integer):string;
     function LocAvailable(aIndex:integer):boolean;
     function ColorAvailable(aIndex:integer):boolean;
     function AllReady:boolean;
@@ -135,7 +139,8 @@ begin
   LoadStream.Read(Team);
   LoadStream.Read(ReadyToStart);
   LoadStream.Read(ReadyToPlay);
-  LoadStream.Read(Alive);
+  LoadStream.Read(Connected);
+  LoadStream.Read(Dropped);
 end;
 
 
@@ -149,7 +154,8 @@ begin
   SaveStream.Write(Team);
   SaveStream.Write(ReadyToStart);
   SaveStream.Write(ReadyToPlay);
-  SaveStream.Write(Alive);
+  SaveStream.Write(Connected);
+  SaveStream.Write(Dropped);
 end;
 
 
@@ -292,7 +298,8 @@ begin
   fPlayers[fCount].StartLocation := 0;
   fPlayers[fCount].ReadyToStart := false;
   fPlayers[fCount].ReadyToPlay := false;
-  fPlayers[fCount].Alive := true;
+  fPlayers[fCount].Connected := true;
+  fPlayers[fCount].Dropped := false;
 end;
 
 
@@ -308,18 +315,30 @@ begin
   fPlayers[fCount].StartLocation := 0;
   fPlayers[fCount].ReadyToStart := true;
   fPlayers[fCount].ReadyToPlay := true;
-  fPlayers[fCount].Alive := true;
+  fPlayers[fCount].Connected := true;
+  fPlayers[fCount].Dropped := false;
   UpdateAIPlayerNames;
 end;
 
 
-//Set player to no longer be alive, but do not remove them from the game
-procedure TKMPlayersList.KillPlayer(aIndexOnServer:integer);
+//Set player to no longer be connected, but do not remove them from the game
+procedure TKMPlayersList.DisconnectPlayer(aIndexOnServer:integer);
 var ID:integer;
 begin
   ID := ServerToLocal(aIndexOnServer);
-  Assert(ID <> -1, 'Cannot kill player');
-  fPlayers[ID].Alive := false;
+  Assert(ID <> -1, 'Cannot disconnect player');
+  fPlayers[ID].Connected := false;
+end;
+
+
+//Set player to no longer be on the server, but do not remove their assets from the game
+procedure TKMPlayersList.DropPlayer(aIndexOnServer:integer);
+var ID:integer;
+begin
+  ID := ServerToLocal(aIndexOnServer);
+  Assert(ID <> -1, 'Cannot drop player');
+  fPlayers[ID].Connected := false;
+  fPlayers[ID].Dropped := true;
 end;
 
 
@@ -418,9 +437,25 @@ begin
   else
   if NiknameToLocal(aNik) <> -1 then
     Result := 'Player with the same name already joined the game'
-  else  
+  else
   if LeftStr(aNik,length('AI Player')) = 'AI Player' then
     Result := 'Cannot have the same name as AI players'
+  else
+    Result := '';
+end;
+
+
+//See if player can join our game
+function TKMPlayersList.CheckCanReconnect(aLocalIndex:integer):string;
+begin
+  if aLocalIndex = -1 then
+    Result := 'Unknown nickname'
+  else
+  if Player[aLocalIndex].Connected then
+    Result := 'Your previous connection has not yet been dropped, please try again in a moment'
+  else
+  if Player[aLocalIndex].Dropped then
+    Result := 'The host decided to continue play on without you :('
   else
     Result := '';
 end;
@@ -453,7 +488,7 @@ var i:integer;
 begin
   Result := true;
   for i:=1 to fCount do
-    if fPlayers[i].Alive and fPlayers[i].IsHuman then
+    if fPlayers[i].Connected and fPlayers[i].IsHuman then
       Result := Result and fPlayers[i].ReadyToStart;
 end;
 
@@ -463,7 +498,7 @@ var i:integer;
 begin
   Result := true;
   for i:=1 to fCount do
-    if fPlayers[i].Alive and fPlayers[i].IsHuman then
+    if fPlayers[i].Connected and fPlayers[i].IsHuman then
       Result := Result and fPlayers[i].ReadyToPlay;
 end;
 
@@ -474,7 +509,7 @@ begin
   Highest := 0;
   Highest2 := 0;
   for i:=1 to fCount do
-    if fPlayers[i].Alive and fPlayers[i].IsHuman then
+    if fPlayers[i].Connected and fPlayers[i].IsHuman then
     begin
       if fPlayers[i].GetMaxPing > Highest then
         Highest := fPlayers[i].GetMaxPing
@@ -490,7 +525,7 @@ procedure TKMPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
 var i:integer;
 begin
   for i:=1 to fCount do
-    if (not fPlayers[i].ReadyToPlay) and fPlayers[i].IsHuman and fPlayers[i].Alive then
+    if (not fPlayers[i].ReadyToPlay) and fPlayers[i].IsHuman and fPlayers[i].Connected then
       aPlayerList.Add(fPlayers[i].Nikname);
 end;
 

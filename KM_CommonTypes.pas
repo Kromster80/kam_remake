@@ -65,6 +65,10 @@ type
 
     mk_ReadyToPlay,     //Joiner tells Host he has loaded the map and clock can start
     mk_Play,            //Host tells everyone that the game may begin
+    mk_AskToReconnect,  //Dropped player askes permission from the host to reconnect
+    mk_RefuseReconnect, //Host tells the dropped player he is not allowed to reconnect
+    mk_ResyncFromTick,  //Dropped player requests other players to send missed commands from specified tick
+    mk_ResyncEveryone,  //Host tells dropped player which tick they must resync from
 
     mk_Commands,        //Clients exchange commands for next ticks
     mk_Text             //Clients exchange text messages
@@ -106,7 +110,11 @@ const
     pfNoData,   //mk_ReadyToStart
     pfText,     //mk_Start
     pfNoData,   //mk_ReadyToPlay
-    pfNoData,   //mk_Play          
+    pfNoData,   //mk_Play
+    pfText,     //mk_AskToReconnect
+    pfText,     //mk_RefuseReconnect
+    pfNumber,   //mk_ResyncFromTick
+    pfNumber,   //mk_ResyncEveryone
     pfText,     //mk_Commands
     pfText      //mk_Text
   );
@@ -167,6 +175,7 @@ type
   TPointEvent = procedure (Sender:TObject; const X,Y: integer) of object;
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
   TStringEvent = procedure (const aData: string) of object;
+  TResyncEvent = procedure (aSender:Integer; aTick: cardinal) of object;
 
 
 type
