@@ -21,12 +21,12 @@ MaxID:164
 19:Neue Karte erstellen
 20:Verfügbare Karten
 21:Vorhandene Karte öffnen
-22:Eingabe:
+22:Steuerung:
 23:Gameplay:
 24:Sound:
-141:
-25:Musik ausschalten
-143:
+141:Scrollgeschwindigkeit
+25:Keine Musik
+143:Leider mischen
 26:Grafik:
 27:Helligkeit
 28:Vollbild
@@ -73,8 +73,8 @@ MaxID:164
 66:Verbindung fehlgeschlagen: %s
 67:Du bist nicht verbunden.
 68:Mission %d
-150:
-151:
+150:Bauen & Kämpfen
+151:Kämpfen
 
 69:Diese Fischerhütte ist zu weit vom Wasser entfernt!
 70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
@@ -84,8 +84,8 @@ MaxID:164
 73:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll
 74:Von x%d
 75:Zu x%d
-162:
-161:
+162:Verringere Warenanzahl
+161:Erhöhe Warenanzahl
 
 76:Terrain bearbeiten
 77:Häuser bearbeiten
@@ -107,21 +107,21 @@ MaxID:164
 92:Aktualisiere Server Liste
 93:SERVER DETAILS
 94:Spielerliste:
-144:
+144:Spielinfo:
 95:Adresse
 96:Port
 97:Raum
 98:Beitreten
-153:
+153:Bereit
 99:Verbinde, bitte warten...
-159:
+159:Falsche Spielversion: %s. Server benötigt: %s
 100:Lade Ankündigung...
 101:Aktualisiere...
-142:
-145:
-146:
-147:
-148:
+142:Keine Server gefunden
+145:Nichts
+146:Lobby
+147:Laden
+148:Spiel
 
 102:Spielerliste
 103:Startposition
@@ -134,14 +134,14 @@ MaxID:164
 110:KI-Spieler
 111:Wähle...
 112:Zufällig
-113:Kein Team
+113:Keins
 114:Keine Info vorhanden.
 115:Team %d
 116:Nachrichtenliste:
 117:Nachricht:
 118:Wähle Karte:
 119:Einzelkarte
-120:Gespeichertes Spiel
+120:Spielstand laden
 121:Wähle eine Karte...
 122:Spielstand wählen...
 123:Karteninfo:
@@ -151,19 +151,19 @@ MaxID:164
 127:Größe:
 128:Lobby verlassen
 129:Bereit!
-152:
+152:Nicht bereit
 130:Start!
-149:
-154:
-155:
-156:
-157:
-158:
-160:
+149:Location %d
+154:Fehler: Bitte übernehme einen Spieler aus dem Spielstand
+155:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt
+156:Kann nicht starten: %s
+157:Es ist noch nicht jeder bereit zu starten
+158:Spieleranzahl hat das Limit erreicht
+160:Der Server hat dir die Hostingrechte übertragen
 
 131:Warte auf Spieler:
-163:
-164:
+163:Spiel wird gespeichert...
+164:%s wurde besiegt!
 
 132:KaM Remake Credits
 133:Original Knights & Merchants Credits
