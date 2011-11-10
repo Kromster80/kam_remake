@@ -805,12 +805,12 @@ begin
   begin
     fOrder := wo_AttackUnit; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
     fState := ws_None; //Clear other states
-    fOrderLoc := KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir);
+    fOrderLoc := KMPointDir(aTargetUnit.GetPosition, fOrderLoc.Dir);
     SetOrderHouseTarget(nil);
     SetOrderTarget(aTargetUnit);
   end;
   //Only the commander tracks the target, group members are just told to walk to the position
-  OrderWalk(KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Only set members
+  OrderWalk(KMPointDir(aTargetUnit.GetPosition, fOrderLoc.Dir), True); //Only set members
 end;
 
 
@@ -1107,7 +1107,7 @@ begin
       FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
     //todo: Do not WalkTo enemies location if we are archers, stay in place
-    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, GetFightMaxRange, true, GetOrderTarget);
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget, GetFightMaxRange);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking;
   end;

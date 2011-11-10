@@ -25,74 +25,78 @@ const
 
 type
   TUnitActionWalkTo = class(TUnitAction)
-    private
-      fWalker:TKMUnit; //Who's walking
-      fWalkFrom:TKMPoint; //Walking from this spot, used only in Create
-      fWalkTo:TKMPoint; //Where are we going to
-      fNewWalkTo:TKMPoint; //If we recieve a new TargetLoc it will be stored here
-      fDistance:single; //How close we need to get to our aim
-      fUseExactTarget: boolean; //If we don't care about exact position
-      fTargetUnit:TKMUnit; //Folow this unit
-      fTargetHouse:TKMHouse; //Go to this House
-      fPass:TPassability; //Desired passability set once on Create
-      fDoesWalking, fWaitingOnStep, fDestBlocked:boolean;
-      fDoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
-      fInteractionCount, fLastSideStepNodePos: integer;
-      fInteractionStatus: TInteractionStatus;
-      function AssembleTheRoute:boolean;
-      function CheckForNewDestination: TDestinationCheck;
-      function CheckTargetHasDied:TTargetDiedCheck;
-      function CheckForObstacle:TObstacleCheck;
-      function CheckWalkComplete:boolean;
-      function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
-      function DoUnitInteraction:boolean;
-        //Sub functions split out of DoUnitInteraction (these are the solutions)
-        function IntCheckIfPushing(fOpponent:TKMUnit):boolean;
-        function IntSolutionPush(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-        function IntSolutionExchange(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-        function IntCheckIfPushed(HighestInteractionCount:integer):boolean;
-        function IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-        function IntSolutionAvoid(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-        function IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
+  private
+    fWalker:TKMUnit; //Who's walking
+    fWalkFrom:TKMPoint; //Walking from this spot, used only in Create
+    fWalkTo:TKMPoint; //Where are we going to
+    fNewWalkTo:TKMPoint; //If we recieve a new TargetLoc it will be stored here
+    fDistance:single; //How close we need to get to our aim
+    fUseExactTarget: boolean; //If we don't care about exact position
+    fTargetUnit:TKMUnit; //Folow this unit
+    fTargetHouse:TKMHouse; //Go to this House
+    fPass:TPassability; //Desired passability set once on Create
+    fDoesWalking, fWaitingOnStep, fDestBlocked:boolean;
+    fDoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
+    fInteractionCount, fLastSideStepNodePos: integer;
+    fInteractionStatus: TInteractionStatus;
+    function AssembleTheRoute:boolean;
+    function CheckForNewDestination: TDestinationCheck;
+    function CheckTargetHasDied:TTargetDiedCheck;
+    function CheckForObstacle:TObstacleCheck;
+    function CheckWalkComplete:boolean;
+    function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
+    function DoUnitInteraction:boolean;
+      //Sub functions split out of DoUnitInteraction (these are the solutions)
+      function IntCheckIfPushing(fOpponent:TKMUnit):boolean;
+      function IntSolutionPush(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntSolutionExchange(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntCheckIfPushed(HighestInteractionCount:integer):boolean;
+      function IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntSolutionAvoid(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
 
-      procedure ChangeStepTo(aPos: TKMPoint);
-      procedure PerformExchange(ForcedExchangePos:TKMPoint);
-      procedure IncVertex;
-      procedure DecVertex;
-      procedure SetInitValues;
-      function CanAbandonInternal: boolean;
-      function GetNextNextPosition(out NextNextPos:TKMPoint):boolean;
-      function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
-      procedure ExplanationLogCreate;
-      procedure ExplanationLogAdd;
-    private //Debug items
-      NodePos:integer;
-      NodeList:TKMPointList;
-      Explanation:string; //Debug only, explanation what unit is doing
-      ExplanationLog:TStringList;
-    public
-      fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
-      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse; aUseExactTarget: boolean=true);
-      constructor Load(LoadStream: TKMemoryStream); override;
-      procedure  SyncLoad; override;
-      destructor Destroy; override;
+    procedure ChangeStepTo(aPos: TKMPoint);
+    procedure PerformExchange(ForcedExchangePos:TKMPoint);
+    procedure IncVertex;
+    procedure DecVertex;
+    procedure SetInitValues;
+    function CanAbandonInternal: boolean;
+    function GetNextNextPosition(out NextNextPos:TKMPoint):boolean;
+    function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
+    procedure ExplanationLogCreate;
+    procedure ExplanationLogAdd;
+  private //Debug items
+    NodePos:integer;
+    NodeList:TKMPointList;
+    Explanation:string; //Debug only, explanation what unit is doing
+    ExplanationLog:TStringList;
+  public
+    fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
+    constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aTargetUnit: TKMUnit; aTargetHouse: TKMHouse; aUseExactTarget: boolean=true);
+    constructor Load(LoadStream: TKMemoryStream); override;
+    procedure  SyncLoad; override;
+    destructor Destroy; override;
 
-      function  CanAbandonExternal: boolean;
-      function HasBeenPushed:boolean;
-      property DoesWalking:boolean read fDoesWalking;
-      property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
-      function  GetExplanation:string; override;
-      procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True; aNewTargetUnit: TKMUnit = nil); //Modify route to go to this destination instead
+    function  CanAbandonExternal: boolean;
+    function HasBeenPushed:boolean;
+    property DoesWalking:boolean read fDoesWalking;
+    property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
+    function  GetExplanation:string; override;
 
-      function  Execute(KMUnit: TKMUnit):TActionResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-      procedure Paint; override; //Used only for debug so far
-    end;
+    //Modify route to go to this destination instead
+    procedure ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True); overload;
+    procedure ChangeWalkTo(aNewTargetUnit: TKMUnit; aDistance: Single); overload;
+
+    function  Execute(KMUnit: TKMUnit):TActionResult; override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Paint; override; //Used only for debug so far
+  end;
 
 
 implementation
-uses KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
-     Controls, KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log, KM_ResourceGFX;
+uses
+  KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
+  KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log, KM_ResourceGFX;
 
 
 { TUnitActionWalkTo }
@@ -830,16 +834,16 @@ end;
 
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True; aNewTargetUnit: TKMUnit = nil);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc: TKMPoint; aDistance: Single; aUseExactTarget: Boolean = True);
 begin
   if not fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    raise ELocError.Create('Invalid Change Walk To for '+fResource.UnitDat[fWalker.UnitType].UnitName,aLoc);
+    raise ELocError.Create('Invalid Change Walk To for '+fResource.UnitDat[fWalker.UnitType].UnitName, aLoc);
 
+  //We are no longer being pushed
   if fInteractionStatus = kis_Pushed then
-    fInteractionStatus := kis_None; //We are no longer being pushed
+    fInteractionStatus := kis_None;
 
   fDistance   := aDistance;
-  //fNewWalkTo  := aLoc;
   fUseExactTarget := aUseExactTarget;
 
   if fUseExactTarget then
@@ -847,7 +851,24 @@ begin
   else
     fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass, fUseExactTarget);
 
-  //Change target if we need to
+  //Release pointers if we had them
+  fPlayers.CleanUpHousePointer(fTargetHouse);
+  fPlayers.CleanUpUnitPointer(fTargetUnit);
+end;
+
+
+procedure TUnitActionWalkTo.ChangeWalkTo(aNewTargetUnit: TKMUnit; aDistance: Single);
+begin
+  //We are no longer being pushed
+  if fInteractionStatus = kis_Pushed then
+    fInteractionStatus := kis_None;
+
+  fDistance   := aDistance;
+  fUseExactTarget := True; //When chasing unit it is always an exact target
+
+  fNewWalkTo := aNewTargetUnit.GetPosition;
+
+  //Release pointers if we had them
   fPlayers.CleanUpHousePointer(fTargetHouse);
   fPlayers.CleanUpUnitPointer(fTargetUnit);
   if aNewTargetUnit <> nil then
@@ -916,18 +937,19 @@ begin
 
     { Update destination point }
 
-    //Make changes to our route if we are supposed to be tracking a unit
+    //Make changes to our route if we are supposed to be following a unit
     if CanAbandonInternal
       and (fTargetUnit <> nil)
       and (not fTargetUnit.IsDeadOrDying)
-      and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
+      and not KMSamePoint(fTargetUnit.GetPosition, fWalkTo) then
     begin
-      ChangeWalkTo(fTargetUnit.GetPosition, fDistance, True, fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
+      //If target unit has moved then change course and keep following it
+      ChangeWalkTo(fTargetUnit, fDistance); 
       //If we are a warrior commander tell our memebers to use this new position
       if (fWalker is TKMUnitWarrior) and TKMUnitWarrior(fWalker).IsCommander then
       begin
-        TKMUnitWarrior(fWalker).OrderAttackUnit(fTargetUnit,true); //Give members new position
-        TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fTargetUnit.GetPosition,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
+        TKMUnitWarrior(fWalker).OrderAttackUnit(fTargetUnit, True); //Give members new position
+        TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fTargetUnit.GetPosition, TKMUnitWarrior(fWalker).OrderLocDir.Dir); //This line is notsuperflous
       end;
     end;
 

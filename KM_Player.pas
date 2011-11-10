@@ -21,7 +21,7 @@ type
     property PlayerIndex: TPlayerIndex read fPlayerIndex;
     property Units: TKMUnitsCollection read fUnits;
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit; virtual;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit; 
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
