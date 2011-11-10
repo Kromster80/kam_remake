@@ -55,7 +55,6 @@ type
       function IntSolutionAvoid(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
       function IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
 
-    function SteppedOnNewTile(KMUnit: TKMUnit): TActionResult;
     procedure ChangeStepTo(aPos: TKMPoint);
     procedure PerformExchange(ForcedExchangePos:TKMPoint);
     procedure IncVertex;
@@ -891,6 +890,7 @@ function TUnitActionWalkTo.Execute(KMUnit: TKMUnit):TActionResult;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
+  PreviousAction:TUnitAction;
 begin
   Result := ActContinues;
   StepDone := False;
@@ -923,12 +923,142 @@ begin
   //Check if unit has arrived on tile
   if KMSamePointF(fWalker.PositionF, KMPointF(NodeList.List[NodePos]), Distance/2) then
   begin
-    Result := SteppedOnNewTile(KMUnit);
-    if Result <> ActContinues then
-      Exit;
-  end;
 
-  fWaitingOnStep := False;
+    //Set precise position to avoid rounding errors
+    fWalker.PositionF := KMPointF(NodeList.List[NodePos]);
+
+    if (NodePos > 1) and (not fWaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then
+      DecVertex; //Unoccupy vertex
+
+    fWaitingOnStep := true;
+
+    StepDone := true; //Unit stepped on a new tile
+    fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
+
+
+    { Update destination point }
+
+    //Make changes to our route if we are supposed to be following a unit
+    if CanAbandonInternal
+      and (fTargetUnit <> nil)
+      and (not fTargetUnit.IsDeadOrDying)
+      and not KMSamePoint(fTargetUnit.GetPosition, fWalkTo) then
+    begin
+      //If target unit has moved then change course and keep following it
+      ChangeWalkTo(fTargetUnit, fDistance); 
+      //If we are a warrior commander tell our memebers to use this new position
+      if (fWalker is TKMUnitWarrior) and TKMUnitWarrior(fWalker).IsCommander then
+      begin
+        TKMUnitWarrior(fWalker).OrderAttackUnit(fTargetUnit, True); //Give members new position
+        TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fTargetUnit.GetPosition, TKMUnitWarrior(fWalker).OrderLocDir.Dir); //This line is notsuperflous
+      end;
+    end;
+
+    //Check if we need to walk to a new destination
+    if CanAbandonInternal and (CheckForNewDestination=dc_NoRoute) then begin
+      Result := ActAborted;
+      exit;
+    end;
+
+    //Check for units nearby to fight
+    if CanAbandonInternal and (fWalker is TKMUnitWarrior) then
+      if TKMUnitWarrior(fWalker).CheckForEnemy then
+        //If we've picked a fight it means this action no longer exists,
+        //so we must exit out (don't set DoEnd as that will now apply to fight action)
+        exit;
+
+    //Walk complete
+    if not fDoExchange and CheckWalkComplete then
+    begin
+      if (fDistance>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon))
+      and not KMSamePoint(NodeList.List[NodePos],fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
+        fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
+      Result := ActDone;
+      exit;
+    end;
+
+
+    //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
+    if CanAbandonInternal then
+      case CheckTargetHasDied of
+        tc_NoChanges, tc_TargetUpdated:;
+        tc_Died: begin Result := ActAborted; exit; end;
+      end;
+
+    //This is sometimes caused by unit interaction changing the route so simply ignore it
+    if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then
+    begin
+      inc(NodePos); //Inc the node pos and exit so this step is simply skipped
+      exit; //Will take next step during next execute
+    end;
+
+    //If we were in Worker mode but have now reached the walk network of our destination switch to CanWalk mode to avoid walking on other building sites
+    if (fPass = CanWorker) and (fTerrain.GetWalkConnectID(fWalkTo) <> 0) and
+      (fTerrain.GetWalkConnectID(fWalkTo) = fTerrain.GetWalkConnectID(NodeList.List[NodePos])) then
+      fPass := CanWalk;
+
+    //Update unit direction according to next Node
+    fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
+
+    //Check if we can walk to next tile in the route
+    if CanAbandonInternal then
+    case CheckForObstacle of
+      oc_NoObstacle:;
+      oc_ReRouteMade: exit; //New route will pick-up
+      oc_NoRoute: begin Result := ActAborted; exit; end; //
+    end;
+
+    //Perform exchange
+    //Both exchanging units have fDoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
+    if fDoExchange then
+    begin
+    
+       //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
+      if KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1])
+      and (not fTerrain.VertexUsageCompatible(fWalker.GetPosition,NodeList.List[NodePos+1])) then
+        Exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
+
+      inc(NodePos);
+
+      fWalker.UpdateNextPosition(NodeList.List[NodePos]);
+
+      //Check if we are the first or second unit (has the swap already been performed?)
+      if fWalker = fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit then
+        fTerrain.UnitSwap(fWalker.PrevPosition,fWalker.NextPosition,fWalker);
+
+      fInteractionStatus := kis_None;
+      fDoExchange := false;
+      fWalker.IsExchanging := true; //So unit knows that it must slide
+      fInteractionCount := 0;
+      if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
+    end else
+    begin
+      PreviousAction := KMUnit.GetUnitAction; //We need to know whether DoUnitInteraction destroys Self (this action)
+      if not DoUnitInteraction then
+      begin
+        //If PreviousAction <> KMUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
+        if (PreviousAction = KMUnit.GetUnitAction) and (KMUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) and
+            not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
+                  Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
+        exit; //Do no further walking until unit interaction is solved
+      end else
+        fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
+
+      inc(NodePos);
+      fWalker.UpdateNextPosition(NodeList.List[NodePos]);
+
+      if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then
+        raise ELocError.Create('Unit walk length>1.5',fWalker.PrevPosition);
+
+      if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = nil then
+        raise ELocError.Create('Unit walk Prev position IsUnit = nil',fWalker.PrevPosition);
+
+      fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition,fWalker); //Pre-occupy next tile
+      if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
+    end;
+
+  end;
+  fWaitingOnStep := false;
 
   if NodePos>NodeList.Count then
     raise ELocError.Create('WalkTo overrun',fWalker.GetPosition);
@@ -947,146 +1077,6 @@ begin
   inc(fWalker.AnimStep);
   StepDone := false; //We are not actually done because now we have just taken another step
   fDoesWalking:=true; //Now it's definitely true that unit did walked one step
-end;
-
-
-//We have stepped on new tile and have to perform number of checks
-function TUnitActionWalkTo.SteppedOnNewTile(KMUnit: TKMUnit): TActionResult;
-var
-  PreviousAction:TUnitAction;
-begin
-  //Set precise position to avoid rounding errors
-  fWalker.PositionF := KMPointF(NodeList.List[NodePos]);
-
-  if (NodePos > 1) and (not fWaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then
-    DecVertex; //Unoccupy vertex
-
-  fWaitingOnStep := true;
-
-  StepDone := true; //Unit stepped on a new tile
-  fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
-
-
-  { Update destination point }
-
-  //Make changes to our route if we are supposed to be following a unit
-  if CanAbandonInternal
-    and (fTargetUnit <> nil)
-    and (not fTargetUnit.IsDeadOrDying)
-    and not KMSamePoint(fTargetUnit.GetPosition, fWalkTo) then
-  begin
-    //If target unit has moved then change course and keep following it
-    ChangeWalkTo(fTargetUnit, fDistance); 
-    //If we are a warrior commander tell our memebers to use this new position
-    if (fWalker is TKMUnitWarrior) and TKMUnitWarrior(fWalker).IsCommander then
-    begin
-      TKMUnitWarrior(fWalker).OrderAttackUnit(fTargetUnit, True); //Give members new position
-      TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fTargetUnit.GetPosition, TKMUnitWarrior(fWalker).OrderLocDir.Dir); //This line is notsuperflous
-    end;
-  end;
-
-  //Check if we need to walk to a new destination
-  if CanAbandonInternal and (CheckForNewDestination=dc_NoRoute) then begin
-    Result := ActAborted;
-    exit;
-  end;
-
-  //Check for units nearby to fight
-  if CanAbandonInternal and (fWalker is TKMUnitWarrior) then
-    if TKMUnitWarrior(fWalker).CheckForEnemy then
-      //If we've picked a fight it means this action no longer exists,
-      //so we must exit out (don't set DoEnd as that will now apply to fight action)
-      exit;
-
-  //Walk complete
-  if not fDoExchange and CheckWalkComplete then
-  begin
-    if (fDistance>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon))
-    and not KMSamePoint(NodeList.List[NodePos],fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
-      fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
-    Result := ActDone;
-    exit;
-  end;
-
-
-  //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
-  if CanAbandonInternal then
-    case CheckTargetHasDied of
-      tc_NoChanges, tc_TargetUpdated:;
-      tc_Died: begin Result := ActAborted; exit; end;
-    end;
-
-  //This is sometimes caused by unit interaction changing the route so simply ignore it
-  if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then
-  begin
-    inc(NodePos); //Inc the node pos and exit so this step is simply skipped
-    exit; //Will take next step during next execute
-  end;
-
-  //If we were in Worker mode but have now reached the walk network of our destination switch to CanWalk mode to avoid walking on other building sites
-  if (fPass = CanWorker) and (fTerrain.GetWalkConnectID(fWalkTo) <> 0) and
-    (fTerrain.GetWalkConnectID(fWalkTo) = fTerrain.GetWalkConnectID(NodeList.List[NodePos])) then
-    fPass := CanWalk;
-
-  //Update unit direction according to next Node
-  fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
-
-  //Check if we can walk to next tile in the route
-  if CanAbandonInternal then
-  case CheckForObstacle of
-    oc_NoObstacle:;
-    oc_ReRouteMade: exit; //New route will pick-up
-    oc_NoRoute: begin Result := ActAborted; exit; end; //
-  end;
-
-  //Perform exchange
-  //Both exchanging units have fDoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
-  if fDoExchange then
-  begin
-    
-     //If this is a diagonal exchange we must make sure someone (other than the other unit) is not crossing our path
-    if KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1])
-    and (not fTerrain.VertexUsageCompatible(fWalker.GetPosition,NodeList.List[NodePos+1])) then
-      Exit; //Someone is crossing the path of our exchange, so we will wait until they are out of the way (this check guarantees both units in the exchange will wait)
-
-    inc(NodePos);
-
-    fWalker.UpdateNextPosition(NodeList.List[NodePos]);
-
-    //Check if we are the first or second unit (has the swap already been performed?)
-    if fWalker = fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit then
-      fTerrain.UnitSwap(fWalker.PrevPosition,fWalker.NextPosition,fWalker);
-
-    fInteractionStatus := kis_None;
-    fDoExchange := false;
-    fWalker.IsExchanging := true; //So unit knows that it must slide
-    fInteractionCount := 0;
-    if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
-  end else
-  begin
-    PreviousAction := KMUnit.GetUnitAction; //We need to know whether DoUnitInteraction destroys Self (this action)
-    if not DoUnitInteraction then
-    begin
-      //If PreviousAction <> KMUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
-      if (PreviousAction = KMUnit.GetUnitAction) and (KMUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) and
-          not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
-                Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
-      exit; //Do no further walking until unit interaction is solved
-    end else
-      fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
-
-    inc(NodePos);
-    fWalker.UpdateNextPosition(NodeList.List[NodePos]);
-
-    if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then
-      raise ELocError.Create('Unit walk length>1.5',fWalker.PrevPosition);
-
-    if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = nil then
-      raise ELocError.Create('Unit walk Prev position IsUnit = nil',fWalker.PrevPosition);
-
-    fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition,fWalker); //Pre-occupy next tile
-    if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
-  end;
 end;
 
 
