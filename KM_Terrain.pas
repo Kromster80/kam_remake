@@ -1900,9 +1900,9 @@ end;
 { Rebuilds connected areas using flood fill algorithm }
 procedure TTerrain.RebuildWalkConnect(wcType:TWalkConnect);
 //const MinSize=9; //Minimum size that is treated as new area
-var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
+var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:boolean;
 
-  procedure FillArea(x,y:word; ID:byte; var Count:integer; AllowDiag:boolean); //Mode = 1CanWalk or 2CanWalkRoad
+  procedure FillArea(x,y:word; ID:byte; var Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
   begin
     //todo: This algorithm seems to use too my stack, AllowDiag overflows it even when it's true and has no effect
     if (Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
@@ -1913,18 +1913,18 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
       inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       if x-1>=1 then begin
-        if AllowDiag and (y-1>=1) then     FillArea(x-1,y-1,ID,Count,AllowDiag);
-                                           FillArea(x-1,y  ,ID,Count,AllowDiag);
-        if AllowDiag and (y+1<=fMapY) then FillArea(x-1,y+1,ID,Count,AllowDiag);
+        if AllowDiag and (y-1>=1) then     FillArea(x-1,y-1,ID,Count);
+                                           FillArea(x-1,y  ,ID,Count);
+        if AllowDiag and (y+1<=fMapY) then FillArea(x-1,y+1,ID,Count);
       end;
 
-      if y-1>=1 then     FillArea(x,y-1,ID,Count,AllowDiag);
-      if y+1<=fMapY then FillArea(x,y+1,ID,Count,AllowDiag);
+      if y-1>=1 then     FillArea(x,y-1,ID,Count);
+      if y+1<=fMapY then FillArea(x,y+1,ID,Count);
 
       if x+1<=fMapX then begin
-        if AllowDiag and (y-1>=1) then     FillArea(x+1,y-1,ID,Count,AllowDiag);
-                                           FillArea(x+1,y  ,ID,Count,AllowDiag);
-        if AllowDiag and (y+1<=fMapY) then FillArea(x+1,y+1,ID,Count,AllowDiag);
+        if AllowDiag and (y-1>=1) then     FillArea(x+1,y-1,ID,Count);
+                                           FillArea(x+1,y  ,ID,Count);
+        if AllowDiag and (y+1<=fMapY) then FillArea(x+1,y+1,ID,Count);
       end;
     end;
   end;
@@ -1942,6 +1942,7 @@ begin
     for i:=1 to fMapY do for k:=1 to fMapX do
       Land[i,k].WalkConnect[wcType] := 0;
 
+    AllowDiag := (wcType <> wcRoad); //Do not consider diagonals "connected" for roads
     AreaID := 0;
     for i:=1 to fMapY do for k:=1 to fMapX do
     if (Land[i,k].WalkConnect[wcType]=0) and (Pass in Land[i,k].Passability) and
@@ -1950,7 +1951,7 @@ begin
     begin
       inc(AreaID);
       Count := 0;
-      FillArea(k,i,AreaID,Count,(wcType <> wcRoad)); //Do not consider diagonals "connected" for roads
+      FillArea(k,i,AreaID,Count);
 
       if Count=1 {<MinSize} then //Revert
       begin
