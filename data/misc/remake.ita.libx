@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -55,6 +55,9 @@ MaxID:165
 49:Replay terminato
 50:Continua a guardare
 51:Torna al Menu
+166:
+167:
+168:
 52:Non disponibile
 53:Premi %s per riprendere il gioco
 54:Alla squadra
@@ -164,6 +167,7 @@ MaxID:165
 131:In attesa dei giocatori:
 163:
 164:
+169:
 
 132:Crediti di KaM Remake
 133:Crediti del Knights & Merchants originale

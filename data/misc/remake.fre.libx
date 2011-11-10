@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -55,6 +55,9 @@ MaxID:165
 49:Le Replay est Terminé
 50:Continuer à Regarder
 51:Quitter au Menu
+166:
+167:
+168:
 52:Non disponible
 53:Appuyer sur %s pour reprendre
 54:Pour l'alliance
@@ -164,6 +167,7 @@ MaxID:165
 131:Attente de Joueurs:
 163:
 164:
+169:
 
 132:Crédits de KaM Remake
 133:Crédits Original de Knights & Merchants

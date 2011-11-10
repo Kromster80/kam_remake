@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -55,6 +55,9 @@ MaxID:165
 49:A visszajátszás végetért
 50:Játék megfigyelése
 51:Vissza a menübe
+166:
+167:
+168:
 52:Nem elérhetõ
 53:Nyomj %s billentyût a játék folytatásához
 54:Csapatnak
@@ -164,6 +167,7 @@ MaxID:165
 131:Várakozás a játékosokra:
 163:Játék mentése...
 164:
+169:
 
 132:KaM Remake Készítõk
 133:Eredeti Knights & Merchants Készítõk

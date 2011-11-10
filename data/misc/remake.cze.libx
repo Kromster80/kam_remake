@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Mise zrušena
 2:Výuka stavby
@@ -55,6 +55,9 @@ MaxID:165
 49:Pøehrávání skonèilo
 50:Pokraèovat 
 51:Zpìt do menu
+166:
+167:
+168:
 52:Nedostupné
 53:Stisknìte %s pro pokraèování ve høe
 54:Týmu
@@ -164,6 +167,7 @@ MaxID:165
 131:Èekám na ostatní hráèe:
 163:
 164:
+169:
 
 132:KaM Remake Zásluhy
 133:Originální Knights & Merchants Zásluhy

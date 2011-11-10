@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Missão cancelada
 2:Tutorial da cidade
@@ -55,6 +55,9 @@ MaxID:165
 49:Replay acabou
 50:Continuar assistindo
 51:Sair para o Menu
+166:
+167:
+168:
 52:Indisponível
 53:Pressione %s para continuar o jogo
 54:Para o time
@@ -164,6 +167,7 @@ MaxID:165
 131:Aguardando por jogadores:
 163:
 164:
+169:
 
 132:Créditos do KaM Remake
 133:Créditos Originais do Knights & Merchants

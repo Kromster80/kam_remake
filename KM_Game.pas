@@ -93,6 +93,7 @@ type
     procedure PlayerVictory(aPlayerIndex:TPlayerIndex);
     procedure PlayerDefeat(aPlayerIndex:TPlayerIndex);
     procedure GameWaitingForNetwork(aWaiting:boolean);
+    procedure GameDropWaitingPlayers;
     procedure SendMPGameInfo(Sender:TObject);
 
     procedure AutoSave;
@@ -644,11 +645,12 @@ end;
 procedure TKMGame.GameMPDisconnect(const aData:string);
 begin
   fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
+  fNetworking.PostLocalMessage('Connection to the server was lost! Attempting to reconnect...');
+  //todo: Pause before reconnecting
   fNetworking.AttemptReconnection;
   //todo: Should also handle OnAssignedHostingRights for cases when the server crashed and everyone was disconnected
   //todo: Show the player info about what is happening, and give host the option to continue without the player
   //todo: What happens if someone is dropped while loading? That should be different.
-  //todo: Don't show all of those connecting, connected, etc. messages in chat, make it neater
 end;
 
 
@@ -782,8 +784,21 @@ begin
     else assert(false); //Should not be waiting for players from any other GameState
   end;
 
-  fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers);
+  fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers, fNetworking.IsHost);
   WaitingPlayers.Free;
+end;
+
+
+procedure TKMGame.GameDropWaitingPlayers;
+var WaitingPlayers: TStringList;
+begin
+  WaitingPlayers := TStringList.Create;
+  case fNetworking.NetGameState of
+    lgs_Game,lgs_Reconnecting:    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
+    lgs_Loading: fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
+    else assert(false); //Should not be waiting for players from any other GameState
+  end;
+  fNetworking.DropWaitingPlayers(WaitingPlayers);
 end;
 
 
@@ -802,7 +817,10 @@ begin
     fGameState := gsNoGame;
 
     if fMultiplayerMode then
+    begin
+      if fNetworking.Connected then fNetworking.AnnounceDisconnect;
       fNetworking.Disconnect;
+    end;
 
     //Take results from MyPlayer before data is flushed
     if Msg in [gr_Win, gr_Defeat, gr_Cancel] then

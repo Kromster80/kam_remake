@@ -245,6 +245,7 @@ end;
 
 procedure TMusicLib.FadeMusic;
 begin
+  if (not IsMusicInitialized) or (MusicIndex = 0) then exit;
   fFade := -1; //Fade it out
   fFadeStarted := GetTickCount;
 end;
@@ -252,6 +253,7 @@ end;
 
 procedure TMusicLib.UnfadeMusic;
 begin
+  if (not IsMusicInitialized) or (MusicIndex = 0) then exit;
   fFade := 1; //Fade it in
   fFadeStarted := GetTickCount;
 end;

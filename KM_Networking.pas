@@ -100,8 +100,9 @@ type
     property ServerQuery:TKMServerQuery read fServerQuery;
     procedure Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
     procedure Join(aServerAddress,aPort,aUserName:string; aRoom:integer);
-    procedure LeaveLobby;
+    procedure AnnounceDisconnect;
     procedure Disconnect;
+    procedure DropWaitingPlayers(aPlayers:TStringList);
     function  Connected: boolean;
     procedure MatchPlayersToSave(aPlayerID:integer=-1);
     procedure SelectNoMap(aMessage:string);
@@ -241,7 +242,7 @@ begin
   fNetClient.OnConnectSucceed := ConnectSucceed;
   fNetClient.OnConnectFailed := ConnectFailed;
   fNetClient.OnForcedDisconnect := ForcedDisconnect;
-  fNetClient.OnStatusMessage := fOnTextMessage;
+  //fNetClient.OnStatusMessage := fOnTextMessage; //For debugging only
   fNetClient.ConnectTo(fServerAddress, fServerPort);
 end;
 
@@ -249,7 +250,8 @@ end;
 //Connection was successful, but we still need mk_IndexOnServer to be able to do anything
 procedure TKMNetworking.ConnectSucceed(Sender:TObject);
 begin
-  PostLocalMessage('Connection successful');
+  //This is currently unused, the player does not need to see this message
+  //PostLocalMessage('Connection successful');
 end;
 
 
@@ -261,7 +263,7 @@ end;
 
 
 //Send message that we have deliberately disconnected
-procedure TKMNetworking.LeaveLobby;
+procedure TKMNetworking.AnnounceDisconnect;
 begin
   if IsHost then
     PacketSend(NET_ADDRESS_OTHERS, mk_Disconnect, '', 0) //Host tells everyone when they quit
@@ -296,6 +298,19 @@ begin
   FreeAndNil(fSaveInfo);
 
   fSelectGameKind := ngk_None;
+end;
+
+
+procedure TKMNetworking.DropWaitingPlayers(aPlayers:TStringList);
+var i:integer;
+begin
+  assert(IsHost,'Only the host is allowed to drop players');
+  for i:=0 to aPlayers.Count-1 do
+  begin
+    NetPlayers.DropPlayer( NetPlayers[NetPlayers.NiknameToLocal(aPlayers[i])].IndexOnServer );
+    PostMessage('The host dropped '+aPlayers[i]+' from the game');
+  end;
+  SendPlayerListAndRefreshPlayersSetup;
 end;
 
 
@@ -773,7 +788,7 @@ begin
     mk_IndexOnServer:
             begin
               fMyIndexOnServer := Param;
-              PostLocalMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
+              //PostLocalMessage('Index on Server - ' + inttostr(fMyIndexOnServer));
               //Now join the room we planned to
               PacketSend(NET_ADDRESS_SERVER, mk_JoinRoom, '', fRoomToJoin);
             end;
@@ -863,8 +878,10 @@ begin
     mk_ClientLost:
             if IsHost then
             begin
-              if fNetPlayers.ServerToLocal(Param) = -1 then exit; //Has already disconnected or not from our room
-              PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(Param)].Nikname+' lost connection');
+              PlayerIndex := fNetPlayers.ServerToLocal(Param);
+              if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
+              if not fNetPlayers[PlayerIndex].Dropped then
+                PostMessage(fNetPlayers[PlayerIndex].Nikname+' lost connection');
               if fNetGameState in [lgs_Loading, lgs_Game] then
                 fNetPlayers.DisconnectPlayer(Param)
               else
@@ -896,8 +913,9 @@ begin
                     end;
                 lpk_Joiner:
                     begin
-                      if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostLocalMessage('The host has disconnected');
+                      PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                      if PlayerIndex = -1 then exit; //Has already disconnected
+                      PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]));
                       if fNetGameState in [lgs_Loading, lgs_Game] then
                         fNetPlayers.DropPlayer(aSenderIndex)
                       else

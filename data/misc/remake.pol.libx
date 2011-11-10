@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -55,6 +55,9 @@ MaxID:165
 49:Powtórka siê zakoñczy³a
 50:Kontynuuj ogl¹danie
 51:WyjdŸ do menu
+166:
+167:
+168:
 52:Niedostêpne
 53:Naciœnij &s aby wznowiæ grê
 54:Do dru¿yny
@@ -164,6 +167,7 @@ MaxID:165
 131:Oczekiwanie na graczy:
 163:
 164:
+169:
 
 132:Autorzy KaM Remake
 133:Autorzy Oryginalnego Knights & Merchants

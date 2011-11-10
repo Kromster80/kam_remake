@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Mission canceled
 2:Town Tutorial
@@ -55,6 +55,9 @@ MaxID:165
 49:Replay has ended
 50:Continue Watching
 51:Quit to Menu
+166:Drop Players
+167:The host will be allowed to drop these players after %d seconds
+168:The host is now allowed to drop these players
 52:Not available
 53:Press %s to resume the game
 54:To team
@@ -164,6 +167,7 @@ MaxID:165
 131:Waiting for players:
 163:Saving game...
 164:%s was defeated!
+169:The host (%s) has quit
 
 132:KaM Remake Credits
 133:Original Knights & Merchants Credits

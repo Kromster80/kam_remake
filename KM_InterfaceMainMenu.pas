@@ -391,10 +391,10 @@ begin
                 end;
     msResultsMP:begin
                   case aMsg of
-                    gr_Win:       Label_Results.Caption := fTextLibrary.GetSetupString(111);
-                    gr_Defeat:    Label_Results.Caption := fTextLibrary.GetSetupString(112);
-                    gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
+                    gr_Win:       Label_ResultsMP.Caption := fTextLibrary.GetSetupString(111);
+                    gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary.GetSetupString(112);
+                    gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
+                    else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
                   SwitchMenuPage(Panel_ResultsMP);
                 end;
@@ -1886,7 +1886,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_BackClick(Sender: TObject);
 begin
-  fGame.Networking.LeaveLobby;
+  fGame.Networking.AnnounceDisconnect;
   fGame.Networking.Disconnect;
   MP_Update(fTextLibrary[TX_GAME_ERROR_DISCONNECT],$FF00FFFF,false);
   SwitchMenuPage(Button_LobbyBack);

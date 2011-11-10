@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -55,6 +55,9 @@ MaxID:165
 49:Återspelningen har avslutats
 50:Fortsätt titta
 51:Avsluta
+166:
+167:
+168:
 52:Ej tillgänglig
 53:Tryck %s för att åter börja spela
 54:Till lag
@@ -164,6 +167,7 @@ MaxID:165
 131:Väntar på spelare:
 163:
 164:
+169:
 
 132:KaM Remakes skapare
 133:Original Knights & Merchants skapare

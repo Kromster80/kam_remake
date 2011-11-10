@@ -20,6 +20,7 @@ type
     PlayMoreMsg:TGameResultMsg; //Remember which message we are showing
     fJoiningGroups: boolean;
     AskDemolish:boolean;
+    fNetWaitDropPlayersDelayStarted:cardinal;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
@@ -181,8 +182,8 @@ type
       Bevel_NetWait:TKMBevel;
       Panel_NetWaitMsg:TKMPanel;
         Image_NetWait:TKMImage;
-        Label_NetWait:TKMLabel;
-        Button_NetQuit:TKMButton;
+        Label_NetWait,Label_NetDropPlayersDelay:TKMLabel;
+        Button_NetQuit,Button_NetDropPlayers:TKMButton;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -302,7 +303,7 @@ type
     procedure ShowClock(DoShow:boolean);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
-    procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
+    procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
     property ShownUnit: TKMUnit read fShownUnit;
     property ShownHouse: TKMHouse read fShownHouse;
     property LastSaveName:string read fLastSaveName write fLastSaveName;
@@ -847,15 +848,18 @@ begin
     Bevel_NetWait := TKMBevel.Create(Panel_NetWait,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
     Bevel_NetWait.Stretch;
 
-    Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,(Panel_Main.Width div 2)-100,(Panel_Main.Height div 2)-100,200,200);
+    Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,(Panel_Main.Width div 2)-150,(Panel_Main.Height div 2)-100,300,200);
     Panel_NetWaitMsg.Center;
-      Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,100,40,0,0,556);
+      Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,150,40,0,0,556);
       Image_NetWait.ImageCenter;
 
       //There's only Quit button, nothing else could be done but wait..
-      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,100,80,'<<<LEER>>>',fnt_Outline,taCenter);
-      Button_NetQuit := TKMButton.Create(Panel_NetWaitMsg,0,140,200,30,fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU],fnt_Metal);
+      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,150,80,'<<<LEER>>>',fnt_Outline,taCenter);
+      Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,150,110,'<<<LEER>>>',fnt_Outline,taCenter);
+      Button_NetQuit := TKMButton.Create(Panel_NetWaitMsg,0,140,300,30,fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU],fnt_Metal);
       Button_NetQuit.OnClick := NetWaitClick;
+      Button_NetDropPlayers := TKMButton.Create(Panel_NetWaitMsg,0,180,300,30,fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS],fnt_Metal);
+      Button_NetDropPlayers.OnClick := NetWaitClick;
     Panel_NetWait.Hide; //Initially hidden
 end;
 
@@ -1625,7 +1629,7 @@ end;
 
 procedure TKMGamePlayInterface.Message_Click(Sender: TObject);
 begin
-  if ShownMessage = 0 then
+  if (ShownMessage = 0) or (Sender <> Image_Message[ShownMessage]) then
     Message_Display(Sender)
   else
     Message_Close(Sender);
@@ -2681,12 +2685,24 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList);
+procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
 var i:integer; S:String;
 begin
   S := fTextLibrary[TX_MULTIPLAYER_WAITING]+' ';
   for i:=0 to aPlayers.Count-1 do
     S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
+
+  Button_NetDropPlayers.Visible := IsHost;
+  Button_NetDropPlayers.Disable; //Must wait the minimum time before enabling it
+
+  if not DoShow then
+    fNetWaitDropPlayersDelayStarted := 0
+  else
+    if fNetWaitDropPlayersDelayStarted = 0 then
+    begin
+      Label_NetDropPlayersDelay.Caption := '';
+      fNetWaitDropPlayersDelayStarted := GetTickCount; //Initialise it
+    end;
 
   Label_NetWait.Caption := S;
   Panel_NetWait.Visible := DoShow;
@@ -2695,8 +2711,9 @@ end;
 
 procedure TKMGamePlayInterface.NetWaitClick(Sender:TObject);
 begin
-  Assert(Sender = Button_NetQuit, 'Wrong Sender in NetWaitClick');
-  fGame.Stop(gr_Disconnect);
+  Assert((Sender = Button_NetQuit)or(Sender = Button_NetDropPlayers), 'Wrong Sender in NetWaitClick');
+  if Sender = Button_NetQuit then fGame.Stop(gr_Cancel);
+  if Sender = Button_NetDropPlayers then fGame.GameDropWaitingPlayers;
 end;
 
 
@@ -3278,6 +3295,16 @@ begin
   Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (fGame.GlobalTickCount mod 10 < 5);
   Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
   Image_MPAllies.Highlight := Panel_Allies.Visible;
+
+  if Panel_NetWait.Visible then
+  begin
+    i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
+    if i > 0 then
+      Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
+    else
+      Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
+    Button_NetDropPlayers.Enabled := i = 0;
+  end;
 end;
 
 

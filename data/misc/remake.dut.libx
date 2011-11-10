@@ -1,5 +1,5 @@
 
-MaxID:165
+MaxID:169
 
 1:Missie geannuleerd 
 2:Stad oefenscenario
@@ -55,6 +55,9 @@ MaxID:165
 49:Herhaling is geëindigd
 50:Blijven kijken
 51:Afsluiten naar menu
+166:
+167:
+168:
 52:Niet beschikbaar
 53:Druk op %s om verder te spelen
 54:Naar team
@@ -164,6 +167,7 @@ MaxID:165
 131:Wachten op spelers:
 163:
 164:
+169:
 
 132:KaM Remake Credits
 133:Orginele Knights & Merchants Credits
