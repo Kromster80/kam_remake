@@ -2194,6 +2194,7 @@ begin
   CheckBox_Settings_ShuffleOn.Checked   := fGame.GlobalSettings.ShuffleOn;
 
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
+  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
 
@@ -2215,11 +2216,16 @@ begin
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
   fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
   if MusicToggled then
+  begin
     fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
+    if fGame.GlobalSettings.MusicOn then
+      ShuffleToggled := true; //Re-shuffle songs if music has been enabled
+  end;
   if ShuffleToggled then
     fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
 
   Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
+  CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
 

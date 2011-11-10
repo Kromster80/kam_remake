@@ -214,12 +214,15 @@ type
       Panel_Options_Ctrl:TKMPanel;
         Label_Options_MouseSpeed:TKMLabel;
         Ratio_Options_Mouse:TKMRatioRow;
+        Label_Options_ScrollSpeed:TKMLabel;
+        Ratio_Options_ScrollSpeed:TKMRatioRow;
       Panel_Options_Game:TKMPanel;
         CheckBox_Options_Autosave:TKMCheckBox;
       Panel_Options_Sound:TKMPanel;
         Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
         Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
         CheckBox_Options_MusicOn:TKMCheckBox;
+        CheckBox_Options_ShuffleOn:TKMCheckBox;
       Panel_Options_Lang:TKMPanel;
         Radio_Options_Lang:TKMRadioGroup;
       Panel_Options_Res:TKMPanel;
@@ -888,25 +891,29 @@ begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,200,80);
+    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,200,130);
       TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Ctrl,0,20,200,60);
+      TKMBevel.Create(Panel_Options_Ctrl,0,20,200,110);
 
       Label_Options_MouseSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,27,164,20,fTextLibrary.GetTextString(192),fnt_Metal,taLeft);
       Label_Options_MouseSpeed.Disable;
       Ratio_Options_Mouse:=TKMRatioRow.Create(Panel_Options_Ctrl,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
       Ratio_Options_Mouse.Disable;
 
-    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,200,50);
+      Label_Options_ScrollSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,77,164,20,fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED],fnt_Metal,taLeft);
+      Ratio_Options_ScrollSpeed:=TKMRatioRow.Create(Panel_Options_Ctrl,10,97,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
+      Ratio_Options_ScrollSpeed.OnChange:=Options_Change;
+
+    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,280,200,50);
       TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,200,30);
 
       CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,176,20,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,300,200,150);
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,350,200,167);
       TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Sound,0,20,200,130);
+      TKMBevel.Create(Panel_Options_Sound,0,20,200,147);
 
       Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,164,20,fTextLibrary.GetTextString(194),fnt_Metal,taLeft);
       Ratio_Options_SFX:=TKMRatioRow.Create(Panel_Options_Sound,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
@@ -916,6 +923,8 @@ begin
       Ratio_Options_Music.OnChange:=Options_Change;
       CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
       CheckBox_Options_MusicOn.OnClick := Options_Change;
+      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound,12,147,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
+      CheckBox_Options_ShuffleOn.OnClick := Options_Change;
 
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,340,130,200,80);
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
@@ -2022,13 +2031,16 @@ end;
 procedure TKMMainMenuInterface.Options_Fill(aGlobalSettings:TGlobalSettings);
 var i:cardinal;
 begin
-  CheckBox_Options_Autosave.Checked := aGlobalSettings.Autosave;
-  Ratio_Options_Brightness.Position := aGlobalSettings.Brightness;
-  Ratio_Options_Mouse.Position      := aGlobalSettings.MouseSpeed;
-  Ratio_Options_SFX.Position        := aGlobalSettings.SoundFXVolume;
-  Ratio_Options_Music.Position      := aGlobalSettings.MusicVolume;
-  CheckBox_Options_MusicOn.Checked  := not aGlobalSettings.MusicOn;
-  Ratio_Options_Music.Enabled       := not CheckBox_Options_MusicOn.Checked;
+  CheckBox_Options_Autosave.Checked   := aGlobalSettings.Autosave;
+  Ratio_Options_Brightness.Position   := aGlobalSettings.Brightness;
+  Ratio_Options_Mouse.Position        := aGlobalSettings.MouseSpeed;
+  Ratio_Options_ScrollSpeed.Position  := aGlobalSettings.ScrollSpeed;
+  Ratio_Options_SFX.Position          := aGlobalSettings.SoundFXVolume;
+  Ratio_Options_Music.Position        := aGlobalSettings.MusicVolume;
+  CheckBox_Options_MusicOn.Checked    := not aGlobalSettings.MusicOn;
+  Ratio_Options_Music.Enabled         := not CheckBox_Options_MusicOn.Checked;
+  CheckBox_Options_ShuffleOn.Checked  := fGame.GlobalSettings.ShuffleOn;
+  CheckBox_Options_ShuffleOn.Enabled  := not CheckBox_Options_MusicOn.Checked;
 
   for i:=1 to LOCALES_COUNT do
     if SameText(aGlobalSettings.Locale, Locales[i,1]) then
@@ -2047,23 +2059,33 @@ end;
 
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
-var i:cardinal; MusicToggled: boolean;
+var i:cardinal; MusicToggled, ShuffleToggled: boolean;
 begin
   MusicToggled := (fGame.GlobalSettings.MusicOn = CheckBox_Options_MusicOn.Checked);
+  ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Options_ShuffleOn.Checked);
 
   fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
   fGame.GlobalSettings.Brightness       := Ratio_Options_Brightness.Position;
   fGame.GlobalSettings.MouseSpeed       := Ratio_Options_Mouse.Position;
+  fGame.GlobalSettings.ScrollSpeed      := Ratio_Options_ScrollSpeed.Position;
   fGame.GlobalSettings.SoundFXVolume    := Ratio_Options_SFX.Position;
   fGame.GlobalSettings.MusicVolume      := Ratio_Options_Music.Position;
   fGame.GlobalSettings.MusicOn          := not CheckBox_Options_MusicOn.Checked;
+  fGame.GlobalSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
   fGame.GlobalSettings.FullScreen       := CheckBox_Options_FullScreen.Checked;
   Ratio_Options_Music.Enabled           := not CheckBox_Options_MusicOn.Checked;
+  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOn.Checked;
 
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);
   fGame.MusicLib.UpdateMusicVolume(fGame.GlobalSettings.MusicVolume / fGame.GlobalSettings.SlidersMax);
   if MusicToggled then
+  begin
     fGame.MusicLib.ToggleMusic(fGame.GlobalSettings.MusicOn);
+    if fGame.GlobalSettings.MusicOn then
+      ShuffleToggled := true; //Re-shuffle songs if music has been enabled
+  end;
+  if ShuffleToggled then
+    fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
 
   if Sender = Radio_Options_Lang then begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEWLOCAL]);
