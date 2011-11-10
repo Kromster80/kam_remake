@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2531';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2538';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   SERVER_PROTOCOL_REVISON = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -725,18 +725,26 @@ type
     sfxn_Trade,
     sfxn_MPChatMessage,
     sfxn_MPChatOpen,
-    sfxn_MPChatClose
+    sfxn_MPChatClose,
+    sfxn_Victory,
+    sfxn_Defeat,
+    sfxn_Error1,
+    sfxn_Error2
 
   );
 
 const
   NewSFXFolder = 'Sounds\';
   NewSFXFile:array[TSoundFXNew] of string = (
-    'ButtonClick002.wav',
-    'Trade002.wav',
-    'Chat001.wav',
-    'ChatOpen001.wav',
-    'ChatClose001.wav'
+    'UI\ButtonClick.wav',
+    'Buildings\MarketPlace\Trade.wav',
+    'Chat\ChatArrive.wav',
+    'Chat\ChatOpen.wav',
+    'Chat\ChatClose.wav',
+    'Misc\Victory.wav',
+    'Misc\Defeat.wav',
+    'UI\Error001.wav',
+    'UI\Error002.wav'
     );
 
 const MeleeSoundsHit:array[0..14] of TSoundFX = (

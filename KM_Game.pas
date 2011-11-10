@@ -164,6 +164,8 @@ begin
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
+  fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
+  fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
   fResource         := TResource.Create(aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
@@ -735,6 +737,7 @@ end;
 
 procedure TKMGame.PlayerVictory(aPlayerIndex:TPlayerIndex);
 begin
+  if aPlayerIndex = MyPlayer.PlayerIndex then fSoundLib.Play(sfxn_Victory, 1.0, true); //Fade music
   if MultiplayerMode then
   begin
     if aPlayerIndex = MyPlayer.PlayerIndex then
@@ -750,6 +753,7 @@ end;
 
 procedure TKMGame.PlayerDefeat(aPlayerIndex:TPlayerIndex);
 begin
+  if aPlayerIndex = MyPlayer.PlayerIndex then fSoundLib.Play(sfxn_Defeat, 1.0, true); //Fade music
   if MultiplayerMode then
   begin
     if aPlayerIndex = MyPlayer.PlayerIndex then
@@ -1367,6 +1371,8 @@ begin
                   fTerrain.UpdateStateIdle;
                 end;
   end;
+  if fMusicLib <> nil then fMusicLib.UpdateStateIdle;
+  if fSoundLib <> nil then fSoundLib.UpdateStateIdle;
   if fNetworking <> nil then
     fNetworking.UpdateStateIdle;
 end;

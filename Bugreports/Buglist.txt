@@ -33,6 +33,7 @@
  +	Someone joining your lobby as you click start (while loading) gets an invalid state and server times out
  +	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  +	The ugly diagonal roads cheat no longer works, you have to connect them properly
+ +	Mission 3 of TPR was impossible to win due to incorrect handling of goal type 6 (military buildings and troops)
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -67,6 +68,7 @@ Features:
  +	Ability to see the score screen for other players after a multiplayer game
  +	Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
  +	Show formation count in MapEd UI
+	Clock in multiplayer showing the mission time (singleplayer too?)
 	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it

@@ -1,7 +1,7 @@
 unit KM_Music;
 {$I KaM_Remake.inc}
 interface
-uses Forms, Bass, Classes, SysUtils, KromUtils, Math, KM_Defaults;
+uses Forms, Bass, Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults;
 
 //We use the Bass library for music playback. It requires bass.dll to be distributed with our releases.
 
@@ -17,6 +17,8 @@ type
     IsMusicInitialized:boolean;
     MusicGain:single;
     fBassStream:cardinal;
+    fFade:shortint; //-1 0 1
+    fFadeStarted:cardinal;
     function  CheckMusicError:boolean;
     function  PlayMusicFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
@@ -33,7 +35,10 @@ type
     procedure StopMusic;
     procedure ToggleMusic(aOn:boolean);
     procedure ToggleShuffle(aOn:boolean);
+    procedure FadeMusic(Sender:TObject);
+    procedure UnfadeMusic(Sender:TObject);
     function GetTrackTitle:string;
+    procedure UpdateStateIdle; //Used for fading
   end;
 
 
@@ -91,6 +96,7 @@ function TMusicLib.PlayMusicFile(FileName:string):boolean;
 begin
   Result:=false;
   if not IsMusicInitialized then exit;
+  if fFade <> 0 then exit; //Don't start a new track while fading
 
   BASS_ChannelStop(fBassStream); //Cancel previous sound
   if not FileExists(FileName) then exit; //Make it silent
@@ -235,6 +241,47 @@ begin
     TrackOrder[i] := i;
   end;
 end;
+
+
+procedure TMusicLib.FadeMusic;
+begin
+  fFade := -1; //Fade it out
+  fFadeStarted := GetTickCount;
+end;
+
+
+procedure TMusicLib.UnfadeMusic;
+begin
+  fFade := 1; //Fade it in
+  fFadeStarted := GetTickCount;
+end;
+
+
+procedure TMusicLib.UpdateStateIdle;
+const FADE_TIME = 1000; //Time that a fade takes to occur in ms
+var NewVol: single;
+begin
+  if (not IsMusicInitialized) or (MusicIndex = 0) or (fFade = 0) then exit;
+  if fFade = 1 then
+    NewVol := MusicGain*(            Min(FADE_TIME, Abs(GetTickCount-fFadeStarted)))/FADE_TIME
+  else
+    NewVol := MusicGain*(FADE_TIME - Min(FADE_TIME, Abs(GetTickCount-fFadeStarted)))/FADE_TIME;
+
+  BASS_ChannelSetAttribute(fBassStream, BASS_ATTRIB_VOL, NewVol);
+  if (NewVol = 0) and (fFade = -1) then
+  begin
+    BASS_ChannelPause(fBassStream);
+    fFade := 0; //Fade out complete
+  end
+  else
+    if (fFade = 1) then
+    begin
+      if BASS_ChannelIsActive(fBassStream) = BASS_ACTIVE_PAUSED then
+        BASS_ChannelPlay(fBassStream,False); //Resume
+      if NewVol = MusicGain then fFade := 0; //Fade in complete
+    end;
+end;
+
 
 function TMusicLib.GetTrackTitle:string;
 begin

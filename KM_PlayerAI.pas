@@ -206,7 +206,10 @@ procedure TKMPlayerAI.CheckGoals;
       gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
       gc_Buildings:         Result := (MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Barracks)>0);
       gc_Troops:            Result := (MS.GetArmyCount>0);
-      gc_MilitaryAssets:    Result := (MS.GetArmyCount>0)or(MS.GetHouseQty(ht_Barracks)>0);
+      gc_MilitaryAssets:    Result := (MS.GetArmyCount>0)or(MS.GetHouseQty(ht_Barracks)>0)or(MS.GetHouseQty(ht_CoalMine)>0)or
+                                      (MS.GetHouseQty(ht_WeaponWorkshop)>0)or(MS.GetHouseQty(ht_ArmorWorkshop)>0)or(MS.GetHouseQty(ht_Stables)>0)or
+                                      (MS.GetHouseQty(ht_IronMine)>0)or(MS.GetHouseQty(ht_IronSmithy)>0)or(MS.GetHouseQty(ht_WeaponSmithy)>0)or
+                                      (MS.GetHouseQty(ht_ArmorSmithy)>0)or(MS.GetHouseQty(ht_TownHall)>0)or(MS.GetHouseQty(ht_SiegeWorkshop)>0);
       gc_SerfsAndSchools:   Result := (MS.GetHouseQty(ht_School)>0)or(MS.GetUnitQty(ut_Serf)>0);
       gc_EconomyBuildings:  Result := ((MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Inn)>0));
       else                  Assert(false, 'Unknown goal');
@@ -247,17 +250,18 @@ begin
   if (not fGame.MultiplayerMode) and (MyPlayer <> fPlayers[PlayerIndex]) then
     exit; //Don't show message if the player is not us, except in multiplayer mode
 
+  //You can't win and lose at the same time. In KaM victories override defeats.
   if VictorySatisfied then
   begin
     fGame.PlayerVictory(PlayerIndex);
     fHasWonOrLost := true;
-  end;
-
-  if not SurvivalSatisfied then
-  begin
-    fGame.PlayerDefeat(PlayerIndex);
-    fHasWonOrLost := true;
-  end;
+  end
+  else
+    if not SurvivalSatisfied then
+    begin
+      fGame.PlayerDefeat(PlayerIndex);
+      fHasWonOrLost := true;
+    end;
 end;
 
 

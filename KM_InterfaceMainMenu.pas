@@ -963,6 +963,7 @@ begin
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|Mees Gelein||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+TRANSLATOR_CREDITS+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);

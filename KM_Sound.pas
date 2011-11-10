@@ -67,15 +67,20 @@ type
       ALSource:TALuint;
       Name:string;
       Position:TKMPointF;
-      Duration:word; //MSec
+      Duration:cardinal; //MSec
       PlaySince:cardinal;
+      FadesMusic:boolean;
     end;
 
     fSoundGain:single; //aka "Global volume"
+    fMusicIsFaded:boolean;
     fLocale:string; //Locale used to access warrior sounds
     fNotificationSoundCount: array[TAttackNotification] of byte;
     fWarriorSoundCount: array[WARRIOR_MIN..WARRIOR_MAX, TWarriorSpeech] of byte;
     fWarriorUseBackup: array[WARRIOR_MIN..WARRIOR_MAX] of boolean;
+
+    fOnFadeMusic:TNotifyEvent;
+    fOnUnfadeMusic:TNotifyEvent;
     procedure CheckOpenALError;
     procedure LoadSoundsDAT;
     procedure ScanWarriorSounds;
@@ -83,12 +88,15 @@ type
     procedure SaveWarriorSoundsToFile(const aFile: String);
     function WarriorSoundFile(aUnitType:TUnitType; aSound:TWarriorSpeech; aNumber:byte):string;
     function NotificationSoundFile(aSound:TAttackNotification; aNumber:byte):string;
-    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0); overload;
-    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
+    procedure PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false); overload;
+    procedure PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
   public
     constructor Create(aLocale:string; aVolume:single);
     destructor Destroy; override;
     function ActiveCount:byte;
+
+    property OnFadeMusic:TNotifyEvent write fOnFadeMusic;
+    property OnUnfadeMusic:TNotifyEvent write fOnUnfadeMusic;
 
     procedure ExportSounds;
     procedure UpdateListener(X,Y:single);
@@ -104,10 +112,11 @@ type
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0); overload;
 
-    procedure Play(SoundID:TSoundFXNew; Volume:single=1.0); overload;
-    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0); overload;
+    procedure Play(SoundID:TSoundFXNew; Volume:single=1.0; FadeMusic:boolean=false); overload;
+    procedure Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false); overload;
 
     procedure Paint;
+    procedure UpdateStateIdle;
   end;
 
 
@@ -116,7 +125,7 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_Log;
+uses KM_CommonTypes, KM_RenderAux, KM_Log, Math;
 
 
 const
@@ -368,15 +377,15 @@ begin
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFXNew; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Volume:single=1.0; FadeMusic:boolean=false);
 begin
-  Play(SoundID, KMPoint(0,0), false, Volume);
+  Play(SoundID, KMPoint(0,0), false, Volume, FadeMusic);
 end;
 
 
-procedure TSoundLib.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0);
+procedure TSoundLib.Play(SoundID:TSoundFXNew; Loc:TKMPoint; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
 begin
-  PlayWave(ExeDir+NewSFXFolder+NewSFXFile[SoundID], KMPointF(Loc), Attenuated, Volume);
+  PlayWave(ExeDir+NewSFXFolder+NewSFXFile[SoundID], KMPointF(Loc), Attenuated, Volume, FadeMusic);
 end;
 
 
@@ -396,17 +405,17 @@ end;
 
 
 {Wrapper WAV files}
-procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
+procedure TSoundLib.PlayWave(const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
 begin
   if not fIsSoundInitialized then Exit;
-  PlaySound(sfx_None, aFile, Loc, Attenuated, Volume); //Redirect
+  PlaySound(sfx_None, aFile, Loc, Attenuated, Volume, FadeMusic); //Redirect
 end;
 
 
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0);
+procedure TSoundLib.PlaySound(SoundID:TSoundFX; const aFile:string; Loc:TKMPointF; Attenuated:boolean=true; Volume:single=1.0; FadeMusic:boolean=false);
 var Dif:array[1..3]of single;
   FreeBuf{,FreeSrc}:integer;
   i,ID:integer;
@@ -417,6 +426,7 @@ var Dif:array[1..3]of single;
   WAVsize: TALsizei;
   WAVfreq: TALsizei;
   WAVloop: TALint;
+  WAVDuration:cardinal;
 begin
   if not fIsSoundInitialized then Exit;
   if (SoundID = sfx_None) and (aFile = '') then Exit;
@@ -450,6 +460,12 @@ begin
   end;
   if FreeBuf = 0 then Exit;//Don't play if there's no room left
 
+  //Fade music if required
+  if FadeMusic and not fMusicIsFaded then
+  begin
+    fOnFadeMusic(Self);
+    fMusicIsFaded := true;
+  end;
 
   //Stop previously playing sound and release buffer
   AlSourceStop(fSound[FreeBuf].ALSource);
@@ -461,6 +477,12 @@ begin
     alutLoadWAVFile(aFile,WAVformat,WAVdata,WAVsize,WAVfreq,WAVloop);
     AlBufferData(fSound[FreeBuf].ALBuffer,WAVformat,WAVdata,WAVsize,WAVfreq);
     alutUnloadWAV(WAVformat,WAVdata,WAVsize,WAVfreq);
+    WAVDuration := round(WAVsize / WAVfreq * 1000);
+    case WAVformat of
+      AL_FORMAT_STEREO16: WAVDuration := WAVDuration div 4;
+      AL_FORMAT_STEREO8: WAVDuration := WAVDuration div 2;
+      AL_FORMAT_MONO16: WAVDuration := WAVDuration div 2;
+    end;
   end
   else
   begin
@@ -469,6 +491,7 @@ begin
     AlBufferData(fSound[FreeBuf].ALBuffer, AL_FORMAT_MONO8, @fWaves[ID].Data[0], fWaves[ID].Head.DataSize, fWaves[ID].Head.SampleRate);
     WAVsize := fWaves[ID].Head.FileSize;
     WAVfreq := fWaves[ID].Head.BytesPerSecond;
+    WAVDuration := round(WAVsize / WAVfreq * 1000);
   end;
 
   //Set source properties
@@ -494,10 +517,14 @@ begin
 
   //Start playing
   AlSourcePlay(fSound[FreeBuf].ALSource);
-  fSound[FreeBuf].Name := SSoundFX[SoundID];
+  if SoundID <> sfx_None then
+    fSound[FreeBuf].Name := SSoundFX[SoundID]
+  else
+    fSound[FreeBuf].Name := ExtractFileName(aFile);
   fSound[FreeBuf].Position := Loc;
-  fSound[FreeBuf].Duration := round(WAVsize / WAVfreq * 1000);
+  fSound[FreeBuf].Duration := WAVDuration;
   fSound[FreeBuf].PlaySince := GetTickCount;
+  fSound[FreeBuf].FadesMusic := FadeMusic;
 end;
 
 
@@ -609,6 +636,27 @@ begin
     fRenderAux.Text(Round(fSound[i].Position.X), Round(fSound[i].Position.Y), fSound[i].Name, $FFFFFFFF);
   end else
     fSound[i].PlaySince := 0;
+end;
+
+
+procedure TSoundLib.UpdateStateIdle;
+var i:integer; FoundFaded:boolean;
+begin
+  if not fMusicIsFaded then exit;
+
+  FoundFaded := false;
+  for i:=1 to MAX_SOUNDS do
+    if fSound[i].FadesMusic then
+    begin
+      FoundFaded := true;
+      if (fSound[i].PlaySince<>0) and (fSound[i].PlaySince+fSound[i].Duration > GetTickCount) then
+        exit //There is still a faded sound playing
+      else
+        fSound[i].FadesMusic := false; //Make sure we don't resume more than once for this sound
+    end;
+  //If we reached the end without exiting then we need to resume the music
+  fMusicIsFaded := false;
+  if FoundFaded then fOnUnfadeMusic(Self);
 end;
 
 
