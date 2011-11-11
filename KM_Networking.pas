@@ -30,6 +30,7 @@ const
   );
 
   JOIN_TIMEOUT = 8000; //8 sec. Timeout for join queries
+  RECONNECT_PAUSE = 2000; //Time in ms which we wait before attempting to reconnect (stops the socket from becoming overloaded)
 
 
 type
@@ -45,6 +46,7 @@ type
     fServerPort:string; //Used for reconnecting
     fRoomToJoin:integer; //The room we should join once we hear from the server
     fLastProcessedTick:cardinal;
+    fReconnectRequested:cardinal; //TickCount at which a reconnection was requested
     fMyNikname:string;
     fWelcomeMessage:string;
     fMyIndexOnServer:integer;
@@ -82,6 +84,7 @@ type
     procedure SetGameState(aState:TNetGameState);
     procedure SendMapOrSave;
     function GetGameInfo:TKMGameInfo;
+    procedure DoReconnection;
 
     procedure ConnectSucceed(Sender:TObject);
     procedure ConnectFailed(const S: string);
@@ -95,6 +98,7 @@ type
     property NetGameState:TNetGameState read fNetGameState;
     function MyIPString:string;
     function IsHost:boolean;
+    function IsReconnecting:boolean;
 
     //Lobby
     property ServerQuery:TKMServerQuery read fServerQuery;
@@ -196,6 +200,12 @@ end;
 function TKMNetworking.IsHost:boolean;
 begin
   Result := (fNetPlayerKind = lpk_Host);
+end;
+
+
+function TKMNetworking.IsReconnecting:boolean;
+begin
+  Result := (fNetGameState = lgs_Reconnecting);
 end;
 
 
@@ -302,12 +312,15 @@ end;
 
 
 procedure TKMNetworking.DropWaitingPlayers(aPlayers:TStringList);
-var i:integer;
+var i,ServerIndex:integer;
 begin
   assert(IsHost,'Only the host is allowed to drop players');
   for i:=0 to aPlayers.Count-1 do
   begin
-    NetPlayers.DropPlayer( NetPlayers[NetPlayers.NiknameToLocal(aPlayers[i])].IndexOnServer );
+    ServerIndex := NetPlayers[NetPlayers.NiknameToLocal(aPlayers[i])].IndexOnServer;
+    //Make sure this player is properly disconnected from the server
+    PacketSend(NET_ADDRESS_SERVER,mk_KickPlayer,'',ServerIndex);
+    NetPlayers.DropPlayer(ServerIndex);
     PostMessage('The host dropped '+aPlayers[i]+' from the game');
   end;
   SendPlayerListAndRefreshPlayersSetup;
@@ -700,8 +713,16 @@ end;
 
 
 procedure TKMNetworking.AttemptReconnection;
+begin
+  if fReconnectRequested = 0 then fReconnectRequested := GetTickCount; //Do it soon
+end;
+
+
+procedure TKMNetworking.DoReconnection;
 var TempMyIndex:integer;
 begin
+  fReconnectRequested := 0;
+  PostLocalMessage('Attempting to reconnect to the game...');
   //Stop the previous connection without calling Self.Disconnect as that frees everything
   fNetClient.Disconnect;
   TempMyIndex := fMyIndex;
@@ -798,7 +819,17 @@ begin
               //We are now clear to proceed with our business
               if fNetGameState = lgs_Reconnecting then
               begin
-                PacketSend(NET_ADDRESS_HOST, mk_AskToReconnect, fMyNikname, 0);
+                if IsHost then
+                begin
+                  //The other players must have been disconnected too, so we will be the host now
+                  SetGameState(lgs_Game); //We are now in control of the game, so we are no longer reconnecting
+                  //At this point we now know that every other client was dropped, but we probably missed the disconnect messages
+                  fNetPlayers.DisconnectAllClients(fMyNikname); //Mark all human players as disconnected, except for self
+                  //Set our new index on server
+                  fNetPlayers[fNetPlayers.NiknameToLocal(fMyNikname)].SetIndexOnServer := fMyIndexOnServer;
+                end
+                else
+                  PacketSend(NET_ADDRESS_HOST, mk_AskToReconnect, fMyNikname, 0);
               end
               else
                 case fNetPlayerKind of
@@ -838,8 +869,8 @@ begin
 
     mk_RefuseReconnect:
             begin
-              //todo: Show the player the message
-              AttemptReconnection;
+              PostLocalMessage('Reconnection failed: '+Msg);
+              if Assigned(fOnJoinFail) then fOnJoinFail(Msg);
             end;
 
     mk_AskToJoin:
@@ -1094,7 +1125,11 @@ begin
             if fNetPlayerKind = lpk_Joiner then PlayGame;
 
     mk_Commands:
-            if Assigned(fOnCommands) then fOnCommands(Msg);
+            begin
+              PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+              if (PlayerIndex<>-1) and not fNetPlayers[PlayerIndex].Dropped then
+                if Assigned(fOnCommands) then fOnCommands(Msg);
+            end;
 
     mk_ResyncFromTick:
             begin
@@ -1106,6 +1141,7 @@ begin
     mk_ResyncEveryone:
             begin
               //The host has accepted us back into the game!
+              PostLocalMessage('Successfully reconnected to the game');
               SetGameState(lgs_Game); //Game is now running once again
               if Assigned(fOnResyncFromTick) then fOnResyncFromTick(-1,cardinal(Param));
               PacketSend(NET_ADDRESS_ALL, mk_ResyncFromTick, '', Integer(fLastProcessedTick));
@@ -1190,6 +1226,7 @@ end;
 
 procedure TKMNetworking.UpdateStateIdle;
 begin
+  if (fReconnectRequested <> 0) and (abs(GetTickCount - fReconnectRequested) > RECONNECT_PAUSE) then DoReconnection;
   fNetServer.UpdateState; //Server measures pings etc.
   //LNet requires network update calls unless it is being used as visual components
   fNetClient.UpdateStateIdle;

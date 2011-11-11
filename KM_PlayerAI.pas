@@ -250,18 +250,23 @@ begin
   if (not fGame.MultiplayerMode) and (MyPlayer <> fPlayers[PlayerIndex]) then
     exit; //Don't show message if the player is not us, except in multiplayer mode
 
-  //You can't win and lose at the same time. In KaM victories override defeats.
-  if VictorySatisfied then
+  //You can't win and lose at the same time. In KaM defeats override victories, except
+  //when there are no goals defined, in which case you win for some weird reason...
+  //But given that having no goals is pretty pointless we'll make defeat override so you can't
+  //win battle missions by waiting for your troops to simultainiously starve to death.
+
+  if not SurvivalSatisfied then
   begin
-    fGame.PlayerVictory(PlayerIndex);
+    fGame.PlayerDefeat(PlayerIndex);
     fHasWonOrLost := true;
   end
   else
-    if not SurvivalSatisfied then
+    if VictorySatisfied then
     begin
-      fGame.PlayerDefeat(PlayerIndex);
+      fGame.PlayerVictory(PlayerIndex);
       fHasWonOrLost := true;
     end;
+
 end;
 
 

@@ -34,6 +34,7 @@
  +	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  +	The ugly diagonal roads cheat no longer works, you have to connect them properly
  +	Mission 3 of TPR was impossible to win due to incorrect handling of goal type 6 (military buildings and troops)
+ +	Sometimes chat would not open when you clicked it
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -69,6 +70,8 @@ Features:
  +	Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
  +	Show formation count in MapEd UI
 	Clock in multiplayer showing the mission time (singleplayer too?)
+	Show coordinates in the map editor
+	New maps should not start with random trees as that is just annoying (should be just grass with slight height variations)
 	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it
@@ -98,6 +101,7 @@ Features:
 	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
 	Chat logs
+	A variety of game speeds possible through different keys (something like F5=normal, F6=medium, F7=fast, F8=very fast)
 
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed

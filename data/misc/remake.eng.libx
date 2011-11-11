@@ -1,5 +1,5 @@
 
-MaxID:169
+MaxID:170
 
 1:Mission canceled
 2:Town Tutorial
@@ -26,7 +26,7 @@ MaxID:169
 24:Sound:
 141:Scroll speed
 25:Disable music
-143:Shuffle songs
+143:Shuffle tracks
 26:Graphics:
 27:Brightness
 28:Fullscreen
@@ -168,6 +168,7 @@ MaxID:169
 163:Saving game...
 164:%s was defeated!
 169:The host (%s) has quit
+170:The connection to the server was lost. Attempting to reconnect...
 
 132:KaM Remake Credits
 133:Original Knights & Merchants Credits

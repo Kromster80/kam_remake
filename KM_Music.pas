@@ -260,7 +260,7 @@ end;
 
 
 procedure TMusicLib.UpdateStateIdle;
-const FADE_TIME = 1000; //Time that a fade takes to occur in ms
+const FADE_TIME = 2000; //Time that a fade takes to occur in ms
 var NewVol: single;
 begin
   if (not IsMusicInitialized) or (MusicIndex = 0) or (fFade = 0) then exit;

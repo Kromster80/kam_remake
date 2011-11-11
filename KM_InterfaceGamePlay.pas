@@ -874,8 +874,8 @@ begin
   Image_MPChat.OnClick := Chat_Click;
   Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Outline,taCenter,$FF0000FF);
   Label_MPChatUnread.Anchors := [akLeft, akBottom];
+  Label_MPChatUnread.Hitable := false; //Clicks should only go to the image, not the flashing label
   Label_MPChatUnread.AutoWrap := true;
-  Label_MPChatUnread.OnClick := Chat_Click;
 
   Image_MPAllies := TKMImage.Create(Panel_Main,TOOLBAR_WIDTH,Panel_Main.Height-48*2,30,48,496);
   Image_MPAllies.Anchors := [akLeft, akBottom];
@@ -2694,21 +2694,31 @@ end;
 procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
 var i:integer; S:String;
 begin
-  S := fTextLibrary[TX_MULTIPLAYER_WAITING]+' ';
-  for i:=0 to aPlayers.Count-1 do
-    S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
-
-  Button_NetDropPlayers.Visible := IsHost;
-  Button_NetDropPlayers.Disable; //Must wait the minimum time before enabling it
-
-  if not DoShow then
-    fNetWaitDropPlayersDelayStarted := 0
+  if fGame.Networking.IsReconnecting then
+  begin
+    S := fTextLibrary[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
+    Button_NetDropPlayers.Visible := false;
+    fNetWaitDropPlayersDelayStarted := 0;
+    Label_NetDropPlayersDelay.Caption := '';
+  end
   else
-    if fNetWaitDropPlayersDelayStarted = 0 then
-    begin
-      Label_NetDropPlayersDelay.Caption := '';
-      fNetWaitDropPlayersDelayStarted := GetTickCount; //Initialise it
-    end;
+  begin
+    S := fTextLibrary[TX_MULTIPLAYER_WAITING]+' ';
+    for i:=0 to aPlayers.Count-1 do
+      S := S + aPlayers.Strings[i] + IfThen(i<>aPlayers.Count-1, ', ');
+
+    Button_NetDropPlayers.Visible := IsHost;
+    Button_NetDropPlayers.Disable; //Must wait the minimum time before enabling it
+
+    if not DoShow then
+      fNetWaitDropPlayersDelayStarted := 0
+    else
+      if fNetWaitDropPlayersDelayStarted = 0 then
+      begin
+        Label_NetDropPlayersDelay.Caption := '';
+        fNetWaitDropPlayersDelayStarted := GetTickCount; //Initialise it
+      end;
+  end;
 
   Label_NetWait.Caption := S;
   Panel_NetWait.Visible := DoShow;

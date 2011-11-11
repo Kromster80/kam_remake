@@ -92,6 +92,7 @@ type
     procedure SetVisible(aValue:boolean); virtual;
     procedure SetEnabled(aValue:boolean); virtual;
   public
+    Hitable:boolean; //Can this control be hit with the cursor?
     Anchors: TAnchors;
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
@@ -161,13 +162,11 @@ type
   {Rectangle}
   TKMShape = class(TKMControl)
   public
-    Hitable:boolean;
     FillColor:TColor4;
     LineColor:TColor4; //color of outline
     LineWidth:byte;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
-    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     procedure Paint; override;
   end;
 
@@ -731,6 +730,7 @@ uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
 constructor TKMControl.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create;
+  Hitable   := true; //All controls can be clicked by default
   fLeft     := aLeft;
   fTop      := aTop;
   fWidth    := aWidth;
@@ -815,7 +815,7 @@ end;
 //fVisible is checked earlier
 function TKMControl.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
-  Result := (fEnabled or aIncludeDisabled) and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
+  Result := Hitable and (fEnabled or aIncludeDisabled) and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
 end;
 
 {One common thing - draw childs for self}
@@ -1042,17 +1042,9 @@ end;
 constructor TKMShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  Hitable   := true;
   FillColor := $00000000;
   LineColor := aLineColor;
   LineWidth := 2;
-end;
-
-
-//Some debug shapes should not be hitable
-function TKMShape.HitTest(X,Y:Integer; aIncludeDisabled:boolean=false): Boolean;
-begin
-  Result := Hitable and (Inherited HitTest(X,Y));
 end;
 
 
@@ -1118,7 +1110,7 @@ end;
 
 function TKMLabel.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
 begin
-  Result := InRange(X, AreaLeft, AreaLeft + Width) and InRange(Y, Top, Top + Height);
+  Result := Hitable and InRange(X, AreaLeft, AreaLeft + Width) and InRange(Y, Top, Top + Height);
 end;
 
 

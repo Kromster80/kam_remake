@@ -523,6 +523,7 @@ begin
       LoadError := 'An error has occured while parsing the file '+aFilename+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
+      fNetworking.Disconnect; //Abort all network connections
       Exit;
     end;
   end;
@@ -645,12 +646,9 @@ end;
 procedure TKMGame.GameMPDisconnect(const aData:string);
 begin
   fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
-  fNetworking.PostLocalMessage('Connection to the server was lost! Attempting to reconnect...');
-  //todo: Pause before reconnecting
   fNetworking.AttemptReconnection;
-  //todo: Should also handle OnAssignedHostingRights for cases when the server crashed and everyone was disconnected
-  //todo: Show the player info about what is happening, and give host the option to continue without the player
   //todo: What happens if someone is dropped while loading? That should be different.
+  //todo: Confirmation buttons for quitting/dropping players on all NetWait screens
 end;
 
 
@@ -683,7 +681,10 @@ begin
   //Include in the bug report:
   MyZip.AddFiles(SaveName('basesave', '*'), 'Replay'); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
-//  MyZip.AddFile(fMissionFile,'Mission'); //Mission script
+  //@Krom: I think you commented out the line below while refactoring. I found it very useful
+  //       when people were using custom made missions, so could we have a way to remember and
+  //       include both the script and map files? (.dat and .map)
+  //MyZip.AddFile(fMissionFile,'Mission'); //Mission script
   for i:=1 to AUTOSAVE_COUNT do
     MyZip.AddFiles(SaveName('autosave'+int2fix(i,2), '*'), 'Autosaves'); //All autosaves
 
@@ -781,7 +782,7 @@ begin
   case fNetworking.NetGameState of
     lgs_Game,lgs_Reconnecting:    TGameInputProcess_Multi(fGameInputProcess).GetWaitingPlayers(fGameTickCount+1, WaitingPlayers); //GIP is waiting for next tick
     lgs_Loading: fNetworking.NetPlayers.GetNotReadyToPlayPlayers(WaitingPlayers); //We are waiting during inital loading
-    else assert(false); //Should not be waiting for players from any other GameState
+    else assert(false, 'GameWaitingForNetwork from wrong state '+GetEnumName(TypeInfo(TNetGameState), Integer(fNetworking.NetGameState)));
   end;
 
   fGamePlayInterface.ShowNetworkLag(aWaiting, WaitingPlayers, fNetworking.IsHost);

@@ -58,6 +58,7 @@ type
     procedure AddPlayer(aNik:string; aIndexOnServer:integer);
     procedure AddAIPlayer;
     procedure DisconnectPlayer(aIndexOnServer:integer);
+    procedure DisconnectAllClients(aOwnNikname:string);
     procedure DropPlayer(aIndexOnServer:integer);
     procedure RemPlayer(aIndexOnServer:integer);
     procedure RemAIPlayer(ID:integer);
@@ -330,6 +331,15 @@ begin
   fPlayers[ID].Connected := false;
 end;
 
+//Mark all human players as disconnected (used when reconnecting if all clients were lost)
+procedure TKMPlayersList.DisconnectAllClients(aOwnNikname:string);
+var i:integer;
+begin
+  for i:=1 to fCount do
+    if (fPlayers[i].IsHuman) and (fPlayers[i].Nikname <> aOwnNikname) then
+      fPlayers[i].Connected := false;
+end;
+
 
 //Set player to no longer be on the server, but do not remove their assets from the game
 procedure TKMPlayersList.DropPlayer(aIndexOnServer:integer);
@@ -455,7 +465,7 @@ begin
     Result := 'Your previous connection has not yet been dropped, please try again in a moment'
   else
   if Player[aLocalIndex].Dropped then
-    Result := 'The host decided to continue play on without you :('
+    Result := 'The host decided to continue playing without you :('
   else
     Result := '';
 end;
