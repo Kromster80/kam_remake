@@ -112,36 +112,31 @@ end;
 
 
 function TUnitWorkPlan.FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint): boolean;
-var NewLoc: TKMPointDir; TreeAct: TTreeAct; Found: Boolean;
+var NewLoc: TKMPointDir; TreeAct: TTreeAct; Found: boolean; CornAct: TCornAct;
 begin
   with fTerrain do
   case GatheringScript of
     gs_StoneCutter:     Found := FindStone(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
-    gs_FarmerSow:       Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, false, aAvoidLoc, NewLoc);
+    gs_FarmerSow:       Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, caSow, CornAct, NewLoc);
     gs_FarmerCorn:      begin
-                          Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, true, aAvoidLoc, NewLoc);
+                          Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, caAny, CornAct, NewLoc);
                           if not Found then
                           begin
-                            //If we can't find any other corn to cut we can try sowing instead
-                            Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, false, aAvoidLoc, NewLoc);
-                            if Found then
-                            begin
-                              GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
-                              ActionWalkFrom  := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
-                              ActionWorkType  := ua_Work1;
-                              WorkCyc    := 10;
-                              Product1   := rt_None; //Don't produce corn
-                              ProdCount1 := 0;
-                            end
-                            else
-                            begin
-                              Result := true; //There are no other tasks for us to do, so we might as well wait for the corn to be cut and then plant over it
-                              exit;
-                            end;
+                            Result := true; //There are no other tasks for us to do, so we might as well wait for the corn to be cut and then plant over it
+                            exit;
+                          end;
+                          if CornAct = caSow then
+                          begin
+                            GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
+                            ActionWalkFrom  := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
+                            ActionWorkType  := ua_Work1;
+                            WorkCyc    := 10;
+                            Product1   := rt_None; //Don't produce corn
+                            ProdCount1 := 0;
                           end;
                         end;
     gs_FarmerWine:      begin
-                          Found := FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Wine, true, aAvoidLoc, NewLoc);
+                          Found := FindWineField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
                           NewLoc.Dir := dir_N; //The animation for picking grapes is only defined for facing north
                         end;
     gs_FisherCatch:     Found := FindFishWater(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
@@ -161,7 +156,7 @@ end;
 
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-var i:integer; Tmp: TKMPointDir; Found: Boolean; TreeAct: TTreeAct;
+var i:integer; Tmp: TKMPointDir; Found: Boolean; TreeAct: TTreeAct; CornAct: TCornAct;
 begin
   fHome := aHome;
   FillDefaults;
@@ -366,21 +361,21 @@ begin
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-    Found := fTerrain.FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, true, KMPoint(0,0), Tmp);
-    if Found then begin
-      ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
-      WalkStyle(Tmp, ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
-    end else begin
-      Found := fTerrain.FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Corn, false, KMPoint(0,0), Tmp);
-      if Found then
-        WalkStyle(Tmp, ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
+    Found := fTerrain.FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), caAny, CornAct, Tmp);
+    if not Found then
+      fIssued:=false
+    else
+      if CornAct = caCut then
+      begin
+        ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
+        WalkStyle(Tmp, ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
+      end
       else
-        fIssued:=false;
-    end;
+        WalkStyle(Tmp, ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow);
   end else
 
   if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
-    Found := fTerrain.FindField(aLoc, fResource.UnitDat[aUnitType].MiningRange, ft_Wine, true, KMPoint(0,0), Tmp);
+    Found := fTerrain.FindWineField(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), Tmp);
     if Found then begin
       ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
       WalkStyle(KMPointDir(Tmp.Loc,dir_N), ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine); //The animation for picking grapes is only defined for facing north

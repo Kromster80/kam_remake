@@ -34,7 +34,8 @@
  +	Multiplayer needs goals and victory/defeat overlays same as singleplayer
  +	The ugly diagonal roads cheat no longer works, you have to connect them properly
  +	Mission 3 of TPR was impossible to win due to incorrect handling of goal type 6 (military buildings and troops)
- +	Sometimes chat would not open when you clicked it
+ +	Sometimes multiplayer chat would not open when you clicked it
+ +	Farmers would always prefer cutting corn over sowing
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -69,6 +70,7 @@ Features:
  +	Ability to see the score screen for other players after a multiplayer game
  +	Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
  +	Show formation count in MapEd UI
+ +	Multiplayer games automatically reconnect and continue when the connection is lost
 	Clock in multiplayer showing the mission time (singleplayer too?)
 	Show coordinates in the map editor
 	New maps should not start with random trees as that is just annoying (should be just grass with slight height variations)

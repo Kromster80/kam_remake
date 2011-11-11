@@ -11,6 +11,7 @@ const MAX_MAP_SIZE = 192;
 
 type
   TTreeAct = (taChop, taPlant, taAny);
+  TCornAct = (caCut, caSow, caAny);
 
   {Class to store all terrain data, aswell terrain routines}
   TTerrain = class
@@ -89,7 +90,8 @@ type
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
-    function FindField(aLoc:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
+    function FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
+    function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aCornAct:TCornAct; out CornAct:TCornAct; out FieldPoint:TKMPointDir):Boolean;
     function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
     function FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
     function FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aTreeAct: TTreeAct; out Tree: TKMPointDir; out TreeAct: TTreeAct): Boolean;
@@ -806,25 +808,49 @@ begin
 end;
 
 
-{ Should find closest field around}
-{aAgeFull is used for ft_Corn. Incase Farmer is looking for empty or full field of corn}
-function TTerrain.FindField(aLoc:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
+{ Finds a winefield ready to be picked }
+function TTerrain.FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
   for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
   for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
     if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
-      if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
-         ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
-        if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
-           ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
+      if TileIsWineField(KMPoint(k,i)) then
+        if Land[i,k].FieldAge=65535 then
           if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
             if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
               List.AddEntry(KMPointDir(k, i, dir_NA));
 
   Result := List.GetRandom(FieldPoint);
   List.Free;
+end;
+
+
+{ Finds a corn field }
+function TTerrain.FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aCornAct:TCornAct; out CornAct:TCornAct; out FieldPoint:TKMPointDir):Boolean;
+var i,k:integer; List:TKMPointDirList;
+begin
+  List := TKMPointDirList.Create;
+  for i:=max(aLoc.Y-aRadius,1) to min(aLoc.Y+aRadius,fMapY-1) do
+  for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
+    if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
+      if TileIsCornField(KMPoint(k,i)) then
+        if((aCornAct in [caAny,caSow]) and (Land[i,k].FieldAge=0)) or
+          ((aCornAct in [caAny,caCut]) and (Land[i,k].FieldAge=65535)) then
+          if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
+            if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
+              List.AddEntry(KMPointDir(k, i, dir_NA));
+
+  Result := List.GetRandom(FieldPoint);
+  List.Free;
+  if not Result then
+    CornAct := caAny
+  else
+    if Land[FieldPoint.Loc.Y,FieldPoint.Loc.X].FieldAge=65535 then
+      CornAct := caCut
+    else
+      CornAct := caSow;
 end;
 
 
