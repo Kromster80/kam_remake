@@ -221,14 +221,16 @@ begin
     glEnd;
   end;
 
-  glPointSize(3);
-  glBegin(GL_POINTS);
-  for i:=y1 to y2 do for k:=x1 to x2 do begin
-    //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
-    glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);
-    glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
-  end;
-  glEnd;
+  glPushAttrib(GL_POINT_BIT);
+    glPointSize(3);
+    glBegin(GL_POINTS);
+    for i:=y1 to y2 do for k:=x1 to x2 do begin
+      //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
+      glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);
+      glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
+    end;
+    glEnd;
+  glPopAttrib;
 end;
 
 

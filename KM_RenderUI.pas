@@ -492,14 +492,15 @@ end;
 
 
 procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY:smallint);
-var i,k:integer; Scale:single;
+var i,k:integer;
 begin
+  glPushAttrib(GL_POINT_BIT);
   glPushMatrix;
 
-    Scale:=1;//min(SizeX/MapX,SizeY/MapY);
-    glTranslatef(PosX + round((SizeX-fTerrain.MapX*Scale)/2), PosY + round((SizeY-fTerrain.MapY*Scale)/2),0);
-    glkScale(Scale);
-    glPointSize(ceil(Scale));
+    //Render minimap dot by dot, replace with texture later on
+    glPointSize(1);
+    glTranslatef(PosX + Round((SizeX - fTerrain.MapX) / 2) + 0.5,
+                 PosY + Round((SizeY - fTerrain.MapY) / 2) + 0.5, 0);
 
     glBegin(GL_POINTS);
       for i:=1 to fTerrain.MapY-1 do for k:=1 to fTerrain.MapX-1 do begin
@@ -509,6 +510,7 @@ begin
     glEnd;
 
   glPopMatrix;
+  glPopAttrib;
 end;
 
 

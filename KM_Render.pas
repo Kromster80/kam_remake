@@ -243,24 +243,24 @@ begin
       glkScale(fViewport.Zoom);
     end;
     
-    glLineWidth(fViewport.Zoom*2);
-    glPointSize(fViewport.Zoom*5);
+    glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
+      glLineWidth(fViewport.Zoom*2);
+      glPointSize(fViewport.Zoom*5);
 
-    fTerrain.Paint;
-    fPlayers.Paint; //Quite slow           //Units and houses
-    if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
-      fGame.Projectiles.Paint; //Render all arrows and etc..
+      fTerrain.Paint;
+      fPlayers.Paint; //Quite slow           //Units and houses
+      if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
+        fGame.Projectiles.Paint; //Render all arrows and etc..
 
-    fRenderList.Render;
+      fRenderList.Render;
 
-    RenderCursorHighlights; //Will be on-top of everything
+      RenderCursorHighlights; //Will be on-top of everything
 
-    if DISPLAY_SOUNDS then fSoundLib.Paint;
+      if DISPLAY_SOUNDS then fSoundLib.Paint;
+    glPopAttrib;
   end;
 
   Resize(fScreenX, fScreenY, rm2D);
-  glLineWidth(1);
-  glPointSize(1);
   fGame.PaintInterface;
 
   glLoadIdentity;
