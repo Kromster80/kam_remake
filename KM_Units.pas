@@ -117,7 +117,7 @@ type
 
     procedure SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
-    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
+    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionStorm(aRow:integer);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
@@ -1190,9 +1190,9 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
+procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse: TKMHouse);
 begin
-  SetAction(TUnitActionGoInOut.Create(aAction, Self, aGoDir, aHouse));
+  SetAction(TUnitActionGoInOut.Create(Self, aAction, aGoDir, aHouse));
 end;
 
 

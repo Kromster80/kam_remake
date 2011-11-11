@@ -21,12 +21,12 @@ type
     fUsedDoorway:boolean;
     procedure IncDoorway;
     procedure DecDoorway;
-    function FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
+    function FindBestExit(aLoc: TKMPoint): TBestExit;
     function ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
-    procedure WalkIn(aUnit:TKMUnit);
-    procedure WalkOut(aUnit:TKMUnit);
+    procedure WalkIn;
+    procedure WalkOut;
   public
-    constructor Create(aAction: TUnitActionType; aUnit:TKMUnit; aDirection:TGoInDirection; aHouse:TKMHouse);
+    constructor Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
@@ -42,7 +42,7 @@ implementation
 uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_UnitActionWalkTo, KM_Units_Warrior, KM_Player;
 
 
-constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aUnit:TKMUnit; aDirection:TGoInDirection; aHouse:TKMHouse);
+constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
 begin
   Inherited Create(aAction);
   fActionName     := uan_GoInOut;
@@ -130,13 +130,13 @@ end;
 
 //Attempt to find a tile below the door (on the street) we can walk to
 //We can push idle units away. Check center first
-function TUnitActionGoInOut.FindBestExit(aLoc:TKMPoint; aUnit:TKMUnit):TBestExit;
+function TUnitActionGoInOut.FindBestExit(aLoc: TKMPoint): TBestExit;
 begin
-  if ValidTileToGo(aLoc.X, aLoc.Y, aUnit)   then Result := be_Center
+  if ValidTileToGo(aLoc.X, aLoc.Y, fUnit)   then Result := be_Center
   else
-  if ValidTileToGo(aLoc.X-1, aLoc.Y, aUnit) then Result := be_Left
+  if ValidTileToGo(aLoc.X-1, aLoc.Y, fUnit) then Result := be_Left
   else
-  if ValidTileToGo(aLoc.X+1, aLoc.Y, aUnit) then Result := be_Right
+  if ValidTileToGo(aLoc.X+1, aLoc.Y, fUnit) then Result := be_Right
   else
     Result := be_None;
 end;
@@ -165,33 +165,34 @@ begin
 end;
 
 
-procedure TUnitActionGoInOut.WalkIn(aUnit:TKMUnit);
+procedure TUnitActionGoInOut.WalkIn;
 begin
-  aUnit.Direction := dir_N;  //one cell up
-  aUnit.Thought := th_None;
-  aUnit.UpdateNextPosition(KMPoint(aUnit.GetPosition.X, aUnit.GetPosition.Y-1));
-  fTerrain.UnitRem(aUnit.GetPosition); //Unit does not occupy a tile while inside
+  fUnit.Direction := dir_N;  //one cell up
+  fUnit.Thought := th_None;
+  fUnit.UpdateNextPosition(KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1));
+  fTerrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
 end;
 
 
-procedure TUnitActionGoInOut.WalkOut(aUnit:TKMUnit);
-var LinkUnit:TKMUnitWarrior;
+procedure TUnitActionGoInOut.WalkOut;
+var LinkUnit: TKMUnitWarrior;
 begin
-  aUnit.Direction := KMGetDirection(fDoor, fStreet);
-  aUnit.UpdateNextPosition(fStreet);
-  fTerrain.UnitAdd(aUnit.NextPosition, aUnit); //Unit was not occupying tile while inside
-  if (aUnit.GetHome <> nil)
-  and (aUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
-  and (aUnit.GetHome = fHouse) then //And is the house we are walking from
-    TKMHouseBarracks(aUnit.GetHome).RecruitsList.Remove(aUnit);
+  fUnit.Direction := KMGetDirection(fDoor, fStreet);
+  fUnit.UpdateNextPosition(fStreet);
+  fTerrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
+  
+  if (fUnit.GetHome <> nil)
+  and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
+  and (fUnit.GetHome = fHouse) then //And is the house we are walking from
+    TKMHouseBarracks(fUnit.GetHome).RecruitsList.Remove(fUnit);
 
   //Warriors attempt to link as they leave the house
-  if (aUnit is TKMUnitWarrior) and (fPlayers.Player[aUnit.GetOwner].PlayerType = pt_Human)
+  if (fUnit is TKMUnitWarrior) and (fPlayers.Player[fUnit.GetOwner].PlayerType = pt_Human)
   and (fHouse is TKMHouseBarracks) then
   begin
-    LinkUnit := TKMUnitWarrior(aUnit).FindLinkUnit(fStreet);
+    LinkUnit := TKMUnitWarrior(fUnit).FindLinkUnit(fStreet);
     if LinkUnit <> nil then
-      TKMUnitWarrior(aUnit).OrderLinkTo(LinkUnit);
+      TKMUnitWarrior(fUnit).OrderLinkTo(LinkUnit);
   end;
 end;
 
@@ -219,13 +220,13 @@ begin
   if not fHasStarted then //Set Door and Street locations
   begin
 
-    fDoor := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - round(fStep));
-    fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
+    fDoor := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y - round(fStep));
+    fStreet := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y + 1 - round(fStep));
 
     case fDirection of
-      gd_GoInside:  WalkIn(KMUnit);
+      gd_GoInside:  WalkIn;
       gd_GoOutside: begin
-                      case FindBestExit(fStreet, KMUnit) of
+                      case FindBestExit(fStreet) of
                         be_Left:    fStreet.X := fStreet.X - 1;
                         be_Center:  ;
                         be_Right:   fStreet.X := fStreet.X + 1;
@@ -240,7 +241,7 @@ begin
                         exit; //Wait until our push request is dealt with before we move out
                       end;
 
-                      WalkOut(KMUnit); //All checks done so we can walk out now
+                      WalkOut; //All checks done so we can walk out now
                     end;
     end;
     if fStreet.X = fDoor.X then //We are walking straight
@@ -256,7 +257,7 @@ begin
     if (U = nil) then
     begin
       fWaitingForPush := false;
-      WalkOut(KMUnit);
+      WalkOut;
       if fStreet.X = fDoor.X then //We are walking straight
         IncDoorway;
     end
