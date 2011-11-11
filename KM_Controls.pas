@@ -611,7 +611,7 @@ type
     property DropUp:boolean write fDropUp;
     property ItemIndex:smallint read GetItemIndex write SetItemIndex;
     property Item[aIndex: integer]:string read GetItem;
-    procedure FindByName(aText:string);
+    procedure SelectByName(aText:string);
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -2708,13 +2708,13 @@ begin
 end;
 
 
-procedure TKMDropBox.FindByName(aText:string);
+procedure TKMDropBox.SelectByName(aText:string);
 var i:integer;
 begin
   fList.ItemIndex := -1;
   for i:=0 to fList.Count-1 do
     if fList.Item[i] = aText then
-      fList.ItemIndex := i;
+      SetItemIndex(i);
 end;
 
 

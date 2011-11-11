@@ -707,7 +707,7 @@ begin
   if (GetLength(i,k) < LINK_RADIUS) //Check within circle area
   and fTerrain.TileInMapCoords(aLoc.X+i,aLoc.Y+k) then //Do not pass negative coordinates to fTerrain.UnitsHitTest
   begin
-    FoundUnit := fTerrain.UnitsHitTest(aLoc.X+i, aLoc.Y+k); //off-map coords can give an error as they can be < 0 (input parameters are word)
+    FoundUnit := fTerrain.Land[aLoc.Y+k, aLoc.X+i].IsUnit;//Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit <> Self) and
        (FoundUnit.GetOwner = fOwner) and

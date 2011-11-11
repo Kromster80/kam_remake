@@ -1859,10 +1859,10 @@ begin
 
   Lobby_MapTypeSelect(nil);
   if fGame.Networking.SelectGameKind = ngk_Save then
-    List_Lobby.FindByName(fGame.Networking.SaveInfo.Filename) //Select the map
+    List_Lobby.SelectByName(fGame.Networking.SaveInfo.Filename) //Select the map
   else
     if fGame.Networking.SelectGameKind = ngk_Map then
-      List_Lobby.FindByName(fGame.Networking.MapInfo.Filename); //Select the map
+      List_Lobby.SelectByName(fGame.Networking.MapInfo.Filename); //Select the map
 end;
 
 
@@ -1886,10 +1886,7 @@ procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
   fGame.Networking.Disconnect;
   MP_Update(aData,$FF00FFFF,false);
-  if fGame.GameState = gsRunning then
-    fGame.Stop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+' '+aData)
-  else
-    SwitchMenuPage(Button_LobbyBack);
+  SwitchMenuPage(Button_LobbyBack);
 end;
 
 

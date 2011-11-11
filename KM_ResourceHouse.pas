@@ -271,7 +271,7 @@ const
     TabletIcon: 277;
     Input:      (rt_None,       rt_None,       rt_None,       rt_None);
     Output:     (rt_None,       rt_None,       rt_None,       rt_None);
-    ReleasedBy: ht_Metallurgists;
+    ReleasedBy: ht_Sawmill;
     ),
     ( //Metallurgist
     PlanYX:     ((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0));

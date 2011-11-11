@@ -80,6 +80,7 @@ type
     procedure DecodePingInfo(aInfo:string);
     procedure ForcedDisconnect(const S: string);
     procedure StartGame;
+    procedure TryPlayGame;
     procedure PlayGame;
     procedure SetGameState(aState:TNetGameState);
     procedure SendMapOrSave;
@@ -740,11 +741,7 @@ begin
                   PacketSend(NET_ADDRESS_OTHERS, mk_ReadyToPlay, '', 0);
                   SendPlayerListAndRefreshPlayersSetup; //Initialise the in-game player setup
                   //Check this here because it is possible to start a multiplayer game without other humans, just AI (at least for debugging)
-                  if fNetPlayers.AllReadyToPlay then
-                  begin
-                    PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
-                    PlayGame;
-                  end;
+                  TryPlayGame;
                 end;
     lpk_Joiner: begin
                   fNetPlayers[fMyIndex].ReadyToPlay := true;
@@ -764,6 +761,7 @@ var
   LocID,TeamID,ColorID,PlayerIndex:integer;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message'); //Kind, Message
+  if not Connected then exit;
 
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
@@ -913,19 +911,28 @@ begin
               if PlayerIndex = -1 then exit; //Has already disconnected or not from our room
               if not fNetPlayers[PlayerIndex].Dropped then
                 PostMessage(fNetPlayers[PlayerIndex].Nikname+' lost connection');
-              if fNetGameState in [lgs_Loading, lgs_Game] then
+              if fNetGameState = lgs_Game then
                 fNetPlayers.DisconnectPlayer(Param)
               else
-                fNetPlayers.RemPlayer(Param);
+                if fNetGameState = lgs_Loading then
+                begin
+                  fNetPlayers.DropPlayer(Param);
+                  TryPlayGame;
+                end
+                else
+                  fNetPlayers.RemPlayer(Param);
               SendPlayerListAndRefreshPlayersSetup;
             end
             else
               if fNetPlayers.ServerToLocal(Param) <> -1 then
               begin
-                if fNetGameState in [lgs_Loading, lgs_Game] then
+                if fNetGameState = lgs_Game then
                   fNetPlayers.DisconnectPlayer(Param)
                 else
-                  fNetPlayers.RemPlayer(Param); //Remove the player anyway as it might be the host that was lost
+                  if fNetGameState = lgs_Loading then
+                    fNetPlayers.DropPlayer(Param)
+                  else
+                    fNetPlayers.RemPlayer(Param); //Remove the player anyway as it might be the host that was lost
               end;
 
     mk_Disconnect:
@@ -972,11 +979,7 @@ begin
                              end;
                 lgs_Loading: begin
                                if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
-                               if fNetPlayers.AllReadyToPlay then
-                               begin
-                                 PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
-                                 PlayGame;
-                               end;
+                               TryPlayGame;
                              end;
               end;
 
@@ -1114,11 +1117,7 @@ begin
             begin
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].ReadyToPlay := true;
               if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
-              if IsHost and fNetPlayers.AllReadyToPlay then
-              begin
-                PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
-                PlayGame;
-              end;
+              if IsHost then TryPlayGame;
             end;
 
     mk_Play:
@@ -1183,6 +1182,16 @@ begin
 end;
 
 
+procedure TKMNetworking.TryPlayGame;
+begin
+  if fNetPlayers.AllReadyToPlay then
+  begin
+    PacketSend(NET_ADDRESS_OTHERS, mk_Play, '', 0);
+    PlayGame;
+  end;
+end;
+
+
 procedure TKMNetworking.PlayGame;
 begin
   fIgnorePings := 5; //Ignore the next few pings as they will have been measured during loading
@@ -1220,7 +1229,7 @@ begin
   //Joining timeout
   if fNetGameState in [lgs_Connecting,lgs_Reconnecting,lgs_Query] then
     if GetTickCount-fJoinTimeout > JOIN_TIMEOUT then
-      fOnJoinFail('Query timed out');
+      if Assigned(fOnJoinFail) then fOnJoinFail('Query timed out');
 end;
 
 

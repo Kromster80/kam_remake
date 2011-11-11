@@ -3314,12 +3314,17 @@ begin
 
   if Panel_NetWait.Visible then
   begin
-    i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
-    if i > 0 then
-      Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
+    if fGame.Networking.IsReconnecting then
+      Label_NetDropPlayersDelay.Caption := ''
     else
-      Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
-    Button_NetDropPlayers.Enabled := i = 0;
+    begin
+      i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
+      if i > 0 then
+        Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
+      else
+        Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
+      Button_NetDropPlayers.Enabled := i = 0;
+    end;
   end;
 end;
 

@@ -49,6 +49,7 @@ type
 
     procedure GameInit(aMultiplayerMode:boolean);
     procedure GameStart(aMissionFile, aGameName:string);
+    procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
 
     procedure Load(const aFilename: string);
@@ -85,7 +86,6 @@ type
 
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
-    procedure GameMPDisconnect(const aData:string);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
@@ -532,6 +532,7 @@ begin
   fPlayers.AfterMissionInit(true);
 
   MultiplayerRig;
+  if fGameState = gsNoGame then exit; //Network error
 
   BaseSave; //Thats our base for a game record
   SetKaMSeed(4); //Random after StartGameMP and ViewReplay should match
@@ -608,7 +609,7 @@ begin
 
   fLog.AppendLog('Gameplay initialized', true);
 
-  fGameState := gsPaused;
+  fGameState := gsRunning;
 
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnReadyToPlay := GameMPReadyToPlay;
@@ -619,7 +620,7 @@ begin
   fNetworking.OnDisconnect   := GameMPDisconnect; //For auto reconnecting
   fNetworking.GameCreated;
 
-  if fGameState <> gsRunning then GameWaitingForNetwork(true); //Waiting for players
+  if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(true); //Waiting for players
 
   fLog.AppendLog('Gameplay recording initialized', True);
 end;
@@ -630,7 +631,6 @@ end;
 procedure TKMGame.GameMPPlay(Sender:TObject);
 begin
   GameWaitingForNetwork(false); //Finished waiting for players
-  fGameState := gsRunning;
   fNetworking.SendMPGameInfo(GetMissionTime,GameName);
   fLog.AppendLog('Net game began');
 end;
@@ -645,8 +645,16 @@ end;
 
 procedure TKMGame.GameMPDisconnect(const aData:string);
 begin
-  fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
-  fNetworking.AttemptReconnection;
+  if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
+  begin
+    fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
+    fNetworking.AttemptReconnection;
+  end
+  else
+  begin
+    fNetworking.Disconnect;
+    Stop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+' '+aData)
+  end;
   //todo: What happens if someone is dropped while loading? That should be different.
   //todo: Confirmation buttons for quitting/dropping players on all NetWait screens
 end;
@@ -1276,6 +1284,8 @@ begin
                   if fMultiplayerMode then  fNetworking.UpdateState(fGlobalTickCount); //Measures pings
                   if fMultiplayerMode and (fGameTickCount mod 100 = 0) then
                     SendMPGameInfo(Self); //Send status to the server every 10 seconds
+                  if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
+                  begin
                   try //Catch exceptions during update state
 
                     for i:=1 to fGameSpeed do
@@ -1311,13 +1321,14 @@ begin
                       end;
                       fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                     end;
-                    fGamePlayInterface.UpdateState;
 
                   except
                     //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
                     on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
                     on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
                   end;
+                  end;
+                  fGamePlayInterface.UpdateState;
                 end;
     gsReplay:   begin
                   try //Catch exceptions during update state
