@@ -17,12 +17,14 @@ type
     fDoor:TKMPoint;
     fStreet:TKMPoint;
     fHasStarted:boolean;
+    fPushedUnit: TKMUnit;
     fWaitingForPush:boolean;
     fUsedDoorway:boolean;
     procedure IncDoorway;
     procedure DecDoorway;
     function FindBestExit(aLoc: TKMPoint): TBestExit;
-    function ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+    function TileIsFree(X,Y: Word): Boolean;
+    function TileHasIdleUnit(X,Y: Word): TKMUnit;
     procedure WalkIn;
     procedure WalkOut;
   public
@@ -69,6 +71,7 @@ begin
   LoadStream.Read(fStep);
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fUnit, 4);
+  LoadStream.Read(fPushedUnit, 4);
   LoadStream.Read(fDirection, SizeOf(fDirection));
   LoadStream.Read(fDoor);
   LoadStream.Read(fStreet);
@@ -82,24 +85,38 @@ procedure TUnitActionGoInOut.SyncLoad;
 begin
   Inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
-  fUnit := fPlayers.GetUnitByID(cardinal(fUnit))
+  fUnit := fPlayers.GetUnitByID(cardinal(fUnit));
+  fPushedUnit := fPlayers.GetUnitByID(cardinal(fPushedUnit));
 end;
 
 
 destructor TUnitActionGoInOut.Destroy;
 begin
-  if fUsedDoorway then DecDoorway;
+  if fUsedDoorway then
+    DecDoorway;
+
   fPlayers.CleanUpHousePointer(fHouse);
+
+  if fPushedUnit <> nil then
+    fPushedUnit.ReleaseUnitPointer;
+
   //A bug can occur because this action is destroyed early when a unit is told to die. If we are still invisible
   //then TTaskDie assumes we are inside and creates a new GoOut action. Therefore if we are invisible we do not occupy a tile.
-  if (fDirection = gd_GoOutside) and (fHasStarted) and (fUnit<>nil) and (not fUnit.Visible) and
+  if (fDirection = gd_GoOutside)
+  and fHasStarted
+  and not fUnit.Visible and
     (fTerrain.Land[fUnit.NextPosition.Y,fUnit.NextPosition.X].IsUnit = fUnit) then
   begin
     fTerrain.UnitRem(fUnit.NextPosition);
-    if not KMSamePoint(fDoor, KMPoint(0,0)) then fUnit.PositionF := KMPointF(fDoor); //Put us back inside the house
+    if not KMSamePoint(fDoor, KMPoint(0,0)) then
+      fUnit.PositionF := KMPointF(fDoor); //Put us back inside the house
   end;
-  if (fUnit <> nil) and (fDirection = gd_GoOutside) and (fUnit.Visible) then fUnit.SetInHouse(nil); //We are not in any house now
+
+  if (fDirection = gd_GoOutside) and fUnit.Visible then
+    fUnit.SetInHouse(nil); //We are not in any house now
+
   fPlayers.CleanUpUnitPointer(fUnit);
+
   Inherited;
 end;
 
@@ -137,36 +154,74 @@ end;
 //Attempt to find a tile below the door (on the street) we can walk to
 //We can push idle units away. Check center first
 function TUnitActionGoInOut.FindBestExit(aLoc: TKMPoint): TBestExit;
+var
+  U: TKMUnit;
 begin
-  if ValidTileToGo(aLoc.X, aLoc.Y, fUnit)   then Result := be_Center
+  if TileIsFree(aLoc.X, aLoc.Y) then
+    Result := be_Center
   else
-  if ValidTileToGo(aLoc.X-1, aLoc.Y, fUnit) then Result := be_Left
+  if TileIsFree(aLoc.X-1, aLoc.Y) then
+    Result := be_Left
   else
-  if ValidTileToGo(aLoc.X+1, aLoc.Y, fUnit) then Result := be_Right
+  if TileIsFree(aLoc.X+1, aLoc.Y) then
+    Result := be_Right
   else
-    Result := be_None;
+  begin
+    //U could be nil if tile is unwalkable for some reason
+    U := TileHasIdleUnit(aLoc.X, aLoc.Y);
+    if U <> nil then
+      Result := be_Center
+    else
+    begin
+      U := TileHasIdleUnit(aLoc.X-1, aLoc.Y);
+      if U <> nil then
+        Result := be_Left
+      else
+      begin
+        U := TileHasIdleUnit(aLoc.X+1, aLoc.Y);
+        if U <> nil then
+          Result := be_Right
+        else
+          Result := be_None;
+      end;
+    end;
+
+    if U <> nil then
+    begin
+      fPushedUnit := U.GetUnitPointer;
+      fPushedUnit.SetActionWalkPushed(fTerrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk));
+    end;
+  end;
+end;
+
+
+function TUnitActionGoInOut.TileIsFree(X,Y: Word): Boolean; 
+begin
+  Result := fTerrain.TileInMapCoords(X,Y)
+        and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
+        and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
+        and (fTerrain.Land[Y,X].IsUnit = nil);
 end;
 
 
 //Check that tile is walkable and there's no unit blocking it or that unit can be pushed away
-function TUnitActionGoInOut.ValidTileToGo(aLocX, aLocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
-var U:TKMUnit;
+function TUnitActionGoInOut.TileHasIdleUnit(X,Y: Word): TKMUnit;
+var U: TKMUnit;
 begin
-  Result := fTerrain.TileInMapCoords(aLocX, aLocY)
-        and (fTerrain.CheckPassability(KMPoint(aLocX, aLocY), aUnit.GetDesiredPassability))
-        and (fTerrain.CanWalkDiagonaly(aUnit.GetPosition, KMPoint(aLocX, aLocY)));
+  Result := nil;
 
-  if not Result then exit;
-
-  //If there's some unit we need to do a better check on him
-  if (fTerrain.Land[aLocY, aLocX].IsUnit <> nil) then
+  if fTerrain.TileInMapCoords(X,Y)
+  and (fTerrain.CheckPassability(KMPoint(X,Y), fUnit.GetDesiredPassability))
+  and (fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(X,Y)))
+  and (fTerrain.Land[Y,X].IsUnit <> nil) then //If there's some unit we need to do a better check on him
   begin
-    U := fTerrain.UnitsHitTest(aLocX, aLocY); //Let's see who is standing there
-    Result := (U <> nil) and
-              (U.GetUnitAction is TUnitActionStay) and
-              (not TUnitActionStay(U.GetUnitAction).Locked);
-    if Result then
-      U.SetActionWalkPushed( fTerrain.GetOutOfTheWay(U.GetPosition, KMPoint(0,0), CanWalk) );
+    U := fTerrain.UnitsHitTest(X,Y); //Let's see who is standing there
+
+    //Check that the unit is idling, so that we can push it away
+    if (U <> nil)
+    and (U.GetUnitAction is TUnitActionStay)
+    and not TUnitActionStay(U.GetUnitAction).Locked then
+      Result := U;
   end;
 end;
 
@@ -177,6 +232,10 @@ begin
   fUnit.Thought := th_None;
   fUnit.UpdateNextPosition(KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y-1));
   fTerrain.UnitRem(fUnit.GetPosition); //Unit does not occupy a tile while inside
+
+  //We are walking straight
+  if fStreet.X = fDoor.X then
+   IncDoorway;
 end;
 
 
@@ -186,7 +245,7 @@ begin
   fUnit.Direction := KMGetDirection(fDoor, fStreet);
   fUnit.UpdateNextPosition(fStreet);
   fTerrain.UnitAdd(fUnit.NextPosition, fUnit); //Unit was not occupying tile while inside
-  
+
   if (fUnit.GetHome <> nil)
   and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
@@ -200,6 +259,10 @@ begin
     if LinkUnit <> nil then
       TKMUnitWarrior(fUnit).OrderLinkTo(LinkUnit);
   end;
+
+  //We are walking straight
+  if fStreet.X = fDoor.X then
+   IncDoorway;
 end;
 
 
@@ -223,9 +286,9 @@ var Distance:single; U:TKMUnit;
 begin
   Result := ActContinues;
 
-  if not fHasStarted then //Set Door and Street locations
+  if not fHasStarted then 
   begin
-
+    //Set Door and Street locations
     fDoor := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y - round(fStep));
     fStreet := KMPoint(fUnit.GetPosition.X, fUnit.GetPosition.Y + 1 - round(fStep));
 
@@ -236,47 +299,47 @@ begin
                         be_Left:    fStreet.X := fStreet.X - 1;
                         be_Center:  ;
                         be_Right:   fStreet.X := fStreet.X + 1;
-                        else        exit; //All street tiles are blocked by busy units. Do not exit the house, just wait
+                        be_None:    Exit; //All street tiles are blocked by busy units. Do not exit the house, just wait
                       end;
 
-                      //If there's an idling unit, wait till it goes away
-                      if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> nil) then
+                      //If we have pushed an idling unit, wait till it goes away
+                      //Wait until our push request is dealt with before we move out
+                      if (fPushedUnit <> nil) then
                       begin
-                        fWaitingForPush := true;
-                        fHasStarted := true;
-                        exit; //Wait until our push request is dealt with before we move out
-                      end;
-
-                      WalkOut; //All checks done so we can walk out now
+                        fWaitingForPush := True;
+                        fHasStarted := True;
+                        Exit;
+                      end
+                      else
+                        WalkOut; //Otherwise we can walk out now
                     end;
     end;
-    if fStreet.X = fDoor.X then //We are walking straight
-      IncDoorway;
 
-    fHasStarted := true;
+    fHasStarted := True;
   end;
 
 
   if fWaitingForPush then
   begin
     U := fTerrain.Land[fStreet.Y,fStreet.X].IsUnit;
-    if (U = nil) then
+    if (U = nil) then //Unit has walked away
     begin
-      fWaitingForPush := false;
+      fWaitingForPush := False;
+      fPushedUnit.ReleaseUnitPointer;
+      fPushedUnit := nil;
       WalkOut;
-      if fStreet.X = fDoor.X then //We are walking straight
-        IncDoorway;
     end
     else
-      //Make sure they are still moving out of the way (it could be a different unit now)
-      if (U.GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(U.GetUnitAction).HasBeenPushed then
-        exit //Wait until our push request is dealt with before we move out
-      else
+    begin //There's still some unit - we can't go outside
+      if (U <> fPushedUnit) then //The unit has switched places with another one, so we must start again
       begin
-        fHasStarted := false; //This unit switched places with another or gave up, so we must start again
-        fWaitingForPush := false;
-        exit;
+        fHasStarted := False;
+        fWaitingForPush := False;
+        fPushedUnit.ReleaseUnitPointer;
+        fPushedUnit := nil;
       end;
+      Exit;
+    end;
   end;
 
   //IsExchanging can be updated while we have completed less than 20% of the move. If it is changed after that
@@ -333,6 +396,10 @@ begin
     SaveStream.Write(Integer(0));
   if fUnit <> nil then
     SaveStream.Write(fUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
+  if fPushedUnit <> nil then
+    SaveStream.Write(fPushedUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(fDirection, SizeOf(fDirection));
