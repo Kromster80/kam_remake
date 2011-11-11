@@ -27,7 +27,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
 
-    class function ActName: TUnitActionName; virtual; abstract;
+    function ActName: TUnitActionName; virtual; abstract;
     property ActionType: TUnitActionType read fActionType;
     function GetExplanation:string; virtual; abstract;
     function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
@@ -916,7 +916,7 @@ begin
       uan_Fight:       fCurrentAction := TUnitActionFight.Load(LoadStream);
       uan_StormAttack: fCurrentAction := TUnitActionStormAttack.Load(LoadStream);
       else             Assert(false, 'ActName can''t be handled');
-    end;
+  end;
   end
   else
     fCurrentAction := nil;
@@ -1507,7 +1507,7 @@ end;
 
 procedure TKMUnit.Save(SaveStream:TKMemoryStream);
 var 
-  HasTask, HasAct: Boolean; 
+  HasTask, HasAct: Boolean;
   ActName: TUnitActionName;
 begin
   SaveStream.Write(fUnitType, SizeOf(fUnitType));

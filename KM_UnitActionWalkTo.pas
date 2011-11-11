@@ -77,7 +77,7 @@ type
     procedure  SyncLoad; override;
     destructor Destroy; override;
 
-    class function ActName: TUnitActionName; override;
+    function ActName: TUnitActionName; override;
     function  CanAbandonExternal: boolean;
     function HasBeenPushed:boolean;
     property DoesWalking:boolean read fDoesWalking;
@@ -299,7 +299,7 @@ begin
 end;
 
 
-class function TUnitActionWalkTo.ActName: TUnitActionName;
+function TUnitActionWalkTo.ActName: TUnitActionName;
 begin
   Result := uan_WalkTo;
 end;

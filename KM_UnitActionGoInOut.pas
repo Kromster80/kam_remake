@@ -30,7 +30,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    class function ActName: TUnitActionName; override;
+    function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     property GetHasStarted: boolean read fHasStarted;
     function GetDoorwaySlide(aCheck:TCheckAxis):single;
@@ -104,7 +104,7 @@ begin
 end;
 
 
-class function TUnitActionGoInOut.ActName: TUnitActionName;
+function TUnitActionGoInOut.ActName: TUnitActionName;
 begin
   Result := uan_GoInOut;
 end;

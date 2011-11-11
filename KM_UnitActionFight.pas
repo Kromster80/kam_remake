@@ -24,7 +24,7 @@ type
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
-    class function ActName: TUnitActionName; override;
+    function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     procedure SyncLoad; override;
     property GetOpponent: TKMUnit read fOpponent;
@@ -76,7 +76,7 @@ begin
 end;
 
 
-class function TUnitActionFight.ActName: TUnitActionName;
+function TUnitActionFight.ActName: TUnitActionName;
 begin
   Result := uan_Fight;
 end;

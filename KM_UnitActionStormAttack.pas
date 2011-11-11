@@ -20,7 +20,7 @@ type
     constructor Create(aActionType:TUnitActionType; aRow:integer);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
-    class function ActName: TUnitActionName; override;
+    function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     function GetSpeed(KMUnit: TKMUnit):single;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
@@ -64,7 +64,7 @@ begin
 end;
 
 
-class function TUnitActionStormAttack.ActName: TUnitActionName;
+function TUnitActionStormAttack.ActName: TUnitActionName;
 begin
   Result := uan_StormAttack;
 end;

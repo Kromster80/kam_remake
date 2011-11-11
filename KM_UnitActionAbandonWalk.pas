@@ -15,7 +15,7 @@ type
     constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
-    class function ActName: TUnitActionName; override;
+    function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -57,7 +57,7 @@ begin
 end;
 
 
-class function TUnitActionAbandonWalk.ActName: TUnitActionName;
+function TUnitActionAbandonWalk.ActName: TUnitActionName;
 begin
   Result := uan_AbandonWalk;
 end;

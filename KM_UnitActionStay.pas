@@ -14,7 +14,7 @@ type
   public
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
     constructor Load(LoadStream:TKMemoryStream); override;
-    class function ActName: TUnitActionName; override;
+    function ActName: TUnitActionName; override;
     function GetExplanation: string; override;
     function HowLongLeftToStay:integer;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
@@ -46,7 +46,7 @@ begin
 end;
 
 
-class function TUnitActionStay.ActName: TUnitActionName;
+function TUnitActionStay.ActName: TUnitActionName;
 begin
   Result := uan_Stay;
 end;
