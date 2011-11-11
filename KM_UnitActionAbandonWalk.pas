@@ -15,6 +15,7 @@ type
     constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
+    class function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -30,7 +31,7 @@ constructor TUnitActionAbandonWalk.Create(LocB,aVertexOccupied:TKMPoint; const a
 begin
   Assert(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
   Inherited Create(aActionType);
-  fActionName     := uan_AbandonWalk;
+
   Locked          := false;
   fWalkTo         := LocB;
   fVertexOccupied := aVertexOccupied;
@@ -53,6 +54,12 @@ begin
   Inherited;
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fVertexOccupied);
+end;
+
+
+class function TUnitActionAbandonWalk.ActName: TUnitActionName;
+begin
+  Result := uan_AbandonWalk;
 end;
 
 

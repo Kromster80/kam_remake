@@ -77,6 +77,7 @@ type
     procedure  SyncLoad; override;
     destructor Destroy; override;
 
+    class function ActName: TUnitActionName; override;
     function  CanAbandonExternal: boolean;
     function HasBeenPushed:boolean;
     property DoesWalking:boolean read fDoesWalking;
@@ -114,7 +115,6 @@ begin
   if not fTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
     raise ELocError.Create('Invalid Walk To for '+fResource.UnitDat[aUnit.UnitType].UnitName,aLocB);
 
-  fActionName   := uan_WalkTo;
   Locked        := false; //Equivalent to Can AbandonExternal?
 
   fWalker       := aUnit; //Does not require pointer tracking because action should always be destroyed before the unit that owns it
@@ -296,6 +296,12 @@ end;
 function TUnitActionWalkTo.HasBeenPushed:boolean;
 begin
   Result := (fInteractionStatus = kis_Pushed);
+end;
+
+
+class function TUnitActionWalkTo.ActName: TUnitActionName;
+begin
+  Result := uan_WalkTo;
 end;
 
 

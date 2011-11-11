@@ -5,7 +5,7 @@ uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, 
 
 {Fight until we die or the opponent dies}
 type
-TUnitActionFight = class(TUnitAction)
+  TUnitActionFight = class(TUnitAction)
   private
     fFightDelay:integer; //Pause for this many ticks before going onto the next Step
     fOpponent:TKMUnit; //Who we are fighting with
@@ -24,6 +24,7 @@ TUnitActionFight = class(TUnitAction)
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
+    class function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     procedure SyncLoad; override;
     property GetOpponent: TKMUnit read fOpponent;
@@ -40,7 +41,6 @@ uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior, KM_Game, KM_R
 constructor TUnitActionFight.Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
 begin
   Inherited Create(aActionType);
-  fActionName     := uan_Fight;
   Locked          := true;
   fFightDelay      := -1;
   fOpponent       := aOpponent.GetUnitPointer;
@@ -73,6 +73,12 @@ procedure TUnitActionFight.SyncLoad;
 begin
   Inherited;
   fOpponent := fPlayers.GetUnitByID(cardinal(fOpponent));
+end;
+
+
+class function TUnitActionFight.ActName: TUnitActionName;
+begin
+  Result := uan_Fight;
 end;
 
 

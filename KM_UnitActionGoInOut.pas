@@ -30,6 +30,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
+    class function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     property GetHasStarted: boolean read fHasStarted;
     function GetDoorwaySlide(aCheck:TCheckAxis):single;
@@ -45,7 +46,6 @@ uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_Uni
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
 begin
   Inherited Create(aAction);
-  fActionName     := uan_GoInOut;
   fUnit           := aUnit.GetUnitPointer;
   Locked          := true;
   //We might stuck trying to exit when house gets destroyed (1)
@@ -101,6 +101,12 @@ begin
   if (fUnit <> nil) and (fDirection = gd_GoOutside) and (fUnit.Visible) then fUnit.SetInHouse(nil); //We are not in any house now
   fPlayers.CleanUpUnitPointer(fUnit);
   Inherited;
+end;
+
+
+class function TUnitActionGoInOut.ActName: TUnitActionName;
+begin
+  Result := uan_GoInOut;
 end;
 
 

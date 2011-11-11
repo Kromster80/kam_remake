@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2546';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2548';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   SERVER_PROTOCOL_REVISON = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -439,8 +439,7 @@ type
         utn_ThrowRock);
 
 type
-  TUnitActionName = ( uan_Unknown, //Uninitialized action to detect bugs
-        uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
+  TUnitActionName = (uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
 
 type
   TUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,

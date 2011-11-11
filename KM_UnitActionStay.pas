@@ -14,6 +14,7 @@ type
   public
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
     constructor Load(LoadStream:TKMemoryStream); override;
+    class function ActName: TUnitActionName; override;
     function GetExplanation: string; override;
     function HowLongLeftToStay:integer;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
@@ -29,7 +30,6 @@ uses KM_PlayersCollection, KM_Sound, KM_ResourceGFX;
 constructor TUnitActionStay.Create(aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
 begin
   Inherited Create(aActionType);
-  fActionName := uan_Stay;
   StayStill   := aStayStill;
   TimeToStay  := aTimeToStay;
   StillFrame  := aStillFrame;
@@ -43,6 +43,12 @@ begin
   LoadStream.Read(StayStill);
   LoadStream.Read(TimeToStay);
   LoadStream.Read(StillFrame);
+end;
+
+
+class function TUnitActionStay.ActName: TUnitActionName;
+begin
+  Result := uan_Stay;
 end;
 
 

@@ -8,7 +8,7 @@ uses
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
 //Virtual - declared and used (overriden) always
-//Abstract - declared but used only in child classes
+//Abstract - declared but must be overriden in child classes
 
 type
 
@@ -19,7 +19,6 @@ type
 
   TUnitAction = class
   protected
-    fActionName: TUnitActionName;
     fActionType: TUnitActionType;
   public
     Locked: boolean; //Means that unit can't take part in interaction, must stay on its tile
@@ -28,7 +27,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
 
-    property ActName: TUnitActionName read fActionName;
+    class function ActName: TUnitActionName; virtual; abstract;
     property ActionType: TUnitActionType read fActionType;
     function GetExplanation:string; virtual; abstract;
     function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
@@ -910,7 +909,6 @@ begin
   begin
     LoadStream.Read(ActName, SizeOf(ActName));
     case ActName of
-      uan_Unknown:     Assert(false, 'ActName can''t be handled');
       uan_Stay:        fCurrentAction := TUnitActionStay.Load(LoadStream);
       uan_WalkTo:      fCurrentAction := TUnitActionWalkTo.Load(LoadStream);
       uan_AbandonWalk: fCurrentAction := TUnitActionAbandonWalk.Load(LoadStream);
@@ -1470,7 +1468,7 @@ begin
   if GetUnitAction is TUnitActionGoInOut then
     Result := Result+TUnitActionGoInOut(GetUnitAction).GetDoorwaySlide(aCheck);
 
-  if (not IsExchanging) or not (GetUnitAction.fActionName in [uan_WalkTo,uan_GoInOut]) then exit;
+  if (not IsExchanging) or not (GetUnitAction.ActName in [uan_WalkTo, uan_GoInOut]) then exit;
 
   //Uses Y because a walk in the Y means a slide in the X
   DX := sign(NextPosition.X - fPosition.X);
@@ -1508,7 +1506,9 @@ end;
 
 
 procedure TKMUnit.Save(SaveStream:TKMemoryStream);
-var HasTask,HasAct:boolean;
+var 
+  HasTask, HasAct: Boolean; 
+  ActName: TUnitActionName;
 begin
   SaveStream.Write(fUnitType, SizeOf(fUnitType));
 
@@ -1525,8 +1525,9 @@ begin
   SaveStream.Write(HasAct);
   if HasAct then
   begin
+    ActName := fCurrentAction.ActName; //Can not pass function result to Write
     //We save ActName to know which Task class to load
-    SaveStream.Write(fCurrentAction.ActName, SizeOf(fCurrentAction.ActName));
+    SaveStream.Write(ActName, SizeOf(ActName));
     fCurrentAction.Save(SaveStream);
   end;
 
@@ -1702,7 +1703,7 @@ end;
 constructor TUnitAction.Create(aActionType: TUnitActionType);
 begin
   Inherited Create;
-  fActionName := uan_Unknown;
+
   fActionType := aActionType;
   StepDone    := false;
 end;
@@ -1711,7 +1712,6 @@ end;
 constructor TUnitAction.Load(LoadStream:TKMemoryStream);
 begin
   Inherited Create;
-  LoadStream.Read(fActionName, SizeOf(fActionName));
   LoadStream.Read(fActionType, SizeOf(fActionType));
   LoadStream.Read(Locked);
   LoadStream.Read(StepDone);
@@ -1726,7 +1726,6 @@ end;
 
 procedure TUnitAction.Save(SaveStream:TKMemoryStream);
 begin
-  SaveStream.Write(fActionName, SizeOf(fActionName));
   SaveStream.Write(fActionType, SizeOf(fActionType));
   SaveStream.Write(Locked);
   SaveStream.Write(StepDone);

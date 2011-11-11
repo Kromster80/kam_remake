@@ -20,6 +20,7 @@ type
     constructor Create(aActionType:TUnitActionType; aRow:integer);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
+    class function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     function GetSpeed(KMUnit: TKMUnit):single;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
@@ -35,7 +36,6 @@ constructor TUnitActionStormAttack.Create(aActionType:TUnitActionType; aRow:inte
 const MIN_STAMINA=8; MAX_STAMINA=6; //8..13
 begin
   Inherited Create(aActionType);
-  fActionName     := uan_StormAttack;
   Locked          := true;
   fTileSteps      := -1; //-1 so the first initializing step makes it 0
   fDelay          := (aRow-1)*5; //No delay for the first row
@@ -61,6 +61,12 @@ begin
   LoadStream.Read(fStamina);
   LoadStream.Read(fNextPos);
   LoadStream.Read(fVertexOccupied);
+end;
+
+
+class function TUnitActionStormAttack.ActName: TUnitActionName;
+begin
+  Result := uan_StormAttack;
 end;
 
 
