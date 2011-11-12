@@ -183,7 +183,11 @@ type
       Panel_NetWaitMsg:TKMPanel;
         Image_NetWait:TKMImage;
         Label_NetWait,Label_NetDropPlayersDelay:TKMLabel;
-        Button_NetQuit,Button_NetDropPlayers:TKMButton;
+        Panel_NetWaitButtons:TKMPanel;
+          Button_NetQuit,Button_NetDropPlayers:TKMButton;
+        Panel_NetWaitConfirm:TKMPanel;
+          Label_NetWaitConfirm:TKMLabel;
+          Button_NetConfirmYes,Button_NetConfirmNo:TKMButton;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -848,18 +852,26 @@ begin
     Bevel_NetWait := TKMBevel.Create(Panel_NetWait,-1,-1,Panel_Main.Width+2,Panel_Main.Height+2);
     Bevel_NetWait.Stretch;
 
-    Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,(Panel_Main.Width div 2)-150,(Panel_Main.Height div 2)-100,300,200);
+    Panel_NetWaitMsg := TKMPanel.Create(Panel_NetWait,0,(Panel_Main.Height div 2)-200,Panel_Main.Width,400);
     Panel_NetWaitMsg.Center;
-      Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,150,40,0,0,556);
+      Image_NetWait:=TKMImage.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,40,0,0,556);
       Image_NetWait.ImageCenter;
 
-      //There's only Quit button, nothing else could be done but wait..
-      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,150,80,'<<<LEER>>>',fnt_Outline,taCenter);
-      Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,150,110,'<<<LEER>>>',fnt_Outline,taCenter);
-      Button_NetQuit := TKMButton.Create(Panel_NetWaitMsg,0,140,300,30,fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU],fnt_Metal);
-      Button_NetQuit.OnClick := NetWaitClick;
-      Button_NetDropPlayers := TKMButton.Create(Panel_NetWaitMsg,0,180,300,30,fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS],fnt_Metal);
-      Button_NetDropPlayers.OnClick := NetWaitClick;
+      Label_NetWait  := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,80,'<<<LEER>>>',fnt_Outline,taCenter);
+      Label_NetDropPlayersDelay := TKMLabel.Create(Panel_NetWaitMsg,Panel_Main.Width div 2,110,'<<<LEER>>>',fnt_Outline,taCenter);
+      Panel_NetWaitButtons := TKMPanel.Create(Panel_NetWaitMsg,0,140,Panel_Main.Width,80);
+        Button_NetQuit := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,0,300,30,fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU],fnt_Metal);
+        Button_NetQuit.OnClick := NetWaitClick;
+        Button_NetDropPlayers := TKMButton.Create(Panel_NetWaitButtons,(Panel_Main.Width div 2)-150,40,300,30,fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS],fnt_Metal);
+        Button_NetDropPlayers.OnClick := NetWaitClick;
+
+      Panel_NetWaitConfirm := TKMPanel.Create(Panel_NetWaitMsg,0,180,Panel_Main.Width,140);
+        Label_NetWaitConfirm := TKMLabel.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2),10,'<<<LEER>>>',fnt_Outline,taCenter);
+        Button_NetConfirmYes := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,40,300,30,'<<<LEER>>>',fnt_Metal);
+        Button_NetConfirmYes.OnClick := NetWaitClick;
+        Button_NetConfirmNo := TKMButton.Create(Panel_NetWaitConfirm,(Panel_Main.Width div 2)-150,80,300,30,fTextLibrary[TX_GAMEPLAY_CONFIRM_CANCEL],fnt_Metal);
+        Button_NetConfirmNo.OnClick := NetWaitClick;
+      Panel_NetWaitConfirm.Hide;
     Panel_NetWait.Hide; //Initially hidden
 end;
 
@@ -2694,6 +2706,11 @@ end;
 procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
 var i:integer; S:String;
 begin
+  if not DoShow then //Reset the confirm when we hide this screen so it's not on confirm when it reshows
+  begin
+    Panel_NetWaitConfirm.Hide;
+    Panel_NetWaitButtons.Show;
+  end;
   if fGame.Networking.IsReconnecting then
   begin
     S := fTextLibrary[TX_MULTIPLAYER_ATTEMPT_RECONNECTING];
@@ -2727,9 +2744,34 @@ end;
 
 procedure TKMGamePlayInterface.NetWaitClick(Sender:TObject);
 begin
-  Assert((Sender = Button_NetQuit)or(Sender = Button_NetDropPlayers), 'Wrong Sender in NetWaitClick');
-  if Sender = Button_NetQuit then fGame.Stop(gr_Cancel);
-  if Sender = Button_NetDropPlayers then fGame.GameDropWaitingPlayers;
+  if Sender = Button_NetQuit then
+  begin
+    Panel_NetWaitButtons.Hide;
+    Label_NetWaitConfirm.Caption := fTextLibrary[TX_GAMEPLAY_CONFIRM_QUIT];
+    Button_NetConfirmYes.Caption := fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU];
+    Panel_NetWaitConfirm.Show;
+  end else
+  if Sender = Button_NetDropPlayers then
+  begin
+    Panel_NetWaitButtons.Hide;
+    Label_NetWaitConfirm.Caption := fTextLibrary[TX_GAMEPLAY_CONFIRM_DROP];
+    Button_NetConfirmYes.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS];
+    Panel_NetWaitConfirm.Show;
+  end else
+  if Sender = Button_NetConfirmNo then
+  begin
+    Panel_NetWaitConfirm.Hide;
+    Panel_NetWaitButtons.Show;
+  end else
+  if Sender = Button_NetConfirmYes then
+  begin
+    Panel_NetWaitConfirm.Hide;
+    if Button_NetConfirmYes.Caption = fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS] then
+      fGame.GameDropWaitingPlayers else
+    if Button_NetConfirmYes.Caption = fTextLibrary[TX_GAMEPLAY_QUIT_TO_MENU] then
+      fGame.Stop(gr_Cancel);
+  end
+  else Assert(false, 'Wrong Sender in NetWaitClick');
 end;
 
 

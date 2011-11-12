@@ -655,8 +655,6 @@ begin
     fNetworking.Disconnect;
     Stop(gr_Disconnect, fTextLibrary[TX_GAME_ERROR_NETWORK]+' '+aData)
   end;
-  //todo: What happens if someone is dropped while loading? That should be different.
-  //todo: Confirmation buttons for quitting/dropping players on all NetWait screens
 end;
 
 
