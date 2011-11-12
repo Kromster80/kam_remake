@@ -523,6 +523,10 @@ begin
   if (fOpponent.GetUnitAction is TUnitActionStay) and
      (not TUnitActionStay(fOpponent.GetUnitAction).Locked) then
   begin
+    //We must alert the opponent to our presence because it looks bad when you warrior is pushed
+    //by the enemy instead of fighting them. CheckAlliance is for optimisation since pushing allies doesn't matter
+    if (fOpponent is TKMUnitWarrior) and (fPlayers.CheckAlliance(fOpponent.GetOwner,fWalker.GetOwner) = at_Enemy) and
+        TKMUnitWarrior(fOpponent).CheckForEnemy then exit;
     fInteractionStatus := kis_Pushing;
     OpponentPassability := fOpponent.GetDesiredPassability;
     if OpponentPassability = CanWalkRoad then OpponentPassability := CanWalk;

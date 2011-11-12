@@ -217,10 +217,11 @@ begin
   begin
     U := fTerrain.UnitsHitTest(X,Y); //Let's see who is standing there
 
-    //Check that the unit is idling, so that we can push it away
+    //Check that the unit is idling and not an enemy warrior, so that we can push it away
     if (U <> nil)
     and (U.GetUnitAction is TUnitActionStay)
-    and not TUnitActionStay(U.GetUnitAction).Locked then
+    and not TUnitActionStay(U.GetUnitAction).Locked
+    and (not (U is TKMUnitWarrior) or (fPlayers.CheckAlliance(U.GetOwner,fUnit.GetOwner) = at_Ally)) then
       Result := U;
   end;
 end;

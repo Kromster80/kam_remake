@@ -38,6 +38,7 @@
  +	Farmers would always prefer cutting corn over sowing
  +	Confirmation for quitting multiplayer while waiting for players should be harder to hit by accident
  +	There is a message to say you were kicked, rather than just "Server stopped responding"
+ +	Soldiers will no longer sometimes be pushed out of the way by enemy citizens/bowmen instead of attacking them
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
 	Maybe archers attacked by archers should not try to walk towards enemies
