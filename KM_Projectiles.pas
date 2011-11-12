@@ -141,8 +141,7 @@ begin
     Target.Y := aStart.Y + Target.Y / DistanceToHit * DistanceInRange;
 
     //Calculate the arc, less for shorter flights
-    DistanceToHit := GetLength(Target.X, Target.Y);
-    Arc := (DistanceInRange/DistanceToHit)*(ProjectileArcs[aProjType, 1] + KaMRandomS(ProjectileArcs[aProjType, 2]));
+    Arc := ((DistanceInRange-aMinRange)/(aMaxRange-aMinRange))*(ProjectileArcs[aProjType, 1] + KaMRandomS(ProjectileArcs[aProjType, 2]));
 
     //Check whether this predicted target will hit a friendly unit
     if fTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
