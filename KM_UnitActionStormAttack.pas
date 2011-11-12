@@ -15,15 +15,15 @@ type
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
     procedure IncVertex(aFrom, aTo: TKMPoint);
     procedure DecVertex;
-    function CheckForObstacle(KMUnit: TKMUnit; NextPos: TKMPoint):boolean;
+    function CheckForObstacle(NextPos: TKMPoint):boolean;
   public
-    constructor Create(aActionType:TUnitActionType; aRow:integer);
+    constructor Create(aUnit: TKMUnit; aActionType: TUnitActionType; aRow: Integer);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
-    function GetSpeed(KMUnit: TKMUnit):single;
-    function Execute(KMUnit: TKMUnit):TActionResult; override;
+    function GetSpeed: Single;
+    function Execute: TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -32,11 +32,10 @@ uses KM_Terrain, KM_Units_Warrior, KM_ResourceGFX;
 
 
 { TUnitActionStormAttack }
-constructor TUnitActionStormAttack.Create(aActionType:TUnitActionType; aRow:integer);
+constructor TUnitActionStormAttack.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aRow: Integer);
 const MIN_STAMINA=8; MAX_STAMINA=6; //8..13
 begin
-  Inherited Create(aActionType);
-  Locked          := true;
+  Inherited Create(aUnit, aActionType, True);
   fTileSteps      := -1; //-1 so the first initializing step makes it 0
   fDelay          := (aRow-1)*5; //No delay for the first row
   fStamina        := MIN_STAMINA + KaMRandom(MAX_STAMINA);
@@ -97,100 +96,100 @@ begin
 end;
 
 
-function TUnitActionStormAttack.GetSpeed(KMUnit: TKMUnit):single;
+function TUnitActionStormAttack.GetSpeed: Single;
 begin
-  if (fTileSteps<=0) or (fTileSteps>=fStamina-1) then
-    Result := fResource.UnitDat[KMUnit.UnitType].Speed
+  if (fTileSteps <= 0) or (fTileSteps >= fStamina-1) then
+    Result := fResource.UnitDat[fUnit.UnitType].Speed
   else
-    Result := fResource.UnitDat[KMUnit.UnitType].Speed * STORM_SPEEDUP;
+    Result := fResource.UnitDat[fUnit.UnitType].Speed * STORM_SPEEDUP;
 end;
 
 
-function TUnitActionStormAttack.CheckForObstacle(KMUnit: TKMUnit; NextPos: TKMPoint):boolean;
+function TUnitActionStormAttack.CheckForObstacle(NextPos: TKMPoint):boolean;
 begin
-  Result := (not fTerrain.CheckPassability(NextPos,KMUnit.GetDesiredPassability)) or
-            (not fTerrain.CanWalkDiagonaly(KMUnit.GetPosition,NextPos)) or
-            (fTerrain.HasVertexUnit(KMGetDiagVertex(KMUnit.GetPosition,NextPos))) or
+  Result := (not fTerrain.CheckPassability(NextPos, fUnit.GetDesiredPassability)) or
+            (not fTerrain.CanWalkDiagonaly(fUnit.GetPosition, NextPos)) or
+            (fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition, NextPos))) or
             (fTerrain.Land[NextPos.Y,NextPos.X].IsUnit <> nil);
 end;
 
 
-function TUnitActionStormAttack.Execute(KMUnit: TKMUnit):TActionResult;
+function TUnitActionStormAttack.Execute: TActionResult;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
   FoundEnemy: TKMUnit;
 begin
-  if KMSamePoint(fNextPos,KMPoint(0,0)) then
-    fNextPos := KMUnit.GetPosition; //Set fNextPos to current pos so it initializes on the first run
+  if KMSamePoint(fNextPos, KMPoint(0,0)) then
+    fNextPos := fUnit.GetPosition; //Set fNextPos to current pos so it initializes on the first run
 
   //Walk for the first step before running
   if fDelay>0 then begin
     dec(fDelay);
-    KMUnit.AnimStep := UnitStillFrames[KMUnit.Direction];
+    fUnit.AnimStep := UnitStillFrames[fUnit.Direction];
     Result := ActContinues;
     exit;
   end;
 
   //First and last steps are walking, inbetween are running
   if (fTileSteps<=0) or (fTileSteps>=fStamina-1) then begin
-    Distance := fResource.UnitDat[KMUnit.UnitType].Speed;
+    Distance := fResource.UnitDat[fUnit.UnitType].Speed;
     fActionType := ua_Walk;
   end else begin
-    Distance := fResource.UnitDat[KMUnit.UnitType].Speed * STORM_SPEEDUP;
+    Distance := fResource.UnitDat[fUnit.UnitType].Speed * STORM_SPEEDUP;
     fActionType := ua_Spec;
   end;
 
-  if KMSamePointF(KMUnit.PositionF, KMPointF(fNextPos), Distance/2) then
+  if KMSamePointF(fUnit.PositionF, KMPointF(fNextPos), Distance/2) then
   begin
     inc(fTileSteps); //We have stepped on a new tile
     //Set precise position to avoid rounding errors
-    KMUnit.PositionF := KMPointF(fNextPos);
+    fUnit.PositionF := KMPointF(fNextPos);
 
     //No longer using previous vertex
-    if KMStepIsDiag(KMUnit.PrevPosition,KMUnit.NextPosition) and (fTileSteps > 0) then
+    if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) and (fTileSteps > 0) then
       DecVertex;
 
     //Begin the next step
-    fNextPos := KMGetPointInDir(KMUnit.GetPosition, KMUnit.Direction).Loc;
+    fNextPos := KMGetPointInDir(fUnit.GetPosition, fUnit.Direction).Loc;
 
     Locked := false; //So find enemy works
-    FoundEnemy := TKMUnitWarrior(KMUnit).FindEnemy;
+    FoundEnemy := TKMUnitWarrior(fUnit).FindEnemy;
     //Action ends if: 1: Used up stamina. 2: There is an enemy to fight. 3: NextPos is an obsticle
-    if (fTileSteps >= fStamina) or (FoundEnemy <> nil) or CheckForObstacle(KMUnit, fNextPos) then
+    if (fTileSteps >= fStamina) or (FoundEnemy <> nil) or CheckForObstacle(fNextPos) then
     begin
       Result := ActDone; //Finished run
       //Make it so that when we halt we stay at this new location if we have not been given different order
-      if TKMUnitWarrior(KMUnit).GetOrder = wo_None then
-        TKMUnitWarrior(KMUnit).OrderLocDir := KMPointDir(KMUnit.GetPosition,TKMUnitWarrior(KMUnit).OrderLocDir.Dir);
+      if TKMUnitWarrior(fUnit).GetOrder = wo_None then
+        TKMUnitWarrior(fUnit).OrderLocDir := KMPointDir(fUnit.GetPosition, TKMUnitWarrior(fUnit).OrderLocDir.Dir);
       //Begin the fight right now
       if FoundEnemy <> nil then
       begin
-        TKMUnitWarrior(KMUnit).FightEnemy(FoundEnemy);
+        TKMUnitWarrior(fUnit).FightEnemy(FoundEnemy);
         Result := ActContinues; //Set result to ActContinues so the new fight action isn't destroyed
       end;
       exit; //Must exit right away as we might have changed this action to fight
     end;
     Locked := true; //Finished using FindEnemy
     //Do some house keeping because we have now stepped on a new tile
-    KMUnit.UpdateNextPosition(fNextPos);
-    fTerrain.UnitWalk(KMUnit.PrevPosition,KMUnit.NextPosition,KMUnit); //Pre-occupy next tile
-    if KMStepIsDiag(KMUnit.PrevPosition,KMUnit.NextPosition) then
-      IncVertex(KMUnit.PrevPosition,KMUnit.NextPosition);
+    fUnit.UpdateNextPosition(fNextPos);
+    fTerrain.UnitWalk(fUnit.PrevPosition,fUnit.NextPosition,fUnit); //Pre-occupy next tile
+    if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then
+      IncVertex(fUnit.PrevPosition,fUnit.NextPosition);
   end;
 
-  WalkX := fNextPos.X - KMUnit.PositionF.X;
-  WalkY := fNextPos.Y - KMUnit.PositionF.Y;
+  WalkX := fNextPos.X - fUnit.PositionF.X;
+  WalkY := fNextPos.Y - fUnit.PositionF.Y;
   DX := sign(WalkX); //-1,0,1
   DY := sign(WalkY); //-1,0,1
 
   if (DX <> 0) and (DY <> 0) then
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
 
-  KMUnit.PositionF := KMPointF(KMUnit.PositionF.X + DX*Math.min(Distance,abs(WalkX)),
-                               KMUnit.PositionF.Y + DY*Math.min(Distance,abs(WalkY)));
+  fUnit.PositionF := KMPointF(fUnit.PositionF.X + DX*Math.min(Distance,abs(WalkX)),
+                              fUnit.PositionF.Y + DY*Math.min(Distance,abs(WalkY)));
 
-  inc(KMUnit.AnimStep);
+  inc(fUnit.AnimStep);
   StepDone := false; //We are not actually done because now we have just taken another step
   Result := ActContinues;
 end;

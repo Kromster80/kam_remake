@@ -10,7 +10,6 @@ type TBestExit = (be_None, be_Left, be_Center, be_Right);
 type
   TUnitActionGoInOut = class(TUnitAction)
   private
-    fUnit: TKMUnit;
     fStep:single;
     fHouse:TKMHouse;
     fDirection:TGoInDirection;
@@ -36,7 +35,7 @@ type
     function GetExplanation:string; override;
     property GetHasStarted: boolean read fHasStarted;
     function GetDoorwaySlide(aCheck:TCheckAxis):single;
-    function Execute(KMUnit: TKMUnit):TActionResult; override;
+    function Execute: TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -47,16 +46,14 @@ uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_ResourceGFX, KM_Uni
 
 constructor TUnitActionGoInOut.Create(aUnit: TKMUnit; aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
 begin
-  Inherited Create(aAction);
-  fUnit           := aUnit.GetUnitPointer;
-  Locked          := true;
+  Inherited Create(aUnit, aAction, True);
+
   //We might stuck trying to exit when house gets destroyed (1)
   //and we might be dying in destroyed house (2)
-  if aHouse<>nil then fHouse := aHouse.GetHousePointer
-                 else fHouse := nil;
+  fHouse          := aHouse.GetHousePointer;
   fDirection      := aDirection;
-  fHasStarted     := false;
-  fWaitingForPush := false;
+  fHasStarted     := False;
+  fWaitingForPush := False;
 
   if fDirection = gd_GoInside then
     fStep := 1  //go Inside (one cell up)
@@ -70,7 +67,6 @@ begin
   Inherited;
   LoadStream.Read(fStep);
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(fUnit, 4);
   LoadStream.Read(fPushedUnit, 4);
   LoadStream.Read(fDirection, SizeOf(fDirection));
   LoadStream.Read(fDoor);
@@ -85,7 +81,6 @@ procedure TUnitActionGoInOut.SyncLoad;
 begin
   Inherited;
   fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
-  fUnit := fPlayers.GetUnitByID(cardinal(fUnit));
   fPushedUnit := fPlayers.GetUnitByID(cardinal(fPushedUnit));
 end;
 
@@ -96,9 +91,7 @@ begin
     DecDoorway;
 
   fPlayers.CleanUpHousePointer(fHouse);
-
-  if fPushedUnit <> nil then
-    fPushedUnit.ReleaseUnitPointer;
+  fPlayers.CleanUpUnitPointer(fPushedUnit);
 
   //A bug can occur because this action is destroyed early when a unit is told to die. If we are still invisible
   //then TTaskDie assumes we are inside and creates a new GoOut action. Therefore if we are invisible we do not occupy a tile.
@@ -114,8 +107,6 @@ begin
 
   if (fDirection = gd_GoOutside) and fUnit.Visible then
     fUnit.SetInHouse(nil); //We are not in any house now
-
-  fPlayers.CleanUpUnitPointer(fUnit);
 
   Inherited;
 end;
@@ -282,7 +273,7 @@ begin
 end;
 
 
-function TUnitActionGoInOut.Execute(KMUnit: TKMUnit):TActionResult;
+function TUnitActionGoInOut.Execute: TActionResult;
 var Distance:single; U:TKMUnit;
 begin
   Result := ActContinues;
@@ -326,7 +317,7 @@ begin
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;
-      fPushedUnit.ReleaseUnitPointer;
+      fPlayers.CleanUpUnitPointer(fPushedUnit);
       fPushedUnit := nil;
       WalkOut;
     end
@@ -336,7 +327,7 @@ begin
       begin
         fHasStarted := False;
         fWaitingForPush := False;
-        fPushedUnit.ReleaseUnitPointer;
+        fPlayers.CleanUpUnitPointer(fPushedUnit);
         fPushedUnit := nil;
       end;
       Exit;
@@ -349,41 +340,43 @@ begin
   if (shortint(fDirection) - fStep < 0.2) and
      (fStreet.X = fDoor.X) and //We are walking straight
      (fHouse <> nil) then
-     KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
+     fUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
   Assert((fHouse = nil) or KMSamePoint(fDoor,fHouse.GetEntrance)); //Must always go in/out the entrance of the house
-  Distance := fResource.UnitDat[KMUnit.UnitType].Speed;
+  Distance := fResource.UnitDat[fUnit.UnitType].Speed;
 
   //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
   if (fStreet.X-fDoor.X <> 0) then
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
 
   fStep := fStep - Distance * shortint(fDirection);
-  KMUnit.PositionF := KMPointF(Mix(KMPointF(fStreet).X,KMPointF(fDoor).X,fStep),Mix(single(KMPointF(fStreet).Y),KMPointF(fDoor).Y,fStep));
-  KMUnit.Visible := (fHouse=nil) or (fHouse.IsDestroyed) or (fStep > 0); //Make unit invisible when it's inside of House
+  fUnit.PositionF := KMPointF(Mix(KMPointF(fStreet).X,KMPointF(fDoor).X,fStep),Mix(single(KMPointF(fStreet).Y),KMPointF(fDoor).Y,fStep));
+  fUnit.Visible := (fHouse=nil) or (fHouse.IsDestroyed) or (fStep > 0); //Make unit invisible when it's inside of House
 
   if (fStep<=0)or(fStep>=1) then
   begin
     Result := ActDone;
-    KMUnit.IsExchanging := false;
+    fUnit.IsExchanging := false;
     if fUsedDoorway then DecDoorway;
     if fDirection = gd_GoInside then
     begin
-      KMUnit.PositionF := KMPointF(fDoor);
-      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.HouseType=ht_Barracks) //Unit home is barracks
-      and(KMUnit.GetHome = fHouse)and(not KMUnit.GetHome.IsDestroyed) then //And is the house we are walking into and it's not destroyed
-        TKMHouseBarracks(KMUnit.GetHome).RecruitsList.Add(KMUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
+      fUnit.PositionF := KMPointF(fDoor);
+      if (fUnit.GetHome<>nil)
+      and (fUnit.GetHome.HouseType = ht_Barracks) //Unit home is barracks
+      and (fUnit.GetHome = fHouse)
+      and not fUnit.GetHome.IsDestroyed then //And is the house we are walking into and it's not destroyed
+        TKMHouseBarracks(fUnit.GetHome).RecruitsList.Add(fUnit); //Add the recruit once it is inside, otherwise it can be equipped while still walking in!
       //Set us as inside even if the house is destroyed. In that case UpdateVisibility will sort things out.
-      if fHouse<>nil then KMUnit.SetInHouse(fHouse);
+      if fHouse<>nil then fUnit.SetInHouse(fHouse);
     end
     else
     begin
-      KMUnit.PositionF := KMPointF(fStreet.X,fStreet.Y);
-      KMUnit.SetInHouse(nil); //We are not in a house any longer
+      fUnit.PositionF := KMPointF(fStreet.X,fStreet.Y);
+      fUnit.SetInHouse(nil); //We are not in a house any longer
     end;
   end
   else
-    inc(KMUnit.AnimStep);
+    inc(fUnit.AnimStep);
 end;
 
 
@@ -393,10 +386,6 @@ begin
   SaveStream.Write(fStep);
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Integer(0));
-  if fUnit <> nil then
-    SaveStream.Write(fUnit.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
   if fPushedUnit <> nil then

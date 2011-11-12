@@ -20,17 +20,18 @@ type
   TUnitAction = class
   protected
     fActionType: TUnitActionType;
+    fUnit: TKMUnit;
   public
     Locked: boolean; //Means that unit can't take part in interaction, must stay on its tile
     StepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
-    constructor Create(aActionType: TUnitActionType);
+    constructor Create(aUnit: TKMUnit; aActionType: TUnitActionType; aLocked: Boolean);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
 
     function ActName: TUnitActionName; virtual; abstract;
     property ActionType: TUnitActionType read fActionType;
     function GetExplanation:string; virtual; abstract;
-    function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
+    function Execute: TActionResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
     procedure Paint; virtual;
   end;
@@ -771,7 +772,7 @@ begin
   if fCurrentAction = nil then
     raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition); //Someone has nilled our action!
 
-  case fCurrentAction.Execute(Self) of
+  case fCurrentAction.Execute of
     ActContinues: exit;
     ActDone:      FreeAndNil(fCurrentAction);
     ActAborted:   FreeAndNil(fCurrentAction);
@@ -961,6 +962,7 @@ end;
 
 
 {Decreases the pointer counter}
+//Should be used only by fPlayers for clarity sake
 procedure TKMUnit.ReleaseUnitPointer;
 begin
   if fPointerCount < 1 then
@@ -1184,7 +1186,7 @@ procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     raise ELocError.Create('Unit fight overrides walk',fCurrPosition);
-  SetAction(TUnitActionFight.Create(aAction, aOpponent, Self));
+  SetAction(TUnitActionFight.Create(Self, aAction, aOpponent));
 end;
 
 
@@ -1202,13 +1204,13 @@ begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
   end;
-  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame, false), aStep);
+  SetAction(TUnitActionStay.Create(Self, aTimeToStay, aAction, aStayStill, aStillFrame, false), aStep);
 end;
 
 
 procedure TKMUnit.SetActionStorm(aRow:integer);
 begin
-  SetAction(TUnitActionStormAttack.Create(ua_Walk, aRow), 0); //Action is ua_Walk for that is the inital one
+  SetAction(TUnitActionStormAttack.Create(Self, ua_Walk, aRow), 0); //Action is ua_Walk for that is the inital one
 end;
 
 
@@ -1221,7 +1223,7 @@ begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
   end;
-  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame, true), aStep);
+  SetAction(TUnitActionStay.Create(Self, aTimeToStay, aAction, aStayStill, aStillFrame, true), aStep);
 end;
 
 
@@ -1304,7 +1306,7 @@ begin
     TUnitActionWalkTo(GetUnitAction).fVertexOccupied := KMPoint(0,0); //So it doesn't try to DecVertex on destroy (now it's AbandonWalk's responsibility)
   end
   else TempVertexOccupied := KMPoint(0,0);
-  SetAction(TUnitActionAbandonWalk.Create(aLocB,TempVertexOccupied, aActionType),AnimStep); //Use the current animation step, to ensure smooth transition
+  SetAction(TUnitActionAbandonWalk.Create(Self, aLocB, TempVertexOccupied, aActionType), AnimStep); //Use the current animation step, to ensure smooth transition
 end;
 
 
@@ -1496,7 +1498,7 @@ begin
     MovementSpeed := fResource.UnitDat[fUnitType].Speed
   else
   if (GetUnitAction is TUnitActionStormAttack) then
-    MovementSpeed := TUnitActionStormAttack(GetUnitAction).GetSpeed(Self)
+    MovementSpeed := TUnitActionStormAttack(GetUnitAction).GetSpeed
   else
     MovementSpeed := 0;
 
@@ -1606,7 +1608,7 @@ begin
     raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action in TKMUnit.UpdateState',fCurrPosition);
 
   fCurrPosition := KMPointRound(fPosition);
-  case fCurrentAction.Execute(Self) of
+  case fCurrentAction.Execute of
     ActContinues: begin fCurrPosition := KMPointRound(fPosition); exit; end;
     ActAborted:   begin FreeAndNil(fCurrentAction); FreeAndNil(fUnitTask); end;
     ActDone:      FreeAndNil(fCurrentAction);
@@ -1700,11 +1702,15 @@ end;
 
 
 { TUnitAction }
-constructor TUnitAction.Create(aActionType: TUnitActionType);
+constructor TUnitAction.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aLocked: Boolean);
 begin
   Inherited Create;
 
+  //Unit who will be performing the action
+  //Does not require pointer tracking because action should always be destroyed before the unit that owns it
+  fUnit       := aUnit;
   fActionType := aActionType;
+  Locked      := aLocked;
   StepDone    := false;
 end;
 
@@ -1713,6 +1719,7 @@ constructor TUnitAction.Load(LoadStream:TKMemoryStream);
 begin
   Inherited Create;
   LoadStream.Read(fActionType, SizeOf(fActionType));
+  LoadStream.Read(fUnit, 4);
   LoadStream.Read(Locked);
   LoadStream.Read(StepDone);
 end;
@@ -1720,13 +1727,17 @@ end;
 
 procedure TUnitAction.SyncLoad;
 begin
-  //Should be virtual
+  fUnit := fPlayers.GetUnitByID(cardinal(fUnit));
 end;
 
 
 procedure TUnitAction.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(fActionType, SizeOf(fActionType));
+  if fUnit <> nil then
+    SaveStream.Write(fUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Integer(0));
   SaveStream.Write(Locked);
   SaveStream.Write(StepDone);
 end;
