@@ -1036,12 +1036,12 @@ const
   BarStep = 130;
   BarWidth = BarStep - 10;
   BarHalf = BarWidth div 2;
-  Columns1: array[0..4] of string = ('Citizens|trained', 'Citizens|lost',
-                                     'Soldiers|trained', 'Soldiers|lost',
-                                     'Enemies|killed');
-  Columns2: array[0..4] of string = ('Houses|built', 'Houses|lost',
-                                     'Houses|destroyed',
-                                     'Goods|produced', 'Weapons|produced');
+  Columns1: array[0..4] of integer = (TX_RESULTS_MP_CITIZENS_TRAINED, TX_RESULTS_MP_CITIZENS_LOST,
+                                     TX_RESULTS_MP_SOLDIERS_EQUIPPED, TX_RESULTS_MP_SOLDIERS_LOST,
+                                     TX_RESULTS_MP_UNITS_DEFEATED);
+  Columns2: array[0..4] of integer = (TX_RESULTS_MP_BUILDINGS_CONSTRUCTED, TX_RESULTS_MP_BUILDINGS_LOST,
+                                     TX_RESULTS_MP_BUILDINGS_DESTROYED,
+                                     TX_RESULTS_MP_WARES_PRODUCED, TX_RESULTS_MP_WEAPONS_PRODUCED);
 var i,k: Integer;
 begin
   Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
@@ -1053,11 +1053,12 @@ begin
     Panel_StatsMP1 := TKMPanel.Create(Panel_ResultsMP, 112, 140, 800, 260);
 
       for i:=0 to 7 do
-        Label_ResultsPlayerName1[i] := TKMLabel.Create(Panel_StatsMP1, 0, 43+i*25, 140, 20, 'Player '+IntToStr(i+1), fnt_Metal, taLeft);
+        Label_ResultsPlayerName1[i] := TKMLabel.Create(Panel_StatsMP1, 0, 43+i*25, 140, 20, '', fnt_Metal, taLeft);
 
       for k:=0 to 4 do
       begin
-        TKMLabel.Create(Panel_StatsMP1, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, Columns1[k], fnt_Metal, taCenter);
+        with TKMLabel.Create(Panel_StatsMP1, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
+          AutoWrap := true;
         for i:=0 to 7 do
           Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 150 + k*BarStep, 40+i*25, BarWidth, 20, 0, '-', fnt_Metal);
       end;
@@ -1065,11 +1066,12 @@ begin
     Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 112, 400, 800, 260);
 
       for i:=0 to 7 do
-        Label_ResultsPlayerName2[i] := TKMLabel.Create(Panel_StatsMP2, 0, 43+i*25, 140, 20, 'Player '+IntToStr(i+1), fnt_Metal, taLeft);
+        Label_ResultsPlayerName2[i] := TKMLabel.Create(Panel_StatsMP2, 0, 43+i*25, 140, 20, '', fnt_Metal, taLeft);
 
       for k:=0 to 4 do
       begin
-        TKMLabel.Create(Panel_StatsMP2, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, Columns2[k], fnt_Metal, taCenter);
+        with TKMLabel.Create(Panel_StatsMP2, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
+          AutoWrap := true;
         for i:=0 to 7 do
           Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 150 + k*BarStep, 40+i*25, BarWidth, 20, 0, '-', fnt_Metal);
       end;

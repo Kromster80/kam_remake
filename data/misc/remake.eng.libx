@@ -1,5 +1,5 @@
 
-MaxID:173
+MaxID:183
 
 1:Mission canceled
 2:Town Tutorial
@@ -172,6 +172,17 @@ MaxID:173
 164:%s was defeated!
 169:The host (%s) has quit
 170:The connection to the server was lost. Attempting to reconnect...
+
+174:Citizens|trained
+175:Citizens|lost
+176:Soldiers|equipped
+177:Soldiers|lost
+178:Units|defeated
+179:Buildings|constructed
+180:Buildings|lost
+181:Buildings|destroyed
+182:Wares|produced
+183:Weapons|produced
 
 132:KaM Remake Credits
 133:Original Knights & Merchants Credits

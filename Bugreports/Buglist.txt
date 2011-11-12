@@ -73,6 +73,7 @@ Features:
  +	Allow to save wares in Stores and Barracks beyond second (not backwards compatible with KaM)
  +	Show formation count in MapEd UI
  +	Multiplayer games automatically reconnect and continue when the connection is lost
+	Checkbox in the woodcutter's hut to stop him from planting trees
 	Clock in multiplayer showing the mission time (singleplayer too?)
 	Show coordinates in the map editor
 	New maps should not start with random trees as that is just annoying (should be just grass with slight height variations)
