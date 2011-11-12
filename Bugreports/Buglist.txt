@@ -81,6 +81,7 @@ Features:
 	Double clicking a server should join it
 	Add player flags in lobby, to see who uses which KaM locale (and which language he can talk)
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
+	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
