@@ -36,6 +36,7 @@ type
     mk_ConnectedToRoom, //Server tells a client they have been successfully added to a room
     mk_SetGameInfo,     //Host tells the server the player list, map, etc to be reported to queries
     mk_KickPlayer,      //Host askes the server to kick someone
+    mk_Kicked,          //Server tells a client they were kicked just before disconnecting then
 
     mk_GetServerInfo,   //Client askes for server for the server details (for querying)
     mk_ServerInfo,      //Server sends client the server info on request
@@ -92,6 +93,7 @@ const
     pfNumber,   //mk_ConnectedToRoom
     pfText,     //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
+    pfText,     //mk_Kicked
     pfNoData,   //mk_GetServerInfo
     pfText,     //mk_ServerInfo
     pfNoData,   //mk_Disconnect

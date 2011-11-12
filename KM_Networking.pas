@@ -19,14 +19,14 @@ const
   NetMPGameState:array[TNetGameState] of TMPGameState = (mgs_None, mgs_None, mgs_None, mgs_Lobby, mgs_Loading, mgs_Game, mgs_Game);
   NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
   [], //lgs_None
-  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo], //lgs_Connecting
-  [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_PingInfo], //lgs_Query
+  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_Kicked], //lgs_Connecting
+  [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_PingInfo,mk_Kicked], //lgs_Query
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
    mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text], //lgs_Lobby
-  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text], //lgs_Loading
-  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect], //lgs_Game
-  [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_ResyncEveryone,mk_RefuseReconnect] //lgs_Reconnecting
+   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked], //lgs_Lobby
+  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked], //lgs_Loading
+  [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked], //lgs_Game
+  [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_ResyncEveryone,mk_RefuseReconnect,mk_Kicked] //lgs_Reconnecting
   );
 
   JOIN_TIMEOUT = 8000; //8 sec. Timeout for join queries
@@ -124,7 +124,7 @@ type
 
     //Common
     procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
-    procedure PostLocalMessage(aText:string);
+    procedure PostLocalMessage(aText:string; aMakeSound:boolean=true);
     procedure SendMPGameInfo(aGameTime:TDateTime; aMap:string);
 
     //Gameplay
@@ -690,12 +690,12 @@ begin
 end;
 
 
-procedure TKMNetworking.PostLocalMessage(aText:string);
+procedure TKMNetworking.PostLocalMessage(aText:string; aMakeSound:boolean=true);
 begin
   if Assigned(fOnTextMessage) then
   begin
     fOnTextMessage(aText);
-    fSoundLib.Play(sfxn_MPChatMessage);
+    if aMakeSound then fSoundLib.Play(sfxn_MPChatMessage);
   end;
 end;
 
@@ -801,7 +801,7 @@ begin
             begin
               fNetPlayerKind := lpk_Host;
               if Assigned(fOnJoinAssignedHost) then fOnJoinAssignedHost(Self); //Enter the lobby if we had hosting rights assigned to us
-              PostLocalMessage(fTextLibrary[TX_LOBBY_HOST_RIGHTS]);
+              PostLocalMessage(fTextLibrary[TX_LOBBY_HOST_RIGHTS],false);
             end;
 
     mk_IndexOnServer:
@@ -838,7 +838,8 @@ begin
                         fNetPlayers[fMyIndex].ReadyToStart := true;
                         if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
                         SetGameState(lgs_Lobby);
-                        if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage);
+                        fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
+                        if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage, false);
                       end;
                   lpk_Joiner:
                   begin
@@ -895,13 +896,19 @@ begin
             begin
               fOnJoinSucc(Self); //Enter lobby
               SetGameState(lgs_Lobby);
-              if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage);
+              fSoundLib.Play(sfxn_MPChatMessage); //Sound for joining the lobby
+              if fWelcomeMessage <> '' then PostLocalMessage(fWelcomeMessage,false);
             end;
 
     mk_RefuseToJoin:
             if fNetPlayerKind = lpk_Joiner then begin
               fNetClient.Disconnect;
               fOnJoinFail(Msg);
+            end;
+
+    mk_Kicked:
+            begin
+              fOnDisconnect(Msg);
             end;
 
     mk_ClientLost:

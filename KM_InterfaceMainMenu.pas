@@ -1481,6 +1481,7 @@ begin
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
     MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
+    fSoundLib.Play(sfxn_Error2);
     exit;
   end;
   SwitchMenuPage(Sender); //Open lobby page
@@ -1496,6 +1497,7 @@ begin
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
     MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
+    fSoundLib.Play(sfxn_Error2);
     exit;
   end;
   //Disable buttons to prevent multiple clicks while connection process is in progress
@@ -1528,6 +1530,7 @@ procedure TKMMainMenuInterface.MP_JoinFail(const aData:string);
 begin
   fGame.Networking.Disconnect;
   MP_Update(Format(fTextLibrary[TX_GAME_ERROR_CONNECTION_FAILED],[aData]),$FF007FFF,false);
+  fSoundLib.Play(sfxn_Error2);
 end;
 
 
@@ -1557,6 +1560,7 @@ begin
   fGame.Networking.Disconnect;
   SwitchMenuPage(Button_LobbyBack);
   MP_Update(aData,$FF007FFF,false);
+  fSoundLib.Play(sfxn_Error2);
 end;
 
 
@@ -1886,6 +1890,7 @@ procedure TKMMainMenuInterface.Lobby_OnDisconnect(const aData:string);
 begin
   fGame.Networking.Disconnect;
   MP_Update(aData,$FF00FFFF,false);
+  fSoundLib.Play(sfxn_Error2);
   SwitchMenuPage(Button_LobbyBack);
 end;
 

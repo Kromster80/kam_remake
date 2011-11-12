@@ -290,6 +290,7 @@ begin
       if TickCount-fClientList[i].fPingStarted > fKickTimeout*1000 then
       begin
         Status('Client timed out '+inttostr(fClientList[i].fHandle));
+        SendMessage(fClientList[i].fHandle, mk_Kicked, 0, 'Disconnected by the server: Timeout detected');
         fServer.Kick(fClientList[i].fHandle);
       end;
 
@@ -494,7 +495,10 @@ begin
     mk_KickPlayer:
             begin
               if fClientList.GetByHandle(Param) <> nil then
+              begin
+                SendMessage(Param, mk_Kicked, 0, 'You were kicked by the host');
                 fServer.Kick(Param);
+              end;
             end;
     mk_GetServerInfo:
             begin
