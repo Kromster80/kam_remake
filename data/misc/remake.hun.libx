@@ -1,5 +1,5 @@
 
-MaxID:183
+MaxID:184
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -92,6 +92,7 @@ MaxID:183
 75:Vesz x%d
 162:Mennyiség csökkentése
 161:Mennyiség növelése
+184:
 
 76:Tereprendezés
 77:Település tervezés

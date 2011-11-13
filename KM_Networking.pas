@@ -943,33 +943,28 @@ begin
               end;
 
     mk_Disconnect:
-            if aSenderIndex <> NET_ADDRESS_SERVER then
-            begin
-              case fNetPlayerKind of
-                lpk_Host:
-                    begin
-                      if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
-                      PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
-                      if fNetGameState in [lgs_Loading, lgs_Game] then
-                        fNetPlayers.DropPlayer(aSenderIndex)
-                      else
-                        fNetPlayers.RemPlayer(aSenderIndex);
-                      SendPlayerListAndRefreshPlayersSetup;
-                    end;
-                lpk_Joiner:
-                    begin
-                      PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
-                      if PlayerIndex = -1 then exit; //Has already disconnected
-                      PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]));
-                      if fNetGameState in [lgs_Loading, lgs_Game] then
-                        fNetPlayers.DropPlayer(aSenderIndex)
-                      else
-                        fNetPlayers.RemPlayer(aSenderIndex);
-                    end;
-              end;
-            end
-            else
-              ForcedDisconnect('The server was forced to restart due to a data corruption error');
+            case fNetPlayerKind of
+              lpk_Host:
+                  begin
+                    if fNetPlayers.ServerToLocal(aSenderIndex) = -1 then exit; //Has already disconnected
+                    PostMessage(fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Nikname+' has quit');
+                    if fNetGameState in [lgs_Loading, lgs_Game] then
+                      fNetPlayers.DropPlayer(aSenderIndex)
+                    else
+                      fNetPlayers.RemPlayer(aSenderIndex);
+                    SendPlayerListAndRefreshPlayersSetup;
+                  end;
+              lpk_Joiner:
+                  begin
+                    PlayerIndex := fNetPlayers.ServerToLocal(aSenderIndex);
+                    if PlayerIndex = -1 then exit; //Has already disconnected
+                    PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_HOST_DISCONNECTED], [fNetPlayers[PlayerIndex].Nikname]));
+                    if fNetGameState in [lgs_Loading, lgs_Game] then
+                      fNetPlayers.DropPlayer(aSenderIndex)
+                    else
+                      fNetPlayers.RemPlayer(aSenderIndex);
+                  end;
+            end;
 
     mk_ReassignHost:
             if Param = fMyIndexOnServer then

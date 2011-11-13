@@ -120,7 +120,7 @@ type
     function CheckResOrder(aID:byte):word; virtual;
     function PickRandomOrder:byte;
     function CheckResToBuild:boolean;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); virtual; //override for School and etc..
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     procedure ResTakeFromIn(aResource:TResourceType; aCount:byte=1);
@@ -186,11 +186,12 @@ type
     function RatioFrom: Byte;
     function RatioTo: Byte;
 
+    function AllowedToTrade(Value: TResourceType):boolean;
     function GetResTotal(aResource:TResourceType):word; overload;
     function GetResTotal:word; overload;
     function CheckResIn(aResource:TResourceType):word; override;
     function CheckResOrder(aID:byte):word; override;
-    procedure ResAddToIn(aResource: TResourceType; const aCount:word=1); override;
+    procedure ResAddToIn(aResource: TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     procedure ResEditOrder(aID:byte; aAmount:integer); override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
 
@@ -211,7 +212,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     procedure AddUnitToQueue(aUnit:TUnitType; aCount:byte); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
@@ -230,7 +231,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
     destructor Destroy; override;
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     function CheckResIn(aResource:TResourceType):word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
     function CanEquip(aUnitType: TUnitType):boolean;
@@ -247,7 +248,7 @@ type
     NotAcceptFlag:array[WARE_MIN..WARE_MAX]of boolean;
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
-    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1); override;
+    procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); override;
     function CheckResIn(aResource: TResourceType): Word; override;
     procedure ResTakeFromOut(aResource:TResourceType; const aCount: Word=1); override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -825,7 +826,7 @@ end;
 //todo: Store/Barracks/Market don't really have an In/Out separation. The code enforcing it looks just confusing and behaves unexpected
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
-procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:word=1);
+procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
 var i:integer;
 begin
   Assert(aResource <> rt_None);
@@ -1347,13 +1348,14 @@ begin
 end;
 
 
-procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1);
+procedure TKMHouseMarket.ResAddToIn(aResource: TResourceType; const aCount:word=1; aFromScript:boolean=false);
 var ResRequired:integer;
 begin
   //If user cancelled the exchange (or began new one with different resources already)
   //then incoming resourced should be added to Offer list immediately
   //We don't want Marketplace to act like a Store
-  dec(fMarketDeliveryCount[aResource], aCount); //We must keep track of the number ordered, which is less now because this has arrived
+  if not aFromScript then
+    dec(fMarketDeliveryCount[aResource], aCount); //We must keep track of the number ordered, which is less now because this has arrived
   if (aResource = fResFrom) and (fTradeAmount > 0) then
   begin
     inc(fMarketResIn[aResource], aCount); //Place the new resource in the IN list
@@ -1377,7 +1379,8 @@ end;
 procedure TKMHouseMarket.AttemptExchange;
 var TradeCount: Word;
 begin
-  Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo));
+  Assert((fResFrom <> rt_None) and (fResTo <> rt_None) and (fResFrom <> fResTo) and
+          AllowedToTrade(fResFrom) and AllowedToTrade(fResTo));
 
   if (fTradeAmount > 0) and (fMarketResIn[fResFrom] >= RatioFrom) then
   begin
@@ -1402,8 +1405,15 @@ begin
 end;
 
 
+function TKMHouseMarket.AllowedToTrade(Value: TResourceType):boolean;
+begin
+  Result := fPlayers[fOwner].Stats.AllowToTrade[Value];
+end;
+
+
 procedure TKMHouseMarket.SetResFrom(Value: TResourceType);
 begin
+  if not AllowedToTrade(Value) then exit;
   if fTradeAmount > 0 then Exit;
   fResFrom := Value;
   if fResTo = fResFrom then
@@ -1413,6 +1423,7 @@ end;
 
 procedure TKMHouseMarket.SetResTo(Value: TResourceType);
 begin
+  if not AllowedToTrade(Value) then exit;
   if fTradeAmount > 0 then Exit;
   fResTo := Value;
   if fResFrom = fResTo then
@@ -1536,7 +1547,7 @@ end;
 
 
 //Add resource as usual and initiate unit training
-procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:word=1);
+procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
 begin
   Inherited;
 
@@ -1660,7 +1671,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.ResAddToIn(aResource:TResourceType; const aCount:word=1);
+procedure TKMHouseStore.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
 var i:TResourceType;
 begin
   case aResource of
@@ -1774,7 +1785,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word=1);
+procedure TKMHouseBarracks.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
 var i:TResourceType;
 begin
   case aResource of

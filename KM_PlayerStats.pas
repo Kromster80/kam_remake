@@ -34,6 +34,7 @@ type
     procedure UpdateReqDone(aType: THouseType);
   public
     AllowToBuild:array[THouseType]of boolean; //Allowance derived from mission script
+    AllowToTrade:array[WARE_MIN..WARE_MAX]of boolean; //Allowance derived from mission script
     constructor Create;
 
     procedure HouseStarted(aType:THouseType);
@@ -93,11 +94,14 @@ const
 
 { TKMPlayerStats }
 constructor TKMPlayerStats.Create;
-var H:THouseType; i,k:integer;
+var H:THouseType; W:TResourceType; i,k:integer;
 begin
   Inherited;
   for H:=Low(THouseType) to High(THouseType) do
     AllowToBuild[H] := True;
+
+  for W:=WARE_MIN to WARE_MAX do
+    AllowToTrade[W] := True;
 
   //Release Store at the start of the game by default
   HouseReleased[ht_Store] := True;

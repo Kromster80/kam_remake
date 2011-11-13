@@ -1,5 +1,5 @@
 
-MaxID:183
+MaxID:184
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -92,6 +92,7 @@ MaxID:183
 75:Zu x%d
 162:Verringere Warenanzahl
 161:Erhöhe Warenanzahl
+184:
 
 76:Terrain bearbeiten
 77:Häuser bearbeiten

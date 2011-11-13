@@ -2430,7 +2430,7 @@ end;
 
 
 procedure TKMGamePlayInterface.House_MarketFill;
-var M: TKMHouseMarket; i,Tmp:integer;
+var M: TKMHouseMarket; R:TResourceType; i,Tmp:integer;
 begin
   if (fShownHouse = nil) or not (fShownHouse is TKMHouseMarket) then Exit;
 
@@ -2438,8 +2438,20 @@ begin
 
   for i:=0 to STORE_RES_COUNT-1 do
   begin
-    Tmp := M.GetResTotal(TResourceType(Button_Market[i].Tag));
-    Button_Market[i].Caption := IfThen(Tmp=0, '-', IntToStr(Tmp));
+    R := TResourceType(Button_Market[i].Tag);
+    if M.AllowedToTrade(R) then
+    begin
+      Button_Market[i].TexID := fResource.Resources[R].GUIIcon;
+      Button_Market[i].Hint := fResource.Resources[R].Name;
+      Tmp := M.GetResTotal(TResourceType(Button_Market[i].Tag));
+      Button_Market[i].Caption := IfThen(Tmp=0, '-', IntToStr(Tmp));
+    end
+    else
+    begin
+      Button_Market[i].TexID := 41;
+      Button_Market[i].Hint := fTextLibrary[TX_HOUSES_MARKET_HINT_BLOCKED];
+      Button_Market[i].Caption := '-';
+    end;
   end;
 
   Shape_Market_From.Visible := M.ResFrom <> rt_None;

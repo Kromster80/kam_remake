@@ -37,7 +37,7 @@ type
 
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
                     ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
-                    ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
+                    ct_ClearUp,ct_BlockTrade,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_Set_Winefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareTo,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
@@ -51,7 +51,7 @@ const
   COMMANDVALUES: array[TKMCommandType] of AnsiString = (
     '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
     'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
-    'CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
+    'CENTER_SCREEN','CLEAR_UP','BLOCK_TRADE','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
     'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
     'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
@@ -614,7 +614,7 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum resources
                           H := fPlayers.Player[fLastPlayer].FindHouse(ht_Store,1);
                           if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
-                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
                         end;
     ct_AddWareToAll:    begin
                           Qty := EnsureRange(P[1], -1, High(Word)); //Sometimes user can define it to be 999999
@@ -623,7 +623,7 @@ begin
                           begin
                             H := fPlayers.Player[i].FindHouse(ht_Store,1);
                             if (H<>nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
-                              H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                              H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
                           end;
                         end;
     ct_AddWareToSecond: if fLastPlayer >=0 then
@@ -633,7 +633,7 @@ begin
 
                           H := TKMHouseStore(fPlayers.Player[fLastPlayer].FindHouse(ht_Store, 2));
                           if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX]) then
-                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
                         end;
     ct_AddWareTo:       if fLastPlayer >=0 then
                         begin //HouseType, House Order, Ware Type, Count
@@ -642,7 +642,7 @@ begin
 
                           H := fPlayers.Player[fLastPlayer].FindHouse(HouseKaMType[P[0]], P[1]);
                           if (H <> nil) and (ResourceKaMIndex[P[2]] in [WARE_MIN..WARE_MAX]) then
-                            H.ResAddToIn(ResourceKaMIndex[P[2]], Qty);
+                            H.ResAddToIn(ResourceKaMIndex[P[2]], Qty, True);
                         end;
     ct_AddWeapon:       if fLastPlayer >=0 then
                         begin
@@ -650,7 +650,12 @@ begin
                           if Qty = -1 then Qty := High(Word); //-1 means maximum weapons
                           H := TKMHouseBarracks(fPlayers.Player[fLastPlayer].FindHouse(ht_Barracks, 1));
                           if (H <> nil) and (ResourceKaMIndex[P[0]] in [WARFARE_MIN..WARFARE_MAX]) then
-                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty);
+                            H.ResAddToIn(ResourceKaMIndex[P[0]], Qty, True);
+                        end;
+    ct_BlockTrade:      if fLastPlayer >=0 then
+                        begin
+                          if ResourceKaMIndex[P[0]] in [WARE_MIN..WARE_MAX] then
+                            fPlayers.Player[fLastPlayer].Stats.AllowToTrade[ResourceKaMIndex[P[0]]] := false;
                         end;
     ct_BlockHouse:      if fLastPlayer >=0 then
                         begin
@@ -995,6 +1000,11 @@ begin
     end;
     if ReleaseAllHouses then
       AddCommand(ct_ReleaseAllHouses, []);
+
+    //Block trades
+    for Res := WARE_MIN to WARE_MAX do
+      if not fPlayers.Player[i].Stats.AllowToTrade[Res] then
+        AddCommand(ct_BlockTrade, [ResourceKaMOrder[Res]]);
 
     //Houses
     for k:=0 to fPlayers.Player[i].Houses.Count-1 do

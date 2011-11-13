@@ -1,5 +1,5 @@
 
-MaxID:183
+MaxID:184
 
 1:Mission canceled
 2:Town Tutorial
@@ -92,6 +92,7 @@ MaxID:183
 75:To x%d
 162:Decrease trade amount
 161:Increase trade amount
+184:Trading this resource is not available in this mission
 
 76:Terrain editing
 77:Village planning
