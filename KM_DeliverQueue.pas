@@ -373,6 +373,9 @@ begin
       else
         Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
+      //Add some random element so in the case of identical bids the same resource will not always be chosen (e.g. weapons storehouse->barracks should be random, not sequential)
+      Bid:=Bid + KaMRandom(5);
+
       //Modifications for bidding system
       if (fDemand[iD].Resource=rt_All) //Always prefer deliveries House>House instead of House>Store
       or (fOffer[iO].Loc_House.HouseType = ht_Store) then //Prefer taking wares from House rather than Store
@@ -381,6 +384,14 @@ begin
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
         Bid:=Bid + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource);
+
+      //Delivering weapons from store to barracks, make it lowest priority when there are >50 of that weapon in the barracks.
+      //In some missions the storehouse has vast amounts of weapons, and we don't want the serfs to spend the whole game moving these.
+      //In KaM, if the barracks has >200 weapons the serfs will stop delivering from the storehouse. I think our solution is better.
+      if fDemand[iD].Loc_House<>nil then
+      if (fDemand[iD].Loc_House.HouseType = ht_Barracks)and(fOffer[iO].Loc_House.HouseType = ht_Store)and
+         (fDemand[iD].Loc_House.CheckResIn(fOffer[iO].Resource) > 50) then
+         Bid := Bid + 10000;
 
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
       if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Resource = rt_Food) then

@@ -36,5 +36,6 @@ begin
   end;
 end;
 
-[Setup]                     
+[Setup]
+EnableDirDoesntExistWarning=yes
 #include "InstallerLib.iss"

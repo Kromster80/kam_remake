@@ -318,7 +318,6 @@ begin
     begin
       fWaitingForPush := False;
       fPlayers.CleanUpUnitPointer(fPushedUnit);
-      fPushedUnit := nil;
       WalkOut;
     end
     else
@@ -328,7 +327,6 @@ begin
         fHasStarted := False;
         fWaitingForPush := False;
         fPlayers.CleanUpUnitPointer(fPushedUnit);
-        fPushedUnit := nil;
       end;
       Exit;
     end;
