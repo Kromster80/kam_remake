@@ -267,6 +267,7 @@ begin
   //F12 Pauses Execution and switches to debug
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
+  //F5 and F7 are used to control game speed
   //F4 and F9 are used in debug to control run-flow
   //others.. unknown
 
@@ -1073,16 +1074,16 @@ begin
 end;
 
 
-procedure TKMGame.SetGameSpeed(aSpeed:word=0);
+procedure TKMGame.SetGameSpeed(aSpeed:word);
 begin
-  if aSpeed=0 then //Make sure it's either 1 or Max, not something inbetween
-    if fGameSpeed = 1 then
-      fGameSpeed := fGlobalSettings.Speedup
-    else
-      fGameSpeed := 1
-  else
-    fGameSpeed := aSpeed;
-
+  if aSpeed=0 then
+    fGameSpeed := 1
+  else if aSpeed=1 then
+    fGameSpeed := fGlobalSettings.SpeedMedium
+  else if aSpeed=2 then
+    fGameSpeed := fGlobalSettings.SpeedFast
+  else if aSpeed=3 then
+    fGameSpeed := fGlobalSettings.SpeedVeryFast;
   fGamePlayInterface.ShowClock(fGameSpeed <> 1);
 end;
 

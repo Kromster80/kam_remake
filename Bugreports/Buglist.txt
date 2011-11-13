@@ -76,6 +76,7 @@ Features:
  +	Multiplayer games automatically reconnect and continue when the connection is lost
  +	New command "!ADD_WARE_TO <HOUSE_TYPE_ID> <HOUSE_NUMBER> <WARE_ID> <QUANTITY>" to add a ware to any house
  +	New command "!BLOCK_TRADE <WARE_ID>" to disallow certain trades
+ +	A variety of game speeds possible through different keys (F5 = normal, F6 = medium, F7 = fast, F8 = very fast)
 	Checkbox in the woodcutter's hut to stop him from planting trees
 	Clock in multiplayer showing the mission time (singleplayer too?)
 	Show coordinates in the map editor
@@ -110,7 +111,6 @@ Features:
 	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
 	Chat logs
-	A variety of game speeds possible through different keys (something like F5=normal, F6=medium, F7=fast, F8=very fast)
 	Better full screen support (if you Alt-Tab out of the game from fullscreen, the game blocks your way and you can't easily use anything else)
 	Sort maps into categories, e.g. building, (when we have economic objectives) building and fighting, fighting, co-op, etc. especially for the lobby
 

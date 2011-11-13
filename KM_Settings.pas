@@ -23,7 +23,9 @@ type
     fSlidersMax:byte;
     fSoundFXVolume:byte;
     fSpeedPace:word;
-    fSpeedup:word;
+    fSpeedMedium:word;
+    fSpeedFast:word;
+    fSpeedVeryFast:word;
     fVSync:boolean;
     fMultiplayerName:string;
     fMultiplayerIP:string;
@@ -81,7 +83,9 @@ type
     property SlidersMax:byte read fSlidersMax;
     property SoundFXVolume:byte read fSoundFXVolume write SetSoundFXVolume;
     property SpeedPace:word read fSpeedPace;
-    property Speedup:word read fSpeedup;
+    property SpeedMedium:word read fSpeedMedium;
+    property SpeedFast:word read fSpeedFast;
+    property SpeedVeryFast:word read fSpeedVeryFast;
     property VSync:boolean read fVSync;
     property MultiplayerName:string read fMultiplayerName write SetMultiplayerName;
     property MultiplayerIP:string read fMultiplayerIP write SetMultiplayerIP;
@@ -153,7 +157,9 @@ begin
   fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
   Locale         := f.ReadString ('Game','Locale','eng'); //Wrong name will become ENG too
   fSpeedPace     := f.ReadInteger('Game','SpeedPace',100);
-  fSpeedup       := f.ReadInteger('Game','Speedup',10);
+  fSpeedMedium   := f.ReadInteger('Game','SpeedMedium',3);
+  fSpeedFast     := f.ReadInteger('Game','SpeedFast',6);
+  fSpeedVeryFast := f.ReadInteger('Game','SpeedVeryFast',10);
 
   fSoundFXVolume := f.ReadInteger('SFX','SFXVolume',10);
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
@@ -200,7 +206,9 @@ begin
   f.WriteInteger('Game','MouseSpeed', fMouseSpeed);
   f.WriteString ('Game','Locale',     fLocale);
   f.WriteInteger('Game','SpeedPace',  fSpeedPace);
-  f.WriteInteger('Game','Speedup',    fSpeedup);
+  f.WriteInteger('Game','SpeedMedium',fSpeedMedium);
+  f.WriteInteger('Game','SpeedFast',  fSpeedFast);
+  f.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
 
   f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);
