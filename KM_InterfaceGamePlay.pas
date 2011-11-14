@@ -56,10 +56,12 @@ type
     procedure Create_Store_Page;
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
+    procedure Create_Woodcutter_Page;
 
     procedure Army_ActivateControls(aActive:boolean);
     procedure Army_HideJoinMenu(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
+    procedure House_WoodcutterChange(Sender:TObject);
     procedure House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
     procedure House_Demolish(Sender:TObject);
     procedure House_RepairToggle(Sender:TObject);
@@ -293,6 +295,9 @@ type
       Label_Barracks_Unit:TKMLabel;
       Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
       Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
+    Panel_HouseWoodcutter:TKMPanel;
+      Radio_Woodcutter:TKMRadioGroup;
+      Button_Woodcutter:TKMButtonFlat;
 
   public
     MyControls: TKMMasterControl;
@@ -605,7 +610,7 @@ begin
   if (Sender=Panel_Unit) or (Sender=Panel_House)
   or (Sender=Panel_House_Common) or (Sender=Panel_House_School)
   or (Sender=Panel_HouseMarket) or (Sender=Panel_HouseBarracks)
-  or (Sender=Panel_HouseStore) then
+  or (Sender=Panel_HouseStore) or (Sender=Panel_HouseWoodcutter) then
     TKMPanel(Sender).Show;
 
   //Place the cursor in the chatbox if it is open and nothing else has taken focus
@@ -733,6 +738,7 @@ begin
     Create_Store_Page;
     Create_School_Page;
     Create_Barracks_Page;
+    Create_Woodcutter_Page;
     //Create_TownHall_Page; //I don't want to make it at all yet
 
   Create_NetWait_Page; //Overlay blocking everyhitng but sidestack and messages
@@ -1594,6 +1600,21 @@ begin
 end;
 
 
+{Woodcutter page}
+procedure TKMGamePlayInterface.Create_Woodcutter_Page;
+begin
+  Panel_HouseWoodcutter:=TKMPanel.Create(Panel_House,0,76,200,400);
+    Radio_Woodcutter := TKMRadioGroup.Create(Panel_HouseWoodcutter,46,64,160,32,fnt_Grey);
+    Radio_Woodcutter.ItemIndex := 0;
+    Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_PLANT_CHOP]);
+    Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
+    Radio_Woodcutter.OnChange := House_WoodcutterChange;
+
+    Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,8,64,32,32,29,7);
+    Button_Woodcutter.OnClick := House_WoodcutterChange; //Clicking the button cycles it
+end;
+
+
 procedure TKMGamePlayInterface.Chat_Click(Sender: TObject);
 begin
   if Panel_Chat.Visible then
@@ -1860,6 +1881,27 @@ begin
           House_BarracksUnitChange(nil, mbLeft);
           SwitchPage(Panel_HouseBarracks);
         end;
+
+    ht_Woodcutters:
+        begin
+          House_WoodcutterChange(nil);
+          SwitchPage(Panel_HouseWoodcutter);
+
+          //First thing - hide everything
+          for i:=1 to Panel_House_Common.ChildCount do
+            Panel_House_Common.Childs[i].Hide;
+
+          Label_Common_Offer.Show;
+          Label_Common_Offer.Caption := fTextLibrary.GetTextString(229)+'(x'+inttostr(fResource.HouseDat[Sender.HouseType].ResProductionX)+'):';
+          Label_Common_Offer.Top := 8;
+
+          ResRow_Common_Resource[1].TexID := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[1]].GUIIcon;
+          ResRow_Common_Resource[1].ResourceCount := Sender.CheckResOut(fResource.HouseDat[Sender.HouseType].ResOutput[1]);
+          ResRow_Common_Resource[1].Caption := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Name;
+          ResRow_Common_Resource[1].Hint := fResource.Resources[fResource.HouseDat[Sender.HouseType].ResOutput[1]].Name;
+          ResRow_Common_Resource[1].Show;
+          ResRow_Common_Resource[1].Top := 2+LineAdv;
+        end;
     ht_TownHall:;
     else
         begin
@@ -2064,6 +2106,36 @@ begin
       fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, -Amt);
     if Sender = ResRow_Order[i].OrderAdd then
       fGame.GameInputProcess.CmdHouse(gic_HouseOrderProduct, TKMHouse(fPlayers.Selected), i, Amt);
+  end;
+end;
+
+
+procedure TKMGamePlayInterface.House_WoodcutterChange(Sender:TObject);
+var Woodcutters: TKMHouseWoodcutters; WoodcutterMode: TWoodcutterMode;
+begin
+  Woodcutters := TKMHouseWoodcutters(fPlayers.Selected);
+  if Sender = Button_Woodcutter then
+    Radio_Woodcutter.ItemIndex := (Radio_Woodcutter.ItemIndex+1) mod 2; //Cycle
+    
+  if (Sender = Button_Woodcutter) or (Sender = Radio_Woodcutter) then
+  begin
+    if Radio_Woodcutter.ItemIndex = 0 then
+         WoodcutterMode := wcm_ChopAndPlant
+    else WoodcutterMode := wcm_Chop;
+    fGame.GameInputProcess.CmdHouse(gic_HouseWoodcutterMode, Woodcutters, WoodcutterMode);
+  end;
+
+  if Woodcutters.WoodcutterMode = wcm_ChopAndPlant then
+  begin
+    Button_Woodcutter.TexID := 310;
+    Button_Woodcutter.RXid := 4;
+    Radio_Woodcutter.ItemIndex := 0;
+  end;
+  if Woodcutters.WoodcutterMode = wcm_Chop then
+  begin
+    Button_Woodcutter.TexID := 29;
+    Button_Woodcutter.RXid := 7;
+    Radio_Woodcutter.ItemIndex := 1;
   end;
 end;
 

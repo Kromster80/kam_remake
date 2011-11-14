@@ -1,7 +1,7 @@
 unit KM_Units_WorkPlan;
 {$I KaM_Remake.inc}
 interface
-uses KM_Defaults, KM_CommonTypes, KM_Points;
+uses KM_Defaults, KM_CommonTypes, KM_Points, KM_Houses;
 
 
 type
@@ -34,6 +34,7 @@ type
     Product2:TResourceType; ProdCount2:byte;
     AfterWorkIdle:integer;
     ResourceDepleted:boolean;
+    WoodcutterMode:TWoodcutterMode;
   public
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
     function FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint):boolean;
@@ -156,6 +157,7 @@ end;
 
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
+const WoodcutterTreeAct: array[TWoodcutterMode] of TTreeAct = (taChop, taAny);
 var i:integer; Tmp: TKMPointDir; Found: Boolean; TreeAct: TTreeAct; CornAct: TCornAct;
 begin
   fHome := aHome;
@@ -402,7 +404,7 @@ begin
   end else
 
   if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
-    Found := fTerrain.FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), taAny, Tmp, TreeAct);
+    Found := fTerrain.FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), WoodcutterTreeAct[WoodcutterMode], Tmp, TreeAct);
     if Found then
       case TreeAct of
         taChop:   begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work

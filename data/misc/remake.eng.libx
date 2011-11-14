@@ -1,5 +1,5 @@
 
-MaxID:184
+MaxID:186
 
 1:Mission canceled
 2:Town Tutorial
@@ -93,6 +93,8 @@ MaxID:184
 162:Decrease trade amount
 161:Increase trade amount
 184:Trading this resource is not available in this mission
+185:Plant and fell
+186:Fell only
 
 76:Terrain editing
 77:Village planning

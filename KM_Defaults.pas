@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2564';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2565';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   SERVER_PROTOCOL_REVISON = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -105,7 +105,7 @@ const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
-  RX7_SPRITE_COUNT = 28;  //Number of sprites to load for RX7 from the folder \Sprites\
+  RX7_SPRITE_COUNT = 29;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map

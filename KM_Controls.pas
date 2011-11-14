@@ -288,10 +288,10 @@ type
   {FlatButton}
   TKMButtonFlat = class(TKMControl)
   private
-    RXid: integer; //RX library
     fFont: TKMFont;
     TextAlign: TTextAlign;
   public
+    RXid: integer; //RX library
     TexID: integer;
     TexOffsetX,TexOffsetY,CapOffsetY:shortint;
     Caption: string;

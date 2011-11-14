@@ -1,5 +1,5 @@
 
-MaxID:184
+MaxID:186
 
 1:Misión Cancelada
 2:Tutorial de Construción
@@ -93,6 +93,8 @@ MaxID:184
 162:Disminuir cantidad
 161:Aumentar cantidad
 184:Comerciar este recurso no está disponible en esta misión
+185:
+186:
 
 76:Editando terreno
 77:Planificando el pueblo

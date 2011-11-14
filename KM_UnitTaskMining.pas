@@ -35,6 +35,9 @@ begin
   fWorkPlan := TUnitWorkPlan.Create;
   fBeastID  := 0;
 
+  if aUnit.GetHome is TKMHouseWoodcutters then
+    fWorkPlan.WoodcutterMode := TKMHouseWoodcutters(aUnit.GetHome).WoodcutterMode;
+
   fWorkPlan.FindPlan(aUnit.UnitType, aUnit.GetHome.HouseType, aRes, KMPointBelow(aUnit.GetHome.GetEntrance));
 end;
 

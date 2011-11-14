@@ -7,6 +7,8 @@ uses
 
   {Everything related to houses is here}
 type
+  TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
+
   TKMHouse = class;
 
   THouseAction = class
@@ -258,6 +260,15 @@ type
   TKMHouseTower = class(TKMHouse)
   public
     procedure Paint; override; //Render debug radius overlay
+  end;
+
+
+  TKMHouseWoodcutters = class(TKMHouse)
+  public
+    WoodcutterMode:TWoodcutterMode;
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
 
@@ -1728,7 +1739,7 @@ begin
       fGame.RequestGameHold(gr_Win);
       exit;
     end;
-    if ApplyCheat and (aRes = WARE_MAX) and not fGame.MultiplayerMode then begin
+    if ApplyCheat and (aRes = rt_Fish) and not fGame.MultiplayerMode then begin
       fGame.RequestGameHold(gr_Defeat);
       exit;
     end;
@@ -1867,6 +1878,28 @@ begin
 end;
 
 
+{ TKMHouseWoodcutters }
+constructor TKMHouseWoodcutters.Create(aHouseType: THouseType; PosX, PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
+begin
+  Inherited;
+  WoodcutterMode := wcm_ChopAndPlant;
+end;
+
+
+constructor TKMHouseWoodcutters.Load(LoadStream:TKMemoryStream);
+begin
+  Inherited;
+  LoadStream.Read(WoodcutterMode, SizeOf(WoodcutterMode));
+end;
+
+
+procedure TKMHouseWoodcutters.Save(SaveStream:TKMemoryStream);
+begin
+  Inherited;
+  SaveStream.Write(WoodcutterMode, SizeOf(WoodcutterMode));
+end;
+
+
 { THouseAction }
 constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState);
 begin
@@ -1956,6 +1989,7 @@ begin
     ht_Barracks:    I := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_Store:       I := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_WatchTower:  I := Inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Woodcutters: I := Inherited Add(TKMHouseWoodcutters.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     else            I := Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   end;
 
@@ -2145,6 +2179,7 @@ begin
       ht_Barracks:    Inherited Add(TKMHouseBarracks.Load(LoadStream));
       ht_Store:       Inherited Add(TKMHouseStore.Load(LoadStream));
       ht_WatchTower:  Inherited Add(TKMHouseTower.Load(LoadStream));
+      ht_Woodcutters: Inherited Add(TKMHouseWoodcutters.Load(LoadStream));
       else            Inherited Add(TKMHouse.Load(LoadStream));
     end;
   end;

@@ -54,6 +54,7 @@ type
     gic_HouseOrderProduct,    //Place an order to manufacture warfare
     gic_HouseMarketFrom,      //Select wares to trade in marketplace
     gic_HouseMarketTo,        //Select wares to trade in marketplace
+    gic_HouseWoodcutterMode,  //Switch the woodcutter mode
     gic_HouseStoreAcceptFlag, //Control wares delivery to store
     gic_HouseTrain,           //Place an order to train citizen/warrior
     gic_HouseRemoveTrain,     //Remove unit being trained from School
@@ -127,6 +128,7 @@ type
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer); overload;
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType); overload;
+    procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aWoodcutterMode:TWoodcutterMode); overload;
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType; aCount:byte); overload;
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:integer); overload;
 
@@ -246,7 +248,7 @@ begin
       U2 := fPlayers.GetUnitByID(Params[2]);
       if (U2 = nil) or U2.IsDeadOrDying then exit; //Unit has died before command could be executed
     end;
-    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseTrain,gic_HouseRemoveTrain] then begin
+    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseTrain,gic_HouseRemoveTrain,gic_HouseWoodcutterMode] then begin
       H := fPlayers.GetHouseByID(Params[1]);
       if (H = nil) or H.IsDestroyed then exit; //House has been destroyed before command could be executed
     end;
@@ -280,6 +282,7 @@ begin
       gic_HouseMarketFrom:        TKMHouseMarket(H).ResFrom := TResourceType(Params[2]);
       gic_HouseMarketTo:          TKMHouseMarket(H).ResTo := TResourceType(Params[2]);
       gic_HouseStoreAcceptFlag:   TKMHouseStore(H).ToggleAcceptFlag(TResourceType(Params[2]));
+      gic_HouseWoodcutterMode:    TKMHouseWoodcutters(H).WoodcutterMode := TWoodcutterMode(Params[2]);
       gic_HouseTrain:             case H.HouseType of
                                     ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
                                     ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
@@ -396,6 +399,13 @@ procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:
 begin
   Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
   TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aItem)]) );
+end;
+
+
+procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aWoodcutterMode:TWoodcutterMode);
+begin
+  Assert(aCommandType = gic_HouseWoodcutterMode);
+  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aWoodcutterMode)]) );
 end;
 
 

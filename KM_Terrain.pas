@@ -234,7 +234,8 @@ begin
     OldTerrain   := 0;
     OldRotation  := 0;
     Obj          := 255;             //none
-    if KaMRandom(16)=0 then Obj := ChopableTrees[KaMRandom(13)+1,4];
+    //Uncomment to enable random trees, but we don't want that for the map editor by default
+    //if KaMRandom(16)=0 then Obj := ChopableTrees[KaMRandom(13)+1,4];
     TileOverlay  := to_None;
     Markup       := mu_None;
     Passability  := []; //Gets recalculated later

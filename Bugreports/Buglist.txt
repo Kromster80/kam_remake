@@ -39,6 +39,7 @@
  +	Confirmation for quitting multiplayer while waiting for players should be harder to hit by accident
  +	There is a message to say you were kicked, rather than just "Server stopped responding"
  +	Soldiers will no longer sometimes be pushed out of the way by enemy citizens/bowmen instead of attacking them
+ +	New maps should not start with random trees as that is just annoying (just grass with slight height variations)
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
@@ -77,10 +78,9 @@ Features:
  +	New command "!ADD_WARE_TO <HOUSE_TYPE_ID> <HOUSE_NUMBER> <WARE_ID> <QUANTITY>" to add a ware to any house
  +	New command "!BLOCK_TRADE <WARE_ID>" to disallow certain trades
  +	A variety of game speeds possible through different keys (F5 = normal, F6 = medium, F7 = fast, F8 = very fast)
-	Checkbox in the woodcutter's hut to stop him from planting trees
+ +	Checkbox in the woodcutter's hut to stop him from planting trees
 	Clock in multiplayer showing the mission time (singleplayer too?)
 	Show coordinates in the map editor
-	New maps should not start with random trees as that is just annoying (should be just grass with slight height variations)
 	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it
@@ -113,6 +113,8 @@ Features:
 	Chat logs
 	Better full screen support (if you Alt-Tab out of the game from fullscreen, the game blocks your way and you can't easily use anything else)
 	Sort maps into categories, e.g. building, (when we have economic objectives) building and fighting, fighting, co-op, etc. especially for the lobby
+	Wares need to be taken out of the barracks for trading at the market
+	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
 
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
