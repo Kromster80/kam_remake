@@ -116,7 +116,7 @@ type
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
     function GetNewID:cardinal;
     property GameState:TGameState read fGameState;
-    procedure SetGameSpeed(aSpeed:word=0);
+    procedure SetGameSpeed(aSpeed:word);
     procedure StepOneFrame;
     function SaveName(const aName, aExt:string):string;
 
@@ -1079,11 +1079,28 @@ begin
   if aSpeed=0 then
     fGameSpeed := 1
   else if aSpeed=1 then
-    fGameSpeed := fGlobalSettings.SpeedMedium
+  begin
+    if fGameSpeed <> fGlobalSettings.SpeedMedium then
+      fGameSpeed := fGlobalSettings.SpeedMedium
+    else
+      fGameSpeed := 1;
+  end
   else if aSpeed=2 then
-    fGameSpeed := fGlobalSettings.SpeedFast
+  begin
+    if fGameSpeed <> fGlobalSettings.SpeedFast then
+      fGameSpeed := fGlobalSettings.SpeedFast
+    else
+      fGameSpeed := 1;
+  end
   else if aSpeed=3 then
-    fGameSpeed := fGlobalSettings.SpeedVeryFast;
+  begin
+    if fGameSpeed <> fGlobalSettings.SpeedVeryFast then
+      fGameSpeed := fGlobalSettings.SpeedVeryFast
+    else
+      fGameSpeed := 1;
+  end
+  else
+    fGamespeed := aSpeed;
   fGamePlayInterface.ShowClock(fGameSpeed <> 1);
 end;
 

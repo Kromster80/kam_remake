@@ -3008,10 +3008,10 @@ begin
 
                   if Key = VK_BACK then  fViewport.ResetZoom;
                   //Game speed
-                  if Key = VK_F5 then   fGame.SetGameSpeed(0);
-                  if Key = VK_F6 then   fGame.SetGameSpeed(1);
-                  if Key = VK_F7 then   fGame.SetGameSpeed(2);
-                  if Key = VK_F8 then   fGame.SetGameSpeed(3);
+                  if (Key = VK_F5) and not fGame.MultiplayerMode then fGame.SetGameSpeed(0);
+                  if (Key = VK_F6) and not fGame.MultiplayerMode then fGame.SetGameSpeed(1);
+                  if (Key = VK_F7) and not fGame.MultiplayerMode then fGame.SetGameSpeed(2);
+                  if (Key = VK_F8) and not fGame.MultiplayerMode then fGame.SetGameSpeed(3);
                   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(true); //Display pause overlay
 
                   //Menu shortcuts
