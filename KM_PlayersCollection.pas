@@ -38,7 +38,7 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y:Integer):boolean;
     function GetUnitCount:integer;
-    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte=0):Boolean;
+    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
     function CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
     procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
     procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
@@ -298,7 +298,7 @@ end;
 
 
 {Should return closest position where unit can be placed}
-function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte=0):Boolean;
+function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
 var
   i:integer;
   P:TKMPointI;
