@@ -1038,7 +1038,8 @@ begin
     begin
       //Archers should abandon walk to start shooting if there is a foe
       if InRange(GetLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
-      and(GetUnitAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then
+      and (GetUnitAction is TUnitActionWalkTo)
+      and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
         AbandonWalk;
       //But if we are already idle then just start shooting right away
       if InRange(GetLength(GetPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
@@ -1071,7 +1072,8 @@ begin
   if (fOrder = wo_Walk) then
   begin
     //Change WalkTo
-    if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+    if (GetUnitAction is TUnitActionWalkTo)
+    and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
     begin
       if GetUnitTask <> nil then
         FreeAndNil(fUnitTask); //e.g. TaskAttackHouse

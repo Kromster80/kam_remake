@@ -313,9 +313,14 @@ begin
   Result:=true; //Required for override compatibility
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
-  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
+  if (fHome <> nil)
+  and fHome.IsDestroyed
+  and not(fUnitTask is TTaskDie)
+  and not(fUnitTask is TTaskGoEat) then
   begin
-    if (fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then AbandonWalk;
+    if (fCurrentAction is TUnitActionWalkTo)
+    and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+      AbandonWalk;
     FreeAndNil(fUnitTask);
     fPlayers.CleanUpHousePointer(fHome);
   end;
@@ -489,9 +494,14 @@ begin
   Result:=true; //Required for override compatibility
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
-  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
+  if (fHome <> nil)
+  and fHome.IsDestroyed
+  and not(fUnitTask is TTaskDie)
+  and not(fUnitTask is TTaskGoEat) then
   begin
-    if (fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then AbandonWalk;
+    if (fCurrentAction is TUnitActionWalkTo)
+    and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
+      AbandonWalk;
     FreeAndNil(fUnitTask);
     fPlayers.CleanUpHousePointer(fHome);
   end;
@@ -1019,7 +1029,8 @@ begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Wait till units exchange (1 tick) and then do the killing
-  if (fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange then
+  if (fCurrentAction is TUnitActionWalkTo)
+  and TUnitActionWalkTo(fCurrentAction).DoingExchange then
   begin
     fKillASAP := true; //Unit will be killed ASAP
     exit;
@@ -1118,7 +1129,9 @@ end;
 
 procedure TKMUnit.CancelUnitTask;
 begin
-  if (fUnitTask <> nil)and(fCurrentAction is TUnitActionWalkTo)and(not TUnitActionWalkTo(GetUnitAction).DoingExchange) then
+  if (fUnitTask <> nil)
+  and (fCurrentAction is TUnitActionWalkTo)
+  and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
     AbandonWalk;
   FreeAndNil(fUnitTask);
 end;
@@ -1577,10 +1590,12 @@ begin
   Result := true;
 
   //UpdateState can happen right after unit gets killed (Exchange still in progress)
-  if fKillASAP and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then begin
+  if fKillASAP
+  and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
+  begin
     KillUnit;
     fKillASAP := false;
-    assert(IsDeadOrDying); //Just in case KillUnit failed
+    Assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
 
   UpdateHunger;
