@@ -267,11 +267,12 @@ begin
   //F12 Pauses Execution and switches to debug
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
-  //F5 and F7 are used to control game speed
-  //F4 and F9 are used in debug to control run-flow
+  //F5..F8 are used to control game speed
+  //F4 is used to debug control overlays
   //others.. unknown
 
   //GLOBAL KEYS
+  if Key = VK_F4 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
   if Key = VK_F11  then begin
     FormControlsVisible := not FormControlsVisible;
     Form1.ToggleControlsVisibility(FormControlsVisible);

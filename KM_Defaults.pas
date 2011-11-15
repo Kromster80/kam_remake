@@ -144,7 +144,7 @@ const //Here we store options that are hidden somewhere in code
   AIMING_DELAY_ADD = 8; //random component
   FRIENDLY_FIRE = true; //Whenever archers could kill fellow men with their arrows
 
-  NET_DROP_PLAYER_MIN_WAIT = 20; //Host must wait at least this long before dropping disconnected players
+  NET_DROP_PLAYER_MIN_WAIT = 30; //Host must wait at least this long before dropping disconnected players
 
 type
   TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
