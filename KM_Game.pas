@@ -263,16 +263,15 @@ end;
 
 procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState);
 begin
-  //List of conflicting keys:
-  //F12 Pauses Execution and switches to debug
-  //F10 sets focus on MainMenu1
-  //F9 is the default key in Fraps for video capture
-  //F5..F8 are used to control game speed
-  //F4 is used to debug control overlays
-  //others.. unknown
+  //List of conflicting keys that we should try to avoid using in debug/game:
+  //  F12 Pauses Execution and switches to debug
+  //  F10 sets focus on MainMenu1
+  //  F9 is the default key in Fraps for video capture
+  //  F4 and F9 are used in debug to control run-flow
+  //  others.. unknown
 
   //GLOBAL KEYS
-  if Key = VK_F4 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
+  if Key = VK_F3 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
   if Key = VK_F11  then begin
     FormControlsVisible := not FormControlsVisible;
     Form1.ToggleControlsVisibility(FormControlsVisible);
@@ -1072,42 +1071,25 @@ begin
 end;
 
 
-procedure TKMGame.SetGameSpeed(aSpeed:word);
+procedure TKMGame.SetGameSpeed(aSpeed: Word);
 begin
-  if aSpeed=0 then
+  Assert(aSpeed > 0);
+
+  //Make the speed toggle between 1 and desired value
+  if aSpeed = fGameSpeed then
     fGameSpeed := 1
-  else if aSpeed=1 then
-  begin
-    if fGameSpeed <> fGlobalSettings.SpeedMedium then
-      fGameSpeed := fGlobalSettings.SpeedMedium
-    else
-      fGameSpeed := 1;
-  end
-  else if aSpeed=2 then
-  begin
-    if fGameSpeed <> fGlobalSettings.SpeedFast then
-      fGameSpeed := fGlobalSettings.SpeedFast
-    else
-      fGameSpeed := 1;
-  end
-  else if aSpeed=3 then
-  begin
-    if fGameSpeed <> fGlobalSettings.SpeedVeryFast then
-      fGameSpeed := fGlobalSettings.SpeedVeryFast
-    else
-      fGameSpeed := 1;
-  end
   else
-    fGamespeed := aSpeed;
-  fGamePlayInterface.ShowClock(fGameSpeed <> 1);
+    fGameSpeed := aSpeed;
+
+  fGamePlayInterface.ShowClock(fGameSpeed <> 1); //todo: Show current speed value on clock
 end;
 
 
 procedure TKMGame.StepOneFrame;
 begin
-  Assert(fGameState in [gsPaused,gsReplay], 'We can work step-by-step only in Replay');
+  Assert(fGameState in [gsPaused, gsReplay], 'We can work step-by-step only in Replay');
   SetGameSpeed(1); //Do not allow multiple updates in UpdateState loop
-  fAdvanceFrame := true;
+  fAdvanceFrame := True;
 end;
 
 

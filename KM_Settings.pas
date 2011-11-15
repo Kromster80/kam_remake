@@ -3,6 +3,7 @@ unit KM_Settings;
 interface
 uses Classes, SysUtils, Math, KM_Defaults, INIfiles;
 
+
 {Global game settings}
 type
   TGlobalSettings = class
@@ -108,6 +109,7 @@ implementation
 uses KM_Log;
 
 
+{ TGlobalSettings }
 constructor TGlobalSettings.Create;
 begin
   Inherited;
@@ -171,20 +173,20 @@ begin
   else
     fHitPointRestorePace := DEFAULT_HITPOINT_RESTORE;
 
-  fMultiplayerName        := f.ReadString('Multiplayer','Name','NoName');
-  fMultiplayerIP          := f.ReadString('Multiplayer','LastIP','127.0.0.1');
-  fLastPort               := f.ReadString('Multiplayer','LastPort','56789');
-  fLastRoom               := f.ReadString('Multiplayer','LastRoom','0');
-  fServerPort             := f.ReadString('Server','ServerPort','56789');
-  fMasterServerAddress    := f.ReadString('Server','MasterServerAddress','http://lewin.hodgman.id.au/kam_remake_master_server/');
+  fMultiplayerName        := f.ReadString ('Multiplayer','Name','NoName');
+  fMultiplayerIP          := f.ReadString ('Multiplayer','LastIP','127.0.0.1');
+  fLastPort               := f.ReadString ('Multiplayer','LastPort','56789');
+  fLastRoom               := f.ReadString ('Multiplayer','LastRoom','0');
+  fServerPort             := f.ReadString ('Server','ServerPort','56789');
+  fMasterServerAddress    := f.ReadString ('Server','MasterServerAddress','http://lewin.hodgman.id.au/kam_remake_master_server/');
   fMasterAnnounceInterval := f.ReadInteger('Server','MasterServerAnnounceInterval',120);
-  fAnnounceServer         := f.ReadBool('Server','AnnounceDedicatedServer',true);
-  fServerName             := f.ReadString('Server','ServerName','KaM Remake Server');
+  fAnnounceServer         := f.ReadBool   ('Server','AnnounceDedicatedServer',true);
+  fServerName             := f.ReadString ('Server','ServerName','KaM Remake Server');
   fMaxRooms               := f.ReadInteger('Server','MaxRooms',16);
   fAutoKickTimeout        := f.ReadInteger('Server','AutoKickTimeout',20);
   fPingInterval           := f.ReadInteger('Server','PingMeasurementInterval',1000);
-  fHTMLStatusFile         := f.ReadString('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
-  fServerWelcomeMessage   := f.ReadString('Server','WelcomeMessage','');
+  fHTMLStatusFile         := f.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
+  fServerWelcomeMessage   := f.ReadString ('Server','WelcomeMessage','');
 
   FreeAndNil(f);
   fNeedsSave := false;
@@ -210,27 +212,27 @@ begin
   f.WriteInteger('Game','SpeedFast',  fSpeedFast);
   f.WriteInteger('Game','SpeedVeryFast',fSpeedVeryFast);
 
-  f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
-  f.WriteInteger('SFX','MusicVolume', fMusicVolume);
-  f.WriteBool   ('SFX','MusicEnabled',fMusicOn);
+  f.WriteInteger('SFX','SFXVolume',     fSoundFXVolume);
+  f.WriteInteger('SFX','MusicVolume',   fMusicVolume);
+  f.WriteBool   ('SFX','MusicEnabled',  fMusicOn);
   f.WriteBool   ('SFX','ShuffleEnabled',fShuffleOn);
 
   if INI_HITPOINT_RESTORE then
     f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
 
-  f.WriteString('Multiplayer','Name',fMultiplayerName);
-  f.WriteString('Multiplayer','LastIP',fMultiplayerIP);
-  f.WriteString('Multiplayer','LastPort',fLastPort);
-  f.WriteString('Multiplayer','LastRoom',fLastRoom);
+  f.WriteString ('Multiplayer','Name',    fMultiplayerName);
+  f.WriteString ('Multiplayer','LastIP',  fMultiplayerIP);
+  f.WriteString ('Multiplayer','LastPort',fLastPort);
+  f.WriteString ('Multiplayer','LastRoom',fLastRoom);
 
-  f.WriteString('Server','ServerName',fServerName);
-  f.WriteString('Server','WelcomeMessage',fServerWelcomeMessage);
-  f.WriteString('Server','ServerPort',fServerPort);
-  f.WriteBool('Server','AnnounceDedicatedServer',fAnnounceServer);
+  f.WriteString ('Server','ServerName',fServerName);
+  f.WriteString ('Server','WelcomeMessage',fServerWelcomeMessage);
+  f.WriteString ('Server','ServerPort',fServerPort);
+  f.WriteBool   ('Server','AnnounceDedicatedServer',fAnnounceServer);
   f.WriteInteger('Server','MaxRooms',fMaxRooms);
-  f.WriteString('Server','HTMLStatusFile',fHTMLStatusFile);
+  f.WriteString ('Server','HTMLStatusFile',fHTMLStatusFile);
   f.WriteInteger('Server','MasterServerAnnounceInterval',fMasterAnnounceInterval);
-  f.WriteString('Server','MasterServerAddress',fMasterServerAddress);
+  f.WriteString ('Server','MasterServerAddress',fMasterServerAddress);
   f.WriteInteger('Server','AutoKickTimeout',fAutoKickTimeout);
   f.WriteInteger('Server','PingMeasurementInterval',fPingInterval);
 
@@ -354,6 +356,7 @@ begin
   fMusicOn := aValue;
   fNeedsSave := true;
 end;
+
 
 procedure TGlobalSettings.SetShuffleOn(aValue:boolean);
 begin

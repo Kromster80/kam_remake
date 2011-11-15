@@ -3001,20 +3001,20 @@ begin
                   if MyControls.KeyUp(Key, Shift) then Exit;
 
                   //Scrolling
-                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
-                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := false;
-                  if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
-                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
+                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := False;
+                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := False;
+                  if Key = VK_UP    then fViewport.ScrollKeyUp    := False;
+                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := False;
 
                   if Key = VK_BACK then  fViewport.ResetZoom;
 
                   //Game speed/pause: Not available in multiplayer mode yet
                   if not fGame.MultiplayerMode then
                   begin
-                    if (Key = VK_F5) then fGame.SetGameSpeed(0);
-                    if (Key = VK_F6) then fGame.SetGameSpeed(1);
-                    if (Key = VK_F7) then fGame.SetGameSpeed(2);
-                    if (Key = VK_F8)  then fGame.SetGameSpeed(3);
+                    if (Key = VK_F5) then fGame.SetGameSpeed(1);
+                    if (Key = VK_F6) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedMedium);
+                    if (Key = VK_F7) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedFast);
+                    if (Key = VK_F8) then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedVeryFast);
                     if (Key = ord('P')) then SetPause(true); //Display pause overlay
                   end;
 
@@ -3060,10 +3060,11 @@ begin
                   if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
 
                   if Key = VK_BACK then fViewport.ResetZoom;
-                  if Key = VK_F5 then   fGame.SetGameSpeed(0);
-                  if Key = VK_F6 then   fGame.SetGameSpeed(1);
-                  if Key = VK_F7 then   fGame.SetGameSpeed(2);
-                  if Key = VK_F8 then   fGame.SetGameSpeed(3);
+
+                  if Key = VK_F5 then fGame.SetGameSpeed(1);
+                  if Key = VK_F6 then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedMedium);
+                  if Key = VK_F7 then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedFast);
+                  if Key = VK_F8 then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedVeryFast);
                 end;
    end;
 end;
