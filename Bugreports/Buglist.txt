@@ -40,6 +40,7 @@
  +	There is a message to say you were kicked, rather than just "Server stopped responding"
  +	Soldiers will no longer sometimes be pushed out of the way by enemy citizens/bowmen instead of attacking them
  +	New maps should not start with random trees as that is just annoying (just grass with slight height variations)
+ +	Crash "ELocError: fCommander.IsDeadOrDying" due to warrior leaving the barracks linking to a dead warrior from a nearby battle
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Players could cheat in MP through F11 menu by viewing CanWalk map overlays

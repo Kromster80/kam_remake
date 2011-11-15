@@ -2,7 +2,7 @@ Title
 Atoll
 
 SmallDesc
-A multiplayer map by Kirill
+A multiplayer map by Kirelareus
 
 BigDesc
-A multiplayer map by Kirill. A 3 player fight around a hill on an island.
+A multiplayer map by Kirelareus. A 3 player fight around a hill on an island.

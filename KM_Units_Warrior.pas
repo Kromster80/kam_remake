@@ -391,6 +391,8 @@ begin
     GetCommander.OrderLinkTo(aNewCommander.GetCommander);
     exit;
   end;
+  Assert(not aNewCommander.IsDeadOrDying,'Can''t link to a dying unit');
+  Assert(not Self.IsDeadOrDying,'Can''t link while dying');
 
   //Only link to same group type
   if UnitGroups[fUnitType] <> UnitGroups[aNewCommander.fUnitType] then exit;
@@ -707,10 +709,11 @@ begin
   if (GetLength(i,k) < LINK_RADIUS) //Check within circle area
   and fTerrain.TileInMapCoords(aLoc.X+i,aLoc.Y+k) then //Do not pass negative coordinates to fTerrain.UnitsHitTest
   begin
-    FoundUnit := fTerrain.Land[aLoc.Y+k, aLoc.X+i].IsUnit;//Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
+    FoundUnit := fTerrain.Land[aLoc.Y+k, aLoc.X+i].IsUnit; //Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit <> Self) and
        (FoundUnit.GetOwner = fOwner) and
+       (not FoundUnit.IsDeadOrDying) and //Can't link to a dying unit
        (UnitGroups[FoundUnit.UnitType] = UnitGroups[fUnitType]) then //They must be the same group type
     begin
       Result := TKMUnitWarrior(FoundUnit);

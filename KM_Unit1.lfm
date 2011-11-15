@@ -89,7 +89,7 @@ object Form1: TForm1
       Height = 17
       Top = 52
       Width = 71
-      Caption = 'Speed x50'
+      Caption = 'Speed x300'
       OnClick = CheckBox2Click
       TabOrder = 1
     end
