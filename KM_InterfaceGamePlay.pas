@@ -3007,12 +3007,16 @@ begin
                   if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
 
                   if Key = VK_BACK then  fViewport.ResetZoom;
-                  //Game speed
-                  if (Key = VK_F5) and not fGame.MultiplayerMode then fGame.SetGameSpeed(0);
-                  if (Key = VK_F6) and not fGame.MultiplayerMode then fGame.SetGameSpeed(1);
-                  if (Key = VK_F7) and not fGame.MultiplayerMode then fGame.SetGameSpeed(2);
-                  if (Key = VK_F8) and not fGame.MultiplayerMode then fGame.SetGameSpeed(3);
-                  if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(true); //Display pause overlay
+
+                  //Game speed/pause: Not available in multiplayer mode yet
+                  if not fGame.MultiplayerMode then
+                  begin
+                    if (Key = VK_F5) then fGame.SetGameSpeed(0);
+                    if (Key = VK_F6) then fGame.SetGameSpeed(1);
+                    if (Key = VK_F7) then fGame.SetGameSpeed(2);
+                    if (Key = VK_F8)  then fGame.SetGameSpeed(3);
+                    if (Key = ord('P')) then SetPause(true); //Display pause overlay
+                  end;
 
                   //Menu shortcuts
                   if Key in [ord('1')..ord('4')] then Button_Main[Key-48].DoClick;
@@ -3028,8 +3032,7 @@ begin
                     Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
 
                   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
-                  if (Key = ord('A')) and (Panel_Army.Visible) then Button_Army_Attack.DoClick;
-                  if (Key = ord('D')) and (Panel_Army.Visible) then Button_Army_GoTo.DoClick;
+                  //todo: Each of these should be a string from the TextLibrary with a suitable name like TX_SHORTCUT_HALT
                   if (Key = ord('H')) and (Panel_Army.Visible) then Button_Army_Stop.DoClick;
                   if (Key = ord('L')) and (Panel_Army.Visible) then Button_Army_Join.DoClick;
                   if (Key = ord('S')) and (Panel_Army.Visible) then Button_Army_Split.DoClick;

@@ -272,9 +272,6 @@ begin
   //others.. unknown
 
   //GLOBAL KEYS
-  if Key = VK_F5 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
-  if (Key = VK_F7) and ENABLE_DESIGN_CONTORLS then
-    MODE_DESIGN_CONTORLS := not MODE_DESIGN_CONTORLS;
   if Key = VK_F11  then begin
     FormControlsVisible := not FormControlsVisible;
     Form1.ToggleControlsVisibility(FormControlsVisible);
