@@ -25,6 +25,7 @@ uses
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
   KM_Game in 'KM_Game.pas',
   KM_GameInfo in 'KM_GameInfo.pas',
+  KM_GameOptions in 'KM_GameOptions.pas',
   KM_GameInputProcess in 'KM_GameInputProcess.pas',
   KM_GameInputProcess_Multi in 'KM_GameInputProcess_Multi.pas',
   KM_GameInputProcess_Single in 'KM_GameInputProcess_Single.pas',

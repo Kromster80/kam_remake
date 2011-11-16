@@ -257,6 +257,13 @@ begin
       if (H2 = nil) or H2.IsDestroyed then exit; //House has been destroyed before command could be executed
     end;
 
+    //Some commands are blocked by peacetime
+    if fGame.IsPeaceTime and
+      ((CommandType in [gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,
+                        gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm,gic_ArmyLink,gic_ArmyAttackUnit]) or
+       ((CommandType = gic_HouseTrain) and (H.HouseType = ht_Barracks))) then
+       exit; //todo: Show a warning to the player that his command was blocked by peace time
+
     case CommandType of
       gic_ArmyFeed:         TKMUnitWarrior(U).OrderFood;
       gic_ArmySplit:        TKMUnitWarrior(U).OrderSplit;

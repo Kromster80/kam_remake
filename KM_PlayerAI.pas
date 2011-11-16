@@ -521,6 +521,8 @@ begin
           if (Condition < UNIT_MIN_CONDITION) then
             OrderFood;
 
+          if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
+
           //Check formation. If the script has defined a group with more units per row than there should be, do not change it
           if UnitsPerRow < TroopFormations[UnitGroups[UnitType]].UnitsPerRow then
             UnitsPerRow := TroopFormations[UnitGroups[UnitType]].UnitsPerRow;

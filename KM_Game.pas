@@ -11,7 +11,7 @@ uses
   KM_MapEditor, KM_Campaigns,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
-  KM_ArmyEvaluation;
+  KM_ArmyEvaluation, KM_GameOptions;
 
 type TGameState = ( gsNoGame,  //No game running at all, MainMenu
                     gsPaused,  //Game is paused and responds to 'P' key only
@@ -32,6 +32,7 @@ type
     fGameState:TGameState;
     fMultiplayerMode:boolean;
     fWaitingForNetwork:boolean;
+    fGameOptions:TKMGameOptions;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     fGlobalSettings: TGlobalSettings;
     fCampaigns: TKMCampaignsCollection;
@@ -107,6 +108,7 @@ type
 
     function GetMissionTime:TDateTime;
     function CheckTime(aTimeTicks:cardinal):boolean;
+    function IsPeaceTime:boolean;
     property GameTickCount:cardinal read fGameTickCount;
     property GlobalTickCount:cardinal read fGlobalTickCount;
     property GameName:string read fGameName;
@@ -561,6 +563,10 @@ var
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
   fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
+
+  FreeAndNil(fGameOptions);
+  fGameOptions := TKMGameOptions.Create;
+  fGameOptions.Peacetime := Networking.GameOptions.Peacetime;
 
   FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);
   //Assign existing NetPlayers(1..N) to map players(0..N-1)
@@ -1064,6 +1070,12 @@ end;
 function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
 begin
   Result := (fGameTickCount >= aTimeTicks);
+end;
+
+
+function TKMGame.IsPeaceTime:boolean;
+begin
+  Result := (fGameOptions <> nil) and not CheckTime(fGameOptions.Peacetime*600);
 end;
 
 

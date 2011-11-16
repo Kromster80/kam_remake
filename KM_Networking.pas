@@ -5,7 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, SysUtils, TypInfo,
-  KM_CommonTypes, KM_Defaults, KM_Player, KM_Saves, KM_GameInfo,
+  KM_CommonTypes, KM_Defaults, KM_Player, KM_Saves, KM_GameInfo, KM_GameOptions,
   KM_MapInfo, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 
 //todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
@@ -58,6 +58,7 @@ type
     fMapInfo:TKMapInfo; //Everything related to selected map
     fSaveInfo: TKMSaveInfo;
     fSelectGameKind: TNetGameKind;
+    fNetGameOptions:TKMGameOptions;
 
     fOnJoinSucc:TNotifyEvent;
     fOnJoinFail:TStringEvent;
@@ -131,6 +132,7 @@ type
     property MapInfo:TKMapInfo read fMapInfo;
     property SaveInfo:TKMSaveInfo read fSaveInfo;
     property GameInfo:TKMGameInfo read GetGameInfo;
+    property GameOptions:TKMGameOptions read fNetGameOptions;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     property LastProcessedTick:cardinal write fLastProcessedTick;
@@ -177,6 +179,7 @@ begin
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
+  fNetGameOptions := TKMGameOptions.Create;
 end;
 
 
@@ -188,6 +191,7 @@ begin
   fServerQuery.Free;
   FreeAndNil(fMapInfo);
   FreeAndNil(fSaveInfo);
+  FreeAndNil(fNetGameOptions);
   Inherited;
 end;
 

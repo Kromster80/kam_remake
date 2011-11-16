@@ -667,6 +667,7 @@ type
 
     procedure Add(const aItem:string);
     procedure Clear;
+    procedure ScrollToBottom;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
     property Text: string read GetText write SetText;
     property ItemHeight:byte read fItemHeight write fItemHeight;
@@ -2188,6 +2189,12 @@ begin
   fText := '';
   fItems.Clear;
   UpdateScrollBar;
+end;
+
+
+procedure TKMMemo.ScrollToBottom;
+begin
+  SetTopIndex(fItems.Count);
 end;
 
 

@@ -2916,6 +2916,7 @@ end;
 procedure TKMGamePlayInterface.SetChatMessages(const aString: string);
 begin
   Memo_ChatText.Text := aString;
+  Memo_ChatText.ScrollToBottom;
 end;
 
 

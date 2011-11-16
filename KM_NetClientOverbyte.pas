@@ -94,7 +94,7 @@ end;
 
 procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
 begin
-  if fSocket.State <> wsClosed then //Sometimes this occurs just before Disconnected
+  if fSocket.State = wsConnected then //Sometimes this occurs just before disconnect/reconnect
     fSocket.Send(aData, aLength);
 end;
 
