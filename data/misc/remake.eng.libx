@@ -1,5 +1,5 @@
 
-MaxID:187
+MaxID:190
 
 1:Mission canceled
 2:Town Tutorial
@@ -150,6 +150,9 @@ MaxID:187
 117:Post message:
 118:Choose map:
 119:Single Map
+188:Building Map
+189:Fighting Map
+190:Co-operative Map
 120:Saved Game
 121:Select a map...
 122:Select a save...

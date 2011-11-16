@@ -51,6 +51,9 @@ type
     property Map[Index:integer]:TKMapInfo read GetMap; default;
 
     function MapList: string;
+    function MapListBuild: string;
+    function MapListFight: string;
+    function MapListCoop: string;
   end;
 
 
@@ -226,6 +229,32 @@ begin
     Result := Result + fMaps[i].Filename + eol;
 end;
 
+function TKMapsCollection.MapListBuild: string;
+var i:integer;
+begin
+  Result := '';
+  for i:=0 to fCount-1 do
+    if fMaps[i].Info.MissionMode = mm_Normal then
+      Result := Result + fMaps[i].Filename + eol;
+end;
+
+function TKMapsCollection.MapListFight: string;
+var i:integer;
+begin
+  Result := '';
+  for i:=0 to fCount-1 do
+    if fMaps[i].Info.MissionMode = mm_Tactic then
+      Result := Result + fMaps[i].Filename + eol;
+end;
+
+function TKMapsCollection.MapListCoop: string;
+var i:integer;
+begin
+  Result := '';
+  for i:=0 to fCount-1 do
+    //todo: Filter down to just co-operative maps
+    Result := Result + fMaps[i].Filename + eol;
+end;
 
 procedure TKMapsCollection.ScanMapsFolder;
 var

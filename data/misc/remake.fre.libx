@@ -1,5 +1,5 @@
 
-MaxID:187
+MaxID:190
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -150,6 +150,9 @@ MaxID:187
 117:Envoyer un Message :
 118:Sélectionner une Mission :
 119:Mission
+188:
+189:
+190:
 120:Sauvegarde
 121:Sélect. une mission...
 122:Sélect. un fichier...

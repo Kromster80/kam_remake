@@ -81,6 +81,7 @@ Features:
  +	New command "!BLOCK_TRADE <WARE_ID>" to disallow certain trades
  +	A variety of game speeds possible through different keys (F5 = normal, F6 = medium, F7 = fast, F8 = very fast)
  +	Checkbox in the woodcutter's hut to stop him from planting trees
+ +	Make player info take the full width of the multiplayer lobby and move map info below
 	Clock in multiplayer showing the mission time (singleplayer too?)
 	Show coordinates in the map editor
 	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
@@ -104,7 +105,6 @@ Features:
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
-	Make player info take the full width of the multiplayer lobby and move map info below
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it
 	Archers on a hill get slighty longer range (calculated from height of archer tile relative to target tile)
 	Show the mining radius of the selected house or house that you are placing

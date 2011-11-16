@@ -1,5 +1,5 @@
 
-MaxID:187
+MaxID:190
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -150,6 +150,9 @@ MaxID:187
 117:Nachricht:
 118:Wähle Karte:
 119:Einzelkarte
+188:
+189:
+190:
 120:Spielstand laden
 121:Wähle eine Karte...
 122:Spielstand wählen...

@@ -647,8 +647,8 @@ begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,20,100,725,240);
-      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 725, 240);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,20,42,985,240);
+      TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 985, 240);
       TKMLabel.Create(Panel_LobbyPlayers,  10, 10, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 160, 10, 130, 20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 300, 10, 100, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
@@ -690,40 +690,42 @@ begin
       end;
 
     //Chat
-    TKMLabel.Create(Panel_Lobby, 20, 350, 725, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, taLeft);
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 370, 725, 200, fnt_Metal);
+    TKMLabel.Create(Panel_Lobby, 20, 292, 475, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, taLeft);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 312, 475, 200, fnt_Metal);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
-    TKMLabel.Create(Panel_Lobby, 20, 580, 725, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 600, 725, 20, fnt_Metal);
+    TKMLabel.Create(Panel_Lobby, 20, 522, 625, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 542, 475, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
     //Setup
-    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,760,100,240,400);
-      TKMBevel.Create(Panel_LobbySetup,  0,  0, 240, 400);
+    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,510,292,495,430);
+      TKMBevel.Create(Panel_LobbySetup,  0,  0, 495, 430);
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 220, 20, fTextLibrary[TX_LOBBY_MAP_CHOOSE], fnt_Outline, taLeft);
-      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 220, 30, fnt_Metal);
-      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SINGLE]);
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 220, 60, fnt_Metal);
+      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
+      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
+      Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
-      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 80, 220, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 105, 220, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 80, 220, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 130, 220, 20, '', fnt_Metal, taLeft);
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 110, 220, 180, fnt_Game);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 155, 220, 180, fnt_Game);
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
       //TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, taLeft);
-      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 300, 220, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 320, 220, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 360, 220, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 345, 220, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 365, 220, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 385, 220, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 405, 220, 20, '', fnt_Metal, taLeft);
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 20, 650, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 35, 650, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 760, 650, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 240, 650, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
@@ -1783,13 +1785,26 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
-  if Radio_LobbyMapType.ItemIndex = 0 then
+
+  if Radio_LobbyMapType.ItemIndex = 0 then //Build Map
   begin
     fMapsMP.ScanMapsFolder;
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-    List_Lobby.SetItems(fMapsMP.MapList);
+    List_Lobby.SetItems(fMapsMP.MapListBuild);
   end
-  else
+  else if Radio_LobbyMapType.ItemIndex = 1 then //Fight Map
+  begin
+    fMapsMP.ScanMapsFolder;
+    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+    List_Lobby.SetItems(fMapsMP.MapListFight);
+  end
+  else if Radio_LobbyMapType.ItemIndex = 2 then //Co-op Map
+  begin
+    fMapsMP.ScanMapsFolder;
+    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+    List_Lobby.SetItems(fMapsMP.MapListCoop);
+  end
+  else if Radio_LobbyMapType.ItemIndex = 3 then //Saved Game
   begin
     fSavesMP.ScanSavesFolder(true);
     List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
@@ -1803,7 +1818,7 @@ end;
 //Just pass Filename to Networking, it will check validity itself
 procedure TKMMainMenuInterface.Lobby_MapSelect(Sender: TObject);
 begin
-  if Radio_LobbyMapType.ItemIndex = 0 then
+  if Radio_LobbyMapType.ItemIndex < 3 then
     fGame.Networking.SelectMap(List_Lobby.Item[List_Lobby.ItemIndex])
   else
     fGame.Networking.SelectSave(List_Lobby.Item[List_Lobby.ItemIndex]);
