@@ -1,5 +1,5 @@
 
-MaxID:186
+MaxID:187
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -169,6 +169,7 @@ MaxID:186
 157:Nem áll mindenki készen a kezdésre
 158:A játékosok száma meghaladja a térkép korlátait
 160:A szerver átadta a házigazda szerepét nekünk
+187:
 
 131:Várakozás a játékosokra:
 163:Játék mentése...

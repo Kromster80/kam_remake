@@ -1,5 +1,5 @@
 
-MaxID:186
+MaxID:187
 
 1:Mission canceled
 2:Town Tutorial
@@ -169,6 +169,7 @@ MaxID:186
 157:Not everyone is ready to start
 158:Player count exceeds map limit
 160:Server has assigned hosting rights to us
+187:Game started
 
 131:Waiting for players:
 163:Saving game...

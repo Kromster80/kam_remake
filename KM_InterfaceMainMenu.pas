@@ -256,6 +256,8 @@ type
     procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
     procedure Fill_Results;
     procedure Fill_ResultsMP;
+    function GetChatText:string;
+    function GetChatMessages:string;
 
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
@@ -404,6 +406,18 @@ begin
   end;
 
   fRender.Render;
+end;
+
+
+function TKMMainMenuInterface.GetChatText:string;
+begin
+  Result := Edit_LobbyPost.Text;
+end;
+
+
+function TKMMainMenuInterface.GetChatMessages:string;
+begin
+  Result := Memo_LobbyPosts.Text;
 end;
 
 

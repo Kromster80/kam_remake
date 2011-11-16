@@ -1173,6 +1173,7 @@ end;
 
 procedure TKMNetworking.StartGame;
 begin
+  PostLocalMessage(fTextLibrary[TX_LOBBY_GAME_STARTED],false);
   SetGameState(lgs_Loading); //Loading has begun (no further players allowed to join)
   fIgnorePings := -1; //Ignore all pings until we have finished loading
 

@@ -1654,7 +1654,7 @@ begin
 
   fCurrentAction.Paint;
 
-  if SHOW_POINTER_DOTS then
+  if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
     fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
 end;
 

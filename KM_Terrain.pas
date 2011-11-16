@@ -2592,6 +2592,7 @@ begin
   fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);
   fRender.RenderTerrainObjects(x1,x2,y1,y2,fAnimStep);
 
+  if not fGame.AllowDebugRendering then exit;
   if SHOW_TERRAIN_WIRES then fRenderAux.Wires(x1,x2,y1,y2);
   if SHOW_TERRAIN_WIRES then
   begin

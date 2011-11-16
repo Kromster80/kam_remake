@@ -4,7 +4,7 @@ interface
 uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-    Classes, Controls, Graphics, Math, SysUtils, Clipbrd,
+    Classes, Controls, Graphics, Math, SysUtils, Clipbrd, Forms,
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes;
 
 type
@@ -687,8 +687,8 @@ type
     fMinusX, fMinusY, fPlusX, fPlusY: Integer; //Restrictions
     fPositionX: Integer;
     fPositionY: Integer;
-    fPrevX: Integer;
-    fPrevY: Integer;
+    fStartDragX: Integer;
+    fStartDragY: Integer;
   public
     OnMove: TNotifyEventXY;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
@@ -2901,8 +2901,8 @@ end;
 procedure TKMDragger.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
 begin
   Inherited;
-  fPrevX := X;
-  fPrevY := Y;
+  fStartDragX := X - fPositionX;
+  fStartDragY := Y - fPositionY;
 
   MouseMove(X,Y,Shift);
 end;
@@ -2910,18 +2910,16 @@ end;
 
 procedure TKMDragger.MouseMove(X,Y:integer; Shift:TShiftState);
 begin
+  Screen.Cursor := c_DragUp; //Always use the dragger cursor while the mouse is over it
   Inherited;
 
   if csDown in State then
   begin
     //Bounds are signed numbers, set them properly
-    fPositionX := EnsureRange(fPositionX + (X - fPrevX), fMinusX, fPlusX);
-    fPositionY := EnsureRange(fPositionY + (Y - fPrevY), fMinusY, fPlusY);
+    fPositionX := EnsureRange((X - fStartDragX), fMinusX, fPlusX);
+    fPositionY := EnsureRange((Y - fStartDragY), fMinusY, fPlusY);
 
     if Assigned(OnMove) then OnMove(Self, fPositionX, fPositionY);
-
-    fPrevX := X;
-    fPrevY := Y;
   end;
 end;
 
@@ -2942,11 +2940,11 @@ begin
   if (csDown in State) then StateSet:=StateSet+[bs_Down];
   if not fEnabled then StateSet:=StateSet+[bs_Disabled];
 
-  fRenderUI.Write3DButton(Left,Top, Width, Height, 7, 28, StateSet, bsGame);
+  fRenderUI.Write3DButton(Left,Top, Width, Height, 0, 0, StateSet, bsGame);
 end;
 
 
-{ TKMControlsCollection }
+{ TKMMasterControl }
 constructor TKMMasterControl.Create;
 begin
   Inherited;

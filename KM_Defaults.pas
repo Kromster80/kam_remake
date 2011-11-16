@@ -89,7 +89,7 @@ var
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :boolean=true; //Allow cheats in Multiplayer, useful for debug
+  MULTIPLAYER_CHEATS    :boolean=true; //Allow cheats and debug overlays (e.g. canWalk) in Multiplayer
   DEBUG_CHEATS          :boolean=true; //Cheats for debug (place scout and reveal map) which can be turned On from menu
   {Data output}
   WRITE_DECODED_MISSION :boolean=true; //Save decoded mission as txt file
@@ -119,10 +119,10 @@ const //Here we store options that are hidden somewhere in code
   UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
   TIME_BETWEEN_MESSAGES = 4*600;          //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
   TIME_ATTACK_WARNINGS = 200;             //Time between audio messages saying you are being attacked
-  DISTANCE_FOR_WARNINGS = 30;            //The distance you must be from an event to recieve a warning about it
+  DISTANCE_FOR_WARNINGS = 30;             //The distance you must be from an event to recieve a warning about it
   TROOPS_FEED_MAX = 0.75;                 //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
   TROOPS_TRAINED_CONDITION = 0.75;        //Condition troops start with when trained
-  DEFAULT_HITPOINT_RESTORE = 41;          //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
+  DEFAULT_HITPOINT_RESTORE = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
 
 
   //Archer properties
@@ -150,7 +150,7 @@ type
   TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
 
   TPlayerIndex = shortint;
-  TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex; 
+  TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex;
 
 const
   PLAYER_NONE = -1; //No player
@@ -176,16 +176,16 @@ const
   SETTINGS_FILE = 'KaM_Remake_Settings.ini';
 
   //Cursor names and GUI sprite index
-  c_Default=1; c_Info=452; c_Attack=457; c_JoinYes=460; c_JoinNo=450; c_Edit=453;
+  c_Default=1; c_Info=452; c_Attack=457; c_JoinYes=460; c_JoinNo=450; c_Edit=453; c_DragUp=449;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
   c_Scroll0=4; c_Scroll1=7; c_Scroll2=3; c_Scroll3=9; c_Scroll4=5; c_Scroll5=8; c_Scroll6=2; c_Scroll7=6;
   c_Invisible=999;
 
-  Cursors:array[1..24]of integer = (1,452,457,460,450,453,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9,999);
+  Cursors:array[1..25]of integer = (1,452,457,460,450,453,449,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9,999);
 
   ScrollCursorOffset = 17;
-  CursorOffsetsX:array[1..24] of integer = (0,0,20, 0, 0,-8, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
-  CursorOffsetsY:array[1..24] of integer = (0,9,10,18,20,44, 0,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
+  CursorOffsetsX:array[1..25] of integer = (0,0,20, 0, 0,-8,9, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
+  CursorOffsetsY:array[1..25] of integer = (0,9,10,18,20,44,13,0,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
 
 const DirCursorSqrSize  = 33; //Length of square sides
       DirCursorNARadius = 14;  //Radius of centeral part that has no direction
@@ -883,7 +883,7 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(0,0),(4186,4190) );
   ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
   ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
-  ProjectileSpeeds:array[TProjectileType] of single = (0.5, 0.55, 0.5, 0.8);
+  ProjectileSpeeds:array[TProjectileType] of single = (0.8, 0.85, 0.6, 0.8);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
   ProjectileJitter:array[TProjectileType] of single = (0.05, 0.04, 0.06, 0.025); //Jitter added according to distance
   ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 2); //Jitter added according to target's speed (moving target harder to hit)

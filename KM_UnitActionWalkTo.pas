@@ -1127,7 +1127,7 @@ end;
 
 procedure TUnitActionWalkTo.Paint;
 begin
-  if SHOW_UNIT_ROUTES then
+  if SHOW_UNIT_ROUTES and fGame.AllowDebugRendering then
     fRenderAux.UnitRoute(NodeList, NodePos, byte(fUnit.UnitType));
 end;
 

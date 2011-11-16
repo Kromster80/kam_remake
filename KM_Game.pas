@@ -114,6 +114,7 @@ type
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
+    function AllowDebugRendering:boolean;
     function GetNewID:cardinal;
     property GameState:TGameState read fGameState;
     procedure SetGameSpeed(aSpeed:word);
@@ -619,6 +620,8 @@ begin
   fNetworking.GameCreated;
 
   if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(true); //Waiting for players
+  fGamePlayInterface.SetChatText(fMainMenuInterface.GetChatText); //Copy the typed lobby message to the in-game chat
+  fGamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages); //Copy the old chat messages to the in-game chat
 
   fLog.AppendLog('Gameplay recording initialized', True);
 end;
@@ -1061,6 +1064,12 @@ end;
 function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
 begin
   Result := (fGameTickCount >= aTimeTicks);
+end;
+
+
+function TKMGame.AllowDebugRendering:boolean;
+begin
+  Result := MULTIPLAYER_CHEATS or not MultiplayerMode;
 end;
 
 

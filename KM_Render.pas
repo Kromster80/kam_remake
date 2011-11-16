@@ -734,7 +734,7 @@ begin
   fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor,-1,true);
   if DoImmediateRender then RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,FlagColor,255,Deleting);
 
-  if SHOW_UNIT_MOVEMENT then
+  if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
     fRenderAux.Dot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor);
 end;
 
@@ -781,7 +781,7 @@ begin
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(UnitX,UnitY)/CELL_HEIGHT_DIV-0.4 -2.25;
   fRenderList.AddSprite(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,FlagColor);
 
-  if SHOW_UNIT_MOVEMENT then
+  if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
     fRenderAux.Dot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor); //Render dot where unit is
 end;
 

@@ -319,6 +319,8 @@ type
     procedure ClearShownUnit;
     procedure ClearSelectedUnitOrHouse;
     procedure ReleaseDirectionSelector;
+    procedure SetChatText(const aString: string);
+    procedure SetChatMessages(const aString: string);
     procedure ChatMessage(const aData: string);
     procedure AlliesOnPlayerSetup(Sender: TObject);
     procedure AlliesOnPingInfo(Sender: TObject);
@@ -346,7 +348,7 @@ KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit;
 
 const
   MESSAGE_AREA_HEIGHT = 170+17; //Image_ChatHead + Image_ChatBody
-  MESSAGE_AREA_RESIZE_Y = 120; //How much can we resize it
+  MESSAGE_AREA_RESIZE_Y = 200; //How much can we resize it
 
   ResRatioCount = 4;
   ResRatioType:array[1..ResRatioCount] of TResourceType = (rt_Steel, rt_Coal, rt_Wood, rt_Corn);
@@ -996,7 +998,7 @@ begin
     Image_ChatBody.ImageStretch;
 
     //Allow to resize chat area height
-    Dragger_Chat := TKMDragger.Create(Panel_Chat, 350, 25, 100, 12);
+    Dragger_Chat := TKMDragger.Create(Panel_Chat, 45, 36, 800-85, 10);
     Dragger_Chat.Anchors := [akTop];
     Dragger_Chat.SetBounds(0, -MESSAGE_AREA_RESIZE_Y, 0, 0);
     Dragger_Chat.OnMove := Chat_Resize;
@@ -2904,6 +2906,19 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.SetChatText(const aString: string);
+begin
+  Edit_ChatMsg.Text := aString;
+  if aString <> '' then Chat_Show(nil);
+end;
+
+
+procedure TKMGamePlayInterface.SetChatMessages(const aString: string);
+begin
+  Memo_ChatText.Text := aString;
+end;
+
+
 procedure TKMGamePlayInterface.ChatMessage(const aData: string);
 begin
   Memo_ChatText.Add(aData);
@@ -3126,6 +3141,7 @@ var DeltaX,DeltaY:integer; U:TKMUnit; H:TKMHouse;
 begin
   MyControls.MouseMove(X,Y,Shift);
 
+  if (MyControls.CtrlOver is TKMDragger) or (MyControls.CtrlDown is TKMDragger) then exit;
   if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) then
   begin
     Screen.Cursor := c_Default;
