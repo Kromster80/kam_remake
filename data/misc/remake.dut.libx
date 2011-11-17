@@ -1,5 +1,5 @@
 
-MaxID:194
+MaxID:195
 
 1:Missie geannuleerd 
 2:Stad oefenscenario
@@ -162,6 +162,7 @@ MaxID:194
 125:Modus:
 126:Condities:
 127:Grootte:
+195:
 128:Lobby verlaten
 129:Gereed
 152:Niet gereed

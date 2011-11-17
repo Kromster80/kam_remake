@@ -1,5 +1,5 @@
 
-MaxID:194
+MaxID:195
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -162,6 +162,7 @@ MaxID:194
 125:Mode:
 126:Conditions:
 127:Taille:
+195:
 128:Quitter le Lobby
 129:Prêt
 152:

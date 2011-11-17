@@ -1,5 +1,5 @@
 
-MaxID:194
+MaxID:195
 
 1:Misión Cancelada
 2:Tutorial de Construción
@@ -162,6 +162,7 @@ MaxID:194
 125:Modo:
 126:Condiciones:
 127:Tamaño:
+195:
 128:Salir de la sala
 129:Listo
 152:No estoy listo

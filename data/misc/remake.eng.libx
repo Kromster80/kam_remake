@@ -1,5 +1,5 @@
 
-MaxID:194
+MaxID:195
 
 1:Mission canceled
 2:Town Tutorial
@@ -136,7 +136,7 @@ MaxID:194
 102:Players list
 103:Start location
 104:Team
-105:Flag color
+105:Flag colour
 106:Ready
 107:Ping
 108:Kick
@@ -162,6 +162,7 @@ MaxID:194
 125:Mode:
 126:Conditions:
 127:Size:
+195:Game options:
 128:Quit lobby
 129:Ready
 152:Not ready

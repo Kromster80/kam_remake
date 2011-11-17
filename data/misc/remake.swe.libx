@@ -1,5 +1,5 @@
 
-MaxID:194
+MaxID:195
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -162,6 +162,7 @@ MaxID:194
 125:Läge: 
 126:Villkor: 
 127:Storlek:
+195:
 128:Avsluta sessionen
 129:Redo
 152:

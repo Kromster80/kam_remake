@@ -1,5 +1,5 @@
 
-MaxID:194
+MaxID:195
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -162,6 +162,7 @@ MaxID:194
 125:Játékmód:
 126:Feltételek:
 127:Méret:
+195:
 128:Kilépés
 129:Kész
 152:Nincs kész

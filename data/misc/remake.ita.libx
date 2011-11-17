@@ -1,5 +1,5 @@
 
-MaxID:194
+MaxID:195
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -162,6 +162,7 @@ MaxID:194
 125:Tipo:
 126:Condizioni:
 127:Dimensioni:
+195:
 128:Esci
 129:Pronto
 152:
