@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -70,6 +70,7 @@ MaxID:193
 58:Zast¹p
 59:Zapisz
 60:Za³aduj
+194:
 
 61:Wyst¹pi³ b³¹d w trakcie gry.
 62:Proszê wyœlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistów. Dane kontaktowe mo¿esz znaleŸæ w pliku Readme. Bardzo dziêkujemy za twoj¹ ¿yczliw¹ pomoc!

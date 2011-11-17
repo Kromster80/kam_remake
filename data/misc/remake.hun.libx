@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -70,6 +70,7 @@ MaxID:193
 58:Felülír
 59:Mentés
 60:Töltés
+194:
 
 61:Egy hiba történt a játék során.
 62:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??

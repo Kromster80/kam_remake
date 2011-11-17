@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Missão cancelada
 2:Tutorial da cidade
@@ -70,6 +70,7 @@ MaxID:193
 58:Sobrescrever
 59:Salvar
 60:Carregar
+194:
 
 61:Ocorreu um erro durante o jogo.
 62:Por favor, envie o arquivo %s do seu KaM Remake\\Crash na pasta Reports para os desenvolvedores. Maiores informações para contato você encontra no arquivo Readme. Muito obrigado pela sua ajuda!\n\nAVISO: Continuar a jogar depois desse erro pode causar várias falhas e instabilidades. Gostaria de correr esse risco e continuar jogando?

@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Missie geannuleerd 
 2:Stad oefenscenario
@@ -70,6 +70,7 @@ MaxID:193
 58:Overschrijven
 59:Opslaan
 60:Laden
+194:
 
 61:Er is een fout opgetreden tijdens het spelen.
 62:Verstuur het bestand %s van jouw KaM Remake \\Crash Reports map naar de ontwikkelaars. Contactinformatie staat in het readme bestand. Bedankt voor je hulp! \n\nWAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?

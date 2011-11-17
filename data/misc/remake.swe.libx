@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -70,6 +70,7 @@ MaxID:193
 58:Skriv över
 59:Spara
 60:Ladda
+194:
 
 61:Ett fel har uppstått under spelets gång. 
 62:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 

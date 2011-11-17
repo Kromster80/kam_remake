@@ -233,9 +233,9 @@ begin
     AvailableLoc[LocCount] := i;
   end;
 
-  //Randomize
+  //Randomize (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
   for i:=1 to LocCount do
-    SwapInt(AvailableLoc[i], AvailableLoc[KaMRandom(LocCount)+1]);
+    SwapInt(AvailableLoc[i], AvailableLoc[Random(LocCount)+1]);
 
   //Allocate available starting locations
   k := 0;
@@ -280,9 +280,9 @@ begin
     AvailableColor[ColorCount] := i;
   end;
 
-  //Randomize
+  //Randomize (don't use KaMRandom - we want varied results and PlayerList is synced to clients before start)
   for i:=1 to ColorCount do
-    SwapInt(AvailableColor[i], AvailableColor[KaMRandom(ColorCount)+1]);
+    SwapInt(AvailableColor[i], AvailableColor[Random(ColorCount)+1]);
 
   //Allocate available colors
   k := 0;

@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Mission abgebrochen
 2:Aufbau Tutorial
@@ -70,6 +70,7 @@ MaxID:193
 58:Überschreiben
 59:Speichern
 60:Laden
+194:
 
 61:Ein Fehler ist während des Spiels aufgetreten.
 62:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?

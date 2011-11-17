@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Mission canceled
 2:Town Tutorial
@@ -70,6 +70,7 @@ MaxID:193
 58:Overwrite
 59:Save
 60:Load
+194:Game time:|%s
 
 61:An error has occurred during gameplay.
 62:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
@@ -181,7 +182,7 @@ MaxID:193
 170:The connection to the server was lost. Attempting to reconnect...
 191:You are not allowed to do that during peacetime
 192:Peacetime remaining: %s
-193:Peacetime is over! To thy weapons!
+193:Peacetime is over. To thy weapons!
 
 174:Citizens|trained
 175:Citizens|lost

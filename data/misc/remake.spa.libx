@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Misión Cancelada
 2:Tutorial de Construción
@@ -70,6 +70,7 @@ MaxID:193
 58:Sobrescribir
 59:Salvar
 60:Cargar
+194:
 
 61:Se ha producido un error durante el juego
 62:Por favor envia el archivo %s  del directorio KaM Remake\\Crash  a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!

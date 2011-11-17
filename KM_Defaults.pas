@@ -210,7 +210,7 @@ const
   ('ita', '1252',  '35', 'Italian'),
   ('ptb', '1252',  '33', 'Brazilian Portuguese'),
   ('spa', '1252',  '38', 'Spanish'),
-  ('hun', '1250',  '30', 'Hungarian'),
+  ('hun', '1250',  '42', 'Hungarian'),
   ('dut', '1252',  '40', 'Dutch'),
   ('rus', '1251',  '39', 'Russian'));
 

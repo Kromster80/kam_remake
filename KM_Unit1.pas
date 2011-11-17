@@ -167,7 +167,8 @@ procedure TForm1.StartTheGame;
 var
   TempSettings:TGlobalSettings;
 begin
-  SetKaMSeed(4);
+  SetKaMSeed(4); //Used for gameplay events so the order is important
+  Randomize; //Random is only used for cases where order does not matter, e.g. shuffle tracks
 
   FormLoading.Label5.Caption := GAME_VERSION;
   FormLoading.Show; //This is our splash screen
@@ -175,8 +176,6 @@ begin
   Panel5.Color := clBlack;
   ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
 
-  //Randomize; //Randomize the random seed to ensure that we don't get repeditive patterns,
-  //but we need this to be Off to reproduce bugs
   {$IFDEF MSWindows}
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}

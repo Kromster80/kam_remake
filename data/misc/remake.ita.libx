@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -70,6 +70,7 @@ MaxID:193
 58:Sovrascrivi
 59:Salva
 60:Carica
+194:
 
 61:Si è verificato un errore durante il gioco.
 62:Per favore, invia il file %s dalla cartella KaM Remake\\Crash Reports agli sviluppatori. Nel file Readme è possibile trovare le informazioni per contattarci. Grazie per il tuo cortese aiuto!\n\nATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?

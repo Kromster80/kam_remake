@@ -1,5 +1,5 @@
 
-MaxID:193
+MaxID:194
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -70,6 +70,7 @@ MaxID:193
 58:Ecraser
 59:Enregistrer
 60:Charger
+194:
 
 61:Une erreur s'est produite durant la partie.
 62:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent être trouvés dans le fichier Readme. Merci beaucoup de votre aide !\n\nATTENTION: Continuer à jouer après cette erreur peut causer de future crashs et instabilités. Voulez-vous prendre ce risque et continuer à jouer ?

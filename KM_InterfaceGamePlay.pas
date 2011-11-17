@@ -123,7 +123,6 @@ type
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       Minimap:TKMMinimap;
-      Label_GameTime:TKMLabel;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
@@ -215,7 +214,7 @@ type
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit,Button_Menu_TrackUp,Button_Menu_TrackDown:TKMButton;
-      Label_Menu_Music, Label_Menu_Track: TKMLabel;
+      Label_Menu_Music, Label_Menu_Track, Label_GameTime: TKMLabel;
 
       Panel_Save:TKMPanel;
         List_Save: TKMListBox;
@@ -690,8 +689,6 @@ begin
     Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     Minimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
     Minimap.OnClickRight := Minimap_RightClick;
-
-    Label_GameTime := TKMLabel.Create(Panel_Main,98,188,176,20,'',fnt_Outline,taCenter);
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
@@ -1232,8 +1229,9 @@ begin
     Button_Menu_TrackDown.Hint:=fTextLibrary.GetTextString(208);
     Button_Menu_TrackUp.OnClick  :=Menu_NextTrack;
     Button_Menu_TrackDown.OnClick:=Menu_PreviousTrack;
-    Label_Menu_Music:=TKMLabel.Create(Panel_Menu,100,268,184,30,fTextLibrary.GetTextString(207),fnt_Metal,taCenter);
+    Label_Menu_Music:=TKMLabel.Create(Panel_Menu,100,276,184,30,fTextLibrary.GetTextString(207),fnt_Metal,taCenter);
     Label_Menu_Track:=TKMLabel.Create(Panel_Menu,100,296,184,30,'',fnt_Grey,taCenter);
+    Label_GameTime := TKMLabel.Create(Panel_Menu,100,228,184,20,'',fnt_Outline,taCenter);
 end;
 
 
@@ -3416,10 +3414,11 @@ begin
   if fShownUnit<>nil then ShowUnitInfo(fShownUnit) else
   if fShownHouse<>nil then ShowHouseInfo(fShownHouse,AskDemolish);
 
-  Label_GameTime.Caption := FormatDateTime('h:nn:ss', fGame.GetMissionTime);
+  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME],[FormatDateTime('h:nn:ss', fGame.GetMissionTime)]);
   if fGame.GameOptions.Peacetime <> 0 then
     Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
-                                               [FormatDateTime('h:nn:ss', fGame.GetPeacetimeRemaining)]);
+                                               [FormatDateTime('h:nn:ss', fGame.GetPeacetimeRemaining)])
+  else Label_PeacetimeRemaining.Caption := '';
 
   if fShownUnit=nil then fJoiningGroups := false;
 
