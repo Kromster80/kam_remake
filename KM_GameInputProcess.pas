@@ -80,8 +80,11 @@ type
     //VII.    Message queue handling in gameplay interface
     //IX.     Text messages for multiplayer (moved to Networking)
     );
+const
+  BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,
+                      gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm];
 
-
+type
   TGameInputCommand = record
     CommandType:TGameInputCommandType;
     Params:array[1..MAX_PARAMS]of integer;
@@ -257,12 +260,11 @@ begin
       if (H2 = nil) or H2.IsDestroyed then exit; //House has been destroyed before command could be executed
     end;
 
-    //Some commands are blocked by peacetime
+    //Some commands are blocked by peacetime (this is a fall back in case players try to cheat)
     if fGame.IsPeaceTime and
-      ((CommandType in [gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,gic_ArmyAttackHouse,
-                        gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm,gic_ArmyLink,gic_ArmyAttackUnit]) or
+      ((CommandType in BlockedByPeaceTime) or
        ((CommandType = gic_HouseTrain) and (H.HouseType = ht_Barracks))) then
-       exit; //todo: Show a warning to the player that his command was blocked by peace time
+       exit;
 
     case CommandType of
       gic_ArmyFeed:         TKMUnitWarrior(U).OrderFood;

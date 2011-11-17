@@ -37,6 +37,7 @@ type
     mk_SetGameInfo,     //Host tells the server the player list, map, etc to be reported to queries
     mk_KickPlayer,      //Host askes the server to kick someone
     mk_Kicked,          //Server tells a client they were kicked just before disconnecting then
+    mk_LangID,          //Client tells host his language ID
 
     mk_GetServerInfo,   //Client askes for server for the server details (for querying)
     mk_ServerInfo,      //Server sends client the server info on request
@@ -94,6 +95,7 @@ const
     pfText,     //mk_SetGameInfo
     pfNumber,   //mk_KickPlayer
     pfText,     //mk_Kicked
+    pfNumber,   //mk_LangID
     pfNoData,   //mk_GetServerInfo
     pfText,     //mk_ServerInfo
     pfNoData,   //mk_Disconnect

@@ -71,6 +71,7 @@ type
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       Minimap:TKMMinimap;
+      Label_Coordinates:TKMLabel;
       RatioRow_Passability:TKMRatioRow;
       Label_Passability:TKMLabel;
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
@@ -408,12 +409,13 @@ begin
     Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     Minimap.OnChange := Minimap_Update;
 
-    TKMLabel.Create(Panel_Main,8,200,184,0,'View passsability',fnt_Metal,taLeft);
-    RatioRow_Passability := TKMRatioRow.Create(Panel_Main, 8, 220, 184, 20, 0, 13);
+    Label_Coordinates := TKMLabel.Create(Panel_Main,8,192,184,0,'X: Y:',fnt_Outline,taLeft);
+    TKMLabel.Create(Panel_Main,8,210,184,0,'View passability',fnt_Metal,taLeft);
+    RatioRow_Passability := TKMRatioRow.Create(Panel_Main, 8, 226, 184, 20, 0, 13);
     RatioRow_Passability.Position := 0;
     RatioRow_Passability.MaxValue := length(PassabilityStr);
     RatioRow_Passability.OnChange := View_Passability;
-    Label_Passability := TKMLabel.Create(Panel_Main,8,240,184,0,'Off',fnt_Metal,taLeft);
+    Label_Passability := TKMLabel.Create(Panel_Main,8,248,184,0,'Off',fnt_Metal,taLeft);
 
     TKMLabel.Create(Panel_Main,8,270,184,0,'Player',fnt_Metal,taLeft);
     for i:=0 to MAX_PLAYERS-1 do begin
@@ -1671,6 +1673,8 @@ begin
       Screen.Cursor:=c_Info
     else if not fViewport.Scrolling then
       Screen.Cursor:=c_Default;
+
+  Label_Coordinates.Caption := Format('X: %d, Y: %d',[GameCursor.Cell.X,GameCursor.Cell.Y]);
 
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin

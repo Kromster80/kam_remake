@@ -15,11 +15,14 @@ Future
 	Hotkeys for armies (Ctrl+1,2,etc)
 	Tutorial missions texts [Krom]
 	File transfer in multiplayer for missions and saves [Lewin]
-	Auto reconnect for networking
 	Multiplayer trading (from a new building "Trading Post"?)
-	
-Next demo
+
+Next Demo:
  ?	Bugfixes
+ +	Auto reconnect for networking [Lewin]
+
+	
+1st Merchants Demo (r2411) - 17/10/11
  +	Marketplace [Krom]
  +	TPR units [Lewin]
  +	WAN multiplayer (hosted master server in PHP) [Lewin]

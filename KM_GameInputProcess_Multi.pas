@@ -77,7 +77,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Utils;
+uses KM_Game, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
 
 
 { TCommandsPack }
@@ -166,6 +166,13 @@ procedure TGameInputProcess_Multi.TakeCommand(aCommand:TGameInputCommand);
 var i,Tick:Cardinal;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
+
+  if (aCommand.CommandType in BlockedByPeaceTime) and fGame.IsPeaceTime then
+  begin
+    fGame.Networking.PostLocalMessage(fTextLibrary[TX_MP_BLOCKED_BY_PEACETIME],false);
+    fSoundLib.Play(sfxn_Error2);
+    exit;
+  end;
 
   //Find first unsent pack
   Tick := MAX_SCHEDULE; //Out of range value

@@ -75,6 +75,7 @@ type
     property ScrollSpeed:byte read fScrollSpeed write SetScrollSpeed default 10;
     property FullScreen:boolean read fFullScreen write SetFullScreen default true;
     property Locale:shortstring read fLocale write SetLocale;
+    function GetLocalID:byte;
     property MouseSpeed:byte read fMouseSpeed write SetMouseSpeed;
     property MusicOn:boolean read fMusicOn write SetMusicOn default true;
     property ShuffleOn:boolean read fShuffleOn write SetShuffleOn default false;
@@ -139,6 +140,16 @@ end;
 procedure TGlobalSettings.ReloadSettings;
 begin
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
+end;
+
+
+function TGlobalSettings.GetLocalID:byte;
+var i:integer;
+begin
+  Result := 0;
+  for i:=1 to LOCALES_COUNT do
+    if Locales[i,1] = Locale then
+      Result := i;
 end;
 
 

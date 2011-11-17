@@ -82,12 +82,13 @@ Features:
  +	A variety of game speeds possible through different keys (F5 = normal, F6 = medium, F7 = fast, F8 = very fast)
  +	Checkbox in the woodcutter's hut to stop him from planting trees
  +	Make player info take the full width of the multiplayer lobby and move map info below
-	Clock in multiplayer showing the mission time (singleplayer too?)
-	Show coordinates in the map editor
+ +	Clock showing the mission time
+ +	Enforced peacetime
+ +	Show coordinates in the map editor
+ +	Add player flags in lobby, to see who uses which KaM locale (and which language he can talk)
 	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it
-	Add player flags in lobby, to see who uses which KaM locale (and which language he can talk)
 	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')

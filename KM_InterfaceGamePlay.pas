@@ -123,6 +123,7 @@ type
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       Minimap:TKMMinimap;
+      Label_GameTime:TKMLabel;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
@@ -145,6 +146,7 @@ type
       Button_ReplayResume:TKMButton;
       Button_ReplayExit:TKMButton;
     Panel_Allies:TKMPanel;
+      Label_PeacetimeRemaining: TKMLabel;
       Label_AlliesPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
       DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
       Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
@@ -689,6 +691,8 @@ begin
     Minimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
     Minimap.OnClickRight := Minimap_RightClick;
 
+    Label_GameTime := TKMLabel.Create(Panel_Main,98,188,176,20,'',fnt_Outline,taCenter);
+
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
       Button_Main[i+1]:=TKMButton.Create(Panel_Main,  8+46*i, 372, 42, 36, 439+i);
@@ -1035,6 +1039,8 @@ begin
 
     TKMImage.Create(Panel_Allies,0,17,800,170,410);
     TKMImage.Create(Panel_Allies,0,0,800,17,552);
+
+    Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,800,20,'',fnt_Outline,taCenter);
 
     for i:=0 to MAX_PLAYERS-1 do
     begin
@@ -3409,6 +3415,11 @@ var i:Integer; S:String;
 begin
   if fShownUnit<>nil then ShowUnitInfo(fShownUnit) else
   if fShownHouse<>nil then ShowHouseInfo(fShownHouse,AskDemolish);
+
+  Label_GameTime.Caption := FormatDateTime('h:nn:ss', fGame.GetMissionTime);
+  if fGame.GameOptions.Peacetime <> 0 then
+    Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
+                                               [FormatDateTime('h:nn:ss', fGame.GetPeacetimeRemaining)]);
 
   if fShownUnit=nil then fJoiningGroups := false;
 

@@ -1,5 +1,5 @@
 
-MaxID:190
+MaxID:193
 
 1:Mission canceled
 2:Town Tutorial
@@ -179,6 +179,9 @@ MaxID:190
 164:%s was defeated!
 169:The host (%s) has quit
 170:The connection to the server was lost. Attempting to reconnect...
+191:You are not allowed to do that during peacetime
+192:Peacetime remaining: %s
+193:Peacetime is over! To thy weapons!
 
 174:Citizens|trained
 175:Citizens|lost

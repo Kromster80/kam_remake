@@ -107,8 +107,10 @@ type
     procedure NetworkInit;
 
     function GetMissionTime:TDateTime;
+    function GetPeacetimeRemaining:TDateTime;
     function CheckTime(aTimeTicks:cardinal):boolean;
     function IsPeaceTime:boolean;
+    procedure UpdatePeaceTime;
     property GameTickCount:cardinal read fGameTickCount;
     property GlobalTickCount:cardinal read fGlobalTickCount;
     property GameName:string read fGameName;
@@ -130,6 +132,7 @@ type
     property Projectiles:TKMProjectiles read fProjectiles;
     property GameInputProcess:TGameInputProcess read fGameInputProcess;
     property Networking:TKMNetworking read fNetworking;
+    property GameOptions:TKMGameOptions read fGameOptions;
 
     procedure Save(const aFilename: string);
 
@@ -161,6 +164,7 @@ begin
   SkipReplayEndCheck  := false;
   FormControlsVisible := false;
   fWaitingForNetwork := false;
+  fGameOptions := TKMGameOptions.Create;
 
   fGlobalSettings   := TGlobalSettings.Create;
   fRender           := TRender.Create(RenderHandle, aVSync);
@@ -200,6 +204,7 @@ begin
   FreeThenNil(fRenderAux);
   FreeThenNil(fRender);
   FreeAndNil(fGameInputProcess);
+  FreeAndNil(fGameOptions);
   Inherited;
 end;
 
@@ -1052,7 +1057,8 @@ begin
     fNetworking := TKMNetworking.Create(fGlobalSettings.MasterServerAddress,
                                         fGlobalSettings.AutoKickTimeout,
                                         fGlobalSettings.PingInterval,
-                                        fGlobalSettings.MasterAnnounceInterval);
+                                        fGlobalSettings.MasterAnnounceInterval,
+                                        fGlobalSettings.GetLocalID);
   fNetworking.OnMPGameInfoChanged := SendMPGameInfo;
 end;
 
@@ -1066,6 +1072,12 @@ begin
 end;
 
 
+function TKMGame.GetPeacetimeRemaining:TDateTime;
+begin
+  Result := Max(0,Int64(fGame.GameOptions.Peacetime*600)-fGame.GameTickCount)/24/60/60/10;
+end;
+
+
 //Tests whether time has past
 function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
 begin
@@ -1075,7 +1087,19 @@ end;
 
 function TKMGame.IsPeaceTime:boolean;
 begin
-  Result := (fGameOptions <> nil) and not CheckTime(fGameOptions.Peacetime*600);
+  Result := not CheckTime(fGameOptions.Peacetime*600);
+end;
+
+
+procedure TKMGame.UpdatePeacetime;
+var PeaceTicksRemaining:cardinal;
+begin
+  PeaceTicksRemaining := Max(0,Int64((fGame.GameOptions.Peacetime*600))-fGame.GameTickCount);
+  if (PeaceTicksRemaining = 1) and MultiplayerMode then
+  begin
+    Networking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER],false);
+    fSoundLib.Play(sfxn_Error1);
+  end;
 end;
 
 
@@ -1162,6 +1186,7 @@ begin
 
   fGameInfo.Save(SaveStream);
   fGameInfo.Free;
+  fGameOptions.Save(SaveStream);
 
   fCampaigns.Save(SaveStream);
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
@@ -1227,6 +1252,7 @@ begin
       fGameInfo.Free;
     end;
 
+    fGameOptions.Load(LoadStream);
     fCampaigns.Load(LoadStream);
     LoadStream.Read(ID_Tracker);
     if not SaveIsMultiplayer then
@@ -1312,6 +1338,7 @@ begin
                         if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                         inc(fGameTickCount); //Thats our tick counter for gameplay events
                         if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
+                        UpdatePeacetime; //Send warning messages about peacetime if required
                         fTerrain.UpdateState;
                         fPlayers.UpdateState(fGameTickCount); //Quite slow
                         if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat

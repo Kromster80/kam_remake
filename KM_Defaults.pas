@@ -105,7 +105,7 @@ const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
-  RX7_SPRITE_COUNT = 29;  //Number of sprites to load for RX7 from the folder \Sprites\
+  RX7_SPRITE_COUNT = 41;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
@@ -198,20 +198,21 @@ type
 
 const
   LOCALES_COUNT = 13;
-  Locales:array[1..LOCALES_COUNT, 1..3]of shortstring = (
-  ('eng', '1252', 'English'),
-  ('ger', '1252', 'German'),
-  ('pol', '1250', 'Polish'),
-  ('svk', '1250', 'Slovak'), //New one
-  ('cze', '1250', 'Czech'),  //New one
-  ('swe', '1252', 'Swedish'),//New one
-  ('fre', '1252', 'French'), //New one
-  ('ita', '1252', 'Italian'),
-  ('ptb', '1252', 'Brazilian Portuguese'),
-  ('spa', '1252', 'Spanish'),
-  ('hun', '1250', 'Hungarian'),
-  ('dut', '1252', 'Dutch'),
-  ('rus', '1251', 'Russian'));
+  Locales:array[1..LOCALES_COUNT, 1..4]of shortstring = (
+  //Code  Codepage Flag  Title
+  ('eng', '1252',  '30', 'English'),
+  ('ger', '1252',  '31', 'German'),
+  ('pol', '1250',  '32', 'Polish'),
+  ('svk', '1250',  '37', 'Slovak'),
+  ('cze', '1250',  '34', 'Czech'),
+  ('swe', '1252',  '41', 'Swedish'),
+  ('fre', '1252',  '36', 'French'),
+  ('ita', '1252',  '35', 'Italian'),
+  ('ptb', '1252',  '33', 'Brazilian Portuguese'),
+  ('spa', '1252',  '38', 'Spanish'),
+  ('hun', '1250',  '30', 'Hungarian'),
+  ('dut', '1252',  '40', 'Dutch'),
+  ('rus', '1251',  '39', 'Russian'));
 
   TRANSLATOR_CREDITS = '|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|'+
   'Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras|'+

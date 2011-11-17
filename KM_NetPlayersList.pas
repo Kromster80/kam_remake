@@ -11,11 +11,13 @@ type
   TKMPlayerInfo = class
   private
     fNikname:string;
+    fLangID:byte;
     fIndexOnServer:integer;
     fFlagColorID:integer;    //Flag color, 0 means random
     fPings: array[0..PING_COUNT-1] of word; //Ring buffer
     fPingPos:byte;
     function GetFlagColor:cardinal;
+    procedure SetLangID(aID:byte);
   public
     PlayerType:TPlayerType; //Human, Computer
     StartLocation:integer;  //Start location, 0 means random
@@ -30,6 +32,7 @@ type
     function GetMaxPing:word;
     function IsHuman:boolean;
     property Nikname:string read fNikname;
+    property LangID:byte read fLangID write SetLangID;
     property IndexOnServer:integer read fIndexOnServer;
     property SetIndexOnServer:integer write fIndexOnServer;
     property FlagColor:cardinal read GetFlagColor;
@@ -55,7 +58,7 @@ type
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aNik:string; aIndexOnServer:integer);
+    procedure AddPlayer(aNik:string; aIndexOnServer:integer; aLang:byte=0);
     procedure AddAIPlayer;
     procedure DisconnectPlayer(aIndexOnServer:integer);
     procedure DisconnectAllClients(aOwnNikname:string);
@@ -109,6 +112,14 @@ begin
     Result := $FF000000; //Black
 end;
 
+
+procedure TKMPlayerInfo.SetLangID(aID:byte);
+begin
+  if InRange(aID,1,LOCALES_COUNT) then
+    fLangID := aID;
+end;
+
+
 function TKMPlayerInfo.GetInstantPing:word;
 begin
   Result := fPings[fPingPos];
@@ -133,6 +144,7 @@ end;
 procedure TKMPlayerInfo.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fNikname);
+  LoadStream.Read(fLangID);
   LoadStream.Read(fIndexOnServer);
   LoadStream.Read(PlayerType, SizeOf(PlayerType));
   LoadStream.Read(fFlagColorID);
@@ -148,6 +160,7 @@ end;
 procedure TKMPlayerInfo.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fNikname);
+  SaveStream.Write(fLangID);
   SaveStream.Write(fIndexOnServer);
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
   SaveStream.Write(fFlagColorID);
@@ -287,10 +300,11 @@ begin
 end;
 
 
-procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer);
+procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer; aLang:byte=0);
 begin
   inc(fCount);
   fPlayers[fCount].fNikname := aNik;
+  fPlayers[fCount].fLangID := aLang;
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
   fPlayers[fCount].PlayerType := pt_Human;
   fPlayers[fCount].PlayerIndex := nil;
@@ -308,6 +322,7 @@ procedure TKMPlayersList.AddAIPlayer;
 begin
   inc(fCount);
   fPlayers[fCount].fNikname := 'AI Player';
+  fPlayers[fCount].fLangID := 0;
   fPlayers[fCount].fIndexOnServer := -1;
   fPlayers[fCount].PlayerType := pt_Computer;
   fPlayers[fCount].PlayerIndex := nil;

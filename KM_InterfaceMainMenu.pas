@@ -147,6 +147,7 @@ type
     Panel_Lobby:TKMPanel;
       Panel_LobbyPlayers:TKMPanel;
         Button_LobbyKick:array [0..MAX_PLAYERS-1] of TKMButton;
+        Image_LobbyFlag:array [0..MAX_PLAYERS-1] of TKMImage;
         DropBox_LobbyPlayerSlot:array [0..MAX_PLAYERS-1] of TKMDropBox;
         Label_LobbyPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
         DropBox_LobbyLoc:array [0..MAX_PLAYERS-1] of TKMDropBox;
@@ -659,6 +660,8 @@ begin
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
+        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 4, top+3, 16, 11, 0, 7);
+
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 10, top+2, 140, 20, '', fnt_Metal, taLeft);
         Label_LobbyPlayer[i].Hide;
 
@@ -971,7 +974,7 @@ begin
       TKMBevel.Create(Panel_Options_Lang,0,20,242,10+LOCALES_COUNT*20);
 
       Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 230, 20*LOCALES_COUNT, fnt_Metal);
-      for i:=1 to LOCALES_COUNT do Radio_Options_Lang.Items.Add(Locales[i,3]);
+      for i:=1 to LOCALES_COUNT do Radio_Options_Lang.Items.Add(Locales[i,4]);
       Radio_Options_Lang.OnChange := Options_Change;
 
     Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
@@ -1589,6 +1592,7 @@ begin
   for i:=0 to MAX_PLAYERS-1 do
   begin
     Label_LobbyPlayer[i].Caption := '.';
+    Image_LobbyFlag[i].TexID := 0;
     Label_LobbyPlayer[i].Hide;
     DropBox_LobbyPlayerSlot[i].Show;
     DropBox_LobbyPlayerSlot[i].Disable;
@@ -1696,6 +1700,9 @@ begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
+    if fGame.Networking.NetPlayers[i+1].LangID <> 0 then
+         Image_LobbyFlag[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID,3])
+    else Image_LobbyFlag[i].TexID := 0;
     if (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer) and fGame.Networking.IsHost then
     begin
       Label_LobbyPlayer[i].Hide;

@@ -1,5 +1,5 @@
 
-MaxID:190
+MaxID:193
 
 1:Misión Cancelada
 2:Tutorial de Construción
@@ -179,6 +179,9 @@ MaxID:190
 164:¡%s ha sido derrotado!
 169:El Anfitrión (%s) ha abandonado la partida
 170:La conexión con el servidor se ha perdido. Intentar volver a conectar...
+191:
+192:
+193:
 
 174:Civiles|entrenados
 175:Civiles|Perdidos
