@@ -52,6 +52,7 @@ type
     mk_PingInfo,        //Server sends list of ping times to Clients
 
     mk_PlayersList,     //Host keeps the players list and sends it to everyone on change
+    mk_GameOptions,     //Host keeps the game options and sends it to everyone on change
 
     mk_StartingLocQuery,//Joiner asks Host if he can take that starting location
     mk_SetTeam,         //Joiner tells Host which team he is on
@@ -103,6 +104,7 @@ const
     pfNoData,   //mk_Pong
     pfText,     //mk_PingInfo
     pfText,     //mk_PlayersList
+    pfText,     //mk_GameOptions
     pfNumber,   //mk_StartingLocQuery
     pfNumber,   //mk_SetTeam
     pfNumber,   //mk_FlagColorQuery

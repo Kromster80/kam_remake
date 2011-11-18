@@ -11,6 +11,9 @@ type
     Peacetime:word; //Peacetime in minutes (should it be in ticks?)
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
+
+    procedure SetAsText(const aText:string);
+    function GetAsText:string;
   end;
 
 
@@ -29,6 +32,28 @@ begin
   SaveStream.Write(Peacetime);
 end;
 
+
+procedure TKMGameOptions.SetAsText(const aText:string);
+var M:TKMemoryStream;
+begin
+  M := TKMemoryStream.Create;
+  try
+    M.WriteAsText(aText);
+    Load(M);
+  finally
+    M.Free;
+  end;
+end;
+
+
+function TKMGameOptions.GetAsText:string;
+var M:TKMemoryStream;
+begin
+  M := TKMemoryStream.Create;
+  Save(M);
+  Result := M.ReadAsText;
+  M.Free;
+end;
 
 end.
 

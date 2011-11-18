@@ -571,7 +571,7 @@ begin
 
   FreeAndNil(fGameOptions);
   fGameOptions := TKMGameOptions.Create;
-  fGameOptions.Peacetime := Networking.GameOptions.Peacetime;
+  fGameOptions.Peacetime := Networking.NetGameOptions.Peacetime;
 
   FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);
   //Assign existing NetPlayers(1..N) to map players(0..N-1)

@@ -23,7 +23,7 @@ const
   [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_PingInfo,mk_Kicked], //lgs_Query
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
    mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangID], //lgs_Lobby
+   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangID,mk_GameOptions], //lgs_Lobby
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked], //lgs_Loading
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked], //lgs_Game
   [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_ResyncEveryone,mk_RefuseReconnect,mk_Kicked] //lgs_Reconnecting
@@ -68,6 +68,7 @@ type
     fOnReassignedHost:TNotifyEvent;
     fOnTextMessage:TStringEvent;
     fOnPlayersSetup:TNotifyEvent;
+    fOnGameOptions:TNotifyEvent;
     fOnMapName:TStringEvent;
     fOnStartMap:TStringEvent;
     fOnStartSave:TStringEvent;
@@ -123,6 +124,7 @@ type
     function CanStart:boolean;
     procedure StartClick; //All required arguments are in our class
     procedure SendPlayerListAndRefreshPlayersSetup(aPlayerIndex:integer = NET_ADDRESS_OTHERS);
+    procedure SendGameOptions;
 
     //Common
     procedure PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
@@ -133,7 +135,7 @@ type
     property MapInfo:TKMapInfo read fMapInfo;
     property SaveInfo:TKMSaveInfo read fSaveInfo;
     property GameInfo:TKMGameInfo read GetGameInfo;
-    property GameOptions:TKMGameOptions read fNetGameOptions;
+    property NetGameOptions:TKMGameOptions read fNetGameOptions;
     property SelectGameKind: TNetGameKind read fSelectGameKind;
     property NetPlayers:TKMPlayersList read fNetPlayers;
     property LastProcessedTick:cardinal write fLastProcessedTick;
@@ -148,6 +150,7 @@ type
     property OnReassignedHost:TNotifyEvent write fOnReassignedHost;     //We were reassigned hosting rights when the host quit
 
     property OnPlayersSetup:TNotifyEvent write fOnPlayersSetup; //Player list updated
+    property OnGameOptions:TNotifyEvent write fOnGameOptions; //Game options updated
     property OnMapName:TStringEvent write fOnMapName;           //Map name updated
     property OnStartMap:TStringEvent write fOnStartMap;       //Start the game
     property OnStartSave:TStringEvent write fOnStartSave;       //Load the game
@@ -667,6 +670,13 @@ begin
 end;
 
 
+procedure TKMNetworking.SendGameOptions;
+begin
+  Assert(IsHost, 'Only host can send game options');
+  PacketSend(NET_ADDRESS_OTHERS, mk_GameOptions, fNetGameOptions.GetAsText, 0);
+end;
+
+
 //We route the message through Server to ensure everyone sees messages in the same order
 //with exact same timestamps (possibly added by Server?)
 procedure TKMNetworking.PostMessage(aText:string; aShowName:boolean=false; aTeamOnly:boolean=false);
@@ -891,6 +901,7 @@ begin
 
                 if fSelectGameKind = ngk_Save then MatchPlayersToSave(fNetPlayers.ServerToLocal(aSenderIndex)); //Match only this player
                 SendPlayerListAndRefreshPlayersSetup;
+                SendGameOptions;
                 PostMessage(Msg+' has joined');
               end
               else
@@ -1001,6 +1012,7 @@ begin
               end;
 
               SendPlayerListAndRefreshPlayersSetup;
+              SendGameOptions;
               PostMessage('Hosting rights reassigned to '+fMyNikname);
             end;
 
@@ -1018,6 +1030,12 @@ begin
               fNetPlayers.SetAsText(Msg); //Our index could have changed on players add/removal
               fMyIndex := fNetPlayers.NiknameToLocal(fMyNikname);
               if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
+            end;
+
+    mk_GameOptions:
+            if fNetPlayerKind = lpk_Joiner then begin
+              fNetGameOptions.SetAsText(Msg);
+              if Assigned(fOnGameOptions) then fOnGameOptions(Self);
             end;
 
     mk_ResetMap:

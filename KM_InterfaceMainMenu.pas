@@ -75,6 +75,8 @@ type
     procedure MP_Back_Click(Sender: TObject);
 
     procedure Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
+    procedure Lobby_GameOptionsChange(Sender: TObject);
+    procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnPingInfo(Sender: TObject);
@@ -99,6 +101,7 @@ type
     procedure MapEditor_ListUpdate(aUseMP:boolean);
     procedure Options_Fill(aGlobalSettings:TGlobalSettings);
     procedure Options_Change(Sender: TObject);
+    procedure Options_FlagClick(Sender: TObject);
   protected
     Panel_Main:TKMPanel;
       Label_Version:TKMLabel;
@@ -226,6 +229,7 @@ type
         CheckBox_Options_ShuffleOn:TKMCheckBox;
       Panel_Options_Lang:TKMPanel;
         Radio_Options_Lang:TKMRadioGroup;
+        Image_Options_Lang_Flags:array[1..LOCALES_COUNT] of TKMImage;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
         CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
@@ -971,12 +975,18 @@ begin
       Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
 
-    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,560,130,200,30+LOCALES_COUNT*20);
+    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,560,130,220,30+LOCALES_COUNT*20);
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Lang,0,20,242,10+LOCALES_COUNT*20);
+      TKMBevel.Create(Panel_Options_Lang,0,20,246,10+LOCALES_COUNT*20);
 
-      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 12, 27, 230, 20*LOCALES_COUNT, fnt_Metal);
-      for i:=1 to LOCALES_COUNT do Radio_Options_Lang.Items.Add(Locales[i,4]);
+      Radio_Options_Lang := TKMRadioGroup.Create(Panel_Options_Lang, 28, 27, 220, 20*LOCALES_COUNT, fnt_Metal);
+      for i:=1 to LOCALES_COUNT do
+      begin
+        Radio_Options_Lang.Items.Add(Locales[i,4]);
+        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,29+((i-1)*20),16,11,StrToInt(Locales[i,3]),7);
+        Image_Options_Lang_Flags[i].Tag := i-1;
+        Image_Options_Lang_Flags[i].OnClick := Options_FlagClick;
+      end;
       Radio_Options_Lang.OnChange := Options_Change;
 
     Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
@@ -993,7 +1003,7 @@ begin
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|Mees Gelein||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|trb1914||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+TRANSLATOR_CREDITS+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);
@@ -1414,6 +1424,7 @@ procedure TKMMainMenuInterface.MP_BindEvents;
 begin
   fGame.Networking.OnTextMessage  := Lobby_OnMessage;
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
+  fGame.Networking.OnGameOptions := Lobby_OnGameOptions;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
   fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
   fGame.Networking.OnStartMap     := fGame.StartMultiplayerMap;
@@ -1637,6 +1648,19 @@ begin
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
   end;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_GameOptionsChange(Sender: TObject);
+begin
+  //fGame.Networking.NetGameOptions.Peacetime :=
+  fGame.Networking.SendGameOptions;
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_OnGameOptions(Sender: TObject);
+begin
+  //fGame.Networking.NetGameOptions.Peacetime
 end;
 
 
@@ -2155,6 +2179,14 @@ begin
   //Make button enabled only if new resolution/mode differs from old
   Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.GlobalSettings.FullScreen) or
                                      (fGame.GlobalSettings.FullScreen and (OldResolution <> fGame.GlobalSettings.ResolutionID));
+end;
+
+
+procedure TKMMainMenuInterface.Options_FlagClick(Sender: TObject);
+begin
+  Assert(Sender is TKMImage);
+  Radio_Options_Lang.ItemIndex := TKMImage(Sender).Tag;
+  Options_Change(Radio_Options_Lang);
 end;
 
 
