@@ -902,7 +902,7 @@ begin
       Radio_MapEd_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
       List_MapEd := TKMListBox.Create(Panel_MapEd_Load, 0, 80, 300, 240, fnt_Metal);
-      Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 335, 280, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
+      Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 335, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
 
     Button_MapEdBack := TKMButton.Create(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -983,7 +983,7 @@ begin
       for i:=1 to LOCALES_COUNT do
       begin
         Radio_Options_Lang.Items.Add(Locales[i,4]);
-        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,29+((i-1)*20),16,11,StrToInt(Locales[i,3]),7);
+        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+((i-1)*20),16,11,StrToInt(Locales[i,3]),7);
         Image_Options_Lang_Flags[i].Tag := i-1;
         Image_Options_Lang_Flags[i].OnClick := Options_FlagClick;
       end;

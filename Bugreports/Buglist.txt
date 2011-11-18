@@ -43,6 +43,7 @@
  +	Crash "ELocError: fCommander.IsDeadOrDying" due to warrior leaving the barracks linking to a dead warrior from a nearby battle
  +	Players could cheat in MP through F11 menu by viewing CanWalk map overlays
  +	The player's typed message and existing messages from the lobby chat will be copied to the in-game chat when the game starts
+ +	Iron/gold mines should not raise the construction site because of the mountain when "flattening" it
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -57,7 +58,6 @@
 	Multiplayer replays do not sync FOW so get mismatches
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
-	Iron/gold mines should not raise the construction site because of the mountain when "flattening" it
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 
 	Dots and lines displaying on tile edges [Krom]

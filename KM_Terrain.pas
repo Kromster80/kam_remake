@@ -154,6 +154,7 @@ type
     function TileIsRoadable(Loc:TKMPoint):boolean;
     function TileIsCornField(Loc:TKMPoint):boolean;
     function TileIsWineField(Loc:TKMPoint):boolean;
+    function TileIsFactorable(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
     function UnitsHitTest(X,Y:word):TKMUnit;
     function UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
@@ -508,6 +509,14 @@ begin
   Result := Land[Loc.Y,Loc.X].Terrain in [55];
   Result := Result and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
   Result := Result and (Land[Loc.Y,Loc.X].Obj in [54..57]); //Must have object (e.g. for init when labourer is building it)
+end;
+
+
+function TTerrain.TileIsFactorable(Loc:TKMPoint):boolean;
+begin
+  //List of tiles that cannot be factored (coordinates outside the map return true)
+  Result := not TileInMapCoords(Loc.X,Loc.Y) or
+            not (Land[Loc.Y,Loc.X].Terrain in [7,15,24,50,53,144..151,156..165,198,199,202,206]);
 end;
 
 
@@ -1457,6 +1466,13 @@ begin
     not(Land[Loc.Y,Loc.X].Markup = mu_House) then
     AddPassability(Loc, [CanWorker]);
 
+  //Check all 4 tiles that border with this vertex
+  if TileIsFactorable(KMPoint(Loc.X  ,Loc.Y)) and
+     TileIsFactorable(KMPoint(Loc.X-1,Loc.Y)) and
+     TileIsFactorable(KMPoint(Loc.X  ,Loc.Y-1)) and
+     TileIsFactorable(KMPoint(Loc.X-1,Loc.Y-1)) then
+    AddPassability(Loc, [canFactor]);
+
  //Check for houses around this vertice(!) Use only with CanElevate since it's vertice-based!
  HousesNearBy := false;
  for i:=-1 to 0 do
@@ -1837,6 +1853,7 @@ end;
 //Interpolate between 12 vertices surrounding this tile (X and Y, no diagonals)
 //Also it is FlattenTerrain duty to preserve walkability if there are units standing
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=true);
+var TilesFactored:integer;
 
   //If tiles with units standing on them become unwalkable we should try to fix them
   procedure EnsureWalkable(aX,aY:word);
@@ -1851,19 +1868,28 @@ procedure TTerrain.FlattenTerrain(Loc:TKMPoint; aRebuildWalkConnects:boolean=tru
       FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
   end;
 
-  function GetHeight(X,Y:word):byte;
+  function GetHeight(X,Y:word; Neighbour:boolean):byte;
   begin
-    Result := Land[EnsureRange(Y,1,fMapY), EnsureRange(X,1,fMapX)].Height;
+    if TileInMapCoords(X,Y) and (not Neighbour or (canFactor in Land[Y,X].Passability)) then
+    begin
+      Result := Land[Y,X].Height;
+      inc(TilesFactored);
+    end
+    else
+      Result := 0;
   end;
 
-var i,k: word; Avg:byte;
+var i,k: word; Avg:word;
 begin
   Assert(TileInMapCoords(Loc.X, Loc.Y));
 
-  Avg := Round((                      GetHeight(Loc.X,Loc.Y-1) + GetHeight(Loc.X+1,Loc.Y-1) +
-         GetHeight(Loc.X-1,Loc.Y  ) + GetHeight(Loc.X,Loc.Y  ) + GetHeight(Loc.X+1,Loc.Y  ) + GetHeight(Loc.X+2,Loc.Y  ) +
-         GetHeight(Loc.X-1,Loc.Y+1) + GetHeight(Loc.X,Loc.Y+1) + GetHeight(Loc.X+1,Loc.Y+1) + GetHeight(Loc.X+2,Loc.Y+1) +
-                                      GetHeight(Loc.X,Loc.Y+2) + GetHeight(Loc.X+1,Loc.Y+2) ) / 12);
+  TilesFactored := 0; //GetHeight will add to this
+  Avg :=                                   GetHeight(Loc.X,Loc.Y-1,True ) + GetHeight(Loc.X+1,Loc.Y-1,True ) +
+         GetHeight(Loc.X-1,Loc.Y  ,True) + GetHeight(Loc.X,Loc.Y  ,False) + GetHeight(Loc.X+1,Loc.Y  ,False) + GetHeight(Loc.X+2,Loc.Y  ,True) +
+         GetHeight(Loc.X-1,Loc.Y+1,True) + GetHeight(Loc.X,Loc.Y+1,False) + GetHeight(Loc.X+1,Loc.Y+1,False) + GetHeight(Loc.X+2,Loc.Y+1,True) +
+                                           GetHeight(Loc.X,Loc.Y+2,True ) + GetHeight(Loc.X+1,Loc.Y+2,True );
+  Assert(TilesFactored <> 0); //Non-neighbour tiles will always be factored
+  Avg := Round(Avg / TilesFactored);
 
   if CanElevate in Land[Loc.Y  ,Loc.X  ].Passability then Land[Loc.Y  ,Loc.X  ].Height := Mix(Avg, Land[Loc.Y  ,Loc.X  ].Height, 0.5);
   if CanElevate in Land[Loc.Y  ,Loc.X+1].Passability then Land[Loc.Y  ,Loc.X+1].Height := Mix(Avg, Land[Loc.Y  ,Loc.X+1].Height, 0.5);
