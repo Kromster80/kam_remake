@@ -47,7 +47,7 @@ type
     procedure CloseDelivery(aID:integer);
     procedure CloseDemand(aID:integer);
     procedure CloseOffer(aID:integer);
-    function PermitDelivery(iO,iD:integer):boolean;
+    function PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
   public
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemoveOffer(aHouse:TKMHouse);
@@ -294,7 +294,7 @@ begin
 end;
 
 
-function TKMDeliverQueue.PermitDelivery(iO,iD:integer):boolean;
+function TKMDeliverQueue.PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
 begin
   //If Offer Resource matches Demand
   Result := (fDemand[iD].Resource = fOffer[iO].Resource)or
@@ -334,6 +334,9 @@ begin
             (fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,CanWalk,1, false))
             )
             );
+
+  Result := Result and //Delivery is only permitted if the serf can access the from house
+            fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),KMSerf.GetPosition,CanWalk,0,false);
 end;
 
 
@@ -364,7 +367,7 @@ begin
     if (KMHouse = nil) or (fOffer[iO].Loc_House = KMHouse) then //Make sure from house is the one requested
     if fOffer[iO].Resource <> rt_None then
 
-    if PermitDelivery(iO,iD) then
+    if PermitDelivery(iO,iD,KMSerf) then
     begin
 
       //Basic Bid is length of route
