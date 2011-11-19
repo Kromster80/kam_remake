@@ -134,7 +134,7 @@ begin
 
   //Do not play sounds if unit is invisible to MyPlayer
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
-  if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, true) < 255 then exit;
   
   case fUnit.UnitType of
     ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, fUnit.PositionF); //Aiming

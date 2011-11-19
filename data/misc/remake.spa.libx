@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Misión Cancelada
 2:Tutorial de Construción
 3:Tutorial de Batalla
 4:Un Solo Jugador
 5:Editor de mapas
+202:
+203:
 6:Ver la última repetición
 7:Empezar misión
 8:Nombre
@@ -195,6 +197,14 @@ MaxID:195
 181:Edificios|destruidos
 182:Materiales|producidas
 183:Armas|Produción
+
+196:
+197:
+198:
+
+199:
+200:
+201:
 
 132:KaM Remake Créditos
 133:Créditos originales Knights & Merchants

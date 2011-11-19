@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
 3:Oktató Küldetés (Csata)
 4:Egyjátékos mód
 5:Pálya Szerkesztõ
+202:
+203:
 6:Utolsó visszajátszás megtekintése
 7:Küldetés Indítása
 8:Cím
@@ -195,6 +197,14 @@ MaxID:195
 181:
 182:
 183:
+
+196:
+197:
+198:
+
+199:
+200:
+201:
 
 132:KaM Remake Készítõk
 133:Eredeti Knights & Merchants Készítõk

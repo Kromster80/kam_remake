@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Mission canceled
 2:Town Tutorial
 3:Battle Tutorial
 4:Single Player
 5:Map Editor
+202:Replay Viewer
+203:View replay
 6:View Last Replay
 7:Start Mission
 8:Title
@@ -195,6 +197,14 @@ MaxID:195
 181:Buildings|destroyed
 182:Wares|produced
 183:Weapons|produced
+
+196:H
+197:L
+198:S
+
+199:Halt troop ('%s')
+200:Link up troop ('%s')
+201:Separate troop ('%s')
 
 132:KaM Remake Credits
 133:Original Knights & Merchants Credits

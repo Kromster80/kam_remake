@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Mission Annulée
 2:Tutoriel de Construction
 3:Tutoriel de Bataille
 4:Joueur Solo
 5:Editeur de Maps
+202:
+203:
 6:Voir le Dernier Replay
 7:Continuer
 8:Titre
@@ -195,6 +197,14 @@ MaxID:195
 181:
 182:
 183:
+
+196:
+197:
+198:
+
+199:
+200:
+201:
 
 132:Crédits de KaM Remake
 133:Crédits Original de Knights & Merchants

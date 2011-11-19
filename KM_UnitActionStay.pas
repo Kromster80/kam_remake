@@ -67,7 +67,7 @@ end;
 procedure TUnitActionStay.MakeSound(Cycle, Step: Byte);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
-  if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, true) < 255 then exit;
 
   //Various UnitTypes and ActionTypes produce all the sounds
   case fUnit.UnitType of

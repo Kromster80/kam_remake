@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
 3:Samouczek dowodzenia podczas bitwy
 4:Jeden Gracz
 5:Edytor Map
+202:
+203:
 6:Zobacz ostatni¹ powtórke
 7:Rozpocznij Misje
 8:Tytu³
@@ -195,6 +197,14 @@ MaxID:195
 181:
 182:
 183:
+
+196:
+197:
+198:
+
+199:
+200:
+201:
 
 132:Autorzy KaM Remake
 133:Autorzy Oryginalnego Knights & Merchants

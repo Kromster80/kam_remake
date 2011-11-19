@@ -567,7 +567,7 @@ begin
   hy := min(round(aLoc.Y+(MaxRad+1)),fMapY); //1.42 gets rounded to 1
 
   for i:=ly to hy do for k:=lx to hx do
-  if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i) = 255)
+  if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i,false) = 255)
     and (Land[i,k].IsUnit <> nil) then
   begin
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
@@ -1109,7 +1109,7 @@ begin
       end;
 
       //Forbid planning on unrevealed areas
-      AllowBuild := AllowBuild and (MyPlayer.FogOfWar.CheckTileRevelation(P2.X,P2.Y) > 0);
+      AllowBuild := AllowBuild and (MyPlayer.FogOfWar.CheckTileRevelation(P2.X,P2.Y,false) > 0);
 
       //Check surrounding tiles in +/- 1 range for other houses pressence
       if not (CanBuild in Land[P2.Y,P2.X].Passability) then
@@ -2116,7 +2116,7 @@ begin
         Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
       end;
 
-      Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4) > 0);
+      Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4,false) > 0);
     end;
 end;
 
@@ -2132,7 +2132,7 @@ begin
     else          Result := false;
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
-  Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X,Loc.Y) > 0); //We check tile revelation to place a tile-based markup, right?
+  Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X,Loc.Y,false) > 0); //We check tile revelation to place a tile-based markup, right?
 end;
 
 
@@ -2408,7 +2408,7 @@ begin
   for i:=1 to fMapY do
   for k:=1 to fMapX do
   begin
-    FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i);
+    FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i,true);
     if FOW = 0 then
       MiniMapRGB[i,k] := 0
     else

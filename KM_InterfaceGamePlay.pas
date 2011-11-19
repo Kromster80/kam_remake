@@ -1364,15 +1364,15 @@ begin
 
     //Hints
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
-    Button_Army_Stop.Hint   := fTextLibrary.GetTextString(258);
+    Button_Army_Stop.Hint   := Format(fTextLibrary[TX_TROOP_HALT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT]]);
     Button_Army_Attack.Hint := fTextLibrary.GetTextString(257);
     Button_Army_RotCW.Hint  := fTextLibrary.GetTextString(256);
     Button_Army_Storm.Hint  := fTextLibrary.GetTextString(263);
     Button_Army_RotCCW.Hint := fTextLibrary.GetTextString(255);
     Button_Army_ForDown.Hint:= fTextLibrary.GetTextString(264);
     Button_Army_ForUp.Hint  := fTextLibrary.GetTextString(265);
-    Button_Army_Split.Hint  := fTextLibrary.GetTextString(261);
-    Button_Army_Join.Hint   := fTextLibrary.GetTextString(260);
+    Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT]]);
+    Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK]]);
     Button_Army_Feed.Hint   := fTextLibrary.GetTextString(262);
 
     {Army controls...
@@ -2463,7 +2463,7 @@ procedure TKMGamePlayInterface.ReplayClick;
   end;
 begin
   if (Sender = Button_ReplayRestart) then
-    fGame.StartReplay; //reload it once again
+    fGame.RestartReplay; //reload it once again
 
   if (Sender = Button_ReplayPause) then begin
     fGame.SetGameState(gsPaused);
@@ -3053,9 +3053,9 @@ begin
 
                   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
                   //todo: Each of these should be a string from the TextLibrary with a suitable name like TX_SHORTCUT_HALT
-                  if (Key = ord('H')) and (Panel_Army.Visible) then Button_Army_Stop.DoClick;
-                  if (Key = ord('L')) and (Panel_Army.Visible) then Button_Army_Join.DoClick;
-                  if (Key = ord('S')) and (Panel_Army.Visible) then Button_Army_Split.DoClick;
+                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT][1])) and (Panel_Army.Visible) then Button_Army_Stop.DoClick;
+                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK][1])) and (Panel_Army.Visible) then Button_Army_Join.DoClick;
+                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.DoClick;
 
                   {Temporary cheat codes}
                   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
@@ -3204,7 +3204,7 @@ begin
 
   if fShownUnit is TKMUnitWarrior then
   begin
-    if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y)>0) then
+    if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false)>0) then
     begin
       U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -3363,7 +3363,8 @@ var PrevCursor: TKMPointF;
 begin
   MyControls.MouseWheel(X, Y, WheelDelta);
   if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
-  if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) and (fGame.GameState in [gsReplay,gsRunning]) then
+  if MOUSEWHEEL_ZOOM_ENABLE and ((MyControls.CtrlOver = nil) or fGame.ReplayMode) and
+     (fGame.GameState in [gsReplay,gsRunning]) then
   begin
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;

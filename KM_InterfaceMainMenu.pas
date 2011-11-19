@@ -38,6 +38,7 @@ type
     procedure Create_MultiPlayer_Page;
     procedure Create_Lobby_Page;
     procedure Create_MapEditor_Page;
+    procedure Create_Replays_Page;
     procedure Create_Options_Page(aGameSettings:TGlobalSettings);
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
@@ -95,6 +96,10 @@ type
     procedure Load_ListClick(Sender: TObject);
     procedure Load_RefreshList;
     procedure Load_DeleteConfirmation(aVisible:boolean);
+    procedure Replays_ListClick(Sender: TObject);
+    procedure Replay_TypeChange(Sender: TObject);
+    procedure Replays_RefreshList;
+    procedure Replays_Play(Sender: TObject);
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_SizeChange(Sender: TObject);
     procedure MapEditor_MapTypeChange(Sender: TObject);
@@ -110,6 +115,7 @@ type
       Button_MM_SinglePlayer,
       Button_MM_MultiPlayer,
       Button_MM_MapEd,
+      Button_MM_Replays,
       Button_MM_Options,
       Button_MM_Credits,
       Button_MM_Quit:TKMButton;
@@ -205,6 +211,11 @@ type
       Label_DeleteConfirm: TKMLabel;
       Button_DeleteYes, Button_DeleteNo: TKMButton;
       Button_LoadBack:TKMButton;
+    Panel_Replays:TKMPanel;
+      Radio_Replays_Type:TKMRadioGroup;
+      List_Replays: TKMColumnListBox;
+      Button_ReplaysPlay: TKMButton;
+      Button_ReplaysBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
       Radio_MapEd_SizeX,Radio_MapEd_SizeY:TKMRadioGroup;
@@ -317,6 +328,7 @@ begin
   Create_MultiPlayer_Page;
     Create_Lobby_Page;
   Create_MapEditor_Page;
+  Create_Replays_Page;
   Create_Options_Page(aGameSettings);
   Create_Credits_Page;
   Create_Loading_Page;
@@ -541,12 +553,14 @@ begin
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary[TX_MENU_SINGLEPLAYER],fnt_Metal,bsMenu);
       Button_MM_MultiPlayer  := TKMButton.Create(Panel_MMButtons,0, 40,350,30,fTextLibrary[TX_MENU_MULTIPLAYER],fnt_Metal,bsMenu);
       Button_MM_MapEd        := TKMButton.Create(Panel_MMButtons,0, 80,350,30,fTextLibrary[TX_MENU_MAP_EDITOR],fnt_Metal,bsMenu);
-      Button_MM_Options      := TKMButton.Create(Panel_MMButtons,0,120,350,30,fTextLibrary[TX_MENU_OPTIONS],fnt_Metal,bsMenu);
-      Button_MM_Credits      := TKMButton.Create(Panel_MMButtons,0,160,350,30,fTextLibrary[TX_MENU_CREDITS],fnt_Metal,bsMenu);
+      Button_MM_Replays      := TKMButton.Create(Panel_MMButtons,0,120,350,30,fTextLibrary[TX_MENU_REPLAYS],fnt_Metal,bsMenu);
+      Button_MM_Options      := TKMButton.Create(Panel_MMButtons,0,160,350,30,fTextLibrary[TX_MENU_OPTIONS],fnt_Metal,bsMenu);
+      Button_MM_Credits      := TKMButton.Create(Panel_MMButtons,0,200,350,30,fTextLibrary[TX_MENU_CREDITS],fnt_Metal,bsMenu);
       Button_MM_Quit         := TKMButton.Create(Panel_MMButtons,0,320,350,30,fTextLibrary[TX_MENU_QUIT],fnt_Metal,bsMenu);
       Button_MM_SinglePlayer.OnClick := SwitchMenuPage;
       Button_MM_MultiPlayer.OnClick  := SwitchMenuPage;
       Button_MM_MapEd.OnClick        := SwitchMenuPage;
+      Button_MM_Replays.OnClick      := SwitchMenuPage;
       Button_MM_Options.OnClick      := SwitchMenuPage;
       Button_MM_Credits.OnClick      := SwitchMenuPage;
       Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
@@ -910,6 +924,30 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Create_Replays_Page;
+begin
+  Panel_Replays:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+
+    TKMLabel.Create(Panel_Replays, ScreenX div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
+
+    TKMBevel.Create(Panel_Replays, 62, 100, 900, 50);
+    Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,108,300,40,fnt_Grey);
+    Radio_Replays_Type.ItemIndex := 0;
+    Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_SPMAPS]);
+    Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
+    Radio_Replays_Type.OnChange := Replay_TypeChange;
+
+    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 900, 350, fnt_Metal, fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    List_Replays.OnChange := Replays_ListClick;
+
+    Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,630,350,30,fTextLibrary[TX_MENU_VIEW_REPLAY],fnt_Metal, bsMenu);
+    Button_ReplaysPlay.OnClick := Replays_Play;
+
+    Button_ReplaysBack := TKMButton.Create(Panel_Replays, 337, 670, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_ReplaysBack.OnClick := SwitchMenuPage;
+end;
+
+
 procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings);
 var i:integer;
 begin
@@ -1129,7 +1167,8 @@ begin
      (Sender=Button_CreditsBack)or
      (Sender=Button_MapEdBack)or
      (Sender=Button_ErrorBack)or
-     (Sender=Button_ResultsBack) then
+     (Sender=Button_ResultsBack)or
+     (Sender=Button_ReplaysBack) then
     Panel_MainMenu.Show;
 
   {Player leaves lobby (LAN text is updated)}
@@ -1185,6 +1224,12 @@ begin
   if Sender=Button_SP_Load then begin
     Load_RefreshList;
     Panel_Load.Show;
+  end;
+
+  {Show replays menu}
+  if Sender=Button_MM_Replays then begin
+    Replays_RefreshList;
+    Panel_Replays.Show;
   end;
 
   {Show MultiPlayer menu}
@@ -1257,7 +1302,7 @@ end;
 //Should be done this way since fGame is NIL on UI creation
 procedure TKMMainMenuInterface.MainMenu_StartReplay(Sender: TObject);
 begin
-  fGame.StartReplay;
+  fGame.StartReplay('basesave',false);
 end;
 
 
@@ -2049,6 +2094,44 @@ begin
   Button_DeleteYes.Visible := aVisible;
   Button_DeleteNo.Visible := aVisible;
   Button_Delete.Visible := not aVisible;
+end;
+
+
+procedure TKMMainMenuInterface.Replays_ListClick(Sender: TObject);
+begin
+  Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
+                                and fSaves[List_Replays.ItemIndex].IsValid;
+end;
+
+
+procedure TKMMainMenuInterface.Replay_TypeChange(Sender: TObject);
+begin
+  Replays_RefreshList;
+  List_MapEd.ItemIndex := 0;
+end;
+
+
+procedure TKMMainMenuInterface.Replays_RefreshList;
+var i:integer;
+begin
+  fSaves.ScanSavesFolder((Radio_Replays_Type.ItemIndex = 1));
+  List_Replays.Clear;
+
+  for i:=0 to fSaves.Count-1 do
+    List_Replays.AddItem([fSaves[i].Filename, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
+
+  //Select first Save by default
+  if List_Replays.Count > 0 then
+    List_Replays.ItemIndex := 0;
+
+  Replays_ListClick(List_Replays);
+end;
+
+
+procedure TKMMainMenuInterface.Replays_Play(Sender: TObject);
+begin
+  if not InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then Exit;
+  fGame.StartReplay(fSaves[List_Replays.ItemIndex].Filename,(Radio_Replays_Type.ItemIndex = 1));
 end;
 
 

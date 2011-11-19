@@ -926,7 +926,7 @@ procedure TKMHouse.MakeSound;
 var Work:THouseActionType; Step:byte;
 begin
   //Do not play sounds if house is invisible to MyPlayer
-  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
   if fCurrentAction = nil then exit; //no action means no sound ;)
 
   if ha_Work1 in fCurrentAction.SubAction then Work := ha_Work1 else
@@ -1143,7 +1143,7 @@ procedure TKMHouseSwineStable.MakeSound;
 var i:byte;
 begin
   Inherited;
-  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
   for i:=0 to 4 do
     if BeastAge[i+1]>0 then
       if (FlagAnimStep + 20*i) mod 100 = 0 then

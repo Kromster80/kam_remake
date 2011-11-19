@@ -24,8 +24,8 @@ type
     procedure SetMapSize(X,Y:integer);
     procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word);
     procedure RevealEverything;
-    function CheckVerticeRevelation(const X,Y: Word):byte;
-    function CheckTileRevelation(const X,Y: Word):byte;
+    function CheckVerticeRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
+    function CheckTileRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
     procedure SyncFOW(aFOW: TKMFogOfWar);
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -36,6 +36,7 @@ type
 
 
 implementation
+  uses KM_Game;
 
 
 { TKMFogOfWar }
@@ -80,8 +81,15 @@ end;
 {Check if requested vertice is revealed for given player}
 {Return value of revelation is 0..255}
 //0 unrevealed, 255 revealed completely
-function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word):byte;
+//aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
+//but false in cases where it will effect the gameplay (e.g. unit hit test)
+function TKMFogOfWar.CheckVerticeRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
 begin
+  if aSkipForReplay and fGame.ReplayMode then
+  begin
+    Result := 255;
+    exit;
+  end;
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
   if FOG_OF_WAR_ENABLE then
@@ -100,16 +108,23 @@ end;
 {Check if requested tile is revealed for given player}
 {Return value of revelation is 0..255}
 //0 unrevealed, 255 revealed completely
-function TKMFogOfWar.CheckTileRevelation(const X,Y: Word):byte;
+//aSkipForReplay should be true in cases where replay should always return revealed (e.g. sounds, render)
+//but false in cases where it will effect the gameplay (e.g. unit hit test)
+function TKMFogOfWar.CheckTileRevelation(const X,Y: Word; aSkipForReplay:boolean):byte;
 begin
+  if aSkipForReplay and fGame.ReplayMode then
+  begin
+    Result := 255;
+    exit;
+  end;
   //Check all four corners and choose max
-  Result := CheckVerticeRevelation(X,Y);
+  Result := CheckVerticeRevelation(X,Y,aSkipForReplay);
   if Result = 255 then exit;
-  if X+1 <= MapX-1 then Result := max(Result, CheckVerticeRevelation(X+1,Y));
+  if X+1 <= MapX-1 then Result := max(Result, CheckVerticeRevelation(X+1,Y,aSkipForReplay));
   if Result = 255 then exit;
-  if (X+1 <= MapX-1) and (Y+1 <= MapY-1) then Result := max(Result, CheckVerticeRevelation(X+1,Y+1));
+  if (X+1 <= MapX-1) and (Y+1 <= MapY-1) then Result := max(Result, CheckVerticeRevelation(X+1,Y+1,aSkipForReplay));
   if Result = 255 then exit;
-  if Y+1 <= MapY-1 then Result := max(Result, CheckVerticeRevelation(X,Y+1));
+  if Y+1 <= MapY-1 then Result := max(Result, CheckVerticeRevelation(X,Y+1,aSkipForReplay));
 end;
 
 

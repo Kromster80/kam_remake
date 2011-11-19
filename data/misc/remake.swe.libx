@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Uppdrag avbrutet
 2:Stadshandledning
 3:Stridshandledning
 4:En spelare
 5:Kartredigerare
+202:
+203:
 6:Spela upp senaste spelet
 7:Starta uppdraget
 8:Titel
@@ -195,6 +197,14 @@ MaxID:195
 181:
 182:
 183:
+
+196:
+197:
+198:
+
+199:
+200:
+201:
 
 132:KaM Remakes skapare
 133:Original Knights & Merchants skapare

@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Mission abgebrochen
 2:Aufbaututorial
 3:Kampftutorial
 4:Einzelspieler
 5:Karteneditor
+202:
+203:
 6:Letzten Replay anzeigen
 7:Mission starten
 8:Bezeichnung
@@ -195,6 +197,14 @@ MaxID:195
 181:Gebäude|zerstört
 182:Waren|gefertigt
 183:Waffen|gefertigt
+
+196:
+197:V
+198:
+
+199:
+200:
+201:
 
 132:KaM Remake Credits
 133:Ursprünglichel Knights & Merchants Credits

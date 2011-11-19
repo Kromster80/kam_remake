@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
 3:Tutorial di combattimento
 4:Giocatore Singolo
 5:Editor di missione
+202:
+203:
 6:Guarda l'ultimo Replay
 7:Inizia Missione
 8:Titolo
@@ -195,6 +197,14 @@ MaxID:195
 181:
 182:
 183:
+
+196:
+197:
+198:
+
+199:
+200:
+201:
 
 132:Crediti di KaM Remake
 133:Crediti del Knights & Merchants originale

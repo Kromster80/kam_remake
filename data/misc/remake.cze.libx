@@ -1,11 +1,13 @@
 
-MaxID:195
+MaxID:203
 
 1:Mise zrušena
 2:Výuka stavby
 3:Výuka boje
 4:Hra pro jednoho hráèe
 5:Editor mapy
+202:
+203:
 6:Zhlédnout poslední záznam
 7:Zaèít misi
 8:Název
@@ -195,6 +197,14 @@ MaxID:195
 181:
 182:
 183:
+
+196:
+197:
+198:
+
+199:
+200:
+201:
 
 132:KaM Remake Zásluhy
 133:Originální Knights & Merchants Zásluhy

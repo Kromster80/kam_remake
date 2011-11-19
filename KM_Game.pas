@@ -31,6 +31,8 @@ type
     fGameSpeed:word;
     fGameState:TGameState;
     fMultiplayerMode:boolean;
+    fReplayMode:boolean;
+    fReplayFile:string;
     fWaitingForNetwork:boolean;
     fGameOptions:TKMGameOptions;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
@@ -53,7 +55,7 @@ type
     procedure GameMPDisconnect(const aData:string);
     procedure MultiplayerRig;
 
-    procedure Load(const aFilename: string);
+    procedure Load(const aFilename: string; aReplay:boolean=false);
   public
     PlayOnState:TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
@@ -102,7 +104,8 @@ type
     procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
 
     function  ReplayExists:boolean;
-    procedure StartReplay;
+    procedure RestartReplay;
+    procedure StartReplay(const aSaveName:string; aMultiplayer:boolean);
 
     procedure NetworkInit;
 
@@ -115,6 +118,7 @@ type
     property GlobalTickCount:cardinal read fGlobalTickCount;
     property GameName:string read fGameName;
     property MultiplayerMode:boolean read fMultiplayerMode;
+    property ReplayMode:boolean read fReplayMode;
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
@@ -418,6 +422,7 @@ begin
   GameInit(false);
   Load(aFilename);
   fGameState := gsRunning;
+  fReplayMode := false;
 end;
 
 
@@ -477,6 +482,7 @@ begin
   fLog.AppendLog('Gameplay initialized', true);
 
   fGameState := gsRunning;
+  fReplayMode := false;
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   BaseSave;
@@ -620,6 +626,7 @@ begin
   fLog.AppendLog('Gameplay initialized', true);
 
   fGameState := gsRunning;
+  fReplayMode := false;
 
   fNetworking.OnPlay := GameMPPlay;
   fNetworking.OnReadyToPlay := GameMPReadyToPlay;
@@ -835,7 +842,7 @@ begin
   try
     fGameState := gsNoGame;
 
-    if fMultiplayerMode then
+    if fMultiplayerMode and not fReplayMode then
     begin
       if fNetworking.Connected then fNetworking.AnnounceDisconnect;
       fNetworking.Disconnect;
@@ -968,6 +975,7 @@ begin
   fGameTickCount := 0; //Restart counter
 
   fGameState := gsEditor;
+  fReplayMode := false;
 end;
 
 
@@ -1031,23 +1039,37 @@ begin
             FileExists(SaveName('basesave', 'rpl'));
 end;
 
+//Restart the replay but do not change the viewport position/zoom
+procedure TKMGame.RestartReplay;
+var OldCenter:TKMPointF; OldZoom:single;
+begin
+  OldCenter := fViewport.Position;
+  OldZoom := fViewport.Zoom;
 
-procedure TKMGame.StartReplay;
+  StartReplay(fReplayFile,fMultiplayerMode);
+
+  fViewport.Position := OldCenter;
+  fViewport.Zoom := OldZoom;
+end;
+
+
+procedure TKMGame.StartReplay(const aSaveName:string; aMultiplayer:boolean);
 begin
   Stop(gr_Silent);
+  fReplayMode := true;
 
-  GameInit(false);
-  
-  CopyFile(PChar(SaveName('basesave','bas')), PChar(SaveName('basesave','sav')), false);
-  Load('basesave'); //We load what was saved right before starting Recording
-  DeleteFile(SaveName('basesave','sav')); //Cleanup after use
+  GameInit(aMultiplayer);
+
+  Load(aSaveName,true); //We load what was saved right before starting Recording
 
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
   fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
-  fGameInputProcess.LoadFromFile(SaveName('basesave','rpl'));
+  fGameInputProcess.LoadFromFile(SaveName(aSaveName,'rpl'));
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
   fGameState := gsReplay;
+  fReplayMode := true;
+  fReplayFile := aSaveName;
 end;
 
 
@@ -1190,13 +1212,13 @@ begin
 
   fCampaigns.Save(SaveStream);
   SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
-  if not fMultiplayerMode then
-    SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
   SaveStream.Write(GetKaMSeed); //Include the random seed in the save file to ensure consistency in replays
 
   //Because the viewport is only saved in singleplayer we need to know whether it is included in this save,
   //so we can load multiplayer saves in single player and vice versa.
   SaveStream.Write(fMultiplayerMode);
+  if not fMultiplayerMode then
+    SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
   fTerrain.Save(SaveStream); //Saves the map
   fPlayers.Save(SaveStream); //Saves all players properties individually
@@ -1224,21 +1246,22 @@ begin
 end;
 
 
-procedure TKMGame.Load(const aFilename: string);
+procedure TKMGame.Load(const aFilename: string; aReplay:boolean=false);
 var
   LoadStream:TKMemoryStream;
   fGameInfo: TKMGameInfo;
-  LoadError:string;
+  LoadError,LoadFileExt:string;
   LoadedSeed:Longint;
   SaveIsMultiplayer:boolean;
 begin
   fLog.AppendLog('Loading game');
+  if aReplay then LoadFileExt := 'bas' else LoadFileExt := 'sav';
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   try //Catch exceptions
-    if not FileExists(SaveName(aFileName, 'sav')) then Raise Exception.Create('Savegame could not be found');
+    if not FileExists(SaveName(aFileName, LoadFileExt)) then Raise Exception.Create('Savegame could not be found');
 
-    LoadStream.LoadFromFile(SaveName(aFileName, 'sav'));
+    LoadStream.LoadFromFile(SaveName(aFileName, LoadFileExt));
 
     //We need only few essential parts from GameInfo, the rest is duplicate from fTerrain and fPlayers
     fGameInfo := TKMGameInfo.Create;
@@ -1255,12 +1278,12 @@ begin
     fGameOptions.Load(LoadStream);
     fCampaigns.Load(LoadStream);
     LoadStream.Read(ID_Tracker);
-    if not SaveIsMultiplayer then
-      LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
     LoadStream.Read(LoadedSeed);
 
     //So we can allow loading of multiplayer saves in single player and vice versa we need to know which type THIS save is
     LoadStream.Read(SaveIsMultiplayer);
+    if not SaveIsMultiplayer then
+      LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
     fPlayers := TKMPlayersCollection.Create;
 
@@ -1281,13 +1304,14 @@ begin
 
     LoadStream.Free;
 
-    if fMultiplayerMode then
+    if fMultiplayerMode and not aReplay then
       fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
     else
       fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
     fGameInputProcess.LoadFromFile(SaveName(aFileName,'rpl'));
 
-    CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
+    if not aReplay then
+      CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
 
     fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
     fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);

@@ -138,7 +138,7 @@ begin
                fPlayers.Player[GetOwner].Stats.HouseDestroyed(fHouse.HouseType);
 
            //Play a sound. We should not use KaMRandom here because sound playback depends on FOW and is individual for each player
-           if MyPlayer.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y) >= 255 then
+           if MyPlayer.FogOfWar.CheckTileRevelation(GetPosition.X, GetPosition.Y, true) >= 255 then
              fSoundLib.Play(MeleeSoundsHouse[Random(Length(MeleeSoundsHouse))], PositionF);
 
            fPhase := 1; //Go for another hit (will be 2 after inc below)
