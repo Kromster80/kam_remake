@@ -6,14 +6,14 @@ uses
 
 
 const
-  GUI_HOUSE_COUNT   = 29;   //Number of KaM houses to show in GUI
+  GUI_HOUSE_COUNT   = 27;   //Number of KaM houses to show in GUI
   GUIHouseOrder:array[1..GUI_HOUSE_COUNT]of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
     ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
     ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_Marketplace, ht_SiegeWorkshop);
+    ht_FisherHut, ht_Marketplace);
 
   BARRACKS_RES_COUNT = 11;
   BarracksResType: array[1..BARRACKS_RES_COUNT] of TResourceType =

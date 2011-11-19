@@ -1657,7 +1657,9 @@ begin
   Result := Result and TestRadius;
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
-  if aPass=CanWalk then
+  //canWolf and canCrab are similar to canWalk with some tiles excluded, so use canWalk floodfill (better than nothing)
+  //todo: Maybe we need wcWolf and wcCrab floodfills too. Otherwise they try to build impossible routes and waste a lot of CPU
+  if (aPass=CanWalk) or (aPass=CanWolf) or (aPass=CanCrab) then
   begin
     TestRadius := false;
     for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do

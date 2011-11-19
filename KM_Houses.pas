@@ -947,12 +947,9 @@ begin
     ht_CoalMine:      if (Work = ha_Work1)and(Step = 5) then fSoundLib.Play(sfx_coalDown, fPosition)
                       else if (Work = ha_Work1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud, fPosition,true,0.8)
                       else if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine, fPosition)
-                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine, fPosition,true,0.4) //echo
                       else if (Work = ha_Work5)and(Step = 1) then fSoundLib.Play(sfx_coalDown, fPosition);
-    ht_IronMine:      if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine, fPosition)
-                      else if (Work = ha_Work2)and(Step = 8) then fSoundLib.Play(sfx_mine, fPosition,true,0.4); //echo
-    ht_GoldMine:      if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_mine, fPosition)
-                      else if (Work = ha_Work2)and(Step = 6) then fSoundLib.Play(sfx_mine, fPosition,true,0.4); //echo
+    ht_IronMine:      if (Work = ha_Work2)and(Step = 7) then fSoundLib.Play(sfx_mine, fPosition);
+    ht_GoldMine:      if (Work = ha_Work2)and(Step = 5) then fSoundLib.Play(sfx_mine, fPosition);
     ht_Sawmill:       if (Work = ha_Work2)and(Step = 1) then fSoundLib.Play(sfx_saw, fPosition);
     ht_Wineyard:      if (Work = ha_Work2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep, fPosition)
                       else if (Work = ha_Work5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain, fPosition,true,1.5)

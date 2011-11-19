@@ -2,13 +2,13 @@
 MaxID:195
 
 1:Mission abgebrochen
-2:Aufbau Tutorial
-3:Kampf Tutorial
+2:Aufbaututorial
+3:Kampftutorial
 4:Einzelspieler
-5:Karten Editor
+5:Karteneditor
 6:Letzten Replay anzeigen
-7:Mission Starten
-8:Titel
+7:Mission starten
+8:Bezeichnung
 9:Größe
 10:Missionstyp: %s
 11:Siegbedingung: %s
@@ -22,11 +22,11 @@ MaxID:195
 20:Verfügbare Karten
 21:Vorhandene Karte öffnen
 22:Steuerung:
-23:Gameplay:
+23:Spieleinstellungen:
 24:Sound:
-141:Scrollgeschwindigkeit
+141:Scrollgeschw.
 25:Keine Musik
-143:Lieder mischen
+143:Lieder zufällig
 26:Grafik:
 27:Helligkeit
 28:Vollbild
@@ -34,8 +34,8 @@ MaxID:195
 30:Sprache:
 31:Lade... Bitte warten
 32:Ein Fehler ist aufgetreten!
-33:Loading new locale
-34:Gespeicherte Spiele
+33:Neue Lokalisierung laden
+34:Gespeicherte Spielstände
 35:Name
 36:Beschreibung
 37:Laden
@@ -43,8 +43,8 @@ MaxID:195
 39:Spielstand wirklich löschen?
 40:Löschen
 41:Abbrechen
-139:Multiplayer Karten
-140:Singleplayer Karten
+139:Mehrspieler-Karten
+140:Einzelspieler-Karten
 
 43:Spiel gewonnen!
 44:Weiterspielen
@@ -55,33 +55,33 @@ MaxID:195
 49:Replay beendet
 50:Weiter betrachten
 51:Zurück zum Menü
-166:
-167:
-168:
-171:
-172:
-173:
+166:Spieler trennen
+167:Der Host kann diese Spieler nach %d Sekunden trennen.
+168:Der Host darf diese Spieler nicht trennen
+171:Sicher beenden?
+172:Diesen Spieler sicher endgültig trennen?
+173:Abbrechen
 52:Nicht verfügbar
 53:%s drücken zum weiterspielen
 54:An das Team
 55:Spielerinfo
 56:Chat
-57:Name schon vorhand.
+57:Spielstand bereits vorhanden.
 58:Überschreiben
 59:Speichern
 60:Laden
 194:
 
-61:Ein Fehler ist während des Spiels aufgetreten.
-62:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
-63:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
+61:Während des Spiels ist ein Fehler aufgetreten.
+62:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+63:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte Grafikkartentreiber aktualisieren!
 64:Netzwerkfehler:
 65:Fehler: Bitte Spielername eingeben
 66:Verbindung fehlgeschlagen: %s
 67:Du bist nicht verbunden.
 68:Mission %d
-150:Bauen & Kämpfen
-151:Kämpfen
+150:Aufbau & Kampf
+151:Gefecht
 
 69:Diese Fischerhütte ist zu weit vom Wasser entfernt!
 70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
@@ -93,11 +93,11 @@ MaxID:195
 75:Zu x%d
 162:Verringere Warenanzahl
 161:Erhöhe Warenanzahl
-184:
+184:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
 185:
 186:
 
-76:Terrain bearbeiten
+76:Gelände bearbeiten
 77:Häuser bearbeiten
 78:Optische Skripte
 79:Globale Skripte
@@ -109,13 +109,13 @@ MaxID:195
 84:Name
 85:Port
 86:Erstelle lokalen Server
-87:Erstelle Internet Server
-88:Server Name
+87:Erstelle Internet-Server
+88:Servername
 89:Status
 90:Spieler
 91:Ping
-92:Aktualisiere Server Liste
-93:SERVER DETAILS
+92:Aktualisiere Serverliste
+93:SERVERDETAILS
 94:Spielerliste:
 144:Spielinfo:
 95:Adresse
@@ -127,7 +127,7 @@ MaxID:195
 159:Falsche Spielversion: %s. Server benötigt: %s
 100:Lade Ankündigung...
 101:Aktualisiere...
-142:Keine Server gefunden
+142:Keinen Server gefunden
 145:Nichts
 146:Lobby
 147:Laden
@@ -167,40 +167,40 @@ MaxID:195
 129:Bereit!
 152:Nicht bereit
 130:Start!
-149:Location %d
+149:Standort %d
 154:Fehler: Bitte übernehme einen Spieler aus dem Spielstand
 155:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt
 156:Kann nicht starten: %s
-157:Es ist noch nicht jeder bereit zu starten
-158:Spieleranzahl hat das Limit erreicht
+157:Noch nicht jeder ist bereit zu starten
+158:Die Spieleranzahl hat die Grenze erreicht
 160:Der Server hat dir die Hostingrechte übertragen
 187:
 
 131:Warte auf Spieler:
 163:Spiel wird gespeichert...
 164:%s wurde besiegt!
-169:
-170:
+169:Der Host (%s) hat das Spiel verlassen
+170:Die Verbindung zum Server ist unterbrochen. Versuche neu zu verbinden...
 191:
 192:
 193:
 
-174:
-175:
-176:
-177:
-178:
-179:
-180:
-181:
-182:
-183:
+174:Bürger|ausgebildet
+175:Bürger|verloren
+176:Soldaten|ausgehoben
+177:Soldaten|verloren
+178:Einheiten|besiegt
+179:Gebäude|errichtet
+180:Gebäude|verloren
+181:Gebäude|zerstört
+182:Waren|gefertigt
+183:Waffen|gefertigt
 
 132:KaM Remake Credits
-133:Original Knights & Merchants Credits
+133:Ursprünglichel Knights & Merchants Credits
 134:PROGRAMMIERUNG:
 135:WEITERE PROGRAMMIERUNG:
-136:ZUSÄTZLICHE GRAFIKEN:
-165:
-137:ZUSÄTZLICHE ÜBERSETZUNGEN:
-138:SPEZIELLES DANKESCHÖN AN:
+136:WEITERE GRAFIKEN:
+165:WEITERE SOUNDS:
+137:WEITERE ÜBERSETZUNGEN:
+138:BESONDERES DANKESCHÖN AN:
