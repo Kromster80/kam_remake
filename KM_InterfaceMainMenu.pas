@@ -2188,7 +2188,7 @@ begin
   Ratio_Options_Music.Position        := aGlobalSettings.MusicVolume;
   CheckBox_Options_MusicOn.Checked    := not aGlobalSettings.MusicOn;
   Ratio_Options_Music.Enabled         := not CheckBox_Options_MusicOn.Checked;
-  CheckBox_Options_ShuffleOn.Checked  := fGame.GlobalSettings.ShuffleOn;
+  CheckBox_Options_ShuffleOn.Checked  := aGlobalSettings.ShuffleOn;
   CheckBox_Options_ShuffleOn.Enabled  := not CheckBox_Options_MusicOn.Checked;
 
   for i:=1 to LOCALES_COUNT do

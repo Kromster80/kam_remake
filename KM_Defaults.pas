@@ -187,8 +187,8 @@ const
   CursorOffsetsX:array[1..25] of integer = (0,0,20, 0, 0,-8,9, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
   CursorOffsetsY:array[1..25] of integer = (0,9,10,18,20,44,13,0,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
 
-const DirCursorSqrSize  = 33; //Length of square sides
-      DirCursorNARadius = 14;  //Radius of centeral part that has no direction
+const DirCursorCircleRadius  = 32; //Radius of the direction selector cursor restriction area
+      DirCursorNARadius = 15;  //Radius of centeral part that has no direction
 
 {Controls}
 type

@@ -74,8 +74,8 @@ begin
   Result := Copy(FileName, 1, DotPlace - 1);
 end;
 
-//This version works better for Tablet and Touch input, but we don't have any of these yet
-{function KMGetCursorDirection(X,Y: integer): TKMDirection;
+
+function KMGetCursorDirection(X,Y: integer): TKMDirection;
 var Ang, Dist: Single;
 begin
   Dist := GetLength(X, Y);
@@ -89,28 +89,6 @@ begin
   end
   else
     Result := dir_NA;
-end;}
-
-
-function KMGetCursorDirection(X,Y: integer): TKMDirection;
-begin
-  if GetLength(X,Y) <= DirCursorNARadius then
-    Result := dir_NA
-  else
-    if abs(X) > abs(Y) then
-      if X > 0 then Result := dir_W
-               else Result := dir_E
-    else
-    if abs(Y) > abs(X) then
-      if Y > 0 then Result := dir_N
-               else Result := dir_S
-    else //Only way to select diagonals is by having X=Y (i.e. the corners), that natural way works best
-    if X = Y then
-      if X > 0 then Result := dir_NW
-               else Result := dir_SE
-    else //The last remaining branch is X = -Y
-      if X > 0 then Result := dir_SW
-               else Result := dir_NE;
 end;
 
 

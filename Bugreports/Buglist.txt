@@ -45,6 +45,7 @@
  +	The player's typed message and existing messages from the lobby chat will be copied to the in-game chat when the game starts
  +	Iron/gold mines should not raise the construction site because of the mountain when "flattening" it
  +	Multiplayer replays do not sync FOW so get mismatches
+ +	Improved the direction selector and fixed issues with some directions being harder to select
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies

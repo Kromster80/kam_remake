@@ -3117,14 +3117,11 @@ begin
       fTerrain.Route_CanBeMade(fShownUnit.GetPosition, GameCursor.Cell, CanWalk, 0, false) then
     begin
       SelectingTroopDirection := true; //MouseMove will take care of cursor changing
-      //Record current cursor position so we can stop it from moving while we are setting direction
-      GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
-      //Restrict cursor to a rectangle (half a rect in both axes)
-      MyRect.Left   := SelectingDirPosition.X-((DirCursorSqrSize-1) div 2);
-      MyRect.Top    := SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2);
-      MyRect.Right  := SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1;
-      MyRect.Bottom := SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1;
+      //Restrict the cursor to inside the main panel so it does not get jammed when used near the edge of the window in windowed mode
       {$IFDEF MSWindows}
+      MyRect := Form1.Panel5.ClientRect;
+      MyRect.TopLeft := Form1.Panel5.ClientToScreen(MyRect.TopLeft);
+      MyRect.BottomRight := Form1.Panel5.ClientToScreen(MyRect.BottomRight);
       ClipCursor(@MyRect);
       {$ENDIF}
       //Now record it as Client XY
@@ -3142,7 +3139,7 @@ end;
 //2. Perform SelectingTroopDirection if it is active
 //3. Display various cursors depending on whats below (might be called often)
 procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
-var DeltaX,DeltaY:integer; U:TKMUnit; H:TKMHouse;
+var DeltaX,DeltaY,DeltaDistanceSqr:integer; NewPoint:TPoint; U:TKMUnit; H:TKMHouse;
 begin
   MyControls.MouseMove(X,Y,Shift);
 
@@ -3164,6 +3161,18 @@ begin
   begin
     DeltaX := SelectingDirPosition.X - X;
     DeltaY := SelectingDirPosition.Y - Y;
+    DeltaDistanceSqr := Sqr(DeltaX)+Sqr(DeltaY);
+    //Manually force the cursor to remain within a circle (+2 to avoid infinite loop due to rounding)
+    if DeltaDistanceSqr > Sqr(DirCursorCircleRadius+2) then
+    begin
+      DeltaX := Round(DeltaX / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
+      DeltaY := Round(DeltaY / Sqrt(DeltaDistanceSqr) * DirCursorCircleRadius);
+      NewPoint := Form1.Panel5.ClientToScreen(SelectingDirPosition);
+      NewPoint.X := NewPoint.X - DeltaX;
+      NewPoint.Y := NewPoint.Y - DeltaY;
+      SetCursorPos(NewPoint.X, NewPoint.Y);
+    end;
+
     //Compare cursor position and decide which direction it is
     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
     //Update the cursor based on this direction and negate the offset
