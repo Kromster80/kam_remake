@@ -1193,7 +1193,7 @@ begin
      (Sender=Button_SingleBack)or
      (Sender=Button_LoadBack) then begin
     Panel_SinglePlayer.Show;
-    Button_SP_Replay.Enabled := fGame.ReplayExists;
+    Button_SP_Replay.Enabled := fGame.ReplayExists('basesave',false);
   end;
 
   {Show TSK campaign menu}
@@ -2100,14 +2100,14 @@ end;
 procedure TKMMainMenuInterface.Replays_ListClick(Sender: TObject);
 begin
   Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
-                                and fSaves[List_Replays.ItemIndex].IsValid;
+                                and fSaves[List_Replays.ItemIndex].IsValid
+                                and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].Filename,(Radio_Replays_Type.ItemIndex = 1));
 end;
 
 
 procedure TKMMainMenuInterface.Replay_TypeChange(Sender: TObject);
 begin
   Replays_RefreshList;
-  List_MapEd.ItemIndex := 0;
 end;
 
 

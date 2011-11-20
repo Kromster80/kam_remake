@@ -150,14 +150,14 @@ type
       DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
       Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
       Label_AlliesPing:array [0..MAX_PLAYERS-1] of TKMLabel;
-      Button_AlliesClose:TKMButton;
+      Image_AlliesClose:TKMImage;
     Panel_Chat: TKMPanel; //For multiplayer: Send, reply, text area for typing, etc.
       Dragger_Chat: TKMDragger;
       Image_ChatHead, Image_ChatBody: TKMImage;
       Memo_ChatText: TKMMemo;
       Edit_ChatMsg: TKMEdit;
       CheckBox_SendToAllies: TKMCheckBox;
-      Button_ChatClose: TKMButton;
+      Image_ChatClose: TKMImage;
     Panel_Message:TKMPanel;
       Image_MessageBG:TKMImage;
       Image_MessageBGTop:TKMImage;
@@ -348,7 +348,7 @@ KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Gam
 KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit;
 
 const
-  MESSAGE_AREA_HEIGHT = 170+17; //Image_ChatHead + Image_ChatBody
+  MESSAGE_AREA_HEIGHT = 173+17; //Image_ChatHead + Image_ChatBody
   MESSAGE_AREA_RESIZE_Y = 200; //How much can we resize it
 
   ResRatioCount = 4;
@@ -994,7 +994,7 @@ begin
     Image_ChatHead := TKMImage.Create(Panel_Chat,0,0,800,17,552);
     Image_ChatHead.Anchors := [akLeft, akTop, akRight];
     Image_ChatHead.ImageStretch;
-    Image_ChatBody := TKMImage.Create(Panel_Chat,0,17,800,170,410);
+    Image_ChatBody := TKMImage.Create(Panel_Chat,0,17,800,173,410);
     Image_ChatBody.Anchors := [akLeft, akTop, akRight, akBottom];
     Image_ChatBody.ImageStretch;
 
@@ -1018,11 +1018,11 @@ begin
     CheckBox_SendToAllies.Checked := true;
     CheckBox_SendToAllies.Anchors := [akRight, akBottom];
 
-    Button_ChatClose:=TKMButton.Create(Panel_Chat,800-35,30,30,24,'[X]',fnt_Antiqua);
-    Button_ChatClose.Anchors := [akTop, akRight];
-    Button_ChatClose.Hint := fTextLibrary.GetTextString(283);
-    Button_ChatClose.OnClick := Chat_Close;
-    Button_ChatClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
+    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,30,24,43,7);
+    Image_ChatClose.Anchors := [akTop, akRight];
+    Image_ChatClose.Hint := fTextLibrary.GetTextString(283);
+    Image_ChatClose.OnClick := Chat_Close;
+    Image_ChatClose.HighlightOnMouseOver := true;
 end;
 
 
@@ -1034,8 +1034,8 @@ begin
   Panel_Allies.Anchors := [akLeft, akRight, akBottom];
   Panel_Allies.Hide;
 
-    TKMImage.Create(Panel_Allies,0,17,800,170,410);
     TKMImage.Create(Panel_Allies,0,0,800,17,552);
+    TKMImage.Create(Panel_Allies,0,17,800,173,410);
 
     Label_PeacetimeRemaining := TKMLabel.Create(Panel_Allies,400,20,800,20,'',fnt_Outline,taCenter);
 
@@ -1058,10 +1058,10 @@ begin
       Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
     end;
 
-    Button_AlliesClose:=TKMButton.Create(Panel_Allies,800-35,30,30,24,'[X]',fnt_Antiqua);
-    Button_AlliesClose.Hint := fTextLibrary.GetTextString(283);
-    Button_AlliesClose.OnClick := Allies_Close;
-    Button_AlliesClose.MakesSound := false; //Don't play default Click as these buttons use sfx_MessageClose
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,30,24,43,7);
+    Image_AlliesClose.Hint := fTextLibrary.GetTextString(283);
+    Image_AlliesClose.OnClick := Allies_Close;
+    Image_AlliesClose.HighlightOnMouseOver := true;
 end;
 
 
@@ -3017,7 +3017,7 @@ begin
     gsPaused:   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(false);
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
-                  if (Key=VK_ESCAPE) and (Button_ChatClose.DoClick or Button_AlliesClose.DoClick) then exit; //Escape from chat/allies page
+                  if (Key=VK_ESCAPE) and (Image_ChatClose.DoClick or Image_AlliesClose.DoClick) then exit; //Escape from chat/allies page
                   if MyControls.KeyUp(Key, Shift) then Exit;
 
                   //Scrolling
@@ -3042,8 +3042,8 @@ begin
                   if Key in [ord('1')..ord('4')] then Button_Main[Key-48].DoClick;
                   if Key=VK_ESCAPE then if Button_Army_Join_Cancel.DoClick then exit
                                         else if Button_MessageClose.DoClick then exit
-                                        else if Button_ChatClose.DoClick then exit
-                                        else if Button_AlliesClose.DoClick then exit
+                                        else if Image_ChatClose.DoClick then exit
+                                        else if Image_AlliesClose.DoClick then exit
                                         else if Button_Main[5].DoClick then exit;
                   //Messages
                   if Key=VK_SPACE  then Button_MessageGoTo.DoClick; //In KaM spacebar centers you on the message

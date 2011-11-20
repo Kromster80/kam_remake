@@ -103,7 +103,7 @@ type
     procedure BaseSave;
     procedure SaveMapEditor(const aMissionName:string; aMultiplayer:boolean);
 
-    function  ReplayExists:boolean;
+    function  ReplayExists(const aSaveName:string; aMultiplayer:boolean):boolean;
     procedure RestartReplay;
     procedure StartReplay(const aSaveName:string; aMultiplayer:boolean);
 
@@ -1033,10 +1033,14 @@ end;
 
 
 { Check if replay files exist at location }
-function TKMGame.ReplayExists:boolean;
+function TKMGame.ReplayExists(const aSaveName:string; aMultiplayer:boolean):boolean;
+var OldMultiplayerMode:boolean;
 begin
-  Result := FileExists(SaveName('basesave', 'bas')) and
-            FileExists(SaveName('basesave', 'rpl'));
+  OldMultiplayerMode := fMultiplayerMode;
+  fMultiplayerMode := aMultiplayer;
+  Result := FileExists(SaveName(aSaveName, 'bas')) and
+            FileExists(SaveName(aSaveName, 'rpl'));
+  fMultiplayerMode := OldMultiplayerMode;
 end;
 
 //Restart the replay but do not change the viewport position/zoom

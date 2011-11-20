@@ -217,6 +217,7 @@ type
     Highlight:boolean;
     HighlightOnMouseOver:boolean;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
+    function DoClick:boolean;
     procedure ImageStretch;
     procedure ImageCenter;
     procedure Paint; override;
@@ -1175,6 +1176,23 @@ begin
   ImageAnchors := [akLeft, akTop];
   Highlight := false;
   HighlightOnMouseOver := false;
+end;
+
+
+//DoClick is called by keyboard shortcuts
+//It's important that Control must be:
+// IsVisible (can't shortcut invisible/unaccessible button)
+// Enabled (can't shortcut disabled function, e.g. Halt during fight)
+function TKMImage.DoClick:boolean;
+begin
+  if Visible and fEnabled then begin
+    //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
+    Parent.GetCollection.CtrlOver := Self;
+    Parent.GetCollection.CtrlUp := Self;
+    if Assigned(fOnClick) then fOnClick(Self);
+    Result := true; //Click has happened
+  end else
+    Result := false; //No, we couldn't click for Control is unreachable
 end;
 
 
