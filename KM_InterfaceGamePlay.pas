@@ -1018,7 +1018,7 @@ begin
     CheckBox_SendToAllies.Checked := true;
     CheckBox_SendToAllies.Anchors := [akRight, akBottom];
 
-    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,30,24,43,7);
+    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,43,7);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary.GetTextString(283);
     Image_ChatClose.OnClick := Chat_Close;
@@ -1058,7 +1058,7 @@ begin
       Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,30,24,43,7);
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,43,7);
     Image_AlliesClose.Hint := fTextLibrary.GetTextString(283);
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := true;
@@ -2717,6 +2717,7 @@ end;
 
 procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
 begin
+  ReleaseDirectionSelector;
   PlayMoreMsg := Msg;
   case Msg of
     gr_Win:       begin
@@ -2742,6 +2743,7 @@ end;
 
 procedure TKMGamePlayInterface.ShowMPPlayMore(Msg:TGameResultMsg);
 begin
+  ReleaseDirectionSelector;
   case Msg of
     gr_Win:       begin
                     Label_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_WON];
@@ -2796,6 +2798,7 @@ end;
 procedure TKMGamePlayInterface.ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
 var i:integer; S:String;
 begin
+  if DoShow then ReleaseDirectionSelector;
   if not DoShow then //Reset the confirm when we hide this screen so it's not on confirm when it reshows
   begin
     Panel_NetWaitConfirm.Hide;

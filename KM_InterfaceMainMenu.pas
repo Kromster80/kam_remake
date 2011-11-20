@@ -478,7 +478,7 @@ begin
   Panel_StatsMP2.Height := 40 + fPlayers.Count * 25 + 20;
 
   Panel_StatsMP1.Top := 140 + (520 - Panel_StatsMP1.Height * 2) div 2;
-  Panel_StatsMP2.Top := Panel_StatsMP1.Top + Panel_StatsMP1.Height;
+  //Second panel does not move from the middle of the screen: results always go above and below the middle
 
   //Fill in raw values
   for i:=0 to fPlayers.Count-1 do
@@ -1824,6 +1824,7 @@ begin
   for i:=fGame.Networking.NetPlayers.Count to MAX_PLAYERS-1 do
   begin
     Label_LobbyPlayer[i].Caption := '';
+    Image_LobbyFlag[i].TexID := 0;
     Label_LobbyPlayer[i].Hide;
     DropBox_LobbyPlayerSlot[i].Show;
     DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open

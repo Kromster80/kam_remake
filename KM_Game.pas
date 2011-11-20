@@ -784,14 +784,13 @@ begin
   if aPlayerIndex = MyPlayer.PlayerIndex then fSoundLib.Play(sfxn_Defeat, 1.0, true); //Fade music
   if MultiplayerMode then
   begin
+    fNetworking.PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_PLAYER_DEFEATED],
+                                        [fPlayers[aPlayerIndex].PlayerName]));
     if aPlayerIndex = MyPlayer.PlayerIndex then
     begin
       PlayOnState := gr_Defeat;
       fGamePlayInterface.ShowMPPlayMore(gr_Defeat);
-    end
-    else
-      fNetworking.PostLocalMessage(Format(fTextLibrary[TX_MULTIPLAYER_PLAYER_DEFEATED],
-                                          [fPlayers[aPlayerIndex].PlayerName]));
+    end;
   end
   else
     RequestGameHold(gr_Defeat);
