@@ -47,15 +47,14 @@ begin
   Writeln('Settings file: '+ExeDir+SETTINGS_FILE);
   Writeln('');
 
-  fEventHandler.ServerStatusMessage('Using protocol for clients running '+SERVER_PROTOCOL_REVISON);
+  fEventHandler.ServerStatusMessage('Using protocol for clients running '+NET_PROTOCOL_REVISON);
 
   fSettings := TGlobalSettings.Create;
   fSettings.SaveSettings(true);
   fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
   fLastSettingsFileCheck := 0;
 
-  fDedicatedServer := TKMDedicatedServer.Create(SERVER_PROTOCOL_REVISON,
-                                                fSettings.MaxRooms,
+  fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
                                                 fSettings.AutoKickTimeout,
                                                 fSettings.PingInterval,
                                                 fSettings.MasterAnnounceInterval,

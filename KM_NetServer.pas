@@ -74,6 +74,8 @@ type
 
     fClientList:TKMClientsList;
     fListening:boolean;
+    BytesTX:Int64; //May exceed 4GB allowed by cardinal
+    BytesRX:Int64;
 
     fMaxRooms:word;
     fHTMLStatusFile:string;
@@ -453,6 +455,8 @@ begin
       fServer.SendData(fClientList[i].Handle, M.Memory, M.Size)
   else
     fServer.SendData(aRecipient, M.Memory, M.Size);
+
+  inc(BytesTX,M.Size);
   M.Free;
 end;
 
@@ -465,6 +469,8 @@ var
   Msg:string;
 begin
   Assert(aLength >= 1, 'Unexpectedly short message');
+
+  inc(BytesRX,aLength);
 
   M := TKMemoryStream.Create;
   M.WriteBuffer(aData^, aLength);
@@ -691,27 +697,87 @@ end;
 
 
 procedure TKMNetServer.SaveHTMLStatus;
+
+  //Removes any characters that are not acceptable in UTF-8/XML/HTML
+  function CleanString(const aStr:string):string;
+  var i:integer;
+  begin
+    Result := '';
+    for i:=1 to Length(aStr) do
+      if (aStr[i] in [#32..#126,#160..#255]) and not (aStr[i] in ['<','&']) then
+        Result := Result + aStr[i];
+  end;
+
+  function AddThousandSeparator(S: string; Chr: Char=','): string;
+  var
+    I: Integer;
+  begin
+    Result := S;
+    I := Length(S) - 2;
+    while I > 1 do
+    begin
+      Insert(Chr, Result, I);
+      I := I - 3;
+    end;
+  end;
+
 var
-  i:integer;
-  HTML:string;
-  HTMLFile:TextFile;
+  i,PlayerCount,RoomCount:integer;
+  HTML,XML,RoomXML,PlayersStr:string;
+  MyFile:TextFile;
 begin
   if fHTMLStatusFile = '' then exit; //Means do not write status
 
-  HTML := '<HTML><HEAD><TITLE>KaM Remake Server Status</TITLE></HEAD>'+#13;
+  RoomCount := 0;
+  PlayerCount := 0;
+  HTML := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+#13+
+          '<HTML>'+#13+'<HEAD>'+#13+'  <TITLE>KaM Remake Server Status</TITLE>'+#13+
+          '  <meta http-equiv="content-type" content="text/html; charset=utf-8">'+#13+'</HEAD>'+#13;
   HTML := HTML + '<BODY>'+#13;
-  HTML := HTML + '<TABLE border="1"><TR><TD><b>Room ID</b></TD><TD><b>State</b></TD><TD><b>Player Count</b></TD><TD><b>Player Names</b></TD></TR>'+#13;
+  HTML := HTML + '<TABLE border="1">'+#13+'<TR><TD><b>Room ID</b></TD><TD><b>State</b><TD><b>Player Count</b></TD></TD><TD><b>Map</b></TD><TD><b>Game Time</b></TD><TD><b>Player Names</b></TD></TR>'+#13;
+  XML := '<?xml version="1.0" encoding="utf-8" ?>'+#13#10;
+  XML := XML + '<server>'+#13;
+  RoomXML := '';
   for i:=0 to fRoomCount-1 do
     if GetRoomPlayersCount(i) > 0 then
-      HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+GameStateText[fRoomInfo[i].GameInfo.GameState]+
-                     '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+'</TD><TD>'+fRoomInfo[i].GameInfo.GetAsHTML+'</TD></TR>'+#13;
+    begin
+      inc(RoomCount);
+      inc(PlayerCount,GetRoomPlayersCount(i));
+      PlayersStr := CleanString(StringReplace(StringReplace(fRoomInfo[i].GameInfo.Players,',','',[rfReplaceAll]),'|',',',[rfReplaceAll]));
+      HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+
+                     '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+
+                     '</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.Map)+
+                     '&nbsp;</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+
+                     '&nbsp;</TD><TD>'+PlayersStr+'</TD></TR>'+#13;
+      RoomXML := RoomXML + '  <room id="'+IntToStr(i)+'">'+#13+
+                           '    <state>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+'</state>'+#13+
+                           '    <roomplayercount>'+IntToStr(GetRoomPlayersCount(i))+'</roomplayercount>'+#13+
+                           '    <map>'+CleanString(fRoomInfo[i].GameInfo.Map)+'</map>'+#13+
+                           '    <gametime>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+'</gametime>'+#13+
+                           '    <players>'+PlayersStr+'</players>'+#13+
+                           '  </room>'+#13;
+    end;
 
-  HTML := HTML + '</TABLE></BODY></HTML>';
+  HTML := HTML + '</TABLE>'+#13+
+                 '<p>Total sent: '+AddThousandSeparator(IntToStr(BytesTX))+' bytes</p>'+#13+
+                 '<p>Total received: '+AddThousandSeparator(IntToStr(BytesRX))+' bytes</p>'+#13+
+                 '</BODY>'+#13+'</HTML>';
+  XML := XML + '  <roomcount>'+IntToStr(RoomCount)+'</roomcount>'+#13;
+  XML := XML + '  <playercount>'+IntToStr(PlayerCount)+'</playercount>'+#13;
+  XML := XML + '  <bytessent>'+IntToStr(BytesTX)+'</playercount>'+#13;
+  XML := XML + '  <bytesreceived>'+IntToStr(BytesRX)+'</playercount>'+#13;
+  XML := XML + RoomXML;
+  XML := XML + '</server>';
 
-  AssignFile(HTMLFile, fHTMLStatusFile);
-  ReWrite(HTMLFile);
-  Write(HTMLFile,HTML);
-  CloseFile(HTMLFile);
+  AssignFile(MyFile, fHTMLStatusFile);
+  ReWrite(MyFile);
+  Write(MyFile,HTML);
+  CloseFile(MyFile);
+
+  AssignFile(MyFile, ChangeFileExt(fHTMLStatusFile,'.xml'));
+  ReWrite(MyFile);
+  Write(MyFile,XML);
+  CloseFile(MyFile);
 end;
 
 

@@ -1252,8 +1252,8 @@ var MPGameInfo: TMPGameInfo;
 begin
   if not IsHost then exit;
   MPGameInfo := TMPGameInfo.Create;
-  if (fNetGameState = lgs_Lobby) and (GameInfo <> nil) then aMap := GameInfo.Title;
-  if (fNetGameState = lgs_Lobby) then aGameTime := -1;
+  if (fNetGameState in [lgs_Lobby,lgs_Loading]) and (GameInfo <> nil) then aMap := GameInfo.Title;
+  if (fNetGameState in [lgs_Lobby,lgs_Loading]) then aGameTime := -1;
   MPGameInfo.Map := aMap;
   MPGameInfo.GameTime := aGameTime;
   MPGameInfo.GameState := NetMPGameState[fNetGameState];
