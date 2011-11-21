@@ -667,6 +667,7 @@ procedure TKMGame.GameMPDisconnect(const aData:string);
 begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin
+    if WRITE_RECONNECT_LOG then fLog.AppendLog('GameMPDisconnect: '+aData);
     fNetworking.PostLocalMessage('Connection failed: '+aData,false); //Debugging that should be removed later
     fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
     fNetworking.OnJoinAssignedHost := nil;

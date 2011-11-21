@@ -71,7 +71,8 @@ type
     mk_AskToReconnect,  //Dropped player askes permission from the host to reconnect
     mk_RefuseReconnect, //Host tells the dropped player he is not allowed to reconnect
     mk_ResyncFromTick,  //Dropped player requests other players to send missed commands from specified tick
-    mk_ResyncEveryone,  //Host tells dropped player which tick they must resync from
+    mk_ReconnectionAccepted, //Host tells dropped player they are accepted back into the game
+    mk_ClientReconnected, //Host tells other players the index of a reconnected client
 
     mk_Commands,        //Clients exchange commands for next ticks
     mk_Text             //Clients exchange text messages
@@ -120,7 +121,8 @@ const
     pfText,     //mk_AskToReconnect
     pfText,     //mk_RefuseReconnect
     pfNumber,   //mk_ResyncFromTick
-    pfNumber,   //mk_ResyncEveryone
+    pfNoData,   //mk_ReconnectionAccepted
+    pfNumber,   //mk_ClientReconnected
     pfText,     //mk_Commands
     pfText      //mk_Text
   );

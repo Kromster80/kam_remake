@@ -95,6 +95,7 @@ var
   WRITE_DECODED_MISSION :boolean=true; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :boolean=false; //Write even more output into log + slows down game noticably
+  WRITE_RECONNECT_LOG   :boolean=true;
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
 
