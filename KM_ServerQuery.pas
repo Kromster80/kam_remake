@@ -249,7 +249,7 @@ begin
 
   case Kind of
     mk_GameVersion:
-      if Msg <> GAME_REVISION then
+      if Msg <> NET_PROTOCOL_REVISON then
         fQueryIsDone := true;
 
     mk_IndexOnServer:
@@ -288,7 +288,7 @@ constructor TKMServerQuery.Create(aMasterServerAddress:string);
 var i: integer;
 begin
   Inherited Create;
-  fMasterServer := TKMMasterServer.Create(GAME_REVISION, aMasterServerAddress);
+  fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnServerList := ReceiveServerList;
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
   fServerList := TKMServerList.Create;

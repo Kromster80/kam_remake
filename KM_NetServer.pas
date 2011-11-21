@@ -74,7 +74,6 @@ type
 
     fClientList:TKMClientsList;
     fListening:boolean;
-    fVersion:string;
 
     fMaxRooms:word;
     fHTMLStatusFile:string;
@@ -104,7 +103,7 @@ type
     procedure AddClientToRoom(aHandle, Room:integer);
     procedure SaveHTMLStatus;
   public
-    constructor Create(const aVersion:string; aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+    constructor Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
     destructor Destroy; override;
     procedure StartListening(aPort:string);
     procedure StopListening;
@@ -191,12 +190,11 @@ end;
 
 
 { TKMNetServer }
-constructor TKMNetServer.Create(const aVersion:string; aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
 begin
   Inherited Create;
   fEmptyGameInfo := TMPGameInfo.Create;
   fEmptyGameInfo.GameTime := -1;
-  fVersion := aVersion;
   fMaxRooms := aMaxRooms;
   fKickTimeout := aKickTimeout;
   fHTMLStatusFile := aHTMLStatusFile;
@@ -325,7 +323,7 @@ end;
 procedure TKMNetServer.ClientConnect(aHandle:integer);
 begin
   fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they choose a room later
-  SendMessage(aHandle, mk_GameVersion, 0, fVersion); //First make sure they are using the right version
+  SendMessage(aHandle, mk_GameVersion, 0, NET_PROTOCOL_REVISON); //First make sure they are using the right version
   if fWelcomeMessage <> '' then SendMessage(aHandle, mk_WelcomeMessage, 0, fWelcomeMessage); //Welcome them to the server
   SendMessage(aHandle, mk_IndexOnServer, aHandle, ''); //This is the signal that the client may now start sending
 end;

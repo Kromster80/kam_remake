@@ -399,7 +399,7 @@ end;
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
-  if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
+  if (fGame.GameState in [gsNoGame, gsEditor]) or (fGame.MultiplayerMode and not fGame.ReplayMode) then exit;
   if CheckBox2.Checked then fGame.SetGameSpeed(300) else fGame.SetGameSpeed(1);
 end;
 

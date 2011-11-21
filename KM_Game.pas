@@ -635,6 +635,7 @@ begin
   fNetworking.OnPlayersSetup := fGamePlayInterface.AlliesOnPlayerSetup;
   fNetworking.OnPingInfo     := fGamePlayInterface.AlliesOnPingInfo;
   fNetworking.OnDisconnect   := GameMPDisconnect; //For auto reconnecting
+  fNetworking.OnReassignedHost := nil; //So it is no longer assigned to a lobby event
   fNetworking.GameCreated;
 
   if fNetworking.Connected and (fNetworking.NetGameState = lgs_Loading) then GameWaitingForNetwork(true); //Waiting for players
@@ -666,7 +667,10 @@ procedure TKMGame.GameMPDisconnect(const aData:string);
 begin
   if fNetworking.NetGameState in [lgs_Game, lgs_Reconnecting] then
   begin
+    fNetworking.PostLocalMessage('Connection failed: '+aData,false); //Debugging that should be removed later
     fNetworking.OnJoinFail := GameMPDisconnect; //If the connection fails (e.g. timeout) then try again
+    fNetworking.OnJoinAssignedHost := nil;
+    fNetworking.OnJoinSucc := nil;
     fNetworking.AttemptReconnection;
   end
   else

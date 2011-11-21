@@ -1194,7 +1194,8 @@ begin
   begin
     if fState = ws_RepositionPause then
     begin
-      Direction := fOrderLoc.Dir; //Face the way we were told to after our walk (this creates a short pause before we fix direction)
+      if fOrderLoc.Dir <> dir_NA then //This should not be the case but will be used as a temporary fix until we refactor into TGroup
+        Direction := fOrderLoc.Dir; //Face the way we were told to after our walk (this creates a short pause before we fix direction)
       CheckForEnemy; //Important for archers, check for enemy once we are in position
       if PositioningDone then
         fState := ws_None;

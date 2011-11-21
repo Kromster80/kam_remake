@@ -20,7 +20,7 @@ type
     procedure StatusMessage(const aData: string);
     procedure MasterServerError(const aData: string);
   public
-    constructor Create(const aVersion: string; aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
+    constructor Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
                        const aMasterServerAddress:string; const aHTMLStatusFile:string;
                        const aWelcomeMessage:string);
     destructor Destroy; override;
@@ -39,13 +39,13 @@ implementation
 
 
 //Announce interval of -1 means the server will not be published (LAN)
-constructor TKMDedicatedServer.Create(const aVersion: string; aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
+constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
                                       const aMasterServerAddress:string; const aHTMLStatusFile:string;
                                       const aWelcomeMessage:string);
 begin
   Inherited Create;
-  fNetServer := TKMNetServer.Create(aVersion, aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
-  fMasterServer := TKMMasterServer.Create(aVersion, aMasterServerAddress);
+  fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
+  fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnError := MasterServerError;
   fAnnounceInterval := aAnnounceInterval;
   fPingInterval := aPingInterval;

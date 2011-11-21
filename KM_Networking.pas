@@ -26,7 +26,7 @@ const
    mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangID,mk_GameOptions], //lgs_Lobby
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked], //lgs_Loading
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked], //lgs_Game
-  [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_ResyncEveryone,mk_RefuseReconnect,mk_Kicked] //lgs_Reconnecting
+  [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_PlayersList,mk_ResyncEveryone,mk_RefuseReconnect,mk_Kicked] //lgs_Reconnecting
   );
 
   JOIN_TIMEOUT = 8000; //8 sec. Timeout for join queries
@@ -107,7 +107,7 @@ type
     //Lobby
     property ServerQuery:TKMServerQuery read fServerQuery;
     procedure Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
-    procedure Join(aServerAddress,aPort,aUserName:string; aRoom:integer);
+    procedure Join(aServerAddress,aPort,aUserName:string; aRoom:integer; aIsReconnection:boolean=false);
     procedure AnnounceDisconnect;
     procedure Disconnect;
     procedure DropWaitingPlayers(aPlayers:TStringList);
@@ -180,7 +180,7 @@ begin
   Inherited Create;
   SetGameState(lgs_None);
   fMyLang := aLang;
-  fNetServer := TKMDedicatedServer.Create(GAME_REVISION, 1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '');
+  fNetServer := TKMDedicatedServer.Create(1, aKickTimeout, aPingInterval, aAnnounceInterval, aMasterServerAddress, '', '');
   fNetClient := TKMNetClient.Create;
   fNetPlayers := TKMPlayersList.Create;
   fServerQuery := TKMServerQuery.Create(aMasterServerAddress);
@@ -241,7 +241,7 @@ begin
 end;
 
 
-procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string; aRoom:integer);
+procedure TKMNetworking.Join(aServerAddress,aPort,aUserName:string; aRoom:integer; aIsReconnection:boolean=false);
 begin
   Assert(not fNetClient.Connected, 'Cannot connect: We are already connected');
 
@@ -251,7 +251,10 @@ begin
   fMyIndex := -1; //Host will send us PlayerList and we will get our index from there
   fMyIndexOnServer := -1; //Assigned by Server
   fRoomToJoin := aRoom;
-  SetGameState(lgs_Connecting); //We are still connecting to the server
+  if aIsReconnection then
+    SetGameState(lgs_Reconnecting) //Special state so we know we are reconnecting
+  else
+    SetGameState(lgs_Connecting); //We are still connecting to the server
 
   fServerAddress := aServerAddress;
   fServerPort := aPort;
@@ -635,7 +638,8 @@ begin
     Exit;
   end;
 
-  //Let everyone start with final version of fNetPlayers
+  //Let everyone start with final version of fNetPlayers and fNetGameOptions
+  SendGameOptions;
   PacketSend(NET_ADDRESS_OTHERS, mk_Start, fNetPlayers.GetAsText, 0);
 
   StartGame;
@@ -743,9 +747,8 @@ begin
   //Stop the previous connection without calling Self.Disconnect as that frees everything
   fNetClient.Disconnect;
   TempMyIndex := fMyIndex;
-  Join(fServerAddress,fServerPort,fMyNikname,fRoomToJoin); //Join the same server/room as before
+  Join(fServerAddress,fServerPort,fMyNikname,fRoomToJoin, true); //Join the same server/room as before in reconnecting mode
   fMyIndex := TempMyIndex; //Join overwrites it, but we must remember it
-  SetGameState(lgs_Reconnecting); //Special state so we know we are reconnecting
 end;
 
 
@@ -800,10 +803,10 @@ begin
 
   case Kind of
     mk_GameVersion:
-            if Msg <> GAME_REVISION then
+            if Msg <> NET_PROTOCOL_REVISON then
             begin
               Assert(not IsHost);
-              fOnJoinFail(Format(fTextLibrary[TX_MP_MENU_WRONG_VERSION],[GAME_REVISION,Msg]));
+              fOnJoinFail(Format(fTextLibrary[TX_MP_MENU_WRONG_VERSION],[NET_PROTOCOL_REVISON,Msg]));
               fNetClient.Disconnect;
               exit;
             end;
@@ -873,10 +876,10 @@ begin
               if ReMsg = '' then
               begin
                 PostMessage(Msg+' has reconnected');
-                PacketSend(aSenderIndex, mk_ResyncEveryone, '', Integer(fLastProcessedTick));
                 fNetPlayers[PlayerIndex].SetIndexOnServer := aSenderIndex; //They will have a new index
                 fNetPlayers[PlayerIndex].Connected := true; //This player is now back online
                 SendPlayerListAndRefreshPlayersSetup;
+                PacketSend(aSenderIndex, mk_ResyncEveryone, '', Integer(fLastProcessedTick));
               end
               else
                 PacketSend(aSenderIndex, mk_RefuseReconnect, ReMsg, 0);
@@ -1004,6 +1007,7 @@ begin
                 lgs_Lobby:   begin
                                fNetPlayers[fMyIndex].ReadyToStart := true; //The host is always ready
                                fNetPlayers.SetAIReady; //Set all AI players to ready
+                               SendGameOptions; //Only needs to be sent when in the lobby. Our version becomes standard.
                              end;
                 lgs_Loading: begin
                                if Assigned(fOnReadyToPlay) then fOnReadyToPlay(Self);
@@ -1012,7 +1016,6 @@ begin
               end;
 
               SendPlayerListAndRefreshPlayersSetup;
-              SendGameOptions;
               PostMessage('Hosting rights reassigned to '+fMyNikname);
             end;
 

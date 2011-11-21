@@ -12,13 +12,12 @@ type
     fOnError:TGetStrProc;
     fOnServerList:TGetStrProc;
     fOnAnnouncements:TGetStrProc;
-    fVersion:string;
 
     procedure Receive(const S: string);
     procedure ReceiveAnnouncements(const S: string);
     procedure Error(const S: string);
   public
-    constructor Create(const aVersion:string; const aMasterServerAddress:string);
+    constructor Create(const aMasterServerAddress:string);
     destructor Destroy; override;
 
     property OnError:TGetStrProc write fOnError;
@@ -35,10 +34,9 @@ type
 implementation
 
 
-constructor TKMMasterServer.Create(const aVersion:string; const aMasterServerAddress:string);
+constructor TKMMasterServer.Create(const aMasterServerAddress:string);
 begin
   Inherited Create;
-  fVersion := aVersion;
   fHTTPClient := TKMHTTPClient.Create;
   fHTTPAnnouncementsClient := TKMHTTPClient.Create;
   fHTTPClient.OnReceive := nil;
@@ -78,21 +76,21 @@ begin
   fHTTPClient.OnReceive := nil; //We don't care about the response
   fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
                      +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
-                     +'&rev='+UrlEncode(fVersion)+'&coderev='+UrlEncode(GAME_REVISION));
+                     +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 
 
 procedure TKMMasterServer.QueryServer;
 begin
   fHTTPClient.OnReceive := Receive;
-  fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(fVersion));
+  fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 
 
 procedure TKMMasterServer.FetchAnnouncements(const aLang: string);
 begin
   fHTTPAnnouncementsClient.OnReceive := ReceiveAnnouncements;
-  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(aLang)+'&rev='+UrlEncode(fVersion));
+  fHTTPAnnouncementsClient.GetURL(fMasterServerAddress+'announcements.php?lang='+UrlEncode(aLang)+'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 
 
