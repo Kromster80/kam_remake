@@ -30,7 +30,7 @@ type
   TRandomCheck = record
     OurCheck: cardinal;
     PlayerCheck:array[TPlayerIndex] of cardinal;
-    PlayerWasChecked:array[TPlayerIndex] of boolean;
+    PlayerCheckPending:array[TPlayerIndex] of boolean;
   end;
 
   TGameInputProcess_Multi = class (TGameInputProcess)
@@ -147,7 +147,7 @@ begin
   for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
   begin
     fSchedule[i,k] := TCommandsPack.Create;
-    fRandomCheck[i].PlayerWasChecked[k] := true; //We don't have anything to be checked yet
+    fRandomCheck[i].PlayerCheckPending[k] := false; //We don't have anything to be checked yet
   end;
 end;
 
@@ -254,7 +254,7 @@ begin
   begin
     Assert(OurCheck = PlayerCheck[aPlayerIndex],Format('Random check mismatch for tick %d from player %d processed at tick %d',
                                                        [aTick, aPlayerIndex, fGame.GameTickCount]));
-    PlayerWasChecked[aPlayerIndex] := true;
+    PlayerCheckPending[aPlayerIndex] := false;
   end;
 end;
 
@@ -284,7 +284,7 @@ begin
           begin
             M.Read(CRC); //Read the random check from the message
             fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheck[PlayerIndex] := CRC; //Store it for this player
-            fRandomCheck[Tick mod MAX_SCHEDULE].PlayerWasChecked[PlayerIndex] := false;
+            fRandomCheck[Tick mod MAX_SCHEDULE].PlayerCheckPending[PlayerIndex] := true;
             //If we have processed this tick already, check now
             if Tick <= fGame.GameTickCount then
               DoRandomCheck(Tick, PlayerIndex);
@@ -346,11 +346,11 @@ begin
       fSchedule[Tick, i].Clear;
     end;
 
-   //If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
+  //If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
   if fNetworking.Connected then SendRandomCheck(aTick);
   //It is possible that we have already recieved other player's random checks, if so check them now
   for i:=0 to fPlayers.Count-1 do
-    if not fRandomCheck[Tick].PlayerWasChecked[i] then
+    if fRandomCheck[Tick].PlayerCheckPending[i] then
       DoRandomCheck(aTick, i);
 
   FillChar(fRecievedData[Tick], SizeOf(fRecievedData[Tick]), #0); //Reset
