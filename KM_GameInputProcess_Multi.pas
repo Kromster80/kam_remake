@@ -18,6 +18,7 @@ type
     fItems:array of TGameInputCommand; //1..n
     function GetItem(aIndex:integer):TGameInputCommand;
   public
+    IsUsed: boolean; //If it has not been used we must clear it before sending it (we can't clear it earlier as it might be needed for resync)
     property  Count:integer read fCount;
     procedure Clear;
     procedure Add(aCommand:TGameInputCommand);
@@ -184,6 +185,11 @@ begin
   end;
   Assert(Tick < MAX_SCHEDULE, 'Could not find place for new commands');
 
+  if not fSchedule[Tick, aCommand.PlayerIndex].IsUsed then
+  begin
+    fSchedule[Tick, aCommand.PlayerIndex].Clear; //Clear old data (it was kept in case it was required for resync)
+    fSchedule[Tick, aCommand.PlayerIndex].IsUsed := true;
+  end;
   fSchedule[Tick, aCommand.PlayerIndex].Add(aCommand);
 end;
 
@@ -343,7 +349,6 @@ begin
         StoreCommand(fSchedule[Tick, i].Items[k]); //Store the command first so if Exec fails we still have it in the replay
         ExecCommand(fSchedule[Tick, i].Items[k]);
       end;
-      fSchedule[Tick, i].Clear;
     end;
 
   //If we miss a few random checks during reconnections no one cares, inconsistencies will be detected as soon as it is over
@@ -367,6 +372,10 @@ begin
   //If the network is not connected then we must send the commands later (fSent will remain false)
   if (not fSent[i mod MAX_SCHEDULE]) and (fNetworking.Connected) then
   begin
+    if not fSchedule[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex].IsUsed then
+      fSchedule[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Clear; //No one has used it since last time through the ring buffer
+    fSchedule[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex].IsUsed := false;
+
     fLastSentTick := i;
     SendCommands(i);
     fSent[i mod MAX_SCHEDULE] := true;
