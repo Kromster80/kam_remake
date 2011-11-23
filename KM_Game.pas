@@ -24,7 +24,6 @@ type
   TKMGame = class
   private //Irrelevant to savegame
     ScreenX,ScreenY:word;
-    FormControlsVisible:boolean;
     fFormPassability:integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
@@ -166,7 +165,6 @@ begin
   fGameSpeed    := 1;
   fGameState    := gsNoGame;
   SkipReplayEndCheck  := false;
-  FormControlsVisible := false;
   fWaitingForNetwork := false;
   fGameOptions := TKMGameOptions.Create;
 
@@ -285,8 +283,8 @@ begin
   //GLOBAL KEYS
   if Key = VK_F3 then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
   if Key = VK_F11  then begin
-    FormControlsVisible := not FormControlsVisible;
-    Form1.ToggleControlsVisibility(FormControlsVisible);
+    SHOW_DEBUG_CONTROLS := not SHOW_DEBUG_CONTROLS;
+    Form1.ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
   end;
 
   case fGameState of

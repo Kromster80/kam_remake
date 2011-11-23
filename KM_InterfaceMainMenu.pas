@@ -298,8 +298,8 @@ begin
 
   Assert(fTextLibrary<>nil, 'fTextLibrary should be initialized before MainMenuInterface');
 
-  ScreenX := min(X,MENU_DESIGN_X);
-  ScreenY := min(Y,MENU_DESIGN_Y);
+  ScreenX := min(X, MENU_DESIGN_X);
+  ScreenY := min(Y, MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
 
   fMaps := TKMapsCollection.Create(false);
@@ -310,8 +310,8 @@ begin
   fSavesMP := TKMSavesCollection.Create;
 
   MyControls := TKMMasterControl.Create;
-  Panel_Main := TKMPanel.Create(MyControls, (X-MENU_DESIGN_X) div 2,
-                                            (Y-MENU_DESIGN_Y) div 2,
+  Panel_Main := TKMPanel.Create(MyControls, (X - MENU_DESIGN_X) div 2,
+                                            (Y - MENU_DESIGN_Y) div 2,
                                             ScreenX, ScreenY); //Parent Panel for whole menu
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
@@ -377,8 +377,8 @@ procedure TKMMainMenuInterface.Resize(X, Y:word);
 begin
   ScreenX := min(X, MENU_DESIGN_X);
   ScreenY := min(Y, MENU_DESIGN_Y);
-  Panel_Main.Left := (X-MENU_DESIGN_X) div 2;
-  Panel_Main.Top  := (Y-MENU_DESIGN_Y) div 2;
+  Panel_Main.Left := (X - MENU_DESIGN_X) div 2;
+  Panel_Main.Top  := (Y - MENU_DESIGN_Y) div 2;
 end;
 
 
@@ -542,7 +542,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
-  Panel_MainMenu := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_MainMenu := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, 5);
     TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
     with TKMImage.Create(Panel_MainMenu, 50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
@@ -569,7 +569,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
-  Panel_SinglePlayer:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_SinglePlayer:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     TKMImage.Create(Panel_SinglePlayer,300,60,423,164,4,5);
     TKMLabel.Create(Panel_SinglePlayer, 512, 240, 0, 0, 'Remake', fnt_Metal, taCenter);
     with TKMImage.Create(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
@@ -598,7 +598,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
 begin
-  Panel_MultiPlayer := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_MultiPlayer := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
     //Top area
     Panel_MPPlayerName := TKMPanel.Create(Panel_MultiPlayer, 45, 42, 620, 72);
@@ -663,7 +663,7 @@ end;
 procedure TKMMainMenuInterface.Create_Lobby_Page;
 var i,k,top:integer;
 begin
-  Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
     //Players
     Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,20,42,985,240);
@@ -756,21 +756,21 @@ end;
 procedure TKMMainMenuInterface.Create_Campaign_Page;
 var i:integer;
 begin
-  Panel_Campaign:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
+  Panel_Campaign:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
+    Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,12,5);
     Image_CampaignBG.ImageStretch;
 
     for i:=0 to High(Image_CampaignNodes) do begin
-      Image_CampaignNodes[i] := TKMImage.Create(Panel_Campaign, ScreenX, ScreenY, 23, 29, 10, 5);
+      Image_CampaignNodes[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 23, 29, 10, 5);
       Image_CampaignNodes[i].OnClick := Campaign_SelectMap;
       Image_CampaignNodes[i].Tag := i;
     end;
     for i:=0 to High(Image_CampaignSubNode) do
     begin
-      Image_CampaignSubNode[i] := TKMImage.Create(Panel_Campaign, ScreenX, ScreenY, 0, 0, 16, 5);
+      Image_CampaignSubNode[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 0, 0, 16, 5);
       Image_CampaignSubNode[i].ImageCenter;
     end;
-  Panel_CampScroll:=TKMPanel.Create(Panel_Campaign,ScreenX-360,ScreenY-430,360,430);
+  Panel_CampScroll:=TKMPanel.Create(Panel_Campaign,MENU_DESIGN_X-360,MENU_DESIGN_Y-430,360,430);
 
   //@Krom: When this page is finalised the labels will need to have their width/heights checked with the overlay debug on
     Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,6);
@@ -780,10 +780,10 @@ begin
     Label_CampaignText := TKMLabel.Create(Panel_CampScroll, 20, 50, 325, 310, '', fnt_Briefing, taLeft);
     Label_CampaignText.AutoWrap := true;
 
-  Button_CampaignStart := TKMButton.Create(Panel_Campaign, ScreenX-220-20, ScreenY-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], fnt_Metal, bsMenu);
+  Button_CampaignStart := TKMButton.Create(Panel_Campaign, MENU_DESIGN_X-220-20, MENU_DESIGN_Y-50, 220, 30, fTextLibrary[TX_MENU_START_MISSION], fnt_Metal, bsMenu);
   Button_CampaignStart.OnClick := Campaign_StartMap;
 
-  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, ScreenY-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+  Button_CampaignBack := TKMButton.Create(Panel_Campaign, 20, MENU_DESIGN_Y-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
   Button_CampaignBack.OnClick := SwitchMenuPage;
 end;
 
@@ -791,7 +791,7 @@ end;
 procedure TKMMainMenuInterface.Create_Single_Page;
 var i:integer;
 begin
-  Panel_Single:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Single:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     Panel_SingleList:=TKMPanel.Create(Panel_Single,512+22,84,445,600);
 
       ScrollBar_SingleMaps := TKMScrollBar.Create(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
@@ -857,9 +857,9 @@ end;
 
 procedure TKMMainMenuInterface.Create_Load_Page;
 begin
-  Panel_Load:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Load:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
-    TKMLabel.Create(Panel_Load, ScreenX div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Metal, taCenter);
+    TKMLabel.Create(Panel_Load, MENU_DESIGN_X div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Metal, taCenter);
 
     List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal, fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Load.OnChange := Load_ListClick;
@@ -870,7 +870,7 @@ begin
     Button_Delete := TKMButton.Create(Panel_Load, 337, 594, 350, 30, fTextLibrary[TX_MENU_LOAD_DELETE], fnt_Metal, bsMenu);
     Button_Delete.OnClick := Load_Delete_Click;
 
-    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, ScreenX div 2, 604, 550, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, taCenter);
+    Label_DeleteConfirm := TKMLabel.Create(Panel_Load, MENU_DESIGN_X div 2, 604, 550, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CONFIRM], fnt_Outline, taCenter);
     Button_DeleteYes := TKMButton.Create(Panel_Load, 337, 630, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_DELETE], fnt_Metal, bsMenu);
     Button_DeleteYes.OnClick := Load_Delete_Click;
     Button_DeleteNo  := TKMButton.Create(Panel_Load, 517, 630, 170, 30, fTextLibrary[TX_MENU_LOAD_DELETE_CANCEL], fnt_Metal, bsMenu);
@@ -885,7 +885,7 @@ end;
 procedure TKMMainMenuInterface.Create_MapEditor_Page;
 var i:integer;
 begin
-  Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_MapEd:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     Panel_MapEd_SizeXY := TKMPanel.Create(Panel_MapEd, 462-210, 200, 200, 400);
       TKMLabel.Create(Panel_MapEd_SizeXY, 6, 0, 188, 20, fTextLibrary[TX_MENU_MAP_SIZE], fnt_Outline, taLeft);
       TKMBevel.Create(Panel_MapEd_SizeXY, 0, 20, 200, 20 + MAPSIZES_COUNT*26);
@@ -926,9 +926,9 @@ end;
 
 procedure TKMMainMenuInterface.Create_Replays_Page;
 begin
-  Panel_Replays := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Replays := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
-    TKMLabel.Create(Panel_Replays, ScreenX div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
+    TKMLabel.Create(Panel_Replays, MENU_DESIGN_X div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
     TKMBevel.Create(Panel_Replays, 62, 100, 900, 50);
     Radio_Replays_Type := TKMRadioGroup.Create(Panel_Replays,70,108,300,40,fnt_Grey);
@@ -951,7 +951,7 @@ end;
 procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings);
 var i:integer;
 begin
-  Panel_Options:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Options:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,200,130);
@@ -1034,7 +1034,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
-  Panel_Credits:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Credits:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
     TKMLabel.Create(Panel_Credits,232,100,400,20,fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
     TKMLabel.Create(Panel_Credits,232,140,400,492,
@@ -1046,8 +1046,8 @@ begin
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'
     ,fnt_Grey,taCenter);
 
-    TKMLabel.Create(Panel_Credits,ScreenX div 2+200,100,500,20,fTextLibrary[TX_CREDITS_ORIGINAL],fnt_Outline,taCenter);
-    Label_Credits:=TKMLabelScroll.Create(Panel_Credits,ScreenX div 2+200,140,500,ScreenY-160,fTextLibrary.GetSetupString(300),fnt_Grey,taCenter);
+    TKMLabel.Create(Panel_Credits,MENU_DESIGN_X div 2 + 200, 100, 500, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
+    Label_Credits := TKMLabelScroll.Create(Panel_Credits, MENU_DESIGN_X div 2 + 200, 140, 500, MENU_DESIGN_Y - 160, fTextLibrary.GetSetupString(300), fnt_Grey, taCenter);
 
     Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
@@ -1056,17 +1056,17 @@ end;
 
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
-  Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    TKMLabel.Create(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,0,0,fTextLibrary[TX_MENU_LOADING],fnt_Outline,taCenter);
-    Label_Loading:=TKMLabel.Create(Panel_Loading,ScreenX div 2,ScreenY div 2+10,0,0,'...',fnt_Grey,taCenter);
+  Panel_Loading:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
+    TKMLabel.Create(Panel_Loading, MENU_DESIGN_X div 2, MENU_DESIGN_Y div 2 - 20, 0,0,fTextLibrary[TX_MENU_LOADING],fnt_Outline,taCenter);
+    Label_Loading := TKMLabel.Create(Panel_Loading, MENU_DESIGN_X div 2, MENU_DESIGN_Y div 2+10, 0, 0,'...',fnt_Grey,taCenter);
 end;
 
 
 procedure TKMMainMenuInterface.Create_Error_Page;
 begin
-  Panel_Error := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    TKMLabel.Create(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,ScreenX-16,30,fTextLibrary[TX_MENU_ERROR],fnt_Antiqua,taCenter);
-    Label_Error := TKMLabel.Create(Panel_Error,ScreenX div 2,ScreenY div 2+10,ScreenX-16,200,'...',fnt_Grey,taCenter);
+  Panel_Error := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
+    TKMLabel.Create(Panel_Error,MENU_DESIGN_X div 2,MENU_DESIGN_Y div 2 - 20,MENU_DESIGN_X-16,30,fTextLibrary[TX_MENU_ERROR],fnt_Antiqua,taCenter);
+    Label_Error := TKMLabel.Create(Panel_Error,MENU_DESIGN_X div 2,MENU_DESIGN_Y div 2+10,MENU_DESIGN_X-16,200,'...',fnt_Grey,taCenter);
     Label_Error.AutoWrap := true;
     Button_ErrorBack := TKMButton.Create(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ErrorBack.OnClick := SwitchMenuPage;
@@ -1076,8 +1076,8 @@ end;
 procedure TKMMainMenuInterface.Create_Results_Page;
 var i, Adv: Integer;
 begin
-  Panel_Results := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    with TKMImage.Create(Panel_Results,0,0,ScreenX,ScreenY,7,5) do ImageStretch;
+  Panel_Results := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
+    with TKMImage.Create(Panel_Results,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,7,5) do ImageStretch;
 
     Label_Results := TKMLabel.Create(Panel_Results,512,200,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
 
@@ -1113,8 +1113,8 @@ const
                                      TX_RESULTS_MP_WARES_PRODUCED, TX_RESULTS_MP_WEAPONS_PRODUCED);
 var i,k: Integer;
 begin
-  Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
-    with TKMImage.Create(Panel_ResultsMP,0,0,ScreenX,ScreenY,7,5) do ImageStretch;
+  Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
+    with TKMImage.Create(Panel_ResultsMP,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,7,5) do ImageStretch;
 
     Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,90,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_ResultsMPTime := TKMLabel.Create(Panel_ResultsMP,512,120,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
@@ -1366,7 +1366,7 @@ begin
   Label_CampaignText.Caption := Campaign_Selected.MissionText(Campaign_MapIndex);
 
   Panel_CampScroll.Height := 50 + Label_CampaignText.TextSize.Y + 70; //Add offset from top and space on bottom
-  Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height;
+  Panel_CampScroll.Top := MENU_DESIGN_Y - Panel_CampScroll.Height;
   Image_Scroll.Height := Panel_CampScroll.Height;
 end;
 

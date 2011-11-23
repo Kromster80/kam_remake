@@ -440,7 +440,7 @@ begin
   {if ShowCtrls then Form1.Menu := MainMenu1
                 else Form1.Menu := nil; //Not working as intended yet}
 
-  {$IFDEF WDC} //Lazarus can't operate with ClientSize for it's not multi-platform property
+  {$IFDEF WDC} //Lazarus can't operate with ClientSize since it's not a multi-platform property
   if MainMenu1.Items[0].Visible and not ShowCtrls then //Hiding controls
     Form1.ClientHeight := Form1.ClientHeight - 20
   else
@@ -491,8 +491,8 @@ begin
     Form1.ClientWidth  := MENU_DESIGN_X;
     Form1.ClientHeight := MENU_DESIGN_Y;
     Form1.Refresh;
-    Form1.Left := Math.max((Screen.Width  - MENU_DESIGN_X)div 2,0);
-    Form1.Top  := Math.max((Screen.Height - MENU_DESIGN_Y)div 2,0); //Center on screen and make sure titlebar is visible
+    Form1.Left := Math.max((Screen.Width  - MENU_DESIGN_X) div 2, 0);
+    Form1.Top  := Math.max((Screen.Height - MENU_DESIGN_Y) div 2, 0); //Center on screen and make sure titlebar is visible
   end;
 
   Panel5.Top    := 0;
