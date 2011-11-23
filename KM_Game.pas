@@ -23,7 +23,7 @@ type TGameState = ( gsNoGame,  //No game running at all, MainMenu
 type
   TKMGame = class
   private //Irrelevant to savegame
-    ScreenX,ScreenY:word;
+    fScreenX,fScreenY: Word;
     fFormPassability:integer;
     fIsExiting: boolean; //Set this to true on Exit and unit/house pointers will be released without cross-checking
     fGlobalTickCount:cardinal; //Not affected by Pause and anything (Music, Minimap, StatusBar update)
@@ -42,6 +42,7 @@ type
     fProjectiles:TKMProjectiles;
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
+    fViewport: TViewport;
 
   //Should be saved
     fGameTickCount:cardinal;
@@ -56,6 +57,7 @@ type
 
     procedure Load(const aFilename: string; aReplay:boolean=false);
   public
+    OnCursorUpdate: TStringEvent;
     PlayOnState:TGameResultMsg;
     DoGameHold:boolean; //Request to run GameHold after UpdateState has finished
     DoGameHoldState:TGameResultMsg; //The type of GameHold we want to occur due to DoGameHold
@@ -131,11 +133,12 @@ type
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
     property MapEditor: TKMMapEditor read fMapEditor;
-    property MusicLib:TMusicLib read fMusicLib;
-    property Projectiles:TKMProjectiles read fProjectiles;
-    property GameInputProcess:TGameInputProcess read fGameInputProcess;
-    property Networking:TKMNetworking read fNetworking;
-    property GameOptions:TKMGameOptions read fGameOptions;
+    property MusicLib: TMusicLib read fMusicLib;
+    property Projectiles: TKMProjectiles read fProjectiles;
+    property GameInputProcess: TGameInputProcess read fGameInputProcess;
+    property Networking: TKMNetworking read fNetworking;
+    property GameOptions: TKMGameOptions read fGameOptions;
+    property Viewport: TViewport read fViewport;
 
     procedure Save(const aFilename: string);
 
@@ -156,20 +159,20 @@ uses
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
   Inherited Create;
-  ScreenX := aScreenX;
-  ScreenY := aScreenY;
+  fScreenX := aScreenX;
+  fScreenY := aScreenY;
   fAdvanceFrame := false;
   ID_Tracker    := 0;
   PlayOnState   := gr_Cancel;
   DoGameHold    := false;
   fGameSpeed    := 1;
   fGameState    := gsNoGame;
-  SkipReplayEndCheck  := false;
+  SkipReplayEndCheck := false;
   fWaitingForNetwork := false;
   fGameOptions := TKMGameOptions.Create;
 
   fGlobalSettings   := TGlobalSettings.Create;
-  fRender           := TRender.Create(RenderHandle, aVSync);
+  fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
@@ -181,7 +184,7 @@ begin
   fCampaigns        := TKMCampaignsCollection.Create;
 
   //If game was reinitialized from options menu then we should return there
-  fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings, aReturnToOptions);
+  fMainMenuInterface:= TKMMainMenuInterface.Create(fScreenX, fScreenY, fGlobalSettings, aReturnToOptions);
 
   if (not NoMusic) and fGlobalSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
   fMusicLib.ToggleShuffle(fGlobalSettings.ShuffleOn); //Determine track order
@@ -221,21 +224,22 @@ begin
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax);
   fResource.ResourceFont.LoadFonts(fGlobalSettings.Locale);
-  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings, True);
+  fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY, fGlobalSettings, True);
 end;
 
 
 procedure TKMGame.Resize(X,Y:integer);
 begin
-  ScreenX := X;
-  ScreenY := Y;
-  fRender.Resize(X,Y,rm2D);
+  fScreenX := X;
+  fScreenY := Y;
+  fRender.Resize(fScreenX, fScreenY, rm2D);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
-  if fMainMenuInterface<>nil then fMainMenuInterface.Resize(X,Y);
-  if fMapEditorInterface<>nil then fMapEditorInterface.Resize(X,Y);
-  if fGamePlayInterface<>nil then fGamePlayInterface.Resize(X,Y);
+  if fMainMenuInterface<>nil then fMainMenuInterface.Resize(fScreenX, fScreenY);
+  if fMapEditorInterface<>nil then fMapEditorInterface.Resize(fScreenX, fScreenY);
+  if fGamePlayInterface<>nil then fGamePlayInterface.Resize(fScreenX, fScreenY);
+  if fViewport <> nil then fViewport.Resize(fScreenX, fScreenY);
 end;
 
 
@@ -313,7 +317,7 @@ end;
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
-  if not InRange(X,1,ScreenX-1) or not InRange(Y,1,ScreenY-1) then exit; //Exit if Cursor is outside of frame
+  if not InRange(X,1,fScreenX-1) or not InRange(Y,1,fScreenY-1) then exit; //Exit if Cursor is outside of frame
 
   case fGameState of
     gsNoGame:   fMainMenuInterface.MouseMove(Shift, X,Y);
@@ -324,9 +328,9 @@ begin
     gsEditor:   fMapEditorInterface.MouseMove(Shift,X,Y);
   end;
 
-Form1.StatusBar1.Panels.Items[1].Text := Format('Cursor: %.1f:%.1f [%d:%d]', [
-                                         GameCursor.Float.X, GameCursor.Float.Y,
-                                         GameCursor.Cell.X, GameCursor.Cell.Y]);
+  if Assigned(OnCursorUpdate) then
+    OnCursorUpdate(Format('Cursor: %.1f:%.1f [%d:%d]', [GameCursor.Float.X, GameCursor.Float.Y,
+                                                        GameCursor.Cell.X, GameCursor.Cell.Y]));
 end;
 
 
@@ -356,7 +360,7 @@ begin
 end;
 
 
-procedure TKMGame.GameInit(aMultiplayerMode:boolean);
+procedure TKMGame.GameInit(aMultiplayerMode: Boolean);
 begin
   fGameSpeed := 1; //In case it was set in last run mission
   PlayOnState := gr_Cancel;
@@ -371,16 +375,13 @@ begin
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
 
-  fViewport := TViewport.Create;
-  fGamePlayInterface := TKMGamePlayInterface.Create(ScreenX, ScreenY);
+  fViewport := TViewport.Create(fScreenX, fScreenY);
+  fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
 
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
-
-  fRender.Resize(ScreenX, ScreenY, rm2D);
-  fViewport.Resize(ScreenX, ScreenY);
 
   fGameTickCount := 0; //Restart counter
 end;
@@ -471,6 +472,7 @@ begin
 
   fPlayers.AfterMissionInit(true);
 
+  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
@@ -614,6 +616,7 @@ begin
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
   fPlayers.AddDefaultMPGoals; //Multiplayer missions don't have goals yet, so add the defaults
 
+  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
   fRender.Render;
@@ -922,7 +925,7 @@ begin
 
   fMainMenuInterface.ShowScreen(msLoading, 'initializing');
 
-  fViewport := TViewport.Create;
+  fViewport := TViewport.Create(fScreenX, fScreenY);
   fMapEditor := TKMMapEditor.Create;
 
   //Here comes terrain/mission init
@@ -960,7 +963,10 @@ begin
     fGameName := 'New Mission';
   end;
 
-  fMapEditorInterface := TKMapEdInterface.Create(ScreenX, ScreenY);
+  fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
+  fViewport.ResetZoom;
+
+  fMapEditorInterface := TKMapEdInterface.Create(fScreenX, fScreenY);
   fMapEditorInterface.Player_UpdateColors;
   fMapEditorInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
   if FileExists(aFilename) then fMapEditorInterface.SetLoadMode(aMultiplayer);
@@ -970,9 +976,6 @@ begin
     fPlayers[i].FogOfWar.RevealEverything;
 
   fLog.AppendLog('Gameplay initialized', True);
-
-  fRender.Resize(ScreenX, ScreenY, rm2D);
-  fViewport.Resize(ScreenX, ScreenY);
 
   fGameTickCount := 0; //Restart counter
 

@@ -255,7 +255,7 @@ type
 
 
 implementation
-uses KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection, KM_Viewport, KM_Game,
+uses KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitActionStormAttack,
 KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log,
 
@@ -2072,10 +2072,10 @@ procedure TKMUnitsCollection.Paint;
 var i:integer; x1,x2,y1,y2:smallint; Margin:shortint;
 begin
   if TEST_VIEW_CLIP_INSET then Margin:=-1 else Margin:=1;
-  x1 := fViewport.GetClip.Left - Margin;
-  x2 := fViewport.GetClip.Right + Margin;
-  y1 := fViewport.GetClip.Top - Margin;
-  y2 := fViewport.GetClip.Bottom + Margin*3; //There might be units standing on tall hills below
+  x1 := fGame.Viewport.GetClip.Left - Margin;
+  x2 := fGame.Viewport.GetClip.Right + Margin;
+  y1 := fGame.Viewport.GetClip.Top - Margin;
+  y2 := fGame.Viewport.GetClip.Bottom + Margin*3; //There might be units standing on tall hills below
 
   for i:=0 to Count-1 do
   if (Items[i] <> nil) and (not Units[i].IsDead) then

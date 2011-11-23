@@ -200,7 +200,7 @@ var
 
 
 implementation
-uses KM_Viewport, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Sound, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
+uses KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Sound, KM_UnitActionStay, KM_Game, KM_ResourceGFX, KM_ResourceHouse, KM_Log;
 
 
 { TTerrain }
@@ -2289,8 +2289,8 @@ procedure TTerrain.ComputeCursorPosition(X,Y:word; Shift: TShiftState);
 begin
   with GameCursor do
   begin
-    Float.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
-    Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
+    Float.X := fGame.Viewport.Position.X + (X-fGame.Viewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fGame.Viewport.Zoom;
+    Float.Y := fGame.Viewport.Position.Y + (Y-fGame.Viewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fGame.Viewport.Zoom;
     Float.Y := ConvertCursorToMapCoord(Float.X,Float.Y);
 
     Cell.X := EnsureRange(round(Float.X+0.5), 1, fMapX); //Cell below cursor in map bounds
@@ -2619,8 +2619,8 @@ end;
 procedure TTerrain.Paint;
 var x1,x2,y1,y2:integer; Passability:integer;
 begin  
-  x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
-  y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
+  x1:=fGame.Viewport.GetClip.Left; x2:=fGame.Viewport.GetClip.Right;
+  y1:=fGame.Viewport.GetClip.Top;  y2:=fGame.Viewport.GetClip.Bottom;
 
   fRender.RenderTerrain(x1,x2,y1,y2,fAnimStep);
   fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);

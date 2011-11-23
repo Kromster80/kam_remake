@@ -60,12 +60,12 @@ type
     procedure RenderCursorHighlights;
     procedure RenderBrightness(Value:byte);
   public
-    constructor Create(RenderFrame:HWND; aVSync:boolean);
+    constructor Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
     destructor Destroy; override;
 
     function GenTexture(DestX, DestY:word; const Data:TCardinalArray; Mode:TTexFormat):GLUint;
     property RendererVersion:string read fOpenGL_Version;
-    procedure Resize(Width,Height:integer; aRenderMode:TRenderMode);
+    procedure Resize(Width,Height: Integer; aRenderMode: TRenderMode);
     procedure SetRotation(aH,aP,aB:integer);
     function Stat_Sprites:integer;
     function Stat_Sprites2:integer;
@@ -100,10 +100,10 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_Units, KM_Log;
+uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_Units, KM_Log;
 
 
-constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
+constructor TRender.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
 begin
   Inherited Create;
 
@@ -118,6 +118,8 @@ begin
   SetupVSync(aVSync);
   BuildFont(h_DC, 16, FW_BOLD);
   fRenderList := TRenderList.Create;
+
+  Resize(ScreenX, ScreenY, rm2D);
 end;
 
 
@@ -192,7 +194,7 @@ begin
 end;
 
 
-procedure TRender.Resize(Width,Height:integer; aRenderMode:TRenderMode);
+procedure TRender.Resize(Width,Height: Integer; aRenderMode: TRenderMode);
 begin
   fScreenX := max(Width, 1);
   fScreenY := max(Height, 1);
@@ -228,9 +230,9 @@ begin
   begin //If game is running
     glLoadIdentity; // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
-    glTranslatef(fViewport.ViewportClip.X/2, fViewport.ViewportClip.Y/2, 0);
-    glkScale(fViewport.Zoom*CELL_SIZE_PX);
-    glTranslatef(-fViewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y, 0);
+    glTranslatef(fGame.Viewport.ViewportClip.X/2, fGame.Viewport.ViewportClip.Y/2, 0);
+    glkScale(fGame.Viewport.Zoom*CELL_SIZE_PX);
+    glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
     if RENDER_3D then
     begin
       Resize(fScreenX, fScreenY, rm3D);
@@ -239,13 +241,13 @@ begin
       glRotatef(rHeading,1,0,0);
       glRotatef(rPitch  ,0,1,0);
       glRotatef(rBank   ,0,0,1);
-      glTranslatef(-fViewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fViewport.Zoom, -fViewport.Position.Y-8, 10);
-      glkScale(fViewport.Zoom);
+      glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y-8, 10);
+      glkScale(fGame.Viewport.Zoom);
     end;
     
     glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
-      glLineWidth(fViewport.Zoom*2);
-      glPointSize(fViewport.Zoom*5);
+      glLineWidth(fGame.Viewport.Zoom*2);
+      glPointSize(fGame.Viewport.Zoom*5);
 
       fTerrain.Paint;
       fPlayers.Paint; //Quite slow           //Units and houses

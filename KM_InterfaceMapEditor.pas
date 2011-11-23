@@ -202,7 +202,7 @@ type
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
-     KM_Utils, KM_Viewport, KM_Game, KM_ResourceGFX, KM_ResourceUnit;
+     KM_Utils, KM_Game, KM_ResourceGFX, KM_ResourceUnit;
 
 
 {Switch between pages}
@@ -377,8 +377,8 @@ end;
 {Update minimap data}
 procedure TKMapEdInterface.Minimap_Update(Sender: TObject; const X,Y: integer);
 begin
-  fViewport.Position := KMPointF(X,Y);
-  Minimap.ViewArea := fViewport.GetMinimapClip;
+  fGame.Viewport.Position := KMPointF(X,Y);
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -386,7 +386,7 @@ constructor TKMapEdInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
   Inherited Create;
-  Assert(fViewport<>nil, 'fViewport required to be init first');
+  Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -488,7 +488,6 @@ procedure TKMapEdInterface.Resize(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-  fViewport.Resize(X,Y);
 end;
 
 
@@ -899,14 +898,14 @@ end;
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMapEdInterface.UpdateState;
 begin
-  Minimap.ViewArea := fViewport.GetMinimapClip;
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
 procedure TKMapEdInterface.UpdateMapSize(X,Y:integer);
 begin
   Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fViewport.GetMinimapClip;  
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;  
 end;
 
 
@@ -1603,7 +1602,7 @@ procedure TKMapEdInterface.KeyDown(Key:Word; Shift: TShiftState);
 begin
   if MyControls.KeyDown(Key, Shift) then
   begin
-    fViewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+    fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
     exit; //Handled by Controls
   end;
 
@@ -1612,10 +1611,10 @@ begin
     Button_Main[Key-48].DoPress;
 
   //Scrolling
-  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := true;
-  if Key = VK_RIGHT then fViewport.ScrollKeyRight := true;
-  if Key = VK_UP    then fViewport.ScrollKeyUp    := true;
-  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := true;
+  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
+  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
+  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
+  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
 end;
 
 
@@ -1635,14 +1634,14 @@ begin
     Button_Main[Key-48].DoClick;
 
   //Scrolling
-  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
-  if Key = VK_RIGHT then fViewport.ScrollKeyRight := false;
-  if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
-  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
+  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := false;
+  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := false;
+  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := false;
+  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := false;
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = VK_BACK  then fViewport.ResetZoom;
+  if Key = VK_BACK  then fGame.Viewport.ResetZoom;
 end;
 
 
@@ -1671,7 +1670,7 @@ begin
     if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
        (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
       Screen.Cursor:=c_Info
-    else if not fViewport.Scrolling then
+    else if not fGame.Viewport.Scrolling then
       Screen.Cursor:=c_Default;
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d',[GameCursor.Cell.X,GameCursor.Cell.Y]);
@@ -1789,11 +1788,11 @@ begin
   begin
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
-    fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
+    fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta/2000;
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                   fViewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
+                                   fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
   end;
 end;

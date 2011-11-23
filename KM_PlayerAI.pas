@@ -80,7 +80,7 @@ type //For now IDs must match with KaM
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Terrain, KM_ResourceGFX, KM_ViewPort, KM_Sound;
+     KM_Terrain, KM_ResourceGFX, KM_Sound;
 
 
 
@@ -674,7 +674,7 @@ begin
           //(and it is desired behaviour: if player saw attack,
           //don't notify him as soon as he looks away)
           fTimeOfLastAttackMessage := fGame.GameTickCount;
-          if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+          if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aHouse.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
             fSoundLib.PlayNotification(an_Town);
         end;
       end;
@@ -692,7 +692,7 @@ begin
       if fGame.CheckTime(fTimeOfLastAttackMessage + TIME_ATTACK_WARNINGS) then
       begin
         fTimeOfLastAttackMessage := fGame.GameTickCount; //Process anyway for multiplayer consistency (and it is desired behaviour: if player saw attack, don't notify him as soon as he looks away)
-        if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fViewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
+        if (MyPlayer = fPlayers[PlayerIndex]) and (GetLength(fGame.Viewport.Position, KMPointF(aUnit.GetPosition)) >= DISTANCE_FOR_WARNINGS) then
         begin
           if aUnit is TKMUnitWarrior then
             fSoundLib.PlayNotification(an_Troops)

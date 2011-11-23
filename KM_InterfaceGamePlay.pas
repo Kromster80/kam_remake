@@ -344,7 +344,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
-KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Viewport, KM_Game,
+KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Game,
 KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit;
 
 const
@@ -636,8 +636,8 @@ end;
 {Update minimap data}
 procedure TKMGamePlayInterface.Minimap_Update(Sender: TObject; const X,Y:integer);
 begin
-  fViewport.Position := KMPointF(X,Y);
-  Minimap.ViewArea := fViewport.GetMinimapClip;
+  fGame.Viewport.Position := KMPointF(X,Y);
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -662,7 +662,7 @@ constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
   Inherited Create;
-  Assert(fViewport<>nil, 'fViewport required to be init first');
+  //Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
 
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -788,7 +788,6 @@ procedure TKMGamePlayInterface.Resize(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-  fViewport.Resize(X,Y);
 end;
 
 
@@ -1726,7 +1725,7 @@ procedure TKMGamePlayInterface.Message_GoTo(Sender: TObject);
 var Point: TKMPoint;
 begin
   if fMessageList.GetLoc(ShownMessage, Point) then
-    fViewport.Position := KMPointF(Point);
+    fGame.Viewport.Position := KMPointF(Point);
 end;
 
 
@@ -2708,7 +2707,7 @@ end;
 procedure TKMGamePlayInterface.SetPause(aValue:boolean);
 begin
   ReleaseDirectionSelector; //Don't restrict cursor movement to direction selection while paused
-  fViewport.ReleaseScrollKeys;
+  fGame.Viewport.ReleaseScrollKeys;
   if aValue then fGame.SetGameState(gsPaused)
             else fGame.SetGameState(gsRunning);
   Panel_Pause.Visible := aValue;
@@ -2994,13 +2993,13 @@ begin
   begin
     if (fGame.GameState = gsRunning) and MyControls.KeyDown(Key, Shift) then
     begin
-      fViewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
+      fGame.Viewport.ReleaseScrollKeys; //Release the arrow keys when you open a window with an edit to stop them becoming stuck
       Exit;
     end;
-    if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := true;
-    if Key = VK_RIGHT then fViewport.ScrollKeyRight := true;
-    if Key = VK_UP    then fViewport.ScrollKeyUp    := true;
-    if Key = VK_DOWN  then fViewport.ScrollKeyDown  := true;
+    if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;
+    if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := true;
+    if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := true;
+    if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := true;
   end;
 end;
 
@@ -3024,12 +3023,12 @@ begin
                   if MyControls.KeyUp(Key, Shift) then Exit;
 
                   //Scrolling
-                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := False;
-                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := False;
-                  if Key = VK_UP    then fViewport.ScrollKeyUp    := False;
-                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := False;
+                  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := False;
+                  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := False;
+                  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := False;
+                  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := False;
 
-                  if Key = VK_BACK then  fViewport.ResetZoom;
+                  if Key = VK_BACK then  fGame.Viewport.ResetZoom;
 
                   //Game speed/pause: Not available in multiplayer mode yet
                   if not fGame.MultiplayerMode then
@@ -3064,7 +3063,7 @@ begin
                   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
                   begin
                     if Key=ord('5') then MessageIssue(msgText, '123', KMPoint(0,0));
-                    if Key=ord('6') then MessageIssue(msgHouse,'123', KMPointRound(fViewport.Position));
+                    if Key=ord('6') then MessageIssue(msgHouse,'123', KMPointRound(fGame.Viewport.Position));
                     if Key=ord('7') then MessageIssue(msgUnit, '123', KMPoint(0,0));
                     if Key=ord('8') then MessageIssue(msgQuill,'123', KMPoint(0,0));
 
@@ -3077,12 +3076,12 @@ begin
                 end;
     gsReplay:   begin
                   //Scrolling
-                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := false;
-                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := false;
-                  if Key = VK_UP    then fViewport.ScrollKeyUp    := false;
-                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := false;
+                  if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := false;
+                  if Key = VK_RIGHT then fGame.Viewport.ScrollKeyRight := false;
+                  if Key = VK_UP    then fGame.Viewport.ScrollKeyUp    := false;
+                  if Key = VK_DOWN  then fGame.Viewport.ScrollKeyDown  := false;
 
-                  if Key = VK_BACK then fViewport.ResetZoom;
+                  if Key = VK_BACK then fGame.Viewport.ResetZoom;
 
                   if Key = VK_F5 then fGame.SetGameSpeed(1);
                   if Key = VK_F6 then fGame.SetGameSpeed(fGame.GlobalSettings.SpeedMedium);
@@ -3189,7 +3188,7 @@ begin
   if GameCursor.Mode<>cm_None then
   begin
     //Use the default cursor while placing roads, don't become stuck on c_Info or others
-    if not fViewport.Scrolling then Screen.Cursor := c_Default;
+    if not fGame.Viewport.Scrolling then Screen.Cursor := c_Default;
     exit;
   end;
 
@@ -3224,13 +3223,13 @@ begin
          ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
         Screen.Cursor := c_Attack
       else
-      if not fViewport.Scrolling then
+      if not fGame.Viewport.Scrolling then
         Screen.Cursor := c_Default;
       exit;
     end;
   end;
 
-  if not fViewport.Scrolling then
+  if not fGame.Viewport.Scrolling then
     Screen.Cursor := c_Default;
 end;
 
@@ -3380,11 +3379,11 @@ begin
   begin
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
-    fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
+    fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta/2000;
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
-    fViewport.Position := KMPointF(fViewport.Position.X + PrevCursor.X-GameCursor.Float.X,
-                                   fViewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
+                                   fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
     fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
   end;
 end;
@@ -3415,7 +3414,7 @@ end;
 procedure TKMGamePlayInterface.UpdateMapSize(X,Y:integer);
 begin
   Minimap.MapSize := KMPoint(X, Y);
-  Minimap.ViewArea := fViewport.GetMinimapClip;
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 end;
 
 
@@ -3453,7 +3452,7 @@ begin
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
 
-  Minimap.ViewArea := fViewport.GetMinimapClip;
+  Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 
   //Debug info
   if SHOW_SPRITE_COUNT then

@@ -112,6 +112,7 @@ type
     procedure WMSysCommand(var Msg : TWMSysCommand); message WM_SYSCOMMAND;
     {$ENDIF}
     procedure ReadAvailableResolutions;
+    procedure StatusBarText(const aData: string);
   public
     procedure ApplyCursorRestriction;
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
@@ -511,11 +512,17 @@ begin
                           FormLoading.LoadingStep,
                           FormLoading.LoadingText
                           );
+  fGame.OnCursorUpdate := StatusBarText;
 
-  fGame.Resize(Panel5.Width, Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
   ApplyCursorRestriction;
+end;
+
+
+procedure TForm1.StatusBarText(const aData: String);
+begin
+  StatusBar1.Panels.Items[1].Text := aData;
 end;
 
 
@@ -665,7 +672,6 @@ end;
 
 
 {$IFDEF FPC}
-
 initialization
 {$I KM_Unit1.lrs}
 {$ENDIF}

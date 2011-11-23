@@ -301,7 +301,7 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_TextLibrary, KM_Player, KM_ResourceResource;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player, KM_ResourceResource;
 
 
 { TKMHouse }
@@ -2252,13 +2252,18 @@ end;
 procedure TKMHousesCollection.Paint;
 var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
-  if TEST_VIEW_CLIP_INSET then Margin:=-3 else Margin:=3;
-  x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
-  y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
+  if TEST_VIEW_CLIP_INSET then
+    Margin := -3
+  else
+    Margin := 3;
+
+  x1 := fGame.Viewport.GetClip.Left - Margin;  x2 := fGame.Viewport.GetClip.Right  + Margin;
+  y1 := fGame.Viewport.GetClip.Top  - Margin;  y2 := fGame.Viewport.GetClip.Bottom + Margin;
 
   for i := 0 to Count - 1 do
-  if not Houses[i].IsDestroyed then
-  if (InRange(Houses[i].fPosition.X,x1,x2) and InRange(Houses[i].fPosition.Y,y1,y2)) then
+  if not Houses[i].IsDestroyed
+  and InRange(Houses[i].fPosition.X, x1, x2)
+  and InRange(Houses[i].fPosition.Y, y1, y2) then
     Houses[i].Paint;
 end;
 
