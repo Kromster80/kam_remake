@@ -1833,6 +1833,9 @@ end;
 
 
 //@Lewin: This function checks if we can use this diagonal, right?
+//@Krom: Yes, it tells you whether the diagonal is "in use". (a bit like IsUnit) So if there is a unit walking on
+//       the oppsoite diagonal you cannot use the vertex (same diagonal is allowed for passing and fighting)
+//       It stops units walking diagonally through each other or walking through a diagonal that has weapons swinging through it
 function TTerrain.VertexUsageCompatible(LocFrom, LocTo:TKMPoint): Boolean;
 var
   Vert: TKMPoint;

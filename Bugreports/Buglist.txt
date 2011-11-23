@@ -46,6 +46,8 @@
  +	Iron/gold mines should not raise the construction site because of the mountain when "flattening" it
  +	Multiplayer replays do not sync FOW so get mismatches
  +	Improved the direction selector and fixed issues with some directions being harder to select
+ +	When the dedicated server crashes it will log the exception and restart the server automatically
+ +	Scouts fight each other for too long, upto 15min, where's in KaM that more of 50sec at most (fixed by modifying HP restore rate)
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -60,8 +62,7 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
-	Scouts fight each other for too long, upto 15min, where's in KaM that more of 50sec at most
-	Moving mouse above the game menu, while in DirectionSelector mode, will change the cursor to a hand
+	Moving mouse above the game menu, while in DirectionSelector mode, will change the cursor to a hand (did not occuring in r2411, it wasintroduced in r2584)
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	
@@ -91,6 +92,7 @@ Features:
  +	Add player flags in lobby, to see who uses which KaM locale (and which language he can talk)
  +	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
  +	Replay manager
+ +	Dedicated server outputs nicely formatted HTML/XML of the current status
 	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it

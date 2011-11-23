@@ -38,22 +38,8 @@ begin
 end;
 {$ENDIF}
 
-
+procedure RunTheServer;
 begin
-  fEventHandler := TKMServerEventHandler.Create;
-  Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
-  Writeln('');
-  Writeln('Log file: '+fLog.LogPath);
-  Writeln('Settings file: '+ExeDir+SETTINGS_FILE);
-  Writeln('');
-
-  fEventHandler.ServerStatusMessage('Using protocol for clients running '+NET_PROTOCOL_REVISON);
-
-  fSettings := TGlobalSettings.Create;
-  fSettings.SaveSettings(true);
-  fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
-  fLastSettingsFileCheck := 0;
-
   fDedicatedServer := TKMDedicatedServer.Create(fSettings.MaxRooms,
                                                 fSettings.AutoKickTimeout,
                                                 fSettings.PingInterval,
@@ -92,6 +78,37 @@ begin
     MyProcessMessages; //This will process network (or other) events
     {$ENDIF}
     Sleep(1); //Don't hog CPU (this can also be used to create an artifical latency)
+  end;
+end;
+
+
+begin
+  fEventHandler := TKMServerEventHandler.Create;
+  Writeln('=========== KaM Remake '+GAME_VERSION+' Dedicated Server ===========');
+  Writeln('');
+  Writeln('Log file: '+fLog.LogPath);
+  Writeln('Settings file: '+ExeDir+SETTINGS_FILE);
+  Writeln('');
+
+  fEventHandler.ServerStatusMessage('Using protocol for clients running '+NET_PROTOCOL_REVISON);
+
+  fSettings := TGlobalSettings.Create;
+  fSettings.SaveSettings(true);
+  fSettingsLastModified := FileAge(ExeDir+SETTINGS_FILE);
+  fLastSettingsFileCheck := 0;
+
+  while True do
+  begin
+    try //Catch and log exceptions
+      RunTheServer;
+    except
+      on E : Exception do
+      begin
+        fEventHandler.ServerStatusMessage('EXCEPTION: '+E.ClassName+': '+E.Message);
+        fEventHandler.ServerStatusMessage('Server restarting...');
+        FreeAndNil(fDedicatedServer);
+      end;
+    end;
   end;
 
   fDedicatedServer.Stop;

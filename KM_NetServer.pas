@@ -730,13 +730,13 @@ begin
 
   RoomCount := 0;
   PlayerCount := 0;
-  HTML := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+#13+
-          '<HTML>'+#13+'<HEAD>'+#13+'  <TITLE>KaM Remake Server Status</TITLE>'+#13+
-          '  <meta http-equiv="content-type" content="text/html; charset=utf-8">'+#13+'</HEAD>'+#13;
-  HTML := HTML + '<BODY>'+#13;
-  HTML := HTML + '<TABLE border="1">'+#13+'<TR><TD><b>Room ID</b></TD><TD><b>State</b><TD><b>Player Count</b></TD></TD><TD><b>Map</b></TD><TD><b>Game Time</b></TD><TD><b>Player Names</b></TD></TR>'+#13;
-  XML := '<?xml version="1.0" encoding="utf-8" ?>'+#13#10;
-  XML := XML + '<server>'+#13;
+  HTML := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+sLineBreak+
+          '<HTML>'+sLineBreak+'<HEAD>'+sLineBreak+'  <TITLE>KaM Remake Server Status</TITLE>'+sLineBreak+
+          '  <meta http-equiv="content-type" content="text/html; charset=utf-8">'+sLineBreak+'</HEAD>'+sLineBreak;
+  HTML := HTML + '<BODY>'+sLineBreak;
+  HTML := HTML + '<TABLE border="1">'+sLineBreak+'<TR><TD><b>Room ID</b></TD><TD><b>State</b><TD><b>Player Count</b></TD></TD><TD><b>Map</b></TD><TD><b>Game Time</b></TD><TD><b>Player Names</b></TD></TR>'+sLineBreak;
+  XML := '<?xml version="1.0" encoding="utf-8" ?>'+sLineBreak;
+  XML := XML + '<server>'+sLineBreak;
   RoomXML := '';
   for i:=0 to fRoomCount-1 do
     if GetRoomPlayersCount(i) > 0 then
@@ -748,24 +748,24 @@ begin
                      '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+
                      '</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.Map)+
                      '&nbsp;</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+
-                     '&nbsp;</TD><TD>'+PlayersStr+'</TD></TR>'+#13;
-      RoomXML := RoomXML + '  <room id="'+IntToStr(i)+'">'+#13+
-                           '    <state>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+'</state>'+#13+
-                           '    <roomplayercount>'+IntToStr(GetRoomPlayersCount(i))+'</roomplayercount>'+#13+
-                           '    <map>'+CleanString(fRoomInfo[i].GameInfo.Map)+'</map>'+#13+
-                           '    <gametime>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+'</gametime>'+#13+
-                           '    <players>'+PlayersStr+'</players>'+#13+
-                           '  </room>'+#13;
+                     '&nbsp;</TD><TD>'+PlayersStr+'</TD></TR>'+sLineBreak;
+      RoomXML := RoomXML + '  <room id="'+IntToStr(i)+'">'+sLineBreak+
+                           '    <state>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+'</state>'+sLineBreak+
+                           '    <roomplayercount>'+IntToStr(GetRoomPlayersCount(i))+'</roomplayercount>'+sLineBreak+
+                           '    <map>'+CleanString(fRoomInfo[i].GameInfo.Map)+'</map>'+sLineBreak+
+                           '    <gametime>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+'</gametime>'+sLineBreak+
+                           '    <players>'+PlayersStr+'</players>'+sLineBreak+
+                           '  </room>'+sLineBreak;
     end;
 
-  HTML := HTML + '</TABLE>'+#13+
-                 '<p>Total sent: '+AddThousandSeparator(IntToStr(BytesTX))+' bytes</p>'+#13+
-                 '<p>Total received: '+AddThousandSeparator(IntToStr(BytesRX))+' bytes</p>'+#13+
-                 '</BODY>'+#13+'</HTML>';
-  XML := XML + '  <roomcount>'+IntToStr(RoomCount)+'</roomcount>'+#13;
-  XML := XML + '  <playercount>'+IntToStr(PlayerCount)+'</playercount>'+#13;
-  XML := XML + '  <bytessent>'+IntToStr(BytesTX)+'</playercount>'+#13;
-  XML := XML + '  <bytesreceived>'+IntToStr(BytesRX)+'</playercount>'+#13;
+  HTML := HTML + '</TABLE>'+sLineBreak+
+                 '<p>Total sent: '+AddThousandSeparator(IntToStr(BytesTX))+' bytes</p>'+sLineBreak+
+                 '<p>Total received: '+AddThousandSeparator(IntToStr(BytesRX))+' bytes</p>'+sLineBreak+
+                 '</BODY>'+sLineBreak+'</HTML>';
+  XML := XML + '  <roomcount>'+IntToStr(RoomCount)+'</roomcount>'+sLineBreak;
+  XML := XML + '  <playercount>'+IntToStr(PlayerCount)+'</playercount>'+sLineBreak;
+  XML := XML + '  <bytessent>'+IntToStr(BytesTX)+'</playercount>'+sLineBreak;
+  XML := XML + '  <bytesreceived>'+IntToStr(BytesRX)+'</playercount>'+sLineBreak;
   XML := XML + RoomXML;
   XML := XML + '</server>';
 
