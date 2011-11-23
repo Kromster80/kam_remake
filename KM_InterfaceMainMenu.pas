@@ -926,7 +926,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_Replays_Page;
 begin
-  Panel_Replays:=TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
+  Panel_Replays := TKMPanel.Create(Panel_Main,0,0,ScreenX,ScreenY);
 
     TKMLabel.Create(Panel_Replays, ScreenX div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Outline, taCenter);
 
@@ -2102,7 +2102,7 @@ procedure TKMMainMenuInterface.Replays_ListClick(Sender: TObject);
 begin
   Button_ReplaysPlay.Enabled := InRange(List_Replays.ItemIndex, 0, fSaves.Count-1)
                                 and fSaves[List_Replays.ItemIndex].IsValid
-                                and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].Filename,(Radio_Replays_Type.ItemIndex = 1));
+                                and fGame.ReplayExists(fSaves[List_Replays.ItemIndex].Filename, (Radio_Replays_Type.ItemIndex = 1));
 end;
 
 

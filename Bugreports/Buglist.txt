@@ -60,6 +60,8 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
+	Scouts fight each other for too long, upto 15min, where's in KaM that more of 50sec at most
+	Moving mouse above the game menu, while in DirectionSelector mode, will change the cursor to a hand
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	

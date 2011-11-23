@@ -1318,7 +1318,9 @@ begin
     TempVertexOccupied := TUnitActionWalkTo(GetUnitAction).fVertexOccupied;
     TUnitActionWalkTo(GetUnitAction).fVertexOccupied := KMPoint(0,0); //So it doesn't try to DecVertex on destroy (now it's AbandonWalk's responsibility)
   end
-  else TempVertexOccupied := KMPoint(0,0);
+  else
+    TempVertexOccupied := KMPoint(0,0);
+
   SetAction(TUnitActionAbandonWalk.Create(Self, aLocB, TempVertexOccupied, aActionType), AnimStep); //Use the current animation step, to ensure smooth transition
 end;
 

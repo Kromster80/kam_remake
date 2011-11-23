@@ -327,7 +327,7 @@ end;
 procedure TKMNetworking.DropWaitingPlayers(aPlayers:TStringList);
 var i,ServerIndex:integer;
 begin
-  assert(IsHost,'Only the host is allowed to drop players');
+  Assert(IsHost, 'Only the host is allowed to drop players');
   for i:=0 to aPlayers.Count-1 do
   begin
     ServerIndex := NetPlayers[NetPlayers.NiknameToLocal(aPlayers[i])].IndexOnServer;

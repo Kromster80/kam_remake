@@ -1047,6 +1047,7 @@ begin
   fMultiplayerMode := OldMultiplayerMode;
 end;
 
+
 //Restart the replay but do not change the viewport position/zoom
 procedure TKMGame.RestartReplay;
 var OldCenter:TKMPointF; OldZoom:single;

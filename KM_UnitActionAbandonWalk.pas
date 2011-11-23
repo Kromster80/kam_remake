@@ -12,7 +12,7 @@ type
     fWalkTo: TKMPoint;
     fVertexOccupied: TKMPoint;
   public
-    constructor Create(aUnit: TKMUnit; LocB, aVertexOccupied: TKMPoint; aActionType: TUnitActionType=ua_Walk);
+    constructor Create(aUnit: TKMUnit; LocB, aVertexOccupied: TKMPoint; aActionType: TUnitActionType);
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
     function ActName: TUnitActionName; override;
@@ -27,7 +27,7 @@ uses KM_Terrain, KM_ResourceGFX;
 
 
 { TUnitActionAbandonWalk }
-constructor TUnitActionAbandonWalk.Create(aUnit: TKMUnit; LocB, aVertexOccupied: TKMPoint; aActionType: TUnitActionType=ua_Walk);
+constructor TUnitActionAbandonWalk.Create(aUnit: TKMUnit; LocB, aVertexOccupied: TKMPoint; aActionType: TUnitActionType);
 begin
   Assert(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
   Inherited Create(aUnit, aActionType, False);

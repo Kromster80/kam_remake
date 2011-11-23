@@ -139,7 +139,7 @@ type
     procedure UnitVertexAdd(LocTo:TKMPoint; Usage: TKMVertexUsage); overload;
     procedure UnitVertexAdd(LocFrom, LocTo:TKMPoint); overload;
     procedure UnitVertexRem(LocFrom:TKMPoint);
-    function VertexUsageCompatible(LocFrom, LocTo:TKMPoint): boolean;
+    function VertexUsageCompatible(LocFrom, LocTo:TKMPoint): Boolean;
     function GetVertexUsageType(LocFrom, LocTo:TKMPoint): TKMVertexUsage;
 
     function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
@@ -1832,12 +1832,15 @@ begin
 end;
 
 
-function TTerrain.VertexUsageCompatible(LocFrom, LocTo:TKMPoint): boolean;
-var Vert: TKMPoint; VertUsage: TKMVertexUsage;
+//@Lewin: This function checks if we can use this diagonal, right?
+function TTerrain.VertexUsageCompatible(LocFrom, LocTo:TKMPoint): Boolean;
+var
+  Vert: TKMPoint;
+  VertUsage: TKMVertexUsage;
 begin
   Vert := KMGetDiagVertex(LocFrom, LocTo);
   VertUsage := GetVertexUsageType(LocFrom, LocTo);
-  Result := (Land[Vert.Y,Vert.X].IsVertexUnit = vu_None) or (Land[Vert.Y,Vert.X].IsVertexUnit = VertUsage);
+  Result := (Land[Vert.Y, Vert.X].IsVertexUnit in [vu_None, VertUsage]);
 end;
 
 
