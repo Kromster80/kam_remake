@@ -888,7 +888,7 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
   ProjectileSpeeds:array[TProjectileType] of single = (0.8, 0.85, 0.6, 0.8);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.05, 0.04, 0.06, 0.025); //Jitter added according to distance
+  ProjectileJitter:array[TProjectileType] of single = (0.05, 0.05, 0.06, 0.025); //Jitter added according to distance
   ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 2); //Jitter added according to target's speed (moving target harder to hit)
   ProjectileMissChance:array[TProjectileType] of single = (0.33, 0.33, 0.33, 0.33);
 

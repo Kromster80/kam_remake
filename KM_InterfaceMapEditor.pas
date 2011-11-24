@@ -1708,6 +1708,7 @@ begin
     exit; //We could have caused fGame reinit, so exit at once
   end;
 
+  fTerrain.ComputeCursorPosition(X, Y, Shift); //Updates the shift state
   P := GameCursor.Cell; //Get cursor position tile-wise
   if Button = mbRight then
   begin

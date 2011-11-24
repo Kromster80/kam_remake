@@ -999,7 +999,9 @@ begin
     if Route_CanBeMade(aLoc, KMPoint(T.X+k, T.Y+i), CanWalk, 0, False) then
     begin
       Slope := MixLandHeight(T.X+k, T.Y+i) - Land[T.Y, T.X].Height;
-      if (Abs(Slope) < BestSlope) and ((i <> 0) or (Slope >= 0)) then
+      //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
+      if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
+      if Abs(Slope) < BestSlope then
       begin
         Tree := KMPointDir(T.X+k, T.Y+i, KMGetVertexDir(k, i));
         Result := True;
@@ -1383,7 +1385,7 @@ begin
       AddPassability(Loc, [CanBuild]);
 
    if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
-      (Land[Loc.Y,Loc.X].Rotation = 0)and //only horizontal mountain edges allowed
+      (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)and //only horizontal mountain edges allowed
       ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
@@ -1395,7 +1397,7 @@ begin
      AddPassability(Loc, [CanBuildIron]);
 
    if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
-      (Land[Loc.Y,Loc.X].Rotation = 0)and
+      (Land[Loc.Y,Loc.X].Rotation mod 4 = 0)and
       ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and

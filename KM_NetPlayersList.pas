@@ -644,7 +644,10 @@ function TKMPlayersList.GetSimpleAsText:string;
 var i:integer;
 begin
   for i:=1 to fCount do
-    Result := Result + StringReplace(fPlayers[i].Nikname,'|','',[rfReplaceAll]) + '|';
+  begin
+    Result := Result + StringReplace(fPlayers[i].Nikname,'|','',[rfReplaceAll]);
+    if i < fCount then Result := Result + '|';
+  end;
 end;
 
 

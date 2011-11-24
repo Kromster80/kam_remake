@@ -709,8 +709,7 @@ procedure TKMNetServer.SaveHTMLStatus;
   end;
 
   function AddThousandSeparator(S: string; Chr: Char=','): string;
-  var
-    I: Integer;
+  var I: Integer;
   begin
     Result := S;
     I := Length(S) - 2;
@@ -721,9 +720,21 @@ procedure TKMNetServer.SaveHTMLStatus;
     end;
   end;
 
+  function GetPlayersHTML(i:integer):string;
+  begin
+    Result := CleanString(fRoomInfo[i].GameInfo.Players);
+    Result := StringReplace(Result,'|',', ',[rfReplaceAll]);
+  end;
+  function GetPlayersXML(i:integer):string;
+  begin
+    Result := CleanString(fRoomInfo[i].GameInfo.Players);
+    Result := StringReplace(Result,'|','</player>'+sLineBreak+'      <player>',[rfReplaceAll]);
+    if Result <> '' then Result := sLineBreak+'      <player>'+Result+'</player>'+sLineBreak+'    ';
+  end;
+
 var
   i,PlayerCount,RoomCount:integer;
-  HTML,XML,RoomXML,PlayersStr:string;
+  HTML,XML,RoomXML:string;
   MyFile:TextFile;
 begin
   if fHTMLStatusFile = '' then exit; //Means do not write status
@@ -743,18 +754,17 @@ begin
     begin
       inc(RoomCount);
       inc(PlayerCount,GetRoomPlayersCount(i));
-      PlayersStr := CleanString(StringReplace(StringReplace(fRoomInfo[i].GameInfo.Players,',','',[rfReplaceAll]),'|',',',[rfReplaceAll]));
       HTML := HTML + '<TR><TD>'+IntToStr(i)+'</TD><TD>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+
                      '</TD><TD>'+IntToStr(GetRoomPlayersCount(i))+
                      '</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.Map)+
                      '&nbsp;</TD><TD>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+
-                     '&nbsp;</TD><TD>'+PlayersStr+'</TD></TR>'+sLineBreak;
+                     '&nbsp;</TD><TD>'+GetPlayersHTML(i)+'</TD></TR>'+sLineBreak;
       RoomXML := RoomXML + '  <room id="'+IntToStr(i)+'">'+sLineBreak+
                            '    <state>'+CleanString(GameStateText[fRoomInfo[i].GameInfo.GameState])+'</state>'+sLineBreak+
                            '    <roomplayercount>'+IntToStr(GetRoomPlayersCount(i))+'</roomplayercount>'+sLineBreak+
                            '    <map>'+CleanString(fRoomInfo[i].GameInfo.Map)+'</map>'+sLineBreak+
                            '    <gametime>'+CleanString(fRoomInfo[i].GameInfo.GetFormattedTime)+'</gametime>'+sLineBreak+
-                           '    <players>'+PlayersStr+'</players>'+sLineBreak+
+                           '    <players>'+GetPlayersXML(i)+'</players>'+sLineBreak+
                            '  </room>'+sLineBreak;
     end;
 
@@ -764,8 +774,8 @@ begin
                  '</BODY>'+sLineBreak+'</HTML>';
   XML := XML + '  <roomcount>'+IntToStr(RoomCount)+'</roomcount>'+sLineBreak;
   XML := XML + '  <playercount>'+IntToStr(PlayerCount)+'</playercount>'+sLineBreak;
-  XML := XML + '  <bytessent>'+IntToStr(BytesTX)+'</playercount>'+sLineBreak;
-  XML := XML + '  <bytesreceived>'+IntToStr(BytesRX)+'</playercount>'+sLineBreak;
+  XML := XML + '  <bytessent>'+IntToStr(BytesTX)+'</bytessent>'+sLineBreak;
+  XML := XML + '  <bytesreceived>'+IntToStr(BytesRX)+'</bytesreceived>'+sLineBreak;
   XML := XML + RoomXML;
   XML := XML + '</server>';
 
