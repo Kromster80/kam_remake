@@ -8,37 +8,37 @@ type
   TViewport = class
   private
     fMapX, fMapY: Word;
-    fPosition:TKMPointF;
-    fScrolling: boolean;
-    PrevScrollAdv:array [1..24]of single;
-    PrevScrollPos:byte;
-    fViewportClip:TPoint;
-    fViewRect:TRect;
-    fZoom:single;
-    function GetPosition:TKMPointF;
+    fPosition: TKMPointF;
+    fScrolling: Boolean;
+    PrevScrollAdv: array [1..24] of Single;
+    PrevScrollPos: Byte;
+    fViewportClip: TPoint;
+    fViewRect: TRect;
+    fZoom: Single;
+    function GetPosition: TKMPointF;
     procedure SetPosition(Value: TKMPointF);
-    procedure SetZoom(aZoom:single);
+    procedure SetZoom(aZoom: Single);
   public
     ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown: boolean;
     constructor Create(aWidth, aHeight: Integer);
 
-    property Position:TKMPointF read GetPosition write SetPosition;
-    property Scrolling:boolean read fScrolling;
-    property ViewportClip:TPoint read fViewportClip;
-    property ViewRect:TRect read fViewRect;
-    property Zoom:single read fZoom write SetZoom;
+    property Position: TKMPointF read GetPosition write SetPosition;
+    property Scrolling: Boolean read fScrolling;
+    property ViewportClip: TPoint read fViewportClip;
+    property ViewRect: TRect read fViewRect;
+    property Zoom: Single read fZoom write SetZoom;
 
     procedure ResetZoom;
     procedure Resize(NewWidth, NewHeight: Integer);
     procedure ResizeMap(aMapX, aMapY: Integer);
-    function GetClip:TRect; //returns visible area dimensions in map space
-    function GetMinimapClip:TRect;
+    function GetClip: TRect; //returns visible area dimensions in map space
+    function GetMinimapClip: TRect;
     procedure ReleaseScrollKeys;
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
 
-    procedure UpdateStateIdle(aFrameTime:cardinal);
+    procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
 
 
@@ -104,7 +104,6 @@ begin
   Result.Y := EnsureRange(fPosition.Y, 1, fMapY);
   if not SMOOTH_SCROLLING then Result.X := round(Result.X);
   if not SMOOTH_SCROLLING then Result.Y := round(Result.Y);
-  fSoundLib.UpdateListener(Result.X, Result.Y);
 end;
 
 
@@ -229,7 +228,7 @@ end;
 
 
 procedure TViewport.Load(LoadStream:TKMemoryStream);
-var s:string;
+var s: string;
 begin
   LoadStream.Read(s);
   Assert(s = 'Viewport');
