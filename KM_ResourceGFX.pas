@@ -7,7 +7,13 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
   KM_CommonTypes, KM_Defaults,
-  KM_ResourceFonts, KM_ResourceHouse, KM_ResourcePalettes, KM_ResourceResource, KM_ResourceTileset, KM_ResourceUnit
+  KM_ResourceCursors,
+  KM_ResourceFonts,
+  KM_ResourceHouse,
+  KM_ResourcePalettes,
+  KM_ResourceResource,
+  KM_ResourceTileset,
+  KM_ResourceUnit
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
@@ -17,7 +23,8 @@ type
 
   TResource = class
   private
-    fDataState:TDataLoadingState;
+    fDataState: TDataLoadingState;
+    fCursors: TKMCursors;
     fResourceFont: TResourceFont;
     fHouseDat: TKMHouseDatCollection;
     fUnitDat: TKMUnitDatCollection;
@@ -39,8 +46,6 @@ type
     procedure MakeGFX_AlphaTest(RXid:integer);
 
     procedure ClearUnusedGFX(RXid:integer);
-
-    procedure MakeCursors(RXid:integer);
   public
     OnLoadingStep:TNotifyEvent;
     OnLoadingText:TStringEvent;
@@ -51,6 +56,7 @@ type
     procedure LoadGameResources;
 
     property DataState: TDataLoadingState read fDataState;
+    property Cursors: TKMCursors read fCursors;
     property HouseDat: TKMHouseDatCollection read fHouseDat;
     property UnitDat: TKMUnitDatCollection read fUnitDat;
     property Palettes: TKMPalettes read fPalettes;
@@ -104,6 +110,7 @@ begin
   if fResourceFont <> nil then FreeAndNil(fResourceFont);
   if fResources <> nil then FreeAndNil(fResources);
   if fTileset <> nil then FreeAndNil(fTileset);
+  if fCursors <> nil then FreeAndNil(fCursors);
   Inherited;
 end;
 
@@ -136,7 +143,13 @@ begin
     LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i);
     LoadRX7(i); //Load RX data overrides
 
-    if i=4 then MakeCursors(4);
+    if i = 4 then
+    begin
+      fCursors := TKMCursors.Create;
+      fCursors.MakeCursors(4);
+      fCursors.Cursor := kmc_Default;
+    end;
+
     MakeGFX(i);
     ClearUnusedGFX(i);
 
@@ -927,76 +940,6 @@ begin
   end;
 
   MyBitMap.Free;
-end;
-
-
-procedure TResource.MakeCursors(RXid:integer);
-var
-  i,sx,sy,x,y:integer;
-  bm,bm2:TBitMap;
-  IconInfo:TIconInfo;
-  {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
-begin
-  bm  := TBitMap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf24bit;
-  bm2 := TBitMap.Create; bm2.HandleType := bmDIB; bm2.PixelFormat := pf24bit;
-
-  for i:=1 to length(Cursors) do begin
-
-    //Special case for invisible cursor
-    if Cursors[i] = 999 then
-    begin
-      bm.Width  := 1; bm.Height  := 1;
-      bm2.Width := 1; bm2.Height := 1;
-      bm2.Canvas.Pixels[0,0] := clWhite; //Invisible mask, we don't care for Image color
-      IconInfo.xHotspot := 0;
-      IconInfo.yHotspot := 0;
-    end
-    else
-    begin
-      sx := RXData[RXid].Size[Cursors[i]].X;
-      sy := RXData[RXid].Size[Cursors[i]].Y;
-      bm.Width  := sx; bm.Height  := sy;
-      bm2.Width := sx; bm2.Height := sy;
-
-      for y:=0 to sy-1 do for x:=0 to sx-1 do
-      begin
-        //todo: Find a PC which doesn't shows transparency and try to change 4th byte in bm.Canvas.Pixels
-        if RXData[RXid].RGBA[Cursors[i],y*sx+x] and $FF000000 = 0 then begin
-          bm.Canvas.Pixels[x,y] := 0; //If not reset will invert background color
-          bm2.Canvas.Pixels[x,y] := clWhite;
-        end else begin
-          bm.Canvas.Pixels[x,y] := (RXData[RXid].RGBA[Cursors[i],y*sx+x] AND $FFFFFF);
-          bm2.Canvas.Pixels[x,y] := clBlack;
-        end;
-        //bm2.Canvas.Pixels[x,y] := byte((RXData[RXid].RGBA[Cursors[i],y*sx+x] shr 24) and $FF)*65793;
-      end;
-      //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
-      IconInfo.xHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i],0);
-      IconInfo.yHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i],0);
-    end;
-
-    //Release the Mask, otherwise there is black rect in Lazarus
-    //it works only from within the loop, means mask is recreated when we access canvas or something like that
-    bm2.ReleaseMaskHandle;
-
-    IconInfo.fIcon := false; //true=Icon, false=Cursor
-    IconInfo.hbmColor := bm.Handle;
-    IconInfo.hbmMask  := bm2.Handle;
-
-    //I have a suspicion that maybe Windows could create icon delayed, at a time when bitmap data is
-    //no longer valid (replaced by other bitmap or freed). Hence issues with transparency.
-    {$IFDEF MSWindows}
-    Screen.Cursors[Cursors[i]] := CreateIconIndirect(IconInfo);
-    {$ENDIF}
-    {$IFDEF Unix}
-    IconInfoPointer := @IconInfo;
-    Screen.Cursors[Cursors[i]] := CreateIconIndirect(IconInfoPointer);
-    {$ENDIF}
-  end;
-
-  bm.Free;
-  bm2.Free;
-  Screen.Cursor := c_Default;
 end;
 
 

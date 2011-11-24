@@ -345,7 +345,7 @@ type
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Game,
-KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit;
+KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit, KM_ResourceCursors;
 
 const
   MESSAGE_AREA_HEIGHT = 173+17; //Image_ChatHead + Image_ChatBody
@@ -2392,8 +2392,8 @@ end;
 procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender:TObject);
 begin
   fJoiningGroups := false;
-  if (Screen.Cursor = c_JoinYes) or (Screen.Cursor = c_JoinNo) then //Do not override non-joining cursors
-    Screen.Cursor := c_Default; //In case this is run with keyboard shortcut, mouse move won't happen
+  if fResource.Cursors.Cursor in [kmc_JoinYes, kmc_JoinNo] then //Do not override non-joining cursors
+    fResource.Cursors.Cursor := kmc_Default; //In case this is run with keyboard shortcut, mouse move won't happen
   Panel_Army_JoinGroups.Hide;
   if fShownUnit <> nil then
     Panel_Army.Show;
@@ -2870,9 +2870,9 @@ end;
 procedure TKMGamePlayInterface.DirectionCursorShow(X,Y: Integer; Dir:TKMDirection);
 begin
   Image_DirectionCursor.Visible := True;
-  Image_DirectionCursor.Left    := X + RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].x;
-  Image_DirectionCursor.Top     := Y + RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].y;
-  Image_DirectionCursor.TexID   := TKMCursorDirections[Dir];
+  Image_DirectionCursor.Left    := X + fResource.Cursors.CursorOffset(Dir).X;
+  Image_DirectionCursor.Top     := Y + fResource.Cursors.CursorOffset(Dir).Y;
+  Image_DirectionCursor.TexID   := fResource.Cursors.CursorTexID(Dir);
 end;
 
 
@@ -2905,8 +2905,8 @@ begin
     //Reset the cursor position as it will have moved during direction selection
     SetCursorPos(Form1.Panel5.ClientToScreen(SelectingDirPosition).X,Form1.Panel5.ClientToScreen(SelectingDirPosition).Y);
     Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
-    SelectingTroopDirection := false;
-    Screen.Cursor := c_Default; //Reset direction selection cursor when mouse released
+    SelectingTroopDirection := False;
+    fResource.Cursors.Cursor := kmc_Default; //Reset direction selection cursor when mouse released
     DirectionCursorHide;
   end;
 end;
@@ -3131,7 +3131,7 @@ begin
       SelectingDirPosition.Y := Y;
       SelectedDirection := dir_NA;
       DirectionCursorShow(X, Y, SelectedDirection);
-      Screen.Cursor := c_Invisible;
+      fResource.Cursors.Cursor := kmc_Invisible;
     end;
   end;
 end;
@@ -3145,11 +3145,12 @@ var DeltaX,DeltaY,DeltaDistanceSqr:integer; NewPoint:TPoint; U:TKMUnit; H:TKMHou
 begin
   MyControls.MouseMove(X,Y,Shift);
 
-  if (MyControls.CtrlOver is TKMDragger) or (MyControls.CtrlDown is TKMDragger) then exit;
+  if (MyControls.CtrlOver is TKMDragger) or (MyControls.CtrlDown is TKMDragger) then Exit;
+
   if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) then
   begin
-    Screen.Cursor := c_Default;
-    exit;
+    fResource.Cursors.Cursor := kmc_Default;
+    Exit;
   end
   else
     DisplayHint(nil); //Clear shown hint
@@ -3179,8 +3180,8 @@ begin
     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
     //Update the cursor based on this direction and negate the offset
     DirectionCursorShow(SelectingDirPosition.X, SelectingDirPosition.Y, SelectedDirection);
-    Screen.Cursor := c_Invisible; //Keep it invisible, just in case
-    exit;
+    fResource.Cursors.Cursor := kmc_Invisible; //Keep it invisible, just in case
+    Exit;
   end;
 
   fTerrain.ComputeCursorPosition(X,Y,Shift);
@@ -3188,8 +3189,9 @@ begin
   if GameCursor.Mode<>cm_None then
   begin
     //Use the default cursor while placing roads, don't become stuck on c_Info or others
-    if not fGame.Viewport.Scrolling then Screen.Cursor := c_Default;
-    exit;
+    if not fGame.Viewport.Scrolling then
+      fResource.Cursors.Cursor := kmc_Default;
+    Exit;
   end;
 
   if fJoiningGroups and (fShownUnit is TKMUnitWarrior) then
@@ -3201,16 +3203,16 @@ begin
     and (not U.IsDeadOrDying)
     and (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit)))
     and (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
-      Screen.Cursor := c_JoinYes
+      fResource.Cursors.Cursor := kmc_JoinYes
     else
-      Screen.Cursor := c_JoinNo;
+      fResource.Cursors.Cursor := kmc_JoinNo;
     Exit;
   end;
 
   if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
      (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then begin
-    Screen.Cursor := c_Info;
-    exit;
+    fResource.Cursors.Cursor := kmc_Info;
+    Exit;
   end;
 
   if fShownUnit is TKMUnitWarrior then
@@ -3221,16 +3223,16 @@ begin
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
       if ((U<>nil) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy)) or
          ((H<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy)) then
-        Screen.Cursor := c_Attack
+        fResource.Cursors.Cursor := kmc_Attack
       else
       if not fGame.Viewport.Scrolling then
-        Screen.Cursor := c_Default;
-      exit;
+        fResource.Cursors.Cursor := kmc_Default;
+      Exit;
     end;
   end;
 
   if not fGame.Viewport.Scrolling then
-    Screen.Cursor := c_Default;
+    fResource.Cursors.Cursor := kmc_Default;
 end;
 
 

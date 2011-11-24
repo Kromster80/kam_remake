@@ -202,7 +202,7 @@ type
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
-     KM_Utils, KM_Game, KM_ResourceGFX, KM_ResourceUnit;
+     KM_Utils, KM_Game, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceCursors;
 
 
 {Switch between pages}
@@ -1648,9 +1648,7 @@ end;
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
   MyControls.MouseDown(X,Y,Shift,Button);
-  if MyControls.CtrlOver<>nil then
-    Screen.Cursor := c_Default
-  else
+  if MyControls.CtrlOver = nil then
     fTerrain.ComputeCursorPosition(X,Y,Shift); //So terrain brushes start on mouse down not mouse move
 end;
 
@@ -1659,19 +1657,20 @@ procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint;
 begin
   MyControls.MouseMove(X,Y,Shift);
-  if MyControls.CtrlOver<>nil then begin
-    Screen.Cursor:=c_Default;
+  if MyControls.CtrlOver <> nil then 
+  begin
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
-    exit;
+    Exit;
   end;
 
   fTerrain.ComputeCursorPosition(X,Y,Shift);
   if GameCursor.Mode=cm_None then
     if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
        (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
-      Screen.Cursor:=c_Info
-    else if not fGame.Viewport.Scrolling then
-      Screen.Cursor:=c_Default;
+      fResource.Cursors.Cursor := kmc_Info
+    else 
+      if not fGame.Viewport.Scrolling then
+        fResource.Cursors.Cursor := kmc_Default;
 
   Label_Coordinates.Caption := Format('X: %d, Y: %d',[GameCursor.Cell.X,GameCursor.Cell.Y]);
 

@@ -152,7 +152,8 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log;
+  KM_Unit1, KM_Player, KM_GameInfo, KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Log,
+  KM_ResourceCursors;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -736,18 +737,18 @@ begin
 end;
 
 
-procedure TKMGame.SetGameState(aNewState:TGameState);
+procedure TKMGame.SetGameState(aNewState: TGameState);
 begin
   fGameState := aNewState;
 end;
 
 
 //Put the game on Hold for Victory screen
-procedure TKMGame.GameHold(DoHold:boolean; Msg:TGameResultMsg);
+procedure TKMGame.GameHold(DoHold: Boolean; Msg: TGameResultMsg);
 begin
   DoGameHold := false;
   fGamePlayInterface.ReleaseDirectionSelector; //In case of victory/defeat while moving troops
-  Screen.Cursor := c_Default;
+  fResource.Cursors.Cursor := kmc_Default;
   fViewport.ReleaseScrollKeys;
   PlayOnState := Msg;
 

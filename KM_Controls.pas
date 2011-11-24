@@ -725,7 +725,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_ResourceGFX, KM_Sound, KM_Utils;
+uses KM_RenderUI, KM_ResourceGFX, KM_ResourceCursors, KM_Sound, KM_Utils;
 
 
 { TKMControl }
@@ -2935,7 +2935,6 @@ end;
 
 procedure TKMDragger.MouseMove(X,Y:integer; Shift:TShiftState);
 begin
-  Screen.Cursor := c_DragUp; //Always use the dragger cursor while the mouse is over it
   Inherited;
 
   if csDown in State then
@@ -3084,11 +3083,21 @@ end;
 
 
 procedure TKMMasterControl.MouseMove(X,Y:Integer; Shift:TShiftState);
-var HintControl:TKMControl;
+var HintControl: TKMControl;
 begin
-  if CtrlDown=nil then CtrlOver := HitControl(X,Y); //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
+  if CtrlDown = nil then CtrlOver := HitControl(X,Y); //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
   if CtrlOver <> nil then
     CtrlOver.MouseMove(X,Y,Shift);
+
+  //The Game hides cursor when using DirectionSelector, don't spoil it
+  if fResource.Cursors.Cursor <> kmc_Invisible then
+    if CtrlOver is TKMEdit then
+      fResource.Cursors.Cursor := kmc_Edit
+    else
+    if CtrlOver is TKMDragger then
+      fResource.Cursors.Cursor := kmc_DragUp
+    else
+      fResource.Cursors.Cursor := kmc_Default;
 
   HintControl := HitControl(X,Y,true); //Include disabled controls
   if (HintControl <> nil) and Assigned(fOnHint) then fOnHint(HintControl);

@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Sound, KM_Game, KM_Unit1, KM_Log;
+uses KM_Defaults, KM_Sound, KM_Game, KM_Unit1, KM_ResourceGFX, KM_ResourceCursors;
 
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
@@ -152,10 +152,15 @@ end;
 
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
-procedure TViewport.UpdateStateIdle(aFrameTime:cardinal);
-const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
+procedure TViewport.UpdateStateIdle(aFrameTime: Cardinal);
+const
+  DirectionsBitfield: array [0..15] of TKMCursor = (
+    kmc_Default, kmc_Scroll6, kmc_Scroll0, kmc_Scroll7,
+    kmc_Scroll2, kmc_Default, kmc_Scroll1, kmc_Default,
+    kmc_Scroll4, kmc_Scroll5, kmc_Default, kmc_Default,
+    kmc_Scroll3, kmc_Default, kmc_Default, kmc_Default);
 var
-  ScrollAdv:single;
+  ScrollAdv: Single;
   CursorPoint: TKMPoint;
   ScreenBounds: TRect;
   Temp:byte;
@@ -164,7 +169,9 @@ begin
   //With multiple monitors the cursor position can be outside of this screen, which makes scrolling too fast
   CursorPoint.X := EnsureRange(Mouse.CursorPos.X, ScreenBounds.Left, ScreenBounds.Right );
   CursorPoint.Y := EnsureRange(Mouse.CursorPos.Y, ScreenBounds.Top , ScreenBounds.Bottom);
-  if(Form1.Handle <> GetForegroundWindow) or //Do not do scrolling when the form is not focused (player has switched to another application)
+
+  //Do not do scrolling when the form is not focused (player has switched to another application)
+  if not Form1.Active or
     (not ScrollKeyLeft  and
      not ScrollKeyUp    and
      not ScrollKeyRight and
@@ -174,20 +181,23 @@ begin
      not (CursorPoint.X >= ScreenBounds.Right -1-SCROLLFLEX) and
      not (CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX)) then
   begin
-    ReleaseScrollKeys; //Release scroll keys when we are no longer scrolling (required if the form loses focus)
-    fScrolling := false;
-    if (Screen.Cursor in [c_Scroll6..c_Scroll3]) then //Which is 2..9, since directions are not incremental
-      Screen.Cursor := c_Default;
-    exit;
+    //Stop the scrolling (e.g. if the form loses focus due to other application popping up)
+    ReleaseScrollKeys;
+    fScrolling := False;
+
+    if (fResource.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
+      fResource.Cursors.Cursor := kmc_Default;
+
+    Exit;
   end;
 
-  ScrollAdv := (SCROLLSPEED + fGame.GlobalSettings.ScrollSpeed/5)*aFrameTime/100; //1-5 tiles per second
+  ScrollAdv := (SCROLLSPEED + fGame.GlobalSettings.ScrollSpeed / 5) * aFrameTime / 100; //1-5 tiles per second
 
   PrevScrollPos := (PrevScrollPos + 1) mod length(PrevScrollAdv) + 1; //Position in ring-buffer
   PrevScrollAdv[PrevScrollPos] := ScrollAdv; //Replace oldest value
   for Temp := 1 to length(PrevScrollAdv) do //Compute average
     ScrollAdv := ScrollAdv + PrevScrollAdv[Temp];
-  ScrollAdv := ScrollAdv / length(PrevScrollAdv);//}
+  ScrollAdv := ScrollAdv / Length(PrevScrollAdv);
 
   Temp := 0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
@@ -206,12 +216,12 @@ begin
   if CursorPoint.Y >= ScreenBounds.Bottom-1-SCROLLFLEX then begin inc(Temp,8); fPosition.Y := fPosition.Y + ScrollAdv*(1-(ScreenBounds.Bottom-1-CursorPoint.Y)/SCROLLFLEX); end;
 
   //Now do actual the scrolling, if needed
-  fScrolling := Temp<>0;
+  fScrolling := Temp <> 0;
   if fScrolling then
-    Screen.Cursor := DirectionsBitfield[Temp] //Sample cursor type from bitfield value
+    fResource.Cursors.Cursor := DirectionsBitfield[Temp] //Sample cursor type from bitfield value
   else
-    if (Screen.Cursor in [c_Scroll6..c_Scroll3]) then //Which is 2..9, since directions are not incremental
-      Screen.Cursor := c_Default;
+    if (fResource.Cursors.Cursor in [kmc_Scroll0 .. kmc_Scroll7]) then
+      fResource.Cursors.Cursor := kmc_Default;
 
   SetPosition(fPosition); //EnsureRanges
 end;
@@ -237,7 +247,6 @@ begin
   LoadStream.Read(fPosition);
   LoadStream.Read(fZoom);
   fSoundLib.UpdateListener(fPosition.X, fPosition.Y);
-  fLog.AppendLog('Viewport loaded');
 end;
 
 
