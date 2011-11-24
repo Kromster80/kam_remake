@@ -936,7 +936,7 @@ begin
       Anchors := [akLeft, akTop, akRight, akBottom];
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
-      PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20, 0);
+      PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
       Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl, 80, 2, 160, 0, '<<<LEER>>>', fnt_Grey, taCenter);
       Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl, 0, 24, 24, 24, 'I<', fnt_Metal);
       Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl,25, 24, 24, 24, 'II', fnt_Metal);
@@ -1324,7 +1324,7 @@ begin
     Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,30,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,30,fTextLibrary.GetTextString(254),fnt_Grey,taCenter);
-    ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,73,55,116,15,80);
+    ConditionBar_Unit     := TKMPercentBar.Create(Panel_Unit,73,55,116,15);
     Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,30,'',fnt_Grey,taLeft);
     Label_UnitTask.AutoWrap := true;
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
@@ -1407,7 +1407,7 @@ begin
     Image_House_Worker := TKMImage.Create(Panel_House,98,41,32,32,141);
     Image_House_Worker.ImageCenter;
     Label_HouseHealth := TKMLabel.Create(Panel_House,156,45,55,15,fTextLibrary.GetTextString(228),fnt_Mini,taCenter,$FFE0E0E0);
-    HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15,50);
+    HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15);
     Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary.GetTextString(230),fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary.GetTextString(232),fnt_Grey,taCenter);
@@ -1532,7 +1532,7 @@ begin
     ResRow_School_Resource.TexID := fResource.Resources[rt_Gold].GUIIcon;
     ResRow_School_Resource.Caption := fResource.Resources[rt_Gold].Name;
     ResRow_School_Resource.Hint := fResource.Resources[rt_Gold].Name;
-    Button_School_UnitWIPBar :=TKMPercentBar.Create(Panel_House_School,42,54,138,20,0);
+    Button_School_UnitWIPBar :=TKMPercentBar.Create(Panel_House_School,42,54,138,20);
     Button_School_UnitWIP := TKMButton.Create(Panel_House_School,  8,48,32,32,0);
     Button_School_UnitWIP.Hint := fTextLibrary.GetTextString(225);
     Button_School_UnitWIP.Tag := 1;

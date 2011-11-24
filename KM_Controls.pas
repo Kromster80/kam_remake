@@ -391,7 +391,7 @@ type
     Font: TKMFont;
     FontColor:TColor4;
     TextAlign: TTextAlign;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini; aColor:TColor4=$FFFFFFFF);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont=fnt_Mini);
     procedure Paint; override;
   end;
 
@@ -1764,14 +1764,12 @@ end;
 
 
 { TKMPercentBar }
-constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini; aColor:TColor4=$FFFFFFFF);
+constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont=fnt_Mini);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  Position:=EnsureRange(aPos,0,100);
-  Font:=aFont;
-  FontColor:=aColor;
-  TextAlign:=taCenter;
-  Caption:=aCaption;
+  Font := aFont;
+  FontColor := $FFFFFFFF;
+  TextAlign := taCenter;
 end;
 
 

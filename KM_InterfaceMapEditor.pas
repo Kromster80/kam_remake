@@ -789,7 +789,7 @@ begin
     Label_UnitName        := TKMLabel.Create(Panel_Unit,100,16,184,0,'',fnt_Outline,taCenter);
     Image_UnitPic         := TKMImage.Create(Panel_Unit,8,38,54,100,521);
     Label_UnitCondition   := TKMLabel.Create(Panel_Unit,132,40,116,0,fTextLibrary.GetTextString(254),fnt_Grey,taCenter);
-    KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,73,55,116,15,80);
+    KMConditionBar_Unit   := TKMPercentBar.Create(Panel_Unit,73,55,116,15);
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
 
   Panel_Army:=TKMPanel.Create(Panel_Unit,0,160,200,400);
@@ -824,7 +824,7 @@ begin
     Image_House_Worker:=TKMImage.Create(Panel_House,38,41,32,32,141);
     Image_House_Worker.ImageCenter;
     Label_HouseHealth:=TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary.GetTextString(228),fnt_Mini,taCenter,$FFFFFFFF);
-    KMHealthBar_House:=TKMPercentBar.Create(Panel_House,100,53,60,20,50);
+    KMHealthBar_House:=TKMPercentBar.Create(Panel_House,100,53,60,20);
     Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', fnt_Metal);
     Button_HouseHealthInc := TKMButton.Create(Panel_House,160,53,20,20,'+', fnt_Metal);
     Button_HouseHealthDec.OnClickEither := House_HealthChange;

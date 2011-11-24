@@ -1129,7 +1129,7 @@ begin
         with TKMLabel.Create(Panel_StatsMP1, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
-          Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 150 + k*BarStep, 40+i*25, BarWidth, 20, 0, '-', fnt_Metal);
+          Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 150 + k*BarStep, 40+i*25, BarWidth, 20, fnt_Metal);
       end;
 
     Panel_StatsMP2 := TKMPanel.Create(Panel_ResultsMP, 112, 400, 800, 260);
@@ -1142,7 +1142,7 @@ begin
         with TKMLabel.Create(Panel_StatsMP2, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
-          Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 150 + k*BarStep, 40+i*25, BarWidth, 20, 0, '-', fnt_Metal);
+          Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 150 + k*BarStep, 40+i*25, BarWidth, 20, fnt_Metal);
       end;
 
     Button_ResultsMPBack := TKMButton.Create(Panel_ResultsMP,100,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
