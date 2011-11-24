@@ -279,6 +279,7 @@ end;
 { TKMCampaign }
 constructor TKMCampaign.Create(const aShortTitle: string; aMapCount:byte; aBackRX,aBackID:word);
 begin
+  Inherited Create;
   fShortTitle := aShortTitle;
   fMapCount := aMapCount;
   fBackGroundPic.RX := aBackRX;

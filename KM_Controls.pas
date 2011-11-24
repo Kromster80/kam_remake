@@ -354,7 +354,6 @@ type
     fFont:TKMFont;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
-    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont); overload;
     property Caption:string read fCaption;
     property Checked:boolean read fChecked write fChecked;
     property FlatStyle:boolean read fFlatStyle write fFlatStyle;
@@ -1467,20 +1466,14 @@ begin
 end;
 
 
-{Simple version of button, with image and nothing more}
+{Simple version of button, with a caption and image}
 constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  RXid:=aRXid;
-  TexID:=aTexID;
-  TexOffsetX:=0;
-  TexOffsetY:=0;
-  CapOffsetY:=0;
-  Caption:='';
+  RXid  := aRXid;
+  TexID := aTexID;
   fFont := fnt_Grey;
-  TextAlign:=taLeft;
-  Down:=false;
-  HideHighlight:=false;
+  TextAlign := taLeft;
 end;
 
 
@@ -1662,12 +1655,6 @@ begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont     := aFont;
   fCaption  := aCaption;
-end;
-
-
-constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont);
-begin
-  Create(aParent,aLeft,aTop,0,0,aCaption,aFont);
 end;
 
 

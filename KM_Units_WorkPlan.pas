@@ -414,9 +414,10 @@ begin
         taPlant:  begin //Planting uses DirN (0) of ua_Work
                     WalkStyle(Tmp, ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant);
                   end;
-        else      fIssued := false;
-      end else
-        fIssued := false;
+        else      fIssued := False;
+      end
+    else
+      fIssued := False;
   end else
 
   if (aUnitType=ut_Butcher)and(aHome=ht_Tannery) then begin

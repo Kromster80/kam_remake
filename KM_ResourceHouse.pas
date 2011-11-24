@@ -554,7 +554,7 @@ end;
 { TKMHouseDatCollection }
 constructor TKMHouseDatCollection.Create;
 
-  procedure AddAnimation(aHouse:THouseType; aAnim:THouseActionType; aMoveX, aMoveY:integer; aSteps:array of smallint);
+  procedure AddAnimation(aHouse:THouseType; aAnim:THouseActionType; aMoveX, aMoveY:integer; const aSteps:array of smallint);
   var i:integer;
   begin
     with fItems[aHouse].fHouseDat.Anim[aAnim] do

@@ -53,14 +53,15 @@ uses Math, KM_Player, KM_ResourceGFX;
 
 var
   // Evals matrix. 1 - Power ratio, 2 - Chance
-  UnitStatEvals : array [WARRIOR_MIN..WARRIOR_MAX, WARRIOR_MIN..WARRIOR_MAX, 1..2] of Single;
+  UnitStatEvals: array [WARRIOR_MIN..WARRIOR_MAX, WARRIOR_MIN..WARRIOR_MAX, 1..2] of Single;
 
 
-{ TKMArmyEvaluation assets}
+{ TKMArmyEvaluation }
 constructor TKMEvaluation.Create;
 begin
+  Inherited;
   fEnemyIndex := 0;
-  Reset;
+  //Reset; //No need to reset - all fields are initialized empty by constructor
 end;
 
 
@@ -72,8 +73,8 @@ begin
 end;
 
 
-{ TKMArmyEvaluation assets}
-constructor TKMArmyEvaluation.Create(SelfPlayer : TObject);
+{ TKMArmyEvaluation }
+constructor TKMArmyEvaluation.Create(SelfPlayer: TObject);
 var i : Integer;
 begin
   inherited Create;
@@ -132,7 +133,7 @@ begin
 end;
 
 
-//@Crow: Пиши пожалуйтс акомментарии по коду (какова цель метода, почему выбрано определенное решение?)
+//@Crow: Пиши пожалуйcта комментарии по коду (какова цель метода, почему выбрано определенное решение?)
 procedure TKMArmyEvaluation.EvaluatePower(Stats : TKMPlayerStats; PlayerIndex : TPlayerIndex);
 var
   SelfStats : TKMPlayerStats;
@@ -200,7 +201,7 @@ begin
 end;
 
 
-//@Crow: Попробуй пожалуйста использовать более говорящие имена, чем АБЦ
+//@Crow: Попробуй пожалуйста использовать более говорящие имена, чем a,b,c
 procedure InitUnitStatEvals;
 var
   i,j : TUnitType;

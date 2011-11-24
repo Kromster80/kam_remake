@@ -1131,6 +1131,7 @@ end;
 { TRenderList }
 constructor TRenderList.Create;
 begin
+  Inherited;
   fCount := 0;
   SetLength(RenderList, 512); //Allocate some space
 end;
