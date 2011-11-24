@@ -1,8 +1,7 @@
 unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils,
-      KM_Defaults;
+uses Classes, KromUtils, SysUtils;
 
 
 type

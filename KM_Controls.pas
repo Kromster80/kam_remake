@@ -725,7 +725,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_ResourceGFX, KM_ResourceCursors, KM_Sound, KM_Utils;
+uses KM_RenderUI, KM_ResourceGFX, KM_ResourceCursors, KM_Sound;
 
 
 { TKMControl }

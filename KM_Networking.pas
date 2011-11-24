@@ -171,7 +171,7 @@ type
 
 
 implementation
-  uses KM_TextLibrary, KM_Sound, KM_Log;
+uses KM_TextLibrary, KM_Sound, KM_Log;
 
 
 { TKMNetworking }

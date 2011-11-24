@@ -3,7 +3,7 @@ unit KM_Houses;
 interface
 uses
    Classes, KromUtils, Math, SysUtils,
-   KM_CommonTypes, KM_Defaults, KM_ResourceGFX, KM_ResourceHouse, KM_Points, KM_Utils;
+   KM_CommonTypes, KM_Defaults, KM_Points;
 
   {Everything related to houses is here}
 type
@@ -301,7 +301,9 @@ type
 
 
 implementation
-uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player, KM_ResourceResource;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux, KM_Units,
+  KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Game, KM_TextLibrary, KM_Player,
+  KM_ResourceGFX, KM_ResourceResource, KM_ResourceHouse, KM_Utils;
 
 
 { TKMHouse }

@@ -3,7 +3,7 @@ unit KM_GameInfo;
 interface
 uses
   Classes, KromUtils, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Player, KM_Points;
+  KM_CommonTypes, KM_Defaults, KM_Player;
 
 
 type
@@ -40,7 +40,7 @@ type
 
 
 implementation
-  uses KM_TextLibrary;
+uses KM_TextLibrary;
 
 
 { TKMSaveInfo }

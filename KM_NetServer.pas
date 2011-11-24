@@ -120,7 +120,7 @@ type
 
 
 implementation
-  uses KM_Utils; //Needed in Linux for FakeGetTickCount
+uses KM_Utils; //Needed in Linux for FakeGetTickCount
 
 
 { TKMServerClient }

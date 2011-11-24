@@ -2,7 +2,7 @@ unit KM_MapInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, KM_Defaults, KM_Player, KM_GameInfo;
+  Classes, KromUtils, SysUtils, KM_GameInfo;
 
 
 type
@@ -58,7 +58,7 @@ type
 
 
 implementation
-uses KM_Utils, KM_MissionScript, KM_CommonTypes, KM_TextLibrary;
+uses KM_CommonTypes, KM_Defaults, KM_MissionScript, KM_Player, KM_TextLibrary, KM_Utils;
 
 
 { TKMapInfo }

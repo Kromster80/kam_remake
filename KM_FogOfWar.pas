@@ -1,10 +1,10 @@
 unit KM_FogOfWar;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, KM_Defaults, KM_CommonTypes, KM_Points;
+uses Classes, Math, KM_CommonTypes, KM_Points;
 
 
-{These are mission specific settings and stats for each player}
+{ FOW state for each player }
 type
   TKMFogOfWar = class
   private
@@ -36,7 +36,7 @@ type
 
 
 implementation
-  uses KM_Game;
+uses KM_Defaults, KM_Game;
 
 
 { TKMFogOfWar }

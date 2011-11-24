@@ -243,7 +243,7 @@ type
 
 
 implementation
-uses KM_Utils, KM_Defaults;
+uses KM_Utils;
 
 
 constructor ELocError.Create(const Msg: string; aLoc:TKMPoint);

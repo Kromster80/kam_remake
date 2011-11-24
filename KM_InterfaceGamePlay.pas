@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   KM_InterfaceDefaults,
-  KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Utils, KM_Points;
+  KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonTypes, KM_Points;
 
 
 type
@@ -344,7 +344,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
-KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Game,
+KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Game, KM_Utils,
 KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit, KM_ResourceCursors;
 
 const

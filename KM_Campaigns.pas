@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Points;
+  KM_CommonTypes, KM_Points;
 
 
 type
@@ -75,7 +75,7 @@ const
 
 
 implementation
-uses KM_Log, KM_TextLibrary;
+uses KM_Defaults, KM_Log, KM_TextLibrary;
 
 
 const

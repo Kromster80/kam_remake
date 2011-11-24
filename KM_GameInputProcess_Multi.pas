@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Multi;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes, KM_Player;
+uses Classes, SysUtils, Math, KromUtils, KM_GameInputProcess, KM_Networking, KM_Defaults, KM_CommonTypes;
 
 const
   MAX_SCHEDULE = 100; //Size of ring buffers (10 sec) Make them large so overruns do not occur
@@ -78,7 +78,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
+uses KM_Game, KM_Player, KM_PlayersCollection, KM_Utils, KM_Sound, KM_TextLibrary;
 
 
 { TCommandsPack }

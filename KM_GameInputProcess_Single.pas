@@ -1,7 +1,7 @@
 unit KM_GameInputProcess_Single;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KM_GameInputProcess, KM_Points;
+uses SysUtils, KM_GameInputProcess;
 
 
 type
@@ -15,7 +15,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Defaults, KM_Utils;
+uses KM_Game, KM_Defaults, KM_Points, KM_Utils;
 
 
 procedure TGameInputProcess_Single.TakeCommand(aCommand:TGameInputCommand);
