@@ -18,7 +18,6 @@ type
     fItems:array of TGameInputCommand; //1..n
     function GetItem(aIndex:integer):TGameInputCommand;
   public
-    IsUsed: boolean; //If it has not been used we must clear it before sending it (we can't clear it earlier as it might be needed for resync)
     property  Count:integer read fCount;
     procedure Clear;
     procedure Add(aCommand:TGameInputCommand);
@@ -50,6 +49,9 @@ type
 
     //Mark commands we've already sent to other players
     fSent:array[0..MAX_SCHEDULE-1] of boolean; //Ring buffer
+
+    //Did the player issue a command for this tick? If not it must be cleared from last time (we can't clear it earlier as it might be needed for resync)
+    fCommandIssued:array[0..MAX_SCHEDULE-1] of boolean;
 
     //Store random seeds at each tick then confirm with other players
     fRandomCheck:array[0..MAX_SCHEDULE-1] of TRandomCheck; //Ring buffer
@@ -185,10 +187,10 @@ begin
   end;
   Assert(Tick < MAX_SCHEDULE, 'Could not find place for new commands');
 
-  if not fSchedule[Tick, aCommand.PlayerIndex].IsUsed then
+  if not fCommandIssued[Tick] then
   begin
     fSchedule[Tick, aCommand.PlayerIndex].Clear; //Clear old data (it was kept in case it was required for resync)
-    fSchedule[Tick, aCommand.PlayerIndex].IsUsed := true;
+    fCommandIssued[Tick] := true;
   end;
   fSchedule[Tick, aCommand.PlayerIndex].Add(aCommand);
 end;
@@ -372,9 +374,9 @@ begin
   //If the network is not connected then we must send the commands later (fSent will remain false)
   if (not fSent[i mod MAX_SCHEDULE]) and (fNetworking.Connected) then
   begin
-    if not fSchedule[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex].IsUsed then
+    if not fCommandIssued[i mod MAX_SCHEDULE] then
       fSchedule[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex].Clear; //No one has used it since last time through the ring buffer
-    fSchedule[i mod MAX_SCHEDULE, MyPlayer.PlayerIndex].IsUsed := false;
+    fCommandIssued[i mod MAX_SCHEDULE] := false; //Make it as requiring clearing next time around
 
     fLastSentTick := i;
     SendCommands(i);
