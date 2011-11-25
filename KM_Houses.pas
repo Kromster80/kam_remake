@@ -2083,12 +2083,14 @@ begin
        (not Houses[i].IsDestroyed) and
        (Houses[i].IsComplete) then                               //If house is built
     begin
+      //Recruits should not go to a barracks with ware delivery switched off
+      if (Houses[i].HouseType = ht_Barracks) and (not Houses[i].WareDelivery) then Continue;
 
       Dist:=KMLength(Loc,Houses[i].GetPosition);
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
-      //In case of multiple barracks, prefer the one with less recruits already
-      if Houses[i].HouseType = ht_Barracks then Dist:=(Dist*1000) + (TKMHouseBarracks(Houses[i]).RecruitsList.Count*10000);
+      //In case of multiple barracks, prefer the closer one (players should make multiple schools or use WareDelivery to control it)
+      if Houses[i].HouseType = ht_Barracks then Dist:=(Dist*1000);
 
       if (Bid=0)or(Bid>Dist) then
       begin

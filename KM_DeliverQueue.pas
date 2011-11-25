@@ -376,7 +376,7 @@ begin
       else
         Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
-      //Add some random element so in the case of identical bids the same resource will not always be chosen (e.g. weapons storehouse->barracks should be random, not sequential)
+      //Add some random element so in the case of identical bids the same resource will not always be chosen (e.g. weapons storehouse->barracks should take random weapon types not sequentially)
       Bid:=Bid + KaMRandom(5);
 
       //Modifications for bidding system

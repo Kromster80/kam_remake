@@ -444,7 +444,7 @@ begin
 
   with MyPlayer.Stats do
   begin
-    Label_Stat[1].Caption := inttostr(GetCitizensLost);
+    Label_Stat[1].Caption := inttostr(GetCitizensLost + GetWarriorsLost);
     Label_Stat[2].Caption := inttostr(GetCitizensKilled + GetWarriorsKilled);
     Label_Stat[3].Caption := inttostr(GetHousesLost);
     Label_Stat[4].Caption := inttostr(GetHousesDestroyed);
