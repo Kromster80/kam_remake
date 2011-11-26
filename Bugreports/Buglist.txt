@@ -64,7 +64,6 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
-	Moving mouse above the game menu, while in DirectionSelector mode, will change the cursor to a hand (did not occuring in r2411, it wasintroduced in r2584)
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor	

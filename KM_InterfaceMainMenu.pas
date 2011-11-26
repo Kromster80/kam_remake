@@ -76,7 +76,7 @@ type
     procedure MP_Back_Click(Sender: TObject);
 
     procedure Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
-    procedure Lobby_GameOptionsChange(Sender: TObject);
+    procedure Lobby_GameOptionsChange(Sender: TObject; AButton:TMouseButton);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
     procedure Lobby_OnPlayersSetup(Sender: TObject);
@@ -175,6 +175,8 @@ type
         Label_LobbyMapMode:TKMLabel;
         Label_LobbyMapCond:TKMLabel;
         Label_LobbyMapSize:TKMLabel;
+        Label_LobbyPeacetime:TKMLabel;
+        Button_LobbyPeaceAdd,Button_LobbyPeaceRem:TKMButton;
 
       Button_LobbyBack:TKMButton;
       Button_LobbyStart:TKMButton;
@@ -722,29 +724,34 @@ begin
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,510,292,495,430);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 495, 430);
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 220, 20, fTextLibrary[TX_LOBBY_MAP_CHOOSE], fnt_Outline, taLeft);
-      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 220, 60, fnt_Metal);
+      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 282, 20, fTextLibrary[TX_LOBBY_MAP_CHOOSE], fnt_Outline, taLeft);
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 282, 60, fnt_Metal);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_SAVED]);
       Radio_LobbyMapType.ItemIndex := 0;
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
-      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 105, 220, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 105, 282, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 130, 220, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 130, 282, 20, '', fnt_Metal, taLeft);
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 155, 220, 180, fnt_Game);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 155, 282, 180, fnt_Game);
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
-      //TKMLabel.Create(Panel_LobbySetup, 10, 340, 220, 20, fTextLibrary[TX_LOBBY_MAP_INFO], fnt_Outline, taLeft);
-      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 345, 220, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 365, 220, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 385, 220, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 405, 220, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 345, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 365, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 385, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 405, 282, 20, '', fnt_Metal, taLeft);
 
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 265, 10, 220, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbySetup, 300, 10, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbySetup, 300, 40, 190, 20, 'Peacetime (minutes)', fnt_Outline, taLeft);
+      Label_LobbyPeacetime := TKMLabel.Create(Panel_LobbySetup, 340, 64, 40, 20, '0', fnt_Metal, taCenter);
+      Button_LobbyPeaceRem := TKMButton.Create(Panel_LobbySetup, 300, 60, 20, 20, '-', fnt_Metal);
+      Button_LobbyPeaceRem.OnClickEither := Lobby_GameOptionsChange;
+      Button_LobbyPeaceAdd := TKMButton.Create(Panel_LobbySetup, 360, 60, 20, 20, '+', fnt_Metal);
+      Button_LobbyPeaceAdd.OnClickEither := Lobby_GameOptionsChange;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 35, 680, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
@@ -1674,6 +1681,7 @@ begin
   Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
   Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
   Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
+  Label_LobbyPeacetime.Caption := '0';
 
   Lobby_OnMapName('');
   if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then begin
@@ -1685,6 +1693,8 @@ begin
     Label_LobbyChooseMap.Show;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
     Button_LobbyStart.Disable;
+    Button_LobbyPeaceAdd.Enable;
+    Button_LobbyPeaceRem.Enable;
   end else begin
     Radio_LobbyMapType.Hide;
     List_Lobby.Hide;
@@ -1692,20 +1702,29 @@ begin
     Label_LobbyChooseMap.Hide;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
+    Button_LobbyPeaceAdd.Disable;
+    Button_LobbyPeaceRem.Disable;
   end;
 end;
 
 
-procedure TKMMainMenuInterface.Lobby_GameOptionsChange(Sender: TObject);
+procedure TKMMainMenuInterface.Lobby_GameOptionsChange(Sender: TObject; AButton:TMouseButton);
+var Amt:shortint;
 begin
-  //fGame.Networking.NetGameOptions.Peacetime :=
+  Amt := 0;
+  if AButton = mbRight then Amt := 10;
+  if AButton = mbLeft then Amt := 1;
+  if Sender = Button_LobbyPeaceRem then Amt := -Amt;
+
+  fGame.Networking.NetGameOptions.Peacetime := EnsureRange(fGame.Networking.NetGameOptions.Peacetime + Amt,0,999);
   fGame.Networking.SendGameOptions;
+  Label_LobbyPeacetime.Caption := IntToStr(fGame.Networking.NetGameOptions.Peacetime);
 end;
 
 
 procedure TKMMainMenuInterface.Lobby_OnGameOptions(Sender: TObject);
 begin
-  //fGame.Networking.NetGameOptions.Peacetime
+  Label_LobbyPeacetime.Caption := IntToStr(fGame.Networking.NetGameOptions.Peacetime);
 end;
 
 

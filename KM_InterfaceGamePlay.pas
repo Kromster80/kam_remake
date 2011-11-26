@@ -3147,7 +3147,8 @@ begin
 
   if (MyControls.CtrlOver is TKMDragger) or (MyControls.CtrlDown is TKMDragger) then Exit;
 
-  if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) then
+  if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) and
+      not SelectingTroopDirection then
   begin
     fResource.Cursors.Cursor := kmc_Default;
     Exit;
@@ -3239,7 +3240,8 @@ end;
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint; U:TKMUnit; H:TKMHouse; OldSelected: TObject;
 begin
-  if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) then begin
+  if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) and
+      not SelectingTroopDirection then begin
     MyControls.MouseUp(X,Y,Shift,Button);
     exit;
   end;
