@@ -206,11 +206,11 @@ type
   TKMHouseSchool = class(TKMHouse)
   private
     UnitWIP:Pointer;  //can't replace with TKMUnit since it will lead to circular reference in KM_House-KM_Units
-    HideOneGold:boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
+    fHideOneGold:boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
     UnitTrainProgress:byte; //Was it 150 steps in KaM?
     procedure CloseHouse(IsEditor:boolean=false); override;
   public
-    UnitQueue:array[1..6]of TUnitType; //Also used in UI
+    UnitQueue:array[1..6]of TUnitType; //Used in UI. First item is the unit currently being trained, 2..5 are the actual queue
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad; override;
@@ -220,6 +220,7 @@ type
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
     function GetTrainingProgress:byte;
+    property HideOneGold:boolean read fHideOneGold;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -1534,7 +1535,7 @@ constructor TKMHouseSchool.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(UnitWIP, 4);
-  LoadStream.Read(HideOneGold);
+  LoadStream.Read(fHideOneGold);
   LoadStream.Read(UnitTrainProgress);
   LoadStream.Read(UnitQueue, SizeOf(UnitQueue));
 end;
@@ -1570,10 +1571,10 @@ procedure TKMHouseSchool.AddUnitToQueue(aUnit:TUnitType; aCount:byte);
 var i,k:integer;
 begin
   for k:=1 to aCount do
-  for i:=1 to length(UnitQueue) do
+  for i:=2 to length(UnitQueue) do
   if UnitQueue[i]=ut_None then begin
     UnitQueue[i] := aUnit;
-    if i=1 then StartTrainingUnit; //If thats the first unit then start training it
+    if i=2 then StartTrainingUnit; //If thats the first unit then start training it
     break;
   end;
 end;
@@ -1590,26 +1591,32 @@ begin
     if UnitWIP<>nil then begin
       fTerrain.UnitAdd(GetEntrance, UnitWIP); //We removed it on StartTraining and must restore so CloseUnit properly removes it
       TKMUnit(UnitWIP).CloseUnit; //Make sure unit started training
-      HideOneGold := false;
+      fHideOneGold := false;
     end;
     UnitWIP := nil;
+    UnitQueue[1]:=ut_None; //Removed the in training unit
+    StartTrainingUnit; //Start on the next unit in the queue
+  end
+  else
+  begin
+    for i:=aID to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
+    UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
   end;
-
-  for i:=aID to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
-  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
-
-  if aID = 1 then
-    if UnitQueue[1]<>ut_None then StartTrainingUnit;
 end;
 
 
 procedure TKMHouseSchool.StartTrainingUnit;
+var i:integer;
 begin
-  //If there's yet no unit in training
-  if UnitQueue[1] = ut_None then exit;
-  if CheckResIn(rt_Gold) = 0 then exit;
-  HideOneGold := true;
-  UnitWIP := fPlayers.Player[fOwner].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
+  if UnitQueue[1] <> ut_None then exit; //If there's currently no unit in training
+  if UnitQueue[2] = ut_None then exit; //If there is a unit waiting to be trained
+  if CheckResIn(rt_Gold) = 0 then exit; //There must be enough gold to perform training
+
+  fHideOneGold := true;
+  for i:=1 to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
+  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+
+  UnitWIP := fPlayers.Player[fOwner].TrainUnit(UnitQueue[1],GetEntrance); //Create Unit
   WorkAnimStep := 0;
   fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   TKMUnit(UnitWIP).SetUnitTask := TTaskSelfTrain.Create(UnitWIP,Self);
@@ -1618,14 +1625,12 @@ end;
 
 //To be called only by Unit itself when it's trained!
 procedure TKMHouseSchool.UnitTrainingComplete;
-var i:integer;
 begin
   UnitWIP := nil;
+  UnitQueue[1]:=ut_None; //Clear the unit in training
   ResTakeFromIn(rt_Gold); //Do the goldtaking
-  HideOneGold:=false;
-  for i:=1 to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
-  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
-  if UnitQueue[1]<>ut_None then StartTrainingUnit;
+  fHideOneGold:=false;
+  if UnitQueue[2]<>ut_None then StartTrainingUnit;
   UnitTrainProgress:=0;
 end;
 
@@ -1653,7 +1658,7 @@ begin
     SaveStream.Write(TKMUnit(UnitWIP).ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(HideOneGold);
+  SaveStream.Write(fHideOneGold);
   SaveStream.Write(UnitTrainProgress);
   SaveStream.Write(UnitQueue, SizeOf(UnitQueue));
 end;

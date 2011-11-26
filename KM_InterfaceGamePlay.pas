@@ -1875,7 +1875,7 @@ begin
 
     ht_School:
         begin
-          ResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold);
+          ResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold) - byte(TKMHouseSchool(Sender).HideOneGold);
           House_SchoolUnitChange(nil, mbLeft);
           SwitchPage(Panel_House_School);
         end;
