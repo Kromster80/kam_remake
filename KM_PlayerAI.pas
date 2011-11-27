@@ -543,15 +543,12 @@ begin
               //If we are a less important position and there is a higher priority position not full we must step up
               if DefencePositions[k].DefenceType = adt_Backline then //We are low priority
                 for j:=0 to DefencePositionsCount-1 do
-                  if (DefencePositions[j].GroupType = UnitGroups[UnitType]) and
-                     (j < k) and //Positions defined first are top priority, so keep them stocked
+                  if (DefencePositions[j].CurrentCommander = nil) and
+                     (DefencePositions[j].GroupType = UnitGroups[UnitType]) and
                      (DefencePositions[j].DefenceType = adt_Frontline) then //Target is high priority
                      begin
                        DefencePositions[k].CurrentCommander := nil; //Leave current position
-                       if DefencePositions[j].CurrentCommander <> nil then
-                         RestockPositionWith(DefencePositions[j].CurrentCommander,GetCommander) //Restock it
-                       else
-                         DefencePositions[j].CurrentCommander := GetCommander; //Take new position
+                       DefencePositions[j].CurrentCommander := GetCommander; //Take new position
                        break;
                      end;
 

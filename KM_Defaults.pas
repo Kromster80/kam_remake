@@ -27,7 +27,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2609';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2610';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '1st Merchants Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = 'r2586';     //Clients of this version may connect to the dedicated server
 
@@ -874,8 +874,8 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileSpeeds:array[TProjectileType] of single = (0.8, 0.85, 0.6, 0.8);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
   ProjectileJitter:array[TProjectileType] of single = (0.05, 0.05, 0.06, 0.025); //Jitter added according to distance
-  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 2); //Jitter added according to target's speed (moving target harder to hit)
-  ProjectileMissChance:array[TProjectileType] of single = (0.33, 0.33, 0.33, 0.33);
+  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 6); //Jitter added according to target's speed (moving target harder to hit)
+  ProjectileMissChance:array[TProjectileType] of single = (0.33, 0.33, 0.33, 0.2);
 
   const STORM_SPEEDUP=1.5;
   
