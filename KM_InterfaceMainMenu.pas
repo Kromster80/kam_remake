@@ -670,55 +670,54 @@ begin
     //Players
     Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,20,42,985,240);
       TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 985, 240);
-      TKMLabel.Create(Panel_LobbyPlayers, 60, 10, 210, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 280, 10, 200, 20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 490, 10, 150, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 650, 10, 150, 20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbyPlayers, 836, 10,  80, 20, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_LobbyPlayers, 903, 10, 50, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
-      TKMLabel.Create(Panel_LobbyPlayers, 955, 10, 50, 20, fTextLibrary[TX_LOBBY_HEADER_KICK], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, 35, 10, 170, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 215, 10, 180, 20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 405, 10, 150, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 565, 10, 150, 20, fTextLibrary[TX_LOBBY_HEADER_FLAGCOLOR], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbyPlayers, 765, 10, 90, 20, fTextLibrary[TX_LOBBY_HEADER_READY], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, 851, 10, 70, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_LobbyPlayers, 935, 10, 85, 20, fTextLibrary[TX_LOBBY_HEADER_KICK], fnt_Outline, taCenter);
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
-        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 20, top+3, 16, 11, 0, 7);
+        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, 7);
 
-        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 60, top+2, 140, 20, '', fnt_Metal, taLeft);
+        Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 35, top+2, 170, 20, '', fnt_Metal, taLeft);
         Label_LobbyPlayer[i].Hide;
 
-        DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 60, top, 210, 20, fnt_Metal, '');
+        DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 35, top, 170, 20, fnt_Metal, '');
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 280, top, 200, 20, fnt_Metal, '');
+        DropBox_LobbyLoc[i] := TKMDropBox.Create(Panel_LobbyPlayers, 215, top, 180, 20, fnt_Metal, '');
         DropBox_LobbyLoc[i].Add(fTextLibrary[TX_LOBBY_RANDOM]);
         DropBox_LobbyLoc[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 490, top, 150, 20, fnt_Metal, '');
+        DropBox_LobbyTeam[i] := TKMDropBox.Create(Panel_LobbyPlayers, 405, top, 150, 20, fnt_Metal, '');
         DropBox_LobbyTeam[i].Add(fTextLibrary[TX_LOBBY_NONE]);
         for k:=1 to 4 do DropBox_LobbyTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
         DropBox_LobbyTeam[i].OnChange := Lobby_PlayersSetupChange;
 
-        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 650, top, 150, 20, MP_COLOR_COUNT);
+        DropColorBox_Lobby[i] := TKMDropColorBox.Create(Panel_LobbyPlayers, 565, top, 150, 20, MP_COLOR_COUNT);
         DropColorBox_Lobby[i].SetColors(MP_TEAM_COLORS, fTextLibrary[TX_LOBBY_RANDOM]);
         DropColorBox_Lobby[i].OnChange := Lobby_PlayersSetupChange;
 
-        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 829, top, 20, 20, '', fnt_Metal);
+        CheckBox_LobbyReady[i] := TKMCheckBox.Create(Panel_LobbyPlayers, 758, top, 20, 20, '', fnt_Metal);
 
-        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 903, top, 50, 20, '', fnt_Metal, taCenter);
+        Label_LobbyPing[i] := TKMLabel.Create(Panel_LobbyPlayers, 851, top, 50, 20, '', fnt_Metal, taCenter);
 
-        Button_LobbyKick[i] := TKMButton.Create(Panel_LobbyPlayers, 948, top, 16, 16, 'X', fnt_Metal);
+        Button_LobbyKick[i] := TKMButton.Create(Panel_LobbyPlayers, 927, top, 16, 16, 'X', fnt_Metal);
         Button_LobbyKick[i].OnClick := Lobby_PlayersSetupChange;
       end;
 
     //Chat
-    TKMLabel.Create(Panel_Lobby, 20, 292, 475, 20, fTextLibrary[TX_LOBBY_POST_LIST], fnt_Outline, taLeft);
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 312, 475, 300, fnt_Metal);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 292, 475, 332, fnt_Metal);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
-    TKMLabel.Create(Panel_Lobby, 20, 622, 625, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 642, 475, 20, fnt_Metal);
+    TKMLabel.Create(Panel_Lobby, 20, 634, 475, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 654, 475, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
     //Setup
@@ -753,9 +752,9 @@ begin
       Button_LobbyPeaceAdd := TKMButton.Create(Panel_LobbySetup, 360, 60, 20, 20, '+', fnt_Metal);
       Button_LobbyPeaceAdd.OnClickEither := Lobby_GameOptionsChange;
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 35, 680, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 35, 692, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 240, 680, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 240, 692, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
