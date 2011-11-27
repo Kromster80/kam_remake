@@ -2259,6 +2259,8 @@ begin
   if Sender = Radio_Options_Lang then begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEWLOCAL]);
     fRender.Render; //Force to repaint loading screen
+    fGame.GlobalSettings.FullScreen := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
+    fGame.GlobalSettings.ResolutionID := OldResolution;
     fGame.ToggleLocale(Locales[Radio_Options_Lang.ItemIndex+1,1]);
     exit; //Whole interface will be recreated
   end;

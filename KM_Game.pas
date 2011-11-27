@@ -1329,6 +1329,7 @@ begin
 
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
+    fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
     fViewport.ResetZoom; //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
   except
     on E : Exception do
