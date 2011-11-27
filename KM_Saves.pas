@@ -3,7 +3,7 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_GameInfo;
+  KM_CommonTypes, KM_Defaults, KM_GameInfo, KM_GameOptions;
 
 
 type
@@ -15,12 +15,14 @@ type
     fCRC: Cardinal;
     fSaveError: string;
     fInfo: TKMGameInfo;
+    fGameOptions: TKMGameOptions;
     procedure ScanSave;
   public
     constructor Create(const aPath, aFilename: String);
     destructor Destroy; override;
 
     property Info: TKMGameInfo read fInfo;
+    property GameOptions: TKMGameOptions read fGameOptions;
     property Path: string read fPath;
     property Filename: string read fFilename;
     property CRC: Cardinal read fCRC;
@@ -57,6 +59,7 @@ begin
   fPath := aPath;
   fFilename := aFilename;
   fInfo := TKMGameInfo.Create;
+  fGameOptions := TKMGameOptions.Create;
 
   //We could postpone this step till info is actually required
   //but we do need title and TickCount right away, so it's better just to scan it ASAP
@@ -67,6 +70,7 @@ end;
 destructor TKMSaveInfo.Destroy;
 begin
   fInfo.Free;
+  fGameOptions.Free;
   inherited;
 end;
 
@@ -87,6 +91,7 @@ begin
   LoadStream.LoadFromFile(fPath + fFilename + '.sav');
 
   fInfo.Load(LoadStream);
+  fGameOptions.Load(LoadStream);
   fSaveError := fInfo.ParseError;
 
   if fSaveError <> '' then

@@ -3082,7 +3082,8 @@ begin
     if CtrlOver is TKMDragger then
       fResource.Cursors.Cursor := kmc_DragUp
     else
-      fResource.Cursors.Cursor := kmc_Default;
+      if fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp] then
+        fResource.Cursors.Cursor := kmc_Default; //Reset the cursor from these two special cursors
 
   HintControl := HitControl(X,Y,true); //Include disabled controls
   if (HintControl <> nil) and Assigned(fOnHint) then fOnHint(HintControl);

@@ -12,6 +12,7 @@ type
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
 
+    procedure Reset;
     procedure SetAsText(const aText:string);
     function GetAsText:string;
   end;
@@ -30,6 +31,12 @@ end;
 procedure TKMGameOptions.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(Peacetime);
+end;
+
+//Resets values to defaults
+procedure TKMGameOptions.Reset;
+begin
+  Peacetime := 0;
 end;
 
 

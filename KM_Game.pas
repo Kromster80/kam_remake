@@ -1197,7 +1197,6 @@ begin
   fGameInfo.VictoryCondition := 'Win';
   fGameInfo.DefeatCondition := 'Lose';
   fGameInfo.PlayerCount := fPlayers.Count;
-  if fMultiplayerMode then fGameInfo.Peacetime := fGameOptions.Peacetime;
   for i:=0 to fPlayers.Count-1 do
   begin
     if fNetworking <> nil then

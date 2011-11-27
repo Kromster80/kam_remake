@@ -314,6 +314,7 @@ begin
   fWelcomeMessage := '';
 
   fNetPlayers.Clear;
+  fNetGameOptions.Reset;
   fNetClient.Disconnect;
   fNetServer.Stop;
 
@@ -504,7 +505,7 @@ begin
 
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
-  NetGameOptions.Peacetime := fSaveInfo.Info.Peacetime;
+  NetGameOptions.Peacetime := fSaveInfo.GameOptions.Peacetime;
   SendGameOptions;
   if Assigned(fOnGameOptions) then fOnGameOptions(Self);
 

@@ -3150,7 +3150,7 @@ begin
   if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) and
       not SelectingTroopDirection then
   begin
-    fResource.Cursors.Cursor := kmc_Default;
+    if not fGame.Viewport.Scrolling then fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end
   else

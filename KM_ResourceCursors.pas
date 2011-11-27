@@ -39,7 +39,7 @@ const
   Cursors: array [TKMCursor] of Word = (
     1, 452, 457, 460, 450, 453, 449,
     511,  512, 513, 514, 515, 516, 517, 518, 519,
-    2, 3, 4, 5, 6, 7, 8, 9,
+    4, 7, 3, 9, 5, 8, 2, 6,
     999);
 
   //Which cursor is used for which direction
@@ -65,10 +65,11 @@ end;
 
 procedure TKMCursors.MakeCursors(aRX: Integer);
 const
-  ScrollCursorOffset = 17;
+  SF = 17; //Full width/height of a scroll cursor
+  SH = 8; //Half width/height of a scroll cursor
   //Measured manually
-  CursorOffsetsX: array [TKMCursor] of Integer = (0,0,20, 0, 0,-8,9, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
-  CursorOffsetsY: array [TKMCursor] of Integer = (0,9,10,18,20,44,13,0,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
+  CursorOffsetsX: array [TKMCursor] of Integer = (0,0,20, 0, 0,-8,9, 0, 1,1,1,0,-1,-1,-1,0, SH,SF,SF,SF,SH, 0, 0,0,0);
+  CursorOffsetsY: array [TKMCursor] of Integer = (0,9,10,18,20,44,13,0,-1,0,1,1, 1, 0,-1,0, 0 ,0 ,SH,SF,SF,SF,SH,0,0);
 var
   KMC: TKMCursor;
   sx,sy,x,y: Integer;
