@@ -1682,6 +1682,7 @@ begin
   Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
   Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
   Label_LobbyPeacetime.Caption := '0';
+  Label_LobbyPeacetime.Enable;
 
   Lobby_OnMapName('');
   if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then begin
@@ -1934,11 +1935,23 @@ begin
       Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.Filename;
       Memo_LobbyMapDesc.Clear;
       Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
+      Label_LobbyPeacetime.Disable;
+      if fGame.Networking.IsHost then
+      begin
+        Button_LobbyPeaceAdd.Disable;
+        Button_LobbyPeaceRem.Disable;
+      end;
     end
     else
     begin
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
       Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
+      Label_LobbyPeacetime.Enable;
+      if fGame.Networking.IsHost then
+      begin
+        Button_LobbyPeaceAdd.Enable;
+        Button_LobbyPeaceRem.Enable;
+      end;
     end;
 
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);

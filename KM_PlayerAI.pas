@@ -459,6 +459,7 @@ procedure TKMPlayerAI.CheckArmy;
   var Needed: integer;
   begin
     Needed := TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
+    if Needed <= 0 then exit;
     if aCommander.GetMemberCount+1 <= Needed then
       aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
     else
@@ -503,7 +504,12 @@ begin
   begin
     if TKMUnit(fPlayers[PlayerIndex].Units.Items[i]) is TKMUnitWarrior then
       with TKMUnitWarrior(fPlayers[PlayerIndex].Units.Items[i]) do
-        if IsCommander and not IsDeadOrDying then
+      if not IsDeadOrDying then
+      begin
+        //ALL WARRIORS: Check hunger and feed
+        if (Condition < UNIT_MIN_CONDITION) then GetCommander.OrderFood;
+        //ONLY COMMANDERS:
+        if IsCommander then
         begin
           //If the warrior is busy then skip this group because the AI should not give orders to fighting warriors
           if ArmyInFight or (GetUnitTask is TTaskAttackHouse) or (OrderTarget <> nil) then
@@ -514,12 +520,8 @@ begin
               with DefencePositions[k] do
                 if (CurrentCommander = GetCommander) and (KMLength(Position.Loc, GetPosition) > DefenceRadius) then
                   CurrentCommander := nil;
-            continue;
+            Continue;
           end;
-
-          //Check hunger and feed
-          if (Condition < UNIT_MIN_CONDITION) then
-            OrderFood;
 
           if fGame.IsPeaceTime then Continue; //Do not process attack or defence during peacetime
 
@@ -539,18 +541,19 @@ begin
                 AddToAvailableToAttack(GetCommander);
 
               //If we are a less important position and there is a higher priority position not full we must step up
-              for j:=0 to DefencePositionsCount-1 do
-                if (DefencePositions[j].GroupType = UnitGroups[UnitType]) and
-                   (j < k) and //Positions defined first are top priority, so keep them stocked
-                   not DefencePositions[j].IsFullyStocked(TroopFormations[DefencePositions[j].GroupType].NumUnits) then
-                   begin
-                     DefencePositions[k].CurrentCommander := nil; //Leave current position
-                     if DefencePositions[j].CurrentCommander <> nil then
-                       RestockPositionWith(DefencePositions[j].CurrentCommander,GetCommander) //Restock it
-                     else
-                       DefencePositions[j].CurrentCommander := GetCommander; //Take new position
-                     break;
-                   end;
+              if DefencePositions[k].DefenceType = adt_Backline then //We are low priority
+                for j:=0 to DefencePositionsCount-1 do
+                  if (DefencePositions[j].GroupType = UnitGroups[UnitType]) and
+                     (j < k) and //Positions defined first are top priority, so keep them stocked
+                     (DefencePositions[j].DefenceType = adt_Frontline) then //Target is high priority
+                     begin
+                       DefencePositions[k].CurrentCommander := nil; //Leave current position
+                       if DefencePositions[j].CurrentCommander <> nil then
+                         RestockPositionWith(DefencePositions[j].CurrentCommander,GetCommander) //Restock it
+                       else
+                         DefencePositions[j].CurrentCommander := GetCommander; //Take new position
+                       break;
+                     end;
 
               break;
             end;
@@ -601,6 +604,7 @@ begin
           end;
 
         end;
+      end;
   end;
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)

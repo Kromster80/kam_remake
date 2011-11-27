@@ -479,7 +479,8 @@ procedure TKMUnitWarrior.OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberO
 var i, DeletedCount: integer;
 begin
   Assert(aNumberOfMen < GetMemberCount+1); //Not allowed to take the commander, only members (if you want the command too use normal LinkTo)
-    
+  if fMembers = nil then exit;
+
   //Take units from the end of fMembers
   DeletedCount := 0;
   for i := fMembers.Count-1 downto 0 do

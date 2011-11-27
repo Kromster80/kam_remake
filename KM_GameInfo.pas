@@ -25,6 +25,7 @@ type
     PlayerTypes: array[0..MAX_PLAYERS-1] of TPlayerType;
     ColorID: array[0..MAX_PLAYERS-1] of integer;
     Team: array[0..MAX_PLAYERS-1] of integer;
+    Peacetime:word;
 
     //To be used in Savegames
     procedure Save(SaveStream: TKMemoryStream);
@@ -77,6 +78,7 @@ begin
     LoadStream.Read(ColorID[i]);
     LoadStream.Read(Team[i]);
   end;
+  LoadStream.Read(Peacetime);
 end;
 
 
@@ -102,6 +104,7 @@ begin
     SaveStream.Write(ColorID[i]);
     SaveStream.Write(Team[i]);
   end;
+  SaveStream.Write(Peacetime);
 end;
 
 

@@ -50,10 +50,10 @@
  +	Scouts fight each other for too long, upto 15min, where's in KaM that more of 50sec at most (fixed by modifying HP restore rate)
  +	Some gold/iron mine positions could not be built although they were flat enough (for example: Land of Hills bottom right position)
  +	Woodcutter would sometimes ignore certain trees and never chop them
+ +	AI does not feed warriors unless it is the commander that is hungry
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
-	AI does not feed warriors unless it is the commander that is hungry
  	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
  ?	Warriors should resume interrupted orders after a fight
 	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn)

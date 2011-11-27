@@ -504,6 +504,10 @@ begin
 
   fNetPlayers.ResetLocAndReady; //Reset start locations
 
+  NetGameOptions.Peacetime := fSaveInfo.Info.Peacetime;
+  SendGameOptions;
+  if Assigned(fOnGameOptions) then fOnGameOptions(Self);
+
   fSelectGameKind := ngk_Save;
   fNetPlayers[fMyIndex].ReadyToStart := True;
 
