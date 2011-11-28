@@ -154,6 +154,9 @@ type
       ColList_Servers: TKMColumnListBox;
 
     Panel_Lobby:TKMPanel;
+      Panel_LobbyServerName:TKMPanel;
+        Label_LobbyServerName:TKMLabel;
+
       Panel_LobbyPlayers:TKMPanel;
         Button_LobbyKick:array [0..MAX_PLAYERS-1] of TKMButton;
         Image_LobbyFlag:array [0..MAX_PLAYERS-1] of TKMImage;
@@ -667,8 +670,13 @@ var i,k,top:integer;
 begin
   Panel_Lobby := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
 
+    //Server Name
+    Panel_LobbyServerName := TKMPanel.Create(Panel_Lobby, 20, 30, 985, 30);
+      TKMBevel.Create(Panel_LobbyServerName,   0,  0, 985, 30);
+      Label_LobbyServerName := TKMLabel.Create(Panel_LobbyServerName, 10, 10, 975, 20, '', fnt_Metal, taLeft);
+
     //Players
-    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,20,42,985,240);
+    Panel_LobbyPlayers := TKMPanel.Create(Panel_Lobby,20,66,985,240);
       TKMBevel.Create(Panel_LobbyPlayers,   0,  0, 985, 240);
       TKMLabel.Create(Panel_LobbyPlayers, 35, 10, 170, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
       TKMLabel.Create(Panel_LobbyPlayers, 215, 10, 180, 20, fTextLibrary[TX_LOBBY_HEADER_STARTLOCATION], fnt_Outline, taLeft);
@@ -713,15 +721,15 @@ begin
       end;
 
     //Chat
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 292, 475, 332, fnt_Metal);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 312, 475, 332, fnt_Metal);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
-    TKMLabel.Create(Panel_Lobby, 20, 634, 475, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 654, 475, 20, fnt_Metal);
+    TKMLabel.Create(Panel_Lobby, 20, 654, 475, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 674, 475, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
     //Setup
-    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,510,292,495,430);
+    Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,510,312,495,430);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 495, 430);
       Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 282, 20, fTextLibrary[TX_LOBBY_MAP_CHOOSE], fnt_Outline, taLeft);
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 282, 60, fnt_Metal);
@@ -752,9 +760,9 @@ begin
       Button_LobbyPeaceAdd := TKMButton.Create(Panel_LobbySetup, 360, 60, 20, 20, '+', fnt_Metal);
       Button_LobbyPeaceAdd.OnClickEither := Lobby_GameOptionsChange;
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 35, 692, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 35, 712, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 240, 692, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 240, 712, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
@@ -1653,6 +1661,8 @@ end;
 procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
 var i:integer;
 begin
+  Label_LobbyServerName.Caption := '';
+
   for i:=0 to MAX_PLAYERS-1 do
   begin
     Label_LobbyPlayer[i].Caption := '.';
@@ -1878,9 +1888,7 @@ begin
   end
   else
     Label_LobbyPing[i].Caption := '';
-
-  //@Danjb: You can use something like this here to update the server name display
-  //Label_LobbyServerName.Caption := fGame.Networking.ServerName+'  '+fGame.Networking.ServerAddress+' : '+fGame.Networking.ServerPort;
+  Label_LobbyServerName.Caption := fGame.Networking.ServerName+'  '+fGame.Networking.ServerAddress+' : '+fGame.Networking.ServerPort;
 end;
 
 
