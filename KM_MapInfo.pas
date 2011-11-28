@@ -22,6 +22,7 @@ type
     procedure SaveToFile(const aPath:string);
   public
     SmallDesc, BigDesc: string;
+    IsCoop: boolean; //Some multiplayer missions are defined as coop
 
     constructor Create;
     destructor Destroy; override;
@@ -141,6 +142,7 @@ begin
       readln(ft,st);
       if SameText(st, 'SmallDesc') then readln(ft, SmallDesc);
       if SameText(st, 'BigDesc')   then readln(ft, BigDesc);
+      if SameText(st, 'SetCoop')   then IsCoop := true;
     until(eof(ft));
     closefile(ft);
   end;
@@ -234,7 +236,7 @@ var i:integer;
 begin
   Result := '';
   for i:=0 to fCount-1 do
-    if fMaps[i].Info.MissionMode = mm_Normal then
+    if (fMaps[i].Info.MissionMode = mm_Normal) and not fMaps[i].IsCoop then
       Result := Result + fMaps[i].Filename + eol;
 end;
 
@@ -243,7 +245,7 @@ var i:integer;
 begin
   Result := '';
   for i:=0 to fCount-1 do
-    if fMaps[i].Info.MissionMode = mm_Tactic then
+    if (fMaps[i].Info.MissionMode = mm_Tactic) and not fMaps[i].IsCoop then
       Result := Result + fMaps[i].Filename + eol;
 end;
 
@@ -252,8 +254,8 @@ var i:integer;
 begin
   Result := '';
   for i:=0 to fCount-1 do
-    //todo: Filter down to just co-operative maps
-    Result := Result + fMaps[i].Filename + eol;
+    if fMaps[i].IsCoop then
+      Result := Result + fMaps[i].Filename + eol;
 end;
 
 procedure TKMapsCollection.ScanMapsFolder;

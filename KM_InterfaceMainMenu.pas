@@ -2001,9 +2001,16 @@ procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Lobby_Reset(Button_MP_CreateLAN,true); //Will reset the lobby page into host mode, preserving messages
   if fGame.Networking.SelectGameKind = ngk_Save then
-    Radio_LobbyMapType.ItemIndex := 1
+    Radio_LobbyMapType.ItemIndex := 3
   else
-    Radio_LobbyMapType.ItemIndex := 0;
+    if fGame.Networking.MapInfo.IsCoop then
+      Radio_LobbyMapType.ItemIndex := 2
+    else
+      if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+        Radio_LobbyMapType.ItemIndex := 1
+      else
+        Radio_LobbyMapType.ItemIndex := 0;
+
 
   Lobby_MapTypeSelect(nil);
   if fGame.Networking.SelectGameKind = ngk_Save then
@@ -2011,6 +2018,13 @@ begin
   else
     if fGame.Networking.SelectGameKind = ngk_Map then
       List_Lobby.SelectByName(fGame.Networking.MapInfo.Filename); //Select the map
+
+  Lobby_OnGameOptions(nil);
+  if fGame.Networking.SelectGameKind = ngk_Save then
+    Lobby_OnMapName(fGame.Networking.SaveInfo.Filename)
+  else
+    if fGame.Networking.SelectGameKind = ngk_Map then
+      Lobby_OnMapName(fGame.Networking.MapInfo.Filename);
 end;
 
 
