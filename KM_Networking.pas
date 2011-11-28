@@ -1214,8 +1214,8 @@ begin
               PostLocalMessage('Successfully reconnected to the game');
               SetGameState(lgs_Game); //Game is now running once again
               fReconnectRequested := 0; //Cancel any retry in progress
-              //Request all clients to resync us
-              PacketSend(NET_ADDRESS_ALL, mk_ResyncFromTick, '', Integer(fLastProcessedTick));
+              //Request all other clients to resync us
+              PacketSend(NET_ADDRESS_OTHERS, mk_ResyncFromTick, '', Integer(fLastProcessedTick));
             end;
 
     mk_ClientReconnected:

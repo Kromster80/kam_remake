@@ -903,7 +903,8 @@ function TUnitActionWalkTo.Execute: TActionResult;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
-  PreviousAction:TUnitAction;
+  ThisAction:TUnitAction;
+  ThisUnit:TKMUnit;
 begin
   Result := ActContinues;
   StepDone := False;
@@ -1046,11 +1047,12 @@ begin
       if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
-      PreviousAction := fUnit.GetUnitAction; //We need to know whether DoUnitInteraction destroys Self (this action)
+      ThisAction := fUnit.GetUnitAction; //We need to know whether DoUnitInteraction destroys Self (this action)
+      ThisUnit := fUnit; //Could be destroyed by DoUnitInteraction, we need to check afterwards
       if not DoUnitInteraction then
       begin
-        //If PreviousAction <> fUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
-        if (PreviousAction = fUnit.GetUnitAction) and (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) and
+        //If ThisAction <> ThisUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
+        if (ThisAction = ThisUnit.GetUnitAction) and (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) and
             not fTerrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
                   Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
         exit; //Do no further walking until unit interaction is solved
