@@ -154,7 +154,9 @@ type
   { Beveled area }
   TKMBevel = class(TKMControl)
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    BackAlpha: Single;
+    HalfBright: Boolean;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
     procedure Paint; override;
   end;
 
@@ -200,6 +202,7 @@ type
   end;
 
 
+  //Label that is scrolled within an area. Used in Credits
   TKMLabelScroll = class(TKMLabel)
   public
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
@@ -440,12 +443,15 @@ type
   {Ratio bar}
   TKMRatioRow = class(TKMControl)
   private
-    fOnChange:TNotifyEvent;
+    fOnChange: TNotifyEvent;
+    function ThumbWidth: Word;
   public
-    Position:byte;
-    MinValue:byte;
-    MaxValue:byte;
+    Position: Word;
+    MinValue: Word;
+    MaxValue: Word;
+    Step: Byte;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
@@ -1026,16 +1032,17 @@ end;
 
 
 { TKMBevel }
-constructor TKMBevel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMBevel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  BackAlpha := 0.4; //Default value
 end;
 
 
 procedure TKMBevel.Paint;
 begin
   Inherited;
-  fRenderUI.WriteBevel(Left,Top,Width,Height);
+  fRenderUI.WriteBevel(Left,Top,Width,Height, HalfBright, BackAlpha);
 end;
 
 
@@ -1848,17 +1855,36 @@ begin
   MinValue := aMin;
   MaxValue := aMax;
   Position := (MinValue + MaxValue) div 2;
+  Step := 1;
 end;
 
 
-procedure TKMRatioRow.MouseMove(X,Y:Integer; Shift:TShiftState);
-var NewPos: integer;
+//Calculating it each time is not necessary, but doing it properly with setters is more hassle for no gain
+function TKMRatioRow.ThumbWidth: Word;
+begin
+  //If the maximum allowed number of digits is more than 2 - use wider field to fit them
+  Result := RXData[4].Size[132].X;
+  if MaxValue > 99 then
+    Result := Round(Result * 1.5);
+end;
+
+
+procedure TKMRatioRow.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  Inherited;
+  MouseMove(X, Y, Shift);
+end;
+
+
+procedure TKMRatioRow.MouseMove(X,Y: Integer; Shift: TShiftState);
+var
+  NewPos: Integer;
 begin
   Inherited;
 
   NewPos := Position;
   if (ssLeft in Shift) then   
-    NewPos:=EnsureRange(round(MinValue+((X-Left-12)/(Width-28))*(MaxValue-MinValue)),MinValue,MaxValue);
+    NewPos := EnsureRange(MinValue + Round(((X-Left-ThumbWidth div 2) / (Width- ThumbWidth -4))*(MaxValue - MinValue)/Step)*Step, MinValue, MaxValue);
   if NewPos <> Position then
   begin
     Position := NewPos;
@@ -1871,16 +1897,19 @@ end;
 
 
 procedure TKMRatioRow.Paint;
-var ThumbPos:word;
+const //Text color for disabled and enabled control
+  TextColor: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
+var
+  ThumbPos, ThumbHeight: Word;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left+2,Top+2,Width-4,Height-4);
-  ThumbPos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
-  fRenderUI.WritePicture(Left+ThumbPos+2, Top, 4,132);
-  if fEnabled then
-    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, taCenter, $FFFFFFFF)
-  else
-    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, 0, 0, inttostr(Position), fnt_Metal, taCenter, $FF888888);
+  ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-MinValue) / (MaxValue-MinValue)));
+
+  ThumbHeight := RXData[4].Size[132].Y;
+
+  fRenderUI.WritePicture(Left + ThumbPos + 2, Top, ThumbWidth, ThumbHeight, 4, 132);
+  fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+3, 0, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
 

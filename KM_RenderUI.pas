@@ -204,16 +204,20 @@ begin
       glkRect(1,1,SizeX-1,SizeY-1);
     glEnd;
 
-    //Thin outline rendered on top of background to avoid inset calculations
+    //2 Thin outlines rendered on top of background to avoid inset calculations
+
+    //Bright edge
     glBlendFunc(GL_DST_COLOR, GL_ONE);
-    glColor4f(1-byte(HalfBright)/2,1-byte(HalfBright)/2,1-byte(HalfBright)/2,1);
+    glColor3f(1-byte(HalfBright)/2, 1-byte(HalfBright)/2, 1-byte(HalfBright)/2);
     glBegin(GL_LINE_STRIP);
       glVertex2f(SizeX-0.5,0.5);
       glVertex2f(SizeX-0.5,SizeY-0.5);
       glVertex2f(0.5,SizeY-0.5);
     glEnd;
+
+    //Dark edge
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0,0,0.75-byte(HalfBright)/2);
+    glColor4f(0, 0, 0, 0.75 - byte(HalfBright)/6);
     glBegin(GL_LINE_STRIP);
       glVertex2f(0.5,SizeY-0.5);
       glVertex2f(0.5,0.5);
