@@ -1878,6 +1878,9 @@ begin
   end
   else
     Label_LobbyPing[i].Caption := '';
+
+  //@Danjb: You can use something like this here to update the server name display
+  //Label_LobbyServerName.Caption := fGame.Networking.ServerName+'  '+fGame.Networking.ServerAddress+' : '+fGame.Networking.ServerPort;
 end;
 
 

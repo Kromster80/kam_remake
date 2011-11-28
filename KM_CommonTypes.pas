@@ -32,6 +32,7 @@ type
 
     mk_GameVersion,     //Server tells a new client which game version we are using
     mk_WelcomeMessage,  //Server sends a welcome message to the client
+    mk_ServerName,      //Server sends the server name to the client
     mk_JoinRoom,        //Client requests to be placed in a room
     mk_ConnectedToRoom, //Server tells a client they have been successfully added to a room
     mk_SetGameInfo,     //Host tells the server the player list, map, etc to be reported to queries
@@ -92,6 +93,7 @@ const
     pfNumber,   //mk_ReassignHost
     pfText,     //mk_GameVersion
     pfText,     //mk_WelcomeMessage
+    pfText,     //mk_ServerName
     pfNumber,   //mk_JoinRoom
     pfNumber,   //mk_ConnectedToRoom
     pfText,     //mk_SetGameInfo

@@ -135,12 +135,12 @@ MaxID:203
 147:
 148:
 
-102:Spelarlista:
-103:Startplats:
-104:Lag:
-105:Flaggfärg:
-106:Redo:
-107:Ping:
+102:Spelarlista
+103:Startplats
+104:Lag
+105:Flaggfärg
+106:Redo
+107:Ping
 108:Kicka
 109:Öppen
 110:AI-spelare
@@ -149,7 +149,6 @@ MaxID:203
 113:Inget
 114:Ingen
 115:Lag %d
-116:Chat:
 117:Skicka meddelande:
 118:Välj karta:
 119:Enskild karta

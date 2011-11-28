@@ -19,11 +19,11 @@ const
   NetMPGameState:array[TNetGameState] of TMPGameState = (mgs_None, mgs_None, mgs_None, mgs_Lobby, mgs_Loading, mgs_Game, mgs_Game);
   NetAllowedPackets:array[TNetGameState] of set of TKMessageKind = (
   [], //lgs_None
-  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_Kicked], //lgs_Connecting
+  [mk_RefuseToJoin,mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_Kicked,mk_ServerName], //lgs_Connecting
   [mk_AllowToJoin,mk_RefuseToJoin,mk_Ping,mk_PingInfo,mk_Kicked], //lgs_Query
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,
    mk_StartingLocQuery,mk_SetTeam,mk_FlagColorQuery,mk_ResetMap,mk_MapSelect,mk_MapCRC,mk_SaveSelect,
-   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangID,mk_GameOptions], //lgs_Lobby
+   mk_SaveCRC,mk_ReadyToStart,mk_Start,mk_Text,mk_Kicked,mk_LangID,mk_GameOptions,mk_ServerName], //lgs_Lobby
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_ReadyToPlay,mk_Play,mk_Text,mk_Kicked], //lgs_Loading
   [mk_AskToJoin,mk_ClientLost,mk_ReassignHost,mk_Disconnect,mk_Ping,mk_PingInfo,mk_PlayersList,mk_Commands,mk_Text,mk_ResyncFromTick,mk_AskToReconnect,mk_Kicked,mk_ClientReconnected], //lgs_Game
   [mk_HostingRights,mk_IndexOnServer,mk_GameVersion,mk_WelcomeMessage,mk_Ping,mk_ConnectedToRoom,mk_PingInfo,mk_PlayersList,mk_ReconnectionAccepted,mk_RefuseReconnect,mk_Kicked] //lgs_Reconnecting
@@ -50,6 +50,7 @@ type
     fMyLang:byte;
     fMyNikname:string;
     fWelcomeMessage:string;
+    fServerName:string; //Name of the server we are currently in (shown in the lobby)
     fMyIndexOnServer:integer;
     fMyIndex:integer; //In NetPlayers list
     fIgnorePings: integer; //During loading ping measurements will be high, so discard them. (when networking is threaded this might be unnecessary)
@@ -101,6 +102,9 @@ type
     property MyIndex:integer read fMyIndex;
     property NetGameState:TNetGameState read fNetGameState;
     function MyIPString:string;
+    property ServerName:string read fServerName;
+    property ServerAddress:string read fServerAddress;
+    property ServerPort:string read fServerPort;
     function IsHost:boolean;
     function IsReconnecting:boolean;
 
@@ -260,6 +264,7 @@ begin
   fServerPort := aPort;
   fMyNikname := aUserName;
   fNetPlayerKind := lpk_Joiner;
+  fServerName := ''; //Server will tell us once we are joined
 
   fNetClient.OnRecieveData := PacketRecieve;
   fNetClient.OnConnectSucceed := ConnectSucceed;
@@ -820,6 +825,11 @@ begin
     mk_WelcomeMessage:
             begin
               fWelcomeMessage := Msg;
+            end;
+
+    mk_ServerName:
+            begin
+              fServerName := Msg;
             end;
 
     mk_HostingRights:

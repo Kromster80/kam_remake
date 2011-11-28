@@ -80,6 +80,7 @@ type
     fMaxRooms:word;
     fHTMLStatusFile:string;
     fWelcomeMessage:string;
+    fServerName:string;
     fKickTimeout:word;
     fRoomCount:integer;
     fEmptyGameInfo:TMPGameInfo;
@@ -107,7 +108,7 @@ type
   public
     constructor Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
     destructor Destroy; override;
-    procedure StartListening(aPort:string);
+    procedure StartListening(aPort,aServerName:string);
     procedure StopListening;
     procedure ClearClients;
     procedure MeasurePings;
@@ -115,7 +116,7 @@ type
     property OnStatusMessage:TGetStrProc write fOnStatusMessage;
     property Listening: boolean read fListening;
     function GetPlayerCount:integer;
-    procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+    procedure UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName:string);
   end;
 
 
@@ -231,11 +232,12 @@ begin
 end;
 
 
-procedure TKMNetServer.StartListening(aPort:string);
+procedure TKMNetServer.StartListening(aPort,aServerName:string);
 begin
   fRoomCount := 0;
-  assert(AddNewRoom); //Must succeed
+  Assert(AddNewRoom); //Must succeed
 
+  fServerName := aServerName;
   fServer.OnError := Error;
   fServer.OnClientConnect := ClientConnect;
   fServer.OnClientDisconnect := ClientDisconnect;
@@ -313,11 +315,14 @@ begin
 end;
 
 
-procedure TKMNetServer.UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
+procedure TKMNetServer.UpdateSettings(aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage, aServerName:string);
 begin
   fKickTimeout := aKickTimeout;
   fHTMLStatusFile := aHTMLStatusFile;
   fWelcomeMessage := aWelcomeMessage;
+  if fServerName <> aServerName then
+    SendMessage(NET_ADDRESS_ALL, mk_ServerName, 0, aServerName);
+  fServerName := aServerName;
 end;
 
 
@@ -327,6 +332,7 @@ begin
   fClientList.AddPlayer(aHandle, -1); //Clients are not initially put into a room, they choose a room later
   SendMessage(aHandle, mk_GameVersion, 0, NET_PROTOCOL_REVISON); //First make sure they are using the right version
   if fWelcomeMessage <> '' then SendMessage(aHandle, mk_WelcomeMessage, 0, fWelcomeMessage); //Welcome them to the server
+  SendMessage(aHandle, mk_ServerName, 0, fServerName);
   SendMessage(aHandle, mk_IndexOnServer, aHandle, ''); //This is the signal that the client may now start sending
 end;
 

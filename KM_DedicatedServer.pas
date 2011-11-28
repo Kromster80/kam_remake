@@ -70,7 +70,7 @@ begin
   fPublishServer := aPublishServer;
   fNetServer.OnStatusMessage := StatusMessage;
   try
-    fNetServer.StartListening(fPort);
+    fNetServer.StartListening(fPort,aServerName);
   except
     on E : Exception do
     begin
@@ -127,7 +127,7 @@ begin
   fServerName := aServerName;
   fPublishServer := aPublishServer;
 
-  fNetServer.UpdateSettings(aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
+  fNetServer.UpdateSettings(aKickTimeout, aHTMLStatusFile, aWelcomeMessage, aServerName);
 
   fLastAnnounce := 0; //Make the server announce itself next update so the changes are sent to the master server ASAP
 end;
