@@ -231,7 +231,8 @@ begin
   FreeThenNil(fRoadsList);
   FreeThenNil(fHouses);
 
-  //Should be freed after Houses and Units, as they write to it on Destroy  FreeThenNil(fStats);
+  //Should be freed after Houses and Units, as they write to it on Destroy
+  FreeThenNil(fStats);
   FreeThenNil(fGoals);
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);

@@ -58,6 +58,7 @@ type
     fItems:array of TKMServerClient;
     function GetItem(Index:integer):TKMServerClient;
   public
+    destructor Destroy; override;
     property Count:integer read fCount;
     procedure AddPlayer(aHandle, aRoom:integer);
     procedure RemPlayer(aHandle:integer);
@@ -136,6 +137,12 @@ end;
 
 
 { TKMClientsList }
+destructor TKMClientsList.Destroy;
+begin
+  Clear; //Free all clients
+end;
+
+
 function TKMClientsList.GetItem(Index: integer): TKMServerClient;
 begin
   Assert(InRange(Index,0,fCount-1),'Tried to access invalid client index');
@@ -212,8 +219,10 @@ end;
 
 destructor TKMNetServer.Destroy;
 begin
+  StopListening; //Frees room info
   fServer.Free;
   fClientList.Free;
+  fEmptyGameInfo.Free;
   Inherited;
 end;
 
@@ -250,10 +259,12 @@ end;
 
 
 procedure TKMNetServer.StopListening;
+var i:integer;
 begin
   fOnStatusMessage := nil;
   fServer.StopListening;
   fListening := false;
+  for i:=0 to fRoomCount-1 do FreeAndNil(fRoomInfo[i].GameInfo);
   SetLength(fRoomInfo,0);
   fRoomCount := 0;
 end;

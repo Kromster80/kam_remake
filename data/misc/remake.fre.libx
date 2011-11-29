@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -150,7 +150,7 @@ MaxID:203
 114:Aucune
 115:Alliance %d
 117:Envoyer un Message :
-118:Sélectionner une Mission :
+118:
 119:Mission
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Conditions:
 127:Taille:
 195:
+204:
 128:Quitter le Lobby
 129:Prêt
 152:

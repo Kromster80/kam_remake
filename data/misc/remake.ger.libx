@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Mission abgebrochen
 2:Aufbaututorial
@@ -150,7 +150,7 @@ MaxID:203
 114:Keine Info vorhanden.
 115:Team %d
 117:Nachricht:
-118:Wähle Karte:
+118:
 119:Einzelkarte
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Bedingungen:
 127:Größe:
 195:
+204:
 128:Lobby verlassen
 129:Bereit!
 152:Nicht bereit

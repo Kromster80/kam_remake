@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -150,7 +150,7 @@ MaxID:203
 114:Ingen
 115:Lag %d
 117:Skicka meddelande:
-118:Välj karta:
+118:
 119:Enskild karta
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Villkor: 
 127:Storlek:
 195:
+204:
 128:Avsluta sessionen
 129:Redo
 152:

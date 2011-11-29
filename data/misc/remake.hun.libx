@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -150,7 +150,7 @@ MaxID:203
 114:Nincs
 115:Csapat %d
 117:Üzenet írása:
-118:Térkép választása:
+118:
 119:Egy térkép
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Feltételek:
 127:Méret:
 195:
+204:
 128:Kilépés
 129:Kész
 152:Nincs kész

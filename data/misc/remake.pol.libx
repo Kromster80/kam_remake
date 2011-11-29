@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -150,7 +150,7 @@ MaxID:203
 114:¯adna
 115:Dru¿yna %d
 117:Umieœæ wiadomoœæ:
-118:Wybrana mapa:
+118:
 119:Pojedyncza mapa
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Warunki:
 127:Rozmiar:
 195:
+204:
 128:WyjdŸ
 129:Gotowy
 152:

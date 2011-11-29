@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -150,7 +150,7 @@ MaxID:203
 114:Nessuna
 115:Squadra %d
 117:Invia messaggio:
-118:Scegli mappa:
+118:
 119:Giocatore singolo
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Condizioni:
 127:Dimensioni:
 195:
+204:
 128:Esci
 129:Pronto
 152:

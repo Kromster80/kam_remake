@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Mission canceled
 2:Town Tutorial
@@ -150,7 +150,7 @@ MaxID:203
 114:None
 115:Team %d
 117:Post message:
-118:Choose map:
+118:Map type
 119:Single Map
 188:Building Map
 189:Fighting Map
@@ -164,6 +164,7 @@ MaxID:203
 126:Conditions:
 127:Size:
 195:Game options:
+204:Peacetime (minutes)
 128:Quit lobby
 129:Ready
 152:Not ready

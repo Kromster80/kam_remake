@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Mise zrušena
 2:Výuka stavby
@@ -150,7 +150,7 @@ MaxID:203
 114:Prázdné
 115:Tým %d
 117:Odeslat zprávu:
-118:Výbìr mapy:
+118:
 119:Samostatná mapa
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Podmínky vítìzství:
 127:Velikost:
 195:
+204:
 128:Opustit nabídku
 129:Pøipraven
 152:

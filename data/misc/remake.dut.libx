@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Missie geannuleerd 
 2:Stad oefenscenario
@@ -150,7 +150,7 @@ MaxID:203
 114:Geen
 115:Team %d
 117:Bericht:
-118:Kies map:
+118:
 119:Een map:
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Condities:
 127:Grootte:
 195:
+204:
 128:Lobby verlaten
 129:Gereed
 152:Niet gereed

@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Misión Cancelada
 2:Tutorial de Construción
@@ -150,7 +150,7 @@ MaxID:203
 114:Ninguno
 115:Equipo %d
 117:Publicar mensaje:
-118:Elije mapa:
+118:
 119:Un mapa solo
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Condiciones:
 127:Tamaño:
 195:
+204:
 128:Salir de la sala
 129:Listo
 152:No estoy listo

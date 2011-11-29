@@ -1,5 +1,5 @@
 
-MaxID:203
+MaxID:204
 
 1:Missão cancelada
 2:Tutorial da cidade
@@ -150,7 +150,7 @@ MaxID:203
 114:Nenhum
 115:Time %d
 117:Correio de mensagens:
-118:Selecionar mapa:
+118:
 119:Mapa Único
 188:
 189:
@@ -164,6 +164,7 @@ MaxID:203
 126:Condições:
 127:Tamanho:
 195:
+204:
 128:Sair da sala
 129:Pronto
 152:

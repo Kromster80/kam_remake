@@ -729,7 +729,7 @@ begin
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,510,312,495,430);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 495, 430);
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 282, 20, 'Map type'{fTextLibrary[TX_LOBBY_MAP_CHOOSE]}, fnt_Outline, taLeft);
+      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 282, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
       Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 282, 60, fnt_Metal);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
@@ -749,12 +749,13 @@ begin
 
       Label_LobbyMapCount := TKMLabel.Create(Panel_LobbySetup, 10, 345, 282, 20, '', fnt_Metal, taLeft);
       //@Lewin: Can we remove Label_LobbyMapMode if it's duplicate to Radio_LobbyMapType?
+      //@Krom: Yes I guess so. It would only be used for cooperative maps as they could be fights, but that's not so important
       Label_LobbyMapMode := TKMLabel.Create(Panel_LobbySetup, 10, 365, 282, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 385, 282, 20, '', fnt_Metal, taLeft);
-      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 405, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 385, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 405, 282, 20, '', fnt_Metal, taLeft);
 
       TKMLabel.Create(Panel_LobbySetup, 300, 10, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbySetup, 300, 40, 190, 20, 'Peacetime (minutes)', fnt_Metal, taLeft); //Metal fits better
+      TKMLabel.Create(Panel_LobbySetup, 300, 40, 190, 20, fTextLibrary[TX_LOBBY_PEACETIME], fnt_Metal, taLeft); //Metal fits better
       Ratio_LobbyPeacetime := TKMRatioRow.Create(Panel_LobbySetup, 300, 60, 160, 20, 0, 120);
       Ratio_LobbyPeacetime.Step := 5; //Round to 5min steps
       Ratio_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
@@ -1686,11 +1687,6 @@ begin
   Label_LobbyMapName.Caption := '';
   Memo_LobbyMapDesc.Clear;
 
-  //These lines will be overriden on mapselect, right?
-  {Label_LobbyMapCount.Caption := fTextLibrary[TX_LOBBY_MAP_PLAYERS];
-  Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
-  Label_LobbyMapCond.Caption := fTextLibrary[TX_LOBBY_MAP_CONDITIONS];
-  Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];}
   Ratio_LobbyPeacetime.Position := 0; //Default peacetime = 0
   //Ratio_LobbyPeacetime.Enable; //@DanJB: Code below will enable/disable it. To be deleted..
 
@@ -1976,15 +1972,10 @@ begin
       Memo_LobbyMapDesc.Text := aData;
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[0]);
     Label_LobbyMapMode.Caption := fTextLibrary[TX_LOBBY_MAP_MODE];
-    //Label_LobbyMapCond.Caption :=
     Label_LobbyMapSize.Caption := fTextLibrary[TX_LOBBY_MAP_SIZE];
 
     //Update starting locations
-    //Copy/Paste detected. We are already in fGame.Networking.SelectGameKind = ngk_None branch here :)
-    if fGame.Networking.SelectGameKind = ngk_Save then
-      DropText := fTextLibrary[TX_LOBBY_SELECT] + eol
-    else
-      DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
+    DropText := fTextLibrary[TX_LOBBY_RANDOM] + eol;
 
     for i:=0 to MAX_PLAYERS-1 do
       DropBox_LobbyLoc[i].SetItems(DropText);
