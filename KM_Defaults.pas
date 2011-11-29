@@ -27,9 +27,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2622';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '2nd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
-  NET_PROTOCOL_REVISON  = 'r2622';     //Clients of this version may connect to the dedicated server
+  GAME_REVISION         = 'r2623';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '3rd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  NET_PROTOCOL_REVISON  = 'r2623';     //Clients of this version may connect to the dedicated server
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 

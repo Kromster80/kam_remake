@@ -12,6 +12,7 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = True
   Position = poDesktopCenter
+  Scaled = False
   OnCreate = FormCreate
   DesignSize = (
     1265
