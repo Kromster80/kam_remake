@@ -51,23 +51,24 @@
  +	Some gold/iron mine positions could not be built although they were flat enough (for example: Land of Hills bottom right position)
  +	Woodcutter would sometimes ignore certain trees and never chop them
  +	AI does not feed warriors unless it is the commander that is hungry
+ +	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
- 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
- ?	Warriors should resume interrupted orders after a fight
-	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn)
+	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
+?	Warriors should resume interrupted orders after a fight
+	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn) [Krom]
+	KaM Editor lighting algo should be updated to match Remake better [Krom]
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
-	Replays almost always end up with a mismatch while watching them, cause unknown
+	Replays sometimes end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
-	Campaign flags have a colored square around them when selected
+	Campaign flags have a colored square around them when selected [Krom]
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 
 	Dots and lines displaying on tile edges [Krom]
-	Colored rectangle below cursor	
-	Some texts don't fit in the left panel (e.g. "Preparing house area")
+	Colored rectangle below cursor
 	See-through hills (lighting flaw)
 
 Features:
@@ -97,24 +98,23 @@ Features:
 	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
 	Highlight commander in groups formation in UI
 	Double clicking a server should join it
-	Ctrl+Up or Alt+Up to get previous typed message (to repeat it to All if sent to team by mistake) [Krom]
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
- 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
-	Multiplayer mode could show the player's name above each group (flag holder)
-	Mutltiplayer spectator mode, and ability for the host to close slots
+	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
+	Multiplayer mode could show the player's name above each group (flag holder) while some key is kept pressed
+	Mutltiplayer spectator mode
+	Ability for the host to close slots in MP lobby
 	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
 	Scrolling around the map using middle mouse click, as in TPR
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)
-	Improved delivery queue system (take closest jobs, take wares out after going in, etc.)
 	256x256 icons for EXE (for vista/7/8 users)
 	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
 	Fade music during campaign story screens (and other places?)
 	Add support for 1024x600 (1280x720) resolution
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it
-	Archers on a hill get slighty longer range (calculated from height of archer tile relative to target tile)
+	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
 	Show the mining radius of the selected house or house that you are placing
 	Master server in MySQL and support multiple revisions at once
 	Colors for chat to highlight player names and whether it is team/all channel
@@ -122,7 +122,7 @@ Features:
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
 	Chat logs
 	Better full screen support (if you Alt-Tab out of the game from fullscreen, the game blocks your way and you can't easily use anything else)
-	Sort maps into categories, e.g. building, (when we have economic objectives) building and fighting, fighting, co-op, etc. especially for the lobby
+	Sort maps in SP and MP (building, building and fighting, fighting, co-op, players, mapsize, etc.)
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
 	Markups should only be visible on you and your allies screen, to stop people people ruining a multiplayer game by filling an enemy's base with road markups that cannot be removed (requires allowing multiple players to have a markup on the same tile)
