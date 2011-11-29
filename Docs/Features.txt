@@ -9,17 +9,22 @@ Future
 	Fog of war
 	Lookout tower [Krom]
 	Support custom campaigns
-	Replays manager
-	Select units/houses by shape
+	Reworked deliveries
+	Select units by shape
 	Refactor warriors into TGroups
 	Hotkeys for armies (Ctrl+1,2,etc)
-	Tutorial missions texts [Krom]
+	Tutorial missions texts, simple GEP [Krom]
 	File transfer in multiplayer for missions and saves [Lewin]
 	Multiplayer trading (from a new building "Trading Post"?)
 
+Doable:
+	Hotkeys for armies (Ctrl+1,2,etc)
+	Tutorial missions texts, simple GEP [Krom]
+
 Next Demo:
- ?	Bugfixes
+ +	Ton of bugfixes
  +	Auto reconnect for networking [Lewin]
+ +	Replays manager [Lewin]
 
 	
 1st Merchants Demo (r2411) - 17/10/11
