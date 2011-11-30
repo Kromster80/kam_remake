@@ -51,10 +51,15 @@ begin
             SetActionLockedStay(0,ua_Walk,false)
           else
             SetActionLockedStay(SequenceLength,ua_Die,false);
-          if fUnit is TKMUnitWarrior then
-            fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
-          else
-            fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+          //Do not play sounds if unit is invisible to MyPlayer
+          //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
+          if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, true) >= 255 then
+          begin
+            if fUnit is TKMUnitWarrior then
+              fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death, fUnit.PositionF)
+            else
+              fSoundLib.PlayCitizen(fUnit.UnitType, sp_Death, fUnit.PositionF);
+          end;
         end;
     else begin
           fUnit.CloseUnit;          //This will FreeAndNil the Task and mark unit as "closed"

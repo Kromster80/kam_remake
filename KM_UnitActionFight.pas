@@ -127,15 +127,17 @@ end;
 
 
 procedure TUnitActionFight.MakeSound(IsHit:boolean);
+var MakeBattleCry: boolean;
 begin
-  //Randomly make a battle cry
-  if KaMRandom(20) = 0 then
-    fSoundLib.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
+  //Randomly make a battle cry. KaMRandom must always happen regardless of tile relevation.
+  MakeBattleCry := KaMRandom(20) = 0;
 
   //Do not play sounds if unit is invisible to MyPlayer
   //We should not use KaMRandom below this line because sound playback depends on FOW and is individual for each player
   if MyPlayer.FogOfWar.CheckTileRevelation(fUnit.GetPosition.X, fUnit.GetPosition.Y, true) < 255 then exit;
-  
+
+  if MakeBattleCry then fSoundLib.PlayWarrior(fUnit.UnitType, sp_BattleCry, fUnit.PositionF);
+
   case fUnit.UnitType of
     ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw, fUnit.PositionF); //Aiming
     ut_Bowman:     fSoundLib.Play(sfx_BowDraw,      fUnit.PositionF); //Aiming

@@ -48,7 +48,6 @@ type
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
-    procedure MainMenu_StartReplay(Sender: TObject);
     procedure MainMenu_ReplayLastMap(Sender: TObject);
     procedure Campaign_Set(aCampaign:TKMCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
@@ -126,8 +125,7 @@ type
       Button_SP_TSK,
       Button_SP_TPR,
       Button_SP_Single,
-      Button_SP_Load,
-      Button_SP_Replay:TKMButton;
+      Button_SP_Load:TKMButton;
       Button_SP_Back:TKMButton;
     Panel_MultiPlayer:TKMPanel;
       Panel_MPPlayerName:TKMPanel;
@@ -585,8 +583,6 @@ begin
       Button_SP_TPR    :=TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
       Button_SP_Single :=TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       Button_SP_Load   :=TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-      //@Lewin: What do you say, can we remove this button now that yyou've made ReplayViewer?
-      Button_SP_Replay :=TKMButton.Create(Panel_SPButtons,0,240,350,30,fTextLibrary[TX_MENU_VIEW_LAST_REPLAY],fnt_Metal,bsMenu);
       Button_SP_Back   :=TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
 
       Button_SP_Tutor.OnClick    := MainMenu_PlayTutorial;
@@ -595,7 +591,6 @@ begin
       Button_SP_TPR.OnClick      := SwitchMenuPage;
       Button_SP_Single.OnClick   := SwitchMenuPage;
       Button_SP_Load.OnClick     := SwitchMenuPage;
-      Button_SP_Replay.OnClick   := MainMenu_StartReplay; //Reroute since fGame is not initialized yet
       Button_SP_Back.OnClick     := SwitchMenuPage;
 end;
 
@@ -720,11 +715,11 @@ begin
       end;
 
     //Chat
-    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 312, 475, 332, fnt_Metal);
+    Memo_LobbyPosts := TKMMemo.Create(Panel_Lobby, 20, 312, 475, 340, fnt_Metal);
     Memo_LobbyPosts.AutoWrap := True;
     Memo_LobbyPosts.ScrollDown := True;
-    TKMLabel.Create(Panel_Lobby, 20, 654, 475, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
-    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 674, 475, 20, fnt_Metal);
+    TKMLabel.Create(Panel_Lobby, 20, 658, 475, 20, fTextLibrary[TX_LOBBY_POST_WRITE], fnt_Outline, taLeft);
+    Edit_LobbyPost := TKMEdit.Create(Panel_Lobby, 20, 678, 475, 20, fnt_Metal);
     Edit_LobbyPost.OnKeyDown := Lobby_PostKey;
 
     //Setup
@@ -761,9 +756,9 @@ begin
       Ratio_LobbyPeacetime.Step := 5; //Round to 5min steps
       Ratio_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
 
-    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 35, 712, 190, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
+    Button_LobbyBack := TKMButton.Create(Panel_Lobby, 20, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
-    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 240, 712, 240, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
+    Button_LobbyStart := TKMButton.Create(Panel_Lobby, 265, 712, 230, 30, '<<<LEER>>>', fnt_Metal, bsMenu);
     Button_LobbyStart.OnClick := Lobby_StartClick;
 end;
 
@@ -1208,7 +1203,6 @@ begin
      (Sender=Button_SingleBack)or
      (Sender=Button_LoadBack) then begin
     Panel_SinglePlayer.Show;
-    Button_SP_Replay.Enabled := fGame.ReplayExists('basesave',false);
   end;
 
   {Show TSK campaign menu}
@@ -1311,13 +1305,6 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
   fGame.StartSingleMap(ExeDir+'data\mission\mission99.dat', fTextLibrary[TX_MENU_TUTORIAL_BATTLE]);
-end;
-
-
-//Should be done this way since fGame is NIL on UI creation
-procedure TKMMainMenuInterface.MainMenu_StartReplay(Sender: TObject);
-begin
-  fGame.StartReplay('basesave',false);
 end;
 
 
@@ -1945,7 +1932,8 @@ begin
     begin
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
       Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
-      Ratio_LobbyPeacetime.Enable;
+      if fGame.Networking.IsHost then
+        Ratio_LobbyPeacetime.Enable;
     end;
 
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);
@@ -1988,16 +1976,19 @@ end;
 procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
 begin
   Lobby_Reset(Button_MP_CreateLAN,true); //Will reset the lobby page into host mode, preserving messages
-  if fGame.Networking.SelectGameKind = ngk_Save then
-    Radio_LobbyMapType.ItemIndex := 3
+  if fGame.Networking.SelectGameKind = ngk_None then
+    Radio_LobbyMapType.ItemIndex := 0 //Default
   else
-    if fGame.Networking.MapInfo.IsCoop then
-      Radio_LobbyMapType.ItemIndex := 2
+    if fGame.Networking.SelectGameKind = ngk_Save then
+      Radio_LobbyMapType.ItemIndex := 3
     else
-      if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
-        Radio_LobbyMapType.ItemIndex := 1
+      if fGame.Networking.MapInfo.IsCoop then
+        Radio_LobbyMapType.ItemIndex := 2
       else
-        Radio_LobbyMapType.ItemIndex := 0;
+        if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+          Radio_LobbyMapType.ItemIndex := 1
+        else
+          Radio_LobbyMapType.ItemIndex := 0;
 
 
   Lobby_MapTypeSelect(nil);

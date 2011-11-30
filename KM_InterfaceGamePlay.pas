@@ -2047,6 +2047,7 @@ begin
       Button_Army_Split.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
     end;
     Button_Army_Storm.Enabled := (UnitGroups[Sender.UnitType] = gt_Melee) and Commander.ArmyCanTakeOrders; //Only melee groups may charge
+    Button_Army_Split.Enabled := Commander.GetMemberCount > 0;
   end
   else
   begin //Citizen specific
@@ -3101,6 +3102,7 @@ end;
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var U:TKMUnit; H:TKMHouse; MyRect:TRect;
 begin
+  MyControls.MouseMove(X,Y,Shift);
   MyControls.MouseDown(X,Y,Shift,Button);
   if (fGame.GameState <> gsRunning) or (MyControls.CtrlOver <> nil) then exit;
 
@@ -3244,6 +3246,7 @@ end;
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint; U:TKMUnit; H:TKMHouse; OldSelected: TObject;
 begin
+  MyControls.MouseMove(X,Y,Shift);
   if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) and
       not SelectingTroopDirection then begin
     MyControls.MouseUp(X,Y,Shift,Button);

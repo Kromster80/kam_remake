@@ -172,6 +172,7 @@ begin
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory) //Only files
     and(SearchRec.Name<>'.')and(SearchRec.Name<>'..')
+    and(TruncateExt(SearchRec.Name)<>'basesave') //Ignore basesave - it is only used for crash reports
     then
     begin
       inc(fCount);

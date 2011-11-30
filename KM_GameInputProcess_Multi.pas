@@ -173,7 +173,7 @@ begin
   if (aCommand.CommandType in BlockedByPeaceTime) and fGame.IsPeaceTime then
   begin
     fGame.Networking.PostLocalMessage(fTextLibrary[TX_MP_BLOCKED_BY_PEACETIME],false);
-    fSoundLib.Play(sfxn_Error2);
+    fSoundLib.Play(sfx_CantPlace);
     exit;
   end;
 

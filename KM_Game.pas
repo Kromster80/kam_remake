@@ -1159,7 +1159,7 @@ begin
   else
     fGameSpeed := aSpeed;
 
-  fGamePlayInterface.ShowClock(fGameSpeed); //todo: Show current speed value on clock
+  fGamePlayInterface.ShowClock(fGameSpeed);
 end;
 
 
