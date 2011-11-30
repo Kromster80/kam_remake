@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Küldetés megszakítva
 2:Oktató Küldetés (Város)
@@ -35,7 +35,12 @@ MaxID:204
 29:Alkalmaz
 30:Nyelv:
 31:Betöltés... Kérem várjon
+207:
+208:
+209:
+210:
 32:Hiba történt!
+212:
 33:Új nyelv betöltése
 34:Mentett állások
 35:Fájlnév
@@ -72,6 +77,9 @@ MaxID:204
 58:Felülír
 59:Mentés
 60:Töltés
+205:
+206:
+211:
 194:
 
 61:Egy hiba történt a játék során.

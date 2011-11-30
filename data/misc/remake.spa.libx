@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Misión Cancelada
 2:Tutorial de Construción
@@ -35,7 +35,12 @@ MaxID:204
 29:Aplicar
 30:Lenguaje:
 31:Cargando... Por favor espera
+207:
+208:
+209:
+210:
 32:Se ha producido un error
+212:
 33:Cargando nueva partida local
 34:Lisa de partidas guardadas
 35:Nombre de archivo
@@ -72,6 +77,9 @@ MaxID:204
 58:Sobrescribir
 59:Salvar
 60:Cargar
+205:
+206:
+211:
 194:
 
 61:Se ha producido un error durante el juego

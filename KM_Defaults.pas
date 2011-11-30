@@ -203,9 +203,9 @@ const
   ('dut', '1252',  '40', 'Dutch'),
   ('rus', '1251',  '39', 'Russian'));
 
-  TRANSLATOR_CREDITS = '|French - Sylvain Domange|Slovak - Robert Marko|Czech - Jolinar_CZ|'+
-  'Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|Polish - Przemyslaw Pietras|'+
-  'Brazilian Portuguese - Vinycius Maia|Italian - Paolo Castelvetere||';
+  TRANSLATOR_CREDITS = '|German - The Knight|French - Sylvain Domange|Slovak - Robert Marko|'+
+  'Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|'+
+  'Polish - Przemyslaw Pietras|Brazilian Portuguese - Vinycius Maia|Italian - Paolo Castelvetere||';
 
 type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game

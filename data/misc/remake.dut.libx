@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Missie geannuleerd 
 2:Stad oefenscenario
@@ -35,7 +35,12 @@ MaxID:204
 29:Toepassen
 30:Taal:
 31:Aan het laden... Een ogenblik geduld
+207:
+208:
+209:
+210:
 32:Er is een fout opgetreden!
+212:
 33:Nieuwe taalinstellingen laden
 34:Lijst van opgeslagen spellen
 35:Bestandsnaam
@@ -72,6 +77,9 @@ MaxID:204
 58:Overschrijven
 59:Opslaan
 60:Laden
+205:
+206:
+211:
 194:
 
 61:Er is een fout opgetreden tijdens het spelen.

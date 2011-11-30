@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Missão cancelada
 2:Tutorial da cidade
@@ -35,7 +35,12 @@ MaxID:204
 29:Aplicar
 30:Idioma:
 31:Carregando... Por favor aguarde
+207:
+208:
+209:
+210:
 32:Ocorreu um erro!
+212:
 33:Carregando novo local
 34:Lista de jogos salvos
 35:Nome de arquivo
@@ -72,6 +77,9 @@ MaxID:204
 58:Sobrescrever
 59:Salvar
 60:Carregar
+205:
+206:
+211:
 194:
 
 61:Ocorreu um erro durante o jogo.

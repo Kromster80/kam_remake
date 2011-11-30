@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Mission canceled
 2:Town Tutorial
@@ -35,7 +35,12 @@ MaxID:204
 29:Apply
 30:Language:
 31:Loading... Please wait
+207:trees, houses and units
+208:initializing
+209:multiplayer initialization
+210:script
 32:An Error Has Occurred!
+212:An error has occured while parsing the file %s
 33:Loading new locale
 34:List of savegames
 35:File name
@@ -72,6 +77,9 @@ MaxID:204
 58:Overwrite
 59:Save
 60:Load
+205:Unsupported format %s
+206:Unsupported version %s
+211:New Mission
 194:Game time:|%s
 
 61:An error has occurred during gameplay.

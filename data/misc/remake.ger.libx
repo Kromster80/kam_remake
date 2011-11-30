@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Mission abgebrochen
 2:Aufbaututorial
@@ -35,7 +35,12 @@ MaxID:204
 29:Übernehmen
 30:Sprache:
 31:Lade... Bitte warten
+207:
+208:
+209:
+210:
 32:Ein Fehler ist aufgetreten!
+212:
 33:Neue Lokalisierung laden
 34:Gespeicherte Spielstände
 35:Name
@@ -72,6 +77,9 @@ MaxID:204
 58:Überschreiben
 59:Speichern
 60:Laden
+205:
+206:
+211:
 194:Spieldauer:|%s
 
 61:Während des Spiels ist ein Fehler aufgetreten.

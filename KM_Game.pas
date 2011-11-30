@@ -369,12 +369,12 @@ begin
   fMultiplayerMode := aMultiplayerMode;
 
   if fResource.DataState<>dls_All then begin
-    fMainMenuInterface.ShowScreen(msLoading, 'trees, houses and units');
+    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SPRITES]);
     fResource.LoadGameResources;
     InitUnitStatEvals; //Army
   end;
 
-  fMainMenuInterface.ShowScreen(msLoading, 'initializing');
+  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
   fViewport := TViewport.Create(fScreenX, fScreenY);
   fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
@@ -439,7 +439,7 @@ begin
 
   fGameName := aGameName;
 
-  fMainMenuInterface.ShowScreen(msLoading, 'script');
+  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
   if aMissionFile <> '' then
   try //Catch exceptions
@@ -457,7 +457,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := 'An error has occured while parsing the file:| '+aMissionFile+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aMissionFile])+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       Exit;
@@ -510,7 +510,7 @@ begin
   //Load mission file
   fGameName := aFilename;
 
-  fMainMenuInterface.ShowScreen(msLoading, 'script');
+  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
   //Reorder start locations and players for 1-1 2-2 result
   for i:=0 to High(PlayerRemap) do PlayerRemap[i] := PLAYER_NONE; //Init with empty values
@@ -533,7 +533,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := 'An error has occured while parsing the file '+aFilename+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFilename])+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       fNetworking.Disconnect; //Abort all network connections
@@ -574,7 +574,7 @@ var
   PlayerIndex:TPlayerIndex;
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
-  fMainMenuInterface.ShowScreen(msLoading, 'multiplayer init');
+  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_MP_INITIALIZING]);
 
   FreeAndNil(fGameOptions);
   fGameOptions := TKMGameOptions.Create;
@@ -920,11 +920,11 @@ begin
   fGameSpeed := 1; //In case it was set in last run mission
 
   if fResource.DataState<>dls_All then begin
-    fMainMenuInterface.ShowScreen(msLoading, 'units and houses');
+    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SPRITES]);
     fResource.LoadGameResources;
   end;
 
-  fMainMenuInterface.ShowScreen(msLoading, 'initializing');
+  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
   fViewport := TViewport.Create(fScreenX, fScreenY);
   fMapEditor := TKMMapEditor.Create;
@@ -948,7 +948,7 @@ begin
       //Note: While debugging, Delphi will still stop execution for the exception,
       //unless Tools > Debugger > Exception > "Stop on Delphi Exceptions" is unchecked.
       //But to normal player the dialog won't show.
-      LoadError := 'An error has occured while parsing the file:| '+aFilename+'||'+E.ClassName+': '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFilename])+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError);
       fLog.AppendLog('DAT Load Exception: '+LoadError);
       Exit;
@@ -961,7 +961,7 @@ begin
     fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[0];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
-    fGameName := 'New Mission';
+    fGameName := fTextLibrary[TX_MAP_ED_NEW_MISSION];
   end;
 
   fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
@@ -1335,8 +1335,7 @@ begin
     on E : Exception do
     begin
       //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-      LoadError := 'An error was encountered while parsing the file '+aFileName+'.|Details of the error:|'+
-                    E.ClassName+' error raised with message: '+E.Message;
+      LoadError := Format(fTextLibrary[TX_MENU_PARSE_ERROR], [aFileName])+'||'+E.ClassName+': '+E.Message;
       fMainMenuInterface.ShowScreen(msError, LoadError); //This will show an option to return back to menu
       Exit;
     end;

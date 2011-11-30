@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -35,7 +35,12 @@ MaxID:204
 29:Applica
 30:Lingua:
 31:In caricamento...
+207:
+208:
+209:
+210:
 32:Si è verificato un errore!
+212:
 33:Nuova localizzazione in caricamento
 34:Partite salvate
 35:Nome del file
@@ -72,6 +77,9 @@ MaxID:204
 58:Sovrascrivi
 59:Salva
 60:Carica
+205:
+206:
+211:
 194:
 
 61:Si è verificato un errore durante il gioco.

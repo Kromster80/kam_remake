@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -35,7 +35,12 @@ MaxID:204
 29:Appliquer
 30:Langage :
 31:Chargement... Veuillez patienter
+207:
+208:
+209:
+210:
 32:Une Erreur s'est Produite !
+212:
 33:Chargement du nouveau local
 34:Liste des Sauvegardes
 35:Nom du Fichier
@@ -72,6 +77,9 @@ MaxID:204
 58:Ecraser
 59:Enregistrer
 60:Charger
+205:
+206:
+211:
 194:
 
 61:Une erreur s'est produite durant la partie.

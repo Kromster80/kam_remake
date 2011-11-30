@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -35,7 +35,12 @@ MaxID:204
 29:Bekräfta
 30:Språk:
 31:Laddar... Var god vänta
+207:
+208:
+209:
+210:
 32:Ett problem uppstod!
+212:
 33:Laddar ny lokal
 34:Lista över sparade spel
 35:Filnamn
@@ -72,6 +77,9 @@ MaxID:204
 58:Skriv över
 59:Spara
 60:Ladda
+205:
+206:
+211:
 194:Speltid:|%s
 
 61:Ett fel har uppstått under spelets gång.

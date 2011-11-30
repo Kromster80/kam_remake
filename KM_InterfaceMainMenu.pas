@@ -2265,7 +2265,7 @@ begin
     fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
 
   if Sender = Radio_Options_Lang then begin
-    ShowScreen(msLoading, fTextLibrary[TX_MENU_NEWLOCAL]);
+    ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
     fRender.Render; //Force to repaint loading screen
     fGame.GlobalSettings.FullScreen := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
     fGame.GlobalSettings.ResolutionID := OldResolution;

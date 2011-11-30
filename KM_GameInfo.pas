@@ -51,13 +51,13 @@ var
 begin
   LoadStream.Read(s);
   if s <> 'KaM_GameInfo' then begin
-    fParseError := 'Unsupported format ' + Copy(s, 1, 8);
+    fParseError := Format(fTextLibrary[TX_SAVE_UNSUPPORTED_FORMAT], [Copy(s, 1, 8)]);
     Exit;
   end;
 
   LoadStream.Read(Version);
   if Version <> GAME_REVISION then begin
-    fParseError := 'Unsupported version ' + Version;
+    fParseError := Format(fTextLibrary[TX_SAVE_UNSUPPORTED_VERSION], [Version]);
     Exit;
   end;
 

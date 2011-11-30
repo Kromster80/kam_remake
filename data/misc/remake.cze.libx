@@ -1,5 +1,5 @@
 
-MaxID:204
+MaxID:212
 
 1:Mise zrušena
 2:Výuka stavby
@@ -35,7 +35,12 @@ MaxID:204
 29:Použít
 30:Jazyk:
 31:Nahrávám... Prosím èekejte
+207:
+208:
+209:
+210:
 32:Došlo k chybì!
+212:
 33:Nahrávám novou lokaci
 34:Seznam uložených her
 35:Jméno souboru
@@ -72,6 +77,9 @@ MaxID:204
 58:Pøepsat
 59:Uložit
 60:Naèíst
+205:
+206:
+211:
 194:
 
 61:Bìhem hry došlo k chybì.
