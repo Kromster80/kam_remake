@@ -6,8 +6,8 @@ MaxID:212
 3:Oktató Küldetés (Csata)
 4:Egyjátékos mód
 5:Pálya Szerkesztõ
-202:
-203:
+202:Visszajátszások
+203:Visszajátszás megtekintése
 6:Utolsó visszajátszás megtekintése
 7:Küldetés Indítása
 8:Cím
@@ -35,12 +35,12 @@ MaxID:212
 29:Alkalmaz
 30:Nyelv:
 31:Betöltés... Kérem várjon
-207:
-208:
-209:
-210:
+207:fák, házak és egységek
+208:felkészülés
+209:többjátékos módra felkészülés
+210:szkript
 32:Hiba történt!
-212:
+212:Hiba történt a %s fájl beolvasása közben
 33:Új nyelv betöltése
 34:Mentett állások
 35:Fájlnév
@@ -62,12 +62,12 @@ MaxID:212
 49:A visszajátszás végetért
 50:Játék megfigyelése
 51:Vissza a menübe
-166:
-167:
-168:
-171:
-172:
-173:
+166:Játékos kidobása
+167:A hosztnak lehetõsége lesz ezeket a játékosokat kidobni a játékból %d másodperc múlva
+168:A hoszt most már kidobhatja ezeket a játékosokat
+171:Biztosan ki szeretnél lépni?
+172:Biztos véglegesen ki szeretnéd zárni ezeket a játékosokat?
+173:Mégsem
 52:Nem elérhetõ
 53:Nyomj %s billentyût a játék folytatásához
 54:Csapatnak
@@ -77,10 +77,10 @@ MaxID:212
 58:Felülír
 59:Mentés
 60:Töltés
-205:
-206:
-211:
-194:
+205:Nem támogatott formátum %s
+206:Nem támogatott verzió %s
+211:Új Küldetés
+194:Játék idõ:|%s
 
 61:Egy hiba történt a játék során.
 62:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
@@ -103,9 +103,9 @@ MaxID:212
 75:Vesz x%d
 162:Mennyiség csökkentése
 161:Mennyiség növelése
-184:
-185:
-186:
+184:Ennek a nyersanyagnak a kereskedelme ezen a pályán nem engedélyezett
+185:Ültet és kivág
+186:Csak kivág
 
 76:Tereprendezés
 77:Település tervezés
@@ -134,7 +134,7 @@ MaxID:212
 98:Csatlakozás
 153:Kész
 99:Kapcsolódás, kérem várjon ...
-159:
+159:Hibás protokol verzió: %s. A szerver által használt: %s
 100:Események töltése...
 101:Frissítés...
 142:Nem található szerver
@@ -158,11 +158,11 @@ MaxID:212
 114:Nincs
 115:Csapat %d
 117:Üzenet írása:
-118:
+118:Pálya típusa
 119:Egy térkép
-188:
-189:
-190:
+188:Építkezés
+189:Csata
+190:Kooperatív
 120:Mentett játék
 121:Válassz egy térképet...
 122:Válassz egy mentést...
@@ -171,8 +171,8 @@ MaxID:212
 125:Játékmód:
 126:Feltételek:
 127:Méret:
-195:
-204:
+195:Játék beállítások:
+204:Békeidõ (percben)
 128:Kilépés
 129:Kész
 152:Nincs kész
@@ -184,41 +184,41 @@ MaxID:212
 157:Nem áll mindenki készen a kezdésre
 158:A játékosok száma meghaladja a térkép korlátait
 160:A szerver átadta a házigazda szerepét nekünk
-187:
+187:A játék elkezdõdött
 
 131:Várakozás a játékosokra:
 163:Játék mentése...
-164:
-169:
-170:
-191:
-192:
-193:
+164:%s megsemmisült!
+169:A hoszt (%s) kilépett a játékból
+170:A kapcsolat a szerverhez elveszett. Újracsatlakozás folyamatban...
+191:Nem tehetsz ilyet békeidõben
+192:Békeidõbõl hátra van: %s
+193:A békeidõ végetért. Fegyverbe!
 
-174:
-175:
-176:
-177:
-178:
-179:
-180:
-181:
-182:
-183:
+174:Polgárok|képzett
+175:Polgárok|elvesztett
+176:Katonák|felszerelt
+177:Katonák|elvesztett
+178:Egységek|legyõzve
+179:Épületek|építve
+180:Épületek|elvesztve
+181:Épületek|megsemmisítve
+182:Áruk|elõállítva
+183:Fegyverek|elõállítva
 
-196:
-197:
-198:
+196:S
+197:K
+198:V
 
-199:
-200:
-201:
+199:Csapat állj ('%s')
+200:Csapatok összekapcsolása ('%s')
+201:Csapatok szétválasztása ('%s')
 
 132:KaM Remake Készítõk
 133:Eredeti Knights & Merchants Készítõk
 134:PROGRAMOZÁS:
 135:TOVÁBBI PROGRAMOZÁS:
 136:TOVÁBBI GRAFIKA:
-165:
+165:TOVÁBBI HANGOK:
 137:TOVÁBBI FORDÍTÓK:
 138:KÜLÖN KÖSZÖNET:
