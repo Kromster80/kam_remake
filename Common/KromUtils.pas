@@ -13,6 +13,7 @@ uses
 
 type
   TStringArray = array of String;
+  TAnsiStringArray = array of AnsiString;
 
 
 function TimeGet: Cardinal;
@@ -201,12 +202,12 @@ begin
 end;
 
 
-function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
+function CheckFileExists(const FileName: string; const IsSilent: boolean = false): boolean;
 begin
   Result := FileExists(FileName);
 
   if not IsSilent and not Result then
-    Application.MessageBox(PChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
+    Application.MessageBox(PChar('Unable to locate file:' + eol + '"' + FileName + '"'), 'Error', MB_OK);
 end;
 
 
@@ -217,129 +218,149 @@ begin
 end;
 
 
-function ReverseString(s1:string):string;
-var s2:string; i:integer;
+function ReverseString(s1: string): string;
+var
+  s2: string;
+  i: integer;
 begin
-s2:=s1; //preparing ?
-for i:=1 to length(s1) do
-s2[i]:=s1[length(s1)-i+1];
-ReverseString:=s2;
+  s2 := s1; // preparing ?
+  for i := 1 to length(s1) do
+    s2[i] := s1[length(s1) - i + 1];
+  ReverseString := s2;
 end;
 
 
-function int2fix(Number,Len:integer):string;
-var ss:string; x:byte;
+function int2fix(Number, Len: integer): string;
+var
+  ss: string;
+  x: byte;
 begin
   ss := inttostr(Number);
-  for x:=length(ss) to Len-1 do
+  for x := length(ss) to Len - 1 do
     ss := '0' + ss;
-  if length(ss)>Len then
-    ss:='**********';//ss[99999999]:='0'; //generating an error in lame way
+  if length(ss) > Len then
+    ss := '**********'; // ss[99999999]:='0'; //generating an error in lame way
   setlength(ss, Len);
   Result := ss;
 end;
 
 
-//Return closest bigger PowerOfTwo number
-function MakePOT(num:integer): integer;
+// Return closest bigger PowerOfTwo number
+function MakePOT(num: integer): integer;
 begin
   num := num - 1;
   num := num OR (num SHR 1);
   num := num OR (num SHR 2);
   num := num OR (num SHR 4);
   num := num OR (num SHR 8);
-  num := num OR (num SHR 16); //32bit needs no more
+  num := num OR (num SHR 16); // 32bit needs no more
   Result := num + 1;
 end;
 
 
-function GetLengthSQR(ix,iy,iz:integer): integer;
+function GetLengthSQR(ix, iy, iz: integer): integer;
 begin
-  Result:=sqr(ix)+sqr(iy)+sqr(iz);
+  Result := sqr(ix) + sqr(iy) + sqr(iz);
 end;
 
 
-function GetLength(ix,iy,iz:single): single; overload;
+function GetLength(ix, iy, iz: single): single; overload;
 begin
-  Result:=sqrt(sqr(ix)+sqr(iy)+sqr(iz));
+  Result := sqrt(sqr(ix) + sqr(iy) + sqr(iz));
 end;
 
 
-function GetLength(ix,iy:single): single; overload;
+function GetLength(ix, iy: single): single; overload;
 begin
-  Result:=sqrt(sqr(ix)+sqr(iy));
+  Result := sqrt(sqr(ix) + sqr(iy));
 end;
 
 
-function Mix(x1,x2,MixValue:single):single; overload;
+function Mix(x1, x2, MixValue: single): single; overload;
 begin
-  Result := x1*MixValue + x2*(1-MixValue);
-end;
-
-function Mix(x1,x2:integer; MixValue:single):integer; overload;
-begin
-  Result := round(x1*MixValue + x2*(1-MixValue));
+  Result := x1 * MixValue + x2 * (1 - MixValue);
 end;
 
 
-procedure decs(var AText:string; const Len:integer=1);
+function Mix(x1, x2: integer; MixValue: single): integer; overload;
 begin
-if length(AText)<=abs(Len) then Atext:=''
-else
-if Len>=0 then AText:=Copy(AText, 1, length(AText)-Len)
-          else AText:=Copy(AText, 1+abs(Len), length(AText)-abs(Len));
-end;
-
-procedure decs(var AText:widestring; const Len:integer=1);
-begin
-if length(AText)<=abs(Len) then Atext:=''
-else
-if Len>=0 then AText:=Copy(AText, 1, length(AText)-Len)
-          else AText:=Copy(AText, 1+abs(Len), length(AText)-abs(Len));
-end;
-
-function decs(AText:string; Len,RunAsFunction:integer):string; overload;
-begin
-if length(AText)<=abs(Len) then result:=''
-else
-if Len>=0 then result:=Copy(AText, 1, length(AText)-Len)
-          else result:=Copy(AText, 1+abs(Len), length(AText)-abs(Len));
+  Result := round(x1 * MixValue + x2 * (1 - MixValue));
 end;
 
 
-function RemoveQuotes(Input:string):string;
-var i,k:integer;
+procedure decs(var AText: string; const Len: integer = 1);
 begin
-  Result:=''; k:=1;
-  while (Input[k]<>'"') and (k <= Length(Input)) do
+  if length(AText) <= abs(Len) then
+    AText := ''
+  else if Len >= 0 then
+    AText := Copy(AText, 1, length(AText) - Len)
+  else
+    AText := Copy(AText, 1 + abs(Len), length(AText) - abs(Len));
+end;
+
+
+procedure decs(var AText: widestring; const Len: integer = 1);
+begin
+  if length(AText) <= abs(Len) then
+    AText := ''
+  else if Len >= 0 then
+    AText := Copy(AText, 1, length(AText) - Len)
+  else
+    AText := Copy(AText, 1 + abs(Len), length(AText) - abs(Len));
+end;
+
+
+function decs(AText: string; Len, RunAsFunction: integer): string; overload;
+begin
+  if length(AText) <= abs(Len) then
+    Result := ''
+  else if Len >= 0 then
+    Result := Copy(AText, 1, length(AText) - Len)
+  else
+    Result := Copy(AText, 1 + abs(Len), length(AText) - abs(Len));
+end;
+
+
+function RemoveQuotes(Input: string): string;
+var
+  i, k: integer;
+begin
+  Result := '';
+  k := 1;
+  while (Input[k] <> '"') and (k <= length(Input)) do
     inc(k);
-  if k = Length(Input) then exit; //No quotes found
+  if k = length(Input) then
+    exit; // No quotes found
 
-  for i:=k+1 to length(Input) do
-    if Input[i]<>'"' then
-      Result:=Result+Input[i]
+  for i := k + 1 to length(Input) do
+    if Input[i] <> '"' then
+      Result := Result + Input[i]
     else
-      exit; //Will exit on first encountered quotes from 2nd character
+      exit; // Will exit on first encountered quotes from 2nd character
 end;
 
 
-procedure SwapStr(var A,B:string);
-var s:string;
+procedure SwapStr(var A, B: string);
+var
+  S: string;
 begin
-  s:=A; A:=B; B:=s;
-end;
-
-procedure SwapInt(var A,B:byte);
-var s:byte;
-begin
-  s:=A; A:=B; B:=s;
+  S := A; A := B; B := S;
 end;
 
 
-procedure SwapInt(var A,B:shortint);
-var s:shortint;
+procedure SwapInt(var A, B: byte);
+var
+  S: byte;
 begin
-  s:=A; A:=B; B:=s;
+  S := A; A := B; B := S;
+end;
+
+
+procedure SwapInt(var A, B: shortint);
+var
+  S: shortint;
+begin
+  S := A; A := B; B := S;
 end;
 
 
@@ -381,26 +402,30 @@ begin
 end;
 
 
-function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal;
-var i,A,B:cardinal;
+function Adler32CRC(TextPointer: Pointer; TextLength: Cardinal): Cardinal;
+var
+  i, A, B: Cardinal;
 begin
   A := 1;
-  B := 0; //A is initialized to 1, B to 0
-  for i:=1 to TextLength do begin
-    inc(A,pbyte(cardinal(TextPointer)+i-1)^);
-    inc(B,A);
+  B := 0; // A is initialized to 1, B to 0
+  for i := 1 to TextLength do
+  begin
+    inc(A, pbyte(Cardinal(TextPointer) + i - 1)^);
+    inc(B, A);
   end;
-  A := A mod 65521; //65521 (the largest prime number smaller than 2^16)
+  A := A mod 65521; // 65521 (the largest prime number smaller than 2^16)
   B := B mod 65521;
-  Adler32CRC := B + A shl 16; //reverse order for smaller numbers
+  Adler32CRC := B + A shl 16; // reverse order for smaller numbers
 end;
 
 
-function Adler32CRC(const aPath:string):cardinal;
-var S:TMemoryStream;
+function Adler32CRC(const aPath: string): Cardinal;
+var
+  S: TMemoryStream;
 begin
   Result := 0;
-  if not FileExists(aPath) then exit;
+  if not FileExists(aPath) then
+    exit;
 
   S := TMemoryStream.Create;
   try
@@ -412,32 +437,34 @@ begin
 end;
 
 
-function Adler32CRC(S:TMemoryStream):cardinal;
-var i,A,B:cardinal;
+function Adler32CRC(S: TMemoryStream): Cardinal;
+var
+  i, A, B: Cardinal;
 begin
   A := 1;
-  B := 0; //A is initialized to 1, B to 0
+  B := 0; // A is initialized to 1, B to 0
 
-  //We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
+  // We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
   if S.Size <> 0 then
-    for i:=0 to S.Size-1 do begin
-      inc(A, pbyte(cardinal(S.Memory) + i)^);
-      B := (B + A) mod 65521; //65521 (the largest prime number smaller than 2^16)
+    for i := 0 to S.Size - 1 do
+    begin
+      inc(A, pbyte(Cardinal(S.Memory) + i)^);
+      B := (B + A) mod 65521; // 65521 (the largest prime number smaller than 2^16)
     end;
   A := A mod 65521;
-  Result := B + A shl 16; //reverse order for smaller numbers
+  Result := B + A shl 16; // reverse order for smaller numbers
 end;
 
 
-function RandomS(Range_Both_Directions:integer):integer; overload;
+function RandomS(Range_Both_Directions: integer): integer; overload;
 begin
-  Result := Random(Range_Both_Directions*2+1)-Range_Both_Directions;
+  Result := Random(Range_Both_Directions * 2 + 1) - Range_Both_Directions;
 end;
 
 
-function RandomS(Range_Both_Directions:single):single; overload;
+function RandomS(Range_Both_Directions: single): single; overload;
 begin
-  Result := Random(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
+  Result := Random(round(Range_Both_Directions * 20000) + 1) / 10000 - Range_Both_Directions;
 end;
 
 
@@ -445,7 +472,7 @@ end;
 //we need to use it in case where Random should return repeating series of numbers
 //from time to time with the same RandSeed, e.g. when AI logic depends on Randoms
 //and some of player input needs Random too, but it should not affect AI
-function PseudoRandom(aMax:cardinal):cardinal;
+function PseudoRandom(aMax: Cardinal): Cardinal;
 begin
   if aMax = 0 then
     Result := 0
@@ -454,13 +481,13 @@ begin
 end;
 
 
-function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
+function RunOpenDialog(Sender: TOpenDialog; Name, Path, Filter: string): boolean;
 begin
-  Sender.FileName:=Name;
-  Sender.InitialDir:=Path;
-  Sender.Filter:=Filter;
-  Result:=Sender.Execute; //Returns "false" if user pressed "Cancel"
-  //Result:=Result and FileExists(Sender.FileName); //Already should be enabled in OpenDialog options
+  Sender.FileName := Name;
+  Sender.InitialDir := Path;
+  Sender.Filter := Filter;
+  Result := Sender.Execute; // Returns "false" if user pressed "Cancel"
+  //Result := Result and FileExists(Sender.FileName); //Already should be enabled in OpenDialog options
 end;
 
 
@@ -504,13 +531,15 @@ var
   BrowserProcess: TProcessUTF8;
 {$ENDIF}
 begin
+  //We need some result incase it's neither WDC nor FPC
+  Result := False;
+
   {$IFDEF WDC}
-  Result := true;
-  ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL);
+    ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL);
+    Result := True;
   {$ENDIF}
 
   {$IFDEF FPC}
-  Result := False;
   v:=THTMLBrowserHelpViewer.Create(nil);
   try
     v.FindDefaultBrowser(BrowserPath,BrowserParams);
@@ -518,7 +547,7 @@ begin
     p:=System.Pos('%s', BrowserParams);
     System.Delete(BrowserParams,p,2);
     System.Insert(URL,BrowserParams,p);
- 
+
     // start browser
     BrowserProcess:=TProcessUTF8.Create(nil);
     try

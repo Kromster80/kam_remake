@@ -224,12 +224,12 @@ end;
 procedure SetRenderDefaults;
 begin
   glClearColor(0, 0, 0, 0); 	   //Background
-  glClear (GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
-  glPolygonMode(GL_FRONT,GL_FILL);
+  glPolygonMode(GL_FRONT, GL_FILL);
   glEnable(GL_NORMALIZE);
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping

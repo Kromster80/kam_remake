@@ -19,7 +19,7 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-    procedure WriteText         (X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
+    procedure WriteText         (X,Y,W,H:smallint; Text:AnsiString; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
@@ -378,7 +378,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text:string; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
+procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text: AnsiString; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
 var
   i:integer;
   LineCount,AdvX,LineHeight,BlockWidth:integer;

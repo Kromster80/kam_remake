@@ -520,11 +520,11 @@ begin
     ct_SetMap:         begin
                          MapFileName := RemoveQuotes(String(TextParam));
                          //Check for same filename.map in same folder first - Remake format
-                         if CheckFileExists(ChangeFileExt(fMissionFileName,'.map'),true) then
+                         if FileExists(ChangeFileExt(fMissionFileName,'.map')) then
                            fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'))
                          else
                          //Check for KaM format map path
-                         if CheckFileExists(ExeDir+MapFileName,true) then
+                         if FileExists(ExeDir+MapFileName) then
                            fTerrain.LoadFromFile(ExeDir+MapFileName)
                          else
                          begin

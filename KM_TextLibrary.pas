@@ -30,19 +30,19 @@ const
 type
   TTextLibrary = class
   private
-    TextStrings: array[0..MaxStrings] of string;
-    SetupStrings: array[0..MaxStrings] of string;
-    RemakeStrings: TStringArray;
-    procedure LoadLIBFile(FilePath:string; var aArray:array of string);
-    procedure LoadLIBXFile(FilePath:string; var aArray:TStringArray; aInitializeValues:boolean);
-    procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
-    function GetRemakeString(aIndex:word):string;
-    function GetTexts(aIndex:word):string;
+    TextStrings: array[0..MaxStrings] of AnsiString;
+    SetupStrings: array[0..MaxStrings] of AnsiString;
+    RemakeStrings: TAnsiStringArray;
+    procedure LoadLIBFile(FilePath:AnsiString; var aArray:array of AnsiString);
+    procedure LoadLIBXFile(FilePath:AnsiString; var aArray:TAnsiStringArray; aInitializeValues:boolean);
+    procedure ExportTextLibrary(var aLibrary: array of AnsiString; aFileName:AnsiString);
+    function GetRemakeString(aIndex:word):AnsiString;
+    function GetTexts(aIndex:word):AnsiString;
   public
-    constructor Create(aLibPath, aLocale: string);
-    function GetTextString(aIndex:word):string;
-    function GetSetupString(aIndex:word):string;
-    property Texts[aIndex:word]:string read GetTexts; default;
+    constructor Create(aLibPath, aLocale: AnsiString);
+    function GetTextString(aIndex:word):AnsiString;
+    function GetSetupString(aIndex:word):AnsiString;
+    property Texts[aIndex:word]:AnsiString read GetTexts; default;
     procedure ExportTextLibraries;
 end;
 
@@ -55,7 +55,7 @@ uses KM_Log;
 
 
 { TTextLibrary }
-constructor TTextLibrary.Create(aLibPath,aLocale: string);
+constructor TTextLibrary.Create(aLibPath,aLocale: AnsiString);
 begin
   Inherited Create;
 
@@ -76,12 +76,12 @@ begin
 end;
 
 
-procedure TTextLibrary.LoadLIBFile(FilePath:string; var aArray:array of string);
+procedure TTextLibrary.LoadLIBFile(FilePath:AnsiString; var aArray:array of AnsiString);
 var
   f:file; NumRead:integer;
   i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
   FileData: array[0..100000] of byte;
-  TheString: string;
+  TheString: AnsiString;
   LastWasFF: boolean;
 begin
   {
@@ -100,9 +100,9 @@ begin
   blockread(f,FileData,100000,NumRead); //100kb should be enough
   closefile(f);
 
-  //Load string count from first two bytes
+  //Load AnsiString count from first two bytes
   StrCount := FileData[0] + (FileData[1] * 256);
-  //Load the length of the last string which is stored here
+  //Load the length of the last AnsiString which is stored here
   LastStrLen := FileData[2];
   
   //Now starts the indexes, set some defaults then run a loop
@@ -111,13 +111,13 @@ begin
   LastFirstFFIndex := 1;
   for i3 := 1 to StrCount do
   begin
-    //Load index bytes for this string
+    //Load index bytes for this AnsiString
     Byte1 := FileData[8+((i3-1)*2)];
     Byte2 := FileData[9+((i3-1)*2)];
     //Check for FF byte pars
     if (Byte1 = $FF) and (Byte2 = $FF) then
     begin
-      //This string is unused, meaning we must store it as blank, but also for some extreamly
+      //This AnsiString is unused, meaning we must store it as blank, but also for some extreamly
       //annoying reason they also change the order of bytes around them (don't ask...)
       aArray[i3] := ''; //Make it blank
       if not LastWasFF then
@@ -127,13 +127,13 @@ begin
     else
     begin
       StrLen := Byte1 + (Byte2 * 256);
-      if i3 = StrCount then //For the last string we must get the length from the header
+      if i3 = StrCount then //For the last AnsiString we must get the length from the header
         StrLen := LastStrLen;
 
       TheString := '';
-      for i2 := ExtraCount to StrLen - 1 do //Extract the string from the main section of the file
+      for i2 := ExtraCount to StrLen - 1 do //Extract the AnsiString from the main section of the file
       begin
-        TheString := TheString + char(FileData[(StrCount * 2) + 5 + i2]);
+        TheString := TheString + AnsiChar(FileData[(StrCount * 2) + 5 + i2]);
       end;
       ExtraCount := StrLen + 1;   
       if LastWasFF then  TheIndex := LastFirstFFIndex
@@ -146,11 +146,11 @@ end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TTextLibrary.LoadLIBXFile(FilePath:string; var aArray:TStringArray; aInitializeValues:boolean);
+procedure TTextLibrary.LoadLIBXFile(FilePath:AnsiString; var aArray:TAnsiStringArray; aInitializeValues:boolean);
 var
   aStringList:TStringList;
   i:integer;
-  s:string;
+  s:AnsiString;
   firstDelimiter:integer;
   ID, MaxID:integer;
 begin
@@ -191,7 +191,7 @@ begin
 end;
 
 
-function TTextLibrary.GetTexts(aIndex:word):string;
+function TTextLibrary.GetTexts(aIndex:word):AnsiString;
 begin
   if aIndex < 1000 then
     Result := GetTextString(aIndex)
@@ -203,7 +203,7 @@ begin
 end;
 
 
-function TTextLibrary.GetTextString(aIndex:word):string;
+function TTextLibrary.GetTextString(aIndex:word):AnsiString;
 begin
   if aIndex <= MaxStrings then
     Result := TextStrings[aIndex]
@@ -212,7 +212,7 @@ begin
 end;
 
 
-function TTextLibrary.GetSetupString(aIndex:word):string;
+function TTextLibrary.GetSetupString(aIndex:word):AnsiString;
 begin
   if aIndex <= MaxStrings then
     Result := SetupStrings[aIndex]
@@ -221,7 +221,7 @@ begin
 end;
 
 
-function TTextLibrary.GetRemakeString(aIndex:word):string;
+function TTextLibrary.GetRemakeString(aIndex:word):AnsiString;
 begin
   if aIndex < length(RemakeStrings) then
     Result := RemakeStrings[aIndex]
@@ -230,7 +230,7 @@ begin
 end;
 
 
-procedure TTextLibrary.ExportTextLibrary(var aLibrary: array of string; aFileName:string);
+procedure TTextLibrary.ExportTextLibrary(var aLibrary: array of AnsiString; aFileName:AnsiString);
 var
   i: integer;
   FileData: TStringList;

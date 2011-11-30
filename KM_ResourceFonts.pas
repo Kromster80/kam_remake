@@ -18,14 +18,14 @@ type
       Data:array of byte;
       u1,v1,u2,v2:single;
     end;
-    procedure LoadFont(FileName:string; aFont:TKMFont; ExportToBMP:boolean);
+    procedure LoadFont(FileName:AnsiString; aFont:TKMFont; ExportToBMP:boolean);
   end;
 
 
   TResourceFont = class
   private
     fFontData:array [TKMFont] of TKMFontData;
-    function GetCodePage(aLocale:string):string;
+    function GetCodePage(aLocale:AnsiString):AnsiString;
     function GetFontData(aIndex: TKMFont): TKMFontData;
   public
     constructor Create;
@@ -33,12 +33,12 @@ type
 
     property FontData[aIndex: TKMFont]:TKMFontData read GetFontData;
 
-    function WordWrap(aText:string; aFont:TKMFont; aMaxPxWidth:integer; aForced:boolean):string;
-    function CharsThatFit(aText:string; aFont:TKMFont; aMaxPxWidth:integer):integer;
-    function GetTextSize(Text:string; Fnt:TKMFont):TKMPoint;
+    function WordWrap(aText:AnsiString; aFont:TKMFont; aMaxPxWidth:integer; aForced:boolean):AnsiString;
+    function CharsThatFit(aText:AnsiString; aFont:TKMFont; aMaxPxWidth:integer):integer;
+    function GetTextSize(Text:AnsiString; Fnt:TKMFont):TKMPoint;
 
-    procedure LoadFonts(aLocale:string);
-    procedure ExportFonts(aLocale:string);
+    procedure LoadFonts(aLocale:AnsiString);
+    procedure ExportFonts(aLocale:AnsiString);
   end;
 
 
@@ -47,7 +47,7 @@ uses KromUtils, KM_Log, KM_Render, KM_ResourceGFX;
 
 
 const //Font01.fnt seems to be damaged..
-  FontFiles: array[TKMFont]of string = (
+  FontFiles: array[TKMFont]of AnsiString = (
   'antiqua','briefing','game','grey','mainb','mainmapgold','metal','mini','outline','won');
 
   //Note: Fonts with palette 0 are using custom coloring,
@@ -57,9 +57,9 @@ const //Font01.fnt seems to be damaged..
 
 
 { TKMFontData }
-procedure TKMFontData.LoadFont(FileName:string; aFont:TKMFont; ExportToBMP:boolean);
+procedure TKMFontData.LoadFont(FileName:AnsiString; aFont:TKMFont; ExportToBMP:boolean);
 const
-  TexWidth=256; //Connected to TexData, don't change
+  TexWidth = 256; //Connected to TexData, don't change
 var
   S:TKMemoryStream;
   i,k,ci,ck:integer;
@@ -69,7 +69,7 @@ var
   MyBitMap:TBitMap;
 begin
   MaxHeight := 0;
-  if not CheckFileExists(FileName, true) then exit;
+  if not FileExists(FileName) then exit;
 
   S := TKMemoryStream.Create;
   S.LoadFromFile(FileName);
@@ -181,7 +181,7 @@ begin
 end;
 
 
-function TResourceFont.GetCodePage(aLocale:string):string;
+function TResourceFont.GetCodePage(aLocale:AnsiString):AnsiString;
 var k:integer;
 begin
   Result := '';
@@ -194,8 +194,8 @@ begin
 end;
 
 
-procedure TResourceFont.LoadFonts(aLocale:string);
-var i:TKMFont; CodePage:string;
+procedure TResourceFont.LoadFonts(aLocale:AnsiString);
+var i:TKMFont; CodePage:AnsiString;
 begin
   CodePage := GetCodePage(aLocale);
   for i:=low(TKMFont) to high(TKMFont) do
@@ -206,8 +206,8 @@ begin
 end;
 
 
-procedure TResourceFont.ExportFonts(aLocale:string);
-var i:TKMFont;CodePage:string;
+procedure TResourceFont.ExportFonts(aLocale:AnsiString);
+var i:TKMFont;CodePage:AnsiString;
 begin
   CodePage := GetCodePage(aLocale);
   for i:=low(TKMFont) to high(TKMFont) do
@@ -218,7 +218,7 @@ begin
 end;
 
 
-function TResourceFont.WordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean):string;
+function TResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean):AnsiString;
 var i,CharSpacing,AdvX,PrevX,LastSpace:integer;
 begin
   AdvX := 0;
@@ -257,7 +257,7 @@ begin
 end;
 
 
-function TResourceFont.CharsThatFit(aText: string; aFont: TKMFont; aMaxPxWidth:integer):integer;
+function TResourceFont.CharsThatFit(aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer):integer;
 var i,CharSpacing,AdvX:integer;
 begin
   AdvX := 0;
@@ -278,7 +278,7 @@ begin
 end;
 
 
-function TResourceFont.GetTextSize(Text:string; Fnt:TKMFont):TKMPoint;
+function TResourceFont.GetTextSize(Text:AnsiString; Fnt:TKMFont):TKMPoint;
 var
   i:integer;
   CharSpacing,LineCount:integer;
