@@ -535,8 +535,9 @@ begin
   Result := False;
 
   {$IFDEF WDC}
-    ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL);
-    Result := True;
+    //ShellExecute returns a value greater than 32 if successful, or an error value that is less than or equal to 32 otherwise
+    if ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL) > 32 then
+      Result := True;
   {$ENDIF}
 
   {$IFDEF FPC}
