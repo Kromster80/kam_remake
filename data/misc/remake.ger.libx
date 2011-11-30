@@ -6,8 +6,8 @@ MaxID:204
 3:Kampftutorial
 4:Einzelspieler
 5:Karteneditor
-202:
-203:
+202:Replays
+203:Replay anzeigen
 6:Letzten Replay anzeigen
 7:Mission starten
 8:Bezeichnung
@@ -57,22 +57,22 @@ MaxID:204
 49:Replay beendet
 50:Weiter betrachten
 51:Zurück zum Menü
-166:Spieler trennen
+166:Spieler entfernen
 167:Der Host kann diese Spieler nach %d Sekunden trennen.
 168:Der Host darf diese Spieler nicht trennen
-171:Sicher beenden?
-172:Diesen Spieler sicher endgültig trennen?
+171:Wirklich beenden?
+172:Soll dieser Spieler dauerhaft entfernt werden?
 173:Abbrechen
 52:Nicht verfügbar
 53:%s drücken zum weiterspielen
 54:An das Team
 55:Spielerinfo
 56:Chat
-57:Spielstand bereits vorhanden.
+57:Name bereits vorhanden
 58:Überschreiben
 59:Speichern
 60:Laden
-194:
+194:Spieldauer:|%s
 
 61:Während des Spiels ist ein Fehler aufgetreten.
 62:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
@@ -82,7 +82,7 @@ MaxID:204
 66:Verbindung fehlgeschlagen: %s
 67:Du bist nicht verbunden.
 68:Mission %d
-150:Aufbau & Kampf
+150:Aufbau & Gefecht
 151:Gefecht
 
 69:Diese Fischerhütte ist zu weit vom Wasser entfernt!
@@ -96,8 +96,8 @@ MaxID:204
 162:Verringere Warenanzahl
 161:Erhöhe Warenanzahl
 184:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
-185:
-186:
+185:Forsten
+186:Nur Bäume fällen
 
 76:Gelände bearbeiten
 77:Häuser bearbeiten
@@ -126,7 +126,7 @@ MaxID:204
 98:Beitreten
 153:Bereit
 99:Verbinde, bitte warten...
-159:
+159:Falsche Version des Protokolls: %s. Benötigt wird: %s
 100:Lade Ankündigung...
 101:Aktualisiere...
 142:Keinen Server gefunden
@@ -135,10 +135,10 @@ MaxID:204
 147:Laden
 148:Spiel
 
-102:Spielerliste
+102:Spieler
 103:Startposition
 104:Team
-105:Flaggenfarbe
+105:Farbe
 106:Bereit
 107:Ping
 108:Kick
@@ -150,11 +150,11 @@ MaxID:204
 114:Keine Info vorhanden.
 115:Team %d
 117:Nachricht:
-118:
+118:Typ:
 119:Einzelkarte
-188:
-189:
-190:
+188:Aufbau
+189:Gefecht
+190:Koop-Modus
 120:Spielstand laden
 121:Wähle eine Karte...
 122:Spielstand wählen...
@@ -163,8 +163,8 @@ MaxID:204
 125:Modus:
 126:Bedingungen:
 127:Größe:
-195:
-204:
+195:Optionen:
+204:Friedenszeit (Minuten):
 128:Lobby verlassen
 129:Bereit!
 152:Nicht bereit
@@ -176,16 +176,16 @@ MaxID:204
 157:Noch nicht jeder ist bereit zu starten
 158:Die Spieleranzahl hat die Grenze erreicht
 160:Der Server hat dir die Hostingrechte übertragen
-187:
+187:Spiel gestartet
 
 131:Warte auf Spieler:
 163:Spiel wird gespeichert...
 164:%s wurde besiegt!
 169:Der Host (%s) hat das Spiel verlassen
 170:Die Verbindung zum Server ist unterbrochen. Versuche neu zu verbinden...
-191:
-192:
-193:
+191:Du kannst dies während der Friedenszeit nicht tun
+192:Friedenszeit verbleibend: %s
+193:Der Frieden ist vorüber. Zu den Waffen!
 
 174:Bürger|ausgebildet
 175:Bürger|verloren
@@ -195,22 +195,22 @@ MaxID:204
 179:Gebäude|errichtet
 180:Gebäude|verloren
 181:Gebäude|zerstört
-182:Waren|gefertigt
-183:Waffen|gefertigt
+182:Waren|produziert
+183:Waffen|produziert
 
-196:
+196:H
 197:V
-198:
+198:S
 
-199:
-200:
-201:
+199:Truppe anhalten ('%s')
+200:Truppen verbinden ('%s')
+201:Truppe trennen ('%s')
 
 132:KaM Remake Credits
 133:Ursprünglichel Knights & Merchants Credits
 134:PROGRAMMIERUNG:
 135:WEITERE PROGRAMMIERUNG:
 136:WEITERE GRAFIKEN:
-165:WEITERE SOUNDS:
-137:WEITERE ÜBERSETZUNGEN:
-138:BESONDERES DANKESCHÖN AN:
+165:ZUSÄTZLICHE SOUNDEFFEKTE:
+137:ZUSÄTZLICHE ÜBERSETZUNGEN:
+138:BESONDERER DANK AN:

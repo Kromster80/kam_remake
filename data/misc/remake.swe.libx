@@ -6,17 +6,17 @@ MaxID:204
 3:Stridshandledning
 4:En spelare
 5:Kartredigerare
-202:
-203:
+202:Reprisvisare
+203:Visa repris
 6:Spela upp senaste spelet
 7:Starta uppdraget
 8:Titel
 9:Storlek
-10:Uppdragstyp: 
-11:Vinstvillkor: 
-12:Förlustvillkor: 
-13:Allierade: 
-14:Fiender: 
+10:Uppdragstyp:
+11:Vinstvillkor:
+12:Förlustvillkor:
+13:Allierade:
+14:Fiender:
 16:Ny kartstorlek
 17:Bredd
 18:Höjd
@@ -26,9 +26,9 @@ MaxID:204
 22:Kontroller:
 23:Spelinställningar:
 24:Ljud:
-141:
+141:Scrollhastighet
 25:Ingen musik
-143:
+143:Blanda spår
 26:Grafik:
 27:Ljusstyrka
 28:Helskärm
@@ -57,12 +57,12 @@ MaxID:204
 49:Återspelningen har avslutats
 50:Fortsätt titta
 51:Avsluta
-166:
-167:
-168:
-171:
-172:
-173:
+166:Kasta ut spelare
+167:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
+168:Värden kan nu kasta ut dessa spelare
+171:Är du säker på att du vill avsluta?
+172:Är du säker på att du permanent vill kasta ut dessa spelare?
+173:Avbryt
 52:Ej tillgänglig
 53:Tryck %s för att åter börja spela
 54:Till lag
@@ -72,18 +72,18 @@ MaxID:204
 58:Skriv över
 59:Spara
 60:Ladda
-194:
+194:Speltid:|%s
 
-61:Ett fel har uppstått under spelets gång. 
-62:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare? 
+61:Ett fel har uppstått under spelets gång.
+62:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!\n\nVARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare?
 63:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel\nVar god uppdatera grafikdrivrutinerna för bättre prestanda
-64:Nätverksfel: 
+64:Nätverksfel:
 65:Error: Spelarnamnet får inte vara ingenting
 66:Uppkoppling misslyckades: %s
 67:Du har kopplats ner
 68:Uppdrag %d
-150:
-151:
+150:Bygg och strida
+151:Strid
 
 69:Din fiskares stuga är för långt från vattnet.
 70:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
@@ -93,11 +93,11 @@ MaxID:204
 73:Använd höger musknapp för att välja en vara att handla med
 74:Från x%d
 75:Till x%d
-162:
-161:
-184:
-185:
-186:
+162:Minska handelsmängd
+161:Öka handelsmängd
+184:Att handla med denna vara är inte tillåtet på det här uppdraget
+185:Plantera och hugg ner
+186:Hugg endast ner
 
 76:Terrängeditering
 77:Byplanering
@@ -119,21 +119,21 @@ MaxID:204
 92:Uppdatera serverlistan
 93:SERVERDETALJER
 94:Spelarlista:
-144:
+144:Spelinformation:
 95:Adress
 96:Port
 97:Rum
 98:Anslut
-153:
+153:Redo
 99:Kopplar upp, var god vänta...
-159:
+159:Fel protokollversion: %s. Servern använder: %s
 100:Laddar meddelanden...
 101:Uppdaterar...
-142:
+142:Hittade inga servrar
 145:-
-146:
-147:
-148:
+146:Lobby
+147:Laddar
+148:Spel
 
 102:Spelarlista
 103:Startplats
@@ -150,67 +150,67 @@ MaxID:204
 114:Ingen
 115:Lag %d
 117:Skicka meddelande:
-118:
+118:Karttyp
 119:Enskild karta
-188:
-189:
-190:
+188:Byggkarta
+189:Stridskarta
+190:Samarbetskarta
 120:Sparat spel
 121:Välj en karta...
 122:Välj ett sparat spel...
 123:Kartinfo:
-124:Spelare: 
-125:Läge: 
-126:Villkor: 
+124:Spelare:
+125:Läge:
+126:Villkor:
 127:Storlek:
-195:
-204:
+195:Spelinställningar:
+204:Fredstid (minuter)
 128:Avsluta sessionen
 129:Redo
-152:
+152:Inte redo
 130:Börja!
-149:
-154:
-155:
-156:
-157:
-158:
-160:
-187:
+149:Plats %d
+154:Fel: Sälj en spelare från sparningen att kontrollera
+155:Fel: Kartan kunde inte laddas eller ingen karta vald
+156:Kan inte börja: %s
+157:Alla är inte redo att börja
+158:Så många spelare kan inte spela på denna karta
+160:Servern har tilldelat dig värdrättigheter
+187:Spel startat
 
 131:Väntar på spelare:
-163:
-164:
-169:
-170:
-191:
-192:
-193:
+163:Sparar spel...
+164:%s besegrad!
+169:Värden (%s) har gått ur spelet
+170:Uppkopplingen till servern försvann. Försöker återansluta...
+191:Du får inte göra det under fredstiden
+192:Fredstid kvar: %s
+193:Fredstiden är över. Till vapen!
 
-174:
-175:
-176:
-177:
-178:
-179:
-180:
-181:
-182:
-183:
+174:Invånare|tränade
+175:Invånare|förlorade
+176:Soldater|utrustade
+177:Soldater|förlorade
+178:Enheter|besegrade
+179:Byggnader|konstruerade
+180:Byggnader|förlorade
+181:Byggnader|förstörda
+182:Varor|producerade
+183:Vapen|producerade
 
-196:
-197:
-198:
+196:H
+197:L
+198:S
 
-199:
-200:
-201:
+199:Gör halt ('%s')
+200:Länka trupp ('%s')
+201:Separera trupp ('%s')
 
 132:KaM Remakes skapare
 133:Original Knights & Merchants skapare
 134:PROGRAMMERIG:
 135:YTTERLIGARE PROGRAMMERING:
 136:YTTERLIGARE GRAFIK:
-165:
+165:YTTERLIGARE LJUD:
 137:YTTERLIGARE ÖVERSÄTTNING:
 138:SPECIELLT TACK TILL:
