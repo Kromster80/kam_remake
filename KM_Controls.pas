@@ -1419,7 +1419,7 @@ end;
 
 //DoPress is called by keyboard shortcuts
 //It's important that Control must be:
-// IsVisible (can't shortcut invisible/unaccessible button)
+// Visible (can't shortcut invisible/unaccessible button)
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
 function TKMButton.DoPress:boolean;
 begin
@@ -1433,8 +1433,9 @@ end;
 
 
 //DoClick is called by keyboard shortcuts
+//It puts a focus on the button and depresses it if it was DoPress'ed
 //It's important that Control must be:
-// IsVisible (can't shortcut invisible/unaccessible button)
+// Visible (can't shortcut invisible/unaccessible button)
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
 function TKMButton.DoClick:boolean;
 begin

@@ -130,6 +130,7 @@ type
       Image_Message:array[1..32]of TKMImage; //Queue of messages covers 32*48=1536px height
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
+      Label_ClockSpeedup:TKMLabel;
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
 
@@ -310,7 +311,7 @@ type
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
     procedure MenuIconsEnabled(NewValue:boolean);
     procedure UpdateMapSize(X,Y:integer);
-    procedure ShowClock(DoShow:boolean);
+    procedure ShowClock(aSpeed: Word);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
     procedure ShowMPPlayMore(Msg:TGameResultMsg);
     procedure ShowNetworkLag(DoShow:boolean; aPlayers:TStringList; IsHost:boolean);
@@ -702,10 +703,12 @@ begin
     Button_Main[5].Hint:=fTextLibrary.GetTextString(165);
     Label_MenuTitle:=TKMLabel.Create(Panel_Main,54,372,138,36,'',fnt_Metal,taLeft);
 
-    Image_Clock:=TKMImage.Create(Panel_Main,232,8,67,65,556);
+    Image_Clock := TKMImage.Create(Panel_Main,232,8,67,65,556);
     Image_Clock.Hide;
-    Label_Clock:=TKMLabel.Create(Panel_Main,265,80,0,0,'mm:ss',fnt_Outline,taCenter);
+    Label_Clock := TKMLabel.Create(Panel_Main,265,80,0,0,'mm:ss',fnt_Outline,taCenter);
     Label_Clock.Hide;
+    Label_ClockSpeedup := TKMLabel.Create(Panel_Main,265,48,0,0,'x1',fnt_Metal,taCenter);
+    Label_ClockSpeedup.Hide;
 
     Image_DirectionCursor := TKMImage.Create(Panel_Main,0,0,35,36,519);
     Image_DirectionCursor.Hide;
@@ -1693,7 +1696,7 @@ begin
   Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
   Button_MessageGoTo.Enabled := fMessageList.GetMsgHasGoTo(ShownMessage);
   Allies_Close(nil);
-  Chat_Close(nil); //Removes focus from Edit_Text 
+  Chat_Close(nil); //Removes focus from Edit_Text
   Panel_Message.Show;
   fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
 end;
@@ -2121,7 +2124,7 @@ begin
   Woodcutters := TKMHouseWoodcutters(fPlayers.Selected);
   if Sender = Button_Woodcutter then
     Radio_Woodcutter.ItemIndex := (Radio_Woodcutter.ItemIndex+1) mod 2; //Cycle
-    
+
   if (Sender = Button_Woodcutter) or (Sender = Radio_Woodcutter) then
   begin
     if Radio_Woodcutter.ItemIndex = 0 then
@@ -2174,7 +2177,7 @@ begin
       if BarracksResType[i] = TroopCost[Barracks_Order[LastBarracksUnit],k] then
         Button_Barracks[i].Down := True;
   end;
-    
+
   Tmp := Barracks.RecruitsList.Count;
   Button_BarracksRecruit.Caption := IfThen(Tmp = 0, '-', inttostr(Tmp));
   Button_BarracksRecruit.Down := True; //Recruit is always enabled, all troops require one
@@ -2692,14 +2695,16 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowClock(DoShow:boolean);
+procedure TKMGamePlayInterface.ShowClock(aSpeed: word);
 begin
-  Image_Clock.Visible := DoShow;
-  Label_Clock.Visible := DoShow;
+  Image_Clock.Visible := aSpeed <> 1;
+  Label_Clock.Visible := aSpeed <> 1;
+  Label_ClockSpeedup.Visible := aSpeed <> 1;
+  Label_ClockSpeedup.Caption := 'x' + IntToStr(aSpeed);
 
   //With slow GPUs it will keep old values till next frame, that can take some seconds
-  //Thats why we refresh Clock.Caption here 
-  if DoShow then 
+  //Thats why we refresh Clock.Caption here
+  if aSpeed <> 1 then
     Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
 end;
 
@@ -3054,7 +3059,6 @@ begin
                     Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
 
                   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
-                  //todo: Each of these should be a string from the TextLibrary with a suitable name like TX_SHORTCUT_HALT
                   if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT][1])) and (Panel_Army.Visible) then Button_Army_Stop.DoClick;
                   if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK][1])) and (Panel_Army.Visible) then Button_Army_Join.DoClick;
                   if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.DoClick;
