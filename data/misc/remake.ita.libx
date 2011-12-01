@@ -26,9 +26,9 @@ MaxID:212
 22:Controlli:
 23:Impostazioni di gioco:
 24:Opzioni Audio:
-141:Velocità di scorrimento
+141:Vel. scorrimento
 25:Disattiva musica
-143:Riproduzione casuale
+143:Riproduci a caso
 26:Opzioni Grafiche:
 27:Luminosità
 28:Schermo intero
@@ -172,7 +172,7 @@ MaxID:212
 126:Condizioni:
 127:Dimensioni:
 195:Opzioni di gioco:
-204:Tempo di pace (minuti)
+204:Tempo di pace (min.)
 128:Esci
 129:Pronto
 152:Non pronto
@@ -200,7 +200,7 @@ MaxID:212
 176:Soldati|equipaggiati
 177:Soldati|persi
 178:Unità|sconfitte
-179:Edifici|innalzati
+179:Edifici|costruiti
 180:Edifici|perduti
 181:Edifici|distrutti
 182:Merci|prodotte

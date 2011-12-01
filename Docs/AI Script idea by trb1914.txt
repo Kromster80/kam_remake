@@ -1,0 +1,216 @@
+AI scripting
+
+The AI script will be an ordinary text file. Maybe it should have a .AI extension?
+One reason for making AI files is that other people can make their own AI this way. The AI should be customizable, and the scripting should be easy to learn.
+
+The AI script is made up of rules. Rules can be turned on or off. The game should read the AI file on loading and every few seconds ( 1, 2, 3 maybe 4) all rules should be checked. A rule uses the following syntax:
+
+(rule			//rule should be a recognized keyword
+	CONDITION		// all the conditions that have to be
+				// met before the effect takes place
+=
+	EFFECT		// all commands that are executed when all the conditions are true.
+)
+
+I will call the object that determines AI behavior “interpreter” from now on.
+
+The interpreter should recognize a number of statements, for example: number-villagers, number-pikemen, number-mill, etc. These are dynamically updated during gameplay.
+
+It should also recognize some commands like: build mill, train pikemen, train villager, build watchtower
+These commands are commands with a parameter. Their syntax is:
+
+build BUILDING_ID
+train UNIT_ID
+
+These ID’s can be stored in some constants, so that when you want to create a pikeman, you can say:
+
+train pikeman
+
+instead of:
+
+train 75 //or whatever number represents a pikeman
+
+The scripter should also be able to make their own constants, that are only recognized in their own AI document. They can put these constants on top of the file. The syntax for these constants is:
+
+(const NAME VALUE)		//const is a recognized keyword
+
+Constants can be numerical values only.
+
+The line breaking/indentation of constants and/or rules isn’t important, you could write a rule like this:
+
+(rule CONDITION = EFFECT)
+
+Or like this:
+
+(rule
+CONDITION
+=
+EFFECT)
+
+As long as you close off every rule with a closing brace, everything is fine. 
+
+I already said that rules can have multiple conditions, but I didn’t say how they should be separated. Because line breaking/indentation doesn’t matter, you should split conditions using a comma, so a rule with multiple conditions and effects look like this:
+
+(rule
+	CONDITION,
+	CONDITION,
+	CONDITION 		//watch out! No comma!
+=
+	EFFECT,
+	EFFECT,
+	EFFECT			//watch out! No comma!
+)
+
+But typing it like this is exactly the same:
+
+(rule CONDITION,CONDITION,CONDITION = EFFECT,EFFECT,EFFECT)
+//note, for clarity’s sake I wanted to put a space after each comma, but then the rule didn’t fit on one line. But, like indentation, spaces are not obligatory.
+
+An example document may look like this:
+
+(const max-villagers 15) //makes a constant, sets it to 15
+
+(rule
+number-villagers < max-villagers 	
+=
+	train villager
+)
+
+I do realize that the engine already provides this behavior. You just set the amount of max villagers and the AI will try to keep that amount of villagers, but this provides bigger control.
+
+Another important thing about rules is that they can turn themselves off. That is just a command that is recognized by the interpreter, who, from that point on, no longer evaluates that rule. The command could look something like:
+
+turn-self-off
+
+some variables the interpreter may need to recognize, and update:
+
+number-villagers
+number-builders
+number-stonemason
+number-lumberjack
+number-carpenter
+number-farmer
+number-baker
+number-butcher
+number-recruit
+number-militia
+number-axemen
+number-swordsmen
+number-barbarian
+number-militia-family	//all normal infantry
+number-lancecarrier
+number-pikemen
+number-??	//the guy in the town hall???
+number-lance-family		//all anti-horse infantry
+number-bowmen
+number-crossbowmen
+number-bowmen-family	//all ballistics units
+number-scout
+number-knight
+number-vagabond
+number-scout-family		//all cavalry
+//And of course all the other people/soldiers
+
+//Now some buildings
+
+number-storehouse
+number-school
+number-inn
+number-quarry
+number-woodcutter
+number-sawmill
+number-farm
+number-wine-farm
+number-mill
+number-bakery
+number-swine-farm
+number-butcher
+//And all the other buildings………
+
+For every unit and building there is a constant, which contains their ID. These constants can be used as parameter for commands like train,build etc.
+
+Some commands:
+
+build BUILDING_ID
+train UNIT_ID
+attack BUILDING //note!! No ID, this is a specific building,
+				not a building TYPE!!!
+
+With the attack command, you could use a parameter like:
+
+attack closest-enemy-building
+
+with closest-enemy-building being a variable that is updated by the interpreter.
+
+
+
+I hope you don’t mind that I made this document. I do not intend to be a smart-ass. I just think this will make KaM a lot better. With this system, anyone can make their own AI. The AI will be a lot smarter too! The system is based on AoE ai files. I can send some of them to you if you want to.
+Next pages is a longer example file:
+
+
+(rule
+	true	//this rule is always executed until turned off
+=
+	turn-self-off
+	chat “Hello, I’m the AI”
+)
+
+(rule
+	number-school < 1
+=
+	build school
+	turn-self-off		
+)
+
+(rule
+	number-school > 1
+	number-inn < 1
+=
+	build inn
+)
+
+(rule
+	number-inn > 1
+	number-quarry < 2
+=
+	build quarry
+	train stonemason
+)
+
+(rule
+	number-quarry > 1
+	number-woodcutter < 3
+=
+	build woodcutter
+	train lumberjack
+	chat “who doesn’t like lumberjacks?”
+)
+
+(rule
+	number-woodcutter > 2
+	number-sawmill < 2
+=
+	build sawmill
+	train carpenter
+)
+
+(rule
+	have-building castle //have-building BUILDING_ID,
+						returns true or false
+=
+	train militia
+)
+
+(rule
+number-militia > attack-militia //constant in top of 
+document.
+=
+	attack nearest-enemy-building
+	chat “You are bound to die!”
+)
+
+
+
+
+
+© 2011 trb1914 
