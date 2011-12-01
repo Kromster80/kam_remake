@@ -6,8 +6,8 @@ MaxID:212
 3:Samouczek dowodzenia podczas bitwy
 4:Jeden Gracz
 5:Edytor Map
-202:
-203:
+202:Podglπd PowtÛrek
+203:Zobacz powtÛrkÍ
 6:Zobacz ostatniπ powtÛrke
 7:Rozpocznij Misje
 8:Tytu≥
@@ -26,9 +26,9 @@ MaxID:212
 22:Kontrola:
 23:Rozgrywka:
 24:DüwiÍk
-141:
+141:PrÍdkoúÊ przewijania
 25:Wy≥πcz muzykÍ
-143:
+143:Wymieszaj utwory
 26:Grafika:
 27:JasnoúÊ:
 28:Pe≥ny Ekran:
@@ -62,12 +62,12 @@ MaxID:212
 49:PowtÛrka siÍ zakoÒczy≥a
 50:Kontynuuj oglπdanie
 51:Wyjdü do menu
-166:
-167:
-168:
-171:
-172:
-173:
+166:WyrzuÊ graczy
+167:Host bÍdzie mÛg≥ wyrzuciÊ tych graczy za %d sekund
+168:Host moøe juø wyrzuciÊ tych graczy
+171:Czy na pewno chcesz wyjúÊ?
+172:Czy na pewno chcesz bezpowrotnie wyrzuciÊ tych graczy?
+173:Anuluj
 52:NiedostÍpne
 53:Naciúnij &s aby wznowiÊ grÍ
 54:Do druøyny
@@ -80,7 +80,7 @@ MaxID:212
 205:
 206:
 211:
-194:
+194:Czas gry:|%s
 
 61:Wystπpi≥ b≥πd w trakcie gry.
 62:ProszÍ wyúlij plik %s z twojego folderu KaM Remake\\Crash Reports do programistÛw. Dane kontaktowe moøesz znaleüÊ w pliku Readme. Bardzo dziÍkujemy za twojπ øyczliwπ pomoc!
@@ -90,22 +90,22 @@ MaxID:212
 66:Po≥πczenie nie powiod≥o siÍ: %s
 67:Zosta≥eú roz≥πczony
 68:Misja %d
-150:
-151:
+150:Budowa i Walka
+151:Walka
 
 69:Twoja Chata rybaka jest zbyt daleko od wody.
 70:TwÛj rybak nie moøe z≥owiÊ wiÍcej ryb w pobliskich zbiornikach wodnych.
 
-71:Rynek
+71:Targ
 72:Uøyj lewego przycisku myszy, aby wybraÊ towar do handlu
 73:Uøyj prawego przycisku myszy, aby wybraÊ towar do handlu
 74:Z x%d
 75:Na x%d
-162:
-161:
-184:
-185:
-186:
+162:Zmniejsz iloúÊ towarÛw
+161:ZwiÍksz iloúÊ towarÛw
+184:Handlowanie tym zasobem jest nie moøliwe w tej misji
+185:Sadü i úcinaj
+186:Tylko úcinaj
 
 76:Edycja terenu
 77:Planowanie osady
@@ -119,7 +119,7 @@ MaxID:212
 84:Nazwa
 85:Port
 86:StwÛrz serwer lokalny
-87:åtwÛrz serwer internetowy
+87:StwÛrz serwer internetowy
 88:Nazwa Serwera
 89:Stan
 90:Gracze
@@ -127,21 +127,21 @@ MaxID:212
 92:Odúwieø ListÍ SerwerÛw
 93:SZCZEG”£Y SERWERA
 94:Lista graczy:
-144:
+144:Informacje o grze:
 95:Adres
 96:Port
 97:PokÛj
 98:Do≥πcz
-153:
+153:Gotowy
 99:£πczenie, proszÍ czekaÊ...
-159:
+159:Z≥a wersja protoko≥u: %s. Serwer uøywa: %s
 100:£adowanie og≥oszeÒ...
 101:Odúwieøanie...
-142:
+142:Nie znaleziono serwerÛw
 145:-
-146:
-147:
-148:
+146:Lobby
+147:£adowanie
+148:Gra
 
 102:Lista graczy
 103:Lokalizacja poczπtkowa
@@ -158,11 +158,11 @@ MaxID:212
 114:Øadna
 115:Druøyna %d
 117:UmieúÊ wiadomoúÊ:
-118:
+118:Typ mapy
 119:Pojedyncza mapa
-188:
-189:
-190:
+188:Mapa Ekonomiczna
+189:Mapa Taktyczna
+190:Mapa Kooperacyjna
 120:Zapisane Gry
 121:Wybierz mapÍ...
 122:Wybierz zapis...
@@ -171,54 +171,54 @@ MaxID:212
 125:Tryb:
 126:Warunki:
 127:Rozmiar:
-195:
-204:
+195:Opcje gry:
+204:Okres pokojowy (minuty)
 128:Wyjdü
 129:Gotowy
-152:
+152:Nie gotowy
 130:Start!
-149:
-154:
-155:
-156:
-157:
-158:
-160:
-187:
+149:Lokacja %d
+154:B≥πd: Wybierz gracza z zapisu do kontrolowania
+155:B≥πd: Nie uda≥o siÍ za≥adowaÊ mapy lub nie wybrano mapy
+156:Nie moøna rozpoczπÊ: %s
+157:Nie wszyscy sπ gotowi do rozpoczÍcia
+158:Liczba graczy przekracza limit mapy
+160:Serwer przypisa≥ prawa hosta do nas
+187:Gra rozpoczÍta
 
 131:Oczekiwanie na graczy:
-163:
-164:
-169:
-170:
-191:
-192:
-193:
+163:Zapisywanie gry...
+164:%s zosta≥ pokonany!
+169:Host (%s) wyszed≥
+170:Po≥πczenie z serwerem zosta≥o utracone. PrÛba ponownego po≥πczenia ...
+191:Nie masz prawa tego robiÊ w okresie pokoju
+192:Pozosta≥y okres pokojowy: %s
+193:Okres pokojowy minπ≥. Do broni!
 
-174:
-175:
-176:
-177:
-178:
-179:
-180:
-181:
-182:
-183:
+174:Poddani|wyszkoleni
+175:Poddani|straceni
+176:Øo≥nierze|wyszkoleni
+177:Øo≥nierze|straceni
+178:Jednostki|pokonane
+179:Budynki|wybudowane
+180:Budynki|utracone
+181:Budynki|zniszczone
+182:Towary|wyprodukowane
+183:BroÒ|wyprodukowana
 
-196:
-197:
-198:
+196:H
+197:L
+198:S
 
-199:
-200:
-201:
+199:Zatrzymaj oddzia≥ i formuj szyk ('%s')
+200:Po≥πcz oddzia≥y ('%s')
+201:Rozdziel oddzia≥ ('%s')
 
 132:Autorzy KaM Remake
 133:Autorzy Oryginalnego Knights & Merchants
 134:PROGRAMOWANIE:
 135:DODATKOWE PROGRAMOWANIE:
 136:DODATKOWE GRAFIKI;
-165:
+165:DODATKOWE DèWI KI:
 137:DODATKOWE T£UMACZENIE:
 138:SPECJALNE PODZI KOWANIA DLA:
