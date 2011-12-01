@@ -717,7 +717,8 @@ type
     sfxn_Victory,
     sfxn_Defeat,
     sfxn_Error1,
-    sfxn_Error2
+    sfxn_Error2,
+    sfxn_Peacetime
 
   );
 
@@ -732,7 +733,8 @@ const
     'Misc\Victory.wav',
     'Misc\Defeat.wav',
     'UI\Error001.wav',
-    'UI\Error002.wav'
+    'UI\Error002.wav',
+    'UI\Error002.wav' //Temporary
     );
 
 const MeleeSoundsHit:array[0..14] of TSoundFX = (

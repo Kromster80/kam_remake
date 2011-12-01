@@ -53,6 +53,7 @@
  +	AI does not feed warriors unless it is the commander that is hungry
  +	Some texts don't fit in the left panel (e.g. "Preparing house area")
  +	AI matches KaM behavior better
+ +	Archers "twitch" when their commander can't reach his position instead of shooting
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies

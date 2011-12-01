@@ -320,6 +320,7 @@ function TKMUnitWarrior.RePosition:boolean;
 var ClosestTile:TKMPoint;
 begin
   Result := true;
+  if GetUnitAction is TUnitActionFight then exit; //Don't interupt a fight (or archers firing) to reposition
   if (fState = ws_None) and (Direction <> fOrderLoc.Dir) then
     fState := ws_RepositionPause; //Make sure we always face the right way if somehow state is gets to None without doing this
 
@@ -1179,7 +1180,10 @@ begin
       //Tell everyone to reposition
       for i:=0 to fMembers.Count-1 do
         //Must wait for unit(s) to get into position before we have truely finished walking
-        PositioningDone := TKMUnitWarrior(fMembers.Items[i]).RePosition and PositioningDone; //NOTE: RePosition function MUST go before PositioningDone variable otherwise it won't check the second value if the first is true!!!
+        if PositioningDone then
+          PositioningDone := TKMUnitWarrior(fMembers.Items[i]).RePosition
+        else
+          TKMUnitWarrior(fMembers.Items[i]).RePosition; //We must call it directly like this, if we used the above method then lazy boolean evaluation will skip it.
   end;
 
   //Make sure we didn't get given an action above

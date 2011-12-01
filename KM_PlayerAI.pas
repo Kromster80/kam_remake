@@ -210,7 +210,8 @@ procedure TKMPlayerAI.CheckGoals;
     if aGoal.PlayerIndex <> -1 then
       MS := fPlayers[aGoal.PlayerIndex].Stats
     else
-      MS := nil; //Will trigger an error unless it's not gc_Time
+      MS := nil;
+    Assert((MS <> nil) or (aGoal.GoalCondition = gc_Time)); //Will trigger an error unless it's not gc_Time
 
     case aGoal.GoalCondition of //todo: add all goal condition checks properly and confirm unknowns with tests in KaM
       gc_BuildTutorial:     Result := MS.GetHouseQty(ht_Tannery)>0;
@@ -491,24 +492,24 @@ var k, MenRequired, Matched: integer;
 begin
   Result := false;
   Matched := -1;  Best := 9999;
-    for k:=0 to DefencePositionsCount-1 do
+  for k:=0 to DefencePositionsCount-1 do
+  begin
+    if aCanLinkToExisting then
+      MenRequired := TroopFormations[DefencePositions[k].GroupType].NumUnits
+    else MenRequired := 1; //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
+    if (DefencePositions[k].GroupType = UnitGroups[aWarrior.UnitType]) and
+       not DefencePositions[k].IsFullyStocked(MenRequired) then
     begin
-      if aCanLinkToExisting then
-        MenRequired := TroopFormations[DefencePositions[k].GroupType].NumUnits
-      else MenRequired := 1; //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
-      if (DefencePositions[k].GroupType = UnitGroups[aWarrior.UnitType]) and
-         not DefencePositions[k].IsFullyStocked(MenRequired) then
+      //Take closest position that is empty or requries restocking
+      Distance := GetLength(aWarrior.GetPosition,DefencePositions[k].Position.Loc);
+      if Distance < Best then
       begin
-        //Take closest position that is empty or requries restocking
-        Distance := GetLength(aWarrior.GetPosition,DefencePositions[k].Position.Loc);
-        if Distance < Best then
-        begin
-          Matched := k;
-          Best := Distance;
-          if not aTakeClosest then break; //Take first one we find - that's what KaM does
-        end;
+        Matched := k;
+        Best := Distance;
+        if not aTakeClosest then break; //Take first one we find - that's what KaM does
       end;
     end;
+  end;
   if Matched <> -1 then
   begin
     Result := true;
@@ -786,6 +787,7 @@ begin
   SaveStream.Write(PlayerIndex);
   SaveStream.Write(fHasWonOrLost);
   SaveStream.Write(fTimeOfLastAttackMessage);
+  SaveStream.Write(fLastEquippedTime);
   SaveStream.Write(ReqWorkers);
   SaveStream.Write(ReqSerfFactor);
   SaveStream.Write(ReqRecruits);
@@ -814,6 +816,7 @@ begin
   LoadStream.Read(PlayerIndex);
   LoadStream.Read(fHasWonOrLost);
   LoadStream.Read(fTimeOfLastAttackMessage);
+  LoadStream.Read(fLastEquippedTime);
   LoadStream.Read(ReqWorkers);
   LoadStream.Read(ReqSerfFactor);
   LoadStream.Read(ReqRecruits);

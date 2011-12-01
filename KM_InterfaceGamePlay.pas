@@ -2044,10 +2044,9 @@ begin
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
       Army_ActivateControls(Commander.ArmyCanTakeOrders);
-      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
     end;
     Button_Army_Storm.Enabled := (UnitGroups[Sender.UnitType] = gt_Melee) and Commander.ArmyCanTakeOrders; //Only melee groups may charge
-    Button_Army_Split.Enabled := Commander.GetMemberCount > 0;
+    Button_Army_Split.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
   end
   else
   begin //Citizen specific
@@ -2749,6 +2748,7 @@ end;
 procedure TKMGamePlayInterface.ShowMPPlayMore(Msg:TGameResultMsg);
 begin
   ReleaseDirectionSelector;
+  PlayMoreMsg := Msg;
   case Msg of
     gr_Win:       begin
                     Label_MPPlayMore.Caption := fTextLibrary[TX_GAMEPLAY_WON];

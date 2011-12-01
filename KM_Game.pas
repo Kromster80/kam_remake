@@ -224,6 +224,8 @@ begin
   FreeAndNil(fTextLibrary);
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax);
+  fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
+  fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
   fResource.ResourceFont.LoadFonts(fGlobalSettings.Locale);
   fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY, fGlobalSettings, True);
 end;
@@ -1131,7 +1133,7 @@ begin
   if (PeaceTicksRemaining = 1) and MultiplayerMode then
   begin
     Networking.PostLocalMessage(fTextLibrary[TX_MP_PEACETIME_OVER],false);
-    fSoundLib.Play(sfxn_Error1);
+    fSoundLib.Play(sfxn_Peacetime,1.0,true); //Fades music
   end;
 end;
 

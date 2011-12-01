@@ -463,7 +463,7 @@ begin
   //Fade music if required
   if FadeMusic and not fMusicIsFaded then
   begin
-    fOnFadeMusic(Self);
+    if Assigned(fOnFadeMusic) then fOnFadeMusic(Self);
     fMusicIsFaded := true;
   end;
 
@@ -656,7 +656,7 @@ begin
     end;
   //If we reached the end without exiting then we need to resume the music
   fMusicIsFaded := false;
-  if FoundFaded then fOnUnfadeMusic(Self);
+  if FoundFaded and Assigned(fOnUnfadeMusic) then  fOnUnfadeMusic(Self);
 end;
 
 
