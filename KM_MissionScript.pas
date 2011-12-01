@@ -44,7 +44,7 @@ type
                     ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
 
   TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
-                         cpt_MaxSoldier,cpt_AttackFactor,cpt_TroopParam,cpt_Type,cpt_TotalAmount,cpt_Counter,cpt_Range,
+                         cpt_MaxSoldier,cpt_EquipRate,cpt_AttackFactor,cpt_TroopParam,cpt_Type,cpt_TotalAmount,cpt_Counter,cpt_Range,
                          cpt_TroopAmount,cpt_Target,cpt_Position,cpt_TakeAll);
 
 const
@@ -61,7 +61,7 @@ const
 
   PARAMVALUES: array[TKMCommandParamType] of AnsiString = (
     '','RECRUTS','CONSTRUCTORS','WORKER_FACTOR','RECRUT_COUNT','TOWN_DEFENSE',
-    'MAX_SOLDIER','ATTACK_FACTOR','TROUP_PARAM','TYPE','TOTAL_AMOUNT','COUNTER','RANGE',
+    'MAX_SOLDIER','EQUIP_RATE','ATTACK_FACTOR','TROUP_PARAM','TYPE','TOTAL_AMOUNT','COUNTER','RANGE',
     'TROUP_AMOUNT','TARGET','POSITION','TAKEALL');
 
   MAXPARAMS = 8;
@@ -704,6 +704,7 @@ begin
                           if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.RecruitTrainTimeout := P[1];
                           if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.TownDefence         := P[1];
                           if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.MaxSoldiers         := P[1];
+                          if TextParam = PARAMVALUES[cpt_EquipRate]   then iPlayerAI.EquipRate            := P[1];
                           if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Aggressiveness      := P[1];
                           if TextParam = PARAMVALUES[cpt_TroopParam]   then
                           begin
@@ -937,6 +938,7 @@ begin
       //Only store if a limit is in place (high is the default)
       if fPlayers.Player[i].AI.MaxSoldiers <> high(fPlayers.Player[i].AI.MaxSoldiers) then
         AddCommand(ct_AICharacter,cpt_MaxSoldier, [fPlayers.Player[i].AI.MaxSoldiers]);
+      AddCommand(ct_AICharacter,cpt_EquipRate, [fPlayers.Player[i].AI.EquipRate]);
       AddCommand(ct_AICharacter,cpt_AttackFactor, [fPlayers.Player[i].AI.Aggressiveness]);
       AddCommand(ct_AICharacter,cpt_RecruitCount, [fPlayers.Player[i].AI.RecruitTrainTimeout]);
       for G:=Low(TGroupType) to High(TGroupType) do

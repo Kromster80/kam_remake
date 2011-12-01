@@ -882,7 +882,7 @@ begin
     Button_BarracksDec100.Tag := 100;
     Button_BarracksDec      := TKMButton.Create(Panel_HouseBarracks,116,238,20,20,'-', fnt_Metal);
     Button_BarracksDec.Tag  := 1;
-    Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,156,230,20,20,'',fnt_Metal,taCenter);
+    Label_Barracks_WareCount:= TKMLabel.Create (Panel_HouseBarracks,156,230,40,20,'',fnt_Metal,taCenter);
     Button_BarracksInc100     := TKMButton.Create(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
     Button_BarracksInc100.Tag := 100;
     Button_BarracksInc      := TKMButton.Create(Panel_HouseBarracks,176,238,20,20,'+', fnt_Metal);

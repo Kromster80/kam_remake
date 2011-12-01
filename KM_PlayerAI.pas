@@ -31,6 +31,7 @@ type //For now IDs must match with KaM
   private
     PlayerIndex:integer;
     fTimeOfLastAttackMessage: cardinal;
+    fLastEquippedTime: cardinal;
     fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
 
     fAutobuild:boolean;
@@ -41,10 +42,12 @@ type //For now IDs must match with KaM
     procedure CheckArmy;
     function CheckAttackMayOccur(aAttack: TAIAttack; MenAvailable:integer; GroupsAvailableCount: array of integer):boolean;
     procedure OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
+    procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
+    function FindPlaceForWarrior(aWarrior:TKMUnitWarrior; aCanLinkToExisting, aTakeClosest:boolean):boolean;
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 
   public
-    ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Number of each unit type required
+    ReqWorkers, ReqSerfFactor, ReqRecruits, EquipRate: word; //Number of each unit type required
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not used or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
@@ -65,6 +68,7 @@ type //For now IDs must match with KaM
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
     procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
     procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
+    procedure WarriorEquipped(aWarrior: TKMUnitWarrior);
 
     function HouseAutoRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
@@ -82,6 +86,12 @@ implementation
 uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
      KM_Terrain, KM_ResourceGFX, KM_Sound;
 
+
+const
+  //For compatibility with KaM these must be false. We can add a !REMAKE_AI command later
+  //to make them more "intelligent", but for now these are required for the campaigns to be playable.
+  AI_FILL_CLOSEST = false;
+  AI_LINK_IDLE = false;
 
 
 constructor TAIDefencePosition.Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
@@ -166,6 +176,7 @@ begin
   //Set some defaults (these are not measured from KaM)
   ReqWorkers := 3;
   ReqRecruits := 5; //This means the number in the barracks, watchtowers are counted seperately
+  EquipRate := 1000; //Measured in KaM: AI equips 1 soldier every ~100 seconds
   ReqSerfFactor := 10; //Means 1 serf per building
   RecruitTrainTimeout := 0; //Can train at start
   fAutobuild := true; //In KaM it is on by default, and most missions turn it off
@@ -353,9 +364,12 @@ var
   HB:TKMHouseBarracks;
   GType: TGroupType;
   i,k:integer;
+  TrainedSomething:boolean;
   GroupReq: array[TGroupType] of integer;
 begin
   if fPlayers[PlayerIndex].Stats.GetArmyCount >= MaxSoldiers then Exit; //Don't train if we have reached our limit
+  if not fGame.CheckTime(fLastEquippedTime+EquipRate) then exit; //Delay between equipping soldiers for KaM compatibility
+  fLastEquippedTime := fGame.GameTickCount;
 
   //Create a list of troops that need to be trained based on defence position requirements
   FillChar(GroupReq, SizeOf(GroupReq), #0); //Clear up
@@ -379,7 +393,7 @@ begin
 
   //Train troops where possible in each barracks
   for k:=1 to Length(Barracks) do
-  begin  
+  begin
     HB := Barracks[k-1];
     //Chose a random group type that we are going to attempt to train (so we don't always train certain group types first)
     i := 0;
@@ -389,13 +403,19 @@ begin
     until (GroupReq[GType] > 0) or (i > 9); //Limit number of attempts to guarantee it doesn't loop forever
 
     for i:=1 to 3 do
+    begin
+      TrainedSomething := false;
       if AITroopTrainOrder[GType,i] <> ut_None then
-      while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
-            (fPlayers[PlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
-      begin
-        HB.Equip(AITroopTrainOrder[GType,i], 1);
-        dec(GroupReq[GType]);
-      end;
+        while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) and
+              (fPlayers[PlayerIndex].Stats.GetArmyCount < MaxSoldiers) do
+        begin
+          HB.Equip(AITroopTrainOrder[GType,i], 1);
+          dec(GroupReq[GType]);
+          TrainedSomething := true;
+          if EquipRate > 0 then break; //Only equip 1 soldier when we have a restricted equip rate
+        end;
+      if TrainedSomething and (EquipRate > 0) then break; //Only equip 1 soldier when we have a restricted equip rate
+    end;
   end;
 end;
 
@@ -453,19 +473,57 @@ begin
 end;
 
 
-procedure TKMPlayerAI.CheckArmy;
+procedure TKMPlayerAI.RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
+var Needed: integer;
+begin
+  Needed := TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
+  if Needed <= 0 then exit;
+  if aCommander.GetMemberCount+1 <= Needed then
+    aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
+  else
+    aCommander.OrderSplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
+end;
 
-  procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
-  var Needed: integer;
+
+function TKMPlayerAI.FindPlaceForWarrior(aWarrior:TKMUnitWarrior; aCanLinkToExisting, aTakeClosest:boolean):boolean;
+var k, MenRequired, Matched: integer;
+    Distance, Best: single;
+begin
+  Result := false;
+  Matched := -1;  Best := 9999;
+    for k:=0 to DefencePositionsCount-1 do
+    begin
+      if aCanLinkToExisting then
+        MenRequired := TroopFormations[DefencePositions[k].GroupType].NumUnits
+      else MenRequired := 1; //If not aCanLinkToExisting then a group with 1 member or more counts as fully stocked already
+      if (DefencePositions[k].GroupType = UnitGroups[aWarrior.UnitType]) and
+         not DefencePositions[k].IsFullyStocked(MenRequired) then
+      begin
+        //Take closest position that is empty or requries restocking
+        Distance := GetLength(aWarrior.GetPosition,DefencePositions[k].Position.Loc);
+        if Distance < Best then
+        begin
+          Matched := k;
+          Best := Distance;
+          if not aTakeClosest then break; //Take first one we find - that's what KaM does
+        end;
+      end;
+    end;
+  if Matched <> -1 then
   begin
-    Needed := TroopFormations[UnitGroups[aDefenceGroup.UnitType]].NumUnits - (aDefenceGroup.GetMemberCount+1);
-    if Needed <= 0 then exit;
-    if aCommander.GetMemberCount+1 <= Needed then
-      aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
-    else
-      aCommander.OrderSplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
+    Result := true;
+    if DefencePositions[Matched].CurrentCommander = nil then
+    begin //New position
+      DefencePositions[Matched].CurrentCommander := aWarrior.GetCommander;
+      aWarrior.OrderWalk(DefencePositions[Matched].Position);
+    end
+    else //Restock existing position
+      RestockPositionWith(DefencePositions[Matched].CurrentCommander,aWarrior.GetCommander);
   end;
+end;
 
+
+procedure TKMPlayerAI.CheckArmy;
 var AttackTotalAvailable: integer; //Total number of warriors available to attack the enemy
     AttackGroupsCount: array[TGroupType] of integer;
     AttackGroups: array[TGroupType] of array of TKMUnitWarrior;
@@ -481,9 +539,8 @@ var AttackTotalAvailable: integer; //Total number of warriors available to attac
     AttackTotalAvailable := AttackTotalAvailable + aCommander.GetMemberCount+1;
   end;
 
-var i, k, j, Matched: integer;
+var i, k, j: integer;
     G: TGroupType;
-    Distance, Best: single;
     Positioned: boolean;
     NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
 begin
@@ -540,17 +597,15 @@ begin
               if DefencePositions[k].DefenceType = adt_BackLine then
                 AddToAvailableToAttack(GetCommander);
 
-              //If we are a less important position and there is a higher priority position not full we must step up
-              if DefencePositions[k].DefenceType = adt_Backline then //We are low priority
-                for j:=0 to DefencePositionsCount-1 do
-                  if (DefencePositions[j].CurrentCommander = nil) and
-                     (DefencePositions[j].GroupType = UnitGroups[UnitType]) and
-                     (DefencePositions[j].DefenceType = adt_Frontline) then //Target is high priority
-                     begin
-                       DefencePositions[k].CurrentCommander := nil; //Leave current position
-                       DefencePositions[j].CurrentCommander := GetCommander; //Take new position
-                       break;
-                     end;
+              //In KaM the order of defence positions is the priority: The first defined is higher priority
+              for j:=0 to k-1 do
+                if (DefencePositions[j].CurrentCommander = nil) and
+                   (DefencePositions[j].GroupType = UnitGroups[UnitType]) then
+                   begin
+                     DefencePositions[k].CurrentCommander := nil; //Leave current position
+                     DefencePositions[j].CurrentCommander := GetCommander; //Take new position
+                     break;
+                   end;
 
               break;
             end;
@@ -558,46 +613,24 @@ begin
           //Look for group that needs additional members, or a new position to defend
           //In this case we choose the closest group, then move to a higher priority one later (see above)
           //This means at the start of the mission troops will take the position they are placed at rather than swapping around
-          Matched := -1;  Best := 9999;
           if not Positioned then
-            for k:=0 to DefencePositionsCount-1 do
-              if (DefencePositions[k].GroupType = UnitGroups[UnitType]) and
-                 not DefencePositions[k].IsFullyStocked(TroopFormations[DefencePositions[k].GroupType].NumUnits) then
-              begin
-                //Take closest position that is empty or requries restocking
-                Distance := GetLength(GetPosition,DefencePositions[k].Position.Loc);
-                if Distance < Best then
-                begin
-                  Matched := k;
-                  Best := Distance;
-                end;
-              end;
-          if Matched <> -1 then
-          begin
-            Positioned := true;
-            if DefencePositions[Matched].CurrentCommander = nil then
-            begin //New position
-              DefencePositions[Matched].CurrentCommander := GetCommander;
-              OrderWalk(DefencePositions[Matched].Position);
-            end
-            else //Restock existing position
-              RestockPositionWith(DefencePositions[Matched].CurrentCommander,GetCommander);
-          end;
+            Positioned := FindPlaceForWarrior(TKMUnitWarrior(fPlayers[PlayerIndex].Units.Items[i]), AI_LINK_IDLE, AI_FILL_CLOSEST);
 
           //Just chill and link with other idle groups
           if not Positioned then
           begin
             AddToAvailableToAttack(GetCommander); //Idle groups may also attack
-            //If this group doesn't have enough members
-            if (GetMemberCount+1 < TroopFormations[UnitGroups[UnitType]].NumUnits) then
-              if NeedsLinkingTo[UnitGroups[UnitType]] = nil then
-                NeedsLinkingTo[UnitGroups[UnitType]] := GetCommander //Flag us as needing to be added to
-              else
-              begin
-                RestockPositionWith(NeedsLinkingTo[UnitGroups[UnitType]],GetCommander);
-                if NeedsLinkingTo[UnitGroups[UnitType]].GetMemberCount+1 >= TroopFormations[UnitGroups[UnitType]].NumUnits then
-                  NeedsLinkingTo[UnitGroups[UnitType]] := nil; //Group is now full
-              end;
+            if AI_LINK_IDLE then
+              //If this group doesn't have enough members
+              if (GetMemberCount+1 < TroopFormations[UnitGroups[UnitType]].NumUnits) then
+                if NeedsLinkingTo[UnitGroups[UnitType]] = nil then
+                  NeedsLinkingTo[UnitGroups[UnitType]] := GetCommander //Flag us as needing to be added to
+                else
+                begin
+                  RestockPositionWith(NeedsLinkingTo[UnitGroups[UnitType]],GetCommander);
+                  if NeedsLinkingTo[UnitGroups[UnitType]].GetMemberCount+1 >= TroopFormations[UnitGroups[UnitType]].NumUnits then
+                    NeedsLinkingTo[UnitGroups[UnitType]] := nil; //Group is now full
+                end;
           end;
 
         end;
@@ -644,6 +677,12 @@ begin
     with DefencePositions[i] do
       if CurrentCommander = DeadCommander then
         CurrentCommander := NewCommander; //Don't need to use GetPointer/ReleasePointer because setting CurrentCommander does that
+end;
+
+
+procedure TKMPlayerAI.WarriorEquipped(aWarrior: TKMUnitWarrior);
+begin
+  FindPlaceForWarrior(aWarrior, true, AI_FILL_CLOSEST);
 end;
 
 
@@ -750,6 +789,7 @@ begin
   SaveStream.Write(ReqWorkers);
   SaveStream.Write(ReqSerfFactor);
   SaveStream.Write(ReqRecruits);
+  SaveStream.Write(EquipRate);
   SaveStream.Write(RecruitTrainTimeout);
   SaveStream.Write(TownDefence);
   SaveStream.Write(MaxSoldiers);
@@ -777,6 +817,7 @@ begin
   LoadStream.Read(ReqWorkers);
   LoadStream.Read(ReqSerfFactor);
   LoadStream.Read(ReqRecruits);
+  LoadStream.Read(EquipRate);
   LoadStream.Read(RecruitTrainTimeout);
   LoadStream.Read(TownDefence);
   LoadStream.Read(MaxSoldiers);

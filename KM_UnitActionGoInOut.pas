@@ -244,12 +244,16 @@ begin
     TKMHouseBarracks(fUnit.GetHome).RecruitsList.Remove(fUnit);
 
   //Warriors attempt to link as they leave the house
-  if (fUnit is TKMUnitWarrior) and (fPlayers.Player[fUnit.GetOwner].PlayerType = pt_Human)
-  and (fHouse is TKMHouseBarracks) then
+  if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
   begin
-    LinkUnit := TKMUnitWarrior(fUnit).FindLinkUnit(fStreet);
-    if LinkUnit <> nil then
-      TKMUnitWarrior(fUnit).OrderLinkTo(LinkUnit);
+    case fPlayers.Player[fUnit.GetOwner].PlayerType of
+      pt_Human:    begin
+                     LinkUnit := TKMUnitWarrior(fUnit).FindLinkUnit(fStreet);
+                     if LinkUnit <> nil then
+                       TKMUnitWarrior(fUnit).OrderLinkTo(LinkUnit);
+                   end;
+      pt_Computer: fPlayers[fUnit.GetOwner].AI.WarriorEquipped(TKMUnitWarrior(fUnit));
+    end;
   end;
 
   //We are walking straight
