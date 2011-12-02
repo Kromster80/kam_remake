@@ -99,7 +99,7 @@ Features:
  +	Dedicated server outputs nicely formatted HTML/XML of the current status
  +	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
  +	Highlight commander in groups formation in UI
-	Double clicking a server should join it
+ +	Double clicking a server should join it
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping

@@ -75,9 +75,12 @@ type
     fEnabled: boolean;
     fVisible: boolean;
 
+    fTimeOfLastClick: Cardinal; //Required to handle double-clicks
+
     fOnClick:TNotifyEvent;
     fOnClickEither:TNotifyEventMB;
     fOnClickRight:TPointEvent;
+    fOnDoubleClick:TNotifyEvent;
     fOnMouseWheel:TNotifyEventMW;
     //fOnMouseOver:TNotifyEvent;
 
@@ -114,7 +117,7 @@ type
     procedure Hide;
     procedure Center;
     procedure Stretch;
-    function MasterParent:TKMPanel;
+    function MasterParent: TKMPanel;
 
     function KeyDown(Key: Word; Shift: TShiftState):boolean; virtual;
     procedure KeyPress(Key: Char); virtual;
@@ -124,10 +127,11 @@ type
     procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); virtual;
 
-    property OnClick: TNotifyEvent write fOnClick;
-    property OnClickEither: TNotifyEventMB write fOnClickEither;
-    property OnClickRight: TPointEvent write fOnClickRight;
-    property OnMouseWheel: TNotifyEventMW write fOnMouseWheel;
+    property OnClick: TNotifyEvent read fOnClick write fOnClick;
+    property OnClickEither: TNotifyEventMB read fOnClickEither write fOnClickEither;
+    property OnClickRight: TPointEvent read fOnClickRight write fOnClickRight;
+    property OnDoubleClick: TNotifyEvent read fOnDoubleClick write fOnDoubleClick;
+    property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
     //property OnMouseOver: TNotifyEvent write fOnMouseOver;
 
     procedure Paint; virtual;
@@ -809,11 +813,31 @@ begin
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
   if (csDown in State) then begin
     State := State - [csDown];
-    if ((Button = mbLeft)or(Button = mbRight)) and Assigned(fOnClickEither) then fOnClickEither(Self, Button)
+
+    //Note that we process double-click separately (actual sequence is Click + Double-Click)
+    //because we would not like to delay Click just to make sure it is single.
+    //On the ther hand it does no harm to call Click first
+    if (Button = mbLeft)
+    and Assigned(fOnDoubleClick)
+    and (TimeGet - fTimeOfLastClick <= GetDoubleClickTime) then
+    begin
+      fTimeOfLastClick := 0;
+      fOnDoubleClick(Self);
+    end
     else
-    if (Button = mbLeft) and Assigned(fOnClick) then fOnClick(Self)
-    else
-    if (Button = mbRight) and Assigned(fOnClickRight) then fOnClickRight(Self, X, Y);
+    begin
+      if (Button = mbLeft) and Assigned(fOnDoubleClick) then
+        fTimeOfLastClick := TimeGet;
+
+      if ((Button = mbLeft) or (Button = mbRight)) and Assigned(fOnClickEither) then
+        fOnClickEither(Self, Button)
+      else
+      if (Button = mbLeft) and Assigned(fOnClick) then
+        fOnClick(Self)
+      else
+      if (Button = mbRight) and Assigned(fOnClickRight) then
+        fOnClickRight(Self, X, Y);
+    end;
   end;
 end;
 
@@ -1302,20 +1326,20 @@ begin
   if (fTexID=0) or (fRXid=0) then exit; //No picture to draw
 
   OffsetX := Width div fColumns;
-  OffsetY := Height div (fCount div fColumns + 1);
+  OffsetY := Height div Ceil(fCount / fColumns);
 
   CenterX := (Width - OffsetX * (fColumns-1) - fDrawWidth) div 2;
-  CenterY := (Height - OffsetY * (fCount div fColumns - 1 + 1) - fDrawHeight) div 2;
+  CenterY := (Height - OffsetY * (Ceil(fCount/fColumns) - 1) - fDrawHeight) div 2;
 
   for i := 1 to fCount do
+  if i <> fHighlightID then
     fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
                             Top + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRXid, fTexID, fEnabled);
-
-  //Highlight with blended color
-  fRenderUI.WritePicture(Left + CenterX + OffsetX * ((fHighlightID-1) mod fColumns),
-                          Top + CenterY + OffsetY * ((fHighlightID-1) div fColumns),
-                          fDrawWidth, fDrawHeight, fRXid, fTexID, $FFFF8080);
+                            fDrawWidth, fDrawHeight, fRXid, fTexID, fEnabled)
+  else //Highlight with blended color
+    fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
+                            Top + CenterY + OffsetY * ((i-1) div fColumns),
+                            fDrawWidth, fDrawHeight, fRXid, fTexID, $FFFF8080);
 end;
 
 

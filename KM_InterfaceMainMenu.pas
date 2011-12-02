@@ -66,6 +66,7 @@ type
     procedure MP_ListUpdated(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
     procedure MP_SelectServer(Sender: TObject);
+    procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_Host_Click(Sender: TObject);
     procedure MP_JoinClick(Sender: TObject);
     procedure MP_JoinSuccess(Sender: TObject);
@@ -629,6 +630,7 @@ begin
     //Server list area
     ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,[fTextLibrary[TX_MP_MENU_SERVER_NAME],fTextLibrary[TX_MP_MENU_SERVER_STATE],fTextLibrary[TX_MP_MENU_SERVER_PLAYERS],fTextLibrary[TX_MP_MENU_SERVER_PING]],[0,300,430,525]);
     ColList_Servers.OnChange := MP_SelectServer;
+    ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
     Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,fTextLibrary[TX_MP_MENU_REFRESH_LIST],fnt_Metal,bsMenu);
     Button_MP_Refresh.OnClick := MP_RefreshClick;
 
@@ -1543,16 +1545,26 @@ end;
 
 procedure TKMMainMenuInterface.MP_SelectServer(Sender: TObject);
 begin
-  if not InRange(ColList_Servers.GetItemTag, 0, fGame.Networking.ServerQuery.Count-1) then exit;
-    with fGame.Networking.ServerQuery.GetServer(ColList_Servers.GetItemTag) do
-    begin
-      Edit_MP_IP.Text := IP;
-      Edit_MP_Port.Text := Port;
-      Edit_MP_Room.Text := IntToStr(Rooms[ColList_Servers.GetItemTag2].RoomID);
-      Label_MP_Players.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Players;
-      Label_MP_GameTime.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.GetFormattedTime;
-      Label_MP_Map.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Map;
-    end;
+  if not InRange(ColList_Servers.GetItemTag, 0, fGame.Networking.ServerQuery.Count-1) then Exit;
+
+  with fGame.Networking.ServerQuery.GetServer(ColList_Servers.GetItemTag) do
+  begin
+    Edit_MP_IP.Text := IP;
+    Edit_MP_Port.Text := Port;
+    Edit_MP_Room.Text := IntToStr(Rooms[ColList_Servers.GetItemTag2].RoomID);
+    Label_MP_Players.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Players;
+    Label_MP_GameTime.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.GetFormattedTime;
+    Label_MP_Map.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Map;
+  end;
+end;
+
+
+procedure TKMMainMenuInterface.MP_ServersDoubleClick(Sender: TObject);
+begin
+  //MP_SelectServer gets called by first Click
+
+  if InRange(ColList_Servers.GetItemTag, 0, fGame.Networking.ServerQuery.Count-1) then
+    MP_JoinClick(Sender);
 end;
 
 
@@ -1575,12 +1587,14 @@ end;
 procedure TKMMainMenuInterface.MP_JoinClick(Sender: TObject);
 begin
   MP_Save_Settings; //Save the player and IP name so it is not lost if the connection fails
+
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
     MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
     fSoundLib.Play(sfxn_Error2);
     exit;
   end;
+
   //Disable buttons to prevent multiple clicks while connection process is in progress
   Button_MP_CreateLAN.Disable;
   Button_MP_CreateWAN.Disable;
