@@ -67,6 +67,7 @@ type
     fMapEditorInterface: TKMapEdInterface;
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
     destructor Destroy; override;
+    function CanClose: Boolean;
     procedure ToggleLocale(aLocale:shortstring);
     procedure Resize(X,Y:integer);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
@@ -212,6 +213,15 @@ begin
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fGameOptions);
   Inherited;
+end;
+
+
+//Determine if the game can be closed without loosing any important progress
+function TKMGame.CanClose: Boolean;
+begin
+  //There are no unsaved changes in Menu(gsNoGame) and in Replay.
+  //In all other cases (maybe except gsOnHold?) there are potentially unsaved changes
+  Result := fGameState in [gsNoGame, gsReplay];
 end;
 
 

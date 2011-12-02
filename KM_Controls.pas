@@ -236,9 +236,10 @@ type
     fColumns: integer;
     fDrawWidth: integer;
     fDrawHeight: integer;
+    fHighlightID: Integer;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
-    procedure SetCount(aCount,aColumns:integer);
+    procedure SetCount(aCount, aColumns, aHighlightID: Integer);
     procedure Paint; override;
   end;
 
@@ -1270,18 +1271,16 @@ begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRXid  := aRXid;
   fTexID := aTexID;
-  fCount := 0;
-  fColumns := 0;
-  fDrawWidth := 0;
-  fDrawHeight := 0;
 end;
 
 
-procedure TKMImageStack.SetCount(aCount,aColumns:integer);
-var Aspect: single;
+procedure TKMImageStack.SetCount(aCount, aColumns, aHighlightID: Integer);
+var Aspect: Single;
 begin
   fCount := aCount;
-  fColumns := Math.max(1,aColumns);
+  fColumns := Math.max(1, aColumns);
+  fHighlightID := aHighlightID;
+
   fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[fRXid, fTexID].PxWidth);
   fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[fRXid, fTexID].PxHeight);
 
@@ -1296,22 +1295,27 @@ end;
 {If image area is bigger than image - do center image in it}
 procedure TKMImageStack.Paint;
 var
-  i:integer;
-  OffsetX, OffsetY, CenterX, CenterY:smallint; //variable parameters
+  i: Integer;
+  OffsetX, OffsetY, CenterX, CenterY: Smallint; //variable parameters
 begin
   Inherited;
-  if (fTexID=0)or(fRXid=0) then exit; //No picture to draw
+  if (fTexID=0) or (fRXid=0) then exit; //No picture to draw
 
   OffsetX := Width div fColumns;
-  OffsetY := Height div ceil(fCount/fColumns);
+  OffsetY := Height div (fCount div fColumns + 1);
 
   CenterX := (Width - OffsetX * (fColumns-1) - fDrawWidth) div 2;
-  CenterY := (Height - OffsetY * (ceil(fCount/fColumns)-1) - fDrawHeight) div 2;
+  CenterY := (Height - OffsetY * (fCount div fColumns - 1 + 1) - fDrawHeight) div 2;
 
   for i := 1 to fCount do
-    fRenderUI.WritePicture(Left + CenterX + OffsetX*((i-1) mod fColumns),
-                            Top + CenterY + OffsetY*((i-1) div fColumns),
+    fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
+                            Top + CenterY + OffsetY * ((i-1) div fColumns),
                             fDrawWidth, fDrawHeight, fRXid, fTexID, fEnabled);
+
+  //Highlight with blended color
+  fRenderUI.WritePicture(Left + CenterX + OffsetX * ((fHighlightID-1) mod fColumns),
+                          Top + CenterY + OffsetY * ((fHighlightID-1) div fColumns),
+                          fDrawWidth, fDrawHeight, fRXid, fTexID, $FFFF8080);
 end;
 
 
@@ -1326,8 +1330,8 @@ begin
   fCellSize     := aSize;
   fInclRandom   := false;
 
-  Width  := fColumnCount*fCellSize;
-  Height := fRowCount*fCellSize;
+  Width  := fColumnCount * fCellSize;
+  Height := fRowCount * fCellSize;
 end;
 
 

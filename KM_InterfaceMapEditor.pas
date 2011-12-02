@@ -1198,7 +1198,7 @@ begin
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if Commander<>nil then
     begin
-      ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
+      ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
       Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
     end;
     Panel_Army.Show;
@@ -1389,7 +1389,7 @@ begin
   Commander := TKMUnitWarrior(fShownUnit).GetCommander;
   if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
   if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
-  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
+  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1);
   Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
 
   if Sender = Button_Army_RotCW then Commander.Direction := KMNextDirection(Commander.Direction);
@@ -1423,7 +1423,7 @@ begin
   Commander := TKMUnitWarrior(fShownUnit).GetCommander;
   Commander.fMapEdMembersCount := EnsureRange(Commander.fMapEdMembersCount + Amt, 0, 200); //max members
   Commander.UnitsPerRow := min(Commander.UnitsPerRow,Commander.fMapEdMembersCount+1); //Ensure units per row is <= unit count
-  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
+  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1);
   Label_ArmyCount.Caption := IntToStr(Commander.fMapEdMembersCount + 1);
 end;
 

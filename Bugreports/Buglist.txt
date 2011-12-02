@@ -97,8 +97,8 @@ Features:
  +	Shortcut keys (i.e. army controls) should be different in each language (English troops link with 'L', German with 'V')
  +	Replay manager
  +	Dedicated server outputs nicely formatted HTML/XML of the current status
-	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
-	Highlight commander in groups formation in UI
+ +	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
+ +	Highlight commander in groups formation in UI
 	Double clicking a server should join it
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth

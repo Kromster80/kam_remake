@@ -70,6 +70,7 @@ type
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure Button_CalcArmyClick(Sender: TObject);
     procedure Debug_EnableCheatsClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   published
     procedure StartTheGame;
     procedure FormResize(Sender:TObject);
@@ -669,6 +670,16 @@ begin
 
   Resize := true;
 end;
+
+
+//Consult with the fGame if we can shut down the program
+procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  if (fGame <> nil) and not fGame.CanClose then
+    CanClose := MessageBox(0, 'Any unsaved changes will be lost. Exit?', 'Warning', MB_ICONWARNING or MB_YESNO) = IDYES
+  else
+    CanClose := True;
+end;  
 
 
 {$IFDEF FPC}

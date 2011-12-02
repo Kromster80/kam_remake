@@ -2041,7 +2041,7 @@ begin
     else
     begin
       Panel_Army.Show;
-      ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
+      ImageStack_Army.SetCount(Commander.GetMemberCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
       Army_ActivateControls(Commander.ArmyCanTakeOrders);
     end;
