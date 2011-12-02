@@ -189,9 +189,9 @@ object FormLoading: TFormLoading
   object Label5: TLabel
     Left = 100
     Top = 28
-    Width = 126
+    Width = 129
     Height = 13
-    Caption = 'version 0.6d (22 Oct 2010)'
+    Caption = 'version 0.6e (02 Dec 2011)'
   end
   object Label6: TLabel
     Left = 100

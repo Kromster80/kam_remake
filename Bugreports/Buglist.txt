@@ -54,13 +54,13 @@
  +	Some texts don't fit in the left panel (e.g. "Preparing house area")
  +	AI matches KaM behavior better
  +	Archers "twitch" when their commander can't reach his position instead of shooting
+ +	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn) [Krom]
+ +	KaM Editor lighting should be updated to match Remake better [Krom]
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
 ?	Warriors should resume interrupted orders after a fight
-	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn) [Krom]
-	KaM Editor lighting algo should be updated to match Remake better [Krom]
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays sometimes end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.

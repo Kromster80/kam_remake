@@ -173,9 +173,7 @@ type
     RG_Angle: TRadioGroup;
     MagicWater: TBitBtn;
     procedure OpenDATClick(Sender: TObject);
-    procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
-    procedure RenderInit();
     procedure RenderResize(Sender:TObject);
     procedure RenderFrame(Sender:TObject);
     procedure ConvertDATClick(Sender: TObject);
@@ -188,9 +186,7 @@ type
     procedure TerrainTileSelect(Sender: TObject);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure RebuildMap(X,Y,Rad:integer);
     procedure Pl1Click(Sender: TObject);
-    procedure BrushTerrainTile(Y,X,Index:integer);
     procedure ObjPalleteDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
     procedure ObjPalleteScrollChange(Sender: TObject);
     procedure ObjPalleteClick(Sender: TObject);
@@ -210,10 +206,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure LoadReliefFromBMPClick(Sender: TObject);
     procedure MakeUndoPoint(Sender: TObject);
-    procedure PrepareMapToSave(Sender: TObject);
-    procedure PrepareLoadedMap(filename:string);
     procedure Button1Click(Sender: TObject);
-    procedure OpenPro(filename:string);
     procedure BBClick(Sender: TObject);
     procedure SaveMapClick(Sender: TObject);
     procedure ExitClick(Sender: TObject);
@@ -222,21 +215,29 @@ type
     procedure ShowObjectsClick(Sender: TObject);
     procedure ShowFlatTerrainClick(Sender: TObject);
     procedure CopyAreaMenuClick(Sender: TObject);
-    procedure CopyTerrain();
-    procedure PasteTerrain();
     procedure PasteAreaMenuClick(Sender: TObject);
     procedure HousePalleteScrollChange(Sender: TObject);
     procedure HousePalleteDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
     procedure ExportDATClick(Sender: TObject);
     procedure ShowFlowClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
-    procedure UpdateLight(X,Y:integer);
     procedure MagicWaterClick(Sender: TObject);
+  public
+    procedure RenderInit;
     procedure DoMagicWater(X,Y:integer);
+    procedure RebuildMap(X,Y,Rad:integer);
+    procedure BrushTerrainTile(Y,X,Index:integer);
+    procedure PrepareMapToSave;
+    procedure PrepareLoadedMap(filename:string);
+    procedure OpenMap(filename:string);
+    procedure OpenPro(filename:string);
+    procedure CopyTerrain;
+    procedure PasteTerrain;
+    procedure UpdateLight(X,Y:integer);
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
 
-  procedure BuildMiniMap();
+  procedure BuildMiniMap;
 
 const
 MaxMapSize=1024;         //Max map dimension
@@ -268,7 +269,7 @@ var
   fsize,NumRead:integer;
   c:array[1..131072] of char;
   ExeDir:string;
-  XH:integer=32;        //Height divider
+  XH:single=33.333;        //Height divider
   BrushMode:bmBrushMode;
   LandBrush:integer=0;  //Active brush
   Zoom:single=10;
@@ -356,55 +357,76 @@ var FrameTime:cardinal;
     i,k,Rad:integer;
     x1,x2,y1,y2:integer;
     Tmp:single;
-begin //Counting FPS
-if not Form1.Active then exit;
-FrameTime:=GetTickCount-OldTimeFPS;
-OldTimeFPS:=GetTickCount;
-  if (FPSLag<>1)and(FrameTime<FPSLag) then begin
-  sleep(FPSLag-FrameTime);
-  FrameTime:=FPSLag;
+begin
+  if not Form1.Active then exit;
+
+  //Counting FPS
+  FrameTime:=GetTickCount-OldTimeFPS;
+  OldTimeFPS:=GetTickCount;
+
+  if (FPSLag<>1)and(FrameTime<FPSLag) then
+  begin
+    sleep(FPSLag-FrameTime);
+    FrameTime := FPSLag;
   end;
-inc(OldFrameTimes,FrameTime);
-inc(FrameCount);
-if OldFrameTimes>=FPS_INTERVAL then begin
-StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPSLag)+')';
-OldFrameTimes:=0; FrameCount:=0; end; //FPS calculation complete
 
-if MousePressed and (BrushMode=bmRelief) and (LandBrush<>0) then begin
-Rad:=ElevSize.Position;
-x1:=max(MapXn-Rad,1);
-x2:=min(MapXn+Rad,Map.X);
-y1:=max(MapYn-Rad,1);
-y2:=min(MapYn+Rad,Map.Y-1);
-for i:=y1 to y2 do for k:=x1 to x2 do begin
-Tmp:=0; //if there's wrong shape
-if RG_Relief.ItemIndex=1 then Tmp:=1-max(abs(i-MapYn),abs(k-MapXn))/Rad; //pyramid falloff
-if RG_Relief.ItemIndex=0 then Tmp:=1-sqrt(sqr(i-MapYn)+sqr(k-MapXn))/Rad;//circular falloff
-if Tmp<0 then Tmp:=0;
+  inc(OldFrameTimes, FrameTime);
+  inc(FrameCount);
 
-if (Tmp>0) then
-case LandBrush of
-1: Tmp:=MouseButton*Tmp*(ElevSpeed.Position/5); //Elevate smooth
-2: Tmp:=MouseButton*(ElevSpeed.Position/5); //Elevate plateu
-3: begin if Land2[i,k].Height<Land2[MapYc,MapXc].Height then Tmp:=-min(Land2[MapYc,MapXc].Height-Land2[i,k].Height,abs(MouseButton)) else //Flatten
-         if Land2[i,k].Height>Land2[MapYc,MapXc].Height then Tmp:=min(Land2[i,k].Height-Land2[MapYc,MapXc].Height,abs(MouseButton)) else
-         Tmp:=0;
-     Tmp:=MouseButton*Tmp;
-   end;
-end;
+  if OldFrameTimes >= FPS_INTERVAL then
+  begin
+    StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPSLag)+')';
+    OldFrameTimes := 0;
+    FrameCount := 0;
+  end;
+  //FPS calculation complete
 
-Tmp:=Tmp*(FrameTime/10)/2; //say it takes 2sec to raise from 0 to 100
+  if MousePressed and (BrushMode=bmRelief) and (LandBrush<>0) then begin
+    Rad:=ElevSize.Position;
+    x1:=max(MapXn-Rad,1);
+    x2:=min(MapXn+Rad,Map.X);
+    y1:=max(MapYn-Rad,1);
+    y2:=min(MapYn+Rad,Map.Y);
 
-Land2[i,k].Height:=EnsureRange(Land2[i,k].Height+Tmp,0,100);
+    for i:=y1 to y2 do
+    for k:=x1 to x2 do
+    begin
+      case RG_Relief.ItemIndex of
+        0:    Tmp := 1 - sqrt(sqr(i-MapYn)+sqr(k-MapXn))/Rad;//circular falloff
+        1:    Tmp := 1 - max(abs(i-MapYn), abs(k-MapXn))/Rad; //pyramid falloff
+        else  Tmp := 0;
+      end;
+      if Tmp<0 then Tmp:=0;
 
-UpdateLight(k,i); //Update all 3 concerned nodes
-UpdateLight(k+1,i);
-UpdateLight(k,i+1);
-end;
-end;
+      if (Tmp>0) then
+        case LandBrush of
+          1:  Tmp := MouseButton*Tmp*(ElevSpeed.Position/5); //Elevate smooth
+          2:  Tmp := MouseButton*(ElevSpeed.Position/5); //Elevate plateu
+          3:  begin
+                if Land2[i,k].Height < Land2[MapYc,MapXc].Height then
+                  Tmp:=-min(Land2[MapYc,MapXc].Height-Land2[i,k].Height,abs(MouseButton))
+                else //Flatten
+                if Land2[i,k].Height > Land2[MapYc,MapXc].Height then
+                  Tmp:=min(Land2[i,k].Height-Land2[MapYc,MapXc].Height,abs(MouseButton))
+                else
+                  Tmp:=0;
 
-RenderFrame(nil);
-done:=false; //repeats OnIdle event
+                  Tmp:=MouseButton*Tmp;
+              end;
+        end;
+
+      Tmp := Tmp*(FrameTime/10)/2; //say it takes 2sec to raise from 0 to 100
+
+      Land2[i,k].Height := EnsureRange(Land2[i,k].Height+Tmp, 0, 100);
+
+      UpdateLight(k,i); //Update all 3 concerned nodes
+      UpdateLight(k+1,i);
+      UpdateLight(k,i+1);
+    end;
+  end;
+
+  RenderFrame(nil);
+  Done := False; //repeats OnIdle event
 end;
 
 
@@ -461,7 +483,7 @@ begin
   PrepareLoadedMap(filename);
 end;
 
-procedure TForm1.RenderInit();
+procedure TForm1.RenderInit;
 begin
   glClearColor(0.77, 0.77, 0.77, 0); 	   //Background
   glClear (GL_COLOR_BUFFER_BIT);
@@ -490,18 +512,18 @@ begin
 //  if not then exit;
   glViewport(0, 0, Panel1.Width, Panel1.Height);
   glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
-  glLoadIdentity();                   // Reset View
+  glLoadIdentity;                   // Reset View
   //Half a map into each direction
   gluOrtho2D(-Panel1.Width/CellSize/2,Panel1.Width/CellSize/2,Panel1.Height/CellSize/2,-Panel1.Height/CellSize/2);
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
-  glLoadIdentity();                   // Reset View
+  glLoadIdentity;                   // Reset View
   ZoomChange(nil);
 end;      
 
 procedure TForm1.RenderFrame(Sender:TObject);
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen And The Depth Buffer
-  glLoadIdentity();                                       // Reset The View
+  glLoadIdentity;                                       // Reset The View
   glScalef(Zoom/10,Zoom/10,Zoom/10);
   //glEnable(GL_LIGHTING);
   glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);  //can make
@@ -512,15 +534,15 @@ begin
 
   glDisable(GL_LIGHTING);
 
-RenderTerrainAndRoads();
+RenderTerrainAndRoads;
     
-if ShowWires.Checked then RenderWires();
+if ShowWires.Checked then RenderWires;
 
-RenderObjects();
-RenderBuildings();
+RenderObjects;
+RenderBuildings;
 RenderCursorPosition(Form1.Pallete.ActivePage.Caption);
 
-RenderArrows();
+RenderArrows;
 {$IFDEF MSWindows}
 SwapBuffers(h_DC);
 {$ENDIF}
@@ -546,35 +568,43 @@ blockwrite(f,c,fsize);
 closefile(f);
 end;
 
-procedure TForm1.PrepareMapToSave(Sender: TObject);
-var i,k:integer;
+
+procedure TForm1.PrepareMapToSave;
+var
+  i,k:integer;
 begin
-for i:=1 to Map.Y do Land[i,Map.X].x3:=20;
-for k:=1 to Map.X do Land[Map.Y,k].x3:=20;
+  for i:=1 to Map.Y do
+  begin
+    Land[i,Map.X].x3    := 20;
+    Land[i,Map.X].Pass  := 0;
+    Land[i,1].Border    := 0;
+    Land[i,Map.X].Border:= 205;
+  end;
 
-for i:=1 to Map.Y do Land[i,Map.X].Pass:=0;
-for k:=1 to Map.X do Land[Map.Y,k].Pass:=0;
+  for k:=1 to Map.X do
+  begin
+    Land[Map.Y,k].x3    := 20;
+    Land[Map.Y,k].Pass  := 0;
+    Land[1,k].Border    := 0;
+    Land[Map.Y,k].Border:= 205;
+  end;
 
-for i:=1 to Map.Y do Land[i,1].Border:=0;
-for k:=1 to Map.X do Land[1,k].Border:=0;
-for i:=1 to Map.Y do Land[i,Map.X].Border:=205;
-for k:=1 to Map.X do Land[Map.Y,k].Border:=205;
+  for i:=1 to Map.Y do
+  for k:=1 to Map.X do
+  begin
+    Land[i,k].Height1 := EnsureRange(round(Land2[i,k].Height),0,100);
+    Land[i,k].Pass    := TilePassability[Land[i,k].Terrain+1];
+  end;
 
-for k:=1 to Map.X do Land2[Map.Y,k].Height:=0;
+  UpdateLight(0,0);
 
-for i:=1 to Map.Y do for k:=1 to Map.X do Land[i,k].Height1:=EnsureRange(round(Land2[i,k].Height),0,100);
-
-for i:=1 to Map.Y do for k:=1 to Map.X do Land[i,k].Pass:=TilePassability[Land[i,k].Terrain+1];
-
-UpdateLight(0,0);
-
-for i:=1 to Map.Y do for k:=1 to Map.X do
-  if (i=1)or(i=Map.Y)or(k=1)or(k=Map.X) then
-    Land[i,k].Light:=0 //Edges
-  else
-    Land[i,k].Light:=Land2[i,k].Light;
-    
+  for i:=1 to Map.Y do for k:=1 to Map.X do
+    if (i=1) or (i=Map.Y) or (k=1) or (k=Map.X) then
+      Land[i,k].Light := 0 //Edges
+    else
+      Land[i,k].Light := Land2[i,k].Light;
 end;
+
 
 procedure TForm1.ZoomChange(Sender: TObject);
 var RatioX,RatioY:single;
@@ -589,7 +619,7 @@ begin
   Shape1.Top :=Form1.MiniMap.Top+ round(ScrollBar2.Position*RatioY - Shape1.Height/2);
 end;
 
-procedure BuildMiniMap();
+procedure BuildMiniMap;
 var
   i,k,j:integer;
   MyBitmap:TBitmap;
@@ -832,10 +862,10 @@ if (BrushMode=bmMagicWater) then begin
 end;
 
 if BrushMode=bmCopy then
-CopyTerrain();
+CopyTerrain;
 
 if BrushMode=bmPaste then
-PasteTerrain();
+PasteTerrain;
 
 if BrushMode=bmHouses then begin
 if LandBrush = 0 then Mission.RemHouse(MapXc,MapYc);
@@ -850,7 +880,7 @@ end;
 end;
 
 MouseButton:=0;
-BuildMiniMap();
+BuildMiniMap;
 
 MapXc2:=0; MapYc2:=0; MapXn2:=0; MapYn2:=0; //Reset
 end;
@@ -1093,7 +1123,7 @@ dec(UndoCounter);
 Redo.Enabled:=true;
 inc(RedoStep);
 if UndoStep=1 then Undo.Enabled:=false; //last one is occupied by actual map. Needed for Redo functional
-BuildMiniMap();
+BuildMiniMap;
 end;
 
 procedure TForm1.RedoClick(Sender: TObject);
@@ -1114,7 +1144,7 @@ inc(UndoStep);
 dec(RedoStep);
 if RedoStep=0 then Redo.Enabled:=false;
 Undo.Enabled:=true;
-BuildMiniMap();
+BuildMiniMap;
 end;
 
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -1134,7 +1164,7 @@ if (Map.Y<>bm.Height)or(Map.X<>bm.Width) then ShowMessage('Bitmap size doesn''t 
 for i:=1 to min(Map.Y-1,bm.Height) do for k:=1 to min(Map.X-1,bm.Width) do
 Land2[i,k].Height:=round(((bm.Canvas.Pixels[k,i] mod 256)+(bm.Canvas.Pixels[k,i] div 256 mod 256)+(bm.Canvas.Pixels[k,i] div 65536))/3/2.55);
 UpdateLight(0,0);
-BuildMiniMap();
+BuildMiniMap;
 end;
 
 procedure TForm1.MakeUndoPoint(Sender: TObject);
@@ -1283,7 +1313,7 @@ ScrollBar1.Position:=Map.X div 2; //Set view to center of map
 ScrollBar2.Position:=Map.Y div 2; //Set view to center of map
 StatusBar1.Panels.Items[0].Text:='Map size: '+inttostr(Map.X)+' x '+inttostr(Map.Y);
 
-BuildMiniMap();
+BuildMiniMap;
 ZoomChange(nil);
 RenderResize(nil);
 Form1.Caption:='KaM Editor - '+filename;
@@ -1308,7 +1338,7 @@ begin
   assignfile(f,SaveDialog1.FileName);
   rewrite(f,1);
 
-  PrepareMapToSave(nil);
+  PrepareMapToSave;
 
   blockwrite(f,Map,8);
   //KaM seems to recompute passability, but there's a bug making some troops disappear on save00.map
@@ -1355,7 +1385,7 @@ CopyAreaMenu.Checked:= not CopyAreaMenu.Checked;
 if CopyAreaMenu.Checked then BrushMode:=bmCopy else BrushMode:=bmNone;
 end;
 
-procedure TForm1.CopyTerrain();
+procedure TForm1.CopyTerrain;
 var ii,kk,x1,x2,y1,y2:integer;
 begin
 if (CopyArea[2,1]=0)or(CopyArea[2,1]=0) then exit;
@@ -1371,7 +1401,7 @@ for ii:=y1 to y2+1 do for kk:=x1 to x2+1 do
     end;
 end;
 
-procedure TForm1.PasteTerrain();
+procedure TForm1.PasteTerrain;
 var ii,kk:integer;
 begin
 for ii:=MapYc to min(MapYc+abs(CopyArea[2,2]-CopyArea[1,2]),Map.Y-1) do //y..Y
@@ -1452,7 +1482,7 @@ if X*Y=0 then //Update whole map
 for i:=1 to Map.Y do for k:=1 to Map.X do begin
   y2:=EnsureRange(i+1,1,Map.Y);
   x1:=EnsureRange(k-1,1,Map.X);
-  Land2[i,k].Light:=round(EnsureRange((Land2[i,k].Height-(Land2[y2,k].Height+Land2[i,x1].Height)/2)/1.33+16,0,32));
+  Land2[i,k].Light:=round(EnsureRange((Land2[i,k].Height-(Land2[y2,k].Height+Land2[i,x1].Height)/2)/22*16+16,0,32));
   if (i=1)or(i=Map.Y)or(k=1)or(k=Map.X) then
     Land2[i,k].Light:=0;
 end else begin
@@ -1460,7 +1490,7 @@ end else begin
   Y:=EnsureRange(Y,1,Map.Y);
   y2:=EnsureRange(Y+1,1,Map.Y);
   x1:=EnsureRange(X-1,1,Map.X);
-  Land2[Y,X].Light:=round(EnsureRange((Land2[Y,X].Height-(Land2[y2,X].Height+Land2[Y,x1].Height)/2)/1.33+16,0,32));
+  Land2[Y,X].Light:=round(EnsureRange((Land2[Y,X].Height-(Land2[y2,X].Height+Land2[Y,x1].Height)/2)/22*16+16,0,32));
 end;
 end;
 
