@@ -5,4 +5,4 @@ SmallDesc
 A multiplayer map from Knights and Merchants
 
 BigDesc
-A multiplayer map from Knights and Merchants. A massive battle in an open valley. Suggested teams: 1+2+4 vs 3+5+6 or 1+4 vs 3+6
+A multiplayer map from Knights and Merchants. A massive battle in an open valley.||Suggested teams:|1+2+4 vs 3+5+6 or|1+4 vs 3+6

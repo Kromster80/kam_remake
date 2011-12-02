@@ -5,4 +5,4 @@ SmallDesc
 An 8 players multiplayer map by Shadaoe.
 
 BigDesc
-By Shadaoe. Suggested teams : for 4v4 : (left vs right : 1,2,3,4 vs 5,6,7,8) or (top vs bottom : 1,2,5,6 vs 3,4,7,8) for 2v2v2v2 (allies on the same side, left or right : 1,2 vs 3,4 vs 5,6 vs 7,8) or (allies facing each other left and right : 1,5 vs 2,6 vs 3,7 vs 4,8) or FFA. You can also choose random locations.
+By Shadaoe. A perfectly equal map.|Suggested teams:|  For 4v4 :|     1,2,3,4 vs 5,6,7,8 (left vs right) or|     1,2,5,6 vs 3,4,7,8 (top vs bottom)|  For 2v2v2v2 :|    Allies on the same side:|       1,2 vs 3,4 vs 5,6 vs 7,8|    Allies facing each other:|       1,5 vs 2,6 vs 3,7 vs 4,8|  or free for all. You can also choose random locations.

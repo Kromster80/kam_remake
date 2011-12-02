@@ -5,4 +5,4 @@ SmallDesc
 A multiplayer map supposed to be played two versus two or free for all.
 
 BigDesc
-Fight your way through these untamed and uninhabited lands where even courageous adventurers have not yet been.||A multiplayer map supposed to be played two versus two or free for all. Suggested teams: 1+2; 3+4.
+Fight your way through these untamed and uninhabited lands where even courageous adventurers have not yet been.||A multiplayer map supposed to be played two versus two or free for all.||Suggested teams: 1+2; 3+4.

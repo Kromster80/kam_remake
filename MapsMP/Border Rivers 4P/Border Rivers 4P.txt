@@ -5,4 +5,4 @@ SmallDesc
 A multiplayer map from Knights and Merchants
 
 BigDesc
-A multiplayer map from Knights and Merchants. Each player has a large area to build in surrounded by river.
+A multiplayer map from Knights and Merchants. Each player has a large area to build in surrounded by rivers.
