@@ -1680,7 +1680,7 @@ begin
 
   Lobby_OnMapName('');
   if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then begin
-    Radio_LobbyMapType.Show;
+    Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
     Lobby_MapTypeSelect(nil);
     List_Lobby.Show;
@@ -1690,7 +1690,8 @@ begin
     Button_LobbyStart.Disable;
     Ratio_LobbyPeacetime.Enable;
   end else begin
-    Radio_LobbyMapType.Hide;
+    Radio_LobbyMapType.Disable;
+    Radio_LobbyMapType.ItemIndex := 0;
     List_Lobby.Hide;
     Label_LobbyMapName.Show;
     Label_LobbyChooseMap.Hide;
@@ -1874,7 +1875,6 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
-
   if Radio_LobbyMapType.ItemIndex = 0 then //Build Map
   begin
     fMapsMP.ScanMapsFolder;
@@ -1927,13 +1927,24 @@ begin
       Memo_LobbyMapDesc.Clear;
       Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
       Ratio_LobbyPeacetime.Disable;
+      if not fGame.Networking.IsHost then Radio_LobbyMapType.ItemIndex := 3;
     end
     else
     begin
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
       Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
       if fGame.Networking.IsHost then
-        Ratio_LobbyPeacetime.Enable;
+        Ratio_LobbyPeacetime.Enable
+      else
+      begin
+        if fGame.Networking.MapInfo.IsCoop then
+          Radio_LobbyMapType.ItemIndex := 2
+        else
+          if fGame.Networking.MapInfo.Info.MissionMode = mm_Tactic then
+            Radio_LobbyMapType.ItemIndex := 1
+          else
+            Radio_LobbyMapType.ItemIndex := 0;
+      end;
     end;
 
     Label_LobbyMapCount.Caption := Format(fTextLibrary[TX_LOBBY_MAP_PLAYERS],[fGame.Networking.GameInfo.PlayerCount]);

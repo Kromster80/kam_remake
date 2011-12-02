@@ -303,6 +303,7 @@ end;
 procedure TKMNetworking.Disconnect;
 begin
   fIgnorePings := 0;
+  fReconnectRequested := 0; //Cancel any reconnection that was requested
   SetGameState(lgs_None);
   fOnJoinSucc := nil;
   fOnJoinFail := nil;

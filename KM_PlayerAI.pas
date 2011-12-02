@@ -639,26 +639,27 @@ begin
   end;
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
-  for i:=0 to ScriptedAttacksCount-1 do
-  with ScriptedAttacks[i] do
-  begin
-    //Check conditions are right
-    if not CheckAttackMayOccur(ScriptedAttacks[i], AttackTotalAvailable, AttackGroupsCount) then continue;
-    //Order groups to attack
-    if TakeAll then
+  if not fGame.IsPeaceTime then
+    for i:=0 to ScriptedAttacksCount-1 do
+    with ScriptedAttacks[i] do
     begin
-      for G:=Low(TGroupType) to High(TGroupType) do
-        for j:=1 to AttackGroupsCount[G] do
-          OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
-    end
-    else
-    begin
-      for G:=Low(TGroupType) to High(TGroupType) do
-        for j:=1 to GroupAmounts[G] do
-          OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
+      //Check conditions are right
+      if not CheckAttackMayOccur(ScriptedAttacks[i], AttackTotalAvailable, AttackGroupsCount) then continue;
+      //Order groups to attack
+      if TakeAll then
+      begin
+        for G:=Low(TGroupType) to High(TGroupType) do
+          for j:=1 to AttackGroupsCount[G] do
+            OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
+      end
+      else
+      begin
+        for G:=Low(TGroupType) to High(TGroupType) do
+          for j:=1 to GroupAmounts[G] do
+            OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
+      end;
+      HasOccured := true;
     end;
-    HasOccured := true;
-  end;
 end;
 
 
