@@ -2,7 +2,6 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL,
-  {$IFDEF FPC} GL, {$ENDIF}
   Math, KromOGLUtils, SysUtils, KM_Defaults, KM_Controls, Graphics, KM_Points;
 
 type
@@ -23,8 +22,6 @@ type
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
-var
-  fRenderUI: TRenderUI;
 
 implementation
 uses KM_Terrain, KM_PlayersCollection, KM_ResourceGFX, KM_ResourceFonts;
@@ -158,14 +155,14 @@ begin
 
     if ID<>0 then begin
       TexOffsetY:=TexOffsetY-6*byte(Caption<>'');
-      fRenderUI.WritePicture((SizeX-GFXData[RXid,ID].PxWidth) div 2 + TexOffsetX,
-                             (SizeY-GFXData[RXid,ID].PxHeight) div 2 + TexOffsetY,RXid,ID, true);
+      WritePicture((SizeX-GFXData[RXid,ID].PxWidth) div 2 + TexOffsetX,
+                   (SizeY-GFXData[RXid,ID].PxHeight) div 2 + TexOffsetY,RXid,ID, true);
     end;
 
     if fbs_Disabled in State then
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FF808080)
+      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FF808080)
     else
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FFE0E0E0);
+      WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FFE0E0E0);
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);

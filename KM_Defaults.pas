@@ -1,7 +1,7 @@
 unit KM_Defaults;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, dglOpenGL, KM_Points;
+uses Classes, SysUtils, KM_Points;
 
 
 //Global const
@@ -1052,7 +1052,7 @@ var
   end;
 
   GFXData: array [1..8] of array of record
-    TexID,AltID: GLUint; //AltID used for team colors
+    TexID,AltID: Cardinal; //AltID used for team colors
     u1,v1,u2,v2: single;
     PxWidth,PxHeight:word;
   end;

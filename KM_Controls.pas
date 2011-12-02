@@ -733,6 +733,10 @@ implementation
 uses KM_RenderUI, KM_ResourceGFX, KM_ResourceCursors, KM_Sound;
 
 
+var
+  fRenderUI: TRenderUI;
+
+
 { TKMControl }
 constructor TKMControl.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -3005,6 +3009,7 @@ begin
     FreeAndNil(fRenderUI);
   Inherited;
 end;
+
 
 procedure TKMMasterControl.SetCtrlDown(aCtrl:TKMControl);
 begin
