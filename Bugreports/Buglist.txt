@@ -56,6 +56,7 @@
  +	Archers "twitch" when their commander can't reach his position instead of shooting
  +	The bottom row of the map in the KaM Editor (not Remake) always has height=0, meaning there is an ugly cliff there on some maps (e.g. Bannockburn) [Krom]
  +	KaM Editor lighting should be updated to match Remake better [Krom]
+ +	Campaign flags have a colored square around them when selected [Krom]
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -64,7 +65,6 @@
 	Make houses highlight red when about to erase them as trees/units do (in MapEd)
 	Replays sometimes end up with a mismatch while watching them, cause unknown
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
-	Campaign flags have a colored square around them when selected [Krom]
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)

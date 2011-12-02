@@ -263,19 +263,24 @@ end;
 procedure TRenderUI.WritePicture(PosX,PosY,RXid,ID:smallint;Enabled:boolean=true; Highlight:boolean=false);
 var Col:TColor4;
 begin
-  if ID<>0 then
+  if ID = 0 then Exit;
+
   with GFXData[RXid,ID] do
   begin
-    glBindTexture(GL_TEXTURE_2D, TexID);
     glPushMatrix;
       glTranslatef(PosX, PosY, 0);
-      if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
+
+      //Base layer
+      glBindTexture(GL_TEXTURE_2D, TexID);
+      if Enabled then glColor3f(1,1,1) else glColor3f(0.33,0.33,0.33);
       glBegin(GL_QUADS);
         glTexCoord2f(u1,v1); glVertex2f(0        , 0         );
         glTexCoord2f(u2,v1); glVertex2f(0+PxWidth, 0         );
         glTexCoord2f(u2,v2); glVertex2f(0+PxWidth, 0+PxHeight);
         glTexCoord2f(u1,v2); glVertex2f(0        , 0+PxHeight);
       glEnd;
+
+      //Color overlay for unit icons and scrolls
       if (AltID<>0) and (MyPlayer<>nil) then
       begin
         glBindTexture(GL_TEXTURE_2D, AltID);
@@ -291,11 +296,13 @@ begin
           glTexCoord2f(u1,v2); glVertex2f(0        , 0+PxHeight);
         glEnd;
       end;
+
+      //Highlight for active/focused/mouseOver images
       if Highlight then
       begin
         glBindTexture(GL_TEXTURE_2D, TexID); //Replace AltID if it was used
-        glBlendFunc(GL_DST_COLOR, GL_ONE);
-        glColor4f(0.5, 0.5, 0.5, 0.5);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        glColor3f(0.5, 0.5, 0.5);
         glBegin(GL_QUADS);
           glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
           glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
@@ -304,9 +311,10 @@ begin
         glEnd;
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       end;
+
     glPopMatrix;
   end;
-  glBindTexture(GL_TEXTURE_2D,0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
