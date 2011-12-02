@@ -1,8 +1,8 @@
 Title
-Battle of Bannockburn
-
+The Battle of Bannockburn
+ 
 SmallDesc
 Scotland fights for their freedom
-
+ 
 BigDesc
-ENGLAND (548 units): (1) Edward II (2) Humphrey de Bohun -- SCOTLAND (346 units): (3) Robert the Bruce (4) Edward the Bruce (5) Thomas Randolph (6) James Douglas -- made by Siegfried 2011
+24.June 1314, in the morning the Earl of Gloucester died and the main battle entered is about to begin| |Team 1 - ENGLAND (548 units):|(1) EDWARD II King of England, (387 units) center&rearguard|(2) HUMPHREY DE BOHUN 4th Earl of Hereford, (161 units) vanguard| |Team 2 - SCOTLAND (320 units):|(3) ROBERT THE BRUCE King of Scots, (97 units) center|(4) EDWARD THE BRUCE, (73 units) right wing|(5) THOMAS RANDOLPH 1st Earl of Moray, (73 units) left wing|(6) SIR JAMES DOUGLAS Lord of Douglas, (77 units) rearguard| |made by Siegfried 2011
