@@ -35,12 +35,12 @@ MaxID:212
 29:Zastosuj
 30:Jêzyk:
 31:£adowanie... Proszê czekaæ
-207:
-208:
-209:
-210:
+207:drzewa, budynki i jednostki
+208:inicjowanie
+209:inicjowanie wielu graczy
+210:skrypt
 32:Wyst¹pi³ B³¹d!
-212:
+212:Wyst¹pi³ b³¹d podczas przetwarzania pliku %s
 33:£adowanie nowej lokalizacji
 34:Lista zapisanych gier
 35:Nazwa pliku
@@ -77,9 +77,9 @@ MaxID:212
 58:Zast¹p
 59:Zapisz
 60:Za³aduj
-205:
-206:
-211:
+205:Niewspierany format %s
+206:Niewspierana wersja %s
+211:Nowa Misja
 194:Czas gry:|%s
 
 61:Wyst¹pi³ b³¹d w trakcie gry.
