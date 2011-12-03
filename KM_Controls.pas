@@ -490,8 +490,8 @@ type
     Style: TButtonStyle;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
     property BackAlpha: Single read fBackAlpha write fBackAlpha;
-    property MinValue: Integer read fPosition write SetMinValue;
-    property MaxValue: Integer read fPosition write SetMaxValue;
+    property MinValue: Integer read fMinValue write SetMinValue;
+    property MaxValue: Integer read fMaxValue write SetMaxValue;
     property Position: Integer read fPosition write SetPosition;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
@@ -2224,12 +2224,14 @@ end;
 
 //fItems.Count or Height has changed
 procedure TKMMemo.UpdateScrollBar;
+var OldMax:integer;
 begin
+  OldMax := fScrollBar.MaxValue;
   fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
 
   if fScrollDown then
   begin
-    if fScrollBar.fMaxValue-fScrollBar.Position <= 2 then
+    if OldMax-fScrollBar.Position <= 2 then //If they were near the bottom BEFORE updating, keep them at the bottom
       SetTopIndex(fItems.Count) //This puts it at the bottom because of the EnsureRange in SetTopIndex
   end
   else

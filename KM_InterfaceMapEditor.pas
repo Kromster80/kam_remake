@@ -1606,9 +1606,10 @@ begin
     exit; //Handled by Controls
   end;
 
+  //DoPress is not working properly yet. GamePlay only uses DoClick so MapEd can be the same for now.
   //1-5 game menu shortcuts
-  if Key in [49..53] then
-    Button_Main[Key-48].DoPress;
+  //if Key in [49..53] then
+  //  Button_Main[Key-48].DoPress;
 
   //Scrolling
   if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := true;

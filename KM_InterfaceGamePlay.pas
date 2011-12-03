@@ -1186,8 +1186,8 @@ begin
            inc(off,Nil_Width);
       1: begin
           Stat_HousePic[hc]:=TKMImage.Create(Panel_Stats,off,LineBase,House_Width,30,41); //Filled with [?] at start
-          Stat_HouseWip[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width  ,LineBase   ,37,30,'',fnt_Grey,taRight);
-          Stat_HouseQty[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,taRight);
+          Stat_HouseWip[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width  ,LineBase   ,30,15,'',fnt_Grey,taRight);
+          Stat_HouseQty[hc]:=TKMLabel.Create(Panel_Stats,off+House_Width-2,LineBase+16,30,15,'-',fnt_Grey,taRight);
           Stat_HousePic[hc].Hint:=fResource.HouseDat[StatHouse[hc]].HouseName;
           Stat_HouseWip[hc].Hint:=fResource.HouseDat[StatHouse[hc]].HouseName;
           Stat_HouseQty[hc].Hint:=fResource.HouseDat[StatHouse[hc]].HouseName;
@@ -1197,7 +1197,7 @@ begin
          end;
       2: begin
           Stat_UnitPic[uc]:=TKMImage.Create(Panel_Stats,off,LineBase,Unit_Width,30, fResource.UnitDat[StatUnit[uc]].GUIIcon);
-          Stat_UnitQty[uc]:=TKMLabel.Create(Panel_Stats,off+Unit_Width-2,LineBase+16,33,30,'-',fnt_Grey,taRight);
+          Stat_UnitQty[uc]:=TKMLabel.Create(Panel_Stats,off+Unit_Width-2,LineBase+16,33,15,'-',fnt_Grey,taRight);
           Stat_UnitPic[uc].Hint:=fResource.UnitDat[StatUnit[uc]].UnitName;
           Stat_UnitQty[uc].Hint:=fResource.UnitDat[StatUnit[uc]].UnitName;
           Stat_UnitPic[uc].ImageCenter;
@@ -2653,12 +2653,14 @@ begin
       Stat_HousePic[i].TexID := fResource.HouseDat[StatHouse[i]].GUIIcon;
       Stat_HousePic[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
       Stat_HouseQty[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
+      Stat_HouseWip[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
     end
     else
     begin
       Stat_HousePic[i].TexID := 41;
       Stat_HousePic[i].Hint := fTextLibrary.GetTextString(251); //Building not available
       Stat_HouseQty[i].Hint := fTextLibrary.GetTextString(251); //Building not available
+      Stat_HouseWip[i].Hint := fTextLibrary.GetTextString(251); //Building not available
     end;
   end;
   for i:=low(StatUnit) to high(StatUnit) do
@@ -3156,7 +3158,9 @@ begin
   if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) and
       not SelectingTroopDirection then
   begin
-    if not fGame.Viewport.Scrolling then fResource.Cursors.Cursor := kmc_Default;
+    //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
+    if not fGame.Viewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
+      fResource.Cursors.Cursor := kmc_Default;
     Exit;
   end
   else
