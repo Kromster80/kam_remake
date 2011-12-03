@@ -336,7 +336,7 @@ end;
 //Timer is called after all commands from player are taken,
 //upcoming commands will be stacked into next batch
 procedure TGameInputProcess_Multi.RunningTimer(aTick:cardinal);
-var i,k,Tick:Cardinal;
+var i,k,Tick:Cardinal; NetplayersIndex:integer;
 begin
   fNumberConsecutiveWaits := 0; //We are not waiting if the game is running
   Tick := aTick mod MAX_SCHEDULE; //Place in a ring buffer
@@ -346,7 +346,9 @@ begin
   for i:=0 to fPlayers.Count-1 do
     for k:=1 to fSchedule[Tick, i].Count do
     begin
-      //if fNetworking.NetPlayers[i].Alive then //todo: Skip dead players
+      NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i);
+      // In the case where a player was removed from a save, NetplayersIndex = -1
+      if (NetplayersIndex <> -1) and not fNetworking.NetPlayers[NetplayersIndex].Dropped then
       begin
         StoreCommand(fSchedule[Tick, i].Items[k]); //Store the command first so if Exec fails we still have it in the replay
         ExecCommand(fSchedule[Tick, i].Items[k]);

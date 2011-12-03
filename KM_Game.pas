@@ -627,7 +627,8 @@ begin
         fPlayers[i].PlayerType := pt_Human;
 
   fPlayers.SyncFogOfWar; //Syncs fog of war revelation between players AFTER alliances
-  fPlayers.AddDefaultMPGoals(fMissionMode); //Multiplayer missions don't have goals yet, so add the defaults
+  if fNetworking.SelectGameKind = ngk_Map then
+    fPlayers.AddDefaultMPGoals(fMissionMode); //Multiplayer missions don't have goals yet, so add the defaults
 
   fViewport.ResizeMap(fTerrain.MapX, fTerrain.MapY);
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
