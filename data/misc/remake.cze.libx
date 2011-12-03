@@ -1,13 +1,13 @@
 
 MaxID:212
 
-1:Mise zrušena
+1:Mise ukonèena
 2:Výuka stavby
 3:Výuka boje
 4:Hra pro jednoho hráèe
 5:Editor mapy
-202:
-203:
+202:Záznamy ze hry
+203:Ukázat záznam
 6:Zhlédnout poslední záznam
 7:Zaèít misi
 8:Název
@@ -26,21 +26,21 @@ MaxID:212
 22:Ovládání:
 23:Hra:
 24:Zvuk:
-141:Rychlost scrollování
+141:Rychlost obrazu
 25:Zakázat hudbu
-143:
+143:Pøeházet skladby
 26:Grafika:
 27:Jas
 28:Celá obrazovka
 29:Použít
 30:Jazyk:
 31:Nahrávám... Prosím èekejte
-207:
-208:
-209:
-210:
+207:stromy, domy, jednotky
+208:inicializuje se
+209:inicializace hry pro více hráèù
+210:skript
 32:Došlo k chybì!
-212:
+212:Nastala chyba pøi analýze souboru %s
 33:Nahrávám novou lokaci
 34:Seznam uložených her
 35:Jméno souboru
@@ -62,12 +62,12 @@ MaxID:212
 49:Pøehrávání skonèilo
 50:Pokraèovat 
 51:Zpìt do menu
-166:
-167:
-168:
-171:
-172:
-173:
+166:Vyhodit hráèe
+167:Host bude moci vyhodit tyto hráèe za %d sekund
+168:Host nyní mùže vyhodit tyto hráèe
+171:Opravdu chcete skonèit?
+172:Jste si jisti, že chcete vyhodit tyto hráèe ze hry?
+173:Cancel
 52:Nedostupné
 53:Stisknìte %s pro pokraèování ve høe
 54:Týmu
@@ -77,10 +77,10 @@ MaxID:212
 58:Pøepsat
 59:Uložit
 60:Naèíst
-205:
-206:
-211:
-194:
+205:Nepodporovaný formát %s
+206:Nepodporovaná verze %s
+211:Nová mise
+194:Èas hry:|%s
 
 61:Bìhem hry došlo k chybì.
 62:Prosím pošlete soubor %s z vašecho adresáže KaM Remake\\Crash Reports vývojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!\n\nVAROVÁNÍ: Pokraèování ve høe mùže zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
@@ -90,8 +90,8 @@ MaxID:212
 66:Spojení se nezdaøilo: %s
 67:Byl jste odpojen
 68:Mise %d
-150:
-151:
+150:Stavìní & Bojování
+151:Bojování
 
 69:Váš rybáø je pøíliš daleko od vody.
 70:Váš rybáø nemùže chytit žádné další ryby ve vodì, kterou má poblíž.
@@ -101,11 +101,11 @@ MaxID:212
 73:Použijte pravé tlaèítko myši k výbìru zboží
 74:Dám x%d
 75:Chci x%d
-162:
-161:
-184:
-185:
-186:
+162:Snížit množství
+161:Zvýšit množství
+184:Obchodování s tímto zbožím není možné v této misi.
+185:Sázet a kácet
+186:Pouze kácet
 
 76:Editace terénu
 77:Plánování vesnice
@@ -127,21 +127,21 @@ MaxID:212
 92:Obnovit seznam serverù
 93:DETAILY SERVERU
 94:Seznam hráèù:
-144:
+144:Info o høe:
 95:IP Adresa
 96:Port
 97:Místo:
 98:Pøipojit
-153:
+153:Pøipraven
 99:Pøipojuji se, prosím èekejte...
-159:
+159:Odlišná verze: %s. Server používá: %s
 100:Naèítám...
 101:Obnovuji...
-142:
+142:Nenalezeny žádné servery
 145:-
-146:
-147:
-148:
+146:Lobby
+147:Naèítání
+148:Hra
 
 102:Seznam hráèù
 103:Pozice
@@ -158,11 +158,11 @@ MaxID:212
 114:Prázdné
 115:Tým %d
 117:Odeslat zprávu:
-118:
+118:Typ mapy
 119:Samostatná mapa
-188:
-189:
-190:
+188:Stavìní
+189:Bojování
+190:Kooperace
 120:Uložená hra
 121:Vyberte mapu...
 122:Výberte uloženou hru...
@@ -171,54 +171,54 @@ MaxID:212
 125:Mód:
 126:Podmínky vítìzství:
 127:Velikost:
-195:
-204:
+195:Nastavení hry:
+204:Doba míru (minuty)
 128:Opustit nabídku
 129:Pøipraven
-152:
+152:Není pøipraven
 130:Zaèít!
-149:
-154:
-155:
-156:
-157:
-158:
-160:
-187:
+149:Lokace %d
+154:Chyba: Vyberte, prosím, hráèe z uložené hry
+155:Chyba: Mapa nelze naèíst nebo nebyla vybrána
+156:Nelze zaèít: %s
+157:Nìkdo není pøipraven ke startu
+158:Poèet hráèù pøekraèuje maximální poèet daný mapou
+160:Server vám pøiøadil hostovací práva
+187:Hra již zaèala
 
 131:Èekám na ostatní hráèe:
-163:
-164:
-169:
-170:
-191:
-192:
-193:
+163:Ukládám hru...
+164:%s byl poražen!
+169:Host (%s) se odpojil
+170:Spojení se serverem bylo ztraceno. Pokouším se opìt navázat spojení...
+191:V období míru je toto zakázáno
+192:Konec období míru za: %s
+193:Konec období míru. Do zbranì!
 
-174:
-175:
-176:
-177:
-178:
-179:
-180:
-181:
-182:
-183:
+174:Vycvièeno|obèanù
+175:Ztraceno|obèanù
+176:Vycvièeno|vojákù
+177:Ztraceno|vojákù
+178:Poraženo|jednotek
+179:Vyrobeno|budov
+180:Ztraceno|budov
+181:Znièeno|budov
+182:Vytvoøeno|produktù
+183:Vyrobeno zbraní
 
-196:
-197:
-198:
+196:Z
+197:S
+198:R
 
-199:
-200:
-201:
+199:Zastavit oddíl  ('%s')
+200:Spojit oddíl ('%s')
+201:Samostatný voják ('%s')
 
 132:KaM Remake Zásluhy
 133:Originální Knights & Merchants Zásluhy
 134:PROGRAMOVÁNÍ:
 135:DALŠÍ PROGRAMOVÁNÍ:
 136:DALŠÍ GRAFIKA:
-165:
+165:OSTATNÍ ZVUKY
 137:DALŠÍ PØEKLAD:
 138:SPECIÁLNÍ PODÌKOVÁNÍ:

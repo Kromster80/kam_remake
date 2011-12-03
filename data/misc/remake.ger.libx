@@ -35,12 +35,12 @@ MaxID:212
 29:Übernehmen
 30:Sprache:
 31:Lade... Bitte warten
-207:
-208:
-209:
-210:
+207:Bäume, Gebäude und Einheiten
+208:Initialisierung
+209:Multiplayer Initialisierung
+210:Skript
 32:Ein Fehler ist aufgetreten!
-212:
+212:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
 33:Neue Lokalisierung laden
 34:Gespeicherte Spielstände
 35:Name
@@ -77,9 +77,9 @@ MaxID:212
 58:Überschreiben
 59:Speichern
 60:Laden
-205:
-206:
-211:
+205:Nicht unterstütztes Format %s
+206:Nicht unterstützte Version %s
+211:Neue Mission
 194:Spieldauer:|%s
 
 61:Während des Spiels ist ein Fehler aufgetreten.

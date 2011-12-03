@@ -35,12 +35,12 @@ MaxID:212
 29:Applica
 30:Lingua:
 31:In caricamento...
-207:
-208:
-209:
-210:
+207:alberi, edifici ed unità
+208:inizializzando
+209:inizializzando il multiplayer
+210:script
 32:Si è verificato un errore!
-212:
+212:Si è verificato un errore durante l'analisi del file %s
 33:Nuova localizzazione in caricamento
 34:Partite salvate
 35:Nome del file
@@ -77,9 +77,9 @@ MaxID:212
 58:Sovrascrivi
 59:Salva
 60:Carica
-205:
-206:
-211:
+205:Formato %s non supportato
+206:Versione %s non supportata
+211:Nuova Missione
 194:Tempo di gioco:|%s
 
 61:Si è verificato un errore durante il gioco.
