@@ -1,7 +1,7 @@
 ; For each "Update" build there are two things to change. Revision and Upgradable Versions
 
 ; REVISION
-#define Revision 'r1234'
+#define Revision 'r2653'
 
 ; These don't need to change
 #define InstallType 'Update'
@@ -13,7 +13,7 @@
 function CheckRemakeVersion(aVersion:string):boolean;
 begin
   //Place all Remake versions that are allowed to be upgraded here
-  Result := (aVersion = 'r1234') 
+  Result := (aVersion = 'r2411') 
         {or (aVersion = 'r1234') 
          or (aVersion = 'r1234') 
          or (aVersion = 'r1234')}
@@ -35,6 +35,9 @@ begin
     end;
   end;
 end;
+
+[Run]
+Filename: "{app}\Clean.bat"; WorkingDir: "{app}"; Flags: runhidden
 
 [Setup]
 EnableDirDoesntExistWarning=yes

@@ -35,12 +35,12 @@ MaxID:212
 29:Bekräfta
 30:Språk:
 31:Laddar... Var god vänta
-207:
-208:
-209:
-210:
+207:träd, hus och enheter
+208:initierar
+209:flerspelarinitiering
+210:script
 32:Ett problem uppstod!
-212:
+212:Ett fel uppstod när filen %s skulle behandlas
 33:Laddar ny lokal
 34:Lista över sparade spel
 35:Filnamn
@@ -77,9 +77,9 @@ MaxID:212
 58:Skriv över
 59:Spara
 60:Ladda
-205:
-206:
-211:
+205:Inget stöd för format %s
+206:Felaktig version %s
+211:Nytt uppdrag
 194:Speltid:|%s
 
 61:Ett fel har uppstått under spelets gång.

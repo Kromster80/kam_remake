@@ -359,8 +359,13 @@ begin
   if fNetworking.Connected then SendRandomCheck(aTick);
   //It is possible that we have already recieved other player's random checks, if so check them now
   for i:=0 to fPlayers.Count-1 do
-    if fRandomCheck[Tick].PlayerCheckPending[i] then
-      DoRandomCheck(aTick, i);
+  begin
+    NetplayersIndex := fNetworking.NetPlayers.PlayerIndexToLocal(i);
+    // In the case where a player was removed from a save, NetplayersIndex = -1
+    if (NetplayersIndex <> -1) and not fNetworking.NetPlayers[NetplayersIndex].Dropped
+    and fRandomCheck[Tick].PlayerCheckPending[i] then
+        DoRandomCheck(aTick, i);
+  end;
 
   FillChar(fRecievedData[Tick], SizeOf(fRecievedData[Tick]), #0); //Reset
   fSent[Tick] := false;

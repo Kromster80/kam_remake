@@ -6,8 +6,8 @@ MaxID:212
 3:Tutorial de Batalla
 4:Un Solo Jugador
 5:Editor de mapas
-202:
-203:
+202:Ver Repeticiones
+203:Ver Repetición
 6:Ver la última repetición
 7:Empezar misión
 8:Nombre
@@ -22,7 +22,7 @@ MaxID:212
 18:Altura
 19:Crear nuevo mapa
 20:Mapa disponible
-21:Cargando mapa
+21:Cargar mapa
 22:Controles:
 23:Juego:
 24:Sonido:
@@ -35,12 +35,12 @@ MaxID:212
 29:Aplicar
 30:Lenguaje:
 31:Cargando... Por favor espera
-207:
-208:
-209:
-210:
+207:árboles, casas y unidades
+208:iniciando
+209:iniciando multijugador
+210:guión
 32:Se ha producido un error
-212:
+212:Se ha producido un error al analizar el archivo
 33:Cargando nueva partida local
 34:Lisa de partidas guardadas
 35:Nombre de archivo
@@ -57,13 +57,13 @@ MaxID:212
 44:Continuar Jugando
 45:¡Victoria!
 46:¡Has perdido!
-47:Continuar mirando
+47:Continuar...
 48:Derrota
 49:La repetición ha terminado
-50:Continuar mirando
-51:Regresar a Menú
-166:Perdida de jugadores
-167:El Anfitrión dejara caer a los jugadores pasados %d segundos
+50:Continuar
+51:Regresar al Menú
+166:Caida de jugadores
+167:El anfitrión dejará caer a los jugadores pasados %d segundos
 168:El anfitrión permite la caida de estos jugadores
 171:¿Estás seguro que deseas salir del juego?
 172:¿Estás seguro de que deseas expulsar de forma permantente a estos jugadores?
@@ -77,10 +77,10 @@ MaxID:212
 58:Sobrescribir
 59:Salvar
 60:Cargar
-205:
-206:
-211:
-194:
+205:Formato no válido %s
+206:Versión no válida %s
+211:Nueva Misión
+194:Tiempo de juego:|%s
 
 61:Se ha producido un error durante el juego
 62:Por favor envia el archivo %s  del directorio KaM Remake\\Crash  a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!
@@ -90,7 +90,7 @@ MaxID:212
 66:Conexión fallida %s
 67:Te has desconectado
 68:Misión %d
-150:Construir y luchar
+150:Construir y Luchar
 151:Luchar
 
 69:El pescador no puede pescar tan lejos del agua.
@@ -104,11 +104,11 @@ MaxID:212
 162:Disminuir cantidad
 161:Aumentar cantidad
 184:Comerciar este recurso no está disponible en esta misión
-185:
-186:
+185:Planta y tala
+186:Sólo planta
 
-76:Editando terreno
-77:Planificando el pueblo
+76:Editar terreno
+77:Planificar el pueblo
 78:Códigos visuales
 79:Códigos globales
 80:Menú
@@ -125,7 +125,7 @@ MaxID:212
 90:Jugadores
 91:Retraso
 92:Actualizar lista de servidores.
-93:Detalles del servidor
+93:DETALLES DEL SERVIDOR
 94:Lista de jugadores:
 144:Información de la partida:
 95:Dirección
@@ -134,14 +134,14 @@ MaxID:212
 98:Entrar
 153:Listo
 99:Conectando. por favor espera...
-159:
+159:Versión incorrecta: %s. Este juego utiliza la versión: %s
 100:Cargando Anuncios...
-101:Actualizar...
+101:Actualizando...
 142:Servidores no encontrados
 145:-
-146:Sala
+146:En la Sala
 147:Cargando
-148:Partida
+148:Jugando
 
 102:Lista de jugadores
 103:Empezar localización
@@ -158,11 +158,11 @@ MaxID:212
 114:Ninguno
 115:Equipo %d
 117:Publicar mensaje:
-118:
+118:Tipo de mapa
 119:Un mapa solo
-188:
-189:
-190:
+188:Mapa de construcción
+189:Mapa de lucha
+190:Mapa cooperativo
 120:Guardar Partida
 121:Selecciona un mapa...
 122:Seleciona para guardar...
@@ -171,8 +171,8 @@ MaxID:212
 125:Modo:
 126:Condiciones:
 127:Tamaño:
-195:
-204:
+195:Opciones de juego:
+204:Tiempo de paz (en minutos)
 128:Salir de la sala
 129:Listo
 152:No estoy listo
@@ -180,20 +180,20 @@ MaxID:212
 149:Localización %d
 154:Error: Por favor seleciona un jugador para tomar el control
 155:Error: el mapa no se puede cargar o no has seleccionado el mapa
-156:No se puede iniciar con %s
+156:No se puede iniciar: %s
 157:Todos deben estar preparados para empezar
-158:Excedes el límite del mapa
+158:Excedes el límite de jugadores para ese mapa
 160:El servidor te ha asignado como anfitrión
-187:
+187:El juego a comenzado
 
 131:Esperando a los jugadores:
 163:Guardado el juego...
 164:¡%s ha sido derrotado!
 169:El Anfitrión (%s) ha abandonado la partida
 170:La conexión con el servidor se ha perdido. Intentar volver a conectar...
-191:
-192:
-193:
+191:No está permitido hacer eso en tiempos de paz.
+192:Tiempo de paz restante: %s
+193:El tiempo de paz se ha terminado. ¡Prepara tus armas!
 
 174:Civiles|entrenados
 175:Civiles|Perdidos
@@ -203,16 +203,16 @@ MaxID:212
 179:Edificios|construidos
 180:Edificios|perdidos
 181:Edificios|destruidos
-182:Materiales|producidas
+182:Materiales|producidos
 183:Armas|Produción
 
-196:
-197:
-198:
+196:H
+197:L
+198:S
 
-199:
-200:
-201:
+199:Parar tropas ('%s')
+200:Unir tropas  ('%s')
+201:Separar tropas ('%s')
 
 132:KaM Remake Créditos
 133:Créditos originales Knights & Merchants
