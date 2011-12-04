@@ -1,0 +1,8 @@
+Title
+Forest Fight The Raid
+
+SmallDesc
+A multiplayer map made by GreatWhiteBear part 2 of the Forest Fight series
+
+BigDesc
+A multiplayer map made by GreatWhiteBear part 2 of the Forest Fight series|Bandits have stolen a treasure and set up camp on a hill. They have cleard the hill of trees and set up towers. Five lords want this treasure and try to capture it. Five players fight for it and one defends. This map is FFA.|Winning conditions:|Players 1-5: Surround (stand in front of) the storehouse for 1min or be the last man standing.|Player 6: Defend the storehouse for 5min or be the last man standing.||Losing conditions:|To all: Lose all troops or lose the storehouse.

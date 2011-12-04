@@ -1,0 +1,8 @@
+Title
+Forest Fight The Siege
+
+SmallDesc
+A multiplayer map made by GreatWhiteBear part 3 of the Forest Fight series
+
+BigDesc
+A multiplayer map made by GreatWhiteBear part 3 of the Forest Fight series|Bandits have stolen a treasure and dug in on a hill. Their base is strong and has its own weapons production. Five lords want this treasure and try to capture it. Five players fight for it and one defends. This map is FFA.|Winning conditions:|Players 1-5: Surround (stand in front of) the storehouse for 1 min or be the last man standing.|Player 6: Defend the storehouse for 5 min or be the last man standing.||Losing conditions: To all:|Lose all troops or lose the storehouse.|To Player 6: Lose the Warrior.

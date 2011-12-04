@@ -1,0 +1,10 @@
+Title
+Blood River
+
+SmallDesc
+A multiplayer mission by andreus.
+
+BigDesc
+A huge map by andreus for 3v3 game by andreus. Build your Empire! Teams are on opposite sides of the river.||Suggested teams are 1+2+3 and 4+5+6.
+
+ 

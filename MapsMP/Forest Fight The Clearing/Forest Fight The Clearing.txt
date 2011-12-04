@@ -1,0 +1,5 @@
+Title
+Forest Fight Before The Clearing
+
+BigDesc
+A multiplayer map made by GreatWhiteBear part 1 of the Forest Fight series.|Bandits have just stolen a treasure and taken position on a hill, but the hill still holds many trees. The bands start clearing the hill but... five lords want this treasure and try to capture it. Five players fight for it and one defends. This map is FFA.|Winning conditions:|Players 1-5: Surround(stand in front of) the storehouse for 1min or be the last man standing.|Player 6:Defend the storehouse for 5min or be the last man standing. ||Losing conditions: To all:|Lose all troops or lose the storehouse.

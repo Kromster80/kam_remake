@@ -1,8 +1,0 @@
-Title
-Forest Fight
-
-SmallDesc
-A multiplayer map made by GreatWhiteBear
-
-BigDesc
-In the forest lies a treasure. Five players fight for it and one defends. This map is FFA. Winning conditions: Players 1-5: Surround the storehouse for 3min or be the last man standing. Player 6:Defend the storehouse for 15min or be the last man standing.

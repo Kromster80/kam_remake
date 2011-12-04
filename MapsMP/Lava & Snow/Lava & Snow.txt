@@ -1,0 +1,8 @@
+Title
+Lava & Snow
+
+SmallDesc
+A multiplayer battle mission by andreus.
+
+BigDesc
+A multiplayer battle mission for 2v1 games by andreus. Player 1 is a King, players 2 and 3 are rebels.||Teams are 1 vs 2+3.
