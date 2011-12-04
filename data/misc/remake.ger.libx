@@ -50,8 +50,8 @@ MaxID:212
 39:Spielstand wirklich löschen?
 40:Löschen
 41:Abbrechen
-139:Mehrspieler-Karten
-140:Einzelspieler-Karten
+139:Mehrspieler Karten
+140:Einzelspieler Karten
 
 43:Spiel gewonnen!
 44:Weiterspielen
@@ -69,21 +69,21 @@ MaxID:212
 172:Soll dieser Spieler dauerhaft entfernt werden?
 173:Abbrechen
 52:Nicht verfügbar
-53:%s drücken zum weiterspielen
-54:An das Team
+53:%s drücken zum weiterspielen.
+54:Ans Team senden
 55:Spielerinfo
 56:Chat
-57:Name bereits vorhanden
-58:Überschreiben
+57:Name schon vorhand.
+58:Ersetzen
 59:Speichern
 60:Laden
-205:Nicht unterstütztes Format %s
-206:Nicht unterstützte Version %s
+205:Nicht unterstütztes Format %s!
+206:Nicht unterstützte Version %s!
 211:Neue Mission
 194:Spieldauer:|%s
 
-61:Während des Spiels ist ein Fehler aufgetreten.
-62:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+61:Während des Spielens ist ein Fehler aufgetreten.
+62:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!\n\nWARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
 63:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte Grafikkartentreiber aktualisieren!
 64:Netzwerkfehler:
 65:Fehler: Bitte Spielername eingeben
@@ -97,15 +97,15 @@ MaxID:212
 70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
 
 71:Markthalle
-72:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll
-73:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll
+72:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
+73:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
 74:Von x%d
 75:Zu x%d
 162:Verringere Warenanzahl
 161:Erhöhe Warenanzahl
 184:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
-185:Forsten
-186:Nur Bäume fällen
+185:Pflanzen & Fällen
+186:Nur fällen
 
 76:Gelände bearbeiten
 77:Häuser bearbeiten
@@ -119,7 +119,7 @@ MaxID:212
 84:Name
 85:Port
 86:Erstelle lokalen Server
-87:Erstelle Internet-Server
+87:Erstelle Internet Server
 88:Servername
 89:Status
 90:Spieler
@@ -134,10 +134,10 @@ MaxID:212
 98:Beitreten
 153:Bereit
 99:Verbinde, bitte warten...
-159:Falsche Version des Protokolls: %s. Benötigt wird: %s
+159:Falsche Version des Protokolls: %s. Benötigt wird: %s!
 100:Lade Ankündigung...
 101:Aktualisiere...
-142:Keinen Server gefunden
+142:Keinen Server gefunden.
 145:-
 146:Lobby
 147:Laden
@@ -151,7 +151,7 @@ MaxID:212
 107:Ping
 108:Kick
 109:Öffnen
-110:KI-Spieler
+110:Computer
 111:Wähle...
 112:Zufällig
 113:Keins
@@ -172,26 +172,26 @@ MaxID:212
 126:Bedingungen:
 127:Größe:
 195:Optionen:
-204:Friedenszeit (Minuten):
+204:Friedenszeit (Min.):
 128:Lobby verlassen
 129:Bereit!
 152:Nicht bereit
 130:Start!
 149:Standort %d
-154:Fehler: Bitte übernehme einen Spieler aus dem Spielstand
-155:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt
-156:Kann nicht starten: %s
-157:Noch nicht jeder ist bereit zu starten
-158:Die Spieleranzahl hat die Grenze erreicht
-160:Der Server hat dir die Hostingrechte übertragen
+154:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
+155:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
+156:Kann nicht starten: %s.
+157:Es ist noch nicht jeder bereit zu starten.
+158:Die Spieleranzahl hat die Grenze erreicht.
+160:Der Server hat dir die Hostingrechte übertragen.
 187:Spiel gestartet
 
 131:Warte auf Spieler:
 163:Spiel wird gespeichert...
 164:%s wurde besiegt!
-169:Der Host (%s) hat das Spiel verlassen
+169:Der Host (%s) hat das Spiel verlassen.
 170:Die Verbindung zum Server ist unterbrochen. Versuche neu zu verbinden...
-191:Du kannst dies während der Friedenszeit nicht tun
+191:Aktion während der Friedenszeit nicht möglich.
 192:Friedenszeit verbleibend: %s
 193:Der Frieden ist vorüber. Zu den Waffen!
 

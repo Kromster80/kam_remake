@@ -47,7 +47,8 @@ type //For now IDs must match with KaM
     procedure RetaliateAgainstThreat(aAttacker: TKMUnitWarrior);
 
   public
-    ReqWorkers, ReqSerfFactor, ReqRecruits, EquipRate: word; //Number of each unit type required
+    ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Number of each unit type required
+    EquipRate: word; //Number of ticks between soldiers being equipped
     RecruitTrainTimeout: Cardinal; //Recruits (for barracks) can only be trained after this many ticks
     TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not used or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around

@@ -69,6 +69,7 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
+	Rare crash "EAssertionFailed: Trying to remove wrong unit at (X;Y)"
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor
@@ -101,6 +102,7 @@ Features:
  +	Ask player in Game and in MapEd if he wants to Save before Exiting by Alt+F4 or [x]
  +	Highlight commander in groups formation in UI
  +	Double clicking a server should join it
+ +	New command "!SET_AI_CHARACTER EQUIP_RATE <TICKS>" to control time between equipping soldiers (1 second = 10 ticks)
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
