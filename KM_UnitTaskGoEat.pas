@@ -80,8 +80,9 @@ begin
    0: begin
         Thought := th_Eat;
         if (GetHome<>nil) and not GetHome.IsDestroyed then GetHome.SetState(hst_Empty);
-        if (not Visible) and not GetHome.IsDestroyed then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome) else
-                                                          SetActionLockedStay(0,ua_Walk); //Walk outside the house
+        if (not Visible) and (GetInHouse <> nil) and not GetInHouse.IsDestroyed then
+          SetActionGoIn(ua_Walk,gd_GoOutside,GetInHouse) //Walk outside the house
+        else SetActionLockedStay(0,ua_Walk); //Skip this step
       end;
    1: SetActionWalkToSpot(KMPointBelow(fInn.GetEntrance));
    2: begin

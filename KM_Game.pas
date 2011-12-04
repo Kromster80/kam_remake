@@ -379,6 +379,9 @@ begin
   PlayOnState := gr_Cancel;
   SkipReplayEndCheck := false; //Reset before each mission
   fMultiplayerMode := aMultiplayerMode;
+  //Reset the game options from the last game
+  fGameOptions.Free;
+  fGameOptions := TKMGameOptions.Create;
 
   if fResource.DataState<>dls_All then begin
     fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SPRITES]);
@@ -588,8 +591,7 @@ var
 begin
   fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_MP_INITIALIZING]);
 
-  FreeAndNil(fGameOptions);
-  fGameOptions := TKMGameOptions.Create;
+  //Copy all game options from lobby to this game
   fGameOptions.Peacetime := Networking.NetGameOptions.Peacetime;
 
   FillChar(PlayerUsed, SizeOf(PlayerUsed), #0);

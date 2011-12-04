@@ -149,6 +149,7 @@ type
     procedure CancelUnitTask;
     property Visible: boolean read fVisible write fVisible;
     procedure SetInHouse(aInHouse:TKMHouse);
+    property GetInHouse: TKMHouse read fInHouse;
     property IsDead:boolean read fIsDead;
     function IsDeadOrDying:boolean;
     function IsArmyUnit:boolean;
@@ -1459,6 +1460,11 @@ begin
       fNextPosition := fCurrPosition;
       fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
       if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
+      if (GetUnitTask is TTaskGoEat) and (TTaskGoEat(GetUnitTask).Eating) then
+      begin
+        FreeAndNil(fUnitTask); //Stop the eating animation and makes the unit appear
+        SetActionStay(0, ua_Walk); //Free the current action and give the unit a temporary one
+      end;
     end;
     SetInHouse(nil); //Can't be in a destroyed house
   end;

@@ -56,7 +56,8 @@ type
     gic_HouseMarketTo,        //Select wares to trade in marketplace
     gic_HouseWoodcutterMode,  //Switch the woodcutter mode
     gic_HouseStoreAcceptFlag, //Control wares delivery to store
-    gic_HouseTrain,           //Place an order to train citizen/warrior
+    gic_HouseSchoolTrain,     //Place an order to train citizen
+    gic_HouseBarracksEquip,   //Place an order to train warrior
     gic_HouseRemoveTrain,     //Remove unit being trained from School
 
     //IV.     Delivery ratios changes (and other game-global settings)
@@ -82,7 +83,7 @@ type
     );
 const
   BlockedByPeaceTime: set of TGameInputCommandType = [gic_ArmySplit,gic_ArmyLink,gic_ArmyAttackUnit,
-                      gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm];
+                      gic_ArmyAttackHouse,gic_ArmyHalt,gic_ArmyWalk,gic_ArmyStorm,gic_HouseBarracksEquip];
 
 type
   TGameInputCommand = record
@@ -251,7 +252,7 @@ begin
       U2 := fPlayers.GetUnitByID(Params[2]);
       if (U2 = nil) or U2.IsDeadOrDying then exit; //Unit has died before command could be executed
     end;
-    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseTrain,gic_HouseRemoveTrain,gic_HouseWoodcutterMode] then begin
+    if CommandType in [gic_HouseRepairToggle,gic_HouseDeliveryToggle,gic_HouseOrderProduct,gic_HouseMarketFrom,gic_HouseMarketTo,gic_HouseStoreAcceptFlag,gic_HouseBarracksEquip,gic_HouseSchoolTrain,gic_HouseRemoveTrain,gic_HouseWoodcutterMode] then begin
       H := fPlayers.GetHouseByID(Params[1]);
       if (H = nil) or H.IsDestroyed then exit; //House has been destroyed before command could be executed
     end;
@@ -261,9 +262,7 @@ begin
     end;
 
     //Some commands are blocked by peacetime (this is a fall back in case players try to cheat)
-    if fGame.IsPeaceTime and
-      ((CommandType in BlockedByPeaceTime) or
-       ((CommandType = gic_HouseTrain) and (H.HouseType = ht_Barracks))) then
+    if fGame.IsPeaceTime and (CommandType in BlockedByPeaceTime) then
        exit;
 
     case CommandType of
@@ -292,11 +291,8 @@ begin
       gic_HouseMarketTo:          TKMHouseMarket(H).ResTo := TResourceType(Params[2]);
       gic_HouseStoreAcceptFlag:   TKMHouseStore(H).ToggleAcceptFlag(TResourceType(Params[2]));
       gic_HouseWoodcutterMode:    TKMHouseWoodcutters(H).WoodcutterMode := TWoodcutterMode(Params[2]);
-      gic_HouseTrain:             case H.HouseType of
-                                    ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
-                                    ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
-                                    else          Assert(false, 'Only Schools and Barracks supported yet');
-                                  end;
+      gic_HouseBarracksEquip:     TKMHouseBarracks(H).Equip(TUnitType(Params[2]), Params[3]);
+      gic_HouseSchoolTrain:       TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]), Params[3]);
       gic_HouseRemoveTrain:       TKMHouseSchool(H).RemUnitFromQueue(Params[2]);
 
       gic_RatioChange:            begin
@@ -420,7 +416,7 @@ end;
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType; aCount:byte);
 begin
-  Assert(aCommandType = gic_HouseTrain);
+  Assert(aCommandType in [gic_HouseSchoolTrain, gic_HouseBarracksEquip]);
   TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aUnitType), aCount]) );
 end;
 

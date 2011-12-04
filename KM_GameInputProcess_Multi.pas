@@ -170,7 +170,7 @@ var i,Tick:Cardinal;
 begin
   Assert(fDelay < MAX_SCHEDULE, 'Error, fDelay >= MAX_SCHEDULE');
 
-  if (aCommand.CommandType in BlockedByPeaceTime) and fGame.IsPeaceTime then
+  if fGame.IsPeaceTime and (aCommand.CommandType in BlockedByPeaceTime) then
   begin
     fGame.Networking.PostLocalMessage(fTextLibrary[TX_MP_BLOCKED_BY_PEACETIME],false);
     fSoundLib.Play(sfx_CantPlace);

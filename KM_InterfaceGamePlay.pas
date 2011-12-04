@@ -2164,9 +2164,9 @@ begin
 
   if Sender=Button_Barracks_Train then //Equip unit
     if AButton = mbLeft then
-      fGame.GameInputProcess.CmdHouse(gic_HouseTrain, Barracks, Barracks_Order[LastBarracksUnit], 1)
+      fGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[LastBarracksUnit], 1)
     else if AButton = mbRight then
-      fGame.GameInputProcess.CmdHouse(gic_HouseTrain, Barracks, Barracks_Order[LastBarracksUnit], 10);
+      fGame.GameInputProcess.CmdHouse(gic_HouseBarracksEquip, Barracks, Barracks_Order[LastBarracksUnit], 10);
 
   for i:=1 to BARRACKS_RES_COUNT do begin
     Tmp := Barracks.CheckResIn(BarracksResType[i]);
@@ -2215,9 +2215,9 @@ begin
 
   if Sender=Button_School_Train then //Add unit to training queue
     if AButton = mbLeft then
-      fGame.GameInputProcess.CmdHouse(gic_HouseTrain, School, School_Order[LastSchoolUnit], 1)
+      fGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[LastSchoolUnit], 1)
     else if AButton = mbRight then
-      fGame.GameInputProcess.CmdHouse(gic_HouseTrain, School, School_Order[LastSchoolUnit], 6);
+      fGame.GameInputProcess.CmdHouse(gic_HouseSchoolTrain, School, School_Order[LastSchoolUnit], 6);
 
   if School.UnitQueue[1]<>ut_None then
     Button_School_UnitWIP.TexID := fResource.UnitDat[School.UnitQueue[1]].GUIIcon

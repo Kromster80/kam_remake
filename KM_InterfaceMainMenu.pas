@@ -1138,7 +1138,7 @@ begin
 
       for k:=0 to 4 do
       begin
-        with TKMLabel.Create(Panel_StatsMP1, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_StatsMP1, 150 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns1[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
           Bar_Results[i,k] := TKMPercentBar.Create(Panel_StatsMP1, 150 + k*BarStep, 40+i*25, BarWidth, 20, fnt_Metal);
@@ -1151,7 +1151,7 @@ begin
 
       for k:=0 to 4 do
       begin
-        with TKMLabel.Create(Panel_StatsMP2, 150 + BarHalf+BarStep*k, 0, BarWidth, 20, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
+        with TKMLabel.Create(Panel_StatsMP2, 150 + BarHalf+BarStep*k, 0, BarWidth+6, 40, fTextLibrary[Columns2[k]], fnt_Metal, taCenter) do
           AutoWrap := true;
         for i:=0 to 7 do
           Bar_Results[i,k+5] := TKMPercentBar.Create(Panel_StatsMP2, 150 + k*BarStep, 40+i*25, BarWidth, 20, fnt_Metal);
