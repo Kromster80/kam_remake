@@ -48,6 +48,7 @@ type
     fScreenX, fScreenY:word;
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
+    procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
 
     procedure RenderTile(Index:byte; pX,pY,Rot:integer);
     procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
@@ -58,14 +59,14 @@ type
     procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
     procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
     procedure RenderCursorHighlights;
-    procedure RenderBrightness(Value:byte);
+    procedure RenderBrightness(Value: Byte);
   public
     constructor Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
     destructor Destroy; override;
 
     function GenTexture(DestX, DestY:word; const Data:TCardinalArray; Mode:TTexFormat):GLUint;
     property RendererVersion:string read fOpenGL_Version;
-    procedure Resize(Width,Height: Integer; aRenderMode: TRenderMode);
+    procedure Resize(Width,Height: Integer);
     procedure SetRotation(aH,aP,aB:integer);
     function Stat_Sprites:integer;
     function Stat_Sprites2:integer;
@@ -119,7 +120,7 @@ begin
   BuildFont(h_DC, 16, FW_BOLD);
   fRenderList := TRenderList.Create;
 
-  Resize(ScreenX, ScreenY, rm2D);
+  Resize(ScreenX, ScreenY);
 end;
 
 
@@ -194,11 +195,16 @@ begin
 end;
 
 
-procedure TRender.Resize(Width,Height: Integer; aRenderMode: TRenderMode);
+procedure TRender.Resize(Width, Height: Integer);
 begin
   fScreenX := max(Width, 1);
   fScreenY := max(Height, 1);
   glViewport(0, 0, fScreenX, fScreenY);
+end;
+
+
+procedure TRender.SetRenderMode(aRenderMode: TRenderMode);
+begin
   glMatrixMode(GL_PROJECTION); //Change Matrix Mode to Projection
   glLoadIdentity; //Reset View
   case aRenderMode of
@@ -235,7 +241,7 @@ begin
     glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
     if RENDER_3D then
     begin
-      Resize(fScreenX, fScreenY, rm3D);
+      SetRenderMode(rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -262,7 +268,7 @@ begin
     glPopAttrib;
   end;
 
-  Resize(fScreenX, fScreenY, rm2D);
+  SetRenderMode(rm2D);
   fGame.PaintInterface;
 
   glLoadIdentity;
@@ -1114,14 +1120,16 @@ begin
 end;
 
 
-//Render highlight overlay to make whole picture look brighter
-procedure TRender.RenderBrightness(Value:byte);
+//Render highlight overlay to make whole picture look brighter (more saturated)
+procedure TRender.RenderBrightness(Value: Byte);
 begin
-  if Value=0 then exit;
-  glBlendFunc(GL_DST_COLOR,GL_ONE);
-  glColor4f(Value/20,Value/20,Value/20,Value/20);
+  //There will be no change to image anyway
+  if Value = 0 then Exit;
+
+  glBlendFunc(GL_DST_COLOR, GL_ONE);
+  glColor4f(Value/20, Value/20, Value/20, Value/20);
   glBegin(GL_QUADS);
-    glkRect(0,0,fScreenX,fScreenY);
+    glkRect(0, 0, fScreenX, fScreenY);
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

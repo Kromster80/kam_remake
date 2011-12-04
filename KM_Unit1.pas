@@ -14,6 +14,17 @@ uses
   KM_TextLibrary, KM_Sound, KM_Utils, KM_Points;
 
 type
+  //Custom flicker-free Panel
+  TMyPanel = class(TPanel)
+  private
+    LastScreenPos: TPoint;
+    procedure WMEraseBkgnd(var Message: TWmEraseBkgnd); message WM_ERASEBKGND;
+    procedure WMSize(var Message: TWMSize); message WM_SIZE;
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
+  end;
+
+
+type
   TForm1 = class(TForm)
     MenuItem1: TMenuItem;
     N2: TMenuItem;
@@ -132,6 +143,52 @@ implementation
 uses KM_Settings, KM_GameInputProcess,  KM_Log;
 
 
+{ TMyPanel }
+procedure TMyPanel.WMEraseBkgnd(var Message: TWmEraseBkgnd);
+begin
+  //Do not erase background, thats causing BG color flickering on repaint
+  //Just tell it's done
+  Message.Result := 1;
+end;
+
+
+procedure TMyPanel.WMPaint(var Message: TWMPaint);
+var
+  PS: TPaintStruct;
+  P: TPoint;
+begin
+  P := ClientToScreen(Point(0, 0));
+  //It is said to help with black borders bug in Windows
+  if (LastScreenPos.X <> P.X) or (LastScreenPos.Y <> P.Y) then
+  begin
+    PostMessage(Handle, WM_SIZE, SIZE_RESTORED, Width + (Height shl 16));
+    LastScreenPos := P;
+  end;
+
+  BeginPaint(Handle, PS);
+  try
+    fRender.Render;
+  finally
+    EndPaint(Handle, PS);
+  end;
+
+  Inherited;
+end;
+
+
+//Let the renderer know that client area size has changed ASAP
+//Handling it through VCL functions takes too long and Panel is already filled with bg color
+procedure TMyPanel.WMSize(var Message: TWMSize);
+begin
+  //Inherited;
+  if fRender <> nil then
+  begin
+    fGame.Resize(Message.Width, Message.Height);
+    Form1.ApplyCursorRestriction;
+  end;
+end;
+
+
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
 var FrameTime:cardinal; s:string;
 begin
@@ -167,7 +224,7 @@ end;
 
 procedure TForm1.StartTheGame;
 var
-  TempSettings:TGlobalSettings;
+  TempSettings: TGlobalSettings;
 begin
   SetKaMSeed(4); //Used for gameplay events so the order is important
   Randomize; //Random is only used for cases where order does not matter, e.g. shuffle tracks
@@ -218,13 +275,28 @@ begin
 end;
 
 
+//Restrict minimum Form ClientArea size to MENU_DESIGN_X/Y
+procedure TForm1.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
+var
+  Margin: TPoint;
+begin
+  Margin.X := Width - ClientWidth;
+  Margin.Y := Height - ClientHeight;
+
+  NewWidth := Math.max(NewWidth, MENU_DESIGN_X + Margin.X);
+  NewHeight := Math.max(NewHeight, MENU_DESIGN_Y + Margin.Y);
+
+  Resize := True;
+end;
+
+
 procedure TForm1.FormResize(Sender:TObject);
 begin
-  if fGame<>nil then //Occurs on exit
+  {if fGame<>nil then //Occurs on exit
     fGame.Resize(Panel5.Width, Panel5.Height);
   if fLog<>nil then
     fLog.AppendLog('FormResize - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
-  ApplyCursorRestriction;
+  ApplyCursorRestriction;//}
 end;
 
 
@@ -493,13 +565,33 @@ begin
     Form1.ClientWidth  := MENU_DESIGN_X;
     Form1.ClientHeight := MENU_DESIGN_Y;
     Form1.Refresh;
+    //Center on screen and make sure titlebar is visible
     Form1.Left := Math.max((Screen.Width  - MENU_DESIGN_X) div 2, 0);
-    Form1.Top  := Math.max((Screen.Height - MENU_DESIGN_Y) div 2, 0); //Center on screen and make sure titlebar is visible
+    Form1.Top  := Math.max((Screen.Height - MENU_DESIGN_Y) div 2, 0);
   end;
 
-  Panel5.Top    := 0;
-  Panel5.Height := Form1.ClientHeight;
-  Panel5.Width  := Form1.ClientWidth;
+  //Remove VCL panel and use flicker-free TMyPanel instead
+  if Panel5 <> nil then
+    RemoveControl(Panel5);
+
+  Panel5 := TMyPanel.Create(Self);
+  Panel5.Parent := Self;
+  Panel5.Left := 0;
+  Panel5.Top := 0;
+  Panel5.Width := ClientWidth;
+  Panel5.Height := ClientHeight;
+  Panel5.BevelOuter := bvNone;
+  Panel5.Anchors := [akLeft, akTop, akRight, akBottom];
+  Panel5.Color := clMaroon;
+  Panel5.OnMouseDown := Panel1MouseDown;
+  Panel5.OnMouseMove := Panel1MouseMove;
+  Panel5.OnMouseUp := Panel1MouseUp;
+  //Means it will receive WM_SIZE WM_PAINT always in pair (if False - WM_PAINT is not called if size becames smaller)
+  Panel5.FullRepaint := True;
+
+  //Put debug panel on top
+  Panel5.SendToBack;
+  GroupBox1.BringToFront;
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGame); //Saves all settings into ini file in midst
@@ -658,20 +750,6 @@ begin
 end;
 
 
-//Restrict minimum Form ClientArea size to MENU_DESIGN_X/Y
-procedure TForm1.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
-var Margin:TPoint;
-begin
-  Margin.X := Width - ClientWidth;
-  Margin.Y := Height - ClientHeight;
-
-  NewWidth := math.max(NewWidth, MENU_DESIGN_X + Margin.X);
-  NewHeight:= math.max(NewHeight, MENU_DESIGN_Y + Margin.Y);
-
-  Resize := true;
-end;
-
-
 //Consult with the fGame if we can shut down the program
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
@@ -679,7 +757,7 @@ begin
     CanClose := MessageBox(0, 'Any unsaved changes will be lost. Exit?', 'Warning', MB_ICONWARNING or MB_YESNO) = IDYES
   else
     CanClose := True;
-end;  
+end;
 
 
 {$IFDEF FPC}

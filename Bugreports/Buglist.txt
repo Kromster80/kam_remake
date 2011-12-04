@@ -59,6 +59,7 @@
  +	Campaign flags have a colored square around them when selected [Krom]
  +	If an inn was destroyed while units were eating, the eating animation would continue to show for a while
  +	Rare crash "EAssertionFailed: Trying to remove wrong unit at (X;Y)"
+ +	Game flickers on resize and/or if other window is moved above it
 	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies

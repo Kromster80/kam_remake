@@ -245,7 +245,7 @@ procedure TKMGame.Resize(X,Y:integer);
 begin
   fScreenX := X;
   fScreenY := Y;
-  fRender.Resize(fScreenX, fScreenY, rm2D);
+  fRender.Resize(fScreenX, fScreenY);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
@@ -253,6 +253,8 @@ begin
   if fMapEditorInterface<>nil then fMapEditorInterface.Resize(fScreenX, fScreenY);
   if fGamePlayInterface<>nil then fGamePlayInterface.Resize(fScreenX, fScreenY);
   if fViewport <> nil then fViewport.Resize(fScreenX, fScreenY);
+
+  //fRender.Render;
 end;
 
 
