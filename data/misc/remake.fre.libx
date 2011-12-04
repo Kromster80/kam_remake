@@ -5,109 +5,109 @@ MaxID:212
 2:Tutoriel de Construction
 3:Tutoriel de Bataille
 4:Joueur Solo
-5:Editeur de Maps
-202:
-203:
+5:Éditeur de Map
+202:Lecteur de Replay
+203:Voir le Replay
 6:Voir le Dernier Replay
-7:Continuer
+7:Débuter !
 8:Titre
 9:Taille
-10:Type de Mission: %s
-11:Condition de Victoire: %s
-12:Condition de Défaite: %s
-13:Alliés:
-14:Ennemis:
+10:Type de Mission : %s
+11:Condition de Victoire : %s
+12:Condition de Défaite : %s
+13:Alliés : 
+14:Ennemis : 
 16:Taille de la Carte :
 17:Largeur
 18:Hauteur
 19:Créer une Mission
-20:Missions Existantes :
-21:Charger une Mission Existante
+20:Missions Éxistantes :
+21:Charger une Mission Éxistante
 22:Contrôles :
-23:Gameplay :
-24:Effets Sonores :
-141:
+23:Jouabilité :
+24:Éffets Sonores :
+141:Vitesse du Scroll.
 25:Désactiver
-143:
+143:Shuffle
 26:Graphisme :
 27:Luminosité
-28:Plein Ecran
+28:Plein Écran
 29:Appliquer
 30:Langage :
 31:Chargement... Veuillez patienter
-207:
-208:
-209:
-210:
+207:Arbres, bâtiments et unités
+208:Initialisation
+209:Initialisation du multijoueur
+210:Script
 32:Une Erreur s'est Produite !
-212:
+212:Une erreur est survenue lors de l'analyse du fichier %s
 33:Chargement du nouveau local
-34:Liste des Sauvegardes
+34:Liste des Sauvegardes :
 35:Nom du Fichier
 36:Description
 37:Charger
 38:Supprimer
-39:Etes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
+39:Êtes-vous sûr(e) de vouloir supprimer ce fichier ?
 40:Supprimer
-41:Annulée
+41:Annuler
 139:Missions Multijoueur
 140:Missions Solo
 
 43:Vous avez Gagné !
 44:Continuer à Jouer
 45:Victoire !
-46:Vous avez Perdu !
+46:You avez Perdu !
 47:Continuer à Regarder
 48:Défaite !
 49:Le Replay est Terminé
 50:Continuer à Regarder
 51:Quitter au Menu
-166:
-167:
-168:
-171:
-172:
-173:
+166:Abandonner les Joueurs
+167:L'hôte sera autorisé à abandonner ces joueurs après %d secondes
+168:L'hôte est désormais autorisé à abandonner ces joueurs
+171:Êtes-vous sûr(e) de vouloir quitter ?
+172:Êtes-vous sûr(e) de vouloir définitivement abandonner ces joueurs ?
+173:Annuler
 52:Non disponible
-53:Appuyer sur %s pour reprendre
-54:Pour l'alliance
-55:Info sur les joueurs
+53:Appuyer sur %s pour reprendre le jeu
+54:Pour l'Alliance
+55:Infos sur les joueurs
 56:Chat
 57:Fichier déjà existant
-58:Ecraser
+58:Écraser
 59:Enregistrer
 60:Charger
-205:
-206:
-211:
-194:
+205:Format non supporté %s
+206:Version non supporté %s
+211:Nouvelle Mission
+194:Temps de Jeu :|%s
 
 61:Une erreur s'est produite durant la partie.
-62:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent être trouvés dans le fichier Readme. Merci beaucoup de votre aide !\n\nATTENTION: Continuer à jouer après cette erreur peut causer de future crashs et instabilités. Voulez-vous prendre ce risque et continuer à jouer ?
-63:Une ancienne version d'OpenGL à été détecté, le jeu peut être lent et/ou avec des défauts graphiques.\nVeuillez mettre à jour vos pilotes graphiques pour obtenir une meilleure performance.
-64:Erreur réseau:
-65:Erreur: Le nom du joueur doit contenir au moins un caractère
-66:Connexion échoué: %s
+62:Veuillez envoyer les fichiers %s se trouvant dans le dossier KaM Remake\\Crash Reports au développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!\n\nATTENTION: Continuer à jouer après cette erreur peut causer des crashes et des instabilités supplémentaires. Voulez-vous prendre ce risque et continuer à jouer?
+63:Une ancienne version d'OpenGL à été détecté, le jeu peut être lent et/ou avec des défauts graphiques.\nVeuillez mettre à jour vos pilotes graphiques pour avoir une meilleure performance.
+64:Erreur réseau :
+65:Erreur : Le nom du joueur doit contenir au moins un caractère
+66:Connexion échoué : %s
 67:Vous vous êtes déconnecté
 68:Mission %d
-150:
-151:
+150:Troupes et Bâtiments
+151:Troupes
 
-69:La Hutte de votre Pêcheur est trop éloignée de l'eau.
-70:Votre Pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa Hutte.
+69:La Hutte de votre Pêcheur est trop éloignée de la mer.
+70:Votre Pêcheur ne peut plus pêcher de poisson supplémentaire.
 
 71:Place du Marché
-72:Utilisez le bouton gauche de la sourie pour sélectionner une marchandise à échanger
-73:Utilisez le bouton droit de la sourie pour sélectionner une marchandise à échanger
-74:De x%d
-75:Pour x%d
-162:
-161:
-184:
-185:
-186:
+72:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
+73:Utilisez le bouton droit de la souris pour sélectionner une marchandise à échanger
+74:Échanger x%d
+75:Contre x%d
+162:Réduire le nombre d'échanges
+161:Augmenter le nombre d'échanges
+184:L'échange de cette ressource est indisponible dans cette mission
+185:Planter et Abattre
+186:Abattre Seulement
 
-76:Edition du terrain
+76:Édition du terrain
 77:Planification du village
 78:Scripts visuel
 79:Scripts global
@@ -115,41 +115,41 @@ MaxID:212
 
 82:Nom du Joueur
 81:Status :
-83:CREER UN SERVEUR
+83:CRÉER UN SERVEUR
 84:Nom
 85:Port
-86:Créer un Serveur Local
-87:Créer un Serveur Internet
+86:Créer un Server Local
+87:Créer un Server en Réseau
 88:Nom du Serveur
-89:Etat
+89:État
 90:Joueurs
 91:Ping
 92:Rafraichir la Liste des Serveurs
-93:DETAILS DU SERVEUR
+93:DÉTAILS DU SERVEUR
 94:Liste des Joueurs :
-144:
+144:Informations sur la Partie :
 95:Adresse
 96:Port
 97:Salle
 98:Joindre
-153:
+153:Prêt
 99:Connexion, veuillez patienter...
-159:
+159:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s
 100:Chargement des annonces...
 101:Rafraichissement...
-142:
+142:Aucun serveurs n'a été trouvés
 145:-
-146:
-147:
-148:
+146:Lobby
+147:Chargement
+148:Partie
 
 102:Liste des Joueurs
-103:Position
+103:Positions de Départ
 104:Alliance
 105:Couleur
 106:Prêt
 107:Ping
-108:Bannir
+108:Éjecter
 109:Libre
 110:Joueur IA
 111:Sélect...
@@ -158,67 +158,67 @@ MaxID:212
 114:Aucune
 115:Alliance %d
 117:Envoyer un Message :
-118:
-119:Mission
-188:
-189:
-190:
-120:Sauvegarde
+118:Type de Mission
+119:Mission Solo
+188:Développement
+189:Bataille
+190:Mission Coopérative
+120:Partie Enregistrée
 121:Sélect. une mission...
-122:Sélect. un fichier...
-123:Info sur la Mission :
-124:Joueurs: %d
-125:Mode:
-126:Conditions:
-127:Taille:
-195:
-204:
+122:Sélect. une sauvegarde...
+123:Informations sur la Mission :
+124:Nombre de Joueurs : %d
+125:Mode :
+126:Conditions :
+127:Taille :
+195:Options de Jeu :
+204:Temps de Paix (min.)
 128:Quitter le Lobby
 129:Prêt
-152:
+152:Non Prêt
 130:Débuter !
-149:
-154:
-155:
-156:
-157:
-158:
-160:
-187:
+149:Position %d
+154:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler
+155:Erreur : Le chargement de la mission à échoué ou aucune mission n'a été sélectionnée
+156:Impossible de débuter : %s
+157:Tous le monde n'est pas prêt pour débuter
+158:Le nombre de joueurs dépasse la limite de la mission
+160:Le Serveur a attribué nos droits d'hébergement
+187:La partie à débuté
 
-131:Attente de Joueurs:
-163:
-164:
-169:
-170:
-191:
-192:
-193:
+131:Attente des Joueurs :
+163:Enregistrement de la partie...
+164:%s à perdu !
+169:L'hôte (%s) à quitter
+170:La connexion vers le serveur à été perdu. Tentative de reconnexion...
+191:Vous n'êtes pas autorisé à faire cela pendant le temps de paix.
+192:Temps de paix restant : %s
+193:Le temps de paix est terminé. À vos armes !
 
-174:
-175:
-176:
-177:
-178:
-179:
-180:
-181:
-182:
-183:
+174:Unités|formées
+175:Unités|perdues
+176:Soldats|entraînés
+177:Soldats|perdus
+178:Unités|éliminées
+179:Bâtiments|construits
+180:Bâtiments|perdus
+181:Bâtiments|détruits
+182:Marchandises|produites
+183:Armes|fabriquées
 
-196:
-197:
-198:
+196:H
+197:L
+198:S
 
-199:
-200:
-201:
+199:Halte ('%s')
+200:Regrouper les Unités ('%s')
+201:Scinder les Unités ('%s')
 
 132:Crédits de KaM Remake
-133:Crédits Original de Knights & Merchants
+133:Crédits Original de  Knights & Merchants
 134:PROGRAMMATION :
 135:PROGRAMMATION ADDITIONNEL :
 136:GRAPHISMES ADDITIONNEL :
-165:
-137:TRADUCTIONS ADDITIONNEL :
+165:ÉFFETS SONORES ADDITIONNEL :
+137:TRADUCTIONS ADDITIONNEL:
 138:REMERCIMENTS PARTICULIERS :

@@ -67,3 +67,10 @@ ptb.NoKaM=O assistente de instalação detectou que você não tem Knights and Merch
 ptb.CantUpdate=O assistente de instalação foi incapaz de encontrar uma versão existente do KaM Remake para atualizar. Por favor, baixe e instale através do instalador completo. A instalação será abortada.
 ptb.OpenAL=Você deseja que o assistente de instalação instale o OpenAL? (Altamente recomendado) É necessário para o funcionamento dos sons no KaM Remake
 ptb.ViewReadme=Ver o Readme
+
+;Italian
+ita.CreateStartShortcut=Crea collegamento nel Menu Avvio
+ita.NoKaM=La procedura guidata di installazione non ha rilevato alcuna copia di "Knights and Merchants: The Peasants Rebellion". È necessaria l'installazione del gioco originale per poter utilizzare "KaM Remake". La procedura di installazione verrà ora annullata.
+ita.CantUpdate=La procedura guidata di installazione non ha rilevato alcuna versione di "KaM Remake" da aggiornare. Si prega di scaricare e utilizzare invece il programma di installazione completo. La procedura di installazione verrà ora annullata.
+ita.OpenAL=Vuoi procedere all'installazione di OpenAL? (Fortemente raccomandata) È necessaria per il corretto funzionamento dell'audio in "KaM Remake"
+ita.ViewReadme=Visualizza il file Readme

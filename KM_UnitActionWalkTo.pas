@@ -668,6 +668,7 @@ begin
               ChangeStepTo(TempPos);
               //They both will exchange next tick
               Result := true; //Means exit DoUnitInteraction
+              exit; //Once we've found a solution, do NOT check the other alternative dodge position (when for loop i=1)
             end;
       end;
     end;

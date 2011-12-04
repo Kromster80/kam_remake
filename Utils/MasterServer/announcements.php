@@ -11,6 +11,10 @@ if($Rev != $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'ita':
+			echo "La tua versione di \"KaM Remake\" non è aggiornata! Stai utilizzando la versione ".$Rev.", mentre la più recente è ".$MAIN_VERSION.".||Puoi scaricare l'aggiornamento dal sito: www.kamremake.com.";
+			//Non potrai giocare online prima di aver aggiornato il programma.
+			break;
 		case 'ptb':
 			echo "Sua versão do KaM Remake está desatualizada! Você está executando ".$Rev." mas a versão mais recente é ".$MAIN_VERSION.".|| Por favor, baixe a atualização em: www.kamremake.com";
 			//Você não pode jogar online até que atualize seu jogo.
