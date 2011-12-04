@@ -29,7 +29,7 @@ const
 
   GAME_REVISION         = 'r2646';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '3rd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
-  NET_PROTOCOL_REVISON  = 'r2623';     //Clients of this version may connect to the dedicated server
+  NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 
@@ -734,7 +734,7 @@ const
     'Misc\Defeat.wav',
     'UI\Error001.wav',
     'UI\Error002.wav',
-    'UI\Error002.wav' //Temporary
+    'Misc\PeaceTime.wav'
     );
 
 const MeleeSoundsHit:array[0..14] of TSoundFX = (

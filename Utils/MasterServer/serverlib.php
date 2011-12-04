@@ -1,10 +1,9 @@
 ﻿<?php
 
-global $DATA_FILE, $DISALLOWED_CHARS, $GAME_VERSION, $MAX_TTL, $DO_STATS;
+global $DISALLOWED_CHARS, $MAIN_VERSION, $MAX_TTL, $DO_STATS;
 $DO_STATS = true;
-$GAME_VERSION = 'r2411';
+$MAIN_VERSION = 'r2411';
 $MAX_TTL = 600; //10 minutes
-$DATA_FILE = "servers.txt";
 $DISALLOWED_CHARS  = array("|", ",","\n","\r");
 
 if ($DO_STATS) include("statistics.php");
@@ -58,10 +57,18 @@ if (!function_exists('json_encode'))
   }
 }
 
+function GetDataFileName($Rev)
+{
+	global $MAIN_VERSION;
+	if($Rev == "") $Rev = $MAIN_VERSION;
+	Return "servers.$Rev.txt";
+}
+
 function CheckVersion($aRev)
 {
-	global $GAME_VERSION;
-	return ($aRev == $GAME_VERSION);
+	$Result = ctype_alnum($aRev); //Protect against injection attacks by only allowing alphanumeric characters
+	$Result = $Result && (strlen($aRev) <= 7); //Don't allow really long names
+	return $Result;
 }
 
 function plural($count, $singular, $plural = 's') {
@@ -74,7 +81,8 @@ function plural($count, $singular, $plural = 's') {
 
 function GetStats($Format)
 {
-	global $DATA_FILE;
+	global $MAIN_VERSION;
+	$DATA_FILE = GetDataFileName($MAIN_VERSION); //Use the main revision for stats
 	$ServerCount = 0;
 	$TotalPlayerCount = 0;
 	if(!file_exists($DATA_FILE))
@@ -113,9 +121,9 @@ function GetStats($Format)
 	}
 }
 
-function GetServers($aFormat)
+function GetServers($aFormat,$aRev)
 {
-	global $DATA_FILE;
+	$DATA_FILE = GetDataFileName($aRev);
 	include("flag.php");
 	$Result = "";
 	$cnts = 0;
@@ -183,9 +191,10 @@ function GetServers($aFormat)
 	return $Result;
 }
 
-function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL)
+function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 {
-	global $DATA_FILE, $DISALLOWED_CHARS, $MAX_TTL, $DO_STATS;
+	global $DISALLOWED_CHARS, $MAX_TTL, $DO_STATS, $MAIN_REV;
+	$DATA_FILE = GetDataFileName($aRev);
 	//Remove characters that are not allowed (used for internal formatting)
 	$aName = str_replace($DISALLOWED_CHARS,"",$aName);
 	$aIP = str_replace($DISALLOWED_CHARS,"",$aIP);
@@ -198,7 +207,8 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL)
 	$Exists = false;
 	$aAlive = (file_get_contents('http://beta.nonsenseinc.de/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
 	
-	if ($DO_STATS) StatsUpdate($aName,$aPlayerCount);
+	//Only record statistics about the main revision (for now)
+	if (($DO_STATS) && ($Rev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);
 	
 	if(file_exists($DATA_FILE))
 	{

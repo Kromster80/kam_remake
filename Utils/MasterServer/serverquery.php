@@ -11,7 +11,7 @@ header('Content-type: application/json');
 include("serverlib.php");
 if((!CheckVersion($_REQUEST["rev"])) && (!isset($_REQUEST["format"])))
 {
-	die("Please update");
+	die("Invalid revision");
 }
 if(isset($_REQUEST["format"]))
 {
@@ -21,5 +21,5 @@ else
 {
 	$Format = "";
 }
-echo GetServers($Format);
+echo GetServers($Format,$_REQUEST["rev"]);
 ?>
