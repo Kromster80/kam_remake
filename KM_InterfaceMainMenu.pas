@@ -1057,7 +1057,7 @@ begin
     TKMLabel.Create(Panel_Credits,232,140,400,492,
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|trb1914||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+TRANSLATOR_CREDITS+
     fTextLibrary[TX_CREDITS_SPECIAL]+'|KaM Community members'

@@ -1512,11 +1512,29 @@ end;
 
 
 procedure TKMHouseMarket.Paint;
+
+  function GetInResource(out ResType: TResourceType; out ResCount: word):boolean;
+  var i:TResourceType;
+  begin
+    ResCount := 0;
+    ResType := rt_None;
+    Result := false;
+    for i:=WARE_MIN to WARE_MAX do
+      if fMarketResIn[i] > ResCount then
+      begin
+        ResCount := fMarketResIn[i];
+        ResType := i;
+        Result := true;
+      end;
+  end;
+
+var ResType: TResourceType; ResCount: word;
 begin
   Inherited;
-  //Render special market wares display. Each 2 wares of any type shows up as 1 extra overlay sprite
+  //Render special market wares display
   if fBuildState = hbs_Done then
-    fRender.RenderHouseSupply(fHouseType,[min(GetResTotal div 2,5),0,0,0],[0,0,0,0],fPosition);
+    if GetInResource(ResType, ResCount) then
+      fRender.RenderMarketSupply(ResType,ResCount,fPosition);
 end;
 
 

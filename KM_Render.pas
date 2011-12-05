@@ -87,6 +87,7 @@ type
     procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
     procedure RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
     procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
+    procedure RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint);
     procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
     procedure RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
@@ -101,7 +102,7 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_Units, KM_Log;
+uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_Log;
 
 
 constructor TRender.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
@@ -710,6 +711,27 @@ begin
       AddHouseSupplySprite(ID);
     end;
   end
+end;
+
+
+procedure TRender.RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint);
+var ID:integer;
+
+  procedure AddHouseSupplySprite(aID:integer);
+  var ShiftX,ShiftY:single;
+  begin
+    if aID>0 then
+    begin
+      ShiftX := Loc.X + MarketWaresOffsetX/CELL_SIZE_PX;
+      ShiftY := Loc.Y + (MarketWaresOffsetY+RXData[7].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+      fRenderList.AddSprite(7,aID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
+    end;
+  end;
+
+begin
+  if MarketWares[ResType].Count = 0 then exit;
+  ID := (MarketWares[ResType].TexStart-1) + Min(ResCount, MarketWares[ResType].Count);
+  AddHouseSupplySprite(ID);
 end;
 
 

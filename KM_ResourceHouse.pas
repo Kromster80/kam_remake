@@ -419,6 +419,50 @@ const
     )
     );
 
+  //Sprites in the marketplace
+  MarketWaresOffsetX = -93;
+  MarketWaresOffsetY = -88;
+  MarketWares: array[TResourceType] of record
+                                         TexStart: Integer; //Tex ID for first sprite
+                                         Count: Integer; //Total sprites for this resource
+                                       end
+  = (
+      (TexStart: 0; Count: 0;), //rt_None
+
+      (TexStart: 0;   Count: 0;), //rt_Trunk
+      (TexStart: 90;  Count: 36;), //rt_Stone
+      (TexStart: 137; Count: 16;), //rt_Wood
+      (TexStart: 153; Count: 11;), //rt_IronOre
+      (TexStart: 175; Count: 12;), //rt_GoldOre
+      (TexStart: 244; Count: 11;), //rt_Coal
+      (TexStart: 170; Count: 5;), //rt_Steel
+      (TexStart: 187; Count: 9;), //rt_Gold
+      (TexStart: 44;  Count: 23;), //rt_Wine
+      (TexStart: 67;  Count: 23;), //rt_Corn
+      (TexStart: 255; Count: 12;), //rt_Bread
+      (TexStart: 224; Count: 12;), //rt_Flour
+      (TexStart: 196; Count: 9;), //rt_Leather
+      (TexStart: 0;   Count: 0;), //rt_Sausages
+      (TexStart: 0;   Count: 0;), //rt_Pig
+      (TexStart: 267; Count: 7;), //rt_Skin
+      (TexStart: 128; Count: 9;), //rt_Shield
+      (TexStart: 167; Count: 3;), //rt_MetalShield
+      (TexStart: 205; Count: 6;), //rt_Armor
+      (TexStart: 164; Count: 3;), //rt_MetalArmor
+      (TexStart: 239; Count: 5;), //rt_Axe
+      (TexStart: 221; Count: 3;), //rt_Sword
+      (TexStart: 211; Count: 5;), //rt_Pike
+      (TexStart: 236; Count: 3;), //rt_Hallebard
+      (TexStart: 216; Count: 5;), //rt_Bow
+      (TexStart: 126; Count: 2;), //rt_Arbalet
+      (TexStart: 0;   Count: 0;), //rt_Horse
+      (TexStart: 0;   Count: 0;), //rt_Fish
+
+      (TexStart: 0; Count: 0;), //rt_All
+      (TexStart: 0; Count: 0;), //rt_Warfare
+      (TexStart: 0; Count: 0;)  //rt_Food
+    );
+
   //These tables are used to convert between KaM script IDs and Remake enums
   HouseDatCount = 30;
   //KaM scripts and HouseDat address houses in this order
