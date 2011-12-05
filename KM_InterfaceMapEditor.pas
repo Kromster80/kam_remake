@@ -1262,12 +1262,12 @@ procedure TKMapEdInterface.Load_RefreshMapsList;
 begin
   if Radio_Load_MapType.ItemIndex = 1 then
   begin
-    fMapsMP.ScanMapsFolder;
+    fMapsMP.Refresh;
     ListBox_Load.SetItems(fMapsMP.MapList);
   end
   else
   begin
-    fMaps.ScanMapsFolder;
+    fMaps.Refresh;
     ListBox_Load.SetItems(fMaps.MapList);
   end;
   ListBox_Load.ItemIndex := 0; //Try to select first map by default

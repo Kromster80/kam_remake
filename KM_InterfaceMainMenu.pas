@@ -57,6 +57,7 @@ type
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
+    procedure SingleMap_Sort(Sender: TObject);
 
     procedure MP_Init(Sender: TObject);
     procedure MP_BindEvents;
@@ -810,9 +811,13 @@ begin
       ScrollBar_SingleMaps.OnChange := SingleMap_ScrollChange;
 
       Button_SingleHeadMode  := TKMButton.Create(Panel_SingleList,  0,0, 40,40,42,4,bsMenu);
+      Button_SingleHeadMode.OnClick := SingleMap_Sort;
       Button_SingleHeadTeams := TKMButton.Create(Panel_SingleList, 40,0, 40,40,31,4,bsMenu);
+      Button_SingleHeadTeams.OnClick := SingleMap_Sort;
       Button_SingleHeadTitle := TKMButton.Create(Panel_SingleList, 80,0,300,40,fTextLibrary[TX_MENU_TITLE],fnt_Metal,bsMenu);
+      Button_SingleHeadTitle.OnClick := SingleMap_Sort;
       Button_SingleHeadSize  := TKMButton.Create(Panel_SingleList,380,0, 40,40,fTextLibrary[TX_MENU_SIZE],fnt_Metal,bsMenu);
+      Button_SingleHeadSize.OnClick := SingleMap_Sort;
       with TKMButton.Create(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
 
       for i:=0 to MENU_SP_MAPS_COUNT-1 do
@@ -1222,7 +1227,7 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
-    fMaps.ScanMapsFolder;
+    fMaps.Refresh;
     SingleMap_RefreshList;
     fMap_Selected := EnsureRange(fMap_Selected, 0, fMaps.Count-1);
     ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, fMap_Selected-MENU_SP_MAPS_COUNT+1, fMap_Selected);
@@ -1446,6 +1451,38 @@ procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
     fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat',false),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_Sort(Sender: TObject);
+begin
+  //Set Descending order by default and invert it if same column selected again
+  if Sender = Button_SingleHeadTitle then
+    if fMaps.SortMethod = smByNameDesc then
+      fMaps.SortMethod := smByNameAsc
+    else
+      fMaps.SortMethod := smByNameDesc
+  else
+  if Sender = Button_SingleHeadSize then
+    if fMaps.SortMethod = smBySizeDesc then
+      fMaps.SortMethod := smBySizeAsc
+    else
+      fMaps.SortMethod := smBySizeDesc
+  else
+  if Sender = Button_SingleHeadTeams then
+    if fMaps.SortMethod = smByPlayersDesc then
+      fMaps.SortMethod := smByPlayersAsc
+    else
+      fMaps.SortMethod := smByPlayersDesc
+  else
+  if Sender = Button_SingleHeadMode then
+    if fMaps.SortMethod = smByModeDesc then
+      fMaps.SortMethod := smByModeAsc
+    else
+      fMaps.SortMethod := smByModeDesc;
+
+  //Update the list
+  SingleMap_RefreshList;
 end;
 
 
@@ -1892,19 +1929,19 @@ begin
   case Radio_LobbyMapType.ItemIndex of
     0:  //Build Map
         begin
-          fMapsMP.ScanMapsFolder;
+          fMapsMP.Refresh;
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
           List_Lobby.SetItems(fMapsMP.MapListBuild);
         end;
     1:  //Fight Map
         begin
-          fMapsMP.ScanMapsFolder;
+          fMapsMP.Refresh;
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
           List_Lobby.SetItems(fMapsMP.MapListFight);
         end;
     2:  //Co-op Map
         begin
-          fMapsMP.ScanMapsFolder;
+          fMapsMP.Refresh;
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
           List_Lobby.SetItems(fMapsMP.MapListCoop);
         end;
@@ -2225,12 +2262,12 @@ procedure TKMMainMenuInterface.MapEditor_ListUpdate(aUseMP:boolean);
 begin
   if aUseMP then
   begin
-    fMapsMP.ScanMapsFolder;
+    fMapsMP.Refresh;
     List_MapEd.SetItems(fMapsMP.MapList);
   end
   else
   begin
-    fMaps.ScanMapsFolder;
+    fMaps.Refresh;
     List_MapEd.SetItems(fMaps.MapList);
   end;
   List_MapEd.ItemIndex := 0; //Select first map by default, otherwise there could be an invalid map selected (if items have been removed since we last updated)

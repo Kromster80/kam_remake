@@ -38,18 +38,32 @@ type
   end;
 
 
+  TSortMethod = (
+    smByNameAsc, smByNameDesc,
+    smBySizeAsc, smBySizeDesc,
+    smByPlayersAsc, smByPlayersDesc,
+    smByModeAsc, smByModeDesc);
+
+
   TKMapsCollection = class
   private
     fCount: Integer;
     fMaps: array of TKMapInfo;
     fMultiplayerPath: Boolean;
-    function GetMap(aIndex: Integer):TKMapInfo;
+    fSortMethod: TSortMethod;
+    function GetMap(aIndex: Integer): TKMapInfo;
+    procedure SetSortMethod(aMethod: TSortMethod);
+    procedure ScanMapsFolder;
+    procedure Sort;
   public
     constructor Create(aMultiplayerPath: Boolean);
     destructor Destroy; override;
-    procedure ScanMapsFolder;
+
     property Count: Integer read fCount;
     property Map[aIndex: Integer]: TKMapInfo read GetMap; default;
+
+    procedure Refresh;
+    property SortMethod: TSortMethod read fSortMethod write SetSortMethod;
 
     function MapList: string;
     function MapListBuild: string;
@@ -63,6 +77,20 @@ uses KM_CommonTypes, KM_Defaults, KM_MissionScript, KM_Player, KM_TextLibrary, K
 
 
 { TKMapInfo }
+constructor TKMapInfo.Create;
+begin
+  inherited;
+  fInfo := TKMGameInfo.Create;
+end;
+
+
+destructor TKMapInfo.Destroy;
+begin
+  fInfo.Free;
+  inherited;
+end;
+
+
 procedure TKMapInfo.Load(const aFolder:string; aStrictParsing, aIsMultiplayer:boolean);
 begin
   if aIsMultiplayer then fPath := ExeDir+'MapsMP\'
@@ -186,25 +214,12 @@ begin
 end;
 
 
-constructor TKMapInfo.Create;
-begin
-  inherited;
-  fInfo := TKMGameInfo.Create;
-end;
-
-
-destructor TKMapInfo.Destroy;
-begin
-  fInfo.Free;
-  inherited;
-end;
-
-
 { TKMapsCollection }
 constructor TKMapsCollection.Create(aMultiplayerPath: Boolean);
 begin
   Inherited Create;
   fMultiplayerPath := aMultiplayerPath;
+  fSortMethod := smByNameAsc;
 end;
 
 
@@ -217,9 +232,18 @@ begin
 end;
 
 
-function TKMapsCollection.GetMap(aIndex: Integer):TKMapInfo;
+function TKMapsCollection.GetMap(aIndex: Integer): TKMapInfo;
 begin
   Result := fMaps[aIndex];
+end;
+
+
+procedure TKMapsCollection.SetSortMethod(aMethod: TSortMethod);
+begin
+  fSortMethod := aMethod;
+
+  //New sorting methos has been set, we need to apply it
+  Sort;
 end;
 
 
@@ -262,6 +286,17 @@ begin
 end;
 
 
+procedure TKMapsCollection.Refresh;
+begin
+  //Update the list of maps
+  //Player could have added new map, no need to force him to relaunch the game
+  ScanMapsFolder;
+
+  //Apply selected sorting method, as the rescanned maps are in alphabetical order
+  Sort;
+end;
+
+
 procedure TKMapsCollection.ScanMapsFolder;
 var
   SearchRec:TSearchRec;
@@ -293,6 +328,33 @@ begin
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
+end;
+
+
+procedure TKMapsCollection.Sort;
+
+  //Return True if items should be exchanged
+  function Compare(A, B: TKMapInfo; aMethod: TSortMethod): Boolean;
+  begin
+    case aMethod of
+      smByNameAsc:      Result := CompareStr(A.Info.Title, B.Info.Title) < 0;
+      smByNameDesc:     Result := CompareStr(A.Info.Title, B.Info.Title) > 0;
+      smBySizeAsc:      Result := (A.Info.MapSizeX * A.Info.MapSizeY) < (B.Info.MapSizeX * B.Info.MapSizeY);
+      smBySizeDesc:     Result := (A.Info.MapSizeX * A.Info.MapSizeY) > (B.Info.MapSizeX * B.Info.MapSizeY);
+      smByPlayersAsc:   Result := A.Info.PlayerCount < B.Info.PlayerCount;
+      smByPlayersDesc:  Result := A.Info.PlayerCount > B.Info.PlayerCount;
+      smByModeAsc:      Result := A.Info.MissionMode < B.Info.MissionMode;
+      smByModeDesc:     Result := A.Info.MissionMode > B.Info.MissionMode;
+    end;
+  end;
+
+var
+  i, k: Integer;
+begin
+  for i:=0 to fCount-1 do
+  for k:=i to fCount-1 do
+  if Compare(fMaps[i], fMaps[k], fSortMethod) then
+    SwapInt(Cardinal(fMaps[i]), Cardinal(fMaps[k]));
 end;
 
 
