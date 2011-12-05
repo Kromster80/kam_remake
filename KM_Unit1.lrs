@@ -22,9 +22,9 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +'Width'#2'2'#7'Caption'#6#11'Passability'#11'ParentColor'#8#0#0#6'TLabel'#6
   +'Label3'#4'Left'#2'e'#6'Height'#2#14#3'Top'#2'#'#5'Width'#2#7#7'Caption'#6#1
   +'0'#11'ParentColor'#8#0#0#9'TCheckBox'#9'CheckBox2'#4'Left'#2#8#6'Height'#2
-  +#17#3'Top'#2'4'#5'Width'#2'G'#7'Caption'#6#9'Speed x50'#7'OnClick'#7#14'Chec'
-  +'kBox2Click'#8'TabOrder'#2#1#0#0#9'TTrackBar'#22'Debug_PassabilityTrack'#4'L'
-  +'eft'#2#2#6'Height'#2#17#3'Top'#2#14#5'Width'#2'S'#3'Max'#2#9#8'OnChange'#7
+  +#17#3'Top'#2'4'#5'Width'#2'G'#7'Caption'#6#10'Speed x300'#7'OnClick'#7#14'Ch'
+  +'eckBox2Click'#8'TabOrder'#2#1#0#0#9'TTrackBar'#22'Debug_PassabilityTrack'#4
+  +'Left'#2#2#6'Height'#2#17#3'Top'#2#14#5'Width'#2'S'#3'Max'#2#9#8'OnChange'#7
   +#28'Debug_PassabilityTrackChange'#8'PageSize'#2#1#8'Position'#2#0#9'TickMark'
   +'s'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8'TabOrder'#2#0#0#0#11'TRadioGroup'
   +#8'RGPlayer'#4'Left'#3'0'#1#6'Height'#2'='#3'Top'#2#8#5'Width'#2'i'#8'AutoFi'
@@ -57,29 +57,30 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +'Click'#0#0#9'TMenuItem'#16'Debug_ShowPanel1'#7'Caption'#6#16'Show Debug pan'
   +'el'#7'OnClick'#7#21'Debug_ShowPanel1Click'#0#0#9'TMenuItem'#15'Debug_ShowUn'
   +'its'#7'Caption'#6#10'Show Units'#7'OnClick'#7#19'Debug_ShowUnitClick'#0#0#9
-  +'TMenuItem'#15'ExportMainMenu1'#7'Caption'#6#15'Export MainMenu'#7'OnClick'#7
-  +#20'ExportMainMenu1Click'#0#0#0#9'TMenuItem'#7'Export1'#7'Caption'#6#11'Expo'
-  +'rt Data'#0#9'TMenuItem'#14'Export_TreesRX'#7'Caption'#6#8'Trees.rx'#7'OnCli'
-  +'ck'#7#19'Export_TreesRXClick'#0#0#9'TMenuItem'#15'Export_HousesRX'#7'Captio'
-  +'n'#6#9'Houses.rx'#7'OnClick'#7#20'Export_HousesRXClick'#0#0#9'TMenuItem'#14
-  +'Export_UnitsRX'#7'Caption'#6#8'Units.rx'#7'OnClick'#7#19'Export_UnitsRXClic'
-  ,'k'#0#0#9'TMenuItem'#12'Export_GUIRX'#7'Caption'#6#6'GUI.rx'#7'OnClick'#7#17
-  +'Export_GUIRXClick'#0#0#9'TMenuItem'#16'Export_GUIMainRX'#7'Caption'#6#11'GU'
-  +'I Main.rx'#7'OnClick'#7#21'Export_GUIMainRXClick'#0#0#9'TMenuItem'#17'Expor'
-  +'t_GUIMainHRX'#7'Caption'#6#12'GUI MainH.rx'#7'OnClick'#7#22'Export_GUIMainH'
-  +'RXClick'#0#0#9'TMenuItem'#9'AnimData1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9
-  +'TMenuItem'#16'Export_TreeAnim1'#7'Caption'#6#9'Tree Anim'#7'OnClick'#7#21'E'
-  +'xport_TreeAnim1Click'#0#0#9'TMenuItem'#17'Export_HouseAnim1'#7'Caption'#6#10
-  +'House Anim'#7'OnClick'#7#22'Export_HouseAnim1Click'#0#0#9'TMenuItem'#16'Exp'
-  +'ort_UnitAnim1'#7'Caption'#6#9'Unit Anim'#7'OnClick'#7#21'Export_UnitAnim1Cl'
-  +'ick'#0#0#9'TMenuItem'#6'Other1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuI'
-  +'tem'#13'Export_Fonts1'#7'Caption'#6#5'Fonts'#7'OnClick'#7#18'Export_Fonts1C'
-  +'lick'#0#0#9'TMenuItem'#11'Export_Text'#7'Caption'#6#5'Texts'#7'OnClick'#7#16
-  +'Export_TextClick'#0#0#9'TMenuItem'#14'Export_Sounds1'#7'Caption'#6#6'Sounds'
-  +#7'OnClick'#7#19'Export_Sounds1Click'#0#0#9'TMenuItem'#2'N2'#7'Caption'#6#1
-  +'-'#0#0#9'TMenuItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver'
-  +' lists'#7'OnClick'#7#25'Export_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'Abo'
-  +'ut1'#7'Caption'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10
-  +'Timer100ms'#8'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3
-  +'top'#3#192#0#0#0#0
+  +'TMenuItem'#18'Debug_EnableCheats'#7'Caption'#6#12'Debug Cheats'#7'OnClick'#7
+  +#23'Debug_EnableCheatsClick'#0#0#9'TMenuItem'#15'ExportMainMenu1'#7'Caption'
+  +#6#15'Export MainMenu'#7'OnClick'#7#20'ExportMainMenu1Click'#0#0#0#9'TMenuIt'
+  +'em'#7'Export1'#7'Caption'#6#11'Export Data'#0#9'TMenuItem'#14'Export_TreesR'
+  +'X'#7'Caption'#6#8'Trees.rx'#7'OnClick'#7#19'Export_TreesRXClick'#0#0#9'TMen'
+  +'uItem'#15'Export_HousesRX'#7'Caption'#6#9'Houses.rx'#7'OnClick'#7#20'Export'
+  ,'_HousesRXClick'#0#0#9'TMenuItem'#14'Export_UnitsRX'#7'Caption'#6#8'Units.rx'
+  +#7'OnClick'#7#19'Export_UnitsRXClick'#0#0#9'TMenuItem'#12'Export_GUIRX'#7'Ca'
+  +'ption'#6#6'GUI.rx'#7'OnClick'#7#17'Export_GUIRXClick'#0#0#9'TMenuItem'#16'E'
+  +'xport_GUIMainRX'#7'Caption'#6#11'GUI Main.rx'#7'OnClick'#7#21'Export_GUIMai'
+  +'nRXClick'#0#0#9'TMenuItem'#17'Export_GUIMainHRX'#7'Caption'#6#12'GUI MainH.'
+  +'rx'#7'OnClick'#7#22'Export_GUIMainHRXClick'#0#0#9'TMenuItem'#9'AnimData1'#7
+  +'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#16'Export_TreeAnim1'#7'Captio'
+  +'n'#6#9'Tree Anim'#7'OnClick'#7#21'Export_TreeAnim1Click'#0#0#9'TMenuItem'#17
+  +'Export_HouseAnim1'#7'Caption'#6#10'House Anim'#7'OnClick'#7#22'Export_House'
+  +'Anim1Click'#0#0#9'TMenuItem'#16'Export_UnitAnim1'#7'Caption'#6#9'Unit Anim'
+  +#7'OnClick'#7#21'Export_UnitAnim1Click'#0#0#9'TMenuItem'#6'Other1'#7'Caption'
+  +#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#13'Export_Fonts1'#7'Caption'#6#5'Fonts'
+  +#7'OnClick'#7#18'Export_Fonts1Click'#0#0#9'TMenuItem'#11'Export_Text'#7'Capt'
+  +'ion'#6#5'Texts'#7'OnClick'#7#16'Export_TextClick'#0#0#9'TMenuItem'#14'Expor'
+  +'t_Sounds1'#7'Caption'#6#6'Sounds'#7'OnClick'#7#19'Export_Sounds1Click'#0#0#9
+  +'TMenuItem'#2'N2'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#20'Export_Deliverlists1'
+  +#7'Caption'#6#20'Export Deliver lists'#7'OnClick'#7#25'Export_Deliverlists1C'
+  +'lick'#0#0#0#9'TMenuItem'#6'About1'#7'Caption'#6#7'About..'#7'OnClick'#7#10
+  +'AboutClick'#0#0#0#6'TTimer'#10'Timer100ms'#8'Interval'#2'd'#7'OnTimer'#7#15
+  +'Timer100msTimer'#4'left'#2'P'#3'top'#3#192#0#0#0#0
 ]);

@@ -210,6 +210,10 @@ object Form1: TForm1
         Caption = 'Show Units'
         OnClick = Debug_ShowUnitClick
       end
+      object Debug_EnableCheats: TMenuItem
+        Caption = 'Debug Cheats'
+        OnClick = Debug_EnableCheatsClick
+      end
       object ExportMainMenu1: TMenuItem
         Caption = 'Export MainMenu'
         OnClick = ExportMainMenu1Click

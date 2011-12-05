@@ -398,6 +398,7 @@ begin
   SaveStream.Write(Goods, SizeOf(Goods));
   SaveStream.Write(fResourceRatios, SizeOf(fResourceRatios));
   SaveStream.Write(AllowToBuild, SizeOf(AllowToBuild));
+  SaveStream.Write(AllowToTrade, SizeOf(AllowToTrade));
   SaveStream.Write(fBuildReqDone, SizeOf(fBuildReqDone));
 end;
 
@@ -412,6 +413,7 @@ begin
   LoadStream.Read(Goods, SizeOf(Goods));
   LoadStream.Read(fResourceRatios, SizeOf(fResourceRatios));
   LoadStream.Read(AllowToBuild, SizeOf(AllowToBuild));
+  LoadStream.Read(AllowToTrade, SizeOf(AllowToTrade));
   LoadStream.Read(fBuildReqDone, SizeOf(fBuildReqDone));
 end;
 

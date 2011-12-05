@@ -369,8 +369,9 @@ var
   TrainedSomething:boolean;
   GroupReq: array[TGroupType] of integer;
 begin
+  if fGame.IsPeaceTime then Exit; //Do not process train soldiers during peacetime
   if fPlayers[PlayerIndex].Stats.GetArmyCount >= MaxSoldiers then Exit; //Don't train if we have reached our limit
-  if not fGame.CheckTime(fLastEquippedTime+EquipRate) then exit; //Delay between equipping soldiers for KaM compatibility
+  if not fGame.CheckTime(fLastEquippedTime+EquipRate) then Exit; //Delay between equipping soldiers for KaM compatibility
   fLastEquippedTime := fGame.GameTickCount;
 
   //Create a list of troops that need to be trained based on defence position requirements

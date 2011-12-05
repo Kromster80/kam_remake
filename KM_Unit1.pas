@@ -21,6 +21,8 @@ type
     procedure WMEraseBkgnd(var Message: TWmEraseBkgnd); message WM_ERASEBKGND;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
+  published
+    property OnMouseWheel; //Required for Lazarus
   end;
 
 
@@ -115,6 +117,7 @@ type
     procedure Debug_ShowUnitClick(Sender: TObject);
     procedure Debug_ShowPanel1Click(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure SetScreenResolution(Width, Height, RefreshRate: word);
     procedure ResetResolution;
     function GetScreenBounds: TRect;
@@ -335,6 +338,9 @@ begin if fGame<>nil then fGame.MouseUp(Button, Shift, X, Y); end;
 
 procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin if fGame<>nil then fGame.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Panel5.ScreenToClient(MousePos).Y); end;
+
+procedure TForm1.Panel5MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin if fGame<>nil then fGame.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
 
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
@@ -586,6 +592,9 @@ begin
   Panel5.OnMouseDown := Panel1MouseDown;
   Panel5.OnMouseMove := Panel1MouseMove;
   Panel5.OnMouseUp := Panel1MouseUp;
+  //Lazarus needs OnMouseWheel event to be for the panel, not the entire form
+  {$IFDEF FPC} TMyPanel(Panel5).OnMouseWheel := Panel5MouseWheel; {$ENDIF}
+
   //Means it will receive WM_SIZE WM_PAINT always in pair (if False - WM_PAINT is not called if size becames smaller)
   Panel5.FullRepaint := True;
 
