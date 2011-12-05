@@ -104,6 +104,7 @@ Features:
  +	Highlight commander in groups formation in UI
  +	Double clicking a server should join it
  +	New command "!SET_AI_CHARACTER EQUIP_RATE <TICKS>" to control time between equipping soldiers (1 second = 10 ticks)
+ +	Add sorting methods to column in singleplayer map selection menu
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
