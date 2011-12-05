@@ -121,6 +121,11 @@ const
   {38..40}
   ut_None, ut_None, ut_None);
 
+implementation
+uses KromUtils, KM_TextLibrary;
+
+
+var
   UnitKaMOrder: array[TUnitType] of byte = (0, 0,
   1, 2, 3, 4, 5, 6, 7, 8, 9,
   10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -128,10 +133,6 @@ const
   30,} 31, 32, 33, 34, 35, 36, 37, 38);
 
   
-implementation
-uses KromUtils, KM_TextLibrary;
-
-
 { TKMUnitsDatClass }
 constructor TKMUnitDatClass.Create(aType: TUnitType);
 begin

@@ -69,7 +69,6 @@ type
     function GetSelectedUnit: TObject;
   protected
     Panel_Main:TKMPanel;
-      Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       Minimap:TKMMinimap;
       Label_Coordinates:TKMLabel;
       RatioRow_Passability:TKMRatioRow;
@@ -400,11 +399,10 @@ begin
   MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, 0, 0, aScreenX, aScreenY);
 
-    Image_Main1 := TKMImage.Create(Panel_Main,0,0,224,200,407); //Minimap place
-
-    Image_Main3 := TKMImage.Create(Panel_Main,0, 200,224,400,404);
-    Image_Main4 := TKMImage.Create(Panel_Main,0, 600,224,400,404);
-    Image_Main5 := TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
+    TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
+    TKMImage.Create(Panel_Main,0, 200,224,400,404);
+    TKMImage.Create(Panel_Main,0, 600,224,400,404);
+    TKMImage.Create(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
 
     Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     Minimap.OnChange := Minimap_Update;

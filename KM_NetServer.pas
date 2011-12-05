@@ -98,7 +98,7 @@ type
     procedure SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
     procedure RecieveMessage(aSenderHandle:integer; aData:pointer; aLength:cardinal);
     procedure DataAvailable(aHandle:integer; aData:pointer; aLength:cardinal);
-    procedure SaveServerInfo(var M:TKMemoryStream);
+    procedure SaveServerInfo(M: TKMemoryStream);
     function IsValidHandle(aHandle:integer):boolean;
     function AddNewRoom:boolean;
     function GetFirstAvailableRoom:integer;
@@ -126,7 +126,7 @@ uses KM_Utils; //Needed in Linux for FakeGetTickCount
 
 
 { TKMServerClient }
-constructor TKMServerClient.Create(aHandle, aRoom: integer);
+constructor TKMServerClient.Create(aHandle, aRoom: Integer);
 begin
   Inherited Create;
   fHandle := aHandle;
@@ -140,10 +140,11 @@ end;
 destructor TKMClientsList.Destroy;
 begin
   Clear; //Free all clients
+  inherited;
 end;
 
 
-function TKMClientsList.GetItem(Index: integer): TKMServerClient;
+function TKMClientsList.GetItem(Index: Integer): TKMServerClient;
 begin
   Assert(InRange(Index,0,fCount-1),'Tried to access invalid client index');
   Result := fItems[Index];
@@ -605,7 +606,7 @@ begin
 end;
 
 
-procedure TKMNetServer.SaveServerInfo(var M:TKMemoryStream);
+procedure TKMNetServer.SaveServerInfo(M: TKMemoryStream);
 var i, RoomsNeeded, PlayerCount, EmptyRoomID: integer; NeedEmptyRoom: boolean;
 begin
   RoomsNeeded := 0;

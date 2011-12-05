@@ -315,9 +315,10 @@ type
 
   {FlatButton with Shape on it}
   TKMFlatButtonShape = class(TKMControl)
+  private
+    fCaption: string;
   public
     CapOffsetY:shortint;
-    Caption: string;
     Font: TKMFont;
     ShapeColor:TColor4;
     Down:boolean;
@@ -1100,14 +1101,19 @@ begin
   fFont := aFont;
   fFontColor := aColor;
   fTextAlign := aTextAlign;
-  fAutoWrap := false;
+  fAutoWrap := False;
   SetCaption(aCaption);
 end;
 
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
 constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
 begin
-  Create(aParent,aLeft,aTop,0,0,aCaption,aFont,aTextAlign,aColor);
+  Inherited Create(aParent, aLeft,aTop,0,0);
+  fFont := aFont;
+  fFontColor := aColor;
+  fTextAlign := aTextAlign;
+  fAutoWrap := False;
+  SetCaption(aCaption);
 end;
 
 

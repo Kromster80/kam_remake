@@ -121,7 +121,6 @@ type
     procedure DirectionCursorHide;
   protected
     Panel_Main:TKMPanel;
-      Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       Minimap:TKMMinimap;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
@@ -160,8 +159,6 @@ type
       CheckBox_SendToAllies: TKMCheckBox;
       Image_ChatClose: TKMImage;
     Panel_Message:TKMPanel;
-      Image_MessageBG:TKMImage;
-      Image_MessageBGTop:TKMImage;
       Label_MessageText:TKMLabel;
       Button_MessageGoTo: TKMButton;
       Button_MessageDelete: TKMButton;
@@ -681,11 +678,11 @@ begin
   MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls,0,0,aScreenX,aScreenY);
 
-    Image_Main1 := TKMImage.Create(Panel_Main,0,   0,224,200,407);
-    Image_Main2 := TKMImage.Create(Panel_Main,0, 200,224,168,554);
-    Image_Main3 := TKMImage.Create(Panel_Main,0, 368,224,400,404);
-    Image_Main4 := TKMImage.Create(Panel_Main,0, 768,224,400,404);
-    Image_Main5 := TKMImage.Create(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
+    TKMImage.Create(Panel_Main,0,   0,224,200,407);
+    TKMImage.Create(Panel_Main,0, 200,224,168,554);
+    TKMImage.Create(Panel_Main,0, 368,224,400,404);
+    TKMImage.Create(Panel_Main,0, 768,224,400,404);
+    TKMImage.Create(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
 
     Minimap := TKMMinimap.Create(Panel_Main,10,10,176,176);
     Minimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
@@ -964,8 +961,8 @@ begin
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 
-    Image_MessageBG:=TKMImage.Create(Panel_Message,0,20,600,170,409);
-    Image_MessageBGTop:=TKMImage.Create(Panel_Message,0,0,600,20,551);
+    TKMImage.Create(Panel_Message,0, 0,600, 20,551);
+    TKMImage.Create(Panel_Message,0,20,600,170,409);
 
     Label_MessageText:=TKMLabel.Create(Panel_Message,47,67,432,122,'',fnt_Antiqua,taLeft);
     Label_MessageText.AutoWrap := true;

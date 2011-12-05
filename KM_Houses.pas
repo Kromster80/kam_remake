@@ -63,6 +63,8 @@ type
     procedure Activate(aWasBuilt:boolean); virtual;
     procedure CloseHouse(IsEditor:boolean=false); virtual;
     procedure SetWareDelivery(aVal:boolean);
+    procedure EnableRepair;
+    procedure DisableRepair;
 
     procedure MakeSound; dynamic; //Swine/stables make extra sounds
     function GetResDistribution(aID:byte):byte; //Will use GetRatio from mission settings to find distribution amount
@@ -104,8 +106,6 @@ type
     function  AddDamage(aAmount:word; aIsEditor:boolean=false):boolean;
     procedure AddRepair(aAmount:word=5);
     procedure UpdateDamage;
-    procedure EnableRepair;
-    procedure DisableRepair;
     procedure RepairToggle;
 
     function IsStone:boolean;

@@ -85,6 +85,7 @@ type
     procedure SetDirection(aValue:TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
     function GetSlide(aCheck:TCheckAxis): single;
+    function CanAccessHome: Boolean;
 
     procedure UpdateHunger;
     procedure UpdateFOW;
@@ -132,7 +133,6 @@ type
     procedure AbandonWalk;
     function GetDesiredPassability(aIgnoreRoads:boolean=false):TPassability;
     property GetOwner:TPlayerIndex read fOwner;
-    function CanAccessHome: boolean;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property GetUnitTask: TUnitTask read fUnitTask;
@@ -244,7 +244,6 @@ type
     procedure OwnerUpdate(aOwner:TPlayerIndex);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
-    procedure GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
     function GetClosestUnit(aPoint: TKMPoint):TKMUnit;
     function GetTotalPointers: integer;
     procedure Save(SaveStream:TKMemoryStream);
@@ -1930,17 +1929,6 @@ begin
       Result := Units[i];
       exit;
     end;
-end;
-
-
-procedure TKMUnitsCollection.GetLocations(var Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
-var i:integer;
-begin
-  Loc.Clearup;
-  for i:=0 to Count-1 do
-    if aUnitType in [ut_Any, Units[i].fUnitType] then
-    if Units[i].fVisible then //Excludes units inside of houses and recently died ones
-      Loc.AddEntry(Units[i].fCurrPosition)
 end;
 
 
