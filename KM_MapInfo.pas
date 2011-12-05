@@ -219,7 +219,7 @@ constructor TKMapsCollection.Create(aMultiplayerPath: Boolean);
 begin
   Inherited Create;
   fMultiplayerPath := aMultiplayerPath;
-  fSortMethod := smByNameAsc;
+  fSortMethod := smByNameDesc;
 end;
 
 
@@ -336,6 +336,7 @@ procedure TKMapsCollection.Sort;
   //Return True if items should be exchanged
   function Compare(A, B: TKMapInfo; aMethod: TSortMethod): Boolean;
   begin
+    Result := False; //By default everything remains in place
     case aMethod of
       smByNameAsc:      Result := CompareStr(A.Info.Title, B.Info.Title) < 0;
       smByNameDesc:     Result := CompareStr(A.Info.Title, B.Info.Title) > 0;
@@ -354,7 +355,7 @@ begin
   for i:=0 to fCount-1 do
   for k:=i to fCount-1 do
   if Compare(fMaps[i], fMaps[k], fSortMethod) then
-    SwapInt(Cardinal(fMaps[i]), Cardinal(fMaps[k]));
+    SwapInt(Cardinal(fMaps[i]), Cardinal(fMaps[k])); //Exchange only pointers to MapInfo objects
 end;
 
 
