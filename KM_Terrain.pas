@@ -6,12 +6,10 @@ uses Classes, KromUtils, Math, SysUtils,
      KM_PathFinding, KM_Points;
 
 
-const MAX_MAP_SIZE = 192;
-
-
 type
-  TTreeAct = (taChop, taPlant, taAny);
-  TCornAct = (caCut, caSow, caAny);
+  //Farmers/Woodcutters preferred activity
+  TPlantAct = (taCut, taPlant, taAny);
+
 
   {Class to store all terrain data, aswell terrain routines}
   TTerrain = class
@@ -91,10 +89,10 @@ type
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
     function FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir):Boolean;
-    function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aCornAct:TCornAct; out CornAct:TCornAct; out FieldPoint:TKMPointDir):Boolean;
+    function FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir):Boolean;
     function FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir):Boolean;
     function FindOre(aLoc:TKMPoint; Rt:TResourceType; out OrePoint: TKMPoint):Boolean;
-    function FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aTreeAct: TTreeAct; out Tree: TKMPointDir; out TreeAct: TTreeAct): Boolean;
+    function FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; out Tree: TKMPointDir; out PlantAct:TPlantAct): Boolean;
     function FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir):Boolean;
     function CanFindFishingWater(aLoc:TKMPoint; aRadius:integer):boolean;
     function ChooseTreeToPlant(aLoc:TKMPoint):integer;
@@ -838,7 +836,7 @@ end;
 
 
 { Finds a corn field }
-function TTerrain.FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aCornAct:TCornAct; out CornAct:TCornAct; out FieldPoint:TKMPointDir):Boolean;
+function TTerrain.FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir):Boolean;
 var i,k:integer; List:TKMPointDirList;
 begin
   List := TKMPointDirList.Create;
@@ -846,8 +844,8 @@ begin
   for k:=max(aLoc.X-aRadius,1) to min(aLoc.X+aRadius,fMapX-1) do
     if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i)) then
       if TileIsCornField(KMPoint(k,i)) then
-        if((aCornAct in [caAny,caSow]) and (Land[i,k].FieldAge=0)) or
-          ((aCornAct in [caAny,caCut]) and (Land[i,k].FieldAge=65535)) then
+        if((aPlantAct in [taAny, taPlant]) and (Land[i,k].FieldAge = 0)) or
+          ((aPlantAct in [taAny, taCut]) and (Land[i,k].FieldAge = 65535)) then
           if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
             if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
               List.AddEntry(KMPointDir(k, i, dir_NA));
@@ -855,12 +853,12 @@ begin
   Result := List.GetRandom(FieldPoint);
   List.Free;
   if not Result then
-    CornAct := caAny
+    PlantAct := taAny
   else
-    if Land[FieldPoint.Loc.Y,FieldPoint.Loc.X].FieldAge=65535 then
-      CornAct := caCut
+    if Land[FieldPoint.Loc.Y,FieldPoint.Loc.X].FieldAge = 65535 then
+      PlantAct := taCut
     else
-      CornAct := caSow;
+      PlantAct := taPlant;
 end;
 
 
@@ -930,13 +928,16 @@ end;
 //taPlant - Woodcutter specifically wants to get an empty place to plant a Tree
 //taAny - Anything will do since Woodcutter is querying from home
 //Result indicates if desired TreeAct place was found successfully
-function TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aTreeAct: TTreeAct; out Tree: TKMPointDir; out TreeAct: TTreeAct): Boolean;
+function TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; out Tree: TKMPointDir; out PlantAct: TPlantAct): Boolean;
 var
   List1, List2, List3: TKMPointList;
   i,k: Integer;
   T: TKMPoint;
   BestSlope, Slope: Integer;
 begin
+  //Why do we use 3 lists instead of one like Corn does?
+  //Because we should always prefer stumps over empty places
+  //even if there's only 1 stump - we choose it
   List1 := TKMPointList.Create; //Trees
   List2 := TKMPointList.Create; //Stumps (preferred when planting a new tree)
   List3 := TKMPointList.Create; //Clear places
@@ -952,13 +953,13 @@ begin
     begin
 
       //Grownup tree
-      if (aTreeAct in [taChop, taAny])
+      if (aPlantAct in [taCut, taAny])
       and ObjectIsChopableTree(T, 4)
       and (Land[i,k].TreeAge >= TreeAgeFull)
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
         List1.AddEntry(T);
 
-      if (aTreeAct in [taPlant, taAny])
+      if (aPlantAct in [taPlant, taAny])
       and (CanPlantTrees in Land[i,k].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0, False)
       and not TileIsLocked(T) then //Taken by another woodcutter
@@ -971,17 +972,19 @@ begin
 
   //Convert taAny to either a Tree or a Spot
   //Average tree uses ~9 tiles, hence we correct Places weight by some amount (15 fits good) to make choice between Plant and Chop more even. Feel free to fine-tune it
-  if (List1.Count > 8) //Always chop the tree if there are many
-  or (List2.Count + List3.Count = 0)
-  or ((List1.Count > 0) and (KaMRandom < List1.Count / (List1.Count + (List2.Count + List3.Count)/15))) then
+  if (aPlantAct in [taCut, taAny])
+  and ((List1.Count > 8) //Always chop the tree if there are many
+       or (List2.Count + List3.Count = 0)
+       or ((List1.Count > 0) and (KaMRandom < List1.Count / (List1.Count + (List2.Count + List3.Count)/15)))
+      ) then
   begin
+    PlantAct := taCut;
     Result := List1.GetRandom(T);
-    TreeAct := taChop;
   end else begin
+    PlantAct := taPlant;
     Result := List2.GetRandom(T);
     if not Result then
       Result := List3.GetRandom(T);
-    TreeAct := taPlant;
   end;
 
   //Note: Result can still be False
@@ -990,7 +993,7 @@ begin
   List3.Free;
 
   //Choose direction of approach based on which one is the flatest (animation looks odd if not flat)
-  if (TreeAct = taChop) and Result then
+  if (PlantAct = taCut) and Result then
   begin
     BestSlope := 255;
     Result := False; //It is already tested that we can walk to the tree, but double-check
@@ -1007,10 +1010,10 @@ begin
         Result := True;
         BestSlope := Abs(Slope);
       end;
-    end;  
+    end;
   end;
 
-  if (TreeAct = taPlant) and Result then
+  if (PlantAct = taPlant) and Result then
     Tree := KMPointDir(T, dir_N); //Trees must always be planted facing north as that is the unit DAT animation that is used
 end;
 

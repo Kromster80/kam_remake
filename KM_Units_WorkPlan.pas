@@ -1,14 +1,14 @@
 unit KM_Units_WorkPlan;
 {$I KaM_Remake.inc}
 interface
-uses KM_Defaults, KM_CommonTypes, KM_Points, KM_Houses;
+uses KM_Defaults, KM_CommonTypes, KM_Points, KM_Terrain;
 
 
 type
   TUnitWorkPlan = class
   private
-    fHome:THouseType;
-    fIssued:boolean;
+    fHome: THouseType;
+    fIssued: Boolean;
     procedure FillDefaults;
     procedure WalkStyle(aLoc2:TKMPointDir; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript);
     procedure SubActAdd(aAct:THouseActionType; aCycles:single);
@@ -34,17 +34,18 @@ type
     Product2:TResourceType; ProdCount2:byte;
     AfterWorkIdle:integer;
     ResourceDepleted:boolean;
-    WoodcutterMode:TWoodcutterMode;
   public
-    procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
+    procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint; aPlantAct: TPlantAct);
     function FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint):boolean;
     property IsIssued:boolean read fIssued;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
   end;
 
+
 implementation
-uses KM_Terrain, KM_ResourceGFX;
+uses KM_ResourceGFX;
+
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
 Everything should be issued by units
@@ -113,20 +114,22 @@ end;
 
 
 function TUnitWorkPlan.FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint): boolean;
-var NewLoc: TKMPointDir; TreeAct: TTreeAct; Found: boolean; CornAct: TCornAct;
+var NewLoc: TKMPointDir; PlantAct: TPlantAct; Found: boolean;
 begin
   with fTerrain do
   case GatheringScript of
     gs_StoneCutter:     Found := FindStone(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
-    gs_FarmerSow:       Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, caSow, CornAct, NewLoc);
+    gs_FarmerSow:       Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taPlant, PlantAct, NewLoc);
     gs_FarmerCorn:      begin
-                          Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, caAny, CornAct, NewLoc);
+                          Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taAny, PlantAct, NewLoc);
                           if not Found then
                           begin
-                            Result := true; //There are no other tasks for us to do, so we might as well wait for the corn to be cut and then plant over it
+                            //There are no other tasks for us to do,
+                            //so we might as well wait for the corn to be cut and then plant over it
+                            Result := true;
                             exit;
                           end;
-                          if CornAct = caSow then
+                          if PlantAct = taPlant then
                           begin
                             GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
                             ActionWalkFrom  := ua_WalkTool; //Carry our scythe back (without the corn) as the player saw us take it out
@@ -141,8 +144,8 @@ begin
                           NewLoc.Dir := dir_N; //The animation for picking grapes is only defined for facing north
                         end;
     gs_FisherCatch:     Found := FindFishWater(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
-    gs_WoodCutterCut:   Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMGetVertexTile(aAvoidLoc, WorkDir), taChop, NewLoc, TreeAct);
-    gs_WoodCutterPlant: Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taPlant, NewLoc, TreeAct);
+    gs_WoodCutterCut:   Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMGetVertexTile(aAvoidLoc, WorkDir), taCut, NewLoc, PlantAct);
+    gs_WoodCutterPlant: Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taPlant, NewLoc, PlantAct);
     else                Found := false; //Can find a new resource for an unknown gathering script, so return with false
   end;
   if Found then
@@ -156,9 +159,12 @@ begin
 end;
 
 
-procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-const WoodcutterTreeAct: array[TWoodcutterMode] of TTreeAct = (taChop, taAny);
-var i:integer; Tmp: TKMPointDir; Found: Boolean; TreeAct: TTreeAct; CornAct: TCornAct;
+procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint; aPlantAct: TPlantAct);
+var
+  i:integer;
+  Tmp: TKMPointDir;
+  Found: Boolean;
+  PlantAct: TPlantAct;
 begin
   fHome := aHome;
   FillDefaults;
@@ -362,12 +368,12 @@ begin
     end;
   end else
 
-  if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-    Found := fTerrain.FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), caAny, CornAct, Tmp);
+  if (aUnitType = ut_Farmer) and (aHome = ht_Farm) then begin
+    Found := fTerrain.FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), aPlantAct, PlantAct, Tmp);
     if not Found then
-      fIssued:=false
+      fIssued := False
     else
-      if CornAct = caCut then
+      if PlantAct = taCut then
       begin
         ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
         WalkStyle(Tmp, ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
@@ -398,16 +404,16 @@ begin
       SubActAdd(ha_Work5,1);
     end else
     begin
-      fIssued:=false;
-      ResourceDepleted:=true;
+      fIssued := False;
+      ResourceDepleted := True;
     end;
   end else
 
-  if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
-    Found := fTerrain.FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), WoodcutterTreeAct[WoodcutterMode], Tmp, TreeAct);
+  if (aUnitType = ut_WoodCutter) and (aHome = ht_Woodcutters) then begin
+    Found := fTerrain.FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMPoint(0,0), aPlantAct, Tmp, PlantAct);
     if Found then
-      case TreeAct of
-        taChop:   begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
+      case PlantAct of
+        taCut:    begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
                     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
                     WalkStyle(Tmp, ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut);
                   end;

@@ -2,7 +2,7 @@ unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
 uses Math, SysUtils,
-    KM_CommonTypes, KM_Units, KM_Units_Workplan, KM_Points, KM_Defaults;
+    KM_CommonTypes, KM_Units, KM_Units_Workplan, KM_Points, KM_Defaults, KM_Terrain;
 
 
 {Perform resource mining}
@@ -12,6 +12,7 @@ type
     fBeastID:byte;
     fWorkPlan:TUnitWorkPlan;
     function ResourceExists:boolean;
+    function ChooseToCutOrPlant: TPlantAct;
   public
     constructor Create(aUnit:TKMUnit; aRes:TResourceType);
     destructor Destroy; override;
@@ -24,7 +25,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
+uses KM_Houses, KM_PlayersCollection, KM_ResourceGFX;
 
 
 { TTaskMining }
@@ -35,10 +36,12 @@ begin
   fWorkPlan := TUnitWorkPlan.Create;
   fBeastID  := 0;
 
-  if aUnit.GetHome is TKMHouseWoodcutters then
-    fWorkPlan.WoodcutterMode := TKMHouseWoodcutters(aUnit.GetHome).WoodcutterMode;
-
-  fWorkPlan.FindPlan(aUnit.UnitType, aUnit.GetHome.HouseType, aRes, KMPointBelow(aUnit.GetHome.GetEntrance));
+  fWorkPlan.FindPlan( fUnit.UnitType,
+                      fUnit.GetHome.HouseType,
+                      aRes,
+                      KMPointBelow(aUnit.GetHome.GetEntrance),
+                      ChooseToCutOrPlant
+                      );
 end;
 
 
@@ -48,6 +51,29 @@ begin
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
   FreeAndNil(fWorkPlan);
   Inherited;
+end;
+
+
+//Chose if we don't care or prefer specific activity
+//depending on orders or clogged output
+function TTaskMining.ChooseToCutOrPlant: TPlantAct;
+begin
+  Result := taAny;
+
+  case fUnit.GetHome.HouseType of
+    ht_Woodcutters: case TKMHouseWoodcutters(fUnit.GetHome).WoodcutterMode of
+                      wcm_Chop:         Result := taCut;
+                      wcm_ChopAndPlant: if fUnit.GetHome.CheckResOut(rt_Trunk) >= MAX_RES_IN_HOUSE then
+                                          Result := taPlant
+                                        else
+                                          Result := taAny;
+                    end;
+    ht_Farm:        if fUnit.GetHome.CheckResOut(rt_Corn) >= MAX_RES_IN_HOUSE then
+                      Result := taPlant
+                    else
+                      Result := taAny;
+    else Result := taAny; //We don't care since other housetypes don't have concurent activities
+  end;
 end;
 
 

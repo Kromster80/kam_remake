@@ -7,6 +7,7 @@ uses Classes, SysUtils, KM_Points;
 //Global const
 const
 //|===================| <- constant name length
+  MAX_MAP_SIZE          = 192;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
