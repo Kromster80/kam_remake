@@ -723,8 +723,8 @@ var ID:integer;
     if aID>0 then
     begin
       ShiftX := Loc.X + MarketWaresOffsetX/CELL_SIZE_PX;
-      ShiftY := Loc.Y + (MarketWaresOffsetY+RXData[7].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-      fRenderList.AddSprite(7,aID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
+      ShiftY := Loc.Y + (MarketWaresOffsetY+RXData[9].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+      fRenderList.AddSprite(9,aID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
     end;
   end;
 

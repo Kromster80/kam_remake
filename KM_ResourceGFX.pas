@@ -40,7 +40,7 @@ type
 
     procedure AllocateRX(ID:integer; Count:integer=0);
     function  LoadRX(FileName:string; ID:integer):boolean;
-    procedure LoadRX7(RX:integer);
+    procedure OverloadRX(RX:integer);
     procedure ExpandRX(ID:integer);
     procedure MakeGFX(RXid:integer);
     procedure MakeGFX_AlphaTest(RXid:integer);
@@ -98,7 +98,9 @@ begin
   RXData[4].Title:='gui';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and icons
   RXData[5].Title:='guimain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='guimainh';    RXData[6].NeedTeamColors:=false;
-  RXData[7].Title:='remake';      RXData[7].NeedTeamColors:=true;
+  RXData[7].Title:='remakemenu';  RXData[7].NeedTeamColors:=false;
+  RXData[8].Title:='tileset';     RXData[8].NeedTeamColors:=false;
+  RXData[9].Title:='remakegame';  RXData[9].NeedTeamColors:=true;
 end;
 
 
@@ -141,7 +143,7 @@ begin
   begin
     StepCaption('Reading '+RXData[i].Title+' ...');
     LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i);
-    LoadRX7(i); //Load RX data overrides
+    OverloadRX(i); //Load RX data overrides
 
     if i = 4 then
     begin
@@ -158,7 +160,7 @@ begin
 
   StepCaption('Reading additional resources ...');
   AllocateRX(7, RX7_SPRITE_COUNT);
-  LoadRX7(7); //Load RX7 data (custom bitmaps)
+  OverloadRX(7); //Load RX7 data (custom bitmaps)
   MakeGFX(7);
   ClearUnusedGFX(7);
 
@@ -197,7 +199,7 @@ begin
     begin
       StepCaption('Reading '+RXData[i].Title+' GFX ...');
       fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-      LoadRX7(i); //Updated sprites
+      OverloadRX(i); //Updated sprites
       MakeGFX(i);
       //Alpha_tested sprites for houses. They come after MakeGFX cos they will
       //replace above data.
@@ -205,6 +207,12 @@ begin
       ClearUnusedGFX(i);
       StepRefresh;
     end;
+
+  //RX9 (additional game sprites)
+  AllocateRX(9, RX9_SPRITE_COUNT);
+  OverloadRX(9); //Load RX9 data (custom bitmaps)
+  MakeGFX(9);
+  ClearUnusedGFX(9);
 
   StepCaption('Making minimap colors ...');
 
@@ -312,7 +320,7 @@ end;
 
 { This function should parse all valid files in Sprites folder and load them
   additionaly to or replacing original sprites }
-procedure TResource.LoadRX7(RX:integer);
+procedure TResource.OverloadRX(RX:integer);
 var
   FileList:TStringList;
   SearchRec:TSearchRec;

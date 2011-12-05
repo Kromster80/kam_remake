@@ -106,7 +106,8 @@ const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
-  RX7_SPRITE_COUNT = 273;  //Number of sprites to load for RX7 from the folder \Sprites\
+  RX7_SPRITE_COUNT = 17;  //Number of sprites to load for RX7 from the folder \Sprites\
+  RX9_SPRITE_COUNT = 254;
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
@@ -189,19 +190,19 @@ const
   LOCALES_COUNT = 13;
   Locales:array[1..LOCALES_COUNT, 1..4]of shortstring = (
   //Code  Codepage Flag  Title
-  ('ptb', '1252',  '33', 'Brazilian Portuguese'),
-  ('cze', '1250',  '34', 'Czech'),
-  ('dut', '1252',  '40', 'Dutch'),
-  ('eng', '1252',  '30', 'English'),
-  ('fre', '1252',  '36', 'French'),
-  ('ger', '1252',  '31', 'German'),
-  ('hun', '1250',  '42', 'Hungarian'),
-  ('ita', '1252',  '35', 'Italian'),
-  ('pol', '1250',  '32', 'Polish'),
-  ('rus', '1251',  '39', 'Russian'),
-  ('svk', '1250',  '37', 'Slovak'),
-  ('spa', '1252',  '38', 'Spanish'),
-  ('swe', '1252',  '41', 'Swedish'));
+  ('ptb', '1252',  '8',  'Brazilian Portuguese'),
+  ('cze', '1250',  '9',  'Czech'),
+  ('dut', '1252',  '15', 'Dutch'),
+  ('eng', '1252',  '5',  'English'),
+  ('fre', '1252',  '11', 'French'),
+  ('ger', '1252',  '6',  'German'),
+  ('hun', '1250',  '17', 'Hungarian'),
+  ('ita', '1252',  '10', 'Italian'),
+  ('pol', '1250',  '7',  'Polish'),
+  ('rus', '1251',  '14', 'Russian'),
+  ('svk', '1250',  '12', 'Slovak'),
+  ('spa', '1252',  '13', 'Spanish'),
+  ('swe', '1252',  '16', 'Swedish'));
 
   TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Czech - Jolinar_CZ & Milan Molnar|'+
   'Dutch - xzaz & Tom|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+
@@ -1040,7 +1041,7 @@ var
     Tag2:byte;          //Additional tag for MapEd (brush shape)
   end;
 
-  RXData:array [1..8]of record
+  RXData:array [1..9]of record
     Title:string;
     Qty:integer;
     Flag:array of byte;
@@ -1053,7 +1054,7 @@ var
     NeedTeamColors:boolean;
   end;
 
-  GFXData: array [1..8] of array of record
+  GFXData: array [1..9] of array of record
     TexID,AltID: Cardinal; //AltID used for team colors
     u1,v1,u2,v2: single;
     PxWidth,PxHeight:word;
