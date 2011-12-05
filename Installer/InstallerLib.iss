@@ -57,23 +57,25 @@ Filename: "{app}\{#MyAppExeName}"; Description: {cm:LaunchProgram,{#MyAppName}};
 
 //Executed before the wizard appears, allows us to check that they have KaM installed
 function InitializeSetup(): Boolean;
+var Warnings:string;
 begin
-  if CheckKaM() then
+  Warnings := '';
+  if not CheckKaM() then
+    Warnings := ExpandConstant('{cm:NoKaM}');
+  
+  if not CanInstall() then
   begin
-    if CanInstall() then
-    begin
-      Result := True
-    end
-    else  
-    begin
-      Result := False;
-      MsgBox(ExpandConstant('{cm:CantUpdate}'), mbInformation, MB_OK);
-    end;
-  end
+    if Warnings <> '' then
+      Warnings := Warnings + '' + #13#10#13#10; //Two EOLs between messages
+    Warnings := Warnings + ExpandConstant('{cm:CantUpdate}')
+  end;
+  
+  if Warnings = '' then
+    Result := True
   else
   begin
     Result := False;
-    MsgBox(ExpandConstant('{cm:NoKaM}'), mbInformation, MB_OK);
+    MsgBox(Warnings, mbInformation, MB_OK);
   end;
 end;
 

@@ -189,23 +189,25 @@ const
   LOCALES_COUNT = 13;
   Locales:array[1..LOCALES_COUNT, 1..4]of shortstring = (
   //Code  Codepage Flag  Title
-  ('eng', '1252',  '30', 'English'),
-  ('ger', '1252',  '31', 'German'),
-  ('pol', '1250',  '32', 'Polish'),
-  ('svk', '1250',  '37', 'Slovak'),
-  ('cze', '1250',  '34', 'Czech'),
-  ('swe', '1252',  '41', 'Swedish'),
-  ('fre', '1252',  '36', 'French'),
-  ('ita', '1252',  '35', 'Italian'),
   ('ptb', '1252',  '33', 'Brazilian Portuguese'),
-  ('spa', '1252',  '38', 'Spanish'),
-  ('hun', '1250',  '42', 'Hungarian'),
+  ('cze', '1250',  '34', 'Czech'),
   ('dut', '1252',  '40', 'Dutch'),
-  ('rus', '1251',  '39', 'Russian'));
+  ('eng', '1252',  '30', 'English'),
+  ('fre', '1252',  '36', 'French'),
+  ('ger', '1252',  '31', 'German'),
+  ('hun', '1250',  '42', 'Hungarian'),
+  ('ita', '1252',  '35', 'Italian'),
+  ('pol', '1250',  '32', 'Polish'),
+  ('rus', '1251',  '39', 'Russian'),
+  ('svk', '1250',  '37', 'Slovak'),
+  ('spa', '1252',  '38', 'Spanish'),
+  ('swe', '1252',  '41', 'Swedish'));
 
-  TRANSLATOR_CREDITS = '|German - The Knight|French - Sylvain Domange|Slovak - Robert Marko|'+
-  'Czech - Jolinar_CZ|Hungarian - Jecy|Dutch - xzaz|Swedish - Edvin Linge|'+
-  'Polish - Przemyslaw Pietras|Brazilian Portuguese - Vinycius Maia|Italian - Paolo Castelvetere||';
+  TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Czech - Jolinar_CZ & Milan Molnar|'+
+  'Dutch - xzaz & Tom|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+
+  'Italian - Paolo Castelvetere|Polish - Przemyslaw Pietras|Russian - Krom|'+
+  'Slovak - Robert Marko|Spanish - Oscar|Swedish - Edvin Linge||'+
+  '';
 
 type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game

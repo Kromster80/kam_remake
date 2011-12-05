@@ -14,7 +14,7 @@
  +	Warriors going out from Barracks sometimes not joined in groups
  +	Range check erorrs when using multiple monitors
  +	Multiplayer chat only scrolls down when you are at the bottom, making it possible to read old messages without it jumping back
- +	Warriors group memberswould not appear if there was a rock or something under them. They now appear on the closest walkable tile.
+ +	Warriors group members would not appear if there was a rock or something under them. They now appear on the closest walkable tile.
  +	Using a barracks near the left or top edges of the map caused an error (thanks Jecy)
  +	Due to predicting a target's position archers can shoot way beyond their range
  +	Make market interface less confusing by showing number of wares that will be taken/given

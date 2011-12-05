@@ -1061,7 +1061,7 @@ begin
     TKMLabel.Create(Panel_Credits,MENU_DESIGN_X div 2 + 200, 100, 500, 20, fTextLibrary[TX_CREDITS_ORIGINAL], fnt_Outline, taCenter);
     Label_Credits := TKMLabelScroll.Create(Panel_Credits, MENU_DESIGN_X div 2 + 200, 140, 500, MENU_DESIGN_Y - 160, fTextLibrary.GetSetupString(300), fnt_Grey, taCenter);
 
-    Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_CreditsBack:=TKMButton.Create(Panel_Credits,120,700,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
 end;
 
