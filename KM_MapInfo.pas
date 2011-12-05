@@ -40,16 +40,16 @@ type
 
   TKMapsCollection = class
   private
-    fCount:byte;
-    fMaps:array of TKMapInfo;
+    fCount: Integer;
+    fMaps: array of TKMapInfo;
     fMultiplayerPath: Boolean;
-    function GetMap(Index:integer):TKMapInfo;
+    function GetMap(aIndex: Integer):TKMapInfo;
   public
     constructor Create(aMultiplayerPath: Boolean);
     destructor Destroy; override;
     procedure ScanMapsFolder;
-    property Count:byte read fCount;
-    property Map[Index:integer]:TKMapInfo read GetMap; default;
+    property Count: Integer read fCount;
+    property Map[aIndex: Integer]: TKMapInfo read GetMap; default;
 
     function MapList: string;
     function MapListBuild: string;
@@ -217,9 +217,9 @@ begin
 end;
 
 
-function TKMapsCollection.GetMap(Index:integer):TKMapInfo;
+function TKMapsCollection.GetMap(aIndex: Integer):TKMapInfo;
 begin
-  Result := fMaps[Index];
+  Result := fMaps[aIndex];
 end;
 
 
@@ -231,6 +231,7 @@ begin
     Result := Result + fMaps[i].Filename + eol;
 end;
 
+
 function TKMapsCollection.MapListBuild: string;
 var i:integer;
 begin
@@ -239,6 +240,7 @@ begin
     if (fMaps[i].Info.MissionMode = mm_Normal) and not fMaps[i].IsCoop then
       Result := Result + fMaps[i].Filename + eol;
 end;
+
 
 function TKMapsCollection.MapListFight: string;
 var i:integer;
@@ -249,6 +251,7 @@ begin
       Result := Result + fMaps[i].Filename + eol;
 end;
 
+
 function TKMapsCollection.MapListCoop: string;
 var i:integer;
 begin
@@ -257,6 +260,7 @@ begin
     if fMaps[i].IsCoop then
       Result := Result + fMaps[i].Filename + eol;
 end;
+
 
 procedure TKMapsCollection.ScanMapsFolder;
 var
@@ -269,10 +273,12 @@ begin
 
   fCount := 0;
 
-  if fMultiplayerPath then PathToMaps := ExeDir+'MapsMP\'
-                      else PathToMaps := ExeDir+'Maps\';
+  if fMultiplayerPath then
+    PathToMaps := ExeDir + 'MapsMP\'
+  else
+    PathToMaps := ExeDir + 'Maps\';
 
-  if not DirectoryExists(PathToMaps) then exit;
+  if not DirectoryExists(PathToMaps) then Exit;
 
   FindFirst(PathToMaps+'*', faDirectory, SearchRec);
   repeat

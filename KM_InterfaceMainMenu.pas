@@ -1889,31 +1889,40 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
 begin
-  if Radio_LobbyMapType.ItemIndex = 0 then //Build Map
-  begin
-    fMapsMP.ScanMapsFolder;
-    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-    List_Lobby.SetItems(fMapsMP.MapListBuild);
-  end
-  else if Radio_LobbyMapType.ItemIndex = 1 then //Fight Map
-  begin
-    fMapsMP.ScanMapsFolder;
-    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-    List_Lobby.SetItems(fMapsMP.MapListFight);
-  end
-  else if Radio_LobbyMapType.ItemIndex = 2 then //Co-op Map
-  begin
-    fMapsMP.ScanMapsFolder;
-    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-    List_Lobby.SetItems(fMapsMP.MapListCoop);
-  end
-  else if Radio_LobbyMapType.ItemIndex = 3 then //Saved Game
-  begin
-    fSavesMP.ScanSavesFolder(true);
-    List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
-    List_Lobby.SetItems(fSavesMP.SavesList);
+  case Radio_LobbyMapType.ItemIndex of
+    0:  //Build Map
+        begin
+          fMapsMP.ScanMapsFolder;
+          List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+          List_Lobby.SetItems(fMapsMP.MapListBuild);
+        end;
+    1:  //Fight Map
+        begin
+          fMapsMP.ScanMapsFolder;
+          List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+          List_Lobby.SetItems(fMapsMP.MapListFight);
+        end;
+    2:  //Co-op Map
+        begin
+          fMapsMP.ScanMapsFolder;
+          List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
+          List_Lobby.SetItems(fMapsMP.MapListCoop);
+        end;
+    3:  //Saved Game
+        begin
+          fSavesMP.ScanSavesFolder(true);
+          List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT_SAVED];
+          List_Lobby.SetItems(fSavesMP.SavesList);
+        end;
+    else
+        begin
+          List_Lobby.DefaultCaption := '<<<LEER>>>';
+          List_Lobby.SetItems('');
+        end;
   end;
-  if Sender <> nil then //This is used in Reset_Lobby when we are not connected
+
+  //The Sender is nil in Reset_Lobby when we are not connected
+  if Sender <> nil then
     fGame.Networking.SelectNoMap(fTextLibrary[TX_LOBBY_MAP_NONE]);
 end;
 
