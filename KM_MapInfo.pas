@@ -338,8 +338,8 @@ procedure TKMapsCollection.Sort;
   begin
     Result := False; //By default everything remains in place
     case aMethod of
-      smByNameAsc:      Result := CompareStr(A.Info.Title, B.Info.Title) < 0;
-      smByNameDesc:     Result := CompareStr(A.Info.Title, B.Info.Title) > 0;
+      smByNameAsc:      Result := CompareText(A.Info.Title, B.Info.Title) < 0;
+      smByNameDesc:     Result := CompareText(A.Info.Title, B.Info.Title) > 0;
       smBySizeAsc:      Result := (A.Info.MapSizeX * A.Info.MapSizeY) < (B.Info.MapSizeX * B.Info.MapSizeY);
       smBySizeDesc:     Result := (A.Info.MapSizeX * A.Info.MapSizeY) > (B.Info.MapSizeX * B.Info.MapSizeY);
       smByPlayersAsc:   Result := A.Info.PlayerCount < B.Info.PlayerCount;

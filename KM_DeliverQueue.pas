@@ -335,8 +335,9 @@ begin
             )
             );
 
-  Result := Result and //Delivery is only permitted if the serf can access the from house
-            fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),KMSerf.GetPosition,CanWalk,0,false);
+  Result := Result and //Delivery is only permitted if the serf can access the from house. If the serf is inside (invisible) test from point below.
+           ((    KMSerf.Visible and fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),KMSerf.GetPosition,CanWalk,0,false)) or
+            (not KMSerf.Visible and fTerrain.Route_CanBeMade(KMPointBelow(fOffer[iO].Loc_House.GetEntrance),KMPointBelow(KMSerf.GetPosition),CanWalk,0,false)));
 end;
 
 

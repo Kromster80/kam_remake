@@ -61,6 +61,7 @@
  +	Rare crash "EAssertionFailed: Trying to remove wrong unit at (X;Y)"
  +	Game flickers on resize and/or if other window is moved above it
  +	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
+ +	When delivering a ware serfs would never take another ware out of the same house, now they do it if that ware is not claimed
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
