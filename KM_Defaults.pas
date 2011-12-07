@@ -28,7 +28,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_REVISION         = 'r2653';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r2671';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '3rd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -108,7 +108,7 @@ const
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
   RX7_SPRITE_COUNT = 17;  //Number of sprites to load for RX7 from the folder \Sprites\
-  RX9_SPRITE_COUNT = 254;
+  RX9_SPRITE_COUNT = 300;
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map

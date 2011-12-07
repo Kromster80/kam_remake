@@ -87,8 +87,8 @@ type
     procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
     procedure RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
     procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
-    procedure RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint);
-    procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
+    procedure RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
+    procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; RXID:integer=2);
     procedure RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
     procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
@@ -714,8 +714,8 @@ begin
 end;
 
 
-procedure TRender.RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint);
-var ID:integer;
+procedure TRender.RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
+var i,ID:integer;
 
   procedure AddHouseSupplySprite(aID:integer);
   var ShiftX,ShiftY:single;
@@ -729,13 +729,19 @@ var ID:integer;
   end;
 
 begin
-  if MarketWares[ResType].Count = 0 then exit;
-  ID := (MarketWares[ResType].TexStart-1) + Min(ResCount, MarketWares[ResType].Count);
-  AddHouseSupplySprite(ID);
+  if ResType = rt_Horse then //Horses are a beast, BeastID is the count, age is 1
+    for i:=1 to Min(ResCount, MarketWares[ResType].Count) do //Render each beast
+      RenderHouseStableBeasts(ht_Marketplace, i, 1, AnimStep, Loc, 9) //Use RX9
+  else
+  begin
+    if MarketWares[ResType].Count = 0 then exit;
+    ID := (MarketWares[ResType].TexStart-1) + Min(ResCount, MarketWares[ResType].Count);
+    AddHouseSupplySprite(ID);
+  end;
 end;
 
 
-procedure TRender.RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint);
+procedure TRender.RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; RXID:integer=2);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   with fResource.HouseDat.BeastAnim[Index,BeastID,BeastAge] do begin
@@ -744,9 +750,9 @@ begin
     ShiftY := MoveY/CELL_SIZE_PX;
   end;
 
-  ShiftX:=ShiftX+RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
-  fRenderList.AddSprite(2,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false);
+  ShiftX:=ShiftX+RXData[RXID].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY:=ShiftY+(RXData[RXID].Pivot[ID].y+RXData[RXID].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+  fRenderList.AddSprite(RXID,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,false);
 end;
 
 

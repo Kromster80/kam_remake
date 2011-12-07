@@ -913,93 +913,93 @@ end;
 type PWAVEIN_INFOW = ^WAVEIN_INFOW;
 
 
-Function zplay_SetSettings(objptr: Pointer; nSettingID: Integer; nValue: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetSettings(objptr: Pointer; nSettingID: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetSettings(objptr: Pointer; nSettingID: Integer; nValue: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetSettings(objptr: Pointer; nSettingID: Integer): Integer; stdcall; external 'libzplay.dll';
 
-Function zplay_CreateZPlay(): Pointer; stdcall; external 'libzplay.dll'
-Function zplay_DestroyZPlay(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetVersion(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_EnumerateWaveOut(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetWaveOutInfo(objptr: Pointer; nIndex: Cardinal; pWaveOutInfo: PWAVEOUT_INFO): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetWaveOutInfoW(objptr: Pointer; nIndex: Cardinal; pWaveOutInfo: PWAVEOUT_INFOW): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetWaveOutDevice(objptr: Pointer; nIndex: Cardinal): Integer; stdcall; external 'libzplay.dll'
-
-
-Function zplay_EnumerateWaveIn(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetWaveInInfo(objptr: Pointer; nIndex: Cardinal; pWaveInInfo: PWAVEIN_INFO): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetWaveInInfoW(objptr: Pointer; nIndex: Cardinal; pWaveInInfo: PWAVEIN_INFOW): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetWaveInDevice(objptr: Pointer; nIndex: Cardinal): Integer; stdcall; external 'libzplay.dll'
+Function zplay_CreateZPlay(): Pointer; stdcall; external 'libzplay.dll';
+Function zplay_DestroyZPlay(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetVersion(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_EnumerateWaveOut(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetWaveOutInfo(objptr: Pointer; nIndex: Cardinal; pWaveOutInfo: PWAVEOUT_INFO): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetWaveOutInfoW(objptr: Pointer; nIndex: Cardinal; pWaveOutInfo: PWAVEOUT_INFOW): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetWaveOutDevice(objptr: Pointer; nIndex: Cardinal): Integer; stdcall; external 'libzplay.dll';
 
 
-
-Function zplay_GetFileFormat(objptr: Pointer; const pchFileName: PAnsiChar): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetFileFormatW(objptr: Pointer; const pchFileName: PWideChar): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetCallbackFunc(objptr: Pointer; pCallbackFunc: TCallbackFunc; nMessage: TCallbackMessage; user_data: Integer): Integer; stdcall; external 'libzplay.dll'
-
-Function zplay_PushDataToStream(objptr: Pointer; const sMemNewData: Pointer; nNewDataize: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_IsStreamDataFree(objptr: Pointer; const sMemNewData: Pointer): Integer; stdcall; external 'libzplay.dll'
-Procedure zplay_GetDynamicStreamLoad(objptr: Pointer;  pStreamLoadInfo: PSTREAM_LOAD_INFO); stdcall; external 'libzplay.dll'
-
-Function zplay_OpenFile(objptr: Pointer; const sFileName: PAnsiChar;  nFormat: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_OpenFileW(objptr: Pointer; const sFileName: PWideChar; nFormat: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_AddFile(objptr: Pointer; const sFileName: PAnsiChar;  nFormat: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_AddFileW(objptr: Pointer; const sFileName: PWideChar; nFormat: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_EnumerateWaveIn(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetWaveInInfo(objptr: Pointer; nIndex: Cardinal; pWaveInInfo: PWAVEIN_INFO): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetWaveInInfoW(objptr: Pointer; nIndex: Cardinal; pWaveInInfo: PWAVEIN_INFOW): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetWaveInDevice(objptr: Pointer; nIndex: Cardinal): Integer; stdcall; external 'libzplay.dll';
 
 
-Function zplay_SetWaveOutFile(objptr: Pointer; const sFileName: PAnsiChar;  nFormat: Integer; fOutputToSoundcard: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetWaveOutFileW(objptr: Pointer; const sFileName: PWideChar; nFormat: Integer; fOutputToSoundcard: Integer): Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_GetFileFormat(objptr: Pointer; const pchFileName: PAnsiChar): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetFileFormatW(objptr: Pointer; const pchFileName: PWideChar): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetCallbackFunc(objptr: Pointer; pCallbackFunc: TCallbackFunc; nMessage: TCallbackMessage; user_data: Integer): Integer; stdcall; external 'libzplay.dll';
+
+Function zplay_PushDataToStream(objptr: Pointer; const sMemNewData: Pointer; nNewDataize: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_IsStreamDataFree(objptr: Pointer; const sMemNewData: Pointer): Integer; stdcall; external 'libzplay.dll';
+Procedure zplay_GetDynamicStreamLoad(objptr: Pointer;  pStreamLoadInfo: PSTREAM_LOAD_INFO); stdcall; external 'libzplay.dll';
+
+Function zplay_OpenFile(objptr: Pointer; const sFileName: PAnsiChar;  nFormat: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_OpenFileW(objptr: Pointer; const sFileName: PWideChar; nFormat: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_AddFile(objptr: Pointer; const sFileName: PAnsiChar;  nFormat: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_AddFileW(objptr: Pointer; const sFileName: PWideChar; nFormat: Integer): Integer; stdcall; external 'libzplay.dll';
 
 
-Function zplay_OpenStream(objptr: Pointer; fBuffered: Integer;	fManaged: Integer; const sMemStream: Pointer; nStreamSize: Cardinal; nFormat: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetWaveOutFile(objptr: Pointer; const sFileName: PAnsiChar;  nFormat: Integer; fOutputToSoundcard: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetWaveOutFileW(objptr: Pointer; const sFileName: PWideChar; nFormat: Integer; fOutputToSoundcard: Integer): Integer; stdcall; external 'libzplay.dll';
 
 
-Function zplay_Close(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-
-Procedure zplay_GetStreamInfo(objptr: Pointer; pInfo: PSTREAM_INFO); stdcall; external 'libzplay.dll'
-Procedure zplay_GetStreamInfoW(objptr: Pointer; pInfo: PSTREAM_INFOW); stdcall; external 'libzplay.dll'
-
-Function zplay_LoadID3(objptr: Pointer; nId3Version: Integer; pId3Info: PID3_INFO): Integer; stdcall; external 'libzplay.dll'
-Function zplay_LoadID3W(objptr: Pointer; nId3Version: Integer; pId3Info: PID3_INFOW): Integer; stdcall; external 'libzplay.dll'
+Function zplay_OpenStream(objptr: Pointer; fBuffered: Integer;	fManaged: Integer; const sMemStream: Pointer; nStreamSize: Cardinal; nFormat: Integer): Integer; stdcall; external 'libzplay.dll';
 
 
-Function zplay_LoadID3Ex(objptr: Pointer; pId3Info: PID3_INFOEX; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_LoadID3ExW(objptr: Pointer;  pId3Info: PID3_INFOEXW; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll'
+Function zplay_Close(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
 
-Function zplay_LoadFileID3(objptr: Pointer; const pchFileName: PAnsiChar; nFormat: Integer; nId3Version: Integer; pId3Info: PID3_INFO): Integer; stdcall; external 'libzplay.dll'
-Function zplay_LoadFileID3W(objptr: Pointer; const pchFileName: PWideChar; nFormat: Integer;  nId3Version: Integer; pId3Info: PID3_INFOW): Integer; stdcall; external 'libzplay.dll'
+Procedure zplay_GetStreamInfo(objptr: Pointer; pInfo: PSTREAM_INFO); stdcall; external 'libzplay.dll';
+Procedure zplay_GetStreamInfoW(objptr: Pointer; pInfo: PSTREAM_INFOW); stdcall; external 'libzplay.dll';
 
-Function zplay_LoadFileID3Ex(objptr: Pointer; const pchFileName: PAnsiChar; nFormat: Integer;  pId3Info: PID3_INFOEX; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_LoadFileID3ExW(objptr: Pointer; const pchFileName: PWideChar; nFormat: Integer; pId3Info: PID3_INFOEXW; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll'
-
-
-Function zplay_Play(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_Stop(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_Pause(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_Resume(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-
-Function zplay_PlayLoop(objptr: Pointer; fFormatStartTime: Integer; pStartTime: PSTREAM_TIME; fFormatEndTime: Integer; pEndTime: PSTREAM_TIME; nNumOfCycles: Cardinal; fContinuePlaying: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_ReverseMode(objptr: Pointer; fEnable: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_LoadID3(objptr: Pointer; nId3Version: Integer; pId3Info: PID3_INFO): Integer; stdcall; external 'libzplay.dll';
+Function zplay_LoadID3W(objptr: Pointer; nId3Version: Integer; pId3Info: PID3_INFOW): Integer; stdcall; external 'libzplay.dll';
 
 
-Procedure zplay_GetPosition(objptr: Pointer; pTime: PSTREAM_TIME); stdcall; external 'libzplay.dll'
-Function zplay_Seek(objptr: Pointer; fFormat: Integer; pTime: PSTREAM_TIME; nMoveMethod: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_LoadID3Ex(objptr: Pointer; pId3Info: PID3_INFOEX; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_LoadID3ExW(objptr: Pointer;  pId3Info: PID3_INFOEXW; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll';
 
-Procedure zplay_GetStatus(objptr: Pointer; pStatus: PSTREAM_STATUS); stdcall; external 'libzplay.dll'
-Function zplay_GetBitrate(objptr: Pointer; fAverage: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_LoadFileID3(objptr: Pointer; const pchFileName: PAnsiChar; nFormat: Integer; nId3Version: Integer; pId3Info: PID3_INFO): Integer; stdcall; external 'libzplay.dll';
+Function zplay_LoadFileID3W(objptr: Pointer; const pchFileName: PWideChar; nFormat: Integer;  nId3Version: Integer; pId3Info: PID3_INFOW): Integer; stdcall; external 'libzplay.dll';
 
-Function zplay_GetError(objptr: Pointer): PAnsiChar; stdcall; external 'libzplay.dll'
-Function zplay_GetErrorW(objptr: Pointer): PWideChar; stdcall; external 'libzplay.dll'
+Function zplay_LoadFileID3Ex(objptr: Pointer; const pchFileName: PAnsiChar; nFormat: Integer;  pId3Info: PID3_INFOEX; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_LoadFileID3ExW(objptr: Pointer; const pchFileName: PWideChar; nFormat: Integer; pId3Info: PID3_INFOEXW; fDecodeEmbededPicture: Cardinal): Integer; stdcall; external 'libzplay.dll';
 
-Function zplay_StereoCut(objptr: Pointer; fEnable: Integer; fOutputCenter: Integer; fBassToSides: Integer): Integer; stdcall; external 'libzplay.dll'
 
-Function zplay_MixChannels(objptr: Pointer; fEnable: Integer; nLeftPercent: Cardinal; nRightPercent: Cardinal): Integer; stdcall; external 'libzplay.dll'
+Function zplay_Play(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_Stop(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_Pause(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_Resume(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
 
-Function zplay_SetMasterVolume(objptr: Pointer; nLeftVolume: Cardinal; nRightVolume: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetPlayerVolume(objptr: Pointer; nLeftVolume: Cardinal; nRightVolume: Cardinal): Integer; stdcall; external 'libzplay.dll'
-procedure zplay_GetMasterVolume(objptr: Pointer; nLeftVolume: PCardinal; nRightVolume: PCardinal); stdcall; external 'libzplay.dll'
-procedure zplay_GetPlayerVolume(objptr: Pointer; nLeftVolume: PCardinal; nRightVolume: PCardinal); stdcall; external 'libzplay.dll'
+Function zplay_PlayLoop(objptr: Pointer; fFormatStartTime: Integer; pStartTime: PSTREAM_TIME; fFormatEndTime: Integer; pEndTime: PSTREAM_TIME; nNumOfCycles: Cardinal; fContinuePlaying: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_ReverseMode(objptr: Pointer; fEnable: Integer): Integer; stdcall; external 'libzplay.dll';
 
-procedure zplay_GetVUData(objptr: Pointer; pnLeftChannel: PCardinal; pnRightChannel: PCardinal); stdcall; external 'libzplay.dll'
+
+Procedure zplay_GetPosition(objptr: Pointer; pTime: PSTREAM_TIME); stdcall; external 'libzplay.dll';
+Function zplay_Seek(objptr: Pointer; fFormat: Integer; pTime: PSTREAM_TIME; nMoveMethod: Integer): Integer; stdcall; external 'libzplay.dll';
+
+Procedure zplay_GetStatus(objptr: Pointer; pStatus: PSTREAM_STATUS); stdcall; external 'libzplay.dll';
+Function zplay_GetBitrate(objptr: Pointer; fAverage: Integer): Integer; stdcall; external 'libzplay.dll';
+
+Function zplay_GetError(objptr: Pointer): PAnsiChar; stdcall; external 'libzplay.dll';
+Function zplay_GetErrorW(objptr: Pointer): PWideChar; stdcall; external 'libzplay.dll';
+
+Function zplay_StereoCut(objptr: Pointer; fEnable: Integer; fOutputCenter: Integer; fBassToSides: Integer): Integer; stdcall; external 'libzplay.dll';
+
+Function zplay_MixChannels(objptr: Pointer; fEnable: Integer; nLeftPercent: Cardinal; nRightPercent: Cardinal): Integer; stdcall; external 'libzplay.dll';
+
+Function zplay_SetMasterVolume(objptr: Pointer; nLeftVolume: Cardinal; nRightVolume: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetPlayerVolume(objptr: Pointer; nLeftVolume: Cardinal; nRightVolume: Cardinal): Integer; stdcall; external 'libzplay.dll';
+procedure zplay_GetMasterVolume(objptr: Pointer; nLeftVolume: PCardinal; nRightVolume: PCardinal); stdcall; external 'libzplay.dll';
+procedure zplay_GetPlayerVolume(objptr: Pointer; nLeftVolume: PCardinal; nRightVolume: PCardinal); stdcall; external 'libzplay.dll';
+
+procedure zplay_GetVUData(objptr: Pointer; pnLeftChannel: PCardinal; pnRightChannel: PCardinal); stdcall; external 'libzplay.dll';
 
 
 Function zplay_GetFFTData(objptr: Pointer;
@@ -1010,7 +1010,7 @@ Function zplay_GetFFTData(objptr: Pointer;
                             pnLeftAmplitude: PInteger;
                             pnRightAmplitude: PInteger;
                             pnLeftPhase: PInteger;
-                            pnRightPhase: PInteger): Integer; stdcall; external 'libzplay.dll'
+                            pnRightPhase: PInteger): Integer; stdcall; external 'libzplay.dll';
 
 
 Function zplay_SlideVolume(objptr: Pointer;
@@ -1021,57 +1021,57 @@ Function zplay_SlideVolume(objptr: Pointer;
                           fFormatEnd: Integer;
                           pTimeEnd: PSTREAM_TIME;
                           nEndVolumeLeft: Cardinal;
-                          nEndVolumeRight: Cardinal): Integer; stdcall; external 'libzplay.dll'
+                          nEndVolumeRight: Cardinal): Integer; stdcall; external 'libzplay.dll';
 
 // =============================
 // echo
-Function zplay_EnableEcho(objptr: Pointer; fEnable: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_EnableEcho(objptr: Pointer; fEnable: Integer): Integer; stdcall; external 'libzplay.dll';
 
 
 
-Function zplay_SetEchoParam(objptr: Pointer;  pEchoEffect: PECHO_EFFECT; nNumberOfEffects: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetEchoParam(objptr: Pointer;  pEchoEffect: PECHO_EFFECT; nNumberOfEffects: Integer): Integer; stdcall; external 'libzplay.dll';
 
 
-Function zplay_GetEchoParam(objptr: Pointer; pEchoEffect: PECHO_EFFECT; nNumberOfEffects: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetEchoParam(objptr: Pointer; pEchoEffect: PECHO_EFFECT; nNumberOfEffects: Integer): Integer; stdcall; external 'libzplay.dll';
         
 // =============================
 // equalizer
-Function zplay_EnableEqualizer(objptr: Pointer; fEnable: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetEqualizerPoints(objptr: Pointer; pnFreqPoint: PInteger; nNumOfPoints: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetEqualizerPoints(objptr: Pointer; pnFreqPoint: PInteger; nNumOfPoints: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetEqualizerParam(objptr: Pointer; nPreAmpGain: Integer; pnBandGain: PInteger; nNumberOfBands: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetEqualizerParam(objptr: Pointer; pnPreAmpGain: PInteger; pnBandGain: Pinteger; nNumberOfBands: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_EnableEqualizer(objptr: Pointer; fEnable: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetEqualizerPoints(objptr: Pointer; pnFreqPoint: PInteger; nNumOfPoints: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetEqualizerPoints(objptr: Pointer; pnFreqPoint: PInteger; nNumOfPoints: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetEqualizerParam(objptr: Pointer; nPreAmpGain: Integer; pnBandGain: PInteger; nNumberOfBands: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetEqualizerParam(objptr: Pointer; pnPreAmpGain: PInteger; pnBandGain: Pinteger; nNumberOfBands: Integer): Integer; stdcall; external 'libzplay.dll';
 
-Function  zplay_SetEqualizerPreampGain(objptr: Pointer; nGain: Integer): Integer; stdcall; external 'libzplay.dll'
-Function  zplay_GetEqualizerPreampGain(objptr: Pointer): Integer; stdcall; external 'libzplay.dll'
-Function  zplay_SetEqualizerBandGain(objptr: Pointer;  nBandIndex: Integer; nGain: Integer): Integer; stdcall; external 'libzplay.dll'
-Function  zplay_GetEqualizerBandGain(objptr: Pointer;  nBandIndex: Integer): Integer; stdcall; external 'libzplay.dll'
+Function  zplay_SetEqualizerPreampGain(objptr: Pointer; nGain: Integer): Integer; stdcall; external 'libzplay.dll';
+Function  zplay_GetEqualizerPreampGain(objptr: Pointer): Integer; stdcall; external 'libzplay.dll';
+Function  zplay_SetEqualizerBandGain(objptr: Pointer;  nBandIndex: Integer; nGain: Integer): Integer; stdcall; external 'libzplay.dll';
+Function  zplay_GetEqualizerBandGain(objptr: Pointer;  nBandIndex: Integer): Integer; stdcall; external 'libzplay.dll';
 
-
-
-// =============================
-
-Function zplay_SetRate(objptr: Pointer; nRate: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetRate(objptr: Pointer): Cardinal; stdcall; external 'libzplay.dll'
-
-Function zplay_SetPitch(objptr: Pointer; nPitch: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetPitch(objptr: Pointer): Cardinal; stdcall; external 'libzplay.dll'
-
-Function zplay_SetTempo(objptr: Pointer; nTempo: Cardinal): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetTempo(objptr: Pointer): Cardinal; stdcall; external 'libzplay.dll'
-
-Function zplay_DrawFFTGraphOnHDC(objptr: Pointer; Handle: Cardinal ; nX: Integer; nY: Integer; nWidth: Integer; nHeight: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_DrawFFTGraphOnHWND(objptr: Pointer; Handle: Cardinal ; nX: Integer; nY: Integer; nWidth: Integer; nHeight: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_SetFFTGraphParam(objptr: Pointer; nParamID: Integer; nParamValue: Integer): Integer; stdcall; external 'libzplay.dll'
-Function zplay_GetFFTGraphParam(objptr: Pointer; nParamID: Integer): Integer; stdcall; external 'libzplay.dll'
 
 
 // =============================
 
+Function zplay_SetRate(objptr: Pointer; nRate: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetRate(objptr: Pointer): Cardinal; stdcall; external 'libzplay.dll';
 
-Function  zplay_DetectBPM(Wobjptr: Pointer; nMethod: Integer): Integer; stdcall; external 'libzplay.dll'
-Function  zplay_DetectFileBPM(objptr: Pointer; pchFileName: PAnsiChar; nFormat: Integer; nMethod: Integer): Integer; stdcall; external 'libzplay.dll'
-Function  zplay_DetectFileBPMW(objptr: Pointer; pchFileName: PWideChar; nFormat: Integer; nMethod: Integer): Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetPitch(objptr: Pointer; nPitch: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetPitch(objptr: Pointer): Cardinal; stdcall; external 'libzplay.dll';
+
+Function zplay_SetTempo(objptr: Pointer; nTempo: Cardinal): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetTempo(objptr: Pointer): Cardinal; stdcall; external 'libzplay.dll';
+
+Function zplay_DrawFFTGraphOnHDC(objptr: Pointer; Handle: Cardinal ; nX: Integer; nY: Integer; nWidth: Integer; nHeight: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_DrawFFTGraphOnHWND(objptr: Pointer; Handle: Cardinal ; nX: Integer; nY: Integer; nWidth: Integer; nHeight: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_SetFFTGraphParam(objptr: Pointer; nParamID: Integer; nParamValue: Integer): Integer; stdcall; external 'libzplay.dll';
+Function zplay_GetFFTGraphParam(objptr: Pointer; nParamID: Integer): Integer; stdcall; external 'libzplay.dll';
+
+
+// =============================
+
+
+Function  zplay_DetectBPM(Wobjptr: Pointer; nMethod: Integer): Integer; stdcall; external 'libzplay.dll';
+Function  zplay_DetectFileBPM(objptr: Pointer; pchFileName: PAnsiChar; nFormat: Integer; nMethod: Integer): Integer; stdcall; external 'libzplay.dll';
+Function  zplay_DetectFileBPMW(objptr: Pointer; pchFileName: PWideChar; nFormat: Integer; nMethod: Integer): Integer; stdcall; external 'libzplay.dll';
 
 
 

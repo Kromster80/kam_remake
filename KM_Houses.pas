@@ -1534,7 +1534,7 @@ begin
   //Render special market wares display
   if fBuildState = hbs_Done then
     if GetInResource(ResType, ResCount) then
-      fRender.RenderMarketSupply(ResType,ResCount,fPosition);
+      fRender.RenderMarketSupply(ResType,ResCount,fPosition,FlagAnimStep); //FlagAnimStep is required for horses
 end;
 
 

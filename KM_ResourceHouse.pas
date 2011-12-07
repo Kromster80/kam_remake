@@ -109,6 +109,7 @@ type
     fCRC:cardinal;
     fItems: array[THouseType] of TKMHouseDatClass;
     fBeastAnim: array[1..2,1..5,1..3] of TKMHouseBeastAnim;
+    fMarketBeastAnim: array[1..3] of TKMHouseBeastAnim;
     function LoadHouseDat(aPath: string):Cardinal;
     function GetHouseDat(aType:THouseType):TKMHouseDatClass;
     function GetBeastAnim(aType:THouseType; aBeast, aAge:integer):TKMHouseBeastAnim;
@@ -430,7 +431,7 @@ const
   = (
       (TexStart: 0; Count: 0;), //rt_None
 
-      (TexStart: 0;   Count: 0;), //rt_Trunk
+      (TexStart: MarketWareTexStart+231; Count: 20;), //rt_Trunk
       (TexStart: MarketWareTexStart+47;  Count: 36;), //rt_Stone
       (TexStart: MarketWareTexStart+94;  Count: 16;), //rt_Wood
       (TexStart: MarketWareTexStart+110; Count: 11;), //rt_IronOre
@@ -456,7 +457,7 @@ const
       (TexStart: MarketWareTexStart+193; Count: 3;), //rt_Hallebard
       (TexStart: MarketWareTexStart+173; Count: 5;), //rt_Bow
       (TexStart: MarketWareTexStart+83;  Count: 2;), //rt_Arbalet
-      (TexStart: 0;   Count: 0;), //rt_Horse
+      (TexStart: 0;                      Count: 2;), //rt_Horse (defined in fMarketBeastAnim)
       (TexStart: 0;   Count: 0;), //rt_Fish
 
       (TexStart: 0; Count: 0;), //rt_All
@@ -612,6 +613,12 @@ constructor TKMHouseDatCollection.Create;
     end;
   end;
 
+  procedure AddMarketBeastAnim(aBeast:integer; aStep:array of smallint);
+  var i:integer;
+  begin
+    for i:=1 to 30 do fMarketBeastAnim[aBeast].Step[i] := aStep[i-1]+MarketWareTexStart-1; //Beast anims are 0 indexed
+  end;
+
 var H:THouseType; i:integer;
 begin
   Inherited;
@@ -662,6 +669,19 @@ begin
   AddAnimation(ht_Marketplace, ha_Fire6, 39, -47, [1629,1630,1631,1626,1627,1628]);
   AddAnimation(ht_Marketplace, ha_Fire7, 25, 13, [1635,1636,1637,1632,1633,1634]);
   AddAnimation(ht_Marketplace, ha_Fire8, -82, -40, [1621,1622,1623,1624,1625,1620]);
+  //Now add horse animations for the market
+  AddMarketBeastAnim(1,[272, 271, 270, 269, 268, 267, 266, 265, 265, 265, 265, 265, 266,
+                        267, 268, 269, 270, 271, 271, 272, 273, 274, 275, 276, 276, 276,
+                        276, 275, 274, 273]);
+  fMarketBeastAnim[1].Count := 30;
+  fMarketBeastAnim[1].MoveX := MarketWaresOffsetX;
+  fMarketBeastAnim[1].MoveY := MarketWaresOffsetY;
+  AddMarketBeastAnim(2,[260, 259, 258, 257, 256, 255, 254, 253, 252, 251, 252, 253, 254,
+                        255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 264, 264, 264,
+                        264, 263, 262, 261]);
+  fMarketBeastAnim[2].Count := 30;
+  fMarketBeastAnim[2].MoveX := MarketWaresOffsetX;
+  fMarketBeastAnim[2].MoveY := MarketWaresOffsetY;
 
   //ExportCSV(ExeDir+'Houses.csv');
 end;
@@ -685,12 +705,13 @@ end;
 
 function TKMHouseDatCollection.GetBeastAnim(aType:THouseType; aBeast, aAge: integer): TKMHouseBeastAnim;
 begin
-  Assert(aType in [ht_Swine, ht_Stables]);
+  Assert(aType in [ht_Swine, ht_Stables, ht_Marketplace]);
   Assert(InRange(aBeast, 1, 5));
   Assert(InRange(aAge, 1, 3));
   case aType of
-    ht_Swine:   Result := fBeastAnim[1, aBeast, aAge];
-    ht_Stables: Result := fBeastAnim[2, aBeast, aAge];
+    ht_Swine:       Result := fBeastAnim[1, aBeast, aAge];
+    ht_Stables:     Result := fBeastAnim[2, aBeast, aAge];
+    ht_Marketplace: Result := fMarketBeastAnim[aBeast];
   end;
 end;
 
