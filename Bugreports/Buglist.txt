@@ -61,6 +61,7 @@
  +	Rare crash "EAssertionFailed: Trying to remove wrong unit at (X;Y)"
  +	Game flickers on resize and/or if other window is moved above it
  +	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
+	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
@@ -105,6 +106,7 @@ Features:
  +	Double clicking a server should join it
  +	New command "!SET_AI_CHARACTER EQUIP_RATE <TICKS>" to control time between equipping soldiers (1 second = 10 ticks)
  +	Add sorting methods to column in singleplayer map selection menu
+ +	Marketplace shows individual wares as they are delivered
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping

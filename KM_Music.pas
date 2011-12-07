@@ -1,9 +1,24 @@
 unit KM_Music;
 {$I KaM_Remake.inc}
 interface
-uses Forms, Bass, Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults;
 
-//We use the Bass library for music playback. It requires bass.dll to be distributed with our releases.
+//We have two choices for music libraries:
+//BASS: Free for non-commercial projects. Requires bass.dll. Website: http://www.un4seen.com/
+//ZLibPlay: GNU GPL license. Requires libzplay.dll. Website: http://libzplay.sourceforge.net/
+
+//Comparision:  - BASS's DLL is much smaller (102kb vs 2.13mb(!)) and BASS seems faster at loading tracks.
+//              - ZLibPlay supports more formats, (FLAC, AC-3, AAC, PCM) but we don't care
+//              - ZLibPlay is GPL but BASS is not, and BASS can only be used for free in non-commercial products
+
+{$DEFINE USEBASS}
+{.DEFINE USELIBZPLAY}
+
+uses Forms, Classes, Windows, SysUtils, KromUtils, Math, KM_Defaults
+     {$IFDEF USEBASS}     , Bass {$ENDIF}
+     {$IFDEF USELIBZPLAY} , libZPlay {$ENDIF}
+     ;
+
+type TFadeState = (fsNone, fsFadeOut, fsFadeIn, fsFaded);
 
 type
   TMusicLib = class
@@ -16,10 +31,10 @@ type
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
     MusicGain:single;
-    fBassStream:cardinal;
-    fFade:shortint; //-1 0 1
+    {$IFDEF USEBASS} fBassStream:cardinal; {$ENDIF}
+    {$IFDEF USELIBZPLAY} ZPlayer: ZPlay; {$ENDIF} //I dislike that it's not TZPlay... Guess they don't know Delphi conventions.
+    fFadeState:TFadeState;
     fFadeStarted:cardinal;
-    function  CheckMusicError:boolean;
     function  PlayMusicFile(FileName:string):boolean;
     procedure ScanMusicTracks(Path:string);
     procedure ShuffleSongs; //should not be seen outside of this class
@@ -46,6 +61,8 @@ implementation
 uses
   KM_Game, KM_Log;
 
+const FADE_TIME = 2000; //Time that a fade takes to occur in ms
+
 
 {Music Lib}
 constructor TMusicLib.Create(aVolume:single);
@@ -55,12 +72,19 @@ begin
   IsMusicInitialized := true;
   ScanMusicTracks(ExeDir + 'Music\');
 
+
+  {$IFDEF USELIBZPLAY}
+  ZPlayer := ZPlay.Create; //Note: They should have used TZPlay not ZPlay for a class
+  {$ENDIF}
+
+  {$IFDEF USEBASS}
   // Setup output - default device, 44100hz, stereo, 16 bits
   if not BASS_Init(-1, 44100, 0, 0, nil) then
   begin
     fLog.AppendLog('Failed to initialize the music playback device');
     IsMusicInitialized := false;
   end;
+  {$ENDIF}
 
   UpdateMusicVolume(aVolume);
 
@@ -76,38 +100,51 @@ end;
 
 destructor TMusicLib.Destroy;
 begin
+  {$IFDEF USELIBZPLAY}
+  ZPlayer.Free;
+  {$ENDIF}
+
+  {$IFDEF USEBASS}
   BASS_Stop(); //Stop all Bass output
   BASS_StreamFree(fBassStream); //Free the stream we may have used (will just return false if the stream is invalid)
   BASS_Free(); //Frees this usage of BASS, allowing it to be recreated successfully
+  {$ENDIF}
+
   Inherited;
 end;
 
 
-
-function TMusicLib.CheckMusicError:boolean;
-var ErrorCode: integer;
-begin
-  ErrorCode := BASS_ErrorGetCode();
-  Result := ErrorCode <> BASS_OK;
-end;
-
-
 function TMusicLib.PlayMusicFile(FileName:string):boolean;
+{$IFDEF USEBASS} var ErrorCode: integer; {$ENDIF}
 begin
   Result:=false;
   if not IsMusicInitialized then exit;
-  if fFade <> 0 then exit; //Don't start a new track while fading
+  if fFadeState <> fsNone then exit; //Don't start a new track while fading or faded
 
-  BASS_ChannelStop(fBassStream); //Cancel previous sound
+  //Cancel previous sound
+  {$IFDEF USELIBZPLAY} ZPlayer.StopPlayback; {$ENDIF}
+  {$IFDEF USEBASS} BASS_ChannelStop(fBassStream); {$ENDIF}
+
   if not FileExists(FileName) then exit; //Make it silent
 
+  {$IFDEF USELIBZPLAY}
+  Result := ZPlayer.OpenFile(FileName, sfAutodetect); //Detect file type automatically
+  if not Result then exit; //File failed to load
+  Result := ZPlayer.StartPlayback;
+  if not Result then exit; //Playback failed to start
+  {$ENDIF}
+  {$IFDEF USEBASS}
   BASS_StreamFree(fBassStream); //Free the existing stream (will just return false if the stream is invalid)
   fBassStream := BASS_StreamCreateFile(FALSE, PChar(FileName), 0, 0, BASS_STREAM_AUTOFREE);
 
   BASS_ChannelPlay(fBassStream,true); //Start playback from the beggining
+
+  ErrorCode := BASS_ErrorGetCode();
+  if ErrorCode <> BASS_OK then exit; //Error
+  {$ENDIF}
+
   UpdateMusicVolume(MusicGain); //Need to reset music volume after starting playback
-  if CheckMusicError then exit;
-  Result:=true;
+  Result := true;
 end;
 
 
@@ -116,7 +153,12 @@ procedure TMusicLib.UpdateMusicVolume(Value:single);
 begin
   if not IsMusicInitialized then exit; //Keep silent
   MusicGain := Value;
+  {$IFDEF USELIBZPLAY}
+  ZPlayer.SetPlayerVolume(Round(Value*100), Round(Value*100)); //0=silent, 100=max
+  {$ENDIF}
+  {$IFDEF USEBASS}
   BASS_ChannelSetAttribute(fBassStream, BASS_ATTRIB_VOL, Value); //0=silent, 1=max
+  {$ENDIF}
 end;
 
 
@@ -131,12 +173,21 @@ begin
   FindFirst('*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Attr and faDirectory <> faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-    if (GetFileExt(SearchRec.Name) = 'MP3') or //Allow all formats supported by Bass
+    if (GetFileExt(SearchRec.Name) = 'MP3') or //Allow all formats supported by both libraries
        (GetFileExt(SearchRec.Name) = 'MP2') or
        (GetFileExt(SearchRec.Name) = 'MP1') or
        (GetFileExt(SearchRec.Name) = 'WAV') or
-       (GetFileExt(SearchRec.Name) = 'OGG') or
-       (GetFileExt(SearchRec.Name) = 'AIFF') then begin
+       (GetFileExt(SearchRec.Name) = 'OGG')
+       {$IFDEF USEBASS} //Formats supported by BASS but not LibZPlay
+       or (GetFileExt(SearchRec.Name) = 'AIFF')
+       {$ENDIF}
+       {$IFDEF USELIBZPLAY} //Formats supported by LibZPlay but not BASS
+       or (GetFileExt(SearchRec.Name) = 'FLAC')
+       or (GetFileExt(SearchRec.Name) = 'OGA')
+       or (GetFileExt(SearchRec.Name) = 'AC3')
+       or (GetFileExt(SearchRec.Name) = 'AAC')
+       or (GetFileExt(SearchRec.Name) = 'OGA')
+       {$ENDIF} then begin
       inc(MusicCount);
       MusicTracks[MusicCount] := Path + SearchRec.Name;
     end;
@@ -166,6 +217,7 @@ begin
   or (MusicCount = 0) then //no music files found
     Exit;
 
+  if fFadeState <> fsNone then exit;
   //Set next index, looped or random
   MusicIndex := MusicIndex mod MusicCount + 1;
   PlayMusicFile(MusicTracks[TrackOrder[MusicIndex]]);
@@ -177,6 +229,7 @@ begin
   if not IsMusicInitialized then exit;
   if not fGame.GlobalSettings.MusicOn then exit;
   if MusicCount=0 then exit; //no music files found
+  if fFadeState <> fsNone then exit;
   MusicIndex := MusicIndex - 1; //Set to previous
   if MusicIndex = 0 then MusicIndex := MusicCount; //Loop to the top
   PlayMusicFile(MusicTracks[TrackOrder[MusicIndex]]);
@@ -185,15 +238,25 @@ end;
 
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TMusicLib.IsMusicEnded:boolean;
+{$IFDEF USELIBZPLAY} var Status:TStreamStatus; {$ENDIF}
 begin
-  Result := (not IsMusicInitialized) or (BASS_ChannelIsActive(fBassStream) = BASS_ACTIVE_STOPPED);
+  {$IFDEF USELIBZPLAY} ZPlayer.GetStatus(Status); {$ENDIF}
+  Result := IsMusicInitialized and
+            {$IFDEF USELIBZPLAY}
+            (not Status.fPlay and not Status.fPause) //Not playing and not paused due to fade
+            {$ENDIF}
+            {$IFDEF USEBASS}
+            (BASS_ChannelIsActive(fBassStream) = BASS_ACTIVE_STOPPED)
+            {$ENDIF}
+            ;
 end;
 
 
 procedure TMusicLib.StopMusic;
 begin
   if not IsMusicInitialized then exit;
-  BASS_ChannelStop(fBassStream);
+  {$IFDEF USELIBZPLAY} ZPlayer.StopPlayback; {$ENDIF}
+  {$IFDEF USEBASS} BASS_ChannelStop(fBassStream); {$ENDIF}
   MusicIndex := 0;
 end;
 
@@ -206,6 +269,7 @@ begin
     StopMusic;
 end;
 
+
 procedure TMusicLib.ToggleShuffle(aOn:boolean);
 begin
   if aOn then
@@ -213,6 +277,7 @@ begin
   else
     UnshuffleSongs;
 end;
+
 
 procedure TMusicLib.ShuffleSongs;
 var i, r, NewIndex: Byte;
@@ -230,6 +295,7 @@ begin
   MusicIndex := NewIndex;
 end;
 
+
 procedure TMusicLib.UnshuffleSongs;
 var i: Byte;
 begin
@@ -244,44 +310,58 @@ end;
 
 
 procedure TMusicLib.FadeMusic;
+{$IFDEF USELIBZPLAY} var StartTime, EndTime: TStreamTime; Left, Right:integer; {$ENDIF}
 begin
-  if (not IsMusicInitialized) or (MusicIndex = 0) then exit;
-  fFade := -1; //Fade it out
+  if (not IsMusicInitialized) then exit;
+  fFadeState := fsFadeOut; //Fade it out
   fFadeStarted := GetTickCount;
+  {$IFDEF USELIBZPLAY}
+  ZPlayer.GetPosition(StartTime);
+  EndTime.ms := StartTime.ms + FADE_TIME;
+  ZPlayer.GetPlayerVolume(Left, Right); //Start fade from the current volume
+  ZPlayer.SlideVolume(tfMillisecond, StartTime, Left, Right, tfMillisecond, EndTime, 0, 0);
+  {$ENDIF}
+  {$IFDEF USEBASS}
+  BASS_ChannelSlideAttribute(fBassStream, BASS_ATTRIB_VOL, 0, FADE_TIME);
+  {$ENDIF}
 end;
 
 
 procedure TMusicLib.UnfadeMusic;
+{$IFDEF USELIBZPLAY} var StartTime, EndTime: TStreamTime; Left, Right:integer; {$ENDIF}
 begin
-  if (not IsMusicInitialized) or (MusicIndex = 0) then exit;
-  fFade := 1; //Fade it in
+  if (not IsMusicInitialized) then exit;
+  fFadeState := fsFadeIn; //Fade it in
   fFadeStarted := GetTickCount;
+  {$IFDEF USELIBZPLAY}
+  //LibZPlay has a nice SlideVolume function we can use
+  ZPlayer.ResumePlayback; //Music may have been paused due to fade out
+  ZPlayer.GetPosition(StartTime);
+  EndTime.ms := StartTime.ms + FADE_TIME;
+  ZPlayer.GetPlayerVolume(Left, Right); //Start fade from the current volume
+  ZPlayer.SlideVolume(tfMillisecond, StartTime, Left, Right, tfMillisecond, EndTime, Round(MusicGain*100), Round(MusicGain*100));
+  {$ENDIF}
+  {$IFDEF USEBASS}
+  BASS_ChannelPlay(fBassStream,False); //Music may have been paused due to fade out
+  BASS_ChannelSlideAttribute(fBassStream, BASS_ATTRIB_VOL, MusicGain, FADE_TIME);
+  {$ENDIF}
 end;
 
 
 procedure TMusicLib.UpdateStateIdle;
-const FADE_TIME = 2000; //Time that a fade takes to occur in ms
-var NewVol: single;
 begin
-  if (not IsMusicInitialized) or (MusicIndex = 0) or (fFade = 0) then exit;
-  if fFade = 1 then
-    NewVol := MusicGain*(            Min(FADE_TIME, Abs(GetTickCount-fFadeStarted)))/FADE_TIME
-  else
-    NewVol := MusicGain*(FADE_TIME - Min(FADE_TIME, Abs(GetTickCount-fFadeStarted)))/FADE_TIME;
+  if (not IsMusicInitialized) or (fFadeState in [fsNone,fsFaded]) then exit;
 
-  BASS_ChannelSetAttribute(fBassStream, BASS_ATTRIB_VOL, NewVol);
-  if (NewVol = 0) and (fFade = -1) then
+  if GetTickCount-fFadeStarted > FADE_TIME then
   begin
-    BASS_ChannelPause(fBassStream);
-    fFade := 0; //Fade out complete
-  end
-  else
-    if (fFade = 1) then
+    if fFadeState = fsFadeOut then //Fade out is complete so pause the music
     begin
-      if BASS_ChannelIsActive(fBassStream) = BASS_ACTIVE_PAUSED then
-        BASS_ChannelPlay(fBassStream,False); //Resume
-      if NewVol = MusicGain then fFade := 0; //Fade in complete
+      fFadeState := fsFaded;
+      {$IFDEF USELIBZPLAY} ZPlayer.PausePlayback; {$ENDIF}
+      {$IFDEF USEBASS} BASS_ChannelPause(fBassStream); {$ENDIF}
     end;
+    if fFadeState = fsFadeIn then fFadeState := fsNone;
+  end;
 end;
 
 
@@ -290,9 +370,10 @@ begin
   if not IsMusicInitialized then exit;
   if not InRange(MusicIndex, low(MusicTracks), high(MusicTracks)) then exit;
   //May not display the correct title as not all LIBs are correct. Should also do range checking
+  //@Lewin: I think we should do it this way eventually
   //Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex);
 
-  Result := TruncateExt(ExtractFileName(MusicTracks[TrackOrder[MusicIndex]])); //@Lewin: I think we should do it this way eventually
+  Result := TruncateExt(ExtractFileName(MusicTracks[TrackOrder[MusicIndex]]));
 end;
 
 (*
