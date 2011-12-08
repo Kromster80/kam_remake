@@ -1,0 +1,7 @@
+GPL sounds like a good license for us. Any derived work MUST be open source. So if someone uses our code and then wants to sell his own game, that game must also be under GPL and open-source.
+Other licenses (e.g. BSD) allow derived work to be closed source, meaning that guy could sell his closed-source game using our code.
+
+
+Regarding libraries we use:
+ - GPL means our project must also be GPL
+ - LGPL means we may use the library even if our project is closed source. If we modify that lib, we must make the modification public and also under LGPL.

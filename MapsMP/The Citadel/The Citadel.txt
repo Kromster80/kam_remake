@@ -1,0 +1,8 @@
+Title
+The Citadel
+
+SmallDesc
+Can the citadel be taken?
+
+BigDesc
+The allies have gathered for their final march against the evil overlord. He has taken refuge in his citadel, but can he stand against the innumerable forces that will flood his fortress?||Teams should be: 1 vs 2+3+4||Map created by Pictures
