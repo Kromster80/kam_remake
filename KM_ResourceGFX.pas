@@ -211,7 +211,7 @@ var
       AlphaTest: False;
       LoadFrom: rlFolder;
       Usage: ruGame;
-      OverrideCount: 300;
+      OverrideCount: 347;
       LoadingTextID: TX_MENU_LOADING_SPRITES;
     ));
 

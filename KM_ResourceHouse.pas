@@ -431,34 +431,34 @@ const
   = (
       (TexStart: 0; Count: 0;), //rt_None
 
-      (TexStart: MarketWareTexStart+231; Count: 20;), //rt_Trunk
+      (TexStart: MarketWareTexStart+237; Count: 20;), //rt_Trunk
       (TexStart: MarketWareTexStart+47;  Count: 36;), //rt_Stone
-      (TexStart: MarketWareTexStart+94;  Count: 16;), //rt_Wood
-      (TexStart: MarketWareTexStart+110; Count: 11;), //rt_IronOre
-      (TexStart: MarketWareTexStart+132; Count: 12;), //rt_GoldOre
-      (TexStart: MarketWareTexStart+201; Count: 11;), //rt_Coal
-      (TexStart: MarketWareTexStart+127; Count: 5;), //rt_Steel
-      (TexStart: MarketWareTexStart+144; Count: 9;), //rt_Gold
+      (TexStart: MarketWareTexStart+94;  Count: 19;), //rt_Wood
+      (TexStart: MarketWareTexStart+113; Count: 11;), //rt_IronOre
+      (TexStart: MarketWareTexStart+135; Count: 12;), //rt_GoldOre
+      (TexStart: MarketWareTexStart+207; Count: 11;), //rt_Coal
+      (TexStart: MarketWareTexStart+130; Count: 5;),  //rt_Steel
+      (TexStart: MarketWareTexStart+147; Count: 9;),  //rt_Gold
       (TexStart: MarketWareTexStart+1;   Count: 23;), //rt_Wine
       (TexStart: MarketWareTexStart+24;  Count: 23;), //rt_Corn
-      (TexStart: MarketWareTexStart+212; Count: 12;), //rt_Bread
-      (TexStart: MarketWareTexStart+181; Count: 12;), //rt_Flour
-      (TexStart: MarketWareTexStart+153; Count: 9;), //rt_Leather
-      (TexStart: 0;   Count: 0;), //rt_Sausages
-      (TexStart: 0;   Count: 0;), //rt_Pig
-      (TexStart: MarketWareTexStart+224; Count: 7;), //rt_Skin
-      (TexStart: MarketWareTexStart+85;  Count: 9;), //rt_Shield
-      (TexStart: MarketWareTexStart+124; Count: 3;), //rt_MetalShield
-      (TexStart: MarketWareTexStart+162; Count: 6;), //rt_Armor
-      (TexStart: MarketWareTexStart+121; Count: 3;), //rt_MetalArmor
-      (TexStart: MarketWareTexStart+196; Count: 5;), //rt_Axe
-      (TexStart: MarketWareTexStart+178; Count: 3;), //rt_Sword
-      (TexStart: MarketWareTexStart+168; Count: 5;), //rt_Pike
-      (TexStart: MarketWareTexStart+193; Count: 3;), //rt_Hallebard
-      (TexStart: MarketWareTexStart+173; Count: 5;), //rt_Bow
-      (TexStart: MarketWareTexStart+83;  Count: 2;), //rt_Arbalet
-      (TexStart: 0;                      Count: 2;), //rt_Horse (defined in fMarketBeastAnim)
-      (TexStart: 0;   Count: 0;), //rt_Fish
+      (TexStart: MarketWareTexStart+218; Count: 12;), //rt_Bread
+      (TexStart: MarketWareTexStart+186; Count: 12;), //rt_Flour
+      (TexStart: MarketWareTexStart+156; Count: 9;),  //rt_Leather
+      (TexStart: MarketWareTexStart+283; Count: 16;), //rt_Sausages
+      (TexStart: MarketWareTexStart+299; Count: 6;),  //rt_Pig
+      (TexStart: MarketWareTexStart+230; Count: 7;),  //rt_Skin
+      (TexStart: MarketWareTexStart+85;  Count: 9;),  //rt_Shield
+      (TexStart: MarketWareTexStart+127; Count: 3;),  //rt_MetalShield
+      (TexStart: MarketWareTexStart+165; Count: 6;),  //rt_Armor
+      (TexStart: MarketWareTexStart+124; Count: 3;),  //rt_MetalArmor
+      (TexStart: MarketWareTexStart+201; Count: 6;),  //rt_Axe
+      (TexStart: MarketWareTexStart+183; Count: 3;),  //rt_Sword
+      (TexStart: MarketWareTexStart+171; Count: 6;),  //rt_Pike
+      (TexStart: MarketWareTexStart+198; Count: 3;),  //rt_Hallebard
+      (TexStart: MarketWareTexStart+177; Count: 6;),  //rt_Bow
+      (TexStart: MarketWareTexStart+83;  Count: 2;),  //rt_Arbalet
+      (TexStart: 0;                      Count: 2;),  //rt_Horse (defined in fMarketBeastAnim)
+      (TexStart: MarketWareTexStart+305; Count: 19;), //rt_Fish
 
       (TexStart: 0; Count: 0;), //rt_All
       (TexStart: 0; Count: 0;), //rt_Warfare
@@ -670,15 +670,15 @@ begin
   AddAnimation(ht_Marketplace, ha_Fire7, 25, 13, [1635,1636,1637,1632,1633,1634]);
   AddAnimation(ht_Marketplace, ha_Fire8, -82, -40, [1621,1622,1623,1624,1625,1620]);
   //Now add horse animations for the market
-  AddMarketBeastAnim(1,[272, 271, 270, 269, 268, 267, 266, 265, 265, 265, 265, 265, 266,
-                        267, 268, 269, 270, 271, 271, 272, 273, 274, 275, 276, 276, 276,
-                        276, 275, 274, 273]);
+  AddMarketBeastAnim(1,[278, 277, 276, 275, 274, 273, 272, 271, 271, 271, 271, 271, 272,
+                        273, 274, 275, 276, 277, 277, 278, 279, 280, 281, 282, 282, 282,
+                        282, 281, 280, 279]);
   fMarketBeastAnim[1].Count := 30;
   fMarketBeastAnim[1].MoveX := MarketWaresOffsetX;
   fMarketBeastAnim[1].MoveY := MarketWaresOffsetY;
-  AddMarketBeastAnim(2,[260, 259, 258, 257, 256, 255, 254, 253, 252, 251, 252, 253, 254,
-                        255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 264, 264, 264,
-                        264, 263, 262, 261]);
+  AddMarketBeastAnim(2,[266, 265, 264, 263, 262, 261, 260, 259, 258, 257, 258, 259, 260,
+                        261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 270, 270, 270,
+                        270, 269, 268, 267]);
   fMarketBeastAnim[2].Count := 30;
   fMarketBeastAnim[2].MoveX := MarketWaresOffsetX;
   fMarketBeastAnim[2].MoveY := MarketWaresOffsetY;
