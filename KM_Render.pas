@@ -871,27 +871,32 @@ end;
 
 
 procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
-var h:integer;
+var Lay: Byte;
 begin
-  for h:=1 to 2 do
-  with GFXData[RX,ID] do begin
-    if h=1 then begin
-      glColor3ub(aFOW,aFOW,aFOW);
+  for Lay:=1 to 2 do
+  with GFXData[RX,ID] do
+  begin
+    if Lay=1 then
+    begin
+      glColor3ub(aFOW, aFOW, aFOW);
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
-    if (h=2) and (aFOW<>0) then begin //Don't render colorflags if they aren't visible cos of FOW
+    if (Lay=2) and (aFOW<>0) then  //Don't render colorflags if they aren't visible cos of FOW
+    begin
       glColor4ubv(@Col);
       glBindTexture(GL_TEXTURE_2D, AltID);
     end;
 
     if HighlightRed then glColor4f(1,0,0,1);
 
-    if (h=1) or ((h=2)and(RXData[RX].NeedTeamColors)and(AltID<>0)) then begin
+    if (Lay=1)
+    or ((Lay=2) and (RXData[RX].HasTeamColors) and (AltID<>0)) then
+    begin
       glBegin(GL_QUADS);
-        glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1                      );
-        glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
-        glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(u1,v2); glVertex2f(pX-1                     ,pY-1                      );
+        glTexCoord2f(u2,v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
+        glTexCoord2f(u2,v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(u1,v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
       glEnd;
     end;
   end;
@@ -901,12 +906,12 @@ begin
   if SHOW_SPRITES_RECT then
   begin
     glPushAttrib(GL_LINE_BIT);
-    glLineWidth(1);
-    glColor4f(1,1,1,0.5);
-    glBegin(GL_LINE_LOOP);
-      with GFXData[RX,ID] do
-      glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    glEnd;
+      glLineWidth(1);
+      glColor4f(1,1,1,0.5);
+      glBegin(GL_LINE_LOOP);
+        with GFXData[RX,ID] do
+          glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+      glEnd;
     glPopAttrib;
   end;
 end;
@@ -917,32 +922,35 @@ begin
   //NOTION: This function does not work on some GPUs will need to replace it with simplier more complicated way
   //glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER,1-Param);
-  glBlendFunc(GL_ONE,GL_ZERO);
+  glAlphaFunc(GL_GREATER, 1-Param);
+  glBlendFunc(GL_ONE, GL_ZERO);
 
-  with GFXData[RX,ID] do begin
-    glColor3ub(aFOW,aFOW,aFOW);
+  with GFXData[RX,ID] do
+  begin
+    glColor3ub(aFOW, aFOW, aFOW);
     glBindTexture(GL_TEXTURE_2D, TexID);
     glBegin(GL_QUADS);
-      glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
-      glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
-      glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-      glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(u1,v2); glVertex2f(pX-1                     ,pY-1         );
+      glTexCoord2f(u2,v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
+      glTexCoord2f(u2,v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(u1,v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
   end;
+
   glDisable(GL_ALPHA_TEST);
   glAlphaFunc(GL_ALWAYS,0);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   //glEnable(GL_BLEND);
 
-  if SHOW_SPRITES_RECT then begin
+  if SHOW_SPRITES_RECT then
+  begin
     glPushAttrib(GL_LINE_BIT);
     glLineWidth(1);
     glColor3f(1,1,1);
     glBegin(GL_LINE_LOOP);
       with GFXData[RX,ID] do
-      glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+        glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
     glPopAttrib;
   end;

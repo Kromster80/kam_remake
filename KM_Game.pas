@@ -50,6 +50,8 @@ type
     fMissionMode: TKMissionMode;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
 
+    procedure GameLoadingStep(const aText: String);
+
     procedure GameInit(aMultiplayerMode:boolean);
     procedure GameStart(aMissionFile, aGameName:string);
     procedure GameMPDisconnect(const aData:string);
@@ -375,6 +377,13 @@ begin
 end;
 
 
+procedure TKMGame.GameLoadingStep(const aText: String);
+begin
+  //@Lewin: Plase feel free to rewrite it as you like
+  fMainMenuInterface.ShowScreen(msLoading, aText);
+end;
+
+
 procedure TKMGame.GameInit(aMultiplayerMode: Boolean);
 begin
   fGameSpeed := 1; //In case it was set in last run mission
@@ -385,8 +394,10 @@ begin
   fGameOptions.Free;
   fGameOptions := TKMGameOptions.Create;
 
-  if fResource.DataState<>dls_All then begin
+  if fResource.DataState <> dls_All then
+  begin
     fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SPRITES]);
+    fResource.OnLoadingText := GameLoadingStep;
     fResource.LoadGameResources;
     InitUnitStatEvals; //Army
   end;

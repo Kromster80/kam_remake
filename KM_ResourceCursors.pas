@@ -21,7 +21,7 @@ type
     function GetCursor: TKMCursor;
     procedure SetCursor(Value: TKMCursor);
   public
-    procedure MakeCursors(aRX: Integer);
+    procedure MakeCursors;
     property Cursor: TKMCursor read GetCursor write SetCursor;
     function CursorOffset(aDir: TKMDirection): TKMPointI;
     function CursorTexID(aDir: TKMDirection): Integer;
@@ -29,7 +29,7 @@ type
 
 
 implementation
-
+uses KM_ResourceGFX;
 
 const
   //Screen.Cursors[0] is used by System default cursor
@@ -63,7 +63,7 @@ begin
 end;
 
 
-procedure TKMCursors.MakeCursors(aRX: Integer);
+procedure TKMCursors.MakeCursors;
 const
   SF = 17; //Full width/height of a scroll cursor
   SH = 8; //Half width/height of a scroll cursor
@@ -77,7 +77,7 @@ var
   IconInfo: TIconInfo;
   {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
 begin
-  fRX := aRX;
+  fRX := Byte(rxGui) + 1;
 
   bm  := TBitmap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf24bit;
   bm2 := TBitmap.Create; bm2.HandleType := bmDIB; bm2.PixelFormat := pf24bit;

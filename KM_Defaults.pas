@@ -56,7 +56,6 @@ var
   CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :boolean=true; //Render underwater sand
   //Not fully implemented yet
-  LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
 
   //These are debug things, should be FALSE
@@ -107,8 +106,6 @@ const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
-  RX7_SPRITE_COUNT = 17;  //Number of sprites to load for RX7 from the folder \Sprites\
-  RX9_SPRITE_COUNT = 300;
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
@@ -1042,24 +1039,6 @@ var
     Tag2:byte;          //Additional tag for MapEd (brush shape)
   end;
 
-  RXData:array [1..9]of record
-    Title:string;
-    Qty:integer;
-    Flag:array of byte;
-    Size:array of record X,Y:word; end;
-    Pivot:array of record x,y:integer; end;
-    Data:array of array of byte;
-    RGBA:array of array of cardinal; //Expanded image
-    Mask:array of array of cardinal; //Mask for team colors
-    HasMask:array of boolean; //Mask for team colors
-    NeedTeamColors:boolean;
-  end;
-
-  GFXData: array [1..9] of array of record
-    TexID,AltID: Cardinal; //AltID used for team colors
-    u1,v1,u2,v2: single;
-    PxWidth,PxHeight:word;
-  end;
 
 
   //Trees and other terrain elements properties

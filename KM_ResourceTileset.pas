@@ -11,8 +11,8 @@ uses
 type
   TKMTileset = class
   private
-    procedure LoadTileSet(const aPath:string);
-    procedure MakeMiniMapColors(FileName:string);
+    procedure LoadTileSet(const aPath: string);
+    procedure MakeMiniMapColors(const FileName: string);
   public
     TextG: Cardinal; //Shading gradient
     TextT: Cardinal; //Tiles
@@ -29,34 +29,21 @@ uses KM_TGATexture;
 
 
 { TKMTileset }
-constructor TKMTileset.Create(const aPath:string);
+constructor TKMTileset.Create(const aPath: string);
 begin
   Inherited Create;
 
   LoadTileSet(aPath);
-  MakeMiniMapColors(aPath+'Tiles1.tga');
+  MakeMiniMapColors(aPath + 'Tiles1.tga');
 end;
 
 
 // Load the Textures
-procedure TKMTileset.LoadTileSet(const aPath:string);
-var i:integer;
+procedure TKMTileset.LoadTileSet(const aPath: string);
+var i: Integer;
 begin
   LoadTexture(aPath + 'gradient.tga', TextG);
   LoadTexture(aPath + 'Tiles1.tga', TextT);
-
-  //Generate UV coords
-  for i:=0 to 255 do
-    with GFXData[8, i+1] do
-    begin
-      TexID := TextT;
-      v1 := (i div 16  ) / 16; //There are 16 tiles across the line
-      u1 := (i mod 16  ) / 16;
-      v2 := (i div 16+1) / 16;
-      u2 := (i mod 16+1) / 16;
-      PxWidth := 32;
-      PxHeight := 32;
-    end;
 
   if MAKE_ANIM_TERRAIN then begin
     for i:=1 to 8 do LoadTexture(aPath + 'Water'+inttostr(i)+'.tga', TextW[i]);
@@ -68,8 +55,12 @@ end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
-procedure TKMTileset.MakeMiniMapColors(FileName:string);
-var ii,kk,h,j,pX:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {ft:textfile;}
+procedure TKMTileset.MakeMiniMapColors(const FileName: string);
+var
+  ii,kk,h,j,pX: Integer;
+  c:array of byte;
+  R,G,B,SizeX,SizeY: Integer;
+  f: file;
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
   {$IFDEF WDC}
