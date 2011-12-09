@@ -379,7 +379,6 @@ end;
 
 procedure TKMGame.GameLoadingStep(const aText: String);
 begin
-  //@Lewin: Plase feel free to rewrite it as you like
   fMainMenuInterface.ShowScreen(msLoading, aText);
 end;
 

@@ -44,7 +44,8 @@ type
     fTileset: TKMTileset;
 
     procedure StepRefresh;
-    procedure StepCaption(const aCaption: string);
+    procedure StepCaption(const aCaption: string); overload;
+    procedure StepCaption(const aTextID: Word); overload;
 
     function LoadMapElemDAT(const FileName: string): Boolean;
     function LoadPatternDAT(const FileName: string): Boolean;
@@ -109,7 +110,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Render, KM_Log;
+uses KromUtils, KM_Render, KM_Log, KM_TextLibrary;
 
 
 type
@@ -117,12 +118,13 @@ type
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
 
   TRXInfo = record
-    Title: AnsiString; //Used for logging and filenames
+    FileName: AnsiString; //Used for logging and filenames
     TeamColors: Boolean; //sprites should be generated with color masks
     AlphaTest: Boolean; //Alphatested gradients, used only for houses yet
     LoadFrom: TRXLocation;
     Usage: TRXUsage; //Menu and Game sprites are loaded separately
     OverrideCount: Word;
+    LoadingTextID: Word;
   end;
 
 
@@ -130,76 +132,87 @@ var
   //This is internal detail, that noone should know or care outside of this unit
   RXInfo: array [TRXType] of TRXInfo = (
     (
-      Title: 'Trees';
+      FileName: 'Trees';
       TeamColors: False;
       AlphaTest: False;
       LoadFrom: rlFile;
       Usage: ruGame;
-      OverrideCount: 0
+      OverrideCount: 0;
+      //todo: Split TX_MENU_LOADING_SPRITES into seperate messages for each RX
+      //      (after this release so we don't bother the translators again)
+      LoadingTextID: TX_MENU_LOADING_SPRITES;
     ),
     (
-      Title: 'Houses';
+      FileName: 'Houses';
       TeamColors: True;
       AlphaTest: True;
       LoadFrom: rlFile;
       Usage: ruGame;
-      OverrideCount: 0
+      OverrideCount: 0;
+      LoadingTextID: TX_MENU_LOADING_SPRITES;
     ),
     (
-      Title: 'Units';
+      FileName: 'Units';
       TeamColors: True;
       AlphaTest: False;
       LoadFrom: rlFile;
       Usage: ruGame;
-      OverrideCount: 7885 //Clip to 7885 sprites until we add TPR ballista/catapult support
+      OverrideCount: 7885; //Clip to 7885 sprites until we add TPR ballista/catapult support
+      LoadingTextID: TX_MENU_LOADING_SPRITES;
     ),
     (
-      Title: 'GUI';
+      FileName: 'GUI';
       TeamColors: True;
       AlphaTest: False;
       LoadFrom: rlFile;
       Usage: ruMenu;
-      OverrideCount: 0 //Required for unit scrolls and icons
+      OverrideCount: 0; //Required for unit scrolls and icons
+      LoadingTextID: 0;
     ),
     (
-      Title: 'GUIMain';
+      FileName: 'GUIMain';
       TeamColors: False;
       AlphaTest: False;
       LoadFrom: rlFile;
       Usage: ruMenu;
-      OverrideCount: 0
+      OverrideCount: 0;
+      LoadingTextID: 0;
     ),
     (
-      Title: 'GUIMainH';
+      FileName: 'GUIMainH';
       TeamColors: False;
       AlphaTest: False;
       LoadFrom: rlFile;
       Usage: ruMenu;
-      OverrideCount: 0
+      OverrideCount: 0;
+      LoadingTextID: 0;
     ),
     (
-      Title: 'RemakeMenu';
+      FileName: 'RemakeMenu';
       TeamColors: False;
       AlphaTest: False;
       LoadFrom: rlFolder;
       Usage: ruMenu;
-      OverrideCount: 17
+      OverrideCount: 17;
+      LoadingTextID: 0;
     ),
     (
-      Title: 'Tileset';
+      FileName: 'Tileset';
       TeamColors: False;
       AlphaTest: False;
       LoadFrom: rlFolder;
       Usage: ruGame;
-      OverrideCount: 256
+      OverrideCount: 256;
+      LoadingTextID: TX_MENU_LOADING_SPRITES;
     ),
     (
-      Title: 'RemakeGame';
+      FileName: 'RemakeGame';
       TeamColors: True;
       AlphaTest: False;
       LoadFrom: rlFolder;
       Usage: ruGame;
-      OverrideCount: 300
+      OverrideCount: 300;
+      LoadingTextID: TX_MENU_LOADING_SPRITES;
     ));
 
 
@@ -240,6 +253,12 @@ begin
 end;
 
 
+procedure TResource.StepCaption(const aTextID: Word);
+begin
+  if aTextID <> 0 then StepCaption(fTextLibrary[aTextID]);
+end;
+
+
 procedure TResource.LoadMenuResources(const aLocale: string);
 var RT: TRXType;
 begin
@@ -253,7 +272,7 @@ begin
   for RT := Low(TRXType) to High(TRXType) do
   if (RXInfo[RT].Usage = ruMenu) and (RXInfo[RT].LoadFrom = rlFile) then
   begin
-    StepCaption('Reading ' + RXInfo[RT].Title + ' ...');
+    StepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
     LoadRX(RT);
     OverloadRX(RT); //Load RX data overrides
 
@@ -273,7 +292,7 @@ begin
   for RT := Low(TRXType) to High(TRXType) do
   if (RXInfo[RT].Usage = ruMenu) and (RXInfo[RT].LoadFrom = rlFolder) then
   begin
-    StepCaption('Reading ' + RXInfo[RT].Title + ' ...');
+    StepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
 
     AllocateRX(RT, RXInfo[RT].OverrideCount);
     OverloadRX(RT); //Load sprites from PNGs
@@ -314,9 +333,9 @@ begin
     if ((RT = rxHouses) and not MAKE_HOUSE_SPRITES) or
        ((RT = rxUnits) and not MAKE_UNIT_SPRITES) then Continue;
 
-    StepCaption(RXInfo[RT].Title);
+    StepCaption(RXInfo[RT].LoadingTextID);
 
-    fLog.AppendLog('Reading ' + RXInfo[RT].Title + '.rx');
+    fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
     if LoadRX(RT) then
     begin
       OverloadRX(RT); //Updated sprites
@@ -334,7 +353,7 @@ begin
   for RT := Low(TRXType) to High(TRXType) do
   if (RXInfo[RT].Usage = ruGame) and (RXInfo[RT].LoadFrom = rlFolder) then
   begin
-    StepCaption(RXInfo[RT].Title);
+    StepCaption(RXInfo[RT].LoadingTextID);
     AllocateRX(RT, RXInfo[RT].OverrideCount);
     OverloadRX(RT); //Load custom PNGs
     MakeGFX(RT);
@@ -342,7 +361,7 @@ begin
   end;
 
   fLog.AppendLog('Preparing MiniMap colors...');
-  StepCaption(RXInfo[rxTiles].Title);
+  StepCaption(RXInfo[rxTiles].LoadingTextID);
   fTileset := TKMTileset.Create(ExeDir + 'Resource\');
   AllocateRX(rxTiles, RXInfo[rxTiles].OverrideCount);
   //Generate UV coords
@@ -614,7 +633,7 @@ var
 begin
   Result := False;
 
-  FileName := ExeDir + 'data\gfx\res\' + RXInfo[aRT].Title + '.rx';
+  FileName := ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx';
 
   if not CheckFileExists(FileName) then
     Exit;
@@ -643,7 +662,7 @@ begin
       blockread(f, RXData[ID].Data[i, 0], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
     end;
   closefile(f);
-  fLog.AppendLog(RXInfo[aRT].Title + ' -', RXData[ID].Qty);
+  fLog.AppendLog(RXInfo[aRT].FileName + ' -', RXData[ID].Qty);
 
   RXData[ID].HasTeamColors := RXInfo[aRT].TeamColors;
 
@@ -916,7 +935,7 @@ begin
   RT := TRXType(RXid - 1);
 
   CreateDir(ExeDir + 'Export\');
-  CreateDir(ExeDir + 'Export\' + RXInfo[RT].Title + '.rx\');
+  CreateDir(ExeDir + 'Export\' + RXInfo[RT].FileName + '.rx\');
   MyBitMap := TBitmap.Create;
   MyBitMap.PixelFormat := pf24bit;
 
@@ -939,7 +958,7 @@ begin
       MyBitMap.Canvas.Pixels[k,i] := $FF00FF;
 
     if sy > 0 then
-      MyBitMap.SaveToFile(ExeDir + 'Export\' + RXInfo[RT].Title + '.rx\' + RXInfo[RT].Title + '_' + int2fix(ID, 4) + '.bmp');
+      MyBitMap.SaveToFile(ExeDir + 'Export\' + RXInfo[RT].FileName + '.rx\' + RXInfo[RT].FileName + '_' + int2fix(ID, 4) + '.bmp');
 
     SetLength(RXData[RXid].Data[id], 0);
   end;
