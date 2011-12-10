@@ -841,13 +841,20 @@ end;
 //Maybe it's better to rule out In/Out? No, it is required to separate what can be taken out of the house and what not.
 //But.. if we add "Evacuate" button to all house the separation becomes artificial..
 procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
-var i:integer;
+var i,OrdersRemoved:integer;
 begin
   Assert(aResource <> rt_None);
 
   for i:=1 to 4 do
     if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
+    begin
       inc(fResourceIn[i], aCount);
+      if aFromScript then
+      begin
+        OrdersRemoved := fPlayers.Player[fOwner].DeliverList.TryRemoveDemand(Self, aResource, aCount);
+        dec(fResourceDeliveryCount[i], OrdersRemoved);
+      end;
+    end;
 end;
 
 
