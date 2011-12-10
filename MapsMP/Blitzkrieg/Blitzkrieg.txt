@@ -1,0 +1,8 @@
+Title
+Blitzkrieg
+
+SmallDesc
+A multiplayer map by Ben
+
+BigDesc
+Made by Ben, this map is suited for a very quick offensive start. All players start with a lot of resources that can be used to quickly field an army, and it can be done within minutes of the start since the barracks, weapon's workshop, and iron smithy are all unlocked at the beginning of the game.||Teams should be 1+3 vs 2+4

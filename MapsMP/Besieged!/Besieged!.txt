@@ -1,0 +1,8 @@
+Title
+Beseiged!
+
+SmallDesc
+A multiplayer map made by Ben
+
+BigDesc
+Made by Ben. This map is similar to castle slaughter, with a few changes. Each player's castle has four entrances, and starts with a small farming village; which can be expanded. Should your castle become besieged, your food stocks will quickly drain, and famine will take hold of your people! Defend the farmers at all costs!
