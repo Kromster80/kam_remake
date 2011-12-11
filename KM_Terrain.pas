@@ -510,7 +510,7 @@ begin
 end;
 
 
-function TTerrain.TileIsFactorable(Loc:TKMPoint):boolean;
+function TTerrain.TileIsFactorable(Loc: TKMPoint): Boolean;
 begin
   //List of tiles that cannot be factored (coordinates outside the map return true)
   Result := not TileInMapCoords(Loc.X,Loc.Y) or
@@ -518,21 +518,19 @@ begin
 end;
 
 
-function TTerrain.TileIsLocked(aLoc:TKMPoint):boolean;
+function TTerrain.TileIsLocked(aLoc: TKMPoint): Boolean;
 begin
-  Result := false;
-  if (Land[aLoc.Y,aLoc.X].IsUnit <> nil) then begin
-    if Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction=nil then
-      Assert(Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction<>nil);
-    Result := (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
-  end;
+  if (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction = nil) then
+    Assert(False);
+
+  Result := (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
 end;
 
 
 //Check if there's unit on the tile
 //Note that IsUnit refers to where unit started walking to, not the actual unit position
 //(which is what we used in unit interaction), so check all 9 tiles to get accurate result
-function TTerrain.UnitsHitTest(X,Y:word):TKMUnit;
+function TTerrain.UnitsHitTest(X,Y: Word): TKMUnit;
 var i,k:integer;
 begin
   Result := nil;
@@ -546,7 +544,7 @@ end;
 { Should scan withing given radius and return closest unit with given Alliance status
   Should be optimized versus usual UnitsHitTest
   Prefer Warriors over Citizens}
-function TTerrain.UnitsHitTestWithinRad(aLoc:TKMPoint; MinRad, MaxRad:single; aPlayer:TPlayerIndex; aAlliance:TAllianceType; Dir:TKMDirection): TKMUnit;
+function TTerrain.UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection): TKMUnit;
 var
   i,k:integer; //Counters
   lx,ly,hx,hy:integer; //Ranges

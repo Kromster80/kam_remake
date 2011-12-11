@@ -51,7 +51,7 @@ type
       function IntSolutionExchange(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
       function IntCheckIfPushed(HighestInteractionCount:integer):boolean;
       function IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-      function IntSolutionAvoid(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+      function IntSolutionAvoid(fOpponent: TKMUnit): Boolean;
       function IntSolutionSideStep(aPosition:TKMPoint; HighestInteractionCount:integer):boolean;
 
     procedure ChangeStepTo(aPos: TKMPoint);
@@ -127,7 +127,7 @@ begin
   if fUseExactTarget then
     fWalkTo := aLocB
   else
-    fWalkTo := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass,aUseExactTarget);
+    fWalkTo := fTerrain.GetClosestTile(aLocB, aUnit.GetPosition, fPass, aUseExactTarget);
 
 
   ExplanationLogCreate;
@@ -135,7 +135,7 @@ begin
   ExplanationLogAdd;
 
   if fWalkTo.X*fWalkTo.Y = 0 then
-    raise ELocError.Create('WalkTo 0:0',fWalkTo);
+    raise ELocError.Create('WalkTo 0:0', fWalkTo);
 
   NodeList      := TKMPointList.Create; //Freed on destroy
   SetInitValues;
@@ -678,19 +678,21 @@ end;
 
 //If the blockage won't go away because it's busy (Locked by other unit) then try going around it
 //by re-routing our route and avoiding that tile and all other Locked tiles
-function TUnitActionWalkTo.IntSolutionAvoid(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+function TUnitActionWalkTo.IntSolutionAvoid(fOpponent: TKMUnit): Boolean;
 var MaxLength:integer;
 begin
-  Result := false;
-  if (HighestInteractionCount >= AVOID_TIMEOUT) or fDestBlocked then
+  Result := False;
+
+  if (fInteractionCount >= AVOID_TIMEOUT) or fDestBlocked then
   //Route_MakeAvoid is very CPU intensive, so don't run it every time
-  if CheckInteractionFreq(HighestInteractionCount,AVOID_TIMEOUT,AVOID_FREQ) then
+  if CheckInteractionFreq(fInteractionCount, AVOID_TIMEOUT, AVOID_FREQ) then
   begin
+
     //Can't go around our target position unless it's a house
-    if (not KMSamePoint(fOpponent.GetPosition,fWalkTo)) or (fTargetHouse <> nil) then
+    if (not KMSamePoint(fOpponent.GetPosition, fWalkTo)) or (fTargetHouse <> nil) then
     begin
       //We will accept an alternative route up to 3 times greater than the amount we would have been walking anyway
-      MaxLength := Math.max(NodeList.Count-NodePos,15)*3; //Remainder of our route times 3. Always prepared to walk 15 tiles (e.g. around houses)
+      MaxLength := Math.max(NodeList.Count - NodePos, 15) * 3; //Remainder of our route times 3. Always prepared to walk 15 tiles (e.g. around houses)
       if fDestBlocked or fOpponent.GetUnitAction.Locked then
         if fTerrain.Pathfinding.Route_MakeAvoid(fUnit.GetPosition,fWalkTo,GetEffectivePassability,fDistance,fTargetHouse,NodeList,MaxLength) then //Make sure the route can be made, if not, we must simply wait
         begin
@@ -698,25 +700,18 @@ begin
           SetInitValues;
           Explanation := 'Unit in the way is working so we will re-route around it';
           ExplanationLogAdd;
-          fDestBlocked := false;
+          fDestBlocked := False;
           //Exit, then on next tick new walk will start
-          Result := true; //Means exit DoUnitInteraction
+          Result := True; //Means exit DoUnitInteraction
         end
         else
         begin
-          fDestBlocked := true; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
+          fDestBlocked := True; //When in this mode we are zero priority as we cannot reach our destination. This allows serfs with stone to get through and clear our path.
           fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
           Explanation := 'Our destination is blocked by busy units';
           ExplanationLogAdd;
         end;
-    end
-    else
-      //If there's a locked unit (mining our resource or just building a road) we better try to find a new mining location
-      if fOpponent.GetUnitAction.Locked and (fUnit.GetUnitTask is TTaskMining) then
-      begin
-        TTaskMining(fUnit.GetUnitTask).FindAnotherWorkPlan;
-        Result := true; //Means exit DoUnitInteraction
-      end;
+    end;
   end;
 end;
 
@@ -748,13 +743,14 @@ end;
 
 
 //States whether we are allowed to run time consuming tests
-function TUnitActionWalkTo.CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
+//@Lewin: I don't quite understand this logic here, could you please explain it?
+function TUnitActionWalkTo.CheckInteractionFreq(aIntCount, aTimeout, aFreq: Integer): Boolean;
 begin
-  Result := ((aIntCount - aTimeout) mod aFreq = 0) and (aIntCount - aTimeout >= 0);
+  Result := (aIntCount - aTimeout >= 0) and ((aIntCount - aTimeout) mod aFreq = 0);
 end;
 
 
-function TUnitActionWalkTo.DoUnitInteraction:boolean;
+function TUnitActionWalkTo.DoUnitInteraction: Boolean;
 var
   fOpponent:TKMUnit;
   HighestInteractionCount: integer;
@@ -818,7 +814,7 @@ begin
   if IntCheckIfPushed(fInteractionCount) then exit;
   if not fDestBlocked then fInteractionStatus := kis_Trying; //If we reach this point then we don't have a solution...
   if IntSolutionDodge(fOpponent,HighestInteractionCount) then exit;
-  if IntSolutionAvoid(fOpponent,fInteractionCount) then exit;
+  if IntSolutionAvoid(fOpponent) then Exit;
   if IntSolutionSideStep(fOpponent.GetPosition,fInteractionCount) then exit;
 
   //We will allow other units to force an exchange with us as we haven't found a solution or our destination is blocked
@@ -902,10 +898,10 @@ end;
 
 function TUnitActionWalkTo.Execute: TActionResult;
 var
-  DX,DY:shortint;
-  WalkX,WalkY,Distance:single;
-  ThisAction:TUnitAction;
-  ThisUnit:TKMUnit;
+  DX,DY: Shortint;
+  WalkX,WalkY,Distance: Single;
+  ThisAction: TUnitAction;
+  U: TKMUnit;
 begin
   Result := ActContinues;
   StepDone := False;
@@ -960,7 +956,7 @@ begin
       and not KMSamePoint(fTargetUnit.GetPosition, fWalkTo) then
     begin
       //If target unit has moved then change course and keep following it
-      ChangeWalkTo(fTargetUnit, fDistance); 
+      ChangeWalkTo(fTargetUnit, fDistance);
       //If we are a warrior commander tell our memebers to use this new position
       if (fUnit is TKMUnitWarrior) and TKMUnitWarrior(fUnit).IsCommander then
       begin
@@ -970,7 +966,7 @@ begin
     end;
 
     //Check if we need to walk to a new destination
-    if CanAbandonInternal and (CheckForNewDestination=dc_NoRoute) then begin
+    if CanAbandonInternal and (CheckForNewDestination = dc_NoRoute) then begin
       Result := ActAborted;
       exit;
     end;
@@ -992,6 +988,17 @@ begin
       exit;
     end;
 
+    //Abandon if someone already mines our resource
+    if (fUnit.GetUnitTask is TTaskMining) and (NodePos+1 = NodeList.Count) and not fUseExactTarget then
+    begin
+      U := fTerrain.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
+      Assert((U = nil) or (U.GetUnitAction <> nil));
+      if (U <> nil) and U.GetUnitAction.Locked then
+      begin
+        Result := ActDone; //TaskMining will care about the rest (and find new workplan)
+        Exit;
+      end;
+    end;
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
     if CanAbandonInternal then
@@ -1001,10 +1008,10 @@ begin
       end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it
-    if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then
+    if KMSamePoint(NodeList.List[NodePos], NodeList.List[NodePos+1]) then
     begin
       inc(NodePos); //Inc the node pos and exit so this step is simply skipped
-      exit; //Will take next step during next execute
+      Exit; //Will take next step during next execute
     end;
 
     //If we were in Worker mode but have now reached the walk network of our destination switch to CanWalk mode to avoid walking on other building sites
@@ -1049,14 +1056,17 @@ begin
     end else
     begin
       ThisAction := fUnit.GetUnitAction; //We need to know whether DoUnitInteraction destroys Self (this action)
-      ThisUnit := fUnit; //Could be destroyed by DoUnitInteraction, we need to check afterwards
+      U := fUnit; //Could be destroyed by DoUnitInteraction, we need to check afterwards
+
       if not DoUnitInteraction then
       begin
         //If ThisAction <> ThisUnit.GetUnitAction means DoUnitInteraction destroyed this action, so we must exit immediately
-        if (ThisAction = ThisUnit.GetUnitAction) and (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) and
-            not fTerrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
-                  Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
-        exit; //Do no further walking until unit interaction is solved
+        if (ThisAction = U.GetUnitAction)
+        and (fUnit.UnitType in [ANIMAL_MIN..ANIMAL_MAX])
+        and not fTerrain.CheckAnimalIsStuck(fUnit.GetPosition,fPass) then
+          Result := ActDone; //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
+
+        Exit; //Do no further walking until unit interaction is solved
       end else
         fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
@@ -1064,7 +1074,7 @@ begin
       fUnit.UpdateNextPosition(NodeList.List[NodePos]);
 
       if GetLength(fUnit.PrevPosition,fUnit.NextPosition) > 1.5 then
-        raise ELocError.Create('Unit walk length>1.5',fUnit.PrevPosition);
+        raise ELocError.Create('Unit walk length>1.5', fUnit.PrevPosition);
 
       if fTerrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit = nil then
         raise ELocError.Create('Unit walk Prev position IsUnit = nil',fUnit.PrevPosition);

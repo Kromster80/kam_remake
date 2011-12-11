@@ -12,8 +12,6 @@ Future
 	Reworked deliveries
 	Select units by shape
 	Refactor warriors into TGroups
-	Hotkeys for armies (Ctrl+1,2,etc)
-	Tutorial missions texts, simple GEP [Krom]
 	File transfer in multiplayer for missions and saves [Lewin]
 	Multiplayer trading (from a new building "Trading Post"?)
 

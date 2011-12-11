@@ -1289,8 +1289,8 @@ begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(False, 'Interrupting unabandonable Walk action');
 
-  if not aUseExactTarget and not (Self is TKMUnitWarrior) then
-    Assert(False, 'Only true warriors don''t care ''bout exact location on reposition');
+  if not aUseExactTarget and not (Self is TKMUnitWarrior) and not (Self.fUnitTask is TTaskMining) then
+    Assert(False, 'Only true warriors don''t care ''bout exact location on reposition; Miners compete over resources, so they can handle is location is taken already');
 
   SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, nil, nil, aUseExactTarget));
 end;

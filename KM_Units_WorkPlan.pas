@@ -114,7 +114,10 @@ end;
 
 
 function TUnitWorkPlan.FindDifferentResource(aUnitType:TUnitType; aLoc, aAvoidLoc: TKMPoint): boolean;
-var NewLoc: TKMPointDir; PlantAct: TPlantAct; Found: boolean;
+var
+  NewLoc: TKMPointDir;
+  PlantAct: TPlantAct;
+  Found: boolean;
 begin
   with fTerrain do
   case GatheringScript of
@@ -126,9 +129,12 @@ begin
                           begin
                             //There are no other tasks for us to do,
                             //so we might as well wait for the corn to be cut and then plant over it
-                            Result := true;
-                            exit;
+                            //@Lewin: how do we deduce the above statement?
+                            //Result := true;
+                            Result := False;
+                            Exit;
                           end;
+
                           if PlantAct = taPlant then
                           begin
                             GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
@@ -146,8 +152,9 @@ begin
     gs_FisherCatch:     Found := FindFishWater(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, NewLoc);
     gs_WoodCutterCut:   Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, KMGetVertexTile(aAvoidLoc, WorkDir), taCut, NewLoc, PlantAct);
     gs_WoodCutterPlant: Found := FindTree(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taPlant, NewLoc, PlantAct);
-    else                Found := false; //Can find a new resource for an unknown gathering script, so return with false
+    else                Found := False; //Can find a new resource for an unknown gathering script, so return with false
   end;
+
   if Found then
   begin
     Loc := NewLoc.Loc;
