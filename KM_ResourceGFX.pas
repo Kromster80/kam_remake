@@ -476,17 +476,18 @@ end;
   additionaly to or replacing original sprites }
 procedure TResource.OverloadRX(aRT: TRXType);
 var
-  FileList:TStringList;
-  SearchRec:TSearchRec;
-  i:integer; x,y:integer;
-  RX,ID: integer; p:cardinal;
-  T:Byte;
-  ft:TextFile;
+  FileList: TStringList;
+  SearchRec: TSearchRec;
+  i,x,y:integer;
+  RX, ID: integer;
+  p: Cardinal;
+  T: Byte;
+  ft: TextFile;
   {$IFDEF WDC}
-  po:TPNGObject;
+  po: TPNGObject;
   {$ENDIF}
   {$IFDEF FPC}
-  po:TBGRABitmap;
+  po: TBGRABitmap;
   {$ENDIF}
 begin
   if not DirectoryExists(ExeDir + 'Sprites\') then Exit;
@@ -509,7 +510,7 @@ begin
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
     if InRange(ID, 1, RXData[RX].Qty) then begin //Replace only certain sprites
 
-      RXData[RX].HasMask[ID] := FileExists(ExeDir + 'Sprites\' + Copy(FileList.Strings[i], 1, 6)+'a.png');
+      RXData[RX].HasMask[ID] := FileExists(ExeDir + 'Sprites\' + Copy(FileList.Strings[i], 1, 6) + 'a.png');
 
       {$IFDEF WDC}
       po := TPNGObject.Create;
@@ -664,8 +665,6 @@ begin
   closefile(f);
   fLog.AppendLog(RXInfo[aRT].FileName + ' -', RXData[ID].Qty);
 
-  RXData[ID].HasTeamColors := RXInfo[aRT].TeamColors;
-
   ExpandRX(aRT);
   Result := True;
 end;
@@ -816,6 +815,8 @@ var
   ID: Byte;
 begin
   ID := Byte(aRT) + 1;
+
+  RXData[ID].HasTeamColors := RXInfo[aRT].TeamColors; //HasTeamColors is used by fRender as well
 
   LeftIndex:=0; AllocatedRAM:=0; RequiredRAM:=0; ColorsRAM:=0; TexCount:=0;
   repeat

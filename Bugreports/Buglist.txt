@@ -1,5 +1,6 @@
 ﻿Since r2678:
 <===================================================================================>
+ +	Army unit icons in MapEd don't have team colors
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
