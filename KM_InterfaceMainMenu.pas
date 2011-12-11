@@ -1056,7 +1056,7 @@ begin
     TKMLabel.Create(Panel_Credits,232,100,400,20,fTextLibrary[TX_CREDITS],fnt_Outline,taCenter);
     TKMLabel.Create(Panel_Credits,232,140,400,492,
     fTextLibrary[TX_CREDITS_PROGRAMMING]+'|Krom|Lewin||'+
-    fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex||'+
+    fTextLibrary[TX_CREDITS_ADDITIONAL_PROGRAMMING]+'|Alex|Danjb||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_GRAPHICS]+'|StarGazer|Malin||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_SOUNDS]+'|trb1914||'+
     fTextLibrary[TX_CREDITS_ADDITIONAL_TRANSLATIONS]+TRANSLATOR_CREDITS+

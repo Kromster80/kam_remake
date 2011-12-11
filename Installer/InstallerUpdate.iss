@@ -1,7 +1,7 @@
 ; For each "Update" build there are two things to change. Revision and Upgradable Versions
 
 ; REVISION
-#define Revision 'r2653'
+#define Revision 'r2678'
 
 ; These don't need to change
 #define InstallType 'Update'
@@ -41,4 +41,5 @@ Filename: "{app}\Clean.bat"; WorkingDir: "{app}"; Flags: runhidden
 
 [Setup]
 EnableDirDoesntExistWarning=yes
+CreateUninstallRegKey=no
 #include "InstallerLib.iss"

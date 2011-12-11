@@ -21,7 +21,8 @@ Doable:
 	Hotkeys for armies (Ctrl+1,2,etc)
 	Tutorial missions texts, simple GEP [Krom]
 
-Next Demo:
+
+3rd Multiplayer Demo (r2678) - 11/12/11:
  +	Ton of bugfixes
  +	Auto reconnect for networking [Lewin]
  +	Replays manager [Lewin]

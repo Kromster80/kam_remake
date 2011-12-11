@@ -1,4 +1,61 @@
-﻿Since r2411:
+﻿Since r2678:
+<===================================================================================>
+	The multiplayer in-game player list should be ordered by teams
+	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
+	Maybe archers attacked by archers should not try to walk towards enemies
+	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
+?	Warriors should resume interrupted orders after a fight
+	Make houses highlight red when about to erase them as trees/units do (in MapEd)
+	Replays sometimes end up with a mismatch while watching them, cause unknown
+	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
+	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
+	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
+	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
+
+	Dots and lines displaying on tile edges [Krom]
+	Colored rectangle below cursor
+	See-through hills (lighting flaw)
+
+Features:
+	Ctrl+C/V to copy chat messages with e.g. links or quotes
+	Edges of messages and other scrolls should be transparent so they look smooth
+	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
+	Multiplayer mode could show the player's name above each group (flag holder) while some key is kept pressed
+	Mutltiplayer spectator mode
+	Ability for the host to close slots in MP lobby
+	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
+	Scrolling around the map using middle mouse click, as in TPR
+	Dismiss button to make units walk into the school and disappear (gold is not refunded)
+	256x256 icons for EXE (for vista/7/8 users)
+	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
+	Fade music during campaign story screens (and other places?)
+	Add support for 1024x600 (1280x720) resolution
+	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
+	Simple dedicated server form which lets you set the properties of the INI for the server and start it
+	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
+	Show the mining radius of the selected house or house that you are placing
+	Master server in MySQL and support multiple revisions at once
+	Colors for chat to highlight player names and whether it is team/all channel
+	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
+	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
+	Chat logs
+	Better full screen support (if you Alt-Tab out of the game from fullscreen, the game blocks your way and you can't easily use anything else)
+	Sort maps in SP and MP (building, building and fighting, fighting, co-op, players, mapsize, etc.)
+	Wares need to be taken out of the barracks for trading at the market
+	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
+	Markups should only be visible on you and your allies screen, to stop people people ruining a multiplayer game by filling an enemy's base with road markups that cannot be removed (requires allowing multiple players to have a markup on the same tile)
+	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
+	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
+
+ -	The ingame briefing texture is too short, see attached picture
+ -	Serfs should take wares back or to suitable house if destination is destroyed
+ -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
+ - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
+ -	Many texts will not change if I change the language in options menu (we are always working on it)
+
+
+Fixed in r2678:
 <===================================================================================>
  +	Shorted "teamname %s" in lobby for PL locale
  +	Replace the "Fast Scrolling" checkbox with a slider
@@ -61,21 +118,7 @@
  +	Rare crash "EAssertionFailed: Trying to remove wrong unit at (X;Y)"
  +	Game flickers on resize and/or if other window is moved above it
  +	Farmers and woodcutters should still plant when they have 5 resources in stock, just not cut
-	The multiplayer in-game player list should be ordered by teams
-	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
-	Maybe archers attacked by archers should not try to walk towards enemies
-	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
-?	Warriors should resume interrupted orders after a fight
-	Make houses highlight red when about to erase them as trees/units do (in MapEd)
-	Replays sometimes end up with a mismatch while watching them, cause unknown
-	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
-	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
-	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
-	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
 
-	Dots and lines displaying on tile edges [Krom]
-	Colored rectangle below cursor
-	See-through hills (lighting flaw)
 
 Features:
  +	Resizeable chat frame ingame
@@ -107,42 +150,7 @@ Features:
  +	New command "!SET_AI_CHARACTER EQUIP_RATE <TICKS>" to control time between equipping soldiers (1 second = 10 ticks)
  +	Add sorting methods to column in singleplayer map selection menu
  +	Marketplace shows individual wares as they are delivered
-	Ctrl+C/V to copy chat messages with e.g. links or quotes
-	Edges of messages and other scrolls should be transparent so they look smooth
-	The story message on campaign map should fade between sides when you mouse over, rather than jumping
-	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
-	Multiplayer mode could show the player's name above each group (flag holder) while some key is kept pressed
-	Mutltiplayer spectator mode
-	Ability for the host to close slots in MP lobby
-	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
-	Scrolling around the map using middle mouse click, as in TPR
-	Dismiss button to make units walk into the school and disappear (gold is not refunded)
-	256x256 icons for EXE (for vista/7/8 users)
-	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
-	Fade music during campaign story screens (and other places?)
-	Add support for 1024x600 (1280x720) resolution
-	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
-	Simple dedicated server form which lets you set the properties of the INI for the server and start it
-	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
-	Show the mining radius of the selected house or house that you are placing
-	Master server in MySQL and support multiple revisions at once
-	Colors for chat to highlight player names and whether it is team/all channel
-	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
-	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
-	Chat logs
-	Better full screen support (if you Alt-Tab out of the game from fullscreen, the game blocks your way and you can't easily use anything else)
-	Sort maps in SP and MP (building, building and fighting, fighting, co-op, players, mapsize, etc.)
-	Wares need to be taken out of the barracks for trading at the market
-	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
-	Markups should only be visible on you and your allies screen, to stop people people ruining a multiplayer game by filling an enemy's base with road markups that cannot be removed (requires allowing multiple players to have a markup on the same tile)
-	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
-	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
 
- -	The ingame briefing texture is too short, see attached picture
- -	Serfs should take wares back or to suitable house if destination is destroyed
- -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
- - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
- -	Many texts will not change if I change the language in options menu (we are always working on it)
 
 
 Fixed in r2411:
