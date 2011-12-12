@@ -242,7 +242,9 @@ begin
   TimeBeginPeriod(1); //initialize timer precision
   {$ENDIF}
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
-  fLog:=TKMLog.Create(ExeDir+'KaM_'+FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz',Now)+'.log'); //First thing - create a log
+
+  CreateDir(ExeDir + 'Logs\');
+  fLog := TKMLog.Create(ExeDir+'Logs\KaM_'+FormatDateTime('yyyy-mm-dd_hh-nn-ss-zzz',Now)+'.log'); //First thing - create a log
 
   ReadAvailableResolutions;
 
