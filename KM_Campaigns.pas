@@ -8,7 +8,8 @@ uses
 
 type
   TPicID = record
-    RX,ID:word;
+    RX: TRXType;
+    ID: Word;
   end;
 
   TKMCampaign = class
@@ -26,11 +27,11 @@ type
       PrevMap:shortint; //Should be used to draw connecting dots in Campaign screen
       ScriptPath:string;
     end;
-    constructor Create(const aShortTitle:string; aMapCount:byte; aBackRX,aBackID:word);
+    constructor Create(const aShortTitle:string; aMapCount:byte; aBackRX: TRXType; aBackID:word);
     procedure LoadProgress(M:TKMemoryStream);
     procedure SaveProgress(M:TKMemoryStream);
 
-    property BackGroundPicRX:word read fBackGroundPic.RX;
+    property BackGroundPicRX: TRXType read fBackGroundPic.RX;
     property BackGroundPicID:word read fBackGroundPic.ID;
     property MapCount:byte read fMapCount;
     property ShortTitle:string read fShortTitle;
@@ -133,7 +134,7 @@ end;
 procedure TKMCampaignsCollection.CreateTPR;
 var i:integer; C:TKMCampaign;
 begin
-  C := TKMCampaign.Create('TPR', TPR_MAPS, 5, 20);
+  C := TKMCampaign.Create('TPR', TPR_MAPS, rxGuiMain, 20);
 
   for i:=0 to C.MapCount-1 do
   begin
@@ -151,7 +152,7 @@ end;
 procedure TKMCampaignsCollection.CreateTSK;
 var i:integer; C:TKMCampaign;
 begin
-  C := TKMCampaign.Create('TSK', TSK_MAPS, 6, 12); //Use the map from the TSK rx, as it is 1024x768 (TPR only has 800x600)
+  C := TKMCampaign.Create('TSK', TSK_MAPS, rxGuiMainH, 12); //Use the map from the TSK rx, as it is 1024x768 (TPR only has 800x600)
 
   for i:=0 to C.MapCount-1 do
   begin
@@ -277,7 +278,7 @@ end;
 
 
 { TKMCampaign }
-constructor TKMCampaign.Create(const aShortTitle: string; aMapCount:byte; aBackRX,aBackID:word);
+constructor TKMCampaign.Create(const aShortTitle: string; aMapCount:byte; aBackRX: TRXType; aBackID:word);
 begin
   Inherited Create;
   fShortTitle := aShortTitle;

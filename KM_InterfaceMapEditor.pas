@@ -200,7 +200,7 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
+uses KM_CommonTypes, KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
      KM_Utils, KM_Game, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceCursors;
 
 
@@ -504,7 +504,7 @@ begin
       BrushSize   := TKMRatioRow.Create(Panel_Brushes, 8, 10, 100, 20, 1, 12);
       BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 114, 8, 24, 24, 359);
       BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 142, 8, 24, 24, 352);
-      TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, 8);
+      TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);
 
       {BrushSize.OnChange   := TerrainBrush_Change;
       BrushCircle.OnChange := TerrainBrush_Change;
@@ -531,7 +531,7 @@ begin
       TilesScroll.Position := 0;
       TilesScroll.OnChange := Terrain_TilesChange;
       for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := TKMButtonFlat.Create(Panel_Tiles,2+(i-1)*32,30+(k-1)*32,32,32,1,8); //2..9
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := TKMButtonFlat.Create(Panel_Tiles,2+(i-1)*32,30+(k-1)*32,32,32,1,rxTiles); //2..9
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (k-1)*MAPED_TILES_COLS+i; //Store ID
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
@@ -546,10 +546,10 @@ begin
       ObjectsScroll.Position := 1;
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 8, 8,32,32,340);
-      ObjectsTable[1] := TKMButtonFlat.Create(Panel_Objects, 8, 40,90,110,1,1); //RXid=1  // 1 2
-      ObjectsTable[2] := TKMButtonFlat.Create(Panel_Objects, 8,150,90,110,1,1); //RXid=1  // 3 4
-      ObjectsTable[3] := TKMButtonFlat.Create(Panel_Objects,98, 40,90,110,1,1); //RXid=1
-      ObjectsTable[4] := TKMButtonFlat.Create(Panel_Objects,98,150,90,110,1,1); //RXid=1
+      ObjectsTable[1] := TKMButtonFlat.Create(Panel_Objects, 8, 40,90,110,1,rxTrees); //RXid=1  // 1 2
+      ObjectsTable[2] := TKMButtonFlat.Create(Panel_Objects, 8,150,90,110,1,rxTrees); //RXid=1  // 3 4
+      ObjectsTable[3] := TKMButtonFlat.Create(Panel_Objects,98, 40,90,110,1,rxTrees); //RXid=1
+      ObjectsTable[4] := TKMButtonFlat.Create(Panel_Objects,98,150,90,110,1,rxTrees); //RXid=1
       for i:=1 to 4 do begin
         ObjectsTable[i].Tag := i; //Store ID
         ObjectsTable[i].OnClick := Terrain_ObjectsChange;
@@ -614,7 +614,7 @@ begin
       //TKMLabel.Create(Panel_Units,100,140,0,0,'Warriors',fnt_Outline,taCenter);
       for i:=0 to High(Button_Warriors) do
       begin
-        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,124+(i div 5)*37,33,33, MapEd_Icon[i], 9);
+        Button_Warriors[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,124+(i div 5)*37,33,33, MapEd_Icon[i], rxGame);
         Button_Warriors[i].Hint := fResource.UnitDat[MapEd_Order[i]].UnitName;
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
@@ -623,7 +623,7 @@ begin
       //TKMLabel.Create(Panel_Units,100,230,0,0,'Animals',fnt_Outline,taCenter);
       for i:=0 to High(Button_Animals) do
       begin
-        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,240+(i div 5)*37,33,33, Animal_Icon[i], 9);
+        Button_Animals[i] := TKMButtonFlat.Create(Panel_Units,8+(i mod 5)*37,240+(i div 5)*37,33,33, Animal_Icon[i], rxGame);
         Button_Animals[i].Hint := fResource.UnitDat[Animal_Order[i]].UnitName;
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;

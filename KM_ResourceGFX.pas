@@ -281,26 +281,26 @@ begin
 
   if not fResource.Sprites.LoadRX(RT) then Exit;
 
-  for id:=1 to RXData[RXid].Qty do
+  for id:=1 to RXData[RT].Qty do
   begin
-    sx := RXData[RXid].Size[id].X;
-    sy := RXData[RXid].Size[id].Y;
+    sx := RXData[RT].Size[id].X;
+    sy := RXData[RT].Size[id].Y;
     MyBitMap.Width  := sx;
     MyBitMap.Height := sy;
 
     for i:=0 to sy-1 do for k:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[k,i] := RXData[RXid].RGBA[id,i*sx+k] AND $FFFFFF; //Drop Alpha value
+      MyBitMap.Canvas.Pixels[k,i] := RXData[RT].RGBA[id,i*sx+k] AND $FFFFFF; //Drop Alpha value
 
     //Mark pivot location with a dot
-    k := sx + RXData[RXid].Pivot[id].x;
-    i := sy + RXData[RXid].Pivot[id].y;
+    k := sx + RXData[RT].Pivot[id].x;
+    i := sy + RXData[RT].Pivot[id].y;
     if InRange(i, 0, sy-1) and InRange(k, 0, sx-1) then
       MyBitMap.Canvas.Pixels[k,i] := $FF00FF;
 
     if sy > 0 then
       MyBitMap.SaveToFile(ExeDir + 'Export\' + fResource.Sprites.FileName[RT] + '.rx\' + fResource.Sprites.FileName[RT] + '_' + int2fix(ID, 4) + '.bmp');
 
-    SetLength(RXData[RXid].Data[id], 0);
+    SetLength(RXData[RT].Data[id], 0);
   end;
 
   MyBitMap.Free;
@@ -399,13 +399,13 @@ begin
         if fResource.HouseDat[ID].Anim[Ac].Step[k] <> -1 then
           ci := fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
-        sx := RXData[2].Size[ci].X;
-        sy := RXData[2].Size[ci].Y;
+        sx := RXData[rxHouses].Size[ci].X;
+        sy := RXData[rxHouses].Size[ci].Y;
         MyBitMap.Width:=sx;
         MyBitMap.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do
-          MyBitMap.Canvas.Pixels[x,y] := RXData[2].RGBA[ci,y*sx+x] AND $FFFFFF;
+          MyBitMap.Canvas.Pixels[x,y] := RXData[rxHouses].RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then MyBitMap.SaveToFile(
         ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
@@ -425,13 +425,13 @@ begin
           if fResource.HouseDat.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
             ci := fResource.HouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
 
-          sx:=RXData[2].Size[ci].X;
-          sy:=RXData[2].Size[ci].Y;
+          sx:=RXData[rxHouses].Size[ci].X;
+          sy:=RXData[rxHouses].Size[ci].Y;
           MyBitMap.Width:=sx;
           MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do
-            MyBitMap.Canvas.Pixels[x,y] := RXData[2].RGBA[ci,y*sx+x] AND $FFFFFF;
+            MyBitMap.Canvas.Pixels[x,y] := RXData[rxHouses].RGBA[ci,y*sx+x] AND $FFFFFF;
 
           if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
@@ -462,13 +462,13 @@ begin
       if MapElem[i].Step[k]+1 <> 0 then
         ci := MapElem[i].Step[k]+1;
 
-      sx := RXData[1].Size[ci].X;
-      sy := RXData[1].Size[ci].Y;
+      sx := RXData[rxTrees].Size[ci].X;
+      sy := RXData[rxTrees].Size[ci].Y;
       MyBitMap.Width := sx;
       MyBitMap.Height := sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do
-        MyBitMap.Canvas.Pixels[x,y] := RXData[1].RGBA[ci,y*sx+x] AND $FFFFFF;
+        MyBitMap.Canvas.Pixels[x,y] := RXData[rxTrees].RGBA[ci,y*sx+x] AND $FFFFFF;
 
       //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting

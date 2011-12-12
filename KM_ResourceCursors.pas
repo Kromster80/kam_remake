@@ -29,7 +29,7 @@ type
 
 
 implementation
-uses KM_ResourceSprites;
+uses KM_CommonTypes, KM_ResourceSprites;
 
 const
   //Screen.Cursors[0] is used by System default cursor
@@ -77,8 +77,6 @@ var
   IconInfo: TIconInfo;
   {$IFDEF Unix} IconInfoPointer:PIconInfo; {$ENDIF}
 begin
-  fRX := Byte(rxGui) + 1;
-
   bm  := TBitmap.Create; bm.HandleType  := bmDIB; bm.PixelFormat  := pf24bit;
   bm2 := TBitmap.Create; bm2.HandleType := bmDIB; bm2.PixelFormat := pf24bit;
 
@@ -96,26 +94,26 @@ begin
     end
     else
     begin
-      sx := RXData[fRX].Size[Cursors[KMC]].X;
-      sy := RXData[fRX].Size[Cursors[KMC]].Y;
+      sx := RXData[rxGui].Size[Cursors[KMC]].X;
+      sy := RXData[rxGui].Size[Cursors[KMC]].Y;
       bm.Width  := sx; bm.Height  := sy;
       bm2.Width := sx; bm2.Height := sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do
       begin
         //todo: Find a PC which doesn't shows transparency and try to change 4th byte in bm.Canvas.Pixels
-        if RXData[fRX].RGBA[Cursors[KMC],y*sx+x] and $FF000000 = 0 then begin
+        if RXData[rxGui].RGBA[Cursors[KMC],y*sx+x] and $FF000000 = 0 then begin
           bm.Canvas.Pixels[x,y] := 0; //If not reset will invert background color
           bm2.Canvas.Pixels[x,y] := clWhite;
         end else begin
-          bm.Canvas.Pixels[x,y] := (RXData[fRX].RGBA[Cursors[KMC],y*sx+x] AND $FFFFFF);
+          bm.Canvas.Pixels[x,y] := (RXData[rxGui].RGBA[Cursors[KMC],y*sx+x] AND $FFFFFF);
           bm2.Canvas.Pixels[x,y] := clBlack;
         end;
         //bm2.Canvas.Pixels[x,y] := byte((RXData[fRX].RGBA[Cursors[i],y*sx+x] shr 24) and $FF)*65793;
       end;
       //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
-      IconInfo.xHotspot := Math.max(-RXData[fRX].Pivot[Cursors[KMC]].x+CursorOffsetsX[KMC],0);
-      IconInfo.yHotspot := Math.max(-RXData[fRX].Pivot[Cursors[KMC]].y+CursorOffsetsY[KMC],0);
+      IconInfo.xHotspot := Math.max(-RXData[rxGui].Pivot[Cursors[KMC]].x+CursorOffsetsX[KMC],0);
+      IconInfo.yHotspot := Math.max(-RXData[rxGui].Pivot[Cursors[KMC]].y+CursorOffsetsY[KMC],0);
     end;
 
     //Release the Mask, otherwise there is black rect in Lazarus
@@ -145,8 +143,8 @@ end;
 //Return cursor offset for given direction, which is a signed(!) value
 function TKMCursors.CursorOffset(aDir: TKMDirection): TKMPointI;
 begin
-  Result.X := RXData[fRX].Pivot[Cursors[TKMCursorDirections[aDir]]].X;
-  Result.Y := RXData[fRX].Pivot[Cursors[TKMCursorDirections[aDir]]].Y;
+  Result.X := RXData[rxGui].Pivot[Cursors[TKMCursorDirections[aDir]]].X;
+  Result.Y := RXData[rxGui].Pivot[Cursors[TKMCursorDirections[aDir]]].Y;
 end;
 
 

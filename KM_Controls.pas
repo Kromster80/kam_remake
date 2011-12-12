@@ -218,12 +218,12 @@ type
   {Image}
   TKMImage = class(TKMControl)
   public
-    RXid: integer; //RX library
-    TexID: integer;
+    RX: TRXType;
+    TexID: Word;
     ImageAnchors: TAnchors;
     Highlight:boolean;
     HighlightOnMouseOver:boolean;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
     function DoClick:boolean;
     procedure ImageStretch;
     procedure ImageCenter;
@@ -234,15 +234,15 @@ type
   {Image stack - for army formation view}
   TKMImageStack = class(TKMControl)
   private
-    fRXid: integer; //RX library
-    fTexID: integer;
+    fRX: TRXType;
+    fTexID: Word;
     fCount: integer;
     fColumns: integer;
     fDrawWidth: integer;
     fDrawHeight: integer;
     fHighlightID: Integer;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
     procedure SetCount(aCount, aColumns, aHighlightID: Integer);
     procedure Paint; override;
   end;
@@ -279,14 +279,14 @@ type
     fTextAlign: TTextAlign;
     fStyle: TButtonStyle;
     fMakesSound: boolean;
-    fRXid: integer; //RX library
-    fTexID: integer;
+    fRX: TRXType;
+    fTexID: Word;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4; aStyle:TButtonStyle=bsGame); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui; aStyle:TButtonStyle=bsGame); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame); overload;
     property Caption:string read fCaption write fCaption;
     property MakesSound:boolean read fMakesSound write fMakesSound;
-    property TexID:integer read fTexID write fTexID;
+    property TexID: Word read fTexID write fTexID;
     function DoPress:boolean;
     function DoClick:boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
@@ -300,14 +300,14 @@ type
     fFont: TKMFont;
     TextAlign: TTextAlign;
   public
-    RXid: integer; //RX library
-    TexID: integer;
+    RX: TRXType;
+    TexID: Word;
     TexOffsetX,TexOffsetY,CapOffsetY:shortint;
     Caption: string;
     Down:boolean;
     HideHighlight:boolean;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
     procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
   end;
@@ -408,7 +408,7 @@ type
   {Resource bar}
   TKMResourceRow = class(TKMControl)
   public
-    RxID: Byte;
+    RX: TRXType;
     TexID: Word;
     Caption: String;
     ResourceCount: integer;
@@ -425,7 +425,7 @@ type
     procedure SetEnabled(aValue:boolean); override;
     procedure SetVisible(aValue:boolean); override;
   public
-    RxID: Byte;
+    RX: TRXType;
     TexID: Word;
     Caption: String;
     ResourceCount: integer;
@@ -440,8 +440,8 @@ type
   {Production cost bar}
   TKMCostsRow = class(TKMControl)
   public
-    RxID: Byte;
-    TexID1,TexID2: Word;
+    RX: TRXType;
+    TexID1, TexID2: Word;
     Caption: String;
     procedure Paint; override;
   end;
@@ -1210,10 +1210,10 @@ end;
 
 
 { TKMImage }
-constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRXid:integer=4);
+constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRX: TRXType = rxGui);
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  RXid := aRXid;
+  RX := aRX;
   TexID := aTexID;
   ImageAnchors := [akLeft, akTop];
   Highlight := false;
@@ -1257,7 +1257,7 @@ var
   StretchDraw: Boolean; //Check if the picture should be stretched
 begin
   Inherited;
-  if (TexID = 0) or (RXid = 0) then exit; //No picture to draw
+  if TexID = 0 then Exit; //No picture to draw
 
   StretchDraw := False;
   DrawWidth   := fWidth;
@@ -1273,10 +1273,10 @@ begin
     //Use defaults
   else
   if akRight in ImageAnchors then
-    OffsetX := fWidth - GFXData[RXid, TexID].PxWidth
+    OffsetX := fWidth - GFXData[RX, TexID].PxWidth
   else
     //No ImageAnchors means: draw the image in center
-    OffsetX := (fWidth - GFXData[RXid, TexID].PxWidth) div 2;
+    OffsetX := (fWidth - GFXData[RX, TexID].PxWidth) div 2;
 
   if (akTop in ImageAnchors) and (akBottom in ImageAnchors) then
     StretchDraw := True
@@ -1285,22 +1285,22 @@ begin
     //Use defaults
   else
   if akBottom in ImageAnchors then
-    OffsetY := fHeight - GFXData[RXid, TexID].PxHeight
+    OffsetY := fHeight - GFXData[RX, TexID].PxHeight
   else
-    OffsetY := (fHeight - GFXData[RXid, TexID].PxHeight) div 2;
+    OffsetY := (fHeight - GFXData[RX, TexID].PxHeight) div 2;
 
   if StretchDraw then
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RX, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RX, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
 end;
 
 
 { TKMImageStack }
-constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRXid:integer=4);
+constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRX: TRXType = rxGui);
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  fRXid  := aRXid;
+  fRX  := aRX;
   fTexID := aTexID;
 end;
 
@@ -1312,10 +1312,10 @@ begin
   fColumns := Math.max(1, aColumns);
   fHighlightID := aHighlightID;
 
-  fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[fRXid, fTexID].PxWidth);
-  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[fRXid, fTexID].PxHeight);
+  fDrawWidth  := EnsureRange(Width div fColumns, 8, GFXData[fRX, fTexID].PxWidth);
+  fDrawHeight := EnsureRange(Height div ceil(fCount/fColumns), 6, GFXData[fRX, fTexID].PxHeight);
 
-  Aspect := GFXData[fRXid, fTexID].PxWidth / GFXData[fRXid, fTexID].PxHeight;
+  Aspect := GFXData[fRX, fTexID].PxWidth / GFXData[fRX, fTexID].PxHeight;
   if fDrawHeight * Aspect <= fDrawWidth then
     fDrawWidth  := round(fDrawHeight * Aspect)
   else
@@ -1330,7 +1330,7 @@ var
   OffsetX, OffsetY, CenterX, CenterY: Smallint; //variable parameters
 begin
   Inherited;
-  if (fTexID=0) or (fRXid=0) then exit; //No picture to draw
+  if fTexID = 0 then Exit; //No picture to draw
 
   OffsetX := Width div fColumns;
   OffsetY := Height div Ceil(fCount / fColumns);
@@ -1342,11 +1342,11 @@ begin
   if i <> fHighlightID then
     fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
                             Top + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRXid, fTexID, fEnabled)
+                            fDrawWidth, fDrawHeight, fRX, fTexID, fEnabled)
   else //Highlight with blended color
     fRenderUI.WritePicture(Left + CenterX + OffsetX * ((i-1) mod fColumns),
                             Top + CenterY + OffsetY * ((i-1) div fColumns),
-                            fDrawWidth, fDrawHeight, fRXid, fTexID, $FFFF8080);
+                            fDrawWidth, fDrawHeight, fRX, fTexID, $FFFF8080);
 end;
 
 
@@ -1431,10 +1431,10 @@ end;
 
 
 { TKMButton }
-constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4; aStyle:TButtonStyle=bsGame);
+constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui; aStyle:TButtonStyle = bsGame);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  fRXid       := aRXid;
+  fRX         := aRX;
   fTexID      := aTexID;
   fCaption    := '';
   fStyle      := aStyle;
@@ -1446,7 +1446,6 @@ end;
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  fRXid       := 0;
   fTexID      := 0;
   fCaption    := aCaption;
   fFont       := aFont;
@@ -1504,7 +1503,7 @@ begin
   if (csOver in State) and fEnabled then StateSet:=StateSet+[bs_Highlight];
   if (csDown in State) then StateSet:=StateSet+[bs_Down];
   if not fEnabled then StateSet:=StateSet+[bs_Disabled];
-  fRenderUI.Write3DButton(Left,Top,Width,Height,fRXid,fTexID,StateSet,fStyle);
+  fRenderUI.Write3DButton(Left,Top,Width,Height,fRX,fTexID,StateSet,fStyle);
   if fTexID=0 then
     if fEnabled then //If disabled then text should be faded
       fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, 0, fCaption, fFont, fTextAlign, $FFFFFFFF)
@@ -1514,10 +1513,10 @@ end;
 
 
 {Simple version of button, with a caption and image}
-constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRXid:integer=4);
+constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  RXid  := aRXid;
+  RX    := aRX;
   TexID := aTexID;
   fFont := fnt_Grey;
   TextAlign := taLeft;
@@ -1540,7 +1539,7 @@ begin
   if Down then StateSet:=StateSet+[fbs_Selected];
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
 end;
 
 
@@ -1844,7 +1843,7 @@ begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width-8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxID, TexID);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID);
 end;
 
 
@@ -1892,7 +1891,7 @@ begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RxId, TexID);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID);
 end;
 
 
@@ -1901,8 +1900,8 @@ procedure TKMCostsRow.Paint;
 begin
   Inherited;
   fRenderUI.WriteText(Left, Top + 4, Width-20, 0, Caption, fnt_Grey, taLeft, $FFFFFFFF);
-  if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RxId,TexID1].PxHeight) div 2, RxId, TexID1);
-  if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RxId,TexID2].PxHeight) div 2, RxId, TexID2);
+  if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RX,TexID1].PxHeight) div 2, RX, TexID1);
+  if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RX,TexID2].PxHeight) div 2, RX, TexID2);
 end;
 
 
@@ -1921,7 +1920,7 @@ end;
 function TKMRatioRow.ThumbWidth: Word;
 begin
   //If the maximum allowed number of digits is more than 2 - use wider field to fit them
-  Result := RXData[4].Size[132].X;
+  Result := RXData[rxGui].Size[132].X;
   if MaxValue > 99 then
     Result := Round(Result * 1.5);
 end;
@@ -1964,9 +1963,9 @@ begin
   fRenderUI.WriteBevel(Left+2,Top+2,Width-4,Height-4);
   ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-MinValue) / (MaxValue-MinValue)));
 
-  ThumbHeight := RXData[4].Size[132].Y;
+  ThumbHeight := RXData[rxGui].Size[132].Y;
 
-  fRenderUI.WritePicture(Left + ThumbPos + 2, Top, ThumbWidth, ThumbHeight, 4, 132);
+  fRenderUI.WritePicture(Left + ThumbPos + 2, Top, ThumbWidth, ThumbHeight, rxGui, 132);
   fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+3, 0, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
@@ -1984,12 +1983,12 @@ begin
   Style    := aStyle;
 
   if aScrollAxis = sa_Vertical then begin
-    ScrollDec := TKMButton.Create(aParent, aLeft, aTop, aWidth, aWidth, 4, 4, aStyle);
-    ScrollInc := TKMButton.Create(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 5, 4, aStyle);
+    ScrollDec := TKMButton.Create(aParent, aLeft, aTop, aWidth, aWidth, 4, rxGui, aStyle);
+    ScrollInc := TKMButton.Create(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 5, rxGui, aStyle);
   end;
   if aScrollAxis = sa_Horizontal then begin
-    ScrollDec := TKMButton.Create(aParent, aLeft, aTop, aHeight, aHeight, 2, 4, aStyle);
-    ScrollInc := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, 4, aStyle);
+    ScrollDec := TKMButton.Create(aParent, aLeft, aTop, aHeight, aHeight, 2, rxGui, aStyle);
+    ScrollInc := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, rxGui, aStyle);
   end;
   ScrollDec.OnClick := DecPosition;
   ScrollInc.OnClick := IncPosition;
@@ -2137,8 +2136,8 @@ begin
   end;
 
   case fScrollAxis of
-    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,Thumb,0,0,State,Style);
-    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+ThumbPos,Top,Thumb,Height,0,0,State,Style);
+    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,Thumb,rxGui,0,State,Style);
+    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+ThumbPos,Top,Thumb,Height,rxGui,0,State,Style);
   end;
 end;
 
@@ -2704,7 +2703,7 @@ begin
   fDefaultCaption := aDefaultCaption;
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
-  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
+  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, rxGui, bsMenu);
   fButton.fOnClick := ListShow;
   fButton.MakesSound := false;
 
@@ -2844,7 +2843,7 @@ begin
   fRandomCaption := ''; //Disable random by default
   fOnClick := ListShow; //It's common behavior when click on dropbox will show the list
 
-  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, 4, bsMenu);
+  fButton := TKMButton.Create(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 5, rxGui, bsMenu);
   fButton.fOnClick := ListShow;
   fButton.MakesSound := false;
 
@@ -3038,7 +3037,7 @@ begin
   if (csDown in State) then StateSet:=StateSet+[bs_Down];
   if not fEnabled then StateSet:=StateSet+[bs_Disabled];
 
-  fRenderUI.Write3DButton(Left,Top, Width, Height, 0, 0, StateSet, bsGame);
+  fRenderUI.Write3DButton(Left,Top, Width, Height, rxGui, 0, StateSet, bsGame);
 end;
 
 

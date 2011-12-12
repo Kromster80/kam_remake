@@ -319,10 +319,10 @@ begin
                                             ScreenX, ScreenY); //Parent Panel for whole menu
 
   //Background is the same for all pages, except Results/Campaign, which will render ontop
-  TKMImage.Create(Panel_Main,-448,-216,960,600,1,7);
-  TKMImage.Create(Panel_Main, 512,-216,960,600,2,7);
-  TKMImage.Create(Panel_Main,-448, 384,960,600,3,7);
-  TKMImage.Create(Panel_Main, 512, 384,960,600,4,7);
+  TKMImage.Create(Panel_Main,-448,-216,960,600,1,rxMenu);
+  TKMImage.Create(Panel_Main, 512,-216,960,600,2,rxMenu);
+  TKMImage.Create(Panel_Main,-448, 384,960,600,3,rxMenu);
+  TKMImage.Create(Panel_Main, 512, 384,960,600,4,rxMenu);
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
@@ -547,10 +547,10 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, 5);
+    TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, rxGuiMain);
     TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
-    with TKMImage.Create(Panel_MainMenu, 50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
-    with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
+    with TKMImage.Create(Panel_MainMenu, 50,220,round(218*1.3),round(291*1.3),5,rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
     Panel_MMButtons := TKMPanel.Create(Panel_MainMenu,337,290,350,400);
 
@@ -574,10 +574,10 @@ end;
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
   Panel_SinglePlayer:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    TKMImage.Create(Panel_SinglePlayer,300,60,423,164,4,5);
+    TKMImage.Create(Panel_SinglePlayer,300,60,423,164,4,rxGuiMain);
     TKMLabel.Create(Panel_SinglePlayer, 512, 240, 0, 0, 'Remake', fnt_Metal, taCenter);
-    with TKMImage.Create(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
-    with TKMImage.Create(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
+    with TKMImage.Create(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,rxGuiMainH) do ImageStretch;
+    with TKMImage.Create(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
     Panel_SPButtons:=TKMPanel.Create(Panel_SinglePlayer,337,290,350,400);
       Button_SP_Tutor  :=TKMButton.Create(Panel_SPButtons,0,  0,350,30,fTextLibrary[TX_MENU_TUTORIAL_TOWN],fnt_Metal,bsMenu);
@@ -686,7 +686,7 @@ begin
 
       for i:=0 to MAX_PLAYERS-1 do begin
         top := 30+i*25;
-        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, 7);
+        Image_LobbyFlag[i] := TKMImage.Create(Panel_LobbyPlayers, 10, top+3, 16, 11, 0, rxMenu);
 
         Label_LobbyPlayer[i] := TKMLabel.Create(Panel_LobbyPlayers, 35, top+2, 170, 20, '', fnt_Metal, taLeft);
         Label_LobbyPlayer[i].Hide;
@@ -774,23 +774,23 @@ procedure TKMMainMenuInterface.Create_Campaign_Page;
 var i:integer;
 begin
   Panel_Campaign:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,12,5);
+    Image_CampaignBG := TKMImage.Create(Panel_Campaign,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,12,rxGuiMain);
     Image_CampaignBG.ImageStretch;
 
     for i:=0 to High(Image_CampaignNodes) do begin
-      Image_CampaignNodes[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 23, 29, 10, 5);
+      Image_CampaignNodes[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 23, 29, 10, rxGuiMain);
       Image_CampaignNodes[i].OnClick := Campaign_SelectMap;
       Image_CampaignNodes[i].Tag := i;
     end;
     for i:=0 to High(Image_CampaignSubNode) do
     begin
-      Image_CampaignSubNode[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 0, 0, 16, 5);
+      Image_CampaignSubNode[i] := TKMImage.Create(Panel_Campaign, MENU_DESIGN_X,MENU_DESIGN_Y, 0, 0, 16, rxGuiMain);
       Image_CampaignSubNode[i].ImageCenter;
     end;
   Panel_CampScroll:=TKMPanel.Create(Panel_Campaign,MENU_DESIGN_X-360,MENU_DESIGN_Y-430,360,430);
 
   //@Krom: When this page is finalised the labels will need to have their width/heights checked with the overlay debug on
-    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,6);
+    Image_Scroll := TKMImage.Create(Panel_CampScroll, 0, 0,360,430,{15}2,rxGuiMainH);
     Image_Scroll.ImageStretch;
     Label_CampaignTitle := TKMLabel.Create(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, taCenter);
 
@@ -814,9 +814,9 @@ begin
       ScrollBar_SingleMaps := TKMScrollBar.Create(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
       ScrollBar_SingleMaps.OnChange := SingleMap_ScrollChange;
 
-      Button_SingleHeadMode  := TKMButton.Create(Panel_SingleList,  0,0, 40,40,42,4,bsMenu);
+      Button_SingleHeadMode  := TKMButton.Create(Panel_SingleList,  0,0, 40,40,42,rxGui,bsMenu);
       Button_SingleHeadMode.OnClick := SingleMap_Sort;
-      Button_SingleHeadTeams := TKMButton.Create(Panel_SingleList, 40,0, 40,40,31,4,bsMenu);
+      Button_SingleHeadTeams := TKMButton.Create(Panel_SingleList, 40,0, 40,40,31,rxGui,bsMenu);
       Button_SingleHeadTeams.OnClick := SingleMap_Sort;
       Button_SingleHeadTitle := TKMButton.Create(Panel_SingleList, 80,0,300,40,fTextLibrary[TX_MENU_TITLE],fnt_Metal,bsMenu);
       Button_SingleHeadTitle.OnClick := SingleMap_Sort;
@@ -973,7 +973,7 @@ procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings
 var i:integer;
 begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
+    with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
     Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,200,130);
       TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
@@ -1042,7 +1042,7 @@ begin
       for i:=1 to LOCALES_COUNT do
       begin
         Radio_Options_Lang.Items.Add(Locales[i,4]);
-        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+((i-1)*20),16,11,StrToInt(Locales[i,3]),7);
+        Image_Options_Lang_Flags[i] := TKMImage.Create(Panel_Options_Lang,6,28+((i-1)*20),16,11,StrToInt(Locales[i,3]),rxMenu);
         Image_Options_Lang_Flags[i].Tag := i-1;
         Image_Options_Lang_Flags[i].OnClick := Options_FlagClick;
       end;
@@ -1098,7 +1098,7 @@ procedure TKMMainMenuInterface.Create_Results_Page;
 var i, Adv: Integer;
 begin
   Panel_Results := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    with TKMImage.Create(Panel_Results,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,7,5) do ImageStretch;
+    with TKMImage.Create(Panel_Results,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,7,rxGuiMain) do ImageStretch;
 
     Label_Results := TKMLabel.Create(Panel_Results,512,200,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
 
@@ -1135,7 +1135,7 @@ const
 var i,k: Integer;
 begin
   Panel_ResultsMP := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    with TKMImage.Create(Panel_ResultsMP,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,7,5) do ImageStretch;
+    with TKMImage.Create(Panel_ResultsMP,0,0,MENU_DESIGN_X,MENU_DESIGN_Y,7,rxGuiMain) do ImageStretch;
 
     Label_ResultsMP := TKMLabel.Create(Panel_ResultsMP,512,90,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
     Label_ResultsMPTime := TKMLabel.Create(Panel_ResultsMP,512,120,300,20,'<<<LEER>>>',fnt_Metal,taCenter);
@@ -1332,7 +1332,7 @@ begin
   Campaign_Selected := aCampaign;
 
   //Choose background
-  Image_CampaignBG.RXid := Campaign_Selected.BackGroundPicRX;
+  Image_CampaignBG.RX := Campaign_Selected.BackGroundPicRX;
   Image_CampaignBG.TexID := Campaign_Selected.BackGroundPicID;
 
   //Setup sites

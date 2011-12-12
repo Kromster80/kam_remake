@@ -1017,7 +1017,7 @@ begin
     CheckBox_SendToAllies.Checked := true;
     CheckBox_SendToAllies.Anchors := [akRight, akBottom];
 
-    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,24,9);
+    Image_ChatClose:=TKMImage.Create(Panel_Chat,800-35,20,32,32,24,rxGame);
     Image_ChatClose.Anchors := [akTop, akRight];
     Image_ChatClose.Hint := fTextLibrary.GetTextString(283);
     Image_ChatClose.OnClick := Chat_Close;
@@ -1057,7 +1057,7 @@ begin
       Label_AlliesPing[i]   := TKMLabel.Create(Panel_Allies,   350+(i div 4)*380, 80+(i mod 4)*24, 60, 20, '', fnt_Grey, taCenter);
     end;
 
-    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,24,9);
+    Image_AlliesClose:=TKMImage.Create(Panel_Allies,800-35,20,32,32,24,rxGame);
     Image_AlliesClose.Hint := fTextLibrary.GetTextString(283);
     Image_AlliesClose.OnClick := Allies_Close;
     Image_AlliesClose.HighlightOnMouseOver := true;
@@ -1424,19 +1424,20 @@ begin
       Label_Common_Costs  := TKMLabel.Create(Panel_House_Common,100,2,184,30,fTextLibrary.GetTextString(248),fnt_Grey,taCenter);
 
       //They get repositioned on display
-      for i:=1 to 4 do begin
+      for i:=1 to 4 do
+      begin
         ResRow_Common_Resource[i] := TKMResourceRow.Create(Panel_House_Common, 8,22,180,20);
-        ResRow_Common_Resource[i].RxID := 4;
+        ResRow_Common_Resource[i].RX := rxGui;
 
         ResRow_Order[i] := TKMResourceOrderRow.Create(Panel_House_Common, 8,22,180,20);
-        ResRow_Order[i].RxID := 4;
+        ResRow_Order[i].RX := rxGui;
         ResRow_Order[i].OrderRem.OnClickEither := House_OrderClick;
         ResRow_Order[i].OrderAdd.OnClickEither := House_OrderClick;
         ResRow_Order[i].OrderRem.Hint          := fTextLibrary.GetTextString(234);
         ResRow_Order[i].OrderAdd.Hint          := fTextLibrary.GetTextString(235);
 
         ResRow_Costs[i] := TKMCostsRow.Create(Panel_House_Common, 8,22,180,20);
-        ResRow_Costs[i].RxID := 4;
+        ResRow_Costs[i].RX := rxGui;
       end;
 end;
 
@@ -1528,7 +1529,7 @@ begin
   Panel_House_School:=TKMPanel.Create(Panel_House,0,76,200,400);
     Label_School_Res:=TKMLabel.Create(Panel_House_School,100,2,184,30,fTextLibrary.GetTextString(227),fnt_Grey,taCenter);
     ResRow_School_Resource := TKMResourceRow.Create(Panel_House_School,  8,22,180,20);
-    ResRow_School_Resource.RxID := 4;
+    ResRow_School_Resource.RX := rxGui;
     ResRow_School_Resource.TexID := fResource.Resources[rt_Gold].GUIIcon;
     ResRow_School_Resource.Caption := fResource.Resources[rt_Gold].Name;
     ResRow_School_Resource.Hint := fResource.Resources[rt_Gold].Name;
@@ -1615,7 +1616,7 @@ begin
     Radio_Woodcutter.Items.Add(fTextLibrary[TX_HOUSES_WOODCUTTER_CHOP_ONLY]);
     Radio_Woodcutter.OnChange := House_WoodcutterChange;
 
-    Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,8,64,32,32,23,9);
+    Button_Woodcutter := TKMButtonFlat.Create(Panel_HouseWoodcutter,8,64,32,32,23,rxGame);
     Button_Woodcutter.OnClick := House_WoodcutterChange; //Clicking the button cycles it
 end;
 
@@ -1988,7 +1989,7 @@ begin
               if fResource.Resources[Res].IsValid then
               begin
                 ResRow_Costs[i].Caption := fResource.Resources[Res].Name;
-                ResRow_Costs[i].RXid := 4;
+                ResRow_Costs[i].RX := rxGui;
                 //Hide the icons when they are not used
                 if WarfareCosts[Res, 1] = rt_None then ResRow_Costs[i].TexID1 := 0
                 else ResRow_Costs[i].TexID1 := fResource.Resources[WarfareCosts[Res, 1]].GUIIcon;
@@ -2133,13 +2134,13 @@ begin
   if Woodcutters.WoodcutterMode = wcm_ChopAndPlant then
   begin
     Button_Woodcutter.TexID := 310;
-    Button_Woodcutter.RXid := 4;
+    Button_Woodcutter.RX := rxGui;
     Radio_Woodcutter.ItemIndex := 0;
   end;
   if Woodcutters.WoodcutterMode = wcm_Chop then
   begin
     Button_Woodcutter.TexID := 23;
-    Button_Woodcutter.RXid := 9;
+    Button_Woodcutter.RX := rxGame;
     Radio_Woodcutter.ItemIndex := 1;
   end;
 end;

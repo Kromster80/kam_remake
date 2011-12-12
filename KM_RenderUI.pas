@@ -2,7 +2,7 @@ unit KM_RenderUI;
 {$I KaM_Remake.inc}
 interface
 uses dglOpenGL,
-  Math, KromOGLUtils, SysUtils, KM_Defaults, KM_Controls, Graphics, KM_Points;
+  Math, KromOGLUtils, SysUtils, KM_Defaults, KM_CommonTypes, KM_Controls, Graphics, KM_Points, KM_ResourceSprites;
 
 type
   TRenderUI = class
@@ -10,13 +10,13 @@ type
     procedure SetupClipX        (X1,X2:smallint);
     procedure SetupClipY        (Y1,Y2:smallint);
     procedure ReleaseClip;
-    procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
-    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
+    procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: T3DButtonStateSet; aStyle: TButtonStyle);
+    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
-    procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
-    procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
-    procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; aColor:TColor4); overload;
+    procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
+    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
+    procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor:TColor4); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
     procedure WriteText         (X,Y,W,H:smallint; Text:AnsiString; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
@@ -25,7 +25,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_PlayersCollection, KM_ResourceGFX, KM_ResourceSprites, KM_ResourceFonts;
+uses KM_Terrain, KM_PlayersCollection, KM_ResourceGFX, KM_ResourceFonts;
 
 
 //X axis uses planes 0,1 and Y axis uses planes 2,3, so that they don't interfere when both axis are
@@ -66,12 +66,23 @@ begin
 end;
 
 
-procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
-var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte; BackRX,BackID:word;
+procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: T3DButtonStateSet; aStyle: TButtonStyle);
+var
+  a,b:TKMPointF;
+  InsetX,InsetY:single;
+  c1,c2:byte;
+  BackRX: TRXType;
+  BackID: Word;
 begin
-  BackRX:=4; BackID:=402; //4-402 is a stone background
-  if aStyle=bsMenu then begin
-    BackRX:=5; BackID:=9; //5-3 is a metal background used in main menu
+  case aStyle of
+    bsMenu: begin
+              BackRX := rxGuiMain;
+              BackID := 9; //GuiMain-3 is a metal background used in main menu
+            end;
+    bsGame: begin
+              BackRX := rxGui;
+              BackID := 402; //Gui-402 is a stone background
+            end;
   end;
 
   with GFXData[BackRX,BackID] do
@@ -121,10 +132,11 @@ begin
       glPopMatrix;
 
     //Render a pic ontop
-    if ID<>0 then begin
+    if aID <> 0 then
+    begin
       glColor4f(1,1,1,1);
-      WritePicture((SizeX-GFXData[RXid,ID].PxWidth ) div 2 +byte(bs_Down in State),
-                   (SizeY-GFXData[RXid,ID].PxHeight) div 2 +byte(bs_Down in State),RXid,ID);
+      WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 +byte(bs_Down in State),
+                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bs_Down in State), aRX, aID);
     end;
 
     //Render highlight
@@ -147,17 +159,18 @@ begin
 end;
 
 
-procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
+procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
 begin
-  WriteBevel(PosX,PosY,SizeX,SizeY);
+  WriteBevel(PosX, PosY, SizeX, SizeY);
 
   glPushMatrix;
-    glTranslatef(PosX,PosY,0);
+    glTranslatef(PosX, PosY, 0);
 
-    if ID<>0 then begin
-      TexOffsetY:=TexOffsetY-6*byte(Caption<>'');
-      WritePicture((SizeX-GFXData[RXid,ID].PxWidth) div 2 + TexOffsetX,
-                   (SizeY-GFXData[RXid,ID].PxHeight) div 2 + TexOffsetY,RXid,ID, true);
+    if aID <> 0 then
+    begin
+      TexOffsetY := TexOffsetY - 6 * byte(Caption <> '');
+      WritePicture((SizeX-GFXData[aRX,aID].PxWidth) div 2 + TexOffsetX,
+                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 + TexOffsetY,aRX,aID, true);
     end;
 
     if fbs_Disabled in State then
@@ -258,12 +271,12 @@ begin
 end;
 
 
-procedure TRenderUI.WritePicture(PosX,PosY,RXid,ID:smallint;Enabled:boolean=true; Highlight:boolean=false);
-var Col:TColor4;
+procedure TRenderUI.WritePicture(PosX,PosY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false);
+var Col: TColor4;
 begin
-  if ID = 0 then Exit;
+  if aID = 0 then Exit;
 
-  with GFXData[RXid,ID] do
+  with GFXData[aRX, aID] do
   begin
     glPushMatrix;
       glTranslatef(PosX, PosY, 0);
@@ -317,10 +330,10 @@ end;
 
 
 {Stretched pic}
-procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false);
+procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false);
 begin
-  if ID <> 0 then
-  with GFXData[RXid,ID] do
+  if aID <> 0 then
+  with GFXData[aRX, aID] do
   begin
     glBindTexture(GL_TEXTURE_2D, TexID);
     glPushMatrix;
@@ -352,11 +365,11 @@ begin
 end;
 
 
-procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; aColor:TColor4);
+procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor:TColor4);
 begin
-  if ID = 0 then Exit;
+  if aID = 0 then Exit;
 
-  with GFXData[RXid,ID] do
+  with GFXData[aRX, aID] do
   begin
     glBindTexture(GL_TEXTURE_2D, TexID);
     glColor4ubv(@aColor);

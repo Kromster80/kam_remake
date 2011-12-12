@@ -129,6 +129,20 @@ const
     pfText      //mk_Text
   );
 
+
+type
+  TRXType = (
+    rxTrees,
+    rxHouses,
+    rxUnits,
+    rxGui,
+    rxGuiMain,
+    rxGuiMainH,
+    rxMenu, //Remake menu elements
+    rxTiles, //Tiles
+    rxGame); //Remake game sprites
+
+
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)
