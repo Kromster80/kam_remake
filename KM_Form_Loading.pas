@@ -18,7 +18,7 @@ type
     Label7: TLabel;
     Label2: TLabel;
   public
-    procedure LoadingStep(Sender:TObject);
+    procedure LoadingStep;
     procedure LoadingText(const aData:string);
   end;
 
@@ -29,7 +29,7 @@ implementation
 
 
 { TFormLoading }
-procedure TFormLoading.LoadingStep(Sender:TObject);
+procedure TFormLoading.LoadingStep;
 begin
   if not Visible then exit;
   Bar1.StepIt;

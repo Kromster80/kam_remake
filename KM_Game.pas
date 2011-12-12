@@ -67,7 +67,7 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
     destructor Destroy; override;
     function CanClose: Boolean;
     procedure ToggleLocale(aLocale:shortstring);
@@ -160,7 +160,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TNotifyEvent; aLT:TStringEvent; NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
   Inherited Create;
   fScreenX := aScreenX;

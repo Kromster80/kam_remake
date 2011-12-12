@@ -56,8 +56,9 @@ uses
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
   KM_ResourceHouse in 'KM_ResourceHouse.pas',
   KM_ResourcePalettes in 'KM_ResourcePalettes.pas',
-  KM_ResourceTileset in 'KM_ResourceTileset.pas',
   KM_ResourceResource in 'KM_ResourceResource.pas',
+  KM_ResourceSprites in 'KM_ResourceSprites.pas',
+  KM_ResourceTileset in 'KM_ResourceTileset.pas',
   KM_ResourceUnit in 'KM_ResourceUnit.pas',
   KM_Saves in 'KM_Saves.pas',
   KM_ServerQuery in 'KM_ServerQuery.pas',
@@ -108,4 +109,4 @@ begin
 
   Application.Run;
 
-end.
+end.

@@ -5,7 +5,7 @@ uses
   Classes, Forms,
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Graphics, Math, SysUtils,
-  KM_Defaults, KM_Points;
+  KM_Points;
 
 type
   TKMCursor = (
@@ -29,7 +29,7 @@ type
 
 
 implementation
-uses KM_ResourceGFX;
+uses KM_ResourceSprites;
 
 const
   //Screen.Cursors[0] is used by System default cursor
