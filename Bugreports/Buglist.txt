@@ -48,7 +48,7 @@ Features:
 	Markups should only be visible on you and your allies screen, to stop people people ruining a multiplayer game by filling an enemy's base with road markups that cannot be removed (requires allowing multiple players to have a markup on the same tile)
 	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
 	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
-	Allow to close rooms to avoid more players joining
+	Allow to close lobby slots to avoid more players joining
 
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed

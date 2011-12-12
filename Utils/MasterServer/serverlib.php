@@ -2,7 +2,7 @@
 
 global $DISALLOWED_CHARS, $MAIN_VERSION, $MAX_TTL, $DO_STATS;
 $DO_STATS = true;
-$MAIN_VERSION = 'r2411';
+$MAIN_VERSION = 'r2678';
 $MAX_TTL = 600; //10 minutes
 $DISALLOWED_CHARS  = array("|", ",","\n","\r");
 
@@ -193,7 +193,7 @@ function GetServers($aFormat,$aRev)
 
 function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 {
-	global $DISALLOWED_CHARS, $MAX_TTL, $DO_STATS, $MAIN_REV;
+	global $DISALLOWED_CHARS, $MAX_TTL, $DO_STATS, $MAIN_VERSION;
 	$DATA_FILE = GetDataFileName($aRev);
 	//Remove characters that are not allowed (used for internal formatting)
 	$aName = str_replace($DISALLOWED_CHARS,"",$aName);
@@ -208,7 +208,7 @@ function AddServer($aName,$aIP,$aPort,$aPlayerCount,$aTTL,$aRev)
 	$aAlive = (file_get_contents('http://beta.nonsenseinc.de/portcheck.php?ip='.$aIP.'&port='.$aPort.'') == 'TRUE');
 	
 	//Only record statistics about the main revision (for now)
-	if (($DO_STATS) && ($Rev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);
+	if (($DO_STATS) && ($aRev == $MAIN_VERSION)) StatsUpdate($aName,$aPlayerCount);
 	
 	if(file_exists($DATA_FILE))
 	{

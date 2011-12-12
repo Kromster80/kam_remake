@@ -744,6 +744,16 @@ end;
 
 //States whether we are allowed to run time consuming tests
 //@Lewin: I don't quite understand this logic here, could you please explain it?
+//@Krom: The logic is this: After a certain timeout, we are allowed to use a solution (e.g. push)
+//However, some solutions are very CPU intensive, and there's no need to check them every UpdateState
+//So we have two conditions here:
+//  1. We must have been stuck for more than aTimeout
+//  2. We must only return true every aFreq ticks.
+//For example: say we are checking whether we can use the solution Avoid. aTimeout = 10, aFreq = 20.
+//Therefore we return true on these ticks: 10, 30, 50, 70....
+//You could sum this up in words as: After 10 ticks, check the solution, then every 20 ticks
+//after that, check it again. I hope that makes sense, please rewrite it in a more obvious way.
+//Read the memo at the top of this file explaining what TIMEOUT and FREQ mean.
 function TUnitActionWalkTo.CheckInteractionFreq(aIntCount, aTimeout, aFreq: Integer): Boolean;
 begin
   Result := (aIntCount - aTimeout >= 0) and ((aIntCount - aTimeout) mod aFreq = 0);

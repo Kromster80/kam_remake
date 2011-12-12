@@ -100,6 +100,7 @@ begin
     if KMSamePoint(OldLoc, WorkPlan.Loc) then
       //The Loc is the same only when Farmer approches another farmer cutting. Then he can wait and sow after him
       //@Lewin: tbh, I don't like the way this condition works. We have asked for a new location and got the old one
+      //@Krom: I see your point, but this is the behavior we want. Maybe we can write it another way?
       fUnit.SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo)
     else
     begin
@@ -176,6 +177,14 @@ begin
        end;
 
     1: //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
+      //@Krom: I really dislike the idea of mining units using fUseExactLoc = False. This means if ANYONE is standing
+      //       at the tile they wish to mine at, they will walk to some other empty tile nearby. So if my troops are standing idle at
+      //       the bottom of the stone, the stonemason will walk to some other empty tile. (probably not stone)
+      //       The idea of UseExactLoc = False is that we really don't care where we end up, as long as we don't disturb other units.
+      //       Warriors who cannot reach their target tile (e.g. it is on a hill) use this so they will stand somewhere nearby,
+      //       without messing up the group by insisting on standing on some other warrior's spot.
+      //       If we need a flag to say "we are walking to mine, abandon if someone has taken it" then we can add a new boolean
+      //       to the walk action.
       SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo, False);
 
     2: //Check if we are at the location. WalkTo could have failed or resource could have been exhausted

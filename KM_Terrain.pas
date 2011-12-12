@@ -522,6 +522,12 @@ function TTerrain.TileIsLocked(aLoc: TKMPoint): Boolean;
 begin
   if (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction = nil) then
     Assert(False);
+  //@Krom: I see why the action is nil for the stonemason: We are detecting that our OWN action is nil!
+  //       During Task.UpdateState the Action is allowed to be nil, it must only be true by the end.
+  //       The stonemason is checking TileIsLocked on the tile he is standing on. (check the stack trace)
+  //       Then due to this assertion, we get standard "stonemason has no action" during the next tick
+  //       because the task exited due to Assert without setting the new action.
+  //       How do we solve it? Self.GetUnitAction is allowed to be nil, but we don't know about Self here....
 
   Result := (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
 end;
