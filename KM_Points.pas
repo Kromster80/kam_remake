@@ -7,9 +7,6 @@ uses
 type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 
-const
-  TKMDirectionS: array[0..8]of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
-
 type
   TKMPoint = record X,Y:word; end;
   TKMPointDir = record Loc:TKMPoint; Dir:TKMDirection; end;
@@ -56,7 +53,7 @@ type
   procedure KMSwapPoints(var A,B:TKMPoint);
 
   function TypeToString(t:TKMPoint):string; overload;
-  function TypeToString(t:TKMDirection):string; overload;
+  function TypeToString(T: TKMDirection): String; overload;
 
 
 implementation
@@ -311,9 +308,10 @@ begin
 end;
 
 
-function TypeToString(t:TKMDirection):string;
+function TypeToString(T: TKMDirection): String;
+const S: array [TKMDirection] of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
 begin
-  Result := TKMDirectionS[byte(t)];
+  Result := S[T];
 end;
 
 end.

@@ -64,7 +64,7 @@ type
     //procedure ExportRX2BMP(RXid:integer);
     //procedure ExportTreeAnim2BMP;
     //procedure ExportHouseAnim2BMP;
-    //procedure ExportUnitAnim2BMP;
+    procedure ExportUnitAnim2BMP;
   end;
 
   var
@@ -73,11 +73,10 @@ type
     procedure ExportRX2BMP(RXid:integer);
     procedure ExportTreeAnim2BMP;
     procedure ExportHouseAnim2BMP;
-    procedure ExportUnitAnim2BMP;
 
 
 implementation
-uses KromUtils, KM_Render, KM_Log, KM_TextLibrary;
+uses KromUtils, KM_Render, KM_Log, KM_TextLibrary, KM_Points;
 
 
 { TResource }
@@ -307,46 +306,56 @@ begin
 end;
 
 {Export Units graphics categorized by Unit and Action}
-procedure ExportUnitAnim2BMP;
-var MyBitMap:TBitmap;
-    //U:TUnitType;
-    //iAct,iDir,iFrame,ci:integer;
-    //sy,sx,y,x:integer;
-    //Used:array of integer;
+procedure TResource.ExportUnitAnim2BMP;
+var
+  MyBitMap: TBitmap;
+  U: TUnitType;
+  A: TUnitActionType;
+  D: TKMDirection;
+  i,ci:integer;
+  sy,sx,y,x:integer;
+  Used:array of integer;
 begin
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\UnitAnim\');
-  MyBitMap:=TBitmap.Create;
-  MyBitMap.PixelFormat:=pf24bit;
+  CreateDir(ExeDir + 'Export\');
+  CreateDir(ExeDir + 'Export\UnitAnim\');
+  MyBitMap := TBitmap.Create;
+  MyBitMap.PixelFormat := pf24bit;
 
-  if not fResource.Sprites.LoadRX(rxUnits) then Exit;
+  if fUnitDat = nil then
+    fUnitDat := TKMUnitDatCollection.Create;
 
-  {ci:=0;
-  for U:=ut_Militia to ut_Militia do begin
-    for iAct:=1 to 14 do begin
-      for iDir:=1 to 8 do if UnitDat[U].UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
-        for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(iUnit)+'\');
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(iUnit)+'\'+UnitAct[iAct]+'\');
-          if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
-            ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
+  fSprites.LoadRX(rxUnits);
 
-          sx:=RXData[3].Size[ci].X;
-          sy:=RXData[3].Size[ci].Y;
-          MyBitMap.Width:=sx;
-          MyBitMap.Height:=sy;
+  for U := ut_Serf to ut_Serf do
+  for A := Low(TUnitActionType) to High(TUnitActionType) do
+  for D := dir_N to dir_NW do
+  if fUnitDat[U].UnitAnim[A, D].Step[1] <> -1 then
+  for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
+  begin
+    CreateDir(ExeDir+'Export\UnitAnim\'+fUnitDat[U].UnitName+'\');
+    CreateDir(ExeDir+'Export\UnitAnim\'+fUnitDat[U].UnitName+'\'+UnitAct[A]+'\');
 
-          for y:=0 to sy-1 do for x:=0 to sx-1 do
-            MyBitMap.Canvas.Pixels[x,y] := RXData[3].RGBA[ci,y*sx+x] AND $FFFFFF;
+    if fUnitDat[U].UnitAnim[A, D].Step[i] + 1 <> 0 then
+    begin
+      ci := fUnitDat[U].UnitAnim[A, D].Step[i] + 1;
 
-          if sy>0 then MyBitMap.SaveToFile(
-            ExeDir+'Export\UnitAnim\'+TypeToString(iUnit)+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
-        end;
-      end;
+      sx := RXData[rxUnits].Size[ci].X;
+      sy := RXData[rxUnits].Size[ci].Y;
+      MyBitMap.Width := sx;
+      MyBitMap.Height := sy;
+
+      for y:=0 to sy-1 do
+      for x:=0 to sx-1 do
+        MyBitMap.Canvas.Pixels[x,y] := RXData[rxUnits].RGBA[ci, y*sx+x] AND $FFFFFF;
+
+      if sy > 0 then
+        MyBitMap.SaveToFile(ExeDir + 'Export\UnitAnim\' +
+          fUnitDat[U].UnitName + '\' + UnitAct[A] + '\' +
+          'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
   end;
 
-  CreateDir(ExeDir+'Export\UnitAnim\_TheRest');
+  {CreateDir(ExeDir+'Export\UnitAnim\_TheRest');
   SetLength(Used,length(RXData[3].Size));
   for iUnit:=1 to 41 do
   for iAct:=1 to 14 do

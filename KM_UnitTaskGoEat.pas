@@ -98,28 +98,28 @@ begin
         fInn.ResTakeFromIn(rt_Bread);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.4);
-        fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
+        fInn.UpdateEater(PlaceID, rt_Bread); //Order is Wine-Bread-Sausages-Fish
       end else
         SetActionLockedStay(0,ua_Walk);
    4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Sausages);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.6);
-        fInn.UpdateEater(PlaceID,3);
+        fInn.UpdateEater(PlaceID, rt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
    5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Wine);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.2);
-        fInn.UpdateEater(PlaceID,1);
+        fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
    6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Fish);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.5);
-        fInn.UpdateEater(PlaceID,4);
+        fInn.UpdateEater(PlaceID, rt_Fish);
       end else
         SetActionLockedStay(0,ua_Walk);
    7: begin

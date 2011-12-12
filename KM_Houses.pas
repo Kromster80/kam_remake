@@ -152,16 +152,16 @@ type
 
   TKMHouseInn = class(TKMHouse)
   private
-    Eater:array[1..6]of record //only 6 units are allowed in the inn
-      UnitType:TUnitType;
-      FoodKind:byte; //What kind of food eater eats
-      EatStep:cardinal;
+    Eater: array [1..6] of record //only 6 units are allowed in the inn
+      UnitType: TUnitType;
+      FoodKind: TResourceType; //What kind of food eater eats
+      EatStep: Cardinal;
     end;
   public
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     function EaterGetsInside(aUnitType:TUnitType):byte;
-    procedure UpdateEater(aID:byte; aFoodKind:byte);
+    procedure UpdateEater(aID:byte; aFoodKind: TResourceType);
     procedure EatersGoesOut(aID:byte);
     function HasFood:boolean;
     function HasSpace:boolean;
@@ -1090,28 +1090,26 @@ end;
 procedure TKMHouse.Paint;
 begin
   case fBuildState of
-    hbs_Glyph: fRender.AddHouseTablet(fHouseType, GetEntrance);
+    hbs_Glyph:  fRender.AddHouseTablet(fHouseType, GetEntrance);
     hbs_NoGlyph:; //Nothing
-    hbs_Wood:
-      begin
-        fRender.RenderHouseWood(fHouseType,
-        fBuildingProgress/50/fResource.HouseDat[fHouseType].WoodCost, //0...1 range
-        fPosition);
-        fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
-      end;
-    hbs_Stone:
-      begin
-        fRender.RenderHouseStone(fHouseType,
-        (fBuildingProgress/50-fResource.HouseDat[fHouseType].WoodCost)/fResource.HouseDat[fHouseType].StoneCost, //0...1 range
-        fPosition);
-        fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
-      end;
-    else begin
-      fRender.RenderHouseStone(fHouseType,1,fPosition);
-      fRender.RenderHouseSupply(fHouseType,fResourceIn,fResourceOut,fPosition);
-      if fCurrentAction<>nil then
-        fRender.RenderHouseWork(fHouseType, fCurrentAction.SubAction, WorkAnimStep,fPosition,fPlayers.Player[fOwner].FlagColor);
-    end;
+    hbs_Wood:   begin
+                  fRender.RenderHouseWood(fHouseType,
+                    fBuildingProgress/50/fResource.HouseDat[fHouseType].WoodCost, //0...1 range
+                    fPosition);
+                  fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+                end;
+    hbs_Stone:  begin
+                  fRender.RenderHouseStone(fHouseType,
+                    (fBuildingProgress/50-fResource.HouseDat[fHouseType].WoodCost)/fResource.HouseDat[fHouseType].StoneCost, //0...1 range
+                    fPosition);
+                  fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+                end;
+    else        begin
+                  fRender.RenderHouseStone(fHouseType, 1, fPosition);
+                  fRender.RenderHouseSupply(fHouseType, fResourceIn, fResourceOut, fPosition);
+                  if fCurrentAction <> nil then
+                    fRender.RenderHouseWork(fHouseType, fCurrentAction.SubAction, WorkAnimStep, fPosition, fPlayers.Player[fOwner].FlagColor);
+                end;
   end;
 end;
 
@@ -1219,7 +1217,7 @@ begin
   if Eater[i].UnitType=ut_None then
   begin
     Eater[i].UnitType := aUnitType;
-    Eater[i].FoodKind := 0;
+    Eater[i].FoodKind := rt_None;
     Eater[i].EatStep  := FlagAnimStep;
     Result := i;
     exit;
@@ -1227,10 +1225,10 @@ begin
 end;
 
 
-procedure TKMHouseInn.UpdateEater(aID:byte; aFoodKind:byte);
+procedure TKMHouseInn.UpdateEater(aID: byte; aFoodKind: TResourceType);
 begin
   if aID=0 then exit;
-  Assert(aFoodKind in [1..4], 'Wrong food kind');
+  Assert(aFoodKind in [rt_Wine, rt_Bread, rt_Sausages, rt_Fish], 'Wrong food kind');
   Eater[aID].FoodKind := aFoodKind; //Order is Wine-Bread-Sausages-Fish
   Eater[aID].EatStep  := FlagAnimStep; //FlagAnimStep-Eater[i].EatStep = 0
 end;
@@ -1253,9 +1251,9 @@ function TKMHouseInn.HasSpace:boolean;
 var
   i: integer;
 begin
-  Result:=false;
-  for i:=low(Eater) to high(Eater) do
-    Result := Result or (Eater[i].UnitType=ut_None);
+  Result := false;
+  for i:=Low(Eater) to High(Eater) do
+    Result := Result or (Eater[i].UnitType = ut_None);
 end;
 
 
@@ -1267,23 +1265,36 @@ end;
 
 
 procedure TKMHouseInn.Paint;
+  //Chose eater animation direction (1357 face south, 2468 face north)
+  function AnimDir(i: Integer): TKMDirection;
+  begin
+    case Eater[i].FoodKind of
+      rt_Wine:    Result  := TKMDirection(1 * 2 - 1 + ((i-1) div 3));
+      rt_Bread:   Result  := TKMDirection(2 * 2 - 1 + ((i-1) div 3));
+      rt_Sausages:Result  := TKMDirection(3 * 2 - 1 + ((i-1) div 3));
+      rt_Fish:    Result  := TKMDirection(4 * 2 - 1 + ((i-1) div 3));
+    else Result := dir_NA;
+    end;
+  end;
 const
-  OffX:array[1..3]of single = (-0.5, 0.0, 0.5);
-  OffY:array[1..3]of single = ( 0.35, 0.4, 0.45);
-var i:integer; AnimDir:TKMDirection; AnimStep:cardinal;
+  OffX: array [1..3] of single = (-0.5, 0.0, 0.5);
+  OffY: array [1..3] of single = (0.35, 0.4, 0.45);
+var
+  i: Integer;
+  AnimStep: Cardinal;
 begin
   Inherited;
-  if (fBuildState<>hbs_Done) then exit;
+  if fBuildState <> hbs_Done then exit;
 
-  for i:=low(Eater) to high(Eater) do
-  if (Eater[i].UnitType<>ut_None) and (Eater[i].FoodKind<>0) then
+  for i := Low(Eater) to High(Eater) do
   begin
-    AnimDir  := TKMDirection(Eater[i].FoodKind*2 - 1 + ((i-1) div 3));
-    AnimStep := FlagAnimStep-Eater[i].EatStep; //Delta is our AnimStep
+    if (Eater[i].UnitType = ut_None) or (Eater[i].FoodKind = rt_None) then Continue;
 
-    fRender.RenderUnit(Eater[i].UnitType, ua_Eat, AnimDir, AnimStep,
-      fPosition.X+OffX[(i-1) mod 3 +1],
-      fPosition.Y+OffY[(i-1) mod 3 +1],
+    AnimStep := FlagAnimStep - Eater[i].EatStep; //Delta is our AnimStep
+
+    fRender.RenderUnit(Eater[i].UnitType, ua_Eat, AnimDir(i), AnimStep,
+      fPosition.X + OffX[(i-1) mod 3 + 1],
+      fPosition.Y + OffY[(i-1) mod 3 + 1], //todo: -1 here to fix eaters offset?
       fPlayers.Player[fOwner].FlagColor, false);
   end;
 end;
