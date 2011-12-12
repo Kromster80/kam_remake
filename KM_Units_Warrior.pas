@@ -1004,6 +1004,7 @@ var
   PositioningDone:boolean;
   ChosenFoe: TKMUnitWarrior;
 begin
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWarrior.UpdateState',fCurrPosition);
   if IsDeadOrDying then
   begin
     Result:=true; //Required for override compatibility
@@ -1214,8 +1215,7 @@ begin
     end;
   end;
 
-  if fCurrentAction = nil then
-    raise ELocError.Create('Warrior '+fResource.UnitDat[UnitType].UnitName+' has no action',GetPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitWarrior.UpdateState',fCurrPosition);
 end;
 
 

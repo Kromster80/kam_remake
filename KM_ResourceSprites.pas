@@ -40,7 +40,6 @@ type
 
 
 var
-  //todo: Switch from 1..9 to TRXType
   RXData: array [TRXType] of record
     Qty: Integer;
     Flag: array of Byte;

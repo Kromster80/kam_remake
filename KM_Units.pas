@@ -281,6 +281,7 @@ var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
+  if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
@@ -311,6 +312,7 @@ function TKMUnitCitizen.UpdateState:boolean;
 var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitCitizen.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome <> nil)
@@ -369,7 +371,7 @@ begin
           SetActionStay(fResource.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitCitizen.UpdateState',fCurrPosition);
 end;
 
 
@@ -453,6 +455,7 @@ var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
+  if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
@@ -492,6 +495,7 @@ function TKMUnitRecruit.UpdateState:boolean;
 var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitRecruit.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
   if (fHome <> nil)
@@ -543,7 +547,7 @@ begin
           SetActionStay(Max(fResource.HouseDat[fHome.HouseType].WorkerRest,1)*10, ua_Walk); //By default it's 0, don't scan that often
       end;
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitRecruit.UpdateState',fCurrPosition);
 end;
 
 
@@ -588,6 +592,7 @@ var Act:TUnitActionType; XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
+  if fCurrentAction = nil then exit;
   Act := fCurrentAction.fActionType;
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
@@ -620,6 +625,7 @@ var
   OldThought:TUnitThought;
 begin
   Result:=true; //Required for override compatibility
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
   if Inherited UpdateState then exit;
 
   OldThought:=fThought;
@@ -640,7 +646,7 @@ begin
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitSerf.UpdateState',fCurrPosition);
 end;
 
 
@@ -676,6 +682,7 @@ var XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
+  if fCurrentAction = nil then exit;
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
@@ -693,6 +700,7 @@ var
   OutOfWay: TKMPoint;
 begin
   Result:=true; //Required for override compatibility
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitWorker.UpdateState',fCurrPosition);
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
@@ -717,8 +725,7 @@ begin
 
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
-  if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName + ' has no action!', fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitWorker.UpdateState',fCurrPosition);
 end;
 
 
@@ -779,8 +786,7 @@ begin
 
   fCurrPosition := KMPointRound(fPosition);
 
-  if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition); //Someone has nilled our action!
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitAnimal.UpdateState',fCurrPosition);
 
   case fCurrentAction.Execute of
     ActContinues: exit;
@@ -816,7 +822,7 @@ begin
   else
     SetActionWalkToSpot(Spot);
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitAnimal.UpdateState',fCurrPosition);
 end;
 
 
@@ -826,6 +832,7 @@ var Act:TUnitActionType;
 begin
   //todo: We need a way for fish/watersnakes to be more visible in the map editor. When they are not moving they look like water.
   Inherited;
+  if fCurrentAction = nil then exit;
   if fUnitType = ut_Fish then
     Act := FishCountAct[fFishCount]
   else
@@ -1596,6 +1603,8 @@ begin
 
   Result := true;
 
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnit.UpdateState',fCurrPosition);
+
   //UpdateState can happen right after unit gets killed (Exchange still in progress)
   if fKillASAP
   and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
@@ -1653,13 +1662,12 @@ end;
 
 procedure TKMUnit.Paint;
 begin
-  if fCurrentAction=nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action!',fCurrPosition);
-
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
-
-  fCurrentAction.Paint;
+  //However, do not assert it here because then the player cannot close the message (paint happens repeatedly)
+  //We check it at the start and end of UpdateState, that is the only place.
+  if fCurrentAction <> nil then
+    fCurrentAction.Paint;
 
   if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
     fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
