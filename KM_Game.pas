@@ -738,14 +738,14 @@ begin
 
   MyZip := TZippit.Create;
   //Include in the bug report:
-  MyZip.AddFiles(SaveName('basesave', '*'), 'Replay'); //Replay files
+  MyZip.AddFiles(SaveName('basesave', '*')); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
   //@Krom: I think you commented out the line below while refactoring. I found it very useful
   //       when people were using custom made missions, so could we have a way to remember and
   //       include both the script and map files? (.dat and .map)
   //MyZip.AddFile(fMissionFile,'Mission'); //Mission script
   for i:=1 to AUTOSAVE_COUNT do
-    MyZip.AddFiles(SaveName('autosave'+int2fix(i,2), '*'), 'Autosaves'); //All autosaves
+    MyZip.AddFiles(SaveName('autosave'+int2fix(i,2), '*')); //All autosaves
 
   //Save it
   CrashFile := 'KaM Crash '+GAME_REVISION+' '+FormatDateTime('yyyy-mm-dd hh-nn-ss',Now)+'.zip'; //KaM Crash r1830 2007-12-23 15-24-33.zip

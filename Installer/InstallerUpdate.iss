@@ -43,3 +43,19 @@ Filename: "{app}\Clean.bat"; WorkingDir: "{app}"; Flags: runhidden
 EnableDirDoesntExistWarning=yes
 CreateUninstallRegKey=no
 #include "InstallerLib.iss"
+
+[Code]
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var InstallFolder: string;
+begin
+  Result := '';
+  InstallFolder := ExpandConstant('{app}');
+  if(not(
+     FileExists(InstallFolder+'\KaM_Remake.exe') and
+     FileExists(InstallFolder+'\data\defines\houses.dat') and
+     FileExists(InstallFolder+'\data\gfx\res\guimainh.rx') and
+     FileExists(InstallFolder+'\data\gfx\res\units.rx') and
+     FileExists(InstallFolder+'\Resource\Tiles1.tga')
+     )) then
+     Result := ExpandConstant('{cm:CantUpdate}');
+end;
