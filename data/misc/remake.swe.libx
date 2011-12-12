@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Kicka
 109:Öppen
+213:
 110:AI-spelare
 111:Välj...
 112:Slumpad
@@ -185,6 +186,7 @@ MaxID:212
 158:Så många spelare kan inte spela på denna karta
 160:Servern har tilldelat dig värdrättigheter
 187:Spel startat
+214:
 
 131:Väntar på spelare:
 163:Sparar spel...

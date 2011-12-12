@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Wyrzuæ
 109:Wolne
+213:
 110:Komputer
 111:Wybierz...
 112:Przypadkowe
@@ -185,6 +186,7 @@ MaxID:212
 158:Liczba graczy przekracza limit mapy
 160:Serwer przypisa³ prawa hosta do nas
 187:Gra rozpoczêta
+214:
 
 131:Oczekiwanie na graczy:
 163:Zapisywanie gry...

@@ -319,7 +319,7 @@ begin
   Result := True;
   for i:=1 to fNetworking.NetPlayers.Count do
     Result := Result and (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or
-                         (fNetworking.NetPlayers[i].PlayerType = pt_Computer) or fNetworking.NetPlayers[i].Dropped);
+                         (not fNetworking.NetPlayers[i].IsHuman) or fNetworking.NetPlayers[i].Dropped);
 end;
 
 
@@ -328,7 +328,7 @@ var i: integer;
 begin
   for i:=1 to fNetworking.NetPlayers.Count do
     if not (fRecievedData[aTick mod MAX_SCHEDULE, fNetworking.NetPlayers[i].PlayerIndex.PlayerIndex] or
-           (fNetworking.NetPlayers[i].PlayerType = pt_Computer) or fNetworking.NetPlayers[i].Dropped) then
+           (not fNetworking.NetPlayers[i].IsHuman) or fNetworking.NetPlayers[i].Dropped) then
       aPlayersList.Add(fNetworking.NetPlayers[i].Nikname);
 end;
 

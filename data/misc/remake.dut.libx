@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Missie geannuleerd 
 2:Stad oefenscenario
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Kick
 109:Open
+213:
 110:Computerspeler
 111:Selecteer...
 112:Willekeurig
@@ -185,6 +186,7 @@ MaxID:212
 158:Aantal spelers overschrijdt kaartlimiet
 160:Server heeft ons hostingrechten toegewezen
 187:Spel gestart
+214:
 
 131:Wachten op spelers:
 163:Spel opslaan...

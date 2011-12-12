@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Mission canceled
 2:Town Tutorial
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Kick
 109:Open
+213:Closed
 110:AI Player
 111:Select...
 112:Random
@@ -185,6 +186,7 @@ MaxID:212
 158:Player count exceeds map limit
 160:Server has assigned hosting rights to us
 187:Game started
+214:Host does player setup
 
 131:Waiting for players:
 163:Saving game...

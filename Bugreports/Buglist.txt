@@ -1,6 +1,7 @@
 ﻿Since r2678:
 <===================================================================================>
  +	Army unit icons in MapEd don't have team colors
+ 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
@@ -18,6 +19,8 @@
 	See-through hills (lighting flaw)
 
 Features:
+ +	Allow to close lobby slots to avoid more players joining
+ +	Checkbox to give the host absolute control of all team/location setup
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
@@ -48,7 +51,6 @@ Features:
 	Markups should only be visible on you and your allies screen, to stop people people ruining a multiplayer game by filling an enemy's base with road markups that cannot be removed (requires allowing multiple players to have a markup on the same tile)
 	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
 	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
-	Allow to close lobby slots to avoid more players joining
 
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed

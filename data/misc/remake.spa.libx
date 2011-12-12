@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Misión Cancelada
 2:Tutorial de Construción
@@ -151,6 +151,7 @@ MaxID:212
 107:Retraso
 108:Exulsar
 109:Abierto
+213:
 110:Jugador IA
 111:Seleccionar...
 112:Aleatorio
@@ -185,6 +186,7 @@ MaxID:212
 158:Excedes el límite de jugadores para ese mapa
 160:El servidor te ha asignado como anfitrión
 187:El juego a comenzado
+214:
 
 131:Esperando a los jugadores:
 163:Guardado el juego...

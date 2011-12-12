@@ -169,6 +169,7 @@ type
         Label_LobbyPing:array [0..MAX_PLAYERS-1] of TKMLabel;
 
       Panel_LobbySetup:TKMPanel;
+        CheckBox_LobbyHostControl: TKMCheckBox;
         Label_LobbyChooseMap: TKMLabel;
         Radio_LobbyMapType:TKMRadioGroup;
         List_Lobby:TKMDropBox;
@@ -692,6 +693,7 @@ begin
 
         DropBox_LobbyPlayerSlot[i] := TKMDropBox.Create(Panel_LobbyPlayers, 35, top, 170, 20, fnt_Metal, '');
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_OPEN]); //Player can join into this slot
+        DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_CLOSED]); //Closed, nobody can join it
         DropBox_LobbyPlayerSlot[i].Add(fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]); //This slot is an AI player
         DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
         DropBox_LobbyPlayerSlot[i].OnChange := Lobby_PlayersSetupChange;
@@ -728,8 +730,10 @@ begin
     //Setup
     Panel_LobbySetup := TKMPanel.Create(Panel_Lobby,510,312,495,430);
       TKMBevel.Create(Panel_LobbySetup,  0,  0, 495, 430);
-      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 10, 282, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
-      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 35, 282, 60, fnt_Metal);
+      CheckBox_LobbyHostControl := TKMCheckBox.Create(Panel_LobbySetup, 10, 10, 480, 20, fTextLibrary[TX_LOBBY_HOST_DOES_SETUP], fnt_Metal);
+      CheckBox_LobbyHostControl.OnClick := Lobby_PlayersSetupChange;
+      Label_LobbyChooseMap := TKMLabel.Create(Panel_LobbySetup, 10, 36, 282, 20, fTextLibrary[TX_LOBBY_MAP_TYPE], fnt_Outline, taLeft);
+      Radio_LobbyMapType := TKMRadioGroup.Create(Panel_LobbySetup, 10, 55, 282, 60, fnt_Metal);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_BUILD]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_FIGHT]);
       Radio_LobbyMapType.Items.Add(fTextLibrary[TX_LOBBY_MAP_COOP]);
@@ -738,11 +742,11 @@ begin
       Radio_LobbyMapType.OnChange := Lobby_MapTypeSelect;
 
       //@DanJB: These two occupy the same place and are visible for Host/Join correspondingly, right?
-      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 105, 282, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
+      List_Lobby := TKMDropBox.Create(Panel_LobbySetup, 10, 125, 282, 20, fnt_Metal, fTextLibrary[TX_LOBBY_MAP_SELECT]);
       List_Lobby.OnChange := Lobby_MapSelect;
-      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 105, 282, 20, '', fnt_Metal, taLeft);
+      Label_LobbyMapName := TKMLabel.Create(Panel_LobbySetup, 10, 125, 282, 20, '', fnt_Metal, taLeft);
 
-      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 130, 282, 180, fnt_Game);
+      Memo_LobbyMapDesc := TKMMemo.Create(Panel_LobbySetup, 10, 150, 282, 180, fnt_Game);
       Memo_LobbyMapDesc.AutoWrap := True;
       Memo_LobbyMapDesc.ItemHeight := 16;
 
@@ -753,9 +757,9 @@ begin
       Label_LobbyMapSize := TKMLabel.Create(Panel_LobbySetup, 10, 385, 282, 20, '', fnt_Metal, taLeft);
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 405, 282, 20, '', fnt_Metal, taLeft);
 
-      TKMLabel.Create(Panel_LobbySetup, 300, 10, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbySetup, 300, 40, 190, 20, fTextLibrary[TX_LOBBY_PEACETIME], fnt_Metal, taLeft); //Metal fits better
-      Ratio_LobbyPeacetime := TKMRatioRow.Create(Panel_LobbySetup, 300, 60, 160, 20, 0, 120);
+      TKMLabel.Create(Panel_LobbySetup, 300, 30, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
+      TKMLabel.Create(Panel_LobbySetup, 300, 60, 190, 20, fTextLibrary[TX_LOBBY_PEACETIME], fnt_Metal, taLeft); //Metal fits better
+      Ratio_LobbyPeacetime := TKMRatioRow.Create(Panel_LobbySetup, 300, 80, 160, 20, 0, 120);
       Ratio_LobbyPeacetime.Step := 5; //Round to 5min steps
       Ratio_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
 
@@ -1740,6 +1744,7 @@ begin
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
     Button_LobbyStart.Disable;
     Ratio_LobbyPeacetime.Enable;
+    CheckBox_LobbyHostControl.Enable;
   end else begin
     Radio_LobbyMapType.Disable;
     Radio_LobbyMapType.ItemIndex := 0;
@@ -1749,6 +1754,7 @@ begin
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
     Ratio_LobbyPeacetime.Disable;
+    CheckBox_LobbyHostControl.Disable;
   end;
 end;
 
@@ -1777,6 +1783,13 @@ end;
 procedure TKMMainMenuInterface.Lobby_PlayersSetupChange(Sender: TObject);
 var i:integer;
 begin
+  //Host control toggle
+  if Sender = CheckBox_LobbyHostControl then
+  begin
+    fGame.Networking.NetPlayers.HostDoesSetup := CheckBox_LobbyHostControl.Checked;
+    fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
+  end;
+
   for i:=0 to MAX_PLAYERS-1 do
   begin
     //Starting location
@@ -1805,18 +1818,35 @@ begin
 
     if Sender = DropBox_LobbyPlayerSlot[i] then
     begin
-      if i < fGame.Networking.NetPlayers.Count then
+      //Modify an existing player
+      if (i < fGame.Networking.NetPlayers.Count) then
       begin
-        if (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer) and (DropBox_LobbyPlayerSlot[i].ItemIndex = 0) then
-          fGame.Networking.NetPlayers.RemAIPlayer(i+1);
+        case DropBox_LobbyPlayerSlot[i].ItemIndex of
+          0: //Open
+            begin
+              if fGame.Networking.NetPlayers[i+1].IsComputer then
+                fGame.Networking.NetPlayers.RemAIPlayer(i+1)
+              else if fGame.Networking.NetPlayers[i+1].IsClosed then
+                fGame.Networking.NetPlayers.RemClosedPlayer(i+1);
+            end;
+          1: //Closed
+            fGame.Networking.NetPlayers.AddClosedPlayer(i+1); //Replace it
+          2: //AI
+            fGame.Networking.NetPlayers.AddAIPlayer(i+1); //Replace it
+        end;
       end
       else
-        if DropBox_LobbyPlayerSlot[i].ItemIndex = 1 then
+      begin
+        //Add a new player
+        if DropBox_LobbyPlayerSlot[i].ItemIndex = 1 then //Closed
+          fGame.Networking.NetPlayers.AddClosedPlayer;
+        if DropBox_LobbyPlayerSlot[i].ItemIndex = 2 then //AI
         begin
           fGame.Networking.NetPlayers.AddAIPlayer;
           if fGame.Networking.SelectGameKind = ngk_Save then
             fGame.Networking.MatchPlayersToSave(fGame.Networking.NetPlayers.Count); //Match new AI player in save
         end;
+      end;
       fGame.Networking.SendPlayerListAndRefreshPlayersSetup;
     end;
   end;
@@ -1826,7 +1856,7 @@ end;
 //Players list has been updated
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
-var i:integer; MyNik, CanEdit, IsSave, IsValid:boolean;
+var i:integer; MyNik, CanEdit, HostCanEdit, IsSave, IsValid:boolean;
 begin
   IsSave := fGame.Networking.SelectGameKind = ngk_Save;
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
@@ -1835,11 +1865,14 @@ begin
     if fGame.Networking.NetPlayers[i+1].LangID <> 0 then
          Image_LobbyFlag[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID,3])
     else Image_LobbyFlag[i].TexID := 0;
-    if (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer) and fGame.Networking.IsHost then
+    if fGame.Networking.IsHost and (not fGame.Networking.NetPlayers[i+1].IsHuman) then
     begin
       Label_LobbyPlayer[i].Hide;
       DropBox_LobbyPlayerSlot[i].Show;
-      DropBox_LobbyPlayerSlot[i].ItemIndex := 1; //AI
+      if fGame.Networking.NetPlayers[i+1].IsComputer then
+        DropBox_LobbyPlayerSlot[i].ItemIndex := 2 //AI
+      else
+        DropBox_LobbyPlayerSlot[i].ItemIndex := 1; //Closed
       DropBox_LobbyPlayerSlot[i].Enabled := fGame.Networking.IsHost;
     end
     else
@@ -1865,13 +1898,15 @@ begin
     MyNik := (i+1 = fGame.Networking.MyIndex); //Our index
     //We are allowed to edit if it is our nickname and we are set as NOT ready,
     //or we are the host and this player is an AI
-    CanEdit := (MyNik and (fGame.Networking.IsHost or not fGame.Networking.NetPlayers[i+1].ReadyToStart)) or
-               (fGame.Networking.IsHost and (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Computer));
-    DropBox_LobbyLoc[i].Enabled := CanEdit;
-    DropBox_LobbyTeam[i].Enabled := CanEdit and not IsSave; //Can't change color or teams in a loaded save
-    DropColorBox_Lobby[i].Enabled := CanEdit and not IsSave;
+    CanEdit := (MyNik and (fGame.Networking.IsHost or not fGame.Networking.NetPlayers.HostDoesSetup) and
+                          (fGame.Networking.IsHost or not fGame.Networking.NetPlayers[i+1].ReadyToStart)) or
+               (fGame.Networking.IsHost and fGame.Networking.NetPlayers[i+1].IsComputer);
+    HostCanEdit := (fGame.Networking.IsHost and fGame.Networking.NetPlayers.HostDoesSetup);
+    DropBox_LobbyLoc[i].Enabled := (CanEdit or HostCanEdit);
+    DropBox_LobbyTeam[i].Enabled := (CanEdit or HostCanEdit) and not IsSave; //Can't change color or teams in a loaded save
+    DropColorBox_Lobby[i].Enabled := (CanEdit or (MyNik and not fGame.Networking.NetPlayers[i+1].ReadyToStart)) and not IsSave;
     CheckBox_LobbyReady[i].Enabled := false; //Read-only, just for info (perhaps we will replace it with an icon)
-    Button_LobbyKick[i].Enabled := (fGame.Networking.NetPlayers[i+1].PlayerType = pt_Human) and
+    Button_LobbyKick[i].Enabled := (fGame.Networking.NetPlayers[i+1].IsHuman) and
                                     fGame.Networking.IsHost and not MyNik; //Can't kick self
     if MyNik and not fGame.Networking.IsHost then
     begin
@@ -1902,6 +1937,7 @@ begin
     CheckBox_LobbyReady[i].Disable; //Read-only, just for info (perhaps we will replace it with an icon)
   end;
 
+  CheckBox_LobbyHostControl.Checked := fGame.Networking.NetPlayers.HostDoesSetup;
   if fGame.Networking.IsHost then
     Button_LobbyStart.Enabled := fGame.Networking.CanStart;
   //If the game can't be started the text message with explanation will appear in chat area
@@ -1913,7 +1949,7 @@ var i:integer;
 begin
   for i:=0 to MAX_PLAYERS-1 do
   if (fGame.Networking.Connected) and (i < fGame.Networking.NetPlayers.Count) and
-     (fGame.Networking.NetPlayers[i+1].PlayerType <> pt_Computer) then
+     (fGame.Networking.NetPlayers[i+1].IsHuman) then
   begin
     Label_LobbyPing[i].Caption := inttostr(fGame.Networking.NetPlayers[i+1].GetInstantPing);
     Label_LobbyPing[i].FontColor := GetPingColor(fGame.Networking.NetPlayers[i+1].GetInstantPing);

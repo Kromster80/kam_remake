@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Mission abgebrochen
 2:Aufbaututorial
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Kick
 109:Öffnen
+213:
 110:Computer
 111:Wähle...
 112:Zufällig
@@ -185,6 +186,7 @@ MaxID:212
 158:Die Spieleranzahl hat die Grenze erreicht.
 160:Der Server hat dir die Hostingrechte übertragen.
 187:Spiel gestartet
+214:
 
 131:Warte auf Spieler:
 163:Spiel wird gespeichert...

@@ -336,6 +336,7 @@ type
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure SetCursorPos(aPos: integer);
     procedure SetText(aText:string);
+    function KeyEventHandled(Key: Word):boolean;
   public
     Masked: Boolean;
     ReadOnly: Boolean;
@@ -1613,9 +1614,27 @@ begin
 end;
 
 
-function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
+//Key events which have no effect should not be handled (allows scrolling while chat window open with no text entered)
+function TKMEdit.KeyEventHandled(Key: Word):boolean;
 begin
   Result := true;
+  if fText = '' then
+    case Key of
+      VK_BACK,
+      VK_DELETE,
+      VK_UP,
+      VK_DOWN,
+      VK_LEFT,
+      VK_RIGHT,
+      VK_HOME,
+      VK_END: Result := false; //These keys have no effect when text is blank
+    end;
+end;
+
+
+function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
+begin
+  Result := KeyEventHandled(Key);
   if Inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
   //Clipboard operations
@@ -1654,7 +1673,7 @@ end;
 
 function TKMEdit.KeyUp(Key: Word; Shift: TShiftState):boolean;
 begin
-  Result := true;
+  Result := KeyEventHandled(Key);
   if Inherited KeyUp(Key, Shift) or ReadOnly then exit;
 
   if Assigned(OnChange) then OnChange(Self);

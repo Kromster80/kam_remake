@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Mise ukonèena
 2:Výuka stavby
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Pryè
 109:Otevøeno
+213:
 110:Poèítaè
 111:Vybrat...
 112:Náhodné
@@ -185,6 +186,7 @@ MaxID:212
 158:Poèet hráèù pøekraèuje maximální poèet daný mapou
 160:Server vám pøiøadil hostovací práva
 187:Hra již zaèala
+214:
 
 131:Èekám na ostatní hráèe:
 163:Ukládám hru...

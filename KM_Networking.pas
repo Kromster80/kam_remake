@@ -422,22 +422,26 @@ var i,k: integer;
 begin
   Assert(IsHost, 'Only host can match players');
   Assert(fSelectGameKind = ngk_Save, 'Not a save');
-  //If we are matching all then reset them all first so we don't get clashes
   if aPlayerID = -1 then
+  begin
+    //If we are matching all then reset them all first so we don't get clashes
     for i:=1 to fNetPlayers.Count do
       fNetPlayers[i].StartLocation := 0;
 
-  //Add enough AI players automatically (when we are matching all)
-  if aPlayerID = -1 then
+    //Add enough AI players automatically (when we are matching all)
     for i:=fNetPlayers.GetAICount to fSaveInfo.Info.AICount-1 do
       fNetPlayers.AddAIPlayer;
+
+    for i:=fSaveInfo.Info.PlayerCount to MAX_PLAYERS-1 do
+      fNetPlayers.AddClosedPlayer; //Close unused slots
+  end;
 
   for i:=1 to fNetPlayers.Count do
     for k:=1 to fSaveInfo.Info.PlayerCount do
       if (i = aPlayerID) or (aPlayerID = -1) then //-1 means update all players
         if fNetPlayers.LocAvailable(k) then
         begin
-          if ((fNetPlayers[i].PlayerType = pt_Computer) and (fSaveInfo.Info.PlayerTypes[k-1] = pt_Computer))
+          if ((fNetPlayers[i].IsComputer) and (fSaveInfo.Info.PlayerTypes[k-1] = pt_Computer))
           or (fNetPlayers[i].Nikname = fSaveInfo.Info.LocationName[k-1]) then
             fNetPlayers[i].StartLocation := k;
         end;
@@ -618,11 +622,11 @@ function TKMNetworking.CanStart:boolean;
 var i:integer;
 begin
   case fSelectGameKind of
-    ngk_Map:  Result := (fNetPlayers.Count > 1) and fNetPlayers.AllReady and fMapInfo.IsValid;
+    ngk_Map:  Result := fNetPlayers.AllReady and fMapInfo.IsValid;
     ngk_Save: begin
-                Result := (fNetPlayers.Count > 1) and fNetPlayers.AllReady and fSaveInfo.IsValid;
+                Result := fNetPlayers.AllReady and fSaveInfo.IsValid;
                 for i:=1 to fNetPlayers.Count do //In saves everyone must chose a location
-                  Result := Result and (fNetPlayers[i].StartLocation <> 0);
+                  Result := Result and ((fNetPlayers[i].StartLocation <> 0) or fNetPlayers[i].IsClosed);
               end;
     else      Result := False;
   end;
@@ -1133,7 +1137,7 @@ begin
               end;
 
     mk_StartingLocQuery:
-            if IsHost then begin
+            if IsHost and not fNetPlayers.HostDoesSetup then begin
               LocID := Param;
               if (GameInfo <> nil) and GameInfo.IsValid and
                  (LocID <= GameInfo.PlayerCount) and
@@ -1147,7 +1151,7 @@ begin
             end;
 
     mk_SetTeam:
-            if IsHost then begin
+            if IsHost and not fNetPlayers.HostDoesSetup then begin
               TeamID := Param;
               //Update Players setup
               fNetPlayers[fNetPlayers.ServerToLocal(aSenderIndex)].Team := TeamID;

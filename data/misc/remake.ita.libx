@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Caccia
 109:Aperto
+213:
 110:Giocatore IA
 111:Seleziona...
 112:Casuale
@@ -185,6 +186,7 @@ MaxID:212
 158:Troppi giocatori per questa mappa
 160:Il server ci ha assegato il ruolo di host
 187:Partita iniziata
+214:
 
 131:In attesa dei giocatori:
 163:Salvataggio in corso...

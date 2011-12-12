@@ -1,5 +1,5 @@
 
-MaxID:212
+MaxID:214
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -151,6 +151,7 @@ MaxID:212
 107:Ping
 108:Éjecter
 109:Libre
+213:
 110:Joueur IA
 111:Sélect...
 112:Aléatoire
@@ -185,6 +186,7 @@ MaxID:212
 158:Le nombre de joueurs dépasse la limite de la mission
 160:Le Serveur a attribué nos droits d'hébergement
 187:La partie à débuté
+214:
 
 131:Attente des Joueurs :
 163:Enregistrement de la partie...

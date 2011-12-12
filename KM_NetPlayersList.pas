@@ -8,6 +8,9 @@ const
   PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
 
 type
+  TNetPlayerType = (npt_Human, npt_Computer, npt_Closed);
+
+type
   TKMPlayerInfo = class
   private
     fNikname:string;
@@ -19,7 +22,7 @@ type
     function GetFlagColor:cardinal;
     procedure SetLangID(aID:byte);
   public
-    PlayerType:TPlayerType; //Human, Computer
+    PlayerNetType:TNetPlayerType; //Human, Computer, Closed
     StartLocation:integer;  //Start location, 0 means random
     Team:integer;
     PlayerIndex:TKMPlayer;
@@ -31,6 +34,9 @@ type
     function GetInstantPing:word;
     function GetMaxPing:word;
     function IsHuman:boolean;
+    function IsComputer:boolean;
+    function IsClosed:boolean;
+    function GetPlayerType:TPlayerType;
     property Nikname:string read fNikname;
     property LangID:byte read fLangID write SetLangID;
     property IndexOnServer:integer read fIndexOnServer;
@@ -51,20 +57,24 @@ type
     function GetPlayer(Index:integer):TKMPlayerInfo;
     procedure ValidateLocations(aMaxLoc:byte);
     procedure ValidateColors;
+    procedure RemAllClosedPlayers;
     procedure UpdateAIPlayerNames;
   public
+    HostDoesSetup: boolean; //Gives host absolute control over locations/teams (not colors)
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
     property Count:integer read fCount;
 
     procedure AddPlayer(aNik:string; aIndexOnServer:integer; aLang:byte=0);
-    procedure AddAIPlayer;
+    procedure AddAIPlayer(aSlot:integer=-1);
+    procedure AddClosedPlayer(aSlot:integer=-1);
     procedure DisconnectPlayer(aIndexOnServer:integer);
     procedure DisconnectAllClients(aOwnNikname:string);
     procedure DropPlayer(aIndexOnServer:integer);
     procedure RemPlayer(aIndexOnServer:integer);
     procedure RemAIPlayer(ID:integer);
+    procedure RemClosedPlayer(ID:integer);
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
     //Getters
@@ -81,6 +91,7 @@ type
     function GetMaxHighestRoundTripLatency:word;
     procedure GetNotReadyToPlayPlayers(aPlayerList:TStringList);
     function GetAICount:integer;
+    function GetClosedCount:integer;
 
     procedure ResetLocAndReady;
     procedure SetAIReady;
@@ -138,7 +149,26 @@ end;
 
 function TKMPlayerInfo.IsHuman:boolean;
 begin
-  Result := PlayerType = pt_Human;
+  Result := PlayerNetType = npt_Human;
+end;
+
+
+function TKMPlayerInfo.IsComputer:boolean;
+begin
+  Result := PlayerNetType = npt_Computer;
+end;
+
+
+function TKMPlayerInfo.IsClosed:boolean;
+begin
+  Result := PlayerNetType = npt_Closed;
+end;
+
+
+function TKMPlayerInfo.GetPlayerType:TPlayerType;
+const PlayerTypes:array[TNetPlayerType] of TPlayerType = (pt_Human, pt_Computer, pt_Computer);
+begin
+  Result := PlayerTypes[PlayerNetType];
 end;
 
 
@@ -147,7 +177,7 @@ begin
   LoadStream.Read(fNikname);
   LoadStream.Read(fLangID);
   LoadStream.Read(fIndexOnServer);
-  LoadStream.Read(PlayerType, SizeOf(PlayerType));
+  LoadStream.Read(PlayerNetType, SizeOf(PlayerNetType));
   LoadStream.Read(fFlagColorID);
   LoadStream.Read(StartLocation);
   LoadStream.Read(Team);
@@ -163,7 +193,7 @@ begin
   SaveStream.Write(fNikname);
   SaveStream.Write(fLangID);
   SaveStream.Write(fIndexOnServer);
-  SaveStream.Write(PlayerType, SizeOf(PlayerType));
+  SaveStream.Write(PlayerNetType, SizeOf(PlayerNetType));
   SaveStream.Write(fFlagColorID);
   SaveStream.Write(StartLocation);
   SaveStream.Write(Team);
@@ -301,13 +331,22 @@ begin
 end;
 
 
+procedure TKMPlayersList.RemAllClosedPlayers;
+var i:integer;
+begin
+  for i:=fCount downto 1 do
+    if Player[i].IsClosed then
+      RemClosedPlayer(i);
+end;
+
+
 procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer; aLang:byte=0);
 begin
   inc(fCount);
   fPlayers[fCount].fNikname := aNik;
   fPlayers[fCount].fLangID := aLang;
   fPlayers[fCount].fIndexOnServer := aIndexOnServer;
-  fPlayers[fCount].PlayerType := pt_Human;
+  fPlayers[fCount].PlayerNetType := npt_Human;
   fPlayers[fCount].PlayerIndex := nil;
   fPlayers[fCount].Team := 0;
   fPlayers[fCount].FlagColorID := 0;
@@ -319,22 +358,48 @@ begin
 end;
 
 
-procedure TKMPlayersList.AddAIPlayer;
+procedure TKMPlayersList.AddAIPlayer(aSlot:integer=-1);
 begin
-  inc(fCount);
-  fPlayers[fCount].fNikname := 'AI Player';
-  fPlayers[fCount].fLangID := 0;
-  fPlayers[fCount].fIndexOnServer := -1;
-  fPlayers[fCount].PlayerType := pt_Computer;
-  fPlayers[fCount].PlayerIndex := nil;
-  fPlayers[fCount].Team := 0;
-  fPlayers[fCount].FlagColorID := 0;
-  fPlayers[fCount].StartLocation := 0;
-  fPlayers[fCount].ReadyToStart := true;
-  fPlayers[fCount].ReadyToPlay := true;
-  fPlayers[fCount].Connected := true;
-  fPlayers[fCount].Dropped := false;
+  if aSlot = -1 then
+  begin
+    inc(fCount);
+    aSlot := fCount;
+  end;
+  fPlayers[aSlot].fNikname := 'AI Player';
+  fPlayers[aSlot].fLangID := 0;
+  fPlayers[aSlot].fIndexOnServer := -1;
+  fPlayers[aSlot].PlayerNetType := npt_Computer;
+  fPlayers[aSlot].PlayerIndex := nil;
+  fPlayers[aSlot].Team := 0;
+  fPlayers[aSlot].FlagColorID := 0;
+  fPlayers[aSlot].StartLocation := 0;
+  fPlayers[aSlot].ReadyToStart := true;
+  fPlayers[aSlot].ReadyToPlay := true;
+  fPlayers[aSlot].Connected := true;
+  fPlayers[aSlot].Dropped := false;
   UpdateAIPlayerNames;
+end;
+
+
+procedure TKMPlayersList.AddClosedPlayer(aSlot:integer=-1);
+begin
+  if aSlot = -1 then
+  begin
+    inc(fCount);
+    aSlot := fCount;
+  end;
+  fPlayers[aSlot].fNikname := 'Closed';
+  fPlayers[aSlot].fLangID := 0;
+  fPlayers[aSlot].fIndexOnServer := -1;
+  fPlayers[aSlot].PlayerNetType := npt_Closed;
+  fPlayers[aSlot].PlayerIndex := nil;
+  fPlayers[aSlot].Team := 0;
+  fPlayers[aSlot].FlagColorID := 0;
+  fPlayers[aSlot].StartLocation := 0;
+  fPlayers[aSlot].ReadyToStart := true;
+  fPlayers[aSlot].ReadyToPlay := true;
+  fPlayers[aSlot].Connected := true;
+  fPlayers[aSlot].Dropped := false;
 end;
 
 
@@ -395,12 +460,24 @@ begin
 end;
 
 
+procedure TKMPlayersList.RemClosedPlayer(ID:integer);
+var i:integer;
+begin
+  fPlayers[ID].Free;
+  for i:=ID to fCount-1 do
+    fPlayers[i] := fPlayers[i+1]; //Shift only pointers
+
+  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but not used
+  dec(fCount);
+end;
+
+
 procedure TKMPlayersList.UpdateAIPlayerNames;
 var i, AICount:integer;
 begin
   AICount := 0;
   for i:=1 to fCount do
-    if fPlayers[i].PlayerType = pt_Computer then
+    if fPlayers[i].PlayerNetType = npt_Computer then
     begin
       inc(AICount);
       fPlayers[i].fNikname := 'AI Player '+IntToStr(AICount);
@@ -561,7 +638,17 @@ var i:integer;
 begin
   Result := 0;
   for i:=1 to fCount do
-    if fPlayers[i].PlayerType = pt_Computer then
+    if fPlayers[i].PlayerNetType = npt_Computer then
+      inc(Result);
+end;
+
+
+function TKMPlayersList.GetClosedCount:integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=1 to fCount do
+    if fPlayers[i].PlayerNetType = npt_Closed then
       inc(Result);
 end;
 
@@ -572,7 +659,7 @@ begin
   for i:=1 to fCount do
   begin
     fPlayers[i].StartLocation := 0;
-    if fPlayers[i].PlayerType <> pt_Computer then //AI players are always ready
+    if fPlayers[i].PlayerNetType = npt_Human then //AI/closed players are always ready
       fPlayers[i].ReadyToStart := false;
   end;
 end;
@@ -582,7 +669,7 @@ procedure TKMPlayersList.SetAIReady;
 var i:integer;
 begin
   for i:=1 to fCount do
-    if fPlayers[i].PlayerType = pt_Computer then
+    if fPlayers[i].PlayerNetType in [npt_Computer,npt_Closed] then
     begin
       fPlayers[i].ReadyToStart := true;
       fPlayers[i].ReadyToPlay := true;
@@ -598,10 +685,11 @@ begin
     ErrorMsg := fTextLibrary[TX_LOBBY_EVERYONE_NOT_READY];
     Result := False;
   end else
-  if fCount > aMaxLoc then begin
+  if (fCount-GetClosedCount) > aMaxLoc then begin
     ErrorMsg := fTextLibrary[TX_LOBBY_PLAYER_LIMIT];
     Result := False;
   end else begin
+    RemAllClosedPlayers; //Closed players are just a marker in the lobby, delete them when the game starts
     ValidateLocations(aMaxLoc);
     ValidateColors;
     Result := True;
@@ -617,6 +705,7 @@ var i:integer; M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
 
+  M.Write(HostDoesSetup);
   M.Write(fCount);
   for i:=1 to fCount do
     fPlayers[i].Save(M);
@@ -632,6 +721,7 @@ begin
   M := TKMemoryStream.Create;
   try
     M.WriteAsText(aText);
+    M.Read(HostDoesSetup);
     M.Read(fCount);
     for i:=1 to fCount do
       fPlayers[i].Load(M);

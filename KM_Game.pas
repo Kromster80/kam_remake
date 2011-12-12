@@ -612,7 +612,7 @@ begin
   begin
     PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
     fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
-    fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].PlayerType;
+    fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
     fPlayers.Player[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
 
     //Setup alliances
@@ -1240,7 +1240,7 @@ begin
       fGameInfo.Team[i] := 0;
     end else begin
       fGameInfo.LocationName[i] := fNetworking.NetPlayers[NetIndex].Nikname;
-      fGameInfo.PlayerTypes[i] := fNetworking.NetPlayers[NetIndex].PlayerType;
+      fGameInfo.PlayerTypes[i] := fNetworking.NetPlayers[NetIndex].GetPlayerType;
       fGameInfo.ColorID[i] := fNetworking.NetPlayers[NetIndex].FlagColorID;
       fGameInfo.Team[i] := fNetworking.NetPlayers[NetIndex].Team;
     end
