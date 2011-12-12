@@ -875,7 +875,7 @@ begin
     if (KMLength(aLoc,KMPoint(k,i))<=aRadius) and not KMSamePoint(aAvoidLoc,KMPoint(k,i+1)) then
       if (TileIsStone(k,i)>0) then
         if (CanWalk in Land[i+1,k].Passability) //Now check the tile right below
-        and not TileIsLocked(KMPoint(i+1,k)) then //Taken by another stonemason
+        and not TileIsLocked(KMPoint(k, i+1)) then //Taken by another stonemason
           if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0,false) then
             List.AddEntry(KMPointDir(k, i+1, dir_N));
 

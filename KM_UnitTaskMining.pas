@@ -17,6 +17,7 @@ type
   public
     constructor Create(aUnit: TKMUnit; aRes: TResourceType);
     destructor Destroy; override;
+    function WalkShouldAbandon:boolean; override;
     constructor Load(LoadStream: TKMemoryStream); override;
     property WorkPlan: TUnitWorkPlan read fWorkPlan;
     function Execute: TTaskResult; override;
@@ -51,6 +52,16 @@ begin
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
   FreeAndNil(fWorkPlan);
   Inherited;
+end;
+
+
+//Note: Phase is -1 because it will have been increased at the end of last Execute
+function TTaskMining.WalkShouldAbandon:boolean;
+begin
+  Result := false;
+  if fPhase = 2 then //Unit is walking to mine-position
+    Result := fTerrain.TileIsLocked(WorkPlan.Loc) or //If someone takes our place
+              not ResourceExists; //Resource has gone
 end;
 
 
@@ -90,23 +101,18 @@ end;
 //Happens when we discover that resource is gone or is occupied by another busy unit
 //Return false if new plan could not be found
 procedure TTaskMining.FindAnotherWorkPlan;
-var OldLoc: TKMPoint;
+var OldLoc: TKMPoint; OldDir:TKMDirection;
 begin
   OldLoc := WorkPlan.Loc;
+  OldDir := WorkPlan.WorkDir;
 
   //Tell the work plan to find a new resource of the same gathering script
   if WorkPlan.FindDifferentResource(fUnit.UnitType, KMPointBelow(fUnit.GetHome.GetEntrance), OldLoc) then
   begin
-    if KMSamePoint(OldLoc, WorkPlan.Loc) then
-      //The Loc is the same only when Farmer approches another farmer cutting. Then he can wait and sow after him
-      //@Lewin: tbh, I don't like the way this condition works. We have asked for a new location and got the old one
-      //@Krom: I see your point, but this is the behavior we want. Maybe we can write it another way?
-      fUnit.SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo)
-    else
-    begin
-      fPhase := 0; //Set the walk again (Will become 1 after this loop)
-      fUnit.SetActionLockedStay(0, WorkPlan.ActionWalkTo);
-    end;
+    //Must always give us a new location (or same location but different direction)
+    Assert((OldDir <> WorkPlan.WorkDir) or not KMSamePoint(OldLoc, WorkPlan.Loc));
+    fPhase := 0; //Set the walk again (Will become 1 after this loop)
+    fUnit.SetActionLockedStay(0, WorkPlan.ActionWalkTo);
   end else
   begin
     fPhase := 99; //Abandon as there is no other work plan available (Exit the task on next update)
@@ -177,15 +183,7 @@ begin
        end;
 
     1: //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
-      //@Krom: I really dislike the idea of mining units using fUseExactLoc = False. This means if ANYONE is standing
-      //       at the tile they wish to mine at, they will walk to some other empty tile nearby. So if my troops are standing idle at
-      //       the bottom of the stone, the stonemason will walk to some other empty tile. (probably not stone)
-      //       The idea of UseExactLoc = False is that we really don't care where we end up, as long as we don't disturb other units.
-      //       Warriors who cannot reach their target tile (e.g. it is on a hill) use this so they will stand somewhere nearby,
-      //       without messing up the group by insisting on standing on some other warrior's spot.
-      //       If we need a flag to say "we are walking to mine, abandon if someone has taken it" then we can add a new boolean
-      //       to the walk action.
-      SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo, False);
+      SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.ActionWalkTo);
 
     2: //Check if we are at the location. WalkTo could have failed or resource could have been exhausted
        if not KMSamePoint(NextPosition, WorkPlan.Loc) or not ResourceExists then

@@ -95,7 +95,7 @@ type
 implementation
 uses
   KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
-  KM_Units_Warrior, KM_UnitTaskMining, KM_Player, KM_Log, KM_ResourceGFX;
+  KM_Units_Warrior, KM_Player, KM_Log, KM_ResourceGFX;
 
 
 { TUnitActionWalkTo }
@@ -996,18 +996,6 @@ begin
         fUnit.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
       exit;
-    end;
-
-    //Abandon if someone already mines our resource
-    if (fUnit.GetUnitTask is TTaskMining) and (NodePos+1 = NodeList.Count) and not fUseExactTarget then
-    begin
-      U := fTerrain.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
-      Assert((U = nil) or (U.GetUnitAction <> nil));
-      if (U <> nil) and U.GetUnitAction.Locked then
-      begin
-        Result := ActDone; //TaskMining will care about the rest (and find new workplan)
-        Exit;
-      end;
     end;
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself

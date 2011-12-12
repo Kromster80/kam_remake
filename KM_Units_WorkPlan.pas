@@ -125,23 +125,6 @@ begin
     gs_FarmerSow:       Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taPlant, PlantAct, NewLoc);
     gs_FarmerCorn:      begin
                           Found := FindCornField(aLoc, fResource.UnitDat[aUnitType].MiningRange, aAvoidLoc, taAny, PlantAct, NewLoc);
-                          if not Found then
-                          begin
-                            //There are no other tasks for us to do,
-                            //so we might as well wait for the corn to be cut and then plant over it
-                            //@Lewin: how do we deduce the above statement?
-                            //@Krom: 1. GatheringScript = gs_FarmerCorn so we were trying to cut corn somewhere.
-                            //       2. We are in FindDifferentResource so therefore our spot was taken by another unit
-                            //       3. FindCornField failed when asked to find taAny, therefore there is no sowing
-                            //          or cutting to be done anywhere at all.
-                            //       4. Once the farmer who took our spot is done cutting, we can plant there
-                            //       5. If it's not a farmer but instead a labourer making a road or something,
-                            //          ResourceExists will detect it when we step onto the tile.
-                            //Result := true;
-                            Result := False;
-                            Exit;
-                          end;
-
                           if PlantAct = taPlant then
                           begin
                             GatheringScript := gs_FarmerSow; //Switch to sowing corn rather than cutting
