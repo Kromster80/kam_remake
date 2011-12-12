@@ -128,7 +128,7 @@ type
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_CanBeMadeToHouse(LocA:TKMPoint; aHouse:TKMHouse; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
-    function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability; aAcceptTargetLoc:boolean=true):TKMPoint;
+    function GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean):TKMPoint;
 
     procedure UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
     procedure UnitRem(LocFrom:TKMPoint);
@@ -1730,7 +1730,7 @@ end;
 
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
 //If no tile found - return Origin location
-function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability; aAcceptTargetLoc:boolean=true):TKMPoint;
+function TTerrain.GetClosestTile(TargetLoc, OriginLoc: TKMPoint; aPass: TPassability; aAcceptTargetLoc: Boolean):TKMPoint;
 const TestDepth = 255;
 var
   i:integer;

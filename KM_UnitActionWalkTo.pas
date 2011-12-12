@@ -127,7 +127,7 @@ begin
   if fUseExactTarget then
     fWalkTo := aLocB
   else
-    fWalkTo := fTerrain.GetClosestTile(aLocB, aUnit.GetPosition, fPass, aUseExactTarget);
+    fWalkTo := fTerrain.GetClosestTile(aLocB, aUnit.GetPosition, fPass, False);
 
 
   ExplanationLogCreate;
@@ -869,7 +869,7 @@ begin
   if fUseExactTarget then
     fNewWalkTo := aLoc
   else
-    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fUnit.GetPosition, fPass, fUseExactTarget);
+    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fUnit.GetPosition, fPass, False);
 
   //Release pointers if we had them
   fPlayers.CleanUpHousePointer(fTargetHouse);
