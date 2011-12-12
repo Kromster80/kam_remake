@@ -74,15 +74,14 @@ var
   BackRX: TRXType;
   BackID: Word;
 begin
-  case aStyle of
-    bsMenu: begin
-              BackRX := rxGuiMain;
-              BackID := 9; //GuiMain-3 is a metal background used in main menu
-            end;
-    bsGame: begin
-              BackRX := rxGui;
-              BackID := 402; //Gui-402 is a stone background
-            end;
+  if aStyle = bsMenu then
+  begin
+    BackRX := rxGuiMain;
+    BackID := 9; //GuiMain-3 is a metal background used in main menu
+  end else
+  begin
+    BackRX := rxGui;
+    BackID := 402; //Gui-402 is a stone background
   end;
 
   with GFXData[BackRX,BackID] do

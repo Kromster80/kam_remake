@@ -149,7 +149,7 @@ type
     property ErrorMessage:string read fErrorMessage;
     property MissionInfo:TKMMissionInfo read fMissionInfo;
 
-    function SaveDATFile(const aFileName: string):boolean;
+    procedure SaveDATFile(const aFileName: String);
   end;
 
 
@@ -830,7 +830,7 @@ end;
 
 
 //Write out a KaM format mission file to aFileName
-function TMissionParser.SaveDATFile(const aFileName:string):boolean;
+procedure TMissionParser.SaveDATFile(const aFileName: String);
 const
   COMMANDLAYERS = 4;
 var
@@ -1122,8 +1122,6 @@ begin
   assignfile(f, aFileName); rewrite(f);
   write(f, SaveString);
   closefile(f);
-
-  Result := true; //Success
 end;
 
 

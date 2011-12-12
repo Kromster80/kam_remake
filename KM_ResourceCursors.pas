@@ -17,7 +17,6 @@ type
 
   TKMCursors = class
   private
-    fRX: Byte; //Index of containing RX
     function GetCursor: TKMCursor;
     procedure SetCursor(Value: TKMCursor);
   public
