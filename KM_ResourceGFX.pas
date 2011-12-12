@@ -490,9 +490,9 @@ var
   po: TBGRABitmap;
   {$ENDIF}
 begin
-  if not DirectoryExists(ExeDir + 'Sprites\') then Exit;
-
   RX := Byte(aRT) + 1;
+
+  if not DirectoryExists(ExeDir + 'Sprites\') then Exit;
 
   FileList := TStringList.Create;
   FindFirst(ExeDir + 'Sprites\' + inttostr(RX)+'_????.png', faAnyFile AND NOT faDirectory, SearchRec);
@@ -701,7 +701,7 @@ begin
         Pixel := y*Size[i].X + x;
         L := Data[i, Pixel]; //0..255
 
-        if HasTeamColors and (L in [24..30])
+        if RXInfo[aRT].TeamColors and (L in [24..30])
         and ((ID<>2) or (i>400))  //Skip the Inn Weapon Smithy and the rest
         and ((ID<>4) or InRange(i,141,154) or InRange(i,521,550)) then //Unit icons and scrolls
         begin
@@ -816,8 +816,6 @@ var
 begin
   ID := Byte(aRT) + 1;
 
-  RXData[ID].HasTeamColors := RXInfo[aRT].TeamColors; //HasTeamColors is used by fRender as well
-
   LeftIndex:=0; AllocatedRAM:=0; RequiredRAM:=0; ColorsRAM:=0; TexCount:=0;
   repeat
     inc(LeftIndex);
@@ -864,7 +862,7 @@ begin
       HasMsk := HasMsk or RXData[ID].HasMask[j];
 
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
-    if MAKE_TEAM_COLORS and RXData[ID].HasTeamColors and (not ((ID=4)and InRange(49,LeftIndex,RightIndex))) then
+    if MAKE_TEAM_COLORS and RXInfo[aRT].TeamColors and (not ((ID=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[ID,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
       //TeamColors are done through alternative plain colored texture
@@ -899,6 +897,9 @@ begin
     inc(TexCount);
 
   until(LeftIndex>=RXData[ID].Qty); // >= in case data wasn't loaded and Qty=0
+
+  //HasTeamColors will be accessed by fRender 
+  RXData[ID].HasTeamColors := RXInfo[aRT].TeamColors;
 
   fLog.AppendLog(inttostr(TexCount)+' Textures created');
   fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
