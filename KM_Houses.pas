@@ -1278,7 +1278,7 @@ procedure TKMHouseInn.Paint;
   end;
 const
   OffX: array [1..3] of single = (-0.5, 0.0, 0.5);
-  OffY: array [1..3] of single = (0.35, 0.4, 0.45);
+  OffY: array [1..3] of single = (-0.05, 0, 0.05);
 var
   i: Integer;
   AnimStep: Cardinal;
@@ -1292,10 +1292,9 @@ begin
 
     AnimStep := FlagAnimStep - Eater[i].EatStep; //Delta is our AnimStep
 
-    fRender.RenderUnit(Eater[i].UnitType, ua_Eat, AnimDir(i), AnimStep,
-      fPosition.X + OffX[(i-1) mod 3 + 1],
-      fPosition.Y + OffY[(i-1) mod 3 + 1], //todo: -1 here to fix eaters offset?
-      fPlayers.Player[fOwner].FlagColor, false);
+    fRender.RenderEater(Eater[i].UnitType, ua_Eat, AnimDir(i), AnimStep, fPosition,
+                        OffX[(i-1) mod 3 + 1],
+                        OffY[(i-1) mod 3 + 1], fPlayers.Player[fOwner].FlagColor);
   end;
 end;
 

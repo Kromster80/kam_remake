@@ -89,6 +89,7 @@ type
     procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
     procedure RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
     procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; aRX: TRXType = rxHouses);
+    procedure RenderEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
     procedure RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
     procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
@@ -772,6 +773,21 @@ begin
 
   if SHOW_UNIT_MOVEMENT and fGame.AllowDebugRendering then
     fRenderAux.Dot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV, FlagColor);
+end;
+
+
+procedure TRender.RenderEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
+var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
+begin
+  A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
+  ID := A.Step[StepID mod A.Count + 1] + 1;
+  if ID <= 0 then exit;
+
+  //Eaters need to interpolate land height the same as the inn otherwise they are rendered at the wrong place
+  ShiftX:=OffX+RXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY:=OffY+(RXData[rxUnits].Pivot[ID].y+RXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+
+  fRenderList.AddSprite(rxUnits,ID,Loc.X+ShiftX,Loc.Y+ShiftY,Loc.X,Loc.Y,False,FlagColor,-1,true);
 end;
 
 
