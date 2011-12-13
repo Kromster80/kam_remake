@@ -122,7 +122,9 @@ type
     procedure ResetResolution;
     function GetScreenBounds: TRect;
   private
+    fFullScreen:boolean; //Is the application current in full screen?
     procedure OnIdle(Sender: TObject; var Done: Boolean);
+    procedure ApplicationDeactivate(Sender: TObject);
     {$IFDEF MSWindows}
     procedure WMSysCommand(var Msg : TWMSysCommand); message WM_SYSCOMMAND;
     {$ENDIF}
@@ -255,6 +257,7 @@ begin
   TempSettings.Free;
 
   Application.OnIdle := Form1.OnIdle;
+  Application.OnDeactivate := ApplicationDeactivate;
   fLog.AppendLog('Form1 create is done');
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
@@ -562,14 +565,12 @@ begin
     Form1.BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
     Form1.WindowState  := wsMaximized;
     Form1.BorderStyle  := bsNone;     //and now we can make it borderless again
-    Form1.FormStyle    := fsStayOnTop;//Should overlay TaskBar
     Form1.Refresh;
   end else begin
     ResetResolution;
     Form1.Refresh;
     Form1.WindowState  := wsNormal;
     Form1.BorderStyle  := bsSizeable;
-    Form1.FormStyle    := fsNormal;
     Form1.ClientWidth  := MENU_DESIGN_X;
     Form1.ClientHeight := MENU_DESIGN_Y;
     Form1.Refresh;
@@ -577,6 +578,7 @@ begin
     Form1.Left := Math.max((Screen.Width  - MENU_DESIGN_X) div 2, 0);
     Form1.Top  := Math.max((Screen.Height - MENU_DESIGN_Y) div 2, 0);
   end;
+  fFullScreen := aFullScreen;
 
   //Remove VCL panel and use flicker-free TMyPanel instead
   if Panel5 <> nil then
@@ -765,9 +767,16 @@ end;
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if (fGame <> nil) and not fGame.CanClose then
-    CanClose := MessageBox(0, 'Any unsaved changes will be lost. Exit?', 'Warning', MB_ICONWARNING or MB_YESNO) = IDYES
+    CanClose := MessageDlg('Any unsaved changes will be lost. Exit?',mtWarning,[mbYes, mbNo],0) = mrYes
   else
     CanClose := True;
+end;
+
+procedure TForm1.ApplicationDeactivate(Sender: TObject);
+begin
+  //Prevent the game window from being in the way by minimizing when alt-tabbing
+  if Application.Active then exit; //Occurs during Toggle to fullscreen, should be ignored
+  if fFullScreen then Application.Minimize;
 end;
 
 

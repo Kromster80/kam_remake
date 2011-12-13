@@ -4,6 +4,8 @@
  +	"Stonemason has no action" (also "EAssertionFailed: KM_Terrain.pas, line 526") crashes fixed
  +	Units are smarter at detecting when the resource they wanted to mine/gather/plant has already been taken
  +	Units in the inn are rendered at the wrong place when the inn is on uneven ground
+ +	Game minimizes when you alt-tab from full screen mode rather than becoming stuck
+ +	"Unsaved changes will be lost" dialogue is shown properly from full screen mode
  	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
@@ -47,7 +49,6 @@ Features:
 	Warriors should automatically engage enemies within 3-4 tiles (same in KaM and makes chasing down archers easier)
 	Changing teams in multiplayer: When joining a team the team members must "accept" you before it occurs. Leaving a team does not require acceptance. We need a "lock teams" option in the lobby for this to work.
 	Chat logs
-	Better full screen support (if you Alt-Tab out of the game from fullscreen, the game blocks your way and you can't easily use anything else)
 	Sort maps in SP and MP (building, building and fighting, fighting, co-op, players, mapsize, etc.)
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
