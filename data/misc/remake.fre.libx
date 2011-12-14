@@ -1,5 +1,5 @@
 
-MaxID:214
+MaxID:219
 
 1:Mission Annulée
 2:Tutoriel de Construction
@@ -36,6 +36,11 @@ MaxID:214
 30:Langage :
 31:Chargement... Veuillez patienter
 207:arbres, bâtiments et unités
+216:
+217:
+218:
+219:
+215:
 208:initialisation
 209:initialisation du multijoueur
 210:script

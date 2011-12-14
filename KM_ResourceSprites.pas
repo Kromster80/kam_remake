@@ -88,9 +88,7 @@ var
       LoadFrom: rlFile;
       Usage: ruGame;
       OverrideCount: 0;
-      //todo: Split TX_MENU_LOADING_SPRITES into seperate messages for each RX
-      //      (after this release so we don't bother the translators again)
-      LoadingTextID: TX_MENU_LOADING_SPRITES;
+      LoadingTextID: TX_MENU_LOADING_TREES;
     ),
     (
       FileName: 'Houses';
@@ -99,7 +97,7 @@ var
       LoadFrom: rlFile;
       Usage: ruGame;
       OverrideCount: 0;
-      LoadingTextID: TX_MENU_LOADING_SPRITES;
+      LoadingTextID: TX_MENU_LOADING_HOUSES;
     ),
     (
       FileName: 'Units';
@@ -108,7 +106,7 @@ var
       LoadFrom: rlFile;
       Usage: ruGame;
       OverrideCount: 7885; //Clip to 7885 sprites until we add TPR ballista/catapult support
-      LoadingTextID: TX_MENU_LOADING_SPRITES;
+      LoadingTextID: TX_MENU_LOADING_UNITS;
     ),
     (
       FileName: 'GUI';
@@ -153,7 +151,7 @@ var
       LoadFrom: rlFolder;
       Usage: ruGame;
       OverrideCount: 256;
-      LoadingTextID: TX_MENU_LOADING_SPRITES;
+      LoadingTextID: TX_MENU_LOADING_ADDITIONAL_SPRITES; //Too short to need own caption
     ),
     (
       FileName: 'RemakeGame';
@@ -162,7 +160,7 @@ var
       LoadFrom: rlFolder;
       Usage: ruGame;
       OverrideCount: 347;
-      LoadingTextID: TX_MENU_LOADING_SPRITES;
+      LoadingTextID: TX_MENU_LOADING_ADDITIONAL_SPRITES;
     ));
 
 

@@ -146,6 +146,7 @@ type
       Button_ReplayExit:TKMButton;
     Panel_Allies:TKMPanel;
       Label_PeacetimeRemaining: TKMLabel;
+      Image_AlliesLang:array [0..MAX_PLAYERS-1] of TKMImage;
       Label_AlliesPlayer:array [0..MAX_PLAYERS-1] of TKMLabel;
       DropBox_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMDropBox;
       Label_AlliesTeam:array [0..MAX_PLAYERS-1] of TKMLabel;
@@ -1042,13 +1043,14 @@ begin
     begin
       if (i mod 4) = 0 then //Header for each column
       begin
-        TKMLabel.Create(Panel_Allies,  54+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
-        TKMLabel.Create(Panel_Allies, 200+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies,  70+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PLAYERS], fnt_Outline, taLeft);
+        TKMLabel.Create(Panel_Allies, 220+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_TEAM], fnt_Outline, taLeft);
         TKMLabel.Create(Panel_Allies, 350+(i div 4)*380, 60, 140, 20, fTextLibrary[TX_LOBBY_HEADER_PING], fnt_Outline, taCenter);
       end;
-      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    55+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
-      Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
-      DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 200+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
+      Image_AlliesLang[i] := TKMImage.Create(Panel_Allies,      50+(i div 4)*380, 82+(i mod 4)*24, 16,  11,  0, rxMenu);
+      Label_AlliesPlayer[i] := TKMLabel.Create(Panel_Allies,    70+(i div 4)*380, 80+(i mod 4)*24, 140, 20, '', fnt_Grey, taLeft);
+      Label_AlliesTeam[i]   := TKMLabel.Create(Panel_Allies,   220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, '', fnt_Grey, taLeft);
+      DropBox_AlliesTeam[i] := TKMDropBox.Create(Panel_Allies, 220+(i div 4)*380, 80+(i mod 4)*24, 120, 20, fnt_Grey, '');
       DropBox_AlliesTeam[i].Hide; //Use label for demos until we fix exploits
       DropBox_AlliesTeam[i].Add(fTextLibrary[TX_LOBBY_NONE]);
       for k:=1 to 4 do DropBox_AlliesTeam[i].Add(Format(fTextLibrary[TX_LOBBY_TEAM_X],[k]));
@@ -2946,10 +2948,14 @@ var i:integer;
 begin
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
+    if fGame.Networking.NetPlayers[i+1].LangID <> 0 then
+         Image_AlliesLang[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID,3])
+    else Image_AlliesLang[i].TexID := 0;
     Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
     DropBox_AlliesTeam[i].ItemIndex := fGame.Networking.NetPlayers[i+1].Team;
     //Strikethrough for disconnected players
+    Image_AlliesLang[i].Enabled := not fGame.Networking.NetPlayers[i+1].Dropped;
     Label_AlliesPlayer[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;
     Label_AlliesTeam[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;
     Label_AlliesPing[i].Strikethrough := fGame.Networking.NetPlayers[i+1].Dropped;

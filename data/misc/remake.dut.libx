@@ -1,5 +1,5 @@
 
-MaxID:214
+MaxID:219
 
 1:Missie geannuleerd 
 2:Stad oefenscenario
@@ -36,6 +36,11 @@ MaxID:214
 30:Taal:
 31:Aan het laden... Een ogenblik geduld
 207:bomen, gebouwen en eenheden
+216:
+217:
+218:
+219:
+215:
 208:initialiseren
 209:multiplayer initialisatie
 210:script

@@ -1,5 +1,5 @@
 
-MaxID:214
+MaxID:219
 
 1:Mission canceled
 2:Town Tutorial
@@ -36,6 +36,11 @@ MaxID:214
 30:Language:
 31:Loading... Please wait
 207:trees, houses and units
+216:units
+217:houses
+218:trees
+219:definitions
+215:additional sprites
 208:initializing
 209:multiplayer initialization
 210:script

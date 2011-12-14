@@ -1,5 +1,5 @@
 
-MaxID:214
+MaxID:219
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -36,6 +36,11 @@ MaxID:214
 30:Lingua:
 31:In caricamento...
 207:alberi, edifici ed unità
+216:
+217:
+218:
+219:
+215:
 208:inizializzando
 209:inizializzando il multiplayer
 210:script

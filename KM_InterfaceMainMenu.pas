@@ -1905,7 +1905,8 @@ begin
     CanEdit := (MyNik and (fGame.Networking.IsHost or not fGame.Networking.NetPlayers.HostDoesSetup) and
                           (fGame.Networking.IsHost or not fGame.Networking.NetPlayers[i+1].ReadyToStart)) or
                (fGame.Networking.IsHost and fGame.Networking.NetPlayers[i+1].IsComputer);
-    HostCanEdit := (fGame.Networking.IsHost and fGame.Networking.NetPlayers.HostDoesSetup);
+    HostCanEdit := (fGame.Networking.IsHost and fGame.Networking.NetPlayers.HostDoesSetup and
+                    not fGame.Networking.NetPlayers[i+1].IsClosed);
     DropBox_LobbyLoc[i].Enabled := (CanEdit or HostCanEdit);
     DropBox_LobbyTeam[i].Enabled := (CanEdit or HostCanEdit) and not IsSave; //Can't change color or teams in a loaded save
     DropColorBox_Lobby[i].Enabled := (CanEdit or (MyNik and not fGame.Networking.NetPlayers[i+1].ReadyToStart)) and not IsSave;

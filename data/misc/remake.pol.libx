@@ -1,5 +1,5 @@
 
-MaxID:214
+MaxID:219
 
 1:Misja anulowana
 2:Samouczek zarz¹dzania miastem
@@ -36,6 +36,11 @@ MaxID:214
 30:Jêzyk:
 31:£adowanie... Proszê czekaæ
 207:drzewa, budynki i jednostki
+216:
+217:
+218:
+219:
+215:
 208:inicjowanie
 209:inicjowanie wielu graczy
 210:skrypt

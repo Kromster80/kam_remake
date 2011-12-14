@@ -1,5 +1,5 @@
 
-MaxID:214
+MaxID:219
 
 1:Mission abgebrochen
 2:Aufbaututorial
@@ -36,6 +36,11 @@ MaxID:214
 30:Sprache:
 31:Lade... Bitte warten
 207:Bäume, Gebäude und Einheiten
+216:
+217:
+218:
+219:
+215:
 208:Initialisierung
 209:Multiplayer Initialisierung
 210:Skript

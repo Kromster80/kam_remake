@@ -1,5 +1,5 @@
 
-MaxID:214
+MaxID:219
 
 1:Uppdrag avbrutet
 2:Stadshandledning
@@ -36,6 +36,11 @@ MaxID:214
 30:Språk:
 31:Laddar... Var god vänta
 207:träd, hus och enheter
+216:
+217:
+218:
+219:
+215:
 208:initierar
 209:flerspelarinitiering
 210:script

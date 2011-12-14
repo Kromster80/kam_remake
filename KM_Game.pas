@@ -395,7 +395,7 @@ begin
 
   if fResource.DataState <> dls_All then
   begin
-    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SPRITES]);
+    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
     fResource.OnLoadingText := GameLoadingStep;
     fResource.LoadGameResources;
     InitUnitStatEvals; //Army
@@ -948,7 +948,7 @@ begin
   fMultiplayerMode := false;
 
   if fResource.DataState<>dls_All then begin
-    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SPRITES]);
+    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
     fResource.LoadGameResources;
   end;
 
