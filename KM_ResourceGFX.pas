@@ -312,9 +312,11 @@ var
   U: TUnitType;
   A: TUnitActionType;
   D: TKMDirection;
+  R: TResourceType;
+  //T: TUnitThought;
   i,ci:integer;
   sy,sx,y,x:integer;
-  Used:array of integer;
+  Used:array of Boolean;
 begin
   CreateDir(ExeDir + 'Export\');
   CreateDir(ExeDir + 'Export\UnitAnim\');
@@ -329,15 +331,15 @@ begin
   for U := ut_Serf to ut_Serf do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
   for D := dir_N to dir_NW do
-  if fUnitDat[U].UnitAnim[A, D].Step[1] <> -1 then
+  if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
   for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
   begin
     CreateDir(ExeDir+'Export\UnitAnim\'+fUnitDat[U].UnitName+'\');
     CreateDir(ExeDir+'Export\UnitAnim\'+fUnitDat[U].UnitName+'\'+UnitAct[A]+'\');
 
-    if fUnitDat[U].UnitAnim[A, D].Step[i] + 1 <> 0 then
+    if fUnitDat[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
     begin
-      ci := fUnitDat[U].UnitAnim[A, D].Step[i] + 1;
+      ci := fUnitDat[U].UnitAnim[A,D].Step[i] + 1;
 
       sx := RXData[rxUnits].Size[ci].X;
       sy := RXData[rxUnits].Size[ci].Y;
@@ -355,28 +357,46 @@ begin
     end;
   end;
 
-  {CreateDir(ExeDir+'Export\UnitAnim\_TheRest');
-  SetLength(Used,length(RXData[3].Size));
-  for iUnit:=1 to 41 do
-  for iAct:=1 to 14 do
-  for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then
-  for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do
-  if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
-  Used[UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1]:=1;
+  CreateDir(ExeDir+'Export\UnitAnim\_Unused');
+  SetLength(Used, Length(RXData[rxUnits].Size));
+
+  //Exclude actions
+  for U := Low(TUnitType) to High(TUnitType) do
+  for A := Low(TUnitActionType) to High(TUnitActionType) do
+  for D := dir_N to dir_NW do
+  if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
+  for i := 1 to fUnitDat[U].UnitAnim[A,D].Count do
+    Used[fUnitDat[U].UnitAnim[A,D].Step[i]+1] := fUnitDat[U].UnitAnim[A,D].Step[i]+1 <> 0;
+
+  //Exclude serfs carrying stuff
+  for R := Low(TResourceType) to High(TResourceType) do
+  if R in [WARE_MIN..WARE_MAX] then
+  for D := dir_N to dir_NW do
+  if fUnitDat.SerfCarry[R,D].Step[1] <> -1 then
+  for i := 1 to fUnitDat.SerfCarry[R,D].Count do
+    Used[fUnitDat.SerfCarry[R,D].Step[i]+1] := fUnitDat.SerfCarry[R,D].Step[i]+1 <> 0;
+
+  //todo: Exclude thoughts
+  {for T := Low(TUnitThought) to High(TUnitThought) do
+  if T in [th_Eat..th_Quest] then
+  if fUnitDat.SerfCarry[R,D].Step[1] <> -1 then
+  for i := 1 to fUnitDat.SerfCarry[R,D].Count do
+    Used[fUnitDat.SerfCarry[R,D].Step[i]+1] := fUnitDat.SerfCarry[R,D].Step[i]+1 <> 0;}
 
   for ci:=1 to length(Used)-1 do
-  if Used[ci]=0 then begin
-    sx:=RXData[3].Size[ci].X;
-    sy:=RXData[3].Size[ci].Y;
-    MyBitMap.Width:=sx;
-    MyBitMap.Height:=sy;
+  if not Used[ci] then
+  begin
+    sx := RXData[rxUnits].Size[ci].X;
+    sy := RXData[rxUnits].Size[ci].Y;
+    MyBitMap.Width := sx;
+    MyBitMap.Height := sy;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[x,y] := RXData[3].RGBA[ci,y*sx+x] AND $FFFFFF;
+      MyBitMap.Canvas.Pixels[x,y] := RXData[rxUnits].RGBA[ci, y*sx+x] AND $FFFFFF;
 
     if sy>0 then MyBitMap.SaveToFile(
-      ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
-  end;}
+      ExeDir+'Export\UnitAnim\_Unused\'+'_'+int2fix(ci,4)+'.bmp');
+  end;
 
   MyBitMap.Free;
 end;
