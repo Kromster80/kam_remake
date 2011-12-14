@@ -143,7 +143,7 @@ var
       AlphaTest: False;
       LoadFrom: rlFolder;
       Usage: ruMenu;
-      OverrideCount: 18;
+      OverrideCount: 17;
       LoadingTextID: 0;
     ),
     (
