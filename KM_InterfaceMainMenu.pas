@@ -547,12 +547,13 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu := TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
-    TKMImage.Create(Panel_MainMenu, 300,  60, 423, 164, 4, rxGuiMain);
-    TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
+    TKMImage.Create(Panel_MainMenu, 300,  50, 423, 164, 4, rxGuiMain);
+    //TKMLabel.Create(Panel_MainMenu, 512, 240,   0,   0, 'Remake', fnt_Metal, taCenter);
+    with TKMImage.Create(Panel_MainMenu, 348,225,round(319*1),round(70*1),18,rxMenu) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu, 50,220,round(218*1.3),round(291*1.3),5,rxGuiMainH) do ImageStretch;
     with TKMImage.Create(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
-    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu,337,290,350,400);
+    Panel_MMButtons := TKMPanel.Create(Panel_MainMenu,337,330,350,400);
 
       Button_MM_SinglePlayer := TKMButton.Create(Panel_MMButtons,0,  0,350,30,fTextLibrary[TX_MENU_SINGLEPLAYER],fnt_Metal,bsMenu);
       Button_MM_MultiPlayer  := TKMButton.Create(Panel_MMButtons,0, 40,350,30,fTextLibrary[TX_MENU_MULTIPLAYER],fnt_Metal,bsMenu);
