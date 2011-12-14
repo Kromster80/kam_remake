@@ -37,6 +37,7 @@ type
     function IsComputer:boolean;
     function IsClosed:boolean;
     function GetPlayerType:TPlayerType;
+    function GetNickname:string;
     property Nikname:string read fNikname;
     property LangID:byte read fLangID write SetLangID;
     property IndexOnServer:integer read fIndexOnServer;
@@ -169,6 +170,14 @@ function TKMPlayerInfo.GetPlayerType:TPlayerType;
 const PlayerTypes:array[TNetPlayerType] of TPlayerType = (pt_Human, pt_Computer, pt_Computer);
 begin
   Result := PlayerTypes[PlayerNetType];
+end;
+
+
+function TKMPlayerInfo.GetNickname:string;
+begin
+  if IsComputer then Result := fTextLibrary[TX_LOBBY_SLOT_AI_PLAYER]
+  else if IsClosed then Result := fTextLibrary[TX_LOBBY_SLOT_CLOSED]
+  else Result := Nikname;
 end;
 
 

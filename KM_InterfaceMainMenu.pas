@@ -1861,7 +1861,7 @@ begin
   IsSave := fGame.Networking.SelectGameKind = ngk_Save;
   for i:=0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
-    Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
+    Label_LobbyPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].GetNickname;
     if fGame.Networking.NetPlayers[i+1].LangID <> 0 then
          Image_LobbyFlag[i].TexID := StrToInt(Locales[fGame.Networking.NetPlayers[i+1].LangID,3])
     else Image_LobbyFlag[i].TexID := 0;

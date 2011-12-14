@@ -2686,7 +2686,7 @@ begin
     begin
       if k = Length(fItems)-1 then ItemWidth := (PaintWidth-4) else ItemWidth := fItemOffsets[k+1];
       ItemWidth := ItemWidth-fItemOffsets[k]-4;
-      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, ItemWidth, 0, fItems[k].Strings[TopIndex+i] , fFont, taLeft, fItemColors[k,i]);
+      fRenderUI.WriteText(Left+4+fItemOffsets[k], Top+fItemTop+i*fItemHeight+3, ItemWidth, 0, fItems[k].Strings[TopIndex+i] , fFont, taLeft, fItemColors[k,TopIndex+i]);
     end;
 end;
 
