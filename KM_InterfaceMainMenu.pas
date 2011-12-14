@@ -842,11 +842,12 @@ begin
         Shape_SingleOverlay[i].LineWidth := 0;
         Shape_SingleOverlay[i].Tag := i;
         Shape_SingleOverlay[i].OnClick := SingleMap_SelectMap;
+        Shape_SingleOverlay[i].OnDoubleClick := SingleMap_Start;
         Shape_SingleOverlay[i].OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
       end;
 
       Shape_SingleMap:=TKMShape.Create(Panel_SingleList,0,40,420,40, $FFFFFF00);
-      Shape_SingleMap.OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
+      Shape_SingleMap.Hitable := false; //All hits should go to Shape_SingleOverlay[i] not this
 
     Panel_SingleDesc:=TKMPanel.Create(Panel_Single,45,84,445,600);
 
@@ -884,6 +885,7 @@ begin
 
     List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal, fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Load.OnChange := Load_ListClick;
+    List_Load.OnDoubleClick := Load_Click;
 
     Button_Load := TKMButton.Create(Panel_Load,337,560,350,30,fTextLibrary[TX_MENU_LOAD_LOAD],fnt_Metal, bsMenu);
     Button_Load.OnClick := Load_Click;
@@ -960,6 +962,7 @@ begin
 
     List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 900, 350, fnt_Metal, fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Replays.OnChange := Replays_ListClick;
+    List_Replays.OnDoubleClick := Replays_Play;
 
     Button_ReplaysPlay := TKMButton.Create(Panel_Replays,337,630,350,30,fTextLibrary[TX_MENU_VIEW_REPLAY],fnt_Metal, bsMenu);
     Button_ReplaysPlay.OnClick := Replays_Play;
@@ -1453,8 +1456,9 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
+  if not Button_SingleStart.Enabled then exit; //This is also called by double clicking
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
-    fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat',false),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
+  fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat',false),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
 end;
 
 
@@ -2174,6 +2178,7 @@ end;
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
+  if not Button_Load.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then Exit;
   fGame.StartSingleSave(fSaves[List_Load.ItemIndex].Filename);
 end;
@@ -2265,6 +2270,7 @@ end;
 
 procedure TKMMainMenuInterface.Replays_Play(Sender: TObject);
 begin
+  if not Button_ReplaysPlay.Enabled then exit; //This is also called by double clicking
   if not InRange(List_Replays.ItemIndex, 0, fSaves.Count-1) then Exit;
   fGame.StartReplay(fSaves[List_Replays.ItemIndex].Filename,(Radio_Replays_Type.ItemIndex = 1));
 end;

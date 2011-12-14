@@ -6,7 +6,8 @@
  +	Units in the inn are rendered at the wrong place when the inn is on uneven ground
  +	Game minimizes when you alt-tab from full screen mode rather than becoming stuck
  +	"Unsaved changes will be lost" dialogue is shown properly from full screen mode
-	"EAssertionFailed: KM_Units_Warrior.pas, line 642"
+ +	"EAssertionFailed: KM_Units_Warrior.pas, line 642"
+ +	Strange AI behavior with group formation
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
@@ -27,6 +28,7 @@
 Features:
  +	Allow to close lobby slots to avoid more players joining
  +	Checkbox to give the host absolute control of all team/location setup
+ +	Saves/replays/single maps can be started by double clicking an item in the list
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
