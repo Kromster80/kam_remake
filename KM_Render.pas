@@ -807,12 +807,17 @@ begin
 end;
 
 
-procedure TRender.RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-var ShiftX,ShiftY:single; ID:integer;
+procedure TRender.RenderUnitThought(Thought: TUnitThought; pX,pY: Single);
+var
+  ID: Integer;
+  ShiftX, ShiftY: Single;
 begin
-  if byte(Thought) = 0 then exit;
-  ID:=ThoughtBounds[byte(Thought),2]+1 -
-     (fGame.GameTickCount mod word(ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
+  if Thought = th_None then Exit;
+
+  //Thought bubbles are animated in reverse
+  ID := ThoughtBounds[Thought, 2] + 1 -
+       (fGame.GameTickCount mod word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
+       
   ShiftX:=RXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[rxUnits].Pivot[ID].y+RXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;

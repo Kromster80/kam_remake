@@ -375,7 +375,8 @@ const KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
 
 type TCheckAxis = (ax_X, ax_Y);
 
-const UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
+const
+  UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
@@ -389,35 +390,36 @@ const UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
     {gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
     );
 
-//AI's prefences for training troops
-const AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
-  (ut_Swordsman,    ut_AxeFighter, ut_Militia),
-  (ut_Hallebardman, ut_Pikeman,    ut_None),
-  (ut_Arbaletman,   ut_Bowman,     ut_None),
-  (ut_Cavalry,      ut_HorseScout, ut_None));
+  //AI's prefences for training troops
+  AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
+    (ut_Swordsman,    ut_AxeFighter, ut_Militia),
+    (ut_Hallebardman, ut_Pikeman,    ut_None),
+    (ut_Arbaletman,   ut_Bowman,     ut_None),
+    (ut_Cavalry,      ut_HorseScout, ut_None));
 
-
-const FlagXOffset: array[TGroupType, TKMDirection] of shortint = (
+  //Offsets for flags rendering in pixels
+  FlagXOffset: array[TGroupType, TKMDirection] of shortint = (
     ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
     ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
     ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
     ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
 
-const FlagYOffset: array[TGroupType, TKMDirection] of shortint = (
+  FlagYOffset: array[TGroupType, TKMDirection] of shortint = (
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
     ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
     ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
     ( 0,  4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
 
 
-type TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
+type
+  TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
 
-type //Army_Flag=4962,
+type
   TUnitThought = (th_None, th_Eat, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
 
 const //Corresponding indices in units.rx
-  ThoughtBounds:array[1..7,1..2] of word = (
-  (6250,6257),(6258,6265),(6266,6273),(6274,6281),(6282,6289),(6290,6297),(6298,6305)
+  ThoughtBounds: array [TUnitThought, 1..2] of Word = (
+  (0,0), (6250,6257), (6258,6265), (6266,6273), (6274,6281), (6282,6289), (6290,6297), (6298,6305)
   );
 
 type
