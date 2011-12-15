@@ -1630,7 +1630,7 @@ begin
 
   //1-5 game menu shortcuts
   if Key in [49..53] then
-    Button_Main[Key-48].DoClick;
+    Button_Main[Key-48].Click;
 
   //Scrolling
   if Key = VK_LEFT  then fGame.Viewport.ScrollKeyLeft  := false;

@@ -91,6 +91,9 @@ type
     procedure SetHeight(aValue:Integer); virtual;
     procedure SetWidth(aValue:Integer); virtual;
 
+    //Let the control know that it was clicked to do its internal magic
+    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
+
     function GetVisible:boolean;
     procedure SetVisible(aValue:boolean); virtual;
     procedure SetEnabled(aValue:boolean); virtual;
@@ -224,7 +227,7 @@ type
     Highlight:boolean;
     HighlightOnMouseOver:boolean;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
-    function DoClick:boolean;
+    function Click: Boolean;
     procedure ImageStretch;
     procedure ImageCenter;
     procedure Paint; override;
@@ -288,7 +291,7 @@ type
     property MakesSound:boolean read fMakesSound write fMakesSound;
     property TexID: Word read fTexID write fTexID;
     function DoPress:boolean;
-    function DoClick:boolean; //Try to click a button and return TRUE if succeded
+    function Click: Boolean; //Try to click a button and return TRUE if succeded
     procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint; override;
   end;
@@ -556,6 +559,7 @@ type
     fColumns: array of string;
     fColumnOffsets: array of Word; //Offsets are easier to handle than widths
     function GetColumnOffset(aIndex: Integer): Word;
+    procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
     OnColumnClick: TIntegerEvent;
     constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
@@ -831,37 +835,15 @@ begin
 end;
 
 
-{ Send Click events }
 procedure TKMControl.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
-  if (csDown in State) then begin
+  if (csDown in State) then
+  begin
     State := State - [csDown];
 
-    //Note that we process double-click separately (actual sequence is Click + Double-Click)
-    //because we would not like to delay Click just to make sure it is single.
-    //On the ther hand it does no harm to call Click first
-    if (Button = mbLeft)
-    and Assigned(fOnDoubleClick)
-    and (TimeGet - fTimeOfLastClick <= GetDoubleClickTime) then
-    begin
-      fTimeOfLastClick := 0;
-      fOnDoubleClick(Self);
-    end
-    else
-    begin
-      if (Button = mbLeft) and Assigned(fOnDoubleClick) then
-        fTimeOfLastClick := TimeGet;
-
-      if ((Button = mbLeft) or (Button = mbRight)) and Assigned(fOnClickEither) then
-        fOnClickEither(Self, Button)
-      else
-      if (Button = mbLeft) and Assigned(fOnClick) then
-        fOnClick(Self)
-      else
-      if (Button = mbRight) and Assigned(fOnClickRight) then
-        fOnClickRight(Self, X, Y);
-    end;
+    //Send Click events
+    DoClick(X, Y, Shift, Button);
   end;
 end;
 
@@ -947,13 +929,44 @@ begin
 end;
 
 
+//Let the control know that it was clicked to do its internal magic
+procedure TKMControl.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  //Note that we process double-click separately (actual sequence is Click + Double-Click)
+  //because we would not like to delay Click just to make sure it is single.
+  //On the ther hand it does no harm to call Click first
+  if (Button = mbLeft)
+  and Assigned(fOnDoubleClick)
+  and (TimeGet - fTimeOfLastClick <= GetDoubleClickTime) then
+  begin
+    fTimeOfLastClick := 0;
+    fOnDoubleClick(Self);
+  end
+  else
+  begin
+    if (Button = mbLeft) and Assigned(fOnDoubleClick) then
+      fTimeOfLastClick := TimeGet;
+
+    if ((Button = mbLeft) or (Button = mbRight)) and Assigned(fOnClickEither) then
+      fOnClickEither(Self, Button)
+    else
+    if (Button = mbLeft) and Assigned(fOnClick) then
+      fOnClick(Self)
+    else
+    if (Button = mbRight) and Assigned(fOnClickRight) then
+      fOnClickRight(Self, X, Y);
+  end;
+end;
+
+
 {Check Control including all its Parents to see if Control is actually displayed/visible}
 function TKMControl.GetVisible:boolean;
 var C:TKMControl;
 begin
   Result := fVisible;
   C := Parent;
-  while C<>nil do begin
+  while C <> nil do
+  begin
     Result := Result and C.fVisible;
     C := C.Parent;
   end;
@@ -1247,7 +1260,7 @@ end;
 //It's important that Control must be:
 // IsVisible (can't shortcut invisible/unaccessible button)
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
-function TKMImage.DoClick:boolean;
+function TKMImage.Click: Boolean;
 begin
   if Visible and fEnabled then begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
@@ -1497,7 +1510,7 @@ end;
 //It's important that Control must be:
 // Visible (can't shortcut invisible/unaccessible button)
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
-function TKMButton.DoClick:boolean;
+function TKMButton.Click: Boolean;
 begin
   if Visible and fEnabled then begin
     //Mark self as CtrlOver and CtrlUp, don't mark CtrlDown since MouseUp manually Nils it
@@ -2514,8 +2527,26 @@ end;
 
 function TKMListHeader.GetColumnOffset(aIndex: Integer): Word;
 begin
-  Assert(InRange(aIndex, 0, fCount - 1));  
+  Assert(InRange(aIndex, 0, fCount - 1));
   Result := fColumnOffsets[aIndex];
+end;
+
+
+//We know we were clicked and now we can decide what to do
+//e.g. send
+procedure TKMListHeader.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var i, ColumnIndex: Integer;
+begin
+  ColumnIndex := -1;
+
+  for i := 0 to fCount - 1 do
+    if X - Left > fColumnOffsets[i] then
+      ColumnIndex := i;
+
+  if (ColumnIndex <> -1) and Assigned(OnColumnClick) then
+    OnColumnClick(ColumnIndex)
+  else
+    Inherited; //Process the usual clicks if e.g. there are no columns
 end;
 
 

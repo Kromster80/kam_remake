@@ -3031,7 +3031,7 @@ begin
     gsPaused:   if (Key = ord('P')) and not fGame.MultiplayerMode then SetPause(false);
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
-                  if (Key=VK_ESCAPE) and (Image_ChatClose.DoClick or Image_AlliesClose.DoClick) then exit; //Escape from chat/allies page
+                  if (Key=VK_ESCAPE) and (Image_ChatClose.Click or Image_AlliesClose.Click) then exit; //Escape from chat/allies page
                   if MyControls.KeyUp(Key, Shift) then Exit;
 
                   //Scrolling
@@ -3053,22 +3053,22 @@ begin
                   end;
 
                   //Menu shortcuts
-                  if Key in [ord('1')..ord('4')] then Button_Main[Key-48].DoClick;
-                  if Key=VK_ESCAPE then if Button_Army_Join_Cancel.DoClick then exit
-                                        else if Button_MessageClose.DoClick then exit
-                                        else if Image_ChatClose.DoClick then exit
-                                        else if Image_AlliesClose.DoClick then exit
-                                        else if Button_Main[5].DoClick then exit;
+                  if Key in [ord('1')..ord('4')] then Button_Main[Key-48].Click;
+                  if Key=VK_ESCAPE then if Button_Army_Join_Cancel.Click then exit
+                                        else if Button_MessageClose.Click then exit
+                                        else if Image_ChatClose.Click then exit
+                                        else if Image_AlliesClose.Click then exit
+                                        else if Button_Main[5].Click then exit;
                   //Messages
-                  if Key=VK_SPACE  then Button_MessageGoTo.DoClick; //In KaM spacebar centers you on the message
-                  if Key=VK_DELETE then Button_MessageDelete.DoClick;
+                  if Key=VK_SPACE  then Button_MessageGoTo.Click; //In KaM spacebar centers you on the message
+                  if Key=VK_DELETE then Button_MessageDelete.Click;
                   if (Key=VK_RETURN) and fGame.MultiplayerMode and not Panel_Chat.Visible then
                     Chat_Show(Self); //Enter is the shortcut to bring up chat in multiplayer
 
                   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
-                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT][1])) and (Panel_Army.Visible) then Button_Army_Stop.DoClick;
-                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK][1])) and (Panel_Army.Visible) then Button_Army_Join.DoClick;
-                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.DoClick;
+                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_HALT][1])) and (Panel_Army.Visible) then Button_Army_Stop.Click;
+                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK][1])) and (Panel_Army.Visible) then Button_Army_Join.Click;
+                  if (Key = ord(fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT][1])) and (Panel_Army.Visible) then Button_Army_Split.Click;
 
                   {Temporary cheat codes}
                   if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
