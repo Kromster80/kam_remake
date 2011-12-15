@@ -821,8 +821,9 @@ begin
     Image_House_Logo.ImageCenter;
     Image_House_Worker:=TKMImage.Create(Panel_House,38,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth:=TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary.GetTextString(228),fnt_Mini,taCenter,$FFFFFFFF);
-    KMHealthBar_House:=TKMPercentBar.Create(Panel_House,100,53,60,20);
+    Label_HouseHealth := TKMLabel.Create(Panel_House,130,41,60,20,fTextLibrary.GetTextString(228),fnt_Mini,taCenter);
+    Label_HouseHealth.FontColor := $FFE0E0E0;
+    KMHealthBar_House := TKMPercentBar.Create(Panel_House,100,53,60,20);
     Button_HouseHealthDec := TKMButton.Create(Panel_House,80,53,20,20,'-', fnt_Metal);
     Button_HouseHealthInc := TKMButton.Create(Panel_House,160,53,20,20,'+', fnt_Metal);
     Button_HouseHealthDec.OnClickEither := House_HealthChange;

@@ -893,7 +893,8 @@ begin
   Image_MPChat.HighlightOnMouseOver := true;
   Image_MPChat.Hint := fTextLibrary[TX_GAMEPLAY_CHAT_HINT];
   Image_MPChat.OnClick := Chat_Click;
-  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Outline,taCenter,$FF0000FF);
+  Label_MPChatUnread := TKMLabel.Create(Panel_Main,TOOLBAR_WIDTH+15,Panel_Main.Height-30,30,36,'',fnt_Outline,taCenter);
+  Label_MPChatUnread.FontColor := $FF0000FF; //Red
   Label_MPChatUnread.Anchors := [akLeft, akBottom];
   Label_MPChatUnread.Hitable := false; //Clicks should only go to the image, not the flashing label
   Label_MPChatUnread.AutoWrap := true;
@@ -1408,7 +1409,9 @@ begin
     Image_House_Logo.ImageCenter;
     Image_House_Worker := TKMImage.Create(Panel_House,98,41,32,32,141);
     Image_House_Worker.ImageCenter;
-    Label_HouseHealth := TKMLabel.Create(Panel_House,156,45,55,15,fTextLibrary.GetTextString(228),fnt_Mini,taCenter,$FFE0E0E0);
+    Label_HouseHealth := TKMLabel.Create(Panel_House,156,45,55,15,fTextLibrary.GetTextString(228),fnt_Mini,taCenter);
+    Label_HouseHealth.FontColor := $FFE0E0E0;
+
     HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15);
     Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary.GetTextString(230),fnt_Grey,taCenter);
 

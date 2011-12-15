@@ -138,15 +138,15 @@ begin
                    (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bs_Down in State), aRX, aID);
     end;
 
-    //Render highlight
-    if bs_Highlight in State then begin
+    //Render MouseOver highlight
+    if bs_Over in State then begin
       glColor4f(1,1,1,0.15);
       glBegin(GL_QUADS);
         glkRect(0,0,SizeX,SizeY);
       glEnd;
     end;
 
-    //Render darklight
+    //Render darklight when Disabled
     if bs_Disabled in State then begin
       glColor4f(0,0,0,0.5);
       glBegin(GL_QUADS);

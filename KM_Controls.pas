@@ -185,7 +185,7 @@ type
   private
     fAutoWrap: Boolean;
     fFont: TKMFont;
-    fFontColor: TColor4;
+    fFontColor: TColor4; //Usually white (self-colored)
     fCaption: string; //Original text
     fText: string; //Reformatted text
     fTextAlign: TTextAlign;
@@ -197,8 +197,8 @@ type
     procedure SetAutoWrap(aValue: boolean);
     procedure ReformatText;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF); overload;
-    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign); overload;
     function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
     property Caption: string read fCaption write SetCaption;
@@ -213,20 +213,23 @@ type
   TKMLabelScroll = class(TKMLabel)
   public
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
     procedure Paint; override;
   end;
 
 
   {Image}
   TKMImage = class(TKMControl)
+  private
+    fRX: TRXType;
+    fTexID: Word;
   public
-    RX: TRXType;
-    TexID: Word;
     ImageAnchors: TAnchors;
-    Highlight:boolean;
-    HighlightOnMouseOver:boolean;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
+    Highlight: Boolean;
+    HighlightOnMouseOver: Boolean;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
+    property RX: TRXType read fRX write fRX;
+    property TexID: Word read fTexID write fTexID;
     function Click: Boolean;
     procedure ImageStretch;
     procedure ImageCenter;
@@ -245,7 +248,7 @@ type
     fDrawHeight: integer;
     fHighlightID: Integer;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
     procedure SetCount(aCount, aColumns, aHighlightID: Integer);
     procedure Paint; override;
   end;
@@ -285,7 +288,7 @@ type
     fRX: TRXType;
     fTexID: Word;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui; aStyle:TButtonStyle=bsGame); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle:TButtonStyle=bsGame); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame); overload;
     property Caption:string read fCaption write fCaption;
     property MakesSound:boolean read fMakesSound write fMakesSound;
@@ -682,7 +685,7 @@ type
 
   TKMMemo = class(TKMControl)
   private
-    fFont: TKMFont; //Can't be changed from inital value, it will mess up the word wrapping
+    fFont: TKMFont; //Should not be changed from inital value, it will mess up the word wrapping
     fItemHeight: Byte;
     fItems: TStringList;
     fAutoWrap: Boolean;
@@ -703,19 +706,19 @@ type
     procedure ReformatText;
     procedure UpdateScrollBar;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont: TKMFont);
     destructor Destroy; override;
 
-    procedure Add(const aItem:string);
+    procedure Add(const aItem: string);
     procedure Clear;
     procedure ScrollToBottom;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
     property Text: string read GetText write SetText;
-    property ItemHeight:byte read fItemHeight write fItemHeight;
-    property TopIndex:smallint read GetTopIndex write SetTopIndex;
-    property ScrollDown:boolean read fScrollDown write fScrollDown;
+    property ItemHeight: Byte read fItemHeight write fItemHeight;
+    property TopIndex: Smallint read GetTopIndex write SetTopIndex;
+    property ScrollDown: Boolean read fScrollDown write fScrollDown;
 
-    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -1133,22 +1136,23 @@ end;
 
 
 { TKMLabel }
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign{; aColor:TColor4=$FFFFFFFF});
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
-  fFontColor := aColor;
+  fFontColor := $FFFFFFFF;
   fTextAlign := aTextAlign;
   fAutoWrap := False;
   SetCaption(aCaption);
 end;
 
+
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign);
 begin
   Inherited Create(aParent, aLeft,aTop,0,0);
   fFont := aFont;
-  fFontColor := aColor;
+  fFontColor := $FFFFFFFF;
   fTextAlign := aTextAlign;
   fAutoWrap := False;
   SetCaption(aCaption);
@@ -1225,9 +1229,9 @@ end;
 
 
 { TKMLabelScroll }
-constructor TKMLabelScroll.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign; aColor:TColor4=$FFFFFFFF);
+constructor TKMLabelScroll.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aCaption, aFont, aTextAlign, aColor);
+  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aCaption, aFont, aTextAlign);
   SmoothScrollToTop := 0; //Disabled by default
 end;
 
@@ -1247,11 +1251,11 @@ end;
 
 
 { TKMImage }
-constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRX: TRXType = rxGui);
+constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-  RX := aRX;
-  TexID := aTexID;
+  fRX := aRX;
+  fTexID := aTexID;
   ImageAnchors := [akLeft, akTop];
   Highlight := false;
   HighlightOnMouseOver := false;
@@ -1294,7 +1298,7 @@ var
   StretchDraw: Boolean; //Check if the picture should be stretched
 begin
   Inherited;
-  if TexID = 0 then Exit; //No picture to draw
+  if fTexID = 0 then Exit; //No picture to draw
 
   StretchDraw := False;
   DrawWidth   := fWidth;
@@ -1310,10 +1314,10 @@ begin
     //Use defaults
   else
   if akRight in ImageAnchors then
-    OffsetX := fWidth - GFXData[RX, TexID].PxWidth
+    OffsetX := fWidth - GFXData[fRX, fTexID].PxWidth
   else
     //No ImageAnchors means: draw the image in center
-    OffsetX := (fWidth - GFXData[RX, TexID].PxWidth) div 2;
+    OffsetX := (fWidth - GFXData[fRX, fTexID].PxWidth) div 2;
 
   if (akTop in ImageAnchors) and (akBottom in ImageAnchors) then
     StretchDraw := True
@@ -1322,19 +1326,19 @@ begin
     //Use defaults
   else
   if akBottom in ImageAnchors then
-    OffsetY := fHeight - GFXData[RX, TexID].PxHeight
+    OffsetY := fHeight - GFXData[fRX, fTexID].PxHeight
   else
-    OffsetY := (fHeight - GFXData[RX, TexID].PxHeight) div 2;
+    OffsetY := (fHeight - GFXData[fRX, fTexID].PxHeight) div 2;
 
   if StretchDraw then
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RX, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, fRX, fTexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RX, TexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, fRX, fTexID, fEnabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
 end;
 
 
 { TKMImageStack }
-constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; aRX: TRXType = rxGui);
+constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRX  := aRX;
@@ -1468,7 +1472,7 @@ end;
 
 
 { TKMButton }
-constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui; aStyle:TButtonStyle = bsGame);
+constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle: TButtonStyle = bsGame);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fRX         := aRX;
@@ -1480,7 +1484,7 @@ end;
 
 
 {Different version of button, with caption on it instead of image}
-constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame);
+constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aStyle: TButtonStyle = bsGame);
 begin
   Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fTexID      := 0;
@@ -1496,7 +1500,7 @@ end;
 //It's important that Control must be:
 // Visible (can't shortcut invisible/unaccessible button)
 // Enabled (can't shortcut disabled function, e.g. Halt during fight)
-function TKMButton.DoPress:boolean;
+function TKMButton.DoPress: Boolean;
 begin
   //Mark self as CtrlDown
   if Visible and fEnabled then begin
@@ -1533,19 +1537,26 @@ end;
 
 
 procedure TKMButton.Paint;
-var StateSet:T3DButtonStateSet;
+var
+  StateSet: T3DButtonStateSet;
 begin
   Inherited;
-  StateSet:=[];
-  if (csOver in State) and fEnabled then StateSet:=StateSet+[bs_Highlight];
-  if (csDown in State) then StateSet:=StateSet+[bs_Down];
-  if not fEnabled then StateSet:=StateSet+[bs_Disabled];
-  fRenderUI.Write3DButton(Left,Top,Width,Height,fRX,fTexID,StateSet,fStyle);
-  if fTexID=0 then
-    if fEnabled then //If disabled then text should be faded
-      fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, 0, fCaption, fFont, fTextAlign, $FFFFFFFF)
-    else
-      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, 0, fCaption, fFont, fTextAlign, $FF888888);
+  StateSet := [];
+  if (csOver in State) and fEnabled then
+    StateSet := StateSet + [bs_Over];
+  if (csDown in State) then
+    StateSet := StateSet + [bs_Down];
+  if not fEnabled then
+    StateSet := StateSet + [bs_Disabled];
+
+  fRenderUI.Write3DButton(Left, Top, Width, Height, fRX, fTexID, StateSet, fStyle);
+
+  if fTexID <> 0 then Exit;
+
+  if fEnabled then //If disabled then text should be faded
+    fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, 0, fCaption, fFont, fTextAlign, $FFFFFFFF)
+  else
+    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, 0, fCaption, fFont, fTextAlign, $FF888888);
 end;
 
 
@@ -3142,15 +3153,19 @@ end;
 
 
 procedure TKMDragger.Paint;
-var StateSet:T3DButtonStateSet;
+var
+  StateSet: T3DButtonStateSet;
 begin
   Inherited;
-  StateSet:=[];
-  if (csOver in State) and fEnabled then StateSet:=StateSet+[bs_Highlight];
-  if (csDown in State) then StateSet:=StateSet+[bs_Down];
-  if not fEnabled then StateSet:=StateSet+[bs_Disabled];
+  StateSet := [];
+  if (csOver in State) and fEnabled then
+    StateSet := StateSet + [bs_Over];
+  if (csDown in State) then
+    StateSet := StateSet + [bs_Down];
+  if not fEnabled then
+    StateSet := StateSet + [bs_Disabled];
 
-  fRenderUI.Write3DButton(Left,Top, Width, Height, rxGui, 0, StateSet, bsGame);
+  fRenderUI.Write3DButton(Left, Top, Width, Height, rxGui, 0, StateSet, bsGame);
 end;
 
 
