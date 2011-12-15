@@ -198,6 +198,7 @@ type
 
   TEvent = procedure of object;
   TPointEvent = procedure (Sender:TObject; const X,Y: integer) of object;
+  TIntegerEvent = procedure (aValue: Integer) of object;
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
   TStringEvent = procedure (const aData: string) of object;
   TResyncEvent = procedure (aSender:Integer; aTick: cardinal) of object;
