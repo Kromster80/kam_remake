@@ -379,7 +379,7 @@ end;
 
 procedure TKMGame.GameLoadingStep(const aText: String);
 begin
-  fMainMenuInterface.ShowScreen(msLoading, aText);
+  fMainMenuInterface.AppendLoadingText(aText);
 end;
 
 
@@ -393,15 +393,16 @@ begin
   fGameOptions.Free;
   fGameOptions := TKMGameOptions.Create;
 
+  fMainMenuInterface.ShowScreen(msLoading, '');
   if fResource.DataState <> dls_All then
   begin
-    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
+    GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
     fResource.OnLoadingText := GameLoadingStep;
     fResource.LoadGameResources;
     InitUnitStatEvals; //Army
   end;
 
-  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
   fViewport := TViewport.Create(fScreenX, fScreenY);
   fGamePlayInterface := TKMGamePlayInterface.Create(fScreenX, fScreenY);
@@ -466,7 +467,7 @@ begin
 
   fGameName := aGameName;
 
-  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SCRIPT]);
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
   if aMissionFile <> '' then
   try //Catch exceptions
@@ -537,7 +538,7 @@ begin
   //Load mission file
   fGameName := aFilename;
 
-  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_SCRIPT]);
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
   //Reorder start locations and players for 1-1 2-2 result
   for i:=0 to High(PlayerRemap) do PlayerRemap[i] := PLAYER_NONE; //Init with empty values
@@ -601,7 +602,7 @@ var
   PlayerIndex:TPlayerIndex;
   PlayerUsed:array[0..MAX_PLAYERS-1]of boolean;
 begin
-  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_MP_INITIALIZING]);
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_MP_INITIALIZING]);
 
   //Copy all game options from lobby to this game
   fGameOptions.Peacetime := Networking.NetGameOptions.Peacetime;
@@ -947,12 +948,13 @@ begin
   fGameSpeed := 1; //In case it was set in last run mission
   fMultiplayerMode := false;
 
+  fMainMenuInterface.ShowScreen(msLoading, '');
   if fResource.DataState<>dls_All then begin
-    fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
+    GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
     fResource.LoadGameResources;
   end;
 
-  fMainMenuInterface.ShowScreen(msLoading, fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
   fViewport := TViewport.Create(fScreenX, fScreenY);
   fMapEditor := TKMMapEditor.Create;

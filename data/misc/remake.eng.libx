@@ -1,5 +1,5 @@
 
-MaxID:219
+MaxID:220
 
 1:Mission canceled
 2:Town Tutorial
@@ -40,6 +40,7 @@ MaxID:219
 217:houses
 218:trees
 219:definitions
+220:tileset
 215:additional sprites
 208:initializing
 209:multiplayer initialization

@@ -151,7 +151,7 @@ var
       LoadFrom: rlFolder;
       Usage: ruGame;
       OverrideCount: 256;
-      LoadingTextID: TX_MENU_LOADING_ADDITIONAL_SPRITES; //Too short to need own caption
+      LoadingTextID: TX_MENU_LOADING_TILESET;
     ),
     (
       FileName: 'RemakeGame';
@@ -254,7 +254,6 @@ begin
   end;
 
   fLog.AppendLog('Preparing MiniMap colors...');
-  fStepCaption(fTextLibrary[RXInfo[rxTiles].LoadingTextID]);
   AllocateRX(rxTiles, RXInfo[rxTiles].OverrideCount);
   //Generate UV coords
   for i:=0 to 255 do

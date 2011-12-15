@@ -274,6 +274,7 @@ type
     destructor Destroy; override;
     procedure Resize(X,Y:word);
     procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
+    procedure AppendLoadingText(const aText:string);
     procedure Fill_Results;
     procedure Fill_ResultsMP;
     function GetChatText:string;
@@ -426,6 +427,13 @@ begin
                 end;
   end;
 
+  fRender.Render;
+end;
+
+
+procedure TKMMainMenuInterface.AppendLoadingText(const aText:string);
+begin
+  Label_Loading.Caption := Label_Loading.Caption+aText+'|';
   fRender.Render;
 end;
 

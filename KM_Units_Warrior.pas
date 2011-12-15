@@ -523,6 +523,8 @@ end;
 procedure TKMUnitWarrior.OrderStorm;
 var i:integer;
 begin
+  //Don't allow ordering a second storm attack while there is still one active (possible due to network lag)
+  if fCurrentAction is TUnitActionStormAttack then exit;
   fOrder := wo_Storm;
   fState := ws_None; //Clear other states
   SetOrderTarget(nil);
