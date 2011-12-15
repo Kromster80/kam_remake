@@ -638,7 +638,8 @@ begin
       Button_MP_CreateWAN.OnClick := MP_Host_Click;
 
     //Server list area
-    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal,fnt_Outline,[fTextLibrary[TX_MP_MENU_SERVER_NAME],fTextLibrary[TX_MP_MENU_SERVER_STATE],fTextLibrary[TX_MP_MENU_SERVER_PLAYERS],fTextLibrary[TX_MP_MENU_SERVER_PING]],[0,300,430,525]);
+    ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal);
+    ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVER_NAME],fTextLibrary[TX_MP_MENU_SERVER_STATE],fTextLibrary[TX_MP_MENU_SERVER_PLAYERS],fTextLibrary[TX_MP_MENU_SERVER_PING]],[0,300,430,525]);
     ColList_Servers.OnChange := MP_SelectServer;
     ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
     Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,fTextLibrary[TX_MP_MENU_REFRESH_LIST],fnt_Metal,bsMenu);
@@ -891,7 +892,8 @@ begin
 
     TKMLabel.Create(Panel_Load, MENU_DESIGN_X div 2, 60, 900, 20, fTextLibrary[TX_MENU_LOAD_LIST], fnt_Metal, taCenter);
 
-    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal, fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    List_Load := TKMColumnListBox.Create(Panel_Load, 62, 85, 900, 468, fnt_Metal);
+    List_Load.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Load.OnChange := Load_ListClick;
     List_Load.OnDoubleClick := Load_Click;
 
@@ -968,7 +970,8 @@ begin
     Radio_Replays_Type.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
     Radio_Replays_Type.OnChange := Replay_TypeChange;
 
-    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 900, 350, fnt_Metal, fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
+    List_Replays := TKMColumnListBox.Create(Panel_Replays, 62, 200, 900, 350, fnt_Metal);
+    List_Replays.SetColumns(fnt_Outline, [fTextLibrary[TX_MENU_LOAD_FILE], fTextLibrary[TX_MENU_LOAD_DESCRIPTION]], [0, 300]);
     List_Replays.OnChange := Replays_ListClick;
     List_Replays.OnDoubleClick := Replays_Play;
 
@@ -1597,18 +1600,21 @@ end;
 
 
 procedure TKMMainMenuInterface.MP_SelectServer(Sender: TObject);
+var
+  ServerInfo: TKMServerInfo;
+  RoomIndex: Integer;
 begin
-  if not InRange(ColList_Servers.GetItemTag, 0, fGame.Networking.ServerQuery.Count-1) then Exit;
+  if ColList_Servers.ItemIndex = -1 then Exit;
 
-  with fGame.Networking.ServerQuery.GetServer(ColList_Servers.GetItemTag) do
-  begin
-    Edit_MP_IP.Text := IP;
-    Edit_MP_Port.Text := Port;
-    Edit_MP_Room.Text := IntToStr(Rooms[ColList_Servers.GetItemTag2].RoomID);
-    Label_MP_Players.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Players;
-    Label_MP_GameTime.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.GetFormattedTime;
-    Label_MP_Map.Caption := Rooms[ColList_Servers.GetItemTag2].GameInfo.Map;
-  end;
+  ServerInfo := fGame.Networking.ServerQuery.GetServer(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag);
+  RoomIndex := ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag2;
+
+  Edit_MP_IP.Text := ServerInfo.IP;
+  Edit_MP_Port.Text := ServerInfo.Port;
+  Edit_MP_Room.Text := IntToStr(ServerInfo.Rooms[RoomIndex].RoomID);
+  Label_MP_Players.Caption := ServerInfo.Rooms[RoomIndex].GameInfo.Players;
+  Label_MP_GameTime.Caption := ServerInfo.Rooms[RoomIndex].GameInfo.GetFormattedTime;
+  Label_MP_Map.Caption := ServerInfo.Rooms[RoomIndex].GameInfo.Map;
 end;
 
 
@@ -1616,7 +1622,7 @@ procedure TKMMainMenuInterface.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
 
-  if InRange(ColList_Servers.GetItemTag, 0, fGame.Networking.ServerQuery.Count-1) then
+  if InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGame.Networking.ServerQuery.Count-1) then
     MP_JoinClick(Sender);
 end;
 
@@ -2194,9 +2200,10 @@ end;
 
 
 procedure TKMMainMenuInterface.Load_Delete_Click(Sender: TObject);
-var PreviouslySelected:integer;
+var
+  PreviouslySelected: Integer;
 begin
-  if not InRange(List_Load.ItemIndex, 0, List_Load.Count-1) then Exit;
+  if List_Load.ItemIndex = -1 then Exit;
   
   if Sender = Button_Delete then
     Load_DeleteConfirmation(true);
@@ -2210,8 +2217,8 @@ begin
     PreviouslySelected := List_Load.ItemIndex;
     fSaves.DeleteSave(List_Load.ItemIndex);
     Load_RefreshList;
-    if List_Load.Count > 0 then
-      List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.Count-1);
+    if List_Load.RowCount > 0 then
+      List_Load.ItemIndex := EnsureRange(PreviouslySelected, 0, List_Load.RowCount - 1);
     Load_ListClick(List_Load);
   end;
 end;
@@ -2227,7 +2234,7 @@ begin
     List_Load.AddItem([fSaves[i].Filename, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
   //Select first Save by default
-  if List_Load.Count > 0 then
+  if List_Load.RowCount > 0 then
     List_Load.ItemIndex := 0;
 
   Load_ListClick(List_Load);
@@ -2270,7 +2277,7 @@ begin
     List_Replays.AddItem([fSaves[i].Filename, fSaves[i].Info.GetTitleWithTime], [$FFFFFFFF, $FFFFFFFF]);
 
   //Select first Save by default
-  if List_Replays.Count > 0 then
+  if List_Replays.RowCount > 0 then
     List_Replays.ItemIndex := 0;
 
   Replays_ListClick(List_Replays);

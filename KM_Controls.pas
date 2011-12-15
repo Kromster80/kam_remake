@@ -558,47 +558,55 @@ type
     function GetColumnOffset(aIndex: Integer): Word;
   public
     OnColumnClick: TIntegerEvent;
-    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
+
     property BackAlpha: Single read fBackAlpha write fBackAlpha;
-    procedure AddColumn(aCaption: string; aOffset: Word);
+    property Font: TKMFont read fFont write fFont;
+    property ColumnCount: Integer read fCount write fCount;
     property ColumnOffset[aIndex: Integer]: Word read GetColumnOffset;
+
+    procedure AddColumn(aCaption: string; aOffset: Word);
     procedure Paint; override;
   end;
 
+  TKMListRow = record
+    Caption: array of string;
+    Color: array of TColor4;
+    Tag, Tag2: Integer;
+  end;
 
   TKMColumnListBox = class(TKMControl)
   private
     fFont: TKMFont;
-    fBackAlpha:single; //Alpha of background
-    fItemHeight:byte;
-    fItemIndex:smallint;
-    fItems:array of TStringList;
-    fItemColors:array of array of TColor4;
-    fTags:array of integer;
-    fTags2:array of integer;
+    fBackAlpha: Single; //Alpha of background
+    fItemHeight: Byte;
+    fItemIndex: Smallint;
+    fRowCount: Integer;
+    fRows: array of TKMListRow;
     fHeader: TKMListHeader;
-    fScrollBar:TKMScrollBar;
-    fOnChange:TNotifyEvent;
+    fScrollBar: TKMScrollBar;
+    fOnChange: TNotifyEvent;
     procedure SetHeight(aValue:Integer); override;
     procedure SetVisible(aValue:boolean); override;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
     procedure SetBackAlpha(aValue:single);
     procedure SetEnabled(aValue:boolean); override;
+    function GetRow(aIndex: Integer): TKMListRow;
     procedure UpdateScrollBar;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aHeaderFont:TKMFont; aColumns:array of string; aColumnOffsets:array of integer);
-    destructor Destroy; override;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
 
-    procedure AddItem(aItem:array of string; aItemColor:array of TColor4; aTag:integer=0; aTag2:integer=0);
+    procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+    procedure AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0; aTag2: Integer = 0);
     procedure Clear;
-    function GetItemTag:integer;
-    function GetItemTag2:integer;
+
+    property Rows[aIndex: Integer]: TKMListRow read GetRow;
 
     property BackAlpha:single read fBackAlpha write SetBackAlpha;
-    function Count:integer;
-    property ItemHeight:byte read fItemHeight;
-    property ItemIndex:smallint read fItemIndex write fItemIndex;
+    property RowCount: Integer read fRowCount;
+    property ItemHeight: Byte read fItemHeight;
+    property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
@@ -2498,17 +2506,15 @@ begin
 end;
 
 
-constructor TKMListHeader.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aFont: TKMFont);
+constructor TKMListHeader.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
   Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
-
-  fFont       := aFont;
 end;
 
 
 function TKMListHeader.GetColumnOffset(aIndex: Integer): Word;
 begin
-  Assert(InRange(aIndex, 0, fCount - 1));
+  Assert(InRange(aIndex, 0, fCount - 1));  
   Result := fColumnOffsets[aIndex];
 end;
 
@@ -2552,43 +2558,21 @@ end;
 
 
 { TKMColumnListBox }
-constructor TKMColumnListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont: TKMFont;
-  aHeaderFont: TKMFont; aColumns: array of string; aColumnOffsets: array of integer);
-const DEF_HEADER_HEIGHT = 24;
-var i: integer;
+constructor TKMColumnListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont: TKMFont);
+const
+  DEF_HEADER_HEIGHT = 24;
 begin
-  Assert(Length(aColumns) = Length(aColumnOffsets));
-
   Inherited Create(aParent, aLeft, aTop + DEF_HEADER_HEIGHT, aWidth, aHeight - DEF_HEADER_HEIGHT);
   fFont       := aFont;
   fItemHeight := 20;
   fItemIndex  := -1;
 
-  SetLength(fItems, Length(aColumns));
-  SetLength(fTags, 0);
-  SetLength(fTags2, 0);
-  SetLength(fItemColors, Length(aColumns));
-
-  for i:=0 to Length(aColumns)-1 do
-    fItems[i] := TStringList.Create;
-
-  fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT, aHeaderFont);
-  for i := 0 to Length(aColumns)-1 do
-    fHeader.AddColumn(aColumns[i], aColumnOffsets[i]);
+  fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
   UpdateScrollBar; //Initialise the scrollbar
 
   SetBackAlpha(0.5);
-end;
-
-
-destructor TKMColumnListBox.Destroy;
-var i:integer;
-begin
-  for i:=0 to Length(fItems)-1 do
-    fItems[i].Free;
-  Inherited;
 end;
 
 
@@ -2637,64 +2621,73 @@ begin
 end;
 
 
-//fItems.Count or Height has changed
+function TKMColumnListBox.GetRow(aIndex: Integer): TKMListRow;
+begin
+  Assert(InRange(aIndex, 0, fRowCount - 1));
+  Result := fRows[aIndex];
+end;
+
+//fRowCount or Height has changed
 procedure TKMColumnListBox.UpdateScrollBar;
 begin
-  fScrollBar.MaxValue := fItems[0].Count - (fHeight div fItemHeight);
+  fScrollBar.MaxValue := fRowCount - (fHeight div fItemHeight);
 end;
 
 
-procedure TKMColumnListBox.AddItem(aItem:array of string; aItemColor:array of TColor4; aTag:integer=0; aTag2:integer=0);
-var i, NewCount: integer;
+//If we don't add columns there will be Assert on items add
+procedure TKMColumnListBox.SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
+var i: Integer;
 begin
-  Assert(Length(aItem) = Length(fItems));
-  Assert(Length(aItemColor) = Length(fItems));
-  NewCount := fItems[0].Count + 1;
-  SetLength(fTags, NewCount);
-  SetLength(fTags2, NewCount);
-  fTags[NewCount-1] := aTag;
-  fTags2[NewCount-1] := aTag2;
-  for i:=0 to Length(fItems)-1 do
+  Assert(Length(aColumns) > 0);
+  Assert(Length(aColumns) = Length(aColumnOffsets));
+
+  Clear; //We don't want to conflict with already added rows elements
+
+  fHeader.Font := aFont;
+
+  for i := 0 to Length(aColumns) - 1 do
+    fHeader.AddColumn(aColumns[i], aColumnOffsets[i]);
+end;
+
+
+procedure TKMColumnListBox.AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0; aTag2: Integer = 0);
+var i: Integer;
+begin
+  Assert(fHeader.ColumnCount > 0);
+  Assert(Length(aItem) = Length(aItemColor));
+
+  if fRowCount >= Length(fRows) then
+    SetLength(fRows, fRowCount + 16);
+
+  //Anything beyond ColumnCount will be invisible anyway
+  SetLength(fRows[fRowCount].Caption, fHeader.ColumnCount);
+  SetLength(fRows[fRowCount].Color, fHeader.ColumnCount);
+
+  for i := 0 to Min(Length(aItem), fHeader.ColumnCount) - 1 do
   begin
-    fItems[i].Add(aItem[i]);
-    SetLength(fItemColors[i],NewCount);
-    fItemColors[i, NewCount-1] := aItemColor[i];
+    fRows[fRowCount].Caption[i] := aItem[i];
+    fRows[fRowCount].Color[i] := aItemColor[i];
+    fRows[fRowCount].Tag := aTag;
+    fRows[fRowCount].Tag2 := aTag2;
   end;
+
+  //Mark the remaining columns as erroneously empty
+  for i := Min(Length(aItem), fHeader.ColumnCount) + 1 to fHeader.ColumnCount - 1 do
+  begin
+    fRows[fRowCount].Caption[i] := '<<<LEER>>>';
+    fRows[fRowCount].Color[i] := $FFFFFFFF;
+  end;
+
+  inc(fRowCount);
   UpdateScrollBar;
 end;
 
 
 procedure TKMColumnListBox.Clear;
-var i: integer;
 begin
-  for i:=0 to Length(fItems)-1 do
-    fItems[i].Clear;
+  fRowCount := 0;
   fItemIndex := -1;
   UpdateScrollBar;
-end;
-
-
-function TKMColumnListBox.GetItemTag:integer;
-begin
-  if InRange(ItemIndex, 0, Count-1) then
-    Result := fTags[ItemIndex]
-  else
-    Result := -1;
-end;
-
-
-function TKMColumnListBox.GetItemTag2:integer;
-begin
-  if InRange(ItemIndex, 0, Count-1) then
-    Result := fTags2[ItemIndex]
-  else
-    Result := -1;
-end;
-
-
-function TKMColumnListBox.Count:integer;
-begin
-  Result := fItems[0].Count;
 end;
 
 
@@ -2710,15 +2703,16 @@ var NewIndex:integer;
 begin
   Inherited;
 
-  if (ssLeft in Shift) and
-     (InRange(X, Left, Left+Width-( fScrollBar.Width*byte(fScrollBar.Visible) ))) and
-     (InRange(Y, Top, Top+Height div fItemHeight * fItemHeight))
+  if (ssLeft in Shift)
+  and (InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible)))
+  and (InRange(Y, Top, Top + (Height div fItemHeight) * fItemHeight))
   then begin
     NewIndex := TopIndex + (Y - Top) div fItemHeight;
 
-    if NewIndex > fItems[0].Count-1 then NewIndex := -1;
+    if NewIndex >= fRowCount then NewIndex := -1;
 
-    if (NewIndex<>fItemIndex) then begin
+    if (NewIndex <> fItemIndex) then
+    begin
       fItemIndex := NewIndex;
       if Assigned(fOnChange) then
         fOnChange(Self);
@@ -2749,12 +2743,16 @@ begin
   if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, (fHeight div ItemHeight)-1) then
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
 
-  for i:=0 to Math.min(fItems[0].Count-1, (fHeight div fItemHeight)-1) do
-    for k:=0 to Length(fItems)-1 do
+  for i:=0 to Math.min(fRowCount, (fHeight div fItemHeight)) - 1 do
+    for k:=0 to fHeader.ColumnCount - 1 do
     begin
-      if k = Length(fItems)-1 then ItemWidth := (PaintWidth-4) else ItemWidth := fHeader.ColumnOffset[k+1];
-      ItemWidth := ItemWidth-fHeader.ColumnOffset[k]-4;
-      fRenderUI.WriteText(Left+4+fHeader.ColumnOffset[k], Top+i*fItemHeight+3, ItemWidth, 0, fItems[k].Strings[TopIndex+i] , fFont, taLeft, fItemColors[k,TopIndex+i]);
+
+      if k = fHeader.ColumnCount - 1 then
+        ItemWidth := PaintWidth - 4 - fHeader.ColumnOffset[k] - 4
+      else
+        ItemWidth := fHeader.ColumnOffset[k+1] - fHeader.ColumnOffset[k] - 4;
+
+      fRenderUI.WriteText(Left + 4 + fHeader.ColumnOffset[k], Top + i*fItemHeight + 3, ItemWidth, 0, fRows[TopIndex+i].Caption[k], fFont, taLeft, fRows[TopIndex+i].Color[k]);
     end;
 end;
 
