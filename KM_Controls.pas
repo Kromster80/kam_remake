@@ -597,8 +597,10 @@ type
     procedure SetBackAlpha(aValue:single);
     procedure SetEnabled(aValue:boolean); override;
     function GetRow(aIndex: Integer): TKMListRow;
+    procedure ColumnClick(aValue: Integer);
     procedure UpdateScrollBar;
   public
+    OnColumnClick: TIntegerEvent;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
 
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
@@ -2599,6 +2601,7 @@ begin
   fItemIndex  := -1;
 
   fHeader := TKMListHeader.Create(aParent, aLeft, aTop, aWidth - fItemHeight, DEF_HEADER_HEIGHT);
+  fHeader.OnColumnClick := ColumnClick;
 
   fScrollBar := TKMScrollBar.Create(aParent, aLeft+aWidth-fItemHeight, aTop, fItemHeight, aHeight, sa_Vertical, bsGame);
   UpdateScrollBar; //Initialise the scrollbar
@@ -2657,6 +2660,19 @@ begin
   Assert(InRange(aIndex, 0, fRowCount - 1));
   Result := fRows[aIndex];
 end;
+
+
+//We could process the clicks here (i.e. do the sorting inplace)
+//but there are various circumstances where plain string sorting will look wrong
+//and the listbox just misses the knowledge to do it right:
+//MP game status (sort by type), ping (sort 1>9), playercount (sort 9>1), dates (sort by TDateTime)
+//Let the UI communicate to Game and do it right
+procedure TKMColumnListBox.ColumnClick(aValue: Integer);
+begin
+  if Assigned(OnColumnClick) then
+    OnColumnClick(aValue);
+end;
+
 
 //fRowCount or Height has changed
 procedure TKMColumnListBox.UpdateScrollBar;
