@@ -562,7 +562,9 @@ type
     fBackAlpha: Single; //Alpha of background
     fCount: Integer;
     fColumns: array of string;
+    fColumnHighlight: Integer;
     fColumnOffsets: array of Word; //Offsets are easier to handle than widths
+    function GetColumnIndex(X: Integer): Integer;
     function GetColumnOffset(aIndex: Integer): Word;
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
   public
@@ -575,6 +577,7 @@ type
     property ColumnOffset[aIndex: Integer]: Word read GetColumnOffset;
 
     procedure AddColumn(aCaption: string; aOffset: Word);
+    procedure MouseMove(X,Y:integer; Shift:TShiftState); override;
     procedure Paint; override;
   end;
 
@@ -2146,7 +2149,9 @@ end;
 
 
 procedure TKMScrollBar.Paint;
-var ThumbPos:word; State:T3DButtonStateSet;
+var
+  ThumbPos: Word;
+  ButtonState: T3DButtonStateSet;
 begin
   Inherited;
   ThumbPos := 0;
@@ -2161,18 +2166,18 @@ begin
       sa_Vertical:   ThumbPos := (fPosition-fMinValue)*(Height-Width*2-fThumb) div (fMaxValue-fMinValue);
       sa_Horizontal: ThumbPos := (fPosition-fMinValue)*(Width-Height*2-fThumb) div (fMaxValue-fMinValue);
     end;
-    State := [];
+    ButtonState := [];
   end else begin
     case fScrollAxis of
       sa_Vertical:   ThumbPos := Math.max((Height-Width*2-fThumb),0) div 2;
       sa_Horizontal: ThumbPos := Math.max((Width-Height*2-fThumb),0) div 2;
     end;
-    State := [bs_Disabled];
+    ButtonState := [bs_Disabled];
   end;
 
   case fScrollAxis of
-    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,fThumb,rxGui,0,State,fStyle);
-    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+ThumbPos,Top,fThumb,Height,rxGui,0,State,fStyle);
+    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,fThumb,rxGui,0,ButtonState,fStyle);
+    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+ThumbPos,Top,fThumb,Height,rxGui,0,ButtonState,fStyle);
   end;
 end;
 
@@ -2526,6 +2531,17 @@ begin
 end;
 
 
+function TKMListHeader.GetColumnIndex(X: Integer): Integer;
+var i: Integer;
+begin
+  Result := -1;
+
+  for i := 0 to fCount - 1 do
+    if X - Left > fColumnOffsets[i] then
+      Result := i;
+end;
+
+
 function TKMListHeader.GetColumnOffset(aIndex: Integer): Word;
 begin
   Assert(InRange(aIndex, 0, fCount - 1));
@@ -2535,16 +2551,11 @@ end;
 
 //We know we were clicked and now we can decide what to do
 procedure TKMListHeader.DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
-var i, ColumnIndex: Integer;
+var ColumnID: Integer;
 begin
-  ColumnIndex := -1;
-
-  for i := 0 to fCount - 1 do
-    if X - Left > fColumnOffsets[i] then
-      ColumnIndex := i;
-
-  if (ColumnIndex <> -1) and Assigned(OnColumnClick) then
-    OnColumnClick(ColumnIndex)
+  ColumnID := GetColumnIndex(X);
+  if (ColumnID <> -1) and Assigned(OnColumnClick) then
+    OnColumnClick(ColumnID)
   else
     Inherited; //Process the usual clicks if e.g. there are no columns
 end;
@@ -2565,15 +2576,19 @@ begin
 end;
 
 
+procedure TKMListHeader.MouseMove(X, Y: integer; Shift: TShiftState);
+begin
+  inherited;
+  fColumnHighlight := GetColumnIndex(X);
+end;
+
+
 procedure TKMListHeader.Paint;
 var
   i: integer;
-  State: TFlatButtonStateSet;
   ColumnWidth: integer;
 begin
   Inherited;
-
-  State := [];
 
   for i := 0 to fCount - 1 do
   begin
@@ -2583,6 +2598,8 @@ begin
       ColumnWidth := Width - fColumnOffsets[i];
 
     fRenderUI.WriteBevel(Left + fColumnOffsets[i], Top, ColumnWidth, Height, True, fBackAlpha);
+    if (csOver in State) and (fColumnHighlight = i) then
+      fRenderUI.WriteLayer(Left + fColumnOffsets[i], Top, ColumnWidth, Height, $20FFFFFF, $00);
     fRenderUI.WriteText(Left + 4 + fColumnOffsets[i], 4 + Top, 0, 0, fColumns[i], fFont, taLeft, $FFFFFFFF);
   end;
 end;
