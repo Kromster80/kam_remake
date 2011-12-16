@@ -79,6 +79,6 @@ Fighting Demo (r970) - 13.08.2010:
 +	Height effects passability [Lewin]
 +	Update Readme file [Krom/Lewin]
 
-2nd Economy Demo (r673) - 01.09.2009:
+2nd Economy Demo (r428) - 01.09.2009:
 
-Economy Demo (r673) - 28.07.2009:
+Economy Demo (r363) - 28.07.2009:

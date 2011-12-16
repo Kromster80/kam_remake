@@ -14,12 +14,14 @@ type
     IP: string;
     Port: string;
     Ping: Word;
-    RoomCount: Integer;
-    Rooms: array of record
-                      RoomID: Integer;
-                      PlayerCount: Integer;
-                      GameInfo: TMPGameInfo;
-                    end;
+  end;
+
+  TKMRoomInfo = record
+    ServerIndex: Integer; //Points to some TKMServerInfo in TKMServerList
+    RoomID: Integer;
+    PlayerCount: Integer;
+    OnlyRoom: Boolean; //Is this the only room in the server?
+    GameInfo: TMPGameInfo;
   end;
 
   TServerDataEvent = procedure(aServerID:integer; aData:string; aPingStarted:cardinal) of object;
@@ -57,6 +59,19 @@ type
     procedure UpdateStateIdle;
   end;
 
+  TKMRoomList = class
+  private
+    fCount:integer;
+    fRooms:array of TKMRoomInfo;
+    procedure AddRoom(aServerIndex, aRoomID, aPlayerCount: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
+    function GetRoom(aIndex: Integer): TKMRoomInfo;
+    procedure Clear;
+  public
+    property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom; default;
+    property Count: Integer read fCount;
+    procedure LoadData(aServerID:integer; M:TKMemoryStream);
+  end;
+
   TKMServerList = class
   private
     fCount:integer;
@@ -70,14 +85,15 @@ type
     property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
     property Count: Integer read fCount;
     procedure TakeNewQuery(aQuery:TKMQuery);
-    procedure LoadData(aServerID:integer; M:TKMemoryStream; aPing: Cardinal);
+    procedure SetPing(aServerID:integer; aPing: Cardinal);
   end;
 
   //Handles the master-server querrying and carries ServerList
   TKMServerQuery = class
   private
     fMasterServer: TKMMasterServer;
-    fServerList: TKMServerList;
+    fServerList: TKMServerList; //List of servers fetch from master
+    fRoomList: TKMRoomList; //Info about each room populated after query completed
     fQuery: array[0..MAX_QUERIES-1] of TKMQuery;
     fQueriesCompleted: Integer;
 
@@ -98,6 +114,7 @@ type
     property OnListUpdated: TNotifyEvent read fOnListUpdated write fOnListUpdated;
     property OnAnnouncements: TStringEvent read fOnAnnouncements write fOnAnnouncements;
     property Servers: TKMServerList read fServerList;
+    property Rooms: TKMRoomList read fRoomList;
 
     procedure RefreshList;
     procedure FetchAnnouncements(const aLang: string);
@@ -108,6 +125,51 @@ type
 implementation
 
 
+{ TKMRoomList }
+procedure TKMRoomList.AddRoom(aServerIndex, aRoomID, aPlayerCount: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
+begin
+  if Length(fRooms) <= fCount then SetLength(fRooms, fCount+16);
+  fRooms[fCount].ServerIndex := aServerIndex;
+  fRooms[fCount].RoomID := aRoomID;
+  fRooms[fCount].PlayerCount := aPlayerCount;
+  fRooms[fCount].OnlyRoom := aOnlyRoom;
+  fRooms[fCount].GameInfo := TMPGameInfo.Create;
+  fRooms[fCount].GameInfo.LoadFromText(aGameInfoText);
+  inc(fCount);
+end;
+
+
+function TKMRoomList.GetRoom(aIndex:integer):TKMRoomInfo;
+begin
+  Result := fRooms[aIndex];
+end;
+
+
+procedure TKMRoomList.Clear;
+var i:integer;
+begin
+  for i:=0 to fCount-1 do
+    fRooms[i].GameInfo.Free;
+  fCount := 0;
+  SetLength(fRooms, 0);
+end;
+
+
+procedure TKMRoomList.LoadData(aServerID:integer; M:TKMemoryStream);
+var i, RoomCount, RoomID, PlayerCount: Integer; GameInfoText: string;
+begin
+  M.Position := 0;
+  M.Read(RoomCount);
+  for i:=0 to RoomCount-1 do //We don't actually use i as the server sends us RoomID (rooms might not be in order)
+  begin
+    M.Read(RoomID);
+    M.Read(PlayerCount);
+    M.Read(GameInfoText);
+    AddRoom(aServerID, RoomID, PlayerCount, (RoomCount = 1), GameInfoText);
+  end;
+end;
+
+
 { TKMServerList }
 procedure TKMServerList.AddServer(aIP, aPort, aName: string; aPing: word);
 begin
@@ -116,8 +178,6 @@ begin
   fServers[fCount].IP := aIP;
   fServers[fCount].Port := aPort;
   fServers[fCount].Ping := aPing;
-  fServers[fCount].RoomCount := 0;
-  SetLength(fServers[fCount].Rooms, 0);
   inc(fCount);
 end;
 
@@ -129,11 +189,7 @@ end;
 
 
 procedure TKMServerList.Clear;
-var i,k:integer;
 begin
-  for i:=0 to fCount-1 do
-    for k:=0 to fServers[i].RoomCount-1 do
-      fServers[i].Rooms[k].GameInfo.Free;
   fCount := 0;
   SetLength(fServers, 0);
 end;
@@ -173,24 +229,9 @@ begin
 end;
 
 
-procedure TKMServerList.LoadData(aServerID:integer; M:TKMemoryStream; aPing: Cardinal);
-var i: integer; GameInfoText:string;
+procedure TKMServerList.SetPing(aServerID:Integer; aPing: Cardinal);
 begin
-  with fServers[aServerID] do
-  begin
-    Ping := aPing;
-    M.Position := 0;
-    M.Read(RoomCount);
-    SetLength(Rooms, RoomCount);
-    for i:=0 to RoomCount-1 do
-    begin
-      M.Read(Rooms[i].RoomID);
-      M.Read(Rooms[i].PlayerCount);
-      Rooms[i].GameInfo := TMPGameInfo.Create;
-      M.Read(GameInfoText);
-      Rooms[i].GameInfo.LoadFromText(GameInfoText);
-    end;
-  end;
+  fServers[aServerID].Ping := aPing;
 end;
 
 
@@ -310,6 +351,7 @@ begin
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
 
   fServerList := TKMServerList.Create;
+  fRoomList := TKMRoomList.Create;
   for i:=0 to MAX_QUERIES-1 do
   begin
     fQuery[i] := TKMQuery.Create;
@@ -324,6 +366,7 @@ var i:integer;
 begin
   fMasterServer.Free;
   fServerList.Free;
+  fRoomList.Free;
   for i:=0 to MAX_QUERIES-1 do
     fQuery[i].Free;
   Inherited;
@@ -341,6 +384,7 @@ var i: integer;
 begin
   fQueriesCompleted := 0;
   fServerList.LoadFromText(S);
+  fRoomList.Clear; //Updated rooms list will be loaded soon
   for i:=0 to MAX_QUERIES-1 do
     fServerList.TakeNewQuery(fQuery[i]);
   //If there are no servers we should update the list now, otherwise wait for the first server
@@ -359,7 +403,8 @@ var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   M.WriteAsText(aData);
-  fServerList.LoadData(aServerID, M, GetTickCount - aPingStarted);
+  fRoomList.LoadData(aServerID, M); //Tell RoomsList to load data about rooms
+  fServerList.SetPing(aServerID, GetTickCount - aPingStarted); //Tell ServersList ping
   M.Free;
   if Assigned(fOnListUpdated) then fOnListUpdated(Self);
 end;

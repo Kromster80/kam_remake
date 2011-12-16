@@ -584,7 +584,7 @@ type
   TKMListRow = record
     Caption: array of string;
     Color: array of TColor4;
-    Tag, Tag2: Integer;
+    Tag: Integer;
   end;
 
   TKMColumnListBox = class(TKMControl)
@@ -612,7 +612,7 @@ type
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
 
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
-    procedure AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0; aTag2: Integer = 0);
+    procedure AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0);
     procedure Clear;
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
@@ -2716,7 +2716,7 @@ begin
 end;
 
 
-procedure TKMColumnListBox.AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0; aTag2: Integer = 0);
+procedure TKMColumnListBox.AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0);
 var i: Integer;
 begin
   Assert(fHeader.ColumnCount > 0);
@@ -2734,7 +2734,6 @@ begin
     fRows[fRowCount].Caption[i] := aItem[i];
     fRows[fRowCount].Color[i] := aItemColor[i];
     fRows[fRowCount].Tag := aTag;
-    fRows[fRowCount].Tag2 := aTag2;
   end;
 
   //Mark the remaining columns as erroneously empty

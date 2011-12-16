@@ -1573,7 +1573,7 @@ begin
   Label_MP_Players.Caption := '';
   Label_MP_GameTime.Caption := '';
   Label_MP_Map.Caption := '';
-  ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_REFRESHING],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1,-1);
+  ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_REFRESHING],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1);
 end;
 
 
@@ -1582,26 +1582,26 @@ procedure TKMMainMenuInterface.MP_ServersUpdateList(Sender: TObject);
 const
   GameStateTextIDs:array[TMPGameState] of integer = (TX_MP_STATE_NONE,TX_MP_STATE_LOBBY,TX_MP_STATE_LOADING,TX_MP_STATE_GAME);
 var
-  i,k:integer;
+  i:integer;
   DisplayName:string;
   ServerFound:boolean;
 begin
   ServerFound := False;
   ColList_Servers.Clear;
 
-  for i:=0 to fGame.Networking.ServerQuery.Servers.Count-1 do
-    with fGame.Networking.ServerQuery.Servers[i] do
-      for k:=0 to RoomCount-1 do
+  for i:=0 to fGame.Networking.ServerQuery.Rooms.Count-1 do
+    with fGame.Networking.ServerQuery.Rooms[i] do
+      with fGame.Networking.ServerQuery.Servers[ServerIndex] do //@Krom: Are nested withs acceptable like this? It works well in this case.
       begin
         ServerFound := True;
         //Only show # if server has more than 1 room
-        DisplayName := IfThen(RoomCount = 0, Name, Name + ' #' + IntToStr(k+1));
-        ColList_Servers.AddItem([DisplayName,fTextLibrary[GameStateTextIDs[Rooms[k].GameInfo.GameState]],IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
-                                [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i, k);
+        DisplayName := IfThen(OnlyRoom, Name, Name + ' #' + IntToStr(RoomID+1));
+        ColList_Servers.AddItem([DisplayName,fTextLibrary[GameStateTextIDs[GameInfo.GameState]],IntToStr(PlayerCount),IntToStr(Ping)],
+                                [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i);
       end;
 
   if not ServerFound then
-    ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1,-1);
+    ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1);
 end;
 
 
@@ -1644,19 +1644,19 @@ end;
 procedure TKMMainMenuInterface.MP_ServersClick(Sender: TObject);
 var
   ServerInfo: TKMServerInfo;
-  RoomIndex: Integer;
+  RoomInfo: TKMRoomInfo;
 begin
   if ColList_Servers.ItemIndex = -1 then Exit;
 
-  ServerInfo := fGame.Networking.ServerQuery.Servers[ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag];
-  RoomIndex := ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag2;
+  RoomInfo := fGame.Networking.ServerQuery.Rooms[ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag];
+  ServerInfo := fGame.Networking.ServerQuery.Servers[RoomInfo.ServerIndex];
 
   Edit_MP_IP.Text := ServerInfo.IP;
   Edit_MP_Port.Text := ServerInfo.Port;
-  Edit_MP_Room.Text := IntToStr(ServerInfo.Rooms[RoomIndex].RoomID);
-  Label_MP_Players.Caption := ServerInfo.Rooms[RoomIndex].GameInfo.Players;
-  Label_MP_GameTime.Caption := ServerInfo.Rooms[RoomIndex].GameInfo.GetFormattedTime;
-  Label_MP_Map.Caption := ServerInfo.Rooms[RoomIndex].GameInfo.Map;
+  Edit_MP_Room.Text := IntToStr(RoomInfo.RoomID);
+  Label_MP_Players.Caption := RoomInfo.GameInfo.Players;
+  Label_MP_GameTime.Caption := RoomInfo.GameInfo.GetFormattedTime;
+  Label_MP_Map.Caption := RoomInfo.GameInfo.Map;
 end;
 
 
