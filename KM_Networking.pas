@@ -106,6 +106,7 @@ type
     property ServerName:string read fServerName;
     property ServerAddress:string read fServerAddress;
     property ServerPort:string read fServerPort;
+    property ServerRoom:Integer read fRoomToJoin;
     function IsHost:boolean;
     function IsReconnecting:boolean;
 

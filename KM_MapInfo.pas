@@ -38,7 +38,7 @@ type
   end;
 
 
-  TSortMethod = (
+  TMapsSortMethod = (
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
@@ -50,9 +50,9 @@ type
     fCount: Integer;
     fMaps: array of TKMapInfo;
     fMultiplayerPath: Boolean;
-    fSortMethod: TSortMethod;
+    fSortMethod: TMapsSortMethod;
     function GetMap(aIndex: Integer): TKMapInfo;
-    procedure SetSortMethod(aMethod: TSortMethod);
+    procedure SetSortMethod(aMethod: TMapsSortMethod);
     procedure ScanMapsFolder;
     procedure Sort;
   public
@@ -63,7 +63,7 @@ type
     property Map[aIndex: Integer]: TKMapInfo read GetMap; default;
 
     procedure Refresh;
-    property SortMethod: TSortMethod read fSortMethod write SetSortMethod;
+    property SortMethod: TMapsSortMethod read fSortMethod write SetSortMethod;
 
     function MapList: string;
     function MapListBuild: string;
@@ -238,12 +238,10 @@ begin
 end;
 
 
-procedure TKMapsCollection.SetSortMethod(aMethod: TSortMethod);
+procedure TKMapsCollection.SetSortMethod(aMethod: TMapsSortMethod);
 begin
   fSortMethod := aMethod;
-
-  //New sorting methos has been set, we need to apply it
-  Sort;
+  Sort; //New sorting method has been set, we need to apply it
 end;
 
 
@@ -334,7 +332,7 @@ end;
 procedure TKMapsCollection.Sort;
 
   //Return True if items should be exchanged
-  function Compare(A, B: TKMapInfo; aMethod: TSortMethod): Boolean;
+  function Compare(A, B: TKMapInfo; aMethod: TMapsSortMethod): Boolean;
   begin
     Result := False; //By default everything remains in place
     case aMethod of

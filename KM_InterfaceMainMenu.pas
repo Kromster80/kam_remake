@@ -1614,30 +1614,30 @@ end;
 
 procedure TKMMainMenuInterface.MP_ServersSort(aValue: Integer);
 begin
-  {case aValue of
+  case aValue of
     //Sorting by name goes A..Z by default
     0:  if fGame.Networking.ServerQuery.SortMethod = ssmByNameAsc then
-          fGame.Networking.ServerQuery.SortMethod = ssmByNameDesc
+          fGame.Networking.ServerQuery.SortMethod := ssmByNameDesc
         else
-          fGame.Networking.ServerQuery.SortMethod = ssmByNameAsc;
-    //Sorting by state goes ??? by default
-    //@Lewin: I'm not sure which one is the best order (Lobby-Game-None?)
+          fGame.Networking.ServerQuery.SortMethod := ssmByNameAsc;
+    //Sorting by state goes Lobby,Loading,Game,None by default
     1:  if fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc then
-          fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc
+          fGame.Networking.ServerQuery.SortMethod := ssmByStateDesc
         else
-          fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc;
+          fGame.Networking.ServerQuery.SortMethod := ssmByStateAsc;
     //Sorting by player count goes 8..0 by default
-    2:  if fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc then
-          fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc
+    2:  if fGame.Networking.ServerQuery.SortMethod = ssmByPlayersDesc then
+          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersAsc
         else
-          fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc;
+          fGame.Networking.ServerQuery.SortMethod := ssmByPlayersDesc;
     //Sorting by ping goes 0 ... 1000 by default
-    3:  if fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc then
-          fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc
+    3:  if fGame.Networking.ServerQuery.SortMethod = ssmByPingAsc then
+          fGame.Networking.ServerQuery.SortMethod := ssmByPingDesc
         else
-          fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc;     
-  end;}
-  MP_ServersUpdateList(nil);
+          fGame.Networking.ServerQuery.SortMethod := ssmByPingAsc;
+  end;
+  //Refresh the display only if there are rooms to be sorted (otherwise it shows "no servers found" immediately)
+  if fGame.Networking.ServerQuery.Rooms.Count > 0 then MP_ServersUpdateList(nil);
 end;
 
 
@@ -2017,7 +2017,8 @@ begin
   end
   else
     Label_LobbyPing[i].Caption := '';
-  Label_LobbyServerName.Caption := fGame.Networking.ServerName+'  '+fGame.Networking.ServerAddress+' : '+fGame.Networking.ServerPort;
+  Label_LobbyServerName.Caption := fGame.Networking.ServerName+' #'+IntToStr(fGame.Networking.ServerRoom+1)+
+                                   '  '+fGame.Networking.ServerAddress+' : '+fGame.Networking.ServerPort;
 end;
 
 

@@ -26,10 +26,6 @@ type
 
   TServerDataEvent = procedure(aServerID:integer; aData:string; aPingStarted:cardinal) of object;
 
-  //@Lewin: It looks like we need to be able to sort by all these fields independently, hence
-  //the code "for i:=0 to ServerQuery.Count-1 do for k:=0 to RoomCount-1 do" will have to be rewritten
-  //Another option is to insert a layer inbetween ServerQuery and ColList_Servers then will do the sorting
-  //but I honestly don't like to add one more class just for that matter
   TServerSortMethod = (
     ssmByNameAsc, ssmByNameDesc, //Server names
     ssmByPingAsc, ssmByPingDesc, //Server pings
@@ -70,6 +66,7 @@ type
     property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom; default;
     property Count: Integer read fCount;
     procedure LoadData(aServerID:integer; M:TKMemoryStream);
+    procedure SwapRooms(A,B:Integer);
   end;
 
   TKMServerList = class
@@ -96,6 +93,7 @@ type
     fRoomList: TKMRoomList; //Info about each room populated after query completed
     fQuery: array[0..MAX_QUERIES-1] of TKMQuery;
     fQueriesCompleted: Integer;
+    fSortMethod: TServerSortMethod;
 
     fOnListUpdated: TNotifyEvent;
     fOnAnnouncements: TStringEvent;
@@ -105,16 +103,19 @@ type
 
     procedure ServerDataReceive(aServerID: Integer; aData: string; aPingStarted: Cardinal);
     procedure QueryDone(Sender:TObject);
+
+    procedure Sort;
+    procedure SetSortMethod(aMethod: TServerSortMethod);
   public
     constructor Create(aMasterServerAddress: string);
     destructor Destroy; override;
-
-    //property SortMethod: TServerSortMethod read fSortMethod write SetSortMethod;
 
     property OnListUpdated: TNotifyEvent read fOnListUpdated write fOnListUpdated;
     property OnAnnouncements: TStringEvent read fOnAnnouncements write fOnAnnouncements;
     property Servers: TKMServerList read fServerList;
     property Rooms: TKMRoomList read fRoomList;
+
+    property SortMethod: TServerSortMethod read fSortMethod write SetSortMethod;
 
     procedure RefreshList;
     procedure FetchAnnouncements(const aLang: string);
@@ -167,6 +168,15 @@ begin
     M.Read(GameInfoText);
     AddRoom(aServerID, RoomID, PlayerCount, (RoomCount = 1), GameInfoText);
   end;
+end;
+
+
+procedure TKMRoomList.SwapRooms(A,B:Integer);
+var TempRoomInfo: TKMRoomInfo;
+begin
+  TempRoomInfo := fRooms[A];
+  fRooms[A] := fRooms[B];
+  fRooms[B] := TempRoomInfo;
 end;
 
 
@@ -350,6 +360,8 @@ begin
   fMasterServer.OnServerList := ReceiveServerList;
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
 
+  fSortMethod := ssmByStateAsc; //Default sorting is by state
+
   fServerList := TKMServerList.Create;
   fRoomList := TKMRoomList.Create;
   for i:=0 to MAX_QUERIES-1 do
@@ -406,6 +418,7 @@ begin
   fRoomList.LoadData(aServerID, M); //Tell RoomsList to load data about rooms
   fServerList.SetPing(aServerID, GetTickCount - aPingStarted); //Tell ServersList ping
   M.Free;
+  Sort; //Apply sorting
   if Assigned(fOnListUpdated) then fOnListUpdated(Self);
 end;
 
@@ -432,6 +445,44 @@ begin
   fMasterServer.UpdateStateIdle;
   for i:=0 to MAX_QUERIES-1 do
     fQuery[i].UpdateStateIdle;
+end;
+
+
+procedure TKMServerQuery.Sort;
+
+  function Compare(A, B: TKMRoomInfo; aMethod: TServerSortMethod):Boolean;
+  var AServerInfo, BServerInfo: TKMServerInfo;
+  const StateSortOrder: array[TMPGameState] of byte = (4,1,2,3);
+  begin
+    Result := False; //By default everything remains in place
+    AServerInfo := Servers[A.ServerIndex];
+    BServerInfo := Servers[B.ServerIndex];
+    case aMethod of
+      ssmByNameAsc:     Result := CompareText(AServerInfo.Name, BServerInfo.Name) > 0;
+      ssmByNameDesc:    Result := CompareText(AServerInfo.Name, BServerInfo.Name) < 0;
+      ssmByPingAsc:     Result := AServerInfo.Ping > BServerInfo.Ping;
+      ssmByPingDesc:    Result := AServerInfo.Ping < BServerInfo.Ping;
+      ssmByStateAsc:    Result := StateSortOrder[A.GameInfo.GameState] > StateSortOrder[B.GameInfo.GameState];
+      ssmByStateDesc:   Result := StateSortOrder[A.GameInfo.GameState] < StateSortOrder[B.GameInfo.GameState];
+      ssmByPlayersAsc:  Result := A.PlayerCount > B.PlayerCount;
+      ssmByPlayersDesc: Result := A.PlayerCount < B.PlayerCount;
+    end;
+  end;
+
+var
+  i, k: Integer;
+begin
+  for i:=0 to fRoomList.Count-1 do
+  for k:=i to fRoomList.Count-1 do
+  if Compare(Rooms[i], Rooms[k], fSortMethod) then
+    fRoomList.SwapRooms(i,k);
+end;
+
+
+procedure TKMServerQuery.SetSortMethod(aMethod: TServerSortMethod);
+begin
+  fSortMethod := aMethod;
+  Sort; //New sorting method has been set, we need to apply it
 end;
 
 
