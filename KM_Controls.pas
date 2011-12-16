@@ -2598,7 +2598,7 @@ begin
       ColumnWidth := Width - fColumnOffsets[i];
 
     fRenderUI.WriteBevel(Left + fColumnOffsets[i], Top, ColumnWidth, Height, True, fBackAlpha);
-    if (csOver in State) and (fColumnHighlight = i) then
+    if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = i) then
       fRenderUI.WriteLayer(Left + fColumnOffsets[i], Top, ColumnWidth, Height, $20FFFFFF, $00);
     fRenderUI.WriteText(Left + 4 + fColumnOffsets[i], 4 + Top, 0, 0, fColumns[i], fFont, taLeft, $FFFFFFFF);
   end;
