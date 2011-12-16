@@ -1,7 +1,8 @@
 unit KM_ServerQuery;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Windows, KM_Defaults, KM_CommonTypes, KM_Utils, KM_MasterServer, KM_NetClient;
+uses Classes, SysUtils, Windows,
+  KM_Defaults, KM_CommonTypes, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
   MAX_QUERIES = 16; //The maximum number of individual server queries that can be happening at once
@@ -12,16 +13,26 @@ type
     Name: string;
     IP: string;
     Port: string;
-    Ping: word;
-    RoomCount:integer;
+    Ping: Word;
+    RoomCount: Integer;
     Rooms: array of record
-                      RoomID:integer;
-                      PlayerCount:integer;
-                      GameInfo:TMPGameInfo;
+                      RoomID: Integer;
+                      PlayerCount: Integer;
+                      GameInfo: TMPGameInfo;
                     end;
   end;
 
   TServerDataEvent = procedure(aServerID:integer; aData:string; aPingStarted:cardinal) of object;
+
+  //@Lewin: It looks like we need to be able to sort by all these fields independently, hence
+  //the code "for i:=0 to ServerQuery.Count-1 do for k:=0 to RoomCount-1 do" will have to be rewritten
+  //Another option is to insert a layer inbetween ServerQuery and ColList_Servers then will do the sorting
+  //but I honestly don't like to add one more class just for that matter
+  TServerSortMethod = (
+    ssmByNameAsc, ssmByNameDesc, //Server names
+    ssmByPingAsc, ssmByPingDesc, //Server pings
+    ssmByStateAsc, ssmByStateDesc, //Room state
+    ssmByPlayersAsc, ssmByPlayersDesc); //Player count in room
 
   TKMQuery = class
   private
@@ -41,8 +52,8 @@ type
     destructor Destroy; override;
     procedure PerformQuery(aAddress, aPort:string; aServerID:integer);
     procedure Disconnect;
-    property OnServerData:TServerDataEvent write fOnServerData;
-    property OnQueryDone:TNotifyEvent write fOnQueryDone;
+    property OnServerData:TServerDataEvent read fOnServerData write fOnServerData;
+    property OnQueryDone:TNotifyEvent read fOnQueryDone write fOnQueryDone;
     procedure UpdateStateIdle;
   end;
 
@@ -52,57 +63,61 @@ type
       fLastQueried:integer;
       fServers:array of TKMServerInfo;
       procedure AddServer(aIP, aPort, aName: string; aPing: word);
-      function GetServer(aIndex:integer):TKMServerInfo;
+      function GetServer(aIndex: Integer): TKMServerInfo;
       procedure Clear;
       procedure LoadFromText(const aText: string);
     public
-      property Servers[aIndex:integer]:TKMServerInfo read GetServer; default;
-      property Count:integer read fCount;
+      property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
+      property Count: Integer read fCount;
       procedure TakeNewQuery(aQuery:TKMQuery);
-      procedure LoadData(aServerID:integer; M:TKMemoryStream; aPing:integer);
+      procedure LoadData(aServerID:integer; M:TKMemoryStream; aPing: Cardinal);
   end;
 
+  //Handles the master-server querrying and carries ServerList
   TKMServerQuery = class
   private
     fMasterServer: TKMMasterServer;
     fServerList: TKMServerList;
     fQuery: array[0..MAX_QUERIES-1] of TKMQuery;
-    fQueriesCompleted:integer;
+    fQueriesCompleted: Integer;
 
     fOnListUpdated: TNotifyEvent;
-    fOnAnnouncements: TGetStrProc;
+    fOnAnnouncements: TStringEvent;
 
     procedure ReceiveServerList(const S: string);
     procedure ReceiveAnnouncements(const S: string);
 
-    procedure ServerDataReceive(aServerID:integer; aData:string; aPingStarted:cardinal);
+    procedure ServerDataReceive(aServerID: Integer; aData: string; aPingStarted: Cardinal);
     procedure QueryDone(Sender:TObject);
-    function GetCount:integer;
   public
-    constructor Create(aMasterServerAddress:string);
+    constructor Create(aMasterServerAddress: string);
     destructor Destroy; override;
 
-    property OnListUpdated:TNotifyEvent write fOnListUpdated;
-    property OnAnnouncements:TGetStrProc write fOnAnnouncements;
-    property Count: integer read GetCount;
-    function GetServer(aIndex:integer):TKMServerInfo;
+    //property SortMethod: TServerSortMethod read fSortMethod write SetSortMethod;
+
+    property OnListUpdated: TNotifyEvent read fOnListUpdated write fOnListUpdated;
+    property OnAnnouncements: TStringEvent read fOnAnnouncements write fOnAnnouncements;
+    property Servers: TKMServerList read fServerList;
+
     procedure RefreshList;
     procedure FetchAnnouncements(const aLang: string);
     procedure UpdateStateIdle;
   end;
 
+
 implementation
 
 
+{ TKMServerList }
 procedure TKMServerList.AddServer(aIP, aPort, aName: string; aPing: word);
 begin
-  if Length(fServers) <= fCount then SetLength(fServers,fCount+16);
+  if Length(fServers) <= fCount then SetLength(fServers, fCount+16);
   fServers[fCount].Name := aName;
   fServers[fCount].IP := aIP;
   fServers[fCount].Port := aPort;
   fServers[fCount].Ping := aPing;
   fServers[fCount].RoomCount := 0;
-  SetLength(fServers[fCount].Rooms,0);
+  SetLength(fServers[fCount].Rooms, 0);
   inc(fCount);
 end;
 
@@ -120,7 +135,7 @@ begin
     for k:=0 to fServers[i].RoomCount-1 do
       fServers[i].Rooms[k].GameInfo.Free;
   fCount := 0;
-  SetLength(fServers,0);
+  SetLength(fServers, 0);
 end;
 
 
@@ -158,7 +173,7 @@ begin
 end;
 
 
-procedure TKMServerList.LoadData(aServerID:integer; M:TKMemoryStream; aPing:integer);
+procedure TKMServerList.LoadData(aServerID:integer; M:TKMemoryStream; aPing: Cardinal);
 var i: integer; GameInfoText:string;
 begin
   with fServers[aServerID] do
@@ -166,7 +181,7 @@ begin
     Ping := aPing;
     M.Position := 0;
     M.Read(RoomCount);
-    SetLength(Rooms,RoomCount);
+    SetLength(Rooms, RoomCount);
     for i:=0 to RoomCount-1 do
     begin
       M.Read(Rooms[i].RoomID);
@@ -179,6 +194,7 @@ begin
 end;
 
 
+{ TKMQuery }
 constructor TKMQuery.Create;
 begin
   Inherited;
@@ -284,13 +300,15 @@ begin
 end;
 
 
-constructor TKMServerQuery.Create(aMasterServerAddress:string);
+{ TKMServerQuery }
+constructor TKMServerQuery.Create(aMasterServerAddress: string);
 var i: integer;
 begin
   Inherited Create;
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnServerList := ReceiveServerList;
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
+
   fServerList := TKMServerList.Create;
   for i:=0 to MAX_QUERIES-1 do
   begin
@@ -309,12 +327,6 @@ begin
   for i:=0 to MAX_QUERIES-1 do
     fQuery[i].Free;
   Inherited;
-end;
-
-
-function TKMServerQuery.GetServer(aIndex:integer):TKMServerInfo;
-begin
-  Result := fServerList.Servers[aIndex];
 end;
 
 
@@ -342,18 +354,18 @@ begin
 end;
 
 
-procedure TKMServerQuery.ServerDataReceive(aServerID:integer; aData:string; aPingStarted:cardinal);
+procedure TKMServerQuery.ServerDataReceive(aServerID: Integer; aData: string; aPingStarted: Cardinal);
 var M: TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
   M.WriteAsText(aData);
-  fServerList.LoadData(aServerID, M, GetTickCount-aPingStarted);
+  fServerList.LoadData(aServerID, M, GetTickCount - aPingStarted);
   M.Free;
   if Assigned(fOnListUpdated) then fOnListUpdated(Self);
 end;
 
 
-procedure TKMServerQuery.QueryDone(Sender:TObject);
+procedure TKMServerQuery.QueryDone(Sender: TObject);
 begin
   inc(fQueriesCompleted);
   fServerList.TakeNewQuery(TKMQuery(Sender));
@@ -362,12 +374,7 @@ begin
 end;
 
 
-function TKMServerQuery.GetCount:integer;
-begin
-  Result := fServerList.Count;
-end;
-
-
+//Get the server announcements in specified language
 procedure TKMServerQuery.FetchAnnouncements(const aLang: string);
 begin
   fMasterServer.FetchAnnouncements(aLang);
@@ -375,7 +382,7 @@ end;
 
 
 procedure TKMServerQuery.UpdateStateIdle;
-var i:integer;
+var i: Integer;
 begin
   fMasterServer.UpdateStateIdle;
   for i:=0 to MAX_QUERIES-1 do

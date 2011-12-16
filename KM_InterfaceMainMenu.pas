@@ -63,10 +63,11 @@ type
     procedure MP_BindEvents;
     procedure MP_Save_Settings;
     procedure MP_Update(const aStatus:string; aColor:TColor4; aBusy:boolean);
-    procedure MP_RefreshClick(Sender: TObject);
-    procedure MP_ListUpdated(Sender: TObject);
+    procedure MP_ServersUpdateList(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
-    procedure MP_SelectServer(Sender: TObject);
+    procedure MP_ServersRefresh(Sender: TObject);
+    procedure MP_ServersSort(aValue: Integer);
+    procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
     procedure MP_Host_Click(Sender: TObject);
     procedure MP_JoinClick(Sender: TObject);
@@ -640,10 +641,11 @@ begin
     //Server list area
     ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal);
     ColList_Servers.SetColumns(fnt_Outline, [fTextLibrary[TX_MP_MENU_SERVER_NAME],fTextLibrary[TX_MP_MENU_SERVER_STATE],fTextLibrary[TX_MP_MENU_SERVER_PLAYERS],fTextLibrary[TX_MP_MENU_SERVER_PING]],[0,300,430,525]);
-    ColList_Servers.OnChange := MP_SelectServer;
+    ColList_Servers.OnColumnClick := MP_ServersSort;
+    ColList_Servers.OnChange := MP_ServersClick;
     ColList_Servers.OnDoubleClick := MP_ServersDoubleClick;
     Button_MP_Refresh := TKMButton.Create(Panel_MultiPlayer,275,700,390,30,fTextLibrary[TX_MP_MENU_REFRESH_LIST],fnt_Metal,bsMenu);
-    Button_MP_Refresh.OnClick := MP_RefreshClick;
+    Button_MP_Refresh.OnClick := MP_ServersRefresh;
 
     //Server details area
     Panel_MPServerDetails := TKMPanel.Create(Panel_MultiPlayer, 673, 300, 300, 292);
@@ -1211,7 +1213,7 @@ begin
   if Sender=Button_LobbyBack then
   begin
     Panel_MultiPlayer.Show;
-    MP_RefreshClick(Sender);
+    MP_ServersRefresh(Sender);
   end;
 
   {Return to MainMenu and restore resolution changes}
@@ -1508,7 +1510,8 @@ end;
 
 procedure TKMMainMenuInterface.MP_Init(Sender: TObject);
 begin
-  MP_RefreshClick(Sender); //Refresh the list when they first open the multiplayer page
+  MP_ServersRefresh(Sender); //Refresh the list when they first open the multiplayer page
+
   Edit_MP_PlayerName.Text := fGame.GlobalSettings.MultiplayerName;
   Edit_MP_IP.Text := fGame.GlobalSettings.MultiplayerIP;
   Edit_MP_Port.Text := fGame.GlobalSettings.LastPort;
@@ -1561,9 +1564,9 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_RefreshClick(Sender: TObject);
+procedure TKMMainMenuInterface.MP_ServersRefresh(Sender: TObject);
 begin
-  fGame.Networking.ServerQuery.OnListUpdated := MP_ListUpdated;
+  fGame.Networking.ServerQuery.OnListUpdated := MP_ServersUpdateList;
   fGame.Networking.ServerQuery.RefreshList;
   ColList_Servers.Clear;
   Label_MP_Players.Caption := '';
@@ -1573,21 +1576,27 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_ListUpdated(Sender: TObject);
-var i,k:integer; DisplayName:string; ServerFound:boolean;
+//Refresh the display for the list of servers
+procedure TKMMainMenuInterface.MP_ServersUpdateList(Sender: TObject);
+var
+  i,k:integer;
+  DisplayName:string;
+  ServerFound:boolean;
 begin
-  //Refresh the display for the list of servers
-  ServerFound := false;
+  ServerFound := False;
   ColList_Servers.Clear;
-  for i:=0 to fGame.Networking.ServerQuery.Count-1 do
-    with fGame.Networking.ServerQuery.GetServer(i) do
+
+  for i:=0 to fGame.Networking.ServerQuery.Servers.Count-1 do
+    with fGame.Networking.ServerQuery.Servers[i] do
       for k:=0 to RoomCount-1 do
       begin
-        ServerFound := true;
-        if RoomCount > 1 then DisplayName := Name+' #'+IntToStr(k+1) else DisplayName := Name; //Only show # when needed
+        ServerFound := True;
+        //Only show # if server has more than 1 room
+        DisplayName := IfThen(RoomCount = 0, Name, Name + ' #' + IntToStr(k+1));
         ColList_Servers.AddItem([DisplayName,fTextLibrary[GameStateTextIDs[Rooms[k].GameInfo.GameState]],IntToStr(Rooms[k].PlayerCount),IntToStr(Ping)],
                                 [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i, k);
       end;
+
   if not ServerFound then
     ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1,-1);
 end;
@@ -1600,14 +1609,43 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_SelectServer(Sender: TObject);
+procedure TKMMainMenuInterface.MP_ServersSort(aValue: Integer);
+begin
+  {case aValue of
+    //Sorting by name goes A..Z by default
+    0:  if fGame.Networking.ServerQuery.SortMethod = ssmByNameAsc then
+          fGame.Networking.ServerQuery.SortMethod = ssmByNameDesc
+        else
+          fGame.Networking.ServerQuery.SortMethod = ssmByNameAsc;
+    //Sorting by state goes ??? by default
+    //@Lewin: I'm not sure which one is the best order (Lobby-Game-None?)
+    1:  if fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc then
+          fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc
+        else
+          fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc;
+    //Sorting by player count goes 8..0 by default
+    2:  if fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc then
+          fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc
+        else
+          fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc;
+    //Sorting by ping goes 0 ... 1000 by default
+    3:  if fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc then
+          fGame.Networking.ServerQuery.SortMethod = ssmByStateDesc
+        else
+          fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc;     
+  end;}
+  MP_ServersUpdateList(nil);
+end;
+
+
+procedure TKMMainMenuInterface.MP_ServersClick(Sender: TObject);
 var
   ServerInfo: TKMServerInfo;
   RoomIndex: Integer;
 begin
   if ColList_Servers.ItemIndex = -1 then Exit;
 
-  ServerInfo := fGame.Networking.ServerQuery.GetServer(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag);
+  ServerInfo := fGame.Networking.ServerQuery.Servers[ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag];
   RoomIndex := ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag2;
 
   Edit_MP_IP.Text := ServerInfo.IP;
@@ -1623,7 +1661,7 @@ procedure TKMMainMenuInterface.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
 
-  if InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGame.Networking.ServerQuery.Count-1) then
+  if InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGame.Networking.ServerQuery.Servers.Count-1) then
     MP_JoinClick(Sender);
 end;
 
