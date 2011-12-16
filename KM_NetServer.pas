@@ -1,7 +1,7 @@
 unit KM_NetServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KM_CommonTypes, KM_Defaults
+uses Classes, SysUtils, Math, KM_CommonClasses, KM_NetworkTypes, KM_Defaults
      {$IFDEF MSWindows} ,Windows {$ENDIF}
      {$IFDEF WDC} ,KM_NetServerOverbyte {$ENDIF}
      {$IFDEF FPC} ,KM_NetServerLNet {$ENDIF}

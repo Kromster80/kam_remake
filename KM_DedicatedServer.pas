@@ -3,7 +3,7 @@ interface
 uses
   SysUtils,
   {$IFDEF MSWindows}Windows,{$ENDIF}
-  KM_NetServer, KM_MasterServer, KM_Defaults, KM_CommonTypes;
+  KM_NetServer, KM_MasterServer, KM_CommonEvents, KM_Defaults;
 
 type
   TKMDedicatedServer = class

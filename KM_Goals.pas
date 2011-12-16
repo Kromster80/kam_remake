@@ -2,7 +2,7 @@ unit KM_Goals;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_CommonTypes, KM_Defaults;
+  KM_CommonClasses, KM_Defaults;
 
 
 type

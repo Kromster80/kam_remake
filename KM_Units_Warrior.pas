@@ -2,7 +2,7 @@ unit KM_Units_Warrior;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units, KM_Houses, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Units, KM_Houses, KM_Points;
 
 type
   TKMTurnDirection = (tdNone, tdCW, tdCCW);
@@ -96,7 +96,7 @@ type
 
 implementation
 uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_Terrain,
-  KM_UnitTaskAttackHouse,
+  KM_UnitTaskAttackHouse, KM_MessageStack,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_ResourceGFX, KM_ResourceUnit;
 

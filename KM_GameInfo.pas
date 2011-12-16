@@ -3,7 +3,7 @@ unit KM_GameInfo;
 interface
 uses
   Classes, KromUtils, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Player;
+  KM_CommonClasses, KM_Defaults, KM_Player;
 
 
 type

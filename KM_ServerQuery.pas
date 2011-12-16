@@ -2,7 +2,7 @@ unit KM_ServerQuery;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, Windows,
-  KM_Defaults, KM_CommonTypes, KM_Utils, KM_MasterServer, KM_NetClient;
+  KM_Defaults, KM_CommonClasses, KM_CommonEvents, KM_NetworkTypes, KM_Utils, KM_MasterServer, KM_NetClient;
 
 const
   MAX_QUERIES = 16; //The maximum number of individual server queries that can be happening at once
@@ -58,19 +58,19 @@ type
   end;
 
   TKMServerList = class
-    private
-      fCount:integer;
-      fLastQueried:integer;
-      fServers:array of TKMServerInfo;
-      procedure AddServer(aIP, aPort, aName: string; aPing: word);
-      function GetServer(aIndex: Integer): TKMServerInfo;
-      procedure Clear;
-      procedure LoadFromText(const aText: string);
-    public
-      property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
-      property Count: Integer read fCount;
-      procedure TakeNewQuery(aQuery:TKMQuery);
-      procedure LoadData(aServerID:integer; M:TKMemoryStream; aPing: Cardinal);
+  private
+    fCount:integer;
+    fLastQueried:integer;
+    fServers:array of TKMServerInfo;
+    procedure AddServer(aIP, aPort, aName: string; aPing: word);
+    function GetServer(aIndex: Integer): TKMServerInfo;
+    procedure Clear;
+    procedure LoadFromText(const aText: string);
+  public
+    property Servers[aIndex: Integer]: TKMServerInfo read GetServer; default;
+    property Count: Integer read fCount;
+    procedure TakeNewQuery(aQuery:TKMQuery);
+    procedure LoadData(aServerID:integer; M:TKMemoryStream; aPing: Cardinal);
   end;
 
   //Handles the master-server querrying and carries ServerList

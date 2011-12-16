@@ -2,7 +2,7 @@ unit KM_DeliverQueue;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,
-    KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery, KM_Points;
 
 
 type

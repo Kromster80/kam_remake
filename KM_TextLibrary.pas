@@ -2,7 +2,7 @@ unit KM_TextLibrary;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, Math, StrUtils, KromUtils, KM_Defaults, KM_CommonTypes;
+  Classes, SysUtils, Math, StrUtils, KromUtils, KM_Defaults;
 
 
 const
@@ -16,6 +16,7 @@ const
   siCampTSKTexts = 250;
   siCampTPRTexts = 350;
 
+  //These constants are made so to be able to use Texts[] instead of GetSetupString(), which is consistent style for MainMenu
   TX_MENU_MULTIPLAYER = 1011;
   TX_MENU_OPTIONS = 1012;
   TX_MENU_CREDITS = 1013;
@@ -23,8 +24,6 @@ const
 
   //Load text IDs from this include file that is managed by the Translation Manager
   {$I KM_TextIDs.inc}
-
-  GameStateTextIDs:array[TMPGameState] of integer = (TX_MP_STATE_NONE,TX_MP_STATE_LOBBY,TX_MP_STATE_LOADING,TX_MP_STATE_GAME);
 
 
 type
@@ -44,10 +43,11 @@ type
     function GetSetupString(aIndex:word):AnsiString;
     property Texts[aIndex:word]:AnsiString read GetTexts; default;
     procedure ExportTextLibraries;
-end;
+  end;
+
 
 var
-  fTextLibrary:TTextLibrary;
+  fTextLibrary: TTextLibrary;
 
 
 implementation

@@ -7,7 +7,7 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library ye-> FPReadJPEG?t
-  KM_TGATexture, KM_Defaults, KM_CommonTypes, KM_Points;
+  KM_TGATexture, KM_Defaults, KM_CommonClasses, KM_ResourceSprites, KM_Points;
 
 type
   TCardinalArray = array of Cardinal;
@@ -103,7 +103,7 @@ var
 
 
 implementation
-uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceSprites, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_Log;
+uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_Log;
 
 
 constructor TRender.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);

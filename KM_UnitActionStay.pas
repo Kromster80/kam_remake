@@ -1,7 +1,7 @@
 unit KM_UnitActionStay;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KromUtils, KM_CommonTypes, KM_Units, SysUtils, Math, KM_Points;
+uses Classes, KM_Defaults, KromUtils, KM_CommonClasses, KM_Units, SysUtils, Math, KM_Points;
 
 {Stay in place for set time}
 type

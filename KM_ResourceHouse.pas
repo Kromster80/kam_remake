@@ -2,7 +2,8 @@ unit KM_ResourceHouse;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KM_CommonTypes, KM_Defaults;
+  Classes, Math, SysUtils,
+  KM_CommonClasses, KM_Defaults;
 
 
 type

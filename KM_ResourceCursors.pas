@@ -28,7 +28,7 @@ type
 
 
 implementation
-uses KM_CommonTypes, KM_ResourceSprites;
+uses KM_ResourceSprites;
 
 const
   //Screen.Cursors[0] is used by System default cursor

@@ -3,7 +3,7 @@ unit KM_ResourceFonts;
 interface
 uses
   Graphics, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Points;
 
 
 type

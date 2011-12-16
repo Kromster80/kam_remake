@@ -3,7 +3,7 @@ unit KM_Campaigns;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_Points;
+  KM_CommonClasses, KM_ResourceSprites, KM_Points;
 
 
 type

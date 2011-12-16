@@ -200,8 +200,8 @@ type
 
 
 implementation
-uses KM_CommonTypes, KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
-     KM_Utils, KM_Game, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceCursors;
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
+     KM_Utils, KM_Game, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 
 {Switch between pages}

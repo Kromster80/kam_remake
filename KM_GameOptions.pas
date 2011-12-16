@@ -2,7 +2,7 @@ unit KM_GameOptions;
 {$I KaM_Remake.inc}
 interface
 uses
-  KM_CommonTypes;
+  KM_CommonClasses;
 
 type
   TKMGameOptions = class

@@ -1,7 +1,8 @@
 unit KM_PlayerStats;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_CommonTypes;
+uses Classes,
+  KM_CommonClasses, KM_Defaults;
 
 {These are mission specific settings and stats for each player}
 type

@@ -125,7 +125,7 @@ var
 
 
 implementation
-uses KM_CommonTypes, KM_RenderAux, KM_Log, Math;
+uses KM_CommonClasses, KM_RenderAux, KM_Log, Math;
 
 
 const

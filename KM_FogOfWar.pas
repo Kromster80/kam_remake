@@ -1,7 +1,8 @@
 unit KM_FogOfWar;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, KM_CommonTypes, KM_Points;
+uses Classes, Math,
+  KM_CommonClasses, KM_Points;
 
 
 { FOW state for each player }

@@ -3,7 +3,7 @@ unit KM_Saves;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_GameInfo, KM_GameOptions;
+  KM_CommonClasses, KM_Defaults, KM_GameInfo, KM_GameOptions;
 
 
 type

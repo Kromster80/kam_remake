@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Utils, KM_Houses, KM_Points;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
@@ -257,7 +257,7 @@ type
 implementation
 uses KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitActionStormAttack,
-KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log,
+KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log, KM_MessageStack,
 
 KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 

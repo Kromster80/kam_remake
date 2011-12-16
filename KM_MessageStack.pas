@@ -2,12 +2,14 @@ unit KM_MessageStack;
 {$I KaM_Remake.inc}
 interface
 uses
-  Math, SysUtils, KM_CommonTypes, KM_Points;
+  Math, SysUtils, KM_CommonClasses, KM_Points;
 
 
 {Messages}
 //number matches pic index in gui.rx
 type
+  TKMMessageType = (msgText, msgHouse, msgUnit, msgQuill);
+
   TKMMessage = class
   public
     msgType:TKMMessageType;

@@ -294,7 +294,8 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, Forms, KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking, KM_CommonTypes,
+uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection,
+  KM_Utils, KM_Player, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, 
   KM_ServerQuery;
 
 
@@ -1578,6 +1579,8 @@ end;
 
 //Refresh the display for the list of servers
 procedure TKMMainMenuInterface.MP_ServersUpdateList(Sender: TObject);
+const
+  GameStateTextIDs:array[TMPGameState] of integer = (TX_MP_STATE_NONE,TX_MP_STATE_LOBBY,TX_MP_STATE_LOADING,TX_MP_STATE_GAME);
 var
   i,k:integer;
   DisplayName:string;

@@ -2,7 +2,7 @@ unit KM_PathFinding;
 {$I KaM_Remake.inc}
 interface
 uses SysUtils, Math, KromUtils,
-  KM_Defaults, KM_CommonTypes, KM_Houses, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Houses, KM_Points;
 
 
 type

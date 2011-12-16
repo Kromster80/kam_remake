@@ -1,7 +1,7 @@
 unit KM_Projectiles;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonTypes, KM_Units, KM_Houses, KM_Points;
+uses Classes, SysUtils, Math, KromUtils, KM_Utils, KM_Defaults, KM_CommonClasses, KM_Units, KM_Houses, KM_Points;
 
 
 {Projectiles in-game: arrows, bolts, rocks, etc..}

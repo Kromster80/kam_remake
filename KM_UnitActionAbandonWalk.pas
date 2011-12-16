@@ -2,7 +2,7 @@ unit KM_UnitActionAbandonWalk;
 {$I KaM_Remake.inc}
 interface
 uses Math, 
-  KM_CommonTypes, KM_Defaults, KM_Units, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Units, KM_Points;
 
 
 {Abandon the current walk, move onto next tile}

@@ -5,7 +5,7 @@ uses
     {$IFDEF MSWindows} Windows, {$ENDIF}
     {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
     Classes, Controls, Graphics, Math, SysUtils, Clipbrd, Forms,
-    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonTypes;
+    KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonEvents, KM_ResourceSprites;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
@@ -771,7 +771,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_ResourceGFX, KM_ResourceSprites, KM_ResourceCursors, KM_Sound;
+uses KM_RenderUI, KM_ResourceGFX, KM_ResourceCursors, KM_Sound;
 
 
 var

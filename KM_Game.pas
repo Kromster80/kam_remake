@@ -6,19 +6,21 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math, TypInfo, Zippit,
-  KM_CommonTypes, KM_Defaults, KM_Utils,
+  KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation, KM_GameOptions;
 
-type TGameState = ( gsNoGame,  //No game running at all, MainMenu
-                    gsPaused,  //Game is paused and responds to 'P' key only
-                    gsOnHold,  //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
-                    gsRunning, //Game is running normally
-                    gsReplay,  //Game is showing replay, no player input allowed
-                    gsEditor); //Game is in MapEditor mode
+type
+  TGameState = (
+    gsNoGame,  //No game running at all, MainMenu
+    gsPaused,  //Game is paused and responds to 'P' key only
+    gsOnHold,  //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
+    gsRunning, //Game is running normally
+    gsReplay,  //Game is showing replay, no player input allowed
+    gsEditor); //Game is in MapEditor mode
 
 type
   TKMGame = class

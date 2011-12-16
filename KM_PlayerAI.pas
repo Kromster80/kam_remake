@@ -2,7 +2,7 @@ unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils,
-    KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
 
 type //For now IDs must match with KaM
   TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
@@ -85,7 +85,7 @@ type //For now IDs must match with KaM
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Terrain, KM_ResourceGFX, KM_Sound;
+     KM_Terrain, KM_ResourceGFX, KM_Sound, KM_MessageStack;
 
 
 const

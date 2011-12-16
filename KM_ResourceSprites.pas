@@ -7,7 +7,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
 
   Classes, Math, SysUtils,
-  KM_CommonTypes,
+  KM_CommonEvents,
   KM_ResourceCursors,
   KM_ResourceHouse,
   KM_ResourcePalettes
@@ -17,6 +17,17 @@ uses
 
 //Used to separate close-combat units from archers (they use different fighting logic)
 type
+  TRXType = (
+    rxTrees,
+    rxHouses,
+    rxUnits,
+    rxGui,
+    rxGuiMain,
+    rxGuiMainH,
+    rxMenu, //Remake menu elements
+    rxTiles, //Tiles
+    rxGame); //Remake game sprites
+
   TKMSprites = class
   private
     fPalettes: TKMPalettes;

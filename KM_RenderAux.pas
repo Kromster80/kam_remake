@@ -3,7 +3,7 @@ unit KM_RenderAux;
 interface
 uses
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonTypes, KM_Points;
+  KM_Defaults, KM_CommonClasses, KM_Points;
 
 type
   TRenderAux = class

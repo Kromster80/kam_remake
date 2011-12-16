@@ -6,7 +6,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults,
+  KM_CommonEvents, KM_Defaults,
   KM_ResourceCursors,
   KM_ResourceFonts,
   KM_ResourceHouse,
