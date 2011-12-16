@@ -18,8 +18,8 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor:TColor4); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
-    procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-    procedure WriteText         (X,Y,W,H:smallint; Text:AnsiString; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
+    procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
+    procedure WriteText         (X,Y,W,H:smallint; Text:AnsiString; Fnt:TKMFont; Align:TTextAlign; Color: TColor4 = $FFFFFFFF);
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
@@ -398,7 +398,7 @@ end;
 
 
 {Renders plane with given color}
-procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
+procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
 begin
   glPushAttrib(GL_LINE_BIT);
   glLineWidth(1);
@@ -416,7 +416,7 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text: AnsiString; Fnt:TKMFont; Align:TTextAlign; Color:TColor4);
+procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text: AnsiString; Fnt:TKMFont; Align:TTextAlign; Color: TColor4 = $FFFFFFFF);
 var
   i:integer;
   LineCount,AdvX,LineHeight,BlockWidth:integer;

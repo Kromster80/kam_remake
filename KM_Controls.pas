@@ -886,7 +886,7 @@ begin
     Tmp := TKMLabel(Self).TextSize;
     fRenderUI.WriteLayer(TKMLabel(Self).TextLeft, Top, Tmp.X, Tmp.Y, $4000FFFF, $80FFFFFF);
     fRenderUI.WriteRect(TKMLabel(Self).AreaLeft, Top, fWidth, fHeight, 1, $FFFFFFFF);
-    fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
+    fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
     Exit;
   end;
 
@@ -899,8 +899,8 @@ begin
 
   if csOver in State then sColor := sColor OR $30000000; //Highlight on mouse over
 
-  fRenderUI.WriteLayer(Left, Top, fWidth, fHeight, sColor);
-  fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
+  fRenderUI.WriteLayer(Left, Top, fWidth, fHeight, sColor, $FFFFFFFF);
+  fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000, $FFFFFFFF);
 end;
 
 
@@ -1465,7 +1465,7 @@ begin
     //Render miniature copy of all available colors with '?' on top
     for i:=0 to Length(Colors)-1 do
       fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+2, Top+(i div fColumnCount)*(fCellSize div fColumnCount)+2, (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
-    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, 0, '?', fnt_Metal, taCenter, $FFFFFFFF);
+    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, 0, '?', fnt_Metal, taCenter);
     Start := 1;
   end;
 
@@ -1529,6 +1529,7 @@ end;
 
 procedure TKMButton.Paint;
 var
+  Col: TColor4;
   StateSet: T3DButtonStateSet;
 begin
   Inherited;
@@ -1544,10 +1545,11 @@ begin
 
   if fTexID <> 0 then Exit;
 
-  if fEnabled then //If disabled then text should be faded
-    fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, 0, fCaption, fFont, fTextAlign, $FFFFFFFF)
-  else
-    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, 0, fCaption, fFont, fTextAlign, $FF888888);
+  //If disabled then text should be faded
+  if fEnabled then Col := $FFFFFFFF
+              else Col := $FF888888;
+
+  fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, 0, fCaption, fFont, fTextAlign, Col);
 end;
 
 
@@ -1598,8 +1600,8 @@ begin
   Inherited;  
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
-  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, 0, fCaption, fFont, taCenter, $FFFFFFFF);
-  if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00);
+  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, 0, fCaption, fFont, taCenter);
+  if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00000000);
   if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
 end;
 
@@ -1868,7 +1870,9 @@ begin
   Inherited;
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then begin //Now draw text over bar, if required
+    //Shadow
     fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Width-4, 0, Caption, fFont, TextAlign, $FF000000);
+    //Text
     fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Width-4, 0, Caption, fFont, TextAlign, FontColor);
   end;
 end;
@@ -2348,7 +2352,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, 0.5);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft);
 end;
 
 
@@ -2517,10 +2521,10 @@ begin
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
   if (fItemIndex <> -1) and InRange(fItemIndex - TopIndex, 0, (fHeight div fItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
+    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft, $FFFFFFFF);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft);
 end;
 
 
@@ -2599,8 +2603,8 @@ begin
 
     fRenderUI.WriteBevel(Left + fColumnOffsets[i], Top, ColumnWidth, Height, True, fBackAlpha);
     if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = i) then
-      fRenderUI.WriteLayer(Left + fColumnOffsets[i], Top, ColumnWidth, Height, $20FFFFFF, $00);
-    fRenderUI.WriteText(Left + 4 + fColumnOffsets[i], 4 + Top, 0, 0, fColumns[i], fFont, taLeft, $FFFFFFFF);
+      fRenderUI.WriteLayer(Left + fColumnOffsets[i], Top, ColumnWidth, Height, $20FFFFFF, $00000000);
+    fRenderUI.WriteText(Left + 4 + fColumnOffsets[i], 4 + Top, 0, 0, fColumns[i], fFont, taLeft);
   end;
 end;
 
@@ -2803,7 +2807,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, fBackAlpha);
 
   if (fItemIndex <> -1) and InRange(ItemIndex - TopIndex, 0, (fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888);
+    fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
   for i:=0 to Math.min(fRowCount, (fHeight div fItemHeight)) - 1 do
     for k:=0 to fHeader.ColumnCount - 1 do
@@ -3346,7 +3350,7 @@ begin
   fCtrl.Paint;
 
   if MODE_DESIGN_CONTORLS and (CtrlFocus <> nil) then
-    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, 0, 0, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, taLeft, $FFFFFFFF);
+    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, 0, 0, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, taLeft);
 end;
 
 
