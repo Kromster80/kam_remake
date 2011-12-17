@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
+  StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_InterfaceDefaults,
   KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 

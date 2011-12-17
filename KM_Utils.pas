@@ -1,7 +1,7 @@
 unit KM_Utils;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, StrUtils, SysUtils, KM_Defaults, KM_Points;
+uses Classes, Math, SysUtils, KM_Defaults, KM_Points;
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 

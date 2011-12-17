@@ -3,7 +3,6 @@ unit KM_ResourceGFX;
 interface
 uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
-  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
   KM_CommonEvents, KM_Defaults,

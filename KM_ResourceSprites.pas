@@ -3,7 +3,6 @@ unit KM_ResourceSprites;
 interface
 uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
-  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
 
   Classes, Math, SysUtils,
