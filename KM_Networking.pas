@@ -432,10 +432,12 @@ begin
 
     //Add enough AI players automatically (when we are matching all)
     for i:=fNetPlayers.GetAICount to fSaveInfo.Info.AICount-1 do
-      fNetPlayers.AddAIPlayer;
+      if fNetPlayers.Count < MAX_PLAYERS then
+        fNetPlayers.AddAIPlayer;
 
-    for i:=fSaveInfo.Info.PlayerCount to MAX_PLAYERS-1 do
-      fNetPlayers.AddClosedPlayer; //Close unused slots
+    for i:=1 to MAX_PLAYERS - fSaveInfo.Info.PlayerCount - fNetPlayers.GetClosedCount do
+      if fNetPlayers.Count < MAX_PLAYERS then
+        fNetPlayers.AddClosedPlayer; //Close unused slots
   end;
 
   for i:=1 to fNetPlayers.Count do

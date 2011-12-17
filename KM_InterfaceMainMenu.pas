@@ -1663,8 +1663,8 @@ end;
 procedure TKMMainMenuInterface.MP_ServersDoubleClick(Sender: TObject);
 begin
   //MP_SelectServer gets called by first Click
-
-  if InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGame.Networking.ServerQuery.Servers.Count-1) then
+  if Button_MP_Join.Enabled
+  and InRange(ColList_Servers.Rows[ColList_Servers.ItemIndex].Tag, 0, fGame.Networking.ServerQuery.Servers.Count-1) then
     MP_JoinClick(Sender);
 end;
 

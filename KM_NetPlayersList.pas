@@ -351,6 +351,7 @@ end;
 
 procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer; aLang:byte=0);
 begin
+  Assert(fCount <= MAX_PLAYERS,'Can''t add player');
   inc(fCount);
   fPlayers[fCount].fNikname := aNik;
   fPlayers[fCount].fLangID := aLang;
@@ -371,6 +372,7 @@ procedure TKMPlayersList.AddAIPlayer(aSlot:integer=-1);
 begin
   if aSlot = -1 then
   begin
+    Assert(fCount <= MAX_PLAYERS,'Can''t add AI player');
     inc(fCount);
     aSlot := fCount;
   end;
@@ -394,6 +396,7 @@ procedure TKMPlayersList.AddClosedPlayer(aSlot:integer=-1);
 begin
   if aSlot = -1 then
   begin
+    Assert(fCount <= MAX_PLAYERS,'Can''t add closed player');
     inc(fCount);
     aSlot := fCount;
   end;

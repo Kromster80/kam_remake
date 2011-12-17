@@ -232,6 +232,7 @@ end;
 
 procedure TRender.Render;
 begin
+  if fGame = nil then exit; //Happens sometimes during ToggleFullScreen
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
   if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then

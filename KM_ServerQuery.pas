@@ -63,6 +63,7 @@ type
     function GetRoom(aIndex: Integer): TKMRoomInfo;
     procedure Clear;
   public
+    destructor Destroy; override;
     property Rooms[aIndex: Integer]: TKMRoomInfo read GetRoom; default;
     property Count: Integer read fCount;
     procedure LoadData(aServerID:integer; M:TKMemoryStream);
@@ -127,6 +128,12 @@ implementation
 
 
 { TKMRoomList }
+destructor TKMRoomList.Destroy;
+begin
+  Clear; //Frees GameInfo
+end;
+
+
 procedure TKMRoomList.AddRoom(aServerIndex, aRoomID, aPlayerCount: Integer; aOnlyRoom:Boolean; aGameInfoText: string);
 begin
   if Length(fRooms) <= fCount then SetLength(fRooms, fCount+16);
