@@ -1444,7 +1444,8 @@ begin
   begin
     fVisible := true;
     //If we are walking into/out of the house then don't set our position, ActionGoInOut will sort it out
-    if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
+    if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) or
+       (TUnitActionGoInOut(GetUnitAction).GetWaitingForPush) then
     begin
       //Position in a spiral nearest to entrance of house, updating IsUnit.
       if not fPlayers.FindPlaceForUnit(fInHouse.GetEntrance.X, fInHouse.GetEntrance.Y, UnitType, fCurrPosition, fTerrain.GetWalkConnectID(fInHouse.GetEntrance)) then

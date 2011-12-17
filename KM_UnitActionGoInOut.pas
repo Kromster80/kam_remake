@@ -34,6 +34,7 @@ type
     function ActName: TUnitActionName; override;
     function GetExplanation:string; override;
     property GetHasStarted: boolean read fHasStarted;
+    property GetWaitingForPush: boolean read fWaitingForPush;
     function GetDoorwaySlide(aCheck:TCheckAxis):single;
     procedure DoLinking; //Public because we need it when the barracks is destroyed
     function Execute: TActionResult; override;
@@ -309,6 +310,7 @@ begin
                       if (fPushedUnit <> nil) then
                       begin
                         fWaitingForPush := True;
+                        fHasStarted := True;
                         Exit;
                       end
                       else
@@ -326,7 +328,6 @@ begin
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;
-      fHasStarted := True;
       fPlayers.CleanUpUnitPointer(fPushedUnit);
       WalkOut;
     end
@@ -334,6 +335,7 @@ begin
     begin //There's still some unit - we can't go outside
       if (U <> fPushedUnit) then //The unit has switched places with another one, so we must start again
       begin
+        fHasStarted := False;
         fWaitingForPush := False;
         fPlayers.CleanUpUnitPointer(fPushedUnit);
       end;
