@@ -8,6 +8,7 @@
  +	"Unsaved changes will be lost" dialogue is shown properly from full screen mode
  +	"EAssertionFailed: KM_Units_Warrior.pas, line 642"
  +	Strange AI behavior with group formation
+ +	When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
@@ -20,7 +21,6 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
-	When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor

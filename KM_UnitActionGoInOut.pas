@@ -35,6 +35,7 @@ type
     function GetExplanation:string; override;
     property GetHasStarted: boolean read fHasStarted;
     function GetDoorwaySlide(aCheck:TCheckAxis):single;
+    procedure DoLinking; //Public because we need it when the barracks is destroyed
     function Execute: TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -232,7 +233,6 @@ end;
 
 
 procedure TUnitActionGoInOut.WalkOut;
-var LinkUnit: TKMUnitWarrior;
 begin
   fUnit.Direction := KMGetDirection(fDoor, fStreet);
   fUnit.UpdateNextPosition(fStreet);
@@ -243,7 +243,17 @@ begin
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
     TKMHouseBarracks(fUnit.GetHome).RecruitsList.Remove(fUnit);
 
-  //Warriors attempt to link as they leave the house
+  DoLinking; //Warriors attempt to link as they leave the house
+
+  //We are walking straight
+  if fStreet.X = fDoor.X then
+   IncDoorway;
+end;
+
+
+procedure TUnitActionGoInOut.DoLinking;
+var LinkUnit: TKMUnitWarrior;
+begin
   if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
   begin
     case fPlayers.Player[fUnit.GetOwner].PlayerType of
@@ -255,10 +265,6 @@ begin
       pt_Computer: fPlayers[fUnit.GetOwner].AI.WarriorEquipped(TKMUnitWarrior(fUnit));
     end;
   end;
-
-  //We are walking straight
-  if fStreet.X = fDoor.X then
-   IncDoorway;
 end;
 
 
@@ -303,7 +309,6 @@ begin
                       if (fPushedUnit <> nil) then
                       begin
                         fWaitingForPush := True;
-                        fHasStarted := True;
                         Exit;
                       end
                       else
@@ -321,6 +326,7 @@ begin
     if (U = nil) then //Unit has walked away
     begin
       fWaitingForPush := False;
+      fHasStarted := True;
       fPlayers.CleanUpUnitPointer(fPushedUnit);
       WalkOut;
     end
@@ -328,7 +334,6 @@ begin
     begin //There's still some unit - we can't go outside
       if (U <> fPushedUnit) then //The unit has switched places with another one, so we must start again
       begin
-        fHasStarted := False;
         fWaitingForPush := False;
         fPlayers.CleanUpUnitPointer(fPushedUnit);
       end;

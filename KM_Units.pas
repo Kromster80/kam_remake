@@ -1465,7 +1465,11 @@ begin
       fPrevPosition := fCurrPosition;
       fNextPosition := fCurrPosition;
       fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
-      if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
+      if GetUnitAction is TUnitActionGoInOut then
+      begin
+        TUnitActionGoInOut(GetUnitAction).DoLinking; //Warriors will be linked as normal
+        SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
+      end;
       if (GetUnitTask is TTaskGoEat) and (TTaskGoEat(GetUnitTask).Eating) then
       begin
         FreeAndNil(fUnitTask); //Stop the eating animation and makes the unit appear
