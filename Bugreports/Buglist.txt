@@ -20,6 +20,7 @@
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Path finding looks odd sometimes, dodging sideways to avoid a unit that is no longer there
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
+	When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
 
 	Dots and lines displaying on tile edges [Krom]
 	Colored rectangle below cursor
@@ -56,7 +57,7 @@ Features:
 	Sort maps in SP and MP (building, building and fighting, fighting, co-op, players, mapsize, etc.)
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
-	Markups should only be visible on you and your allies screen, to stop people people ruining a multiplayer game by filling an enemy's base with road markups that cannot be removed (requires allowing multiple players to have a markup on the same tile)
+	Markups should only be visible on you and your allies screen (move markups from terrain to player)
 	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
 	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
 
