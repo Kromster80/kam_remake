@@ -953,6 +953,7 @@ begin
       Radio_MapEd_MapType.Items.Add(fTextLibrary[TX_MENU_MAPED_MPMAPS]);
       Radio_MapEd_MapType.OnChange := MapEditor_MapTypeChange;
       List_MapEd := TKMListBox.Create(Panel_MapEd_Load, 0, 80, 300, 240, fnt_Metal);
+      List_MapEd.OnDoubleClick := MapEditor_Start;
       Button_MapEd_Load := TKMButton.Create(Panel_MapEd_Load, 0, 335, 300, 30, fTextLibrary[TX_MENU_MAP_LOAD_EXISTING], fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
 
@@ -2339,7 +2340,9 @@ procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 begin
   if Sender = Button_MapEd_Create then
     fGame.StartMapEditor('', false, MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
-  if (Sender = Button_MapEd_Load) and (List_MapEd.ItemIndex <> -1) then
+  //This is also called by double clicking on a map in the list
+  if ((Sender = Button_MapEd_Load) or (Sender = List_MapEd)) and
+     Button_MapEd_Load.Enabled and (List_MapEd.ItemIndex <> -1) then
     fGame.StartMapEditor(MapNameToPath(List_MapEd.Item[List_MapEd.ItemIndex], 'dat', Radio_MapEd_MapType.ItemIndex = 1), Radio_MapEd_MapType.ItemIndex = 1, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 

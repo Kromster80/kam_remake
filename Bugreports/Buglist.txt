@@ -29,6 +29,7 @@ Features:
  +	Allow to close lobby slots to avoid more players joining
  +	Checkbox to give the host absolute control of all team/location setup
  +	Saves/replays/single maps can be started by double clicking an item in the list
+ +	Sorting the server list by clicking on column headers
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping

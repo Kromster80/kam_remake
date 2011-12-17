@@ -953,6 +953,7 @@ begin
   fMainMenuInterface.ShowScreen(msLoading, '');
   if fResource.DataState<>dls_All then begin
     GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
+    fResource.OnLoadingText := GameLoadingStep;
     fResource.LoadGameResources;
   end;
 
