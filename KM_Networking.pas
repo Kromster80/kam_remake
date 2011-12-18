@@ -537,16 +537,23 @@ end;
 //Tell other players which start position we would like to use
 //Each players choice should be unique
 procedure TKMNetworking.SelectLoc(aIndex:integer; aPlayerIndex:integer);
+var LocAvailable:Boolean; NetPlayerIndex: Integer;
 begin
   //Check if position can be taken before sending
+  LocAvailable := fNetPlayers.LocAvailable(aIndex);
   if ((fSelectGameKind = ngk_Map) and ((not fMapInfo.IsValid) or (aIndex > fMapInfo.Info.PlayerCount))) or
      ((fSelectGameKind = ngk_Save) and ((not fSaveInfo.IsValid) or (aIndex > fSaveInfo.Info.PlayerCount))) or
      (fSelectGameKind = ngk_None) or
-     (not fNetPlayers.LocAvailable(aIndex)) then
+     (not LocAvailable and (not IsHost or not fNetPlayers.HostDoesSetup)) then
   begin
     if Assigned(fOnPlayersSetup) then fOnPlayersSetup(Self);
     Exit;
   end;
+
+  //If someone else has this index, switch them (only when HostDoesSetup)
+  NetPlayerIndex := fNetPlayers.StartingLocToLocal(aIndex);
+  if (NetPlayerIndex <> -1) and IsHost and fNetPlayers.HostDoesSetup then
+    fNetPlayers[NetPlayerIndex].StartLocation := fNetPlayers[aPlayerIndex].StartLocation;
 
   //Host makes rules, Joiner will get confirmation from Host
   fNetPlayers[aPlayerIndex].StartLocation := aIndex; //Use aPlayerIndex not fMyIndex because it could be an AI
