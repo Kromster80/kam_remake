@@ -31,6 +31,7 @@ type
     fLastSaveName:string; //The file name we last used to save this file (used as default in Save menu)
     LastSchoolUnit:byte;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:byte; //Last unit that was selected in Barracks, global for all barracks player owns
+    LastPCoords:TKMPoint; //Last mouse point
     fMessageList:TKMMessageList;
 
     procedure Create_Replay_Page;
@@ -3156,7 +3157,7 @@ end;
 //2. Perform SelectingTroopDirection if it is active
 //3. Display various cursors depending on whats below (might be called often)
 procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
-var DeltaX,DeltaY,DeltaDistanceSqr:integer; NewPoint:TPoint; U:TKMUnit; H:TKMHouse;
+var DeltaX,DeltaY,DeltaDistanceSqr:integer; NewPoint:TPoint; U:TKMUnit; H:TKMHouse; P:TKMPoint;
 begin
   MyControls.MouseMove(X,Y,Shift);
 
@@ -3203,6 +3204,45 @@ begin
   end;
 
   fTerrain.ComputeCursorPosition(X,Y,Shift);
+
+  if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
+  begin
+    P := GameCursor.Cell; //Get cursor position tile-wise
+    case GameCursor.Mode of
+    cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer) and not KMSamePoint(LastPCoords,P) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_RoadPlan);
+    cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer) and not KMSamePoint(LastPCoords,P) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_FieldPlan);
+    cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer) and not KMSamePoint(LastPCoords,P) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WinePlan);
+    cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WallPlan);
+    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then begin
+                fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
+                Build_ButtonClick(Button_BuildRoad);
+              end
+              else
+                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+    cm_Erase: begin
+                H := MyPlayer.HousesHitTest(P.X, P.Y);
+                //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
+                if MyPlayer.RemHouse(P,true,true) and (H.BuildingState <> hbs_Glyph) then
+                begin
+                  fPlayers.Selected := H; //Select the house irregardless of unit below/above
+                  ShowHouseInfo(H,true);
+                  fSoundLib.Play(sfx_Click);
+                end
+                else
+                begin
+                  //Now remove houses that are not started
+                  if MyPlayer.RemHouse(P,true,true) and (H.BuildingState = hbs_Glyph) then
+                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, P)
+                  else
+                    if MyPlayer.RemPlan(P,true,true) then
+                      fGame.GameInputProcess.CmdBuild(gic_BuildRemovePlan, P) //Remove plans
+                    else
+                      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
+                end;
+              end;
+    end;
+    LastPCoords := GameCursor.Cell;
+  end;
 
   if GameCursor.Mode<>cm_None then
   begin
@@ -3354,9 +3394,9 @@ begin
                   end;
                 end;
               end;
-    cm_Road:  fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_RoadPlan);
-    cm_Field: fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_FieldPlan);
-    cm_Wine:  fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WinePlan);
+    cm_Road:  if not KMSamePoint(LastPCoords,P) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_RoadPlan);
+    cm_Field: if not KMSamePoint(LastPCoords,P) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_FieldPlan);
+    cm_Wine:  if not KMSamePoint(LastPCoords,P) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WinePlan);
     cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WallPlan);
     cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then begin
                 fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
@@ -3386,6 +3426,7 @@ begin
                 end;
               end;
   end;
+                     LastPCoords := KMPoint(0,0);
 end;
 
 

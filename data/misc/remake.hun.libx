@@ -35,14 +35,14 @@ MaxID:220
 29:Alkalmaz
 30:Nyelv:
 31:Betöltés... Kérem várjon
-216:
-217:
-218:
-219:
-220:
-215:
+216:egységek
+217:házak
+218:fák
+219:definíciók
+220:terep grafikák
+215:további grafikák
 208:felkészülés
-209:többjátékos módra felkészülés
+209:többjátékos mód indítása
 210:szkript
 32:Hiba történt!
 212:Hiba történt a %s fájl beolvasása közben
@@ -156,7 +156,7 @@ MaxID:220
 107:Ping
 108:Kirúg
 109:Nyitva
-213:
+213:Zárva
 110:Számítógép
 111:Válassz...
 112:Véletlen
@@ -191,7 +191,7 @@ MaxID:220
 158:A játékosok száma meghaladja a térkép korlátait
 160:A szerver átadta a házigazda szerepét nekünk
 187:A játék elkezdõdött
-214:
+214:A hoszt állítja be a játékosokat
 
 131:Várakozás a játékosokra:
 163:Játék mentése...
