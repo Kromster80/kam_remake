@@ -31,6 +31,7 @@ Features:
  +	Checkbox to give the host absolute control of all team/location setup
  +	Saves/replays/single maps can be started by double clicking an item in the list
  +	Sorting the server list by clicking on column headers
+ +	Road/field placement can be done by dragging as well as by clicking each tile [Jecy]
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping

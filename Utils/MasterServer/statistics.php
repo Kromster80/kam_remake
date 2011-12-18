@@ -1,7 +1,8 @@
 <?php
 
-global $STATS_FILE, $STATS_TEMP_FILE, $STATS_PERIOD;
+global $STATS_FILE, $STATS_TEMP_FILE, $STATS_PERIOD, $PLAYER_TIME_FILE;
 $STATS_FILE = "stats.txt"; //actual statistics record
+$PLAYER_TIME_FILE = "playertime.txt"; //record of total player seconds
 $STATS_TEMP_FILE = "stats_tmp.txt"; //servers and playercount of the last x minutes
 $STATS_PERIOD = 600; //seconds between stat records
 
@@ -21,7 +22,7 @@ function StatsUpdate($Server, $PlayerCount) {
 		}
 
 		if ($LastMajUpdate < time() - $STATS_PERIOD) {
-			StatsMajUpdate($TempEntries);
+			StatsMajUpdate($TempEntries, time() - $LastMajUpdate);
 			$LastMajUpdate = time();
 			$TempEntries = array();
 		}
@@ -43,8 +44,8 @@ function StatsUpdate($Server, $PlayerCount) {
 	fclose($fh);
 }
 
-function StatsMajUpdate($TempEntries) {
-	global $STATS_FILE;
+function StatsMajUpdate($TempEntries, $SecondsSinceLastUpdate) {
+	global $STATS_FILE, $PLAYER_TIME_FILE;
 
 	$Servers = 0; $Players = 0;
 
@@ -54,6 +55,16 @@ function StatsMajUpdate($TempEntries) {
 
 	$fh = fopen($STATS_FILE, 'a');
 	fwrite($fh, time().','.$Servers.','.$Players."\n");
+	fclose($fh);
+	
+	//update player time
+	if (file_exists($PLAYER_TIME_FILE)) {
+		$PlayerSeconds = file_get_contents($PLAYER_TIME_FILE);
+	} else { $PlayerSeconds = 0; }
+	$PlayerSeconds += $SecondsSinceLastUpdate*$Players;
+
+	$fh = fopen($PLAYER_TIME_FILE, 'w');
+	fwrite($fh, $PlayerSeconds);
 	fclose($fh);
 }
 

@@ -78,6 +78,36 @@ function plural($count, $singular, $plural = 's') {
     return ($count == 1 ? $singular : $plural);
 }
 
+function GetTime($Format)
+{
+	global $PLAYER_TIME_FILE;
+	if (file_exists($PLAYER_TIME_FILE)) {
+		$PlayerSeconds = file_get_contents($PLAYER_TIME_FILE);
+	} else { $PlayerSeconds = 0; }
+	$result = "";
+	$minutes = floor($PlayerSeconds/60)%60;
+	$hours = floor($PlayerSeconds/(60*60))%24;
+	$days = floor($PlayerSeconds/(60*60*24))%365;
+	$years = floor($PlayerSeconds/(60*60*24*365));
+	switch($Format)
+	{
+		case "seconds": $result = $PlayerSeconds; break;
+		case "ajaxupdate":
+			$data = json_encode(Array("yr"=>$years,"dy"=>$days,"hr"=>$hours));
+			$result = $_GET['jsonp_callback']."(".$data.")";
+		break;
+		default:
+			$result = "<span id=\"years\">$years</span> ".plural($years,"year").", ";
+			$result .= "<span id=\"days\">$days</span> ".plural($days,"day").", ";
+			$result .= "<span id=\"hours\">$hours</span> ".plural($hours,"hour")."";
+			$startscript = '<script type="text/javascript">'."\n".
+			'function uppt(){setTimeout(function (){jQuery.ajax({dataType: "jsonp",jsonp: "jsonp_callback",url: "http://lewin.hodgman.id.au/kam_remake_master_server/servertime.php?format=ajaxupdate",success: function (data){jQuery("#years").empty().append(data.yr);jQuery("#days").empty().append(data.dy);jQuery("#hours").empty().append(data.hr);uppt();}});}, 30000);}'."\n".
+			'jQuery(document).ready(function($){uppt();});</script>'."\n";
+			$result = $startscript.$result;
+		break;
+	}
+	return $result;
+}
 
 function GetStats($Format)
 {

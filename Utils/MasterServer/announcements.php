@@ -5,6 +5,11 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
+if($Rev == "r2722")
+{
+  die("Thank you for helping me test :)");
+}
+
 //First see if they are up to date
 if($Rev != $MAIN_VERSION)
 {
@@ -63,7 +68,8 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo "Welcome to the new version!||Have fun, report problems and spread the word :-)";
+	echo "GreatWhiteBear is organising a KaM Remake Christmas tournament!||Visit the forum to register: tinyurl.com/KAMCOMP";
+	//echo "Welcome to the new version!||Have fun, report problems and spread the word :-)";
 	//echo "Use our webchat to organise your games and stay in contact: www.kamremake.com/chat||Server admins: Don't forget to update your servers to r2460 if you haven't already.||Have fun :)";
 	//echo "TO THE OWNERS OF THE FOLLOWING SERVERS:|KaM srv from Natodia|[PL] Reborn Army KaM Server||You need to update your servers to r2460 ASAP. (download at www.kamremake.com) Due to bugs in the old server versions there are \"ghost\" players on your server which failed to disconnect properly.|If anyone knows the owners of these servers, please ask them to update. Playing on these servers is not recommended as they are more likely to crash your game.";
 	//echo 'There is a new Servers page on the website! Check it out at www.kamremake.com/servers||We have also released an update to the dedicated server that fixes crashes on Linux. Please update your servers as soon as possible to the new version r2460. Thanks to everyone who helped test this server fix.';
