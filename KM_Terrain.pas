@@ -957,6 +957,10 @@ begin
       if (aPlantAct in [taCut, taAny])
       and ObjectIsChopableTree(T, 4)
       and (Land[i,k].TreeAge >= TreeAgeFull)
+      and not TileIsLocked(KMPoint(T.X  , T.Y)) //Woodcutter could be standing on any tile surrounding this tree
+      and not TileIsLocked(KMPoint(T.X-1, T.Y))
+      and not TileIsLocked(KMPoint(T.X  , T.Y-1))
+      and not TileIsLocked(KMPoint(T.X-1, T.Y-1))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
         List1.AddEntry(T);
 
