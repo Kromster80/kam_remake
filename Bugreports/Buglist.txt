@@ -38,7 +38,6 @@ Features:
 	Multiplayer should have an option to send a flare (beacon) on the minimap to tell allies (or all players) about something.
 	Multiplayer mode could show the player's name above each group (flag holder) while some key is kept pressed
 	Mutltiplayer spectator mode
-	Ability for the host to close slots in MP lobby
 	Make F8 smooth by speeding up the game clock, rather than processing multiple ticks at once
 	Scrolling around the map using middle mouse click, as in TPR
 	Dismiss button to make units walk into the school and disappear (gold is not refunded)

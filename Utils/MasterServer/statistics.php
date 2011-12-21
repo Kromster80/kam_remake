@@ -58,9 +58,10 @@ function StatsMajUpdate($TempEntries, $SecondsSinceLastUpdate) {
 	fclose($fh);
 	
 	//update player time
+	$PlayerSeconds = 0;
 	if (file_exists($PLAYER_TIME_FILE)) {
-		$PlayerSeconds = file_get_contents($PLAYER_TIME_FILE);
-	} else { $PlayerSeconds = 0; }
+		$PlayerSeconds += trim(file_get_contents($PLAYER_TIME_FILE));
+	}
 	$PlayerSeconds += $SecondsSinceLastUpdate*$Players;
 
 	$fh = fopen($PLAYER_TIME_FILE, 'w');

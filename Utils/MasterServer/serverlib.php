@@ -132,7 +132,7 @@ function GetStats($Format)
 	switch ($Format)
 	{
 		case "kamclub":
-			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
+			return '<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8"><meta http-equiv="refresh" content="30"></head><body><div style="font-size:11px; font-family:Arial,Tahoma"><b>Кол-во серверов:</b> '.$ServerCount.'<BR><b>Кол-во игроков:</b> '.$TotalPlayerCount.'</font></div></body></html>';
 		case "ajaxupdate":
 			$data = json_encode(Array("pct"=>$TotalPlayerCount,"sct"=>$ServerCount));
 			return $_GET['jsonp_callback']."(".$data.")";

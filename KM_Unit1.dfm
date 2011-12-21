@@ -15,6 +15,7 @@ object Form1: TForm1
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poScreenCenter
+  Scaled = False
   OnCanResize = FormCanResize
   OnCloseQuery = FormCloseQuery
   OnDestroy = FormDestroy
