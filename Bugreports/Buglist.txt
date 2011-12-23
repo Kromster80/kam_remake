@@ -9,6 +9,7 @@
  +	"EAssertionFailed: KM_Units_Warrior.pas, line 642"
  +	Strange AI behavior with group formation
  +	When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
+ +	Soldiers would still remind you to feed them when food was already on the way
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)

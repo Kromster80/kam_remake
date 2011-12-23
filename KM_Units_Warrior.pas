@@ -50,7 +50,7 @@ type
     function GetCommander:TKMUnitWarrior;
     function IsCommander:boolean;
     function GetMemberCount:integer;
-    property RequestedFood:boolean write fRequestedFood; //Cleared by Serf delivering food
+    property RequestedFood:boolean read fRequestedFood write fRequestedFood; //Cleared by Serf delivering food
     procedure SetGroupFullCondition;
     procedure SetOrderHouseTarget(aHouse:TKMHouse);
     property GetWarriorState: TWarriorState read fState;
@@ -99,6 +99,9 @@ uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, 
   KM_UnitTaskAttackHouse, KM_MessageStack,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
   KM_UnitActionStormAttack, KM_ResourceGFX, KM_ResourceUnit;
+
+
+const HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second
 
 
 { TKMUnitWarrior }
@@ -883,17 +886,18 @@ var i:integer; SomeoneHungry:boolean;
 begin
   if (fCommander = nil) then
   begin
-    SomeoneHungry := (fCondition < UNIT_MIN_CONDITION); //Check commander
+    SomeoneHungry := (fCondition < UNIT_MIN_CONDITION) and not fRequestedFood; //Check commander
     if (fMembers <> nil) and (not SomeoneHungry) then
       for i:=0 to fMembers.Count-1 do
       begin
-        SomeoneHungry := SomeoneHungry or (TKMUnitWarrior(fMembers.List[i]).Condition < UNIT_MIN_CONDITION);
+        SomeoneHungry := SomeoneHungry or ((TKMUnitWarrior(fMembers.List[i]).Condition < UNIT_MIN_CONDITION)
+                                            and not TKMUnitWarrior(fMembers.List[i]).RequestedFood);
         if SomeoneHungry then break;
       end;
 
     if SomeoneHungry then
     begin
-      dec(fTimeSinceHungryReminder);
+      dec(fTimeSinceHungryReminder,HUNGER_CHECK_FREQ);
       if fTimeSinceHungryReminder < 1 then
       begin
         if (fOwner = MyPlayer.PlayerIndex) then
@@ -1023,7 +1027,7 @@ begin
 
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
-  if fFlagAnim mod 10 = 0 then UpdateHungerMessage;
+  if fFlagAnim mod HUNGER_CHECK_FREQ = 0 then UpdateHungerMessage;
 
   //Choose a random foe from our commander, then use that from here on (only if needed and not every tick)
   if GetCommander.ArmyInFight and (not (GetUnitAction is TUnitActionFight))
