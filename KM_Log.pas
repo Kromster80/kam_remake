@@ -2,36 +2,32 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils
-  {$IFDEF MSWindows}
-  ,MMSystem
-  {$ENDIF}
-  ;
+  SysUtils, KromUtils;
 
 {This is our custom logging system}
 type
   TKMLog = class
   private
-    fl:textfile;
-    fLogPath:string;
-    fFirstTick:cardinal;
-    fPreviousTick:cardinal;
-    fPreviousDate:TDateTime;
-    procedure AddLine(const aText:string);
-    procedure AddLineNoTime(const aText:string);
+    fl: textfile;
+    fLogPath: string;
+    fFirstTick: cardinal;
+    fPreviousTick: cardinal;
+    fPreviousDate: TDateTime;
+    procedure AddLine(const aText: string);
+    procedure AddLineNoTime(const aText: string);
   public
-    constructor Create(aPath:string);
-    //AppendLog adds the line to Log along with time passed since previous line added
-    procedure AppendLog(const aText:string); overload;
-    procedure AppendLog(const aText:string; num:integer); overload;
-    procedure AppendLog(const aText:string; num:single ); overload;
-    procedure AppendLog(num:integer; const aText:string); overload;
-    procedure AppendLog(const aText:string; Res:boolean); overload;
-    procedure AppendLog(a,b:integer); overload;
-    //Add line if TestValue=false
-    procedure AssertToLog(TestValue:boolean; const aMessageText:string);
-    //AddToLog simply adds the text
-    procedure AddToLog(const aText:string);
+    constructor Create(aPath: string);
+    // AppendLog adds the line to Log along with time passed since previous line added
+    procedure AppendLog(const aText: string); overload;
+    procedure AppendLog(const aText: string; num: integer); overload;
+    procedure AppendLog(const aText: string; num: single); overload;
+    procedure AppendLog(num: integer; const aText: string); overload;
+    procedure AppendLog(const aText: string; Res: boolean); overload;
+    procedure AppendLog(a, b: integer); overload;
+    // Add line if TestValue=false
+    procedure AssertToLog(TestValue: boolean; const aMessageText: string);
+    // AddToLog simply adds the text
+    procedure AddToLog(const aText: string);
     property LogPath: string read fLogPath;
   end;
 
@@ -41,17 +37,6 @@ type
 
 implementation
 uses KM_Defaults;
-
-
-function TimeGet: Cardinal;
-begin
-  {$IFDEF MSWindows}
-  Result := TimeGetTime; //Return milliseconds with ~1ms precision
-  {$ENDIF}
-  {$IFDEF Unix}
-  Result := cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
-  {$ENDIF}
-end;
 
 
 {Reset log file}
@@ -91,62 +76,67 @@ end;
 
 
 {Same line but without timestamp}
-procedure TKMLog.AddLineNoTime(const aText:string);
+procedure TKMLog.AddLineNoTime(const aText: string);
 begin
   AssignFile(fl, fLogPath);
   Append(fl);
-  WriteLn(fl,#9+#9+aText);
+  WriteLn(fl, #9#9 + aText);
   CloseFile(fl);
 end;
 
 
-procedure TKMLog.AppendLog(const aText:string);
+procedure TKMLog.AppendLog(const aText: string);
 begin
   AddLine(aText);
 end;
 
 
-procedure TKMLog.AppendLog(const aText:string; num:integer);
+procedure TKMLog.AppendLog(const aText: string; num: integer);
 begin
-  AddLine(aText+' '+inttostr(num));
+  AddLine(aText + ' ' + inttostr(num));
 end;
 
 
-procedure TKMLog.AppendLog(const aText:string; num:single);
+procedure TKMLog.AppendLog(const aText: string; num: single);
 begin
-  AddLine(aText+' '+FloatToStr(num));
+  AddLine(aText + ' ' + floattostr(num));
 end;
 
 
-procedure TKMLog.AppendLog(num:integer; const aText:string);
+procedure TKMLog.AppendLog(num: integer; const aText: string);
 begin
-  AddLine(inttostr(num)+' '+aText);
+  AddLine(inttostr(num) + ' ' + aText);
 end;
 
 
-procedure TKMLog.AppendLog(const aText:string; Res:boolean);
-var s:string;
+procedure TKMLog.AppendLog(const aText: string; Res: boolean);
+var
+  s: string;
 begin
-  if Res then s:='done' else s:='fail';
-  AddLine(aText+' ... '+s);
+  if Res then
+    s := 'done'
+  else
+    s := 'fail';
+  AddLine(aText + ' ... ' + s);
 end;
 
 
-procedure TKMLog.AppendLog(a,b:integer);
+procedure TKMLog.AppendLog(A, B: integer);
 begin
-  AddLine(inttostr(a)+' : '+inttostr(b));
+  AddLine(inttostr(A) + ' : ' + inttostr(B));
 end;
 
 
-procedure TKMLog.AssertToLog(TestValue:boolean; const aMessageText:string);
+procedure TKMLog.AssertToLog(TestValue: boolean; const aMessageText: string);
 begin
-  if TestValue then exit;
+  if TestValue then
+    exit;
   AddLine('ASSERTION FAILED! Msg: ' + aMessageText);
   Assert(false, 'ASSERTION FAILED! Msg: ' + aMessageText);
 end;
 
 
-procedure TKMLog.AddToLog(const aText:string);
+procedure TKMLog.AddToLog(const aText: string);
 begin
   AddLineNoTime(aText);
 end;

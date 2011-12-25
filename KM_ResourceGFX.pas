@@ -2,7 +2,6 @@ unit KM_ResourceGFX;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
   KM_CommonEvents, KM_Defaults,
