@@ -35,12 +35,12 @@ MaxID:220
 29:Toepassen
 30:Taal:
 31:Aan het laden... Een ogenblik geduld
-216:
-217:
-218:
-219:
-220:
-215:
+216:eenheden
+217:gebouwen
+218:bomen
+219:definities
+220:tegelset
+215:aanvullende afbeeldingen
 208:initialiseren
 209:multiplayer initialisatie
 210:script
@@ -156,7 +156,7 @@ MaxID:220
 107:Ping
 108:Kick
 109:Open
-213:
+213:Gesloten
 110:Computerspeler
 111:Selecteer...
 112:Willekeurig
@@ -191,7 +191,7 @@ MaxID:220
 158:Aantal spelers overschrijdt kaartlimiet
 160:Server heeft ons hostingrechten toegewezen
 187:Spel gestart
-214:
+214:Host regelt spelerinstellingen
 
 131:Wachten op spelers:
 163:Spel opslaan...

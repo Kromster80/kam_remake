@@ -35,12 +35,12 @@ MaxID:220
 29:Zastosuj
 30:Jêzyk:
 31:£adowanie... Proszê czekaæ
-216:
-217:
-218:
-219:
-220:
-215:
+216:jednostki
+217:domy
+218:drzewa
+219:definicje
+220:grafiki terenu
+215:dodatkowe grafiki
 208:inicjowanie
 209:inicjowanie wielu graczy
 210:skrypt
@@ -156,7 +156,7 @@ MaxID:220
 107:Ping
 108:Wyrzuæ
 109:Wolne
-213:
+213:Zamkniête
 110:Komputer
 111:Wybierz...
 112:Przypadkowe
@@ -191,7 +191,7 @@ MaxID:220
 158:Liczba graczy przekracza limit mapy
 160:Serwer przypisa³ prawa hosta do nas
 187:Gra rozpoczêta
-214:
+214:Host konfiguruje gracza
 
 131:Oczekiwanie na graczy:
 163:Zapisywanie gry...

@@ -1,15 +1,5 @@
-﻿Since r2678:
+﻿Since r273X:
 <===================================================================================>
- +	Army unit icons in MapEd don't have team colors
- +	"Stonemason has no action" (also "EAssertionFailed: KM_Terrain.pas, line 526") crashes fixed
- +	Units are smarter at detecting when the resource they wanted to mine/gather/plant has already been taken
- +	Units in the inn are rendered at the wrong place when the inn is on uneven ground
- +	Game minimizes when you alt-tab from full screen mode rather than becoming stuck
- +	"Unsaved changes will be lost" dialogue is shown properly from full screen mode
- +	"EAssertionFailed: KM_Units_Warrior.pas, line 642"
- +	Strange AI behavior with group formation
- +	When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
- +	Soldiers would still remind you to feed them when food was already on the way
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
@@ -28,11 +18,6 @@
 	See-through hills (lighting flaw)
 
 Features:
- +	Allow to close lobby slots to avoid more players joining
- +	Checkbox to give the host absolute control of all team/location setup
- +	Saves/replays/single maps can be started by double clicking an item in the list
- +	Sorting the server list by clicking on column headers
- +	Road/field placement can be done by dragging as well as by clicking each tile [Jecy]
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
@@ -61,6 +46,7 @@ Features:
 	Markups should only be visible on you and your allies screen (move markups from terrain to player)
 	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
 	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
+	Some way to delete multiplayer saves from within the KaM Remake
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
@@ -68,6 +54,30 @@ Features:
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
+
+
+
+Fixed in r273X:
+<===================================================================================>
+ +	Army unit icons in MapEd don't have team colors
+ +	"Stonemason has no action" (also "EAssertionFailed: KM_Terrain.pas, line 526") crashes fixed
+ +	Units are smarter at detecting when the resource they wanted to mine/gather/plant has already been taken
+ +	Units in the inn are rendered at the wrong place when the inn is on uneven ground
+ +	Game minimizes when you alt-tab from full screen mode rather than becoming stuck
+ +	"Unsaved changes will be lost" dialogue is shown properly from full screen mode
+ +	"EAssertionFailed: KM_Units_Warrior.pas, line 642"
+ +	Strange AI behavior with group formation
+ +	When Hiring 100 scouts from Barracks and demolishing it, Scouts will keep on exiting through invisible entrance (instead of popping all at once like Recruits do)
+ +	Soldiers would still remind you to feed them when food was already on the way
+
+
+Features:
+ +	Allow to close lobby slots to avoid more players joining
+ +	Checkbox to give the host absolute control of all team/location setup
+ +	Saves/replays/single maps can be started by double clicking an item in the list
+ +	Sorting the server list by clicking on column headers
+ +	Road/field placement can be done by dragging as well as by clicking each tile [Jecy]
+
 
 
 Fixed in r2678:

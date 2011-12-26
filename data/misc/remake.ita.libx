@@ -35,12 +35,12 @@ MaxID:220
 29:Applica
 30:Lingua:
 31:In caricamento...
-216:
-217:
-218:
-219:
-220:
-215:
+216:unità
+217:edifici
+218:alberi
+219:definizioni
+220:tileset
+215:sprite addizionali
 208:inizializzando
 209:inizializzando il multiplayer
 210:script
@@ -156,7 +156,7 @@ MaxID:220
 107:Ping
 108:Caccia
 109:Aperto
-213:
+213:Chiuso
 110:Giocatore IA
 111:Seleziona...
 112:Casuale
@@ -191,7 +191,7 @@ MaxID:220
 158:Troppi giocatori per questa mappa
 160:Il server ci ha assegato il ruolo di host
 187:Partita iniziata
-214:
+214:L'host configura i giocatori
 
 131:In attesa dei giocatori:
 163:Salvataggio in corso...

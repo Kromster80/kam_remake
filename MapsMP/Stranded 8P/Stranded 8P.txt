@@ -1,0 +1,5 @@
+Title
+Stranded
+
+BigDesc
+An easily defensible map where players each have 3 entrances to defend, surrounded by large rivers and streams. Iron can sometimes be far from reach. Made by caykroyd.|Players are group in twos.||Suggested teams:|1+2 vs 3+4 vs 5+6 vs 7+8 or|1+2+3+4 vs 5+6+7+8 (top vs bottom) or|1+2+5+6 vs 3+4+7+8 (left vs right)

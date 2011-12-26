@@ -35,12 +35,12 @@ MaxID:220
 29:Übernehmen
 30:Sprache:
 31:Lade... Bitte warten
-216:
-217:
-218:
-219:
-220:
-215:
+216:Einheiten
+217:Gebäude
+218:Bäume
+219:Definitionen
+220:Texturen
+215:Zusätzliche Grafiken
 208:Initialisierung
 209:Multiplayer Initialisierung
 210:Skript
@@ -156,7 +156,7 @@ MaxID:220
 107:Ping
 108:Kick
 109:Öffnen
-213:
+213:Geschlossen
 110:Computer
 111:Wähle...
 112:Zufällig
@@ -191,7 +191,7 @@ MaxID:220
 158:Die Spieleranzahl hat die Grenze erreicht.
 160:Der Server hat dir die Hostingrechte übertragen.
 187:Spiel gestartet
-214:
+214:Host übernimmt Spieler Setup.
 
 131:Warte auf Spieler:
 163:Spiel wird gespeichert...

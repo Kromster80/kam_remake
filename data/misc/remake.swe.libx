@@ -35,12 +35,12 @@ MaxID:220
 29:Bekräfta
 30:Språk:
 31:Laddar... Var god vänta
-216:
-217:
-218:
-219:
-220:
-215:
+216:enheter
+217:hus
+218:träd
+219:definitioner
+220:terrängtexturer
+215:ny grafik
 208:initierar
 209:flerspelarinitiering
 210:script
@@ -156,7 +156,7 @@ MaxID:220
 107:Ping
 108:Kicka
 109:Öppen
-213:
+213:Stängd
 110:AI-spelare
 111:Välj...
 112:Slumpad
@@ -191,7 +191,7 @@ MaxID:220
 158:Så många spelare kan inte spela på denna karta
 160:Servern har tilldelat dig värdrättigheter
 187:Spel startat
-214:
+214:Värden gör spelaruppställningen
 
 131:Väntar på spelare:
 163:Sparar spel...

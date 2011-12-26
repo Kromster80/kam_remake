@@ -1,0 +1,10 @@
+Title
+TSK 12 Coop
+
+SetCoop
+
+SmallDesc
+ 
+
+BigDesc
+Mission 12 from The Shattered Kingdom campaign converted for co-operative by Lewin.|Locations:|HUMAN TEAM 1:|1,2|AI TEAM 2:|3,4,5||You MUST use this setup exactly for the mission to work properly.

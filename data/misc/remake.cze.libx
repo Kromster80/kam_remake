@@ -35,12 +35,12 @@ MaxID:220
 29:Použít
 30:Jazyk:
 31:Nahrávám... Prosím èekejte
-216:
-217:
-218:
-219:
-220:
-215:
+216:jednotky
+217:domy
+218:stromy
+219:skripty
+220:textury terénu
+215:další grafika
 208:inicializuje se
 209:inicializace hry pro více hráèù
 210:skript
@@ -156,7 +156,7 @@ MaxID:220
 107:Ping
 108:Pryè
 109:Otevøeno
-213:
+213:Zavøeno
 110:Poèítaè
 111:Vybrat...
 112:Náhodné
@@ -191,7 +191,7 @@ MaxID:220
 158:Poèet hráèù pøekraèuje maximální poèet daný mapou
 160:Server vám pøiøadil hostovací práva
 187:Hra již zaèala
-214:
+214:Host urèuje nastavení hráèe
 
 131:Èekám na ostatní hráèe:
 163:Ukládám hru...
@@ -221,8 +221,8 @@ MaxID:220
 200:Spojit oddíl ('%s')
 201:Samostatný voják ('%s')
 
-132:KaM Remake Zásluhy
-133:Originální Knights & Merchants Zásluhy
+132:KaM Remake Autoøi
+133:Autoøi Knights & Merchants 
 134:PROGRAMOVÁNÍ:
 135:DALŠÍ PROGRAMOVÁNÍ:
 136:DALŠÍ GRAFIKA:
