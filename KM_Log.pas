@@ -2,7 +2,11 @@ unit KM_Log;
 {$I KaM_Remake.inc}
 interface
 uses
-  SysUtils, KromUtils;
+  SysUtils
+  {$IFDEF MSWindows}
+  ,MMSystem //Required for TimeGet which is defined locally because this unit must NOT know about KromUtils as it is not Linux compatible (and this unit is used in Linux dedicated servers)
+  {$ENDIF}
+  ;
 
 {This is our custom logging system}
 type
@@ -37,6 +41,20 @@ type
 
 implementation
 uses KM_Defaults;
+
+
+//This unit must not know about KromUtils because it is used by the Linux Dedicated servers
+//and KromUtils is not Linux compatible. Therefore this function is copied directly from KromUtils.
+//Do not remove and add KromUtils to uses, that would cause the Linux build to fail
+function TimeGet: Cardinal;
+begin
+  {$IFDEF MSWindows}
+  Result := TimeGetTime; //Return milliseconds with ~1ms precision
+  {$ENDIF}
+  {$IFDEF Unix}
+  Result := cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
+  {$ENDIF}
+end;
 
 
 {Reset log file}

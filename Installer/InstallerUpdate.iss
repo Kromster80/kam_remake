@@ -1,7 +1,7 @@
 ; For each "Update" build there are two things to change. Revision and Upgradable Versions
 
 ; REVISION
-#define Revision 'r2735'
+#define Revision 'r2736'
 
 ; These don't need to change
 #define InstallType 'Update'
