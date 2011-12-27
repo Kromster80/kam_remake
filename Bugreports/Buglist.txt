@@ -1,5 +1,6 @@
 ﻿Since r2736:
 <===================================================================================>
+	Exporting GUI.rx gives a Range Check Error
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)

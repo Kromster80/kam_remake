@@ -5,7 +5,7 @@ MaxID:220
 2:Tutoriel de Construction
 3:Tutoriel de Bataille
 4:Joueur Solo
-5:Éditeur de Map
+5:Éditeur de cartes
 202:Lecteur de Replay
 203:Voir le Replay
 6:Voir le Dernier Replay
@@ -17,7 +17,7 @@ MaxID:220
 12:Condition de Défaite : %s
 13:Alliés : 
 14:Ennemis : 
-16:Taille de la Carte :
+16:Taille de la carte :
 17:Largeur
 18:Hauteur
 19:Créer une Mission
@@ -26,27 +26,27 @@ MaxID:220
 22:Contrôles :
 23:Jouabilité :
 24:Effets Sonores :
-141:Vitesse du Scroll.
+141:Vitesse de défilement.
 25:Désactiver
-143:Lecture Aléatoire
+143:Lecture aléatoire
 26:Graphisme :
 27:Luminosité
 28:Plein Écran
 29:Appliquer
 30:Langage :
 31:Chargement... Veuillez patienter
-216:
-217:
-218:
-219:
-220:
-215:
+216:unités
+217:bâtiments
+218:arbres
+219:définitions
+220:tileset	
+215:sprites additionnels
 208:initialisation
 209:initialisation du multijoueur
 210:script
-32:Une Erreur c'est Produite !
-212:Une erreur est survenue lors de l'analyse du fichier %s
-33:Chargement du nouveau local
+32:Une Erreur s'est Produite !
+212:Une erreur est survenue lors de l'analyse du fichier %s.
+33:Chargement du nouveau local...
 34:Liste des Sauvegardes :
 35:Nom du Fichier
 36:Description
@@ -68,10 +68,10 @@ MaxID:220
 50:Continuer à Regarder
 51:Quitter au Menu
 166:Abandonner les Joueurs
-167:L'hôte sera autorisé à abandonner ses joueurs après %d secondes
-168:L'hôte est désormais autorisé à abandonner ses joueurs
+167:L'hôte sera autorisé à abandonner ces joueurs après %d secondes.
+168:L'hôte est désormais autorisé à abandonner ces joueurs.
 171:Êtes-vous sûr(e) de vouloir quitter ?
-172:Êtes-vous sûr(e) de vouloir définitivement abandonner ses joueurs ?
+172:Êtes-vous sûr(e) de vouloir définitivement abandonner ces joueurs ?
 173:Annuler
 52:Non disponible
 53:Appuyer sur %s pour reprendre le jeu
@@ -88,7 +88,7 @@ MaxID:220
 194:Temps de Jeu :|%s
 
 61:Une erreur s'est produite durant la partie.
-62:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!\n\nATTENTION: Continuer à jouer après cette erreur peut causer des crashes et des instabilités supplémentaires. Voulez-vous prendre ce risque et continuer à jouer?
+62:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent se trouver dans le fichier Readme. Merci beaucoup de votre petite aide!\n\nATTENTION: Continuer à jouer après cette erreur peut causer des crashs et des instabilités supplémentaires. Voulez-vous prendre ce risque et continuer à jouer?
 63:Une ancienne version d'OpenGL a été détectée, le jeu peut être lent et/ou avec des défauts graphiques.\nVeuillez mettre à jour vos pilotes graphiques pour avoir une meilleure performance.
 64:Erreur réseau :
 65:Erreur : Le nom du joueur doit contenir au moins un caractère
@@ -98,8 +98,8 @@ MaxID:220
 150:Troupes et Bâtiments
 151:Troupes
 
-69:La Hutte de votre Pêcheur est trop éloignée de la mer.
-70:Votre Pêcheur ne peut plus pêcher de poisson supplémentaire.
+69:La Hutte de votre Pêcheur est trop éloignée de l'eau.
+70:Votre Pêcheur ne peut plus pêcher dans les eaux environnantes..
 
 71:Place du Marché
 72:Utilisez le bouton gauche de la souris pour sélectionner une marchandise à échanger
@@ -114,8 +114,8 @@ MaxID:220
 
 76:Édition du terrain
 77:Planification du village
-78:Scripts visuel
-79:Scripts global
+78:Scripts visuels
+79:Scripts globaux
 80:Menu
 
 82:Nom du Joueur
@@ -139,10 +139,10 @@ MaxID:220
 98:Joindre
 153:Prêt
 99:Connexion, veuillez patienter...
-159:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s
+159:Mauvaise version du protocole : %s. Le Serveur utilise la version : %s.
 100:Chargement des annonces...
 101:Rafraichissement...
-142:Aucun serveur n'a été trouvés
+142:Aucun serveur n'a été trouvé
 145:-
 146:Lobby
 147:Chargement
@@ -166,7 +166,7 @@ MaxID:220
 117:Envoyer un Message :
 118:Type de Mission
 119:Mission Solo
-188:Développement
+188:Construction
 189:Bataille
 190:Mission Coopérative
 120:Partie Enregistrée
@@ -185,21 +185,21 @@ MaxID:220
 130:Débuter !
 149:Position %d
 154:Erreur : Veuillez sélectionner un joueur de la sauvegarde pour le contrôler
-155:Erreur : Le chargement de la mission a échoué où aucune mission n'a été sélectionnée
+155:Erreur : Le chargement de la mission a échoué ou aucune mission n'a été sélectionnée
 156:Impossible de débuter : %s
 157:Tout le monde n'est pas prêt pour débuter
 158:Le nombre de joueurs dépasse la limite de la mission
-160:Le Serveur a attribué nos droits d'hébergement
-187:La partie a débuté
-214:L'hôte configure les joueurs
+160:Le Serveur vous a attribué les droits d'hebergement
+187:La partie a débuté !
+214:L'hôte configure les Joueurs
 
 131:Attente des Joueurs :
 163:Enregistrement de la partie...
-164:%s à perdu !
-169:L'hôte (%s) à quitter
+164:%s a perdu !
+169:L'hôte (%s) a quitté
 170:La connexion vers le serveur a été perdue. Tentative de reconnexion...
-191:Vous n'êtes pas autorisé à faire cela pendant le temps de paix.
-192:Temps de paix restant : %s
+191:Vous n'êtes pas autorisé à faire cela pendant le temps de paix
+192:Temps de Paix restant : %s
 193:Le temps de paix est terminé. À vos armes !
 
 174:Unités|formées
@@ -218,14 +218,14 @@ MaxID:220
 198:S
 
 199:Halte ('%s')
-200:Regrouper les Unités ('%s')
-201:Scinder les Unités ('%s')
+200:Regrouper les unités ('%s')
+201:Scinder les unités ('%s')
 
 132:Crédits de KaM Remake
-133:Crédits Original de Knights & Merchants
+133:Crédits originaux de Knights & Merchants
 134:PROGRAMMATION :
-135:PROGRAMMATION ADDITIONNEL :
-136:GRAPHISMES ADDITIONNEL :
-165:ÉFFETS SONORES ADDITIONNEL :
-137:TRADUCTIONS ADDITIONNEL :
-138:REMERCIMENTS PARTICULIERS :
+135:PROGRAMMATION ADDITIONNELLE :
+136:GRAPHISMES ADDITIONNELS :
+165:EFFETS SONORES ADDITIONNELS :
+137:TRADUCTIONS ADDITIONNELLES :
+138:REMERCIEMENTS PARTICULIERS :
