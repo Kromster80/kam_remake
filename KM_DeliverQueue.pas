@@ -146,6 +146,48 @@ type
     procedure SyncLoad;
   end;
 
+  //TKMBuildingList = class; //Workers, WIP Houses
+  //TKMRoadworksList = class; //Workers, Roadsworks
+
+  //Most complicated class
+  //We need to combine 2 approaches for wares > serfs and wares < serfs
+  //Houses signal when they have new wares/needs
+  //Serfs signal when they are free to perform actions
+  //List should be able to override Idling Serfs action
+  //List should not override serfs deliveries even if the other serf can do it quicker,
+  //because it will look bad to player, if first serfs stops for no reason
+  //List does the comparison between houses and serfs and picks best pairs
+  //(logic can be quite complicated and try to predict serfs/wares ETA)
+  //Comparison function could be executed more rare or frequent depending on signals from houses/serfs
+  //e.g. with no houses signals it can sleep till first on. At any case - not more frequent than 1/tick
+  //TKMDeliveryList = class; //Serfs, Houses/Warriors/Workers
+
+  //Use simple approach since repairs are quite rare events
+  {TKMRepairList = class
+  private
+    fHouses: TList;
+    fWorkers: TList;
+
+    function GetHouse(aIndex: Integer): TKMHouse;
+    function GetWorker(aIndex: Integer): TKMUnitWorker;
+
+    property Houses[aIndex: Integer]: TKMHouse read GetHouse;
+    property Workers[aIndex: Integer]: TKMUnitWorker read GetWorker;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure AddHouse(aHouse: TKMHouse);
+    procedure AddWorker(aUnit: TKMUnit);
+    procedure RemHouse(aHouse: TKMHouse);
+    procedure RemWorker(aUnit: TKMUnit);
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure SyncLoad;
+    procedure UpdateState;
+  end;}
+
 
 implementation
 uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log;
@@ -1142,5 +1184,73 @@ begin
     fQueue[i].House := fPlayers.GetHouseByID(cardinal(fQueue[i].House));
 end;
 
+
+{ TKMRepairList }
+{constructor TKMRepairList.Create;
+begin
+  inherited;
+
+  fHouses := TList.Create;
+  fWorkers := TList.Create;
+end;
+
+destructor TKMRepairList.Destroy;
+begin
+  //We don't keep track on pointers because Houses/Units tell us when they die themselves
+
+  fHouses.Free;
+  fWorkers.Free;
+  inherited;
+end;
+
+function TKMRepairList.GetHouse(aIndex: Integer): TKMHouse;
+begin
+  Result := fHouses[aIndex];
+end;
+
+function TKMRepairList.GetWorker(aIndex: Integer): TKMUnitWorker;
+begin
+  Result := fWorkers[aIndex];
+end;
+
+procedure TKMRepairList.AddHouse(aHouse: TKMHouse);
+begin
+  fHouses.Add(aHouse);
+end;
+
+procedure TKMRepairList.AddWorker(aUnit: TKMUnit);
+begin
+  fWorkers.Add(aUnit);
+end;
+
+procedure TKMRepairList.RemHouse(aHouse: TKMHouse);
+begin
+  fHouses.Remove(aHouse);
+end;
+
+procedure TKMRepairList.RemWorker(aUnit: TKMUnit);
+begin
+  fWorkers.Remove(aUnit);
+end;
+
+procedure TKMRepairList.Save(SaveStream: TKMemoryStream);
+begin
+
+end;
+
+procedure TKMRepairList.Load(LoadStream: TKMemoryStream);
+begin
+
+end;
+
+procedure TKMRepairList.SyncLoad;
+begin
+
+end;
+
+procedure TKMRepairList.UpdateState;
+begin
+
+end;}
 
 end.
