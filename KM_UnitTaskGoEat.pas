@@ -53,8 +53,9 @@ end;
 //May happen when we die while desperatley trying to get some food
 destructor TTaskGoEat.Destroy;
 begin
-  if PlaceID<>0 then fInn.EatersGoesOut(PlaceID);
-  fPlayers.CleanUpHousePointer(fInn);
+  if PlaceID <> 0 then
+    fInn.EatersGoesOut(PlaceID);
+  fPlayers.CleanUpHousePointer(TKMHouse(fInn));
   Inherited;
 end;
 

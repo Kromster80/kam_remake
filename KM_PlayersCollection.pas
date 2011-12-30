@@ -40,11 +40,8 @@ type
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
     function CheckAlliance(aPlay1,aPlay2:TPlayerIndex):TAllianceType;
-    procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
-    procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
-    procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
-    procedure CleanUpHousePointer(var aHouse: TKMHouseInn); overload;
-    procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
+    procedure CleanUpUnitPointer(var aUnit: TKMUnit);
+    procedure CleanUpHousePointer(var aHouse: TKMHouse);
     procedure RemAnyHouse(Position: TKMPoint);
     procedure RemAnyUnit(Position: TKMPoint);
     procedure RevealForTeam(aPlayer: TPlayerIndex; Pos:TKMPoint; Radius,Amount:word);
@@ -343,11 +340,6 @@ begin
   aUnit := nil;
 end;
 
-procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnitWarrior);
-begin
-  CleanUpUnitPointer(TKMUnit(aUnit));
-end;
-
 
 procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouse);
 begin
@@ -356,17 +348,6 @@ begin
   aHouse := nil;
 end;
 
-
-procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouseInn);
-begin
-  CleanUpHousePointer(TKMHouse(aHouse));
-end;
-
-
-procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouseSchool);
-begin
-  CleanUpHousePointer(TKMHouse(aHouse));
-end;
 
 //MapEd procedure to remove any house below
 procedure TKMPlayersCollection.RemAnyHouse(Position: TKMPoint);

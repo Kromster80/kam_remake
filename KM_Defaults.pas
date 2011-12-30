@@ -71,7 +71,7 @@ var
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
-  SHOW_POINTER_DOTS     :boolean=false; //Show pointer count as small dots below unit
+  SHOW_POINTER_DOTS     :boolean=true; //Show pointer count as small dots below unit
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
@@ -81,7 +81,7 @@ var
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Stats}
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
-  SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
+  SHOW_POINTER_COUNT    :boolean=true; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
   SHOW_NETWORK_DELAY    :boolean=false; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :boolean=false; //Show result of enemy armies evaluation

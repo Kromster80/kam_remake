@@ -50,7 +50,7 @@ end;
 destructor TTaskSelfTrain.Destroy;
 begin
   if (fPhase <= 5) and not fSchool.IsDestroyed then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
-  fPlayers.CleanUpHousePointer(fSchool);
+  fPlayers.CleanUpHousePointer(TKMHouse(fSchool));
   Inherited;
 end;
 
@@ -98,7 +98,7 @@ begin
       6: begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
           fSchool.UnitTrainingComplete;
-          fPlayers.Player[GetOwner].Stats.UnitCreated(UnitType,true);
+          fPlayers.Player[GetOwner].TrainingDone(fUnit);
          end;
       else Result := TaskDone;
     end;

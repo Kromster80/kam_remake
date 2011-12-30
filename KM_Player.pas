@@ -38,7 +38,7 @@ type
   private
     fAI:TKMPlayerAI;
     fBuildList:TKMBuildingQueue;
-    fRepairList: TKMRepairQueue;
+    fRepairList: TKMRepairList;
     fDeliverList:TKMDeliverQueue;
     fHouses:TKMHousesCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
@@ -66,7 +66,7 @@ type
 
     property AI:TKMPlayerAI read fAI;
     property BuildList:TKMBuildingQueue read fBuildList;
-    property RepairList:TKMRepairQueue read fRepairList;
+    property RepairList: TKMRepairList read fRepairList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
     property Stats:TKMPlayerStats read fStats;
@@ -88,6 +88,8 @@ type
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit; reintroduce;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
+    procedure TrainingDone(aUnit: TKMUnit);
+
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace:boolean):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint);
@@ -208,7 +210,7 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
-  fRepairList   := TKMRepairQueue.Create;
+  fRepairList   := TKMRepairList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
   fPlayerName   := 'Player ' + IntToStr(aPlayerIndex);
@@ -250,7 +252,12 @@ begin
   Result := Inherited AddUnit(aUnitType, Position, AutoPlace);
 
   if Result <> nil then
+  begin
+    if aUnitType = ut_Worker then
+      fRepairList.AddWorker(TKMUnitWorker(Result));
+
     fStats.UnitCreated(aUnitType, WasTrained);
+  end;
 end;
 
 
@@ -260,6 +267,15 @@ function TKMPlayer.TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
 begin
   Result := fUnits.Add(fPlayerIndex, aUnitType, Position.X, Position.Y, false);
   //Do not add unit to statistic just yet, wait till it's training complete
+end;
+
+
+procedure TKMPlayer.TrainingDone(aUnit: TKMUnit);
+begin
+  if aUnit.UnitType = ut_Worker then
+    fRepairList.AddWorker(TKMUnitWorker(aUnit));
+
+  fStats.UnitCreated(aUnit.UnitType, True);
 end;
 
 
@@ -578,6 +594,8 @@ begin
   Inherited;
   fHouses.UpdateState;
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
+
+  fRepairList.UpdateState; //todo: Make it less frequent
 
   if aUpdateAI then
   begin

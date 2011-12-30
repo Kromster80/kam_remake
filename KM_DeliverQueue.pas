@@ -51,17 +51,21 @@ type
   public
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemoveOffer(aHouse:TKMHouse);
+
+    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
+    function TryRemoveDemand(aHouse:TKMHouse; aResource:TResourceType; aCount:word):word;
     procedure RemoveDemand(aHouse:TKMHouse); overload;
     procedure RemoveDemand(aUnit:TKMUnit); overload;
-    function TryRemoveDemand(aHouse:TKMHouse; aResource:TResourceType; aCount:word):word;
-    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
+
     function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
+
     procedure ExportToFile(aFileName:string);
   end;
 
@@ -122,30 +126,6 @@ type
     procedure SyncLoad;
   end;
 
-
-  TKMRepairQueue = class
-  private
-    fCount:integer;
-    fQueue:array of
-    record
-      House:TKMHouse;
-      Importance:byte;
-      WorkerCount:integer; //So we don't get pointer issues
-      IsDeleted:boolean;
-    end;
-    procedure CloseHouseRepair(aID:integer);
-  public
-    procedure RemoveHouse(aID: integer); overload;
-    procedure RemoveHouse(aHouse: TKMHouse); overload;
-    procedure RemoveHousePointer(aID:integer);
-    procedure AddHouse(aHouse: TKMHouse);
-    function AskForTask(aWorker:TKMUnitWorker):TUnitTask;
-
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
-    procedure SyncLoad;
-  end;
-
   //TKMBuildingList = class; //Workers, WIP Houses
   //TKMRoadworksList = class; //Workers, Roadsworks
 
@@ -163,34 +143,40 @@ type
   //TKMDeliveryList = class; //Serfs, Houses/Warriors/Workers
 
   //Use simple approach since repairs are quite rare events
-  {TKMRepairList = class
+  //Houses and Workers are only added to the list. List checks itself when Houses/Workers should be removed from it
+  TKMRepairList = class
   private
-    fHouses: TList;
-    fWorkers: TList;
+    fHousesCount: Integer;
+    fHouses: array of record
+      House: TKMHouse; //Pointer to house
+      Assigned: Byte; //How many workers are assigned to it
+    end;
 
-    function GetHouse(aIndex: Integer): TKMHouse;
-    function GetWorker(aIndex: Integer): TKMUnitWorker;
+    fWorkersCount: Integer;
+    fWorkers: array of record
+      Worker: TKMUnitWorker; //Pointer to Worker
+    end;
 
-    property Houses[aIndex: Integer]: TKMHouse read GetHouse;
-    property Workers[aIndex: Integer]: TKMUnitWorker read GetWorker;
+    function HouseAlreadyInList(aHouse: TKMHouse): Boolean;
+    procedure RemoveExtraHouses;
+    procedure RemoveExtraWorkers;
+    procedure RemHouse(aIndex: Integer);
+    procedure RemWorker(aIndex: Integer);
   public
-    constructor Create;
     destructor Destroy; override;
 
     procedure AddHouse(aHouse: TKMHouse);
-    procedure AddWorker(aUnit: TKMUnit);
-    procedure RemHouse(aHouse: TKMHouse);
-    procedure RemWorker(aUnit: TKMUnit);
+    procedure AddWorker(aWorker: TKMUnitWorker);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
     procedure UpdateState;
-  end;}
+  end;
 
 
 implementation
-uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log;
+uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_ResourceGFX, KM_Log, KM_UnitActionStay;
 
 
 const
@@ -1059,198 +1045,189 @@ begin
 end;
 
 
-{ TKMRepairQueue }
-procedure TKMRepairQueue.CloseHouseRepair(aID:integer);
-begin
-  Assert(fQueue[aID].WorkerCount = 0);
-  fPlayers.CleanUpHousePointer(fQueue[aID].House);
-  fQueue[aID].Importance:=0;
-  fQueue[aID].IsDeleted := false;
-end;
-
-
-procedure TKMRepairQueue.RemoveHouse(aID: integer);
-begin
-  if fQueue[aID].WorkerCount = 0 then
-    CloseHouseRepair(aID)
-  else
-    fQueue[aID].IsDeleted := true; //Can't delete it until all workers have finished with it
-end;
-
-
-procedure TKMRepairQueue.RemoveHouse(aHouse: TKMHouse);
-var i:integer;
-begin
-  for i:=1 to fCount do
-    if fQueue[i].House=aHouse then
-      RemoveHouse(i);
-end;
-
-
-procedure TKMRepairQueue.RemoveHousePointer(aID:integer);
-begin
-  dec(fQueue[aID].WorkerCount);
-  if (fQueue[aID].IsDeleted) and (fQueue[aID].WorkerCount = 0) then
-    CloseHouseRepair(aID);
-end;
-
-
-procedure TKMRepairQueue.AddHouse(aHouse: TKMHouse);
-var i,k:integer;
-begin
-  for i:=1 to fCount do
-    if (fQueue[i].House=aHouse) and not fQueue[i].IsDeleted then
-      Exit; //House is already in repair list
-
-  i:=1; while (i<=fCount)and(fQueue[i].House<>nil) do inc(i);
-  if i>fCount then begin
-    inc(fCount, LENGTH_INC);
-    SetLength(fQueue, fCount+1);
-    for k:=i to fCount do FillChar(fQueue[k],SizeOf(fQueue[k]),#0);
-  end;
-
-  Assert((fQueue[i].WorkerCount=0) and not fQueue[i].IsDeleted);
-  if aHouse <> nil then fQueue[i].House:=aHouse.GetHousePointer;
-  fQueue[i].Importance:=1;
-end;
-
-
-function TKMRepairQueue.AskForTask(aWorker:TKMUnitWorker):TUnitTask;
-var i, Best: integer; BestDist: single;
-begin
-  Result := nil;
-  Best := -1;
-  BestDist := MaxSingle;
-
-  for i:=1 to fCount do
-    if (fQueue[i].House<>nil) and (not fQueue[i].IsDeleted) and
-      fQueue[i].House.IsDamaged and
-      fQueue[i].House.BuildingRepair
-    and fTerrain.Route_CanBeMade(aWorker.GetPosition, KMPointBelow(fQueue[i].House.GetEntrance), aWorker.GetDesiredPassability, 0, false)
-    and((Best = -1)or(GetLength(aWorker.GetPosition, fQueue[i].House.GetPosition) < BestDist))then
-    begin
-      Best := i;
-      BestDist := GetLength(aWorker.GetPosition, fQueue[i].House.GetPosition);
-    end;
-    
-  if Best <> -1 then
-  begin
-    Result := TTaskBuildHouseRepair.Create(aWorker, fQueue[Best].House, Best);
-    inc(fQueue[Best].WorkerCount);
-  end;
-end;
-
-
-procedure TKMRepairQueue.Save(SaveStream:TKMemoryStream);
-var i:integer;
-begin
-  SaveStream.Write('RepairQueue');
-
-  SaveStream.Write(fCount);
-  for i:=1 to fCount do
-  with fQueue[i] do
-  begin
-    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Integer(0));
-    SaveStream.Write(Importance);
-    SaveStream.Write(WorkerCount);
-    SaveStream.Write(IsDeleted);
-  end;
-end;
-
-
-procedure TKMRepairQueue.Load(LoadStream:TKMemoryStream);
-var i:integer; s:string;
-begin
-  LoadStream.Read(s);
-  Assert(s = 'RepairQueue');
-
-  LoadStream.Read(fCount);
-  SetLength(fQueue, fCount+1);
-  for i:=1 to fCount do
-  with fQueue[i] do
-  begin
-    LoadStream.Read(House, 4);
-    LoadStream.Read(Importance);
-    LoadStream.Read(WorkerCount);
-    LoadStream.Read(IsDeleted);
-  end;
-end;
-
-
-procedure TKMRepairQueue.SyncLoad;
-var i:integer;
-begin
-  for i:=1 to fCount do
-    fQueue[i].House := fPlayers.GetHouseByID(cardinal(fQueue[i].House));
-end;
-
-
 { TKMRepairList }
-{constructor TKMRepairList.Create;
-begin
-  inherited;
-
-  fHouses := TList.Create;
-  fWorkers := TList.Create;
-end;
-
 destructor TKMRepairList.Destroy;
+var
+  I: Integer;
 begin
-  //We don't keep track on pointers because Houses/Units tell us when they die themselves
+  for I := fHousesCount - 1 downto 0 do
+    fPlayers.CleanUpHousePointer(fHouses[I].House);
 
-  fHouses.Free;
-  fWorkers.Free;
+  for I := fWorkersCount - 1 downto 0 do
+    fPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[I].Worker));
+
   inherited;
 end;
 
-function TKMRepairList.GetHouse(aIndex: Integer): TKMHouse;
+
+function TKMRepairList.HouseAlreadyInList(aHouse: TKMHouse): Boolean;
+var I: Integer;
 begin
-  Result := fHouses[aIndex];
+  for I := 0 to fHousesCount - 1 do
+    if fHouses[I].House = aHouse then
+    begin
+      Result := True;
+      Exit;
+    end;
+
+  Result := False;
 end;
 
-function TKMRepairList.GetWorker(aIndex: Integer): TKMUnitWorker;
-begin
-  Result := fWorkers[aIndex];
-end;
 
+//Include the House into the List
 procedure TKMRepairList.AddHouse(aHouse: TKMHouse);
 begin
-  fHouses.Add(aHouse);
+  if HouseAlreadyInList(aHouse) then Exit;
+
+  if fHousesCount >= Length(fHouses) then
+    SetLength (fHouses, fHousesCount + 16);
+
+  fHouses[fHousesCount].House := aHouse.GetHousePointer;
+  fHouses[fHousesCount].Assigned := 0;
+  Inc(fHousesCount);
 end;
 
-procedure TKMRepairList.AddWorker(aUnit: TKMUnit);
+
+//Add the Worker to the List
+procedure TKMRepairList.AddWorker(aWorker: TKMUnitWorker);
 begin
-  fWorkers.Add(aUnit);
+  if fWorkersCount >= Length(fWorkers) then
+    SetLength (fWorkers, fWorkersCount + 16);
+
+  fWorkers[fWorkersCount].Worker := TKMUnitWorker(aWorker.GetUnitPointer);
+  Inc(fWorkersCount);
 end;
 
-procedure TKMRepairList.RemHouse(aHouse: TKMHouse);
+
+//Remove repaired or destroyed House from the List
+procedure TKMRepairList.RemHouse(aIndex: Integer);
 begin
-  fHouses.Remove(aHouse);
+  fPlayers.CleanUpHousePointer(fHouses[aIndex].House);
+
+  if aIndex <> fHousesCount - 1 then
+    Move(fHouses[aIndex+1], fHouses[aIndex], SizeOf(fHouses[aIndex]));
+
+  Dec(fHousesCount);
 end;
 
-procedure TKMRepairList.RemWorker(aUnit: TKMUnit);
+
+//Remove houses that should not be repaired any more
+procedure TKMRepairList.RemoveExtraHouses;
+var
+  I: Integer;
 begin
-  fWorkers.Remove(aUnit);
+  for I := fHousesCount - 1 downto 0 do
+    if not fHouses[I].House.IsComplete
+    or not fHouses[I].House.IsDamaged
+    or not fHouses[I].House.BuildingRepair
+    or fHouses[I].House.IsDestroyed then
+      RemHouse(I);
 end;
+
+
+//Remove dead workers
+procedure TKMRepairList.RemoveExtraWorkers;
+var
+  I: Integer;
+begin
+  for I := fWorkersCount - 1 downto 0 do
+    if fWorkers[I].Worker.IsDeadOrDying then
+      RemWorker(I);
+end;
+
+
+//Remove died Worker from the List
+procedure TKMRepairList.RemWorker(aIndex: Integer);
+begin
+  fPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[aIndex].Worker));
+
+  if aIndex <> fWorkersCount - 1 then
+    Move(fWorkers[aIndex+1], fWorkers[aIndex], SizeOf(fWorkers[aIndex]));
+
+  Dec(fWorkersCount);
+end;
+
 
 procedure TKMRepairList.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
 begin
+  SaveStream.Write('RepairList');
 
+  SaveStream.Write(fHousesCount);
+  for I := 0 to fHousesCount - 1 do
+  begin
+    if fHouses[I].House <> nil then
+      SaveStream.Write(fHouses[I].House.ID)
+    else
+      SaveStream.Write(Integer(0));
+    SaveStream.Write(fHouses[I].Assigned);
+  end;
+
+  SaveStream.Write(fWorkersCount);
+  for I := 0 to fWorkersCount - 1 do
+  begin
+    if fWorkers[I].Worker <> nil then
+      SaveStream.Write(fWorkers[I].Worker.ID)
+    else
+      SaveStream.Write(Integer(0));
+  end;
 end;
+
 
 procedure TKMRepairList.Load(LoadStream: TKMemoryStream);
+var I: Integer; s: string;
 begin
+  LoadStream.Read(s);
+  Assert(s = 'RepairList');
 
+  LoadStream.Read(fHousesCount);
+  SetLength(fHouses, fHousesCount);
+  for I := 0 to fHousesCount - 1 do
+  begin
+    LoadStream.Read(fHouses[I].House, 4);
+    LoadStream.Read(fHouses[I].Assigned);
+  end;
+
+  LoadStream.Read(fWorkersCount);
+  SetLength(fWorkers, fWorkersCount);
+  for I := 0 to fWorkersCount - 1 do
+    LoadStream.Read(fWorkers[I].Worker, 4);
 end;
+
 
 procedure TKMRepairList.SyncLoad;
+var I: Integer; U: TKMUnit;
 begin
+  for I := 0 to fHousesCount - 1 do
+    fHouses[I].House := fPlayers.GetHouseByID(Cardinal(fHouses[I].House));
 
+  for I := 0 to fWorkersCount - 1 do
+  begin
+    U := fPlayers.GetUnitByID(Cardinal(fWorkers[I].Worker));
+    Assert(U is TKMUnitWorker, 'Non-worker in Repairs list');
+    fWorkers[I].Worker := TKMUnitWorker(U);
+  end;
 end;
 
-procedure TKMRepairList.UpdateState;
-begin
 
-end;}
+procedure TKMRepairList.UpdateState;
+var I, K: Integer;
+begin
+  RemoveExtraHouses;
+  RemoveExtraWorkers;
+
+  //We can weight the repairs by distance, severity, etc..
+  for I := fHousesCount - 1 downto 0 do
+    for K := 0 to fWorkersCount - 1 do
+      if (fWorkers[K].Worker.GetUnitAction is TUnitActionStay)
+      and not TUnitActionStay(fWorkers[K].Worker.GetUnitAction).Locked
+      and (fHouses[I].Assigned <= 3) then //Max 3 workers per repair for now
+      begin
+        Inc(fHouses[I].Assigned);
+        fWorkers[K].Worker.SetUnitTask := TTaskBuildHouseRepair.Create(fWorkers[K].Worker, fHouses[I].House);
+      end;
+end;
+
 
 end.

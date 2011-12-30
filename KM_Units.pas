@@ -731,10 +731,10 @@ end;
 
 function TKMUnitWorker.GetActionFromQueue:TUnitTask;
 begin
-                     Result:=fPlayers.Player[fOwner].RepairList.AskForTask(Self);
-  if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForHousePlan(Self);
-  if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForRoad(Self);
-  if Result=nil then Result:=fPlayers.Player[fOwner].BuildList.AskForHouse(Self);
+  //Result:=fPlayers.Player[fOwner].RepairList.AskForTask(Self); //fPlayers[i].RepairList will take care of this
+  Result := fPlayers.Player[fOwner].BuildList.AskForHousePlan(Self);
+  if Result=nil then Result := fPlayers.Player[fOwner].BuildList.AskForRoad(Self);
+  if Result=nil then Result := fPlayers.Player[fOwner].BuildList.AskForHouse(Self);
 end;
 
 
@@ -1675,7 +1675,7 @@ begin
     fCurrentAction.Paint;
 
   if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
-    fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
+    fRenderAux.UnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), fPointerCount);
 end;
 
 

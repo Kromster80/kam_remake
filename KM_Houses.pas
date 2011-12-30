@@ -482,7 +482,6 @@ begin
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].DeliverList.RemoveOffer(Self);
   fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
-  fPlayers.Player[fOwner].RepairList.RemoveHouse(Self);
   fPlayers.Player[fOwner].BuildList.RemoveHouse(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
   //Road is removed in CloseHouse
@@ -623,15 +622,15 @@ end;
  {Keep track on stone/wood reserve here as well}
 procedure TKMHouse.IncBuildingProgress;
 begin
-  if IsComplete then exit;
+  if IsComplete then Exit;
 
   if (fBuildState=hbs_Wood) and (fBuildReserve = 0) then begin
     dec(fBuildSupplyWood);
-    inc(fBuildReserve,50);
+    inc(fBuildReserve, 50);
   end;
   if (fBuildState=hbs_Stone) and (fBuildReserve = 0) then begin
     dec(fBuildSupplyStone);
-    inc(fBuildReserve,50);
+    inc(fBuildReserve, 50);
   end;
 
   inc(fBuildingProgress, 5); //is how many effort was put into building nevermind applied damage
@@ -660,7 +659,7 @@ end;
 
 {Add damage to the house, positive number}
 //Return TRUE if house was destroyed
-function TKMHouse.AddDamage(aAmount:word; aIsEditor:boolean=false):boolean;
+function TKMHouse.AddDamage(aAmount: Word; aIsEditor: Boolean = False): Boolean;
 begin
   Result := false;
   if IsDestroyed then
@@ -693,11 +692,9 @@ end;
 
 
 {Add repair to the house}
-procedure TKMHouse.AddRepair(aAmount:word=5);
+procedure TKMHouse.AddRepair(aAmount: Word = 5);
 begin
   fDamage := EnsureRange(fDamage - aAmount, 0, High(Word));
-  if fDamage = 0 then
-    fPlayers.Player[fOwner].RepairList.RemoveHouse(Self);
   UpdateDamage;
 end;
 
@@ -738,7 +735,10 @@ end;
 
 procedure TKMHouse.RepairToggle;
 begin
-  if BuildingRepair then DisableRepair else EnableRepair;
+  if BuildingRepair then
+    DisableRepair
+  else
+    EnableRepair;
 end;
 
 
@@ -756,7 +756,7 @@ end;
 
 
 {Check if house is damaged}
-function TKMHouse.IsDamaged:boolean;
+function TKMHouse.IsDamaged: Boolean;
 begin
   Result := fDamage <> 0;
 end;
@@ -1111,6 +1111,9 @@ begin
                     fRender.RenderHouseWork(fHouseType, fCurrentAction.SubAction, WorkAnimStep, fPosition, fPlayers.Player[fOwner].FlagColor);
                 end;
   end;
+
+  if SHOW_POINTER_DOTS and fGame.AllowDebugRendering then
+    fRenderAux.UnitPointers(fPosition.X + 0.5, fPosition.Y + 1, fPointerCount);
 end;
 
 procedure TKMHouse.SetWareDelivery(aVal:boolean);

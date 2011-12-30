@@ -94,12 +94,11 @@ type
 
   TTaskBuildHouseRepair = class(TUnitTask)
     private
-      fHouse:TKMHouse;
-      RepairID:integer;
-      CurLoc:byte; //Current WIP location
-      Cells:TKMPointDirList; //List of surrounding cells and directions
+      fHouse: TKMHouse;
+      CurLoc: Byte; //Current WIP location
+      Cells: TKMPointDirList; //List of surrounding cells and directions
     public
-      constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+      constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
@@ -787,12 +786,11 @@ end;
 
 
 { TTaskBuildHouseRepair }
-constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse);
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseRepair;
   fHouse    := aHouse.GetHousePointer;
-  RepairID  := aID;
   CurLoc    := 0;
 
   Cells := TKMPointDirList.Create;
@@ -804,7 +802,6 @@ constructor TTaskBuildHouseRepair.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(RepairID);
   LoadStream.Read(CurLoc);
   Cells := TKMPointDirList.Load(LoadStream);
 end;
@@ -813,13 +810,12 @@ end;
 procedure TTaskBuildHouseRepair.SyncLoad;
 begin
   Inherited;
-  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
+  fHouse := fPlayers.GetHouseByID(Cardinal(fHouse));
 end;
 
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
-  fPlayers.Player[fUnit.GetOwner].RepairList.RemoveHousePointer(RepairID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -845,41 +841,41 @@ begin
   with fUnit do
     case fPhase of
       //Pick random location and go there
-      0: begin
-           Thought := th_Build;
-           CurLoc := KaMRandom(Cells.Count)+1;
-           SetActionWalkToSpot(Cells.List[CurLoc].Loc);
-         end;
-      1: begin
-           Direction := Cells.List[CurLoc].Dir;
-           SetActionLockedStay(0,ua_Walk);
-         end;
-      2: begin
-           SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
-           Direction := Cells.List[CurLoc].Dir;
-         end;
-      3: begin
-           if (Condition<UNIT_MIN_CONDITION) and CanGoEat then begin
-             Result := TaskDone; //Drop the task
-             exit;
-           end;
-           fHouse.AddRepair;
-           SetActionLockedStay(6,ua_Work,false,0,5); //Do building and end animation
-           inc(fPhase2);
-         end;
-      4: begin
-           Thought := th_None;
-           fPlayers.Player[GetOwner].RepairList.RemoveHouse(RepairID);
-           SetActionStay(1, ua_Walk);
-         end;
-      else Result := TaskDone;
+      0:  begin
+            Thought := th_Build;
+            CurLoc := KaMRandom(Cells.Count)+1;
+            SetActionWalkToSpot(Cells.List[CurLoc].Loc);
+          end;
+      1:  begin
+            Direction := Cells.List[CurLoc].Dir;
+            SetActionLockedStay(0,ua_Walk);
+          end;
+      2:  begin
+            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
+            Direction := Cells.List[CurLoc].Dir;
+          end;
+      3:  begin
+            if (Condition<UNIT_MIN_CONDITION) and CanGoEat then begin
+              Result := TaskDone; //Drop the task
+              exit;
+            end;
+            fHouse.AddRepair;
+            SetActionLockedStay(6,ua_Work,false,0,5); //Do building and end animation
+            inc(fPhase2);
+          end;
+      4:  begin
+            Thought := th_None;
+            SetActionStay(1, ua_Walk);
+          end;
+      else
+          Result := TaskDone;
     end;
   inc(fPhase);
-  if (fPhase=4) and (fHouse.IsDamaged) then //If animation cycle is done
+  if (fPhase = 4) and (fHouse.IsDamaged) then //If animation cycle is done
     if fPhase2 mod 5 = 0 then //if worker did [5] hits from same spot
-      fPhase:=0 //Then goto new spot
+      fPhase := 0 //Then goto new spot
     else
-      fPhase:=2; //else do more hits
+      fPhase := 2; //else do more hits
 end;
 
 
@@ -890,7 +886,6 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
-  SaveStream.Write(RepairID);
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);
 end;

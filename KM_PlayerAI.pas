@@ -115,7 +115,7 @@ end;
 
 procedure TAIDefencePosition.ClearCurrentCommander;
 begin
-  fPlayers.CleanUpUnitPointer(fCurrentCommander);
+  fPlayers.CleanUpUnitPointer(TKMUnit(fCurrentCommander));
 end;
 
 
