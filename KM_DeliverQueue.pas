@@ -1212,21 +1212,35 @@ end;
 
 
 procedure TKMRepairList.UpdateState;
-var I, K: Integer;
+var I, K, BestHouse: Integer; Distance, BestDist: single;
 begin
   RemoveExtraHouses;
   RemoveExtraWorkers;
 
   //We can weight the repairs by distance, severity, etc..
-  for I := fHousesCount - 1 downto 0 do
-    for K := 0 to fWorkersCount - 1 do
-      if (fWorkers[K].Worker.GetUnitAction is TUnitActionStay)
-      and not TUnitActionStay(fWorkers[K].Worker.GetUnitAction).Locked
-      and (fHouses[I].Assigned <= 3) then //Max 3 workers per repair for now
+  //For now, each worker will go for the house closest to him
+  for K := 0 to fWorkersCount - 1 do
+    if (fWorkers[K].Worker.GetUnitAction is TUnitActionStay)
+    and not TUnitActionStay(fWorkers[K].Worker.GetUnitAction).Locked then
+    begin
+      BestHouse := -1;
+      BestDist := 999;
+      for I := fHousesCount - 1 downto 0 do
+        if (fHouses[I].Assigned <= 3) then //Max 3 workers per repair for now
+        begin
+          Distance := GetLength(fWorkers[K].Worker.GetPosition, fHouses[I].House.GetPosition);
+          if (BestHouse = -1) or (Distance < BestDist) then
+          begin
+            BestDist := Distance;
+            BestHouse := I;
+          end;
+        end;
+      if BestHouse <> -1 then
       begin
-        Inc(fHouses[I].Assigned);
-        fWorkers[K].Worker.SetUnitTask := TTaskBuildHouseRepair.Create(fWorkers[K].Worker, fHouses[I].House);
+        Inc(fHouses[BestHouse].Assigned);
+        fWorkers[K].Worker.SetUnitTask := TTaskBuildHouseRepair.Create(fWorkers[K].Worker, fHouses[BestHouse].House);
       end;
+    end;
 end;
 
 
