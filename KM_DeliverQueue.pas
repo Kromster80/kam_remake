@@ -158,10 +158,10 @@ type
     end;
 
     function HouseAlreadyInList(aHouse: TKMHouse): Boolean;
-    procedure RemoveExtraHouses;
-    procedure RemoveExtraWorkers;
     procedure RemHouse(aIndex: Integer);
     procedure RemWorker(aIndex: Integer);
+    procedure RemoveExtraHouses;
+    procedure RemoveExtraWorkers;
   public
     destructor Destroy; override;
 
@@ -1105,9 +1105,21 @@ begin
   fPlayers.CleanUpHousePointer(fHouses[aIndex].House);
 
   if aIndex <> fHousesCount - 1 then
-    Move(fHouses[aIndex+1], fHouses[aIndex], SizeOf(fHouses[aIndex]));
+    Move(fHouses[aIndex+1], fHouses[aIndex], SizeOf(fHouses[aIndex]) * (fHousesCount - 1 - aIndex));
 
   Dec(fHousesCount);
+end;
+
+
+//Remove died Worker from the List
+procedure TKMRepairList.RemWorker(aIndex: Integer);
+begin
+  fPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[aIndex].Worker));
+
+  if aIndex <> fWorkersCount - 1 then
+    Move(fWorkers[aIndex+1], fWorkers[aIndex], SizeOf(fWorkers[aIndex]) * (fWorkersCount - 1 - aIndex));
+
+  Dec(fWorkersCount);
 end;
 
 
@@ -1133,18 +1145,6 @@ begin
   for I := fWorkersCount - 1 downto 0 do
     if fWorkers[I].Worker.IsDeadOrDying then
       RemWorker(I);
-end;
-
-
-//Remove died Worker from the List
-procedure TKMRepairList.RemWorker(aIndex: Integer);
-begin
-  fPlayers.CleanUpUnitPointer(TKMUnit(fWorkers[aIndex].Worker));
-
-  if aIndex <> fWorkersCount - 1 then
-    Move(fWorkers[aIndex+1], fWorkers[aIndex], SizeOf(fWorkers[aIndex]));
-
-  Dec(fWorkersCount);
 end;
 
 
