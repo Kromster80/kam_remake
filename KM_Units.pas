@@ -255,11 +255,27 @@ type
 
 
 implementation
-uses KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection, KM_Game,
-KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitActionStormAttack,
-KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log, KM_MessageStack,
+uses
+  KM_Game, KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection,
+  KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log, KM_MessageStack,
 
-KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
+  KM_UnitActionAbandonWalk,
+  KM_UnitActionFight,
+  KM_UnitActionGoInOut,
+  KM_UnitActionStay,
+  KM_UnitActionStormAttack,
+  KM_UnitActionWalkTo,
+
+  KM_UnitTaskAttackHouse,
+  KM_UnitTaskBuild,
+  KM_UnitTaskDelivery,
+  KM_UnitTaskDie,
+  KM_UnitTaskGoEat,
+  KM_UnitTaskGoHome,
+  KM_UnitTaskGoOutShowHungry,
+  KM_UnitTaskMining,
+  KM_UnitTaskSelfTrain,
+  KM_UnitTaskThrowRock;
 
 
 { TKMUnitCitizen }
