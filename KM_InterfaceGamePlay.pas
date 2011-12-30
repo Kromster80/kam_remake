@@ -1234,6 +1234,7 @@ begin
     Button_Menu_TrackDown.OnClick:=Menu_PreviousTrack;
     Label_Menu_Music:=TKMLabel.Create(Panel_Menu,100,276,184,30,fTextLibrary.GetTextString(207),fnt_Metal,taCenter);
     Label_Menu_Track:=TKMLabel.Create(Panel_Menu,100,296,184,30,'',fnt_Grey,taCenter);
+    Label_Menu_Track.Hitable := false; //It can block hits for the track Up/Down buttons as they overlap
     Label_GameTime := TKMLabel.Create(Panel_Menu,100,228,184,20,'',fnt_Outline,taCenter);
 end;
 

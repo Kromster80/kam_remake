@@ -1,5 +1,6 @@
 ﻿Since r2736:
 <===================================================================================>
+ +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
 	Exporting GUI.rx gives a Range Check Error
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams

@@ -460,8 +460,8 @@ begin
   end;
   if FreeBuf = 0 then Exit;//Don't play if there's no room left
 
-  //Fade music if required
-  if FadeMusic and not fMusicIsFaded then
+  //Fade music if required (don't fade it if the user has SoundGain = 0, that's confusing)
+  if FadeMusic and (fSoundGain > 0) and not fMusicIsFaded then
   begin
     if Assigned(fOnFadeMusic) then fOnFadeMusic(Self);
     fMusicIsFaded := true;

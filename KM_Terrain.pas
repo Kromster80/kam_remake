@@ -957,10 +957,11 @@ begin
       if (aPlantAct in [taCut, taAny])
       and ObjectIsChopableTree(T, 4)
       and (Land[i,k].TreeAge >= TreeAgeFull)
-      and not TileIsLocked(KMPoint(T.X  , T.Y)) //Woodcutter could be standing on any tile surrounding this tree
-      and not TileIsLocked(KMPoint(T.X-1, T.Y))
-      and not TileIsLocked(KMPoint(T.X  , T.Y-1))
-      and not TileIsLocked(KMPoint(T.X-1, T.Y-1))
+      //Woodcutter could be standing on any tile surrounding this tree
+      and not TileIsLocked(KMPoint(T.X  , T.Y))
+      and ((T.X=1) or not TileIsLocked(KMPoint(T.X-1, T.Y))) //if T.X=1, T.X-1 will be off map
+      and ((T.Y=1) or not TileIsLocked(KMPoint(T.X  , T.Y-1)))
+      and ((T.X=1) or (T.Y=1) or not TileIsLocked(KMPoint(T.X-1, T.Y-1)))
       and Route_CanBeMadeToVertex(aLoc, T, CanWalk) then
         List1.AddEntry(T);
 
@@ -1899,7 +1900,7 @@ var TilesFactored:integer;
 
 var i,k: word; Avg:word;
 begin
-  Assert(TileInMapCoords(Loc.X, Loc.Y));
+  Assert(TileInMapCoords(Loc.X, Loc.Y),'Can''t flatten tile outside map coordinates');
 
   TilesFactored := 0; //GetHeight will add to this
   Avg :=                                   GetHeight(Loc.X,Loc.Y-1,True ) + GetHeight(Loc.X+1,Loc.Y-1,True ) +
