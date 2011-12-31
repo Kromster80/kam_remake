@@ -1,7 +1,9 @@
 ﻿Since r2736:
 <===================================================================================>
  +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
+ +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
 	Exporting GUI.rx gives a Range Check Error
+	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)

@@ -74,7 +74,7 @@ uses KromUtils, KM_Defaults, KM_Log, KM_Render, KM_TextLibrary;
 
 
 type
-  TRXLocation = (rlFile, rlFolder); //Location of sprites, RXfiles or folder with pngs
+  TRXLocation = (rlFileRX, rlFileRXX, rlFolder); //Location of sprites, RXfiles or folder with pngs
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
 
   TRXInfo = record
@@ -95,7 +95,7 @@ var
       FileName: 'Trees';
       TeamColors: False;
       AlphaTest: False;
-      LoadFrom: rlFile;
+      LoadFrom: rlFileRX;
       Usage: ruGame;
       OverrideCount: 0;
       LoadingTextID: TX_MENU_LOADING_TREES;
@@ -104,7 +104,7 @@ var
       FileName: 'Houses';
       TeamColors: True;
       AlphaTest: True;
-      LoadFrom: rlFile;
+      LoadFrom: rlFileRX;
       Usage: ruGame;
       OverrideCount: 0;
       LoadingTextID: TX_MENU_LOADING_HOUSES;
@@ -113,7 +113,7 @@ var
       FileName: 'Units';
       TeamColors: True;
       AlphaTest: False;
-      LoadFrom: rlFile;
+      LoadFrom: rlFileRX;
       Usage: ruGame;
       OverrideCount: 7885; //Clip to 7885 sprites until we add TPR ballista/catapult support
       LoadingTextID: TX_MENU_LOADING_UNITS;
@@ -122,7 +122,7 @@ var
       FileName: 'GUI';
       TeamColors: True;
       AlphaTest: False;
-      LoadFrom: rlFile;
+      LoadFrom: rlFileRX;
       Usage: ruMenu;
       OverrideCount: 0; //Required for unit scrolls and icons
       LoadingTextID: 0;
@@ -131,7 +131,7 @@ var
       FileName: 'GUIMain';
       TeamColors: False;
       AlphaTest: False;
-      LoadFrom: rlFile;
+      LoadFrom: rlFileRX;
       Usage: ruMenu;
       OverrideCount: 0;
       LoadingTextID: 0;
@@ -140,7 +140,7 @@ var
       FileName: 'GUIMainH';
       TeamColors: False;
       AlphaTest: False;
-      LoadFrom: rlFile;
+      LoadFrom: rlFileRX;
       Usage: ruMenu;
       OverrideCount: 0;
       LoadingTextID: 0;
@@ -193,7 +193,7 @@ procedure TKMSprites.LoadMenuResources(aCursors: TKMCursors);
 var RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruMenu) and (RXInfo[RT].LoadFrom = rlFile) then
+  if (RXInfo[RT].Usage = ruMenu) and (RXInfo[RT].LoadFrom in [rlFileRX,rlFileRXX]) then
   begin
     fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
     LoadRX(RT);
@@ -230,7 +230,7 @@ procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTe
 var i:integer; RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruGame) and (RXInfo[RT].LoadFrom = rlFile) then
+  if (RXInfo[RT].Usage = ruGame) and (RXInfo[RT].LoadFrom in [rlFileRX,rlFileRXX]) then
   begin
     //Skip loading for performance reasons during debug
     if ((RT = rxHouses) and not MAKE_HOUSE_SPRITES) or
@@ -307,6 +307,7 @@ begin
   Result := False;
 
   FileName := ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx';
+  if RXInfo[aRT].LoadFrom = rlFileRXX then FileName := FileName + 'x'; //RXX extension
 
   if not CheckFileExists(FileName) then
     Exit;
@@ -329,13 +330,26 @@ begin
     begin
       blockread(f, RXData[aRT].Size[i].X, 4);
       blockread(f, RXData[aRT].Pivot[i].X, 8);
-      SetLength(RXData[aRT].Data[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-      blockread(f, RXData[aRT].Data[i, 0], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      //Data part of each sprite is 8BPP palleted in KaM RX, and 32BPP RGBA in Remake RXX
+      case RXInfo[aRT].LoadFrom of
+        rlFileRX: begin
+                    SetLength(RXData[aRT].Data[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+                    blockread(f, RXData[aRT].Data[i, 0], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+                  end;
+        rlFileRXX:begin
+                    SetLength(RXData[aRT].RGBA[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+                    SetLength(RXData[aRT].Mask[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+                    blockread(f, RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+                    blockread(f, RXData[aRT].HasMask[i], 1);
+                    if RXData[aRT].HasMask[i] then
+                      blockread(f, RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+                  end;
+      end;
     end;
   closefile(f);
   fLog.AppendLog(RXInfo[aRT].FileName + ' -', RXData[aRT].Qty);
 
-  ExpandRX(aRT);
+  if RXInfo[aRT].LoadFrom = rlFileRX then ExpandRX(aRT); //Only KaM's rx needs expanding
   Result := True;
 end;
 

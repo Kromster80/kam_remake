@@ -2779,6 +2779,7 @@ begin
     if (NewIndex <> fItemIndex) then
     begin
       fItemIndex := NewIndex;
+      fTimeOfLastClick := 0; //Double click shouldn't happen if you click on one server A, then server B
       if Assigned(fOnChange) then
         fOnChange(Self);
     end;
