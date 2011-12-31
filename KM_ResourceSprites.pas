@@ -292,7 +292,7 @@ procedure TKMSprites.PackMenuRXX(const aFileName:string);
 begin
   AllocateRX(rxMenu, RXInfo[rxMenu].OverrideCount);
   OverloadRX(rxMenu); //Load sprites from PNGs
-  MakeGFX(rxMenu);
+  //MakeGFX(rxMenu); //@Lewin: I think these are not required?
   SaveRXX(rxMenu, aFileName);
 end;
 
@@ -301,7 +301,7 @@ procedure TKMSprites.PackGameRXX(const aFileName:string);
 begin
   AllocateRX(rxGame, RXInfo[rxGame].OverrideCount);
   OverloadRX(rxGame); //Load sprites from PNGs
-  MakeGFX(rxGame);
+  //MakeGFX(rxGame); //@Lewin: I think these are not required?
   SaveRXX(rxGame, aFileName);
 end;
 
