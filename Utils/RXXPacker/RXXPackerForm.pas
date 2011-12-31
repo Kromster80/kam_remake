@@ -13,8 +13,6 @@ type
     procedure btnPackMenuClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnPackGameClick(Sender: TObject);
-  private
-    fSprites:TKMSprites;
   end;
 
 var
@@ -26,7 +24,8 @@ implementation
 
 procedure TRXXForm1.FormCreate(Sender: TObject);
 begin
-  ExeDir := 'C:\Projects\KaM Remake\';
+  ExeDir := '..\..\';
+  //Although we don't need them in this tool, these are required to load sprites
   fLog := TKMLog.Create(IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName))+'log.txt');
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', 'eng');
   fRender := TRender.Create(Handle, 1024, 768, False);
