@@ -58,8 +58,7 @@ type
 
 
 implementation
-uses
-  KM_Game, KM_Log;
+uses KM_Log;
 
 const FADE_TIME = 2000; //Time that a fade takes to occur in ms
 
@@ -213,7 +212,6 @@ end;
 procedure TMusicLib.PlayNextTrack;
 begin
   if not IsMusicInitialized
-  or not fGame.GlobalSettings.MusicOn
   or (MusicCount = 0) then //no music files found
     Exit;
 
@@ -227,7 +225,6 @@ end;
 procedure TMusicLib.PlayPreviousTrack;
 begin
   if not IsMusicInitialized then exit;
-  if not fGame.GlobalSettings.MusicOn then exit;
   if MusicCount=0 then exit; //no music files found
   if fFadeState <> fsNone then exit;
   MusicIndex := MusicIndex - 1; //Set to previous

@@ -1492,7 +1492,7 @@ begin
       fTerrain.UpdateMinimapData(fGameState = gsEditor);
 
     //Music
-    if fMusicLib.IsMusicEnded then
+    if GlobalSettings.MusicOn and fMusicLib.IsMusicEnded then
       fMusicLib.PlayNextTrack; //Feed new music track
 
     //StatusBar

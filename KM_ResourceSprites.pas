@@ -13,8 +13,11 @@ uses
 
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
+const
+  REMAKE_MENU_SPRITES_COUNT = 17; //Number of sprites loaded from RX7 (rxMenu)
+  REMAKE_GAME_SPIRTES_COUNT = 347; //Number of sprites loaded from RX9 (rxGame)
 
-//Used to separate close-combat units from archers (they use different fighting logic)
+
 type
   TRXType = (
     rxTrees,
@@ -39,10 +42,13 @@ type
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection; aRT: TRXType);
     procedure ClearUnusedGFX(aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
+    procedure SaveRXX(aRT: TRXType; const aFileName:string);
   public
     constructor Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     procedure LoadMenuResources(aCursors: TKMCursors);
     procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
+    procedure PackMenuRXX(const aFileName:string); //Used in RXX packer util (unused in Remake)
+    procedure PackGameRXX(const aFileName:string);
 
     property FileName[aRX: TRXType]: string read GetRXFileName;
     function LoadRX(aRT: TRXType): Boolean; //Exposed for Exports
@@ -52,7 +58,8 @@ type
 var
   RXData: array [TRXType] of record
     Qty: Integer;
-    Flag: array of Byte;
+    Flag: array of Byte; //Sprite is valid
+    Overloaded: array of Boolean; //Sprite was overloaded from addon sprites
     Size: array of record X,Y: Word; end;
     Pivot: array of record x,y: Integer; end;
     Data: array of array of Byte;
@@ -151,7 +158,7 @@ var
       AlphaTest: False;
       LoadFrom: rlFolder;
       Usage: ruMenu;
-      OverrideCount: 17;
+      OverrideCount: REMAKE_MENU_SPRITES_COUNT;
       LoadingTextID: 0;
     ),
     (
@@ -169,7 +176,7 @@ var
       AlphaTest: False;
       LoadFrom: rlFolder;
       Usage: ruGame;
-      OverrideCount: 347;
+      OverrideCount: REMAKE_GAME_SPIRTES_COUNT;
       LoadingTextID: TX_MENU_LOADING_ADDITIONAL_SPRITES;
     ));
 
@@ -241,7 +248,8 @@ begin
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
     if LoadRX(RT) then
     begin
-      OverloadRX(RT); //Updated sprites
+      //Load new/updated sprites, except when we are using an RXX file
+      if RXInfo[RT].LoadFrom <> rlFileRXX then OverloadRX(RT);
       MakeGFX(RT);
 
       //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
@@ -280,20 +288,39 @@ begin
 end;
 
 
+procedure TKMSprites.PackMenuRXX(const aFileName:string);
+begin
+  AllocateRX(rxMenu, RXInfo[rxMenu].OverrideCount);
+  OverloadRX(rxMenu); //Load sprites from PNGs
+  MakeGFX(rxMenu);
+  SaveRXX(rxMenu, aFileName);
+end;
+
+
+procedure TKMSprites.PackGameRXX(const aFileName:string);
+begin
+  AllocateRX(rxGame, RXInfo[rxGame].OverrideCount);
+  OverloadRX(rxGame); //Load sprites from PNGs
+  MakeGFX(rxGame);
+  SaveRXX(rxGame, aFileName);
+end;
+
+
 procedure TKMSprites.AllocateRX(aRT: TRXType; Count: Integer = 0);
 begin
   if Count>0 then
     RXData[aRT].Qty := Count;
 
   Count := RXData[aRT].Qty+1;
-  SetLength(GFXData[aRT],        Count);
-  SetLength(RXData[aRT].Flag,    Count);
-  SetLength(RXData[aRT].Size,    Count);
-  SetLength(RXData[aRT].Pivot,   Count);
-  SetLength(RXData[aRT].Data,    Count);
-  SetLength(RXData[aRT].RGBA,    Count);
-  SetLength(RXData[aRT].Mask,    Count);
-  SetLength(RXData[aRT].HasMask, Count);
+  SetLength(GFXData[aRT],           Count);
+  SetLength(RXData[aRT].Flag,       Count);
+  SetLength(RXData[aRT].Overloaded, Count);
+  SetLength(RXData[aRT].Size,       Count);
+  SetLength(RXData[aRT].Pivot,      Count);
+  SetLength(RXData[aRT].Data,       Count);
+  SetLength(RXData[aRT].RGBA,       Count);
+  SetLength(RXData[aRT].Mask,       Count);
+  SetLength(RXData[aRT].HasMask,    Count);
 end;
 
 
@@ -328,6 +355,7 @@ begin
   for i := 1 to RXData[aRT].Qty do
     if RXData[aRT].Flag[i] = 1 then
     begin
+      RXData[aRT].Overloaded[i] := False;
       blockread(f, RXData[aRT].Size[i].X, 4);
       blockread(f, RXData[aRT].Pivot[i].X, 8);
       //Data part of each sprite is 8BPP palleted in KaM RX, and 32BPP RGBA in Remake RXX
@@ -351,6 +379,31 @@ begin
 
   if RXInfo[aRT].LoadFrom = rlFileRX then ExpandRX(aRT); //Only KaM's rx needs expanding
   Result := True;
+end;
+
+
+procedure TKMSprites.SaveRXX(aRT: TRXType; const aFileName:string);
+var
+  f: file;
+  i:integer;
+begin
+  assignfile(f,aFileName);
+  rewrite(f,1);
+
+  blockwrite(f, RXData[aRT].Qty, 4);
+  blockwrite(f, RXData[aRT].Flag[1], RXData[aRT].Qty);
+
+  for i := 1 to RXData[aRT].Qty do
+    if RXData[aRT].Flag[i] = 1 then
+    begin
+      blockwrite(f, RXData[aRT].Size[i].X, 4);
+      blockwrite(f, RXData[aRT].Pivot[i].X, 8);
+      blockwrite(f, RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      blockwrite(f, RXData[aRT].HasMask[i], 1);
+      if RXData[aRT].HasMask[i] then
+        blockwrite(f, RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+    end;
+  closefile(f);
 end;
 
 
@@ -453,6 +506,8 @@ begin
       po := TBGRABitmap.Create(ExeDir + 'Sprites\' + FileList.Strings[i]);
       {$ENDIF}
 
+      RXData[aRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
+      RXData[aRT].Overloaded[ID] := True;
       RXData[aRT].Size[ID].X := po.Width;
       RXData[aRT].Size[ID].Y := po.Height;
 
@@ -693,9 +748,9 @@ begin
         begin
           t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
 
-          //Flag 1 means that we can use Data array
+          //Overloaded=False means that we can use Data array
           //Otherwise, for addon sprites, we need to resort to RGBA data they provide
-          if RXData[aRT].Flag[ID2] = 1 then
+          if not RXData[aRT].Overloaded[ID2] then
             Alpha := RXData[aRT].Data[ID2,i*RXData[aRT].Size[ID2].X+k]
           else
             Alpha := RXData[aRT].RGBA[ID2,i*RXData[aRT].Size[ID2].X+k] AND $FF;
