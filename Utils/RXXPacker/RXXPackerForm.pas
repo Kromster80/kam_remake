@@ -1,7 +1,13 @@
 unit RXXPackerForm;
+{$I RXXPacker.inc}
+
+{$IFDEF FPC}
+{$MODE Delphi}
+{$ENDIF}
 interface
 uses
-  Windows, SysUtils, Classes, Controls, Forms,
+  SysUtils, Classes, Controls, Forms,
+  {$IFDEF FPC} LResources, {$ENDIF}
   StdCtrls, KM_Defaults, KM_TextLibrary, KM_ResourceGFX, KM_ResourceSprites, KM_Log;
 
 
@@ -20,7 +26,9 @@ var
 
 
 implementation
-{$R *.dfm}
+{$IFDEF WDC}
+  {$R *.dfm}
+{$ENDIF}
 
 procedure TRXXForm1.FormCreate(Sender: TObject);
 begin
@@ -43,5 +51,9 @@ begin
   fResource.Sprites.PackGameRXX('RemakeGame.rxx');
 end;
 
+{$IFDEF FPC}
+initialization
+  {$i RXXPackerForm.lrs}
+{$ENDIF}
 
 end.

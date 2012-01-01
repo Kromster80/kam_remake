@@ -10,6 +10,8 @@ uses
   KM_ResourceCursors,
   KM_ResourceHouse,
   KM_ResourcePalettes
+  {$IFDEF FPC}, zstream {$ENDIF}
+  {$IFDEF WDC}, ZLib {$ENDIF}
 
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
@@ -52,6 +54,7 @@ type
 
     property FileName[aRX: TRXType]: string read GetRXFileName;
     function LoadRX(aRT: TRXType): Boolean; //Exposed for Exports
+    function LoadRXX(aRT: TRXType): Boolean; //Exposed for Exports
   end;
 
 
@@ -203,7 +206,10 @@ begin
   if (RXInfo[RT].Usage = ruMenu) and (RXInfo[RT].LoadFrom in [rlFileRX,rlFileRXX]) then
   begin
     fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
-    LoadRX(RT);
+    if RXInfo[RT].LoadFrom = rlFileRXX then
+      LoadRXX(RT)
+    else
+      LoadRX(RT);
     OverloadRX(RT); //Load RX data overrides
 
     if RT = rxGui then
@@ -234,7 +240,7 @@ end;
 
 
 procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
-var i:integer; RT: TRXType;
+var i:integer; RT: TRXType; Loaded: boolean;
 begin
   for RT := Low(TRXType) to High(TRXType) do
   if (RXInfo[RT].Usage = ruGame) and (RXInfo[RT].LoadFrom in [rlFileRX,rlFileRXX]) then
@@ -246,7 +252,11 @@ begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
 
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
-    if LoadRX(RT) then
+    if RXInfo[RT].LoadFrom = rlFileRXX then
+      Loaded := LoadRXX(RT)
+    else
+      Loaded := LoadRX(RT);
+    if Loaded then
     begin
       //Load new/updated sprites, except when we are using an RXX file
       if RXInfo[RT].LoadFrom <> rlFileRXX then OverloadRX(RT);
@@ -292,7 +302,6 @@ procedure TKMSprites.PackMenuRXX(const aFileName:string);
 begin
   AllocateRX(rxMenu, RXInfo[rxMenu].OverrideCount);
   OverloadRX(rxMenu); //Load sprites from PNGs
-  //MakeGFX(rxMenu); //@Lewin: I think these are not required?
   SaveRXX(rxMenu, aFileName);
 end;
 
@@ -301,7 +310,6 @@ procedure TKMSprites.PackGameRXX(const aFileName:string);
 begin
   AllocateRX(rxGame, RXInfo[rxGame].OverrideCount);
   OverloadRX(rxGame); //Load sprites from PNGs
-  //MakeGFX(rxGame); //@Lewin: I think these are not required?
   SaveRXX(rxGame, aFileName);
 end;
 
@@ -334,7 +342,6 @@ begin
   Result := False;
 
   FileName := ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx';
-  if RXInfo[aRT].LoadFrom = rlFileRXX then FileName := FileName + 'x'; //RXX extension
 
   if not CheckFileExists(FileName) then
     Exit;
@@ -358,52 +365,108 @@ begin
       RXData[aRT].Overloaded[i] := False;
       blockread(f, RXData[aRT].Size[i].X, 4);
       blockread(f, RXData[aRT].Pivot[i].X, 8);
-      //Data part of each sprite is 8BPP palleted in KaM RX, and 32BPP RGBA in Remake RXX
-      case RXInfo[aRT].LoadFrom of
-        rlFileRX: begin
-                    SetLength(RXData[aRT].Data[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-                    blockread(f, RXData[aRT].Data[i, 0], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-                  end;
-        rlFileRXX:begin
-                    SetLength(RXData[aRT].RGBA[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-                    SetLength(RXData[aRT].Mask[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-                    blockread(f, RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-                    blockread(f, RXData[aRT].HasMask[i], 1);
-                    if RXData[aRT].HasMask[i] then
-                      blockread(f, RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-                  end;
-      end;
+      //Data part of each sprite is 8BPP palleted in KaM RX
+      SetLength(RXData[aRT].Data[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      blockread(f, RXData[aRT].Data[i, 0], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
     end;
   closefile(f);
   fLog.AppendLog(RXInfo[aRT].FileName + ' -', RXData[aRT].Qty);
 
-  if RXInfo[aRT].LoadFrom = rlFileRX then ExpandRX(aRT); //Only KaM's rx needs expanding
+  ExpandRX(aRT); //Only KaM's rx needs expanding
+  Result := True;
+end;
+
+
+//Reading RXX Data
+function TKMSprites.LoadRXX(aRT: TRXType): Boolean;
+var
+  i: Integer;
+  FileName: String;
+  InputStream: TFileStream;
+  OutputStream: TMemoryStream;
+  DecompressionStream: TDecompressionStream;
+  ii: Integer;
+  Buffer:PChar;
+begin
+  Result := False;
+
+  FileName := ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rxx';
+
+  if not CheckFileExists(FileName) then
+    Exit;
+
+  InputStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
+  OutputStream := TMemoryStream.Create;
+  DecompressionStream := TDecompressionStream.Create(InputStream);
+  GetMem(Buffer, 10048576);
+  repeat
+    ii := DecompressionStream.Read(Buffer^, 10048576);
+    if ii <> 0 then OutputStream.Write(Buffer^, ii);
+  until ii <= 0;
+  FreeMem(Buffer, 10048576);
+
+  OutputStream.Position:=0;
+  OutputStream.Read(RXData[aRT].Qty, 4);
+
+  AllocateRX(aRT);
+
+  OutputStream.Read(RXData[aRT].Flag[1], RXData[aRT].Qty);
+
+  //Don't load the extra sprites, but keep them allocated
+  //to avoid range check errors when game wants to use that sprite
+  if (RXInfo[aRT].OverrideCount <> 0) then
+    RXData[aRT].Qty := RXInfo[aRT].OverrideCount;
+
+  for i := 1 to RXData[aRT].Qty do
+    if RXData[aRT].Flag[i] = 1 then
+    begin
+      RXData[aRT].Overloaded[i] := False;
+      OutputStream.Read(RXData[aRT].Size[i].X, 4);
+      OutputStream.Read(RXData[aRT].Pivot[i].X, 8);
+      //Data part of each sprite is 32BPP RGBA in Remake RXX files
+      SetLength(RXData[aRT].RGBA[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      SetLength(RXData[aRT].Mask[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      OutputStream.Read(RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      OutputStream.Read(RXData[aRT].HasMask[i], 1);
+      if RXData[aRT].HasMask[i] then
+        OutputStream.Read(RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+    end;
+  OutputStream.Free;
+  fLog.AppendLog(RXInfo[aRT].FileName + ' -', RXData[aRT].Qty);
+
   Result := True;
 end;
 
 
 procedure TKMSprites.SaveRXX(aRT: TRXType; const aFileName:string);
 var
-  f: file;
   i:integer;
+  InputStream: TMemoryStream;
+  OutputStream: TFileStream;
+  CompressionStream: TCompressionStream;
 begin
-  assignfile(f,aFileName);
-  rewrite(f,1);
+  InputStream := TMemoryStream.Create;
 
-  blockwrite(f, RXData[aRT].Qty, 4);
-  blockwrite(f, RXData[aRT].Flag[1], RXData[aRT].Qty);
+  InputStream.Write(RXData[aRT].Qty, 4);
+  InputStream.Write(RXData[aRT].Flag[1], RXData[aRT].Qty);
 
   for i := 1 to RXData[aRT].Qty do
     if RXData[aRT].Flag[i] = 1 then
     begin
-      blockwrite(f, RXData[aRT].Size[i].X, 4);
-      blockwrite(f, RXData[aRT].Pivot[i].X, 8);
-      blockwrite(f, RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-      blockwrite(f, RXData[aRT].HasMask[i], 1);
+      InputStream.Write(RXData[aRT].Size[i].X, 4);
+      InputStream.Write(RXData[aRT].Pivot[i].X, 8);
+      InputStream.Write(RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      InputStream.Write(RXData[aRT].HasMask[i], 1);
       if RXData[aRT].HasMask[i] then
-        blockwrite(f, RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+        InputStream.Write(RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
     end;
-  closefile(f);
+  OutputStream := TFileStream.Create(aFileName,fmCreate);
+  CompressionStream := TCompressionStream.Create(clMax, OutputStream);
+  InputStream.Position := 0;
+  CompressionStream.CopyFrom(InputStream, InputStream.Size);
+  CompressionStream.Free;
+  OutputStream.Free;
+  InputStream.Free;
 end;
 
 
@@ -466,10 +529,10 @@ var
   SearchRec: TSearchRec;
   i,x,y:integer;
   RX, ID: integer;
-  p: Cardinal;
   T: Byte;
   ft: TextFile;
   {$IFDEF WDC}
+  p: Cardinal;
   po: TPNGObject;
   {$ENDIF}
   {$IFDEF FPC}

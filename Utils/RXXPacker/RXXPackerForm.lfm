@@ -1,0 +1,33 @@
+object RXXForm1: TRXXForm1
+  Left = 192
+  Height = 223
+  Top = 148
+  Width = 256
+  Caption = 'RXX Packer'
+  ClientHeight = 223
+  ClientWidth = 256
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -13
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.30.2'
+  object btnPackMenu: TButton
+    Left = 24
+    Height = 49
+    Top = 32
+    Width = 185
+    Caption = 'Pack RemakeMenu.rxx'
+    OnClick = btnPackMenuClick
+    TabOrder = 0
+  end
+  object btnPackGame: TButton
+    Left = 24
+    Height = 49
+    Top = 96
+    Width = 185
+    Caption = 'Pack RemakeGame.rxx'
+    OnClick = btnPackGameClick
+    TabOrder = 1
+  end
+end
