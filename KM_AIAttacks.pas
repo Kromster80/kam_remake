@@ -1,7 +1,7 @@
 unit KM_AIAttacks;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, StrUtils,
+uses Classes, KromUtils, Math, SysUtils, StrUtils,
     KM_CommonClasses, KM_Defaults, KM_Utils, KM_Points;
 
 type           
@@ -116,6 +116,7 @@ end;
 
 function TAIAttacks.GetAttack(aIndex: Integer): TAIAttack;
 begin
+  Assert(InRange(aIndex, 0, fCount - 1));
   Result := fAttacks[aIndex];
 end;
 
