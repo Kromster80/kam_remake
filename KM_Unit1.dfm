@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 280
+  Left = 433
   Top = 215
   HelpType = htKeyword
   BorderStyle = bsNone
@@ -286,6 +286,10 @@ object Form1: TForm1
       object Export_Deliverlists1: TMenuItem
         Caption = 'Export Deliver lists'
         OnClick = Export_Deliverlists1Click
+      end
+      object ShowAIAttacks1: TMenuItem
+        Caption = 'Show AI Attacks'
+        OnClick = ShowAIAttacks1Click
       end
     end
     object About1: TMenuItem

@@ -2,10 +2,9 @@ unit KM_AIAttacks;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils, StrUtils,
-    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Utils, KM_Points;
 
-type
-
+type           
   //Indexes must match with KaM script values (for now)
   TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
                      att_ClosestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
@@ -32,9 +31,6 @@ type
     fAttacks: array of TAIAttack;
     function GetAttack(aIndex: Integer): TAIAttack;
   public
-    constructor Create;
-    destructor Destroy; override;
-
     property Count: Integer read fCount;
     property Items[aIndex: Integer]: TAIAttack read GetAttack; default;
     procedure AddAttack(aAttack: TAIAttack);
@@ -53,19 +49,6 @@ uses KM_Game;
 
 
 { TAIAttacks }
-constructor TAIAttacks.Create;
-begin
-  //
-end;
-
-
-destructor TAIAttacks.Destroy;
-begin
-  //
-  inherited;
-end;
-
-
 function TAIAttacks.MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer): Boolean;
 var GT: TGroupType;
 begin
@@ -100,7 +83,7 @@ end;
 
 
 function TAIAttacks.GetAsText: string;
-var I: Integer;
+var I: Integer; GT: TGroupType;
 begin
   Result := '';
 
@@ -117,15 +100,19 @@ begin
 
   for I := 0 to fCount - 1 do
   begin
-    Result := Result + 'Attack #' + IntToStr(I) + eol;
     Result := Result + IfThen(fAttacks[I].AttackType = aat_Once, 'Once', 'Repeating') + eol;
     Result := Result + 'Delay' + IntToStr(fAttacks[I].Delay) + eol;
     Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;
+    for GT := Low(TGroupType) to High(TGroupType) do
+      Result := Result + IntToStr(fAttacks[I].GroupAmounts[GT]) + '/';
+    Result := Result + eol;
+
     {Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;
     Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;
     Result := Result + 'TotalMen' + IntToStr(fAttacks[I].TotalMen) + eol;}
   end;
 end;
+
 
 function TAIAttacks.GetAttack(aIndex: Integer): TAIAttack;
 begin
@@ -136,19 +123,22 @@ end;
 procedure TAIAttacks.Save(SaveStream: TKMemoryStream);
 var I: Integer;
 begin
+  SaveStream.Write('AIAttacks');
   SaveStream.Write(fCount);
   for I := 0 to fCount - 1 do
-    SaveStream.Write(fAttacks[i], SizeOf(fAttacks[i]));
+    SaveStream.Write(fAttacks[I], SizeOf(fAttacks[I]));
 end;
 
 
 procedure TAIAttacks.Load(LoadStream: TKMemoryStream);
-var I: Integer;
+var I: Integer; s: string;
 begin
+  LoadStream.Read(s);
+  Assert(s = 'AIAttacks');
   LoadStream.Read(fCount);
   SetLength(fAttacks, fCount);
   for I := 0 to fCount - 1 do
-    LoadStream.Read(fAttacks[i], SizeOf(fAttacks[i]));
+    LoadStream.Read(fAttacks[I], SizeOf(fAttacks[I]));
 end;
 
 

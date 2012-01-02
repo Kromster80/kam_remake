@@ -73,6 +73,7 @@ type
     ExportMainMenu1: TMenuItem;
     Button_CalcArmy: TButton;
     Debug_EnableCheats: TMenuItem;
+    ShowAIAttacks1: TMenuItem;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -120,6 +121,7 @@ type
     procedure SetScreenResolution(Width, Height, RefreshRate: word);
     procedure ResetResolution;
     function GetScreenBounds: TRect;
+    procedure ShowAIAttacks1Click(Sender: TObject);
   private
     fFullScreen:boolean; //Is the application current in full screen?
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -776,6 +778,18 @@ begin
   //Prevent the game window from being in the way by minimizing when alt-tabbing
   if Application.Active then exit; //Occurs during Toggle to fullscreen, should be ignored
   if fFullScreen then Application.Minimize;
+end;
+
+
+procedure TForm1.ShowAIAttacks1Click(Sender: TObject);
+var i: Integer; s: string;
+begin
+  s := '';
+
+  for i:=0 to fPlayers.Count-1 do
+    s := s + IntToStr(i) + eol + fPlayers[i].AI.Attacks.GetAsText + eol;
+
+  ShowMessage(s);
 end;
 
 
