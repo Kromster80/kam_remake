@@ -12,6 +12,7 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   KeyPreview = True
   Menu = MainMenu1
+  OnCloseQuery = FormCloseQuery
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress

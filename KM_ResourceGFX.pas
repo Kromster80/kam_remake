@@ -289,10 +289,10 @@ begin
       MyBitMap.Canvas.Pixels[k,i] := RXData[RT].RGBA[id,i*sx+k] AND $FFFFFF; //Drop Alpha value
 
     //Mark pivot location with a dot
-    k := sx + RXData[RT].Pivot[id].x;
+    {k := sx + RXData[RT].Pivot[id].x;
     i := sy + RXData[RT].Pivot[id].y;
     if InRange(i, 0, sy-1) and InRange(k, 0, sx-1) then
-      MyBitMap.Canvas.Pixels[k,i] := $FF00FF;
+      MyBitMap.Canvas.Pixels[k,i] := $FF00FF;}
 
     if sy > 0 then
       MyBitMap.SaveToFile(ExeDir + 'Export\' + fResource.Sprites.FileName[RT] + '.rx\' + fResource.Sprites.FileName[RT] + '_' + int2fix(ID, 4) + '.bmp');

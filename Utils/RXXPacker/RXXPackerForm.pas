@@ -42,6 +42,7 @@ begin
   for RT := Low(TRXType) to High(TRXType) do
     ComboBox1.Items.Add( GetEnumName(TypeInfo(TRXType), Integer(RT)) );
   ComboBox1.ItemIndex := 0;
+  USE_RXX_FILES := false; //We are packing the RXX files, so always load the data from the other sources
 end;
 
 

@@ -205,7 +205,8 @@ type
       Shape_SingleOverlay:array[0..MENU_SP_MAPS_COUNT-1]of TKMShape;
       ScrollBar_SingleMaps:TKMScrollBar;
       Shape_SingleMap:TKMShape;
-      Label_SingleTitle,Label_SingleDesc:TKMLabel;
+      Label_SingleTitle:TKMLabel;
+      Memo_SingleDesc:TKMMemo;
       Label_SingleCondTyp,Label_SingleCondWin,Label_SingleCondDef:TKMLabel;
       Label_SingleAllies,Label_SingleEnemies:TKMLabel;
       Button_SingleBack,Button_SingleStart:TKMButton;
@@ -863,11 +864,9 @@ begin
 
     Panel_SingleDesc:=TKMPanel.Create(Panel_Single,45,84,445,600);
 
-      TKMBevel.Create(Panel_SingleDesc,0,0,445,220);
-
-      Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc,445 div 2,35,433,20,'',fnt_Outline, taCenter);
-      Label_SingleDesc  := TKMLabel.Create(Panel_SingleDesc,15,60,415,154,'',fnt_Metal, taLeft);
-      Label_SingleDesc.AutoWrap:=true;
+      Label_SingleTitle := TKMLabel.Create(Panel_SingleDesc,445 div 2,0,433,20,'',fnt_Outline, taCenter);
+      Memo_SingleDesc  := TKMMemo.Create(Panel_SingleDesc,15,25,415,189,fnt_Metal);
+      Memo_SingleDesc.AutoWrap := True;
 
       TKMBevel.Create(Panel_SingleDesc,125,230,192,192);
 
@@ -1460,7 +1459,7 @@ begin
 
     fMap_Selected        := fMaps_Top+i;
     Label_SingleTitle.Caption := fMaps[fMap_Selected].Filename;
-    Label_SingleDesc.Caption  := fMaps[fMap_Selected].BigDesc;
+    Memo_SingleDesc.Text := fMaps[fMap_Selected].BigDesc;
 
     Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[fMap_Selected].Info.MissionModeText]);
     Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[fMap_Selected].Info.VictoryCondition]);
