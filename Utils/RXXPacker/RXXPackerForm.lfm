@@ -12,22 +12,22 @@ object RXXForm1: TRXXForm1
   Font.Name = 'Tahoma'
   OnCreate = FormCreate
   LCLVersion = '0.9.30.2'
-  object btnPackMenu: TButton
+  object btnPackRXX: TButton
     Left = 24
     Height = 49
-    Top = 32
+    Top = 48
     Width = 185
-    Caption = 'Pack RemakeMenu.rxx'
-    OnClick = btnPackMenuClick
+    Caption = 'Pack to RXX File'
+    OnClick = btnPackRXXClick
     TabOrder = 0
   end
-  object btnPackGame: TButton
+  object ComboBox1: TComboBox
     Left = 24
-    Height = 49
-    Top = 96
+    Height = 24
+    Top = 16
     Width = 185
-    Caption = 'Pack RemakeGame.rxx'
-    OnClick = btnPackGameClick
+    ItemHeight = 16
+    Style = csDropDownList
     TabOrder = 1
   end
 end

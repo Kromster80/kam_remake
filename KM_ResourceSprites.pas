@@ -38,23 +38,23 @@ type
     fStepProgress: TEvent;
     fStepCaption: TStringEvent;
     procedure AllocateRX(aRT: TRXType; Count: Integer = 0);
+    function LoadRXFile(aRT: TRXType): Boolean;
+    function LoadRXXFile(aRT: TRXType): Boolean;
     procedure ExpandRX(aRT: TRXType);
     procedure OverloadRX(aRT: TRXType);
     procedure MakeGFX(aRT: TRXType);
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection; aRT: TRXType);
     procedure ClearUnusedGFX(aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
-    procedure SaveRXX(aRT: TRXType; const aFileName:string);
+    procedure SaveRXXFile(aRT: TRXType; const aFileName:string);
   public
     constructor Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     procedure LoadMenuResources(aCursors: TKMCursors);
     procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
-    procedure PackMenuRXX(const aFileName:string); //Used in RXX packer util (unused in Remake)
-    procedure PackGameRXX(const aFileName:string);
+    procedure PackRXX(aRT: TRXType; const aFileName:string); //Used in RXX packer util (unused in Remake)
 
     property FileName[aRX: TRXType]: string read GetRXFileName;
-    function LoadRX(aRT: TRXType): Boolean; //Exposed for Exports
-    function LoadRXX(aRT: TRXType): Boolean; //Exposed for Exports
+    procedure LoadSprites(aRT: TRXType; aClearGFX:boolean; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection); //Exposed for Exports
   end;
 
 
@@ -84,7 +84,7 @@ uses KromUtils, KM_Defaults, KM_Log, KM_Render, KM_TextLibrary;
 
 
 type
-  TRXLocation = (rlFileRX, rlFileRXX, rlFolder); //Location of sprites, RXfiles or folder with pngs
+  TRXLocation = (rlFile, rlFolder); //Location of sprites, RXfiles or folder with pngs
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
 
   TRXInfo = record
@@ -92,6 +92,7 @@ type
     TeamColors: Boolean; //sprites should be generated with color masks
     AlphaTest: Boolean; //Alphatested gradients, used only for houses yet
     LoadFrom: TRXLocation;
+    LoadsFromRXX: Boolean; //Should this RX be loaded from RXX files for releases?
     Usage: TRXUsage; //Menu and Game sprites are loaded separately
     OverrideCount: Word;
     LoadingTextID: Word;
@@ -105,7 +106,8 @@ var
       FileName: 'Trees';
       TeamColors: False;
       AlphaTest: False;
-      LoadFrom: rlFileRX;
+      LoadFrom: rlFile;
+      LoadsFromRXX: True;
       Usage: ruGame;
       OverrideCount: 0;
       LoadingTextID: TX_MENU_LOADING_TREES;
@@ -114,7 +116,8 @@ var
       FileName: 'Houses';
       TeamColors: True;
       AlphaTest: True;
-      LoadFrom: rlFileRX;
+      LoadFrom: rlFile;
+      LoadsFromRXX: True;
       Usage: ruGame;
       OverrideCount: 0;
       LoadingTextID: TX_MENU_LOADING_HOUSES;
@@ -123,7 +126,8 @@ var
       FileName: 'Units';
       TeamColors: True;
       AlphaTest: False;
-      LoadFrom: rlFileRX;
+      LoadFrom: rlFile;
+      LoadsFromRXX: True;
       Usage: ruGame;
       OverrideCount: 7885; //Clip to 7885 sprites until we add TPR ballista/catapult support
       LoadingTextID: TX_MENU_LOADING_UNITS;
@@ -132,7 +136,8 @@ var
       FileName: 'GUI';
       TeamColors: True;
       AlphaTest: False;
-      LoadFrom: rlFileRX;
+      LoadFrom: rlFile;
+      LoadsFromRXX: True;
       Usage: ruMenu;
       OverrideCount: 0; //Required for unit scrolls and icons
       LoadingTextID: 0;
@@ -141,7 +146,8 @@ var
       FileName: 'GUIMain';
       TeamColors: False;
       AlphaTest: False;
-      LoadFrom: rlFileRX;
+      LoadFrom: rlFile;
+      LoadsFromRXX: True;
       Usage: ruMenu;
       OverrideCount: 0;
       LoadingTextID: 0;
@@ -150,7 +156,8 @@ var
       FileName: 'GUIMainH';
       TeamColors: False;
       AlphaTest: False;
-      LoadFrom: rlFileRX;
+      LoadFrom: rlFile;
+      LoadsFromRXX: True;
       Usage: ruMenu;
       OverrideCount: 0;
       LoadingTextID: 0;
@@ -160,6 +167,7 @@ var
       TeamColors: False;
       AlphaTest: False;
       LoadFrom: rlFolder;
+      LoadsFromRXX: True;
       Usage: ruMenu;
       OverrideCount: REMAKE_MENU_SPRITES_COUNT;
       LoadingTextID: 0;
@@ -169,6 +177,7 @@ var
       TeamColors: False;
       AlphaTest: False;
       LoadFrom: rlFolder;
+      LoadsFromRXX: False;
       Usage: ruGame;
       OverrideCount: 256;
       LoadingTextID: TX_MENU_LOADING_TILESET;
@@ -178,6 +187,7 @@ var
       TeamColors: True;
       AlphaTest: False;
       LoadFrom: rlFolder;
+      LoadsFromRXX: True;
       Usage: ruGame;
       OverrideCount: REMAKE_GAME_SPIRTES_COUNT;
       LoadingTextID: TX_MENU_LOADING_ADDITIONAL_SPRITES;
@@ -203,82 +213,29 @@ procedure TKMSprites.LoadMenuResources(aCursors: TKMCursors);
 var RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruMenu) and (RXInfo[RT].LoadFrom in [rlFileRX,rlFileRXX]) then
-  begin
-    fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
-    if RXInfo[RT].LoadFrom = rlFileRXX then
-      LoadRXX(RT)
-    else
-      LoadRX(RT);
-    OverloadRX(RT); //Load RX data overrides
-
-    if RT = rxGui then
+    if (RXInfo[RT].Usage = ruMenu) then
     begin
-      aCursors.MakeCursors;
-      aCursors.Cursor := kmc_Default;
+      fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
+      LoadSprites(RT,True,aCursors,nil);
+      fStepProgress;
     end;
-
-    MakeGFX(RT);
-    ClearUnusedGFX(RT);
-
-    fStepProgress;
-  end;
-
-  for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruMenu) and (RXInfo[RT].LoadFrom = rlFolder) then
-  begin
-    fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
-
-    AllocateRX(RT, RXInfo[RT].OverrideCount);
-    OverloadRX(RT); //Load sprites from PNGs
-    MakeGFX(RT);
-    ClearUnusedGFX(RT);
-
-    fStepProgress;
-  end;
 end;
 
 
 procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
-var i:integer; RT: TRXType; Loaded: boolean;
+var i:integer; RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruGame) and (RXInfo[RT].LoadFrom in [rlFileRX,rlFileRXX]) then
+  if (RXInfo[RT].Usage = ruGame) then
   begin
     //Skip loading for performance reasons during debug
     if ((RT = rxHouses) and not MAKE_HOUSE_SPRITES) or
        ((RT = rxUnits) and not MAKE_UNIT_SPRITES) then Continue;
 
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
-
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
-    if RXInfo[RT].LoadFrom = rlFileRXX then
-      Loaded := LoadRXX(RT)
-    else
-      Loaded := LoadRX(RT);
-    if Loaded then
-    begin
-      //Load new/updated sprites, except when we are using an RXX file
-      if RXInfo[RT].LoadFrom <> rlFileRXX then OverloadRX(RT);
-      MakeGFX(RT);
 
-      //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
-      if RXInfo[RT].AlphaTest then
-        MakeGFX_AlphaTest(aHouseDat, RT);
-
-      ClearUnusedGFX(RT);
-    end;
-  end;
-
-  fLog.AppendLog('Reading folder');
-  for RT := Low(TRXType) to High(TRXType) do
-  if (RXInfo[RT].Usage = ruGame) and (RXInfo[RT].LoadFrom = rlFolder) then
-  begin
-    fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
-    AllocateRX(RT, RXInfo[RT].OverrideCount);
-    OverloadRX(RT); //Load custom PNGs
-    MakeGFX(RT);
-    ClearUnusedGFX(RT);
+    LoadSprites(RT,True,nil,aHouseDat);
   end;
 
   fLog.AppendLog('Preparing MiniMap colors...');
@@ -298,19 +255,42 @@ begin
 end;
 
 
-procedure TKMSprites.PackMenuRXX(const aFileName:string);
+procedure TKMSprites.PackRXX(aRT: TRXType; const aFileName:string);
 begin
-  AllocateRX(rxMenu, RXInfo[rxMenu].OverrideCount);
-  OverloadRX(rxMenu); //Load sprites from PNGs
-  SaveRXX(rxMenu, aFileName);
+  LoadSprites(aRT,False,nil,nil);
+  SaveRXXFile(aRT, aFileName);
 end;
 
 
-procedure TKMSprites.PackGameRXX(const aFileName:string);
+procedure TKMSprites.LoadSprites(aRT: TRXType; aClearGFX:boolean; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
 begin
-  AllocateRX(rxGame, RXInfo[rxGame].OverrideCount);
-  OverloadRX(rxGame); //Load sprites from PNGs
-  SaveRXX(rxGame, aFileName);
+  if USE_RXX_FILES and RXInfo[aRT].LoadsFromRXX then
+    LoadRXXFile(aRT)
+  else
+    case RXInfo[aRT].LoadFrom of
+      rlFile:   begin
+                  LoadRXFile(aRT);
+                  OverloadRX(aRT); //Load RX data overrides
+                end;
+      rlFolder: begin
+                  AllocateRX(aRT, RXInfo[aRT].OverrideCount);
+                  OverloadRX(aRT); //Load sprites from PNGs
+                end;
+    end;
+
+  //Cursors must be made before we clear the raw RGBA data
+  if (aRT = rxGui) and (aCursors <> nil) then
+  begin
+    aCursors.MakeCursors;
+    aCursors.Cursor := kmc_Default;
+  end;
+
+  MakeGFX(aRT);
+  //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
+  if RXInfo[aRT].AlphaTest and (aHouseDat <> nil) then
+    MakeGFX_AlphaTest(aHouseDat, aRT);
+
+  if aClearGFX then ClearUnusedGFX(aRT); //For exporting we want to preserve raw RGBA data
 end;
 
 
@@ -333,7 +313,7 @@ end;
 
 
 //Reading RX Data
-function TKMSprites.LoadRX(aRT: TRXType): Boolean;
+function TKMSprites.LoadRXFile(aRT: TRXType): Boolean;
 var
   i: Integer;
   FileName: String;
@@ -378,7 +358,7 @@ end;
 
 
 //Reading RXX Data
-function TKMSprites.LoadRXX(aRT: TRXType): Boolean;
+function TKMSprites.LoadRXXFile(aRT: TRXType): Boolean;
 var
   i: Integer;
   FileName: String;
@@ -428,7 +408,7 @@ begin
 end;
 
 
-procedure TKMSprites.SaveRXX(aRT: TRXType; const aFileName:string);
+procedure TKMSprites.SaveRXXFile(aRT: TRXType; const aFileName:string);
 var
   i:integer;
   InputStream: TMemoryStream;

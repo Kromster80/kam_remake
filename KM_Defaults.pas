@@ -55,6 +55,7 @@ var
   CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
   CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :boolean=true; //Render underwater sand
+  USE_RXX_FILES         :boolean=false; //Load sprites from RXX files instead of RX and PNGs
   //Not fully implemented yet
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
 

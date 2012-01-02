@@ -12,24 +12,25 @@ object RXXForm1: TRXXForm1
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
-  PixelsPerInch = 120
+  PixelsPerInch = 96
   TextHeight = 16
-  object btnPackMenu: TButton
+  object btnPackRXX: TButton
     Left = 24
-    Top = 32
+    Top = 48
     Width = 185
     Height = 49
-    Caption = 'Pack RemakeMenu.rxx'
+    Caption = 'Pack to RXX File'
     TabOrder = 0
-    OnClick = btnPackMenuClick
+    OnClick = btnPackRXXClick
   end
-  object btnPackGame: TButton
+  object ComboBox1: TComboBox
     Left = 24
-    Top = 96
+    Top = 16
     Width = 185
-    Height = 49
-    Caption = 'Pack RemakeGame.rxx'
+    Height = 24
+    Style = csDropDownList
+    ImeMode = imHanguel
+    ItemHeight = 16
     TabOrder = 1
-    OnClick = btnPackGameClick
   end
 end

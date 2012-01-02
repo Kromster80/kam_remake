@@ -276,7 +276,7 @@ begin
   MyBitMap := TBitmap.Create;
   MyBitMap.PixelFormat := pf24bit;
 
-  if not fResource.Sprites.LoadRX(RT) then Exit;
+  fResource.Sprites.LoadSprites(RT,False,nil,nil);
 
   for id:=1 to RXData[RT].Qty do
   begin
@@ -324,7 +324,7 @@ begin
   if fUnitDat = nil then
     fUnitDat := TKMUnitDatCollection.Create;
 
-  fSprites.LoadRX(rxUnits);
+  fResource.Sprites.LoadSprites(rxUnits,False,nil,nil);
 
   for U := ut_Serf to ut_Serf do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
@@ -414,7 +414,7 @@ begin
   MyBitMap.PixelFormat:=pf24bit;
 
   fResource.LoadGameResources;
-  if not fResource.Sprites.LoadRX(rxHouses) then Exit;
+  fResource.Sprites.LoadSprites(rxHouses,False,nil,nil);
 
   ci:=0;
   for ID:=Low(THouseType) to High(THouseType) do
@@ -480,7 +480,7 @@ begin
   MyBitMap.PixelFormat := pf24bit;
 
   fResource.LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
-  if not fResource.Sprites.LoadRX(rxTrees) then Exit;
+  fResource.Sprites.LoadSprites(rxTrees,False,nil,nil);
 
   ci:=0;
   for i:=1 to MapElemQty do
