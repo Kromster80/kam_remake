@@ -10,6 +10,7 @@ type
     private
       fInn:TKMHouseInn;
       PlaceID:byte; //Units place in Inn
+      fFoodsEaten:byte;
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -32,6 +33,7 @@ begin
   fTaskName := utn_GoEat;
   fInn      := TKMHouseInn(aInn.GetHousePointer);
   PlaceID   := 0;
+  fFoodsEaten := 0;
 end;
 
 
@@ -40,6 +42,7 @@ begin
   Inherited;
   LoadStream.Read(fInn, 4);
   LoadStream.Read(PlaceID);
+  LoadStream.Read(fFoodsEaten);
 end;
 
 
@@ -95,29 +98,33 @@ begin
       //Sausages = +60%
       //Wine     = +20%
       //Fish     = +50%
-      if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
+      if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Bread);
+        inc(fFoodsEaten);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.4);
         fInn.UpdateEater(PlaceID, rt_Bread); //Order is Wine-Bread-Sausages-Fish
       end else
         SetActionLockedStay(0,ua_Walk);
-   4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
+   4: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Sausages);
+        inc(fFoodsEaten);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.6);
         fInn.UpdateEater(PlaceID, rt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
-   5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
+   5: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Wine);
+        inc(fFoodsEaten);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.2);
         fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
-   6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
+   6: if (Condition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0)and(fFoodsEaten<2) then begin
         fInn.ResTakeFromIn(rt_Fish);
+        inc(fFoodsEaten);
         SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION*0.5);
         fInn.UpdateEater(PlaceID, rt_Fish);
@@ -145,6 +152,7 @@ begin
   else
     SaveStream.Write(Integer(0));
   SaveStream.Write(PlaceID);
+  SaveStream.Write(fFoodsEaten);
 end;
 
 

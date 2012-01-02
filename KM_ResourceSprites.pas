@@ -62,12 +62,12 @@ var
   RXData: array [TRXType] of record
     Qty: Integer;
     Flag: array of Byte; //Sprite is valid
-    Overloaded: array of Boolean; //Sprite was overloaded from addon sprites
+    Palleted: array of Boolean; //Sprite was overloaded from KaM RX so must be converted to RGBA
     Size: array of record X,Y: Word; end;
     Pivot: array of record x,y: Integer; end;
     Data: array of array of Byte;
     RGBA: array of array of Cardinal; //Expanded image
-    Mask: array of array of Cardinal; //Mask for team colors
+    Mask: array of array of Byte; //Mask for team colors
     HasMask: array of Boolean; //Mask for team colors
     HasTeamColors: Boolean;
   end;
@@ -320,15 +320,15 @@ begin
     RXData[aRT].Qty := Count;
 
   Count := RXData[aRT].Qty+1;
-  SetLength(GFXData[aRT],           Count);
-  SetLength(RXData[aRT].Flag,       Count);
-  SetLength(RXData[aRT].Overloaded, Count);
-  SetLength(RXData[aRT].Size,       Count);
-  SetLength(RXData[aRT].Pivot,      Count);
-  SetLength(RXData[aRT].Data,       Count);
-  SetLength(RXData[aRT].RGBA,       Count);
-  SetLength(RXData[aRT].Mask,       Count);
-  SetLength(RXData[aRT].HasMask,    Count);
+  SetLength(GFXData[aRT],         Count);
+  SetLength(RXData[aRT].Flag,     Count);
+  SetLength(RXData[aRT].Palleted, Count);
+  SetLength(RXData[aRT].Size,     Count);
+  SetLength(RXData[aRT].Pivot,    Count);
+  SetLength(RXData[aRT].Data,     Count);
+  SetLength(RXData[aRT].RGBA,     Count);
+  SetLength(RXData[aRT].Mask,     Count);
+  SetLength(RXData[aRT].HasMask,  Count);
 end;
 
 
@@ -362,7 +362,7 @@ begin
   for i := 1 to RXData[aRT].Qty do
     if RXData[aRT].Flag[i] = 1 then
     begin
-      RXData[aRT].Overloaded[i] := False;
+      RXData[aRT].Palleted[i] := True;
       blockread(f, RXData[aRT].Size[i].X, 4);
       blockread(f, RXData[aRT].Pivot[i].X, 8);
       //Data part of each sprite is 8BPP palleted in KaM RX
@@ -383,10 +383,7 @@ var
   i: Integer;
   FileName: String;
   InputStream: TFileStream;
-  OutputStream: TMemoryStream;
   DecompressionStream: TDecompressionStream;
-  ii: Integer;
-  Buffer:PChar;
 begin
   Result := False;
 
@@ -396,21 +393,13 @@ begin
     Exit;
 
   InputStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
-  OutputStream := TMemoryStream.Create;
   DecompressionStream := TDecompressionStream.Create(InputStream);
-  GetMem(Buffer, 10048576);
-  repeat
-    ii := DecompressionStream.Read(Buffer^, 10048576);
-    if ii <> 0 then OutputStream.Write(Buffer^, ii);
-  until ii <= 0;
-  FreeMem(Buffer, 10048576);
 
-  OutputStream.Position:=0;
-  OutputStream.Read(RXData[aRT].Qty, 4);
+  DecompressionStream.Read(RXData[aRT].Qty, 4);
 
   AllocateRX(aRT);
 
-  OutputStream.Read(RXData[aRT].Flag[1], RXData[aRT].Qty);
+  DecompressionStream.Read(RXData[aRT].Flag[1], RXData[aRT].Qty);
 
   //Don't load the extra sprites, but keep them allocated
   //to avoid range check errors when game wants to use that sprite
@@ -420,18 +409,19 @@ begin
   for i := 1 to RXData[aRT].Qty do
     if RXData[aRT].Flag[i] = 1 then
     begin
-      RXData[aRT].Overloaded[i] := False;
-      OutputStream.Read(RXData[aRT].Size[i].X, 4);
-      OutputStream.Read(RXData[aRT].Pivot[i].X, 8);
+      RXData[aRT].Palleted[i] := False;
+      DecompressionStream.Read(RXData[aRT].Size[i].X, 4);
+      DecompressionStream.Read(RXData[aRT].Pivot[i].X, 8);
       //Data part of each sprite is 32BPP RGBA in Remake RXX files
       SetLength(RXData[aRT].RGBA[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
       SetLength(RXData[aRT].Mask[i], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-      OutputStream.Read(RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
-      OutputStream.Read(RXData[aRT].HasMask[i], 1);
+      DecompressionStream.Read(RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+      DecompressionStream.Read(RXData[aRT].HasMask[i], 1);
       if RXData[aRT].HasMask[i] then
-        OutputStream.Read(RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+        DecompressionStream.Read(RXData[aRT].Mask[i, 0], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
     end;
-  OutputStream.Free;
+  DecompressionStream.Free;
+  InputStream.Free;
   fLog.AppendLog(RXInfo[aRT].FileName + ' -', RXData[aRT].Qty);
 
   Result := True;
@@ -458,7 +448,7 @@ begin
       InputStream.Write(RXData[aRT].RGBA[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
       InputStream.Write(RXData[aRT].HasMask[i], 1);
       if RXData[aRT].HasMask[i] then
-        InputStream.Write(RXData[aRT].Mask[i, 0], 4 * RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
+        InputStream.Write(RXData[aRT].Mask[i, 0], RXData[aRT].Size[i].X * RXData[aRT].Size[i].Y);
     end;
   OutputStream := TFileStream.Create(aFileName,fmCreate);
   CompressionStream := TCompressionStream.Create(clMax, OutputStream);
@@ -507,10 +497,10 @@ begin
         begin
           RGBA[i,Pixel] := cardinal(((L-27)*42+128)*65793) OR $FF000000;
           case L of //Maybe it makes sense to convert to 8bit?
-            24,30:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
-            25,29:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
-            26,28:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
-            27:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
+            24,30:  Mask[i,Pixel] := $60;   //7  //6
+            25,29:  Mask[i,Pixel] := $90;   //11 //9
+            26,28:  Mask[i,Pixel] := $C0;   //14 //12
+            27:     Mask[i,Pixel] := $FF;   //16 //16
           end;
           HasMask[i] := true;
         end else
@@ -570,7 +560,7 @@ begin
       {$ENDIF}
 
       RXData[aRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
-      RXData[aRT].Overloaded[ID] := True;
+      RXData[aRT].Palleted[ID] := False;
       RXData[aRT].Size[ID].X := po.Width;
       RXData[aRT].Size[ID].Y := po.Height;
 
@@ -622,7 +612,7 @@ begin
           if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
           begin
             T := RXData[aRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
-            RXData[aRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2)) SHL 24 OR $FFFFFF;
+            RXData[aRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
             RXData[aRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
           end;
           {$ENDIF}
@@ -631,7 +621,7 @@ begin
           if cardinal(po.GetPixel(x,y).red) <> 0 then
           begin
             T := RXData[aRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
-            RXData[aRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2)) SHL 24 OR $FFFFFF;
+            RXData[aRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
             RXData[aRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
           end;
           {$ENDIF}
@@ -703,7 +693,7 @@ begin
           if i<RXData[aRT].Size[j].Y then begin
             //CopyMemory(TD[(i-1)*WidthPOT+ci-1], RXData[aRT].RGBA[j,(i-1)*RXData[aRT].Size[j].X+k-1], )
             TD[i*WidthPOT+ci] := RXData[aRT].RGBA[j,i*RXData[aRT].Size[j].X+k];
-            TA[i*WidthPOT+ci] := RXData[aRT].Mask[j,i*RXData[aRT].Size[j].X+k];
+            TA[i*WidthPOT+ci] := (RXData[aRT].Mask[j,i*RXData[aRT].Size[j].X+k] SHL 24) OR $FFFFFF;
           end;
           inc(ci);
         end;
@@ -811,9 +801,9 @@ begin
         begin
           t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
 
-          //Overloaded=False means that we can use Data array
+          //Palleted means that we can use Data array
           //Otherwise, for addon sprites, we need to resort to RGBA data they provide
-          if not RXData[aRT].Overloaded[ID2] then
+          if RXData[aRT].Palleted[ID2] then
             Alpha := RXData[aRT].Data[ID2,i*RXData[aRT].Size[ID2].X+k]
           else
             Alpha := RXData[aRT].RGBA[ID2,i*RXData[aRT].Size[ID2].X+k] AND $FF;

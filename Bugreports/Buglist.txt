@@ -2,6 +2,7 @@
 <===================================================================================>
  +	Range Check Error occurs when a woodcutter considers chopping a tree on the topmost or leftmost edge of the map
  +	Click server A, then quickly click server B. This is incorrectly interpreted as double clicking and you join server B
+ +	Units should eat a maximum of 2 food items at the inn
 	Exporting GUI.rx gives a Range Check Error
 	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
