@@ -894,23 +894,8 @@ const //KaM uses 0 for repeating attack in TSK (disused and replaced with later 
   KaMAttackType:array[TAIAttackType] of byte = (1,0);
 
 
-type //Indexes must match with KaM script values (for now)
-  TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
-                     att_ClosestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
-                     att_ClosestBuildingFromStartPos=2, //Closest building from the AI's start position
-                     att_CustomPosition=3); //Custom point defined with CustomPosition
+type 
 
-  TAIAttack = record
-    AttackType: TAIAttackType; //Once or repeating
-    HasOccured: boolean; //Has this attack happened already?
-    Delay: cardinal; //The attack will not occur before this time has passed
-    TotalMen: integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
-    GroupAmounts: array[TGroupType] of byte; //How many squads of each group type will be taken
-    TakeAll: boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
-    Target: TAIAttackTarget;
-    Range: integer; //Will only occur when target is within this tile range (not properly tested yet)
-    CustomPosition: TKMPoint; //Used when Target = att_CustomPosition
-  end;
 
   //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
   //       Please let me know your thoughts. This is very similar to that used in KaM and is quite flexable/expandable. (we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)

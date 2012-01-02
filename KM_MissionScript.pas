@@ -4,7 +4,7 @@ interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   Classes, KromUtils, SysUtils, Dialogs, Math, KM_CommonClasses, KM_Defaults,
-  KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
+  KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
 
 
   {Settings for mission loader:
@@ -44,8 +44,9 @@ type
                     ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
 
   TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
-                         cpt_MaxSoldier,cpt_EquipRate,cpt_AttackFactor,cpt_TroopParam,cpt_Type,cpt_TotalAmount,cpt_Counter,cpt_Range,
-                         cpt_TroopAmount,cpt_Target,cpt_Position,cpt_TakeAll);
+                         cpt_MaxSoldier,cpt_EquipRate,cpt_AttackFactor,cpt_TroopParam);
+
+  TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
 
 const
   COMMANDVALUES: array[TKMCommandType] of AnsiString = (
@@ -59,10 +60,12 @@ const
     'SET_AI_NO_BUILD','SET_AI_START_POSITION','SET_AI_DEFENSE','SET_AI_ATTACK',
     'COPY_AI_ATTACK');
 
-  PARAMVALUES: array[TKMCommandParamType] of AnsiString = (
+  PARAMVALUES: array [TKMCommandParamType] of AnsiString = (
     '','RECRUTS','CONSTRUCTORS','WORKER_FACTOR','RECRUT_COUNT','TOWN_DEFENSE',
-    'MAX_SOLDIER','EQUIP_RATE','ATTACK_FACTOR','TROUP_PARAM','TYPE','TOTAL_AMOUNT','COUNTER','RANGE',
-    'TROUP_AMOUNT','TARGET','POSITION','TAKEALL');
+    'MAX_SOLDIER','EQUIP_RATE','ATTACK_FACTOR','TROUP_PARAM');
+
+  AI_ATTACK_PARAMS: array [TAIAttackParamType] of AnsiString = (
+    'TYPE', 'TOTAL_AMOUNT', 'COUNTER', 'RANGE', 'TROUP_AMOUNT', 'TARGET', 'POSITION', 'TAKEALL');
 
   MAXPARAMS = 8;
 
@@ -419,7 +422,7 @@ begin
     Result := false;
     Exit;
   end;
-  
+
   fMissionInfo.MapSizeX := sx;
   fMissionInfo.MapSizeY := sy;
   Result := true;
@@ -761,29 +764,29 @@ begin
                           fPlayers.Player[fLastPlayer].FlagColor := fResource.Palettes[DEF_PAL].Color32(P[0]);
     ct_AIAttack:        begin
                           //Set up the attack command
-                          if TextParam = PARAMVALUES[cpt_Type] then
-                            if InRange(P[1],0,2) then
+                          if TextParam = AI_ATTACK_PARAMS[cpt_Type] then
+                            if InRange(P[1], Low(RemakeAttackType), High(RemakeAttackType)) then
                               fAIAttack.AttackType := RemakeAttackType[P[1]]
                             else
-                              AddScriptError('Unknown parameter '+inttostr(P[1])+' at ct_AIAttack');
-                          if TextParam = PARAMVALUES[cpt_TotalAmount] then
+                              AddScriptError('Unknown parameter ' + IntToStr(P[1]) + ' at ct_AIAttack');
+                          if TextParam = AI_ATTACK_PARAMS[cpt_TotalAmount] then
                             fAIAttack.TotalMen := P[1];
-                          if TextParam = PARAMVALUES[cpt_Counter] then
+                          if TextParam = AI_ATTACK_PARAMS[cpt_Counter] then
                             fAIAttack.Delay := P[1];
-                          if TextParam = PARAMVALUES[cpt_Range] then
+                          if TextParam = AI_ATTACK_PARAMS[cpt_Range] then
                             fAIAttack.Range := P[1];
-                          if TextParam = PARAMVALUES[cpt_TroopAmount] then
+                          if TextParam = AI_ATTACK_PARAMS[cpt_TroopAmount] then
                             fAIAttack.GroupAmounts[TGroupType(P[1])] := P[2];
-                          if TextParam = PARAMVALUES[cpt_Target] then
+                          if TextParam = AI_ATTACK_PARAMS[cpt_Target] then
                             fAIAttack.Target := TAIAttackTarget(P[1]);
-                          if TextParam = PARAMVALUES[cpt_Position] then
+                          if TextParam = AI_ATTACK_PARAMS[cpt_Position] then
                             fAIAttack.CustomPosition := KMPoint(P[1]+1,P[2]+1);
-                          if TextParam = PARAMVALUES[cpt_TakeAll] then
-                            fAIAttack.TakeAll := true;
+                          if TextParam = AI_ATTACK_PARAMS[cpt_TakeAll] then
+                            fAIAttack.TakeAll := True;
                         end;
     ct_CopyAIAttack:    if fLastPlayer >=0 then
                           //Save the attack to the AI assets
-                          fPlayers.Player[fLastPlayer].AI.AddAttack(fAIAttack);
+                          fPlayers.Player[fLastPlayer].AI.Attacks.AddAttack(fAIAttack);
     ct_EnablePlayer:   begin
                          //Serves no real purpose, all players have this command anyway
                        end;
@@ -860,13 +863,24 @@ var
     end
   end;
 
-  procedure AddCommand(aCommand:TKMCommandType; aComParam:TKMCommandParamType; aParams:array of integer); overload;
+  procedure AddCommand(aCommand: TKMCommandType; aComParam: TKMCommandParamType; aParams: array of integer); overload;
   var OutData: AnsiString; i:integer;
   begin
     OutData := '!' + COMMANDVALUES[aCommand];
 
     if aComParam <> cpt_Unknown then
       OutData := OutData + ' ' + PARAMVALUES[aComParam];
+
+    for i:=Low(aParams) to High(aParams) do
+      OutData := OutData + ' ' + AnsiString(IntToStr(aParams[i]));
+
+    AddData(OutData);
+  end;
+
+  procedure AddCommand(aCommand: TKMCommandType; aComParam: TAIAttackParamType; aParams: array of integer); overload;
+  var OutData: AnsiString; i:integer;
+  begin
+    OutData := '!' + COMMANDVALUES[aCommand] + ' ' + AI_ATTACK_PARAMS[aComParam];
 
     for i:=Low(aParams) to High(aParams) do
       OutData := OutData + ' ' + AnsiString(IntToStr(aParams[i]));
@@ -950,8 +964,8 @@ begin
           AddCommand(ct_AIDefence, [Position.Loc.X-1,Position.Loc.Y-1,byte(Position.Dir)-1,KaMGroupType[GroupType],DefenceRadius,byte(DefenceType)]);
       AddData(''); //NL
       AddData(''); //NL
-      for k:=0 to fPlayers.Player[i].AI.ScriptedAttacksCount-1 do
-        with fPlayers.Player[i].AI.ScriptedAttacks[k] do
+      for k:=0 to fPlayers.Player[i].AI.Attacks.Count - 1 do
+        with fPlayers.Player[i].AI.Attacks[k] do
         begin
           AddCommand(ct_AIAttack, cpt_Type, [KaMAttackType[AttackType]]);
           AddCommand(ct_AIAttack, cpt_TotalAmount, [TotalMen]);

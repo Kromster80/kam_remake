@@ -2,7 +2,7 @@ unit KM_PlayerAI;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils,
-    KM_CommonClasses, KM_Defaults, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Utils, KM_Points;
 
 type //For now IDs must match with KaM
   TAIDefencePosType = (adt_FrontLine=0, //Front line troops may not go on attacks, they are for defence
@@ -33,14 +33,13 @@ type //For now IDs must match with KaM
     fTimeOfLastAttackMessage: cardinal;
     fLastEquippedTime: cardinal;
     fHasWonOrLost:boolean; //Has this player won/lost? If so, do not check goals
-
+    fAttacks: TAIAttacks;
     fAutobuild:boolean;
 
     procedure CheckGoals;
     procedure CheckUnitCount;
     procedure CheckArmiesCount;
     procedure CheckArmy;
-    function CheckAttackMayOccur(aAttack: TAIAttack; MenAvailable:integer; GroupsAvailableCount: array of integer):boolean;
     procedure OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
     procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
     function FindPlaceForWarrior(aWarrior:TKMUnitWarrior; aCanLinkToExisting, aTakeClosest:boolean):boolean;
@@ -57,12 +56,12 @@ type //For now IDs must match with KaM
                                           end;
     DefencePositionsCount: integer;
     DefencePositions: array of TAIDefencePosition;
-    ScriptedAttacksCount: integer;
-    ScriptedAttacks: array of TAIAttack;
+
     constructor Create(aPlayerIndex:integer);
     destructor Destroy; override;
 
     property Autobuild:boolean read fAutobuild write fAutobuild;
+    property Attacks: TAIAttacks read fAttacks;
 
     procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
@@ -73,7 +72,6 @@ type //For now IDs must match with KaM
 
     function HouseAutoRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
-    procedure AddAttack(aAttack: TAIAttack);
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -173,7 +171,9 @@ begin
   fHasWonOrLost := false;
   fTimeOfLastAttackMessage := 0;
   DefencePositionsCount := 0;
-  ScriptedAttacksCount := 0;
+
+  fAttacks := TAIAttacks.Create;
+
   //Set some defaults (these are not measured from KaM)
   ReqWorkers := 3;
   ReqRecruits := 5; //This means the number in the barracks, watchtowers are counted seperately
@@ -196,6 +196,7 @@ end;
 destructor TKMPlayerAI.Destroy;
 var i: integer;
 begin
+  fAttacks.Free;
   for i:=0 to DefencePositionsCount-1 do DefencePositions[i].Free;
   Inherited;
 end;
@@ -423,24 +424,6 @@ begin
 end;
 
 
-function TKMPlayerAI.CheckAttackMayOccur(aAttack: TAIAttack; MenAvailable:integer; GroupsAvailableCount: array of integer):boolean;
-var GT: TGroupType;
-begin
-  with aAttack do
-  begin
-    Result := ((AttackType = aat_Repeating) or not HasOccured)
-              and fGame.CheckTime(Delay)
-              and (TotalMen <= MenAvailable);
-
-    if not TakeAll then
-      for GT := Low(TGroupType) to High(TGroupType) do
-        Result := Result AND (GroupAmounts[GT] <= GroupsAvailableCount[byte(GT)]);
-
-    //todo: Add support for the AI attack feature Range
-  end;
-end;
-
-
 procedure TKMPlayerAI.OrderAttack(aCommander: TKMUnitWarrior; aTarget: TAIAttackTarget; aCustomPos: TKMPoint);
 var
   TargetHouse: TKMHouse;
@@ -643,30 +626,28 @@ begin
 
   //Now process AI attacks (we have compiled a list of warriors available to attack)
   if not fGame.IsPeaceTime then
-    for i:=0 to ScriptedAttacksCount-1 do
-    with ScriptedAttacks[i] do
+    for i:=0 to Attacks.Count - 1 do
+    if Attacks.MayOccur(i, AttackTotalAvailable, AttackGroupsCount) then //Check conditions are right
     begin
-      //Check conditions are right
-      if not CheckAttackMayOccur(ScriptedAttacks[i], AttackTotalAvailable, AttackGroupsCount) then continue;
       //Order groups to attack
-      if TakeAll then
+      if Attacks[i].TakeAll then
       begin
         for G:=Low(TGroupType) to High(TGroupType) do
           for j:=1 to AttackGroupsCount[G] do
-            OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
+            OrderAttack(AttackGroups[G, integer(j)-1], Attacks[i].Target, Attacks[i].CustomPosition);
       end
       else
       begin
         for G:=Low(TGroupType) to High(TGroupType) do
-          for j:=1 to GroupAmounts[G] do
-            OrderAttack(AttackGroups[G, integer(j)-1],Target,CustomPosition);
+          for j:=1 to Attacks[i].GroupAmounts[G] do
+            OrderAttack(AttackGroups[G, integer(j)-1], Attacks[i].Target, Attacks[i].CustomPosition);
       end;
-      HasOccured := true;
+      Attacks.Occured(i); //We can't set the flag to property record directly
     end;
 end;
 
 
-procedure TKMPlayerAI.OwnerUpdate(aPlayer:TPlayerIndex);
+procedure TKMPlayerAI.OwnerUpdate(aPlayer: TPlayerIndex);
 begin
   PlayerIndex := aPlayer;
 end;
@@ -777,14 +758,6 @@ begin
 end;
 
 
-procedure TKMPlayerAI.AddAttack(aAttack: TAIAttack);
-begin
-  SetLength(ScriptedAttacks, ScriptedAttacksCount+1);
-  ScriptedAttacks[ScriptedAttacksCount] := aAttack;
-  inc(ScriptedAttacksCount);
-end;
-
-
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var i: integer;
 begin
@@ -807,9 +780,8 @@ begin
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
     DefencePositions[i].Save(SaveStream);
-  SaveStream.Write(ScriptedAttacksCount);
-  for i:=0 to ScriptedAttacksCount-1 do
-    SaveStream.Write(ScriptedAttacks[i], SizeOf(ScriptedAttacks[i]));
+
+  Attacks.Save(SaveStream);
 end;
 
 
@@ -837,10 +809,8 @@ begin
   SetLength(DefencePositions, DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
     DefencePositions[i] := TAIDefencePosition.Load(LoadStream);
-  LoadStream.Read(ScriptedAttacksCount);
-  SetLength(ScriptedAttacks, ScriptedAttacksCount);
-  for i:=0 to ScriptedAttacksCount-1 do
-    LoadStream.Read(ScriptedAttacks[i], SizeOf(ScriptedAttacks[i]));
+
+  Attacks.Load(LoadStream);
 end;
 
 
