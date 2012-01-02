@@ -84,7 +84,6 @@ type
     procedure Button_CalcArmyClick(Sender: TObject);
     procedure Debug_EnableCheatsClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-  published
     procedure StartTheGame;
     procedure FormResize(Sender:TObject);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -780,8 +779,9 @@ begin
 end;
 
 
-{$IFDEF FPC}
 initialization
+
+{$IFDEF FPC}
 {$I KM_Unit1.lrs}
 {$ENDIF}
 
