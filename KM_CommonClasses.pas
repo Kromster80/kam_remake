@@ -69,7 +69,7 @@ type
     procedure Load(LoadStream:TKMemoryStream); virtual;
     procedure Clearup; virtual;
     procedure AddEntry(aLoc:TKMPoint);
-    function  RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
+    function  RemoveEntry(aLoc:TKMPoint):Integer; virtual;
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
     function  GetRandom(out Point: TKMPoint):Boolean;
     function  GetClosest(aLoc:TKMPoint; out Point: TKMPoint):Boolean;
@@ -86,7 +86,7 @@ type
     procedure Load(LoadStream:TKMemoryStream); override;
     procedure Clearup; override;
     procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
-    function RemoveEntry(aLoc:TKMPoint):cardinal; override;
+    function RemoveEntry(aLoc:TKMPoint):Integer; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -301,22 +301,21 @@ begin
 end;
 
 
-{Remove point from the list if is there. Return 'true' if succeded}
-function TKMPointList.RemoveEntry(aLoc:TKMPoint):cardinal;
-var i: integer; Found: boolean;
+{Remove point from the list if is there. Return index of removed entry or -1 on failure}
+function TKMPointList.RemoveEntry(aLoc:TKMPoint):Integer;
+var i: integer;
 begin
-  Result:=0;
-  Found := false;
+  Result:=-1;
   for i:=1 to Count do
-  begin
-    if (KMSamePoint(List[i],aLoc) and (not Found)) then
+    if KMSamePoint(List[i],aLoc) then
     begin
       dec(Count);
-      Found := true;
-      Result:=i;
+      Result := i;
+      Break;
     end;
-    if (Found) and (i < Count) then List[i] := List[i+1];
-  end;
+  if Result <> -1 then
+    for i:=Result to Count do
+      List[i] := List[i+1];
 end;
 
 
@@ -443,16 +442,16 @@ begin
 end;
 
 
-function TKMPointTagList.RemoveEntry(aLoc:TKMPoint):cardinal;
+function TKMPointTagList.RemoveEntry(aLoc:TKMPoint):Integer;
 var i: integer;
 begin
   Result := Inherited RemoveEntry(aLoc);
-
-  for i:=Result to Count-1 do
-  begin
-    Tag[i] := Tag[i+1];
-    Tag2[i] := Tag2[i+1];
-  end;
+  if Result <> -1 then
+    for i:=Result to Count-1 do
+    begin
+      Tag[i] := Tag[i+1];
+      Tag2[i] := Tag2[i+1];
+    end;
 end;
 
 

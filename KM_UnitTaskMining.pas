@@ -235,7 +235,7 @@ begin
        end;
     7: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
-           fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
+           fTerrain.ChopTree(KMGetVertexTile(WorkPlan.Loc,WorkPlan.WorkDir)); //Make the tree turn into a stump
          SetActionWalkToSpot(KMPointBelow(GetHome.GetEntrance), WorkPlan.ActionWalkFrom); //Go home
          Thought := th_Home;
        end;

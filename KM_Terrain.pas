@@ -2567,7 +2567,7 @@ begin
   inc(fAnimStep);
 
   for i:=FallingTrees.Count downto 1 do
-  if fAnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then
+  if fAnimStep - FallingTrees.Tag2[i] >= MapElem[FallingTrees.Tag[i]+1].Count-1 then
     ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
 
   for i:=1 to fMapY do
