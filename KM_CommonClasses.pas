@@ -447,7 +447,7 @@ var i: integer;
 begin
   Result := Inherited RemoveEntry(aLoc);
   if Result <> -1 then
-    for i:=Result to Count-1 do
+    for i:=Result to Count do
     begin
       Tag[i] := Tag[i+1];
       Tag2[i] := Tag2[i+1];

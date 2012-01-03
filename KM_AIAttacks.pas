@@ -2,7 +2,7 @@ unit KM_AIAttacks;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils, StrUtils,
-    KM_CommonClasses, KM_Defaults, KM_Utils, KM_Points;
+    KM_CommonClasses, KM_Defaults, KM_Points;
 
 type           
   //Indexes must match with KaM script values (for now)
