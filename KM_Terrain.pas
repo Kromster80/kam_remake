@@ -1983,19 +1983,24 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:bo
       Land[y,x].WalkConnect[wcType]:=ID;
       inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
+      //Using custom CanWalkDiagonally is also much faster
       if x-1>=1 then begin
-        if AllowDiag and (y-1>=1) then     FillArea(x-1,y-1,ID,Count);
-                                           FillArea(x-1,y  ,ID,Count);
-        if AllowDiag and (y+1<=fMapY) then FillArea(x-1,y+1,ID,Count);
+        if AllowDiag and (y-1>=1)
+        and not MapElem[Land[y,x].Obj+1].DiagonalBlocked then   FillArea(x-1,y-1,ID,Count);
+                                                                FillArea(x-1,y  ,ID,Count);
+        if AllowDiag and (y+1<=fMapY)
+        and not MapElem[Land[y+1,x].Obj+1].DiagonalBlocked then FillArea(x-1,y+1,ID,Count);
       end;
 
       if y-1>=1 then     FillArea(x,y-1,ID,Count);
       if y+1<=fMapY then FillArea(x,y+1,ID,Count);
 
       if x+1<=fMapX then begin
-        if AllowDiag and (y-1>=1) then     FillArea(x+1,y-1,ID,Count);
-                                           FillArea(x+1,y  ,ID,Count);
-        if AllowDiag and (y+1<=fMapY) then FillArea(x+1,y+1,ID,Count);
+        if AllowDiag and (y-1>=1)
+        and not MapElem[Land[y,x+1].Obj+1].DiagonalBlocked then   FillArea(x+1,y-1,ID,Count);
+                                                                  FillArea(x+1,y  ,ID,Count);
+        if AllowDiag and (y+1<=fMapY)
+        and not MapElem[Land[y+1,x+1].Obj+1].DiagonalBlocked then FillArea(x+1,y+1,ID,Count);
       end;
     end;
   end;

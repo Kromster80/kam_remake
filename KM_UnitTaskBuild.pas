@@ -586,7 +586,7 @@ begin
           fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Fence, GetOwner);
           HouseNeedsWorker := True; //The house placed on the map, if something happens with Worker the house will be removed
           fHouse.BuildingState := hbs_NoGlyph;
-          SetActionLockedStay(5,ua_Walk);
+          SetActionLockedStay(2,ua_Walk);
           Thought := th_None;
         end;
     2:  SetActionWalkToSpot(Cells[Step]);

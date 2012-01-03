@@ -158,7 +158,7 @@ begin
 
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
-  //todo: @Krom: Make textures support an alpha channel for nice shadows
+  //todo: @Krom: Make textures support an alpha channel for nice shadows. How does it work for houses on top of AlphaTest?
   case Mode of
     //Houses under construction
     tf_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);

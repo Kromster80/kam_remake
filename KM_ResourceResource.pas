@@ -93,8 +93,8 @@ begin
   Resources[rt_Corn       ].SetMarketPrice := 1;
   Resources[rt_Flour      ].SetMarketPrice := ProcessingCost + Resources[rt_Corn].MarketPrice;
   Resources[rt_Bread      ].SetMarketPrice := (1/2)*(ProcessingCost + Resources[rt_Flour].MarketPrice);
-  Resources[rt_Pig        ].SetMarketPrice := (1/2)*(ProcessingCost + 5*Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
-  Resources[rt_Skin       ].SetMarketPrice := (1/2)*(ProcessingCost + 5*Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
+  Resources[rt_Pig        ].SetMarketPrice := (1/2)*(ProcessingCost + 4*Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
+  Resources[rt_Skin       ].SetMarketPrice := (1/2)*(ProcessingCost + 4*Resources[rt_Corn].MarketPrice); //1/2 because two products are made simultaneously
   Resources[rt_Leather    ].SetMarketPrice := (1/2)*(ProcessingCost + Resources[rt_Skin].MarketPrice);
   Resources[rt_Sausages   ].SetMarketPrice := (1/3)*(ProcessingCost + Resources[rt_Pig].MarketPrice);
   Resources[rt_Shield     ].SetMarketPrice := ProcessingCost + Resources[rt_Wood].MarketPrice;
@@ -107,7 +107,7 @@ begin
   Resources[rt_Hallebard  ].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
   Resources[rt_Bow        ].SetMarketPrice := ProcessingCost + 2*Resources[rt_Wood].MarketPrice;
   Resources[rt_Arbalet    ].SetMarketPrice := ProcessingCost + Resources[rt_Steel].MarketPrice + Resources[rt_Coal].MarketPrice;
-  Resources[rt_Horse      ].SetMarketPrice := ProcessingCost + 5*Resources[rt_Corn].MarketPrice;
+  Resources[rt_Horse      ].SetMarketPrice := ProcessingCost + 4*Resources[rt_Corn].MarketPrice;
   Resources[rt_Fish       ].SetMarketPrice := (1/2)*NonRenewableFactor;
 end;
 
