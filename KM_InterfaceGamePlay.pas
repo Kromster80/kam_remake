@@ -3225,7 +3225,7 @@ begin
                   LastDragPoint := GameCursor.Cell;
                 end
                 else
-                  if MyPlayer.RemPlan(P,true,true) then
+                  if MyPlayer.WorkerList.FieldworksList.HasField(P) then
                   begin
                     fGame.GameInputProcess.CmdBuild(gic_BuildRemovePlan, P); //Remove plans
                     LastDragPoint := GameCursor.Cell;
@@ -3410,7 +3410,7 @@ begin
                   if MyPlayer.RemHouse(P,true,true) and (H.BuildingState = hbs_Glyph) then
                     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, P)
                   else
-                    if MyPlayer.RemPlan(P,true,true) then
+                    if MyPlayer.WorkerList.FieldworksList.HasField(P) then
                       fGame.GameInputProcess.CmdBuild(gic_BuildRemovePlan, P) //Remove plans
                     else
                       fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase

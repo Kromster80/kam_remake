@@ -99,7 +99,7 @@ type
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    function RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
+    procedure RemPlan(Position: TKMPoint; DoSilent:boolean);
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
@@ -414,14 +414,8 @@ begin
 end;
 
 
-function TKMPlayer.RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
+procedure TKMPlayer.RemPlan(Position: TKMPoint; DoSilent:boolean);
 begin
-  if Simulated then
-  begin
-    Result := fWorkerList.FieldworksList.HasField(Position);
-    Exit;
-  end;
-
   fWorkerList.FieldworksList.RemField(Position);
   if not DoSilent then fSoundLib.Play(sfx_Click);
   fTerrain.RemMarkup(Position);

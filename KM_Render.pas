@@ -1144,7 +1144,7 @@ begin
 
                  if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
                  begin
-                   if (MyPlayer.RemPlan(GameCursor.Cell, true, true) or MyPlayer.RemHouse(GameCursor.Cell, true, true))
+                   if (MyPlayer.WorkerList.FieldworksList.HasField(GameCursor.Cell) or MyPlayer.RemHouse(GameCursor.Cell, true, true))
                    and TileVisible then
                      RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                    else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
