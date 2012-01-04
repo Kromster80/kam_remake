@@ -84,6 +84,7 @@ type
 
     function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
     function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
+    function CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint):boolean;
     function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; aPlayer:TKMPlayer):boolean;
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
@@ -2073,7 +2074,7 @@ begin
           hs_Fence: Land[y,x].Markup:=mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
           hs_Built: begin
                       Land[y,x].Markup:=mu_House;
-                      Land[y,x].Obj:=255;
+                      if aFlattenTerrain then Land[y,x].Obj:=255; //In map editor don't remove objects (remove on mission load instead)
                       //If house was set e.g. in mission file we must flatten the terrain as no one else has
                       if ToFlatten<>nil then ToFlatten.AddEntry(KMPoint(x,y));
                     end;
@@ -2139,6 +2140,41 @@ begin
       end;
 
       Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4,false) > 0);
+    end;
+end;
+
+
+//Simple checks when placing houses from the script:
+function TTerrain.CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint):boolean;
+var i,k,j,l:integer; HA:THouseArea; TestLoc: TKMPoint;
+begin
+  Result := true;
+  HA := fResource.HouseDat[aHouseType].BuildArea;
+  Loc.X := Loc.X-fResource.HouseDat[aHouseType].EntranceOffsetX; //update offset
+  for i:=1 to 4 do for k:=1 to 4 do
+    if HA[i,k]<>0 then
+    begin
+      TestLoc := KMPoint(Loc.X+k-3,Loc.Y+i-4);
+      Result := Result AND TileInMapCoords(TestLoc.X,TestLoc.Y,1); //Inset one tile from map edges
+      Result := Result AND TileIsWalkable(TestLoc); //Tile must be walkable
+
+      //Mines must be on a mountain edge
+      if aHouseType = ht_IronMine then
+        Result := Result AND (Land[TestLoc.Y,TestLoc.X].Terrain in [109,166..170]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
+      if aHouseType = ht_GoldMine then
+        Result := Result AND (Land[TestLoc.Y,TestLoc.X].Terrain in [171..175    ]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
+
+      if not Result then exit;
+
+      //Check surrounding tiles for another house that overlaps
+      for j:=-1 to 1 do
+        for l:=-1 to 1 do
+          if TileInMapCoords(TestLoc.X+l,TestLoc.Y+j) then
+           if (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_House]) then
+           begin
+             Result := False;
+             exit;
+           end;
     end;
 end;
 

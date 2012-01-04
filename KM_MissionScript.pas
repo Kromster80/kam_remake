@@ -575,8 +575,9 @@ begin
                             fPlayers.Player[fLastPlayer].FogOfWar.RevealCircle(KMPoint(P[0]+1,P[1]+1), P[2], 255);
     ct_SetHouse:        if fLastPlayer >=0 then
                           if InRange(P[0], Low(HouseKaMType), High(HouseKaMType)) then
-                            fLastHouse := fPlayers.Player[fLastPlayer].AddHouse(
-                              HouseKaMType[P[0]], P[1]+1, P[2]+1, false);
+                            if fTerrain.CanPlaceHouseFromScript(HouseKaMType[P[0]], KMPoint(P[1]+1, P[2]+1)) then //todo: If the house can't be placed, show a warning so the guy making the map knows about it
+                              fLastHouse := fPlayers.Player[fLastPlayer].AddHouse(
+                                HouseKaMType[P[0]], P[1]+1, P[2]+1, false);
     ct_SetHouseDamage:  if fLastPlayer >=0 then //Skip false-positives for skipped players
                           if fLastHouse <> nil then
                             fLastHouse.AddDamage(min(P[0],high(word)), fParsingMode = mpm_Editor)
