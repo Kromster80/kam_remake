@@ -43,9 +43,10 @@ type
     gic_ArmyStorm,        //StormAttack
 
     //II.     Building/road plans (what to build and where)
-    gic_BuildPlan,
-    gic_BuildRemovePlan,  //Removal of a plan
-    gic_BuildRemoveHouse, //Removal of house
+    gic_BuildAddFieldPlan,
+    gic_BuildRemoveFieldPlan,  //Removal of a plan
+    gic_BuildRemoveHouse,     //Removal of house
+    gic_BuildRemoveHousePlan,
     gic_BuildHousePlan,   //Build HouseType
 
     //III.    House repair/delivery/orders (TKMHouse, Toggle(repair, delivery, orders))
@@ -275,14 +276,15 @@ begin
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
       gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-      gic_BuildPlan:        if fTerrain.Land[Params[2],Params[1]].Markup = TMarkup(Params[3]) then
-                              P.RemPlan(KMPoint(Params[1],Params[2]), IsSilent) //Remove existing markup
-                            else
-                              P.AddRoadPlan(KMPoint(Params[1],Params[2]), TMarkup(Params[3]), IsSilent); //Add new markup
-      gic_BuildRemovePlan:  P.RemPlan(KMPoint(Params[1],Params[2]), IsSilent);
-      gic_BuildRemoveHouse: P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
-      gic_BuildHousePlan:   if fTerrain.CanPlaceHouse(KMPoint(Params[2],Params[3]), THouseType(Params[1]), P) then
-                              P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]), IsSilent);
+      gic_BuildAddFieldPlan:      if fTerrain.Land[Params[2],Params[1]].Markup = TMarkup(Params[3]) then
+                                    P.RemFieldPlan(KMPoint(Params[1],Params[2]), IsSilent) //Remove existing markup
+                                  else
+                                    P.AddFieldPlan(KMPoint(Params[1],Params[2]), TMarkup(Params[3]), IsSilent); //Add new markup
+      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), IsSilent);
+      gic_BuildRemoveHouse:       P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
+      gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]), IsSilent);
+      gic_BuildHousePlan:         if fTerrain.CanPlaceHouse(KMPoint(Params[2],Params[3]), THouseType(Params[1]), P) then
+                                    P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]), IsSilent);
 
       gic_HouseRepairToggle:      H.RepairToggle;
       gic_HouseDeliveryToggle:    H.WareDelivery := not H.WareDelivery;
@@ -367,14 +369,14 @@ end;
 
 procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
-  Assert(aCommandType in [gic_BuildRemovePlan, gic_BuildRemoveHouse]);
+  Assert(aCommandType in [gic_BuildRemoveFieldPlan, gic_BuildRemoveHouse, gic_BuildRemoveHousePlan]);
   TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y]) );
 end;
 
 
 procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aMarkupType:TMarkup);
 begin
-  Assert(aCommandType in [gic_BuildPlan]);
+  Assert(aCommandType in [gic_BuildAddFieldPlan]);
   TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y, byte(aMarkupType)]) );
 end;
 

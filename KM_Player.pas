@@ -96,10 +96,11 @@ type
     procedure AddRoadsToList(aLoc: TKMPoint);
     procedure AddRoadConnect(LocA,LocB:TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
-    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
+    procedure AddFieldPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
-    function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    procedure RemPlan(Position: TKMPoint; DoSilent:boolean);
+    procedure RemHouse(Position: TKMPoint; DoSilent:boolean; IsEditor:boolean=false);
+    procedure RemHousePlan(Position: TKMPoint; DoSilent:boolean);
+    procedure RemFieldPlan(Position: TKMPoint; DoSilent:boolean);
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
@@ -339,7 +340,7 @@ end;
 
 
 {DoSilent means that there will be no sound when markup is placed, needed e.g. when script used}
-procedure TKMPlayer.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
+procedure TKMPlayer.AddFieldPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
 begin
   if not fTerrain.CanPlaceRoad(aLoc,aMarkup,Self) then
   begin
@@ -386,35 +387,45 @@ begin
   Loc.X := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX;
   Loc.Y := aLoc.Y;
   KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerIndex);
-  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex);
+  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex); //todo: Move to TaskBuildHouseArea
   fStats.HouseStarted(aHouseType);
-  BuildList.AddNewHousePlan(KMHouse);
+  fWorkerList.HousePlanList.AddPlan(KMHouse);
   if not DoSilent then fSoundLib.Play(sfx_placemarker);
 end;
 
 
 //Player wants to remove own house
-function TKMPlayer.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-var fHouse:TKMHouse;
+procedure TKMPlayer.RemHouse(Position: TKMPoint; DoSilent:boolean; IsEditor:boolean=false);
+var H: TKMHouse;
 begin
-  Result := BuildList.CancelHousePlan(Position,Simulated);
-  if Result and not DoSilent then fSoundLib.Play(sfx_Click);
-  fHouse := fHouses.HitTest(Position.X, Position.Y);
-  if fHouse<>nil then
-  begin
-    if not Simulated then begin
-      fHouse.DemolishHouse(DoSilent,IsEditor);
-      if fHouse.BuildingState = hbs_Done then //Only Done houses are treated as Self-Destruct
-        fStats.HouseSelfDestruct(fHouse.HouseType)
-      else
-        fStats.HouseEnded(fHouse.HouseType);
-    end;
-    Result := true;
-  end;
+  if not DoSilent then fSoundLib.Play(sfx_Click);
+
+  H := fHouses.HitTest(Position.X, Position.Y);
+  Assert(H <> nil);
+
+  H.DemolishHouse(DoSilent, IsEditor);
+  if H.BuildingState = hbs_Done then //Only Done houses are treated as Self-Destruct
+    fStats.HouseSelfDestruct(H.HouseType)
+  else
+    fStats.HouseEnded(H.HouseType);
 end;
 
 
-procedure TKMPlayer.RemPlan(Position: TKMPoint; DoSilent:boolean);
+procedure TKMPlayer.RemHousePlan(Position: TKMPoint; DoSilent:boolean);
+var H: TKMHouse;
+begin
+  fWorkerList.HousePlanList.RemPlan(Position);
+  if not DoSilent then fSoundLib.Play(sfx_Click);
+
+  H := fHouses.HitTest(Position.X, Position.Y);
+  Assert(H <> nil);
+
+  H.DemolishHouse(DoSilent, False);
+  fStats.HouseEnded(H.HouseType);
+end;
+
+
+procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; DoSilent:boolean);
 begin
   fWorkerList.FieldworksList.RemField(Position);
   if not DoSilent then fSoundLib.Play(sfx_Click);

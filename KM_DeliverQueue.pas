@@ -77,32 +77,13 @@ type
       IsDeleted:boolean;
       //No need to have JobStatus since many workers can build same house
     end;
-    fHousePlansCount:integer;
-    fHousePlansQueue:array of
-    record
-      House:TKMHouse;
-      JobStatus:TJobStatus;
-      Worker:TKMUnit;
-    end;
     procedure CloseHouse(aID:integer);
   public
-    procedure CloseHousePlan(aID:integer);
-
     procedure RemoveHouse(aID: integer); overload;
     procedure RemoveHouse(aHouse: TKMHouse); overload;
-
     procedure RemoveHousePointer(aID:integer);
-
-    procedure ReOpenHousePlan(aID:integer);
-
     procedure AddNewHouse(aHouse: TKMHouse);
-    procedure AddNewHousePlan(aHouse: TKMHouse);
-
-    function CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false):boolean;
-
-    function AskForHousePlan(aWorker:TKMUnitWorker):TUnitTask;
     function AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
-
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad;
@@ -122,9 +103,35 @@ type
   //TKMDeliveryList = class; //Serfs, Houses/Warriors/Workers
 
   //TKMBuildingList = class; //Workers, WIP Houses
+  TKMHousePlanList = class //Workers, Houseplans
+  private
+    fPlansCount: Integer;
+    fPlans: array of record
+      House: TKMHouse;
+      JobStatus: TJobStatus;
+      Worker: TKMUnit;
+    end;
+  public
+    //Player orders
+    procedure AddPlan(aHouse: TKMHouse);
+    function HasPlan(aLoc: TKMPoint): Boolean;
+    procedure RemPlan(aLoc: TKMPoint);
+
+    //Game events
+    function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
+    procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
+    procedure ReOpenPlan(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
+    procedure ClosePlan(aIndex: Integer); //Worker has finished the task
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
+    procedure SyncLoad;
+  end;
+
 
   TKMFieldworksList = class //Workers, Fields
   private
+    fFieldsCount: Integer;
     fFields: array of record
       Loc: TKMPoint;
       FieldType: TFieldType;
@@ -178,6 +185,7 @@ type
   TKMWorkerList = class
   private
     fFieldworksList: TKMFieldworksList;
+    fHousePlanList: TKMHousePlanList;
     fRepairList: TKMRepairList;
 
     fWorkersCount: Integer;
@@ -193,6 +201,7 @@ type
     procedure AddWorker(aWorker: TKMUnitWorker);
 
     property FieldworksList: TKMFieldworksList read fFieldworksList;
+    property HousePlanList: TKMHousePlanList read fHousePlanList;
     property RepairList: TKMRepairList read fRepairList;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -737,14 +746,6 @@ begin
 end;
 
 
-procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
-begin
-  fPlayers.CleanUpHousePointer(fHousePlansQueue[aID].House);
-  fHousePlansQueue[aID].JobStatus:=js_Empty;
-  fPlayers.CleanUpUnitPointer(fHousePlansQueue[aID].Worker);
-end;
-
-
 procedure TKMBuildingQueue.RemoveHouse(aID: integer);
 begin
   if fHousesQueue[aID].WorkerCount = 0 then
@@ -771,14 +772,6 @@ begin
 end;
 
 
-//This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
-procedure TKMBuildingQueue.ReOpenHousePlan(aID:integer);
-begin
-  fHousePlansQueue[aID].JobStatus := js_Open;
-  fPlayers.CleanUpUnitPointer(fHousePlansQueue[aID].Worker);
-end;
-
-
 {Add new job to the list}
 procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
 var i,k:integer;
@@ -792,45 +785,6 @@ begin
 
   assert((fHousesQueue[i].WorkerCount=0) and not fHousesQueue[i].IsDeleted);
   if aHouse <> nil then fHousesQueue[i].House := aHouse.GetHousePointer;
-end;
-
-
-procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
-var i:integer;
-begin
-  i:=1; while (i<=fHousePlansCount)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
-  if i>fHousePlansCount then begin
-    inc(fHousePlansCount, LENGTH_INC);
-    SetLength(fHousePlansQueue, fHousePlansCount+1);
-  end;
-
-  if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetHousePointer;
-  fHousePlansQueue[i].JobStatus:=js_Open;
-end;
-
-
-{Remove task if Player has cancelled it}
-{Simulated just means that we simply want to check if player ever issued that task}
-{The erase cursor changes when you move over a piece of deletable road/field}
-function TKMBuildingQueue.CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false):boolean;
-var i:integer;
-begin
-  Result := false;
-  for i:=1 to fHousePlansCount do
-  with fHousePlansQueue[i] do
-  if (JobStatus<>js_Empty) and (House<>nil) and (House.HitTest(aLoc.X,aLoc.Y)) then
-  begin
-
-    if not Simulated then
-    begin
-      if Worker<>nil then
-        Worker.CancelUnitTask;
-      CloseHousePlan(i);
-    end;
-
-    Result := true;
-    break;
-  end;
 end;
 
 
@@ -859,31 +813,6 @@ begin
 end;
 
 
-function  TKMBuildingQueue.AskForHousePlan(aWorker:TKMUnitWorker):TUnitTask;
-var i, Best: integer; BestDist: single;
-begin
-  Result := nil;
-  Best := -1;
-  BestDist := MaxSingle;
-
-  for i:=1 to fHousePlansCount do
-    if (fHousePlansQueue[i].JobStatus = js_Open)
-    and fTerrain.Route_CanBeMade(aWorker.GetPosition, fHousePlansQueue[i].House.GetPosition, aWorker.GetDesiredPassability, 0, false)
-    and((Best = -1)or(GetLength(aWorker.GetPosition, fHousePlansQueue[i].House.GetPosition) < BestDist))then
-    begin
-      Best := i;
-      BestDist := GetLength(aWorker.GetPosition, fHousePlansQueue[i].House.GetPosition);
-    end;
-
-  if Best <> -1 then
-  begin
-    Result := TTaskBuildHouseArea.Create(aWorker, fHousePlansQueue[Best].House, Best);
-    fHousePlansQueue[Best].JobStatus := js_Taken;
-    fHousePlansQueue[Best].Worker := aWorker.GetUnitPointer;
-  end;
-end;
-
-
 procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
@@ -895,15 +824,6 @@ begin
     if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID) else SaveStream.Write(Integer(0));
     SaveStream.Write(fHousesQueue[i].WorkerCount);
     SaveStream.Write(fHousesQueue[i].IsDeleted);
-  end;
-
-  SaveStream.Write(fHousePlansCount);
-  for i:=1 to fHousePlansCount do
-  with fHousePlansQueue[i] do
-  begin
-    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Integer(0));
-    SaveStream.Write(JobStatus, SizeOf(JobStatus));
-    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Integer(0));
   end;
 end;
 
@@ -922,16 +842,6 @@ begin
     LoadStream.Read(fHousesQueue[i].WorkerCount);
     LoadStream.Read(fHousesQueue[i].IsDeleted);
   end;
-
-  LoadStream.Read(fHousePlansCount);
-  SetLength(fHousePlansQueue, fHousePlansCount+1);
-  for i:=1 to fHousePlansCount do
-  with fHousePlansQueue[i] do
-  begin
-    LoadStream.Read(House, 4);
-    LoadStream.Read(JobStatus, SizeOf(JobStatus));
-    LoadStream.Read(Worker, 4);
-  end;
 end;
 
 
@@ -940,12 +850,6 @@ var i:integer;
 begin
   for i:=1 to fHousesCount do
     fHousesQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousesQueue[i].House));
-
-  for i:=1 to fHousePlansCount do
-  begin
-    fHousePlansQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousePlansQueue[i].House));
-    fHousePlansQueue[i].Worker := fPlayers.GetUnitByID(cardinal(fHousePlansQueue[i].Worker));
-  end;
 end;
 
 
@@ -958,7 +862,7 @@ begin
   Result := -1;
   aBid := MaxSingle;
 
-  for I := 0 to Length(fFields) - 1 do
+  for I := 0 to fFieldsCount - 1 do
   if (fFields[I].JobStatus = js_Open)
   and fTerrain.Route_CanBeMade(aWorker.GetPosition, fFields[I].Loc, aWorker.GetDesiredPassability, 0, False) then
   begin
@@ -1001,23 +905,25 @@ var
   I: Integer;
 begin
   I := 0;
-  while (I < Length(fFields)) and (fFields[I].JobStatus <> js_Empty) do
+  while (I < fFieldsCount) and (fFields[I].JobStatus <> js_Empty) do
     Inc(I);
 
-  if I >= Length(fFields) then
-    SetLength(fFields, Length(fFields) + LENGTH_INC);
+  if I >= fFieldsCount then
+    SetLength(fFields, fFieldsCount + LENGTH_INC);
 
   fFields[I].Loc := aLoc;
   fFields[I].FieldType := aFieldType;
   fFields[I].JobStatus := js_Open;
   fFields[I].Worker := nil;
+
+  Inc(fFieldsCount);
 end;
 
 
 procedure TKMFieldworksList.RemField(aLoc: TKMPoint);
 var I: Integer;
 begin
-  for I := 0 to Length(fFields) do
+  for I := 0 to fFieldsCount - 1 do
   if KMSamePoint(fFields[I].Loc, aLoc) then
   begin
     if fFields[I].Worker <> nil then
@@ -1031,7 +937,7 @@ end;
 function TKMFieldworksList.HasField(aLoc: TKMPoint): Boolean;
 var I: Integer;
 begin
-  for I := 0 to Length(fFields) do
+  for I := 0 to fFieldsCount - 1 do
   if KMSamePoint(fFields[I].Loc, aLoc) then
   begin
     Result := True;
@@ -1057,7 +963,7 @@ begin
   SaveStream.Write('FieldworksList');
 
   SaveStream.Write(Length(fFields));
-  for I := 0 to Length(fFields) - 1 do
+  for I := 0 to fFieldsCount - 1 do
   begin
     SaveStream.Write(fFields[I].Loc);
     SaveStream.Write(fFields[I].FieldType, SizeOf(fFields[I].FieldType));
@@ -1076,9 +982,9 @@ begin
   LoadStream.Read(s);
   Assert(s = 'FieldworksList');
 
-  LoadStream.Read(I);
-  SetLength(fFields, I);
-  for I := 0 to Length(fFields) - 1 do
+  LoadStream.Read(fFieldsCount);
+  SetLength(fFields, fFieldsCount);
+  for I := 0 to fFieldsCount - 1 do
     LoadStream.Read(fFields[I].Loc);
     LoadStream.Read(fFields[I].FieldType, SizeOf(fFields[I].FieldType));
     LoadStream.Read(fFields[I].JobStatus, SizeOf(fFields[I].JobStatus));
@@ -1089,8 +995,157 @@ end;
 procedure TKMFieldworksList.SyncLoad;
 var I: Integer;
 begin
-  for I := 0 to Length(fFields) do
+  for I := 0 to fFieldsCount - 1 do
     fFields[I].Worker := fPlayers.GetUnitByID(Cardinal(fFields[I].Worker));
+end;
+
+
+{ TKMHousePlanList }
+procedure TKMHousePlanList.AddPlan(aHouse: TKMHouse);
+var I: Integer;
+begin
+  Assert(aHouse <> nil);
+
+  I := 0;
+  while (I < fPlansCount) and (fPlans[I].JobStatus <> js_Empty) do
+    Inc(I);
+
+  if I >= fPlansCount then
+    SetLength(fPlans, fPlansCount + LENGTH_INC);
+
+  fPlans[I].House := aHouse.GetHousePointer;
+  fPlans[I].JobStatus := js_Open;
+  fPlans[I].Worker := nil;
+
+  Inc(fPlansCount);
+end;
+
+
+function TKMHousePlanList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+var
+  I: Integer;
+  NewBid: Single;
+begin
+  Result := -1;
+  aBid := MaxSingle;
+
+  for I := 0 to fPlansCount - 1 do
+    if (fPlans[I].JobStatus = js_Open)
+    and fTerrain.Route_CanBeMade(aWorker.GetPosition, fPlans[I].House.GetPosition, aWorker.GetDesiredPassability, 0, false)
+    then
+    begin
+      NewBid := GetLength(aWorker.GetPosition, fPlans[I].House.GetPosition);
+      if (Result = -1) or (NewBid < aBid) then
+      begin
+        Result := I;
+        aBid := NewBid;
+      end;
+    end;
+end;
+
+
+procedure TKMHousePlanList.ClosePlan(aIndex: Integer);
+begin
+  fPlayers.CleanUpHousePointer(fPlans[aIndex].House);
+  fPlans[aIndex].JobStatus := js_Empty;
+  fPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
+end;
+
+
+procedure TKMHousePlanList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
+begin
+  aWorker.SetUnitTask := TTaskBuildHouseArea.Create(aWorker, fPlans[aIndex].House, aIndex);
+
+  fPlans[aIndex].JobStatus := js_Taken;
+  fPlans[aIndex].Worker := aWorker.GetUnitPointer;
+end;
+
+
+function TKMHousePlanList.HasPlan(aLoc: TKMPoint): Boolean;
+var I: Integer;
+begin
+  for I := 0 to fPlansCount - 1 do
+  if (fPlans[I].House <> nil) and (fPlans[I].House.HitTest(aLoc.X, aLoc.Y)) then
+  begin
+    Result := True;
+    Exit;
+  end;
+  Result := False;
+end;
+
+
+procedure TKMHousePlanList.RemPlan(aLoc: TKMPoint);
+var I: Integer;
+begin
+  for I := 0 to fPlansCount - 1 do
+  if (fPlans[I].House <> nil) and (fPlans[I].House.HitTest(aLoc.X, aLoc.Y)) then
+  begin
+    if fPlans[I].Worker <> nil then
+      fPlans[I].Worker.CancelUnitTask;
+    ClosePlan(I);
+    Exit;
+  end;
+end;
+
+
+//When a worker dies while walking to the task aIndex, we should allow other workers to take this task
+procedure TKMHousePlanList.ReOpenPlan(aIndex: Integer);
+begin
+  fPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
+  fPlans[aIndex].JobStatus := js_Open;
+end;
+
+
+procedure TKMHousePlanList.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
+begin
+  SaveStream.Write('HousePlanList');
+
+  SaveStream.Write(fPlansCount);
+  for I := 0 to fPlansCount - 1 do
+  with fPlans[I] do
+  begin
+    if House <> nil then
+      SaveStream.Write(House.ID)
+    else
+      SaveStream.Write(Integer(0));
+    SaveStream.Write(JobStatus, SizeOf(JobStatus));
+    if Worker <> nil then
+      SaveStream.Write(Worker.ID)
+    else
+      SaveStream.Write(Integer(0));
+  end;
+end;
+
+
+procedure TKMHousePlanList.Load(LoadStream: TKMemoryStream);
+var I: Integer; s: string;
+begin
+  LoadStream.Read(s);
+  Assert(s = 'HousePlanList');
+
+  LoadStream.Read(fPlansCount);
+  SetLength(fPlans, fPlansCount);
+  for I := 0 to fPlansCount - 1 do
+  with fPlans[I] do
+  begin
+    LoadStream.Read(House, 4);
+    LoadStream.Read(JobStatus, SizeOf(JobStatus));
+    LoadStream.Read(Worker, 4);
+  end;
+end;
+
+
+procedure TKMHousePlanList.SyncLoad;
+var
+  I: Integer;
+begin
+  for I := 0 to fPlansCount - 1 do
+  begin
+    fPlans[I].House := fPlayers.GetHouseByID(Cardinal(fPlans[I].House));
+    fPlans[I].Worker := fPlayers.GetUnitByID(Cardinal(fPlans[I].Worker));
+  end;
 end;
 
 
@@ -1245,6 +1300,7 @@ begin
   inherited;
 
   fFieldworksList := TKMFieldworksList.Create;
+  fHousePlanList := TKMHousePlanList.Create;
   fRepairList := TKMRepairList.Create;
 end;
 
@@ -1254,6 +1310,7 @@ var
   I: Integer;
 begin
   fFieldworksList.Free;
+  fHousePlanList.Free;
   fRepairList.Free;
 
   for I := fWorkersCount - 1 downto 0 do
@@ -1284,6 +1341,7 @@ begin
   Dec(fWorkersCount);
 end;
 
+
 //Remove dead workers
 procedure TKMWorkerList.RemoveExtraWorkers;
 var
@@ -1293,6 +1351,7 @@ begin
     if fWorkers[I].Worker.IsDeadOrDying then
       RemWorker(I);
 end;
+
 
 procedure TKMWorkerList.Save(SaveStream: TKMemoryStream);
 var
@@ -1308,7 +1367,12 @@ begin
     else
       SaveStream.Write(Integer(0));
   end;
+
+  fFieldworksList.Save(SaveStream);
+  fHousePlanList.Save(SaveStream);
+  fRepairList.Save(SaveStream);
 end;
+
 
 procedure TKMWorkerList.Load(LoadStream: TKMemoryStream);
 var I: Integer; s: string;
@@ -1320,7 +1384,12 @@ begin
   SetLength(fWorkers, fWorkersCount);
   for I := 0 to fWorkersCount - 1 do
     LoadStream.Read(fWorkers[I].Worker, 4);
+
+  fFieldworksList.Load(LoadStream);
+  fHousePlanList.Load(LoadStream);
+  fRepairList.Load(LoadStream);
 end;
+
 
 procedure TKMWorkerList.SyncLoad;
 var I: Integer; U: TKMUnit;
@@ -1331,12 +1400,17 @@ begin
     Assert(U is TKMUnitWorker, 'Non-worker in Repairs list');
     fWorkers[I].Worker := TKMUnitWorker(U);
   end;
+
+  fFieldworksList.SyncLoad;
+  fHousePlanList.SyncLoad;
+  fRepairList.SyncLoad;
 end;
+
 
 procedure TKMWorkerList.UpdateState;
 var I: Integer;
-  IndexRepair, IndexField: Integer;
-  BidRepair, BidField: Single;
+  IndexRepair, IndexPlan, IndexField: Integer;
+  BidRepair, BidPlan, BidField: Single;
 begin
   fRepairList.UpdateState;
 
@@ -1349,13 +1423,16 @@ begin
     and not TUnitActionStay(fWorkers[I].Worker.GetUnitAction).Locked then
     begin
 
-      IndexRepair := fRepairList.BestBid(fWorkers[I].Worker, BidRepair);
       IndexField := fFieldworksList.BestBid(fWorkers[I].Worker, BidField);
+      IndexPlan := fHousePlanList.BestBid(fWorkers[I].Worker, BidPlan);
+      IndexRepair := fRepairList.BestBid(fWorkers[I].Worker, BidRepair);
 
       if IndexRepair <> -1 then
         fRepairList.GiveTask(IndexRepair, fWorkers[I].Worker)
       else
-
+      if IndexPlan <> -1 then
+        fHousePlanList.GiveTask(IndexPlan, fWorkers[I].Worker)
+      else
       if IndexField <> -1 then
         fFieldworksList.GiveTask(IndexField, fWorkers[I].Worker);
     end;

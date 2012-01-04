@@ -351,10 +351,10 @@ end;
 
 //MapEd procedure to remove any house below
 procedure TKMPlayersCollection.RemAnyHouse(Position: TKMPoint);
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to fCount-1 do
-    fPlayerList[i].RemHouse(Position, true, false, true);
+  for I := 0 to fCount - 1 do
+    fPlayerList[I].RemHouse(Position, true, true);
 end;
 
 

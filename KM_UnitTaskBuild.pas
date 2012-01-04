@@ -540,7 +540,7 @@ destructor TTaskBuildHouseArea.Destroy;
 begin
   //Allow other workers to take this task
   if (BuildID <> 0) and not HouseNeedsWorker and not fHouse.IsDestroyed then
-    fPlayers.Player[fHouse.GetOwner].BuildList.ReOpenHousePlan(BuildID);
+    fPlayers.Player[fHouse.GetOwner].WorkerList.HousePlanList.ReOpenPlan(BuildID);
 
   //Destroy the house if worker was killed (e.g. by archer or hunger)
   //as we don't have mechanics to resume the building process yet
@@ -581,7 +581,7 @@ begin
           Thought := th_Build;
         end;
     1:  begin
-          fPlayers.Player[GetOwner].BuildList.CloseHousePlan(BuildID);
+          fPlayers.Player[GetOwner].WorkerList.HousePlanList.ClosePlan(BuildID);
           BuildID := 0; //Other workers can't take this task from now on
           fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Fence, GetOwner);
           HouseNeedsWorker := True; //The house placed on the map, if something happens with Worker the house will be removed

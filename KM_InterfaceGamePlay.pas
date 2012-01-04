@@ -3211,23 +3211,22 @@ begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
     cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer) and not KMSamePoint(LastDragPoint,P) then
-              begin fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_RoadPlan);  LastDragPoint := GameCursor.Cell; end;
+              begin fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_RoadPlan);  LastDragPoint := GameCursor.Cell; end;
     cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer)and not KMSamePoint(LastDragPoint,P) then
-              begin fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_FieldPlan); LastDragPoint := GameCursor.Cell; end;
+              begin fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_FieldPlan); LastDragPoint := GameCursor.Cell; end;
     cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer) and not KMSamePoint(LastDragPoint,P) then
-              begin fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WinePlan);  LastDragPoint := GameCursor.Cell; end;
+              begin fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_WinePlan);  LastDragPoint := GameCursor.Cell; end;
     cm_Erase: begin
-                //Remove houses that are not started
-                H := MyPlayer.HousesHitTest(P.X, P.Y);
-                if MyPlayer.RemHouse(P,true,true) and (H.BuildingState = hbs_Glyph) then
+
+                if MyPlayer.WorkerList.HousePlanList.HasPlan(P) then
                 begin
-                  fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, P);
+                  fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
                   LastDragPoint := GameCursor.Cell;
                 end
                 else
                   if MyPlayer.WorkerList.FieldworksList.HasField(P) then
                   begin
-                    fGame.GameInputProcess.CmdBuild(gic_BuildRemovePlan, P); //Remove plans
+                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove plans
                     LastDragPoint := GameCursor.Cell;
                   end;
               end;
@@ -3384,10 +3383,10 @@ begin
                   end;
                 end;
               end;
-    cm_Road:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_RoadPlan);
-    cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_FieldPlan);
-    cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WinePlan);
-    cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildPlan, P, mu_WallPlan);
+    cm_Road:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_RoadPlan);
+    cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_FieldPlan);
+    cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_WinePlan);
+    cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_WallPlan);
     cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then begin
                 fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
                 Build_ButtonClick(Button_BuildRoad);
@@ -3398,7 +3397,7 @@ begin
               begin
                 H := MyPlayer.HousesHitTest(P.X, P.Y);
                 //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
-                if MyPlayer.RemHouse(P,true,true) and (H.BuildingState <> hbs_Glyph) then
+                if (H.BuildingState > hbs_Glyph) then
                 begin
                   fPlayers.Selected := H; //Select the house irregardless of unit below/above
                   ShowHouseInfo(H,true);
@@ -3407,11 +3406,11 @@ begin
                 else
                 begin
                   //Now remove houses that are not started
-                  if MyPlayer.RemHouse(P,true,true) and (H.BuildingState = hbs_Glyph) then
-                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHouse, P)
+                  if MyPlayer.WorkerList.HousePlanList.HasPlan(P) then
+                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
                   else
                     if MyPlayer.WorkerList.FieldworksList.HasField(P) then
-                      fGame.GameInputProcess.CmdBuild(gic_BuildRemovePlan, P) //Remove plans
+                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                     else
                       fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
                 end;

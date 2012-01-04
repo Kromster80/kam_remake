@@ -1144,10 +1144,12 @@ begin
 
                  if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
                  begin
-                   if (MyPlayer.WorkerList.FieldworksList.HasField(GameCursor.Cell) or MyPlayer.RemHouse(GameCursor.Cell, true, true))
+                   if (MyPlayer.WorkerList.FieldworksList.HasField(GameCursor.Cell)
+                       or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
                    and TileVisible then
                      RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-                   else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                   else
+                     RenderCursorBuildIcon(GameCursor.Cell);       //Red X
                  end;
                end;
     cm_Road:   if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan, MyPlayer) and TileVisible then

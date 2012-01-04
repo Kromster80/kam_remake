@@ -747,8 +747,7 @@ end;
 
 function TKMUnitWorker.GetActionFromQueue:TUnitTask;
 begin
-  Result := fPlayers.Player[fOwner].BuildList.AskForHousePlan(Self);
-  if Result=nil then Result := fPlayers.Player[fOwner].BuildList.AskForHouse(Self);
+  Result := fPlayers.Player[fOwner].BuildList.AskForHouse(Self);
 end;
 
 

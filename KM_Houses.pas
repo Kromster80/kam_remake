@@ -667,7 +667,7 @@ begin
 
   if fBuildState < hbs_Wood then
   begin
-    fPlayers.Player[fOwner].RemHouse(GetEntrance, true);
+    fPlayers.Player[fOwner].RemHouse(GetEntrance, True);
     Exit;
   end;
 
