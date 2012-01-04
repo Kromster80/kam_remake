@@ -38,7 +38,7 @@ type
   private
     fAI:TKMPlayerAI;
     fBuildList:TKMBuildingQueue;
-    fRepairList: TKMRepairList;
+    fWorkerList: TKMWorkerList; //Not the best name for buildingManagement
     fDeliverList:TKMDeliverQueue;
     fHouses:TKMHousesCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
@@ -66,7 +66,7 @@ type
 
     property AI:TKMPlayerAI read fAI;
     property BuildList:TKMBuildingQueue read fBuildList;
-    property RepairList: TKMRepairList read fRepairList;
+    property WorkerList: TKMWorkerList read fWorkerList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
     property Stats:TKMPlayerStats read fStats;
@@ -210,7 +210,7 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
-  fRepairList   := TKMRepairList.Create;
+  fWorkerList   := TKMWorkerList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
   fPlayerName   := 'Player ' + IntToStr(aPlayerIndex);
@@ -239,7 +239,7 @@ begin
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);
   FreeThenNil(fBuildList);
-  FreeThenNil(fRepairList);
+  FreeThenNil(fWorkerList);
   FreeThenNil(fAI);
 end;
 
@@ -254,7 +254,7 @@ begin
   if Result <> nil then
   begin
     if aUnitType = ut_Worker then
-      fRepairList.AddWorker(TKMUnitWorker(Result));
+      fWorkerList.AddWorker(TKMUnitWorker(Result));
 
     fStats.UnitCreated(aUnitType, WasTrained);
   end;
@@ -273,7 +273,7 @@ end;
 procedure TKMPlayer.TrainingDone(aUnit: TKMUnit);
 begin
   if aUnit.UnitType = ut_Worker then
-    fRepairList.AddWorker(TKMUnitWorker(aUnit));
+    fWorkerList.AddWorker(TKMUnitWorker(aUnit));
 
   fStats.UnitCreated(aUnit.UnitType, True);
 end;
@@ -532,7 +532,7 @@ begin
   Inherited;
   fAI.Save(SaveStream);
   fBuildList.Save(SaveStream);
-  fRepairList.Save(SaveStream);
+  fWorkerList.Save(SaveStream);
   fDeliverList.Save(SaveStream);
   fFogOfWar.Save(SaveStream);
   fGoals.Save(SaveStream);
@@ -554,7 +554,7 @@ begin
   Inherited;
   fAI.Load(LoadStream);
   fBuildList.Load(LoadStream);
-  fRepairList.Load(LoadStream);
+  fWorkerList.Load(LoadStream);
   fDeliverList.Load(LoadStream);
   fFogOfWar.Load(LoadStream);
   fGoals.Load(LoadStream);
@@ -577,7 +577,7 @@ begin
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
   fBuildList.SyncLoad;
-  fRepairList.SyncLoad;
+  fWorkerList.SyncLoad;
   fAI.SyncLoad;
 end;
 
@@ -595,7 +595,7 @@ begin
   fHouses.UpdateState;
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
-  fRepairList.UpdateState; //todo: Make it less frequent
+  fWorkerList.UpdateState; //todo: Make it less frequent
 
   if aUpdateAI then
   begin

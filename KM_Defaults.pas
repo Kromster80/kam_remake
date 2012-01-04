@@ -885,18 +885,8 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
 
   const STORM_SPEEDUP=1.5;
   
+
 type
-  TAIAttackType = (aat_Once,       //Attack will occur once (after the set time has passed and if they have enough troops
-                   aat_Repeating); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
-
-const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
-  RemakeAttackType:array[0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
-  KaMAttackType:array[TAIAttackType] of byte = (1,0);
-
-
-type 
-
-
   //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
   //       Please let me know your thoughts. This is very similar to that used in KaM and is quite flexable/expandable. (we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)
   //       Somethings are probably named unclearly, please give me suggestions or change them. Goals are the one part

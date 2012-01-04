@@ -11,6 +11,7 @@ uses
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
 
+  KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',
   KM_Campaigns in 'KM_Campaigns.pas',
   KM_CommonClasses in 'KM_CommonClasses.pas',

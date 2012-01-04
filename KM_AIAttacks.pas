@@ -5,6 +5,14 @@ uses Classes, KromUtils, Math, SysUtils, StrUtils,
     KM_CommonClasses, KM_Defaults, KM_Points;
 
 type           
+  TAIAttackType = (aat_Once,       //Attack will occur once (after the set time has passed and if they have enough troops
+                   aat_Repeating); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+
+const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
+  RemakeAttackType:array[0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
+  KaMAttackType:array[TAIAttackType] of byte = (1,0);
+
+type
   //Indexes must match with KaM script values (for now)
   TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
                      att_ClosestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
@@ -33,6 +41,7 @@ type
   public
     property Count: Integer read fCount;
     property Items[aIndex: Integer]: TAIAttack read GetAttack; default;
+
     procedure AddAttack(aAttack: TAIAttack);
     function MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer): Boolean;
     procedure Occured(aIndex: Integer);
