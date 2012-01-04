@@ -349,11 +349,11 @@ begin
   end;
   fTerrain.SetMarkup(aLoc, aMarkup);
   case aMarkup of
-    mu_RoadPlan: BuildList.AddNewRoad(aLoc, ft_Road);
-    mu_FieldPlan: BuildList.AddNewRoad(aLoc, ft_Corn);
-    mu_WinePlan: BuildList.AddNewRoad(aLoc, ft_Wine);
-    mu_WallPlan: BuildList.AddNewRoad(aLoc, ft_Wall);
-    else Assert(false,'Wrong markup');
+    mu_RoadPlan:  fWorkerList.FieldworksList.AddField(aLoc, ft_Road);
+    mu_FieldPlan: fWorkerList.FieldworksList.AddField(aLoc, ft_Corn);
+    mu_WinePlan:  fWorkerList.FieldworksList.AddField(aLoc, ft_Wine);
+    mu_WallPlan:  fWorkerList.FieldworksList.AddField(aLoc, ft_Wall);
+    else Assert(False, 'Wrong markup');
   end;
   if not DoSilent then
     fSoundLib.Play(sfx_placemarker);
@@ -416,12 +416,15 @@ end;
 
 function TKMPlayer.RemPlan(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
 begin
-  Result := BuildList.CancelRoad(Position,Simulated);
-  if (Result) and (not Simulated) then
+  if Simulated then
   begin
-    if not DoSilent then fSoundLib.Play(sfx_Click);
-    fTerrain.RemMarkup(Position);
+    Result := fWorkerList.FieldworksList.HasField(Position);
+    Exit;
   end;
+
+  fWorkerList.FieldworksList.RemField(Position);
+  if not DoSilent then fSoundLib.Play(sfx_Click);
+  fTerrain.RemMarkup(Position);
 end;
 
 

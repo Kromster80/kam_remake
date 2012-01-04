@@ -136,7 +136,7 @@ end;
 
 destructor TTaskBuildRoad.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
@@ -157,7 +157,7 @@ begin
          Thought := th_None;
          fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
          MarkupSet := true;
-         fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+         fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
          BuildID := 0;
          SetActionLockedStay(11,ua_Work1,false);
        end;
@@ -242,7 +242,7 @@ end;
 
 destructor TTaskBuildWine.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   if InitialFieldSet  then fTerrain.RemField(fLoc);
@@ -263,7 +263,7 @@ begin
         Thought := th_None;
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0; //it can't be cancelled now
         MarkupSet := true;
         SetActionLockedStay(12*4,ua_Work1,false);
@@ -340,7 +340,7 @@ end;
 
 destructor TTaskBuildField.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
@@ -358,7 +358,7 @@ begin
     1: begin
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         MarkupSet := true;
-        fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
         SetActionLockedStay(0,ua_Walk);
        end;
@@ -416,7 +416,7 @@ begin
   if fPhase > 1 then
     fTerrain.RemMarkup(fLoc)
   else
-    fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+    fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   Inherited;
 end;
 
@@ -434,7 +434,7 @@ begin
     1: begin
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
         SetActionLockedStay(0,ua_Walk);
        end;

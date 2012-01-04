@@ -69,14 +69,6 @@ type
 
   TKMBuildingQueue = class
   private
-    fFieldsCount:integer;
-    fFieldsQueue:array of
-    record
-      Loc:TKMPoint;
-      FieldType:TFieldType;
-      JobStatus:TJobStatus;
-      Worker:TKMUnit;
-    end;
     fHousesCount:integer;
     fHousesQueue:array of
     record
@@ -94,7 +86,6 @@ type
     end;
     procedure CloseHouse(aID:integer);
   public
-    procedure CloseRoad(aID:integer);
     procedure CloseHousePlan(aID:integer);
 
     procedure RemoveHouse(aID: integer); overload;
@@ -102,17 +93,13 @@ type
 
     procedure RemoveHousePointer(aID:integer);
 
-    procedure ReOpenRoad(aID:integer);
     procedure ReOpenHousePlan(aID:integer);
 
-    procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
     procedure AddNewHouse(aHouse: TKMHouse);
     procedure AddNewHousePlan(aHouse: TKMHouse);
 
-    function CancelRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
     function CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 
-    function AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
     function AskForHousePlan(aWorker:TKMUnitWorker):TUnitTask;
     function AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
 
@@ -147,6 +134,7 @@ type
   public
     //Player orders
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+    function HasField(aLoc: TKMPoint): Boolean;
     procedure RemField(aLoc: TKMPoint);
 
     //Game events
@@ -157,6 +145,7 @@ type
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
+    procedure SyncLoad;
   end;
 
   //Use simple approach since repairs are quite rare events
@@ -740,16 +729,6 @@ end;
 
 
 {TKMBuildingQueue}
-procedure TKMBuildingQueue.CloseRoad(aID:integer);
-begin
-  fFieldsQueue[aID].Loc:=KMPoint(0,0);
-  fFieldsQueue[aID].FieldType:=ft_None;
-  fFieldsQueue[aID].JobStatus:=js_Empty;
-  fPlayers.CleanUpUnitPointer(fFieldsQueue[aID].Worker);
-end;
-
-
-//Clear up
 procedure TKMBuildingQueue.CloseHouse(aID:integer);
 begin
   assert(fHousesQueue[aID].WorkerCount=0);
@@ -793,33 +772,10 @@ end;
 
 
 //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
-procedure TKMBuildingQueue.ReOpenRoad(aID:integer);
-begin
-  fFieldsQueue[aID].JobStatus := js_Open;
-  fPlayers.CleanUpUnitPointer(fFieldsQueue[aID].Worker);
-end;
-
-
-//This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
 procedure TKMBuildingQueue.ReOpenHousePlan(aID:integer);
 begin
   fHousePlansQueue[aID].JobStatus := js_Open;
   fPlayers.CleanUpUnitPointer(fHousePlansQueue[aID].Worker);
-end;
-
-
-procedure TKMBuildingQueue.AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
-var i:integer;
-begin
-  i:=1; while (i<=fFieldsCount)and(fFieldsQueue[i].JobStatus<>js_Empty) do inc(i);
-  if i>fFieldsCount then begin
-    inc(fFieldsCount, LENGTH_INC);
-    SetLength(fFieldsQueue, fFieldsCount+1);
-  end;
-
-  fFieldsQueue[i].Loc:=aLoc;
-  fFieldsQueue[i].FieldType:=aFieldType;
-  fFieldsQueue[i].JobStatus:=js_Open;
 end;
 
 
@@ -856,31 +812,6 @@ end;
 {Remove task if Player has cancelled it}
 {Simulated just means that we simply want to check if player ever issued that task}
 {The erase cursor changes when you move over a piece of deletable road/field}
-function TKMBuildingQueue.CancelRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
-var i:integer;
-begin
-  Result:=false;
-  for i:=1 to fFieldsCount do
-  with fFieldsQueue[i] do
-  if (JobStatus<>js_Empty)and(KMSamePoint(aLoc,Loc)) then
-  begin
-
-    if not Simulated then
-    begin
-      if Worker<>nil then
-        Worker.CancelUnitTask;
-      CloseRoad(i);
-    end;
-
-    Result:=true;
-    break;
-  end;
-end;
-
-
-{Remove task if Player has cancelled it}
-{Simulated just means that we simply want to check if player ever issued that task}
-{The erase cursor changes when you move over a piece of deletable road/field}
 function TKMBuildingQueue.CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin
@@ -899,37 +830,6 @@ begin
 
     Result := true;
     break;
-  end;
-end;
-
-
-function TKMBuildingQueue.AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
-var i, Best: integer; BestDist: single;
-begin
-  Result := nil;
-  Best := -1;
-  BestDist := MaxSingle;
-
-  for i:=1 to fFieldsCount do
-    if (fFieldsQueue[i].JobStatus = js_Open) and
-      fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, aWorker.GetDesiredPassability, 0, false)
-    and ((Best = -1)or(GetLength(aWorker.GetPosition, fFieldsQueue[i].Loc) < BestDist)) then
-    begin
-      Best := i;
-      BestDist := GetLength(aWorker.GetPosition, fFieldsQueue[i].Loc);
-    end;
-
-  if Best <> -1 then
-  begin
-    case fFieldsQueue[Best].FieldType of
-      ft_Road: Result := TTaskBuildRoad.Create(aWorker, fFieldsQueue[Best].Loc, Best);
-      ft_Corn: Result := TTaskBuildField.Create(aWorker, fFieldsQueue[Best].Loc, Best);
-      ft_Wine: Result := TTaskBuildWine.Create(aWorker, fFieldsQueue[Best].Loc, Best);
-      ft_Wall: Result := TTaskBuildWall.Create(aWorker, fFieldsQueue[Best].Loc, Best);
-      else     begin Assert(false, 'Unexpected Field Type'); Result := nil; exit; end;
-    end;
-    fFieldsQueue[Best].JobStatus := js_Taken;
-    fFieldsQueue[Best].Worker := aWorker.GetUnitPointer;
   end;
 end;
 
@@ -988,15 +888,6 @@ procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('BuildQueue');
-  SaveStream.Write(fFieldsCount);
-  for i:=1 to fFieldsCount do
-  with fFieldsQueue[i] do
-  begin
-    SaveStream.Write(Loc);
-    SaveStream.Write(FieldType, SizeOf(FieldType));
-    SaveStream.Write(JobStatus, SizeOf(JobStatus));
-    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Integer(0));
-  end;
 
   SaveStream.Write(fHousesCount);
   for i:=1 to fHousesCount do
@@ -1022,16 +913,6 @@ var i:integer; s:string;
 begin
   LoadStream.Read(s);
   Assert(s = 'BuildQueue');
-  LoadStream.Read(fFieldsCount);
-  SetLength(fFieldsQueue, fFieldsCount+1);
-  for i:=1 to fFieldsCount do
-  with fFieldsQueue[i] do
-  begin
-    LoadStream.Read(Loc);
-    LoadStream.Read(FieldType, SizeOf(FieldType));
-    LoadStream.Read(JobStatus, SizeOf(JobStatus));
-    LoadStream.Read(Worker, 4);
-  end;
 
   LoadStream.Read(fHousesCount);
   SetLength(fHousesQueue, fHousesCount+1);
@@ -1057,9 +938,6 @@ end;
 procedure TKMBuildingQueue.SyncLoad;
 var i:integer;
 begin
-  for i:=1 to fFieldsCount do
-    fFieldsQueue[i].Worker := fPlayers.GetUnitByID(cardinal(fFieldsQueue[i].Worker));
-
   for i:=1 to fHousesCount do
     fHousesQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousesQueue[i].House));
 
@@ -1080,7 +958,7 @@ begin
   Result := -1;
   aBid := MaxSingle;
 
-  for I:=1 to Length(fFields) - 1 do
+  for I := 0 to Length(fFields) - 1 do
   if (fFields[I].JobStatus = js_Open)
   and fTerrain.Route_CanBeMade(aWorker.GetPosition, fFields[I].Loc, aWorker.GetDesiredPassability, 0, False) then
   begin
@@ -1099,7 +977,7 @@ begin
   fFields[aIndex].Loc := KMPoint(0,0);
   fFields[aIndex].FieldType := ft_None;
   fFields[aIndex].JobStatus := js_Empty;
-  fPlayers.CleanUpUnitPointer(fFields[aIndex].Worker);
+  fPlayers.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
 end;
 
 
@@ -1140,7 +1018,7 @@ procedure TKMFieldworksList.RemField(aLoc: TKMPoint);
 var I: Integer;
 begin
   for I := 0 to Length(fFields) do
-  if (fFields[I].JobStatus <> js_Empty) and (KMSamePoint(fFields[I].Loc, aLoc)) then
+  if KMSamePoint(fFields[I].Loc, aLoc) then
   begin
     if fFields[I].Worker <> nil then
       fFields[I].Worker.CancelUnitTask;
@@ -1150,6 +1028,21 @@ begin
 end;
 
 
+function TKMFieldworksList.HasField(aLoc: TKMPoint): Boolean;
+var I: Integer;
+begin
+  for I := 0 to Length(fFields) do
+  if KMSamePoint(fFields[I].Loc, aLoc) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := False;
+end;
+
+
+//When a worker dies while walking to the task aIndex, we should allow other workers to take this task
 procedure TKMFieldworksList.ReOpenField(aIndex: Integer);
 begin
   fFields[aIndex].JobStatus := js_Open;
@@ -1165,7 +1058,15 @@ begin
 
   SaveStream.Write(Length(fFields));
   for I := 0 to Length(fFields) - 1 do
-    SaveStream.Write(fFields[I], SizeOf(fFields[I]));
+  begin
+    SaveStream.Write(fFields[I].Loc);
+    SaveStream.Write(fFields[I].FieldType, SizeOf(fFields[I].FieldType));
+    SaveStream.Write(fFields[I].JobStatus, SizeOf(fFields[I].JobStatus));
+    if fFields[I].Worker <> nil then
+      SaveStream.Write(fFields[I].Worker.ID)
+    else
+      SaveStream.Write(Integer(0));
+  end;
 end;
 
 
@@ -1178,7 +1079,18 @@ begin
   LoadStream.Read(I);
   SetLength(fFields, I);
   for I := 0 to Length(fFields) - 1 do
-    LoadStream.Read(fFields[I], SizeOf(fFields[I]));
+    LoadStream.Read(fFields[I].Loc);
+    LoadStream.Read(fFields[I].FieldType, SizeOf(fFields[I].FieldType));
+    LoadStream.Read(fFields[I].JobStatus, SizeOf(fFields[I].JobStatus));
+    LoadStream.Read(fFields[I].Worker, 4);
+end;
+
+
+procedure TKMFieldworksList.SyncLoad;
+var I: Integer;
+begin
+  for I := 0 to Length(fFields) do
+    fFields[I].Worker := fPlayers.GetUnitByID(Cardinal(fFields[I].Worker));
 end;
 
 
@@ -1438,7 +1350,7 @@ begin
     begin
 
       IndexRepair := fRepairList.BestBid(fWorkers[I].Worker, BidRepair);
-      IndexField := fRepairList.BestBid(fWorkers[I].Worker, BidField);
+      IndexField := fFieldworksList.BestBid(fWorkers[I].Worker, BidField);
 
       if IndexRepair <> -1 then
         fRepairList.GiveTask(IndexRepair, fWorkers[I].Worker)
