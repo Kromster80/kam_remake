@@ -16,7 +16,7 @@ uses
   {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
 const
-  REMAKE_MENU_SPRITES_COUNT = 17; //Number of sprites loaded from RX7 (rxMenu)
+  REMAKE_MENU_SPRITES_COUNT = 18; //Number of sprites loaded from RX7 (rxMenu)
   REMAKE_GAME_SPIRTES_COUNT = 347; //Number of sprites loaded from RX9 (rxGame)
 
 

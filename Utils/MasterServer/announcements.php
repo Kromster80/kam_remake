@@ -16,6 +16,9 @@ if($Rev != $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'bul':
+			echo "Версията на играта е с по-стара версия! Вие използвате ".$Rev." ,но се препоръчва последната версия, която е ".$MAIN_VERSION.".||Моля изтеглете ъпдейта от: www.kamremake.com";
+			break;
 		case 'spa':
 			echo "ЎLa version del kam Remake estб desactualizada! Estбs ejecutando ".$Rev." pero la versiуn mбs reciente es ".$MAIN_VERSION.".||Por favor bajate la actualizacion en: www.kamremake.com";
 			//No puedes jugar en multijugador hasta que no actualices.

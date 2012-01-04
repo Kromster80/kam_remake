@@ -81,3 +81,10 @@ spa.NoKaM=El asistente de instalaciуn ha detectado que no tienes Knights and Mer
 spa.CantUpdate=El asistente de instalaciуn no ha podido encontrar la versiуn Kam Remake para poder actualizar. Por favor, descarga y instala la versiуn completa. La instalaciуn se interrumpirб.
 spa.OpenAL=їQuieres que el asistente de instalaciуn instale OpenAL? (Muy recomendable) se requiere para el sonido del juego Kam Remake
 spa.ViewReadme=Ver el archivo Readme
+
+;Bulgarian
+bul.CreateStartShortcut=Създай пряк път
+bul.NoKaM=Инсталацията откри, че нямате инсталирана Knights and Merchants: The Peasants Rebellion. Вие трябва да имате Knights and Merchants: The Peasants Rebellion, за да играете KaM Remake. Инсталацията се прекратява.
+bul.CantUpdate=Инсталацията не успя да намери съществуваща версия на KaM Remake, за да бъде подобрена. Моля изтеглете и инсталирайте пълния инсталатор. Инсталацията ще се прекрати.
+bul.OpenAL=Искате ли инсталацията да инсталира OpenAL? (Силно се препоръчва) Нужно е, за да работи звука в играта.
+bul.ViewReadme=Виж "Прочети ме"

@@ -186,10 +186,11 @@ type
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
 const
-  LOCALES_COUNT = 13;
+  LOCALES_COUNT = 14;
   Locales:array[1..LOCALES_COUNT, 1..4]of shortstring = (
   //Code  Codepage Flag  Title
   ('ptb', '1252',  '8',  'Brazilian Portuguese'),
+  ('bul', '1251',  '18', 'Bulgarian'),
   ('cze', '1250',  '9',  'Czech'),
   ('dut', '1252',  '15', 'Dutch'),
   ('eng', '1252',  '5',  'English'),
@@ -203,7 +204,7 @@ const
   ('spa', '1252',  '13', 'Spanish'),
   ('swe', '1252',  '16', 'Swedish'));
 
-  TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Czech - Jolinar_CZ & Milan Molnar|'+
+  TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Bulgarian - Christian|Czech - Jolinar_CZ & Milan Molnar|'+
   'Dutch - xzaz & Tom|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+
   'Italian - Paolo Castelvetere|Polish - Przemyslaw Pietras|Russian - Krom|'+
   'Slovak - Robert Marko|Spanish - Oscar|Swedish - Edvin Linge||'+
