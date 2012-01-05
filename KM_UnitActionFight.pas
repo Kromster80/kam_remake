@@ -12,7 +12,7 @@ type
     fVertexOccupied: TKMPoint; //The diagonal vertex we are currently occupying
 
     //Execute is broken up into multiple methods
-      function ExecuteValidateOpponent: TActionResult;
+      function ExecuteValidateOpponent(Step:byte): TActionResult;
       function ExecuteProcessRanged(Step:byte):boolean;
       function ExecuteProcessMelee(Step:byte):boolean;
 
@@ -36,6 +36,7 @@ type
 implementation
 uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior, KM_Game, KM_ResourceGFX;
 
+const STRIKE_STEP = 5; //Melee units place hit on step 5
 
 { TUnitActionFight }
 constructor TUnitActionFight.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aOpponent: TKMUnit);
@@ -152,7 +153,7 @@ begin
 end;
 
 
-function TUnitActionFight.ExecuteValidateOpponent: TActionResult;
+function TUnitActionFight.ExecuteValidateOpponent(Step:byte): TActionResult;
 begin
   Result := ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
@@ -171,7 +172,14 @@ begin
       fOpponent.GetUnitPointer; //Add to pointer count
       Locked := true;
       fFightDelay := -1;
-      //Do not face the new opponent or reset the animation step, wait until this strike is over
+      //Ranged units should turn to face the new opponent immediately
+      if TKMUnitWarrior(fUnit).IsRanged then
+        fUnit.Direction := KMGetDirection(fUnit.GetPosition, fOpponent.GetPosition)
+      else
+        //Melee: If we haven't yet placed our strike, reset the animation step
+        //Otherwise finish this strike then we can face the new opponent automatically
+        if Step <= STRIKE_STEP then
+          fUnit.AnimStep := 0; //Rest fight animation/sequence
     end
     else
     begin
@@ -226,8 +234,8 @@ function TUnitActionFight.ExecuteProcessMelee(Step:byte):boolean;
 var IsHit: boolean; Damage: word;
 begin
   Result := false;
-  //Melee units place hit on step 5
-  if Step = 5 then
+  //Melee units place hit on this step
+  if Step = STRIKE_STEP then
   begin
     //Base damage is the unit attack strength + AttackHorse if the enemy is mounted
     Damage := fResource.UnitDat[fUnit.UnitType].Attack;
@@ -269,11 +277,12 @@ end;
 function TUnitActionFight.Execute: TActionResult;
 var Cycle,Step:byte;
 begin
-  Result := ExecuteValidateOpponent;
-  if Result = ActDone then exit;
-
   Cycle := max(fResource.UnitDat[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
   Step  := fUnit.AnimStep mod Cycle;
+
+  Result := ExecuteValidateOpponent(Step);
+  if Result = ActDone then exit;
+  Step  := fUnit.AnimStep mod Cycle; //Can be changed by ExecuteValidateOpponent, so recalculate it
 
   //Opponent can walk next to us, keep facing him
   if Step = 0 then //Only change direction between strikes, otherwise it looks odd
