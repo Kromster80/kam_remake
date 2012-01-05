@@ -965,6 +965,9 @@ begin
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
 
+  //Set the state to gsEditor early, so the MissionParser knows we must not flatten house areas, give units random condition, etc.
+  fGameState := gsEditor;
+
   if aFilename <> '' then
   try //Catch exceptions
     fMissionParser := TMissionParser.Create(mpm_Editor, False);
@@ -1013,7 +1016,6 @@ begin
 
   fGameTickCount := 0; //Restart counter
 
-  fGameState := gsEditor;
   fReplayMode := false;
 end;
 

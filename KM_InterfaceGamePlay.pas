@@ -1167,14 +1167,14 @@ begin
           TKMBevel.Create(Panel_Stats,104,LineBase, 86,30);
        end;
     5:    TKMBevel.Create(Panel_Stats,  8,LineBase,116,30);
-    6:    TKMBevel.Create(Panel_Stats,  8,LineBase,146,30);
+    6:    TKMBevel.Create(Panel_Stats,  8,LineBase,116,30);
     7: begin
          TKMBevel.Create(Panel_Stats,  8,LineBase, 32,30);
          TKMBevel.Create(Panel_Stats,  78,LineBase, 86,30);
        end;
     8: begin
-          TKMBevel.Create(Panel_Stats,  8,LineBase,120,30);
-          TKMBevel.Create(Panel_Stats,138,LineBase, 52,30);
+          TKMBevel.Create(Panel_Stats,  8,LineBase, 90,30);
+          TKMBevel.Create(Panel_Stats,120,LineBase, 52,30);
        end;
     end;
 

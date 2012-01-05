@@ -2150,7 +2150,6 @@ var i,k,j,l:integer; HA:THouseArea; TestLoc: TKMPoint;
 begin
   Result := true;
   HA := fResource.HouseDat[aHouseType].BuildArea;
-  Loc.X := Loc.X-fResource.HouseDat[aHouseType].EntranceOffsetX; //update offset
   for i:=1 to 4 do for k:=1 to 4 do
     if HA[i,k]<>0 then
     begin

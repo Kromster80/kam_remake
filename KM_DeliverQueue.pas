@@ -985,10 +985,12 @@ begin
   LoadStream.Read(fFieldsCount);
   SetLength(fFields, fFieldsCount);
   for I := 0 to fFieldsCount - 1 do
+  begin
     LoadStream.Read(fFields[I].Loc);
     LoadStream.Read(fFields[I].FieldType, SizeOf(fFields[I].FieldType));
     LoadStream.Read(fFields[I].JobStatus, SizeOf(fFields[I].JobStatus));
     LoadStream.Read(fFields[I].Worker, 4);
+  end;
 end;
 
 
