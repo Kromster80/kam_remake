@@ -909,14 +909,15 @@ begin
     Inc(I);
 
   if I >= fFieldsCount then
-    SetLength(fFields, fFieldsCount + LENGTH_INC);
+    Inc(fFieldsCount);
+
+  if I >= Length(fFields) then
+    SetLength(fFields, Length(fFields) + LENGTH_INC);
 
   fFields[I].Loc := aLoc;
   fFields[I].FieldType := aFieldType;
   fFields[I].JobStatus := js_Open;
   fFields[I].Worker := nil;
-
-  Inc(fFieldsCount);
 end;
 
 
@@ -962,7 +963,7 @@ var
 begin
   SaveStream.Write('FieldworksList');
 
-  SaveStream.Write(Length(fFields));
+  SaveStream.Write(fFieldsCount);
   for I := 0 to fFieldsCount - 1 do
   begin
     SaveStream.Write(fFields[I].Loc);
@@ -1013,13 +1014,14 @@ begin
     Inc(I);
 
   if I >= fPlansCount then
-    SetLength(fPlans, fPlansCount + LENGTH_INC);
+    Inc(fPlansCount);
+
+  if I >= Length(fPlans) then
+    SetLength(fPlans, Length(fPlans) + LENGTH_INC);
 
   fPlans[I].House := aHouse.GetHousePointer;
   fPlans[I].JobStatus := js_Open;
   fPlans[I].Worker := nil;
-
-  Inc(fPlansCount);
 end;
 
 
@@ -1183,7 +1185,7 @@ begin
   if HouseAlreadyInList(aHouse) then Exit;
 
   if fHousesCount >= Length(fHouses) then
-    SetLength (fHouses, fHousesCount + 16);
+    SetLength(fHouses, fHousesCount + LENGTH_INC);
 
   fHouses[fHousesCount].House := aHouse.GetHousePointer;
   fHouses[fHousesCount].Assigned := 0;
@@ -1326,7 +1328,7 @@ end;
 procedure TKMWorkerList.AddWorker(aWorker: TKMUnitWorker);
 begin
   if fWorkersCount >= Length(fWorkers) then
-    SetLength (fWorkers, fWorkersCount + 16);
+    SetLength(fWorkers, fWorkersCount + LENGTH_INC);
 
   fWorkers[fWorkersCount].Worker := TKMUnitWorker(aWorker.GetUnitPointer);
   Inc(fWorkersCount);
