@@ -230,8 +230,6 @@ type //Indexing should start from 1.
   System (unused)
 }
 
-const
-   FONT_INTERLINE = 5; //Spacing between lines of text
 
 //Which MapEditor page is being shown. Add more as they are needed.
 type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);

@@ -18,6 +18,7 @@ type
       Data:array of byte;
       u1,v1,u2,v2:single;
     end;
+    LineSpacing: Byte; //Not in KaM files, we use custom value that fits well
     procedure LoadFont(FileName:AnsiString; aFont:TKMFont; ExportToBMP:boolean);
   end;
 
@@ -54,6 +55,8 @@ const //Font01.fnt seems to be damaged..
   //since no existing palette matches them well and they are monochrome
   FontPal: array [TKMFont] of TKMPal =
   (pal_0, pal_map, pal_lin, pal_0, pal_lin, pal2_mapgold, pal_0, pal_lin, pal_0, pal_set2);
+
+   FONT_INTERLINE = 5; //Spacing between lines of text
 
 
 { TKMFontData }
@@ -92,6 +95,8 @@ begin
       S.Read(Letters[i].Data[0], Letters[i].Width*Letters[i].Height);
     end;
   S.Free;
+
+  LineSpacing := FONT_INTERLINE;
 
   //Special fix for monochrome fonts
   if FontPal[aFont] = pal_lin then

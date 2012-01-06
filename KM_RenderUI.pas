@@ -19,7 +19,7 @@ type
     procedure WritePicture      (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; aColor:TColor4); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline: TColor4);
-    procedure WriteText         (X,Y,W,H:smallint; Text:AnsiString; Fnt:TKMFont; Align:TTextAlign; Color: TColor4 = $FFFFFFFF);
+    procedure WriteText         (X,Y,W,H:smallint; aText:AnsiString; aFont:TKMFont; aAlign:TTextAlign; aColor: TColor4 = $FFFFFFFF);
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
@@ -416,44 +416,44 @@ end;
 
 {Renders a line of text}
 {By default color must be non-transparent white}
-procedure TRenderUI.WriteText(X,Y,W,H:smallint; Text: AnsiString; Fnt:TKMFont; Align:TTextAlign; Color: TColor4 = $FFFFFFFF);
+procedure TRenderUI.WriteText(X,Y,W,H:smallint; aText: AnsiString; aFont:TKMFont; aAlign:TTextAlign; aColor: TColor4 = $FFFFFFFF);
 var
   i:integer;
   LineCount,AdvX,LineHeight,BlockWidth:integer;
   LineWidth:array of integer; //Use signed format since some fonts may have negative CharSpacing
-  FD: TKMFontData;
+  FontData: TKMFontData;
 begin
-  if (Text = '') or (Color = $00000000) then Exit;
+  if (aText = '') or (aColor = $00000000) then Exit;
 
   if W <> 0 then
-    case Align of
+    case aAlign of
       taLeft:   SetupClipX(X, X+W);
       taCenter: SetupClipX(X-W div 2, X+W div 2);
       taRight:  SetupClipX(X-W, X+W);
     end;
 
-  FD := fResource.ResourceFont.FontData[Fnt]; //Shortcut
+  FontData := fResource.ResourceFont.FontData[aFont]; //Shortcut
 
-  //Calculate line count and each lines width to be able to properly align them
+  //Calculate line count and each lines width to be able to properly aAlign them
   LineCount := 1;
-  for i:=1 to length(Text) do
-    if Text[i]=#124 then inc(LineCount);
+  for i:=1 to length(aText) do
+    if aText[i]=#124 then inc(LineCount);
 
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
 
-  for i:=1 to length(Text) do begin
-    if Text[i]<>#124 then
-      if Text[i]=#32 then inc(LineWidth[LineCount], FD.WordSpacing)
-                     else inc(LineWidth[LineCount], FD.Letters[byte(Text[i])].Width + FD.CharSpacing);
-    if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
-      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FD.CharSpacing); //Remove last interletter space and negate double EOLs
+  for i:=1 to length(aText) do begin
+    if aText[i]<>#124 then
+      if aText[i]=#32 then inc(LineWidth[LineCount], FontData.WordSpacing)
+                     else inc(LineWidth[LineCount], FontData.Letters[byte(aText[i])].Width + FontData.CharSpacing);
+    if (aText[i]=#124)or(i=length(aText)) then begin //If EOL or aText end
+      LineWidth[LineCount] := Math.max(0, LineWidth[LineCount] - FontData.CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
     end;
   end;
 
-  LineHeight := FD.Unk1 + FONT_INTERLINE;
+  LineHeight := FontData.Unk1 + FontData.LineSpacing;
 
   dec(LineCount);
   BlockWidth := 0;
@@ -464,24 +464,24 @@ begin
   LineCount := 1;
 
   glPushMatrix;
-    glBindTexture(GL_TEXTURE_2D, FD.TexID);
-    glColor4ubv(@Color);
+    glBindTexture(GL_TEXTURE_2D, FontData.TexID);
+    glColor4ubv(@aColor);
 
-    case Align of
+    case aAlign of
       taLeft:   glTranslatef(X,                      Y, 0);
       taCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
       taRight:  glTranslatef(X - LineWidth[1],       Y, 0);
     end;
 
     glBegin(GL_QUADS);
-      for i:=1 to length(Text) do
+      for i:=1 to length(aText) do
       //Switch line if needed
       //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files,
       //so lets do the same here. Saves complex conversions...
-      if Text[i]=#124 then begin
+      if aText[i]=#124 then begin
         glEnd;
         inc(LineCount);
-        case Align of
+        case aAlign of
           taLeft:   glTranslatef(0, LineHeight, 0); //Negate previous line length
           taCenter: glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1]) div 2, LineHeight, 0);
           taRight:  glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
@@ -489,15 +489,15 @@ begin
         AdvX := 0;
         glBegin(GL_QUADS);
       end else
-      if Text[i]=#32 then
-        inc(AdvX, FD.WordSpacing)
+      if aText[i]=#32 then
+        inc(AdvX, FontData.WordSpacing)
       else
-      with FD.Letters[byte(Text[i])] do begin
+      with FontData.Letters[byte(aText[i])] do begin
         glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +YOffset);
         glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +YOffset);
         glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+YOffset);
         glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+YOffset);
-        inc(AdvX, Width + FD.CharSpacing);
+        inc(AdvX, Width + FontData.CharSpacing);
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -506,7 +506,7 @@ begin
   if SHOW_TEXT_OUTLINES then
   begin
     glPushMatrix;
-      case Align of
+      case aAlign of
         taLeft:   glTranslatef(X,                      Y, 0);
         taCenter: glTranslatef(X - LineWidth[1] div 2, Y, 0);
         taRight:  glTranslatef(X - LineWidth[1],       Y, 0);
