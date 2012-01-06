@@ -51,17 +51,20 @@ type
     procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
-    procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
-    procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-    procedure RenderCursorHighlights;
-    procedure RenderBrightness(Value: Byte);
 
+    //Terrain rendering sub-class
     procedure RenderTerrain;
     procedure RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
     procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
     procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
 
+    //Terrain overlay cursors rendering (incl. sprites highlighting)
+    procedure RenderCursorHighlights;
+    procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
+    procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
+    procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
+
+    procedure RenderBrightness(Value: Byte);
   public
     constructor Create(ScreenX,ScreenY: Integer; aSetup: TRenderSetup);
     destructor Destroy; override;
@@ -87,7 +90,7 @@ type
     procedure AddUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
     procedure AddUnitThought(Thought:TUnitThought; pX,pY:single);
     procedure AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
-    procedure AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; DoImmediateRender:boolean=false; Deleting:boolean=false);
   end;
 
 
@@ -123,6 +126,11 @@ begin
 end;
 
 
+//Render:
+// 1. Sets viewport
+// 2. Renders terrain
+// 3. Polls Game objects to add themselves to RenderList through Add** methods
+// 4. Renders cursor highlights
 procedure TRender.Render;
 begin
   fSetup.BeginFrame;
@@ -739,12 +747,12 @@ begin
 end;
 
 
-procedure TRender.AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; //In map editor always render 5 fish
-  AddUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
+  AddUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,True,DoImmediateRender,Deleting);
   if fResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
-    AddUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
+    AddUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,True,DoImmediateRender,Deleting);
 end;
 
 
@@ -1033,79 +1041,85 @@ end;
 
 
 procedure TRender.RenderCursorHighlights;
-  function TileVisible:boolean;
-  begin //Shortcut function
-    Result := MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y,true) > 0;
+  //Shortcut function
+  function TileVisible: Boolean;
+  begin
+    Result := MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, True) > 0;
   end;
 var
   U: TKMUnit;
 begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
+
   with fTerrain do
   case GameCursor.Mode of
     cm_None:   ;
-    cm_Erase:  begin
-                 if fGame.GameState = gsEditor then
-                 begin
-                   //With Units tab see if there's a unit below cursor
-                   if (fGame.fMapEditorInterface.GetShownPage = esp_Units) then
-                   begin
-                     U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
-                     if U <> nil then
-                       AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true,true);
-                   end
-                   else
-                   if (
-                         //With Buildings tab see if we can remove Fields or Houses
-                          (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
-                          and (    TileIsCornField(GameCursor.Cell)
-                                or TileIsWineField(GameCursor.Cell)
-                                or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road)
-                                or (fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
-                      )
-                   //And of course it is visible
-                   and TileVisible then
-                     RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-                   else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-                 end;
+    cm_Erase:   case fGame.GameState of
+                  gsEditor:
+                    begin
+                      //With Units tab see if there's a unit below cursor
+                      if (fGame.fMapEditorInterface.GetShownPage = esp_Units) then
+                      begin
+                        U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                        if U <> nil then
+                          AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true);
+                      end
+                      else
+                      if (
+                            //With Buildings tab see if we can remove Fields or Houses
+                             (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
+                             and (    TileIsCornField(GameCursor.Cell)
+                                   or TileIsWineField(GameCursor.Cell)
+                                   or (Land[GameCursor.Cell.Y,GameCursor.Cell.X].TileOverlay=to_Road)
+                                   or (fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
+                         )
+                      //And of course it is visible
+                      and TileVisible then
+                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                      else
+                        RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                    end;
 
-                 if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
-                 begin
-                   if (MyPlayer.BuildList.FieldworksList.HasField(GameCursor.Cell)
-                       or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
-                   and TileVisible then
-                     RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-                   else
-                     RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-                 end;
-               end;
-    cm_Road:   if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan, MyPlayer) and TileVisible then
-                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Field:  if CanPlaceRoad(GameCursor.Cell, mu_FieldPlan, MyPlayer) and TileVisible then
-                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wine:   if CanPlaceRoad(GameCursor.Cell, mu_WinePlan, MyPlayer) and TileVisible then
-                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wall:   if CanPlaceRoad(GameCursor.Cell, mu_WallPlan, MyPlayer) and TileVisible then
-                 RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
-               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
-    cm_Tiles:  if GameCursor.Tag2 in [0..3] then
-                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2)
-               else
-                 RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
-    cm_Objects:begin
-                 RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
-                 RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
-               end;
-    cm_Height: begin
-                 fRenderAux.Circle(GameCursor.Float.X,GameCursor.Float.Y - fTerrain.InterpolateLandHeight(GameCursor.Float)/CELL_HEIGHT_DIV, (GameCursor.Tag1 and $F) div 2, $00000000,  $FFFFFFFF);
-               end;
-    cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
-                 AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
-               else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                  gsPaused, gsOnHold, gsRunning:
+                    begin
+                      if (MyPlayer.BuildList.FieldworksList.HasField(GameCursor.Cell)
+                          or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
+                      and TileVisible then
+                        RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                      else
+                        RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+                    end;
+                end;
+    cm_Road:    if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan, MyPlayer) and TileVisible then
+                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                else
+                  RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Field:   if CanPlaceRoad(GameCursor.Cell, mu_FieldPlan, MyPlayer) and TileVisible then
+                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                else
+                  RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Wine:    if CanPlaceRoad(GameCursor.Cell, mu_WinePlan, MyPlayer) and TileVisible then
+                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                else
+                  RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Wall:    if CanPlaceRoad(GameCursor.Cell, mu_WallPlan, MyPlayer) and TileVisible then
+                  RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
+                else
+                  RenderCursorBuildIcon(GameCursor.Cell);       //Red X
+    cm_Houses:  RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
+    cm_Tiles:   if GameCursor.Tag2 in [0..3] then
+                  RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2)
+                else
+                  RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
+    cm_Objects: begin
+                  RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
+                  RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
+                end;
+    cm_Height:  fRenderAux.Circle(GameCursor.Float.X,GameCursor.Float.Y - fTerrain.InterpolateLandHeight(GameCursor.Float)/CELL_HEIGHT_DIV, (GameCursor.Tag1 and $F) div 2, $00000000,  $FFFFFFFF);
+    cm_Units:   if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
+                  AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true)
+                else
+                  RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   end;
 end;
 
