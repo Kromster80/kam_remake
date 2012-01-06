@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Log, KM_Render, KM_ResourceGFX;
+uses KromUtils, KM_Log, KM_RenderSetup, KM_ResourceGFX;
 
 
 const //Font01.fnt seems to be damaged..
@@ -131,7 +131,7 @@ begin
         inc(AdvX, 1+Width+1);
       end;
 
-  TexID := fRender.GenTexture(TexWidth, TexWidth, @TD[0], tf_Normal);
+  TexID := fRenderSetup.GenTexture(TexWidth, TexWidth, @TD[0], tf_Normal);
 
   if ExportToBMP then
   begin

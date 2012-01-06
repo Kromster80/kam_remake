@@ -17,9 +17,13 @@ type
   TKMControlState = (csDown, csFocus, csOver);
   TKMControlStateSet = set of TKMControlState;
 
+  TButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
+  T3DButtonStateSet = set of (bs_Over, bs_Down, bs_Disabled);
+  TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
+
+
   TKMControl = class;
   TKMPanel = class;
-
 
   { TKMMaster }
   TKMMasterControl = class

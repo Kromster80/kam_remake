@@ -9,7 +9,7 @@ uses
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns,
-  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderSetup, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation, KM_GameOptions;
 
@@ -178,7 +178,8 @@ begin
   fGameOptions := TKMGameOptions.Create;
 
   fGlobalSettings   := TGlobalSettings.Create;
-  fRender           := TRender.Create(RenderHandle, fScreenX, fScreenY, aVSync);
+  fRenderSetup      := TRenderSetup.Create(RenderHandle, fScreenX, fScreenY, aVSync);
+  fRender           := TRender.Create(fScreenX, fScreenY, fRenderSetup);
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds
@@ -214,6 +215,7 @@ begin
   FreeThenNil(fTextLibrary);
   FreeThenNil(fRenderAux);
   FreeThenNil(fRender);
+  FreeThenNil(fRenderSetup);
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fGameOptions);
   Inherited;
@@ -249,7 +251,7 @@ procedure TKMGame.Resize(X,Y:integer);
 begin
   fScreenX := X;
   fScreenY := Y;
-  fRender.Resize(fScreenX, fScreenY);
+  fRenderSetup.Resize(fScreenX, fScreenY);
 
   //Main menu is invisible while in game, but it still exists and when we return to it
   //it must be properly sized (player could resize the screen while playing)
@@ -257,8 +259,6 @@ begin
   if fMapEditorInterface<>nil then fMapEditorInterface.Resize(fScreenX, fScreenY);
   if fGamePlayInterface<>nil then fGamePlayInterface.Resize(fScreenX, fScreenY);
   if fViewport <> nil then fViewport.Resize(fScreenX, fScreenY);
-
-  //fRender.Render;
 end;
 
 

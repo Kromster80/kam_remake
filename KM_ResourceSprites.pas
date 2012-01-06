@@ -5,11 +5,12 @@ uses
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
 
-  Classes, Math, SysUtils,
+  Classes, Graphics, Math, SysUtils,
   KM_CommonEvents,
   KM_ResourceCursors,
   KM_ResourceHouse,
-  KM_ResourcePalettes
+  KM_ResourcePalettes,
+  KM_RenderSetup
   {$IFDEF FPC}, zstream {$ENDIF}
   {$IFDEF WDC}, ZLib {$ENDIF}
 
@@ -47,6 +48,7 @@ type
     procedure ClearUnusedGFX(aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
     procedure SaveRXXFile(aRT: TRXType; const aFileName:string);
+    procedure SaveBMPTexture(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aMode: TTexFormat);
   public
     constructor Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     procedure LoadMenuResources(aCursors: TKMCursors);
@@ -80,7 +82,7 @@ var
 
 
 implementation
-uses KromUtils, KM_Defaults, KM_Log, KM_Render, KM_TextLibrary;
+uses KromUtils, KM_Defaults, KM_Log, KM_TextLibrary;
 
 
 type
@@ -686,15 +688,20 @@ begin
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXInfo[aRT].TeamColors and (not ((aRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
     begin
-      GFXData[aRT,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
+      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
       //TeamColors are done through alternative plain colored texture
       if HasMsk then begin
-        GFXData[aRT,LeftIndex].AltID := fRender.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
+        GFXData[aRT,LeftIndex].AltID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
         inc(ColorsRAM,WidthPOT*HeightPOT*4);
       end;
     end
     else
-      GFXData[aRT,LeftIndex].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
+      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
+
+    SaveBMPTexture(WidthPOT,HeightPOT,GFXData[aRT,LeftIndex].TexID,@TD[0],tf_Normal);
+    if HasMsk then
+      SaveBMPTexture(WidthPOT,HeightPOT,GFXData[aRT,LeftIndex].TexID,@TA[0],tf_AltID);
+
 
     SetLength(TD,0);
     SetLength(TA,0);
@@ -796,7 +803,10 @@ begin
               TD[t] := TD[t] AND $01FFFFFF; //Place it as last step
         end;
 
-        GFXData[aRT,ID1].TexID := fRender.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_AlphaTest);
+        GFXData[aRT,ID1].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_AlphaTest);
+
+        SaveBMPTexture(WidthPOT,HeightPOT,GFXData[aRT,ID1].TexID,@TD[0],tf_AlphaTest);
+
         SetLength(TD, 0);
         GFXData[aRT,ID1].AltID := 0;
         GFXData[aRT,ID1].u1    := 0;
@@ -806,6 +816,35 @@ begin
         GFXData[aRT,ID1].PxWidth := RXData[aRT].Size[ID1].X;
         GFXData[aRT,ID1].PxHeight:= RXData[aRT].Size[ID1].Y;
       end;
+end;
+
+
+procedure TKMSprites.SaveBMPTexture(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aMode: TTexFormat);
+var
+  i,k: Integer;
+  Bmp: TBitmap;
+begin
+  if WriteAllTexturesToBMP then begin
+    CreateDir(ExeDir+'Export\GenTextures\');
+    Bmp:=TBitmap.Create;
+    Bmp.PixelFormat:=pf24bit;
+    Bmp.Width:=aWidth;
+    Bmp.Height:=aHeight;
+
+    for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
+      Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) AND $FFFFFF; //Ignore alpha
+    Bmp.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(aIndex,4)+'.bmp');
+
+    //these Alphas are worth looking at
+    if aMode=tf_AlphaTest then
+    begin
+      for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
+        Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) SHR 24 *65793;
+      Bmp.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(aIndex,4)+'a.bmp');
+    end;
+
+    Bmp.Free;
+  end;
 end;
 
 

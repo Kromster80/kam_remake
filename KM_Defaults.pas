@@ -157,9 +157,6 @@ const
   PLAYER_NONE = -1; //No player
   PLAYER_ANIMAL = -2; //animals
 
-type
-  TRenderMode = (rm2D, rm3D);
-
 {Cursors}
 type
   TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
@@ -180,10 +177,6 @@ const
   DirCursorNARadius = 15;  //Radius of centeral part that has no direction
 
 {Controls}
-type
-  TButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
-  T3DButtonStateSet = set of (bs_Over, bs_Down, bs_Disabled);
-  TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
 const
   LOCALES_COUNT = 14;

@@ -7,12 +7,9 @@ uses
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
   {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library ye-> FPReadJPEG?t
-  KM_TGATexture, KM_Defaults, KM_CommonClasses, KM_ResourceSprites, KM_Points;
+  KM_Defaults, KM_CommonClasses, KM_RenderSetup, KM_ResourceSprites, KM_Points;
 
 type
-  TCardinalArray = array of Cardinal;
-  TTexFormat = (tf_Normal, tf_AltID, tf_AlphaTest);
-
   TRenderList = class
   private
     fCount:word;
@@ -40,16 +37,12 @@ type
     procedure Render;
   end;
 
+  //Game Renderer
   TRender = class
   private
-    h_DC: HDC;
-    h_RC: HGLRC;
-    fOpenGL_Vendor, fOpenGL_Renderer, fOpenGL_Version: AnsiString;
-    fScreenX, fScreenY:word;
+    fSetup: TRenderSetup;
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
-    procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
-
     procedure RenderTile(Index:byte; pX,pY,Rot:integer);
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param:single; pX,pY:single; aFOW:byte);
@@ -61,14 +54,11 @@ type
     procedure RenderCursorHighlights;
     procedure RenderBrightness(Value: Byte);
   public
-    constructor Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
+    constructor Create(ScreenX,ScreenY: Integer; aSetup: TRenderSetup);
     destructor Destroy; override;
 
     property RenderList: TRenderList read fRenderList;
 
-    function GenTexture(DestX, DestY:word; const Data:TCardinalArray; Mode:TTexFormat):GLUint;
-    property RendererVersion: AnsiString read fOpenGL_Version;
-    procedure Resize(Width,Height: Integer);
     procedure SetRotation(aH,aP,aB:integer);
     procedure DoPrintScreen(FileName: string);
 
@@ -106,87 +96,19 @@ implementation
 uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceHouse, KM_Units, KM_Log;
 
 
-constructor TRender.Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
+constructor TRender.Create(ScreenX,ScreenY: Integer; aSetup: TRenderSetup);
 begin
   Inherited Create;
 
-  SetRenderFrame(RenderFrame, h_DC, h_RC);
-  SetRenderDefaults;
-  glDisable(GL_LIGHTING); //We don't need it
-
-  fOpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor: '   + String(fOpenGL_Vendor));
-  fOpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer: ' + String(fOpenGL_Renderer));
-  fOpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version: '  + String(fOpenGL_Version));
-
-  SetupVSync(aVSync);
-  BuildFont(h_DC, 16, FW_BOLD);
+  fSetup := aSetup;
   fRenderList := TRenderList.Create;
-
-  Resize(ScreenX, ScreenY);
 end;
 
 
 destructor TRender.Destroy;
 begin
   fRenderList.Free;
-  {$IFDEF MSWindows}
-  wglMakeCurrent(h_DC, 0);
-  wglDeleteContext(h_RC);
-  {$ENDIF}
-  {$IFDEF Unix}
-  //do not know how to fix them :(
-  //just error for now
-  MessageBox(HWND(nil), 'glXMakeCurrent and glXDestroyContext not working', 'Error', MB_OK);
-  //glXMakeCurrent(display, wid, util_glctx);
-  //glXDestroyContext(h_RC);
-  {$ENDIF}
-  Inherited;
-end;
-
-
-//Generate texture out of TCardinalArray
-function TRender.GenTexture(DestX, DestY: word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
-var
-  MyBitMap:TBitMap;
-  i,k:word;
-begin
-  Result := 0;
-
-  DestX := MakePOT(DestX);
-  DestY := MakePOT(DestY);
-  if DestX*DestY = 0 then exit; //Do not generate zeroed textures
-
-  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
-
-  //todo: @Krom: Make textures support an alpha channel for nice shadows. How does it work for houses on top of AlphaTest?
-  case Mode of
-    //Houses under construction
-    tf_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-    //Base layer
-    tf_Normal:    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-    //Team color layer
-    tf_AltID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2,   DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-  end;
-
-  if WriteAllTexturesToBMP then begin
-    CreateDir(ExeDir+'Export\GenTextures\');
-    MyBitMap:=TBitMap.Create;
-    MyBitMap.PixelFormat:=pf24bit;
-    MyBitMap.Width:=DestX;
-    MyBitMap.Height:=DestY;
-
-    for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
-    MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
-
-    if Mode=tf_AlphaTest then begin //these Alphas are worth looking at
-      for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-        MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) SHR 24 *65793;
-      MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'a.bmp');
-    end;
-
-    MyBitMap.Free;
-  end;
+  inherited;
 end;
 
 
@@ -198,31 +120,11 @@ begin
 end;
 
 
-procedure TRender.Resize(Width, Height: Integer);
-begin
-  fScreenX := max(Width, 1);
-  fScreenY := max(Height, 1);
-  glViewport(0, 0, fScreenX, fScreenY);
-end;
-
-
-procedure TRender.SetRenderMode(aRenderMode: TRenderMode);
-begin
-  glMatrixMode(GL_PROJECTION); //Change Matrix Mode to Projection
-  glLoadIdentity; //Reset View
-  case aRenderMode of
-    rm2D: gluOrtho2D(0, fScreenX, fScreenY, 0);
-    rm3D: gluPerspective(80, -fScreenX/fScreenY, 0.1, 5000.0);
-  end;
-  glMatrixMode(GL_MODELVIEW); //Return to the modelview matrix
-  glLoadIdentity; //Reset View
-end;
-
-
 procedure TRender.Render;
 begin
+  fSetup.BeginFrame;
+
   if fGame = nil then exit; //Happens sometimes during ToggleFullScreen
-  glClear(GL_COLOR_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
 
   if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
   begin //If game is running
@@ -233,7 +135,7 @@ begin
     glTranslatef(-fGame.Viewport.Position.X+TOOLBAR_WIDTH/CELL_SIZE_PX/fGame.Viewport.Zoom, -fGame.Viewport.Position.Y, 0);
     if RENDER_3D then
     begin
-      SetRenderMode(rm3D);
+      fSetup.SetRenderMode(rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
       glRotatef(rHeading,1,0,0);
@@ -260,40 +162,39 @@ begin
     glPopAttrib;
   end;
 
-  SetRenderMode(rm2D);
+  fSetup.SetRenderMode(rm2D);
   fGame.PaintInterface;
 
   glLoadIdentity;
   RenderBrightness(fGame.GlobalSettings.Brightness);
 
-  glFinish;
-  {$IFDEF MSWindows}
-  SwapBuffers(h_DC);
-  {$ENDIF}
-  {$IFDEF Unix}
-  glXSwapBuffers(FDisplay, FDC);
-  {$ENDIF}
+  fSetup.EndFrame;
 end;
 
 
 procedure TRender.DoPrintScreen(FileName:string);
 {$IFDEF WDC}
-var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
+var
+  i, k, W, H: integer;
+  jpg: TJpegImage;
+  mkbmp: TBitMap;
+  bmp: array of Cardinal;
 {$ENDIF}
 begin
 {$IFDEF WDC}
-  sw := fScreenX;
-  sh := fScreenY;
+  W := fSetup.ScreenX;
+  H := fSetup.ScreenY;
 
-  SetLength(bmp,sw*sh+1);
-  glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
+  SetLength(bmp, W * H + 1);
+  glReadPixels(0, 0, W, H, GL_BGRA, GL_UNSIGNED_BYTE, @bmp[0]);
 
   //Mirror verticaly
-  for i:=0 to (sh div 2)-1 do for k:=0 to sw-1 do
-  SwapInt(bmp[i*sw+k],bmp[((sh-1)-i)*sw+k]);
+  for i := 0 to (H div 2) - 1 do
+    for k := 0 to W - 1 do
+      SwapInt(bmp[i * W + k], bmp[((H - 1) - i) * W + k]);
 
   mkbmp := TBitmap.Create;
-  mkbmp.Handle := CreateBitmap(sw,sh,1,32,@bmp[0]);
+  mkbmp.Handle := CreateBitmap(W, H, 1, 32, @bmp[0]);
 
   jpg := TJpegImage.Create;
   jpg.assign(mkbmp);
@@ -809,7 +710,7 @@ begin
   //Thought bubbles are animated in reverse
   ID := ThoughtBounds[Thought, 2] + 1 -
        (fGame.GameTickCount mod word(ThoughtBounds[Thought, 2] - ThoughtBounds[Thought, 1]));
-       
+
   ShiftX:=RXData[rxUnits].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[rxUnits].Pivot[ID].y+RXData[rxUnits].Size[ID].Y)/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;
@@ -1182,7 +1083,7 @@ begin
   glBlendFunc(GL_DST_COLOR, GL_ONE);
   glColor4f(Value/20, Value/20, Value/20, Value/20);
   glBegin(GL_QUADS);
-    glkRect(0, 0, fScreenX, fScreenY);
+    glkRect(0, 0, fSetup.ScreenX, fSetup.ScreenY);
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
