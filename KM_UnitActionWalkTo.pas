@@ -846,9 +846,6 @@ begin
   begin
     NextNextPos := KMPoint(0,0);
     Result := false; //Our route is not that long, so there is no "NextNext" position
-    //@Crow: This is not an error. That old comment "Error" was a mistake, I see why you thought it was that way.
-    //       I have changed it to return boolean and use "out" as you have been doing in other places.
-    //       Please check I did it right. Thanks for your great help, you're doing a good job :) From Lewin. To be deleted.
   end;
 end;
 

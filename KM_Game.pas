@@ -746,6 +746,8 @@ begin
   //@Krom: I think you commented out the line below while refactoring. I found it very useful
   //       when people were using custom made missions, so could we have a way to remember and
   //       include both the script and map files? (.dat and .map)
+  //@Lewin: Yes, you are right, my mistake. Although ATM we don't store fMissionFile localy..
+  //
   //MyZip.AddFile(fMissionFile,'Mission'); //Mission script
   for i:=1 to AUTOSAVE_COUNT do
     MyZip.AddFiles(SaveName('autosave'+int2fix(i,2), '*')); //All autosaves
@@ -1343,6 +1345,7 @@ begin
     //@Lewin: Does this means that MessageList in UI is lost?
     //@Krom: Yes, it's lost for now. Multiplayer saves must be identical so I guess we'll have to send all message commands through
     //       the GIC (add, delete) even though they won't show to other players.
+    //todo: Send all message commands through GIP
     if not SaveIsMultiplayer then
     begin
       fViewport.Load(LoadStream);

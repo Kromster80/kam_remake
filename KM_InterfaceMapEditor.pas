@@ -674,7 +674,6 @@ begin
         TKMLabel.Create(Panel_Alliances,32+i*20+2,30,20,20,inttostr(i+1),fnt_Outline,taLeft);
         TKMLabel.Create(Panel_Alliances,12,50+i*25,20,20,inttostr(i+1),fnt_Outline,taLeft);
         for k:=0 to MAX_PLAYERS-1 do begin
-          //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
           CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 28+k*20, 46+i*25, 20, 20, '', fnt_Metal);
           CheckBox_Alliances[i,k].Tag       := i * MAX_PLAYERS + k;
           CheckBox_Alliances[i,k].FlatStyle := true;
@@ -1579,6 +1578,7 @@ begin
   //       These are just ideas and I think they could be redesigned in a less confusing way for both the players and mission creators.
   //       Let me know what you think. Maybe we should discuss this.
   //@Lewin: Looks like we can't achieve it without changing(adding) mission scripts.. discussed in ICQ.
+
   //Reset everything
   for i:=0 to fPlayers.Count-1 do
   begin

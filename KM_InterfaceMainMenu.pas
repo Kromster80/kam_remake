@@ -1588,9 +1588,13 @@ begin
   ServerFound := False;
   ColList_Servers.Clear;
 
+  //@Krom: Are nested withs acceptable like this? It works well in this case.
+  //@Lewin: They might work well, but the readability is quite poor
+  //I would rather use two more variables R = fGame.Networking.ServerQuery.Rooms[i] and S for Servers
+  //Compiler will optimize and remove them anyway, but we'll get a clearer code
   for i:=0 to fGame.Networking.ServerQuery.Rooms.Count-1 do
     with fGame.Networking.ServerQuery.Rooms[i] do
-      with fGame.Networking.ServerQuery.Servers[ServerIndex] do //@Krom: Are nested withs acceptable like this? It works well in this case.
+      with fGame.Networking.ServerQuery.Servers[ServerIndex] do
       begin
         ServerFound := True;
         //Only show # if server has more than 1 room
@@ -1791,7 +1795,6 @@ begin
   Memo_LobbyMapDesc.Clear;
 
   Ratio_LobbyPeacetime.Position := 0; //Default peacetime = 0
-  //Ratio_LobbyPeacetime.Enable; //@DanJB: Code below will enable/disable it. To be deleted..
 
   Lobby_OnMapName('');
   if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then begin

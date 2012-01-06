@@ -292,9 +292,8 @@ var
   i:integer;
   MixValue,MixValueMax:single;
   MixArc:single; //mix Arc shape
-  //@Krom: P2 seems to be unused here
-  P1,P2:TKMPointF; //Arrows and bolts send 2 points for head and tail
-  Dir:TKMDirection;
+  P: TKMPointF; //Arrows and bolts send 2 points for head and tail
+  Dir: TKMDirection;
 begin
   for i:=0 to length(fItems)-1 do
     if (fItems[i].fSpeed<>0) and ProjectileVisible(i) then
@@ -302,25 +301,23 @@ begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       MixValueMax := fItems[i].fPosition / fItems[i].fMaxLength; // 0 >> 1
-      P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
+      P := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
       case fItems[i].fType of
         pt_Arrow, pt_SlingRock, pt_Bolt:
           begin
             MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
             //Looks better moved up, launches from the bow not feet and lands in target's body
-            P1.Y := P1.Y - fItems[i].fArc * MixArc - 0.4;
-            P2.X := P1.X+3; P2.Y := P2.Y+1;
+            P.Y := P.Y - fItems[i].fArc * MixArc - 0.4;
             Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
-            fRender.AddProjectile(fItems[i].fType, P1.X, P1.Y, MixValueMax, Dir);
+            fRender.AddProjectile(fItems[i].fType, P.X, P.Y, MixValueMax, Dir);
           end;
 
         pt_TowerRock:
           begin
             MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
             //Looks better moved up, lands on the target's body not at his feet
-            P1.Y := P1.Y - fItems[i].fArc * MixArc - 0.4;
-            P2.X := 0; P2.Y := 0;
-            fRender.AddProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, dir_N); //Direction will be ignored
+            P.Y := P.Y - fItems[i].fArc * MixArc - 0.4;
+            fRender.AddProjectile(fItems[i].fType, P.X, P.Y, MixValue, dir_N); //Direction will be ignored
           end;
       end;
 
