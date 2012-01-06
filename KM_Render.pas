@@ -64,16 +64,16 @@ type
     constructor Create(RenderFrame: HWND; ScreenX,ScreenY: Integer; aVSync: Boolean);
     destructor Destroy; override;
 
+    property RenderList: TRenderList read fRenderList;
+
     function GenTexture(DestX, DestY:word; const Data:TCardinalArray; Mode:TTexFormat):GLUint;
     property RendererVersion: AnsiString read fOpenGL_Version;
     procedure Resize(Width,Height: Integer);
     procedure SetRotation(aH,aP,aB:integer);
-    function Stat_Sprites:integer;
-    function Stat_Sprites2:integer;
+    procedure DoPrintScreen(FileName: string);
+
     procedure Render;
-    {$IFDEF WDC}
-    procedure DoPrintScreen(FileName:string);
-    {$ENDIF}
+
     procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
     procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
     procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
@@ -81,8 +81,8 @@ type
     procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure AddHouseTablet(Index:THouseType; Loc:TKMPoint);
-    procedure AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+    procedure RenderHouseTablet(Index:THouseType; Loc:TKMPoint);
+    procedure RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
     procedure RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
     procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
     procedure RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
@@ -219,22 +219,10 @@ begin
 end;
 
 
-function TRender.Stat_Sprites: integer;
-begin
-  Result := fRenderList.Stat_Sprites;
-end;
-
-
-function TRender.Stat_Sprites2: integer;
-begin
-  Result := fRenderList.Stat_Sprites2;
-end;
-
-
 procedure TRender.Render;
 begin
   if fGame = nil then exit; //Happens sometimes during ToggleFullScreen
-  glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
+  glClear(GL_COLOR_BUFFER_BIT); //Clear The Screen, can save some FPS on this one
 
   if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then
   begin //If game is running
@@ -288,10 +276,12 @@ begin
 end;
 
 
-{$IFDEF WDC}
 procedure TRender.DoPrintScreen(FileName:string);
+{$IFDEF WDC}
 var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
+{$ENDIF}
 begin
+{$IFDEF WDC}
   sw := fScreenX;
   sh := fScreenY;
 
@@ -316,8 +306,8 @@ begin
 
   jpg.Free;
   mkbmp.Free;
-end;
 {$ENDIF}
+end;
 
 
 procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
@@ -601,7 +591,7 @@ end;
 
 
 {Render house WIP tablet}
-procedure TRender.AddHouseTablet(Index:THouseType; Loc:TKMPoint);
+procedure TRender.RenderHouseTablet(Index:THouseType; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   ID := fResource.HouseDat[Index].TabletIcon;
@@ -613,7 +603,7 @@ end;
 
 
 {Render house build supply}
-procedure TRender.AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+procedure TRender.RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if Wood<>0 then begin

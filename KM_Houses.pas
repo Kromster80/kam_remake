@@ -1090,19 +1090,19 @@ end;
 procedure TKMHouse.Paint;
 begin
   case fBuildState of
-    hbs_Glyph:  fRender.AddHouseTablet(fHouseType, GetEntrance);
+    hbs_Glyph:  fRender.RenderHouseTablet(fHouseType, GetEntrance);
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
                   fRender.RenderHouseWood(fHouseType,
                     fBuildingProgress/50/fResource.HouseDat[fHouseType].WoodCost, //0...1 range
                     fPosition);
-                  fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+                  fRender.RenderHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
                 end;
     hbs_Stone:  begin
                   fRender.RenderHouseStone(fHouseType,
                     (fBuildingProgress/50-fResource.HouseDat[fHouseType].WoodCost)/fResource.HouseDat[fHouseType].StoneCost, //0...1 range
                     fPosition);
-                  fRender.AddHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
+                  fRender.RenderHouseBuildSupply(fHouseType, fBuildSupplyWood, fBuildSupplyStone, fPosition);
                 end;
     else        begin
                   fRender.RenderHouseStone(fHouseType, 1, fPosition);

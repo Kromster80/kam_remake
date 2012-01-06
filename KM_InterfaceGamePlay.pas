@@ -3511,7 +3511,7 @@ begin
   if SHOW_SPRITE_COUNT then
     Label_Stat.Caption:=
         inttostr(fPlayers.GetUnitCount)+' units on map'+#124+
-        inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
+        inttostr(fRender.RenderList.Stat_Sprites)+'/'+inttostr(fRender.RenderList.Stat_Sprites2)+' sprites/rendered'+#124+
         inttostr(CtrlPaintCount)+' controls rendered';
 
   if SHOW_POINTER_COUNT then

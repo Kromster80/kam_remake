@@ -4,13 +4,13 @@ interface
 uses Classes, KromUtils, Math, SysUtils, StrUtils,
     KM_CommonClasses, KM_Defaults, KM_Points;
 
-type           
+type
   TAIAttackType = (aat_Once,       //Attack will occur once (after the set time has passed and if they have enough troops
                    aat_Repeating); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
 
 const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
-  RemakeAttackType:array[0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
-  KaMAttackType:array[TAIAttackType] of byte = (1,0);
+  RemakeAttackType: array [0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
+  KaMAttackType: array [TAIAttackType] of byte = (1, 0);
 
 type
   //Indexes must match with KaM script values (for now)
@@ -48,8 +48,8 @@ type
 
     function GetAsText: string;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
   end;
 
 
