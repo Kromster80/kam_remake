@@ -311,7 +311,7 @@ begin
             P1.Y := P1.Y - fItems[i].fArc * MixArc - 0.4;
             P2.X := P1.X+3; P2.Y := P2.Y+1;
             Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
-            fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValueMax, Dir);
+            fRender.AddProjectile(fItems[i].fType, P1.X, P1.Y, MixValueMax, Dir);
           end;
 
         pt_TowerRock:
@@ -320,7 +320,7 @@ begin
             //Looks better moved up, lands on the target's body not at his feet
             P1.Y := P1.Y - fItems[i].fArc * MixArc - 0.4;
             P2.X := 0; P2.Y := 0;
-            fRender.RenderProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, dir_N); //Direction will be ignored
+            fRender.AddProjectile(fItems[i].fType, P1.X, P1.Y, MixValue, dir_N); //Direction will be ignored
           end;
       end;
 

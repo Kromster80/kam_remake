@@ -48,11 +48,20 @@ type
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param:single; pX,pY:single; aFOW:byte);
     procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
     procedure RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
+    procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
     procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
     procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
     procedure RenderCursorHighlights;
     procedure RenderBrightness(Value: Byte);
+
+    procedure RenderTerrain;
+    procedure RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
+    procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
+    procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
+
   public
     constructor Create(ScreenX,ScreenY: Integer; aSetup: TRenderSetup);
     destructor Destroy; override;
@@ -64,28 +73,21 @@ type
 
     procedure Render;
 
-    procedure RenderTerrain;
-    procedure RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
-    procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
-    procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
-    procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection);
-    procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderHouseTablet(Index:THouseType; Loc:TKMPoint);
-    procedure RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
-    procedure RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
-    procedure RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
-    procedure RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
-    procedure RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
-    procedure RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
-    procedure RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; aRX: TRXType = rxHouses);
-    procedure RenderEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
-    procedure RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
-    procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
-    procedure RenderUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
-    procedure RenderUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure AddProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection);
+    procedure AddHouseTablet(Index:THouseType; Loc:TKMPoint);
+    procedure AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+    procedure AddHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
+    procedure AddHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
+    procedure AddHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+    procedure AddHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
+    procedure AddMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
+    procedure AddHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; aRX: TRXType = rxHouses);
+    procedure AddEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
+    procedure AddUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure AddUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
+    procedure AddUnitThought(Thought:TUnitThought; pX,pY:single);
+    procedure AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+    procedure AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
   end;
 
 
@@ -400,7 +402,7 @@ begin
 end;
 
 
-procedure TRender.RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection);
+procedure TRender.AddProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection);
 var
   FOW:byte;
   ID:integer;
@@ -493,7 +495,7 @@ end;
 
 
 {Render house WIP tablet}
-procedure TRender.RenderHouseTablet(Index:THouseType; Loc:TKMPoint);
+procedure TRender.AddHouseTablet(Index:THouseType; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   ID := fResource.HouseDat[Index].TabletIcon;
@@ -505,7 +507,7 @@ end;
 
 
 {Render house build supply}
-procedure TRender.RenderHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
+procedure TRender.AddHouseBuildSupply(Index:THouseType; Wood,Stone:byte; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if Wood<>0 then begin
@@ -524,7 +526,7 @@ end;
 
 
 {Render house in wood}
-procedure TRender.RenderHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
+procedure TRender.AddHouseWood(Index:THouseType; Step:single; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   ID := fResource.HouseDat[Index].WoodPic+1;
@@ -535,10 +537,10 @@ end;
 
 
 {Render house in stone}
-procedure TRender.RenderHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
+procedure TRender.AddHouseStone(Index:THouseType; Step:single; Loc:TKMPoint);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  RenderHouseWood(Index,1,Loc); //Render Wood part of it, opaque
+  AddHouseWood(Index,1,Loc); //Render Wood part of it, opaque
   ID := fResource.HouseDat[Index].StonePic+1;
   ShiftX := Loc.X + RXData[rxHouses].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY := Loc.Y + (RXData[rxHouses].Pivot[ID].y+RXData[rxHouses].Size[ID].Y)/CELL_SIZE_PX - fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
@@ -546,7 +548,7 @@ begin
 end;
 
 
-procedure TRender.RenderHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
+procedure TRender.AddHouseWork(aHouse:THouseType; aActSet:THouseActionSet; AnimStep:cardinal; Loc:TKMPoint; FlagColor:TColor4);
 var AnimCount,ID:cardinal; AT:THouseActionType; ShiftX,ShiftY:single;
 begin
   if aActSet = [] then Exit;
@@ -569,7 +571,7 @@ begin
 end;
 
 
-procedure TRender.RenderHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
+procedure TRender.AddHouseSupply(Index:THouseType; const R1,R2:array of byte; Loc:TKMPoint);
 var ID,i,k:integer;
 
   procedure AddHouseSupplySprite(aID:integer);
@@ -609,7 +611,7 @@ begin
 end;
 
 
-procedure TRender.RenderMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
+procedure TRender.AddMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
 var i,ID:integer;
 
   procedure AddHouseSupplySprite(aID:integer);
@@ -626,7 +628,7 @@ var i,ID:integer;
 begin
   if ResType = rt_Horse then //Horses are a beast, BeastID is the count, age is 1
     for i:=1 to Min(ResCount, MarketWares[ResType].Count) do //Render each beast
-      RenderHouseStableBeasts(ht_Marketplace, i, 1, AnimStep, Loc, rxGame) //Use RXGame
+      AddHouseStableBeasts(ht_Marketplace, i, 1, AnimStep, Loc, rxGame) //Use RXGame
   else
   begin
     if MarketWares[ResType].Count = 0 then exit;
@@ -636,7 +638,7 @@ begin
 end;
 
 
-procedure TRender.RenderHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; aRX: TRXType = rxHouses);
+procedure TRender.AddHouseStableBeasts(Index:THouseType; BeastID,BeastAge,AnimStep:integer; Loc:TKMPoint; aRX: TRXType = rxHouses);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   with fResource.HouseDat.BeastAnim[Index,BeastID,BeastAge] do begin
@@ -651,7 +653,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.AddUnit(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -670,7 +672,7 @@ begin
 end;
 
 
-procedure TRender.RenderEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
+procedure TRender.AddEater(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; Loc:TKMPoint; OffX,OffY:single; FlagColor:TColor4);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -685,7 +687,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
+procedure TRender.AddUnitCarry(aCarry:TResourceType; aDir:TKMDirection; StepID:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat.SerfCarry[aCarry, aDir];
@@ -701,7 +703,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnitThought(Thought: TUnitThought; pX,pY: Single);
+procedure TRender.AddUnitThought(Thought: TUnitThought; pX,pY: Single);
 var
   ID: Integer;
   ShiftX, ShiftY: Single;
@@ -719,7 +721,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
+procedure TRender.AddUnitFlag(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; UnitX,UnitY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; A:TKMUnitsAnim;
 begin
   A := fResource.UnitDat[aUnit].UnitAnim[aAct, aDir];
@@ -737,12 +739,12 @@ begin
 end;
 
 
-procedure TRender.RenderUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.AddUnitWithDefaultArm(aUnit:TUnitType; aAct:TUnitActionType; aDir:TKMDirection; StepID:integer; pX,pY:single; FlagColor:TColor4; NewInst:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
   if aUnit = ut_Fish then aAct := FishCountAct[5]; //In map editor always render 5 fish
-  RenderUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
+  AddUnit(aUnit,aAct,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
   if fResource.UnitDat[aUnit].SupportsAction(ua_WalkArm) then
-    RenderUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
+    AddUnit(aUnit,ua_WalkArm,aDir,StepID,pX,pY,FlagColor,NewInst,DoImmediateRender,Deleting);
 end;
 
 
@@ -1050,7 +1052,7 @@ begin
                    begin
                      U := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                      if U <> nil then
-                       RenderUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true,true);
+                       AddUnitWithDefaultArm(U.UnitType,ua_Walk,U.Direction,U.AnimStep,GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true,true);
                    end
                    else
                    if (
@@ -1102,7 +1104,7 @@ begin
                  fRenderAux.Circle(GameCursor.Float.X,GameCursor.Float.Y - fTerrain.InterpolateLandHeight(GameCursor.Float)/CELL_HEIGHT_DIV, (GameCursor.Tag1 and $F) div 2, $00000000,  $FFFFFFFF);
                end;
     cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
-                 RenderUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
+                 AddUnitWithDefaultArm(TUnitType(GameCursor.Tag1),ua_Walk,dir_S,UnitStillFrames[dir_S],GameCursor.Cell.X+0.5,GameCursor.Cell.Y+1,MyPlayer.FlagColor,true,true)
                else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   end;
 end;
