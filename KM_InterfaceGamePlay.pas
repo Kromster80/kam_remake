@@ -3218,13 +3218,13 @@ begin
               begin fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, mu_WinePlan);  LastDragPoint := GameCursor.Cell; end;
     cm_Erase: begin
 
-                if MyPlayer.WorkerList.HousePlanList.HasPlan(P) then
+                if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
                 begin
                   fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P);
                   LastDragPoint := GameCursor.Cell;
                 end
                 else
-                  if MyPlayer.WorkerList.FieldworksList.HasField(P) then
+                  if MyPlayer.BuildList.FieldworksList.HasField(P) then
                   begin
                     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P); //Remove plans
                     LastDragPoint := GameCursor.Cell;
@@ -3406,10 +3406,10 @@ begin
                 else
                 begin
                   //Now remove houses that are not started
-                  if MyPlayer.WorkerList.HousePlanList.HasPlan(P) then
+                  if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
                     fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
                   else
-                    if MyPlayer.WorkerList.FieldworksList.HasField(P) then
+                    if MyPlayer.BuildList.FieldworksList.HasField(P) then
                       fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
                     else
                       fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase

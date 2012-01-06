@@ -137,7 +137,7 @@ end;
 
 destructor TTaskBuildRoad.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
@@ -158,7 +158,7 @@ begin
          Thought := th_None;
          fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
          MarkupSet := true;
-         fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
          BuildID := 0;
          SetActionLockedStay(11,ua_Work1,false);
        end;
@@ -243,7 +243,7 @@ end;
 
 destructor TTaskBuildWine.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   if InitialFieldSet  then fTerrain.RemField(fLoc);
@@ -264,7 +264,7 @@ begin
         Thought := th_None;
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0; //it can't be cancelled now
         MarkupSet := true;
         SetActionLockedStay(12*4,ua_Work1,false);
@@ -341,7 +341,7 @@ end;
 
 destructor TTaskBuildField.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
@@ -359,7 +359,7 @@ begin
     1: begin
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         MarkupSet := true;
-        fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
         SetActionLockedStay(0,ua_Walk);
        end;
@@ -417,7 +417,7 @@ begin
   if fPhase > 1 then
     fTerrain.RemMarkup(fLoc)
   else
-    fPlayers.Player[fUnit.GetOwner].WorkerList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
+    fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
   Inherited;
 end;
 
@@ -435,7 +435,7 @@ begin
     1: begin
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers.Player[GetOwner].WorkerList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
         SetActionLockedStay(0,ua_Walk);
        end;
@@ -541,7 +541,7 @@ destructor TTaskBuildHouseArea.Destroy;
 begin
   //Allow other workers to take this task
   if (BuildID <> 0) and not HouseNeedsWorker and not fHouse.IsDestroyed then
-    fPlayers.Player[fHouse.GetOwner].WorkerList.HousePlanList.ReOpenPlan(BuildID);
+    fPlayers.Player[fHouse.GetOwner].BuildList.HousePlanList.ReOpenPlan(BuildID);
 
   //Destroy the house if worker was killed (e.g. by archer or hunger)
   //as we don't have mechanics to resume the building process yet
@@ -552,7 +552,7 @@ begin
   if HouseReadyToBuild and not HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
   begin
     fHouse.BuildingState := hbs_Wood;
-    fPlayers.Player[fHouse.GetOwner].WorkerList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
+    fPlayers.Player[fHouse.GetOwner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
     fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
     fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
   end;
@@ -582,7 +582,7 @@ begin
           Thought := th_Build;
         end;
     1:  begin
-          fPlayers.Player[GetOwner].WorkerList.HousePlanList.ClosePlan(BuildID);
+          fPlayers.Player[GetOwner].BuildList.HousePlanList.ClosePlan(BuildID);
           BuildID := 0; //Other workers can't take this task from now on
           fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Fence, GetOwner);
           HouseNeedsWorker := True; //The house placed on the map, if something happens with Worker the house will be removed
@@ -686,7 +686,7 @@ end;
 destructor TTaskBuildHouse.Destroy;
 begin
   //We are no longer connected to the House (it's either done or we died)
-  fPlayers.Player[fUnit.GetOwner].WorkerList.HouseList.RemWorker(BuildID);
+  fPlayers.Player[fUnit.GetOwner].BuildList.HouseList.RemWorker(BuildID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -819,7 +819,7 @@ end;
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
-  fPlayers[fUnit.GetOwner].WorkerList.RepairList.RemWorker(fRepairID);
+  fPlayers[fUnit.GetOwner].BuildList.RepairList.RemWorker(fRepairID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   inherited;

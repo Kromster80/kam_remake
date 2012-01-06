@@ -646,7 +646,7 @@ begin
     Activate(true);
     //House was damaged while under construction, so set the repair mode now it is complete
     if (fDamage > 0) and BuildingRepair then
-      fPlayers.Player[fOwner].WorkerList.RepairList.AddHouse(Self);
+      fPlayers.Player[fOwner].BuildList.RepairList.AddHouse(Self);
   end;
 end;
 
@@ -673,7 +673,7 @@ begin
 
   fDamage := Math.min(fDamage + aAmount, MaxHealth);
   if (fBuildState = hbs_Done) and BuildingRepair then
-    fPlayers.Player[fOwner].WorkerList.RepairList.AddHouse(Self);
+    fPlayers.Player[fOwner].BuildList.RepairList.AddHouse(Self);
 
   if fBuildState = hbs_Done then
     UpdateDamage; //Only update fire if the house is complete

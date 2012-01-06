@@ -2,7 +2,7 @@ unit KM_Player;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_PlayerAI, KM_Units, KM_Houses, KM_DeliverQueue,
+  KM_CommonClasses, KM_Defaults, KM_PlayerAI, KM_Units, KM_Houses, KM_BuildList, KM_DeliverQueue,
   KM_PlayerStats, KM_Goals, KM_FogOfWar, KM_ArmyEvaluation, KM_Points;
 
 
@@ -37,7 +37,7 @@ type
   TKMPlayer = class (TKMPlayerCommon)
   private
     fAI:TKMPlayerAI;
-    fWorkerList: TKMWorkerList; //Not the best name for buildingManagement
+    fBuildList: TKMBuildList; //Not the best name for buildingManagement
     fDeliverList:TKMDeliverQueue;
     fHouses:TKMHousesCollection;
     fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
@@ -64,7 +64,7 @@ type
     destructor Destroy; override;
 
     property AI:TKMPlayerAI read fAI;
-    property WorkerList: TKMWorkerList read fWorkerList;
+    property BuildList: TKMBuildList read fBuildList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
     property Stats:TKMPlayerStats read fStats;
@@ -208,7 +208,7 @@ begin
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
-  fWorkerList   := TKMWorkerList.Create;
+  fBuildList   := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
   fPlayerName   := 'Player ' + IntToStr(aPlayerIndex);
@@ -236,7 +236,7 @@ begin
   FreeThenNil(fGoals);
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);
-  FreeThenNil(fWorkerList);
+  FreeThenNil(fBuildList);
   FreeThenNil(fAI);
 end;
 
@@ -251,7 +251,7 @@ begin
   if Result <> nil then
   begin
     if aUnitType = ut_Worker then
-      fWorkerList.AddWorker(TKMUnitWorker(Result));
+      fBuildList.AddWorker(TKMUnitWorker(Result));
 
     fStats.UnitCreated(aUnitType, WasTrained);
   end;
@@ -270,7 +270,7 @@ end;
 procedure TKMPlayer.TrainingDone(aUnit: TKMUnit);
 begin
   if aUnit.UnitType = ut_Worker then
-    fWorkerList.AddWorker(TKMUnitWorker(aUnit));
+    fBuildList.AddWorker(TKMUnitWorker(aUnit));
 
   fStats.UnitCreated(aUnit.UnitType, True);
 end;
@@ -346,10 +346,10 @@ begin
   end;
   fTerrain.SetMarkup(aLoc, aMarkup);
   case aMarkup of
-    mu_RoadPlan:  fWorkerList.FieldworksList.AddField(aLoc, ft_Road);
-    mu_FieldPlan: fWorkerList.FieldworksList.AddField(aLoc, ft_Corn);
-    mu_WinePlan:  fWorkerList.FieldworksList.AddField(aLoc, ft_Wine);
-    mu_WallPlan:  fWorkerList.FieldworksList.AddField(aLoc, ft_Wall);
+    mu_RoadPlan:  fBuildList.FieldworksList.AddField(aLoc, ft_Road);
+    mu_FieldPlan: fBuildList.FieldworksList.AddField(aLoc, ft_Corn);
+    mu_WinePlan:  fBuildList.FieldworksList.AddField(aLoc, ft_Wine);
+    mu_WallPlan:  fBuildList.FieldworksList.AddField(aLoc, ft_Wall);
     else Assert(False, 'Wrong markup');
   end;
   if not DoSilent then
@@ -385,7 +385,7 @@ begin
   KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerIndex);
   fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex); //todo: Move to TaskBuildHouseArea
   fStats.HouseStarted(aHouseType);
-  fWorkerList.HousePlanList.AddPlan(KMHouse);
+  fBuildList.HousePlanList.AddPlan(KMHouse);
   if not DoSilent then fSoundLib.Play(sfx_placemarker);
 end;
 
@@ -411,7 +411,7 @@ end;
 procedure TKMPlayer.RemHousePlan(Position: TKMPoint; DoSilent:boolean);
 var H: TKMHouse;
 begin
-  fWorkerList.HousePlanList.RemPlan(Position);
+  fBuildList.HousePlanList.RemPlan(Position);
   if not DoSilent then fSoundLib.Play(sfx_Click);
 
   H := fHouses.HitTest(Position.X, Position.Y);
@@ -424,7 +424,7 @@ end;
 
 procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; DoSilent:boolean);
 begin
-  fWorkerList.FieldworksList.RemField(Position);
+  fBuildList.FieldworksList.RemField(Position);
   if not DoSilent then fSoundLib.Play(sfx_Click);
   fTerrain.RemMarkup(Position);
 end;
@@ -536,7 +536,7 @@ procedure TKMPlayer.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
   fAI.Save(SaveStream);
-  fWorkerList.Save(SaveStream);
+  fBuildList.Save(SaveStream);
   fDeliverList.Save(SaveStream);
   fFogOfWar.Save(SaveStream);
   fGoals.Save(SaveStream);
@@ -557,7 +557,7 @@ procedure TKMPlayer.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   fAI.Load(LoadStream);
-  fWorkerList.Load(LoadStream);
+  fBuildList.Load(LoadStream);
   fDeliverList.Load(LoadStream);
   fFogOfWar.Load(LoadStream);
   fGoals.Load(LoadStream);
@@ -579,7 +579,7 @@ begin
   Inherited;
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
-  fWorkerList.SyncLoad;
+  fBuildList.SyncLoad;
   fAI.SyncLoad;
 end;
 
@@ -597,7 +597,7 @@ begin
   fHouses.UpdateState;
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
-  fWorkerList.UpdateState; //todo: Make it less frequent
+  fBuildList.UpdateState; //todo: Make it less frequent
 
   if aUpdateAI then
   begin

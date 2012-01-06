@@ -13,6 +13,7 @@ uses
 
   KM_AIAttacks in 'KM_AIAttacks.pas',
   KM_ArmyEvaluation in 'KM_ArmyEvaluation.pas',
+  KM_BuildList in 'KM_BuildList.pas',
   KM_Campaigns in 'KM_Campaigns.pas',
   KM_CommonClasses in 'KM_CommonClasses.pas',
   KM_CommonEvents in 'KM_CommonEvents.pas',
