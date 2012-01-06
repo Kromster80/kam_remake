@@ -1264,10 +1264,7 @@ var
 begin
   for I := 0 to fHousesCount - 1 do
     if fHouses[I].House <> nil then
-      if (not fHouses[I].House.IsComplete //todo: Looks like superflous condition
-          or not fHouses[I].House.IsDamaged
-          or not fHouses[I].House.BuildingRepair
-          or fHouses[I].House.IsDestroyed)
+      if (not fHouses[I].House.IsDamaged or not fHouses[I].House.BuildingRepair or fHouses[I].House.IsDestroyed)
       and (fHouses[I].Assigned = 0) then
         fPlayers.CleanUpHousePointer(fHouses[I].House);
 end;
