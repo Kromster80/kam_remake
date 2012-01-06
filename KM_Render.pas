@@ -64,7 +64,8 @@ type
 
     procedure Render;
 
-    procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
+    procedure RenderTerrain;
+    procedure RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
     procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
     procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
     procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection);
@@ -146,10 +147,10 @@ begin
     end;
 
     glPushAttrib(GL_LINE_BIT or GL_POINT_BIT);
-      glLineWidth(fGame.Viewport.Zoom*2);
-      glPointSize(fGame.Viewport.Zoom*5);
+      glLineWidth(fGame.Viewport.Zoom * 2);
+      glPointSize(fGame.Viewport.Zoom * 5);
 
-      fTerrain.Paint;
+      RenderTerrain;
       fPlayers.Paint; //Quite slow           //Units and houses
       if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
         fGame.Projectiles.Paint; //Render all arrows and etc..
@@ -211,7 +212,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
+procedure TRender.RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
   procedure LandLight(a:single);
   begin
     glColor4f(a/1.5+0.5,a/1.5+0.5,a/1.5+0.5,Abs(a*2)); //Balanced looks
@@ -868,6 +869,39 @@ begin
     glEnd;
     glPopAttrib;
   end;
+end;
+
+
+procedure TRender.RenderTerrain;
+var
+  x1, x2, y1, y2: integer;
+  Passability: integer;
+begin
+  x1 := fGame.Viewport.GetClip.Left;
+  x2 := fGame.Viewport.GetClip.Right;
+  y1 := fGame.Viewport.GetClip.Top;
+  y2 := fGame.Viewport.GetClip.Bottom;
+
+  fRender.RenderTerrainTiles(x1, x2, y1, y2, fTerrain.AnimStep);
+  fRender.RenderTerrainFieldBorders(x1, x2, y1, y2);
+  fRender.RenderTerrainObjects(x1, x2, y1, y2, fTerrain.AnimStep);
+
+  if not fGame.AllowDebugRendering then
+    exit;
+
+  if SHOW_TERRAIN_WIRES then
+    fRenderAux.Wires(x1, x2, y1, y2);
+
+  if SHOW_TERRAIN_WIRES then
+  begin
+    Passability := fGame.FormPassability;
+    if fGame.fMapEditorInterface <> nil then
+      Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
+    fRenderAux.Passability(x1, x2, y1, y2, Passability);
+  end;
+
+  if SHOW_UNIT_MOVEMENT then
+    fRenderAux.UnitMoves(x1, x2, y1, y2);
 end;
 
 

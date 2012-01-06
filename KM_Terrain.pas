@@ -190,7 +190,6 @@ type
     procedure UpdateState;
     procedure UpdateStateIdle;
     procedure UpdateMinimapData(aMapEditor:Boolean);
-    procedure Paint;
   end;
 
 
@@ -2664,29 +2663,6 @@ begin
                 else //Random direction
                   MapEdTile(GameCursor.Cell, GameCursor.Tag1, KaMRandom(4));
   end;
-end;
-
-
-procedure TTerrain.Paint;
-var x1,x2,y1,y2:integer; Passability:integer;
-begin  
-  x1:=fGame.Viewport.GetClip.Left; x2:=fGame.Viewport.GetClip.Right;
-  y1:=fGame.Viewport.GetClip.Top;  y2:=fGame.Viewport.GetClip.Bottom;
-
-  fRender.RenderTerrain(x1,x2,y1,y2,fAnimStep);
-  fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);
-  fRender.RenderTerrainObjects(x1,x2,y1,y2,fAnimStep);
-
-  if not fGame.AllowDebugRendering then exit;
-  if SHOW_TERRAIN_WIRES then fRenderAux.Wires(x1,x2,y1,y2);
-  if SHOW_TERRAIN_WIRES then
-  begin
-    Passability := fGame.FormPassability;
-    if fGame.fMapEditorInterface <> nil then
-      Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
-    fRenderAux.Passability(x1,x2,y1,y2, Passability);
-  end;
-  if SHOW_UNIT_MOVEMENT then fRenderAux.UnitMoves(x1,x2,y1,y2);
 end;
 
 
