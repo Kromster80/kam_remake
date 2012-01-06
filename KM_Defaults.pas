@@ -214,32 +214,6 @@ type TGameResultMsg = ( //Game result
         gr_MapEdEnd);   //Map Editor was closed - return to menu without screens
 
                
-{Palettes}
-//There are 9 palette files: Map, Pal0-5, Setup, Setup2, gradient, 2lbm palettes
-type
-  TKMPal = (
-    pal_map,
-    pal_0, //pal_1, pal_2, pal_3, pal_4, pal_5, unused since we change brightness with OpenGL overlay
-    pal_set,
-    pal_set2,
-    pal_lin,
-    pal2_mapgold,
-    pal2_setup);
-
-const
-  DEF_PAL = pal_0;            //Default palette to use when generating full-color RGB textures
-
-
- RX5Pal:array[1..40]of TKMPal = (
- pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_set2, pal_set2, pal_set2, pal_map,
- pal_map, pal_map, pal_map, pal_map, pal_map, pal_map,pal2_setup,pal2_setup,pal2_setup,pal2_mapgold,
- pal2_mapgold,pal2_mapgold,pal2_mapgold,pal2_mapgold,pal2_setup, pal_map, pal_map, pal_map, pal_map, pal_map,
- pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_lin, pal_lin, pal_lin);
- //I couldn't find matching palettes for the 17th and 18th entries
- RX6Pal:array[1..20]of TKMPal = (
- pal_set,pal_set,pal_set,pal_set,pal_set,pal_set,pal_set2,pal_set2,pal_set2,pal_map,
- pal_map,pal_map,pal_map,pal_map,pal_map,pal_map,pal_lin,pal_lin,pal_lin,pal_lin);
-
 {Fonts}
 type //Indexing should start from 1.
   TKMFont = (fnt_Antiqua,  fnt_Briefing,    fnt_Game,     fnt_Grey,

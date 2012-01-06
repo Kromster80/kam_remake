@@ -196,6 +196,27 @@ var
     ));
 
 
+    RX5Pal: array [1 .. 40] of TKMPal = (
+      pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
+      pal2_setup,   pal_set2,     pal_set2,     pal_set2,     pal_map,
+      pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
+      pal_map,      pal2_setup,   pal2_setup,   pal2_setup,   pal2_mapgold,
+      pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_setup,
+      pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
+      pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
+      pal2_setup,   pal2_setup,   pal_lin,      pal_lin,      pal_lin
+    );
+
+    // I couldn't find matching palettes for the 17th and 18th entries
+    RX6Pal: array [1 .. 20] of TKMPal = (
+      pal_set,  pal_set,  pal_set,  pal_set,  pal_set,
+      pal_set,  pal_set2, pal_set2, pal_set2, pal_map,
+      pal_map,  pal_map,  pal_map,  pal_map,  pal_map,
+      pal_map,  pal_lin,  pal_lin,  pal_lin,  pal_lin
+    );
+
+
+{ TKMSprites }
 constructor TKMSprites.Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
 begin
   Inherited Create;
@@ -447,7 +468,7 @@ procedure TKMSprites.ExpandRX(aRT: TRXType);
 var
   i: Integer;
   X, Y: Integer;
-  Palette: TKMPal;
+  Palette: TKMPalData;
   L: byte;
   Pixel: Integer;
   ID: Byte;
@@ -459,9 +480,9 @@ begin
   begin
 
     case ID of
-      5: Palette := RX5Pal[i];
-      6: Palette := RX6Pal[i];
-      else Palette := DEF_PAL;
+      5: Palette := fPalettes[RX5Pal[i]];
+      6: Palette := fPalettes[RX6Pal[i]];
+      else Palette := fPalettes.DefDal;
     end;
 
     if Flag[i] = 1 then begin
@@ -486,7 +507,7 @@ begin
           end;
           HasMask[i] := true;
         end else
-          RGBA[i,Pixel] := fPalettes[Palette].Color32(L);
+          RGBA[i,Pixel] := Palette.Color32(L);
       end;
     end;
   end;
@@ -727,7 +748,7 @@ begin
 
   until(LeftIndex>=RXData[aRT].Qty); // >= in case data wasn't loaded and Qty=0
 
-  //HasTeamColors will be accessed by fRender 
+  //HasTeamColors will be accessed by fRender
   RXData[aRT].HasTeamColors := RXInfo[aRT].TeamColors;
 
   fLog.AppendLog(inttostr(TexCount)+' Textures created');

@@ -31,33 +31,33 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    property FontData[aIndex: TKMFont]:TKMFontData read GetFontData;
+    property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
 
-    function WordWrap(aText:AnsiString; aFont:TKMFont; aMaxPxWidth:integer; aForced:boolean):AnsiString;
-    function CharsThatFit(aText:AnsiString; aFont:TKMFont; aMaxPxWidth:integer):integer;
-    function GetTextSize(Text:AnsiString; Fnt:TKMFont):TKMPoint;
+    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer; aForced: boolean): AnsiString;
+    function CharsThatFit(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
+    function GetTextSize(Text: AnsiString; Fnt: TKMFont): TKMPoint;
 
-    procedure LoadFonts(aLocale:AnsiString);
-    procedure ExportFonts(aLocale:AnsiString);
-  end;
+    procedure LoadFonts(aLocale: AnsiString);
+    procedure ExportFonts(aLocale: AnsiString);
+    end;
 
 
 implementation
-uses KromUtils, KM_Log, KM_RenderSetup, KM_ResourceGFX;
+uses KromUtils, KM_Log, KM_RenderSetup, KM_ResourceGFX, KM_ResourcePalettes;
 
 
 const //Font01.fnt seems to be damaged..
-  FontFiles: array[TKMFont]of AnsiString = (
-  'antiqua','briefing','game','grey','mainb','mainmapgold','metal','mini','outline','won');
+  FontFiles: array [TKMFont] of AnsiString = (
+    'antiqua', 'briefing', 'game', 'grey', 'mainb', 'mainmapgold', 'metal', 'mini', 'outline', 'won');
 
   //Note: Fonts with palette 0 are using custom coloring,
   //since no existing palette matches them well and they are monochrome
-  FontPal:array[TKMFont]of TKMPal =
+  FontPal: array [TKMFont] of TKMPal =
   (pal_0, pal_map, pal_lin, pal_0, pal_lin, pal2_mapgold, pal_0, pal_lin, pal_0, pal_set2);
 
 
 { TKMFontData }
-procedure TKMFontData.LoadFont(FileName:AnsiString; aFont:TKMFont; ExportToBMP:boolean);
+procedure TKMFontData.LoadFont(FileName: AnsiString; aFont: TKMFont; ExportToBMP: boolean);
 const
   TexWidth = 256; //Connected to TexData, don't change
 var

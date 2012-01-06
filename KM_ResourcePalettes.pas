@@ -7,6 +7,17 @@ uses
 
 
 type
+  //There are 9 palette files: Map, Pal0-5, Setup, Setup2, gradient, 2lbm palettes
+  TKMPal = (
+    pal_map,
+    pal_0, //pal_1, pal_2, pal_3, pal_4, pal_5, unused since we change brightness with OpenGL overlay
+    pal_set,
+    pal_set2,
+    pal_lin,
+    pal2_mapgold,
+    pal2_setup);
+
+  //Individual palette
   TKMPalData = class
     fData: array [0..255,1..3] of byte;
   public
@@ -14,6 +25,7 @@ type
     function Color32(aIdx:byte):Cardinal;
   end;
 
+  //All the palettes
   TKMPalettes = class
   private
     fPalData:array [TKMPal] of TKMPalData;
@@ -23,7 +35,8 @@ type
     destructor Destroy; override;
 
     procedure LoadPalettes;
-    property PalData[aIndex: TKMPal]:TKMPalData read GetPalData; default;
+    property PalData[aIndex: TKMPal]: TKMPalData read GetPalData; default;
+    function DefDal: TKMPalData; //Default palette for the game
     function PalFile(aIndex: TKMPal):string;
   end;
 
@@ -80,6 +93,13 @@ begin
 
   for i:=Low(TKMPal) to High(TKMPal) do
     fPalData[i] := TKMPalData.Create;
+end;
+
+
+function TKMPalettes.DefDal: TKMPalData;
+begin
+  //Default palette to use when generating full-color RGB textures
+  Result := fPalData[pal_0];
 end;
 
 
