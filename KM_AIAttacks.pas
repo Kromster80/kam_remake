@@ -23,7 +23,7 @@ type
   TAIAttack = record
     AttackType: TAIAttackType; //Once or repeating
     HasOccured: boolean; //Has this attack happened already?
-    Delay: cardinal; //The attack will not occur before this time has passed
+    Delay: Cardinal; //The attack will not occur before this time has passed
     TotalMen: integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
     GroupAmounts: array[TGroupType] of byte; //How many squads of each group type will be taken
     TakeAll: boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
@@ -43,7 +43,7 @@ type
     property Items[aIndex: Integer]: TAIAttack read GetAttack; default;
 
     procedure AddAttack(aAttack: TAIAttack);
-    function MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer): Boolean;
+    function MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer; aTick: Cardinal): Boolean;
     procedure Occured(aIndex: Integer);
 
     function GetAsText: string;
@@ -54,16 +54,15 @@ type
 
 
 implementation
-uses KM_Game;
 
 
 { TAIAttacks }
-function TAIAttacks.MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer): Boolean;
+function TAIAttacks.MayOccur(aIndex: Integer; MenAvailable: Integer; GroupsAvailableCount: array of Integer; aTick: Cardinal): Boolean;
 var GT: TGroupType;
 begin
   begin
     Result := ((fAttacks[aIndex].AttackType = aat_Repeating) or not fAttacks[aIndex].HasOccured)
-              and fGame.CheckTime(fAttacks[aIndex].Delay)
+              and (aTick >= fAttacks[aIndex].Delay)
               and (fAttacks[aIndex].TotalMen <= MenAvailable);
 
     if not fAttacks[aIndex].TakeAll then

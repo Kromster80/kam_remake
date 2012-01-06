@@ -627,7 +627,7 @@ begin
   //Now process AI attacks (we have compiled a list of warriors available to attack)
   if not fGame.IsPeaceTime then
     for i:=0 to Attacks.Count - 1 do
-    if Attacks.MayOccur(i, AttackTotalAvailable, AttackGroupsCount) then //Check conditions are right
+    if Attacks.MayOccur(i, AttackTotalAvailable, AttackGroupsCount, fGame.GameTickCount) then //Check conditions are right
     begin
       //Order groups to attack
       if Attacks[i].TakeAll then
