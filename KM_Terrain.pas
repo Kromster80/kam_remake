@@ -2238,7 +2238,7 @@ begin
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
     CanWalk,CanWalkRoad,CanMakeRoads,CanMakeFields,CanPlantTrees,CanCrab,CanWolf: Result := TestHeight(25);
-    CanBuild,CanBuildGold,CanBuildIron: Result := TestHeight(18);
+    CanBuild,CanBuildGold,CanBuildIron: Result := TestHeight(20);
   end; //For other passabilities we ignore height (return default true)
 end;
 

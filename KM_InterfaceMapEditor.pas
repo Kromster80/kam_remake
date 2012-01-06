@@ -577,6 +577,7 @@ begin
       Button_BuildField  := TKMButtonFlat.Create(Panel_Build, 45,28,33,33,337);
       Button_BuildWine   := TKMButtonFlat.Create(Panel_Build, 82,28,33,33,336);
       Button_BuildWall   := TKMButtonFlat.Create(Panel_Build,119,28,33,33,339);
+      Button_BuildWall.Hide; //Walls aren't implemented, so hide it
       Button_BuildCancel := TKMButtonFlat.Create(Panel_Build,156,28,33,33,340);
       Button_BuildRoad.OnClick  := Build_ButtonClick;
       Button_BuildField.OnClick := Build_ButtonClick;

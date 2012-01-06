@@ -401,6 +401,7 @@ begin
   if not DoSilent then fSoundLib.Play(sfx_Click);
 
   H := fHouses.HitTest(Position.X, Position.Y);
+  if (H = nil) and IsEditor then exit; //Editor is allowed to ask to remove non-existant house
   Assert(H <> nil);
 
   H.DemolishHouse(DoSilent, IsEditor);

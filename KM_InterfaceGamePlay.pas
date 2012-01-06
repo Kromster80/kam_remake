@@ -3397,7 +3397,7 @@ begin
               begin
                 H := MyPlayer.HousesHitTest(P.X, P.Y);
                 //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
-                if (H.BuildingState > hbs_Glyph) then
+                if (H <> nil) and (H.BuildingState > hbs_Glyph) then
                 begin
                   fPlayers.Selected := H; //Select the house irregardless of unit below/above
                   ShowHouseInfo(H,true);
