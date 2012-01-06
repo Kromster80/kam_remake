@@ -95,16 +95,17 @@ type
   TTaskBuildHouseRepair = class(TUnitTask)
     private
       fHouse: TKMHouse;
+      fRepairID: Integer; //Remember the house we repair to report if we died and let others take our place
       CurLoc: Byte; //Current WIP location
       Cells: TKMPointDirList; //List of surrounding cells and directions
     public
-      constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse);
-      constructor Load(LoadStream:TKMemoryStream); override;
+      constructor Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aRepairID: Integer);
+      constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
-      function WalkShouldAbandon:boolean; override;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
+      function WalkShouldAbandon: Boolean; override;
+      function Execute: TTaskResult; override;
+      procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
 
@@ -551,7 +552,7 @@ begin
   if HouseReadyToBuild and not HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
   begin
     fHouse.BuildingState := hbs_Wood;
-    fPlayers.Player[fHouse.GetOwner].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
+    fPlayers.Player[fHouse.GetOwner].WorkerList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
     fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
     fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
   end;
@@ -684,7 +685,8 @@ end;
 
 destructor TTaskBuildHouse.Destroy;
 begin
-  fPlayers.Player[fUnit.GetOwner].BuildList.RemoveHousePointer(BuildID);
+  //We are no longer connected to the House (it's either done or we died)
+  fPlayers.Player[fUnit.GetOwner].WorkerList.HouseList.RemWorker(BuildID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -696,14 +698,14 @@ end;
   task that has enough resouces. Once this house has building resources delivered it will be
   available from build queue again
   If house is already built by other workers}
-function TTaskBuildHouse.WalkShouldAbandon:boolean;
+function TTaskBuildHouse.WalkShouldAbandon: Boolean;
 begin
   Result := fHouse.IsDestroyed or (not fHouse.CheckResToBuild) or fHouse.IsComplete;
 end;
 
 
 {Build the house}
-function TTaskBuildHouse.Execute:TTaskResult;
+function TTaskBuildHouse.Execute: TTaskResult;
   function PickRandomSpot: byte;
   var i, MyCount: integer; Spots: array[1..16] of byte;
   begin
@@ -754,7 +756,6 @@ begin
            inc(fPhase2);
          end;
       4: begin
-           fPlayers.Player[GetOwner].BuildList.RemoveHouse(BuildID); //Pointer usage is not freed until destroy
            SetActionStay(1,ua_Walk);
            Thought := th_None;
          end;
@@ -772,7 +773,7 @@ begin
 end;
 
 
-procedure TTaskBuildHouse.Save(SaveStream:TKMemoryStream);
+procedure TTaskBuildHouse.Save(SaveStream: TKMemoryStream);
 begin
   Inherited;
   if fHouse <> nil then
@@ -786,11 +787,12 @@ end;
 
 
 { TTaskBuildHouseRepair }
-constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse);
+constructor TTaskBuildHouseRepair.Create(aWorker: TKMUnitWorker; aHouse: TKMHouse; aRepairID: Integer);
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseRepair;
   fHouse    := aHouse.GetHousePointer;
+  fRepairID := aRepairID;
   CurLoc    := 0;
 
   Cells := TKMPointDirList.Create;
@@ -798,10 +800,11 @@ begin
 end;
 
 
-constructor TTaskBuildHouseRepair.Load(LoadStream:TKMemoryStream);
+constructor TTaskBuildHouseRepair.Load(LoadStream: TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
+  LoadStream.Read(fRepairID);
   LoadStream.Read(CurLoc);
   Cells := TKMPointDirList.Load(LoadStream);
 end;
@@ -816,26 +819,28 @@ end;
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
+  fPlayers[fUnit.GetOwner].WorkerList.RepairList.RemWorker(fRepairID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
-  Inherited;
+  inherited;
 end;
 
 
-function TTaskBuildHouseRepair.WalkShouldAbandon:boolean;
+function TTaskBuildHouseRepair.WalkShouldAbandon: Boolean;
 begin
   Result := (fHouse.IsDestroyed) or (not fHouse.IsDamaged) or (not fHouse.BuildingRepair);
 end;
 
 
 {Repair the house}
-function TTaskBuildHouseRepair.Execute:TTaskResult;
+function TTaskBuildHouseRepair.Execute: TTaskResult;
 begin
   Result := TaskContinues;
 
-  if WalkShouldAbandon then begin
+  if WalkShouldAbandon then
+  begin
     Result := TaskDone;
-    exit;
+    Exit;
   end;
 
   with fUnit do
@@ -879,13 +884,14 @@ begin
 end;
 
 
-procedure TTaskBuildHouseRepair.Save(SaveStream:TKMemoryStream);
+procedure TTaskBuildHouseRepair.Save(SaveStream: TKMemoryStream);
 begin
   Inherited;
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
+  SaveStream.Write(fRepairID);
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);
 end;

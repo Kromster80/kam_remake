@@ -208,8 +208,6 @@ type
 
   //Worker class - builds everything in game
   TKMUnitWorker = class(TKMUnit)
-  private
-    function GetActionFromQueue:TUnitTask;
   public
     function UpdateState:boolean; override;
     procedure Paint; override;
@@ -736,18 +734,9 @@ begin
     SetActionWalkToSpot(OutOfWay);
   end;
 
-  if fUnitTask = nil then //If Unit still got nothing to do, nevermind hunger
-    fUnitTask := GetActionFromQueue;
-
   if (fUnitTask = nil) and (fCurrentAction = nil) then SetActionStay(20, ua_Walk);
 
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitWorker.UpdateState',fCurrPosition);
-end;
-
-
-function TKMUnitWorker.GetActionFromQueue:TUnitTask;
-begin
-  Result := fPlayers.Player[fOwner].BuildList.AskForHouse(Self);
 end;
 
 

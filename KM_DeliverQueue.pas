@@ -67,26 +67,27 @@ type
     procedure ExportToFile(aFileName:string);
   end;
 
-  TKMBuildingQueue = class
+  TKMHouseList = class
   private
-    fHousesCount:integer;
-    fHousesQueue:array of
-    record
-      House:TKMHouse;
-      WorkerCount:integer; //So we don't get pointer issues
-      IsDeleted:boolean;
-      //No need to have JobStatus since many workers can build same house
+    fHousesCount: Integer;
+    fHouses: array of record
+      House: TKMHouse;
+      Assigned: Integer; //How many workers are on this house
     end;
-    procedure CloseHouse(aID:integer);
+    procedure RemoveExtraHouses;
   public
-    procedure RemoveHouse(aID: integer); overload;
-    procedure RemoveHouse(aHouse: TKMHouse); overload;
-    procedure RemoveHousePointer(aID:integer);
-    procedure AddNewHouse(aHouse: TKMHouse);
-    function AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    destructor Destroy; override;
+
+    procedure AddHouse(aHouse: TKMHouse); //New house to build
+    procedure RemWorker(aIndex: Integer);
+    procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
+    function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
+
+    procedure UpdateState;
   end;
 
   //Most complicated class
@@ -166,7 +167,6 @@ type
     end;
 
     function HouseAlreadyInList(aHouse: TKMHouse): Boolean;
-    procedure RemHouse(aIndex: Integer);
     procedure RemoveExtraHouses;
   public
     destructor Destroy; override;
@@ -174,6 +174,7 @@ type
     procedure AddHouse(aHouse: TKMHouse);
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
+    procedure RemWorker(aIndex: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -185,6 +186,7 @@ type
   TKMWorkerList = class
   private
     fFieldworksList: TKMFieldworksList;
+    fHouseList: TKMHouseList;
     fHousePlanList: TKMHousePlanList;
     fRepairList: TKMRepairList;
 
@@ -201,6 +203,7 @@ type
     procedure AddWorker(aWorker: TKMUnitWorker);
 
     property FieldworksList: TKMFieldworksList read fFieldworksList;
+    property HouseList: TKMHouseList read fHouseList;
     property HousePlanList: TKMHousePlanList read fHousePlanList;
     property RepairList: TKMRepairList read fRepairList;
 
@@ -738,118 +741,133 @@ end;
 
 
 {TKMBuildingQueue}
-procedure TKMBuildingQueue.CloseHouse(aID:integer);
+destructor TKMHouseList.Destroy;
+var
+  I: Integer;
 begin
-  assert(fHousesQueue[aID].WorkerCount=0);
-  fPlayers.CleanUpHousePointer(fHousesQueue[aID].House);
-  fHousesQueue[aID].IsDeleted := false;
+  for I := 0 to fHousesCount - 1 do
+  if fHouses[I].House <> nil then
+    fPlayers.CleanUpHousePointer(fHouses[I].House);
+
+  inherited;
 end;
 
 
-procedure TKMBuildingQueue.RemoveHouse(aID: integer);
+//Add new job to the list
+procedure TKMHouseList.AddHouse(aHouse: TKMHouse);
+var I: Integer;
 begin
-  if fHousesQueue[aID].WorkerCount = 0 then
-    CloseHouse(aID)
-  else
-    fHousesQueue[aID].IsDeleted := true; //Can't delete it until all workers have finished with i
+  I := 0;
+  while (I < fHousesCount) and (fHouses[I].House <> nil) do
+    Inc(I);
+
+  if I >= fHousesCount then
+    Inc(fHousesCount);
+
+  if I >= Length(fHouses) then
+    SetLength(fHouses, Length(fHouses) + LENGTH_INC);
+
+  fHouses[I].House := aHouse.GetHousePointer;
+  fHouses[I].Assigned := 0;
 end;
 
 
-procedure TKMBuildingQueue.RemoveHouse(aHouse: TKMHouse);
-var i:integer;
+function TKMHouseList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+var
+  I: Integer;
+  NewBid: Single;
 begin
-  for i:=1 to fHousesCount do
-    if fHousesQueue[i].House=aHouse then
-      RemoveHouse(i);
-end;
+  //We can weight the repairs by distance, severity, etc..
+  //For now, each worker will go for the house closest to him
 
-
-procedure TKMBuildingQueue.RemoveHousePointer(aID:integer);
-begin
-  dec(fHousesQueue[aID].WorkerCount);
-  if (fHousesQueue[aID].IsDeleted) and (fHousesQueue[aID].WorkerCount = 0) then
-    CloseHouse(aID);
-end;
-
-
-{Add new job to the list}
-procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
-var i,k:integer;
-begin
-  i:=1; while (i<=fHousesCount)and(fHousesQueue[i].House<>nil) do inc(i);
-  if i>fHousesCount then begin
-    inc(fHousesCount, LENGTH_INC);
-    SetLength(fHousesQueue, fHousesCount+1);
-    for k:=i to fHousesCount do FillChar(fHousesQueue[k],SizeOf(fHousesQueue[k]),#0);
-  end;
-
-  assert((fHousesQueue[i].WorkerCount=0) and not fHousesQueue[i].IsDeleted);
-  if aHouse <> nil then fHousesQueue[i].House := aHouse.GetHousePointer;
-end;
-
-
-{Find a job for worker}
-function TKMBuildingQueue.AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
-var i, Best: integer; BestDist: single;
-begin
-  Result := nil;
-  Best := -1;
-  BestDist := MaxSingle;
-
-  for i:=1 to fHousesCount do
-    if (fHousesQueue[i].House<>nil) and (not fHousesQueue[i].IsDeleted) and fHousesQueue[i].House.CheckResToBuild
-    and fTerrain.Route_CanBeMade(aWorker.GetPosition, KMPointBelow(fHousesQueue[i].House.GetEntrance), aWorker.GetDesiredPassability, 0, false)
-    and((Best = -1)or(GetLength(aWorker.GetPosition, fHousesQueue[i].House.GetPosition) < BestDist))then
-    begin
-      Best := i;
-      BestDist := GetLength(aWorker.GetPosition, fHousesQueue[i].House.GetPosition);
-    end;
-
-  if Best <> -1 then
+  Result := -1;
+  aBid := 999;
+  for I := fHousesCount - 1 downto 0 do
+  if (fHouses[i].House<>nil) and fHouses[i].House.CheckResToBuild
+  and fTerrain.Route_CanBeMade(aWorker.GetPosition, KMPointBelow(fHouses[i].House.GetEntrance), aWorker.GetDesiredPassability, 0, false)
+  then
   begin
-    Result := TTaskBuildHouse.Create(aWorker, fHousesQueue[Best].House, Best);
-    inc(fHousesQueue[Best].WorkerCount);
+    NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
+    NewBid := NewBid * fHouses[I].Assigned;
+
+    if (Result = -1) or (NewBid < aBid) then
+    begin
+      aBid := NewBid;
+      Result := I;
+    end;
   end;
 end;
 
 
-procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
-var i:integer;
+procedure TKMHouseList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
-  SaveStream.Write('BuildQueue');
+  aWorker.SetUnitTask := TTaskBuildHouse.Create(aWorker, fHouses[aIndex].House, aIndex);
+  Inc(fHouses[aIndex].Assigned);
+end;
+
+
+//Whenever worker dies we need to remove him from assigned to the house
+procedure TKMHouseList.RemWorker(aIndex: Integer);
+begin
+  Dec(fHouses[aIndex].Assigned);
+  //If the house is complete or destroyed it will be removed in next UpdateState
+end;
+
+
+//We can remove house only when there are no workers left to it (e.g. stuck on their way)
+procedure TKMHouseList.RemoveExtraHouses;
+var I: Integer;
+begin
+  for I := 0 to fHousesCount - 1 do
+    if (fHouses[I].House.IsDestroyed or fHouses[I].House.IsComplete) and (fHouses[I].Assigned = 0) then
+      fPlayers.CleanUpHousePointer(fHouses[I].House);
+end;
+
+
+procedure TKMHouseList.UpdateState;
+begin
+  RemoveExtraHouses;
+end;
+
+
+procedure TKMHouseList.Save(SaveStream: TKMemoryStream);
+var I: Integer;
+begin
+  SaveStream.Write('HouseList');
 
   SaveStream.Write(fHousesCount);
-  for i:=1 to fHousesCount do
+  for I := 0 to fHousesCount - 1 do
   begin
-    if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID) else SaveStream.Write(Integer(0));
-    SaveStream.Write(fHousesQueue[i].WorkerCount);
-    SaveStream.Write(fHousesQueue[i].IsDeleted);
+    if fHouses[i].House <> nil then
+      SaveStream.Write(fHouses[i].House.ID)
+    else
+      SaveStream.Write(Integer(0));
+    SaveStream.Write(fHouses[i].Assigned);
   end;
 end;
 
 
-procedure TKMBuildingQueue.Load(LoadStream:TKMemoryStream);
-var i:integer; s:string;
+procedure TKMHouseList.Load(LoadStream: TKMemoryStream);
+var I: Integer; s:string;
 begin
   LoadStream.Read(s);
-  Assert(s = 'BuildQueue');
+  Assert(s = 'HouseList');
 
   LoadStream.Read(fHousesCount);
-  SetLength(fHousesQueue, fHousesCount+1);
-  for i:=1 to fHousesCount do
+  SetLength(fHouses, fHousesCount);
+  for I := 0 to fHousesCount - 1 do
   begin
-    LoadStream.Read(fHousesQueue[i].House, 4);
-    LoadStream.Read(fHousesQueue[i].WorkerCount);
-    LoadStream.Read(fHousesQueue[i].IsDeleted);
+    LoadStream.Read(fHouses[i].House, 4);
+    LoadStream.Read(fHouses[i].Assigned);
   end;
 end;
 
 
-procedure TKMBuildingQueue.SyncLoad;
-var i:integer;
+procedure TKMHouseList.SyncLoad;
+var I: Integer;
 begin
-  for i:=1 to fHousesCount do
-    fHousesQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousesQueue[i].House));
+  for I := 0 to fHousesCount - 1 do
+    fHouses[i].House := fPlayers.GetHouseByID(cardinal(fHouses[i].House));
 end;
 
 
@@ -1158,7 +1176,8 @@ destructor TKMRepairList.Destroy;
 var
   I: Integer;
 begin
-  for I := fHousesCount - 1 downto 0 do
+  for I := 0 to fHousesCount - 1 do
+  if fHouses[I].House <> nil then
     fPlayers.CleanUpHousePointer(fHouses[I].House);
 
   inherited;
@@ -1181,27 +1200,60 @@ end;
 
 //Include the House into the List
 procedure TKMRepairList.AddHouse(aHouse: TKMHouse);
+var I: Integer;
 begin
   if HouseAlreadyInList(aHouse) then Exit;
 
-  if fHousesCount >= Length(fHouses) then
-    SetLength(fHouses, fHousesCount + LENGTH_INC);
+  I := 0;
+  while (I < fHousesCount) and (fHouses[I].House <> nil) do
+    Inc(I);
+
+  if I >= fHousesCount then
+    Inc(fHousesCount);
+
+  if I >= Length(fHouses) then
+    SetLength(fHouses, Length(fHouses) + LENGTH_INC);
 
   fHouses[fHousesCount].House := aHouse.GetHousePointer;
   fHouses[fHousesCount].Assigned := 0;
-  Inc(fHousesCount);
 end;
 
 
-//Remove repaired or destroyed House from the List
-procedure TKMRepairList.RemHouse(aIndex: Integer);
+function TKMRepairList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
+var
+  I: Integer;
+  NewBid: Single;
 begin
-  fPlayers.CleanUpHousePointer(fHouses[aIndex].House);
+  //We can weight the repairs by distance, severity, etc..
+  //For now, each worker will go for the house closest to him
 
-  if aIndex <> fHousesCount - 1 then
-    Move(fHouses[aIndex+1], fHouses[aIndex], SizeOf(fHouses[aIndex]) * (fHousesCount - 1 - aIndex));
+  Result := -1;
+  aBid := 999;
+  for I := 0 to fHousesCount - 1 do
+  if fHouses[I].House <> nil then
+  begin
+    NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
+    NewBid := NewBid * fHouses[I].Assigned;
 
-  Dec(fHousesCount);
+    if (Result = -1) or (NewBid < aBid) then
+    begin
+      aBid := NewBid;
+      Result := I;
+    end;
+  end;
+end;
+
+
+procedure TKMRepairList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
+begin
+  Inc(fHouses[aIndex].Assigned);
+  aWorker.SetUnitTask := TTaskBuildHouseRepair.Create(aWorker, fHouses[aIndex].House, aIndex);
+end;
+
+
+procedure TKMRepairList.RemWorker(aIndex: Integer);
+begin
+  Dec(fHouses[aIndex].Assigned);
 end;
 
 
@@ -1210,12 +1262,20 @@ procedure TKMRepairList.RemoveExtraHouses;
 var
   I: Integer;
 begin
-  for I := fHousesCount - 1 downto 0 do
-    if not fHouses[I].House.IsComplete
-    or not fHouses[I].House.IsDamaged
-    or not fHouses[I].House.BuildingRepair
-    or fHouses[I].House.IsDestroyed then
-      RemHouse(I);
+  for I := 0 to fHousesCount - 1 do
+    if fHouses[I].House <> nil then
+      if (not fHouses[I].House.IsComplete //todo: Looks like superflous condition
+          or not fHouses[I].House.IsDamaged
+          or not fHouses[I].House.BuildingRepair
+          or fHouses[I].House.IsDestroyed)
+      and (fHouses[I].Assigned = 0) then
+        fPlayers.CleanUpHousePointer(fHouses[I].House);
+end;
+
+
+procedure TKMRepairList.UpdateState;
+begin
+  RemoveExtraHouses;
 end;
 
 
@@ -1261,49 +1321,13 @@ begin
 end;
 
 
-function TKMRepairList.BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer;
-var
-  I: Integer;
-  NewBid: Single;
-begin
-  //We can weight the repairs by distance, severity, etc..
-  //For now, each worker will go for the house closest to him
-
-  Result := -1;
-  aBid := 999;
-  for I := fHousesCount - 1 downto 0 do
-  begin
-    NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
-    NewBid := NewBid * fHouses[I].Assigned;
-
-    if (Result = -1) or (NewBid < aBid) then
-    begin
-      aBid := NewBid;
-      Result := I;
-    end;
-  end;
-end;
-
-
-procedure TKMRepairList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
-begin
-  Inc(fHouses[aIndex].Assigned);
-  aWorker.SetUnitTask := TTaskBuildHouseRepair.Create(aWorker, fHouses[aIndex].House);
-end;
-
-
-procedure TKMRepairList.UpdateState;
-begin
-  RemoveExtraHouses;
-end;
-
-
 { TKMWorkersList }
 constructor TKMWorkerList.Create;
 begin
   inherited;
 
   fFieldworksList := TKMFieldworksList.Create;
+  fHouseList := TKMHouseList.Create;
   fHousePlanList := TKMHousePlanList.Create;
   fRepairList := TKMRepairList.Create;
 end;
@@ -1314,6 +1338,7 @@ var
   I: Integer;
 begin
   fFieldworksList.Free;
+  fHouseList.Free;
   fHousePlanList.Free;
   fRepairList.Free;
 
@@ -1373,6 +1398,7 @@ begin
   end;
 
   fFieldworksList.Save(SaveStream);
+  fHouseList.Save(SaveStream);
   fHousePlanList.Save(SaveStream);
   fRepairList.Save(SaveStream);
 end;
@@ -1390,6 +1416,7 @@ begin
     LoadStream.Read(fWorkers[I].Worker, 4);
 
   fFieldworksList.Load(LoadStream);
+  fHouseList.Load(LoadStream);
   fHousePlanList.Load(LoadStream);
   fRepairList.Load(LoadStream);
 end;
@@ -1406,6 +1433,7 @@ begin
   end;
 
   fFieldworksList.SyncLoad;
+  fHouseList.SyncLoad;
   fHousePlanList.SyncLoad;
   fRepairList.SyncLoad;
 end;
@@ -1413,9 +1441,10 @@ end;
 
 procedure TKMWorkerList.UpdateState;
 var I: Integer;
-  IndexRepair, IndexPlan, IndexField: Integer;
-  BidRepair, BidPlan, BidField: Single;
+  Idx: array [0..3] of Integer;
+  Bid: array [0..3] of Single;
 begin
+  HouseList.UpdateState;
   fRepairList.UpdateState;
 
   RemoveExtraWorkers;
@@ -1427,18 +1456,22 @@ begin
     and not TUnitActionStay(fWorkers[I].Worker.GetUnitAction).Locked then
     begin
 
-      IndexField := fFieldworksList.BestBid(fWorkers[I].Worker, BidField);
-      IndexPlan := fHousePlanList.BestBid(fWorkers[I].Worker, BidPlan);
-      IndexRepair := fRepairList.BestBid(fWorkers[I].Worker, BidRepair);
+      Idx[0] := fFieldworksList.BestBid(fWorkers[I].Worker, Bid[0]);
+      Idx[1] := fHouseList.BestBid(fWorkers[I].Worker, Bid[1]);
+      Idx[2] := fHousePlanList.BestBid(fWorkers[I].Worker, Bid[2]);
+      Idx[3] := fRepairList.BestBid(fWorkers[I].Worker, Bid[3]);
 
-      if IndexRepair <> -1 then
-        fRepairList.GiveTask(IndexRepair, fWorkers[I].Worker)
+      if Idx[3] <> -1 then
+        fRepairList.GiveTask(Idx[3], fWorkers[I].Worker)
       else
-      if IndexPlan <> -1 then
-        fHousePlanList.GiveTask(IndexPlan, fWorkers[I].Worker)
+      if Idx[2] <> -1 then
+        fHousePlanList.GiveTask(Idx[2], fWorkers[I].Worker)
       else
-      if IndexField <> -1 then
-        fFieldworksList.GiveTask(IndexField, fWorkers[I].Worker);
+      if Idx[1] <> -1 then
+        fHouseList.GiveTask(Idx[1], fWorkers[I].Worker)
+      else
+      if Idx[0] <> -1 then
+        fFieldworksList.GiveTask(Idx[0], fWorkers[I].Worker);
     end;
 end;
 

@@ -37,7 +37,6 @@ type
   TKMPlayer = class (TKMPlayerCommon)
   private
     fAI:TKMPlayerAI;
-    fBuildList:TKMBuildingQueue;
     fWorkerList: TKMWorkerList; //Not the best name for buildingManagement
     fDeliverList:TKMDeliverQueue;
     fHouses:TKMHousesCollection;
@@ -65,7 +64,6 @@ type
     destructor Destroy; override;
 
     property AI:TKMPlayerAI read fAI;
-    property BuildList:TKMBuildingQueue read fBuildList;
     property WorkerList: TKMWorkerList read fWorkerList;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property Houses:TKMHousesCollection read fHouses;
@@ -210,7 +208,6 @@ begin
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
-  fBuildList    := TKMBuildingQueue.Create;
   fWorkerList   := TKMWorkerList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
@@ -239,7 +236,6 @@ begin
   FreeThenNil(fGoals);
   FreeThenNil(fFogOfWar);
   FreeThenNil(fDeliverList);
-  FreeThenNil(fBuildList);
   FreeThenNil(fWorkerList);
   FreeThenNil(fAI);
 end;
@@ -540,7 +536,6 @@ procedure TKMPlayer.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
   fAI.Save(SaveStream);
-  fBuildList.Save(SaveStream);
   fWorkerList.Save(SaveStream);
   fDeliverList.Save(SaveStream);
   fFogOfWar.Save(SaveStream);
@@ -562,7 +557,6 @@ procedure TKMPlayer.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   fAI.Load(LoadStream);
-  fBuildList.Load(LoadStream);
   fWorkerList.Load(LoadStream);
   fDeliverList.Load(LoadStream);
   fFogOfWar.Load(LoadStream);
@@ -585,7 +579,6 @@ begin
   Inherited;
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
-  fBuildList.SyncLoad;
   fWorkerList.SyncLoad;
   fAI.SyncLoad;
 end;

@@ -424,10 +424,11 @@ begin
 end;
 
 
+//If anyone still has a pointer to the house he should check for IsDestroyed flag
 procedure TKMHouse.CloseHouse(IsEditor:boolean=false);
 begin
-  fIsDestroyed := true;
-  BuildingRepair := false; //Otherwise labourers will take task to repair when the house is destroyed
+  fIsDestroyed := True;
+  BuildingRepair := False; //Otherwise labourers will take task to repair when the house is destroyed
   if (RemoveRoadWhenDemolish) and (not (BuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
   begin
     if fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay = to_Road then
@@ -482,7 +483,6 @@ begin
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].DeliverList.RemoveOffer(Self);
   fPlayers.Player[fOwner].DeliverList.RemoveDemand(Self);
-  fPlayers.Player[fOwner].BuildList.RemoveHouse(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
   //Road is removed in CloseHouse
   if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
@@ -2260,6 +2260,7 @@ var
   IDsToDelete: array of integer;
 begin
   ID := 0;
+  //todo: I suspect we can simply reverse the loop and remove Houses from that
   for i:=0 to Count-1 do
   if not Houses[i].IsDestroyed then
     Houses[i].UpdateState
@@ -2270,6 +2271,7 @@ begin
       IDsToDelete[ID] := i;
       inc(ID);
     end;
+
   //Must remove list entry after for loop is complete otherwise the indexes change
   if ID <> 0 then
     for i:=ID-1 downto 0 do
