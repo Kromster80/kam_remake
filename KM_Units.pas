@@ -11,7 +11,6 @@ uses
 //Abstract - declared but must be overriden in child classes
 
 type
-
   TKMUnit = class;
   TKMUnitWorker = class;
 
@@ -779,7 +778,7 @@ begin
 end;
 
 
-function TKMUnitAnimal.UpdateState:boolean;
+function TKMUnitAnimal.UpdateState: Boolean;
 var
   Spot:TKMPoint; //Target spot where unit will go
   SpotJit:byte;
@@ -788,7 +787,8 @@ begin
 
   fCurrPosition := KMPointRound(fPosition);
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitAnimal.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName + ' has no action at start of TKMUnitAnimal.UpdateState', fCurrPosition);
 
   case fCurrentAction.Execute of
     ActContinues: exit;
@@ -813,18 +813,19 @@ begin
     exit;
   end;
 
-  SpotJit:=16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
+  SpotJit := 16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
-    dec(SpotJit,1);
-    Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X+KaMRandomS(SpotJit),fCurrPosition.Y+KaMRandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.Route_CanBeMade(fCurrPosition,Spot,GetDesiredPassability,0, false)));
+    Dec(SpotJit);
+    Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X + KaMRandomS(SpotJit), fCurrPosition.Y + KaMRandomS(SpotJit));
+  until (SpotJit = 0) or (fTerrain.Route_CanBeMade(fCurrPosition, Spot, GetDesiredPassability, 0, False));
 
-  if KMSamePoint(fCurrPosition,Spot) then
+  if KMSamePoint(fCurrPosition, Spot) then
     SetActionStay(20, ua_Walk)
   else
     SetActionWalkToSpot(Spot);
 
-  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitAnimal.UpdateState',fCurrPosition);
+  if fCurrentAction = nil then
+    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName + ' has no action at end of TKMUnitAnimal.UpdateState', fCurrPosition);
 end;
 
 
@@ -1542,7 +1543,7 @@ end;
 
 
 procedure TKMUnit.Save(SaveStream:TKMemoryStream);
-var 
+var
   HasTask, HasAct: Boolean;
   ActName: TUnitActionName;
 begin

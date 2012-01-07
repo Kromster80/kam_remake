@@ -101,7 +101,7 @@ var
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
 
   //Statistic
-  CtrlPaintCount:word; //How many Controls were painted in last frame
+  CtrlPaintCount: Word; //How many Controls were painted in last frame
 
 const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house

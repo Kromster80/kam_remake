@@ -137,7 +137,7 @@ begin
   if fWalkTo.X*fWalkTo.Y = 0 then
     raise ELocError.Create('WalkTo 0:0', fWalkTo);
 
-  NodeList      := TKMPointList.Create; //Freed on destroy
+  NodeList := TKMPointList.Create; //Freed on destroy
   SetInitValues;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
@@ -163,11 +163,9 @@ begin
     if not RouteBuilt then RouteBuilt := AssembleTheRoute;
   end;
 
-  if not RouteBuilt then
-  begin
-    fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with default fPass');
-    exit; //NoList.Count = 0, means it will exit in Execute
-  end;
+  //Usually thats for animals within islands of their CanWalk terrain
+  //if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
+    //fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with default fPass');
 end;
 
 

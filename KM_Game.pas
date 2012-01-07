@@ -11,7 +11,7 @@ uses
   KM_MapEditor, KM_Campaigns,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderSetup, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
-  KM_ArmyEvaluation, KM_GameOptions;
+  KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog;
 
 type
   TGameState = (
@@ -45,6 +45,7 @@ type
     fGameInputProcess:TGameInputProcess;
     fNetworking:TKMNetworking;
     fViewport: TViewport;
+    fPerfLog: TKMPerfLog;
 
   //Should be saved
     fGameTickCount:cardinal;
@@ -196,6 +197,7 @@ begin
   if (not NoMusic) and fGlobalSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
   fMusicLib.ToggleShuffle(fGlobalSettings.ShuffleOn); //Determine track order
 
+  fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
 end;
 
@@ -204,6 +206,7 @@ end;
 destructor TKMGame.Destroy;
 begin
   fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
+  fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLog.txt');
 
   FreeThenNil(fCampaigns);
   if fNetworking <> nil then FreeAndNil(fNetworking);
@@ -218,6 +221,7 @@ begin
   FreeThenNil(fRenderSetup);
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fGameOptions);
+  fPerfLog.Free;
   Inherited;
 end;
 
@@ -1387,7 +1391,7 @@ end;
 
 
 procedure TKMGame.UpdateState;
-var i:integer;
+var i:integer; T: Cardinal;
 begin
   inc(fGlobalTickCount);
   case fGameState of
@@ -1409,6 +1413,8 @@ begin
                     begin
                       if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
                       begin
+                        T := TimeGet;
+
                         if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                         inc(fGameTickCount); //Thats our tick counter for gameplay events
                         if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
@@ -1427,6 +1433,8 @@ begin
                         //Don't autosave if the game was put on hold during this tick
                         if (fGameTickCount mod 600 = 0) and fGlobalSettings.Autosave and not (GameState = gsOnHold) then
                           AutoSave;
+
+                        fPerfLog.AddTime(TimeGet - T);
 
                         //During this tick we were requested to GameHold
                         if DoGameHold then break; //Break the for loop (if we are using speed up)

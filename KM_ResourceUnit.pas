@@ -2,7 +2,7 @@ unit KM_ResourceUnit;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils,
+  Classes, SysUtils, TypInfo,
   KM_CommonClasses, KM_Defaults, KM_Points;
 
 
@@ -306,6 +306,7 @@ end;
 function TKMUnitDatClass.GetUnitName: string;
 begin
   if IsValid then
+    //Result := GetEnumName(TypeInfo(TUnitType), Integer(fUnitType))
     case fUnitType of
       ut_Wolf:        Result := 'Wolf';
       ut_Fish:        Result := 'Fish';
