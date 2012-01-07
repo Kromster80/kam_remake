@@ -152,6 +152,7 @@ uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_U
 
 const
   LENGTH_INC = 32; //Increment array lengths by this value
+  BID_MODIF = 30; //Modificator for every next assigned worker
 
 
 {TKMHouseList}
@@ -197,12 +198,12 @@ begin
   Result := -1;
   aBid := 999;
   for I := fHousesCount - 1 downto 0 do
-  if (fHouses[i].House<>nil) and fHouses[i].House.CheckResToBuild
+  if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
   and fTerrain.Route_CanBeMade(aWorker.GetPosition, KMPointBelow(fHouses[i].House.GetEntrance), aWorker.GetDesiredPassability, 0, false)
   then
   begin
     NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
-    NewBid := NewBid * fHouses[I].Assigned;
+    NewBid := NewBid + fHouses[I].Assigned * BID_MODIF;
 
     if (Result = -1) or (NewBid < aBid) then
     begin
@@ -239,7 +240,10 @@ begin
     //       B) Simply set removed houses to nil. Nil houses are ignored in all cases, and replaced when new one is available. (Count does not change here)
     //       C) Use TList instead of array
     //Same applies for Repairs, roads, etc. etc.
-    if (fHouses[I].House.IsDestroyed or fHouses[I].House.IsComplete) and (fHouses[I].Assigned = 0) then
+    //@Lewin: A and C are bad fits because we need to let workers report back when they
+    //        abandon the task (RemWorker. i.e. cos of death), so that BestBids are calculated properly
+    //to be deleted ..
+  if (fHouses[i].House <> nil) and (fHouses[I].House.IsDestroyed or fHouses[I].House.IsComplete) and (fHouses[I].Assigned = 0) then
       fPlayers.CleanUpHousePointer(fHouses[I].House);
 end;
 
@@ -653,7 +657,7 @@ begin
   if fHouses[I].House <> nil then
   begin
     NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
-    NewBid := NewBid * fHouses[I].Assigned;
+    NewBid := NewBid + fHouses[I].Assigned * BID_MODIF;
 
     if (Result = -1) or (NewBid < aBid) then
     begin

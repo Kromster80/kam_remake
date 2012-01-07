@@ -55,6 +55,7 @@ uses
   KM_Points in 'KM_Points.pas',
   KM_Render in 'KM_Render.pas',
   KM_RenderAux in 'KM_RenderAux.pas',
+  KM_RenderSetup in 'KM_RenderSetup.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_ResourceCursors in 'KM_ResourceCursors.pas',
   KM_ResourceFonts in 'KM_ResourceFonts.pas',
