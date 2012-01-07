@@ -1,0 +1,2 @@
+BigDesc
+8 player version of the multiplayer map from Knights and Merchants. A large and wild map with varied terrain.||Players are grouped close together in twos, so teams must be:|1+2 vs 3+4 vs 5+6 vs 7+8 or|1+2+3+4 vs 5+6+7+8 (top vs bottom) or|1+2+7+8 vs 3+4+5+6 (left vs right)
