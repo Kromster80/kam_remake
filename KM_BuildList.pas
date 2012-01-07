@@ -233,6 +233,12 @@ procedure TKMHouseList.RemoveExtraHouses;
 var I: Integer;
 begin
   for I := 0 to fHousesCount - 1 do
+    //@Krom: Crashes here after a house is complete. 2nd line bellow sets House=nil, 1st line below
+    //       tests House.IsDestroyed. (access violation next time through) We need to decide how removal happens:
+    //       A) Use "for I:=Count-1 downto 0 do" and shift down. (Count is decreased, currently it is not)
+    //       B) Simply set removed houses to nil. Nil houses are ignored in all cases, and replaced when new one is available. (Count does not change here)
+    //       C) Use TList instead of array
+    //Same applies for Repairs, roads, etc. etc.
     if (fHouses[I].House.IsDestroyed or fHouses[I].House.IsComplete) and (fHouses[I].Assigned = 0) then
       fPlayers.CleanUpHousePointer(fHouses[I].House);
 end;
