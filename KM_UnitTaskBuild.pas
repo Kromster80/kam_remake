@@ -282,7 +282,7 @@ begin
    4: begin
         fTerrain.ResetDigState(fLoc);
         fTerrain.SetField(fLoc,GetOwner,ft_InitWine); //Replace the terrain, but don't seed grapes yet
-        InitialFieldSet := true;
+        InitialFieldSet := True;
         SetActionLockedStay(30,ua_Work1);
         Thought:=th_Wood;
       end;
@@ -297,7 +297,7 @@ begin
       end;
    7: begin
         fTerrain.SetField(fLoc,GetOwner,ft_Wine);
-        InitialFieldSet := false;
+        InitialFieldSet := False;
         SetActionStay(5,ua_Walk);
         fTerrain.RemMarkup(fLoc);
         MarkupSet := false;
@@ -607,13 +607,10 @@ begin
           fTerrain.FlattenTerrain(Cells[Step]);
           fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
           if not fHouse.IsDestroyed then
-          if KMSamePoint(fHouse.GetEntrance,Cells[Step]) then
+          if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
             fTerrain.SetRoad(fHouse.GetEntrance, GetOwner);
           fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj := 255; //All objects are removed
-          fTerrain.SetMarkup(Cells[Step],mu_HouseFenceNoWalk); //Block passability on tile
-          fTerrain.RecalculatePassability(Cells[Step]);
-          fTerrain.RebuildWalkConnect(wcWalk);
-          fTerrain.RebuildWalkConnect(wcRoad);
+          fTerrain.SetMarkup(Cells[Step], mu_HouseFenceNoWalk); //Block passability on tile
           dec(Step);
         end;
     7:  begin

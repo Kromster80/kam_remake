@@ -50,7 +50,7 @@ type
       Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
       Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-      WalkConnect:array[TWalkConnect]of byte; //Whole map is painted into interconnected areas 1=CanWalk, 2=CanWalkRoad, 3=CanFish, 4=CanWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
+      WalkConnect: array [TWalkConnect] of byte; //Whole map is painted into interconnected areas 1=CanWalk, 2=CanWalkRoad, 3=CanFish, 4=CanWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
@@ -67,7 +67,7 @@ type
     property MapX: integer read fMapX;
     property MapY: integer read fMapY;
 
-    procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
+    procedure SetMarkup(aLoc: TKMPoint; aMarkup: TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
     procedure SetRoads(aList:TKMPointList; aOwner:TPlayerIndex);
     procedure SetField(Loc:TKMPoint; aOwner:TPlayerIndex; aFieldType:TFieldType);
@@ -166,7 +166,7 @@ type
     procedure FlattenTerrain(LocList:TKMPointList); overload;
     procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
     procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
-    procedure RebuildWalkConnect(wcType:TWalkConnect);
+    procedure RebuildWalkConnect(aSet: array of TWalkConnect);
 
     procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
     function GetVertexCursorPosition:TKMPoint;
@@ -256,8 +256,9 @@ begin
 
   RebuildLighting(1,fMapX,1,fMapY);
   RebuildPassability(1,fMapX,1,fMapY);
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcFish);
+
+  //Everything except roads
+  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab]);
 end;
 
 
@@ -303,8 +304,9 @@ begin
 
   RebuildLighting(1,fMapX,1,fMapY);
   RebuildPassability(1,fMapX,1,fMapY);
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcFish);
+
+  //Everything except roads
+  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab]);
   fLog.AppendLog('Map file loaded');
 end;
 
@@ -663,12 +665,13 @@ end;
 
 
 {Place markup on tile, any new markup replaces old one, thats okay}
-procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
+procedure TTerrain.SetMarkup(aLoc: TKMPoint; aMarkup: TMarkup);
 begin
-  Land[Loc.Y,Loc.X].Markup:=aMarkup;
-  RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcWalk); //Markups affect passability so therefore also floodfill
-  RebuildWalkConnect(wcRoad);
+  Land[aLoc.Y, aLoc.X].Markup := aMarkup;
+  RecalculatePassabilityAround(aLoc);
+
+  //Markups affect passability so therefore also floodfill
+  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab]);
 end;
 
 
@@ -677,8 +680,9 @@ procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcWalk); //Markups affect passability so therefore also floodfill
-  RebuildWalkConnect(wcRoad);
+
+  //Markups affect passability so therefore also floodfill
+  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab]);
 end;
 
 
@@ -689,7 +693,9 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcRoad);
+
+  //Roads don't affect wcWalk or wcFish
+  RebuildWalkConnect([wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -708,7 +714,9 @@ begin
   aList.GetTopLeft(TL);
   aList.GetBottomRight(BR);
   RebuildPassability(TL.X-1, BR.X+1, TL.Y-1, BR.Y+1);
-  RebuildWalkConnect(wcRoad);
+
+  //Roads don't affect wcWalk or wcFish
+  RebuildWalkConnect([wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -719,22 +727,27 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcRoad);
+
+  //Roads don't affect wcWalk or wcFish
+  RebuildWalkConnect([wcRoad, wcWolf, wcCrab]);
 end;
 
 
-procedure TTerrain.RemField(Loc:TKMPoint);
+procedure TTerrain.RemField(Loc: TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].TileOwner:=-1;
-  Land[Loc.Y,Loc.X].TileOverlay:=to_None;
+  Land[Loc.Y,Loc.X].TileOwner := -1;
+  Land[Loc.Y,Loc.X].TileOverlay := to_None;
   Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].OldTerrain; //Reset terrain
   Land[Loc.Y,Loc.X].Rotation := Land[Loc.Y,Loc.X].OldRotation; //Reset terrain
-  if Land[Loc.Y,Loc.X].Obj in [54..59] then Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
-  Land[Loc.Y,Loc.X].FieldAge:=0;
+  if Land[Loc.Y,Loc.X].Obj in [54..59] then
+    Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
+  Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcRoad);
+
+  //@Lewin: Please check me on this one - it does not needs wcRoad
+  //Update affected WalkConnect's
+  RebuildWalkConnect([wcWalk, wcWolf, wcCrab]);
 end;
 
 
@@ -752,12 +765,12 @@ end;
 
 procedure TTerrain.SetWall(Loc:TKMPoint; aOwner:TPlayerIndex);
 begin
-  Land[Loc.Y,Loc.X].TileOwner:=aOwner;
-  Land[Loc.Y,Loc.X].TileOverlay:=to_Wall;
-  Land[Loc.Y,Loc.X].FieldAge:=0;
+  Land[Loc.Y,Loc.X].TileOwner :=aOwner;
+  Land[Loc.Y,Loc.X].TileOverlay := to_Wall;
+  Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcRoad);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -795,8 +808,7 @@ begin
 
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcRoad);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -1202,8 +1214,9 @@ begin
   Land[Loc.Y,Loc.X].TreeAge:=0;
   FallingTrees.RemoveEntry(Loc);
   RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcRoad);
+
+  //WalkConnect takes diagonal passability into account
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -1668,9 +1681,7 @@ begin
   Result := Result and TestRadius;
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
-  //canWolf and canCrab are similar to canWalk with some tiles excluded, so use canWalk floodfill (better than nothing)
-  //todo: Maybe we need wcWolf and wcCrab floodfills too. Otherwise they try to build impossible routes and waste a lot of CPU
-  if (aPass=CanWalk) or (aPass=CanWolf) or (aPass=CanCrab) then
+  if aPass=CanWalk then
   begin
     TestRadius := false;
     for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
@@ -1692,6 +1703,12 @@ begin
 
   if aPass=CanFish then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcFish] = Land[LocB.Y,LocB.X].WalkConnect[wcFish]);
+
+  if aPass=CanWolf then
+    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcWolf] = Land[LocB.Y,LocB.X].WalkConnect[wcWolf]);
+
+  if aPass=CanCrab then
+    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcCrab] = Land[LocB.Y,LocB.X].WalkConnect[wcCrab]);
 
   if aInteractionAvoid then
   begin
@@ -1747,6 +1764,8 @@ begin
   case aPass of
     CanWalkRoad: wcType := wcRoad;
     CanFish:     wcType := wcFish;
+    CanWolf:     wcType := wcWolf;
+    CanCrab:     wcType := wcCrab;
     else         wcType := wcWalk; //CanWalk is default
   end;
 
@@ -1924,10 +1943,7 @@ begin
   RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
 
   if aRebuildWalkConnects then
-  begin
-    RebuildWalkConnect(wcWalk);
-    RebuildWalkConnect(wcRoad);
-  end;
+    RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -1938,8 +1954,8 @@ begin
   for i:=1 to LocList.Count do
     FlattenTerrain(LocList.List[i], false); //Rebuild the Walk Connect at the end, rather than every time
 
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcRoad);
+  //All 4 are affected by height
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -1970,17 +1986,18 @@ end;
 
 
 { Rebuilds connected areas using flood fill algorithm }
-procedure TTerrain.RebuildWalkConnect(wcType:TWalkConnect);
+procedure TTerrain.RebuildWalkConnect(aSet: array of TWalkConnect);
 //const MinSize=9; //Minimum size that is treated as new area
-var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:boolean;
+var I,J,K{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:boolean;
+  WC: TWalkConnect;
 
   procedure FillArea(x,y:word; ID:byte; var Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
   begin
-    if (Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
-     ((wcType <> wcAvoid)or
-     ( (wcType=wcAvoid) and not TileIsLocked(KMPoint(x,y)) )) then //Matches passability
+    if (Land[y,x].WalkConnect[WC]=0)and(Pass in Land[y,x].Passability)and //Untested area
+     ((WC <> wcAvoid)or
+     ( (WC=wcAvoid) and not TileIsLocked(KMPoint(x,y)) )) then //Matches passability
     begin
-      Land[y,x].WalkConnect[wcType]:=ID;
+      Land[y,x].WalkConnect[WC] := ID;
       inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       //Using custom CanWalkDiagonally is also much faster
@@ -2006,38 +2023,49 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:bo
   end;
 
 begin
-    case wcType of
+
+  for J := Low(aSet) to High(aSet) do
+  begin
+    WC := aSet[J];
+
+
+    case WC of
       wcWalk:  Pass := CanWalk;
       wcRoad:  Pass := CanWalkRoad;
       wcFish:  Pass := CanFish;
+      wcWolf:  Pass := CanWolf;
+      wcCrab:  Pass := CanCrab;
       wcAvoid: Pass := CanWalk; //Special case for unit interaction avoiding
-      else     Assert(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
-    //Reset everything
-    for i:=1 to fMapY do for k:=1 to fMapX do
-      Land[i,k].WalkConnect[wcType] := 0;
+    //todo: Can be optimized if we know from which Tile to rebuild, and if that tile makes no difference - skip the thing
 
-    AllowDiag := (wcType <> wcRoad); //Do not consider diagonals "connected" for roads
+    //Reset everything
+    for I:=1 to fMapY do for K:=1 to fMapX do
+      Land[I,K].WalkConnect[WC] := 0;
+
+    AllowDiag := (WC <> wcRoad); //Do not consider diagonals "connected" for roads
     AreaID := 0;
-    for i:=1 to fMapY do for k:=1 to fMapX do
-    if (Land[i,k].WalkConnect[wcType]=0) and (Pass in Land[i,k].Passability) and
-     ((wcType <> wcAvoid)or
-     ( (wcType=wcAvoid) and not TileIsLocked(KMPoint(k,i)) )) then
+    for I:=1 to fMapY do for K:=1 to fMapX do
+    if (Land[I,K].WalkConnect[WC]=0) and (Pass in Land[I,K].Passability) and
+     ((WC <> wcAvoid)or
+     ( (WC=wcAvoid) and not TileIsLocked(KMPoint(K,I)) )) then
     begin
       inc(AreaID);
       Count := 0;
-      FillArea(k,i,AreaID,Count);
+      FillArea(K,I,AreaID,Count);
 
       if Count=1 {<MinSize} then //Revert
       begin
         dec(AreaID);
         Count := 0;
-        Land[i,k].WalkConnect[wcType] := 0;
+        Land[I,K].WalkConnect[WC] := 0;
       end;
 
       Assert(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
     end;
+
+  end;
 end;
 
 
@@ -2088,7 +2116,7 @@ begin
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
-  RebuildWalkConnect(wcRoad);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -2271,8 +2299,7 @@ begin
 
   end;
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcRoad);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
 
@@ -2573,9 +2600,9 @@ begin
 
   RebuildLighting(1, fMapX, 1, fMapY);
   RebuildPassability(1, fMapX, 1, fMapY);
-  RebuildWalkConnect(wcWalk);
-  RebuildWalkConnect(wcRoad);
-  RebuildWalkConnect(wcFish);
+
+  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab]);
+
   fLog.AppendLog('Terrain loaded');
 end;
 

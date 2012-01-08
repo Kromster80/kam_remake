@@ -74,7 +74,7 @@ type
     //Player orders
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
     function HasField(aLoc: TKMPoint): Boolean;
-    procedure RemField(aLoc: TKMPoint);
+    procedure RemFieldPlan(aLoc: TKMPoint);
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
@@ -354,7 +354,7 @@ begin
 end;
 
 
-procedure TKMFieldworksList.RemField(aLoc: TKMPoint);
+procedure TKMFieldworksList.RemFieldPlan(aLoc: TKMPoint);
 var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do

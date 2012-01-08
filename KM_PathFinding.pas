@@ -154,7 +154,8 @@ end;
 //Don't try to make a route if it's obviously impossible
 function TPathFinding.CheckRouteCanExist:boolean;
 begin
-  if IsInteractionAvoid then fTerrain.RebuildWalkConnect(wcAvoid); //Rebuild on demand
+  //todo: Move out of WalkConnect
+  if IsInteractionAvoid then fTerrain.RebuildWalkConnect([wcAvoid]); //Rebuild on demand
   if fDestination = dp_House then
     Result := fTerrain.Route_CanBeMadeToHouse(LocA,fTargetHouse,Pass,fDistance,IsInteractionAvoid)
   else

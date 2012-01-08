@@ -282,12 +282,14 @@ const {Aligned to right to use them in GUI costs display as well}
   );
 
 { Terrain }
-type TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGold,
-                     CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish, CanCrab,
-                     CanWolf, CanElevate, CanWorker, canFactor); //13bits so far
-     TPassabilitySet = set of TPassability;
+type
+  TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGold,
+                  CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish, CanCrab,
+                  CanWolf, CanElevate, CanWorker, canFactor);
+  TPassabilitySet = set of TPassability;
 
-type TWalkConnect = (wcWalk, wcRoad, wcFish, wcAvoid);
+type
+  TWalkConnect = (wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcAvoid);
 
 const PassabilityStr:array[TPassability] of string = (
     'canWalk',      // General passability of tile for any walking units

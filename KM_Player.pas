@@ -424,7 +424,7 @@ end;
 
 procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; DoSilent:boolean);
 begin
-  fBuildList.FieldworksList.RemField(Position);
+  fBuildList.FieldworksList.RemFieldPlan(Position);
   if not DoSilent then fSoundLib.Play(sfx_Click);
   fTerrain.RemMarkup(Position);
 end;
