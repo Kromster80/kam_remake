@@ -28,7 +28,7 @@ type
   end;
 
 implementation
-uses KM_Terrain, KM_Units_Warrior, KM_ResourceGFX;
+uses KM_Terrain, KM_Units_Warrior, KM_Resource;
 
 
 { TUnitActionStormAttack }

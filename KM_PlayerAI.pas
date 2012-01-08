@@ -83,7 +83,7 @@ type //For now IDs must match with KaM
 
 implementation
 uses KM_Game, KM_PlayersCollection, KM_TextLibrary, KM_Goals, KM_Player, KM_PlayerStats, KM_UnitTaskAttackHouse,
-     KM_Terrain, KM_ResourceGFX, KM_Sound, KM_MessageStack;
+     KM_Terrain, KM_Resource, KM_Sound, KM_MessageStack;
 
 
 const

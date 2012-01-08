@@ -98,7 +98,7 @@ implementation
 uses KM_DeliverQueue, KM_Game, KM_TextLibrary, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_Terrain,
   KM_UnitTaskAttackHouse, KM_MessageStack,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay,
-  KM_UnitActionStormAttack, KM_ResourceGFX, KM_ResourceUnit;
+  KM_UnitActionStormAttack, KM_Resource, KM_ResourceUnit;
 
 
 const HUNGER_CHECK_FREQ = 10; //Check warrior hunger every 1 second

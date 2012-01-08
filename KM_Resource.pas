@@ -1,4 +1,4 @@
-unit KM_ResourceGFX;
+unit KM_Resource;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -34,8 +34,7 @@ type
     fTileset: TKMTileset;
 
     procedure StepRefresh;
-    procedure StepCaption(const aCaption: string); overload;
-    procedure StepCaption(const aTextID: Word); overload;
+    procedure StepCaption(const aCaption: string);
 
     function LoadMapElemDAT(const FileName: string): Boolean;
     function LoadPatternDAT(const FileName: string): Boolean;
@@ -112,12 +111,6 @@ end;
 procedure TResource.StepCaption(const aCaption: string);
 begin
   if Assigned(OnLoadingText) then OnLoadingText(aCaption);
-end;
-
-
-procedure TResource.StepCaption(const aTextID: Word);
-begin
-  if aTextID <> 0 then StepCaption(fTextLibrary[aTextID]);
 end;
 
 
@@ -279,6 +272,8 @@ begin
   fResource.Sprites.LoadSprites(RT,False,nil,nil);
 
   for id:=1 to RXData[RT].Qty do
+  if RXData[RT].Flag[id] = 1 then
+
   begin
     sx := RXData[RT].Size[id].X;
     sy := RXData[RT].Size[id].Y;

@@ -122,7 +122,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_Sound, KM_PlayersCollection, KM_ResourceGFX;
+uses KM_Terrain, KM_Sound, KM_PlayersCollection, KM_Resource;
 
 
 { TKMPlayerCommon }

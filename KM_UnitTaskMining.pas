@@ -26,7 +26,7 @@ type
 
 
 implementation
-uses KM_Houses, KM_PlayersCollection, KM_ResourceGFX;
+uses KM_Houses, KM_PlayersCollection, KM_Resource;
 
 
 { TTaskMining }

@@ -95,7 +95,7 @@ type
 implementation
 uses
   KM_RenderAux, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitActionStay,
-  KM_Units_Warrior, KM_Player, KM_Log, KM_ResourceGFX;
+  KM_Units_Warrior, KM_Player, KM_Log, KM_Resource;
 
 
 { TUnitActionWalkTo }

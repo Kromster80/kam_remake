@@ -9,7 +9,7 @@ uses
   Math, SysUtils, KromUtils,
   {$IFDEF FPC} LResources, {$ENDIF}
   dglOpenGL,
-  KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
+  KM_Render, KM_Resource, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection,
   KM_TextLibrary, KM_Sound, KM_Utils, KM_Points;
 

@@ -42,7 +42,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
+uses KM_Sound, KM_Render, KM_RenderAux, KM_PlayersCollection, KM_Terrain, KM_Resource;
 
 
 { TKMProjectiles }

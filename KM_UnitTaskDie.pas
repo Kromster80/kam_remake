@@ -13,7 +13,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_PlayersCollection, KM_ResourceGFX, KM_Units_Warrior;
+uses KM_Sound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
 
 
 { TTaskDie }

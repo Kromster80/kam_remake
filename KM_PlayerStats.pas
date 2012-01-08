@@ -79,7 +79,7 @@ type
 
 
 implementation
-uses KM_ResourceGFX;
+uses KM_Resource;
 
 
 const

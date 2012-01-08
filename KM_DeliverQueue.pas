@@ -82,7 +82,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_ResourceGFX, KM_Log;
+uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_Resource, KM_Log;
 
 
 const

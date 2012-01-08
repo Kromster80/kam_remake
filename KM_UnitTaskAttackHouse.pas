@@ -23,7 +23,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Sound, KM_ResourceGFX;
+uses KM_Game, KM_PlayersCollection, KM_Sound, KM_Resource;
 
 
 { TTaskAttackHouse }

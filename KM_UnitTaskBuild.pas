@@ -110,7 +110,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX, KM_ResourceHouse;
+uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_Resource, KM_ResourceHouse;
 
 
 { TTaskBuildRoad }

@@ -778,7 +778,7 @@ type
 
 
 implementation
-uses KM_RenderUI, KM_ResourceGFX, KM_ResourceCursors, KM_Sound;
+uses KM_RenderUI, KM_Resource, KM_ResourceCursors, KM_Sound;
 
 
 var

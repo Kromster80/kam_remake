@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Sound, KM_Game, KM_Unit1, KM_ResourceGFX, KM_ResourceCursors;
+uses KM_Defaults, KM_Sound, KM_Game, KM_Unit1, KM_Resource, KM_ResourceCursors;
 
 
 constructor TViewport.Create(aWidth, aHeight: Integer);

@@ -44,7 +44,7 @@ type
 
 
 implementation
-uses KM_ResourceGFX;
+uses KM_Resource;
 
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)

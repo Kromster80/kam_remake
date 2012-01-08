@@ -345,7 +345,7 @@ type
 implementation
 uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
 KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Game, KM_Utils,
-KM_Sound, Forms, KM_ResourceGFX, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
+KM_Sound, Forms, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 const
   MESSAGE_AREA_HEIGHT = 173+17; //Image_ChatHead + Image_ChatBody

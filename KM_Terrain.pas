@@ -199,7 +199,7 @@ var
 
 implementation
 uses KM_Game, KM_Log, KM_PlayersCollection, KM_Render, KM_RenderAux,
-  KM_ResourceGFX, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
+  KM_Resource, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
 { TTerrain }

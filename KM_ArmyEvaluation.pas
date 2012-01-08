@@ -48,7 +48,7 @@ procedure InitUnitStatEvals;
 
 
 implementation
-uses Math, KM_Player, KM_ResourceGFX;
+uses Math, KM_Player, KM_Resource;
 
 
 var

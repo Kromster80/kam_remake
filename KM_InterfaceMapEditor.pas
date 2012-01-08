@@ -201,7 +201,7 @@ type
 
 implementation
 uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
-     KM_Utils, KM_Game, KM_ResourceGFX, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
+     KM_Utils, KM_Game, KM_Resource, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
 
 {Switch between pages}

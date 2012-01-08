@@ -254,7 +254,7 @@ type
 implementation
 uses
   KM_Game, KM_Render, KM_RenderAux, KM_TextLibrary, KM_PlayersCollection,
-  KM_Units_Warrior, KM_Terrain, KM_ResourceGFX, KM_Log, KM_MessageStack,
+  KM_Units_Warrior, KM_Terrain, KM_Resource, KM_Log, KM_MessageStack,
 
   KM_UnitActionAbandonWalk,
   KM_UnitActionFight,

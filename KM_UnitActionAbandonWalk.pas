@@ -23,7 +23,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_ResourceGFX;
+uses KM_Terrain, KM_Resource;
 
 
 { TUnitActionAbandonWalk }
