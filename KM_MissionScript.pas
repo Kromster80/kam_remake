@@ -194,8 +194,6 @@ end;
 
 function TMissionParser.LoadMission(const aFileName:string):boolean;
 begin
-  //fLog.AppendLog('Loading DAT file: '+aFileName);
-  //Commented out because it slows down mission scanning
   fMissionFileName := aFileName;
 
   //Set default values
@@ -215,9 +213,6 @@ begin
 
   //We double-check against success of every loading step and no errors
   Result := Result and (fErrorMessage='');
-
-  //if Result then
-    //fLog.AppendLog('DAT Loaded');
 end;
 
 
@@ -234,7 +229,8 @@ begin
       break;
     end;
   end;
-  if Result = ct_Unknown then fLog.AddToLog(String(ACommandText));
+  //Commented out because it slows down mission scanning
+  //if Result = ct_Unknown then fLog.AddToLog(String(ACommandText));
 end;
 
 

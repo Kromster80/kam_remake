@@ -94,4 +94,4 @@ est.CreateStartShortcut=Loo start menüü otsetee
 est.NoKaM=Paigaldamise programm on avastanud, et Teil ei ole paigaldatud Knights and Merchants: The Peasants Rebellion. Teil peab olema paigaldatud originaal mäng, et mängida mängu KaM Remake. Paigaldamine katkestakase. 
 est.CantUpdate=Paigaldamise programm ei leidnud olemas olevat KaM Remake versiooni, mida uuendada. Palun laadige internetist alla täis versioon mängust KaM Remake. Paigaldamine katkestatakse.
 est.OpenAL=Kas te soovite paigaldada programmi OpenAL? (Tungivalt soovitatav) See on vajalik, et helid töötaksid mängus KaM Remake.
-est.ViewReadme=View the Readme
+est.ViewReadme=Vaadake faili Readme

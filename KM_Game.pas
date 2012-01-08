@@ -477,6 +477,7 @@ begin
 
   if aMissionFile <> '' then
   try //Catch exceptions
+    fLog.AppendLog('Loading DAT file for singleplayer: '+aMissionFile);
     fMissionParser := TMissionParser.Create(mpm_Single, false);
     if not fMissionParser.LoadMission(aMissionFile) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
@@ -555,6 +556,7 @@ begin
   end;
 
   try //Catch exceptions
+    fLog.AppendLog('Loading DAT file for multiplayer: '+MapNameToPath(aFilename, 'dat', true));
     fMissionParser := TMissionParser.Create(mpm_Multi, PlayerRemap, false);
     if not fMissionParser.LoadMission(MapNameToPath(aFilename, 'dat', true)) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
@@ -976,6 +978,7 @@ begin
 
   if aFilename <> '' then
   try //Catch exceptions
+    fLog.AppendLog('Loading DAT file for editor: '+aFilename);
     fMissionParser := TMissionParser.Create(mpm_Editor, False);
     if not fMissionParser.LoadMission(aFilename) then
       Raise Exception.Create(fMissionParser.ErrorMessage);
@@ -1307,7 +1310,7 @@ var
   LoadedSeed:Longint;
   SaveIsMultiplayer:boolean;
 begin
-  fLog.AppendLog('Loading game');
+  fLog.AppendLog('Loading game: '+aFilename);
   if aReplay then LoadFileExt := 'bas' else LoadFileExt := 'sav';
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
