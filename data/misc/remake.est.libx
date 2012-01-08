@@ -1,0 +1,231 @@
+
+MaxID:220
+
+1:Missioon katkestatud
+2:Linna ehitamise tutvustus
+3:Võitluse tutvustus
+4:Üksikmäng
+5:Kaardi ehitamine
+202:Korduse vaatamine
+203:Vaata kordust
+6:Vaata viimast kordust
+7:Alusta missiooni
+8:Pealkiri
+9:Suurus
+10:Missiooni tüüp: %s
+11:Võitmise tingimused: %s
+12:Kaotamise tingimused: %s
+13:Liitlased:
+14:Vaenlased:
+16:Uus kaardi suurus
+17:Laius
+18:Pikkus
+19:Loo uus kaart
+20:Olemas olevad kaardid
+21:Lae olemas olev kaart
+22:Juhtimisseaded:
+23:Mängu seaded
+24:Heli:
+141:Rulliku kiirus
+25:Vaigista muusika
+143:Suva lood
+26:Graafika:
+27:Heledus
+28:Täisekraan
+29:Lisa
+30:Keel:
+31:Toimub laadimine... Palun oodake
+216:üksused
+217:majad
+218:puud
+219:definitsioonid
+220:ruudustik
+215:lisa spraidid
+208:alustamine
+209:võrgumängu valmistamine
+210:skript
+32:Viga on esinenud!
+212:Liigendamise viga on esinenud failis %s
+33:Uue lokaadi laadimine
+34:Salvestatud mängude list
+35:Faili nimi
+36:Iseloomustus
+37:Lae
+38:Kustuta
+39:Oled kindel, et soovid seda salvestust kustutada?
+40:Kustuta
+41:Loobu
+139:Võrgumängu kaardid
+140:Üksikmängu kaardid
+
+43:Sa Võitsid!
+44:Jätka mängu
+45:Võit!
+46:Sa kaotasid!
+47:Jätka vaatamist
+48:Kaotus
+49:Kordus on lõppenud
+50:Jätka vaatamist
+51:Lahku menüüni
+166:Elimineeri mängijaid
+167:Mängu juht võib elimineerida mängijaid pärast %d sekundit
+168:Mängu juht võib nüüd elimineerida neid mängijaid
+171:Oled kindel, et soovid lahkuda?
+172:Oled kindel, et soovid lõplikult elimineerida neid mängijaid?
+173:Tühista
+52:Pole saadaval
+53:Vajuta %s, et jätkata mängu
+54:Meeskonnale
+55:Mängijate info
+56:Vestlus
+57:Salvesta üle juba olemasolev
+58:Kirjuta üle
+59:Salvesta
+60:Lae
+205:Toeta formaat %s
+206:Toetamata versioon %s
+211:Uus Missioon
+194:Mängu aeg:I%s
+
+61:Viga on esinenud mängu ajal.
+62:Palun saatke fail %s oma KaM Remake\\Crash Reports kaustast arendajatele. Kontakti andmeid võib leida Readme failist. Suured tänud Teie abi eest!\n\nHOIATUS: Jätkates mängu pärast seda viga võivad esineda edasised kokku jooksmised ja ebastabiilsus. Kas te soovite riskida ja jätkata mängu?
+63:Vana OpelGL versioon avastatud, mäng võib töötada aeglaselt ja/või graafika vigadega\nPalun uuendage oma graafika draivereid, et saada parem sooritusvõime
+64:Võrgu viga:
+65:Viga: Mängija nimi ei saa olla tühi
+66:Ühenduse viga: %s
+67:Ühendus on kaotatud
+68:Missioon %d
+150:Ehitamine ja Võitlemine
+151:Võitlemine
+
+69:Su kalastus onn on veest liiga kaugel.
+70:Sinu kalamees ei saa rohkem püüda kala lähedal olevatest vetest.
+
+71:Turuplats
+72:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
+73:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
+74:Millest: x%d
+75:Milleks: x%d
+162:Vähenda kauba hulka
+161:Tõsta kauba hulka
+184:Selle ressurssi vahetamine pole võimalik selles missioonis
+185:Istuta ja langeta
+186:Ainult langeta
+
+76:Pinnastiku kujundamine
+77:Küla planeerimine
+78:Visuaalsed skriptid
+79:Globaalsed skriptid
+80:Menüü
+
+82:Mängija nimi
+81:Staatus:
+83:LOO SERVER
+84:Nimi
+85:Port
+86:Loo Kohalik Server
+87:Loo Interneti Server
+88:Serveri nimi
+89:Olek
+90:Mängijad
+91:Ping
+92:Värskenda Serverite nimekirja
+93:SERVERI DETAILID
+94:Mängijate nimekiri:
+144:Mängu informatsioon:
+95:Aadress
+96:Port
+97:Tuba
+98:Liitu
+153:Valmis
+99:Toimub ühendamine, palun oodake ...
+159:Vale protokolli versioon: %s. Server kasutab: %s
+100:Toimub teadete laadimine...
+101:Uuendamine...
+142:Servereid ei leitud
+145:-
+146:Eesruum
+147:Toimub Laadmine
+148:Mäng
+
+102:Mängijate nimekiri
+103:Alustamise asukoht
+104:Meeskond
+105:Lipu värv
+106:Valmis
+107:Ping
+108:Eemalda
+109:Avatud
+213:Suletud
+110:Mängib arvuti
+111:Vali...
+112:Suvaline
+113:Ühtegi
+114:Ühtegi
+115:Meeskond %d
+117:Postita sõnum:
+118:Kaardi tüüp
+119:Üksik Kaart
+188:Ehitamise Kaart
+189:Võitlemise Kaart
+190:Koostöö kaart
+120:Salvestatud Mäng
+121:Vali kaart...
+122:Vali salvestus...
+123:Kaardi info:
+124:Mängijad: %d
+125:Tüüp:
+126:Tingimused:
+127:Suurus:
+195:Mängu seaded:
+204:Rahuaeg (minutid)
+128:Lahku eesruumi
+129:Valmis
+152:Pole valmis
+130:Alusta!
+149:Asukoht %d
+154:Viga: Palun vali mängija salvestisest, et teda kontrollida
+155:Viga: Kaardi laadimine ebaõnnestus või ühtegi kaarti ei ole valitud
+156:Ei saa alustada: %s
+157:Kõik ei ole valmis alustama
+158:Mängijate arv ületab kaardi limiidi
+160:Server on juhtimis õiused meile määranud
+187:Mänguga on alustatud
+214:Mängujuht seadistab
+
+131:Mängijate ootamine:
+163:Mängu salvestamine...
+164:%s kaotas!
+169:Mängujuht (%s) on lahkunud
+170:Ühendus sevreriga on kaotatud. Taasühendamine...
+191:Sa ei saa seda teha rahuajal
+192:Rahuaega jäänud: %s
+193:Rahuaeg on lõppenud. Relvadele!
+
+174:Elanikke|treenitud
+175:Elanikke|kaotatud
+176:Sõdureid|relvastatud
+177:Sõdureid|kaotatud
+178:Üksusi|hävitatud
+179:Ehitisi|ehitatud
+180:Ehitised|kaotatud
+181:Ehitisi|hävitatud
+182:Kaupu|toodetud
+183:Relvi|toodetud
+
+196:P
+197:L
+198:J
+
+199:Peata sõdur ('%s')
+200:Lisa sõdur ('%s')
+201:Jaga sõdurid ('%s')
+
+132:KaM Remake Lõputiitrid
+133:Originaalsed Knights & Merchants Lõputiitrid
+134:PROGRAMMEERIMINE:
+135:LISA PROGRAMMEERIMINE:
+136:LISA GRAAFIKA:
+165:LISA HELID:
+137:LISA TÕLKED:
+138:SUURED TÄNUD:

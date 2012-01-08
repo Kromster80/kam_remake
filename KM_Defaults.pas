@@ -198,7 +198,7 @@ const
   ('swe', '1252',  '16', 'Swedish'));
 
   TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Bulgarian - Christian|Czech - Jolinar_CZ & Milan Molnar|'+
-  'Dutch - xzaz & Tom|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+
+  'Dutch - xzaz & Tom|Estonian - Ingvar & Eva|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+
   'Italian - Paolo Castelvetere|Polish - Przemyslaw Pietras|Russian - Krom|'+
   'Slovak - Robert Marko|Spanish - Oscar|Swedish - Edvin Linge||'+
   '';

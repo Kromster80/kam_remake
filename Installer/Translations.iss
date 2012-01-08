@@ -88,3 +88,10 @@ bul.NoKaM=Инсталацията откри, че нямате инсталирана Knights and Merchants: The P
 bul.CantUpdate=Инсталацията не успя да намери съществуваща версия на KaM Remake, за да бъде подобрена. Моля изтеглете и инсталирайте пълния инсталатор. Инсталацията ще се прекрати.
 bul.OpenAL=Искате ли инсталацията да инсталира OpenAL? (Силно се препоръчва) Нужно е, за да работи звука в играта.
 bul.ViewReadme=Виж "Прочети ме"
+
+;Estonian
+est.CreateStartShortcut=Loo start menьь otsetee
+est.NoKaM=Paigaldamise programm on avastanud, et Teil ei ole paigaldatud Knights and Merchants: The Peasants Rebellion. Teil peab olema paigaldatud originaal mдng, et mдngida mдngu KaM Remake. Paigaldamine katkestakase. 
+est.CantUpdate=Paigaldamise programm ei leidnud olemas olevat KaM Remake versiooni, mida uuendada. Palun laadige internetist alla tдis versioon mдngust KaM Remake. Paigaldamine katkestatakse.
+est.OpenAL=Kas te soovite paigaldada programmi OpenAL? (Tungivalt soovitatav) See on vajalik, et helid tццtaksid mдngus KaM Remake.
+est.ViewReadme=View the Readme
