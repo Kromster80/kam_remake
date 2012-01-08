@@ -85,7 +85,7 @@ MaxID:220
 205:Toeta formaat %s
 206:Toetamata versioon %s
 211:Uus Missioon
-194:Mängu aeg:I%s
+194:Mängu aeg:|%s
 
 61:Viga on esinenud mängu ajal.
 62:Palun saatke fail %s oma KaM Remake\\Crash Reports kaustast arendajatele. Kontakti andmeid võib leida Readme failist. Suured tänud Teie abi eest!\n\nHOIATUS: Jätkates mängu pärast seda viga võivad esineda edasised kokku jooksmised ja ebastabiilsus. Kas te soovite riskida ja jätkata mängu?

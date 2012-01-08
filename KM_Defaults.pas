@@ -179,7 +179,7 @@ const
 {Controls}
 
 const
-  LOCALES_COUNT = 14;
+  LOCALES_COUNT = 15;
   Locales:array[1..LOCALES_COUNT, 1..4]of shortstring = (
   //Code  Codepage Flag  Title
   ('ptb', '1252',  '8',  'Brazilian Portuguese'),
@@ -187,6 +187,7 @@ const
   ('cze', '1250',  '9',  'Czech'),
   ('dut', '1252',  '15', 'Dutch'),
   ('eng', '1252',  '5',  'English'),
+  ('est', '1252',  '19',  'Estonian'),
   ('fre', '1252',  '11', 'French'),
   ('ger', '1252',  '6',  'German'),
   ('hun', '1250',  '17', 'Hungarian'),

@@ -139,12 +139,11 @@ procedure TForm1.ScanAvailableTranslations(aMiscFolder:string);
   begin
     Result := DEFAULT_CHARSET;
     if aLang = 'rus' then Result := RUSSIAN_CHARSET;
+    if aLang = 'bul' then Result := RUSSIAN_CHARSET;
     if aLang = 'pol' then Result := EASTEUROPE_CHARSET;
     if aLang = 'hun' then Result := EASTEUROPE_CHARSET;
     if aLang = 'cze' then Result := EASTEUROPE_CHARSET;
     if aLang = 'svk' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'pol' then Result := EASTEUROPE_CHARSET;
-    if aLang = 'cze' then Result := EASTEUROPE_CHARSET;
   end;
 
 var
