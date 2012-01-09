@@ -2034,28 +2034,17 @@ end;
 
 procedure TKMUnitsCollection.UpdateState;
 var
-  i, ID: integer;
-  IDsToDelete: array of integer;
+  I: integer;
 begin
-  ID := 0;
-  for i:=0 to Count-1 do
-  if not Units[i].IsDead then
-    Units[i].UpdateState
+  for I:=Count-1 downto 0 do
+  if not Units[I].IsDead then
+    Units[I].UpdateState
   else //Else try to destroy the unit object if all pointers are freed
-    if (Items[i] <> nil) and FREE_POINTERS and (Units[i].fPointerCount = 0) then
+    if FREE_POINTERS and (Units[I].fPointerCount = 0) then
     begin
-      SetLength(IDsToDelete,ID+1);
-      IDsToDelete[ID] := i;
-      inc(ID);
+      Units[I].Free;
+      Delete(I);
     end;
-
-  //Must remove list entry after for loop is complete otherwise the indexes change
-  for i:=ID-1 downto 0 do
-  begin
-    Units[IDsToDelete[i]].Free; //Because no one needs this anymore it must DIE!!!!! :D
-    Units[IDsToDelete[i]] := nil;
-    Delete(IDsToDelete[i]);
-  end;
 
   //   --     POINTER FREEING SYSTEM - DESCRIPTION     --   //
   //  This system was implemented because unit and house objects cannot be freed until all pointers
