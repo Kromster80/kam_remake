@@ -57,7 +57,7 @@ type
 
   //Commands from player
     procedure OrderHalt(aTurnAmount:TKMTurnDirection=tdNone; aLineAmount:shortint=0);
-    procedure OrderLinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+    procedure OrderLinkTo(aNewCommander: TKMUnitWarrior); //Joins entire group to NewCommander
     procedure OrderFood;
     procedure OrderSplit; //Split group in half and assign another commander
     procedure OrderStorm;
@@ -387,7 +387,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.OrderLinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+procedure TKMUnitWarrior.OrderLinkTo(aNewCommander: TKMUnitWarrior); //Joins entire group to NewCommander
 var i:integer;
 begin
   //Redirect command so that both units are Commanders

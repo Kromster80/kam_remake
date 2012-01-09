@@ -2256,28 +2256,16 @@ end;
 
 procedure TKMHousesCollection.UpdateState;
 var
-  i,ID:integer;
-  IDsToDelete: array of integer;
+  I: Integer;
 begin
-  ID := 0;
-  //todo: I suspect we can simply reverse the loop and remove Houses from that
-  for i:=0 to Count-1 do
-  if not Houses[i].IsDestroyed then
-    Houses[i].UpdateState
+  for I := Count - 1 downto 0  do
+  if not Houses[I].IsDestroyed then
+    Houses[I].UpdateState
   else //Else try to destroy the house object if all pointers are freed
-    if FREE_POINTERS and (Houses[i].PointerCount = 0) then
+    if FREE_POINTERS and (Houses[I].PointerCount = 0) then
     begin
-      SetLength(IDsToDelete,ID+1);
-      IDsToDelete[ID] := i;
-      inc(ID);
-    end;
-
-  //Must remove list entry after for loop is complete otherwise the indexes change
-  if ID <> 0 then
-    for i:=ID-1 downto 0 do
-    begin
-      TKMHouse(Items[IDsToDelete[i]]).Free; //Because no one needs this anymore it must DIE!!!!! :D
-      Delete(IDsToDelete[i]);
+      Houses[I].Free; //Because no one needs this anymore it must DIE!!!!! :D
+      Delete(I);
     end;
 end;
 

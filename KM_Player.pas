@@ -85,6 +85,7 @@ type
     procedure SkipDefeatConditionCheck;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit; reintroduce;
+    procedure AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     procedure TrainingDone(aUnit: TKMUnit);
 
@@ -122,7 +123,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_Sound, KM_PlayersCollection, KM_Resource;
+uses KM_Terrain, KM_Sound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
 
 
 { TKMPlayerCommon }
@@ -254,6 +255,23 @@ begin
       fBuildList.AddWorker(TKMUnitWorker(Result));
 
     fStats.UnitCreated(aUnitType, WasTrained);
+  end;
+end;
+
+
+//Add the unit and link it to closest group
+procedure TKMPlayer.AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
+var
+  U: TKMUnit;
+  W: TKMUnitWarrior;
+begin
+  U := AddUnit(aUnitType, Position);
+
+  if (U <> nil) and (U is TKMUnitWarrior) then
+  begin
+    W := TKMUnitWarrior(U).FindLinkUnit(U.GetPosition);
+    if W <> nil then
+      TKMUnitWarrior(U).OrderLinkTo(W);
   end;
 end;
 
