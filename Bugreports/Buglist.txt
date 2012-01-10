@@ -55,6 +55,7 @@ Features:
 	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
 	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
 	Some way to delete multiplayer saves from within the KaM Remake
+	Choosing max reported refresh rate for display in fullscreen causes banding with wrong drivers (add refresh rate selector to options) 
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
