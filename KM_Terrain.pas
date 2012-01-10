@@ -2079,6 +2079,9 @@ begin
           hs_Fence:       Land[y,x].Markup := mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
           hs_StartBuild:  Land[y,x].Markup := mu_House; //Become unwalkable to Workers
           hs_Built:       begin
+                            //Script houses are placed as built, add markup for them too
+                            Land[y,x].Markup := mu_House;
+
                             //Add road after Wood stage is done
                             if HA[i,k] = 2 then
                               Land[y,x].TileOverlay := to_Road;
