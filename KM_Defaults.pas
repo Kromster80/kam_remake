@@ -289,9 +289,18 @@ type
   TPassabilitySet = set of TPassability;
 
 type
-  TWalkConnect = (wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcAvoid);
+  TWalkConnect = (
+    wcWalk, 
+    wcRoad,
+    wcFish,
+    wcWolf,
+    wcCrab, //These things are used often but changed rarely
+    wcWork, //CanWorker areas
+    wcAvoid //WalkAvoid is different - used rarely and changed each frame
+  );
 
-const PassabilityStr:array[TPassability] of string = (
+const
+  PassabilityStr: array [TPassability] of string = (
     'canWalk',      // General passability of tile for any walking units
     'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
     'canBuild',     // Can we build a house on this tile?
@@ -522,7 +531,13 @@ type
                 ft_InitWine, //Reset terrain rotation and set grapes ground
                 ft_Wine,
                 ft_Wall); //This is used only for querying
-  THouseStage = (hs_None, hs_Plan, hs_Fence, hs_Built);
+  THouseStage = (
+    hs_None, //Nothing, clear area
+    hs_Plan, //Rope plan
+    hs_Fence,//Wooden fence, partially walkable
+    hs_StartBuild, //Entering Wood stage, no longer walkable
+    hs_Built //Done
+  );
 
   TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall );
 

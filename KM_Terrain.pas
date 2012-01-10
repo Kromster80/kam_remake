@@ -258,7 +258,7 @@ begin
   RebuildPassability(1,fMapX,1,fMapY);
 
   //Everything except roads
-  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -306,7 +306,7 @@ begin
   RebuildPassability(1,fMapX,1,fMapY);
 
   //Everything except roads
-  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcFish, wcWolf, wcCrab, wcWork]);
   fLog.AppendLog('Map file loaded');
 end;
 
@@ -671,7 +671,7 @@ begin
   RecalculatePassabilityAround(aLoc);
 
   //Markups affect passability so therefore also floodfill
-  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -682,7 +682,7 @@ begin
   RecalculatePassabilityAround(Loc);
 
   //Markups affect passability so therefore also floodfill
-  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -770,7 +770,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge := 0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -808,6 +808,7 @@ begin
 
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
+  //Walk and Road because Grapes are blocking diagonal moves
   RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
 end;
 
@@ -1216,7 +1217,7 @@ begin
   RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
 
   //WalkConnect takes diagonal passability into account
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -1481,13 +1482,13 @@ begin
       (not TileIsWineField(Loc))and
       CheckHeightPass(Loc,CanWolf) then
      AddPassability(Loc, [CanWolf]);
-
   end;
-  if (TileIsWalkable(Loc))and
-    (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-    (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-    CheckHeightPass(Loc,CanWalk)and
-    not(Land[Loc.Y,Loc.X].Markup = mu_House) then
+
+  if (TileIsWalkable(Loc)) and
+    (Land[Loc.Y,Loc.X].TileOverlay <> to_Wall) and
+    not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked and
+    CheckHeightPass(Loc, CanWalk) and
+    not (Land[Loc.Y,Loc.X].Markup = mu_House) then
     AddPassability(Loc, [CanWorker]);
 
   //Check all 4 tiles that border with this vertex
@@ -1652,70 +1653,49 @@ end;
 
 
 //Test wherever it is possible to make the route without actually making it to save performance
-function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
-var i,k:integer; aHouse:TKMHouse; TestRadius:boolean;
+function TTerrain.Route_CanBeMade(LocA, LocB: TKMPoint; aPass: TPassability; aDistance: Single; aInteractionAvoid: Boolean): Boolean;
+var i,k:integer; TestRadius: Boolean; WC: TWalkConnect;
 begin
-  Result := true;
+  Result := True;
 
   //target has to be different point than source
   //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
 
-  //If we are in worker mode then use the house entrance passability if we are still standing in a house
-  if aPass=CanWorker then
-  begin
-    aHouse := fPlayers.HousesHitTest(LocA.X,LocA.Y);
-    if aHouse <> nil then
-    begin
-      LocA := KMPointBelow(aHouse.GetEntrance);
-      aPass := CanWalk;
-    end;
-  end;
+  //Source point has to be walkable
+  Result := Result and CheckPassability(LocA, aPass);
 
-  //target point has to be walkable
-  Result := Result and CheckPassability(LocA,aPass);
-  TestRadius := false;
+  //Target has to be walkable within Distance
+  TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
   if GetLength(LocB,KMPoint(k,i))<=aDistance then
     TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
   Result := Result and TestRadius;
 
-  //There's a walkable way between A and B (which is proved by FloodFill test on map init)
-  if aPass=CanWalk then
-  begin
-    TestRadius := false;
-    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
-    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-    if GetLength(LocB,KMPoint(k,i))<=aDistance then
-      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcWalk] = Land[i,k].WalkConnect[wcWalk]);
-    Result := Result and TestRadius;
+  case aPass of
+    CanWalk:      WC := wcWalk;
+    CanWalkRoad:  WC := wcRoad;
+    CanFish:      WC := wcFish;
+    CanWolf:      WC := wcWolf;
+    CanCrab:      WC := wcCrab;
+    CanWorker:    WC := wcWork;
+    else Exit;
   end;
 
-  if aPass=CanWalkRoad then
-  begin
-    TestRadius := false;
-    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
-    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-    if GetLength(LocB,KMPoint(k,i))<=aDistance then
-      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcRoad] = Land[i,k].WalkConnect[wcRoad]);
-    Result := Result and TestRadius;
-  end;
-
-  if aPass=CanFish then
-    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcFish] = Land[LocB.Y,LocB.X].WalkConnect[wcFish]);
-
-  if aPass=CanWolf then
-    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcWolf] = Land[LocB.Y,LocB.X].WalkConnect[wcWolf]);
-
-  if aPass=CanCrab then
-    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcCrab] = Land[LocB.Y,LocB.X].WalkConnect[wcCrab]);
+  //Walkable way between A and B is proved by FloodFill
+  TestRadius := False;
+  for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
+  for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
+  if GetLength(LocB,KMPoint(k,i)) <= aDistance then
+    TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[WC] = Land[i,k].WalkConnect[WC]);
+  Result := Result and TestRadius;
 
   if aInteractionAvoid then
   begin
     TestRadius := false;
     for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
     for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-    if GetLength(LocB,KMPoint(k,i))<=aDistance then
+    if GetLength(LocB,KMPoint(k,i)) <= aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcAvoid] = Land[i,k].WalkConnect[wcAvoid]);
     Result := Result and TestRadius;
   end;
@@ -1943,7 +1923,7 @@ begin
   RecalculatePassabilityAround(Loc); //Changing height will affect the cells around this one
 
   if aRebuildWalkConnects then
-    RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+    RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -1955,7 +1935,7 @@ begin
     FlattenTerrain(LocList.List[i], false); //Rebuild the Walk Connect at the end, rather than every time
 
   //All 4 are affected by height
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -1991,7 +1971,7 @@ procedure TTerrain.RebuildWalkConnect(aSet: array of TWalkConnect);
 var I,J,K{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability; AllowDiag:boolean;
   WC: TWalkConnect;
 
-  procedure FillArea(x,y:word; ID:byte; var Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
+  procedure FillArea(x,y:word; ID:byte; var Count:integer);
   begin
     if (Land[y,x].WalkConnect[WC]=0)and(Pass in Land[y,x].Passability)and //Untested area
      ((WC <> wcAvoid)or
@@ -2085,38 +2065,46 @@ begin
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
-  for i:=1 to 4 do for k:=1 to 4 do
-    if HA[i,k]<>0 then
+  for i:=1 to 4 do
+  for k:=1 to 4 do
+    if HA[i,k] <> 0 then
     begin
-      x:=Loc.X+k-3; y:=Loc.Y+i-4;
+      x := Loc.X + k - 3;
+      y := Loc.Y + i - 4;
       if TileInMapCoords(x,y) then
       begin
-
-        if (HA[i,k]=2)and(aHouseStage=hs_Built) then
-          Land[y,x].TileOverlay := to_Road;
-
         case aHouseStage of
-          hs_None:  Land[y,x].Markup:=mu_None;
-          hs_Plan:  Land[y,x].Markup:=mu_HousePlan;
-          hs_Fence: Land[y,x].Markup:=mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
-          hs_Built: begin
-                      Land[y,x].Markup:=mu_House;
-                      if aFlattenTerrain then Land[y,x].Obj:=255; //In map editor don't remove objects (remove on mission load instead)
-                      //If house was set e.g. in mission file we must flatten the terrain as no one else has
-                      if ToFlatten<>nil then ToFlatten.AddEntry(KMPoint(x,y));
-                    end;
-        end;
+          hs_None:        Land[y,x].Markup := mu_None;
+          hs_Plan:        Land[y,x].Markup := mu_HousePlan;
+          hs_Fence:       Land[y,x].Markup := mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
+          hs_StartBuild:  Land[y,x].Markup := mu_House; //Become unwalkable to Workers
+          hs_Built:       begin
+                            //Add road after Wood stage is done
+                            if HA[i,k] = 2 then
+                              Land[y,x].TileOverlay := to_Road;
 
+                            if ToFlatten <> nil then
+                            begin
+                              //In map editor don't remove objects (remove on mission load instead)
+                              Land[y,x].Obj := 255;
+                              //If house was set e.g. in mission file we must flatten the terrain as no one else has
+                              ToFlatten.AddEntry(KMPoint(x,y));
+                            end;
+                          end;
+        end;
         UpdateBorders(KMPoint(x,y));
       end;
     end;
 
-  if ToFlatten<>nil then FlattenTerrain(ToFlatten);
-  if ToFlatten<>nil then FreeAndNil(ToFlatten);
+  if ToFlatten <> nil then
+  begin
+    FlattenTerrain(ToFlatten);
+    ToFlatten.Free;
+  end;
 
   //Recalculate Passability for tiles around the house so that they can't be built on too
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -2299,7 +2287,7 @@ begin
 
   end;
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
-  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 
 
@@ -2601,7 +2589,7 @@ begin
   RebuildLighting(1, fMapX, 1, fMapY);
   RebuildPassability(1, fMapX, 1, fMapY);
 
-  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab]);
+  RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 
   fLog.AppendLog('Terrain loaded');
 end;

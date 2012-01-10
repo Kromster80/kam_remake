@@ -552,6 +552,7 @@ begin
   if HouseReadyToBuild and not HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
   begin
     fHouse.BuildingState := hbs_Wood;
+    fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_StartBuild, fUnit.GetOwner);
     fPlayers.Player[fHouse.GetOwner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
     fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
     fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
