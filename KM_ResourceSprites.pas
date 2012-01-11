@@ -212,6 +212,7 @@ var
 
 
 { TKMSpritePack }
+//We need to access to palettes to properly Expand RX files
 constructor TKMSpritePack.Create(aPalettes: TKMPalettes; aRT: TRXType);
 begin
   inherited Create;
@@ -219,6 +220,7 @@ begin
   fPalettes := aPalettes;
   fRT := aRT;
 end;
+
 
 procedure TKMSpritePack.Allocate(aCount: Integer);
 begin
@@ -235,6 +237,7 @@ begin
   SetLength(RXData[fRT].Mask,     aCount);
   SetLength(RXData[fRT].HasMask,  aCount);
 end;
+
 
 //Convert paletted data into RGBA and select Team color layer from it
 procedure TKMSpritePack.Expand;
@@ -288,7 +291,8 @@ begin
   end;
 end;
 
-//Release RAM
+
+//Release RAM that is no longer needed
 procedure TKMSpritePack.ClearData;
 var I: Integer;
 begin
