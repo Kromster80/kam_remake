@@ -708,17 +708,18 @@ function TTaskBuildHouse.Execute: TTaskResult;
   var i, MyCount: integer; Spots: array[1..16] of byte;
   begin
     MyCount := 0;
-    for i:=1 to Cells.Count do
+    for i := 1 to Cells.Count do
       if not KMSamePoint(Cells.List[i].Loc,fUnit.GetPosition) then
         if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) then
-          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, 0, false) then
+          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc, fUnit.GetDesiredPassability, 0, false) then
           begin
             inc(MyCount);
             Spots[MyCount] := i;
           end;
     if MyCount > 0 then
       Result := Spots[KaMRandom(MyCount)+1]
-    else Result := 0;
+    else
+      Result := 0;
   end;
 begin
   Result := TaskContinues;

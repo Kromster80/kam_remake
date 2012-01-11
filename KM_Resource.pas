@@ -73,7 +73,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Render, KM_Log, KM_TextLibrary, KM_Points;
+uses KromUtils, KM_RenderSetup, KM_Log, KM_TextLibrary, KM_Points;
 
 
 { TResource }
@@ -116,7 +116,7 @@ end;
 
 procedure TResource.LoadMenuResources(const aLocale: string);
 begin
-  Assert(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
+  Assert(fRenderSetup <> nil, 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
@@ -145,7 +145,7 @@ procedure TResource.LoadGameResources;
 begin
   if fDataState = dls_All then Exit;
 
-  Assert(fRender <> nil, 'fRender inits OpenGL and we need OpenGL to make textures');
+  Assert(fRenderSetup <> nil, 'fRenderSetup inits OpenGL and we need OpenGL to make textures');
 
   LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
   LoadPatternDAT(ExeDir + 'data\defines\pattern.dat');
@@ -262,7 +262,7 @@ var MyBitMap:TBitmap;
     sy,sx:integer;
     RT: TRXType;
 begin
-  RT := TRXType(RXid - 1);
+(*  RT := TRXType(RXid - 1);
 
   CreateDir(ExeDir + 'Export\');
   CreateDir(ExeDir + 'Export\' + fResource.Sprites.FileName[RT] + '.rx\');
@@ -295,7 +295,7 @@ begin
     SetLength(RXData[RT].Data[id], 0);
   end;
 
-  MyBitMap.Free;
+  MyBitMap.Free;*)
 end;
 
 {Export Units graphics categorized by Unit and Action}
@@ -311,7 +311,7 @@ var
   sy,sx,y,x:integer;
   Used:array of Boolean;
 begin
-  CreateDir(ExeDir + 'Export\');
+(*  CreateDir(ExeDir + 'Export\');
   CreateDir(ExeDir + 'Export\UnitAnim\');
   MyBitMap := TBitmap.Create;
   MyBitMap.PixelFormat := pf24bit;
@@ -387,7 +387,7 @@ begin
     if sy>0 then MyBitMap.SaveToFile(ExeDir + 'Export\UnitAnim\_Unused\_'+int2fix(ci,4) + '.bmp');
   end;
 
-  MyBitMap.Free;
+  MyBitMap.Free;*)
 end;
 
 
@@ -399,7 +399,7 @@ var MyBitMap:TBitmap;
     Q,Beast,i,k,ci:integer;
     sy,sx,y,x:integer;
 begin
-  CreateDir(ExeDir+'Export\');
+(*  CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\HouseAnim\');
   MyBitMap:=TBitmap.Create;
   MyBitMap.PixelFormat:=pf24bit;
@@ -455,7 +455,7 @@ begin
         end;
   end;
 
-  MyBitMap.Free;
+  MyBitMap.Free;*)
 end;
 
 
@@ -465,7 +465,7 @@ var MyBitMap: TBitmap;
     i,k,ci:integer;
     sy,sx,y,x:integer;
 begin
-  CreateDir(ExeDir + 'Export\');
+(*  CreateDir(ExeDir + 'Export\');
   CreateDir(ExeDir + 'Export\TreeAnim\');
   MyBitMap := TBitmap.Create;
   MyBitMap.PixelFormat := pf24bit;
@@ -494,7 +494,7 @@ begin
         ExeDir+'Export\TreeAnim\'+{inttostr(word(MapElem[i].DiagonalBlocked))+'_'+}int2fix(i,3)+'_'+int2fix(k,2)+'.bmp');
     end;
 
-  MyBitMap.Free;
+  MyBitMap.Free;*)
 end;
 
 

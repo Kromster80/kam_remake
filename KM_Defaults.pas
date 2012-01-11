@@ -37,8 +37,6 @@ const
 var
   //These should be TRUE
   MAKE_ANIM_TERRAIN     :boolean=true;  //Should we animate water and swamps
-  MAKE_UNIT_SPRITES     :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MAKE_HOUSE_SPRITES    :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MAKE_TEAM_COLORS      :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)

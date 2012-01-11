@@ -225,8 +225,10 @@ begin
         begin
 
           inc(OCount);
-          if (length(OList)-1)<OCount then setlength(OList, OCount+128); //Allocate slightly more space
-          OList[OCount].Pos:=KMPoint(x,y);
+          if OCount >= Length(OList) then
+            SetLength(OList, OCount + 128); //Allocate slightly more space
+
+          OList[OCount].Pos := KMPoint(x,y);
 
           if (Pass in fTerrain.Land[y,x].Passability) then //If cell meets Passability then estimate it
           begin

@@ -1232,31 +1232,21 @@ begin
   for i:=0 to fCount-1 do
   if RenderOrder[i] <> -1 then
   begin
-
     h := RenderOrder[i];
-    //Incase no sprites were made
-    if not MAKE_HOUSE_SPRITES and (RenderList[h].RX = rxHouses) then
-      fRenderAux.Dot(RenderList[h].Loc.X,RenderList[h].Loc.Y, RenderList[h].Team)
-    else
-    if not MAKE_UNIT_SPRITES and (RenderList[h].RX = rxUnits) then
-      fRenderAux.Dot(RenderList[h].Loc.X,RenderList[h].Loc.Y, RenderList[h].Team)
-    else
-    begin
-      glPushMatrix;
-        glTranslatef(RenderList[h].Obj.X, RenderList[h].Obj.Y, 0);
-        glRotatef(fRender.rHeading, -1, 0, 0);
-        glTranslatef(-RenderList[h].Obj.X, -RenderList[h].Obj.Y, 0);
-        repeat //Render child sprites only after their parent
-          with RenderList[h] do
-            if AlphaStep=-1 then
-              fRender.RenderSprite(RX,ID,Loc.X,Loc.Y,Team,FOWvalue)
-            else
-              fRender.RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue);
-          inc(h);
-          inc(fStat_Sprites2);
-        until((h=fCount) or RenderList[h].NewInst);
-      glPopMatrix;
-    end;
+    glPushMatrix;
+      glTranslatef(RenderList[h].Obj.X, RenderList[h].Obj.Y, 0);
+      glRotatef(fRender.rHeading, -1, 0, 0);
+      glTranslatef(-RenderList[h].Obj.X, -RenderList[h].Obj.Y, 0);
+      repeat //Render child sprites only after their parent
+        with RenderList[h] do
+          if AlphaStep=-1 then
+            fRender.RenderSprite(RX,ID,Loc.X,Loc.Y,Team,FOWvalue)
+          else
+            fRender.RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue);
+        inc(h);
+        inc(fStat_Sprites2);
+      until((h=fCount) or RenderList[h].NewInst);
+    glPopMatrix;
   end;
   fCount := 0;
 end;
