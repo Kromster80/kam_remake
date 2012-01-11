@@ -9,9 +9,16 @@ uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   RXXPackerForm in 'RXXPackerForm.pas' {RXXForm1};
 
+
 {$IFDEF WDC}
 {$R *.res}
 {$ENDIF}
+
+
+var
+  RXXForm1: TRXXForm1;
+
+
 begin
   Application.Initialize;
   Application.CreateForm(TRXXForm1, RXXForm1);

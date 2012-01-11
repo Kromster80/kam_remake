@@ -10,7 +10,7 @@ uses
 type
   TRXXForm1 = class(TForm)
     btnPackRXX: TButton;
-    ComboBox1: TComboBox;
+    ListBox1: TListBox;
     procedure btnPackRXXClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   end;
@@ -37,28 +37,33 @@ begin
   fPalettes.LoadPalettes;
 
   for RT := Low(TRXType) to High(TRXType) do
-    ComboBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
+    ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
 
-  ComboBox1.ItemIndex := 0;
+  ListBox1.ItemIndex := 0;
   USE_RXX_FILES := False; //We are packing the RXX files, so always load the data from the other sources
 end;
 
 
 procedure TRXXForm1.btnPackRXXClick(Sender: TObject);
-var fSprites: TKMSpritePack; RT: TRXType;
+var fSprites: TKMSpritePack; RT: TRXType; I: Integer;
 begin
   btnPackRXX.Enabled := False;
 
-  RT := TRXType(ComboBox1.ItemIndex);
+  for I := 0 to ListBox1.Items.Count - 1 do
+  if ListBox1.Selected[I] then
+  begin
+    RT := TRXType(I);
 
-  fSprites := TKMSpritePack.Create(fPalettes, Rt);
+    fSprites := TKMSpritePack.Create(fPalettes, Rt);
+    fSprites.LoadFromRXFile(ExeDir + '..\..\data\gfx\res\' + RXInfo[RT].FileName + '.rx');
+  //  fSprites.LoadFromFolder();
+    fSprites.SaveToRXXFile(ExeDir + RXInfo[RT].FileName + '.rxx');
 
-  fSprites.LoadFromRXFile(ExeDir + '..\..\data\gfx\res\' + RXInfo[RT].FileName + '.rx');
-//  fSprites.LoadFromFolder();
+    fSprites.Free;
 
-  fSprites.SaveToRXXFile(ExeDir + RXInfo[RT].FileName + '.rxx');
-
-  fSprites.Free;
+    ListBox1.Selected[I] := False;
+    ListBox1.Refresh;
+  end;
 
   btnPackRXX.Enabled := True;
 end;
