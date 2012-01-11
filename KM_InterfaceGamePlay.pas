@@ -20,7 +20,7 @@ type
     ShownMessage:integer;
     PlayMoreMsg:TGameResultMsg; //Remember which message we are showing
     fJoiningGroups: boolean;
-    AskDemolish:boolean;
+    AskDemolish, AskDismiss:boolean;
     fNetWaitDropPlayersDelayStarted:cardinal;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection:boolean;
@@ -62,6 +62,7 @@ type
     procedure Army_ActivateControls(aActive:boolean);
     procedure Army_HideJoinMenu(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
+    procedure Unit_Dismiss(Sender:TObject);
     procedure House_WoodcutterChange(Sender:TObject);
     procedure House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
     procedure House_Demolish(Sender:TObject);
@@ -245,6 +246,11 @@ type
       Label_UnitDescription:TKMLabel;
       ConditionBar_Unit:TKMPercentBar;
       Image_UnitPic:TKMImage;
+      Button_Unit_Dismiss:TKMButton;
+
+      Panel_Unit_Dismiss:TKMPanel;
+         Label_Unit_Dismiss:TKMLabel;
+         Button_Unit_DismissYes,Button_Unit_DismissNo:TKMButton;
 
       Panel_Army:TKMPanel;
         Button_Army_GoTo,Button_Army_Stop,Button_Army_Attack:TKMButton;
@@ -306,7 +312,7 @@ type
     destructor Destroy; override;
     procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
-    procedure ShowUnitInfo(Sender:TKMUnit);
+    procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
     procedure MenuIconsEnabled(NewValue:boolean);
     procedure UpdateMapSize(X,Y:integer);
@@ -1333,6 +1339,16 @@ begin
     Label_UnitTask        := TKMLabel.Create(Panel_Unit,73,80,116,30,'',fnt_Grey,taLeft);
     Label_UnitTask.AutoWrap := true;
     Label_UnitDescription := TKMLabel.Create(Panel_Unit,8,152,184,200,'',fnt_Grey,taLeft); //Taken from LIB resource
+    Button_Unit_Dismiss   := TKMButton.Create(Panel_Unit,132,120,56,34,29);
+
+  Panel_Unit_Dismiss:=TKMPanel.Create(Panel_Unit,0,160,200,400);
+    Label_Unit_Dismiss             := TKMLabel.Create(Panel_Unit_Dismiss,100,16,184,30,'Are you sure?',fnt_Outline,taCenter);
+    Button_Unit_DismissYes         := TKMButton.Create(Panel_Unit_Dismiss,50, 50,100,40,fTextLibrary.GetTextString(231),fnt_Metal);
+    Button_Unit_DismissNo          := TKMButton.Create(Panel_Unit_Dismiss,50,100,100,40,fTextLibrary.GetTextString(224),fnt_Metal);
+    Button_Unit_DismissYes.Hint    := fTextLibrary.GetTextString(233);
+    Button_Unit_DismissNo.Hint     := fTextLibrary.GetTextString(224);
+    Button_Unit_DismissYes.OnClick := Unit_Dismiss;
+    Button_Unit_DismissNo.OnClick  := Unit_Dismiss;
 
   Panel_Army:=TKMPanel.Create(Panel_Unit,0,160,200,400);
     //Military buttons start at 8.170 and are 52x38/30 (60x46)
@@ -1361,6 +1377,7 @@ begin
     Button_Army_Split.OnClick  := Army_Issue_Order;
     Button_Army_Join.OnClick   := Army_Issue_Order;
     Button_Army_Feed.OnClick   := Army_Issue_Order;
+    Button_Unit_Dismiss.OnClick:= Army_Issue_Order;
 
     //Disable not working buttons
     Button_Army_GoTo.Disable;
@@ -1378,6 +1395,7 @@ begin
     Button_Army_Split.Hint  := Format(fTextLibrary[TX_TROOP_SPLIT_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_SPLIT]]);
     Button_Army_Join.Hint   := Format(fTextLibrary[TX_TROOP_LINK_HINT], [fTextLibrary[TX_SHORTCUT_KEY_TROOP_LINK]]);
     Button_Army_Feed.Hint   := fTextLibrary.GetTextString(262);
+    Button_Unit_Dismiss.Hint:= 'Dismiss unit';
 
     {Army controls...
     Go to     Stop      Attack
@@ -2015,11 +2033,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
-var Commander:TKMUnitWarrior;
+procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
+var i:integer; Commander:TKMUnitWarrior;
 begin
   fShownUnit  := Sender;
   fShownHouse := nil;
+  AskDismiss  := aAskDismiss;
 
   if (fShownUnit=nil) or (not fShownUnit.Visible) or (fShownUnit.IsDeadOrDying) then begin
     SwitchPage(nil);
@@ -2035,6 +2054,16 @@ begin
   if Sender is TKMUnitWarrior then
   begin
     Label_UnitDescription.Hide;
+    if AskDismiss then
+    begin
+      Panel_Army.Hide;
+      Panel_Army_JoinGroups.Hide;
+      Panel_Unit_Dismiss.Show;
+      Button_Unit_Dismiss.Hide;
+      exit;
+    end;
+    Panel_Unit_Dismiss.Hide;
+    Button_Unit_Dismiss.Show;
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if not Commander.ArmyCanTakeOrders then
       Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
@@ -2055,10 +2084,19 @@ begin
   end
   else
   begin //Citizen specific
-    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].UnitDescription;
-    Label_UnitDescription.Show;
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Hide;
+    if AskDismiss then
+    begin
+      Panel_Unit_Dismiss.Show;
+      Button_Unit_Dismiss.Hide;
+      Label_UnitDescription.Hide;
+      exit;
+    end;
+    Panel_Unit_Dismiss.Hide;
+    Button_Unit_Dismiss.Show;
+    Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].UnitDescription;
+    Label_UnitDescription.Show;
   end;
 end;
 
@@ -2342,6 +2380,12 @@ procedure TKMGamePlayInterface.Army_Issue_Order(Sender:TObject);
 var Commander: TKMUnitWarrior;
 begin
   if fPlayers.Selected = nil then exit;
+
+  if Sender = Button_Unit_Dismiss then
+  begin
+    ShowUnitInfo(TKMUnit(fPlayers.Selected), true);
+  end;
+
   if not (fPlayers.Selected is TKMUnitWarrior) then exit;
 
   Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
@@ -2396,6 +2440,21 @@ begin
   end;
 end;
 
+procedure TKMGamePlayInterface.Unit_Dismiss(Sender:TObject);
+begin
+  if fPlayers.Selected = nil then exit;
+    if not (fPlayers.Selected is TKMUnit) then exit;
+
+    if Sender=Button_Unit_DismissYes then begin
+      //DISMISS UNIT
+      AskDismiss:=false;
+      ShowUnitInfo(nil, false); //Simpliest way to reset page and ShownUnit
+      SwitchPage(nil); //Return to main menu after dismissing
+    end else begin
+      AskDismiss:=false;
+      ShowUnitInfo(TKMUnit(fPlayers.Selected), false);  //Cancel and return to selected unit
+    end;
+end;
 
 procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender:TObject);
 begin
