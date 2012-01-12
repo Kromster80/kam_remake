@@ -58,7 +58,6 @@ type
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
 
-    //procedure ExportRX2BMP(RXid:integer);
     //procedure ExportTreeAnim2BMP;
     //procedure ExportHouseAnim2BMP;
     procedure ExportUnitAnim2BMP;
@@ -67,7 +66,6 @@ type
   var
     fResource: TResource;
 
-    procedure ExportRX2BMP(RXid:integer);
     procedure ExportTreeAnim2BMP;
     procedure ExportHouseAnim2BMP;
 
@@ -251,52 +249,6 @@ begin
   Result:=true;
 end;
 
-
-//=============================================
-//Export RX to Bitmaps
-//=============================================
-{That is when we want to export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes}
-procedure ExportRX2BMP(RXid:integer);
-var MyBitMap:TBitmap;
-    id,i,k:integer;
-    sy,sx:integer;
-    RT: TRXType;
-begin
-(*  RT := TRXType(RXid - 1);
-
-  CreateDir(ExeDir + 'Export\');
-  CreateDir(ExeDir + 'Export\' + fResource.Sprites.FileName[RT] + '.rx\');
-  MyBitMap := TBitmap.Create;
-  MyBitMap.PixelFormat := pf24bit;
-
-  fResource.Sprites.LoadSprites(RT,False,nil,nil);
-
-  for id:=1 to RXData[RT].Qty do
-  if RXData[RT].Flag[id] = 1 then
-
-  begin
-    sx := RXData[RT].Size[id].X;
-    sy := RXData[RT].Size[id].Y;
-    MyBitMap.Width  := sx;
-    MyBitMap.Height := sy;
-
-    for i:=0 to sy-1 do for k:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[k,i] := RXData[RT].RGBA[id,i*sx+k] AND $FFFFFF; //Drop Alpha value
-
-    //Mark pivot location with a dot
-    {k := sx + RXData[RT].Pivot[id].x;
-    i := sy + RXData[RT].Pivot[id].y;
-    if InRange(i, 0, sy-1) and InRange(k, 0, sx-1) then
-      MyBitMap.Canvas.Pixels[k,i] := $FF00FF;}
-
-    if sy > 0 then
-      MyBitMap.SaveToFile(ExeDir + 'Export\' + fResource.Sprites.FileName[RT] + '.rx\' + fResource.Sprites.FileName[RT] + '_' + int2fix(ID, 4) + '.bmp');
-
-    SetLength(RXData[RT].Data[id], 0);
-  end;
-
-  MyBitMap.Free;*)
-end;
 
 {Export Units graphics categorized by Unit and Action}
 procedure TResource.ExportUnitAnim2BMP;

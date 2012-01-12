@@ -9,7 +9,7 @@ uses
   Math, SysUtils, KromUtils,
   {$IFDEF FPC} LResources, {$ENDIF}
   dglOpenGL,
-  KM_Render, KM_Resource, KM_Defaults, KM_Form_Loading,
+  KM_Render, KM_Resource, KM_ResourceSprites, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection,
   KM_TextLibrary, KM_Sound, KM_Utils, KM_Points;
 
@@ -447,12 +447,12 @@ end;
 
 
 //Exports
-procedure TForm1.Export_TreesRXClick(Sender: TObject);   begin ExportRX2BMP(1); end;
-procedure TForm1.Export_HousesRXClick(Sender: TObject);  begin ExportRX2BMP(2); end;
-procedure TForm1.Export_UnitsRXClick(Sender: TObject);   begin ExportRX2BMP(3); end;
-procedure TForm1.Export_GUIRXClick(Sender: TObject);     begin ExportRX2BMP(4); end;
-procedure TForm1.Export_GUIMainRXClick(Sender: TObject); begin ExportRX2BMP(5); end;
-procedure TForm1.Export_GUIMainHRXClick(Sender: TObject);begin ExportRX2BMP(6); end;
+procedure TForm1.Export_TreesRXClick(Sender: TObject);   begin fResource.Sprites.ExportToBMP(rxTrees); end;
+procedure TForm1.Export_HousesRXClick(Sender: TObject);  begin fResource.Sprites.ExportToBMP(rxHouses); end;
+procedure TForm1.Export_UnitsRXClick(Sender: TObject);   begin fResource.Sprites.ExportToBMP(rxUnits); end;
+procedure TForm1.Export_GUIRXClick(Sender: TObject);     begin fResource.Sprites.ExportToBMP(rxGUI); end;
+procedure TForm1.Export_GUIMainRXClick(Sender: TObject); begin fResource.Sprites.ExportToBMP(rxGUIMain); end;
+procedure TForm1.Export_GUIMainHRXClick(Sender: TObject);begin fResource.Sprites.ExportToBMP(rxGUIMainH); end;
 procedure TForm1.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.ExportSounds; end;
 procedure TForm1.Export_TreeAnim1Click(Sender: TObject); begin ExportTreeAnim2BMP; end;
 procedure TForm1.Export_HouseAnim1Click(Sender: TObject);begin ExportHouseAnim2BMP; end;

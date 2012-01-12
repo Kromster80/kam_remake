@@ -134,6 +134,7 @@ type
     procedure OverloadFromFolder(const aFolder: string);
 
     procedure SaveToRXXFile(const aFileName: string);
+    procedure ExportToBMP(const aFolder: string);
 
     procedure ClearData; //Release non-required data
   end;
@@ -154,14 +155,19 @@ type
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection; aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
     procedure SaveBMPTexture(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aMode: TTexFormat);
+    procedure LoadSprites(aRT: TRXType);
+    procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
+    procedure ClearSprites(aRT: TRXType);
   public
     constructor Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
+
     procedure LoadMenuResources(aCursors: TKMCursors);
     procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
 
+    procedure ExportToBMP(aRT: TRXType);
+
     property FileName[aRX: TRXType]: string read GetRXFileName;
-    procedure LoadSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection); //Exposed for Exports
   end;
 
 
@@ -560,6 +566,45 @@ begin
 end;
 
 
+//Export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes
+procedure TKMSpritePack.ExportToBMP(const aFolder: string);
+var MyBitMap:TBitmap;
+    id,i,k:integer;
+    sy,sx:integer;
+    RT: TRXType;
+begin
+  ForceDirectories(aFolder);
+
+  MyBitMap := TBitmap.Create;
+  MyBitMap.PixelFormat := pf24bit;
+
+  for id:=1 to RXData[RT].Qty do
+  if RXData[RT].Flag[id] = 1 then
+  begin
+    sx := RXData[RT].Size[id].X;
+    sy := RXData[RT].Size[id].Y;
+    MyBitMap.Width  := sx;
+    MyBitMap.Height := sy;
+
+    for i:=0 to sy-1 do for k:=0 to sx-1 do
+      MyBitMap.Canvas.Pixels[k,i] := RXData[RT].RGBA[id,i*sx+k] and $FFFFFF; //Drop Alpha value
+
+    //Mark pivot location with a dot
+    {k := sx + RXData[RT].Pivot[id].x;
+    i := sy + RXData[RT].Pivot[id].y;
+    if InRange(i, 0, sy-1) and InRange(k, 0, sx-1) then
+      MyBitMap.Canvas.Pixels[k,i] := $FF00FF;}
+
+    if sy > 0 then
+      MyBitMap.SaveToFile(aFolder + int2fix(ID, 4) + '.bmp');
+
+    SetLength(RXData[RT].Data[id], 0);
+  end;
+
+  MyBitMap.Free;
+end;
+
+
 { TKMSprites }
 constructor TKMSprites.Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
 var
@@ -601,7 +646,9 @@ begin
     if (RXInfo[RT].Usage = ruMenu) then
     begin
       fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
-      LoadSprites(RT, aCursors, nil);
+      LoadSprites(RT);
+      ProcessSprites(RT, aCursors, nil);
+      ClearSprites(RT);
       fStepProgress;
     end;
 end;
@@ -615,14 +662,15 @@ begin
   begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
-    LoadSprites(RT, nil, aHouseDat);
+    LoadSprites(RT);
+    ProcessSprites(RT, nil, aHouseDat);
+    ClearSprites(RT);
   end;
-
 end;
 
 
 //Try to load RXX first, then RX, then use Folder
-procedure TKMSprites.LoadSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
+procedure TKMSprites.LoadSprites(aRT: TRXType);
 begin
   if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rxx') then
   begin
@@ -654,7 +702,11 @@ begin
     PxWidth := 32;
     PxHeight := 32;
   end;}
+end;
 
+
+procedure TKMSprites.ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
+begin
   //Cursors must be made before we clear the raw RGBA data
   if (aRT = rxGui) and (aCursors <> nil) then
   begin
@@ -667,7 +719,12 @@ begin
   //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
   if RXInfo[aRT].AlphaTest and (aHouseDat <> nil) then
     MakeGFX_AlphaTest(aHouseDat, aRT);
+end;
 
+
+//Clear unused RAM
+procedure TKMSprites.ClearSprites(aRT: TRXType);
+begin
   fSprites[aRT].ClearData;
 end;
 
@@ -895,6 +952,14 @@ begin
 
     Bmp.Free;
   end;
+end;
+
+
+procedure TKMSprites.ExportToBMP(aRT: TRXType);
+begin
+  LoadSprites(aRT);
+  fSprites[aRT].ExportToBMP(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
+  ClearSprites(aRT);
 end;
 
 
