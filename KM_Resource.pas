@@ -58,17 +58,13 @@ type
     property Sprites: TKMSprites read fSprites;
     property Tileset: TKMTileset read fTileset;
 
-    //procedure ExportTreeAnim2BMP;
-    //procedure ExportHouseAnim2BMP;
-    procedure ExportUnitAnim2BMP;
+    procedure ExportTreeAnim;
+    procedure ExportHouseAnim;
+    procedure ExportUnitAnim;
   end;
 
   var
     fResource: TResource;
-
-    procedure ExportTreeAnim2BMP;
-    procedure ExportHouseAnim2BMP;
-
 
 implementation
 uses KromUtils, KM_RenderSetup, KM_Log, KM_TextLibrary, KM_Points;
@@ -250,9 +246,10 @@ begin
 end;
 
 
-{Export Units graphics categorized by Unit and Action}
-procedure TResource.ExportUnitAnim2BMP;
+//Export Units graphics categorized by Unit and Action
+procedure TResource.ExportUnitAnim;
 var
+  Folder: string;
   MyBitMap: TBitmap;
   U: TUnitType;
   A: TUnitActionType;
@@ -263,15 +260,16 @@ var
   sy,sx,y,x:integer;
   Used:array of Boolean;
 begin
-(*  CreateDir(ExeDir + 'Export\');
-  CreateDir(ExeDir + 'Export\UnitAnim\');
+  Folder := ExeDir + 'Export\UnitAnim\';
+  ForceDirectories(Folder);
+
   MyBitMap := TBitmap.Create;
   MyBitMap.PixelFormat := pf24bit;
 
   if fUnitDat = nil then
     fUnitDat := TKMUnitDatCollection.Create;
 
-  fResource.Sprites.LoadSprites(rxUnits,False,nil,nil);
+  fSprites.LoadSprites(rxUnits);
 
   for U := ut_Serf to ut_Serf do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
@@ -279,8 +277,7 @@ begin
   if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
   for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
   begin
-    CreateDir(ExeDir+'Export\UnitAnim\'+fUnitDat[U].UnitName+'\');
-    CreateDir(ExeDir+'Export\UnitAnim\'+fUnitDat[U].UnitName+'\'+UnitAct[A]+'\');
+    ForceDirectories(Folder + fUnitDat[U].UnitName + '\' + UnitAct[A] + '\');
 
     if fUnitDat[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
     begin
@@ -296,13 +293,13 @@ begin
         MyBitMap.Canvas.Pixels[x,y] := RXData[rxUnits].RGBA[ci, y*sx+x] AND $FFFFFF;
 
       if sy > 0 then
-        MyBitMap.SaveToFile(ExeDir + 'Export\UnitAnim\' +
+        MyBitMap.SaveToFile(Folder +
           fUnitDat[U].UnitName + '\' + UnitAct[A] + '\' +
           'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
   end;
 
-  CreateDir(ExeDir+'Export\UnitAnim\_Unused');
+  CreateDir(Folder + '_Unused');
   SetLength(Used, Length(RXData[rxUnits].Size));
 
   //Exclude actions
@@ -336,38 +333,41 @@ begin
     for y:=0 to sy-1 do for x:=0 to sx-1 do
       MyBitMap.Canvas.Pixels[x,y] := RXData[rxUnits].RGBA[ci, y*sx+x] AND $FFFFFF;
 
-    if sy>0 then MyBitMap.SaveToFile(ExeDir + 'Export\UnitAnim\_Unused\_'+int2fix(ci,4) + '.bmp');
+    if sy>0 then MyBitMap.SaveToFile(Folder + '_Unused\_'+int2fix(ci,4) + '.bmp');
   end;
 
-  MyBitMap.Free;*)
+  fSprites.ClearSprites(rxUnits);
+  MyBitMap.Free;
 end;
 
 
-{Export Houses graphics categorized by House and Action}
-procedure ExportHouseAnim2BMP;
-var MyBitMap:TBitmap;
-    ID:THouseType;
-    Ac:THouseActionType;
-    Q,Beast,i,k,ci:integer;
-    sy,sx,y,x:integer;
+//Export Houses graphics categorized by House and Action
+procedure TResource.ExportHouseAnim;
+var
+  Folder: string;
+  MyBitMap:TBitmap;
+  ID:THouseType;
+  Ac:THouseActionType;
+  Q,Beast,i,k,ci:integer;
+  sy,sx,y,x:integer;
 begin
-(*  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\HouseAnim\');
-  MyBitMap:=TBitmap.Create;
-  MyBitMap.PixelFormat:=pf24bit;
+  Folder := ExeDir + 'Export\HouseAnim\';
+  ForceDirectories(Folder);
 
-  fResource.LoadGameResources;
-  fResource.Sprites.LoadSprites(rxHouses,False,nil,nil);
+  MyBitMap := TBitmap.Create;
+  MyBitMap.PixelFormat := pf24bit;
+
+  fHouseDat := TKMHouseDatCollection.Create;
+  fSprites.LoadSprites(rxHouses);
 
   ci:=0;
   for ID:=Low(THouseType) to High(THouseType) do
     for Ac:=ha_Work1 to ha_Flag3 do
-      for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do
+      for k:=1 to fHouseDat[ID].Anim[Ac].Count do
       begin
-        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\');
-        CreateDir(ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\');
-        if fResource.HouseDat[ID].Anim[Ac].Step[k] <> -1 then
-          ci := fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
+        ForceDirectories(Folder+fHouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\');
+        if fHouseDat[ID].Anim[Ac].Step[k] <> -1 then
+          ci := fHouseDat[ID].Anim[Ac].Step[k]+1;
 
         sx := RXData[rxHouses].Size[ci].X;
         sy := RXData[rxHouses].Size[ci].Y;
@@ -378,7 +378,7 @@ begin
           MyBitMap.Canvas.Pixels[x,y] := RXData[rxHouses].RGBA[ci,y*sx+x] AND $FFFFFF;
 
         if sy>0 then MyBitMap.SaveToFile(
-        ExeDir+'Export\HouseAnim\'+fResource.HouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
+        Folder+fHouseDat[ID].HouseName+'\'+HouseAction[Ac]+'\_'+int2fix(k,2)+'.bmp');
       end;
 
   ci:=0;
@@ -386,14 +386,14 @@ begin
   begin
     if Q=1 then ID:=ht_Swine
            else ID:=ht_Stables;
-    CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\');
+    CreateDir(Folder+'_'+fHouseDat[ID].HouseName+'\');
     for Beast:=1 to 5 do
       for i:=1 to 3 do
-        for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,i].Count do
+        for k:=1 to fHouseDat.BeastAnim[ID,Beast,i].Count do
         begin
-          CreateDir(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\');
-          if fResource.HouseDat.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
-            ci := fResource.HouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
+          CreateDir(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\');
+          if fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1<>0 then
+            ci := fHouseDat.BeastAnim[ID,Beast,i].Step[k]+1;
 
           sx:=RXData[rxHouses].Size[ci].X;
           sy:=RXData[rxHouses].Size[ci].Y;
@@ -403,27 +403,31 @@ begin
           for y:=0 to sy-1 do for x:=0 to sx-1 do
             MyBitMap.Canvas.Pixels[x,y] := RXData[rxHouses].RGBA[ci,y*sx+x] AND $FFFFFF;
 
-          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\_'+fResource.HouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then MyBitMap.SaveToFile(Folder+'_'+fHouseDat[ID].HouseName+'\'+int2fix(Beast,2)+'\_'+int2fix(i,1)+'_'+int2fix(k,2)+'.bmp');
         end;
   end;
 
-  MyBitMap.Free;*)
+  fSprites.ClearSprites(rxHouses);
+  MyBitMap.Free;
 end;
 
 
-{Export Trees graphics categorized by ID}
-procedure ExportTreeAnim2BMP;
-var MyBitMap: TBitmap;
-    i,k,ci:integer;
-    sy,sx,y,x:integer;
+//Export Trees graphics categorized by ID
+procedure TResource.ExportTreeAnim;
+var
+  Folder: string;
+  MyBitMap: TBitmap;
+  i,k,ci:integer;
+  sy,sx,y,x:integer;
 begin
-(*  CreateDir(ExeDir + 'Export\');
-  CreateDir(ExeDir + 'Export\TreeAnim\');
+  Folder := ExeDir + 'Export\TreeAnim\';
+  ForceDirectories(Folder);
+
   MyBitMap := TBitmap.Create;
   MyBitMap.PixelFormat := pf24bit;
 
-  fResource.LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
-  fResource.Sprites.LoadSprites(rxTrees,False,nil,nil);
+  LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
+  fSprites.LoadSprites(rxTrees);
 
   ci:=0;
   for i:=1 to MapElemQty do
@@ -443,10 +447,11 @@ begin
       //We can insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
       if sy>0 then MyBitMap.SaveToFile(
-        ExeDir+'Export\TreeAnim\'+{inttostr(word(MapElem[i].DiagonalBlocked))+'_'+}int2fix(i,3)+'_'+int2fix(k,2)+'.bmp');
+        Folder+{inttostr(word(MapElem[i].DiagonalBlocked))+'_'+}int2fix(i,3)+'_'+int2fix(k,2)+'.bmp');
     end;
 
-  MyBitMap.Free;*)
+  fSprites.ClearSprites(rxTrees);
+  MyBitMap.Free;
 end;
 
 

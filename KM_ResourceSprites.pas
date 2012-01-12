@@ -154,10 +154,8 @@ type
     procedure MakeGFX(aRT: TRXType);
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection; aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
-    procedure SaveBMPTexture(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aMode: TTexFormat);
-    procedure LoadSprites(aRT: TRXType);
+    procedure SaveTextureToBMP(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
     procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
-    procedure ClearSprites(aRT: TRXType);
   public
     constructor Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
@@ -165,6 +163,9 @@ type
     procedure LoadMenuResources(aCursors: TKMCursors);
     procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
 
+    //Used externally to access raw RGBA data (e.g. by ExportAnim)
+    procedure LoadSprites(aRT: TRXType);
+    procedure ClearSprites(aRT: TRXType);
     procedure ExportToBMP(aRT: TRXType);
 
     property FileName[aRX: TRXType]: string read GetRXFileName;
@@ -571,23 +572,22 @@ procedure TKMSpritePack.ExportToBMP(const aFolder: string);
 var MyBitMap:TBitmap;
     id,i,k:integer;
     sy,sx:integer;
-    RT: TRXType;
 begin
   ForceDirectories(aFolder);
 
   MyBitMap := TBitmap.Create;
   MyBitMap.PixelFormat := pf24bit;
 
-  for id:=1 to RXData[RT].Qty do
-  if RXData[RT].Flag[id] = 1 then
+  for id:=1 to RXData[fRT].Qty do
+  if RXData[fRT].Flag[id] = 1 then
   begin
-    sx := RXData[RT].Size[id].X;
-    sy := RXData[RT].Size[id].Y;
+    sx := RXData[fRT].Size[id].X;
+    sy := RXData[fRT].Size[id].Y;
     MyBitMap.Width  := sx;
     MyBitMap.Height := sy;
 
     for i:=0 to sy-1 do for k:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[k,i] := RXData[RT].RGBA[id,i*sx+k] and $FFFFFF; //Drop Alpha value
+      MyBitMap.Canvas.Pixels[k,i] := RXData[fRT].RGBA[id,i*sx+k] and $FFFFFF; //Drop Alpha value
 
     //Mark pivot location with a dot
     {k := sx + RXData[RT].Pivot[id].x;
@@ -598,7 +598,7 @@ begin
     if sy > 0 then
       MyBitMap.SaveToFile(aFolder + int2fix(ID, 4) + '.bmp');
 
-    SetLength(RXData[RT].Data[id], 0);
+    SetLength(RXData[fRT].Data[id], 0);
   end;
 
   MyBitMap.Free;
@@ -655,7 +655,7 @@ end;
 
 
 procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
-var i:integer; RT: TRXType;
+var RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
   if (RXInfo[RT].Usage = ruGame) then
@@ -805,10 +805,9 @@ begin
     else
       GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
 
-    SaveBMPTexture(WidthPOT,HeightPOT,GFXData[aRT,LeftIndex].TexID,@TD[0],tf_Normal);
+    SaveTextureToBMP(WidthPOT, HeightPOT, GFXData[aRT, LeftIndex].TexID, @TD[0], False);
     if HasMsk then
-      SaveBMPTexture(WidthPOT,HeightPOT,GFXData[aRT,LeftIndex].TexID,@TA[0],tf_AltID);
-
+      SaveTextureToBMP(WidthPOT, HeightPOT, GFXData[aRT, LeftIndex].TexID, @TA[0], False);
 
     SetLength(TD,0);
     SetLength(TA,0);
@@ -912,7 +911,7 @@ begin
 
         GFXData[aRT,ID1].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_AlphaTest);
 
-        SaveBMPTexture(WidthPOT,HeightPOT,GFXData[aRT,ID1].TexID,@TD[0],tf_AlphaTest);
+        SaveTextureToBMP(WidthPOT,HeightPOT,GFXData[aRT,ID1].TexID,@TD[0],True);
 
         SetLength(TD, 0);
         GFXData[aRT,ID1].AltID := 0;
@@ -926,13 +925,16 @@ begin
 end;
 
 
-procedure TKMSprites.SaveBMPTexture(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aMode: TTexFormat);
+procedure TKMSprites.SaveTextureToBMP(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
 var
   i,k: Integer;
   Bmp: TBitmap;
+  Folder: string;
 begin
-  if WriteAllTexturesToBMP then begin
-    CreateDir(ExeDir+'Export\GenTextures\');
+  if WriteAllTexturesToBMP then
+  begin
+    Folder := ExeDir + 'Export\GenTextures\';
+    ForceDirectories(Folder);
     Bmp:=TBitmap.Create;
     Bmp.PixelFormat:=pf24bit;
     Bmp.Width:=aWidth;
@@ -940,14 +942,14 @@ begin
 
     for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
       Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) AND $FFFFFF; //Ignore alpha
-    Bmp.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(aIndex,4)+'.bmp');
+    Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + '.bmp');
 
     //these Alphas are worth looking at
-    if aMode=tf_AlphaTest then
+    if aSaveAlpha then
     begin
       for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
-        Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) SHR 24 *65793;
-      Bmp.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(aIndex,4)+'a.bmp');
+        Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) SHR 24 *65793; //convert A to RGB Greyscale
+      Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + 'a.bmp');
     end;
 
     Bmp.Free;

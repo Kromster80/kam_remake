@@ -454,9 +454,9 @@ procedure TForm1.Export_GUIRXClick(Sender: TObject);     begin fResource.Sprites
 procedure TForm1.Export_GUIMainRXClick(Sender: TObject); begin fResource.Sprites.ExportToBMP(rxGUIMain); end;
 procedure TForm1.Export_GUIMainHRXClick(Sender: TObject);begin fResource.Sprites.ExportToBMP(rxGUIMainH); end;
 procedure TForm1.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.ExportSounds; end;
-procedure TForm1.Export_TreeAnim1Click(Sender: TObject); begin ExportTreeAnim2BMP; end;
-procedure TForm1.Export_HouseAnim1Click(Sender: TObject);begin ExportHouseAnim2BMP; end;
-procedure TForm1.Export_UnitAnim1Click(Sender: TObject); begin fResource.ExportUnitAnim2BMP;  end;
+procedure TForm1.Export_TreeAnim1Click(Sender: TObject); begin fResource.ExportTreeAnim; end;
+procedure TForm1.Export_HouseAnim1Click(Sender: TObject);begin fResource.ExportHouseAnim; end;
+procedure TForm1.Export_UnitAnim1Click(Sender: TObject); begin fResource.ExportUnitAnim;  end;
 procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.ExportTextLibraries; end;
 
 procedure TForm1.Export_Fonts1Click(Sender: TObject);

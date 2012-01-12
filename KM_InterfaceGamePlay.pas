@@ -2034,7 +2034,7 @@ end;
 
 
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
-var i:integer; Commander:TKMUnitWarrior;
+var Commander: TKMUnitWarrior;
 begin
   fShownUnit  := Sender;
   fShownHouse := nil;
