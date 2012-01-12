@@ -548,6 +548,7 @@ type
         mu_HousePlan,           //Rope outline of house area, walkable
         mu_HouseFenceCanWalk,   //Wooden fence outline of house area, undigged and walkable
         mu_HouseFenceNoWalk,    //Wooden fence outline of house area, digged and non-walkable
+        mu_HouseFenceBlocked,   //Wooden fence outline of house area, digged and non-walkable to Workers
 
         mu_House,               //Actual house, which is not rendered and is used in here to siplify whole thing
         mu_UnderConstruction    //Underconstruction tile, house area being flattened and roadworks

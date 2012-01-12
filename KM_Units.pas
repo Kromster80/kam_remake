@@ -726,7 +726,7 @@ begin
     fThought := th_None; //Remove build thought if we are no longer doing anything
 
   //If we are still stuck on a house for some reason, get off it ASAP
-  if (mu_HouseFenceNoWalk = fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup) then
+  if (fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup in [mu_HouseFenceNoWalk,mu_HouseFenceBlocked]) then
   begin
     Assert(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y) <> nil);
     OutOfWay := KMPointBelow(fPlayers.HousesHitTest(fCurrPosition.X,fCurrPosition.Y).GetEntrance);

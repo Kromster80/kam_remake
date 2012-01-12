@@ -1139,7 +1139,7 @@ begin
       if not (CanBuild in Land[P2.Y,P2.X].Passability) then
       for s:=-1 to 1 do for t:=-1 to 1 do
       if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-      if Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_House] then
+      if Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House] then
       begin
         MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
         AllowBuild := false;
@@ -1376,7 +1376,8 @@ begin
   Land[Loc.Y,Loc.X].Passability := [];
 
   //For all passability types other than CanAll, houses and fenced houses are excluded
-  if not(Land[Loc.Y,Loc.X].Markup in [mu_House, mu_HouseFenceNoWalk]) then begin
+  if not(Land[Loc.Y,Loc.X].Markup in [mu_House, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) then
+  begin
 
    if (TileIsWalkable(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
@@ -1393,7 +1394,7 @@ begin
    for i:=-1 to 1 do
      for k:=-1 to 1 do
        if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_House]) then
+         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked,mu_House]) then
            HousesNearBy := true;
 
    if (TileIsRoadable(Loc))and
@@ -1465,6 +1466,7 @@ begin
 
    if (TileIsSand(Loc))and
       (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
+      (Land[Loc.Y,Loc.X].Markup<>mu_HouseFenceBlocked)and
       (Land[Loc.Y,Loc.X].Markup<>mu_HouseFenceNoWalk)and
       (Land[Loc.Y,Loc.X].Markup<>mu_House)and
       (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction)and
@@ -1488,7 +1490,7 @@ begin
     (Land[Loc.Y,Loc.X].TileOverlay <> to_Wall) and
     not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked and
     CheckHeightPass(Loc, CanWalk) and
-    not (Land[Loc.Y,Loc.X].Markup = mu_House) then
+    not (Land[Loc.Y,Loc.X].Markup in[mu_HouseFenceBlocked,mu_House]) then
     AddPassability(Loc, [CanWorker]);
 
   //Check all 4 tiles that border with this vertex
@@ -2077,7 +2079,7 @@ begin
           hs_None:        Land[y,x].Markup := mu_None;
           hs_Plan:        Land[y,x].Markup := mu_HousePlan;
           hs_Fence:       Land[y,x].Markup := mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
-          hs_StartBuild:  Land[y,x].Markup := mu_House; //Become unwalkable to Workers
+          hs_StartBuild:  Land[y,x].Markup := mu_HouseFenceBlocked; //Become unwalkable to Workers
           hs_Built:       begin
                             //Script houses are placed as built, add markup for them too
                             Land[y,x].Markup := mu_House;
@@ -2187,7 +2189,7 @@ begin
       for j:=-1 to 1 do
         for l:=-1 to 1 do
           if TileInMapCoords(TestLoc.X+l,TestLoc.Y+j) then
-           if (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_House]) then
+           if (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked,mu_House]) then
            begin
              Result := False;
              exit;
@@ -2304,7 +2306,7 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     else
     if Land[Loc.Y,Loc.X].Markup=mu_HousePlan then Result:=bt_HousePlan
     else
-    if Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk,mu_HouseFenceNoWalk] then Result:=bt_HouseBuilding
+    if Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked] then Result:=bt_HouseBuilding
     else
     Result:=bt_None;
   end;
@@ -2314,8 +2316,8 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
     if (TileIsCornField(Loc) and TileIsCornField(Loc2))or //Both are Corn
        (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
-      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) or //Both are same mu_House****
-      ((Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk]) and (Land[Loc2.Y,Loc2.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk])) then //Both are either house fence
+      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) or //Both are same mu_House****
+      ((Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) and (Land[Loc2.Y,Loc2.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked])) then //Both are either house fence
       Result:=false;
   end;
 begin

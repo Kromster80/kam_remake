@@ -20,7 +20,7 @@ type
     ShownMessage:integer;
     PlayMoreMsg:TGameResultMsg; //Remember which message we are showing
     fJoiningGroups: boolean;
-    AskDemolish, AskDismiss:boolean;
+    fAskDemolish, fAskDismiss: Boolean;
     fNetWaitDropPlayersDelayStarted:cardinal;
     SelectedDirection: TKMDirection;
     SelectingTroopDirection:boolean;
@@ -1824,7 +1824,7 @@ var i,RowRes,Base,Line:integer; Res:TResourceType;
 begin
   fShownUnit  := nil;
   fShownHouse := Sender;
-  AskDemolish := aAskDemolish;
+  fAskDemolish := aAskDemolish;
 
   if not Assigned(Sender) then begin //=nil produces wrong result when there's no object at all
     SwitchPage(nil);
@@ -1839,7 +1839,7 @@ begin
   HealthBar_House.Caption   := inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.HouseType].MaxHealth);
   HealthBar_House.Position  := round( Sender.GetHealth / fResource.HouseDat[Sender.HouseType].MaxHealth * 100 );
 
-  if AskDemolish then
+  if fAskDemolish then
   begin
     for i:=1 to Panel_House.ChildCount do
       Panel_House.Childs[i].Hide; //hide all
@@ -2038,7 +2038,7 @@ var i:integer; Commander:TKMUnitWarrior;
 begin
   fShownUnit  := Sender;
   fShownHouse := nil;
-  AskDismiss  := aAskDismiss;
+  fAskDismiss  := aAskDismiss;
 
   if (fShownUnit=nil) or (not fShownUnit.Visible) or (fShownUnit.IsDeadOrDying) then begin
     SwitchPage(nil);
@@ -2054,7 +2054,7 @@ begin
   if Sender is TKMUnitWarrior then
   begin
     Label_UnitDescription.Hide;
-    if AskDismiss then
+    if fAskDismiss then
     begin
       Panel_Army.Hide;
       Panel_Army_JoinGroups.Hide;
@@ -2086,7 +2086,7 @@ begin
   begin //Citizen specific
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Hide;
-    if AskDismiss then
+    if fAskDismiss then
     begin
       Panel_Unit_Dismiss.Show;
       Button_Unit_Dismiss.Hide;
@@ -2111,7 +2111,7 @@ begin
     ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
     SwitchPage(Button_Main[1]); //Return to build menu after demolishing
   end else begin
-    AskDemolish:=false;
+    fAskDemolish:=false;
     SwitchPage(Button_Main[1]); //Cancel and return to build menu
   end;
 end;
@@ -2447,11 +2447,11 @@ begin
 
     if Sender=Button_Unit_DismissYes then begin
       //DISMISS UNIT
-      AskDismiss:=false;
+      fAskDismiss:=false;
       ShowUnitInfo(nil, false); //Simpliest way to reset page and ShownUnit
       SwitchPage(nil); //Return to main menu after dismissing
     end else begin
-      AskDismiss:=false;
+      fAskDismiss:=false;
       ShowUnitInfo(TKMUnit(fPlayers.Selected), false);  //Cancel and return to selected unit
     end;
 end;
@@ -3535,8 +3535,8 @@ end;
 procedure TKMGamePlayInterface.UpdateState;
 var i:Integer; S:String;
 begin
-  if fShownUnit<>nil then ShowUnitInfo(fShownUnit) else
-  if fShownHouse<>nil then ShowHouseInfo(fShownHouse,AskDemolish);
+  if fShownUnit<>nil then ShowUnitInfo(fShownUnit,fAskDismiss) else
+  if fShownHouse<>nil then ShowHouseInfo(fShownHouse,fAskDemolish);
 
   Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME],[FormatDateTime('h:nn:ss', fGame.GetMissionTime)]);
   if fGame.GameOptions.Peacetime <> 0 then
