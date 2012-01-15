@@ -249,51 +249,64 @@ end;
 
 //Convert paletted data into RGBA and select Team color layer from it
 procedure TKMSpritePack.Expand;
+  //todo: Replace with Flag override function in LoadRX, that will replace Flags with PaletteID used for the sprite
+  //also think about using one of the upper 4 bits left for MakeFlagColor flag
+  function HousesPal(aID: Integer): TKMPalData;
+  const wip: array[0..55] of word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
+  var I: Byte;
+  begin
+    Result := fPalettes.DefDal;
+
+    for I := 0 to High(wip) do
+    if aID = wip[I] then
+    begin
+      Result := fPalettes[pal_lin];
+      Exit;
+    end;
+  end;
 var
   H: Integer;
   K, I: Integer;
   Palette: TKMPalData;
   L: byte;
   Pixel: Integer;
-  ID: Byte;
 begin
-  ID := Byte(fRT) + 1;
-
   with RXData[fRT] do
   for H := 1 to Qty do
   begin
     //Choose proper palette
-    case ID of
-      5: Palette := fPalettes[RX5Pal[H]];
-      6: Palette := fPalettes[RX6Pal[H]];
-      else Palette := fPalettes.DefDal;
+    case fRT of
+      rxHouses:   Palette := HousesPal(H);
+      rxGuiMain:  Palette := fPalettes[RX5Pal[H]];
+      rxGuiMainH: Palette := fPalettes[RX6Pal[H]];
+      else        Palette := fPalettes.DefDal;
     end;
 
     if Flag[H] = 1 then
     begin
-      SetLength(RGBA[H], Size[H].X*Size[H].Y);
-      SetLength(Mask[H], Size[H].X*Size[H].Y);
+      SetLength(RGBA[H], Size[H].X * Size[H].Y);
+      SetLength(Mask[H], Size[H].X * Size[H].Y);
 
       for I := 0 to Size[H].Y - 1 do
       for K := 0 to Size[H].X - 1 do
       begin
-        Pixel := I*Size[H].X + K;
+        Pixel := I * Size[H].X + K;
         L := Data[H, Pixel]; //0..255
 
         if RXInfo[fRT].TeamColors and (L in [24..30])
-        and ((ID<>2) or (H>400))  //Skip the Inn Weapon Smithy and the rest
-        and ((ID<>4) or InRange(H,141,154) or InRange(H,521,550)) then //Unit icons and scrolls
+        and ((fRT <> rxHouses) or (H > 400))  //Skip the Inn Weapon Smithy and the rest
+        and ((fRT <> rxGui) or InRange(H, 141, 154) or InRange(H, 521, 550)) then //Unit icons and scrolls
         begin
-          RGBA[H,Pixel] := cardinal(((L-27)*42+128)*65793) OR $FF000000;
+          RGBA[H, Pixel] := cardinal(((L - 27) * 42 + 128) * 65793) OR $FF000000;
           case L of //Maybe it makes sense to convert to 8bit?
-            24,30:  Mask[H,Pixel] := $60;   //7  //6
-            25,29:  Mask[H,Pixel] := $90;   //11 //9
-            26,28:  Mask[H,Pixel] := $C0;   //14 //12
-            27:     Mask[H,Pixel] := $FF;   //16 //16
+            24, 30: Mask[H, Pixel] := $60;   //7  //6
+            25, 29: Mask[H, Pixel] := $90;   //11 //9
+            26, 28: Mask[H, Pixel] := $C0;   //14 //12
+            27:     Mask[H, Pixel] := $FF;   //16 //16
           end;
           HasMask[H] := True;
         end else
-          RGBA[H,Pixel] := Palette.Color32(L);
+          RGBA[H, Pixel] := Palette.Color32(L);
       end;
     end;
   end;
@@ -359,29 +372,35 @@ begin
   InputStream := TFileStream.Create(aFileName, fmOpenRead or fmShareDenyNone);
   DecompressionStream := TDecompressionStream.Create(InputStream);
 
-  DecompressionStream.Read(RXData[fRT].Qty, 4);
+  try
+    DecompressionStream.Read(RXData[fRT].Qty, 4);
+    fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXData[fRT].Qty);
 
-  Allocate(RXData[fRT].Qty);
+    if RXData[fRT].Qty = 0 then
+      Exit;
 
-  DecompressionStream.Read(RXData[fRT].Flag[1], RXData[fRT].Qty);
+    Allocate(RXData[fRT].Qty);
 
-  for I := 1 to RXData[fRT].Qty do
-    if RXData[fRT].Flag[I] = 1 then
-    begin
-      RXData[fRT].Palleted[I] := False;
-      DecompressionStream.Read(RXData[fRT].Size[I].X, 4);
-      DecompressionStream.Read(RXData[fRT].Pivot[I].X, 8);
-      //Data part of each sprite is 32BPP RGBA in Remake RXX files
-      SetLength(RXData[fRT].RGBA[I], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-      SetLength(RXData[fRT].Mask[I], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-      DecompressionStream.Read(RXData[fRT].RGBA[I, 0], 4 * RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-      DecompressionStream.Read(RXData[fRT].HasMask[I], 1);
-      if RXData[fRT].HasMask[I] then
-        DecompressionStream.Read(RXData[fRT].Mask[I, 0], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
-    end;
-  DecompressionStream.Free;
-  InputStream.Free;
-  fLog.AppendLog(RXInfo[fRT].FileName + ' -', RXData[fRT].Qty);
+    DecompressionStream.Read(RXData[fRT].Flag[1], RXData[fRT].Qty);
+
+    for I := 1 to RXData[fRT].Qty do
+      if RXData[fRT].Flag[I] = 1 then
+      begin
+        RXData[fRT].Palleted[I] := False;
+        DecompressionStream.Read(RXData[fRT].Size[I].X, 4);
+        DecompressionStream.Read(RXData[fRT].Pivot[I].X, 8);
+        //Data part of each sprite is 32BPP RGBA in Remake RXX files
+        SetLength(RXData[fRT].RGBA[I], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
+        SetLength(RXData[fRT].Mask[I], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
+        DecompressionStream.Read(RXData[fRT].RGBA[I, 0], 4 * RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
+        DecompressionStream.Read(RXData[fRT].HasMask[I], 1);
+        if RXData[fRT].HasMask[I] then
+          DecompressionStream.Read(RXData[fRT].Mask[I, 0], RXData[fRT].Size[I].X * RXData[fRT].Size[I].Y);
+      end;
+  finally
+    DecompressionStream.Free;
+    InputStream.Free;
+  end;
 end;
 
 
@@ -674,10 +693,10 @@ end;
 //Try to load RXX first, then RX, then use Folder
 procedure TKMSprites.LoadSprites(aRT: TRXType);
 begin
-  if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rxx') then
+  if FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx') then
   begin
-    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rxx');
-    fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx');
+    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
   end
   else
   if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx') then
@@ -898,10 +917,11 @@ begin
 
           //Palleted means that we can use Data array
           //Otherwise, for addon sprites, we need to resort to RGBA data they provide
-          if RXData[aRT].Palleted[ID2] then
-            Alpha := RXData[aRT].Data[ID2,i*RXData[aRT].Size[ID2].X+k]
-          else
-            Alpha := RXData[aRT].RGBA[ID2,i*RXData[aRT].Size[ID2].X+k] AND $FF;
+          //if RXData[aRT].Palleted[ID2] then
+            //Alpha := RXData[aRT].Data[ID2,i*RXData[aRT].Size[ID2].X+k]
+          //else
+          //todo: Now we can remove Paletted field altogether?
+          Alpha := RXData[aRT].RGBA[ID2,i*RXData[aRT].Size[ID2].X+k] AND $FF;
 
           //Steps are going in normal order 1..n, but that last step has Alpha=0
           if TD[t] <> 0 then

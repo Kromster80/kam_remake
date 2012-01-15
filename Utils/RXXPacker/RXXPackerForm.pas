@@ -29,9 +29,10 @@ implementation
 procedure TRXXForm1.FormCreate(Sender: TObject);
 var RT: TRXType;
 begin
-  ExeDir := '.\';
+  ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + '..\..\';
+
   //Although we don't need them in this tool, these are required to load sprites
-  fLog := TKMLog.Create(IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName))+'log.txt');
+  fLog := TKMLog.Create(ExeDir + 'log.txt');
 
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
@@ -55,9 +56,26 @@ begin
     RT := TRXType(I);
 
     fSprites := TKMSpritePack.Create(fPalettes, Rt);
-    fSprites.LoadFromRXFile(ExeDir + '..\..\data\gfx\res\' + RXInfo[RT].FileName + '.rx');
-  //  fSprites.LoadFromFolder();
-    fSprites.SaveToRXXFile(ExeDir + RXInfo[RT].FileName + '.rxx');
+
+    //Load
+    {if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rxx') then
+    begin
+      fSprites.LoadFromRXXFile(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rxx');
+      fSprites.OverloadFromFolder(ExeDir + 'Sprites\');
+    end
+    else}
+    if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rx') then
+    begin
+      fSprites.LoadFromRXFile(ExeDir + 'data\gfx\res\' + RXInfo[RT].FileName + '.rx');
+      fSprites.OverloadFromFolder(ExeDir + 'Sprites\');
+    end
+    else
+    if DirectoryExists(ExeDir + 'Sprites\') then
+      fSprites.LoadFromFolder(ExeDir + 'Sprites\');
+
+    //Save
+    ForceDirectories(ExeDir + 'Data\Sprites\');
+    fSprites.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '.rxx');
 
     fSprites.Free;
 
