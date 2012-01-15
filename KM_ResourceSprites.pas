@@ -147,6 +147,7 @@ type
 
   TKMSprites = class
   private
+    fRenderSetup: TRenderSetup;
     fPalettes: TKMPalettes;
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
@@ -157,7 +158,7 @@ type
     procedure SaveTextureToBMP(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
     procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
   public
-    constructor Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
+    constructor Create(aRenderSetup: TRenderSetup; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources(aCursors: TKMCursors);
@@ -606,11 +607,12 @@ end;
 
 
 { TKMSprites }
-constructor TKMSprites.Create(aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
+constructor TKMSprites.Create(aRenderSetup: TRenderSetup; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
 var
   RT: TRXType;
 begin
   Inherited Create;
+  fRenderSetup := aRenderSetup;
   fPalettes := aPalettes;
 
   for RT := Low(TRXType) to High(TRXType) do

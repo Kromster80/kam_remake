@@ -38,6 +38,7 @@ type
     fGameOptions:TKMGameOptions;
     fAdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     fGlobalSettings: TGlobalSettings;
+    fRenderSetup: TRenderSetup;
     fCampaigns: TKMCampaignsCollection;
     fMusicLib: TMusicLib;
     fMapEditor: TKMMapEditor;
@@ -70,8 +71,9 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMainMenuInterface: TKMMainMenuInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
     destructor Destroy; override;
+    procedure AfterConstruction(aReturnToOptions: Boolean); reintroduce;
     function CanClose: Boolean;
     procedure ToggleLocale(aLocale:shortstring);
     procedure Resize(X,Y: Integer);
@@ -164,7 +166,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync,aReturnToOptions:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
   Inherited Create;
   fScreenX := aScreenX;
@@ -188,18 +190,27 @@ begin
   fMusicLib         := TMusicLib.Create(fGlobalSettings.MusicVolume/fGlobalSettings.SlidersMax);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
-  fResource         := TResource.Create(aLS, aLT);
+  fResource         := TResource.Create(fRenderSetup, aLS, aLT);
   fResource.LoadMenuResources(fGlobalSettings.Locale);
   fCampaigns        := TKMCampaignsCollection.Create;
 
   //If game was reinitialized from options menu then we should return there
-  fMainMenuInterface:= TKMMainMenuInterface.Create(fScreenX, fScreenY, fGlobalSettings, aReturnToOptions);
+  fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
 
   if (not NoMusic) and fGlobalSettings.MusicOn then fMusicLib.PlayMenuTrack; //Start the playback as soon as loading is complete
   fMusicLib.ToggleShuffle(fGlobalSettings.ShuffleOn); //Determine track order
 
   fPerfLog := TKMPerfLog.Create;
   fLog.AppendLog('<== Game creation is done ==>');
+end;
+
+
+procedure TKMGame.AfterConstruction(aReturnToOptions: Boolean);
+begin
+  if aReturnToOptions then
+    fMainMenuInterface.ShowScreen(msOptions)
+  else
+    fMainMenuInterface.ShowScreen(msMain);
 end;
 
 
@@ -248,7 +259,8 @@ begin
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
   fResource.ResourceFont.LoadFonts(fGlobalSettings.Locale);
-  fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY, fGlobalSettings, True);
+  fMainMenuInterface := TKMMainMenuInterface.Create(fScreenX, fScreenY);
+  fMainMenuInterface.ShowScreen(msOptions);
 end;
 
 

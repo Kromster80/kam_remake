@@ -615,10 +615,10 @@ begin
                           Panel5.Width,
                           Panel5.Height,
                           aVSync,
-                          aReturnToOptions,
                           FormLoading.LoadingStep,
                           FormLoading.LoadingText
                           );
+  fGame.AfterConstruction(aReturnToOptions);
   fGame.OnCursorUpdate := StatusBarText;
 
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));

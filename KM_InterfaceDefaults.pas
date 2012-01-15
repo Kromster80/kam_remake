@@ -6,7 +6,10 @@ uses
 
 
 const
-  GUI_HOUSE_COUNT   = 27;   //Number of KaM houses to show in GUI
+  OPT_SLIDER_MIN = 0;
+  OPT_SLIDER_MAX = 20;
+
+  GUI_HOUSE_COUNT = 27;   //Number of KaM houses to show in GUI
   GUIHouseOrder:array[1..GUI_HOUSE_COUNT]of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
     ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,

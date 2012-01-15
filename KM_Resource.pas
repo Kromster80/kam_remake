@@ -5,6 +5,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Forms, Graphics, Math, SysUtils,
   KM_CommonEvents, KM_Defaults,
+  KM_RenderSetup,
   KM_ResourceCursors,
   KM_ResourceFonts,
   KM_ResourceHouse,
@@ -23,6 +24,7 @@ type
 
   TResource = class
   private
+    fRenderSetup: TRenderSetup;
     fDataState: TDataLoadingState;
     fCursors: TKMCursors;
     fResourceFont: TResourceFont;
@@ -42,7 +44,7 @@ type
     OnLoadingStep: TEvent;
     OnLoadingText: TStringEvent;
 
-    constructor Create(aLS: TEvent; aLT: TStringEvent);
+    constructor Create(aRenderSetup: TRenderSetup; aLS: TEvent; aLT: TStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources(const aLocale: string);
@@ -67,16 +69,17 @@ type
     fResource: TResource;
 
 implementation
-uses KromUtils, KM_RenderSetup, KM_Log, KM_TextLibrary, KM_Points;
+uses KromUtils, KM_Log, KM_TextLibrary, KM_Points;
 
 
 { TResource }
-constructor TResource.Create(aLS: TEvent; aLT: TStringEvent);
+constructor TResource.Create(aRenderSetup: TRenderSetup; aLS: TEvent; aLT: TStringEvent);
 begin
   Inherited Create;
   fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
 
+  fRenderSetup := aRenderSetup;
   OnLoadingStep := aLS;
   OnLoadingText := aLT;
 end;
@@ -117,14 +120,14 @@ begin
   fPalettes.LoadPalettes;
   fLog.AppendLog('Reading palettes', True);
 
-  fSprites := TKMSprites.Create(fPalettes, StepRefresh, StepCaption);
+  fSprites := TKMSprites.Create(fRenderSetup, fPalettes, StepRefresh, StepCaption);
 
   fCursors := TKMCursors.Create;
 
   fSprites.LoadMenuResources(fCursors);
 
   StepCaption('Reading fonts ...');
-  fResourceFont := TResourceFont.Create;
+  fResourceFont := TResourceFont.Create(fRenderSetup);
   fResourceFont.LoadFonts(aLocale);
   fLog.AppendLog('Read fonts is done');
 

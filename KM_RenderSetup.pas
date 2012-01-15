@@ -38,10 +38,6 @@ type
   end;
 
 
-  var
-    fRenderSetup: TRenderSetup;
-
-
 implementation
 uses KM_Log;
 

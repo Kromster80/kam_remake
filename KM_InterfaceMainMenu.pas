@@ -39,7 +39,7 @@ type
     procedure Create_Lobby_Page;
     procedure Create_MapEditor_Page;
     procedure Create_Replays_Page;
-    procedure Create_Options_Page(aGameSettings:TGlobalSettings);
+    procedure Create_Options_Page;
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
     procedure Create_Error_Page;
@@ -272,10 +272,10 @@ type
       Bar_Results:array[0..MAX_PLAYERS-1, 0..9] of TKMPercentBar;
       Button_ResultsMPBack:TKMButton;
   public
-    constructor Create(X,Y:word; aGameSettings:TGlobalSettings; aReturnToOptions: Boolean);
+    constructor Create(X,Y:word);
     destructor Destroy; override;
     procedure Resize(X,Y:word);
-    procedure ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
+    procedure ShowScreen(aScreen: TMenuScreen; const aText: string=''; aMsg: TGameResultMsg=gr_Silent);
     procedure AppendLoadingText(const aText:string);
     procedure Fill_Results;
     procedure Fill_ResultsMP;
@@ -295,11 +295,11 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection,
+uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_InterfaceDefaults,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 
-constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings; aReturnToOptions: Boolean);
+constructor TKMMainMenuInterface.Create(X,Y:word);
 begin
   Inherited Create;
 
@@ -336,7 +336,7 @@ begin
     Create_Lobby_Page;
   Create_MapEditor_Page;
   Create_Replays_Page;
-  Create_Options_Page(aGameSettings);
+  Create_Options_Page;
   Create_Credits_Page;
   Create_Loading_Page;
   Create_Error_Page;
@@ -347,7 +347,7 @@ begin
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
 
   //Show version info on every page
-  Label_Version := TKMLabel.Create(Panel_Main, 8, 8, 0, 0, GAME_VERSION + ' / ' + fGame.RenderVersion, fnt_Antiqua, taLeft);
+  Label_Version := TKMLabel.Create(Panel_Main, 8, 8, 0, 0, '', fnt_Antiqua, taLeft);
 
   if OVERLAY_RESOLUTIONS then
   begin
@@ -355,16 +355,8 @@ begin
     with TKMShape.Create(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable := False;
   end;
 
-  if aReturnToOptions then
-  begin
-    Options_Fill(aGameSettings); //Use these settings link since fGame is not initialized yet
-    SwitchMenuPage(Button_MM_Options); //Don't call Render afterwards for same reason
-  end
-  else
-    SwitchMenuPage(nil);
-
-  //SwitchMenuPage(Panel_ResultsMP); //Put here page you would like to debug
   fLog.AppendLog('Main menu init done');
+//Use ShowScreen to select properscreen after fGame init is done
 end;
 
 
@@ -389,7 +381,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ShowScreen(aScreen:TMenuScreen; const aText:string=''; aMsg:TGameResultMsg=gr_Silent);
+procedure TKMMainMenuInterface.ShowScreen(aScreen: TMenuScreen; const aText: string=''; aMsg: TGameResultMsg=gr_Silent);
 begin
   case aScreen of
     msError:    begin
@@ -986,7 +978,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings);
+procedure TKMMainMenuInterface.Create_Options_Page;
 var i:integer;
 begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
@@ -998,11 +990,11 @@ begin
 
       Label_Options_MouseSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,27,164,20,fTextLibrary.GetTextString(192),fnt_Metal,taLeft);
       Label_Options_MouseSpeed.Disable;
-      Ratio_Options_Mouse:=TKMRatioRow.Create(Panel_Options_Ctrl,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
+      Ratio_Options_Mouse:=TKMRatioRow.Create(Panel_Options_Ctrl,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_Mouse.Disable;
 
       Label_Options_ScrollSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,77,164,20,fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED],fnt_Metal,taLeft);
-      Ratio_Options_ScrollSpeed:=TKMRatioRow.Create(Panel_Options_Ctrl,10,97,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
+      Ratio_Options_ScrollSpeed:=TKMRatioRow.Create(Panel_Options_Ctrl,10,97,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_ScrollSpeed.OnChange:=Options_Change;
 
     Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,280,200,50);
@@ -1017,10 +1009,10 @@ begin
       TKMBevel.Create(Panel_Options_Sound,0,20,200,147);
 
       Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,164,20,fTextLibrary.GetTextString(194),fnt_Metal,taLeft);
-      Ratio_Options_SFX:=TKMRatioRow.Create(Panel_Options_Sound,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
+      Ratio_Options_SFX:=TKMRatioRow.Create(Panel_Options_Sound,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_SFX.OnChange:=Options_Change;
       Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,164,20,fTextLibrary.GetTextString(196),fnt_Metal,taLeft);
-      Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
+      Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_Music.OnChange:=Options_Change;
       CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
       CheckBox_Options_MusicOn.OnClick := Options_Change;
@@ -1031,7 +1023,7 @@ begin
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,200,60);
       TKMLabel.Create(Panel_Options_GFX,18,27,164,20,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS],fnt_Metal,taLeft);
-      Ratio_Options_Brightness:=TKMRatioRow.Create(Panel_Options_GFX,10,47,180,20,aGameSettings.SlidersMin,aGameSettings.SlidersMax);
+      Ratio_Options_Brightness:=TKMRatioRow.Create(Panel_Options_GFX,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_Brightness.OnChange:=Options_Change;
 
     Panel_Options_Res:=TKMPanel.Create(Panel_Options,340,230,200,30+RESOLUTION_COUNT*20);
@@ -1191,22 +1183,23 @@ end;
 procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
 var i:integer;
 begin
+  if fGame <> nil then
+    Label_Version.Caption := GAME_VERSION + ' / ' + fGame.RenderVersion;
+
   //First thing - hide all existing pages
   for i:=1 to Panel_Main.ChildCount do
     if Panel_Main.Childs[i] is TKMPanel then
       Panel_Main.Childs[i].Hide;
 
-  {Return to MainMenu if Sender unspecified}
-  if Sender=nil then Panel_MainMenu.Show;
-
   {Return to MainMenu}
-  if (Sender=Button_SP_Back)or
-     (Sender=Button_MP_Back)or
-     (Sender=Button_CreditsBack)or
-     (Sender=Button_MapEdBack)or
-     (Sender=Button_ErrorBack)or
-     (Sender=Button_ResultsBack)or
-     (Sender=Button_ReplaysBack) then
+  if (Sender = nil) or
+     (Sender = Button_SP_Back) or
+     (Sender = Button_MP_Back) or
+     (Sender = Button_CreditsBack) or
+     (Sender = Button_MapEdBack) or
+     (Sender = Button_ErrorBack) or
+     (Sender = Button_ResultsBack) or
+     (Sender = Button_ReplaysBack) then
     Panel_MainMenu.Show;
 
   {Player leaves lobby (LAN text is updated)}
@@ -1294,9 +1287,9 @@ begin
   end;
 
   {Show Options menu}
-  if Sender=Button_MM_Options then begin
-    if fGame <> nil then
-      Options_Fill(fGame.GlobalSettings);
+  if Sender=Button_MM_Options then
+  begin
+    Options_Fill(fGame.GlobalSettings);
     Panel_Options.Show;
   end;
 
