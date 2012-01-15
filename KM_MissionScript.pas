@@ -7,26 +7,6 @@ uses
   KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
 
 
-  {Settings for mission loader:
-
-  Info
-  - Read basic mission properties (size, players, mode, ..)
-
-  Single player
-  -
-
-  Multi-player
-  - skip players loading
-  - alter starting resources
-  - alter starting army
-  - alter starting houses
-
-  MapEd
-  - ignore certain errors
-  - load armies differently
-
-  }
-
 type
   TMissionParsingMode = (
                           mpm_Info,  //Return basic mission properties
@@ -47,6 +27,67 @@ type
                          cpt_MaxSoldier,cpt_EquipRate,cpt_AttackFactor,cpt_TroopParam);
 
   TAIAttackParamType = (cpt_Type, cpt_TotalAmount, cpt_Counter, cpt_Range, cpt_TroopAmount, cpt_Target, cpt_Position, cpt_TakeAll);
+
+
+type
+  TKMMissionInfo = record
+    MapPath: string;
+    MapSizeX, MapSizeY: Integer;
+    MissionMode: TKMissionMode;
+    PlayerCount: shortint;
+    HumanPlayerID: TPlayerIndex;
+    VictoryCond:string;
+    DefeatCond:string;
+  end;
+
+  TKMAttackPosition = record
+    Warrior: TKMUnitWarrior;
+    Target: TKMPoint;
+  end;
+
+  TMissionParser = class
+  private
+    fParsingMode: TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
+    fStrictParsing: boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
+    fRemapCount: byte;
+    fRemap: TPlayerArray;
+    fErrorMessage: string; //Errors descriptions accumulate here
+    fMissionFileName: string;
+
+    fLastPlayer: integer;
+    fLastHouse: TKMHouse;
+    fLastTroop: TKMUnitWarrior;
+    fAIAttack: TAIAttack;
+    fAttackPositions: array of TKMAttackPosition;
+    fAttackPositionsCount: integer;
+
+    fMissionInfo: TKMMissionInfo;
+
+    function LoadSimple(const aFileName:string):boolean;
+    function LoadStandard(const aFileName:string):boolean;
+    function LoadMapInfo(const aFileName:string):boolean;
+
+    function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
+    function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
+    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
+    procedure AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
+    procedure ProcessAttackPositions;
+    function ReadMissionFile(const aFileName:string): AnsiString;
+  public
+    constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
+    constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
+    function LoadMission(const aFileName: string):boolean;
+
+    property ErrorMessage:string read fErrorMessage;
+    property MissionInfo:TKMMissionInfo read fMissionInfo;
+
+    procedure SaveDATFile(const aFileName: String);
+  end;
+
+
+implementation
+uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_Resource, KM_ResourceHouse, KM_ResourceResource, KM_Log;
+
 
 const
   COMMANDVALUES: array[TKMCommandType] of AnsiString = (
@@ -98,66 +139,6 @@ const
   14,15,16,17,18,19,20,21,22,23, //Warriors
   24,25,26,27, {28,29,} //TPR warriors
   -1,-1,-1,-1,-1,-1,-1,-1); //Animals
-
-type
-  TKMMissionInfo = record
-    MapPath: string;
-    MapSizeX, MapSizeY: Integer;
-    MissionMode: TKMissionMode;
-    PlayerCount: shortint;
-    HumanPlayerID: TPlayerIndex;
-    VictoryCond:string;
-    DefeatCond:string;
-  end;
-
-  TKMAttackPosition = record
-    Warrior: TKMUnitWarrior;
-    Target: TKMPoint;
-  end;
-
-
-  TMissionParser = class
-  private
-    fParsingMode:TMissionParsingMode; //Data gets sent to Game differently depending on Game/Editor mode
-    fStrictParsing:boolean; //Report non-fatal script errors such as SEND_GROUP without defining a group first
-    fRemapCount:byte;
-    fRemap:TPlayerArray;
-    fErrorMessage:string; //Errors descriptions accumulate here
-    fMissionFileName:string;
-
-    fLastPlayer: integer;
-    fLastHouse: TKMHouse;
-    fLastTroop: TKMUnitWarrior;
-    fAIAttack: TAIAttack;
-    fAttackPositions: array of TKMAttackPosition;
-    fAttackPositionsCount: integer;
-
-    fMissionInfo:TKMMissionInfo;
-
-    function LoadSimple(const aFileName:string):boolean;
-    function LoadStandard(const aFileName:string):boolean;
-    function LoadMapInfo(const aFileName:string):boolean;
-
-    function TextToCommandType(const ACommandText: AnsiString): TKMCommandType;
-    function ProcessCommand(CommandType: TKMCommandType; P: array of integer; TextParam: AnsiString):boolean;
-    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:AnsiString);
-    procedure AddScriptError(const ErrorMsg:string; aFatal:boolean=false);
-    procedure ProcessAttackPositions;
-    function ReadMissionFile(const aFileName:string): AnsiString;
-  public
-    constructor Create(aMode:TMissionParsingMode; aStrictParsing:boolean); overload;
-    constructor Create(aMode:TMissionParsingMode; aPlayersRemap:TPlayerArray; aStrictParsing:boolean); overload;
-    function LoadMission(const aFileName: string):boolean;
-
-    property ErrorMessage:string read fErrorMessage;
-    property MissionInfo:TKMMissionInfo read fMissionInfo;
-
-    procedure SaveDATFile(const aFileName: String);
-  end;
-
-
-implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Player, KM_PlayerAI, KM_Resource, KM_ResourceHouse, KM_ResourceResource, KM_Log;
 
 
 { TMissionParser }
