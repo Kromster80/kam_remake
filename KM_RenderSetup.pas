@@ -25,7 +25,7 @@ type
 
     procedure SetRenderMode(aRenderMode: TRenderMode); //Switch between 2D and 3D perspectives
 
-    function GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat):GLUint;
+    function GenTexture(DestX, DestY: Word; const Data: TCardinalArray; Mode: TTexFormat): GLUint;
 
     property RendererVersion: AnsiString read fOpenGL_Version;
     procedure Resize(Width,Height: Integer);

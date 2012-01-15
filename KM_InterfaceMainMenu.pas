@@ -295,7 +295,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_RenderSetup, KM_TextLibrary, KM_Game, KM_PlayersCollection,
+uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 
@@ -347,7 +347,7 @@ begin
     //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
 
   //Show version info on every page
-  Label_Version := TKMLabel.Create(Panel_Main,8,8,0,0,GAME_VERSION+' / OpenGL '+fRenderSetup.RendererVersion,fnt_Antiqua,taLeft);
+  Label_Version := TKMLabel.Create(Panel_Main, 8, 8, 0, 0, GAME_VERSION + ' / ' + fGame.RenderVersion, fnt_Antiqua, taLeft);
 
   if OVERLAY_RESOLUTIONS then
   begin

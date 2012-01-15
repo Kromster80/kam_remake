@@ -74,7 +74,7 @@ type
     destructor Destroy; override;
     function CanClose: Boolean;
     procedure ToggleLocale(aLocale:shortstring);
-    procedure Resize(X,Y:integer);
+    procedure Resize(X,Y: Integer);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     function MapSizeText: string;
     procedure KeyDown(Key: Word; Shift: TShiftState);
@@ -135,6 +135,7 @@ type
     procedure SetGameSpeed(aSpeed:word);
     procedure StepOneFrame;
     function SaveName(const aName, aExt:string):string;
+    function RenderVersion: string;
 
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -251,7 +252,7 @@ begin
 end;
 
 
-procedure TKMGame.Resize(X,Y:integer);
+procedure TKMGame.Resize(X,Y: Integer);
 begin
   fScreenX := X;
   fScreenY := Y;
@@ -1082,7 +1083,13 @@ begin
 end;
 
 
-{ Check if replay files exist at location }
+function TKMGame.RenderVersion: string;
+begin
+  Result := 'OpenGL '+ fRenderSetup.RendererVersion;
+end;
+
+
+//Check if replay files exist at location
 function TKMGame.ReplayExists(const aSaveName:string; aMultiplayer:boolean):boolean;
 var OldMultiplayerMode:boolean;
 begin
