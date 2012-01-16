@@ -60,13 +60,13 @@ type
     procedure CloseOffer(aID:integer);
     function PermitDelivery(iO,iD:integer; KMSerf:TKMUnitSerf):boolean;
   public
-    procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
-    procedure RemoveOffer(aHouse:TKMHouse);
+    procedure AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
+    procedure RemOffer(aHouse:TKMHouse);
 
-    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
+    procedure AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
     function TryRemoveDemand(aHouse:TKMHouse; aResource:TResourceType; aCount:word):word;
-    procedure RemoveDemand(aHouse:TKMHouse); overload;
-    procedure RemoveDemand(aUnit:TKMUnit); overload;
+    procedure RemDemand(aHouse:TKMHouse); overload;
+    procedure RemDemand(aUnit:TKMUnit); overload;
 
     function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
     procedure TakenOffer(aID:integer);
@@ -93,7 +93,7 @@ const
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
+procedure TKMDeliverQueue.AddOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
 var i,k:integer;
 begin
   //Add Count of resource to old offer
@@ -122,7 +122,7 @@ end;
 
 //Remove Offer from the list. E.G on house demolish
 //List is stored without sorting so we have to parse it to find that entry..
-procedure TKMDeliverQueue.RemoveOffer(aHouse:TKMHouse);
+procedure TKMDeliverQueue.RemOffer(aHouse:TKMHouse);
 var i:integer;
 begin
   //We need to parse whole list, never knowing how many offers the house had
@@ -141,7 +141,7 @@ end;
 
 //Remove Demand from the list. List is stored without sorting
 //so we parse it to find all entries..
-procedure TKMDeliverQueue.RemoveDemand(aHouse:TKMHouse);
+procedure TKMDeliverQueue.RemDemand(aHouse:TKMHouse);
 var i:integer;
 begin
   assert(aHouse <> nil);
@@ -160,7 +160,7 @@ end;
 
 //Remove Demand from the list. List is stored without sorting
 //so we parse it to find all entries..
-procedure TKMDeliverQueue.RemoveDemand(aUnit:TKMUnit);
+procedure TKMDeliverQueue.RemDemand(aUnit:TKMUnit);
 var i:integer;
 begin
   assert(aUnit <> nil);
@@ -197,7 +197,7 @@ end;
 
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
-procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
+procedure TKMDeliverQueue.AddDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aCount:byte; aType:TDemandType; aImp:TDemandImportance);
 var i,k,j:integer;
 begin
   if aResource = rt_None then

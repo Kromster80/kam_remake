@@ -138,7 +138,7 @@ end;
 destructor TTaskBuildRoad.Destroy;
 begin
   if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
-  if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
+  if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
@@ -170,7 +170,7 @@ begin
     3: begin
          fTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
-         fPlayers.Player[GetOwner].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
+         fPlayers.Player[GetOwner].DeliverList.AddDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
          DemandSet := true;
        end;
     4: begin //This step is repeated until Serf brings us some stone
@@ -244,7 +244,7 @@ end;
 destructor TTaskBuildWine.Destroy;
 begin
   if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
-  if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
+  if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   if InitialFieldSet  then fTerrain.RemField(fLoc);
   Inherited;
@@ -276,7 +276,7 @@ begin
    3: begin
         fTerrain.IncDigState(fLoc);
         SetActionLockedStay(24,ua_Work1,false);
-        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
         DemandSet := true;
       end;
    4: begin
@@ -413,7 +413,7 @@ end;
 
 destructor TTaskBuildWall.Destroy;
 begin
-  fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
+  fPlayers.Player[fUnit.GetOwner].DeliverList.RemDemand(fUnit);
   if fPhase > 1 then
     fTerrain.RemMarkup(fLoc)
   else
@@ -446,7 +446,7 @@ begin
     3: begin
         fTerrain.IncDigState(fLoc);
         SetActionLockedStay(22,ua_Work1,false);
-        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
       end;
     4: begin
         SetActionLockedStay(30,ua_Work1);
@@ -554,8 +554,8 @@ begin
     fHouse.BuildingState := hbs_Wood;
     fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_StartBuild, fUnit.GetOwner);
     fPlayers.Player[fHouse.GetOwner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
-    fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
-    fPlayers.Player[fHouse.GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
+    fPlayers.Player[fHouse.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
+    fPlayers.Player[fHouse.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
   end;
 
   fPlayers.CleanUpHousePointer(fHouse);

@@ -512,7 +512,7 @@ procedure TKMUnitWarrior.OrderFood;
 var i:integer;
 begin
   if (fCondition<(UNIT_MAX_CONDITION*TROOPS_FEED_MAX)) and not (fRequestedFood) then begin
-    fPlayers.Player[fOwner].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_High);
+    fPlayers.Player[fOwner].DeliverList.AddDemand(nil, Self, rt_Food, 1, dt_Once, di_High);
     fRequestedFood := true;
   end;
   //Commanders also tell troops to ask for some food

@@ -396,7 +396,9 @@ end;
 
 
 procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
-var KMHouse:TKMHouse; Loc:TKMPoint;
+var
+  Loc: TKMPoint;
+  KMHouse: TKMHouse;
 begin
   Loc.X := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX;
   Loc.Y := aLoc.Y;
@@ -612,6 +614,7 @@ end;
 procedure TKMPlayer.UpdateState(aUpdateAI: Boolean);
 begin
   Inherited;
+
   fHouses.UpdateState;
   fFogOfWar.UpdateState; //We might optimize it for AI somehow, to make it work coarse and faster
 
