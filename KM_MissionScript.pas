@@ -3,8 +3,9 @@ unit KM_MissionScript;
 interface
 uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  Classes, KromUtils, SysUtils, Dialogs, Math, KM_CommonClasses, KM_Defaults,
-  KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior, KM_Points;
+  Classes, KromUtils, SysUtils, Dialogs, Math,
+  KM_CommonClasses, KM_Defaults, KM_Points,
+  KM_AIAttacks, KM_Houses, KM_Units, KM_Units_Warrior;
 
 
 type
@@ -502,11 +503,11 @@ begin
                          MapFileName := RemoveQuotes(String(TextParam));
                          //Check for same filename.map in same folder first - Remake format
                          if FileExists(ChangeFileExt(fMissionFileName,'.map')) then
-                           fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'))
+                           fTerrain.LoadFromFile(ChangeFileExt(fMissionFileName,'.map'), fParsingMode = mpm_Editor)
                          else
                          //Check for KaM format map path
                          if FileExists(ExeDir+MapFileName) then
-                           fTerrain.LoadFromFile(ExeDir+MapFileName)
+                           fTerrain.LoadFromFile(ExeDir+MapFileName, fParsingMode = mpm_Editor)
                          else
                          begin
                            //Else abort loading and fail

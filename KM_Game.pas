@@ -9,7 +9,8 @@ uses
   KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
   KM_Networking,
   KM_MapEditor, KM_Campaigns,
-  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderSetup, KM_RenderAux, KM_TextLibrary, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderSetup, KM_RenderAux, KM_TextLibrary,
+  KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_Resource, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Settings, KM_Music, KM_Points,
   KM_ArmyEvaluation, KM_GameOptions, KM_PerfLog;
 
@@ -138,6 +139,7 @@ type
     procedure StepOneFrame;
     function SaveName(const aName, aExt:string):string;
     function RenderVersion: string;
+    procedure UpdateGameCursor(X,Y: Integer; Shift: TShiftState);
 
     property GlobalSettings: TGlobalSettings read fGlobalSettings;
     property Campaigns: TKMCampaignsCollection read fCampaigns;
@@ -513,7 +515,7 @@ begin
   end
   else
   begin
-    fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
+    fTerrain.MakeNewMap(64, 64, False); //For debug we use blank mission
     fPlayers := TKMPlayersCollection.Create;
     fPlayers.AddPlayers(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[0];
@@ -1014,7 +1016,7 @@ begin
   end
   else
   begin
-    fTerrain.MakeNewMap(aSizeX, aSizeY);
+    fTerrain.MakeNewMap(aSizeX, aSizeY, True);
     fPlayers := TKMPlayersCollection.Create;
     fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[0];
@@ -1186,6 +1188,22 @@ begin
   Result := not CheckTime(fGameOptions.Peacetime*600);
 end;
 
+
+//Compute cursor position and store it in global variables
+procedure TKMGame.UpdateGameCursor(X, Y: Integer; Shift: TShiftState);
+begin
+  with GameCursor do
+  begin
+    Float.X := fViewport.Position.X + (X-fViewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fViewport.Zoom;
+    Float.Y := fViewport.Position.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
+    Float.Y := fTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
+
+    Cell.X := EnsureRange(round(Float.X+0.5), 1, fTerrain.MapX); //Cell below cursor in map bounds
+    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fTerrain.MapY);
+
+    SState := Shift;
+  end;
+end;
 
 procedure TKMGame.UpdatePeacetime;
 var PeaceTicksRemaining:cardinal;

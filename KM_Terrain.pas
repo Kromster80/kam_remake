@@ -2,8 +2,9 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-  KM_CommonClasses, KM_Defaults, KM_Player, KM_Units, KM_Utils, KM_Houses,
-  KM_PathFinding, KM_Points;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils,
+  KM_Player, KM_Units, KM_Houses,
+  KM_PathFinding;
 
 
 type
@@ -15,6 +16,7 @@ type
   TTerrain = class
   private
     fAnimStep:integer;
+    fMapEditor: Boolean; //In MapEd mode some fetures behave differently
     fMapX,fMapY:integer; //Terrain width and height
   public
 
@@ -62,7 +64,9 @@ type
 
     constructor Create;
     destructor Destroy; override;
-    procedure MakeNewMap(Width,Height:integer);
+    procedure MakeNewMap(Width, Height: Integer; aMapEditor: Boolean);
+    procedure LoadFromFile(FileName: string; aMapEditor: Boolean);
+    procedure SaveToFile(aFile:string);
 
     property MapX: integer read fMapX;
     property MapY: integer read fMapY;
@@ -168,7 +172,6 @@ type
     procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
     procedure RebuildWalkConnect(aSet: array of TWalkConnect);
 
-    procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
     function GetVertexCursorPosition:TKMPoint;
     function ConvertCursorToMapCoord(inX,inY:single):single;
     function InterpolateLandHeight(inX,inY:single):single; overload;
@@ -181,12 +184,10 @@ type
     procedure IncAnimStep; //Lite-weight UpdateState for MapEd
     property AnimStep: integer read fAnimStep;
 
-    procedure LoadFromFile(FileName:string);
-    procedure SaveToFile(aFile:string);
-
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
+
     procedure UpdateState;
     procedure UpdateStateIdle;
     procedure UpdateMinimapData(aMapEditor:Boolean);
@@ -198,7 +199,7 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_PlayersCollection,
+uses KM_Log, KM_PlayersCollection,
   KM_Resource, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
@@ -221,9 +222,10 @@ end;
 
 
 //Reset whole map with default values
-procedure TTerrain.MakeNewMap(Width,Height:integer);
+procedure TTerrain.MakeNewMap(Width, Height: Integer; aMapEditor: Boolean);
 var i,k:integer;
 begin
+  fMapEditor := aMapEditor;
   fMapX := Min(Width, MAX_MAP_SIZE);
   fMapY := Min(Height,MAX_MAP_SIZE);
 
@@ -262,7 +264,7 @@ begin
 end;
 
 
-procedure TTerrain.LoadFromFile(FileName:string);
+procedure TTerrain.LoadFromFile(FileName: string; aMapEditor: Boolean);
 var
   i,k:integer;
   S:TKMemoryStream;
@@ -270,7 +272,7 @@ var
 begin
   if not CheckFileExists(FileName) then Exit;
 
-  fLog.AppendLog('Loading map file: '+FileName);
+  fLog.AppendLog('Loading map file: ' + FileName);
 
   S := TKMemoryStream.Create;
   try
@@ -280,7 +282,7 @@ begin
     Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
     fMapX := NewX;
     fMapY := NewY;
-    MakeNewMap(fMapX, fMapY); //Reset whole map to default
+    MakeNewMap(fMapX, fMapY, aMapEditor); //Reset whole map to default
     for i:=1 to fMapY do for k:=1 to fMapX do
     begin
       S.Read(Land[i,k].Terrain); //1
@@ -777,34 +779,41 @@ end;
 {Set field on tile - corn/wine}
 procedure TTerrain.SetField(Loc:TKMPoint; aOwner:TPlayerIndex; aFieldType:TFieldType);
 begin
-  Land[Loc.Y,Loc.X].TileOwner:=aOwner;
-  Land[Loc.Y,Loc.X].TileOverlay:=to_None;
-  Land[Loc.Y,Loc.X].FieldAge:=0;
-  Land[Loc.Y,Loc.X].OldTerrain:=Land[Loc.Y,Loc.X].Terrain;
-  Land[Loc.Y,Loc.X].OldRotation:=Land[Loc.Y,Loc.X].Rotation;
+  Land[Loc.Y,Loc.X].TileOwner   := aOwner;
+  Land[Loc.Y,Loc.X].TileOverlay := to_None;
+  Land[Loc.Y,Loc.X].FieldAge    := 0;
 
-  if aFieldType=ft_Corn then begin
-    Land[Loc.Y,Loc.X].Terrain:=62;
-    Land[Loc.Y,Loc.X].Rotation:=0;
-    //If object is already corn then set the field age (some maps start with corn placed)
-    if fGame.GameState <> gsEditor then //Don't do this in editor mode
-    case Land[Loc.Y,Loc.X].Obj of
-      58: begin  //Corn 1
-            Land[Loc.Y,Loc.X].FieldAge := 435;
-            Land[Loc.Y,Loc.X].Terrain := 60;
-          end;
-      59: begin  //Corn 1
-            Land[Loc.Y,Loc.X].FieldAge := 630;
-            Land[Loc.Y,Loc.X].Terrain := 60;
-          end;
-    end;
-  end else
-  if (aFieldType=ft_Wine) or (aFieldType=ft_InitWine) then begin
-    Land[Loc.Y,Loc.X].Terrain  := 55;
-    Land[Loc.Y,Loc.X].Rotation := 0;
+  //Remember old terrain if we need to revert it in MapEd
+  Land[Loc.Y,Loc.X].OldTerrain  := Land[Loc.Y, Loc.X].Terrain;
+  Land[Loc.Y,Loc.X].OldRotation := Land[Loc.Y, Loc.X].Rotation;
+
+  case aFieldType of
+    ft_Corn:      begin
+                    Land[Loc.Y,Loc.X].Terrain  := 62;
+                    Land[Loc.Y,Loc.X].Rotation := 0;
+                    //If object is already corn then set the field age (some maps start with corn placed)
+                    if not fMapEditor then //Don't do this in editor mode
+                    case Land[Loc.Y,Loc.X].Obj of
+                      58: begin  //Smaller greeninsh Corn
+                            Land[Loc.Y,Loc.X].FieldAge := 435;
+                            Land[Loc.Y,Loc.X].Terrain  := 60;
+                          end;
+                      59: begin  //Full-grown Corn 1
+                            Land[Loc.Y,Loc.X].FieldAge := 630;
+                            Land[Loc.Y,Loc.X].Terrain  := 60;
+                          end;
+                    end;
+                  end;
+    ft_Wine:      begin
+                    Land[Loc.Y,Loc.X].Terrain  := 55;
+                    Land[Loc.Y,Loc.X].Rotation := 0;
+                    CutGrapes(Loc);
+                  end;
+    ft_InitWine:  begin
+                    Land[Loc.Y,Loc.X].Terrain  := 55;
+                    Land[Loc.Y,Loc.X].Rotation := 0;
+                  end;
   end;
-  if aFieldType=ft_Wine then
-    CutGrapes(Loc);
 
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
@@ -1882,7 +1891,7 @@ var TilesFactored:integer;
     if (Land[aY,aX].IsUnit <> nil)
     and CheckPassability(KMPoint(aX,aY),CanWalk)
     and not CheckHeightPass(KMPoint(aX,aY),CanWalk)
-    and (fGame.GameState <> gsEditor) //Allow units to become "stuck" in MapEd, as height changing is allowed anywhere
+    and not fMapEditor //Allow units to become "stuck" in MapEd, as height changing is allowed anywhere
     then
       //This recursive call should be garanteed to exit, as eventually the terrain will be flat enough
       FlattenTerrain(KMPoint(aX,aY), False); //WalkConnect should be done at the end
@@ -2349,25 +2358,8 @@ end;
 { Returns a rounded vertex based cursor position, maybe we'll need it later. }
 function TTerrain.GetVertexCursorPosition:TKMPoint;
 begin
-  Result.X := EnsureRange(round(GameCursor.Float.X+1),1,fMapX);
-  Result.Y := EnsureRange(round(GameCursor.Float.Y+1),1,fMapY);
-end;
-
-
-{Compute cursor position and store it in global variables}
-procedure TTerrain.ComputeCursorPosition(X,Y:word; Shift: TShiftState);
-begin
-  with GameCursor do
-  begin
-    Float.X := fGame.Viewport.Position.X + (X-fGame.Viewport.ViewRect.Right/2-TOOLBAR_WIDTH/2)/CELL_SIZE_PX/fGame.Viewport.Zoom;
-    Float.Y := fGame.Viewport.Position.Y + (Y-fGame.Viewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fGame.Viewport.Zoom;
-    Float.Y := ConvertCursorToMapCoord(Float.X,Float.Y);
-
-    Cell.X := EnsureRange(round(Float.X+0.5), 1, fMapX); //Cell below cursor in map bounds
-    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fMapY);
-
-    SState := Shift;
-  end;
+  Result.X := EnsureRange(round(GameCursor.Float.X + 1), 1, fMapX);
+  Result.Y := EnsureRange(round(GameCursor.Float.Y + 1), 1, fMapY);
 end;
 
 
@@ -2393,7 +2385,7 @@ begin
       Result := Yc+ii-(Ycoef[ii+1]-inY) / (Ycoef[ii+1]-Ycoef[ii]);
       break;
     end;
-    
+
   //fLog.AssertToLog(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
 end;
 
@@ -2529,14 +2521,17 @@ begin
 end;
 
 
-procedure TTerrain.Save(SaveStream:TKMemoryStream);
+procedure TTerrain.Save(SaveStream: TKMemoryStream);
 var i,k:integer;
 begin
+  Assert(not fMapEditor, 'MapEd mode is not intended to be saved into savegame');
+
   SaveStream.Write('Terrain');
   SaveStream.Write(fMapX);
   SaveStream.Write(fMapY);
 
   SaveStream.Write(fAnimStep);
+  SaveStream.Write(fMapEditor);
   FallingTrees.Save(SaveStream);
 
   for i:=1 to fMapY do for k:=1 to fMapX do
@@ -2560,7 +2555,7 @@ begin
 end;
 
 
-procedure TTerrain.Load(LoadStream:TKMemoryStream);
+procedure TTerrain.Load(LoadStream: TKMemoryStream);
 var i,k:integer; s:string;
 begin
   LoadStream.Read(s);
@@ -2569,6 +2564,9 @@ begin
   LoadStream.Read(fMapY);
 
   LoadStream.Read(fAnimStep);
+  LoadStream.Read(fMapEditor);
+  Assert(not fMapEditor, 'MapEd mode is not intended to be saved into savegame');
+
   FallingTrees.Load(LoadStream);
 
   for i:=1 to fMapY do for k:=1 to fMapX do

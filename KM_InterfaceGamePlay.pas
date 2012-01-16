@@ -3235,7 +3235,7 @@ begin
     DisplayHint(nil); //Clear shown hint
 
   if fGame.GameState = gsReplay then
-    fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
+    fGame.UpdateGameCursor(X,Y,Shift); //To show coords in status bar
 
   if (fGame.GameState <> gsRunning) then exit;
 
@@ -3263,7 +3263,7 @@ begin
     Exit;
   end;
 
-  fTerrain.ComputeCursorPosition(X,Y,Shift);
+  fGame.UpdateGameCursor(X,Y,Shift);
 
   if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
   begin
@@ -3489,14 +3489,14 @@ begin
   if MOUSEWHEEL_ZOOM_ENABLE and ((MyControls.CtrlOver = nil) or fGame.ReplayMode) and
      (fGame.GameState in [gsReplay,gsRunning]) then
   begin
-    fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
+    fGame.UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
     fGame.Viewport.Zoom := fGame.Viewport.Zoom + WheelDelta/2000;
-    fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
+    fGame.UpdateGameCursor(X, Y, Shift); //Zooming changes the cursor position
     //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
     fGame.Viewport.Position := KMPointF(fGame.Viewport.Position.X + PrevCursor.X-GameCursor.Float.X,
                                    fGame.Viewport.Position.Y + PrevCursor.Y-GameCursor.Float.Y);
-    fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
+    fGame.UpdateGameCursor(X, Y, Shift); //Recentering the map changes the cursor position
   end;
 end;
 
