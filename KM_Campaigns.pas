@@ -14,11 +14,11 @@ type
 
   TKMCampaign = class
   private
-    fBackGroundPic:TPicID;
-    fMapCount:byte;
-    fShortTitle:string;
-    fUnlockedMaps:byte;
-    procedure SetUnlockedMaps(Value:byte);
+    fBackGroundPic: TPicID;
+    fMapCount: Byte;
+    fShortTitle: AnsiString;
+    fUnlockedMaps: Byte;
+    procedure SetUnlockedMaps(Value: Byte);
   public
     Maps:array of record
       MapName:string;
@@ -27,14 +27,14 @@ type
       PrevMap:shortint; //Should be used to draw connecting dots in Campaign screen
       ScriptPath:string;
     end;
-    constructor Create(const aShortTitle:string; aMapCount:byte; aBackRX: TRXType; aBackID:word);
+    constructor Create(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
     procedure LoadProgress(M:TKMemoryStream);
     procedure SaveProgress(M:TKMemoryStream);
 
     property BackGroundPicRX: TRXType read fBackGroundPic.RX;
     property BackGroundPicID:word read fBackGroundPic.ID;
     property MapCount:byte read fMapCount;
-    property ShortTitle:string read fShortTitle;
+    property ShortTitle: AnsiString read fShortTitle;
     property UnlockedMaps:byte read fUnlockedMaps write SetUnlockedMaps;
 
     function MissionText(aIndex:byte):string;
@@ -62,7 +62,7 @@ type
 
     function Count:integer;
     property Campaigns[aIndex:byte]:TKMCampaign read GetCampaign; default;
-    function CampaignByTitle(const aShortTitle:string):TKMCampaign;
+    function CampaignByTitle(const aShortTitle: AnsiString):TKMCampaign;
     procedure UnlockNextMap;
 
     procedure Save(SaveStream:TKMemoryStream);
@@ -183,10 +183,10 @@ end;
 //Read progress from file trying to find matching campaigns
 procedure TKMCampaignsCollection.LoadProgress(const FileName:string);
 var
-  M:TKMemoryStream;
+  M: TKMemoryStream;
   C: TKMCampaign;
-  i,CampCount:integer;
-  CampName:string;
+  i,CampCount: Integer;
+  CampName: string;
 begin
   if not FileExists(FileName) then Exit;
 
@@ -237,7 +237,7 @@ begin
 end;
 
 
-function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: string): TKMCampaign;
+function TKMCampaignsCollection.CampaignByTitle(const aShortTitle: AnsiString): TKMCampaign;
 var i:integer;
 begin
   Result := nil;
@@ -278,7 +278,7 @@ end;
 
 
 { TKMCampaign }
-constructor TKMCampaign.Create(const aShortTitle: string; aMapCount:byte; aBackRX: TRXType; aBackID:word);
+constructor TKMCampaign.Create(const aShortTitle: AnsiString; aMapCount:byte; aBackRX: TRXType; aBackID:word);
 begin
   Inherited Create;
   fShortTitle := aShortTitle;
