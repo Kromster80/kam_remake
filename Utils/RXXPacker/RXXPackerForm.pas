@@ -31,7 +31,6 @@ var RT: TRXType;
 begin
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + '..\..\';
 
-  USE_RXX_FILES := false; //We are packing the RXX files, so always load the data from the other sources
   //Although we don't need them in this tool, these are required to load sprites
   fLog := TKMLog.Create(ExeDir + 'log.txt');
 

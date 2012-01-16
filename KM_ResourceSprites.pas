@@ -177,7 +177,6 @@ var
   RXData: array [TRXType] of record
     Qty: Integer;
     Flag: array of Byte; //Sprite is valid
-    Palleted: array of Boolean; //Sprite was overloaded from KaM RX so must be converted to RGBA
     Size: array of record X,Y: Word; end;
     Pivot: array of record x,y: Integer; end;
     Data: array of array of Byte;
@@ -199,24 +198,24 @@ uses KromUtils, KM_Defaults, KM_Log;
 
 
 var
-    RX5Pal: array [1 .. 40] of TKMPal = (
-      pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
-      pal2_setup,   pal_set2,     pal_set2,     pal_set2,     pal_map,
-      pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
-      pal_map,      pal2_setup,   pal2_setup,   pal2_setup,   pal2_mapgold,
-      pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_setup,
-      pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
-      pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
-      pal2_setup,   pal2_setup,   pal_lin,      pal_lin,      pal_lin
-    );
+  RX5Pal: array [1 .. 40] of TKMPal = (
+    pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
+    pal2_setup,   pal_set2,     pal_set2,     pal_set2,     pal_map,
+    pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
+    pal_map,      pal2_setup,   pal2_setup,   pal2_setup,   pal2_mapgold,
+    pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_mapgold, pal2_setup,
+    pal_map,      pal_map,      pal_map,      pal_map,      pal_map,
+    pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,   pal2_setup,
+    pal2_setup,   pal2_setup,   pal_lin,      pal_lin,      pal_lin
+  );
 
-    // I couldn't find matching palettes for the 17th and 18th entries
-    RX6Pal: array [1 .. 20] of TKMPal = (
-      pal_set,  pal_set,  pal_set,  pal_set,  pal_set,
-      pal_set,  pal_set2, pal_set2, pal_set2, pal_map,
-      pal_map,  pal_map,  pal_map,  pal_map,  pal_map,
-      pal_map,  pal_lin,  pal_lin,  pal_lin,  pal_lin
-    );
+  // I couldn't find matching palettes for the 17th and 18th entries
+  RX6Pal: array [1 .. 20] of TKMPal = (
+    pal_set,  pal_set,  pal_set,  pal_set,  pal_set,
+    pal_set,  pal_set2, pal_set2, pal_set2, pal_map,
+    pal_map,  pal_map,  pal_map,  pal_map,  pal_map,
+    pal_map,  pal_lin,  pal_lin,  pal_lin,  pal_lin
+  );
 
 
 { TKMSpritePack }
@@ -237,7 +236,6 @@ begin
   aCount := RXData[fRT].Qty+1;
   SetLength(GFXData[fRT],         aCount);
   SetLength(RXData[fRT].Flag,     aCount);
-  SetLength(RXData[fRT].Palleted, aCount);
   SetLength(RXData[fRT].Size,     aCount);
   SetLength(RXData[fRT].Pivot,    aCount);
   SetLength(RXData[fRT].Data,     aCount);
@@ -249,8 +247,6 @@ end;
 
 //Convert paletted data into RGBA and select Team color layer from it
 procedure TKMSpritePack.Expand;
-  //todo: Replace with Flag override function in LoadRX, that will replace Flags with PaletteID used for the sprite
-  //also think about using one of the upper 4 bits left for MakeFlagColor flag
   function HousesPal(aID: Integer): TKMPalData;
   const wip: array[0..55] of word = (3,4,25,43,44,116,118,119,120,121,123,126,127,136,137,140,141,144,145,148,149,213,214,237,238,241,242,243,246,247,252,253,257,258,275,276,336,338,360,361,365,366,370,371,380,381,399,400,665,666,670,671,1658,1660,1682,1684);
   var I: Byte;
@@ -346,7 +342,6 @@ begin
   for I := 1 to RXData[fRT].Qty do
     if RXData[fRT].Flag[I] = 1 then
     begin
-      RXData[fRT].Palleted[I] := True;
       S.ReadBuffer(RXData[fRT].Size[I].X, 4);
       S.ReadBuffer(RXData[fRT].Pivot[I].X, 8);
       //Data part of each sprite is 8BPP palleted in KaM RX
@@ -386,7 +381,6 @@ begin
     for I := 1 to RXData[fRT].Qty do
       if RXData[fRT].Flag[I] = 1 then
       begin
-        RXData[fRT].Palleted[I] := False;
         DecompressionStream.Read(RXData[fRT].Size[I].X, 4);
         DecompressionStream.Read(RXData[fRT].Pivot[I].X, 8);
         //Data part of each sprite is 32BPP RGBA in Remake RXX files
@@ -471,7 +465,6 @@ begin
       {$ENDIF}
 
       RXData[fRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
-      RXData[fRT].Palleted[ID] := False;
       RXData[fRT].Size[ID].X := po.Width;
       RXData[fRT].Size[ID].Y := po.Height;
 
@@ -877,7 +870,7 @@ var
   WidthPOT,HeightPOT:integer;
   TD:array of cardinal;
 begin
-  for HT:=Low(THouseType) to High(THouseType) do
+  for HT := Low(THouseType) to High(THouseType) do
     if aHouseDat[HT].IsValid then
 
       //House is rendered in two layers since Stone does not covers Wood parts in e.g. Sawmill
@@ -915,13 +908,7 @@ begin
         begin
           t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
 
-          //Palleted means that we can use Data array
-          //Otherwise, for addon sprites, we need to resort to RGBA data they provide
-          //if RXData[aRT].Palleted[ID2] then
-            //Alpha := RXData[aRT].Data[ID2,i*RXData[aRT].Size[ID2].X+k]
-          //else
-          //todo: Now we can remove Paletted field altogether?
-          Alpha := RXData[aRT].RGBA[ID2,i*RXData[aRT].Size[ID2].X+k] AND $FF;
+          Alpha := RXData[aRT].RGBA[ID2, i * RXData[aRT].Size[ID2].X + k] AND $FF;
 
           //Steps are going in normal order 1..n, but that last step has Alpha=0
           if TD[t] <> 0 then
