@@ -106,14 +106,21 @@ begin
 
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
-  //todo: @Krom: Make textures support an alpha channel for nice shadows. How does it work for houses on top of AlphaTest?
+  //@Krom: Make textures support an alpha channel for nice shadows. How does it work for houses on top of AlphaTest?
+  //@Lewin: AlphaTest does not supports semitransparency, because it uses A chanel to do the testing
+  //we will need to use something else
+
+  //GL_ALPHA   (0-0-0-8 bit) - used only for flags, but may bring unexpected bugs
+  //GL_RGB5_A1 (5-5-5-1 bit) - uses 185mb GPURAM
+  //GL_RGBA    (8-8-8-8 bit) - uses 323mb GPURAM (but allows fuzzy shadows)
+  //Figures are before trimming - only ratio matters
   case Mode of
     //Houses under construction
     tf_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer
     tf_Normal:    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Team color layer
-    tf_AltID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2,   DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_AltID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA4,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
 end;
 

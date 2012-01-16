@@ -620,15 +620,15 @@ end;
 
 
 procedure TRender.AddMarketSupply(ResType:TResourceType; ResCount:word; Loc:TKMPoint; AnimStep:integer);
-var i,ID:integer;
+var i,ID: Integer;
 
   procedure AddHouseSupplySprite(aID:integer);
   var ShiftX,ShiftY:single;
   begin
-    if aID>0 then
+    if aID <> 0 then
     begin
-      ShiftX := Loc.X + MarketWaresOffsetX/CELL_SIZE_PX;
-      ShiftY := Loc.Y + (MarketWaresOffsetY+RXData[rxGame].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
+      ShiftX := Loc.X + (RXData[rxGame].Pivot[aID].x + MarketWaresOffsetX)/CELL_SIZE_PX;
+      ShiftY := Loc.Y + (RXData[rxGame].Pivot[aID].y + MarketWaresOffsetY+RXData[rxGame].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[Loc.Y+1,Loc.X].Height/CELL_HEIGHT_DIV;
       fRenderList.AddSprite(rxGame,aID,ShiftX,ShiftY,Loc.X,Loc.Y,false);
     end;
   end;

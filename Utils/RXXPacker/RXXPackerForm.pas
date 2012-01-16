@@ -72,6 +72,10 @@ begin
     if DirectoryExists(ExeDir + 'Sprites\') then
       fSprites.LoadFromFolder(ExeDir + 'Sprites\');
 
+    fLog.AddToLog('Trimmed ' + IntToStr(fSprites.TrimSprites));
+
+    //fSprites.ExportToBMP(ExeDir + 'Export\'+RXInfo[RT].FileName);
+
     //Save
     ForceDirectories(ExeDir + 'Data\Sprites\');
     fSprites.SaveToRXXFile(ExeDir + 'Data\Sprites\' + RXInfo[RT].FileName + '.rxx');

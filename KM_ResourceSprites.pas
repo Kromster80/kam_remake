@@ -135,6 +135,7 @@ type
 
     procedure SaveToRXXFile(const aFileName: string);
     procedure ExportToBMP(const aFolder: string);
+    function TrimSprites: Cardinal; //For debug
 
     procedure ClearData; //Release non-required data
   end;
@@ -305,6 +306,64 @@ begin
           RGBA[H, Pixel] := Palette.Color32(L);
       end;
     end;
+  end;
+end;
+
+
+//Cut off empty pixels on sides
+function TKMSpritePack.TrimSprites: Cardinal;
+var
+  I,J,K: Integer;
+  x1,x2,y1,y2: Word;
+  OffX, OffY, NewX, NewY: Word;
+begin
+  Result := 0;
+
+  //with RXData[fRT] do
+  for I := 1 to RXData[fRT].Qty do
+  if (RXData[fRT].Flag[I] <> 0) then
+  begin
+    //Check bounds
+    x1 := 0;
+    y1 := 0;
+    x2 := RXData[fRT].Size[I].X - 1;
+    y2 := RXData[fRT].Size[I].Y - 1;
+    for J := 0 to RXData[fRT].Size[I].Y - 1 do
+    for K := 0 to RXData[fRT].Size[I].X - 1 do
+    if RXData[fRT].RGBA[I, J * RXData[fRT].Size[I].X + K] and $FF000000 <> 0 then
+    begin
+      x1 := Max(x1, K);
+      y1 := Max(y1, J);
+      x2 := Min(x2, K);
+      y2 := Min(y2, J);
+    end;
+
+    Inc(x1);
+    Inc(y1);
+    OffX := x2;
+    OffY := y2;
+    NewX := x1 - x2;
+    NewY := y1 - y2;
+
+    Result := Result + (RXData[fRT].Size[I].Y * RXData[fRT].Size[I].X) - NewX * NewY;
+
+    //Do the trimming
+    for J := 0 to NewY - 1 do
+    begin
+      Move(
+        RXData[fRT].RGBA[I, (J + OffY) * RXData[fRT].Size[I].X + OffX],
+        RXData[fRT].RGBA[I, J * NewX],
+        NewX * 4);
+      Move(
+        RXData[fRT].Mask[I, (J + OffY) * RXData[fRT].Size[I].X + OffX],
+        RXData[fRT].Mask[I, J * NewX],
+        NewX * 4);
+    end;
+
+    RXData[fRT].Size[I].X := NewX;
+    RXData[fRT].Size[I].Y := NewY;
+    RXData[fRT].Pivot[I].X := RXData[fRT].Pivot[I].X + OffX;
+    RXData[fRT].Pivot[I].Y := RXData[fRT].Pivot[I].Y + OffY;
   end;
 end;
 
@@ -690,16 +749,21 @@ begin
   begin
     fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx');
     //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
+    //Don't need trimming either
   end
   else
   if FileExists(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx') then
   begin
     fSprites[aRT].LoadFromRXFile(ExeDir + 'data\gfx\res\' + RXInfo[aRT].FileName + '.rx');
     fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
+    fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
   end
   else
   if DirectoryExists(ExeDir + 'Sprites\') then
+  begin
     fSprites[aRT].LoadFromFolder(ExeDir + 'Sprites\');
+    fLog.AddToLog('Trimmed ' + IntToStr(fSprites[aRT].TrimSprites));
+  end;
 
   //todo: Replace with something
   {//Special case for Tileset for MapEd menu
@@ -813,7 +877,7 @@ begin
       //TeamColors are done through alternative plain colored texture
       if HasMsk then begin
         GFXData[aRT,LeftIndex].AltID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
-        inc(ColorsRAM,WidthPOT*HeightPOT*4);
+        inc(ColorsRAM, (WidthPOT*HeightPOT) div 2); //GL_ALPHA4
       end;
     end
     else
@@ -838,11 +902,11 @@ begin
       GFXData[aRT,j].PxWidth:=RXData[aRT].Size[j].X;
       GFXData[aRT,j].PxHeight:=RXData[aRT].Size[j].Y;
 
-      inc(RequiredRAM,RXData[aRT].Size[j].X*RXData[aRT].Size[j].Y*4);
+      inc(RequiredRAM, RXData[aRT].Size[j].X * RXData[aRT].Size[j].Y * 4);
     end;
 
-    inc(AllocatedRAM,WidthPOT*HeightPOT*4);
-    inc(LeftIndex,SpanCount-1);
+    inc(AllocatedRAM, WidthPOT * HeightPOT * 4);
+    inc(LeftIndex, SpanCount-1);
     inc(TexCount);
 
   until(LeftIndex>=RXData[aRT].Qty); // >= in case data wasn't loaded and Qty=0
