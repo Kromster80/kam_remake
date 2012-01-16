@@ -795,18 +795,24 @@ begin
 end;
 
 
-procedure TRender.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
-var Lay: Byte;
+procedure TRender.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col:TColor4; aFOW:byte; HighlightRed: boolean = False);
+var
+  Lay, TopLay: Byte;
 begin
-  for Lay:=1 to 2 do
-  with GFXData[aRX,aID] do
+  if (RXData[aRX].HasTeamColors) and (GFXData[aRX,aID].AltID <> 0) then
+    TopLay := 2
+  else
+    TopLay := 1;
+
+  for Lay := 1 to TopLay do
+  with GFXData[aRX, aID] do
   begin
-    if Lay=1 then
+    if Lay = 1 then
     begin
       glColor3ub(aFOW, aFOW, aFOW);
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
-    if (Lay=2) and (aFOW<>0) then  //Don't render colorflags if they aren't visible cos of FOW
+    if (Lay = 2) and (aFOW <> 0) then  //Don't render colorflags if they aren't visible cos of FOW
     begin
       glColor4ubv(@Col);
       glBindTexture(GL_TEXTURE_2D, AltID);
@@ -814,16 +820,12 @@ begin
 
     if HighlightRed then glColor4f(1,0,0,1);
 
-    if (Lay=1)
-    or ((Lay=2) and (RXData[aRX].HasTeamColors) and (AltID<>0)) then
-    begin
-      glBegin(GL_QUADS);
-        glTexCoord2f(u1,v2); glVertex2f(pX-1                     ,pY-1                      );
-        glTexCoord2f(u2,v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
-        glTexCoord2f(u2,v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(u1,v1); glVertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
-      glEnd;
-    end;
+    glBegin(GL_QUADS);
+      glTexCoord2f(u1, v2); glVertex2f(pX-1                     , pY-1                      );
+      glTexCoord2f(u2, v2); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX, pY-1                      );
+      glTexCoord2f(u2, v1); glVertex2f(pX-1+pxWidth/CELL_SIZE_PX, pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(u1, v1); glVertex2f(pX-1                     , pY-1-pxHeight/CELL_SIZE_PX);
+    glEnd;
   end;
 
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -834,8 +836,8 @@ begin
       glLineWidth(1);
       glColor4f(1,1,1,0.5);
       glBegin(GL_LINE_LOOP);
-        with GFXData[aRX,aID] do
-          glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+        with GFXData[aRX, aID] do
+          glkRect(pX-1, pY-1, pX-1+pxWidth/CELL_SIZE_PX, pY-1-pxHeight/CELL_SIZE_PX);
       glEnd;
     glPopAttrib;
   end;
