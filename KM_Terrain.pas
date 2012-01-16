@@ -198,7 +198,7 @@ var
 
 
 implementation
-uses KM_Game, KM_Log, KM_PlayersCollection, KM_Render, KM_RenderAux,
+uses KM_Game, KM_Log, KM_PlayersCollection,
   KM_Resource, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 

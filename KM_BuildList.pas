@@ -147,7 +147,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Utils, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_UnitActionStay;
+uses KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_UnitActionStay;
 
 
 const

@@ -47,7 +47,7 @@ type
     constructor Create(aRenderSetup: TRenderSetup; aLS: TEvent; aLT: TStringEvent);
     destructor Destroy; override;
 
-    procedure LoadMenuResources(const aLocale: string);
+    procedure LoadMenuResources(const aLocale: AnsiString);
     procedure LoadGameResources;
 
     property DataState: TDataLoadingState read fDataState;
@@ -69,7 +69,7 @@ type
     fResource: TResource;
 
 implementation
-uses KromUtils, KM_Log, KM_TextLibrary, KM_Points;
+uses KromUtils, KM_Log, KM_Points;
 
 
 { TResource }
@@ -111,7 +111,7 @@ begin
 end;
 
 
-procedure TResource.LoadMenuResources(const aLocale: string);
+procedure TResource.LoadMenuResources(const aLocale: AnsiString);
 begin
   Assert(fRenderSetup <> nil, 'fRenderSetup should be init before ReadGFX to be able access OpenGL');
 

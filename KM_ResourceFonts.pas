@@ -187,7 +187,7 @@ begin
 end;
 
 
-function TResourceFont.GetCodePage(aLocale:AnsiString):AnsiString;
+function TResourceFont.GetCodePage(aLocale: AnsiString):AnsiString;
 var k:integer;
 begin
   Result := '';
@@ -200,32 +200,37 @@ begin
 end;
 
 
-procedure TResourceFont.LoadFonts(aLocale:AnsiString);
-var i:TKMFont; CodePage:AnsiString;
+procedure TResourceFont.LoadFonts(aLocale: AnsiString);
+var
+  F: TKMFont;
+  CodePage: AnsiString;
 begin
   CodePage := GetCodePage(aLocale);
-  for i:=low(TKMFont) to high(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt') then
-      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt', fRenderSetup, i, false)
+  for F := Low(TKMFont) to High(TKMFont) do
+    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRenderSetup, F, false)
     else
-      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', fRenderSetup, i, false);
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRenderSetup, F, False);
 end;
 
 
-procedure TResourceFont.ExportFonts(aLocale:AnsiString);
-var i:TKMFont;CodePage:AnsiString;
+procedure TResourceFont.ExportFonts(aLocale: AnsiString);
+var
+  F: TKMFont;
+  CodePage: AnsiString;
 begin
   CodePage := GetCodePage(aLocale);
-  for i:=low(TKMFont) to high(TKMFont) do
-    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt') then
-      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+CodePage+'.fnt', fRenderSetup, i, true)
+  for F := Low(TKMFont) to High(TKMFont) do
+    if FileExists(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt') then
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.'+CodePage+'.fnt', fRenderSetup, F, true)
     else
-      fFontData[i].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', fRenderSetup, i, true);
+      fFontData[F].LoadFont(ExeDir+FONTS_FOLDER+FontFiles[F]+'.fnt', fRenderSetup, F, True);
 end;
 
 
 function TResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean):AnsiString;
-var i,CharSpacing,AdvX,PrevX,LastSpace:integer;
+var
+  i, CharSpacing, AdvX, PrevX, LastSpace: integer;
 begin
   AdvX := 0;
   PrevX := 0;
