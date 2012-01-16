@@ -31,6 +31,7 @@ var RT: TRXType;
 begin
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + '..\..\';
 
+  USE_RXX_FILES := false; //We are packing the RXX files, so always load the data from the other sources
   //Although we don't need them in this tool, these are required to load sprites
   fLog := TKMLog.Create(ExeDir + 'log.txt');
 
@@ -41,7 +42,6 @@ begin
     ListBox1.Items.Add(GetEnumName(TypeInfo(TRXType), Integer(RT)));
 
   ListBox1.ItemIndex := 0;
-  USE_RXX_FILES := False; //We are packing the RXX files, so always load the data from the other sources
 end;
 
 

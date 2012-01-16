@@ -56,6 +56,7 @@ Features:
 	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
 	Some way to delete multiplayer saves from within the KaM Remake
 	Choosing max reported refresh rate for display in fullscreen causes banding with wrong drivers (add refresh rate selector to options) 
+	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
