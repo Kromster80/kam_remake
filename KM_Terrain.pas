@@ -15,12 +15,12 @@ type
   {Class to store all terrain data, aswell terrain routines}
   TTerrain = class
   private
-    fAnimStep:integer;
+    fAnimStep: Integer;
     fMapEditor: Boolean; //In MapEd mode some fetures behave differently
-    fMapX,fMapY:integer; //Terrain width and height
+    fMapX: Integer; //Terrain width and height
+    fMapY: Integer; //Terrain width and height
   public
-
-    Land:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of record
+    Land: array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of record
       Terrain:byte;
       Height:byte;
       Rotation:byte;
@@ -60,7 +60,7 @@ type
 
     Pathfinding: TPathFinding;
     FallingTrees: TKMPointTagList;
-    MiniMapRGB:array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of cardinal;
+    MiniMapRGB: array [1..MAX_MAP_SIZE, 1..MAX_MAP_SIZE] of cardinal;
 
     constructor Create;
     destructor Destroy; override;
@@ -68,8 +68,8 @@ type
     procedure LoadFromFile(FileName: string; aMapEditor: Boolean);
     procedure SaveToFile(aFile:string);
 
-    property MapX: integer read fMapX;
-    property MapY: integer read fMapY;
+    property MapX: Integer read fMapX;
+    property MapY: Integer read fMapY;
 
     procedure SetMarkup(aLoc: TKMPoint; aMarkup: TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);

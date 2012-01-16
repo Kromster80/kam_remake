@@ -2,7 +2,22 @@ unit KM_InterfaceDefaults;
 {$I KaM_Remake.inc}
 interface
 uses
-   KM_Defaults;
+   Controls, Classes, KM_Defaults,
+   KM_Controls;
+
+
+type
+  TKMUserInterface = class
+  protected
+    MyControls: TKMMasterControl;
+
+  public
+    constructor Create(aScreenX, aScreenY: Word);
+    destructor Destroy; override;
+
+    procedure UpdateState; virtual; abstract;
+    procedure Paint; virtual; abstract;
+  end;
 
 
 const
@@ -84,6 +99,22 @@ const
 
 
 implementation
+
+
+{ TKMUserInterface }
+constructor TKMUserInterface.Create(aScreenX, aScreenY: Word);
+begin
+  inherited Create;
+
+  MyControls := TKMMasterControl.Create;
+end;
+
+
+destructor TKMUserInterface.Destroy;
+begin
+  MyControls.Free;
+  inherited;
+end;
 
 
 end.

@@ -1576,6 +1576,8 @@ end;
 
 procedure TKMGame.PaintInterface;
 begin
+  //todo: fActiveInterface.Paint;
+
   case fGameState of
     gsNoGame:  fMainMenuInterface.Paint;
     gsPaused:  fGamePlayInterface.Paint;

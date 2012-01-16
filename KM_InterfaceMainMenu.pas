@@ -5,16 +5,16 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo, KM_Campaigns, KM_Saves;
+  KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo, KM_Campaigns, KM_Saves,
+  KM_InterfaceDefaults;
 
 
 type
   TMenuScreen = (msError, msLoading, msMain, msOptions, msResults, msResultsMP);
 
 
-  TKMMainMenuInterface = class
+  TKMMainMenuInterface = class (TKMUserInterface)
   private
-    MyControls: TKMMasterControl;
     ScreenX,ScreenY:word;
 
     Campaign_Selected:TKMCampaign;
@@ -289,19 +289,19 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
-    procedure UpdateState;
-    procedure Paint;
-end;
+    procedure UpdateState; override;
+    procedure Paint; override;
+  end;
 
 
 implementation
-uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection, KM_InterfaceDefaults,
+uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word);
 begin
-  Inherited Create;
+  inherited;
 
   Assert(fTextLibrary<>nil, 'fTextLibrary should be initialized before MainMenuInterface');
 
@@ -316,7 +316,6 @@ begin
   fSaves := TKMSavesCollection.Create;
   fSavesMP := TKMSavesCollection.Create;
 
-  MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, (X - MENU_DESIGN_X) div 2,
                                             (Y - MENU_DESIGN_Y) div 2,
                                             ScreenX, ScreenY); //Parent Panel for whole menu
@@ -366,8 +365,7 @@ begin
   fMapsMP.Free;
   fSaves.Free;
   fSavesMP.Free;
-  MyControls.Free;
-  Inherited;
+  inherited;
 end;
 
 

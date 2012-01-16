@@ -8,10 +8,8 @@ uses
      KM_Controls, KM_Defaults, KM_MapInfo, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
 
 type
-  TKMapEdInterface = class
+  TKMapEdInterface = class (TKMUserInterface)
   private
-    MyControls: TKMMasterControl;
-
     fShownUnit:TKMUnit;
     fShownHouse:TKMHouse;
     fShowPassability:byte;
@@ -194,8 +192,8 @@ type
     function GetShownPage:TKMMapEdShownPage;
     procedure SetTileDirection(aTileDirection: byte);
     procedure SetLoadMode(aMultiplayer:boolean);
-    procedure UpdateState;
-    procedure Paint;
+    procedure UpdateState; override;
+    procedure Paint; override;
   end;
 
 
@@ -384,7 +382,7 @@ end;
 constructor TKMapEdInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
-  Inherited Create;
+  inherited;
   Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
 
   fShownUnit  := nil;
@@ -396,7 +394,6 @@ begin
   fMapsMP := TKMapsCollection.Create(True);
 
 {Parent Page for whole toolbar in-game}
-  MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls, 0, 0, aScreenX, aScreenY);
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407); //Minimap place
@@ -475,9 +472,8 @@ destructor TKMapEdInterface.Destroy;
 begin
   fMaps.Free;
   fMapsMP.Free;
-  MyControls.Free;
   SHOW_TERRAIN_WIRES := false; //Don't show it in-game if they left it on in MapEd
-  Inherited;
+  inherited;
 end;
 
 

@@ -10,7 +10,7 @@ uses
 
 
 type
-  TKMGamePlayInterface = class
+  TKMGamePlayInterface = class (TKMUserInterface)
   private
     //Not saved
     fShownUnit:TKMUnit;
@@ -307,7 +307,6 @@ type
       Button_Woodcutter:TKMButtonFlat;
 
   public
-    MyControls: TKMMasterControl;
     constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Resize(X,Y:word);
@@ -343,8 +342,8 @@ type
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure UpdateState;
-    procedure Paint;
+    procedure UpdateState; override;
+    procedure Paint; override;
   end;
 
 
@@ -667,8 +666,7 @@ end;
 constructor TKMGamePlayInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
-  Inherited Create;
-  //Assert(fGame.Viewport<>nil, 'fGame.Viewport required to be init first');
+  inherited;
 
   fShownUnit:=nil;
   fShownHouse:=nil;
@@ -683,7 +681,6 @@ begin
   fSaves := TKMSavesCollection.Create;
 
 {Parent Page for whole toolbar in-game}
-  MyControls := TKMMasterControl.Create;
   Panel_Main := TKMPanel.Create(MyControls,0,0,aScreenX,aScreenY);
 
     TKMImage.Create(Panel_Main,0,   0,224,200,407);
@@ -787,8 +784,7 @@ begin
   ReleaseDirectionSelector; //Make sure we don't exit leaving the cursor restrained
   fMessageList.Free;
   fSaves.Free;
-  MyControls.Free;
-  Inherited;
+  inherited;
 end;
 
 
