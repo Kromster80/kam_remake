@@ -171,6 +171,9 @@ function GetServers($aFormat,$aRev)
 			'jQuery(document).ready(function($){updsr();});</script>'."\n";
 		case "table":
 			$Result .= '<table border="1" width="100%" id="ajxtbl"><tr><td><strong>Name</strong></td><td><strong>Address</strong></td><td style="text-align: center"><strong>Players</strong></td></tr>';
+		break;
+		case "kamclub":
+			$Result .= '<table border="1" width="100%" id="ajxtbl" style="font-size:11px; font-family:Arial,Tahoma"><tr><td><strong>Название сервера</strong></td><td><strong>Адрес</strong></td><td style="text-align: center"><strong>Кол-во игроков</strong></td></tr>';
 		default:
 	}
 	$Lines = file($DATA_FILE);
@@ -185,6 +188,7 @@ function GetServers($aFormat,$aRev)
 			switch($aFormat)
 			{
 				case "refresh":
+				case "kamclub":
 				case "table":
 					$Country = IPToCountry($IP);
 					$Warning = '';
@@ -213,6 +217,7 @@ function GetServers($aFormat,$aRev)
 			$Result = json_encode(Array("cnt"=>$cnts,"srvs"=>$Result));
 			$Result = $_GET['jsonp_callback']."(".$Result.")";
 			break;
+		case "kamclub":
 		case "refresh":
 		case "table":
 			$Result .= '</table>';
