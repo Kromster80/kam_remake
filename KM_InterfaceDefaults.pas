@@ -15,6 +15,9 @@ type
     constructor Create(aScreenX, aScreenY: Word);
     destructor Destroy; override;
 
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); virtual;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer); virtual;
+
     procedure UpdateState; virtual; abstract;
     procedure Paint; virtual; abstract;
   end;
@@ -114,6 +117,19 @@ destructor TKMUserInterface.Destroy;
 begin
   MyControls.Free;
   inherited;
+end;
+
+
+procedure TKMUserInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  MyControls.MouseMove(X, Y, Shift); // Not sure why this was used in Gameplay
+  MyControls.MouseDown(X, Y, Shift, Button);
+end;
+
+
+procedure TKMUserInterface.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  MyControls.MouseMove(X, Y, Shift);
 end;
 
 

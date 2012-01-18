@@ -185,8 +185,8 @@ type
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     function GetShownPage:TKMMapEdShownPage;
@@ -1644,17 +1644,20 @@ end;
 
 procedure TKMapEdInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 begin
-  MyControls.MouseDown(X,Y,Shift,Button);
+  inherited;
+
+  //So terrain brushes start on mouse down not mouse move
   if MyControls.CtrlOver = nil then
-    fGame.UpdateGameCursor(X,Y,Shift); //So terrain brushes start on mouse down not mouse move
+    fGame.UpdateGameCursor(X,Y,Shift);
 end;
 
 
 procedure TKMapEdInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint;
+var P: TKMPoint;
 begin
-  MyControls.MouseMove(X,Y,Shift);
-  if MyControls.CtrlOver <> nil then 
+  inherited;
+
+  if MyControls.CtrlOver <> nil then
   begin
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;

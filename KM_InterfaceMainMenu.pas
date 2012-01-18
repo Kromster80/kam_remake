@@ -285,8 +285,7 @@ type
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
     procedure UpdateState; override;
@@ -2489,16 +2488,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-begin
-  MyControls.MouseDown(X,Y,Shift,Button);
-end;
-
-
 //Do something related to mouse movement in menu
 procedure TKMMainMenuInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
-  MyControls.MouseMove(X,Y,Shift);
+  inherited;
 
   if (Panel_Campaign.Visible)
   and (Y > Panel_Campaign.Top + Panel_Campaign.Height - Panel_CampScroll.Height) then

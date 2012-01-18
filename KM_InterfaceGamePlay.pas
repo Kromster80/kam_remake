@@ -335,8 +335,8 @@ type
     procedure KeyDown(Key:Word; Shift: TShiftState);
     procedure KeyPress(Key: Char);
     procedure KeyUp(Key:Word; Shift: TShiftState);
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-    procedure MouseMove(Shift: TShiftState; X,Y: Integer);
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X,Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
@@ -3168,8 +3168,8 @@ end;
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
 var U:TKMUnit; H:TKMHouse; MyRect:TRect;
 begin
-  MyControls.MouseMove(X,Y,Shift);
-  MyControls.MouseDown(X,Y,Shift,Button);
+  inherited;
+
   if (fGame.GameState <> gsRunning) or (MyControls.CtrlOver <> nil) then exit;
 
   if SelectingTroopDirection then
@@ -3213,14 +3213,20 @@ end;
 //2. Perform SelectingTroopDirection if it is active
 //3. Display various cursors depending on whats below (might be called often)
 procedure TKMGamePlayInterface.MouseMove(Shift: TShiftState; X,Y: Integer);
-var DeltaX,DeltaY,DeltaDistanceSqr:integer; NewPoint:TPoint; U:TKMUnit; H:TKMHouse; P:TKMPoint;
+var
+  DeltaX, DeltaY, DeltaDistanceSqr: integer;
+  NewPoint: TPoint;
+  U: TKMUnit;
+  H: TKMHouse;
+  P: TKMPoint;
 begin
-  MyControls.MouseMove(X,Y,Shift);
+  inherited;
 
   if (MyControls.CtrlOver is TKMDragger) or (MyControls.CtrlDown is TKMDragger) then Exit;
 
-  if (MyControls.CtrlOver <> nil) and (MyControls.CtrlOver <> Image_DirectionCursor) and
-      not SelectingTroopDirection then
+  if (MyControls.CtrlOver <> nil)
+  and (MyControls.CtrlOver <> Image_DirectionCursor)
+  and not SelectingTroopDirection then
   begin
     //kmc_Edit and kmc_DragUp are handled by Controls.MouseMove (it will reset them when required)
     if not fGame.Viewport.Scrolling and not (fResource.Cursors.Cursor in [kmc_Edit,kmc_DragUp]) then
@@ -3448,7 +3454,7 @@ begin
               end
               else
                 fSoundLib.Play(sfx_CantPlace,P,false,4.0);
-    cm_Erase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then 
+    cm_Erase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
               begin
                 H := MyPlayer.HousesHitTest(P.X, P.Y);
                 //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
