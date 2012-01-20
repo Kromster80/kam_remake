@@ -217,31 +217,33 @@ begin
       for y:=Math.max(MinCost.Pos.Y-1,1) to Math.min(MinCost.Pos.Y+1, fMapY-1) do
       for x:=Math.max(MinCost.Pos.X-1,1) to Math.min(MinCost.Pos.X+1, fMapX-1) do
         if ORef[y,x]=0 then //Cell is new
-        if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
-        //If we are in InteractionAvoid mode then don't use tiles with workers on them
-        //and avoid other tiles with Locked units, but that requires reworking
-        //But e.g. melee warriors might ignore this and fight their way through enemies?
-        if (not IsInteractionAvoid) or (not fTerrain.TileIsLocked(KMPoint(x,y))) then
         begin
-
-          inc(OCount);
-          if OCount >= Length(OList) then
-            SetLength(OList, OCount + 128); //Allocate slightly more space
-
-          OList[OCount].Pos := KMPoint(x,y);
-
-          if (Pass in fTerrain.Land[y,x].Passability) then //If cell meets Passability then estimate it
+          if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
+          //If we are in InteractionAvoid mode then don't use tiles with workers on them
+          //and avoid other tiles with Locked units, but that requires reworking
+          //But e.g. melee warriors might ignore this and fight their way through enemies?
+          if (not IsInteractionAvoid) or (not fTerrain.TileIsLocked(KMPoint(x,y))) then
           begin
-            ORef[y,x]:=OCount;
-            OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
-            OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //
-            if DO_WEIGHT_ROUTES and not KMSamePoint(LocB, KMPoint(x,y)) then //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
-              inc(OList[OCount].CostTo, byte(fTerrain.Land[y,x].IsUnit<>nil)*10); //Unit=1tile
-            OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y)) *10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
-          end else //If cell doen't meets Passability then mark it as Closed
-            OList[OCount].Estim:=c_closed;
 
-        end else begin
+            inc(OCount);
+            if OCount >= Length(OList) then
+              SetLength(OList, OCount + 128); //Allocate slightly more space
+
+            OList[OCount].Pos := KMPoint(x,y);
+
+            if (Pass in fTerrain.Land[y,x].Passability) then //If cell meets Passability then estimate it
+            begin
+              ORef[y,x]:=OCount;
+              OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
+              OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //
+              if DO_WEIGHT_ROUTES and not KMSamePoint(LocB, KMPoint(x,y)) then //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
+                inc(OList[OCount].CostTo, byte(fTerrain.Land[y,x].IsUnit<>nil)*10); //Unit=1tile
+              OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y)) *10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
+            end else //If cell doen't meets Passability then mark it as Closed
+              OList[OCount].Estim:=c_closed;
+          end;
+
+        end else begin //Else cell is old
 
           //If route through new cell is shorter than ORef[y,x] then
           if OList[ORef[y,x]].Estim<>c_closed then begin

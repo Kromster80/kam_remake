@@ -10,6 +10,6 @@ For example to replace main menu logo use: 5-0004.png
 Images whose indexes are outside of original ranges will be ignored.
 
 
-When added new sprites to RX7 (rxMenu) you will need to update REMAKE_MENU_SPRITES_COUNT in KM_ResourceSprites.pas
+When added new sprites to RX7 (rxMenu) you will need to update the count in the file Sprites\7.txt
 
-When added new sprites to RX9 (rxGame) you will need to update REMAKE_GAME_SPIRTES_COUNT in KM_ResourceSprites.pas
+When added new sprites to RX9 (rxGame) you will need to update the count in the file Sprites\9.txt
