@@ -353,11 +353,11 @@ begin
       Move(
         RXData[fRT].RGBA[I, (J + OffY) * RXData[fRT].Size[I].X + OffX],
         RXData[fRT].RGBA[I, J * NewX],
-        NewX * 4);
+        NewX * 4); //RGBA is 4 bytes per pixel
       Move(
         RXData[fRT].Mask[I, (J + OffY) * RXData[fRT].Size[I].X + OffX],
         RXData[fRT].Mask[I, J * NewX],
-        NewX * 4);
+        NewX * 1); //Mask is 1 byte per pixel
     end;
 
     RXData[fRT].Size[I].X := NewX;
