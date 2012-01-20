@@ -138,7 +138,7 @@ const //Here we store options that are hidden somewhere in code
 
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   SLINGSHOT_FIRING_DELAY = 12; //on which frame archer fires his arrow/bolt
-  AIMING_DELAY_MIN = 4; //minimum time for archer to aim
+  AIMING_DELAY_MIN = 8; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
   FRIENDLY_FIRE = true; //Whenever archers could kill fellow men with their arrows
 
@@ -859,9 +859,9 @@ const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
   ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(0,0),(4186,4190) );
   ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
   ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
-  ProjectileSpeeds:array[TProjectileType] of single = (0.8, 0.85, 0.6, 0.8);
+  ProjectileSpeeds:array[TProjectileType] of single = (0.75, 0.75, 0.6, 0.8);
   ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
-  ProjectileJitter:array[TProjectileType] of single = (0.05, 0.05, 0.06, 0.025); //Jitter added according to distance
+  ProjectileJitter:array[TProjectileType] of single = (0.05, 0.05, 0.05, 0.025); //Jitter added according to distance
   ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 6); //Jitter added according to target's speed (moving target harder to hit)
   ProjectileMissChance:array[TProjectileType] of single = (0.33, 0.33, 0.33, 0.2);
 

@@ -103,7 +103,7 @@ begin
   //Load AnsiString count from first two bytes
   StrCount := FileData[0] + (FileData[1] * 256);
   //Load the length of the last AnsiString which is stored here
-  LastStrLen := FileData[2];
+  LastStrLen := FileData[2] + (FileData[3] * 256);
   
   //Now starts the indexes, set some defaults then run a loop
   ExtraCount := 1;
