@@ -51,6 +51,7 @@ type
     fResourceDeliveryCount:array[1..4] of word; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut:array[1..4]of byte; //Resource count in output
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
+    fLastOrderProduced: byte; //Last order we made (1..4)
 
     FlagAnimStep: cardinal; //Used for Flags and Burning animation
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
@@ -120,7 +121,8 @@ type
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
     function CheckResOrder(aID:byte):word; virtual;
-    function PickRandomOrder:byte;
+    function PickOrder:byte;
+    procedure SetLastOrderProduced(aResource:TResourceType);
     function CheckResToBuild:boolean;
     procedure ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
@@ -376,6 +378,7 @@ begin
   for i:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOut[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOrder[i], SizeOf(fResourceOrder[i]));
+  LoadStream.Read(fLastOrderProduced);
   LoadStream.Read(FlagAnimStep);
   LoadStream.Read(WorkAnimStep);
   LoadStream.Read(fIsDestroyed);
@@ -807,22 +810,29 @@ begin
 end;
 
 
-function TKMHouse.PickRandomOrder:byte;
-var i:byte; O:array[1..4]of byte; OCount:byte;
+function TKMHouse.PickOrder:byte;
+var i, Res: byte;
 begin
-  OCount := 0;
-  FillChar(O, SizeOf(O), #0);
-  for i:=1 to 4 do
-  if CheckResOrder(i) > 0 then
+  Result := 0;
+  for i:=0 to 3 do
   begin
-    inc(OCount);
-    O[OCount] := i;
+    Res := ((fLastOrderProduced+i) mod 4)+1; //1..4
+    if CheckResOrder(Res) > 0 then
+    begin
+      Result := Res;
+      exit;
+    end;
   end;
+end;
 
-  if OCount > 0 then
-    Result := O[KaMRandom(OCount)+1] //Pick random from available orders
-  else
-    Result := 0;
+
+procedure TKMHouse.SetLastOrderProduced(aResource:TResourceType);
+var i: byte;
+begin
+  if aResource <> rt_None then
+    for i:=1 to 4 do
+      if fResource.HouseDat[HouseType].ResOutput[i] = aResource then
+        fLastOrderProduced := i;
 end;
 
 
@@ -1015,6 +1025,7 @@ begin
   for i:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOut[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOrder[i], SizeOf(fResourceOrder[i]));
+  SaveStream.Write(fLastOrderProduced);
   SaveStream.Write(FlagAnimStep);
   SaveStream.Write(WorkAnimStep);
   SaveStream.Write(fIsDestroyed);

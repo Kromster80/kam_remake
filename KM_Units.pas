@@ -421,10 +421,10 @@ begin
 
   Res := 1;
   //Check if House has production orders
-  //Random pick from whole amount
+  //Ask the house what order we should make
   if fResource.HouseDat[fHome.HouseType].DoesOrders then
   begin
-    Res := fHome.PickRandomOrder;
+    Res := fHome.PickOrder;
     if Res = 0 then Exit;
   end;
 
