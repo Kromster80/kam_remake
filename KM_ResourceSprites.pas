@@ -29,14 +29,11 @@ type
     rxTiles, //Tiles
     rxGame); //Remake game sprites
 
-type
   TRXUsage = (ruMenu, ruGame); //Where sprites are used
 
   TRXInfo = record
     FileName: AnsiString; //Used for logging and filenames
     TeamColors: Boolean; //sprites should be generated with color masks
-    AlphaTest: Boolean; //Alphatested gradients, used only for houses yet
-    LoadsFromRXX: Boolean; //Should this RX be loaded from RXX files for releases?
     Usage: TRXUsage; //Menu and Game sprites are loaded separately
     LoadingTextID: Word;
   end;
@@ -47,72 +44,54 @@ var
     (
       FileName: 'Trees';
       TeamColors: False;
-      AlphaTest: False;
-      LoadsFromRXX: True;
       Usage: ruGame;
       LoadingTextID: TX_MENU_LOADING_TREES;
     ),
     (
       FileName: 'Houses';
       TeamColors: True;
-      AlphaTest: True;
-      LoadsFromRXX: True;
       Usage: ruGame;
       LoadingTextID: TX_MENU_LOADING_HOUSES;
     ),
     (
       FileName: 'Units';
       TeamColors: True;
-      AlphaTest: False;
-      LoadsFromRXX: True;
       Usage: ruGame;
       LoadingTextID: TX_MENU_LOADING_UNITS;
     ),
     (
       FileName: 'GUI';
       TeamColors: True;
-      AlphaTest: False;
-      LoadsFromRXX: True;
       Usage: ruMenu;
       LoadingTextID: 0;
     ),
     (
       FileName: 'GUIMain';
       TeamColors: False;
-      AlphaTest: False;
-      LoadsFromRXX: True;
       Usage: ruMenu;
       LoadingTextID: 0;
     ),
     (
       FileName: 'GUIMainH';
       TeamColors: False;
-      AlphaTest: False;
-      LoadsFromRXX: True;
       Usage: ruMenu;
       LoadingTextID: 0;
     ),
     (
       FileName: 'RemakeMenu';
       TeamColors: False;
-      AlphaTest: False;
-      LoadsFromRXX: True;
       Usage: ruMenu;
       LoadingTextID: 0;
     ),
     (
       FileName: 'Tileset';
       TeamColors: False;
-      AlphaTest: False;
-      LoadsFromRXX: False;
       Usage: ruGame;
       LoadingTextID: TX_MENU_LOADING_TILESET;
     ),
     (
       FileName: 'RemakeGame';
       TeamColors: True;
-      AlphaTest: False;
-      LoadsFromRXX: True;
       Usage: ruGame;
       LoadingTextID: TX_MENU_LOADING_ADDITIONAL_SPRITES;
     ));
@@ -319,7 +298,6 @@ var
 begin
   Result := 0;
 
-  //with RXData[fRT] do
   for I := 1 to RXData[fRT].Qty do
   if (RXData[fRT].Flag[I] <> 0) then
   begin
@@ -795,7 +773,7 @@ begin
   MakeGFX(aRT);
 
   //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
-  if RXInfo[aRT].AlphaTest and (aHouseDat <> nil) then
+  if (aRT = rxHouses) and (aHouseDat <> nil) then
     MakeGFX_AlphaTest(aHouseDat, aRT);
 end;
 

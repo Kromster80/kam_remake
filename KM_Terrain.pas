@@ -569,9 +569,13 @@ begin
   hx := min(round(aLoc.X+(MaxRad+1)),fMapX); //1.42 gets rounded to 1
   hy := min(round(aLoc.Y+(MaxRad+1)),fMapY); //1.42 gets rounded to 1
 
+  //todo: @Lewin: This may sounds like an obvious optimization
+  //Towers/Archers line-of-sight is always >= radius we test, which mean
+  //that CheckTileRevelation is not required (always returns True). Right?
+
   for i:=ly to hy do for k:=lx to hx do
-  if (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i,false) = 255)
-    and (Land[i,k].IsUnit <> nil) then
+  if (Land[i,k].IsUnit <> nil)
+  and (fPlayers.Player[aPlayer].FogOfWar.CheckTileRevelation(k,i,false) = 255) then
   begin
     //Check archer sector. If it's not within the 90 degree sector for this direction, then don't use this tile (continue)
     dX := k-aLoc.X;
