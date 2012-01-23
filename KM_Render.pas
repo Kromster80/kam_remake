@@ -43,14 +43,14 @@ type
     fSetup: TRenderSetup;
     rPitch,rHeading,rBank:integer;
     fRenderList: TRenderList;
-    procedure RenderTile(Index:byte; pX,pY,Rot:integer);
-    procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
-    procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param:single; pX,pY:single; aFOW:byte);
-    procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
-    procedure RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
-    procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
+    procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
+    procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
+    procedure RenderTerrainMarkup(Index: Integer; pX,pY: Integer);
+    procedure RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
+    procedure RenderObjectOrQuad(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObject(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObjectQuad(aIndex:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
@@ -439,28 +439,28 @@ begin
 end;
 
 
-procedure TRender.RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderObjectOrQuad(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
 begin
   //Render either normal object or quad depending on what it is
-  if MapElem[Index].WineOrCorn then
-    RenderObjectQuad(Index,AnimStep,pX,pY,(Index-1 in [54..57]),DoImmediateRender,Deleting) //54..57 are grapes, all others are doubles
+  if MapElem[aIndex].WineOrCorn then
+    RenderObjectQuad(aIndex,AnimStep,pX,pY,(aIndex-1 in [54..57]),DoImmediateRender,Deleting) //54..57 are grapes, all others are doubles
   else
-    RenderObject(Index,AnimStep,pX,pY,DoImmediateRender,Deleting);
+    RenderObject(aIndex,AnimStep,pX,pY,DoImmediateRender,Deleting);
 end;
 
 
-procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderObject(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
-  if MapElem[Index].Count=0 then exit;
+  if MapElem[aIndex].Count=0 then exit;
 
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY,true);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
-  ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
+  ID:=MapElem[aIndex].Step[AnimStep mod MapElem[aIndex].Count +1]+1;
   if ID<=0 then exit;
 
-  if Index=61 then begin //Invisible wall
+  if aIndex=61 then begin //Invisible wall
     ShiftX := 0; //Required if DoImmediateRender = true
     ShiftY := 0;
     fRenderAux.Quad(pX,pY,$800000FF);
@@ -471,7 +471,7 @@ begin
     fRenderList.AddSprite(rxTrees,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
     {RenderDot(pX,pY);
     glRasterPos2f(pX-1+0.1,pY-1+0.1);
-    glPrint(inttostr(Index)+':'+inttostr(ID));}
+    glPrint(inttostr(aIndex)+':'+inttostr(ID));}
   end;
 
   if DoImmediateRender then RenderSprite(rxTrees,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
@@ -479,7 +479,7 @@ end;
 
 
 { 4 objects packed on 1 tile for Corn and Grapes }
-procedure TRender.RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderObjectQuad(aIndex:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var FOW:byte;
   procedure AddSpriteBy(aID:integer; aAnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   var ID:integer;
@@ -492,13 +492,13 @@ var FOW:byte;
   end;
 begin
   FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX,pY,true);
-  if FOW <=128 then AnimStep:=0; //Stop animation
+  if FOW <=128 then AnimStep := 0; //Stop animation
 
-  AddSpriteBy(Index, AnimStep  , pX, pY, 0  , -0.4);
-  AddSpriteBy(Index, AnimStep+1, pX, pY, 0.5, -0.4);
+  AddSpriteBy(aIndex, AnimStep  , pX, pY, 0  , -0.4);
+  AddSpriteBy(aIndex, AnimStep+1, pX, pY, 0.5, -0.4);
   if IsDouble then exit;
-  AddSpriteBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
-  AddSpriteBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
+  AddSpriteBy(aIndex, AnimStep+1, pX, pY, 0  , 0.1);
+  AddSpriteBy(aIndex, AnimStep  , pX, pY, 0.5, 0.1);
 end;
 
 
@@ -795,11 +795,11 @@ begin
 end;
 
 
-procedure TRender.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col:TColor4; aFOW:byte; HighlightRed: boolean = False);
+procedure TRender.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
 var
   Lay, TopLay: Byte;
 begin
-  if (RXData[aRX].HasTeamColors) and (GFXData[aRX,aID].AltID <> 0) then
+  if (GFXData[aRX,aID].AltID <> 0) then
     TopLay := 2
   else
     TopLay := 1;

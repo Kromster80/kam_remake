@@ -163,7 +163,6 @@ var
     RGBA: array of array of Cardinal; //Expanded image
     Mask: array of array of Byte; //Mask for team colors
     HasMask: array of Boolean; //Mask for team colors
-    HasTeamColors: Boolean;
   end;
 
   GFXData: array [TRXType] of array of record
@@ -888,9 +887,6 @@ begin
     inc(TexCount);
 
   until(LeftIndex>=RXData[aRT].Qty); // >= in case data wasn't loaded and Qty=0
-
-  //HasTeamColors will be accessed by fRender
-  RXData[aRT].HasTeamColors := RXInfo[aRT].TeamColors;
 
   fLog.AppendLog(inttostr(TexCount)+' Textures created');
   fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
