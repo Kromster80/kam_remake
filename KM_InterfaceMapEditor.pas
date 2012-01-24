@@ -1678,10 +1678,10 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer)  then MyPlayer.AddRoad(P);
-      cm_Field:     if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer) then MyPlayer.AddField(P,ft_Corn);
-      cm_Wine:      if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer)  then MyPlayer.AddField(P,ft_Wine);
-      //cm_Wall:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+      cm_Road:      if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddRoad(P);
+      cm_Field:     if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
+      cm_Wine:      if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
+      //cm_Wall:  if MyPlayer.CanAddFieldPlan(P, ft_Wall) then MyPlayer.AddField(P, ft_Wine);
       cm_Objects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
       cm_Erase:     case GetShownPage of
                       esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
@@ -1743,9 +1743,9 @@ begin
                   if fPlayers.Selected is TKMUnit then
                     ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
-      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer) then MyPlayer.AddRoad(P);
-      cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer) then MyPlayer.AddField(P,ft_Corn);
-      cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer) then MyPlayer.AddField(P,ft_Wine);
+      cm_Road:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddRoad(P);
+      cm_Field: if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
+      cm_Wine:  if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:
       cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then
                 begin

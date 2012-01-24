@@ -524,10 +524,15 @@ MapEdTileRemap:array[1..256]of integer = (
 
 {Terrain}
 type
-  TFieldType = (ft_None=0, ft_Road, ft_Corn,
-                ft_InitWine, //Reset terrain rotation and set grapes ground
-                ft_Wine,
-                ft_Wall); //This is used only for querying
+  TFieldType = (
+    ft_None=0,
+    ft_Road,
+    ft_Corn,
+    ft_InitWine, //Reset rotation and set grapes ground, but without Grapes yet
+    ft_Wine,
+    ft_Wall
+    );
+
   THouseStage = (
     hs_None, //Nothing, clear area
     hs_Plan, //Rope plan
@@ -540,10 +545,6 @@ type
 
   TMarkup = (
         mu_None=0,              //Nothing
-        mu_RoadPlan,            //Road/Corn/Wine ropes
-        mu_FieldPlan,           //Road/Corn/Wine ropes
-        mu_WinePlan,            //Road/Corn/Wine ropes
-        mu_WallPlan,            //Wall plan, how does it looks?
         mu_HousePlan,           //Rope outline of house area, walkable
         mu_HouseFenceCanWalk,   //Wooden fence outline of house area, undigged and walkable
         mu_HouseFenceNoWalk,    //Wooden fence outline of house area, digged and non-walkable

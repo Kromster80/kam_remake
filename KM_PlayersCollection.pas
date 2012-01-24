@@ -132,11 +132,11 @@ end;
 //will be tightly packed and mission info will display correct player count
 //Accessed only by MapEditor when it needs to remove empty players before saving a map
 procedure TKMPlayersCollection.RemoveEmptyPlayers;
-var i:integer;
+var I: Integer;
 begin
-  for i:=Count-1 downto 0 do
-    if fPlayerList[i].GetFieldsCount + fPlayerList[i].Houses.Count + fPlayerList[i].Units.Count = 0 then
-      RemovePlayer(i);
+  for I := Count - 1 downto 0 do
+    if fPlayerList[I].GetFieldsCount + fPlayerList[I].Houses.Count + fPlayerList[I].Units.Count = 0 then
+      RemovePlayer(I);
 end;
 
 

@@ -90,13 +90,15 @@ type
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     procedure TrainingDone(aUnit: TKMUnit);
 
+    function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
+
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace:boolean):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint);
     procedure AddRoadsToList(aLoc: TKMPoint);
     procedure AddRoadConnect(LocA,LocB:TKMPoint);
-    procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
-    procedure AddFieldPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
+    procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; DoSilent: Boolean);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
     procedure RemHouse(Position: TKMPoint; DoSilent:boolean; IsEditor:boolean=false);
     procedure RemHousePlan(Position: TKMPoint; DoSilent:boolean);
@@ -106,7 +108,7 @@ type
     function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
     function HousesHitTest(X, Y: Integer): TKMHouse;
 
-    function GetFieldsCount:integer;
+    function GetFieldsCount: Integer;
 
     procedure Save(SaveStream:TKMemoryStream); override;
     procedure Load(LoadStream:TKMemoryStream); override;
@@ -198,7 +200,7 @@ begin
 end;
 
 
-{ TKMPlayerAssets }
+{ TKMPlayer }
 constructor TKMPlayer.Create(aPlayerIndex:TPlayerIndex);
 var i: integer;
 begin
@@ -348,31 +350,38 @@ begin
 end;
 
 
-procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType:TFieldType);
+function TKMPlayer.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 begin
-  fTerrain.SetField(aLoc,fPlayerIndex,aFieldType);
+  Result := fTerrain.CanAddField(aLoc, aFieldType)
+            and (fFogOfWar.CheckTileRevelation(aLoc.X, aLoc.Y, False) > 0)
+            and (fBuildList.FieldworksList.HasField(aLoc) = ft_None)
+            and not fBuildList.HousePlanList.HasPlan(aLoc);
+end;
+
+
+procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+begin
+  fTerrain.SetField(aLoc, fPlayerIndex, aFieldType);
 end;
 
 
 {DoSilent means that there will be no sound when markup is placed, needed e.g. when script used}
-procedure TKMPlayer.AddFieldPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
+procedure TKMPlayer.AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; DoSilent: Boolean);
 begin
-  if not fTerrain.CanPlaceRoad(aLoc,aMarkup,Self) then
+  Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong FieldType');
+
+  //@Lewin: Looks like we can replace DoSilent with (Self = MyPlayer).
+  //What do you say?
+
+  if CanAddFieldPlan(aLoc, aFieldType) then
   begin
+    fBuildList.FieldworksList.AddField(aLoc, aFieldType);
     if not DoSilent then
-      fSoundLib.Play(sfx_CantPlace,aLoc,false,4.0);
-    exit;
-  end;
-  fTerrain.SetMarkup(aLoc, aMarkup);
-  case aMarkup of
-    mu_RoadPlan:  fBuildList.FieldworksList.AddField(aLoc, ft_Road);
-    mu_FieldPlan: fBuildList.FieldworksList.AddField(aLoc, ft_Corn);
-    mu_WinePlan:  fBuildList.FieldworksList.AddField(aLoc, ft_Wine);
-    mu_WallPlan:  fBuildList.FieldworksList.AddField(aLoc, ft_Wall);
-    else Assert(False, 'Wrong markup');
-  end;
-  if not DoSilent then
-    fSoundLib.Play(sfx_placemarker);
+      fSoundLib.Play(sfx_placemarker);
+  end
+  else
+    if not DoSilent then
+      fSoundLib.Play(sfx_CantPlace, aLoc, False, 4.0);
 end;
 
 
@@ -443,11 +452,18 @@ begin
 end;
 
 
-procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; DoSilent:boolean);
+procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; DoSilent: Boolean);
 begin
+  //@Lewin: Looks like we can replace DoSilent with (Self = MyPlayer).
+  //What do you say?
+
   fBuildList.FieldworksList.RemFieldPlan(Position);
-  if not DoSilent then fSoundLib.Play(sfx_Click);
-  fTerrain.RemMarkup(Position);
+
+  if not DoSilent then
+    fSoundLib.Play(sfx_Click);
+
+  //Terrain did not knew about the FieldPlan
+  //fTerrain.RemMarkup(Position);
 end;
 
 
@@ -530,12 +546,12 @@ end;
   Queried by MapEditor>SaveDAT;
   Might also be used to show Players strength (or builder/warrior balance) in Tavern
   If Player has none and no Units/Houses we can assume it's empty and does not needs to be saved }
-function TKMPlayer.GetFieldsCount:integer;
-var i,k:integer;
+function TKMPlayer.GetFieldsCount: Integer;
+var i,k: Integer;
 begin
   Result := 0;
-  for i:=1 to fTerrain.MapY do
-  for k:=1 to fTerrain.MapX do
+  for i := 1 to fTerrain.MapY do
+  for k := 1 to fTerrain.MapX do
     if fTerrain.Land[i,k].TileOwner = fPlayerIndex then
       inc(Result);
 end;

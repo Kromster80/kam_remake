@@ -89,7 +89,7 @@ type
     function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
     function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; aPlayer:TKMPlayer):boolean;
     function CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint):boolean;
-    function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; aPlayer:TKMPlayer):boolean;
+    function CanAddField(Loc: TKMPoint; aFieldType: TFieldType): Boolean;
     function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
@@ -680,6 +680,10 @@ begin
   RebuildWalkConnect([wcWalk, wcRoad, wcFish, wcWolf, wcCrab, wcWork]);
 end;
 
+//All markups except mu_UnderConstruction will be deprecated
+//todo: It looks like with new BuildList scheme (with markups visible only to MyPlayer)
+//we could switch to a more simple approach of LockTile(Loc) and UnlockTile(Loc)
+//for the time it takes to do the construction works
 
 {Remove markup from tile}
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
@@ -2211,18 +2215,18 @@ begin
 end;
 
 
-function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; aPlayer:TKMPlayer):boolean;
+function TTerrain.CanAddField(Loc: TKMPoint; aFieldType: TFieldType): Boolean;
 begin
-  Result := TileInMapCoords(Loc.X,Loc.Y); //Make sure it is inside map, roads can be built on edge
-  case aMarkup of
-    mu_RoadPlan:  Result := Result AND (CanMakeRoads  in Land[Loc.Y,Loc.X].Passability);
-    mu_FieldPlan: Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
-    mu_WinePlan:  Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
-    mu_WallPlan:  Result := Result AND (CanMakeRoads  in Land[Loc.Y,Loc.X].Passability);
-    else          Result := false;
+  //Make sure it is within map, roads can be built on edge
+  Result := TileInMapCoords(Loc.X, Loc.Y);
+  case aFieldType of
+    ft_Road:  Result := Result AND (CanMakeRoads  in Land[Loc.Y, Loc.X].Passability);
+    ft_Corn:  Result := Result AND (CanMakeFields in Land[Loc.Y, Loc.X].Passability);
+    ft_Wine:  Result := Result AND (CanMakeFields in Land[Loc.Y, Loc.X].Passability);
+    ft_Wall:  Result := Result AND (CanMakeRoads  in Land[Loc.Y, Loc.X].Passability);
+    else      Result := False;
   end;
-  Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
-  Result := Result AND (aPlayer.FogOfWar.CheckTileRevelation(Loc.X,Loc.Y,false) > 0); //We check tile revelation to place a tile-based markup, right?
+  Result := Result AND (Land[Loc.Y, Loc.X].Markup <> mu_UnderConstruction);
 end;
 
 

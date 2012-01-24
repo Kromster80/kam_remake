@@ -9,7 +9,7 @@
  +	Houses from script could be placed at invalid tiles or overlapping, causing duplicate watchertower in TSK 7
  +	The breifing for TPR mission 14 was blank due to an error with loading the last string from a LIB file
  +	Major A* pathfinding mistake from r1220 causing long/inefficient routes to be calculated
-	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
+ +	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
 	The multiplayer in-game player list should be ordered by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)

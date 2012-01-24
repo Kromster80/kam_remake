@@ -73,7 +73,7 @@ type
   public
     //Player orders
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
-    function HasField(aLoc: TKMPoint): Boolean;
+    function HasField(aLoc: TKMPoint): TFieldType;
     procedure RemFieldPlan(aLoc: TKMPoint);
 
     //Game events
@@ -368,17 +368,17 @@ begin
 end;
 
 
-function TKMFieldworksList.HasField(aLoc: TKMPoint): Boolean;
+function TKMFieldworksList.HasField(aLoc: TKMPoint): TFieldType;
 var I: Integer;
 begin
   for I := 0 to fFieldsCount - 1 do
   if KMSamePoint(fFields[I].Loc, aLoc) then
   begin
-    Result := True;
+    Result := fFields[I].FieldType;
     Exit;
   end;
 
-  Result := False;
+  Result := ft_None;
 end;
 
 

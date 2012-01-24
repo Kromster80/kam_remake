@@ -46,7 +46,7 @@ type
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
-    procedure RenderTerrainMarkup(Index: Integer; pX,pY: Integer);
+    procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
     procedure RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
     procedure RenderObjectOrQuad(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
     procedure RenderObject(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
@@ -261,16 +261,16 @@ begin
 
         glColor4f(1,1,1,1);
         if RENDER_3D then begin
-          glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
         end else begin
 
-          glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-          glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[1]]); glVertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[2]]); glVertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[3]]); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[4]]); glVertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
 
           if KAM_WATER_DRAW and (iW=1) and fTerrain.TileIsWater(KMPoint(k,i)) then
           begin
@@ -282,13 +282,13 @@ begin
             TexO[1] := 1; TexO[2] := 2; TexO[3] := 3; TexO[4] := 4;
 
             LandLight(Land[i  ,k  ].Light);
-            glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[1]]); glVertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
             LandLight(Land[i+1,k  ].Light);
-            glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[2]]); glVertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
             LandLight(Land[i+1,k+1].Light);
-            glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[3]]); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
             LandLight(Land[i  ,k+1].Light);
-            glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+            glTexCoord2fv(@TexC[TexO[4]]); glVertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
           end;
         end;
       end;
@@ -328,15 +328,15 @@ begin
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
-      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glVertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glVertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glVertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 
@@ -348,22 +348,22 @@ begin
     for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
       glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
-      glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(kromutils.max(0,-Land[i+1,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1,true)/255));
-      glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(kromutils.max(0,-Land[i+1,k+1].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1,true)/255));
-      glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
-      glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
       glTexCoord1f(kromutils.max(0, -Land[i  ,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
-      glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(kromutils.max(0, -Land[i+1,k  ].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i+1,true)/255));
-      glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(kromutils.max(0, -Land[i+1,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i+1,true)/255));
-      glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(kromutils.max(0, -Land[i  ,k+1].Light, 1-MyPlayer.FogOfWar.CheckVerticeRevelation(k+1,i,true)/255));
-      glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 
@@ -378,7 +378,9 @@ end;
 
 
 procedure TRender.RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
-var i,k:integer;
+var
+  i,k:integer;
+  F: TFieldType;
 begin
   for i:=y1 to y2 do
   for k:=x1 to x2 do
@@ -389,8 +391,9 @@ begin
     if Land[i,k].BorderRight then RenderTerrainBorder(Land[i,k].Border,dir_W,k,i);
     if Land[i,k].BorderBottom then RenderTerrainBorder(Land[i,k].Border,dir_S,k,i);
 
-    if Land[i,k].Markup in [mu_RoadPlan..mu_WallPlan] then
-      RenderTerrainMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
+    F := MyPlayer.BuildList.FieldworksList.HasField(KMPoint(k,i));
+    if F <> ft_None then
+      RenderTerrainMarkup(k, i, F);
   end;
 end;
 
@@ -780,15 +783,15 @@ begin
   glBegin(GL_QUADS);
   with fTerrain do
     if RENDER_3D then begin
-      glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[1]]); glVertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[2]]); glVertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[3]]); glVertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[4]]); glVertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -917,18 +920,22 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainMarkup(Index:integer; pX,pY:integer);
-var a,b:TKMPointF; ID:integer; FOW:byte;
+procedure TRender.RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
+var
+  a,b: TKMPointF;
+  ID: Integer;
+  FOW: Byte;
 begin
-  case Index of
-    1:  ID := 105; // Road
-    2:  ID := 107; // Field
-    3:  ID := 108; // Wine
-    4:  ID := 111; // Wall
-  else  Exit; // WTF?
+  case aFieldType of
+    ft_Road:  ID := 105; // Road
+    ft_Corn:  ID := 107; // Field
+    ft_Wine:  ID := 108; // Wine
+    ft_Wall:  ID := 111; // Wall
+  else
+    Exit; // WTF?
   end;
 
-  FOW := MyPlayer.FogOfWar.CheckTileRevelation(pX, pY, true);
+  FOW := MyPlayer.FogOfWar.CheckTileRevelation(aLocX, aLocY, true);
 
   glColor3ub(FOW, FOW, FOW);
   glBindTexture(GL_TEXTURE_2D, GFXData[rxGui, ID].TexID);
@@ -939,15 +946,15 @@ begin
   b.Y := GFXData[rxGui, ID].v2;
 
   glBegin(GL_QUADS);
-    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV+0.10);
-    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV-0.15);
-    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(b.x,a.y); glVertex2f(aLocX-1, aLocY-1 - fTerrain.Land[aLocY  ,aLocX  ].Height/CELL_HEIGHT_DIV+0.10);
+    glTexCoord2f(a.x,a.y); glVertex2f(aLocX-1, aLocY-1 - fTerrain.Land[aLocY  ,aLocX  ].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(a.x,b.y); glVertex2f(aLocX  , aLocY   - fTerrain.Land[aLocY+1,aLocX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glVertex2f(aLocX  , aLocY   - fTerrain.Land[aLocY+1,aLocX+1].Height/CELL_HEIGHT_DIV);
 
-    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV-0.15);
-    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV+0.10);
+    glTexCoord2f(b.x,a.y); glVertex2f(aLocX-1, aLocY   - fTerrain.Land[aLocY+1,aLocX  ].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glVertex2f(aLocX-1, aLocY   - fTerrain.Land[aLocY+1,aLocX  ].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glVertex2f(aLocX  , aLocY-1 - fTerrain.Land[aLocY  ,aLocX+1].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(b.x,b.y); glVertex2f(aLocX  , aLocY-1 - fTerrain.Land[aLocY  ,aLocX+1].Height/CELL_HEIGHT_DIV+0.10);
   glEnd;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
@@ -975,12 +982,12 @@ begin
     glBegin(GL_QUADS);
       FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY,true);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,a.y); glVertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,a.y); glVertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX+1,pY,true);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glVertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glVertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
     glEnd;
   end
   else begin //Vertical border
@@ -992,12 +999,12 @@ begin
     glBegin(GL_QUADS);
       FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY,true);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,a.y); glVertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,a.y); glVertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       FOW:=MyPlayer.FogOfWar.CheckVerticeRevelation(pX,pY+1,true);
       glColor3ub(FOW,FOW,FOW);
-      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glVertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glVertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
     glEnd;
   end;
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -1010,10 +1017,10 @@ begin
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     with fTerrain do begin
-      glvertex2f(P.X-1,P.Y-1-Land[P.Y  ,P.X  ].Height/CELL_HEIGHT_DIV);
-      glvertex2f(P.X  ,P.Y-1-Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
-      glvertex2f(P.X  ,P.Y-  Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
-      glvertex2f(P.X-1,P.Y-  Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1,P.Y-1-Land[P.Y  ,P.X  ].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X  ,P.Y-1-Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X  ,P.Y-  Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
+      glVertex2f(P.X-1,P.Y-  Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;
@@ -1084,7 +1091,7 @@ begin
 
                   gsPaused, gsOnHold, gsRunning:
                     begin
-                      if (MyPlayer.BuildList.FieldworksList.HasField(GameCursor.Cell)
+                      if ((MyPlayer.BuildList.FieldworksList.HasField(GameCursor.Cell) <> ft_None)
                           or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
                       and TileVisible then
                         RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
@@ -1092,19 +1099,19 @@ begin
                         RenderCursorBuildIcon(GameCursor.Cell);       //Red X
                     end;
                 end;
-    cm_Road:    if CanPlaceRoad(GameCursor.Cell, mu_RoadPlan, MyPlayer) and TileVisible then
+    cm_Road:    if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Road) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Field:   if CanPlaceRoad(GameCursor.Cell, mu_FieldPlan, MyPlayer) and TileVisible then
+    cm_Field:   if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Corn) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wine:    if CanPlaceRoad(GameCursor.Cell, mu_WinePlan, MyPlayer) and TileVisible then
+    cm_Wine:    if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Wine) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-    cm_Wall:    if CanPlaceRoad(GameCursor.Cell, mu_WallPlan, MyPlayer) and TileVisible then
+    cm_Wall:    if MyPlayer.CanAddFieldPlan(GameCursor.Cell, ft_Wall) then
                   RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
                 else
                   RenderCursorBuildIcon(GameCursor.Cell);       //Red X

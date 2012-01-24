@@ -15,6 +15,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
+      function WalkShouldAbandon: Boolean; override;
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -29,21 +30,23 @@ type
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
+      function WalkShouldAbandon: Boolean; override;
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
   TTaskBuildField = class(TUnitTask)
     private
-      fLoc:TKMPoint;
-      BuildID:integer;
-      MarkupSet:boolean;
+      fLoc: TKMPoint;
+      BuildID: Integer;
+      MarkupSet: Boolean;
     public
-      constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
-      constructor Load(LoadStream:TKMemoryStream); override;
+      constructor Create(aWorker: TKMUnitWorker; aLoc: TKMPoint; aID: Integer);
+      constructor Load(LoadStream: TKMemoryStream); override;
       destructor Destroy; override;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
+      function WalkShouldAbandon: Boolean; override;
+      function Execute: TTaskResult; override;
+      procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
   TTaskBuildWall = class(TUnitTask)
@@ -55,6 +58,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
+      //function WalkShouldAbandon: Boolean; override;
       function Execute:TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -144,7 +148,14 @@ begin
 end;
 
 
-function TTaskBuildRoad.Execute:TTaskResult;
+function TTaskBuildRoad.WalkShouldAbandon: Boolean;
+begin
+  //Walk should abandon if other player has built something there before we arrived
+  Result := not fTerrain.CanAddField(fLoc, ft_Road);
+end;
+
+
+function TTaskBuildRoad.Execute: TTaskResult;
 begin
   Result := TaskContinues;
 
@@ -251,6 +262,13 @@ begin
 end;
 
 
+function TTaskBuildWine.WalkShouldAbandon: Boolean;
+begin
+  //Walk should abandon if other player has built something there before we arrived
+  Result := not fTerrain.CanAddField(fLoc, ft_Wine);
+end;
+
+
 function TTaskBuildWine.Execute:TTaskResult;
 begin
   Result := TaskContinues;
@@ -281,7 +299,7 @@ begin
       end;
    4: begin
         fTerrain.ResetDigState(fLoc);
-        fTerrain.SetField(fLoc,GetOwner,ft_InitWine); //Replace the terrain, but don't seed grapes yet
+        fTerrain.SetField(fLoc, GetOwner, ft_InitWine); //Replace the terrain, but don't seed grapes yet
         InitialFieldSet := True;
         SetActionLockedStay(30,ua_Work1);
         Thought:=th_Wood;
@@ -296,7 +314,7 @@ begin
         Thought:=th_None;
       end;
    7: begin
-        fTerrain.SetField(fLoc,GetOwner,ft_Wine);
+        fTerrain.SetField(fLoc, GetOwner, ft_Wine);
         InitialFieldSet := False;
         SetActionStay(5,ua_Walk);
         fTerrain.RemMarkup(fLoc);
@@ -341,9 +359,16 @@ end;
 
 destructor TTaskBuildField.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
-  if MarkupSet  then fTerrain.RemMarkup(fLoc);
+  if BuildID <> 0 then fPlayers.Player[fUnit.GetOwner].BuildList.FieldworksList.ReOpenField(BuildID); //Allow other workers to take this task
+  if MarkupSet then fTerrain.RemMarkup(fLoc);
   Inherited;
+end;
+
+
+function TTaskBuildField.WalkShouldAbandon: Boolean;
+begin
+  //Walk should abandon if other player has built something there before we arrived
+  Result := not fTerrain.CanAddField(fLoc, ft_Corn);
 end;
 
 
@@ -357,7 +382,7 @@ begin
          Thought := th_Build;
        end;
     1: begin
-        fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+        fTerrain.SetMarkup(fLoc, mu_UnderConstruction);
         MarkupSet := true;
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;

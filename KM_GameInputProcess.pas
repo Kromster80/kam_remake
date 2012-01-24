@@ -127,7 +127,7 @@ type
     procedure CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection); overload;
 
     procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint); overload;
-    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aMarkupType:TMarkup); overload;
+    procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aFieldType: TFieldType); overload;
     procedure CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType); overload;
 
     procedure CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse); overload;
@@ -276,10 +276,10 @@ begin
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
       gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-      gic_BuildAddFieldPlan:      if fTerrain.Land[Params[2],Params[1]].Markup = TMarkup(Params[3]) then
+      gic_BuildAddFieldPlan:      if MyPlayer.BuildList.FieldworksList.HasField(KMPoint(Params[1],Params[2])) = TFieldType(Params[3]) then
                                     P.RemFieldPlan(KMPoint(Params[1],Params[2]), IsSilent) //Remove existing markup
                                   else
-                                    P.AddFieldPlan(KMPoint(Params[1],Params[2]), TMarkup(Params[3]), IsSilent); //Add new markup
+                                    P.AddFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), IsSilent); //Add new markup
       gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), IsSilent);
       gic_BuildRemoveHouse:       P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
       gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]), IsSilent);
@@ -374,10 +374,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aMarkupType:TMarkup);
+procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: TKMPoint; aFieldType: TFieldType);
 begin
   Assert(aCommandType in [gic_BuildAddFieldPlan]);
-  TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y, byte(aMarkupType)]) );
+  TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]) );
 end;
 
 
