@@ -199,7 +199,7 @@ var
 
 
 implementation
-uses KM_Log, KM_PlayersCollection,
+uses KM_Log, KM_PlayersCollection, //todo: Carefully remove KM_PlayersCollection references
   KM_Resource, KM_ResourceHouse, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
