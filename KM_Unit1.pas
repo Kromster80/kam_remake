@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, Menus, Buttons,
-  Math, SysUtils, KromUtils,
+  Math, SysUtils, StrUtils, KromUtils,
   {$IFDEF FPC} LResources, {$ENDIF}
   dglOpenGL,
   KM_Render, KM_Resource, KM_ResourceSprites, KM_Defaults, KM_Form_Loading,
@@ -196,7 +196,8 @@ end;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
-var FrameTime:cardinal; s:string;
+var
+  FrameTime: Cardinal;
 begin
   //if not Form1.Active then exit;
 
@@ -205,26 +206,28 @@ begin
     FrameTime  := TimeGet - OldTimeFPS;
     OldTimeFPS := TimeGet;
 
-    if CAP_MAX_FPS and (FPS_LAG<>1)and(FrameTime<FPS_LAG) then begin
-      sleep(FPS_LAG-FrameTime);
-      FrameTime:=FPS_LAG;
+    if CAP_MAX_FPS and (FPS_LAG <> 1) and (FrameTime < FPS_LAG) then
+    begin
+      Sleep(FPS_LAG - FrameTime);
+      FrameTime := FPS_LAG;
     end;
 
-    inc(OldFrameTimes,FrameTime);
+    inc(OldFrameTimes, FrameTime);
     inc(FrameCount);
-    if OldFrameTimes>=FPS_INTERVAL then begin
-      s := Format('%.1f fps',[1000/(OldFrameTimes/FrameCount)]);
-      if CAP_MAX_FPS then s := s + ' (' + inttostr(FPS_LAG) + ')';
-      StatusBar1.Panels[3].Text:=s;
-      OldFrameTimes:=0;
-      FrameCount:=0;
+    if OldFrameTimes >= FPS_INTERVAL then
+    begin
+      StatusBar1.Panels[3].Text :=
+        Format('%.1f fps', [1000 / (OldFrameTimes / FrameCount)]) +
+        IfThen(CAP_MAX_FPS, ' (' + inttostr(FPS_LAG) + ')');
+      OldFrameTimes := 0;
+      FrameCount := 0;
     end;
   end;
   //FPS calculation complete
 
   fGame.UpdateStateIdle(FrameTime);
   fRender.Render;
-  Done := false; //repeats OnIdle event
+  Done := False; //Repeats OnIdle asap without performing Form-specific idle code
 end;
 
 
