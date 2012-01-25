@@ -143,29 +143,18 @@ begin
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
-  RouteBuilt := AssembleTheRoute;
-  //Due to rare circumstances (e.g. floodfill doesn't take notice of CanWalkDiagonally i.e. trees on road corners)
-  // there are times when trying to build a route along roads will fail.
-  // To reduce crash errors, try rebuilding it with just CanWalk. This will normally fix the problem and
-  // It's not a big deal if occasionally units walk off the road.
-  if (not RouteBuilt) and (fPass = CanWalkRoad) then
-  begin
-    fPass := CanWalk;
-    RouteBuilt := AssembleTheRoute;
-  end;
-
   if aSetPushed then begin
     fInteractionStatus := kis_Pushed; //So that unit knows it was pushed not just walking somewhere
     Explanation := 'We were asked to get out of the way';
     ExplanationLogAdd;
     fPass := GetEffectivePassability; //Units are allowed to step off roads when they are pushed
-    //Because the passability has changed we might need to reassemble the route if it failed in create
-    if not RouteBuilt then RouteBuilt := AssembleTheRoute;
   end;
 
-  //Usually thats for animals within islands of their CanWalk terrain
-  //if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
-    //fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with default fPass');
+  RouteBuilt := AssembleTheRoute;
+
+  //If route fails to build that's a serious issue, (consumes CPU) can*** should mean that never happens
+  if not RouteBuilt then //NoList.Count = 0, means it will exit in Execute
+    fLog.AddToLog('Unable to make a route for '+fResource.UnitDat[aUnit.UnitType].UnitName+' from '+KM_Points.TypeToString(fWalkFrom)+' to '+KM_Points.TypeToString(fWalkTo)+' with pass '+PassabilityStr[fPass]);
 end;
 
 

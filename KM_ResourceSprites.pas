@@ -988,6 +988,7 @@ begin
     Bmp.Height:=aHeight;
 
     for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
+      //@Krom: I get a warning on this line: "Combining signed and unsigned types - widened both operands"
       Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) AND $FFFFFF; //Ignore alpha
     Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + '.bmp');
 
@@ -995,6 +996,7 @@ begin
     if aSaveAlpha then
     begin
       for i:=0 to aHeight-1 do for k:=0 to aWidth-1 do
+        //@Krom: I get a warning on this line: "Combining signed and unsigned types - widened both operands"
         Bmp.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*aWidth+k)*4))^) SHR 24 *65793; //convert A to RGB Greyscale
       Bmp.SaveToFile(Folder + Int2Fix(aIndex, 4) + 'a.bmp');
     end;

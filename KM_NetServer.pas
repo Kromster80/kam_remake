@@ -593,7 +593,8 @@ begin
                 if SenderRoom = fClientList[i].Room then
                   fServer.SendData(fClientList[i].Handle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_HOST:
-              fServer.SendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+12);
+              if SenderRoom <> -1 then
+                fServer.SendData(fRoomInfo[SenderRoom].HostHandle, @SenderClient.fBuffer[0], PacketLength+12);
       NET_ADDRESS_SERVER:
               RecieveMessage(PacketSender, @SenderClient.fBuffer[12], PacketLength);
       else    fServer.SendData(PacketRecipient, @SenderClient.fBuffer[0], PacketLength+12);

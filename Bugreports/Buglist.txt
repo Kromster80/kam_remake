@@ -53,7 +53,7 @@ Features:
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
 	Markups should only be visible on you and your allies screen (move markups from terrain to player)
-	People can cheat in multiplayer during peacetime by placing a building site over an enemy road, once it is dug the road is useless (disallow houses on enemy roads during peacetime?)
+	People can cheat in multiplayer during peacetime by placing a house/road over an enemy road or free land, once it is dug the road/land is useless (disallow houses in enemy territory during peacetime?)
 	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
 	Some way to delete multiplayer saves from within the KaM Remake
 	Choosing max reported refresh rate for display in fullscreen causes banding with wrong drivers (add refresh rate selector to options) 
