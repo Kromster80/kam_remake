@@ -166,6 +166,13 @@ begin
          Thought := th_Build;
        end;
     1: begin
+         //Walk was abandoned due to WalkShouldAbandon (CanAddField = False)
+         if not KMSamePoint(fUnit.GetPosition, fLoc) then
+         begin
+           fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //This plan is not valid anymore
+           Result := TaskDone;
+           exit;
+         end;
          Thought := th_None;
          fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
          MarkupSet := true;
@@ -279,6 +286,13 @@ begin
         Thought := th_Build;
       end;
    1: begin
+        //Walk was abandoned due to WalkShouldAbandon (CanAddField = False)
+        if not KMSamePoint(fUnit.GetPosition, fLoc) then
+        begin
+          fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //This plan is not valid anymore
+          Result := TaskDone;
+          exit;
+        end;
         Thought := th_None;
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
@@ -382,6 +396,13 @@ begin
          Thought := th_Build;
        end;
     1: begin
+        //Walk was abandoned due to WalkShouldAbandon (CanAddField = False)
+        if not KMSamePoint(fUnit.GetPosition, fLoc) then
+        begin
+          fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //This plan is not valid anymore
+          Result := TaskDone;
+          exit;
+        end;
         fTerrain.SetMarkup(fLoc, mu_UnderConstruction);
         MarkupSet := true;
         fPlayers.Player[GetOwner].BuildList.FieldworksList.CloseField(BuildID); //Close the job now because it can no longer be cancelled

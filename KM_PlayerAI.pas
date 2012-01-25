@@ -215,8 +215,8 @@ procedure TKMPlayerAI.CheckGoals;
       MS := nil;
     Assert((MS <> nil) or (aGoal.GoalCondition = gc_Time)); //Will trigger an error unless it's not gc_Time
 
-    case aGoal.GoalCondition of //todo: add all goal condition checks properly and confirm unknowns with tests in KaM
-      gc_BuildTutorial:     Result := MS.GetHouseQty(ht_Tannery)>0;
+    case aGoal.GoalCondition of
+      gc_BuildTutorial:     Result := MS.GetHouseQty(ht_Tannery)=0; //For some reason this goal is gs_False in KaM, that's why check is =0 not >0
       gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
       gc_Buildings:         Result := (MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Barracks)>0);
       gc_Troops:            Result := (MS.GetArmyCount>0);
@@ -577,7 +577,8 @@ begin
           for k:=0 to DefencePositionsCount-1 do
             if DefencePositions[k].CurrentCommander = GetCommander then
             begin
-              OrderWalk(DefencePositions[k].Position);
+              if fTerrain.Route_CanBeMade(GetCommander.GetPosition, DefencePositions[k].Position.Loc, canWalk, 0, False) then
+                OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
 
               //If this group is available to attack then count them

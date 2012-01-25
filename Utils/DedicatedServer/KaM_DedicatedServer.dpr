@@ -102,7 +102,7 @@ begin
     try //Catch and log exceptions
       RunTheServer;
     except
-      on E : Exception do
+      on E : Exception do //todo: For some reason this doesn't catch exceptions that occur within network events e.g. OnReceive (once server is running errors can really only occur in these events)
       begin
         fEventHandler.ServerStatusMessage('EXCEPTION: '+E.ClassName+': '+E.Message);
         fEventHandler.ServerStatusMessage('Server restarting...');

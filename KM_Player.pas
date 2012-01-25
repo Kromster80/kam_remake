@@ -98,11 +98,11 @@ type
     procedure AddRoadsToList(aLoc: TKMPoint);
     procedure AddRoadConnect(LocA,LocB:TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
-    procedure AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; DoSilent: Boolean);
-    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
+    procedure AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     procedure RemHouse(Position: TKMPoint; DoSilent:boolean; IsEditor:boolean=false);
-    procedure RemHousePlan(Position: TKMPoint; DoSilent:boolean);
-    procedure RemFieldPlan(Position: TKMPoint; DoSilent:boolean);
+    procedure RemHousePlan(Position: TKMPoint);
+    procedure RemFieldPlan(Position: TKMPoint);
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
@@ -366,21 +366,18 @@ end;
 
 
 {DoSilent means that there will be no sound when markup is placed, needed e.g. when script used}
-procedure TKMPlayer.AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType; DoSilent: Boolean);
+procedure TKMPlayer.AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
 begin
   Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong FieldType');
-
-  //@Lewin: Looks like we can replace DoSilent with (Self = MyPlayer).
-  //What do you say?
 
   if CanAddFieldPlan(aLoc, aFieldType) then
   begin
     fBuildList.FieldworksList.AddField(aLoc, aFieldType);
-    if not DoSilent then
+    if Self = MyPlayer then
       fSoundLib.Play(sfx_placemarker);
   end
   else
-    if not DoSilent then
+    if Self = MyPlayer then
       fSoundLib.Play(sfx_CantPlace, aLoc, False, 4.0);
 end;
 
@@ -405,7 +402,7 @@ begin
 end;
 
 
-procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean);
+procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var
   Loc: TKMPoint;
   KMHouse: TKMHouse;
@@ -416,7 +413,7 @@ begin
   fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex); //todo: Move to TaskBuildHouseArea
   fStats.HouseStarted(aHouseType);
   fBuildList.HousePlanList.AddPlan(KMHouse);
-  if not DoSilent then fSoundLib.Play(sfx_placemarker);
+  if Self = MyPlayer then fSoundLib.Play(sfx_placemarker);
 end;
 
 
@@ -438,30 +435,24 @@ begin
 end;
 
 
-procedure TKMPlayer.RemHousePlan(Position: TKMPoint; DoSilent:boolean);
+procedure TKMPlayer.RemHousePlan(Position: TKMPoint);
 var H: TKMHouse;
 begin
   fBuildList.HousePlanList.RemPlan(Position);
-  if not DoSilent then fSoundLib.Play(sfx_Click);
+  if Self = MyPlayer then fSoundLib.Play(sfx_Click);
 
   H := fHouses.HitTest(Position.X, Position.Y);
   Assert(H <> nil);
 
-  H.DemolishHouse(DoSilent, False);
+  H.DemolishHouse((Self <> MyPlayer), False);
   fStats.HouseEnded(H.HouseType);
 end;
 
 
-procedure TKMPlayer.RemFieldPlan(Position: TKMPoint; DoSilent: Boolean);
+procedure TKMPlayer.RemFieldPlan(Position: TKMPoint);
 begin
-  //@Lewin: Looks like we can replace DoSilent with (Self = MyPlayer).
-  //What do you say?
-
   fBuildList.FieldworksList.RemFieldPlan(Position);
-
-  if not DoSilent then
-    fSoundLib.Play(sfx_Click);
-
+  if Self = MyPlayer then fSoundLib.Play(sfx_Click);
   //Terrain did not knew about the FieldPlan
   //fTerrain.RemMarkup(Position);
 end;

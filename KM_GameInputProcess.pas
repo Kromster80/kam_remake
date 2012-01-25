@@ -238,6 +238,7 @@ end;
 procedure TGameInputProcess.ExecCommand(aCommand: TGameInputCommand);
 var P:TKMPlayer; IsSilent: boolean; U,U2:TKMUnit; H,H2:TKMHouse;
 begin
+  //NOTE: MyPlayer should not be used for important stuff here, use P instead (commands must be executed the same for all players)
   IsSilent := (aCommand.PlayerIndex <> MyPlayer.PlayerIndex);
   P := fPlayers.Player[aCommand.PlayerIndex];
   U := nil; U2 := nil; H := nil; H2 := nil;
@@ -276,15 +277,15 @@ begin
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
       gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-      gic_BuildAddFieldPlan:      if MyPlayer.BuildList.FieldworksList.HasField(KMPoint(Params[1],Params[2])) = TFieldType(Params[3]) then
-                                    P.RemFieldPlan(KMPoint(Params[1],Params[2]), IsSilent) //Remove existing markup
+      gic_BuildAddFieldPlan:      if P.BuildList.FieldworksList.HasField(KMPoint(Params[1],Params[2])) = TFieldType(Params[3]) then
+                                    P.RemFieldPlan(KMPoint(Params[1],Params[2])) //Remove existing markup
                                   else
-                                    P.AddFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3]), IsSilent); //Add new markup
-      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]), IsSilent);
+                                    P.AddFieldPlan(KMPoint(Params[1],Params[2]), TFieldType(Params[3])); //Add new markup
+      gic_BuildRemoveFieldPlan:   P.RemFieldPlan(KMPoint(Params[1],Params[2]));
       gic_BuildRemoveHouse:       P.RemHouse(KMPoint(Params[1],Params[2]), IsSilent);
-      gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]), IsSilent);
+      gic_BuildRemoveHousePlan:   P.RemHousePlan(KMPoint(Params[1],Params[2]));
       gic_BuildHousePlan:         if fTerrain.CanPlaceHouse(KMPoint(Params[2],Params[3]), THouseType(Params[1]), P) then
-                                    P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]), IsSilent);
+                                    P.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]));
 
       gic_HouseRepairToggle:      H.RepairToggle;
       gic_HouseDeliveryToggle:    H.WareDelivery := not H.WareDelivery;
