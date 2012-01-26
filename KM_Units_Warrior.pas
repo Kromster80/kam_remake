@@ -1266,6 +1266,7 @@ begin
   if IsCommander and not IsDeadOrDying then
     PaintFlag(XPaintPos, YPaintPos, Direction, fUnitType); //Paint flag over the top of the unit
 
+  //todo: This causes issues with alpha (drawn twice) so we need to refactor it.
   //For half of the directions the flag should go UNDER the unit, so render the unit again as a child of the parent unit
   if Direction in [dir_SE, dir_S, dir_SW, dir_W] then
     fRender.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);

@@ -461,6 +461,7 @@ var
   RX, ID: integer;
   T: Byte;
   ft: TextFile;
+  Bmp: TBitmap;
   {$IFDEF WDC}
   p: Cardinal;
   po: TPNGObject;
@@ -474,7 +475,14 @@ begin
   if not DirectoryExists(aFolder) then Exit;
 
   FileList := TStringList.Create;
+  //PNGs
   FindFirst(aFolder + inttostr(RX)+'_????.png', faAnyFile AND NOT faDirectory, SearchRec);
+  repeat
+    FileList.Add(SearchRec.Name);
+  until (FindNext(SearchRec)<>0);
+  FindClose(SearchRec);
+  //BMPs
+  FindFirst(aFolder + inttostr(RX)+'_????.bmp', faAnyFile AND NOT faDirectory, SearchRec);
   repeat
     FileList.Add(SearchRec.Name);
   until (FindNext(SearchRec)<>0);
@@ -490,83 +498,119 @@ begin
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
     if InRange(ID, 1, RXData[fRT].Qty) then begin //Replace only certain sprites
 
-      RXData[fRT].HasMask[ID] := FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png');
+      RXData[fRT].HasMask[ID] := FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png') or
+                                 FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.bmp');
 
-      {$IFDEF WDC}
-      po := TPNGObject.Create;
-      po.LoadFromFile(aFolder + FileList.Strings[i]);
-      {$ENDIF}
-      {$IFDEF FPC}
-      po := TBGRABitmap.Create(aFolder + FileList.Strings[i]);
-      {$ENDIF}
+      if LowerCase(RightStr(FileList.Strings[i],3)) = 'png' then
+      begin
+        {$IFDEF WDC}
+        po := TPNGObject.Create;
+        po.LoadFromFile(aFolder + FileList.Strings[i]);
+        {$ENDIF}
+        {$IFDEF FPC}
+        po := TBGRABitmap.Create(aFolder + FileList.Strings[i]);
+        {$ENDIF}
 
-      RXData[fRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
-      RXData[fRT].Size[ID].X := po.Width;
-      RXData[fRT].Size[ID].Y := po.Height;
+        RXData[fRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
+        RXData[fRT].Size[ID].X := po.Width;
+        RXData[fRT].Size[ID].Y := po.Height;
 
-      SetLength(RXData[fRT].RGBA[ID], po.Width*po.Height);
-      SetLength(RXData[fRT].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
+        SetLength(RXData[fRT].RGBA[ID], po.Width*po.Height);
+        SetLength(RXData[fRT].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
 
-      {$IFDEF WDC}
-      case po.TransparencyMode of //There are ways to process PNG transparency
-        ptmNone:
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-            RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
-        ptmBit:
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-            if po.Pixels[x,y] = po.TransparentColor then
-              RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
-            else
+        {$IFDEF WDC}
+        case po.TransparencyMode of //There are ways to process PNG transparency
+          ptmNone:
+            for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
               RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
-        ptmPartial:
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
-            p := (po.AlphaScanline[y]^[x]) shl 24; //semitransparency is killed by render later-on
-            RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR p;
-          end;
-        else Assert(false, 'Unknown PNG transparency mode')
+          ptmBit:
+            for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+              if po.Pixels[x,y] = po.TransparentColor then
+                RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
+              else
+                RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+          ptmPartial:
+            for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
+              p := (po.AlphaScanline[y]^[x]) shl 24; //semitransparency is killed by render later-on
+              RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR p;
+            end;
+          else Assert(false, 'Unknown PNG transparency mode')
+        end;
+        {$ENDIF}
+        {$IFDEF FPC}
+        for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+          RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
+                                              (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
+        {$ENDIF}
+        po.Free;
       end;
-      {$ENDIF}
-      {$IFDEF FPC}
-      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-        RXData[fRT].RGBA[ID, y*po.Width+x] := cardinal(po.GetPixel(x,y).red) OR (cardinal(po.GetPixel(x,y).green) shl 8) OR
-                                            (cardinal(po.GetPixel(x,y).blue) shl 16) OR (cardinal(po.GetPixel(x,y).alpha) shl 24);
-      {$ENDIF}
-      po.Free;
+      if LowerCase(RightStr(FileList.Strings[i],3)) = 'bmp' then
+      begin
+        Bmp :=TBitmap.Create;
+        Bmp.LoadFromFile(aFolder + FileList.Strings[i]);
+
+        RXData[fRT].Flag[ID] := 1; //Mark as used (required for saving RXX)
+        RXData[fRT].Size[ID].X := Bmp.Width;
+        RXData[fRT].Size[ID].Y := Bmp.Height;
+
+        SetLength(RXData[fRT].RGBA[ID], Bmp.Width*Bmp.Height);
+        SetLength(RXData[fRT].Mask[ID], Bmp.Width*Bmp.Height); //Should allocate space for it's always comes along
+
+        for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
+          RXData[fRT].RGBA[ID, y*Bmp.Width+x] := cardinal(Bmp.Canvas.Pixels[x,y]) OR $FF000000;
+      end;
 
       //Load and process the mask if it exists
       if RXData[fRT].HasMask[ID] then
       begin
-        {$IFDEF WDC}
-        po := TPNGObject.Create;
-        po.LoadFromFile(aFolder + StringReplace(FileList.Strings[i], '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]));
-        {$ENDIF}
-        {$IFDEF FPC}
-        po := TBGRABitmap.Create(aFolder + StringReplace(FileList.Strings[i], '.png', 'a.png', [rfReplaceAll, rfIgnoreCase]));
-        {$ENDIF}
-
-        if (RXData[fRT].Size[ID].X = po.Width) and (RXData[fRT].Size[ID].Y = po.Height) then
+        if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png') then
         begin
-          //We don't handle transparency in Masks
           {$IFDEF WDC}
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
-          begin
-            T := RXData[fRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
-            RXData[fRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
-            RXData[fRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
-          end;
+          po := TPNGObject.Create;
+          po.LoadFromFile(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png');
           {$ENDIF}
           {$IFDEF FPC}
-          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-          if cardinal(po.GetPixel(x,y).red) <> 0 then
-          begin
-            T := RXData[fRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
-            RXData[fRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
-            RXData[fRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
-          end;
+          po := TBGRABitmap.Create(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.png');
           {$ENDIF}
+
+          if (RXData[fRT].Size[ID].X = po.Width) and (RXData[fRT].Size[ID].Y = po.Height) then
+          begin
+            //We don't handle transparency in Masks
+            {$IFDEF WDC}
+            for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+            if cardinal(po.Pixels[x,y] AND $FF) <> 0 then
+            begin
+              T := RXData[fRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
+              RXData[fRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
+              RXData[fRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
+            end;
+            {$ENDIF}
+            {$IFDEF FPC}
+            for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+            if cardinal(po.GetPixel(x,y).red) <> 0 then
+            begin
+              T := RXData[fRT].RGBA[ID, y*po.Width+x] AND $FF; //Take red component
+              RXData[fRT].Mask[ID, y*po.Width+x] := Byte(255-Abs(255-T*2));
+              RXData[fRT].RGBA[ID, y*po.Width+x] := T*65793 OR $FF000000;
+            end;
+            {$ENDIF}
+          end;
+          po.Free;
         end;
-        po.Free;
+        if FileExists(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.bmp') then
+        begin
+          Bmp :=TBitmap.Create;
+          Bmp.LoadFromFile(aFolder + Copy(FileList.Strings[i], 1, 6) + 'a.bmp');
+
+          if (RXData[fRT].Size[ID].X = Bmp.Width) and (RXData[fRT].Size[ID].Y = Bmp.Height) then
+            for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
+              if cardinal(Bmp.Canvas.Pixels[x,y] AND $FF) <> 0 then
+              begin
+                T := RXData[fRT].RGBA[ID, y*Bmp.Width+x] AND $FF; //Take red component
+                RXData[fRT].Mask[ID, y*Bmp.Width+x] := Byte(255-Abs(255-T*2));
+                RXData[fRT].RGBA[ID, y*Bmp.Width+x] := T*65793 OR $FF000000;
+              end;
+        end;
       end;
 
       //Read pivots
