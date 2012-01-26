@@ -1,5 +1,5 @@
 
-MaxID:220
+MaxID:221
 
 1:Missione annullata
 2:Tutorial di gestione del villaggio
@@ -31,6 +31,7 @@ MaxID:220
 143:Riproduci a caso
 26:Opzioni Grafiche:
 27:Luminosità
+221:
 28:Schermo intero
 29:Applica
 30:Lingua:

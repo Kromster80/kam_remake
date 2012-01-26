@@ -1,5 +1,5 @@
 
-MaxID:220
+MaxID:221
 
 1:Mission canceled
 2:Town Tutorial
@@ -31,6 +31,7 @@ MaxID:220
 143:Shuffle tracks
 26:Graphics:
 27:Brightness
+221:Quality Shadows
 28:Fullscreen
 29:Apply
 30:Language:

@@ -232,6 +232,7 @@ type
     Panel_Options:TKMPanel;
       Panel_Options_GFX:TKMPanel;
         Ratio_Options_Brightness:TKMRatioRow;
+        CheckBox_Options_Shadows:TKMCheckBox;
       Panel_Options_Ctrl:TKMPanel;
         Label_Options_MouseSpeed:TKMLabel;
         Ratio_Options_Mouse:TKMRatioRow;
@@ -1018,10 +1019,12 @@ begin
 
     Panel_Options_GFX:=TKMPanel.Create(Panel_Options,340,130,200,80);
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_GFX,0,20,200,60);
+      TKMBevel.Create(Panel_Options_GFX,0,20,200,78);
       TKMLabel.Create(Panel_Options_GFX,18,27,164,20,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS],fnt_Metal,taLeft);
       Ratio_Options_Brightness:=TKMRatioRow.Create(Panel_Options_GFX,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_Brightness.OnChange:=Options_Change;
+      CheckBox_Options_Shadows := TKMCheckBox.Create(Panel_Options_GFX,10,74,180,20,fTextLibrary[TX_MENU_OPTIONS_HIGH_QUALITY_SHADOWS], fnt_Metal);
+      CheckBox_Options_Shadows.OnClick := Options_Change;
 
     Panel_Options_Res:=TKMPanel.Create(Panel_Options,340,230,200,30+RESOLUTION_COUNT*20);
       //Resolution selector
@@ -2377,6 +2380,7 @@ var i:cardinal;
 begin
   CheckBox_Options_Autosave.Checked   := aGlobalSettings.Autosave;
   Ratio_Options_Brightness.Position   := aGlobalSettings.Brightness;
+  CheckBox_Options_Shadows.Checked    := aGlobalSettings.AlphaShadows;
   Ratio_Options_Mouse.Position        := aGlobalSettings.MouseSpeed;
   Ratio_Options_ScrollSpeed.Position  := aGlobalSettings.ScrollSpeed;
   Ratio_Options_SFX.Position          := aGlobalSettings.SoundFXVolume;
@@ -2410,6 +2414,7 @@ begin
 
   fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
   fGame.GlobalSettings.Brightness       := Ratio_Options_Brightness.Position;
+  fGame.GlobalSettings.AlphaShadows     := CheckBox_Options_Shadows.Checked;
   fGame.GlobalSettings.MouseSpeed       := Ratio_Options_Mouse.Position;
   fGame.GlobalSettings.ScrollSpeed      := Ratio_Options_ScrollSpeed.Position;
   fGame.GlobalSettings.SoundFXVolume    := Ratio_Options_SFX.Position;

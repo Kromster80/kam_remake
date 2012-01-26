@@ -604,12 +604,7 @@ begin
 
           if (RXData[fRT].Size[ID].X = Bmp.Width) and (RXData[fRT].Size[ID].Y = Bmp.Height) then
             for y:=0 to Bmp.Height-1 do for x:=0 to Bmp.Width-1 do
-              if cardinal(Bmp.Canvas.Pixels[x,y] AND $FF) <> 0 then
-              begin
-                T := RXData[fRT].RGBA[ID, y*Bmp.Width+x] AND $FF; //Take red component
-                RXData[fRT].Mask[ID, y*Bmp.Width+x] := Byte(255-Abs(255-T*2));
-                RXData[fRT].RGBA[ID, y*Bmp.Width+x] := T*65793 OR $FF000000;
-              end;
+              RXData[fRT].Mask[ID, y*Bmp.Width+x] := cardinal(Bmp.Canvas.Pixels[x,y]) OR $FF000000;
         end;
       end;
 
@@ -1078,7 +1073,7 @@ end;
 
 procedure TKMSprites.ExportToBMP(aRT: TRXType);
 begin
-  LoadSprites(aRT, False); //BMP can't show the alpha channel so don't load alpha shadows
+  LoadSprites(aRT, True); //BMP can't show the alpha channel so don't load alpha shadows
   fSprites[aRT].ExportToBMP(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
   ClearSprites(aRT);
 end;
