@@ -419,7 +419,7 @@ begin
   begin
     GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
     fResource.OnLoadingText := GameLoadingStep;
-    fResource.LoadGameResources;
+    fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
     InitUnitStatEvals; //Army
   end;
 
@@ -977,7 +977,7 @@ begin
   if fResource.DataState<>dls_All then begin
     GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
     fResource.OnLoadingText := GameLoadingStep;
-    fResource.LoadGameResources;
+    fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
   end;
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);

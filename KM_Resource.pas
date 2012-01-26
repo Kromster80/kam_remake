@@ -48,7 +48,7 @@ type
     destructor Destroy; override;
 
     procedure LoadMenuResources(const aLocale: AnsiString);
-    procedure LoadGameResources;
+    procedure LoadGameResources(aAlphaShadows: boolean);
 
     property DataState: TDataLoadingState read fDataState;
     property Cursors: TKMCursors read fCursors;
@@ -138,7 +138,7 @@ begin
 end;
 
 
-procedure TResource.LoadGameResources;
+procedure TResource.LoadGameResources(aAlphaShadows: boolean);
 begin
   if fDataState = dls_All then Exit;
 
@@ -152,7 +152,7 @@ begin
   fUnitDat := TKMUnitDatCollection.Create;
   fTileset := TKMTileset.Create(ExeDir + 'Resource\');
 
-  fSprites.LoadGameResources(fHouseDat, fTileset.TextT);
+  fSprites.LoadGameResources(fHouseDat, fTileset.TextT, aAlphaShadows);
 
   fDataState := dls_All;
   fLog.AppendLog('Resource loading state - Game');
@@ -272,7 +272,7 @@ begin
   if fUnitDat = nil then
     fUnitDat := TKMUnitDatCollection.Create;
 
-  fSprites.LoadSprites(rxUnits);
+  fSprites.LoadSprites(rxUnits, False); //BMP can't show alpha shadows
 
   for U := ut_Serf to ut_Serf do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
@@ -361,7 +361,7 @@ begin
   MyBitMap.PixelFormat := pf24bit;
 
   fHouseDat := TKMHouseDatCollection.Create;
-  fSprites.LoadSprites(rxHouses);
+  fSprites.LoadSprites(rxHouses, False); //BMP can't show alpha shadows
 
   ci:=0;
   for ID:=Low(THouseType) to High(THouseType) do
@@ -430,7 +430,7 @@ begin
   MyBitMap.PixelFormat := pf24bit;
 
   LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
-  fSprites.LoadSprites(rxTrees);
+  fSprites.LoadSprites(rxTrees, False); //BMP can't show alpha shadows
 
   ci:=0;
   for i:=1 to MapElemQty do

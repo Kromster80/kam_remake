@@ -8,7 +8,7 @@ uses
 
 type
   TCardinalArray = array of Cardinal;
-  TTexFormat = (tf_Normal, tf_AltID, tf_AlphaTest);
+  TTexFormat = (tf_Normal, tf_NormalAlpha, tf_AltID, tf_AlphaTest);
 
   TRenderMode = (rm2D, rm3D);
 
@@ -116,11 +116,13 @@ begin
   //Figures are before trimming - only ratio matters
   case Mode of
     //Houses under construction
-    tf_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_AlphaTest:   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer
-    tf_Normal:    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_Normal:      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    //Base layer with alpha channel for shadows
+    tf_NormalAlpha: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Team color layer
-    tf_AltID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA4,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tf_AltID:       glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA4,  DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
 end;
 

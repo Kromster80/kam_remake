@@ -132,20 +132,20 @@ type
     fSprites: array[TRXType] of TKMSpritePack;
     fStepProgress: TEvent;
     fStepCaption: TStringEvent;
-    procedure MakeGFX(aRT: TRXType);
+    procedure MakeGFX(aRT: TRXType; aAlphaShadows:boolean);
     procedure MakeGFX_AlphaTest(aHouseDat: TKMHouseDatCollection; aRT: TRXType);
     function GetRXFileName(aRX: TRXType): string;
     procedure SaveTextureToBMP(aWidth, aHeight: Integer; aIndex: Integer; const Data: TCardinalArray; aSaveAlpha: Boolean);
-    procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
+    procedure ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
   public
     constructor Create(aRenderSetup: TRenderSetup; aPalettes: TKMPalettes; aStepProgress: TEvent; aStepCaption: TStringEvent);
     destructor Destroy; override;
 
     procedure LoadMenuResources(aCursors: TKMCursors);
-    procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
+    procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal; aAlphaShadows:boolean);
 
     //Used externally to access raw RGBA data (e.g. by ExportAnim)
-    procedure LoadSprites(aRT: TRXType);
+    procedure LoadSprites(aRT: TRXType; aAlphaShadows:boolean);
     procedure ClearSprites(aRT: TRXType);
     procedure ExportToBMP(aRT: TRXType);
 
@@ -173,7 +173,7 @@ var
 
 
 implementation
-uses KromUtils, KM_Defaults, KM_Log;
+uses KromUtils, KM_Defaults, KM_Log, StrUtils;
 
 
 var
@@ -750,15 +750,15 @@ begin
     if (RXInfo[RT].Usage = ruMenu) then
     begin
       fStepCaption('Reading ' + RXInfo[RT].FileName + ' ...');
-      LoadSprites(RT);
-      ProcessSprites(RT, aCursors, nil);
+      LoadSprites(RT, False); //Menu resources never need alpha shadows
+      ProcessSprites(RT, aCursors, nil, False);
       ClearSprites(RT);
       fStepProgress;
     end;
 end;
 
 
-procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal);
+procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal; aAlphaShadows:boolean);
 var RT: TRXType;
 begin
   for RT := Low(TRXType) to High(TRXType) do
@@ -766,16 +766,23 @@ begin
   begin
     fStepCaption(fTextLibrary[RXInfo[RT].LoadingTextID]);
     fLog.AppendLog('Reading ' + RXInfo[RT].FileName + '.rx');
-    LoadSprites(RT);
-    ProcessSprites(RT, nil, aHouseDat);
+    LoadSprites(RT, aAlphaShadows);
+    ProcessSprites(RT, nil, aHouseDat, aAlphaShadows);
     ClearSprites(RT);
   end;
 end;
 
 
 //Try to load RXX first, then RX, then use Folder
-procedure TKMSprites.LoadSprites(aRT: TRXType);
+procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows:boolean);
 begin
+  if aAlphaShadows and FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx') then
+  begin
+    fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx');
+    //fSprites[aRT].OverloadFromFolder(ExeDir + 'Sprites\');
+    //Don't need trimming either
+  end
+  else
   if FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx') then
   begin
     fSprites[aRT].LoadFromRXXFile(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '.rxx');
@@ -814,7 +821,7 @@ begin
 end;
 
 
-procedure TKMSprites.ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection);
+procedure TKMSprites.ProcessSprites(aRT: TRXType; aCursors: TKMCursors; aHouseDat: TKMHouseDatCollection; aAlphaShadows:boolean);
 begin
   //Cursors must be made before we clear the raw RGBA data
   if (aRT = rxGui) and (aCursors <> nil) then
@@ -823,7 +830,7 @@ begin
     aCursors.Cursor := kmc_Default;
   end;
 
-  MakeGFX(aRT);
+  MakeGFX(aRT, aAlphaShadows);
 
   //Alpha_tested sprites for houses. They come after MakeGFX cos they will replace above data
   if (aRT = rxHouses) and (aHouseDat <> nil) then
@@ -841,7 +848,7 @@ end;
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid driver bugs
 In result we have GFXData filled.}
-procedure TKMSprites.MakeGFX(aRT: TRXType);
+procedure TKMSprites.MakeGFX(aRT: TRXType; aAlphaShadows:boolean);
 var
   ci,j,i,k,LeftIndex,RightIndex,TexCount,SpanCount:integer;
   AllocatedRAM,RequiredRAM,ColorsRAM:cardinal;
@@ -849,8 +856,14 @@ var
   TD:array of cardinal;
   TA:array of cardinal;
   HasMsk:boolean;
+  TexType:TTexFormat;
 begin
   if RXData[aRT].Qty = 0 then Exit;
+
+  if aAlphaShadows and (aRT in [rxTrees,rxHouses,rxUnits,rxGui,rxGame]) then
+    TexType := tf_NormalAlpha
+  else
+    TexType := tf_Normal;
 
   LeftIndex := 0;
   AllocatedRAM := 0;
@@ -907,7 +920,7 @@ begin
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXInfo[aRT].TeamColors and (not ((aRT=rxGui)and InRange(49,LeftIndex,RightIndex))) then
     begin
-      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
+      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],TexType);
       //TeamColors are done through alternative plain colored texture
       if HasMsk then begin
         GFXData[aRT,LeftIndex].AltID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TA[0],tf_AltID);
@@ -915,7 +928,7 @@ begin
       end;
     end
     else
-      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],tf_Normal);
+      GFXData[aRT,LeftIndex].TexID := fRenderSetup.GenTexture(WidthPOT,HeightPOT,@TD[0],TexType);
 
     SaveTextureToBMP(WidthPOT, HeightPOT, GFXData[aRT, LeftIndex].TexID, @TD[0], False);
     if HasMsk then
@@ -1065,7 +1078,7 @@ end;
 
 procedure TKMSprites.ExportToBMP(aRT: TRXType);
 begin
-  LoadSprites(aRT);
+  LoadSprites(aRT, False); //BMP can't show the alpha channel so don't load alpha shadows
   fSprites[aRT].ExportToBMP(ExeDir + 'Export\' + RXInfo[aRT].FileName + '.rx\');
   ClearSprites(aRT);
 end;

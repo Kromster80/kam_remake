@@ -14,6 +14,7 @@ type
     fBrightness:byte;
     fScrollSpeed:byte;
     fFullScreen:boolean;
+    fAlphaShadows:boolean;
     fLocale:shortstring;
     fMouseSpeed:byte;
     fMusicOn:boolean;
@@ -49,6 +50,7 @@ type
     procedure SetBrightness(aValue:byte);
     procedure SetScrollSpeed(aValue:byte);
     procedure SetFullScreen(aValue:boolean);
+    procedure SetAlphaShadows(aValue:boolean);
     procedure SetLocale(aLocale:shortstring);
     procedure SetMouseSpeed(aValue:byte);
     procedure SetMusicOn(aValue:boolean);
@@ -74,6 +76,7 @@ type
     property Brightness:byte read fBrightness write SetBrightness default 1;
     property ScrollSpeed:byte read fScrollSpeed write SetScrollSpeed default 10;
     property FullScreen:boolean read fFullScreen write SetFullScreen default true;
+    property AlphaShadows:boolean read fAlphaShadows write SetAlphaShadows default true;
     property Locale:shortstring read fLocale write SetLocale;
     function GetLocalID:byte;
     property MouseSpeed:byte read fMouseSpeed write SetMouseSpeed;
@@ -163,6 +166,7 @@ begin
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
   fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
   fVSync         := f.ReadBool   ('GFX','VSync',true);
+  fAlphaShadows  := f.ReadBool   ('GFX','AlphaShadows',true);
   fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
 
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
@@ -212,6 +216,7 @@ begin
   f.WriteInteger('GFX','Brightness',  fBrightness);
   f.WriteBool   ('GFX','FullScreen',  fFullScreen);
   f.WriteBool   ('GFX','VSync',       fVSync);
+  f.WriteBool   ('GFX','AlphaShadows',fAlphaShadows);
   f.WriteInteger('GFX','ResolutionID',fResolutionID);
 
   f.WriteBool   ('Game','Autosave',   fAutosave);
@@ -288,6 +293,13 @@ end;
 procedure TGlobalSettings.SetFullScreen(aValue:boolean);
 begin
   fFullScreen := aValue;
+  fNeedsSave  := true;
+end;
+
+
+procedure TGlobalSettings.SetAlphaShadows(aValue:boolean);
+begin
+  fAlphaShadows := aValue;
   fNeedsSave  := true;
 end;
 
