@@ -484,7 +484,7 @@ begin
   //#_####a.png - Flag colors areas
   //#_####.txt - Pivot info
 
-  for i:=0 to FileList.Count-1 do
+  for i := 0 to FileList.Count - 1 do
   begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
@@ -618,39 +618,49 @@ end;
 
 //Export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes
 procedure TKMSpritePack.ExportToBMP(const aFolder: string);
-var MyBitMap:TBitmap;
-    id,i,k:integer;
-    sy,sx:integer;
+var
+  Bmp: TBitmap;
+  ID, I, K: Integer;
+  SizeX, SizeY: Integer;
 begin
   ForceDirectories(aFolder);
 
-  MyBitMap := TBitmap.Create;
-  MyBitMap.PixelFormat := pf24bit;
+  Bmp := TBitmap.Create;
+  Bmp.PixelFormat := pf24bit;
 
-  for id:=1 to RXData[fRT].Qty do
-  if RXData[fRT].Flag[id] = 1 then
+  for ID:=1 to RXData[fRT].Qty do
+  if RXData[fRT].Flag[ID] = 1 then
   begin
-    sx := RXData[fRT].Size[id].X;
-    sy := RXData[fRT].Size[id].Y;
-    MyBitMap.Width  := sx;
-    MyBitMap.Height := sy;
+    SizeX := RXData[fRT].Size[ID].X;
+    SizeY := RXData[fRT].Size[ID].Y;
+    Bmp.Width  := SizeX;
+    Bmp.Height := SizeY;
 
-    for i:=0 to sy-1 do for k:=0 to sx-1 do
-      MyBitMap.Canvas.Pixels[k,i] := RXData[fRT].RGBA[id,i*sx+k] and $FFFFFF; //Drop Alpha value
+    //Export RGB values
+    for I := 0 to SizeY - 1 do
+    for K := 0 to SizeX - 1 do
+      Bmp.Canvas.Pixels[K,I] := RXData[fRT].RGBA[ID, I*SizeX + K] and $FFFFFF;
 
     //Mark pivot location with a dot
-    {k := sx + RXData[RT].Pivot[id].x;
-    i := sy + RXData[RT].Pivot[id].y;
-    if InRange(i, 0, sy-1) and InRange(k, 0, sx-1) then
-      MyBitMap.Canvas.Pixels[k,i] := $FF00FF;}
+    {K := SizeX + RXData[RT].Pivot[ID].x;
+    I := SizeY + RXData[RT].Pivot[ID].y;
+    if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
+      Bmp.Canvas.Pixels[K,I] := $FF00FF;}
 
-    if sy > 0 then
-      MyBitMap.SaveToFile(aFolder + int2fix(ID, 4) + '.bmp');
+    Bmp.SaveToFile(aFolder + int2fix(ID, 4) + '.bmp');
 
-    SetLength(RXData[fRT].Data[id], 0);
+    //Export Flag values
+    if RXData[fRT].HasMask[ID] then
+    begin
+      for I := 0 to SizeY - 1 do
+      for K := 0 to SizeX - 1 do
+        Bmp.Canvas.Pixels[K,I] := RXData[fRT].Mask[ID, I*SizeX + K] * 65793;
+
+      Bmp.SaveToFile(aFolder + int2fix(ID, 4) + 'a.bmp');
+    end;
   end;
 
-  MyBitMap.Free;
+  Bmp.Free;
 end;
 
 
@@ -830,11 +840,14 @@ begin
     SetLength(TD,WidthPOT*HeightPOT+1);
     SetLength(TA,WidthPOT*HeightPOT+1);
 
-    for i:=0 to HeightPOT-1 do begin
-      ci:=0;
-      for j:=LeftIndex to RightIndex do
-        for k:=0 to RXData[aRT].Size[j].X-1 do begin
-          if i<RXData[aRT].Size[j].Y then begin
+    for i := 0 to HeightPOT - 1 do
+    begin
+      ci := 0;
+      for j := LeftIndex to RightIndex do
+        for k := 0 to RXData[aRT].Size[j].X - 1 do
+        begin
+          if i < RXData[aRT].Size[j].Y then
+          begin
             //CopyMemory(TD[(i-1)*WidthPOT+ci-1], RXData[aRT].RGBA[j,(i-1)*RXData[aRT].Size[j].X+k-1], )
             TD[i*WidthPOT+ci] := RXData[aRT].RGBA[j,i*RXData[aRT].Size[j].X+k];
             TA[i*WidthPOT+ci] := (RXData[aRT].Mask[j,i*RXData[aRT].Size[j].X+k] SHL 24) OR $FFFFFF;
