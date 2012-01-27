@@ -526,21 +526,15 @@ var i:integer;
 begin
   Form1.Refresh;
 
-  {if ShowCtrls then Form1.Menu := MainMenu1
-                else Form1.Menu := nil; //Not working as intended yet}
-
-  {$IFDEF WDC} //Lazarus can't operate with ClientSize since it's not a multi-platform property
-  if MainMenu1.Items[0].Visible and not ShowCtrls then //Hiding controls
-    Form1.ClientHeight := Form1.ClientHeight - 20
-  else
-  if not MainMenu1.Items[0].Visible and ShowCtrls then //Showing controls
-    Form1.ClientHeight := Form1.ClientHeight + 20;
-  {$ENDIF}
-
   GroupBox1.Visible  := ShowCtrls;
   StatusBar1.Visible := ShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
     MainMenu1.Items[i-1].Visible := ShowCtrls;
+
+  //For some reason cycling Form.Menu fixes the black bar appearing under the menu upon making it visible.
+  //This is a better workaround than ClientHeight = +20 because it works on Lazarus and high DPI where Menu.Height <> 20.
+  Form1.Menu := nil;
+  Form1.Menu := MainMenu1;
 
   GroupBox1.Enabled  := ShowCtrls;
   StatusBar1.Enabled := ShowCtrls;

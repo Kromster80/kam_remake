@@ -686,7 +686,7 @@ begin
     if InRange(I, 0, SizeY-1) and InRange(K, 0, SizeX-1) then
       Bmp.Canvas.Pixels[K,I] := $FF00FF;}
 
-    Bmp.SaveToFile(aFolder + int2fix(ID, 4) + '.bmp');
+    Bmp.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + '.bmp');
 
     //Export Flag values
     if RXData[fRT].HasMask[ID] then
@@ -695,7 +695,7 @@ begin
       for K := 0 to SizeX - 1 do
         Bmp.Canvas.Pixels[K,I] := RXData[fRT].Mask[ID, I*SizeX + K] * 65793;
 
-      Bmp.SaveToFile(aFolder + int2fix(ID, 4) + 'a.bmp');
+      Bmp.SaveToFile(aFolder + IntToStr(byte(fRT)+1) + '_' + int2fix(ID, 4) + 'a.bmp');
     end;
   end;
 
