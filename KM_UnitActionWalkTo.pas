@@ -129,6 +129,9 @@ begin
   else
     fWalkTo := fTerrain.GetClosestTile(aLocB, aUnit.GetPosition, fPass, False);
 
+  //Walking on roads is preferable, but not esential. Some cases (e.g. citizens going
+  //to home with no road below doorway) it will crash if we strictly enforce it
+  if (fPass = CanWalkRoad) and (fTerrain.GetRoadConnectID(fWalkTo) = 0) then fPass := canWalk;
 
   ExplanationLogCreate;
   Explanation := 'Walk action created';
