@@ -185,7 +185,7 @@ begin
 
   fGlobalSettings   := TGlobalSettings.Create;
   fRenderSetup      := TRenderSetup.Create(RenderHandle, fScreenX, fScreenY, aVSync);
-  fRender           := TRender.Create(fScreenX, fScreenY, fRenderSetup);
+  fRender           := TRender.Create(fRenderSetup);
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.Locale);
   fSoundLib         := TSoundLib.Create(fGlobalSettings.Locale, fGlobalSettings.SoundFXVolume/fGlobalSettings.SlidersMax); //Required for button click sounds

@@ -67,7 +67,7 @@ type
 
     procedure RenderBrightness(Value: Byte);
   public
-    constructor Create(ScreenX,ScreenY: Integer; aSetup: TRenderSetup);
+    constructor Create(aSetup: TRenderSetup);
     destructor Destroy; override;
 
     property RenderList: TRenderList read fRenderList;
@@ -103,7 +103,7 @@ implementation
 uses KM_RenderAux, KM_Terrain, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource, KM_ResourceUnit, KM_ResourceHouse, KM_Units;
 
 
-constructor TRender.Create(ScreenX,ScreenY: Integer; aSetup: TRenderSetup);
+constructor TRender.Create(aSetup: TRenderSetup);
 begin
   Inherited Create;
 

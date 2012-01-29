@@ -1,7 +1,14 @@
 unit KM_MasterServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_Defaults, OverbyteICSURL, KM_HTTPClient;
+uses Classes, SysUtils,
+  {$IFDEF WDC}
+  OverbyteICSURL,
+  {$ENDIF}
+  {$IFDEF FPC}
+  URLUtils, //todo: @Lewin: Please check if it works properly in Lazarus
+  {$ENDIF}
+  KM_Defaults, KM_HTTPClient;
 
 
 type

@@ -447,18 +447,8 @@ begin
 
   M.Write(Integer(NET_ADDRESS_SERVER)); //Make sure constant gets treated as 4byte integer
   M.Write(aRecipient);
-
-  //This part is not intuitive - we need to write result packet length in front
-  //PacketLength := 1;
-  //case NetPacketType[aKind] of
-  //  pfNumber: inc(PacketLength, SizeOf(Integer));
-  //  pfText:   inc(PacketLength, SizeOf(Word) + Length(aText));
-  //end;
-
   M.Write(Integer(0)); //Placeholder for PacketLength
-
   M.Write(Byte(aKind));
-
   case NetPacketType[aKind] of
     pfNumber: M.Write(aMsg);
     pfText:   M.Write(aText);
@@ -466,7 +456,7 @@ begin
 
   //Write PacketLength into header
   M.Seek(8, soFromBeginning);
-  M.Write(M.Size - 12); //PacketLength = Size - Header
+  M.Write(Integer(M.Size - 12)); //PacketLength = Size - Header
 
   if M.Size > MAX_PACKET_SIZE then
   begin
