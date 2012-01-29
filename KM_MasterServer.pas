@@ -2,12 +2,9 @@ unit KM_MasterServer;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  {$IFDEF WDC}
-  OverbyteICSURL,
-  {$ENDIF}
-  {$IFDEF FPC}
-  URLUtils, //todo: @Lewin: Please check if it works properly in Lazarus
-  {$ENDIF}
+  URLUtils, //This is a common URLUtils file used by both Delphi and Lazarus for two reasons:
+            //1. Library specific stuff should all be done in wrappers (e.g. KM_NetServer_Overbyte) so we can easily switch systems.
+            //2. Lazarus' LNet library has broken/incorrectly implemented URLUtils at the moment, so we can't rely on them.
   KM_Defaults, KM_HTTPClient;
 
 

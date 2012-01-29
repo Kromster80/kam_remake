@@ -122,7 +122,9 @@ type
 
 
 implementation
+{$IFDEF Unix}
 uses KM_Utils; //Needed in Linux for FakeGetTickCount
+{$ENDIF}
 
 
 { TKMServerClient }
@@ -441,7 +443,7 @@ end;
 
 //Assemble the packet as [Sender.Recepient.Length.Data]
 procedure TKMNetServer.SendMessage(aRecipient:integer; aKind:TKMessageKind; aMsg:integer; aText:string);
-var i:integer; M:TKMemoryStream; PacketLength:integer;
+var i:integer; M:TKMemoryStream;
 begin
   M := TKMemoryStream.Create;
 

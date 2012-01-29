@@ -3,7 +3,7 @@ unit KM_Resource;
 interface
 uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Classes, Forms, Graphics, Math, SysUtils,
+  Classes, Forms, Graphics, SysUtils,
   KM_CommonEvents, KM_Defaults,
   KM_RenderSetup,
   KM_ResourceCursors,

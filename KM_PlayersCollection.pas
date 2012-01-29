@@ -396,6 +396,7 @@ var
 begin
   for i:=0 to fCount-1 do
   begin
+    SetLength(Enemies[i],0);
     for k:=0 to fCount-1 do
       if (i<>k) and (fPlayerList[i].Alliances[k] = at_Enemy) then
       begin
