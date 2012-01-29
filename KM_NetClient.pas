@@ -23,46 +23,46 @@ uses Classes, SysUtils, KM_NetworkTypes
 }
 type
   TKMNetClient = class;
-  TNotifySenderDataEvent = procedure(aNetClient:TKMNetClient; aSenderIndex:integer; aData:pointer; aLength:cardinal)of object;
+  TNotifySenderDataEvent = procedure(aNetClient: TKMNetClient; aSenderIndex: Integer; aData: Pointer; aLength: Cardinal)of object;
 
   TKMNetClient = class
   private
-    {$IFDEF WDC} fClient:TKMNetClientOverbyte; {$ENDIF}
-    {$IFDEF FPC} fClient:TKMNetClientLNet;     {$ENDIF}
-    fConnected:boolean;
+    {$IFDEF WDC} fClient: TKMNetClientOverbyte; {$ENDIF}
+    {$IFDEF FPC} fClient: TKMNetClientLNet;     {$ENDIF}
+    fConnected: Boolean;
 
-    fBufferSize:cardinal;
-    fBuffer:array of byte;
+    fBufferSize: Cardinal;
+    fBuffer: array of Byte;
 
-    fOnConnectSucceed:TNotifyEvent;
-    fOnConnectFailed:TGetStrProc;
-    fOnForcedDisconnect:TGetStrProc;
-    fOnRecieveData:TNotifySenderDataEvent;
-    fOnStatusMessage:TGetStrProc;
+    fOnConnectSucceed: TNotifyEvent;
+    fOnConnectFailed: TGetStrProc;
+    fOnForcedDisconnect: TGetStrProc;
+    fOnRecieveData: TNotifySenderDataEvent;
+    fOnStatusMessage: TGetStrProc;
     procedure Error(const S: string);
     procedure ConnectSucceed(Sender: TObject);
     procedure ConnectFailed(const S: string);
     procedure ForcedDisconnect(Sender: TObject);
-    procedure RecieveData(aData:pointer; aLength:cardinal);
+    procedure RecieveData(aData:pointer; aLength: Cardinal);
   public
     constructor Create;
     destructor Destroy; override;
 
-    property Connected:boolean read fConnected;
-    function MyIPString:string;
+    property Connected: Boolean read fConnected;
+    function MyIPString: string;
 
-    procedure ConnectTo(const aAddress:string; const aPort:string); //Try to connect to server
-    property OnConnectSucceed:TNotifyEvent write fOnConnectSucceed; //Signal success
-    property OnConnectFailed:TGetStrProc write fOnConnectFailed; //Signal fail and text description
+    procedure ConnectTo(const aAddress: string; const aPort: string); //Try to connect to server
+    property OnConnectSucceed: TNotifyEvent write fOnConnectSucceed; //Signal success
+    property OnConnectFailed: TGetStrProc write fOnConnectFailed; //Signal fail and text description
 
     procedure Disconnect; //Disconnect from server
-    property OnForcedDisconnect:TGetStrProc write fOnForcedDisconnect; //Signal we were forcelly disconnected
+    property OnForcedDisconnect: TGetStrProc write fOnForcedDisconnect; //Signal we were forcelly disconnected
 
     property OnRecieveData:TNotifySenderDataEvent write fOnRecieveData;
-    procedure SendData(aSender,aRecepient:integer; aData:pointer; aLength:cardinal);
+    procedure SendData(aSender, aRecepient: Integer; aData: Pointer; aLength: Cardinal);
     procedure UpdateStateIdle;
 
-    property OnStatusMessage:TGetStrProc write fOnStatusMessage;
+    property OnStatusMessage: TGetStrProc write fOnStatusMessage;
   end;
 
 

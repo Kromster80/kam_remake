@@ -8,22 +8,23 @@ uses Classes, SysUtils
 type
   TKMHTTPClient = class
   private
-    {$IFDEF WDC} fClient:TKMHTTPClientOverbyte; {$ENDIF}
-    {$IFDEF FPC} fClient:TKMHTTPClientLNet;     {$ENDIF}
-    fOnError:TGetStrProc;
-    fOnReceive:TGetStrProc;
+    {$IFDEF WDC} fClient: TKMHTTPClientOverbyte; {$ENDIF}
+    {$IFDEF FPC} fClient: TKMHTTPClientLNet;     {$ENDIF}
+    fOnError: TGetStrProc;
+    fOnReceive: TGetStrProc;
     procedure Error(const S: string);
     procedure GetCompleted(const S: string);
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure GetURL(aURL:string);
+    procedure GetURL(aURL: string);
     procedure UpdateStateIdle;
 
-    property OnError:TGetStrProc write fOnError;
-    property OnReceive:TGetStrProc write fOnReceive;
+    property OnError: TGetStrProc write fOnError;
+    property OnReceive: TGetStrProc write fOnReceive;
   end;
+
 
 implementation
 
@@ -45,7 +46,7 @@ begin
 end;
 
 
-procedure TKMHTTPClient.GetURL(aURL:string);
+procedure TKMHTTPClient.GetURL(aURL: string);
 begin
   fClient.GetURL(aUrl);
 end;

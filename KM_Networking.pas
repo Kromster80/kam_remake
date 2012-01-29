@@ -454,7 +454,7 @@ end;
 
 
 //Clear selection from any map/save
-procedure TKMNetworking.SelectNoMap(aMessage:string);
+procedure TKMNetworking.SelectNoMap(aMessage: string);
 begin
   Assert(IsHost, 'Only host can reset map');
 
@@ -465,7 +465,7 @@ begin
 
   PacketSend(NET_ADDRESS_OTHERS, mk_ResetMap, '', 0);
   fNetPlayers.ResetLocAndReady; //Reset start locations
-  fNetPlayers[fMyIndex].ReadyToStart := true;
+  fNetPlayers[fMyIndex].ReadyToStart := True;
 
   if Assigned(fOnMapName) then fOnMapName(aMessage);
   SendPlayerListAndRefreshPlayersSetup;
@@ -834,7 +834,7 @@ begin
             if Msg <> NET_PROTOCOL_REVISON then
             begin
               Assert(not IsHost);
-              fOnJoinFail(Format(fTextLibrary[TX_MP_MENU_WRONG_VERSION],[NET_PROTOCOL_REVISON,Msg]));
+              fOnJoinFail(Format(fTextLibrary[TX_MP_MENU_WRONG_VERSION], [NET_PROTOCOL_REVISON, Msg]));
               fNetClient.Disconnect;
               exit;
             end;

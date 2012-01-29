@@ -1,7 +1,7 @@
 unit KM_NetServerOverbyte;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, WSocket, WSocketS, WinSock;
+uses Classes, SysUtils, OverbyteIcsWSocket, OverbyteIcsWSocketS, WinSock;
 
 
 { This unit knows nothing about KaM, it's just a puppet in hands of KM_ServerControl,

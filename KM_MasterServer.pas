@@ -1,7 +1,8 @@
 unit KM_MasterServer;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KM_Defaults, URLUtils, KM_HTTPClient;
+uses Classes, SysUtils, KM_Defaults, OverbyteICSURL, KM_HTTPClient;
+
 
 type
   TKMMasterServer = class
@@ -30,6 +31,7 @@ type
 
     property MasterServerAddress: string write fMasterServerAddress;
   end;
+
 
 implementation
 

@@ -18,6 +18,7 @@ uses
   KM_CommonClasses in 'KM_CommonClasses.pas',
   KM_CommonEvents in 'KM_CommonEvents.pas',
   KM_Controls in 'KM_Controls.pas',
+  KM_DedicatedServer in 'KM_DedicatedServer.pas',
   KM_Defaults in 'KM_Defaults.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
   KM_FogOfWar in 'KM_FogOfWar.pas',

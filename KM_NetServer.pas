@@ -445,16 +445,18 @@ var i:integer; M:TKMemoryStream; PacketLength:integer;
 begin
   M := TKMemoryStream.Create;
 
-  M.Write(integer(NET_ADDRESS_SERVER)); //Make sure constant gets treated as 4byte integer
+  M.Write(Integer(NET_ADDRESS_SERVER)); //Make sure constant gets treated as 4byte integer
   M.Write(aRecipient);
 
-  PacketLength := 1;
-  case NetPacketType[aKind] of
-    pfNumber: inc(PacketLength, SizeOf(Integer));
-    pfText:   inc(PacketLength, SizeOf(Word) + Length(aText));
-  end;
+  //This part is not intuitive - we need to write result packet length in front
+  //PacketLength := 1;
+  //case NetPacketType[aKind] of
+  //  pfNumber: inc(PacketLength, SizeOf(Integer));
+  //  pfText:   inc(PacketLength, SizeOf(Word) + Length(aText));
+  //end;
 
-  M.Write(PacketLength);
+  M.Write(Integer(0)); //Placeholder for PacketLength
+
   M.Write(Byte(aKind));
 
   case NetPacketType[aKind] of
@@ -462,10 +464,15 @@ begin
     pfText:   M.Write(aText);
   end;
 
+  //Write PacketLength into header
+  M.Seek(8, soFromBeginning);
+  M.Write(M.Size - 12); //PacketLength = Size - Header
+
   if M.Size > MAX_PACKET_SIZE then
   begin
     Status('Error: Packet over size limit');
-    exit;
+    M.Free;
+    Exit;
   end;
 
   if aRecipient = NET_ADDRESS_ALL then

@@ -1,7 +1,7 @@
 unit KM_NetClientOverbyte;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, WSocket, WinSock;
+uses Classes, SysUtils, OverbyteIcsWSocket, WinSock;
 
 
 { This unit knows nothing about KaM, it's just a puppet in hands of KM_ClientControl,
@@ -49,12 +49,12 @@ end;
 
 destructor TKMNetClientOverbyte.Destroy;
 begin
-  if fSocket<>nil then fSocket.Free;
+  if fSocket <> nil then fSocket.Free;
   Inherited;
 end;
 
 
-function TKMNetClientOverbyte.MyIPString:string;
+function TKMNetClientOverbyte.MyIPString: string;
 begin
   if LocalIPList.Count >= 1 then
     Result := LocalIPList[0] //First address should be ours

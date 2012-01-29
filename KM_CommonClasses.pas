@@ -21,7 +21,7 @@ type
     function Write(const Value:boolean  ): Longint; reintroduce; overload;
     function Write(const Value:word     ): Longint; reintroduce; overload;
     function Write(const Value:shortint ): Longint; reintroduce; overload;
-    procedure WriteAsText(aText:string);
+    procedure WriteAsText(const aText: string);
 
     procedure Read(out Value:string); reintroduce; overload;
     procedure Read(out Value:TKMPointDir); reintroduce; overload;
@@ -186,58 +186,58 @@ end;
 
 { TKMemoryStream }
 procedure TKMemoryStream.Write(const Value:string);
-var i:word;
+var I: Word;
 begin
-  i := length(Value);
-  Inherited Write(i, SizeOf(i));
-  if i=0 then exit;
-  Inherited Write(Value[1], i);
+  I := Length(Value);
+  inherited Write(I, SizeOf(I));
+  if I = 0 then Exit;
+  inherited Write(Pointer(Value)^, I * SizeOf(Char));
 end;
 
 procedure TKMemoryStream.Write(const Value:TKMPointDir);
 begin
   Write(Value.Loc);
-  Inherited Write(Value.Dir, SizeOf(Value.Dir));
+  inherited Write(Value.Dir, SizeOf(Value.Dir));
 end;
 
 
 function TKMemoryStream.Write(const Value:TKMDirection): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:TKMPoint): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:TKMPointF): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:single): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:integer): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:cardinal): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:byte): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:boolean): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:word): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:shortint): Longint;
-begin Result := Inherited Write(Value, SizeOf(Value)); end;
+begin Result := inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.WriteAsText(aText:string);
+procedure TKMemoryStream.WriteAsText(const aText:string);
 begin
   Position := 0;
-  Write(aText[1], length(aText));
+  Write(Pointer(aText)^, Length(aText) * SizeOf(Char));
   Position := 0;
 end;
 
 
-procedure TKMemoryStream.Read(out Value:string);
-var i:word;
+procedure TKMemoryStream.Read(out Value: string);
+var I: Word;
 begin
-  Read(i, SizeOf(i));
-  SetLength(Value, i);
-  if i=0 then exit;
-  Read(Value[1], i);
+  Read(I, SizeOf(I));
+  SetLength(Value, I);
+  if I=0 then exit;
+  Read(Pointer(Value)^, I * SizeOf(Char));
 end;
 
 procedure TKMemoryStream.Read(out Value:TKMPointDir);
@@ -268,7 +268,7 @@ function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
 
-function TKMemoryStream.ReadAsText:string;
+function TKMemoryStream.ReadAsText: string;
 begin
   SetString(Result, PChar(Memory), Size div SizeOf(Char));
 end;
