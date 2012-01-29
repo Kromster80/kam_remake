@@ -455,6 +455,8 @@ begin
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
 
+  UpdateDamage; //House might have been damaged during construction, so show flames when it is built
+
   for i:=1 to 4 do
   begin
     Res := fResource.HouseDat[fHouseType].ResInput[i];
