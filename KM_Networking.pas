@@ -226,7 +226,7 @@ end;
 
 
 //Startup a local server and connect to it as ordinary client
-procedure TKMNetworking.Host(aUserName,aServerName,aPort:string; aAnnounceServer:boolean);
+procedure TKMNetworking.Host(aUserName, aServerName, aPort: string; aAnnounceServer: boolean);
 begin
   fWelcomeMessage := '';
   fIgnorePings := 0; //Accept pings
@@ -234,7 +234,7 @@ begin
 
   fNetServer.OnMessage := fOnTextMessage;
   try
-    fNetServer.Start(aServerName,aPort,aAnnounceServer,false);
+    fNetServer.Start(aServerName, aPort, aAnnounceServer, False);
   except
     on E : Exception do
     begin
@@ -243,6 +243,7 @@ begin
       Exit;
     end;
   end;
+
   Join('127.0.0.1', aPort, aUserName, 0); //Server will assign hosting rights to us as we are the first joiner
 end;
 

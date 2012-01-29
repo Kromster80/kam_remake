@@ -61,21 +61,21 @@ type
 
     procedure MP_Init(Sender: TObject);
     procedure MP_BindEvents;
-    procedure MP_Save_Settings;
+    procedure MP_SaveSettings;
     procedure MP_Update(const aStatus:string; aColor:TColor4; aBusy:boolean);
     procedure MP_ServersUpdateList(Sender: TObject);
     procedure MP_AnnouncementsUpdated(const S: string);
     procedure MP_ServersRefresh(Sender: TObject);
-    procedure MP_ServersSort(aValue: Integer);
+    procedure MP_ServersSort(aIndex: Integer);
     procedure MP_ServersClick(Sender: TObject);
     procedure MP_ServersDoubleClick(Sender: TObject);
-    procedure MP_Host_Click(Sender: TObject);
+    procedure MP_HostClick(Sender: TObject);
     procedure MP_JoinClick(Sender: TObject);
     procedure MP_JoinSuccess(Sender: TObject);
     procedure MP_JoinFail(const aData:string);
     procedure MP_JoinAssignedHost(Sender: TObject);
     procedure MP_HostFail(const aData:string);
-    procedure MP_Back_Click(Sender: TObject);
+    procedure MP_BackClick(Sender: TObject);
 
     procedure Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
     procedure Lobby_GameOptionsChange(Sender: TObject);
@@ -626,8 +626,8 @@ begin
       Edit_MP_ServerPort := TKMEdit.Create(Panel_MPCreateServer, 8, 104, 100, 20, fnt_Grey);
       Button_MP_CreateLAN  := TKMButton.Create(Panel_MPCreateServer,8, 155,286,30,fTextLibrary[TX_MP_MENU_CREATE_LOCAL],fnt_Metal,bsMenu);
       Button_MP_CreateWAN  := TKMButton.Create(Panel_MPCreateServer,8, 195,286,30,fTextLibrary[TX_MP_MENU_CREATE_INTERNET],fnt_Metal,bsMenu);
-      Button_MP_CreateLAN.OnClick := MP_Host_Click;
-      Button_MP_CreateWAN.OnClick := MP_Host_Click;
+      Button_MP_CreateLAN.OnClick := MP_HostClick;
+      Button_MP_CreateWAN.OnClick := MP_HostClick;
 
     //Server list area
     ColList_Servers := TKMColumnListBox.Create(Panel_MultiPlayer,45,300,620,392,fnt_Metal);
@@ -661,7 +661,7 @@ begin
       Button_MP_Join.OnClick := MP_JoinClick;
 
     Button_MP_Back := TKMButton.Create(Panel_MultiPlayer, 45, 700, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_MP_Back.OnClick := MP_Back_Click;
+    Button_MP_Back.OnClick := MP_BackClick;
 end;
 
 
@@ -1273,7 +1273,7 @@ begin
 
   { Lobby }
   if (Sender=Button_MP_Join) or (Sender=Button_MP_CreateLAN) or (Sender=Button_MP_CreateWAN) then begin
-    MP_Save_Settings;
+    MP_SaveSettings;
     Lobby_Reset(Sender);
     MyControls.CtrlFocus := Edit_LobbyPost;
     Panel_Lobby.Show;
@@ -1526,7 +1526,7 @@ procedure TKMMainMenuInterface.MP_BindEvents;
 begin
   fGame.Networking.OnTextMessage  := Lobby_OnMessage;
   fGame.Networking.OnPlayersSetup := Lobby_OnPlayersSetup;
-  fGame.Networking.OnGameOptions := Lobby_OnGameOptions;
+  fGame.Networking.OnGameOptions  := Lobby_OnGameOptions;
   fGame.Networking.OnMapName      := Lobby_OnMapName;
   fGame.Networking.OnPingInfo     := Lobby_OnPingInfo;
   fGame.Networking.OnStartMap     := fGame.StartMultiplayerMap;
@@ -1536,7 +1536,8 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_Save_Settings;
+//Save the Player and IP name so it is not lost inbetween activities
+procedure TKMMainMenuInterface.MP_SaveSettings;
 begin
   fGame.GlobalSettings.ServerName := Edit_MP_ServerName.Text;
   fGame.GlobalSettings.LastPort := Edit_MP_Port.Text;
@@ -1572,32 +1573,31 @@ end;
 //Refresh the display for the list of servers
 procedure TKMMainMenuInterface.MP_ServersUpdateList(Sender: TObject);
 const
-  GameStateTextIDs:array[TMPGameState] of integer = (TX_MP_STATE_NONE,TX_MP_STATE_LOBBY,TX_MP_STATE_LOADING,TX_MP_STATE_GAME);
+  GameStateTextIDs: array [TMPGameState] of Integer = (TX_MP_STATE_NONE, TX_MP_STATE_LOBBY, TX_MP_STATE_LOADING, TX_MP_STATE_GAME);
 var
-  i:integer;
-  DisplayName:string;
-  ServerFound:boolean;
+  I: Integer;
+  DisplayName: string;
+  ServerFound: Boolean;
+  S: TKMServerInfo;
+  R: TKMRoomInfo;
 begin
   ServerFound := False;
   ColList_Servers.Clear;
 
-  //@Krom: Are nested withs acceptable like this? It works well in this case.
-  //@Lewin: They might work well, but the readability is quite poor
-  //I would rather use two more variables R = fGame.Networking.ServerQuery.Rooms[i] and S for Servers
-  //Compiler will optimize and remove them anyway, but we'll get a clearer code
-  for i:=0 to fGame.Networking.ServerQuery.Rooms.Count-1 do
-    with fGame.Networking.ServerQuery.Rooms[i] do
-      with fGame.Networking.ServerQuery.Servers[ServerIndex] do
-      begin
-        ServerFound := True;
-        //Only show # if server has more than 1 room
-        DisplayName := IfThen(OnlyRoom, Name, Name + ' #' + IntToStr(RoomID+1));
-        ColList_Servers.AddItem([DisplayName,fTextLibrary[GameStateTextIDs[GameInfo.GameState]],IntToStr(PlayerCount),IntToStr(Ping)],
-                                [$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,GetPingColor(Ping)], i);
-      end;
+  for I := 0 to fGame.Networking.ServerQuery.Rooms.Count - 1 do
+  begin
+    R := fGame.Networking.ServerQuery.Rooms[I];
+    S := fGame.Networking.ServerQuery.Servers[R.ServerIndex];
+
+    ServerFound := True;
+    //Only show # if Server has more than 1 Room
+    DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
+    ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.PlayerCount), IntToStr(S.Ping)],
+                            [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
+  end;
 
   if not ServerFound then
-    ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS],'','',''],[$FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF],-1);
+    ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS], '', '', ''], [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF], -1);
 end;
 
 
@@ -1608,9 +1608,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_ServersSort(aValue: Integer);
+//Sort the servers list by said column ID
+procedure TKMMainMenuInterface.MP_ServersSort(aIndex: Integer);
 begin
-  case aValue of
+  case aIndex of
     //Sorting by name goes A..Z by default
     0:  if fGame.Networking.ServerQuery.SortMethod = ssmByNameAsc then
           fGame.Networking.ServerQuery.SortMethod := ssmByNameDesc
@@ -1666,14 +1667,14 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_Host_Click(Sender: TObject);
+procedure TKMMainMenuInterface.MP_HostClick(Sender: TObject);
 begin
-  MP_Save_Settings; //Save the player and IP name so it is not lost if something fails
+  MP_SaveSettings; //Save the player and IP name so it is not lost if something fails
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
     MP_Update(fTextLibrary[TX_GAME_ERROR_BLANK_PLAYERNAME],$FF007FFF,false);
     fSoundLib.Play(sfxn_Error2);
-    exit;
+    Exit;
   end;
   SwitchMenuPage(Sender); //Open lobby page
 
@@ -1682,9 +1683,10 @@ begin
   fGame.Networking.Host(Edit_MP_PlayerName.Text, Edit_MP_ServerName.Text, Edit_MP_ServerPort.Text, (Sender = Button_MP_CreateWAN));
 end;
 
+
 procedure TKMMainMenuInterface.MP_JoinClick(Sender: TObject);
 begin
-  MP_Save_Settings; //Save the player and IP name so it is not lost if the connection fails
+  MP_SaveSettings; //Save the player and IP name so it is not lost if the connection fails
 
   if Trim(Edit_MP_PlayerName.Text) = '' then
   begin
@@ -1740,45 +1742,45 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MP_Back_Click(Sender: TObject);
+procedure TKMMainMenuInterface.MP_BackClick(Sender: TObject);
 begin
   fGame.Networking.Disconnect;
-  MP_Save_Settings;
+  MP_SaveSettings;
   SwitchMenuPage(Sender);
 end;
 
 
-procedure TKMMainMenuInterface.MP_HostFail(const aData:string);
+procedure TKMMainMenuInterface.MP_HostFail(const aData: string);
 begin
   fGame.Networking.Disconnect;
   SwitchMenuPage(Button_LobbyBack);
-  MP_Update(aData,$FF007FFF,false);
+  MP_Update(aData, $FF007FFF, False);
   fSoundLib.Play(sfxn_Error2);
 end;
 
 
 //Reset everything to it's defaults depending on users role (Host/Joiner/Reassigned)
-procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage:boolean=false);
-var i:integer;
+procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False);
+var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
 
-  for i:=0 to MAX_PLAYERS-1 do
+  for I := 0 to MAX_PLAYERS - 1 do
   begin
-    Label_LobbyPlayer[i].Caption := '.';
-    Image_LobbyFlag[i].TexID := 0;
-    Label_LobbyPlayer[i].Hide;
-    DropBox_LobbyPlayerSlot[i].Show;
-    DropBox_LobbyPlayerSlot[i].Disable;
-    DropBox_LobbyLoc[i].ItemIndex := 0;
-    DropBox_LobbyLoc[i].Disable;
-    DropBox_LobbyTeam[i].Disable;
-    DropBox_LobbyTeam[i].ItemIndex := 0;
-    DropColorBox_Lobby[i].Disable;
-    DropColorBox_Lobby[i].ColorIndex := 0;
-    DropBox_LobbyPlayerSlot[i].ItemIndex := 0; //Open
-    Button_LobbyKick[i].Disable;
-    Label_LobbyPing[i].Caption := '';
+    Label_LobbyPlayer[I].Caption := '.';
+    Image_LobbyFlag[I].TexID := 0;
+    Label_LobbyPlayer[I].Hide;
+    DropBox_LobbyPlayerSlot[I].Show;
+    DropBox_LobbyPlayerSlot[I].Disable;
+    DropBox_LobbyLoc[I].ItemIndex := 0;
+    DropBox_LobbyLoc[I].Disable;
+    DropBox_LobbyTeam[I].Disable;
+    DropBox_LobbyTeam[I].ItemIndex := 0;
+    DropColorBox_Lobby[I].Disable;
+    DropColorBox_Lobby[I].ColorIndex := 0;
+    DropBox_LobbyPlayerSlot[I].ItemIndex := 0; //Open
+    Button_LobbyKick[I].Disable;
+    Label_LobbyPing[I].Caption := '';
   end;
 
   if not aPreserveMessage then Memo_LobbyPosts.Clear;
@@ -1790,7 +1792,10 @@ begin
   Ratio_LobbyPeacetime.Position := 0; //Default peacetime = 0
 
   Lobby_OnMapName('');
-  if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then begin
+
+  //Setup for Host
+  if (Sender = Button_MP_CreateWAN) or (Sender = Button_MP_CreateLAN) then
+  begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
     Lobby_MapTypeSelect(nil);
@@ -1801,7 +1806,9 @@ begin
     Button_LobbyStart.Disable;
     Ratio_LobbyPeacetime.Enable;
     CheckBox_LobbyHostControl.Enable;
-  end else begin
+  end
+  else //Setup for Joiner
+  begin
     Radio_LobbyMapType.Disable;
     Radio_LobbyMapType.ItemIndex := 0;
     List_Lobby.Hide;
