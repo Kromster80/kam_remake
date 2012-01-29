@@ -1262,11 +1262,14 @@ begin
           else
             fRender.RenderSpriteAlphaTest(RX, ID, AlphaStep, Loc.X, Loc.Y, FOWvalue);
 
-          glBegin(GL_LINES);
-            glColor3f(1,1,0.5);
-            glVertex2f(Loc.X - 1, Ground - 1);
-            glVertex2f(Loc.X - 1 + GFXData[RX, ID].PxWidth/CELL_SIZE_PX, Ground - 1);
-          glEnd;
+          if SHOW_GROUND_LINES then
+          begin
+            glBegin(GL_LINES);
+              glColor3f(1,1,0.5);
+              glVertex2f(Loc.X - 1, Ground - 1);
+              glVertex2f(Loc.X - 1 + GFXData[RX, ID].PxWidth/CELL_SIZE_PX, Ground - 1);
+            glEnd;
+          end;
         end;
         inc(h);
         inc(fStat_Sprites2);
