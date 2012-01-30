@@ -315,6 +315,7 @@ begin
       y2 := Min(y2, J);
     end;
 
+    //todo: Test under Lazarus if x1-x2 on game start causes an RCE
     Inc(x1);
     Inc(y1);
     OffX := x2;
