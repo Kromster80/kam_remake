@@ -75,7 +75,7 @@ type
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
     procedure SetRoads(aList:TKMPointList; aOwner:TPlayerIndex);
     procedure SetField(Loc:TKMPoint; aOwner:TPlayerIndex; aFieldType:TFieldType);
-    procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerIndex; const aFlattenTerrain:boolean=false);
+    procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
     procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerIndex);
 
     procedure RemovePlayer(aPlayer:TPlayerIndex);
@@ -1149,14 +1149,11 @@ begin
         else         AllowBuild := (CanBuild     in Land[P2.Y,P2.X].Passability);
       end;
 
-      //Forbid planning on unrevealed areas
-      AllowBuild := AllowBuild and (MyPlayer.FogOfWar.CheckTileRevelation(P2.X,P2.Y,false) > 0);
-
       //Check surrounding tiles in +/- 1 range for other houses pressence
       if not (CanBuild in Land[P2.Y,P2.X].Passability) then
       for s:=-1 to 1 do for t:=-1 to 1 do
       if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-      if Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House] then
+      if Land[P2.Y+t,P2.X+s].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House] then
       begin
         MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
         AllowBuild := false;
@@ -1411,7 +1408,7 @@ begin
    for i:=-1 to 1 do
      for k:=-1 to 1 do
        if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked,mu_House]) then
+         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked,mu_House]) then
            HousesNearBy := true;
 
    if (TileIsRoadable(Loc))and
@@ -2069,7 +2066,7 @@ end;
 
 
 {Place house plan on terrain and change terrain properties accordingly}
-procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerIndex; const aFlattenTerrain:boolean=false);
+procedure TTerrain.SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
 var i,k,x,y:word; ToFlatten:TKMPointList; HA:THouseArea;
 begin
   if aFlattenTerrain then //We will check aFlattenTerrain only once, otherwise there are compiler warnings
@@ -2077,7 +2074,7 @@ begin
   else
     ToFlatten := nil;
 
-  if aHouseStage in [hs_None, hs_Plan] then
+  if aHouseStage = hs_None then
     SetHouseAreaOwner(Loc, aHouseType, -1)
   else
     SetHouseAreaOwner(Loc, aHouseType, aOwner);
@@ -2094,7 +2091,6 @@ begin
       begin
         case aHouseStage of
           hs_None:        Land[y,x].Markup := mu_None;
-          hs_Plan:        Land[y,x].Markup := mu_HousePlan;
           hs_Fence:       Land[y,x].Markup := mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
           hs_StartBuild:  Land[y,x].Markup := mu_HouseFenceBlocked; //Become unwalkable to Workers
           hs_Built:       begin
@@ -2185,18 +2181,19 @@ end;
 function TTerrain.CanPlaceHouseFromScript(aHouseType: THouseType; Loc:TKMPoint):boolean;
 var i,k,j,l:integer; HA:THouseArea; TestLoc: TKMPoint;
 begin
-  Result := true;
+  Result := True;
   HA := fResource.HouseDat[aHouseType].BuildArea;
+
   for i:=1 to 4 do for k:=1 to 4 do
-    if HA[i,k]<>0 then
+    if HA[i,k] <> 0 then
     begin
-      TestLoc := KMPoint(Loc.X+k-3,Loc.Y+i-4);
-      Result := Result AND TileInMapCoords(TestLoc.X,TestLoc.Y,1); //Inset one tile from map edges
+      TestLoc := KMPoint(Loc.X+k-3, Loc.Y+i-4);
+      Result := Result AND TileInMapCoords(TestLoc.X, TestLoc.Y, 1); //Inset one tile from map edges
       Result := Result AND TileIsWalkable(TestLoc); //Tile must be walkable
 
       //Mines must be on a mountain edge
       if aHouseType = ht_IronMine then
-        Result := Result AND (Land[TestLoc.Y,TestLoc.X].Terrain in [109,166..170]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
+        Result := Result AND (Land[TestLoc.Y,TestLoc.X].Terrain in [109, 166..170]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
       if aHouseType = ht_GoldMine then
         Result := Result AND (Land[TestLoc.Y,TestLoc.X].Terrain in [171..175    ]) and (Land[TestLoc.Y,TestLoc.X].Rotation mod 4 = 0);
 
@@ -2206,10 +2203,10 @@ begin
       for j:=-1 to 1 do
         for l:=-1 to 1 do
           if TileInMapCoords(TestLoc.X+l,TestLoc.Y+j) then
-           if (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked,mu_House]) then
+           if (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House]) then
            begin
              Result := False;
-             exit;
+             Exit;
            end;
     end;
 end;
@@ -2317,25 +2314,26 @@ end;
 procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
   function GetBorderType:TBorderType;
   begin
-    if TileIsCornField(Loc) then Result:=bt_Field
+    if TileIsCornField(Loc) then
+      Result :=  bt_Field
     else
-    if TileIsWineField(Loc) then Result:=bt_Wine
+    if TileIsWineField(Loc) then
+      Result := bt_Wine
     else
-    if Land[Loc.Y,Loc.X].Markup=mu_HousePlan then Result:=bt_HousePlan
+    if Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked] then
+      Result := bt_HouseBuilding
     else
-    if Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_HouseFenceBlocked] then Result:=bt_HouseBuilding
-    else
-    Result:=bt_None;
+      Result := bt_None;
   end;
   function GetBorderEnabled(Loc2:TKMPoint):boolean;
   begin
-    Result:=true;
+    Result := True;
     if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
     if (TileIsCornField(Loc) and TileIsCornField(Loc2))or //Both are Corn
        (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
-      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) or //Both are same mu_House****
+      ((Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) or //Both are same mu_House****
       ((Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked]) and (Land[Loc2.Y,Loc2.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked])) then //Both are either house fence
-      Result:=false;
+      Result := False;
   end;
 begin
  if not TileInMapCoords(Loc.X,Loc.Y) then exit;

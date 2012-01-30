@@ -39,13 +39,14 @@ type
   private
     fPlansCount: Integer;
     fPlans: array of record
-      House: TKMHouse;
+      HouseType: THouseType;
+      Loc: TKMPoint;
       JobStatus: TJobStatus;
-      Worker: TKMUnit;
+      Worker: TKMUnit; //So we can tell Worker if plan is cancelled
     end;
   public
     //Player orders
-    procedure AddPlan(aHouse: TKMHouse);
+    procedure AddPlan(aHouseType: THouseType; aLoc: TKMPoint);
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
 
@@ -54,6 +55,9 @@ type
     procedure GiveTask(aIndex: Integer; aWorker: TKMUnitWorker); //Assign worker to a field
     procedure ReOpenPlan(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure ClosePlan(aIndex: Integer); //Worker has finished the task
+
+    procedure GetBorders(aList: TKMPointDirList; x1,x2,y1,y2: Integer);
+    procedure GetTablets(aList: TKMPointTagList; x1,x2,y1,y2: Integer);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -147,7 +151,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild, KM_UnitActionStay;
+uses KM_Terrain, KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_UnitTaskBuild, KM_UnitActionStay;
 
 
 const
@@ -437,11 +441,9 @@ end;
 
 
 { TKMHousePlanList }
-procedure TKMHousePlanList.AddPlan(aHouse: TKMHouse);
+procedure TKMHousePlanList.AddPlan(aHouseType: THouseType; aLoc: TKMPoint);
 var I: Integer;
 begin
-  Assert(aHouse <> nil);
-
   I := 0;
   while (I < fPlansCount) and (fPlans[I].JobStatus <> js_Empty) do
     Inc(I);
@@ -452,7 +454,8 @@ begin
   if I >= Length(fPlans) then
     SetLength(fPlans, Length(fPlans) + LENGTH_INC);
 
-  fPlans[I].House := aHouse.GetHousePointer;
+  fPlans[I].HouseType := aHouseType;
+  fPlans[I].Loc := aLoc;
   fPlans[I].JobStatus := js_Open;
   fPlans[I].Worker := nil;
 end;
@@ -468,10 +471,10 @@ begin
 
   for I := 0 to fPlansCount - 1 do
     if (fPlans[I].JobStatus = js_Open)
-    and fTerrain.Route_CanBeMade(aWorker.GetPosition, fPlans[I].House.GetPosition, aWorker.GetDesiredPassability, 0, false)
+    and fTerrain.Route_CanBeMade(aWorker.GetPosition, fPlans[I].Loc, aWorker.GetDesiredPassability, 0, false)
     then
     begin
-      NewBid := GetLength(aWorker.GetPosition, fPlans[I].House.GetPosition);
+      NewBid := GetLength(aWorker.GetPosition, fPlans[I].Loc);
       if (Result = -1) or (NewBid < aBid) then
       begin
         Result := I;
@@ -483,7 +486,8 @@ end;
 
 procedure TKMHousePlanList.ClosePlan(aIndex: Integer);
 begin
-  fPlayers.CleanUpHousePointer(fPlans[aIndex].House);
+  fPlans[aIndex].HouseType := ht_None;
+  fPlans[aIndex].Loc       := KMPoint(0,0);
   fPlans[aIndex].JobStatus := js_Empty;
   fPlayers.CleanUpUnitPointer(fPlans[aIndex].Worker);
 end;
@@ -491,7 +495,7 @@ end;
 
 procedure TKMHousePlanList.GiveTask(aIndex: Integer; aWorker: TKMUnitWorker);
 begin
-  aWorker.SetUnitTask := TTaskBuildHouseArea.Create(aWorker, fPlans[aIndex].House, aIndex);
+  aWorker.SetUnitTask := TTaskBuildHouseArea.Create(aWorker, fPlans[aIndex].HouseType, fPlans[aIndex].Loc, aIndex);
 
   fPlans[aIndex].JobStatus := js_Taken;
   fPlans[aIndex].Worker := aWorker.GetUnitPointer;
@@ -502,7 +506,12 @@ function TKMHousePlanList.HasPlan(aLoc: TKMPoint): Boolean;
 var I: Integer;
 begin
   for I := 0 to fPlansCount - 1 do
-  if (fPlans[I].House <> nil) and (fPlans[I].House.HitTest(aLoc.X, aLoc.Y)) then
+  if (fPlans[I].HouseType <> ht_None)
+
+  and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
+       (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
+       (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+  then
   begin
     Result := True;
     Exit;
@@ -515,7 +524,12 @@ procedure TKMHousePlanList.RemPlan(aLoc: TKMPoint);
 var I: Integer;
 begin
   for I := 0 to fPlansCount - 1 do
-  if (fPlans[I].House <> nil) and (fPlans[I].House.HitTest(aLoc.X, aLoc.Y)) then
+  if (fPlans[I].HouseType <> ht_None)
+
+  and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
+       (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
+       (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+  then
   begin
     if fPlans[I].Worker <> nil then
       fPlans[I].Worker.CancelUnitTask;
@@ -533,6 +547,51 @@ begin
 end;
 
 
+procedure TKMHousePlanList.GetBorders(aList: TKMPointDirList; x1, x2, y1, y2: Integer);
+const Ins = 2;
+var
+  I,J,K: Integer;
+  HA: THouseArea;
+begin
+  for I := 0 to fPlansCount - 1 do
+  if (fPlans[I].HouseType <> ht_None)
+     and InRange(fPlans[I].Loc.X - 2, x1-Ins, x2+Ins)
+     and InRange(fPlans[I].Loc.Y - 2, y1-Ins, y2+Ins) then
+  begin
+    HA := fResource.HouseDat[fPlans[I].HouseType].BuildArea;
+
+    for J:=1 to 4 do for K:=1 to 4 do
+    if HA[J,K] <> 0 then
+    begin
+      if (J = 1) or (HA[J-1, K] = 0) then
+        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
+
+      if (K = 1) or (HA[J, K-1] = 0) then
+        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
+
+      if (J = 4) or (HA[J+1, K] = 0) then
+        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
+
+      if (K = 4) or (HA[J, K+1] = 0) then
+        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
+    end;
+  end;
+end;
+
+
+procedure TKMHousePlanList.GetTablets(aList: TKMPointTagList; x1, x2, y1, y2: Integer);
+const Ins = 2;
+var
+  I: Integer;
+begin
+  for I := 0 to fPlansCount - 1 do
+  if (fPlans[I].HouseType <> ht_None)
+     and InRange(fPlans[I].Loc.X - 2, x1-Ins, x2+Ins)
+     and InRange(fPlans[I].Loc.Y - 2, y1-Ins, y2+Ins) then
+    aList.AddEntry(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType), 0);
+end;
+
+
 procedure TKMHousePlanList.Save(SaveStream: TKMemoryStream);
 var
   I: Integer;
@@ -543,10 +602,8 @@ begin
   for I := 0 to fPlansCount - 1 do
   with fPlans[I] do
   begin
-    if House <> nil then
-      SaveStream.Write(House.ID)
-    else
-      SaveStream.Write(Integer(0));
+    SaveStream.Write(HouseType, SizeOf(HouseType));
+    SaveStream.Write(Loc);
     SaveStream.Write(JobStatus, SizeOf(JobStatus));
     if Worker <> nil then
       SaveStream.Write(Worker.ID)
@@ -567,7 +624,8 @@ begin
   for I := 0 to fPlansCount - 1 do
   with fPlans[I] do
   begin
-    LoadStream.Read(House, 4);
+    LoadStream.Read(HouseType, SizeOf(HouseType));
+    LoadStream.Read(Loc);
     LoadStream.Read(JobStatus, SizeOf(JobStatus));
     LoadStream.Read(Worker, 4);
   end;
@@ -579,10 +637,7 @@ var
   I: Integer;
 begin
   for I := 0 to fPlansCount - 1 do
-  begin
-    fPlans[I].House := fPlayers.GetHouseByID(Cardinal(fPlans[I].House));
     fPlans[I].Worker := fPlayers.GetUnitByID(Cardinal(fPlans[I].Worker));
-  end;
 end;
 
 

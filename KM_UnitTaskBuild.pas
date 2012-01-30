@@ -1,7 +1,7 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses SysUtils, KM_CommonClasses, KM_Houses, KM_Units, KM_Points;
+uses SysUtils, KM_CommonClasses, KM_Houses, KM_Defaults, KM_Units, KM_Points;
 
 {Perform building}
 type
@@ -65,19 +65,21 @@ type
 
   TTaskBuildHouseArea = class(TUnitTask)
     private
-      fHouse:TKMHouse;
-      BuildID:integer;
+      fHouse: TKMHouse;
+      fHouseType: THouseType;
+      fHouseLoc: TKMPoint;
+      BuildID: Integer;
       HouseNeedsWorker: Boolean;
       HouseReadyToBuild: Boolean;
-      Step:byte;
-      Cells:array[1..4*4]of TKMPoint;
+      Step: Byte;
+      Cells: array[1..4*4]of TKMPoint;
     public
-      constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-      constructor Load(LoadStream:TKMemoryStream); override;
+      constructor Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
+      constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
-      function Execute:TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
+      function Execute: TTaskResult; override;
+      procedure Save(SaveStream: TKMemoryStream); override;
     end;
 
   TTaskBuildHouse = class(TUnitTask)
@@ -114,7 +116,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_Resource, KM_ResourceHouse;
+uses KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_Resource, KM_ResourceHouse;
 
 
 { TTaskBuildRoad }
@@ -561,25 +563,27 @@ end;
 
 
 { TTaskBuildHouseArea }
-constructor TTaskBuildHouseArea.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+constructor TTaskBuildHouseArea.Create(aWorker: TKMUnitWorker; aHouseType: THouseType; aLoc: TKMPoint; aID:integer);
 var
   i,k:integer;
-  HA:THouseArea;
+  HA: THouseArea;
 begin
   inherited Create(aWorker);
-  fTaskName := utn_BuildHouseArea;
-  fHouse    := aHouse.GetHousePointer;
-  BuildID   := aID;
-  HouseNeedsWorker := False; //House needs this worker to complete
+  fTaskName  := utn_BuildHouseArea;
+  fHouseType := aHouseType;
+  fHouseLoc  := aLoc;
+  BuildID    := aID;
+  HouseNeedsWorker  := False; //House needs this worker to complete
   HouseReadyToBuild := False; //House is ready to be built
-  Step      := 0;
+  Step       := 0;
 
-  HA := fResource.HouseDat[fHouse.HouseType].BuildArea;
+  HA := fResource.HouseDat[fHouseType].BuildArea;
   //Fill Cells left->right, top->bottom. Worker will start flattening from the end (reversed)
   for i := 1 to 4 do for k := 1 to 4 do
-  if HA[i,k] <> 0 then begin
+  if HA[i,k] <> 0 then
+  begin
     inc(Step);
-    Cells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
+    Cells[Step] := KMPoint(fHouseLoc.X + k - 3, fHouseLoc.Y + i - 4);
   end;
 end;
 
@@ -589,6 +593,8 @@ var i:integer;
 begin
   inherited;
   LoadStream.Read(fHouse, 4);
+  LoadStream.Read(fHouseType, SizeOf(fHouseType));
+  LoadStream.Read(fHouseLoc);
   LoadStream.Read(BuildID);
   LoadStream.Read(HouseNeedsWorker);
   LoadStream.Read(HouseReadyToBuild);
@@ -609,22 +615,22 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   //Allow other workers to take this task
-  if (BuildID <> 0) and not HouseNeedsWorker and not fHouse.IsDestroyed then
-    fPlayers.Player[fHouse.GetOwner].BuildList.HousePlanList.ReOpenPlan(BuildID);
+  if (BuildID <> 0) then
+    fPlayers.Player[fUnit.GetOwner].BuildList.HousePlanList.ReOpenPlan(BuildID);
 
   //Destroy the house if worker was killed (e.g. by archer or hunger)
   //as we don't have mechanics to resume the building process yet
   if HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
-    fPlayers.Player[fHouse.GetOwner].RemHouse(fHouse.GetPosition, True);
+    fPlayers.Player[fUnit.GetOwner].RemHouse(fHouseLoc, True);
 
   //Complete the task in the end (Worker could have died while trying to exit building area)
   if HouseReadyToBuild and not HouseNeedsWorker and (fHouse <> nil) and not fHouse.IsDestroyed then
   begin
     fHouse.BuildingState := hbs_Wood;
     fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_StartBuild, fUnit.GetOwner);
-    fPlayers.Player[fHouse.GetOwner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
-    fPlayers.Player[fHouse.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
-    fPlayers.Player[fHouse.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
+    fPlayers.Player[fUnit.GetOwner].BuildList.HouseList.AddHouse(fHouse); //Add the house to JobList, so then all workers could take it
+    fPlayers.Player[fUnit.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.HouseType].WoodCost, dt_Once, di_High);
+    fPlayers.Player[fUnit.GetOwner].DeliverList.AddDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.HouseType].StoneCost, dt_Once, di_High);
   end;
 
   fPlayers.CleanUpHousePointer(fHouse);
@@ -633,12 +639,12 @@ end;
 
 
 {Prepare building site - flatten terrain}
-function TTaskBuildHouseArea.Execute:TTaskResult;
+function TTaskBuildHouseArea.Execute: TTaskResult;
 var OutOfWay: TKMPoint;
 begin
   Result := TaskContinues;
 
-  if fHouse.IsDestroyed then
+  if (fHouse <> nil) and fHouse.IsDestroyed then
   begin
     Result := TaskDone;
     fUnit.Thought := th_None;
@@ -648,16 +654,18 @@ begin
   with fUnit do
   case fPhase of
     0:  begin
-          SetActionWalkToSpot(fHouse.GetEntrance);
+          SetActionWalkToSpot(KMPoint(fHouseLoc.X + fResource.HouseDat[fHouseType].EntranceOffsetX, fHouseLoc.Y));
           Thought := th_Build;
         end;
     1:  begin
           fPlayers.Player[GetOwner].BuildList.HousePlanList.ClosePlan(BuildID);
           BuildID := 0; //Other workers can't take this task from now on
-          fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Fence, GetOwner);
+          Assert(fHouse = nil);
+          fPlayers.Player[GetOwner].AddHouseWIP(fHouseType, fHouseLoc, fHouse);
+          fHouse := fHouse.GetHousePointer; //We need to register a pointer to the house
+          Assert(fHouse <> nil);
           HouseNeedsWorker := True; //The house placed on the map, if something happens with Worker the house will be removed
-          fHouse.BuildingState := hbs_NoGlyph;
-          SetActionLockedStay(2,ua_Walk);
+          SetActionLockedStay(2, ua_Walk);
           Thought := th_None;
         end;
     2:  SetActionWalkToSpot(Cells[Step]);
@@ -676,7 +684,6 @@ begin
           SetActionLockedStay(11,ua_Work1,false);
           fTerrain.FlattenTerrain(Cells[Step]);
           fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
-          if not fHouse.IsDestroyed then
           if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
             fTerrain.SetRoad(fHouse.GetEntrance, GetOwner);
           fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj := 255; //All objects are removed
@@ -711,6 +718,8 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Integer(0));
+  SaveStream.Write(fHouseType, SizeOf(fHouseType));
+  SaveStream.Write(fHouseLoc);
   SaveStream.Write(BuildID);
   SaveStream.Write(HouseNeedsWorker);
   SaveStream.Write(HouseReadyToBuild);

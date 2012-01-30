@@ -284,7 +284,7 @@ type
     property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; //Use instead of Items[.]
   public
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; RelativeEntrance:boolean):TKMHouse;
-    function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
+    function AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
     procedure RemoveHouse(aHouse:TKMHouse);
     procedure OwnerUpdate(aOwner:TPlayerIndex);
     function HitTest(X, Y: Integer): TKMHouse;
@@ -313,7 +313,7 @@ uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Terrain, KM_Render, KM_RenderAux,
 constructor TKMHouse.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
 var i: byte;
 begin
-  Inherited Create;
+  inherited Create;
   fPosition   := KMPoint (PosX, PosY);
   Assert(not((PosX = 0) or (PosY = 0))); // Can create only on map
   fHouseType  := aHouseType;
@@ -350,18 +350,18 @@ begin
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
   begin 
-    Activate(false);
+    Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
   end else
-    fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, -1); //Terrain remains neutral yet
+    fTerrain.SetHouse(fPosition, fHouseType, hs_Fence, fOwner); //Terrain remains neutral yet
 end;
 
 
 constructor TKMHouse.Load(LoadStream:TKMemoryStream);
 var i:integer; HasAct:boolean;
 begin
-  Inherited Create;
+  inherited Create;
   LoadStream.Read(fHouseType, SizeOf(fHouseType));
   LoadStream.Read(fPosition);
   LoadStream.Read(fBuildState, SizeOf(fBuildState));
@@ -406,7 +406,7 @@ end;
 destructor TKMHouse.Destroy;
 begin
   FreeAndNil(fCurrentAction);
-  Inherited;
+  inherited;
 end;
 
 
@@ -482,7 +482,7 @@ begin
   if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.ShownHouse = Self) then fGame.fGamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
-    if (BuildingState <> hbs_Glyph) and not NoRubble then
+    if not NoRubble then
       fSoundLib.Play(sfx_HouseDestroy, fPosition);
       
   //Dispose of delivery tasks performed in DeliverQueue unit
@@ -1102,7 +1102,6 @@ end;
 procedure TKMHouse.Paint;
 begin
   case fBuildState of
-    hbs_Glyph:  fRender.AddHouseTablet(fHouseType, GetEntrance);
     hbs_NoGlyph:; //Nothing
     hbs_Wood:   begin
                   fRender.AddHouseWood(fHouseType,
@@ -1137,7 +1136,7 @@ end;
 {TKMHouseSwineStable}
 constructor TKMHouseSwineStable.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(BeastAge, SizeOf(BeastAge));
 end;
 
@@ -1165,7 +1164,7 @@ end;
 procedure TKMHouseSwineStable.MakeSound;
 var i:byte;
 begin
-  Inherited;
+  inherited;
   if MyPlayer.FogOfWar.CheckTileRevelation(fPosition.X, fPosition.Y, true) < 255 then exit;
   for i:=0 to 4 do
     if BeastAge[i+1]>0 then
@@ -1181,7 +1180,7 @@ end;
 
 procedure TKMHouseSwineStable.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(BeastAge, SizeOf(BeastAge));
 end;
 
@@ -1189,7 +1188,7 @@ end;
 procedure TKMHouseSwineStable.Paint;
 var i:integer;
 begin
-  Inherited;
+  inherited;
   //We render beasts on top of the HouseWork (which is mostly flames in this case), because otherwise
   //Swinefarm looks okay, but Stables are totaly wrong - flames are right on horses backs!
   if fBuildState=hbs_Done then
@@ -1209,7 +1208,7 @@ end;
 constructor TKMHouseInn.Create(aHouseType: THouseType; PosX, PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 var i:integer;
 begin
-  Inherited;
+  inherited;
 
   for i:=Low(Eater) to High(Eater) do
     Eater[i].UnitType := ut_None;
@@ -1218,7 +1217,7 @@ end;
 
 constructor TKMHouseInn.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(Eater, SizeOf(Eater));
 end;
 
@@ -1274,7 +1273,7 @@ end;
 
 procedure TKMHouseInn.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(Eater, SizeOf(Eater));
 end;
 
@@ -1298,7 +1297,7 @@ var
   i: Integer;
   AnimStep: Cardinal;
 begin
-  Inherited;
+  inherited;
   if fBuildState <> hbs_Done then exit;
 
   for i := Low(Eater) to High(Eater) do
@@ -1562,7 +1561,7 @@ procedure TKMHouseMarket.Paint;
 
 var ResType: TResourceType; ResCount: word;
 begin
-  Inherited;
+  inherited;
   //Render special market wares display
   if fBuildState = hbs_Done then
     if GetInResource(ResType, ResCount) then
@@ -1574,7 +1573,7 @@ end;
 constructor TKMHouseSchool.Create(aHouseType: THouseType; PosX, PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 var i:integer;
 begin
-  Inherited;
+  inherited;
 
   for i:=Low(UnitQueue) to High(UnitQueue) do
     UnitQueue[i] := ut_None;
@@ -1583,7 +1582,7 @@ end;
 
 constructor TKMHouseSchool.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(UnitWIP, 4);
   LoadStream.Read(fHideOneGold);
   LoadStream.Read(UnitTrainProgress);
@@ -1603,14 +1602,14 @@ var i:integer;
 begin
   for i:=2 to length(UnitQueue) do UnitQueue[i]:=ut_None;
   RemUnitFromQueue(1); //Remove WIP unit
-  Inherited;
+  inherited;
 end;
 
 
 //Add resource as usual and initiate unit training
 procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:word=1; aFromScript:boolean=false);
 begin
-  Inherited;
+  inherited;
 
   if UnitWIP = nil then
     StartTrainingUnit;
@@ -1703,7 +1702,7 @@ end;
 
 procedure TKMHouseSchool.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   if TKMUnit(UnitWIP) <> nil then
     SaveStream.Write(TKMUnit(UnitWIP).ID) //Store ID, then substitute it with reference on SyncLoad
   else
@@ -1718,7 +1717,7 @@ end;
 procedure TKMHouseStore.Activate(aWasBuilt:boolean);
 var FirstStore: TKMHouseStore; w:TResourceType;
 begin
-  Inherited;
+  inherited;
   //A new storehouse should inherrit the accept properies of the first storehouse of that player,
   //which stops a sudden flow of unwanted resources to it as soon as it is create.
   FirstStore := TKMHouseStore(fPlayers[fOwner].FindHouse(ht_Store,1));
@@ -1730,7 +1729,7 @@ end;
 
 constructor TKMHouseStore.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
   LoadStream.Read(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
@@ -1805,7 +1804,7 @@ end;
 
 procedure TKMHouseStore.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
   SaveStream.Write(NotAcceptFlag, SizeOf(NotAcceptFlag));
 end;
@@ -1814,7 +1813,7 @@ end;
 { TKMHouseBarracks }
 constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerIndex; aBuildState:THouseBuildState);
 begin
-  Inherited;
+  inherited;
   RecruitsList := TList.Create;
 end;
 
@@ -1822,7 +1821,7 @@ end;
 constructor TKMHouseBarracks.Load(LoadStream:TKMemoryStream);
 var i,aCount:integer; U:TKMUnit;
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(ResourceCount, SizeOf(ResourceCount));
   RecruitsList := TList.Create;
   LoadStream.Read(aCount);
@@ -1846,7 +1845,7 @@ end;
 destructor TKMHouseBarracks.Destroy;
 begin
   RecruitsList.Free;
-  Inherited;
+  inherited;
 end;
 
 
@@ -1925,7 +1924,7 @@ end;
 procedure TKMHouseBarracks.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(ResourceCount, SizeOf(ResourceCount));
   SaveStream.Write(RecruitsList.Count);
   for i:=1 to RecruitsList.Count do
@@ -1936,21 +1935,21 @@ end;
 { TKMHouseWoodcutters }
 constructor TKMHouseWoodcutters.Create(aHouseType: THouseType; PosX, PosY: integer; aOwner: TPlayerIndex; aBuildState: THouseBuildState);
 begin
-  Inherited;
+  inherited;
   WoodcutterMode := wcm_ChopAndPlant;
 end;
 
 
 constructor TKMHouseWoodcutters.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   LoadStream.Read(WoodcutterMode, SizeOf(WoodcutterMode));
 end;
 
 
 procedure TKMHouseWoodcutters.Save(SaveStream:TKMemoryStream);
 begin
-  Inherited;
+  inherited;
   SaveStream.Write(WoodcutterMode, SizeOf(WoodcutterMode));
 end;
 
@@ -1958,7 +1957,7 @@ end;
 { THouseAction }
 constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState);
 begin
-  Inherited Create;
+  inherited Create;
   fHouse := aHouse;
   SetHouseState(aHouseState);
 end;
@@ -2020,7 +2019,7 @@ end;
 procedure TKMHouseTower.Paint;
 var i,k:integer;
 begin
-  Inherited;
+  inherited;
 
   if SHOW_ATTACK_RADIUS then
     for i:=-round(RANGE_WATCHTOWER_MAX)-1 to round(RANGE_WATCHTOWER_MAX) do
@@ -2033,19 +2032,19 @@ end;
 
 { TKMHousesCollection }
 function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint; aHBS:THouseBuildState):TKMHouse;
-var I:integer;
+var I: Integer;
 begin
   case aHouseType of
-    ht_Swine:       I := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Stables:     I := Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Inn:         I := Inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Marketplace: I := Inherited Add(TKMHouseMarket.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_School:      I := Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Barracks:    I := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Store:       I := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_WatchTower:  I := Inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    ht_Woodcutters: I := Inherited Add(TKMHouseWoodcutters.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-    else            I := Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Swine:       I := inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Stables:     I := inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Inn:         I := inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Marketplace: I := inherited Add(TKMHouseMarket.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_School:      I := inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Barracks:    I := inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Store:       I := inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_WatchTower:  I := inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_Woodcutters: I := inherited Add(TKMHouseWoodcutters.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    else            I := inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   end;
 
   if I = -1 then
@@ -2077,9 +2076,9 @@ end;
 
 
 {Add a plan for house}
-function TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
+function TKMHousesCollection.AddHouseWIP(aHouseType: THouseType; PosX,PosY:integer; aOwner: shortint):TKMHouse;
 begin
-  Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_Glyph);
+  Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_NoGlyph);
 end;
 
 
@@ -2228,16 +2227,16 @@ begin
   begin
     LoadStream.Read(HouseType, SizeOf(HouseType));
     case HouseType of
-      ht_Swine:       Inherited Add(TKMHouseSwineStable.Load(LoadStream));
-      ht_Stables:     Inherited Add(TKMHouseSwineStable.Load(LoadStream));
-      ht_Inn:         Inherited Add(TKMHouseInn.Load(LoadStream));
-      ht_Marketplace: Inherited Add(TKMHouseMarket.Load(LoadStream));
-      ht_School:      Inherited Add(TKMHouseSchool.Load(LoadStream));
-      ht_Barracks:    Inherited Add(TKMHouseBarracks.Load(LoadStream));
-      ht_Store:       Inherited Add(TKMHouseStore.Load(LoadStream));
-      ht_WatchTower:  Inherited Add(TKMHouseTower.Load(LoadStream));
-      ht_Woodcutters: Inherited Add(TKMHouseWoodcutters.Load(LoadStream));
-      else            Inherited Add(TKMHouse.Load(LoadStream));
+      ht_Swine:       inherited Add(TKMHouseSwineStable.Load(LoadStream));
+      ht_Stables:     inherited Add(TKMHouseSwineStable.Load(LoadStream));
+      ht_Inn:         inherited Add(TKMHouseInn.Load(LoadStream));
+      ht_Marketplace: inherited Add(TKMHouseMarket.Load(LoadStream));
+      ht_School:      inherited Add(TKMHouseSchool.Load(LoadStream));
+      ht_Barracks:    inherited Add(TKMHouseBarracks.Load(LoadStream));
+      ht_Store:       inherited Add(TKMHouseStore.Load(LoadStream));
+      ht_WatchTower:  inherited Add(TKMHouseTower.Load(LoadStream));
+      ht_Woodcutters: inherited Add(TKMHouseWoodcutters.Load(LoadStream));
+      else            inherited Add(TKMHouse.Load(LoadStream));
     end;
   end;
 end;

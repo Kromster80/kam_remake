@@ -108,7 +108,6 @@ const
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
-  SAVEGAME_COUNT    = 10;   //Savegame slots available in game menu
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 const //Here we store options that are hidden somewhere in code
@@ -185,7 +184,7 @@ const
   ('cze', '1250',  '9',  'Czech'),
   ('dut', '1252',  '15', 'Dutch'),
   ('eng', '1252',  '5',  'English'),
-  ('est', '1252',  '19',  'Estonian'),
+  ('est', '1252',  '19', 'Estonian'),
   ('fre', '1252',  '11', 'French'),
   ('ger', '1252',  '6',  'German'),
   ('hun', '1250',  '17', 'Hungarian'),
@@ -257,7 +256,7 @@ const WARE_MIN = rt_Trunk;
       WARFARE_MAX = rt_Horse;
 
 const //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern:array[WARE_MIN..WARE_MAX]of byte = (
+  CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (
   0,0,1,0,0,
   0,1,0,1,0,
   1,0,0,0,1,
@@ -266,7 +265,7 @@ const //Using shortints instead of bools makes it look much neater in code-view
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts:array[WEAPON_MIN..WEAPON_MAX,1..2]of TResourceType = (
+  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX,1..2]of TResourceType = (
     (rt_None,rt_Wood),    //rt_Shield
     (rt_Coal,rt_Steel),   //rt_MetalShield
     (rt_None,rt_Leather), //rt_Armor
@@ -479,7 +478,7 @@ type
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = (hst_Empty, hst_Idle, hst_Work);
   //These are house building states
-  THouseBuildState = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
+  THouseBuildState = (hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
 
   THouseActionType = (
   ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5, //Start, InProgress, .., .., Finish
@@ -536,7 +535,6 @@ type
 
   THouseStage = (
     hs_None, //Nothing, clear area
-    hs_Plan, //Rope plan
     hs_Fence,//Wooden fence, partially walkable
     hs_StartBuild, //Entering Wood stage, no longer walkable
     hs_Built //Done
@@ -546,7 +544,6 @@ type
 
   TMarkup = (
         mu_None=0,              //Nothing
-        mu_HousePlan,           //Rope outline of house area, walkable
         mu_HouseFenceCanWalk,   //Wooden fence outline of house area, undigged and walkable
         mu_HouseFenceNoWalk,    //Wooden fence outline of house area, digged and non-walkable
         mu_HouseFenceBlocked,   //Wooden fence outline of house area, digged and non-walkable to Workers

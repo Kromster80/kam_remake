@@ -382,6 +382,8 @@ procedure TRender.RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
 var
   i,k:integer;
   F: TFieldType;
+  BordersList: TKMPointDirList;
+  TabletsList: TKMPointTagList;
 begin
   for i:=y1 to y2 do
   for k:=x1 to x2 do
@@ -396,6 +398,18 @@ begin
     if F <> ft_None then
       RenderTerrainMarkup(k, i, F);
   end;
+
+  BordersList := TKMPointDirList.Create;
+  MyPlayer.BuildList.HousePlanList.GetBorders(BordersList, x1,x2,y1,y2);
+  for i:=1 to BordersList.Count do
+    RenderTerrainBorder(bt_HousePlan, BordersList.List[i].Dir, BordersList.List[i].Loc.X, BordersList.List[i].Loc.Y);
+  BordersList.Free;
+
+  TabletsList := TKMPointTagList.Create;
+  MyPlayer.BuildList.HousePlanList.GetTablets(TabletsList, x1,x2,y1,y2);
+  for i := 1 to TabletsList.Count do
+    fRender.AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList.List[i]);
+  TabletsList.Free;
 end;
 
 
@@ -1045,7 +1059,7 @@ procedure TRender.RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
 var i:integer; MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
-  fTerrain.GetHouseMarks(P, aHouseType, MarksList);
+  MyPlayer.GetHouseMarks(P, aHouseType, MarksList);
 
   for i:=1 to MarksList.Count do
   if MarksList.Tag[i] = 0 then
@@ -1100,6 +1114,7 @@ begin
                   gsPaused, gsOnHold, gsRunning:
                     begin
                       if ((MyPlayer.BuildList.FieldworksList.HasField(GameCursor.Cell) <> ft_None)
+                          or MyPlayer.BuildList.HousePlanList.HasPlan(GameCursor.Cell)
                           or (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y) <> nil))
                       and TileVisible then
                         RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad

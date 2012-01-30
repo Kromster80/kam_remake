@@ -38,7 +38,7 @@ type
     function GetRemakeString(aIndex:word):AnsiString;
     function GetTexts(aIndex:word):AnsiString;
   public
-    constructor Create(aLibPath, aLocale: AnsiString);
+    constructor Create(aLibPath: string; aLocale: AnsiString);
     function GetTextString(aIndex:word):AnsiString;
     function GetSetupString(aIndex:word):AnsiString;
     property Texts[aIndex:word]:AnsiString read GetTexts; default;
@@ -55,7 +55,7 @@ uses KM_Log;
 
 
 { TTextLibrary }
-constructor TTextLibrary.Create(aLibPath,aLocale: AnsiString);
+constructor TTextLibrary.Create(aLibPath: string; aLocale: AnsiString);
 begin
   Inherited Create;
 

@@ -22,7 +22,7 @@ type
     property PlayerIndex: TPlayerIndex read fPlayerIndex;
     property Units: TKMUnitsCollection read fUnits;
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit; 
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
@@ -45,7 +45,7 @@ type
     fStats:TKMPlayerStats;
     fGoals:TKMGoals;
     fFogOfWar:TKMFogOfWar; //Stores FOW info for current player, which includes
-    fArmyEval:TKMArmyEvaluation; // Can used by all players 
+    fArmyEval:TKMArmyEvaluation; // Can used by all players
 
     fPlayerName: string;
     fPlayerType:TPlayerType;
@@ -100,6 +100,7 @@ type
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
+    procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
     procedure RemHouse(Position: TKMPoint; DoSilent:boolean; IsEditor:boolean=false);
     procedure RemHousePlan(Position: TKMPoint);
     procedure RemFieldPlan(Position: TKMPoint);
@@ -107,6 +108,7 @@ type
     function FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; Index:byte=1): TKMHouse; overload;
     function HousesHitTest(X, Y: Integer): TKMHouse;
+    procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
 
@@ -126,7 +128,7 @@ type
 
 
 implementation
-uses KM_Terrain, KM_Sound, KM_PlayersCollection, KM_Resource, KM_Units_Warrior;
+uses KM_Terrain, KM_Sound, KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Units_Warrior;
 
 
 { TKMPlayerCommon }
@@ -226,7 +228,7 @@ begin
 end;
 
 
-//Destruction order is important as Houses and Units need to access 
+//Destruction order is important as Houses and Units need to access
 //Stats/Deliveries and other collection in their Destroy/Abandon/Demolish methods
 destructor TKMPlayer.Destroy;
 begin
@@ -405,15 +407,20 @@ end;
 procedure TKMPlayer.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
 var
   Loc: TKMPoint;
-  KMHouse: TKMHouse;
 begin
   Loc.X := aLoc.X - fResource.HouseDat[aHouseType].EntranceOffsetX;
   Loc.Y := aLoc.Y;
-  KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerIndex);
-  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerIndex); //todo: Move to TaskBuildHouseArea
-  fStats.HouseStarted(aHouseType);
-  fBuildList.HousePlanList.AddPlan(KMHouse);
+
+  fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
   if Self = MyPlayer then fSoundLib.Play(sfx_placemarker);
+end;
+
+
+procedure TKMPlayer.AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
+begin
+  House := fHouses.AddHouseWIP(aHouseType, aLoc.X, aLoc.Y, fPlayerIndex);
+  fTerrain.SetHouse(aLoc, aHouseType, hs_Fence, fPlayerIndex);
+  fStats.HouseStarted(aHouseType);
 end;
 
 
@@ -436,16 +443,9 @@ end;
 
 
 procedure TKMPlayer.RemHousePlan(Position: TKMPoint);
-var H: TKMHouse;
 begin
   fBuildList.HousePlanList.RemPlan(Position);
   if Self = MyPlayer then fSoundLib.Play(sfx_Click);
-
-  H := fHouses.HitTest(Position.X, Position.Y);
-  Assert(H <> nil);
-
-  H.DemolishHouse((Self <> MyPlayer), False);
-  fStats.HouseEnded(H.HouseType);
 end;
 
 
@@ -453,8 +453,6 @@ procedure TKMPlayer.RemFieldPlan(Position: TKMPoint);
 begin
   fBuildList.FieldworksList.RemFieldPlan(Position);
   if Self = MyPlayer then fSoundLib.Play(sfx_Click);
-  //Terrain did not knew about the FieldPlan
-  //fTerrain.RemMarkup(Position);
 end;
 
 
@@ -503,8 +501,6 @@ begin
 end;
 
 
-
-
 function TKMPlayer.HousesHitTest(X, Y: Integer): TKMHouse;
 begin
   Result:= fHouses.HitTest(X, Y);
@@ -545,6 +541,74 @@ begin
   for k := 1 to fTerrain.MapX do
     if fTerrain.Land[i,k].TileOwner = fPlayerIndex then
       inc(Result);
+end;
+
+
+procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
+var
+  i,k,s,t:integer;
+  P2:TKMPoint;
+  AllowBuild:boolean;
+  HA: THouseArea;
+
+  //Replace existing icon with a Block
+  procedure BlockPoint(aPoint: TKMPoint; aID: Integer);
+  var v: integer; Replaced: Boolean;
+  begin
+    Replaced := False;
+    for v := aList.Count downto 1 do
+      if KMSamePoint(aList.List[v], aPoint) then
+      begin
+        if Replaced then
+          aList.RemoveEntry(aPoint)
+        else
+          aList.Tag[v] := aID; //Replace existing Mark with a blocker
+        Replaced := True;
+        //Keep on replacing since entrance has 2 entries in the list
+      end;
+
+    //Otherwise add a blocker
+    if not Replaced then
+      aList.AddEntry(aPoint, aID, 0);
+  end;
+begin
+  //Get basic Marks
+  fTerrain.GetHouseMarks(aLoc, aHouseType, aList);
+
+  //Override marks if there are House/FieldPlans (only we know about our plans)
+  //and or FogOfWar
+  HA := fResource.HouseDat[aHouseType].BuildArea;
+
+  for i:=1 to 4 do for k:=1 to 4 do
+  if (HA[i,k] <> 0)
+  and fTerrain.TileInMapCoords(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX,aLoc.Y+i-4,1) then
+  begin
+    //This can't be done earlier since values can be off-map
+    P2 := KMPoint(aLoc.X+k-3-fResource.HouseDat[aHouseType].EntranceOffsetX, aLoc.Y+i-4);
+
+    //Forbid planning on unrevealed areas and fieldplans
+    AllowBuild := (fFogOfWar.CheckTileRevelation(P2.X, P2.Y, False) > 0)
+                  and (fBuildList.FieldworksList.HasField(P2) = ft_None);
+
+    //Check surrounding tiles in +/- 1 range for other houses pressence
+    for s:=-1 to 1 do for t:=-1 to 1 do
+    if (s<>0) or (t<>0) then //This is a surrounding tile, not the actual tile
+    if fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+s,P2.Y+t)) then
+    begin
+      BlockPoint(KMPoint(P2.X+s,P2.Y+t), 479); //Block surrounding points
+      AllowBuild := False;
+    end;
+
+    //Mark the tile according to previous check results
+    if not AllowBuild then
+      if HA[i,k] = 2 then
+        BlockPoint(P2, 482)
+      else
+        if aHouseType in [ht_GoldMine, ht_IronMine] then
+          BlockPoint(P2, 480)
+        else
+          BlockPoint(P2, 479);
+  end;
 end;
 
 
@@ -645,7 +709,7 @@ end;
 
 { TKMPlayerAnimals }
 function TKMPlayerAnimals.GetFishInWaterBody(aWaterID: Byte; FindHighestCount: Boolean=True): TKMUnitAnimal;
-var 
+var
   i, HighestGroupCount: Integer;
   U: TKMUnit;
 begin

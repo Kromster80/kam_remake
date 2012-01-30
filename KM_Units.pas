@@ -1723,7 +1723,7 @@ end;
 
 function TUnitTask.WalkShouldAbandon:boolean;
 begin
-  Result := false; //Only used in some child classes
+  Result := False; //Only used in some child classes
 end;
 
 
