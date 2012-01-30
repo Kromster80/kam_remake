@@ -2,7 +2,7 @@ unit KM_CommonClasses;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KM_NetworkTypes, KM_Points;
+  Classes, Math, SysUtils, KM_NetworkTypes, KM_Points;
 
 
 type
@@ -66,40 +66,46 @@ type
   public
     Count:integer;
     List:array of TKMPoint; //1..Count
-    procedure Load(LoadStream:TKMemoryStream); virtual;
-    procedure Clearup; virtual;
+    procedure Clear; virtual;
     procedure AddEntry(aLoc:TKMPoint);
     function  RemoveEntry(aLoc:TKMPoint):Integer; virtual;
-    procedure InjectEntry(ID:integer; aLoc:TKMPoint);
+    procedure Insert(ID:integer; aLoc:TKMPoint);
     function  GetRandom(out Point: TKMPoint):Boolean;
     function  GetClosest(aLoc:TKMPoint; out Point: TKMPoint):Boolean;
     procedure Inverse;
     function  GetTopLeft(out TL: TKMPoint):Boolean;
     function  GetBottomRight(out RB: TKMPoint):Boolean;
     procedure Save(SaveStream:TKMemoryStream); virtual;
+    procedure Load(LoadStream:TKMemoryStream); virtual;
   end;
 
 
   TKMPointTagList = class(TKMPointList)
   public
-    Tag,Tag2:array of integer; //1..Count
-    procedure Load(LoadStream:TKMemoryStream); override;
-    procedure Clearup; override;
-    procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
-    function RemoveEntry(aLoc:TKMPoint):Integer; override;
-    procedure Save(SaveStream:TKMemoryStream); override;
+    Tag, Tag2: array of Cardinal; //1..Count
+    procedure Clear; override;
+    procedure AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal); reintroduce;
+    function RemoveEntry(aLoc: TKMPoint): Integer; override;
+    procedure Save(SaveStream: TKMemoryStream); override;
+    procedure Load(LoadStream: TKMemoryStream); override;
   end;
 
 
   TKMPointDirList = class //Used for finding fishing places, fighting positions, etc.
+  private
+    fItems: array of TKMPointDir; //1..Count
+    fCount: Integer;
+    function GetItem(aIndex: Integer): TKMPointDir;
   public
-    Count:integer;
-    List:array of TKMPointDir; //1..Count
-    constructor Load(LoadStream:TKMemoryStream);
-    procedure Clearup;
-    procedure AddEntry(aLoc:TKMPointDir);
+    constructor Load(LoadStream: TKMemoryStream);
+    procedure Clear;
+    procedure AddItem(aLoc: TKMPointDir);
+
+    property Count: Integer read fCount;
+    property Items[aIndex: Integer]: TKMPointDir read GetItem; default;
+
     function GetRandom(out Point: TKMPointDir):Boolean;
-    procedure Save(SaveStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
   end;
 
 
@@ -286,7 +292,7 @@ begin
 end;
 
 
-procedure TKMPointList.Clearup;
+procedure TKMPointList.Clear;
 begin
   Count := 0;
   setlength(List, 0);
@@ -321,11 +327,11 @@ end;
 
 { Insert an entry and check if list is still walkable
   Walkable means that every point is next to neighbour points }
-procedure TKMPointList.InjectEntry(ID:integer; aLoc:TKMPoint);
+procedure TKMPointList.Insert(ID:integer; aLoc:TKMPoint);
 var i:integer;
 begin
   AddEntry(List[Count]);
-  for i:=Count downto ID+1 do
+  for i:=Count downto ID+1 do //todo: Replace with System.Move
     List[i]:=List[i-1];
   List[ID]:=aLoc;
 
@@ -409,7 +415,7 @@ end;
 
 
 { TKMPointTagList }
-procedure TKMPointTagList.Load(LoadStream:TKMemoryStream);
+procedure TKMPointTagList.Load(LoadStream: TKMemoryStream);
 var i:integer;
 begin
   Inherited; //Reads Count
@@ -424,7 +430,7 @@ begin
 end;
 
 
-procedure TKMPointTagList.Clearup;
+procedure TKMPointTagList.Clear;
 begin
   Inherited;
   setlength(Tag,0);
@@ -432,7 +438,7 @@ begin
 end;
 
 
-procedure TKMPointTagList.AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal);
+procedure TKMPointTagList.AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal);
 begin
   Inherited AddEntry(aLoc);
   if Count>length(Tag)-1 then setlength(Tag,Count+32); //Expand the list
@@ -442,7 +448,7 @@ begin
 end;
 
 
-function TKMPointTagList.RemoveEntry(aLoc:TKMPoint):Integer;
+function TKMPointTagList.RemoveEntry(aLoc: TKMPoint):Integer;
 var i: integer;
 begin
   Result := Inherited RemoveEntry(aLoc);
@@ -455,7 +461,7 @@ begin
 end;
 
 
-procedure TKMPointTagList.Save(SaveStream:TKMemoryStream);
+procedure TKMPointTagList.Save(SaveStream: TKMemoryStream);
 var i:integer;
 begin
   Inherited; //Writes Count
@@ -469,53 +475,63 @@ end;
 
 
 { TKMPointList }
-constructor TKMPointDirList.Load(LoadStream:TKMemoryStream);
-var i:integer;
+constructor TKMPointDirList.Load(LoadStream: TKMemoryStream);
+var
+  I: Integer;
 begin
   Inherited Create;
-  LoadStream.Read(Count);
-  setlength(List,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
-  for i:=1 to Count do
+  LoadStream.Read(fCount);
+  SetLength(fItems, fCount);
+  for I := 0 to fCount - 1 do
   begin
-    LoadStream.Read(List[i].Loc);
-    LoadStream.Read(List[i].Dir);
+    LoadStream.Read(fItems[I].Loc);
+    LoadStream.Read(fItems[I].Dir);
   end;
 end;
 
 
-procedure TKMPointDirList.Clearup;
+procedure TKMPointDirList.Clear;
 begin
-  Count:=0;
-  setlength(List,0);
+  fCount := 0;
+  SetLength(fItems, 0);
 end;
 
 
-procedure TKMPointDirList.AddEntry(aLoc:TKMPointDir);
+procedure TKMPointDirList.AddItem(aLoc: TKMPointDir);
 begin
-  inc(Count);
-  if Count>length(List)-1 then setlength(List,Count+32);
-  List[Count]:=aLoc;
+  if fCount >= Length(fItems) then
+    SetLength(fItems, fCount + 32);
+  fItems[fCount] := aLoc;
+  inc(fCount);
+end;
+
+
+function TKMPointDirList.GetItem(aIndex: Integer): TKMPointDir;
+begin
+  Assert(InRange(aIndex, 0, fCount - 1));
+  Result := fItems[aIndex];
 end;
 
 
 function TKMPointDirList.GetRandom(out Point: TKMPointDir):Boolean;
 begin
   Result := False;
-  if Count > 0 then begin
-    Point := List[KaMRandom(Count)+1];
+  if fCount > 0 then begin
+    Point := fItems[KaMRandom(fCount)];
     Result := True;
   end;
 end;
 
 
-procedure TKMPointDirList.Save(SaveStream:TKMemoryStream);
-var i:integer;
+procedure TKMPointDirList.Save(SaveStream: TKMemoryStream);
+var
+  I: Integer;
 begin
-  SaveStream.Write(Count);
-  for i:=1 to Count do
+  SaveStream.Write(fCount);
+  for I := 0 to fCount - 1 do
   begin
-    SaveStream.Write(List[i].Loc);
-    SaveStream.Write(List[i].Dir);
+    SaveStream.Write(fItems[I].Loc);
+    SaveStream.Write(fItems[I].Dir);
   end;
 end;
 

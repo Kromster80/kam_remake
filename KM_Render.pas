@@ -401,8 +401,8 @@ begin
 
   BordersList := TKMPointDirList.Create;
   MyPlayer.BuildList.HousePlanList.GetBorders(BordersList, x1,x2,y1,y2);
-  for i:=1 to BordersList.Count do
-    RenderTerrainBorder(bt_HousePlan, BordersList.List[i].Dir, BordersList.List[i].Loc.X, BordersList.List[i].Loc.Y);
+  for i := 0 to BordersList.Count - 1 do
+    RenderTerrainBorder(bt_HousePlan, BordersList[i].Dir, BordersList[i].Loc.X, BordersList[i].Loc.Y);
   BordersList.Free;
 
   TabletsList := TKMPointTagList.Create;

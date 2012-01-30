@@ -297,8 +297,8 @@ begin
     ExplanationLogAdd;
     fDoExchange := true;
     if KMLength(ForcedExchangePos,NodeList.List[NodePos+1]) >= 1.5 then
-      NodeList.InjectEntry(NodePos+1, fUnit.GetPosition); //We must back-track if we cannot continue our route from the new tile
-    NodeList.InjectEntry(NodePos+1, ForcedExchangePos);
+      NodeList.Insert(NodePos+1, fUnit.GetPosition); //We must back-track if we cannot continue our route from the new tile
+    NodeList.Insert(NodePos+1, ForcedExchangePos);
     if KMSamePoint(fUnit.GetPosition, ForcedExchangePos) then
       raise ELocError.Create('Exchange to same place', fUnit.GetPosition);
     fUnit.Direction := KMGetDirection(fUnit.GetPosition, ForcedExchangePos);
@@ -320,7 +320,7 @@ begin
   if (NodePos+2 <= NodeList.Count) and (KMLength(aPos,NodeList.List[NodePos+2]) < 1.5) then
     NodeList.List[NodePos+1] := aPos //We can simply replace the entry because it is near the next tile
   else //Otherwise we must inject it
-    NodeList.InjectEntry(NodePos+1,aPos);
+    NodeList.Insert(NodePos+1,aPos);
 
   fUnit.Direction := KMGetDirection(fUnit.GetPosition, aPos); //Face the new tile
 end;
@@ -352,7 +352,7 @@ begin
     NodeList2 := TKMPointList.Create;
     fTerrain.Pathfinding.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, fTargetHouse, NodeList2); //Try to make the route with fPass
     //If this part of the route fails, the whole route has failed. At minimum Route_Make returns count=1 (fWalkTo)
-    if NodeList2.Count = 0 then NodeList.Clearup; //Clear NodeList so we return false
+    if NodeList2.Count = 0 then NodeList.Clear; //Clear NodeList so we return false
     for i:=2 to NodeList2.Count do
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);

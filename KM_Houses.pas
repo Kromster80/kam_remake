@@ -551,44 +551,43 @@ begin
 end;
 
 
-procedure TKMHouse.GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
+procedure TKMHouse.GetListOfCellsAround(Cells: TKMPointDirList; aPassability: TPassability);
 var
-  i,k:integer;
-  Loc:TKMPoint;
-  HouseArea:THouseArea;
+  I,K: Integer;
+  Loc: TKMPoint;
+  HA: THouseArea;
 
-  procedure AddLoc(X,Y:word; Dir:TKMDirection);
+  procedure AddLoc(X,Y: Word; Dir: TKMDirection);
   begin
-    //First check that the passabilty is correct, as the house may be placed against blocked terrain
-    if not fTerrain.CheckPassability(KMPoint(X,Y),aPassability) then exit;
-    Cells.AddEntry(KMPointDir(X, Y, Dir));
+    //Check that the passabilty is correct, as the house may be placed against blocked terrain
+    if fTerrain.CheckPassability(KMPoint(X,Y), aPassability) then
+      Cells.AddItem(KMPointDir(X, Y, Dir));
   end;
 
 begin
-
-  Cells.Clearup;
+  Cells.Clear;
   Loc := fPosition;
-  HouseArea := fResource.HouseDat[fHouseType].BuildArea;
+  HA := fResource.HouseDat[fHouseType].BuildArea;
 
-  for i:=1 to 4 do for k:=1 to 4 do
-  if HouseArea[i,k]<>0 then
+  for I := 1 to 4 do for K := 1 to 4 do
+  if HA[I,K] <> 0 then
   begin
-    if (i=1)or(HouseArea[i-1,k]=0) then
-      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S); //Above
-    if (i=4)or(HouseArea[i+1,k]=0) then
-      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N); //Below
-    if (k=4)or(HouseArea[i,k+1]=0) then
-      AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W); //FromRight
-    if (k=1)or(HouseArea[i,k-1]=0) then
-      AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E); //FromLeft
+    if (I = 1) or (HA[I-1,K] = 0) then
+      AddLoc(Loc.X + K - 3, Loc.Y + I - 4 - 1, dir_S); //Above
+    if (I = 4) or (HA[I+1,K] = 0) then
+      AddLoc(Loc.X + K - 3, Loc.Y + I - 4 + 1, dir_N); //Below
+    if (K = 4) or (HA[I,K+1] = 0) then
+      AddLoc(Loc.X + K - 3 + 1, Loc.Y + I - 4, dir_W); //FromRight
+    if (K = 1) or (HA[I,K-1] = 0) then
+      AddLoc(Loc.X + K - 3 - 1, Loc.Y + I - 4, dir_E); //FromLeft
   end;
 end;
 
 
-procedure TKMHouse.GetListOfCellsWithin(Cells:TKMPointList);
+procedure TKMHouse.GetListOfCellsWithin(Cells: TKMPointList);
 var i,k:integer; Loc:TKMPoint; HouseArea:THouseArea;
 begin
-  Cells.Clearup;
+  Cells.Clear;
   Loc := fPosition;
   HouseArea := fResource.HouseDat[fHouseType].BuildArea;
 

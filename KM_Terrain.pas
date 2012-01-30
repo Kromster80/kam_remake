@@ -859,7 +859,7 @@ begin
         if Land[i,k].FieldAge=65535 then
           if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
             if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
-              List.AddEntry(KMPointDir(k, i, dir_NA));
+              List.AddItem(KMPointDir(k, i, dir_NA));
 
   Result := List.GetRandom(FieldPoint);
   List.Free;
@@ -879,7 +879,7 @@ begin
           ((aPlantAct in [taAny, taCut]) and (Land[i,k].FieldAge = 65535)) then
           if not TileIsLocked(KMPoint(k,i)) then //Taken by another farmer
             if Route_CanBeMade(aLoc,KMPoint(k,i),CanWalk,0,false) then
-              List.AddEntry(KMPointDir(k, i, dir_NA));
+              List.AddItem(KMPointDir(k, i, dir_NA));
 
   Result := List.GetRandom(FieldPoint);
   List.Free;
@@ -907,7 +907,7 @@ begin
         if (CanWalk in Land[i+1,k].Passability) //Now check the tile right below
         and not TileIsLocked(KMPoint(k, i+1)) then //Taken by another stonemason
           if Route_CanBeMade(aLoc,KMPoint(k,i+1),CanWalk,0,false) then
-            List.AddEntry(KMPointDir(k, i+1, dir_N));
+            List.AddItem(KMPointDir(k, i+1, dir_N));
 
   Result := List.GetRandom(StonePoint);
   List.Free;
@@ -1080,7 +1080,7 @@ begin
               // D) Final check: route can be made and isn't avoid loc
               if Route_CanBeMade(aLoc, KMPoint(k+j, i+l), CanWalk, 0,false)
               and not KMSamePoint(aAvoidLoc,KMPoint(k+j,i+l)) then
-                List.AddEntry(KMPointDir(k+j, i+l, KMGetDirection(j,l)));
+                List.AddItem(KMPointDir(k+j, i+l, KMGetDirection(j,l)));
 
   Result := List.GetRandom(FishPoint);
   List.Free;

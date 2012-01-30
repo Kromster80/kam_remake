@@ -564,16 +564,16 @@ begin
     if HA[J,K] <> 0 then
     begin
       if (J = 1) or (HA[J-1, K] = 0) then
-        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
+        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
 
       if (K = 1) or (HA[J, K-1] = 0) then
-        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
+        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
 
       if (J = 4) or (HA[J+1, K] = 0) then
-        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
+        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
 
       if (K = 4) or (HA[J, K+1] = 0) then
-        aList.AddEntry(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
+        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
     end;
   end;
 end;

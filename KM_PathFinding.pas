@@ -87,7 +87,7 @@ begin
     ReturnRoute(NodeList);
     Result := True;
   end else
-    NodeList.Clearup;
+    NodeList.Clear;
 end;
 
 
@@ -139,7 +139,7 @@ begin
     ReturnRoute(NodeList);
     Result := True;
   end else
-    NodeList.Clearup;
+    NodeList.Clear;
 end;
 
 
@@ -283,7 +283,7 @@ end;
 procedure TPathFinding.ReturnRoute(NodeList: TKMPointList);
 var i,k:integer; NodesCount:integer;
 begin
-  NodeList.Clearup;
+  NodeList.Clear;
 
   //Calculate NodeCount
   NodesCount := GetRouteLength;

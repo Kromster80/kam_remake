@@ -782,22 +782,24 @@ end;
 
 {Build the house}
 function TTaskBuildHouse.Execute: TTaskResult;
-  function PickRandomSpot: byte;
-  var i, MyCount: integer; Spots: array[1..16] of byte;
+  function PickRandomSpot: Shortint;
+  var
+    I, MyCount: Integer;
+    Spots: array [0..15] of Byte;
   begin
     MyCount := 0;
-    for i := 1 to Cells.Count do
-      if not KMSamePoint(Cells.List[i].Loc,fUnit.GetPosition) then
-        if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) then
-          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc, fUnit.GetDesiredPassability, 0, false) then
+    for I := 0 to Cells.Count - 1 do
+      if not KMSamePoint(Cells[I].Loc, fUnit.GetPosition) then
+        if fTerrain.TileInMapCoords(Cells[I].Loc.X, Cells[I].Loc.Y) then
+          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells[I].Loc, fUnit.GetDesiredPassability, 0, False) then
           begin
-            inc(MyCount);
-            Spots[MyCount] := i;
+            Spots[MyCount] := I;
+            Inc(MyCount);
           end;
     if MyCount > 0 then
-      Result := Spots[KaMRandom(MyCount)+1]
+      Result := Spots[KaMRandom(MyCount)]
     else
-      Result := 0;
+      Result := -1;
   end;
 begin
   Result := TaskContinues;
@@ -814,15 +816,16 @@ begin
       0: begin
            Thought := th_Build;
            CurLoc := PickRandomSpot;
-           SetActionWalkToSpot(Cells.List[CurLoc].Loc);
+           Assert(CurLoc <> -1);
+           SetActionWalkToSpot(Cells[CurLoc].Loc);
          end;
       1: begin
-           Direction := Cells.List[CurLoc].Dir;
-           SetActionLockedStay(0,ua_Walk);
+           Direction := Cells[CurLoc].Dir;
+           SetActionLockedStay(0, ua_Walk);
          end;
       2: begin
            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
-           Direction := Cells.List[CurLoc].Dir;
+           Direction := Cells[CurLoc].Dir;
            //Remove house plan when we start the stone phase (it is still required for wood) But don't do it every time we hit if it's already done!
            if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y,fHouse.GetPosition.X].Markup <> mu_House) then
              fTerrain.SetHouse(fHouse.GetPosition, fHouse.HouseType, hs_Built, GetOwner);
@@ -931,16 +934,16 @@ begin
       //Pick random location and go there
       0:  begin
             Thought := th_Build;
-            CurLoc := KaMRandom(Cells.Count)+1;
-            SetActionWalkToSpot(Cells.List[CurLoc].Loc);
+            CurLoc := KaMRandom(Cells.Count);
+            SetActionWalkToSpot(Cells[CurLoc].Loc);
           end;
       1:  begin
-            Direction := Cells.List[CurLoc].Dir;
+            Direction := Cells[CurLoc].Dir;
             SetActionLockedStay(0, ua_Walk);
           end;
       2:  begin
             SetActionLockedStay(5, ua_Work, false, 0, 0); //Start animation
-            Direction := Cells.List[CurLoc].Dir;
+            Direction := Cells[CurLoc].Dir;
           end;
       3:  begin
             fHouse.AddRepair;
