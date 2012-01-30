@@ -349,7 +349,7 @@ begin
   ResourceDepletedMsgIssued := false;
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
-  begin 
+  begin
     Activate(False);
     fBuildingProgress := fResource.HouseDat[fHouseType].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
@@ -478,13 +478,16 @@ end;
 
 procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 begin
-  if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.ShownHouse = Self) then fGame.fGamePlayInterface.ShowHouseInfo(nil);
+  if fPlayers.Selected = Self then
+    fPlayers.Selected := nil;
+
+  if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.ShownHouse = Self) then
+    fGame.fGamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
     if not NoRubble then
       fSoundLib.Play(sfx_HouseDestroy, fPosition);
-      
+
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[fOwner].DeliverList.RemOffer(Self);
   fPlayers.Player[fOwner].DeliverList.RemDemand(Self);
@@ -514,7 +517,7 @@ end;
 
 
 {Return Entrance of the house, which is different than house position sometimes}
-function TKMHouse.GetEntrance:TKMPoint;
+function TKMHouse.GetEntrance: TKMPoint;
 begin
   Result.X := GetPosition.X + fResource.HouseDat[fHouseType].EntranceOffsetX;
   Result.Y := GetPosition.Y;
@@ -523,8 +526,9 @@ end;
 
 
 {Returns the closest cell of the house to aPos}
-function TKMHouse.GetClosestCell(aPos:TKMPoint):TKMPoint;
-var C:TKMPointList;
+function TKMHouse.GetClosestCell(aPos: TKMPoint): TKMPoint;
+var
+  C: TKMPointList;
 begin
   C := TKMPointList.Create;
   GetListOfCellsWithin(C);
@@ -535,15 +539,17 @@ end;
 
 
 {Return distance from aPos to the closest house tile}
-function TKMHouse.GetDistance(aPos:TKMPoint):single;
-var C:TKMPointList; i:integer;
+function TKMHouse.GetDistance(aPos: TKMPoint): Single;
+var
+  C: TKMPointList;
+  i: integer;
 begin
   C := TKMPointList.Create;
   try
     GetListOfCellsWithin(C);
 
     Result := GetLength(C.List[1], aPos);
-    for i:=2 to C.Count do
+    for i := 2 to C.Count do
       Result := Math.min(Result, GetLength(C.List[i], aPos));
   finally
     C.Free;
@@ -585,20 +591,25 @@ end;
 
 
 procedure TKMHouse.GetListOfCellsWithin(Cells: TKMPointList);
-var i,k:integer; Loc:TKMPoint; HouseArea:THouseArea;
+var
+  i,k: Integer;
+  Loc: TKMPoint;
+  HouseArea: THouseArea;
 begin
   Cells.Clear;
   Loc := fPosition;
   HouseArea := fResource.HouseDat[fHouseType].BuildArea;
 
-  for i:=max(Loc.Y-3,1) to Loc.Y do for k:=max(Loc.X-2,1) to min(Loc.X+1,fTerrain.MapX) do
-  if HouseArea[i-Loc.Y+4,k-Loc.X+3]<>0 then
-    Cells.AddEntry(KMPoint(k,i));
+  for i := max(Loc.Y - 3, 1) to Loc.Y do
+    for K := max(Loc.X - 2, 1) to min(Loc.X + 1, fTerrain.MapX) do
+      if HouseArea[i - Loc.Y + 4, K - Loc.X + 3] <> 0 then
+        Cells.AddEntry(KMPoint(K, i));
 end;
 
 
-function TKMHouse.GetRandomCellWithin:TKMPoint;
-var Cells:TKMPointList;
+function TKMHouse.GetRandomCellWithin: TKMPoint;
+var
+  Cells: TKMPointList;
 begin
   Cells := TKMPointList.Create;
   GetListOfCellsWithin(Cells);

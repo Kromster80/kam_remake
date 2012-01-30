@@ -1087,7 +1087,7 @@ begin
 end;
 
 
-function TTerrain.CanFindFishingWater(aLoc:TKMPoint; aRadius:integer):boolean;
+function TTerrain.CanFindFishingWater(aLoc: TKMPoint; aRadius: Integer): Boolean;
 const Ins=2; //2..Map-2
 var i,k:integer;
 begin

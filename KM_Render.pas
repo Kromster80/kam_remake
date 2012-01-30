@@ -413,18 +413,20 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
-var i,k:integer;
+procedure TRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep: Integer);
+var I,K: Integer;
 begin
-  for i:=y1 to y2 do for k:=x1 to x2 do
-  if fTerrain.Land[i,k].Obj<>255 then
-    RenderObjectOrQuad(fTerrain.Land[i,k].Obj+1,AnimStep,k,i);
+  for i := y1 to y2 do
+    for k := x1 to x2 do
+      if fTerrain.Land[I,K].Obj <> 255 then
+        RenderObjectOrQuad(fTerrain.Land[i, k].Obj + 1, AnimStep, k, i);
 
   with fTerrain.FallingTrees do
-  for i:=1 to Count do begin
-    RenderObject(Tag[i]+1,AnimStep-Tag2[i],List[i].X,List[i].Y);
-    Assert(AnimStep-Tag2[i] <= 100, 'Falling tree overrun?');
-  end;
+    for i := 1 to Count do
+    begin
+      RenderObject(Tag[i] + 1, AnimStep - Tag2[i], List[i].X, List[i].Y);
+      Assert(AnimStep - Tag2[i] <= 100, 'Falling tree overrun?');
+    end;
 end;
 
 
@@ -1268,7 +1270,7 @@ begin
         glRotatef(fRender.rHeading, -1, 0, 0);
         glTranslatef(-RenderList[h].Loc.X, -RenderList[h].Loc.Y, 0);
       end;
-      
+
       repeat //Render child sprites only after their parent
         with RenderList[h] do
         begin

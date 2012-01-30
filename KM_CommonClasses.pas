@@ -420,9 +420,9 @@ var i:integer;
 begin
   Inherited; //Reads Count
 
-  setlength(Tag,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
-  setlength(Tag2,Count+32);
-  for i:=1 to Count do
+  SetLength(Tag, Count + 32); //Make space in lists to write data to, otherwise we get "Range Check Error"
+  SetLength(Tag2, Count + 32);
+  for i := 1 to Count do
   begin
     LoadStream.Read(Tag[i]);
     LoadStream.Read(Tag2[i]);
@@ -433,8 +433,8 @@ end;
 procedure TKMPointTagList.Clear;
 begin
   Inherited;
-  setlength(Tag,0);
-  setlength(Tag2,0);
+  SetLength(Tag, 0);
+  SetLength(Tag2, 0);
 end;
 
 
@@ -448,15 +448,15 @@ begin
 end;
 
 
-function TKMPointTagList.RemoveEntry(aLoc: TKMPoint):Integer;
-var i: integer;
+function TKMPointTagList.RemoveEntry(aLoc: TKMPoint): Integer;
+var I: Integer;
 begin
   Result := Inherited RemoveEntry(aLoc);
   if Result <> -1 then
-    for i:=Result to Count do
+    for I := Result to Count do
     begin
-      Tag[i] := Tag[i+1];
-      Tag2[i] := Tag2[i+1];
+      Tag[I] := Tag[I+1];
+      Tag2[I] := Tag2[I+1];
     end;
 end;
 
