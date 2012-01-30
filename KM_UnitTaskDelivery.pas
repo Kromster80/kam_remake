@@ -134,7 +134,8 @@ var NewDelivery: TUnitTask;
 begin
   Result := TaskContinues;
 
-  if WalkShouldAbandon and fUnit.Visible then begin
+  if WalkShouldAbandon and fUnit.Visible then
+  begin
     Result := TaskDone;
     Exit;
   end;

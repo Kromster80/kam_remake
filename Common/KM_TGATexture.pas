@@ -31,18 +31,20 @@ uses
 
 {$IFDEF UNIX}
 const
-    opengl32 = 'libGL.so';
-    glu32 = 'libGLU.so';
+  opengl32 = 'libGL.so';
+  glu32 = 'libGLU.so';
 {$ENDIF}
+
 
 function LoadTexture(FileName: String; var Texture:GLuint): Boolean;
 function GenerateTextureCommon:GLuint;
 
+
 implementation
 
 
-function GenerateTextureCommon:GLuint;
-var Texture : GLuint;
+function GenerateTextureCommon: GLuint;
+var Texture: GLuint;
 begin
   glGenTextures(1, @Texture);
   glBindTexture(GL_TEXTURE_2D, Texture);
@@ -68,7 +70,7 @@ end;
 {------------------------------------------------------------------}
 {  Create the Texture                                              }
 {------------------------------------------------------------------}
-function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
+function CreateTexture(Width, Height, Format: Word; pData: Pointer): Integer;
 begin
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
@@ -275,6 +277,7 @@ begin
   Result := true;
   FreeMem(Image);
 end;
+
 
 end.
 

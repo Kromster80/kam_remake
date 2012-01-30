@@ -39,22 +39,22 @@ type
 
   TUnitTask = class
   protected
-    fTaskName:TUnitTaskName;
-    fUnit:TKMUnit; //Unit who's performing the Task
-    fPhase:byte;
-    fPhase2:byte;
+    fTaskName: TUnitTaskName;
+    fUnit: TKMUnit; //Unit who's performing the Task
+    fPhase: Byte;
+    fPhase2: Byte;
   public
-    constructor Create(aUnit:TKMUnit);
-    constructor Load(LoadStream:TKMemoryStream); virtual;
+    constructor Create(aUnit: TKMUnit);
+    constructor Load(LoadStream: TKMemoryStream); virtual;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
 
-    property Phase:byte read fPhase write fPhase;
-    property TaskName:TUnitTaskName read fTaskName;
-    function WalkShouldAbandon:boolean; dynamic;
+    property Phase: Byte read fPhase write fPhase;
+    property TaskName: TUnitTaskName read fTaskName;
+    function WalkShouldAbandon: Boolean; dynamic;
 
-    function Execute:TTaskResult; virtual; abstract;
-    procedure Save(SaveStream:TKMemoryStream); virtual;
+    function Execute: TTaskResult; virtual; abstract;
+    procedure Save(SaveStream: TKMemoryStream); virtual;
   end;
 
 

@@ -72,7 +72,7 @@ begin
   Result := TaskContinues;
 
   //If the house is destroyed drop the task
-  if fHouse.IsDestroyed then
+  if WalkShouldAbandon then
   begin
     Result := TaskDone;
     //Commander should reposition his men after destroying the house
