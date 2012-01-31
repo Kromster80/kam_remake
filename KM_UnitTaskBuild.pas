@@ -659,6 +659,7 @@ begin
         end;
     1:  begin
           fPlayers.Player[GetOwner].BuildList.HousePlanList.ClosePlan(BuildID);
+          fPlayers.Player[GetOwner].Stats.HousePlanRemoved(fHouseType);
           BuildID := 0; //Other workers can't take this task from now on
           Assert(fHouse = nil);
           fPlayers.Player[GetOwner].AddHouseWIP(fHouseType, fHouseLoc, fHouse);

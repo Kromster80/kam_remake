@@ -412,6 +412,7 @@ begin
   Loc.Y := aLoc.Y;
 
   fBuildList.HousePlanList.AddPlan(aHouseType, Loc);
+  fStats.HousePlanned(aHouseType);
   if Self = MyPlayer then fSoundLib.Play(sfx_placemarker);
 end;
 
@@ -425,13 +426,13 @@ end;
 
 
 //Player wants to remove own house
-procedure TKMPlayer.RemHouse(Position: TKMPoint; DoSilent:boolean; IsEditor:boolean=false);
+procedure TKMPlayer.RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
 var H: TKMHouse;
 begin
   if not DoSilent then fSoundLib.Play(sfx_Click);
 
   H := fHouses.HitTest(Position.X, Position.Y);
-  if (H = nil) and IsEditor then exit; //Editor is allowed to ask to remove non-existant house
+  if (H = nil) and IsEditor then Exit; //Editor is allowed to ask to remove non-existant house
   Assert(H <> nil);
 
   H.DemolishHouse(DoSilent, IsEditor);
@@ -443,8 +444,13 @@ end;
 
 
 procedure TKMPlayer.RemHousePlan(Position: TKMPoint);
+var
+  HT: THouseType;
 begin
+  HT := fBuildList.HousePlanList.GetPlan(Position);
+  Assert(fResource.HouseDat[HT].IsValid);
   fBuildList.HousePlanList.RemPlan(Position);
+  fStats.HousePlanRemoved(HT);
   if Self = MyPlayer then fSoundLib.Play(sfx_Click);
 end;
 
@@ -456,7 +462,7 @@ begin
 end;
 
 
-function TKMPlayer.FindHouse(aType:THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse;
+function TKMPlayer.FindHouse(aType: THouseType; aPosition: TKMPoint; Index:byte=1): TKMHouse;
 begin
   Result := fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
 end;

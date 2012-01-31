@@ -248,12 +248,13 @@ type
     rt_Arbalet, rt_Horse, rt_Fish,
     rt_All, rt_Warfare, rt_Food);
 
-const WARE_MIN = rt_Trunk;
-      WARE_MAX = rt_Fish;
-      WARFARE_MIN = rt_Shield;
-      WEAPON_MIN = rt_Shield;
-      WEAPON_MAX = rt_Arbalet;
-      WARFARE_MAX = rt_Horse;
+const
+  WARE_MIN = rt_Trunk;
+  WARE_MAX = rt_Fish;
+  WARFARE_MIN = rt_Shield;
+  WEAPON_MIN = rt_Shield;
+  WEAPON_MAX = rt_Arbalet;
+  WARFARE_MAX = rt_Horse;
 
 const //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (

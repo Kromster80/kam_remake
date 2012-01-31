@@ -49,6 +49,7 @@ type
     procedure AddPlan(aHouseType: THouseType; aLoc: TKMPoint);
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
+    function GetPlan(aLoc: TKMPoint): THouseType;
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
@@ -534,6 +535,23 @@ begin
     if fPlans[I].Worker <> nil then
       fPlans[I].Worker.CancelUnitTask;
     ClosePlan(I);
+    Exit;
+  end;
+end;
+
+
+function TKMHousePlanList.GetPlan(aLoc: TKMPoint): THouseType;
+var I: Integer;
+begin
+  for I := 0 to fPlansCount - 1 do
+  if (fPlans[I].HouseType <> ht_None)
+
+  and ((aLoc.X - fPlans[I].Loc.X + 3 in [1..4]) and
+       (aLoc.Y - fPlans[I].Loc.Y + 4 in [1..4]) and
+       (fResource.HouseDat[fPlans[I].HouseType].BuildArea[aLoc.Y - fPlans[I].Loc.Y + 4, aLoc.X - fPlans[I].Loc.X + 3] <> 0))
+  then
+  begin
+    Result := fPlans[I].HouseType;
     Exit;
   end;
 end;
