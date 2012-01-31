@@ -212,7 +212,7 @@ end;
 
 
 //How many houses are there
-function TKMPlayerStats.GetHouseQty(aType: THouseType):integer;
+function TKMPlayerStats.GetHouseQty(aType: THouseType): Integer;
 var H: THouseType;
 begin
   Result := 0;
@@ -234,7 +234,7 @@ begin
     ht_None:    ;
     ht_Any:     for H := Low(THouseType) to High(THouseType) do
                 if fResource.HouseDat[H].IsValid then
-                  inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
+                  Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
     else        Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
   end;
 end;
@@ -246,7 +246,7 @@ begin
   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
   if aType = ut_Recruit then
     for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
-      dec(Result,Units[UT].Trained); //Trained soldiers use a recruit
+      dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
 end;
 
 

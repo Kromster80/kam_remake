@@ -27,6 +27,8 @@
 	See-through hills (lighting flaw)
 
 Features:
+ wip	Markups should only be visible on you and your allies screen (move markups from terrain to player)
+ wip	Choosing max reported refresh rate for display in fullscreen causes banding with wrong drivers (add refresh rate selector to options) 
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping
@@ -42,7 +44,7 @@ Features:
 	Add support for 1024x600 (1280x720) resolution
 	Speedup for multiplayer by all players selecting a game speed, and it chooses the minimum one (could be annoying)
 	Simple dedicated server form which lets you set the properties of the INI for the server and start it
-	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile)
+	Archers on a hill get slightly longer range (calculated from height of archer tile relative to target tile) {not sure about this one}
 	Show the mining radius of the selected house or house that you are placing
 	Master server in MySQL and support multiple revisions at once
 	Colors for chat to highlight player names and whether it is team/all channel
@@ -52,12 +54,11 @@ Features:
 	Sort maps in SP and MP (building, building and fighting, fighting, co-op, players, mapsize, etc.)
 	Wares need to be taken out of the barracks for trading at the market
 	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
-	Markups should only be visible on you and your allies screen (move markups from terrain to player)
-	People can cheat in multiplayer during peacetime by placing a house/road over an enemy road or free land, once it is dug the road/land is useless (disallow houses in enemy territory during peacetime?)
-	Placing road in multiplayer should put a temporary fake markup (visual effect only) until the real one can be added to make it less confusing
+	People can cheat in MP during peacetime by digging a house/road over an enemy road or free land (block houses on enemy territory during peacetime?)
+	Placing road in MP should put a temp/fake visual markup until the real one can be added to make it less confusing
 	Some way to delete multiplayer saves from within the KaM Remake
-	Choosing max reported refresh rate for display in fullscreen causes banding with wrong drivers (add refresh rate selector to options) 
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
+	Maps/Saves scan should be done in separate thread to unlock GUI
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
