@@ -28,7 +28,8 @@ type
     fSavesMP: TKMSavesCollection;
     MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
-    OldResolution:word;
+    OldResolutionID:word;
+    OldRefreshRate:word;
 
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
@@ -251,6 +252,7 @@ type
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
         CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
+        CheckBox_Options_RefreshRate:array[1..REFRESH_RATE_COUNT] of TKMCheckBox;
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
@@ -982,68 +984,73 @@ begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
-    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,200,130);
+    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,130);
       TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Ctrl,0,20,200,110);
+      TKMBevel.Create(Panel_Options_Ctrl,0,20,220,110);
 
       Label_Options_MouseSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,27,164,20,fTextLibrary.GetTextString(192),fnt_Metal,taLeft);
       Label_Options_MouseSpeed.Disable;
       Ratio_Options_Mouse:=TKMRatioRow.Create(Panel_Options_Ctrl,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_Mouse.Disable;
 
-      Label_Options_ScrollSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,77,164,20,fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED],fnt_Metal,taLeft);
+      Label_Options_ScrollSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,77,188,20,fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED],fnt_Metal,taLeft);
       Ratio_Options_ScrollSpeed:=TKMRatioRow.Create(Panel_Options_Ctrl,10,97,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_ScrollSpeed.OnChange:=Options_Change;
 
-    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,280,200,50);
+    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,280,220,50);
       TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Game,0,20,200,30);
+      TKMBevel.Create(Panel_Options_Game,0,20,220,30);
 
       CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,176,20,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,350,200,167);
-      TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Sound,0,20,200,147);
-
-      Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,164,20,fTextLibrary.GetTextString(194),fnt_Metal,taLeft);
-      Ratio_Options_SFX:=TKMRatioRow.Create(Panel_Options_Sound,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      Ratio_Options_SFX.OnChange:=Options_Change;
-      Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,164,20,fTextLibrary.GetTextString(196),fnt_Metal,taLeft);
-      Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      Ratio_Options_Music.OnChange:=Options_Change;
-      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
-      CheckBox_Options_MusicOn.OnClick := Options_Change;
-      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound,12,147,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
-      CheckBox_Options_ShuffleOn.OnClick := Options_Change;
-
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,340,130,200,80);
+    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,120,350,220,100);
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_GFX,0,20,200,78);
+      TKMBevel.Create(Panel_Options_GFX,0,20,220,80);
       TKMLabel.Create(Panel_Options_GFX,18,27,164,20,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS],fnt_Metal,taLeft);
       Ratio_Options_Brightness:=TKMRatioRow.Create(Panel_Options_GFX,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
       Ratio_Options_Brightness.OnChange:=Options_Change;
       CheckBox_Options_Shadows := TKMCheckBox.Create(Panel_Options_GFX,10,74,180,20,fTextLibrary[TX_MENU_OPTIONS_HIGH_QUALITY_SHADOWS], fnt_Metal);
       CheckBox_Options_Shadows.OnClick := Options_Change;
 
-    Panel_Options_Res:=TKMPanel.Create(Panel_Options,340,230,200,30+RESOLUTION_COUNT*20);
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,470,220,167);
+      TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
+      TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
+
+      Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,164,20,fTextLibrary.GetTextString(194),fnt_Metal,taLeft);
+      Ratio_Options_SFX:=TKMRatioRow.Create(Panel_Options_Sound,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
+      Ratio_Options_SFX.OnChange:=Options_Change;
+      Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,174,20,fTextLibrary.GetTextString(196),fnt_Metal,taLeft);
+      Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
+      Ratio_Options_Music.OnChange:=Options_Change;
+      CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
+      CheckBox_Options_MusicOn.OnClick := Options_Change;
+      CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound,12,147,184,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
+      CheckBox_Options_ShuffleOn.OnClick := Options_Change;
+
+    Panel_Options_Res := TKMPanel.Create(Panel_Options,360,130,210,30+RESOLUTION_COUNT*20);
       //Resolution selector
       TKMLabel.Create(Panel_Options_Res,6,0,188,20,fTextLibrary.GetSetupString(20),fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Res,0,20,200,10+RESOLUTION_COUNT*20);
-      for i:=1 to RESOLUTION_COUNT do
+      TKMBevel.Create(Panel_Options_Res,0,20,210,10+Math.max(RESOLUTION_COUNT,REFRESH_RATE_COUNT)*20);
+      for i := 1 to RESOLUTION_COUNT do
       begin
-        CheckBox_Options_Resolution[i]:=TKMCheckBox.Create(Panel_Options_Res,12,27+(i-1)*20,176,20,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
-        CheckBox_Options_Resolution[i].Enabled:=(SupportedRefreshRates[i] > 0);
-        CheckBox_Options_Resolution[i].OnClick:=Options_Change;
+        CheckBox_Options_Resolution[i] := TKMCheckBox.Create(Panel_Options_Res,12,27+(i-1)*20,176,20,Format('%dx%d',[ScreenRes[i].Width,ScreenRes[i].Height]),fnt_Metal);
+        CheckBox_Options_Resolution[i].OnClick := Options_Change;
       end;
 
-      CheckBox_Options_FullScreen:=TKMCheckBox.Create(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,176,20,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
-      CheckBox_Options_FullScreen.OnClick:=Options_Change;
+      for i := 1 to REFRESH_RATE_COUNT do
+      begin
+        CheckBox_Options_RefreshRate[i] := TKMCheckBox.Create(Panel_Options_Res,122,27+(i-1)*20,80,20,Format('%d Hz',[0]),fnt_Metal);
+        CheckBox_Options_RefreshRate[i].OnClick := Options_Change;
+      end;
+
+      CheckBox_Options_FullScreen := TKMCheckBox.Create(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,176,20,fTextLibrary[TX_MENU_OPTIONS_FULLSCREEN],fnt_Metal);
+      CheckBox_Options_FullScreen.OnClick := Options_Change;
 
       Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
 
-    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,560,130,220,30+LOCALES_COUNT*20);
+    Panel_Options_Lang:=TKMPanel.Create(Panel_Options,590,130,220,30+LOCALES_COUNT*20);
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,246,10+LOCALES_COUNT*20);
 
@@ -1211,8 +1218,9 @@ begin
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
-    fGame.GlobalSettings.FullScreen := OldFullScreen;
-    fGame.GlobalSettings.ResolutionID := OldResolution;
+    fGame.GlobalSettings.FullScreen   := OldFullScreen;
+    fGame.GlobalSettings.ResolutionID := OldResolutionID;
+    fGame.GlobalSettings.RefreshRate  := OldRefreshRate;
     fGame.GlobalSettings.SaveSettings;
     Panel_MainMenu.Show;
   end;
@@ -2404,17 +2412,28 @@ begin
   CheckBox_Options_FullScreen.Checked := aGlobalSettings.FullScreen;
   for i:=1 to RESOLUTION_COUNT do begin
     CheckBox_Options_Resolution[i].Checked := (i = aGlobalSettings.ResolutionID);
-    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND aGlobalSettings.FullScreen;
+    CheckBox_Options_Resolution[i].Enabled := aGlobalSettings.FullScreen;
+    CheckBox_Options_Resolution[i].Visible := ScreenRes[i].Width <> 0;
   end;
 
-  OldFullScreen := aGlobalSettings.FullScreen;
-  OldResolution := aGlobalSettings.ResolutionID;
+  //Refresh rates depend on resolution, thus Captions are changed dynamically
+  for i:=1 to REFRESH_RATE_COUNT do
+  begin
+    CheckBox_Options_RefreshRate[i].Caption := Format('%d Hz', [ScreenRes[aGlobalSettings.ResolutionID].RefRate[i]]);
+    CheckBox_Options_RefreshRate[i].Checked := (ScreenRes[aGlobalSettings.ResolutionID].RefRate[i] = aGlobalSettings.RefreshRate);
+    CheckBox_Options_RefreshRate[i].Enabled := (ScreenRes[aGlobalSettings.ResolutionID].RefRate[i] > 0) AND aGlobalSettings.FullScreen;
+    CheckBox_Options_RefreshRate[i].Visible := (ScreenRes[aGlobalSettings.ResolutionID].RefRate[i] > 0);
+  end;
+
+  OldFullScreen   := aGlobalSettings.FullScreen;
+  OldResolutionID := aGlobalSettings.ResolutionID;
+  OldRefreshRate  := aGlobalSettings.RefreshRate;
   Button_Options_ResApply.Disable;
 end;
 
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
-var i:cardinal; MusicToggled, ShuffleToggled: boolean;
+var I:cardinal; MusicToggled, ShuffleToggled, RefRateCorrect: boolean;
 begin
   MusicToggled := (fGame.GlobalSettings.MusicOn = CheckBox_Options_MusicOn.Checked);
   ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Options_ShuffleOn.Checked);
@@ -2446,31 +2465,62 @@ begin
   if Sender = Radio_Options_Lang then begin
     ShowScreen(msLoading, fTextLibrary[TX_MENU_NEW_LOCALE]);
     fRender.Render; //Force to repaint loading screen
-    fGame.GlobalSettings.FullScreen := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
-    fGame.GlobalSettings.ResolutionID := OldResolution;
+    fGame.GlobalSettings.FullScreen   := OldFullScreen; //Reset the resolution so the apply button is set right when we come back
+    fGame.GlobalSettings.ResolutionID := OldResolutionID;
+    fGame.GlobalSettings.RefreshRate  := OldRefreshRate;
     fGame.ToggleLocale(Locales[Radio_Options_Lang.ItemIndex+1,1]);
     exit; //Whole interface will be recreated
   end;
 
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
-    OldFullScreen := fGame.GlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
-    OldResolution := fGame.GlobalSettings.ResolutionID;
+    OldFullScreen   := fGame.GlobalSettings.FullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
+    OldResolutionID := fGame.GlobalSettings.ResolutionID;
+    OldRefreshRate  := fGame.GlobalSettings.RefreshRate;
     fGame.ToggleFullScreen(fGame.GlobalSettings.FullScreen, true);
     exit; //Whole interface will be recreated
   end;
 
-  for i:=1 to RESOLUTION_COUNT do
-    if Sender = CheckBox_Options_Resolution[i] then
-      fGame.GlobalSettings.ResolutionID := i;
+  for I:=1 to RESOLUTION_COUNT do
+    if Sender = CheckBox_Options_Resolution[I] then
+    begin
+      fGame.GlobalSettings.ResolutionID := I;
+      fGame.GlobalSettings.ResolutionWidth := ScreenRes[I].Width;
+      fGame.GlobalSettings.ResolutionHeight := ScreenRes[I].Height;
+    end;
 
-  for i:=1 to RESOLUTION_COUNT do begin
-    CheckBox_Options_Resolution[i].Checked := (i = fGame.GlobalSettings.ResolutionID);
-    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.GlobalSettings.FullScreen;
+  for I := 1 to RESOLUTION_COUNT do
+  begin
+    CheckBox_Options_Resolution[I].Checked := (I = fGame.GlobalSettings.ResolutionID);
+    CheckBox_Options_Resolution[I].Enabled := fGame.GlobalSettings.FullScreen;
+  end;
+
+  RefRateCorrect := False;
+  for I := 1 to REFRESH_RATE_COUNT do
+  begin
+    CheckBox_Options_RefreshRate[I].Caption := Format('%d Hz',[ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I]]);
+    CheckBox_Options_RefreshRate[I].Visible := (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I] > 0);
+    if (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I] > 0)
+    and(fGame.GlobalSettings.RefreshRate = ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I]) then
+      RefRateCorrect := True;
+  end;
+
+  if not RefRateCorrect then
+    fGame.GlobalSettings.RefreshRate := ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[1];
+
+  for I:=1 to REFRESH_RATE_COUNT do
+    if Sender = CheckBox_Options_RefreshRate[I] then
+      fGame.GlobalSettings.RefreshRate := ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I];
+
+  for I:=1 to REFRESH_RATE_COUNT do
+  begin
+    CheckBox_Options_RefreshRate[I].Enabled := (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I]>0) AND fGame.GlobalSettings.FullScreen;
+    CheckBox_Options_RefreshRate[I].Checked := (ScreenRes[fGame.GlobalSettings.ResolutionID].RefRate[I] = fGame.GlobalSettings.RefreshRate);
   end;
 
   //Make button enabled only if new resolution/mode differs from old
   Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.GlobalSettings.FullScreen) or
-                                     (fGame.GlobalSettings.FullScreen and (OldResolution <> fGame.GlobalSettings.ResolutionID));
+                                     (fGame.GlobalSettings.FullScreen and (OldResolutionID <> fGame.GlobalSettings.ResolutionID)) or
+                                     (fGame.GlobalSettings.FullScreen and (OldRefreshRate <> fGame.GlobalSettings.RefreshRate));
 end;
 
 

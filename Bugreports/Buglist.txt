@@ -27,8 +27,8 @@
 	See-through hills (lighting flaw)
 
 Features:
+ +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Jimmy]
  wip	Markups should only be visible on you and your allies screen (move markups from terrain to player)
- wip	Choosing max reported refresh rate for display in fullscreen causes banding with wrong drivers (add refresh rate selector to options) 
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
 	The story message on campaign map should fade between sides when you mouse over, rather than jumping

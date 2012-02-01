@@ -375,7 +375,7 @@ type
     fFont: TKMFont;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
-    property Caption:string read fCaption;
+    property Caption:string read fCaption write fCaption;
     property Checked:boolean read fChecked write fChecked;
     property FlatStyle:boolean read fFlatStyle write fFlatStyle;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;

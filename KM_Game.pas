@@ -283,7 +283,7 @@ end;
 
 procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
 begin
-  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.VSync, ReturnToOptions);
+  Form1.ToggleFullScreen(aToggle, fGlobalSettings.ResolutionID, fGlobalSettings.RefreshRate, fGlobalSettings.VSync, ReturnToOptions);
 end;
 
 

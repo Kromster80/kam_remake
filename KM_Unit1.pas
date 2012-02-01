@@ -11,7 +11,7 @@ uses
   dglOpenGL,
   KM_Render, KM_Resource, KM_ResourceSprites, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_PlayersCollection,
-  KM_TextLibrary, KM_Sound, KM_Utils, KM_Points;
+  KM_TextLibrary, KM_Sound, KM_Utils, KM_Points, KM_Settings;
 
 type
   //Custom flicker-free Panel
@@ -131,10 +131,11 @@ type
     {$ENDIF}
     procedure ReadAvailableResolutions;
     procedure StatusBarText(const aData: string);
+    procedure CheckResolution(aGameSettings: TGlobalSettings);
   public
     procedure ApplyCursorRestriction;
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(aFullScreen:boolean; aResolutionID:word; aVSync:boolean; aReturnToOptions:boolean);
+    procedure ToggleFullScreen(aFullScreen:boolean; aResolutionID, aRefreshRate:word; aVSync:boolean; aReturnToOptions:boolean);
   end;
 
 var
@@ -146,7 +147,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_GameInputProcess,  KM_Log;
+uses KM_GameInputProcess,  KM_Log;
 
 
 { TMyPanel }
@@ -257,7 +258,8 @@ begin
   //Only after we read settings (fullscreen property and resolutions)
   //we can decide whenever we want to create Game fullscreen or not (OpenGL init depends on that)
   TempSettings := TGlobalSettings.Create;
-  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.VSync, false);
+  CheckResolution (TempSettings);
+  ToggleFullScreen(TempSettings.FullScreen, TempSettings.ResolutionID, TempSettings.RefreshRate, TempSettings.VSync, false);
   TempSettings.Free;
 
   Application.OnIdle := Form1.OnIdle;
@@ -555,10 +557,10 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(aFullScreen:boolean; aResolutionID:word; aVSync:boolean; aReturnToOptions:boolean);
+procedure TForm1.ToggleFullScreen(aFullScreen:boolean; aResolutionID, aRefreshRate:word; aVSync:boolean; aReturnToOptions:boolean);
 begin
   if aFullScreen then begin
-    SetScreenResolution(SupportedResolutions[aResolutionID,1],SupportedResolutions[aResolutionID,2],SupportedRefreshRates[aResolutionID]);
+    SetScreenResolution(ScreenRes[aResolutionID].Width,ScreenRes[aResolutionID].Height,aRefreshRate);
     Form1.Refresh;
     Form1.BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't maximize
     Form1.WindowState  := wsMaximized;
@@ -721,20 +723,82 @@ end;
 
 procedure TForm1.ReadAvailableResolutions;
 var
-  i,k : integer;
-  {$IFDEF MSWindows}DevMode : TDevMode;{$ENDIF}
+  I,M,N : integer;
+  {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
 begin
   {$IFDEF MSWindows}
-  i := 0;
-  FillChar(SupportedRefreshRates, SizeOf(SupportedRefreshRates), #0);
-  while EnumDisplaySettings(nil, i, DevMode) do
+  //Clear
+  FillChar(ScreenRes, SizeOf(ScreenRes), #0);
+
+  I := 0;
+  while EnumDisplaySettings(nil, I, DevMode) do
   with DevMode do
   begin
-    inc(i);
-    if dmBitsPerPel=32 then //List only 32bpp modes
-    for k:=1 to RESOLUTION_COUNT do
-    if (SupportedResolutions[k,1] = dmPelsWidth) and (SupportedResolutions[k,2] = dmPelsHeight)then
-      SupportedRefreshRates[k] := Math.max(SupportedRefreshRates[k], dmDisplayFrequency);
+    Inc(I);
+    //Take only 32bpp modes
+    //Exclude rotated modes, as Win reports them too
+    if (dmBitsPerPel = 32) //and (dmOrientation = 0)
+    and (dmPelsWidth >= 1024) and (dmPelsHeight >= 768)
+    and (dmDisplayFrequency > 0) then
+    begin
+
+      //Find next empty place and avoid duplicating
+      N := 1;
+      while (ScreenRes[N].Width <> 0) and (N <= RESOLUTION_COUNT) and
+             ((ScreenRes[N].Width <> dmPelsWidth) or (ScreenRes[N].Height <> dmPelsHeight)) do
+        inc(N);
+
+      if (N <= RESOLUTION_COUNT) and (ScreenRes[N].Width = 0) then
+      begin
+        ScreenRes[N].Width := dmPelsWidth;
+        ScreenRes[N].Height := dmPelsHeight;
+      end;
+
+      //Find next empty place and avoid duplicating
+      M := 1;
+      while (ScreenRes[N].RefRate[M] <> 0) and (M <= REFRESH_RATE_COUNT) and
+             (ScreenRes[N].RefRate[M] <> dmDisplayFrequency) do
+        inc(M);
+
+      if (M <= REFRESH_RATE_COUNT)
+      and (N <= RESOLUTION_COUNT)
+      and (ScreenRes[N].RefRate[M] = 0) then
+        ScreenRes[N].RefRate[M] := dmDisplayFrequency;
+    end;
+  end;
+  {$ENDIF}
+end;
+
+
+//Checks, whether resolution from INI file is correct
+//and if not - reuse surrent resolution
+procedure TForm1.CheckResolution(aGameSettings: TGlobalSettings);
+var I, J: Integer;
+    ResolutionFound: Boolean;
+    {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
+begin
+  {$IFDEF MSWindows}
+  //Try to find matching Resolution
+  ResolutionFound := False;
+  for I := 1 to RESOLUTION_COUNT do
+    if (ScreenRes[I].Width = aGameSettings.ResolutionWidth)
+    and(ScreenRes[I].Height = aGameSettings.ResolutionHeight) then
+      for J := 1 to REFRESH_RATE_COUNT do
+        if (aGameSettings.RefreshRate = ScreenRes[I].RefRate[J]) then
+          ResolutionFound := True;
+
+  //Otherwise take current Resolution/RefreshRate
+  if not ResolutionFound then
+  begin
+    EnumDisplaySettings(nil, Cardinal(-1){ENUM_CURRENT_SETTINGS}, DevMode);
+    with DevMode do
+    begin
+      aGameSettings.ResolutionWidth := dmPelsWidth;
+      aGameSettings.ResolutionHeight := dmPelsHeight;
+      aGameSettings.RefreshRate := dmDisplayFrequency;
+    end;
+    //correct values must be saved immediately
+    aGameSettings.SaveSettings(True);
   end;
   {$ENDIF}
 end;

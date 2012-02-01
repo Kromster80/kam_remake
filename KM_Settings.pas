@@ -20,7 +20,10 @@ type
     fMusicOn:boolean;
     fShuffleOn:boolean;
     fMusicVolume:byte;
-    fResolutionID:word; //Relates to index in SupportedResolution
+    fResolutionID:word; //ID of currently chosen resolution, it's not a fixed value
+    fResolutionWidth:word;
+    fResolutionHeight:word;
+    fRefreshRate:word;
     fSlidersMin:byte;
     fSlidersMax:byte;
     fSoundFXVolume:byte;
@@ -84,6 +87,9 @@ type
     property ShuffleOn:boolean read fShuffleOn write SetShuffleOn default false;
     property MusicVolume:byte read fMusicVolume write SetMusicVolume;
     property ResolutionID:word read fResolutionID write fResolutionID;
+    property ResolutionWidth:word read fResolutionWidth write fResolutionWidth;
+    property ResolutionHeight:word read fResolutionHeight write fResolutionHeight;
+    property RefreshRate:word read fRefreshRate write fRefreshRate;
     property SlidersMin:byte read fSlidersMin;
     property SlidersMax:byte read fSlidersMax;
     property SoundFXVolume:byte read fSoundFXVolume write SetSoundFXVolume;
@@ -119,9 +125,9 @@ begin
   Inherited;
   fSlidersMin := 0;
   fSlidersMax := 20;
-  LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
+  LoadSettingsFromFile(ExeDir + SETTINGS_FILE);
   fNeedsSave := false;
-  fLog.AppendLog('Global settings loaded from '+SETTINGS_FILE);
+  fLog.AppendLog('Global settings loaded from ' + SETTINGS_FILE);
 end;
 
 
@@ -157,17 +163,19 @@ end;
 
 
 function TGlobalSettings.LoadSettingsFromFile(FileName:string):boolean;
-var f:TMemIniFile;
+var f:TMemIniFile; i:integer;
 begin
   Result := FileExists(FileName);
 
   f := TMemIniFile.Create(FileName);
   
-  fBrightness    := f.ReadInteger('GFX','Brightness',1);
-  fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
-  fVSync         := f.ReadBool   ('GFX','VSync',true);
-  fAlphaShadows  := f.ReadBool   ('GFX','AlphaShadows',true);
-  fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
+  fBrightness       := f.ReadInteger('GFX','Brightness',1);
+  fFullScreen       := f.ReadBool   ('GFX','FullScreen',false);
+  fVSync            := f.ReadBool   ('GFX','VSync',true);
+  fAlphaShadows     := f.ReadBool   ('GFX','AlphaShadows',true);
+  fResolutionWidth  := f.ReadInteger('GFX','ResolutionWidth',1024);
+  fResolutionHeight := f.ReadInteger('GFX','ResolutionHeight',768);
+  fRefreshRate      := f.ReadInteger('GFX','RefreshRate',60);
 
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
   fScrollSpeed   := f.ReadInteger('Game','ScrollSpeed',10);
@@ -203,6 +211,12 @@ begin
   fHTMLStatusFile         := f.ReadString ('Server','HTMLStatusFile','KaM_Remake_Server_Status.html');
   fServerWelcomeMessage   := f.ReadString ('Server','WelcomeMessage','');
 
+  //determining ID of saved resolution, if values are incorrect, ID is 1
+  fResolutionID := 1;
+  for i := 1 to RESOLUTION_COUNT do
+    if (ScreenRes[i].Width = fResolutionWidth) and (ScreenRes[i].Height = fResolutionHeight) then
+      fResolutionID := i;
+
   FreeAndNil(f);
   fNeedsSave := false;
 end;
@@ -213,11 +227,13 @@ var f:TMemIniFile; //Don't rewrite the file for each change, do it in one batch
 begin
   f := TMemIniFile.Create(FileName);
 
-  f.WriteInteger('GFX','Brightness',  fBrightness);
-  f.WriteBool   ('GFX','FullScreen',  fFullScreen);
-  f.WriteBool   ('GFX','VSync',       fVSync);
-  f.WriteBool   ('GFX','AlphaShadows',fAlphaShadows);
-  f.WriteInteger('GFX','ResolutionID',fResolutionID);
+  f.WriteInteger('GFX','Brightness',      fBrightness);
+  f.WriteBool   ('GFX','FullScreen',      fFullScreen);
+  f.WriteBool   ('GFX','VSync',           fVSync);
+  f.WriteBool   ('GFX','AlphaShadows',    fAlphaShadows);
+  f.WriteInteger('GFX','ResolutionWidth', fResolutionWidth);
+  f.WriteInteger('GFX','ResolutionHeight',fResolutionHeight);
+  f.WriteInteger('GFX','RefreshRate',     fRefreshRate);
 
   f.WriteBool   ('Game','Autosave',   fAutosave);
   f.WriteInteger('Game','ScrollSpeed',fScrollSpeed);

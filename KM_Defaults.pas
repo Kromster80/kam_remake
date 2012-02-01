@@ -917,25 +917,20 @@ const
 
 
 const
-  RESOLUTION_COUNT = 12;
-  SupportedResolutions: array[1..RESOLUTION_COUNT,1..2] of word=(
-  (1024,768),
-  (1152,864),
-  (1280,800),
-  (1280,960),
-  (1280,1024),
-  (1366,768),
-  (1440,900),
-  (1600,900),
-  (1600,1200),
-  (1680,1050),
-  (1920,1080),
-  (1920,1200)
-  );
+  //How many options are we displaying to the user, so that they fit into their UI place
+  RESOLUTION_COUNT = 15;
+  REFRESH_RATE_COUNT = 15;
+
+//Record storing resolution and list of its allowed refresh rates
+type
+  TScreenResData = record
+                 Width, Height: Word;
+                 RefRate: array [1..REFRESH_RATE_COUNT] of Word;
+               end;
 
 var
-  //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
-  SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
+  //Lists available screen resolutions and their supported refresh rates
+  ScreenRes: array[1..RESOLUTION_COUNT] of TScreenResData;
 
 const
   MAPSIZES_COUNT = 11;
