@@ -3,3 +3,7 @@
 {$IFDEF VER220} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE compiler
 {$IFDEF VER230} {$DEFINE WDC} {$ENDIF} //Define Windows Delphi XE2 compiler
 {.$DEFINE FPC} //Define Free Pascal compiler (defined automatically in Lazarus)
+
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}

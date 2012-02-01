@@ -230,10 +230,11 @@ procedure TRender.RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
     //glColor4f(a*2,a*2,a*2,Abs(a*2)); //Deeper shadows
   end;
 var
-  i,k,iW:integer; ID,Rot,rd:integer;
-  xt,a:integer;
-  TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
-  TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
+  i,k,iW: Integer;
+  ID,rd,Rot: Byte;
+  xt,a: Integer;
+  TexC: array[1..4,1..2]of GLfloat; //Texture UV coordinates
+  TexO: array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
 
   for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
@@ -371,10 +372,10 @@ begin
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  if SHOW_WALK_CONNECT then
+  //if SHOW_WALK_CONNECT then
   for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain.Land[i,k] do
-    fRenderAux.Quad(k, i, WalkConnect[wcWalk] *32 + (WalkConnect[wcRoad]*32) shl 8 or $80000000);
+    fRenderAux.Quad(k, i, WalkConnect[wcWalk] * 32 + (WalkConnect[wcRoad] * 32) shl 8 or $80000000);
 end;
 
 

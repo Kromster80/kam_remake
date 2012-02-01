@@ -315,9 +315,10 @@ begin
       y2 := Min(y2, J);
     end;
 
-    //todo: Test under Lazarus if x1-x2 on game start causes an RCE
     Inc(x1);
     Inc(y1);
+    if x2 > x1 then
+      Assert(False, 'x2 > x1, Happens for Lazarus?');
     OffX := x2;
     OffY := y2;
     NewX := x1 - x2;

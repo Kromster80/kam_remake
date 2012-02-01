@@ -1,8 +1,5 @@
 program KaM_Remake;
 {$I KaM_Remake.inc}
-{$IFDEF FPC}
-  {$Mode Delphi} {$H+}
-{$ENDIF}
 
 uses
   //FastMM4, //Can be used only in Delphi, not Lazarus
