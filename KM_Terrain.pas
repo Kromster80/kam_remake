@@ -68,8 +68,8 @@ type
     procedure LoadFromFile(FileName: string; aMapEditor: Boolean);
     procedure SaveToFile(aFile:string);
 
-    property MapX: Integer read fMapX;
-    property MapY: Integer read fMapY;
+    property MapX: Word read fMapX;
+    property MapY: Word read fMapY;
 
     procedure SetMarkup(aLoc: TKMPoint; aMarkup: TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
