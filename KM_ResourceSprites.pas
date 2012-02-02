@@ -127,6 +127,7 @@ type
 
   TKMSprites = class
   private
+    fAlphaShadows: Boolean; //Remember which state we loaded
     fRenderSetup: TRenderSetup;
     fPalettes: TKMPalettes;
     fSprites: array[TRXType] of TKMSpritePack;
@@ -145,10 +146,11 @@ type
     procedure LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal; aAlphaShadows:boolean);
 
     //Used externally to access raw RGBA data (e.g. by ExportAnim)
-    procedure LoadSprites(aRT: TRXType; aAlphaShadows:boolean);
+    procedure LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
     procedure ClearSprites(aRT: TRXType);
     procedure ExportToBMP(aRT: TRXType);
 
+    property AlphaShadows: Boolean read fAlphaShadows;
     property FileName[aRX: TRXType]: string read GetRXFileName;
   end;
 
@@ -758,6 +760,9 @@ end;
 procedure TKMSprites.LoadGameResources(aHouseDat: TKMHouseDatCollection; aTileTex: Cardinal; aAlphaShadows:boolean);
 var RT: TRXType;
 begin
+  //Remember which version we load
+  fAlphaShadows := aAlphaShadows;
+
   for RT := Low(TRXType) to High(TRXType) do
   if (RXInfo[RT].Usage = ruGame) then
   begin

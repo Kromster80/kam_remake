@@ -140,19 +140,21 @@ end;
 
 procedure TResource.LoadGameResources(aAlphaShadows: boolean);
 begin
-  if fDataState = dls_All then Exit;
-
   Assert(fRenderSetup <> nil, 'fRenderSetup inits OpenGL and we need OpenGL to make textures');
 
-  LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
-  LoadPatternDAT(ExeDir + 'data\defines\pattern.dat');
+  if fDataState <> dls_All then
+  begin
+    LoadMapElemDAT(ExeDir + 'data\defines\mapelem.dat');
+    LoadPatternDAT(ExeDir + 'data\defines\pattern.dat');
 
-  fResources := TKMResourceCollection.Create;
-  fHouseDat := TKMHouseDatCollection.Create;
-  fUnitDat := TKMUnitDatCollection.Create;
-  fTileset := TKMTileset.Create(ExeDir + 'Resource\');
+    fResources := TKMResourceCollection.Create;
+    fHouseDat := TKMHouseDatCollection.Create;
+    fUnitDat := TKMUnitDatCollection.Create;
+    fTileset := TKMTileset.Create(ExeDir + 'Resource\');
+  end;
 
-  fSprites.LoadGameResources(fHouseDat, fTileset.TextT, aAlphaShadows);
+  if (fDataState <> dls_All) or (aAlphaShadows <> fSprites.AlphaShadows) then
+    fSprites.LoadGameResources(fHouseDat, fTileset.TextT, aAlphaShadows);
 
   fDataState := dls_All;
   fLog.AppendLog('Resource loading state - Game');

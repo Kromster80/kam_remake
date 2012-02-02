@@ -414,14 +414,12 @@ begin
   fGameOptions.Free;
   fGameOptions := TKMGameOptions.Create;
 
+  //Load the resources if necessary
   fMainMenuInterface.ShowScreen(msLoading, '');
-  if fResource.DataState <> dls_All then
-  begin
-    GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
-    fResource.OnLoadingText := GameLoadingStep;
-    fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
-    InitUnitStatEvals; //Army
-  end;
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
+  fResource.OnLoadingText := GameLoadingStep;
+  fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
+  InitUnitStatEvals; //Army
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
@@ -975,12 +973,11 @@ begin
   fGameSpeed := 1; //In case it was set in last run mission
   fMultiplayerMode := false;
 
+  //Load the resources if necessary
   fMainMenuInterface.ShowScreen(msLoading, '');
-  if fResource.DataState<>dls_All then begin
-    GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
-    fResource.OnLoadingText := GameLoadingStep;
-    fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
-  end;
+  GameLoadingStep(fTextLibrary[TX_MENU_LOADING_DEFINITIONS]);
+  fResource.OnLoadingText := GameLoadingStep;
+  fResource.LoadGameResources(fGlobalSettings.AlphaShadows);
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_INITIALIZING]);
 
