@@ -176,8 +176,10 @@ type
   TKMHouseMarket = class(TKMHouse)
   protected
     fResFrom, fResTo: TResourceType;
-    fMarketResIn, fMarketResOut, fMarketDeliveryCount:array[WARE_MIN..WARE_MAX] of Word;
-    fTradeAmount:word;
+    fMarketResIn: array [WARE_MIN..WARE_MAX] of Word;
+    fMarketResOut: array [WARE_MIN..WARE_MAX] of Word;
+    fMarketDeliveryCount: array [WARE_MIN..WARE_MAX] of Word;
+    fTradeAmount: Word;
     procedure AttemptExchange;
     procedure SetResFrom(Value: TResourceType);
     procedure SetResTo(Value: TResourceType);
@@ -910,10 +912,11 @@ begin
   Assert(aResource<>rt_None);
 
   for i:=1 to 4 do
-  if aResource = fResource.HouseDat[fHouseType].ResInput[i] then begin
+  if aResource = fResource.HouseDat[fHouseType].ResInput[i] then
+  begin
     Assert(fResourceIn[i] >= aCount, 'fResourceIn[i]<0');
-    dec(fResourceIn[i],aCount);
-    dec(fResourceDeliveryCount[i],aCount);
+    dec(fResourceIn[i], aCount);
+    dec(fResourceDeliveryCount[i], aCount);
     //Only request a new resource if it is allowed by the distribution of wares for our parent player
     for k:=1 to aCount do
       if fResourceDeliveryCount[i] < GetResDistribution(i) then
@@ -921,7 +924,7 @@ begin
         fPlayers.Player[fOwner].DeliverList.AddDemand(Self,nil,aResource,1,dt_Once,di_Norm);
         inc(fResourceDeliveryCount[i]);
       end;
-    exit;
+    Exit;
   end;
 end;
 
@@ -1301,8 +1304,8 @@ procedure TKMHouseInn.Paint;
     end;
   end;
 const
-  OffX: array [1..3] of single = (-0.5, 0.0, 0.5);
-  OffY: array [1..3] of single = (-0.05, 0, 0.05);
+  OffX: array [0..2] of single = (-0.5, 0.0, 0.5);
+  OffY: array [0..2] of single = (-0.05, 0, 0.05);
 var
   i: Integer;
   AnimStep: Cardinal;
@@ -1317,8 +1320,8 @@ begin
     AnimStep := FlagAnimStep - Eater[i].EatStep; //Delta is our AnimStep
 
     fRender.AddEater(Eater[i].UnitType, ua_Eat, AnimDir(i), AnimStep, fPosition,
-                        OffX[(i-1) mod 3 + 1],
-                        OffY[(i-1) mod 3 + 1], fPlayers.Player[fOwner].FlagColor);
+                        OffX[(i-1) mod 3],
+                        OffY[(i-1) mod 3], fPlayers.Player[fOwner].FlagColor);
   end;
 end;
 
@@ -1710,7 +1713,7 @@ begin
 end;
 
 
-procedure TKMHouseSchool.Save(SaveStream:TKMemoryStream);
+procedure TKMHouseSchool.Save(SaveStream: TKMemoryStream);
 begin
   inherited;
   if TKMUnit(UnitWIP) <> nil then
@@ -2140,7 +2143,7 @@ var i:integer;
   Dist,Bid:single;
 begin
   Result:= nil;
-  Bid:=0;
+  Bid := 0;
 
   for i:=0 to Count-1 do
     if (fResource.HouseDat[Houses[i].fHouseType].OwnerType = aUnitType) and //If Unit can work in here
@@ -2151,15 +2154,16 @@ begin
       //Recruits should not go to a barracks with ware delivery switched off
       if (Houses[i].HouseType = ht_Barracks) and (not Houses[i].WareDelivery) then Continue;
 
-      Dist:=KMLength(Loc,Houses[i].GetPosition);
+      Dist := KMLength(Loc,Houses[i].GetPosition);
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
       //In case of multiple barracks, prefer the closer one (players should make multiple schools or use WareDelivery to control it)
-      if Houses[i].HouseType = ht_Barracks then Dist:=(Dist*1000);
+      if Houses[i].HouseType = ht_Barracks then
+        Dist := Dist * 1000;
 
-      if (Bid=0)or(Bid>Dist) then
+      if (Bid = 0) or (Dist < Bid) then
       begin
-        Bid:=Dist;
+        Bid := Dist;
         Result := Houses[i];
       end;
 
@@ -2182,32 +2186,38 @@ begin
   Result := nil;
   id := 0;
   BestMatch := MaxSingle; //Any distance will be closer than that
-  UsePosition := X*Y<>0; //Calculate this once to save computing lots of multiplications
-  Assert((not UsePosition)or(aIndex=1), 'Can''t find house basing both on Position and Index');
+  UsePosition := X*Y <> 0; //Calculate this once to save computing lots of multiplications
+  Assert((not UsePosition) or (aIndex = 1), 'Can''t find house basing both on Position and Index');
 
   for i:=0 to Count-1 do
-  if ((Houses[i].fHouseType = aType) or (aType = ht_Any)) and (Houses[i].IsComplete or not aOnlyCompleted) and not Houses[i].fIsDestroyed then
+  if ((Houses[i].fHouseType = aType) or (aType = ht_Any))
+  and (Houses[i].IsComplete or not aOnlyCompleted)
+  and not Houses[i].fIsDestroyed then
   begin
-      inc(id);
-      if UsePosition then
+    Inc(id);
+    if UsePosition then
+    begin
+      Dist := GetLength(Houses[i].GetPosition,KMPoint(X,Y));
+      if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
+      if Dist < BestMatch then
       begin
-          Dist := GetLength(Houses[i].GetPosition,KMPoint(X,Y));
-          if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
-          if Dist < BestMatch then begin
-            BestMatch := Dist;
-            Result := Houses[i];
-          end;
-      end else
-          if aIndex = id then begin//Take the N-th result
-            Result := Houses[i];
-            exit;
-          end;
+        BestMatch := Dist;
+        Result := Houses[i];
+      end;
+    end
+    else
+      //Take the N-th result
+      if aIndex = id then
+      begin
+        Result := Houses[i];
+        exit;
+      end;
   end;
 end;
 
 
-procedure TKMHousesCollection.Save(SaveStream:TKMemoryStream);
-var i:integer;
+procedure TKMHousesCollection.Save(SaveStream: TKMemoryStream);
+var I: Integer;
 begin
   SaveStream.Write('Houses');
   //Multiplayer saves must be identical, thus we force that no house is selected
@@ -2217,20 +2227,19 @@ begin
     SaveStream.Write(Integer(0));
 
   SaveStream.Write(Count);
-  for i := 0 to Count - 1 do
+  for I := 0 to Count - 1 do
   begin
     //We save house type to know which house class to load
-    SaveStream.Write(Houses[i].HouseType, SizeOf(Houses[i].HouseType));
-    Houses[i].Save(SaveStream);
+    SaveStream.Write(Houses[I].HouseType, SizeOf(Houses[I].HouseType));
+    Houses[I].Save(SaveStream);
   end;
 end;
 
 
 procedure TKMHousesCollection.Load(LoadStream:TKMemoryStream);
-var i,HouseCount:integer; s:string; HouseType:THouseType;
+var i,HouseCount: Integer; HouseType: THouseType;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'Houses');
+  LoadStream.ReadAssert('Houses');
   LoadStream.Read(fSelectedHouse, 4);
   LoadStream.Read(HouseCount);
   for i := 0 to HouseCount - 1 do

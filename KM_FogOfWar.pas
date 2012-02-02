@@ -152,10 +152,9 @@ end;
 
 
 procedure TKMFogOfWar.Load(LoadStream: TKMemoryStream);
-var i,k:integer; s:string;
+var i,k:integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'FOW');
+  LoadStream.ReadAssert('FOW');
   LoadStream.Read(MapX);
   LoadStream.Read(MapY);
   LoadStream.Read(fAnimStep);

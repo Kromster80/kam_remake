@@ -372,7 +372,7 @@ begin
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  //if SHOW_WALK_CONNECT then
+  if SHOW_WALK_CONNECT then
   for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain.Land[i,k] do
     fRenderAux.Quad(k, i, WalkConnect[wcWalk] * 32 + (WalkConnect[wcRoad] * 32) shl 8 or $80000000);

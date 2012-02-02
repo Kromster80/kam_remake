@@ -353,11 +353,10 @@ end;
 
 
 procedure TKMProjectiles.Load(LoadStream:TKMemoryStream);
-var s:string;
+var
   i,Count:integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'Projectiles', 'Projectiles not found');
+  LoadStream.ReadAssert('Projectiles');
 
   LoadStream.Read(Count);
   SetLength(fItems, Count);

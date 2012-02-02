@@ -35,8 +35,8 @@ type
     function GetMinimapClip: TRect;
     procedure ReleaseScrollKeys;
 
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    procedure Save(SaveStream: TKMemoryStream);
+    procedure Load(LoadStream: TKMemoryStream);
 
     procedure UpdateStateIdle(aFrameTime: Cardinal);
   end;
@@ -227,7 +227,7 @@ begin
 end;
 
 
-procedure TViewport.Save(SaveStream:TKMemoryStream);
+procedure TViewport.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write('Viewport');
   SaveStream.Write(fMapX);
@@ -237,11 +237,9 @@ begin
 end;
 
 
-procedure TViewport.Load(LoadStream:TKMemoryStream);
-var s: string;
+procedure TViewport.Load(LoadStream: TKMemoryStream);
 begin
-  LoadStream.Read(s);
-  Assert(s = 'Viewport');
+  LoadStream.ReadAssert('Viewport');
   LoadStream.Read(fMapX);
   LoadStream.Read(fMapY);
   LoadStream.Read(fPosition);

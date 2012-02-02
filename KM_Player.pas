@@ -176,10 +176,8 @@ end;
 
 
 procedure TKMPlayerCommon.Load(LoadStream: TKMemoryStream);
-var s: string;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'PlayerCommon');
+  LoadStream.ReadAssert('PlayerCommon');
   fUnits.Load(LoadStream);
 end;
 

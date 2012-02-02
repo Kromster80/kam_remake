@@ -787,10 +787,9 @@ end;
 
 
 procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
-var i: integer; s: string;
+var i: integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'PlayerAI');
+  LoadStream.ReadAssert('PlayerAI');
   LoadStream.Read(PlayerIndex);
   LoadStream.Read(fHasWonOrLost);
   LoadStream.Read(fTimeOfLastAttackMessage);

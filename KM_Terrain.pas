@@ -2562,10 +2562,9 @@ end;
 
 
 procedure TTerrain.Load(LoadStream: TKMemoryStream);
-var i,k:integer; s:string;
+var i,k:integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'Terrain', 'Terrain not found');
+  LoadStream.ReadAssert('Terrain');
   LoadStream.Read(fMapX);
   LoadStream.Read(fMapY);
 

@@ -424,10 +424,11 @@ end;
 
 
 procedure TKMPlayersCollection.Load(LoadStream:TKMemoryStream);
-var i:word; s:string; PlayerIndex:TPlayerIndex;
+var
+  I: Integer;
+  PlayerIndex: TPlayerIndex;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'Players', 'Players not found');
+  LoadStream.ReadAssert('Players');
   LoadStream.Read(fCount);
   fLog.AssertToLog(fCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
 

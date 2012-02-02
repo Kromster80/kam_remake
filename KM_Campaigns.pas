@@ -257,8 +257,7 @@ end;
 procedure TKMCampaignsCollection.Load(LoadStream: TKMemoryStream);
 var s:string;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'CampaignInfo', 'CampaignInfo not found');
+  LoadStream.ReadAssert('CampaignInfo');
   LoadStream.Read(s);
   fActiveCampaign := CampaignByTitle(s);
   LoadStream.Read(fActiveCampaignMap);

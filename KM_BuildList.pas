@@ -268,10 +268,9 @@ end;
 
 
 procedure TKMHouseList.Load(LoadStream: TKMemoryStream);
-var I: Integer; s:string;
+var I: Integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'HouseList');
+  LoadStream.ReadAssert('HouseList');
 
   LoadStream.Read(fHousesCount);
   SetLength(fHouses, fHousesCount);
@@ -376,14 +375,14 @@ end;
 function TKMFieldworksList.HasField(aLoc: TKMPoint): TFieldType;
 var I: Integer;
 begin
+  Result := ft_None;
+
   for I := 0 to fFieldsCount - 1 do
   if KMSamePoint(fFields[I].Loc, aLoc) then
   begin
     Result := fFields[I].FieldType;
     Exit;
   end;
-
-  Result := ft_None;
 end;
 
 
@@ -416,10 +415,9 @@ end;
 
 
 procedure TKMFieldworksList.Load(LoadStream: TKMemoryStream);
-var I: Integer; s: string;
+var I: Integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'FieldworksList');
+  LoadStream.ReadAssert('FieldworksList');
 
   LoadStream.Read(fFieldsCount);
   SetLength(fFields, fFieldsCount);
@@ -506,6 +504,8 @@ end;
 function TKMHousePlanList.HasPlan(aLoc: TKMPoint): Boolean;
 var I: Integer;
 begin
+  Result := False;
+
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
 
@@ -517,7 +517,6 @@ begin
     Result := True;
     Exit;
   end;
-  Result := False;
 end;
 
 
@@ -632,10 +631,9 @@ end;
 
 
 procedure TKMHousePlanList.Load(LoadStream: TKMemoryStream);
-var I: Integer; s: string;
+var I: Integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'HousePlanList');
+  LoadStream.ReadAssert('HousePlanList');
 
   LoadStream.Read(fPlansCount);
   SetLength(fPlans, fPlansCount);
@@ -675,14 +673,14 @@ end;
 function TKMRepairList.HouseAlreadyInList(aHouse: TKMHouse): Boolean;
 var I: Integer;
 begin
+  Result := False;
+
   for I := 0 to fHousesCount - 1 do
     if fHouses[I].House = aHouse then
     begin
       Result := True;
       Exit;
     end;
-
-  Result := False;
 end;
 
 
@@ -783,10 +781,9 @@ end;
 
 
 procedure TKMRepairList.Load(LoadStream: TKMemoryStream);
-var I: Integer; s: string;
+var I: Integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'RepairList');
+  LoadStream.ReadAssert('RepairList');
 
   LoadStream.Read(fHousesCount);
   SetLength(fHouses, fHousesCount);
@@ -890,10 +887,9 @@ end;
 
 
 procedure TKMBuildList.Load(LoadStream: TKMemoryStream);
-var I: Integer; s: string;
+var I: Integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'WorkerList');
+  LoadStream.ReadAssert('WorkerList');
 
   LoadStream.Read(fWorkersCount);
   SetLength(fWorkers, fWorkersCount);
@@ -937,8 +933,8 @@ begin
   //We can weight the repairs by distance, severity, etc..
   //For now, each worker will go for the house closest to him
   for I := 0 to fWorkersCount - 1 do
-    if (fWorkers[I].Worker.GetUnitAction is TUnitActionStay)
-    and not TUnitActionStay(fWorkers[I].Worker.GetUnitAction).Locked then
+    //Maybe we can add reassignment code later on
+    if fWorkers[I].Worker.GetUnitTask = nil then
     begin
 
       Idx[0] := fFieldworksList.BestBid(fWorkers[I].Worker, Bid[0]);

@@ -35,7 +35,8 @@ type
     function Read(out Value:boolean     ): Longint; reintroduce; overload;
     function Read(out Value:word        ): Longint; reintroduce; overload;
     function Read(out Value:shortint    ): Longint; reintroduce; overload;
-    function ReadAsText:string;
+    procedure ReadAssert(const Value: string);
+    function ReadAsText: string;
   end;
 
   TStreamEvent = procedure (aData: TKMemoryStream) of object;
@@ -273,6 +274,13 @@ begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
+
+procedure TKMemoryStream.ReadAssert(const Value: string);
+var S: string;
+begin
+  Read(s);
+  Assert(s = Value, 'TKMemoryStream.Read <> Value');
+end;
 
 function TKMemoryStream.ReadAsText: string;
 begin

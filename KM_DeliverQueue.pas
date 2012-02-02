@@ -506,10 +506,9 @@ end;
 
 
 procedure TKMDeliverQueue.Load(LoadStream:TKMemoryStream);
-var i:integer; s:string;
+var i:integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'Deliveries');
+  LoadStream.ReadAssert('Deliveries');
   LoadStream.Read(OfferCount);
   SetLength(fOffer, OfferCount+1);
   for i:=1 to OfferCount do

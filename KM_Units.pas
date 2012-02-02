@@ -1992,10 +1992,9 @@ end;
 
 
 procedure TKMUnitsCollection.Load(LoadStream:TKMemoryStream);
-var i,UnitCount:integer; s:string; UnitType:TUnitType;
+var i,UnitCount:integer; UnitType:TUnitType;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'Units');
+  LoadStream.ReadAssert('Units');
   LoadStream.Read(UnitCount);
   for i := 0 to UnitCount - 1 do
   begin

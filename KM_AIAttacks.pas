@@ -140,10 +140,9 @@ end;
 
 
 procedure TAIAttacks.Load(LoadStream: TKMemoryStream);
-var I: Integer; s: string;
+var I: Integer;
 begin
-  LoadStream.Read(s);
-  Assert(s = 'AIAttacks');
+  LoadStream.ReadAssert('AIAttacks');
   LoadStream.Read(fCount);
   SetLength(fAttacks, fCount);
   for I := 0 to fCount - 1 do
