@@ -15,7 +15,7 @@ type
   {Class to store all terrain data, aswell terrain routines}
   TTerrain = class
   private
-    fAnimStep: Integer; //@Krom: Why isn't it Cardinal like other AnimStep variables? It causes some warnings in various places: "Combining signed and unsigned types - widened both operands"
+    fAnimStep: Cardinal;
     fMapEditor: Boolean; //In MapEd mode some fetures behave differently
     fMapX: Integer; //Terrain width and height
     fMapY: Integer; //Terrain width and height
@@ -182,7 +182,7 @@ type
     procedure MapEdTile(aLoc:TKMPoint; aTile,aRotation:byte);
 
     procedure IncAnimStep; //Lite-weight UpdateState for MapEd
-    property AnimStep: integer read fAnimStep;
+    property AnimStep: Cardinal read fAnimStep;
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -572,6 +572,9 @@ begin
   //todo: @Lewin: This may sounds like an obvious optimization
   //Towers/Archers line-of-sight is always >= radius we test, which mean
   //that CheckTileRevelation is not required (always returns True). Right?
+  //@Krom: As discussed, archers can sometimes shoot a bit further than their view radius...
+  //       So I don't think it should change. The effect basically means archers will have slightly reduced range
+  //       when firing at the edge of blackness. If the area was already explored they'll be able to shoot the normal amount.
 
   for i:=ly to hy do for k:=lx to hx do
   if (Land[i,k].IsUnit <> nil)
@@ -756,6 +759,9 @@ begin
   RecalculatePassabilityAround(Loc);
 
   //@Lewin: Please check me on this one - it does not needs wcRoad
+  //@Krom: If we allowed diagonal roads, then in very rare conditions it would need wcRoad:
+  //       Removal of the grapes object allows walking diagonally, which might effect the road network.
+  //       However since we disallow diagonal roads it's not needed, I can't see how it could effect the road network. To be deleted.
   //Update affected WalkConnect's
   RebuildWalkConnect([wcWalk, wcWolf, wcCrab]);
 end;
@@ -2614,7 +2620,7 @@ end;
 { This whole thing is very CPU intesive, think of it - to update whole (192*192) tiles map }
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TTerrain.UpdateState;
-var i,k,h,j:integer;
+var i,k,h,j:Integer;
   procedure SetLand(X,Y,aTile,aObj:byte);
   begin
     Land[Y,X].Terrain := aTile;
@@ -2624,7 +2630,7 @@ begin
   inc(fAnimStep);
 
   for i:=FallingTrees.Count downto 1 do
-  if fAnimStep - FallingTrees.Tag2[i] >= MapElem[FallingTrees.Tag[i]+1].Count-1 then
+  if fAnimStep - FallingTrees.Tag2[i]+1 >= MapElem[FallingTrees.Tag[i]+1].Count then
     ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
 
   for i:=1 to fMapY do

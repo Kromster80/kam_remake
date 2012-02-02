@@ -50,14 +50,14 @@ type
     procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
     procedure RenderTerrainBorder(Border: TBorderType; Pos: TKMDirection; pX,pY: Integer);
     procedure RenderObjectOrQuad(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderObject(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
-    procedure RenderObjectQuad(aIndex:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObject(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+    procedure RenderObjectQuad(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
     procedure RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
     procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
-    procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
+    procedure RenderTerrainObjects(x1,x2,y1,y2:Integer; AnimStep: Cardinal);
 
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderCursorHighlights;
@@ -414,7 +414,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep: Integer);
+procedure TRender.RenderTerrainObjects(x1,x2,y1,y2:Integer; AnimStep: Cardinal);
 var I,K: Integer;
 begin
   for i := y1 to y2 do
@@ -477,7 +477,7 @@ begin
 end;
 
 
-procedure TRender.RenderObject(aIndex,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderObject(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
   if MapElem[aIndex].Count=0 then exit;
@@ -507,7 +507,7 @@ end;
 
 
 { 4 objects packed on 1 tile for Corn and Grapes }
-procedure TRender.RenderObjectQuad(aIndex:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
+procedure TRender.RenderObjectQuad(aIndex:Integer; AnimStep:Cardinal; pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var FOW:byte;
   procedure AddSpriteBy(aID:integer; aAnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   var ID:integer;

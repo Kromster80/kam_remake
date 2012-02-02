@@ -768,6 +768,8 @@ begin
   //       when people were using custom made missions, so could we have a way to remember and
   //       include both the script and map files? (.dat and .map)
   //@Lewin: Yes, you are right, my mistake. Although ATM we don't store fMissionFile localy..
+  //@Krom: It would be nice to store "FileThatWeLoaded" which is either .dat or .sav.
+  //       Sometimes I wish I had the saved game they loaded when I'm debugging a crash report sent to us.
   //
   //MyZip.AddFile(fMissionFile,'Mission'); //Mission script
   for i:=1 to AUTOSAVE_COUNT do

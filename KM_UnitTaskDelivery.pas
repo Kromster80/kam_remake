@@ -202,6 +202,8 @@ begin
     //        I have removed this Distance=1 from here because it simplifies our WalkToSpot method.
     //        Please give me your thoughts on this case - maybe we need to use Distance=n
     //        in some other occasions of WalkToSpot too?
+    //@Krom: Since this change some people have complained because it's hard for serfs to get wares to the site
+    //       when workers block the enterance. But it is much simpler this way so I don't have a problem really.
     5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  begin
           fToHouse.ResAddToBuild(Carry);

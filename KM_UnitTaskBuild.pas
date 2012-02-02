@@ -911,11 +911,7 @@ function TTaskBuildHouseRepair.WalkShouldAbandon: Boolean;
 begin
   Result := fHouse.IsDestroyed 
             or not fHouse.IsDamaged 
-            or not fHouse.BuildingRepair
-            //@Lewin: Thats the only task that allows Worker to abandon it and go to eat..
-            //maybe we should remove it for consistency and to keep overall
-            //spirit of "Work is more important that food"
-            or ((fUnit.Condition < UNIT_MIN_CONDITION) and fUnit.CanGoEat);
+            or not fHouse.BuildingRepair;
 end;
 
 
