@@ -181,7 +181,7 @@ type
         Label_LobbyMapMode:TKMLabel;
         Label_LobbyMapCond:TKMLabel;
         Label_LobbyMapSize:TKMLabel;
-        Ratio_LobbyPeacetime: TKMRatioRow;
+        TrackBar_LobbyPeacetime: TKMTrackBar;
 
       Button_LobbyBack:TKMButton;
       Button_LobbyStart:TKMButton;
@@ -232,18 +232,15 @@ type
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
     Panel_Options:TKMPanel;
       Panel_Options_GFX:TKMPanel;
-        Ratio_Options_Brightness:TKMRatioRow;
+        TrackBar_Options_Brightness:TKMTrackBar;
         CheckBox_Options_Shadows:TKMCheckBox;
       Panel_Options_Ctrl:TKMPanel;
-        Label_Options_MouseSpeed:TKMLabel;
-        Ratio_Options_Mouse:TKMRatioRow;
-        Label_Options_ScrollSpeed:TKMLabel;
-        Ratio_Options_ScrollSpeed:TKMRatioRow;
+        TrackBar_Options_ScrollSpeed:TKMTrackBar;
       Panel_Options_Game:TKMPanel;
         CheckBox_Options_Autosave:TKMCheckBox;
       Panel_Options_Sound:TKMPanel;
-        Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
-        Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
+        Label_Options_MusicOn:TKMLabel;
+        TrackBar_Options_SFX,TrackBar_Options_Music:TKMTrackBar;
         CheckBox_Options_MusicOn:TKMCheckBox;
         CheckBox_Options_ShuffleOn:TKMCheckBox;
       Panel_Options_Lang:TKMPanel;
@@ -762,10 +759,10 @@ begin
       Label_LobbyMapCond := TKMLabel.Create(Panel_LobbySetup, 10, 405, 282, 20, '', fnt_Metal, taLeft);
 
       TKMLabel.Create(Panel_LobbySetup, 300, 30, 190, 20, fTextLibrary[TX_LOBBY_GAME_OPTIONS], fnt_Outline, taLeft);
-      TKMLabel.Create(Panel_LobbySetup, 300, 60, 190, 20, fTextLibrary[TX_LOBBY_PEACETIME], fnt_Metal, taLeft); //Metal fits better
-      Ratio_LobbyPeacetime := TKMRatioRow.Create(Panel_LobbySetup, 300, 80, 160, 20, 0, 120);
-      Ratio_LobbyPeacetime.Step := 5; //Round to 5min steps
-      Ratio_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
+      TrackBar_LobbyPeacetime := TKMTrackBar.Create(Panel_LobbySetup, 300, 60, 160, 0, 120);
+      TrackBar_LobbyPeacetime.Caption := fTextLibrary[TX_LOBBY_PEACETIME];
+      TrackBar_LobbyPeacetime.Step := 5; //Round to 5min steps
+      TrackBar_LobbyPeacetime.OnChange := Lobby_GameOptionsChange;
 
     Button_LobbyBack := TKMButton.Create(Panel_Lobby, 20, 712, 230, 30, fTextLibrary[TX_LOBBY_QUIT], fnt_Metal, bsMenu);
     Button_LobbyBack.OnClick := Lobby_BackClick;
@@ -979,57 +976,56 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Options_Page;
-var i:integer;
+var I: Integer;
 begin
   Panel_Options:=TKMPanel.Create(Panel_Main,0,0,MENU_DESIGN_X,MENU_DESIGN_Y);
     with TKMImage.Create(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,rxGuiMainH) do ImageStretch;
 
-    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,130);
+    //Controls section
+    Panel_Options_Ctrl:=TKMPanel.Create(Panel_Options,120,130,220,80);
       TKMLabel.Create(Panel_Options_Ctrl,6,0,288,20,fTextLibrary[TX_MENU_OPTIONS_CONTROLS],fnt_Outline,taLeft);
-      TKMBevel.Create(Panel_Options_Ctrl,0,20,220,110);
+      TKMBevel.Create(Panel_Options_Ctrl,0,20,220,60);
 
-      Label_Options_MouseSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,27,164,20,fTextLibrary.GetTextString(192),fnt_Metal,taLeft);
-      Label_Options_MouseSpeed.Disable;
-      Ratio_Options_Mouse:=TKMRatioRow.Create(Panel_Options_Ctrl,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      Ratio_Options_Mouse.Disable;
+      TrackBar_Options_ScrollSpeed := TKMTrackBar.Create(Panel_Options_Ctrl,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
+      TrackBar_Options_ScrollSpeed.Caption := fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED];
+      TrackBar_Options_ScrollSpeed.OnChange := Options_Change;
 
-      Label_Options_ScrollSpeed:=TKMLabel.Create(Panel_Options_Ctrl,18,77,188,20,fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED],fnt_Metal,taLeft);
-      Ratio_Options_ScrollSpeed:=TKMRatioRow.Create(Panel_Options_Ctrl,10,97,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      Ratio_Options_ScrollSpeed.OnChange:=Options_Change;
-
-    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,280,220,50);
+    //Gameplay section
+    Panel_Options_Game:=TKMPanel.Create(Panel_Options,120,230,220,50);
       TKMLabel.Create(Panel_Options_Game,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GAMEPLAY],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Game,0,20,220,30);
 
       CheckBox_Options_Autosave := TKMCheckBox.Create(Panel_Options_Game,12,27,176,20,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
-    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,120,350,220,100);
+    //Graphics section
+    Panel_Options_GFX:=TKMPanel.Create(Panel_Options,120,300,220,100);
       TKMLabel.Create(Panel_Options_GFX,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_GRAPHICS],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_GFX,0,20,220,80);
-      TKMLabel.Create(Panel_Options_GFX,18,27,164,20,fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS],fnt_Metal,taLeft);
-      Ratio_Options_Brightness:=TKMRatioRow.Create(Panel_Options_GFX,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      Ratio_Options_Brightness.OnChange:=Options_Change;
-      CheckBox_Options_Shadows := TKMCheckBox.Create(Panel_Options_GFX,10,74,180,20,fTextLibrary[TX_MENU_OPTIONS_HIGH_QUALITY_SHADOWS], fnt_Metal);
+      TrackBar_Options_Brightness:=TKMTrackBar.Create(Panel_Options_GFX,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
+      TrackBar_Options_Brightness.Caption := fTextLibrary[TX_MENU_OPTIONS_BRIGHTNESS];
+      TrackBar_Options_Brightness.OnChange:=Options_Change;
+      CheckBox_Options_Shadows := TKMCheckBox.Create(Panel_Options_GFX,10,74,180,20,fTextLibrary[TX_MENU_OPTIONS_SOFT_SHADOWS], fnt_Metal);
       CheckBox_Options_Shadows.OnClick := Options_Change;
 
-    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,470,220,167);
+    //SFX section
+    Panel_Options_Sound:=TKMPanel.Create(Panel_Options,120,420,220,167);
       TKMLabel.Create(Panel_Options_Sound,6,0,188,20,fTextLibrary[TX_MENU_OPTIONS_SOUND],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Sound,0,20,220,147);
 
-      Label_Options_SFX:=TKMLabel.Create(Panel_Options_Sound,18,27,164,20,fTextLibrary.GetTextString(194),fnt_Metal,taLeft);
-      Ratio_Options_SFX:=TKMRatioRow.Create(Panel_Options_Sound,10,47,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      Ratio_Options_SFX.OnChange:=Options_Change;
-      Label_Options_Music:=TKMLabel.Create(Panel_Options_Sound,18,77,174,20,fTextLibrary.GetTextString(196),fnt_Metal,taLeft);
-      Ratio_Options_Music:=TKMRatioRow.Create(Panel_Options_Sound,10,97,180,20,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
-      Ratio_Options_Music.OnChange:=Options_Change;
+      TrackBar_Options_SFX:=TKMTrackBar.Create(Panel_Options_Sound,10,27,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
+      TrackBar_Options_SFX.Caption := fTextLibrary.GetTextString(194);
+      TrackBar_Options_SFX.OnChange:=Options_Change;
+      TrackBar_Options_Music:=TKMTrackBar.Create(Panel_Options_Sound,10,77,180,OPT_SLIDER_MIN,OPT_SLIDER_MAX);
+      TrackBar_Options_Music.Caption := fTextLibrary.GetTextString(196);
+      TrackBar_Options_Music.OnChange:=Options_Change;
       CheckBox_Options_MusicOn := TKMCheckBox.Create(Panel_Options_Sound,12,127,176,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE], fnt_Metal);
       CheckBox_Options_MusicOn.OnClick := Options_Change;
       CheckBox_Options_ShuffleOn := TKMCheckBox.Create(Panel_Options_Sound,12,147,184,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE], fnt_Metal);
       CheckBox_Options_ShuffleOn.OnClick := Options_Change;
 
+    //Resolutions section
     Panel_Options_Res := TKMPanel.Create(Panel_Options,360,130,210,30+RESOLUTION_COUNT*20);
-      //Resolution selector
       TKMLabel.Create(Panel_Options_Res,6,0,188,20,fTextLibrary.GetSetupString(20),fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Res,0,20,210,10+Math.max(RESOLUTION_COUNT,REFRESH_RATE_COUNT)*20);
       for i := 1 to RESOLUTION_COUNT do
@@ -1050,6 +1046,7 @@ begin
       Button_Options_ResApply:=TKMButton.Create(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary[TX_MENU_OPTIONS_APPLY],fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
 
+    //Language section
     Panel_Options_Lang:=TKMPanel.Create(Panel_Options,590,130,220,30+LOCALES_COUNT*20);
       TKMLabel.Create(Panel_Options_Lang,6,0,242,20,fTextLibrary[TX_MENU_OPTIONS_LANGUAGE],fnt_Outline,taLeft);
       TKMBevel.Create(Panel_Options_Lang,0,20,246,10+LOCALES_COUNT*20);
@@ -1064,6 +1061,7 @@ begin
       end;
       Radio_Options_Lang.OnChange := Options_Change;
 
+    //Back button
     Button_Options_Back:=TKMButton.Create(Panel_Options,120,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
 end;
@@ -1797,7 +1795,7 @@ begin
   Label_LobbyMapName.Caption := '';
   Memo_LobbyMapDesc.Clear;
 
-  Ratio_LobbyPeacetime.Position := 0; //Default peacetime = 0
+  TrackBar_LobbyPeacetime.Position := 0; //Default peacetime = 0
 
   Lobby_OnMapName('');
 
@@ -1812,7 +1810,7 @@ begin
     Label_LobbyChooseMap.Show;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_START]; //Start
     Button_LobbyStart.Disable;
-    Ratio_LobbyPeacetime.Enable;
+    TrackBar_LobbyPeacetime.Enable;
     CheckBox_LobbyHostControl.Enable;
   end
   else //Setup for Joiner
@@ -1824,7 +1822,7 @@ begin
     Label_LobbyChooseMap.Hide;
     Button_LobbyStart.Caption := fTextLibrary[TX_LOBBY_READY]; //Ready
     Button_LobbyStart.Enable;
-    Ratio_LobbyPeacetime.Disable;
+    TrackBar_LobbyPeacetime.Disable;
     CheckBox_LobbyHostControl.Disable;
   end;
 end;
@@ -1833,7 +1831,7 @@ end;
 procedure TKMMainMenuInterface.Lobby_GameOptionsChange(Sender: TObject);
 begin
   //Set the peacetime
-  fGame.Networking.NetGameOptions.Peacetime := EnsureRange(Ratio_LobbyPeacetime.Position, 0, 300);
+  fGame.Networking.NetGameOptions.Peacetime := EnsureRange(TrackBar_LobbyPeacetime.Position, 0, 300);
   fGame.Networking.SendGameOptions;
 
   //Refresh the data to controls
@@ -1843,7 +1841,7 @@ end;
 
 procedure TKMMainMenuInterface.Lobby_OnGameOptions(Sender: TObject);
 begin
-  Ratio_LobbyPeacetime.Position := fGame.Networking.NetGameOptions.Peacetime;
+  TrackBar_LobbyPeacetime.Position := fGame.Networking.NetGameOptions.Peacetime;
 end;
 
 
@@ -2095,7 +2093,7 @@ begin
       Label_LobbyMapName.Caption := fGame.Networking.SaveInfo.Filename;
       Memo_LobbyMapDesc.Clear;
       Memo_LobbyMapDesc.Text := fGame.Networking.GameInfo.GetTitleWithTime;
-      Ratio_LobbyPeacetime.Disable;
+      TrackBar_LobbyPeacetime.Disable;
       if not fGame.Networking.IsHost then Radio_LobbyMapType.ItemIndex := 3;
     end
     else
@@ -2103,7 +2101,7 @@ begin
       Label_LobbyMapName.Caption := fGame.Networking.GameInfo.Title;
       Memo_LobbyMapDesc.Text := fGame.Networking.MapInfo.BigDesc;
       if fGame.Networking.IsHost then
-        Ratio_LobbyPeacetime.Enable
+        TrackBar_LobbyPeacetime.Enable
       else
       begin
         if fGame.Networking.MapInfo.IsCoop then
@@ -2393,17 +2391,16 @@ end;
 procedure TKMMainMenuInterface.Options_Fill(aGlobalSettings:TGlobalSettings);
 var i:cardinal;
 begin
-  CheckBox_Options_Autosave.Checked   := aGlobalSettings.Autosave;
-  Ratio_Options_Brightness.Position   := aGlobalSettings.Brightness;
-  CheckBox_Options_Shadows.Checked    := aGlobalSettings.AlphaShadows;
-  Ratio_Options_Mouse.Position        := aGlobalSettings.MouseSpeed;
-  Ratio_Options_ScrollSpeed.Position  := aGlobalSettings.ScrollSpeed;
-  Ratio_Options_SFX.Position          := aGlobalSettings.SoundFXVolume;
-  Ratio_Options_Music.Position        := aGlobalSettings.MusicVolume;
-  CheckBox_Options_MusicOn.Checked    := not aGlobalSettings.MusicOn;
-  Ratio_Options_Music.Enabled         := not CheckBox_Options_MusicOn.Checked;
-  CheckBox_Options_ShuffleOn.Checked  := aGlobalSettings.ShuffleOn;
-  CheckBox_Options_ShuffleOn.Enabled  := not CheckBox_Options_MusicOn.Checked;
+  CheckBox_Options_Autosave.Checked     := aGlobalSettings.Autosave;
+  TrackBar_Options_Brightness.Position  := aGlobalSettings.Brightness;
+  CheckBox_Options_Shadows.Checked      := aGlobalSettings.AlphaShadows;
+  TrackBar_Options_ScrollSpeed.Position := aGlobalSettings.ScrollSpeed;
+  TrackBar_Options_SFX.Position         := aGlobalSettings.SoundFXVolume;
+  TrackBar_Options_Music.Position       := aGlobalSettings.MusicVolume;
+  CheckBox_Options_MusicOn.Checked      := not aGlobalSettings.MusicOn;
+  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOn.Checked;
+  CheckBox_Options_ShuffleOn.Checked    := aGlobalSettings.ShuffleOn;
+  CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOn.Checked;
 
   for i:=1 to LOCALES_COUNT do
     if SameText(aGlobalSettings.Locale, Locales[i,1]) then
@@ -2439,16 +2436,15 @@ begin
   ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Options_ShuffleOn.Checked);
 
   fGame.GlobalSettings.Autosave         := CheckBox_Options_Autosave.Checked;
-  fGame.GlobalSettings.Brightness       := Ratio_Options_Brightness.Position;
+  fGame.GlobalSettings.Brightness       := TrackBar_Options_Brightness.Position;
   fGame.GlobalSettings.AlphaShadows     := CheckBox_Options_Shadows.Checked;
-  fGame.GlobalSettings.MouseSpeed       := Ratio_Options_Mouse.Position;
-  fGame.GlobalSettings.ScrollSpeed      := Ratio_Options_ScrollSpeed.Position;
-  fGame.GlobalSettings.SoundFXVolume    := Ratio_Options_SFX.Position;
-  fGame.GlobalSettings.MusicVolume      := Ratio_Options_Music.Position;
+  fGame.GlobalSettings.ScrollSpeed      := TrackBar_Options_ScrollSpeed.Position;
+  fGame.GlobalSettings.SoundFXVolume    := TrackBar_Options_SFX.Position;
+  fGame.GlobalSettings.MusicVolume      := TrackBar_Options_Music.Position;
   fGame.GlobalSettings.MusicOn          := not CheckBox_Options_MusicOn.Checked;
   fGame.GlobalSettings.ShuffleOn        := CheckBox_Options_ShuffleOn.Checked;
   fGame.GlobalSettings.FullScreen       := CheckBox_Options_FullScreen.Checked;
-  Ratio_Options_Music.Enabled           := not CheckBox_Options_MusicOn.Checked;
+  TrackBar_Options_Music.Enabled        := not CheckBox_Options_MusicOn.Checked;
   CheckBox_Options_ShuffleOn.Enabled    := not CheckBox_Options_MusicOn.Checked;
 
   fSoundLib.UpdateSoundVolume(fGame.GlobalSettings.SoundFXVolume / fGame.GlobalSettings.SlidersMax);

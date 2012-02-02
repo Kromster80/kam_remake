@@ -197,8 +197,7 @@ type
       Image_RatioPic0:TKMImage;
       Label_RatioLab0:TKMLabel;
       Image_RatioPic:array[1..4]of TKMImage;
-      Label_RatioLab:array[1..4]of TKMLabel;
-      Ratio_RatioRat:array[1..4]of TKMRatioRow;
+      TrackBar_RatioRat:array[1..4]of TKMTrackBar;
     Panel_Stats:TKMPanel;
       Stat_HousePic,Stat_UnitPic:array[1..32]of TKMImage;
       Stat_HouseQty,Stat_HouseWip,Stat_UnitQty:array[1..32]of TKMLabel;
@@ -229,15 +228,17 @@ type
         Label_Load_Description: TKMLabel;
         Button_Load: TKMButton;
 
-      Panel_Settings:TKMPanel;
-        Ratio_Settings_Brightness:TKMRatioRow;
-        CheckBox_Settings_Autosave, CheckBox_Settings_ShuffleOn:TKMCheckBox;
-        Label_Settings_MouseSpeed,Label_Settings_ScrollSpeed,Label_Settings_SFX,Label_Settings_Music,Label_Settings_Music2:TKMLabel;
-        Ratio_Settings_Mouse,Ratio_Settings_SFX,Ratio_Settings_Music,Ratio_Settings_ScrollSpeed:TKMRatioRow;
-        CheckBox_Settings_MusicOn:TKMCheckBox;
+      Panel_Settings: TKMPanel;
+        CheckBox_Settings_Autosave: TKMCheckBox;
+        TrackBar_Settings_Brightness: TKMTrackBar;
+        TrackBar_Settings_SFX: TKMTrackBar;
+        TrackBar_Settings_Music: TKMTrackBar;
+        TrackBar_Settings_ScrollSpeed: TKMTrackBar;
+        CheckBox_Settings_MusicOn: TKMCheckBox;
+        CheckBox_Settings_ShuffleOn: TKMCheckBox;
 
-      Panel_Quit:TKMPanel;
-        Button_Quit_Yes,Button_Quit_No:TKMButton;
+      Panel_Quit: TKMPanel;
+        Button_Quit_Yes, Button_Quit_No: TKMButton;
 
     Panel_Unit:TKMPanel;
       Label_UnitName:TKMLabel;
@@ -384,25 +385,25 @@ begin
   Image_RatioPic0.Show;
   Label_RatioLab0.Show;
 
-  for i:=1 to ResRatioHouseCount[RatioTab] do begin
+  for i:=1 to ResRatioHouseCount[RatioTab] do
+  begin
     HT := ResRatioHouse[RatioTab, i];
     //Do not allow player to see yet unreleased houses. Though house may be prebuilt and unreleased
     if MyPlayer.Stats.HouseReleased[HT] or (MyPlayer.Stats.GetHouseQty(HT)>0) then
     begin
       Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
-      Label_RatioLab[i].Caption := fResource.HouseDat[HT].HouseName;
-      Ratio_RatioRat[i].Position := MyPlayer.Stats.Ratio[ResRatioType[RatioTab], HT];
-      Ratio_RatioRat[i].Enable;
+      TrackBar_RatioRat[i].Caption := fResource.HouseDat[HT].HouseName;
+      TrackBar_RatioRat[i].Position := MyPlayer.Stats.Ratio[ResRatioType[RatioTab], HT];
+      TrackBar_RatioRat[i].Enable;
     end else begin
       Image_RatioPic[i].TexID := 41; //Question mark
-      Label_RatioLab[i].Caption := fTextLibrary[TX_GAMEPLAY_NOT_AVAILABLE]; //"Building not available" text doesn't fit
-      Ratio_RatioRat[i].Position := 0;
-      Ratio_RatioRat[i].Disable;
+      TrackBar_RatioRat[i].Caption := fTextLibrary[TX_GAMEPLAY_NOT_AVAILABLE];
+      TrackBar_RatioRat[i].Position := 0;
+      TrackBar_RatioRat[i].Disable;
     end;
 
     Image_RatioPic[i].Show;
-    Label_RatioLab[i].Show;
-    Ratio_RatioRat[i].Show;
+    TrackBar_RatioRat[i].Show;
   end;
 end;
 
@@ -411,9 +412,9 @@ procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
 var RT:TResourceType; HT:THouseType;
 begin
   RT := ResRatioType[RatioTab];
-  HT := ResRatioHouse[RatioTab, TKMRatioRow(Sender).Tag];
+  HT := ResRatioHouse[RatioTab, TKMTrackBar(Sender).Tag];
 
-  fGame.GameInputProcess.CmdRatio(gic_RatioChange, RT, HT, TKMRatioRow(Sender).Position);
+  fGame.GameInputProcess.CmdRatio(gic_RatioChange, RT, HT, TKMTrackBar(Sender).Position);
 end;
 
 
@@ -1131,10 +1132,10 @@ begin
 
   for i:=1 to 4 do begin
     Image_RatioPic[i]         := TKMImage.Create(Panel_Ratios,12,124+(i-1)*50,32,32,327);
-    Label_RatioLab[i]         := TKMLabel.Create(Panel_Ratios,50,116+(i-1)*50,148,20,'<<<LEER>>>',fnt_Grey,taLeft);
-    Ratio_RatioRat[i]         := TKMRatioRow.Create(Panel_Ratios,48,136+(i-1)*50,140,20,0,5);
-    Ratio_RatioRat[i].Tag     := i;
-    Ratio_RatioRat[i].OnChange:= RatiosChange;
+    //Label_RatioLab[i]         := TKMLabel.Create(Panel_Ratios,50,116+(i-1)*50,148,20,'<<<LEER>>>',fnt_Grey,taLeft);
+    TrackBar_RatioRat[i]         := TKMTrackBar.Create(Panel_Ratios,48,116+(i-1)*50,140,0,5);
+    TrackBar_RatioRat[i].Tag     := i;
+    TrackBar_RatioRat[i].OnChange:= RatiosChange;
   end;
 end;
 
@@ -1279,33 +1280,27 @@ end;
 {Options page}
 procedure TKMGamePlayInterface.Create_Settings_Page;
 begin
-  Panel_Settings:=TKMPanel.Create(Panel_Main,0,412,200,400);
-    TKMLabel.Create(Panel_Settings,18,12,160,30,fTextLibrary.GetTextString(181),fnt_Metal,taLeft);
-    Ratio_Settings_Brightness:=TKMRatioRow.Create(Panel_Settings,18,30,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    Ratio_Settings_Brightness.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_Autosave:=TKMCheckBox.Create(Panel_Settings,18,70,180,20,fTextLibrary.GetTextString(203),fnt_Metal);
+  Panel_Settings := TKMPanel.Create(Panel_Main,0,412,200,400);
+    CheckBox_Settings_Autosave := TKMCheckBox.Create(Panel_Settings,18,15,180,20,fTextLibrary.GetTextString(203),fnt_Metal);
     CheckBox_Settings_Autosave.OnClick := Menu_Settings_Change;
-    Label_Settings_ScrollSpeed:=TKMLabel.Create(Panel_Settings,18,95,160,30,fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED],fnt_Metal,taLeft);
-    Ratio_Settings_ScrollSpeed:=TKMRatioRow.Create(Panel_Settings,18,113,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    Ratio_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
-    Label_Settings_MouseSpeed:=TKMLabel.Create(Panel_Settings,18,143,160,20,fTextLibrary.GetTextString(192),fnt_Metal,taLeft);
-    Label_Settings_MouseSpeed.Disable;
-    Ratio_Settings_Mouse:=TKMRatioRow.Create(Panel_Settings,18,161,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    Ratio_Settings_Mouse.Disable;
-    Ratio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
-    Ratio_Settings_Mouse.OnChange := Menu_Settings_Change;
-    Label_Settings_SFX:=TKMLabel.Create(Panel_Settings,18,191,160,30,fTextLibrary.GetTextString(194),fnt_Metal,taLeft);
-    Ratio_Settings_SFX:=TKMRatioRow.Create(Panel_Settings,18,209,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    Ratio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
-    Ratio_Settings_SFX.OnChange := Menu_Settings_Change;
-    Label_Settings_Music:=TKMLabel.Create(Panel_Settings,18,239,160,30,fTextLibrary.GetTextString(196),fnt_Metal,taLeft);
-    Ratio_Settings_Music:=TKMRatioRow.Create(Panel_Settings,18,257,160,20,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
-    Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
-    Ratio_Settings_Music.OnChange := Menu_Settings_Change;
-    CheckBox_Settings_MusicOn:=TKMCheckBox.Create(Panel_Settings,18,287,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
-    CheckBox_Settings_MusicOn.Hint:=fTextLibrary.GetTextString(198);
+    TrackBar_Settings_Brightness := TKMTrackBar.Create(Panel_Settings,18,40,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_Brightness.Caption := fTextLibrary.GetTextString(181);
+    TrackBar_Settings_Brightness.OnChange := Menu_Settings_Change;
+    TrackBar_Settings_ScrollSpeed := TKMTrackBar.Create(Panel_Settings,18,95,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_ScrollSpeed.Caption := fTextLibrary[TX_MENU_OPTIONS_SCROLL_SPEED];
+    TrackBar_Settings_ScrollSpeed.OnChange := Menu_Settings_Change;
+    TrackBar_Settings_SFX := TKMTrackBar.Create(Panel_Settings,18,150,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_SFX.Caption := fTextLibrary.GetTextString(194);
+    TrackBar_Settings_SFX.Hint := fTextLibrary.GetTextString(195);
+    TrackBar_Settings_SFX.OnChange := Menu_Settings_Change;
+    TrackBar_Settings_Music := TKMTrackBar.Create(Panel_Settings,18,205,160,fGame.GlobalSettings.SlidersMin,fGame.GlobalSettings.SlidersMax);
+    TrackBar_Settings_Music.Caption := fTextLibrary.GetTextString(196);
+    TrackBar_Settings_Music.Hint := fTextLibrary.GetTextString(195);
+    TrackBar_Settings_Music.OnChange := Menu_Settings_Change;
+    CheckBox_Settings_MusicOn := TKMCheckBox.Create(Panel_Settings,18,260,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_DISABLE],fnt_Metal);
+    CheckBox_Settings_MusicOn.Hint := fTextLibrary.GetTextString(198);
     CheckBox_Settings_MusicOn.OnClick := Menu_Settings_Change;
-    CheckBox_Settings_ShuffleOn:=TKMCheckBox.Create(Panel_Settings,18,312,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
+    CheckBox_Settings_ShuffleOn := TKMCheckBox.Create(Panel_Settings,18,285,180,20,fTextLibrary[TX_MENU_OPTIONS_MUSIC_SHUFFLE],fnt_Metal);
     CheckBox_Settings_ShuffleOn.OnClick := Menu_Settings_Change;
 end;
 
@@ -2315,16 +2310,15 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Settings_Fill;
 begin
-  Ratio_Settings_Brightness.Position    := fGame.GlobalSettings.Brightness;
+  TrackBar_Settings_Brightness.Position    := fGame.GlobalSettings.Brightness;
   CheckBox_Settings_Autosave.Checked    := fGame.GlobalSettings.Autosave;
-  Ratio_Settings_ScrollSpeed.Position   := fGame.GlobalSettings.ScrollSpeed;
-  Ratio_Settings_Mouse.Position         := fGame.GlobalSettings.MouseSpeed;
-  Ratio_Settings_SFX.Position           := fGame.GlobalSettings.SoundFXVolume;
-  Ratio_Settings_Music.Position         := fGame.GlobalSettings.MusicVolume;
+  TrackBar_Settings_ScrollSpeed.Position   := fGame.GlobalSettings.ScrollSpeed;
+  TrackBar_Settings_SFX.Position           := fGame.GlobalSettings.SoundFXVolume;
+  TrackBar_Settings_Music.Position         := fGame.GlobalSettings.MusicVolume;
   CheckBox_Settings_MusicOn.Checked     := not fGame.GlobalSettings.MusicOn;
   CheckBox_Settings_ShuffleOn.Checked   := fGame.GlobalSettings.ShuffleOn;
 
-  Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
+  TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
   CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 
@@ -2335,12 +2329,11 @@ begin
   MusicToggled   := (fGame.GlobalSettings.MusicOn = CheckBox_Settings_MusicOn.Checked);
   ShuffleToggled := (not fGame.GlobalSettings.ShuffleOn = CheckBox_Settings_ShuffleOn.Checked);
 
-  fGame.GlobalSettings.Brightness    := Ratio_Settings_Brightness.Position;
+  fGame.GlobalSettings.Brightness    := TrackBar_Settings_Brightness.Position;
   fGame.GlobalSettings.Autosave      := CheckBox_Settings_Autosave.Checked;
-  fGame.GlobalSettings.ScrollSpeed   := Ratio_Settings_ScrollSpeed.Position;
-  fGame.GlobalSettings.MouseSpeed    := Ratio_Settings_Mouse.Position;
-  fGame.GlobalSettings.SoundFXVolume := Ratio_Settings_SFX.Position;
-  fGame.GlobalSettings.MusicVolume   := Ratio_Settings_Music.Position;
+  fGame.GlobalSettings.ScrollSpeed   := TrackBar_Settings_ScrollSpeed.Position;
+  fGame.GlobalSettings.SoundFXVolume := TrackBar_Settings_SFX.Position;
+  fGame.GlobalSettings.MusicVolume   := TrackBar_Settings_Music.Position;
   fGame.GlobalSettings.MusicOn       := not CheckBox_Settings_MusicOn.Checked;
   fGame.GlobalSettings.ShuffleOn     := CheckBox_Settings_ShuffleOn.Checked;
 
@@ -2355,7 +2348,7 @@ begin
   if ShuffleToggled then
     fGame.MusicLib.ToggleShuffle(fGame.GlobalSettings.ShuffleOn);
 
-  Ratio_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
+  TrackBar_Settings_Music.Enabled := not CheckBox_Settings_MusicOn.Checked;
   CheckBox_Settings_ShuffleOn.Enabled := not CheckBox_Settings_MusicOn.Checked;
 end;
 

@@ -32,8 +32,8 @@ type
     TextStrings: array[0..MaxStrings] of AnsiString;
     SetupStrings: array[0..MaxStrings] of AnsiString;
     RemakeStrings: TAnsiStringArray;
-    procedure LoadLIBFile(FilePath:AnsiString; var aArray:array of AnsiString);
-    procedure LoadLIBXFile(FilePath:AnsiString; var aArray:TAnsiStringArray; aInitializeValues:boolean);
+    procedure LoadLIBFile(FilePath: string; var aArray:array of AnsiString);
+    procedure LoadLIBXFile(FilePath: string; var aArray:TAnsiStringArray; aInitializeValues:boolean);
     procedure ExportTextLibrary(var aLibrary: array of AnsiString; aFileName:AnsiString);
     function GetRemakeString(aIndex:word):AnsiString;
     function GetTexts(aIndex:word):AnsiString;
@@ -76,7 +76,7 @@ begin
 end;
 
 
-procedure TTextLibrary.LoadLIBFile(FilePath:AnsiString; var aArray:array of AnsiString);
+procedure TTextLibrary.LoadLIBFile(FilePath: string; var aArray:array of AnsiString);
 var
   f:file; NumRead:integer;
   i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
@@ -146,7 +146,7 @@ end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TTextLibrary.LoadLIBXFile(FilePath:AnsiString; var aArray:TAnsiStringArray; aInitializeValues:boolean);
+procedure TTextLibrary.LoadLIBXFile(FilePath: string; var aArray:TAnsiStringArray; aInitializeValues:boolean);
 var
   aStringList:TStringList;
   i:integer;

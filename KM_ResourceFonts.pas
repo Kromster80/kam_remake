@@ -19,7 +19,7 @@ type
       u1,v1,u2,v2:single;
     end;
     LineSpacing: Byte; //Not in KaM files, we use custom value that fits well
-    procedure LoadFont(FileName: AnsiString; aRenderSetup: TRenderSetup; aFont: TKMFont; ExportToBMP: Boolean);
+    procedure LoadFont(const aFileName: string; aRenderSetup: TRenderSetup; aFont: TKMFont; ExportToBMP: Boolean);
   end;
 
 
@@ -35,9 +35,9 @@ type
 
     property FontData[aIndex: TKMFont]: TKMFontData read GetFontData;
 
-    function WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer; aForced: boolean): AnsiString;
-    function CharsThatFit(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: integer): integer;
-    function GetTextSize(Text: AnsiString; Fnt: TKMFont): TKMPoint;
+    function WordWrap(aText: string; aFont: TKMFont; aMaxPxWidth: integer; aForced: boolean): string;
+    function CharsThatFit(const aText: string; aFont: TKMFont; aMaxPxWidth: integer): integer;
+    function GetTextSize(const aText: string; Fnt: TKMFont): TKMPoint;
 
     procedure LoadFonts(aLocale: AnsiString);
     procedure ExportFonts(aLocale: AnsiString);
@@ -61,7 +61,7 @@ const //Font01.fnt seems to be damaged..
 
 
 { TKMFontData }
-procedure TKMFontData.LoadFont(FileName: AnsiString; aRenderSetup: TRenderSetup; aFont: TKMFont; ExportToBMP: Boolean);
+procedure TKMFontData.LoadFont(const aFileName: string; aRenderSetup: TRenderSetup; aFont: TKMFont; ExportToBMP: Boolean);
 const
   TexWidth = 256; //Connected to TexData, don't change
 var
@@ -73,10 +73,10 @@ var
   MyBitMap:TBitMap;
 begin
   MaxHeight := 0;
-  if not FileExists(FileName) then exit;
+  if not FileExists(aFileName) then exit;
 
   S := TKMemoryStream.Create;
-  S.LoadFromFile(FileName);
+  S.LoadFromFile(aFileName);
 
   S.Read(Unk1, 8);
   S.Read(Pal[0], 256);
@@ -151,7 +151,7 @@ begin
 
     CreateDir(ExeDir+'Export\');
     CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(FileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(aFileName)+fResource.Palettes.PalFile(FontPal[aFont])+'.bmp');
     MyBitMap.Free;
   end;
 
@@ -228,7 +228,7 @@ begin
 end;
 
 
-function TResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean):AnsiString;
+function TResourceFont.WordWrap(aText: string; aFont: TKMFont; aMaxPxWidth:integer; aForced:boolean): string;
 var
   i, CharSpacing, AdvX, PrevX, LastSpace: integer;
 begin
@@ -243,7 +243,8 @@ begin
     if aText[i]=#32 then inc(AdvX, fFontData[aFont].WordSpacing)
                     else inc(AdvX, fFontData[aFont].Letters[byte(aText[i])].Width + CharSpacing);
 
-    if (aText[i]=#32) or (aText[i]=#124) then begin
+    if (aText[i]=#32) or (aText[i]=#124) then
+    begin
       LastSpace := i;
       PrevX := AdvX;
     end;
@@ -268,7 +269,7 @@ begin
 end;
 
 
-function TResourceFont.CharsThatFit(aText: AnsiString; aFont: TKMFont; aMaxPxWidth:integer):integer;
+function TResourceFont.CharsThatFit(const aText: string; aFont: TKMFont; aMaxPxWidth:integer):integer;
 var i,CharSpacing,AdvX:integer;
 begin
   AdvX := 0;
@@ -289,7 +290,7 @@ begin
 end;
 
 
-function TResourceFont.GetTextSize(Text:AnsiString; Fnt:TKMFont):TKMPoint;
+function TResourceFont.GetTextSize(const aText: string; Fnt:TKMFont):TKMPoint;
 var
   i:integer;
   CharSpacing,LineCount:integer;
@@ -298,21 +299,22 @@ begin
   Result.X := 0;
   Result.Y := 0;
 
-  if Text='' then Exit;
+  if aText='' then Exit;
 
   LineCount := 1;
-  for i:=1 to length(Text) do
-    if Text[i]=#124 then inc(LineCount);
+  for i:=1 to length(aText) do
+    if aText[i]=#124 then inc(LineCount);
 
   SetLength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
   CharSpacing := fFontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
-  for i:=1 to length(Text) do begin
-    if Text[i]<>#124 then
-      if Text[i]=#32 then inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
-                     else inc(LineWidth[LineCount], fFontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
-    if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
+  for i:=1 to length(aText) do begin
+    if aText[i]<>#124 then
+      if aText[i]=#32 then inc(LineWidth[LineCount], fFontData[Fnt].WordSpacing)
+                     else inc(LineWidth[LineCount], fFontData[Fnt].Letters[byte(aText[i])].Width+CharSpacing);
+    if (aText[i]=#124)or(i=length(aText)) then
+    begin //If EOL or aText end
       LineWidth[LineCount] := Math.max(0, LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
     end;

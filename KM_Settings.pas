@@ -16,7 +16,6 @@ type
     fFullScreen:boolean;
     fAlphaShadows:boolean;
     fLocale:shortstring;
-    fMouseSpeed:byte;
     fMusicOn:boolean;
     fShuffleOn:boolean;
     fMusicVolume:byte;
@@ -55,7 +54,6 @@ type
     procedure SetFullScreen(aValue:boolean);
     procedure SetAlphaShadows(aValue:boolean);
     procedure SetLocale(aLocale:shortstring);
-    procedure SetMouseSpeed(aValue:byte);
     procedure SetMusicOn(aValue:boolean);
     procedure SetShuffleOn(aValue:boolean);
     procedure SetMusicVolume(aValue:byte);
@@ -82,7 +80,6 @@ type
     property AlphaShadows:boolean read fAlphaShadows write SetAlphaShadows default true;
     property Locale:shortstring read fLocale write SetLocale;
     function GetLocalID:byte;
-    property MouseSpeed:byte read fMouseSpeed write SetMouseSpeed;
     property MusicOn:boolean read fMusicOn write SetMusicOn default true;
     property ShuffleOn:boolean read fShuffleOn write SetShuffleOn default false;
     property MusicVolume:byte read fMusicVolume write SetMusicVolume;
@@ -179,7 +176,6 @@ begin
 
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
   fScrollSpeed   := f.ReadInteger('Game','ScrollSpeed',10);
-  fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
   Locale         := f.ReadString ('Game','Locale','eng'); //Wrong name will become ENG too
   fSpeedPace     := f.ReadInteger('Game','SpeedPace',100);
   fSpeedMedium   := f.ReadInteger('Game','SpeedMedium',3);
@@ -237,7 +233,6 @@ begin
 
   f.WriteBool   ('Game','Autosave',   fAutosave);
   f.WriteInteger('Game','ScrollSpeed',fScrollSpeed);
-  f.WriteInteger('Game','MouseSpeed', fMouseSpeed);
   f.WriteString ('Game','Locale',     fLocale);
   f.WriteInteger('Game','SpeedPace',  fSpeedPace);
   f.WriteInteger('Game','SpeedMedium',fSpeedMedium);
@@ -316,13 +311,6 @@ end;
 procedure TGlobalSettings.SetAlphaShadows(aValue:boolean);
 begin
   fAlphaShadows := aValue;
-  fNeedsSave  := true;
-end;
-
-
-procedure TGlobalSettings.SetMouseSpeed(aValue:byte);
-begin
-  fMouseSpeed := EnsureRange(aValue,fSlidersMin,fSlidersMax);
   fNeedsSave  := true;
 end;
 

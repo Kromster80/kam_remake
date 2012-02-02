@@ -17,8 +17,8 @@ type
   private
     fAnimStep: Cardinal;
     fMapEditor: Boolean; //In MapEd mode some fetures behave differently
-    fMapX: Integer; //Terrain width and height
-    fMapY: Integer; //Terrain width and height
+    fMapX: Word; //Terrain width and height
+    fMapY: Word; //Terrain width and height
   public
     Land: array[1..MAX_MAP_SIZE,1..MAX_MAP_SIZE]of record
       Terrain:byte;
@@ -2620,7 +2620,7 @@ end;
 { This whole thing is very CPU intesive, think of it - to update whole (192*192) tiles map }
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TTerrain.UpdateState;
-var i,k,h,j:Integer;
+var i,k,h,j: Word;
   procedure SetLand(X,Y,aTile,aObj:byte);
   begin
     Land[Y,X].Terrain := aTile;

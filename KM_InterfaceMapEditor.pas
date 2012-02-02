@@ -69,7 +69,7 @@ type
     Panel_Main:TKMPanel;
       Minimap:TKMMinimap;
       Label_Coordinates:TKMLabel;
-      RatioRow_Passability:TKMRatioRow;
+      TrackBar_Passability:TKMTrackBar;
       Label_Passability:TKMLabel;
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
@@ -81,10 +81,10 @@ type
     Panel_Terrain:TKMPanel;
       Button_Terrain:array[1..4]of TKMButton;
       Panel_Brushes:TKMPanel;
-        BrushSize:TKMRatioRow;
+        BrushSize:TKMTrackBar;
         BrushCircle,BrushSquare:TKMButtonFlat;
       Panel_Heights:TKMPanel;
-        HeightSize,HeightShape:TKMRatioRow;
+        HeightSize,HeightShape:TKMTrackBar;
         HeightCircle,HeightSquare:TKMButtonFlat;
       Panel_Tiles:TKMPanel;
         TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
@@ -405,11 +405,10 @@ begin
     Minimap.OnChange := Minimap_Update;
 
     Label_Coordinates := TKMLabel.Create(Panel_Main,8,192,184,0,'X: Y:',fnt_Outline,taLeft);
-    TKMLabel.Create(Panel_Main,8,210,184,0,'View passability',fnt_Metal,taLeft);
-    RatioRow_Passability := TKMRatioRow.Create(Panel_Main, 8, 226, 184, 20, 0, 13);
-    RatioRow_Passability.Position := 0;
-    RatioRow_Passability.MaxValue := length(PassabilityStr);
-    RatioRow_Passability.OnChange := View_Passability;
+    TrackBar_Passability := TKMTrackBar.Create(Panel_Main, 8, 210, 184, 0, Length(PassabilityStr));
+    TrackBar_Passability.Caption := 'View passability';
+    TrackBar_Passability.Position := 0; //Disabled by default
+    TrackBar_Passability.OnChange := View_Passability;
     Label_Passability := TKMLabel.Create(Panel_Main,8,248,184,0,'Off',fnt_Metal,taLeft);
 
     TKMLabel.Create(Panel_Main,8,270,184,0,'Player',fnt_Metal,taLeft);
@@ -497,7 +496,7 @@ begin
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,196,400);
-      BrushSize   := TKMRatioRow.Create(Panel_Brushes, 8, 10, 100, 20, 1, 12);
+      BrushSize   := TKMTrackBar.Create(Panel_Brushes, 8, 10, 100, 1, 12);
       BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 114, 8, 24, 24, 359);
       BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 142, 8, 24, 24, 352);
       TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);
@@ -507,12 +506,10 @@ begin
       BrushSquare.OnChange := TerrainBrush_Change;}
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,196,400);
-      HeightSize   := TKMRatioRow.Create(Panel_Heights, 8, 10, 100, 20, 1, 12);
+      HeightSize   := TKMTrackBar.Create(Panel_Heights, 8, 10, 100, 1, 15); //1..15(4bit) for size
       HeightCircle := TKMButtonFlat.Create(Panel_Heights, 114, 8, 24, 24, 359);
       HeightSquare := TKMButtonFlat.Create(Panel_Heights, 142, 8, 24, 24, 352);
-      HeightShape  := TKMRatioRow.Create(Panel_Heights, 8, 30, 100, 20, 1, 12);
-      HeightSize.MaxValue := 15; //4bit for size
-      HeightShape.MaxValue := 15; //4bit for slope shape
+      HeightShape  := TKMTrackBar.Create(Panel_Heights, 8, 30, 100, 1, 15); //1..15(4bit) for slope shape
       HeightSize.OnChange   := Terrain_HeightChange;
       HeightShape.OnChange  := Terrain_HeightChange;
       HeightCircle.OnClick  := Terrain_HeightChange;
@@ -1123,10 +1120,10 @@ end;
 
 procedure TKMapEdInterface.View_Passability(Sender:TObject);
 begin
-  SHOW_TERRAIN_WIRES := TKMRatioRow(Sender).Position <> 0;
-  fShowPassability := TKMRatioRow(Sender).Position;
-  if TKMRatioRow(Sender).Position <> 0 then
-    Label_Passability.Caption := PassabilityStr[TPassability(TKMRatioRow(Sender).Position)]
+  SHOW_TERRAIN_WIRES := TKMTrackBar(Sender).Position <> 0;
+  fShowPassability := TKMTrackBar(Sender).Position;
+  if TKMTrackBar(Sender).Position <> 0 then
+    Label_Passability.Caption := PassabilityStr[TPassability(TKMTrackBar(Sender).Position)]
   else
     Label_Passability.Caption := 'Off';
 end;

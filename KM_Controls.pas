@@ -460,19 +460,25 @@ type
 
 
   {Ratio bar}
-  TKMRatioRow = class(TKMControl)
+  TKMTrackBar = class(TKMControl)
   private
+    fTrackTop: Byte; //Offset trackbar from top (if Caption <> '')
+    fTrackHeight: Byte; //Trackbar height
+    fMinValue: Word;
+    fMaxValue: Word;
     fOnChange: TNotifyEvent;
+    fCaption: string;
     function ThumbWidth: Word;
+    procedure SetCaption(const aValue: string);
   public
     Position: Word;
-    MinValue: Word;
-    MaxValue: Word;
     Step: Byte; //Change Position by this amount each time
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
-    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
+    constructor Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
+
+    property Caption: string read fCaption write SetCaption;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
   end;
 
@@ -897,7 +903,7 @@ begin
   if Self is TKMImage      then sColor := $2000FF00;
   if Self is TKMImageStack then sColor := $2080FF00;
   if Self is TKMCheckBox   then sColor := $20FF00FF;
-  if Self is TKMRatioRow   then sColor := $2000FF00;
+  if Self is TKMTrackBar   then sColor := $2000FF00;
   if Self is TKMCostsRow   then sColor := $2000FFFF;
   if Self is TKMRadioGroup then sColor := $20FFFF00;
 
@@ -1952,43 +1958,62 @@ begin
 end;
 
 
-{ TKMRatioRow }
-constructor TKMRatioRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
+{ TKMTrackBar }
+constructor TKMTrackBar.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
-  MinValue := aMin;
-  MaxValue := aMax;
-  Position := (MinValue + MaxValue) div 2;
+  Inherited Create(aParent, aLeft,aTop,aWidth,0);
+  fMinValue := aMin;
+  fMaxValue := aMax;
+  fTrackHeight := 20;
+  Position := (fMinValue + fMaxValue) div 2;
+  Caption := '';
   Step := 1;
 end;
 
 
 //Calculating it each time is not necessary, but doing it properly with setters is more hassle for no gain
-function TKMRatioRow.ThumbWidth: Word;
+function TKMTrackBar.ThumbWidth: Word;
 begin
   //If the maximum allowed number of digits is more than 2 - use wider field to fit them
   Result := RXData[rxGui].Size[132].X;
-  if MaxValue > 99 then
+  if fMaxValue > 99 then
     Result := Round(Result * 1.5);
 end;
 
 
-procedure TKMRatioRow.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+procedure TKMTrackBar.SetCaption(const aValue: string);
+begin
+  fCaption := aValue;
+
+  if Trim(fCaption) <> '' then
+  begin
+    fHeight := 20 + fTrackHeight;
+    fTrackTop := 20;
+  end
+  else
+  begin
+    fHeight := fTrackHeight;
+    fTrackTop := 0;
+  end;
+end;
+
+
+procedure TKMTrackBar.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   Inherited;
   MouseMove(X, Y, Shift);
 end;
 
 
-procedure TKMRatioRow.MouseMove(X,Y: Integer; Shift: TShiftState);
+procedure TKMTrackBar.MouseMove(X,Y: Integer; Shift: TShiftState);
 var
   NewPos: Integer;
 begin
   Inherited;
 
   NewPos := Position;
-  if (ssLeft in Shift) then   
-    NewPos := EnsureRange(MinValue + Round(((X-Left-ThumbWidth div 2) / (Width- ThumbWidth -4))*(MaxValue - MinValue)/Step)*Step, MinValue, MaxValue);
+  if (ssLeft in Shift) and InRange(Y - Top - fTrackTop, 0, fTrackHeight) then
+    NewPos := EnsureRange(fMinValue + Round(((X-Left-ThumbWidth div 2) / (Width - ThumbWidth - 4))*(fMaxValue - fMinValue)/Step)*Step, fMinValue, fMaxValue);
   if NewPos <> Position then
   begin
     Position := NewPos;
@@ -2000,20 +2025,24 @@ begin
 end;
 
 
-procedure TKMRatioRow.Paint;
+procedure TKMTrackBar.Paint;
 const //Text color for disabled and enabled control
   TextColor: array [Boolean] of TColor4 = ($FF888888, $FFFFFFFF);
 var
   ThumbPos, ThumbHeight: Word;
 begin
   Inherited;
-  fRenderUI.WriteBevel(Left+2,Top+2,Width-4,Height-4);
-  ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-MinValue) / (MaxValue-MinValue)));
+
+  if fCaption <> '' then
+    fRenderUI.WriteText(Left + 8, Top, Width - 8, 20, fCaption, fnt_Metal, taLeft, TextColor[fEnabled]);
+
+  fRenderUI.WriteBevel(Left+2,Top+fTrackTop+2,Width-4,fTrackHeight-4);
+  ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
 
   ThumbHeight := RXData[rxGui].Size[132].Y;
 
-  fRenderUI.WritePicture(Left + ThumbPos + 2, Top, ThumbWidth, ThumbHeight, rxGui, 132);
-  fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+3, 0, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
+  fRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, rxGui, 132);
+  fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
 
