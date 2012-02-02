@@ -54,7 +54,8 @@ type
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
 
-    procedure SingleMap_RefreshList;
+    procedure SingleMap_Clear;
+    procedure SingleMap_RefreshList(Sender: TObject);
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
@@ -298,6 +299,7 @@ uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCo
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
 
+{ TKMMainMenuInterface }
 constructor TKMMainMenuInterface.Create(X,Y:word);
 begin
   inherited;
@@ -1247,12 +1249,9 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
+    SingleMap_Clear;
+    fMaps.OnRefreshComplete := SingleMap_RefreshList;
     fMaps.Refresh;
-    SingleMap_RefreshList;
-    fMap_Selected := EnsureRange(fMap_Selected, 0, fMaps.Count-1);
-    ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, fMap_Selected-MENU_SP_MAPS_COUNT+1, fMap_Selected);
-    SingleMap_ScrollChange(ScrollBar_SingleMaps);
-    SingleMap_SelectMap(Shape_SingleOverlay[fMap_Selected-fMaps_Top]);
     Panel_Single.Show;
   end;
 
@@ -1406,19 +1405,32 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_RefreshList;
+procedure TKMMainMenuInterface.SingleMap_Clear;
+var I: Integer;
+begin
+  for i:=0 to MENU_SP_MAPS_COUNT-1 do
+  begin
+    Image_SingleMode[i].TexID       := 0;
+    Label_SinglePlayers[i].Caption  := '';
+    Label_SingleTitle1[i].Caption   := '';
+    Label_SingleTitle2[i].Caption   := '';
+    Label_SingleSize[i].Caption     := '';
+  end;
+
+  ScrollBar_SingleMaps.MaxValue := 0;
+  ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
+  fMaps_Top := 0;
+  fMap_Selected := -1;
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_RefreshList(Sender: TObject);
 var i,MapID:integer;
 begin
   for i:=0 to MENU_SP_MAPS_COUNT-1 do
   begin
     MapID := fMaps_Top + i;
-    if MapID > fMaps.Count-1 then begin
-      Image_SingleMode[i].TexID       := 0;
-      Label_SinglePlayers[i].Caption  := '';
-      Label_SingleTitle1[i].Caption   := '';
-      Label_SingleTitle2[i].Caption   := '';
-      Label_SingleSize[i].Caption     := '';
-    end else begin
+    if MapID <= fMaps.Count-1 then begin
       Image_SingleMode[i].TexID       := 28+byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
       Label_SinglePlayers[i].Caption  := inttostr(fMaps[MapID].Info.PlayerCount);
       Label_SingleTitle1[i].Caption   := fMaps[MapID].Filename;
@@ -1429,6 +1441,11 @@ begin
 
   ScrollBar_SingleMaps.MaxValue := max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
+
+  fMap_Selected := EnsureRange(fMap_Selected, 0, fMaps.Count-1);
+  ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, fMap_Selected-MENU_SP_MAPS_COUNT+1, fMap_Selected);
+  //SingleMap_ScrollChange(ScrollBar_SingleMaps);
+  //SingleMap_SelectMap(Shape_SingleOverlay[fMap_Selected-fMaps_Top]);
 end;
 
 
@@ -1439,7 +1456,7 @@ begin
     SingleMap_SelectMap(Shape_SingleOverlay[fMap_Selected-fMaps_Top])
   else
     SingleMap_SelectMap(nil); //Means it is off visible area
-  SingleMap_RefreshList;
+  SingleMap_RefreshList(nil);
 end;
 
 
@@ -1503,7 +1520,7 @@ begin
       fMaps.SortMethod := smByModeDesc;
 
   //Update the list
-  SingleMap_RefreshList;
+  SingleMap_RefreshList(nil);
 end;
 
 

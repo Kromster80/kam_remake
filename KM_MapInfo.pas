@@ -2,7 +2,7 @@ unit KM_MapInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, KM_GameInfo;
+  Classes, KromUtils, Math, SyncObjs, SysUtils, KM_GameInfo;
 
 
 type
@@ -44,6 +44,17 @@ type
     smByPlayersAsc, smByPlayersDesc,
     smByModeAsc, smByModeDesc);
 
+  TMapEvent = procedure (aMap: TKMapInfo) of object;
+
+
+  TTScanner = class(TThread)
+  private
+    fMultiplayerPath: Boolean;
+  public
+    OnMapAdd: TMapEvent;
+    constructor Create(aMultiplayerPath: Boolean);
+    procedure Execute; override;
+  end;
 
   TKMapsCollection = class
   private
@@ -51,17 +62,26 @@ type
     fMaps: array of TKMapInfo;
     fMultiplayerPath: Boolean;
     fSortMethod: TMapsSortMethod;
+    CS: TCriticalSection;
+    fScanner: TTScanner;
+    fScanning: Boolean;
     function GetMap(aIndex: Integer): TKMapInfo;
     procedure SetSortMethod(aMethod: TMapsSortMethod);
-    procedure ScanMapsFolder;
+    procedure MapAdd(aMap: TKMapInfo);
+    procedure ScanComplete(Sender: TObject);
     procedure Sort;
   public
+    OnRefreshComplete: TNotifyEvent;
     constructor Create(aMultiplayerPath: Boolean);
     destructor Destroy; override;
 
     property Count: Integer read fCount;
     property Map[aIndex: Integer]: TKMapInfo read GetMap; default;
+    property Scanning: Boolean read fScanning;
 
+    procedure Clear;
+    procedure Lock;
+    procedure Unlock;
     procedure Refresh;
     property SortMethod: TMapsSortMethod read fSortMethod write SetSortMethod;
 
@@ -217,24 +237,65 @@ end;
 { TKMapsCollection }
 constructor TKMapsCollection.Create(aMultiplayerPath: Boolean);
 begin
-  Inherited Create;
+  inherited Create;
   fMultiplayerPath := aMultiplayerPath;
   fSortMethod := smByNameDesc;
+
+  CS := TCriticalSection.Create;
+
+  //fScanner := TTScanner.Create(fMultiplayerPath);
+  //fScanner.OnMapAdd := MapAdd;
+  //fScanner.OnTerminate := ScanComplete;
 end;
 
 
 destructor TKMapsCollection.Destroy;
-var i:integer;
 begin
-  for i:=0 to fCount-1 do
-    fMaps[i].Free;
-  Inherited;
+  if (fScanner <> nil) then
+  begin
+    fScanner.Terminate;
+    fScanner.WaitFor;
+    fScanner.Free;
+    fScanner := nil;
+  end;
+
+  Clear;
+
+  CS.Free;
+  inherited;
 end;
 
 
 function TKMapsCollection.GetMap(aIndex: Integer): TKMapInfo;
 begin
+  Assert(InRange(aIndex, 0, fCount - 1));
   Result := fMaps[aIndex];
+end;
+
+
+procedure TKMapsCollection.Lock;
+begin
+  CS.Enter;
+end;
+
+
+procedure TKMapsCollection.Unlock;
+begin
+  CS.Leave;
+end;
+
+
+procedure TKMapsCollection.ScanComplete(Sender: TObject);
+begin
+  Lock;
+  try
+    fScanning := False;
+    Sort;
+    if Assigned(OnRefreshComplete) then
+      OnRefreshComplete(Self);
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -245,9 +306,23 @@ begin
 end;
 
 
+procedure TKMapsCollection.MapAdd(aMap: TKMapInfo);
+begin
+  Lock;
+  try
+    SetLength(fMaps, fCount + 1);
+    fMaps[fCount] := aMap;
+    Inc(fCount);
+  finally
+    Unlock;
+  end;
+end;
+
+
 function TKMapsCollection.MapList: string;
 var i:integer;
 begin
+  Assert(not Scanning);
   Result := '';
   for i:=0 to fCount-1 do
     Result := Result + fMaps[i].Filename + eol;
@@ -257,6 +332,7 @@ end;
 function TKMapsCollection.MapListBuild: string;
 var i:integer;
 begin
+  Assert(not Scanning);
   Result := '';
   for i:=0 to fCount-1 do
     if (fMaps[i].Info.MissionMode = mm_Normal) and not fMaps[i].IsCoop then
@@ -267,6 +343,7 @@ end;
 function TKMapsCollection.MapListFight: string;
 var i:integer;
 begin
+  Assert(not Scanning);
   Result := '';
   for i:=0 to fCount-1 do
     if (fMaps[i].Info.MissionMode = mm_Tactic) and not fMaps[i].IsCoop then
@@ -277,6 +354,7 @@ end;
 function TKMapsCollection.MapListCoop: string;
 var i:integer;
 begin
+  Assert(not Scanning);
   Result := '';
   for i:=0 to fCount-1 do
     if fMaps[i].IsCoop then
@@ -284,48 +362,14 @@ begin
 end;
 
 
-procedure TKMapsCollection.Refresh;
-begin
-  //Update the list of maps
-  //Player could have added new map, no need to force him to relaunch the game
-  ScanMapsFolder;
-
-  //Apply selected sorting method, as the rescanned maps are in alphabetical order
-  Sort;
-end;
-
-
-procedure TKMapsCollection.ScanMapsFolder;
+procedure TKMapsCollection.Clear;
 var
-  SearchRec:TSearchRec;
-  i:integer;
-  PathToMaps: String;
+  I: Integer;
 begin
-  for i:=0 to fCount-1 do
-    FreeAndNil(fMaps[i]);
-
+  Assert(not Scanning);
+  for I := 0 to fCount - 1 do
+    FreeAndNil(fMaps[I]);
   fCount := 0;
-
-  if fMultiplayerPath then
-    PathToMaps := ExeDir + 'MapsMP\'
-  else
-    PathToMaps := ExeDir + 'Maps\';
-
-  if not DirectoryExists(PathToMaps) then Exit;
-
-  FindFirst(PathToMaps+'*', faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Name<>'.') and (SearchRec.Name<>'..')
-    and FileExists(MapNameToPath(SearchRec.Name, 'dat', fMultiplayerPath))
-    and FileExists(MapNameToPath(SearchRec.Name, 'map', fMultiplayerPath)) then
-    begin
-      inc(fCount);
-      SetLength(fMaps, fCount);
-      fMaps[fCount-1] := TKMapInfo.Create;
-      fMaps[fCount-1].Load(SearchRec.Name, false, fMultiplayerPath);
-    end;
-  until (FindNext(SearchRec)<>0);
-  FindClose(SearchRec);
 end;
 
 
@@ -350,10 +394,71 @@ procedure TKMapsCollection.Sort;
 var
   i, k: Integer;
 begin
+  Assert(not Scanning);
   for i:=0 to fCount-1 do
   for k:=i to fCount-1 do
   if Compare(fMaps[i], fMaps[k], fSortMethod) then
     SwapInt(Cardinal(fMaps[i]), Cardinal(fMaps[k])); //Exchange only pointers to MapInfo objects
+end;
+
+
+procedure TKMapsCollection.Refresh;
+begin
+  if (fScanner <> nil) then
+  begin
+    fScanner.Terminate;
+    fScanner.WaitFor;
+    fScanner.Free;
+    fScanner := nil;
+  end;
+
+  Clear;
+
+  fScanning := True;
+  fScanner := TTScanner.Create(fMultiplayerPath);
+  fScanner.OnMapAdd := MapAdd;
+  fScanner.OnTerminate := ScanComplete;
+  fScanner.Resume;
+end;
+
+
+{ TTScanner }
+constructor TTScanner.Create(aMultiplayerPath: Boolean);
+begin
+  inherited Create(True);
+  fMultiplayerPath := aMultiplayerPath;
+  FreeOnTerminate := False;
+end;
+
+
+procedure TTScanner.Execute;
+var
+  SearchRec: TSearchRec;
+  PathToMaps: string;
+  Map: TKMapInfo;
+begin
+  if fMultiplayerPath then
+    PathToMaps := ExeDir + 'MapsMP\'
+  else
+    PathToMaps := ExeDir + 'Maps\';
+
+  if DirectoryExists(PathToMaps) then
+  begin
+    FindFirst(PathToMaps + '*', faDirectory, SearchRec);
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+      and FileExists(MapNameToPath(SearchRec.Name, 'dat', fMultiplayerPath))
+      and FileExists(MapNameToPath(SearchRec.Name, 'map', fMultiplayerPath)) then
+      begin
+        Map := TKMapInfo.Create;
+        Map.Load(SearchRec.Name, false, fMultiplayerPath);
+        Sleep(50);
+        if Assigned(OnMapAdd) then
+          OnMapAdd(Map);
+      end;
+    until (FindNext(SearchRec) <> 0) or Terminated;
+    FindClose(SearchRec);
+  end;
 end;
 
 
