@@ -430,8 +430,7 @@ begin
   if not DoSilent then fSoundLib.Play(sfx_Click);
 
   H := fHouses.HitTest(Position.X, Position.Y);
-  if (H = nil) and IsEditor then Exit; //Editor is allowed to ask to remove non-existant house
-  Assert(H <> nil);
+  if H = nil then Exit; //Due to network delays the house might have already been destroyed by now
 
   H.DemolishHouse(DoSilent, IsEditor);
   if H.BuildingState = hbs_Done then //Only Done houses are treated as Self-Destruct
@@ -446,7 +445,7 @@ var
   HT: THouseType;
 begin
   HT := fBuildList.HousePlanList.GetPlan(Position);
-  Assert(fResource.HouseDat[HT].IsValid);
+  if not fResource.HouseDat[HT].IsValid then exit; //Due to network delays house might not exist now
   fBuildList.HousePlanList.RemPlan(Position);
   fStats.HousePlanRemoved(HT);
   if Self = MyPlayer then fSoundLib.Play(sfx_Click);

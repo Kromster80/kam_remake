@@ -425,7 +425,6 @@ end;
 
 
 procedure TKMPlayerStats.Load(LoadStream: TKMemoryStream);
-var s:string;
 begin
   LoadStream.ReadAssert('PlayerStats');
   LoadStream.Read(Houses, SizeOf(Houses));

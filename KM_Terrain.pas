@@ -15,7 +15,7 @@ type
   {Class to store all terrain data, aswell terrain routines}
   TTerrain = class
   private
-    fAnimStep: Integer;
+    fAnimStep: Integer; //@Krom: Why isn't it Cardinal like other AnimStep variables? It causes some warnings in various places: "Combining signed and unsigned types - widened both operands"
     fMapEditor: Boolean; //In MapEd mode some fetures behave differently
     fMapX: Integer; //Terrain width and height
     fMapY: Integer; //Terrain width and height

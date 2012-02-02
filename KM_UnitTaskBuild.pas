@@ -816,7 +816,7 @@ begin
     case fPhase of
       0: begin
            Thought := th_Build;
-           CurLoc := PickRandomSpot;
+           CurLoc := PickRandomSpot; //@Krom: CurLoc is type Byte, but PickRandomSpot returns ShortInt. (-1 for failure) I guess CurLoc should also be ShortInt?
            Assert(CurLoc <> -1);
            SetActionWalkToSpot(Cells[CurLoc].Loc);
          end;

@@ -542,6 +542,7 @@ end;
 function TKMHousePlanList.GetPlan(aLoc: TKMPoint): THouseType;
 var I: Integer;
 begin
+  Result := ht_None;
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
 

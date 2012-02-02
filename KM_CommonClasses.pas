@@ -279,7 +279,7 @@ procedure TKMemoryStream.ReadAssert(const Value: string);
 var S: string;
 begin
   Read(s);
-  Assert(s = Value, 'TKMemoryStream.Read <> Value');
+  Assert(s = Value, 'TKMemoryStream.Read <> Value: '+Value);
 end;
 
 function TKMemoryStream.ReadAsText: string;
