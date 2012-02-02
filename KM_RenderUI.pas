@@ -10,8 +10,8 @@ type
     procedure SetupClipX        (X1,X2:smallint);
     procedure SetupClipY        (Y1,Y2:smallint);
     procedure ReleaseClip;
-    procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: T3DButtonStateSet; aStyle: TButtonStyle);
-    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
+    procedure Write3DButton     (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: TButtonStateSet; aStyle: TButtonStyle);
+    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; HalfBright:boolean=false; BackAlpha:single=0.5);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
     procedure WritePicture      (PosX,PosY: SmallInt; aRX: TRXType; aID: Word; Enabled:boolean=true; Highlight:boolean=false); overload;
@@ -66,7 +66,7 @@ begin
 end;
 
 
-procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: T3DButtonStateSet; aStyle: TButtonStyle);
+procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; State: TButtonStateSet; aStyle: TButtonStyle);
 var
   a,b:TKMPointF;
   InsetX,InsetY:single;
@@ -87,10 +87,10 @@ begin
   with GFXData[BackRX,BackID] do
   if PxWidth*PxHeight<>0 then //Make sure data was loaded properly
   begin
-    a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) /2/ PxWidth;
-    b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) /2/ PxWidth;
-    a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) /2/ PxHeight;
-    b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) /2/ PxHeight;
+    a.x := u1 + (u2-u1) * (PosX         - byte(bsDown in State)) /2/ PxWidth;
+    b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bsDown in State)) /2/ PxWidth;
+    a.y := v1 + (v2-v1) * (PosY         - byte(bsDown in State)) /2/ PxHeight;
+    b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bsDown in State)) /2/ PxHeight;
     a.x := a.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2; b.x := b.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2;
     a.y := a.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2; b.y := b.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2;
     a.x := EnsureRange(a.x,u1,u2); b.x := EnsureRange(b.x,u1,u2);
@@ -112,7 +112,7 @@ begin
 
       //Render beveled edges
       glBindTexture(GL_TEXTURE_2D, 0);
-      if bs_Down in State then begin
+      if bsDown in State then begin
         c1:=0; c2:=1; //Quick way to invert bevel lighting
       end else begin
         c1:=1; c2:=0;
@@ -134,12 +134,13 @@ begin
     if aID <> 0 then
     begin
       glColor4f(1,1,1,1);
-      WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 +byte(bs_Down in State),
-                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bs_Down in State), aRX, aID);
+      WritePicture((SizeX-GFXData[aRX,aID].PxWidth ) div 2 +byte(bsDown in State),
+                   (SizeY-GFXData[aRX,aID].PxHeight) div 2 +byte(bsDown in State), aRX, aID);
     end;
 
     //Render MouseOver highlight
-    if bs_Over in State then begin
+    if bsOver in State then
+    begin
       glColor4f(1,1,1,0.15);
       glBegin(GL_QUADS);
         glkRect(0,0,SizeX,SizeY);
@@ -147,7 +148,8 @@ begin
     end;
 
     //Render darklight when Disabled
-    if bs_Disabled in State then begin
+    if bsDisabled in State then
+    begin
       glColor4f(0,0,0,0.5);
       glBegin(GL_QUADS);
         glkRect(0,0,SizeX,SizeY);
@@ -158,7 +160,7 @@ begin
 end;
 
 
-procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State:TFlatButtonStateSet);
+procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY: SmallInt; aRX: TRXType; aID: Word; TexOffsetX,TexOffsetY,CapOffsetY:smallint; const Caption:string; State: TButtonStateSet);
 begin
   WriteBevel(PosX, PosY, SizeX, SizeY);
 
@@ -173,26 +175,29 @@ begin
                    (SizeY-GFXData[aRX,aID].PxHeight) div 2 + TexOffsetY,aRX,aID, true);
     end;
 
-    if fbs_Disabled in State then
+    if bsDisabled in State then
       WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FF808080)
     else
       WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, 0, Caption, fnt_Game, taCenter, $FFE0E0E0);
 
-    if fbs_Highlight in State then begin
+    if bsOver in State then
+    begin
       glColor4f(1,1,1,0.25);
       glBegin(GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;
 
-    {if fbs_Disabled in State then begin
+    {if bsDisabled in State then
+    begin
       glColor4f(0,0,0,0.5);
       glBegin (GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;}
 
-    if fbs_Selected in State then begin
+    if bsDown in State then
+    begin
       glColor4f(1,1,1,1);
       glBegin(GL_LINE_LOOP);
         glkRect(0.5,0.5,SizeX-0.5,SizeY-0.5);

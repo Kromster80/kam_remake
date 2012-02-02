@@ -18,8 +18,7 @@ type
   TKMControlStateSet = set of TKMControlState;
 
   TButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
-  T3DButtonStateSet = set of (bs_Over, bs_Down, bs_Disabled);
-  TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
+  TButtonStateSet = set of (bsOver, bsDown, bsDisabled);
 
 
   TKMControl = class;
@@ -1540,16 +1539,16 @@ end;
 procedure TKMButton.Paint;
 var
   Col: TColor4;
-  StateSet: T3DButtonStateSet;
+  StateSet: TButtonStateSet;
 begin
   Inherited;
   StateSet := [];
   if (csOver in State) and fEnabled then
-    StateSet := StateSet + [bs_Over];
+    StateSet := StateSet + [bsOver];
   if (csDown in State) then
-    StateSet := StateSet + [bs_Down];
+    StateSet := StateSet + [bsDown];
   if not fEnabled then
-    StateSet := StateSet + [bs_Disabled];
+    StateSet := StateSet + [bsDisabled];
 
   fRenderUI.Write3DButton(Left, Top, Width, Height, fRX, fTexID, StateSet, fStyle);
 
@@ -1582,12 +1581,14 @@ end;
 
 
 procedure TKMButtonFlat.Paint;
-var StateSet:TFlatButtonStateSet;
+var StateSet: TButtonStateSet;
 begin
   Inherited;
   StateSet:=[];
-  if (csOver in State) and fEnabled and not HideHighlight then StateSet:=StateSet+[fbs_Highlight];
-  if Down then StateSet:=StateSet+[fbs_Selected];
+  if (csOver in State) and fEnabled and not HideHighlight then
+    StateSet := StateSet+[bsOver];
+  if Down then
+    StateSet:=StateSet + [bsDown];
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
   fRenderUI.WriteFlatButton(Left,Top,Width,Height,RX,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
@@ -2188,7 +2189,7 @@ end;
 procedure TKMScrollBar.Paint;
 var
   ThumbPos: Word;
-  ButtonState: T3DButtonStateSet;
+  ButtonState: TButtonStateSet;
 begin
   Inherited;
   ThumbPos := 0;
@@ -2209,7 +2210,7 @@ begin
       sa_Vertical:   ThumbPos := Math.max((Height-Width*2-fThumb),0) div 2;
       sa_Horizontal: ThumbPos := Math.max((Width-Height*2-fThumb),0) div 2;
     end;
-    ButtonState := [bs_Disabled];
+    ButtonState := [bsDisabled];
   end;
 
   case fScrollAxis of
@@ -3195,16 +3196,16 @@ end;
 
 procedure TKMDragger.Paint;
 var
-  StateSet: T3DButtonStateSet;
+  StateSet: TButtonStateSet;
 begin
   Inherited;
   StateSet := [];
   if (csOver in State) and fEnabled then
-    StateSet := StateSet + [bs_Over];
+    StateSet := StateSet + [bsOver];
   if (csDown in State) then
-    StateSet := StateSet + [bs_Down];
+    StateSet := StateSet + [bsDown];
   if not fEnabled then
-    StateSet := StateSet + [bs_Disabled];
+    StateSet := StateSet + [bsDisabled];
 
   fRenderUI.Write3DButton(Left, Top, Width, Height, rxGui, 0, StateSet, bsGame);
 end;
