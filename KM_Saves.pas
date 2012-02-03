@@ -33,17 +33,17 @@ type
 
   TKMSavesCollection = class
   private
-    fCount: word;
+    fCount: Word;
     fSaves: array of TKMSaveInfo;
-    function GetSave(Index:integer):TKMSaveInfo;
+    function GetSave(aIndex: Integer): TKMSaveInfo;
   public
     destructor Destroy; override;
 
     procedure Clear;
     property Count: Word read fCount;
-    property SavegameInfo[Index:integer]:TKMSaveInfo read GetSave; default;
+    property SavegameInfo[aIndex: Integer]: TKMSaveInfo read GetSave; default;
     procedure ScanSavesFolder(IsMultiplayer: Boolean);
-    procedure DeleteSave(Index:integer);
+    procedure DeleteSave(aIndex: Integer);
 
     function SavesList: string;
   end;
@@ -101,7 +101,7 @@ begin
 end;
 
 
-function TKMSaveInfo.IsValid:boolean;
+function TKMSaveInfo.IsValid: Boolean;
 begin
   Result := FileExists(fPath + fFilename + '.sav') and (fSaveError = '') and fInfo.IsValid;
 end;
@@ -116,43 +116,43 @@ end;
 
 
 procedure TKMSavesCollection.Clear;
-var i:integer;
+var I: Integer;
 begin
-  for i:=0 to fCount-1 do
+  for I := 0 to fCount - 1 do
     fSaves[i].Free;
   fCount := 0;
 end;
 
 
-function TKMSavesCollection.GetSave(Index:integer):TKMSaveInfo;
+function TKMSavesCollection.GetSave(aIndex: Integer): TKMSaveInfo;
 begin
-  Assert(InRange(Index, 0, fCount-1));
-  Result := fSaves[Index];
+  Assert(InRange(aIndex, 0, fCount-1));
+  Result := fSaves[aIndex];
 end;
 
 
-procedure TKMSavesCollection.DeleteSave(Index:integer);
+procedure TKMSavesCollection.DeleteSave(aIndex: Integer);
 var i:integer;
 begin
-  Assert(InRange(Index, 0, fCount-1));
-  DeleteFile(fSaves[Index].Path + fSaves[Index].fFilename + '.sav');
-  DeleteFile(fSaves[Index].Path + fSaves[Index].fFilename + '.rpl');
-  DeleteFile(fSaves[Index].Path + fSaves[Index].fFilename + '.bas');
-  fSaves[Index].Free;
-  for i:=Index to fCount-2 do
+  Assert(InRange(aIndex, 0, fCount-1));
+  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFilename + '.sav');
+  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFilename + '.rpl');
+  DeleteFile(fSaves[aIndex].Path + fSaves[aIndex].fFilename + '.bas');
+  fSaves[aIndex].Free;
+  for i := aIndex to fCount - 2 do
     fSaves[i] := fSaves[i+1]; //Move them down
   dec(fCount);
-  SetLength(fSaves,fCount);
+  SetLength(fSaves, fCount);
 end;
 
 
 //Scan either single or multiplayer saves
 function TKMSavesCollection.SavesList: string;
-var i:integer;
+var I: Integer;
 begin
   Result := '';
-  for i:=0 to fCount-1 do
-    Result := Result + fSaves[i].Filename + eol;
+  for I := 0 to fCount - 1 do
+    Result := Result + fSaves[I].Filename + eol;
 end;
 
 
@@ -179,7 +179,7 @@ begin
       SetLength(fSaves, fCount);
       fSaves[fCount-1] := TKMSaveInfo.Create(PathToSaves, TruncateExt(SearchRec.Name));
     end;
-  until (FindNext(SearchRec)<>0);
+  until (FindNext(SearchRec) <> 0);
   FindClose(SearchRec);
 end;
 
