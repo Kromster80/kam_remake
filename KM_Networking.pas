@@ -7,7 +7,7 @@ uses
   Classes, SysUtils, TypInfo,
   KM_CommonClasses, KM_CommonEvents, KM_NetworkTypes, KM_Defaults,
   KM_Player, KM_Saves, KM_GameInfo, KM_GameOptions,
-  KM_MapInfo, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
+  KM_Maps, KM_NetPlayersList, KM_DedicatedServer, KM_NetClient, KM_ServerQuery;
 
 //todo: Check CRCs of important game data files (units.dat, houses.dat, etc.) to make sure all clients match
 

@@ -5,7 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, StrUtils, SysUtils, KromOGLUtils, Forms,
-     KM_Controls, KM_Defaults, KM_MapInfo, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
+     KM_Controls, KM_Defaults, KM_Maps, KM_Houses, KM_Units, KM_Points, KM_InterfaceDefaults;
 
 type
   TKMapEdInterface = class (TKMUserInterface)
@@ -41,7 +41,8 @@ type
     procedure Menu_Load(Sender:TObject);
     procedure Menu_QuitMission(Sender:TObject);
     procedure Load_MapTypeChange(Sender:TObject);
-    procedure Load_RefreshMapsList;
+    procedure Load_MapListUpdate;
+    procedure Load_MapListUpdateDone(Sender: TObject);
     procedure Terrain_HeightChange(Sender: TObject);
     procedure Terrain_TilesChange(Sender: TObject);
     procedure Terrain_ObjectsChange(Sender: TObject);
@@ -334,7 +335,7 @@ begin
   end;
 
   if Sender = Button_Menu_Load then begin
-    Load_RefreshMapsList;
+    Load_MapListUpdate;
     Panel_Load.Show;
   end;
 
@@ -1244,25 +1245,33 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Load_MapTypeChange(Sender:TObject);
+procedure TKMapEdInterface.Load_MapTypeChange(Sender: TObject);
 begin
-  Load_RefreshMapsList;
+  Load_MapListUpdate;
 end;
 
 
-procedure TKMapEdInterface.Load_RefreshMapsList;
+procedure TKMapEdInterface.Load_MapListUpdate;
 begin
-  if Radio_Load_MapType.ItemIndex = 1 then
-  begin
-    fMapsMP.Refresh;
-    ListBox_Load.SetItems(fMapsMP.MapList);
-  end
+  ListBox_Load.SetItems('');
+
+  if Radio_Load_MapType.ItemIndex = 0 then
+    fMaps.Refresh(Load_MapListUpdateDone, nil)
   else
-  begin
-    fMaps.Refresh;
-    ListBox_Load.SetItems(fMaps.MapList);
-  end;
-  ListBox_Load.ItemIndex := 0; //Try to select first map by default
+    fMapsMP.Refresh(Load_MapListUpdateDone, nil);
+end;
+
+
+procedure TKMapEdInterface.Load_MapListUpdateDone(Sender: TObject);
+begin
+  if Radio_Load_MapType.ItemIndex = 0 then
+    ListBox_Load.SetItems(fMaps.MapList)
+  else
+    ListBox_Load.SetItems(fMapsMP.MapList);
+
+  //Try to select first map by default
+  if ListBox_Load.ItemIndex = -1 then
+    ListBox_Load.ItemIndex := 0;
 end;
 
 

@@ -35,7 +35,7 @@ uses
   KM_HTTPClient in 'KM_HTTPClient.pas',
   KM_Log in 'KM_Log.pas',
   KM_MapEditor in 'KM_MapEditor.pas',
-  KM_MapInfo in 'KM_MapInfo.pas',
+  KM_Maps in 'KM_Maps.pas',
   KM_MasterServer in 'KM_MasterServer.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
   KM_Music in 'KM_Music.pas',

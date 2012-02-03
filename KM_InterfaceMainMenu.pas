@@ -5,7 +5,7 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  KM_Controls, KM_Defaults, KM_Settings, KM_MapInfo, KM_Campaigns, KM_Saves,
+  KM_Controls, KM_Defaults, KM_Settings, KM_Maps, KM_Campaigns, KM_Saves,
   KM_InterfaceDefaults;
 
 
@@ -20,8 +20,7 @@ type
     Campaign_Selected:TKMCampaign;
     Campaign_MapIndex:byte;
 
-    fMaps_Top:integer; //Top map in list
-    fMap_Selected:integer; //Selected map
+    fMap_Selected: Integer; //Selected map
     fMaps: TKMapsCollection;
     fMapsMP: TKMapsCollection;
     fSaves: TKMSavesCollection;
@@ -57,7 +56,8 @@ type
     procedure SingleMap_Clear;
     procedure SingleMap_RefreshList(Sender: TObject);
     procedure SingleMap_ScrollChange(Sender: TObject);
-    procedure SingleMap_SelectMap(Sender: TObject);
+    procedure SingleMap_MapClick(Sender: TObject);
+    procedure SingleMap_SelectMap(aIndex: Integer);
     procedure SingleMap_Start(Sender: TObject);
     procedure SingleMap_Sort(Sender: TObject);
 
@@ -86,6 +86,7 @@ type
     procedure Lobby_OnPlayersSetup(Sender: TObject);
     procedure Lobby_OnPingInfo(Sender: TObject);
     procedure Lobby_MapTypeSelect(Sender: TObject);
+    procedure Lobby_MapTypeRefreshDone(Sender: TObject);
     procedure Lobby_MapSelect(Sender: TObject);
     procedure Lobby_OnMapName(const aData:string);
     procedure Lobby_OnReassignedToHost(Sender: TObject);
@@ -107,7 +108,8 @@ type
     procedure MapEditor_Start(Sender: TObject);
     procedure MapEditor_SizeChange(Sender: TObject);
     procedure MapEditor_MapTypeChange(Sender: TObject);
-    procedure MapEditor_ListUpdate(aUseMP:boolean);
+    procedure MapEditor_ListUpdate;
+    procedure MapEditor_ListUpdateDone(Sender: TObject);
     procedure Options_Fill(aGlobalSettings:TGlobalSettings);
     procedure Options_Change(Sender: TObject);
     procedure Options_FlagClick(Sender: TObject);
@@ -200,11 +202,11 @@ type
     Panel_Single:TKMPanel;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
       Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize:TKMButton;
-      Bevel_SingleBG:array[0..MENU_SP_MAPS_COUNT-1,1..4]of TKMBevel;
-      Image_SingleMode:array[0..MENU_SP_MAPS_COUNT-1]of TKMImage;
+      Bevel_SingleBG: array of array[1..4]of TKMBevel;
+      Image_SingleMode: array of TKMImage;
       Label_SinglePlayers,Label_SingleSize,
-      Label_SingleTitle1,Label_SingleTitle2:array[0..MENU_SP_MAPS_COUNT-1]of TKMLabel;
-      Shape_SingleOverlay:array[0..MENU_SP_MAPS_COUNT-1]of TKMShape;
+      Label_SingleTitle1,Label_SingleTitle2: array of TKMLabel;
+      Shape_SingleOverlay: array of TKMShape;
       ScrollBar_SingleMaps:TKMScrollBar;
       Shape_SingleMap:TKMShape;
       Label_SingleTitle:TKMLabel;
@@ -298,6 +300,10 @@ implementation
 uses KM_Unit1, KM_NetworkTypes, KM_Render, KM_TextLibrary, KM_Game, KM_PlayersCollection,
   KM_Utils, KM_Log, KM_Sound, KM_Networking, KM_ResourceSprites, KM_ServerQuery;
 
+const
+  MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
+  MENU_SP_MAPS_HEIGHT   = 40;
+
 
 { TKMMainMenuInterface }
 constructor TKMMainMenuInterface.Create(X,Y:word);
@@ -310,10 +316,9 @@ begin
   ScreenY := min(Y, MENU_DESIGN_Y);
   Campaign_MapIndex := 1;
 
-  fMaps := TKMapsCollection.Create(false);
+  fMaps := TKMapsCollection.Create(False);
   fMapsMP := TKMapsCollection.Create(true);
-  fMaps_Top := 0;
-  fMap_Selected := 0;
+  fMap_Selected := -1; //None
   fSaves := TKMSavesCollection.Create;
   fSavesMP := TKMSavesCollection.Create;
 
@@ -827,7 +832,15 @@ begin
       Button_SingleHeadSize.OnClick := SingleMap_Sort;
       with TKMButton.Create(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
 
-      for i:=0 to MENU_SP_MAPS_COUNT-1 do
+      SetLength(Bevel_SingleBG, MENU_SP_MAPS_COUNT);
+      SetLength(Image_SingleMode, MENU_SP_MAPS_COUNT);
+      SetLength(Label_SinglePlayers, MENU_SP_MAPS_COUNT);
+      SetLength(Label_SingleTitle1, MENU_SP_MAPS_COUNT);
+      SetLength(Label_SingleTitle2, MENU_SP_MAPS_COUNT);
+      SetLength(Label_SingleSize, MENU_SP_MAPS_COUNT);
+      SetLength(Shape_SingleOverlay, MENU_SP_MAPS_COUNT);
+
+      for i := 0 to MENU_SP_MAPS_COUNT - 1 do
       begin
         Bevel_SingleBG[i,1] := TKMBevel.Create(Panel_SingleList,0,  40+i*40, 40,40);
         Bevel_SingleBG[i,2] := TKMBevel.Create(Panel_SingleList,40, 40+i*40, 40,40);
@@ -845,7 +858,7 @@ begin
         Shape_SingleOverlay[i] := TKMShape.Create(Panel_SingleList, 0, 40+i*40, 420, 40, $00000000);
         Shape_SingleOverlay[i].LineWidth := 0;
         Shape_SingleOverlay[i].Tag := i;
-        Shape_SingleOverlay[i].OnClick := SingleMap_SelectMap;
+        Shape_SingleOverlay[i].OnClick := SingleMap_MapClick;
         Shape_SingleOverlay[i].OnDoubleClick := SingleMap_Start;
         Shape_SingleOverlay[i].OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
       end;
@@ -1249,9 +1262,10 @@ begin
   {Show SingleMap menu}
   if Sender=Button_SP_Single then
   begin
+    //Remove any old entries from UI
     SingleMap_Clear;
-    fMaps.OnRefreshComplete := SingleMap_RefreshList;
-    fMaps.Refresh;
+    //Initiate refresh and process each new map added
+    fMaps.Refresh(SingleMap_RefreshList, nil);
     Panel_Single.Show;
   end;
 
@@ -1286,7 +1300,7 @@ begin
 
   {Show MapEditor menu}
   if Sender=Button_MM_MapEd then begin
-    MapEditor_ListUpdate(Radio_MapEd_MapType.ItemIndex = 1);
+    MapEditor_ListUpdate;
     MapEditor_SizeChange(nil);
     Panel_MapEd.Show;
   end;
@@ -1408,75 +1422,84 @@ end;
 procedure TKMMainMenuInterface.SingleMap_Clear;
 var I: Integer;
 begin
-  for i:=0 to MENU_SP_MAPS_COUNT-1 do
+  for I := 0 to MENU_SP_MAPS_COUNT - 1 do
   begin
-    Image_SingleMode[i].TexID       := 0;
-    Label_SinglePlayers[i].Caption  := '';
-    Label_SingleTitle1[i].Caption   := '';
-    Label_SingleTitle2[i].Caption   := '';
-    Label_SingleSize[i].Caption     := '';
+    Image_SingleMode[I].TexID       := 0;
+    Label_SinglePlayers[I].Caption  := '';
+    Label_SingleTitle1[I].Caption   := '';
+    Label_SingleTitle2[I].Caption   := '';
+    Label_SingleSize[I].Caption     := '';
   end;
 
   ScrollBar_SingleMaps.MaxValue := 0;
-  ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
-  fMaps_Top := 0;
   fMap_Selected := -1;
 end;
 
 
 procedure TKMMainMenuInterface.SingleMap_RefreshList(Sender: TObject);
-var i,MapID:integer;
+var
+  I, MapID: Integer;
 begin
-  for i:=0 to MENU_SP_MAPS_COUNT-1 do
+  if fMaps.Count = 0 then
+    SingleMap_SelectMap(-1)
+  else
   begin
-    MapID := fMaps_Top + i;
-    if MapID <= fMaps.Count-1 then begin
-      Image_SingleMode[i].TexID       := 28+byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
-      Label_SinglePlayers[i].Caption  := inttostr(fMaps[MapID].Info.PlayerCount);
-      Label_SingleTitle1[i].Caption   := fMaps[MapID].Filename;
-      Label_SingleTitle2[i].Caption   := fMaps[MapID].SmallDesc;
-      Label_SingleSize[i].Caption     := fMaps[MapID].Info.MapSizeText;
+    //Updating MaxValue may change Position;
+    ScrollBar_SingleMaps.MaxValue := Max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
+
+    for I := 0 to MENU_SP_MAPS_COUNT - 1 do
+    begin
+      MapID := ScrollBar_SingleMaps.Position + I;
+      if MapID <= fMaps.Count - 1 then
+      begin
+        Image_SingleMode[I].TexID       := 28 + Byte(fMaps[MapID].Info.MissionMode <> mm_Tactic)*14;  //28 or 42
+        Label_SinglePlayers[I].Caption  := IntToStr(fMaps[MapID].Info.PlayerCount);
+        Label_SingleTitle1[I].Caption   := fMaps[MapID].Filename;
+        Label_SingleTitle2[I].Caption   := fMaps[MapID].SmallDesc;
+        Label_SingleSize[I].Caption     := fMaps[MapID].Info.MapSizeText;
+      end;
     end;
+
+    SingleMap_SelectMap(EnsureRange(fMap_Selected, 0, fMaps.Count - 1));
   end;
-
-  ScrollBar_SingleMaps.MaxValue := max(0, fMaps.Count - MENU_SP_MAPS_COUNT);
-  ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
-
-  fMap_Selected := EnsureRange(fMap_Selected, 0, fMaps.Count-1);
-  ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position, fMap_Selected-MENU_SP_MAPS_COUNT+1, fMap_Selected);
-  //SingleMap_ScrollChange(ScrollBar_SingleMaps);
-  //SingleMap_SelectMap(Shape_SingleOverlay[fMap_Selected-fMaps_Top]);
 end;
 
 
 procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
 begin
-  fMaps_Top := ScrollBar_SingleMaps.Position;
-  if InRange(fMap_Selected-fMaps_Top,0,MENU_SP_MAPS_COUNT-1) then
-    SingleMap_SelectMap(Shape_SingleOverlay[fMap_Selected-fMaps_Top])
-  else
-    SingleMap_SelectMap(nil); //Means it is off visible area
   SingleMap_RefreshList(nil);
+  SingleMap_SelectMap(fMap_Selected);
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_SelectMap(Sender: TObject);
-var i:integer;
+procedure TKMMainMenuInterface.SingleMap_MapClick(Sender: TObject);
 begin
-  if Sender = nil then
-    Shape_SingleMap.Hide //Off visible list
+  SingleMap_SelectMap(ScrollBar_SingleMaps.Position + TKMControl(Sender).Tag);
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_SelectMap(aIndex: Integer);
+begin
+  //User could have clicked on empty space in list and we get -1 or unused id
+  if not InRange(aIndex, 0, fMaps.Count - 1) then
+  begin
+    fMap_Selected := -1;
+    Button_SingleStart.Disable;
+    Shape_SingleMap.Hide;
+    Label_SingleTitle.Caption   := '';
+    Memo_SingleDesc.Text        := '';
+    Label_SingleCondTyp.Caption := '';
+    Label_SingleCondWin.Caption := '';
+    Label_SingleCondDef.Caption := '';
+  end
   else
   begin
-    i := TKMControl(Sender).Tag;
-    if not InRange(fMaps_Top+i, 0, fMaps.Count-1) then exit; //Less items than list space
-
-    Shape_SingleMap.Show;
-    Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * (i+1); // Including header height
-
-    fMap_Selected        := fMaps_Top+i;
-    Label_SingleTitle.Caption := fMaps[fMap_Selected].Filename;
-    Memo_SingleDesc.Text := fMaps[fMap_Selected].BigDesc;
-
+    fMap_Selected := aIndex;
+    Button_SingleStart.Enable;
+    Shape_SingleMap.Visible := InRange(fMap_Selected - ScrollBar_SingleMaps.Position, 0, MENU_SP_MAPS_COUNT - 1);
+    Shape_SingleMap.Top     := MENU_SP_MAPS_HEIGHT * (fMap_Selected - ScrollBar_SingleMaps.Position + 1); // Including header height
+    Label_SingleTitle.Caption   := fMaps[fMap_Selected].Filename;
+    Memo_SingleDesc.Text        := fMaps[fMap_Selected].BigDesc;
     Label_SingleCondTyp.Caption := Format(fTextLibrary[TX_MENU_MISSION_TYPE], [fMaps[fMap_Selected].Info.MissionModeText]);
     Label_SingleCondWin.Caption := Format(fTextLibrary[TX_MENU_WIN_CONDITION], [fMaps[fMap_Selected].Info.VictoryCondition]);
     Label_SingleCondDef.Caption := Format(fTextLibrary[TX_MENU_DEFEAT_CONDITION], [fMaps[fMap_Selected].Info.DefeatCondition]);
@@ -1486,41 +1509,46 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
-  if not Button_SingleStart.Enabled then exit; //This is also called by double clicking
+  //This is also called by double clicking on a list entry
+  if not Button_SingleStart.Enabled then
+    Exit;
+
   if not InRange(fMap_Selected, 0, fMaps.Count-1) then exit; //Some odd index
   fGame.StartSingleMap(MapNameToPath(fMaps[fMap_Selected].Filename,'dat',false),fMaps[fMap_Selected].Filename); //Provide mission filename mask and title here
 end;
 
 
 procedure TKMMainMenuInterface.SingleMap_Sort(Sender: TObject);
+var
+  Method: TMapsSortMethod;
 begin
   //Set Descending order by default and invert it if same column selected again
   if Sender = Button_SingleHeadTitle then
     if fMaps.SortMethod = smByNameDesc then
-      fMaps.SortMethod := smByNameAsc
+      Method := smByNameAsc
     else
-      fMaps.SortMethod := smByNameDesc
+      Method := smByNameDesc
   else
   if Sender = Button_SingleHeadSize then
     if fMaps.SortMethod = smBySizeDesc then
-      fMaps.SortMethod := smBySizeAsc
+      Method := smBySizeAsc
     else
-      fMaps.SortMethod := smBySizeDesc
+      Method := smBySizeDesc
   else
   if Sender = Button_SingleHeadTeams then
     if fMaps.SortMethod = smByPlayersDesc then
-      fMaps.SortMethod := smByPlayersAsc
+      Method := smByPlayersAsc
     else
-      fMaps.SortMethod := smByPlayersDesc
+      Method := smByPlayersDesc
   else
   if Sender = Button_SingleHeadMode then
     if fMaps.SortMethod = smByModeDesc then
-      fMaps.SortMethod := smByModeAsc
+      Method := smByModeAsc
     else
-      fMaps.SortMethod := smByModeDesc;
+      Method := smByModeDesc;
 
-  //Update the list
-  SingleMap_RefreshList(nil);
+  //Start sorting and wait for SortComplete event
+  fMaps.Sort(Method, SingleMap_RefreshList);
 end;
 
 
@@ -2049,25 +2077,30 @@ end;
 
 
 procedure TKMMainMenuInterface.Lobby_MapTypeSelect(Sender: TObject);
+  procedure MapsRefresh;
+  begin
+    //If we were refreshed by SwitchPage chances are we need to fully rescan the list
+    if Sender = nil then
+      fMapsMP.Refresh(Lobby_MapTypeRefreshDone, nil) //Report after each new map
+    else
+      fMapsMP.Refresh(nil, Lobby_MapTypeRefreshDone); //Report on completion
+  end;
 begin
   case Radio_LobbyMapType.ItemIndex of
     0:  //Build Map
         begin
-          fMapsMP.Refresh;
+          MapsRefresh;
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          List_Lobby.SetItems(fMapsMP.MapListBuild);
         end;
     1:  //Fight Map
         begin
-          fMapsMP.Refresh;
+          MapsRefresh;
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          List_Lobby.SetItems(fMapsMP.MapListFight);
         end;
     2:  //Co-op Map
         begin
-          fMapsMP.Refresh;
+          MapsRefresh;
           List_Lobby.DefaultCaption := fTextLibrary[TX_LOBBY_MAP_SELECT];
-          List_Lobby.SetItems(fMapsMP.MapListCoop);
         end;
     3:  //Saved Game
         begin
@@ -2085,6 +2118,17 @@ begin
   //The Sender is nil in Reset_Lobby when we are not connected
   if Sender <> nil then
     fGame.Networking.SelectNoMap(fTextLibrary[TX_LOBBY_MAP_NONE]);
+end;
+
+
+procedure TKMMainMenuInterface.Lobby_MapTypeRefreshDone(Sender: TObject);
+begin
+  case Radio_LobbyMapType.ItemIndex of
+    0:  List_Lobby.SetItems(fMapsMP.MapListBuild); //Build Map
+    1:  List_Lobby.SetItems(fMapsMP.MapListFight); //Fight Map
+    2:  List_Lobby.SetItems(fMapsMP.MapListCoop); //Co-op Map
+    //Other cases are already handled in Lobby_MapTypeSelect
+  end;
 end;
 
 
@@ -2382,24 +2426,33 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_MapTypeChange(Sender: TObject);
 begin
-  MapEditor_ListUpdate(Radio_MapEd_MapType.ItemIndex = 1);
-  List_MapEd.ItemIndex := 0;
+  MapEditor_ListUpdate;
 end;
 
 
-procedure TKMMainMenuInterface.MapEditor_ListUpdate(aUseMP:boolean);
+//Clear the list and initiate refresh
+procedure TKMMainMenuInterface.MapEditor_ListUpdate;
 begin
-  if aUseMP then
-  begin
-    fMapsMP.Refresh;
-    List_MapEd.SetItems(fMapsMP.MapList);
-  end
+  List_MapEd.SetItems('');
+
+  if Radio_MapEd_MapType.ItemIndex = 0 then
+    fMaps.Refresh(MapEditor_ListUpdateDone, nil)
   else
-  begin
-    fMaps.Refresh;
-    List_MapEd.SetItems(fMaps.MapList);
-  end;
-  List_MapEd.ItemIndex := 0; //Select first map by default, otherwise there could be an invalid map selected (if items have been removed since we last updated)
+    fMapsMP.Refresh(MapEditor_ListUpdateDone, nil);
+end;
+
+
+procedure TKMMainMenuInterface.MapEditor_ListUpdateDone(Sender: TObject);
+begin
+  if Radio_MapEd_MapType.ItemIndex = 0 then
+    List_MapEd.SetItems(fMaps.MapList)
+  else
+    List_MapEd.SetItems(fMapsMP.MapList);
+
+  //Select first map by default, otherwise there could be an invalid map selected
+  //(if items have been removed since we last updated)
+  if List_MapEd.ItemIndex = -1 then
+    List_MapEd.ItemIndex := 0;
 end;
 
 

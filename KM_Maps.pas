@@ -1,4 +1,4 @@
-unit KM_MapInfo;
+unit KM_Maps;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -6,53 +6,49 @@ uses
 
 
 type
-  TKMapInfo = class
-  private
-    fInfo: TKMGameInfo;
-
-    fPath: string;
-    fFilename: string; //without extension
-
-    fStrictParsing:boolean; //Use strict map checking, important for MP
-    fDatSize:integer;
-    fCRC: Cardinal;
-
-    procedure ScanMap;
-    procedure LoadFromFile(const aPath:string);
-    procedure SaveToFile(const aPath:string);
-  public
-    SmallDesc, BigDesc: string;
-    IsCoop: boolean; //Some multiplayer missions are defined as coop
-
-    constructor Create;
-    destructor Destroy; override;
-
-    procedure Load(const aFolder:string; aStrictParsing, aIsMultiplayer:boolean);
-
-    property Info: TKMGameInfo read fInfo;
-    property Path: string read fPath;
-    property Filename: string read fFilename;
-    property CRC: Cardinal read fCRC;
-
-    function IsValid:boolean;
-  end;
-
-
   TMapsSortMethod = (
     smByNameAsc, smByNameDesc,
     smBySizeAsc, smBySizeDesc,
     smByPlayersAsc, smByPlayersDesc,
     smByModeAsc, smByModeDesc);
 
+  TKMapInfo = class;
   TMapEvent = procedure (aMap: TKMapInfo) of object;
 
+  TKMapInfo = class
+  private
+    fInfo: TKMGameInfo;
+    fPath: string;
+    fFilename: string; //without extension
+    fStrictParsing: Boolean; //Use strict map checking, important for MP
+    fDatSize: Integer;
+    fCRC: Cardinal;
+    procedure ScanMap;
+    procedure LoadFromFile(const aPath:string);
+    procedure SaveToFile(const aPath:string);
+  public
+    SmallDesc, BigDesc: string;
+    IsCoop: Boolean; //Some multiplayer missions are defined as coop
+
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Load(const aFolder: string; aStrictParsing, aIsMultiplayer: Boolean);
+
+    property Info: TKMGameInfo read fInfo;
+    property Path: string read fPath;
+    property Filename: string read fFilename;
+    property CRC: Cardinal read fCRC;
+
+    function IsValid: Boolean;
+  end;
 
   TTScanner = class(TThread)
   private
     fMultiplayerPath: Boolean;
+    fOnMapAdd: TMapEvent;
   public
-    OnMapAdd: TMapEvent;
-    constructor Create(aMultiplayerPath: Boolean);
+    constructor Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent);
     procedure Execute; override;
   end;
 
@@ -65,26 +61,27 @@ type
     CS: TCriticalSection;
     fScanner: TTScanner;
     fScanning: Boolean;
-    function GetMap(aIndex: Integer): TKMapInfo;
-    procedure SetSortMethod(aMethod: TMapsSortMethod);
+    fOnRefresh: TNotifyEvent;
+    fOnRefreshComplete: TNotifyEvent;
+    procedure Lock;
+    procedure Unlock;
+    procedure Clear;
     procedure MapAdd(aMap: TKMapInfo);
     procedure ScanComplete(Sender: TObject);
-    procedure Sort;
+    procedure DoSort;
+    function GetMap(aIndex: Integer): TKMapInfo;
   public
-    OnRefreshComplete: TNotifyEvent;
-    constructor Create(aMultiplayerPath: Boolean);
+    constructor Create(aMultiplayerPath: Boolean; aSortMethod: TMapsSortMethod = smByNameDesc);
     destructor Destroy; override;
 
     property Count: Integer read fCount;
-    property Map[aIndex: Integer]: TKMapInfo read GetMap; default;
-    property Scanning: Boolean read fScanning;
+    property Maps[aIndex: Integer]: TKMapInfo read GetMap; default;
 
-    procedure Clear;
-    procedure Lock;
-    procedure Unlock;
-    procedure Refresh;
-    property SortMethod: TMapsSortMethod read fSortMethod write SetSortMethod;
+    procedure Refresh(aOnRefresh, aOnRefreshComplete: TNotifyEvent);
+    procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
+    property SortMethod: TMapsSortMethod read fSortMethod; //Read-only because we should not change it while Refreshing
 
+    //Should be accessed only as a part of aOnRefresh/aOnSort events handlers
     function MapList: string;
     function MapListBuild: string;
     function MapListFight: string;
@@ -235,22 +232,20 @@ end;
 
 
 { TKMapsCollection }
-constructor TKMapsCollection.Create(aMultiplayerPath: Boolean);
+constructor TKMapsCollection.Create(aMultiplayerPath: Boolean; aSortMethod: TMapsSortMethod = smByNameDesc);
 begin
   inherited Create;
   fMultiplayerPath := aMultiplayerPath;
-  fSortMethod := smByNameDesc;
+  fSortMethod := aSortMethod;
 
+  //CS is used to guard sections of code to allow only one thread at once to access them
   CS := TCriticalSection.Create;
-
-  //fScanner := TTScanner.Create(fMultiplayerPath);
-  //fScanner.OnMapAdd := MapAdd;
-  //fScanner.OnTerminate := ScanComplete;
 end;
 
 
 destructor TKMapsCollection.Destroy;
 begin
+  //Terminate and release the Scanner if we have one working or finished
   if (fScanner <> nil) then
   begin
     fScanner.Terminate;
@@ -259,6 +254,7 @@ begin
     fScanner := nil;
   end;
 
+  //Release TKMapInfo objects
   Clear;
 
   CS.Free;
@@ -266,10 +262,16 @@ begin
 end;
 
 
+//Within CS we are guaranteed that noone will change the fMaps[aIndex] until we done
 function TKMapsCollection.GetMap(aIndex: Integer): TKMapInfo;
 begin
-  Assert(InRange(aIndex, 0, fCount - 1));
-  Result := fMaps[aIndex];
+  Lock;
+  try
+    Assert(InRange(aIndex, 0, fCount - 1));
+    Result := fMaps[aIndex];
+  finally
+    Unlock;
+  end;
 end;
 
 
@@ -285,80 +287,49 @@ begin
 end;
 
 
-procedure TKMapsCollection.ScanComplete(Sender: TObject);
-begin
-  Lock;
-  try
-    fScanning := False;
-    Sort;
-    if Assigned(OnRefreshComplete) then
-      OnRefreshComplete(Self);
-  finally
-    Unlock;
-  end;
-end;
-
-
-procedure TKMapsCollection.SetSortMethod(aMethod: TMapsSortMethod);
-begin
-  fSortMethod := aMethod;
-  Sort; //New sorting method has been set, we need to apply it
-end;
-
-
-procedure TKMapsCollection.MapAdd(aMap: TKMapInfo);
-begin
-  Lock;
-  try
-    SetLength(fMaps, fCount + 1);
-    fMaps[fCount] := aMap;
-    Inc(fCount);
-  finally
-    Unlock;
-  end;
-end;
-
-
 function TKMapsCollection.MapList: string;
-var i:integer;
+var
+  I: Integer;
 begin
-  Assert(not Scanning);
+  Assert(not fScanning, 'Guarding from access to inconsistent data');
   Result := '';
-  for i:=0 to fCount-1 do
-    Result := Result + fMaps[i].Filename + eol;
+  for I := 0 to fCount - 1 do
+    Result := Result + fMaps[I].Filename + eol;
 end;
 
 
 function TKMapsCollection.MapListBuild: string;
-var i:integer;
+var I: Integer;
 begin
-  Assert(not Scanning);
+  Assert(not fScanning, 'Guarding from access to inconsistent data');
   Result := '';
-  for i:=0 to fCount-1 do
-    if (fMaps[i].Info.MissionMode = mm_Normal) and not fMaps[i].IsCoop then
-      Result := Result + fMaps[i].Filename + eol;
+  for I := 0 to fCount - 1 do
+    if (fMaps[I].Info.MissionMode = mm_Normal) and not fMaps[I].IsCoop then
+      Result := Result + fMaps[I].Filename + eol;
 end;
 
 
 function TKMapsCollection.MapListFight: string;
-var i:integer;
+var
+  I: Integer;
 begin
-  Assert(not Scanning);
+  Assert(not fScanning, 'Guarding from access to inconsistent data');
   Result := '';
-  for i:=0 to fCount-1 do
-    if (fMaps[i].Info.MissionMode = mm_Tactic) and not fMaps[i].IsCoop then
-      Result := Result + fMaps[i].Filename + eol;
+  for I := 0 to fCount - 1 do
+    if (fMaps[I].Info.MissionMode = mm_Tactic) and not fMaps[I].IsCoop then
+      Result := Result + fMaps[I].Filename + eol;
 end;
 
 
 function TKMapsCollection.MapListCoop: string;
-var i:integer;
+var
+  I: Integer;
 begin
-  Assert(not Scanning);
+  Assert(not fScanning, 'Guarding from access to inconsistent data');
   Result := '';
-  for i:=0 to fCount-1 do
+  for I := 0 to fCount - 1 do
     if fMaps[i].IsCoop then
-      Result := Result + fMaps[i].Filename + eol;
+      Result := Result + fMaps[I].Filename + eol;
 end;
 
 
@@ -366,15 +337,15 @@ procedure TKMapsCollection.Clear;
 var
   I: Integer;
 begin
-  Assert(not Scanning);
+  Assert(not fScanning, 'Guarding from access to inconsistent data');
   for I := 0 to fCount - 1 do
     FreeAndNil(fMaps[I]);
   fCount := 0;
 end;
 
 
-procedure TKMapsCollection.Sort;
-
+//For private acces, where CS is managed by tha caller
+procedure TKMapsCollection.DoSort;
   //Return True if items should be exchanged
   function Compare(A, B: TKMapInfo; aMethod: TMapsSortMethod): Boolean;
   begin
@@ -390,20 +361,52 @@ procedure TKMapsCollection.Sort;
       smByModeDesc:     Result := A.Info.MissionMode > B.Info.MissionMode;
     end;
   end;
-
 var
-  i, k: Integer;
+  I, K: Integer;
 begin
-  Assert(not Scanning);
-  for i:=0 to fCount-1 do
-  for k:=i to fCount-1 do
-  if Compare(fMaps[i], fMaps[k], fSortMethod) then
-    SwapInt(Cardinal(fMaps[i]), Cardinal(fMaps[k])); //Exchange only pointers to MapInfo objects
+  for I := 0 to fCount - 1 do
+  for K := I to fCount - 1 do
+  if Compare(fMaps[I], fMaps[K], fSortMethod) then
+    SwapInt(Cardinal(fMaps[I]), Cardinal(fMaps[K])); //Exchange only pointers to MapInfo objects
 end;
 
 
-procedure TKMapsCollection.Refresh;
+//For public access
+//Apply new Sort within Critical Section, as we could be in the Refresh phase
+//note that we need to preserve fScanning flag
+procedure TKMapsCollection.Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
 begin
+  Lock;
+  try
+    if fScanning then
+    begin
+      fScanning := False;
+      fSortMethod := aSortMethod;
+      DoSort;
+      if Assigned(aOnSortComplete) then
+        aOnSortComplete(Self);
+      fScanning := True;
+    end
+    else
+    begin
+      fSortMethod := aSortMethod;
+      DoSort;
+      if Assigned(aOnSortComplete) then
+        aOnSortComplete(Self);
+    end;
+  finally
+    Unlock;
+  end;
+end;
+
+
+//Start the refresh of maplist
+procedure TKMapsCollection.Refresh(aOnRefresh, aOnRefreshComplete: TNotifyEvent);
+begin
+  fOnRefresh := aOnRefresh;
+  fOnRefreshComplete := aOnRefreshComplete;
+
+  //Terminate previous Scanner if two scans were launched consequentialy
   if (fScanner <> nil) then
   begin
     fScanner.Terminate;
@@ -415,18 +418,62 @@ begin
   Clear;
 
   fScanning := True;
-  fScanner := TTScanner.Create(fMultiplayerPath);
-  fScanner.OnMapAdd := MapAdd;
+  fScanner := TTScanner.Create(fMultiplayerPath, MapAdd);
   fScanner.OnTerminate := ScanComplete;
   fScanner.Resume;
 end;
 
 
+procedure TKMapsCollection.MapAdd(aMap: TKMapInfo);
+begin
+  Lock;
+  try
+    SetLength(fMaps, fCount + 1);
+    fMaps[fCount] := aMap;
+    Inc(fCount);
+
+    //Set the scanning to false so we could Sort and
+    //also signal that we let UI access Count and Maps list safely, as
+    //they check for fScanning flag
+    fScanning := False;
+
+    //Keep the maps sorted
+    //We signal from Locked section, so everything caused by event can safely access our Maps
+    DoSort;
+
+    if Assigned(fOnRefresh) then
+      fOnRefresh(Self);
+
+    fScanning := True;
+  finally
+    Unlock;
+  end;
+end;
+
+
+//All maps have been scanned
+//No need to resort since that was done in last MapAdd event
+procedure TKMapsCollection.ScanComplete(Sender: TObject);
+begin
+  Lock;
+  try
+    fScanning := False;
+    if Assigned(fOnRefreshComplete) then
+      fOnRefreshComplete(Self);
+  finally
+    Unlock;
+  end;
+end;
+
+
 { TTScanner }
-constructor TTScanner.Create(aMultiplayerPath: Boolean);
+constructor TTScanner.Create(aMultiplayerPath: Boolean; aOnMapAdd: TMapEvent);
 begin
   inherited Create(True);
+  Assert(Assigned(aOnMapAdd));
+
   fMultiplayerPath := aMultiplayerPath;
+  fOnMapAdd := aOnMapAdd;
   FreeOnTerminate := False;
 end;
 
@@ -452,9 +499,8 @@ begin
       begin
         Map := TKMapInfo.Create;
         Map.Load(SearchRec.Name, false, fMultiplayerPath);
-        Sleep(50);
-        if Assigned(OnMapAdd) then
-          OnMapAdd(Map);
+        sleep(66);
+        fOnMapAdd(Map);
       end;
     until (FindNext(SearchRec) <> 0) or Terminated;
     FindClose(SearchRec);

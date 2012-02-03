@@ -107,7 +107,7 @@ begin
 end;
 
 
-{ TKMapsCollection }
+{ TKMSavesCollection }
 destructor TKMSavesCollection.Destroy;
 begin
   Clear;
