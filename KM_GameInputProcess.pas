@@ -191,9 +191,10 @@ begin
 end;
 
 
+{ TGameInputProcess }
 constructor TGameInputProcess.Create(aReplayState:TGIPReplayState);
 begin
-  Inherited Create;
+  inherited Create;
   setlength(fQueue, 128);
   fCount := 0;
   fCursor := 1;
@@ -203,20 +204,21 @@ end;
 
 destructor TGameInputProcess.Destroy;
 begin
-  Inherited;
+  inherited;
 end;
 
 
-function TGameInputProcess.MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
-var i:integer;
+function TGameInputProcess.MakeCommand(aGIC: TGameInputCommandType; const aParam:array of integer):TGameInputCommand;
+var
+  I: Integer;
 begin
   Result.CommandType := aGIC;
   Result.PlayerIndex := MyPlayer.PlayerIndex;
 
-  for i:=Low(aParam) to High(aParam) do
-    Result.Params[i+1] := aParam[i];
-  for i:=High(aParam)+1 to High(Result.Params)-1 do
-    Result.Params[i+1] := maxint;
+  for I := Low(aParam) to High(aParam) do
+    Result.Params[I+1] := aParam[I];
+  for I := High(aParam) + 1 to High(Result.Params) - 1 do
+    Result.Params[I+1] := MaxInt;
 
   Result.TextParam := '';
 end;
@@ -277,6 +279,7 @@ begin
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
       gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
+      //Due to lags there could be already plans placed by user
       gic_BuildAddFieldPlan:      if P.BuildList.FieldworksList.HasField(KMPoint(Params[1],Params[2])) = TFieldType(Params[3]) then
                                     P.RemFieldPlan(KMPoint(Params[1],Params[2])) //Remove existing markup
                                   else
@@ -336,91 +339,95 @@ end;
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior);
 begin
   Assert(aCommandType in [gic_ArmyFeed, gic_ArmySplit, gic_ArmyStorm]);
-  TakeCommand( MakeCommand(aCommandType, aWarrior.ID) );
+  TakeCommand(MakeCommand(aCommandType, aWarrior.ID));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aUnit:TKMUnit);
 begin
   Assert(aCommandType in [gic_ArmyLink, gic_ArmyAttackUnit]);
-  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aUnit.ID]) );
+  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, aUnit.ID]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aHouse:TKMHouse);
 begin
   Assert(aCommandType = gic_ArmyAttackHouse);
-  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aHouse.ID]) );
+  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, aHouse.ID]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aTurnAmount:TKMTurnDirection; aLineAmount:shortint);
 begin
   Assert(aCommandType = gic_ArmyHalt);
-  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, byte(aTurnAmount), aLineAmount]) );
+  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, byte(aTurnAmount), aLineAmount]));
 end;
 
 
 procedure TGameInputProcess.CmdArmy(aCommandType:TGameInputCommandType; aWarrior:TKMUnitWarrior; aLoc:TKMPoint; aDirection:TKMDirection);
 begin
   Assert(aCommandType = gic_ArmyWalk);
-  TakeCommand( MakeCommand(aCommandType, [aWarrior.ID, aLoc.X, aLoc.Y, byte(aDirection)]) );
+  TakeCommand(MakeCommand(aCommandType, [aWarrior.ID, aLoc.X, aLoc.Y, byte(aDirection)]));
 end;
 
 
 procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
   Assert(aCommandType in [gic_BuildRemoveFieldPlan, gic_BuildRemoveHouse, gic_BuildRemoveHousePlan]);
-  TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y]) );
+  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
 
 
 procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc: TKMPoint; aFieldType: TFieldType);
 begin
   Assert(aCommandType in [gic_BuildAddFieldPlan]);
-  TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]) );
+  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y, Byte(aFieldType)]));
+
+  //Add fake markup that will be visible only to MyPlayer until Server verifies it
+//todo: Keep in sync with multi-add/remove due to lags
+  MyPlayer.BuildList.FieldworksList.AddFakeField(aLoc, aFieldType);
 end;
 
 
-procedure TGameInputProcess.CmdBuild(aCommandType:TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType);
+procedure TGameInputProcess.CmdBuild(aCommandType: TGameInputCommandType; aLoc:TKMPoint; aHouseType:THouseType);
 begin
   Assert(aCommandType = gic_BuildHousePlan);
-  TakeCommand( MakeCommand(aCommandType, [byte(aHouseType), aLoc.X, aLoc.Y]) );
+  TakeCommand(MakeCommand(aCommandType, [byte(aHouseType), aLoc.X, aLoc.Y]));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse);
 begin
   Assert(aCommandType in [gic_HouseRepairToggle, gic_HouseDeliveryToggle]);
-  TakeCommand( MakeCommand(aCommandType, aHouse.ID) );
+  TakeCommand(MakeCommand(aCommandType, aHouse.ID));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem, aAmount:integer);
 begin
   Assert(aCommandType = gic_HouseOrderProduct);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, aItem, aAmount]) );
+  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, aItem, aAmount]));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aItem:TResourceType);
 begin
   Assert(aCommandType in [gic_HouseStoreAcceptFlag, gic_HouseMarketFrom, gic_HouseMarketTo]);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aItem)]) );
+  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, byte(aItem)]));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aWoodcutterMode:TWoodcutterMode);
 begin
   Assert(aCommandType = gic_HouseWoodcutterMode);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aWoodcutterMode)]) );
+  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, byte(aWoodcutterMode)]));
 end;
 
 
 procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:TKMHouse; aUnitType:TUnitType; aCount:byte);
 begin
   Assert(aCommandType in [gic_HouseSchoolTrain, gic_HouseBarracksEquip]);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, byte(aUnitType), aCount]) );
+  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, byte(aUnitType), aCount]));
 end;
 
 
@@ -428,21 +435,21 @@ procedure TGameInputProcess.CmdHouse(aCommandType:TGameInputCommandType; aHouse:
 begin
   Assert(aCommandType = gic_HouseRemoveTrain);
   Assert(aHouse is TKMHouseSchool);
-  TakeCommand( MakeCommand(aCommandType, [aHouse.ID, aItem]) );
+  TakeCommand(MakeCommand(aCommandType, [aHouse.ID, aItem]));
 end;
 
 
 procedure TGameInputProcess.CmdRatio(aCommandType:TGameInputCommandType; aRes:TResourceType; aHouseType:THouseType; aValue:integer);
 begin
   Assert(aCommandType = gic_RatioChange);
-  TakeCommand( MakeCommand(aCommandType, [byte(aRes), byte(aHouseType), aValue]) );
+  TakeCommand(MakeCommand(aCommandType, [byte(aRes), byte(aHouseType), aValue]));
 end;
 
 
 procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aValue:boolean);
 begin
   Assert(aCommandType = gic_GamePause);
-  TakeCommand( MakeCommand(aCommandType, [integer(aValue)]) );
+  TakeCommand(MakeCommand(aCommandType, [integer(aValue)]));
 end;
 
 
@@ -456,28 +463,28 @@ end;
 procedure TGameInputProcess.CmdGame(aCommandType:TGameInputCommandType; aPlayer, aTeam:integer);
 begin
   Assert(aCommandType = gic_GameTeamChange);
-  TakeCommand( MakeCommand(aCommandType, [aPlayer,aTeam]) );
+  TakeCommand(MakeCommand(aCommandType, [aPlayer,aTeam]));
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aLoc:TKMPoint);
 begin
   Assert(aCommandType = gic_TempAddScout);
-  TakeCommand( MakeCommand(aCommandType, [aLoc.X, aLoc.Y]) );
+  TakeCommand(MakeCommand(aCommandType, [aLoc.X, aLoc.Y]));
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType);
 begin
   Assert(aCommandType in [gic_TempRevealMap, gic_TempDoNothing]);
-  TakeCommand( MakeCommand(aCommandType, []) );
+  TakeCommand(MakeCommand(aCommandType, []));
 end;
 
 
 procedure TGameInputProcess.CmdTemp(aCommandType:TGameInputCommandType; aNewPlayerIndex:TPlayerIndex);
 begin
   Assert(aCommandType = gic_TempChangeMyPlayer);
-  TakeCommand( MakeCommand(aCommandType, [aNewPlayerIndex]) );
+  TakeCommand(MakeCommand(aCommandType, [aNewPlayerIndex]));
 end;
 
 

@@ -400,6 +400,10 @@ begin
       RenderTerrainMarkup(k, i, F);
   end;
 
+  //@Lewin: Since plans are per-player now, what do we do about allies that:
+  // - have partially overlapping plans
+  // - have plans/tablets on exact same spot
+
   BordersList := TKMPointDirList.Create;
   MyPlayer.BuildList.HousePlanList.GetBorders(BordersList, x1,x2,y1,y2);
   for i := 0 to BordersList.Count - 1 do

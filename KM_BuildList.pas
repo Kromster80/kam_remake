@@ -77,6 +77,7 @@ type
     end;
   public
     //Player orders
+    procedure AddFakeField(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
     function HasField(aLoc: TKMPoint): TFieldType;
     procedure RemFieldPlan(aLoc: TKMPoint);
@@ -333,6 +334,15 @@ begin
   end;
   fFields[aIndex].JobStatus := js_Taken;
   fFields[aIndex].Worker := aWorker.GetUnitPointer;
+end;
+
+
+//Fake plan that will be visible until real one is verified by Server
+procedure TKMFieldworksList.AddFakeField(aLoc: TKMPoint; aFieldType: TFieldType);
+begin
+  //todo: AddFakeField
+
+  //
 end;
 
 
