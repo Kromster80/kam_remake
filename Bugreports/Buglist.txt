@@ -21,6 +21,7 @@
 	AI attacks make the game lag (by using too much CPU in pathfinding ?). Vortamic is especially bad.
 	Sometimes render order is wrong, using the X/Y values of the sprite gives bad results in some cases
 	Remake may be too random at battle results, too much depends on luck (test battle map outcomes with various RandSeed)
+	Server selection highlight in MP menu disappears when sorting by any column
 
 	Dots and lines displaying on tile edges (requires fResourceTiles) [Krom]
 	Colored rectangle below cursor

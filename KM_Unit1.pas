@@ -723,7 +723,7 @@ end;
 
 procedure TForm1.ReadAvailableResolutions;
 var
-  I,M,N : integer;
+  I,M,N: integer;
   {$IFDEF MSWindows}DevMode: TDevMode;{$ENDIF}
 begin
   {$IFDEF MSWindows}
@@ -737,16 +737,27 @@ begin
     Inc(I);
     //Take only 32bpp modes
     //Exclude rotated modes, as Win reports them too
-    if (dmBitsPerPel = 32) //and (dmOrientation = 0)
+    if (dmBitsPerPel = 32) and (dmPelsWidth > dmPelsHeight)
     and (dmPelsWidth >= 1024) and (dmPelsHeight >= 768)
     and (dmDisplayFrequency > 0) then
     begin
+      //todo: There's a problem with VMware which reports ~20 resolutions which
+      //A. do not fit
+      //B. are not sorted
+      //C. cause range-check-error since A is not checked properly (fixed, see comment below)
+      //We should sort resolutions manually anyway,
+      //and decide which resolutions to keep (highest 15 ?) or raise the limit or use a ComboBox
+
+      //@Jimmy: Conditions are checked from left to right, so the following would lead to range error
+      //        (ScreenRes[N].Width <> 0) and (N < RESOLUTION_COUNT)
+      //since it first checks ScreenRes[N], where N could be already out of range
+      //@Jimmy: You can do range checks manually setting _Count limit to very low, e.g.1 or 2 instead of 15
 
       //Find next empty place and avoid duplicating
       N := 1;
-      while (ScreenRes[N].Width <> 0) and (N <= RESOLUTION_COUNT) and
-             ((ScreenRes[N].Width <> dmPelsWidth) or (ScreenRes[N].Height <> dmPelsHeight)) do
-        inc(N);
+      while (N <= RESOLUTION_COUNT) and (ScreenRes[N].Width <> 0)
+            and ((ScreenRes[N].Width <> dmPelsWidth) or (ScreenRes[N].Height <> dmPelsHeight)) do
+        Inc(N);
 
       if (N <= RESOLUTION_COUNT) and (ScreenRes[N].Width = 0) then
       begin
@@ -756,13 +767,12 @@ begin
 
       //Find next empty place and avoid duplicating
       M := 1;
-      while (ScreenRes[N].RefRate[M] <> 0) and (M <= REFRESH_RATE_COUNT) and
-             (ScreenRes[N].RefRate[M] <> dmDisplayFrequency) do
-        inc(M);
+      while (N <= RESOLUTION_COUNT) and (M <= REFRESH_RATE_COUNT)
+            and (ScreenRes[N].RefRate[M] <> 0)
+            and (ScreenRes[N].RefRate[M] <> dmDisplayFrequency) do
+        Inc(M);
 
-      if (M <= REFRESH_RATE_COUNT)
-      and (N <= RESOLUTION_COUNT)
-      and (ScreenRes[N].RefRate[M] = 0) then
+      if (M <= REFRESH_RATE_COUNT) and (N <= RESOLUTION_COUNT) and (ScreenRes[N].RefRate[M] = 0) then
         ScreenRes[N].RefRate[M] := dmDisplayFrequency;
     end;
   end;
