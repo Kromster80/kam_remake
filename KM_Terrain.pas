@@ -2195,12 +2195,12 @@ begin
       //Check surrounding tiles for another house that overlaps
       for j:=-1 to 1 do
         for l:=-1 to 1 do
-          if TileInMapCoords(TestLoc.X+l,TestLoc.Y+j) then
-           if (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House]) then
-           begin
-             Result := False;
-             Exit;
-           end;
+          if TileInMapCoords(TestLoc.X+l, TestLoc.Y+j)
+          and (Land[TestLoc.Y+j,TestLoc.X+l].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_HouseFenceBlocked, mu_House]) then
+          begin
+            Result := False;
+            Exit;
+          end;
     end;
 end;
 
@@ -2270,35 +2270,35 @@ begin
 end;
 
 
-procedure TTerrain.AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
-var i,k:integer; HA:THouseArea;
+procedure TTerrain.AddHouseRemainder(Loc: TKMPoint; aHouseType: THouseType; aBuildState: THouseBuildState);
+var I, K: Integer; HA: THouseArea;
 begin
   HA := fResource.HouseDat[aHouseType].BuildArea;
 
   if aBuildState in [hbs_Stone, hbs_Done] then //only leave rubble if the construction was well underway (stone and above)
   begin
-    //For houses that are at least partually built (leaves rubble)
-    for i:=2 to 4 do for k:=2 to 4 do
-      if HA[i-1,k]<>0 then
-      if HA[i,k-1]<>0 then
-      if HA[i-1,k-1]<>0 then
-      if HA[i,k]<>0 then
-        Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+KaMRandom(6);
-    for i:=1 to 4 do for k:=1 to 4 do
-      if (HA[i,k] in [1,2]) then
+    //Leave rubble
+    for I:=2 to 4 do for K:=2 to 4 do
+      if (HA[I-1,K] <> 0) and (HA[I,K-1] <> 0)
+      and (HA[I-1,K-1] <> 0) and (HA[I,K] <> 0) then
+        Land[Loc.Y+I-4,Loc.X+K-3].Obj := 68 + KaMRandom(6);
+    //Leave dug terrain
+    for I:=1 to 4 do for K:=1 to 4 do
+      if HA[I,K] <> 0 then
       begin
-        Land[Loc.Y+i-4,Loc.X+k-3].TileOverlay:=to_Dig3;
-        Land[Loc.Y+i-4,Loc.X+k-3].Markup:=mu_None;
+        Land[Loc.Y+I-4, Loc.X+K-3].TileOverlay := to_Dig3;
+        Land[Loc.Y+I-4, Loc.X+K-3].Markup := mu_None;
       end;
   end
-  else begin
-    //For glyphs
-    for i:=1 to 4 do for k:=1 to 4 do
-      if (HA[i,k] in [1,2]) then
-        Land[Loc.Y+i-4,Loc.X+k-3].Markup:=mu_None;
-
+  else
+  begin
+    //For glyphs leave nothing
+    for I:=1 to 4 do for K:=1 to 4 do
+      if HA[I,K] <> 0 then
+        Land[Loc.Y+I-4, Loc.X+K-3].Markup := mu_None;
   end;
-  RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
+
+  RebuildPassability(Loc.X-3, Loc.X+2, Loc.Y-4, Loc.Y+1);
   RebuildWalkConnect([wcWalk, wcRoad, wcWolf, wcCrab, wcWork]);
 end;
 

@@ -494,9 +494,12 @@ begin
   fPlayers.Player[fOwner].DeliverList.RemOffer(Self);
   fPlayers.Player[fOwner].DeliverList.RemDemand(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,-1);
-  //Road is removed in CloseHouse
-  if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
 
+  //Leave rubble
+  if not NoRubble then
+    fTerrain.AddHouseRemainder(fPosition, fHouseType, fBuildState);
+
+  //Road is removed in CloseHouse
   CloseHouse(NoRubble);
 end;
 
