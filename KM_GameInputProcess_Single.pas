@@ -7,10 +7,10 @@ uses SysUtils, KM_GameInputProcess;
 type
   TGameInputProcess_Single = class(TGameInputProcess)
   protected
-    procedure TakeCommand(aCommand:TGameInputCommand); override;
+    procedure TakeCommand(aCommand: TGameInputCommand); override;
   public
-    procedure ReplayTimer(aTick:cardinal); override;
-    procedure RunningTimer(aTick:cardinal); override;
+    procedure ReplayTimer(aTick: Cardinal); override;
+    procedure RunningTimer(aTick: Cardinal); override;
   end;
 
 
@@ -18,24 +18,24 @@ implementation
 uses KM_Game, KM_Defaults, KM_Points, KM_Utils;
 
 
-procedure TGameInputProcess_Single.TakeCommand(aCommand:TGameInputCommand);
+procedure TGameInputProcess_Single.TakeCommand(aCommand: TGameInputCommand);
 begin
   StoreCommand(aCommand); //Store the command for the replay (store it first in case Exec crashes and we want to debug it)
   ExecCommand(aCommand); //Execute the command now
 end;
 
 
-procedure TGameInputProcess_Single.ReplayTimer(aTick:cardinal);
-var MyRand:cardinal;
+procedure TGameInputProcess_Single.ReplayTimer(aTick: Cardinal);
+var MyRand: Cardinal;
 begin
-  KaMRandom(maxint); //This is to match up with multiplayer random check generation, so multiplayer replays can be replayed in singleplayer mode
+  KaMRandom(MaxInt); //This is to match up with multiplayer random check generation, so multiplayer replays can be replayed in singleplayer mode
   //There are still more commands left
   if fCursor <= Count then
   begin
     while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command.CommandType <> gic_None) do
-      inc(fCursor);
+      Inc(fCursor);
 
-    while (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
+    while (fCursor <= Count) and (aTick = fQueue[fCursor].Tick) do //Could be several commands in one Tick
     begin
       MyRand := Cardinal(KaMRandom(maxint)); //Just like in StoreCommand
       ExecCommand(fQueue[fCursor].Command);
@@ -45,15 +45,15 @@ begin
         fGame.GameError(KMPoint(0,0), 'Replay mismatch: '+IntToStr(fQueue[fCursor].Rand)+' on tick '+IntToStr(aTick));
         Exit; //GameError sometimes calls GIP.Free, so exit immidiately
       end;
-      inc(fCursor);
+      Inc(fCursor);
     end;
   end;
 end;
 
 
-procedure TGameInputProcess_Single.RunningTimer(aTick:cardinal);
+procedure TGameInputProcess_Single.RunningTimer(aTick: Cardinal);
 begin
-  KaMRandom(maxint); //This is to match up with multiplayer CRC generation, so multiplayer replays can be replayed in singleplayer mode
+  KaMRandom(MaxInt); //This is to match up with multiplayer CRC generation, so multiplayer replays can be replayed in singleplayer mode
 end;
 
 end.

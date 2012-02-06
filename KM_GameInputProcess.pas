@@ -101,14 +101,14 @@ type
 type
   TGameInputProcess = class
   private
-    fCount:integer;
-    fReplayState:TGIPReplayState;
+    fCount: Integer;
+    fReplayState: TGIPReplayState;
   protected
-    fCursor:integer; //Used only in gipReplaying
+    fCursor: Integer; //Used only in gipReplaying
     fQueue: array of packed record
-      Tick:cardinal;
-      Command:TGameInputCommand;
-      Rand:cardinal; //acts as CRC check
+      Tick: Cardinal;
+      Command: TGameInputCommand;
+      Rand: Cardinal; //acts as CRC check
     end;
 
     function MakeCommand(aGIC:TGameInputCommandType; const aParam:array of integer): TGameInputCommand; overload;
@@ -484,7 +484,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.SaveToFile(aFileName:string);
+procedure TGameInputProcess.SaveToFile(aFileName: string);
 var i:integer; S:TKMemoryStream;
 begin
   S := TKMemoryStream.Create;
@@ -502,7 +502,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.LoadFromFile(aFileName:string);
+procedure TGameInputProcess.LoadFromFile(aFileName: string);
 var FileVersion:string; i:integer; S:TKMemoryStream;
 begin
   if not FileExists(aFileName) then exit;
@@ -554,7 +554,7 @@ begin
 
   Assert(ReplayState = gipRecording);
   inc(fCount);
-  if length(fQueue) <= fCount then SetLength(fQueue, fCount+128);
+  if Length(fQueue) <= fCount then SetLength(fQueue, fCount+128);
 
   fQueue[fCount].Tick    := fGame.GameTickCount;
   fQueue[fCount].Command := aCommand;
