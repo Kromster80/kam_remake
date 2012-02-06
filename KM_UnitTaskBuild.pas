@@ -216,17 +216,19 @@ begin
     7: begin
          fTerrain.IncDigState(fLoc);
          fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
+         //Remove fields and other quads as they won't fit with road
          if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
-           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Remove fields and other quads as they won't fit with road
+           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255;
          SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
+         //Remove the object again, in case it grew while we were building (I saw this in-game)
          if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
-           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255; //Remove the object again, in case it grew while we were building (I saw this in-game)
-         fTerrain.SetRoad(fLoc,GetOwner);
-         SetActionStay(5,ua_Walk);
+           fTerrain.Land[fLoc.Y,fLoc.X].Obj := 255;
+         fTerrain.SetField(fLoc, GetOwner, ft_Road);
+         SetActionStay(5, ua_Walk);
          fTerrain.RemMarkup(fLoc);
-         MarkupSet := false;
+         MarkupSet := False;
        end;
     else Result := TaskDone;
   end;
@@ -686,7 +688,7 @@ begin
           fTerrain.FlattenTerrain(Cells[Step]);
           fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
           if KMSamePoint(fHouse.GetEntrance, Cells[Step]) then
-            fTerrain.SetRoad(fHouse.GetEntrance, GetOwner);
+            fTerrain.SetField(fHouse.GetEntrance, GetOwner, ft_Road);
           fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj := 255; //All objects are removed
           fTerrain.SetMarkup(Cells[Step], mu_HouseFenceNoWalk); //Block passability on tile
           dec(Step);

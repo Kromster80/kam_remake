@@ -655,7 +655,7 @@ begin
                             fPlayers.Player[fLastPlayer].Stats.HouseReleased[HT] := True;
     ct_SetGroup:        if fLastPlayer >=0 then
                           if InRange(P[0], Low(TroopsRemap), High(TroopsRemap)) and (TroopsRemap[P[0]] <> ut_None) then
-                            fLastTroop := TKMUnitWarrior(fPlayers.Player[fLastPlayer].AddGroup(
+                            fLastTroop := TKMUnitWarrior(fPlayers.Player[fLastPlayer].AddUnitGroup(
                               TroopsRemap[P[0]],
                               KMPoint(P[1]+1, P[2]+1),
                               TKMDirection(P[3]+1),

@@ -85,26 +85,26 @@ type
     procedure SkipWinConditionCheck;
     procedure SkipDefeatConditionCheck;
 
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean=false): TKMUnit; reintroduce;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean = False): TKMUnit; reintroduce;
     procedure AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
+    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean = False): TKMUnit;
+
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure TrainingDone(aUnit: TKMUnit);
 
     function CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 
-    function AddGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnit;
     function AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
-    procedure AddRoad(aLoc: TKMPoint);
     procedure AddRoadToList(aLoc: TKMPoint);
     procedure AddRoadConnect(LocA,LocB: TKMPoint);
     procedure AddField(aLoc: TKMPoint; aFieldType: TFieldType);
-    procedure AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+    procedure ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
-    procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean=false);
+    procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
     procedure RemHousePlan(Position: TKMPoint);
     procedure RemFieldPlan(Position: TKMPoint);
-    function FindInn(Loc: TKMPoint; aUnit: TKMUnit; UnitIsAtHome: Boolean=false): TKMHouseInn;
+    function FindInn(Loc: TKMPoint; aUnit: TKMUnit; UnitIsAtHome: Boolean = False): TKMHouseInn;
     function FindHouse(aType: THouseType; aPosition: TKMPoint; Index: Byte=1): TKMHouse; overload;
     function FindHouse(aType: THouseType; Index: Byte=1): TKMHouse; overload;
     function HousesHitTest(X, Y: Integer): TKMHouse;
@@ -298,7 +298,7 @@ begin
 end;
 
 
-function TKMPlayer.AddGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnit;
+function TKMPlayer.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnit;
 begin
   Result := fUnits.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
   //Add unit to statistic inside the function for some units may not fit on map
@@ -308,16 +308,6 @@ end;
 function TKMPlayer.AddHouse(aHouseType: THouseType; PosX, PosY:word; RelativeEntrace: Boolean): TKMHouse;
 begin
   Result := fHouses.AddHouse(aHouseType, PosX, PosY, fPlayerIndex, RelativeEntrace);
-end;
-
-
-procedure TKMPlayer.AddRoad(aLoc: TKMPoint);
-begin
-  //if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
-  //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
-  //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
-
-  fTerrain.SetRoad(aLoc, fPlayerIndex);
 end;
 
 
@@ -353,6 +343,12 @@ begin
 end;
 
 
+procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
+begin
+  fTerrain.SetField(aLoc, fPlayerIndex, aFieldType);
+end;
+
+
 function TKMPlayer.CanAddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType): Boolean;
 begin
   Result := fTerrain.CanAddField(aLoc, aFieldType)
@@ -362,26 +358,27 @@ begin
 end;
 
 
-procedure TKMPlayer.AddField(aLoc: TKMPoint; aFieldType: TFieldType);
-begin
-  fTerrain.SetField(aLoc, fPlayerIndex, aFieldType);
-end;
-
-
+//Due to lag there could be already plans placed by user in previous ticks
 //Check if Plan can be placed once again, as we might have conflicting commands caused by lag
-procedure TKMPlayer.AddFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+procedure TKMPlayer.ToggleFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
+var
+  Plan: TFieldType;
 begin
   Assert(aFieldType in [ft_Road, ft_Corn, ft_Wine, ft_Wall], 'Placing wrong FieldType');
 
-  if CanAddFieldPlan(aLoc, aFieldType) then
-  begin
-    fBuildList.FieldworksList.AddField(aLoc, aFieldType);
-    if Self = MyPlayer then
-      fSoundLib.Play(sfx_placemarker);
-  end
+  Plan := fBuildList.FieldworksList.HasField(aLoc);
+  if aFieldType = Plan then //Same plan - remove it
+    RemFieldPlan(aLoc)
   else
-    if Self = MyPlayer then
-      fSoundLib.Play(sfx_CantPlace, aLoc, False, 4.0);
+    if CanAddFieldPlan(aLoc, aFieldType) then
+    begin
+      fBuildList.FieldworksList.AddField(aLoc, aFieldType);
+      if Self = MyPlayer then
+        fSoundLib.Play(sfx_placemarker);
+    end
+    else
+      if Self = MyPlayer then
+        fSoundLib.Play(sfx_CantPlace, aLoc, False, 4.0);
 end;
 
 
@@ -390,15 +387,15 @@ procedure TKMPlayer.AddRoadConnect(LocA,LocB: TKMPoint);
 var
   NodeList: TKMPointList;
   RoadExists: Boolean;
-  i: integer;
+  I: Integer;
 begin
   NodeList := TKMPointList.Create;
   try
     RoadExists := fTerrain.PathFinding.Route_Make(LocA, LocB, CanMakeRoads, 0, nil, NodeList);
 
     if RoadExists then
-      for i:=1 to NodeList.Count do
-        AddRoad(NodeList.List[i]);
+      for I := 1 to NodeList.Count do
+        AddField(NodeList.List[i], ft_Road);
   finally
     FreeAndNil(NodeList);
   end;

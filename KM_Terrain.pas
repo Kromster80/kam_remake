@@ -72,9 +72,8 @@ type
     property MapY: Word read fMapY;
 
     procedure SetMarkup(aLoc: TKMPoint; aMarkup: TMarkup);
-    procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
-    procedure SetRoads(aList:TKMPointList; aOwner:TPlayerIndex);
-    procedure SetField(Loc:TKMPoint; aOwner:TPlayerIndex; aFieldType:TFieldType);
+    procedure SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
+    procedure SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
     procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerIndex);
 
@@ -691,7 +690,7 @@ end;
 {Remove markup from tile}
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
-  Land[Loc.Y,Loc.X].Markup:=mu_None;
+  Land[Loc.Y,Loc.X].Markup := mu_None;
   RecalculatePassabilityAround(Loc);
 
   //Markups affect passability so therefore also floodfill
@@ -699,31 +698,18 @@ begin
 end;
 
 
-procedure TTerrain.SetRoad(Loc:TKMPoint; aOwner:TPlayerIndex);
+procedure TTerrain.SetRoads(aList: TKMPointList; aOwner: TPlayerIndex);
+var I: Integer; TL,BR: TKMPoint;
 begin
-  Land[Loc.Y,Loc.X].TileOwner:=aOwner;
-  Land[Loc.Y,Loc.X].TileOverlay:=to_Road;
-  Land[Loc.Y,Loc.X].FieldAge:=0;
-  UpdateBorders(Loc);
-  RecalculatePassabilityAround(Loc);
+  if aList.Count = 0 then Exit; //Nothing to be done
 
-  //Roads don't affect wcWalk or wcFish
-  RebuildWalkConnect([wcRoad, wcWolf, wcCrab]);
-end;
-
-
-procedure TTerrain.SetRoads(aList:TKMPointList; aOwner:TPlayerIndex);
-var i:integer; TL,BR:TKMPoint;
-begin
-  if aList.Count = 0 then exit; //Nothing to be done
-
-  for i:=1 to aList.Count do begin
-    Land[aList.List[i].Y,aList.List[i].X].TileOwner:=aOwner;
-    Land[aList.List[i].Y,aList.List[i].X].TileOverlay:=to_Road;
-    Land[aList.List[i].Y,aList.List[i].X].FieldAge:=0;
-    UpdateBorders(aList.List[i]);
+  for I := 1 to aList.Count do begin
+    Land[aList.List[I].Y,aList.List[I].X].TileOwner   := aOwner;
+    Land[aList.List[I].Y,aList.List[I].X].TileOverlay := to_Road;
+    Land[aList.List[I].Y,aList.List[I].X].FieldAge    := 0;
+    UpdateBorders(aList.List[I]);
   end;
-  
+
   aList.GetTopLeft(TL);
   aList.GetBottomRight(BR);
   RebuildPassability(TL.X-1, BR.X+1, TL.Y-1, BR.Y+1);
@@ -802,6 +788,7 @@ begin
   Land[Loc.Y,Loc.X].OldRotation := Land[Loc.Y, Loc.X].Rotation;
 
   case aFieldType of
+    ft_Road:      Land[Loc.Y,Loc.X].TileOverlay := to_Road;
     ft_Corn:      begin
                     Land[Loc.Y,Loc.X].Terrain  := 62;
                     Land[Loc.Y,Loc.X].Rotation := 0;

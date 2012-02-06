@@ -1684,7 +1684,7 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cm_Road:      if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddRoad(P);
+      cm_Road:      if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
       cm_Field:     if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
       cm_Wine:      if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:  if MyPlayer.CanAddFieldPlan(P, ft_Wall) then MyPlayer.AddField(P, ft_Wine);
@@ -1749,7 +1749,7 @@ begin
                   if fPlayers.Selected is TKMUnit then
                     ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
-      cm_Road:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddRoad(P);
+      cm_Road:  if MyPlayer.CanAddFieldPlan(P, ft_Road) then MyPlayer.AddField(P, ft_Road);
       cm_Field: if MyPlayer.CanAddFieldPlan(P, ft_Corn) then MyPlayer.AddField(P, ft_Corn);
       cm_Wine:  if MyPlayer.CanAddFieldPlan(P, ft_Wine) then MyPlayer.AddField(P, ft_Wine);
       //cm_Wall:

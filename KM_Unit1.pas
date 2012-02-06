@@ -506,11 +506,11 @@ begin // For test Army evaluation
   fGame.StartSingleMap('', 'TestCalcArmy');
   Assert(MyPlayer<>nil);
   {Point.X := 10; Point.Y := 10;
-  MyPlayer.AddGroup(ut_Bowman, Point, dir_E, 3, 50);}
-  MyPlayer.AddGroup(ut_Militia, KMPoint(12,31), dir_E, 2, 20);
-  fPlayers[1].AddGroup(ut_AxeFighter, KMPoint(30,31), dir_W, 2, 10);
+  MyPlayer.AddUnitGroup(ut_Bowman, Point, dir_E, 3, 50);}
+  MyPlayer.AddUnitGroup(ut_Militia, KMPoint(12,31), dir_E, 2, 20);
+  fPlayers[1].AddUnitGroup(ut_AxeFighter, KMPoint(30,31), dir_W, 2, 10);
   {Point.X := 32; Point.Y := 10;
-  fPlayers[1].AddGroup(ut_Bowman, Point, dir_W, 1, 1);}
+  fPlayers[1].AddUnitGroup(ut_Bowman, Point, dir_W, 1, 1);}
 end;
 
 
