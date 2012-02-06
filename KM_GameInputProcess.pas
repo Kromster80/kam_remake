@@ -279,7 +279,7 @@ begin
       gic_ArmyHalt:         TKMUnitWarrior(U).OrderHalt(TKMTurnDirection(Params[2]),Params[3]);
       gic_ArmyWalk:         TKMUnitWarrior(U).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
-      //Due to lags there could be already plans placed by user
+      //Due to lag there could be already plans placed by user in previous ticks
       gic_BuildAddFieldPlan:      if P.BuildList.FieldworksList.HasField(KMPoint(Params[1],Params[2])) = TFieldType(Params[3]) then
                                     P.RemFieldPlan(KMPoint(Params[1],Params[2])) //Remove existing markup
                                   else

@@ -579,7 +579,7 @@ begin
                               fPlayers.Player[fLastPlayer].AddUnit(UnitsRemap[P[0]], KMPoint(H.GetEntrance.X, H.GetEntrance.Y+1));
                           end;
     ct_SetRoad:         if fLastPlayer >=0 then
-                          fPlayers.Player[fLastPlayer].AddRoadsToList(KMPoint(P[0]+1,P[1]+1));
+                          fPlayers.Player[fLastPlayer].AddRoadToList(KMPoint(P[0]+1,P[1]+1));
     ct_SetField:        if fLastPlayer >=0 then
                           fPlayers.Player[fLastPlayer].AddField(KMPoint(P[0]+1,P[1]+1),ft_Corn);
     ct_Set_Winefield:   if fLastPlayer >=0 then
@@ -587,9 +587,9 @@ begin
     ct_SetStock:        if fLastPlayer >=0 then
                         begin //This command basically means: Put a SH here with road bellow it
                           fLastHouse := fPlayers.Player[fLastPlayer].AddHouse(ht_Store, P[0]+1,P[1]+1, false);
-                          fPlayers.Player[fLastPlayer].AddRoadsToList(KMPoint(P[0]+1,P[1]+2));
-                          fPlayers.Player[fLastPlayer].AddRoadsToList(KMPoint(P[0],P[1]+2));
-                          fPlayers.Player[fLastPlayer].AddRoadsToList(KMPoint(P[0]-1,P[1]+2));
+                          fPlayers.Player[fLastPlayer].AddRoadToList(KMPoint(P[0]+1,P[1]+2));
+                          fPlayers.Player[fLastPlayer].AddRoadToList(KMPoint(P[0],P[1]+2));
+                          fPlayers.Player[fLastPlayer].AddRoadToList(KMPoint(P[0]-1,P[1]+2));
                         end;
     ct_AddWare:         if fLastPlayer >=0 then
                         begin

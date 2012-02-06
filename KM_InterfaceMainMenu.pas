@@ -1545,7 +1545,9 @@ begin
     if fMaps.SortMethod = smByModeDesc then
       Method := smByModeAsc
     else
-      Method := smByModeDesc;
+      Method := smByModeDesc
+  else
+    Method := smByNameAsc; //Default
 
   //Start sorting and wait for SortComplete event
   fMaps.Sort(Method, SingleMap_RefreshList);
