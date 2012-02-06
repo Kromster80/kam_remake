@@ -48,12 +48,13 @@ type
     fNetworking:TKMNetworking;
     fViewport: TViewport;
     fPerfLog: TKMPerfLog;
+    fMissionFile: string; //Path to mission we are playing, so it gets saved to crashreport
 
   //Should be saved
-    fGameTickCount:cardinal;
-    fGameName:string;
+    fGameTickCount: Cardinal;
+    fGameName: string;
     fMissionMode: TKMissionMode;
-    ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
+    ID_Tracker: Cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
 
     procedure GameLoadingStep(const aText: String);
 
@@ -99,7 +100,7 @@ type
 
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
-    procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error
+    procedure GameError(aLoc: TKMPoint; aText: string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
@@ -479,12 +480,15 @@ begin
 end;
 
 
-procedure TKMGame.GameStart(aMissionFile, aGameName:string);
-var LoadError:string; fMissionParser: TMissionParser;
+procedure TKMGame.GameStart(aMissionFile, aGameName: string);
+var
+  LoadError: string;
+  fMissionParser: TMissionParser;
 begin
   fLog.AppendLog('GameStart');
 
   fGameName := aGameName;
+  fMissionFile := aMissionFile;
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
@@ -734,14 +738,14 @@ end;
 
 
 { Set viewport and save command log }
-procedure TKMGame.GameError(aLoc:TKMPoint; aText:string);
+procedure TKMGame.GameError(aLoc: TKMPoint; aText: string);
 var
   PreviousState: TGameState;
   MyZip: TZippit;
   CrashFile: string;
   i: integer;
 begin
-  //Negotiate duplicate calls for GameError
+  //Handle duplicate calls for GameError
   if fGameState = gsNoGame then exit;
 
   PreviousState := GameState; //Could be running, replay, map editor, etc.
@@ -749,11 +753,11 @@ begin
   if not KMSamePoint(aLoc, KMPoint(0,0)) then
   begin
     fViewport.Position := KMPointF(aLoc);
-    SHOW_UNIT_ROUTES := true;
-    SHOW_UNIT_MOVEMENT := true;
+    SHOW_UNIT_ROUTES := True;
+    SHOW_UNIT_MOVEMENT := True;
   end;
 
-  fLog.AppendLog('Gameplay Error: "'+aText+'" at location '+TypeToString(aLoc));
+  fLog.AppendLog('Gameplay Error: "' + aText + '" at location ' + TypeToString(aLoc));
 
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
     fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl')); //Save replay data ourselves
@@ -762,21 +766,14 @@ begin
   //Include in the bug report:
   MyZip.AddFiles(SaveName('basesave', '*')); //Replay files
   MyZip.AddFile(fLog.LogPath); //Log file
-  //@Krom: I think you commented out the line below while refactoring. I found it very useful
-  //       when people were using custom made missions, so could we have a way to remember and
-  //       include both the script and map files? (.dat and .map)
-  //@Lewin: Yes, you are right, my mistake. Although ATM we don't store fMissionFile localy..
-  //@Krom: It would be nice to store "FileThatWeLoaded" which is either .dat or .sav.
-  //       Sometimes I wish I had the saved game they loaded when I'm debugging a crash report sent to us.
-  //
-  //MyZip.AddFile(fMissionFile,'Mission'); //Mission script
-  for i:=1 to AUTOSAVE_COUNT do
-    MyZip.AddFiles(SaveName('autosave'+int2fix(i,2), '*')); //All autosaves
+  MyZip.AddFile(fMissionFile, 'Mission'); //Mission script
+  for I := 1 to AUTOSAVE_COUNT do
+    MyZip.AddFiles(SaveName('autosave' + Int2Fix(I, 2), '*')); //All autosaves
 
-  //Save it
-  CrashFile := 'KaM Crash '+GAME_REVISION+' '+FormatDateTime('yyyy-mm-dd hh-nn-ss',Now)+'.zip'; //KaM Crash r1830 2007-12-23 15-24-33.zip
-  CreateDir(ExeDir+'Crash Reports');
-  MyZip.SaveToFile(ExeDir+'Crash Reports\'+CrashFile);
+  //Save it as: KaM Crash r1830 2007-12-23 15-24-33.zip
+  CrashFile := 'KaM Crash ' + GAME_REVISION + ' ' + FormatDateTime('yyyy-mm-dd hh-nn-ss', Now) + '.zip';
+  CreateDir(ExeDir + 'Crash Reports');
+  MyZip.SaveToFile(ExeDir + 'Crash Reports\' + CrashFile);
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
