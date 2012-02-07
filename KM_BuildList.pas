@@ -88,6 +88,8 @@ type
     procedure ReOpenField(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure CloseField(aIndex: Integer); //Worker has finished the task
 
+    procedure GetFields(aList: TKMPointTagList; aRect: TKMRect);
+
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
@@ -320,6 +322,15 @@ begin
   fFields[aIndex].FieldType := ft_None;
   fFields[aIndex].JobStatus := js_Empty;
   fPlayers.CleanUpUnitPointer(fFields[aIndex].Worker); //Will nil the worker as well
+end;
+
+
+procedure TKMFieldworksList.GetFields(aList: TKMPointTagList; aRect: TKMRect);
+var I: Integer;
+begin
+  for I := 0 to fFieldsCount - 1 do
+  if (fFields[I].FieldType <> ft_None) and KMInRect(fFields[I].Loc, aRect) then
+    aList.AddEntry(fFields[I].Loc, Byte(fFields[I].FieldType), 0);
 end;
 
 

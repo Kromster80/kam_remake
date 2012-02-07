@@ -62,7 +62,7 @@ type
     procedure Clear; override;
   end;
 
-
+  //todo: Convert to 0..N-1 form
   TKMPointList = class
   public
     Count:integer;
@@ -81,6 +81,7 @@ type
   end;
 
 
+  //todo: Convert to 0..N-1 form
   TKMPointTagList = class(TKMPointList)
   public
     Tag, Tag2: array of Cardinal; //1..Count
@@ -94,7 +95,7 @@ type
 
   TKMPointDirList = class //Used for finding fishing places, fighting positions, etc.
   private
-    fItems: array of TKMPointDir; //1..Count
+    fItems: array of TKMPointDir; //0..Count-1
     fCount: Integer;
     function GetItem(aIndex: Integer): TKMPointDir;
   public

@@ -389,7 +389,7 @@ var
   i,k:integer;
   F: TFieldType;
   BordersList: TKMPointDirList;
-  TabletsList: TKMPointTagList;
+  FieldsList, TabletsList: TKMPointTagList;
 begin
   for i := aRect.Y1 to aRect.Y2 do
   for k := aRect.X1 to aRect.X2 do
@@ -399,27 +399,32 @@ begin
     if Land[i,k].BorderLeft then RenderTerrainBorder(Land[i,k].Border,dir_E,k,i);
     if Land[i,k].BorderRight then RenderTerrainBorder(Land[i,k].Border,dir_W,k,i);
     if Land[i,k].BorderBottom then RenderTerrainBorder(Land[i,k].Border,dir_S,k,i);
-
-    F := MyPlayer.BuildList.FieldworksList.HasField(KMPoint(k,i));
-    if F <> ft_None then
-      RenderTerrainMarkup(k, i, F);
   end;
 
   //@Lewin: Since plans are per-player now, what do we do about allies that:
   // - have partially overlapping plans
   // - have plans/tablets on exact same spot
 
+  //Fieldplans
+  FieldsList := TKMPointTagList.Create;
+  MyPlayer.GetFieldPlans(FieldsList, aRect);
+  for i := 1 to FieldsList.Count do
+    RenderTerrainMarkup(TabletsList.List[i].X, TabletsList.List[i].Y, TFieldType(TabletsList.Tag[i]));
+  FreeAndNil(FieldsList);
+
+  //Borders
   BordersList := TKMPointDirList.Create;
   MyPlayer.GetPlansBorders(BordersList, aRect);
   for i := 0 to BordersList.Count - 1 do
     RenderTerrainBorder(bt_HousePlan, BordersList[i].Dir, BordersList[i].Loc.X, BordersList[i].Loc.Y);
-  BordersList.Free;
+  FreeAndNil(BordersList);
 
+  //Tablets
   TabletsList := TKMPointTagList.Create;
   MyPlayer.GetPlansTablets(TabletsList, aRect);
   for i := 1 to TabletsList.Count do
-    fRender.AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList.List[i]);
-  TabletsList.Free;
+    AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList.List[i]);
+  FreeAndNil(TabletsList);
 end;
 
 

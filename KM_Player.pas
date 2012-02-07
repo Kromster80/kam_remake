@@ -111,6 +111,7 @@ type
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
+    procedure GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect);
     procedure GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect);
     procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
 
@@ -553,17 +554,39 @@ begin
 end;
 
 
+procedure TKMPlayer.GetFieldPlans(aList: TKMPointTagList; aRect: TKMRect);
+var
+  I: TPlayerIndex;
+begin
+  fBuildList.FieldworksList.GetFields(aList, aRect);
+
+  for I := 0 to fPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      fPlayers[I].BuildList.FieldworksList.GetFields(aList, aRect);
+end;
+
+
 procedure TKMPlayer.GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect);
+var
+  I: TPlayerIndex;
 begin
   fBuildList.HousePlanList.GetBorders(aList, aRect);
-  //todo: Include allies borders
+
+  for I := 0 to fPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      fPlayers[I].BuildList.HousePlanList.GetBorders(aList, aRect);
 end;
 
 
 procedure TKMPlayer.GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
+var
+  I: TPlayerIndex;
 begin
   fBuildList.HousePlanList.GetTablets(aList, aRect);
-  //todo: Include allies tablets
+
+  for I := 0 to fPlayers.Count - 1 do
+    if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
+      fPlayers[I].BuildList.HousePlanList.GetTablets(aList, aRect);
 end;
 
 
