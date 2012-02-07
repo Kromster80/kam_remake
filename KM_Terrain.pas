@@ -2475,7 +2475,10 @@ begin
   for i:=1 to fMapY do
   for k:=1 to fMapX do
   begin
-    FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i,true);
+    if MyPlayer <> nil then
+      FOW := MyPlayer.FogOfWar.CheckTileRevelation(k,i,true)
+    else
+      FOW := 255;
     if FOW = 0 then
       MiniMapRGB[i,k] := 0
     else

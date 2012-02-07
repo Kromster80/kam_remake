@@ -574,6 +574,9 @@ begin
       Button_MM_Options.OnClick      := SwitchMenuPage;
       Button_MM_Credits.OnClick      := SwitchMenuPage;
       Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
+
+      //Test
+      TKMMinimap.Create(Panel_MainMenu, 10, 100, 192, 192);
 end;
 
 
@@ -592,7 +595,7 @@ begin
       Button_SP_TPR    :=TKMButton.Create(Panel_SPButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
       Button_SP_Single :=TKMButton.Create(Panel_SPButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       Button_SP_Load   :=TKMButton.Create(Panel_SPButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-      Button_SP_Back   :=TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+      Button_SP_Back   :=TKMButton.Create(Panel_SPButtons,0,320,350,30,fTextLibrary.GetSetupString( 9),fnt_Metal,bsMenu);
 
       Button_SP_Tutor.OnClick    := MainMenu_PlayTutorial;
       Button_SP_Fight.OnClick    := MainMenu_PlayBattle;

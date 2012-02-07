@@ -542,6 +542,7 @@ end;
 procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY:smallint);
 var i,k:integer;
 begin
+  if fTerrain = nil then Exit;
   glPushAttrib(GL_POINT_BIT);
   glPushMatrix;
 
