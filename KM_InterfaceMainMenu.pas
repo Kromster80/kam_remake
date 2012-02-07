@@ -1329,7 +1329,7 @@ begin
   {Show Results screen}
   if Sender=Panel_Results then //This page can be accessed only by itself
     Panel_Results.Show;
-  
+
   {Show ResultsMP screen}
   if Sender=Panel_ResultsMP then //This page can be accessed only by itself
     Panel_ResultsMP.Show;
@@ -1664,28 +1664,29 @@ end;
 //Sort the servers list by said column ID
 procedure TKMMainMenuInterface.MP_ServersSort(aIndex: Integer);
 begin
-  case aIndex of
+  case ColList_Servers.SortIndex of
     //Sorting by name goes A..Z by default
-    0:  if fGame.Networking.ServerQuery.SortMethod = ssmByNameAsc then
+    0:  if ColList_Servers.SortDirection = sdDown then
           fGame.Networking.ServerQuery.SortMethod := ssmByNameDesc
         else
           fGame.Networking.ServerQuery.SortMethod := ssmByNameAsc;
     //Sorting by state goes Lobby,Loading,Game,None by default
-    1:  if fGame.Networking.ServerQuery.SortMethod = ssmByStateAsc then
+    1:  if ColList_Servers.SortDirection = sdDown then
           fGame.Networking.ServerQuery.SortMethod := ssmByStateDesc
         else
           fGame.Networking.ServerQuery.SortMethod := ssmByStateAsc;
     //Sorting by player count goes 8..0 by default
-    2:  if fGame.Networking.ServerQuery.SortMethod = ssmByPlayersDesc then
+    2:  if ColList_Servers.SortDirection = sdDown then
           fGame.Networking.ServerQuery.SortMethod := ssmByPlayersAsc
         else
           fGame.Networking.ServerQuery.SortMethod := ssmByPlayersDesc;
     //Sorting by ping goes 0 ... 1000 by default
-    3:  if fGame.Networking.ServerQuery.SortMethod = ssmByPingAsc then
+    3:  if ColList_Servers.SortDirection = sdDown then
           fGame.Networking.ServerQuery.SortMethod := ssmByPingDesc
         else
           fGame.Networking.ServerQuery.SortMethod := ssmByPingAsc;
   end;
+
   //Refresh the display only if there are rooms to be sorted (otherwise it shows "no servers found" immediately)
   if fGame.Networking.ServerQuery.Rooms.Count > 0 then MP_ServersUpdateList(nil);
 end;
@@ -2319,7 +2320,7 @@ var
   PreviouslySelected: Integer;
 begin
   if List_Load.ItemIndex = -1 then Exit;
-  
+
   if Sender = Button_Delete then
     Load_DeleteConfirmation(true);
 
@@ -2450,17 +2451,12 @@ begin
     List_MapEd.SetItems(fMaps.MapList)
   else
     List_MapEd.SetItems(fMapsMP.MapList);
-
-  //Select first map by default, otherwise there could be an invalid map selected
-  //(if items have been removed since we last updated)
-  if List_MapEd.ItemIndex = -1 then
-    List_MapEd.ItemIndex := 0;
 end;
 
 
 //This is called when the options page is shown, so update all the values
 //Note: Options can be required to fill before fGame is completely initialized, hence we need to pass either fGame.Settings or a direct Settings link
-procedure TKMMainMenuInterface.Options_Fill(aGlobalSettings:TGlobalSettings);
+procedure TKMMainMenuInterface.Options_Fill(aGlobalSettings: TGlobalSettings);
 var i:cardinal;
 begin
   CheckBox_Options_Autosave.Checked     := aGlobalSettings.Autosave;

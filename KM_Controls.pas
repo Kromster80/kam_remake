@@ -8,8 +8,8 @@ uses
     KromUtils, KromOGLUtils, KM_Defaults, KM_Points, KM_CommonEvents, KM_ResourceSprites;
 
 type
-  TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
-  TNotifyEventMW = procedure(Sender: TObject; WheelDelta:integer) of object;
+  TNotifyEventMB = procedure(Sender: TObject; AButton: TMouseButton) of object;
+  TNotifyEventMW = procedure(Sender: TObject; WheelDelta: Integer) of object;
   TNotifyEventKey = procedure(Sender: TObject; Key: Word) of object;
   TNotifyEventXY = procedure(Sender: TObject; X, Y: Integer) of object;
 
@@ -27,41 +27,41 @@ type
   { TKMMaster }
   TKMMasterControl = class
   private
-    fCtrl:TKMPanel; //Parentmost control (TKMPanel with all its childs)
-    fCtrlDown:TKMControl; //Control that was pressed Down
-    fCtrlFocus:TKMControl; //Control which has input Focus
-    fCtrlOver:TKMControl; //Control which has cursor Over it
-    fCtrlUp:TKMControl; //Control above which cursor was released
+    fCtrl: TKMPanel; //Parentmost control (TKMPanel with all its childs)
+    fCtrlDown: TKMControl; //Control that was pressed Down
+    fCtrlFocus: TKMControl; //Control which has input Focus
+    fCtrlOver: TKMControl; //Control which has cursor Over it
+    fCtrlUp: TKMControl; //Control above which cursor was released
 
-    fOnHint:TNotifyEvent; //Comes along with OnMouseOver
+    fOnHint: TNotifyEvent; //Comes along with OnMouseOver
 
-    function HitControl(X,Y:integer; aIncludeDisabled:boolean=false):TKMControl;
-    procedure SetCtrlDown(aCtrl:TKMControl);
-    procedure SetCtrlFocus(aCtrl:TKMControl);
-    procedure SetCtrlOver(aCtrl:TKMControl);
-    procedure SetCtrlUp(aCtrl:TKMControl);
+    function HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
+    procedure SetCtrlDown(aCtrl: TKMControl);
+    procedure SetCtrlFocus(aCtrl: TKMControl);
+    procedure SetCtrlOver(aCtrl: TKMControl);
+    procedure SetCtrlUp(aCtrl: TKMControl);
   public
     constructor Create;
     destructor Destroy; override;
 
-    property CtrlDown:TKMControl read fCtrlDown write SetCtrlDown;
-    property CtrlFocus:TKMControl read fCtrlFocus write SetCtrlFocus;
-    property CtrlOver:TKMControl read fCtrlOver write SetCtrlOver;
-    property CtrlUp:TKMControl read fCtrlUp write SetCtrlUp;
+    property CtrlDown: TKMControl read fCtrlDown write SetCtrlDown;
+    property CtrlFocus: TKMControl read fCtrlFocus write SetCtrlFocus;
+    property CtrlOver: TKMControl read fCtrlOver write SetCtrlOver;
+    property CtrlUp: TKMControl read fCtrlUp write SetCtrlUp;
 
     property OnHint: TNotifyEvent write fOnHint;
 
-    function KeyDown    (Key: Word; Shift: TShiftState):boolean;
+    function KeyDown    (Key: Word; Shift: TShiftState): Boolean;
     procedure KeyPress  (Key: Char);
-    function KeyUp      (Key: Word; Shift: TShiftState):boolean;
-    procedure MouseDown (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-    procedure MouseMove (X,Y:integer; Shift:TShiftState);
-    procedure MouseUp   (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-    procedure MouseWheel(X,Y:integer; WheelDelta:integer);
+    function KeyUp      (Key: Word; Shift: TShiftState): Boolean;
+    procedure MouseDown (X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+    procedure MouseMove (X,Y: Integer; Shift: TShiftState);
+    procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+    procedure MouseWheel(X,Y: Integer; WheelDelta: Integer);
 
     procedure Paint;
 
-    procedure SaveToFile(aFileName:string);
+    procedure SaveToFile(aFileName: string);
   end;
 
 
@@ -80,35 +80,35 @@ type
 
     fTimeOfLastClick: Cardinal; //Required to handle double-clicks
 
-    fOnClick:TNotifyEvent;
-    fOnClickEither:TNotifyEventMB;
-    fOnClickRight:TPointEvent;
-    fOnDoubleClick:TNotifyEvent;
-    fOnMouseWheel:TNotifyEventMW;
-    //fOnMouseOver:TNotifyEvent;
+    fOnClick: TNotifyEvent;
+    fOnClickEither: TNotifyEventMB;
+    fOnClickRight: TPointEvent;
+    fOnDoubleClick: TNotifyEvent;
+    fOnMouseWheel: TNotifyEventMW;
+    //fOnMouseOver: TNotifyEvent;
 
     function GetLeft: Integer;
     function GetTop: Integer;
     function GetHeight: Integer;
     function GetWidth: Integer;
-    procedure SetHeight(aValue:Integer); virtual;
-    procedure SetWidth(aValue:Integer); virtual;
+    procedure SetHeight(aValue: Integer); virtual;
+    procedure SetWidth(aValue: Integer); virtual;
 
     //Let the control know that it was clicked to do its internal magic
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
 
-    function GetVisible:boolean;
-    procedure SetVisible(aValue:boolean); virtual;
-    procedure SetEnabled(aValue:boolean); virtual;
+    function GetVisible: Boolean;
+    procedure SetVisible(aValue: Boolean); virtual;
+    procedure SetEnabled(aValue: Boolean); virtual;
   public
-    Hitable:boolean; //Can this control be hit with the cursor?
+    Hitable: Boolean; //Can this control be hit with the cursor?
     Anchors: TAnchors;
     State: TKMControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
-    Tag: integer; //Some tag which can be used for various needs
+    Tag: Integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; virtual;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+    function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; virtual;
 
     property Parent: TKMPanel read fParent;
     property Left: Integer read GetLeft write fLeft;
@@ -125,13 +125,13 @@ type
     procedure Stretch;
     function MasterParent: TKMPanel;
 
-    function KeyDown(Key: Word; Shift: TShiftState):boolean; virtual;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; virtual;
     procedure KeyPress(Key: Char); virtual;
-    function KeyUp(Key: Word; Shift: TShiftState):boolean; virtual;
-    procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
-    procedure MouseMove (X,Y:integer; Shift:TShiftState); virtual;
-    procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
-    procedure MouseWheel(Sender: TObject; WheelDelta:integer); virtual;
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; virtual;
+    procedure MouseDown (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
+    procedure MouseMove (X,Y: Integer; Shift: TShiftState); virtual;
+    procedure MouseUp   (X,Y: Integer; Shift: TShiftState; Button: TMouseButton); virtual;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); virtual;
 
     property OnClick: TNotifyEvent read fOnClick write fOnClick;
     property OnClickEither: TNotifyEventMB read fOnClickEither write fOnClickEither;
@@ -147,16 +147,16 @@ type
   { Panel which keeps child items in it, it's virtual and invisible }
   TKMPanel = class(TKMControl)
   private
-    GetCollection:TKMMasterControl;
-    procedure SetHeight(aValue:Integer); override;
-    procedure SetWidth(aValue:Integer); override;
+    GetCollection: TKMMasterControl;
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetWidth(aValue: Integer); override;
   public
-    ChildCount:word;             //Those two are actually used only for TKMPanel
+    ChildCount: Word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
-    constructor Create(aParent:TKMMasterControl; aLeft,aTop,aWidth,aHeight:integer); overload;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer); overload;
+    constructor Create(aParent: TKMMasterControl; aLeft,aTop,aWidth,aHeight: Integer); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer); overload;
     destructor Destroy; override;
-    procedure AddChild(aChild:TKMControl);
+    procedure AddChild(aChild: TKMControl);
     procedure Paint; override;
   end;
 
@@ -166,7 +166,7 @@ type
   public
     BackAlpha: Single;
     HalfBright: Boolean;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
     procedure Paint; override;
   end;
 
@@ -174,11 +174,11 @@ type
   {Rectangle}
   TKMShape = class(TKMControl)
   public
-    FillColor:TColor4;
-    LineColor:TColor4; //color of outline
-    LineWidth:byte;
+    FillColor: TColor4;
+    LineColor: TColor4; //color of outline
+    LineWidth: Byte;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aLineColor: TColor4);
     procedure Paint; override;
   end;
 
@@ -200,9 +200,9 @@ type
     procedure SetAutoWrap(aValue: boolean);
     procedure ReformatText;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign); overload;
-    constructor Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign); overload;
-    function HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign); overload;
+    function HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
     property AutoWrap: boolean read fAutoWrap write SetAutoWrap; //Whether to automatically wrap text within given text area width
     property Caption: string read fCaption write SetCaption;
     property FontColor: TColor4 read fFontColor write fFontColor;
@@ -216,7 +216,7 @@ type
   TKMLabelScroll = class(TKMLabel)
   public
     SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
     procedure Paint; override;
   end;
 
@@ -230,7 +230,7 @@ type
     ImageAnchors: TAnchors;
     Highlight: Boolean;
     HighlightOnMouseOver: Boolean;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
     property RX: TRXType read fRX write fRX;
     property TexID: Word read fTexID write fTexID;
     function Click: Boolean;
@@ -245,13 +245,13 @@ type
   private
     fRX: TRXType;
     fTexID: Word;
-    fCount: integer;
-    fColumns: integer;
-    fDrawWidth: integer;
-    fDrawHeight: integer;
+    fCount: Integer;
+    fColumns: Integer;
+    fDrawWidth: Integer;
+    fDrawHeight: Integer;
     fHighlightID: Integer;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
     procedure SetCount(aCount, aColumns, aHighlightID: Integer);
     procedure Paint; override;
   end;
@@ -260,21 +260,21 @@ type
   { Color swatch - to select a color from given samples/palette }
   TKMColorSwatch = class(TKMControl)
   private
-    fBackAlpha:single; //Alpha of background (usually 0.5, dropbox 1)
-    fCellSize:byte; //Size of the square in pixels
-    fColumnCount:byte;
-    fRowCount:byte;
-    fColorIndex:byte; //Index 0..255 should be enough
+    fBackAlpha: single; //Alpha of background (usually 0.5, dropbox 1)
+    fCellSize: Byte; //Size of the square in pixels
+    fColumnCount: Byte;
+    fRowCount: Byte;
+    fColorIndex: Byte; //Index 0..255 should be enough
     Colors:array of TColor4; //Range is 0..255
-    fOnChange:TNotifyEvent;
-    fInclRandom:boolean;
+    fOnChange: TNotifyEvent;
+    fInclRandom: Boolean;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
-    procedure SetColors(aColors:array of TColor4; aInclRandom:boolean=false);
-    property BackAlpha:single read fBackAlpha write fBackAlpha;
-    property ColorIndex:Byte read fColorIndex write fColorIndex;
-    function GetColor:TColor4;
-    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize: Integer);
+    procedure SetColors(aColors:array of TColor4; aInclRandom: Boolean=false);
+    property BackAlpha: single read fBackAlpha write fBackAlpha;
+    property ColorIndex: Byte read fColorIndex write fColorIndex;
+    function GetColor: TColor4;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -291,13 +291,13 @@ type
     fRX: TRXType;
     fTexID: Word;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle:TButtonStyle=bsGame); overload;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle: TButtonStyle=bsGame); overload;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aStyle: TButtonStyle=bsGame); overload;
     property Caption: string read fCaption write fCaption;
     property MakesSound: Boolean read fMakesSound write fMakesSound;
     property TexID: Word read fTexID write fTexID;
     function Click: Boolean; //Try to click a button and return TRUE if succeded
-    procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
 
@@ -317,8 +317,8 @@ type
     Down: Boolean;
     HideHighlight: Boolean;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
-    procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
 
@@ -332,7 +332,7 @@ type
     CapOffsetY: Shortint;
     ShapeColor: TColor4;
     Down: Boolean;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aShapeColor: TColor4);
     procedure Paint; override;
   end;
 
@@ -344,23 +344,23 @@ type
     fText: string;
     fCursorPos: Integer;
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
-    procedure SetCursorPos(aPos: integer);
-    procedure SetText(aText:string);
-    function KeyEventHandled(Key: Word):boolean;
+    procedure SetCursorPos(aPos: Integer);
+    procedure SetText(aText: string);
+    function KeyEventHandled(Key: Word): Boolean;
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
     OnChange: TNotifyEvent;
     OnKeyDown: TNotifyEventKey;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
-    property CursorPos: integer read fCursorPos write SetCursorPos;
-    property Text:string read fText write SetText;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
+    property CursorPos: Integer read fCursorPos write SetCursorPos;
+    property Text: string read fText write SetText;
 
-    function HitTest(X,Y: Integer; aIncludeDisabled:boolean=false): Boolean; override;
-    function KeyDown(Key: Word; Shift: TShiftState):boolean; override;
+    function HitTest(X,Y: Integer; aIncludeDisabled: Boolean=false): Boolean; override;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
     procedure KeyPress(Key: Char); override;
-    function KeyUp(Key: Word; Shift: TShiftState):boolean; override;
-    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+    function KeyUp(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
 
@@ -368,16 +368,16 @@ type
   { Checkbox }
   TKMCheckBox = class(TKMControl)
   private
-    fCaption:string;
+    fCaption: string;
     fChecked: Boolean;
     fFlatStyle: Boolean; //Render the check as a rectangle (modern style)
     fFont: TKMFont;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
-    property Caption:string read fCaption write fCaption;
-    property Checked:boolean read fChecked write fChecked;
-    property FlatStyle:boolean read fFlatStyle write fFlatStyle;
-    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont); overload;
+    property Caption: string read fCaption write fCaption;
+    property Checked: Boolean read fChecked write fChecked;
+    property FlatStyle: Boolean read fFlatStyle write fFlatStyle;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
 
@@ -385,19 +385,19 @@ type
   { TKMRadioGroup }
   TKMRadioGroup = class(TKMControl)
   private
-    fItemIndex:integer;
-    fItems:TStringList;
-    fFont:TKMFont;
-    fOnChange:TNotifyEvent;
-    function GetItemCount:integer;
+    fItemIndex: Integer;
+    fItems: TStringList;
+    fFont: TKMFont;
+    fOnChange: TNotifyEvent;
+    function GetItemCount: Integer;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
     destructor Destroy; override;
-    property ItemCount:integer read GetItemCount;
-    property ItemIndex:integer read fItemIndex write fItemIndex;
-    property Items:TStringList read fItems;
+    property ItemCount: Integer read GetItemCount;
+    property ItemIndex: Integer read fItemIndex write fItemIndex;
+    property Items: TStringList read fItems;
     property OnChange: TNotifyEvent write fOnChange;
-    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
     procedure Paint; override;
   end;
 
@@ -407,11 +407,11 @@ type
   private
     fFont: TKMFont;
   public
-    Position: integer;
+    Position: Integer;
     Caption: string;
     FontColor: TColor4;
     TextAlign: TTextAlign;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont = fnt_Mini);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont = fnt_Mini);
     procedure Paint; override;
   end;
 
@@ -433,15 +433,15 @@ type
     fOrderAdd: TKMButton;
     fOrderLab: TKMLabel;
     fOrderRem: TKMButton;
-    procedure SetEnabled(aValue:boolean); override;
-    procedure SetVisible(aValue:boolean); override;
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
   public
     RX: TRXType;
     TexID: Word;
     Caption: String;
     ResourceCount: Byte;
     OrderCount: Word;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
     property OrderAdd: TKMButton read fOrderAdd; //UI sets and handles OnClickEither itself
     property OrderRem: TKMButton read fOrderRem;
     procedure Paint; override;
@@ -507,14 +507,14 @@ type
     procedure DecPosition(Sender: TObject);
     procedure UpdateThumbSize;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TButtonStyle);
     property BackAlpha: Single read fBackAlpha write fBackAlpha;
     property MinValue: Integer read fMinValue write SetMinValue;
     property MaxValue: Integer read fMaxValue write SetMaxValue;
     property Position: Integer read fPosition write SetPosition;
-    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
     procedure Paint; override;
   end;
@@ -530,18 +530,18 @@ type
     fItems: TStringList;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
-    procedure SetHeight(aValue:Integer); override;
-    procedure SetVisible(aValue:boolean); override;
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetVisible(aValue: Boolean); override;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
-    procedure SetBackAlpha(aValue:single);
+    procedure SetBackAlpha(aValue: single);
     procedure SetItemHeight(const Value: byte);
-    procedure SetEnabled(aValue:boolean); override;
+    procedure SetEnabled(aValue: Boolean); override;
     procedure SetAutoHideScrollBar(Value: boolean);
     procedure UpdateScrollBar;
-    function GetItem(aIndex:integer):string;
+    function GetItem(aIndex: Integer): string;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
     destructor Destroy; override;
 
     property AutoHideScrollBar: boolean read fAutoHideScrollBar write SetAutoHideScrollBar;
@@ -552,18 +552,21 @@ type
     function Count: Integer;
     procedure SetItems(aText: string);
 
-    property Item[aIndex:integer]:string read GetItem;
+    property Item[aIndex: Integer]: string read GetItem;
     property ItemHeight: Byte read fItemHeight write SetItemHeight; //Accessed by DropBox
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
 
-    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
   end;
+
+  TSortDirection = (sdNone, sdUp, sdDown);
 
   TKMListHeader = class (TKMControl)
   private
@@ -573,6 +576,8 @@ type
     fColumns: array of string;
     fColumnHighlight: Integer;
     fColumnOffsets: array of Word; //Offsets are easier to handle than widths
+    fSortIndex: Integer;
+    fSortDirection: TSortDirection;
     function GetColumnIndex(X: Integer): Integer;
     function GetColumnOffset(aIndex: Integer): Word;
     procedure DoClick(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
@@ -584,9 +589,11 @@ type
     property Font: TKMFont read fFont write fFont;
     property ColumnCount: Integer read fCount write fCount;
     property ColumnOffset[aIndex: Integer]: Word read GetColumnOffset;
+    property SortIndex: Integer read fSortIndex write fSortIndex;
+    property SortDirection: TSortDirection read fSortDirection write fSortDirection;
 
     procedure AddColumn(aCaption: string; aOffset: Word);
-    procedure MouseMove(X,Y:integer; Shift:TShiftState); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
   end;
 
@@ -607,18 +614,22 @@ type
     fHeader: TKMListHeader;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
-    procedure SetHeight(aValue:Integer); override;
-    procedure SetVisible(aValue:boolean); override;
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetVisible(aValue: Boolean); override;
     function GetTopIndex: Integer;
     procedure SetTopIndex(aIndex: Integer);
-    procedure SetBackAlpha(aValue:single);
-    procedure SetEnabled(aValue:boolean); override;
+    procedure SetBackAlpha(aValue: single);
+    procedure SetEnabled(aValue: Boolean); override;
+    function GetSortIndex: Integer;
+    procedure SetSortIndex(aIndex: Integer);
+    function GetSortDirection: TSortDirection;
+    procedure SetSortDirection(aDirection: TSortDirection);
     function GetRow(aIndex: Integer): TKMListRow;
     procedure ColumnClick(aValue: Integer);
     procedure UpdateScrollBar;
   public
     OnColumnClick: TIntegerEvent;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 
     procedure SetColumns(aFont: TKMFont; aColumns: array of string; aColumnOffsets: array of Word);
     procedure AddItem(aItem: array of string; aItemColor: array of TColor4; aTag: Integer = 0);
@@ -626,15 +637,18 @@ type
 
     property Rows[aIndex: Integer]: TKMListRow read GetRow;
 
-    property BackAlpha:single read fBackAlpha write SetBackAlpha;
+    property BackAlpha: single read fBackAlpha write SetBackAlpha;
     property RowCount: Integer read fRowCount;
     property ItemHeight: Byte read fItemHeight;
     property ItemIndex: Smallint read fItemIndex write fItemIndex;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
+    property SortIndex: Integer read GetSortIndex write SetSortIndex;
+    property SortDirection: TSortDirection read GetSortDirection write SetSortDirection;
 
-    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    function KeyDown(Key: Word; Shift: TShiftState): Boolean; override;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta: Integer); override;
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
 
     procedure Paint; override;
@@ -648,28 +662,28 @@ type
     fDropCount: Byte;
     fDropUp: Boolean;
     fFont: TKMFont;
-    fButton:TKMButton;
+    fButton: TKMButton;
     fList: TKMListBox;
     fShape: TKMShape;
     fOnChange: TNotifyEvent;
-    procedure ListShow(Sender:TObject);
-    procedure ListClick(Sender:TObject);
-    procedure ListHide(Sender:TObject);
-    function GetItem(aIndex: integer):string;
-    function GetItemIndex:smallint;
-    procedure SetItemIndex(aIndex:smallint);
-    procedure SetEnabled(aValue:boolean); override;
-    procedure SetVisible(aValue:boolean); override;
+    procedure ListShow(Sender: TObject);
+    procedure ListClick(Sender: TObject);
+    procedure ListHide(Sender: TObject);
+    function GetItem(aIndex: Integer): string;
+    function GetItemIndex: smallint;
+    procedure SetItemIndex(aIndex: smallint);
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetVisible(aValue: Boolean); override;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
-    procedure Add(aItem:string);
-    procedure SetItems(aText:string);
-    property DropCount:byte write fDropCount;
-    property DefaultCaption:string read fDefaultCaption write fDefaultCaption;
-    property DropUp:boolean write fDropUp;
-    property ItemIndex:smallint read GetItemIndex write SetItemIndex;
-    property Item[aIndex: integer]:string read GetItem;
-    procedure SelectByName(aText:string);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+    procedure Add(aItem: string);
+    procedure SetItems(aText: string);
+    property DropCount: Byte write fDropCount;
+    property DefaultCaption: string read fDefaultCaption write fDefaultCaption;
+    property DropUp: Boolean write fDropUp;
+    property ItemIndex: smallint read GetItemIndex write SetItemIndex;
+    property Item[aIndex: Integer]: string read GetItem;
+    procedure SelectByName(aText: string);
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -677,21 +691,21 @@ type
 
   TKMDropColorBox = class(TKMControl)
   private
-    fColorIndex:integer;
-    fRandomCaption:string;
-    fButton:TKMButton;
-    fSwatch:TKMColorSwatch;
-    fShape:TKMShape;
-    fOnChange:TNotifyEvent;
-    procedure ListShow(Sender:TObject);
-    procedure ListClick(Sender:TObject);
-    procedure ListHide(Sender:TObject);
-    procedure SetEnabled(aValue:boolean); override;
-    procedure SetColorIndex(aIndex:integer);
+    fColorIndex: Integer;
+    fRandomCaption: string;
+    fButton: TKMButton;
+    fSwatch: TKMColorSwatch;
+    fShape: TKMShape;
+    fOnChange: TNotifyEvent;
+    procedure ListShow(Sender: TObject);
+    procedure ListClick(Sender: TObject);
+    procedure ListHide(Sender: TObject);
+    procedure SetEnabled(aValue: Boolean); override;
+    procedure SetColorIndex(aIndex: Integer);
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
-    property ColorIndex:integer read fColorIndex write SetColorIndex;
-    procedure SetColors(aColors:array of TColor4; aRandomCaption:string='');
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aCount: Integer);
+    property ColorIndex: Integer read fColorIndex write SetColorIndex;
+    procedure SetColors(aColors:array of TColor4; aRandomCaption: string='');
     property OnChange: TNotifyEvent write fOnChange;
     procedure Paint; override;
   end;
@@ -707,20 +721,20 @@ type
     fScrollDown: Boolean;
     fScrollBar: TKMScrollBar;
     fOnChange: TNotifyEvent;
-    procedure SetHeight(aValue:Integer); override;
-    procedure SetWidth(aValue:Integer); override;
-    procedure SetVisible(aValue:boolean); override;
-    procedure SetEnabled(aValue:boolean); override;
+    procedure SetHeight(aValue: Integer); override;
+    procedure SetWidth(aValue: Integer); override;
+    procedure SetVisible(aValue: Boolean); override;
+    procedure SetEnabled(aValue: Boolean); override;
 
     procedure SetAutoWrap(const Value: boolean);
     function GetText: string;
     procedure SetText(const aText: string);
     function GetTopIndex: smallint;
-    procedure SetTopIndex(aIndex:smallint);
+    procedure SetTopIndex(aIndex: smallint);
     procedure ReformatText;
     procedure UpdateScrollBar;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont: TKMFont);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
     destructor Destroy; override;
 
     procedure Add(const aItem: string);
@@ -751,13 +765,13 @@ type
     fStartDragY: Integer;
   public
     OnMove: TNotifyEventXY;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
     procedure SetBounds(aMinusX, aMinusY, aPlusX, aPlusY: Integer);
 
-    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    procedure MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
+    procedure MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
 
     procedure Paint; override;
   end;
@@ -769,15 +783,15 @@ type
     fViewArea: TKMRect;
     fOnChange: TPointEvent;
   public
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
-    function LocalToMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
+    function LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
     property MapSize: TKMPoint read fMapSize write fMapSize;
     property ViewArea: TKMRect read fViewArea write fViewArea;
     property OnChange: TPointEvent write fOnChange;
 
-    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
+    procedure MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton); override;
+    procedure MouseMove(X,Y: Integer; Shift: TShiftState); override;
     procedure Paint; override;
   end;
 
@@ -791,9 +805,9 @@ var
 
 
 { TKMControl }
-constructor TKMControl.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMControl.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  Inherited Create;
+  inherited Create;
   Hitable   := true; //All controls can be clicked by default
   fLeft     := aLeft;
   fTop      := aTop;
@@ -808,24 +822,27 @@ begin
 
   //Parent will be Nil only for master Panel which contains all the controls in it
   fParent   := aParent;
-  if aParent<>nil then aParent.AddChild(Self);
+  if aParent <> nil then
+    aParent.AddChild(Self);
 end;
 
 
-function TKMControl.KeyDown(Key: Word; Shift: TShiftState):boolean;
-var Amt:byte;
+function TKMControl.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+var Amt: Byte;
 begin
-  Result := false;
-  if not MODE_DESIGN_CONTORLS then exit;
+  Result := MODE_DESIGN_CONTORLS;
 
-  Amt := 1;
-  if ssCtrl  in Shift then Amt := 10;
-  if ssShift in Shift then Amt := 100;
+  if MODE_DESIGN_CONTORLS then
+  begin
+    Amt := 1;
+    if ssCtrl  in Shift then Amt := 10;
+    if ssShift in Shift then Amt := 100;
 
-  if Key = VK_LEFT  then fLeft := fLeft - Amt;
-  if Key = VK_RIGHT then fLeft := fLeft + Amt;
-  if Key = VK_UP    then fTop  := fTop  - Amt;
-  if Key = VK_DOWN  then fTop  := fTop  + Amt;
+    if Key = VK_LEFT  then fLeft := fLeft - Amt;
+    if Key = VK_RIGHT then fLeft := fLeft + Amt;
+    if Key = VK_UP    then fTop  := fTop  - Amt;
+    if Key = VK_DOWN  then fTop  := fTop  + Amt;
+  end
 end;
 
 
@@ -835,7 +852,7 @@ begin
 end;
 
 
-function TKMControl.KeyUp(Key: Word; Shift: TShiftState):boolean;
+function TKMControl.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := false;
   if not MODE_DESIGN_CONTORLS then exit;
@@ -843,19 +860,19 @@ begin
 end;
 
 
-procedure TKMControl.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   //if Assigned(fOnMouseDown) then fOnMouseDown(Self); { Unused }
 end;
 
 
-procedure TKMControl.MouseMove(X,Y:integer; Shift:TShiftState);
+procedure TKMControl.MouseMove(X,Y: Integer; Shift: TShiftState);
 begin
   //if Assigned(fOnMouseOver) then fOnMouseOver(Self);
 end;
 
 
-procedure TKMControl.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
   if (csDown in State) then
@@ -868,21 +885,21 @@ begin
 end;
 
 
-procedure TKMControl.MouseWheel(Sender: TObject; WheelDelta:integer);
+procedure TKMControl.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
   if Assigned(fOnMouseWheel) then fOnMouseWheel(Self, WheelDelta);
 end;
 
 
 //fVisible is checked earlier
-function TKMControl.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
+function TKMControl.HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean;
 begin
   Result := Hitable and (fEnabled or aIncludeDisabled) and InRange(X, Left, Left + fWidth) and InRange(Y, Top, Top + fHeight);
 end;
 
 {One common thing - draw childs for self}
 procedure TKMControl.Paint;
-var sColor:TColor4; Tmp: TKMPoint;
+var sColor: TColor4; Tmp: TKMPoint;
 begin
   inc(CtrlPaintCount);
   if not SHOW_CONTROLS_OVERLAY then exit;
@@ -937,13 +954,13 @@ begin
 end;
 
 //Overriden in child classes
-procedure TKMControl.SetHeight(aValue:Integer);
+procedure TKMControl.SetHeight(aValue: Integer);
 begin
   fHeight := aValue;
 end;
 
 //Overriden in child classes
-procedure TKMControl.SetWidth(aValue:Integer);
+procedure TKMControl.SetWidth(aValue: Integer);
 begin
   fWidth := aValue;
 end;
@@ -980,8 +997,8 @@ end;
 
 
 {Check Control including all its Parents to see if Control is actually displayed/visible}
-function TKMControl.GetVisible:boolean;
-var C:TKMControl;
+function TKMControl.GetVisible: Boolean;
+var C: TKMControl;
 begin
   Result := fVisible;
   C := Parent;
@@ -993,13 +1010,13 @@ begin
 end;
 
 
-procedure TKMControl.SetEnabled(aValue:boolean);
+procedure TKMControl.SetEnabled(aValue: Boolean);
 begin
   fEnabled := aValue;
 end;
 
 
-procedure TKMControl.SetVisible(aValue:boolean);
+procedure TKMControl.SetVisible(aValue: Boolean);
 begin
   fVisible := aValue;
 end;
@@ -1022,8 +1039,8 @@ procedure TKMControl.Center;  begin Anchors := []; end;
 procedure TKMControl.Stretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
 
 
-function TKMControl.MasterParent:TKMPanel;
-var P:TKMPanel;
+function TKMControl.MasterParent: TKMPanel;
+var P: TKMPanel;
 begin
   P := Parent;
   while P.Parent <> nil do
@@ -1034,34 +1051,34 @@ end;
 
 
 { TKMPanel } //virtual panels to contain child items
-constructor TKMPanel.Create(aParent:TKMMasterControl; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMPanel.Create(aParent: TKMMasterControl; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  Inherited Create(nil, aLeft,aTop,aWidth,aHeight);
+  inherited Create(nil, aLeft,aTop,aWidth,aHeight);
   GetCollection := aParent;
   aParent.fCtrl := Self;
 end;
 
 
-constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMPanel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   GetCollection := aParent.GetCollection;
 end;
 
 
 destructor TKMPanel.Destroy;
-var i:integer;
+var i: Integer;
 begin
   for i:=1 to ChildCount do
     Childs[i].Free;
-  Inherited;
+  inherited;
 end;
 
 
 {Parentize control to another control}
 {Parent control has a list of all it's child controls}
 {Also transform child according to parent position}
-procedure TKMPanel.AddChild(aChild:TKMControl);
+procedure TKMPanel.AddChild(aChild: TKMControl);
 begin
   inc(ChildCount);
   {Hereby I still try to make a rule to count starting from 1, not from zero}
@@ -1069,8 +1086,8 @@ begin
   Childs[ChildCount] := aChild;
 end;
 
-procedure TKMPanel.SetHeight(aValue:Integer);
-var i:integer;
+procedure TKMPanel.SetHeight(aValue: Integer);
+var i: Integer;
 begin
   for i:=1 to ChildCount do
     if (akTop in Childs[i].Anchors) and (akBottom in Childs[i].Anchors) then
@@ -1084,11 +1101,11 @@ begin
     else
       Childs[i].fTop := Childs[i].fTop + (aValue - fHeight) div 2;
 
-  Inherited;
+  inherited;
 end;
 
-procedure TKMPanel.SetWidth(aValue:Integer);
-var i:integer;
+procedure TKMPanel.SetWidth(aValue: Integer);
+var i: Integer;
 begin
   for i:=1 to ChildCount do
     if (akLeft in Childs[i].Anchors) and (akRight in Childs[i].Anchors) then
@@ -1102,15 +1119,15 @@ begin
     else
       Childs[i].fLeft := Childs[i].fLeft + (aValue - fWidth) div 2;
 
-  Inherited;
+  inherited;
 end;
 
 
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint;
-var i:integer;
+var i: Integer;
 begin
-  Inherited;
+  inherited;
   for i:=1 to ChildCount do
     if Childs[i].fVisible then
       Childs[i].Paint;
@@ -1118,24 +1135,24 @@ end;
 
 
 { TKMBevel }
-constructor TKMBevel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
+constructor TKMBevel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   BackAlpha := 0.4; //Default value
 end;
 
 
 procedure TKMBevel.Paint;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height, HalfBright, BackAlpha);
 end;
 
 
 { TKMShape }
-constructor TKMShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
+constructor TKMShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aLineColor: TColor4);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   FillColor := $00000000;
   LineColor := aLineColor;
   LineWidth := 2;
@@ -1144,16 +1161,16 @@ end;
 
 procedure TKMShape.Paint;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteLayer(Left,Top,Width,Height,FillColor,$00000000);
   fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,LineColor);
 end;
 
 
 { TKMLabel }
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign{; aColor:TColor4=$FFFFFFFF});
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign{; aColor: TColor4=$FFFFFFFF});
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
   fFontColor := $FFFFFFFF;
   fTextAlign := aTextAlign;
@@ -1163,9 +1180,9 @@ end;
 
 
 //Same as above but with width/height ommitted, as in most cases we don't know/don't care
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop:integer; aCaption:string; aFont:TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabel.Create(aParent: TKMPanel; aLeft,aTop: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
-  Inherited Create(aParent, aLeft,aTop,0,0);
+  inherited Create(aParent, aLeft,aTop,0,0);
   fFont := aFont;
   fFontColor := $FFFFFFFF;
   fTextAlign := aTextAlign;
@@ -1194,21 +1211,21 @@ begin
 end;
 
 
-procedure TKMLabel.SetCaption(aCaption:string);
+procedure TKMLabel.SetCaption(aCaption: string);
 begin
   fCaption := aCaption;
   ReformatText;
 end;
 
 
-procedure TKMLabel.SetAutoWrap(aValue:boolean);
+procedure TKMLabel.SetAutoWrap(aValue: Boolean);
 begin
   fAutoWrap := aValue;
   ReformatText;
 end;
 
 
-function TKMLabel.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
+function TKMLabel.HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean;
 begin
   Result := Hitable and InRange(X, AreaLeft, AreaLeft + Width) and InRange(Y, Top, Top + Height);
 end;
@@ -1229,9 +1246,9 @@ end;
 
 {Send caption to render}
 procedure TKMLabel.Paint;
-var Col:cardinal;
+var Col: Cardinal;
 begin
-  Inherited;
+  inherited;
 
   if fEnabled then Col := FontColor
               else Col := $FF888888;
@@ -1244,18 +1261,18 @@ end;
 
 
 { TKMLabelScroll }
-constructor TKMLabelScroll.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
+constructor TKMLabelScroll.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aTextAlign: TTextAlign);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aCaption, aFont, aTextAlign);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight, aCaption, aFont, aTextAlign);
   SmoothScrollToTop := 0; //Disabled by default
 end;
 
 
 procedure TKMLabelScroll.Paint;
-var NewTop:integer; Col:cardinal;
+var NewTop: Integer; Col: Cardinal;
 begin
   fRenderUI.SetupClipY(Top, Top+Height);
-  NewTop := Top + Height - integer(TimeGet - SmoothScrollToTop) div 50; //Compute delta and shift by it upwards (Credits page)
+  NewTop := Top + Height - Integer(TimeGet - SmoothScrollToTop) div 50; //Compute delta and shift by it upwards (Credits page)
 
   if fEnabled then Col := FontColor
               else Col := $FF888888;
@@ -1266,9 +1283,9 @@ end;
 
 
 { TKMImage }
-constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
+constructor TKMImage.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
 begin
-  Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRX := aRX;
   fTexID := aTexID;
   ImageAnchors := [akLeft, akTop];
@@ -1312,7 +1329,7 @@ var
   OffsetX, OffsetY, DrawWidth, DrawHeight: SmallInt; //variable parameters
   StretchDraw: Boolean; //Check if the picture should be stretched
 begin
-  Inherited;
+  inherited;
   if fTexID = 0 then Exit; //No picture to draw
 
   StretchDraw := False;
@@ -1353,9 +1370,9 @@ end;
 
 
 { TKMImageStack }
-constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
+constructor TKMImageStack.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui);
 begin
-  Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fRX  := aRX;
   fTexID := aTexID;
 end;
@@ -1385,7 +1402,7 @@ var
   i: Integer;
   OffsetX, OffsetY, CenterX, CenterY: Smallint; //variable parameters
 begin
-  Inherited;
+  inherited;
   if fTexID = 0 then Exit; //No picture to draw
 
   OffsetX := Width div fColumns;
@@ -1407,9 +1424,9 @@ end;
 
 
 { TKMColorSwatch }
-constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize:integer);
+constructor TKMColorSwatch.Create(aParent: TKMPanel; aLeft,aTop,aColumnCount,aRowCount,aSize: Integer);
 begin
-  Inherited Create(aParent, aLeft, aTop, 0, 0);
+  inherited Create(aParent, aLeft, aTop, 0, 0);
 
   fBackAlpha    := 0.5;
   fColumnCount  := aColumnCount;
@@ -1422,7 +1439,7 @@ begin
 end;
 
 
-procedure TKMColorSwatch.SetColors(aColors:array of TColor4; aInclRandom:boolean=false);
+procedure TKMColorSwatch.SetColors(aColors:array of TColor4; aInclRandom: Boolean=false);
 begin
   fInclRandom := aInclRandom;
   if fInclRandom then
@@ -1439,14 +1456,14 @@ begin
 end;
 
 
-function TKMColorSwatch.GetColor:TColor4;
+function TKMColorSwatch.GetColor: TColor4;
 begin
   Result := Colors[fColorIndex];
 end;
 
 
-procedure TKMColorSwatch.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-var NewColor:integer;
+procedure TKMColorSwatch.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var NewColor: Integer;
 begin
   if Button = mbLeft then begin
     NewColor := EnsureRange((Y-Top) div fCellSize, 0, fRowCount-1)*fColumnCount +
@@ -1457,14 +1474,14 @@ begin
       if Assigned(fOnChange) then fOnChange(Self);
     end;
   end;
-  Inherited;
+  inherited;
 end;
 
 
 procedure TKMColorSwatch.Paint;
-var i,Start:integer;
+var i,Start: Integer;
 begin
-  Inherited;
+  inherited;
 
   fRenderUI.WriteBevel(Left, Top, Width, Height, false, fBackAlpha);
 
@@ -1489,7 +1506,7 @@ end;
 { TKMButton }
 constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aTexID: Word; aRX: TRXType = rxGui; aStyle: TButtonStyle = bsGame);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fRX         := aRX;
   fTexID      := aTexID;
   fCaption    := '';
@@ -1501,7 +1518,7 @@ end;
 {Different version of button, with caption on it instead of image}
 constructor TKMButton.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aStyle: TButtonStyle = bsGame);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fTexID      := 0;
   fCaption    := aCaption;
   fFont       := aFont;
@@ -1529,10 +1546,10 @@ begin
 end;
 
 
-procedure TKMButton.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMButton.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if fEnabled and fMakesSound and (csDown in State) then fSoundLib.Play(sfxn_ButtonClick);
-  Inherited;
+  inherited;
 end;
 
 
@@ -1541,7 +1558,7 @@ var
   Col: TColor4;
   StateSet: TButtonStateSet;
 begin
-  Inherited;
+  inherited;
   StateSet := [];
   if (csOver in State) and fEnabled then
     StateSet := StateSet + [bsOver];
@@ -1563,9 +1580,9 @@ end;
 
 
 {Simple version of button, with a caption and image}
-constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; aRX: TRXType = rxGui);
+constructor TKMButtonFlat.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID: Integer; aRX: TRXType = rxGui);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   RX    := aRX;
   TexID := aTexID;
   fFont := fnt_Grey;
@@ -1573,17 +1590,17 @@ begin
 end;
 
 
-procedure TKMButtonFlat.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMButtonFlat.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if fEnabled and (csDown in State) then fSoundLib.Play(sfx_Click);
-  Inherited;
+  inherited;
 end;
 
 
 procedure TKMButtonFlat.Paint;
 var StateSet: TButtonStateSet;
 begin
-  Inherited;
+  inherited;
   StateSet:=[];
   if (csOver in State) and fEnabled and not HideHighlight then
     StateSet := StateSet+[bsOver];
@@ -1596,9 +1613,9 @@ end;
 
 
 { TKMFlatButtonShape }
-constructor TKMFlatButtonShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4);
+constructor TKMFlatButtonShape.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont; aShapeColor: TColor4);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fCaption    := aCaption;
   CapOffsetY  := 0;
   ShapeColor  := aShapeColor;
@@ -1608,7 +1625,7 @@ end;
 
 procedure TKMFlatButtonShape.Paint;
 begin
-  Inherited;  
+  inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
   fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, 0, fCaption, fFont, taCenter);
@@ -1618,19 +1635,19 @@ end;
 
 
 { TKMEdit }
-constructor TKMEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+constructor TKMEdit.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fText := '<<<LEER>>>';
   fFont := aFont;
   CursorPos := 0;
 end;
 
 
-function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled:boolean=false): Boolean;
+function TKMEdit.HitTest(X, Y: Integer; aIncludeDisabled: Boolean=false): Boolean;
 begin
   //When control is read-only we don't want to recieve Focus event
-  Result := Inherited HitTest(X,Y) and not ReadOnly;
+  Result := inherited HitTest(X,Y) and not ReadOnly;
 end;
 
 
@@ -1655,7 +1672,7 @@ begin
 end;
 
 
-procedure TKMEdit.SetText(aText:string);
+procedure TKMEdit.SetText(aText: string);
 begin
   fText := aText;
   CursorPos := math.min(CursorPos, Length(fText));
@@ -1666,9 +1683,9 @@ end;
 
 
 //Key events which have no effect should not be handled (allows scrolling while chat window open with no text entered)
-function TKMEdit.KeyEventHandled(Key: Word):boolean;
+function TKMEdit.KeyEventHandled(Key: Word): Boolean;
 begin
-  Result := true;
+  Result := True;
   if fText = '' then
     case Key of
       VK_BACK,
@@ -1678,15 +1695,15 @@ begin
       VK_LEFT,
       VK_RIGHT,
       VK_HOME,
-      VK_END: Result := false; //These keys have no effect when text is blank
+      VK_END: Result := False; //These keys have no effect when text is blank
     end;
 end;
 
 
-function TKMEdit.KeyDown(Key: Word; Shift: TShiftState):boolean;
+function TKMEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key);
-  if Inherited KeyDown(Key, Shift) or ReadOnly then exit;
+  if inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
   //Clipboard operations
   if (Shift = [ssCtrl]) and (Key <> VK_CONTROL) then
@@ -1722,27 +1739,27 @@ begin
 end;
 
 
-function TKMEdit.KeyUp(Key: Word; Shift: TShiftState):boolean;
+function TKMEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := KeyEventHandled(Key);
-  if Inherited KeyUp(Key, Shift) or ReadOnly then exit;
+  if inherited KeyUp(Key, Shift) or ReadOnly then exit;
 
   if Assigned(OnChange) then OnChange(Self);
 end;
 
 
-procedure TKMEdit.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMEdit.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if ReadOnly then Exit;
-  Inherited;
+  inherited;
   CursorPos := length(fText);
 end;
 
 
 procedure TKMEdit.Paint;
-var Col:TColor4; RText:String; OffX:integer;
+var Col: TColor4; RText: string; OffX: Integer;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
@@ -1766,19 +1783,19 @@ end;
 
 
 { TKMCheckBox }
-constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
+constructor TKMCheckBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aCaption: string; aFont: TKMFont);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont     := aFont;
   fCaption  := aCaption;
 end;
 
 
-procedure TKMCheckBox.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMCheckBox.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   if (csDown in State) and (Button = mbLeft) then
     fChecked := not fChecked;
-  Inherited; //There are OnMouseUp and OnClick events there
+  inherited; //There are OnMouseUp and OnClick events there
 end;
 
 
@@ -1786,9 +1803,9 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMCheckBox.Paint;
-var Col:TColor4;
+var Col: TColor4;
 begin
-  Inherited;
+  inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   if fFlatStyle then begin
@@ -1805,9 +1822,9 @@ end;
 
 
 { TKMRadioGroup }
-constructor TKMRadioGroup.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+constructor TKMRadioGroup.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
   fItemIndex := -1;
   fItems := TStringList.Create;
@@ -1817,18 +1834,18 @@ end;
 destructor TKMRadioGroup.Destroy;
 begin
   fItems.Free;
-  Inherited;
+  inherited;
 end;
 
 
-function TKMRadioGroup.GetItemCount:integer;
+function TKMRadioGroup.GetItemCount: Integer;
 begin
   Result := fItems.Count;
 end;
 
 
-procedure TKMRadioGroup.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-var NewIndex:integer;
+procedure TKMRadioGroup.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+var NewIndex: Integer;
 begin
   if (csDown in State) and (Button = mbLeft) then
   begin
@@ -1843,7 +1860,7 @@ begin
       end;
     end;
   end;
-  Inherited; //There are OnMouseUp and OnClick events there
+  inherited; //There are OnMouseUp and OnClick events there
 end;
 
 
@@ -1851,9 +1868,9 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMRadioGroup.Paint;
-var Col:TColor4; LineHeight:integer; i:integer;
+var Col: TColor4; LineHeight: Integer; i: Integer;
 begin
-  Inherited;
+  inherited;
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   LineHeight := round(fHeight / ItemCount);
@@ -1867,9 +1884,9 @@ end;
 
 
 { TKMPercentBar }
-constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont=fnt_Mini);
+constructor TKMPercentBar.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont=fnt_Mini);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fFont := aFont;
   FontColor := $FFFFFFFF;
   TextAlign := taCenter;
@@ -1878,7 +1895,7 @@ end;
 
 procedure TKMPercentBar.Paint;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then begin //Now draw text over bar, if required
     //Shadow
@@ -1891,9 +1908,9 @@ end;
 
 { TKMResourceRow }
 procedure TKMResourceRow.Paint;
-var i:integer;
+var i: Integer;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width-8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
@@ -1902,9 +1919,9 @@ end;
 
 
 { TKMResourceOrderRow }
-constructor TKMResourceOrderRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMResourceOrderRow.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  Inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
+  inherited Create(aParent, aLeft+68,aTop,aWidth-68,aHeight);
 
   fOrderRem := TKMButton.Create(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal, bsGame);
   fOrderLab := TKMLabel.Create(aParent,aLeft+33,aTop+4,'',fnt_Grey,taCenter);
@@ -1913,9 +1930,9 @@ end;
 
 
 //Copy property to buttons
-procedure TKMResourceOrderRow.SetEnabled(aValue:boolean);
+procedure TKMResourceOrderRow.SetEnabled(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fOrderRem.Enabled := fEnabled;
   fOrderLab.Enabled := fEnabled;
   fOrderAdd.Enabled := fEnabled;
@@ -1923,9 +1940,9 @@ end;
 
 
 //Copy property to buttons. Otherwise they won't be rendered
-procedure TKMResourceOrderRow.SetVisible(aValue:boolean);
+procedure TKMResourceOrderRow.SetVisible(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fOrderRem.Visible := fVisible;
   fOrderLab.Visible := fVisible;
   fOrderAdd.Visible := fVisible;
@@ -1933,9 +1950,9 @@ end;
 
 
 procedure TKMResourceOrderRow.Paint;
-var i:integer;
+var i: Integer;
 begin
-  Inherited;
+  inherited;
   fOrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
   fOrderLab.Top := fTop + 4;
   fOrderAdd.Top := fTop;
@@ -1952,7 +1969,7 @@ end;
 { TKMCostsRow }
 procedure TKMCostsRow.Paint;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteText(Left, Top + 4, Width-20, 0, Caption, fnt_Grey, taLeft, $FFFFFFFF);
   if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RX,TexID1].PxHeight) div 2, RX, TexID1);
   if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RX,TexID2].PxHeight) div 2, RX, TexID2);
@@ -1962,7 +1979,7 @@ end;
 { TKMTrackBar }
 constructor TKMTrackBar.Create(aParent: TKMPanel; aLeft, aTop, aWidth: Integer; aMin, aMax: Word);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,0);
+  inherited Create(aParent, aLeft,aTop,aWidth,0);
   fMinValue := aMin;
   fMaxValue := aMax;
   fTrackHeight := 20;
@@ -2001,7 +2018,7 @@ end;
 
 procedure TKMTrackBar.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  Inherited;
+  inherited;
   MouseMove(X, Y, Shift);
 end;
 
@@ -2010,7 +2027,7 @@ procedure TKMTrackBar.MouseMove(X,Y: Integer; Shift: TShiftState);
 var
   NewPos: Integer;
 begin
-  Inherited;
+  inherited;
 
   NewPos := Position;
   if (ssLeft in Shift) and InRange(Y - Top - fTrackTop, 0, fTrackHeight) then
@@ -2032,7 +2049,7 @@ const //Text color for disabled and enabled control
 var
   ThumbPos, ThumbHeight: Word;
 begin
-  Inherited;
+  inherited;
 
   if fCaption <> '' then
     fRenderUI.WriteText(Left + 8, Top, Width - 8, 20, fCaption, fnt_Metal, taLeft, TextColor[fEnabled]);
@@ -2048,9 +2065,9 @@ end;
 
 
 { TKMScrollBar }
-constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
+constructor TKMScrollBar.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aScrollAxis: TScrollAxis; aStyle: TButtonStyle);
 begin
-  Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
   fBackAlpha := 0.5;
   fScrollAxis := aScrollAxis;
   fMinValue := 0;
@@ -2072,9 +2089,9 @@ begin
 end;
 
 
-procedure TKMScrollBar.SetHeight(aValue:Integer);
+procedure TKMScrollBar.SetHeight(aValue: Integer);
 begin
-  Inherited;
+  inherited;
   if fScrollAxis = sa_Vertical then
     fScrollInc.Top := fTop+fHeight-fWidth;
 
@@ -2082,18 +2099,18 @@ begin
 end;
 
 
-procedure TKMScrollBar.SetEnabled(aValue:boolean);
+procedure TKMScrollBar.SetEnabled(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fScrollDec.Enabled := aValue;
   fScrollInc.Enabled := aValue;
 end;
 
 
 //Copy property to child buttons. Otherwise they won't be rendered
-procedure TKMScrollBar.SetVisible(aValue:boolean);
+procedure TKMScrollBar.SetVisible(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fScrollDec.Visible := fVisible;
   fScrollInc.Visible := fVisible;
 end;
@@ -2121,14 +2138,14 @@ begin
 end;
 
 
-procedure TKMScrollBar.IncPosition(Sender:TObject);
+procedure TKMScrollBar.IncPosition(Sender: TObject);
 begin
   SetPosition(fPosition + 1);
   if Assigned(fOnChange) then fOnChange(Self);
 end;
 
 
-procedure TKMScrollBar.DecPosition(Sender:TObject);
+procedure TKMScrollBar.DecPosition(Sender: TObject);
 begin
   SetPosition(fPosition - 1);
   if Assigned(fOnChange) then fOnChange(Self);
@@ -2144,17 +2161,17 @@ begin
 end;
 
 
-procedure TKMScrollBar.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMScrollBar.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  Inherited;
+  inherited;
   MouseMove(X,Y,Shift); //Will change Position and call OnChange event
 end;
 
 
-procedure TKMScrollBar.MouseMove(X,Y:integer; Shift:TShiftState);
+procedure TKMScrollBar.MouseMove(X,Y: Integer; Shift: TShiftState);
 var NewPos: Integer;
 begin
-  Inherited;
+  inherited;
 
   NewPos := fPosition;
   if (ssLeft in Shift) then
@@ -2178,9 +2195,9 @@ begin
 end;
 
 
-procedure TKMScrollBar.MouseWheel(Sender: TObject; WheelDelta:integer);
+procedure TKMScrollBar.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
-  Inherited;
+  inherited;
   if WheelDelta < 0 then IncPosition(Self);
   if WheelDelta > 0 then DecPosition(Self);
 end;
@@ -2191,7 +2208,7 @@ var
   ThumbPos: Word;
   ButtonState: TButtonStateSet;
 begin
-  Inherited;
+  inherited;
   ThumbPos := 0;
 
   case fScrollAxis of
@@ -2221,9 +2238,9 @@ end;
 
 
 { TKMMemo }
-constructor TKMMemo.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+constructor TKMMemo.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fItemHeight := 20;
   fItems := TStringList.Create;
   fFont := aFont;
@@ -2236,30 +2253,30 @@ end;
 destructor TKMMemo.Destroy;
 begin
   fItems.Free;
-  Inherited;
+  inherited;
 end;
 
 
-procedure TKMMemo.SetHeight(aValue:Integer);
+procedure TKMMemo.SetHeight(aValue: Integer);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Height := fHeight;
   UpdateScrollBar; //Since height has changed
 end;
 
 
-procedure TKMMemo.SetWidth(aValue:Integer);
+procedure TKMMemo.SetWidth(aValue: Integer);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Left := fLeft + fWidth - 20;
   ReformatText; //Repositions the scroll bar as well
 end;
 
 
 //Copy property to scrollbar. Otherwise it won't be rendered
-procedure TKMMemo.SetVisible(aValue:boolean);
+procedure TKMMemo.SetVisible(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
 end;
 
@@ -2276,9 +2293,9 @@ begin
 end;
 
 
-procedure TKMMemo.SetEnabled(aValue:boolean);
+procedure TKMMemo.SetEnabled(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Enabled := aValue;
 end;
 
@@ -2311,7 +2328,7 @@ end;
 
 
 procedure TKMMemo.ReformatText;
-var NewText:string;
+var NewText: string;
 begin
   if fAutoWrap then
     NewText := fResource.ResourceFont.WordWrap(fText, fFont, fWidth - fScrollBar.Width - 8, True)
@@ -2326,7 +2343,7 @@ end;
 
 //fItems.Count or Height has changed
 procedure TKMMemo.UpdateScrollBar;
-var OldMax:integer;
+var OldMax: Integer;
 begin
   OldMax := fScrollBar.MaxValue;
   fScrollBar.MaxValue := fItems.Count - (fHeight div fItemHeight);
@@ -2341,7 +2358,7 @@ begin
 end;
 
 
-procedure TKMMemo.Add(const aItem:string);
+procedure TKMMemo.Add(const aItem: string);
 begin
   if fText <> '' then
     fText := fText + '|';
@@ -2367,17 +2384,17 @@ begin
 end;
 
 
-procedure TKMMemo.MouseWheel(Sender: TObject; WheelDelta:integer);
+procedure TKMMemo.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
-  Inherited;
+  inherited;
   SetTopIndex(TopIndex - sign(WheelDelta));
 end;
 
 
 procedure TKMMemo.Paint;
-var i,PaintWidth:integer;
+var i,PaintWidth: Integer;
 begin
-  Inherited;
+  inherited;
   if fScrollBar.Visible then
     PaintWidth := Width-fScrollBar.Width //Leave space for scrollbar
   else
@@ -2391,9 +2408,9 @@ end;
 
 
 { TKMListBox }
-constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+constructor TKMListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
   fBackAlpha := 0.5;
   fItemHeight := 20;
   fItemIndex := -1;
@@ -2409,22 +2426,22 @@ end;
 destructor TKMListBox.Destroy;
 begin
   fItems.Free;
-  Inherited;
+  inherited;
 end;
 
 
-procedure TKMListBox.SetHeight(aValue:Integer);
+procedure TKMListBox.SetHeight(aValue: Integer);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Height := fHeight;
   UpdateScrollBar; //Since height has changed
 end;
 
 
 //Copy property to scrollbar. Otherwise it won't be rendered
-procedure TKMListBox.SetVisible(aValue:boolean);
+procedure TKMListBox.SetVisible(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Visible := fVisible and (not fAutoHideScrollBar or fScrollBar.Enabled); //Hide scrollbar and its buttons
 end;
 
@@ -2441,16 +2458,16 @@ begin
 end;
 
 
-procedure TKMListBox.SetBackAlpha(aValue:single);
+procedure TKMListBox.SetBackAlpha(aValue: single);
 begin
   fBackAlpha := aValue;
   fScrollBar.BackAlpha := aValue;
 end;
 
 
-procedure TKMListBox.SetEnabled(aValue:boolean);
+procedure TKMListBox.SetEnabled(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Enabled := aValue;
 end;
 
@@ -2463,7 +2480,7 @@ begin
 end;
 
 
-procedure TKMListBox.Add(aItem:string);
+procedure TKMListBox.Add(aItem: string);
 begin
   fItems.Add(aItem);
   UpdateScrollBar;
@@ -2478,10 +2495,10 @@ begin
 end;
 
 
-procedure TKMListBox.SetItems(aText:string);
+//When you want to reset ItemIndex do so separately
+procedure TKMListBox.SetItems(aText: string);
 begin
   fItems.Text := aText;
-  fItemIndex := -1;
   UpdateScrollBar;
 end;
 
@@ -2494,29 +2511,54 @@ begin
 end;
 
 
-function TKMListBox.Count:integer;
+function TKMListBox.Count: Integer;
 begin
   Result := fItems.Count;
 end;
 
 
-function TKMListBox.GetItem(aIndex:integer):string;
+function TKMListBox.GetItem(aIndex: Integer): string;
 begin
   Result := fItems[aIndex];
 end;
 
 
-procedure TKMListBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+function TKMListBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+var
+  NewIndex: Integer;
 begin
-  Inherited;
+  Result := (Key = VK_UP) or (Key = VK_DOWN);
+  if inherited KeyDown(Key, Shift) then Exit;
+
+  case Key of
+    VK_UP:    NewIndex := fItemIndex - 1;
+    VK_DOWN:  NewIndex := fItemIndex + 1;
+    else      Exit;
+  end;
+
+  if InRange(NewIndex, 0, Count - 1) then
+  begin
+    fItemIndex := NewIndex;
+    if TopIndex < fItemIndex - (Height div fItemHeight) + 1 then //Moving down
+      TopIndex := fItemIndex - (Height div fItemHeight) + 1
+    else
+    if TopIndex > fItemIndex then //Moving up
+      TopIndex := fItemIndex;
+  end;
+end;
+
+
+procedure TKMListBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  inherited;
   MouseMove(X,Y,Shift); //Will change Position and call OnChange event
 end;
 
 
-procedure TKMListBox.MouseMove(X,Y:integer; Shift:TShiftState);
-var NewIndex:integer;
+procedure TKMListBox.MouseMove(X,Y: Integer; Shift: TShiftState);
+var NewIndex: Integer;
 begin
-  Inherited;
+  inherited;
 
   if (ssLeft in Shift)
   and InRange(X, Left, Left + Width - (fScrollBar.Width*byte(fScrollBar.Visible)))
@@ -2524,7 +2566,7 @@ begin
   then begin
     NewIndex := TopIndex + (Y-Top) div fItemHeight;
 
-    if NewIndex > fItems.Count-1 then NewIndex := -1;
+    if NewIndex > fItems.Count - 1 then NewIndex := -1;
 
     if (NewIndex<>fItemIndex) then begin
       fItemIndex := NewIndex;
@@ -2535,18 +2577,18 @@ begin
 end;
 
 
-procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
+procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
-  Inherited;
+  inherited;
   SetTopIndex(TopIndex - sign(WheelDelta));
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 
 procedure TKMListBox.Paint;
-var i,PaintWidth:integer;
+var i,PaintWidth: Integer;
 begin
-  Inherited;
+  inherited;
   if fScrollBar.Visible then
     PaintWidth := Width - fScrollBar.Width //Leave space for scrollbar
   else    
@@ -2565,7 +2607,10 @@ end;
 { TKMListHeader }
 constructor TKMListHeader.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Integer);
 begin
-  Inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+  inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
+
+  fSortDirection := sdNone;
+  fSortIndex := -1;
 end;
 
 
@@ -2593,9 +2638,20 @@ var ColumnID: Integer;
 begin
   ColumnID := GetColumnIndex(X);
   if (ColumnID <> -1) and Assigned(OnColumnClick) then
-    OnColumnClick(ColumnID)
+  begin
+    //Apply sorting to the column, toggling the state, sdDown is default
+    if fSortIndex = ColumnID then
+      if fSortDirection = sdDown then
+        fSortDirection := sdUp
+      else
+        fSortDirection := sdDown
+    else
+      fSortDirection := sdDown;
+    fSortIndex := ColumnID;
+    OnColumnClick(ColumnID);
+  end
   else
-    Inherited; //Process the usual clicks if e.g. there are no columns
+    inherited; //Process the usual clicks if e.g. there are no columns
 end;
 
 
@@ -2614,7 +2670,7 @@ begin
 end;
 
 
-procedure TKMListHeader.MouseMove(X, Y: integer; Shift: TShiftState);
+procedure TKMListHeader.MouseMove(X, Y: Integer; Shift: TShiftState);
 begin
   inherited;
   fColumnHighlight := GetColumnIndex(X);
@@ -2623,32 +2679,38 @@ end;
 
 procedure TKMListHeader.Paint;
 var
-  i: integer;
-  ColumnWidth: integer;
+  I: Integer;
+  ColumnWidth: Integer;
 begin
-  Inherited;
+  inherited;
 
-  for i := 0 to fCount - 1 do
+  for I := 0 to fCount - 1 do
   begin
-    if i < fCount - 1 then
-      ColumnWidth := fColumnOffsets[i+1] - fColumnOffsets[i]
+    if I < fCount - 1 then
+      ColumnWidth := fColumnOffsets[I+1] - fColumnOffsets[I]
     else
-      ColumnWidth := Width - fColumnOffsets[i];
+      ColumnWidth := Width - fColumnOffsets[I];
 
-    fRenderUI.WriteBevel(Left + fColumnOffsets[i], Top, ColumnWidth, Height, True, fBackAlpha);
-    if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = i) then
-      fRenderUI.WriteLayer(Left + fColumnOffsets[i], Top, ColumnWidth, Height, $20FFFFFF, $00000000);
-    fRenderUI.WriteText(Left + 4 + fColumnOffsets[i], 4 + Top, 0, 0, fColumns[i], fFont, taLeft);
+    fRenderUI.WriteBevel(Left + fColumnOffsets[I], Top, ColumnWidth, Height, True, fBackAlpha);
+    if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then
+      fRenderUI.WriteLayer(Left + fColumnOffsets[I], Top, ColumnWidth, Height, $20FFFFFF, $00000000);
+    fRenderUI.WriteText(Left + fColumnOffsets[I] + 4, Top + 4, 0, 0, fColumns[I], fFont, taLeft);
+
+    if fSortIndex = I then
+      case fSortDirection of
+        sdDown: fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 60, $FFFFFFFF);
+        sdUp:   fRenderUI.WritePicture(Left + fColumnOffsets[I] + ColumnWidth - 4-10, Top + 6, 10, 11, rxGui, 59, $FFFFFFFF);
+      end;
   end;
 end;
 
 
 { TKMColumnListBox }
-constructor TKMColumnListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont: TKMFont);
+constructor TKMColumnListBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont);
 const
   DEF_HEADER_HEIGHT = 24;
 begin
-  Inherited Create(aParent, aLeft, aTop + DEF_HEADER_HEIGHT, aWidth, aHeight - DEF_HEADER_HEIGHT);
+  inherited Create(aParent, aLeft, aTop + DEF_HEADER_HEIGHT, aWidth, aHeight - DEF_HEADER_HEIGHT);
   fFont       := aFont;
   fItemHeight := 20;
   fItemIndex  := -1;
@@ -2663,18 +2725,30 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetHeight(aValue:Integer);
+procedure TKMColumnListBox.SetHeight(aValue: Integer);
 begin
-  Inherited;
+  inherited;
   fScrollBar.Height := fHeight;
   UpdateScrollBar; //Since height has changed
 end;
 
 
-//Copy property to scrollbar. Otherwise it won't be rendered
-procedure TKMColumnListBox.SetVisible(aValue:boolean);
+procedure TKMColumnListBox.SetSortDirection(aDirection: TSortDirection);
 begin
-  Inherited;
+  fHeader.SortDirection := aDirection;
+end;
+
+
+procedure TKMColumnListBox.SetSortIndex(aIndex: Integer);
+begin
+  fHeader.SortIndex := aIndex;
+end;
+
+
+//Copy property to scrollbar. Otherwise it won't be rendered
+procedure TKMColumnListBox.SetVisible(aValue: Boolean);
+begin
+  inherited;
   fHeader.Visible := aValue;
   fScrollBar.Visible := fVisible; //Hide scrollbar and its buttons
 end;
@@ -2700,9 +2774,9 @@ begin
 end;
 
 
-procedure TKMColumnListBox.SetEnabled(aValue:boolean);
+procedure TKMColumnListBox.SetEnabled(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fHeader.Enabled := aValue;
   fScrollBar.Enabled := aValue;
 end;
@@ -2712,6 +2786,18 @@ function TKMColumnListBox.GetRow(aIndex: Integer): TKMListRow;
 begin
   Assert(InRange(aIndex, 0, fRowCount - 1));
   Result := fRows[aIndex];
+end;
+
+
+function TKMColumnListBox.GetSortDirection: TSortDirection;
+begin
+  Result := fHeader.SortDirection;
+end;
+
+
+function TKMColumnListBox.GetSortIndex: Integer;
+begin
+  Result := fHeader.SortIndex;
 end;
 
 
@@ -2790,17 +2876,42 @@ begin
 end;
 
 
-procedure TKMColumnListBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+function TKMColumnListBox.KeyDown(Key: Word; Shift: TShiftState): Boolean;
+var
+  NewIndex: Integer;
 begin
-  Inherited;
+  Result := (Key = VK_UP) or (Key = VK_DOWN);
+  if inherited KeyDown(Key, Shift) then Exit;
+
+  case Key of
+    VK_UP:    NewIndex := fItemIndex - 1;
+    VK_DOWN:  NewIndex := fItemIndex + 1;
+    else      Exit;
+  end;
+
+  if InRange(NewIndex, 0, fRowCount - 1) then
+  begin
+    fItemIndex := NewIndex;
+    if TopIndex < fItemIndex - (Height div fItemHeight) + 1 then //Moving down
+      TopIndex := fItemIndex - (Height div fItemHeight) + 1
+    else
+    if TopIndex > fItemIndex then //Moving up
+      TopIndex := fItemIndex;
+  end;
+end;
+
+
+procedure TKMColumnListBox.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
+begin
+  inherited;
   MouseMove(X,Y,Shift); //Will change Position and call OnChange event
 end;
 
 
-procedure TKMColumnListBox.MouseMove(X,Y:integer; Shift:TShiftState);
-var NewIndex:integer;
+procedure TKMColumnListBox.MouseMove(X,Y: Integer; Shift: TShiftState);
+var NewIndex: Integer;
 begin
-  Inherited;
+  inherited;
 
   if (ssLeft in Shift)
   and (InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible)))
@@ -2821,18 +2932,18 @@ begin
 end;
 
 
-procedure TKMColumnListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
+procedure TKMColumnListBox.MouseWheel(Sender: TObject; WheelDelta: Integer);
 begin
-  Inherited;
+  inherited;
   SetTopIndex(TopIndex - sign(WheelDelta));
   fScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 
 procedure TKMColumnListBox.Paint;
-var i,k,PaintWidth,ItemWidth:integer;
+var i,k,PaintWidth,ItemWidth: Integer;
 begin
-  Inherited;
+  inherited;
   if fScrollBar.Visible then
     PaintWidth := Width - fScrollBar.Width //Leave space for scrollbar
   else
@@ -2858,10 +2969,10 @@ end;
 
 
 { TKMDropBox }
-constructor TKMDropBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aDefaultCaption:string);
-var P:TKMPanel;
+constructor TKMDropBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer; aFont: TKMFont; aDefaultCaption: string);
+var P: TKMPanel;
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   fDropCount := 10;
   fDropUp := false;
@@ -2887,7 +2998,7 @@ begin
 end;
 
 
-procedure TKMDropBox.ListShow(Sender:TObject);
+procedure TKMDropBox.ListShow(Sender: TObject);
 begin
   if fList.Visible then
   begin
@@ -2909,7 +3020,7 @@ begin
 end;
 
 
-procedure TKMDropBox.ListClick(Sender:TObject);
+procedure TKMDropBox.ListClick(Sender: TObject);
 begin
   if (fList.ItemIndex <> -1) then
   begin
@@ -2920,20 +3031,20 @@ begin
 end;
 
 
-procedure TKMDropBox.ListHide(Sender:TObject);
+procedure TKMDropBox.ListHide(Sender: TObject);
 begin
   fList.Hide;
   fShape.Hide;
 end;
 
 
-function TKMDropBox.GetItemIndex:smallint;
+function TKMDropBox.GetItemIndex: smallint;
 begin
   Result := fList.ItemIndex;
 end;
 
 
-procedure TKMDropBox.SetItemIndex(aIndex:smallint);
+procedure TKMDropBox.SetItemIndex(aIndex: smallint);
 begin
   fList.ItemIndex := aIndex;
   if aIndex <> -1 then
@@ -2943,37 +3054,37 @@ begin
 end;
 
 
-procedure TKMDropBox.SetEnabled(aValue:boolean);
+procedure TKMDropBox.SetEnabled(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fButton.Enabled := aValue;
   fList.Enabled := aValue;
 end;
 
 
-procedure TKMDropBox.SetVisible(aValue:boolean);
+procedure TKMDropBox.SetVisible(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fButton.Visible := aValue;
   if not aValue then ListHide(Self);
 end;
 
 
-procedure TKMDropBox.Add(aItem:string);
+procedure TKMDropBox.Add(aItem: string);
 begin
   fList.Add(aItem);
 end;
 
 
-procedure TKMDropBox.SetItems(aText:string);
+procedure TKMDropBox.SetItems(aText: string);
 begin
   fList.SetItems(aText);
   fCaption := fDefaultCaption;
 end;
 
 
-procedure TKMDropBox.SelectByName(aText:string);
-var i:integer;
+procedure TKMDropBox.SelectByName(aText: string);
+var i: Integer;
 begin
   fList.ItemIndex := -1;
   for i:=0 to fList.Count-1 do
@@ -2982,16 +3093,16 @@ begin
 end;
 
 
-function TKMDropBox.GetItem(aIndex: integer):string;
+function TKMDropBox.GetItem(aIndex: Integer): string;
 begin
   Result := fList.Item[aIndex];
 end;
 
 
 procedure TKMDropBox.Paint;
-var Col:TColor4;
+var Col: TColor4;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
@@ -3000,10 +3111,10 @@ end;
 
 
 { TKMDropColorBox }
-constructor TKMDropColorBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aCount:integer);
-var P:TKMPanel; Size:integer;
+constructor TKMDropColorBox.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight,aCount: Integer);
+var P: TKMPanel; Size: Integer;
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   fColorIndex := 0;
   fRandomCaption := ''; //Disable random by default
@@ -3028,7 +3139,7 @@ begin
 end;
 
 
-procedure TKMDropColorBox.ListShow(Sender:TObject);
+procedure TKMDropColorBox.ListShow(Sender: TObject);
 begin
   if fSwatch.Visible then
   begin
@@ -3041,7 +3152,7 @@ begin
 end;
 
 
-procedure TKMDropColorBox.ListClick(Sender:TObject);
+procedure TKMDropColorBox.ListClick(Sender: TObject);
 begin
   fColorIndex := fSwatch.ColorIndex;
   if Assigned(fOnChange) then fOnChange(Self);
@@ -3049,30 +3160,30 @@ begin
 end;
 
 
-procedure TKMDropColorBox.ListHide(Sender:TObject);
+procedure TKMDropColorBox.ListHide(Sender: TObject);
 begin
   fSwatch.Hide;
   fShape.Hide;
 end;
 
 
-procedure TKMDropColorBox.SetEnabled(aValue:boolean);
+procedure TKMDropColorBox.SetEnabled(aValue: Boolean);
 begin
-  Inherited;
+  inherited;
   fButton.Enabled := aValue;
   fSwatch.Enabled := aValue;
 end;
 
 
 //Set ColorIndex to fSwatch as well since it holds the actual color that we use on Paint
-procedure TKMDropColorBox.SetColorIndex(aIndex:integer);
+procedure TKMDropColorBox.SetColorIndex(aIndex: Integer);
 begin
   fColorIndex := aIndex;
   fSwatch.ColorIndex := aIndex;
 end;
 
 
-procedure TKMDropColorBox.SetColors(aColors:array of TColor4; aRandomCaption:string='');
+procedure TKMDropColorBox.SetColors(aColors:array of TColor4; aRandomCaption: string='');
 begin
   //Store local copy of flag to substitute 0 color with "Random" text
   fRandomCaption := aRandomCaption;
@@ -3081,9 +3192,9 @@ end;
 
 
 procedure TKMDropColorBox.Paint;
-var Col:TColor4;
+var Col: TColor4;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteBevel(Left, Top, Width-fButton.Width, Height);
   fRenderUI.WriteLayer(Left+2, Top+1, Width-fButton.Width-3, Height-2, fSwatch.GetColor, $00);
   if (fRandomCaption <> '') and (fSwatch.ColorIndex = 0) then
@@ -3095,13 +3206,13 @@ end;
 
 
 { TKMMinimap }
-constructor TKMMinimap.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMMinimap.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 end;
 
 
-function TKMMinimap.LocalToMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
+function TKMMinimap.LocalToMapCoords(X,Y: Integer; const Inset: shortint=0): TKMPoint;
 begin
   Assert(Inset>=-1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
   Result.X := EnsureRange(X - (Left+(Width -fMapSize.X) div 2), 1+Inset, fMapSize.X-Inset);
@@ -3109,17 +3220,17 @@ begin
 end;
 
 
-procedure TKMMinimap.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMMinimap.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  Inherited;
+  inherited;
   MouseMove(X,Y,Shift);
 end;
 
 
-procedure TKMMinimap.MouseMove(X,Y:integer; Shift:TShiftState);
-var ViewPos:TKMPoint;
+procedure TKMMinimap.MouseMove(X,Y: Integer; Shift: TShiftState);
+var ViewPos: TKMPoint;
 begin
-  Inherited;
+  inherited;
 
   if ssLeft in Shift then 
   begin
@@ -3132,7 +3243,7 @@ end;
 
 procedure TKMMinimap.Paint;
 begin
-  Inherited;
+  inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   fRenderUI.RenderMinimap(Left, Top, Width, Height);
   fRenderUI.WriteRect(Left + (Width - fMapSize.X) div 2 + fViewArea.X1,
@@ -3143,9 +3254,9 @@ end;
 
 
 { TKMDragger }
-constructor TKMDragger.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMDragger.Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 begin
-  Inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
+  inherited Create(aParent, aLeft,aTop,aWidth,aHeight);
 
   //Original position is used to resrict movement
   fPositionX := 0;
@@ -3162,9 +3273,9 @@ begin
 end;
 
 
-procedure TKMDragger.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMDragger.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  Inherited;
+  inherited;
   fStartDragX := X - fPositionX;
   fStartDragY := Y - fPositionY;
 
@@ -3172,9 +3283,9 @@ begin
 end;
 
 
-procedure TKMDragger.MouseMove(X,Y:integer; Shift:TShiftState);
+procedure TKMDragger.MouseMove(X,Y: Integer; Shift: TShiftState);
 begin
-  Inherited;
+  inherited;
 
   if csDown in State then
   begin
@@ -3187,9 +3298,9 @@ begin
 end;
 
 
-procedure TKMDragger.MouseUp(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMDragger.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
-  Inherited;
+  inherited;
   MouseMove(X,Y,Shift);
 end;
 
@@ -3198,7 +3309,7 @@ procedure TKMDragger.Paint;
 var
   StateSet: TButtonStateSet;
 begin
-  Inherited;
+  inherited;
   StateSet := [];
   if (csOver in State) and fEnabled then
     StateSet := StateSet + [bsOver];
@@ -3214,7 +3325,7 @@ end;
 { TKMMasterControl }
 constructor TKMMasterControl.Create;
 begin
-  Inherited;
+  inherited;
   CtrlPaintCount := 0;
   fCtrl      := nil;
   fCtrlDown  := nil;
@@ -3231,11 +3342,11 @@ begin
   fCtrl.Free; //Will destroy all its childs as well
   if fRenderUI <> nil then
     FreeAndNil(fRenderUI);
-  Inherited;
+  inherited;
 end;
 
 
-procedure TKMMasterControl.SetCtrlDown(aCtrl:TKMControl);
+procedure TKMMasterControl.SetCtrlDown(aCtrl: TKMControl);
 begin
   if fCtrlDown <> nil then fCtrlDown.State := fCtrlDown.State - [csDown]; //Release previous
   if aCtrl <> nil then aCtrl.State := aCtrl.State + [csDown];             //Press new
@@ -3243,7 +3354,7 @@ begin
 end;
 
 
-procedure TKMMasterControl.SetCtrlFocus(aCtrl:TKMControl);
+procedure TKMMasterControl.SetCtrlFocus(aCtrl: TKMControl);
 begin
   if fCtrlFocus <> nil then fCtrlFocus.State := fCtrlFocus.State - [csFocus];
   if aCtrl <> nil then aCtrl.State := aCtrl.State + [csFocus];
@@ -3251,7 +3362,7 @@ begin
 end;
 
 
-procedure TKMMasterControl.SetCtrlOver(aCtrl:TKMControl);
+procedure TKMMasterControl.SetCtrlOver(aCtrl: TKMControl);
 begin
   if fCtrlOver <> nil then fCtrlOver.State := fCtrlOver.State - [csOver];
   if aCtrl <> nil then aCtrl.State := aCtrl.State + [csOver];
@@ -3259,12 +3370,12 @@ begin
 end;
 
 
-procedure TKMMasterControl.SetCtrlUp(aCtrl:TKMControl);
+procedure TKMMasterControl.SetCtrlUp(aCtrl: TKMControl);
 begin
   fCtrlUp := aCtrl;
   //Only TKMEdit can have focus so far,
   //when we need more focusable controls we might invent a better solution than this
-  if fCtrlUp is TKMEdit then
+  if (fCtrlUp is TKMEdit) or (fCtrlUp is TKMListBox) or (fCtrlUp is TKMColumnListBox) then
     if fCtrlDown = fCtrlUp then
       CtrlFocus := fCtrlUp
     else
@@ -3273,9 +3384,9 @@ end;
 
 
 { Recursing function to find topmost control (excl. Panels)}
-function TKMMasterControl.HitControl(X,Y:integer; aIncludeDisabled:boolean=false):TKMControl;
-  function ScanChild(P:TKMPanel; aX,aY:integer):TKMControl;
-  var i:integer;
+function TKMMasterControl.HitControl(X,Y: Integer; aIncludeDisabled: Boolean=false): TKMControl;
+  function ScanChild(P: TKMPanel; aX,aY: Integer): TKMControl;
+  var i: Integer;
   begin
     Result := nil;
     for i:=P.ChildCount downto 1 do
@@ -3294,7 +3405,7 @@ begin
 end;
 
 
-function TKMMasterControl.KeyDown(Key: Word; Shift: TShiftState):boolean;
+function TKMMasterControl.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
   if CtrlFocus <> nil then
     Result := CtrlFocus.KeyDown(Key, Shift)
@@ -3310,7 +3421,7 @@ begin
 end;
 
 
-function TKMMasterControl.KeyUp(Key: Word; Shift: TShiftState):boolean;
+function TKMMasterControl.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
   if CtrlFocus <> nil then
     Result := CtrlFocus.KeyUp(Key, Shift)
@@ -3319,14 +3430,14 @@ begin
 end;
 
 
-procedure TKMMasterControl.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMMasterControl.MouseDown(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   CtrlDown := HitControl(X,Y);
   if CtrlDown <> nil then CtrlDown.MouseDown(X,Y,Shift,Button);
 end;
 
 
-procedure TKMMasterControl.MouseMove(X,Y:Integer; Shift:TShiftState);
+procedure TKMMasterControl.MouseMove(X,Y: Integer; Shift: TShiftState);
 var HintControl: TKMControl;
 begin
   if CtrlDown = nil then CtrlOver := HitControl(X,Y); //User is dragging some Ctrl (e.g. scrollbar) and went away from Ctrl bounds
@@ -3350,7 +3461,7 @@ begin
 end;
 
 
-procedure TKMMasterControl.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+procedure TKMMasterControl.MouseUp(X,Y: Integer; Shift: TShiftState; Button: TMouseButton);
 begin
   CtrlUp := HitControl(X,Y);
 
@@ -3368,8 +3479,8 @@ begin
 end;
 
 
-procedure TKMMasterControl.MouseWheel(X,Y:integer; WheelDelta:integer);
-var C:TKMControl;
+procedure TKMMasterControl.MouseWheel(X,Y: Integer; WheelDelta: Integer);
+var C: TKMControl;
 begin
   C := HitControl(X,Y);
   if C <> nil then C.MouseWheel(C,WheelDelta);
@@ -3388,8 +3499,8 @@ begin
 end;
 
 
-procedure TKMMasterControl.SaveToFile(aFileName:string);
-var ft:textfile;
+procedure TKMMasterControl.SaveToFile(aFileName: string);
+var ft: Textfile;
 begin
   AssignFile(ft,aFileName);
   Rewrite(ft);

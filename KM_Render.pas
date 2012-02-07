@@ -386,19 +386,18 @@ end;
 
 procedure TRender.RenderTerrainFieldBorders(aRect: TKMRect);
 var
-  i,k:integer;
-  F: TFieldType;
+  I,K: Integer;
   BordersList: TKMPointDirList;
   FieldsList, TabletsList: TKMPointTagList;
 begin
-  for i := aRect.Y1 to aRect.Y2 do
-  for k := aRect.X1 to aRect.X2 do
+  for I := aRect.Y1 to aRect.Y2 do
+  for K := aRect.X1 to aRect.X2 do
   with fTerrain do
   begin
-    if Land[i,k].BorderTop then RenderTerrainBorder(Land[i,k].Border,dir_N,k,i);
-    if Land[i,k].BorderLeft then RenderTerrainBorder(Land[i,k].Border,dir_E,k,i);
-    if Land[i,k].BorderRight then RenderTerrainBorder(Land[i,k].Border,dir_W,k,i);
-    if Land[i,k].BorderBottom then RenderTerrainBorder(Land[i,k].Border,dir_S,k,i);
+    if Land[I,K].BorderTop then RenderTerrainBorder(Land[I,K].Border, dir_N, K, I);
+    if Land[I,K].BorderLeft then RenderTerrainBorder(Land[I,K].Border, dir_E, K, I);
+    if Land[I,K].BorderRight then RenderTerrainBorder(Land[I,K].Border, dir_W, K, I);
+    if Land[I,K].BorderBottom then RenderTerrainBorder(Land[I,K].Border, dir_S, K, I);
   end;
 
   //@Lewin: Since plans are per-player now, what do we do about allies that:

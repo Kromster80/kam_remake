@@ -33,6 +33,8 @@ Features:
  +	Switching to fullscreen causes banding if drivers report unsupported refresh rates (add manual refresh rate selector to options) [Jimmy]
  +	Maps scan should be done in separate thread to unlock GUI
  +	Markups should only be visible on you and your allies screen (move markups from terrain to player)
+ +	Allow listboxes to handle up/down arrows
+ +	Add sort indicators to listboxes
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
 	Ctrl+C/V to copy chat messages with e.g. links or quotes
 	Edges of messages and other scrolls should be transparent so they look smooth
@@ -63,7 +65,6 @@ Features:
 	Some way to delete multiplayer saves from within the KaM Remake
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
 	Saves scan should be done in separate thread to unlock GUI
-	Allow listboxes to handle up/down arrows
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

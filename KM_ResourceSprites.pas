@@ -776,7 +776,7 @@ end;
 
 
 //Try to load RXX first, then RX, then use Folder
-procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows:boolean);
+procedure TKMSprites.LoadSprites(aRT: TRXType; aAlphaShadows: Boolean);
 begin
   if aAlphaShadows and FileExists(ExeDir + 'data\sprites\' + RXInfo[aRT].FileName + '_a.rxx') then
   begin
