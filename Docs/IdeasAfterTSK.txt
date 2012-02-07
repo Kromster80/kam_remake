@@ -20,20 +20,15 @@ Support bigger maps (512x512)
 
 neverending resources
 
-forced peace for first 0/30min/1hour in MP games
-
-Walls building
-wooden and stone
+Walls building (wooden and stone)
 
 Trophies. Award player with trophies for certain actions (won TSK, won TPR, killed 10000 enemies, made 10000 wine barrels, Explored every tile, etc.)
 
-Orders to plant/chop trees, or checkboxes to toggle planting and chopping in the woodcutter's hut
-
-Way to automatically feed troops when they become hungry if the player has been idle
-
-On/Off switch for unit (citizen) interaction
+On/Off cheat for unit (citizen) interaction
 
 Worker "teams" to be assigned to jobs, so you can be building in two places without workers running between
+
+Geologist unit, that would go around mountains and coalmines and discover small new deposits of resources
 
 Take resources from captured enemy storehouses (or your ally's storehouse if he is defeated in multiplayer)
 
@@ -58,5 +53,5 @@ clocktower (with working clocks showing real time and a bell),
 well (no idea),
 tavern (shows gossip info on enemies),
 training grounds for army (promote soldiers to veterans without combat),
-marketplace (converts resources at rediculously high ratios, e.g. 10wood=1gold), 
+
 church (ring the bell and your citizens/serfs hide inside while your village is being attacked, each church fits 20 units)
