@@ -1630,27 +1630,24 @@ const
 var
   I: Integer;
   DisplayName: string;
-  ServerFound: Boolean;
   S: TKMServerInfo;
   R: TKMRoomInfo;
 begin
-  ServerFound := False;
   ColList_Servers.Clear;
 
+  if fGame.Networking.ServerQuery.Rooms.Count = 0 then
+    ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS], '', '', ''], [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF], -1)
+  else
   for I := 0 to fGame.Networking.ServerQuery.Rooms.Count - 1 do
   begin
     R := fGame.Networking.ServerQuery.Rooms[I];
     S := fGame.Networking.ServerQuery.Servers[R.ServerIndex];
 
-    ServerFound := True;
     //Only show # if Server has more than 1 Room
     DisplayName := IfThen(R.OnlyRoom, S.Name, S.Name + ' #' + IntToStr(R.RoomID + 1));
     ColList_Servers.AddItem([DisplayName, fTextLibrary[GameStateTextIDs[R.GameInfo.GameState]], IntToStr(R.PlayerCount), IntToStr(S.Ping)],
                             [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, GetPingColor(S.Ping)], I);
   end;
-
-  if not ServerFound then
-    ColList_Servers.AddItem([fTextLibrary[TX_MP_MENU_NO_SERVERS], '', '', ''], [$FFFFFFFF, $FFFFFFFF, $FFFFFFFF, $FFFFFFFF], -1);
 end;
 
 
@@ -1688,7 +1685,8 @@ begin
   end;
 
   //Refresh the display only if there are rooms to be sorted (otherwise it shows "no servers found" immediately)
-  if fGame.Networking.ServerQuery.Rooms.Count > 0 then MP_ServersUpdateList(nil);
+  if fGame.Networking.ServerQuery.Rooms.Count > 0 then
+    MP_ServersUpdateList(nil);
 end;
 
 
