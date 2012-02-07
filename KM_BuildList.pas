@@ -57,8 +57,8 @@ type
     procedure ReOpenPlan(aIndex: Integer); //Worker has died while walking to the Field, allow other worker to take the task
     procedure ClosePlan(aIndex: Integer); //Worker has finished the task
 
-    procedure GetBorders(aList: TKMPointDirList; x1,x2,y1,y2: Integer);
-    procedure GetTablets(aList: TKMPointTagList; x1,x2,y1,y2: Integer);
+    procedure GetBorders(aList: TKMPointDirList; aRect: TKMRect);
+    procedure GetTablets(aList: TKMPointTagList; aRect: TKMRect);
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
@@ -575,47 +575,54 @@ begin
 end;
 
 
-procedure TKMHousePlanList.GetBorders(aList: TKMPointDirList; x1, x2, y1, y2: Integer);
-const Ins = 2;
+procedure TKMHousePlanList.GetBorders(aList: TKMPointDirList; aRect: TKMRect);
 var
   I,J,K: Integer;
+  Rect: TKMRect;
   HA: THouseArea;
 begin
+  //Expand the Rect by 2 to include plans near Rect borders
+  Rect := KMRectGrow(aRect, 2);
+
+  //Test all plans. We use Loc-2 to test plans centers
   for I := 0 to fPlansCount - 1 do
-  if (fPlans[I].HouseType <> ht_None)
-     and InRange(fPlans[I].Loc.X - 2, x1-Ins, x2+Ins)
-     and InRange(fPlans[I].Loc.Y - 2, y1-Ins, y2+Ins) then
-  begin
-    HA := fResource.HouseDat[fPlans[I].HouseType].BuildArea;
-
-    for J:=1 to 4 do for K:=1 to 4 do
-    if HA[J,K] <> 0 then
+    if (fPlans[I].HouseType <> ht_None)
+    and InRange(fPlans[I].Loc.X - 2, Rect.X1, Rect.X2)
+    and InRange(fPlans[I].Loc.Y - 2, Rect.Y1, Rect.Y2) then
     begin
-      if (J = 1) or (HA[J-1, K] = 0) then
-        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
+      HA := fResource.HouseDat[fPlans[I].HouseType].BuildArea;
 
-      if (K = 1) or (HA[J, K-1] = 0) then
-        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
+      for J := 1 to 4 do for K := 1 to 4 do
+      if HA[J,K] <> 0 then
+      begin
+        if (J = 1) or (HA[J-1, K] = 0) then
+          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_N));
 
-      if (J = 4) or (HA[J+1, K] = 0) then
-        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
+        if (K = 1) or (HA[J, K-1] = 0) then
+          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_E));
 
-      if (K = 4) or (HA[J, K+1] = 0) then
-        aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
+        if (J = 4) or (HA[J+1, K] = 0) then
+          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_S));
+
+        if (K = 4) or (HA[J, K+1] = 0) then
+          aList.AddItem(KMPointDir(fPlans[I].Loc.X + K - 3, fPlans[I].Loc.Y + J - 4, dir_W));
+      end;
     end;
-  end;
 end;
 
 
-procedure TKMHousePlanList.GetTablets(aList: TKMPointTagList; x1, x2, y1, y2: Integer);
-const Ins = 2;
+procedure TKMHousePlanList.GetTablets(aList: TKMPointTagList; aRect: TKMRect);
 var
   I: Integer;
+  Rect: TKMRect;
 begin
+  //Expand the Rect by 2 to include tablets near Rect borders
+  Rect := KMRectGrow(aRect, 2);
+
   for I := 0 to fPlansCount - 1 do
   if (fPlans[I].HouseType <> ht_None)
-     and InRange(fPlans[I].Loc.X - 2, x1-Ins, x2+Ins)
-     and InRange(fPlans[I].Loc.Y - 2, y1-Ins, y2+Ins) then
+  and InRange(fPlans[I].Loc.X - 2, Rect.X1, Rect.X2)
+  and InRange(fPlans[I].Loc.Y - 2, Rect.Y1, Rect.Y2) then
     aList.AddEntry(KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y), Byte(fPlans[I].HouseType), 0);
 end;
 

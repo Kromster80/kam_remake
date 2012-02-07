@@ -2067,17 +2067,16 @@ end;
 
 
 procedure TKMUnitsCollection.Paint;
-var i:integer; x1,x2,y1,y2:smallint; Margin:shortint;
+const Margin = 2;
+var
+  I: Integer;
+  Rect: TKMRect;
 begin
-  if TEST_VIEW_CLIP_INSET then Margin:=-1 else Margin:=1;
-  x1 := fGame.Viewport.GetClip.Left - Margin;
-  x2 := fGame.Viewport.GetClip.Right + Margin;
-  y1 := fGame.Viewport.GetClip.Top - Margin;
-  y2 := fGame.Viewport.GetClip.Bottom + Margin*3; //There might be units standing on tall hills below
+  //Add additional margin to compensate for units height
+  Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
 
-  for i:=0 to Count-1 do
-  if (Items[i] <> nil) and (not Units[i].IsDead) then
-  if (InRange(Units[i].fPosition.X,x1,x2) and InRange(Units[i].fPosition.Y,y1,y2)) then
+  for I := 0 to Count - 1 do
+  if (Items[I] <> nil) and not Units[I].IsDead and KMInRect(Units[I].fPosition, Rect) then
     Units[i].Paint;
 end;
 

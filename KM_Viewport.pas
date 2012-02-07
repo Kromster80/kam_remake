@@ -31,8 +31,8 @@ type
     procedure ResetZoom;
     procedure Resize(NewWidth, NewHeight: Integer);
     procedure ResizeMap(aMapX, aMapY: Integer);
-    function GetClip: TRect; //returns visible area dimensions in map space
-    function GetMinimapClip: TRect;
+    function GetClip: TKMRect; //returns visible area dimensions in map space
+    function GetMinimapClip: TKMRect;
     procedure ReleaseScrollKeys;
 
     procedure Save(SaveStream: TKMemoryStream);
@@ -116,28 +116,26 @@ end;
 
 
 //Acquire boundaries of area visible to user (including mountain tops from the lower tiles)
-//TestViewportClipInset is for debug, allows to see if all gets clipped well
-function TViewport.GetClip:TRect;
+//TestViewportClipInset is for debug, allows to see if everything gets clipped correct
+function TViewport.GetClip: TKMRect;
 begin
-  Result.Left   := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom),1);
-  Result.Right  := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fMapX-1);
-  Result.Top    := Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom),1);
-  Result.Bottom := Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+4,fMapY-1);
-  if not TEST_VIEW_CLIP_INSET then exit;
-  inc(Result.Left,4);
-  dec(Result.Right,4);
-  inc(Result.Top,4);
-  dec(Result.Bottom,7);
+  Result.X1 := Math.max(Round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom), 1);
+  Result.X2 := Math.min(Round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, fMapX-1);
+  Result.Y1 := Math.max(Round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom), 1);
+  Result.Y2 := Math.min(Round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+4, fMapY-1);
+
+  if TEST_VIEW_CLIP_INSET then
+    Result := KMRectGrow(Result, -5);
 end;
 
 
 //Same as above function but with some values changed to suit minimap
-function TViewport.GetMinimapClip:TRect;
+function TViewport.GetMinimapClip: TKMRect;
 begin
-  Result.Left   := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,1);
-  Result.Right  := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1,fMapX);
-  Result.Top    := Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+2,1);
-  Result.Bottom := Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom),fMapY);
+  Result.X1 := Math.max(round(fPosition.X-(fViewportClip.X/2-fViewRect.Left+TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, 1);
+  Result.X2 := Math.min(round(fPosition.X+(fViewportClip.X/2+fViewRect.Left-TOOLBAR_WIDTH)/CELL_SIZE_PX/fZoom)+1, fMapX);
+  Result.Y1 := Math.max(round(fPosition.Y-fViewportClip.Y/2/CELL_SIZE_PX/fZoom)+2, 1);
+  Result.Y2 := Math.min(round(fPosition.Y+fViewportClip.Y/2/CELL_SIZE_PX/fZoom), fMapY);
 end;
 
 

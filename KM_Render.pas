@@ -55,15 +55,15 @@ type
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
-    procedure RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
-    procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
-    procedure RenderTerrainObjects(x1,x2,y1,y2:Integer; AnimStep: Cardinal);
+    procedure RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
+    procedure RenderTerrainFieldBorders(aRect: TKMRect);
+    procedure RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderCursorHighlights;
     procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
     procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
-    procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
+    procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
 
     procedure RenderBrightness(Value: Byte);
   public
@@ -223,7 +223,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainTiles(x1,x2,y1,y2,AnimStep:integer);
+procedure TRender.RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
   procedure LandLight(a:single);
   begin
     glColor4f(a/1.5+0.5,a/1.5+0.5,a/1.5+0.5,Abs(a*2)); //Balanced looks
@@ -246,7 +246,8 @@ begin
     end;
     glBegin(GL_QUADS);
       with fTerrain do
-      for i:=y1 to y2 do for k:=x1 to x2 do
+      for i := aRect.Y1 to aRect.Y2 do
+      for k := aRect.X1 to aRect.X2 do
       if (iW=1) or (MyPlayer.FogOfWar.CheckTileRevelation(k,i,true) > FOG_OF_WAR_ACT) then //No animation in FOW
       begin
         xt := fTerrain.Land[i,k].Terrain;
@@ -299,7 +300,8 @@ begin
 
   glColor4f(1,1,1,1);
 
-  for i:=y1 to y2 do for k:=x1 to x2 do
+  for i := aRect.Y1 to aRect.Y2 do
+  for k := aRect.X1 to aRect.X2 do
   begin
     case fTerrain.Land[i,k].TileOverlay of
       to_Dig1: RenderTile(249,k,i,0);
@@ -328,7 +330,8 @@ begin
   glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
   glBegin(GL_QUADS);
   with fTerrain do
-  for i:=y1 to y2 do for k:=x1 to x2 do
+  for i := aRect.Y1 to aRect.Y2 do
+  for k := aRect.X1 to aRect.X2 do
     if RENDER_3D then begin
       glTexCoord1f(max(0,Land[i  ,k  ].Light)); glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(max(0,Land[i+1,k  ].Light)); glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
@@ -347,7 +350,8 @@ begin
   glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextG);
   glBegin(GL_QUADS);
     with fTerrain do
-    for i:=y1 to y2 do for k:=x1 to x2 do
+    for i := aRect.Y1 to aRect.Y2 do
+    for k := aRect.X1 to aRect.X2 do
     if RENDER_3D then begin
       glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-MyPlayer.FogOfWar.CheckVerticeRevelation(k,i,true)/255));
       glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
@@ -373,21 +377,22 @@ begin
   glBindTexture(GL_TEXTURE_2D, 0);
 
   if SHOW_WALK_CONNECT then
-  for i:=y1 to y2 do for k:=x1 to x2 do
+  for i := aRect.Y1 to aRect.Y2 do
+  for k := aRect.X1 to aRect.X2 do
   with fTerrain.Land[i,k] do
     fRenderAux.Quad(k, i, WalkConnect[wcWalk] * 32 + (WalkConnect[wcRoad] * 32) shl 8 or $80000000);
 end;
 
 
-procedure TRender.RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
+procedure TRender.RenderTerrainFieldBorders(aRect: TKMRect);
 var
   i,k:integer;
   F: TFieldType;
   BordersList: TKMPointDirList;
   TabletsList: TKMPointTagList;
 begin
-  for i:=y1 to y2 do
-  for k:=x1 to x2 do
+  for i := aRect.Y1 to aRect.Y2 do
+  for k := aRect.X1 to aRect.X2 do
   with fTerrain do
   begin
     if Land[i,k].BorderTop then RenderTerrainBorder(Land[i,k].Border,dir_N,k,i);
@@ -405,26 +410,26 @@ begin
   // - have plans/tablets on exact same spot
 
   BordersList := TKMPointDirList.Create;
-  MyPlayer.BuildList.HousePlanList.GetBorders(BordersList, x1,x2,y1,y2);
+  MyPlayer.GetPlansBorders(BordersList, aRect);
   for i := 0 to BordersList.Count - 1 do
     RenderTerrainBorder(bt_HousePlan, BordersList[i].Dir, BordersList[i].Loc.X, BordersList[i].Loc.Y);
   BordersList.Free;
 
   TabletsList := TKMPointTagList.Create;
-  MyPlayer.BuildList.HousePlanList.GetTablets(TabletsList, x1,x2,y1,y2);
+  MyPlayer.GetPlansTablets(TabletsList, aRect);
   for i := 1 to TabletsList.Count do
     fRender.AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList.List[i]);
   TabletsList.Free;
 end;
 
 
-procedure TRender.RenderTerrainObjects(x1,x2,y1,y2:Integer; AnimStep: Cardinal);
+procedure TRender.RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 var I,K: Integer;
 begin
-  for i := y1 to y2 do
-    for k := x1 to x2 do
-      if fTerrain.Land[I,K].Obj <> 255 then
-        RenderObjectOrQuad(fTerrain.Land[i, k].Obj + 1, AnimStep, k, i);
+  for i := aRect.Y1 to aRect.Y2 do
+  for k := aRect.X1 to aRect.X2 do
+    if fTerrain.Land[I,K].Obj <> 255 then
+      RenderObjectOrQuad(fTerrain.Land[i, k].Obj + 1, AnimStep, k, i);
 
   with fTerrain.FallingTrees do
     for i := 1 to Count do
@@ -918,34 +923,31 @@ end;
 
 procedure TRender.RenderTerrain;
 var
-  x1, x2, y1, y2: integer;
+  Rect: TKMRect;
   Passability: integer;
 begin
-  x1 := fGame.Viewport.GetClip.Left;
-  x2 := fGame.Viewport.GetClip.Right;
-  y1 := fGame.Viewport.GetClip.Top;
-  y2 := fGame.Viewport.GetClip.Bottom;
+  Rect := fGame.Viewport.GetClip;
 
-  fRender.RenderTerrainTiles(x1, x2, y1, y2, fTerrain.AnimStep);
-  fRender.RenderTerrainFieldBorders(x1, x2, y1, y2);
-  fRender.RenderTerrainObjects(x1, x2, y1, y2, fTerrain.AnimStep);
+  fRender.RenderTerrainTiles(Rect, fTerrain.AnimStep);
+  fRender.RenderTerrainFieldBorders(Rect);
+  fRender.RenderTerrainObjects(Rect, fTerrain.AnimStep);
 
   if not fGame.AllowDebugRendering then
     exit;
 
   if SHOW_TERRAIN_WIRES then
-    fRenderAux.Wires(x1, x2, y1, y2);
+    fRenderAux.Wires(Rect);
 
   if SHOW_TERRAIN_WIRES then
   begin
     Passability := fGame.FormPassability;
     if fGame.fMapEditorInterface <> nil then
       Passability := max(Passability, fGame.fMapEditorInterface.ShowPassability);
-    fRenderAux.Passability(x1, x2, y1, y2, Passability);
+    fRenderAux.Passability(Rect, Passability);
   end;
 
   if SHOW_UNIT_MOVEMENT then
-    fRenderAux.UnitMoves(x1, x2, y1, y2);
+    fRenderAux.UnitMoves(Rect);
 end;
 
 

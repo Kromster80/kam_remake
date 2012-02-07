@@ -766,14 +766,14 @@ type
   TKMMinimap = class(TKMControl)
   private
     fMapSize: TKMPoint;
-    fViewArea: TRect;
+    fViewArea: TKMRect;
     fOnChange: TPointEvent;
   public
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 
     function LocalToMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
     property MapSize: TKMPoint read fMapSize write fMapSize;
-    property ViewArea: TRect read fViewArea write fViewArea;
+    property ViewArea: TKMRect read fViewArea write fViewArea;
     property OnChange: TPointEvent write fOnChange;
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
@@ -3133,12 +3133,12 @@ end;
 procedure TKMMinimap.Paint;
 begin
   Inherited;
-  fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.RenderMinimap(Left,Top,Width,Height);
-  fRenderUI.WriteRect(Left + (Width-fMapSize.X) div 2 + fViewArea.Left,
-                      Top  + (Height-fMapSize.Y) div 2 + fViewArea.Top,
-                      fViewArea.Right-fViewArea.Left,
-                      fViewArea.Bottom-fViewArea.Top, 1, $FFFFFFFF);
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+  fRenderUI.RenderMinimap(Left, Top, Width, Height);
+  fRenderUI.WriteRect(Left + (Width - fMapSize.X) div 2 + fViewArea.X1,
+                      Top  + (Height - fMapSize.Y) div 2 + fViewArea.Y1,
+                      fViewArea.X2 - fViewArea.X1,
+                      fViewArea.Y2 - fViewArea.Y1, 1, $FFFFFFFF);
 end;
 
 

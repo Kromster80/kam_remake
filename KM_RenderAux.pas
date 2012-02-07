@@ -15,14 +15,14 @@ type
   public
     procedure Circle(x,y,rad:single; Fill,Line:TColor4);
     procedure Dot(X,Y:single; aCol:TColor4);
-    procedure Passability(x1,x2,y1,y2:integer; Passability:integer);
+    procedure Passability(aRect: TKMRect; Passability:integer);
     procedure Projectile(x1,y1,x2,y2:single);
     procedure Quad(pX,pY:integer; aCol:TColor4);
     procedure Text(pX,pY:integer; aText:string; aCol:TColor4);
-    procedure UnitMoves(x1,x2,y1,y2:integer);
+    procedure UnitMoves(aRect: TKMRect);
     procedure UnitPointers(pX,pY:single; Count:integer);
     procedure UnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
-    procedure Wires(x1,x2,y1,y2:integer);
+    procedure Wires(aRect: TKMRect);
   end;
 
 
@@ -107,20 +107,21 @@ begin
 end;
 
 
-procedure TRenderAux.Passability(x1,x2,y1,y2:integer; Passability:integer);
-var i,k:integer;
+procedure TRenderAux.Passability(aRect: TKMRect; Passability: Integer);
+var I,K: Integer;
 begin
   if Passability <> 0 then
   begin
     glColor4f(0,1,0,0.25);
-    for i:=y1 to y2 do for k:=x1 to x2 do
+    for I := aRect.Y1 to aRect.Y2 do
+    for K := aRect.X1 to aRect.X2 do
       {$IFDEF WDC}
-      if word(fTerrain.Land[i,k].Passability) AND (1 shl Passability) = (1 shl Passability) then
+      if Word(fTerrain.Land[I,K].Passability) AND (1 shl Passability) = (1 shl Passability) then
       {$ENDIF}
       {$IFDEF FPC} //Can't accept word
-      if integer(fTerrain.Land[i,k].Passability) AND (1 shl Passability) = (1 shl Passability) then
+      if Integer(fTerrain.Land[I,K].Passability) AND (1 shl Passability) = (1 shl Passability) then
       {$ENDIF}
-        RenderQuad(k,i);
+        RenderQuad(K,I);
   end;
 end;
 
@@ -150,18 +151,22 @@ begin
 end;
 
 
-procedure TRenderAux.UnitMoves(x1,x2,y1,y2:integer);
-var i,k:integer; VertexUsage: byte;
+procedure TRenderAux.UnitMoves(aRect: TKMRect);
+var I,K: Integer; VertexUsage: Byte;
 begin
-  for i:=y1 to y2 do for k:=x1 to x2 do begin
-    if fTerrain.Land[i,k].IsVertexUnit<>vu_None then begin
-      VertexUsage := byte(fTerrain.Land[i,k].IsVertexUnit);
-      glColor4f(1-VertexUsage/3,VertexUsage/3,0.6,0.8);
-      RenderDot(k,i-fTerrain.InterpolateLandHeight(k,i)/CELL_HEIGHT_DIV,0.3);
+  for I := aRect.Y1 to aRect.Y2 do
+  for K := aRect.X1 to aRect.X2 do
+  begin
+    if fTerrain.Land[I,K].IsVertexUnit <> vu_None then
+    begin
+      VertexUsage := byte(fTerrain.Land[I,K].IsVertexUnit);
+      glColor4f(1-VertexUsage/3, VertexUsage/3, 0.6, 0.8);
+      RenderDot(K, I-fTerrain.InterpolateLandHeight(K,I)/CELL_HEIGHT_DIV, 0.3);
     end;
-    if fTerrain.Land[i,k].IsUnit<>nil then begin
-      glColor4f(0.17,0.83,0,0.8);
-      RenderQuad(k,i);
+    if fTerrain.Land[I,K].IsUnit <> nil then
+    begin
+      glColor4f(0.17, 0.83, 0, 0.8);
+      RenderQuad(K,I);
     end;
   end;
 end;
@@ -209,12 +214,14 @@ begin
 end;
 
 
-procedure TRenderAux.Wires(x1,x2,y1,y2:integer);
+procedure TRenderAux.Wires(aRect: TKMRect);
 var i,k:integer;
 begin
-  for i:=y1 to y2 do begin
+  for I := aRect.Y1 to aRect.Y2 do
+  begin
     glBegin(GL_LINE_STRIP);
-    for k:=x1 to x2 do begin
+    for K := aRect.X1 to aRect.X2 do
+    begin
       glColor4f(0.8,1,0.6,1);
       glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
     end;
@@ -224,7 +231,9 @@ begin
   glPushAttrib(GL_POINT_BIT);
     glPointSize(3);
     glBegin(GL_POINTS);
-    for i:=y1 to y2 do for k:=x1 to x2 do begin
+    for I := aRect.Y1 to aRect.Y2 do
+    for K := aRect.X1 to aRect.X2 do
+    begin
       //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
       glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);
       glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);

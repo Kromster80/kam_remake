@@ -2304,38 +2304,34 @@ end;
 
 
 procedure TKMHousesCollection.IncAnimStep;
-var i:integer;
+var I: Integer;
 begin
-  for i := 0 to Count - 1 do
-    Houses[i].IncAnimStep;
+  for I := 0 to Count - 1 do
+    Houses[I].IncAnimStep;
 end;
 
 
-function TKMHousesCollection.GetTotalPointers: integer;
-var i:integer;
+function TKMHousesCollection.GetTotalPointers: Integer;
+var I: Integer;
 begin
   Result := 0;
-  for i:=0 to Count-1 do
-    Result := Result + Houses[i].PointerCount;
+  for I := 0 to Count - 1 do
+    Result := Result + Houses[I].PointerCount;
 end;
 
 
 procedure TKMHousesCollection.Paint;
-var i:integer; x1,x2,y1,y2,Margin:integer;
+const Margin = 3;
+var
+  I: Integer;
+  Rect: TKMRect;
 begin
-  if TEST_VIEW_CLIP_INSET then
-    Margin := -3
-  else
-    Margin := 3;
+  //Compensate for big houses near borders or standing on hills
+  Rect := KMRectGrow(fGame.Viewport.GetClip, Margin);
 
-  x1 := fGame.Viewport.GetClip.Left - Margin;  x2 := fGame.Viewport.GetClip.Right  + Margin;
-  y1 := fGame.Viewport.GetClip.Top  - Margin;  y2 := fGame.Viewport.GetClip.Bottom + Margin;
-
-  for i := 0 to Count - 1 do
-  if not Houses[i].IsDestroyed
-  and InRange(Houses[i].fPosition.X, x1, x2)
-  and InRange(Houses[i].fPosition.Y, y1, y2) then
-    Houses[i].Paint;
+  for I := 0 to Count - 1 do
+  if not Houses[I].IsDestroyed and KMInRect(Houses[I].fPosition, Rect) then
+    Houses[I].Paint;
 end;
 
 

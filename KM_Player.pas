@@ -111,6 +111,8 @@ type
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
+    procedure GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect);
+    procedure GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
 
     procedure Save(SaveStream: TKMemoryStream); override;
     procedure Load(LoadStream: TKMemoryStream); override;
@@ -548,6 +550,20 @@ begin
   for k := 1 to fTerrain.MapX do
     if fTerrain.Land[i,k].TileOwner = fPlayerIndex then
       inc(Result);
+end;
+
+
+procedure TKMPlayer.GetPlansBorders(aList: TKMPointDirList; aRect: TKMRect);
+begin
+  fBuildList.HousePlanList.GetBorders(aList, aRect);
+  //todo: Include allies borders
+end;
+
+
+procedure TKMPlayer.GetPlansTablets(aList: TKMPointTagList; aRect: TKMRect);
+begin
+  fBuildList.HousePlanList.GetTablets(aList, aRect);
+  //todo: Include allies tablets
 end;
 
 
