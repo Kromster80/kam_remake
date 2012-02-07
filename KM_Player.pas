@@ -35,7 +35,7 @@ type
   end;
 
 
-  TKMPlayer = class (TKMPlayerCommon)
+  TKMPlayer = class(TKMPlayerCommon)
   private
     fAI: TKMPlayerAI;
     fBuildList: TKMBuildList; //Not the best name for buildingManagement
@@ -135,7 +135,7 @@ uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound,
 { TKMPlayerCommon }
 constructor TKMPlayerCommon.Create(aPlayerIndex: TPlayerIndex);
 begin
-  Inherited Create;
+  inherited Create;
   fPlayerIndex  := aPlayerIndex;
   fUnits        := TKMUnitsCollection.Create;
 end;
@@ -144,7 +144,7 @@ end;
 destructor TKMPlayerCommon.Destroy;
 begin
   FreeThenNil(fUnits);
-  Inherited;
+  inherited;
 end;
 
 
@@ -203,9 +203,9 @@ end;
 
 { TKMPlayer }
 constructor TKMPlayer.Create(aPlayerIndex: TPlayerIndex);
-var i: integer;
+var I: Integer;
 begin
-  Inherited Create (aPlayerIndex);
+  inherited Create(aPlayerIndex);
   fAI           := TKMPlayerAI.Create(fPlayerIndex);
   fFogOfWar     := TKMFogOfWar.Create(fTerrain.MapX, fTerrain.MapY);
   fGoals        := TKMGoals.Create;
@@ -213,16 +213,16 @@ begin
   fRoadsList    := TKMPointList.Create;
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
-  fBuildList   := TKMBuildList.Create;
+  fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
 
   fPlayerName   := 'Player ' + IntToStr(aPlayerIndex);
   fPlayerType   := pt_Computer;
-  for i:=0 to MAX_PLAYERS-1 do
-    fAlliances[i] := at_Enemy; //Everyone is enemy by default
+  for I := 0 to MAX_PLAYERS - 1 do
+    fAlliances[I] := at_Enemy; //Everyone is enemy by default
 
-  fSkipWinConditionCheck := false;
-  fSkipDefeatConditionCheck := false;
+  fSkipWinConditionCheck := False;
+  fSkipDefeatConditionCheck := False;
   fFlagColor := DefaultTeamColors[fPlayerIndex]; //Init with default color, later replaced by Script
 end;
 
@@ -231,12 +231,12 @@ end;
 //Stats/Deliveries and other collection in their Destroy/Abandon/Demolish methods
 destructor TKMPlayer.Destroy;
 begin
-  Inherited;
+  inherited; //Free fUnits first
   FreeThenNil(fArmyEval);
   FreeThenNil(fRoadsList);
   FreeThenNil(fHouses);
 
-  //Should be freed after Houses and Units, as they write to it on Destroy
+  //Should be freed after Houses and Units, as they write Stats on Destroy
   FreeThenNil(fStats);
   FreeThenNil(fGoals);
   FreeThenNil(fFogOfWar);
@@ -322,15 +322,19 @@ end;
 
 //Lay out all roads at once to save time on Terrain lighting/passability recalculations
 procedure TKMPlayer.AfterMissionInit(aFlattenRoads: Boolean);
-var i : Integer;
+var I: Integer;
 begin
-  if fRoadsList<>nil then begin
-    fTerrain.SetRoads(fRoadsList,fPlayerIndex);
-    if aFlattenRoads then fTerrain.FlattenTerrain(fRoadsList);
+  if fRoadsList <> nil then
+  begin
+    fTerrain.SetRoads(fRoadsList, fPlayerIndex);
+    if aFlattenRoads then
+      fTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);
   end;
-  for i := 0 to fPlayers.Count-1 do
-    if fPlayerIndex <> i then fArmyEval.AddEnemy(fPlayers[i]);
+
+  for I := 0 to fPlayers.Count - 1 do
+    if fPlayerIndex <> I then
+      fArmyEval.AddEnemy(fPlayers[I]);
 end;
 
 
@@ -474,23 +478,23 @@ end;
 function TKMPlayer.FindInn(Loc: TKMPoint; aUnit: TKMUnit; UnitIsAtHome: Boolean=false): TKMHouseInn;
 var
   H: TKMHouseInn;
-  i: integer;
-  Dist, BestMatch: single;
+  I: Integer;
+  Dist, BestMatch: Single;
 begin
   //This function will return the best inn for a unit at Loc, base on distance, food available and space available.
   //Will return nil if no suitable inn is available
   Result := nil;
-  i:=1;
+  I := 1;
   BestMatch := 9999;
   if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
 
   H := TKMHouseInn(FindHouse(ht_Inn));
   repeat
     //First make sure that it is valid
-    if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointBelow(H.GetEntrance),aUnit.GetDesiredPassability(true),0, false)) then
+    if (H <> nil) and H.HasFood and H.HasSpace and fTerrain.Route_CanBeMade(Loc, KMPointBelow(H.GetEntrance), aUnit.GetDesiredPassability(True), 0, False) then
     begin
       //Take the closest inn out of the ones that are suitable
-      Dist := GetLength(H.GetPosition,Loc);
+      Dist := GetLength(H.GetPosition, Loc);
       if Dist < BestMatch then
       begin
         Result := H;
@@ -498,8 +502,8 @@ begin
       end;
     end;
 
-    inc(i);
-    H:=TKMHouseInn(FindHouse(ht_Inn,i));
+    inc(I);
+    H := TKMHouseInn(FindHouse(ht_Inn, I));
   until(H = nil);
 end;
 
@@ -671,7 +675,7 @@ end;
 
 procedure TKMPlayer.SyncLoad;
 begin
-  Inherited;
+  inherited;
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
   fBuildList.SyncLoad;
@@ -705,7 +709,7 @@ end;
 
 procedure TKMPlayer.Paint;
 begin
-  Inherited;
+  inherited;
   fHouses.Paint;
 end;
 
