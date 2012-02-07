@@ -11,8 +11,9 @@
  +	Major A* pathfinding mistake from r1220 causing long/inefficient routes to be calculated
  +	On slow computers first-time loading takes >20 seconds, meaning you are kicked from multiplayer games by the server
  +	Fixed crash occurring on replay end
+ +	Chat button in multiplayer replay viewer was not properly disabled and upon click caused a crash
 	Player count for a room should come from host, not the number of clients the server knows about (count can be wrong due to queriers)
-	The multiplayer in-game player list should be ordered by teams
+	The multiplayer in-game player list should be ordered (grouped) by teams
 	Resource harvesting and deliveries should use the actual walking route length (opposed to Radius)
 	Maybe archers attacked by archers should not try to walk towards enemies
 	Enemies begin to fight back when arrows are shot, not when first arrow hits the unit
@@ -62,6 +63,7 @@ Features:
 	Some way to delete multiplayer saves from within the KaM Remake
 	Gameplay modes in multiplayer: no iron, no archers, no market, no towers, etc. Host can select multiple modes.
 	Saves scan should be done in separate thread to unlock GUI
+	Allow listboxes to handle up/down arrows
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture

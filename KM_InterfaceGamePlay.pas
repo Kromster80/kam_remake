@@ -936,19 +936,20 @@ begin
   Panel_Replay.Stretch;
 
     //Block all clicks except MinimapArea
-    with TKMShape.Create(Panel_Replay,-1+196,-1-8,Panel_Main.Width+2-196,196+2, $00000000) do
+    //We add one pixel to each side to make sure there are no gaps
+    with TKMShape.Create(Panel_Replay, -1+196, -1, Panel_Main.Width+2-196, 196+2, $00000000) do
       Anchors := [akLeft, akTop, akRight];
-    with TKMShape.Create(Panel_Replay,-1,-1-8+196,Panel_Main.Width+2,Panel_Main.Height+2-196, $00000000) do
+    with TKMShape.Create(Panel_Replay, -1, -1+196, Panel_Main.Width+2, Panel_Main.Height+2-196, $00000000) do
       Anchors := [akLeft, akTop, akRight, akBottom];
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
-      Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl, 80, 2, 160, 0, '<<<LEER>>>', fnt_Grey, taCenter);
-      Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl, 0, 24, 24, 24, 'I<', fnt_Metal);
-      Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl,25, 24, 24, 24, 'II', fnt_Metal);
-      Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl,50, 24, 24, 24, '\\', fnt_Metal);
-      Button_ReplayResume   := TKMButton.Create(Panel_ReplayCtrl,75, 24, 24, 24, 'I>', fnt_Metal);
-      Button_ReplayExit     := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 'X', fnt_Metal);
+      Label_Replay          := TKMLabel.Create(Panel_ReplayCtrl,  80,  2, 160, 0, '<<<LEER>>>', fnt_Grey, taCenter);
+      Button_ReplayRestart  := TKMButton.Create(Panel_ReplayCtrl,  0, 24, 24, 24, 'I<', fnt_Metal);
+      Button_ReplayPause    := TKMButton.Create(Panel_ReplayCtrl, 25, 24, 24, 24, 'II', fnt_Metal);
+      Button_ReplayStep     := TKMButton.Create(Panel_ReplayCtrl, 50, 24, 24, 24, '\\', fnt_Metal);
+      Button_ReplayResume   := TKMButton.Create(Panel_ReplayCtrl, 75, 24, 24, 24, 'I>', fnt_Metal);
+      Button_ReplayExit     := TKMButton.Create(Panel_ReplayCtrl,100, 24, 24, 24, 'X',  fnt_Metal);
       Button_ReplayRestart.OnClick := ReplayClick;
       Button_ReplayPause.OnClick   := ReplayClick;
       Button_ReplayStep.OnClick    := ReplayClick;
